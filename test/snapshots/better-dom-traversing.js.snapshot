@@ -1,0 +1,568 @@
+exports[`better-dom-traversing > invalid(1): element.childNodes[0]; 1`] = `
+
+  1 | element.childNodes[0];
+
+`;
+
+exports[`better-dom-traversing > invalid(1): element.childNodes[0]; 2`] = `
+
+Message:
+> 1 | element.childNodes[0];
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer \`.firstChild\` over \`.childNodes[0]\`.
+
+Suggestion 1/1: Switch to \`.firstChild\`.:
+  1 | element.firstChild;
+
+`;
+
+exports[`better-dom-traversing > invalid(10): element.querySelector(\"a\").querySelector(\"b\"); 1`] = `
+
+  1 | element.querySelector("a").querySelector("b");
+
+`;
+
+exports[`better-dom-traversing > invalid(10): element.querySelector(\"a\").querySelector(\"b\"); 2`] = `
+
+Message:
+> 1 | element.querySelector("a").querySelector("b");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider merging chained \`.querySelector()\` calls.
+
+Suggestion 1/1: Merge the \`.querySelector()\` calls.:
+  1 | element.querySelector(":scope a b");
+
+`;
+
+exports[`better-dom-traversing > invalid(11): document.querySelector(\"a\").querySelector(\"b\"); 1`] = `
+
+  1 | document.querySelector("a").querySelector("b");
+
+`;
+
+exports[`better-dom-traversing > invalid(11): document.querySelector(\"a\").querySelector(\"b\"); 2`] = `
+
+Message:
+> 1 | document.querySelector("a").querySelector("b");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider merging chained \`.querySelector()\` calls.
+
+Suggestion 1/1: Merge the \`.querySelector()\` calls.:
+  1 | document.querySelector("a b");
+
+`;
+
+exports[`better-dom-traversing > invalid(12): document.body.querySelector(\"a\").querySelector(\"b\"); 1`] = `
+
+  1 | document.body.querySelector("a").querySelector("b");
+
+`;
+
+exports[`better-dom-traversing > invalid(12): document.body.querySelector(\"a\").querySelector(\"b\"); 2`] = `
+
+Message:
+> 1 | document.body.querySelector("a").querySelector("b");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider merging chained \`.querySelector()\` calls.
+
+Suggestion 1/1: Merge the \`.querySelector()\` calls.:
+  1 | document.body.querySelector(":scope a b");
+
+`;
+
+exports[`better-dom-traversing > invalid(13): element.querySelector('a').querySelector('b'); 1`] = `
+
+  1 | element.querySelector('a').querySelector('b');
+
+`;
+
+exports[`better-dom-traversing > invalid(13): element.querySelector('a').querySelector('b'); 2`] = `
+
+Message:
+> 1 | element.querySelector('a').querySelector('b');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider merging chained \`.querySelector()\` calls.
+
+Suggestion 1/1: Merge the \`.querySelector()\` calls.:
+  1 | element.querySelector(':scope a b');
+
+`;
+
+exports[`better-dom-traversing > invalid(14): element.querySelector(\`a\`).querySelector(\`b\`); 1`] = `
+
+  1 | element.querySelector(\`a\`).querySelector(\`b\`);
+
+`;
+
+exports[`better-dom-traversing > invalid(14): element.querySelector(\`a\`).querySelector(\`b\`); 2`] = `
+
+Message:
+> 1 | element.querySelector(\`a\`).querySelector(\`b\`);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider merging chained \`.querySelector()\` calls.
+
+Suggestion 1/1: Merge the \`.querySelector()\` calls.:
+  1 | element.querySelector(':scope a b');
+
+`;
+
+exports[`better-dom-traversing > invalid(15): element.querySelector(\"a\").querySelector(\`b\`); 1`] = `
+
+  1 | element.querySelector("a").querySelector(\`b\`);
+
+`;
+
+exports[`better-dom-traversing > invalid(15): element.querySelector(\"a\").querySelector(\`b\`); 2`] = `
+
+Message:
+> 1 | element.querySelector("a").querySelector(\`b\`);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider merging chained \`.querySelector()\` calls.
+
+Suggestion 1/1: Merge the \`.querySelector()\` calls.:
+  1 | element.querySelector(":scope a b");
+
+`;
+
+exports[`better-dom-traversing > invalid(16): element.querySelector(\"a > b\").querySelector(\".c\"); 1`] = `
+
+  1 | element.querySelector("a > b").querySelector(".c");
+
+`;
+
+exports[`better-dom-traversing > invalid(16): element.querySelector(\"a > b\").querySelector(\".c\"); 2`] = `
+
+Message:
+> 1 | element.querySelector("a > b").querySelector(".c");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider merging chained \`.querySelector()\` calls.
+
+Suggestion 1/1: Merge the \`.querySelector()\` calls.:
+  1 | element.querySelector(":scope a > b .c");
+
+`;
+
+exports[`better-dom-traversing > invalid(17): element.querySelector(\".a, .b\").querySelector(\".c\"); 1`] = `
+
+  1 | element.querySelector(".a, .b").querySelector(".c");
+
+`;
+
+exports[`better-dom-traversing > invalid(17): element.querySelector(\".a, .b\").querySelector(\".c\"); 2`] = `
+
+Message:
+> 1 | element.querySelector(".a, .b").querySelector(".c");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider merging chained \`.querySelector()\` calls.
+
+`;
+
+exports[`better-dom-traversing > invalid(18): element.querySelector(\".a\").querySelector(\".b, .c\"); 1`] = `
+
+  1 | element.querySelector(".a").querySelector(".b, .c");
+
+`;
+
+exports[`better-dom-traversing > invalid(18): element.querySelector(\".a\").querySelector(\".b, .c\"); 2`] = `
+
+Message:
+> 1 | element.querySelector(".a").querySelector(".b, .c");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider merging chained \`.querySelector()\` calls.
+
+`;
+
+exports[`better-dom-traversing > invalid(19): element.querySelector(\":scope a\").querySelector(\"b\"); 1`] = `
+
+  1 | element.querySelector(":scope a").querySelector("b");
+
+`;
+
+exports[`better-dom-traversing > invalid(19): element.querySelector(\":scope a\").querySelector(\"b\"); 2`] = `
+
+Message:
+> 1 | element.querySelector(":scope a").querySelector("b");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider merging chained \`.querySelector()\` calls.
+
+`;
+
+exports[`better-dom-traversing > invalid(2): (element.childNodes)[0]; 1`] = `
+
+  1 | (element.childNodes)[0];
+
+`;
+
+exports[`better-dom-traversing > invalid(2): (element.childNodes)[0]; 2`] = `
+
+Message:
+> 1 | (element.childNodes)[0];
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.firstChild\` over \`.childNodes[0]\`.
+
+Suggestion 1/1: Switch to \`.firstChild\`.:
+  1 | (element.firstChild);
+
+`;
+
+exports[`better-dom-traversing > invalid(20): element.querySelector(\"a\").querySelector(\"b\").querySelector(\"c\"); 1`] = `
+
+  1 | element.querySelector("a").querySelector("b").querySelector("c");
+
+`;
+
+exports[`better-dom-traversing > invalid(20): element.querySelector(\"a\").querySelector(\"b\").querySelector(\"c\"); 2`] = `
+
+Message:
+> 1 | element.querySelector("a").querySelector("b").querySelector("c");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider merging chained \`.querySelector()\` calls.
+
+Suggestion 1/1: Merge the \`.querySelector()\` calls.:
+  1 | element.querySelector(":scope a b c");
+
+`;
+
+exports[`better-dom-traversing > invalid(21): element.querySelector(\"a\").querySelector(\"b\").querySelector(selector); 1`] = `
+
+  1 | element.querySelector("a").querySelector("b").querySelector(selector);
+
+`;
+
+exports[`better-dom-traversing > invalid(21): element.querySelector(\"a\").querySelector(\"b\").querySelector(selector); 2`] = `
+
+Message:
+> 1 | element.querySelector("a").querySelector("b").querySelector(selector);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider merging chained \`.querySelector()\` calls.
+
+Suggestion 1/1: Merge the \`.querySelector()\` calls.:
+  1 | element.querySelector(":scope a b").querySelector(selector);
+
+`;
+
+exports[`better-dom-traversing > invalid(22): element.querySelector(selector).querySelector(\"b\").querySelector(\"c\"); 1`] = `
+
+  1 | element.querySelector(selector).querySelector("b").querySelector("c");
+
+`;
+
+exports[`better-dom-traversing > invalid(22): element.querySelector(selector).querySelector(\"b\").querySelector(\"c\"); 2`] = `
+
+Message:
+> 1 | element.querySelector(selector).querySelector("b").querySelector("c");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider merging chained \`.querySelector()\` calls.
+
+Suggestion 1/1: Merge the \`.querySelector()\` calls.:
+  1 | element.querySelector(selector).querySelector(":scope b c");
+
+`;
+
+exports[`better-dom-traversing > invalid(23): (getElement()).querySelector(\"a\").querySelector(\"b\"); 1`] = `
+
+  1 | (getElement()).querySelector("a").querySelector("b");
+
+`;
+
+exports[`better-dom-traversing > invalid(23): (getElement()).querySelector(\"a\").querySelector(\"b\"); 2`] = `
+
+Message:
+> 1 | (getElement()).querySelector("a").querySelector("b");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider merging chained \`.querySelector()\` calls.
+
+Suggestion 1/1: Merge the \`.querySelector()\` calls.:
+  1 | (getElement()).querySelector(":scope a b");
+
+`;
+
+exports[`better-dom-traversing > invalid(24): (foo || bar).querySelector(\"a\").querySelector(\"b\"); 1`] = `
+
+  1 | (foo || bar).querySelector("a").querySelector("b");
+
+`;
+
+exports[`better-dom-traversing > invalid(24): (foo || bar).querySelector(\"a\").querySelector(\"b\"); 2`] = `
+
+Message:
+> 1 | (foo || bar).querySelector("a").querySelector("b");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider merging chained \`.querySelector()\` calls.
+
+Suggestion 1/1: Merge the \`.querySelector()\` calls.:
+  1 | (foo || bar).querySelector(":scope a b");
+
+`;
+
+exports[`better-dom-traversing > invalid(25): element.childNodes[/* comment */ 0]; 1`] = `
+
+  1 | element.childNodes[/* comment */ 0];
+
+`;
+
+exports[`better-dom-traversing > invalid(25): element.childNodes[/* comment */ 0]; 2`] = `
+
+Message:
+> 1 | element.childNodes[/* comment */ 0];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.firstChild\` over \`.childNodes[0]\`.
+
+`;
+
+exports[`better-dom-traversing > invalid(26): element.children[/* comment */ 0]; 1`] = `
+
+  1 | element.children[/* comment */ 0];
+
+`;
+
+exports[`better-dom-traversing > invalid(26): element.children[/* comment */ 0]; 2`] = `
+
+Message:
+> 1 | element.children[/* comment */ 0];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.firstElementChild\` over \`.children[0]\`.
+
+`;
+
+exports[`better-dom-traversing > invalid(27): element.querySelector(/* comment */ \"a\").querySelector(\"b\"); 1`] = `
+
+  1 | element.querySelector(/* comment */ "a").querySelector("b");
+
+`;
+
+exports[`better-dom-traversing > invalid(27): element.querySelector(/* comment */ \"a\").querySelector(\"b\"); 2`] = `
+
+Message:
+> 1 | element.querySelector(/* comment */ "a").querySelector("b");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider merging chained \`.querySelector()\` calls.
+
+`;
+
+exports[`better-dom-traversing > invalid(28): element.querySelector(\"a\").querySelector(/* comment */ \"b\"); 1`] = `
+
+  1 | element.querySelector("a").querySelector(/* comment */ "b");
+
+`;
+
+exports[`better-dom-traversing > invalid(28): element.querySelector(\"a\").querySelector(/* comment */ \"b\"); 2`] = `
+
+Message:
+> 1 | element.querySelector("a").querySelector(/* comment */ "b");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider merging chained \`.querySelector()\` calls.
+
+`;
+
+exports[`better-dom-traversing > invalid(29): const item = element\n\t.children[0]; 1`] = `
+
+  1 | const item = element
+  2 | 	.children[0];
+
+`;
+
+exports[`better-dom-traversing > invalid(29): const item = element\n\t.children[0]; 2`] = `
+
+Message:
+> 1 | const item = element
+    |              ^^^^^^^
+> 2 | 	.children[0];
+    | ^^^^^^^^^^^^^ Prefer \`.firstElementChild\` over \`.children[0]\`.
+
+Suggestion 1/1: Switch to \`.firstElementChild\`.:
+  1 | const item = element
+  2 | 	.firstElementChild;
+
+`;
+
+exports[`better-dom-traversing > invalid(3): (element.children)[0]; 1`] = `
+
+  1 | (element.children)[0];
+
+`;
+
+exports[`better-dom-traversing > invalid(3): (element.children)[0]; 2`] = `
+
+Message:
+> 1 | (element.children)[0];
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer \`.firstElementChild\` over \`.children[0]\`.
+
+Suggestion 1/1: Switch to \`.firstElementChild\`.:
+  1 | (element.firstElementChild);
+
+`;
+
+exports[`better-dom-traversing > invalid(30): const item = element\n\t.querySelector(\"a\")\n\t.querySelector(\"b\"); 1`] = `
+
+  1 | const item = element
+  2 | 	.querySelector("a")
+  3 | 	.querySelector("b");
+
+`;
+
+exports[`better-dom-traversing > invalid(30): const item = element\n\t.querySelector(\"a\")\n\t.querySelector(\"b\"); 2`] = `
+
+Message:
+> 1 | const item = element
+    |              ^^^^^^^
+> 2 | 	.querySelector("a")
+    | ^^^^^^^^^^^^^^^^^^^^
+> 3 | 	.querySelector("b");
+    | ^^^^^^^^^^^^^^^^^^^^ Consider merging chained \`.querySelector()\` calls.
+
+Suggestion 1/1: Merge the \`.querySelector()\` calls.:
+  1 | const item = element.querySelector(":scope a b");
+
+`;
+
+exports[`better-dom-traversing > invalid(31): element.childNodes[0].textContent = text; 1`] = `
+
+  1 | element.childNodes[0].textContent = text;
+
+`;
+
+exports[`better-dom-traversing > invalid(31): element.childNodes[0].textContent = text; 2`] = `
+
+Message:
+> 1 | element.childNodes[0].textContent = text;
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer \`.firstChild\` over \`.childNodes[0]\`.
+
+Suggestion 1/1: Switch to \`.firstChild\`.:
+  1 | element.firstChild.textContent = text;
+
+`;
+
+exports[`better-dom-traversing > invalid(32): window.document.querySelector(\"a\").querySelector(\"b\"); 1`] = `
+
+  1 | window.document.querySelector("a").querySelector("b");
+
+`;
+
+exports[`better-dom-traversing > invalid(32): window.document.querySelector(\"a\").querySelector(\"b\"); 2`] = `
+
+Message:
+> 1 | window.document.querySelector("a").querySelector("b");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider merging chained \`.querySelector()\` calls.
+
+Suggestion 1/1: Merge the \`.querySelector()\` calls.:
+  1 | window.document.querySelector("a b");
+
+`;
+
+exports[`better-dom-traversing > invalid(33): globalThis.document.querySelector(\"a\").querySelector(\"b\"); 1`] = `
+
+  1 | globalThis.document.querySelector("a").querySelector("b");
+
+`;
+
+exports[`better-dom-traversing > invalid(33): globalThis.document.querySelector(\"a\").querySelector(\"b\"); 2`] = `
+
+Message:
+> 1 | globalThis.document.querySelector("a").querySelector("b");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider merging chained \`.querySelector()\` calls.
+
+Suggestion 1/1: Merge the \`.querySelector()\` calls.:
+  1 | globalThis.document.querySelector("a b");
+
+`;
+
+exports[`better-dom-traversing > invalid(34): window.frame.querySelector(\"a\").querySelector(\"b\"); 1`] = `
+
+  1 | window.frame.querySelector("a").querySelector("b");
+
+`;
+
+exports[`better-dom-traversing > invalid(34): window.frame.querySelector(\"a\").querySelector(\"b\"); 2`] = `
+
+Message:
+> 1 | window.frame.querySelector("a").querySelector("b");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider merging chained \`.querySelector()\` calls.
+
+Suggestion 1/1: Merge the \`.querySelector()\` calls.:
+  1 | window.frame.querySelector(":scope a b");
+
+`;
+
+exports[`better-dom-traversing > invalid(35): window[document].querySelector(\"a\").querySelector(\"b\"); 1`] = `
+
+  1 | window[document].querySelector("a").querySelector("b");
+
+`;
+
+exports[`better-dom-traversing > invalid(35): window[document].querySelector(\"a\").querySelector(\"b\"); 2`] = `
+
+Message:
+> 1 | window[document].querySelector("a").querySelector("b");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider merging chained \`.querySelector()\` calls.
+
+Suggestion 1/1: Merge the \`.querySelector()\` calls.:
+  1 | window[document].querySelector(":scope a b");
+
+`;
+
+exports[`better-dom-traversing > invalid(4): element.children[0]; 1`] = `
+
+  1 | element.children[0];
+
+`;
+
+exports[`better-dom-traversing > invalid(4): element.children[0]; 2`] = `
+
+Message:
+> 1 | element.children[0];
+    | ^^^^^^^^^^^^^^^^^^^ Prefer \`.firstElementChild\` over \`.children[0]\`.
+
+Suggestion 1/1: Switch to \`.firstElementChild\`.:
+  1 | element.firstElementChild;
+
+`;
+
+exports[`better-dom-traversing > invalid(5): element.children[1]; 1`] = `
+
+  1 | element.children[1];
+
+`;
+
+exports[`better-dom-traversing > invalid(5): element.children[1]; 2`] = `
+
+Message:
+> 1 | element.children[1];
+    | ^^^^^^^^^^^^^^^^^^^ Consider \`.querySelector()\` over positional child traversal.
+
+`;
+
+exports[`better-dom-traversing > invalid(6): element.children[10]; 1`] = `
+
+  1 | element.children[10];
+
+`;
+
+exports[`better-dom-traversing > invalid(6): element.children[10]; 2`] = `
+
+Message:
+> 1 | element.children[10];
+    | ^^^^^^^^^^^^^^^^^^^^ Consider \`.querySelector()\` over positional child traversal.
+
+`;
+
+exports[`better-dom-traversing > invalid(7): element.children[1].children[2]; 1`] = `
+
+  1 | element.children[1].children[2];
+
+`;
+
+exports[`better-dom-traversing > invalid(7): element.children[1].children[2]; 2`] = `
+
+Message:
+> 1 | element.children[1].children[2];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider \`.querySelector()\` over positional child traversal.
+
+`;
+
+exports[`better-dom-traversing > invalid(8): element.parentElement.parentElement; 1`] = `
+
+  1 | element.parentElement.parentElement;
+
+`;
+
+exports[`better-dom-traversing > invalid(8): element.parentElement.parentElement; 2`] = `
+
+Message:
+> 1 | element.parentElement.parentElement;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider \`.closest()\` over chaining \`.parentElement\`.
+
+`;
+
+exports[`better-dom-traversing > invalid(9): element.parentElement.parentElement.parentElement; 1`] = `
+
+  1 | element.parentElement.parentElement.parentElement;
+
+`;
+
+exports[`better-dom-traversing > invalid(9): element.parentElement.parentElement.parentElement; 2`] = `
+
+Message:
+> 1 | element.parentElement.parentElement.parentElement;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Consider \`.closest()\` over chaining \`.parentElement\`.
+
+`;

@@ -1,0 +1,612 @@
+exports[`no-unnecessary-boolean-comparison > invalid(1): const result = (a > b) === true; 1`] = `
+
+  1 | const result = (a > b) === true;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(1): const result = (a > b) === true; 2`] = `
+
+Message:
+> 1 | const result = (a > b) === true;
+    |                ^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const result = (a > b);
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(10): const result = true !== (a > b); 1`] = `
+
+  1 | const result = true !== (a > b);
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(10): const result = true !== (a > b); 2`] = `
+
+Message:
+> 1 | const result = true !== (a > b);
+    |                ^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const result = !(a > b);
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(11): if ((a > b) === true) {} 1`] = `
+
+  1 | if ((a > b) === true) {}
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(11): if ((a > b) === true) {} 2`] = `
+
+Message:
+> 1 | if ((a > b) === true) {}
+    |     ^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | if ((a > b)) {}
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(12): if ((a > b) === false) {} 1`] = `
+
+  1 | if ((a > b) === false) {}
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(12): if ((a > b) === false) {} 2`] = `
+
+Message:
+> 1 | if ((a > b) === false) {}
+    |     ^^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | if (!(a > b)) {}
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(13): const result = Boolean(value) === true; 1`] = `
+
+  1 | const result = Boolean(value) === true;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(13): const result = Boolean(value) === true; 2`] = `
+
+Message:
+> 1 | const result = Boolean(value) === true;
+    |                ^^^^^^^^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const result = Boolean(value);
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(14): const result = !value === false; 1`] = `
+
+  1 | const result = !value === false;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(14): const result = !value === false; 2`] = `
+
+Message:
+> 1 | const result = !value === false;
+    |                ^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const result = !!value;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(15): async function foo() {\n\tconst result = await (a > b) === false;\n} 1`] = `
+
+  1 | async function foo() {
+  2 | 	const result = await (a > b) === false;
+  3 | }
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(15): async function foo() {\n\tconst result = await (a > b) === false;\n} 2`] = `
+
+Message:
+  1 | async function foo() {
+> 2 | 	const result = await (a > b) === false;
+    | 	               ^^^^^^^^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+  3 | }
+
+Output:
+  1 | async function foo() {
+  2 | 	const result = !await (a > b);
+  3 | }
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(16): const result = (a > b && c > d) === true; 1`] = `
+
+  1 | const result = (a > b && c > d) === true;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(16): const result = (a > b && c > d) === true; 2`] = `
+
+Message:
+> 1 | const result = (a > b && c > d) === true;
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const result = (a > b && c > d);
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(17): const result = (a > b && c > d) === false; 1`] = `
+
+  1 | const result = (a > b && c > d) === false;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(17): const result = (a > b && c > d) === false; 2`] = `
+
+Message:
+> 1 | const result = (a > b && c > d) === false;
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const result = !(a > b && c > d);
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(18): const result = (a > b ? c > d : e > f) === false; 1`] = `
+
+  1 | const result = (a > b ? c > d : e > f) === false;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(18): const result = (a > b ? c > d : e > f) === false; 2`] = `
+
+Message:
+> 1 | const result = (a > b ? c > d : e > f) === false;
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const result = !(a > b ? c > d : e > f);
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(19): const result = (flag = a > b) === true; 1`] = `
+
+  1 | const result = (flag = a > b) === true;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(19): const result = (flag = a > b) === true; 2`] = `
+
+Message:
+> 1 | const result = (flag = a > b) === true;
+    |                ^^^^^^^^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const result = (flag = a > b);
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(2): const result = (a > b) !== false; 1`] = `
+
+  1 | const result = (a > b) !== false;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(2): const result = (a > b) !== false; 2`] = `
+
+Message:
+> 1 | const result = (a > b) !== false;
+    |                ^^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const result = (a > b);
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(20): const result = (a > b, c > d) === false; 1`] = `
+
+  1 | const result = (a > b, c > d) === false;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(20): const result = (a > b, c > d) === false; 2`] = `
+
+Message:
+> 1 | const result = (a > b, c > d) === false;
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const result = !(a > b, c > d);
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(21): const result = ([value].includes(value)) === true; 1`] = `
+
+  1 | const result = ([value].includes(value)) === true;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(21): const result = ([value].includes(value)) === true; 2`] = `
+
+Message:
+> 1 | const result = ([value].includes(value)) === true;
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const result = ([value].includes(value));
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(22): const result = ((a > b) === true).toString(); 1`] = `
+
+  1 | const result = ((a > b) === true).toString();
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(22): const result = ((a > b) === true).toString(); 2`] = `
+
+Message:
+> 1 | const result = ((a > b) === true).toString();
+    |                 ^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const result = ((a > b)).toString();
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(23): const result = ((a > b) === false).toString(); 1`] = `
+
+  1 | const result = ((a > b) === false).toString();
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(23): const result = ((a > b) === false).toString(); 2`] = `
+
+Message:
+> 1 | const result = ((a > b) === false).toString();
+    |                 ^^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const result = (!(a > b)).toString();
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(24): const result = (a > b) /* comment */ === true; 1`] = `
+
+  1 | const result = (a > b) /* comment */ === true;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(24): const result = (a > b) /* comment */ === true; 2`] = `
+
+Message:
+> 1 | const result = (a > b) /* comment */ === true;
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(25): const flag = a > b;\nconst result = flag === true; 1`] = `
+
+  1 | const flag = a > b;
+  2 | const result = flag === true;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(25): const flag = a > b;\nconst result = flag === true; 2`] = `
+
+Message:
+  1 | const flag = a > b;
+> 2 | const result = flag === true;
+    |                ^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const flag = a > b;
+  2 | const result = flag;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(26): function isEnabled() {\n\treturn a > b;\n}\n\nconst result = isEnabled() === true; 1`] = `
+
+  1 | function isEnabled() {
+  2 | 	return a > b;
+  3 | }
+  4 |
+  5 | const result = isEnabled() === true;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(26): function isEnabled() {\n\treturn a > b;\n}\n\nconst result = isEnabled() === true; 2`] = `
+
+Message:
+  1 | function isEnabled() {
+  2 | 	return a > b;
+  3 | }
+  4 |
+> 5 | const result = isEnabled() === true;
+    |                ^^^^^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | function isEnabled() {
+  2 | 	return a > b;
+  3 | }
+  4 |
+  5 | const result = isEnabled();
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(27): const foo = ({bar = false}: {bar?: boolean}) => bar === false; 1`] = `
+
+Filename: file.ts
+
+  1 | const foo = ({bar = false}: {bar?: boolean}) => bar === false;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(27): const foo = ({bar = false}: {bar?: boolean}) => bar === false; 2`] = `
+
+Message:
+> 1 | const foo = ({bar = false}: {bar?: boolean}) => bar === false;
+    |                                                 ^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const foo = ({bar = false}: {bar?: boolean}) => !bar;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(28): let flag: boolean;\nconst result = flag === true; 1`] = `
+
+  1 | let flag: boolean;
+  2 | const result = flag === true;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(28): let flag: boolean;\nconst result = flag === true; 2`] = `
+
+Message:
+  1 | let flag: boolean;
+> 2 | const result = flag === true;
+    |                ^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | let flag: boolean;
+  2 | const result = flag;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(29): let flag: true | false;\nconst result = false === flag; 1`] = `
+
+  1 | let flag: true | false;
+  2 | const result = false === flag;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(29): let flag: true | false;\nconst result = false === flag; 2`] = `
+
+Message:
+  1 | let flag: true | false;
+> 2 | const result = false === flag;
+    |                ^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | let flag: true | false;
+  2 | const result = !flag;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(3): const result = (a > b) === false; 1`] = `
+
+  1 | const result = (a > b) === false;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(3): const result = (a > b) === false; 2`] = `
+
+Message:
+> 1 | const result = (a > b) === false;
+    |                ^^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const result = !(a > b);
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(30): const result = (flag as boolean) !== true; 1`] = `
+
+  1 | const result = (flag as boolean) !== true;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(30): const result = (flag as boolean) !== true; 2`] = `
+
+Message:
+> 1 | const result = (flag as boolean) !== true;
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const result = !(flag as boolean);
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(31): const result = <boolean>flag !== true; 1`] = `
+
+  1 | const result = <boolean>flag !== true;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(31): const result = <boolean>flag !== true; 2`] = `
+
+Message:
+> 1 | const result = <boolean>flag !== true;
+    |                ^^^^^^^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const result = !(<boolean>flag);
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(32): const result = (flag satisfies boolean) === false; 1`] = `
+
+  1 | const result = (flag satisfies boolean) === false;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(32): const result = (flag satisfies boolean) === false; 2`] = `
+
+Message:
+> 1 | const result = (flag satisfies boolean) === false;
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const result = !(flag satisfies boolean);
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(33): let flag: boolean;\nconst result = flag! === true; 1`] = `
+
+  1 | let flag: boolean;
+  2 | const result = flag! === true;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(33): let flag: boolean;\nconst result = flag! === true; 2`] = `
+
+Message:
+  1 | let flag: boolean;
+> 2 | const result = flag! === true;
+    |                ^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | let flag: boolean;
+  2 | const result = flag!;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(34): function * foo() {\n\tconst result = [a, b].some(item => item > c) === false;\n} 1`] = `
+
+  1 | function * foo() {
+  2 | 	const result = [a, b].some(item => item > c) === false;
+  3 | }
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(34): function * foo() {\n\tconst result = [a, b].some(item => item > c) === false;\n} 2`] = `
+
+Message:
+  1 | function * foo() {
+> 2 | 	const result = [a, b].some(item => item > c) === false;
+    | 	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+  3 | }
+
+Output:
+  1 | function * foo() {
+  2 | 	const result = ![a, b].some(item => item > c);
+  3 | }
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(4): const result = (a > b) !== true; 1`] = `
+
+  1 | const result = (a > b) !== true;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(4): const result = (a > b) !== true; 2`] = `
+
+Message:
+> 1 | const result = (a > b) !== true;
+    |                ^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const result = !(a > b);
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(5): const result = a > b === true; 1`] = `
+
+  1 | const result = a > b === true;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(5): const result = a > b === true; 2`] = `
+
+Message:
+> 1 | const result = a > b === true;
+    |                ^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const result = (a > b);
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(6): const result = a > b === false; 1`] = `
+
+  1 | const result = a > b === false;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(6): const result = a > b === false; 2`] = `
+
+Message:
+> 1 | const result = a > b === false;
+    |                ^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const result = !(a > b);
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(7): const result = true === (a > b); 1`] = `
+
+  1 | const result = true === (a > b);
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(7): const result = true === (a > b); 2`] = `
+
+Message:
+> 1 | const result = true === (a > b);
+    |                ^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const result = (a > b);
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(8): const result = false !== (a > b); 1`] = `
+
+  1 | const result = false !== (a > b);
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(8): const result = false !== (a > b); 2`] = `
+
+Message:
+> 1 | const result = false !== (a > b);
+    |                ^^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const result = (a > b);
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(9): const result = false === (a > b); 1`] = `
+
+  1 | const result = false === (a > b);
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(9): const result = false === (a > b); 2`] = `
+
+Message:
+> 1 | const result = false === (a > b);
+    |                ^^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | const result = !(a > b);
+
+`;

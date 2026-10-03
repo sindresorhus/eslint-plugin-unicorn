@@ -241,11 +241,6 @@ function getLessComparison(node, context) {
 	};
 }
 
-function getAbsoluteValueText(node, context) {
-	const text = getParenthesizedText(node, context);
-	return node.type === 'SequenceExpression' ? `(${text})` : text;
-}
-
 function hasCommentsInside(node, context) {
 	return context.sourceCode.getCommentsInside(node).length > 0;
 }
@@ -359,7 +354,7 @@ const create = context => {
 		const fix = isSideEffectFreeReference(value)
 			? function * (fixer) {
 				yield fixSpaceAroundKeyword(fixer, conditionalExpression, context);
-				yield fixer.replaceText(conditionalExpression, `Math.abs(${getAbsoluteValueText(value, context)})`);
+				yield fixer.replaceText(conditionalExpression, `Math.abs(${getParenthesizedText(value, context)})`);
 			}
 			: undefined;
 
@@ -384,7 +379,7 @@ const create = context => {
 		)
 			? function * (fixer) {
 				yield fixSpaceAroundKeyword(fixer, logicalExpression, context);
-				yield fixer.replaceText(logicalExpression, `Math.abs(${getAbsoluteValueText(value, context)}) ${operator} ${getParenthesizedText(threshold, context)}`);
+				yield fixer.replaceText(logicalExpression, `Math.abs(${getParenthesizedText(value, context)}) ${operator} ${getParenthesizedText(threshold, context)}`);
 			}
 			: undefined;
 

@@ -277,7 +277,8 @@ test.snapshot({
 		'Object.hasOwn(element.dataset, "foo bar")',
 		'element.dataset.hasOwnProperty("foo bar")',
 		'const {" foo": x} = element.dataset;',
-	].map(code => ({code, options: [{preferAttributes: true}]})),
+		{code: 'interface Item {dataset: Record<string, string>} declare const item: Item; const {foo} = item.dataset;', languageOptions: {parser: parsers.typescript}},
+	].map(code => ({options: [{preferAttributes: true}], ...(typeof code === 'string' ? {code} : code)})),
 	invalid: [
 		'element.dataset.unicorn;',
 		// Computed string-key read
@@ -382,6 +383,7 @@ test.snapshot({
 		'export const {foo} = element.dataset;',
 		// A type-asserted element is not a plain identifier, so report without fix
 		{code: 'const data = (element as HTMLElement).dataset; foo(data.fooBar);', languageOptions: {parser: parsers.typescript}},
+		{code: 'element!.dataset.unicorn;', languageOptions: {parser: parsers.typescript}},
 	].map(code => ({options: [{preferAttributes: true}], ...(typeof code === 'string' ? {code} : code)})),
 });
 

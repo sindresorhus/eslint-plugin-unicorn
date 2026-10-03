@@ -47,6 +47,22 @@ test.snapshot({
 		'database.exec(`SELECT ${value}`);',
 		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec();',
 		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(...queries);',
+		// Cyclic bindings stop resolving
+		'const first = second; const second = first; first.exec(`SELECT ${value}`);',
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const first = second; const second = first; database.exec(first);',
+		{
+			code: 'import {DatabaseSync} from "node:sqlite"; declare const database: DatabaseSync; database.exec(`SELECT ${value}`);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// A type-only binding at the top-level scope has no value binding to fall back to
+		{
+			code: 'type database = {}; database.exec(`SELECT ${value}`);',
+			languageOptions: {parser: parsers.typescript, sourceType: 'script'},
+		},
+		{
+			code: 'type database = {}; database.exec(`SELECT ${value}`);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(`SELECT * FROM users WHERE id = ${id}`);',
@@ -127,6 +143,12 @@ test.snapshot({
 		},
 		{
 			code: 'import * as sqlite from "node:sqlite"; const database = new (sqlite as typeof import("node:sqlite")).DatabaseSync(":memory:"); database.exec(`SELECT ${id}`);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const sql = `SELECT ${id}`; database.exec(sql); database.prepare(sql);',
+		// A type-only binding falls back to the value binding in an outer scope
+		{
+			code: 'import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); function run() { type database = string; database.exec(`SELECT ${id}`); }',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

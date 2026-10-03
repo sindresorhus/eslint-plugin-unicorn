@@ -49,6 +49,7 @@ test.snapshot({
 			code: 'const {foo, bar}: Options = {foo: false, bar: 1, ...options};',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'const {foo, bar} = {foo: false, foo: true, bar: 1, ...options};',
 	],
 	invalid: [
 		'const {foo, bar} = {foo: false, bar: 1, ...options};',

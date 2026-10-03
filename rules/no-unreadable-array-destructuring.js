@@ -47,10 +47,6 @@ function getMaximumConsecutiveIgnoredElements(elements) {
 function getParentPattern(node) {
 	const {parent} = node;
 
-	if (!parent) {
-		return;
-	}
-
 	if (
 		isTypeScriptExpressionWrapper(parent)
 		&& parent.expression === node

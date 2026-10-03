@@ -1,0 +1,480 @@
+exports[`no-duplicate-logical-operands > invalid(1): foo && foo 1`] = `
+
+  1 | foo && foo
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(1): foo && foo 2`] = `
+
+Message:
+> 1 | foo && foo
+    |        ^^^ This operand duplicates the left operand.
+
+Output:
+  1 | foo
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(10): foo && bar.baz && bar.baz 1`] = `
+
+  1 | foo && bar.baz && bar.baz
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(10): foo && bar.baz && bar.baz 2`] = `
+
+Message:
+> 1 | foo && bar.baz && bar.baz
+    |                   ^^^^^^^ This operand duplicates the left operand.
+
+Suggestion 1/1: Remove the duplicate operand.:
+  1 | foo && bar.baz
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(11): this.foo && this.foo 1`] = `
+
+  1 | this.foo && this.foo
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(11): this.foo && this.foo 2`] = `
+
+Message:
+> 1 | this.foo && this.foo
+    |             ^^^^^^^^ This operand duplicates the left operand.
+
+Suggestion 1/1: Remove the duplicate operand.:
+  1 | this.foo
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(12): class Foo {#foo; method() {return this.#foo && this.#foo;}} 1`] = `
+
+  1 | class Foo {#foo; method() {return this.#foo && this.#foo;}}
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(12): class Foo {#foo; method() {return this.#foo && this.#foo;}} 2`] = `
+
+Message:
+> 1 | class Foo {#foo; method() {return this.#foo && this.#foo;}}
+    |                                                ^^^^^^^^^ This operand duplicates the left operand.
+
+Suggestion 1/1: Remove the duplicate operand.:
+  1 | class Foo {#foo; method() {return this.#foo;}}
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(13): class Foo extends Bar {method() {return super.foo && super.foo;}} 1`] = `
+
+  1 | class Foo extends Bar {method() {return super.foo && super.foo;}}
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(13): class Foo extends Bar {method() {return super.foo && super.foo;}} 2`] = `
+
+Message:
+> 1 | class Foo extends Bar {method() {return super.foo && super.foo;}}
+    |                                                      ^^^^^^^^^ This operand duplicates the left operand.
+
+Suggestion 1/1: Remove the duplicate operand.:
+  1 | class Foo extends Bar {method() {return super.foo;}}
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(14): foo[bar] && foo[bar] 1`] = `
+
+  1 | foo[bar] && foo[bar]
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(14): foo[bar] && foo[bar] 2`] = `
+
+Message:
+> 1 | foo[bar] && foo[bar]
+    |             ^^^^^^^^ This operand duplicates the left operand.
+
+Suggestion 1/1: Remove the duplicate operand.:
+  1 | foo[bar]
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(15): foo[\"bar\"] || foo.bar 1`] = `
+
+  1 | foo["bar"] || foo.bar
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(15): foo[\"bar\"] || foo.bar 2`] = `
+
+Message:
+> 1 | foo["bar"] || foo.bar
+    |               ^^^^^^^ This operand duplicates the left operand.
+
+Suggestion 1/1: Remove the duplicate operand.:
+  1 | foo["bar"]
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(16): (foo as boolean) && (foo as boolean) 1`] = `
+
+  1 | (foo as boolean) && (foo as boolean)
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(16): (foo as boolean) && (foo as boolean) 2`] = `
+
+Message:
+> 1 | (foo as boolean) && (foo as boolean)
+    |                      ^^^^^^^^^^^^^^ This operand duplicates the left operand.
+
+Suggestion 1/1: Remove the duplicate operand.:
+  1 | (foo as boolean)
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(17): (foo as Foo) && (foo as Bar) 1`] = `
+
+  1 | (foo as Foo) && (foo as Bar)
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(17): (foo as Foo) && (foo as Bar) 2`] = `
+
+Message:
+> 1 | (foo as Foo) && (foo as Bar)
+    |                  ^^^^^^^^^^ This operand duplicates the left operand.
+
+Suggestion 1/1: Remove the duplicate operand.:
+  1 | (foo as Foo)
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(18): foo && (foo as Foo) 1`] = `
+
+  1 | foo && (foo as Foo)
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(18): foo && (foo as Foo) 2`] = `
+
+Message:
+> 1 | foo && (foo as Foo)
+    |         ^^^^^^^^^^ This operand duplicates the left operand.
+
+Suggestion 1/1: Remove the duplicate operand.:
+  1 | foo
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(19): (<boolean>foo) && (<boolean>foo) 1`] = `
+
+  1 | (<boolean>foo) && (<boolean>foo)
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(19): (<boolean>foo) && (<boolean>foo) 2`] = `
+
+Message:
+> 1 | (<boolean>foo) && (<boolean>foo)
+    |                    ^^^^^^^^^^^^ This operand duplicates the left operand.
+
+Suggestion 1/1: Remove the duplicate operand.:
+  1 | (<boolean>foo)
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(2): foo || foo 1`] = `
+
+  1 | foo || foo
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(2): foo || foo 2`] = `
+
+Message:
+> 1 | foo || foo
+    |        ^^^ This operand duplicates the left operand.
+
+Output:
+  1 | foo
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(20): foo! || foo! 1`] = `
+
+  1 | foo! || foo!
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(20): foo! || foo! 2`] = `
+
+Message:
+> 1 | foo! || foo!
+    |         ^^^^ This operand duplicates the left operand.
+
+Suggestion 1/1: Remove the duplicate operand.:
+  1 | foo!
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(21): foo! && foo 1`] = `
+
+  1 | foo! && foo
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(21): foo! && foo 2`] = `
+
+Message:
+> 1 | foo! && foo
+    |         ^^^ This operand duplicates the left operand.
+
+Suggestion 1/1: Remove the duplicate operand.:
+  1 | foo!
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(22): foo && foo! 1`] = `
+
+  1 | foo && foo!
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(22): foo && foo! 2`] = `
+
+Message:
+> 1 | foo && foo!
+    |        ^^^^ This operand duplicates the left operand.
+
+Suggestion 1/1: Remove the duplicate operand.:
+  1 | foo
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(23): (foo satisfies boolean) && (foo satisfies boolean) 1`] = `
+
+  1 | (foo satisfies boolean) && (foo satisfies boolean)
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(23): (foo satisfies boolean) && (foo satisfies boolean) 2`] = `
+
+Message:
+> 1 | (foo satisfies boolean) && (foo satisfies boolean)
+    |                             ^^^^^^^^^^^^^^^^^^^^^ This operand duplicates the left operand.
+
+Suggestion 1/1: Remove the duplicate operand.:
+  1 | (foo satisfies boolean)
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(24): foo && (foo satisfies Foo) 1`] = `
+
+  1 | foo && (foo satisfies Foo)
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(24): foo && (foo satisfies Foo) 2`] = `
+
+Message:
+> 1 | foo && (foo satisfies Foo)
+    |         ^^^^^^^^^^^^^^^^^ This operand duplicates the left operand.
+
+Suggestion 1/1: Remove the duplicate operand.:
+  1 | foo
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(25): foo /* keep */ && foo 1`] = `
+
+  1 | foo /* keep */ && foo
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(25): foo /* keep */ && foo 2`] = `
+
+Message:
+> 1 | foo /* keep */ && foo
+    |                   ^^^ This operand duplicates the left operand.
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(26): foo && /* keep */ foo 1`] = `
+
+  1 | foo && /* keep */ foo
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(26): foo && /* keep */ foo 2`] = `
+
+Message:
+> 1 | foo && /* keep */ foo
+    |                   ^^^ This operand duplicates the left operand.
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(27): foo && bar /* keep */ && bar 1`] = `
+
+  1 | foo && bar /* keep */ && bar
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(27): foo && bar /* keep */ && bar 2`] = `
+
+Message:
+> 1 | foo && bar /* keep */ && bar
+    |                          ^^^ This operand duplicates the left operand.
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(28): foo && (foo /* keep */) 1`] = `
+
+  1 | foo && (foo /* keep */)
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(28): foo && (foo /* keep */) 2`] = `
+
+Message:
+> 1 | foo && (foo /* keep */)
+    |         ^^^ This operand duplicates the left operand.
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(29): (foo /* keep */) && foo 1`] = `
+
+  1 | (foo /* keep */) && foo
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(29): (foo /* keep */) && foo 2`] = `
+
+Message:
+> 1 | (foo /* keep */) && foo
+    |                     ^^^ This operand duplicates the left operand.
+
+Output:
+  1 | (foo /* keep */)
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(3): foo && bar && bar 1`] = `
+
+  1 | foo && bar && bar
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(3): foo && bar && bar 2`] = `
+
+Message:
+> 1 | foo && bar && bar
+    |               ^^^ This operand duplicates the left operand.
+
+Output:
+  1 | foo && bar
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(4): foo || bar || bar 1`] = `
+
+  1 | foo || bar || bar
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(4): foo || bar || bar 2`] = `
+
+Message:
+> 1 | foo || bar || bar
+    |               ^^^ This operand duplicates the left operand.
+
+Output:
+  1 | foo || bar
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(5): (foo) && (foo) 1`] = `
+
+  1 | (foo) && (foo)
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(5): (foo) && (foo) 2`] = `
+
+Message:
+> 1 | (foo) && (foo)
+    |           ^^^ This operand duplicates the left operand.
+
+Output:
+  1 | (foo)
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(6): this && this 1`] = `
+
+  1 | this && this
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(6): this && this 2`] = `
+
+Message:
+> 1 | this && this
+    |         ^^^^ This operand duplicates the left operand.
+
+Output:
+  1 | this
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(7): foo.bar && foo.bar 1`] = `
+
+  1 | foo.bar && foo.bar
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(7): foo.bar && foo.bar 2`] = `
+
+Message:
+> 1 | foo.bar && foo.bar
+    |            ^^^^^^^ This operand duplicates the left operand.
+
+Suggestion 1/1: Remove the duplicate operand.:
+  1 | foo.bar
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(8): foo.bar || foo.bar 1`] = `
+
+  1 | foo.bar || foo.bar
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(8): foo.bar || foo.bar 2`] = `
+
+Message:
+> 1 | foo.bar || foo.bar
+    |            ^^^^^^^ This operand duplicates the left operand.
+
+Suggestion 1/1: Remove the duplicate operand.:
+  1 | foo.bar
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(9): foo.bar.baz && foo.bar.baz 1`] = `
+
+  1 | foo.bar.baz && foo.bar.baz
+
+`;
+
+exports[`no-duplicate-logical-operands > invalid(9): foo.bar.baz && foo.bar.baz 2`] = `
+
+Message:
+> 1 | foo.bar.baz && foo.bar.baz
+    |                ^^^^^^^^^^^ This operand duplicates the left operand.
+
+Suggestion 1/1: Remove the duplicate operand.:
+  1 | foo.bar.baz
+
+`;

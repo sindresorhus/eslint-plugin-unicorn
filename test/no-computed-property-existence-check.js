@@ -110,6 +110,7 @@ test.snapshot({
 		typeAware('declare const object: Record<string, string>;\ndeclare const key: string;\nif (object[key]) {}'),
 		// A possibly-`undefined` value is still ambiguous (#3406).
 		typeAware('declare const object: {a?: boolean};\ndeclare const key: \'a\';\nif (object[key]) {}'),
+		'if (object[first, second]) {}',
 	],
 });
 

@@ -132,7 +132,7 @@ Import from the barrel `index.js` in each directory (e.g., `import {isMethodCall
 
 Also check `../eslint-node-test/rules/ast/`, `../eslint-node-test/rules/utils/`, and `../eslint-node-test/rules/fix/` — some helpers there were adapted from here and may have picked up fixes or edge cases worth porting back.
 
-If a helper becomes complicated and clearly general across rules, consider moving it to a shared utility. Keep simple or rule-specific helpers local.
+When at least two rules need the same non-trivial logic, put it in a shared utility (`rules/utils/` for general helpers, `rules/shared/` for shared rule logic) and use it from each rule instead of duplicating it. This also applies when you write logic that an existing rule already has: extract it from that rule and use it in both. Keep trivial or rule-specific helpers local.
 
 Also use `@eslint-community/eslint-utils` for helpers like `findVariable`, `getStaticValue`, `hasSideEffect`, `getPropertyName`, and token predicates (`isCommaToken`, `isSemicolonToken`, etc.).
 
@@ -187,7 +187,7 @@ For rule documentation examples, prefer one failing (`// ❌`) example followed 
 
 Tests should be comprehensive with many edge cases, but no duplicate coverage. Add lots of focused edge-case tests for matching and fixes/suggestions. Add tests for edge cases the rule intentionally ignores to document the behavior.
 
-Tests use AVA. Prefer `test.snapshot()` which auto-generates snapshots for errors, fixes, and suggestions:
+Tests use the built-in `node:test` runner. Prefer `test.snapshot()` which auto-generates snapshots for errors, fixes, and suggestions:
 
 ```js
 import {getTester} from './utils/test.js';
@@ -202,11 +202,12 @@ test.snapshot({
 Other test modes: `test.typescript()` and `test.vue()` set the parser for all cases in the block. For individual TypeScript cases within a normal `test.snapshot()`, use `{code, parser: parsers.typescript}` instead. Import `parsers` from `./utils/test.js`.
 
 - **Never run integration tests** (`test/integration/test.js`). They are too slow for development.
-- **While developing, only run targeted tests**: `npx ava test/rule-name.js`. Do not run `npm test` or the full suite until all changes are complete.
+- **While developing, only run targeted tests**: `node --test test/rule-name.js`. Do not run `npm test` or the full suite until all changes are complete.
 - **Only run the full test suite (`npm test`) once at the very end** to confirm everything passes.
 - **For new rules, run dogfooding before pushing**: `npm run run-rules-on-codebase`. Re-run it after each fix — fixes to rule logic often surface new violations elsewhere. Delete any scratch files first (e.g. in `.ai-temporary/`), or the dogfooding run lints them too.
-- Update snapshots: `npx ava test/rule-name.js -u`
-- Focus a single case: wrap with `test.only('code')` or `test.only({code, options})` (remove before committing)
+- Create or update snapshots: `node --test --test-update-snapshots test/rule-name.js`. A new snapshot case fails until you do this. Snapshots are saved in `test/snapshots/rule-name.js.snapshot`.
+- Focus a single case: wrap with `test.only('code')` or `test.only({code, options})`, and run with `node --test --test-only test/rule-name.js` (remove before committing). Never update snapshots while `only` is used: the update rewrites the whole snapshot file, so the snapshots of the skipped cases are deleted.
+- Use `t.assert.*` inside tests, with the strict methods (`strictEqual`, `deepStrictEqual`), because `t.assert` is loose mode. Helpers outside tests import `node:assert/strict`.
 - For non-snapshot tests, use `test()` with explicit `errors` and `output`
 
 ### Edge cases to test
@@ -271,7 +272,7 @@ Name after the target construct, not the fix. Be specific: `no-array-method-this
 2. Write tests in `test/<rule>.js` before implementing the rule.
 3. Implement the rule in `rules/<rule>.js`.
 4. Write documentation in `docs/rules/<rule>.md` (below the auto-generated header).
-5. Run `npx ava test/<rule>.js` to verify tests pass.
+5. Run `node --test --test-update-snapshots test/<rule>.js` to create the snapshots, review them, then run `node --test test/<rule>.js` to verify tests pass.
 6. Before pushing, run lint (`npm run lint:js`, which runs `eslint` — see [Linting](#linting)), dogfooding (`npm run run-rules-on-codebase`), and then `npm test`. If dogfooding finds intentional internal patterns, disable the rule in `eslint.dogfooding.config.js` instead of adding repo-specific heuristics.
 
 ## Commit message format

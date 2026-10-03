@@ -95,6 +95,21 @@ test({
 				resolve = reject;
 			});
 		`,
+		'const promise = new Promise(resolve => {});',
+		outdent`
+			let resolve;
+			const promise = new Promise(resolve_ => {
+				resolve = value;
+			});
+		`,
+		outdent`
+			let resolve;
+			let otherResolve;
+			const promise = new Promise(resolve_ => {
+				resolve = resolve_;
+				otherResolve = resolve_;
+			});
+		`,
 	],
 	invalid: [
 		{
@@ -238,6 +253,45 @@ test({
 					resolve = resolve_;
 				});
 			`,
+			errors: [error],
+		},
+		{
+			code: outdent`
+				let resolve;
+				const promise: Promise<void> = new Promise(resolve_ => {
+					resolve = resolve_;
+				});
+			`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [error],
+		},
+		{
+			code: outdent`
+				let resolve;
+				let promise = new Promise(resolve_ => {
+					resolve = resolve_;
+				});
+			`,
+			errors: [error],
+		},
+		{
+			code: outdent`
+				let resolve;
+				const promise = new Promise(resolve_ => {
+					resolve = resolve_;
+				}), other = 1;
+			`,
+			errors: [error],
+		},
+		// The function name shadows the outer `resolve`, so the assignment does not write the declared variable
+		{
+			code: outdent`
+				let resolve;
+				const promise = new Promise(function resolve(resolve_) {
+					resolve = resolve_;
+				});
+			`,
+			languageOptions: {sourceType: 'script'},
 			errors: [error],
 		},
 	],

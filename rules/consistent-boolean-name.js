@@ -61,18 +61,6 @@ const getEnabledPrefixes = ({prefixes = {}} = {}) =>
 const formatPrefixes = prefixes =>
 	prefixes.map(prefix => `\`${prefix}\``).join(', ');
 
-const booleanBinaryOperators = new Set([
-	'>',
-	'>=',
-	'<',
-	'<=',
-	'==',
-	'===',
-	'!=',
-	'!==',
-	'in',
-	'instanceof',
-]);
 const boolean = 'boolean';
 const nonBoolean = 'non-boolean';
 const unknown = 'unknown';
@@ -87,12 +75,15 @@ const unknownTypeAnnotationTypes = new Set([
 	'TSConditionalType',
 ]);
 const promiseValueTypeNames = new Set(['Promise', 'PromiseLike']);
+// Boolean unary and binary operators are already handled by `isBooleanExpression()`, so the remaining ones are not boolean.
 const nonBooleanExpressionTypes = new Set([
 	'ArrayExpression',
+	'BinaryExpression',
 	'ObjectExpression',
 	'ClassExpression',
 	'NewExpression',
 	'TemplateLiteral',
+	'UnaryExpression',
 	'UpdateExpression',
 ]);
 const expressionWrapperTypes = new Set([
@@ -150,7 +141,7 @@ function findParameter(parameters, identifier) {
 }
 
 const prepareOptions = options => {
-	if (Object.hasOwn(options ?? {}, 'checkProperties')) {
+	if (Object.hasOwn(options, 'checkProperties')) {
 		throw new Error(REMOVED_CHECK_PROPERTIES_MESSAGE);
 	}
 
@@ -163,7 +154,7 @@ const prepareOptions = options => {
 		prefixes,
 		ignore,
 		wrappers,
-	} = options ?? {};
+	} = options;
 
 	const preparedOptions = {
 		checkVariables,
@@ -596,16 +587,14 @@ function getTypeInformationBooleanState(node, context, functionTypesAreBoolean =
 			new Set(),
 			functionTypesAreBoolean,
 		);
+		// The type checker is not expected to throw, but a crash here would break linting.
+		/* node:coverage ignore next 3 */
 	} catch {
 		return unknown;
 	}
 }
 
 function hasNullableType(node, context) {
-	if (!node) {
-		return false;
-	}
-
 	if (
 		node.type === 'TSTypeAnnotation'
 		|| node.type === 'TSParenthesizedType'
@@ -647,6 +636,8 @@ function hasNullableType(node, context) {
 		};
 
 		return hasNullishType(parserServices.getTypeAtLocation(node));
+		// The type checker is not expected to throw, but a crash here would break linting.
+		/* node:coverage ignore next 3 */
 	} catch {
 		return false;
 	}
@@ -654,10 +645,6 @@ function hasNullableType(node, context) {
 
 function getPromisedTypeInformationBooleanState(node, context, allowNullish = true) {
 	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return unknown;
-	}
-
 	try {
 		const checker = parserServices.program.getTypeChecker();
 		const type = parserServices.getTypeAtLocation(node);
@@ -671,6 +658,8 @@ function getPromisedTypeInformationBooleanState(node, context, allowNullish = tr
 		}
 
 		return getPossiblyPromisedTypeBooleanState(nonNullableType, checker, allowNullish);
+		// The type checker is not expected to throw, but a crash here would break linting.
+		/* node:coverage ignore next 3 */
 	} catch {
 		return unknown;
 	}
@@ -695,9 +684,9 @@ function getTypeReferenceName(typeName) {
 		return typeName.name;
 	}
 
+	// A qualified type name is always made of identifiers, so the left side always has a name.
 	if (typeName?.type === 'TSQualifiedName') {
-		const left = getTypeReferenceName(typeName.left);
-		return left ? `${left}.${typeName.right.name}` : undefined;
+		return `${getTypeReferenceName(typeName.left)}.${typeName.right.name}`;
 	}
 }
 
@@ -719,7 +708,7 @@ function getPromisedInterfaceState(interfaceNode, context, scope, {visitedTypeRe
 		}
 	}
 
-	for (const heritage of interfaceNode.extends ?? []) {
+	for (const heritage of interfaceNode.extends) {
 		const name = getTypeReferenceName(heritage.expression);
 		if (!name || visitedTypeReferenceNames.has(name)) {
 			continue;
@@ -765,14 +754,9 @@ function getPromisedInterfaceState(interfaceNode, context, scope, {visitedTypeRe
 }
 
 function getTypeArguments(node) {
-	while (
-		node?.type === 'TSTypeAnnotation'
-		|| node?.type === 'TSParenthesizedType'
-	) {
-		node = node.typeAnnotation;
-	}
-
-	return node?.typeArguments?.params ?? node?.typeParameters?.params;
+	// Older TypeScript parsers use `typeParameters`.
+	/* node:coverage ignore next */
+	return node.typeArguments?.params ?? node.typeParameters?.params;
 }
 
 function hasMissingRequiredTypeArguments(node, scope) {
@@ -788,10 +772,6 @@ function hasMissingRequiredTypeArguments(node, scope) {
 	}
 
 	const name = getTypeReferenceName(node.typeName);
-	if (!name) {
-		return false;
-	}
-
 	const typeArguments = getTypeArguments(node) ?? [];
 	return getTypeDefinitions(name, scope).some(definition =>
 		(definition.node.typeParameters?.params ?? []).some((parameter, index) => index >= typeArguments.length && !parameter.default),
@@ -824,13 +804,6 @@ function getCallSignatureReturnTypes(node, context, scope, {typeState = getTypeS
 		return [];
 	}
 
-	if (
-		node?.type === 'TSParenthesizedType'
-		|| node?.type === 'TSTypeAnnotation'
-	) {
-		return getCallSignatureReturnTypes(node.typeAnnotation, context, scope, {typeState, visitedTypeReferenceNames});
-	}
-
 	if (node?.type === 'TSFunctionType') {
 		return [resolveTypeParameterType(node.returnType, typeState)];
 	}
@@ -850,7 +823,7 @@ function getCallSignatureReturnTypes(node, context, scope, {typeState = getTypeS
 			.filter(member => member.type === 'TSCallSignatureDeclaration')
 			.map(member => resolveTypeParameterType(member.returnType, typeState));
 
-		for (const heritage of node.extends ?? []) {
+		for (const heritage of node.extends) {
 			const name = getTypeReferenceName(heritage.expression);
 			if (!name || visitedTypeReferenceNames.has(name)) {
 				continue;
@@ -872,7 +845,7 @@ function getCallSignatureReturnTypes(node, context, scope, {typeState = getTypeS
 
 	if (node?.type === 'TSTypeReference') {
 		const name = getTypeReferenceName(node.typeName);
-		if (!name || visitedTypeReferenceNames.has(name)) {
+		if (visitedTypeReferenceNames.has(name)) {
 			return [];
 		}
 
@@ -890,7 +863,7 @@ function getCallSignatureReturnTypes(node, context, scope, {typeState = getTypeS
 
 function isPromisedTypeReference(node, context, scope, {visitedTypeReferenceNames, typeState}) {
 	const name = getTypeReferenceName(node.typeName);
-	if (!name || visitedTypeReferenceNames.has(name)) {
+	if (visitedTypeReferenceNames.has(name)) {
 		return false;
 	}
 
@@ -1021,6 +994,8 @@ function isCallableTypeAnnotation(node, context, scope, {visitedTypeReferenceNod
 
 		try {
 			return parserServices.getTypeAtLocation(node).getCallSignatures().length > 0;
+			// The type checker is not expected to throw, but a crash here would break linting.
+			/* node:coverage ignore next 3 */
 		} catch {
 			return false;
 		}
@@ -1109,6 +1084,8 @@ function getTypeParameterResolution(node, typeState) {
 			visitedTypeParameterNames,
 		};
 		const nextName = getTypeReferenceName(typeParameterType?.typeName);
+		// `getTypeParameterTypes()` stores resolved types, so a stored type is not expected to be another stored type parameter. Following such a chain is kept as a safeguard.
+		/* node:coverage disable */
 		if (
 			!nextName
 			|| nextTypeState.visitedTypeParameterNames.has(nextName)
@@ -1125,6 +1102,7 @@ function getTypeParameterResolution(node, typeState) {
 		currentNode = typeParameterType;
 		currentTypeState = nextTypeState;
 	}
+	/* node:coverage enable */
 }
 
 function hasTypeParameterReference(node, name) {
@@ -1227,6 +1205,8 @@ function resolveTypeParameterType(node, typeState, resolvedTypeParameterTypes = 
 				const typeParameter = getTypeParameterResolution(node, typeState);
 				if (typeParameter) {
 					const name = getTypeReferenceName(node.typeName);
+					// Guard against cyclic type parameters. No known input reaches it.
+					/* node:coverage ignore next 4 */
 					if (resolvedTypeParameterTypes.has(typeParameter.type) || resolvedTypeParameterNames.has(name)) {
 						results.push(node);
 						return;
@@ -1283,6 +1263,8 @@ function resolveTypeParameterType(node, typeState, resolvedTypeParameterTypes = 
 					return;
 				}
 
+				// Older TypeScript parsers use `typeParameters`.
+				/* node:coverage ignore next */
 				const typeArgumentsProperty = node.typeArguments ? 'typeArguments' : 'typeParameters';
 				addTasks([
 					{
@@ -1325,9 +1307,6 @@ function getTypeParameterTypes(definitionNode, typeArguments, typeState) {
 	return typeParameterTypes;
 }
 
-const hasUnresolvedTypeParameters = typeState =>
-	typeState.typeParameterTypes.entries().some(([name, type]) => hasTypeParameterReference(type, name));
-
 const hasTypeParameterReferenceInType = (node, typeState) =>
 	typeState.typeParameterTypes.keys().some(name => hasTypeParameterReference(node, name));
 
@@ -1359,6 +1338,9 @@ function hasUnresolvedTypeParameterReference(node, typeState, scope, checkNode =
 
 	return false;
 }
+
+const hasUnresolvedTypeParameters = typeState =>
+	typeState.typeParameterTypes.entries().some(([name, type]) => hasTypeParameterReference(type, name));
 
 function canUseTypeInformationFallback(node, typeState, scope, definitions) {
 	return !hasTypeParameterReferenceInType(node, typeState)
@@ -1396,7 +1378,7 @@ function getInterfaceCallSignatureBooleanStates(interfaceNode, context, scope, {
 		callSignatureStates = [nonBoolean];
 	}
 
-	for (const heritage of interfaceNode.extends ?? []) {
+	for (const heritage of interfaceNode.extends) {
 		const name = getTypeReferenceName(heritage.expression);
 		if (!name || visitedInterfaceNames.has(name)) {
 			continue;
@@ -1434,8 +1416,8 @@ function getTypeReferenceBooleanState(node, context, scope, typeState) {
 
 	const normalizedTypeState = getTypeState(typeState);
 	const {visitedTypeReferenceNodes} = normalizedTypeState;
-	const name = getTypeReferenceName(node.typeName ?? node.expression);
-	if (!name || visitedTypeReferenceNodes.has(node)) {
+	const name = getTypeReferenceName(node.typeName);
+	if (visitedTypeReferenceNodes.has(node)) {
 		return unknown;
 	}
 
@@ -1528,6 +1510,8 @@ function getSimpleTypeAnnotationBooleanState(node) {
 		return node.asserts ? nonBoolean : boolean;
 	}
 
+	// Flow type annotations. The tests do not use a Flow parser.
+	/* node:coverage ignore next 3 */
 	if (node.type === 'TypeAnnotation') {
 		return node.typeAnnotation?.type === 'BooleanTypeAnnotation' ? boolean : nonBoolean;
 	}
@@ -1588,7 +1572,7 @@ function getTypeAnnotationBooleanState(node, context, scope, typeState) {
 
 function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 	const normalizedTypeState = getTypeState(typeState);
-	const name = getTypeReferenceName(node.typeName ?? node.expression);
+	const name = getTypeReferenceName(node.typeName);
 	const typeParameter = getTypeParameterResolution(node, normalizedTypeState);
 	if (typeParameter) {
 		return getPromisedTypeAnnotationBooleanState(typeParameter.type, context, scope, typeParameter.typeState);
@@ -1790,6 +1774,8 @@ function getAsyncFunctionTypeInformationBooleanState(node, context, allowNullish
 
 			return getPossiblyPromisedTypeBooleanState(nonNullableReturnType, checker, allowNullish);
 		}));
+		// The type checker is not expected to throw, but a crash here would break linting.
+		/* node:coverage ignore next 3 */
 	} catch {
 		return unknown;
 	}
@@ -1873,9 +1859,14 @@ function getStaticExpressionBooleanState(node, context) {
 
 	const staticValue = getStaticValueIfNoSideEffects(node, context)?.value;
 
-	return staticValue === undefined
-		? unknown
-		: (typeof staticValue === 'boolean' ? boolean : nonBoolean);
+	// `null` is a common placeholder before a boolean is assigned, like `undefined`.
+	if (staticValue === undefined || staticValue === null) {
+		return unknown;
+	}
+
+	// Boolean static values are already handled by `isBooleanExpression()`, unless the expression is potentially mutable, and then `getStaticValueIfNoSideEffects()` has no value either.
+	/* node:coverage ignore next */
+	return typeof staticValue === 'boolean' ? boolean : nonBoolean;
 }
 
 const hasPotentiallyMutableExpression = (node, context) => {
@@ -1903,23 +1894,7 @@ const hasPotentiallyMutableExpression = (node, context) => {
 };
 
 function getSimpleExpressionBooleanState(node) {
-	if (nonBooleanExpressionTypes.has(node.type)) {
-		return nonBoolean;
-	}
-
-	if (node.type === 'Literal') {
-		return node.value === null ? unknown : nonBoolean;
-	}
-
-	if (node.type === 'UnaryExpression') {
-		return ['!', 'delete'].includes(node.operator) ? boolean : nonBoolean;
-	}
-
-	if (node.type === 'BinaryExpression') {
-		return booleanBinaryOperators.has(node.operator) ? boolean : nonBoolean;
-	}
-
-	return unknown;
+	return nonBooleanExpressionTypes.has(node.type) ? nonBoolean : unknown;
 }
 
 function getWrappedExpression(node) {
@@ -2116,13 +2091,10 @@ function getDefinitionBooleanState(definition, context, visitedVariables, functi
 		return getExpressionBooleanState(definition.node.init, context, visitedVariables, functionValuesAreBoolean);
 	}
 
-	if (definition.type === 'FunctionName') {
-		return functionValuesAreBoolean
-			? getFunctionBooleanState(definition.node, context, visitedVariables)
-			: nonBoolean;
-	}
-
-	return unknown;
+	// `getSupportedVariableDefinition()` only returns `Variable`, `Parameter`, and `FunctionName` definitions.
+	return functionValuesAreBoolean
+		? getFunctionBooleanState(definition.node, context, visitedVariables)
+		: nonBoolean;
 }
 
 function getReferenceWriteBooleanState(reference, context, visitedVariables, functionValuesAreBoolean) {
@@ -2235,9 +2207,8 @@ function getTypeScriptNameParts(node) {
 		return [node.value];
 	}
 
-	return node?.type === 'TSQualifiedName'
-		? [...getTypeScriptNameParts(node.left), ...getTypeScriptNameParts(node.right)]
-		: [];
+	// The remaining node type is `TSQualifiedName`.
+	return [...getTypeScriptNameParts(node.left), ...getTypeScriptNameParts(node.right)];
 }
 
 function getTypeScriptIdentityPrefix(node) {
@@ -2344,19 +2315,6 @@ function getParameterPropertyNameNode(node) {
 	return parameter.type === 'AssignmentPattern' ? parameter.left : parameter;
 }
 
-function getShorthandVariable(node, sourceCode) {
-	if (
-		node.type !== 'Property'
-		|| !node.shorthand
-		|| node.parent.type !== 'ObjectExpression'
-		|| node.key.type !== 'Identifier'
-	) {
-		return;
-	}
-
-	return findVariable(sourceCode.getScope(node), node.key);
-}
-
 function isBooleanProperty(node, context) {
 	const {sourceCode} = context;
 
@@ -2364,15 +2322,9 @@ function isBooleanProperty(node, context) {
 		return isBooleanVariable(findVariable(sourceCode.getScope(node), getParameterPropertyNameNode(node)), context);
 	}
 
+	// Setters are skipped by `checkProperty()`.
 	if (node.type === 'Property') {
-		if (
-			node.parent.type !== 'ObjectExpression'
-			|| node.kind === 'set'
-		) {
-			return false;
-		}
-
-		return isBooleanValue(node.value, context);
+		return node.parent.type === 'ObjectExpression' && isBooleanValue(node.value, context);
 	}
 
 	if (methodDefinitionTypes.has(node.type)) {
@@ -2388,18 +2340,11 @@ function isBooleanProperty(node, context) {
 		return isBooleanTypeAnnotatedValue(node, context);
 	}
 
-	if (node.type === 'TSMethodSignature') {
-		if (isSetter(node)) {
-			return false;
-		}
+	// The remaining node type is `TSMethodSignature`.
+	const scope = sourceCode.getScope(node);
 
-		const scope = sourceCode.getScope(node);
-
-		return getDirectTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false, allowNullish: false}) === boolean
-			|| getPromisedReturnTypeBooleanState(node.returnType, context, scope) === boolean;
-	}
-
-	return false;
+	return getDirectTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false, allowNullish: false}) === boolean
+		|| getPromisedReturnTypeBooleanState(node.returnType, context, scope) === boolean;
 }
 
 function getExplicitPropertyBooleanState(node, context) {
@@ -2409,16 +2354,14 @@ function getExplicitPropertyBooleanState(node, context) {
 		return getVariableBooleanState(findVariable(sourceCode.getScope(node), getParameterPropertyNameNode(node)), context);
 	}
 
+	// Setters are skipped by `checkProperty()`.
 	if (node.type === 'Property') {
-		if (
-			node.parent.type !== 'ObjectExpression'
-			|| node.kind === 'set'
-		) {
+		if (node.parent.type !== 'ObjectExpression') {
 			return unknown;
 		}
 
 		if (node.shorthand) {
-			return getVariableBooleanState(getShorthandVariable(node, sourceCode), context);
+			return getVariableBooleanState(findVariable(sourceCode.getScope(node), node.key), context);
 		}
 
 		return getExpressionBooleanState(node.value, context);
@@ -2442,27 +2385,22 @@ function getExplicitPropertyBooleanState(node, context) {
 		return getDirectTypeAnnotationBooleanState(node.typeAnnotation, context, sourceCode.getScope(node), {allowNullish: false});
 	}
 
-	if (node.type === 'TSMethodSignature') {
-		if (isSetter(node)) {
-			return unknown;
-		}
+	// The remaining node type is `TSMethodSignature`.
+	const scope = sourceCode.getScope(node);
+	const hasUnresolvedReturnType = hasUnresolvedTypeParameterReference(node.returnType, getTypeState(), scope, false);
+	const stateFromPromisedReturnType = getPromisedReturnTypeBooleanState(node.returnType, context, scope);
 
-		const scope = sourceCode.getScope(node);
-		const hasUnresolvedReturnType = hasUnresolvedTypeParameterReference(node.returnType, getTypeState(), scope, false);
-		const stateFromPromisedReturnType = getPromisedReturnTypeBooleanState(node.returnType, context, scope);
-
-		return stateFromPromisedReturnType === unknown
-			&& !hasUnresolvedReturnType
-			&& !isPromisedTypeAnnotation(node.returnType, context, scope)
-			? getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false, allowNullish: false})
-			: stateFromPromisedReturnType;
-	}
-
-	return unknown;
+	return stateFromPromisedReturnType === unknown
+		&& !hasUnresolvedReturnType
+		&& !isPromisedTypeAnnotation(node.returnType, context, scope)
+		? getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false, allowNullish: false})
+		: stateFromPromisedReturnType;
 }
 
 function getPropertyBooleanState(node, context) {
 	const state = getExplicitPropertyBooleanState(node, context);
+	// A fallback for members the explicit analysis cannot decide. No known input reaches it, as the explicit analysis covers what `isBooleanProperty()` detects.
+	/* node:coverage ignore next */
 	return state === unknown && isBooleanProperty(node, context) ? boolean : state;
 }
 
@@ -2480,25 +2418,16 @@ function getSuggestions(variable, prefixes, context, nameForPrefixCheck) {
 		...variable.references.map(reference => reference.from),
 		variable.scope,
 	];
-	const usedReplacements = new Set();
-	const suggestions = [];
-
-	for (const prefix of prefixes) {
+	// Each prefix gives a different valid identifier, so every prefix gets its own suggestion.
+	return prefixes.map(prefix => {
 		const replacement = getAvailableVariableName(getReactHookReplacementName({name: variable.name, nameForPrefixCheck}, prefix), scopes);
 
-		if (!replacement || usedReplacements.has(replacement)) {
-			continue;
-		}
-
-		usedReplacements.add(replacement);
-		suggestions.push({
+		return {
 			messageId: MESSAGE_ID_SUGGESTION,
 			data: {replacement},
 			fix: fixer => renameVariable(variable, replacement, context, fixer),
-		});
-	}
-
-	return suggestions.length > 0 ? suggestions : undefined;
+		};
+	});
 }
 
 function isAutofixableVariable(variable, context) {

@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import unicorn from '../index.js';
@@ -129,6 +129,9 @@ ruleTest.snapshot({
 		typeAware('function foo(doc: Document) {doc.querySelector("script")?.setAttribute("async", "false")}'),
 		typeAware('function foo(root: ShadowRoot) {root.querySelector("script")?.setAttribute("async", "false")}'),
 		typeAware('function foo(doc: Document) {doc.createElement("button").setAttribute("disabled", "false")}'),
+		typescript('function foo(button: HTMLButtonElement | Foo) {button.setAttribute("disabled", "false")}'),
+		typeAware('function foo(holder: {button: HTMLButtonElement | Element}) {holder.button.setAttribute("disabled", "false")}'),
+		'document.querySelector(selector).setAttribute("disabled", "false")',
 	],
 	invalid: [
 		...attributeElements.flatMap(([attribute, elements]) => elements.map(element => `document.createElement('${element}').setAttribute('${attribute}', 'true')`)),
@@ -203,13 +206,13 @@ test('works alongside prefer-toggle-attribute', t => {
 	};
 	const code = 'const button = document.createElement("button"); if (condition) {button.setAttribute("disabled", "false")} else {button.removeAttribute("disabled")}';
 	const messages = linter.verify(code, config);
-	t.deepEqual(messages.map(message => message.ruleId).toSorted((first, second) => first.localeCompare(second)), [
+	t.assert.deepStrictEqual(messages.map(message => message.ruleId).toSorted((first, second) => first.localeCompare(second)), [
 		'unicorn/no-invalid-boolean-attribute-value',
 		'unicorn/prefer-toggle-attribute',
 	]);
-	t.false(linter.verifyAndFix(code, config).fixed);
+	t.assert.strictEqual(linter.verifyAndFix(code, config).fixed, false);
 
 	const suggestion = messages.find(message => message.ruleId === 'unicorn/no-invalid-boolean-attribute-value').suggestions[0];
 	const corrected = code.slice(0, suggestion.fix.range[0]) + suggestion.fix.text + code.slice(suggestion.fix.range[1]);
-	t.deepEqual(linter.verify(corrected, config), []);
+	t.assert.deepStrictEqual(linter.verify(corrected, config), []);
 });

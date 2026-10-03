@@ -8,6 +8,7 @@ import {
 import isGlobalIdentifier from './is-global-identifier.js';
 import {getStaticValueForControlFlow, isSafeStaticPassThroughCall} from './get-static-value.js';
 import {isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
+import getVisitorChildNodes from './get-visitor-child-nodes.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -176,7 +177,8 @@ const isAssignmentRightAlwaysEvaluated = (node, context) => {
 		return isDefinitelyNotThrowingAssignmentTargetRead(node.left, context);
 	}
 
-	if (!['&&=', '||=', '??='].includes(node.operator) || !isDefinitelyNotThrowingAssignmentTargetRead(node.left, context)) {
+	// Only the logical assignment operators (`&&=`, `||=`, `??=`) are left
+	if (!isDefinitelyNotThrowingAssignmentTargetRead(node.left, context)) {
 		return false;
 	}
 
@@ -584,7 +586,7 @@ function isProcessExitExpression(node, context) {
 }
 
 function hasLabeledBreakBeforeProcessExit(node, context, labelName) {
-	if (!node || isFunction(node)) {
+	if (isFunction(node)) {
 		return false;
 	}
 
@@ -626,15 +628,7 @@ function hasLabeledBreakBeforeProcessExit(node, context, labelName) {
 		return false;
 	}
 
-	for (const key of context.sourceCode.visitorKeys[node.type] ?? []) {
-		const value = node[key];
-		const children = Array.isArray(value) ? value : [value];
-		if (children.some(child => hasLabeledBreakBeforeProcessExit(child, context, labelName))) {
-			return true;
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, context.sourceCode.visitorKeys).some(child => hasLabeledBreakBeforeProcessExit(child, context, labelName));
 }
 
 const isProcessExitMemberExpressionAtStart = (node, context) =>
@@ -850,27 +844,13 @@ function hasPossiblyThrowingClassHeritage(node, context) {
 		return false;
 	}
 
-	let child = node;
-	let {parent} = node;
-	while (parent) {
-		if (isFunction(parent)) {
-			return false;
-		}
-
-		if (parent.type === 'ClassDeclaration' || parent.type === 'ClassExpression') {
-			return Boolean(
-				parent.superClass
-				&& parent.superClass !== child
-				&& !isProcessExitExpressionAtStart(parent.superClass, context)
-				&& !isDefinitelyValidClassHeritage(parent.superClass, context),
-			);
-		}
-
-		child = parent;
-		({parent} = parent);
-	}
-
-	return false;
+	// A static block is always in a `ClassBody`, directly inside the class
+	const {superClass} = node.parent.parent;
+	return Boolean(
+		superClass
+		&& !isProcessExitExpressionAtStart(superClass, context)
+		&& !isDefinitelyValidClassHeritage(superClass, context),
+	);
 }
 
 function isProcessExitTryStatement(branch, context, checkTryStatements, options) {
@@ -1618,7 +1598,7 @@ function isConditionalContinueToLoop(node, loop, context) {
 }
 
 function hasControlFlowExitBeforeLoopTest(node, loop, context) {
-	if (!node || isFunction(node)) {
+	if (isFunction(node)) {
 		return false;
 	}
 
@@ -1633,19 +1613,11 @@ function hasControlFlowExitBeforeLoopTest(node, loop, context) {
 		}
 	}
 
-	for (const key of context.sourceCode.visitorKeys[node.type] ?? []) {
-		const value = node[key];
-		const children = Array.isArray(value) ? value : [value];
-		if (children.some(child => hasControlFlowExitBeforeLoopTest(child, loop, context))) {
-			return true;
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, context.sourceCode.visitorKeys).some(child => hasControlFlowExitBeforeLoopTest(child, loop, context));
 }
 
 function hasControlFlowExitFromLoop(node, loop, context) {
-	if (!node || isFunction(node)) {
+	if (isFunction(node)) {
 		return false;
 	}
 
@@ -1659,15 +1631,7 @@ function hasControlFlowExitFromLoop(node, loop, context) {
 		}
 	}
 
-	for (const key of context.sourceCode.visitorKeys[node.type] ?? []) {
-		const value = node[key];
-		const children = Array.isArray(value) ? value : [value];
-		if (children.some(child => hasControlFlowExitFromLoop(child, loop, context))) {
-			return true;
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, context.sourceCode.visitorKeys).some(child => hasControlFlowExitFromLoop(child, loop, context));
 }
 
 function isBreakFromSwitch(node, switchStatement) {
@@ -1710,7 +1674,7 @@ function hasSwitchControlFlowExitInStatements(statements, context, switchStateme
 }
 
 function hasSwitchControlFlowExit(node, context, switchStatement, checkOuterControlFlow) {
-	if (!node || isFunction(node)) {
+	if (isFunction(node)) {
 		return false;
 	}
 
@@ -1741,15 +1705,7 @@ function hasSwitchControlFlowExit(node, context, switchStatement, checkOuterCont
 		}
 	}
 
-	for (const key of context.sourceCode.visitorKeys[node.type] ?? []) {
-		const value = node[key];
-		const children = Array.isArray(value) ? value : [value];
-		if (children.some(child => hasSwitchControlFlowExit(child, context, switchStatement, checkOuterControlFlow))) {
-			return true;
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, context.sourceCode.visitorKeys).some(child => hasSwitchControlFlowExit(child, context, switchStatement, checkOuterControlFlow));
 }
 
 function isSwitchBranchExit(branch, context, branchAlwaysExits, checkTryStatements) {

@@ -1,0 +1,1060 @@
+exports[`no-negated-comparison > invalid(1): !(a === b && c === d) 1`] = `
+
+Options:
+- checkLogicalExpressions: true
+
+Code:
+  1 | !(a === b && c === d)
+
+`;
+
+exports[`no-negated-comparison > invalid(1): !(a === b && c === d) 2`] = `
+
+Message:
+> 1 | !(a === b && c === d)
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparisons instead of negating the whole logical expression.
+
+Output:
+  1 | (a !== b || c !== d)
+
+`;
+
+exports[`no-negated-comparison > invalid(1): !(a === b) 1`] = `
+
+  1 | !(a === b)
+
+`;
+
+exports[`no-negated-comparison > invalid(1): !(a === b) 2`] = `
+
+Message:
+> 1 | !(a === b)
+    | ^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | a !== b
+
+`;
+
+exports[`no-negated-comparison > invalid(10): !(a /* comment */ === b) 1`] = `
+
+  1 | !(a /* comment */ === b)
+
+`;
+
+exports[`no-negated-comparison > invalid(10): !(a /* comment */ === b) 2`] = `
+
+Message:
+> 1 | !(a /* comment */ === b)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | a /* comment */ !== b
+
+`;
+
+exports[`no-negated-comparison > invalid(10): !/* comment */(a === b && c === d) 1`] = `
+
+Options:
+- checkLogicalExpressions: true
+
+Code:
+  1 | !/* comment */(a === b && c === d)
+
+`;
+
+exports[`no-negated-comparison > invalid(10): !/* comment */(a === b && c === d) 2`] = `
+
+Message:
+> 1 | !/* comment */(a === b && c === d)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparisons instead of negating the whole logical expression.
+
+`;
+
+exports[`no-negated-comparison > invalid(11): !(a /* comment */ === b && c === d) 1`] = `
+
+Options:
+- checkLogicalExpressions: true
+
+Code:
+  1 | !(a /* comment */ === b && c === d)
+
+`;
+
+exports[`no-negated-comparison > invalid(11): !(a /* comment */ === b && c === d) 2`] = `
+
+Message:
+> 1 | !(a /* comment */ === b && c === d)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparisons instead of negating the whole logical expression.
+
+`;
+
+exports[`no-negated-comparison > invalid(11): !/* comment */(a === b) 1`] = `
+
+  1 | !/* comment */(a === b)
+
+`;
+
+exports[`no-negated-comparison > invalid(11): !/* comment */(a === b) 2`] = `
+
+Message:
+> 1 | !/* comment */(a === b)
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | /* comment */ a !== b
+
+`;
+
+exports[`no-negated-comparison > invalid(12): !(a === b && /* comment */ c === d) 1`] = `
+
+Options:
+- checkLogicalExpressions: true
+
+Code:
+  1 | !(a === b && /* comment */ c === d)
+
+`;
+
+exports[`no-negated-comparison > invalid(12): !(a === b && /* comment */ c === d) 2`] = `
+
+Message:
+> 1 | !(a === b && /* comment */ c === d)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparisons instead of negating the whole logical expression.
+
+`;
+
+exports[`no-negated-comparison > invalid(12): foo\n!([a] === b) 1`] = `
+
+  1 | foo
+  2 | !([a] === b)
+
+`;
+
+exports[`no-negated-comparison > invalid(12): foo\n!([a] === b) 2`] = `
+
+Message:
+  1 | foo
+> 2 | !([a] === b)
+    | ^^^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | foo
+  2 | ;[a] !== b
+
+`;
+
+exports[`no-negated-comparison > invalid(13): foo\n!(a === b && c === d) 1`] = `
+
+Options:
+- checkLogicalExpressions: true
+
+Code:
+  1 | foo
+  2 | !(a === b && c === d)
+
+`;
+
+exports[`no-negated-comparison > invalid(13): foo\n!(a === b && c === d) 2`] = `
+
+Message:
+  1 | foo
+> 2 | !(a === b && c === d)
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparisons instead of negating the whole logical expression.
+
+Output:
+  1 | foo
+  2 | ;(a !== b || c !== d)
+
+`;
+
+exports[`no-negated-comparison > invalid(13): function foo() {\n\treturn!\n\t\t(a === b);\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return!
+  3 | 		(a === b);
+  4 | }
+
+`;
+
+exports[`no-negated-comparison > invalid(13): function foo() {\n\treturn!\n\t\t(a === b);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return!
+    | 	      ^
+> 3 | 		(a === b);
+    | ^^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+  4 | }
+
+Output:
+  1 | function foo() {
+  2 | 	return (
+  3 | 		a !== b);
+  4 | }
+
+`;
+
+exports[`no-negated-comparison > invalid(14): function foo() {\n\treturn!\n\t\t(a === b && c === d);\n} 1`] = `
+
+Options:
+- checkLogicalExpressions: true
+
+Code:
+  1 | function foo() {
+  2 | 	return!
+  3 | 		(a === b && c === d);
+  4 | }
+
+`;
+
+exports[`no-negated-comparison > invalid(14): function foo() {\n\treturn!\n\t\t(a === b && c === d);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return!
+    | 	      ^
+> 3 | 		(a === b && c === d);
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparisons instead of negating the whole logical expression.
+  4 | }
+
+Output:
+  1 | function foo() {
+  2 | 	return (
+  3 | 		(a !== b || c !== d));
+  4 | }
+
+`;
+
+exports[`no-negated-comparison > invalid(14): function foo() {\n\tthrow!\n\t\t(a === b);\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	throw!
+  3 | 		(a === b);
+  4 | }
+
+`;
+
+exports[`no-negated-comparison > invalid(14): function foo() {\n\tthrow!\n\t\t(a === b);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	throw!
+    | 	     ^
+> 3 | 		(a === b);
+    | ^^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+  4 | }
+
+Output:
+  1 | function foo() {
+  2 | 	throw (
+  3 | 		a !== b);
+  4 | }
+
+`;
+
+exports[`no-negated-comparison > invalid(15): function foo() { return!(a === b && c === d); } 1`] = `
+
+Options:
+- checkLogicalExpressions: true
+
+Code:
+  1 | function foo() { return!(a === b && c === d); }
+
+`;
+
+exports[`no-negated-comparison > invalid(15): function foo() { return!(a === b && c === d); } 2`] = `
+
+Message:
+> 1 | function foo() { return!(a === b && c === d); }
+    |                        ^^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparisons instead of negating the whole logical expression.
+
+Output:
+  1 | function foo() { return (a !== b || c !== d); }
+
+`;
+
+exports[`no-negated-comparison > invalid(15): function foo() { return!(a === b); } 1`] = `
+
+  1 | function foo() { return!(a === b); }
+
+`;
+
+exports[`no-negated-comparison > invalid(15): function foo() { return!(a === b); } 2`] = `
+
+Message:
+> 1 | function foo() { return!(a === b); }
+    |                        ^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | function foo() { return a !== b; }
+
+`;
+
+exports[`no-negated-comparison > invalid(16): function foo() { throw!(a === b && c === d); } 1`] = `
+
+Options:
+- checkLogicalExpressions: true
+
+Code:
+  1 | function foo() { throw!(a === b && c === d); }
+
+`;
+
+exports[`no-negated-comparison > invalid(16): function foo() { throw!(a === b && c === d); } 2`] = `
+
+Message:
+> 1 | function foo() { throw!(a === b && c === d); }
+    |                       ^^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparisons instead of negating the whole logical expression.
+
+Output:
+  1 | function foo() { throw (a !== b || c !== d); }
+
+`;
+
+exports[`no-negated-comparison > invalid(16): function foo() { throw!(a === b); } 1`] = `
+
+  1 | function foo() { throw!(a === b); }
+
+`;
+
+exports[`no-negated-comparison > invalid(16): function foo() { throw!(a === b); } 2`] = `
+
+Message:
+> 1 | function foo() { throw!(a === b); }
+    |                       ^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | function foo() { throw a !== b; }
+
+`;
+
+exports[`no-negated-comparison > invalid(17): switch (foo) { case!(a === b && c === d): break; } 1`] = `
+
+Options:
+- checkLogicalExpressions: true
+
+Code:
+  1 | switch (foo) { case!(a === b && c === d): break; }
+
+`;
+
+exports[`no-negated-comparison > invalid(17): switch (foo) { case!(a === b && c === d): break; } 2`] = `
+
+Message:
+> 1 | switch (foo) { case!(a === b && c === d): break; }
+    |                    ^^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparisons instead of negating the whole logical expression.
+
+Output:
+  1 | switch (foo) { case (a !== b || c !== d): break; }
+
+`;
+
+exports[`no-negated-comparison > invalid(17): switch (foo) { case!(a === b): break; } 1`] = `
+
+  1 | switch (foo) { case!(a === b): break; }
+
+`;
+
+exports[`no-negated-comparison > invalid(17): switch (foo) { case!(a === b): break; } 2`] = `
+
+Message:
+> 1 | switch (foo) { case!(a === b): break; }
+    |                    ^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | switch (foo) { case a !== b: break; }
+
+`;
+
+exports[`no-negated-comparison > invalid(18): async function foo() { return await !(a === b); } 1`] = `
+
+  1 | async function foo() { return await !(a === b); }
+
+`;
+
+exports[`no-negated-comparison > invalid(18): async function foo() { return await !(a === b); } 2`] = `
+
+Message:
+> 1 | async function foo() { return await !(a === b); }
+    |                                     ^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | async function foo() { return await (a !== b); }
+
+`;
+
+exports[`no-negated-comparison > invalid(18): async function foo() { return await!(a === b && c === d); } 1`] = `
+
+Options:
+- checkLogicalExpressions: true
+
+Code:
+  1 | async function foo() { return await!(a === b && c === d); }
+
+`;
+
+exports[`no-negated-comparison > invalid(18): async function foo() { return await!(a === b && c === d); } 2`] = `
+
+Message:
+> 1 | async function foo() { return await!(a === b && c === d); }
+    |                                    ^^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparisons instead of negating the whole logical expression.
+
+Output:
+  1 | async function foo() { return await (a !== b || c !== d); }
+
+`;
+
+exports[`no-negated-comparison > invalid(19): async function foo() { return await!(a === b); } 1`] = `
+
+  1 | async function foo() { return await!(a === b); }
+
+`;
+
+exports[`no-negated-comparison > invalid(19): async function foo() { return await!(a === b); } 2`] = `
+
+Message:
+> 1 | async function foo() { return await!(a === b); }
+    |                                    ^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | async function foo() { return await (a !== b); }
+
+`;
+
+exports[`no-negated-comparison > invalid(19): function * foo() { yield!(a === b && c === d); } 1`] = `
+
+Options:
+- checkLogicalExpressions: true
+
+Code:
+  1 | function * foo() { yield!(a === b && c === d); }
+
+`;
+
+exports[`no-negated-comparison > invalid(19): function * foo() { yield!(a === b && c === d); } 2`] = `
+
+Message:
+> 1 | function * foo() { yield!(a === b && c === d); }
+    |                         ^^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparisons instead of negating the whole logical expression.
+
+Output:
+  1 | function * foo() { yield (a !== b || c !== d); }
+
+`;
+
+exports[`no-negated-comparison > invalid(2): !(a !== b) 1`] = `
+
+  1 | !(a !== b)
+
+`;
+
+exports[`no-negated-comparison > invalid(2): !(a !== b) 2`] = `
+
+Message:
+> 1 | !(a !== b)
+    | ^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | a === b
+
+`;
+
+exports[`no-negated-comparison > invalid(2): if (!(a === b && c === d)) {} 1`] = `
+
+Options:
+- checkLogicalExpressions: true
+
+Code:
+  1 | if (!(a === b && c === d)) {}
+
+`;
+
+exports[`no-negated-comparison > invalid(2): if (!(a === b && c === d)) {} 2`] = `
+
+Message:
+> 1 | if (!(a === b && c === d)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparisons instead of negating the whole logical expression.
+
+Output:
+  1 | if ((a !== b || c !== d)) {}
+
+`;
+
+exports[`no-negated-comparison > invalid(20): const foo = void !(a === b); 1`] = `
+
+  1 | const foo = void !(a === b);
+
+`;
+
+exports[`no-negated-comparison > invalid(20): const foo = void !(a === b); 2`] = `
+
+Message:
+> 1 | const foo = void !(a === b);
+    |                  ^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | const foo = void (a !== b);
+
+`;
+
+exports[`no-negated-comparison > invalid(21): const foo = typeof !(a === b); 1`] = `
+
+  1 | const foo = typeof !(a === b);
+
+`;
+
+exports[`no-negated-comparison > invalid(21): const foo = typeof !(a === b); 2`] = `
+
+Message:
+> 1 | const foo = typeof !(a === b);
+    |                    ^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | const foo = typeof (a !== b);
+
+`;
+
+exports[`no-negated-comparison > invalid(22): const foo = +!(a === b); 1`] = `
+
+  1 | const foo = +!(a === b);
+
+`;
+
+exports[`no-negated-comparison > invalid(22): const foo = +!(a === b); 2`] = `
+
+Message:
+> 1 | const foo = +!(a === b);
+    |              ^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | const foo = +(a !== b);
+
+`;
+
+exports[`no-negated-comparison > invalid(23): const foo = a + !(b === c); 1`] = `
+
+  1 | const foo = a + !(b === c);
+
+`;
+
+exports[`no-negated-comparison > invalid(23): const foo = a + !(b === c); 2`] = `
+
+Message:
+> 1 | const foo = a + !(b === c);
+    |                 ^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | const foo = a + (b !== c);
+
+`;
+
+exports[`no-negated-comparison > invalid(24): function * foo() { yield !(a === b); } 1`] = `
+
+  1 | function * foo() { yield !(a === b); }
+
+`;
+
+exports[`no-negated-comparison > invalid(24): function * foo() { yield !(a === b); } 2`] = `
+
+Message:
+> 1 | function * foo() { yield !(a === b); }
+    |                          ^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | function * foo() { yield (a !== b); }
+
+`;
+
+exports[`no-negated-comparison > invalid(25): function * foo() { yield!(a === b); } 1`] = `
+
+  1 | function * foo() { yield!(a === b); }
+
+`;
+
+exports[`no-negated-comparison > invalid(25): function * foo() { yield!(a === b); } 2`] = `
+
+Message:
+> 1 | function * foo() { yield!(a === b); }
+    |                         ^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | function * foo() { yield (a !== b); }
+
+`;
+
+exports[`no-negated-comparison > invalid(26): foo(...!(a === b)); 1`] = `
+
+  1 | foo(...!(a === b));
+
+`;
+
+exports[`no-negated-comparison > invalid(26): foo(...!(a === b)); 2`] = `
+
+Message:
+> 1 | foo(...!(a === b));
+    |        ^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | foo(...(a !== b));
+
+`;
+
+exports[`no-negated-comparison > invalid(27): foo\n!(a === b) + c 1`] = `
+
+  1 | foo
+  2 | !(a === b) + c
+
+`;
+
+exports[`no-negated-comparison > invalid(27): foo\n!(a === b) + c 2`] = `
+
+Message:
+  1 | foo
+> 2 | !(a === b) + c
+    | ^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | foo
+  2 | ;(a !== b) + c
+
+`;
+
+exports[`no-negated-comparison > invalid(28): const foo = [a]\n!(b === c) + d 1`] = `
+
+  1 | const foo = [a]
+  2 | !(b === c) + d
+
+`;
+
+exports[`no-negated-comparison > invalid(28): const foo = [a]\n!(b === c) + d 2`] = `
+
+Message:
+  1 | const foo = [a]
+> 2 | !(b === c) + d
+    | ^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | const foo = [a]
+  2 | ;(b !== c) + d
+
+`;
+
+exports[`no-negated-comparison > invalid(29): !(a?.b === c) 1`] = `
+
+  1 | !(a?.b === c)
+
+`;
+
+exports[`no-negated-comparison > invalid(29): !(a?.b === c) 2`] = `
+
+Message:
+> 1 | !(a?.b === c)
+    | ^^^^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | a?.b !== c
+
+`;
+
+exports[`no-negated-comparison > invalid(3): !(a !== b || c != d) 1`] = `
+
+Options:
+- checkLogicalExpressions: true
+
+Code:
+  1 | !(a !== b || c != d)
+
+`;
+
+exports[`no-negated-comparison > invalid(3): !(a !== b || c != d) 2`] = `
+
+Message:
+> 1 | !(a !== b || c != d)
+    | ^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparisons instead of negating the whole logical expression.
+
+Output:
+  1 | (a === b && c == d)
+
+`;
+
+exports[`no-negated-comparison > invalid(3): !(a == b) 1`] = `
+
+  1 | !(a == b)
+
+`;
+
+exports[`no-negated-comparison > invalid(3): !(a == b) 2`] = `
+
+Message:
+> 1 | !(a == b)
+    | ^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | a != b
+
+`;
+
+exports[`no-negated-comparison > invalid(30): !(a?.b !== c) 1`] = `
+
+  1 | !(a?.b !== c)
+
+`;
+
+exports[`no-negated-comparison > invalid(30): !(a?.b !== c) 2`] = `
+
+Message:
+> 1 | !(a?.b !== c)
+    | ^^^^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | a?.b === c
+
+`;
+
+exports[`no-negated-comparison > invalid(31): !(a?.() == b) 1`] = `
+
+  1 | !(a?.() == b)
+
+`;
+
+exports[`no-negated-comparison > invalid(31): !(a?.() == b) 2`] = `
+
+Message:
+> 1 | !(a?.() == b)
+    | ^^^^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | a?.() != b
+
+`;
+
+exports[`no-negated-comparison > invalid(32): !(foo! === bar) 1`] = `
+
+  1 | !(foo! === bar)
+
+`;
+
+exports[`no-negated-comparison > invalid(32): !(foo! === bar) 2`] = `
+
+Message:
+> 1 | !(foo! === bar)
+    | ^^^^^^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | foo! !== bar
+
+`;
+
+exports[`no-negated-comparison > invalid(33): !((foo as string) === bar) 1`] = `
+
+  1 | !((foo as string) === bar)
+
+`;
+
+exports[`no-negated-comparison > invalid(33): !((foo as string) === bar) 2`] = `
+
+Message:
+> 1 | !((foo as string) === bar)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | (foo as string) !== bar
+
+`;
+
+exports[`no-negated-comparison > invalid(34): const foo = !(a === b) as boolean; 1`] = `
+
+  1 | const foo = !(a === b) as boolean;
+
+`;
+
+exports[`no-negated-comparison > invalid(34): const foo = !(a === b) as boolean; 2`] = `
+
+Message:
+> 1 | const foo = !(a === b) as boolean;
+    |             ^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | const foo = (a !== b) as boolean;
+
+`;
+
+exports[`no-negated-comparison > invalid(35): const foo = !(a === b) satisfies boolean; 1`] = `
+
+  1 | const foo = !(a === b) satisfies boolean;
+
+`;
+
+exports[`no-negated-comparison > invalid(35): const foo = !(a === b) satisfies boolean; 2`] = `
+
+Message:
+> 1 | const foo = !(a === b) satisfies boolean;
+    |             ^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | const foo = (a !== b) satisfies boolean;
+
+`;
+
+exports[`no-negated-comparison > invalid(36): const foo = <boolean>!(a === b); 1`] = `
+
+  1 | const foo = <boolean>!(a === b);
+
+`;
+
+exports[`no-negated-comparison > invalid(36): const foo = <boolean>!(a === b); 2`] = `
+
+Message:
+> 1 | const foo = <boolean>!(a === b);
+    |                      ^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | const foo = <boolean>(a !== b);
+
+`;
+
+exports[`no-negated-comparison > invalid(37): const foo = (!(a === b))!; 1`] = `
+
+  1 | const foo = (!(a === b))!;
+
+`;
+
+exports[`no-negated-comparison > invalid(37): const foo = (!(a === b))!; 2`] = `
+
+Message:
+> 1 | const foo = (!(a === b))!;
+    |              ^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | const foo = (a !== b)!;
+
+`;
+
+exports[`no-negated-comparison > invalid(4): !(a != b) 1`] = `
+
+  1 | !(a != b)
+
+`;
+
+exports[`no-negated-comparison > invalid(4): !(a != b) 2`] = `
+
+Message:
+> 1 | !(a != b)
+    | ^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | a == b
+
+`;
+
+exports[`no-negated-comparison > invalid(4): !(a?.b === c && d === e) 1`] = `
+
+Options:
+- checkLogicalExpressions: true
+
+Code:
+  1 | !(a?.b === c && d === e)
+
+`;
+
+exports[`no-negated-comparison > invalid(4): !(a?.b === c && d === e) 2`] = `
+
+Message:
+> 1 | !(a?.b === c && d === e)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparisons instead of negating the whole logical expression.
+
+Output:
+  1 | (a?.b !== c || d !== e)
+
+`;
+
+exports[`no-negated-comparison > invalid(5): !(a === b && (c === d || e === f)) 1`] = `
+
+Options:
+- checkLogicalExpressions: true
+
+Code:
+  1 | !(a === b && (c === d || e === f))
+
+`;
+
+exports[`no-negated-comparison > invalid(5): !(a === b && (c === d || e === f)) 2`] = `
+
+Message:
+> 1 | !(a === b && (c === d || e === f))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparisons instead of negating the whole logical expression.
+
+Output:
+  1 | (a !== b || (c !== d && e !== f))
+
+`;
+
+exports[`no-negated-comparison > invalid(5): !(a === b === c) 1`] = `
+
+  1 | !(a === b === c)
+
+`;
+
+exports[`no-negated-comparison > invalid(5): !(a === b === c) 2`] = `
+
+Message:
+> 1 | !(a === b === c)
+    | ^^^^^^^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | a === b !== c
+
+`;
+
+exports[`no-negated-comparison > invalid(6): !((a === b && c === d) && e === f) 1`] = `
+
+Options:
+- checkLogicalExpressions: true
+
+Code:
+  1 | !((a === b && c === d) && e === f)
+
+`;
+
+exports[`no-negated-comparison > invalid(6): !((a === b && c === d) && e === f) 2`] = `
+
+Message:
+> 1 | !((a === b && c === d) && e === f)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparisons instead of negating the whole logical expression.
+
+Output:
+  1 | (a !== b || c !== d || e !== f)
+
+`;
+
+exports[`no-negated-comparison > invalid(6): !(typeof value === \"undefined\") 1`] = `
+
+  1 | !(typeof value === "undefined")
+
+`;
+
+exports[`no-negated-comparison > invalid(6): !(typeof value === \"undefined\") 2`] = `
+
+Message:
+> 1 | !(typeof value === "undefined")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | typeof value !== "undefined"
+
+`;
+
+exports[`no-negated-comparison > invalid(7): !((a === b)) 1`] = `
+
+  1 | !((a === b))
+
+`;
+
+exports[`no-negated-comparison > invalid(7): !((a === b)) 2`] = `
+
+Message:
+> 1 | !((a === b))
+    | ^^^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | a !== b
+
+`;
+
+exports[`no-negated-comparison > invalid(7): !(a === b && c === d || e === f) 1`] = `
+
+Options:
+- checkLogicalExpressions: true
+
+Code:
+  1 | !(a === b && c === d || e === f)
+
+`;
+
+exports[`no-negated-comparison > invalid(7): !(a === b && c === d || e === f) 2`] = `
+
+Message:
+> 1 | !(a === b && c === d || e === f)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparisons instead of negating the whole logical expression.
+
+Output:
+  1 | ((a !== b || c !== d) && e !== f)
+
+`;
+
+exports[`no-negated-comparison > invalid(8): !(a === b || c === d && e === f) 1`] = `
+
+Options:
+- checkLogicalExpressions: true
+
+Code:
+  1 | !(a === b || c === d && e === f)
+
+`;
+
+exports[`no-negated-comparison > invalid(8): !(a === b || c === d && e === f) 2`] = `
+
+Message:
+> 1 | !(a === b || c === d && e === f)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparisons instead of negating the whole logical expression.
+
+Output:
+  1 | (a !== b && (c !== d || e !== f))
+
+`;
+
+exports[`no-negated-comparison > invalid(8): (!(a === b)).toString() 1`] = `
+
+  1 | (!(a === b)).toString()
+
+`;
+
+exports[`no-negated-comparison > invalid(8): (!(a === b)).toString() 2`] = `
+
+Message:
+> 1 | (!(a === b)).toString()
+    |  ^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | (a !== b).toString()
+
+`;
+
+exports[`no-negated-comparison > invalid(9): !((a || b) === c && d === e) 1`] = `
+
+Options:
+- checkLogicalExpressions: true
+
+Code:
+  1 | !((a || b) === c && d === e)
+
+`;
+
+exports[`no-negated-comparison > invalid(9): !((a || b) === c && d === e) 2`] = `
+
+Message:
+> 1 | !((a || b) === c && d === e)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparisons instead of negating the whole logical expression.
+
+Output:
+  1 | ((a || b) !== c || d !== e)
+
+`;
+
+exports[`no-negated-comparison > invalid(9): foo(!(a === b)) 1`] = `
+
+  1 | foo(!(a === b))
+
+`;
+
+exports[`no-negated-comparison > invalid(9): foo(!(a === b)) 2`] = `
+
+Message:
+> 1 | foo(!(a === b))
+    |     ^^^^^^^^^^ Prefer the opposite comparison instead of negating the whole comparison.
+
+Output:
+  1 | foo(a !== b)
+
+`;

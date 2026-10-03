@@ -707,6 +707,31 @@ test.snapshot({
 				parser: parsers.typescript,
 			},
 		},
+		// Direct `eval` nested in the condition
+		outdent`
+			function foo() {
+				if (!eval('typeof value === "undefined"')) {
+					const value = getValue();
+					doSomething(value);
+				}
+			}
+		`,
+		outdent`
+			function foo() {
+				if ([, eval('typeof value === "undefined"')].length > 0) {
+					const value = getValue();
+					doSomething(value);
+				}
+			}
+		`,
+		outdent`
+			function foo() {
+				if ((function () {})()) {
+					const value = getValue();
+					doSomething(value);
+				}
+			}
+		`,
 	],
 });
 

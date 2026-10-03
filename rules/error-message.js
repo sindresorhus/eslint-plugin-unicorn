@@ -47,15 +47,9 @@ const isSafeObjectFreezeArgument = (node, context) => {
 };
 
 const isObjectFreezeMemberExpression = (node, context) => {
+	// `hasPotentiallyMutableMemberAccess` only returns `true` for an identifier when it is a `const` with an initializer, so the identifier always resolves to one.
 	if (node.type === 'Identifier') {
-		const variable = findVariable(context.sourceCode.getScope(node), node);
-		const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
-		node = definition?.type === 'Variable'
-			&& definition.parent?.kind === 'const'
-			&& definition.node.id === definition.name
-			&& definition.node.init
-			? definition.node.init
-			: node;
+		node = findVariable(context.sourceCode.getScope(node), node).defs[0].node.init;
 	}
 
 	return node.type === 'MemberExpression'

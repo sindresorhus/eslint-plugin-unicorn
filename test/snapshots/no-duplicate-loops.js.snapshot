@@ -1,0 +1,245 @@
+exports[`no-duplicate-loops > invalid(1): for (const item of items.map(callback)) {} 1`] = `
+
+  1 | for (const item of items.map(callback)) {}
+
+`;
+
+exports[`no-duplicate-loops > invalid(1): for (const item of items.map(callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of items.map(callback)) {}
+    |                          ^^^ Do not use \`.map()\` directly in a \`for…of\` loop header. It creates an intermediate array before the loop.
+
+`;
+
+exports[`no-duplicate-loops > invalid(10): for (const item of items.map(/* comment */ callback)) {} 1`] = `
+
+  1 | for (const item of items.map(/* comment */ callback)) {}
+
+`;
+
+exports[`no-duplicate-loops > invalid(10): for (const item of items.map(/* comment */ callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of items.map(/* comment */ callback)) {}
+    |                          ^^^ Do not use \`.map()\` directly in a \`for…of\` loop header. It creates an intermediate array before the loop.
+
+`;
+
+exports[`no-duplicate-loops > invalid(11): const Iterator = {from: items => items}; for (const item of Iterator.from(items).map(callback)) {} 1`] = `
+
+  1 | const Iterator = {from: items => items}; for (const item of Iterator.from(items).map(callback)) {}
+
+`;
+
+exports[`no-duplicate-loops > invalid(11): const Iterator = {from: items => items}; for (const item of Iterator.from(items).map(callback)) {} 2`] = `
+
+Message:
+> 1 | const Iterator = {from: items => items}; for (const item of Iterator.from(items).map(callback)) {}
+    |                                                                                  ^^^ Do not use \`.map()\` directly in a \`for…of\` loop header. It creates an intermediate array before the loop.
+
+`;
+
+exports[`no-duplicate-loops > invalid(12): const Iterator = {zip: iterables => iterables}; for (const item of Iterator.zip(iterables).filter(callback)) {} 1`] = `
+
+  1 | const Iterator = {zip: iterables => iterables}; for (const item of Iterator.zip(iterables).filter(callback)) {}
+
+`;
+
+exports[`no-duplicate-loops > invalid(12): const Iterator = {zip: iterables => iterables}; for (const item of Iterator.zip(iterables).filter(callback)) {} 2`] = `
+
+Message:
+> 1 | const Iterator = {zip: iterables => iterables}; for (const item of Iterator.zip(iterables).filter(callback)) {}
+    |                                                                                            ^^^^^^ Do not use \`.filter()\` directly in a \`for…of\` loop header. It creates an intermediate array before the loop.
+
+`;
+
+exports[`no-duplicate-loops > invalid(13): const globalThis = {Iterator: {from: items => items}}; for (const item of globalThis.Iterator.from(items).map(callback)) {} 1`] = `
+
+  1 | const globalThis = {Iterator: {from: items => items}}; for (const item of globalThis.Iterator.from(items).map(callback)) {}
+
+`;
+
+exports[`no-duplicate-loops > invalid(13): const globalThis = {Iterator: {from: items => items}}; for (const item of globalThis.Iterator.from(items).map(callback)) {} 2`] = `
+
+Message:
+> 1 | const globalThis = {Iterator: {from: items => items}}; for (const item of globalThis.Iterator.from(items).map(callback)) {}
+    |                                                                                                           ^^^ Do not use \`.map()\` directly in a \`for…of\` loop header. It creates an intermediate array before the loop.
+
+`;
+
+exports[`no-duplicate-loops > invalid(14): for (const item of items\n\t.map(item => item.value)\n) {} 1`] = `
+
+  1 | for (const item of items
+  2 | 	.map(item => item.value)
+  3 | ) {}
+
+`;
+
+exports[`no-duplicate-loops > invalid(14): for (const item of items\n\t.map(item => item.value)\n) {} 2`] = `
+
+Message:
+  1 | for (const item of items
+> 2 | 	.map(item => item.value)
+    | 	 ^^^ Do not use \`.map()\` directly in a \`for…of\` loop header. It creates an intermediate array before the loop.
+  3 | ) {}
+
+`;
+
+exports[`no-duplicate-loops > invalid(15): for (\n\tconst item of items.filter(item => item.isEnabled)\n) {} 1`] = `
+
+  1 | for (
+  2 | 	const item of items.filter(item => item.isEnabled)
+  3 | ) {}
+
+`;
+
+exports[`no-duplicate-loops > invalid(15): for (\n\tconst item of items.filter(item => item.isEnabled)\n) {} 2`] = `
+
+Message:
+  1 | for (
+> 2 | 	const item of items.filter(item => item.isEnabled)
+    | 	                    ^^^^^^ Do not use \`.filter()\` directly in a \`for…of\` loop header. It creates an intermediate array before the loop.
+  3 | ) {}
+
+`;
+
+exports[`no-duplicate-loops > invalid(16): function foo(items: string[]) { for (const item of (items as string[]).map(item => item.trim())) {} } 1`] = `
+
+  1 | function foo(items: string[]) { for (const item of (items as string[]).map(item => item.trim())) {} }
+
+`;
+
+exports[`no-duplicate-loops > invalid(16): function foo(items: string[]) { for (const item of (items as string[]).map(item => item.trim())) {} } 2`] = `
+
+Message:
+> 1 | function foo(items: string[]) { for (const item of (items as string[]).map(item => item.trim())) {} }
+    |                                                                        ^^^ Do not use \`.map()\` directly in a \`for…of\` loop header. It creates an intermediate array before the loop.
+
+`;
+
+exports[`no-duplicate-loops > invalid(17): for (const item of items.map(callback) as string[]) {} 1`] = `
+
+  1 | for (const item of items.map(callback) as string[]) {}
+
+`;
+
+exports[`no-duplicate-loops > invalid(17): for (const item of items.map(callback) as string[]) {} 2`] = `
+
+Message:
+> 1 | for (const item of items.map(callback) as string[]) {}
+    |                          ^^^ Do not use \`.map()\` directly in a \`for…of\` loop header. It creates an intermediate array before the loop.
+
+`;
+
+exports[`no-duplicate-loops > invalid(2): for (const item of items.filter(callback)) {} 1`] = `
+
+  1 | for (const item of items.filter(callback)) {}
+
+`;
+
+exports[`no-duplicate-loops > invalid(2): for (const item of items.filter(callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of items.filter(callback)) {}
+    |                          ^^^^^^ Do not use \`.filter()\` directly in a \`for…of\` loop header. It creates an intermediate array before the loop.
+
+`;
+
+exports[`no-duplicate-loops > invalid(3): for (const item of items.map(callback, thisArgument)) {} 1`] = `
+
+  1 | for (const item of items.map(callback, thisArgument)) {}
+
+`;
+
+exports[`no-duplicate-loops > invalid(3): for (const item of items.map(callback, thisArgument)) {} 2`] = `
+
+Message:
+> 1 | for (const item of items.map(callback, thisArgument)) {}
+    |                          ^^^ Do not use \`.map()\` directly in a \`for…of\` loop header. It creates an intermediate array before the loop.
+
+`;
+
+exports[`no-duplicate-loops > invalid(4): for (const item of items.filter(callback, thisArgument)) {} 1`] = `
+
+  1 | for (const item of items.filter(callback, thisArgument)) {}
+
+`;
+
+exports[`no-duplicate-loops > invalid(4): for (const item of items.filter(callback, thisArgument)) {} 2`] = `
+
+Message:
+> 1 | for (const item of items.filter(callback, thisArgument)) {}
+    |                          ^^^^^^ Do not use \`.filter()\` directly in a \`for…of\` loop header. It creates an intermediate array before the loop.
+
+`;
+
+exports[`no-duplicate-loops > invalid(5): for (const item of (items).map(callback)) {} 1`] = `
+
+  1 | for (const item of (items).map(callback)) {}
+
+`;
+
+exports[`no-duplicate-loops > invalid(5): for (const item of (items).map(callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of (items).map(callback)) {}
+    |                            ^^^ Do not use \`.map()\` directly in a \`for…of\` loop header. It creates an intermediate array before the loop.
+
+`;
+
+exports[`no-duplicate-loops > invalid(6): for (const item of ((items)).filter(callback)) {} 1`] = `
+
+  1 | for (const item of ((items)).filter(callback)) {}
+
+`;
+
+exports[`no-duplicate-loops > invalid(6): for (const item of ((items)).filter(callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of ((items)).filter(callback)) {}
+    |                              ^^^^^^ Do not use \`.filter()\` directly in a \`for…of\` loop header. It creates an intermediate array before the loop.
+
+`;
+
+exports[`no-duplicate-loops > invalid(7): for (const item of (items.map(callback))) {} 1`] = `
+
+  1 | for (const item of (items.map(callback))) {}
+
+`;
+
+exports[`no-duplicate-loops > invalid(7): for (const item of (items.map(callback))) {} 2`] = `
+
+Message:
+> 1 | for (const item of (items.map(callback))) {}
+    |                           ^^^ Do not use \`.map()\` directly in a \`for…of\` loop header. It creates an intermediate array before the loop.
+
+`;
+
+exports[`no-duplicate-loops > invalid(8): for await (const item of items.map(callback)) {} 1`] = `
+
+  1 | for await (const item of items.map(callback)) {}
+
+`;
+
+exports[`no-duplicate-loops > invalid(8): for await (const item of items.map(callback)) {} 2`] = `
+
+Message:
+> 1 | for await (const item of items.map(callback)) {}
+    |                                ^^^ Do not use \`.map()\` directly in a \`for await…of\` loop header. It creates an intermediate array before the loop.
+
+`;
+
+exports[`no-duplicate-loops > invalid(9): for await (const item of items.filter(async item => item.isEnabled)) {} 1`] = `
+
+  1 | for await (const item of items.filter(async item => item.isEnabled)) {}
+
+`;
+
+exports[`no-duplicate-loops > invalid(9): for await (const item of items.filter(async item => item.isEnabled)) {} 2`] = `
+
+Message:
+> 1 | for await (const item of items.filter(async item => item.isEnabled)) {}
+    |                                ^^^^^^ Do not use \`.filter()\` directly in a \`for await…of\` loop header. It creates an intermediate array before the loop.
+
+`;

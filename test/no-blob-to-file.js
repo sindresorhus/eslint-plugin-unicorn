@@ -44,6 +44,8 @@ test.snapshot({
 		'const name = "image.jpg";\nconst formData = new FormData();\nconst file = new File([blob], name);\n{\n\tconst name = "other.jpg";\n\tformData.append("file", file);\n}',
 		'let name = "a.jpg";\nconst formData = new FormData();\nconst file = new File([blob], name);\nname = "b.jpg";\nformData.append("file", file);',
 		'const formData = new FormData();\nconst file = new File([blob], getName());\nformData.append("file", file);',
+		'const blob = new Blob();\nconst file = new File([blob], "image.jpg");',
+		'const blob = new Blob();\nconst file = new File([blob], "image.jpg");\nURL.createObjectURL(file);\nconsole.log(file);',
 	],
 	invalid: [
 		outdent`

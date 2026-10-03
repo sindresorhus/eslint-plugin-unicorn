@@ -59,6 +59,8 @@ function hasPromiseReturnType(node, context) {
 			const types = returnType.isUnion() ? returnType.types : [returnType];
 			return types.some(type => isPromiseType(type, checker) === true);
 		});
+		// Tests cannot make TypeScript throw here.
+		/* node:coverage ignore next 4 */
 	} catch {
 		// Type information can be unavailable in incomplete projects; retain syntax-based detection.
 		return false;

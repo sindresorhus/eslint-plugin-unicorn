@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import plugin from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
@@ -143,6 +143,7 @@ testRule.snapshot({
 		cachedLoop('const length = Math.min(names.length, scores.length); /* keep cached-bound comment */'),
 		cachedLoop('let length = Math.min(names.length, scores.length);'),
 		typescript(cachedLoop('const length: number = Math.min(names.length, scores.length);')),
+		loop('for (const letter of names[index]) { save(letter, scores[index]); }'),
 	],
 });
 
@@ -155,7 +156,7 @@ test('suggestions preserve token boundaries around parenthesized receivers', t =
 	});
 	const {fix} = message.suggestions[0];
 	const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
-	t.is(output, 'function pair(names, scores) { for (const [name, score] of Iterator.zip([names, scores])) { save(typeof name, score); return name; } }');
+	t.assert.strictEqual(output, 'function pair(names, scores) { for (const [name, score] of Iterator.zip([names, scores])) { save(typeof name, score); return name; } }');
 });
 
 test('suggestions work with related rules and ordinary autofixing does not change the loop', t => {
@@ -180,12 +181,12 @@ test('suggestions work with related rules and ordinary autofixing does not chang
 	const linter = new Linter();
 	const code = loop();
 	const messages = linter.verify(code, config);
-	t.deepEqual(messages.map(({ruleId}) => ruleId), ['unicorn/prefer-iterator-zip']);
-	t.is(linter.verifyAndFix(code, config).output, code);
+	t.assert.deepStrictEqual(messages.map(({ruleId}) => ruleId), ['unicorn/prefer-iterator-zip']);
+	t.assert.strictEqual(linter.verifyAndFix(code, config).output, code);
 	const {fix} = messages[0].suggestions[0];
 	const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
-	t.is(output, 'for (const [name, score] of Iterator.zip([names, scores])) { save(name, score); }');
-	t.deepEqual(linter.verify(output, config), []);
-	t.is(plugin.configs.recommended.rules['unicorn/prefer-iterator-zip'], 'error');
-	t.is(plugin.configs.unopinionated.rules['unicorn/prefer-iterator-zip'], 'off');
+	t.assert.strictEqual(output, 'for (const [name, score] of Iterator.zip([names, scores])) { save(name, score); }');
+	t.assert.deepStrictEqual(linter.verify(output, config), []);
+	t.assert.strictEqual(plugin.configs.recommended.rules['unicorn/prefer-iterator-zip'], 'error');
+	t.assert.strictEqual(plugin.configs.unopinionated.rules['unicorn/prefer-iterator-zip'], 'off');
 });

@@ -1,0 +1,254 @@
+exports[`prefer-dom-node-text-content > invalid(1): node.innerText; 1`] = `
+
+  1 | node.innerText;
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(1): node.innerText; 2`] = `
+
+Message:
+> 1 | node.innerText;
+    |      ^^^^^^^^^ Prefer \`.textContent\` over \`.innerText\`.
+
+Suggestion 1/1: Switch to \`.textContent\`.:
+  1 | node.textContent;
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(10): ({innerText} = node); 1`] = `
+
+  1 | ({innerText} = node);
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(10): ({innerText} = node); 2`] = `
+
+Message:
+> 1 | ({innerText} = node);
+    |   ^^^^^^^^^ Prefer \`.textContent\` over \`.innerText\`.
+
+Suggestion 1/1: Switch to \`.textContent\`.:
+  1 | ({textContent: innerText} = node);
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(11): ({innerText: text} = node); 1`] = `
+
+  1 | ({innerText: text} = node);
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(11): ({innerText: text} = node); 2`] = `
+
+Message:
+> 1 | ({innerText: text} = node);
+    |   ^^^^^^^^^ Prefer \`.textContent\` over \`.innerText\`.
+
+Suggestion 1/1: Switch to \`.textContent\`.:
+  1 | ({textContent: text} = node);
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(12): ({innerText = \"default text\"} = node); 1`] = `
+
+  1 | ({innerText = "default text"} = node);
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(12): ({innerText = \"default text\"} = node); 2`] = `
+
+Message:
+> 1 | ({innerText = "default text"} = node);
+    |   ^^^^^^^^^ Prefer \`.textContent\` over \`.innerText\`.
+
+Suggestion 1/1: Switch to \`.textContent\`.:
+  1 | ({textContent: innerText = "default text"} = node);
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(13): ({innerText: text = \"default text\"} = node); 1`] = `
+
+  1 | ({innerText: text = "default text"} = node);
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(13): ({innerText: text = \"default text\"} = node); 2`] = `
+
+Message:
+> 1 | ({innerText: text = "default text"} = node);
+    |   ^^^^^^^^^ Prefer \`.textContent\` over \`.innerText\`.
+
+Suggestion 1/1: Switch to \`.textContent\`.:
+  1 | ({textContent: text = "default text"} = node);
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(14): function foo({innerText}) {return innerText} 1`] = `
+
+  1 | function foo({innerText}) {return innerText}
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(14): function foo({innerText}) {return innerText} 2`] = `
+
+Message:
+> 1 | function foo({innerText}) {return innerText}
+    |               ^^^^^^^^^ Prefer \`.textContent\` over \`.innerText\`.
+
+Suggestion 1/1: Switch to \`.textContent\`.:
+  1 | function foo({textContent: innerText}) {return innerText}
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(15): for (const [{innerText}] of elements); 1`] = `
+
+  1 | for (const [{innerText}] of elements);
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(15): for (const [{innerText}] of elements); 2`] = `
+
+Message:
+> 1 | for (const [{innerText}] of elements);
+    |              ^^^^^^^^^ Prefer \`.textContent\` over \`.innerText\`.
+
+Suggestion 1/1: Switch to \`.textContent\`.:
+  1 | for (const [{textContent: innerText}] of elements);
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(2): node?.innerText; 1`] = `
+
+  1 | node?.innerText;
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(2): node?.innerText; 2`] = `
+
+Message:
+> 1 | node?.innerText;
+    |       ^^^^^^^^^ Prefer \`.textContent\` over \`.innerText\`.
+
+Suggestion 1/1: Switch to \`.textContent\`.:
+  1 | node?.textContent;
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(3): node.innerText = 'foo'; 1`] = `
+
+  1 | node.innerText = 'foo';
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(3): node.innerText = 'foo'; 2`] = `
+
+Message:
+> 1 | node.innerText = 'foo';
+    |      ^^^^^^^^^ Prefer \`.textContent\` over \`.innerText\`.
+
+Suggestion 1/1: Switch to \`.textContent\`.:
+  1 | node.textContent = 'foo';
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(4): innerText.innerText; 1`] = `
+
+  1 | innerText.innerText;
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(4): innerText.innerText; 2`] = `
+
+Message:
+> 1 | innerText.innerText;
+    |           ^^^^^^^^^ Prefer \`.textContent\` over \`.innerText\`.
+
+Suggestion 1/1: Switch to \`.textContent\`.:
+  1 | innerText.textContent;
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(5): const {innerText} = node; 1`] = `
+
+  1 | const {innerText} = node;
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(5): const {innerText} = node; 2`] = `
+
+Message:
+> 1 | const {innerText} = node;
+    |        ^^^^^^^^^ Prefer \`.textContent\` over \`.innerText\`.
+
+Suggestion 1/1: Switch to \`.textContent\`.:
+  1 | const {textContent: innerText} = node;
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(6): const {innerText,} = node; 1`] = `
+
+  1 | const {innerText,} = node;
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(6): const {innerText,} = node; 2`] = `
+
+Message:
+> 1 | const {innerText,} = node;
+    |        ^^^^^^^^^ Prefer \`.textContent\` over \`.innerText\`.
+
+Suggestion 1/1: Switch to \`.textContent\`.:
+  1 | const {textContent: innerText,} = node;
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(7): const {innerText: text} = node; 1`] = `
+
+  1 | const {innerText: text} = node;
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(7): const {innerText: text} = node; 2`] = `
+
+Message:
+> 1 | const {innerText: text} = node;
+    |        ^^^^^^^^^ Prefer \`.textContent\` over \`.innerText\`.
+
+Suggestion 1/1: Switch to \`.textContent\`.:
+  1 | const {textContent: text} = node;
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(8): const {innerText = \"default text\"} = node; 1`] = `
+
+  1 | const {innerText = "default text"} = node;
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(8): const {innerText = \"default text\"} = node; 2`] = `
+
+Message:
+> 1 | const {innerText = "default text"} = node;
+    |        ^^^^^^^^^ Prefer \`.textContent\` over \`.innerText\`.
+
+Suggestion 1/1: Switch to \`.textContent\`.:
+  1 | const {textContent: innerText = "default text"} = node;
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(9): const {innerText: text = \"default text\"} = node; 1`] = `
+
+  1 | const {innerText: text = "default text"} = node;
+
+`;
+
+exports[`prefer-dom-node-text-content > invalid(9): const {innerText: text = \"default text\"} = node; 2`] = `
+
+Message:
+> 1 | const {innerText: text = "default text"} = node;
+    |        ^^^^^^^^^ Prefer \`.textContent\` over \`.innerText\`.
+
+Suggestion 1/1: Switch to \`.textContent\`.:
+  1 | const {textContent: text = "default text"} = node;
+
+`;

@@ -40,7 +40,7 @@ const isNullishType = type => nullishTypeNames.has(type.intrinsicName);
 
 function getBaseTypes(type, checker) {
 	try {
-		return checker.getBaseTypes(type) ?? type.getBaseTypes?.() ?? [];
+		return checker.getBaseTypes(type);
 	} catch {
 		return [];
 	}

@@ -12,7 +12,7 @@ import {
 	isParenthesized,
 	isSameReference,
 	needsSemicolon,
-	shouldAddParenthesesToMemberExpressionObject,
+	getMemberExpressionObjectText,
 	shouldAddParenthesesToUnaryExpressionArgument,
 	wouldRemoveComments,
 	hasOptionalChainElement,
@@ -24,18 +24,6 @@ const messages = {
 	[MESSAGE_ID_ERROR]: 'Prefer using `Element#toggleAttribute()` to toggle attributes.',
 	[MESSAGE_ID_SUGGESTION]: 'Replace with `Element#toggleAttribute()`.',
 };
-
-function getReceiverText(node, context) {
-	const text = getParenthesizedText(node, context);
-	if (
-		!isParenthesized(node, context.sourceCode)
-		&& shouldAddParenthesesToMemberExpressionObject(node, context)
-	) {
-		return `(${text})`;
-	}
-
-	return text;
-}
 
 const getConditionText = (node, context, isNegative) => {
 	let text = getParenthesizedText(node, context);
@@ -249,7 +237,7 @@ const create = context => {
 		const fix = shouldReportOnly || wouldRemoveComments(context, node, preservedNodes)
 			? undefined
 			: function * (fixer) {
-				const receiverText = getReceiverText(setCall.receiver, context);
+				const receiverText = getMemberExpressionObjectText(setCall.receiver, context);
 				const attributeNameText = getParenthesizedText(setCall.attributeName, context);
 				const optional = setCall.isOptional ? '?' : '';
 				const isExpression = node.type === 'ConditionalExpression';

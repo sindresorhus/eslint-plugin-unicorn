@@ -124,11 +124,12 @@ const getProblem = ({exportDeclaration, expectedStyle, context}) => {
 		return;
 	}
 
+	// The actual style differs from the expected one, so at least one decorator is not in the expected position
 	const reportNode = decorators.find(decorator => getDecoratorStyle({
 		decorator,
 		exportToken,
 		sourceCode,
-	}) !== expectedStyle) ?? decorators[0];
+	}) !== expectedStyle);
 
 	const problem = {
 		node: reportNode,

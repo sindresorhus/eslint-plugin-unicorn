@@ -1,6 +1,11 @@
 import {isCommentToken} from '@eslint-community/eslint-utils';
 import {removeStatement} from './fix/index.js';
-import {getParenthesizedRange, getParenthesizedText, unwrapTypeScriptExpression} from './utils/index.js';
+import {
+	getParenthesizedRange,
+	getParenthesizedText,
+	unwrapTypeScriptExpression,
+	getVisitorChildNodes,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-smaller-scope';
 const messages = {
@@ -65,18 +70,7 @@ function hasDynamicScope(node, visitorKeys) {
 		return true;
 	}
 
-	for (const key of visitorKeys[node.type] ?? []) {
-		const value = node[key];
-		if (Array.isArray(value)) {
-			if (value.some(childNode => childNode && hasDynamicScope(childNode, visitorKeys))) {
-				return true;
-			}
-		} else if (value && hasDynamicScope(value, visitorKeys)) {
-			return true;
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, visitorKeys).some(child => hasDynamicScope(child, visitorKeys));
 }
 
 function getAssignment(writeReference) {

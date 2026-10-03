@@ -1,0 +1,380 @@
+exports[`switch-case-break-position > invalid(1): switch(foo) {\n\tcase 1: {\n\t\tdoStuff();\n\t}\n\tbreak;\n} 1`] = `
+
+  1 | switch(foo) {
+  2 | 	case 1: {
+  3 | 		doStuff();
+  4 | 	}
+  5 | 	break;
+  6 | }
+
+`;
+
+exports[`switch-case-break-position > invalid(1): switch(foo) {\n\tcase 1: {\n\t\tdoStuff();\n\t}\n\tbreak;\n} 2`] = `
+
+Message:
+  1 | switch(foo) {
+  2 | 	case 1: {
+  3 | 		doStuff();
+  4 | 	}
+> 5 | 	break;
+    | 	^^^^^^ Move \`break\` inside the block statement.
+  6 | }
+
+Output:
+  1 | switch(foo) {
+  2 | 	case 1: {
+  3 | 		doStuff();
+  4 | 		break;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`switch-case-break-position > invalid(10): switch(foo) {\n\tcase 1: {\n\t\tdoStuff();\n\t}\n\t// This break is intentional\n\tbreak;\n} 1`] = `
+
+  1 | switch(foo) {
+  2 | 	case 1: {
+  3 | 		doStuff();
+  4 | 	}
+  5 | 	// This break is intentional
+  6 | 	break;
+  7 | }
+
+`;
+
+exports[`switch-case-break-position > invalid(10): switch(foo) {\n\tcase 1: {\n\t\tdoStuff();\n\t}\n\t// This break is intentional\n\tbreak;\n} 2`] = `
+
+Message:
+  1 | switch(foo) {
+  2 | 	case 1: {
+  3 | 		doStuff();
+  4 | 	}
+  5 | 	// This break is intentional
+> 6 | 	break;
+    | 	^^^^^^ Move \`break\` inside the block statement.
+  7 | }
+
+`;
+
+exports[`switch-case-break-position > invalid(11): function bar() {\n\tswitch(foo) {\n\t\tcase 1: {\n\t\t\tconst value = 1;\n\t\t}\n\t\treturn value;\n\t}\n} 1`] = `
+
+  1 | function bar() {
+  2 | 	switch(foo) {
+  3 | 		case 1: {
+  4 | 			const value = 1;
+  5 | 		}
+  6 | 		return value;
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`switch-case-break-position > invalid(11): function bar() {\n\tswitch(foo) {\n\t\tcase 1: {\n\t\t\tconst value = 1;\n\t\t}\n\t\treturn value;\n\t}\n} 2`] = `
+
+Message:
+  1 | function bar() {
+  2 | 	switch(foo) {
+  3 | 		case 1: {
+  4 | 			const value = 1;
+  5 | 		}
+> 6 | 		return value;
+    | 		^^^^^^^^^^^^^ Move \`return\` inside the block statement.
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`switch-case-break-position > invalid(12): function bar() {\n\tswitch(foo) {\n\t\tcase 1: {\n\t\t\tconst error = new Error('inner');\n\t\t}\n\t\tthrow error;\n\t}\n} 1`] = `
+
+  1 | function bar() {
+  2 | 	switch(foo) {
+  3 | 		case 1: {
+  4 | 			const error = new Error('inner');
+  5 | 		}
+  6 | 		throw error;
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`switch-case-break-position > invalid(12): function bar() {\n\tswitch(foo) {\n\t\tcase 1: {\n\t\t\tconst error = new Error('inner');\n\t\t}\n\t\tthrow error;\n\t}\n} 2`] = `
+
+Message:
+  1 | function bar() {
+  2 | 	switch(foo) {
+  3 | 		case 1: {
+  4 | 			const error = new Error('inner');
+  5 | 		}
+> 6 | 		throw error;
+    | 		^^^^^^^^^^^^ Move \`throw\` inside the block statement.
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`switch-case-break-position > invalid(2): function bar() {\n\tswitch(foo) {\n\t\tcase 1: {\n\t\t\tdoStuff();\n\t\t}\n\t\treturn;\n\t}\n} 1`] = `
+
+  1 | function bar() {
+  2 | 	switch(foo) {
+  3 | 		case 1: {
+  4 | 			doStuff();
+  5 | 		}
+  6 | 		return;
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`switch-case-break-position > invalid(2): function bar() {\n\tswitch(foo) {\n\t\tcase 1: {\n\t\t\tdoStuff();\n\t\t}\n\t\treturn;\n\t}\n} 2`] = `
+
+Message:
+  1 | function bar() {
+  2 | 	switch(foo) {
+  3 | 		case 1: {
+  4 | 			doStuff();
+  5 | 		}
+> 6 | 		return;
+    | 		^^^^^^^ Move \`return\` inside the block statement.
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`switch-case-break-position > invalid(3): function bar() {\n\tswitch(foo) {\n\t\tcase 1: {\n\t\t\tdoStuff();\n\t\t}\n\t\treturn result;\n\t}\n} 1`] = `
+
+  1 | function bar() {
+  2 | 	switch(foo) {
+  3 | 		case 1: {
+  4 | 			doStuff();
+  5 | 		}
+  6 | 		return result;
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`switch-case-break-position > invalid(3): function bar() {\n\tswitch(foo) {\n\t\tcase 1: {\n\t\t\tdoStuff();\n\t\t}\n\t\treturn result;\n\t}\n} 2`] = `
+
+Message:
+  1 | function bar() {
+  2 | 	switch(foo) {
+  3 | 		case 1: {
+  4 | 			doStuff();
+  5 | 		}
+> 6 | 		return result;
+    | 		^^^^^^^^^^^^^^ Move \`return\` inside the block statement.
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`switch-case-break-position > invalid(4): switch(foo) {\n\tcase 1: {\n\t\tdoStuff();\n\t}\n\tthrow new Error('bad');\n} 1`] = `
+
+  1 | switch(foo) {
+  2 | 	case 1: {
+  3 | 		doStuff();
+  4 | 	}
+  5 | 	throw new Error('bad');
+  6 | }
+
+`;
+
+exports[`switch-case-break-position > invalid(4): switch(foo) {\n\tcase 1: {\n\t\tdoStuff();\n\t}\n\tthrow new Error('bad');\n} 2`] = `
+
+Message:
+  1 | switch(foo) {
+  2 | 	case 1: {
+  3 | 		doStuff();
+  4 | 	}
+> 5 | 	throw new Error('bad');
+    | 	^^^^^^^^^^^^^^^^^^^^^^^ Move \`throw\` inside the block statement.
+  6 | }
+
+`;
+
+exports[`switch-case-break-position > invalid(5): switch(foo) {\n\tdefault: {\n\t\tdoStuff();\n\t}\n\tbreak;\n} 1`] = `
+
+  1 | switch(foo) {
+  2 | 	default: {
+  3 | 		doStuff();
+  4 | 	}
+  5 | 	break;
+  6 | }
+
+`;
+
+exports[`switch-case-break-position > invalid(5): switch(foo) {\n\tdefault: {\n\t\tdoStuff();\n\t}\n\tbreak;\n} 2`] = `
+
+Message:
+  1 | switch(foo) {
+  2 | 	default: {
+  3 | 		doStuff();
+  4 | 	}
+> 5 | 	break;
+    | 	^^^^^^ Move \`break\` inside the block statement.
+  6 | }
+
+Output:
+  1 | switch(foo) {
+  2 | 	default: {
+  3 | 		doStuff();
+  4 | 		break;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`switch-case-break-position > invalid(6): switch(foo) {\n\tcase 1:\n\t\t{\n\t\t\tdoStuff();\n\t\t}\n\t\tbreak;\n} 1`] = `
+
+  1 | switch(foo) {
+  2 | 	case 1:
+  3 | 		{
+  4 | 			doStuff();
+  5 | 		}
+  6 | 		break;
+  7 | }
+
+`;
+
+exports[`switch-case-break-position > invalid(6): switch(foo) {\n\tcase 1:\n\t\t{\n\t\t\tdoStuff();\n\t\t}\n\t\tbreak;\n} 2`] = `
+
+Message:
+  1 | switch(foo) {
+  2 | 	case 1:
+  3 | 		{
+  4 | 			doStuff();
+  5 | 		}
+> 6 | 		break;
+    | 		^^^^^^ Move \`break\` inside the block statement.
+  7 | }
+
+Output:
+  1 | switch(foo) {
+  2 | 	case 1:
+  3 | 		{
+  4 | 			doStuff();
+  5 | 			break;
+  6 | 		}
+  7 | }
+
+`;
+
+exports[`switch-case-break-position > invalid(7): switch(foo) {\n\tcase 1: {\n\t\tdoStuff();\n\t\tbreak;\n\t}\n\tcase 2: {\n\t\tdoOtherStuff();\n\t}\n\tbreak;\n} 1`] = `
+
+   1 | switch(foo) {
+   2 | 	case 1: {
+   3 | 		doStuff();
+   4 | 		break;
+   5 | 	}
+   6 | 	case 2: {
+   7 | 		doOtherStuff();
+   8 | 	}
+   9 | 	break;
+  10 | }
+
+`;
+
+exports[`switch-case-break-position > invalid(7): switch(foo) {\n\tcase 1: {\n\t\tdoStuff();\n\t\tbreak;\n\t}\n\tcase 2: {\n\t\tdoOtherStuff();\n\t}\n\tbreak;\n} 2`] = `
+
+Message:
+   1 | switch(foo) {
+   2 | 	case 1: {
+   3 | 		doStuff();
+   4 | 		break;
+   5 | 	}
+   6 | 	case 2: {
+   7 | 		doOtherStuff();
+   8 | 	}
+>  9 | 	break;
+     | 	^^^^^^ Move \`break\` inside the block statement.
+  10 | }
+
+Output:
+   1 | switch(foo) {
+   2 | 	case 1: {
+   3 | 		doStuff();
+   4 | 		break;
+   5 | 	}
+   6 | 	case 2: {
+   7 | 		doOtherStuff();
+   8 | 		break;
+   9 | 	}
+  10 | }
+
+`;
+
+exports[`switch-case-break-position > invalid(8): for (const foo of items) {\n\tswitch(foo) {\n\t\tcase 1: {\n\t\t\tdoStuff();\n\t\t}\n\t\tcontinue;\n\t}\n} 1`] = `
+
+  1 | for (const foo of items) {
+  2 | 	switch(foo) {
+  3 | 		case 1: {
+  4 | 			doStuff();
+  5 | 		}
+  6 | 		continue;
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`switch-case-break-position > invalid(8): for (const foo of items) {\n\tswitch(foo) {\n\t\tcase 1: {\n\t\t\tdoStuff();\n\t\t}\n\t\tcontinue;\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const foo of items) {
+  2 | 	switch(foo) {
+  3 | 		case 1: {
+  4 | 			doStuff();
+  5 | 		}
+> 6 | 		continue;
+    | 		^^^^^^^^^ Move \`continue\` inside the block statement.
+  7 | 	}
+  8 | }
+
+Output:
+  1 | for (const foo of items) {
+  2 | 	switch(foo) {
+  3 | 		case 1: {
+  4 | 			doStuff();
+  5 | 			continue;
+  6 | 		}
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`switch-case-break-position > invalid(9): outer: for (let i = 0; i < 3; i++) {\n\tswitch(foo) {\n\t\tcase 1: {\n\t\t\tdoStuff();\n\t\t}\n\t\tbreak outer;\n\t}\n} 1`] = `
+
+  1 | outer: for (let i = 0; i < 3; i++) {
+  2 | 	switch(foo) {
+  3 | 		case 1: {
+  4 | 			doStuff();
+  5 | 		}
+  6 | 		break outer;
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`switch-case-break-position > invalid(9): outer: for (let i = 0; i < 3; i++) {\n\tswitch(foo) {\n\t\tcase 1: {\n\t\t\tdoStuff();\n\t\t}\n\t\tbreak outer;\n\t}\n} 2`] = `
+
+Message:
+  1 | outer: for (let i = 0; i < 3; i++) {
+  2 | 	switch(foo) {
+  3 | 		case 1: {
+  4 | 			doStuff();
+  5 | 		}
+> 6 | 		break outer;
+    | 		^^^^^^^^^^^^ Move \`break\` inside the block statement.
+  7 | 	}
+  8 | }
+
+Output:
+  1 | outer: for (let i = 0; i < 3; i++) {
+  2 | 	switch(foo) {
+  3 | 		case 1: {
+  4 | 			doStuff();
+  5 | 			break outer;
+  6 | 		}
+  7 | 	}
+  8 | }
+
+`;

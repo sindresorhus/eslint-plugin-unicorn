@@ -70,6 +70,12 @@ test.snapshot({
 		{code: 'import Buffer = require(\'node:buffer\'); Buffer.from(data.buffer)', languageOptions: {parser: parsers.typescript}},
 		{code: 'import Buffer = require(\'other\'); Buffer.from(data.buffer)', languageOptions: {parser: parsers.typescript}},
 		{code: 'import B = Buffer; B.from(data.buffer)', languageOptions: {parser: parsers.typescript}},
+		'getBuffer().from(data.buffer)',
+		'NotBuffer.from(data.buffer)',
+		typeAware('interface Buffer {buffer: ArrayBuffer; byteOffset: number | undefined; byteLength: number} function foo(data: Buffer) { Buffer.from(data.buffer); }'),
+		typeAware('function foo(data: null | undefined) { Buffer.from(data.buffer); }'),
+		typeAware('function foo(data: null) { Buffer.from(data.buffer); }'),
+		typeAware('function foo(data: number) { Buffer.from(data.buffer); }'),
 	],
 	invalid: [
 		'new Uint8Array(data.buffer)',
@@ -163,5 +169,12 @@ test.snapshot({
 		typeAware('class Bytes extends Uint8Array {} function foo(data: Bytes) { Buffer.from(data.buffer); }'),
 		typeAware('interface Buffer {buffer: ArrayBuffer; byteOffset: number; byteLength: number} function foo(data: Buffer) { Buffer.from(data.buffer); }'),
 		typeAware('interface Buffer {} function foo(data: Buffer) { Buffer.from(data.buffer); }'),
+		typeAware('interface Buffer {buffer: ArrayBuffer | SharedArrayBuffer; byteOffset: number; byteLength: number} function foo(data: Buffer) { Buffer.from(data.buffer); }'),
+		typeAware(outdent`
+			interface Buffer<Data extends ArrayBuffer, Offset extends number> {buffer: Data; byteOffset: Offset; byteLength: number}
+			function foo<Data extends ArrayBuffer, Offset extends number>(data: Buffer<Data, Offset>) { Buffer.from(data.buffer); }
+		`),
+		typeAware('type Buffer = {buffer: ArrayBuffer; byteOffset: number; byteLength: number}; function foo(data: Buffer) { Buffer.from(data.buffer); }'),
+		typeAware('function foo(data: any) { Buffer.from(data.buffer); }'),
 	],
 });

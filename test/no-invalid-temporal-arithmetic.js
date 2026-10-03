@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import plugin from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
@@ -83,6 +83,8 @@ ruleTest.snapshot({
 		`${receivers.PlainDate}.until(other, {smallestUnit: "day", roundingIncrement: 3})`,
 		`${receivers.PlainYearMonth}.since(other, {smallestUnit: "month", roundingIncrement: 3})`,
 		`${instant}.until(other, {smallestUnit: "hour", largestUnit: "auto"})`,
+		`${instant}.add()`,
+		'Temporal.Duration.compare({months: 1})',
 	],
 	invalid: [
 		...['add', 'subtract'].flatMap(method => [
@@ -180,6 +182,7 @@ ruleTest.snapshot({
 	valid: [
 		typeAware('class Instant { add(value: object): void; } declare function getValue(): Instant; getValue().add({days: 1})'),
 		typeAware(`${types} declare function getValue(): Temporal.Instant | undefined; getValue()?.add({days: 1})`),
+		typeAware('declare const holder: {value: number}; holder.value.add({days: 1})'),
 	],
 	invalid: [
 		typeAware(`${types} declare function getValue(): Temporal.Instant; getValue().add({days: 1})`),
@@ -302,13 +305,13 @@ for (const [code, output, parser] of suggestions) {
 
 		const filename = parser ? 'file.ts' : 'file.js';
 		const problems = linter.verify(code, config, {filename});
-		t.is(problems.length, 1);
-		t.is(problems[0].fix, undefined);
-		t.is(problems[0].suggestions?.length, 1);
+		t.assert.strictEqual(problems.length, 1);
+		t.assert.strictEqual(problems[0].fix, undefined);
+		t.assert.strictEqual(problems[0].suggestions?.length, 1);
 		const {fix} = problems[0].suggestions[0];
 		const result = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
-		t.is(result, output);
-		t.deepEqual(linter.verify(result, config, {filename}), []);
+		t.assert.strictEqual(result, output);
+		t.assert.deepStrictEqual(linter.verify(result, config, {filename}), []);
 	});
 }
 
@@ -319,13 +322,13 @@ test('coexists with existing Temporal rules', t => {
 	for (const code of ['new Temporal.Instant(0n).add({days: 1});', `${duration}.round({unit: "minute"});`]) {
 		const config = {plugins: {unicorn: plugin}, rules};
 		const problems = linter.verify(code, config);
-		t.deepEqual(problems.map(problem => problem.ruleId).toSorted((first, second) => first.localeCompare(second)), [
+		t.assert.deepStrictEqual(problems.map(problem => problem.ruleId).toSorted((first, second) => first.localeCompare(second)), [
 			'unicorn/no-invalid-temporal-arithmetic',
 			'unicorn/no-unused-builtin-method-return',
 		]);
 		const {fix} = problems.find(problem => problem.ruleId === 'unicorn/no-invalid-temporal-arithmetic').suggestions[0];
 		const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
-		t.false(linter.verify(output, config).some(problem => problem.ruleId === 'unicorn/no-invalid-temporal-arithmetic'));
+		t.assert.strictEqual(linter.verify(output, config).some(problem => problem.ruleId === 'unicorn/no-invalid-temporal-arithmetic'), false);
 	}
 });
 
@@ -350,11 +353,11 @@ test('reports without changing source or offering incomplete corrections', t => 
 	];
 	for (const code of cases) {
 		const problems = linter.verify(code, config);
-		t.is(problems.length, 1);
-		t.is(problems[0].suggestions, undefined);
+		t.assert.strictEqual(problems.length, 1);
+		t.assert.strictEqual(problems[0].suggestions, undefined);
 		const result = linter.verifyAndFix(code, config);
-		t.false(result.fixed);
-		t.is(result.output, code);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
 	}
 });
 
@@ -419,11 +422,11 @@ test('reports one problem in contract validation order', t => {
 	for (const [options, messageId, location] of cases) {
 		const code = `${receiver}.round(${options});`;
 		const problems = linter.verify(code, config);
-		t.is(problems.length, 1);
-		t.is(problems[0].messageId, messageId);
-		t.is(problems[0].column, code.indexOf(location) + 1);
-		t.is(problems[0].endColumn, code.indexOf(location) + location.length + 1);
-		t.is(problems[0].fix, undefined);
-		t.is(problems[0].suggestions, undefined);
+		t.assert.strictEqual(problems.length, 1);
+		t.assert.strictEqual(problems[0].messageId, messageId);
+		t.assert.strictEqual(problems[0].column, code.indexOf(location) + 1);
+		t.assert.strictEqual(problems[0].endColumn, code.indexOf(location) + location.length + 1);
+		t.assert.strictEqual(problems[0].fix, undefined);
+		t.assert.strictEqual(problems[0].suggestions, undefined);
 	}
 });

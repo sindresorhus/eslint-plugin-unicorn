@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import removeArgument from '../../rules/fix/remove-argument.js';
 import {DEFAULT_LANGUAGE_OPTIONS} from '../utils/language-options.js';
@@ -42,29 +42,29 @@ const fix = code => {
 };
 
 test('does not remove comments between first argument and next argument', t => {
-	t.is(
+	t.assert.strictEqual(
 		fix('fn(a, /* keep */ b)').output,
 		'fn(/* keep */ b)',
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		fix('fn(a /* keep */, b)').output,
 		'fn( /* keep */ b)',
 	);
 });
 
 test('does not remove comments inside the first argument', t => {
-	t.is(
+	t.assert.strictEqual(
 		fix('fn(a /* keep */ + b, c)').output,
 		'fn(/* keep */ c)',
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		fix('fn((a /* one */) /* two */, b)').output,
 		'fn(/* one */ /* two */ b)',
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		fix('fn(a // keep\n+ b, c)').output,
 		'fn(// keep\n c)',
 	);
@@ -109,27 +109,27 @@ const fixLast = code => {
 };
 
 test('does not remove comments between previous argument and last argument', t => {
-	t.is(
+	t.assert.strictEqual(
 		fixLast('fn(a, /* keep */ b)').output,
 		'fn(a /* keep */)',
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		fixLast('fn(a /* keep */, b)').output,
 		'fn(a /* keep */)',
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		fixLast('fn(a, /* one */ /* two */ b)').output,
 		'fn(a /* one */ /* two */)',
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		fixLast('fn(a, // keep\nb)').output,
 		'fn(a // keep\n)',
 	);
 
-	t.is(
+	t.assert.strictEqual(
 		fixLast('fn(a, b)').output,
 		'fn(a)',
 	);

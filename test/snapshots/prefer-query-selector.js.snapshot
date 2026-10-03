@@ -1,0 +1,1457 @@
+exports[`prefer-query-selector > invalid(1): document.getElementById(\"foo\"); 1`] = `
+
+  1 | document.getElementById("foo");
+
+`;
+
+exports[`prefer-query-selector > invalid(1): document.getElementById(\"foo\"); 2`] = `
+
+Message:
+> 1 | document.getElementById("foo");
+    |          ^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementById()\`.
+
+Output:
+  1 | document.querySelector("#foo");
+
+`;
+
+exports[`prefer-query-selector > invalid(10): document.getElementsByClassName(\"#foo\"); 1`] = `
+
+  1 | document.getElementsByClassName("#foo");
+
+`;
+
+exports[`prefer-query-selector > invalid(10): document.getElementsByClassName(\"#foo\"); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName("#foo");
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(11): document.getElementsByClassName(\"foo:bar\"); 1`] = `
+
+  1 | document.getElementsByClassName("foo:bar");
+
+`;
+
+exports[`prefer-query-selector > invalid(11): document.getElementsByClassName(\"foo:bar\"); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName("foo:bar");
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(12): document.getElementsByClassName(\"foo\" as string); 1`] = `
+
+  1 | document.getElementsByClassName("foo" as string);
+
+`;
+
+exports[`prefer-query-selector > invalid(12): document.getElementsByClassName(\"foo\" as string); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName("foo" as string);
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+Output:
+  1 | document.querySelectorAll(".foo" as string);
+
+`;
+
+exports[`prefer-query-selector > invalid(13): document.getElementsByClassName(\".foo\" as string); 1`] = `
+
+  1 | document.getElementsByClassName(".foo" as string);
+
+`;
+
+exports[`prefer-query-selector > invalid(13): document.getElementsByClassName(\".foo\" as string); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName(".foo" as string);
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(14): element.getElementsByClassName(\"foo\"); 1`] = `
+
+  1 | element.getElementsByClassName("foo");
+
+`;
+
+exports[`prefer-query-selector > invalid(14): element.getElementsByClassName(\"foo\"); 2`] = `
+
+Message:
+> 1 | element.getElementsByClassName("foo");
+    |         ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+Output:
+  1 | element.querySelectorAll(":scope .foo");
+
+`;
+
+exports[`prefer-query-selector > invalid(15): element.getElementsByClassName(\".foo\"); 1`] = `
+
+  1 | element.getElementsByClassName(".foo");
+
+`;
+
+exports[`prefer-query-selector > invalid(15): element.getElementsByClassName(\".foo\"); 2`] = `
+
+Message:
+> 1 | element.getElementsByClassName(".foo");
+    |         ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(16): document.getElementsByClassName(\"foo bar\"); 1`] = `
+
+  1 | document.getElementsByClassName("foo bar");
+
+`;
+
+exports[`prefer-query-selector > invalid(16): document.getElementsByClassName(\"foo bar\"); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName("foo bar");
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+Output:
+  1 | document.querySelectorAll(".foo.bar");
+
+`;
+
+exports[`prefer-query-selector > invalid(17): document.getElementsByTagName(\"foo\"); 1`] = `
+
+  1 | document.getElementsByTagName("foo");
+
+`;
+
+exports[`prefer-query-selector > invalid(17): document.getElementsByTagName(\"foo\"); 2`] = `
+
+Message:
+> 1 | document.getElementsByTagName("foo");
+    |          ^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByTagName()\`.
+
+Output:
+  1 | document.querySelectorAll("foo");
+
+`;
+
+exports[`prefer-query-selector > invalid(18): document.getElementsByTagName(\"foo:bar\"); 1`] = `
+
+  1 | document.getElementsByTagName("foo:bar");
+
+`;
+
+exports[`prefer-query-selector > invalid(18): document.getElementsByTagName(\"foo:bar\"); 2`] = `
+
+Message:
+> 1 | document.getElementsByTagName("foo:bar");
+    |          ^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByTagName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(19): document.getElementsByTagName(\"*\"); 1`] = `
+
+  1 | document.getElementsByTagName("*");
+
+`;
+
+exports[`prefer-query-selector > invalid(19): document.getElementsByTagName(\"*\"); 2`] = `
+
+Message:
+> 1 | document.getElementsByTagName("*");
+    |          ^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByTagName()\`.
+
+Output:
+  1 | document.querySelectorAll("*");
+
+`;
+
+exports[`prefer-query-selector > invalid(2): document.getElementById(\"#foo\"); 1`] = `
+
+  1 | document.getElementById("#foo");
+
+`;
+
+exports[`prefer-query-selector > invalid(2): document.getElementById(\"#foo\"); 2`] = `
+
+Message:
+> 1 | document.getElementById("#foo");
+    |          ^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementById()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(20): element.getElementsByTagName(\"foo\"); 1`] = `
+
+  1 | element.getElementsByTagName("foo");
+
+`;
+
+exports[`prefer-query-selector > invalid(20): element.getElementsByTagName(\"foo\"); 2`] = `
+
+Message:
+> 1 | element.getElementsByTagName("foo");
+    |         ^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByTagName()\`.
+
+Output:
+  1 | element.querySelectorAll(":scope foo");
+
+`;
+
+exports[`prefer-query-selector > invalid(21): element.getElementsByTagName(\"foo bar\"); 1`] = `
+
+  1 | element.getElementsByTagName("foo bar");
+
+`;
+
+exports[`prefer-query-selector > invalid(21): element.getElementsByTagName(\"foo bar\"); 2`] = `
+
+Message:
+> 1 | element.getElementsByTagName("foo bar");
+    |         ^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByTagName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(22): document.getElementById(\"\"); 1`] = `
+
+  1 | document.getElementById("");
+
+`;
+
+exports[`prefer-query-selector > invalid(22): document.getElementById(\"\"); 2`] = `
+
+Message:
+> 1 | document.getElementById("");
+    |          ^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementById()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(23): document.getElementById('foo'); 1`] = `
+
+  1 | document.getElementById('foo');
+
+`;
+
+exports[`prefer-query-selector > invalid(23): document.getElementById('foo'); 2`] = `
+
+Message:
+> 1 | document.getElementById('foo');
+    |          ^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementById()\`.
+
+Output:
+  1 | document.querySelector('#foo');
+
+`;
+
+exports[`prefer-query-selector > invalid(24): document.getElementsByClassName('foo'); 1`] = `
+
+  1 | document.getElementsByClassName('foo');
+
+`;
+
+exports[`prefer-query-selector > invalid(24): document.getElementsByClassName('foo'); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName('foo');
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+Output:
+  1 | document.querySelectorAll('.foo');
+
+`;
+
+exports[`prefer-query-selector > invalid(25): document.getElementsByClassName('foo bar'); 1`] = `
+
+  1 | document.getElementsByClassName('foo bar');
+
+`;
+
+exports[`prefer-query-selector > invalid(25): document.getElementsByClassName('foo bar'); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName('foo bar');
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+Output:
+  1 | document.querySelectorAll('.foo.bar');
+
+`;
+
+exports[`prefer-query-selector > invalid(26): document.getElementsByTagName('foo'); 1`] = `
+
+  1 | document.getElementsByTagName('foo');
+
+`;
+
+exports[`prefer-query-selector > invalid(26): document.getElementsByTagName('foo'); 2`] = `
+
+Message:
+> 1 | document.getElementsByTagName('foo');
+    |          ^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByTagName()\`.
+
+Output:
+  1 | document.querySelectorAll('foo');
+
+`;
+
+exports[`prefer-query-selector > invalid(27): document.getElementsByClassName(''); 1`] = `
+
+  1 | document.getElementsByClassName('');
+
+`;
+
+exports[`prefer-query-selector > invalid(27): document.getElementsByClassName(''); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName('');
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(28): document.getElementById(\`foo\`); 1`] = `
+
+  1 | document.getElementById(\`foo\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(28): document.getElementById(\`foo\`); 2`] = `
+
+Message:
+> 1 | document.getElementById(\`foo\`);
+    |          ^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementById()\`.
+
+Output:
+  1 | document.querySelector(\`#foo\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(29): document.getElementById(\`#foo\`); 1`] = `
+
+  1 | document.getElementById(\`#foo\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(29): document.getElementById(\`#foo\`); 2`] = `
+
+Message:
+> 1 | document.getElementById(\`#foo\`);
+    |          ^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementById()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(3): document.getElementById(\".foo\"); 1`] = `
+
+  1 | document.getElementById(".foo");
+
+`;
+
+exports[`prefer-query-selector > invalid(3): document.getElementById(\".foo\"); 2`] = `
+
+Message:
+> 1 | document.getElementById(".foo");
+    |          ^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementById()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(30): document.getElementsByClassName(\`foo\`); 1`] = `
+
+  1 | document.getElementsByClassName(\`foo\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(30): document.getElementsByClassName(\`foo\`); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName(\`foo\`);
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+Output:
+  1 | document.querySelectorAll(\`.foo\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(31): document.getElementsByClassName(\`.foo\`); 1`] = `
+
+  1 | document.getElementsByClassName(\`.foo\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(31): document.getElementsByClassName(\`.foo\`); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName(\`.foo\`);
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(32): element.getElementsByClassName(\`foo\`); 1`] = `
+
+  1 | element.getElementsByClassName(\`foo\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(32): element.getElementsByClassName(\`foo\`); 2`] = `
+
+Message:
+> 1 | element.getElementsByClassName(\`foo\`);
+    |         ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+Output:
+  1 | element.querySelectorAll(\`:scope .foo\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(33): document.getElementsByClassName(\`foo bar\`); 1`] = `
+
+  1 | document.getElementsByClassName(\`foo bar\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(33): document.getElementsByClassName(\`foo bar\`); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName(\`foo bar\`);
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+Output:
+  1 | document.querySelectorAll(\`.foo.bar\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(34): document.getElementsByTagName(\`foo\`); 1`] = `
+
+  1 | document.getElementsByTagName(\`foo\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(34): document.getElementsByTagName(\`foo\`); 2`] = `
+
+Message:
+> 1 | document.getElementsByTagName(\`foo\`);
+    |          ^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByTagName()\`.
+
+Output:
+  1 | document.querySelectorAll(\`foo\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(35): element.getElementsByTagName(\`foo\`); 1`] = `
+
+  1 | element.getElementsByTagName(\`foo\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(35): element.getElementsByTagName(\`foo\`); 2`] = `
+
+Message:
+> 1 | element.getElementsByTagName(\`foo\`);
+    |         ^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByTagName()\`.
+
+Output:
+  1 | element.querySelectorAll(\`:scope foo\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(36): document.getElementsByTagName(\`\`); 1`] = `
+
+  1 | document.getElementsByTagName(\`\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(36): document.getElementsByTagName(\`\`); 2`] = `
+
+Message:
+> 1 | document.getElementsByTagName(\`\`);
+    |          ^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByTagName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(37): document.getElementsByClassName(\`\${fn()}\`); 1`] = `
+
+  1 | document.getElementsByClassName(\`\${fn()}\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(37): document.getElementsByClassName(\`\${fn()}\`); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName(\`\${fn()}\`);
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(38): document.getElementsByClassName(\`foo \${undefined}\`); 1`] = `
+
+  1 | document.getElementsByClassName(\`foo \${undefined}\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(38): document.getElementsByClassName(\`foo \${undefined}\`); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName(\`foo \${undefined}\`);
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(39): document.getElementsByClassName(null); 1`] = `
+
+  1 | document.getElementsByClassName(null);
+
+`;
+
+exports[`prefer-query-selector > invalid(39): document.getElementsByClassName(null); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName(null);
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+Output:
+  1 | document.querySelectorAll(null);
+
+`;
+
+exports[`prefer-query-selector > invalid(4): document.getElementById(\"foo bar\"); 1`] = `
+
+  1 | document.getElementById("foo bar");
+
+`;
+
+exports[`prefer-query-selector > invalid(4): document.getElementById(\"foo bar\"); 2`] = `
+
+Message:
+> 1 | document.getElementById("foo bar");
+    |          ^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementById()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(40): document.getElementsByTagName(null); 1`] = `
+
+  1 | document.getElementsByTagName(null);
+
+`;
+
+exports[`prefer-query-selector > invalid(40): document.getElementsByTagName(null); 2`] = `
+
+Message:
+> 1 | document.getElementsByTagName(null);
+    |          ^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByTagName()\`.
+
+Output:
+  1 | document.querySelectorAll(null);
+
+`;
+
+exports[`prefer-query-selector > invalid(41): document.getElementsByClassName(fn()); 1`] = `
+
+  1 | document.getElementsByClassName(fn());
+
+`;
+
+exports[`prefer-query-selector > invalid(41): document.getElementsByClassName(fn()); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName(fn());
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(42): document.getElementsByClassName(\"foo\" + fn()); 1`] = `
+
+  1 | document.getElementsByClassName("foo" + fn());
+
+`;
+
+exports[`prefer-query-selector > invalid(42): document.getElementsByClassName(\"foo\" + fn()); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName("foo" + fn());
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(43): document.getElementsByClassName(foo + \"bar\"); 1`] = `
+
+  1 | document.getElementsByClassName(foo + "bar");
+
+`;
+
+exports[`prefer-query-selector > invalid(43): document.getElementsByClassName(foo + \"bar\"); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName(foo + "bar");
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(44): for (const div of document.body.getElementById(\"id\").getElementsByClassName(\"class\")) {\n\tconsole.log(div.getElementsByTagName(\"div\"));\n} 1`] = `
+
+  1 | for (const div of document.body.getElementById("id").getElementsByClassName("class")) {
+  2 | 	console.log(div.getElementsByTagName("div"));
+  3 | }
+
+`;
+
+exports[`prefer-query-selector > invalid(44): for (const div of document.body.getElementById(\"id\").getElementsByClassName(\"class\")) {\n\tconsole.log(div.getElementsByTagName(\"div\"));\n} 2`] = `
+
+Message:
+> 1 | for (const div of document.body.getElementById("id").getElementsByClassName("class")) {
+    |                                 ^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementById()\`.
+  2 | 	console.log(div.getElementsByTagName("div"));
+  3 | }
+
+Output:
+  1 | for (const div of document.body.querySelector(":scope #id").getElementsByClassName("class")) {
+  2 | 	console.log(div.getElementsByTagName("div"));
+  3 | }
+
+`;
+
+exports[`prefer-query-selector > invalid(44): for (const div of document.body.getElementById(\"id\").getElementsByClassName(\"class\")) {\n\tconsole.log(div.getElementsByTagName(\"div\"));\n} 3`] = `
+
+Message:
+> 1 | for (const div of document.body.getElementById("id").getElementsByClassName("class")) {
+    |                                                      ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+  2 | 	console.log(div.getElementsByTagName("div"));
+  3 | }
+
+Output:
+  1 | for (const div of document.body.getElementById("id").querySelectorAll(":scope .class")) {
+  2 | 	console.log(div.getElementsByTagName("div"));
+  3 | }
+
+`;
+
+exports[`prefer-query-selector > invalid(44): for (const div of document.body.getElementById(\"id\").getElementsByClassName(\"class\")) {\n\tconsole.log(div.getElementsByTagName(\"div\"));\n} 4`] = `
+
+Message:
+  1 | for (const div of document.body.getElementById("id").getElementsByClassName("class")) {
+> 2 | 	console.log(div.getElementsByTagName("div"));
+    | 	                ^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByTagName()\`.
+  3 | }
+
+Output:
+  1 | for (const div of document.body.getElementById("id").getElementsByClassName("class")) {
+  2 | 	console.log(div.querySelectorAll(":scope div"));
+  3 | }
+
+`;
+
+exports[`prefer-query-selector > invalid(45): e.getElementById(3) 1`] = `
+
+  1 | e.getElementById(3)
+
+`;
+
+exports[`prefer-query-selector > invalid(45): e.getElementById(3) 2`] = `
+
+Message:
+> 1 | e.getElementById(3)
+    |   ^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementById()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(46): document.getElementsByName(\"foo\"); 1`] = `
+
+  1 | document.getElementsByName("foo");
+
+`;
+
+exports[`prefer-query-selector > invalid(46): document.getElementsByName(\"foo\"); 2`] = `
+
+Message:
+> 1 | document.getElementsByName("foo");
+    |          ^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByName()\`.
+
+Output:
+  1 | document.querySelectorAll("[name='foo']");
+
+`;
+
+exports[`prefer-query-selector > invalid(47): document.getElementsByName('foo'); 1`] = `
+
+  1 | document.getElementsByName('foo');
+
+`;
+
+exports[`prefer-query-selector > invalid(47): document.getElementsByName('foo'); 2`] = `
+
+Message:
+> 1 | document.getElementsByName('foo');
+    |          ^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByName()\`.
+
+Output:
+  1 | document.querySelectorAll('[name="foo"]');
+
+`;
+
+exports[`prefer-query-selector > invalid(48): document.getElementsByName(\`foo\`); 1`] = `
+
+  1 | document.getElementsByName(\`foo\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(48): document.getElementsByName(\`foo\`); 2`] = `
+
+Message:
+> 1 | document.getElementsByName(\`foo\`);
+    |          ^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByName()\`.
+
+Output:
+  1 | document.querySelectorAll(\`[name='foo']\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(49): document.getElementsByName(\`\${'foo'}\`); 1`] = `
+
+  1 | document.getElementsByName(\`\${'foo'}\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(49): document.getElementsByName(\`\${'foo'}\`); 2`] = `
+
+Message:
+> 1 | document.getElementsByName(\`\${'foo'}\`);
+    |          ^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(5): document.getElementById(\"foo:bar\"); 1`] = `
+
+  1 | document.getElementById("foo:bar");
+
+`;
+
+exports[`prefer-query-selector > invalid(5): document.getElementById(\"foo:bar\"); 2`] = `
+
+Message:
+> 1 | document.getElementById("foo:bar");
+    |          ^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementById()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(50): document.getElementsByName(null); 1`] = `
+
+  1 | document.getElementsByName(null);
+
+`;
+
+exports[`prefer-query-selector > invalid(50): document.getElementsByName(null); 2`] = `
+
+Message:
+> 1 | document.getElementsByName(null);
+    |          ^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByName()\`.
+
+Output:
+  1 | document.querySelectorAll(null);
+
+`;
+
+exports[`prefer-query-selector > invalid(51): document.getElementsByName(\"\"); 1`] = `
+
+  1 | document.getElementsByName("");
+
+`;
+
+exports[`prefer-query-selector > invalid(51): document.getElementsByName(\"\"); 2`] = `
+
+Message:
+> 1 | document.getElementsByName("");
+    |          ^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(52): document.getElementsByName(foo + \"bar\"); 1`] = `
+
+  1 | document.getElementsByName(foo + "bar");
+
+`;
+
+exports[`prefer-query-selector > invalid(52): document.getElementsByName(foo + \"bar\"); 2`] = `
+
+Message:
+> 1 | document.getElementsByName(foo + "bar");
+    |          ^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(53): document.getElementsByName(\"multiple name should be fixable\"); 1`] = `
+
+  1 | document.getElementsByName("multiple name should be fixable");
+
+`;
+
+exports[`prefer-query-selector > invalid(53): document.getElementsByName(\"multiple name should be fixable\"); 2`] = `
+
+Message:
+> 1 | document.getElementsByName("multiple name should be fixable");
+    |          ^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByName()\`.
+
+Output:
+  1 | document.querySelectorAll("[name='multiple name should be fixable']");
+
+`;
+
+exports[`prefer-query-selector > invalid(54): document.getElementsByName(\"foo'bar\"); 1`] = `
+
+  1 | document.getElementsByName("foo'bar");
+
+`;
+
+exports[`prefer-query-selector > invalid(54): document.getElementsByName(\"foo'bar\"); 2`] = `
+
+Message:
+> 1 | document.getElementsByName("foo'bar");
+    |          ^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(55): document.getElementsByName('foo\"bar'); 1`] = `
+
+  1 | document.getElementsByName('foo"bar');
+
+`;
+
+exports[`prefer-query-selector > invalid(55): document.getElementsByName('foo\"bar'); 2`] = `
+
+Message:
+> 1 | document.getElementsByName('foo"bar');
+    |          ^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(56): document.getElementsByName(\`foo'bar\`); 1`] = `
+
+  1 | document.getElementsByName(\`foo'bar\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(56): document.getElementsByName(\`foo'bar\`); 2`] = `
+
+Message:
+> 1 | document.getElementsByName(\`foo'bar\`);
+    |          ^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(57): document.getElementsByName(\"foo\\\\bar\"); 1`] = `
+
+  1 | document.getElementsByName("foo\\\\bar");
+
+`;
+
+exports[`prefer-query-selector > invalid(57): document.getElementsByName(\"foo\\\\bar\"); 2`] = `
+
+Message:
+> 1 | document.getElementsByName("foo\\\\bar");
+    |          ^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(58): document.getElementsByName(\"foo\\nbar\"); 1`] = `
+
+  1 | document.getElementsByName("foo\\nbar");
+
+`;
+
+exports[`prefer-query-selector > invalid(58): document.getElementsByName(\"foo\\nbar\"); 2`] = `
+
+Message:
+> 1 | document.getElementsByName("foo\\nbar");
+    |          ^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(59): document.getElementsByName(\"foo\\\\bar\" as string); 1`] = `
+
+  1 | document.getElementsByName("foo\\\\bar" as string);
+
+`;
+
+exports[`prefer-query-selector > invalid(59): document.getElementsByName(\"foo\\\\bar\" as string); 2`] = `
+
+Message:
+> 1 | document.getElementsByName("foo\\\\bar" as string);
+    |          ^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(6): document.getElementById(\"foo\" as string); 1`] = `
+
+  1 | document.getElementById("foo" as string);
+
+`;
+
+exports[`prefer-query-selector > invalid(6): document.getElementById(\"foo\" as string); 2`] = `
+
+Message:
+> 1 | document.getElementById("foo" as string);
+    |          ^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementById()\`.
+
+Output:
+  1 | document.querySelector("#foo" as string);
+
+`;
+
+exports[`prefer-query-selector > invalid(60): document.getElementsByTagName(\"form\")[0].addEventListener(\"submit\", submitFunction); 1`] = `
+
+  1 | document.getElementsByTagName("form")[0].addEventListener("submit", submitFunction);
+
+`;
+
+exports[`prefer-query-selector > invalid(60): document.getElementsByTagName(\"form\")[0].addEventListener(\"submit\", submitFunction); 2`] = `
+
+Message:
+> 1 | document.getElementsByTagName("form")[0].addEventListener("submit", submitFunction);
+    |          ^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementsByTagName()\`.
+
+Output:
+  1 | document.querySelector("form").addEventListener("submit", submitFunction);
+
+`;
+
+exports[`prefer-query-selector > invalid(61): document.getElementsByTagName(\"form\").item(0).submit(); 1`] = `
+
+  1 | document.getElementsByTagName("form").item(0).submit();
+
+`;
+
+exports[`prefer-query-selector > invalid(61): document.getElementsByTagName(\"form\").item(0).submit(); 2`] = `
+
+Message:
+> 1 | document.getElementsByTagName("form").item(0).submit();
+    |          ^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementsByTagName()\`.
+
+Output:
+  1 | document.querySelector("form").submit();
+
+`;
+
+exports[`prefer-query-selector > invalid(62): document.getElementsByClassName(\"submit-button\").at(0).click(); 1`] = `
+
+  1 | document.getElementsByClassName("submit-button").at(0).click();
+
+`;
+
+exports[`prefer-query-selector > invalid(62): document.getElementsByClassName(\"submit-button\").at(0).click(); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName("submit-button").at(0).click();
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementsByClassName()\`.
+
+Output:
+  1 | document.querySelector(".submit-button").click();
+
+`;
+
+exports[`prefer-query-selector > invalid(63): document.getElementsByName(\"email\")[0].focus(); 1`] = `
+
+  1 | document.getElementsByName("email")[0].focus();
+
+`;
+
+exports[`prefer-query-selector > invalid(63): document.getElementsByName(\"email\")[0].focus(); 2`] = `
+
+Message:
+> 1 | document.getElementsByName("email")[0].focus();
+    |          ^^^^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementsByName()\`.
+
+Output:
+  1 | document.querySelector("[name='email']").focus();
+
+`;
+
+exports[`prefer-query-selector > invalid(64): document.getElementsByName(\"email\").item(0).focus(); 1`] = `
+
+  1 | document.getElementsByName("email").item(0).focus();
+
+`;
+
+exports[`prefer-query-selector > invalid(64): document.getElementsByName(\"email\").item(0).focus(); 2`] = `
+
+Message:
+> 1 | document.getElementsByName("email").item(0).focus();
+    |          ^^^^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementsByName()\`.
+
+Output:
+  1 | document.querySelector("[name='email']").focus();
+
+`;
+
+exports[`prefer-query-selector > invalid(65): delete document.getElementsByTagName(\"form\").at(0); 1`] = `
+
+  1 | delete document.getElementsByTagName("form").at(0);
+
+`;
+
+exports[`prefer-query-selector > invalid(65): delete document.getElementsByTagName(\"form\").at(0); 2`] = `
+
+Message:
+> 1 | delete document.getElementsByTagName("form").at(0);
+    |                 ^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByTagName()\`.
+
+Output:
+  1 | delete document.querySelectorAll("form").at(0);
+
+`;
+
+exports[`prefer-query-selector > invalid(66): for (document.getElementsByTagName(\"form\")[0] in object) {} 1`] = `
+
+  1 | for (document.getElementsByTagName("form")[0] in object) {}
+
+`;
+
+exports[`prefer-query-selector > invalid(66): for (document.getElementsByTagName(\"form\")[0] in object) {} 2`] = `
+
+Message:
+> 1 | for (document.getElementsByTagName("form")[0] in object) {}
+    |               ^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByTagName()\`.
+
+Output:
+  1 | for (document.querySelectorAll("form")[0] in object) {}
+
+`;
+
+exports[`prefer-query-selector > invalid(67): for (document.getElementsByTagName(\"form\")[0] of iterable) {} 1`] = `
+
+  1 | for (document.getElementsByTagName("form")[0] of iterable) {}
+
+`;
+
+exports[`prefer-query-selector > invalid(67): for (document.getElementsByTagName(\"form\")[0] of iterable) {} 2`] = `
+
+Message:
+> 1 | for (document.getElementsByTagName("form")[0] of iterable) {}
+    |               ^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByTagName()\`.
+
+Output:
+  1 | for (document.querySelectorAll("form")[0] of iterable) {}
+
+`;
+
+exports[`prefer-query-selector > invalid(68): document.getElementsByTagName(\"form\") /* keep */ [0].addEventListener(\"submit\", submitFunction); 1`] = `
+
+  1 | document.getElementsByTagName("form") /* keep */ [0].addEventListener("submit", submitFunction);
+
+`;
+
+exports[`prefer-query-selector > invalid(68): document.getElementsByTagName(\"form\") /* keep */ [0].addEventListener(\"submit\", submitFunction); 2`] = `
+
+Message:
+> 1 | document.getElementsByTagName("form") /* keep */ [0].addEventListener("submit", submitFunction);
+    |          ^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByTagName()\`.
+
+Output:
+  1 | document.querySelectorAll("form") /* keep */ [0].addEventListener("submit", submitFunction);
+
+`;
+
+exports[`prefer-query-selector > invalid(69): document.getElementsByTagName(\"form\").item(/* keep */ 0).addEventListener(\"submit\", submitFunction); 1`] = `
+
+  1 | document.getElementsByTagName("form").item(/* keep */ 0).addEventListener("submit", submitFunction);
+
+`;
+
+exports[`prefer-query-selector > invalid(69): document.getElementsByTagName(\"form\").item(/* keep */ 0).addEventListener(\"submit\", submitFunction); 2`] = `
+
+Message:
+> 1 | document.getElementsByTagName("form").item(/* keep */ 0).addEventListener("submit", submitFunction);
+    |          ^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByTagName()\`.
+
+Output:
+  1 | document.querySelectorAll("form").item(/* keep */ 0).addEventListener("submit", submitFunction);
+
+`;
+
+exports[`prefer-query-selector > invalid(7): document.getElementById(\"#foo\" as string); 1`] = `
+
+  1 | document.getElementById("#foo" as string);
+
+`;
+
+exports[`prefer-query-selector > invalid(7): document.getElementById(\"#foo\" as string); 2`] = `
+
+Message:
+> 1 | document.getElementById("#foo" as string);
+    |          ^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementById()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(70): document.getElementById(\"foo\"); 1`] = `
+
+Options:
+- allowWithVariables: true
+
+Code:
+  1 | document.getElementById("foo");
+
+`;
+
+exports[`prefer-query-selector > invalid(70): document.getElementById(\"foo\"); 2`] = `
+
+Message:
+> 1 | document.getElementById("foo");
+    |          ^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementById()\`.
+
+Output:
+  1 | document.querySelector("#foo");
+
+`;
+
+exports[`prefer-query-selector > invalid(71): document.getElementById(\"foo\" as string); 1`] = `
+
+Options:
+- allowWithVariables: true
+
+Code:
+  1 | document.getElementById("foo" as string);
+
+`;
+
+exports[`prefer-query-selector > invalid(71): document.getElementById(\"foo\" as string); 2`] = `
+
+Message:
+> 1 | document.getElementById("foo" as string);
+    |          ^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementById()\`.
+
+Output:
+  1 | document.querySelector("#foo" as string);
+
+`;
+
+exports[`prefer-query-selector > invalid(72): document.getElementsByClassName(\"foo\"); 1`] = `
+
+Options:
+- allowWithVariables: true
+
+Code:
+  1 | document.getElementsByClassName("foo");
+
+`;
+
+exports[`prefer-query-selector > invalid(72): document.getElementsByClassName(\"foo\"); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName("foo");
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+Output:
+  1 | document.querySelectorAll(".foo");
+
+`;
+
+exports[`prefer-query-selector > invalid(73): document.getElementsByClassName(\"foo\"!); 1`] = `
+
+Options:
+- allowWithVariables: true
+
+Code:
+  1 | document.getElementsByClassName("foo"!);
+
+`;
+
+exports[`prefer-query-selector > invalid(73): document.getElementsByClassName(\"foo\"!); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName("foo"!);
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+Output:
+  1 | document.querySelectorAll(".foo"!);
+
+`;
+
+exports[`prefer-query-selector > invalid(74): document.getElementsByTagName(\"foo\"); 1`] = `
+
+Options:
+- allowWithVariables: true
+
+Code:
+  1 | document.getElementsByTagName("foo");
+
+`;
+
+exports[`prefer-query-selector > invalid(74): document.getElementsByTagName(\"foo\"); 2`] = `
+
+Message:
+> 1 | document.getElementsByTagName("foo");
+    |          ^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByTagName()\`.
+
+Output:
+  1 | document.querySelectorAll("foo");
+
+`;
+
+exports[`prefer-query-selector > invalid(75): document.getElementsByName(\"foo\"); 1`] = `
+
+Options:
+- allowWithVariables: true
+
+Code:
+  1 | document.getElementsByName("foo");
+
+`;
+
+exports[`prefer-query-selector > invalid(75): document.getElementsByName(\"foo\"); 2`] = `
+
+Message:
+> 1 | document.getElementsByName("foo");
+    |          ^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByName()\`.
+
+Output:
+  1 | document.querySelectorAll("[name='foo']");
+
+`;
+
+exports[`prefer-query-selector > invalid(76): document.getElementsByTagName(someTag); 1`] = `
+
+Options:
+- allowWithVariables: true
+
+Code:
+  1 | document.getElementsByTagName(someTag);
+
+`;
+
+exports[`prefer-query-selector > invalid(76): document.getElementsByTagName(someTag); 2`] = `
+
+Message:
+> 1 | document.getElementsByTagName(someTag);
+    |          ^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByTagName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(77): document.getElementsByName(someName); 1`] = `
+
+Options:
+- allowWithVariables: true
+
+Code:
+  1 | document.getElementsByName(someName);
+
+`;
+
+exports[`prefer-query-selector > invalid(77): document.getElementsByName(someName); 2`] = `
+
+Message:
+> 1 | document.getElementsByName(someName);
+    |          ^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(78): document.getElementsByClassName(null); 1`] = `
+
+Options:
+- allowWithVariables: true
+
+Code:
+  1 | document.getElementsByClassName(null);
+
+`;
+
+exports[`prefer-query-selector > invalid(78): document.getElementsByClassName(null); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName(null);
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+Output:
+  1 | document.querySelectorAll(null);
+
+`;
+
+exports[`prefer-query-selector > invalid(79): document.getElementsByClassName(\`foo\`); 1`] = `
+
+Options:
+- allowWithVariables: true
+
+Code:
+  1 | document.getElementsByClassName(\`foo\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(79): document.getElementsByClassName(\`foo\`); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName(\`foo\`);
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+Output:
+  1 | document.querySelectorAll(\`.foo\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(8): document.getElementsByClassName(\"foo\"); 1`] = `
+
+  1 | document.getElementsByClassName("foo");
+
+`;
+
+exports[`prefer-query-selector > invalid(8): document.getElementsByClassName(\"foo\"); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName("foo");
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+Output:
+  1 | document.querySelectorAll(".foo");
+
+`;
+
+exports[`prefer-query-selector > invalid(80): document.getElementsByClassName(variable + \"x\"); 1`] = `
+
+Options:
+- allowWithVariables: true
+
+Code:
+  1 | document.getElementsByClassName(variable + "x");
+
+`;
+
+exports[`prefer-query-selector > invalid(80): document.getElementsByClassName(variable + \"x\"); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName(variable + "x");
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(81): document.getElementsByClassName(\"foo\" + fn()); 1`] = `
+
+Options:
+- allowWithVariables: true
+
+Code:
+  1 | document.getElementsByClassName("foo" + fn());
+
+`;
+
+exports[`prefer-query-selector > invalid(81): document.getElementsByClassName(\"foo\" + fn()); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName("foo" + fn());
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(82): document.getElementsByClassName(foo + \"bar\"); 1`] = `
+
+Options:
+- allowWithVariables: true
+
+Code:
+  1 | document.getElementsByClassName(foo + "bar");
+
+`;
+
+exports[`prefer-query-selector > invalid(82): document.getElementsByClassName(foo + \"bar\"); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName(foo + "bar");
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(83): document.getElementById(\`x\${someId}\`); 1`] = `
+
+Options:
+- allowWithVariables: true
+
+Code:
+  1 | document.getElementById(\`x\${someId}\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(83): document.getElementById(\`x\${someId}\`); 2`] = `
+
+Message:
+> 1 | document.getElementById(\`x\${someId}\`);
+    |          ^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementById()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(84): document.getElementsByClassName(\`foo \${someClass}\`); 1`] = `
+
+Options:
+- allowWithVariables: true
+
+Code:
+  1 | document.getElementsByClassName(\`foo \${someClass}\`);
+
+`;
+
+exports[`prefer-query-selector > invalid(84): document.getElementsByClassName(\`foo \${someClass}\`); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName(\`foo \${someClass}\`);
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+`;
+
+exports[`prefer-query-selector > invalid(85): window.frame.getElementById(\"bar\"); 1`] = `
+
+  1 | window.frame.getElementById("bar");
+
+`;
+
+exports[`prefer-query-selector > invalid(85): window.frame.getElementById(\"bar\"); 2`] = `
+
+Message:
+> 1 | window.frame.getElementById("bar");
+    |              ^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementById()\`.
+
+Output:
+  1 | window.frame.querySelector(":scope #bar");
+
+`;
+
+exports[`prefer-query-selector > invalid(86): class Foo { #document; bar() { return window.#document.getElementById(\"bar\"); } } 1`] = `
+
+  1 | class Foo { #document; bar() { return window.#document.getElementById("bar"); } }
+
+`;
+
+exports[`prefer-query-selector > invalid(86): class Foo { #document; bar() { return window.#document.getElementById(\"bar\"); } } 2`] = `
+
+Message:
+> 1 | class Foo { #document; bar() { return window.#document.getElementById("bar"); } }
+    |                                                        ^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementById()\`.
+
+Output:
+  1 | class Foo { #document; bar() { return window.#document.querySelector(":scope #bar"); } }
+
+`;
+
+exports[`prefer-query-selector > invalid(87): for (const element of document.getElementsByClassName(\"foo\")[0]) {} 1`] = `
+
+  1 | for (const element of document.getElementsByClassName("foo")[0]) {}
+
+`;
+
+exports[`prefer-query-selector > invalid(87): for (const element of document.getElementsByClassName(\"foo\")[0]) {} 2`] = `
+
+Message:
+> 1 | for (const element of document.getElementsByClassName("foo")[0]) {}
+    |                                ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelector()\` over \`.getElementsByClassName()\`.
+
+Output:
+  1 | for (const element of document.querySelector(".foo")) {}
+
+`;
+
+exports[`prefer-query-selector > invalid(9): document.getElementsByClassName(\".foo\"); 1`] = `
+
+  1 | document.getElementsByClassName(".foo");
+
+`;
+
+exports[`prefer-query-selector > invalid(9): document.getElementsByClassName(\".foo\"); 2`] = `
+
+Message:
+> 1 | document.getElementsByClassName(".foo");
+    |          ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelectorAll()\` over \`.getElementsByClassName()\`.
+
+`;

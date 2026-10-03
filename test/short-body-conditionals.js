@@ -1,5 +1,5 @@
 import vm from 'node:vm';
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
@@ -27,10 +27,10 @@ for (const [rule, exit, opening] of [
 			const expected = `${opening}\n\tif (condition) {\n\t\twork();\n\t}\n}`;
 			const linter = new Linter();
 			const result = linter.verifyAndFix(code, config);
-			t.true(result.fixed);
-			t.is(result.output, expected);
-			t.deepEqual(result.messages, []);
-			t.false(linter.verifyAndFix(result.output, config).fixed);
+			t.assert.strictEqual(result.fixed, true);
+			t.assert.strictEqual(result.output, expected);
+			t.assert.deepStrictEqual(result.messages, []);
+			t.assert.strictEqual(linter.verifyAndFix(result.output, config).fixed, false);
 		});
 	}
 
@@ -38,10 +38,10 @@ for (const [rule, exit, opening] of [
 		const code = `${opening}\n\tprepare();\n\tif (condition) {\n\t\twork();\n\t\tfinish();\n\t}\n}`;
 		const linter = new Linter();
 		const result = linter.verifyAndFix(code, config);
-		t.true(result.fixed);
-		t.true(result.output.includes(exit));
-		t.deepEqual(result.messages, []);
-		t.false(linter.verifyAndFix(result.output, config).fixed);
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.strictEqual(result.output.includes(exit), true);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(linter.verifyAndFix(result.output, config).fixed, false);
 	});
 
 	test(`${rule}: uses the file's first line ending for inserted lines`, t => {
@@ -50,7 +50,7 @@ for (const [rule, exit, opening] of [
 		const expected = `const prefix = true;\n${opening}\r\n\tif (condition) {\n\t\twork();\n\t}\r\n}`;
 		const linter = new Linter();
 		const result = linter.verifyAndFix(code, config);
-		t.is(result.output, expected);
+		t.assert.strictEqual(result.output, expected);
 	});
 
 	test(`${rule}: uses the enclosing body line ending when the guard and tail share a line`, t => {
@@ -58,7 +58,7 @@ for (const [rule, exit, opening] of [
 		const expected = `${opening}\r\n\tif (condition) {\r\n\t\twork();\r\n\t}\r\n}`;
 		const linter = new Linter();
 		const result = linter.verifyAndFix(code, config);
-		t.is(result.output, expected);
+		t.assert.strictEqual(result.output, expected);
 	});
 
 	for (const linebreak of ['\r\n', '\r']) {
@@ -67,7 +67,7 @@ for (const [rule, exit, opening] of [
 			const expected = `const prefix = true;${linebreak}${opening} if (condition) {${linebreak}\twork();${linebreak}} }${linebreak}`;
 			const linter = new Linter();
 			const result = linter.verifyAndFix(code, config);
-			t.is(result.output, expected);
+			t.assert.strictEqual(result.output, expected);
 		});
 	}
 }
@@ -77,7 +77,7 @@ test('short-body wrapping ignores line breaks inside condition tokens when choos
 	const expected = 'function foo() {\r\n\tif (tag`first\nsecond`) {\r\n\t\twork();\r\n\t}\r\n}\r\n';
 	const linter = new Linter();
 	const result = linter.verifyAndFix(code, config);
-	t.is(result.output, expected);
+	t.assert.strictEqual(result.output, expected);
 });
 
 test('short-body wrapping uses the line ending between an unbraced guard and else', t => {
@@ -85,7 +85,7 @@ test('short-body wrapping uses the line ending between an unbraced guard and els
 	const expected = 'function foo() { if (condition) {\r\n\twork();\r\n} }';
 	const linter = new Linter();
 	const result = linter.verifyAndFix(code, config);
-	t.is(result.output, expected);
+	t.assert.strictEqual(result.output, expected);
 });
 
 test('short-body wrapping ignores line breaks inside unrelated tokens', t => {
@@ -93,7 +93,7 @@ test('short-body wrapping ignores line breaks inside unrelated tokens', t => {
 	const expected = 'prefix;\r\nfunction foo() { if (condition) {\r\n\twork();\r\n} } const later = `first\nsecond`;';
 	const linter = new Linter();
 	const result = linter.verifyAndFix(code, config);
-	t.is(result.output, expected);
+	t.assert.strictEqual(result.output, expected);
 });
 
 test('short-body wrapping uses the line ending before an Allman-style body', t => {
@@ -101,7 +101,7 @@ test('short-body wrapping uses the line ending before an Allman-style body', t =
 	const expected = 'function foo()\r\n{ if (condition) {\r\n\twork();\r\n} }';
 	const linter = new Linter();
 	const result = linter.verifyAndFix(code, config);
-	t.is(result.output, expected);
+	t.assert.strictEqual(result.output, expected);
 });
 
 test('short-body wrapping uses a structural line ending inside an enclosing expression', t => {
@@ -109,7 +109,7 @@ test('short-body wrapping uses a structural line ending inside an enclosing expr
 	const expected = 'const result = consume(function foo() { if (condition) {\r\n\twork();\r\n} },\r\n\targument);';
 	const linter = new Linter();
 	const result = linter.verifyAndFix(code, config);
-	t.is(result.output, expected);
+	t.assert.strictEqual(result.output, expected);
 });
 
 test('short-body wrapping preserves a trailing file line ending', t => {
@@ -117,7 +117,7 @@ test('short-body wrapping preserves a trailing file line ending', t => {
 	const expected = 'function foo() { if (condition) {\r\n\twork();\r\n} }\r\n';
 	const linter = new Linter();
 	const result = linter.verifyAndFix(code, config);
-	t.is(result.output, expected);
+	t.assert.strictEqual(result.output, expected);
 });
 
 test('short-body wrapping uses the file\'s first line ending, not the nearest one', t => {
@@ -125,7 +125,7 @@ test('short-body wrapping uses the file\'s first line ending, not the nearest on
 	const expected = 'const prefix = true;\nconst nearby = true;\r\nfunction foo() { if (condition) {\n\twork();\n} }\r\n';
 	const linter = new Linter();
 	const result = linter.verifyAndFix(code, config);
-	t.is(result.output, expected);
+	t.assert.strictEqual(result.output, expected);
 });
 
 test('short-body wrapping preserves mixed line endings inside the moved body', t => {
@@ -133,7 +133,7 @@ test('short-body wrapping preserves mixed line endings inside the moved body', t
 	const expected = 'function foo() {\r\n\tif (condition) {\r\n\t\twork(\n\t\t\tvalue,\r\n\t\t);\r\n\t}\r\n}';
 	const linter = new Linter();
 	const result = linter.verifyAndFix(code, config);
-	t.is(result.output, expected);
+	t.assert.strictEqual(result.output, expected);
 });
 
 test('short-body wrapping preserves function and loop behavior', t => {
@@ -179,11 +179,11 @@ test('short-body wrapping preserves function and loop behavior', t => {
 	]) {
 		const linter = new Linter();
 		const result = linter.verifyAndFix(code, config);
-		t.true(result.fixed);
-		t.deepEqual(result.messages, []);
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.deepStrictEqual(result.messages, []);
 		for (const enabled of [false, true]) {
 			const execution = `const log = []; const result = run(${enabled}, log); JSON.stringify({log, result});`;
-			t.is(vm.runInNewContext(`${result.output}\n${execution}`), vm.runInNewContext(`${code}\n${execution}`));
+			t.assert.strictEqual(vm.runInNewContext(`${result.output}\n${execution}`), vm.runInNewContext(`${code}\n${execution}`));
 		}
 	}
 });

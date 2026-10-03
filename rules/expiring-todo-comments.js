@@ -230,7 +230,7 @@ function reachedDate(past, now) {
 
 function tryToCoerceVersion(rawVersion) {
 	// `version` in `package.json` and comment can't be empty
-	/* c8 ignore next 3 */
+	/* node:coverage ignore next 3 */
 	if (!rawVersion) {
 		return false;
 	}
@@ -254,13 +254,13 @@ function tryToCoerceVersion(rawVersion) {
 	// Get only the first member for cases such as `1.0.0 - 2.9999.9999`
 	const parts = version.split(' ');
 	// We don't have this `package.json` to test
-	/* c8 ignore next 3 */
+	/* node:coverage ignore next 3 */
 	if (parts.length > 1) {
 		version = parts[0];
 	}
 
 	// We don't have this `package.json` to test
-	/* c8 ignore next 3 */
+	/* node:coverage ignore next 3 */
 	if (semver.valid(version)) {
 		return version;
 	}
@@ -269,9 +269,9 @@ function tryToCoerceVersion(rawVersion) {
 		// Try to semver.parse a perfect match while semver.coerce tries to fix errors
 		// But coerce can't parse pre-releases.
 		return semver.parse(version) || semver.coerce(version);
-	} catch {
 		// We don't have this `package.json` to test
-		/* c8 ignore next 3 */
+		/* node:coverage ignore next 3 */
+	} catch {
 		return false;
 	}
 }
@@ -496,12 +496,12 @@ const create = context => {
 
 			const targetPackageVersion = tryToCoerceVersion(targetPackageRawVersion);
 
-			/* c8 ignore start */
+			/* node:coverage disable */
 			if (!hasTargetPackage || !targetPackageVersion) {
 				// Can't compare `¯\_(ツ)_/¯`
 				continue;
 			}
-			/* c8 ignore end */
+			/* node:coverage enable */
 
 			if (satisfiesRange(targetPackageVersion, dependency.condition, dependency.version)) {
 				report(MESSAGE_ID_VERSION_MATCHES, {comparison: `${dependency.name} ${dependency.condition} ${dependency.version}`});
@@ -542,7 +542,7 @@ const create = context => {
 			const targetPackageRawEngineVersion = packageEngines.node;
 			const hasTargetEngine = Boolean(targetPackageRawEngineVersion);
 
-			/* c8 ignore next 3 */
+			/* node:coverage ignore next 3 */
 			if (!hasTargetEngine) {
 				continue;
 			}

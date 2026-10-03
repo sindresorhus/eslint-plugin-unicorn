@@ -1,0 +1,703 @@
+exports[`prefer-array-iterable-methods > invalid(1): for (const [, value] of [].entries()) {\n\tfoo(value);\n} 1`] = `
+
+  1 | for (const [, value] of [].entries()) {
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(1): for (const [, value] of [].entries()) {\n\tfoo(value);\n} 2`] = `
+
+Message:
+> 1 | for (const [, value] of [].entries()) {
+    |                            ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+  2 | 	foo(value);
+  3 | }
+
+Output:
+  1 | for (const value of []) {
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(10): for (const [, value] of new Array(3).entries()) {\n\tfoo(value);\n} 1`] = `
+
+  1 | for (const [, value] of new Array(3).entries()) {
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(10): for (const [, value] of new Array(3).entries()) {\n\tfoo(value);\n} 2`] = `
+
+Message:
+> 1 | for (const [, value] of new Array(3).entries()) {
+    |                                      ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+  2 | 	foo(value);
+  3 | }
+
+Output:
+  1 | for (const value of new Array(3)) {
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(11): for (const [, value] of Array(3).entries()) {\n\tfoo(value);\n} 1`] = `
+
+  1 | for (const [, value] of Array(3).entries()) {
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(11): for (const [, value] of Array(3).entries()) {\n\tfoo(value);\n} 2`] = `
+
+Message:
+> 1 | for (const [, value] of Array(3).entries()) {
+    |                                  ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+  2 | 	foo(value);
+  3 | }
+
+Output:
+  1 | for (const value of Array(3)) {
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(12): for (const [, value] of ([]).entries()) {\n\tfoo(value);\n} 1`] = `
+
+  1 | for (const [, value] of ([]).entries()) {
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(12): for (const [, value] of ([]).entries()) {\n\tfoo(value);\n} 2`] = `
+
+Message:
+> 1 | for (const [, value] of ([]).entries()) {
+    |                              ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+  2 | 	foo(value);
+  3 | }
+
+Output:
+  1 | for (const value of ([])) {
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(13): for (const [, value] of [].entries()) foo(value); 1`] = `
+
+  1 | for (const [, value] of [].entries()) foo(value);
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(13): for (const [, value] of [].entries()) foo(value); 2`] = `
+
+Message:
+> 1 | for (const [, value] of [].entries()) foo(value);
+    |                            ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+
+Output:
+  1 | for (const value of []) foo(value);
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(14): for(const[index, value] of [].entries()){foo(value)} 1`] = `
+
+  1 | for(const[index, value] of [].entries()){foo(value)}
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(14): for(const[index, value] of [].entries()){foo(value)} 2`] = `
+
+Message:
+> 1 | for(const[index, value] of [].entries()){foo(value)}
+    |                               ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+
+Output:
+  1 | for(const value of []){foo(value)}
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(15): for(const[index, value] of [].entries()){foo(index)} 1`] = `
+
+  1 | for(const[index, value] of [].entries()){foo(index)}
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(15): for(const[index, value] of [].entries()){foo(index)} 2`] = `
+
+Message:
+> 1 | for(const[index, value] of [].entries()){foo(index)}
+    |                               ^^^^^^^ Prefer \`Array#keys()\` over \`Array#entries()\` when the value is unused.
+
+Output:
+  1 | for(const index of [].keys()){foo(index)}
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(16): for (const [index] of [].entries()) {\n\tfoo(index);\n} 1`] = `
+
+  1 | for (const [index] of [].entries()) {
+  2 | 	foo(index);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(16): for (const [index] of [].entries()) {\n\tfoo(index);\n} 2`] = `
+
+Message:
+> 1 | for (const [index] of [].entries()) {
+    |                          ^^^^^^^ Prefer \`Array#keys()\` over \`Array#entries()\` when the value is unused.
+  2 | 	foo(index);
+  3 | }
+
+Output:
+  1 | for (const index of [].keys()) {
+  2 | 	foo(index);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(17): for (const [index, ] of [].entries()) {\n\tfoo(index);\n} 1`] = `
+
+  1 | for (const [index, ] of [].entries()) {
+  2 | 	foo(index);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(17): for (const [index, ] of [].entries()) {\n\tfoo(index);\n} 2`] = `
+
+Message:
+> 1 | for (const [index, ] of [].entries()) {
+    |                            ^^^^^^^ Prefer \`Array#keys()\` over \`Array#entries()\` when the value is unused.
+  2 | 	foo(index);
+  3 | }
+
+Output:
+  1 | for (const index of [].keys()) {
+  2 | 	foo(index);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(18): for (const [index, value] of [].entries()) {\n\tfoo(index);\n} 1`] = `
+
+  1 | for (const [index, value] of [].entries()) {
+  2 | 	foo(index);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(18): for (const [index, value] of [].entries()) {\n\tfoo(index);\n} 2`] = `
+
+Message:
+> 1 | for (const [index, value] of [].entries()) {
+    |                                 ^^^^^^^ Prefer \`Array#keys()\` over \`Array#entries()\` when the value is unused.
+  2 | 	foo(index);
+  3 | }
+
+Output:
+  1 | for (const index of [].keys()) {
+  2 | 	foo(index);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(19): for (let [index, value] of [].entries()) {\n\tfoo(index);\n} 1`] = `
+
+  1 | for (let [index, value] of [].entries()) {
+  2 | 	foo(index);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(19): for (let [index, value] of [].entries()) {\n\tfoo(index);\n} 2`] = `
+
+Message:
+> 1 | for (let [index, value] of [].entries()) {
+    |                               ^^^^^^^ Prefer \`Array#keys()\` over \`Array#entries()\` when the value is unused.
+  2 | 	foo(index);
+  3 | }
+
+Output:
+  1 | for (let index of [].keys()) {
+  2 | 	foo(index);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(2): for (const [index, value] of [].entries()) {\n\tfoo(value);\n} 1`] = `
+
+  1 | for (const [index, value] of [].entries()) {
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(2): for (const [index, value] of [].entries()) {\n\tfoo(value);\n} 2`] = `
+
+Message:
+> 1 | for (const [index, value] of [].entries()) {
+    |                                 ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+  2 | 	foo(value);
+  3 | }
+
+Output:
+  1 | for (const value of []) {
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(20): for (const [/* index */, value] of [].entries()) {\n\tfoo(value);\n} 1`] = `
+
+  1 | for (const [/* index */, value] of [].entries()) {
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(20): for (const [/* index */, value] of [].entries()) {\n\tfoo(value);\n} 2`] = `
+
+Message:
+> 1 | for (const [/* index */, value] of [].entries()) {
+    |                                       ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(21): for (const [, value] of [].entries(/* comment */)) {\n\tfoo(value);\n} 1`] = `
+
+  1 | for (const [, value] of [].entries(/* comment */)) {
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(21): for (const [, value] of [].entries(/* comment */)) {\n\tfoo(value);\n} 2`] = `
+
+Message:
+> 1 | for (const [, value] of [].entries(/* comment */)) {
+    |                            ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(22): function foo(numbers: number[]) {\n\tfor (const [, value] of numbers.entries()) {\n\t\tbar(value);\n\t}\n} 1`] = `
+
+  1 | function foo(numbers: number[]) {
+  2 | 	for (const [, value] of numbers.entries()) {
+  3 | 		bar(value);
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(22): function foo(numbers: number[]) {\n\tfor (const [, value] of numbers.entries()) {\n\t\tbar(value);\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo(numbers: number[]) {
+> 2 | 	for (const [, value] of numbers.entries()) {
+    | 	                                ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+  3 | 		bar(value);
+  4 | 	}
+  5 | }
+
+Output:
+  1 | function foo(numbers: number[]) {
+  2 | 	for (const value of numbers) {
+  3 | 		bar(value);
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(23): function foo(numbers: ReadonlyArray<string>) {\n\tfor (const [index] of numbers.entries()) {\n\t\tbar(index);\n\t}\n} 1`] = `
+
+  1 | function foo(numbers: ReadonlyArray<string>) {
+  2 | 	for (const [index] of numbers.entries()) {
+  3 | 		bar(index);
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(23): function foo(numbers: ReadonlyArray<string>) {\n\tfor (const [index] of numbers.entries()) {\n\t\tbar(index);\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo(numbers: ReadonlyArray<string>) {
+> 2 | 	for (const [index] of numbers.entries()) {
+    | 	                              ^^^^^^^ Prefer \`Array#keys()\` over \`Array#entries()\` when the value is unused.
+  3 | 		bar(index);
+  4 | 	}
+  5 | }
+
+Output:
+  1 | function foo(numbers: ReadonlyArray<string>) {
+  2 | 	for (const index of numbers.keys()) {
+  3 | 		bar(index);
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(24): function foo(numbers: readonly number[]) {\n\tfor (const [, value] of numbers.entries()) {\n\t\tbar(value);\n\t}\n} 1`] = `
+
+  1 | function foo(numbers: readonly number[]) {
+  2 | 	for (const [, value] of numbers.entries()) {
+  3 | 		bar(value);
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(24): function foo(numbers: readonly number[]) {\n\tfor (const [, value] of numbers.entries()) {\n\t\tbar(value);\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo(numbers: readonly number[]) {
+> 2 | 	for (const [, value] of numbers.entries()) {
+    | 	                                ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+  3 | 		bar(value);
+  4 | 	}
+  5 | }
+
+Output:
+  1 | function foo(numbers: readonly number[]) {
+  2 | 	for (const value of numbers) {
+  3 | 		bar(value);
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(25): function foo(pair: [number, string]) {\n\tfor (const [, value] of pair.entries()) {\n\t\tbar(value);\n\t}\n} 1`] = `
+
+  1 | function foo(pair: [number, string]) {
+  2 | 	for (const [, value] of pair.entries()) {
+  3 | 		bar(value);
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(25): function foo(pair: [number, string]) {\n\tfor (const [, value] of pair.entries()) {\n\t\tbar(value);\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo(pair: [number, string]) {
+> 2 | 	for (const [, value] of pair.entries()) {
+    | 	                             ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+  3 | 		bar(value);
+  4 | 	}
+  5 | }
+
+Output:
+  1 | function foo(pair: [number, string]) {
+  2 | 	for (const value of pair) {
+  3 | 		bar(value);
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(26): for (const [, value] of (foo as number[]).entries()) {\n\tbar(value);\n} 1`] = `
+
+  1 | for (const [, value] of (foo as number[]).entries()) {
+  2 | 	bar(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(26): for (const [, value] of (foo as number[]).entries()) {\n\tbar(value);\n} 2`] = `
+
+Message:
+> 1 | for (const [, value] of (foo as number[]).entries()) {
+    |                                           ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+  2 | 	bar(value);
+  3 | }
+
+Output:
+  1 | for (const value of (foo as number[])) {
+  2 | 	bar(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(27): for (const [, value] of (<number[]>foo).entries()) {\n\tbar(value);\n} 1`] = `
+
+  1 | for (const [, value] of (<number[]>foo).entries()) {
+  2 | 	bar(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(27): for (const [, value] of (<number[]>foo).entries()) {\n\tbar(value);\n} 2`] = `
+
+Message:
+> 1 | for (const [, value] of (<number[]>foo).entries()) {
+    |                                         ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+  2 | 	bar(value);
+  3 | }
+
+Output:
+  1 | for (const value of (<number[]>foo)) {
+  2 | 	bar(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(28): for(const[,value]of[].entries()){\n\tfoo(value);\n} 1`] = `
+
+  1 | for(const[,value]of[].entries()){
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(28): for(const[,value]of[].entries()){\n\tfoo(value);\n} 2`] = `
+
+Message:
+> 1 | for(const[,value]of[].entries()){
+    |                       ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+  2 | 	foo(value);
+  3 | }
+
+Output:
+  1 | for(const value of[]){
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(29): for(const[index,value]of['a'].entries()){\n\tfoo(value);\n} 1`] = `
+
+  1 | for(const[index,value]of['a'].entries()){
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(29): for(const[index,value]of['a'].entries()){\n\tfoo(value);\n} 2`] = `
+
+Message:
+> 1 | for(const[index,value]of['a'].entries()){
+    |                               ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+  2 | 	foo(value);
+  3 | }
+
+Output:
+  1 | for(const value of['a']){
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(3): for (let [, value] of [].entries()) {\n\tfoo(value);\n} 1`] = `
+
+  1 | for (let [, value] of [].entries()) {
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(3): for (let [, value] of [].entries()) {\n\tfoo(value);\n} 2`] = `
+
+Message:
+> 1 | for (let [, value] of [].entries()) {
+    |                          ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+  2 | 	foo(value);
+  3 | }
+
+Output:
+  1 | for (let value of []) {
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(30): for(let[,value]of[].entries()){\n\tfoo(value);\n} 1`] = `
+
+  1 | for(let[,value]of[].entries()){
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(30): for(let[,value]of[].entries()){\n\tfoo(value);\n} 2`] = `
+
+Message:
+> 1 | for(let[,value]of[].entries()){
+    |                     ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+  2 | 	foo(value);
+  3 | }
+
+Output:
+  1 | for(let value of[]){
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(31): for (const [index, /* value */] of [].entries()) {\n\tfoo(index);\n} 1`] = `
+
+  1 | for (const [index, /* value */] of [].entries()) {
+  2 | 	foo(index);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(31): for (const [index, /* value */] of [].entries()) {\n\tfoo(index);\n} 2`] = `
+
+Message:
+> 1 | for (const [index, /* value */] of [].entries()) {
+    |                                       ^^^^^^^ Prefer \`Array#keys()\` over \`Array#entries()\` when the value is unused.
+  2 | 	foo(index);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(4): for (const [, {name}] of [].entries()) {\n\tfoo(name);\n} 1`] = `
+
+  1 | for (const [, {name}] of [].entries()) {
+  2 | 	foo(name);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(4): for (const [, {name}] of [].entries()) {\n\tfoo(name);\n} 2`] = `
+
+Message:
+> 1 | for (const [, {name}] of [].entries()) {
+    |                             ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+  2 | 	foo(name);
+  3 | }
+
+Output:
+  1 | for (const {name} of []) {
+  2 | 	foo(name);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(5): for (const [, [a, b]] of [].entries()) {\n\tfoo(a, b);\n} 1`] = `
+
+  1 | for (const [, [a, b]] of [].entries()) {
+  2 | 	foo(a, b);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(5): for (const [, [a, b]] of [].entries()) {\n\tfoo(a, b);\n} 2`] = `
+
+Message:
+> 1 | for (const [, [a, b]] of [].entries()) {
+    |                             ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+  2 | 	foo(a, b);
+  3 | }
+
+Output:
+  1 | for (const [a, b] of []) {
+  2 | 	foo(a, b);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(6): for (const [, {name = 1}] of [].entries()) {\n\tfoo(name);\n} 1`] = `
+
+  1 | for (const [, {name = 1}] of [].entries()) {
+  2 | 	foo(name);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(6): for (const [, {name = 1}] of [].entries()) {\n\tfoo(name);\n} 2`] = `
+
+Message:
+> 1 | for (const [, {name = 1}] of [].entries()) {
+    |                                 ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+  2 | 	foo(name);
+  3 | }
+
+Output:
+  1 | for (const {name = 1} of []) {
+  2 | 	foo(name);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(7): for (const [, value] of [1, 2, 3].entries()) {\n\tfoo(value);\n} 1`] = `
+
+  1 | for (const [, value] of [1, 2, 3].entries()) {
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(7): for (const [, value] of [1, 2, 3].entries()) {\n\tfoo(value);\n} 2`] = `
+
+Message:
+> 1 | for (const [, value] of [1, 2, 3].entries()) {
+    |                                   ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+  2 | 	foo(value);
+  3 | }
+
+Output:
+  1 | for (const value of [1, 2, 3]) {
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(8): for (const [, value] of Array.from(foo).entries()) {\n\tbar(value);\n} 1`] = `
+
+  1 | for (const [, value] of Array.from(foo).entries()) {
+  2 | 	bar(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(8): for (const [, value] of Array.from(foo).entries()) {\n\tbar(value);\n} 2`] = `
+
+Message:
+> 1 | for (const [, value] of Array.from(foo).entries()) {
+    |                                         ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+  2 | 	bar(value);
+  3 | }
+
+Output:
+  1 | for (const value of Array.from(foo)) {
+  2 | 	bar(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(9): for (const [, value] of Array.of(1, 2, 3).entries()) {\n\tfoo(value);\n} 1`] = `
+
+  1 | for (const [, value] of Array.of(1, 2, 3).entries()) {
+  2 | 	foo(value);
+  3 | }
+
+`;
+
+exports[`prefer-array-iterable-methods > invalid(9): for (const [, value] of Array.of(1, 2, 3).entries()) {\n\tfoo(value);\n} 2`] = `
+
+Message:
+> 1 | for (const [, value] of Array.of(1, 2, 3).entries()) {
+    |                                           ^^^^^^^ Prefer iterating the array directly over \`Array#entries()\` when the index is unused.
+  2 | 	foo(value);
+  3 | }
+
+Output:
+  1 | for (const value of Array.of(1, 2, 3)) {
+  2 | 	foo(value);
+  3 | }
+
+`;

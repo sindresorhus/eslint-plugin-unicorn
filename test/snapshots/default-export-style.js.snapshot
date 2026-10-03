@@ -1,0 +1,718 @@
+exports[`default-export-style > invalid(1): function foo() {}\nexport default foo; 1`] = `
+
+  1 | function foo() {}
+  2 | export default foo;
+
+`;
+
+exports[`default-export-style > invalid(1): function foo() {}\nexport default foo; 2`] = `
+
+Message:
+  1 | function foo() {}
+> 2 | export default foo;
+    | ^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function inline.
+
+Output:
+  1 | export default function foo() {}
+
+`;
+
+exports[`default-export-style > invalid(10): function foo() {}\nexport default /* comment */ foo; 1`] = `
+
+  1 | function foo() {}
+  2 | export default /* comment */ foo;
+
+`;
+
+exports[`default-export-style > invalid(10): function foo() {}\nexport default /* comment */ foo; 2`] = `
+
+Message:
+  1 | function foo() {}
+> 2 | export default /* comment */ foo;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function inline.
+
+`;
+
+exports[`default-export-style > invalid(11): function foo() {}\nexport default foo; // Comment. 1`] = `
+
+  1 | function foo() {}
+  2 | export default foo; // Comment.
+
+`;
+
+exports[`default-export-style > invalid(11): function foo() {}\nexport default foo; // Comment. 2`] = `
+
+Message:
+  1 | function foo() {}
+> 2 | export default foo; // Comment.
+    | ^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function inline.
+
+`;
+
+exports[`default-export-style > invalid(12): class Foo {}\nexport default /* comment */ Foo; 1`] = `
+
+  1 | class Foo {}
+  2 | export default /* comment */ Foo;
+
+`;
+
+exports[`default-export-style > invalid(12): class Foo {}\nexport default /* comment */ Foo; 2`] = `
+
+Message:
+  1 | class Foo {}
+> 2 | export default /* comment */ Foo;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported class inline.
+
+`;
+
+exports[`default-export-style > invalid(13): class Foo {}\nexport default Foo; // Comment. 1`] = `
+
+  1 | class Foo {}
+  2 | export default Foo; // Comment.
+
+`;
+
+exports[`default-export-style > invalid(13): class Foo {}\nexport default Foo; // Comment. 2`] = `
+
+Message:
+  1 | class Foo {}
+> 2 | export default Foo; // Comment.
+    | ^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported class inline.
+
+`;
+
+exports[`default-export-style > invalid(14): const foo = /* @__PURE__ */ () => {};\nexport default foo; 1`] = `
+
+  1 | const foo = /* @__PURE__ */ () => {};
+  2 | export default foo;
+
+`;
+
+exports[`default-export-style > invalid(14): const foo = /* @__PURE__ */ () => {};\nexport default foo; 2`] = `
+
+Message:
+  1 | const foo = /* @__PURE__ */ () => {};
+> 2 | export default foo;
+    | ^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function inline.
+
+`;
+
+exports[`default-export-style > invalid(15): const foo = () => {};\nexport default foo; // Comment. 1`] = `
+
+  1 | const foo = () => {};
+  2 | export default foo; // Comment.
+
+`;
+
+exports[`default-export-style > invalid(15): const foo = () => {};\nexport default foo; // Comment. 2`] = `
+
+Message:
+  1 | const foo = () => {};
+> 2 | export default foo; // Comment.
+    | ^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function inline.
+
+`;
+
+exports[`default-export-style > invalid(16): foo();\nconst foo = () => {};\nexport default foo; 1`] = `
+
+  1 | foo();
+  2 | const foo = () => {};
+  3 | export default foo;
+
+`;
+
+exports[`default-export-style > invalid(16): foo();\nconst foo = () => {};\nexport default foo; 2`] = `
+
+Message:
+  1 | foo();
+  2 | const foo = () => {};
+> 3 | export default foo;
+    | ^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function inline.
+
+`;
+
+exports[`default-export-style > invalid(17): const foo = () => this.foo;\nexport default foo; 1`] = `
+
+  1 | const foo = () => this.foo;
+  2 | export default foo;
+
+`;
+
+exports[`default-export-style > invalid(17): const foo = () => this.foo;\nexport default foo; 2`] = `
+
+Message:
+  1 | const foo = () => this.foo;
+> 2 | export default foo;
+    | ^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function inline.
+
+`;
+
+exports[`default-export-style > invalid(18): const foo = () => arguments;\nexport default foo; 1`] = `
+
+  1 | const foo = () => arguments;
+  2 | export default foo;
+
+`;
+
+exports[`default-export-style > invalid(18): const foo = () => arguments;\nexport default foo; 2`] = `
+
+Message:
+  1 | const foo = () => arguments;
+> 2 | export default foo;
+    | ^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function inline.
+
+`;
+
+exports[`default-export-style > invalid(19): const foo = (value = this.foo) => value;\nexport default foo; 1`] = `
+
+  1 | const foo = (value = this.foo) => value;
+  2 | export default foo;
+
+`;
+
+exports[`default-export-style > invalid(19): const foo = (value = this.foo) => value;\nexport default foo; 2`] = `
+
+Message:
+  1 | const foo = (value = this.foo) => value;
+> 2 | export default foo;
+    | ^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function inline.
+
+`;
+
+exports[`default-export-style > invalid(2): async function foo() {}\nexport default foo; 1`] = `
+
+  1 | async function foo() {}
+  2 | export default foo;
+
+`;
+
+exports[`default-export-style > invalid(2): async function foo() {}\nexport default foo; 2`] = `
+
+Message:
+  1 | async function foo() {}
+> 2 | export default foo;
+    | ^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function inline.
+
+Output:
+  1 | export default async function foo() {}
+
+`;
+
+exports[`default-export-style > invalid(20): const foo = () => {\n\t// Comment.\n};\nexport default foo; 1`] = `
+
+  1 | const foo = () => {
+  2 | 	// Comment.
+  3 | };
+  4 | export default foo;
+
+`;
+
+exports[`default-export-style > invalid(20): const foo = () => {\n\t// Comment.\n};\nexport default foo; 2`] = `
+
+Message:
+  1 | const foo = () => {
+  2 | 	// Comment.
+  3 | };
+> 4 | export default foo;
+    | ^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function inline.
+
+`;
+
+exports[`default-export-style > invalid(21): export default function foo() {} 1`] = `
+
+Options:
+- functions: 'separate'
+
+Code:
+  1 | export default function foo() {}
+
+`;
+
+exports[`default-export-style > invalid(21): export default function foo() {} 2`] = `
+
+Message:
+> 1 | export default function foo() {}
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function as a separate const arrow function.
+
+Suggestion 1/1: Use a separate const arrow function default export.:
+  1 | const foo = () => {};
+  2 | export default foo;
+
+`;
+
+exports[`default-export-style > invalid(22): export default /* comment */ function foo() {} 1`] = `
+
+Options:
+- functions: 'separate'
+
+Code:
+  1 | export default /* comment */ function foo() {}
+
+`;
+
+exports[`default-export-style > invalid(22): export default /* comment */ function foo() {} 2`] = `
+
+Message:
+> 1 | export default /* comment */ function foo() {}
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function as a separate const arrow function.
+
+`;
+
+exports[`default-export-style > invalid(23): foo();\nexport default function foo() {} 1`] = `
+
+Options:
+- functions: 'separate'
+
+Code:
+  1 | foo();
+  2 | export default function foo() {}
+
+`;
+
+exports[`default-export-style > invalid(23): foo();\nexport default function foo() {} 2`] = `
+
+Message:
+  1 | foo();
+> 2 | export default function foo() {}
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function as a separate const arrow function.
+
+`;
+
+exports[`default-export-style > invalid(24): export default function Foo() {}\nnew Foo(); 1`] = `
+
+Options:
+- functions: 'separate'
+
+Code:
+  1 | export default function Foo() {}
+  2 | new Foo();
+
+`;
+
+exports[`default-export-style > invalid(24): export default function Foo() {}\nnew Foo(); 2`] = `
+
+Message:
+> 1 | export default function Foo() {}
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function as a separate const arrow function.
+  2 | new Foo();
+
+`;
+
+exports[`default-export-style > invalid(25): export default function Foo() {}\nFoo.prototype.method = function () {}; 1`] = `
+
+Options:
+- functions: 'separate'
+
+Code:
+  1 | export default function Foo() {}
+  2 | Foo.prototype.method = function () {};
+
+`;
+
+exports[`default-export-style > invalid(25): export default function Foo() {}\nFoo.prototype.method = function () {}; 2`] = `
+
+Message:
+> 1 | export default function Foo() {}
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function as a separate const arrow function.
+  2 | Foo.prototype.method = function () {};
+
+`;
+
+exports[`default-export-style > invalid(26): export default function Foo() {}\nFoo['prototype'].method = function () {}; 1`] = `
+
+Options:
+- functions: 'separate'
+
+Code:
+  1 | export default function Foo() {}
+  2 | Foo['prototype'].method = function () {};
+
+`;
+
+exports[`default-export-style > invalid(26): export default function Foo() {}\nFoo['prototype'].method = function () {}; 2`] = `
+
+Message:
+> 1 | export default function Foo() {}
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function as a separate const arrow function.
+  2 | Foo['prototype'].method = function () {};
+
+`;
+
+exports[`default-export-style > invalid(27): export default function foo() {\n\treturn this.foo;\n} 1`] = `
+
+Options:
+- functions: 'separate'
+
+Code:
+  1 | export default function foo() {
+  2 | 	return this.foo;
+  3 | }
+
+`;
+
+exports[`default-export-style > invalid(27): export default function foo() {\n\treturn this.foo;\n} 2`] = `
+
+Message:
+> 1 | export default function foo() {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	return this.foo;
+    | ^^^^^^^^^^^^^^^^^
+> 3 | }
+    | ^ Prefer declaring this default-exported function as a separate const arrow function.
+
+`;
+
+exports[`default-export-style > invalid(28): export default function foo() {\n\treturn arguments;\n} 1`] = `
+
+Options:
+- functions: 'separate'
+
+Code:
+  1 | export default function foo() {
+  2 | 	return arguments;
+  3 | }
+
+`;
+
+exports[`default-export-style > invalid(28): export default function foo() {\n\treturn arguments;\n} 2`] = `
+
+Message:
+> 1 | export default function foo() {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	return arguments;
+    | ^^^^^^^^^^^^^^^^^^
+> 3 | }
+    | ^ Prefer declaring this default-exported function as a separate const arrow function.
+
+`;
+
+exports[`default-export-style > invalid(29): export default function foo() {\n\treturn new.target;\n} 1`] = `
+
+Options:
+- functions: 'separate'
+
+Code:
+  1 | export default function foo() {
+  2 | 	return new.target;
+  3 | }
+
+`;
+
+exports[`default-export-style > invalid(29): export default function foo() {\n\treturn new.target;\n} 2`] = `
+
+Message:
+> 1 | export default function foo() {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	return new.target;
+    | ^^^^^^^^^^^^^^^^^^^
+> 3 | }
+    | ^ Prefer declaring this default-exported function as a separate const arrow function.
+
+`;
+
+exports[`default-export-style > invalid(3): /** Leading comment */\nfunction foo() {}\nexport default foo; 1`] = `
+
+  1 | /** Leading comment */
+  2 | function foo() {}
+  3 | export default foo;
+
+`;
+
+exports[`default-export-style > invalid(3): /** Leading comment */\nfunction foo() {}\nexport default foo; 2`] = `
+
+Message:
+  1 | /** Leading comment */
+  2 | function foo() {}
+> 3 | export default foo;
+    | ^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function inline.
+
+Output:
+  1 | /** Leading comment */
+  2 | export default function foo() {}
+
+`;
+
+exports[`default-export-style > invalid(30): export default function foo(value = arguments) {} 1`] = `
+
+Options:
+- functions: 'separate'
+
+Code:
+  1 | export default function foo(value = arguments) {}
+
+`;
+
+exports[`default-export-style > invalid(30): export default function foo(value = arguments) {} 2`] = `
+
+Message:
+> 1 | export default function foo(value = arguments) {}
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function as a separate const arrow function.
+
+`;
+
+exports[`default-export-style > invalid(31): export default function foo() {\n\t// Comment.\n} 1`] = `
+
+Options:
+- functions: 'separate'
+
+Code:
+  1 | export default function foo() {
+  2 | 	// Comment.
+  3 | }
+
+`;
+
+exports[`default-export-style > invalid(31): export default function foo() {\n\t// Comment.\n} 2`] = `
+
+Message:
+> 1 | export default function foo() {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	// Comment.
+    | ^^^^^^^^^^^^
+> 3 | }
+    | ^ Prefer declaring this default-exported function as a separate const arrow function.
+
+`;
+
+exports[`default-export-style > invalid(32): function foo() {}\nexport default foo; 1`] = `
+
+Options:
+- functions: 'separate'
+
+Code:
+  1 | function foo() {}
+  2 | export default foo;
+
+`;
+
+exports[`default-export-style > invalid(32): function foo() {}\nexport default foo; 2`] = `
+
+Message:
+  1 | function foo() {}
+> 2 | export default foo;
+    | ^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function as a separate const arrow function.
+
+Suggestion 1/1: Use a separate const arrow function default export.:
+  1 | const foo = () => {};
+  2 | export default foo;
+
+`;
+
+exports[`default-export-style > invalid(33): const Foo = () => {};\nexport default Foo;\nnew Foo(); 1`] = `
+
+  1 | const Foo = () => {};
+  2 | export default Foo;
+  3 | new Foo();
+
+`;
+
+exports[`default-export-style > invalid(33): const Foo = () => {};\nexport default Foo;\nnew Foo(); 2`] = `
+
+Message:
+  1 | const Foo = () => {};
+> 2 | export default Foo;
+    | ^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function inline.
+  3 | new Foo();
+
+`;
+
+exports[`default-export-style > invalid(34): export default class Foo {} 1`] = `
+
+Options:
+- classes: 'separate'
+
+Code:
+  1 | export default class Foo {}
+
+`;
+
+exports[`default-export-style > invalid(34): export default class Foo {} 2`] = `
+
+Message:
+> 1 | export default class Foo {}
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported class as a separate class declaration.
+
+Output:
+  1 | class Foo {}
+  2 | export default Foo;
+
+`;
+
+exports[`default-export-style > invalid(35): const foo = async (bar) => bar;\nexport default foo; 1`] = `
+
+  1 | const foo = async (bar) => bar;
+  2 | export default foo;
+
+`;
+
+exports[`default-export-style > invalid(35): const foo = async (bar) => bar;\nexport default foo; 2`] = `
+
+Message:
+  1 | const foo = async (bar) => bar;
+> 2 | export default foo;
+    | ^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function inline.
+
+Suggestion 1/1: Use an inline default function declaration.:
+  1 | export default async function foo(bar) { return bar; }
+
+`;
+
+exports[`default-export-style > invalid(36): export default async function foo(bar) {} 1`] = `
+
+Options:
+- functions: 'separate'
+
+Code:
+  1 | export default async function foo(bar) {}
+
+`;
+
+exports[`default-export-style > invalid(36): export default async function foo(bar) {} 2`] = `
+
+Message:
+> 1 | export default async function foo(bar) {}
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function as a separate const arrow function.
+
+Suggestion 1/1: Use a separate const arrow function default export.:
+  1 | const foo = async (bar) => {};
+  2 | export default foo;
+
+`;
+
+exports[`default-export-style > invalid(37): export default /* Comment. */ class Foo {} 1`] = `
+
+Options:
+- classes: 'separate'
+
+Code:
+  1 | export default /* Comment. */ class Foo {}
+
+`;
+
+exports[`default-export-style > invalid(37): export default /* Comment. */ class Foo {} 2`] = `
+
+Message:
+> 1 | export default /* Comment. */ class Foo {}
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported class as a separate class declaration.
+
+`;
+
+exports[`default-export-style > invalid(4): class Foo {}\nexport default Foo; 1`] = `
+
+  1 | class Foo {}
+  2 | export default Foo;
+
+`;
+
+exports[`default-export-style > invalid(4): class Foo {}\nexport default Foo; 2`] = `
+
+Message:
+  1 | class Foo {}
+> 2 | export default Foo;
+    | ^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported class inline.
+
+Output:
+  1 | export default class Foo {}
+
+`;
+
+exports[`default-export-style > invalid(5): class Foo extends Bar {}\nexport default Foo; 1`] = `
+
+  1 | class Foo extends Bar {}
+  2 | export default Foo;
+
+`;
+
+exports[`default-export-style > invalid(5): class Foo extends Bar {}\nexport default Foo; 2`] = `
+
+Message:
+  1 | class Foo extends Bar {}
+> 2 | export default Foo;
+    | ^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported class inline.
+
+Output:
+  1 | export default class Foo extends Bar {}
+
+`;
+
+exports[`default-export-style > invalid(6): const foo = () => {};\nexport default foo; 1`] = `
+
+  1 | const foo = () => {};
+  2 | export default foo;
+
+`;
+
+exports[`default-export-style > invalid(6): const foo = () => {};\nexport default foo; 2`] = `
+
+Message:
+  1 | const foo = () => {};
+> 2 | export default foo;
+    | ^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function inline.
+
+Suggestion 1/1: Use an inline default function declaration.:
+  1 | export default function foo() {}
+
+`;
+
+exports[`default-export-style > invalid(7): const foo = value => value;\nexport default foo; 1`] = `
+
+  1 | const foo = value => value;
+  2 | export default foo;
+
+`;
+
+exports[`default-export-style > invalid(7): const foo = value => value;\nexport default foo; 2`] = `
+
+Message:
+  1 | const foo = value => value;
+> 2 | export default foo;
+    | ^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function inline.
+
+Suggestion 1/1: Use an inline default function declaration.:
+  1 | export default function foo(value) { return value; }
+
+`;
+
+exports[`default-export-style > invalid(8): function foo(value) {\n\treturn value?.bar;\n}\nexport default foo; 1`] = `
+
+  1 | function foo(value) {
+  2 | 	return value?.bar;
+  3 | }
+  4 | export default foo;
+
+`;
+
+exports[`default-export-style > invalid(8): function foo(value) {\n\treturn value?.bar;\n}\nexport default foo; 2`] = `
+
+Message:
+  1 | function foo(value) {
+  2 | 	return value?.bar;
+  3 | }
+> 4 | export default foo;
+    | ^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function inline.
+
+Output:
+  1 | export default function foo(value) {
+  2 | 	return value?.bar;
+  3 | }
+
+`;
+
+exports[`default-export-style > invalid(9): const foo = value => value?.bar;\nexport default foo; 1`] = `
+
+  1 | const foo = value => value?.bar;
+  2 | export default foo;
+
+`;
+
+exports[`default-export-style > invalid(9): const foo = value => value?.bar;\nexport default foo; 2`] = `
+
+Message:
+  1 | const foo = value => value?.bar;
+> 2 | export default foo;
+    | ^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function inline.
+
+Suggestion 1/1: Use an inline default function declaration.:
+  1 | export default function foo(value) { return value?.bar; }
+
+`;

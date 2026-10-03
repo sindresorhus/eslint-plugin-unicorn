@@ -1,0 +1,899 @@
+exports[`no-invalid-integrity > invalid(1): <script src=\"app.js\" integrity=\"sha25-abc\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha25-abc" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(1): <script src=\"app.js\" integrity=\"sha25-abc\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha25-abc" />
+    |                                ^^^^^^^^^^^ The \`integrity\` value must contain at least one recognized algorithm: \`sha256\`, \`sha384\`, \`sha512\`, or \`ed25519\`.
+
+`;
+
+exports[`no-invalid-integrity > invalid(1): <script src=\"app.js\" integrity=\"sha256-abc\"></script> 1`] = `
+
+  1 | <script src="app.js" integrity="sha256-abc"></script>
+
+`;
+
+exports[`no-invalid-integrity > invalid(1): <script src=\"app.js\" integrity=\"sha256-abc\"></script> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256-abc"></script>
+    |                                 ^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(10): <script integrity=sha256-a/b==></script> 1`] = `
+
+  1 | <script integrity=sha256-a/b==></script>
+
+`;
+
+exports[`no-invalid-integrity > invalid(10): <script integrity=sha256-a/b==></script> 2`] = `
+
+Message:
+> 1 | <script integrity=sha256-a/b==></script>
+    |                   ^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-a/b==\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(10): <script src=\"app.js\" integrity=\"ed25519-abc\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="ed25519-abc" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(10): <script src=\"app.js\" integrity=\"ed25519-abc\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="ed25519-abc" />
+    |                                ^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`ed25519-abc\`: The \`ed25519\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(11): <script integrity=\"sha256&#45;abc\"></script> 1`] = `
+
+  1 | <script integrity="sha256&#45;abc"></script>
+
+`;
+
+exports[`no-invalid-integrity > invalid(11): <script integrity=\"sha256&#45;abc\"></script> 2`] = `
+
+Message:
+> 1 | <script integrity="sha256&#45;abc"></script>
+    |                    ^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(11): <script src=\"app.js\" integrity=\"sha256-...\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha256-..." />
+
+`;
+
+exports[`no-invalid-integrity > invalid(11): <script src=\"app.js\" integrity=\"sha256-...\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256-..." />
+    |                                ^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-...\`: The value must contain base64 characters followed by at most two \`=\` padding characters.
+
+`;
+
+exports[`no-invalid-integrity > invalid(12): <script integrity=\"sha256-abc&#32;sha384-abc\"></script> 1`] = `
+
+  1 | <script integrity="sha256-abc&#32;sha384-abc"></script>
+
+`;
+
+exports[`no-invalid-integrity > invalid(12): <script integrity=\"sha256-abc&#32;sha384-abc\"></script> 2`] = `
+
+Message:
+> 1 | <script integrity="sha256-abc&#32;sha384-abc"></script>
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(12): <script integrity=\"sha256-abc&#32;sha384-abc\"></script> 3`] = `
+
+Message:
+> 1 | <script integrity="sha256-abc&#32;sha384-abc"></script>
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha384-abc\`: The \`sha384\` value must contain 64 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(12): <script src=\"app.js\" integrity=\"sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(12): <script src=\"app.js\" integrity=\"sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!\`: The value must contain base64 characters followed by at most two \`=\` padding characters.
+
+`;
+
+exports[`no-invalid-integrity > invalid(13): <script integrity=sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=/></script> 1`] = `
+
+  1 | <script integrity=sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=/></script>
+
+`;
+
+exports[`no-invalid-integrity > invalid(13): <script integrity=sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=/></script> 2`] = `
+
+Message:
+> 1 | <script integrity=sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=/></script>
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=/\`: The value must contain base64 characters followed by at most two \`=\` padding characters.
+
+`;
+
+exports[`no-invalid-integrity > invalid(13): <script src=\"app.js\" integrity=\"sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAé\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAé" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(13): <script src=\"app.js\" integrity=\"sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAé\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAé" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAé\`: The value must contain base64 characters followed by at most two \`=\` padding characters.
+
+`;
+
+exports[`no-invalid-integrity > invalid(14): <script src=\"app.js\" integrity=\"sha256-AAAAAAAAAAAAAAAAAAAA=AAAAAAAAAAAAAAAAAAAAAAA\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha256-AAAAAAAAAAAAAAAAAAAA=AAAAAAAAAAAAAAAAAAAAAAA" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(14): <script src=\"app.js\" integrity=\"sha256-AAAAAAAAAAAAAAAAAAAA=AAAAAAAAAAAAAAAAAAAAAAA\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256-AAAAAAAAAAAAAAAAAAAA=AAAAAAAAAAAAAAAAAAAAAAA" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-AAAAAAAAAAAAAAAAAAAA=AAAAAAAAAAAAAAAAAAAAAAA\`: The value must contain base64 characters followed by at most two \`=\` padding characters.
+
+`;
+
+exports[`no-invalid-integrity > invalid(14): <script src=\"app.js\" integrity=\"sha256-abc\"></script> 1`] = `
+
+  1 | <script src="app.js" integrity="sha256-abc"></script>
+
+`;
+
+exports[`no-invalid-integrity > invalid(14): <script src=\"app.js\" integrity=\"sha256-abc\"></script> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256-abc"></script>
+    |                                 ^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(15): <script src=\"app.js\" integrity=\"sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ===\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ===" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(15): <script src=\"app.js\" integrity=\"sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ===\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ===" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ===\`: The value must contain base64 characters followed by at most two \`=\` padding characters.
+
+`;
+
+exports[`no-invalid-integrity > invalid(16): <script src=\"app.js\" integrity=\"sha384-WeF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhP===\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha384-WeF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhP===" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(16): <script src=\"app.js\" integrity=\"sha384-WeF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhP===\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha384-WeF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhP===" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha384-WeF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhP===\`: The value must contain base64 characters followed by at most two \`=\` padding characters.
+
+`;
+
+exports[`no-invalid-integrity > invalid(17): <script src=\"app.js\" integrity=\"sha512-m3HSJL1i83hdltRq0+o9czGb+8KJDKra4t/3JRlnPKcjI8PZm6XBHXx6zG4UuMXaDEZjR1wuXDre9G9zvN7AQw===\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha512-m3HSJL1i83hdltRq0+o9czGb+8KJDKra4t/3JRlnPKcjI8PZm6XBHXx6zG4UuMXaDEZjR1wuXDre9G9zvN7AQw===" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(17): <script src=\"app.js\" integrity=\"sha512-m3HSJL1i83hdltRq0+o9czGb+8KJDKra4t/3JRlnPKcjI8PZm6XBHXx6zG4UuMXaDEZjR1wuXDre9G9zvN7AQw===\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha512-m3HSJL1i83hdltRq0+o9czGb+8KJDKra4t/3JRlnPKcjI8PZm6XBHXx6zG4UuMXaDEZjR1wuXDre9G9zvN7AQw===" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha512-m3HSJL1i83hdltRq0+o9czGb+8KJDKra4t/3JRlnPKcjI8PZm6XBHXx6zG4UuMXaDEZjR1wuXDre9G9zvN7AQw===\`: The value must contain base64 characters followed by at most two \`=\` padding characters.
+
+`;
+
+exports[`no-invalid-integrity > invalid(18): <script src=\"app.js\" integrity=\"sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=?option\u0000\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=?option " />
+
+`;
+
+exports[`no-invalid-integrity > invalid(18): <script src=\"app.js\" integrity=\"sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=?option\u0000\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=?option " />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=?option \`: Options must contain only printable ASCII characters.
+
+`;
+
+exports[`no-invalid-integrity > invalid(19): <script src=\"app.js\" integrity=\"sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=?option\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=?option" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(19): <script src=\"app.js\" integrity=\"sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=?option\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=?option" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=?option\`: Options must contain only printable ASCII characters.
+
+`;
+
+exports[`no-invalid-integrity > invalid(2): <script src=\"app.js\" integrity=\"md5-abc sha1-abc\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="md5-abc sha1-abc" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(2): <script src=\"app.js\" integrity=\"md5-abc sha1-abc\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="md5-abc sha1-abc" />
+    |                                ^^^^^^^^^^^^^^^^^^ The \`integrity\` value must contain at least one recognized algorithm: \`sha256\`, \`sha384\`, \`sha512\`, or \`ed25519\`.
+
+`;
+
+exports[`no-invalid-integrity > invalid(2): <script src=\"app.js\" integrity=\"sha25-abc\"></script> 1`] = `
+
+  1 | <script src="app.js" integrity="sha25-abc"></script>
+
+`;
+
+exports[`no-invalid-integrity > invalid(2): <script src=\"app.js\" integrity=\"sha25-abc\"></script> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha25-abc"></script>
+    |                                 ^^^^^^^^^ The \`integrity\` value must contain at least one recognized algorithm: \`sha256\`, \`sha384\`, \`sha512\`, or \`ed25519\`.
+
+`;
+
+exports[`no-invalid-integrity > invalid(20): <script src=\"app.js\" integrity=\"sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=?optioné\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=?optioné" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(20): <script src=\"app.js\" integrity=\"sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=?optioné\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=?optioné" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=?optioné\`: Options must contain only printable ASCII characters.
+
+`;
+
+exports[`no-invalid-integrity > invalid(21): <script src=\"app.js\" integrity=\"sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ= sha384-WeF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhP\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ= sha384-WeF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhP" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(21): <script src=\"app.js\" integrity=\"sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ= sha384-WeF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhP\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ= sha384-WeF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhP" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ= sha384-WeF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhP\`: The value must contain base64 characters followed by at most two \`=\` padding characters.
+
+`;
+
+exports[`no-invalid-integrity > invalid(22): <script src=\"app.js\" integrity=\"sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=,sha384-WeF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhP\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=,sha384-WeF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhP" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(22): <script src=\"app.js\" integrity=\"sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=,sha384-WeF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhP\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=,sha384-WeF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhP" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=,sha384-WeF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhP\`: The value must contain base64 characters followed by at most two \`=\` padding characters.
+
+`;
+
+exports[`no-invalid-integrity > invalid(23): <script src=\"app.js\" integrity=\"sha512-m3HSJL1i83hdltRq0+o9czGb+8KJDKra4t/3JRlnPKcjI8PZm6XBHXx6zG4UuMXaDEZjR1wuXDre9G9zvN7AQw== sha256-abc\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha512-m3HSJL1i83hdltRq0+o9czGb+8KJDKra4t/3JRlnPKcjI8PZm6XBHXx6zG4UuMXaDEZjR1wuXDre9G9zvN7AQw== sha256-abc" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(23): <script src=\"app.js\" integrity=\"sha512-m3HSJL1i83hdltRq0+o9czGb+8KJDKra4t/3JRlnPKcjI8PZm6XBHXx6zG4UuMXaDEZjR1wuXDre9G9zvN7AQw== sha256-abc\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha512-m3HSJL1i83hdltRq0+o9czGb+8KJDKra4t/3JRlnPKcjI8PZm6XBHXx6zG4UuMXaDEZjR1wuXDre9G9zvN7AQw== sha256-abc" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(24): <script src=\"app.js\" integrity=\"sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ= ed25519-abc\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ= ed25519-abc" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(24): <script src=\"app.js\" integrity=\"sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ= ed25519-abc\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ= ed25519-abc" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`ed25519-abc\`: The \`ed25519\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(25): <script src=\"app.js\" integrity=\"ed25519-JrQLj5P/89iXES9+vFgrIy29clF9CC/oPPsw3c5D0bs= sha384-abc\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="ed25519-JrQLj5P/89iXES9+vFgrIy29clF9CC/oPPsw3c5D0bs= sha384-abc" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(25): <script src=\"app.js\" integrity=\"ed25519-JrQLj5P/89iXES9+vFgrIy29clF9CC/oPPsw3c5D0bs= sha384-abc\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="ed25519-JrQLj5P/89iXES9+vFgrIy29clF9CC/oPPsw3c5D0bs= sha384-abc" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha384-abc\`: The \`sha384\` value must contain 64 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(26): <script src=\"app.js\" integrity=\"sha256-abc sha384-abc ed25519-abc\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha256-abc sha384-abc ed25519-abc" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(26): <script src=\"app.js\" integrity=\"sha256-abc sha384-abc ed25519-abc\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256-abc sha384-abc ed25519-abc" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(26): <script src=\"app.js\" integrity=\"sha256-abc sha384-abc ed25519-abc\" /> 3`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256-abc sha384-abc ed25519-abc" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha384-abc\`: The \`sha384\` value must contain 64 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(26): <script src=\"app.js\" integrity=\"sha256-abc sha384-abc ed25519-abc\" /> 4`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256-abc sha384-abc ed25519-abc" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`ed25519-abc\`: The \`ed25519\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(27): <script src=\"app.js\" integrity=\"sha256-PJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha256-PJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(27): <script src=\"app.js\" integrity=\"sha256-PJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256-PJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-PJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(28): <script src=\"app.js\" integrity=\"sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQA\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQA" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(28): <script src=\"app.js\" integrity=\"sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQA\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQA" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQA\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(29): <script src=\"app.js\" integrity=\"sha384-eF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhP\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha384-eF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhP" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(29): <script src=\"app.js\" integrity=\"sha384-eF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhP\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha384-eF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhP" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha384-eF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhP\`: The \`sha384\` value must contain 64 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(3): <script src=\"app.js\" integrity=\"ed25519-abc\"></script> 1`] = `
+
+  1 | <script src="app.js" integrity="ed25519-abc"></script>
+
+`;
+
+exports[`no-invalid-integrity > invalid(3): <script src=\"app.js\" integrity=\"ed25519-abc\"></script> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="ed25519-abc"></script>
+    |                                 ^^^^^^^^^^^ Invalid \`integrity\` metadata \`ed25519-abc\`: The \`ed25519\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(3): <script src=\"app.js\" integrity=\"garbage\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="garbage" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(3): <script src=\"app.js\" integrity=\"garbage\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="garbage" />
+    |                                ^^^^^^^^^ The \`integrity\` value must contain at least one recognized algorithm: \`sha256\`, \`sha384\`, \`sha512\`, or \`ed25519\`.
+
+`;
+
+exports[`no-invalid-integrity > invalid(30): <script src=\"app.js\" integrity=\"sha384-WeF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhPA\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha384-WeF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhPA" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(30): <script src=\"app.js\" integrity=\"sha384-WeF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhPA\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha384-WeF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhPA" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha384-WeF0h3dEjGnea4ANejO7+5/xtGPkQ1TDVTvNucZm+pASWjx5+QOXvfX2oT3oKGhPA\`: The \`sha384\` value must contain 64 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(31): <script src=\"app.js\" integrity=\"sha512-3HSJL1i83hdltRq0+o9czGb+8KJDKra4t/3JRlnPKcjI8PZm6XBHXx6zG4UuMXaDEZjR1wuXDre9G9zvN7AQw\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha512-3HSJL1i83hdltRq0+o9czGb+8KJDKra4t/3JRlnPKcjI8PZm6XBHXx6zG4UuMXaDEZjR1wuXDre9G9zvN7AQw" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(31): <script src=\"app.js\" integrity=\"sha512-3HSJL1i83hdltRq0+o9czGb+8KJDKra4t/3JRlnPKcjI8PZm6XBHXx6zG4UuMXaDEZjR1wuXDre9G9zvN7AQw\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha512-3HSJL1i83hdltRq0+o9czGb+8KJDKra4t/3JRlnPKcjI8PZm6XBHXx6zG4UuMXaDEZjR1wuXDre9G9zvN7AQw" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha512-3HSJL1i83hdltRq0+o9czGb+8KJDKra4t/3JRlnPKcjI8PZm6XBHXx6zG4UuMXaDEZjR1wuXDre9G9zvN7AQw\`: The \`sha512\` value must contain 86 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(32): <script src=\"app.js\" integrity=\"sha512-m3HSJL1i83hdltRq0+o9czGb+8KJDKra4t/3JRlnPKcjI8PZm6XBHXx6zG4UuMXaDEZjR1wuXDre9G9zvN7AQwA\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha512-m3HSJL1i83hdltRq0+o9czGb+8KJDKra4t/3JRlnPKcjI8PZm6XBHXx6zG4UuMXaDEZjR1wuXDre9G9zvN7AQwA" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(32): <script src=\"app.js\" integrity=\"sha512-m3HSJL1i83hdltRq0+o9czGb+8KJDKra4t/3JRlnPKcjI8PZm6XBHXx6zG4UuMXaDEZjR1wuXDre9G9zvN7AQwA\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha512-m3HSJL1i83hdltRq0+o9czGb+8KJDKra4t/3JRlnPKcjI8PZm6XBHXx6zG4UuMXaDEZjR1wuXDre9G9zvN7AQwA" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha512-m3HSJL1i83hdltRq0+o9czGb+8KJDKra4t/3JRlnPKcjI8PZm6XBHXx6zG4UuMXaDEZjR1wuXDre9G9zvN7AQwA\`: The \`sha512\` value must contain 86 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(33): <script src=\"app.js\" integrity=\"ed25519-rQLj5P/89iXES9+vFgrIy29clF9CC/oPPsw3c5D0bs\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="ed25519-rQLj5P/89iXES9+vFgrIy29clF9CC/oPPsw3c5D0bs" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(33): <script src=\"app.js\" integrity=\"ed25519-rQLj5P/89iXES9+vFgrIy29clF9CC/oPPsw3c5D0bs\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="ed25519-rQLj5P/89iXES9+vFgrIy29clF9CC/oPPsw3c5D0bs" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`ed25519-rQLj5P/89iXES9+vFgrIy29clF9CC/oPPsw3c5D0bs\`: The \`ed25519\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(34): <script src=\"app.js\" integrity=\"ed25519-JrQLj5P/89iXES9+vFgrIy29clF9CC/oPPsw3c5D0bsA\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="ed25519-JrQLj5P/89iXES9+vFgrIy29clF9CC/oPPsw3c5D0bsA" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(34): <script src=\"app.js\" integrity=\"ed25519-JrQLj5P/89iXES9+vFgrIy29clF9CC/oPPsw3c5D0bsA\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="ed25519-JrQLj5P/89iXES9+vFgrIy29clF9CC/oPPsw3c5D0bsA" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`ed25519-JrQLj5P/89iXES9+vFgrIy29clF9CC/oPPsw3c5D0bsA\`: The \`ed25519\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(35): <link rel=\"stylesheet\" integrity=\"sha256-abc\" /> 1`] = `
+
+  1 | <link rel="stylesheet" integrity="sha256-abc" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(35): <link rel=\"stylesheet\" integrity=\"sha256-abc\" /> 2`] = `
+
+Message:
+> 1 | <link rel="stylesheet" integrity="sha256-abc" />
+    |                                  ^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(36): <script integrity=\"sha256-abc\" /> 1`] = `
+
+  1 | <script integrity="sha256-abc" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(36): <script integrity=\"sha256-abc\" /> 2`] = `
+
+Message:
+> 1 | <script integrity="sha256-abc" />
+    |                   ^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(37): <script {...properties} integrity=\"sha256-abc\" /> 1`] = `
+
+  1 | <script {...properties} integrity="sha256-abc" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(37): <script {...properties} integrity=\"sha256-abc\" /> 2`] = `
+
+Message:
+> 1 | <script {...properties} integrity="sha256-abc" />
+    |                                   ^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(38): <script integrity=\"\" {...properties} integrity=\"sha256-abc\" /> 1`] = `
+
+  1 | <script integrity="" {...properties} integrity="sha256-abc" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(38): <script integrity=\"\" {...properties} integrity=\"sha256-abc\" /> 2`] = `
+
+Message:
+> 1 | <script integrity="" {...properties} integrity="sha256-abc" />
+    |                                                ^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(39): <script integrity=\"\" integrity=\"sha256-abc\" /> 1`] = `
+
+  1 | <script integrity="" integrity="sha256-abc" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(39): <script integrity=\"\" integrity=\"sha256-abc\" /> 2`] = `
+
+Message:
+> 1 | <script integrity="" integrity="sha256-abc" />
+    |                                ^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(4): <script src=\"app.js\" integrity=\"SHA256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="SHA256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(4): <script src=\"app.js\" integrity=\"SHA256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="SHA256-LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=" />
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The \`integrity\` value must contain at least one recognized algorithm: \`sha256\`, \`sha384\`, \`sha512\`, or \`ed25519\`.
+
+`;
+
+exports[`no-invalid-integrity > invalid(4): <script src=\"app.js\" integrity=\"sha256-abc sha384-abc\"></script> 1`] = `
+
+  1 | <script src="app.js" integrity="sha256-abc sha384-abc"></script>
+
+`;
+
+exports[`no-invalid-integrity > invalid(4): <script src=\"app.js\" integrity=\"sha256-abc sha384-abc\"></script> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256-abc sha384-abc"></script>
+    |                                 ^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(4): <script src=\"app.js\" integrity=\"sha256-abc sha384-abc\"></script> 3`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256-abc sha384-abc"></script>
+    |                                 ^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha384-abc\`: The \`sha384\` value must contain 64 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(40): <script integrity={\"sha256-abc\"} /> 1`] = `
+
+  1 | <script integrity={"sha256-abc"} />
+
+`;
+
+exports[`no-invalid-integrity > invalid(40): <script integrity={\"sha256-abc\"} /> 2`] = `
+
+Message:
+> 1 | <script integrity={"sha256-abc"} />
+    |                   ^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(41): <script integrity={\`sha256-abc\`} /> 1`] = `
+
+  1 | <script integrity={\`sha256-abc\`} />
+
+`;
+
+exports[`no-invalid-integrity > invalid(41): <script integrity={\`sha256-abc\`} /> 2`] = `
+
+Message:
+> 1 | <script integrity={\`sha256-abc\`} />
+    |                   ^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(42): <script integrity={\"sha256-\" + \"abc\"} /> 1`] = `
+
+  1 | <script integrity={"sha256-" + "abc"} />
+
+`;
+
+exports[`no-invalid-integrity > invalid(42): <script integrity={\"sha256-\" + \"abc\"} /> 2`] = `
+
+Message:
+> 1 | <script integrity={"sha256-" + "abc"} />
+    |                   ^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(43): const integrity = \"sha256-abc\"; <script integrity={integrity} /> 1`] = `
+
+  1 | const integrity = "sha256-abc"; <script integrity={integrity} />
+
+`;
+
+exports[`no-invalid-integrity > invalid(43): const integrity = \"sha256-abc\"; <script integrity={integrity} /> 2`] = `
+
+Message:
+> 1 | const integrity = "sha256-abc"; <script integrity={integrity} />
+    |                                                   ^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(44): <script integrity=\"sha256&#45;abc\" /> 1`] = `
+
+  1 | <script integrity="sha256&#45;abc" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(44): <script integrity=\"sha256&#45;abc\" /> 2`] = `
+
+Message:
+> 1 | <script integrity="sha256&#45;abc" />
+    |                   ^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(45): <script integrity={/* Keep this comment. */ \"sha256-abc\"} /> 1`] = `
+
+  1 | <script integrity={/* Keep this comment. */ "sha256-abc"} />
+
+`;
+
+exports[`no-invalid-integrity > invalid(45): <script integrity={/* Keep this comment. */ \"sha256-abc\"} /> 2`] = `
+
+Message:
+> 1 | <script integrity={/* Keep this comment. */ "sha256-abc"} />
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(46): <script integrity={\"sha256-abc\" as string} /> 1`] = `
+
+  1 | <script integrity={"sha256-abc" as string} />
+
+`;
+
+exports[`no-invalid-integrity > invalid(46): <script integrity={\"sha256-abc\" as string} /> 2`] = `
+
+Message:
+> 1 | <script integrity={"sha256-abc" as string} />
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(47): const integrity = \"sha256-abc\"; <script integrity={integrity!} /> 1`] = `
+
+  1 | const integrity = "sha256-abc"; <script integrity={integrity!} />
+
+`;
+
+exports[`no-invalid-integrity > invalid(47): const integrity = \"sha256-abc\"; <script integrity={integrity!} /> 2`] = `
+
+Message:
+> 1 | const integrity = "sha256-abc"; <script integrity={integrity!} />
+    |                                                   ^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(48): <script integrity={\"sha256-abc\" satisfies string} /> 1`] = `
+
+  1 | <script integrity={"sha256-abc" satisfies string} />
+
+`;
+
+exports[`no-invalid-integrity > invalid(48): <script integrity={\"sha256-abc\" satisfies string} /> 2`] = `
+
+Message:
+> 1 | <script integrity={"sha256-abc" satisfies string} />
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(5): <SCRIPT INTEGRITY=\"sha256-abc\"></SCRIPT> 1`] = `
+
+  1 | <SCRIPT INTEGRITY="sha256-abc"></SCRIPT>
+
+`;
+
+exports[`no-invalid-integrity > invalid(5): <SCRIPT INTEGRITY=\"sha256-abc\"></SCRIPT> 2`] = `
+
+Message:
+> 1 | <SCRIPT INTEGRITY="sha256-abc"></SCRIPT>
+    |                    ^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(5): <script src=\"app.js\" integrity=\"sha-256-abc\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha-256-abc" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(5): <script src=\"app.js\" integrity=\"sha-256-abc\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha-256-abc" />
+    |                                ^^^^^^^^^^^^^ The \`integrity\` value must contain at least one recognized algorithm: \`sha256\`, \`sha384\`, \`sha512\`, or \`ed25519\`.
+
+`;
+
+exports[`no-invalid-integrity > invalid(6): <link rel=\"stylesheet\" href=\"style.css\" integrity=\"sha384-abc\"> 1`] = `
+
+  1 | <link rel="stylesheet" href="style.css" integrity="sha384-abc">
+
+`;
+
+exports[`no-invalid-integrity > invalid(6): <link rel=\"stylesheet\" href=\"style.css\" integrity=\"sha384-abc\"> 2`] = `
+
+Message:
+> 1 | <link rel="stylesheet" href="style.css" integrity="sha384-abc">
+    |                                                    ^^^^^^^^^^ Invalid \`integrity\` metadata \`sha384-abc\`: The \`sha384\` value must contain 64 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(6): <script src=\"app.js\" integrity=\"sha256\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha256" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(6): <script src=\"app.js\" integrity=\"sha256\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256" />
+    |                                ^^^^^^^^ Invalid \`integrity\` metadata \`sha256\`: The algorithm must be followed by \`-\` and a base64 value.
+
+`;
+
+exports[`no-invalid-integrity > invalid(7): <link rel=\"preload\" integrity=\"sha256-abc\"> 1`] = `
+
+  1 | <link rel="preload" integrity="sha256-abc">
+
+`;
+
+exports[`no-invalid-integrity > invalid(7): <link rel=\"preload\" integrity=\"sha256-abc\"> 2`] = `
+
+Message:
+> 1 | <link rel="preload" integrity="sha256-abc">
+    |                                ^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(7): <script src=\"app.js\" integrity=\"sha256-\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha256-" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(7): <script src=\"app.js\" integrity=\"sha256-\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256-" />
+    |                                ^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-\`: The value must contain base64 characters followed by at most two \`=\` padding characters.
+
+`;
+
+exports[`no-invalid-integrity > invalid(8): <link rel=\"modulepreload\" integrity=\"sha512-abc\"> 1`] = `
+
+  1 | <link rel="modulepreload" integrity="sha512-abc">
+
+`;
+
+exports[`no-invalid-integrity > invalid(8): <link rel=\"modulepreload\" integrity=\"sha512-abc\"> 2`] = `
+
+Message:
+> 1 | <link rel="modulepreload" integrity="sha512-abc">
+    |                                      ^^^^^^^^^^ Invalid \`integrity\` metadata \`sha512-abc\`: The \`sha512\` value must contain 86 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(8): <script src=\"app.js\" integrity=\"sha256-?option\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha256-?option" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(8): <script src=\"app.js\" integrity=\"sha256-?option\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256-?option" />
+    |                                ^^^^^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-?option\`: The value must contain base64 characters followed by at most two \`=\` padding characters.
+
+`;
+
+exports[`no-invalid-integrity > invalid(9): <script integrity=\"sha256-abc\" integrity=\"\"></script> 1`] = `
+
+  1 | <script integrity="sha256-abc" integrity=""></script>
+
+`;
+
+exports[`no-invalid-integrity > invalid(9): <script integrity=\"sha256-abc\" integrity=\"\"></script> 2`] = `
+
+Message:
+> 1 | <script integrity="sha256-abc" integrity=""></script>
+    |                    ^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;
+
+exports[`no-invalid-integrity > invalid(9): <script src=\"app.js\" integrity=\"sha256-abc\" /> 1`] = `
+
+  1 | <script src="app.js" integrity="sha256-abc" />
+
+`;
+
+exports[`no-invalid-integrity > invalid(9): <script src=\"app.js\" integrity=\"sha256-abc\" /> 2`] = `
+
+Message:
+> 1 | <script src="app.js" integrity="sha256-abc" />
+    |                                ^^^^^^^^^^^^ Invalid \`integrity\` metadata \`sha256-abc\`: The \`sha256\` value must contain 43 base64 characters, excluding padding.
+
+`;

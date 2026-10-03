@@ -1285,5 +1285,16 @@ test({
 				'array.map((element, index, array) => object.method(element, index, array));',
 			],
 		}),
+		// A `catch` binding is not a known type predicate
+		invalidTestCase({
+			code: 'try {} catch (callback) { array.filter(callback); }',
+			method: 'filter',
+			name: 'callback',
+			suggestions: [
+				'try {} catch (callback) { array.filter((element) => callback(element)); }',
+				'try {} catch (callback) { array.filter((element, index) => callback(element, index)); }',
+				'try {} catch (callback) { array.filter((element, index, array) => callback(element, index, array)); }',
+			],
+		}),
 	],
 });

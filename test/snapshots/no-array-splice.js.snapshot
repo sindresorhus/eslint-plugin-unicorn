@@ -1,0 +1,507 @@
+exports[`no-array-splice > invalid(1): let array = []; array.splice(index, deleteCount); 1`] = `
+
+  1 | let array = []; array.splice(index, deleteCount);
+
+`;
+
+exports[`no-array-splice > invalid(1): let array = []; array.splice(index, deleteCount); 2`] = `
+
+Message:
+> 1 | let array = []; array.splice(index, deleteCount);
+    |                       ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array = []; array = array.toSpliced(index, deleteCount);
+
+`;
+
+exports[`no-array-splice > invalid(10): let array = items.toSorted(); array.splice(1, 1); 1`] = `
+
+  1 | let array = items.toSorted(); array.splice(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(10): let array = items.toSorted(); array.splice(1, 1); 2`] = `
+
+Message:
+> 1 | let array = items.toSorted(); array.splice(1, 1);
+    |                                     ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array = items.toSorted(); array = array.toSpliced(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(11): let array = items.with(0, item); array.splice(1, 1); 1`] = `
+
+  1 | let array = items.with(0, item); array.splice(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(11): let array = items.with(0, item); array.splice(1, 1); 2`] = `
+
+Message:
+> 1 | let array = items.with(0, item); array.splice(1, 1);
+    |                                        ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array = items.with(0, item); array = array.toSpliced(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(12): let array = original.toSpliced(0, 1); array.splice(1, 1); 1`] = `
+
+  1 | let array = original.toSpliced(0, 1); array.splice(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(12): let array = original.toSpliced(0, 1); array.splice(1, 1); 2`] = `
+
+Message:
+> 1 | let array = original.toSpliced(0, 1); array.splice(1, 1);
+    |                                             ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array = original.toSpliced(0, 1); array = array.toSpliced(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(13): let array = object.items.filter(Boolean); array.splice(1, 1); 1`] = `
+
+  1 | let array = object.items.filter(Boolean); array.splice(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(13): let array = object.items.filter(Boolean); array.splice(1, 1); 2`] = `
+
+Message:
+> 1 | let array = object.items.filter(Boolean); array.splice(1, 1);
+    |                                                 ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array = object.items.filter(Boolean); array = array.toSpliced(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(14): let array = []; array.forEach(foo); array.splice(1, 1); 1`] = `
+
+  1 | let array = []; array.forEach(foo); array.splice(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(14): let array = []; array.forEach(foo); array.splice(1, 1); 2`] = `
+
+Message:
+> 1 | let array = []; array.forEach(foo); array.splice(1, 1);
+    |                                           ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array = []; array.forEach(foo); array = array.toSpliced(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(15): let array = []; foo(...array); array.splice(1, 1); 1`] = `
+
+  1 | let array = []; foo(...array); array.splice(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(15): let array = []; foo(...array); array.splice(1, 1); 2`] = `
+
+Message:
+> 1 | let array = []; foo(...array); array.splice(1, 1);
+    |                                      ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array = []; foo(...array); array = array.toSpliced(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(16): let array = []; const first = array[0]; array.splice(1, 1); 1`] = `
+
+  1 | let array = []; const first = array[0]; array.splice(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(16): let array = []; const first = array[0]; array.splice(1, 1); 2`] = `
+
+Message:
+> 1 | let array = []; const first = array[0]; array.splice(1, 1);
+    |                                               ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array = []; const first = array[0]; array = array.toSpliced(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(17): let array = []; for (const element of array) {} array.splice(1, 1); 1`] = `
+
+  1 | let array = []; for (const element of array) {} array.splice(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(17): let array = []; for (const element of array) {} array.splice(1, 1); 2`] = `
+
+Message:
+> 1 | let array = []; for (const element of array) {} array.splice(1, 1);
+    |                                                       ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array = []; for (const element of array) {} array = array.toSpliced(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(18): let array = []; array.splice(1, 1); array.splice(2, 1); 1`] = `
+
+  1 | let array = []; array.splice(1, 1); array.splice(2, 1);
+
+`;
+
+exports[`no-array-splice > invalid(18): let array = []; array.splice(1, 1); array.splice(2, 1); 2`] = `
+
+Message:
+> 1 | let array = []; array.splice(1, 1); array.splice(2, 1);
+    |                       ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array = []; array = array.toSpliced(1, 1); array.splice(2, 1);
+
+`;
+
+exports[`no-array-splice > invalid(18): let array = []; array.splice(1, 1); array.splice(2, 1); 3`] = `
+
+Message:
+> 1 | let array = []; array.splice(1, 1); array.splice(2, 1);
+    |                                           ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array = []; array.splice(1, 1); array = array.toSpliced(2, 1);
+
+`;
+
+exports[`no-array-splice > invalid(19): let array = []; array.splice(1, 1, /* comment */ item, ...items); 1`] = `
+
+  1 | let array = []; array.splice(1, 1, /* comment */ item, ...items);
+
+`;
+
+exports[`no-array-splice > invalid(19): let array = []; array.splice(1, 1, /* comment */ item, ...items); 2`] = `
+
+Message:
+> 1 | let array = []; array.splice(1, 1, /* comment */ item, ...items);
+    |                       ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array = []; array = array.toSpliced(1, 1, /* comment */ item, ...items);
+
+`;
+
+exports[`no-array-splice > invalid(2): var array = []; array.splice(index, deleteCount, item); 1`] = `
+
+  1 | var array = []; array.splice(index, deleteCount, item);
+
+`;
+
+exports[`no-array-splice > invalid(2): var array = []; array.splice(index, deleteCount, item); 2`] = `
+
+Message:
+> 1 | var array = []; array.splice(index, deleteCount, item);
+    |                       ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | var array = []; array = array.toSpliced(index, deleteCount, item);
+
+`;
+
+exports[`no-array-splice > invalid(20): let array = []; array /* comment */ .splice(1, 1); 1`] = `
+
+  1 | let array = []; array /* comment */ .splice(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(20): let array = []; array /* comment */ .splice(1, 1); 2`] = `
+
+Message:
+> 1 | let array = []; array /* comment */ .splice(1, 1);
+    |                                      ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array = []; array = array /* comment */ .toSpliced(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(21): let \\u0061rray = []; \\u0061rray.splice(1, 1); 1`] = `
+
+  1 | let \\u0061rray = []; \\u0061rray.splice(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(21): let \\u0061rray = []; \\u0061rray.splice(1, 1); 2`] = `
+
+Message:
+> 1 | let \\u0061rray = []; \\u0061rray.splice(1, 1);
+    |                                 ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let \\u0061rray = []; \\u0061rray = \\u0061rray.toSpliced(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(22): let array = []; (array).splice(1, 1); 1`] = `
+
+  1 | let array = []; (array).splice(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(22): let array = []; (array).splice(1, 1); 2`] = `
+
+Message:
+> 1 | let array = []; (array).splice(1, 1);
+    |                         ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array = []; array = (array).toSpliced(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(23): let array = []; array. /* comment */ splice(1, 1); 1`] = `
+
+  1 | let array = []; array. /* comment */ splice(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(23): let array = []; array. /* comment */ splice(1, 1); 2`] = `
+
+Message:
+> 1 | let array = []; array. /* comment */ splice(1, 1);
+    |                                      ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array = []; array = array. /* comment */ toSpliced(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(24): let array: string[] = []; array.splice(1, 1); 1`] = `
+
+  1 | let array: string[] = []; array.splice(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(24): let array: string[] = []; array.splice(1, 1); 2`] = `
+
+Message:
+> 1 | let array: string[] = []; array.splice(1, 1);
+    |                                 ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array: string[] = []; array = array.toSpliced(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(25): let array: Array<string> = []; array.splice(1, 1); 1`] = `
+
+  1 | let array: Array<string> = []; array.splice(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(25): let array: Array<string> = []; array.splice(1, 1); 2`] = `
+
+Message:
+> 1 | let array: Array<string> = []; array.splice(1, 1);
+    |                                      ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array: Array<string> = []; array = array.toSpliced(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(26): let array: string[] = []; (array as string[]).splice(1, 1); 1`] = `
+
+  1 | let array: string[] = []; (array as string[]).splice(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(26): let array: string[] = []; (array as string[]).splice(1, 1); 2`] = `
+
+Message:
+> 1 | let array: string[] = []; (array as string[]).splice(1, 1);
+    |                                               ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array: string[] = []; array = (array as string[]).toSpliced(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(27): let array: string[] = []; array!.splice(1, 1); 1`] = `
+
+  1 | let array: string[] = []; array!.splice(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(27): let array: string[] = []; array!.splice(1, 1); 2`] = `
+
+Message:
+> 1 | let array: string[] = []; array!.splice(1, 1);
+    |                                  ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array: string[] = []; array = array!.toSpliced(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(28): function foo() { let array = [\"a\", \"b\"]; array.splice(1, 1); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo() { let array = ["a", "b"]; array.splice(1, 1); }
+
+`;
+
+exports[`no-array-splice > invalid(28): function foo() { let array = [\"a\", \"b\"]; array.splice(1, 1); } 2`] = `
+
+Message:
+> 1 | function foo() { let array = ["a", "b"]; array.splice(1, 1); }
+    |                                                ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | function foo() { let array = ["a", "b"]; array = array.toSpliced(1, 1); }
+
+`;
+
+exports[`no-array-splice > invalid(29): function foo() { let array = [\"a\", \"b\"] as string[] & {extra?: number}; array.splice(1, 1); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo() { let array = ["a", "b"] as string[] & {extra?: number}; array.splice(1, 1); }
+
+`;
+
+exports[`no-array-splice > invalid(29): function foo() { let array = [\"a\", \"b\"] as string[] & {extra?: number}; array.splice(1, 1); } 2`] = `
+
+Message:
+> 1 | function foo() { let array = ["a", "b"] as string[] & {extra?: number}; array.splice(1, 1); }
+    |                                                                               ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | function foo() { let array = ["a", "b"] as string[] & {extra?: number}; array = array.toSpliced(1, 1); }
+
+`;
+
+exports[`no-array-splice > invalid(3): let array = new Array(); array.splice(1, 1); 1`] = `
+
+  1 | let array = new Array(); array.splice(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(3): let array = new Array(); array.splice(1, 1); 2`] = `
+
+Message:
+> 1 | let array = new Array(); array.splice(1, 1);
+    |                                ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array = new Array(); array = array.toSpliced(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(4): let array = new Array(5); array.splice(1, 1); 1`] = `
+
+  1 | let array = new Array(5); array.splice(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(4): let array = new Array(5); array.splice(1, 1); 2`] = `
+
+Message:
+> 1 | let array = new Array(5); array.splice(1, 1);
+    |                                 ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array = new Array(5); array = array.toSpliced(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(5): let array = Array.from(iterable); array.splice(1, 1); 1`] = `
+
+  1 | let array = Array.from(iterable); array.splice(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(5): let array = Array.from(iterable); array.splice(1, 1); 2`] = `
+
+Message:
+> 1 | let array = Array.from(iterable); array.splice(1, 1);
+    |                                         ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array = Array.from(iterable); array = array.toSpliced(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(6): let array = Array.of(1, 2, 3); array.splice(1, 1); 1`] = `
+
+  1 | let array = Array.of(1, 2, 3); array.splice(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(6): let array = Array.of(1, 2, 3); array.splice(1, 1); 2`] = `
+
+Message:
+> 1 | let array = Array.of(1, 2, 3); array.splice(1, 1);
+    |                                      ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array = Array.of(1, 2, 3); array = array.toSpliced(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(7): let array = items.filter(Boolean); array.splice(1, 1); 1`] = `
+
+  1 | let array = items.filter(Boolean); array.splice(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(7): let array = items.filter(Boolean); array.splice(1, 1); 2`] = `
+
+Message:
+> 1 | let array = items.filter(Boolean); array.splice(1, 1);
+    |                                          ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array = items.filter(Boolean); array = array.toSpliced(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(8): let array = items.map(String); array.splice(1, 1); 1`] = `
+
+  1 | let array = items.map(String); array.splice(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(8): let array = items.map(String); array.splice(1, 1); 2`] = `
+
+Message:
+> 1 | let array = items.map(String); array.splice(1, 1);
+    |                                      ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array = items.map(String); array = array.toSpliced(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(9): let array = items.flat(); array.splice(1, 1); 1`] = `
+
+  1 | let array = items.flat(); array.splice(1, 1);
+
+`;
+
+exports[`no-array-splice > invalid(9): let array = items.flat(); array.splice(1, 1); 2`] = `
+
+Message:
+> 1 | let array = items.flat(); array.splice(1, 1);
+    |                                 ^^^^^^ Use \`Array#toSpliced()\` instead of \`Array#splice()\`.
+
+Suggestion 1/1: Assign the \`.toSpliced()\` result back to the array.:
+  1 | let array = items.flat(); array = array.toSpliced(1, 1);
+
+`;

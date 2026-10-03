@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
@@ -288,6 +288,34 @@ ruleTest.snapshot({
 			`,
 			options: [{order: customOrder}],
 		},
+		// Index signatures have no group and are skipped
+		{
+			code: outdent`
+				class Foo {
+					method() {}
+					[key: string]: unknown;
+					firstField = 1;
+					secondField = 2;
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		outdent`
+			class Foo {
+			method() {}
+			field = 1;
+			}
+		`,
+		// Members of the same group keep their order
+		outdent`
+			class Foo {
+				method() {}
+				firstField = 1;
+				secondField = 2;
+			}
+		`,
 	],
 });
 
@@ -312,15 +340,15 @@ const verifyWithOrder = order => {
 };
 
 test('order option must contain each group exactly once', t => {
-	t.throws(() => {
+	t.assert.throws(() => {
 		verifyWithOrder(customOrder.slice(1));
-	});
-	t.throws(() => {
+	}, {message: /should NOT have fewer than 8 items/u});
+	t.assert.throws(() => {
 		verifyWithOrder([...customOrder.slice(0, -1), customOrder[0]]);
-	});
-	t.throws(() => {
+	}, {message: /should NOT have duplicate items/u});
+	t.assert.throws(() => {
 		verifyWithOrder([...customOrder.slice(0, -1), 'unknown-group']);
-	});
+	}, {message: /Value "unknown-group" should be equal to one of the allowed values/u});
 });
 
 test('uses the line ending of the file to separate the reordered members', t => {
@@ -339,7 +367,7 @@ test('uses the line ending of the file to separate the reordered members', t => 
 		},
 	});
 
-	t.deepEqual(result.messages[0].suggestions.map(({fix}) => fix.text), ['\ta = 1;\r\n\r\n\tb() {}']);
+	t.assert.deepStrictEqual(result.messages[0].suggestions.map(({fix}) => fix.text), ['\ta = 1;\r\n\r\n\tb() {}']);
 });
 
 // A static field initializer and a static block both run in declaration order, so moving one across the other changes what runs first. The rule's documentation already says it does not autofix for this reason, so a reorder that crosses the two is not offered at all.
@@ -362,6 +390,6 @@ test('a static field is not moved across a static block', t => {
 	]) {
 		const problem = first(code);
 
-		t.is(Boolean(problem?.suggestions?.length), hasSuggestion, `suggestion for \`${code}\``);
+		t.assert.strictEqual(Boolean(problem?.suggestions?.length), hasSuggestion, `suggestion for \`${code}\``);
 	}
 });

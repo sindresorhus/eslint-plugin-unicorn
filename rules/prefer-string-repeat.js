@@ -136,11 +136,8 @@ const create = context => {
 			return;
 		}
 
+		// An invalid escape sequence is only allowed in a tagged template, so `cooked` is always a string here
 		const [{value}] = node.quasis;
-		if (typeof value.cooked !== 'string') {
-			return;
-		}
-
 		return getProblem(node, value.cooked, context, minimumRepetitions);
 	});
 };

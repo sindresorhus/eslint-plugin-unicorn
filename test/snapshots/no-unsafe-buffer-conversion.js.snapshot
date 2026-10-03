@@ -1,0 +1,1333 @@
+exports[`no-unsafe-buffer-conversion > invalid(1): new Uint8Array(data.buffer) 1`] = `
+
+  1 | new Uint8Array(data.buffer)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(1): new Uint8Array(data.buffer) 2`] = `
+
+Message:
+> 1 | new Uint8Array(data.buffer)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(10): new Int8Array(data.buffer) 1`] = `
+
+  1 | new Int8Array(data.buffer)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(10): new Int8Array(data.buffer) 2`] = `
+
+Message:
+> 1 | new Int8Array(data.buffer)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | new Int8Array(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(11): new Uint8ClampedArray(data.buffer, data.byteOffset) 1`] = `
+
+  1 | new Uint8ClampedArray(data.buffer, data.byteOffset)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(11): new Uint8ClampedArray(data.buffer, data.byteOffset) 2`] = `
+
+Message:
+> 1 | new Uint8ClampedArray(data.buffer, data.byteOffset)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | new Uint8ClampedArray(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(12): new Uint32Array(data.buffer) 1`] = `
+
+  1 | new Uint32Array(data.buffer)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(12): new Uint32Array(data.buffer) 2`] = `
+
+Message:
+> 1 | new Uint32Array(data.buffer)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | new Uint32Array(data.buffer, data.byteOffset, data.byteLength / Uint32Array.BYTES_PER_ELEMENT)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(13): new Uint32Array(data.buffer, data.byteOffset) 1`] = `
+
+  1 | new Uint32Array(data.buffer, data.byteOffset)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(13): new Uint32Array(data.buffer, data.byteOffset) 2`] = `
+
+Message:
+> 1 | new Uint32Array(data.buffer, data.byteOffset)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | new Uint32Array(data.buffer, data.byteOffset, data.byteLength / Uint32Array.BYTES_PER_ELEMENT)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(14): new Uint32Array(data.buffer, data.byteOffset, data.byteLength) 1`] = `
+
+  1 | new Uint32Array(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(14): new Uint32Array(data.buffer, data.byteOffset, data.byteLength) 2`] = `
+
+Message:
+> 1 | new Uint32Array(data.buffer, data.byteOffset, data.byteLength)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | new Uint32Array(data.buffer, data.byteOffset, data.byteLength / Uint32Array.BYTES_PER_ELEMENT)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(15): new Uint32Array(data.buffer, offset, data.byteLength) 1`] = `
+
+  1 | new Uint32Array(data.buffer, offset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(15): new Uint32Array(data.buffer, offset, data.byteLength) 2`] = `
+
+Message:
+> 1 | new Uint32Array(data.buffer, offset, data.byteLength)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | new Uint32Array(data.buffer, data.byteOffset, data.byteLength / Uint32Array.BYTES_PER_ELEMENT)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(16): new Uint32Array(data.buffer, data.byteOffset, data.byteLength / Uint16Array.BYTES_PER_ELEMENT) 1`] = `
+
+  1 | new Uint32Array(data.buffer, data.byteOffset, data.byteLength / Uint16Array.BYTES_PER_ELEMENT)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(16): new Uint32Array(data.buffer, data.byteOffset, data.byteLength / Uint16Array.BYTES_PER_ELEMENT) 2`] = `
+
+Message:
+> 1 | new Uint32Array(data.buffer, data.byteOffset, data.byteLength / Uint16Array.BYTES_PER_ELEMENT)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | new Uint32Array(data.buffer, data.byteOffset, data.byteLength / Uint32Array.BYTES_PER_ELEMENT)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(17): new Float64Array(data.buffer, data.byteOffset, data.byteLength) 1`] = `
+
+  1 | new Float64Array(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(17): new Float64Array(data.buffer, data.byteOffset, data.byteLength) 2`] = `
+
+Message:
+> 1 | new Float64Array(data.buffer, data.byteOffset, data.byteLength)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | new Float64Array(data.buffer, data.byteOffset, data.byteLength / Float64Array.BYTES_PER_ELEMENT)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(18): new (Uint8Array)(data.buffer) 1`] = `
+
+  1 | new (Uint8Array)(data.buffer)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(18): new (Uint8Array)(data.buffer) 2`] = `
+
+Message:
+> 1 | new (Uint8Array)(data.buffer)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(19): new Uint8Array(data?.buffer) 1`] = `
+
+  1 | new Uint8Array(data?.buffer)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(19): new Uint8Array(data?.buffer) 2`] = `
+
+Message:
+> 1 | new Uint8Array(data?.buffer)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(2): new Uint8Array(data.buffer, data.byteOffset) 1`] = `
+
+  1 | new Uint8Array(data.buffer, data.byteOffset)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(2): new Uint8Array(data.buffer, data.byteOffset) 2`] = `
+
+Message:
+> 1 | new Uint8Array(data.buffer, data.byteOffset)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(20): new Uint8Array((data).buffer) 1`] = `
+
+  1 | new Uint8Array((data).buffer)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(20): new Uint8Array((data).buffer) 2`] = `
+
+Message:
+> 1 | new Uint8Array((data).buffer)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(21): new Uint8Array((data?.view).buffer) 1`] = `
+
+  1 | new Uint8Array((data?.view).buffer)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(21): new Uint8Array((data?.view).buffer) 2`] = `
+
+Message:
+> 1 | new Uint8Array((data?.view).buffer)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(22): new Uint8Array((data as Buffer).buffer) 1`] = `
+
+  1 | new Uint8Array((data as Buffer).buffer)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(22): new Uint8Array((data as Buffer).buffer) 2`] = `
+
+Message:
+> 1 | new Uint8Array((data as Buffer).buffer)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | new Uint8Array((data as Buffer).buffer, (data as Buffer).byteOffset, (data as Buffer).byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(23): Buffer.from(data.buffer) 1`] = `
+
+  1 | Buffer.from(data.buffer)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(23): Buffer.from(data.buffer) 2`] = `
+
+Message:
+> 1 | Buffer.from(data.buffer)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | Buffer.from(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(24): Buffer.from(data?.buffer) 1`] = `
+
+  1 | Buffer.from(data?.buffer)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(24): Buffer.from(data?.buffer) 2`] = `
+
+Message:
+> 1 | Buffer.from(data?.buffer)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(25): Buffer?.from(data.buffer) 1`] = `
+
+  1 | Buffer?.from(data.buffer)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(25): Buffer?.from(data.buffer) 2`] = `
+
+Message:
+> 1 | Buffer?.from(data.buffer)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | Buffer?.from(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(26): Buffer.from?.(data.buffer) 1`] = `
+
+  1 | Buffer.from?.(data.buffer)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(26): Buffer.from?.(data.buffer) 2`] = `
+
+Message:
+> 1 | Buffer.from?.(data.buffer)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(27): Buffer.from((data?.view).buffer) 1`] = `
+
+  1 | Buffer.from((data?.view).buffer)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(27): Buffer.from((data?.view).buffer) 2`] = `
+
+Message:
+> 1 | Buffer.from((data?.view).buffer)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(28): Buffer.from(data.buffer, data.byteOffset) 1`] = `
+
+  1 | Buffer.from(data.buffer, data.byteOffset)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(28): Buffer.from(data.buffer, data.byteOffset) 2`] = `
+
+Message:
+> 1 | Buffer.from(data.buffer, data.byteOffset)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | Buffer.from(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(29): Buffer.from(data.buffer, 0) 1`] = `
+
+  1 | Buffer.from(data.buffer, 0)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(29): Buffer.from(data.buffer, 0) 2`] = `
+
+Message:
+> 1 | Buffer.from(data.buffer, 0)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | Buffer.from(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(3): new Uint8Array(data.buffer, 0) 1`] = `
+
+  1 | new Uint8Array(data.buffer, 0)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(3): new Uint8Array(data.buffer, 0) 2`] = `
+
+Message:
+> 1 | new Uint8Array(data.buffer, 0)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(30): Buffer.from(data.buffer, 0, data.byteLength) 1`] = `
+
+  1 | Buffer.from(data.buffer, 0, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(30): Buffer.from(data.buffer, 0, data.byteLength) 2`] = `
+
+Message:
+> 1 | Buffer.from(data.buffer, 0, data.byteLength)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | Buffer.from(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(31): Buffer.from(data.buffer, data.byteOffset, undefined) 1`] = `
+
+  1 | Buffer.from(data.buffer, data.byteOffset, undefined)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(31): Buffer.from(data.buffer, data.byteOffset, undefined) 2`] = `
+
+Message:
+> 1 | Buffer.from(data.buffer, data.byteOffset, undefined)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | Buffer.from(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(32): Buffer.from(data.buffer, data.byteLength, data.byteLength) 1`] = `
+
+  1 | Buffer.from(data.buffer, data.byteLength, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(32): Buffer.from(data.buffer, data.byteLength, data.byteLength) 2`] = `
+
+Message:
+> 1 | Buffer.from(data.buffer, data.byteLength, data.byteLength)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | Buffer.from(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(33): Buffer.from(data.buffer, data.length, data.byteLength) 1`] = `
+
+  1 | Buffer.from(data.buffer, data.length, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(33): Buffer.from(data.buffer, data.length, data.byteLength) 2`] = `
+
+Message:
+> 1 | Buffer.from(data.buffer, data.length, data.byteLength)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | Buffer.from(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(34): Buffer.from(data.buffer, data.byteOffset, data.buffer.byteLength) 1`] = `
+
+  1 | Buffer.from(data.buffer, data.byteOffset, data.buffer.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(34): Buffer.from(data.buffer, data.byteOffset, data.buffer.byteLength) 2`] = `
+
+Message:
+> 1 | Buffer.from(data.buffer, data.byteOffset, data.buffer.byteLength)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | Buffer.from(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(35): Buffer.from(data.buffer, data.byteOffset, data.byteLength / Uint32Array.BYTES_PER_ELEMENT) 1`] = `
+
+  1 | Buffer.from(data.buffer, data.byteOffset, data.byteLength / Uint32Array.BYTES_PER_ELEMENT)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(35): Buffer.from(data.buffer, data.byteOffset, data.byteLength / Uint32Array.BYTES_PER_ELEMENT) 2`] = `
+
+Message:
+> 1 | Buffer.from(data.buffer, data.byteOffset, data.byteLength / Uint32Array.BYTES_PER_ELEMENT)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | Buffer.from(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(36): globalThis.Buffer.from(data.buffer) 1`] = `
+
+  1 | globalThis.Buffer.from(data.buffer)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(36): globalThis.Buffer.from(data.buffer) 2`] = `
+
+Message:
+> 1 | globalThis.Buffer.from(data.buffer)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | globalThis.Buffer.from(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(37): window.Buffer.from(data.buffer) 1`] = `
+
+  1 | window.Buffer.from(data.buffer)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(37): window.Buffer.from(data.buffer) 2`] = `
+
+Message:
+> 1 | window.Buffer.from(data.buffer)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | window.Buffer.from(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(38): global.Buffer.from(data.buffer) 1`] = `
+
+  1 | global.Buffer.from(data.buffer)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(38): global.Buffer.from(data.buffer) 2`] = `
+
+Message:
+> 1 | global.Buffer.from(data.buffer)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | global.Buffer.from(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(39): self.Buffer.from(data.buffer) 1`] = `
+
+  1 | self.Buffer.from(data.buffer)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(39): self.Buffer.from(data.buffer) 2`] = `
+
+Message:
+> 1 | self.Buffer.from(data.buffer)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | self.Buffer.from(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(4): new Uint8Array(data.buffer, 0, data.byteLength) 1`] = `
+
+  1 | new Uint8Array(data.buffer, 0, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(4): new Uint8Array(data.buffer, 0, data.byteLength) 2`] = `
+
+Message:
+> 1 | new Uint8Array(data.buffer, 0, data.byteLength)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(40): import {Buffer} from 'node:buffer'; Buffer.from(data.buffer) 1`] = `
+
+  1 | import {Buffer} from 'node:buffer'; Buffer.from(data.buffer)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(40): import {Buffer} from 'node:buffer'; Buffer.from(data.buffer) 2`] = `
+
+Message:
+> 1 | import {Buffer} from 'node:buffer'; Buffer.from(data.buffer)
+    |                                     ^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | import {Buffer} from 'node:buffer'; Buffer.from(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(41): import {Buffer as B} from 'buffer'; B.from(data.buffer, data.byteOffset) 1`] = `
+
+  1 | import {Buffer as B} from 'buffer'; B.from(data.buffer, data.byteOffset)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(41): import {Buffer as B} from 'buffer'; B.from(data.buffer, data.byteOffset) 2`] = `
+
+Message:
+> 1 | import {Buffer as B} from 'buffer'; B.from(data.buffer, data.byteOffset)
+    |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | import {Buffer as B} from 'buffer'; B.from(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(42): Buffer.from((data).buffer) 1`] = `
+
+  1 | Buffer.from((data).buffer)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(42): Buffer.from((data).buffer) 2`] = `
+
+Message:
+> 1 | Buffer.from((data).buffer)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | Buffer.from(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(43): data.buffer.slice() 1`] = `
+
+  1 | data.buffer.slice()
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(43): data.buffer.slice() 2`] = `
+
+Message:
+> 1 | data.buffer.slice()
+    | ^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(44): data?.buffer.slice() 1`] = `
+
+  1 | data?.buffer.slice()
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(44): data?.buffer.slice() 2`] = `
+
+Message:
+> 1 | data?.buffer.slice()
+    | ^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(45): (data?.view).buffer.slice() 1`] = `
+
+  1 | (data?.view).buffer.slice()
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(45): (data?.view).buffer.slice() 2`] = `
+
+Message:
+> 1 | (data?.view).buffer.slice()
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(46): data.buffer?.slice() 1`] = `
+
+  1 | data.buffer?.slice()
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(46): data.buffer?.slice() 2`] = `
+
+Message:
+> 1 | data.buffer?.slice()
+    | ^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | data.buffer?.slice(data.byteOffset, data.byteOffset + data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(47): data.buffer.slice?.() 1`] = `
+
+  1 | data.buffer.slice?.()
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(47): data.buffer.slice?.() 2`] = `
+
+Message:
+> 1 | data.buffer.slice?.()
+    | ^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(48): data.buffer.slice(data.byteOffset) 1`] = `
+
+  1 | data.buffer.slice(data.byteOffset)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(48): data.buffer.slice(data.byteOffset) 2`] = `
+
+Message:
+> 1 | data.buffer.slice(data.byteOffset)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(49): data.buffer.slice(offset) 1`] = `
+
+  1 | data.buffer.slice(offset)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(49): data.buffer.slice(offset) 2`] = `
+
+Message:
+> 1 | data.buffer.slice(offset)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(5): new Uint8Array(data.buffer, undefined, data.byteLength) 1`] = `
+
+  1 | new Uint8Array(data.buffer, undefined, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(5): new Uint8Array(data.buffer, undefined, data.byteLength) 2`] = `
+
+Message:
+> 1 | new Uint8Array(data.buffer, undefined, data.byteLength)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(50): data.buffer.slice(data.byteOffset, data.byteLength) 1`] = `
+
+  1 | data.buffer.slice(data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(50): data.buffer.slice(data.byteOffset, data.byteLength) 2`] = `
+
+Message:
+> 1 | data.buffer.slice(data.byteOffset, data.byteLength)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(51): data.buffer.slice(0, data.byteOffset + data.byteLength) 1`] = `
+
+  1 | data.buffer.slice(0, data.byteOffset + data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(51): data.buffer.slice(0, data.byteOffset + data.byteLength) 2`] = `
+
+Message:
+> 1 | data.buffer.slice(0, data.byteOffset + data.byteLength)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(52): data.buffer.slice(data.byteOffset, undefined) 1`] = `
+
+  1 | data.buffer.slice(data.byteOffset, undefined)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(52): data.buffer.slice(data.byteOffset, undefined) 2`] = `
+
+Message:
+> 1 | data.buffer.slice(data.byteOffset, undefined)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(53): data.buffer.slice(data.byteLength, data.byteOffset + data.byteLength) 1`] = `
+
+  1 | data.buffer.slice(data.byteLength, data.byteOffset + data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(53): data.buffer.slice(data.byteLength, data.byteOffset + data.byteLength) 2`] = `
+
+Message:
+> 1 | data.buffer.slice(data.byteLength, data.byteOffset + data.byteLength)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(54): data.buffer.slice(data.length, data.byteOffset + data.byteLength) 1`] = `
+
+  1 | data.buffer.slice(data.length, data.byteOffset + data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(54): data.buffer.slice(data.length, data.byteOffset + data.byteLength) 2`] = `
+
+Message:
+> 1 | data.buffer.slice(data.length, data.byteOffset + data.byteLength)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(55): data.buffer.slice(data.byteOffset, data.buffer.byteLength) 1`] = `
+
+  1 | data.buffer.slice(data.byteOffset, data.buffer.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(55): data.buffer.slice(data.byteOffset, data.buffer.byteLength) 2`] = `
+
+Message:
+> 1 | data.buffer.slice(data.byteOffset, data.buffer.byteLength)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(56): (data).buffer.slice() 1`] = `
+
+  1 | (data).buffer.slice()
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(56): (data).buffer.slice() 2`] = `
+
+Message:
+> 1 | (data).buffer.slice()
+    | ^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | (data).buffer.slice(data.byteOffset, data.byteOffset + data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(57): new Uint8Array(\n\tdata.buffer,\n\tdata.byteOffset,\n) 1`] = `
+
+  1 | new Uint8Array(
+  2 | 	data.buffer,
+  3 | 	data.byteOffset,
+  4 | )
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(57): new Uint8Array(\n\tdata.buffer,\n\tdata.byteOffset,\n) 2`] = `
+
+Message:
+> 1 | new Uint8Array(
+    | ^^^^^^^^^^^^^^^
+> 2 | 	data.buffer,
+    | ^^^^^^^^^^^^^
+> 3 | 	data.byteOffset,
+    | ^^^^^^^^^^^^^^^^^
+> 4 | )
+    | ^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(58): Buffer.from(\n\tdata.buffer,\n\tdata.byteOffset,\n) 1`] = `
+
+  1 | Buffer.from(
+  2 | 	data.buffer,
+  3 | 	data.byteOffset,
+  4 | )
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(58): Buffer.from(\n\tdata.buffer,\n\tdata.byteOffset,\n) 2`] = `
+
+Message:
+> 1 | Buffer.from(
+    | ^^^^^^^^^^^^
+> 2 | 	data.buffer,
+    | ^^^^^^^^^^^^^
+> 3 | 	data.byteOffset,
+    | ^^^^^^^^^^^^^^^^^
+> 4 | )
+    | ^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | Buffer.from(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(59): new Uint8Array(data.buffer, /* keep me */ data.byteOffset) 1`] = `
+
+  1 | new Uint8Array(data.buffer, /* keep me */ data.byteOffset)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(59): new Uint8Array(data.buffer, /* keep me */ data.byteOffset) 2`] = `
+
+Message:
+> 1 | new Uint8Array(data.buffer, /* keep me */ data.byteOffset)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(6): new Uint8Array(data.buffer, data.byteOffset, undefined) 1`] = `
+
+  1 | new Uint8Array(data.buffer, data.byteOffset, undefined)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(6): new Uint8Array(data.buffer, data.byteOffset, undefined) 2`] = `
+
+Message:
+> 1 | new Uint8Array(data.buffer, data.byteOffset, undefined)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(60): Buffer.from(data.buffer, /* keep me */ data.byteOffset) 1`] = `
+
+  1 | Buffer.from(data.buffer, /* keep me */ data.byteOffset)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(60): Buffer.from(data.buffer, /* keep me */ data.byteOffset) 2`] = `
+
+Message:
+> 1 | Buffer.from(data.buffer, /* keep me */ data.byteOffset)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(61): data.buffer.slice(/* keep me */) 1`] = `
+
+  1 | data.buffer.slice(/* keep me */)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(61): data.buffer.slice(/* keep me */) 2`] = `
+
+Message:
+> 1 | data.buffer.slice(/* keep me */)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(62): new Uint8Array(getData().buffer) 1`] = `
+
+  1 | new Uint8Array(getData().buffer)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(62): new Uint8Array(getData().buffer) 2`] = `
+
+Message:
+> 1 | new Uint8Array(getData().buffer)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(63): Buffer.from(getData().buffer) 1`] = `
+
+  1 | Buffer.from(getData().buffer)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(63): Buffer.from(getData().buffer) 2`] = `
+
+Message:
+> 1 | Buffer.from(getData().buffer)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(64): getData().buffer.slice() 1`] = `
+
+  1 | getData().buffer.slice()
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(64): getData().buffer.slice() 2`] = `
+
+Message:
+> 1 | getData().buffer.slice()
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(65): new Uint8Array(source.view.buffer) 1`] = `
+
+  1 | new Uint8Array(source.view.buffer)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(65): new Uint8Array(source.view.buffer) 2`] = `
+
+Message:
+> 1 | new Uint8Array(source.view.buffer)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(66): Buffer.from(source.view.buffer) 1`] = `
+
+  1 | Buffer.from(source.view.buffer)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(66): Buffer.from(source.view.buffer) 2`] = `
+
+Message:
+> 1 | Buffer.from(source.view.buffer)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(67): source.view.buffer.slice() 1`] = `
+
+  1 | source.view.buffer.slice()
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(67): source.view.buffer.slice() 2`] = `
+
+Message:
+> 1 | source.view.buffer.slice()
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(68): function foo(data: Uint8Array) { new Uint8Array(data.buffer); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(data: Uint8Array) { new Uint8Array(data.buffer); }
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(68): function foo(data: Uint8Array) { new Uint8Array(data.buffer); } 2`] = `
+
+Message:
+> 1 | function foo(data: Uint8Array) { new Uint8Array(data.buffer); }
+    |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | function foo(data: Uint8Array) { new Uint8Array(data.buffer, data.byteOffset, data.byteLength); }
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(69): function foo(data: DataView) { new Uint8Array(data.buffer); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(data: DataView) { new Uint8Array(data.buffer); }
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(69): function foo(data: DataView) { new Uint8Array(data.buffer); } 2`] = `
+
+Message:
+> 1 | function foo(data: DataView) { new Uint8Array(data.buffer); }
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | function foo(data: DataView) { new Uint8Array(data.buffer, data.byteOffset, data.byteLength); }
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(7): new Uint8Array(data.buffer, data.byteLength, data.byteLength) 1`] = `
+
+  1 | new Uint8Array(data.buffer, data.byteLength, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(7): new Uint8Array(data.buffer, data.byteLength, data.byteLength) 2`] = `
+
+Message:
+> 1 | new Uint8Array(data.buffer, data.byteLength, data.byteLength)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(70): function foo(data: DataView) { Buffer.from(data.buffer); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(data: DataView) { Buffer.from(data.buffer); }
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(70): function foo(data: DataView) { Buffer.from(data.buffer); } 2`] = `
+
+Message:
+> 1 | function foo(data: DataView) { Buffer.from(data.buffer); }
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | function foo(data: DataView) { Buffer.from(data.buffer, data.byteOffset, data.byteLength); }
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(71): function foo(data: ArrayBufferView) { data.buffer.slice(); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(data: ArrayBufferView) { data.buffer.slice(); }
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(71): function foo(data: ArrayBufferView) { data.buffer.slice(); } 2`] = `
+
+Message:
+> 1 | function foo(data: ArrayBufferView) { data.buffer.slice(); }
+    |                                       ^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | function foo(data: ArrayBufferView) { data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength); }
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(72): function foo<T extends Uint8Array>(data: T) { data.buffer.slice(); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo<T extends Uint8Array>(data: T) { data.buffer.slice(); }
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(72): function foo<T extends Uint8Array>(data: T) { data.buffer.slice(); } 2`] = `
+
+Message:
+> 1 | function foo<T extends Uint8Array>(data: T) { data.buffer.slice(); }
+    |                                               ^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | function foo<T extends Uint8Array>(data: T) { data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength); }
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(73): class Bytes extends Uint8Array {} function foo(data: Bytes) { Buffer.from(data.buffer); } 1`] = `
+
+Filename: file.ts
+
+  1 | class Bytes extends Uint8Array {} function foo(data: Bytes) { Buffer.from(data.buffer); }
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(73): class Bytes extends Uint8Array {} function foo(data: Bytes) { Buffer.from(data.buffer); } 2`] = `
+
+Message:
+> 1 | class Bytes extends Uint8Array {} function foo(data: Bytes) { Buffer.from(data.buffer); }
+    |                                                               ^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | class Bytes extends Uint8Array {} function foo(data: Bytes) { Buffer.from(data.buffer, data.byteOffset, data.byteLength); }
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(74): interface Buffer {buffer: ArrayBuffer; byteOffset: number; byteLength: number} function foo(data: Buffer) { Buffer.from(data.buffer); } 1`] = `
+
+Filename: file.ts
+
+  1 | interface Buffer {buffer: ArrayBuffer; byteOffset: number; byteLength: number} function foo(data: Buffer) { Buffer.from(data.buffer); }
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(74): interface Buffer {buffer: ArrayBuffer; byteOffset: number; byteLength: number} function foo(data: Buffer) { Buffer.from(data.buffer); } 2`] = `
+
+Message:
+> 1 | interface Buffer {buffer: ArrayBuffer; byteOffset: number; byteLength: number} function foo(data: Buffer) { Buffer.from(data.buffer); }
+    |                                                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | interface Buffer {buffer: ArrayBuffer; byteOffset: number; byteLength: number} function foo(data: Buffer) { Buffer.from(data.buffer, data.byteOffset, data.byteLength); }
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(75): interface Buffer {} function foo(data: Buffer) { Buffer.from(data.buffer); } 1`] = `
+
+Filename: file.ts
+
+  1 | interface Buffer {} function foo(data: Buffer) { Buffer.from(data.buffer); }
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(75): interface Buffer {} function foo(data: Buffer) { Buffer.from(data.buffer); } 2`] = `
+
+Message:
+> 1 | interface Buffer {} function foo(data: Buffer) { Buffer.from(data.buffer); }
+    |                                                  ^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(76): interface Buffer {buffer: ArrayBuffer | SharedArrayBuffer; byteOffset: number; byteLength: number} function foo(data: Buffer) { Buffer.from(data.buffer); } 1`] = `
+
+Filename: file.ts
+
+  1 | interface Buffer {buffer: ArrayBuffer | SharedArrayBuffer; byteOffset: number; byteLength: number} function foo(data: Buffer) { Buffer.from(data.buffer); }
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(76): interface Buffer {buffer: ArrayBuffer | SharedArrayBuffer; byteOffset: number; byteLength: number} function foo(data: Buffer) { Buffer.from(data.buffer); } 2`] = `
+
+Message:
+> 1 | interface Buffer {buffer: ArrayBuffer | SharedArrayBuffer; byteOffset: number; byteLength: number} function foo(data: Buffer) { Buffer.from(data.buffer); }
+    |                                                                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | interface Buffer {buffer: ArrayBuffer | SharedArrayBuffer; byteOffset: number; byteLength: number} function foo(data: Buffer) { Buffer.from(data.buffer, data.byteOffset, data.byteLength); }
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(77): interface Buffer<Data extends ArrayBuffer, Offset extends number> {buffer: Data; byteOffset: Offset; byteLength: number}\nfunction foo<Data extends ArrayBuffer, Offset extends number>(data: Buffer<Data, Offset>) { Buffer.from(data.buffer); } 1`] = `
+
+Filename: file.ts
+
+  1 | interface Buffer<Data extends ArrayBuffer, Offset extends number> {buffer: Data; byteOffset: Offset; byteLength: number}
+  2 | function foo<Data extends ArrayBuffer, Offset extends number>(data: Buffer<Data, Offset>) { Buffer.from(data.buffer); }
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(77): interface Buffer<Data extends ArrayBuffer, Offset extends number> {buffer: Data; byteOffset: Offset; byteLength: number}\nfunction foo<Data extends ArrayBuffer, Offset extends number>(data: Buffer<Data, Offset>) { Buffer.from(data.buffer); } 2`] = `
+
+Message:
+  1 | interface Buffer<Data extends ArrayBuffer, Offset extends number> {buffer: Data; byteOffset: Offset; byteLength: number}
+> 2 | function foo<Data extends ArrayBuffer, Offset extends number>(data: Buffer<Data, Offset>) { Buffer.from(data.buffer); }
+    |                                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | interface Buffer<Data extends ArrayBuffer, Offset extends number> {buffer: Data; byteOffset: Offset; byteLength: number}
+  2 | function foo<Data extends ArrayBuffer, Offset extends number>(data: Buffer<Data, Offset>) { Buffer.from(data.buffer, data.byteOffset, data.byteLength); }
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(78): type Buffer = {buffer: ArrayBuffer; byteOffset: number; byteLength: number}; function foo(data: Buffer) { Buffer.from(data.buffer); } 1`] = `
+
+Filename: file.ts
+
+  1 | type Buffer = {buffer: ArrayBuffer; byteOffset: number; byteLength: number}; function foo(data: Buffer) { Buffer.from(data.buffer); }
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(78): type Buffer = {buffer: ArrayBuffer; byteOffset: number; byteLength: number}; function foo(data: Buffer) { Buffer.from(data.buffer); } 2`] = `
+
+Message:
+> 1 | type Buffer = {buffer: ArrayBuffer; byteOffset: number; byteLength: number}; function foo(data: Buffer) { Buffer.from(data.buffer); }
+    |                                                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | type Buffer = {buffer: ArrayBuffer; byteOffset: number; byteLength: number}; function foo(data: Buffer) { Buffer.from(data.buffer, data.byteOffset, data.byteLength); }
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(79): function foo(data: any) { Buffer.from(data.buffer); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(data: any) { Buffer.from(data.buffer); }
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(79): function foo(data: any) { Buffer.from(data.buffer); } 2`] = `
+
+Message:
+> 1 | function foo(data: any) { Buffer.from(data.buffer); }
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | function foo(data: any) { Buffer.from(data.buffer, data.byteOffset, data.byteLength); }
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(8): new Uint8Array(data.buffer, data.length, data.byteLength) 1`] = `
+
+  1 | new Uint8Array(data.buffer, data.length, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(8): new Uint8Array(data.buffer, data.length, data.byteLength) 2`] = `
+
+Message:
+> 1 | new Uint8Array(data.buffer, data.length, data.byteLength)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(9): new Uint8Array(data.buffer, data.byteOffset, data.buffer.byteLength) 1`] = `
+
+  1 | new Uint8Array(data.buffer, data.byteOffset, data.buffer.byteLength)
+
+`;
+
+exports[`no-unsafe-buffer-conversion > invalid(9): new Uint8Array(data.buffer, data.byteOffset, data.buffer.byteLength) 2`] = `
+
+Message:
+> 1 | new Uint8Array(data.buffer, data.byteOffset, data.buffer.byteLength)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Preserve \`byteOffset\` and \`byteLength\` when converting an ArrayBuffer view through \`.buffer\`.
+
+Suggestion 1/1: Preserve \`byteOffset\` and \`byteLength\`.:
+  1 | new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+
+`;

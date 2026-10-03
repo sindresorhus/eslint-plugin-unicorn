@@ -27,6 +27,8 @@ function isPromiseObject(node, context) {
 			parserServices.getTypeAtLocation(node),
 			parserServices.program.getTypeChecker(),
 		);
+		// Tests cannot make TypeScript throw here.
+		/* node:coverage ignore next 3 */
 	} catch {
 		// TypeScript can throw while resolving incomplete projects; keep this rule best-effort.
 	}

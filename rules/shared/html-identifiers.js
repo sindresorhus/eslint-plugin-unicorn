@@ -19,10 +19,6 @@ export default function onHtmlIdentifier(context, listener) {
 		}
 
 		const name = decodeHTMLAttribute(raw);
-		if (!name) {
-			return;
-		}
-
 		range = [range[0], range[0] + raw.length];
 		if (attributeName === 'id') {
 			yield listener({node, name, location: toLocation(range, context)});

@@ -1,0 +1,598 @@
+exports[`prefer-map-from-entries > invalid(1): const object = Object.fromEntries([[\"foo\", value]]); object.foo; 1`] = `
+
+  1 | const object = Object.fromEntries([["foo", value]]); object.foo;
+
+`;
+
+exports[`prefer-map-from-entries > invalid(1): const object = Object.fromEntries([[\"foo\", value]]); object.foo; 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries([["foo", value]]); object.foo;
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+Output:
+  1 | const object = new Map([["foo", value]]); object.get('foo');
+
+`;
+
+exports[`prefer-map-from-entries > invalid(10): const object = Object.fromEntries(Object.entries(source)); object.foo = value; 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source)); object.foo = value;
+
+`;
+
+exports[`prefer-map-from-entries > invalid(10): const object = Object.fromEntries(Object.entries(source)); object.foo = value; 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source)); object.foo = value;
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+Output:
+  1 | const object = new Map(Object.entries(source)); object.set('foo', value);
+
+`;
+
+exports[`prefer-map-from-entries > invalid(11): const object = Object.fromEntries(Object.entries(source)); object.foo = (bar, baz); 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source)); object.foo = (bar, baz);
+
+`;
+
+exports[`prefer-map-from-entries > invalid(11): const object = Object.fromEntries(Object.entries(source)); object.foo = (bar, baz); 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source)); object.foo = (bar, baz);
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+Output:
+  1 | const object = new Map(Object.entries(source)); object.set('foo', (bar, baz));
+
+`;
+
+exports[`prefer-map-from-entries > invalid(12): const object = Object.fromEntries(Object.entries(source)); object[\"foo\"] = value; 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source)); object["foo"] = value;
+
+`;
+
+exports[`prefer-map-from-entries > invalid(12): const object = Object.fromEntries(Object.entries(source)); object[\"foo\"] = value; 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source)); object["foo"] = value;
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+Output:
+  1 | const object = new Map(Object.entries(source)); object.set('foo', value);
+
+`;
+
+exports[`prefer-map-from-entries > invalid(13): const object = Object.fromEntries(Object.entries(source)); new (foo(object.bar))(); 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source)); new (foo(object.bar))();
+
+`;
+
+exports[`prefer-map-from-entries > invalid(13): const object = Object.fromEntries(Object.entries(source)); new (foo(object.bar))(); 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source)); new (foo(object.bar))();
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+Output:
+  1 | const object = new Map(Object.entries(source)); new (foo(object.get('bar')))();
+
+`;
+
+exports[`prefer-map-from-entries > invalid(14): const object = Object.fromEntries(Object.entries(source)); object.foo; 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source)); object.foo;
+
+`;
+
+exports[`prefer-map-from-entries > invalid(14): const object = Object.fromEntries(Object.entries(source)); object.foo; 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source)); object.foo;
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+Output:
+  1 | const object = new Map(Object.entries(source)); object.get('foo');
+
+`;
+
+exports[`prefer-map-from-entries > invalid(15): const object = Object.fromEntries(Object.entries(source)); delete object.foo; 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source)); delete object.foo;
+
+`;
+
+exports[`prefer-map-from-entries > invalid(15): const object = Object.fromEntries(Object.entries(source)); delete object.foo; 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source)); delete object.foo;
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+Output:
+  1 | const object = new Map(Object.entries(source)); object.delete('foo');
+
+`;
+
+exports[`prefer-map-from-entries > invalid(16): const object = Object.fromEntries(Object.entries(source)); delete object[\"foo\"]; 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source)); delete object["foo"];
+
+`;
+
+exports[`prefer-map-from-entries > invalid(16): const object = Object.fromEntries(Object.entries(source)); delete object[\"foo\"]; 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source)); delete object["foo"];
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+Output:
+  1 | const object = new Map(Object.entries(source)); object.delete('foo');
+
+`;
+
+exports[`prefer-map-from-entries > invalid(17): const object = Object.fromEntries(Object.entries(source)); Object.keys(object); 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source)); Object.keys(object);
+
+`;
+
+exports[`prefer-map-from-entries > invalid(17): const object = Object.fromEntries(Object.entries(source)); Object.keys(object); 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source)); Object.keys(object);
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+Output:
+  1 | const object = new Map(Object.entries(source)); [...object.keys()];
+
+`;
+
+exports[`prefer-map-from-entries > invalid(18): const object = Object.fromEntries(Object.entries(source)); Object.values(object); 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source)); Object.values(object);
+
+`;
+
+exports[`prefer-map-from-entries > invalid(18): const object = Object.fromEntries(Object.entries(source)); Object.values(object); 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source)); Object.values(object);
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+Output:
+  1 | const object = new Map(Object.entries(source)); [...object.values()];
+
+`;
+
+exports[`prefer-map-from-entries > invalid(19): const object = Object.fromEntries(Object.entries(source)); Object.entries(object); 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source)); Object.entries(object);
+
+`;
+
+exports[`prefer-map-from-entries > invalid(19): const object = Object.fromEntries(Object.entries(source)); Object.entries(object); 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source)); Object.entries(object);
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+Output:
+  1 | const object = new Map(Object.entries(source)); [...object.entries()];
+
+`;
+
+exports[`prefer-map-from-entries > invalid(2): const object = Object.fromEntries([[\"0x1\", value]]); object[\"0x1\"]; 1`] = `
+
+  1 | const object = Object.fromEntries([["0x1", value]]); object["0x1"];
+
+`;
+
+exports[`prefer-map-from-entries > invalid(2): const object = Object.fromEntries([[\"0x1\", value]]); object[\"0x1\"]; 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries([["0x1", value]]); object["0x1"];
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+Output:
+  1 | const object = new Map([["0x1", value]]); object.get('0x1');
+
+`;
+
+exports[`prefer-map-from-entries > invalid(20): function getKeys() { const object = Object.fromEntries(Object.entries(source)); return Object.keys(object); } 1`] = `
+
+  1 | function getKeys() { const object = Object.fromEntries(Object.entries(source)); return Object.keys(object); }
+
+`;
+
+exports[`prefer-map-from-entries > invalid(20): function getKeys() { const object = Object.fromEntries(Object.entries(source)); return Object.keys(object); } 2`] = `
+
+Message:
+> 1 | function getKeys() { const object = Object.fromEntries(Object.entries(source)); return Object.keys(object); }
+    |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+Output:
+  1 | function getKeys() { const object = new Map(Object.entries(source)); return [...object.keys()]; }
+
+`;
+
+exports[`prefer-map-from-entries > invalid(21): function throwKeys() { const object = Object.fromEntries(Object.entries(source)); throw Object.keys(object); } 1`] = `
+
+  1 | function throwKeys() { const object = Object.fromEntries(Object.entries(source)); throw Object.keys(object); }
+
+`;
+
+exports[`prefer-map-from-entries > invalid(21): function throwKeys() { const object = Object.fromEntries(Object.entries(source)); throw Object.keys(object); } 2`] = `
+
+Message:
+> 1 | function throwKeys() { const object = Object.fromEntries(Object.entries(source)); throw Object.keys(object); }
+    |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+Output:
+  1 | function throwKeys() { const object = new Map(Object.entries(source)); throw [...object.keys()]; }
+
+`;
+
+exports[`prefer-map-from-entries > invalid(22): const object = Object.fromEntries(Object.entries(source))\nObject.keys(object); 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source))
+  2 | Object.keys(object);
+
+`;
+
+exports[`prefer-map-from-entries > invalid(22): const object = Object.fromEntries(Object.entries(source))\nObject.keys(object); 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source))
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+  2 | Object.keys(object);
+
+Output:
+  1 | const object = new Map(Object.entries(source))
+  2 | ;[...object.keys()];
+
+`;
+
+exports[`prefer-map-from-entries > invalid(23): const object = Object.fromEntries(Object.entries(source))\nfoo\nObject.keys(object).join(); 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source))
+  2 | foo
+  3 | Object.keys(object).join();
+
+`;
+
+exports[`prefer-map-from-entries > invalid(23): const object = Object.fromEntries(Object.entries(source))\nfoo\nObject.keys(object).join(); 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source))
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+  2 | foo
+  3 | Object.keys(object).join();
+
+Output:
+  1 | const object = new Map(Object.entries(source))
+  2 | foo
+  3 | ;[...object.keys()].join();
+
+`;
+
+exports[`prefer-map-from-entries > invalid(24): const object = Object.fromEntries(Object.entries(source));\nif (Object.hasOwn(object, 'foo')) {\n\tconsole.log(object.foo);\n}\nobject.bar = value;\ndelete object.baz;\nconst keys = Object.keys(object); 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source));
+  2 | if (Object.hasOwn(object, 'foo')) {
+  3 | 	console.log(object.foo);
+  4 | }
+  5 | object.bar = value;
+  6 | delete object.baz;
+  7 | const keys = Object.keys(object);
+
+`;
+
+exports[`prefer-map-from-entries > invalid(24): const object = Object.fromEntries(Object.entries(source));\nif (Object.hasOwn(object, 'foo')) {\n\tconsole.log(object.foo);\n}\nobject.bar = value;\ndelete object.baz;\nconst keys = Object.keys(object); 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source));
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+  2 | if (Object.hasOwn(object, 'foo')) {
+  3 | 	console.log(object.foo);
+  4 | }
+  5 | object.bar = value;
+  6 | delete object.baz;
+  7 | const keys = Object.keys(object);
+
+Output:
+  1 | const object = new Map(Object.entries(source));
+  2 | if (object.has('foo')) {
+  3 | 	console.log(object.get('foo'));
+  4 | }
+  5 | object.set('bar', value);
+  6 | object.delete('baz');
+  7 | const keys = [...object.keys()];
+
+`;
+
+exports[`prefer-map-from-entries > invalid(25): const object = (Object.fromEntries(\n\t/* Keep entries. */ [['foo', value]],\n));\nconsole.log(object.foo); 1`] = `
+
+  1 | const object = (Object.fromEntries(
+  2 | 	/* Keep entries. */ [['foo', value]],
+  3 | ));
+  4 | console.log(object.foo);
+
+`;
+
+exports[`prefer-map-from-entries > invalid(25): const object = (Object.fromEntries(\n\t/* Keep entries. */ [['foo', value]],\n));\nconsole.log(object.foo); 2`] = `
+
+Message:
+> 1 | const object = (Object.fromEntries(
+    |                 ^^^^^^^^^^^^^^^^^^^
+> 2 | 	/* Keep entries. */ [['foo', value]],
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | ));
+    | ^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+  4 | console.log(object.foo);
+
+Output:
+  1 | const object = (new Map(
+  2 | 	/* Keep entries. */ [['foo', value]],
+  3 | ));
+  4 | console.log(object.get('foo'));
+
+`;
+
+exports[`prefer-map-from-entries > invalid(26): function f() {\n\tconst object = Object.fromEntries(Object.entries(source));\n\treturn(object).foo;\n} 1`] = `
+
+  1 | function f() {
+  2 | 	const object = Object.fromEntries(Object.entries(source));
+  3 | 	return(object).foo;
+  4 | }
+
+`;
+
+exports[`prefer-map-from-entries > invalid(26): function f() {\n\tconst object = Object.fromEntries(Object.entries(source));\n\treturn(object).foo;\n} 2`] = `
+
+Message:
+  1 | function f() {
+> 2 | 	const object = Object.fromEntries(Object.entries(source));
+    | 	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+  3 | 	return(object).foo;
+  4 | }
+
+Output:
+  1 | function f() {
+  2 | 	const object = new Map(Object.entries(source));
+  3 | 	return(object).get('foo');
+  4 | }
+
+`;
+
+exports[`prefer-map-from-entries > invalid(27): function f() {\n\tconst object = Object.fromEntries(Object.entries(source));\n\tdelete(object).foo;\n} 1`] = `
+
+  1 | function f() {
+  2 | 	const object = Object.fromEntries(Object.entries(source));
+  3 | 	delete(object).foo;
+  4 | }
+
+`;
+
+exports[`prefer-map-from-entries > invalid(27): function f() {\n\tconst object = Object.fromEntries(Object.entries(source));\n\tdelete(object).foo;\n} 2`] = `
+
+Message:
+  1 | function f() {
+> 2 | 	const object = Object.fromEntries(Object.entries(source));
+    | 	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+  3 | 	delete(object).foo;
+  4 | }
+
+Output:
+  1 | function f() {
+  2 | 	const object = new Map(Object.entries(source));
+  3 | 	(object).delete('foo');
+  4 | }
+
+`;
+
+exports[`prefer-map-from-entries > invalid(28): function f() {\n\tconst object = Object.fromEntries(Object.entries(source));\n\t(object).foo = 1;\n} 1`] = `
+
+  1 | function f() {
+  2 | 	const object = Object.fromEntries(Object.entries(source));
+  3 | 	(object).foo = 1;
+  4 | }
+
+`;
+
+exports[`prefer-map-from-entries > invalid(28): function f() {\n\tconst object = Object.fromEntries(Object.entries(source));\n\t(object).foo = 1;\n} 2`] = `
+
+Message:
+  1 | function f() {
+> 2 | 	const object = Object.fromEntries(Object.entries(source));
+    | 	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+  3 | 	(object).foo = 1;
+  4 | }
+
+Output:
+  1 | function f() {
+  2 | 	const object = new Map(Object.entries(source));
+  3 | 	(object).set('foo', 1);
+  4 | }
+
+`;
+
+exports[`prefer-map-from-entries > invalid(29): function f() {\n\tconst object = Object.fromEntries(Object.entries(source));\n\tfoo()\n\tdelete(object).foo\n} 1`] = `
+
+  1 | function f() {
+  2 | 	const object = Object.fromEntries(Object.entries(source));
+  3 | 	foo()
+  4 | 	delete(object).foo
+  5 | }
+
+`;
+
+exports[`prefer-map-from-entries > invalid(29): function f() {\n\tconst object = Object.fromEntries(Object.entries(source));\n\tfoo()\n\tdelete(object).foo\n} 2`] = `
+
+Message:
+  1 | function f() {
+> 2 | 	const object = Object.fromEntries(Object.entries(source));
+    | 	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+  3 | 	foo()
+  4 | 	delete(object).foo
+  5 | }
+
+Output:
+  1 | function f() {
+  2 | 	const object = new Map(Object.entries(source));
+  3 | 	foo()
+  4 | 	;(object).delete('foo')
+  5 | }
+
+`;
+
+exports[`prefer-map-from-entries > invalid(3): const object = Object.fromEntries([[\"4294967295\", value]]); object[\"4294967295\"]; 1`] = `
+
+  1 | const object = Object.fromEntries([["4294967295", value]]); object["4294967295"];
+
+`;
+
+exports[`prefer-map-from-entries > invalid(3): const object = Object.fromEntries([[\"4294967295\", value]]); object[\"4294967295\"]; 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries([["4294967295", value]]); object["4294967295"];
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+Output:
+  1 | const object = new Map([["4294967295", value]]); object.get('4294967295');
+
+`;
+
+exports[`prefer-map-from-entries > invalid(30): function f() {\n\tconst object = Object.fromEntries(Object.entries(source));\n\tfoo()\n\tObject.hasOwn((object), 'foo') && bar();\n} 1`] = `
+
+  1 | function f() {
+  2 | 	const object = Object.fromEntries(Object.entries(source));
+  3 | 	foo()
+  4 | 	Object.hasOwn((object), 'foo') && bar();
+  5 | }
+
+`;
+
+exports[`prefer-map-from-entries > invalid(30): function f() {\n\tconst object = Object.fromEntries(Object.entries(source));\n\tfoo()\n\tObject.hasOwn((object), 'foo') && bar();\n} 2`] = `
+
+Message:
+  1 | function f() {
+> 2 | 	const object = Object.fromEntries(Object.entries(source));
+    | 	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+  3 | 	foo()
+  4 | 	Object.hasOwn((object), 'foo') && bar();
+  5 | }
+
+Output:
+  1 | function f() {
+  2 | 	const object = new Map(Object.entries(source));
+  3 | 	foo()
+  4 | 	object.has('foo') && bar();
+  5 | }
+
+`;
+
+exports[`prefer-map-from-entries > invalid(4): const object = Object.fromEntries((Object.entries(source))); object.foo; 1`] = `
+
+  1 | const object = Object.fromEntries((Object.entries(source))); object.foo;
+
+`;
+
+exports[`prefer-map-from-entries > invalid(4): const object = Object.fromEntries((Object.entries(source))); object.foo; 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries((Object.entries(source))); object.foo;
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+Output:
+  1 | const object = new Map((Object.entries(source))); object.get('foo');
+
+`;
+
+exports[`prefer-map-from-entries > invalid(5): const object = Object.fromEntries(Object.entries(source)); object[\"foo\"]; 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source)); object["foo"];
+
+`;
+
+exports[`prefer-map-from-entries > invalid(5): const object = Object.fromEntries(Object.entries(source)); object[\"foo\"]; 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source)); object["foo"];
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+Output:
+  1 | const object = new Map(Object.entries(source)); object.get('foo');
+
+`;
+
+exports[`prefer-map-from-entries > invalid(6): const object = Object.fromEntries(Object.entries(source)); object[\`foo\`]; 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source)); object[\`foo\`];
+
+`;
+
+exports[`prefer-map-from-entries > invalid(6): const object = Object.fromEntries(Object.entries(source)); object[\`foo\`]; 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source)); object[\`foo\`];
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+Output:
+  1 | const object = new Map(Object.entries(source)); object.get('foo');
+
+`;
+
+exports[`prefer-map-from-entries > invalid(7): const object = Object.fromEntries(Object.entries(source)); if (object.foo) {} 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source)); if (object.foo) {}
+
+`;
+
+exports[`prefer-map-from-entries > invalid(7): const object = Object.fromEntries(Object.entries(source)); if (object.foo) {} 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source)); if (object.foo) {}
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+Output:
+  1 | const object = new Map(Object.entries(source)); if (object.get('foo')) {}
+
+`;
+
+exports[`prefer-map-from-entries > invalid(8): const object = Object.fromEntries(Object.entries(source)); Object.hasOwn(object, \"foo\"); 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source)); Object.hasOwn(object, "foo");
+
+`;
+
+exports[`prefer-map-from-entries > invalid(8): const object = Object.fromEntries(Object.entries(source)); Object.hasOwn(object, \"foo\"); 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source)); Object.hasOwn(object, "foo");
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+Output:
+  1 | const object = new Map(Object.entries(source)); object.has('foo');
+
+`;
+
+exports[`prefer-map-from-entries > invalid(9): const object = Object.fromEntries(Object.entries(source)); Object.hasOwn(object, \`foo\`); 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source)); Object.hasOwn(object, \`foo\`);
+
+`;
+
+exports[`prefer-map-from-entries > invalid(9): const object = Object.fromEntries(Object.entries(source)); Object.hasOwn(object, \`foo\`); 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source)); Object.hasOwn(object, \`foo\`);
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+Output:
+  1 | const object = new Map(Object.entries(source)); object.has('foo');
+
+`;

@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, avoidTestTitleConflict} from './utils/test.js';
@@ -2224,6 +2224,20 @@ ruleTest({
 			code: 'const options = {}; class FooError extends Error { constructor(message) { super(message, options); this.name = \'FooError\'; } }',
 			errors: [missingOptionsParameterError],
 		},
+		{
+			code: 'class FooError extends Error { constructor(message) { super(); this.message = [, message].join(\'\'); this.name = \'FooError\'; } }',
+			errors: [passMessageToSuperError],
+			output: 'class FooError extends Error { constructor(message, options) { super([, message].join(\'\'), options); this.name = \'FooError\'; } }',
+		},
+		// `this` cannot be used before `super()`
+		{
+			code: 'class FooError extends Error { constructor(message) { super(); this.message = format(message, this.code); this.name = \'FooError\'; } }',
+			errors: [passMessageToSuperError],
+		},
+		{
+			code: 'class FooError extends Error { name = getName(/* comment */); }',
+			errors: [invalidNameError('FooError')],
+		},
 	],
 });
 
@@ -2260,8 +2274,8 @@ test('forwards options after fixing the message assignment in multiple passes', 
 		},
 	});
 
-	t.is(result.output, 'class FooError extends Error { constructor(status, message, options) { super(message, options); this.name = \'FooError\'; } }');
-	t.deepEqual(result.messages, []);
+	t.assert.strictEqual(result.output, 'class FooError extends Error { constructor(status, message, options) { super(message, options); this.name = \'FooError\'; } }');
+	t.assert.deepStrictEqual(result.messages, []);
 });
 
 const fixCode = code => {
@@ -2281,10 +2295,10 @@ const fixCode = code => {
 };
 
 test('inserts the name property with the line ending and indentation of the file', t => {
-	t.is(fixCode('class FooError extends Error {\r\n}').output, 'class FooError extends Error {\r\n\tname = \'FooError\';\r\n}');
-	t.is(fixCode('class FooError extends Error {\n}').output, 'class FooError extends Error {\n\tname = \'FooError\';\n}');
-	t.is(fixCode('class FooError extends Error {}').output, 'class FooError extends Error {\n\tname = \'FooError\';\n}');
-	t.is(
+	t.assert.strictEqual(fixCode('class FooError extends Error {\r\n}').output, 'class FooError extends Error {\r\n\tname = \'FooError\';\r\n}');
+	t.assert.strictEqual(fixCode('class FooError extends Error {\n}').output, 'class FooError extends Error {\n\tname = \'FooError\';\n}');
+	t.assert.strictEqual(fixCode('class FooError extends Error {}').output, 'class FooError extends Error {\n\tname = \'FooError\';\n}');
+	t.assert.strictEqual(
 		fixCode('class FooError extends Error {\n  bar() {}\n}').output,
 		'class FooError extends Error {\n  name = \'FooError\';\n  bar() {}\n}',
 	);
@@ -2336,7 +2350,7 @@ ruleTest({
 });
 
 test('keeps the closing brace of an empty class body at the class indentation', t => {
-	t.is(fixCode('if (a) {\n\tclass FooError extends Error {}\n}').output, 'if (a) {\n\tclass FooError extends Error {\n\t\tname = \'FooError\';\n\t}\n}');
+	t.assert.strictEqual(fixCode('if (a) {\n\tclass FooError extends Error {}\n}').output, 'if (a) {\n\tclass FooError extends Error {\n\t\tname = \'FooError\';\n\t}\n}');
 });
 
 // `super()` forwards the `cause` of the `options` parameter

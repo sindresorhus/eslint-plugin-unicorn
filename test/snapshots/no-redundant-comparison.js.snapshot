@@ -1,0 +1,568 @@
+exports[`no-redundant-comparison > invalid(1): a > 0 && b > 0 && a === b 1`] = `
+
+  1 | a > 0 && b > 0 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(1): a > 0 && b > 0 && a === b 2`] = `
+
+Message:
+> 1 | a > 0 && b > 0 && a === b
+    |          ^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | a > 0 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(10): a > 0 && b >= 5 && a === b 1`] = `
+
+  1 | a > 0 && b >= 5 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(10): a > 0 && b >= 5 && a === b 2`] = `
+
+Message:
+> 1 | a > 0 && b >= 5 && a === b
+    | ^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | b >= 5 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(11): a > 0 && b >= 0 && a === b 1`] = `
+
+  1 | a > 0 && b >= 0 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(11): a > 0 && b >= 0 && a === b 2`] = `
+
+Message:
+> 1 | a > 0 && b >= 0 && a === b
+    |          ^^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | a > 0 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(12): a > -2 && b > 0 && a === b 1`] = `
+
+  1 | a > -2 && b > 0 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(12): a > -2 && b > 0 && a === b 2`] = `
+
+Message:
+> 1 | a > -2 && b > 0 && a === b
+    | ^^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | b > 0 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(13): a < 10 && b < 100 && a === b 1`] = `
+
+  1 | a < 10 && b < 100 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(13): a < 10 && b < 100 && a === b 2`] = `
+
+Message:
+> 1 | a < 10 && b < 100 && a === b
+    |           ^^^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | a < 10 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(14): obj.x > 0 && obj.y > 0 && obj.x === obj.y 1`] = `
+
+  1 | obj.x > 0 && obj.y > 0 && obj.x === obj.y
+
+`;
+
+exports[`no-redundant-comparison > invalid(14): obj.x > 0 && obj.y > 0 && obj.x === obj.y 2`] = `
+
+Message:
+> 1 | obj.x > 0 && obj.y > 0 && obj.x === obj.y
+    |              ^^^^^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | obj.x > 0 && obj.x === obj.y
+
+`;
+
+exports[`no-redundant-comparison > invalid(15): a[key] > 0 && b[key] > 0 && a[key] === b[key] 1`] = `
+
+  1 | a[key] > 0 && b[key] > 0 && a[key] === b[key]
+
+`;
+
+exports[`no-redundant-comparison > invalid(15): a[key] > 0 && b[key] > 0 && a[key] === b[key] 2`] = `
+
+Message:
+> 1 | a[key] > 0 && b[key] > 0 && a[key] === b[key]
+    |               ^^^^^^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | a[key] > 0 && a[key] === b[key]
+
+`;
+
+exports[`no-redundant-comparison > invalid(16): a > 0 && b > 0 && a === b && c > 0 1`] = `
+
+  1 | a > 0 && b > 0 && a === b && c > 0
+
+`;
+
+exports[`no-redundant-comparison > invalid(16): a > 0 && b > 0 && a === b && c > 0 2`] = `
+
+Message:
+> 1 | a > 0 && b > 0 && a === b && c > 0
+    |          ^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | a > 0 && a === b && c > 0
+
+`;
+
+exports[`no-redundant-comparison > invalid(17): a > 0 && c > 0 && a === b && b === c 1`] = `
+
+  1 | a > 0 && c > 0 && a === b && b === c
+
+`;
+
+exports[`no-redundant-comparison > invalid(17): a > 0 && c > 0 && a === b && b === c 2`] = `
+
+Message:
+> 1 | a > 0 && c > 0 && a === b && b === c
+    |          ^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | a > 0 && a === b && b === c
+
+`;
+
+exports[`no-redundant-comparison > invalid(18): 0 < a && 0 < b && a === b 1`] = `
+
+  1 | 0 < a && 0 < b && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(18): 0 < a && 0 < b && a === b 2`] = `
+
+Message:
+> 1 | 0 < a && 0 < b && a === b
+    |          ^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | 0 < a && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(19): a > b && c > b && a === c 1`] = `
+
+  1 | a > b && c > b && a === c
+
+`;
+
+exports[`no-redundant-comparison > invalid(19): a > b && c > b && a === c 2`] = `
+
+Message:
+> 1 | a > b && c > b && a === c
+    |          ^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | a > b && a === c
+
+`;
+
+exports[`no-redundant-comparison > invalid(2): a > 0 && b > 2 && a === b 1`] = `
+
+  1 | a > 0 && b > 2 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(2): a > 0 && b > 2 && a === b 2`] = `
+
+Message:
+> 1 | a > 0 && b > 2 && a === b
+    | ^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | b > 2 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(20): a < \"foo\" && b < \"foo\" && a === b 1`] = `
+
+  1 | a < "foo" && b < "foo" && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(20): a < \"foo\" && b < \"foo\" && a === b 2`] = `
+
+Message:
+> 1 | a < "foo" && b < "foo" && a === b
+    |              ^^^^^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | a < "foo" && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(21): this.x > 0 && this.y > 0 && this.x === this.y 1`] = `
+
+  1 | this.x > 0 && this.y > 0 && this.x === this.y
+
+`;
+
+exports[`no-redundant-comparison > invalid(21): this.x > 0 && this.y > 0 && this.x === this.y 2`] = `
+
+Message:
+> 1 | this.x > 0 && this.y > 0 && this.x === this.y
+    |               ^^^^^^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | this.x > 0 && this.x === this.y
+
+`;
+
+exports[`no-redundant-comparison > invalid(22): (a > 0 && b > 0 && a === b) || c 1`] = `
+
+  1 | (a > 0 && b > 0 && a === b) || c
+
+`;
+
+exports[`no-redundant-comparison > invalid(22): (a > 0 && b > 0 && a === b) || c 2`] = `
+
+Message:
+> 1 | (a > 0 && b > 0 && a === b) || c
+    |           ^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | (a > 0 && a === b) || c
+
+`;
+
+exports[`no-redundant-comparison > invalid(23): if (\n\ta > 0 &&\n\tb > 0 &&\n\ta === b\n) {} 1`] = `
+
+  1 | if (
+  2 | 	a > 0 &&
+  3 | 	b > 0 &&
+  4 | 	a === b
+  5 | ) {}
+
+`;
+
+exports[`no-redundant-comparison > invalid(23): if (\n\ta > 0 &&\n\tb > 0 &&\n\ta === b\n) {} 2`] = `
+
+Message:
+  1 | if (
+  2 | 	a > 0 &&
+> 3 | 	b > 0 &&
+    | 	^^^^^ This comparison is redundant because it is already implied by the other conditions.
+  4 | 	a === b
+  5 | ) {}
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | if (
+  2 | 	a > 0 &&
+  3 | 	a === b
+  4 | ) {}
+
+`;
+
+exports[`no-redundant-comparison > invalid(24): a > 0 && /* keep */ b > 0 && a === b 1`] = `
+
+  1 | a > 0 && /* keep */ b > 0 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(24): a > 0 && /* keep */ b > 0 && a === b 2`] = `
+
+Message:
+> 1 | a > 0 && /* keep */ b > 0 && a === b
+    |                     ^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+`;
+
+exports[`no-redundant-comparison > invalid(25): (a as number) > 0 && (b as number) > 0 && a === b 1`] = `
+
+  1 | (a as number) > 0 && (b as number) > 0 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(25): (a as number) > 0 && (b as number) > 0 && a === b 2`] = `
+
+Message:
+> 1 | (a as number) > 0 && (b as number) > 0 && a === b
+    |                      ^^^^^^^^^^^^^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | (a as number) > 0 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(26): a! > 0 && b! > 0 && a === b 1`] = `
+
+  1 | a! > 0 && b! > 0 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(26): a! > 0 && b! > 0 && a === b 2`] = `
+
+Message:
+> 1 | a! > 0 && b! > 0 && a === b
+    |           ^^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | a! > 0 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(27): (a satisfies number) > 0 && (b satisfies number) > 0 && a === b 1`] = `
+
+  1 | (a satisfies number) > 0 && (b satisfies number) > 0 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(27): (a satisfies number) > 0 && (b satisfies number) > 0 && a === b 2`] = `
+
+Message:
+> 1 | (a satisfies number) > 0 && (b satisfies number) > 0 && a === b
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | (a satisfies number) > 0 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(28): a !== b && 1 === a && b !== 1 1`] = `
+
+  1 | a !== b && 1 === a && b !== 1
+
+`;
+
+exports[`no-redundant-comparison > invalid(28): a !== b && 1 === a && b !== 1 2`] = `
+
+Message:
+> 1 | a !== b && 1 === a && b !== 1
+    |                       ^^^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Output:
+  1 | a !== b && 1 === a
+
+`;
+
+exports[`no-redundant-comparison > invalid(29): a === b && c === d && b === c && a > 5 && d > 3 1`] = `
+
+  1 | a === b && c === d && b === c && a > 5 && d > 3
+
+`;
+
+exports[`no-redundant-comparison > invalid(29): a === b && c === d && b === c && a > 5 && d > 3 2`] = `
+
+Message:
+> 1 | a === b && c === d && b === c && a > 5 && d > 3
+    |                                           ^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | a === b && c === d && b === c && a > 5
+
+`;
+
+exports[`no-redundant-comparison > invalid(3): a < c && b < c && a === b 1`] = `
+
+  1 | a < c && b < c && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(3): a < c && b < c && a === b 2`] = `
+
+Message:
+> 1 | a < c && b < c && a === b
+    |          ^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | a < c && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(30): a === b && b === c && a === c && a > 5 && c > 3 1`] = `
+
+  1 | a === b && b === c && a === c && a > 5 && c > 3
+
+`;
+
+exports[`no-redundant-comparison > invalid(30): a === b && b === c && a === c && a > 5 && c > 3 2`] = `
+
+Message:
+> 1 | a === b && b === c && a === c && a > 5 && c > 3
+    |                                           ^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | a === b && b === c && a === c && a > 5
+
+`;
+
+exports[`no-redundant-comparison > invalid(31): a === b && c === a && c > 5 && b > 3 1`] = `
+
+  1 | a === b && c === a && c > 5 && b > 3
+
+`;
+
+exports[`no-redundant-comparison > invalid(31): a === b && c === a && c > 5 && b > 3 2`] = `
+
+Message:
+> 1 | a === b && c === a && c > 5 && b > 3
+    |                                ^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | a === b && c === a && c > 5
+
+`;
+
+exports[`no-redundant-comparison > invalid(32): a < 5 && b < 3 && a === b 1`] = `
+
+  1 | a < 5 && b < 3 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(32): a < 5 && b < 3 && a === b 2`] = `
+
+Message:
+> 1 | a < 5 && b < 3 && a === b
+    | ^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | b < 3 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(33): a <= 3 && b < 3 && a === b 1`] = `
+
+  1 | a <= 3 && b < 3 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(33): a <= 3 && b < 3 && a === b 2`] = `
+
+Message:
+> 1 | a <= 3 && b < 3 && a === b
+    | ^^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | b < 3 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(4): a !== \"test\" && b !== \"test\" && a === b 1`] = `
+
+  1 | a !== "test" && b !== "test" && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(4): a !== \"test\" && b !== \"test\" && a === b 2`] = `
+
+Message:
+> 1 | a !== "test" && b !== "test" && a === b
+    |                 ^^^^^^^^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Output:
+  1 | a !== "test" && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(5): a === \"test\" && b === \"test\" && a === b 1`] = `
+
+  1 | a === "test" && b === "test" && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(5): a === \"test\" && b === \"test\" && a === b 2`] = `
+
+Message:
+> 1 | a === "test" && b === "test" && a === b
+    |                 ^^^^^^^^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Output:
+  1 | a === "test" && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(6): a === \"test\" && b !== \"test\" && a !== b 1`] = `
+
+  1 | a === "test" && b !== "test" && a !== b
+
+`;
+
+exports[`no-redundant-comparison > invalid(6): a === \"test\" && b !== \"test\" && a !== b 2`] = `
+
+Message:
+> 1 | a === "test" && b !== "test" && a !== b
+    |                 ^^^^^^^^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Output:
+  1 | a === "test" && a !== b
+
+`;
+
+exports[`no-redundant-comparison > invalid(7): a !== \"test\" && b === \"test\" && a !== b 1`] = `
+
+  1 | a !== "test" && b === "test" && a !== b
+
+`;
+
+exports[`no-redundant-comparison > invalid(7): a !== \"test\" && b === \"test\" && a !== b 2`] = `
+
+Message:
+> 1 | a !== "test" && b === "test" && a !== b
+    | ^^^^^^^^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Output:
+  1 | b === "test" && a !== b
+
+`;
+
+exports[`no-redundant-comparison > invalid(8): b > 0 && a > 0 && a === b 1`] = `
+
+  1 | b > 0 && a > 0 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(8): b > 0 && a > 0 && a === b 2`] = `
+
+Message:
+> 1 | b > 0 && a > 0 && a === b
+    |          ^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | b > 0 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(9): a >= 5 && b > 0 && a === b 1`] = `
+
+  1 | a >= 5 && b > 0 && a === b
+
+`;
+
+exports[`no-redundant-comparison > invalid(9): a >= 5 && b > 0 && a === b 2`] = `
+
+Message:
+> 1 | a >= 5 && b > 0 && a === b
+    |           ^^^^^ This comparison is redundant because it is already implied by the other conditions.
+
+Suggestion 1/1: Remove this redundant comparison.:
+  1 | a >= 5 && a === b
+
+`;

@@ -1,0 +1,433 @@
+exports[`prefer-structured-clone > invalid(1): JSON.parse(JSON.stringify(foo)) 1`] = `
+
+  1 | JSON.parse(JSON.stringify(foo))
+
+`;
+
+exports[`prefer-structured-clone > invalid(1): JSON.parse(JSON.stringify(foo)) 2`] = `
+
+Message:
+> 1 | JSON.parse(JSON.stringify(foo))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`structuredClone(…)\` over \`JSON.parse(JSON.stringify(…))\` to create a deep clone.
+
+Suggestion 1/1: Switch to \`structuredClone(…)\`.:
+  1 | structuredClone(foo)
+
+`;
+
+exports[`prefer-structured-clone > invalid(1): _.cloneDeep(foo) 1`] = `
+
+  1 | _.cloneDeep(foo)
+
+`;
+
+exports[`prefer-structured-clone > invalid(1): _.cloneDeep(foo) 2`] = `
+
+Message:
+> 1 | _.cloneDeep(foo)
+    | ^^^^^^^^^^^ Prefer \`structuredClone(…)\` over \`_.cloneDeep(…)\` to create a deep clone.
+
+Suggestion 1/1: Switch to \`structuredClone(…)\`.:
+  1 | structuredClone(foo)
+
+`;
+
+exports[`prefer-structured-clone > invalid(10): JSON.parse(JSON./* keep */stringify(foo)) 1`] = `
+
+  1 | JSON.parse(JSON./* keep */stringify(foo))
+
+`;
+
+exports[`prefer-structured-clone > invalid(10): JSON.parse(JSON./* keep */stringify(foo)) 2`] = `
+
+Message:
+> 1 | JSON.parse(JSON./* keep */stringify(foo))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`structuredClone(…)\` over \`JSON.parse(JSON.stringify(…))\` to create a deep clone.
+
+`;
+
+exports[`prefer-structured-clone > invalid(10): _.cloneDeep(/* keep */ foo) 1`] = `
+
+  1 | _.cloneDeep(/* keep */ foo)
+
+`;
+
+exports[`prefer-structured-clone > invalid(10): _.cloneDeep(/* keep */ foo) 2`] = `
+
+Message:
+> 1 | _.cloneDeep(/* keep */ foo)
+    | ^^^^^^^^^^^ Prefer \`structuredClone(…)\` over \`_.cloneDeep(…)\` to create a deep clone.
+
+Suggestion 1/1: Switch to \`structuredClone(…)\`.:
+  1 | structuredClone(/* keep */ foo)
+
+`;
+
+exports[`prefer-structured-clone > invalid(11): JSON.parse(/* keep */ JSON.stringify(foo /* keep */)) 1`] = `
+
+  1 | JSON.parse(/* keep */ JSON.stringify(foo /* keep */))
+
+`;
+
+exports[`prefer-structured-clone > invalid(11): JSON.parse(/* keep */ JSON.stringify(foo /* keep */)) 2`] = `
+
+Message:
+> 1 | JSON.parse(/* keep */ JSON.stringify(foo /* keep */))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`structuredClone(…)\` over \`JSON.parse(JSON.stringify(…))\` to create a deep clone.
+
+Suggestion 1/1: Switch to \`structuredClone(…)\`.:
+  1 | structuredClone(/* keep */ foo /* keep */)
+
+`;
+
+exports[`prefer-structured-clone > invalid(12): JSON.parse(JSON.stringify /* keep */ (foo)) 1`] = `
+
+  1 | JSON.parse(JSON.stringify /* keep */ (foo))
+
+`;
+
+exports[`prefer-structured-clone > invalid(12): JSON.parse(JSON.stringify /* keep */ (foo)) 2`] = `
+
+Message:
+> 1 | JSON.parse(JSON.stringify /* keep */ (foo))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`structuredClone(…)\` over \`JSON.parse(JSON.stringify(…))\` to create a deep clone.
+
+Suggestion 1/1: Switch to \`structuredClone(…)\`.:
+  1 | structuredClone( /* keep */ foo)
+
+`;
+
+exports[`prefer-structured-clone > invalid(2): JSON.parse(JSON.stringify(foo),) 1`] = `
+
+  1 | JSON.parse(JSON.stringify(foo),)
+
+`;
+
+exports[`prefer-structured-clone > invalid(2): JSON.parse(JSON.stringify(foo),) 2`] = `
+
+Message:
+> 1 | JSON.parse(JSON.stringify(foo),)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`structuredClone(…)\` over \`JSON.parse(JSON.stringify(…))\` to create a deep clone.
+
+Suggestion 1/1: Switch to \`structuredClone(…)\`.:
+  1 | structuredClone(foo,)
+
+`;
+
+exports[`prefer-structured-clone > invalid(2): lodash.cloneDeep(foo) 1`] = `
+
+  1 | lodash.cloneDeep(foo)
+
+`;
+
+exports[`prefer-structured-clone > invalid(2): lodash.cloneDeep(foo) 2`] = `
+
+Message:
+> 1 | lodash.cloneDeep(foo)
+    | ^^^^^^^^^^^^^^^^ Prefer \`structuredClone(…)\` over \`lodash.cloneDeep(…)\` to create a deep clone.
+
+Suggestion 1/1: Switch to \`structuredClone(…)\`.:
+  1 | structuredClone(foo)
+
+`;
+
+exports[`prefer-structured-clone > invalid(3): JSON.parse(JSON.stringify(foo,)) 1`] = `
+
+  1 | JSON.parse(JSON.stringify(foo,))
+
+`;
+
+exports[`prefer-structured-clone > invalid(3): JSON.parse(JSON.stringify(foo,)) 2`] = `
+
+Message:
+> 1 | JSON.parse(JSON.stringify(foo,))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`structuredClone(…)\` over \`JSON.parse(JSON.stringify(…))\` to create a deep clone.
+
+Suggestion 1/1: Switch to \`structuredClone(…)\`.:
+  1 | structuredClone(foo)
+
+`;
+
+exports[`prefer-structured-clone > invalid(3): lodash.cloneDeep(foo,) 1`] = `
+
+  1 | lodash.cloneDeep(foo,)
+
+`;
+
+exports[`prefer-structured-clone > invalid(3): lodash.cloneDeep(foo,) 2`] = `
+
+Message:
+> 1 | lodash.cloneDeep(foo,)
+    | ^^^^^^^^^^^^^^^^ Prefer \`structuredClone(…)\` over \`lodash.cloneDeep(…)\` to create a deep clone.
+
+Suggestion 1/1: Switch to \`structuredClone(…)\`.:
+  1 | structuredClone(foo,)
+
+`;
+
+exports[`prefer-structured-clone > invalid(4): JSON.parse(JSON.stringify(foo,),) 1`] = `
+
+  1 | JSON.parse(JSON.stringify(foo,),)
+
+`;
+
+exports[`prefer-structured-clone > invalid(4): JSON.parse(JSON.stringify(foo,),) 2`] = `
+
+Message:
+> 1 | JSON.parse(JSON.stringify(foo,),)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`structuredClone(…)\` over \`JSON.parse(JSON.stringify(…))\` to create a deep clone.
+
+Suggestion 1/1: Switch to \`structuredClone(…)\`.:
+  1 | structuredClone(foo,)
+
+`;
+
+exports[`prefer-structured-clone > invalid(4): myCustomDeepCloneFunction(foo,) 1`] = `
+
+Options:
+- functions:
+    - 'myCustomDeepCloneFunction'
+
+Code:
+  1 | myCustomDeepCloneFunction(foo,)
+
+`;
+
+exports[`prefer-structured-clone > invalid(4): myCustomDeepCloneFunction(foo,) 2`] = `
+
+Message:
+> 1 | myCustomDeepCloneFunction(foo,)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`structuredClone(…)\` over \`myCustomDeepCloneFunction(…)\` to create a deep clone.
+
+Suggestion 1/1: Switch to \`structuredClone(…)\`.:
+  1 | structuredClone(foo,)
+
+`;
+
+exports[`prefer-structured-clone > invalid(5): JSON.parse( ((JSON.stringify)) (foo)) 1`] = `
+
+  1 | JSON.parse( ((JSON.stringify)) (foo))
+
+`;
+
+exports[`prefer-structured-clone > invalid(5): JSON.parse( ((JSON.stringify)) (foo)) 2`] = `
+
+Message:
+> 1 | JSON.parse( ((JSON.stringify)) (foo))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`structuredClone(…)\` over \`JSON.parse(JSON.stringify(…))\` to create a deep clone.
+
+Suggestion 1/1: Switch to \`structuredClone(…)\`.:
+  1 | structuredClone(  foo)
+
+`;
+
+exports[`prefer-structured-clone > invalid(5): my.cloneDeep(foo,) 1`] = `
+
+Options:
+- functions:
+    - 'my.cloneDeep'
+
+Code:
+  1 | my.cloneDeep(foo,)
+
+`;
+
+exports[`prefer-structured-clone > invalid(5): my.cloneDeep(foo,) 2`] = `
+
+Message:
+> 1 | my.cloneDeep(foo,)
+    | ^^^^^^^^^^^^ Prefer \`structuredClone(…)\` over \`my.cloneDeep(…)\` to create a deep clone.
+
+Suggestion 1/1: Switch to \`structuredClone(…)\`.:
+  1 | structuredClone(foo,)
+
+`;
+
+exports[`prefer-structured-clone > invalid(6): (( JSON.parse)) (JSON.stringify(foo)) 1`] = `
+
+  1 | (( JSON.parse)) (JSON.stringify(foo))
+
+`;
+
+exports[`prefer-structured-clone > invalid(6): (( JSON.parse)) (JSON.stringify(foo)) 2`] = `
+
+Message:
+> 1 | (( JSON.parse)) (JSON.stringify(foo))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`structuredClone(…)\` over \`JSON.parse(JSON.stringify(…))\` to create a deep clone.
+
+Suggestion 1/1: Switch to \`structuredClone(…)\`.:
+  1 | (( structuredClone)) (foo)
+
+`;
+
+exports[`prefer-structured-clone > invalid(6): class A {\n\tconstructor() {\n\t\tthis.a = new.target.cloneDeep(foo);\n\t\tthis.b = import.meta.cloneDeep(foo);\n\t}\n} 1`] = `
+
+Options:
+- functions:
+    - 'new.target.cloneDeep'
+
+Code:
+  1 | class A {
+  2 | 	constructor() {
+  3 | 		this.a = new.target.cloneDeep(foo);
+  4 | 		this.b = import.meta.cloneDeep(foo);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-structured-clone > invalid(6): class A {\n\tconstructor() {\n\t\tthis.a = new.target.cloneDeep(foo);\n\t\tthis.b = import.meta.cloneDeep(foo);\n\t}\n} 2`] = `
+
+Message:
+  1 | class A {
+  2 | 	constructor() {
+> 3 | 		this.a = new.target.cloneDeep(foo);
+    | 		         ^^^^^^^^^^^^^^^^^^^^ Prefer \`structuredClone(…)\` over \`new.target.cloneDeep(…)\` to create a deep clone.
+  4 | 		this.b = import.meta.cloneDeep(foo);
+  5 | 	}
+  6 | }
+
+Suggestion 1/1: Switch to \`structuredClone(…)\`.:
+  1 | class A {
+  2 | 	constructor() {
+  3 | 		this.a = structuredClone(foo);
+  4 | 		this.b = import.meta.cloneDeep(foo);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-structured-clone > invalid(7): JSON.parse(JSON.stringify( ((foo)) )) 1`] = `
+
+  1 | JSON.parse(JSON.stringify( ((foo)) ))
+
+`;
+
+exports[`prefer-structured-clone > invalid(7): JSON.parse(JSON.stringify( ((foo)) )) 2`] = `
+
+Message:
+> 1 | JSON.parse(JSON.stringify( ((foo)) ))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`structuredClone(…)\` over \`JSON.parse(JSON.stringify(…))\` to create a deep clone.
+
+Suggestion 1/1: Switch to \`structuredClone(…)\`.:
+  1 | structuredClone( ((foo)) )
+
+`;
+
+exports[`prefer-structured-clone > invalid(7): class A {\n\tconstructor() {\n\t\tthis.a = super.cloneDeep(foo);\n\t}\n} 1`] = `
+
+Options:
+- functions:
+    - 'super.cloneDeep'
+
+Code:
+  1 | class A {
+  2 | 	constructor() {
+  3 | 		this.a = super.cloneDeep(foo);
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-structured-clone > invalid(7): class A {\n\tconstructor() {\n\t\tthis.a = super.cloneDeep(foo);\n\t}\n} 2`] = `
+
+Message:
+  1 | class A {
+  2 | 	constructor() {
+> 3 | 		this.a = super.cloneDeep(foo);
+    | 		         ^^^^^^^^^^^^^^^ Prefer \`structuredClone(…)\` over \`super.cloneDeep(…)\` to create a deep clone.
+  4 | 	}
+  5 | }
+
+Suggestion 1/1: Switch to \`structuredClone(…)\`.:
+  1 | class A {
+  2 | 	constructor() {
+  3 | 		this.a = structuredClone(foo);
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-structured-clone > invalid(8): const b = _./* keep */cloneDeep(foo); 1`] = `
+
+  1 | const b = _./* keep */cloneDeep(foo);
+
+`;
+
+exports[`prefer-structured-clone > invalid(8): const b = _./* keep */cloneDeep(foo); 2`] = `
+
+Message:
+> 1 | const b = _./* keep */cloneDeep(foo);
+    |           ^^^^^^^^^^^^^^^^^^^^^ Prefer \`structuredClone(…)\` over \`_.cloneDeep(…)\` to create a deep clone.
+
+`;
+
+exports[`prefer-structured-clone > invalid(8): function foo() {\n\treturn JSON\n\t\t.parse(\n\t\t\tJSON.\n\t\t\t\tstringify(\n\t\t\t\t\tbar,\n\t\t\t\t),\n\t\t);\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return JSON
+  3 | 		.parse(
+  4 | 			JSON.
+  5 | 				stringify(
+  6 | 					bar,
+  7 | 				),
+  8 | 		);
+  9 | }
+
+`;
+
+exports[`prefer-structured-clone > invalid(8): function foo() {\n\treturn JSON\n\t\t.parse(\n\t\t\tJSON.\n\t\t\t\tstringify(\n\t\t\t\t\tbar,\n\t\t\t\t),\n\t\t);\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return JSON
+    | 	       ^^^^
+> 3 | 		.parse(
+    | ^^^^^^^^^
+> 4 | 			JSON.
+    | ^^^^^^^^
+> 5 | 				stringify(
+    | ^^^^^^^^^^^^^ Prefer \`structuredClone(…)\` over \`JSON.parse(JSON.stringify(…))\` to create a deep clone.
+  6 | 					bar,
+  7 | 				),
+  8 | 		);
+  9 | }
+
+Suggestion 1/1: Switch to \`structuredClone(…)\`.:
+  1 | function foo() {
+  2 | 	return structuredClone(
+  3 | 			
+  4 | 					bar
+  5 | 				,
+  6 | 		);
+  7 | }
+
+`;
+
+exports[`prefer-structured-clone > invalid(9): const a = JSON /* keep */ .parse(JSON.stringify(foo)); 1`] = `
+
+  1 | const a = JSON /* keep */ .parse(JSON.stringify(foo));
+
+`;
+
+exports[`prefer-structured-clone > invalid(9): const a = JSON /* keep */ .parse(JSON.stringify(foo)); 2`] = `
+
+Message:
+> 1 | const a = JSON /* keep */ .parse(JSON.stringify(foo));
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`structuredClone(…)\` over \`JSON.parse(JSON.stringify(…))\` to create a deep clone.
+
+`;
+
+exports[`prefer-structured-clone > invalid(9): const c = _. /* keep */ cloneDeep(foo); 1`] = `
+
+  1 | const c = _. /* keep */ cloneDeep(foo);
+
+`;
+
+exports[`prefer-structured-clone > invalid(9): const c = _. /* keep */ cloneDeep(foo); 2`] = `
+
+Message:
+> 1 | const c = _. /* keep */ cloneDeep(foo);
+    |           ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`structuredClone(…)\` over \`_.cloneDeep(…)\` to create a deep clone.
+
+`;

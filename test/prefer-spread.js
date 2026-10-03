@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
@@ -896,7 +896,7 @@ test('fixes chained empty concat calls with no-useless-spread', t => {
 		{filename: 'index.js'},
 	);
 
-	t.is(result.output, 'const a = [1, 2];');
+	t.assert.strictEqual(result.output, 'const a = [1, 2];');
 });
 
 // `Array#slice`
@@ -1147,5 +1147,43 @@ ruleTest({
 			output: 'const a = b, b = a; [...a];',
 			errors: 1,
 		},
+	],
+});
+
+// How the `.concat()` receiver is known to be an array or not
+ruleTest.snapshot({
+	valid: [
+		'import {Buffer} from "buffer"; Buffer.concat(list).concat(other);',
+		typescript('class Foo {} function foo(value: Foo) { value.concat(other); }'),
+		typescript('import {ApolloLink as Link} from "@apollo/client"; function foo(link: Link) { link.concat(next); }'),
+		typescript('import * as apollo from "@apollo/client"; function foo(link: apollo.ApolloLink) { link.concat(next); }'),
+		typescript('function foo(value: keyof Foo) { value.concat(other); }'),
+		typeAware('declare const value: string | number; value.concat(other);'),
+		typeAware('declare const value: {a: 1} & {b: 2}; value.concat(other);'),
+		typeAware('declare const value: Set<number>; value.concat(other);'),
+		'if (Array.isArray(object[key])) {} else { object[key].concat(value); }',
+		'function foo() { if (!Array.isArray(this)) { this.concat(value); } }',
+		'if (!Array.isArray(foo)) { let bar; foo.concat(value); }',
+		'const array = []; for (const item of items[array.length]) array.push(item);',
+	],
+	invalid: [
+		typescript('import Link from "link"; function foo(link: Link) { link.concat(next); }'),
+		typescript('const Foo = 1; function foo(value: Foo) { value.concat(other); }'),
+		typescript('function foo(value: string[] | number[]) { value.concat(other); }'),
+		typescript('function foo(value: string[] & Foo) { value.concat(other); }'),
+		typescript('function foo(value: Foo.Bar) { value.concat(other); }'),
+		typescript('function foo(link: Unknown.ApolloLink) { link.concat(next); }'),
+		typescript('type A = B; type B = A; function foo(value: A) { value.concat(other); }'),
+		typeAware('declare const value: any; value.concat(other);'),
+		typeAware('declare const value: string[] | number[]; value.concat(other);'),
+		typeAware('function foo<T>(value: string[] | T) { value.concat(other); }'),
+		typeAware('declare const value: string[] | string; value.concat(other);'),
+		typeAware('function foo<T extends string[]>(value: T) { value.concat(other); }'),
+		typeAware('declare const value: string[] & {foo: 1}; value.concat(other);'),
+		// `T` can be an array
+		typeAware('function foo<T>(value: T & {foo: 1}) { value.concat(other); }'),
+		'if (Array.isArray(other)) {} else { value.concat(other); }',
+		'if (!Array.isArray(foo)) { const {bar} = baz; foo.concat(value); }',
+		'if (Array.isArray(foo)) { foo.concat(value); } else {}',
 	],
 });

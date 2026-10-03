@@ -1,0 +1,807 @@
+exports[`no-unnecessary-splice > invalid(1): array.splice(); 1`] = `
+
+  1 | array.splice();
+
+`;
+
+exports[`no-unnecessary-splice > invalid(1): array.splice(); 2`] = `
+
+Message:
+> 1 | array.splice();
+    |       ^^^^^^ This \`splice()\` call does not change the array.
+
+Output:
+  1 |
+
+`;
+
+exports[`no-unnecessary-splice > invalid(1): array.splice(0 as const, 1 as const); 1`] = `
+
+  1 | array.splice(0 as const, 1 as const);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(1): array.splice(0 as const, 1 as const); 2`] = `
+
+Message:
+> 1 | array.splice(0 as const, 1 as const);
+    |       ^^^^^^ Prefer \`.shift()\` over \`.splice()\`.
+
+Output:
+  1 | array.shift();
+
+`;
+
+exports[`no-unnecessary-splice > invalid(10): array.splice(0, 0, element); 1`] = `
+
+  1 | array.splice(0, 0, element);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(10): array.splice(0, 0, element); 2`] = `
+
+Message:
+> 1 | array.splice(0, 0, element);
+    |       ^^^^^^ Prefer \`.unshift()\` over \`.splice()\`.
+
+Output:
+  1 | array.unshift(element);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(11): array.splice(0, 0, element, ...moreElements); 1`] = `
+
+  1 | array.splice(0, 0, element, ...moreElements);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(11): array.splice(0, 0, element, ...moreElements); 2`] = `
+
+Message:
+> 1 | array.splice(0, 0, element, ...moreElements);
+    |       ^^^^^^ Prefer \`.unshift()\` over \`.splice()\`.
+
+Output:
+  1 | array.unshift(element, ...moreElements);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(12): array.splice(0, 0, ...elements); 1`] = `
+
+  1 | array.splice(0, 0, ...elements);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(12): array.splice(0, 0, ...elements); 2`] = `
+
+Message:
+> 1 | array.splice(0, 0, ...elements);
+    |       ^^^^^^ Prefer \`.unshift()\` over \`.splice()\`.
+
+Output:
+  1 | array.unshift(...elements);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(13): array.splice(array.length - 1, 1); 1`] = `
+
+  1 | array.splice(array.length - 1, 1);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(13): array.splice(array.length - 1, 1); 2`] = `
+
+Message:
+> 1 | array.splice(array.length - 1, 1);
+    |       ^^^^^^ Prefer \`.pop()\` over \`.splice()\`.
+
+Output:
+  1 | array.pop();
+
+`;
+
+exports[`no-unnecessary-splice > invalid(14): array.splice(array.length - +1, +1); 1`] = `
+
+  1 | array.splice(array.length - +1, +1);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(14): array.splice(array.length - +1, +1); 2`] = `
+
+Message:
+> 1 | array.splice(array.length - +1, +1);
+    |       ^^^^^^ Prefer \`.pop()\` over \`.splice()\`.
+
+Output:
+  1 | array.pop();
+
+`;
+
+exports[`no-unnecessary-splice > invalid(15): object.array.splice(object.array.length - 1, 1); 1`] = `
+
+  1 | object.array.splice(object.array.length - 1, 1);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(15): object.array.splice(object.array.length - 1, 1); 2`] = `
+
+Message:
+> 1 | object.array.splice(object.array.length - 1, 1);
+    |              ^^^^^^ Prefer \`.pop()\` over \`.splice()\`.
+
+Output:
+  1 | object.array.pop();
+
+`;
+
+exports[`no-unnecessary-splice > invalid(16): array.splice(array.length, 0, element); 1`] = `
+
+  1 | array.splice(array.length, 0, element);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(16): array.splice(array.length, 0, element); 2`] = `
+
+Message:
+> 1 | array.splice(array.length, 0, element);
+    |       ^^^^^^ Prefer \`.push()\` over \`.splice()\`.
+
+Output:
+  1 | array.push(element);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(17): array.splice(array.length, 0, element, ...moreElements); 1`] = `
+
+  1 | array.splice(array.length, 0, element, ...moreElements);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(17): array.splice(array.length, 0, element, ...moreElements); 2`] = `
+
+Message:
+> 1 | array.splice(array.length, 0, element, ...moreElements);
+    |       ^^^^^^ Prefer \`.push()\` over \`.splice()\`.
+
+Output:
+  1 | array.push(element, ...moreElements);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(18): array.splice(array.length, 0, ...elements); 1`] = `
+
+  1 | array.splice(array.length, 0, ...elements);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(18): array.splice(array.length, 0, ...elements); 2`] = `
+
+Message:
+> 1 | array.splice(array.length, 0, ...elements);
+    |       ^^^^^^ Prefer \`.push()\` over \`.splice()\`.
+
+Output:
+  1 | array.push(...elements);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(19): object.array.splice(object.array.length, 0, element); 1`] = `
+
+  1 | object.array.splice(object.array.length, 0, element);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(19): object.array.splice(object.array.length, 0, element); 2`] = `
+
+Message:
+> 1 | object.array.splice(object.array.length, 0, element);
+    |              ^^^^^^ Prefer \`.push()\` over \`.splice()\`.
+
+Output:
+  1 | object.array.push(element);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(2): array.splice(0 satisfies number, 1 satisfies number); 1`] = `
+
+  1 | array.splice(0 satisfies number, 1 satisfies number);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(2): array.splice(0 satisfies number, 1 satisfies number); 2`] = `
+
+Message:
+> 1 | array.splice(0 satisfies number, 1 satisfies number);
+    |       ^^^^^^ Prefer \`.shift()\` over \`.splice()\`.
+
+Output:
+  1 | array.shift();
+
+`;
+
+exports[`no-unnecessary-splice > invalid(2): array.splice(index, 0); 1`] = `
+
+  1 | array.splice(index, 0);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(2): array.splice(index, 0); 2`] = `
+
+Message:
+> 1 | array.splice(index, 0);
+    |       ^^^^^^ This \`splice()\` call does not change the array.
+
+Output:
+  1 |
+
+`;
+
+exports[`no-unnecessary-splice > invalid(20): array.splice(0); 1`] = `
+
+  1 | array.splice(0);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(20): array.splice(0); 2`] = `
+
+Message:
+> 1 | array.splice(0);
+    |       ^^^^^^ Prefer setting \`.length = 0\` over \`.splice()\` to empty an array.
+
+Output:
+  1 | array.length = 0;
+
+`;
+
+exports[`no-unnecessary-splice > invalid(21): object.array.splice(0); 1`] = `
+
+  1 | object.array.splice(0);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(21): object.array.splice(0); 2`] = `
+
+Message:
+> 1 | object.array.splice(0);
+    |              ^^^^^^ Prefer setting \`.length = 0\` over \`.splice()\` to empty an array.
+
+Output:
+  1 | object.array.length = 0;
+
+`;
+
+exports[`no-unnecessary-splice > invalid(22): array.splice(0, array.length); 1`] = `
+
+  1 | array.splice(0, array.length);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(22): array.splice(0, array.length); 2`] = `
+
+Message:
+> 1 | array.splice(0, array.length);
+    |       ^^^^^^ Prefer setting \`.length = 0\` over \`.splice()\` to empty an array.
+
+Output:
+  1 | array.length = 0;
+
+`;
+
+exports[`no-unnecessary-splice > invalid(23): object.array.splice(0, object.array.length); 1`] = `
+
+  1 | object.array.splice(0, object.array.length);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(23): object.array.splice(0, object.array.length); 2`] = `
+
+Message:
+> 1 | object.array.splice(0, object.array.length);
+    |              ^^^^^^ Prefer setting \`.length = 0\` over \`.splice()\` to empty an array.
+
+Output:
+  1 | object.array.length = 0;
+
+`;
+
+exports[`no-unnecessary-splice > invalid(24): const result = array.splice(index, 0); 1`] = `
+
+  1 | const result = array.splice(index, 0);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(24): const result = array.splice(index, 0); 2`] = `
+
+Message:
+> 1 | const result = array.splice(index, 0);
+    |                      ^^^^^^ This \`splice()\` call does not change the array.
+
+`;
+
+exports[`no-unnecessary-splice > invalid(25): const result = array.splice(0, 1); 1`] = `
+
+  1 | const result = array.splice(0, 1);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(25): const result = array.splice(0, 1); 2`] = `
+
+Message:
+> 1 | const result = array.splice(0, 1);
+    |                      ^^^^^^ Prefer \`.shift()\` over \`.splice()\`.
+
+`;
+
+exports[`no-unnecessary-splice > invalid(26): const result = array.splice(0, 0, element); 1`] = `
+
+  1 | const result = array.splice(0, 0, element);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(26): const result = array.splice(0, 0, element); 2`] = `
+
+Message:
+> 1 | const result = array.splice(0, 0, element);
+    |                      ^^^^^^ Prefer \`.unshift()\` over \`.splice()\`.
+
+`;
+
+exports[`no-unnecessary-splice > invalid(27): const result = array.splice(array.length - 1, 1); 1`] = `
+
+  1 | const result = array.splice(array.length - 1, 1);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(27): const result = array.splice(array.length - 1, 1); 2`] = `
+
+Message:
+> 1 | const result = array.splice(array.length - 1, 1);
+    |                      ^^^^^^ Prefer \`.pop()\` over \`.splice()\`.
+
+`;
+
+exports[`no-unnecessary-splice > invalid(28): const result = array.splice(array.length, 0, element); 1`] = `
+
+  1 | const result = array.splice(array.length, 0, element);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(28): const result = array.splice(array.length, 0, element); 2`] = `
+
+Message:
+> 1 | const result = array.splice(array.length, 0, element);
+    |                      ^^^^^^ Prefer \`.push()\` over \`.splice()\`.
+
+`;
+
+exports[`no-unnecessary-splice > invalid(29): array.splice(0, /* comment */ 0, element); 1`] = `
+
+  1 | array.splice(0, /* comment */ 0, element);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(29): array.splice(0, /* comment */ 0, element); 2`] = `
+
+Message:
+> 1 | array.splice(0, /* comment */ 0, element);
+    |       ^^^^^^ Prefer \`.unshift()\` over \`.splice()\`.
+
+`;
+
+exports[`no-unnecessary-splice > invalid(3): array.splice(<number>0, <number>0, element); 1`] = `
+
+  1 | array.splice(<number>0, <number>0, element);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(3): array.splice(<number>0, <number>0, element); 2`] = `
+
+Message:
+> 1 | array.splice(<number>0, <number>0, element);
+    |       ^^^^^^ Prefer \`.unshift()\` over \`.splice()\`.
+
+Output:
+  1 | array.unshift(element);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(3): array.splice(index, -1); 1`] = `
+
+  1 | array.splice(index, -1);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(3): array.splice(index, -1); 2`] = `
+
+Message:
+> 1 | array.splice(index, -1);
+    |       ^^^^^^ This \`splice()\` call does not change the array.
+
+Output:
+  1 |
+
+`;
+
+exports[`no-unnecessary-splice > invalid(30): array.splice(/* comment */ 0, 1); 1`] = `
+
+  1 | array.splice(/* comment */ 0, 1);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(30): array.splice(/* comment */ 0, 1); 2`] = `
+
+Message:
+> 1 | array.splice(/* comment */ 0, 1);
+    |       ^^^^^^ Prefer \`.shift()\` over \`.splice()\`.
+
+`;
+
+exports[`no-unnecessary-splice > invalid(31): array.splice(index, /* comment */ 0); 1`] = `
+
+  1 | array.splice(index, /* comment */ 0);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(31): array.splice(index, /* comment */ 0); 2`] = `
+
+Message:
+> 1 | array.splice(index, /* comment */ 0);
+    |       ^^^^^^ This \`splice()\` call does not change the array.
+
+`;
+
+exports[`no-unnecessary-splice > invalid(32): array.splice(index, 0) /* comment */; 1`] = `
+
+  1 | array.splice(index, 0) /* comment */;
+
+`;
+
+exports[`no-unnecessary-splice > invalid(32): array.splice(index, 0) /* comment */; 2`] = `
+
+Message:
+> 1 | array.splice(index, 0) /* comment */;
+    |       ^^^^^^ This \`splice()\` call does not change the array.
+
+`;
+
+exports[`no-unnecessary-splice > invalid(33): array.splice(index, 0); // comment 1`] = `
+
+  1 | array.splice(index, 0); // comment
+
+`;
+
+exports[`no-unnecessary-splice > invalid(33): array.splice(index, 0); // comment 2`] = `
+
+Message:
+> 1 | array.splice(index, 0); // comment
+    |       ^^^^^^ This \`splice()\` call does not change the array.
+
+`;
+
+exports[`no-unnecessary-splice > invalid(34): array.splice(index, 0); /* comment */ 1`] = `
+
+  1 | array.splice(index, 0); /* comment */
+
+`;
+
+exports[`no-unnecessary-splice > invalid(34): array.splice(index, 0); /* comment */ 2`] = `
+
+Message:
+> 1 | array.splice(index, 0); /* comment */
+    |       ^^^^^^ This \`splice()\` call does not change the array.
+
+`;
+
+exports[`no-unnecessary-splice > invalid(35): getArray().splice(index, 0); 1`] = `
+
+  1 | getArray().splice(index, 0);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(35): getArray().splice(index, 0); 2`] = `
+
+Message:
+> 1 | getArray().splice(index, 0);
+    |            ^^^^^^ This \`splice()\` call does not change the array.
+
+`;
+
+exports[`no-unnecessary-splice > invalid(36): array.splice(getIndex(), 0); 1`] = `
+
+  1 | array.splice(getIndex(), 0);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(36): array.splice(getIndex(), 0); 2`] = `
+
+Message:
+> 1 | array.splice(getIndex(), 0);
+    |       ^^^^^^ This \`splice()\` call does not change the array.
+
+`;
+
+exports[`no-unnecessary-splice > invalid(37): if (condition) array.splice(index, 0); 1`] = `
+
+  1 | if (condition) array.splice(index, 0);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(37): if (condition) array.splice(index, 0); 2`] = `
+
+Message:
+> 1 | if (condition) array.splice(index, 0);
+    |                      ^^^^^^ This \`splice()\` call does not change the array.
+
+`;
+
+exports[`no-unnecessary-splice > invalid(38): array.splice(0), f(); 1`] = `
+
+  1 | array.splice(0), f();
+
+`;
+
+exports[`no-unnecessary-splice > invalid(38): array.splice(0), f(); 2`] = `
+
+Message:
+> 1 | array.splice(0), f();
+    |       ^^^^^^ Prefer setting \`.length = 0\` over \`.splice()\` to empty an array.
+
+Output:
+  1 | array.length = 0, f();
+
+`;
+
+exports[`no-unnecessary-splice > invalid(39): array.splice(0, array.length), f(); 1`] = `
+
+  1 | array.splice(0, array.length), f();
+
+`;
+
+exports[`no-unnecessary-splice > invalid(39): array.splice(0, array.length), f(); 2`] = `
+
+Message:
+> 1 | array.splice(0, array.length), f();
+    |       ^^^^^^ Prefer setting \`.length = 0\` over \`.splice()\` to empty an array.
+
+Output:
+  1 | array.length = 0, f();
+
+`;
+
+exports[`no-unnecessary-splice > invalid(4): array.splice(array.length - 1!, 1!); 1`] = `
+
+  1 | array.splice(array.length - 1!, 1!);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(4): array.splice(array.length - 1!, 1!); 2`] = `
+
+Message:
+> 1 | array.splice(array.length - 1!, 1!);
+    |       ^^^^^^ Prefer \`.pop()\` over \`.splice()\`.
+
+Output:
+  1 | array.pop();
+
+`;
+
+exports[`no-unnecessary-splice > invalid(4): array.splice(index, +0); 1`] = `
+
+  1 | array.splice(index, +0);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(4): array.splice(index, +0); 2`] = `
+
+Message:
+> 1 | array.splice(index, +0);
+    |       ^^^^^^ This \`splice()\` call does not change the array.
+
+Output:
+  1 |
+
+`;
+
+exports[`no-unnecessary-splice > invalid(40): f(), array.splice(0); 1`] = `
+
+  1 | f(), array.splice(0);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(40): f(), array.splice(0); 2`] = `
+
+Message:
+> 1 | f(), array.splice(0);
+    |            ^^^^^^ Prefer setting \`.length = 0\` over \`.splice()\` to empty an array.
+
+Output:
+  1 | f(), array.length = 0;
+
+`;
+
+exports[`no-unnecessary-splice > invalid(41): f(), array.splice(0), g(); 1`] = `
+
+  1 | f(), array.splice(0), g();
+
+`;
+
+exports[`no-unnecessary-splice > invalid(41): f(), array.splice(0), g(); 2`] = `
+
+Message:
+> 1 | f(), array.splice(0), g();
+    |            ^^^^^^ Prefer setting \`.length = 0\` over \`.splice()\` to empty an array.
+
+Output:
+  1 | f(), array.length = 0, g();
+
+`;
+
+exports[`no-unnecessary-splice > invalid(5): array.splice(0!, array.length); 1`] = `
+
+  1 | array.splice(0!, array.length);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(5): array.splice(0!, array.length); 2`] = `
+
+Message:
+> 1 | array.splice(0!, array.length);
+    |       ^^^^^^ Prefer setting \`.length = 0\` over \`.splice()\` to empty an array.
+
+Output:
+  1 | array.length = 0;
+
+`;
+
+exports[`no-unnecessary-splice > invalid(5): array.splice(0, 1); 1`] = `
+
+  1 | array.splice(0, 1);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(5): array.splice(0, 1); 2`] = `
+
+Message:
+> 1 | array.splice(0, 1);
+    |       ^^^^^^ Prefer \`.shift()\` over \`.splice()\`.
+
+Output:
+  1 | array.shift();
+
+`;
+
+exports[`no-unnecessary-splice > invalid(6): (array satisfies string[]).splice((array satisfies string[]).length, 0, element); 1`] = `
+
+  1 | (array satisfies string[]).splice((array satisfies string[]).length, 0, element);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(6): (array satisfies string[]).splice((array satisfies string[]).length, 0, element); 2`] = `
+
+Message:
+> 1 | (array satisfies string[]).splice((array satisfies string[]).length, 0, element);
+    |                            ^^^^^^ Prefer \`.push()\` over \`.splice()\`.
+
+Output:
+  1 | (array satisfies string[]).push(element);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(6): array.splice(+0, +1); 1`] = `
+
+  1 | array.splice(+0, +1);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(6): array.splice(+0, +1); 2`] = `
+
+Message:
+> 1 | array.splice(+0, +1);
+    |       ^^^^^^ Prefer \`.shift()\` over \`.splice()\`.
+
+Output:
+  1 | array.shift();
+
+`;
+
+exports[`no-unnecessary-splice > invalid(7): array.splice(0, - -1); 1`] = `
+
+  1 | array.splice(0, - -1);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(7): array.splice(0, - -1); 2`] = `
+
+Message:
+> 1 | array.splice(0, - -1);
+    |       ^^^^^^ Prefer \`.shift()\` over \`.splice()\`.
+
+Output:
+  1 | array.shift();
+
+`;
+
+exports[`no-unnecessary-splice > invalid(7): function f(foo: number[]) { foo.splice(); } 1`] = `
+
+  1 | function f(foo: number[]) { foo.splice(); }
+
+`;
+
+exports[`no-unnecessary-splice > invalid(7): function f(foo: number[]) { foo.splice(); } 2`] = `
+
+Message:
+> 1 | function f(foo: number[]) { foo.splice(); }
+    |                                 ^^^^^^ This \`splice()\` call does not change the array.
+
+Output:
+  1 | function f(foo: number[]) {  }
+
+`;
+
+exports[`no-unnecessary-splice > invalid(8): array.splice(- -0, 1); 1`] = `
+
+  1 | array.splice(- -0, 1);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(8): array.splice(- -0, 1); 2`] = `
+
+Message:
+> 1 | array.splice(- -0, 1);
+    |       ^^^^^^ Prefer \`.shift()\` over \`.splice()\`.
+
+Output:
+  1 | array.shift();
+
+`;
+
+exports[`no-unnecessary-splice > invalid(8): array.splice(0, array.length as number); 1`] = `
+
+  1 | array.splice(0, array.length as number);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(8): array.splice(0, array.length as number); 2`] = `
+
+Message:
+> 1 | array.splice(0, array.length as number);
+    |       ^^^^^^ Prefer setting \`.length = 0\` over \`.splice()\` to empty an array.
+
+Output:
+  1 | array.length = 0;
+
+`;
+
+exports[`no-unnecessary-splice > invalid(9): array.splice((array.length as number) - 1, 1); 1`] = `
+
+  1 | array.splice((array.length as number) - 1, 1);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(9): array.splice((array.length as number) - 1, 1); 2`] = `
+
+Message:
+> 1 | array.splice((array.length as number) - 1, 1);
+    |       ^^^^^^ Prefer \`.pop()\` over \`.splice()\`.
+
+Output:
+  1 | array.pop();
+
+`;
+
+exports[`no-unnecessary-splice > invalid(9): array.splice(index, - -0); 1`] = `
+
+  1 | array.splice(index, - -0);
+
+`;
+
+exports[`no-unnecessary-splice > invalid(9): array.splice(index, - -0); 2`] = `
+
+Message:
+> 1 | array.splice(index, - -0);
+    |       ^^^^^^ This \`splice()\` call does not change the array.
+
+Output:
+  1 |
+
+`;

@@ -1,5 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {functionTypes} from './ast/index.js';
+import {getVisitorChildNodes} from './utils/index.js';
 
 const MESSAGE_ID = 'preferDefaultParameters';
 const MESSAGE_ID_SUGGEST = 'preferDefaultParametersSuggest';
@@ -44,31 +45,11 @@ const callLikeExpressionTypes = new Set([
 ]);
 
 const containsCallExpression = (sourceCode, node) => {
-	if (!node) {
-		return false;
-	}
-
 	if (callLikeExpressionTypes.has(node.type)) {
 		return true;
 	}
 
-	const keys = sourceCode.visitorKeys[node.type];
-
-	for (const key of keys) {
-		const value = node[key];
-
-		if (Array.isArray(value)) {
-			for (const element of value) {
-				if (containsCallExpression(sourceCode, element)) {
-					return true;
-				}
-			}
-		} else if (containsCallExpression(sourceCode, value)) {
-			return true;
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, sourceCode.visitorKeys).some(child => containsCallExpression(sourceCode, child));
 };
 
 const hasSideEffects = (sourceCode, function_, node) => {
@@ -252,7 +233,7 @@ const create = context => {
 
 		// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1122
 		// But can't reproduce, just ignore this case
-		/* c8 ignore next 3 */
+		/* node:coverage ignore next 3 */
 		if (!variable) {
 			return;
 		}
@@ -267,9 +248,9 @@ const create = context => {
 		}
 
 		const assignedVariable = assignedName === parameterName ? variable : findVariable(scope, assignedName);
-		const hasParameterNameCollision = assignedVariable?.defs.some(definition =>
+		const hasParameterNameCollision = assignedVariable.defs.some(definition =>
 			definition.type === 'Parameter'
-			&& definition.name !== parameter) ?? false;
+			&& definition.name !== parameter);
 
 		if (
 			hasSideEffects(sourceCode, currentFunction, node)

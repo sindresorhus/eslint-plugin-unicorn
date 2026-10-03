@@ -1,0 +1,444 @@
+exports[`prefer-short-arrow-method > invalid(1): const object = {alwaysMode() {return foo;}}; 1`] = `
+
+Options:
+- 'always'
+
+Code:
+  1 | const object = {alwaysMode() {return foo;}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(1): const object = {alwaysMode() {return foo;}}; 2`] = `
+
+Message:
+> 1 | const object = {alwaysMode() {return foo;}};
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+Output:
+  1 | const object = {alwaysMode: () => foo};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(1): const object = {foo() {return bar;}}; 1`] = `
+
+  1 | const object = {foo() {return bar;}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(1): const object = {foo() {return bar;}}; 2`] = `
+
+Message:
+> 1 | const object = {foo() {return bar;}};
+    |                 ^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+Output:
+  1 | const object = {foo: () => bar};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(1): const object = {foo() {return foo;}}; 1`] = `
+
+Options:
+- 'consistent-as-needed'
+
+Code:
+  1 | const object = {foo() {return foo;}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(1): const object = {foo() {return foo;}}; 2`] = `
+
+Message:
+> 1 | const object = {foo() {return foo;}};
+    |                 ^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+Output:
+  1 | const object = {foo: () => foo};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(1): const object = {foo(bar: string): string {return bar;}}; 1`] = `
+
+  1 | const object = {foo(bar: string): string {return bar;}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(1): const object = {foo(bar: string): string {return bar;}}; 2`] = `
+
+Message:
+> 1 | const object = {foo(bar: string): string {return bar;}};
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+Output:
+  1 | const object = {foo: (bar: string): string => bar};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(1): const object = {tsMode(value: string): string {return value;}}; 1`] = `
+
+Options:
+- 'consistent-as-needed'
+
+Code:
+  1 | const object = {tsMode(value: string): string {return value;}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(1): const object = {tsMode(value: string): string {return value;}}; 2`] = `
+
+Message:
+> 1 | const object = {tsMode(value: string): string {return value;}};
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+Output:
+  1 | const object = {tsMode: (value: string): string => value};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(10): const object = {\"foo\"() {return bar;}}; 1`] = `
+
+  1 | const object = {"foo"() {return bar;}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(10): const object = {\"foo\"() {return bar;}}; 2`] = `
+
+Message:
+> 1 | const object = {"foo"() {return bar;}};
+    |                 ^^^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+Output:
+  1 | const object = {"foo": () => bar};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(11): const object = {foo() {/* comment */ return bar;}}; 1`] = `
+
+  1 | const object = {foo() {/* comment */ return bar;}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(11): const object = {foo() {/* comment */ return bar;}}; 2`] = `
+
+Message:
+> 1 | const object = {foo() {/* comment */ return bar;}};
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(2): const object = {async foo() {return bar;}}; 1`] = `
+
+  1 | const object = {async foo() {return bar;}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(2): const object = {async foo() {return bar;}}; 2`] = `
+
+Message:
+> 1 | const object = {async foo() {return bar;}};
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+Output:
+  1 | const object = {foo: async () => bar};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(2): const object = {foo() {return foo;}, bar() {return bar;}}; 1`] = `
+
+Options:
+- 'consistent-as-needed'
+
+Code:
+  1 | const object = {foo() {return foo;}, bar() {return bar;}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(2): const object = {foo() {return foo;}, bar() {return bar;}}; 2`] = `
+
+Message:
+> 1 | const object = {foo() {return foo;}, bar() {return bar;}};
+    |                 ^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+Output:
+  1 | const object = {foo: () => foo, bar() {return bar;}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(2): const object = {foo() {return foo;}, bar() {return bar;}}; 3`] = `
+
+Message:
+> 1 | const object = {foo() {return foo;}, bar() {return bar;}};
+    |                                      ^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+Output:
+  1 | const object = {foo() {return foo;}, bar: () => bar};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(2): const object = {foo(): (bar: string) => string {return bar;}}; 1`] = `
+
+  1 | const object = {foo(): (bar: string) => string {return bar;}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(2): const object = {foo(): (bar: string) => string {return bar;}}; 2`] = `
+
+Message:
+> 1 | const object = {foo(): (bar: string) => string {return bar;}};
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+Output:
+  1 | const object = {foo: (): (bar: string) => string => bar};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(3): const object = {foo(): Foo {return {} as Foo;}}; 1`] = `
+
+  1 | const object = {foo(): Foo {return {} as Foo;}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(3): const object = {foo(): Foo {return {} as Foo;}}; 2`] = `
+
+Message:
+> 1 | const object = {foo(): Foo {return {} as Foo;}};
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+Output:
+  1 | const object = {foo: (): Foo => ({} as Foo)};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(3): const object = {foo(bar) {return bar;}}; 1`] = `
+
+  1 | const object = {foo(bar) {return bar;}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(3): const object = {foo(bar) {return bar;}}; 2`] = `
+
+Message:
+> 1 | const object = {foo(bar) {return bar;}};
+    |                 ^^^^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+Output:
+  1 | const object = {foo: (bar) => bar};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(3): const object = {get baz() {return baz;}, foo() {return foo;}, bar: bar, qux: () => qux}; 1`] = `
+
+Options:
+- 'consistent-as-needed'
+
+Code:
+  1 | const object = {get baz() {return baz;}, foo() {return foo;}, bar: bar, qux: () => qux};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(3): const object = {get baz() {return baz;}, foo() {return foo;}, bar: bar, qux: () => qux}; 2`] = `
+
+Message:
+> 1 | const object = {get baz() {return baz;}, foo() {return foo;}, bar: bar, qux: () => qux};
+    |                                          ^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+Output:
+  1 | const object = {get baz() {return baz;}, foo: () => foo, bar: bar, qux: () => qux};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(4): const object = {bar: function () {return bar;}, foo() {return foo;}}; 1`] = `
+
+Options:
+- 'consistent-as-needed'
+
+Code:
+  1 | const object = {bar: function () {return bar;}, foo() {return foo;}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(4): const object = {bar: function () {return bar;}, foo() {return foo;}}; 2`] = `
+
+Message:
+> 1 | const object = {bar: function () {return bar;}, foo() {return foo;}};
+    |                                                 ^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+Output:
+  1 | const object = {bar: function () {return bar;}, foo: () => foo};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(4): const object = {foo(): Foo {return {} satisfies Foo;}}; 1`] = `
+
+  1 | const object = {foo(): Foo {return {} satisfies Foo;}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(4): const object = {foo(): Foo {return {} satisfies Foo;}}; 2`] = `
+
+Message:
+> 1 | const object = {foo(): Foo {return {} satisfies Foo;}};
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+Output:
+  1 | const object = {foo: (): Foo => ({} satisfies Foo)};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(4): const object = {foo(thisValue) {return thisValue;}}; 1`] = `
+
+  1 | const object = {foo(thisValue) {return thisValue;}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(4): const object = {foo(thisValue) {return thisValue;}}; 2`] = `
+
+Message:
+> 1 | const object = {foo(thisValue) {return thisValue;}};
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+Output:
+  1 | const object = {foo: (thisValue) => thisValue};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(5): const object = {...bar, foo() {return foo;}}; 1`] = `
+
+Options:
+- 'consistent-as-needed'
+
+Code:
+  1 | const object = {...bar, foo() {return foo;}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(5): const object = {...bar, foo() {return foo;}}; 2`] = `
+
+Message:
+> 1 | const object = {...bar, foo() {return foo;}};
+    |                         ^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+Output:
+  1 | const object = {...bar, foo: () => foo};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(5): const object = {foo({bar}, baz = 1, ...rest) {return bar + baz + rest.length;}}; 1`] = `
+
+  1 | const object = {foo({bar}, baz = 1, ...rest) {return bar + baz + rest.length;}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(5): const object = {foo({bar}, baz = 1, ...rest) {return bar + baz + rest.length;}}; 2`] = `
+
+Message:
+> 1 | const object = {foo({bar}, baz = 1, ...rest) {return bar + baz + rest.length;}};
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+Output:
+  1 | const object = {foo: ({bar}, baz = 1, ...rest) => bar + baz + rest.length};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(5): const object = {foo<T>(bar: T): T {return bar;}}; 1`] = `
+
+  1 | const object = {foo<T>(bar: T): T {return bar;}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(5): const object = {foo<T>(bar: T): T {return bar;}}; 2`] = `
+
+Message:
+> 1 | const object = {foo<T>(bar: T): T {return bar;}};
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(6): const object = {foo() {return foo;}, nested: {bar() {return this.bar;}}}; 1`] = `
+
+Options:
+- 'consistent-as-needed'
+
+Code:
+  1 | const object = {foo() {return foo;}, nested: {bar() {return this.bar;}}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(6): const object = {foo() {return foo;}, nested: {bar() {return this.bar;}}}; 2`] = `
+
+Message:
+> 1 | const object = {foo() {return foo;}, nested: {bar() {return this.bar;}}};
+    |                 ^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+Output:
+  1 | const object = {foo: () => foo, nested: {bar() {return this.bar;}}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(6): const object = {foo() {return {};}}; 1`] = `
+
+  1 | const object = {foo() {return {};}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(6): const object = {foo() {return {};}}; 2`] = `
+
+Message:
+> 1 | const object = {foo() {return {};}};
+    |                 ^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+Output:
+  1 | const object = {foo: () => ({})};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(7): const object = {foo() {return (foo, bar);}}; 1`] = `
+
+  1 | const object = {foo() {return (foo, bar);}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(7): const object = {foo() {return (foo, bar);}}; 2`] = `
+
+Message:
+> 1 | const object = {foo() {return (foo, bar);}};
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+Output:
+  1 | const object = {foo: () => (foo, bar)};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(8): const object = {[\"foo\"]() {return bar;}}; 1`] = `
+
+  1 | const object = {["foo"]() {return bar;}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(8): const object = {[\"foo\"]() {return bar;}}; 2`] = `
+
+Message:
+> 1 | const object = {["foo"]() {return bar;}};
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+Output:
+  1 | const object = {["foo"]: () => bar};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(9): const object = {[\"__proto__\"]() {return bar;}}; 1`] = `
+
+  1 | const object = {["__proto__"]() {return bar;}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(9): const object = {[\"__proto__\"]() {return bar;}}; 2`] = `
+
+Message:
+> 1 | const object = {["__proto__"]() {return bar;}};
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+Output:
+  1 | const object = {["__proto__"]: () => bar};
+
+`;

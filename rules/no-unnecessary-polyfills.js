@@ -122,10 +122,6 @@ for (const polyfill of polyfills) {
 	}
 
 	for (const token of polyfill.tokens) {
-		if (!token) {
-			continue;
-		}
-
 		if (polyfillsByToken.has(token)) {
 			polyfillsByToken.get(token).push(polyfill);
 		} else {

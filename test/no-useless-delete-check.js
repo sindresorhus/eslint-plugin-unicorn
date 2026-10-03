@@ -243,6 +243,8 @@ test.snapshot({
 			code: 'type CustomMap = Map<string, number> & {delete(key: string): boolean}; function f(map: CustomMap, key: string) { if (map.has(key)) { map.delete(key); } }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'if (key in object.nested) { delete object.nested[key]; }',
+		'if (this.map.has(key)) { this.map.delete(key); }',
 	],
 	invalid: [
 		'const object = {}; if (key in object) { delete object[key]; }',

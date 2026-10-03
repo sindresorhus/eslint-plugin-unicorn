@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
@@ -761,6 +761,10 @@ ruleTest.snapshot({
 			Object.assign(object, bar)
 			;[0].map()
 		`,
+		outdent`
+			const object = {foo: 1};
+			Object.assign(object, {bar: bar()});
+		`,
 	],
 });
 
@@ -1251,14 +1255,14 @@ test('respects `checkConditionals` across autofix passes', t => {
 	});
 
 	const defaultResult = getFixResult([]);
-	t.true(defaultResult.fixed);
-	t.is(defaultResult.output.trimEnd(), 'const array = [ 1];  if (enabled) { array.push(2); }');
-	t.deepEqual(defaultResult.messages, []);
+	t.assert.strictEqual(defaultResult.fixed, true);
+	t.assert.strictEqual(defaultResult.output.trimEnd(), 'const array = [ 1];  if (enabled) { array.push(2); }');
+	t.assert.deepStrictEqual(defaultResult.messages, []);
 
 	const checkConditionalsResult = getFixResult(checkConditionalsOptions);
-	t.true(checkConditionalsResult.fixed);
-	t.is(checkConditionalsResult.output.trimEnd(), 'const array = [ 1, ...((enabled) ? [2] : [])];');
-	t.deepEqual(checkConditionalsResult.messages, []);
+	t.assert.strictEqual(checkConditionalsResult.fixed, true);
+	t.assert.strictEqual(checkConditionalsResult.output.trimEnd(), 'const array = [ 1, ...((enabled) ? [2] : [])];');
+	t.assert.deepStrictEqual(checkConditionalsResult.messages, []);
 });
 
 ruleTest({
@@ -1349,8 +1353,8 @@ test('`__proto__` is not offered as a suggestion when the object literal already
 		rules: {'unicorn/no-immediate-mutation': 'error'},
 	}).find(problem => !problem.fatal);
 
-	t.truthy(problem);
-	t.is(problem.suggestions, undefined);
+	t.assert.ok(problem);
+	t.assert.strictEqual(problem.suggestions, undefined);
 });
 // The mutation call is merged into the literal, a comment inside it would be lost
 ruleTest({
@@ -1460,8 +1464,8 @@ test('A prepend with side effects in the existing elements is only suggested', t
 	]) {
 		const problem = linter.verify(code, config).find(problem => !problem.fatal);
 
-		t.truthy(problem, `should report \`${code}\``);
-		t.is(Boolean(problem.fix) || Boolean(problem.suggestions?.length), hasEdit, `edit availability for \`${code}\``);
+		t.assert.ok(problem, `should report \`${code}\``);
+		t.assert.strictEqual(Boolean(problem.fix) || Boolean(problem.suggestions?.length), hasEdit, `edit availability for \`${code}\``);
 	}
 });
 

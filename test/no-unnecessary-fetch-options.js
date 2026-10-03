@@ -90,6 +90,9 @@ test.snapshot({
 		typeAware('declare const request: Request; fetch(request, {headers: {}});'),
 		typeAware('declare const request: Request; new Request(request, {headers: []});'),
 		typeAware('declare const input: Request | string; fetch(input, {method: "GET"});'),
+		// The shared base type is only visited once, so the second one is unknown
+		typeAware('interface Base {} interface A extends Base {} interface B extends Base {} declare const input: A | B; fetch(input, {method: "GET"});'),
+		typeAware('declare const input: string & {brand: true}; fetch(input, {method: "GET"});'),
 	],
 	invalid: [
 		'fetch(url, {})',
@@ -179,6 +182,43 @@ test.snapshot({
 		typeAware('declare const url: string; new Request(url, {method: "GET"});'),
 		typeAware('declare const url: URL; fetch(url, {headers: {}});'),
 		typeAware('declare const url: string | URL; fetch(url, {method: "GET"});'),
+		typeAware('function foo<T extends string>(url: T) { fetch(url, {method: "GET"}); }'),
+		typeAware('declare const url: "/api"; fetch(url, {method: "GET"});'),
+		// Not fixable, `later` is read before it is declared
+		'fetch("/", {body: void [, later]}); const later = 1;',
+		outdent`
+			fetch('/', {
+				method:
+					'GET',
+				body,
+			});
+		`,
+		outdent`
+			fetch('/', {
+				method: 'GET'
+				, body,
+			});
+		`,
+		outdent`
+			fetch('/', {
+				method: 'GET', body,
+			});
+		`,
+		outdent`
+			fetch('/', {
+				body,
+				method: 'GET'
+			});
+		`,
+		outdent`
+			fetch('/', {body,
+				method: 'GET'});
+		`,
+		'fetch("/", {body, method: "GET",})',
+		outdent`
+			fetch('/', {body, method: 'GET'
+			});
+		`,
 	],
 });
 
@@ -259,5 +299,9 @@ test.snapshot({
 		'new Request("/", ({} as const))',
 		'fetch("/", ({method: "GET"} as const))',
 		'fetch("/", ({method: "GET"} satisfies RequestInit))',
+		'fetch("/", {body: void {key: 1}})',
+		// Not fixable, `signal` is read before it is declared
+		'fetch("/", {signal: signal<string>}); const signal = undefined;',
+		'const signal = undefined; fetch("/", {signal: signal<string>});',
 	],
 });

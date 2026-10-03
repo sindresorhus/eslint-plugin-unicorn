@@ -1,0 +1,620 @@
+exports[`prefer-identifier-import-export-specifiers > invalid(1): import {\"foo\" as foo} from \"foo\"; 1`] = `
+
+  1 | import {"foo" as foo} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(1): import {\"foo\" as foo} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import {"foo" as foo} from "foo";
+    |         ^^^^^ Prefer identifier \`foo\` over string literal \`"foo"\`.
+
+Output:
+  1 | import {foo as foo} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(10): const foo = 1;\nexport {foo as\"bar\"}; 1`] = `
+
+  1 | const foo = 1;
+  2 | export {foo as"bar"};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(10): const foo = 1;\nexport {foo as\"bar\"}; 2`] = `
+
+Message:
+  1 | const foo = 1;
+> 2 | export {foo as"bar"};
+    |               ^^^^^ Prefer identifier \`bar\` over string literal \`"bar"\`.
+
+Output:
+  1 | const foo = 1;
+  2 | export {foo as bar};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(11): const foo = 1;\nexport {foo as \"\\u0062ar\"}; 1`] = `
+
+  1 | const foo = 1;
+  2 | export {foo as "\\u0062ar"};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(11): const foo = 1;\nexport {foo as \"\\u0062ar\"}; 2`] = `
+
+Message:
+  1 | const foo = 1;
+> 2 | export {foo as "\\u0062ar"};
+    |                ^^^^^^^^^^ Prefer identifier \`bar\` over string literal \`"\\u0062ar"\`.
+
+Output:
+  1 | const foo = 1;
+  2 | export {foo as bar};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(12): export {\"foo\" as bar} from \"foo\"; 1`] = `
+
+  1 | export {"foo" as bar} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(12): export {\"foo\" as bar} from \"foo\"; 2`] = `
+
+Message:
+> 1 | export {"foo" as bar} from "foo";
+    |         ^^^^^ Prefer identifier \`foo\` over string literal \`"foo"\`.
+
+Output:
+  1 | export {foo as bar} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(13): export {\"default\" as defaultExport} from \"foo\"; 1`] = `
+
+  1 | export {"default" as defaultExport} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(13): export {\"default\" as defaultExport} from \"foo\"; 2`] = `
+
+Message:
+> 1 | export {"default" as defaultExport} from "foo";
+    |         ^^^^^^^^^ Prefer identifier \`default\` over string literal \`"default"\`.
+
+Output:
+  1 | export {default as defaultExport} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(14): export {\"foo\" as bar, \"baz\" as qux} from \"foo\"; 1`] = `
+
+  1 | export {"foo" as bar, "baz" as qux} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(14): export {\"foo\" as bar, \"baz\" as qux} from \"foo\"; 2`] = `
+
+Message:
+> 1 | export {"foo" as bar, "baz" as qux} from "foo";
+    |         ^^^^^ Prefer identifier \`foo\` over string literal \`"foo"\`.
+
+Output:
+  1 | export {foo as bar, "baz" as qux} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(14): export {\"foo\" as bar, \"baz\" as qux} from \"foo\"; 3`] = `
+
+Message:
+> 1 | export {"foo" as bar, "baz" as qux} from "foo";
+    |                       ^^^^^ Prefer identifier \`baz\` over string literal \`"baz"\`.
+
+Output:
+  1 | export {"foo" as bar, baz as qux} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(15): export {\"foo\"} from \"foo\"; 1`] = `
+
+  1 | export {"foo"} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(15): export {\"foo\"} from \"foo\"; 2`] = `
+
+Message:
+> 1 | export {"foo"} from "foo";
+    |         ^^^^^ Prefer identifier \`foo\` over string literal \`"foo"\`.
+
+Output:
+  1 | export {foo} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(16): export {\"foo\" as \"bar\"} from \"foo\"; 1`] = `
+
+  1 | export {"foo" as "bar"} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(16): export {\"foo\" as \"bar\"} from \"foo\"; 2`] = `
+
+Message:
+> 1 | export {"foo" as "bar"} from "foo";
+    |         ^^^^^ Prefer identifier \`foo\` over string literal \`"foo"\`.
+
+Output:
+  1 | export {foo as "bar"} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(16): export {\"foo\" as \"bar\"} from \"foo\"; 3`] = `
+
+Message:
+> 1 | export {"foo" as "bar"} from "foo";
+    |                  ^^^^^ Prefer identifier \`bar\` over string literal \`"bar"\`.
+
+Output:
+  1 | export {"foo" as bar} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(17): export {\"foo\"as bar} from \"foo\"; 1`] = `
+
+  1 | export {"foo"as bar} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(17): export {\"foo\"as bar} from \"foo\"; 2`] = `
+
+Message:
+> 1 | export {"foo"as bar} from "foo";
+    |         ^^^^^ Prefer identifier \`foo\` over string literal \`"foo"\`.
+
+Output:
+  1 | export {foo as bar} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(18): export {\"foo\"as\"bar\"} from \"foo\"; 1`] = `
+
+  1 | export {"foo"as"bar"} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(18): export {\"foo\"as\"bar\"} from \"foo\"; 2`] = `
+
+Message:
+> 1 | export {"foo"as"bar"} from "foo";
+    |         ^^^^^ Prefer identifier \`foo\` over string literal \`"foo"\`.
+
+Output:
+  1 | export {foo as"bar"} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(18): export {\"foo\"as\"bar\"} from \"foo\"; 3`] = `
+
+Message:
+> 1 | export {"foo"as"bar"} from "foo";
+    |                ^^^^^ Prefer identifier \`bar\` over string literal \`"bar"\`.
+
+Output:
+  1 | export {"foo"as bar} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(19): import type {\"foo\" as Foo} from \"foo\"; 1`] = `
+
+  1 | import type {"foo" as Foo} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(19): import type {\"foo\" as Foo} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import type {"foo" as Foo} from "foo";
+    |              ^^^^^ Prefer identifier \`foo\` over string literal \`"foo"\`.
+
+Output:
+  1 | import type {foo as Foo} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(2): import {\"default\" as defaultExport} from \"foo\"; 1`] = `
+
+  1 | import {"default" as defaultExport} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(2): import {\"default\" as defaultExport} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import {"default" as defaultExport} from "foo";
+    |         ^^^^^^^^^ Prefer identifier \`default\` over string literal \`"default"\`.
+
+Output:
+  1 | import {default as defaultExport} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(20): export type {\"foo\" as Foo} from \"foo\"; 1`] = `
+
+  1 | export type {"foo" as Foo} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(20): export type {\"foo\" as Foo} from \"foo\"; 2`] = `
+
+Message:
+> 1 | export type {"foo" as Foo} from "foo";
+    |              ^^^^^ Prefer identifier \`foo\` over string literal \`"foo"\`.
+
+Output:
+  1 | export type {foo as Foo} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(21): export * as \"foo\" from \"foo\"; 1`] = `
+
+  1 | export * as "foo" from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(21): export * as \"foo\" from \"foo\"; 2`] = `
+
+Message:
+> 1 | export * as "foo" from "foo";
+    |             ^^^^^ Prefer identifier \`foo\` over string literal \`"foo"\`.
+
+Output:
+  1 | export * as foo from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(22): export * as\"foo\" from \"foo\"; 1`] = `
+
+  1 | export * as"foo" from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(22): export * as\"foo\" from \"foo\"; 2`] = `
+
+Message:
+> 1 | export * as"foo" from "foo";
+    |            ^^^^^ Prefer identifier \`foo\` over string literal \`"foo"\`.
+
+Output:
+  1 | export * as foo from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(23): import foo from \"foo\" with {\"type\": \"json\"}; 1`] = `
+
+  1 | import foo from "foo" with {"type": "json"};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(23): import foo from \"foo\" with {\"type\": \"json\"}; 2`] = `
+
+Message:
+> 1 | import foo from "foo" with {"type": "json"};
+    |                             ^^^^^^ Prefer identifier \`type\` over string literal \`"type"\`.
+
+Output:
+  1 | import foo from "foo" with {type: "json"};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(24): export {foo} from \"foo\" with {\"type\": \"json\"}; 1`] = `
+
+  1 | export {foo} from "foo" with {"type": "json"};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(24): export {foo} from \"foo\" with {\"type\": \"json\"}; 2`] = `
+
+Message:
+> 1 | export {foo} from "foo" with {"type": "json"};
+    |                               ^^^^^^ Prefer identifier \`type\` over string literal \`"type"\`.
+
+Output:
+  1 | export {foo} from "foo" with {type: "json"};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(25): import foo from \"foo\" with{\"type\":\"json\"}; 1`] = `
+
+  1 | import foo from "foo" with{"type":"json"};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(25): import foo from \"foo\" with{\"type\":\"json\"}; 2`] = `
+
+Message:
+> 1 | import foo from "foo" with{"type":"json"};
+    |                            ^^^^^^ Prefer identifier \`type\` over string literal \`"type"\`.
+
+Output:
+  1 | import foo from "foo" with{type:"json"};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(26): import foo from \"foo\" with {\"type\": \"json\", \"other\": \"x\"}; 1`] = `
+
+  1 | import foo from "foo" with {"type": "json", "other": "x"};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(26): import foo from \"foo\" with {\"type\": \"json\", \"other\": \"x\"}; 2`] = `
+
+Message:
+> 1 | import foo from "foo" with {"type": "json", "other": "x"};
+    |                             ^^^^^^ Prefer identifier \`type\` over string literal \`"type"\`.
+
+Output:
+  1 | import foo from "foo" with {type: "json", "other": "x"};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(26): import foo from \"foo\" with {\"type\": \"json\", \"other\": \"x\"}; 3`] = `
+
+Message:
+> 1 | import foo from "foo" with {"type": "json", "other": "x"};
+    |                                             ^^^^^^^ Prefer identifier \`other\` over string literal \`"other"\`.
+
+Output:
+  1 | import foo from "foo" with {"type": "json", other: "x"};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(27): import foo from \"foo\" with {\"type\": \"json\"}; 1`] = `
+
+  1 | import foo from "foo" with {"type": "json"};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(27): import foo from \"foo\" with {\"type\": \"json\"}; 2`] = `
+
+Message:
+> 1 | import foo from "foo" with {"type": "json"};
+    |                             ^^^^^^ Prefer identifier \`type\` over string literal \`"type"\`.
+
+Output:
+  1 | import foo from "foo" with {type: "json"};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(28): import {\"if\" as foo} from \"foo\"; 1`] = `
+
+  1 | import {"if" as foo} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(28): import {\"if\" as foo} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import {"if" as foo} from "foo";
+    |         ^^^^ Prefer identifier \`if\` over string literal \`"if"\`.
+
+Output:
+  1 | import {if as foo} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(29): import {\"yield\" as foo} from \"foo\"; 1`] = `
+
+  1 | import {"yield" as foo} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(29): import {\"yield\" as foo} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import {"yield" as foo} from "foo";
+    |         ^^^^^^^ Prefer identifier \`yield\` over string literal \`"yield"\`.
+
+Output:
+  1 | import {yield as foo} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(3): import {\"foo\" as foo, \"bar\" as bar} from \"foo\"; 1`] = `
+
+  1 | import {"foo" as foo, "bar" as bar} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(3): import {\"foo\" as foo, \"bar\" as bar} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import {"foo" as foo, "bar" as bar} from "foo";
+    |         ^^^^^ Prefer identifier \`foo\` over string literal \`"foo"\`.
+
+Output:
+  1 | import {foo as foo, "bar" as bar} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(3): import {\"foo\" as foo, \"bar\" as bar} from \"foo\"; 3`] = `
+
+Message:
+> 1 | import {"foo" as foo, "bar" as bar} from "foo";
+    |                       ^^^^^ Prefer identifier \`bar\` over string literal \`"bar"\`.
+
+Output:
+  1 | import {"foo" as foo, bar as bar} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(30): import foo from \"foo\" with {\"default\": \"json\"}; 1`] = `
+
+  1 | import foo from "foo" with {"default": "json"};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(30): import foo from \"foo\" with {\"default\": \"json\"}; 2`] = `
+
+Message:
+> 1 | import foo from "foo" with {"default": "json"};
+    |                             ^^^^^^^^^ Prefer identifier \`default\` over string literal \`"default"\`.
+
+Output:
+  1 | import foo from "foo" with {default: "json"};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(31): export {\"foo\" as \"foo\"} from \"foo\"; 1`] = `
+
+  1 | export {"foo" as "foo"} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(31): export {\"foo\" as \"foo\"} from \"foo\"; 2`] = `
+
+Message:
+> 1 | export {"foo" as "foo"} from "foo";
+    |         ^^^^^ Prefer identifier \`foo\` over string literal \`"foo"\`.
+
+Output:
+  1 | export {foo as "foo"} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(31): export {\"foo\" as \"foo\"} from \"foo\"; 3`] = `
+
+Message:
+> 1 | export {"foo" as "foo"} from "foo";
+    |                  ^^^^^ Prefer identifier \`foo\` over string literal \`"foo"\`.
+
+Output:
+  1 | export {"foo" as foo} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(4): import {\"foo\" as foo} from \"foo\" with {type: \"json\"}; 1`] = `
+
+  1 | import {"foo" as foo} from "foo" with {type: "json"};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(4): import {\"foo\" as foo} from \"foo\" with {type: \"json\"}; 2`] = `
+
+Message:
+> 1 | import {"foo" as foo} from "foo" with {type: "json"};
+    |         ^^^^^ Prefer identifier \`foo\` over string literal \`"foo"\`.
+
+Output:
+  1 | import {foo as foo} from "foo" with {type: "json"};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(5): import {\"foo\"as foo} from \"foo\"; 1`] = `
+
+  1 | import {"foo"as foo} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(5): import {\"foo\"as foo} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import {"foo"as foo} from "foo";
+    |         ^^^^^ Prefer identifier \`foo\` over string literal \`"foo"\`.
+
+Output:
+  1 | import {foo as foo} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(6): import {\"\\u0066oo\" as foo} from \"foo\"; 1`] = `
+
+  1 | import {"\\u0066oo" as foo} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(6): import {\"\\u0066oo\" as foo} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import {"\\u0066oo" as foo} from "foo";
+    |         ^^^^^^^^^^ Prefer identifier \`foo\` over string literal \`"\\u0066oo"\`.
+
+Output:
+  1 | import {foo as foo} from "foo";
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(7): const foo = 1;\nexport {foo as \"bar\"}; 1`] = `
+
+  1 | const foo = 1;
+  2 | export {foo as "bar"};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(7): const foo = 1;\nexport {foo as \"bar\"}; 2`] = `
+
+Message:
+  1 | const foo = 1;
+> 2 | export {foo as "bar"};
+    |                ^^^^^ Prefer identifier \`bar\` over string literal \`"bar"\`.
+
+Output:
+  1 | const foo = 1;
+  2 | export {foo as bar};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(8): const foo = 1;\nexport {foo as \"default\"}; 1`] = `
+
+  1 | const foo = 1;
+  2 | export {foo as "default"};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(8): const foo = 1;\nexport {foo as \"default\"}; 2`] = `
+
+Message:
+  1 | const foo = 1;
+> 2 | export {foo as "default"};
+    |                ^^^^^^^^^ Prefer identifier \`default\` over string literal \`"default"\`.
+
+Output:
+  1 | const foo = 1;
+  2 | export {foo as default};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(9): const foo = 1, baz = 2;\nexport {foo as \"bar\", baz as \"qux\"}; 1`] = `
+
+  1 | const foo = 1, baz = 2;
+  2 | export {foo as "bar", baz as "qux"};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(9): const foo = 1, baz = 2;\nexport {foo as \"bar\", baz as \"qux\"}; 2`] = `
+
+Message:
+  1 | const foo = 1, baz = 2;
+> 2 | export {foo as "bar", baz as "qux"};
+    |                ^^^^^ Prefer identifier \`bar\` over string literal \`"bar"\`.
+
+Output:
+  1 | const foo = 1, baz = 2;
+  2 | export {foo as bar, baz as "qux"};
+
+`;
+
+exports[`prefer-identifier-import-export-specifiers > invalid(9): const foo = 1, baz = 2;\nexport {foo as \"bar\", baz as \"qux\"}; 3`] = `
+
+Message:
+  1 | const foo = 1, baz = 2;
+> 2 | export {foo as "bar", baz as "qux"};
+    |                              ^^^^^ Prefer identifier \`qux\` over string literal \`"qux"\`.
+
+Output:
+  1 | const foo = 1, baz = 2;
+  2 | export {foo as "bar", baz as qux};
+
+`;

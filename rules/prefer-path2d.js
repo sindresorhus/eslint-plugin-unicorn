@@ -285,6 +285,8 @@ const getTypeFromTypeInformation = (node, context) => {
 			parserServices.program.getTypeChecker(),
 			parserServices.program,
 		);
+		// Defensive: `getTypeAtLocation()` throws for a node that the TypeScript program does not map, which the supported parsers do not produce.
+		/* node:coverage ignore next 3 */
 	} catch {
 		return unknown;
 	}
@@ -298,10 +300,6 @@ const isMutableVariableWithWrite = (definition, variable) =>
 	&& hasWriteAfterInitialization(variable);
 
 const getTypeFromVariable = (node, context, visitedVariables) => {
-	if (node.type !== 'Identifier') {
-		return unknown;
-	}
-
 	const scope = context.sourceCode.getScope(node);
 	const variable = findVariable(scope, node);
 
@@ -410,10 +408,6 @@ const getCanvasContextTypeFromSyntax = (node, context, visitedVariables) => {
 };
 
 function getCanvasContextType(node, context, visitedVariables = new Set()) {
-	if (!node) {
-		return unknown;
-	}
-
 	const typeFromTypeInformation = getTypeFromTypeInformation(node, context);
 	if (typeFromTypeInformation !== unknown) {
 		return typeFromTypeInformation;

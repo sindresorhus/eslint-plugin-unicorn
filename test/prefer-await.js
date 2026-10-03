@@ -228,6 +228,15 @@ test.snapshot({
 			code: '(promise as Promise<string>).then((value: string) => value);',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'(promise || fallback).then(value => transform(value));',
+		// No suggestion, `await super` is a syntax error
+		outdent`
+			class Foo extends Bar {
+				method() {
+					super.then(value => value);
+				}
+			}
+		`,
 	],
 });
 

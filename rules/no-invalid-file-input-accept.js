@@ -212,12 +212,15 @@ const getJsxAttributeStaticValue = (context, attribute) => {
 
 const getHtmlAttribute = (node, name) => node.attributes.find(attribute => attribute.type === 'Attribute' && attribute.key?.value?.toLowerCase() === name);
 
+// HTML only treats ASCII whitespace as attribute separators
+const isHtmlWhitespace = character => '\t\n\f\r '.includes(character);
+
 const isHtmlAttributeBoundary = character =>
 	character === '>'
-	|| character.trim() === '';
+	|| isHtmlWhitespace(character);
 
 const skipHtmlWhitespace = (source, index, end) => {
-	while (index < end && source[index].trim() === '') {
+	while (index < end && isHtmlWhitespace(source[index])) {
 		index++;
 	}
 
@@ -237,7 +240,7 @@ const readHtmlAttributeName = (source, index, end) => {
 
 	while (
 		index < end
-		&& source[index].trim() !== ''
+		&& !isHtmlWhitespace(source[index])
 		&& source[index] !== '='
 		&& source[index] !== '>'
 		&& !(source[index] === '/' && source[index + 1] === '>')

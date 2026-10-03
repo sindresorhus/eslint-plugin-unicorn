@@ -41,19 +41,8 @@ function checkReferences(scope, parentScopes, scopeManager) {
 			return false;
 		}
 
-		const identifierScope = scopeManager.acquire(identifier);
-
-		// If we have a scope, the earlier checks should have worked so ignore them here
-		/* c8 ignore next 3 */
-		if (identifierScope) {
-			return false;
-		}
-
+		// A `FunctionDeclaration` always has its own scope
 		const identifierParentScope = scopeManager.acquire(identifier.parent);
-		/* c8 ignore next 3 */
-		if (!identifierParentScope) {
-			return false;
-		}
 
 		// Ignore identifiers from our own scope
 		if (isSameScope(scope, identifierParentScope)) {

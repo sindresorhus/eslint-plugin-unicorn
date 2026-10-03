@@ -76,8 +76,10 @@ function parseDisposalStatement(statement) {
 }
 
 // `await using` is only legal inside an async function or at module top-level.
+// The walk always ends at the `Program` at the latest.
 function isInAsyncContext(node) {
-	for (let current = node.parent; current; current = current.parent) {
+	let current = node.parent;
+	while (true) {
 		if (isFunction(current)) {
 			return current.async === true;
 		}
@@ -90,9 +92,9 @@ function isInAsyncContext(node) {
 		if (current.type === 'Program') {
 			return current.sourceType === 'module';
 		}
-	}
 
-	return false;
+		current = current.parent;
+	}
 }
 
 // With type information, confirm the resources actually implement `Symbol.dispose`/`Symbol.asyncDispose`.
@@ -115,6 +117,8 @@ function areAllResourcesDisposable(resources, parserServices) {
 				return name.startsWith('__@dispose') || (isAwaited && name.startsWith('__@asyncDispose'));
 			});
 		});
+		// Defensive: no known input crashes the TypeScript version this is tested with.
+		/* node:coverage ignore next 3 */
 	} catch {
 		return false;
 	}
@@ -248,11 +252,8 @@ function hasShadowingConflict(tryStatement, resources, sourceCode) {
 		return false;
 	}
 
+	// A block statement always has its own scope, since `const`/`let` declarations need ES2015
 	const blockScope = sourceCode.getScope(tryStatement.block);
-	if (blockScope.block !== tryStatement.block) {
-		return false;
-	}
-
 	const resourceNames = new Set(resources.map(({resourceName}) => resourceName));
 	return blockScope.variables.some(({name}) => resourceNames.has(name));
 }
@@ -325,7 +326,7 @@ function * fixTryStatement(fixer, tryStatement, resources, context) {
 
 	yield fixer.replaceTextRange(
 		[replaceStart, tryStatementEnd],
-		body ? `${linebreak}${body}${linebreak}${blockIndent}}` : `${linebreak}${blockIndent}}`,
+		body.trim() ? `${linebreak}${body}${linebreak}${blockIndent}}` : `${linebreak}${blockIndent}}`,
 	);
 }
 

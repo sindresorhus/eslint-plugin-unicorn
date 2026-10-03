@@ -133,5 +133,17 @@ test({
 			output: '\'xy\';',
 			errors: 1,
 		},
+		// Only an expression statement can be a directive
+		{
+			code: 'const mode = \'use \' + \'strict\';',
+			output: 'const mode = \'use strict\';',
+			errors: 1,
+		},
+		// Only a function body or the program has a prologue
+		{
+			code: 'if (condition) {\n\t\'use \' + \'strict\';\n}',
+			output: 'if (condition) {\n\t\'use strict\';\n}',
+			errors: 1,
+		},
 	],
 });

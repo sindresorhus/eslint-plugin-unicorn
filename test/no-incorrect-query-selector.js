@@ -135,6 +135,7 @@ test.snapshot({
 		'const elements = document.querySelectorAll(".item"); elements === null;',
 		'const elements = document.querySelectorAll(".item"); elements !== undefined;',
 		'const element = document.querySelector(".item"); element === undefined;',
+		'for (const key in document.querySelectorAll("form")[0]) {}',
 	],
 });
 

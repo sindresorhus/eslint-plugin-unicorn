@@ -1,0 +1,149 @@
+exports[`max-nested-calls > invalid(1): foo(bar(baz(qux()))); 1`] = `
+
+  1 | foo(bar(baz(qux())));
+
+`;
+
+exports[`max-nested-calls > invalid(1): foo(bar(baz(qux()))); 2`] = `
+
+Message:
+> 1 | foo(bar(baz(qux())));
+    |             ^^^^^ Call is nested too deeply. Maximum allowed is 3.
+
+`;
+
+exports[`max-nested-calls > invalid(10): mergeReports(await pMap(\n\tawait mergeWithFileConfigs(uniq(paths), inputOptions, configFiles),\n\tasync ({files, options, prettierOptions}) => runEslint(files, buildConfig(options, prettierOptions), {isQuiet: options.quiet}),\n)); 1`] = `
+
+  1 | mergeReports(await pMap(
+  2 | 	await mergeWithFileConfigs(uniq(paths), inputOptions, configFiles),
+  3 | 	async ({files, options, prettierOptions}) => runEslint(files, buildConfig(options, prettierOptions), {isQuiet: options.quiet}),
+  4 | ));
+
+`;
+
+exports[`max-nested-calls > invalid(10): mergeReports(await pMap(\n\tawait mergeWithFileConfigs(uniq(paths), inputOptions, configFiles),\n\tasync ({files, options, prettierOptions}) => runEslint(files, buildConfig(options, prettierOptions), {isQuiet: options.quiet}),\n)); 2`] = `
+
+Message:
+  1 | mergeReports(await pMap(
+> 2 | 	await mergeWithFileConfigs(uniq(paths), inputOptions, configFiles),
+    | 	                           ^^^^^^^^^^^ Call is nested too deeply. Maximum allowed is 3.
+  3 | 	async ({files, options, prettierOptions}) => runEslint(files, buildConfig(options, prettierOptions), {isQuiet: options.quiet}),
+  4 | ));
+
+`;
+
+exports[`max-nested-calls > invalid(2): foo(bar(baz())); 1`] = `
+
+Options:
+- max: 2
+
+Code:
+  1 | foo(bar(baz()));
+
+`;
+
+exports[`max-nested-calls > invalid(2): foo(bar(baz())); 2`] = `
+
+Message:
+> 1 | foo(bar(baz()));
+    |         ^^^^^ Call is nested too deeply. Maximum allowed is 2.
+
+`;
+
+exports[`max-nested-calls > invalid(3): new Foo(new Bar(new Baz(new Qux()))); 1`] = `
+
+  1 | new Foo(new Bar(new Baz(new Qux())));
+
+`;
+
+exports[`max-nested-calls > invalid(3): new Foo(new Bar(new Baz(new Qux()))); 2`] = `
+
+Message:
+> 1 | new Foo(new Bar(new Baz(new Qux())));
+    |                         ^^^^^^^^^ Call is nested too deeply. Maximum allowed is 3.
+
+`;
+
+exports[`max-nested-calls > invalid(4): await foo(await bar(await baz(await qux()))); 1`] = `
+
+  1 | await foo(await bar(await baz(await qux())));
+
+`;
+
+exports[`max-nested-calls > invalid(4): await foo(await bar(await baz(await qux()))); 2`] = `
+
+Message:
+> 1 | await foo(await bar(await baz(await qux())));
+    |                                     ^^^^^ Call is nested too deeply. Maximum allowed is 3.
+
+`;
+
+exports[`max-nested-calls > invalid(5): foo?.(bar?.(baz?.(qux?.()))); 1`] = `
+
+  1 | foo?.(bar?.(baz?.(qux?.())));
+
+`;
+
+exports[`max-nested-calls > invalid(5): foo?.(bar?.(baz?.(qux?.()))); 2`] = `
+
+Message:
+> 1 | foo?.(bar?.(baz?.(qux?.())));
+    |                   ^^^^^^^ Call is nested too deeply. Maximum allowed is 3.
+
+`;
+
+exports[`max-nested-calls > invalid(6): foo(...bar(baz(qux()))); 1`] = `
+
+  1 | foo(...bar(baz(qux())));
+
+`;
+
+exports[`max-nested-calls > invalid(6): foo(...bar(baz(qux()))); 2`] = `
+
+Message:
+> 1 | foo(...bar(baz(qux())));
+    |                ^^^^^ Call is nested too deeply. Maximum allowed is 3.
+
+`;
+
+exports[`max-nested-calls > invalid(7): foo(condition ? bar(baz(qux())) : zed()); 1`] = `
+
+  1 | foo(condition ? bar(baz(qux())) : zed());
+
+`;
+
+exports[`max-nested-calls > invalid(7): foo(condition ? bar(baz(qux())) : zed()); 2`] = `
+
+Message:
+> 1 | foo(condition ? bar(baz(qux())) : zed());
+    |                         ^^^^^ Call is nested too deeply. Maximum allowed is 3.
+
+`;
+
+exports[`max-nested-calls > invalid(8): foo(class {field = bar(baz(qux(zed())));}); 1`] = `
+
+  1 | foo(class {field = bar(baz(qux(zed())));});
+
+`;
+
+exports[`max-nested-calls > invalid(8): foo(class {field = bar(baz(qux(zed())));}); 2`] = `
+
+Message:
+> 1 | foo(class {field = bar(baz(qux(zed())));});
+    |                                ^^^^^ Call is nested too deeply. Maximum allowed is 3.
+
+`;
+
+exports[`max-nested-calls > invalid(9): <Component value={foo(bar(baz(qux())))} />; 1`] = `
+
+  1 | <Component value={foo(bar(baz(qux())))} />;
+
+`;
+
+exports[`max-nested-calls > invalid(9): <Component value={foo(bar(baz(qux())))} />; 2`] = `
+
+Message:
+> 1 | <Component value={foo(bar(baz(qux())))} />;
+    |                               ^^^^^ Call is nested too deeply. Maximum allowed is 3.
+
+`;

@@ -1,0 +1,405 @@
+exports[`no-confusing-array-with > invalid(1): array.with(-1 as const, value) 1`] = `
+
+  1 | array.with(-1 as const, value)
+
+`;
+
+exports[`no-confusing-array-with > invalid(1): array.with(-1 as const, value) 2`] = `
+
+Message:
+> 1 | array.with(-1 as const, value)
+    |       ^^^^ Avoid using a negative index with \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(1): array.with(-1, value) 1`] = `
+
+  1 | array.with(-1, value)
+
+`;
+
+exports[`no-confusing-array-with > invalid(1): array.with(-1, value) 2`] = `
+
+Message:
+> 1 | array.with(-1, value)
+    |       ^^^^ Avoid using a negative index with \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(10): (array satisfies number[]).with(array.length, value) 1`] = `
+
+  1 | (array satisfies number[]).with(array.length, value)
+
+`;
+
+exports[`no-confusing-array-with > invalid(10): (array satisfies number[]).with(array.length, value) 2`] = `
+
+Message:
+> 1 | (array satisfies number[]).with(array.length, value)
+    |                            ^^^^ Avoid using \`.length\` as the index in \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(10): array.with(array.length) 1`] = `
+
+  1 | array.with(array.length)
+
+`;
+
+exports[`no-confusing-array-with > invalid(10): array.with(array.length) 2`] = `
+
+Message:
+> 1 | array.with(array.length)
+    |       ^^^^ Avoid using \`.length\` as the index in \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(11): array.with(array.length, value, extra) 1`] = `
+
+  1 | array.with(array.length, value, extra)
+
+`;
+
+exports[`no-confusing-array-with > invalid(11): array.with(array.length, value, extra) 2`] = `
+
+Message:
+> 1 | array.with(array.length, value, extra)
+    |       ^^^^ Avoid using \`.length\` as the index in \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(11): object.items.with((object satisfies {items: unknown[]}).items.length, value) 1`] = `
+
+  1 | object.items.with((object satisfies {items: unknown[]}).items.length, value)
+
+`;
+
+exports[`no-confusing-array-with > invalid(11): object.items.with((object satisfies {items: unknown[]}).items.length, value) 2`] = `
+
+Message:
+> 1 | object.items.with((object satisfies {items: unknown[]}).items.length, value)
+    |              ^^^^ Avoid using \`.length\` as the index in \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(12): (object satisfies {items: unknown[]}).items.with(object.items.length, value) 1`] = `
+
+  1 | (object satisfies {items: unknown[]}).items.with(object.items.length, value)
+
+`;
+
+exports[`no-confusing-array-with > invalid(12): (object satisfies {items: unknown[]}).items.with(object.items.length, value) 2`] = `
+
+Message:
+> 1 | (object satisfies {items: unknown[]}).items.with(object.items.length, value)
+    |                                             ^^^^ Avoid using \`.length\` as the index in \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(12): object.items.with(object.items.length, value) 1`] = `
+
+  1 | object.items.with(object.items.length, value)
+
+`;
+
+exports[`no-confusing-array-with > invalid(12): object.items.with(object.items.length, value) 2`] = `
+
+Message:
+> 1 | object.items.with(object.items.length, value)
+    |              ^^^^ Avoid using \`.length\` as the index in \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(13): function f(foo: number[]) { foo.with(-1, value); } 1`] = `
+
+  1 | function f(foo: number[]) { foo.with(-1, value); }
+
+`;
+
+exports[`no-confusing-array-with > invalid(13): function f(foo: number[]) { foo.with(-1, value); } 2`] = `
+
+Message:
+> 1 | function f(foo: number[]) { foo.with(-1, value); }
+    |                                 ^^^^ Avoid using a negative index with \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(14): function f(foo: Uint8Array) { foo.with(-1, value); } 1`] = `
+
+  1 | function f(foo: Uint8Array) { foo.with(-1, value); }
+
+`;
+
+exports[`no-confusing-array-with > invalid(14): function f(foo: Uint8Array) { foo.with(-1, value); } 2`] = `
+
+Message:
+> 1 | function f(foo: Uint8Array) { foo.with(-1, value); }
+    |                                   ^^^^ Avoid using a negative index with \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(15): const foo = new Uint8Array(); foo.with(-1, value); 1`] = `
+
+  1 | const foo = new Uint8Array(); foo.with(-1, value);
+
+`;
+
+exports[`no-confusing-array-with > invalid(15): const foo = new Uint8Array(); foo.with(-1, value); 2`] = `
+
+Message:
+> 1 | const foo = new Uint8Array(); foo.with(-1, value);
+    |                                   ^^^^ Avoid using a negative index with \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(16): function f(foo: Uint8Array | number[]) { foo.with(-1, value); } 1`] = `
+
+  1 | function f(foo: Uint8Array | number[]) { foo.with(-1, value); }
+
+`;
+
+exports[`no-confusing-array-with > invalid(16): function f(foo: Uint8Array | number[]) { foo.with(-1, value); } 2`] = `
+
+Message:
+> 1 | function f(foo: Uint8Array | number[]) { foo.with(-1, value); }
+    |                                              ^^^^ Avoid using a negative index with \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(17): function f(foo: number[] | Set<number>) { foo.with(-1, value); } 1`] = `
+
+  1 | function f(foo: number[] | Set<number>) { foo.with(-1, value); }
+
+`;
+
+exports[`no-confusing-array-with > invalid(17): function f(foo: number[] | Set<number>) { foo.with(-1, value); } 2`] = `
+
+Message:
+> 1 | function f(foo: number[] | Set<number>) { foo.with(-1, value); }
+    |                                               ^^^^ Avoid using a negative index with \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(2): array.with(-2, value) 1`] = `
+
+  1 | array.with(-2, value)
+
+`;
+
+exports[`no-confusing-array-with > invalid(2): array.with(-2, value) 2`] = `
+
+Message:
+> 1 | array.with(-2, value)
+    |       ^^^^ Avoid using a negative index with \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(2): array.with(<number>-1, value) 1`] = `
+
+  1 | array.with(<number>-1, value)
+
+`;
+
+exports[`no-confusing-array-with > invalid(2): array.with(<number>-1, value) 2`] = `
+
+Message:
+> 1 | array.with(<number>-1, value)
+    |       ^^^^ Avoid using a negative index with \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(3): array.with(-1!, value) 1`] = `
+
+  1 | array.with(-1!, value)
+
+`;
+
+exports[`no-confusing-array-with > invalid(3): array.with(-1!, value) 2`] = `
+
+Message:
+> 1 | array.with(-1!, value)
+    |       ^^^^ Avoid using a negative index with \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(3): array.with(-1.5, value) 1`] = `
+
+  1 | array.with(-1.5, value)
+
+`;
+
+exports[`no-confusing-array-with > invalid(3): array.with(-1.5, value) 2`] = `
+
+Message:
+> 1 | array.with(-1.5, value)
+    |       ^^^^ Avoid using a negative index with \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(4): array.with(- 1, value) 1`] = `
+
+  1 | array.with(- 1, value)
+
+`;
+
+exports[`no-confusing-array-with > invalid(4): array.with(- 1, value) 2`] = `
+
+Message:
+> 1 | array.with(- 1, value)
+    |       ^^^^ Avoid using a negative index with \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(4): array.with(-1 satisfies number, value) 1`] = `
+
+  1 | array.with(-1 satisfies number, value)
+
+`;
+
+exports[`no-confusing-array-with > invalid(4): array.with(-1 satisfies number, value) 2`] = `
+
+Message:
+> 1 | array.with(-1 satisfies number, value)
+    |       ^^^^ Avoid using a negative index with \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(5): array.with(- - -1, value) 1`] = `
+
+  1 | array.with(- - -1, value)
+
+`;
+
+exports[`no-confusing-array-with > invalid(5): array.with(- - -1, value) 2`] = `
+
+Message:
+> 1 | array.with(- - -1, value)
+    |       ^^^^ Avoid using a negative index with \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(5): array.with(array.length as number, value) 1`] = `
+
+  1 | array.with(array.length as number, value)
+
+`;
+
+exports[`no-confusing-array-with > invalid(5): array.with(array.length as number, value) 2`] = `
+
+Message:
+> 1 | array.with(array.length as number, value)
+    |       ^^^^ Avoid using \`.length\` as the index in \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(6): array.with(-(-(-1)), value) 1`] = `
+
+  1 | array.with(-(-(-1)), value)
+
+`;
+
+exports[`no-confusing-array-with > invalid(6): array.with(-(-(-1)), value) 2`] = `
+
+Message:
+> 1 | array.with(-(-(-1)), value)
+    |       ^^^^ Avoid using a negative index with \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(6): array.with(<number>array.length, value) 1`] = `
+
+  1 | array.with(<number>array.length, value)
+
+`;
+
+exports[`no-confusing-array-with > invalid(6): array.with(<number>array.length, value) 2`] = `
+
+Message:
+> 1 | array.with(<number>array.length, value)
+    |       ^^^^ Avoid using \`.length\` as the index in \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(7): array.with(-1) 1`] = `
+
+  1 | array.with(-1)
+
+`;
+
+exports[`no-confusing-array-with > invalid(7): array.with(-1) 2`] = `
+
+Message:
+> 1 | array.with(-1)
+    |       ^^^^ Avoid using a negative index with \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(7): array.with(array.length!, value) 1`] = `
+
+  1 | array.with(array.length!, value)
+
+`;
+
+exports[`no-confusing-array-with > invalid(7): array.with(array.length!, value) 2`] = `
+
+Message:
+> 1 | array.with(array.length!, value)
+    |       ^^^^ Avoid using \`.length\` as the index in \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(8): array.with(-1, value, extra) 1`] = `
+
+  1 | array.with(-1, value, extra)
+
+`;
+
+exports[`no-confusing-array-with > invalid(8): array.with(-1, value, extra) 2`] = `
+
+Message:
+> 1 | array.with(-1, value, extra)
+    |       ^^^^ Avoid using a negative index with \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(8): array.with(array.length satisfies number, value) 1`] = `
+
+  1 | array.with(array.length satisfies number, value)
+
+`;
+
+exports[`no-confusing-array-with > invalid(8): array.with(array.length satisfies number, value) 2`] = `
+
+Message:
+> 1 | array.with(array.length satisfies number, value)
+    |       ^^^^ Avoid using \`.length\` as the index in \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(9): array.with((array satisfies number[]).length, value) 1`] = `
+
+  1 | array.with((array satisfies number[]).length, value)
+
+`;
+
+exports[`no-confusing-array-with > invalid(9): array.with((array satisfies number[]).length, value) 2`] = `
+
+Message:
+> 1 | array.with((array satisfies number[]).length, value)
+    |       ^^^^ Avoid using \`.length\` as the index in \`Array#with()\`.
+
+`;
+
+exports[`no-confusing-array-with > invalid(9): array.with(array.length, value) 1`] = `
+
+  1 | array.with(array.length, value)
+
+`;
+
+exports[`no-confusing-array-with > invalid(9): array.with(array.length, value) 2`] = `
+
+Message:
+> 1 | array.with(array.length, value)
+    |       ^^^^ Avoid using \`.length\` as the index in \`Array#with()\`.
+
+`;

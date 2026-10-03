@@ -1,15 +1,11 @@
 /* eslint-disable max-lines */
+import test from 'node:test';
 import outdent from 'outdent';
-import test from 'ava';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
-
-test.before(t => {
-	t.timeout(60_000);
-});
 
 ruleTest.snapshot({
 	valid: [
@@ -840,6 +836,11 @@ ruleTest.snapshot({
 		'const globalThis = {Set: class {}};\nnew globalThis.Set(value, extra);',
 		'const URL = {canParse: (...values) => values};\nURL.canParse(input, base, extra);',
 		'const WebAssembly = {compile: (...values) => values};\nWebAssembly.compile(bytes, options, extra);',
+		{
+			// Private members are not matched by patterns
+			code: 'class Foo { #bar() {} baz() { this.#bar(1, 2); } }',
+			options: [{'*.bar': 1}],
+		},
 	],
 	invalid: [
 		'function foo(a, b) {}\nfoo(1, 2, 3);',
@@ -1673,6 +1674,18 @@ ruleTest.snapshot({
 			code: 'foo.bar(1, ...values, 2, 3);',
 			options: [{'*.bar': {min: 1, max: 2}}],
 		},
+		{
+			code: 'foo(1);',
+			options: [{foo: {min: 2, max: 2}}],
+		},
+		{
+			code: 'this.foo(1, 2);',
+			options: [{'this.foo': 1}],
+		},
+		{
+			code: 'this.foo.bar(1, 2);',
+			options: [{'*.foo.bar': 1}],
+		},
 	],
 });
 
@@ -1695,19 +1708,19 @@ test('validates options schema', t => {
 		},
 	});
 
-	t.throws(
+	t.assert.throws(
 		() => verify({'': 1}),
 		{message: /property name '' is invalid/v},
 	);
-	t.throws(
+	t.assert.throws(
 		() => verify({'new ': 1}),
 		{message: /property name 'new ' is invalid/v},
 	);
-	t.throws(
+	t.assert.throws(
 		() => verify({'foo..bar': 1}),
 		{message: /property name 'foo..bar' is invalid/v},
 	);
-	t.throws(
+	t.assert.throws(
 		() => verify({foo: {min: 3, max: 1}}),
 		{message: /`min` must be less than or equal to `max`/v},
 	);

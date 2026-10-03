@@ -102,11 +102,8 @@ const getMemberDescriptorKind = (member, name, sourceCode) => {
 	return member.type === 'MethodDefinition' && ['get', 'set'].includes(member.kind) ? member.kind : 'data';
 };
 
+// Both callers skip `declare` and decorated classes already
 const getDescriptorKind = (classNode, name, isStatic, sourceCode) => {
-	if (classNode.declare || classNode.decorators?.length > 0) {
-		return 'unknown';
-	}
-
 	let descriptorKind;
 
 	for (const member of classNode.body.body) {

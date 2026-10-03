@@ -143,6 +143,11 @@ test({
 			code: 'node.parentNode.removeChild(/* keep */ node);',
 			errors: 1,
 		},
+		// The value is used, so a comment withholds the suggestion
+		{
+			code: 'const removed = parent.removeChild(/* keep */ child);',
+			errors: [{messageId: 'error', suggestions: []}],
+		},
 	],
 });
 

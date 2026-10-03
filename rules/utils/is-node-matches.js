@@ -7,18 +7,10 @@ Check if node matches object name or key path.
 */
 export function isNodeMatchesNameOrPath(node, nameOrPath) {
 	const names = nameOrPath.trim().split('.');
-	for (let index = names.length - 1; index >= 0; index--) {
+	for (let index = names.length - 1; index > 0; index--) {
 		const name = names[index];
 		if (!name) {
 			return false;
-		}
-
-		if (index === 0) {
-			return (
-				(node.type === 'Identifier' && node.name === name)
-				|| (name === 'this' && node.type === 'ThisExpression')
-				|| (name === 'super' && node.type === 'Super')
-			);
 		}
 
 		if (
@@ -44,6 +36,13 @@ export function isNodeMatchesNameOrPath(node, nameOrPath) {
 
 		return false;
 	}
+
+	const [name] = names;
+	return (
+		(node.type === 'Identifier' && node.name === name)
+		|| (name === 'this' && node.type === 'ThisExpression')
+		|| (name === 'super' && node.type === 'Super')
+	);
 }
 
 /**

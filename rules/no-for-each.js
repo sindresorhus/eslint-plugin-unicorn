@@ -29,6 +29,7 @@ import {
 	isFunctionSelfUsedInside,
 	isNodeMatches,
 	assertToken,
+	getVisitorChildNodes,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-for-each/error';
@@ -65,8 +66,9 @@ function shouldSwitchReturnStatementToBlockStatement(returnStatement) {
 	const {parent} = returnStatement;
 
 	switch (parent.type) {
+		// A `return` directly in an `if` is always its consequent or alternate
 		case 'IfStatement': {
-			return parent.consequent === returnStatement || parent.alternate === returnStatement;
+			return true;
 		}
 
 		// These parent's body need switch to `BlockStatement` too, but since they are "continueAble", won't fix
@@ -303,18 +305,8 @@ function getReferenceIdentifiersByName(node, visitorKeys) {
 			}
 		}
 
-		for (const key of visitorKeys[node.type] ?? []) {
-			const value = node[key];
-
-			if (Array.isArray(value)) {
-				for (const child of value) {
-					if (child?.type) {
-						walk(child);
-					}
-				}
-			} else if (value?.type) {
-				walk(value);
-			}
+		for (const child of getVisitorChildNodes(node, visitorKeys)) {
+			walk(child);
 		}
 	};
 

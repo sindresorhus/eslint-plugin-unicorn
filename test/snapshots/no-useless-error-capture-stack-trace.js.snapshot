@@ -1,0 +1,542 @@
+exports[`no-useless-error-capture-stack-trace > invalid(1): class MyError extends Error {\n\tconstructor() {\n\t\tError.captureStackTrace(this, MyError);\n\t}\n} 1`] = `
+
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+  3 | 		Error.captureStackTrace(this, MyError);
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(1): class MyError extends Error {\n\tconstructor() {\n\t\tError.captureStackTrace(this, MyError);\n\t}\n} 2`] = `
+
+Message:
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+> 3 | 		Error.captureStackTrace(this, MyError);
+    | 		^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary \`Error.captureStackTrace(…)\` call.
+  4 | 	}
+  5 | }
+
+Output:
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+  3 | 		
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(10): class MyError extends ReferenceError {\n\tconstructor() {\n\t\tError.captureStackTrace(this, MyError)\n\t}\n} 1`] = `
+
+  1 | class MyError extends ReferenceError {
+  2 | 	constructor() {
+  3 | 		Error.captureStackTrace(this, MyError)
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(10): class MyError extends ReferenceError {\n\tconstructor() {\n\t\tError.captureStackTrace(this, MyError)\n\t}\n} 2`] = `
+
+Message:
+  1 | class MyError extends ReferenceError {
+  2 | 	constructor() {
+> 3 | 		Error.captureStackTrace(this, MyError)
+    | 		^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary \`Error.captureStackTrace(…)\` call.
+  4 | 	}
+  5 | }
+
+Output:
+  1 | class MyError extends ReferenceError {
+  2 | 	constructor() {
+  3 | 		
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(11): class MyError extends SyntaxError {\n\tconstructor() {\n\t\tError.captureStackTrace(this, MyError)\n\t}\n} 1`] = `
+
+  1 | class MyError extends SyntaxError {
+  2 | 	constructor() {
+  3 | 		Error.captureStackTrace(this, MyError)
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(11): class MyError extends SyntaxError {\n\tconstructor() {\n\t\tError.captureStackTrace(this, MyError)\n\t}\n} 2`] = `
+
+Message:
+  1 | class MyError extends SyntaxError {
+  2 | 	constructor() {
+> 3 | 		Error.captureStackTrace(this, MyError)
+    | 		^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary \`Error.captureStackTrace(…)\` call.
+  4 | 	}
+  5 | }
+
+Output:
+  1 | class MyError extends SyntaxError {
+  2 | 	constructor() {
+  3 | 		
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(12): class MyError extends TypeError {\n\tconstructor() {\n\t\tError.captureStackTrace(this, MyError)\n\t}\n} 1`] = `
+
+  1 | class MyError extends TypeError {
+  2 | 	constructor() {
+  3 | 		Error.captureStackTrace(this, MyError)
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(12): class MyError extends TypeError {\n\tconstructor() {\n\t\tError.captureStackTrace(this, MyError)\n\t}\n} 2`] = `
+
+Message:
+  1 | class MyError extends TypeError {
+  2 | 	constructor() {
+> 3 | 		Error.captureStackTrace(this, MyError)
+    | 		^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary \`Error.captureStackTrace(…)\` call.
+  4 | 	}
+  5 | }
+
+Output:
+  1 | class MyError extends TypeError {
+  2 | 	constructor() {
+  3 | 		
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(13): class MyError extends URIError {\n\tconstructor() {\n\t\tError.captureStackTrace(this, MyError)\n\t}\n} 1`] = `
+
+  1 | class MyError extends URIError {
+  2 | 	constructor() {
+  3 | 		Error.captureStackTrace(this, MyError)
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(13): class MyError extends URIError {\n\tconstructor() {\n\t\tError.captureStackTrace(this, MyError)\n\t}\n} 2`] = `
+
+Message:
+  1 | class MyError extends URIError {
+  2 | 	constructor() {
+> 3 | 		Error.captureStackTrace(this, MyError)
+    | 		^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary \`Error.captureStackTrace(…)\` call.
+  4 | 	}
+  5 | }
+
+Output:
+  1 | class MyError extends URIError {
+  2 | 	constructor() {
+  3 | 		
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(14): class MyError extends AggregateError {\n\tconstructor() {\n\t\tError.captureStackTrace(this, MyError)\n\t}\n} 1`] = `
+
+  1 | class MyError extends AggregateError {
+  2 | 	constructor() {
+  3 | 		Error.captureStackTrace(this, MyError)
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(14): class MyError extends AggregateError {\n\tconstructor() {\n\t\tError.captureStackTrace(this, MyError)\n\t}\n} 2`] = `
+
+Message:
+  1 | class MyError extends AggregateError {
+  2 | 	constructor() {
+> 3 | 		Error.captureStackTrace(this, MyError)
+    | 		^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary \`Error.captureStackTrace(…)\` call.
+  4 | 	}
+  5 | }
+
+Output:
+  1 | class MyError extends AggregateError {
+  2 | 	constructor() {
+  3 | 		
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(15): class MyError extends SuppressedError {\n\tconstructor() {\n\t\tError.captureStackTrace(this, MyError)\n\t}\n} 1`] = `
+
+  1 | class MyError extends SuppressedError {
+  2 | 	constructor() {
+  3 | 		Error.captureStackTrace(this, MyError)
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(15): class MyError extends SuppressedError {\n\tconstructor() {\n\t\tError.captureStackTrace(this, MyError)\n\t}\n} 2`] = `
+
+Message:
+  1 | class MyError extends SuppressedError {
+  2 | 	constructor() {
+> 3 | 		Error.captureStackTrace(this, MyError)
+    | 		^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary \`Error.captureStackTrace(…)\` call.
+  4 | 	}
+  5 | }
+
+Output:
+  1 | class MyError extends SuppressedError {
+  2 | 	constructor() {
+  3 | 		
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(16): class MyError extends Error {\n\tconstructor() {\n\t\tif (a) Error.captureStackTrace(this, MyError)\n\t}\n} 1`] = `
+
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+  3 | 		if (a) Error.captureStackTrace(this, MyError)
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(16): class MyError extends Error {\n\tconstructor() {\n\t\tif (a) Error.captureStackTrace(this, MyError)\n\t}\n} 2`] = `
+
+Message:
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+> 3 | 		if (a) Error.captureStackTrace(this, MyError)
+    | 		       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary \`Error.captureStackTrace(…)\` call.
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(17): class MyError extends Error {\n\tconstructor() {\n\t\tvoid Error.captureStackTrace(this, MyError)\n\t}\n} 1`] = `
+
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+  3 | 		void Error.captureStackTrace(this, MyError)
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(17): class MyError extends Error {\n\tconstructor() {\n\t\tvoid Error.captureStackTrace(this, MyError)\n\t}\n} 2`] = `
+
+Message:
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+> 3 | 		void Error.captureStackTrace(this, MyError)
+    | 		     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary \`Error.captureStackTrace(…)\` call.
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(18): export default class extends Error {\n\tconstructor() {\n\t\tError.captureStackTrace(this, new.target)\n\t}\n} 1`] = `
+
+  1 | export default class extends Error {
+  2 | 	constructor() {
+  3 | 		Error.captureStackTrace(this, new.target)
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(18): export default class extends Error {\n\tconstructor() {\n\t\tError.captureStackTrace(this, new.target)\n\t}\n} 2`] = `
+
+Message:
+  1 | export default class extends Error {
+  2 | 	constructor() {
+> 3 | 		Error.captureStackTrace(this, new.target)
+    | 		^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary \`Error.captureStackTrace(…)\` call.
+  4 | 	}
+  5 | }
+
+Output:
+  1 | export default class extends Error {
+  2 | 	constructor() {
+  3 | 		
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(19): export default (\n\tclass extends Error {\n\t\tconstructor() {\n\t\t\tError.captureStackTrace(this, new.target)\n\t\t}\n\t}\n) 1`] = `
+
+  1 | export default (
+  2 | 	class extends Error {
+  3 | 		constructor() {
+  4 | 			Error.captureStackTrace(this, new.target)
+  5 | 		}
+  6 | 	}
+  7 | )
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(19): export default (\n\tclass extends Error {\n\t\tconstructor() {\n\t\t\tError.captureStackTrace(this, new.target)\n\t\t}\n\t}\n) 2`] = `
+
+Message:
+  1 | export default (
+  2 | 	class extends Error {
+  3 | 		constructor() {
+> 4 | 			Error.captureStackTrace(this, new.target)
+    | 			^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary \`Error.captureStackTrace(…)\` call.
+  5 | 		}
+  6 | 	}
+  7 | )
+
+Output:
+  1 | export default (
+  2 | 	class extends Error {
+  3 | 		constructor() {
+  4 | 			
+  5 | 		}
+  6 | 	}
+  7 | )
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(2): class MyError extends Error {\n\tconstructor() {\n\t\tError.captureStackTrace?.(this, MyError);\n\t}\n} 1`] = `
+
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+  3 | 		Error.captureStackTrace?.(this, MyError);
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(2): class MyError extends Error {\n\tconstructor() {\n\t\tError.captureStackTrace?.(this, MyError);\n\t}\n} 2`] = `
+
+Message:
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+> 3 | 		Error.captureStackTrace?.(this, MyError);
+    | 		^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary \`Error.captureStackTrace(…)\` call.
+  4 | 	}
+  5 | }
+
+Output:
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+  3 | 		
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(3): class MyError extends Error {\n\tconstructor() {\n\t\tError.captureStackTrace(this, this.constructor);\n\t}\n} 1`] = `
+
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+  3 | 		Error.captureStackTrace(this, this.constructor);
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(3): class MyError extends Error {\n\tconstructor() {\n\t\tError.captureStackTrace(this, this.constructor);\n\t}\n} 2`] = `
+
+Message:
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+> 3 | 		Error.captureStackTrace(this, this.constructor);
+    | 		^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary \`Error.captureStackTrace(…)\` call.
+  4 | 	}
+  5 | }
+
+Output:
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+  3 | 		
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(4): class MyError extends Error {\n\tconstructor() {\n\t\tError.captureStackTrace?.(this, this.constructor);\n\t}\n} 1`] = `
+
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+  3 | 		Error.captureStackTrace?.(this, this.constructor);
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(4): class MyError extends Error {\n\tconstructor() {\n\t\tError.captureStackTrace?.(this, this.constructor);\n\t}\n} 2`] = `
+
+Message:
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+> 3 | 		Error.captureStackTrace?.(this, this.constructor);
+    | 		^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary \`Error.captureStackTrace(…)\` call.
+  4 | 	}
+  5 | }
+
+Output:
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+  3 | 		
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(5): class MyError extends Error {\n\tconstructor() {\n\t\tError.captureStackTrace(this, new.target);\n\t}\n} 1`] = `
+
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+  3 | 		Error.captureStackTrace(this, new.target);
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(5): class MyError extends Error {\n\tconstructor() {\n\t\tError.captureStackTrace(this, new.target);\n\t}\n} 2`] = `
+
+Message:
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+> 3 | 		Error.captureStackTrace(this, new.target);
+    | 		^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary \`Error.captureStackTrace(…)\` call.
+  4 | 	}
+  5 | }
+
+Output:
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+  3 | 		
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(6): class MyError extends Error {\n\tconstructor() {\n\t\tError.captureStackTrace?.(this, new.target);\n\t}\n} 1`] = `
+
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+  3 | 		Error.captureStackTrace?.(this, new.target);
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(6): class MyError extends Error {\n\tconstructor() {\n\t\tError.captureStackTrace?.(this, new.target);\n\t}\n} 2`] = `
+
+Message:
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+> 3 | 		Error.captureStackTrace?.(this, new.target);
+    | 		^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary \`Error.captureStackTrace(…)\` call.
+  4 | 	}
+  5 | }
+
+Output:
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+  3 | 		
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(7): class MyError extends Error {\n\tconstructor() {\n\t\tError.captureStackTrace(this, MyError)\n\t}\n} 1`] = `
+
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+  3 | 		Error.captureStackTrace(this, MyError)
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(7): class MyError extends Error {\n\tconstructor() {\n\t\tError.captureStackTrace(this, MyError)\n\t}\n} 2`] = `
+
+Message:
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+> 3 | 		Error.captureStackTrace(this, MyError)
+    | 		^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary \`Error.captureStackTrace(…)\` call.
+  4 | 	}
+  5 | }
+
+Output:
+  1 | class MyError extends Error {
+  2 | 	constructor() {
+  3 | 		
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(8): class MyError extends EvalError {\n\tconstructor() {\n\t\tError.captureStackTrace(this, MyError)\n\t}\n} 1`] = `
+
+  1 | class MyError extends EvalError {
+  2 | 	constructor() {
+  3 | 		Error.captureStackTrace(this, MyError)
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(8): class MyError extends EvalError {\n\tconstructor() {\n\t\tError.captureStackTrace(this, MyError)\n\t}\n} 2`] = `
+
+Message:
+  1 | class MyError extends EvalError {
+  2 | 	constructor() {
+> 3 | 		Error.captureStackTrace(this, MyError)
+    | 		^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary \`Error.captureStackTrace(…)\` call.
+  4 | 	}
+  5 | }
+
+Output:
+  1 | class MyError extends EvalError {
+  2 | 	constructor() {
+  3 | 		
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(9): class MyError extends RangeError {\n\tconstructor() {\n\t\tError.captureStackTrace(this, MyError)\n\t}\n} 1`] = `
+
+  1 | class MyError extends RangeError {
+  2 | 	constructor() {
+  3 | 		Error.captureStackTrace(this, MyError)
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-error-capture-stack-trace > invalid(9): class MyError extends RangeError {\n\tconstructor() {\n\t\tError.captureStackTrace(this, MyError)\n\t}\n} 2`] = `
+
+Message:
+  1 | class MyError extends RangeError {
+  2 | 	constructor() {
+> 3 | 		Error.captureStackTrace(this, MyError)
+    | 		^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary \`Error.captureStackTrace(…)\` call.
+  4 | 	}
+  5 | }
+
+Output:
+  1 | class MyError extends RangeError {
+  2 | 	constructor() {
+  3 | 		
+  4 | 	}
+  5 | }
+
+`;

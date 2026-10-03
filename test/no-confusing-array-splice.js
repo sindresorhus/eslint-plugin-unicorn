@@ -96,6 +96,7 @@ test.snapshot({
 		'array.splice(-1, 0, array.pop())',
 		// `array[1e21]` is the property named `1e+21`, not an index
 		'array.splice(1e21, 1, element)',
+		'array.splice(index + 1, 1, element)',
 	],
 });
 

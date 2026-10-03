@@ -162,7 +162,7 @@ function * fixSubstrArguments({node, fixer, context, abort}) {
 function * fixSubstringArguments({node, fixer, context, abort}) {
 	const [firstArgument, secondArgument] = node.arguments;
 
-	const firstNumber = firstArgument ? getNumericValue(firstArgument) : undefined;
+	const firstNumber = getNumericValue(firstArgument);
 	const replaceFirstArgument = text => getArgumentReplacement(fixer, firstArgument, text, context, abort);
 
 	if (!secondArgument) {

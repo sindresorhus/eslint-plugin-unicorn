@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
@@ -814,6 +814,27 @@ ruleTest({
 			options: [{overrideGlobals: {Array: 'off'}}],
 			errors: [error({name: 'Array', reason: 'callee of function named "makeSynchronous"'})],
 		},
+		{
+			name: 'nested class heritage is evaluated in the isolated function',
+			code: 'makeSynchronous(() => class extends this.Base {})',
+			errors: [thisError({reason: 'callee of function named "makeSynchronous"'})],
+		},
+		{
+			name: 'nested class computed key is evaluated in the isolated function',
+			code: 'makeSynchronous(() => class {[this.key]() {} value = this.value;})',
+			errors: [thisError({reason: 'callee of function named "makeSynchronous"'})],
+		},
+		{
+			name: 'a function matched by both a comment and a selector is reported once',
+			code: outdent`
+				/** @isolated */
+				function abc() {
+					return foo;
+				}
+			`,
+			options: [{selectors: ['FunctionDeclaration', 'VariableDeclaration']}],
+			errors: [error({name: 'foo', reason: 'follows comment "@isolated"'})],
+		},
 	],
 });
 
@@ -823,27 +844,31 @@ test('an empty `selectors` entry is rejected by the schema', t => {
 
 	for (const ruleName of ['template-indent', 'isolated-functions']) {
 		for (const selector of ['', ' ', '\t']) {
-			const error = t.throws(() =>
-				linter.verify('const a = 1;', {
-					files: ['**'],
-					plugins: {unicorn: plugin},
-					rules: {[`unicorn/${ruleName}`]: ['error', {selectors: [selector]}]},
-				}, 'index.js'),
+			t.assert.throws(
+				() =>
+					linter.verify('const a = 1;', {
+						files: ['**'],
+						plugins: {unicorn: plugin},
+						rules: {[`unicorn/${ruleName}`]: ['error', {selectors: [selector]}]},
+					}, 'index.js'),
+				error => {
+					t.assert.match(error.message, /should be string|should match pattern|should NOT be shorter/u, `${ruleName} with ${JSON.stringify(selector)}`);
+					t.assert.doesNotMatch(error.message, /reading 'type'/u, `${ruleName} with ${JSON.stringify(selector)} must not be a TypeError`);
+					return true;
+				},
 			);
-
-			t.regex(error.message, /should be string|should match pattern|should NOT be shorter/u, `${ruleName} with ${JSON.stringify(selector)}`);
-			t.notRegex(error.message, /reading 'type'/u, `${ruleName} with ${JSON.stringify(selector)} must not be a TypeError`);
 		}
 
 		// A selector ESLint cannot parse is still reported by ESLint itself
-		const error = t.throws(() =>
-			linter.verify('const a = 1;', {
-				files: ['**'],
-				plugins: {unicorn: plugin},
-				rules: {[`unicorn/${ruleName}`]: ['error', {selectors: ['[']}]},
-			}, 'index.js'),
+		t.assert.throws(
+			() =>
+				linter.verify('const a = 1;', {
+					files: ['**'],
+					plugins: {unicorn: plugin},
+					rules: {[`unicorn/${ruleName}`]: ['error', {selectors: ['[']}]},
+				}, 'index.js'),
+			{message: /Syntax error in selector/u},
+			`${ruleName} with an unparsable selector`,
 		);
-
-		t.regex(error.message, /Syntax error in selector/u, `${ruleName} with an unparsable selector`);
 	}
 });

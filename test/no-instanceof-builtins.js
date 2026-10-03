@@ -248,6 +248,8 @@ test.snapshot({
 			'<script>const foo = array instanceof Array</script>',
 			'<script>const foo = (( (( array )) instanceof (( Array )) ))</script>',
 			'<script>foo instanceof Function</script>',
+			'<template><div v-if="foo instanceof Function"></div></template>',
+			'<template><div>{{foo instanceof Function}}</div></template>',
 		].map(code => ({code, languageOptions: {parser: parsers.vue}})),
 	],
 });

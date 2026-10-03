@@ -129,6 +129,17 @@ test.snapshot({
 			code: 'const modes = new Set(["foo"]); modes.clear(); if (map.has((modes.size ? 1 : key) as number)) { map.get(1); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// Destructuring that rewrites the receiver
+		'if (map.has(key)) { use([, map] = values, map.get(anotherKey)); }',
+		'if (map.has(key)) { use({...map} = values, map.get(anotherKey)); }',
+		'if (map.has(key)) { use([map = fallback] = values, map.get(anotherKey)); }',
+		'if (map.has(key)) { use([...map] = values, map.get(anotherKey)); }',
+		// An array key is not a comparable value
+		'if (map.has(key)) { map.get([anotherKey]); }',
+		// An `else if` branch is not guarded by the first test
+		'if (map.has(key)) { map.get(key); } else if (condition) { map.get(anotherKey); }',
+		// A `while` body with more than one statement is not checked
+		'while (map.has(key)) { map.get(anotherKey); next(); }',
 	],
 	invalid: [
 		// Known Map receiver is still flagged (type information)
@@ -172,5 +183,12 @@ test.snapshot({
 		'const value = map.has(key) && map.get(otherKey);',
 		'if (!map.has(key) && map.get(otherKey)) {}',
 		'const value = map.has(key) || map.get(otherKey);',
+		'if (map.has(key)) map.get(anotherKey);',
+		// Writes that do not rewrite the receiver
+		'if (map.has(key)) { use([object.value] = values, map.get(anotherKey)); }',
+		'if (map.has(key)) { (count = 1, map.get(anotherKey)); }',
+		'if (map.has(key)) { (count++, map.get(anotherKey)); }',
+		// A `has` inside a function in a nested test does not guard the nested branch
+		'if (map.has(key)) { if (check(() => map.has(anotherKey))) { map.get(anotherKey); } }',
 	],
 });

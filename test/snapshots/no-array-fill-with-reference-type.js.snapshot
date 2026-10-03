@@ -1,0 +1,331 @@
+exports[`no-array-fill-with-reference-type > invalid(1): array.fill({} as Foo) 1`] = `
+
+  1 | array.fill({} as Foo)
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(1): array.fill({} as Foo) 2`] = `
+
+Message:
+> 1 | array.fill({} as Foo)
+    |            ^^^^^^^^^ Do not use a reference value as the fill value.
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(1): declare function restore(): object[]; const restored = restore(); const value = {}; restored.fill(value); 1`] = `
+
+Filename: file.ts
+
+  1 | declare function restore(): object[]; const restored = restore(); const value = {}; restored.fill(value);
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(1): declare function restore(): object[]; const restored = restore(); const value = {}; restored.fill(value); 2`] = `
+
+Message:
+> 1 | declare function restore(): object[]; const restored = restore(); const value = {}; restored.fill(value);
+    |                                                                                                   ^^^^^ Do not use a reference value as the fill value.
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(1): new Array(3).fill({}) 1`] = `
+
+  1 | new Array(3).fill({})
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(1): new Array(3).fill({}) 2`] = `
+
+Message:
+> 1 | new Array(3).fill({})
+    |                   ^^ Do not use a reference value as the fill value.
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(10): array.fill(class {}) 1`] = `
+
+  1 | array.fill(class {})
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(10): array.fill(class {}) 2`] = `
+
+Message:
+> 1 | array.fill(class {})
+    |            ^^^^^^^^ Do not use a reference value as the fill value.
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(11): const value = {};\narray.fill(value, 1); 1`] = `
+
+  1 | const value = {};
+  2 | array.fill(value, 1);
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(11): const value = {};\narray.fill(value, 1); 2`] = `
+
+Message:
+  1 | const value = {};
+> 2 | array.fill(value, 1);
+    |            ^^^^^ Do not use a reference value as the fill value.
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(2): Array(3).fill([]) 1`] = `
+
+  1 | Array(3).fill([])
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(2): Array(3).fill([]) 2`] = `
+
+Message:
+> 1 | Array(3).fill([])
+    |               ^^ Do not use a reference value as the fill value.
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(2): array.fill(<Foo>{}) 1`] = `
+
+  1 | array.fill(<Foo>{})
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(2): array.fill(<Foo>{}) 2`] = `
+
+Message:
+> 1 | array.fill(<Foo>{})
+    |            ^^^^^^^ Do not use a reference value as the fill value.
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(2): function restore() { return [{}]; } const restored = restore(); restored.fill({}); 1`] = `
+
+Filename: file.ts
+
+  1 | function restore() { return [{}]; } const restored = restore(); restored.fill({});
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(2): function restore() { return [{}]; } const restored = restore(); restored.fill({}); 2`] = `
+
+Message:
+> 1 | function restore() { return [{}]; } const restored = restore(); restored.fill({});
+    |                                                                               ^^ Do not use a reference value as the fill value.
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(3): Array.from({length: 3}).fill(new Map()) 1`] = `
+
+  1 | Array.from({length: 3}).fill(new Map())
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(3): Array.from({length: 3}).fill(new Map()) 2`] = `
+
+Message:
+> 1 | Array.from({length: 3}).fill(new Map())
+    |                              ^^^^^^^^^ Do not use a reference value as the fill value.
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(3): array.fill({} satisfies Foo) 1`] = `
+
+  1 | array.fill({} satisfies Foo)
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(3): array.fill({} satisfies Foo) 2`] = `
+
+Message:
+> 1 | array.fill({} satisfies Foo)
+    |            ^^^^^^^^^^^^^^^^ Do not use a reference value as the fill value.
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(3): interface Fillable {fill(value: object): unknown;} function identity<T extends Fillable>(value: T): T {return value;} identity([{}]).fill({}); 1`] = `
+
+Filename: file.ts
+
+  1 | interface Fillable {fill(value: object): unknown;} function identity<T extends Fillable>(value: T): T {return value;} identity([{}]).fill({});
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(3): interface Fillable {fill(value: object): unknown;} function identity<T extends Fillable>(value: T): T {return value;} identity([{}]).fill({}); 2`] = `
+
+Message:
+> 1 | interface Fillable {fill(value: object): unknown;} function identity<T extends Fillable>(value: T): T {return value;} identity([{}]).fill({});
+    |                                                                                                                                           ^^ Do not use a reference value as the fill value.
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(4): [1, 2, 3].fill(new Set()) 1`] = `
+
+  1 | [1, 2, 3].fill(new Set())
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(4): [1, 2, 3].fill(new Set()) 2`] = `
+
+Message:
+> 1 | [1, 2, 3].fill(new Set())
+    |                ^^^^^^^^^ Do not use a reference value as the fill value.
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(4): array.fill({}!) 1`] = `
+
+  1 | array.fill({}!)
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(4): array.fill({}!) 2`] = `
+
+Message:
+> 1 | array.fill({}!)
+    |            ^^^ Do not use a reference value as the fill value.
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(4): interface Template {fill(value: object): void} const restore = (((): Template => template) as unknown as (() => object[])); restore().fill({}); 1`] = `
+
+Filename: file.ts
+
+  1 | interface Template {fill(value: object): void} const restore = (((): Template => template) as unknown as (() => object[])); restore().fill({});
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(4): interface Template {fill(value: object): void} const restore = (((): Template => template) as unknown as (() => object[])); restore().fill({}); 2`] = `
+
+Message:
+> 1 | interface Template {fill(value: object): void} const restore = (((): Template => template) as unknown as (() => object[])); restore().fill({});
+    |                                                                                                                                            ^^ Do not use a reference value as the fill value.
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(5): const value = {} as Foo; array.fill(value) 1`] = `
+
+  1 | const value = {} as Foo; array.fill(value)
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(5): const value = {} as Foo; array.fill(value) 2`] = `
+
+Message:
+> 1 | const value = {} as Foo; array.fill(value)
+    |                                     ^^^^^ Do not use a reference value as the fill value.
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(5): const value = {}; array.fill(value) 1`] = `
+
+  1 | const value = {}; array.fill(value)
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(5): const value = {}; array.fill(value) 2`] = `
+
+Message:
+> 1 | const value = {}; array.fill(value)
+    |                              ^^^^^ Do not use a reference value as the fill value.
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(6): const value = []; array.fill(value) 1`] = `
+
+  1 | const value = []; array.fill(value)
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(6): const value = []; array.fill(value) 2`] = `
+
+Message:
+> 1 | const value = []; array.fill(value)
+    |                              ^^^^^ Do not use a reference value as the fill value.
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(6): const value = {}; array.fill(value!) 1`] = `
+
+  1 | const value = {}; array.fill(value!)
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(6): const value = {}; array.fill(value!) 2`] = `
+
+Message:
+> 1 | const value = {}; array.fill(value!)
+    |                              ^^^^^^ Do not use a reference value as the fill value.
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(7): const value = new Map(); array.fill(value) 1`] = `
+
+  1 | const value = new Map(); array.fill(value)
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(7): const value = new Map(); array.fill(value) 2`] = `
+
+Message:
+> 1 | const value = new Map(); array.fill(value)
+    |                                     ^^^^^ Do not use a reference value as the fill value.
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(7): function f(foo: object[]) { foo.fill({}); } 1`] = `
+
+  1 | function f(foo: object[]) { foo.fill({}); }
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(7): function f(foo: object[]) { foo.fill({}); } 2`] = `
+
+Message:
+> 1 | function f(foo: object[]) { foo.fill({}); }
+    |                                      ^^ Do not use a reference value as the fill value.
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(8): const value = new class {}; array.fill(value) 1`] = `
+
+  1 | const value = new class {}; array.fill(value)
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(8): const value = new class {}; array.fill(value) 2`] = `
+
+Message:
+> 1 | const value = new class {}; array.fill(value)
+    |                                        ^^^^^ Do not use a reference value as the fill value.
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(8): function f(foo) { foo.fill({}); } 1`] = `
+
+  1 | function f(foo) { foo.fill({}); }
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(8): function f(foo) { foo.fill({}); } 2`] = `
+
+Message:
+> 1 | function f(foo) { foo.fill({}); }
+    |                            ^^ Do not use a reference value as the fill value.
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(9): const RegExp = class {}; array.fill(new RegExp()) 1`] = `
+
+  1 | const RegExp = class {}; array.fill(new RegExp())
+
+`;
+
+exports[`no-array-fill-with-reference-type > invalid(9): const RegExp = class {}; array.fill(new RegExp()) 2`] = `
+
+Message:
+> 1 | const RegExp = class {}; array.fill(new RegExp())
+    |                                     ^^^^^^^^^^^^ Do not use a reference value as the fill value.
+
+`;

@@ -141,10 +141,6 @@ function * getCssProblems(condition, context, featureSyntaxes) {
 function getHtmlAttributes(node, sourceCode) {
 	const attributes = new Map();
 	for (const attribute of node.attributes) {
-		if (attribute.type !== 'Attribute') {
-			continue;
-		}
-
 		const name = attribute.key.value.toLowerCase();
 		if (!['type', 'min', 'max', 'minlength', 'maxlength'].includes(name)) {
 			continue;

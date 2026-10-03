@@ -1,0 +1,1808 @@
+exports[`prefer-regexp-test > invalid(1): const re = /a/; const bar = !foo.match(re) 1`] = `
+
+  1 | const re = /a/; const bar = !foo.match(re)
+
+`;
+
+exports[`prefer-regexp-test > invalid(1): const re = /a/; const bar = !foo.match(re) 2`] = `
+
+Message:
+> 1 | const re = /a/; const bar = !foo.match(re)
+    |                              ^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Output:
+  1 | const re = /a/; const bar = !re.test(foo)
+
+`;
+
+exports[`prefer-regexp-test > invalid(10): const pattern = /regexp/; if (object.match(pattern)) {} 1`] = `
+
+  1 | const pattern = /regexp/; if (object.match(pattern)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(10): const pattern = /regexp/; if (object.match(pattern)) {} 2`] = `
+
+Message:
+> 1 | const pattern = /regexp/; if (object.match(pattern)) {}
+    |                               ^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Output:
+  1 | const pattern = /regexp/; if (pattern.test(object)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(11): const pattern = /regexp/g; if (object.match(pattern)) {} 1`] = `
+
+  1 | const pattern = /regexp/g; if (object.match(pattern)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(11): const pattern = /regexp/g; if (object.match(pattern)) {} 2`] = `
+
+Message:
+> 1 | const pattern = /regexp/g; if (object.match(pattern)) {}
+    |                                ^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | const pattern = /regexp/g; if (pattern.test(object)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(12): if (uri.match(/unicorn/).length) {} 1`] = `
+
+  1 | if (uri.match(/unicorn/).length) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(12): if (uri.match(/unicorn/).length) {} 2`] = `
+
+Message:
+> 1 | if (uri.match(/unicorn/).length) {}
+    |     ^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (/unicorn/.test(uri)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(13): if (uri.match(/unicorn/).length > 0) {} 1`] = `
+
+  1 | if (uri.match(/unicorn/).length > 0) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(13): if (uri.match(/unicorn/).length > 0) {} 2`] = `
+
+Message:
+> 1 | if (uri.match(/unicorn/).length > 0) {}
+    |     ^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (/unicorn/.test(uri)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(14): if (Boolean(uri.match(/unicorn/).length)) {} 1`] = `
+
+  1 | if (Boolean(uri.match(/unicorn/).length)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(14): if (Boolean(uri.match(/unicorn/).length)) {} 2`] = `
+
+Message:
+> 1 | if (Boolean(uri.match(/unicorn/).length)) {}
+    |             ^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (Boolean(/unicorn/.test(uri))) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(15): if (uri.match(/unicorn/)?.length) {} 1`] = `
+
+  1 | if (uri.match(/unicorn/)?.length) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(15): if (uri.match(/unicorn/)?.length) {} 2`] = `
+
+Message:
+> 1 | if (uri.match(/unicorn/)?.length) {}
+    |     ^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (/unicorn/.test(uri)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(16): if (uri.match(/unicorn/)?.length > 0) {} 1`] = `
+
+  1 | if (uri.match(/unicorn/)?.length > 0) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(16): if (uri.match(/unicorn/)?.length > 0) {} 2`] = `
+
+Message:
+> 1 | if (uri.match(/unicorn/)?.length > 0) {}
+    |     ^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (/unicorn/.test(uri)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(17): if (uri.match(/unicorn/).length /* keep */ > 0) {} 1`] = `
+
+  1 | if (uri.match(/unicorn/).length /* keep */ > 0) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(17): if (uri.match(/unicorn/).length /* keep */ > 0) {} 2`] = `
+
+Message:
+> 1 | if (uri.match(/unicorn/).length /* keep */ > 0) {}
+    |     ^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+`;
+
+exports[`prefer-regexp-test > invalid(18): if (\n\turi.match(/unicorn/).length ||\n\turi.match(/unicorn/).length > 0 ||\n\turi.match(/unicorn/)?.length ||\n\turi.match(/unicorn/)?.length > 0\n) {} 1`] = `
+
+  1 | if (
+  2 | 	uri.match(/unicorn/).length ||
+  3 | 	uri.match(/unicorn/).length > 0 ||
+  4 | 	uri.match(/unicorn/)?.length ||
+  5 | 	uri.match(/unicorn/)?.length > 0
+  6 | ) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(18): if (\n\turi.match(/unicorn/).length ||\n\turi.match(/unicorn/).length > 0 ||\n\turi.match(/unicorn/)?.length ||\n\turi.match(/unicorn/)?.length > 0\n) {} 2`] = `
+
+Message:
+  1 | if (
+> 2 | 	uri.match(/unicorn/).length ||
+    | 	^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+  3 | 	uri.match(/unicorn/).length > 0 ||
+  4 | 	uri.match(/unicorn/)?.length ||
+  5 | 	uri.match(/unicorn/)?.length > 0
+  6 | ) {}
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (
+  2 | 	/unicorn/.test(uri) ||
+  3 | 	uri.match(/unicorn/).length > 0 ||
+  4 | 	uri.match(/unicorn/)?.length ||
+  5 | 	uri.match(/unicorn/)?.length > 0
+  6 | ) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(18): if (\n\turi.match(/unicorn/).length ||\n\turi.match(/unicorn/).length > 0 ||\n\turi.match(/unicorn/)?.length ||\n\turi.match(/unicorn/)?.length > 0\n) {} 3`] = `
+
+Message:
+  1 | if (
+  2 | 	uri.match(/unicorn/).length ||
+> 3 | 	uri.match(/unicorn/).length > 0 ||
+    | 	^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+  4 | 	uri.match(/unicorn/)?.length ||
+  5 | 	uri.match(/unicorn/)?.length > 0
+  6 | ) {}
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (
+  2 | 	uri.match(/unicorn/).length ||
+  3 | 	/unicorn/.test(uri) ||
+  4 | 	uri.match(/unicorn/)?.length ||
+  5 | 	uri.match(/unicorn/)?.length > 0
+  6 | ) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(18): if (\n\turi.match(/unicorn/).length ||\n\turi.match(/unicorn/).length > 0 ||\n\turi.match(/unicorn/)?.length ||\n\turi.match(/unicorn/)?.length > 0\n) {} 4`] = `
+
+Message:
+  1 | if (
+  2 | 	uri.match(/unicorn/).length ||
+  3 | 	uri.match(/unicorn/).length > 0 ||
+> 4 | 	uri.match(/unicorn/)?.length ||
+    | 	^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+  5 | 	uri.match(/unicorn/)?.length > 0
+  6 | ) {}
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (
+  2 | 	uri.match(/unicorn/).length ||
+  3 | 	uri.match(/unicorn/).length > 0 ||
+  4 | 	/unicorn/.test(uri) ||
+  5 | 	uri.match(/unicorn/)?.length > 0
+  6 | ) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(18): if (\n\turi.match(/unicorn/).length ||\n\turi.match(/unicorn/).length > 0 ||\n\turi.match(/unicorn/)?.length ||\n\turi.match(/unicorn/)?.length > 0\n) {} 5`] = `
+
+Message:
+  1 | if (
+  2 | 	uri.match(/unicorn/).length ||
+  3 | 	uri.match(/unicorn/).length > 0 ||
+  4 | 	uri.match(/unicorn/)?.length ||
+> 5 | 	uri.match(/unicorn/)?.length > 0
+    | 	^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+  6 | ) {}
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (
+  2 | 	uri.match(/unicorn/).length ||
+  3 | 	uri.match(/unicorn/).length > 0 ||
+  4 | 	uri.match(/unicorn/)?.length ||
+  5 | 	/unicorn/.test(uri)
+  6 | ) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(19): const re = /a/; const bar = foo.search(re) !== -1 1`] = `
+
+  1 | const re = /a/; const bar = foo.search(re) !== -1
+
+`;
+
+exports[`prefer-regexp-test > invalid(19): const re = /a/; const bar = foo.search(re) !== -1 2`] = `
+
+Message:
+> 1 | const re = /a/; const bar = foo.search(re) !== -1
+    |                             ^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#search(…)\` when checking for existence.
+
+Output:
+  1 | const re = /a/; const bar = re.test(foo)
+
+`;
+
+exports[`prefer-regexp-test > invalid(2): const re = /a/; const bar = Boolean(foo.match(re)) 1`] = `
+
+  1 | const re = /a/; const bar = Boolean(foo.match(re))
+
+`;
+
+exports[`prefer-regexp-test > invalid(2): const re = /a/; const bar = Boolean(foo.match(re)) 2`] = `
+
+Message:
+> 1 | const re = /a/; const bar = Boolean(foo.match(re))
+    |                                     ^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Output:
+  1 | const re = /a/; const bar = Boolean(re.test(foo))
+
+`;
+
+exports[`prefer-regexp-test > invalid(20): const re = /a/; const bar = foo.search(re) != -1 1`] = `
+
+  1 | const re = /a/; const bar = foo.search(re) != -1
+
+`;
+
+exports[`prefer-regexp-test > invalid(20): const re = /a/; const bar = foo.search(re) != -1 2`] = `
+
+Message:
+> 1 | const re = /a/; const bar = foo.search(re) != -1
+    |                             ^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#search(…)\` when checking for existence.
+
+Output:
+  1 | const re = /a/; const bar = re.test(foo)
+
+`;
+
+exports[`prefer-regexp-test > invalid(21): const re = /a/; const bar = foo.search(re) > -1 1`] = `
+
+  1 | const re = /a/; const bar = foo.search(re) > -1
+
+`;
+
+exports[`prefer-regexp-test > invalid(21): const re = /a/; const bar = foo.search(re) > -1 2`] = `
+
+Message:
+> 1 | const re = /a/; const bar = foo.search(re) > -1
+    |                             ^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#search(…)\` when checking for existence.
+
+Output:
+  1 | const re = /a/; const bar = re.test(foo)
+
+`;
+
+exports[`prefer-regexp-test > invalid(22): const re = /a/; const bar = foo.search(re) >= 0 1`] = `
+
+  1 | const re = /a/; const bar = foo.search(re) >= 0
+
+`;
+
+exports[`prefer-regexp-test > invalid(22): const re = /a/; const bar = foo.search(re) >= 0 2`] = `
+
+Message:
+> 1 | const re = /a/; const bar = foo.search(re) >= 0
+    |                             ^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#search(…)\` when checking for existence.
+
+Output:
+  1 | const re = /a/; const bar = re.test(foo)
+
+`;
+
+exports[`prefer-regexp-test > invalid(23): const re = /a/; const bar = foo.search(re) === -1 1`] = `
+
+  1 | const re = /a/; const bar = foo.search(re) === -1
+
+`;
+
+exports[`prefer-regexp-test > invalid(23): const re = /a/; const bar = foo.search(re) === -1 2`] = `
+
+Message:
+> 1 | const re = /a/; const bar = foo.search(re) === -1
+    |                             ^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#search(…)\` when checking for existence.
+
+Output:
+  1 | const re = /a/; const bar = !re.test(foo)
+
+`;
+
+exports[`prefer-regexp-test > invalid(24): const re = /a/; const bar = foo.search(re) == -1 1`] = `
+
+  1 | const re = /a/; const bar = foo.search(re) == -1
+
+`;
+
+exports[`prefer-regexp-test > invalid(24): const re = /a/; const bar = foo.search(re) == -1 2`] = `
+
+Message:
+> 1 | const re = /a/; const bar = foo.search(re) == -1
+    |                             ^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#search(…)\` when checking for existence.
+
+Output:
+  1 | const re = /a/; const bar = !re.test(foo)
+
+`;
+
+exports[`prefer-regexp-test > invalid(25): const re = /a/; const bar = foo.search(re) < 0 1`] = `
+
+  1 | const re = /a/; const bar = foo.search(re) < 0
+
+`;
+
+exports[`prefer-regexp-test > invalid(25): const re = /a/; const bar = foo.search(re) < 0 2`] = `
+
+Message:
+> 1 | const re = /a/; const bar = foo.search(re) < 0
+    |                             ^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#search(…)\` when checking for existence.
+
+Output:
+  1 | const re = /a/; const bar = !re.test(foo)
+
+`;
+
+exports[`prefer-regexp-test > invalid(26): if (foo.search(/re/) !== -1) {} 1`] = `
+
+  1 | if (foo.search(/re/) !== -1) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(26): if (foo.search(/re/) !== -1) {} 2`] = `
+
+Message:
+> 1 | if (foo.search(/re/) !== -1) {}
+    |     ^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#search(…)\` when checking for existence.
+
+Output:
+  1 | if (/re/.test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(27): if ((foo).search(/re/) !== -1) {} 1`] = `
+
+  1 | if ((foo).search(/re/) !== -1) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(27): if ((foo).search(/re/) !== -1) {} 2`] = `
+
+Message:
+> 1 | if ((foo).search(/re/) !== -1) {}
+    |     ^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#search(…)\` when checking for existence.
+
+Output:
+  1 | if ((/re/).test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(28): if ((foo.search(/re/)) === -1) {} 1`] = `
+
+  1 | if ((foo.search(/re/)) === -1) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(28): if ((foo.search(/re/)) === -1) {} 2`] = `
+
+Message:
+> 1 | if ((foo.search(/re/)) === -1) {}
+    |      ^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#search(…)\` when checking for existence.
+
+Output:
+  1 | if (!(/re/.test(foo))) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(29): if (foo.search(bar.baz()) !== -1) {} 1`] = `
+
+  1 | if (foo.search(bar.baz()) !== -1) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(29): if (foo.search(bar.baz()) !== -1) {} 2`] = `
+
+Message:
+> 1 | if (foo.search(bar.baz()) !== -1) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#search(…)\` when checking for existence.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (bar.baz().test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(3): const re = /a/; const bar = !!Boolean(foo.match(re)) 1`] = `
+
+  1 | const re = /a/; const bar = !!Boolean(foo.match(re))
+
+`;
+
+exports[`prefer-regexp-test > invalid(3): const re = /a/; const bar = !!Boolean(foo.match(re)) 2`] = `
+
+Message:
+> 1 | const re = /a/; const bar = !!Boolean(foo.match(re))
+    |                                       ^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Output:
+  1 | const re = /a/; const bar = !!Boolean(re.test(foo))
+
+`;
+
+exports[`prefer-regexp-test > invalid(30): if (foo.search(new RegExp(\"re\", \"g\")) !== -1) {} 1`] = `
+
+  1 | if (foo.search(new RegExp("re", "g")) !== -1) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(30): if (foo.search(new RegExp(\"re\", \"g\")) !== -1) {} 2`] = `
+
+Message:
+> 1 | if (foo.search(new RegExp("re", "g")) !== -1) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#search(…)\` when checking for existence.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (new RegExp("re", "g").test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(31): if (foo.search(unknown) !== -1) {} 1`] = `
+
+  1 | if (foo.search(unknown) !== -1) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(31): if (foo.search(unknown) !== -1) {} 2`] = `
+
+Message:
+> 1 | if (foo.search(unknown) !== -1) {}
+    |     ^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#search(…)\` when checking for existence.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (unknown.test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(32): if (foo.search(/re/) /* keep */ !== -1) {} 1`] = `
+
+  1 | if (foo.search(/re/) /* keep */ !== -1) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(32): if (foo.search(/re/) /* keep */ !== -1) {} 2`] = `
+
+Message:
+> 1 | if (foo.search(/re/) /* keep */ !== -1) {}
+    |     ^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#search(…)\` when checking for existence.
+
+`;
+
+exports[`prefer-regexp-test > invalid(33): if (foo.search(/re/) /* keep */ === -1) {} 1`] = `
+
+  1 | if (foo.search(/re/) /* keep */ === -1) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(33): if (foo.search(/re/) /* keep */ === -1) {} 2`] = `
+
+Message:
+> 1 | if (foo.search(/re/) /* keep */ === -1) {}
+    |     ^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#search(…)\` when checking for existence.
+
+`;
+
+exports[`prefer-regexp-test > invalid(34): const regex = /weird/g;\nif (foo.search(regex) !== -1); 1`] = `
+
+  1 | const regex = /weird/g;
+  2 | if (foo.search(regex) !== -1);
+
+`;
+
+exports[`prefer-regexp-test > invalid(34): const regex = /weird/g;\nif (foo.search(regex) !== -1); 2`] = `
+
+Message:
+  1 | const regex = /weird/g;
+> 2 | if (foo.search(regex) !== -1);
+    |     ^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#search(…)\` when checking for existence.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | const regex = /weird/g;
+  2 | if (regex.test(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(35): const regex = /weird/g;\nif (foo.search(regex) === -1); 1`] = `
+
+  1 | const regex = /weird/g;
+  2 | if (foo.search(regex) === -1);
+
+`;
+
+exports[`prefer-regexp-test > invalid(35): const regex = /weird/g;\nif (foo.search(regex) === -1); 2`] = `
+
+Message:
+  1 | const regex = /weird/g;
+> 2 | if (foo.search(regex) === -1);
+    |     ^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#search(…)\` when checking for existence.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | const regex = /weird/g;
+  2 | if (!regex.test(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(36): const re = /a/y;\nif (foo.search(re) !== -1); 1`] = `
+
+  1 | const re = /a/y;
+  2 | if (foo.search(re) !== -1);
+
+`;
+
+exports[`prefer-regexp-test > invalid(36): const re = /a/y;\nif (foo.search(re) !== -1); 2`] = `
+
+Message:
+  1 | const re = /a/y;
+> 2 | if (foo.search(re) !== -1);
+    |     ^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#search(…)\` when checking for existence.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | const re = /a/y;
+  2 | if (re.test(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(37): const re = /a/; const bar = !re.exec(foo) 1`] = `
+
+  1 | const re = /a/; const bar = !re.exec(foo)
+
+`;
+
+exports[`prefer-regexp-test > invalid(37): const re = /a/; const bar = !re.exec(foo) 2`] = `
+
+Message:
+> 1 | const re = /a/; const bar = !re.exec(foo)
+    |                                 ^^^^ Prefer \`.test(…)\` over \`.exec(…)\`.
+
+Output:
+  1 | const re = /a/; const bar = !re.test(foo)
+
+`;
+
+exports[`prefer-regexp-test > invalid(38): const re = /a/; const bar = Boolean(re.exec(foo)) 1`] = `
+
+  1 | const re = /a/; const bar = Boolean(re.exec(foo))
+
+`;
+
+exports[`prefer-regexp-test > invalid(38): const re = /a/; const bar = Boolean(re.exec(foo)) 2`] = `
+
+Message:
+> 1 | const re = /a/; const bar = Boolean(re.exec(foo))
+    |                                        ^^^^ Prefer \`.test(…)\` over \`.exec(…)\`.
+
+Output:
+  1 | const re = /a/; const bar = Boolean(re.test(foo))
+
+`;
+
+exports[`prefer-regexp-test > invalid(39): const re = /a/; if (re.exec(foo)) {} 1`] = `
+
+  1 | const re = /a/; if (re.exec(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(39): const re = /a/; if (re.exec(foo)) {} 2`] = `
+
+Message:
+> 1 | const re = /a/; if (re.exec(foo)) {}
+    |                        ^^^^ Prefer \`.test(…)\` over \`.exec(…)\`.
+
+Output:
+  1 | const re = /a/; if (re.test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(4): const re = /a/; if (foo.match(re)) {} 1`] = `
+
+  1 | const re = /a/; if (foo.match(re)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(4): const re = /a/; if (foo.match(re)) {} 2`] = `
+
+Message:
+> 1 | const re = /a/; if (foo.match(re)) {}
+    |                     ^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Output:
+  1 | const re = /a/; if (re.test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(40): const re = /a/; const bar = re.exec(foo) ? 1 : 2 1`] = `
+
+  1 | const re = /a/; const bar = re.exec(foo) ? 1 : 2
+
+`;
+
+exports[`prefer-regexp-test > invalid(40): const re = /a/; const bar = re.exec(foo) ? 1 : 2 2`] = `
+
+Message:
+> 1 | const re = /a/; const bar = re.exec(foo) ? 1 : 2
+    |                                ^^^^ Prefer \`.test(…)\` over \`.exec(…)\`.
+
+Output:
+  1 | const re = /a/; const bar = re.test(foo) ? 1 : 2
+
+`;
+
+exports[`prefer-regexp-test > invalid(41): const re = /a/; while (re.exec(foo)) foo = foo.slice(1); 1`] = `
+
+  1 | const re = /a/; while (re.exec(foo)) foo = foo.slice(1);
+
+`;
+
+exports[`prefer-regexp-test > invalid(41): const re = /a/; while (re.exec(foo)) foo = foo.slice(1); 2`] = `
+
+Message:
+> 1 | const re = /a/; while (re.exec(foo)) foo = foo.slice(1);
+    |                           ^^^^ Prefer \`.test(…)\` over \`.exec(…)\`.
+
+Output:
+  1 | const re = /a/; while (re.test(foo)) foo = foo.slice(1);
+
+`;
+
+exports[`prefer-regexp-test > invalid(42): const re = /a/; do {foo = foo.slice(1)} while (re.exec(foo)); 1`] = `
+
+  1 | const re = /a/; do {foo = foo.slice(1)} while (re.exec(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(42): const re = /a/; do {foo = foo.slice(1)} while (re.exec(foo)); 2`] = `
+
+Message:
+> 1 | const re = /a/; do {foo = foo.slice(1)} while (re.exec(foo));
+    |                                                   ^^^^ Prefer \`.test(…)\` over \`.exec(…)\`.
+
+Output:
+  1 | const re = /a/; do {foo = foo.slice(1)} while (re.test(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(43): const re = /a/; for (; re.exec(foo); ) foo = foo.slice(1); 1`] = `
+
+  1 | const re = /a/; for (; re.exec(foo); ) foo = foo.slice(1);
+
+`;
+
+exports[`prefer-regexp-test > invalid(43): const re = /a/; for (; re.exec(foo); ) foo = foo.slice(1); 2`] = `
+
+Message:
+> 1 | const re = /a/; for (; re.exec(foo); ) foo = foo.slice(1);
+    |                           ^^^^ Prefer \`.test(…)\` over \`.exec(…)\`.
+
+Output:
+  1 | const re = /a/; for (; re.test(foo); ) foo = foo.slice(1);
+
+`;
+
+exports[`prefer-regexp-test > invalid(44): if (/unicorn/.exec(uri).length) {} 1`] = `
+
+  1 | if (/unicorn/.exec(uri).length) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(44): if (/unicorn/.exec(uri).length) {} 2`] = `
+
+Message:
+> 1 | if (/unicorn/.exec(uri).length) {}
+    |               ^^^^ Prefer \`.test(…)\` over \`.exec(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (/unicorn/.test(uri)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(45): if (/unicorn/.exec(uri)?.length > 0) {} 1`] = `
+
+  1 | if (/unicorn/.exec(uri)?.length > 0) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(45): if (/unicorn/.exec(uri)?.length > 0) {} 2`] = `
+
+Message:
+> 1 | if (/unicorn/.exec(uri)?.length > 0) {}
+    |               ^^^^ Prefer \`.test(…)\` over \`.exec(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (/unicorn/.test(uri)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(46): const re = /a/; if ((0, foo).match(re)) {} 1`] = `
+
+  1 | const re = /a/; if ((0, foo).match(re)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(46): const re = /a/; if ((0, foo).match(re)) {} 2`] = `
+
+Message:
+> 1 | const re = /a/; if ((0, foo).match(re)) {}
+    |                     ^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Output:
+  1 | const re = /a/; if ((re).test((0, foo))) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(47): const re = /a/; if ((0, foo).match((re))) {} 1`] = `
+
+  1 | const re = /a/; if ((0, foo).match((re))) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(47): const re = /a/; if ((0, foo).match((re))) {} 2`] = `
+
+Message:
+> 1 | const re = /a/; if ((0, foo).match((re))) {}
+    |                     ^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Output:
+  1 | const re = /a/; if ((re).test((0, foo))) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(48): const re = /a/; if ((foo).match(re)) {} 1`] = `
+
+  1 | const re = /a/; if ((foo).match(re)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(48): const re = /a/; if ((foo).match(re)) {} 2`] = `
+
+Message:
+> 1 | const re = /a/; if ((foo).match(re)) {}
+    |                     ^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Output:
+  1 | const re = /a/; if ((re).test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(49): const re = /a/; if ((foo).match((re))) {} 1`] = `
+
+  1 | const re = /a/; if ((foo).match((re))) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(49): const re = /a/; if ((foo).match((re))) {} 2`] = `
+
+Message:
+> 1 | const re = /a/; if ((foo).match((re))) {}
+    |                     ^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Output:
+  1 | const re = /a/; if ((re).test((foo))) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(5): const re = /a/; const bar = foo.match(re) ? 1 : 2 1`] = `
+
+  1 | const re = /a/; const bar = foo.match(re) ? 1 : 2
+
+`;
+
+exports[`prefer-regexp-test > invalid(5): const re = /a/; const bar = foo.match(re) ? 1 : 2 2`] = `
+
+Message:
+> 1 | const re = /a/; const bar = foo.match(re) ? 1 : 2
+    |                             ^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Output:
+  1 | const re = /a/; const bar = re.test(foo) ? 1 : 2
+
+`;
+
+exports[`prefer-regexp-test > invalid(50): if (foo.match(/re/)) {} 1`] = `
+
+  1 | if (foo.match(/re/)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(50): if (foo.match(/re/)) {} 2`] = `
+
+Message:
+> 1 | if (foo.match(/re/)) {}
+    |     ^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Output:
+  1 | if (/re/.test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(51): const bar = {bar: /a/}; if (foo.match(bar.baz)) {} 1`] = `
+
+  1 | const bar = {bar: /a/}; if (foo.match(bar.baz)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(51): const bar = {bar: /a/}; if (foo.match(bar.baz)) {} 2`] = `
+
+Message:
+> 1 | const bar = {bar: /a/}; if (foo.match(bar.baz)) {}
+    |                             ^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | const bar = {bar: /a/}; if (bar.baz.test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(52): if (foo.match(bar.baz())) {} 1`] = `
+
+  1 | if (foo.match(bar.baz())) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(52): if (foo.match(bar.baz())) {} 2`] = `
+
+Message:
+> 1 | if (foo.match(bar.baz())) {}
+    |     ^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (bar.baz().test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(53): if (foo.match(new RegExp(\"re\", \"g\"))) {} 1`] = `
+
+  1 | if (foo.match(new RegExp("re", "g"))) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(53): if (foo.match(new RegExp(\"re\", \"g\"))) {} 2`] = `
+
+Message:
+> 1 | if (foo.match(new RegExp("re", "g"))) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (new RegExp("re", "g").test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(54): const options = {toString() { sideEffect(); return 'a'; }};\nif (getString().match(new RegExp(options))) {} 1`] = `
+
+  1 | const options = {toString() { sideEffect(); return 'a'; }};
+  2 | if (getString().match(new RegExp(options))) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(54): const options = {toString() { sideEffect(); return 'a'; }};\nif (getString().match(new RegExp(options))) {} 2`] = `
+
+Message:
+  1 | const options = {toString() { sideEffect(); return 'a'; }};
+> 2 | if (getString().match(new RegExp(options))) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | const options = {toString() { sideEffect(); return 'a'; }};
+  2 | if (new RegExp(options).test(getString())) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(55): if (foo.match(new SomeRegExp())) {} 1`] = `
+
+  1 | if (foo.match(new SomeRegExp())) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(55): if (foo.match(new SomeRegExp())) {} 2`] = `
+
+Message:
+> 1 | if (foo.match(new SomeRegExp())) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (new SomeRegExp().test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(56): if (foo.match(new SomeRegExp)) {} 1`] = `
+
+  1 | if (foo.match(new SomeRegExp)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(56): if (foo.match(new SomeRegExp)) {} 2`] = `
+
+Message:
+> 1 | if (foo.match(new SomeRegExp)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if ((new SomeRegExp).test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(57): if (foo.match(bar?.baz)) {} 1`] = `
+
+  1 | if (foo.match(bar?.baz)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(57): if (foo.match(bar?.baz)) {} 2`] = `
+
+Message:
+> 1 | if (foo.match(bar?.baz)) {}
+    |     ^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (bar?.baz.test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(58): if (foo.match(bar?.baz())) {} 1`] = `
+
+  1 | if (foo.match(bar?.baz())) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(58): if (foo.match(bar?.baz())) {} 2`] = `
+
+Message:
+> 1 | if (foo.match(bar?.baz())) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (bar?.baz().test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(59): if (foo.match(bar || baz)) {} 1`] = `
+
+  1 | if (foo.match(bar || baz)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(59): if (foo.match(bar || baz)) {} 2`] = `
+
+Message:
+> 1 | if (foo.match(bar || baz)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if ((bar || baz).test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(6): const re = /a/; while (foo.match(re)) foo = foo.slice(1); 1`] = `
+
+  1 | const re = /a/; while (foo.match(re)) foo = foo.slice(1);
+
+`;
+
+exports[`prefer-regexp-test > invalid(6): const re = /a/; while (foo.match(re)) foo = foo.slice(1); 2`] = `
+
+Message:
+> 1 | const re = /a/; while (foo.match(re)) foo = foo.slice(1);
+    |                        ^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Output:
+  1 | const re = /a/; while (re.test(foo)) foo = foo.slice(1);
+
+`;
+
+exports[`prefer-regexp-test > invalid(60): async function a() {\n\tif (foo.match(await bar())) {}\n} 1`] = `
+
+  1 | async function a() {
+  2 | 	if (foo.match(await bar())) {}
+  3 | }
+
+`;
+
+exports[`prefer-regexp-test > invalid(60): async function a() {\n\tif (foo.match(await bar())) {}\n} 2`] = `
+
+Message:
+  1 | async function a() {
+> 2 | 	if (foo.match(await bar())) {}
+    | 	    ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+  3 | }
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | async function a() {
+  2 | 	if ((await bar()).test(foo)) {}
+  3 | }
+
+`;
+
+exports[`prefer-regexp-test > invalid(61): if ((foo).match(/re/)) {} 1`] = `
+
+  1 | if ((foo).match(/re/)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(61): if ((foo).match(/re/)) {} 2`] = `
+
+Message:
+> 1 | if ((foo).match(/re/)) {}
+    |     ^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Output:
+  1 | if ((/re/).test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(62): if ((foo).match(new SomeRegExp)) {} 1`] = `
+
+  1 | if ((foo).match(new SomeRegExp)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(62): if ((foo).match(new SomeRegExp)) {} 2`] = `
+
+Message:
+> 1 | if ((foo).match(new SomeRegExp)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if ((new SomeRegExp).test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(63): if ((foo).match(bar?.baz)) {} 1`] = `
+
+  1 | if ((foo).match(bar?.baz)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(63): if ((foo).match(bar?.baz)) {} 2`] = `
+
+Message:
+> 1 | if ((foo).match(bar?.baz)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if ((bar?.baz).test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(64): if ((foo).match(bar?.baz())) {} 1`] = `
+
+  1 | if ((foo).match(bar?.baz())) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(64): if ((foo).match(bar?.baz())) {} 2`] = `
+
+Message:
+> 1 | if ((foo).match(bar?.baz())) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if ((bar?.baz()).test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(65): const bar = false; const baz = /a/; if ((foo).match(bar || baz)) {} 1`] = `
+
+  1 | const bar = false; const baz = /a/; if ((foo).match(bar || baz)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(65): const bar = false; const baz = /a/; if ((foo).match(bar || baz)) {} 2`] = `
+
+Message:
+> 1 | const bar = false; const baz = /a/; if ((foo).match(bar || baz)) {}
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Output:
+  1 | const bar = false; const baz = /a/; if ((bar || baz).test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(66): async function a() {\n\tif ((foo).match(await bar())) {}\n} 1`] = `
+
+  1 | async function a() {
+  2 | 	if ((foo).match(await bar())) {}
+  3 | }
+
+`;
+
+exports[`prefer-regexp-test > invalid(66): async function a() {\n\tif ((foo).match(await bar())) {}\n} 2`] = `
+
+Message:
+  1 | async function a() {
+> 2 | 	if ((foo).match(await bar())) {}
+    | 	    ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+  3 | }
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | async function a() {
+  2 | 	if ((await bar()).test(foo)) {}
+  3 | }
+
+`;
+
+exports[`prefer-regexp-test > invalid(67): const re = [/a/]; if (foo.match([re][0])) {} 1`] = `
+
+  1 | const re = [/a/]; if (foo.match([re][0])) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(67): const re = [/a/]; if (foo.match([re][0])) {} 2`] = `
+
+Message:
+> 1 | const re = [/a/]; if (foo.match([re][0])) {}
+    |                       ^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | const re = [/a/]; if ([re][0].test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(68): async function a() {\n\tif (\n\t\t/* 1 */ foo() /* 2 */\n\t\t\t./* 3 */ match /* 4 */ (\n\t\t\t\t/* 5 */ await /* 6 */ bar() /* 7 */\n\t\t\t\t,\n\t\t\t\t/* 8 */\n\t\t\t)\n\t) {}\n} 1`] = `
+
+   1 | async function a() {
+   2 | 	if (
+   3 | 		/* 1 */ foo() /* 2 */
+   4 | 			./* 3 */ match /* 4 */ (
+   5 | 				/* 5 */ await /* 6 */ bar() /* 7 */
+   6 | 				,
+   7 | 				/* 8 */
+   8 | 			)
+   9 | 	) {}
+  10 | }
+
+`;
+
+exports[`prefer-regexp-test > invalid(68): async function a() {\n\tif (\n\t\t/* 1 */ foo() /* 2 */\n\t\t\t./* 3 */ match /* 4 */ (\n\t\t\t\t/* 5 */ await /* 6 */ bar() /* 7 */\n\t\t\t\t,\n\t\t\t\t/* 8 */\n\t\t\t)\n\t) {}\n} 2`] = `
+
+Message:
+   1 | async function a() {
+   2 | 	if (
+>  3 | 		/* 1 */ foo() /* 2 */
+     | 		        ^^^^^^^^^^^^^
+>  4 | 			./* 3 */ match /* 4 */ (
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  5 | 				/* 5 */ await /* 6 */ bar() /* 7 */
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  6 | 				,
+     | ^^^^^
+>  7 | 				/* 8 */
+     | ^^^^^^^^^^^
+>  8 | 			)
+     | ^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+   9 | 	) {}
+  10 | }
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+   1 | async function a() {
+   2 | 	if (
+   3 | 		/* 1 */ (await /* 6 */ bar()) /* 2 */
+   4 | 			./* 3 */ test /* 4 */ (
+   5 | 				/* 5 */ foo() /* 7 */
+   6 | 				,
+   7 | 				/* 8 */
+   8 | 			)
+   9 | 	) {}
+  10 | }
+
+`;
+
+exports[`prefer-regexp-test > invalid(69): const regex = new RegExp('[.!?]\\s*$');\nif (foo.match(regex)) {} 1`] = `
+
+  1 | const regex = new RegExp('[.!?]\\s*$');
+  2 | if (foo.match(regex)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(69): const regex = new RegExp('[.!?]\\s*$');\nif (foo.match(regex)) {} 2`] = `
+
+Message:
+  1 | const regex = new RegExp('[.!?]\\s*$');
+> 2 | if (foo.match(regex)) {}
+    |     ^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Output:
+  1 | const regex = new RegExp('[.!?]\\s*$');
+  2 | if (regex.test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(7): const re = /a/; do {foo = foo.slice(1)} while (foo.match(re)); 1`] = `
+
+  1 | const re = /a/; do {foo = foo.slice(1)} while (foo.match(re));
+
+`;
+
+exports[`prefer-regexp-test > invalid(7): const re = /a/; do {foo = foo.slice(1)} while (foo.match(re)); 2`] = `
+
+Message:
+> 1 | const re = /a/; do {foo = foo.slice(1)} while (foo.match(re));
+    |                                                ^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Output:
+  1 | const re = /a/; do {foo = foo.slice(1)} while (re.test(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(70): if (foo.match(unknown)) {} 1`] = `
+
+  1 | if (foo.match(unknown)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(70): if (foo.match(unknown)) {} 2`] = `
+
+Message:
+> 1 | if (foo.match(unknown)) {}
+    |     ^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (unknown.test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(71): if (foo.match(/a/g)); 1`] = `
+
+  1 | if (foo.match(/a/g));
+
+`;
+
+exports[`prefer-regexp-test > invalid(71): if (foo.match(/a/g)); 2`] = `
+
+Message:
+> 1 | if (foo.match(/a/g));
+    |     ^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (/a/g.test(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(72): if (foo.match(/a/y)); 1`] = `
+
+  1 | if (foo.match(/a/y));
+
+`;
+
+exports[`prefer-regexp-test > invalid(72): if (foo.match(/a/y)); 2`] = `
+
+Message:
+> 1 | if (foo.match(/a/y));
+    |     ^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Output:
+  1 | if (/a/y.test(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(73): if (foo.match(/a/gy)); 1`] = `
+
+  1 | if (foo.match(/a/gy));
+
+`;
+
+exports[`prefer-regexp-test > invalid(73): if (foo.match(/a/gy)); 2`] = `
+
+Message:
+> 1 | if (foo.match(/a/gy));
+    |     ^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (/a/gy.test(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(74): if (foo.match(/a/ig)); 1`] = `
+
+  1 | if (foo.match(/a/ig));
+
+`;
+
+exports[`prefer-regexp-test > invalid(74): if (foo.match(/a/ig)); 2`] = `
+
+Message:
+> 1 | if (foo.match(/a/ig));
+    |     ^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (/a/ig.test(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(75): if (foo.match(new RegExp(\"a\", \"g\"))); 1`] = `
+
+  1 | if (foo.match(new RegExp("a", "g")));
+
+`;
+
+exports[`prefer-regexp-test > invalid(75): if (foo.match(new RegExp(\"a\", \"g\"))); 2`] = `
+
+Message:
+> 1 | if (foo.match(new RegExp("a", "g")));
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (new RegExp("a", "g").test(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(76): if (/a/g.exec(foo)); 1`] = `
+
+  1 | if (/a/g.exec(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(76): if (/a/g.exec(foo)); 2`] = `
+
+Message:
+> 1 | if (/a/g.exec(foo));
+    |          ^^^^ Prefer \`.test(…)\` over \`.exec(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (/a/g.test(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(77): if (/a/y.exec(foo)); 1`] = `
+
+  1 | if (/a/y.exec(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(77): if (/a/y.exec(foo)); 2`] = `
+
+Message:
+> 1 | if (/a/y.exec(foo));
+    |          ^^^^ Prefer \`.test(…)\` over \`.exec(…)\`.
+
+Output:
+  1 | if (/a/y.test(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(78): if (/a/gy.exec(foo)); 1`] = `
+
+  1 | if (/a/gy.exec(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(78): if (/a/gy.exec(foo)); 2`] = `
+
+Message:
+> 1 | if (/a/gy.exec(foo));
+    |           ^^^^ Prefer \`.test(…)\` over \`.exec(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (/a/gy.test(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(79): if (/a/yi.exec(foo)); 1`] = `
+
+  1 | if (/a/yi.exec(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(79): if (/a/yi.exec(foo)); 2`] = `
+
+Message:
+> 1 | if (/a/yi.exec(foo));
+    |           ^^^^ Prefer \`.test(…)\` over \`.exec(…)\`.
+
+Output:
+  1 | if (/a/yi.test(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(8): const re = /a/; for (; foo.match(re); ) foo = foo.slice(1); 1`] = `
+
+  1 | const re = /a/; for (; foo.match(re); ) foo = foo.slice(1);
+
+`;
+
+exports[`prefer-regexp-test > invalid(8): const re = /a/; for (; foo.match(re); ) foo = foo.slice(1); 2`] = `
+
+Message:
+> 1 | const re = /a/; for (; foo.match(re); ) foo = foo.slice(1);
+    |                        ^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Output:
+  1 | const re = /a/; for (; re.test(foo); ) foo = foo.slice(1);
+
+`;
+
+exports[`prefer-regexp-test > invalid(80): if (new RegExp(\"a\", \"g\").exec(foo)); 1`] = `
+
+  1 | if (new RegExp("a", "g").exec(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(80): if (new RegExp(\"a\", \"g\").exec(foo)); 2`] = `
+
+Message:
+> 1 | if (new RegExp("a", "g").exec(foo));
+    |                          ^^^^ Prefer \`.test(…)\` over \`.exec(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if (new RegExp("a", "g").test(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(81): if (new RegExp(\"a\", \"y\").exec(foo)); 1`] = `
+
+  1 | if (new RegExp("a", "y").exec(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(81): if (new RegExp(\"a\", \"y\").exec(foo)); 2`] = `
+
+Message:
+> 1 | if (new RegExp("a", "y").exec(foo));
+    |                          ^^^^ Prefer \`.test(…)\` over \`.exec(…)\`.
+
+Output:
+  1 | if (new RegExp("a", "y").test(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(82): const regex = /weird/g;\nif (foo.match(regex)); 1`] = `
+
+  1 | const regex = /weird/g;
+  2 | if (foo.match(regex));
+
+`;
+
+exports[`prefer-regexp-test > invalid(82): const regex = /weird/g;\nif (foo.match(regex)); 2`] = `
+
+Message:
+  1 | const regex = /weird/g;
+> 2 | if (foo.match(regex));
+    |     ^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | const regex = /weird/g;
+  2 | if (regex.test(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(83): const regex = /weird/g;\nif (regex.exec(foo)); 1`] = `
+
+  1 | const regex = /weird/g;
+  2 | if (regex.exec(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(83): const regex = /weird/g;\nif (regex.exec(foo)); 2`] = `
+
+Message:
+  1 | const regex = /weird/g;
+> 2 | if (regex.exec(foo));
+    |           ^^^^ Prefer \`.test(…)\` over \`.exec(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | const regex = /weird/g;
+  2 | if (regex.test(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(84): const regex = /weird/y;\nif (regex.exec(foo)); 1`] = `
+
+  1 | const regex = /weird/y;
+  2 | if (regex.exec(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(84): const regex = /weird/y;\nif (regex.exec(foo)); 2`] = `
+
+Message:
+  1 | const regex = /weird/y;
+> 2 | if (regex.exec(foo));
+    |           ^^^^ Prefer \`.test(…)\` over \`.exec(…)\`.
+
+Output:
+  1 | const regex = /weird/y;
+  2 | if (regex.test(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(85): const regex = /weird/gyi;\nif (regex.exec(foo)); 1`] = `
+
+  1 | const regex = /weird/gyi;
+  2 | if (regex.exec(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(85): const regex = /weird/gyi;\nif (regex.exec(foo)); 2`] = `
+
+Message:
+  1 | const regex = /weird/gyi;
+> 2 | if (regex.exec(foo));
+    |           ^^^^ Prefer \`.test(…)\` over \`.exec(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | const regex = /weird/gyi;
+  2 | if (regex.test(foo));
+
+`;
+
+exports[`prefer-regexp-test > invalid(86): let re = new RegExp('foo', 'g');\nif(str.match(re)); 1`] = `
+
+  1 | let re = new RegExp('foo', 'g');
+  2 | if(str.match(re));
+
+`;
+
+exports[`prefer-regexp-test > invalid(86): let re = new RegExp('foo', 'g');\nif(str.match(re)); 2`] = `
+
+Message:
+  1 | let re = new RegExp('foo', 'g');
+> 2 | if(str.match(re));
+    |    ^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | let re = new RegExp('foo', 'g');
+  2 | if(re.test(str));
+
+`;
+
+exports[`prefer-regexp-test > invalid(87): !/a/u.exec(foo) 1`] = `
+
+  1 | !/a/u.exec(foo)
+
+`;
+
+exports[`prefer-regexp-test > invalid(87): !/a/u.exec(foo) 2`] = `
+
+Message:
+> 1 | !/a/u.exec(foo)
+    |       ^^^^ Prefer \`.test(…)\` over \`.exec(…)\`.
+
+Output:
+  1 | !/a/u.test(foo)
+
+`;
+
+exports[`prefer-regexp-test > invalid(88): !/a/v.exec(foo) 1`] = `
+
+  1 | !/a/v.exec(foo)
+
+`;
+
+exports[`prefer-regexp-test > invalid(88): !/a/v.exec(foo) 2`] = `
+
+Message:
+> 1 | !/a/v.exec(foo)
+    |       ^^^^ Prefer \`.test(…)\` over \`.exec(…)\`.
+
+Output:
+  1 | !/a/v.test(foo)
+
+`;
+
+exports[`prefer-regexp-test > invalid(89): function foo() { if (string[0].match(/a/)) {} } const string = \"abc\"; 1`] = `
+
+  1 | function foo() { if (string[0].match(/a/)) {} } const string = "abc";
+
+`;
+
+exports[`prefer-regexp-test > invalid(89): function foo() { if (string[0].match(/a/)) {} } const string = \"abc\"; 2`] = `
+
+Message:
+> 1 | function foo() { if (string[0].match(/a/)) {} } const string = "abc";
+    |                      ^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Output:
+  1 | function foo() { if (/a/.test(string[0])) {} } const string = "abc";
+
+`;
+
+exports[`prefer-regexp-test > invalid(9): if (object.match(/regexp/)) {} 1`] = `
+
+  1 | if (object.match(/regexp/)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(9): if (object.match(/regexp/)) {} 2`] = `
+
+Message:
+> 1 | if (object.match(/regexp/)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Output:
+  1 | if (/regexp/.test(object)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(90): if (foo.match(a ? (b ? /x/ : null) : /y/)) {} 1`] = `
+
+  1 | if (foo.match(a ? (b ? /x/ : null) : /y/)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(90): if (foo.match(a ? (b ? /x/ : null) : /y/)) {} 2`] = `
+
+Message:
+> 1 | if (foo.match(a ? (b ? /x/ : null) : /y/)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if ((a ? (b ? /x/ : null) : /y/).test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(91): if (foo.match(a ? /x/ : /y/)) {} 1`] = `
+
+  1 | if (foo.match(a ? /x/ : /y/)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(91): if (foo.match(a ? /x/ : /y/)) {} 2`] = `
+
+Message:
+> 1 | if (foo.match(a ? /x/ : /y/)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | if ((a ? /x/ : /y/).test(foo)) {}
+
+`;
+
+exports[`prefer-regexp-test > invalid(92): function foo(pattern: string | Foo) { if (\"string\".match(pattern)) {} } 1`] = `
+
+  1 | function foo(pattern: string | Foo) { if ("string".match(pattern)) {} }
+
+`;
+
+exports[`prefer-regexp-test > invalid(92): function foo(pattern: string | Foo) { if (\"string\".match(pattern)) {} } 2`] = `
+
+Message:
+> 1 | function foo(pattern: string | Foo) { if ("string".match(pattern)) {} }
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | function foo(pattern: string | Foo) { if (pattern.test("string")) {} }
+
+`;
+
+exports[`prefer-regexp-test > invalid(93): function foo(pattern: Foo & RegExp) { if (\"string\".match(pattern)) {} } 1`] = `
+
+  1 | function foo(pattern: Foo & RegExp) { if ("string".match(pattern)) {} }
+
+`;
+
+exports[`prefer-regexp-test > invalid(93): function foo(pattern: Foo & RegExp) { if (\"string\".match(pattern)) {} } 2`] = `
+
+Message:
+> 1 | function foo(pattern: Foo & RegExp) { if ("string".match(pattern)) {} }
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | function foo(pattern: Foo & RegExp) { if (pattern.test("string")) {} }
+
+`;
+
+exports[`prefer-regexp-test > invalid(94): function foo(pattern: ({a: 1} & {b: 1}) | RegExp) { if (\"string\".match(pattern)) {} } 1`] = `
+
+  1 | function foo(pattern: ({a: 1} & {b: 1}) | RegExp) { if ("string".match(pattern)) {} }
+
+`;
+
+exports[`prefer-regexp-test > invalid(94): function foo(pattern: ({a: 1} & {b: 1}) | RegExp) { if (\"string\".match(pattern)) {} } 2`] = `
+
+Message:
+> 1 | function foo(pattern: ({a: 1} & {b: 1}) | RegExp) { if ("string".match(pattern)) {} }
+    |                                                         ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | function foo(pattern: ({a: 1} & {b: 1}) | RegExp) { if (pattern.test("string")) {} }
+
+`;
+
+exports[`prefer-regexp-test > invalid(95): function foo(pattern: Foo.Bar) { if (\"string\".match(pattern)) {} } 1`] = `
+
+  1 | function foo(pattern: Foo.Bar) { if ("string".match(pattern)) {} }
+
+`;
+
+exports[`prefer-regexp-test > invalid(95): function foo(pattern: Foo.Bar) { if (\"string\".match(pattern)) {} } 2`] = `
+
+Message:
+> 1 | function foo(pattern: Foo.Bar) { if ("string".match(pattern)) {} }
+    |                                      ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | function foo(pattern: Foo.Bar) { if (pattern.test("string")) {} }
+
+`;
+
+exports[`prefer-regexp-test > invalid(96): function foo(pattern) { if (\"string\".match(pattern as RegExp)) {} } 1`] = `
+
+  1 | function foo(pattern) { if ("string".match(pattern as RegExp)) {} }
+
+`;
+
+exports[`prefer-regexp-test > invalid(96): function foo(pattern) { if (\"string\".match(pattern as RegExp)) {} } 2`] = `
+
+Message:
+> 1 | function foo(pattern) { if ("string".match(pattern as RegExp)) {} }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | function foo(pattern) { if ((pattern as RegExp).test("string")) {} }
+
+`;
+
+exports[`prefer-regexp-test > invalid(97): function foo(pattern) { if (\"string\".match(pattern as Foo)) {} } 1`] = `
+
+  1 | function foo(pattern) { if ("string".match(pattern as Foo)) {} }
+
+`;
+
+exports[`prefer-regexp-test > invalid(97): function foo(pattern) { if (\"string\".match(pattern as Foo)) {} } 2`] = `
+
+Message:
+> 1 | function foo(pattern) { if ("string".match(pattern as Foo)) {} }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | function foo(pattern) { if ((pattern as Foo).test("string")) {} }
+
+`;
+
+exports[`prefer-regexp-test > invalid(98): function foo(pattern: RegExp | undefined) { if (\"string\".match(pattern!)) {} } 1`] = `
+
+  1 | function foo(pattern: RegExp | undefined) { if ("string".match(pattern!)) {} }
+
+`;
+
+exports[`prefer-regexp-test > invalid(98): function foo(pattern: RegExp | undefined) { if (\"string\".match(pattern!)) {} } 2`] = `
+
+Message:
+> 1 | function foo(pattern: RegExp | undefined) { if ("string".match(pattern!)) {} }
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`RegExp#test(…)\` over \`String#match(…)\`.
+
+Suggestion 1/1: Switch to \`RegExp#test(…)\`.:
+  1 | function foo(pattern: RegExp | undefined) { if (pattern!.test("string")) {} }
+
+`;

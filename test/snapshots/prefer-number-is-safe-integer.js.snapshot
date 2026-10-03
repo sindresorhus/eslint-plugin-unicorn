@@ -1,0 +1,582 @@
+exports[`prefer-number-is-safe-integer > invalid(1): Number.isInteger(x as number) 1`] = `
+
+  1 | Number.isInteger(x as number)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(1): Number.isInteger(x as number) 2`] = `
+
+Message:
+> 1 | Number.isInteger(x as number)
+    |        ^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over \`Number.isInteger()\`.
+
+Suggestion 1/1: Replace \`Number.isInteger()\` with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(x as number)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(1): Number.isInteger(x) 1`] = `
+
+  1 | Number.isInteger(x)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(1): Number.isInteger(x) 2`] = `
+
+Message:
+> 1 | Number.isInteger(x)
+    |        ^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over \`Number.isInteger()\`.
+
+Suggestion 1/1: Replace \`Number.isInteger()\` with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(x)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(10): Number.isInteger() 1`] = `
+
+  1 | Number.isInteger()
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(10): Number.isInteger() 2`] = `
+
+Message:
+> 1 | Number.isInteger()
+    |        ^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over \`Number.isInteger()\`.
+
+Suggestion 1/1: Replace \`Number.isInteger()\` with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger()
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(11): value % 1 === 0 1`] = `
+
+  1 | value % 1 === 0
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(11): value % 1 === 0 2`] = `
+
+Message:
+> 1 | value % 1 === 0
+    | ^^^^^^^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over this integer check.
+
+Suggestion 1/1: Replace this integer check with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(12): 0 === value % 1 1`] = `
+
+  1 | 0 === value % 1
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(12): 0 === value % 1 2`] = `
+
+Message:
+> 1 | 0 === value % 1
+    | ^^^^^^^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over this integer check.
+
+Suggestion 1/1: Replace this integer check with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(13): object.value % 1 === 0 1`] = `
+
+  1 | object.value % 1 === 0
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(13): object.value % 1 === 0 2`] = `
+
+Message:
+> 1 | object.value % 1 === 0
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over this integer check.
+
+Suggestion 1/1: Replace this integer check with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(object.value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(14): (foo, bar) % 1 === 0 1`] = `
+
+  1 | (foo, bar) % 1 === 0
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(14): (foo, bar) % 1 === 0 2`] = `
+
+Message:
+> 1 | (foo, bar) % 1 === 0
+    | ^^^^^^^^^^^^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over this integer check.
+
+Suggestion 1/1: Replace this integer check with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger((foo, bar))
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(15): Math.floor(value) === value 1`] = `
+
+  1 | Math.floor(value) === value
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(15): Math.floor(value) === value 2`] = `
+
+Message:
+> 1 | Math.floor(value) === value
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over this integer check.
+
+Suggestion 1/1: Replace this integer check with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(16): value === Math.floor(value) 1`] = `
+
+  1 | value === Math.floor(value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(16): value === Math.floor(value) 2`] = `
+
+Message:
+> 1 | value === Math.floor(value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over this integer check.
+
+Suggestion 1/1: Replace this integer check with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(17): Math.trunc(value) === value 1`] = `
+
+  1 | Math.trunc(value) === value
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(17): Math.trunc(value) === value 2`] = `
+
+Message:
+> 1 | Math.trunc(value) === value
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over this integer check.
+
+Suggestion 1/1: Replace this integer check with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(18): value === Math.trunc(value) 1`] = `
+
+  1 | value === Math.trunc(value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(18): value === Math.trunc(value) 2`] = `
+
+Message:
+> 1 | value === Math.trunc(value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over this integer check.
+
+Suggestion 1/1: Replace this integer check with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(19): Math.trunc(object.value) === object.value 1`] = `
+
+  1 | Math.trunc(object.value) === object.value
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(19): Math.trunc(object.value) === object.value 2`] = `
+
+Message:
+> 1 | Math.trunc(object.value) === object.value
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over this integer check.
+
+Suggestion 1/1: Replace this integer check with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(object.value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(2): !Number.isInteger(x) 1`] = `
+
+  1 | !Number.isInteger(x)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(2): !Number.isInteger(x) 2`] = `
+
+Message:
+> 1 | !Number.isInteger(x)
+    |         ^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over \`Number.isInteger()\`.
+
+Suggestion 1/1: Replace \`Number.isInteger()\` with \`Number.isSafeInteger()\`.:
+  1 | !Number.isSafeInteger(x)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(2): Number.isInteger(x!) 1`] = `
+
+  1 | Number.isInteger(x!)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(2): Number.isInteger(x!) 2`] = `
+
+Message:
+> 1 | Number.isInteger(x!)
+    |        ^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over \`Number.isInteger()\`.
+
+Suggestion 1/1: Replace \`Number.isInteger()\` with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(x!)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(20): Math.trunc(object[\"value\"]) === object.value 1`] = `
+
+  1 | Math.trunc(object["value"]) === object.value
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(20): Math.trunc(object[\"value\"]) === object.value 2`] = `
+
+Message:
+> 1 | Math.trunc(object["value"]) === object.value
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over this integer check.
+
+Suggestion 1/1: Replace this integer check with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(object["value"])
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(21): _.isInteger(value) 1`] = `
+
+  1 | _.isInteger(value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(21): _.isInteger(value) 2`] = `
+
+Message:
+> 1 | _.isInteger(value)
+    | ^^^^^^^^^^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over this integer check.
+
+Suggestion 1/1: Replace this integer check with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(22): lodash.isInteger(value) 1`] = `
+
+  1 | lodash.isInteger(value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(22): lodash.isInteger(value) 2`] = `
+
+Message:
+> 1 | lodash.isInteger(value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over this integer check.
+
+Suggestion 1/1: Replace this integer check with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(23): underscore.isInteger(value) 1`] = `
+
+  1 | underscore.isInteger(value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(23): underscore.isInteger(value) 2`] = `
+
+Message:
+> 1 | underscore.isInteger(value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over this integer check.
+
+Suggestion 1/1: Replace this integer check with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(24): _.isSafeInteger(value) 1`] = `
+
+  1 | _.isSafeInteger(value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(24): _.isSafeInteger(value) 2`] = `
+
+Message:
+> 1 | _.isSafeInteger(value)
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over this integer check.
+
+Suggestion 1/1: Replace this integer check with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(25): lodash.isSafeInteger(value) 1`] = `
+
+  1 | lodash.isSafeInteger(value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(25): lodash.isSafeInteger(value) 2`] = `
+
+Message:
+> 1 | lodash.isSafeInteger(value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over this integer check.
+
+Suggestion 1/1: Replace this integer check with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(26): underscore.isSafeInteger(value) 1`] = `
+
+  1 | underscore.isSafeInteger(value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(26): underscore.isSafeInteger(value) 2`] = `
+
+Message:
+> 1 | underscore.isSafeInteger(value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over this integer check.
+
+Suggestion 1/1: Replace this integer check with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(27): value /* comment */ % 1 === 0 1`] = `
+
+  1 | value /* comment */ % 1 === 0
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(27): value /* comment */ % 1 === 0 2`] = `
+
+Message:
+> 1 | value /* comment */ % 1 === 0
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over this integer check.
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(28): 0 === value /* comment */ % 1 1`] = `
+
+  1 | 0 === value /* comment */ % 1
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(28): 0 === value /* comment */ % 1 2`] = `
+
+Message:
+> 1 | 0 === value /* comment */ % 1
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over this integer check.
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(29): _.isInteger(/* comment */ value) 1`] = `
+
+  1 | _.isInteger(/* comment */ value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(29): _.isInteger(/* comment */ value) 2`] = `
+
+Message:
+> 1 | _.isInteger(/* comment */ value)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over this integer check.
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(3): Math.trunc(value as number) === value 1`] = `
+
+  1 | Math.trunc(value as number) === value
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(3): Math.trunc(value as number) === value 2`] = `
+
+Message:
+> 1 | Math.trunc(value as number) === value
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over this integer check.
+
+Suggestion 1/1: Replace this integer check with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(value as number)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(3): if (Number.isInteger(x)) {} 1`] = `
+
+  1 | if (Number.isInteger(x)) {}
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(3): if (Number.isInteger(x)) {} 2`] = `
+
+Message:
+> 1 | if (Number.isInteger(x)) {}
+    |            ^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over \`Number.isInteger()\`.
+
+Suggestion 1/1: Replace \`Number.isInteger()\` with \`Number.isSafeInteger()\`.:
+  1 | if (Number.isSafeInteger(x)) {}
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(30): Math.trunc(/* comment */ value) === value 1`] = `
+
+  1 | Math.trunc(/* comment */ value) === value
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(30): Math.trunc(/* comment */ value) === value 2`] = `
+
+Message:
+> 1 | Math.trunc(/* comment */ value) === value
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over this integer check.
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(4): Math.trunc(value!) === value 1`] = `
+
+  1 | Math.trunc(value!) === value
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(4): Math.trunc(value!) === value 2`] = `
+
+Message:
+> 1 | Math.trunc(value!) === value
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over this integer check.
+
+Suggestion 1/1: Replace this integer check with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(value!)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(4): if (!Number.isInteger(x)) {} 1`] = `
+
+  1 | if (!Number.isInteger(x)) {}
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(4): if (!Number.isInteger(x)) {} 2`] = `
+
+Message:
+> 1 | if (!Number.isInteger(x)) {}
+    |             ^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over \`Number.isInteger()\`.
+
+Suggestion 1/1: Replace \`Number.isInteger()\` with \`Number.isSafeInteger()\`.:
+  1 | if (!Number.isSafeInteger(x)) {}
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(5): Math.trunc(value) === value as number 1`] = `
+
+  1 | Math.trunc(value) === value as number
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(5): Math.trunc(value) === value as number 2`] = `
+
+Message:
+> 1 | Math.trunc(value) === value as number
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over this integer check.
+
+Suggestion 1/1: Replace this integer check with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(value)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(5): Number.isInteger(0.5) 1`] = `
+
+  1 | Number.isInteger(0.5)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(5): Number.isInteger(0.5) 2`] = `
+
+Message:
+> 1 | Number.isInteger(0.5)
+    |        ^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over \`Number.isInteger()\`.
+
+Suggestion 1/1: Replace \`Number.isInteger()\` with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(0.5)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(6): (( (( Number )).isInteger( ((x)), ))) 1`] = `
+
+  1 | (( (( Number )).isInteger( ((x)), )))
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(6): (( (( Number )).isInteger( ((x)), ))) 2`] = `
+
+Message:
+> 1 | (( (( Number )).isInteger( ((x)), )))
+    |                 ^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over \`Number.isInteger()\`.
+
+Suggestion 1/1: Replace \`Number.isInteger()\` with \`Number.isSafeInteger()\`.:
+  1 | (( (( Number )).isSafeInteger( ((x)), )))
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(7): Number.isInteger(x) ? a : b 1`] = `
+
+  1 | Number.isInteger(x) ? a : b
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(7): Number.isInteger(x) ? a : b 2`] = `
+
+Message:
+> 1 | Number.isInteger(x) ? a : b
+    |        ^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over \`Number.isInteger()\`.
+
+Suggestion 1/1: Replace \`Number.isInteger()\` with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(x) ? a : b
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(8): Number.isInteger(/* comment */ x) 1`] = `
+
+  1 | Number.isInteger(/* comment */ x)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(8): Number.isInteger(/* comment */ x) 2`] = `
+
+Message:
+> 1 | Number.isInteger(/* comment */ x)
+    |        ^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over \`Number.isInteger()\`.
+
+Suggestion 1/1: Replace \`Number.isInteger()\` with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(/* comment */ x)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(9): Number.isInteger(...x) 1`] = `
+
+  1 | Number.isInteger(...x)
+
+`;
+
+exports[`prefer-number-is-safe-integer > invalid(9): Number.isInteger(...x) 2`] = `
+
+Message:
+> 1 | Number.isInteger(...x)
+    |        ^^^^^^^^^ Prefer \`Number.isSafeInteger()\` over \`Number.isInteger()\`.
+
+Suggestion 1/1: Replace \`Number.isInteger()\` with \`Number.isSafeInteger()\`.:
+  1 | Number.isSafeInteger(...x)
+
+`;

@@ -1,0 +1,223 @@
+exports[`no-array-front-mutation > invalid(1): array.shift() 1`] = `
+
+  1 | array.shift()
+
+`;
+
+exports[`no-array-front-mutation > invalid(1): array.shift() 2`] = `
+
+Message:
+> 1 | array.shift()
+    |       ^^^^^ Avoid front-of-array mutation with \`Array#shift()\`.
+
+`;
+
+exports[`no-array-front-mutation > invalid(10): const length = array.unshift(value) 1`] = `
+
+  1 | const length = array.unshift(value)
+
+`;
+
+exports[`no-array-front-mutation > invalid(10): const length = array.unshift(value) 2`] = `
+
+Message:
+> 1 | const length = array.unshift(value)
+    |                      ^^^^^^^ Avoid front-of-array mutation with \`Array#unshift()\`.
+
+`;
+
+exports[`no-array-front-mutation > invalid(11): function getItem() { return array.shift(); } 1`] = `
+
+  1 | function getItem() { return array.shift(); }
+
+`;
+
+exports[`no-array-front-mutation > invalid(11): function getItem() { return array.shift(); } 2`] = `
+
+Message:
+> 1 | function getItem() { return array.shift(); }
+    |                                   ^^^^^ Avoid front-of-array mutation with \`Array#shift()\`.
+
+`;
+
+exports[`no-array-front-mutation > invalid(12): while (array.shift()) {} 1`] = `
+
+  1 | while (array.shift()) {}
+
+`;
+
+exports[`no-array-front-mutation > invalid(12): while (array.shift()) {} 2`] = `
+
+Message:
+> 1 | while (array.shift()) {}
+    |              ^^^^^ Avoid front-of-array mutation with \`Array#shift()\`.
+
+`;
+
+exports[`no-array-front-mutation > invalid(13): if (array.unshift(value)) {} 1`] = `
+
+  1 | if (array.unshift(value)) {}
+
+`;
+
+exports[`no-array-front-mutation > invalid(13): if (array.unshift(value)) {} 2`] = `
+
+Message:
+> 1 | if (array.unshift(value)) {}
+    |           ^^^^^^^ Avoid front-of-array mutation with \`Array#unshift()\`.
+
+`;
+
+exports[`no-array-front-mutation > invalid(14): for (; array.shift(); ) {} 1`] = `
+
+  1 | for (; array.shift(); ) {}
+
+`;
+
+exports[`no-array-front-mutation > invalid(14): for (; array.shift(); ) {} 2`] = `
+
+Message:
+> 1 | for (; array.shift(); ) {}
+    |              ^^^^^ Avoid front-of-array mutation with \`Array#shift()\`.
+
+`;
+
+exports[`no-array-front-mutation > invalid(15): (array as string[]).shift() 1`] = `
+
+  1 | (array as string[]).shift()
+
+`;
+
+exports[`no-array-front-mutation > invalid(15): (array as string[]).shift() 2`] = `
+
+Message:
+> 1 | (array as string[]).shift()
+    |                     ^^^^^ Avoid front-of-array mutation with \`Array#shift()\`.
+
+`;
+
+exports[`no-array-front-mutation > invalid(16): array!.unshift(value) 1`] = `
+
+  1 | array!.unshift(value)
+
+`;
+
+exports[`no-array-front-mutation > invalid(16): array!.unshift(value) 2`] = `
+
+Message:
+> 1 | array!.unshift(value)
+    |        ^^^^^^^ Avoid front-of-array mutation with \`Array#unshift()\`.
+
+`;
+
+exports[`no-array-front-mutation > invalid(2): array.shift(extraArgument) 1`] = `
+
+  1 | array.shift(extraArgument)
+
+`;
+
+exports[`no-array-front-mutation > invalid(2): array.shift(extraArgument) 2`] = `
+
+Message:
+> 1 | array.shift(extraArgument)
+    |       ^^^^^ Avoid front-of-array mutation with \`Array#shift()\`.
+
+`;
+
+exports[`no-array-front-mutation > invalid(3): array?.shift() 1`] = `
+
+  1 | array?.shift()
+
+`;
+
+exports[`no-array-front-mutation > invalid(3): array?.shift() 2`] = `
+
+Message:
+> 1 | array?.shift()
+    |        ^^^^^ Avoid front-of-array mutation with \`Array#shift()\`.
+
+`;
+
+exports[`no-array-front-mutation > invalid(4): array.unshift() 1`] = `
+
+  1 | array.unshift()
+
+`;
+
+exports[`no-array-front-mutation > invalid(4): array.unshift() 2`] = `
+
+Message:
+> 1 | array.unshift()
+    |       ^^^^^^^ Avoid front-of-array mutation with \`Array#unshift()\`.
+
+`;
+
+exports[`no-array-front-mutation > invalid(5): array.unshift(value) 1`] = `
+
+  1 | array.unshift(value)
+
+`;
+
+exports[`no-array-front-mutation > invalid(5): array.unshift(value) 2`] = `
+
+Message:
+> 1 | array.unshift(value)
+    |       ^^^^^^^ Avoid front-of-array mutation with \`Array#unshift()\`.
+
+`;
+
+exports[`no-array-front-mutation > invalid(6): array.unshift(...values) 1`] = `
+
+  1 | array.unshift(...values)
+
+`;
+
+exports[`no-array-front-mutation > invalid(6): array.unshift(...values) 2`] = `
+
+Message:
+> 1 | array.unshift(...values)
+    |       ^^^^^^^ Avoid front-of-array mutation with \`Array#unshift()\`.
+
+`;
+
+exports[`no-array-front-mutation > invalid(7): array?.unshift(value) 1`] = `
+
+  1 | array?.unshift(value)
+
+`;
+
+exports[`no-array-front-mutation > invalid(7): array?.unshift(value) 2`] = `
+
+Message:
+> 1 | array?.unshift(value)
+    |        ^^^^^^^ Avoid front-of-array mutation with \`Array#unshift()\`.
+
+`;
+
+exports[`no-array-front-mutation > invalid(8): stream.shift() 1`] = `
+
+  1 | stream.shift()
+
+`;
+
+exports[`no-array-front-mutation > invalid(8): stream.shift() 2`] = `
+
+Message:
+> 1 | stream.shift()
+    |        ^^^^^ Avoid front-of-array mutation with \`Array#shift()\`.
+
+`;
+
+exports[`no-array-front-mutation > invalid(9): const item = array.shift() 1`] = `
+
+  1 | const item = array.shift()
+
+`;
+
+exports[`no-array-front-mutation > invalid(9): const item = array.shift() 2`] = `
+
+Message:
+> 1 | const item = array.shift()
+    |                    ^^^^^ Avoid front-of-array mutation with \`Array#shift()\`.
+
+`;

@@ -1,0 +1,1519 @@
+exports[`prefer-has-check > invalid(1): new URLSearchParams().get(key) !== null 1`] = `
+
+  1 | new URLSearchParams().get(key) !== null
+
+`;
+
+exports[`prefer-has-check > invalid(1): new URLSearchParams().get(key) !== null 2`] = `
+
+Message:
+> 1 | new URLSearchParams().get(key) !== null
+    |                       ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | new URLSearchParams().has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(10): new URLSearchParams().get((a, b)) !== null 1`] = `
+
+  1 | new URLSearchParams().get((a, b)) !== null
+
+`;
+
+exports[`prefer-has-check > invalid(10): new URLSearchParams().get((a, b)) !== null 2`] = `
+
+Message:
+> 1 | new URLSearchParams().get((a, b)) !== null
+    |                       ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | new URLSearchParams().has((a, b))
+
+`;
+
+exports[`prefer-has-check > invalid(11): new Map([[\"a\", 1]]).get((a, b)) === undefined 1`] = `
+
+  1 | new Map([["a", 1]]).get((a, b)) === undefined
+
+`;
+
+exports[`prefer-has-check > invalid(11): new Map([[\"a\", 1]]).get((a, b)) === undefined 2`] = `
+
+Message:
+> 1 | new Map([["a", 1]]).get((a, b)) === undefined
+    |                     ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | !new Map([["a", 1]]).has((a, b))
+
+`;
+
+exports[`prefer-has-check > invalid(12): new Headers().get(key) !== null 1`] = `
+
+  1 | new Headers().get(key) !== null
+
+`;
+
+exports[`prefer-has-check > invalid(12): new Headers().get(key) !== null 2`] = `
+
+Message:
+> 1 | new Headers().get(key) !== null
+    |               ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | new Headers().has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(13): new Headers().get(key) != undefined 1`] = `
+
+  1 | new Headers().get(key) != undefined
+
+`;
+
+exports[`prefer-has-check > invalid(13): new Headers().get(key) != undefined 2`] = `
+
+Message:
+> 1 | new Headers().get(key) != undefined
+    |               ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | new Headers().has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(14): new FormData().get(key) !== null 1`] = `
+
+  1 | new FormData().get(key) !== null
+
+`;
+
+exports[`prefer-has-check > invalid(14): new FormData().get(key) !== null 2`] = `
+
+Message:
+> 1 | new FormData().get(key) !== null
+    |                ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | new FormData().has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(15): new FormData().get(key) == void 0 1`] = `
+
+  1 | new FormData().get(key) == void 0
+
+`;
+
+exports[`prefer-has-check > invalid(15): new FormData().get(key) == void 0 2`] = `
+
+Message:
+> 1 | new FormData().get(key) == void 0
+    |                ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | !new FormData().has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(16): const parameters = new URLSearchParams();\nif (parameters.get(key) !== null) {} 1`] = `
+
+  1 | const parameters = new URLSearchParams();
+  2 | if (parameters.get(key) !== null) {}
+
+`;
+
+exports[`prefer-has-check > invalid(16): const parameters = new URLSearchParams();\nif (parameters.get(key) !== null) {} 2`] = `
+
+Message:
+  1 | const parameters = new URLSearchParams();
+> 2 | if (parameters.get(key) !== null) {}
+    |                ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | const parameters = new URLSearchParams();
+  2 | if (parameters.has(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(17): declare const map: Map<string, object>; map.get(key) !== undefined 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, object>; map.get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(17): declare const map: Map<string, object>; map.get(key) !== undefined 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, object>; map.get(key) !== undefined
+    |                                             ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, object>; map.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(18): declare const map: Map<string, object>; map.get(key) === undefined 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, object>; map.get(key) === undefined
+
+`;
+
+exports[`prefer-has-check > invalid(18): declare const map: Map<string, object>; map.get(key) === undefined 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, object>; map.get(key) === undefined
+    |                                             ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, object>; !map.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(19): declare const map: Map<string, object>; map.get(key) !== void 0 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, object>; map.get(key) !== void 0
+
+`;
+
+exports[`prefer-has-check > invalid(19): declare const map: Map<string, object>; map.get(key) !== void 0 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, object>; map.get(key) !== void 0
+    |                                             ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, object>; map.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(2): new URLSearchParams().get(key) === null 1`] = `
+
+  1 | new URLSearchParams().get(key) === null
+
+`;
+
+exports[`prefer-has-check > invalid(2): new URLSearchParams().get(key) === null 2`] = `
+
+Message:
+> 1 | new URLSearchParams().get(key) === null
+    |                       ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | !new URLSearchParams().has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(20): declare const map: Map<string, object>; void 0 !== map.get(key) 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, object>; void 0 !== map.get(key)
+
+`;
+
+exports[`prefer-has-check > invalid(20): declare const map: Map<string, object>; void 0 !== map.get(key) 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, object>; void 0 !== map.get(key)
+    |                                                        ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, object>; map.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(21): declare const map: Map<string, object>; map.get(key) === void 0 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, object>; map.get(key) === void 0
+
+`;
+
+exports[`prefer-has-check > invalid(21): declare const map: Map<string, object>; map.get(key) === void 0 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, object>; map.get(key) === void 0
+    |                                             ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, object>; !map.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(22): declare const map: Map<string, object>; map.get(key) != undefined 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, object>; map.get(key) != undefined
+
+`;
+
+exports[`prefer-has-check > invalid(22): declare const map: Map<string, object>; map.get(key) != undefined 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, object>; map.get(key) != undefined
+    |                                             ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, object>; map.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(23): declare const map: Map<string, object>; map.get(key) == void 0 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, object>; map.get(key) == void 0
+
+`;
+
+exports[`prefer-has-check > invalid(23): declare const map: Map<string, object>; map.get(key) == void 0 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, object>; map.get(key) == void 0
+    |                                             ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, object>; !map.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(24): declare const map: Map<string, object>; map.get(key) != null 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, object>; map.get(key) != null
+
+`;
+
+exports[`prefer-has-check > invalid(24): declare const map: Map<string, object>; map.get(key) != null 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, object>; map.get(key) != null
+    |                                             ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, object>; map.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(25): declare const map: Map<string, object>; map.get(key) == null 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, object>; map.get(key) == null
+
+`;
+
+exports[`prefer-has-check > invalid(25): declare const map: Map<string, object>; map.get(key) == null 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, object>; map.get(key) == null
+    |                                             ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, object>; !map.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(26): declare const parameters: URLSearchParams | Headers; parameters.get(key) !== null 1`] = `
+
+Filename: file.ts
+
+  1 | declare const parameters: URLSearchParams | Headers; parameters.get(key) !== null
+
+`;
+
+exports[`prefer-has-check > invalid(26): declare const parameters: URLSearchParams | Headers; parameters.get(key) !== null 2`] = `
+
+Message:
+> 1 | declare const parameters: URLSearchParams | Headers; parameters.get(key) !== null
+    |                                                                 ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const parameters: URLSearchParams | Headers; parameters.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(27): declare const data: URLSearchParams | FormData; data.get(key) == void 0 1`] = `
+
+Filename: file.ts
+
+  1 | declare const data: URLSearchParams | FormData; data.get(key) == void 0
+
+`;
+
+exports[`prefer-has-check > invalid(27): declare const data: URLSearchParams | FormData; data.get(key) == void 0 2`] = `
+
+Message:
+> 1 | declare const data: URLSearchParams | FormData; data.get(key) == void 0
+    |                                                      ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const data: URLSearchParams | FormData; !data.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(28): declare const map: Map<string, object> | ReadonlyMap<string, object>; map.get(key) !== undefined 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, object> | ReadonlyMap<string, object>; map.get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(28): declare const map: Map<string, object> | ReadonlyMap<string, object>; map.get(key) !== undefined 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, object> | ReadonlyMap<string, object>; map.get(key) !== undefined
+    |                                                                           ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, object> | ReadonlyMap<string, object>; map.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(29): declare const map: Map<string, object> & {brand: true}; map.get(key) !== undefined 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, object> & {brand: true}; map.get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(29): declare const map: Map<string, object> & {brand: true}; map.get(key) !== undefined 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, object> & {brand: true}; map.get(key) !== undefined
+    |                                                             ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, object> & {brand: true}; map.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(3): new URLSearchParams().get(key) != null 1`] = `
+
+  1 | new URLSearchParams().get(key) != null
+
+`;
+
+exports[`prefer-has-check > invalid(3): new URLSearchParams().get(key) != null 2`] = `
+
+Message:
+> 1 | new URLSearchParams().get(key) != null
+    |                       ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | new URLSearchParams().has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(30): declare const map: Map<string, object>; (map as Map<string, object>).get(key) !== undefined 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, object>; (map as Map<string, object>).get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(30): declare const map: Map<string, object>; (map as Map<string, object>).get(key) !== undefined 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, object>; (map as Map<string, object>).get(key) !== undefined
+    |                                                                      ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, object>; (map as Map<string, object>).has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(31): declare const map: Map<string, object> | undefined; (map!).get(key) !== undefined 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, object> | undefined; (map!).get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(31): declare const map: Map<string, object> | undefined; (map!).get(key) !== undefined 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, object> | undefined; (map!).get(key) !== undefined
+    |                                                            ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, object> | undefined; (map!).has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(32): declare const map: Map<string, object>; declare const otherMap: Map<string, object>; (condition ? map : otherMap).get(key) !== undefined 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, object>; declare const otherMap: Map<string, object>; (condition ? map : otherMap).get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(32): declare const map: Map<string, object>; declare const otherMap: Map<string, object>; (condition ? map : otherMap).get(key) !== undefined 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, object>; declare const otherMap: Map<string, object>; (condition ? map : otherMap).get(key) !== undefined
+    |                                                                                                                   ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, object>; declare const otherMap: Map<string, object>; (condition ? map : otherMap).has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(33): new Map<string, object>().get(key) !== undefined 1`] = `
+
+Filename: file.ts
+
+  1 | new Map<string, object>().get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(33): new Map<string, object>().get(key) !== undefined 2`] = `
+
+Message:
+> 1 | new Map<string, object>().get(key) !== undefined
+    |                           ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | new Map<string, object>().has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(34): new Map<string, object | undefined>().get(key) !== undefined 1`] = `
+
+Filename: file.ts
+
+  1 | new Map<string, object | undefined>().get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(34): new Map<string, object | undefined>().get(key) !== undefined 2`] = `
+
+Message:
+> 1 | new Map<string, object | undefined>().get(key) !== undefined
+    |                                       ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | new Map<string, object | undefined>().has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(35): new Map<string, object | undefined>([[key, {}]]).get(key) !== undefined 1`] = `
+
+Filename: file.ts
+
+  1 | new Map<string, object | undefined>([[key, {}]]).get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(35): new Map<string, object | undefined>([[key, {}]]).get(key) !== undefined 2`] = `
+
+Message:
+> 1 | new Map<string, object | undefined>([[key, {}]]).get(key) !== undefined
+    |                                                  ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | new Map<string, object | undefined>([[key, {}]]).has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(36): new WeakMap<object, object>().get(key) !== undefined 1`] = `
+
+Filename: file.ts
+
+  1 | new WeakMap<object, object>().get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(36): new WeakMap<object, object>().get(key) !== undefined 2`] = `
+
+Message:
+> 1 | new WeakMap<object, object>().get(key) !== undefined
+    |                               ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | new WeakMap<object, object>().has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(37): declare const map: Map<string, string[]>; if (map.get(key)) {} 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, string[]>; if (map.get(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(37): declare const map: Map<string, string[]>; if (map.get(key)) {} 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, string[]>; if (map.get(key)) {}
+    |                                                   ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, string[]>; if (map.has(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(38): declare const map: ReadonlyMap<string, object>; if (!map.get(key)) {} 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: ReadonlyMap<string, object>; if (!map.get(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(38): declare const map: ReadonlyMap<string, object>; if (!map.get(key)) {} 2`] = `
+
+Message:
+> 1 | declare const map: ReadonlyMap<string, object>; if (!map.get(key)) {}
+    |                                                          ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: ReadonlyMap<string, object>; if (!map.has(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(39): declare const map: WeakMap<object, object>; Boolean(map.get(key)) 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: WeakMap<object, object>; Boolean(map.get(key))
+
+`;
+
+exports[`prefer-has-check > invalid(39): declare const map: WeakMap<object, object>; Boolean(map.get(key)) 2`] = `
+
+Message:
+> 1 | declare const map: WeakMap<object, object>; Boolean(map.get(key))
+    |                                                         ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: WeakMap<object, object>; Boolean(map.has(key))
+
+`;
+
+exports[`prefer-has-check > invalid(4): new URLSearchParams().get(key) == null 1`] = `
+
+  1 | new URLSearchParams().get(key) == null
+
+`;
+
+exports[`prefer-has-check > invalid(4): new URLSearchParams().get(key) == null 2`] = `
+
+Message:
+> 1 | new URLSearchParams().get(key) == null
+    |                       ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | !new URLSearchParams().has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(40): type ObjectMap = Map<string, object>; declare const map: ObjectMap; map.get(key) !== undefined 1`] = `
+
+Filename: file.ts
+
+  1 | type ObjectMap = Map<string, object>; declare const map: ObjectMap; map.get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(40): type ObjectMap = Map<string, object>; declare const map: ObjectMap; map.get(key) !== undefined 2`] = `
+
+Message:
+> 1 | type ObjectMap = Map<string, object>; declare const map: ObjectMap; map.get(key) !== undefined
+    |                                                                         ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | type ObjectMap = Map<string, object>; declare const map: ObjectMap; map.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(41): declare const map: Map<string, true>; if (map.get(key)) {} 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, true>; if (map.get(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(41): declare const map: Map<string, true>; if (map.get(key)) {} 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, true>; if (map.get(key)) {}
+    |                                               ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, true>; if (map.has(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(42): declare const map: Map<string, symbol>; if (map.get(key)) {} 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, symbol>; if (map.get(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(42): declare const map: Map<string, symbol>; if (map.get(key)) {} 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, symbol>; if (map.get(key)) {}
+    |                                                 ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, symbol>; if (map.has(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(43): declare const map: Map<string, \"value\">; if (map.get(key)) {} 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, "value">; if (map.get(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(43): declare const map: Map<string, \"value\">; if (map.get(key)) {} 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, "value">; if (map.get(key)) {}
+    |                                                  ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, "value">; if (map.has(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(44): declare const map: Map<string, 1>; if (map.get(key)) {} 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, 1>; if (map.get(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(44): declare const map: Map<string, 1>; if (map.get(key)) {} 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, 1>; if (map.get(key)) {}
+    |                                            ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, 1>; if (map.has(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(45): declare const map: Map<string, 1n>; if (map.get(key)) {} 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, 1n>; if (map.get(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(45): declare const map: Map<string, 1n>; if (map.get(key)) {} 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, 1n>; if (map.get(key)) {}
+    |                                             ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, 1n>; if (map.has(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(46): new Map().get(key) !== undefined 1`] = `
+
+  1 | new Map().get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(46): new Map().get(key) !== undefined 2`] = `
+
+Message:
+> 1 | new Map().get(key) !== undefined
+    |           ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | new Map().has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(47): new Map([[key, {}]]).get(key) !== undefined 1`] = `
+
+  1 | new Map([[key, {}]]).get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(47): new Map([[key, {}]]).get(key) !== undefined 2`] = `
+
+Message:
+> 1 | new Map([[key, {}]]).get(key) !== undefined
+    |                      ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | new Map([[key, {}]]).has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(48): new Map([[key, []]]).get(key) !== undefined 1`] = `
+
+  1 | new Map([[key, []]]).get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(48): new Map([[key, []]]).get(key) !== undefined 2`] = `
+
+Message:
+> 1 | new Map([[key, []]]).get(key) !== undefined
+    |                      ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | new Map([[key, []]]).has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(49): new Map([[key, null]]).get(key) !== undefined 1`] = `
+
+  1 | new Map([[key, null]]).get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(49): new Map([[key, null]]).get(key) !== undefined 2`] = `
+
+Message:
+> 1 | new Map([[key, null]]).get(key) !== undefined
+    |                        ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | new Map([[key, null]]).has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(5): new URLSearchParams().get(key) != undefined 1`] = `
+
+  1 | new URLSearchParams().get(key) != undefined
+
+`;
+
+exports[`prefer-has-check > invalid(5): new URLSearchParams().get(key) != undefined 2`] = `
+
+Message:
+> 1 | new URLSearchParams().get(key) != undefined
+    |                       ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | new URLSearchParams().has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(50): new Map([[key, null]]).get(key) === undefined 1`] = `
+
+  1 | new Map([[key, null]]).get(key) === undefined
+
+`;
+
+exports[`prefer-has-check > invalid(50): new Map([[key, null]]).get(key) === undefined 2`] = `
+
+Message:
+> 1 | new Map([[key, null]]).get(key) === undefined
+    |                        ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | !new Map([[key, null]]).has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(51): new Map([[key, {}]]).get(key) != null 1`] = `
+
+  1 | new Map([[key, {}]]).get(key) != null
+
+`;
+
+exports[`prefer-has-check > invalid(51): new Map([[key, {}]]).get(key) != null 2`] = `
+
+Message:
+> 1 | new Map([[key, {}]]).get(key) != null
+    |                      ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | new Map([[key, {}]]).has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(52): new WeakMap([[key, {}]]).get(key) !== undefined 1`] = `
+
+  1 | new WeakMap([[key, {}]]).get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(52): new WeakMap([[key, {}]]).get(key) !== undefined 2`] = `
+
+Message:
+> 1 | new WeakMap([[key, {}]]).get(key) !== undefined
+    |                          ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | new WeakMap([[key, {}]]).has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(53): if (new Map().get(key)) {} 1`] = `
+
+  1 | if (new Map().get(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(53): if (new Map().get(key)) {} 2`] = `
+
+Message:
+> 1 | if (new Map().get(key)) {}
+    |               ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | if (new Map().has(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(54): if (new Map([[key, {}]]).get(key)) {} 1`] = `
+
+  1 | if (new Map([[key, {}]]).get(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(54): if (new Map([[key, {}]]).get(key)) {} 2`] = `
+
+Message:
+> 1 | if (new Map([[key, {}]]).get(key)) {}
+    |                          ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | if (new Map([[key, {}]]).has(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(55): if (new Map([[key, []]]).get(key)) {} 1`] = `
+
+  1 | if (new Map([[key, []]]).get(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(55): if (new Map([[key, []]]).get(key)) {} 2`] = `
+
+Message:
+> 1 | if (new Map([[key, []]]).get(key)) {}
+    |                          ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | if (new Map([[key, []]]).has(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(56): if (new Map([[key, true]]).get(key)) {} 1`] = `
+
+  1 | if (new Map([[key, true]]).get(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(56): if (new Map([[key, true]]).get(key)) {} 2`] = `
+
+Message:
+> 1 | if (new Map([[key, true]]).get(key)) {}
+    |                            ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | if (new Map([[key, true]]).has(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(57): if (new Map([[key, \"value\"]]).get(key)) {} 1`] = `
+
+  1 | if (new Map([[key, "value"]]).get(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(57): if (new Map([[key, \"value\"]]).get(key)) {} 2`] = `
+
+Message:
+> 1 | if (new Map([[key, "value"]]).get(key)) {}
+    |                               ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | if (new Map([[key, "value"]]).has(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(58): declare const map: Map<string, object>; map.get(key) !== undefined 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, object>; map.get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(58): declare const map: Map<string, object>; map.get(key) !== undefined 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, object>; map.get(key) !== undefined
+    |                                             ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, object>; map.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(59): declare const map: Map<string, object>; map.get(key) != undefined 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, object>; map.get(key) != undefined
+
+`;
+
+exports[`prefer-has-check > invalid(59): declare const map: Map<string, object>; map.get(key) != undefined 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, object>; map.get(key) != undefined
+    |                                             ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, object>; map.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(6): new URLSearchParams().get(key) == void 0 1`] = `
+
+  1 | new URLSearchParams().get(key) == void 0
+
+`;
+
+exports[`prefer-has-check > invalid(6): new URLSearchParams().get(key) == void 0 2`] = `
+
+Message:
+> 1 | new URLSearchParams().get(key) == void 0
+    |                       ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | !new URLSearchParams().has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(60): new Map<string, object | undefined>().get(key) !== undefined 1`] = `
+
+Filename: file.ts
+
+  1 | new Map<string, object | undefined>().get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(60): new Map<string, object | undefined>().get(key) !== undefined 2`] = `
+
+Message:
+> 1 | new Map<string, object | undefined>().get(key) !== undefined
+    |                                       ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | new Map<string, object | undefined>().has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(61): new Map<string, object | undefined>([[key, {}]]).get(key) !== undefined 1`] = `
+
+Filename: file.ts
+
+  1 | new Map<string, object | undefined>([[key, {}]]).get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(61): new Map<string, object | undefined>([[key, {}]]).get(key) !== undefined 2`] = `
+
+Message:
+> 1 | new Map<string, object | undefined>([[key, {}]]).get(key) !== undefined
+    |                                                  ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | new Map<string, object | undefined>([[key, {}]]).has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(62): declare const map: ReadonlyMap<string, object>; map.get(key) === undefined 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: ReadonlyMap<string, object>; map.get(key) === undefined
+
+`;
+
+exports[`prefer-has-check > invalid(62): declare const map: ReadonlyMap<string, object>; map.get(key) === undefined 2`] = `
+
+Message:
+> 1 | declare const map: ReadonlyMap<string, object>; map.get(key) === undefined
+    |                                                     ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: ReadonlyMap<string, object>; !map.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(63): declare const map: WeakMap<object, object>; map.get(key) != null 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: WeakMap<object, object>; map.get(key) != null
+
+`;
+
+exports[`prefer-has-check > invalid(63): declare const map: WeakMap<object, object>; map.get(key) != null 2`] = `
+
+Message:
+> 1 | declare const map: WeakMap<object, object>; map.get(key) != null
+    |                                                 ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: WeakMap<object, object>; map.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(64): type ObjectMap = Map<string, object>; declare const map: ObjectMap; map.get(key) !== undefined 1`] = `
+
+Filename: file.ts
+
+  1 | type ObjectMap = Map<string, object>; declare const map: ObjectMap; map.get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(64): type ObjectMap = Map<string, object>; declare const map: ObjectMap; map.get(key) !== undefined 2`] = `
+
+Message:
+> 1 | type ObjectMap = Map<string, object>; declare const map: ObjectMap; map.get(key) !== undefined
+    |                                                                         ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | type ObjectMap = Map<string, object>; declare const map: ObjectMap; map.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(65): declare const value: unknown; (value as Map<string, object>).get(key) !== undefined 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: unknown; (value as Map<string, object>).get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(65): declare const value: unknown; (value as Map<string, object>).get(key) !== undefined 2`] = `
+
+Message:
+> 1 | declare const value: unknown; (value as Map<string, object>).get(key) !== undefined
+    |                                                              ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const value: unknown; (value as Map<string, object>).has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(66): declare const map: Map<string, string[]>; if (map.get(key)) {} 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, string[]>; if (map.get(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(66): declare const map: Map<string, string[]>; if (map.get(key)) {} 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, string[]>; if (map.get(key)) {}
+    |                                                   ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, string[]>; if (map.has(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(67): declare const map: Map<string, symbol>; if (map.get(key)) {} 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, symbol>; if (map.get(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(67): declare const map: Map<string, symbol>; if (map.get(key)) {} 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, symbol>; if (map.get(key)) {}
+    |                                                 ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, symbol>; if (map.has(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(68): function foo(map: Map<string, object>) { map.get(key) !== undefined; } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(map: Map<string, object>) { map.get(key) !== undefined; }
+
+`;
+
+exports[`prefer-has-check > invalid(68): function foo(map: Map<string, object>) { map.get(key) !== undefined; } 2`] = `
+
+Message:
+> 1 | function foo(map: Map<string, object>) { map.get(key) !== undefined; }
+    |                                              ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | function foo(map: Map<string, object>) { map.has(key); }
+
+`;
+
+exports[`prefer-has-check > invalid(69): declare const parameters: URLSearchParams; parameters.get(key) !== null 1`] = `
+
+Filename: file.ts
+
+  1 | declare const parameters: URLSearchParams; parameters.get(key) !== null
+
+`;
+
+exports[`prefer-has-check > invalid(69): declare const parameters: URLSearchParams; parameters.get(key) !== null 2`] = `
+
+Message:
+> 1 | declare const parameters: URLSearchParams; parameters.get(key) !== null
+    |                                                       ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const parameters: URLSearchParams; parameters.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(7): null !== new URLSearchParams().get(key) 1`] = `
+
+  1 | null !== new URLSearchParams().get(key)
+
+`;
+
+exports[`prefer-has-check > invalid(7): null !== new URLSearchParams().get(key) 2`] = `
+
+Message:
+> 1 | null !== new URLSearchParams().get(key)
+    |                                ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | new URLSearchParams().has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(70): type Parameters = URLSearchParams; declare const parameters: Parameters; parameters.get(key) === null 1`] = `
+
+Filename: file.ts
+
+  1 | type Parameters = URLSearchParams; declare const parameters: Parameters; parameters.get(key) === null
+
+`;
+
+exports[`prefer-has-check > invalid(70): type Parameters = URLSearchParams; declare const parameters: Parameters; parameters.get(key) === null 2`] = `
+
+Message:
+> 1 | type Parameters = URLSearchParams; declare const parameters: Parameters; parameters.get(key) === null
+    |                                                                                     ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | type Parameters = URLSearchParams; declare const parameters: Parameters; !parameters.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(71): (new URLSearchParams().get(key) as string | null) !== null 1`] = `
+
+Filename: file.ts
+
+  1 | (new URLSearchParams().get(key) as string | null) !== null
+
+`;
+
+exports[`prefer-has-check > invalid(71): (new URLSearchParams().get(key) as string | null) !== null 2`] = `
+
+Message:
+> 1 | (new URLSearchParams().get(key) as string | null) !== null
+    |                        ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | new URLSearchParams().has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(72): declare const map: Map<string, object> | undefined; map!.get(key) !== undefined 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, object> | undefined; map!.get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(72): declare const map: Map<string, object> | undefined; map!.get(key) !== undefined 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, object> | undefined; map!.get(key) !== undefined
+    |                                                          ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, object> | undefined; map!.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(73): declare const map: readonly Map<string, object>; map.get(key) !== undefined 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: readonly Map<string, object>; map.get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(73): declare const map: readonly Map<string, object>; map.get(key) !== undefined 2`] = `
+
+Message:
+> 1 | declare const map: readonly Map<string, object>; map.get(key) !== undefined
+    |                                                      ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: readonly Map<string, object>; map.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(74): declare const map: Map<string, object> | Map<string, string[]>; if (map.get(key)) {} 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, object> | Map<string, string[]>; if (map.get(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(74): declare const map: Map<string, object> | Map<string, string[]>; if (map.get(key)) {} 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, object> | Map<string, string[]>; if (map.get(key)) {}
+    |                                                                         ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, object> | Map<string, string[]>; if (map.has(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(75): declare const map: Map<string, \`value\`>; if (map.get(key)) {} 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, \`value\`>; if (map.get(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(75): declare const map: Map<string, \`value\`>; if (map.get(key)) {} 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, \`value\`>; if (map.get(key)) {}
+    |                                                  ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, \`value\`>; if (map.has(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(76): declare const map: Map<string, -1>; if (map.get(key)) {} 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, -1>; if (map.get(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(76): declare const map: Map<string, -1>; if (map.get(key)) {} 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, -1>; if (map.get(key)) {}
+    |                                             ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, -1>; if (map.has(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(77): declare const map: Map<string, readonly string[]>; if (map.get(key)) {} 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, readonly string[]>; if (map.get(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(77): declare const map: Map<string, readonly string[]>; if (map.get(key)) {} 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, readonly string[]>; if (map.get(key)) {}
+    |                                                            ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, readonly string[]>; if (map.has(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(78): function foo<Value extends object>(map: Map<string, Value>) { map.get(key) !== undefined; } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo<Value extends object>(map: Map<string, Value>) { map.get(key) !== undefined; }
+
+`;
+
+exports[`prefer-has-check > invalid(78): function foo<Value extends object>(map: Map<string, Value>) { map.get(key) !== undefined; } 2`] = `
+
+Message:
+> 1 | function foo<Value extends object>(map: Map<string, Value>) { map.get(key) !== undefined; }
+    |                                                                   ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | function foo<Value extends object>(map: Map<string, Value>) { map.has(key); }
+
+`;
+
+exports[`prefer-has-check > invalid(79): function foo<Value extends object>(map: Map<string, Value>) { if (map.get(key)) {} } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo<Value extends object>(map: Map<string, Value>) { if (map.get(key)) {} }
+
+`;
+
+exports[`prefer-has-check > invalid(79): function foo<Value extends object>(map: Map<string, Value>) { if (map.get(key)) {} } 2`] = `
+
+Message:
+> 1 | function foo<Value extends object>(map: Map<string, Value>) { if (map.get(key)) {} }
+    |                                                                       ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | function foo<Value extends object>(map: Map<string, Value>) { if (map.has(key)) {} }
+
+`;
+
+exports[`prefer-has-check > invalid(8): null === new URLSearchParams().get(key) 1`] = `
+
+  1 | null === new URLSearchParams().get(key)
+
+`;
+
+exports[`prefer-has-check > invalid(8): null === new URLSearchParams().get(key) 2`] = `
+
+Message:
+> 1 | null === new URLSearchParams().get(key)
+    |                                ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | !new URLSearchParams().has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(80): declare const map: Map<string, object & {id: string}>; map.get(key) !== undefined 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, object & {id: string}>; map.get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(80): declare const map: Map<string, object & {id: string}>; map.get(key) !== undefined 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, object & {id: string}>; map.get(key) !== undefined
+    |                                                            ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, object & {id: string}>; map.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(81): declare const map: Map<string, string[] & (() => void)>; if (map.get(key)) {} 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, string[] & (() => void)>; if (map.get(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(81): declare const map: Map<string, string[] & (() => void)>; if (map.get(key)) {} 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, string[] & (() => void)>; if (map.get(key)) {}
+    |                                                                  ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, string[] & (() => void)>; if (map.has(key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(82): new Map([[key, () => {}]]).get(key) !== undefined 1`] = `
+
+  1 | new Map([[key, () => {}]]).get(key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(82): new Map([[key, () => {}]]).get(key) !== undefined 2`] = `
+
+Message:
+> 1 | new Map([[key, () => {}]]).get(key) !== undefined
+    |                            ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | new Map([[key, () => {}]]).has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(83): foo\nnull !== (new URLSearchParams()).get(key) 1`] = `
+
+  1 | foo
+  2 | null !== (new URLSearchParams()).get(key)
+
+`;
+
+exports[`prefer-has-check > invalid(83): foo\nnull !== (new URLSearchParams()).get(key) 2`] = `
+
+Message:
+  1 | foo
+> 2 | null !== (new URLSearchParams()).get(key)
+    |                                  ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | foo
+  2 | ;(new URLSearchParams()).has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(9): new URLSearchParams().get(key) /* comment */ !== null 1`] = `
+
+  1 | new URLSearchParams().get(key) /* comment */ !== null
+
+`;
+
+exports[`prefer-has-check > invalid(9): new URLSearchParams().get(key) /* comment */ !== null 2`] = `
+
+Message:
+> 1 | new URLSearchParams().get(key) /* comment */ !== null
+    |                       ^^^ Prefer \`.has(…)\` when checking existence.
+
+`;

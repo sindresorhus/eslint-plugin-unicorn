@@ -538,6 +538,22 @@ test.snapshot({
 				parser: parsers.typescript,
 			},
 		},
+		outdent`
+			for (const item of items) {
+				if (!isActive(eval('item.active'))) {
+					const result = getResult(item);
+					process(result);
+				}
+			}
+		`,
+		outdent`
+			for (const item of items) {
+				if (isActive(item)) {
+					const result = getResult(item);
+					process(result);
+				}
+			}
+		`,
 	],
 });
 

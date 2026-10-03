@@ -1,0 +1,376 @@
+exports[`no-array-sort > invalid(1): sorted = [...array].sort() 1`] = `
+
+  1 | sorted = [...array].sort()
+
+`;
+
+exports[`no-array-sort > invalid(1): sorted = [...array].sort() 2`] = `
+
+Message:
+> 1 | sorted = [...array].sort()
+    |                     ^^^^ Use \`Array#toSorted()\` instead of \`Array#sort()\`.
+
+Suggestion 1/2: The spreading object is an array.:
+  1 | sorted = array.toSorted()
+
+Suggestion 2/2: The spreading object is NOT an array.:
+  1 | sorted = [...array].toSorted()
+
+`;
+
+exports[`no-array-sort > invalid(10): array?.sort() 1`] = `
+
+Options:
+- allowExpressionStatement: false
+
+Code:
+  1 | array?.sort()
+
+`;
+
+exports[`no-array-sort > invalid(10): array?.sort() 2`] = `
+
+Message:
+> 1 | array?.sort()
+    |        ^^^^ Use \`Array#toSorted()\` instead of \`Array#sort()\`.
+
+Suggestion 1/1: Switch to \`.toSorted()\`.:
+  1 | array?.toSorted()
+
+`;
+
+exports[`no-array-sort > invalid(11): [...array].sort() 1`] = `
+
+Options:
+- allowExpressionStatement: false
+
+Code:
+  1 | [...array].sort()
+
+`;
+
+exports[`no-array-sort > invalid(11): [...array].sort() 2`] = `
+
+Message:
+> 1 | [...array].sort()
+    |            ^^^^ Use \`Array#toSorted()\` instead of \`Array#sort()\`.
+
+Suggestion 1/2: The spreading object is an array.:
+  1 | array.toSorted()
+
+Suggestion 2/2: The spreading object is NOT an array.:
+  1 | [...array].toSorted()
+
+`;
+
+exports[`no-array-sort > invalid(12): sorted = [...(0, array)].sort() 1`] = `
+
+  1 | sorted = [...(0, array)].sort()
+
+`;
+
+exports[`no-array-sort > invalid(12): sorted = [...(0, array)].sort() 2`] = `
+
+Message:
+> 1 | sorted = [...(0, array)].sort()
+    |                          ^^^^ Use \`Array#toSorted()\` instead of \`Array#sort()\`.
+
+Suggestion 1/2: The spreading object is an array.:
+  1 | sorted = (0, array).toSorted()
+
+Suggestion 2/2: The spreading object is NOT an array.:
+  1 | sorted = [...(0, array)].toSorted()
+
+`;
+
+exports[`no-array-sort > invalid(13): sorted = [...a + b].sort() 1`] = `
+
+  1 | sorted = [...a + b].sort()
+
+`;
+
+exports[`no-array-sort > invalid(13): sorted = [...a + b].sort() 2`] = `
+
+Message:
+> 1 | sorted = [...a + b].sort()
+    |                     ^^^^ Use \`Array#toSorted()\` instead of \`Array#sort()\`.
+
+Suggestion 1/2: The spreading object is an array.:
+  1 | sorted = (a + b).toSorted()
+
+Suggestion 2/2: The spreading object is NOT an array.:
+  1 | sorted = [...a + b].toSorted()
+
+`;
+
+exports[`no-array-sort > invalid(14): sorted = [.../* keep */ a].sort() 1`] = `
+
+  1 | sorted = [.../* keep */ a].sort()
+
+`;
+
+exports[`no-array-sort > invalid(14): sorted = [.../* keep */ a].sort() 2`] = `
+
+Message:
+> 1 | sorted = [.../* keep */ a].sort()
+    |                            ^^^^ Use \`Array#toSorted()\` instead of \`Array#sort()\`.
+
+Suggestion 1/1: The spreading object is NOT an array.:
+  1 | sorted = [.../* keep */ a].toSorted()
+
+`;
+
+exports[`no-array-sort > invalid(15): sorted = [/* keep */ ...a].sort() 1`] = `
+
+  1 | sorted = [/* keep */ ...a].sort()
+
+`;
+
+exports[`no-array-sort > invalid(15): sorted = [/* keep */ ...a].sort() 2`] = `
+
+Message:
+> 1 | sorted = [/* keep */ ...a].sort()
+    |                            ^^^^ Use \`Array#toSorted()\` instead of \`Array#sort()\`.
+
+Suggestion 1/1: The spreading object is NOT an array.:
+  1 | sorted = [/* keep */ ...a].toSorted()
+
+`;
+
+exports[`no-array-sort > invalid(16): sorted = [\n\t// keep\n\t...a,\n].sort() 1`] = `
+
+  1 | sorted = [
+  2 | 	// keep
+  3 | 	...a,
+  4 | ].sort()
+
+`;
+
+exports[`no-array-sort > invalid(16): sorted = [\n\t// keep\n\t...a,\n].sort() 2`] = `
+
+Message:
+  1 | sorted = [
+  2 | 	// keep
+  3 | 	...a,
+> 4 | ].sort()
+    |   ^^^^ Use \`Array#toSorted()\` instead of \`Array#sort()\`.
+
+Suggestion 1/1: The spreading object is NOT an array.:
+  1 | sorted = [
+  2 | 	// keep
+  3 | 	...a,
+  4 | ].toSorted()
+
+`;
+
+exports[`no-array-sort > invalid(17): sorted = [...a/* keep */].sort() 1`] = `
+
+  1 | sorted = [...a/* keep */].sort()
+
+`;
+
+exports[`no-array-sort > invalid(17): sorted = [...a/* keep */].sort() 2`] = `
+
+Message:
+> 1 | sorted = [...a/* keep */].sort()
+    |                           ^^^^ Use \`Array#toSorted()\` instead of \`Array#sort()\`.
+
+Suggestion 1/1: The spreading object is NOT an array.:
+  1 | sorted = [...a/* keep */].toSorted()
+
+`;
+
+exports[`no-array-sort > invalid(18): sorted = [...foo(/* keep */)].sort() 1`] = `
+
+  1 | sorted = [...foo(/* keep */)].sort()
+
+`;
+
+exports[`no-array-sort > invalid(18): sorted = [...foo(/* keep */)].sort() 2`] = `
+
+Message:
+> 1 | sorted = [...foo(/* keep */)].sort()
+    |                               ^^^^ Use \`Array#toSorted()\` instead of \`Array#sort()\`.
+
+Suggestion 1/2: The spreading object is an array.:
+  1 | sorted = foo(/* keep */).toSorted()
+
+Suggestion 2/2: The spreading object is NOT an array.:
+  1 | sorted = [...foo(/* keep */)].toSorted()
+
+`;
+
+exports[`no-array-sort > invalid(19): const x = a\n\t// keep\n\t.slice()\n\t.sort(); 1`] = `
+
+  1 | const x = a
+  2 | 	// keep
+  3 | 	.slice()
+  4 | 	.sort();
+
+`;
+
+exports[`no-array-sort > invalid(19): const x = a\n\t// keep\n\t.slice()\n\t.sort(); 2`] = `
+
+Message:
+  1 | const x = a
+  2 | 	// keep
+  3 | 	.slice()
+> 4 | 	.sort();
+    | 	 ^^^^ Use \`Array#toSorted()\` instead of \`Array#sort()\`.
+
+Suggestion 1/1: Switch to \`.toSorted()\`.:
+  1 | const x = a
+  2 | 	// keep
+  3 | 	.slice()
+  4 | 	.toSorted();
+
+`;
+
+exports[`no-array-sort > invalid(2): sorted = [...array]?.sort() 1`] = `
+
+  1 | sorted = [...array]?.sort()
+
+`;
+
+exports[`no-array-sort > invalid(2): sorted = [...array]?.sort() 2`] = `
+
+Message:
+> 1 | sorted = [...array]?.sort()
+    |                      ^^^^ Use \`Array#toSorted()\` instead of \`Array#sort()\`.
+
+Suggestion 1/2: The spreading object is an array.:
+  1 | sorted = array?.toSorted()
+
+Suggestion 2/2: The spreading object is NOT an array.:
+  1 | sorted = [...array]?.toSorted()
+
+`;
+
+exports[`no-array-sort > invalid(3): sorted = array.sort() 1`] = `
+
+  1 | sorted = array.sort()
+
+`;
+
+exports[`no-array-sort > invalid(3): sorted = array.sort() 2`] = `
+
+Message:
+> 1 | sorted = array.sort()
+    |                ^^^^ Use \`Array#toSorted()\` instead of \`Array#sort()\`.
+
+Suggestion 1/1: Switch to \`.toSorted()\`.:
+  1 | sorted = array.toSorted()
+
+`;
+
+exports[`no-array-sort > invalid(4): sorted = array?.sort() 1`] = `
+
+  1 | sorted = array?.sort()
+
+`;
+
+exports[`no-array-sort > invalid(4): sorted = array?.sort() 2`] = `
+
+Message:
+> 1 | sorted = array?.sort()
+    |                 ^^^^ Use \`Array#toSorted()\` instead of \`Array#sort()\`.
+
+Suggestion 1/1: Switch to \`.toSorted()\`.:
+  1 | sorted = array?.toSorted()
+
+`;
+
+exports[`no-array-sort > invalid(5): sorted = [...array].sort(compareFn) 1`] = `
+
+  1 | sorted = [...array].sort(compareFn)
+
+`;
+
+exports[`no-array-sort > invalid(5): sorted = [...array].sort(compareFn) 2`] = `
+
+Message:
+> 1 | sorted = [...array].sort(compareFn)
+    |                     ^^^^ Use \`Array#toSorted()\` instead of \`Array#sort()\`.
+
+Suggestion 1/2: The spreading object is an array.:
+  1 | sorted = array.toSorted(compareFn)
+
+Suggestion 2/2: The spreading object is NOT an array.:
+  1 | sorted = [...array].toSorted(compareFn)
+
+`;
+
+exports[`no-array-sort > invalid(6): sorted = [...array]?.sort(compareFn) 1`] = `
+
+  1 | sorted = [...array]?.sort(compareFn)
+
+`;
+
+exports[`no-array-sort > invalid(6): sorted = [...array]?.sort(compareFn) 2`] = `
+
+Message:
+> 1 | sorted = [...array]?.sort(compareFn)
+    |                      ^^^^ Use \`Array#toSorted()\` instead of \`Array#sort()\`.
+
+Suggestion 1/2: The spreading object is an array.:
+  1 | sorted = array?.toSorted(compareFn)
+
+Suggestion 2/2: The spreading object is NOT an array.:
+  1 | sorted = [...array]?.toSorted(compareFn)
+
+`;
+
+exports[`no-array-sort > invalid(7): sorted = array.sort(compareFn) 1`] = `
+
+  1 | sorted = array.sort(compareFn)
+
+`;
+
+exports[`no-array-sort > invalid(7): sorted = array.sort(compareFn) 2`] = `
+
+Message:
+> 1 | sorted = array.sort(compareFn)
+    |                ^^^^ Use \`Array#toSorted()\` instead of \`Array#sort()\`.
+
+Suggestion 1/1: Switch to \`.toSorted()\`.:
+  1 | sorted = array.toSorted(compareFn)
+
+`;
+
+exports[`no-array-sort > invalid(8): sorted = array?.sort(compareFn) 1`] = `
+
+  1 | sorted = array?.sort(compareFn)
+
+`;
+
+exports[`no-array-sort > invalid(8): sorted = array?.sort(compareFn) 2`] = `
+
+Message:
+> 1 | sorted = array?.sort(compareFn)
+    |                 ^^^^ Use \`Array#toSorted()\` instead of \`Array#sort()\`.
+
+Suggestion 1/1: Switch to \`.toSorted()\`.:
+  1 | sorted = array?.toSorted(compareFn)
+
+`;
+
+exports[`no-array-sort > invalid(9): array.sort() 1`] = `
+
+Options:
+- allowExpressionStatement: false
+
+Code:
+  1 | array.sort()
+
+`;
+
+exports[`no-array-sort > invalid(9): array.sort() 2`] = `
+
+Message:
+> 1 | array.sort()
+    |       ^^^^ Use \`Array#toSorted()\` instead of \`Array#sort()\`.
+
+Suggestion 1/1: Switch to \`.toSorted()\`.:
+  1 | array.toSorted()
+
+`;

@@ -203,6 +203,8 @@ test.snapshot({
 			code: 'string!.charAt(string!.length - 1);',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// A comment inside the `.length` access would be lost, so there is no suggestion
+		'string.charAt(string /* keep */ .length - 1);',
 	],
 });
 

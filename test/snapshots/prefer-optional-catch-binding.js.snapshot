@@ -1,0 +1,81 @@
+exports[`prefer-optional-catch-binding > invalid(1): try {} catch ({}) {} 1`] = `
+
+  1 | try {} catch ({}) {}
+
+`;
+
+exports[`prefer-optional-catch-binding > invalid(1): try {} catch ({}) {} 2`] = `
+
+Message:
+> 1 | try {} catch ({}) {}
+    |               ^^ Remove unused catch binding.
+
+Output:
+  1 | try {} catch {}
+
+`;
+
+exports[`prefer-optional-catch-binding > invalid(2): try {} catch ({/* inner comment */ message}) {} 1`] = `
+
+  1 | try {} catch ({/* inner comment */ message}) {}
+
+`;
+
+exports[`prefer-optional-catch-binding > invalid(2): try {} catch ({/* inner comment */ message}) {} 2`] = `
+
+Message:
+> 1 | try {} catch ({/* inner comment */ message}) {}
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove unused catch binding.
+
+`;
+
+exports[`prefer-optional-catch-binding > invalid(3): try {} catch ({message}) {} 1`] = `
+
+  1 | try {} catch ({message}) {}
+
+`;
+
+exports[`prefer-optional-catch-binding > invalid(3): try {} catch ({message}) {} 2`] = `
+
+Message:
+> 1 | try {} catch ({message}) {}
+    |               ^^^^^^^^^ Remove unused catch binding.
+
+Output:
+  1 | try {} catch {}
+
+`;
+
+exports[`prefer-optional-catch-binding > invalid(4): try {} catch ({message: notUsedMessage}) {} 1`] = `
+
+  1 | try {} catch ({message: notUsedMessage}) {}
+
+`;
+
+exports[`prefer-optional-catch-binding > invalid(4): try {} catch ({message: notUsedMessage}) {} 2`] = `
+
+Message:
+> 1 | try {} catch ({message: notUsedMessage}) {}
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^ Remove unused catch binding.
+
+Output:
+  1 | try {} catch {}
+
+`;
+
+exports[`prefer-optional-catch-binding > invalid(5): try {} catch ({cause: {message}}) {} 1`] = `
+
+  1 | try {} catch ({cause: {message}}) {}
+
+`;
+
+exports[`prefer-optional-catch-binding > invalid(5): try {} catch ({cause: {message}}) {} 2`] = `
+
+Message:
+> 1 | try {} catch ({cause: {message}}) {}
+    |               ^^^^^^^^^^^^^^^^^^ Remove unused catch binding.
+
+Output:
+  1 | try {} catch {}
+
+`;

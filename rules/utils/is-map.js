@@ -1,11 +1,4 @@
-import {
-	createBuiltinTypeCheckers,
-	target,
-	unknown,
-} from './type-helpers.js';
-
-const getStaticType = value =>
-	value instanceof Map ? target : unknown;
+import {createBuiltinTypeCheckers} from './type-helpers.js';
 
 const {
 	isTarget: isMap,
@@ -13,7 +6,6 @@ const {
 } = createBuiltinTypeCheckers({
 	name: 'Map',
 	aliases: ['ReadonlyMap'],
-	getStaticType,
 });
 
 export {

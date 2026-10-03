@@ -73,17 +73,6 @@ function getStaticPropertyName(node) {
 	}
 }
 
-const isForLoopLeftHandSide = node =>
-	(
-		node.parent.type === 'ForInStatement'
-		|| node.parent.type === 'ForOfStatement'
-	)
-	&& node.parent.left === node;
-
-const isWritableTarget = node =>
-	isLeftHandSide(node)
-	|| isForLoopLeftHandSide(node);
-
 function isCallExpressionCallee(node) {
 	node = getOuterTypeScriptExpression(node);
 
@@ -153,7 +142,7 @@ const create = context => {
 			object.type !== 'Identifier'
 			|| object.name !== 'globalThis'
 			|| !isGlobalIdentifier(object, context)
-			|| isWritableTarget(writableTarget)
+			|| isLeftHandSide(writableTarget)
 			|| isOptionalChainUsage(node)
 			|| isExistenceCheck(node, context)
 		) {

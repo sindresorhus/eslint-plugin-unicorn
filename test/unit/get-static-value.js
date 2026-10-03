@@ -1,11 +1,10 @@
 import {spawnSync} from 'node:child_process';
+import test from 'node:test';
 import {Linter} from 'eslint';
-import test from 'ava';
 import {
 	getStaticRegExp,
 	getStaticValueForControlFlow,
 	getStaticValueIfNoSideEffects,
-	hasPotentiallyMutableBinding,
 	hasPotentiallyMutableMemberAccess,
 } from '../../rules/utils/index.js';
 
@@ -59,7 +58,7 @@ test('returns unknown for mutated collection sizes and getter-backed members', t
 		'const map = new Map(); map.set(\'key\', \'value\'); const result = map.size;',
 		'const object = {value: true}; Object.defineProperty(object, \'value\', {get() { return false; }}); const result = object.value;',
 	]) {
-		t.is(evaluate(code, getStaticValueIfNoSideEffects), undefined);
+		t.assert.strictEqual(evaluate(code, getStaticValueIfNoSideEffects), undefined);
 	}
 });
 
@@ -70,32 +69,18 @@ test('detects potentially mutable member accesses', t => {
 		['const text = \'value\'; const result = text.length;', false],
 		['const values = [\'value\']; const result = values[0];', true],
 	]) {
-		t.is(evaluate(code, hasPotentiallyMutableMemberAccess), expected);
+		t.assert.strictEqual(evaluate(code, hasPotentiallyMutableMemberAccess), expected);
 	}
 });
 
 test('preserves safe static primitives and pass-through calls', t => {
-	t.true(evaluate('const result = true;', getStaticValueIfNoSideEffects)?.value);
-	t.false(evaluate('const result = false;', getStaticValueIfNoSideEffects)?.value);
+	t.assert.strictEqual(evaluate('const result = true;', getStaticValueIfNoSideEffects)?.value, true);
+	t.assert.strictEqual(evaluate('const result = false;', getStaticValueIfNoSideEffects)?.value, false);
 
 	for (const method of ['freeze', 'seal', 'preventExtensions']) {
 		const result = evaluate(`const result = Object.${method}({value: true});`, getStaticValueIfNoSideEffects);
-		t.true(result?.value.value);
+		t.assert.strictEqual(result?.value.value, true);
 	}
-});
-
-test('detects potentially mutable variable bindings', t => {
-	for (const code of [
-		'let value = true; value = false; const result = value;',
-		'var value = true; value = false; const result = value;',
-		'let value = true; const alias = value; const result = alias;',
-		'let value = true; const alias = value; value = false; const result = alias;',
-		'const alias = value; let value = true; const result = alias;',
-	]) {
-		t.true(evaluate(code, hasPotentiallyMutableBinding));
-	}
-
-	t.false(evaluate('const value = true; const result = value;', hasPotentiallyMutableBinding));
 });
 
 test('does not use mutable bindings for control-flow decisions', t => {
@@ -104,10 +89,10 @@ test('does not use mutable bindings for control-flow decisions', t => {
 		'const alias = value; var value = true; const result = alias;',
 		'let value = true; const alias = value; value = false; const result = alias;',
 	]) {
-		t.is(evaluate(code, getStaticValueForControlFlow), undefined);
+		t.assert.strictEqual(evaluate(code, getStaticValueForControlFlow), undefined);
 	}
 
-	t.true(evaluate('const value = true; const result = value;', getStaticValueForControlFlow)?.value);
+	t.assert.strictEqual(evaluate('const value = true; const result = value;', getStaticValueForControlFlow)?.value, true);
 });
 
 test('does not use constants referenced before their declarations complete for control-flow decisions', t => {
@@ -115,7 +100,7 @@ test('does not use constants referenced before their declarations complete for c
 		'const result = value; const value = true;',
 		'const alias = value; const value = true; const result = alias;',
 	]) {
-		t.is(evaluate(code, getStaticValueForControlFlow), undefined);
+		t.assert.strictEqual(evaluate(code, getStaticValueForControlFlow), undefined);
 	}
 });
 
@@ -127,7 +112,7 @@ test('ignores unsafe bindings in statically unreachable branches', t => {
 		['const condition = false; let value; const result = condition && value;', false],
 		['const result = true ? 1 : value; const value = 2;', 1],
 	]) {
-		t.deepEqual(evaluate(code, getStaticValueForControlFlow)?.value, expected);
+		t.assert.deepStrictEqual(evaluate(code, getStaticValueForControlFlow)?.value, expected);
 	}
 });
 
@@ -137,7 +122,7 @@ test('rejects mutable bindings on evaluated short-circuit paths', t => {
 		'const condition = false; let value; const result = condition || value;',
 		'const condition = null; let value; const result = condition ?? value;',
 	]) {
-		t.is(evaluate(code, getStaticValueForControlFlow), undefined);
+		t.assert.strictEqual(evaluate(code, getStaticValueForControlFlow), undefined);
 	}
 });
 
@@ -151,7 +136,7 @@ test('preserves known static global properties', t => {
 		['const result = Symbol[\'iterator\'];', Symbol.iterator],
 		['const result = String.raw`foo`;', 'foo'],
 	]) {
-		t.is(evaluate(code, getStaticValueIfNoSideEffects)?.value, expected);
+		t.assert.strictEqual(evaluate(code, getStaticValueIfNoSideEffects)?.value, expected);
 	}
 });
 
@@ -162,11 +147,11 @@ test('returns static regular expressions only for safe expressions', t => {
 		'const expression = new RegExp(\'foo\'); const result = expression;',
 	]) {
 		const result = evaluate(code, getStaticRegExp);
-		t.true(result instanceof RegExp);
-		t.is(result.source, 'foo');
+		t.assert.strictEqual(result instanceof RegExp, true);
+		t.assert.strictEqual(result.source, 'foo');
 	}
 
-	t.is(evaluate('const result = new RegExp(getPattern());', getStaticRegExp), undefined);
+	t.assert.strictEqual(evaluate('const result = new RegExp(getPattern());', getStaticRegExp), undefined);
 });
 
 test('does not recurse forever through cyclic constant aliases', t => {
@@ -174,7 +159,7 @@ test('does not recurse forever through cyclic constant aliases', t => {
 		'const first = Object.freeze(second); const second = Object.freeze(first); const result = first;',
 		getStaticValueIfNoSideEffects,
 	);
-	t.is(result, undefined);
+	t.assert.strictEqual(result, undefined);
 });
 
 test('rejects side-effectful calls before static evaluation', t => {
@@ -209,5 +194,18 @@ test('rejects side-effectful calls before static evaluation', t => {
 	].join('\n');
 	const result = spawnSync(process.execPath, ['--input-type=module', '--eval', script], {encoding: 'utf8'});
 
-	t.is(result.status, 0, `Child process failed: ${result.error?.message ?? result.stderr}`);
+	t.assert.strictEqual(result.status, 0, `Child process failed: ${result.error?.message ?? result.stderr}`);
+});
+
+test('returns `undefined` for regular expressions that cannot be created statically', t => {
+	for (const code of [
+		'const result = new RegExp(...[\'foo\']);',
+		'const result = new RegExp(\'[\');',
+	]) {
+		t.assert.strictEqual(evaluate(code, getStaticRegExp), undefined, code);
+	}
+});
+
+test('ignores mutable bindings in functions that are not evaluated', t => {
+	t.assert.strictEqual(evaluate('let value = true; const result = (() => value, 2);', getStaticValueForControlFlow)?.value, 2);
 });

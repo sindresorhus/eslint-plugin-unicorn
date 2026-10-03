@@ -1,6 +1,7 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import unicorn from '../../index.js';
+import maskJSDocumentSyntax from '../../rules/utils/jsdoc.js';
 import {DEFAULT_LANGUAGE_OPTIONS} from '../utils/language-options.js';
 
 const linter = new Linter();
@@ -22,8 +23,8 @@ ${padding}x json
 
 	const result = verifyAndFix(code);
 
-	t.true(result.fixed);
-	t.is(result.output, `/**
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, `/**
  * Description.
 ${padding}x JSON
  */`);
@@ -48,5 +49,40 @@ ${' '.repeat(size)}x json
 	}
 
 	// Measured warm: about 20 ms on the linear pattern, over 6,000 ms on the quadratic one.
-	t.true(fastest < 1000, `linting took ${fastest.toFixed(0)}ms`);
+	t.assert.strictEqual(fastest < 1000, true, `linting took ${fastest.toFixed(0)}ms`);
+});
+
+// Show masked characters as `#`, so the expected strings stay readable
+const mask = text => {
+	const characters = [...text];
+	maskJSDocumentSyntax(characters, text);
+	return characters.join('').replaceAll('\u{FFFF}', '#');
+};
+
+test('masks quoted values with escaped quotes', t => {
+	t.assert.strictEqual(mask(String.raw` * @param {"a\"b"} name description`), ' * ###### ######## #### description');
+	t.assert.strictEqual(mask(String.raw` * @param "a \" b" description`), ' * ###### ######## description');
+});
+
+test('keeps values that cannot be parsed', t => {
+	t.assert.strictEqual(mask(' * @param "unclosed description'), ' * ###### "unclosed description');
+	t.assert.strictEqual(mask(' * @param - description'), ' * ###### - description');
+	t.assert.strictEqual(mask(' * @param'), ' * ######');
+	t.assert.strictEqual(mask(' * @param {unclosed description'), ' * ###### {unclosed description');
+	t.assert.strictEqual(mask(' * @param {@link Foo} description'), ' * ###### {#########} description');
+	t.assert.strictEqual(mask(' * @template {unclosed T'), ' * ######### {unclosed T');
+});
+
+test('masks a comma-separated template name list', t => {
+	t.assert.strictEqual(mask(' * @template A, B description'), ' * ######### ## # description');
+});
+
+test('masks a quoted inline tag target', t => {
+	t.assert.strictEqual(mask(' * {@link "foo bar" text}'), ' * {############### text}');
+	t.assert.strictEqual(mask(String.raw` * {@link \} text}`), ' * {#############}');
+});
+
+test('masks the name of a name tag but keeps the description', t => {
+	t.assert.strictEqual(mask(' * @alias foo.bar description'), ' * ###### ####### description');
+	t.assert.strictEqual(mask(' * @fires Foo#change description'), ' * ###### ########## description');
 });

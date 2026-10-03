@@ -1,0 +1,1599 @@
+exports[`no-invalid-response-options > invalid(1): <Component response={new Response(\"\", {status: 204})} /> 1`] = `
+
+  1 | <Component response={new Response("", {status: 204})} />
+
+`;
+
+exports[`no-invalid-response-options > invalid(1): <Component response={new Response(\"\", {status: 204})} /> 2`] = `
+
+Message:
+> 1 | <Component response={new Response("", {status: 204})} />
+    |                                   ^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | <Component response={new Response(undefined, {status: 204})} />
+
+`;
+
+exports[`no-invalid-response-options > invalid(1): new Response(\"\" as string, {status: 204} as ResponseInit) 1`] = `
+
+  1 | new Response("" as string, {status: 204} as ResponseInit)
+
+`;
+
+exports[`no-invalid-response-options > invalid(1): new Response(\"\" as string, {status: 204} as ResponseInit) 2`] = `
+
+Message:
+> 1 | new Response("" as string, {status: 204} as ResponseInit)
+    |              ^^^^^^^^^^^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {status: 204} as ResponseInit)
+
+`;
+
+exports[`no-invalid-response-options > invalid(1): new Response(\"\", {status: 204}) 1`] = `
+
+  1 | new Response("", {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(1): new Response(\"\", {status: 204}) 2`] = `
+
+Message:
+> 1 | new Response("", {status: 204})
+    |              ^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(10): new Response(\"\", {status: +(204 as number)}) 1`] = `
+
+  1 | new Response("", {status: +(204 as number)})
+
+`;
+
+exports[`no-invalid-response-options > invalid(10): new Response(\"\", {status: +(204 as number)}) 2`] = `
+
+Message:
+> 1 | new Response("", {status: +(204 as number)})
+    |              ^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {status: +(204 as number)})
+
+`;
+
+exports[`no-invalid-response-options > invalid(10): new Response(false, {status: 204}) 1`] = `
+
+  1 | new Response(false, {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(10): new Response(false, {status: 204}) 2`] = `
+
+Message:
+> 1 | new Response(false, {status: 204})
+    |              ^^^^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(11): Response.json(data, {status: -(1 as number)}) 1`] = `
+
+  1 | Response.json(data, {status: -(1 as number)})
+
+`;
+
+exports[`no-invalid-response-options > invalid(11): Response.json(data, {status: -(1 as number)}) 2`] = `
+
+Message:
+> 1 | Response.json(data, {status: -(1 as number)})
+    |                              ^^^^^^^^^^^^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(11): new Response(0, {status: 204}) 1`] = `
+
+  1 | new Response(0, {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(11): new Response(0, {status: 204}) 2`] = `
+
+Message:
+> 1 | new Response(0, {status: 204})
+    |              ^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(12): Response.redirect(url, \`\${200 as number}\`) 1`] = `
+
+  1 | Response.redirect(url, \`\${200 as number}\`)
+
+`;
+
+exports[`no-invalid-response-options > invalid(12): Response.redirect(url, \`\${200 as number}\`) 2`] = `
+
+Message:
+> 1 | Response.redirect(url, \`\${200 as number}\`)
+    |                        ^^^^^^^^^^^^^^^^^^ \`Response.redirect()\` status must be 301, 302, 303, 307, or 308.
+
+`;
+
+exports[`no-invalid-response-options > invalid(12): new Response([], {status: 204}) 1`] = `
+
+  1 | new Response([], {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(12): new Response([], {status: 204}) 2`] = `
+
+Message:
+> 1 | new Response([], {status: 204})
+    |              ^^ A response with status 204 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(13): const status = +(204 satisfies number); new Response(\"\", {status}) 1`] = `
+
+  1 | const status = +(204 satisfies number); new Response("", {status})
+
+`;
+
+exports[`no-invalid-response-options > invalid(13): const status = +(204 satisfies number); new Response(\"\", {status}) 2`] = `
+
+Message:
+> 1 | const status = +(204 satisfies number); new Response("", {status})
+    |                                                      ^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | const status = +(204 satisfies number); new Response(undefined, {status})
+
+`;
+
+exports[`no-invalid-response-options > invalid(13): new Response({}, {status: 204}) 1`] = `
+
+  1 | new Response({}, {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(13): new Response({}, {status: 204}) 2`] = `
+
+Message:
+> 1 | new Response({}, {status: 204})
+    |              ^^ A response with status 204 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(14): Response.redirect(url, -(Infinity as number)) 1`] = `
+
+  1 | Response.redirect(url, -(Infinity as number))
+
+`;
+
+exports[`no-invalid-response-options > invalid(14): Response.redirect(url, -(Infinity as number)) 2`] = `
+
+Message:
+> 1 | Response.redirect(url, -(Infinity as number))
+    |                        ^^^^^^^^^^^^^^^^^^^^^ \`Response.redirect()\` status must be 301, 302, 303, 307, or 308.
+
+`;
+
+exports[`no-invalid-response-options > invalid(14): new Response(new Uint8Array(), {status: 204}) 1`] = `
+
+  1 | new Response(new Uint8Array(), {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(14): new Response(new Uint8Array(), {status: 204}) 2`] = `
+
+Message:
+> 1 | new Response(new Uint8Array(), {status: 204})
+    |              ^^^^^^^^^^^^^^^^ A response with status 204 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(15): new Response(new Blob([]), {status: 204}) 1`] = `
+
+  1 | new Response(new Blob([]), {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(15): new Response(new Blob([]), {status: 204}) 2`] = `
+
+Message:
+> 1 | new Response(new Blob([]), {status: 204})
+    |              ^^^^^^^^^^^^ A response with status 204 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(16): new Response(\`body \${value}\`, {status: 204}) 1`] = `
+
+  1 | new Response(\`body \${value}\`, {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(16): new Response(\`body \${value}\`, {status: 204}) 2`] = `
+
+Message:
+> 1 | new Response(\`body \${value}\`, {status: 204})
+    |              ^^^^^^^^^^^^^^^ A response with status 204 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(17): new Response([sideEffect()], {status: 204}) 1`] = `
+
+  1 | new Response([sideEffect()], {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(17): new Response([sideEffect()], {status: 204}) 2`] = `
+
+Message:
+> 1 | new Response([sideEffect()], {status: 204})
+    |              ^^^^^^^^^^^^^^ A response with status 204 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(18): new Response({value: object.value}, {status: 204}) 1`] = `
+
+  1 | new Response({value: object.value}, {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(18): new Response({value: object.value}, {status: 204}) 2`] = `
+
+Message:
+> 1 | new Response({value: object.value}, {status: 204})
+    |              ^^^^^^^^^^^^^^^^^^^^^ A response with status 204 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(19): const body = \"\"; new Response(body, {status: 204}) 1`] = `
+
+  1 | const body = ""; new Response(body, {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(19): const body = \"\"; new Response(body, {status: 204}) 2`] = `
+
+Message:
+> 1 | const body = ""; new Response(body, {status: 204})
+    |                               ^^^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | const body = ""; new Response(undefined, {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(2): Response.json(data, {status: 204}) 1`] = `
+
+  1 | Response.json(data, {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(2): Response.json(data, {status: 204}) 2`] = `
+
+Message:
+> 1 | Response.json(data, {status: 204})
+    |                              ^^^ A response with status 204 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(2): new Response(<string>\"\", <ResponseInit>{status: <number>204}) 1`] = `
+
+  1 | new Response(<string>"", <ResponseInit>{status: <number>204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(2): new Response(<string>\"\", <ResponseInit>{status: <number>204}) 2`] = `
+
+Message:
+> 1 | new Response(<string>"", <ResponseInit>{status: <number>204})
+    |              ^^^^^^^^^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, <ResponseInit>{status: <number>204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(20): new Response(\"\", {status: \"204\"}) 1`] = `
+
+  1 | new Response("", {status: "204"})
+
+`;
+
+exports[`no-invalid-response-options > invalid(20): new Response(\"\", {status: \"204\"}) 2`] = `
+
+Message:
+> 1 | new Response("", {status: "204"})
+    |              ^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {status: "204"})
+
+`;
+
+exports[`no-invalid-response-options > invalid(21): new Response(\"\", {status: 204.9}) 1`] = `
+
+  1 | new Response("", {status: 204.9})
+
+`;
+
+exports[`no-invalid-response-options > invalid(21): new Response(\"\", {status: 204.9}) 2`] = `
+
+Message:
+> 1 | new Response("", {status: 204.9})
+    |              ^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {status: 204.9})
+
+`;
+
+exports[`no-invalid-response-options > invalid(22): new Response(\"\", {status: +204}) 1`] = `
+
+  1 | new Response("", {status: +204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(22): new Response(\"\", {status: +204}) 2`] = `
+
+Message:
+> 1 | new Response("", {status: +204})
+    |              ^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {status: +204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(23): new Response(\"\", {status: 65_740}) 1`] = `
+
+  1 | new Response("", {status: 65_740})
+
+`;
+
+exports[`no-invalid-response-options > invalid(23): new Response(\"\", {status: 65_740}) 2`] = `
+
+Message:
+> 1 | new Response("", {status: 65_740})
+    |              ^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {status: 65_740})
+
+`;
+
+exports[`no-invalid-response-options > invalid(24): const status = 205; new Response(\"\", {status}) 1`] = `
+
+  1 | const status = 205; new Response("", {status})
+
+`;
+
+exports[`no-invalid-response-options > invalid(24): const status = 205; new Response(\"\", {status}) 2`] = `
+
+Message:
+> 1 | const status = 205; new Response("", {status})
+    |                                  ^^ A response with status 205 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | const status = 205; new Response(undefined, {status})
+
+`;
+
+exports[`no-invalid-response-options > invalid(25): const status = 304; Response.json(data, {status}) 1`] = `
+
+  1 | const status = 304; Response.json(data, {status})
+
+`;
+
+exports[`no-invalid-response-options > invalid(25): const status = 304; Response.json(data, {status}) 2`] = `
+
+Message:
+> 1 | const status = 304; Response.json(data, {status})
+    |                                          ^^^^^^ A response with status 304 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(26): const status = 200; Response.redirect(url, status) 1`] = `
+
+  1 | const status = 200; Response.redirect(url, status)
+
+`;
+
+exports[`no-invalid-response-options > invalid(26): const status = 200; Response.redirect(url, status) 2`] = `
+
+Message:
+> 1 | const status = 200; Response.redirect(url, status)
+    |                                            ^^^^^^ \`Response.redirect()\` status must be 301, 302, 303, 307, or 308.
+
+`;
+
+exports[`no-invalid-response-options > invalid(27): new Response(undefined, {status: 0}) 1`] = `
+
+  1 | new Response(undefined, {status: 0})
+
+`;
+
+exports[`no-invalid-response-options > invalid(27): new Response(undefined, {status: 0}) 2`] = `
+
+Message:
+> 1 | new Response(undefined, {status: 0})
+    |                                  ^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(28): new Response(undefined, {status: 101}) 1`] = `
+
+  1 | new Response(undefined, {status: 101})
+
+`;
+
+exports[`no-invalid-response-options > invalid(28): new Response(undefined, {status: 101}) 2`] = `
+
+Message:
+> 1 | new Response(undefined, {status: 101})
+    |                                  ^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(29): new Response(undefined, {status: 103}) 1`] = `
+
+  1 | new Response(undefined, {status: 103})
+
+`;
+
+exports[`no-invalid-response-options > invalid(29): new Response(undefined, {status: 103}) 2`] = `
+
+Message:
+> 1 | new Response(undefined, {status: 103})
+    |                                  ^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(3): new Response(\"\" satisfies string, {status: 204} satisfies ResponseInit) 1`] = `
+
+  1 | new Response("" satisfies string, {status: 204} satisfies ResponseInit)
+
+`;
+
+exports[`no-invalid-response-options > invalid(3): new Response(\"\" satisfies string, {status: 204} satisfies ResponseInit) 2`] = `
+
+Message:
+> 1 | new Response("" satisfies string, {status: 204} satisfies ResponseInit)
+    |              ^^^^^^^^^^^^^^^^^^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {status: 204} satisfies ResponseInit)
+
+`;
+
+exports[`no-invalid-response-options > invalid(3): new Response(\"\", {status: 205}) 1`] = `
+
+  1 | new Response("", {status: 205})
+
+`;
+
+exports[`no-invalid-response-options > invalid(3): new Response(\"\", {status: 205}) 2`] = `
+
+Message:
+> 1 | new Response("", {status: 205})
+    |              ^^ A response with status 205 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {status: 205})
+
+`;
+
+exports[`no-invalid-response-options > invalid(30): new Response(undefined, {status: 199}) 1`] = `
+
+  1 | new Response(undefined, {status: 199})
+
+`;
+
+exports[`no-invalid-response-options > invalid(30): new Response(undefined, {status: 199}) 2`] = `
+
+Message:
+> 1 | new Response(undefined, {status: 199})
+    |                                  ^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(31): new Response(undefined, {status: 600}) 1`] = `
+
+  1 | new Response(undefined, {status: 600})
+
+`;
+
+exports[`no-invalid-response-options > invalid(31): new Response(undefined, {status: 600}) 2`] = `
+
+Message:
+> 1 | new Response(undefined, {status: 600})
+    |                                  ^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(32): new Response(undefined, {status: 65_536}) 1`] = `
+
+  1 | new Response(undefined, {status: 65_536})
+
+`;
+
+exports[`no-invalid-response-options > invalid(32): new Response(undefined, {status: 65_536}) 2`] = `
+
+Message:
+> 1 | new Response(undefined, {status: 65_536})
+    |                                  ^^^^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(33): new Response(undefined, {status: -1}) 1`] = `
+
+  1 | new Response(undefined, {status: -1})
+
+`;
+
+exports[`no-invalid-response-options > invalid(33): new Response(undefined, {status: -1}) 2`] = `
+
+Message:
+> 1 | new Response(undefined, {status: -1})
+    |                                  ^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(34): new Response(undefined, {status: NaN}) 1`] = `
+
+  1 | new Response(undefined, {status: NaN})
+
+`;
+
+exports[`no-invalid-response-options > invalid(34): new Response(undefined, {status: NaN}) 2`] = `
+
+Message:
+> 1 | new Response(undefined, {status: NaN})
+    |                                  ^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(35): new Response(undefined, {status: Infinity}) 1`] = `
+
+  1 | new Response(undefined, {status: Infinity})
+
+`;
+
+exports[`no-invalid-response-options > invalid(35): new Response(undefined, {status: Infinity}) 2`] = `
+
+Message:
+> 1 | new Response(undefined, {status: Infinity})
+    |                                  ^^^^^^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(36): new Response(undefined, {status: -Infinity}) 1`] = `
+
+  1 | new Response(undefined, {status: -Infinity})
+
+`;
+
+exports[`no-invalid-response-options > invalid(36): new Response(undefined, {status: -Infinity}) 2`] = `
+
+Message:
+> 1 | new Response(undefined, {status: -Infinity})
+    |                                  ^^^^^^^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(37): new Response(undefined, {status: null}) 1`] = `
+
+  1 | new Response(undefined, {status: null})
+
+`;
+
+exports[`no-invalid-response-options > invalid(37): new Response(undefined, {status: null}) 2`] = `
+
+Message:
+> 1 | new Response(undefined, {status: null})
+    |                                  ^^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(38): new Response(undefined, {status: false}) 1`] = `
+
+  1 | new Response(undefined, {status: false})
+
+`;
+
+exports[`no-invalid-response-options > invalid(38): new Response(undefined, {status: false}) 2`] = `
+
+Message:
+> 1 | new Response(undefined, {status: false})
+    |                                  ^^^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(39): new Response(undefined, {status: true}) 1`] = `
+
+  1 | new Response(undefined, {status: true})
+
+`;
+
+exports[`no-invalid-response-options > invalid(39): new Response(undefined, {status: true}) 2`] = `
+
+Message:
+> 1 | new Response(undefined, {status: true})
+    |                                  ^^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(4): Response.json(data, {status: 205}) 1`] = `
+
+  1 | Response.json(data, {status: 205})
+
+`;
+
+exports[`no-invalid-response-options > invalid(4): Response.json(data, {status: 205}) 2`] = `
+
+Message:
+> 1 | Response.json(data, {status: 205})
+    |                              ^^^ A response with status 205 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(4): new Response(\"\"!, {status: 204}!) 1`] = `
+
+  1 | new Response(""!, {status: 204}!)
+
+`;
+
+exports[`no-invalid-response-options > invalid(4): new Response(\"\"!, {status: 204}!) 2`] = `
+
+Message:
+> 1 | new Response(""!, {status: 204}!)
+    |              ^^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {status: 204}!)
+
+`;
+
+exports[`no-invalid-response-options > invalid(40): new Response(undefined, {status: \"invalid\"}) 1`] = `
+
+  1 | new Response(undefined, {status: "invalid"})
+
+`;
+
+exports[`no-invalid-response-options > invalid(40): new Response(undefined, {status: \"invalid\"}) 2`] = `
+
+Message:
+> 1 | new Response(undefined, {status: "invalid"})
+    |                                  ^^^^^^^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(41): Response.json(undefined, {status: 0}) 1`] = `
+
+  1 | Response.json(undefined, {status: 0})
+
+`;
+
+exports[`no-invalid-response-options > invalid(41): Response.json(undefined, {status: 0}) 2`] = `
+
+Message:
+> 1 | Response.json(undefined, {status: 0})
+    |                                   ^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(42): Response.json(undefined, {status: 101}) 1`] = `
+
+  1 | Response.json(undefined, {status: 101})
+
+`;
+
+exports[`no-invalid-response-options > invalid(42): Response.json(undefined, {status: 101}) 2`] = `
+
+Message:
+> 1 | Response.json(undefined, {status: 101})
+    |                                   ^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(43): Response.json(undefined, {status: 103}) 1`] = `
+
+  1 | Response.json(undefined, {status: 103})
+
+`;
+
+exports[`no-invalid-response-options > invalid(43): Response.json(undefined, {status: 103}) 2`] = `
+
+Message:
+> 1 | Response.json(undefined, {status: 103})
+    |                                   ^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(44): Response.json(undefined, {status: 199}) 1`] = `
+
+  1 | Response.json(undefined, {status: 199})
+
+`;
+
+exports[`no-invalid-response-options > invalid(44): Response.json(undefined, {status: 199}) 2`] = `
+
+Message:
+> 1 | Response.json(undefined, {status: 199})
+    |                                   ^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(45): Response.json(undefined, {status: 600}) 1`] = `
+
+  1 | Response.json(undefined, {status: 600})
+
+`;
+
+exports[`no-invalid-response-options > invalid(45): Response.json(undefined, {status: 600}) 2`] = `
+
+Message:
+> 1 | Response.json(undefined, {status: 600})
+    |                                   ^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(46): Response.json(undefined, {status: 65_536}) 1`] = `
+
+  1 | Response.json(undefined, {status: 65_536})
+
+`;
+
+exports[`no-invalid-response-options > invalid(46): Response.json(undefined, {status: 65_536}) 2`] = `
+
+Message:
+> 1 | Response.json(undefined, {status: 65_536})
+    |                                   ^^^^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(47): Response.json(undefined, {status: -1}) 1`] = `
+
+  1 | Response.json(undefined, {status: -1})
+
+`;
+
+exports[`no-invalid-response-options > invalid(47): Response.json(undefined, {status: -1}) 2`] = `
+
+Message:
+> 1 | Response.json(undefined, {status: -1})
+    |                                   ^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(48): Response.json(undefined, {status: NaN}) 1`] = `
+
+  1 | Response.json(undefined, {status: NaN})
+
+`;
+
+exports[`no-invalid-response-options > invalid(48): Response.json(undefined, {status: NaN}) 2`] = `
+
+Message:
+> 1 | Response.json(undefined, {status: NaN})
+    |                                   ^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(49): Response.json(undefined, {status: Infinity}) 1`] = `
+
+  1 | Response.json(undefined, {status: Infinity})
+
+`;
+
+exports[`no-invalid-response-options > invalid(49): Response.json(undefined, {status: Infinity}) 2`] = `
+
+Message:
+> 1 | Response.json(undefined, {status: Infinity})
+    |                                   ^^^^^^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(5): new Response((\"\" as string)!, {status: (204 as number)!}) 1`] = `
+
+  1 | new Response(("" as string)!, {status: (204 as number)!})
+
+`;
+
+exports[`no-invalid-response-options > invalid(5): new Response((\"\" as string)!, {status: (204 as number)!}) 2`] = `
+
+Message:
+> 1 | new Response(("" as string)!, {status: (204 as number)!})
+    |              ^^^^^^^^^^^^^^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {status: (204 as number)!})
+
+`;
+
+exports[`no-invalid-response-options > invalid(5): new Response(\"\", {status: 304}) 1`] = `
+
+  1 | new Response("", {status: 304})
+
+`;
+
+exports[`no-invalid-response-options > invalid(5): new Response(\"\", {status: 304}) 2`] = `
+
+Message:
+> 1 | new Response("", {status: 304})
+    |              ^^ A response with status 304 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {status: 304})
+
+`;
+
+exports[`no-invalid-response-options > invalid(50): Response.json(undefined, {status: -Infinity}) 1`] = `
+
+  1 | Response.json(undefined, {status: -Infinity})
+
+`;
+
+exports[`no-invalid-response-options > invalid(50): Response.json(undefined, {status: -Infinity}) 2`] = `
+
+Message:
+> 1 | Response.json(undefined, {status: -Infinity})
+    |                                   ^^^^^^^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(51): Response.json(undefined, {status: null}) 1`] = `
+
+  1 | Response.json(undefined, {status: null})
+
+`;
+
+exports[`no-invalid-response-options > invalid(51): Response.json(undefined, {status: null}) 2`] = `
+
+Message:
+> 1 | Response.json(undefined, {status: null})
+    |                                   ^^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(52): Response.json(undefined, {status: false}) 1`] = `
+
+  1 | Response.json(undefined, {status: false})
+
+`;
+
+exports[`no-invalid-response-options > invalid(52): Response.json(undefined, {status: false}) 2`] = `
+
+Message:
+> 1 | Response.json(undefined, {status: false})
+    |                                   ^^^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(53): Response.json(undefined, {status: true}) 1`] = `
+
+  1 | Response.json(undefined, {status: true})
+
+`;
+
+exports[`no-invalid-response-options > invalid(53): Response.json(undefined, {status: true}) 2`] = `
+
+Message:
+> 1 | Response.json(undefined, {status: true})
+    |                                   ^^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(54): Response.json(undefined, {status: \"invalid\"}) 1`] = `
+
+  1 | Response.json(undefined, {status: "invalid"})
+
+`;
+
+exports[`no-invalid-response-options > invalid(54): Response.json(undefined, {status: \"invalid\"}) 2`] = `
+
+Message:
+> 1 | Response.json(undefined, {status: "invalid"})
+    |                                   ^^^^^^^^^ Response status must be in the range 200 to 599.
+
+`;
+
+exports[`no-invalid-response-options > invalid(55): Response.redirect(url, 200) 1`] = `
+
+  1 | Response.redirect(url, 200)
+
+`;
+
+exports[`no-invalid-response-options > invalid(55): Response.redirect(url, 200) 2`] = `
+
+Message:
+> 1 | Response.redirect(url, 200)
+    |                        ^^^ \`Response.redirect()\` status must be 301, 302, 303, 307, or 308.
+
+`;
+
+exports[`no-invalid-response-options > invalid(56): Response.redirect(url, 300) 1`] = `
+
+  1 | Response.redirect(url, 300)
+
+`;
+
+exports[`no-invalid-response-options > invalid(56): Response.redirect(url, 300) 2`] = `
+
+Message:
+> 1 | Response.redirect(url, 300)
+    |                        ^^^ \`Response.redirect()\` status must be 301, 302, 303, 307, or 308.
+
+`;
+
+exports[`no-invalid-response-options > invalid(57): Response.redirect(url, 304) 1`] = `
+
+  1 | Response.redirect(url, 304)
+
+`;
+
+exports[`no-invalid-response-options > invalid(57): Response.redirect(url, 304) 2`] = `
+
+Message:
+> 1 | Response.redirect(url, 304)
+    |                        ^^^ \`Response.redirect()\` status must be 301, 302, 303, 307, or 308.
+
+`;
+
+exports[`no-invalid-response-options > invalid(58): Response.redirect(url, 305) 1`] = `
+
+  1 | Response.redirect(url, 305)
+
+`;
+
+exports[`no-invalid-response-options > invalid(58): Response.redirect(url, 305) 2`] = `
+
+Message:
+> 1 | Response.redirect(url, 305)
+    |                        ^^^ \`Response.redirect()\` status must be 301, 302, 303, 307, or 308.
+
+`;
+
+exports[`no-invalid-response-options > invalid(59): Response.redirect(url, 306) 1`] = `
+
+  1 | Response.redirect(url, 306)
+
+`;
+
+exports[`no-invalid-response-options > invalid(59): Response.redirect(url, 306) 2`] = `
+
+Message:
+> 1 | Response.redirect(url, 306)
+    |                        ^^^ \`Response.redirect()\` status must be 301, 302, 303, 307, or 308.
+
+`;
+
+exports[`no-invalid-response-options > invalid(6): Response.json(data, {status: 304}) 1`] = `
+
+  1 | Response.json(data, {status: 304})
+
+`;
+
+exports[`no-invalid-response-options > invalid(6): Response.json(data, {status: 304}) 2`] = `
+
+Message:
+> 1 | Response.json(data, {status: 304})
+    |                              ^^^ A response with status 304 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(6): new Response(\"\" as /* keep */ string, {status: 204}) 1`] = `
+
+  1 | new Response("" as /* keep */ string, {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(6): new Response(\"\" as /* keep */ string, {status: 204}) 2`] = `
+
+Message:
+> 1 | new Response("" as /* keep */ string, {status: 204})
+    |              ^^^^^^^^^^^^^^^^^^^^^^^ A response with status 204 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(60): Response.redirect(url, 309) 1`] = `
+
+  1 | Response.redirect(url, 309)
+
+`;
+
+exports[`no-invalid-response-options > invalid(60): Response.redirect(url, 309) 2`] = `
+
+Message:
+> 1 | Response.redirect(url, 309)
+    |                        ^^^ \`Response.redirect()\` status must be 301, 302, 303, 307, or 308.
+
+`;
+
+exports[`no-invalid-response-options > invalid(61): Response.redirect(url, 600) 1`] = `
+
+  1 | Response.redirect(url, 600)
+
+`;
+
+exports[`no-invalid-response-options > invalid(61): Response.redirect(url, 600) 2`] = `
+
+Message:
+> 1 | Response.redirect(url, 600)
+    |                        ^^^ \`Response.redirect()\` status must be 301, 302, 303, 307, or 308.
+
+`;
+
+exports[`no-invalid-response-options > invalid(62): Response.redirect(url, null) 1`] = `
+
+  1 | Response.redirect(url, null)
+
+`;
+
+exports[`no-invalid-response-options > invalid(62): Response.redirect(url, null) 2`] = `
+
+Message:
+> 1 | Response.redirect(url, null)
+    |                        ^^^^ \`Response.redirect()\` status must be 301, 302, 303, 307, or 308.
+
+`;
+
+exports[`no-invalid-response-options > invalid(63): Response.redirect(url, false) 1`] = `
+
+  1 | Response.redirect(url, false)
+
+`;
+
+exports[`no-invalid-response-options > invalid(63): Response.redirect(url, false) 2`] = `
+
+Message:
+> 1 | Response.redirect(url, false)
+    |                        ^^^^^ \`Response.redirect()\` status must be 301, 302, 303, 307, or 308.
+
+`;
+
+exports[`no-invalid-response-options > invalid(64): Response.redirect(url, NaN) 1`] = `
+
+  1 | Response.redirect(url, NaN)
+
+`;
+
+exports[`no-invalid-response-options > invalid(64): Response.redirect(url, NaN) 2`] = `
+
+Message:
+> 1 | Response.redirect(url, NaN)
+    |                        ^^^ \`Response.redirect()\` status must be 301, 302, 303, 307, or 308.
+
+`;
+
+exports[`no-invalid-response-options > invalid(65): Response.redirect(url, \"200\") 1`] = `
+
+  1 | Response.redirect(url, "200")
+
+`;
+
+exports[`no-invalid-response-options > invalid(65): Response.redirect(url, \"200\") 2`] = `
+
+Message:
+> 1 | Response.redirect(url, "200")
+    |                        ^^^^^ \`Response.redirect()\` status must be 301, 302, 303, 307, or 308.
+
+`;
+
+exports[`no-invalid-response-options > invalid(66): const key = \"status\"; new Response(\"\", {[key]: 204}) 1`] = `
+
+  1 | const key = "status"; new Response("", {[key]: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(66): const key = \"status\"; new Response(\"\", {[key]: 204}) 2`] = `
+
+Message:
+> 1 | const key = "status"; new Response("", {[key]: 204})
+    |                                    ^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | const key = "status"; new Response(undefined, {[key]: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(67): new Response(\"\", {[\`status\`]: 204}) 1`] = `
+
+  1 | new Response("", {[\`status\`]: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(67): new Response(\"\", {[\`status\`]: 204}) 2`] = `
+
+Message:
+> 1 | new Response("", {[\`status\`]: 204})
+    |              ^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {[\`status\`]: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(68): new Response(\"\", {status: 204, [0]: 200}) 1`] = `
+
+  1 | new Response("", {status: 204, [0]: 200})
+
+`;
+
+exports[`no-invalid-response-options > invalid(68): new Response(\"\", {status: 204, [0]: 200}) 2`] = `
+
+Message:
+> 1 | new Response("", {status: 204, [0]: 200})
+    |              ^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {status: 204, [0]: 200})
+
+`;
+
+exports[`no-invalid-response-options > invalid(69): new Response(\"\", {status: 200, status: 204}) 1`] = `
+
+  1 | new Response("", {status: 200, status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(69): new Response(\"\", {status: 200, status: 204}) 2`] = `
+
+Message:
+> 1 | new Response("", {status: 200, status: 204})
+    |              ^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {status: 200, status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(7): Response.json(data, {status: 304} as ResponseInit) 1`] = `
+
+  1 | Response.json(data, {status: 304} as ResponseInit)
+
+`;
+
+exports[`no-invalid-response-options > invalid(7): Response.json(data, {status: 304} as ResponseInit) 2`] = `
+
+Message:
+> 1 | Response.json(data, {status: 304} as ResponseInit)
+    |                              ^^^ A response with status 304 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(7): Response.json(null, {status: 304}) 1`] = `
+
+  1 | Response.json(null, {status: 304})
+
+`;
+
+exports[`no-invalid-response-options > invalid(7): Response.json(null, {status: 304}) 2`] = `
+
+Message:
+> 1 | Response.json(null, {status: 304})
+    |                              ^^^ A response with status 304 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(70): new Response(\"\", {get status() { return 200; }, status: 204}) 1`] = `
+
+  1 | new Response("", {get status() { return 200; }, status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(70): new Response(\"\", {get status() { return 200; }, status: 204}) 2`] = `
+
+Message:
+> 1 | new Response("", {get status() { return 200; }, status: 204})
+    |              ^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {get status() { return 200; }, status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(71): new Response(\"\", {...options, status: 204}) 1`] = `
+
+  1 | new Response("", {...options, status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(71): new Response(\"\", {...options, status: 204}) 2`] = `
+
+Message:
+> 1 | new Response("", {...options, status: 204})
+    |              ^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {...options, status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(72): new Response(\"\", {[key]: 200, status: 204}) 1`] = `
+
+  1 | new Response("", {[key]: 200, status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(72): new Response(\"\", {[key]: 200, status: 204}) 2`] = `
+
+Message:
+> 1 | new Response("", {[key]: 200, status: 204})
+    |              ^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {[key]: 200, status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(73): new Response(\"\", {\"status\": 204}) 1`] = `
+
+  1 | new Response("", {"status": 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(73): new Response(\"\", {\"status\": 204}) 2`] = `
+
+Message:
+> 1 | new Response("", {"status": 204})
+    |              ^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {"status": 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(74): new Response(\"\", {[\"status\"]: 204}) 1`] = `
+
+  1 | new Response("", {["status"]: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(74): new Response(\"\", {[\"status\"]: 204}) 2`] = `
+
+Message:
+> 1 | new Response("", {["status"]: 204})
+    |              ^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {["status"]: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(75): new Response(\"\", {status: 204, headers: {}}) 1`] = `
+
+  1 | new Response("", {status: 204, headers: {}})
+
+`;
+
+exports[`no-invalid-response-options > invalid(75): new Response(\"\", {status: 204, headers: {}}) 2`] = `
+
+Message:
+> 1 | new Response("", {status: 204, headers: {}})
+    |              ^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {status: 204, headers: {}})
+
+`;
+
+exports[`no-invalid-response-options > invalid(76): new Response(\"\", {status: 204}, ...extraArguments) 1`] = `
+
+  1 | new Response("", {status: 204}, ...extraArguments)
+
+`;
+
+exports[`no-invalid-response-options > invalid(76): new Response(\"\", {status: 204}, ...extraArguments) 2`] = `
+
+Message:
+> 1 | new Response("", {status: 204}, ...extraArguments)
+    |              ^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {status: 204}, ...extraArguments)
+
+`;
+
+exports[`no-invalid-response-options > invalid(77): Response.json(\"\", {status: 200, status: 204}) 1`] = `
+
+  1 | Response.json("", {status: 200, status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(77): Response.json(\"\", {status: 200, status: 204}) 2`] = `
+
+Message:
+> 1 | Response.json("", {status: 200, status: 204})
+    |                                         ^^^ A response with status 204 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(78): Response.json(\"\", {get status() { return 200; }, status: 204}) 1`] = `
+
+  1 | Response.json("", {get status() { return 200; }, status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(78): Response.json(\"\", {get status() { return 200; }, status: 204}) 2`] = `
+
+Message:
+> 1 | Response.json("", {get status() { return 200; }, status: 204})
+    |                                                          ^^^ A response with status 204 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(79): Response.json(\"\", {...options, status: 204}) 1`] = `
+
+  1 | Response.json("", {...options, status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(79): Response.json(\"\", {...options, status: 204}) 2`] = `
+
+Message:
+> 1 | Response.json("", {...options, status: 204})
+    |                                        ^^^ A response with status 204 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(8): Response.json(undefined, {status: 204}) 1`] = `
+
+  1 | Response.json(undefined, {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(8): Response.json(undefined, {status: 204}) 2`] = `
+
+Message:
+> 1 | Response.json(undefined, {status: 204})
+    |                                   ^^^ A response with status 204 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(8): Response.redirect(url, 200 as number) 1`] = `
+
+  1 | Response.redirect(url, 200 as number)
+
+`;
+
+exports[`no-invalid-response-options > invalid(8): Response.redirect(url, 200 as number) 2`] = `
+
+Message:
+> 1 | Response.redirect(url, 200 as number)
+    |                        ^^^^^^^^^^^^^ \`Response.redirect()\` status must be 301, 302, 303, 307, or 308.
+
+`;
+
+exports[`no-invalid-response-options > invalid(80): Response.json(\"\", {[key]: 200, status: 204}) 1`] = `
+
+  1 | Response.json("", {[key]: 200, status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(80): Response.json(\"\", {[key]: 200, status: 204}) 2`] = `
+
+Message:
+> 1 | Response.json("", {[key]: 200, status: 204})
+    |                                        ^^^ A response with status 204 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(81): Response.json(\"\", {\"status\": 204}) 1`] = `
+
+  1 | Response.json("", {"status": 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(81): Response.json(\"\", {\"status\": 204}) 2`] = `
+
+Message:
+> 1 | Response.json("", {"status": 204})
+    |                              ^^^ A response with status 204 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(82): Response.json(\"\", {[\"status\"]: 204}) 1`] = `
+
+  1 | Response.json("", {["status"]: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(82): Response.json(\"\", {[\"status\"]: 204}) 2`] = `
+
+Message:
+> 1 | Response.json("", {["status"]: 204})
+    |                                ^^^ A response with status 204 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(83): Response.json(\"\", {status: 204, headers: {}}) 1`] = `
+
+  1 | Response.json("", {status: 204, headers: {}})
+
+`;
+
+exports[`no-invalid-response-options > invalid(83): Response.json(\"\", {status: 204, headers: {}}) 2`] = `
+
+Message:
+> 1 | Response.json("", {status: 204, headers: {}})
+    |                            ^^^ A response with status 204 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(84): Response.json(\"\", {status: 204}, ...extraArguments) 1`] = `
+
+  1 | Response.json("", {status: 204}, ...extraArguments)
+
+`;
+
+exports[`no-invalid-response-options > invalid(84): Response.json(\"\", {status: 204}, ...extraArguments) 2`] = `
+
+Message:
+> 1 | Response.json("", {status: 204}, ...extraArguments)
+    |                            ^^^ A response with status 204 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(85): Response.redirect(url, 200, ...extraArguments) 1`] = `
+
+  1 | Response.redirect(url, 200, ...extraArguments)
+
+`;
+
+exports[`no-invalid-response-options > invalid(85): Response.redirect(url, 200, ...extraArguments) 2`] = `
+
+Message:
+> 1 | Response.redirect(url, 200, ...extraArguments)
+    |                        ^^^ \`Response.redirect()\` status must be 301, 302, 303, 307, or 308.
+
+`;
+
+exports[`no-invalid-response-options > invalid(86): new ((Response))(((\"\")), (({status: 204}))) 1`] = `
+
+  1 | new ((Response))((("")), (({status: 204})))
+
+`;
+
+exports[`no-invalid-response-options > invalid(86): new ((Response))(((\"\")), (({status: 204}))) 2`] = `
+
+Message:
+> 1 | new ((Response))((("")), (({status: 204})))
+    |                    ^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new ((Response))(((undefined)), (({status: 204})))
+
+`;
+
+exports[`no-invalid-response-options > invalid(87): Response.json(data, {status: 304}).clone() 1`] = `
+
+  1 | Response.json(data, {status: 304}).clone()
+
+`;
+
+exports[`no-invalid-response-options > invalid(87): Response.json(data, {status: 304}).clone() 2`] = `
+
+Message:
+> 1 | Response.json(data, {status: 304}).clone()
+    |                              ^^^ A response with status 304 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(88): consume(new Response(\"\", {status: 204})) 1`] = `
+
+  1 | consume(new Response("", {status: 204}))
+
+`;
+
+exports[`no-invalid-response-options > invalid(88): consume(new Response(\"\", {status: 204})) 2`] = `
+
+Message:
+> 1 | consume(new Response("", {status: 204}))
+    |                      ^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | consume(new Response(undefined, {status: 204}))
+
+`;
+
+exports[`no-invalid-response-options > invalid(89): new Response(/* before */ \"\" /* after */, {status: 204}) 1`] = `
+
+  1 | new Response(/* before */ "" /* after */, {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(89): new Response(/* before */ \"\" /* after */, {status: 204}) 2`] = `
+
+Message:
+> 1 | new Response(/* before */ "" /* after */, {status: 204})
+    |                           ^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(/* before */ undefined /* after */, {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(9): Response.json(data, {[\"status\" as string]: 304}) 1`] = `
+
+  1 | Response.json(data, {["status" as string]: 304})
+
+`;
+
+exports[`no-invalid-response-options > invalid(9): Response.json(data, {[\"status\" as string]: 304}) 2`] = `
+
+Message:
+> 1 | Response.json(data, {["status" as string]: 304})
+    |                                            ^^^ A response with status 304 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(9): new Response(\"body\", {status: 204}) 1`] = `
+
+  1 | new Response("body", {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(9): new Response(\"body\", {status: 204}) 2`] = `
+
+Message:
+> 1 | new Response("body", {status: 204})
+    |              ^^^^^^ A response with status 204 cannot have a body.
+
+Suggestion 1/1: Replace the response body with \`undefined\`.:
+  1 | new Response(undefined, {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(90): new Response({/* keep */}, {status: 204}) 1`] = `
+
+  1 | new Response({/* keep */}, {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(90): new Response({/* keep */}, {status: 204}) 2`] = `
+
+Message:
+> 1 | new Response({/* keep */}, {status: 204})
+    |              ^^^^^^^^^^^^ A response with status 204 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(91): new Response(\`body \${object.value}\`, {status: 204}) 1`] = `
+
+  1 | new Response(\`body \${object.value}\`, {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(91): new Response(\`body \${object.value}\`, {status: 204}) 2`] = `
+
+Message:
+> 1 | new Response(\`body \${object.value}\`, {status: 204})
+    |              ^^^^^^^^^^^^^^^^^^^^^^ A response with status 204 cannot have a body.
+
+`;
+
+exports[`no-invalid-response-options > invalid(92): new Response(\`body \${sideEffect()}\`, {status: 204}) 1`] = `
+
+  1 | new Response(\`body \${sideEffect()}\`, {status: 204})
+
+`;
+
+exports[`no-invalid-response-options > invalid(92): new Response(\`body \${sideEffect()}\`, {status: 204}) 2`] = `
+
+Message:
+> 1 | new Response(\`body \${sideEffect()}\`, {status: 204})
+    |              ^^^^^^^^^^^^^^^^^^^^^^ A response with status 204 cannot have a body.
+
+`;

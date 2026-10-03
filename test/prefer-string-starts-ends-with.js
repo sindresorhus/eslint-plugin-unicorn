@@ -371,14 +371,14 @@ test({
 		// TS: non-null assertion on string variable
 		{
 			code: 'function foo(bar: string) { return bar!.indexOf("x") === 0; }',
-			output: 'function foo(bar: string) { return (bar!).startsWith("x"); }',
+			output: 'function foo(bar: string) { return bar!.startsWith("x"); }',
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
 		},
 		// ASI protection
 		{
 			code: 'const value: string = "x"\nvalue!.indexOf("x") === 0',
-			output: 'const value: string = "x"\n;(value!).startsWith("x")',
+			output: 'const value: string = "x"\nvalue!.startsWith("x")',
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
 		},
@@ -439,6 +439,18 @@ test({
 		},
 		{
 			code: '"foo".indexOf(bar) === 0',
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		// ASI protection for a parenthesized receiver
+		{
+			code: 'foo\n0 === (value as string).indexOf("x")',
+			output: 'foo\n;(value as string).startsWith("x")',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
+		},
+		{
+			code: 'foo\n0 === ("a" + value).indexOf("a")',
+			output: 'foo\n;("a" + value).startsWith("a")',
 			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
 		},
 	],
@@ -556,14 +568,14 @@ test({
 		// TypeScript non-null assertion on string receiver
 		{
 			code: 'function foo(value: string) { return value!.slice(0, 1) === "x"; }',
-			output: 'function foo(value: string) { return (value!).startsWith("x"); }',
+			output: 'function foo(value: string) { return value!.startsWith("x"); }',
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
 		},
 		// ASI protection
 		{
 			code: 'const value: string = "x"\nvalue!.slice(0, 1) === "x"',
-			output: 'const value: string = "x"\n;(value!).startsWith("x")',
+			output: 'const value: string = "x"\nvalue!.startsWith("x")',
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
 		},
@@ -588,6 +600,18 @@ test({
 		{
 			code: '"shark".slice(0, 5) /* comment */ === "shark"',
 			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
+		},
+		// ASI protection for a parenthesized receiver
+		{
+			code: 'foo\n"x" === (value as string).slice(0, 1)',
+			output: 'foo\n;(value as string).startsWith("x")',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
+		},
+		{
+			code: 'foo\n"a" !== ("a" + value).slice(-1)',
+			output: 'foo\n!("a" + value).endsWith("a")',
+			errors: [{messageId: MESSAGE_SLICE_ENDS_WITH}],
 		},
 	],
 });

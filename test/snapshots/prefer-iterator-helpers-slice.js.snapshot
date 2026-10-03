@@ -1,0 +1,1060 @@
+exports[`prefer-iterator-helpers > invalid(1): (iterator as Iterator<number>).toArray().slice(0, 10) 1`] = `
+
+  1 | (iterator as Iterator<number>).toArray().slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(1): (iterator as Iterator<number>).toArray().slice(0, 10) 2`] = `
+
+Message:
+> 1 | (iterator as Iterator<number>).toArray().slice(0, 10)
+    |                                          ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | (iterator as Iterator<number>).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(1): declare function getIterator(): IteratorObject<number>; [...getIterator()].slice(0, 10); 1`] = `
+
+Filename: file.ts
+
+  1 | declare function getIterator(): IteratorObject<number>; [...getIterator()].slice(0, 10);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(1): declare function getIterator(): IteratorObject<number>; [...getIterator()].slice(0, 10); 2`] = `
+
+Message:
+> 1 | declare function getIterator(): IteratorObject<number>; [...getIterator()].slice(0, 10);
+    |                                                                            ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | declare function getIterator(): IteratorObject<number>; getIterator().take(10).toArray();
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(1): iterator.toArray().slice(0, 10) 1`] = `
+
+  1 | iterator.toArray().slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(1): iterator.toArray().slice(0, 10) 2`] = `
+
+Message:
+> 1 | iterator.toArray().slice(0, 10)
+    |                    ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | iterator.take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(10): iterator.toArray().slice(0, Number.MAX_SAFE_INTEGER) 1`] = `
+
+  1 | iterator.toArray().slice(0, Number.MAX_SAFE_INTEGER)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(10): iterator.toArray().slice(0, Number.MAX_SAFE_INTEGER) 2`] = `
+
+Message:
+> 1 | iterator.toArray().slice(0, Number.MAX_SAFE_INTEGER)
+    |                    ^^^^^ Prefer \`take(9007199254740991)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(9007199254740991).toArray()\`.:
+  1 | iterator.take(9007199254740991).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(11): const start = 20; const end = start + 10; iterator.toArray().slice(start, end) 1`] = `
+
+  1 | const start = 20; const end = start + 10; iterator.toArray().slice(start, end)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(11): const start = 20; const end = start + 10; iterator.toArray().slice(start, end) 2`] = `
+
+Message:
+> 1 | const start = 20; const end = start + 10; iterator.toArray().slice(start, end)
+    |                                                              ^^^^^ Prefer \`drop(20).take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`drop(20).take(10).toArray()\`.:
+  1 | const start = 20; const end = start + 10; iterator.drop(20).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(12): iterator.toArray().slice(2 * 10, 3 * 10) 1`] = `
+
+  1 | iterator.toArray().slice(2 * 10, 3 * 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(12): iterator.toArray().slice(2 * 10, 3 * 10) 2`] = `
+
+Message:
+> 1 | iterator.toArray().slice(2 * 10, 3 * 10)
+    |                    ^^^^^ Prefer \`drop(20).take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`drop(20).take(10).toArray()\`.:
+  1 | iterator.drop(20).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(13): [...map.values()].slice(0, 10) 1`] = `
+
+  1 | [...map.values()].slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(13): [...map.values()].slice(0, 10) 2`] = `
+
+Message:
+> 1 | [...map.values()].slice(0, 10)
+    |                   ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | map.values().take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(14): [...map.keys()].slice(20) 1`] = `
+
+  1 | [...map.keys()].slice(20)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(14): [...map.keys()].slice(20) 2`] = `
+
+Message:
+> 1 | [...map.keys()].slice(20)
+    |                 ^^^^^ Prefer \`drop(20)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`drop(20).toArray()\`.:
+  1 | map.keys().drop(20).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(15): [...map.entries()].slice(20, 30) 1`] = `
+
+  1 | [...map.entries()].slice(20, 30)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(15): [...map.entries()].slice(20, 30) 2`] = `
+
+Message:
+> 1 | [...map.entries()].slice(20, 30)
+    |                    ^^^^^ Prefer \`drop(20).take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`drop(20).take(10).toArray()\`.:
+  1 | map.entries().drop(20).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(16): [...string.matchAll(pattern)].slice(0, 10) 1`] = `
+
+  1 | [...string.matchAll(pattern)].slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(16): [...string.matchAll(pattern)].slice(0, 10) 2`] = `
+
+Message:
+> 1 | [...string.matchAll(pattern)].slice(0, 10)
+    |                               ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | string.matchAll(pattern).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(17): Array.from(set.values()).slice(0, 10) 1`] = `
+
+  1 | Array.from(set.values()).slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(17): Array.from(set.values()).slice(0, 10) 2`] = `
+
+Message:
+> 1 | Array.from(set.values()).slice(0, 10)
+    |                          ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | set.values().take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(18): Array.from(map.keys()).slice(20) 1`] = `
+
+  1 | Array.from(map.keys()).slice(20)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(18): Array.from(map.keys()).slice(20) 2`] = `
+
+Message:
+> 1 | Array.from(map.keys()).slice(20)
+    |                        ^^^^^ Prefer \`drop(20)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`drop(20).toArray()\`.:
+  1 | map.keys().drop(20).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(19): Array.from(map.entries()).slice(20, 30) 1`] = `
+
+  1 | Array.from(map.entries()).slice(20, 30)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(19): Array.from(map.entries()).slice(20, 30) 2`] = `
+
+Message:
+> 1 | Array.from(map.entries()).slice(20, 30)
+    |                           ^^^^^ Prefer \`drop(20).take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`drop(20).take(10).toArray()\`.:
+  1 | map.entries().drop(20).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(2): function * getIterator() { yield 1; } Array.from(getIterator()).slice(0, 10); 1`] = `
+
+Filename: file.ts
+
+  1 | function * getIterator() { yield 1; } Array.from(getIterator()).slice(0, 10);
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(2): function * getIterator() { yield 1; } Array.from(getIterator()).slice(0, 10); 2`] = `
+
+Message:
+> 1 | function * getIterator() { yield 1; } Array.from(getIterator()).slice(0, 10);
+    |                                                                 ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | function * getIterator() { yield 1; } getIterator().take(10).toArray();
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(2): iterator!.toArray().slice(0, 10) 1`] = `
+
+  1 | iterator!.toArray().slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(2): iterator!.toArray().slice(0, 10) 2`] = `
+
+Message:
+> 1 | iterator!.toArray().slice(0, 10)
+    |                     ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | iterator!.take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(2): iterator.toArray().slice(20, 30) 1`] = `
+
+  1 | iterator.toArray().slice(20, 30)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(2): iterator.toArray().slice(20, 30) 2`] = `
+
+Message:
+> 1 | iterator.toArray().slice(20, 30)
+    |                    ^^^^^ Prefer \`drop(20).take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`drop(20).take(10).toArray()\`.:
+  1 | iterator.drop(20).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(20): [...Iterator.from(iterable)].slice(0, 10) 1`] = `
+
+  1 | [...Iterator.from(iterable)].slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(20): [...Iterator.from(iterable)].slice(0, 10) 2`] = `
+
+Message:
+> 1 | [...Iterator.from(iterable)].slice(0, 10)
+    |                              ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | Iterator.from(iterable).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(21): Array.from(globalThis.Iterator.from(iterable)).slice(0, 10) 1`] = `
+
+  1 | Array.from(globalThis.Iterator.from(iterable)).slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(21): Array.from(globalThis.Iterator.from(iterable)).slice(0, 10) 2`] = `
+
+Message:
+> 1 | Array.from(globalThis.Iterator.from(iterable)).slice(0, 10)
+    |                                                ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | globalThis.Iterator.from(iterable).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(22): [...Iterator.concat(first, second)].slice(0, 10) 1`] = `
+
+  1 | [...Iterator.concat(first, second)].slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(22): [...Iterator.concat(first, second)].slice(0, 10) 2`] = `
+
+Message:
+> 1 | [...Iterator.concat(first, second)].slice(0, 10)
+    |                                     ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | Iterator.concat(first, second).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(23): [...map.values().filter(fn)].slice(0, 10) 1`] = `
+
+  1 | [...map.values().filter(fn)].slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(23): [...map.values().filter(fn)].slice(0, 10) 2`] = `
+
+Message:
+> 1 | [...map.values().filter(fn)].slice(0, 10)
+    |                              ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | map.values().filter(fn).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(24): Array.from(map.values().map(fn)).slice(20, 30) 1`] = `
+
+  1 | Array.from(map.values().map(fn)).slice(20, 30)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(24): Array.from(map.values().map(fn)).slice(20, 30) 2`] = `
+
+Message:
+> 1 | Array.from(map.values().map(fn)).slice(20, 30)
+    |                                  ^^^^^ Prefer \`drop(20).take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`drop(20).take(10).toArray()\`.:
+  1 | map.values().map(fn).drop(20).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(25): [...object?.map.values()].slice(0, 10) 1`] = `
+
+  1 | [...object?.map.values()].slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(25): [...object?.map.values()].slice(0, 10) 2`] = `
+
+Message:
+> 1 | [...object?.map.values()].slice(0, 10)
+    |                           ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | (object?.map.values()).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(26): Array.from(object?.map.values()).slice(0, 10) 1`] = `
+
+  1 | Array.from(object?.map.values()).slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(26): Array.from(object?.map.values()).slice(0, 10) 2`] = `
+
+Message:
+> 1 | Array.from(object?.map.values()).slice(0, 10)
+    |                                  ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | (object?.map.values()).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(27): Array.from({values() { return [1].values(); }}.values()).slice(0, 1) 1`] = `
+
+  1 | Array.from({values() { return [1].values(); }}.values()).slice(0, 1)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(27): Array.from({values() { return [1].values(); }}.values()).slice(0, 1) 2`] = `
+
+Message:
+> 1 | Array.from({values() { return [1].values(); }}.values()).slice(0, 1)
+    |                                                          ^^^^^ Prefer \`take(1)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(1).toArray()\`.:
+  1 | ({values() { return [1].values(); }}.values()).take(1).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(28): Array.from(function () {}.values()).slice(0, 1) 1`] = `
+
+  1 | Array.from(function () {}.values()).slice(0, 1)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(28): Array.from(function () {}.values()).slice(0, 1) 2`] = `
+
+Message:
+> 1 | Array.from(function () {}.values()).slice(0, 1)
+    |                                     ^^^^^ Prefer \`take(1)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(1).toArray()\`.:
+  1 | (function () {}.values()).take(1).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(29): Array.from(class {}.values()).slice(0, 1) 1`] = `
+
+  1 | Array.from(class {}.values()).slice(0, 1)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(29): Array.from(class {}.values()).slice(0, 1) 2`] = `
+
+Message:
+> 1 | Array.from(class {}.values()).slice(0, 1)
+    |                               ^^^^^ Prefer \`take(1)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(1).toArray()\`.:
+  1 | (class {}.values()).take(1).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(3): [...map!.values()].slice(0 as number, 10 satisfies number) 1`] = `
+
+  1 | [...map!.values()].slice(0 as number, 10 satisfies number)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(3): [...map!.values()].slice(0 as number, 10 satisfies number) 2`] = `
+
+Message:
+> 1 | [...map!.values()].slice(0 as number, 10 satisfies number)
+    |                    ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | map!.values().take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(3): iterator.toArray().slice(20) 1`] = `
+
+  1 | iterator.toArray().slice(20)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(3): iterator.toArray().slice(20) 2`] = `
+
+Message:
+> 1 | iterator.toArray().slice(20)
+    |                    ^^^^^ Prefer \`drop(20)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`drop(20).toArray()\`.:
+  1 | iterator.drop(20).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(30): Array.from(async function () {}.values()).slice(0, 1) 1`] = `
+
+  1 | Array.from(async function () {}.values()).slice(0, 1)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(30): Array.from(async function () {}.values()).slice(0, 1) 2`] = `
+
+Message:
+> 1 | Array.from(async function () {}.values()).slice(0, 1)
+    |                                           ^^^^^ Prefer \`take(1)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(1).toArray()\`.:
+  1 | (async function () {}.values()).take(1).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(31): getIterator().toArray().slice(0, 10) 1`] = `
+
+  1 | getIterator().toArray().slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(31): getIterator().toArray().slice(0, 10) 2`] = `
+
+Message:
+> 1 | getIterator().toArray().slice(0, 10)
+    |                         ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | getIterator().take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(32): (condition ? first : second).toArray().slice(0, 10) 1`] = `
+
+  1 | (condition ? first : second).toArray().slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(32): (condition ? first : second).toArray().slice(0, 10) 2`] = `
+
+Message:
+> 1 | (condition ? first : second).toArray().slice(0, 10)
+    |                                        ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | (condition ? first : second).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(33): ((iterator).toArray()).slice((0), (10)) 1`] = `
+
+  1 | ((iterator).toArray()).slice((0), (10))
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(33): ((iterator).toArray()).slice((0), (10)) 2`] = `
+
+Message:
+> 1 | ((iterator).toArray()).slice((0), (10))
+    |                        ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | (iterator).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(34): [...(map.values()),].slice(0, 10,) 1`] = `
+
+  1 | [...(map.values()),].slice(0, 10,)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(34): [...(map.values()),].slice(0, 10,) 2`] = `
+
+Message:
+> 1 | [...(map.values()),].slice(0, 10,)
+    |                      ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | (map.values()).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(35): iterator.toArray().slice(0, 10).map(fn) 1`] = `
+
+  1 | iterator.toArray().slice(0, 10).map(fn)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(35): iterator.toArray().slice(0, 10).map(fn) 2`] = `
+
+Message:
+> 1 | iterator.toArray().slice(0, 10).map(fn)
+    |                    ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | iterator.take(10).toArray().map(fn)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(36): const element = <div>{iterator.toArray().slice(0, 10)}</div> 1`] = `
+
+  1 | const element = <div>{iterator.toArray().slice(0, 10)}</div>
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(36): const element = <div>{iterator.toArray().slice(0, 10)}</div> 2`] = `
+
+Message:
+> 1 | const element = <div>{iterator.toArray().slice(0, 10)}</div>
+    |                                          ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | const element = <div>{iterator.take(10).toArray()}</div>
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(37): function foo() { return[...map.values()].slice(0, 10); } 1`] = `
+
+  1 | function foo() { return[...map.values()].slice(0, 10); }
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(37): function foo() { return[...map.values()].slice(0, 10); } 2`] = `
+
+Message:
+> 1 | function foo() { return[...map.values()].slice(0, 10); }
+    |                                          ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | function foo() { return map.values().take(10).toArray(); }
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(38): function foo() { throw[...map.values()].slice(0, 10); } 1`] = `
+
+  1 | function foo() { throw[...map.values()].slice(0, 10); }
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(38): function foo() { throw[...map.values()].slice(0, 10); } 2`] = `
+
+Message:
+> 1 | function foo() { throw[...map.values()].slice(0, 10); }
+    |                                         ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | function foo() { throw map.values().take(10).toArray(); }
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(39): previous()\nArray.from([1, 2].values()).slice(0, 1) 1`] = `
+
+  1 | previous()
+  2 | Array.from([1, 2].values()).slice(0, 1)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(39): previous()\nArray.from([1, 2].values()).slice(0, 1) 2`] = `
+
+Message:
+  1 | previous()
+> 2 | Array.from([1, 2].values()).slice(0, 1)
+    |                             ^^^^^ Prefer \`take(1)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(1).toArray()\`.:
+  1 | previous()
+  2 | ;[1, 2].values().take(1).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(4): Array.from(map.values() satisfies Iterable<number>).slice(0, 10) 1`] = `
+
+  1 | Array.from(map.values() satisfies Iterable<number>).slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(4): Array.from(map.values() satisfies Iterable<number>).slice(0, 10) 2`] = `
+
+Message:
+> 1 | Array.from(map.values() satisfies Iterable<number>).slice(0, 10)
+    |                                                     ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | (map.values() satisfies Iterable<number>).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(4): iterator.toArray().slice(0, 0) 1`] = `
+
+  1 | iterator.toArray().slice(0, 0)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(4): iterator.toArray().slice(0, 0) 2`] = `
+
+Message:
+> 1 | iterator.toArray().slice(0, 0)
+    |                    ^^^^^ Prefer \`take(0)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(0).toArray()\`.:
+  1 | iterator.take(0).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(40): Array.from(\n\tmap.values(),\n).slice(20, 30) 1`] = `
+
+  1 | Array.from(
+  2 | 	map.values(),
+  3 | ).slice(20, 30)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(40): Array.from(\n\tmap.values(),\n).slice(20, 30) 2`] = `
+
+Message:
+  1 | Array.from(
+  2 | 	map.values(),
+> 3 | ).slice(20, 30)
+    |   ^^^^^ Prefer \`drop(20).take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`drop(20).take(10).toArray()\`.:
+  1 | map.values().drop(20).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(41): [...map.values(/* comment */)].slice(0, 10) 1`] = `
+
+  1 | [...map.values(/* comment */)].slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(41): [...map.values(/* comment */)].slice(0, 10) 2`] = `
+
+Message:
+> 1 | [...map.values(/* comment */)].slice(0, 10)
+    |                                ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | map.values(/* comment */).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(42): Array.from((/* comment */ map.values())).slice(0, 10) 1`] = `
+
+  1 | Array.from((/* comment */ map.values())).slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(42): Array.from((/* comment */ map.values())).slice(0, 10) 2`] = `
+
+Message:
+> 1 | Array.from((/* comment */ map.values())).slice(0, 10)
+    |                                          ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | (/* comment */ map.values()).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(43): [/* comment */ ...map.values()].slice(0, 10) 1`] = `
+
+  1 | [/* comment */ ...map.values()].slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(43): [/* comment */ ...map.values()].slice(0, 10) 2`] = `
+
+Message:
+> 1 | [/* comment */ ...map.values()].slice(0, 10)
+    |                                 ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(44): [...map.values() /* comment */].slice(0, 10) 1`] = `
+
+  1 | [...map.values() /* comment */].slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(44): [...map.values() /* comment */].slice(0, 10) 2`] = `
+
+Message:
+> 1 | [...map.values() /* comment */].slice(0, 10)
+    |                                 ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(45): Array.from(/* comment */ map.values()).slice(0, 10) 1`] = `
+
+  1 | Array.from(/* comment */ map.values()).slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(45): Array.from(/* comment */ map.values()).slice(0, 10) 2`] = `
+
+Message:
+> 1 | Array.from(/* comment */ map.values()).slice(0, 10)
+    |                                        ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(46): iterator.toArray(/* comment */).slice(0, 10) 1`] = `
+
+  1 | iterator.toArray(/* comment */).slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(46): iterator.toArray(/* comment */).slice(0, 10) 2`] = `
+
+Message:
+> 1 | iterator.toArray(/* comment */).slice(0, 10)
+    |                                 ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(47): iterator.toArray() /* comment */ .slice(0, 10) 1`] = `
+
+  1 | iterator.toArray() /* comment */ .slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(47): iterator.toArray() /* comment */ .slice(0, 10) 2`] = `
+
+Message:
+> 1 | iterator.toArray() /* comment */ .slice(0, 10)
+    |                                   ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(48): iterator.toArray().slice(/* comment */ 0, 10) 1`] = `
+
+  1 | iterator.toArray().slice(/* comment */ 0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(48): iterator.toArray().slice(/* comment */ 0, 10) 2`] = `
+
+Message:
+> 1 | iterator.toArray().slice(/* comment */ 0, 10)
+    |                    ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(49): iterator.toArray().slice(0, /* comment */ 10) 1`] = `
+
+  1 | iterator.toArray().slice(0, /* comment */ 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(49): iterator.toArray().slice(0, /* comment */ 10) 2`] = `
+
+Message:
+> 1 | iterator.toArray().slice(0, /* comment */ 10)
+    |                    ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(5): Array.from(<Iterator<number>>map.values()).slice(0, 10) 1`] = `
+
+  1 | Array.from(<Iterator<number>>map.values()).slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(5): Array.from(<Iterator<number>>map.values()).slice(0, 10) 2`] = `
+
+Message:
+> 1 | Array.from(<Iterator<number>>map.values()).slice(0, 10)
+    |                                            ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | (<Iterator<number>>map.values()).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(5): iterator.toArray().slice(20, 20) 1`] = `
+
+  1 | iterator.toArray().slice(20, 20)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(5): iterator.toArray().slice(20, 20) 2`] = `
+
+Message:
+> 1 | iterator.toArray().slice(20, 20)
+    |                    ^^^^^ Prefer \`take(0)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(0).toArray()\`.:
+  1 | iterator.take(0).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(50): iterator.toArray().slice(0, 10 /* comment */) 1`] = `
+
+  1 | iterator.toArray().slice(0, 10 /* comment */)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(50): iterator.toArray().slice(0, 10 /* comment */) 2`] = `
+
+Message:
+> 1 | iterator.toArray().slice(0, 10 /* comment */)
+    |                    ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(51): const limit = 10; function page(iterator) { return iterator.toArray().slice(0, limit); } 1`] = `
+
+  1 | const limit = 10; function page(iterator) { return iterator.toArray().slice(0, limit); }
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(51): const limit = 10; function page(iterator) { return iterator.toArray().slice(0, limit); } 2`] = `
+
+Message:
+> 1 | const limit = 10; function page(iterator) { return iterator.toArray().slice(0, limit); }
+    |                                                                       ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | const limit = 10; function page(iterator) { return iterator.take(10).toArray(); }
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(52): [...map?.values()].slice(0, 10) 1`] = `
+
+  1 | [...map?.values()].slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(52): [...map?.values()].slice(0, 10) 2`] = `
+
+Message:
+> 1 | [...map?.values()].slice(0, 10)
+    |                    ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | (map?.values()).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(6): [...(map.values() as Iterator<number>)].slice(0, 10) 1`] = `
+
+  1 | [...(map.values() as Iterator<number>)].slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(6): [...(map.values() as Iterator<number>)].slice(0, 10) 2`] = `
+
+Message:
+> 1 | [...(map.values() as Iterator<number>)].slice(0, 10)
+    |                                         ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | (map.values() as Iterator<number>).take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(6): iterator.toArray().slice(20, 10) 1`] = `
+
+  1 | iterator.toArray().slice(20, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(6): iterator.toArray().slice(20, 10) 2`] = `
+
+Message:
+> 1 | iterator.toArray().slice(20, 10)
+    |                    ^^^^^ Prefer \`take(0)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(0).toArray()\`.:
+  1 | iterator.take(0).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(7): function foo(iterator: Iterator<number>) { [...iterator].slice(0, 10); } 1`] = `
+
+  1 | function foo(iterator: Iterator<number>) { [...iterator].slice(0, 10); }
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(7): function foo(iterator: Iterator<number>) { [...iterator].slice(0, 10); } 2`] = `
+
+Message:
+> 1 | function foo(iterator: Iterator<number>) { [...iterator].slice(0, 10); }
+    |                                                          ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | function foo(iterator: Iterator<number>) { iterator.take(10).toArray(); }
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(7): iterator.toArray().slice(-0, 10) 1`] = `
+
+  1 | iterator.toArray().slice(-0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(7): iterator.toArray().slice(-0, 10) 2`] = `
+
+Message:
+> 1 | iterator.toArray().slice(-0, 10)
+    |                    ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | iterator.take(10).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(8): function foo(iterator: IterableIterator<number>) { Array.from(iterator).slice(20); } 1`] = `
+
+  1 | function foo(iterator: IterableIterator<number>) { Array.from(iterator).slice(20); }
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(8): function foo(iterator: IterableIterator<number>) { Array.from(iterator).slice(20); } 2`] = `
+
+Message:
+> 1 | function foo(iterator: IterableIterator<number>) { Array.from(iterator).slice(20); }
+    |                                                                         ^^^^^ Prefer \`drop(20)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`drop(20).toArray()\`.:
+  1 | function foo(iterator: IterableIterator<number>) { iterator.drop(20).toArray(); }
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(8): iterator.toArray().slice(0, 0x10) 1`] = `
+
+  1 | iterator.toArray().slice(0, 0x10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(8): iterator.toArray().slice(0, 0x10) 2`] = `
+
+Message:
+> 1 | iterator.toArray().slice(0, 0x10)
+    |                    ^^^^^ Prefer \`take(16)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(16).toArray()\`.:
+  1 | iterator.take(16).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(9): iterator.toArray().slice(1_000, 2_000) 1`] = `
+
+  1 | iterator.toArray().slice(1_000, 2_000)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(9): iterator.toArray().slice(1_000, 2_000) 2`] = `
+
+Message:
+> 1 | iterator.toArray().slice(1_000, 2_000)
+    |                    ^^^^^ Prefer \`drop(1000).take(1000)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`drop(1000).take(1000).toArray()\`.:
+  1 | iterator.drop(1000).take(1000).toArray()
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(9): previous()\nArray.from(map.values() as Iterator<number>).slice(0, 10) 1`] = `
+
+  1 | previous()
+  2 | Array.from(map.values() as Iterator<number>).slice(0, 10)
+
+`;
+
+exports[`prefer-iterator-helpers > invalid(9): previous()\nArray.from(map.values() as Iterator<number>).slice(0, 10) 2`] = `
+
+Message:
+  1 | previous()
+> 2 | Array.from(map.values() as Iterator<number>).slice(0, 10)
+    |                                              ^^^^^ Prefer \`take(10)\` before materializing the iterator instead of slicing the array.
+
+Suggestion 1/1: Use \`take(10).toArray()\`.:
+  1 | previous()
+  2 | ;(map.values() as Iterator<number>).take(10).toArray()
+
+`;

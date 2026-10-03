@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import css from '@eslint/css';
 import markdown from '@eslint/markdown';
@@ -144,13 +144,13 @@ test('reports abusive `eslint-disable` in non-JavaScript files', t => {
 			rules: {'unicorn/no-abusive-eslint-disable': 'error'},
 		};
 
-		t.deepEqual(
+		t.assert.deepStrictEqual(
 			linter.verify(abusive, config, {filename}).filter(({ruleId}) => ruleId === 'unicorn/no-abusive-eslint-disable').map(({message}) => message),
 			['Specify the rules you want to disable.'],
 			`reports a bare eslint-disable in ${language}`,
 		);
 
-		t.deepEqual(
+		t.assert.deepStrictEqual(
 			linter.verify(scoped, config, {filename}).filter(({ruleId}) => ruleId === 'unicorn/no-abusive-eslint-disable').map(({message}) => message),
 			[],
 			`allows a scoped eslint-disable in ${language}`,

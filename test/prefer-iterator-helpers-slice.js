@@ -1,5 +1,5 @@
 import {runInNewContext} from 'node:vm';
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
@@ -183,13 +183,13 @@ testRule.snapshot({
 
 function applySuggestion(t, code, messages = linter.verify(code, config)) {
 	const problems = messages.filter(message => message.ruleId === ruleId);
-	t.is(problems.length, 1);
+	t.assert.strictEqual(problems.length, 1);
 	const [problem] = problems;
-	t.is(problem.fix, undefined);
-	t.is(problem.suggestions.length, 1);
+	t.assert.strictEqual(problem.fix, undefined);
+	t.assert.strictEqual(problem.suggestions.length, 1);
 	const {fix} = problem.suggestions[0];
 	const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
-	t.deepEqual(linter.verify(output, config), []);
+	t.assert.deepStrictEqual(linter.verify(output, config), []);
 	return output;
 }
 
@@ -200,7 +200,7 @@ test('suggestions return the same slice values', t => {
 			const output = applySuggestion(t, `${materialization}.slice(${argumentsText})`);
 			for (const input of [[], [0], [0, 1, 2, 3, 4, 5, 6]]) {
 				const iterator = materialization === 'iterator.toArray()' ? input.values() : input;
-				t.deepEqual(runInNewContext(output, {iterator}), input.slice(start, end));
+				t.assert.deepStrictEqual(runInNewContext(output, {iterator}), input.slice(start, end));
 			}
 		}
 	}
@@ -221,9 +221,9 @@ test('bounded suggestions stop an infinite source and run cleanup', t => {
 	}
 
 	const output = applySuggestion(t, 'iterator.toArray().slice(20, 30)');
-	t.deepEqual(runInNewContext(output, {iterator: source()}, {timeout: 1000}), Array.from({length: 10}, (_, index) => index + 20));
-	t.is(consumed, 30);
-	t.true(closed);
+	t.assert.deepStrictEqual(runInNewContext(output, {iterator: source()}, {timeout: 1000}), Array.from({length: 10}, (_, index) => index + 20));
+	t.assert.strictEqual(consumed, 30);
+	t.assert.strictEqual(closed, true);
 });
 
 test('bounded suggestions preserve errors in the consumed range and suppress later errors', t => {
@@ -240,11 +240,11 @@ test('bounded suggestions preserve errors in the consumed range and suppress lat
 	}
 
 	for (const candidate of [code, output]) {
-		t.throws(() => runInNewContext(candidate, {iterator: source(1)}), {message: 'Error at 1.'});
+		t.assert.throws(() => runInNewContext(candidate, {iterator: source(1)}), {message: 'Error at 1.'});
 	}
 
-	t.throws(() => runInNewContext(code, {iterator: source(2)}), {message: 'Error at 2.'});
-	t.deepEqual(runInNewContext(output, {iterator: source(2)}), [0, 1]);
+	t.assert.throws(() => runInNewContext(code, {iterator: source(2)}), {message: 'Error at 2.'});
+	t.assert.deepStrictEqual(runInNewContext(output, {iterator: source(2)}), [0, 1]);
 });
 
 test('empty-range suggestions evaluate and close the iterator without consuming it', t => {
@@ -267,25 +267,25 @@ test('empty-range suggestions evaluate and close the iterator without consuming 
 			});
 		},
 	}, {timeout: 1000});
-	t.deepEqual(result, []);
-	t.is(calls, 1);
-	t.is(consumed, 0);
-	t.is(closed, 1);
+	t.assert.deepStrictEqual(result, []);
+	t.assert.strictEqual(calls, 1);
+	t.assert.strictEqual(consumed, 0);
+	t.assert.strictEqual(closed, 1);
 });
 
 test('suggestions preserve optional iterator expression boundaries', t => {
 	for (const code of ['[...object?.map.values()].slice(0, 10)', 'Array.from(object?.map.values()).slice(0, 10)', '(object?.map.values()).toArray().slice(0, 10)']) {
 		const output = applySuggestion(t, code);
-		t.throws(() => runInNewContext(code, {object: undefined}), {name: 'TypeError'});
-		t.throws(() => runInNewContext(output, {object: undefined}), {name: 'TypeError'});
-		t.deepEqual(runInNewContext(output, {object: {map: new Map([['key', 1]])}}), [1]);
+		t.assert.throws(() => runInNewContext(code, {object: undefined}), {name: 'TypeError'});
+		t.assert.throws(() => runInNewContext(output, {object: undefined}), {name: 'TypeError'});
+		t.assert.deepStrictEqual(runInNewContext(output, {object: {map: new Map([['key', 1]])}}), [1]);
 	}
 });
 
 test('suggestions keep object-leading iterator expressions parseable', t => {
 	const code = 'Array.from({values() { return [1].values(); }}.values()).slice(0, 1)';
 	const output = applySuggestion(t, code);
-	t.deepEqual([...runInNewContext(output)], [1]);
+	t.assert.deepStrictEqual([...runInNewContext(output)], [1]);
 });
 
 test('suggestions preserve regular expressions after postfix updates', t => {
@@ -293,8 +293,8 @@ test('suggestions preserve regular expressions after postfix updates', t => {
 		for (const materialization of ['Array.from(/abc/.exec("abc").values())', '[.../abc/.exec("abc").values()]']) {
 			const output = applySuggestion(t, `count${operator}\n${materialization}.slice(0, 1)`);
 			const context = {count: 1};
-			t.deepEqual([...runInNewContext(output, context)], ['abc']);
-			t.is(context.count, operator === '++' ? 2 : 0);
+			t.assert.deepStrictEqual([...runInNewContext(output, context)], ['abc']);
+			t.assert.strictEqual(context.count, operator === '++' ? 2 : 0);
 		}
 	}
 });
@@ -302,7 +302,7 @@ test('suggestions preserve regular expressions after postfix updates', t => {
 test('suggestions preserve prefix update operands', t => {
 	for (const operator of ['++', '--']) {
 		const output = applySuggestion(t, `${operator}Array.from([1].values()).slice(0, 1).length`);
-		t.is(runInNewContext(output), operator === '++' ? 2 : 0);
+		t.assert.strictEqual(runInNewContext(output), operator === '++' ? 2 : 0);
 	}
 });
 
@@ -322,10 +322,10 @@ test('materialization rules compose without autofix cycles', t => {
 	for (const code of ['Array.from(Iterator.from(iterable)).slice(0, 10)', '[...Iterator.from(iterable)].slice(20, 30)', 'iterator.toArray().slice(20, Infinity)']) {
 		const fixed = linter.verifyAndFix(code, combinedConfig);
 		const repeated = linter.verifyAndFix(fixed.output, combinedConfig);
-		t.false(repeated.fixed);
-		t.is(repeated.output, fixed.output);
+		t.assert.strictEqual(repeated.fixed, false);
+		t.assert.strictEqual(repeated.output, fixed.output);
 		const output = applySuggestion(t, fixed.output, fixed.messages);
-		t.deepEqual(linter.verify(output, combinedConfig), []);
+		t.assert.deepStrictEqual(linter.verify(output, combinedConfig), []);
 	}
 });
 
@@ -392,8 +392,8 @@ test('suggestions preserve statement boundaries after functions and classes', t 
 			const code = `${precedingStatement}\nArray.from(${iterator}).slice(0, 1)`;
 			const output = applySuggestion(t, code);
 			const separator = precedingStatement.startsWith('const ') ? '\n;' : '\n';
-			t.is(output, `${precedingStatement}${separator}${iterator}.take(1).toArray()`);
-			t.deepEqual([...runInNewContext(output)], [...runInNewContext(code)]);
+			t.assert.strictEqual(output, `${precedingStatement}${separator}${iterator}.take(1).toArray()`);
+			t.assert.deepStrictEqual([...runInNewContext(output)], [...runInNewContext(code)]);
 		}
 	}
 });

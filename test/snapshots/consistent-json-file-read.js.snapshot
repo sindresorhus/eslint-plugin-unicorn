@@ -1,0 +1,1262 @@
+exports[`consistent-json-file-read > invalid(1): JSON.parse(await fs.readFile(file, \"utf8\")); 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | JSON.parse(await fs.readFile(file, "utf8"));
+
+`;
+
+exports[`consistent-json-file-read > invalid(1): JSON.parse(await fs.readFile(file, \"utf8\")); 2`] = `
+
+Message:
+> 1 | JSON.parse(await fs.readFile(file, "utf8"));
+    |                                    ^^^^^^ Prefer reading the JSON file as a buffer.
+
+Output:
+  1 | JSON.parse(await fs.readFile(file));
+
+`;
+
+exports[`consistent-json-file-read > invalid(1): import {readFileSync} from \"node:fs\";\nJSON.parse(readFileSync(file)); 1`] = `
+
+  1 | import {readFileSync} from "node:fs";
+  2 | JSON.parse(readFileSync(file));
+
+`;
+
+exports[`consistent-json-file-read > invalid(1): import {readFileSync} from \"node:fs\";\nJSON.parse(readFileSync(file)); 2`] = `
+
+Message:
+  1 | import {readFileSync} from "node:fs";
+> 2 | JSON.parse(readFileSync(file));
+    |            ^^^^^^^^^^^^^^^^^^ Prefer reading the JSON file as a string.
+
+Output:
+  1 | import {readFileSync} from "node:fs";
+  2 | JSON.parse(readFileSync(file, 'utf8'));
+
+`;
+
+exports[`consistent-json-file-read > invalid(10): JSON.parse(await fs.readFile(file, undefined)); 1`] = `
+
+  1 | JSON.parse(await fs.readFile(file, undefined));
+
+`;
+
+exports[`consistent-json-file-read > invalid(10): JSON.parse(await fs.readFile(file, undefined)); 2`] = `
+
+Message:
+> 1 | JSON.parse(await fs.readFile(file, undefined));
+    |                                    ^^^^^^^^^ Prefer reading the JSON file as a string.
+
+Output:
+  1 | JSON.parse(await fs.readFile(file, 'utf8'));
+
+`;
+
+exports[`consistent-json-file-read > invalid(10): const EIGHT = 8; JSON.parse(await fs.readFile(file, {encoding: \`utf\${EIGHT}\`})); 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | const EIGHT = 8; JSON.parse(await fs.readFile(file, {encoding: \`utf\${EIGHT}\`}));
+
+`;
+
+exports[`consistent-json-file-read > invalid(10): const EIGHT = 8; JSON.parse(await fs.readFile(file, {encoding: \`utf\${EIGHT}\`})); 2`] = `
+
+Message:
+> 1 | const EIGHT = 8; JSON.parse(await fs.readFile(file, {encoding: \`utf\${EIGHT}\`}));
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer reading the JSON file as a buffer.
+
+Output:
+  1 | const EIGHT = 8; JSON.parse(await fs.readFile(file));
+
+`;
+
+exports[`consistent-json-file-read > invalid(11): JSON.parse(await fs.readFile(file, {...({encoding: \"utf8\"})})); 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | JSON.parse(await fs.readFile(file, {...({encoding: "utf8"})}));
+
+`;
+
+exports[`consistent-json-file-read > invalid(11): JSON.parse(await fs.readFile(file, {...({encoding: \"utf8\"})})); 2`] = `
+
+Message:
+> 1 | JSON.parse(await fs.readFile(file, {...({encoding: "utf8"})}));
+    |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer reading the JSON file as a buffer.
+
+Output:
+  1 | JSON.parse(await fs.readFile(file));
+
+`;
+
+exports[`consistent-json-file-read > invalid(11): JSON.parse(await fs.readFile(file, {encoding: null})); 1`] = `
+
+  1 | JSON.parse(await fs.readFile(file, {encoding: null}));
+
+`;
+
+exports[`consistent-json-file-read > invalid(11): JSON.parse(await fs.readFile(file, {encoding: null})); 2`] = `
+
+Message:
+> 1 | JSON.parse(await fs.readFile(file, {encoding: null}));
+    |                                    ^^^^^^^^^^^^^^^^ Prefer reading the JSON file as a string.
+
+Output:
+  1 | JSON.parse(await fs.readFile(file, 'utf8'));
+
+`;
+
+exports[`consistent-json-file-read > invalid(12): JSON.parse(await fs.readFile(file, {encoding: undefined})); 1`] = `
+
+  1 | JSON.parse(await fs.readFile(file, {encoding: undefined}));
+
+`;
+
+exports[`consistent-json-file-read > invalid(12): JSON.parse(await fs.readFile(file, {encoding: undefined})); 2`] = `
+
+Message:
+> 1 | JSON.parse(await fs.readFile(file, {encoding: undefined}));
+    |                                    ^^^^^^^^^^^^^^^^^^^^^ Prefer reading the JSON file as a string.
+
+Output:
+  1 | JSON.parse(await fs.readFile(file, 'utf8'));
+
+`;
+
+exports[`consistent-json-file-read > invalid(12): const encoding = \"utf8\";JSON.parse(await fs.readFile(file, {encoding})); 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | const encoding = "utf8";JSON.parse(await fs.readFile(file, {encoding}));
+
+`;
+
+exports[`consistent-json-file-read > invalid(12): const encoding = \"utf8\";JSON.parse(await fs.readFile(file, {encoding})); 2`] = `
+
+Message:
+> 1 | const encoding = "utf8";JSON.parse(await fs.readFile(file, {encoding}));
+    |                                                            ^^^^^^^^^^ Prefer reading the JSON file as a buffer.
+
+Output:
+  1 | const encoding = "utf8";JSON.parse(await fs.readFile(file));
+
+`;
+
+exports[`consistent-json-file-read > invalid(13): const CHARSET = \"utF-8\", readingOptions = {encoding: CHARSET}; JSON.parse(await fs.readFile(file, readingOptions)); 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | const CHARSET = "utF-8", readingOptions = {encoding: CHARSET}; JSON.parse(await fs.readFile(file, readingOptions));
+
+`;
+
+exports[`consistent-json-file-read > invalid(13): const CHARSET = \"utF-8\", readingOptions = {encoding: CHARSET}; JSON.parse(await fs.readFile(file, readingOptions)); 2`] = `
+
+Message:
+> 1 | const CHARSET = "utF-8", readingOptions = {encoding: CHARSET}; JSON.parse(await fs.readFile(file, readingOptions));
+    |                                                                                                   ^^^^^^^^^^^^^^ Prefer reading the JSON file as a buffer.
+
+Output:
+  1 | const CHARSET = "utF-8", readingOptions = {encoding: CHARSET}; JSON.parse(await fs.readFile(file));
+
+`;
+
+exports[`consistent-json-file-read > invalid(13): const readingOptions = {encoding: null};JSON.parse(await fs.readFile(file, readingOptions)); 1`] = `
+
+  1 | const readingOptions = {encoding: null};JSON.parse(await fs.readFile(file, readingOptions));
+
+`;
+
+exports[`consistent-json-file-read > invalid(13): const readingOptions = {encoding: null};JSON.parse(await fs.readFile(file, readingOptions)); 2`] = `
+
+Message:
+> 1 | const readingOptions = {encoding: null};JSON.parse(await fs.readFile(file, readingOptions));
+    |                                                                            ^^^^^^^^^^^^^^ Prefer reading the JSON file as a string.
+
+Output:
+  1 | const readingOptions = {encoding: null};JSON.parse(await fs.readFile(file, 'utf8'));
+
+`;
+
+exports[`consistent-json-file-read > invalid(14): JSON.parse(await fs.readFileSync(file)); 1`] = `
+
+  1 | JSON.parse(await fs.readFileSync(file));
+
+`;
+
+exports[`consistent-json-file-read > invalid(14): JSON.parse(await fs.readFileSync(file)); 2`] = `
+
+Message:
+> 1 | JSON.parse(await fs.readFileSync(file));
+    |                  ^^^^^^^^^^^^^^^^^^^^^ Prefer reading the JSON file as a string.
+
+Output:
+  1 | JSON.parse(await fs.readFileSync(file, 'utf8'));
+
+`;
+
+exports[`consistent-json-file-read > invalid(14): const EIGHT = 8, ENCODING = \"encoding\"; JSON.parse(await fs.readFile(file, {[ENCODING]: \`utf\${EIGHT}\`})); 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | const EIGHT = 8, ENCODING = "encoding"; JSON.parse(await fs.readFile(file, {[ENCODING]: \`utf\${EIGHT}\`}));
+
+`;
+
+exports[`consistent-json-file-read > invalid(14): const EIGHT = 8, ENCODING = \"encoding\"; JSON.parse(await fs.readFile(file, {[ENCODING]: \`utf\${EIGHT}\`})); 2`] = `
+
+Message:
+> 1 | const EIGHT = 8, ENCODING = "encoding"; JSON.parse(await fs.readFile(file, {[ENCODING]: \`utf\${EIGHT}\`}));
+    |                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer reading the JSON file as a buffer.
+
+Output:
+  1 | const EIGHT = 8, ENCODING = "encoding"; JSON.parse(await fs.readFile(file));
+
+`;
+
+exports[`consistent-json-file-read > invalid(15): JSON.parse(fs.readFileSync(file)); 1`] = `
+
+  1 | JSON.parse(fs.readFileSync(file));
+
+`;
+
+exports[`consistent-json-file-read > invalid(15): JSON.parse(fs.readFileSync(file)); 2`] = `
+
+Message:
+> 1 | JSON.parse(fs.readFileSync(file));
+    |            ^^^^^^^^^^^^^^^^^^^^^ Prefer reading the JSON file as a string.
+
+Output:
+  1 | JSON.parse(fs.readFileSync(file, 'utf8'));
+
+`;
+
+exports[`consistent-json-file-read > invalid(15): const string = await fs.readFile(file, \"utf8\");\nJSON.parse(string); 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | const string = await fs.readFile(file, "utf8");
+  2 | JSON.parse(string);
+
+`;
+
+exports[`consistent-json-file-read > invalid(15): const string = await fs.readFile(file, \"utf8\");\nJSON.parse(string); 2`] = `
+
+Message:
+> 1 | const string = await fs.readFile(file, "utf8");
+    |                                        ^^^^^^ Prefer reading the JSON file as a buffer.
+  2 | JSON.parse(string);
+
+Output:
+  1 | const string = await fs.readFile(file);
+  2 | JSON.parse(string);
+
+`;
+
+exports[`consistent-json-file-read > invalid(16): const buffer = await fs.readFile(file);\nJSON.parse(buffer); 1`] = `
+
+  1 | const buffer = await fs.readFile(file);
+  2 | JSON.parse(buffer);
+
+`;
+
+exports[`consistent-json-file-read > invalid(16): const buffer = await fs.readFile(file);\nJSON.parse(buffer); 2`] = `
+
+Message:
+> 1 | const buffer = await fs.readFile(file);
+    |                      ^^^^^^^^^^^^^^^^^ Prefer reading the JSON file as a string.
+  2 | JSON.parse(buffer);
+
+Output:
+  1 | const buffer = await fs.readFile(file, 'utf8');
+  2 | JSON.parse(buffer);
+
+`;
+
+exports[`consistent-json-file-read > invalid(16): const encoding = \"utf8\";\nconst string = fs.readFile(file, encoding);\nfunction parse() {\n\tconst encoding = undefined;\n\tJSON.parse(string);\n} 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | const encoding = "utf8";
+  2 | const string = fs.readFile(file, encoding);
+  3 | function parse() {
+  4 | 	const encoding = undefined;
+  5 | 	JSON.parse(string);
+  6 | }
+
+`;
+
+exports[`consistent-json-file-read > invalid(16): const encoding = \"utf8\";\nconst string = fs.readFile(file, encoding);\nfunction parse() {\n\tconst encoding = undefined;\n\tJSON.parse(string);\n} 2`] = `
+
+Message:
+  1 | const encoding = "utf8";
+> 2 | const string = fs.readFile(file, encoding);
+    |                                  ^^^^^^^^ Prefer reading the JSON file as a buffer.
+  3 | function parse() {
+  4 | 	const encoding = undefined;
+  5 | 	JSON.parse(string);
+  6 | }
+
+Output:
+  1 | const encoding = "utf8";
+  2 | const string = fs.readFile(file);
+  3 | function parse() {
+  4 | 	const encoding = undefined;
+  5 | 	JSON.parse(string);
+  6 | }
+
+`;
+
+exports[`consistent-json-file-read > invalid(17): let buffer = await fs.readFile(file);\nJSON.parse(buffer); 1`] = `
+
+  1 | let buffer = await fs.readFile(file);
+  2 | JSON.parse(buffer);
+
+`;
+
+exports[`consistent-json-file-read > invalid(17): let buffer = await fs.readFile(file);\nJSON.parse(buffer); 2`] = `
+
+Message:
+> 1 | let buffer = await fs.readFile(file);
+    |                    ^^^^^^^^^^^^^^^^^ Prefer reading the JSON file as a string.
+  2 | JSON.parse(buffer);
+
+Output:
+  1 | let buffer = await fs.readFile(file, 'utf8');
+  2 | JSON.parse(buffer);
+
+`;
+
+exports[`consistent-json-file-read > invalid(17): let string = await fs.readFile(file, \"utf8\");\nJSON.parse(string); 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | let string = await fs.readFile(file, "utf8");
+  2 | JSON.parse(string);
+
+`;
+
+exports[`consistent-json-file-read > invalid(17): let string = await fs.readFile(file, \"utf8\");\nJSON.parse(string); 2`] = `
+
+Message:
+> 1 | let string = await fs.readFile(file, "utf8");
+    |                                      ^^^^^^ Prefer reading the JSON file as a buffer.
+  2 | JSON.parse(string);
+
+Output:
+  1 | let string = await fs.readFile(file);
+  2 | JSON.parse(string);
+
+`;
+
+exports[`consistent-json-file-read > invalid(18): const foo = await await fs.readFile(file);\nconst bar = await await foo;\nconst baz = await bar;\nJSON.parse(baz); 1`] = `
+
+  1 | const foo = await await fs.readFile(file);
+  2 | const bar = await await foo;
+  3 | const baz = await bar;
+  4 | JSON.parse(baz);
+
+`;
+
+exports[`consistent-json-file-read > invalid(18): const foo = await await fs.readFile(file);\nconst bar = await await foo;\nconst baz = await bar;\nJSON.parse(baz); 2`] = `
+
+Message:
+> 1 | const foo = await await fs.readFile(file);
+    |                         ^^^^^^^^^^^^^^^^^ Prefer reading the JSON file as a string.
+  2 | const bar = await await foo;
+  3 | const baz = await bar;
+  4 | JSON.parse(baz);
+
+Output:
+  1 | const foo = await await fs.readFile(file, 'utf8');
+  2 | const bar = await await foo;
+  3 | const baz = await bar;
+  4 | JSON.parse(baz);
+
+`;
+
+exports[`consistent-json-file-read > invalid(18): const foo = await await fs.readFile(file, \"utf8\");\nconst bar = await await foo;\nconst baz = await bar;\nJSON.parse(baz); 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | const foo = await await fs.readFile(file, "utf8");
+  2 | const bar = await await foo;
+  3 | const baz = await bar;
+  4 | JSON.parse(baz);
+
+`;
+
+exports[`consistent-json-file-read > invalid(18): const foo = await await fs.readFile(file, \"utf8\");\nconst bar = await await foo;\nconst baz = await bar;\nJSON.parse(baz); 2`] = `
+
+Message:
+> 1 | const foo = await await fs.readFile(file, "utf8");
+    |                                           ^^^^^^ Prefer reading the JSON file as a buffer.
+  2 | const bar = await await foo;
+  3 | const baz = await bar;
+  4 | JSON.parse(baz);
+
+Output:
+  1 | const foo = await await fs.readFile(file);
+  2 | const bar = await await foo;
+  3 | const baz = await bar;
+  4 | JSON.parse(baz);
+
+`;
+
+exports[`consistent-json-file-read > invalid(19): var foo = await fs.readFile(file);\nlet bar = await foo;\nconst baz = await bar;\nJSON.parse(baz); 1`] = `
+
+  1 | var foo = await fs.readFile(file);
+  2 | let bar = await foo;
+  3 | const baz = await bar;
+  4 | JSON.parse(baz);
+
+`;
+
+exports[`consistent-json-file-read > invalid(19): var foo = await fs.readFile(file);\nlet bar = await foo;\nconst baz = await bar;\nJSON.parse(baz); 2`] = `
+
+Message:
+> 1 | var foo = await fs.readFile(file);
+    |                 ^^^^^^^^^^^^^^^^^ Prefer reading the JSON file as a string.
+  2 | let bar = await foo;
+  3 | const baz = await bar;
+  4 | JSON.parse(baz);
+
+Output:
+  1 | var foo = await fs.readFile(file, 'utf8');
+  2 | let bar = await foo;
+  3 | const baz = await bar;
+  4 | JSON.parse(baz);
+
+`;
+
+exports[`consistent-json-file-read > invalid(19): var foo = await fs.readFile(file, \"utf8\");\nlet bar = await foo;\nconst baz = await bar;\nJSON.parse(baz); 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | var foo = await fs.readFile(file, "utf8");
+  2 | let bar = await foo;
+  3 | const baz = await bar;
+  4 | JSON.parse(baz);
+
+`;
+
+exports[`consistent-json-file-read > invalid(19): var foo = await fs.readFile(file, \"utf8\");\nlet bar = await foo;\nconst baz = await bar;\nJSON.parse(baz); 2`] = `
+
+Message:
+> 1 | var foo = await fs.readFile(file, "utf8");
+    |                                   ^^^^^^ Prefer reading the JSON file as a buffer.
+  2 | let bar = await foo;
+  3 | const baz = await bar;
+  4 | JSON.parse(baz);
+
+Output:
+  1 | var foo = await fs.readFile(file);
+  2 | let bar = await foo;
+  3 | const baz = await bar;
+  4 | JSON.parse(baz);
+
+`;
+
+exports[`consistent-json-file-read > invalid(2): JSON.parse(await fs.readFile(file, \"utf8\",)); 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | JSON.parse(await fs.readFile(file, "utf8",));
+
+`;
+
+exports[`consistent-json-file-read > invalid(2): JSON.parse(await fs.readFile(file, \"utf8\",)); 2`] = `
+
+Message:
+> 1 | JSON.parse(await fs.readFile(file, "utf8",));
+    |                                    ^^^^^^ Prefer reading the JSON file as a buffer.
+
+Output:
+  1 | JSON.parse(await fs.readFile(file,));
+
+`;
+
+exports[`consistent-json-file-read > invalid(2): import {readFile} from \"node:fs/promises\";\nJSON.parse(await readFile(file)); 1`] = `
+
+  1 | import {readFile} from "node:fs/promises";
+  2 | JSON.parse(await readFile(file));
+
+`;
+
+exports[`consistent-json-file-read > invalid(2): import {readFile} from \"node:fs/promises\";\nJSON.parse(await readFile(file)); 2`] = `
+
+Message:
+  1 | import {readFile} from "node:fs/promises";
+> 2 | JSON.parse(await readFile(file));
+    |                  ^^^^^^^^^^^^^^ Prefer reading the JSON file as a string.
+
+Output:
+  1 | import {readFile} from "node:fs/promises";
+  2 | JSON.parse(await readFile(file, 'utf8'));
+
+`;
+
+exports[`consistent-json-file-read > invalid(20): const foo = fs.readFile(file);\nasync function fn1() {\n\tconst bar = await foo;\n\n\tfunction fn2() {\n\t\tconst baz = bar;\n\t\tJSON.parse(baz);\n\t}\n} 1`] = `
+
+  1 | const foo = fs.readFile(file);
+  2 | async function fn1() {
+  3 | 	const bar = await foo;
+  4 |
+  5 | 	function fn2() {
+  6 | 		const baz = bar;
+  7 | 		JSON.parse(baz);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`consistent-json-file-read > invalid(20): const foo = fs.readFile(file);\nasync function fn1() {\n\tconst bar = await foo;\n\n\tfunction fn2() {\n\t\tconst baz = bar;\n\t\tJSON.parse(baz);\n\t}\n} 2`] = `
+
+Message:
+> 1 | const foo = fs.readFile(file);
+    |             ^^^^^^^^^^^^^^^^^ Prefer reading the JSON file as a string.
+  2 | async function fn1() {
+  3 | 	const bar = await foo;
+  4 |
+  5 | 	function fn2() {
+  6 | 		const baz = bar;
+  7 | 		JSON.parse(baz);
+  8 | 	}
+  9 | }
+
+Output:
+  1 | const foo = fs.readFile(file, 'utf8');
+  2 | async function fn1() {
+  3 | 	const bar = await foo;
+  4 |
+  5 | 	function fn2() {
+  6 | 		const baz = bar;
+  7 | 		JSON.parse(baz);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`consistent-json-file-read > invalid(20): const foo = fs.readFile(file, \"utf8\");\nasync function fn1() {\n\tconst bar = await foo;\n\n\tfunction fn2() {\n\t\tconst baz = bar;\n\t\tJSON.parse(baz);\n\t}\n} 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | const foo = fs.readFile(file, "utf8");
+  2 | async function fn1() {
+  3 | 	const bar = await foo;
+  4 |
+  5 | 	function fn2() {
+  6 | 		const baz = bar;
+  7 | 		JSON.parse(baz);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`consistent-json-file-read > invalid(20): const foo = fs.readFile(file, \"utf8\");\nasync function fn1() {\n\tconst bar = await foo;\n\n\tfunction fn2() {\n\t\tconst baz = bar;\n\t\tJSON.parse(baz);\n\t}\n} 2`] = `
+
+Message:
+> 1 | const foo = fs.readFile(file, "utf8");
+    |                               ^^^^^^ Prefer reading the JSON file as a buffer.
+  2 | async function fn1() {
+  3 | 	const bar = await foo;
+  4 |
+  5 | 	function fn2() {
+  6 | 		const baz = bar;
+  7 | 		JSON.parse(baz);
+  8 | 	}
+  9 | }
+
+Output:
+  1 | const foo = fs.readFile(file);
+  2 | async function fn1() {
+  3 | 	const bar = await foo;
+  4 |
+  5 | 	function fn2() {
+  6 | 		const baz = bar;
+  7 | 		JSON.parse(baz);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`consistent-json-file-read > invalid(21): const buffer = fs.readFile(file, \"utf8\"); /* Should report */\nconst foo = buffer;\nasync function fn1() {\n\tconst buffer = fs.readFile(file, \"utf8\"); /* Should NOT report */\n\tJSON.parse(await foo);\n} 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | const buffer = fs.readFile(file, "utf8"); /* Should report */
+  2 | const foo = buffer;
+  3 | async function fn1() {
+  4 | 	const buffer = fs.readFile(file, "utf8"); /* Should NOT report */
+  5 | 	JSON.parse(await foo);
+  6 | }
+
+`;
+
+exports[`consistent-json-file-read > invalid(21): const buffer = fs.readFile(file, \"utf8\"); /* Should report */\nconst foo = buffer;\nasync function fn1() {\n\tconst buffer = fs.readFile(file, \"utf8\"); /* Should NOT report */\n\tJSON.parse(await foo);\n} 2`] = `
+
+Message:
+> 1 | const buffer = fs.readFile(file, "utf8"); /* Should report */
+    |                                  ^^^^^^ Prefer reading the JSON file as a buffer.
+  2 | const foo = buffer;
+  3 | async function fn1() {
+  4 | 	const buffer = fs.readFile(file, "utf8"); /* Should NOT report */
+  5 | 	JSON.parse(await foo);
+  6 | }
+
+Output:
+  1 | const buffer = fs.readFile(file); /* Should report */
+  2 | const foo = buffer;
+  3 | async function fn1() {
+  4 | 	const buffer = fs.readFile(file, "utf8"); /* Should NOT report */
+  5 | 	JSON.parse(await foo);
+  6 | }
+
+`;
+
+exports[`consistent-json-file-read > invalid(21): const readingOptions = {encoding: null};\nconst buffer = fs.readFile(file, readingOptions);\nfunction parse() {\n\tconst readingOptions = {encoding: \"utf8\"};\n\tJSON.parse(buffer);\n} 1`] = `
+
+  1 | const readingOptions = {encoding: null};
+  2 | const buffer = fs.readFile(file, readingOptions);
+  3 | function parse() {
+  4 | 	const readingOptions = {encoding: "utf8"};
+  5 | 	JSON.parse(buffer);
+  6 | }
+
+`;
+
+exports[`consistent-json-file-read > invalid(21): const readingOptions = {encoding: null};\nconst buffer = fs.readFile(file, readingOptions);\nfunction parse() {\n\tconst readingOptions = {encoding: \"utf8\"};\n\tJSON.parse(buffer);\n} 2`] = `
+
+Message:
+  1 | const readingOptions = {encoding: null};
+> 2 | const buffer = fs.readFile(file, readingOptions);
+    |                                  ^^^^^^^^^^^^^^ Prefer reading the JSON file as a string.
+  3 | function parse() {
+  4 | 	const readingOptions = {encoding: "utf8"};
+  5 | 	JSON.parse(buffer);
+  6 | }
+
+Output:
+  1 | const readingOptions = {encoding: null};
+  2 | const buffer = fs.readFile(file, 'utf8');
+  3 | function parse() {
+  4 | 	const readingOptions = {encoding: "utf8"};
+  5 | 	JSON.parse(buffer);
+  6 | }
+
+`;
+
+exports[`consistent-json-file-read > invalid(22): const buffer = fs.readFile(file, \"utf8\"); /* Should report */\nconst foo = buffer;\nasync function fn1() {\n\tconst buffer = fs.readFile(file, \"utf8\"); /* Should NOT report */\n\tconst baz = foo;\n\tfor (;;) {\n\t\tconst buffer = fs.readFile(file, \"utf8\"); /* Should NOT report */\n\t\tJSON.parse(await baz);\n\t}\n} 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+   1 | const buffer = fs.readFile(file, "utf8"); /* Should report */
+   2 | const foo = buffer;
+   3 | async function fn1() {
+   4 | 	const buffer = fs.readFile(file, "utf8"); /* Should NOT report */
+   5 | 	const baz = foo;
+   6 | 	for (;;) {
+   7 | 		const buffer = fs.readFile(file, "utf8"); /* Should NOT report */
+   8 | 		JSON.parse(await baz);
+   9 | 	}
+  10 | }
+
+`;
+
+exports[`consistent-json-file-read > invalid(22): const buffer = fs.readFile(file, \"utf8\"); /* Should report */\nconst foo = buffer;\nasync function fn1() {\n\tconst buffer = fs.readFile(file, \"utf8\"); /* Should NOT report */\n\tconst baz = foo;\n\tfor (;;) {\n\t\tconst buffer = fs.readFile(file, \"utf8\"); /* Should NOT report */\n\t\tJSON.parse(await baz);\n\t}\n} 2`] = `
+
+Message:
+>  1 | const buffer = fs.readFile(file, "utf8"); /* Should report */
+     |                                  ^^^^^^ Prefer reading the JSON file as a buffer.
+   2 | const foo = buffer;
+   3 | async function fn1() {
+   4 | 	const buffer = fs.readFile(file, "utf8"); /* Should NOT report */
+   5 | 	const baz = foo;
+   6 | 	for (;;) {
+   7 | 		const buffer = fs.readFile(file, "utf8"); /* Should NOT report */
+   8 | 		JSON.parse(await baz);
+   9 | 	}
+  10 | }
+
+Output:
+   1 | const buffer = fs.readFile(file); /* Should report */
+   2 | const foo = buffer;
+   3 | async function fn1() {
+   4 | 	const buffer = fs.readFile(file, "utf8"); /* Should NOT report */
+   5 | 	const baz = foo;
+   6 | 	for (;;) {
+   7 | 		const buffer = fs.readFile(file, "utf8"); /* Should NOT report */
+   8 | 		JSON.parse(await baz);
+   9 | 	}
+  10 | }
+
+`;
+
+exports[`consistent-json-file-read > invalid(22): const options = {encoding: null};\nconst buffer = fs.readFile(file, options);\nObject.defineProperty(options, 'other', {set() {}});\nJSON.parse(buffer); 1`] = `
+
+  1 | const options = {encoding: null};
+  2 | const buffer = fs.readFile(file, options);
+  3 | Object.defineProperty(options, 'other', {set() {}});
+  4 | JSON.parse(buffer);
+
+`;
+
+exports[`consistent-json-file-read > invalid(22): const options = {encoding: null};\nconst buffer = fs.readFile(file, options);\nObject.defineProperty(options, 'other', {set() {}});\nJSON.parse(buffer); 2`] = `
+
+Message:
+  1 | const options = {encoding: null};
+> 2 | const buffer = fs.readFile(file, options);
+    |                                  ^^^^^^^ Prefer reading the JSON file as a string.
+  3 | Object.defineProperty(options, 'other', {set() {}});
+  4 | JSON.parse(buffer);
+
+Output:
+  1 | const options = {encoding: null};
+  2 | const buffer = fs.readFile(file, 'utf8');
+  3 | Object.defineProperty(options, 'other', {set() {}});
+  4 | JSON.parse(buffer);
+
+`;
+
+exports[`consistent-json-file-read > invalid(23): const buffer = fs.readFile(file); /* Should report */\nconst foo = buffer;\nasync function fn1() {\n\tconst buffer = fs.readFile(file); /* Should NOT report */\n\tJSON.parse(await foo);\n} 1`] = `
+
+  1 | const buffer = fs.readFile(file); /* Should report */
+  2 | const foo = buffer;
+  3 | async function fn1() {
+  4 | 	const buffer = fs.readFile(file); /* Should NOT report */
+  5 | 	JSON.parse(await foo);
+  6 | }
+
+`;
+
+exports[`consistent-json-file-read > invalid(23): const buffer = fs.readFile(file); /* Should report */\nconst foo = buffer;\nasync function fn1() {\n\tconst buffer = fs.readFile(file); /* Should NOT report */\n\tJSON.parse(await foo);\n} 2`] = `
+
+Message:
+> 1 | const buffer = fs.readFile(file); /* Should report */
+    |                ^^^^^^^^^^^^^^^^^ Prefer reading the JSON file as a string.
+  2 | const foo = buffer;
+  3 | async function fn1() {
+  4 | 	const buffer = fs.readFile(file); /* Should NOT report */
+  5 | 	JSON.parse(await foo);
+  6 | }
+
+Output:
+  1 | const buffer = fs.readFile(file, 'utf8'); /* Should report */
+  2 | const foo = buffer;
+  3 | async function fn1() {
+  4 | 	const buffer = fs.readFile(file); /* Should NOT report */
+  5 | 	JSON.parse(await foo);
+  6 | }
+
+`;
+
+exports[`consistent-json-file-read > invalid(23): const foo = fs.readFile(file, \"utf8\");\nfunction fn1() {\n\tJSON.parse(foo);\n\n\tfunction fn2() {\n\t\tconst foo = \"{}\";\n\t}\n} 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | const foo = fs.readFile(file, "utf8");
+  2 | function fn1() {
+  3 | 	JSON.parse(foo);
+  4 |
+  5 | 	function fn2() {
+  6 | 		const foo = "{}";
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`consistent-json-file-read > invalid(23): const foo = fs.readFile(file, \"utf8\");\nfunction fn1() {\n\tJSON.parse(foo);\n\n\tfunction fn2() {\n\t\tconst foo = \"{}\";\n\t}\n} 2`] = `
+
+Message:
+> 1 | const foo = fs.readFile(file, "utf8");
+    |                               ^^^^^^ Prefer reading the JSON file as a buffer.
+  2 | function fn1() {
+  3 | 	JSON.parse(foo);
+  4 |
+  5 | 	function fn2() {
+  6 | 		const foo = "{}";
+  7 | 	}
+  8 | }
+
+Output:
+  1 | const foo = fs.readFile(file);
+  2 | function fn1() {
+  3 | 	JSON.parse(foo);
+  4 |
+  5 | 	function fn2() {
+  6 | 		const foo = "{}";
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`consistent-json-file-read > invalid(24): const buffer = fs.readFile(file); /* Should report */\nconst foo = buffer;\nasync function fn1() {\n\tconst buffer = fs.readFile(file); /* Should NOT report */\n\tconst baz = foo;\n\tfor (;;) {\n\t\tconst buffer = fs.readFile(file); /* Should NOT report */\n\t\tJSON.parse(await baz);\n\t}\n} 1`] = `
+
+   1 | const buffer = fs.readFile(file); /* Should report */
+   2 | const foo = buffer;
+   3 | async function fn1() {
+   4 | 	const buffer = fs.readFile(file); /* Should NOT report */
+   5 | 	const baz = foo;
+   6 | 	for (;;) {
+   7 | 		const buffer = fs.readFile(file); /* Should NOT report */
+   8 | 		JSON.parse(await baz);
+   9 | 	}
+  10 | }
+
+`;
+
+exports[`consistent-json-file-read > invalid(24): const buffer = fs.readFile(file); /* Should report */\nconst foo = buffer;\nasync function fn1() {\n\tconst buffer = fs.readFile(file); /* Should NOT report */\n\tconst baz = foo;\n\tfor (;;) {\n\t\tconst buffer = fs.readFile(file); /* Should NOT report */\n\t\tJSON.parse(await baz);\n\t}\n} 2`] = `
+
+Message:
+>  1 | const buffer = fs.readFile(file); /* Should report */
+     |                ^^^^^^^^^^^^^^^^^ Prefer reading the JSON file as a string.
+   2 | const foo = buffer;
+   3 | async function fn1() {
+   4 | 	const buffer = fs.readFile(file); /* Should NOT report */
+   5 | 	const baz = foo;
+   6 | 	for (;;) {
+   7 | 		const buffer = fs.readFile(file); /* Should NOT report */
+   8 | 		JSON.parse(await baz);
+   9 | 	}
+  10 | }
+
+Output:
+   1 | const buffer = fs.readFile(file, 'utf8'); /* Should report */
+   2 | const foo = buffer;
+   3 | async function fn1() {
+   4 | 	const buffer = fs.readFile(file); /* Should NOT report */
+   5 | 	const baz = foo;
+   6 | 	for (;;) {
+   7 | 		const buffer = fs.readFile(file); /* Should NOT report */
+   8 | 		JSON.parse(await baz);
+   9 | 	}
+  10 | }
+
+`;
+
+exports[`consistent-json-file-read > invalid(24): const string = await NOT_A_FS_MODULE.readFile(file, \"utf8\");\nJSON.parse(string); 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | const string = await NOT_A_FS_MODULE.readFile(file, "utf8");
+  2 | JSON.parse(string);
+
+`;
+
+exports[`consistent-json-file-read > invalid(24): const string = await NOT_A_FS_MODULE.readFile(file, \"utf8\");\nJSON.parse(string); 2`] = `
+
+Message:
+> 1 | const string = await NOT_A_FS_MODULE.readFile(file, "utf8");
+    |                                                     ^^^^^^ Prefer reading the JSON file as a buffer.
+  2 | JSON.parse(string);
+
+Output:
+  1 | const string = await NOT_A_FS_MODULE.readFile(file);
+  2 | JSON.parse(string);
+
+`;
+
+exports[`consistent-json-file-read > invalid(25): const foo = fs.readFile(file);\nfunction fn1() {\n\tJSON.parse(foo);\n\n\tfunction fn2() {\n\t\tconst foo = \"{}\";\n\t}\n} 1`] = `
+
+  1 | const foo = fs.readFile(file);
+  2 | function fn1() {
+  3 | 	JSON.parse(foo);
+  4 |
+  5 | 	function fn2() {
+  6 | 		const foo = "{}";
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`consistent-json-file-read > invalid(25): const foo = fs.readFile(file);\nfunction fn1() {\n\tJSON.parse(foo);\n\n\tfunction fn2() {\n\t\tconst foo = \"{}\";\n\t}\n} 2`] = `
+
+Message:
+> 1 | const foo = fs.readFile(file);
+    |             ^^^^^^^^^^^^^^^^^ Prefer reading the JSON file as a string.
+  2 | function fn1() {
+  3 | 	JSON.parse(foo);
+  4 |
+  5 | 	function fn2() {
+  6 | 		const foo = "{}";
+  7 | 	}
+  8 | }
+
+Output:
+  1 | const foo = fs.readFile(file, 'utf8');
+  2 | function fn1() {
+  3 | 	JSON.parse(foo);
+  4 |
+  5 | 	function fn2() {
+  6 | 		const foo = "{}";
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`consistent-json-file-read > invalid(25): import {readFileSync} from \"node:fs\";\nJSON.parse(readFileSync(file, \"utf8\")); 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | import {readFileSync} from "node:fs";
+  2 | JSON.parse(readFileSync(file, "utf8"));
+
+`;
+
+exports[`consistent-json-file-read > invalid(25): import {readFileSync} from \"node:fs\";\nJSON.parse(readFileSync(file, \"utf8\")); 2`] = `
+
+Message:
+  1 | import {readFileSync} from "node:fs";
+> 2 | JSON.parse(readFileSync(file, "utf8"));
+    |                               ^^^^^^ Prefer reading the JSON file as a buffer.
+
+Output:
+  1 | import {readFileSync} from "node:fs";
+  2 | JSON.parse(readFileSync(file));
+
+`;
+
+exports[`consistent-json-file-read > invalid(26): const buffer = await NOT_A_FS_MODULE.readFile(file);\nJSON.parse(buffer); 1`] = `
+
+  1 | const buffer = await NOT_A_FS_MODULE.readFile(file);
+  2 | JSON.parse(buffer);
+
+`;
+
+exports[`consistent-json-file-read > invalid(26): const buffer = await NOT_A_FS_MODULE.readFile(file);\nJSON.parse(buffer); 2`] = `
+
+Message:
+> 1 | const buffer = await NOT_A_FS_MODULE.readFile(file);
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer reading the JSON file as a string.
+  2 | JSON.parse(buffer);
+
+Output:
+  1 | const buffer = await NOT_A_FS_MODULE.readFile(file, 'utf8');
+  2 | JSON.parse(buffer);
+
+`;
+
+exports[`consistent-json-file-read > invalid(27): JSON.parse(await fs.readFile(file, {/* keep */ encoding: null})); 1`] = `
+
+  1 | JSON.parse(await fs.readFile(file, {/* keep */ encoding: null}));
+
+`;
+
+exports[`consistent-json-file-read > invalid(27): JSON.parse(await fs.readFile(file, {/* keep */ encoding: null})); 2`] = `
+
+Message:
+> 1 | JSON.parse(await fs.readFile(file, {/* keep */ encoding: null}));
+    |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer reading the JSON file as a string.
+
+`;
+
+exports[`consistent-json-file-read > invalid(3): JSON.parse(await fs.readFile(file, \"UTF-8\")); 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | JSON.parse(await fs.readFile(file, "UTF-8"));
+
+`;
+
+exports[`consistent-json-file-read > invalid(3): JSON.parse(await fs.readFile(file, \"UTF-8\")); 2`] = `
+
+Message:
+> 1 | JSON.parse(await fs.readFile(file, "UTF-8"));
+    |                                    ^^^^^^^ Prefer reading the JSON file as a buffer.
+
+Output:
+  1 | JSON.parse(await fs.readFile(file));
+
+`;
+
+exports[`consistent-json-file-read > invalid(3): import {readFile} from \"fs\";\nJSON.parse(await readFile(file)); 1`] = `
+
+  1 | import {readFile} from "fs";
+  2 | JSON.parse(await readFile(file));
+
+`;
+
+exports[`consistent-json-file-read > invalid(3): import {readFile} from \"fs\";\nJSON.parse(await readFile(file)); 2`] = `
+
+Message:
+  1 | import {readFile} from "fs";
+> 2 | JSON.parse(await readFile(file));
+    |                  ^^^^^^^^^^^^^^ Prefer reading the JSON file as a string.
+
+Output:
+  1 | import {readFile} from "fs";
+  2 | JSON.parse(await readFile(file, 'utf8'));
+
+`;
+
+exports[`consistent-json-file-read > invalid(4): JSON.parse(await fs.readFileSync(file, \"utf8\")); 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | JSON.parse(await fs.readFileSync(file, "utf8"));
+
+`;
+
+exports[`consistent-json-file-read > invalid(4): JSON.parse(await fs.readFileSync(file, \"utf8\")); 2`] = `
+
+Message:
+> 1 | JSON.parse(await fs.readFileSync(file, "utf8"));
+    |                                        ^^^^^^ Prefer reading the JSON file as a buffer.
+
+Output:
+  1 | JSON.parse(await fs.readFileSync(file));
+
+`;
+
+exports[`consistent-json-file-read > invalid(4): import { readFileSync as read } from \"node:fs\";\nJSON.parse(read(file)); 1`] = `
+
+  1 | import { readFileSync as read } from "node:fs";
+  2 | JSON.parse(read(file));
+
+`;
+
+exports[`consistent-json-file-read > invalid(4): import { readFileSync as read } from \"node:fs\";\nJSON.parse(read(file)); 2`] = `
+
+Message:
+  1 | import { readFileSync as read } from "node:fs";
+> 2 | JSON.parse(read(file));
+    |            ^^^^^^^^^^ Prefer reading the JSON file as a string.
+
+Output:
+  1 | import { readFileSync as read } from "node:fs";
+  2 | JSON.parse(read(file, 'utf8'));
+
+`;
+
+exports[`consistent-json-file-read > invalid(5): JSON.parse(await fs.readFile(file)); 1`] = `
+
+  1 | JSON.parse(await fs.readFile(file));
+
+`;
+
+exports[`consistent-json-file-read > invalid(5): JSON.parse(await fs.readFile(file)); 2`] = `
+
+Message:
+> 1 | JSON.parse(await fs.readFile(file));
+    |                  ^^^^^^^^^^^^^^^^^ Prefer reading the JSON file as a string.
+
+Output:
+  1 | JSON.parse(await fs.readFile(file, 'utf8'));
+
+`;
+
+exports[`consistent-json-file-read > invalid(5): JSON.parse(fs.readFileSync(file, \"utf8\")); 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | JSON.parse(fs.readFileSync(file, "utf8"));
+
+`;
+
+exports[`consistent-json-file-read > invalid(5): JSON.parse(fs.readFileSync(file, \"utf8\")); 2`] = `
+
+Message:
+> 1 | JSON.parse(fs.readFileSync(file, "utf8"));
+    |                                  ^^^^^^ Prefer reading the JSON file as a buffer.
+
+Output:
+  1 | JSON.parse(fs.readFileSync(file));
+
+`;
+
+exports[`consistent-json-file-read > invalid(6): JSON.parse(await fs.readFile(file,)); 1`] = `
+
+  1 | JSON.parse(await fs.readFile(file,));
+
+`;
+
+exports[`consistent-json-file-read > invalid(6): JSON.parse(await fs.readFile(file,)); 2`] = `
+
+Message:
+> 1 | JSON.parse(await fs.readFile(file,));
+    |                  ^^^^^^^^^^^^^^^^^^ Prefer reading the JSON file as a string.
+
+Output:
+  1 | JSON.parse(await fs.readFile(file, 'utf8'));
+
+`;
+
+exports[`consistent-json-file-read > invalid(6): const CHARSET = \"UTF8\"; JSON.parse(await fs.readFile(file, CHARSET)); 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | const CHARSET = "UTF8"; JSON.parse(await fs.readFile(file, CHARSET));
+
+`;
+
+exports[`consistent-json-file-read > invalid(6): const CHARSET = \"UTF8\"; JSON.parse(await fs.readFile(file, CHARSET)); 2`] = `
+
+Message:
+> 1 | const CHARSET = "UTF8"; JSON.parse(await fs.readFile(file, CHARSET));
+    |                                                            ^^^^^^^ Prefer reading the JSON file as a buffer.
+
+Output:
+  1 | const CHARSET = "UTF8"; JSON.parse(await fs.readFile(file));
+
+`;
+
+exports[`consistent-json-file-read > invalid(7): JSON.parse(await fs.readFile((file))); 1`] = `
+
+  1 | JSON.parse(await fs.readFile((file)));
+
+`;
+
+exports[`consistent-json-file-read > invalid(7): JSON.parse(await fs.readFile((file))); 2`] = `
+
+Message:
+> 1 | JSON.parse(await fs.readFile((file)));
+    |                  ^^^^^^^^^^^^^^^^^^^ Prefer reading the JSON file as a string.
+
+Output:
+  1 | JSON.parse(await fs.readFile((file), 'utf8'));
+
+`;
+
+exports[`consistent-json-file-read > invalid(7): const EIGHT = 8; JSON.parse(await fs.readFile(file, \`utf\${EIGHT}\`)); 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | const EIGHT = 8; JSON.parse(await fs.readFile(file, \`utf\${EIGHT}\`));
+
+`;
+
+exports[`consistent-json-file-read > invalid(7): const EIGHT = 8; JSON.parse(await fs.readFile(file, \`utf\${EIGHT}\`)); 2`] = `
+
+Message:
+> 1 | const EIGHT = 8; JSON.parse(await fs.readFile(file, \`utf\${EIGHT}\`));
+    |                                                     ^^^^^^^^^^^^^ Prefer reading the JSON file as a buffer.
+
+Output:
+  1 | const EIGHT = 8; JSON.parse(await fs.readFile(file));
+
+`;
+
+exports[`consistent-json-file-read > invalid(8): JSON.parse(await fs.readFile(((file)))); 1`] = `
+
+  1 | JSON.parse(await fs.readFile(((file))));
+
+`;
+
+exports[`consistent-json-file-read > invalid(8): JSON.parse(await fs.readFile(((file)))); 2`] = `
+
+Message:
+> 1 | JSON.parse(await fs.readFile(((file))));
+    |                  ^^^^^^^^^^^^^^^^^^^^^ Prefer reading the JSON file as a string.
+
+Output:
+  1 | JSON.parse(await fs.readFile(((file)), 'utf8'));
+
+`;
+
+exports[`consistent-json-file-read > invalid(8): JSON.parse(await fs[\"readFile\"](file, \"utf8\")); 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | JSON.parse(await fs["readFile"](file, "utf8"));
+
+`;
+
+exports[`consistent-json-file-read > invalid(8): JSON.parse(await fs[\"readFile\"](file, \"utf8\")); 2`] = `
+
+Message:
+> 1 | JSON.parse(await fs["readFile"](file, "utf8"));
+    |                                       ^^^^^^ Prefer reading the JSON file as a buffer.
+
+Output:
+  1 | JSON.parse(await fs["readFile"](file));
+
+`;
+
+exports[`consistent-json-file-read > invalid(9): JSON.parse(await fs.readFile(file, null)); 1`] = `
+
+  1 | JSON.parse(await fs.readFile(file, null));
+
+`;
+
+exports[`consistent-json-file-read > invalid(9): JSON.parse(await fs.readFile(file, null)); 2`] = `
+
+Message:
+> 1 | JSON.parse(await fs.readFile(file, null));
+    |                                    ^^^^ Prefer reading the JSON file as a string.
+
+Output:
+  1 | JSON.parse(await fs.readFile(file, 'utf8'));
+
+`;
+
+exports[`consistent-json-file-read > invalid(9): JSON.parse(await fs.readFile(file, {encoding: \"utf8\"})); 1`] = `
+
+Options:
+- 'buffer'
+
+Code:
+  1 | JSON.parse(await fs.readFile(file, {encoding: "utf8"}));
+
+`;
+
+exports[`consistent-json-file-read > invalid(9): JSON.parse(await fs.readFile(file, {encoding: \"utf8\"})); 2`] = `
+
+Message:
+> 1 | JSON.parse(await fs.readFile(file, {encoding: "utf8"}));
+    |                                    ^^^^^^^^^^^^^^^^^^ Prefer reading the JSON file as a buffer.
+
+Output:
+  1 | JSON.parse(await fs.readFile(file));
+
+`;

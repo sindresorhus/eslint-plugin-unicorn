@@ -1,0 +1,466 @@
+exports[`no-useless-override > invalid(1): class Base { async foo(a: number) { return a; } } class Foo extends Base { async foo(a: number) { return super.foo(a); } } 1`] = `
+
+Filename: file.ts
+
+  1 | class Base { async foo(a: number) { return a; } } class Foo extends Base { async foo(a: number) { return super.foo(a); } }
+
+`;
+
+exports[`no-useless-override > invalid(1): class Base { async foo(a: number) { return a; } } class Foo extends Base { async foo(a: number) { return super.foo(a); } } 2`] = `
+
+Message:
+> 1 | class Base { async foo(a: number) { return a; } } class Foo extends Base { async foo(a: number) { return super.foo(a); } }
+    |                                                                                  ^^^ Useless override; this method only forwards to \`super.foo(…)\`.
+
+Output:
+  1 | class Base { async foo(a: number) { return a; } } class Foo extends Base { }
+
+`;
+
+exports[`no-useless-override > invalid(1): class Foo extends Bar { foo() { return super.foo(); } } 1`] = `
+
+  1 | class Foo extends Bar { foo() { return super.foo(); } }
+
+`;
+
+exports[`no-useless-override > invalid(1): class Foo extends Bar { foo() { return super.foo(); } } 2`] = `
+
+Message:
+> 1 | class Foo extends Bar { foo() { return super.foo(); } }
+    |                         ^^^ Useless override; this method only forwards to \`super.foo(…)\`.
+
+Output:
+  1 | class Foo extends Bar { }
+
+`;
+
+exports[`no-useless-override > invalid(1): class Foo extends Bar { override foo(a) { return super.foo(a); } } 1`] = `
+
+  1 | class Foo extends Bar { override foo(a) { return super.foo(a); } }
+
+`;
+
+exports[`no-useless-override > invalid(1): class Foo extends Bar { override foo(a) { return super.foo(a); } } 2`] = `
+
+Message:
+> 1 | class Foo extends Bar { override foo(a) { return super.foo(a); } }
+    |                                  ^^^ Useless override; this method only forwards to \`super.foo(…)\`.
+
+Output:
+  1 | class Foo extends Bar { }
+
+`;
+
+exports[`no-useless-override > invalid(10): class Foo extends Bar { foo(a) { return super.foo(a,); } } 1`] = `
+
+  1 | class Foo extends Bar { foo(a) { return super.foo(a,); } }
+
+`;
+
+exports[`no-useless-override > invalid(10): class Foo extends Bar { foo(a) { return super.foo(a,); } } 2`] = `
+
+Message:
+> 1 | class Foo extends Bar { foo(a) { return super.foo(a,); } }
+    |                         ^^^ Useless override; this method only forwards to \`super.foo(…)\`.
+
+Output:
+  1 | class Foo extends Bar { }
+
+`;
+
+exports[`no-useless-override > invalid(11): class Foo extends Bar { foo(a) { return (super.foo)(a); } } 1`] = `
+
+  1 | class Foo extends Bar { foo(a) { return (super.foo)(a); } }
+
+`;
+
+exports[`no-useless-override > invalid(11): class Foo extends Bar { foo(a) { return (super.foo)(a); } } 2`] = `
+
+Message:
+> 1 | class Foo extends Bar { foo(a) { return (super.foo)(a); } }
+    |                         ^^^ Useless override; this method only forwards to \`super.foo(…)\`.
+
+Output:
+  1 | class Foo extends Bar { }
+
+`;
+
+exports[`no-useless-override > invalid(12): class Foo extends Bar { [\`foo\`](a) { return super[\`foo\`](a); } } 1`] = `
+
+  1 | class Foo extends Bar { [\`foo\`](a) { return super[\`foo\`](a); } }
+
+`;
+
+exports[`no-useless-override > invalid(12): class Foo extends Bar { [\`foo\`](a) { return super[\`foo\`](a); } } 2`] = `
+
+Message:
+> 1 | class Foo extends Bar { [\`foo\`](a) { return super[\`foo\`](a); } }
+    |                          ^^^^^ Useless override; this method only forwards to \`super[\`foo\`](…)\`.
+
+Output:
+  1 | class Foo extends Bar { }
+
+`;
+
+exports[`no-useless-override > invalid(13): class Foo extends Bar { foo(a) { return (super.foo(a)); } } 1`] = `
+
+  1 | class Foo extends Bar { foo(a) { return (super.foo(a)); } }
+
+`;
+
+exports[`no-useless-override > invalid(13): class Foo extends Bar { foo(a) { return (super.foo(a)); } } 2`] = `
+
+Message:
+> 1 | class Foo extends Bar { foo(a) { return (super.foo(a)); } }
+    |                         ^^^ Useless override; this method only forwards to \`super.foo(…)\`.
+
+Output:
+  1 | class Foo extends Bar { }
+
+`;
+
+exports[`no-useless-override > invalid(14): const Foo = class extends Bar { foo(a) { return super.foo(a); } }; 1`] = `
+
+  1 | const Foo = class extends Bar { foo(a) { return super.foo(a); } };
+
+`;
+
+exports[`no-useless-override > invalid(14): const Foo = class extends Bar { foo(a) { return super.foo(a); } }; 2`] = `
+
+Message:
+> 1 | const Foo = class extends Bar { foo(a) { return super.foo(a); } };
+    |                                 ^^^ Useless override; this method only forwards to \`super.foo(…)\`.
+
+Output:
+  1 | const Foo = class extends Bar { };
+
+`;
+
+exports[`no-useless-override > invalid(15): export class Foo extends Bar { foo(a) { return super.foo(a); } } 1`] = `
+
+  1 | export class Foo extends Bar { foo(a) { return super.foo(a); } }
+
+`;
+
+exports[`no-useless-override > invalid(15): export class Foo extends Bar { foo(a) { return super.foo(a); } } 2`] = `
+
+Message:
+> 1 | export class Foo extends Bar { foo(a) { return super.foo(a); } }
+    |                                ^^^ Useless override; this method only forwards to \`super.foo(…)\`.
+
+Output:
+  1 | export class Foo extends Bar { }
+
+`;
+
+exports[`no-useless-override > invalid(16): export default class Foo extends Bar { foo(a) { return super.foo(a); } } 1`] = `
+
+  1 | export default class Foo extends Bar { foo(a) { return super.foo(a); } }
+
+`;
+
+exports[`no-useless-override > invalid(16): export default class Foo extends Bar { foo(a) { return super.foo(a); } } 2`] = `
+
+Message:
+> 1 | export default class Foo extends Bar { foo(a) { return super.foo(a); } }
+    |                                        ^^^ Useless override; this method only forwards to \`super.foo(…)\`.
+
+Output:
+  1 | export default class Foo extends Bar { }
+
+`;
+
+exports[`no-useless-override > invalid(17): class Foo extends Bar {\n\tfoo(a) {\n\t\treturn super.foo(a);\n\t}\n\n\tbar(a) {\n\t\tlog();\n\t\treturn super.bar(a);\n\t}\n} 1`] = `
+
+   1 | class Foo extends Bar {
+   2 | 	foo(a) {
+   3 | 		return super.foo(a);
+   4 | 	}
+   5 |
+   6 | 	bar(a) {
+   7 | 		log();
+   8 | 		return super.bar(a);
+   9 | 	}
+  10 | }
+
+`;
+
+exports[`no-useless-override > invalid(17): class Foo extends Bar {\n\tfoo(a) {\n\t\treturn super.foo(a);\n\t}\n\n\tbar(a) {\n\t\tlog();\n\t\treturn super.bar(a);\n\t}\n} 2`] = `
+
+Message:
+   1 | class Foo extends Bar {
+>  2 | 	foo(a) {
+     | 	^^^ Useless override; this method only forwards to \`super.foo(…)\`.
+   3 | 		return super.foo(a);
+   4 | 	}
+   5 |
+   6 | 	bar(a) {
+   7 | 		log();
+   8 | 		return super.bar(a);
+   9 | 	}
+  10 | }
+
+Output:
+  1 | class Foo extends Bar {
+  2 |
+  3 |
+  4 | 	bar(a) {
+  5 | 		log();
+  6 | 		return super.bar(a);
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`no-useless-override > invalid(18): class Foo extends Bar {\n\tfoo(a) {\n\t\t// Keep me.\n\t\treturn super.foo(a);\n\t}\n} 1`] = `
+
+  1 | class Foo extends Bar {
+  2 | 	foo(a) {
+  3 | 		// Keep me.
+  4 | 		return super.foo(a);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`no-useless-override > invalid(18): class Foo extends Bar {\n\tfoo(a) {\n\t\t// Keep me.\n\t\treturn super.foo(a);\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo extends Bar {
+> 2 | 	foo(a) {
+    | 	^^^ Useless override; this method only forwards to \`super.foo(…)\`.
+  3 | 		// Keep me.
+  4 | 		return super.foo(a);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`no-useless-override > invalid(2): class Base { foo(a: number): Promise<number> { return Promise.resolve(a); } } class Foo extends Base { async foo(a: number) { return super.foo(a); } } 1`] = `
+
+Filename: file.ts
+
+  1 | class Base { foo(a: number): Promise<number> { return Promise.resolve(a); } } class Foo extends Base { async foo(a: number) { return super.foo(a); } }
+
+`;
+
+exports[`no-useless-override > invalid(2): class Base { foo(a: number): Promise<number> { return Promise.resolve(a); } } class Foo extends Base { async foo(a: number) { return super.foo(a); } } 2`] = `
+
+Message:
+> 1 | class Base { foo(a: number): Promise<number> { return Promise.resolve(a); } } class Foo extends Base { async foo(a: number) { return super.foo(a); } }
+    |                                                                                                              ^^^ Useless override; this method only forwards to \`super.foo(…)\`.
+
+Output:
+  1 | class Base { foo(a: number): Promise<number> { return Promise.resolve(a); } } class Foo extends Base { }
+
+`;
+
+exports[`no-useless-override > invalid(2): class Foo extends Bar { foo(a, b) { return super.foo(a, b); } } 1`] = `
+
+  1 | class Foo extends Bar { foo(a, b) { return super.foo(a, b); } }
+
+`;
+
+exports[`no-useless-override > invalid(2): class Foo extends Bar { foo(a, b) { return super.foo(a, b); } } 2`] = `
+
+Message:
+> 1 | class Foo extends Bar { foo(a, b) { return super.foo(a, b); } }
+    |                         ^^^ Useless override; this method only forwards to \`super.foo(…)\`.
+
+Output:
+  1 | class Foo extends Bar { }
+
+`;
+
+exports[`no-useless-override > invalid(2): class Foo extends Bar { override foo(...args) { return super.foo(...args); } } 1`] = `
+
+  1 | class Foo extends Bar { override foo(...args) { return super.foo(...args); } }
+
+`;
+
+exports[`no-useless-override > invalid(2): class Foo extends Bar { override foo(...args) { return super.foo(...args); } } 2`] = `
+
+Message:
+> 1 | class Foo extends Bar { override foo(...args) { return super.foo(...args); } }
+    |                                  ^^^ Useless override; this method only forwards to \`super.foo(…)\`.
+
+Output:
+  1 | class Foo extends Bar { }
+
+`;
+
+exports[`no-useless-override > invalid(3): class Base { foo(a: number) { return a; } } class Foo extends Base { foo(a: number) { return super.foo(a); } } 1`] = `
+
+Filename: file.ts
+
+  1 | class Base { foo(a: number) { return a; } } class Foo extends Base { foo(a: number) { return super.foo(a); } }
+
+`;
+
+exports[`no-useless-override > invalid(3): class Base { foo(a: number) { return a; } } class Foo extends Base { foo(a: number) { return super.foo(a); } } 2`] = `
+
+Message:
+> 1 | class Base { foo(a: number) { return a; } } class Foo extends Base { foo(a: number) { return super.foo(a); } }
+    |                                                                      ^^^ Useless override; this method only forwards to \`super.foo(…)\`.
+
+Output:
+  1 | class Base { foo(a: number) { return a; } } class Foo extends Base { }
+
+`;
+
+exports[`no-useless-override > invalid(3): class Foo extends Bar { foo(...args) { return super.foo(...args); } } 1`] = `
+
+  1 | class Foo extends Bar { foo(...args) { return super.foo(...args); } }
+
+`;
+
+exports[`no-useless-override > invalid(3): class Foo extends Bar { foo(...args) { return super.foo(...args); } } 2`] = `
+
+Message:
+> 1 | class Foo extends Bar { foo(...args) { return super.foo(...args); } }
+    |                         ^^^ Useless override; this method only forwards to \`super.foo(…)\`.
+
+Output:
+  1 | class Foo extends Bar { }
+
+`;
+
+exports[`no-useless-override > invalid(4): class Base { foo(a: number) {} } class Foo extends Base { foo(a: number) { super.foo(a); } } 1`] = `
+
+Filename: file.ts
+
+  1 | class Base { foo(a: number) {} } class Foo extends Base { foo(a: number) { super.foo(a); } }
+
+`;
+
+exports[`no-useless-override > invalid(4): class Base { foo(a: number) {} } class Foo extends Base { foo(a: number) { super.foo(a); } } 2`] = `
+
+Message:
+> 1 | class Base { foo(a: number) {} } class Foo extends Base { foo(a: number) { super.foo(a); } }
+    |                                                           ^^^ Useless override; this method only forwards to \`super.foo(…)\`.
+
+Output:
+  1 | class Base { foo(a: number) {} } class Foo extends Base { }
+
+`;
+
+exports[`no-useless-override > invalid(4): class Foo extends Bar { foo(a, ...rest) { return super.foo(a, ...rest); } } 1`] = `
+
+  1 | class Foo extends Bar { foo(a, ...rest) { return super.foo(a, ...rest); } }
+
+`;
+
+exports[`no-useless-override > invalid(4): class Foo extends Bar { foo(a, ...rest) { return super.foo(a, ...rest); } } 2`] = `
+
+Message:
+> 1 | class Foo extends Bar { foo(a, ...rest) { return super.foo(a, ...rest); } }
+    |                         ^^^ Useless override; this method only forwards to \`super.foo(…)\`.
+
+Output:
+  1 | class Foo extends Bar { }
+
+`;
+
+exports[`no-useless-override > invalid(5): class Base { foo(a: number): void | undefined {} } class Foo extends Base { foo(a: number) { super.foo(a); } } 1`] = `
+
+Filename: file.ts
+
+  1 | class Base { foo(a: number): void | undefined {} } class Foo extends Base { foo(a: number) { super.foo(a); } }
+
+`;
+
+exports[`no-useless-override > invalid(5): class Base { foo(a: number): void | undefined {} } class Foo extends Base { foo(a: number) { super.foo(a); } } 2`] = `
+
+Message:
+> 1 | class Base { foo(a: number): void | undefined {} } class Foo extends Base { foo(a: number) { super.foo(a); } }
+    |                                                                             ^^^ Useless override; this method only forwards to \`super.foo(…)\`.
+
+Output:
+  1 | class Base { foo(a: number): void | undefined {} } class Foo extends Base { }
+
+`;
+
+exports[`no-useless-override > invalid(5): class Foo extends Bar { static foo(a) { return super.foo(a); } } 1`] = `
+
+  1 | class Foo extends Bar { static foo(a) { return super.foo(a); } }
+
+`;
+
+exports[`no-useless-override > invalid(5): class Foo extends Bar { static foo(a) { return super.foo(a); } } 2`] = `
+
+Message:
+> 1 | class Foo extends Bar { static foo(a) { return super.foo(a); } }
+    |                                ^^^ Useless override; this method only forwards to \`super.foo(…)\`.
+
+Output:
+  1 | class Foo extends Bar { }
+
+`;
+
+exports[`no-useless-override > invalid(6): class Foo extends Bar { [\"foo\"](a) { return super[\"foo\"](a); } } 1`] = `
+
+  1 | class Foo extends Bar { ["foo"](a) { return super["foo"](a); } }
+
+`;
+
+exports[`no-useless-override > invalid(6): class Foo extends Bar { [\"foo\"](a) { return super[\"foo\"](a); } } 2`] = `
+
+Message:
+> 1 | class Foo extends Bar { ["foo"](a) { return super["foo"](a); } }
+    |                          ^^^^^ Useless override; this method only forwards to \`super["foo"](…)\`.
+
+Output:
+  1 | class Foo extends Bar { }
+
+`;
+
+exports[`no-useless-override > invalid(7): class Foo extends Bar { foo(a) { return super[\"foo\"](a); } } 1`] = `
+
+  1 | class Foo extends Bar { foo(a) { return super["foo"](a); } }
+
+`;
+
+exports[`no-useless-override > invalid(7): class Foo extends Bar { foo(a) { return super[\"foo\"](a); } } 2`] = `
+
+Message:
+> 1 | class Foo extends Bar { foo(a) { return super["foo"](a); } }
+    |                         ^^^ Useless override; this method only forwards to \`super["foo"](…)\`.
+
+Output:
+  1 | class Foo extends Bar { }
+
+`;
+
+exports[`no-useless-override > invalid(8): class Foo extends Bar { [Symbol.iterator]() { return super[Symbol.iterator](); } } 1`] = `
+
+  1 | class Foo extends Bar { [Symbol.iterator]() { return super[Symbol.iterator](); } }
+
+`;
+
+exports[`no-useless-override > invalid(8): class Foo extends Bar { [Symbol.iterator]() { return super[Symbol.iterator](); } } 2`] = `
+
+Message:
+> 1 | class Foo extends Bar { [Symbol.iterator]() { return super[Symbol.iterator](); } }
+    |                          ^^^^^^^^^^^^^^^ Useless override; this method only forwards to \`super[Symbol.iterator](…)\`.
+
+Output:
+  1 | class Foo extends Bar { }
+
+`;
+
+exports[`no-useless-override > invalid(9): class Foo extends Bar { [\"constructor\"](a) { return super[\"constructor\"](a); } } 1`] = `
+
+  1 | class Foo extends Bar { ["constructor"](a) { return super["constructor"](a); } }
+
+`;
+
+exports[`no-useless-override > invalid(9): class Foo extends Bar { [\"constructor\"](a) { return super[\"constructor\"](a); } } 2`] = `
+
+Message:
+> 1 | class Foo extends Bar { ["constructor"](a) { return super["constructor"](a); } }
+    |                          ^^^^^^^^^^^^^ Useless override; this method only forwards to \`super["constructor"](…)\`.
+
+Output:
+  1 | class Foo extends Bar { }
+
+`;

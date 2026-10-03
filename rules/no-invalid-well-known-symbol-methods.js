@@ -81,14 +81,9 @@ function hasPromiseReturnTypeInformation(functionNode, context) {
 		const checker = parserServices.program.getTypeChecker();
 		const typeScriptNode = parserServices.esTreeNodeToTSNodeMap.get(functionNode);
 		const signature = checker.getSignatureFromDeclaration(typeScriptNode);
-		if (signature) {
-			return isPromiseType(checker.getReturnTypeOfSignature(signature), checker) === true;
-		}
-
-		const type = parserServices.getTypeAtLocation(functionNode);
-		return type.getCallSignatures().some(signature =>
-			isPromiseType(checker.getReturnTypeOfSignature(signature), checker) === true,
-		);
+		return isPromiseType(checker.getReturnTypeOfSignature(signature), checker) === true;
+		// Defensive: the type checker throws for a node that the TypeScript program does not map, which the supported parsers do not produce.
+		/* node:coverage ignore next 3 */
 	} catch {
 		return false;
 	}

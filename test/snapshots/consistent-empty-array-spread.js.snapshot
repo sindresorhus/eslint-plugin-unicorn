@@ -1,0 +1,213 @@
+exports[`consistent-empty-array-spread > invalid(1): [\n\t...(test ? [] : \"ab\"),\n\t...(test ? \"ab\" : []),\n]; 1`] = `
+
+  1 | [
+  2 | 	...(test ? [] : "ab"),
+  3 | 	...(test ? "ab" : []),
+  4 | ];
+
+`;
+
+exports[`consistent-empty-array-spread > invalid(1): [\n\t...(test ? [] : \"ab\"),\n\t...(test ? \"ab\" : []),\n]; 2`] = `
+
+Message:
+  1 | [
+> 2 | 	...(test ? [] : "ab"),
+    | 	           ^^ Prefer using empty string since the alternate is a string.
+  3 | 	...(test ? "ab" : []),
+  4 | ];
+
+Output:
+  1 | [
+  2 | 	...(test ? '' : "ab"),
+  3 | 	...(test ? "ab" : []),
+  4 | ];
+
+`;
+
+exports[`consistent-empty-array-spread > invalid(1): [\n\t...(test ? [] : \"ab\"),\n\t...(test ? \"ab\" : []),\n]; 3`] = `
+
+Message:
+  1 | [
+  2 | 	...(test ? [] : "ab"),
+> 3 | 	...(test ? "ab" : []),
+    | 	                  ^^ Prefer using empty string since the consequent is a string.
+  4 | ];
+
+Output:
+  1 | [
+  2 | 	...(test ? [] : "ab"),
+  3 | 	...(test ? "ab" : ''),
+  4 | ];
+
+`;
+
+exports[`consistent-empty-array-spread > invalid(2): const STRING = \"ab\";\n[\n\t...(test ? [] : STRING),\n\t...(test ? STRING : []),\n]; 1`] = `
+
+  1 | const STRING = "ab";
+  2 | [
+  3 | 	...(test ? [] : STRING),
+  4 | 	...(test ? STRING : []),
+  5 | ];
+
+`;
+
+exports[`consistent-empty-array-spread > invalid(2): const STRING = \"ab\";\n[\n\t...(test ? [] : STRING),\n\t...(test ? STRING : []),\n]; 2`] = `
+
+Message:
+  1 | const STRING = "ab";
+  2 | [
+> 3 | 	...(test ? [] : STRING),
+    | 	           ^^ Prefer using empty string since the alternate is a string.
+  4 | 	...(test ? STRING : []),
+  5 | ];
+
+Output:
+  1 | const STRING = "ab";
+  2 | [
+  3 | 	...(test ? '' : STRING),
+  4 | 	...(test ? STRING : []),
+  5 | ];
+
+`;
+
+exports[`consistent-empty-array-spread > invalid(2): const STRING = \"ab\";\n[\n\t...(test ? [] : STRING),\n\t...(test ? STRING : []),\n]; 3`] = `
+
+Message:
+  1 | const STRING = "ab";
+  2 | [
+  3 | 	...(test ? [] : STRING),
+> 4 | 	...(test ? STRING : []),
+    | 	                    ^^ Prefer using empty string since the consequent is a string.
+  5 | ];
+
+Output:
+  1 | const STRING = "ab";
+  2 | [
+  3 | 	...(test ? [] : STRING),
+  4 | 	...(test ? STRING : ''),
+  5 | ];
+
+`;
+
+exports[`consistent-empty-array-spread > invalid(3): [\n\t...(test ? \"\" : [a, b]),\n\t...(test ? [a, b] : \"\"),\n]; 1`] = `
+
+  1 | [
+  2 | 	...(test ? "" : [a, b]),
+  3 | 	...(test ? [a, b] : ""),
+  4 | ];
+
+`;
+
+exports[`consistent-empty-array-spread > invalid(3): [\n\t...(test ? \"\" : [a, b]),\n\t...(test ? [a, b] : \"\"),\n]; 2`] = `
+
+Message:
+  1 | [
+> 2 | 	...(test ? "" : [a, b]),
+    | 	           ^^ Prefer using empty array since the alternate is an array.
+  3 | 	...(test ? [a, b] : ""),
+  4 | ];
+
+Output:
+  1 | [
+  2 | 	...(test ? [] : [a, b]),
+  3 | 	...(test ? [a, b] : ""),
+  4 | ];
+
+`;
+
+exports[`consistent-empty-array-spread > invalid(3): [\n\t...(test ? \"\" : [a, b]),\n\t...(test ? [a, b] : \"\"),\n]; 3`] = `
+
+Message:
+  1 | [
+  2 | 	...(test ? "" : [a, b]),
+> 3 | 	...(test ? [a, b] : ""),
+    | 	                    ^^ Prefer using empty array since the consequent is an array.
+  4 | ];
+
+Output:
+  1 | [
+  2 | 	...(test ? "" : [a, b]),
+  3 | 	...(test ? [a, b] : []),
+  4 | ];
+
+`;
+
+exports[`consistent-empty-array-spread > invalid(4): const ARRAY = [\"a\", \"b\"];\n[\n\t/* hole */,\n\t...(test ? \"\" : ARRAY),\n\t/* hole */,\n\t...(test ? ARRAY : \"\"),\n\t/* hole */,\n]; 1`] = `
+
+  1 | const ARRAY = ["a", "b"];
+  2 | [
+  3 | 	/* hole */,
+  4 | 	...(test ? "" : ARRAY),
+  5 | 	/* hole */,
+  6 | 	...(test ? ARRAY : ""),
+  7 | 	/* hole */,
+  8 | ];
+
+`;
+
+exports[`consistent-empty-array-spread > invalid(4): const ARRAY = [\"a\", \"b\"];\n[\n\t/* hole */,\n\t...(test ? \"\" : ARRAY),\n\t/* hole */,\n\t...(test ? ARRAY : \"\"),\n\t/* hole */,\n]; 2`] = `
+
+Message:
+  1 | const ARRAY = ["a", "b"];
+  2 | [
+  3 | 	/* hole */,
+> 4 | 	...(test ? "" : ARRAY),
+    | 	           ^^ Prefer using empty array since the alternate is an array.
+  5 | 	/* hole */,
+  6 | 	...(test ? ARRAY : ""),
+  7 | 	/* hole */,
+  8 | ];
+
+Output:
+  1 | const ARRAY = ["a", "b"];
+  2 | [
+  3 | 	/* hole */,
+  4 | 	...(test ? [] : ARRAY),
+  5 | 	/* hole */,
+  6 | 	...(test ? ARRAY : ""),
+  7 | 	/* hole */,
+  8 | ];
+
+`;
+
+exports[`consistent-empty-array-spread > invalid(4): const ARRAY = [\"a\", \"b\"];\n[\n\t/* hole */,\n\t...(test ? \"\" : ARRAY),\n\t/* hole */,\n\t...(test ? ARRAY : \"\"),\n\t/* hole */,\n]; 3`] = `
+
+Message:
+  1 | const ARRAY = ["a", "b"];
+  2 | [
+  3 | 	/* hole */,
+  4 | 	...(test ? "" : ARRAY),
+  5 | 	/* hole */,
+> 6 | 	...(test ? ARRAY : ""),
+    | 	                   ^^ Prefer using empty array since the consequent is an array.
+  7 | 	/* hole */,
+  8 | ];
+
+Output:
+  1 | const ARRAY = ["a", "b"];
+  2 | [
+  3 | 	/* hole */,
+  4 | 	...(test ? "" : ARRAY),
+  5 | 	/* hole */,
+  6 | 	...(test ? ARRAY : []),
+  7 | 	/* hole */,
+  8 | ];
+
+`;
+
+exports[`consistent-empty-array-spread > invalid(5): [...(foo ? \"\" : [])] 1`] = `
+
+  1 | [...(foo ? "" : [])]
+
+`;
+
+exports[`consistent-empty-array-spread > invalid(5): [...(foo ? \"\" : [])] 2`] = `
+
+Message:
+> 1 | [...(foo ? "" : [])]
+    |            ^^ Prefer using empty array since the alternate is an array.
+
+Output:
+  1 | [...(foo ? [] : [])]
+
+`;

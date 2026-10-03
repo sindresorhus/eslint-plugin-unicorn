@@ -1,0 +1,413 @@
+exports[`prefer-error-is-error > invalid(1): error instanceof Error 1`] = `
+
+  1 | error instanceof Error
+
+`;
+
+exports[`prefer-error-is-error > invalid(1): error instanceof Error 2`] = `
+
+Message:
+> 1 | error instanceof Error
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | Error.isError(error)
+
+`;
+
+exports[`prefer-error-is-error > invalid(10): Object.prototype.toString.call(error) == \"[object Error]\" 1`] = `
+
+  1 | Object.prototype.toString.call(error) == "[object Error]"
+
+`;
+
+exports[`prefer-error-is-error > invalid(10): Object.prototype.toString.call(error) == \"[object Error]\" 2`] = `
+
+Message:
+> 1 | Object.prototype.toString.call(error) == "[object Error]"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | Error.isError(error)
+
+`;
+
+exports[`prefer-error-is-error > invalid(11): \"[object Error]\" != Object.prototype.toString.call(error) 1`] = `
+
+  1 | "[object Error]" != Object.prototype.toString.call(error)
+
+`;
+
+exports[`prefer-error-is-error > invalid(11): \"[object Error]\" != Object.prototype.toString.call(error) 2`] = `
+
+Message:
+> 1 | "[object Error]" != Object.prototype.toString.call(error)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | !Error.isError(error)
+
+`;
+
+exports[`prefer-error-is-error > invalid(12): ({}).toString.call(error) === \"[object Error]\" 1`] = `
+
+  1 | ({}).toString.call(error) === "[object Error]"
+
+`;
+
+exports[`prefer-error-is-error > invalid(12): ({}).toString.call(error) === \"[object Error]\" 2`] = `
+
+Message:
+> 1 | ({}).toString.call(error) === "[object Error]"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | Error.isError(error)
+
+`;
+
+exports[`prefer-error-is-error > invalid(13): ({}).toString.call(error) !== \"[object Error]\" 1`] = `
+
+  1 | ({}).toString.call(error) !== "[object Error]"
+
+`;
+
+exports[`prefer-error-is-error > invalid(13): ({}).toString.call(error) !== \"[object Error]\" 2`] = `
+
+Message:
+> 1 | ({}).toString.call(error) !== "[object Error]"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | !Error.isError(error)
+
+`;
+
+exports[`prefer-error-is-error > invalid(14): Object.prototype.toString.call((sideEffect(), error)) === \"[object Error]\" 1`] = `
+
+  1 | Object.prototype.toString.call((sideEffect(), error)) === "[object Error]"
+
+`;
+
+exports[`prefer-error-is-error > invalid(14): Object.prototype.toString.call((sideEffect(), error)) === \"[object Error]\" 2`] = `
+
+Message:
+> 1 | Object.prototype.toString.call((sideEffect(), error)) === "[object Error]"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | Error.isError((sideEffect(), error))
+
+`;
+
+exports[`prefer-error-is-error > invalid(15): Object.prototype.toString.call(\n\terror,\n) === '[object Error]' 1`] = `
+
+  1 | Object.prototype.toString.call(
+  2 | 	error,
+  3 | ) === '[object Error]'
+
+`;
+
+exports[`prefer-error-is-error > invalid(15): Object.prototype.toString.call(\n\terror,\n) === '[object Error]' 2`] = `
+
+Message:
+> 1 | Object.prototype.toString.call(
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	error,
+    | ^^^^^^^
+> 3 | ) === '[object Error]'
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | Error.isError(error)
+
+`;
+
+exports[`prefer-error-is-error > invalid(16): error! instanceof Error 1`] = `
+
+  1 | error! instanceof Error
+
+`;
+
+exports[`prefer-error-is-error > invalid(16): error! instanceof Error 2`] = `
+
+Message:
+> 1 | error! instanceof Error
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | Error.isError(error!)
+
+`;
+
+exports[`prefer-error-is-error > invalid(17): type Error = unknown; error instanceof Error 1`] = `
+
+  1 | type Error = unknown; error instanceof Error
+
+`;
+
+exports[`prefer-error-is-error > invalid(17): type Error = unknown; error instanceof Error 2`] = `
+
+Message:
+> 1 | type Error = unknown; error instanceof Error
+    |                       ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | type Error = unknown; Error.isError(error)
+
+`;
+
+exports[`prefer-error-is-error > invalid(18): interface Error {}; error instanceof Error 1`] = `
+
+  1 | interface Error {}; error instanceof Error
+
+`;
+
+exports[`prefer-error-is-error > invalid(18): interface Error {}; error instanceof Error 2`] = `
+
+Message:
+> 1 | interface Error {}; error instanceof Error
+    |                     ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | interface Error {}; Error.isError(error)
+
+`;
+
+exports[`prefer-error-is-error > invalid(19): import type {Error} from \"error\"; error instanceof Error 1`] = `
+
+  1 | import type {Error} from "error"; error instanceof Error
+
+`;
+
+exports[`prefer-error-is-error > invalid(19): import type {Error} from \"error\"; error instanceof Error 2`] = `
+
+Message:
+> 1 | import type {Error} from "error"; error instanceof Error
+    |                                   ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | import type {Error} from "error"; Error.isError(error)
+
+`;
+
+exports[`prefer-error-is-error > invalid(2): (error) instanceof Error 1`] = `
+
+  1 | (error) instanceof Error
+
+`;
+
+exports[`prefer-error-is-error > invalid(2): (error) instanceof Error 2`] = `
+
+Message:
+> 1 | (error) instanceof Error
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | Error.isError(error)
+
+`;
+
+exports[`prefer-error-is-error > invalid(20): type Error = unknown; Object.prototype.toString.call(error) === \"[object Error]\" 1`] = `
+
+  1 | type Error = unknown; Object.prototype.toString.call(error) === "[object Error]"
+
+`;
+
+exports[`prefer-error-is-error > invalid(20): type Error = unknown; Object.prototype.toString.call(error) === \"[object Error]\" 2`] = `
+
+Message:
+> 1 | type Error = unknown; Object.prototype.toString.call(error) === "[object Error]"
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | type Error = unknown; Error.isError(error)
+
+`;
+
+exports[`prefer-error-is-error > invalid(21): type Object = unknown; Object.prototype.toString.call(error) === \"[object Error]\" 1`] = `
+
+  1 | type Object = unknown; Object.prototype.toString.call(error) === "[object Error]"
+
+`;
+
+exports[`prefer-error-is-error > invalid(21): type Object = unknown; Object.prototype.toString.call(error) === \"[object Error]\" 2`] = `
+
+Message:
+> 1 | type Object = unknown; Object.prototype.toString.call(error) === "[object Error]"
+    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | type Object = unknown; Error.isError(error)
+
+`;
+
+exports[`prefer-error-is-error > invalid(22): import type {Object} from \"object\"; Object.prototype.toString.call(error) === \"[object Error]\" 1`] = `
+
+  1 | import type {Object} from "object"; Object.prototype.toString.call(error) === "[object Error]"
+
+`;
+
+exports[`prefer-error-is-error > invalid(22): import type {Object} from \"object\"; Object.prototype.toString.call(error) === \"[object Error]\" 2`] = `
+
+Message:
+> 1 | import type {Object} from "object"; Object.prototype.toString.call(error) === "[object Error]"
+    |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | import type {Object} from "object"; Error.isError(error)
+
+`;
+
+exports[`prefer-error-is-error > invalid(23): Object.prototype.toString.call(error as unknown) === \"[object Error]\" 1`] = `
+
+  1 | Object.prototype.toString.call(error as unknown) === "[object Error]"
+
+`;
+
+exports[`prefer-error-is-error > invalid(23): Object.prototype.toString.call(error as unknown) === \"[object Error]\" 2`] = `
+
+Message:
+> 1 | Object.prototype.toString.call(error as unknown) === "[object Error]"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | Error.isError(error as unknown)
+
+`;
+
+exports[`prefer-error-is-error > invalid(24): Object.prototype.toString.call(error!) === \"[object Error]\" 1`] = `
+
+  1 | Object.prototype.toString.call(error!) === "[object Error]"
+
+`;
+
+exports[`prefer-error-is-error > invalid(24): Object.prototype.toString.call(error!) === \"[object Error]\" 2`] = `
+
+Message:
+> 1 | Object.prototype.toString.call(error!) === "[object Error]"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | Error.isError(error!)
+
+`;
+
+exports[`prefer-error-is-error > invalid(3): getError() instanceof Error 1`] = `
+
+  1 | getError() instanceof Error
+
+`;
+
+exports[`prefer-error-is-error > invalid(3): getError() instanceof Error 2`] = `
+
+Message:
+> 1 | getError() instanceof Error
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | Error.isError(getError())
+
+`;
+
+exports[`prefer-error-is-error > invalid(4): a + b instanceof Error 1`] = `
+
+  1 | a + b instanceof Error
+
+`;
+
+exports[`prefer-error-is-error > invalid(4): a + b instanceof Error 2`] = `
+
+Message:
+> 1 | a + b instanceof Error
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | Error.isError(a + b)
+
+`;
+
+exports[`prefer-error-is-error > invalid(5): (sideEffect(), error) instanceof Error 1`] = `
+
+  1 | (sideEffect(), error) instanceof Error
+
+`;
+
+exports[`prefer-error-is-error > invalid(5): (sideEffect(), error) instanceof Error 2`] = `
+
+Message:
+> 1 | (sideEffect(), error) instanceof Error
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | Error.isError((sideEffect(), error))
+
+`;
+
+exports[`prefer-error-is-error > invalid(6): Object.prototype.toString.call(error) === \"[object Error]\" 1`] = `
+
+  1 | Object.prototype.toString.call(error) === "[object Error]"
+
+`;
+
+exports[`prefer-error-is-error > invalid(6): Object.prototype.toString.call(error) === \"[object Error]\" 2`] = `
+
+Message:
+> 1 | Object.prototype.toString.call(error) === "[object Error]"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | Error.isError(error)
+
+`;
+
+exports[`prefer-error-is-error > invalid(7): \"[object Error]\" === Object.prototype.toString.call(error) 1`] = `
+
+  1 | "[object Error]" === Object.prototype.toString.call(error)
+
+`;
+
+exports[`prefer-error-is-error > invalid(7): \"[object Error]\" === Object.prototype.toString.call(error) 2`] = `
+
+Message:
+> 1 | "[object Error]" === Object.prototype.toString.call(error)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | Error.isError(error)
+
+`;
+
+exports[`prefer-error-is-error > invalid(8): Object.prototype.toString.call(error) !== \"[object Error]\" 1`] = `
+
+  1 | Object.prototype.toString.call(error) !== "[object Error]"
+
+`;
+
+exports[`prefer-error-is-error > invalid(8): Object.prototype.toString.call(error) !== \"[object Error]\" 2`] = `
+
+Message:
+> 1 | Object.prototype.toString.call(error) !== "[object Error]"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | !Error.isError(error)
+
+`;
+
+exports[`prefer-error-is-error > invalid(9): \"[object Error]\" !== Object.prototype.toString.call(error) 1`] = `
+
+  1 | "[object Error]" !== Object.prototype.toString.call(error)
+
+`;
+
+exports[`prefer-error-is-error > invalid(9): \"[object Error]\" !== Object.prototype.toString.call(error) 2`] = `
+
+Message:
+> 1 | "[object Error]" !== Object.prototype.toString.call(error)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Error.isError(…)\`.
+
+Output:
+  1 | !Error.isError(error)
+
+`;

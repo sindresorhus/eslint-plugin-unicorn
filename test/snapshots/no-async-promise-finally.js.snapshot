@@ -1,0 +1,239 @@
+exports[`no-async-promise-finally > invalid(1): promise.finally(async () => {}) 1`] = `
+
+  1 | promise.finally(async () => {})
+
+`;
+
+exports[`no-async-promise-finally > invalid(1): promise.finally(async () => {}) 2`] = `
+
+Message:
+> 1 | promise.finally(async () => {})
+    |                 ^^^^^^^^^^^^^^ Do not pass an async function to \`Promise#finally()\`.
+
+`;
+
+exports[`no-async-promise-finally > invalid(10): promise[\`finally\`](async () => {}) 1`] = `
+
+  1 | promise[\`finally\`](async () => {})
+
+`;
+
+exports[`no-async-promise-finally > invalid(10): promise[\`finally\`](async () => {}) 2`] = `
+
+Message:
+> 1 | promise[\`finally\`](async () => {})
+    |                    ^^^^^^^^^^^^^^ Do not pass an async function to \`Promise#finally()\`.
+
+`;
+
+exports[`no-async-promise-finally > invalid(11): const method = \"finally\"; promise[method](async () => {}); 1`] = `
+
+  1 | const method = "finally"; promise[method](async () => {});
+
+`;
+
+exports[`no-async-promise-finally > invalid(11): const method = \"finally\"; promise[method](async () => {}); 2`] = `
+
+Message:
+> 1 | const method = "finally"; promise[method](async () => {});
+    |                                           ^^^^^^^^^^^^^^ Do not pass an async function to \`Promise#finally()\`.
+
+`;
+
+exports[`no-async-promise-finally > invalid(12): async function cleanup() {} promise.finally(cleanup); 1`] = `
+
+  1 | async function cleanup() {} promise.finally(cleanup);
+
+`;
+
+exports[`no-async-promise-finally > invalid(12): async function cleanup() {} promise.finally(cleanup); 2`] = `
+
+Message:
+> 1 | async function cleanup() {} promise.finally(cleanup);
+    |                                             ^^^^^^^ Do not pass an async function to \`Promise#finally()\`.
+
+`;
+
+exports[`no-async-promise-finally > invalid(13): const cleanup = async () => {}; promise.finally(cleanup); 1`] = `
+
+  1 | const cleanup = async () => {}; promise.finally(cleanup);
+
+`;
+
+exports[`no-async-promise-finally > invalid(13): const cleanup = async () => {}; promise.finally(cleanup); 2`] = `
+
+Message:
+> 1 | const cleanup = async () => {}; promise.finally(cleanup);
+    |                                                 ^^^^^^^ Do not pass an async function to \`Promise#finally()\`.
+
+`;
+
+exports[`no-async-promise-finally > invalid(14): const cleanup = async function () {}; promise.finally(cleanup); 1`] = `
+
+  1 | const cleanup = async function () {}; promise.finally(cleanup);
+
+`;
+
+exports[`no-async-promise-finally > invalid(14): const cleanup = async function () {}; promise.finally(cleanup); 2`] = `
+
+Message:
+> 1 | const cleanup = async function () {}; promise.finally(cleanup);
+    |                                                       ^^^^^^^ Do not pass an async function to \`Promise#finally()\`.
+
+`;
+
+exports[`no-async-promise-finally > invalid(15): type Callback = () => void; promise.finally((async () => {}) as Callback); 1`] = `
+
+  1 | type Callback = () => void; promise.finally((async () => {}) as Callback);
+
+`;
+
+exports[`no-async-promise-finally > invalid(15): type Callback = () => void; promise.finally((async () => {}) as Callback); 2`] = `
+
+Message:
+> 1 | type Callback = () => void; promise.finally((async () => {}) as Callback);
+    |                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an async function to \`Promise#finally()\`.
+
+`;
+
+exports[`no-async-promise-finally > invalid(16): type Callback = () => void; const cleanup = (async () => {}) as Callback; promise.finally(cleanup); 1`] = `
+
+  1 | type Callback = () => void; const cleanup = (async () => {}) as Callback; promise.finally(cleanup);
+
+`;
+
+exports[`no-async-promise-finally > invalid(16): type Callback = () => void; const cleanup = (async () => {}) as Callback; promise.finally(cleanup); 2`] = `
+
+Message:
+> 1 | type Callback = () => void; const cleanup = (async () => {}) as Callback; promise.finally(cleanup);
+    |                                                                                           ^^^^^^^ Do not pass an async function to \`Promise#finally()\`.
+
+`;
+
+exports[`no-async-promise-finally > invalid(17): function foo(promise: Promise<string>) { promise.finally(async () => {}); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(promise: Promise<string>) { promise.finally(async () => {}); }
+
+`;
+
+exports[`no-async-promise-finally > invalid(17): function foo(promise: Promise<string>) { promise.finally(async () => {}); } 2`] = `
+
+Message:
+> 1 | function foo(promise: Promise<string>) { promise.finally(async () => {}); }
+    |                                                          ^^^^^^^^^^^^^^ Do not pass an async function to \`Promise#finally()\`.
+
+`;
+
+exports[`no-async-promise-finally > invalid(2): promise.finally(async () => cleanup()) 1`] = `
+
+  1 | promise.finally(async () => cleanup())
+
+`;
+
+exports[`no-async-promise-finally > invalid(2): promise.finally(async () => cleanup()) 2`] = `
+
+Message:
+> 1 | promise.finally(async () => cleanup())
+    |                 ^^^^^^^^^^^^^^^^^^^^^ Do not pass an async function to \`Promise#finally()\`.
+
+`;
+
+exports[`no-async-promise-finally > invalid(3): promise.finally(async () => { await cleanup(); }) 1`] = `
+
+  1 | promise.finally(async () => { await cleanup(); })
+
+`;
+
+exports[`no-async-promise-finally > invalid(3): promise.finally(async () => { await cleanup(); }) 2`] = `
+
+Message:
+> 1 | promise.finally(async () => { await cleanup(); })
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an async function to \`Promise#finally()\`.
+
+`;
+
+exports[`no-async-promise-finally > invalid(4): promise.finally(async function () { await cleanup(); }) 1`] = `
+
+  1 | promise.finally(async function () { await cleanup(); })
+
+`;
+
+exports[`no-async-promise-finally > invalid(4): promise.finally(async function () { await cleanup(); }) 2`] = `
+
+Message:
+> 1 | promise.finally(async function () { await cleanup(); })
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not pass an async function to \`Promise#finally()\`.
+
+`;
+
+exports[`no-async-promise-finally > invalid(5): Promise.resolve(value).finally(async () => cleanup()) 1`] = `
+
+  1 | Promise.resolve(value).finally(async () => cleanup())
+
+`;
+
+exports[`no-async-promise-finally > invalid(5): Promise.resolve(value).finally(async () => cleanup()) 2`] = `
+
+Message:
+> 1 | Promise.resolve(value).finally(async () => cleanup())
+    |                                ^^^^^^^^^^^^^^^^^^^^^ Do not pass an async function to \`Promise#finally()\`.
+
+`;
+
+exports[`no-async-promise-finally > invalid(6): new Promise(resolve => resolve()).finally(async () => cleanup()) 1`] = `
+
+  1 | new Promise(resolve => resolve()).finally(async () => cleanup())
+
+`;
+
+exports[`no-async-promise-finally > invalid(6): new Promise(resolve => resolve()).finally(async () => cleanup()) 2`] = `
+
+Message:
+> 1 | new Promise(resolve => resolve()).finally(async () => cleanup())
+    |                                           ^^^^^^^^^^^^^^^^^^^^^ Do not pass an async function to \`Promise#finally()\`.
+
+`;
+
+exports[`no-async-promise-finally > invalid(7): promise?.finally(async () => {}) 1`] = `
+
+  1 | promise?.finally(async () => {})
+
+`;
+
+exports[`no-async-promise-finally > invalid(7): promise?.finally(async () => {}) 2`] = `
+
+Message:
+> 1 | promise?.finally(async () => {})
+    |                  ^^^^^^^^^^^^^^ Do not pass an async function to \`Promise#finally()\`.
+
+`;
+
+exports[`no-async-promise-finally > invalid(8): promise.finally?.(async () => {}) 1`] = `
+
+  1 | promise.finally?.(async () => {})
+
+`;
+
+exports[`no-async-promise-finally > invalid(8): promise.finally?.(async () => {}) 2`] = `
+
+Message:
+> 1 | promise.finally?.(async () => {})
+    |                   ^^^^^^^^^^^^^^ Do not pass an async function to \`Promise#finally()\`.
+
+`;
+
+exports[`no-async-promise-finally > invalid(9): promise[\"finally\"](async () => {}) 1`] = `
+
+  1 | promise["finally"](async () => {})
+
+`;
+
+exports[`no-async-promise-finally > invalid(9): promise[\"finally\"](async () => {}) 2`] = `
+
+Message:
+> 1 | promise["finally"](async () => {})
+    |                    ^^^^^^^^^^^^^^ Do not pass an async function to \`Promise#finally()\`.
+
+`;

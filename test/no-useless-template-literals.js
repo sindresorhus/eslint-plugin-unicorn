@@ -132,5 +132,17 @@ test.snapshot({
 		'const string = `\\u{1F600}${1}`;',
 		'const string = `before\\u{41}${1}after`;',
 		'const string = `\\u{41}${1}${value}`;',
+		// A unary expression on a non-literal is dynamic
+		'const string = `${-value}`;',
+		// `{` after a `$` needs the `$` escaped, unless it already is
+		'const string = `a${"{b"}`;',
+		'const string = `\\\\$${"{b"}`;',
+		'const string = `\\$${"{b"}`;',
+		// A digit after a `\0` escape would turn it into a legacy octal escape
+		'const string = `${"\\0"}1${value}`;',
+		// Not in a directive prologue
+		'if (condition) `${"use strict"}`;',
+		'"use strict"; `${"value"}`;',
+		'foo(); `${"value"}`;',
 	],
 });

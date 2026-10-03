@@ -1,0 +1,227 @@
+exports[`no-global-object-property-assignment > invalid(1): globalThis.foo = 1 1`] = `
+
+  1 | globalThis.foo = 1
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(1): globalThis.foo = 1 2`] = `
+
+Message:
+> 1 | globalThis.foo = 1
+    | ^^^^^^^^^^^^^^ Do not assign properties on the global object.
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(10): for (globalThis.foo of iterable) {} 1`] = `
+
+  1 | for (globalThis.foo of iterable) {}
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(10): for (globalThis.foo of iterable) {} 2`] = `
+
+Message:
+> 1 | for (globalThis.foo of iterable) {}
+    |      ^^^^^^^^^^^^^^ Do not assign properties on the global object.
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(11): for (globalThis.foo in object) {} 1`] = `
+
+  1 | for (globalThis.foo in object) {}
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(11): for (globalThis.foo in object) {} 2`] = `
+
+Message:
+> 1 | for (globalThis.foo in object) {}
+    |      ^^^^^^^^^^^^^^ Do not assign properties on the global object.
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(12): globalThis!.foo = 1 1`] = `
+
+  1 | globalThis!.foo = 1
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(12): globalThis!.foo = 1 2`] = `
+
+Message:
+> 1 | globalThis!.foo = 1
+    | ^^^^^^^^^^^^^^^ Do not assign properties on the global object.
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(13): (globalThis as any).foo = 1 1`] = `
+
+  1 | (globalThis as any).foo = 1
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(13): (globalThis as any).foo = 1 2`] = `
+
+Message:
+> 1 | (globalThis as any).foo = 1
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Do not assign properties on the global object.
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(14): (<any>globalThis).foo = 1 1`] = `
+
+  1 | (<any>globalThis).foo = 1
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(14): (<any>globalThis).foo = 1 2`] = `
+
+Message:
+> 1 | (<any>globalThis).foo = 1
+    | ^^^^^^^^^^^^^^^^^^^^^ Do not assign properties on the global object.
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(15): (globalThis satisfies any).foo = 1 1`] = `
+
+  1 | (globalThis satisfies any).foo = 1
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(15): (globalThis satisfies any).foo = 1 2`] = `
+
+Message:
+> 1 | (globalThis satisfies any).foo = 1
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not assign properties on the global object.
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(16): globalThis.foo! = 1 1`] = `
+
+  1 | globalThis.foo! = 1
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(16): globalThis.foo! = 1 2`] = `
+
+Message:
+> 1 | globalThis.foo! = 1
+    | ^^^^^^^^^^^^^^ Do not assign properties on the global object.
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(2): window.foo += 1 1`] = `
+
+  1 | window.foo += 1
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(2): window.foo += 1 2`] = `
+
+Message:
+> 1 | window.foo += 1
+    | ^^^^^^^^^^ Do not assign properties on the global object.
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(3): self.foo ||= value 1`] = `
+
+  1 | self.foo ||= value
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(3): self.foo ||= value 2`] = `
+
+Message:
+> 1 | self.foo ||= value
+    | ^^^^^^^^ Do not assign properties on the global object.
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(4): global.foo++ 1`] = `
+
+  1 | global.foo++
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(4): global.foo++ 2`] = `
+
+Message:
+> 1 | global.foo++
+    | ^^^^^^^^^^ Do not assign properties on the global object.
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(5): globalThis[\"foo\"] = 1 1`] = `
+
+  1 | globalThis["foo"] = 1
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(5): globalThis[\"foo\"] = 1 2`] = `
+
+Message:
+> 1 | globalThis["foo"] = 1
+    | ^^^^^^^^^^^^^^^^^ Do not assign properties on the global object.
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(6): ({\n\tfoo: globalThis.foo,\n} = object); 1`] = `
+
+  1 | ({
+  2 | 	foo: globalThis.foo,
+  3 | } = object);
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(6): ({\n\tfoo: globalThis.foo,\n} = object); 2`] = `
+
+Message:
+  1 | ({
+> 2 | 	foo: globalThis.foo,
+    | 	     ^^^^^^^^^^^^^^ Do not assign properties on the global object.
+  3 | } = object);
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(7): [globalThis.foo] = array 1`] = `
+
+  1 | [globalThis.foo] = array
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(7): [globalThis.foo] = array 2`] = `
+
+Message:
+> 1 | [globalThis.foo] = array
+    |  ^^^^^^^^^^^^^^ Do not assign properties on the global object.
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(8): ({...globalThis.foo} = object) 1`] = `
+
+  1 | ({...globalThis.foo} = object)
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(8): ({...globalThis.foo} = object) 2`] = `
+
+Message:
+> 1 | ({...globalThis.foo} = object)
+    |      ^^^^^^^^^^^^^^ Do not assign properties on the global object.
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(9): [...globalThis.foo] = array 1`] = `
+
+  1 | [...globalThis.foo] = array
+
+`;
+
+exports[`no-global-object-property-assignment > invalid(9): [...globalThis.foo] = array 2`] = `
+
+Message:
+> 1 | [...globalThis.foo] = array
+    |     ^^^^^^^^^^^^^^ Do not assign properties on the global object.
+
+`;

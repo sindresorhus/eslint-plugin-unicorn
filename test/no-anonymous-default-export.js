@@ -295,6 +295,20 @@ test.snapshot({
 });
 
 // Decorators
+test.snapshot({
+	valid: [],
+	invalid: [
+		...[
+			'@decorator export default class {}',
+			'export default @decorator class {}',
+			'export default @first @second class {}',
+		].map(code => ({
+			code,
+			filename: '/path/to/foo.ts',
+			languageOptions: {parser: parsers.typescript},
+		})),
+	],
+});
 
 // The named declaration uses the file's line ending
 test({

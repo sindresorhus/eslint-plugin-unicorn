@@ -1,0 +1,1443 @@
+exports[`no-single-promise-in-promise-methods > invalid(1): Promise.all([promise]) 1`] = `
+
+  1 | Promise.all([promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(1): Promise.all([promise]) 2`] = `
+
+Message:
+> 1 | Promise.all([promise])
+    |             ^^^^^^^^^ Wrapping single-element array with \`Promise.all()\` is unnecessary.
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(1): Promise.race([promise,],) 1`] = `
+
+  1 | Promise.race([promise,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(1): Promise.race([promise,],) 2`] = `
+
+Message:
+> 1 | Promise.race([promise,],)
+    |              ^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | promise
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | Promise.resolve(promise,)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(1): await Promise.race([(0, promise)]) 1`] = `
+
+  1 | await Promise.race([(0, promise)])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(1): await Promise.race([(0, promise)]) 2`] = `
+
+Message:
+> 1 | await Promise.race([(0, promise)])
+    |                    ^^^^^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await (0, promise)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(10): Promise.race([ {a} = 1 ,],) 1`] = `
+
+  1 | Promise.race([ {a} = 1 ,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(10): Promise.race([ {a} = 1 ,],) 2`] = `
+
+Message:
+> 1 | Promise.race([ {a} = 1 ,],)
+    |              ^^^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | ({a} = 1)
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | Promise.resolve( {a} = 1 ,)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(10): await Promise.race([x ^= y,],) 1`] = `
+
+  1 | await Promise.race([x ^= y,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(10): await Promise.race([x ^= y,],) 2`] = `
+
+Message:
+> 1 | await Promise.race([x ^= y,],)
+    |                    ^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await (x ^= y)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(10): const results = await Promise.race([promise]) 1`] = `
+
+  1 | const results = await Promise.race([promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(10): const results = await Promise.race([promise]) 2`] = `
+
+Message:
+> 1 | const results = await Promise.race([promise])
+    |                                    ^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | const results = await promise
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(11): Promise.race([ function () {} ,],) 1`] = `
+
+  1 | Promise.race([ function () {} ,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(11): Promise.race([ function () {} ,],) 2`] = `
+
+Message:
+> 1 | Promise.race([ function () {} ,],)
+    |              ^^^^^^^^^^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | (function () {})
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | Promise.resolve( function () {} ,)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(11): await Promise.race([x | y,],) 1`] = `
+
+  1 | await Promise.race([x | y,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(11): await Promise.race([x | y,],) 2`] = `
+
+Message:
+> 1 | await Promise.race([x | y,],)
+    |                    ^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await (x | y)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(11): const [foo] = await Promise.all([promise]) 1`] = `
+
+  1 | const [foo] = await Promise.all([promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(11): const [foo] = await Promise.all([promise]) 2`] = `
+
+Message:
+> 1 | const [foo] = await Promise.all([promise])
+    |                                 ^^^^^^^^^ Wrapping single-element array with \`Promise.all()\` is unnecessary.
+
+Output:
+  1 | const foo = await promise
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(12): Promise.race([ class {} ,],) 1`] = `
+
+  1 | Promise.race([ class {} ,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(12): Promise.race([ class {} ,],) 2`] = `
+
+Message:
+> 1 | Promise.race([ class {} ,],)
+    |              ^^^^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | (class {})
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | Promise.resolve( class {} ,)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(12): [foo] = await Promise.all([promise]) 1`] = `
+
+  1 | [foo] = await Promise.all([promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(12): [foo] = await Promise.all([promise]) 2`] = `
+
+Message:
+> 1 | [foo] = await Promise.all([promise])
+    |                           ^^^^^^^^^ Wrapping single-element array with \`Promise.all()\` is unnecessary.
+
+Output:
+  1 | foo = await promise
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(12): await Promise.race([x ^ y,],) 1`] = `
+
+  1 | await Promise.race([x ^ y,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(12): await Promise.race([x ^ y,],) 2`] = `
+
+Message:
+> 1 | await Promise.race([x ^ y,],)
+    |                    ^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await (x ^ y)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(13): Promise.race([ new Foo ,],).then() 1`] = `
+
+  1 | Promise.race([ new Foo ,],).then()
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(13): Promise.race([ new Foo ,],).then() 2`] = `
+
+Message:
+> 1 | Promise.race([ new Foo ,],).then()
+    |              ^^^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | (new Foo).then()
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | Promise.resolve( new Foo ,).then()
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(13): await Promise.race([x & y,],) 1`] = `
+
+  1 | await Promise.race([x & y,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(13): await Promise.race([x & y,],) 2`] = `
+
+Message:
+> 1 | await Promise.race([x & y,],)
+    |                    ^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await (x & y)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(13): const foo = (await Promise.all([promise]))[0] 1`] = `
+
+  1 | const foo = (await Promise.all([promise]))[0]
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(13): const foo = (await Promise.all([promise]))[0] 2`] = `
+
+Message:
+> 1 | const foo = (await Promise.all([promise]))[0]
+    |                                ^^^^^^^^^ Wrapping single-element array with \`Promise.all()\` is unnecessary.
+
+Output:
+  1 | const foo = await promise
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(14): Promise.race([ new Foo ,],).toString 1`] = `
+
+  1 | Promise.race([ new Foo ,],).toString
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(14): Promise.race([ new Foo ,],).toString 2`] = `
+
+Message:
+> 1 | Promise.race([ new Foo ,],).toString
+    |              ^^^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | (new Foo).toString
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | Promise.resolve( new Foo ,).toString
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(14): await Promise.race([x !== y,],) 1`] = `
+
+  1 | await Promise.race([x !== y,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(14): await Promise.race([x !== y,],) 2`] = `
+
+Message:
+> 1 | await Promise.race([x !== y,],)
+    |                    ^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await (x !== y)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(14): const foo = (await Promise.all([promise]))[0.0] 1`] = `
+
+  1 | const foo = (await Promise.all([promise]))[0.0]
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(14): const foo = (await Promise.all([promise]))[0.0] 2`] = `
+
+Message:
+> 1 | const foo = (await Promise.all([promise]))[0.0]
+    |                                ^^^^^^^^^ Wrapping single-element array with \`Promise.all()\` is unnecessary.
+
+Output:
+  1 | const foo = await promise
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(15): await Promise.race([x == y,],) 1`] = `
+
+  1 | await Promise.race([x == y,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(15): await Promise.race([x == y,],) 2`] = `
+
+Message:
+> 1 | await Promise.race([x == y,],)
+    |                    ^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await (x == y)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(15): foo = (await Promise.all([promise]))[0] 1`] = `
+
+  1 | foo = (await Promise.all([promise]))[0]
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(15): foo = (await Promise.all([promise]))[0] 2`] = `
+
+Message:
+> 1 | foo = (await Promise.all([promise]))[0]
+    |                          ^^^^^^^^^ Wrapping single-element array with \`Promise.all()\` is unnecessary.
+
+Output:
+  1 | foo = await promise
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(15): foo(Promise.race([promise])) 1`] = `
+
+  1 | foo(Promise.race([promise]))
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(15): foo(Promise.race([promise])) 2`] = `
+
+Message:
+> 1 | foo(Promise.race([promise]))
+    |                  ^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | foo(promise)
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | foo(Promise.resolve(promise))
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(16): Promise.any([promise]) 1`] = `
+
+  1 | Promise.any([promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(16): Promise.any([promise]) 2`] = `
+
+Message:
+> 1 | Promise.any([promise])
+    |             ^^^^^^^^^ Wrapping single-element array with \`Promise.any()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | promise
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | Promise.resolve(promise)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(16): await Promise.race([x in y,],) 1`] = `
+
+  1 | await Promise.race([x in y,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(16): await Promise.race([x in y,],) 2`] = `
+
+Message:
+> 1 | await Promise.race([x in y,],)
+    |                    ^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await (x in y)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(16): const [foo] = await Promise.all([a ? b : c]) 1`] = `
+
+  1 | const [foo] = await Promise.all([a ? b : c])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(16): const [foo] = await Promise.all([a ? b : c]) 2`] = `
+
+Message:
+> 1 | const [foo] = await Promise.all([a ? b : c])
+    |                                 ^^^^^^^^^^^ Wrapping single-element array with \`Promise.all()\` is unnecessary.
+
+Output:
+  1 | const foo = await (a ? b : c)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(17): await Promise.race([x >>> y,],) 1`] = `
+
+  1 | await Promise.race([x >>> y,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(17): await Promise.race([x >>> y,],) 2`] = `
+
+Message:
+> 1 | await Promise.race([x >>> y,],)
+    |                    ^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await (x >>> y)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(17): const [foo = bar] = await Promise.all([promise]) 1`] = `
+
+  1 | const [foo = bar] = await Promise.all([promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(17): const [foo = bar] = await Promise.all([promise]) 2`] = `
+
+Message:
+> 1 | const [foo = bar] = await Promise.all([promise])
+    |                                       ^^^^^^^^^ Wrapping single-element array with \`Promise.all()\` is unnecessary.
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(17): foo(Promise.any([promise])) 1`] = `
+
+  1 | foo(Promise.any([promise]))
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(17): foo(Promise.any([promise])) 2`] = `
+
+Message:
+> 1 | foo(Promise.any([promise]))
+    |                 ^^^^^^^^^ Wrapping single-element array with \`Promise.any()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | foo(promise)
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | foo(Promise.resolve(promise))
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(18): await Promise.race([x + y,],) 1`] = `
+
+  1 | await Promise.race([x + y,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(18): await Promise.race([x + y,],) 2`] = `
+
+Message:
+> 1 | await Promise.race([x + y,],)
+    |                    ^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await (x + y)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(18): const [...foo] = await Promise.all([promise]) 1`] = `
+
+  1 | const [...foo] = await Promise.all([promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(18): const [...foo] = await Promise.all([promise]) 2`] = `
+
+Message:
+> 1 | const [...foo] = await Promise.all([promise])
+    |                                    ^^^^^^^^^ Wrapping single-element array with \`Promise.all()\` is unnecessary.
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(18): const obj = {p: Promise.all([promise])} 1`] = `
+
+  1 | const obj = {p: Promise.all([promise])}
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(18): const obj = {p: Promise.all([promise])} 2`] = `
+
+Message:
+> 1 | const obj = {p: Promise.all([promise])}
+    |                             ^^^^^^^^^ Wrapping single-element array with \`Promise.all()\` is unnecessary.
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(19): Promise.race([promise]).foo = 1 1`] = `
+
+  1 | Promise.race([promise]).foo = 1
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(19): Promise.race([promise]).foo = 1 2`] = `
+
+Message:
+> 1 | Promise.race([promise]).foo = 1
+    |              ^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | promise.foo = 1
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | Promise.resolve(promise).foo = 1
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(19): await Promise.race([x / y,],) 1`] = `
+
+  1 | await Promise.race([x / y,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(19): await Promise.race([x / y,],) 2`] = `
+
+Message:
+> 1 | await Promise.race([x / y,],)
+    |                    ^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await (x / y)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(19): const [, foo] = await Promise.all([promise]) 1`] = `
+
+  1 | const [, foo] = await Promise.all([promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(19): const [, foo] = await Promise.all([promise]) 2`] = `
+
+Message:
+> 1 | const [, foo] = await Promise.all([promise])
+    |                                   ^^^^^^^^^ Wrapping single-element array with \`Promise.all()\` is unnecessary.
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(2): async function * foo() {await Promise.race([yield promise])} 1`] = `
+
+  1 | async function * foo() {await Promise.race([yield promise])}
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(2): async function * foo() {await Promise.race([yield promise])} 2`] = `
+
+Message:
+> 1 | async function * foo() {await Promise.race([yield promise])}
+    |                                            ^^^^^^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | async function * foo() {await (yield promise)}
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(2): await Promise.all([promise]) 1`] = `
+
+  1 | await Promise.all([promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(2): await Promise.all([promise]) 2`] = `
+
+Message:
+> 1 | await Promise.all([promise])
+    |                   ^^^^^^^^^ Wrapping single-element array with \`Promise.all()\` is unnecessary.
+
+Output:
+  1 | await promise
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(2): foo\nPromise.race([(0, promise),],) 1`] = `
+
+  1 | foo
+  2 | Promise.race([(0, promise),],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(2): foo\nPromise.race([(0, promise),],) 2`] = `
+
+Message:
+  1 | foo
+> 2 | Promise.race([(0, promise),],)
+    |              ^^^^^^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | foo
+  2 | ;(0, promise)
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | foo
+  2 | Promise.resolve((0, promise),)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(20): Promise.race([promise])[0] ||= 1 1`] = `
+
+  1 | Promise.race([promise])[0] ||= 1
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(20): Promise.race([promise])[0] ||= 1 2`] = `
+
+Message:
+> 1 | Promise.race([promise])[0] ||= 1
+    |              ^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | promise[0] ||= 1
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | Promise.resolve(promise)[0] ||= 1
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(20): await Promise.race([x ** y,],) 1`] = `
+
+  1 | await Promise.race([x ** y,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(20): await Promise.race([x ** y,],) 2`] = `
+
+Message:
+> 1 | await Promise.race([x ** y,],)
+    |                    ^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await (x ** y)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(20): const result = ([foo] = await Promise.all([promise])) 1`] = `
+
+  1 | const result = ([foo] = await Promise.all([promise]))
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(20): const result = ([foo] = await Promise.all([promise])) 2`] = `
+
+Message:
+> 1 | const result = ([foo] = await Promise.all([promise]))
+    |                                           ^^^^^^^^^ Wrapping single-element array with \`Promise.all()\` is unnecessary.
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(21): Promise.race([undefined]).then() 1`] = `
+
+  1 | Promise.race([undefined]).then()
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(21): Promise.race([undefined]).then() 2`] = `
+
+Message:
+> 1 | Promise.race([undefined]).then()
+    |              ^^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | undefined.then()
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | Promise.resolve(undefined).then()
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(21): await Promise.race([promise,],) 1`] = `
+
+  1 | await Promise.race([promise,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(21): await Promise.race([promise,],) 2`] = `
+
+Message:
+> 1 | await Promise.race([promise,],)
+    |                    ^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await promise
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(21): const foo = (await Promise.all([promise]))[1] 1`] = `
+
+  1 | const foo = (await Promise.all([promise]))[1]
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(21): const foo = (await Promise.all([promise]))[1] 2`] = `
+
+Message:
+> 1 | const foo = (await Promise.all([promise]))[1]
+    |                                ^^^^^^^^^ Wrapping single-element array with \`Promise.all()\` is unnecessary.
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(22): Promise.race([null]).then() 1`] = `
+
+  1 | Promise.race([null]).then()
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(22): Promise.race([null]).then() 2`] = `
+
+Message:
+> 1 | Promise.race([null]).then()
+    |              ^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | (null).then()
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | Promise.resolve(null).then()
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(22): await Promise.race([getPromise(),],) 1`] = `
+
+  1 | await Promise.race([getPromise(),],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(22): await Promise.race([getPromise(),],) 2`] = `
+
+Message:
+> 1 | await Promise.race([getPromise(),],)
+    |                    ^^^^^^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await getPromise()
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(22): const foo = (await Promise.all([promise])) /* comment */ [0] 1`] = `
+
+  1 | const foo = (await Promise.all([promise])) /* comment */ [0]
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(22): const foo = (await Promise.all([promise])) /* comment */ [0] 2`] = `
+
+Message:
+> 1 | const foo = (await Promise.all([promise])) /* comment */ [0]
+    |                                ^^^^^^^^^ Wrapping single-element array with \`Promise.all()\` is unnecessary.
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(23): await Promise.race([promises[0],],) 1`] = `
+
+  1 | await Promise.race([promises[0],],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(23): await Promise.race([promises[0],],) 2`] = `
+
+Message:
+> 1 | await Promise.race([promises[0],],)
+    |                    ^^^^^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await promises[0]
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(23): const [/* comment */ foo] = await Promise.all([promise]) 1`] = `
+
+  1 | const [/* comment */ foo] = await Promise.all([promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(23): const [/* comment */ foo] = await Promise.all([promise]) 2`] = `
+
+Message:
+> 1 | const [/* comment */ foo] = await Promise.all([promise])
+    |                                               ^^^^^^^^^ Wrapping single-element array with \`Promise.all()\` is unnecessary.
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(24): await Promise.race([await promise]) 1`] = `
+
+  1 | await Promise.race([await promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(24): await Promise.race([await promise]) 2`] = `
+
+Message:
+> 1 | await Promise.race([await promise])
+    |                    ^^^^^^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await await promise
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(24): const [foo] = await Promise.all([/* comment */ promise]) 1`] = `
+
+  1 | const [foo] = await Promise.all([/* comment */ promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(24): const [foo] = await Promise.all([/* comment */ promise]) 2`] = `
+
+Message:
+> 1 | const [foo] = await Promise.all([/* comment */ promise])
+    |                                 ^^^^^^^^^^^^^^^^^^^^^^^ Wrapping single-element array with \`Promise.all()\` is unnecessary.
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(25): await Promise.any([promise]) 1`] = `
+
+  1 | await Promise.any([promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(25): await Promise.any([promise]) 2`] = `
+
+Message:
+> 1 | await Promise.any([promise])
+    |                   ^^^^^^^^^ Wrapping single-element array with \`Promise.any()\` is unnecessary.
+
+Output:
+  1 | await promise
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(25): const [foo]: [Foo] = await Promise.all([promise]) 1`] = `
+
+  1 | const [foo]: [Foo] = await Promise.all([promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(25): const [foo]: [Foo] = await Promise.all([promise]) 2`] = `
+
+Message:
+> 1 | const [foo]: [Foo] = await Promise.all([promise])
+    |                                        ^^^^^^^^^ Wrapping single-element array with \`Promise.all()\` is unnecessary.
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(26): await Promise.any([promise,],) 1`] = `
+
+  1 | await Promise.any([promise,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(26): await Promise.any([promise,],) 2`] = `
+
+Message:
+> 1 | await Promise.any([promise,],)
+    |                   ^^^^^^^^^^ Wrapping single-element array with \`Promise.any()\` is unnecessary.
+
+Output:
+  1 | await promise
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(26): await Promise.race([/* comment */ promise]) 1`] = `
+
+  1 | await Promise.race([/* comment */ promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(26): await Promise.race([/* comment */ promise]) 2`] = `
+
+Message:
+> 1 | await Promise.race([/* comment */ promise])
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(27): await Promise.race([promise /* comment */]) 1`] = `
+
+  1 | await Promise.race([promise /* comment */])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(27): await Promise.race([promise /* comment */]) 2`] = `
+
+Message:
+> 1 | await Promise.race([promise /* comment */])
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(27): await Promise.race([promise]) 1`] = `
+
+  1 | await Promise.race([promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(27): await Promise.race([promise]) 2`] = `
+
+Message:
+> 1 | await Promise.race([promise])
+    |                    ^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await promise
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(28): await Promise.race([new Promise(() => {})]) 1`] = `
+
+  1 | await Promise.race([new Promise(() => {})])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(28): await Promise.race([new Promise(() => {})]) 2`] = `
+
+Message:
+> 1 | await Promise.race([new Promise(() => {})])
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await new Promise(() => {})
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(28): await Promise.race([promise, /* comment */]) 1`] = `
+
+  1 | await Promise.race([promise, /* comment */])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(28): await Promise.race([promise, /* comment */]) 2`] = `
+
+Message:
+> 1 | await Promise.race([promise, /* comment */])
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(29): +await Promise.race([+1]) 1`] = `
+
+  1 | +await Promise.race([+1])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(29): +await Promise.race([+1]) 2`] = `
+
+Message:
+> 1 | +await Promise.race([+1])
+    |                     ^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | +await +1
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(29): await Promise.race([\n\t// comment\n\tpromise,\n]) 1`] = `
+
+  1 | await Promise.race([
+  2 | 	// comment
+  3 | 	promise,
+  4 | ])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(29): await Promise.race([\n\t// comment\n\tpromise,\n]) 2`] = `
+
+Message:
+> 1 | await Promise.race([
+    |                    ^
+> 2 | 	// comment
+    | ^^^^^^^^^^^
+> 3 | 	promise,
+    | ^^^^^^^^^
+> 4 | ])
+    | ^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(3): async function * foo() {await Promise.race([yield* promise])} 1`] = `
+
+  1 | async function * foo() {await Promise.race([yield* promise])}
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(3): async function * foo() {await Promise.race([yield* promise])} 2`] = `
+
+Message:
+> 1 | async function * foo() {await Promise.race([yield* promise])}
+    |                                            ^^^^^^^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | async function * foo() {await (yield* promise)}
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(3): const foo = () => Promise.all([promise]) 1`] = `
+
+  1 | const foo = () => Promise.all([promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(3): const foo = () => Promise.all([promise]) 2`] = `
+
+Message:
+> 1 | const foo = () => Promise.all([promise])
+    |                               ^^^^^^^^^ Wrapping single-element array with \`Promise.all()\` is unnecessary.
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(3): foo\nPromise.race([[array][0],],) 1`] = `
+
+  1 | foo
+  2 | Promise.race([[array][0],],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(3): foo\nPromise.race([[array][0],],) 2`] = `
+
+Message:
+  1 | foo
+> 2 | Promise.race([[array][0],],)
+    |              ^^^^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | foo
+  2 | ;[array][0]
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | foo
+  2 | Promise.resolve([array][0],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(30): await Promise.any([/* comment */ promise]) 1`] = `
+
+  1 | await Promise.any([/* comment */ promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(30): await Promise.any([/* comment */ promise]) 2`] = `
+
+Message:
+> 1 | await Promise.any([/* comment */ promise])
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^ Wrapping single-element array with \`Promise.any()\` is unnecessary.
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(30): await Promise.race([(x,y)])\n[0].toString() 1`] = `
+
+  1 | await Promise.race([(x,y)])
+  2 | [0].toString()
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(30): await Promise.race([(x,y)])\n[0].toString() 2`] = `
+
+Message:
+> 1 | await Promise.race([(x,y)])
+    |                    ^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+  2 | [0].toString()
+
+Suggestion 1/2: Use the value directly.:
+  1 | await (x,y)
+  2 | [0].toString()
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | await Promise.resolve((x,y))
+  2 | [0].toString()
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(31): Promise.race([/* comment */ promise]) 1`] = `
+
+  1 | Promise.race([/* comment */ promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(31): Promise.race([/* comment */ promise]) 2`] = `
+
+Message:
+> 1 | Promise.race([/* comment */ promise])
+    |              ^^^^^^^^^^^^^^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Suggestion 1/1: Switch to \`Promise.resolve(…)\`.:
+  1 | Promise.resolve(/* comment */ promise)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(4): Promise.race([promise]).then() 1`] = `
+
+  1 | Promise.race([promise]).then()
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(4): Promise.race([promise]).then() 2`] = `
+
+Message:
+> 1 | Promise.race([promise]).then()
+    |              ^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | promise.then()
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | Promise.resolve(promise).then()
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(4): await Promise.race([() => promise,],) 1`] = `
+
+  1 | await Promise.race([() => promise,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(4): await Promise.race([() => promise,],) 2`] = `
+
+Message:
+> 1 | await Promise.race([() => promise,],)
+    |                    ^^^^^^^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await (() => promise)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(4): const foo = await Promise.all([promise]) 1`] = `
+
+  1 | const foo = await Promise.all([promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(4): const foo = await Promise.all([promise]) 2`] = `
+
+Message:
+> 1 | const foo = await Promise.all([promise])
+    |                               ^^^^^^^^^ Wrapping single-element array with \`Promise.all()\` is unnecessary.
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(5): Promise.race([1]).then() 1`] = `
+
+  1 | Promise.race([1]).then()
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(5): Promise.race([1]).then() 2`] = `
+
+Message:
+> 1 | Promise.race([1]).then()
+    |              ^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | (1).then()
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | Promise.resolve(1).then()
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(5): await Promise.race([a ? b : c,],) 1`] = `
+
+  1 | await Promise.race([a ? b : c,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(5): await Promise.race([a ? b : c,],) 2`] = `
+
+Message:
+> 1 | await Promise.race([a ? b : c,],)
+    |                    ^^^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await (a ? b : c)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(5): foo = await Promise.all([promise]) 1`] = `
+
+  1 | foo = await Promise.all([promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(5): foo = await Promise.all([promise]) 2`] = `
+
+Message:
+> 1 | foo = await Promise.all([promise])
+    |                         ^^^^^^^^^ Wrapping single-element array with \`Promise.all()\` is unnecessary.
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(6): Promise.race([1.]).then() 1`] = `
+
+  1 | Promise.race([1.]).then()
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(6): Promise.race([1.]).then() 2`] = `
+
+Message:
+> 1 | Promise.race([1.]).then()
+    |              ^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | (1.).then()
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | Promise.resolve(1.).then()
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(6): await Promise.race([x ??= y,],) 1`] = `
+
+  1 | await Promise.race([x ??= y,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(6): await Promise.race([x ??= y,],) 2`] = `
+
+Message:
+> 1 | await Promise.race([x ??= y,],)
+    |                    ^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await (x ??= y)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(6): const foo = await Promise.race([promise]) 1`] = `
+
+  1 | const foo = await Promise.race([promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(6): const foo = await Promise.race([promise]) 2`] = `
+
+Message:
+> 1 | const foo = await Promise.race([promise])
+    |                                ^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | const foo = await promise
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(7): Promise.race([.1]).then() 1`] = `
+
+  1 | Promise.race([.1]).then()
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(7): Promise.race([.1]).then() 2`] = `
+
+Message:
+> 1 | Promise.race([.1]).then()
+    |              ^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | (.1).then()
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | Promise.resolve(.1).then()
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(7): await Promise.race([x ||= y,],) 1`] = `
+
+  1 | await Promise.race([x ||= y,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(7): await Promise.race([x ||= y,],) 2`] = `
+
+Message:
+> 1 | await Promise.race([x ||= y,],)
+    |                    ^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await (x ||= y)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(7): const foo = () => Promise.race([promise]) 1`] = `
+
+  1 | const foo = () => Promise.race([promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(7): const foo = () => Promise.race([promise]) 2`] = `
+
+Message:
+> 1 | const foo = () => Promise.race([promise])
+    |                                ^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | const foo = () => promise
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | const foo = () => Promise.resolve(promise)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(8): Promise.race([(0, promise)]).then() 1`] = `
+
+  1 | Promise.race([(0, promise)]).then()
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(8): Promise.race([(0, promise)]).then() 2`] = `
+
+Message:
+> 1 | Promise.race([(0, promise)]).then()
+    |              ^^^^^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | (0, promise).then()
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | Promise.resolve((0, promise)).then()
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(8): await Promise.race([x &&= y,],) 1`] = `
+
+  1 | await Promise.race([x &&= y,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(8): await Promise.race([x &&= y,],) 2`] = `
+
+Message:
+> 1 | await Promise.race([x &&= y,],)
+    |                    ^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await (x &&= y)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(8): foo = await Promise.race([promise]) 1`] = `
+
+  1 | foo = await Promise.race([promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(8): foo = await Promise.race([promise]) 2`] = `
+
+Message:
+> 1 | foo = await Promise.race([promise])
+    |                          ^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | foo = await promise
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(9): await Promise.race([x |= y,],) 1`] = `
+
+  1 | await Promise.race([x |= y,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(9): await Promise.race([x |= y,],) 2`] = `
+
+Message:
+> 1 | await Promise.race([x |= y,],)
+    |                    ^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Output:
+  1 | await (x |= y)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(9): const _ = () => Promise.race([ a ?? b ,],) 1`] = `
+
+  1 | const _ = () => Promise.race([ a ?? b ,],)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(9): const _ = () => Promise.race([ a ?? b ,],) 2`] = `
+
+Message:
+> 1 | const _ = () => Promise.race([ a ?? b ,],)
+    |                              ^^^^^^^^^^^ Wrapping single-element array with \`Promise.race()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | const _ = () => (a ?? b)
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | const _ = () => Promise.resolve( a ?? b ,)
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(9): const results = await Promise.any([promise]) 1`] = `
+
+  1 | const results = await Promise.any([promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(9): const results = await Promise.any([promise]) 2`] = `
+
+Message:
+> 1 | const results = await Promise.any([promise])
+    |                                   ^^^^^^^^^ Wrapping single-element array with \`Promise.any()\` is unnecessary.
+
+Output:
+  1 | const results = await promise
+
+`;

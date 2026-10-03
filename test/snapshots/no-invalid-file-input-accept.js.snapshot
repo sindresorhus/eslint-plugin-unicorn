@@ -1,0 +1,627 @@
+exports[`no-invalid-file-input-accept > invalid(1): <input type=\"file\" accept=\"{{allowedTypes}}\"> 1`] = `
+
+  1 | <input type="file" accept="{{allowedTypes}}">
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(1): <input type=\"file\" accept=\"{{allowedTypes}}\"> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="{{allowedTypes}}">
+    |                            ^^^^^^^^^^^^^^^^ The file input \`accept\` value must be static.
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(1): <input type=\"file\" accept> 1`] = `
+
+  1 | <input type="file" accept>
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(1): <input type=\"file\" accept> 2`] = `
+
+Message:
+> 1 | <input type="file" accept>
+    |                    ^^^^^^ Invalid file input \`accept\` value: The \`accept\` attribute must have a value.
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(1): const modes = new Set([\"foo\"]); modes.clear(); <input type=\"file\" accept={modes.size ? \"bad\" : \"image/jpeg\"} /> 1`] = `
+
+  1 | const modes = new Set(["foo"]); modes.clear(); <input type="file" accept={modes.size ? "bad" : "image/jpeg"} />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(1): const modes = new Set([\"foo\"]); modes.clear(); <input type=\"file\" accept={modes.size ? \"bad\" : \"image/jpeg\"} /> 2`] = `
+
+Message:
+> 1 | const modes = new Set(["foo"]); modes.clear(); <input type="file" accept={modes.size ? "bad" : "image/jpeg"} />
+    |                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The file input \`accept\` value must be static.
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(10): <input type=\"file\" accept=\".PNG\" /> 1`] = `
+
+  1 | <input type="file" accept=".PNG" />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(10): <input type=\"file\" accept=\".PNG\" /> 2`] = `
+
+Message:
+> 1 | <input type="file" accept=".PNG" />
+    |                           ^^^^^^ Prefer \`.png\` as the file input \`accept\` value.
+
+Output:
+  1 | <input type="file" accept=".png" />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(10): <input type=\"file\" accept=\"image/png,\"> 1`] = `
+
+  1 | <input type="file" accept="image/png,">
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(10): <input type=\"file\" accept=\"image/png,\"> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="image/png,">
+    |                            ^^^^^^^^^^ Invalid file input \`accept\` value: Empty entries are not allowed.
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(11): <input type=\"file\" accept=\".png, .PNG\" /> 1`] = `
+
+  1 | <input type="file" accept=".png, .PNG" />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(11): <input type=\"file\" accept=\".png, .PNG\" /> 2`] = `
+
+Message:
+> 1 | <input type="file" accept=".png, .PNG" />
+    |                           ^^^^^^^^^^^^ Prefer \`.png\` as the file input \`accept\` value.
+
+Output:
+  1 | <input type="file" accept=".png" />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(11): <input type=\"file\" accept=\"IMAGE/PNG,.PNG, image/png\"> 1`] = `
+
+  1 | <input type="file" accept="IMAGE/PNG,.PNG, image/png">
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(11): <input type=\"file\" accept=\"IMAGE/PNG,.PNG, image/png\"> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="IMAGE/PNG,.PNG, image/png">
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`image/png, .png\` as the file input \`accept\` value.
+
+Output:
+  1 | <input type="file" accept="image/png, .png">
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(12): <input type=\"file\" accept=\"\" /> 1`] = `
+
+  1 | <input type="file" accept="" />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(12): <input type=\"file\" accept=\"\" /> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="" />
+    |                           ^^ Invalid file input \`accept\` value: Empty entries are not allowed.
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(12): <input type=\"file\" accept=\"image/png,.png\"> 1`] = `
+
+  1 | <input type="file" accept="image/png,.png">
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(12): <input type=\"file\" accept=\"image/png,.png\"> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="image/png,.png">
+    |                            ^^^^^^^^^^^^^^ Prefer \`image/png, .png\` as the file input \`accept\` value.
+
+Output:
+  1 | <input type="file" accept="image/png, .png">
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(13): <input type=\"file\" accept=\"IMAGE/*\" /> 1`] = `
+
+  1 | <input type="file" accept="IMAGE/*" />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(13): <input type=\"file\" accept=\"IMAGE/*\" /> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="IMAGE/*" />
+    |                           ^^^^^^^^^ Prefer \`image/*\` as the file input \`accept\` value.
+
+Output:
+  1 | <input type="file" accept="image/*" />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(13): <input type=\"file\" accept=\"image/png; charset=utf-8\"> 1`] = `
+
+  1 | <input type="file" accept="image/png; charset=utf-8">
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(13): <input type=\"file\" accept=\"image/png; charset=utf-8\"> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="image/png; charset=utf-8">
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`image/png\` as the file input \`accept\` value.
+
+Output:
+  1 | <input type="file" accept="image/png">
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(14): <input / type=\"file\" accept=\"image/jpg\"> 1`] = `
+
+  1 | <input / type="file" accept="image/jpg">
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(14): <input / type=\"file\" accept=\"image/jpg\"> 2`] = `
+
+Message:
+> 1 | <input / type="file" accept="image/jpg">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`image/jpeg\` as the file input \`accept\` value.
+
+Output:
+  1 | <input / type="file" accept="image/jpeg">
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(14): <input type=\"file\" accept=\"TEXT/*\" /> 1`] = `
+
+  1 | <input type="file" accept="TEXT/*" />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(14): <input type=\"file\" accept=\"TEXT/*\" /> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="TEXT/*" />
+    |                           ^^^^^^^^ Invalid file input \`accept\` value: Wildcard MIME types must be \`audio/*\`, \`image/*\`, or \`video/*\`.
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(15): <input type=\"file\" accept/> 1`] = `
+
+  1 | <input type="file" accept/>
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(15): <input type=\"file\" accept/> 2`] = `
+
+Message:
+> 1 | <input type="file" accept/>
+    |                    ^^^^^^ Invalid file input \`accept\` value: The \`accept\` attribute must have a value.
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(15): <input type=\"file\" accept=\"*/plain\" /> 1`] = `
+
+  1 | <input type="file" accept="*/plain" />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(15): <input type=\"file\" accept=\"*/plain\" /> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="*/plain" />
+    |                           ^^^^^^^^^ Invalid file input \`accept\` value: Wildcard MIME types must be \`audio/*\`, \`image/*\`, or \`video/*\`.
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(16): <input type=\"file\" accept=\"not-real-mime-type/*\" /> 1`] = `
+
+  1 | <input type="file" accept="not-real-mime-type/*" />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(16): <input type=\"file\" accept=\"not-real-mime-type/*\" /> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="not-real-mime-type/*" />
+    |                           ^^^^^^^^^^^^^^^^^^^^^^ Invalid file input \`accept\` value: Wildcard MIME types must be \`audio/*\`, \`image/*\`, or \`video/*\`.
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(16): <input type=file a/b accept=image/jpg> 1`] = `
+
+  1 | <input type=file a/b accept=image/jpg>
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(16): <input type=file a/b accept=image/jpg> 2`] = `
+
+Message:
+> 1 | <input type=file a/b accept=image/jpg>
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`image/jpeg\` as the file input \`accept\` value.
+
+Output:
+  1 | <input type=file a/b accept=image/jpeg>
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(17): <input type=\"file\" / accept> 1`] = `
+
+  1 | <input type="file" / accept>
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(17): <input type=\"file\" / accept> 2`] = `
+
+Message:
+> 1 | <input type="file" / accept>
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Invalid file input \`accept\` value: The \`accept\` attribute must have a value.
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(17): <input type=\"file\" accept=\"image/png,\" /> 1`] = `
+
+  1 | <input type="file" accept="image/png," />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(17): <input type=\"file\" accept=\"image/png,\" /> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="image/png," />
+    |                           ^^^^^^^^^^^^ Invalid file input \`accept\` value: Empty entries are not allowed.
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(18): <input type=\"file\" accept=\"image/png,, .png\" /> 1`] = `
+
+  1 | <input type="file" accept="image/png,, .png" />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(18): <input type=\"file\" accept=\"image/png,, .png\" /> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="image/png,, .png" />
+    |                           ^^^^^^^^^^^^^^^^^^ Invalid file input \`accept\` value: Empty entries are not allowed.
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(19): <input type=\"file\" accept=\"IMAGE/PNG,.PNG, image/png\" /> 1`] = `
+
+  1 | <input type="file" accept="IMAGE/PNG,.PNG, image/png" />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(19): <input type=\"file\" accept=\"IMAGE/PNG,.PNG, image/png\" /> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="IMAGE/PNG,.PNG, image/png" />
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`image/png, .png\` as the file input \`accept\` value.
+
+Output:
+  1 | <input type="file" accept="image/png, .png" />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(2): <input type=\"file\" accept=\"\${allowedTypes}\"> 1`] = `
+
+  1 | <input type="file" accept="\${allowedTypes}">
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(2): <input type=\"file\" accept=\"\${allowedTypes}\"> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="\${allowedTypes}">
+    |                            ^^^^^^^^^^^^^^^ Invalid file input \`accept\` value: File extensions must start with \`.\` and cannot contain whitespace, commas, slashes, wildcards, or template markers.
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(2): const modes = new Set([\"foo\"]); modes.clear(); <input type=\"file\" accept={(modes.size && \"image/jpeg\") || value} /> 1`] = `
+
+  1 | const modes = new Set(["foo"]); modes.clear(); <input type="file" accept={(modes.size && "image/jpeg") || value} />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(2): const modes = new Set([\"foo\"]); modes.clear(); <input type=\"file\" accept={(modes.size && \"image/jpeg\") || value} /> 2`] = `
+
+Message:
+> 1 | const modes = new Set(["foo"]); modes.clear(); <input type="file" accept={(modes.size && "image/jpeg") || value} />
+    |                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The file input \`accept\` value must be static.
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(20): <input type=\"file\" accept=\"image/png,.png\" /> 1`] = `
+
+  1 | <input type="file" accept="image/png,.png" />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(20): <input type=\"file\" accept=\"image/png,.png\" /> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="image/png,.png" />
+    |                           ^^^^^^^^^^^^^^^^ Prefer \`image/png, .png\` as the file input \`accept\` value.
+
+Output:
+  1 | <input type="file" accept="image/png, .png" />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(21): <input type=\"file\" accept=\"image/png; charset=utf-8\" /> 1`] = `
+
+  1 | <input type="file" accept="image/png; charset=utf-8" />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(21): <input type=\"file\" accept=\"image/png; charset=utf-8\" /> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="image/png; charset=utf-8" />
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`image/png\` as the file input \`accept\` value.
+
+Output:
+  1 | <input type="file" accept="image/png" />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(22): <input type=\"file\" accept={\"IMAGE/PNG\"} /> 1`] = `
+
+  1 | <input type="file" accept={"IMAGE/PNG"} />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(22): <input type=\"file\" accept={\"IMAGE/PNG\"} /> 2`] = `
+
+Message:
+> 1 | <input type="file" accept={"IMAGE/PNG"} />
+    |                           ^^^^^^^^^^^^^ Prefer \`image/png\` as the file input \`accept\` value.
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(23): <input type=\"file\" accept=<div /> /> 1`] = `
+
+  1 | <input type="file" accept=<div /> />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(23): <input type=\"file\" accept=<div /> /> 2`] = `
+
+Message:
+> 1 | <input type="file" accept=<div /> />
+    |                           ^^^^^^^ The file input \`accept\` value must be static.
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(3): <input type=\"file\" accept=\"image/jpg\"> 1`] = `
+
+  1 | <input type="file" accept="image/jpg">
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(3): <input type=\"file\" accept=\"image/jpg\"> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="image/jpg">
+    |                            ^^^^^^^^^ Prefer \`image/jpeg\` as the file input \`accept\` value.
+
+Output:
+  1 | <input type="file" accept="image/jpeg">
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(3): const object = {value: true}; Object.defineProperty(object, \"value\", {get() { return false; }}); <input type=\"file\" accept={object.value ? \"image/jpeg\" : value} /> 1`] = `
+
+  1 | const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); <input type="file" accept={object.value ? "image/jpeg" : value} />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(3): const object = {value: true}; Object.defineProperty(object, \"value\", {get() { return false; }}); <input type=\"file\" accept={object.value ? \"image/jpeg\" : value} /> 2`] = `
+
+Message:
+> 1 | const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); <input type="file" accept={object.value ? "image/jpeg" : value} />
+    |                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ The file input \`accept\` value must be static.
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(4): <input type=\"file\" accept /> 1`] = `
+
+  1 | <input type="file" accept />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(4): <input type=\"file\" accept /> 2`] = `
+
+Message:
+> 1 | <input type="file" accept />
+    |                    ^^^^^^ Invalid file input \`accept\` value: The \`accept\` attribute must have a value.
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(4): <input type=\"file\" accept=\"image/svg\"> 1`] = `
+
+  1 | <input type="file" accept="image/svg">
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(4): <input type=\"file\" accept=\"image/svg\"> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="image/svg">
+    |                            ^^^^^^^^^ Prefer \`image/svg+xml\` as the file input \`accept\` value.
+
+Output:
+  1 | <input type="file" accept="image/svg+xml">
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(5): <input type=\"file\" accept=\"png\"> 1`] = `
+
+  1 | <input type="file" accept="png">
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(5): <input type=\"file\" accept=\"png\"> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="png">
+    |                            ^^^ Prefer \`.png\` as the file input \`accept\` value.
+
+Output:
+  1 | <input type="file" accept=".png">
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(5): <input type=\"file\" accept={allowedTypes} /> 1`] = `
+
+  1 | <input type="file" accept={allowedTypes} />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(5): <input type=\"file\" accept={allowedTypes} /> 2`] = `
+
+Message:
+> 1 | <input type="file" accept={allowedTypes} />
+    |                           ^^^^^^^^^^^^^^ The file input \`accept\` value must be static.
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(6): <input type=\"file\" accept=\"IMAGE/*\"> 1`] = `
+
+  1 | <input type="file" accept="IMAGE/*">
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(6): <input type=\"file\" accept=\"IMAGE/*\"> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="IMAGE/*">
+    |                            ^^^^^^^ Prefer \`image/*\` as the file input \`accept\` value.
+
+Output:
+  1 | <input type="file" accept="image/*">
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(6): <input type=\"file\" accept={\`image/\${type}\`} /> 1`] = `
+
+  1 | <input type="file" accept={\`image/\${type}\`} />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(6): <input type=\"file\" accept={\`image/\${type}\`} /> 2`] = `
+
+Message:
+> 1 | <input type="file" accept={\`image/\${type}\`} />
+    |                           ^^^^^^^^^^^^^^^^^ The file input \`accept\` value must be static.
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(7): <input type=\"file\" accept=\"TEXT/*\"> 1`] = `
+
+  1 | <input type="file" accept="TEXT/*">
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(7): <input type=\"file\" accept=\"TEXT/*\"> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="TEXT/*">
+    |                            ^^^^^^ Invalid file input \`accept\` value: Wildcard MIME types must be \`audio/*\`, \`image/*\`, or \`video/*\`.
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(7): <input type=\"file\" accept=\"image/jpg\" /> 1`] = `
+
+  1 | <input type="file" accept="image/jpg" />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(7): <input type=\"file\" accept=\"image/jpg\" /> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="image/jpg" />
+    |                           ^^^^^^^^^^^ Prefer \`image/jpeg\` as the file input \`accept\` value.
+
+Output:
+  1 | <input type="file" accept="image/jpeg" />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(8): <input type=\"file\" accept=\"*/plain\"> 1`] = `
+
+  1 | <input type="file" accept="*/plain">
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(8): <input type=\"file\" accept=\"*/plain\"> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="*/plain">
+    |                            ^^^^^^^ Invalid file input \`accept\` value: Wildcard MIME types must be \`audio/*\`, \`image/*\`, or \`video/*\`.
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(8): <input type=\"file\" accept=\"image/svg\" /> 1`] = `
+
+  1 | <input type="file" accept="image/svg" />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(8): <input type=\"file\" accept=\"image/svg\" /> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="image/svg" />
+    |                           ^^^^^^^^^^^ Prefer \`image/svg+xml\` as the file input \`accept\` value.
+
+Output:
+  1 | <input type="file" accept="image/svg+xml" />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(9): <input type=\"file\" accept=\"not-real-mime-type/*\"> 1`] = `
+
+  1 | <input type="file" accept="not-real-mime-type/*">
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(9): <input type=\"file\" accept=\"not-real-mime-type/*\"> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="not-real-mime-type/*">
+    |                            ^^^^^^^^^^^^^^^^^^^^ Invalid file input \`accept\` value: Wildcard MIME types must be \`audio/*\`, \`image/*\`, or \`video/*\`.
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(9): <input type=\"file\" accept=\"png\" /> 1`] = `
+
+  1 | <input type="file" accept="png" />
+
+`;
+
+exports[`no-invalid-file-input-accept > invalid(9): <input type=\"file\" accept=\"png\" /> 2`] = `
+
+Message:
+> 1 | <input type="file" accept="png" />
+    |                           ^^^^^ Prefer \`.png\` as the file input \`accept\` value.
+
+Output:
+  1 | <input type="file" accept=".png" />
+
+`;

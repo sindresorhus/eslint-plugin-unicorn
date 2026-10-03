@@ -1,5 +1,5 @@
+import test from 'node:test';
 import {Linter} from 'eslint';
-import test from 'ava';
 import {isBooleanExpression, isControlFlowTest, getBooleanAncestor} from '../../rules/utils/boolean.js';
 
 const linter = new Linter();
@@ -52,7 +52,7 @@ test('`isBooleanExpression` returns `true` for boolean-producing expressions', t
 		'const value = !Boolean(foo.length);',
 	]) {
 		const {node, context} = findFirstMemberExpression(code);
-		t.true(isBooleanExpression(node, context));
+		t.assert.strictEqual(isBooleanExpression(node, context), true);
 	}
 });
 
@@ -67,7 +67,7 @@ test('`isBooleanExpression` returns `false` for control-flow-only contexts', t =
 		'const Boolean = value => value; const value = Boolean(foo.length);',
 	]) {
 		const {node, context} = findFirstMemberExpression(code);
-		t.false(isBooleanExpression(node, context));
+		t.assert.strictEqual(isBooleanExpression(node, context), false);
 	}
 });
 
@@ -81,7 +81,7 @@ test('`isControlFlowTest` returns `true` for control-flow test contexts', t => {
 		'if (foo.length && bar) {}',
 	]) {
 		const {node} = findFirstMemberExpression(code);
-		t.true(isControlFlowTest(node));
+		t.assert.strictEqual(isControlFlowTest(node), true);
 	}
 });
 
@@ -93,28 +93,28 @@ test('`isControlFlowTest` returns `false` for non-control-flow contexts', t => {
 		'const value = foo.length;',
 	]) {
 		const {node} = findFirstMemberExpression(code);
-		t.false(isControlFlowTest(node));
+		t.assert.strictEqual(isControlFlowTest(node), false);
 	}
 });
 
 test('`getBooleanAncestor` returns the boolean coercion ancestor', t => {
 	const {node: negatedNode, context: negatedContext} = findFirstMemberExpression('const value = !!!foo.length;');
 	const negatedResult = getBooleanAncestor(negatedNode, negatedContext);
-	t.is(negatedResult.node.type, 'UnaryExpression');
-	t.true(negatedResult.isNegative);
+	t.assert.strictEqual(negatedResult.node.type, 'UnaryExpression');
+	t.assert.strictEqual(negatedResult.isNegative, true);
 
 	const {node: booleanCallNode, context: booleanCallContext} = findFirstMemberExpression('const value = Boolean(Boolean(foo.length));');
 	const booleanCallResult = getBooleanAncestor(booleanCallNode, booleanCallContext);
-	t.is(booleanCallResult.node.type, 'CallExpression');
-	t.false(booleanCallResult.isNegative);
+	t.assert.strictEqual(booleanCallResult.node.type, 'CallExpression');
+	t.assert.strictEqual(booleanCallResult.isNegative, false);
 
 	const {node: mixedNode, context: mixedContext} = findFirstMemberExpression('const value = !Boolean(foo.length);');
 	const mixedResult = getBooleanAncestor(mixedNode, mixedContext);
-	t.is(mixedResult.node.type, 'UnaryExpression');
-	t.true(mixedResult.isNegative);
+	t.assert.strictEqual(mixedResult.node.type, 'UnaryExpression');
+	t.assert.strictEqual(mixedResult.isNegative, true);
 
 	const {node: shadowedNode, context: shadowedContext} = findFirstMemberExpression('const Boolean = value => value; const value = Boolean(foo.length);');
 	const shadowedResult = getBooleanAncestor(shadowedNode, shadowedContext);
-	t.is(shadowedResult.node, shadowedNode);
-	t.false(shadowedResult.isNegative);
+	t.assert.strictEqual(shadowedResult.node, shadowedNode);
+	t.assert.strictEqual(shadowedResult.isNegative, false);
 });

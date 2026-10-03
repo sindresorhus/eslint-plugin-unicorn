@@ -166,6 +166,7 @@ test.snapshot({
 			},
 		},
 		'using array = acquire(); array.splice(1, 1);',
+		typeAware('function foo() { let array = ["a", "b"] as [string, string] | string[]; array.splice(1, 1); }'),
 	],
 	invalid: [
 		'let array = []; array.splice(index, deleteCount);',
@@ -219,5 +220,7 @@ test.snapshot({
 				parser: parsers.typescript,
 			},
 		},
+		typeAware('function foo() { let array = ["a", "b"]; array.splice(1, 1); }'),
+		typeAware('function foo() { let array = ["a", "b"] as string[] & {extra?: number}; array.splice(1, 1); }'),
 	],
 });

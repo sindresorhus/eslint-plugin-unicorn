@@ -200,5 +200,8 @@ test.snapshot({
 			code: 'document.getElementsByClassName(`foo ${someClass}`);', // eslint-disable-line no-template-curly-in-string
 			options: allowWithVariablesOptions,
 		},
+		'window.frame.getElementById("bar");',
+		'class Foo { #document; bar() { return window.#document.getElementById("bar"); } }',
+		'for (const element of document.getElementsByClassName("foo")[0]) {}',
 	],
 });

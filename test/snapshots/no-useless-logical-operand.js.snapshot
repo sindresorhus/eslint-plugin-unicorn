@@ -1,0 +1,1446 @@
+exports[`no-useless-logical-operand > invalid(1): const value = true && input; 1`] = `
+
+  1 | const value = true && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(1): const value = true && input; 2`] = `
+
+Message:
+> 1 | const value = true && input;
+    |               ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(10): const value = false || false; 1`] = `
+
+  1 | const value = false || false;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(10): const value = false || false; 2`] = `
+
+Message:
+> 1 | const value = false || false;
+    |               ^^^^^ Simplify this \`||\` expression.
+
+Output:
+  1 | const value = false;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(11): if (input && true) {} 1`] = `
+
+  1 | if (input && true) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(11): if (input && true) {} 2`] = `
+
+Message:
+> 1 | if (input && true) {}
+    |              ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | if (input) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(12): if (input || false) {} 1`] = `
+
+  1 | if (input || false) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(12): if (input || false) {} 2`] = `
+
+Message:
+> 1 | if (input || false) {}
+    |              ^^^^^ Simplify this \`||\` expression.
+
+Output:
+  1 | if (input) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(13): if (input && (other && true)) {} 1`] = `
+
+  1 | if (input && (other && true)) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(13): if (input && (other && true)) {} 2`] = `
+
+Message:
+> 1 | if (input && (other && true)) {}
+    |                        ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | if (input && other) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(14): if (input || (other || false)) {} 1`] = `
+
+  1 | if (input || (other || false)) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(14): if (input || (other || false)) {} 2`] = `
+
+Message:
+> 1 | if (input || (other || false)) {}
+    |                        ^^^^^ Simplify this \`||\` expression.
+
+Output:
+  1 | if (input || other) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(15): if (object?.enabled && true) {} 1`] = `
+
+  1 | if (object?.enabled && true) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(15): if (object?.enabled && true) {} 2`] = `
+
+Message:
+> 1 | if (object?.enabled && true) {}
+    |                        ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | if (object?.enabled) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(16): while (input && true) {} 1`] = `
+
+  1 | while (input && true) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(16): while (input && true) {} 2`] = `
+
+Message:
+> 1 | while (input && true) {}
+    |                 ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | while (input) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(17): for (; input && true;) {} 1`] = `
+
+  1 | for (; input && true;) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(17): for (; input && true;) {} 2`] = `
+
+Message:
+> 1 | for (; input && true;) {}
+    |                 ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | for (; input;) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(18): do {} while (input || false); 1`] = `
+
+  1 | do {} while (input || false);
+
+`;
+
+exports[`no-useless-logical-operand > invalid(18): do {} while (input || false); 2`] = `
+
+Message:
+> 1 | do {} while (input || false);
+    |                       ^^^^^ Simplify this \`||\` expression.
+
+Output:
+  1 | do {} while (input);
+
+`;
+
+exports[`no-useless-logical-operand > invalid(19): const value = input && true ? yes : no; 1`] = `
+
+  1 | const value = input && true ? yes : no;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(19): const value = input && true ? yes : no; 2`] = `
+
+Message:
+> 1 | const value = input && true ? yes : no;
+    |                        ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = input ? yes : no;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(2): const value = false || input; 1`] = `
+
+  1 | const value = false || input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(2): const value = false || input; 2`] = `
+
+Message:
+> 1 | const value = false || input;
+    |               ^^^^^ Simplify this \`||\` expression.
+
+Output:
+  1 | const value = input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(20): const value = Boolean(input || false); 1`] = `
+
+  1 | const value = Boolean(input || false);
+
+`;
+
+exports[`no-useless-logical-operand > invalid(20): const value = Boolean(input || false); 2`] = `
+
+Message:
+> 1 | const value = Boolean(input || false);
+    |                                ^^^^^ Simplify this \`||\` expression.
+
+Output:
+  1 | const value = Boolean(input);
+
+`;
+
+exports[`no-useless-logical-operand > invalid(21): const value = !(input && true); 1`] = `
+
+  1 | const value = !(input && true);
+
+`;
+
+exports[`no-useless-logical-operand > invalid(21): const value = !(input && true); 2`] = `
+
+Message:
+> 1 | const value = !(input && true);
+    |                          ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = !(input);
+
+`;
+
+exports[`no-useless-logical-operand > invalid(22): const flag = input === other;\nconst value = flag && true; 1`] = `
+
+  1 | const flag = input === other;
+  2 | const value = flag && true;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(22): const flag = input === other;\nconst value = flag && true; 2`] = `
+
+Message:
+  1 | const flag = input === other;
+> 2 | const value = flag && true;
+    |                       ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const flag = input === other;
+  2 | const value = flag;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(23): const flag = input === other;\nconst value = flag || false; 1`] = `
+
+  1 | const flag = input === other;
+  2 | const value = flag || false;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(23): const flag = input === other;\nconst value = flag || false; 2`] = `
+
+Message:
+  1 | const flag = input === other;
+> 2 | const value = flag || false;
+    |                       ^^^^^ Simplify this \`||\` expression.
+
+Output:
+  1 | const flag = input === other;
+  2 | const value = flag;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(24): const value = !input && true; 1`] = `
+
+  1 | const value = !input && true;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(24): const value = !input && true; 2`] = `
+
+Message:
+> 1 | const value = !input && true;
+    |                         ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = (!input);
+
+`;
+
+exports[`no-useless-logical-operand > invalid(25): const value = input === other || false; 1`] = `
+
+  1 | const value = input === other || false;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(25): const value = input === other || false; 2`] = `
+
+Message:
+> 1 | const value = input === other || false;
+    |                                  ^^^^^ Simplify this \`||\` expression.
+
+Output:
+  1 | const value = (input === other);
+
+`;
+
+exports[`no-useless-logical-operand > invalid(26): const value = Number.isFinite(input) && true; 1`] = `
+
+  1 | const value = Number.isFinite(input) && true;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(26): const value = Number.isFinite(input) && true; 2`] = `
+
+Message:
+> 1 | const value = Number.isFinite(input) && true;
+    |                                         ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = Number.isFinite(input);
+
+`;
+
+exports[`no-useless-logical-operand > invalid(27): const value = /foo/.test(input) || false; 1`] = `
+
+  1 | const value = /foo/.test(input) || false;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(27): const value = /foo/.test(input) || false; 2`] = `
+
+Message:
+> 1 | const value = /foo/.test(input) || false;
+    |                                    ^^^^^ Simplify this \`||\` expression.
+
+Output:
+  1 | const value = /foo/.test(input);
+
+`;
+
+exports[`no-useless-logical-operand > invalid(28): const value = false && input; 1`] = `
+
+  1 | const value = false && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(28): const value = false && input; 2`] = `
+
+Message:
+> 1 | const value = false && input;
+    |               ^^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = false;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(29): const value = true || input; 1`] = `
+
+  1 | const value = true || input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(29): const value = true || input; 2`] = `
+
+Message:
+> 1 | const value = true || input;
+    |               ^^^^ Simplify this \`||\` expression.
+
+Output:
+  1 | const value = true;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(3): const value = input && true && other; 1`] = `
+
+  1 | const value = input && true && other;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(3): const value = input && true && other; 2`] = `
+
+Message:
+> 1 | const value = input && true && other;
+    |                        ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = input && other;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(30): const value = (true && input); 1`] = `
+
+  1 | const value = (true && input);
+
+`;
+
+exports[`no-useless-logical-operand > invalid(30): const value = (true && input); 2`] = `
+
+Message:
+> 1 | const value = (true && input);
+    |                ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = (input);
+
+`;
+
+exports[`no-useless-logical-operand > invalid(31): const value = ((false || input)); 1`] = `
+
+  1 | const value = ((false || input));
+
+`;
+
+exports[`no-useless-logical-operand > invalid(31): const value = ((false || input)); 2`] = `
+
+Message:
+> 1 | const value = ((false || input));
+    |                 ^^^^^ Simplify this \`||\` expression.
+
+Output:
+  1 | const value = ((input));
+
+`;
+
+exports[`no-useless-logical-operand > invalid(32): const value = true && input?.property; 1`] = `
+
+  1 | const value = true && input?.property;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(32): const value = true && input?.property; 2`] = `
+
+Message:
+> 1 | const value = true && input?.property;
+    |               ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = input?.property;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(33): const value = false || input.member; 1`] = `
+
+  1 | const value = false || input.member;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(33): const value = false || input.member; 2`] = `
+
+Message:
+> 1 | const value = false || input.member;
+    |               ^^^^^ Simplify this \`||\` expression.
+
+Output:
+  1 | const value = input.member;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(34): const value = true && input(); 1`] = `
+
+  1 | const value = true && input();
+
+`;
+
+exports[`no-useless-logical-operand > invalid(34): const value = true && input(); 2`] = `
+
+Message:
+> 1 | const value = true && input();
+    |               ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = input();
+
+`;
+
+exports[`no-useless-logical-operand > invalid(35): new (true && Constructor)(); 1`] = `
+
+  1 | new (true && Constructor)();
+
+`;
+
+exports[`no-useless-logical-operand > invalid(35): new (true && Constructor)(); 2`] = `
+
+Message:
+> 1 | new (true && Constructor)();
+    |      ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | new (Constructor)();
+
+`;
+
+exports[`no-useless-logical-operand > invalid(36): new (false || Constructor)(); 1`] = `
+
+  1 | new (false || Constructor)();
+
+`;
+
+exports[`no-useless-logical-operand > invalid(36): new (false || Constructor)(); 2`] = `
+
+Message:
+> 1 | new (false || Constructor)();
+    |      ^^^^^ Simplify this \`||\` expression.
+
+Output:
+  1 | new (Constructor)();
+
+`;
+
+exports[`no-useless-logical-operand > invalid(37): const value = true && (input || other); 1`] = `
+
+  1 | const value = true && (input || other);
+
+`;
+
+exports[`no-useless-logical-operand > invalid(37): const value = true && (input || other); 2`] = `
+
+Message:
+> 1 | const value = true && (input || other);
+    |               ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = (input || other);
+
+`;
+
+exports[`no-useless-logical-operand > invalid(38): const value = false || (input && other); 1`] = `
+
+  1 | const value = false || (input && other);
+
+`;
+
+exports[`no-useless-logical-operand > invalid(38): const value = false || (input && other); 2`] = `
+
+Message:
+> 1 | const value = false || (input && other);
+    |               ^^^^^ Simplify this \`||\` expression.
+
+Output:
+  1 | const value = (input && other);
+
+`;
+
+exports[`no-useless-logical-operand > invalid(39): const value = true && (foo = bar) && baz; 1`] = `
+
+  1 | const value = true && (foo = bar) && baz;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(39): const value = true && (foo = bar) && baz; 2`] = `
+
+Message:
+> 1 | const value = true && (foo = bar) && baz;
+    |               ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = (foo = bar) && baz;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(4): const value = input || false || other; 1`] = `
+
+  1 | const value = input || false || other;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(4): const value = input || false || other; 2`] = `
+
+Message:
+> 1 | const value = input || false || other;
+    |                        ^^^^^ Simplify this \`||\` expression.
+
+Output:
+  1 | const value = input || other;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(40): const value = true && (foo, bar) && baz; 1`] = `
+
+  1 | const value = true && (foo, bar) && baz;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(40): const value = true && (foo, bar) && baz; 2`] = `
+
+Message:
+> 1 | const value = true && (foo, bar) && baz;
+    |               ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = (foo, bar) && baz;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(41): const value = true && (input || other) && final; 1`] = `
+
+  1 | const value = true && (input || other) && final;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(41): const value = true && (input || other) && final; 2`] = `
+
+Message:
+> 1 | const value = true && (input || other) && final;
+    |               ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = (input || other) && final;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(42): const value = (input || false || other) && final; 1`] = `
+
+  1 | const value = (input || false || other) && final;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(42): const value = (input || false || other) && final; 2`] = `
+
+Message:
+> 1 | const value = (input || false || other) && final;
+    |                         ^^^^^ Simplify this \`||\` expression.
+
+Output:
+  1 | const value = (input || other) && final;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(43): const value = final && (input || false || other); 1`] = `
+
+  1 | const value = final && (input || false || other);
+
+`;
+
+exports[`no-useless-logical-operand > invalid(43): const value = final && (input || false || other); 2`] = `
+
+Message:
+> 1 | const value = final && (input || false || other);
+    |                                  ^^^^^ Simplify this \`||\` expression.
+
+Output:
+  1 | const value = final && (input || other);
+
+`;
+
+exports[`no-useless-logical-operand > invalid(44): const value = (input && true && other) || final; 1`] = `
+
+  1 | const value = (input && true && other) || final;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(44): const value = (input && true && other) || final; 2`] = `
+
+Message:
+> 1 | const value = (input && true && other) || final;
+    |                         ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = (input && other) || final;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(45): const value = true && {}; 1`] = `
+
+  1 | const value = true && {};
+
+`;
+
+exports[`no-useless-logical-operand > invalid(45): const value = true && {}; 2`] = `
+
+Message:
+> 1 | const value = true && {};
+    |               ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = ({});
+
+`;
+
+exports[`no-useless-logical-operand > invalid(46): true && {}; 1`] = `
+
+  1 | true && {};
+
+`;
+
+exports[`no-useless-logical-operand > invalid(46): true && {}; 2`] = `
+
+Message:
+> 1 | true && {};
+    | ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | ({});
+
+`;
+
+exports[`no-useless-logical-operand > invalid(47): const value = true && {} && input; 1`] = `
+
+  1 | const value = true && {} && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(47): const value = true && {} && input; 2`] = `
+
+Message:
+> 1 | const value = true && {} && input;
+    |               ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = ({}) && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(48): true && {} && input; 1`] = `
+
+  1 | true && {} && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(48): true && {} && input; 2`] = `
+
+Message:
+> 1 | true && {} && input;
+    | ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | ({}) && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(49): true && function () {} && input; 1`] = `
+
+  1 | true && function () {} && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(49): true && function () {} && input; 2`] = `
+
+Message:
+> 1 | true && function () {} && input;
+    | ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | (function () {}) && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(5): const value = true && input && true && other; 1`] = `
+
+  1 | const value = true && input && true && other;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(5): const value = true && input && true && other; 2`] = `
+
+Message:
+> 1 | const value = true && input && true && other;
+    |               ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = input && other;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(50): true && class {} && input; 1`] = `
+
+  1 | true && class {} && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(50): true && class {} && input; 2`] = `
+
+Message:
+> 1 | true && class {} && input;
+    | ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | (class {}) && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(51): true && (function () {}) && input; 1`] = `
+
+  1 | true && (function () {}) && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(51): true && (function () {}) && input; 2`] = `
+
+Message:
+> 1 | true && (function () {}) && input;
+    | ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | (function () {}) && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(52): true && (class {}) && input; 1`] = `
+
+  1 | true && (class {}) && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(52): true && (class {}) && input; 2`] = `
+
+Message:
+> 1 | true && (class {}) && input;
+    | ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | (class {}) && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(53): true && {} as Foo && input; 1`] = `
+
+  1 | true && {} as Foo && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(53): true && {} as Foo && input; 2`] = `
+
+Message:
+> 1 | true && {} as Foo && input;
+    | ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | ({} as Foo) && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(54): true && {} satisfies Foo && input; 1`] = `
+
+  1 | true && {} satisfies Foo && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(54): true && {} satisfies Foo && input; 2`] = `
+
+Message:
+> 1 | true && {} satisfies Foo && input;
+    | ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | ({} satisfies Foo) && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(55): true && {}! && input; 1`] = `
+
+  1 | true && {}! && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(55): true && {}! && input; 2`] = `
+
+Message:
+> 1 | true && {}! && input;
+    | ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | ({}!) && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(56): true && <Foo>{} && input; 1`] = `
+
+  1 | true && <Foo>{} && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(56): true && <Foo>{} && input; 2`] = `
+
+Message:
+> 1 | true && <Foo>{} && input;
+    | ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | (<Foo>{}) && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(57): const value = input\ntrue && [1, 2, 3].map(number => number) 1`] = `
+
+  1 | const value = input
+  2 | true && [1, 2, 3].map(number => number)
+
+`;
+
+exports[`no-useless-logical-operand > invalid(57): const value = input\ntrue && [1, 2, 3].map(number => number) 2`] = `
+
+Message:
+  1 | const value = input
+> 2 | true && [1, 2, 3].map(number => number)
+    | ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = input
+  2 | ;[1, 2, 3].map(number => number)
+
+`;
+
+exports[`no-useless-logical-operand > invalid(58): const value = input\nfalse || (1 + 2) 1`] = `
+
+  1 | const value = input
+  2 | false || (1 + 2)
+
+`;
+
+exports[`no-useless-logical-operand > invalid(58): const value = input\nfalse || (1 + 2) 2`] = `
+
+Message:
+  1 | const value = input
+> 2 | false || (1 + 2)
+    | ^^^^^ Simplify this \`||\` expression.
+
+Output:
+  1 | const value = input
+  2 | ;(1 + 2)
+
+`;
+
+exports[`no-useless-logical-operand > invalid(59): foo();\ntrue && 'use strict'; 1`] = `
+
+  1 | foo();
+  2 | true && 'use strict';
+
+`;
+
+exports[`no-useless-logical-operand > invalid(59): foo();\ntrue && 'use strict'; 2`] = `
+
+Message:
+  1 | foo();
+> 2 | true && 'use strict';
+    | ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | foo();
+  2 | 'use strict';
+
+`;
+
+exports[`no-useless-logical-operand > invalid(6): const value = false || input || false || other; 1`] = `
+
+  1 | const value = false || input || false || other;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(6): const value = false || input || false || other; 2`] = `
+
+Message:
+> 1 | const value = false || input || false || other;
+    |               ^^^^^ Simplify this \`||\` expression.
+
+Output:
+  1 | const value = input || other;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(60): (true && 'use strict') as const; 1`] = `
+
+  1 | (true && 'use strict') as const;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(60): (true && 'use strict') as const; 2`] = `
+
+Message:
+> 1 | (true && 'use strict') as const;
+    |  ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | ('use strict') as const;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(61): (false || 'use strict') satisfies string; 1`] = `
+
+  1 | (false || 'use strict') satisfies string;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(61): (false || 'use strict') satisfies string; 2`] = `
+
+Message:
+> 1 | (false || 'use strict') satisfies string;
+    |  ^^^^^ Simplify this \`||\` expression.
+
+Output:
+  1 | ('use strict') satisfies string;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(62): (true && 'use strict')!; 1`] = `
+
+  1 | (true && 'use strict')!;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(62): (true && 'use strict')!; 2`] = `
+
+Message:
+> 1 | (true && 'use strict')!;
+    |  ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | ('use strict')!;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(63): <const>(true && 'use strict'); 1`] = `
+
+  1 | <const>(true && 'use strict');
+
+`;
+
+exports[`no-useless-logical-operand > invalid(63): <const>(true && 'use strict'); 2`] = `
+
+Message:
+> 1 | <const>(true && 'use strict');
+    |         ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | <const>('use strict');
+
+`;
+
+exports[`no-useless-logical-operand > invalid(64): const value = true /* keep */ && input; 1`] = `
+
+  1 | const value = true /* keep */ && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(64): const value = true /* keep */ && input; 2`] = `
+
+Message:
+> 1 | const value = true /* keep */ && input;
+    |               ^^^^ Simplify this \`&&\` expression.
+
+`;
+
+exports[`no-useless-logical-operand > invalid(65): if (input && /* keep */ true) {} 1`] = `
+
+  1 | if (input && /* keep */ true) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(65): if (input && /* keep */ true) {} 2`] = `
+
+Message:
+> 1 | if (input && /* keep */ true) {}
+    |                         ^^^^ Simplify this \`&&\` expression.
+
+`;
+
+exports[`no-useless-logical-operand > invalid(66): const value = true && call(/* keep */); 1`] = `
+
+  1 | const value = true && call(/* keep */);
+
+`;
+
+exports[`no-useless-logical-operand > invalid(66): const value = true && call(/* keep */); 2`] = `
+
+Message:
+> 1 | const value = true && call(/* keep */);
+    |               ^^^^ Simplify this \`&&\` expression.
+
+`;
+
+exports[`no-useless-logical-operand > invalid(67): const value = true && call(/* keep */) && other; 1`] = `
+
+  1 | const value = true && call(/* keep */) && other;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(67): const value = true && call(/* keep */) && other; 2`] = `
+
+Message:
+> 1 | const value = true && call(/* keep */) && other;
+    |               ^^^^ Simplify this \`&&\` expression.
+
+`;
+
+exports[`no-useless-logical-operand > invalid(68): const value = /* keep */ true && input; 1`] = `
+
+  1 | const value = /* keep */ true && input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(68): const value = /* keep */ true && input; 2`] = `
+
+Message:
+> 1 | const value = /* keep */ true && input;
+    |                          ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = /* keep */ input;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(69): const value = true && input /* keep */; 1`] = `
+
+  1 | const value = true && input /* keep */;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(69): const value = true && input /* keep */; 2`] = `
+
+Message:
+> 1 | const value = true && input /* keep */;
+    |               ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = input /* keep */;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(7): const value = true && input && true; 1`] = `
+
+  1 | const value = true && input && true;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(7): const value = true && input && true; 2`] = `
+
+Message:
+> 1 | const value = true && input && true;
+    |               ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = input && true;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(70): declare const flag: boolean;\nconst value = flag && true; 1`] = `
+
+  1 | declare const flag: boolean;
+  2 | const value = flag && true;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(70): declare const flag: boolean;\nconst value = flag && true; 2`] = `
+
+Message:
+  1 | declare const flag: boolean;
+> 2 | const value = flag && true;
+    |                       ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | declare const flag: boolean;
+  2 | const value = flag;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(71): declare const flag: true;\nconst value = flag || false; 1`] = `
+
+  1 | declare const flag: true;
+  2 | const value = flag || false;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(71): declare const flag: true;\nconst value = flag || false; 2`] = `
+
+Message:
+  1 | declare const flag: true;
+> 2 | const value = flag || false;
+    |                       ^^^^^ Simplify this \`||\` expression.
+
+Output:
+  1 | declare const flag: true;
+  2 | const value = flag;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(72): declare const flag: boolean;\nconst value = flag! && true; 1`] = `
+
+  1 | declare const flag: boolean;
+  2 | const value = flag! && true;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(72): declare const flag: boolean;\nconst value = flag! && true; 2`] = `
+
+Message:
+  1 | declare const flag: boolean;
+> 2 | const value = flag! && true;
+    |                        ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | declare const flag: boolean;
+  2 | const value = flag!;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(73): const value = (input as boolean) && true; 1`] = `
+
+  1 | const value = (input as boolean) && true;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(73): const value = (input as boolean) && true; 2`] = `
+
+Message:
+> 1 | const value = (input as boolean) && true;
+    |                                     ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = (input as boolean);
+
+`;
+
+exports[`no-useless-logical-operand > invalid(74): const value = (input satisfies boolean) || false; 1`] = `
+
+  1 | const value = (input satisfies boolean) || false;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(74): const value = (input satisfies boolean) || false; 2`] = `
+
+Message:
+> 1 | const value = (input satisfies boolean) || false;
+    |                                            ^^^^^ Simplify this \`||\` expression.
+
+Output:
+  1 | const value = (input satisfies boolean);
+
+`;
+
+exports[`no-useless-logical-operand > invalid(75): const element = <div>{true && child}</div>; 1`] = `
+
+  1 | const element = <div>{true && child}</div>;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(75): const element = <div>{true && child}</div>; 2`] = `
+
+Message:
+> 1 | const element = <div>{true && child}</div>;
+    |                       ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const element = <div>{child}</div>;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(76): declare const a: unknown;\nif (a && (true as boolean)) {} 1`] = `
+
+  1 | declare const a: unknown;
+  2 | if (a && (true as boolean)) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(76): declare const a: unknown;\nif (a && (true as boolean)) {} 2`] = `
+
+Message:
+  1 | declare const a: unknown;
+> 2 | if (a && (true as boolean)) {}
+    |           ^^^^^^^^^^^^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | declare const a: unknown;
+  2 | if (a) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(77): declare const a: unknown;\nif (a && (true!)) {} 1`] = `
+
+  1 | declare const a: unknown;
+  2 | if (a && (true!)) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(77): declare const a: unknown;\nif (a && (true!)) {} 2`] = `
+
+Message:
+  1 | declare const a: unknown;
+> 2 | if (a && (true!)) {}
+    |           ^^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | declare const a: unknown;
+  2 | if (a) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(78): declare const a: unknown;\nif (a && (<boolean>true)) {} 1`] = `
+
+  1 | declare const a: unknown;
+  2 | if (a && (<boolean>true)) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(78): declare const a: unknown;\nif (a && (<boolean>true)) {} 2`] = `
+
+Message:
+  1 | declare const a: unknown;
+> 2 | if (a && (<boolean>true)) {}
+    |           ^^^^^^^^^^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | declare const a: unknown;
+  2 | if (a) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(79): declare const a: unknown;\nif (a && (true satisfies boolean)) {} 1`] = `
+
+  1 | declare const a: unknown;
+  2 | if (a && (true satisfies boolean)) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(79): declare const a: unknown;\nif (a && (true satisfies boolean)) {} 2`] = `
+
+Message:
+  1 | declare const a: unknown;
+> 2 | if (a && (true satisfies boolean)) {}
+    |           ^^^^^^^^^^^^^^^^^^^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | declare const a: unknown;
+  2 | if (a) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(8): const value = false || input || false; 1`] = `
+
+  1 | const value = false || input || false;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(8): const value = false || input || false; 2`] = `
+
+Message:
+> 1 | const value = false || input || false;
+    |               ^^^^^ Simplify this \`||\` expression.
+
+Output:
+  1 | const value = input || false;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(80): declare const a: unknown;\nif ((true as boolean) && a) {} 1`] = `
+
+  1 | declare const a: unknown;
+  2 | if ((true as boolean) && a) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(80): declare const a: unknown;\nif ((true as boolean) && a) {} 2`] = `
+
+Message:
+  1 | declare const a: unknown;
+> 2 | if ((true as boolean) && a) {}
+    |      ^^^^^^^^^^^^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | declare const a: unknown;
+  2 | if (a) {}
+
+`;
+
+exports[`no-useless-logical-operand > invalid(81): const value = foo === 1 && true && bar; 1`] = `
+
+  1 | const value = foo === 1 && true && bar;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(81): const value = foo === 1 && true && bar; 2`] = `
+
+Message:
+> 1 | const value = foo === 1 && true && bar;
+    |                            ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = (foo === 1) && bar;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(82): if (condition) {\n\ttrue && 'use strict';\n} 1`] = `
+
+  1 | if (condition) {
+  2 | 	true && 'use strict';
+  3 | }
+
+`;
+
+exports[`no-useless-logical-operand > invalid(82): if (condition) {\n\ttrue && 'use strict';\n} 2`] = `
+
+Message:
+  1 | if (condition) {
+> 2 | 	true && 'use strict';
+    | 	^^^^ Simplify this \`&&\` expression.
+  3 | }
+
+Output:
+  1 | if (condition) {
+  2 | 	'use strict';
+  3 | }
+
+`;
+
+exports[`no-useless-logical-operand > invalid(83): foo\ntrue && (a || b) && c 1`] = `
+
+  1 | foo
+  2 | true && (a || b) && c
+
+`;
+
+exports[`no-useless-logical-operand > invalid(83): foo\ntrue && (a || b) && c 2`] = `
+
+Message:
+  1 | foo
+> 2 | true && (a || b) && c
+    | ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | foo
+  2 | ;(a || b) && c
+
+`;
+
+exports[`no-useless-logical-operand > invalid(9): const value = true && true; 1`] = `
+
+  1 | const value = true && true;
+
+`;
+
+exports[`no-useless-logical-operand > invalid(9): const value = true && true; 2`] = `
+
+Message:
+> 1 | const value = true && true;
+    |               ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = true;
+
+`;

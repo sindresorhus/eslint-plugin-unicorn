@@ -8,6 +8,7 @@ import {
 	isTypeScriptExpressionWrapper,
 	shouldAddParenthesesToLogicalExpressionChild,
 	unwrapTypeScriptExpression,
+	getVisitorChildNodes,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-combined-guards';
@@ -88,16 +89,7 @@ function containsTaggedTemplate(node, visitorKeys) {
 		return true;
 	}
 
-	for (const key of visitorKeys[node.type] ?? []) {
-		const child = node[key];
-		for (const childNode of Array.isArray(child) ? child : [child]) {
-			if (childNode?.type && containsTaggedTemplate(childNode, visitorKeys)) {
-				return true;
-			}
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, visitorKeys).some(childNode => containsTaggedTemplate(childNode, visitorKeys));
 }
 
 const isExitUnsafeToCombine = (node, sourceCode) => {
@@ -140,6 +132,8 @@ function hasSameReferenceTypes(previousNode, node, parserServices, visitorKeys) 
 		return false;
 	}
 
+	// Custom parsers can produce node types without visitor keys
+	/* node:coverage ignore next */
 	for (const key of visitorKeys[node.type] ?? []) {
 		const children = [node[key]].flat();
 		const previousChildren = [previousNode[key]].flat();

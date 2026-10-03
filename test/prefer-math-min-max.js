@@ -237,6 +237,11 @@ test.snapshot({
 				return (<string>a)! > b ? (<string>a)! : b;
 			}
 		`,
+		outdent`
+			function foo(a, b) {
+				return (a as Foo) > b ? a : b;
+			}
+		`,
 	],
 	invalid: [
 		outdent`
@@ -287,6 +292,11 @@ test.snapshot({
 				return a! > b ? a! : b;
 			}
 		`,
+		outdent`
+			function foo(a, b) {
+				return (a as Number) > b ? a : b;
+			}
+		`,
 	],
 });
 
@@ -308,6 +318,29 @@ test({
 		{
 			code: 'const a = (x, y) > 0 ? 0 : (x, y);',
 			output: 'const a = Math.min((x, y), 0);',
+			errors: 1,
+		},
+		// A template literal with an expression can run `toString()`
+		{
+			// eslint-disable-next-line no-template-curly-in-string
+			code: 'const a = `${x}` > 0 ? 0 : `${x}`;',
+			errors: 1,
+		},
+		{
+			code: 'const a = `1` > 0 ? 0 : `1`;',
+			output: 'const a = Math.min(`1`, 0);',
+			errors: 1,
+		},
+		// A function body does not run where it is written
+		{
+			code: 'const a = [() => f()] > 0 ? 0 : [() => f()];',
+			output: 'const a = Math.min([() => f()], 0);',
+			errors: 1,
+		},
+		// An import binding has no initializer to check
+		{
+			code: 'import foo from "foo"; const a = foo > 0 ? 0 : foo;',
+			output: 'import foo from "foo"; const a = Math.min(foo, 0);',
 			errors: 1,
 		},
 	],

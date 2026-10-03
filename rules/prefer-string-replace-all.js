@@ -31,11 +31,7 @@ const zeroLengthRegExpNodeTypes = new Set([
 	'reference',
 ]);
 
-function hasSafeGlobalStringReplacementFlags(flags) {
-	if (!flags.includes('g')) {
-		return false;
-	}
-
+function hasSafeStringReplacementFlags(flags) {
 	for (const flag of flags) {
 		if (unsafeStringReplacementFlags.has(flag)) {
 			return false;
@@ -139,12 +135,15 @@ function getPatternReplacement(node) {
 	}
 
 	const tree = parseRegExpLiteral(node);
+	// Only when parsing fails, see `parseRegExpLiteral()`
+	/* node:coverage ignore next 3 */
 	if (!tree) {
 		return;
 	}
 
+	// The caller already checked that it has the `g` flag
 	const {flags} = node.regex;
-	if (!hasSafeGlobalStringReplacementFlags(flags)) {
+	if (!hasSafeStringReplacementFlags(flags)) {
 		return;
 	}
 
@@ -165,11 +164,14 @@ const parseRegExpLiteral = node => {
 
 	try {
 		return parseRegExp(pattern, flags, {
-			unicodePropertyEscape: flags.includes('u'),
+			// Property escapes like `\p{L}` are valid with both the `u` and the `v` flag
+			unicodePropertyEscape: flags.includes('u') || flags.includes('v'),
 			unicodeSet: flags.includes('v'),
 			namedGroups: true,
 			lookbehind: true,
 		});
+		// Only syntax that is newer than `regjsparser`, like regular expression modifiers, gets here, and only on Node.js versions that support it
+		/* node:coverage ignore next 3 */
 	} catch {
 		// Invalid regular expression.
 	}
@@ -214,11 +216,8 @@ function getMinimumConsumedLength(node) {
 		return node.min * getBodyMinimumLength(node.body);
 	}
 
-	if (node.type === 'group') {
-		return node.behavior === 'ignore' ? getBodyMinimumLength(node.body) : 0;
-	}
-
-	return 0;
+	// Only `group` is left. A lookaround consumes nothing.
+	return node.behavior === 'ignore' ? getBodyMinimumLength(node.body) : 0;
 }
 
 const hasCapturingGroup = node => {

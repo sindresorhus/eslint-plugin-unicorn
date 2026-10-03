@@ -190,5 +190,17 @@ test.snapshot({
 			code: 'function f(array: Int8Array) { array.sort((a, b) => a > b); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		// No suggestion when only one side is a member expression
+		'array.sort((a, b) => a.score > b)',
+		// No suggestion when an operand has a type assertion
+		{
+			code: 'array.sort((a, b) => (a as number) > b)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// Boolean function type assertion under another wrapper
+		{
+			code: 'array.sort((compare as (a: number, b: number) => boolean)!)',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

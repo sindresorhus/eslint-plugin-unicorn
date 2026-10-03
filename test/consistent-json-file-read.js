@@ -122,6 +122,8 @@ JSON.parse(await fs.readFile(file, options));`,
 				JSON.parse(foo);
 			}
 		`,
+		// An undeclared function is not a known `fs` import
+		'JSON.parse(readFileSync(file));',
 	],
 	invalid: [
 		// A named import is the same call
@@ -312,6 +314,11 @@ test.snapshot({
 				const foo = "{}";
 				JSON.parse(foo);
 			}
+		`,
+		outdent`
+			const options = {encoding: 'utf8'};
+			Object.defineProperty(options, 'encoding', {...descriptor, get() { return 'utf8'; }});
+			JSON.parse(await fs.readFile(file, options));
 		`,
 	].map(code => bufferCode(code)),
 	invalid: [

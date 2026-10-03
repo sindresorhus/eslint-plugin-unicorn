@@ -51,6 +51,9 @@ test.snapshot({
 		'_.isInteger(value, extra)',
 		'lodash.isSafeInteger(...value)',
 		'underscore.isSafeInteger(value, extra)',
+		'value % 2 === 0',
+		'value * 1 === 0',
+		'0 === value',
 	],
 	invalid: [
 		'Number.isInteger(x)',

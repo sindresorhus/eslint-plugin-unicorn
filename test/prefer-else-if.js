@@ -417,6 +417,42 @@ test.snapshot({
 			if (foo === 4) {}
 			else if (foo === 3) {}
 		`,
+		// Mutations of the discriminant through patterns, `var`, and `for…of`
+		outdent`
+			if (foo === 1) {
+				[foo = 2] = values;
+			}
+			if (foo === 2) {}
+		`,
+		outdent`
+			if (foo === 1) {
+				[, ...foo] = values;
+			}
+			if (foo === 2) {}
+		`,
+		outdent`
+			if (foo === 1) {
+				({bar, ...foo} = values);
+			}
+			if (foo === 2) {}
+		`,
+		outdent`
+			if (foo === 1) {
+				var foo = 2;
+			}
+			if (foo === 2) {}
+		`,
+		outdent`
+			if (foo === 1) {
+				for (foo of values) {}
+			}
+			if (foo === 2) {}
+		`,
+		// A `||` condition comparing different references
+		outdent`
+			if (foo === 1 || bar === 2) {}
+			if (foo === 3) {}
+		`,
 	],
 	invalid: [
 		outdent`
@@ -658,6 +694,27 @@ test.snapshot({
 			if (signal === 'SIGTERM' || signal === 'SIGHUP') {
 				process.exit(1);
 			}
+		`,
+		// Mutations of other references and inside functions do not affect the discriminant
+		outdent`
+			if (foo === 1) {
+				bar = 1;
+				bar++;
+				delete bar.baz;
+				var qux = 1;
+				for (bar of values) {}
+				[bar = 1, ...bar] = values;
+				({bar} = values);
+				callback(() => {
+					foo = 2;
+				});
+				values = [, bar];
+			}
+			if (foo === 2) {}
+		`,
+		outdent`
+			if (foo === 1n) {}
+			if (foo === 2n) {}
 		`,
 	],
 });

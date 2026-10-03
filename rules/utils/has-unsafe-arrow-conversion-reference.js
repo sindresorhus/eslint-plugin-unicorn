@@ -1,3 +1,5 @@
+import getVisitorChildNodes from './get-visitor-child-nodes.js';
+
 const isNewTarget = node =>
 	node.type === 'MetaProperty'
 	&& node.meta.name === 'new'
@@ -20,27 +22,9 @@ const isUnsafeArrowConversionNode = node =>
 	|| isDirectEvalCall(node);
 
 export default function hasUnsafeArrowConversionReference(node, visitorKeys) {
-	if (!node) {
-		return false;
-	}
-
 	if (isUnsafeArrowConversionNode(node)) {
 		return true;
 	}
 
-	for (const key of visitorKeys[node.type] ?? []) {
-		const value = node[key];
-
-		if (Array.isArray(value)) {
-			for (const element of value) {
-				if (hasUnsafeArrowConversionReference(element, visitorKeys)) {
-					return true;
-				}
-			}
-		} else if (hasUnsafeArrowConversionReference(value, visitorKeys)) {
-			return true;
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, visitorKeys).some(child => hasUnsafeArrowConversionReference(child, visitorKeys));
 }

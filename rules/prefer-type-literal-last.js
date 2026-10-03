@@ -35,9 +35,9 @@ const getFirstTypeLiteralBeforeOtherType = types => {
 // A comment only stays meaningful if it travels with the type it sits inside. A comment anywhere else in the union (between members, or just before/after it) would end up describing a different member once we reorder, so we bail out of the autofix.
 const hasUnsafeComment = (node, context) => {
 	const {sourceCode} = context;
-	const tokenBefore = sourceCode.getTokenBefore(node);
+	// A union type is always preceded by a token, like `=` or `:`
+	const [, regionStart] = sourceCode.getRange(sourceCode.getTokenBefore(node));
 	const tokenAfter = sourceCode.getTokenAfter(node);
-	const regionStart = tokenBefore ? sourceCode.getRange(tokenBefore)[1] : 0;
 	const regionEnd = tokenAfter ? sourceCode.getRange(tokenAfter)[0] : sourceCode.text.length;
 	const typeRanges = node.types.map(type => getParenthesizedRange(type, context));
 

@@ -34,17 +34,6 @@ const isDeleteExpressionArgument = node =>
 	&& node.parent.operator === 'delete'
 	&& node.parent.argument === node;
 
-const isForLoopLeftHandSide = node =>
-	(
-		node.parent.type === 'ForInStatement'
-		|| node.parent.type === 'ForOfStatement'
-	)
-	&& node.parent.left === node;
-
-const isWritableTarget = node =>
-	isLeftHandSide(node)
-	|| isForLoopLeftHandSide(node);
-
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
@@ -57,7 +46,7 @@ const create = context => {
 			object.type !== 'Identifier'
 			|| !globalObjectNames.has(object.name)
 			|| !isGlobalIdentifier(object, context)
-			|| !isWritableTarget(assignmentTarget)
+			|| !isLeftHandSide(assignmentTarget)
 			|| isDeleteExpressionArgument(assignmentTarget)
 			|| getPropertyName(node, context.sourceCode.getScope(node)) === null
 		) {

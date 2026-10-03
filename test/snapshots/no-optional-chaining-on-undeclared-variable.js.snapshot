@@ -1,0 +1,325 @@
+exports[`no-optional-chaining-on-undeclared-variable > invalid(1): foo?.bar; 1`] = `
+
+  1 | foo?.bar;
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(1): foo?.bar; 2`] = `
+
+Message:
+> 1 | foo?.bar;
+    | ^^^ Optional chaining on undeclared variable \`foo\` throws a ReferenceError.
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(10): (foo?.bar)?.(); 1`] = `
+
+  1 | (foo?.bar)?.();
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(10): (foo?.bar)?.(); 2`] = `
+
+Message:
+> 1 | (foo?.bar)?.();
+    |  ^^^ Optional chaining on undeclared variable \`foo\` throws a ReferenceError.
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(11): foo[bar]?.baz; 1`] = `
+
+  1 | foo[bar]?.baz;
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(11): foo[bar]?.baz; 2`] = `
+
+Message:
+> 1 | foo[bar]?.baz;
+    | ^^^ Optional chaining on undeclared variable \`foo\` throws a ReferenceError.
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(12): foo?.[bar]; 1`] = `
+
+  1 | foo?.[bar];
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(12): foo?.[bar]; 2`] = `
+
+Message:
+> 1 | foo?.[bar];
+    | ^^^ Optional chaining on undeclared variable \`foo\` throws a ReferenceError.
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(13): function fn() {\n\tfoo?.bar;\n} 1`] = `
+
+  1 | function fn() {
+  2 | 	foo?.bar;
+  3 | }
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(13): function fn() {\n\tfoo?.bar;\n} 2`] = `
+
+Message:
+  1 | function fn() {
+> 2 | 	foo?.bar;
+    | 	^^^ Optional chaining on undeclared variable \`foo\` throws a ReferenceError.
+  3 | }
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(14): (foo as Foo)?.bar; 1`] = `
+
+  1 | (foo as Foo)?.bar;
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(14): (foo as Foo)?.bar; 2`] = `
+
+Message:
+> 1 | (foo as Foo)?.bar;
+    |  ^^^ Optional chaining on undeclared variable \`foo\` throws a ReferenceError.
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(15): foo!.bar?.(); 1`] = `
+
+  1 | foo!.bar?.();
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(15): foo!.bar?.(); 2`] = `
+
+Message:
+> 1 | foo!.bar?.();
+    | ^^^ Optional chaining on undeclared variable \`foo\` throws a ReferenceError.
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(16): (foo?.bar as Foo)?.baz; 1`] = `
+
+  1 | (foo?.bar as Foo)?.baz;
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(16): (foo?.bar as Foo)?.baz; 2`] = `
+
+Message:
+> 1 | (foo?.bar as Foo)?.baz;
+    |  ^^^ Optional chaining on undeclared variable \`foo\` throws a ReferenceError.
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(17): (foo<string>)?.bar; 1`] = `
+
+  1 | (foo<string>)?.bar;
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(17): (foo<string>)?.bar; 2`] = `
+
+Message:
+> 1 | (foo<string>)?.bar;
+    |  ^^^ Optional chaining on undeclared variable \`foo\` throws a ReferenceError.
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(18): (foo<string>)?.(); 1`] = `
+
+  1 | (foo<string>)?.();
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(18): (foo<string>)?.(); 2`] = `
+
+Message:
+> 1 | (foo<string>)?.();
+    |  ^^^ Optional chaining on undeclared variable \`foo\` throws a ReferenceError.
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(19): (foo<string>).bar?.baz; 1`] = `
+
+  1 | (foo<string>).bar?.baz;
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(19): (foo<string>).bar?.baz; 2`] = `
+
+Message:
+> 1 | (foo<string>).bar?.baz;
+    |  ^^^ Optional chaining on undeclared variable \`foo\` throws a ReferenceError.
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(2): foo?.(); 1`] = `
+
+  1 | foo?.();
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(2): foo?.(); 2`] = `
+
+Message:
+> 1 | foo?.();
+    | ^^^ Optional chaining on undeclared variable \`foo\` throws a ReferenceError.
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(20): type foo = {}; foo?.bar; 1`] = `
+
+  1 | type foo = {}; foo?.bar;
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(20): type foo = {}; foo?.bar; 2`] = `
+
+Message:
+> 1 | type foo = {}; foo?.bar;
+    |                ^^^ Optional chaining on undeclared variable \`foo\` throws a ReferenceError.
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(21): interface foo {} foo?.bar; 1`] = `
+
+  1 | interface foo {} foo?.bar;
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(21): interface foo {} foo?.bar; 2`] = `
+
+Message:
+> 1 | interface foo {} foo?.bar;
+    |                  ^^^ Optional chaining on undeclared variable \`foo\` throws a ReferenceError.
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(22): import type {foo} from \"foo\"; foo?.bar; 1`] = `
+
+  1 | import type {foo} from "foo"; foo?.bar;
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(22): import type {foo} from \"foo\"; foo?.bar; 2`] = `
+
+Message:
+> 1 | import type {foo} from "foo"; foo?.bar;
+    |                               ^^^ Optional chaining on undeclared variable \`foo\` throws a ReferenceError.
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(23): import {type foo} from \"foo\"; foo.bar?.baz; 1`] = `
+
+  1 | import {type foo} from "foo"; foo.bar?.baz;
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(23): import {type foo} from \"foo\"; foo.bar?.baz; 2`] = `
+
+Message:
+> 1 | import {type foo} from "foo"; foo.bar?.baz;
+    |                               ^^^ Optional chaining on undeclared variable \`foo\` throws a ReferenceError.
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(3): foo?.bar(); 1`] = `
+
+  1 | foo?.bar();
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(3): foo?.bar(); 2`] = `
+
+Message:
+> 1 | foo?.bar();
+    | ^^^ Optional chaining on undeclared variable \`foo\` throws a ReferenceError.
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(4): foo?.bar?.baz; 1`] = `
+
+  1 | foo?.bar?.baz;
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(4): foo?.bar?.baz; 2`] = `
+
+Message:
+> 1 | foo?.bar?.baz;
+    | ^^^ Optional chaining on undeclared variable \`foo\` throws a ReferenceError.
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(5): foo.bar?.(); 1`] = `
+
+  1 | foo.bar?.();
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(5): foo.bar?.(); 2`] = `
+
+Message:
+> 1 | foo.bar?.();
+    | ^^^ Optional chaining on undeclared variable \`foo\` throws a ReferenceError.
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(6): foo.bar?.baz; 1`] = `
+
+  1 | foo.bar?.baz;
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(6): foo.bar?.baz; 2`] = `
+
+Message:
+> 1 | foo.bar?.baz;
+    | ^^^ Optional chaining on undeclared variable \`foo\` throws a ReferenceError.
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(7): foo?.().bar?.baz; 1`] = `
+
+  1 | foo?.().bar?.baz;
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(7): foo?.().bar?.baz; 2`] = `
+
+Message:
+> 1 | foo?.().bar?.baz;
+    | ^^^ Optional chaining on undeclared variable \`foo\` throws a ReferenceError.
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(8): foo?.bar().baz?.qux; 1`] = `
+
+  1 | foo?.bar().baz?.qux;
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(8): foo?.bar().baz?.qux; 2`] = `
+
+Message:
+> 1 | foo?.bar().baz?.qux;
+    | ^^^ Optional chaining on undeclared variable \`foo\` throws a ReferenceError.
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(9): (foo?.bar)?.baz; 1`] = `
+
+  1 | (foo?.bar)?.baz;
+
+`;
+
+exports[`no-optional-chaining-on-undeclared-variable > invalid(9): (foo?.bar)?.baz; 2`] = `
+
+Message:
+> 1 | (foo?.bar)?.baz;
+    |  ^^^ Optional chaining on undeclared variable \`foo\` throws a ReferenceError.
+
+`;

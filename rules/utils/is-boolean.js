@@ -50,10 +50,6 @@ const isBooleanStaticValue = (node, context) =>
 	typeof getStaticValueIfNoSideEffects(node, context)?.value === 'boolean';
 
 function isBooleanTypeScriptType(type, checker) {
-	if (!type) {
-		return false;
-	}
-
 	if (type.isUnion?.()) {
 		return type.types.every(type => isBooleanTypeScriptType(type, checker));
 	}
@@ -193,6 +189,8 @@ function isBooleanTypeAnnotation(node, context, scope, visitedTypeReferenceNames
 			return node.types.every(type => isBooleanTypeAnnotation(type, context, scope, visitedTypeReferenceNames));
 		}
 
+		// Flow annotation from `@babel/eslint-parser`, which the tests do not use.
+		/* node:coverage ignore next 3 */
 		case 'TypeAnnotation': {
 			return node.typeAnnotation?.type === 'BooleanTypeAnnotation';
 		}
@@ -438,10 +436,6 @@ function getKnownIdentifierExpressionKind(node, context, visitedVariables) {
 	return result;
 }
 
-function getKnownWrappedExpressionKind(node, context, visitedVariables) {
-	return getKnownExpressionKind(node.expression, context, visitedVariables);
-}
-
 function getKnownExpressionKind(node, context, visitedVariables = new Set()) {
 	switch (node?.type) {
 		case 'ArrayExpression': {
@@ -464,15 +458,14 @@ function getKnownExpressionKind(node, context, visitedVariables = new Set()) {
 			return getKnownIdentifierExpressionKind(node, context, visitedVariables);
 		}
 
+		// `ParenthesizedExpression` only comes from `@babel/eslint-parser` with `createParenthesizedExpressions`, which the tests do not use.
+		/* node:coverage ignore next */
 		case 'ParenthesizedExpression':
-		case 'TSNonNullExpression': {
-			return getKnownWrappedExpressionKind(node, context, visitedVariables);
-		}
-
+		case 'TSNonNullExpression':
 		case 'TSAsExpression':
 		case 'TSTypeAssertion':
 		case 'TSSatisfiesExpression': {
-			return getKnownWrappedExpressionKind(node, context, visitedVariables);
+			return getKnownExpressionKind(node.expression, context, visitedVariables);
 		}
 
 		default: {

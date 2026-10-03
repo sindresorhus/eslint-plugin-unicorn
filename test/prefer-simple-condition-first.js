@@ -255,6 +255,9 @@ test({
 		{code: 'if (import("module") && ready);', errors: [unsafeError]},
 		{code: 'async function run() { if ((await check()) && ready); }', errors: [unsafeError]},
 		{code: 'function* run() { if ((yield value) && ready); }', errors: [unsafeError]},
+		// Only a `typeof … !== "undefined"` check guards a later operand
+		{code: 'if (first !== second && check() && ready);', errors: [unsafeError]},
+		{code: 'if (typeof FLAG !== "string" && check() && FLAG);', errors: [unsafeError]},
 	],
 });
 

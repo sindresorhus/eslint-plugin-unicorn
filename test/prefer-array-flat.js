@@ -82,6 +82,10 @@ test({
 		'const text = ""; text.flatMap(x => x);',
 		'const handler = () => {}; handler.flatMap(x => x);',
 		'const collection = new Foo(); collection.flatMap(x => x);',
+		// A PascalCase receiver is only flattened when it is a known array
+		'const Items = getItems(); Items.flatMap(x => x);',
+		'const Items = new Set(); Items.flatMap(x => x);',
+		'const Items = new lib.Array(); Items.flatMap(x => x);',
 	],
 	invalid: [
 		{
@@ -126,6 +130,11 @@ test({
 					value.flat();
 				}
 			`,
+			errors: 1,
+		},
+		{
+			code: 'const Items = new Array(); Items.flatMap(x => x);',
+			output: 'const Items = new Array(); Items.flat();',
 			errors: 1,
 		},
 	],

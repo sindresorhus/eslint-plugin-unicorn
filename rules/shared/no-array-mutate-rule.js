@@ -1,9 +1,7 @@
 import {isMethodCall} from '../ast/index.js';
 import {
-	getParenthesizedText,
 	isNodeValueNotFunction,
-	isParenthesized,
-	shouldAddParenthesesToMemberExpressionObject,
+	getMemberExpressionObjectText,
 	shouldSkipKnownNonArrayReceiver,
 } from '../utils/index.js';
 
@@ -119,18 +117,9 @@ export default function noArrayMutateRule(methodName) {
 					messageId: MESSAGE_ID_SUGGESTION_SPREADING_ARRAY,
 					* fix(fixer) {
 						const {argument} = array.elements[0];
-						let text = getParenthesizedText(argument, context);
-
 						// The unwrapped argument becomes the object of `.toReversed()`/`.toSorted()`,
 						// so wrap low-precedence expressions (e.g. `[...a + b]`) to keep parsing intact.
-						if (
-							!isParenthesized(argument, context)
-							&& shouldAddParenthesesToMemberExpressionObject(argument, context)
-						) {
-							text = `(${text})`;
-						}
-
-						yield fixer.replaceText(array, text);
+						yield fixer.replaceText(array, getMemberExpressionObjectText(argument, context));
 						yield fixMethodName(fixer);
 					},
 				});

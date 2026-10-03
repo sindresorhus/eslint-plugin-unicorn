@@ -28,6 +28,8 @@ function hasNullishOrVoidType(node, context) {
 		const type = parserServices.getTypeAtLocation(node);
 		const types = type.isUnion() ? type.types : [type];
 		return types.some(type => isNullishOrVoidType(type));
+		// Defensive: `getTypeAtLocation()` throws for a node that the TypeScript program does not map, which the supported parsers do not produce.
+		/* node:coverage ignore next 3 */
 	} catch {
 		return false;
 	}

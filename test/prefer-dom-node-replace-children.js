@@ -1,5 +1,5 @@
+import test from 'node:test';
 import outdent from 'outdent';
-import test from 'ava';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
@@ -143,6 +143,12 @@ document.createElement(options.tagName).innerHTML = '';`,
 		`),
 		typeAware('function foo(node: {firstChild: Node | undefined; removeChild(node: Node): Node; replaceChildren: string}) { while (node.firstChild) { node.removeChild(node.firstChild); } }'),
 		typeAware('function foo(node: {innerHTML: string; replaceChildren(value: string): void}) { node.innerHTML = ""; }'),
+		// A receiver that contains an optional chain is skipped
+		'getNode(parent?.node).innerHTML = "";',
+		'getNode([, parent?.node]).innerHTML = "";',
+		'(parent?.node).child.innerHTML = "";',
+		// A generic intersection must not recurse forever through `getNonNullableType()`
+		typeAware('function foo<T>(node: T & HTMLTemplateElement) { node.innerHTML = ""; }'),
 	],
 	invalid: [
 		{
@@ -641,7 +647,7 @@ test('combines normalized calls across fixing passes', t => {
 	const linter = new Linter();
 	const result = linter.verifyAndFix(code, config);
 
-	t.true(result.fixed);
-	t.is(result.output, 'element.replaceChildren("text");');
-	t.deepEqual(result.messages, []);
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, 'element.replaceChildren("text");');
+	t.assert.deepStrictEqual(result.messages, []);
 });

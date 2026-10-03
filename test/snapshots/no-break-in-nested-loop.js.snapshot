@@ -1,0 +1,247 @@
+exports[`no-break-in-nested-loop > invalid(1): for (const item of items) {\n\tfor (const child of item.children) {\n\t\tbreak;\n\t}\n} 1`] = `
+
+Options:
+- checkContinue: false
+
+Code:
+  1 | for (const item of items) {
+  2 | 	for (const child of item.children) {
+  3 | 		break;
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-break-in-nested-loop > invalid(1): for (const item of items) {\n\tfor (const child of item.children) {\n\t\tbreak;\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+  2 | 	for (const child of item.children) {
+> 3 | 		break;
+    | 		^^^^^^ Move this nested loop or switch into a function instead of using \`break\` here.
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-break-in-nested-loop > invalid(2): for (const item of items) {\n\twhile (item.children.pop()) {\n\t\tcontinue;\n\t}\n} 1`] = `
+
+Options:
+- checkContinue: true
+
+Code:
+  1 | for (const item of items) {
+  2 | 	while (item.children.pop()) {
+  3 | 		continue;
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-break-in-nested-loop > invalid(2): for (const item of items) {\n\twhile (item.children.pop()) {\n\t\tcontinue;\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+  2 | 	while (item.children.pop()) {
+> 3 | 		continue;
+    | 		^^^^^^^^^ Move this nested loop or switch into a function instead of using \`continue\` here.
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-break-in-nested-loop > invalid(3): for (const item of items) {\n\tswitch (item.type) {\n\t\tcase 'child':\n\t\t\tbreak;\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	switch (item.type) {
+  3 | 		case 'child':
+  4 | 			break;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`no-break-in-nested-loop > invalid(3): for (const item of items) {\n\tswitch (item.type) {\n\t\tcase 'child':\n\t\t\tbreak;\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+  2 | 	switch (item.type) {
+  3 | 		case 'child':
+> 4 | 			break;
+    | 			^^^^^^ Move this nested loop or switch into a function instead of using \`break\` here.
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`no-break-in-nested-loop > invalid(4): for (const item of items) {\n\tswitch (item.type) {\n\t\tcase 'child':\n\t\t\tcontinue;\n\t}\n} 1`] = `
+
+Options:
+- checkContinue: true
+
+Code:
+  1 | for (const item of items) {
+  2 | 	switch (item.type) {
+  3 | 		case 'child':
+  4 | 			continue;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`no-break-in-nested-loop > invalid(4): for (const item of items) {\n\tswitch (item.type) {\n\t\tcase 'child':\n\t\t\tcontinue;\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+  2 | 	switch (item.type) {
+  3 | 		case 'child':
+> 4 | 			continue;
+    | 			^^^^^^^^^ An unlabeled \`continue\` inside a \`switch\` continues the surrounding loop, not the next \`case\`. Use a labeled \`continue\` if that is intentional.
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`no-break-in-nested-loop > invalid(5): for (const item of items) {\n\tfor (const child of item.children) {\n\t\tswitch (child.type) {\n\t\t\tcase 'child':\n\t\t\t\tcontinue;\n\t\t}\n\t}\n} 1`] = `
+
+Options:
+- checkContinue: true
+
+Code:
+  1 | for (const item of items) {
+  2 | 	for (const child of item.children) {
+  3 | 		switch (child.type) {
+  4 | 			case 'child':
+  5 | 				continue;
+  6 | 		}
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`no-break-in-nested-loop > invalid(5): for (const item of items) {\n\tfor (const child of item.children) {\n\t\tswitch (child.type) {\n\t\t\tcase 'child':\n\t\t\t\tcontinue;\n\t\t}\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+  2 | 	for (const child of item.children) {
+  3 | 		switch (child.type) {
+  4 | 			case 'child':
+> 5 | 				continue;
+    | 				^^^^^^^^^ An unlabeled \`continue\` inside a \`switch\` continues the surrounding loop, not the next \`case\`. Use a labeled \`continue\` if that is intentional.
+  6 | 		}
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`no-break-in-nested-loop > invalid(6): for (const item of items) {\n\tswitch (item.type) {\n\t\tcase 'child':\n\t\t\twhile (item.pending) {\n\t\t\t\tcontinue;\n\t\t\t}\n\t}\n} 1`] = `
+
+Options:
+- checkContinue: true
+
+Code:
+  1 | for (const item of items) {
+  2 | 	switch (item.type) {
+  3 | 		case 'child':
+  4 | 			while (item.pending) {
+  5 | 				continue;
+  6 | 			}
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`no-break-in-nested-loop > invalid(6): for (const item of items) {\n\tswitch (item.type) {\n\t\tcase 'child':\n\t\t\twhile (item.pending) {\n\t\t\t\tcontinue;\n\t\t\t}\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+  2 | 	switch (item.type) {
+  3 | 		case 'child':
+  4 | 			while (item.pending) {
+> 5 | 				continue;
+    | 				^^^^^^^^^ Move this nested loop or switch into a function instead of using \`continue\` here.
+  6 | 			}
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`no-break-in-nested-loop > invalid(7): for (let index = 0; index < items.length; index++) {\n\tfor (const child of items[index].children) {\n\t\tbreak;\n\t}\n} 1`] = `
+
+Options:
+- checkContinue: true
+
+Code:
+  1 | for (let index = 0; index < items.length; index++) {
+  2 | 	for (const child of items[index].children) {
+  3 | 		break;
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-break-in-nested-loop > invalid(7): for (let index = 0; index < items.length; index++) {\n\tfor (const child of items[index].children) {\n\t\tbreak;\n\t}\n} 2`] = `
+
+Message:
+  1 | for (let index = 0; index < items.length; index++) {
+  2 | 	for (const child of items[index].children) {
+> 3 | 		break;
+    | 		^^^^^^ Move this nested loop or switch into a function instead of using \`break\` here.
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-break-in-nested-loop > invalid(8): for (const key in items) {\n\tdo {\n\t\tcontinue;\n\t} while (items[key].pending);\n} 1`] = `
+
+Options:
+- checkContinue: true
+
+Code:
+  1 | for (const key in items) {
+  2 | 	do {
+  3 | 		continue;
+  4 | 	} while (items[key].pending);
+  5 | }
+
+`;
+
+exports[`no-break-in-nested-loop > invalid(8): for (const key in items) {\n\tdo {\n\t\tcontinue;\n\t} while (items[key].pending);\n} 2`] = `
+
+Message:
+  1 | for (const key in items) {
+  2 | 	do {
+> 3 | 		continue;
+    | 		^^^^^^^^^ Move this nested loop or switch into a function instead of using \`continue\` here.
+  4 | 	} while (items[key].pending);
+  5 | }
+
+`;
+
+exports[`no-break-in-nested-loop > invalid(9): for (const a of b) {\n\tswitch (a) {\n\t\tcase 1:\n\t\t\tfor (const c of d) {\n\t\t\t\tbreak;\n\t\t\t}\n\t}\n} 1`] = `
+
+  1 | for (const a of b) {
+  2 | 	switch (a) {
+  3 | 		case 1:
+  4 | 			for (const c of d) {
+  5 | 				break;
+  6 | 			}
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`no-break-in-nested-loop > invalid(9): for (const a of b) {\n\tswitch (a) {\n\t\tcase 1:\n\t\t\tfor (const c of d) {\n\t\t\t\tbreak;\n\t\t\t}\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const a of b) {
+  2 | 	switch (a) {
+  3 | 		case 1:
+  4 | 			for (const c of d) {
+> 5 | 				break;
+    | 				^^^^^^ Move this nested loop or switch into a function instead of using \`break\` here.
+  6 | 			}
+  7 | 	}
+  8 | }
+
+`;

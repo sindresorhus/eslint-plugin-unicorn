@@ -1,0 +1,419 @@
+exports[`no-late-current-target-access > invalid(1): element.addEventListener(\"click\", async event => {\n\tawait somePromise;\n\tevent.currentTarget.disabled = false;\n}); 1`] = `
+
+  1 | element.addEventListener("click", async event => {
+  2 | 	await somePromise;
+  3 | 	event.currentTarget.disabled = false;
+  4 | });
+
+`;
+
+exports[`no-late-current-target-access > invalid(1): element.addEventListener(\"click\", async event => {\n\tawait somePromise;\n\tevent.currentTarget.disabled = false;\n}); 2`] = `
+
+Message:
+  1 | element.addEventListener("click", async event => {
+  2 | 	await somePromise;
+> 3 | 	event.currentTarget.disabled = false;
+    | 	^^^^^^^^^^^^^^^^^^^ \`event.currentTarget\` is \`null\` after the handler suspends. It is only set during synchronous event dispatch; save it to a variable beforehand.
+  4 | });
+
+`;
+
+exports[`no-late-current-target-access > invalid(10): async event => { await somePromise; event?.currentTarget.foo(); } 1`] = `
+
+  1 | async event => { await somePromise; event?.currentTarget.foo(); }
+
+`;
+
+exports[`no-late-current-target-access > invalid(10): async event => { await somePromise; event?.currentTarget.foo(); } 2`] = `
+
+Message:
+> 1 | async event => { await somePromise; event?.currentTarget.foo(); }
+    |                                     ^^^^^^^^^^^^^^^^^^^^ \`event.currentTarget\` is \`null\` after the handler suspends. It is only set during synchronous event dispatch; save it to a variable beforehand.
+
+`;
+
+exports[`no-late-current-target-access > invalid(11): async function handleClick(event) {\n\tawait somePromise;\n\tevent.currentTarget.disabled = false;\n} 1`] = `
+
+  1 | async function handleClick(event) {
+  2 | 	await somePromise;
+  3 | 	event.currentTarget.disabled = false;
+  4 | }
+
+`;
+
+exports[`no-late-current-target-access > invalid(11): async function handleClick(event) {\n\tawait somePromise;\n\tevent.currentTarget.disabled = false;\n} 2`] = `
+
+Message:
+  1 | async function handleClick(event) {
+  2 | 	await somePromise;
+> 3 | 	event.currentTarget.disabled = false;
+    | 	^^^^^^^^^^^^^^^^^^^ \`event.currentTarget\` is \`null\` after the handler suspends. It is only set during synchronous event dispatch; save it to a variable beforehand.
+  4 | }
+
+`;
+
+exports[`no-late-current-target-access > invalid(12): element.onclick = async event => {\n\tfor await (const chunk of stream) {\n\t\tlog(chunk);\n\t}\n\tevent.currentTarget.disabled = false;\n}; 1`] = `
+
+  1 | element.onclick = async event => {
+  2 | 	for await (const chunk of stream) {
+  3 | 		log(chunk);
+  4 | 	}
+  5 | 	event.currentTarget.disabled = false;
+  6 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(12): element.onclick = async event => {\n\tfor await (const chunk of stream) {\n\t\tlog(chunk);\n\t}\n\tevent.currentTarget.disabled = false;\n}; 2`] = `
+
+Message:
+  1 | element.onclick = async event => {
+  2 | 	for await (const chunk of stream) {
+  3 | 		log(chunk);
+  4 | 	}
+> 5 | 	event.currentTarget.disabled = false;
+    | 	^^^^^^^^^^^^^^^^^^^ \`event.currentTarget\` is \`null\` after the handler suspends. It is only set during synchronous event dispatch; save it to a variable beforehand.
+  6 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(13): element.onclick = async event => {\n\tfor await (const chunk of stream) {\n\t\tevent.currentTarget.append(chunk);\n\t}\n}; 1`] = `
+
+  1 | element.onclick = async event => {
+  2 | 	for await (const chunk of stream) {
+  3 | 		event.currentTarget.append(chunk);
+  4 | 	}
+  5 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(13): element.onclick = async event => {\n\tfor await (const chunk of stream) {\n\t\tevent.currentTarget.append(chunk);\n\t}\n}; 2`] = `
+
+Message:
+  1 | element.onclick = async event => {
+  2 | 	for await (const chunk of stream) {
+> 3 | 		event.currentTarget.append(chunk);
+    | 		^^^^^^^^^^^^^^^^^^^ \`event.currentTarget\` is \`null\` after the handler suspends. It is only set during synchronous event dispatch; save it to a variable beforehand.
+  4 | 	}
+  5 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(14): element.onclick = async event => {\n\tfor (const item of await load()) {\n\t\tevent.currentTarget.append(item);\n\t}\n}; 1`] = `
+
+  1 | element.onclick = async event => {
+  2 | 	for (const item of await load()) {
+  3 | 		event.currentTarget.append(item);
+  4 | 	}
+  5 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(14): element.onclick = async event => {\n\tfor (const item of await load()) {\n\t\tevent.currentTarget.append(item);\n\t}\n}; 2`] = `
+
+Message:
+  1 | element.onclick = async event => {
+  2 | 	for (const item of await load()) {
+> 3 | 		event.currentTarget.append(item);
+    | 		^^^^^^^^^^^^^^^^^^^ \`event.currentTarget\` is \`null\` after the handler suspends. It is only set during synchronous event dispatch; save it to a variable beforehand.
+  4 | 	}
+  5 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(15): element.onclick = async event => {\n\twhile (condition) {\n\t\tevent.currentTarget.click();\n\t\tawait promise;\n\t}\n}; 1`] = `
+
+  1 | element.onclick = async event => {
+  2 | 	while (condition) {
+  3 | 		event.currentTarget.click();
+  4 | 		await promise;
+  5 | 	}
+  6 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(15): element.onclick = async event => {\n\twhile (condition) {\n\t\tevent.currentTarget.click();\n\t\tawait promise;\n\t}\n}; 2`] = `
+
+Message:
+  1 | element.onclick = async event => {
+  2 | 	while (condition) {
+> 3 | 		event.currentTarget.click();
+    | 		^^^^^^^^^^^^^^^^^^^ \`event.currentTarget\` is \`null\` after the handler suspends. It is only set during synchronous event dispatch; save it to a variable beforehand.
+  4 | 		await promise;
+  5 | 	}
+  6 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(16): element.onclick = function * (event) {\n\twhile (condition) {\n\t\tevent.currentTarget.click();\n\t\tyield promise;\n\t}\n}; 1`] = `
+
+  1 | element.onclick = function * (event) {
+  2 | 	while (condition) {
+  3 | 		event.currentTarget.click();
+  4 | 		yield promise;
+  5 | 	}
+  6 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(16): element.onclick = function * (event) {\n\twhile (condition) {\n\t\tevent.currentTarget.click();\n\t\tyield promise;\n\t}\n}; 2`] = `
+
+Message:
+  1 | element.onclick = function * (event) {
+  2 | 	while (condition) {
+> 3 | 		event.currentTarget.click();
+    | 		^^^^^^^^^^^^^^^^^^^ \`event.currentTarget\` is \`null\` after the handler suspends. It is only set during synchronous event dispatch; save it to a variable beforehand.
+  4 | 		yield promise;
+  5 | 	}
+  6 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(17): element.onclick = async event => {\n\twhile (event.currentTarget.isConnected) {\n\t\tawait promise;\n\t}\n}; 1`] = `
+
+  1 | element.onclick = async event => {
+  2 | 	while (event.currentTarget.isConnected) {
+  3 | 		await promise;
+  4 | 	}
+  5 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(17): element.onclick = async event => {\n\twhile (event.currentTarget.isConnected) {\n\t\tawait promise;\n\t}\n}; 2`] = `
+
+Message:
+  1 | element.onclick = async event => {
+> 2 | 	while (event.currentTarget.isConnected) {
+    | 	       ^^^^^^^^^^^^^^^^^^^ \`event.currentTarget\` is \`null\` after the handler suspends. It is only set during synchronous event dispatch; save it to a variable beforehand.
+  3 | 		await promise;
+  4 | 	}
+  5 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(18): element.onclick = async event => {\n\tawait step1;\n\tevent.currentTarget.href = await getUrl();\n}; 1`] = `
+
+  1 | element.onclick = async event => {
+  2 | 	await step1;
+  3 | 	event.currentTarget.href = await getUrl();
+  4 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(18): element.onclick = async event => {\n\tawait step1;\n\tevent.currentTarget.href = await getUrl();\n}; 2`] = `
+
+Message:
+  1 | element.onclick = async event => {
+  2 | 	await step1;
+> 3 | 	event.currentTarget.href = await getUrl();
+    | 	^^^^^^^^^^^^^^^^^^^ \`event.currentTarget\` is \`null\` after the handler suspends. It is only set during synchronous event dispatch; save it to a variable beforehand.
+  4 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(19): element.onclick = async event => {\n\ttry {\n\t\tawait somePromise;\n\t} catch {}\n\tevent.currentTarget.disabled = false;\n}; 1`] = `
+
+  1 | element.onclick = async event => {
+  2 | 	try {
+  3 | 		await somePromise;
+  4 | 	} catch {}
+  5 | 	event.currentTarget.disabled = false;
+  6 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(19): element.onclick = async event => {\n\ttry {\n\t\tawait somePromise;\n\t} catch {}\n\tevent.currentTarget.disabled = false;\n}; 2`] = `
+
+Message:
+  1 | element.onclick = async event => {
+  2 | 	try {
+  3 | 		await somePromise;
+  4 | 	} catch {}
+> 5 | 	event.currentTarget.disabled = false;
+    | 	^^^^^^^^^^^^^^^^^^^ \`event.currentTarget\` is \`null\` after the handler suspends. It is only set during synchronous event dispatch; save it to a variable beforehand.
+  6 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(2): element.onclick = function * (event) {\n\tyield somePromise;\n\tevent.currentTarget.disabled = false;\n}; 1`] = `
+
+  1 | element.onclick = function * (event) {
+  2 | 	yield somePromise;
+  3 | 	event.currentTarget.disabled = false;
+  4 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(2): element.onclick = function * (event) {\n\tyield somePromise;\n\tevent.currentTarget.disabled = false;\n}; 2`] = `
+
+Message:
+  1 | element.onclick = function * (event) {
+  2 | 	yield somePromise;
+> 3 | 	event.currentTarget.disabled = false;
+    | 	^^^^^^^^^^^^^^^^^^^ \`event.currentTarget\` is \`null\` after the handler suspends. It is only set during synchronous event dispatch; save it to a variable beforehand.
+  4 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(20): element.onclick = event => {\n\tsetTimeout(() => {\n\t\trequestAnimationFrame(() => {\n\t\t\tevent.currentTarget.focus();\n\t\t});\n\t});\n}; 1`] = `
+
+  1 | element.onclick = event => {
+  2 | 	setTimeout(() => {
+  3 | 		requestAnimationFrame(() => {
+  4 | 			event.currentTarget.focus();
+  5 | 		});
+  6 | 	});
+  7 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(20): element.onclick = event => {\n\tsetTimeout(() => {\n\t\trequestAnimationFrame(() => {\n\t\t\tevent.currentTarget.focus();\n\t\t});\n\t});\n}; 2`] = `
+
+Message:
+  1 | element.onclick = event => {
+  2 | 	setTimeout(() => {
+  3 | 		requestAnimationFrame(() => {
+> 4 | 			event.currentTarget.focus();
+    | 			^^^^^^^^^^^^^^^^^^^ \`event.currentTarget\` is \`null\` inside this nested function. It is only set during synchronous event dispatch; save it to a variable in the outer function.
+  5 | 		});
+  6 | 	});
+  7 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(21): element.onclick = event => {\n\tbutton.addEventListener(\"click\", async () => {\n\t\tawait somePromise;\n\t\tevent.currentTarget.foo();\n\t});\n}; 1`] = `
+
+  1 | element.onclick = event => {
+  2 | 	button.addEventListener("click", async () => {
+  3 | 		await somePromise;
+  4 | 		event.currentTarget.foo();
+  5 | 	});
+  6 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(21): element.onclick = event => {\n\tbutton.addEventListener(\"click\", async () => {\n\t\tawait somePromise;\n\t\tevent.currentTarget.foo();\n\t});\n}; 2`] = `
+
+Message:
+  1 | element.onclick = event => {
+  2 | 	button.addEventListener("click", async () => {
+  3 | 		await somePromise;
+> 4 | 		event.currentTarget.foo();
+    | 		^^^^^^^^^^^^^^^^^^^ \`event.currentTarget\` is \`null\` inside this nested function. It is only set during synchronous event dispatch; save it to a variable in the outer function.
+  5 | 	});
+  6 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(3): element.onclick = async e => { await somePromise; e.currentTarget.foo(); }; 1`] = `
+
+  1 | element.onclick = async e => { await somePromise; e.currentTarget.foo(); };
+
+`;
+
+exports[`no-late-current-target-access > invalid(3): element.onclick = async e => { await somePromise; e.currentTarget.foo(); }; 2`] = `
+
+Message:
+> 1 | element.onclick = async e => { await somePromise; e.currentTarget.foo(); };
+    |                                                   ^^^^^^^^^^^^^^^ \`e.currentTarget\` is \`null\` after the handler suspends. It is only set during synchronous event dispatch; save it to a variable beforehand.
+
+`;
+
+exports[`no-late-current-target-access > invalid(4): element.onclick = async mouseDownEvent => { await somePromise; mouseDownEvent.currentTarget.foo(); }; 1`] = `
+
+  1 | element.onclick = async mouseDownEvent => { await somePromise; mouseDownEvent.currentTarget.foo(); };
+
+`;
+
+exports[`no-late-current-target-access > invalid(4): element.onclick = async mouseDownEvent => { await somePromise; mouseDownEvent.currentTarget.foo(); }; 2`] = `
+
+Message:
+> 1 | element.onclick = async mouseDownEvent => { await somePromise; mouseDownEvent.currentTarget.foo(); };
+    |                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`mouseDownEvent.currentTarget\` is \`null\` after the handler suspends. It is only set during synchronous event dispatch; save it to a variable beforehand.
+
+`;
+
+exports[`no-late-current-target-access > invalid(5): element.onclick = async event => { log(await ready(), event.currentTarget.value); }; 1`] = `
+
+  1 | element.onclick = async event => { log(await ready(), event.currentTarget.value); };
+
+`;
+
+exports[`no-late-current-target-access > invalid(5): element.onclick = async event => { log(await ready(), event.currentTarget.value); }; 2`] = `
+
+Message:
+> 1 | element.onclick = async event => { log(await ready(), event.currentTarget.value); };
+    |                                                       ^^^^^^^^^^^^^^^^^^^ \`event.currentTarget\` is \`null\` after the handler suspends. It is only set during synchronous event dispatch; save it to a variable beforehand.
+
+`;
+
+exports[`no-late-current-target-access > invalid(6): element.onclick = async event => {\n\tevent.currentTarget.disabled = true;\n\tawait somePromise;\n\tevent.currentTarget.disabled = false;\n}; 1`] = `
+
+  1 | element.onclick = async event => {
+  2 | 	event.currentTarget.disabled = true;
+  3 | 	await somePromise;
+  4 | 	event.currentTarget.disabled = false;
+  5 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(6): element.onclick = async event => {\n\tevent.currentTarget.disabled = true;\n\tawait somePromise;\n\tevent.currentTarget.disabled = false;\n}; 2`] = `
+
+Message:
+  1 | element.onclick = async event => {
+  2 | 	event.currentTarget.disabled = true;
+  3 | 	await somePromise;
+> 4 | 	event.currentTarget.disabled = false;
+    | 	^^^^^^^^^^^^^^^^^^^ \`event.currentTarget\` is \`null\` after the handler suspends. It is only set during synchronous event dispatch; save it to a variable beforehand.
+  5 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(7): element.onclick = event => setTimeout(() => event.currentTarget.click()); 1`] = `
+
+  1 | element.onclick = event => setTimeout(() => event.currentTarget.click());
+
+`;
+
+exports[`no-late-current-target-access > invalid(7): element.onclick = event => setTimeout(() => event.currentTarget.click()); 2`] = `
+
+Message:
+> 1 | element.onclick = event => setTimeout(() => event.currentTarget.click());
+    |                                             ^^^^^^^^^^^^^^^^^^^ \`event.currentTarget\` is \`null\` inside this nested function. It is only set during synchronous event dispatch; save it to a variable in the outer function.
+
+`;
+
+exports[`no-late-current-target-access > invalid(8): element.onclick = event => {\n\tsetTimeout(() => {\n\t\tevent.currentTarget.remove();\n\t}, 1);\n}; 1`] = `
+
+  1 | element.onclick = event => {
+  2 | 	setTimeout(() => {
+  3 | 		event.currentTarget.remove();
+  4 | 	}, 1);
+  5 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(8): element.onclick = event => {\n\tsetTimeout(() => {\n\t\tevent.currentTarget.remove();\n\t}, 1);\n}; 2`] = `
+
+Message:
+  1 | element.onclick = event => {
+  2 | 	setTimeout(() => {
+> 3 | 		event.currentTarget.remove();
+    | 		^^^^^^^^^^^^^^^^^^^ \`event.currentTarget\` is \`null\` inside this nested function. It is only set during synchronous event dispatch; save it to a variable in the outer function.
+  4 | 	}, 1);
+  5 | };
+
+`;
+
+exports[`no-late-current-target-access > invalid(9): element.onclick = event => { fetch(url).then(() => event.currentTarget.foo()); }; 1`] = `
+
+  1 | element.onclick = event => { fetch(url).then(() => event.currentTarget.foo()); };
+
+`;
+
+exports[`no-late-current-target-access > invalid(9): element.onclick = event => { fetch(url).then(() => event.currentTarget.foo()); }; 2`] = `
+
+Message:
+> 1 | element.onclick = event => { fetch(url).then(() => event.currentTarget.foo()); };
+    |                                                    ^^^^^^^^^^^^^^^^^^^ \`event.currentTarget\` is \`null\` inside this nested function. It is only set during synchronous event dispatch; save it to a variable in the outer function.
+
+`;

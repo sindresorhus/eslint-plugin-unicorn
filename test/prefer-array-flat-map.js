@@ -98,6 +98,7 @@ test.snapshot({
 			code: 'function foo(array?: {items: string[]}) { return (array?.items as string[]).filter(value => value).flatMap(value => [value]); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'array.filter(value => value.active).flatMap(item => [item.id, item.name]);',
 	],
 	invalid: [
 		'const bar = [[1],[2],[3]].map(i => [i]).flat()',
@@ -178,5 +179,9 @@ test.snapshot({
 		// `(super)` is a syntax error, so the receiver cannot be parenthesized
 		'class ArraySubclass extends Array { method() { return super.filter(value => value).flatMap(value => [value, value.id]); } }',
 		'class ArraySubclass extends Array { method() { return super.map(value => [value]).flat(); } }',
+		{
+			code: 'array!.filter(value => value.active).flatMap(value => [value.id, value.name]);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

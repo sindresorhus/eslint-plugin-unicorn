@@ -41,6 +41,9 @@ test.snapshot({
 		// We don't check escaped string
 		String.raw`new URL("\u002E/foo", base)`,
 		String.raw`new URL('\u002E/foo', base)`,
+		// Template literals that are not the URL argument are ignored
+		'new URL("foo", `./${base}`)',
+		'foo(`./${bar}`)',
 	],
 	invalid: [
 		'new URL("./foo", base)',

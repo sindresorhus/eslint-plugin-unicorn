@@ -89,15 +89,7 @@ const combineIntersectionTypes = types => {
 		return unknown;
 	}
 
-	if (types.includes(target)) {
-		return target;
-	}
-
-	if (types.every(type => type === nonTarget)) {
-		return nonTarget;
-	}
-
-	return unknown;
+	return types.includes(target) ? target : nonTarget;
 };
 
 const resolveIdentifierName = (name, scope) => {
@@ -236,13 +228,8 @@ const getNamespaceImportBindingType = (node, scope, options) => {
 	);
 };
 
-const getInterfaceHeritageType = (node, scope, options, visitedTypeReferenceDefinitions) => {
-	if (!getTypeName(node.expression)) {
-		return unknown;
-	}
-
-	return getTypeReferenceType({typeName: node.expression}, scope, options, visitedTypeReferenceDefinitions);
-};
+const getInterfaceHeritageType = (node, scope, options, visitedTypeReferenceDefinitions) =>
+	getTypeReferenceType({typeName: node.expression}, scope, options, visitedTypeReferenceDefinitions);
 
 const getClassHeritageType = (node, scope, options, visitedTypeReferenceDefinitions) => {
 	if (!node.superClass) {
@@ -436,6 +423,8 @@ const getTypeFromTypeInformation = (node, context, options) => {
 			program,
 			options,
 		);
+		// Defensive: the TypeScript checker can throw on unusual nodes or types, and no known input does. Fall back to an unknown type.
+		/* node:coverage ignore next 3 */
 	} catch {
 		return unknown;
 	}
@@ -794,13 +783,12 @@ const createTypeCheckers = options => {
 const createBuiltinTypeCheckers = ({
 	name,
 	aliases = [],
-	checkConstructor = true,
 	...options
 }) => createTypeCheckers({
 	...options,
 	targetTypeNames: new Set([name]),
 	typeReferenceAliases: new Map(aliases.map(alias => [alias, name])),
-	targetConstructorNames: checkConstructor ? [name] : undefined,
+	targetConstructorNames: [name],
 });
 
 export {

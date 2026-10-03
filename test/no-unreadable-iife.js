@@ -49,5 +49,7 @@ test.snapshot({
 			}))();
 		`,
 		'(async () => (( {bar} )))();',
+		'const foo = (() => (a ? b : c /* comment */))();',
+		'const foo = (() => (a /* comment */ ? b : c))();',
 	],
 });

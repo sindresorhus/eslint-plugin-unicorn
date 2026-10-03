@@ -1,0 +1,356 @@
+exports[`no-accidental-bitwise-operator > invalid(1): obj & obj.a; 1`] = `
+
+  1 | obj & obj.a;
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(1): obj & obj.a; 2`] = `
+
+Message:
+> 1 | obj & obj.a;
+    |     ^ Unexpected bitwise operator \`&\`. Did you mean the logical operator \`&&\`?
+
+Suggestion 1/1: Replace \`&\` with \`&&\`.:
+  1 | obj && obj.a;
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(10): options | \`template\`; 1`] = `
+
+  1 | options | \`template\`;
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(10): options | \`template\`; 2`] = `
+
+Message:
+> 1 | options | \`template\`;
+    |         ^ Unexpected bitwise operator \`|\`. Did you mean the logical operator \`||\`?
+
+Suggestion 1/1: Replace \`|\` with \`||\`.:
+  1 | options || \`template\`;
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(11): x | function () {}; 1`] = `
+
+  1 | x | function () {};
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(11): x | function () {}; 2`] = `
+
+Message:
+> 1 | x | function () {};
+    |   ^ Unexpected bitwise operator \`|\`. Did you mean the logical operator \`||\`?
+
+Suggestion 1/1: Replace \`|\` with \`||\`.:
+  1 | x || function () {};
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(12): x | (() => {}); 1`] = `
+
+  1 | x | (() => {});
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(12): x | (() => {}); 2`] = `
+
+Message:
+> 1 | x | (() => {});
+    |   ^ Unexpected bitwise operator \`|\`. Did you mean the logical operator \`||\`?
+
+Suggestion 1/1: Replace \`|\` with \`||\`.:
+  1 | x || (() => {});
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(13): x | class {}; 1`] = `
+
+  1 | x | class {};
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(13): x | class {}; 2`] = `
+
+Message:
+> 1 | x | class {};
+    |   ^ Unexpected bitwise operator \`|\`. Did you mean the logical operator \`||\`?
+
+Suggestion 1/1: Replace \`|\` with \`||\`.:
+  1 | x || class {};
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(14): foo() | {}; 1`] = `
+
+  1 | foo() | {};
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(14): foo() | {}; 2`] = `
+
+Message:
+> 1 | foo() | {};
+    |       ^ Unexpected bitwise operator \`|\`. Did you mean the logical operator \`||\`?
+
+Suggestion 1/1: Replace \`|\` with \`||\`.:
+  1 | foo() || {};
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(15): a.b | {}; 1`] = `
+
+  1 | a.b | {};
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(15): a.b | {}; 2`] = `
+
+Message:
+> 1 | a.b | {};
+    |     ^ Unexpected bitwise operator \`|\`. Did you mean the logical operator \`||\`?
+
+Suggestion 1/1: Replace \`|\` with \`||\`.:
+  1 | a.b || {};
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(16): a | b | {}; 1`] = `
+
+  1 | a | b | {};
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(16): a | b | {}; 2`] = `
+
+Message:
+> 1 | a | b | {};
+    |       ^ Unexpected bitwise operator \`|\`. Did you mean the logical operator \`||\`?
+
+Suggestion 1/1: Replace \`|\` with \`||\`.:
+  1 | a | b || {};
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(17): input |= ''; 1`] = `
+
+  1 | input |= '';
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(17): input |= ''; 2`] = `
+
+Message:
+> 1 | input |= '';
+    |       ^^ Unexpected bitwise operator \`|=\`. Did you mean the logical operator \`||=\`?
+
+Suggestion 1/1: Replace \`|=\` with \`||=\`.:
+  1 | input ||= '';
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(18): input |= {}; 1`] = `
+
+  1 | input |= {};
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(18): input |= {}; 2`] = `
+
+Message:
+> 1 | input |= {};
+    |       ^^ Unexpected bitwise operator \`|=\`. Did you mean the logical operator \`||=\`?
+
+Suggestion 1/1: Replace \`|=\` with \`||=\`.:
+  1 | input ||= {};
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(19): input |= false; 1`] = `
+
+  1 | input |= false;
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(19): input |= false; 2`] = `
+
+Message:
+> 1 | input |= false;
+    |       ^^ Unexpected bitwise operator \`|=\`. Did you mean the logical operator \`||=\`?
+
+Suggestion 1/1: Replace \`|=\` with \`||=\`.:
+  1 | input ||= false;
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(2): if (obj & obj.prop) {} 1`] = `
+
+  1 | if (obj & obj.prop) {}
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(2): if (obj & obj.prop) {} 2`] = `
+
+Message:
+> 1 | if (obj & obj.prop) {}
+    |         ^ Unexpected bitwise operator \`&\`. Did you mean the logical operator \`&&\`?
+
+Suggestion 1/1: Replace \`&\` with \`&&\`.:
+  1 | if (obj && obj.prop) {}
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(20): obj & obj.a; 1`] = `
+
+  1 | obj & obj.a;
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(20): obj & obj.a; 2`] = `
+
+Message:
+> 1 | obj & obj.a;
+    |     ^ Unexpected bitwise operator \`&\`. Did you mean the logical operator \`&&\`?
+
+Suggestion 1/1: Replace \`&\` with \`&&\`.:
+  1 | obj && obj.a;
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(21): options | {}; 1`] = `
+
+  1 | options | {};
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(21): options | {}; 2`] = `
+
+Message:
+> 1 | options | {};
+    |         ^ Unexpected bitwise operator \`|\`. Did you mean the logical operator \`||\`?
+
+Suggestion 1/1: Replace \`|\` with \`||\`.:
+  1 | options || {};
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(3): obj & obj[key]; 1`] = `
+
+  1 | obj & obj[key];
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(3): obj & obj[key]; 2`] = `
+
+Message:
+> 1 | obj & obj[key];
+    |     ^ Unexpected bitwise operator \`&\`. Did you mean the logical operator \`&&\`?
+
+Suggestion 1/1: Replace \`&\` with \`&&\`.:
+  1 | obj && obj[key];
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(4): (obj) & obj.a; 1`] = `
+
+  1 | (obj) & obj.a;
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(4): (obj) & obj.a; 2`] = `
+
+Message:
+> 1 | (obj) & obj.a;
+    |       ^ Unexpected bitwise operator \`&\`. Did you mean the logical operator \`&&\`?
+
+Suggestion 1/1: Replace \`&\` with \`&&\`.:
+  1 | (obj) && obj.a;
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(5): obj /* comment */ & obj.a; 1`] = `
+
+  1 | obj /* comment */ & obj.a;
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(5): obj /* comment */ & obj.a; 2`] = `
+
+Message:
+> 1 | obj /* comment */ & obj.a;
+    |                   ^ Unexpected bitwise operator \`&\`. Did you mean the logical operator \`&&\`?
+
+Suggestion 1/1: Replace \`&\` with \`&&\`.:
+  1 | obj /* comment */ && obj.a;
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(6): options | {}; 1`] = `
+
+  1 | options | {};
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(6): options | {}; 2`] = `
+
+Message:
+> 1 | options | {};
+    |         ^ Unexpected bitwise operator \`|\`. Did you mean the logical operator \`||\`?
+
+Suggestion 1/1: Replace \`|\` with \`||\`.:
+  1 | options || {};
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(7): options | ''; 1`] = `
+
+  1 | options | '';
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(7): options | ''; 2`] = `
+
+Message:
+> 1 | options | '';
+    |         ^ Unexpected bitwise operator \`|\`. Did you mean the logical operator \`||\`?
+
+Suggestion 1/1: Replace \`|\` with \`||\`.:
+  1 | options || '';
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(8): options | true; 1`] = `
+
+  1 | options | true;
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(8): options | true; 2`] = `
+
+Message:
+> 1 | options | true;
+    |         ^ Unexpected bitwise operator \`|\`. Did you mean the logical operator \`||\`?
+
+Suggestion 1/1: Replace \`|\` with \`||\`.:
+  1 | options || true;
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(9): options | []; 1`] = `
+
+  1 | options | [];
+
+`;
+
+exports[`no-accidental-bitwise-operator > invalid(9): options | []; 2`] = `
+
+Message:
+> 1 | options | [];
+    |         ^ Unexpected bitwise operator \`|\`. Did you mean the logical operator \`||\`?
+
+Suggestion 1/1: Replace \`|\` with \`||\`.:
+  1 | options || [];
+
+`;

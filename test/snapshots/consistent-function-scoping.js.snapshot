@@ -1,0 +1,143 @@
+exports[`consistent-function-scoping > invalid(1): function foo() {\n\tfunction bar() {}\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	function bar() {}
+  3 | }
+
+`;
+
+exports[`consistent-function-scoping > invalid(1): function foo() {\n\tfunction bar() {}\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	function bar() {}
+    | 	^^^^^^^^^^^^ Move function 'bar' to the outer scope.
+  3 | }
+
+`;
+
+exports[`consistent-function-scoping > invalid(2): function foo() {\n\tasync function bar() {}\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	async function bar() {}
+  3 | }
+
+`;
+
+exports[`consistent-function-scoping > invalid(2): function foo() {\n\tasync function bar() {}\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	async function bar() {}
+    | 	^^^^^^^^^^^^^^^^^^ Move async function 'bar' to the outer scope.
+  3 | }
+
+`;
+
+exports[`consistent-function-scoping > invalid(3): function foo() {\n\tfunction * bar() {}\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	function * bar() {}
+  3 | }
+
+`;
+
+exports[`consistent-function-scoping > invalid(3): function foo() {\n\tfunction * bar() {}\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	function * bar() {}
+    | 	^^^^^^^^^^^^^^ Move generator function 'bar' to the outer scope.
+  3 | }
+
+`;
+
+exports[`consistent-function-scoping > invalid(4): function foo() {\n\tasync function * bar() {}\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	async function * bar() {}
+  3 | }
+
+`;
+
+exports[`consistent-function-scoping > invalid(4): function foo() {\n\tasync function * bar() {}\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	async function * bar() {}
+    | 	^^^^^^^^^^^^^^^^^^^^ Move async generator function 'bar' to the outer scope.
+  3 | }
+
+`;
+
+exports[`consistent-function-scoping > invalid(5): function foo() {\n\tconst bar = () => {}\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	const bar = () => {}
+  3 | }
+
+`;
+
+exports[`consistent-function-scoping > invalid(5): function foo() {\n\tconst bar = () => {}\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	const bar = () => {}
+    | 	               ^^ Move arrow function 'bar' to the outer scope.
+  3 | }
+
+`;
+
+exports[`consistent-function-scoping > invalid(6): const doFoo = () => bar => bar; 1`] = `
+
+  1 | const doFoo = () => bar => bar;
+
+`;
+
+exports[`consistent-function-scoping > invalid(6): const doFoo = () => bar => bar; 2`] = `
+
+Message:
+> 1 | const doFoo = () => bar => bar;
+    |                         ^^ Move arrow function to the outer scope.
+
+`;
+
+exports[`consistent-function-scoping > invalid(7): function foo() {\n\tconst bar = async () => {}\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	const bar = async () => {}
+  3 | }
+
+`;
+
+exports[`consistent-function-scoping > invalid(7): function foo() {\n\tconst bar = async () => {}\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	const bar = async () => {}
+    | 	                     ^^ Move async arrow function 'bar' to the outer scope.
+  3 | }
+
+`;
+
+exports[`consistent-function-scoping > invalid(8): function doFoo() {\n\tconst doBar = function(bar) {\n\t\treturn bar;\n\t};\n} 1`] = `
+
+  1 | function doFoo() {
+  2 | 	const doBar = function(bar) {
+  3 | 		return bar;
+  4 | 	};
+  5 | }
+
+`;
+
+exports[`consistent-function-scoping > invalid(8): function doFoo() {\n\tconst doBar = function(bar) {\n\t\treturn bar;\n\t};\n} 2`] = `
+
+Message:
+  1 | function doFoo() {
+> 2 | 	const doBar = function(bar) {
+    | 	              ^^^^^^^^ Move function 'doBar' to the outer scope.
+  3 | 		return bar;
+  4 | 	};
+  5 | }
+
+`;

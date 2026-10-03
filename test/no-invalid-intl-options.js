@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
@@ -319,6 +319,7 @@ ruleTest.snapshot({
 ruleTest.snapshot({
 	valid: [
 		{code: 'function run(value: Date | number) { value.toLocaleString("en", {style: "wrong"}); }', languageOptions: {parser: parsers.typescript}},
+		'class Foo { #toLocaleString() {} bar() { this.#toLocaleString("en", {style: "wrong"}); } }',
 	],
 	invalid: [
 		...['as typeof Intl.NumberFormat', '!', 'satisfies typeof Intl.NumberFormat'].map(wrapper => ({
@@ -329,10 +330,11 @@ ruleTest.snapshot({
 		'const maximumFractionDigit = 2; new Intl.NumberFormat("en", {maximumFractionDigit /* keep */})',
 		{code: 'function run(value: number | bigint | Uint8Array | undefined) { value?.toLocaleString("en", {style: "wrong"}); }', languageOptions: {parser: parsers.typescript}},
 		construct('NumberFormat', 'maximumSignificantDigits: 3, maximumFractionDigits: Symbol.iterator'),
+		typeAware('declare const holder: {value: 1n}; holder.value.toLocaleString("en", {style: "wrong"});'),
 	],
 });
 
-test.serial('validation does not use the host Intl implementation or execute user code', t => {
+test('validation does not use the host Intl implementation or execute user code', t => {
 	const originalIntl = Intl;
 	let hostIntlAccessCount = 0;
 	Object.defineProperty(globalThis, 'Intl', {
@@ -358,8 +360,8 @@ test.serial('validation does not use the host Intl implementation or execute use
 			plugins: {unicorn: {rules: {'no-invalid-intl-options': rule}}},
 			rules: {'unicorn/no-invalid-intl-options': 'error'},
 		});
-		t.deepEqual(messages.map(({messageId}) => messageId), ['required', 'conflicting', 'invalid']);
-		t.is(hostIntlAccessCount, 0);
+		t.assert.deepStrictEqual(messages.map(({messageId}) => messageId), ['required', 'conflicting', 'invalid']);
+		t.assert.strictEqual(hostIntlAccessCount, 0);
 	} finally {
 		Object.defineProperty(globalThis, 'Intl', {value: originalIntl});
 	}

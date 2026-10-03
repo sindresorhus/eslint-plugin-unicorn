@@ -1,0 +1,473 @@
+exports[`throw-new-error > invalid(1): throw Error() 1`] = `
+
+  1 | throw Error()
+
+`;
+
+exports[`throw-new-error > invalid(1): throw Error() 2`] = `
+
+Message:
+> 1 | throw Error()
+    |       ^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | throw new Error()
+
+`;
+
+exports[`throw-new-error > invalid(10): throw ABCError('foo') 1`] = `
+
+  1 | throw ABCError('foo')
+
+`;
+
+exports[`throw-new-error > invalid(10): throw ABCError('foo') 2`] = `
+
+Message:
+> 1 | throw ABCError('foo')
+    |       ^^^^^^^^^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | throw new ABCError('foo')
+
+`;
+
+exports[`throw-new-error > invalid(11): throw Abc3Error('foo') 1`] = `
+
+  1 | throw Abc3Error('foo')
+
+`;
+
+exports[`throw-new-error > invalid(11): throw Abc3Error('foo') 2`] = `
+
+Message:
+> 1 | throw Abc3Error('foo')
+    |       ^^^^^^^^^^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | throw new Abc3Error('foo')
+
+`;
+
+exports[`throw-new-error > invalid(12): throw TypeError() 1`] = `
+
+  1 | throw TypeError()
+
+`;
+
+exports[`throw-new-error > invalid(12): throw TypeError() 2`] = `
+
+Message:
+> 1 | throw TypeError()
+    |       ^^^^^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | throw new TypeError()
+
+`;
+
+exports[`throw-new-error > invalid(13): throw EvalError() 1`] = `
+
+  1 | throw EvalError()
+
+`;
+
+exports[`throw-new-error > invalid(13): throw EvalError() 2`] = `
+
+Message:
+> 1 | throw EvalError()
+    |       ^^^^^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | throw new EvalError()
+
+`;
+
+exports[`throw-new-error > invalid(14): throw RangeError() 1`] = `
+
+  1 | throw RangeError()
+
+`;
+
+exports[`throw-new-error > invalid(14): throw RangeError() 2`] = `
+
+Message:
+> 1 | throw RangeError()
+    |       ^^^^^^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | throw new RangeError()
+
+`;
+
+exports[`throw-new-error > invalid(15): throw ReferenceError() 1`] = `
+
+  1 | throw ReferenceError()
+
+`;
+
+exports[`throw-new-error > invalid(15): throw ReferenceError() 2`] = `
+
+Message:
+> 1 | throw ReferenceError()
+    |       ^^^^^^^^^^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | throw new ReferenceError()
+
+`;
+
+exports[`throw-new-error > invalid(16): throw SyntaxError() 1`] = `
+
+  1 | throw SyntaxError()
+
+`;
+
+exports[`throw-new-error > invalid(16): throw SyntaxError() 2`] = `
+
+Message:
+> 1 | throw SyntaxError()
+    |       ^^^^^^^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | throw new SyntaxError()
+
+`;
+
+exports[`throw-new-error > invalid(17): throw URIError() 1`] = `
+
+  1 | throw URIError()
+
+`;
+
+exports[`throw-new-error > invalid(17): throw URIError() 2`] = `
+
+Message:
+> 1 | throw URIError()
+    |       ^^^^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | throw new URIError()
+
+`;
+
+exports[`throw-new-error > invalid(18): throw (( URIError() )) 1`] = `
+
+  1 | throw (( URIError() ))
+
+`;
+
+exports[`throw-new-error > invalid(18): throw (( URIError() )) 2`] = `
+
+Message:
+> 1 | throw (( URIError() ))
+    |          ^^^^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | throw (( new URIError() ))
+
+`;
+
+exports[`throw-new-error > invalid(19): throw (( URIError ))() 1`] = `
+
+  1 | throw (( URIError ))()
+
+`;
+
+exports[`throw-new-error > invalid(19): throw (( URIError ))() 2`] = `
+
+Message:
+> 1 | throw (( URIError ))()
+    |       ^^^^^^^^^^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | throw new (( URIError ))()
+
+`;
+
+exports[`throw-new-error > invalid(2): throw (Error)() 1`] = `
+
+  1 | throw (Error)()
+
+`;
+
+exports[`throw-new-error > invalid(2): throw (Error)() 2`] = `
+
+Message:
+> 1 | throw (Error)()
+    |       ^^^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | throw new (Error)()
+
+`;
+
+exports[`throw-new-error > invalid(20): throw getGlobalThis().Error() 1`] = `
+
+  1 | throw getGlobalThis().Error()
+
+`;
+
+exports[`throw-new-error > invalid(20): throw getGlobalThis().Error() 2`] = `
+
+Message:
+> 1 | throw getGlobalThis().Error()
+    |       ^^^^^^^^^^^^^^^^^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | throw new (getGlobalThis().Error)()
+
+`;
+
+exports[`throw-new-error > invalid(21): throw utils.getGlobalThis().Error() 1`] = `
+
+  1 | throw utils.getGlobalThis().Error()
+
+`;
+
+exports[`throw-new-error > invalid(21): throw utils.getGlobalThis().Error() 2`] = `
+
+Message:
+> 1 | throw utils.getGlobalThis().Error()
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | throw new (utils.getGlobalThis().Error)()
+
+`;
+
+exports[`throw-new-error > invalid(22): throw (( getGlobalThis().Error ))() 1`] = `
+
+  1 | throw (( getGlobalThis().Error ))()
+
+`;
+
+exports[`throw-new-error > invalid(22): throw (( getGlobalThis().Error ))() 2`] = `
+
+Message:
+> 1 | throw (( getGlobalThis().Error ))()
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | throw new (( getGlobalThis().Error ))()
+
+`;
+
+exports[`throw-new-error > invalid(23): const error = Error() 1`] = `
+
+  1 | const error = Error()
+
+`;
+
+exports[`throw-new-error > invalid(23): const error = Error() 2`] = `
+
+Message:
+> 1 | const error = Error()
+    |               ^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | const error = new Error()
+
+`;
+
+exports[`throw-new-error > invalid(24): throw Object.assign(Error(), {foo}) 1`] = `
+
+  1 | throw Object.assign(Error(), {foo})
+
+`;
+
+exports[`throw-new-error > invalid(24): throw Object.assign(Error(), {foo}) 2`] = `
+
+Message:
+> 1 | throw Object.assign(Error(), {foo})
+    |                     ^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | throw Object.assign(new Error(), {foo})
+
+`;
+
+exports[`throw-new-error > invalid(25): new Promise((resolve, reject) => {\n\treject(Error('message'));\n}); 1`] = `
+
+  1 | new Promise((resolve, reject) => {
+  2 | 	reject(Error('message'));
+  3 | });
+
+`;
+
+exports[`throw-new-error > invalid(25): new Promise((resolve, reject) => {\n\treject(Error('message'));\n}); 2`] = `
+
+Message:
+  1 | new Promise((resolve, reject) => {
+> 2 | 	reject(Error('message'));
+    | 	       ^^^^^^^^^^^^^^^^ Use \`new\` when creating an error.
+  3 | });
+
+Output:
+  1 | new Promise((resolve, reject) => {
+  2 | 	reject(new Error('message'));
+  3 | });
+
+`;
+
+exports[`throw-new-error > invalid(26): function foo() {\n\treturn[globalThis][0].Error('message');\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return[globalThis][0].Error('message');
+  3 | }
+
+`;
+
+exports[`throw-new-error > invalid(26): function foo() {\n\treturn[globalThis][0].Error('message');\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return[globalThis][0].Error('message');
+    | 	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`new\` when creating an error.
+  3 | }
+
+Output:
+  1 | function foo() {
+  2 | 	return new [globalThis][0].Error('message');
+  3 | }
+
+`;
+
+exports[`throw-new-error > invalid(27): @Decorator(Error())\nexport class SomeError extends Error {} 1`] = `
+
+  1 | @Decorator(Error())
+  2 | export class SomeError extends Error {}
+
+`;
+
+exports[`throw-new-error > invalid(27): @Decorator(Error())\nexport class SomeError extends Error {} 2`] = `
+
+Message:
+> 1 | @Decorator(Error())
+    |            ^^^^^^^ Use \`new\` when creating an error.
+  2 | export class SomeError extends Error {}
+
+Output:
+  1 | @Decorator(new Error())
+  2 | export class SomeError extends Error {}
+
+`;
+
+exports[`throw-new-error > invalid(3): throw lib.Error() 1`] = `
+
+  1 | throw lib.Error()
+
+`;
+
+exports[`throw-new-error > invalid(3): throw lib.Error() 2`] = `
+
+Message:
+> 1 | throw lib.Error()
+    |       ^^^^^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | throw new lib.Error()
+
+`;
+
+exports[`throw-new-error > invalid(4): throw lib.mod.Error() 1`] = `
+
+  1 | throw lib.mod.Error()
+
+`;
+
+exports[`throw-new-error > invalid(4): throw lib.mod.Error() 2`] = `
+
+Message:
+> 1 | throw lib.mod.Error()
+    |       ^^^^^^^^^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | throw new lib.mod.Error()
+
+`;
+
+exports[`throw-new-error > invalid(5): throw lib[mod].Error() 1`] = `
+
+  1 | throw lib[mod].Error()
+
+`;
+
+exports[`throw-new-error > invalid(5): throw lib[mod].Error() 2`] = `
+
+Message:
+> 1 | throw lib[mod].Error()
+    |       ^^^^^^^^^^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | throw new lib[mod].Error()
+
+`;
+
+exports[`throw-new-error > invalid(6): throw (lib.mod).Error() 1`] = `
+
+  1 | throw (lib.mod).Error()
+
+`;
+
+exports[`throw-new-error > invalid(6): throw (lib.mod).Error() 2`] = `
+
+Message:
+> 1 | throw (lib.mod).Error()
+    |       ^^^^^^^^^^^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | throw new (lib.mod).Error()
+
+`;
+
+exports[`throw-new-error > invalid(7): throw Error('foo') 1`] = `
+
+  1 | throw Error('foo')
+
+`;
+
+exports[`throw-new-error > invalid(7): throw Error('foo') 2`] = `
+
+Message:
+> 1 | throw Error('foo')
+    |       ^^^^^^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | throw new Error('foo')
+
+`;
+
+exports[`throw-new-error > invalid(8): throw CustomError('foo') 1`] = `
+
+  1 | throw CustomError('foo')
+
+`;
+
+exports[`throw-new-error > invalid(8): throw CustomError('foo') 2`] = `
+
+Message:
+> 1 | throw CustomError('foo')
+    |       ^^^^^^^^^^^^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | throw new CustomError('foo')
+
+`;
+
+exports[`throw-new-error > invalid(9): throw FooBarBazError('foo') 1`] = `
+
+  1 | throw FooBarBazError('foo')
+
+`;
+
+exports[`throw-new-error > invalid(9): throw FooBarBazError('foo') 2`] = `
+
+Message:
+> 1 | throw FooBarBazError('foo')
+    |       ^^^^^^^^^^^^^^^^^^^^^ Use \`new\` when creating an error.
+
+Output:
+  1 | throw new FooBarBazError('foo')
+
+`;

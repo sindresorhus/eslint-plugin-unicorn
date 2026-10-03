@@ -95,6 +95,8 @@ test.snapshot({
 		cssCase('@supports (background: image-set("./assets/missing.png" 1x)) {}'),
 		cssCase('@import "./style.css" supports(background: image-set("./assets/missing.png" 1x));'),
 		cssCase('.icon { background: url("{{ assetPath }}"); }', {templateEngineSyntax: {'{{': '}}'}}),
+		// Unquoted attribute values that start with a backtick are not checked
+		htmlCase('<img src=`./missing.png`>'),
 	],
 	invalid: [
 		markdownCase('[Missing](./missing.md)'),
@@ -143,6 +145,10 @@ test.snapshot({
 		// A `&` that does not start a character reference is a literal, it must not swallow the rest of the URL
 		htmlCase('<img srcset="./a.png?x=1&b=2 1x, ./b.png 2x">'),
 		htmlCase('<img srcset="./a.png?x=1&b=2&#32;1x, ./b.png 2x">'),
+		markdownCase('[Missing](./missing%20name%FF%.md)'),
+		markdownCase('[Missing](./guide.md/missing.md)'),
+		markdownCase('[Missing](./guide.md/)'),
+		cssCase(String.raw`.icon { background: url(./assets/LOG\4F.svg); }`),
 	],
 });
 
@@ -330,4 +336,13 @@ test.typescript({
 		filename: path.join(fixtureDirectory, 'app.ts'),
 		errors: [{messageId: 'incorrect-case', data: {resource: './assets/logo.svg'}}],
 	}],
+});
+
+// Code without a real file on disk is not checked
+test({
+	valid: [
+		'new URL("./missing.svg", import.meta.url);',
+		{code: 'new URL("./missing.svg", import.meta.url);', filename: '<text>'},
+	],
+	invalid: [],
 });

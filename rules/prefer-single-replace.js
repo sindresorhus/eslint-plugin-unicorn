@@ -55,10 +55,6 @@ function getRegexCharacter(node) {
 		return String.fromCodePoint(node.codePoint);
 	}
 
-	if (node.type === 'alternative' && node.body.length === 1) {
-		return getRegexCharacter(node.body[0]);
-	}
-
 	if (
 		node.type === 'characterClass'
 		&& !node.negative

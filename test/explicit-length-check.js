@@ -482,6 +482,9 @@ test.snapshot({
 		'const foo = {length: -1}; ({length: foo.length} = {length: \'x\', length: 123}); if (foo.length) {}',
 		'const foo = {length: 123}; Object.assign(foo); if (foo.length) {}',
 		'const foo = {length: -1}; switch (value) { default: foo.length = 123; } if (foo.length) {}',
+		// The other operand compares the length, but not against zero, so it does not guard it.
+		'const bar = foo.length === 2 && foo.length;',
+		'const bar = (!foo.length).toString();',
 	],
 });
 

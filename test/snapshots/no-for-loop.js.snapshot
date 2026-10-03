@@ -1,0 +1,196 @@
+exports[`no-for-loop > invalid(1): for (let i = 0; i < arr.length; i += 1) {\n\tconsole.log(arr[i])\n} 1`] = `
+
+  1 | for (let i = 0; i < arr.length; i += 1) {
+  2 | 	console.log(arr[i])
+  3 | }
+
+`;
+
+exports[`no-for-loop > invalid(1): for (let i = 0; i < arr.length; i += 1) {\n\tconsole.log(arr[i])\n} 2`] = `
+
+Message:
+> 1 | for (let i = 0; i < arr.length; i += 1) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use a \`for-of\` loop instead of this \`for\` loop.
+  2 | 	console.log(arr[i])
+  3 | }
+
+Output:
+  1 | for (const element of arr) {
+  2 | 	console.log(element)
+  3 | }
+
+`;
+
+exports[`no-for-loop > invalid(1): for (let index = 0; index < array.length; (index++)) { const element = array[index]; console.log(index, element); } 1`] = `
+
+  1 | for (let index = 0; index < array.length; (index++)) { const element = array[index]; console.log(index, element); }
+
+`;
+
+exports[`no-for-loop > invalid(1): for (let index = 0; index < array.length; (index++)) { const element = array[index]; console.log(index, element); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < array.length; (index++)) { const element = array[index]; console.log(index, element); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use a \`for-of\` loop instead of this \`for\` loop.
+
+Output:
+  1 | for (const [index, element] of array.entries()) {  console.log(index, element); }
+
+`;
+
+exports[`no-for-loop > invalid(2): for (let i = 0; i < plugins.length; i++) {\n\tlet plugin = plugins[i];\n\tplugin = calculateSomeNewValue();\n\t// ...\n} 1`] = `
+
+  1 | for (let i = 0; i < plugins.length; i++) {
+  2 | 	let plugin = plugins[i];
+  3 | 	plugin = calculateSomeNewValue();
+  4 | 	// ...
+  5 | }
+
+`;
+
+exports[`no-for-loop > invalid(2): for (let i = 0; i < plugins.length; i++) {\n\tlet plugin = plugins[i];\n\tplugin = calculateSomeNewValue();\n\t// ...\n} 2`] = `
+
+Message:
+> 1 | for (let i = 0; i < plugins.length; i++) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use a \`for-of\` loop instead of this \`for\` loop.
+  2 | 	let plugin = plugins[i];
+  3 | 	plugin = calculateSomeNewValue();
+  4 | 	// ...
+  5 | }
+
+Output:
+  1 | for (let plugin of plugins) {
+  2 | 	plugin = calculateSomeNewValue();
+  3 | 	// ...
+  4 | }
+
+`;
+
+exports[`no-for-loop > invalid(2): for (let index = 0; index < array.length; (index)++) { const element = array[index]; console.log(index, element); } 1`] = `
+
+  1 | for (let index = 0; index < array.length; (index)++) { const element = array[index]; console.log(index, element); }
+
+`;
+
+exports[`no-for-loop > invalid(2): for (let index = 0; index < array.length; (index)++) { const element = array[index]; console.log(index, element); } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < array.length; (index)++) { const element = array[index]; console.log(index, element); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use a \`for-of\` loop instead of this \`for\` loop.
+
+Output:
+  1 | for (const [index, element] of array.entries()) {  console.log(index, element); }
+
+`;
+
+exports[`no-for-loop > invalid(3): for (\n\tlet i = 0;\n\ti < array.length;\n\ti++\n)\n// comment (foo)\n\t{\n\t\tvar foo = array[i];\n\t\tfoo = bar();\n\t} 1`] = `
+
+   1 | for (
+   2 | 	let i = 0;
+   3 | 	i < array.length;
+   4 | 	i++
+   5 | )
+   6 | // comment (foo)
+   7 | 	{
+   8 | 		var foo = array[i];
+   9 | 		foo = bar();
+  10 | 	}
+
+`;
+
+exports[`no-for-loop > invalid(3): for (\n\tlet i = 0;\n\ti < array.length;\n\ti++\n)\n// comment (foo)\n\t{\n\t\tvar foo = array[i];\n\t\tfoo = bar();\n\t} 2`] = `
+
+Message:
+>  1 | for (
+     | ^^^^^
+>  2 | 	let i = 0;
+     | ^^^^^^^^^^^
+>  3 | 	i < array.length;
+     | ^^^^^^^^^^^^^^^^^^
+>  4 | 	i++
+     | ^^^^
+>  5 | )
+     | ^ Use a \`for-of\` loop instead of this \`for\` loop.
+   6 | // comment (foo)
+   7 | 	{
+   8 | 		var foo = array[i];
+   9 | 		foo = bar();
+  10 | 	}
+
+Output:
+  1 | for (
+  2 | 	var foo of array
+  3 | )
+  4 | // comment (foo)
+  5 | 	{
+  6 | 		foo = bar();
+  7 | 	}
+
+`;
+
+exports[`no-for-loop > invalid(4): for (let i = 0; i < array.length; i++) {\n\tlet foo = array[i];\n} 1`] = `
+
+  1 | for (let i = 0; i < array.length; i++) {
+  2 | 	let foo = array[i];
+  3 | }
+
+`;
+
+exports[`no-for-loop > invalid(4): for (let i = 0; i < array.length; i++) {\n\tlet foo = array[i];\n} 2`] = `
+
+Message:
+> 1 | for (let i = 0; i < array.length; i++) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use a \`for-of\` loop instead of this \`for\` loop.
+  2 | 	let foo = array[i];
+  3 | }
+
+Output:
+  1 | for (let foo of array) {
+  2 | }
+
+`;
+
+exports[`no-for-loop > invalid(5): for (let i = 0; i < array.length; i++) {\n\tconst foo = array[i];\n} 1`] = `
+
+  1 | for (let i = 0; i < array.length; i++) {
+  2 | 	const foo = array[i];
+  3 | }
+
+`;
+
+exports[`no-for-loop > invalid(5): for (let i = 0; i < array.length; i++) {\n\tconst foo = array[i];\n} 2`] = `
+
+Message:
+> 1 | for (let i = 0; i < array.length; i++) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use a \`for-of\` loop instead of this \`for\` loop.
+  2 | 	const foo = array[i];
+  3 | }
+
+Output:
+  1 | for (const foo of array) {
+  2 | }
+
+`;
+
+exports[`no-for-loop > invalid(6): for (let i = 0; i < array.length; i++) {\n\tvar foo = array[i], bar = 1;\n} 1`] = `
+
+  1 | for (let i = 0; i < array.length; i++) {
+  2 | 	var foo = array[i], bar = 1;
+  3 | }
+
+`;
+
+exports[`no-for-loop > invalid(6): for (let i = 0; i < array.length; i++) {\n\tvar foo = array[i], bar = 1;\n} 2`] = `
+
+Message:
+> 1 | for (let i = 0; i < array.length; i++) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use a \`for-of\` loop instead of this \`for\` loop.
+  2 | 	var foo = array[i], bar = 1;
+  3 | }
+
+Output:
+  1 | for (var foo of array) {
+  2 | 	var bar = 1;
+  3 | }
+
+`;

@@ -88,6 +88,7 @@ test.snapshot({
 		'export {read}; using resource = acquire(); function read() { return resource.read(); }',
 		'using resource = acquire(); export function read(read) { read = other; return resource.read(); }',
 		'function f() { using resource = acquire(); return function* () { yield resource.read(); }; }',
+		'function f() { using resource = acquire(); return resource.isReady() ? other : resource; }',
 	],
 });
 

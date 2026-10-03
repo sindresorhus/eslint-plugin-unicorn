@@ -298,6 +298,12 @@ test.snapshot({
 		'new Error().stack = stack',
 		'Error().cause = cause',
 		'new AggregateError([], "message").errors = errors',
+		outdent`
+			function setup() {
+				const error = new Error();
+				error.name = name;
+			}
+		`,
 	],
 });
 

@@ -158,5 +158,7 @@ test.snapshot({
 		'element.querySelectorAll(`:scope .a, div .b`);',
 		// TypeScript non-null assertion on the call (the form used in the issue) is still reported
 		{code: 'element.querySelector(".outer .inner")!;', languageOptions: {parser: parsers.typescript}},
+		// An escaped quote does not end an attribute-value string, so the `:scope` after it is still inside the string
+		String.raw`element.querySelector("[data-foo='a\\' :scope'] .x");`,
 	],
 });

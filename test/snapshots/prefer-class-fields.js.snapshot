@@ -1,0 +1,620 @@
+exports[`prefer-class-fields > invalid(1): class Foo {\n\tconstructor() {\n\t\tthis.bar = 1;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	constructor() {
+  3 | 		this.bar = 1;
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(1): class Foo {\n\tconstructor() {\n\t\tthis.bar = 1;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	constructor() {
+> 3 | 		this.bar = 1;
+    | 		^^^^^^^^^^^^^ Prefer class field declaration over \`this\` assignment in constructor for static values.
+  4 | 	}
+  5 | }
+
+Output:
+  1 | class Foo {
+  2 | 	constructor() {
+  3 | 	}
+  4 | 	bar = 1;
+  5 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(1): class MyError extends Error {\n\tconstructor(message: string) {\n\t\tthis.name = \"MyError\";\n\t}\n} 1`] = `
+
+  1 | class MyError extends Error {
+  2 | 	constructor(message: string) {
+  3 | 		this.name = "MyError";
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(1): class MyError extends Error {\n\tconstructor(message: string) {\n\t\tthis.name = \"MyError\";\n\t}\n} 2`] = `
+
+Message:
+  1 | class MyError extends Error {
+  2 | 	constructor(message: string) {
+> 3 | 		this.name = "MyError";
+    | 		^^^^^^^^^^^^^^^^^^^^^^ Prefer class field declaration over \`this\` assignment in constructor for static values.
+  4 | 	}
+  5 | }
+
+Output:
+  1 | class MyError extends Error {
+  2 | 	constructor(message: string) {
+  3 | 	}
+  4 | 	name = "MyError";
+  5 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(10): class Foo {\n\t[bar] = 0;\n\tconstructor() {\n\t\tthis.bar = 1;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	[bar] = 0;
+  3 | 	constructor() {
+  4 | 		this.bar = 1;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(10): class Foo {\n\t[bar] = 0;\n\tconstructor() {\n\t\tthis.bar = 1;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	[bar] = 0;
+  3 | 	constructor() {
+> 4 | 		this.bar = 1;
+    | 		^^^^^^^^^^^^^ Prefer class field declaration over \`this\` assignment in constructor for static values.
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	[bar] = 0;
+  3 | 	constructor() {
+  4 | 	}
+  5 | 	bar = 1;
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(11): class Foo {\n\tstatic bar;\n\tconstructor() {\n\t\tthis.bar = 1;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	static bar;
+  3 | 	constructor() {
+  4 | 		this.bar = 1;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(11): class Foo {\n\tstatic bar;\n\tconstructor() {\n\t\tthis.bar = 1;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	static bar;
+  3 | 	constructor() {
+> 4 | 		this.bar = 1;
+    | 		^^^^^^^^^^^^^ Prefer class field declaration over \`this\` assignment in constructor for static values.
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	static bar;
+  3 | 	constructor() {
+  4 | 	}
+  5 | 	bar = 1;
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(12): class Foo {\n\tstatic bar = 0;\n\tconstructor() {\n\t\tthis.bar = 1;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	static bar = 0;
+  3 | 	constructor() {
+  4 | 		this.bar = 1;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(12): class Foo {\n\tstatic bar = 0;\n\tconstructor() {\n\t\tthis.bar = 1;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	static bar = 0;
+  3 | 	constructor() {
+> 4 | 		this.bar = 1;
+    | 		^^^^^^^^^^^^^ Prefer class field declaration over \`this\` assignment in constructor for static values.
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	static bar = 0;
+  3 | 	constructor() {
+  4 | 	}
+  5 | 	bar = 1;
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(13): class Foo {\n\tstatic [bar];\n\tconstructor() {\n\t\tthis.bar = 1;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	static [bar];
+  3 | 	constructor() {
+  4 | 		this.bar = 1;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(13): class Foo {\n\tstatic [bar];\n\tconstructor() {\n\t\tthis.bar = 1;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	static [bar];
+  3 | 	constructor() {
+> 4 | 		this.bar = 1;
+    | 		^^^^^^^^^^^^^ Prefer class field declaration over \`this\` assignment in constructor for static values.
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	static [bar];
+  3 | 	constructor() {
+  4 | 	}
+  5 | 	bar = 1;
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(14): class Foo {\n\tstatic [bar] = 1;\n\tconstructor() {\n\t\tthis.bar = 1;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	static [bar] = 1;
+  3 | 	constructor() {
+  4 | 		this.bar = 1;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(14): class Foo {\n\tstatic [bar] = 1;\n\tconstructor() {\n\t\tthis.bar = 1;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	static [bar] = 1;
+  3 | 	constructor() {
+> 4 | 		this.bar = 1;
+    | 		^^^^^^^^^^^^^ Prefer class field declaration over \`this\` assignment in constructor for static values.
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	static [bar] = 1;
+  3 | 	constructor() {
+  4 | 	}
+  5 | 	bar = 1;
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(15): class Foo {\nconstructor() {\n\tthis.bar = 1;\n}} 1`] = `
+
+  1 | class Foo {
+  2 | constructor() {
+  3 | 	this.bar = 1;
+  4 | }}
+
+`;
+
+exports[`prefer-class-fields > invalid(15): class Foo {\nconstructor() {\n\tthis.bar = 1;\n}} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | constructor() {
+> 3 | 	this.bar = 1;
+    | 	^^^^^^^^^^^^^ Prefer class field declaration over \`this\` assignment in constructor for static values.
+  4 | }}
+
+Output:
+  1 | class Foo {
+  2 | constructor() {
+  3 | }
+  4 | bar = 1;
+  5 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(16): class Foo {\nconstructor() {\n\tthis.bar = 1;\n}\nstatic} 1`] = `
+
+  1 | class Foo {
+  2 | constructor() {
+  3 | 	this.bar = 1;
+  4 | }
+  5 | static}
+
+`;
+
+exports[`prefer-class-fields > invalid(16): class Foo {\nconstructor() {\n\tthis.bar = 1;\n}\nstatic} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | constructor() {
+> 3 | 	this.bar = 1;
+    | 	^^^^^^^^^^^^^ Prefer class field declaration over \`this\` assignment in constructor for static values.
+  4 | }
+  5 | static}
+
+Output:
+  1 | class Foo {
+  2 | constructor() {
+  3 | }
+  4 | static;
+  5 | bar = 1;
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(17): class Foo {\nconstructor() {\n\tthis.bar = 1;\n}\nstatic// comment;\n} 1`] = `
+
+  1 | class Foo {
+  2 | constructor() {
+  3 | 	this.bar = 1;
+  4 | }
+  5 | static// comment;
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(17): class Foo {\nconstructor() {\n\tthis.bar = 1;\n}\nstatic// comment;\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | constructor() {
+> 3 | 	this.bar = 1;
+    | 	^^^^^^^^^^^^^ Prefer class field declaration over \`this\` assignment in constructor for static values.
+  4 | }
+  5 | static// comment;
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | constructor() {
+  3 | }
+  4 | static// comment;
+  5 | ;bar = 1;
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(18): class Foo {\n\tbar\n\tconstructor() {\n\t\tthis.bar = 1;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	bar
+  3 | 	constructor() {
+  4 | 		this.bar = 1;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(18): class Foo {\n\tbar\n\tconstructor() {\n\t\tthis.bar = 1;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	bar
+  3 | 	constructor() {
+> 4 | 		this.bar = 1;
+    | 		^^^^^^^^^^^^^ Prefer class field declaration over \`this\` assignment in constructor for static values.
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	bar = 1;
+  3 | 	constructor() {
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(2): class Foo {\n\tconstructor() {\n\t\t;\n\t\tthis.bar = 1;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	constructor() {
+  3 | 		;
+  4 | 		this.bar = 1;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(2): class Foo {\n\tconstructor() {\n\t\t;\n\t\tthis.bar = 1;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	constructor() {
+  3 | 		;
+> 4 | 		this.bar = 1;
+    | 		^^^^^^^^^^^^^ Prefer class field declaration over \`this\` assignment in constructor for static values.
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	constructor() {
+  3 | 		;
+  4 | 	}
+  5 | 	bar = 1;
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(2): class MyError extends Error {\n\tname: string;\n\tconstructor(message: string) {\n\t\tthis.name = \"MyError\";\n\t}\n} 1`] = `
+
+  1 | class MyError extends Error {
+  2 | 	name: string;
+  3 | 	constructor(message: string) {
+  4 | 		this.name = "MyError";
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(2): class MyError extends Error {\n\tname: string;\n\tconstructor(message: string) {\n\t\tthis.name = \"MyError\";\n\t}\n} 2`] = `
+
+Message:
+  1 | class MyError extends Error {
+  2 | 	name: string;
+  3 | 	constructor(message: string) {
+> 4 | 		this.name = "MyError";
+    | 		^^^^^^^^^^^^^^^^^^^^^^ Prefer class field declaration over \`this\` assignment in constructor for static values.
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class MyError extends Error {
+  2 | 	name: string = "MyError";
+  3 | 	constructor(message: string) {
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(3): class Foo {\n\tconstructor() {\n\t\tthis.bar = 1;\n\t\tthis.baz = 2;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	constructor() {
+  3 | 		this.bar = 1;
+  4 | 		this.baz = 2;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(3): class Foo {\n\tconstructor() {\n\t\tthis.bar = 1;\n\t\tthis.baz = 2;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	constructor() {
+> 3 | 		this.bar = 1;
+    | 		^^^^^^^^^^^^^ Prefer class field declaration over \`this\` assignment in constructor for static values.
+  4 | 		this.baz = 2;
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	constructor() {
+  3 | 		this.baz = 2;
+  4 | 	}
+  5 | 	bar = 1;
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(4): class Foo {\n\tconstructor() {\n\t\tthis.bar = 1;\n\t\tthis.bar = 2;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	constructor() {
+  3 | 		this.bar = 1;
+  4 | 		this.bar = 2;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(4): class Foo {\n\tconstructor() {\n\t\tthis.bar = 1;\n\t\tthis.bar = 2;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	constructor() {
+> 3 | 		this.bar = 1;
+    | 		^^^^^^^^^^^^^ Prefer class field declaration over \`this\` assignment in constructor for static values.
+  4 | 		this.bar = 2;
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	constructor() {
+  3 | 		this.bar = 2;
+  4 | 	}
+  5 | 	bar = 1;
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(5): class Foo {\n\tbar;\n\tconstructor() {\n\t\tthis.bar = 1;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	bar;
+  3 | 	constructor() {
+  4 | 		this.bar = 1;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(5): class Foo {\n\tbar;\n\tconstructor() {\n\t\tthis.bar = 1;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	bar;
+  3 | 	constructor() {
+> 4 | 		this.bar = 1;
+    | 		^^^^^^^^^^^^^ Prefer class field declaration over \`this\` assignment in constructor for static values.
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	bar = 1;
+  3 | 	constructor() {
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(6): class Foo {\n\t#bar;\n\tconstructor() {\n\t\tthis.#bar = 1;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	#bar;
+  3 | 	constructor() {
+  4 | 		this.#bar = 1;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(6): class Foo {\n\t#bar;\n\tconstructor() {\n\t\tthis.#bar = 1;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	#bar;
+  3 | 	constructor() {
+> 4 | 		this.#bar = 1;
+    | 		^^^^^^^^^^^^^^ Prefer class field declaration over \`this\` assignment in constructor for static values.
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	#bar = 1;
+  3 | 	constructor() {
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(7): class Foo {\n\tbar = 0;\n\tconstructor() {\n\t\tthis.bar = 1;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	bar = 0;
+  3 | 	constructor() {
+  4 | 		this.bar = 1;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(7): class Foo {\n\tbar = 0;\n\tconstructor() {\n\t\tthis.bar = 1;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	bar = 0;
+  3 | 	constructor() {
+> 4 | 		this.bar = 1;
+    | 		^^^^^^^^^^^^^ Prefer class field declaration over \`this\` assignment in constructor for static values.
+  5 | 	}
+  6 | }
+
+Suggestion 1/1: Encountered same-named class field declaration and \`this\` assignment in constructor. Replace the class field declaration with the value from \`this\` assignment.:
+  1 | class Foo {
+  2 | 	bar = 1;
+  3 | 	constructor() {
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(8): class Foo {\n\t#bar = 0;\n\tconstructor() {\n\t\tthis.#bar = 1;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	#bar = 0;
+  3 | 	constructor() {
+  4 | 		this.#bar = 1;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(8): class Foo {\n\t#bar = 0;\n\tconstructor() {\n\t\tthis.#bar = 1;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	#bar = 0;
+  3 | 	constructor() {
+> 4 | 		this.#bar = 1;
+    | 		^^^^^^^^^^^^^^ Prefer class field declaration over \`this\` assignment in constructor for static values.
+  5 | 	}
+  6 | }
+
+Suggestion 1/1: Encountered same-named class field declaration and \`this\` assignment in constructor. Replace the class field declaration with the value from \`this\` assignment.:
+  1 | class Foo {
+  2 | 	#bar = 1;
+  3 | 	constructor() {
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(9): class Foo {\n\t[bar];\n\tconstructor() {\n\t\tthis.bar = 1;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	[bar];
+  3 | 	constructor() {
+  4 | 		this.bar = 1;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-class-fields > invalid(9): class Foo {\n\t[bar];\n\tconstructor() {\n\t\tthis.bar = 1;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	[bar];
+  3 | 	constructor() {
+> 4 | 		this.bar = 1;
+    | 		^^^^^^^^^^^^^ Prefer class field declaration over \`this\` assignment in constructor for static values.
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	[bar];
+  3 | 	constructor() {
+  4 | 	}
+  5 | 	bar = 1;
+  6 | }
+
+`;

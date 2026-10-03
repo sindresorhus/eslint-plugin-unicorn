@@ -1,0 +1,498 @@
+exports[`prefer-promise-try > invalid(1): new Promise(resolve => resolve(fn())); 1`] = `
+
+  1 | new Promise(resolve => resolve(fn()));
+
+`;
+
+exports[`prefer-promise-try > invalid(1): new Promise(resolve => resolve(fn())); 2`] = `
+
+Message:
+> 1 | new Promise(resolve => resolve(fn()));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+Output:
+  1 | Promise.try(() => fn());
+
+`;
+
+exports[`prefer-promise-try > invalid(10): new (new Promise(resolve => resolve(fn())))(); 1`] = `
+
+  1 | new (new Promise(resolve => resolve(fn())))();
+
+`;
+
+exports[`prefer-promise-try > invalid(10): new (new Promise(resolve => resolve(fn())))(); 2`] = `
+
+Message:
+> 1 | new (new Promise(resolve => resolve(fn())))();
+    |      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+`;
+
+exports[`prefer-promise-try > invalid(11): new (new Promise(resolve => resolve(fn()))).foo(); 1`] = `
+
+  1 | new (new Promise(resolve => resolve(fn()))).foo();
+
+`;
+
+exports[`prefer-promise-try > invalid(11): new (new Promise(resolve => resolve(fn()))).foo(); 2`] = `
+
+Message:
+> 1 | new (new Promise(resolve => resolve(fn()))).foo();
+    |      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+`;
+
+exports[`prefer-promise-try > invalid(12): new (new Promise(resolve => resolve(fn()))).foo.bar(); 1`] = `
+
+  1 | new (new Promise(resolve => resolve(fn()))).foo.bar();
+
+`;
+
+exports[`prefer-promise-try > invalid(12): new (new Promise(resolve => resolve(fn()))).foo.bar(); 2`] = `
+
+Message:
+> 1 | new (new Promise(resolve => resolve(fn()))).foo.bar();
+    |      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+`;
+
+exports[`prefer-promise-try > invalid(13): new Promise<string>(resolve => resolve(fn())); 1`] = `
+
+  1 | new Promise<string>(resolve => resolve(fn()));
+
+`;
+
+exports[`prefer-promise-try > invalid(13): new Promise<string>(resolve => resolve(fn())); 2`] = `
+
+Message:
+> 1 | new Promise<string>(resolve => resolve(fn()));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+Output:
+  1 | Promise.try<string>(() => fn());
+
+`;
+
+exports[`prefer-promise-try > invalid(14): new Promise((resolve: Resolve) => resolve(fn())); 1`] = `
+
+  1 | new Promise((resolve: Resolve) => resolve(fn()));
+
+`;
+
+exports[`prefer-promise-try > invalid(14): new Promise((resolve: Resolve) => resolve(fn())); 2`] = `
+
+Message:
+> 1 | new Promise((resolve: Resolve) => resolve(fn()));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+`;
+
+exports[`prefer-promise-try > invalid(15): new Promise((resolve): void => resolve(fn())); 1`] = `
+
+  1 | new Promise((resolve): void => resolve(fn()));
+
+`;
+
+exports[`prefer-promise-try > invalid(15): new Promise((resolve): void => resolve(fn())); 2`] = `
+
+Message:
+> 1 | new Promise((resolve): void => resolve(fn()));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+`;
+
+exports[`prefer-promise-try > invalid(16): new Promise(<Type>(resolve) => resolve(fn())); 1`] = `
+
+  1 | new Promise(<Type>(resolve) => resolve(fn()));
+
+`;
+
+exports[`prefer-promise-try > invalid(16): new Promise(<Type>(resolve) => resolve(fn())); 2`] = `
+
+Message:
+> 1 | new Promise(<Type>(resolve) => resolve(fn()));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+`;
+
+exports[`prefer-promise-try > invalid(17): new Promise(resolve => resolve(fn<string>())); 1`] = `
+
+  1 | new Promise(resolve => resolve(fn<string>()));
+
+`;
+
+exports[`prefer-promise-try > invalid(17): new Promise(resolve => resolve(fn<string>())); 2`] = `
+
+Message:
+> 1 | new Promise(resolve => resolve(fn<string>()));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+Output:
+  1 | Promise.try(() => fn<string>());
+
+`;
+
+exports[`prefer-promise-try > invalid(18): new Promise(resolve => resolve(fn() as Result)); 1`] = `
+
+  1 | new Promise(resolve => resolve(fn() as Result));
+
+`;
+
+exports[`prefer-promise-try > invalid(18): new Promise(resolve => resolve(fn() as Result)); 2`] = `
+
+Message:
+> 1 | new Promise(resolve => resolve(fn() as Result));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+Output:
+  1 | Promise.try(() => fn() as Result);
+
+`;
+
+exports[`prefer-promise-try > invalid(19): new Promise(resolve => resolve(fn()!)); 1`] = `
+
+  1 | new Promise(resolve => resolve(fn()!));
+
+`;
+
+exports[`prefer-promise-try > invalid(19): new Promise(resolve => resolve(fn()!)); 2`] = `
+
+Message:
+> 1 | new Promise(resolve => resolve(fn()!));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+Output:
+  1 | Promise.try(() => fn()!);
+
+`;
+
+exports[`prefer-promise-try > invalid(2): new Promise(resolve => resolve((fn()))); 1`] = `
+
+  1 | new Promise(resolve => resolve((fn())));
+
+`;
+
+exports[`prefer-promise-try > invalid(2): new Promise(resolve => resolve((fn()))); 2`] = `
+
+Message:
+> 1 | new Promise(resolve => resolve((fn())));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+Output:
+  1 | Promise.try(() => fn());
+
+`;
+
+exports[`prefer-promise-try > invalid(20): new Promise(resolve => resolve(fn() satisfies Result)); 1`] = `
+
+  1 | new Promise(resolve => resolve(fn() satisfies Result));
+
+`;
+
+exports[`prefer-promise-try > invalid(20): new Promise(resolve => resolve(fn() satisfies Result)); 2`] = `
+
+Message:
+> 1 | new Promise(resolve => resolve(fn() satisfies Result));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+Output:
+  1 | Promise.try(() => fn() satisfies Result);
+
+`;
+
+exports[`prefer-promise-try > invalid(21): new Promise(resolve => resolve(/* keep */ fn())); 1`] = `
+
+  1 | new Promise(resolve => resolve(/* keep */ fn()));
+
+`;
+
+exports[`prefer-promise-try > invalid(21): new Promise(resolve => resolve(/* keep */ fn())); 2`] = `
+
+Message:
+> 1 | new Promise(resolve => resolve(/* keep */ fn()));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+`;
+
+exports[`prefer-promise-try > invalid(22): new Promise(resolve => {\n\t// Keep comment.\n\tresolve(fn());\n}); 1`] = `
+
+  1 | new Promise(resolve => {
+  2 | 	// Keep comment.
+  3 | 	resolve(fn());
+  4 | });
+
+`;
+
+exports[`prefer-promise-try > invalid(22): new Promise(resolve => {\n\t// Keep comment.\n\tresolve(fn());\n}); 2`] = `
+
+Message:
+> 1 | new Promise(resolve => {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	// Keep comment.
+    | ^^^^^^^^^^^^^^^^^
+> 3 | 	resolve(fn());
+    | ^^^^^^^^^^^^^^^
+> 4 | });
+    | ^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+`;
+
+exports[`prefer-promise-try > invalid(23): Promise.resolve().then(fn); 1`] = `
+
+  1 | Promise.resolve().then(fn);
+
+`;
+
+exports[`prefer-promise-try > invalid(23): Promise.resolve().then(fn); 2`] = `
+
+Message:
+> 1 | Promise.resolve().then(fn);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+`;
+
+exports[`prefer-promise-try > invalid(24): Promise.resolve().then(object.method); 1`] = `
+
+  1 | Promise.resolve().then(object.method);
+
+`;
+
+exports[`prefer-promise-try > invalid(24): Promise.resolve().then(object.method); 2`] = `
+
+Message:
+> 1 | Promise.resolve().then(object.method);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+`;
+
+exports[`prefer-promise-try > invalid(25): Promise.resolve().then(() => fn()); 1`] = `
+
+  1 | Promise.resolve().then(() => fn());
+
+`;
+
+exports[`prefer-promise-try > invalid(25): Promise.resolve().then(() => fn()); 2`] = `
+
+Message:
+> 1 | Promise.resolve().then(() => fn());
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+`;
+
+exports[`prefer-promise-try > invalid(26): Promise.resolve().then(async () => fn()); 1`] = `
+
+  1 | Promise.resolve().then(async () => fn());
+
+`;
+
+exports[`prefer-promise-try > invalid(26): Promise.resolve().then(async () => fn()); 2`] = `
+
+Message:
+> 1 | Promise.resolve().then(async () => fn());
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+`;
+
+exports[`prefer-promise-try > invalid(27): Promise.resolve().then(function () { return fn(); }); 1`] = `
+
+  1 | Promise.resolve().then(function () { return fn(); });
+
+`;
+
+exports[`prefer-promise-try > invalid(27): Promise.resolve().then(function () { return fn(); }); 2`] = `
+
+Message:
+> 1 | Promise.resolve().then(function () { return fn(); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+`;
+
+exports[`prefer-promise-try > invalid(28): const promise = Promise.resolve().then(fn); 1`] = `
+
+  1 | const promise = Promise.resolve().then(fn);
+
+`;
+
+exports[`prefer-promise-try > invalid(28): const promise = Promise.resolve().then(fn); 2`] = `
+
+Message:
+> 1 | const promise = Promise.resolve().then(fn);
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+`;
+
+exports[`prefer-promise-try > invalid(29): Promise.resolve().then(fn!); 1`] = `
+
+  1 | Promise.resolve().then(fn!);
+
+`;
+
+exports[`prefer-promise-try > invalid(29): Promise.resolve().then(fn!); 2`] = `
+
+Message:
+> 1 | Promise.resolve().then(fn!);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+`;
+
+exports[`prefer-promise-try > invalid(3): new Promise(resolve => resolve(fn(arg))); 1`] = `
+
+  1 | new Promise(resolve => resolve(fn(arg)));
+
+`;
+
+exports[`prefer-promise-try > invalid(3): new Promise(resolve => resolve(fn(arg))); 2`] = `
+
+Message:
+> 1 | new Promise(resolve => resolve(fn(arg)));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+Output:
+  1 | Promise.try(() => fn(arg));
+
+`;
+
+exports[`prefer-promise-try > invalid(30): Promise.resolve().then(fn as Callback); 1`] = `
+
+  1 | Promise.resolve().then(fn as Callback);
+
+`;
+
+exports[`prefer-promise-try > invalid(30): Promise.resolve().then(fn as Callback); 2`] = `
+
+Message:
+> 1 | Promise.resolve().then(fn as Callback);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+`;
+
+exports[`prefer-promise-try > invalid(31): Promise.resolve().then(fn satisfies Callback); 1`] = `
+
+  1 | Promise.resolve().then(fn satisfies Callback);
+
+`;
+
+exports[`prefer-promise-try > invalid(31): Promise.resolve().then(fn satisfies Callback); 2`] = `
+
+Message:
+> 1 | Promise.resolve().then(fn satisfies Callback);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+`;
+
+exports[`prefer-promise-try > invalid(32): Promise.resolve().then(<Callback>fn); 1`] = `
+
+  1 | Promise.resolve().then(<Callback>fn);
+
+`;
+
+exports[`prefer-promise-try > invalid(32): Promise.resolve().then(<Callback>fn); 2`] = `
+
+Message:
+> 1 | Promise.resolve().then(<Callback>fn);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+`;
+
+exports[`prefer-promise-try > invalid(4): new Promise(resolve => resolve(object.method())); 1`] = `
+
+  1 | new Promise(resolve => resolve(object.method()));
+
+`;
+
+exports[`prefer-promise-try > invalid(4): new Promise(resolve => resolve(object.method())); 2`] = `
+
+Message:
+> 1 | new Promise(resolve => resolve(object.method()));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+Output:
+  1 | Promise.try(() => object.method());
+
+`;
+
+exports[`prefer-promise-try > invalid(5): new Promise(resolve => resolve(object[\"method\"]())); 1`] = `
+
+  1 | new Promise(resolve => resolve(object["method"]()));
+
+`;
+
+exports[`prefer-promise-try > invalid(5): new Promise(resolve => resolve(object[\"method\"]())); 2`] = `
+
+Message:
+> 1 | new Promise(resolve => resolve(object["method"]()));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+Output:
+  1 | Promise.try(() => object["method"]());
+
+`;
+
+exports[`prefer-promise-try > invalid(6): new Promise(resolve => resolve(fn?.())); 1`] = `
+
+  1 | new Promise(resolve => resolve(fn?.()));
+
+`;
+
+exports[`prefer-promise-try > invalid(6): new Promise(resolve => resolve(fn?.())); 2`] = `
+
+Message:
+> 1 | new Promise(resolve => resolve(fn?.()));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+Output:
+  1 | Promise.try(() => fn?.());
+
+`;
+
+exports[`prefer-promise-try > invalid(7): new Promise(resolve => { resolve(fn()); }); 1`] = `
+
+  1 | new Promise(resolve => { resolve(fn()); });
+
+`;
+
+exports[`prefer-promise-try > invalid(7): new Promise(resolve => { resolve(fn()); }); 2`] = `
+
+Message:
+> 1 | new Promise(resolve => { resolve(fn()); });
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+Output:
+  1 | Promise.try(() => fn());
+
+`;
+
+exports[`prefer-promise-try > invalid(8): (new Promise(resolve => resolve(fn()))) 1`] = `
+
+  1 | (new Promise(resolve => resolve(fn())))
+
+`;
+
+exports[`prefer-promise-try > invalid(8): (new Promise(resolve => resolve(fn()))) 2`] = `
+
+Message:
+> 1 | (new Promise(resolve => resolve(fn())))
+    |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+Output:
+  1 | Promise.try(() => fn())
+
+`;
+
+exports[`prefer-promise-try > invalid(9): (new Promise(resolve => resolve(fn()))).then(onFulfilled); 1`] = `
+
+  1 | (new Promise(resolve => resolve(fn()))).then(onFulfilled);
+
+`;
+
+exports[`prefer-promise-try > invalid(9): (new Promise(resolve => resolve(fn()))).then(onFulfilled); 2`] = `
+
+Message:
+> 1 | (new Promise(resolve => resolve(fn()))).then(onFulfilled);
+    |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+Output:
+  1 | Promise.try(() => fn()).then(onFulfilled);
+
+`;

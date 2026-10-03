@@ -51,6 +51,9 @@ test.snapshot({
 
 		// Astral character is two UTF-16 code units
 		'string.replaceAll(\'😀\', \'-\').replaceAll(\'b\', \'-\');',
+
+		// A regular expression that the regex parser does not support
+		'string.replace(/(?i:a)/g, \'-\').replace(/b/g, \'-\');',
 	],
 	invalid: [
 		// Basic
@@ -102,5 +105,8 @@ test.snapshot({
 
 		// TypeScript
 		{code: '(string as string).replaceAll(\'a\', \'-\').replaceAll(\'b\', \'-\');', languageOptions: {parser: parsers.typescript}},
+
+		// Control characters are escaped in the character class
+		String.raw`string.replaceAll('\x01', '-').replaceAll('\x7F', '-');`,
 	],
 });

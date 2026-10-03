@@ -239,6 +239,13 @@ test.snapshot({
 			languageOptions: {parser: parsers.vue},
 		},
 		vueWithTypeScriptParser('<script lang="js">array.flatMap(value => value.active ? [value.id] : []);</script>'),
+		'(array).flatMap(value => value.active ? [value] : []);',
+		'(array).flatMap(value => value.active ? [value.id] : []);',
+		'tag`array`.flatMap(value => value.active ? [value] : []);',
+		{
+			code: 'array.flatMap((value: string) => value.length > 1 ? [value] : []);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 

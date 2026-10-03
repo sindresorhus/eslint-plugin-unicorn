@@ -16,7 +16,7 @@ import {
 	isSameReference,
 	isTypeScriptExpressionWrapper,
 	needsSemicolon,
-	shouldAddParenthesesToMemberExpressionObject,
+	getMemberExpressionObjectText,
 } from './utils/index.js';
 
 const MESSAGE_ID_UNION = 'prefer-set-methods/union';
@@ -54,11 +54,6 @@ const isGlobalSetConstructor = (node, context) =>
 		argumentsLength: 1,
 	})
 	&& isGlobalIdentifier(node.callee, context);
-
-const getMemberObjectText = (node, context) => {
-	const text = getParenthesizedText(node, context);
-	return shouldAddParenthesesToMemberExpressionObject(node, context) && !isParenthesized(node, context) ? `(${text})` : text;
-};
 
 const isFirstTokenOfExpressionStatement = (node, context) => {
 	let currentNode = node;
@@ -144,7 +139,7 @@ const isSetSpreadArray = (node, context) =>
 const getUnionReplacement = (arrayExpression, context) => {
 	const spreadArguments = arrayExpression.elements.map(element => element.argument);
 	const [firstArgument, ...remainingArguments] = spreadArguments;
-	let text = getMemberObjectText(firstArgument, context);
+	let text = getMemberExpressionObjectText(firstArgument, context);
 
 	for (const argument of remainingArguments) {
 		text += `.union(${getParenthesizedText(argument, context)})`;
@@ -271,7 +266,7 @@ const getSetOperationReplacement = (filterCall, context) => {
 	return {
 		messageId: operation.messageId,
 		suggestionMessageId: operation.suggestionMessageId,
-		replacement: `${getMemberObjectText(set, context)}.${operation.method}(${getParenthesizedText(operation.otherSet, context)})`,
+		replacement: `${getMemberExpressionObjectText(set, context)}.${operation.method}(${getParenthesizedText(operation.otherSet, context)})`,
 	};
 };
 
@@ -309,7 +304,7 @@ const getSetPredicateProblem = (node, {set, otherSet, method, negated}, context)
 		return;
 	}
 
-	let replacement = `${getMemberObjectText(set, context)}.${method}(${getParenthesizedText(otherSet, context)})`;
+	let replacement = `${getMemberExpressionObjectText(set, context)}.${method}(${getParenthesizedText(otherSet, context)})`;
 	if (negated) {
 		replacement = `!${replacement}`;
 		const {parent} = node;

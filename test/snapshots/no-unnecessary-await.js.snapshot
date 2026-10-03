@@ -1,0 +1,921 @@
+exports[`no-unnecessary-await > invalid(1): async function f() { return await (1 as number); } 1`] = `
+
+  1 | async function f() { return await (1 as number); }
+
+`;
+
+exports[`no-unnecessary-await > invalid(1): async function f() { return await (1 as number); } 2`] = `
+
+Message:
+> 1 | async function f() { return await (1 as number); }
+    |                             ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | async function f() { return (1 as number); }
+
+`;
+
+exports[`no-unnecessary-await > invalid(1): await [] 1`] = `
+
+  1 | await []
+
+`;
+
+exports[`no-unnecessary-await > invalid(1): await [] 2`] = `
+
+Message:
+> 1 | await []
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | []
+
+`;
+
+exports[`no-unnecessary-await > invalid(10): await function() {} 1`] = `
+
+  1 | await function() {}
+
+`;
+
+exports[`no-unnecessary-await > invalid(10): await function() {} 2`] = `
+
+Message:
+> 1 | await function() {}
+    | ^^^^^ Do not \`await\` non-promise value.
+
+`;
+
+exports[`no-unnecessary-await > invalid(11): await function name() {} 1`] = `
+
+  1 | await function name() {}
+
+`;
+
+exports[`no-unnecessary-await > invalid(11): await function name() {} 2`] = `
+
+Message:
+> 1 | await function name() {}
+    | ^^^^^ Do not \`await\` non-promise value.
+
+`;
+
+exports[`no-unnecessary-await > invalid(12): await function() { return Promise.resolve() } 1`] = `
+
+  1 | await function() { return Promise.resolve() }
+
+`;
+
+exports[`no-unnecessary-await > invalid(12): await function() { return Promise.resolve() } 2`] = `
+
+Message:
+> 1 | await function() { return Promise.resolve() }
+    | ^^^^^ Do not \`await\` non-promise value.
+
+`;
+
+exports[`no-unnecessary-await > invalid(13): await (<></>) 1`] = `
+
+  1 | await (<></>)
+
+`;
+
+exports[`no-unnecessary-await > invalid(13): await (<></>) 2`] = `
+
+Message:
+> 1 | await (<></>)
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | (<></>)
+
+`;
+
+exports[`no-unnecessary-await > invalid(14): await (<a></a>) 1`] = `
+
+  1 | await (<a></a>)
+
+`;
+
+exports[`no-unnecessary-await > invalid(14): await (<a></a>) 2`] = `
+
+Message:
+> 1 | await (<a></a>)
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | (<a></a>)
+
+`;
+
+exports[`no-unnecessary-await > invalid(15): await 0 1`] = `
+
+  1 | await 0
+
+`;
+
+exports[`no-unnecessary-await > invalid(15): await 0 2`] = `
+
+Message:
+> 1 | await 0
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | 0
+
+`;
+
+exports[`no-unnecessary-await > invalid(16): await 1 1`] = `
+
+  1 | await 1
+
+`;
+
+exports[`no-unnecessary-await > invalid(16): await 1 2`] = `
+
+Message:
+> 1 | await 1
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | 1
+
+`;
+
+exports[`no-unnecessary-await > invalid(17): await \"\" 1`] = `
+
+  1 | await ""
+
+`;
+
+exports[`no-unnecessary-await > invalid(17): await \"\" 2`] = `
+
+Message:
+> 1 | await ""
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | ""
+
+`;
+
+exports[`no-unnecessary-await > invalid(18): await \"string\" 1`] = `
+
+  1 | await "string"
+
+`;
+
+exports[`no-unnecessary-await > invalid(18): await \"string\" 2`] = `
+
+Message:
+> 1 | await "string"
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | "string"
+
+`;
+
+exports[`no-unnecessary-await > invalid(19): await true 1`] = `
+
+  1 | await true
+
+`;
+
+exports[`no-unnecessary-await > invalid(19): await true 2`] = `
+
+Message:
+> 1 | await true
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | true
+
+`;
+
+exports[`no-unnecessary-await > invalid(2): async function f() { return await ([1, 2]!); } 1`] = `
+
+  1 | async function f() { return await ([1, 2]!); }
+
+`;
+
+exports[`no-unnecessary-await > invalid(2): async function f() { return await ([1, 2]!); } 2`] = `
+
+Message:
+> 1 | async function f() { return await ([1, 2]!); }
+    |                             ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | async function f() { return ([1, 2]!); }
+
+`;
+
+exports[`no-unnecessary-await > invalid(2): await [Promise.resolve()] 1`] = `
+
+  1 | await [Promise.resolve()]
+
+`;
+
+exports[`no-unnecessary-await > invalid(2): await [Promise.resolve()] 2`] = `
+
+Message:
+> 1 | await [Promise.resolve()]
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | [Promise.resolve()]
+
+`;
+
+exports[`no-unnecessary-await > invalid(20): await false 1`] = `
+
+  1 | await false
+
+`;
+
+exports[`no-unnecessary-await > invalid(20): await false 2`] = `
+
+Message:
+> 1 | await false
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | false
+
+`;
+
+exports[`no-unnecessary-await > invalid(21): await null 1`] = `
+
+  1 | await null
+
+`;
+
+exports[`no-unnecessary-await > invalid(21): await null 2`] = `
+
+Message:
+> 1 | await null
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | null
+
+`;
+
+exports[`no-unnecessary-await > invalid(22): await 0n 1`] = `
+
+  1 | await 0n
+
+`;
+
+exports[`no-unnecessary-await > invalid(22): await 0n 2`] = `
+
+Message:
+> 1 | await 0n
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | 0n
+
+`;
+
+exports[`no-unnecessary-await > invalid(23): await 1n 1`] = `
+
+  1 | await 1n
+
+`;
+
+exports[`no-unnecessary-await > invalid(23): await 1n 2`] = `
+
+Message:
+> 1 | await 1n
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | 1n
+
+`;
+
+exports[`no-unnecessary-await > invalid(24): await \`\${Promise.resolve()}\` 1`] = `
+
+  1 | await \`\${Promise.resolve()}\`
+
+`;
+
+exports[`no-unnecessary-await > invalid(24): await \`\${Promise.resolve()}\` 2`] = `
+
+Message:
+> 1 | await \`\${Promise.resolve()}\`
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | \`\${Promise.resolve()}\`
+
+`;
+
+exports[`no-unnecessary-await > invalid(25): await !Promise.resolve() 1`] = `
+
+  1 | await !Promise.resolve()
+
+`;
+
+exports[`no-unnecessary-await > invalid(25): await !Promise.resolve() 2`] = `
+
+Message:
+> 1 | await !Promise.resolve()
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | !Promise.resolve()
+
+`;
+
+exports[`no-unnecessary-await > invalid(26): await void Promise.resolve() 1`] = `
+
+  1 | await void Promise.resolve()
+
+`;
+
+exports[`no-unnecessary-await > invalid(26): await void Promise.resolve() 2`] = `
+
+Message:
+> 1 | await void Promise.resolve()
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | void Promise.resolve()
+
+`;
+
+exports[`no-unnecessary-await > invalid(27): await +Promise.resolve() 1`] = `
+
+  1 | await +Promise.resolve()
+
+`;
+
+exports[`no-unnecessary-await > invalid(27): await +Promise.resolve() 2`] = `
+
+Message:
+> 1 | await +Promise.resolve()
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | +Promise.resolve()
+
+`;
+
+exports[`no-unnecessary-await > invalid(28): await ~1 1`] = `
+
+  1 | await ~1
+
+`;
+
+exports[`no-unnecessary-await > invalid(28): await ~1 2`] = `
+
+Message:
+> 1 | await ~1
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | ~1
+
+`;
+
+exports[`no-unnecessary-await > invalid(29): await ++foo 1`] = `
+
+  1 | await ++foo
+
+`;
+
+exports[`no-unnecessary-await > invalid(29): await ++foo 2`] = `
+
+Message:
+> 1 | await ++foo
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | ++foo
+
+`;
+
+exports[`no-unnecessary-await > invalid(3): async function f() { return await ([1, 2] as const); } 1`] = `
+
+  1 | async function f() { return await ([1, 2] as const); }
+
+`;
+
+exports[`no-unnecessary-await > invalid(3): async function f() { return await ([1, 2] as const); } 2`] = `
+
+Message:
+> 1 | async function f() { return await ([1, 2] as const); }
+    |                             ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | async function f() { return ([1, 2] as const); }
+
+`;
+
+exports[`no-unnecessary-await > invalid(3): await (() => {}) 1`] = `
+
+  1 | await (() => {})
+
+`;
+
+exports[`no-unnecessary-await > invalid(3): await (() => {}) 2`] = `
+
+Message:
+> 1 | await (() => {})
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | (() => {})
+
+`;
+
+exports[`no-unnecessary-await > invalid(30): await foo-- 1`] = `
+
+  1 | await foo--
+
+`;
+
+exports[`no-unnecessary-await > invalid(30): await foo-- 2`] = `
+
+Message:
+> 1 | await foo--
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | foo--
+
+`;
+
+exports[`no-unnecessary-await > invalid(31): await (Promise.resolve(), 1) 1`] = `
+
+  1 | await (Promise.resolve(), 1)
+
+`;
+
+exports[`no-unnecessary-await > invalid(31): await (Promise.resolve(), 1) 2`] = `
+
+Message:
+> 1 | await (Promise.resolve(), 1)
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | (Promise.resolve(), 1)
+
+`;
+
+exports[`no-unnecessary-await > invalid(32): async function foo() {\n\treturn await\n\t\t// comment\n\t\t1;\n} 1`] = `
+
+  1 | async function foo() {
+  2 | 	return await
+  3 | 		// comment
+  4 | 		1;
+  5 | }
+
+`;
+
+exports[`no-unnecessary-await > invalid(32): async function foo() {\n\treturn await\n\t\t// comment\n\t\t1;\n} 2`] = `
+
+Message:
+  1 | async function foo() {
+> 2 | 	return await
+    | 	       ^^^^^ Do not \`await\` non-promise value.
+  3 | 		// comment
+  4 | 		1;
+  5 | }
+
+Output:
+  1 | async function foo() {
+  2 | 	return ( // comment
+  3 | 		1);
+  4 | }
+
+`;
+
+exports[`no-unnecessary-await > invalid(33): async function foo() {\n\treturn await\n\t\t// comment\n\t\t1\n} 1`] = `
+
+  1 | async function foo() {
+  2 | 	return await
+  3 | 		// comment
+  4 | 		1
+  5 | }
+
+`;
+
+exports[`no-unnecessary-await > invalid(33): async function foo() {\n\treturn await\n\t\t// comment\n\t\t1\n} 2`] = `
+
+Message:
+  1 | async function foo() {
+> 2 | 	return await
+    | 	       ^^^^^ Do not \`await\` non-promise value.
+  3 | 		// comment
+  4 | 		1
+  5 | }
+
+Output:
+  1 | async function foo() {
+  2 | 	return ( // comment
+  3 | 		1)
+  4 | }
+
+`;
+
+exports[`no-unnecessary-await > invalid(34): async function foo() {\n\treturn( await\n\t\t// comment\n\t\t1);\n} 1`] = `
+
+  1 | async function foo() {
+  2 | 	return( await
+  3 | 		// comment
+  4 | 		1);
+  5 | }
+
+`;
+
+exports[`no-unnecessary-await > invalid(34): async function foo() {\n\treturn( await\n\t\t// comment\n\t\t1);\n} 2`] = `
+
+Message:
+  1 | async function foo() {
+> 2 | 	return( await
+    | 	        ^^^^^ Do not \`await\` non-promise value.
+  3 | 		// comment
+  4 | 		1);
+  5 | }
+
+Output:
+  1 | async function foo() {
+  2 | 	return( // comment
+  3 | 		1);
+  4 | }
+
+`;
+
+exports[`no-unnecessary-await > invalid(35): foo()\nawait [] 1`] = `
+
+  1 | foo()
+  2 | await []
+
+`;
+
+exports[`no-unnecessary-await > invalid(35): foo()\nawait [] 2`] = `
+
+Message:
+  1 | foo()
+> 2 | await []
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | foo()
+  2 | ;[]
+
+`;
+
+exports[`no-unnecessary-await > invalid(36): foo()\nawait +1 1`] = `
+
+  1 | foo()
+  2 | await +1
+
+`;
+
+exports[`no-unnecessary-await > invalid(36): foo()\nawait +1 2`] = `
+
+Message:
+  1 | foo()
+> 2 | await +1
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | foo()
+  2 | ;+1
+
+`;
+
+exports[`no-unnecessary-await > invalid(37): async function foo() {\n\treturn await\n\t\t// comment\n\t\t[];\n} 1`] = `
+
+  1 | async function foo() {
+  2 | 	return await
+  3 | 		// comment
+  4 | 		[];
+  5 | }
+
+`;
+
+exports[`no-unnecessary-await > invalid(37): async function foo() {\n\treturn await\n\t\t// comment\n\t\t[];\n} 2`] = `
+
+Message:
+  1 | async function foo() {
+> 2 | 	return await
+    | 	       ^^^^^ Do not \`await\` non-promise value.
+  3 | 		// comment
+  4 | 		[];
+  5 | }
+
+Output:
+  1 | async function foo() {
+  2 | 	return ( // comment
+  3 | 		[]);
+  4 | }
+
+`;
+
+exports[`no-unnecessary-await > invalid(38): async function foo() {\n\tthrow await\n\t\t// comment\n\t\t1;\n} 1`] = `
+
+  1 | async function foo() {
+  2 | 	throw await
+  3 | 		// comment
+  4 | 		1;
+  5 | }
+
+`;
+
+exports[`no-unnecessary-await > invalid(38): async function foo() {\n\tthrow await\n\t\t// comment\n\t\t1;\n} 2`] = `
+
+Message:
+  1 | async function foo() {
+> 2 | 	throw await
+    | 	      ^^^^^ Do not \`await\` non-promise value.
+  3 | 		// comment
+  4 | 		1;
+  5 | }
+
+Output:
+  1 | async function foo() {
+  2 | 	throw ( // comment
+  3 | 		1);
+  4 | }
+
+`;
+
+exports[`no-unnecessary-await > invalid(39): console.log(\n\tawait\n\t\t// comment\n\t\t[]\n); 1`] = `
+
+  1 | console.log(
+  2 | 	await
+  3 | 		// comment
+  4 | 		[]
+  5 | );
+
+`;
+
+exports[`no-unnecessary-await > invalid(39): console.log(\n\tawait\n\t\t// comment\n\t\t[]\n); 2`] = `
+
+Message:
+  1 | console.log(
+> 2 | 	await
+    | 	^^^^^ Do not \`await\` non-promise value.
+  3 | 		// comment
+  4 | 		[]
+  5 | );
+
+`;
+
+exports[`no-unnecessary-await > invalid(4): async function f() { return await ([1, 2] satisfies number[]); } 1`] = `
+
+  1 | async function f() { return await ([1, 2] satisfies number[]); }
+
+`;
+
+exports[`no-unnecessary-await > invalid(4): async function f() { return await ([1, 2] satisfies number[]); } 2`] = `
+
+Message:
+> 1 | async function f() { return await ([1, 2] satisfies number[]); }
+    |                             ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | async function f() { return ([1, 2] satisfies number[]); }
+
+`;
+
+exports[`no-unnecessary-await > invalid(4): await (() => Promise.resolve()) 1`] = `
+
+  1 | await (() => Promise.resolve())
+
+`;
+
+exports[`no-unnecessary-await > invalid(4): await (() => Promise.resolve()) 2`] = `
+
+Message:
+> 1 | await (() => Promise.resolve())
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | (() => Promise.resolve())
+
+`;
+
+exports[`no-unnecessary-await > invalid(40): async function foo() {+await +1} 1`] = `
+
+  1 | async function foo() {+await +1}
+
+`;
+
+exports[`no-unnecessary-await > invalid(40): async function foo() {+await +1} 2`] = `
+
+Message:
+> 1 | async function foo() {+await +1}
+    |                        ^^^^^ Do not \`await\` non-promise value.
+
+`;
+
+exports[`no-unnecessary-await > invalid(41): async function foo() {-await-1} 1`] = `
+
+  1 | async function foo() {-await-1}
+
+`;
+
+exports[`no-unnecessary-await > invalid(41): async function foo() {-await-1} 2`] = `
+
+Message:
+> 1 | async function foo() {-await-1}
+    |                        ^^^^^ Do not \`await\` non-promise value.
+
+`;
+
+exports[`no-unnecessary-await > invalid(42): async function foo() {+await -1} 1`] = `
+
+  1 | async function foo() {+await -1}
+
+`;
+
+exports[`no-unnecessary-await > invalid(42): async function foo() {+await -1} 2`] = `
+
+Message:
+> 1 | async function foo() {+await -1}
+    |                        ^^^^^ Do not \`await\` non-promise value.
+
+`;
+
+exports[`no-unnecessary-await > invalid(43): async function foo() {+await ++bar} 1`] = `
+
+  1 | async function foo() {+await ++bar}
+
+`;
+
+exports[`no-unnecessary-await > invalid(43): async function foo() {+await ++bar} 2`] = `
+
+Message:
+> 1 | async function foo() {+await ++bar}
+    |                        ^^^^^ Do not \`await\` non-promise value.
+
+`;
+
+exports[`no-unnecessary-await > invalid(44): async function foo() {-await --bar} 1`] = `
+
+  1 | async function foo() {-await --bar}
+
+`;
+
+exports[`no-unnecessary-await > invalid(44): async function foo() {-await --bar} 2`] = `
+
+Message:
+> 1 | async function foo() {-await --bar}
+    |                        ^^^^^ Do not \`await\` non-promise value.
+
+`;
+
+exports[`no-unnecessary-await > invalid(45): async function foo() {const a = +await ++b;} 1`] = `
+
+  1 | async function foo() {const a = +await ++b;}
+
+`;
+
+exports[`no-unnecessary-await > invalid(45): async function foo() {const a = +await ++b;} 2`] = `
+
+Message:
+> 1 | async function foo() {const a = +await ++b;}
+    |                                  ^^^^^ Do not \`await\` non-promise value.
+
+`;
+
+exports[`no-unnecessary-await > invalid(46): async function foo() {+await --bar} 1`] = `
+
+  1 | async function foo() {+await --bar}
+
+`;
+
+exports[`no-unnecessary-await > invalid(46): async function foo() {+await --bar} 2`] = `
+
+Message:
+> 1 | async function foo() {+await --bar}
+    |                        ^^^^^ Do not \`await\` non-promise value.
+
+`;
+
+exports[`no-unnecessary-await > invalid(47): async function foo() {-await ++bar} 1`] = `
+
+  1 | async function foo() {-await ++bar}
+
+`;
+
+exports[`no-unnecessary-await > invalid(47): async function foo() {-await ++bar} 2`] = `
+
+Message:
+> 1 | async function foo() {-await ++bar}
+    |                        ^^^^^ Do not \`await\` non-promise value.
+
+`;
+
+exports[`no-unnecessary-await > invalid(48): async function foo() {+await bar++} 1`] = `
+
+  1 | async function foo() {+await bar++}
+
+`;
+
+exports[`no-unnecessary-await > invalid(48): async function foo() {+await bar++} 2`] = `
+
+Message:
+> 1 | async function foo() {+await bar++}
+    |                        ^^^^^ Do not \`await\` non-promise value.
+
+`;
+
+exports[`no-unnecessary-await > invalid(49): async function foo() {~await ~1} 1`] = `
+
+  1 | async function foo() {~await ~1}
+
+`;
+
+exports[`no-unnecessary-await > invalid(49): async function foo() {~await ~1} 2`] = `
+
+Message:
+> 1 | async function foo() {~await ~1}
+    |                        ^^^^^ Do not \`await\` non-promise value.
+
+`;
+
+exports[`no-unnecessary-await > invalid(5): await (a === b) 1`] = `
+
+  1 | await (a === b)
+
+`;
+
+exports[`no-unnecessary-await > invalid(5): await (a === b) 2`] = `
+
+Message:
+> 1 | await (a === b)
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | (a === b)
+
+`;
+
+exports[`no-unnecessary-await > invalid(6): await (a instanceof Promise) 1`] = `
+
+  1 | await (a instanceof Promise)
+
+`;
+
+exports[`no-unnecessary-await > invalid(6): await (a instanceof Promise) 2`] = `
+
+Message:
+> 1 | await (a instanceof Promise)
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | (a instanceof Promise)
+
+`;
+
+exports[`no-unnecessary-await > invalid(7): await (a > b) 1`] = `
+
+  1 | await (a > b)
+
+`;
+
+exports[`no-unnecessary-await > invalid(7): await (a > b) 2`] = `
+
+Message:
+> 1 | await (a > b)
+    | ^^^^^ Do not \`await\` non-promise value.
+
+Output:
+  1 | (a > b)
+
+`;
+
+exports[`no-unnecessary-await > invalid(8): await class {} 1`] = `
+
+  1 | await class {}
+
+`;
+
+exports[`no-unnecessary-await > invalid(8): await class {} 2`] = `
+
+Message:
+> 1 | await class {}
+    | ^^^^^ Do not \`await\` non-promise value.
+
+`;
+
+exports[`no-unnecessary-await > invalid(9): await class extends Promise {} 1`] = `
+
+  1 | await class extends Promise {}
+
+`;
+
+exports[`no-unnecessary-await > invalid(9): await class extends Promise {} 2`] = `
+
+Message:
+> 1 | await class extends Promise {}
+    | ^^^^^ Do not \`await\` non-promise value.
+
+`;

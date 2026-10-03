@@ -1,4 +1,5 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
@@ -209,6 +210,16 @@ test.snapshot({
 		{code: 'declare const x: number; +x', languageOptions: {parser: parsers.typescript}},
 		{code: 'declare const x: string; x + \'\'', languageOptions: {parser: parsers.typescript}},
 		{code: 'declare const x: string; x.toString()', languageOptions: {parser: parsers.typescript}},
+
+		// Type information: a bigint literal type
+		{
+			code: 'declare const object: {value: 1n}; BigInt(object.value);',
+			filename: 'file.ts',
+			languageOptions: {
+				parser: typescriptEslintParser,
+				parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+			},
+		},
 	],
 });
 

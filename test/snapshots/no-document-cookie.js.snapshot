@@ -1,0 +1,139 @@
+exports[`no-document-cookie > invalid(1): document.cookie = \"foo=bar\" 1`] = `
+
+  1 | document.cookie = "foo=bar"
+
+`;
+
+exports[`no-document-cookie > invalid(1): document.cookie = \"foo=bar\" 2`] = `
+
+Message:
+> 1 | document.cookie = "foo=bar"
+    | ^^^^^^^^^^^^^^^ Do not use \`document.cookie\` directly.
+
+`;
+
+exports[`no-document-cookie > invalid(10): window.document.cookie = \"foo=bar\" 1`] = `
+
+  1 | window.document.cookie = "foo=bar"
+
+`;
+
+exports[`no-document-cookie > invalid(10): window.document.cookie = \"foo=bar\" 2`] = `
+
+Message:
+> 1 | window.document.cookie = "foo=bar"
+    | ^^^^^^^^^^^^^^^^^^^^^^ Do not use \`document.cookie\` directly.
+
+`;
+
+exports[`no-document-cookie > invalid(2): document.cookie += \";foo=bar\" 1`] = `
+
+  1 | document.cookie += ";foo=bar"
+
+`;
+
+exports[`no-document-cookie > invalid(2): document.cookie += \";foo=bar\" 2`] = `
+
+Message:
+> 1 | document.cookie += ";foo=bar"
+    | ^^^^^^^^^^^^^^^ Do not use \`document.cookie\` directly.
+
+`;
+
+exports[`no-document-cookie > invalid(3): document.cookie = document.cookie + \";foo=bar\" 1`] = `
+
+  1 | document.cookie = document.cookie + ";foo=bar"
+
+`;
+
+exports[`no-document-cookie > invalid(3): document.cookie = document.cookie + \";foo=bar\" 2`] = `
+
+Message:
+> 1 | document.cookie = document.cookie + ";foo=bar"
+    | ^^^^^^^^^^^^^^^ Do not use \`document.cookie\` directly.
+
+`;
+
+exports[`no-document-cookie > invalid(4): document.cookie &&= true 1`] = `
+
+  1 | document.cookie &&= true
+
+`;
+
+exports[`no-document-cookie > invalid(4): document.cookie &&= true 2`] = `
+
+Message:
+> 1 | document.cookie &&= true
+    | ^^^^^^^^^^^^^^^ Do not use \`document.cookie\` directly.
+
+`;
+
+exports[`no-document-cookie > invalid(5): document[\"coo\" + \"kie\"] = \"foo=bar\" 1`] = `
+
+  1 | document["coo" + "kie"] = "foo=bar"
+
+`;
+
+exports[`no-document-cookie > invalid(5): document[\"coo\" + \"kie\"] = \"foo=bar\" 2`] = `
+
+Message:
+> 1 | document["coo" + "kie"] = "foo=bar"
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Do not use \`document.cookie\` directly.
+
+`;
+
+exports[`no-document-cookie > invalid(6): foo = document.cookie = \"foo=bar\" 1`] = `
+
+  1 | foo = document.cookie = "foo=bar"
+
+`;
+
+exports[`no-document-cookie > invalid(6): foo = document.cookie = \"foo=bar\" 2`] = `
+
+Message:
+> 1 | foo = document.cookie = "foo=bar"
+    |       ^^^^^^^^^^^^^^^ Do not use \`document.cookie\` directly.
+
+`;
+
+exports[`no-document-cookie > invalid(7): var doc = document; doc.cookie = \"foo=bar\" 1`] = `
+
+  1 | var doc = document; doc.cookie = "foo=bar"
+
+`;
+
+exports[`no-document-cookie > invalid(7): var doc = document; doc.cookie = \"foo=bar\" 2`] = `
+
+Message:
+> 1 | var doc = document; doc.cookie = "foo=bar"
+    |                     ^^^^^^^^^^ Do not use \`document.cookie\` directly.
+
+`;
+
+exports[`no-document-cookie > invalid(8): let doc = document; doc.cookie = \"foo=bar\" 1`] = `
+
+  1 | let doc = document; doc.cookie = "foo=bar"
+
+`;
+
+exports[`no-document-cookie > invalid(8): let doc = document; doc.cookie = \"foo=bar\" 2`] = `
+
+Message:
+> 1 | let doc = document; doc.cookie = "foo=bar"
+    |                     ^^^^^^^^^^ Do not use \`document.cookie\` directly.
+
+`;
+
+exports[`no-document-cookie > invalid(9): const doc = globalThis.document; doc.cookie = \"foo=bar\" 1`] = `
+
+  1 | const doc = globalThis.document; doc.cookie = "foo=bar"
+
+`;
+
+exports[`no-document-cookie > invalid(9): const doc = globalThis.document; doc.cookie = \"foo=bar\" 2`] = `
+
+Message:
+> 1 | const doc = globalThis.document; doc.cookie = "foo=bar"
+    |                                  ^^^^^^^^^^ Do not use \`document.cookie\` directly.
+
+`;

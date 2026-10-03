@@ -1,5 +1,6 @@
 import isNewExpressionWithParentheses from './is-new-expression-with-parentheses.js';
 import {isDecimalIntegerNode} from './numeric.js';
+import {getParenthesizedText, isParenthesized} from './parentheses/parentheses.js';
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
 @import * as ESLint from 'eslint';
@@ -24,7 +25,11 @@ export default function shouldAddParenthesesToMemberExpressionObject(node, conte
 		case 'TemplateLiteral':
 		case 'ThisExpression':
 		case 'Super':
-		case 'ArrayExpression': {
+		case 'ArrayExpression':
+		case 'MetaProperty':
+		case 'ImportExpression':
+		case 'TaggedTemplateExpression':
+		case 'TSNonNullExpression': {
 			return false;
 		}
 
@@ -33,7 +38,7 @@ export default function shouldAddParenthesesToMemberExpressionObject(node, conte
 		}
 
 		case 'Literal': {
-			/* c8 ignore next */
+			/* node:coverage ignore next */
 			return Boolean(isDecimalIntegerNode(node));
 		}
 
@@ -41,4 +46,24 @@ export default function shouldAddParenthesesToMemberExpressionObject(node, conte
 			return true;
 		}
 	}
+}
+
+/**
+Get the text of `node` for use as the `object` of a `MemberExpression`, keeping its existing parentheses and adding parentheses when needed, for example `(a + b).foo` instead of `a + b.foo`.
+
+@param {ESTree.Node} node - The AST node.
+@param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
+@returns {string}
+*/
+export function getMemberExpressionObjectText(node, context) {
+	const text = getParenthesizedText(node, context);
+
+	if (
+		!isParenthesized(node, context)
+		&& shouldAddParenthesesToMemberExpressionObject(node, context)
+	) {
+		return `(${text})`;
+	}
+
+	return text;
 }

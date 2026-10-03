@@ -23,11 +23,6 @@ const isBigIntMethodCall = node =>
 
 const isBigIntTypeAnnotation = node => {
 	switch (node?.type) {
-		case 'TSTypeAnnotation':
-		case 'TSParenthesizedType': {
-			return isBigIntTypeAnnotation(node.typeAnnotation);
-		}
-
 		case 'TSBigIntKeyword': {
 			return true;
 		}
@@ -58,15 +53,12 @@ const {
 	targetCallNames: ['BigInt'],
 	isTargetNode: isBigIntNode,
 	isTargetTypeAnnotation: isBigIntTypeAnnotation,
-	isTargetType: type => type.isBigIntLiteral?.() || type.intrinsicName === 'bigint',
+	// A bigint literal type like `1n` has no `intrinsicName`, its base type is `bigint`
+	isTargetType: (type, checker) => checker.getBaseTypeOfLiteralType(type).intrinsicName === 'bigint',
 	getStaticType,
 });
 
 export default function isBigInt(node, context) {
-	if (!node) {
-		return false;
-	}
-
 	if (
 		node.type === 'TSSatisfiesExpression'
 		&& isBigIntTypeAnnotation(node.typeAnnotation)

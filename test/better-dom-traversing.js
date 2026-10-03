@@ -146,5 +146,10 @@ test.snapshot({
 		`,
 		// Reading the child to write one of its properties is still a traversal
 		'element.childNodes[0].textContent = text;',
+		// `window.document` is the document, so `:scope` is not needed
+		'window.document.querySelector("a").querySelector("b");',
+		'globalThis.document.querySelector("a").querySelector("b");',
+		'window.frame.querySelector("a").querySelector("b");',
+		'window[document].querySelector("a").querySelector("b");',
 	],
 });

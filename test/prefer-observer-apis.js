@@ -166,6 +166,28 @@ test.snapshot({
 				window.addEventListener(eventName as 'resize', () => element.offsetWidth);
 			}
 		`),
+		typeAware(outdent`
+			function listen(size: {offsetWidth: number} | undefined) {
+				window.addEventListener("resize", () => size?.offsetWidth);
+			}
+		`),
+		typeAware(outdent`
+			function listen<T extends {offsetWidth: number}>(size: T) {
+				window.addEventListener("resize", () => size.offsetWidth);
+			}
+		`),
+		typeAware(outdent`
+			function listen(window_: any) {
+				window.addEventListener("resize", () => window_.innerWidth);
+			}
+		`),
+		outdent`
+			window.addEventListener("resize", () => {
+				const {...rest} = element;
+				return rest;
+			});
+		`,
+		'window.addEventListener("resize", () => window.document.offsetWidth);',
 	],
 	invalid: [
 		'window.addEventListener("resize", () => element.offsetWidth)',
@@ -346,6 +368,18 @@ test.snapshot({
 		typeAware(outdent`
 			const handler = (() => element.offsetWidth) as EventListener;
 			window.addEventListener("resize", handler);
+		`),
+		typeAware(outdent`
+			function listen(window_: Window & {extra: number}) {
+				window.addEventListener("resize", () => window_.innerWidth);
+			}
+		`),
+		typeAware(outdent`
+			interface MyWindow extends Window {}
+
+			function listen(window_: MyWindow) {
+				window.addEventListener("resize", () => window_.innerWidth);
+			}
 		`),
 	],
 });

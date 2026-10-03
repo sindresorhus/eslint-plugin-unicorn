@@ -59,14 +59,7 @@ const create = context => {
 				continue;
 			}
 
-			const variables = context.sourceCode.getDeclaredVariables(specifier);
-
-			/* c8 ignore next 3 */
-			if (!Array.isArray(variables) || variables.length !== 1) {
-				continue;
-			}
-
-			const [variable] = variables;
+			const [variable] = context.sourceCode.getDeclaredVariables(specifier);
 
 			for (const {identifier} of variable.references) {
 				if (!(identifier.parent.type === 'CallExpression' && identifier.parent.callee === identifier)) {

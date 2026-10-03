@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import json from '@eslint/json';
 import unicorn from '../index.js';
@@ -256,6 +256,8 @@ ruleTest({
 		String.raw`@charset "\55TF-8";`,
 		String.raw`@\63harset "iso-8859-1";`,
 		String.raw`a { content: "\0000041"; }`,
+		// Replacing `\41` with `A` would extend the preceding escape
+		String.raw`a { content: "\7f\41"; }`,
 	],
 	invalid: [
 		{code: String.raw`a { content: "\41 \000042\20 C"; }`, output: 'a { content: "AB C"; }', errors: 1},
@@ -274,6 +276,8 @@ ruleTest({
 		{code: String.raw`a { background: u\72l('foo' type('\41')); content: "\42"; }`, output: String.raw`a { background: u\72l('foo' type('\41')); content: "B"; }`, errors: 1},
 		{code: String.raw`@charset "\55TF-8"; a { content: "\41"; }`, output: String.raw`@charset "\55TF-8"; a { content: "A"; }`, errors: 1},
 		{code: String.raw`a { content: "\\\41 \7e"; }`, output: String.raw`a { content: "\\A~"; }`, errors: 1},
+		// Identifier as the last token
+		{code: String.raw`@import "a.css" \73 creen`, output: '@import "a.css" screen', errors: 1},
 	],
 });
 
@@ -332,9 +336,9 @@ test('works with `prefer-unicode-code-point-escapes`', t => {
 		},
 	}]);
 
-	t.true(result.fixed);
-	t.is(result.output, String.raw`const value = 'A\u{A9}';`);
-	t.deepEqual(result.messages, []);
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, String.raw`const value = 'A\u{A9}';`);
+	t.assert.deepStrictEqual(result.messages, []);
 });
 
 test('scans long backslash runs efficiently', t => {
@@ -350,6 +354,6 @@ test('scans long backslash runs efficiently', t => {
 	const messages = linter.verify(code, config);
 	const duration = performance.now() - startTime;
 
-	t.deepEqual(messages, []);
-	t.true(duration < 2000, `Expected linting to take less than 2 seconds, but it took ${duration} milliseconds.`);
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(duration < 2000, true, `Expected linting to take less than 2 seconds, but it took ${duration} milliseconds.`);
 });

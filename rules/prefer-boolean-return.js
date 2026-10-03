@@ -28,7 +28,7 @@ const runtimeBooleanBinaryOperators = new Set([
 ]);
 
 function getNodeBody(node) {
-	/* c8 ignore next 3 */
+	/* node:coverage ignore next 3 */
 	if (!node) {
 		return;
 	}

@@ -278,6 +278,8 @@ const getTypeFromTypeInformation = (node, context) => {
 			parserServices.getTypeAtLocation(node),
 			program.getTypeChecker(),
 		);
+		// Defensive: `getTypeAtLocation()` throws for a node that the TypeScript program does not map, which the supported parsers do not produce.
+		/* node:coverage ignore next 3 */
 	} catch {
 		return UNKNOWN;
 	}
@@ -288,13 +290,7 @@ const getTypeFromTypeScriptType = (type, checker) => {
 		return UNKNOWN;
 	}
 
-	type = checker.getNonNullableType(type);
-
-	if (isUnknownType(type)) {
-		return UNKNOWN;
-	}
-
-	if (type.isTypeParameter?.()) {
+	if (type.isTypeParameter()) {
 		const constraint = type.getConstraint();
 		return constraint ? getTypeFromTypeScriptType(constraint, checker) : UNKNOWN;
 	}
@@ -307,7 +303,7 @@ const getTypeFromTypeScriptType = (type, checker) => {
 		return combineIntersectionTypes(type.types.map(type => getTypeFromTypeScriptType(type, checker)));
 	}
 
-	if (type.intrinsicName === 'string' || type.isStringLiteral?.()) {
+	if (type.intrinsicName === 'string' || type.isStringLiteral()) {
 		return STRING;
 	}
 

@@ -15,7 +15,7 @@ test.snapshot({
 	],
 	invalid: [
 		// Valid test cases goes here
-	]，
+	],
 });
 ```
 
@@ -36,23 +36,25 @@ test.snapshot({
 	],
 	invalid: [
 		'invalid.code',
-	]，
+	],
 });
 ```
 
 ## Focus on one rule
 
-We use [`AVA`](https://github.com/avajs/ava) to run tests. To focus on a specific rule test, you can:
+We use the built-in [Node.js test runner](https://nodejs.org/api/test.html) (Node.js 22.13 or later) to run tests. To focus on a specific rule test, you can:
 
 ```console
-npx ava test/rule-name.js
+node --test test/rule-name.js
 ```
 
-To update snapshots, run the command above with [`--update-snapshots` or `-u`](https://github.com/avajs/ava/blob/main/docs/05-command-line.md#cli).
+A new snapshot test case fails until its snapshot exists. To create or update snapshots, run the command above with [`--test-update-snapshots`](https://nodejs.org/api/cli.html#--test-update-snapshots):
 
 ```console
-npx ava test/rule-name.js -u
+node --test --test-update-snapshots test/rule-name.js
 ```
+
+Snapshots are saved in `test/snapshots/rule-name.js.snapshot`.
 
 ## Focus on one test case
 
@@ -84,11 +86,20 @@ test.snapshot({
 })
 ```
 
+Then run the tests with [`--test-only`](https://nodejs.org/api/cli.html#--test-only):
+
+```console
+node --test --test-only test/rule-name.js
+```
+
+> [!WARNING]
+> Do not update snapshots while `test.only` is used. The update rewrites the whole snapshot file, so the snapshots of the other test cases are deleted.
+
 **Please remove `test.only` and `only: true` before committing.**
 
 ## `test()`
 
-This runs [`eslint-ava-rule-tester`](https://github.com/jfmengels/eslint-ava-rule-tester):
+This runs ESLint's [`RuleTester`](https://eslint.org/docs/latest/integrate/nodejs-api#ruletester):
 
 ```js
 import {getTester} from './utils/test.js';
@@ -105,7 +116,7 @@ test({
 			errors: [{ message: 'invalid.code is not allowed', column: 1, line: 1 }],
 			output: 'fixed.code',
 		}
-	]，
+	],
 });
 ```
 

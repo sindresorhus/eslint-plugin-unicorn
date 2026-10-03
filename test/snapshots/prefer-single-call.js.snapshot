@@ -1,0 +1,2380 @@
+exports[`prefer-single-call > invalid(1): const object = {value: 0};\nObject.defineProperty(object, 'value', {get() { return foo.length; }});\nfoo.push(1);\nfoo.push(object.value); 1`] = `
+
+  1 | const object = {value: 0};
+  2 | Object.defineProperty(object, 'value', {get() { return foo.length; }});
+  3 | foo.push(1);
+  4 | foo.push(object.value);
+
+`;
+
+exports[`prefer-single-call > invalid(1): const object = {value: 0};\nObject.defineProperty(object, 'value', {get() { return foo.length; }});\nfoo.push(1);\nfoo.push(object.value); 2`] = `
+
+Message:
+  1 | const object = {value: 0};
+  2 | Object.defineProperty(object, 'value', {get() { return foo.length; }});
+  3 | foo.push(1);
+> 4 | foo.push(object.value);
+    |     ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | const object = {value: 0};
+  2 | Object.defineProperty(object, 'value', {get() { return foo.length; }});
+  3 | foo.push(1, object.value);
+
+`;
+
+exports[`prefer-single-call > invalid(1): foo.classList.add(\"foo\");\nfoo.classList.add(\"bar\"); 1`] = `
+
+  1 | foo.classList.add("foo");
+  2 | foo.classList.add("bar");
+
+`;
+
+exports[`prefer-single-call > invalid(1): foo.classList.add(\"foo\");\nfoo.classList.add(\"bar\"); 2`] = `
+
+Message:
+  1 | foo.classList.add("foo");
+> 2 | foo.classList.add("bar");
+    |               ^^^ Do not call \`Element#classList.add()\` multiple times.
+
+Output:
+  1 | foo.classList.add("foo", "bar");
+
+`;
+
+exports[`prefer-single-call > invalid(1): foo.unshift(1);\nfoo.unshift(2); 1`] = `
+
+  1 | foo.unshift(1);
+  2 | foo.unshift(2);
+
+`;
+
+exports[`prefer-single-call > invalid(1): foo.unshift(1);\nfoo.unshift(2); 2`] = `
+
+Message:
+  1 | foo.unshift(1);
+> 2 | foo.unshift(2);
+    |     ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.unshift(2, 1);
+
+`;
+
+exports[`prefer-single-call > invalid(1): importScripts(\"foo.js\");\nimportScripts(\"bar.js\"); 1`] = `
+
+  1 | importScripts("foo.js");
+  2 | importScripts("bar.js");
+
+`;
+
+exports[`prefer-single-call > invalid(1): importScripts(\"foo.js\");\nimportScripts(\"bar.js\"); 2`] = `
+
+Message:
+  1 | importScripts("foo.js");
+> 2 | importScripts("bar.js");
+    | ^^^^^^^^^^^^^ Do not call \`importScripts()\` multiple times.
+
+Output:
+  1 | importScripts("foo.js", "bar.js");
+
+`;
+
+exports[`prefer-single-call > invalid(10): foo.classList.add(a, b, ...c,);\nfoo.classList.add(...d,); 1`] = `
+
+  1 | foo.classList.add(a, b, ...c,);
+  2 | foo.classList.add(...d,);
+
+`;
+
+exports[`prefer-single-call > invalid(10): foo.classList.add(a, b, ...c,);\nfoo.classList.add(...d,); 2`] = `
+
+Message:
+  1 | foo.classList.add(a, b, ...c,);
+> 2 | foo.classList.add(...d,);
+    |               ^^^ Do not call \`Element#classList.add()\` multiple times.
+
+Output:
+  1 | foo.classList.add(a, b, ...c, ...d,);
+
+`;
+
+exports[`prefer-single-call > invalid(10): foo.classList.add.push(a, b,);\nfoo.classList.add.push(c, d); 1`] = `
+
+  1 | foo.classList.add.push(a, b,);
+  2 | foo.classList.add.push(c, d);
+
+`;
+
+exports[`prefer-single-call > invalid(10): foo.classList.add.push(a, b,);\nfoo.classList.add.push(c, d); 2`] = `
+
+Message:
+  1 | foo.classList.add.push(a, b,);
+> 2 | foo.classList.add.push(c, d);
+    |                   ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.classList.add.push(a, b, c, d);
+
+`;
+
+exports[`prefer-single-call > invalid(10): foo.push(1, 2,);\nfoo.push(3, 4); 1`] = `
+
+  1 | foo.push(1, 2,);
+  2 | foo.push(3, 4);
+
+`;
+
+exports[`prefer-single-call > invalid(10): foo.push(1, 2,);\nfoo.push(3, 4); 2`] = `
+
+Message:
+  1 | foo.push(1, 2,);
+> 2 | foo.push(3, 4);
+    |     ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.push(1, 2, 3, 4);
+
+`;
+
+exports[`prefer-single-call > invalid(10): foo.unshift(1, 2,);\nfoo.unshift(3, 4); 1`] = `
+
+  1 | foo.unshift(1, 2,);
+  2 | foo.unshift(3, 4);
+
+`;
+
+exports[`prefer-single-call > invalid(10): foo.unshift(1, 2,);\nfoo.unshift(3, 4); 2`] = `
+
+Message:
+  1 | foo.unshift(1, 2,);
+> 2 | foo.unshift(3, 4);
+    |     ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.unshift(3, 4, 1, 2,);
+
+`;
+
+exports[`prefer-single-call > invalid(11): foo.classList.add(a, b);\nfoo.classList.add(c, d,); 1`] = `
+
+  1 | foo.classList.add(a, b);
+  2 | foo.classList.add(c, d,);
+
+`;
+
+exports[`prefer-single-call > invalid(11): foo.classList.add(a, b);\nfoo.classList.add(c, d,); 2`] = `
+
+Message:
+  1 | foo.classList.add(a, b);
+> 2 | foo.classList.add(c, d,);
+    |               ^^^ Do not call \`Element#classList.add()\` multiple times.
+
+Output:
+  1 | foo.classList.add(a, b, c, d,);
+
+`;
+
+exports[`prefer-single-call > invalid(11): foo.push(1, 2);\nfoo.push(3, 4,); 1`] = `
+
+  1 | foo.push(1, 2);
+  2 | foo.push(3, 4,);
+
+`;
+
+exports[`prefer-single-call > invalid(11): foo.push(1, 2);\nfoo.push(3, 4,); 2`] = `
+
+Message:
+  1 | foo.push(1, 2);
+> 2 | foo.push(3, 4,);
+    |     ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.push(1, 2, 3, 4,);
+
+`;
+
+exports[`prefer-single-call > invalid(11): foo.unshift(1, 2);\nfoo.unshift(3, 4,); 1`] = `
+
+  1 | foo.unshift(1, 2);
+  2 | foo.unshift(3, 4,);
+
+`;
+
+exports[`prefer-single-call > invalid(11): foo.unshift(1, 2);\nfoo.unshift(3, 4,); 2`] = `
+
+Message:
+  1 | foo.unshift(1, 2);
+> 2 | foo.unshift(3, 4,);
+    |     ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.unshift(3, 4, 1, 2);
+
+`;
+
+exports[`prefer-single-call > invalid(11): importScripts(bar());\nimportScripts(\"foo.js\"); 1`] = `
+
+  1 | importScripts(bar());
+  2 | importScripts("foo.js");
+
+`;
+
+exports[`prefer-single-call > invalid(11): importScripts(bar());\nimportScripts(\"foo.js\"); 2`] = `
+
+Message:
+  1 | importScripts(bar());
+> 2 | importScripts("foo.js");
+    | ^^^^^^^^^^^^^ Do not call \`importScripts()\` multiple times.
+
+Output:
+  1 | importScripts(bar(), "foo.js");
+
+`;
+
+exports[`prefer-single-call > invalid(12): foo.classList.add(a, b,);\nfoo.classList.add(c, d,); 1`] = `
+
+  1 | foo.classList.add(a, b,);
+  2 | foo.classList.add(c, d,);
+
+`;
+
+exports[`prefer-single-call > invalid(12): foo.classList.add(a, b,);\nfoo.classList.add(c, d,); 2`] = `
+
+Message:
+  1 | foo.classList.add(a, b,);
+> 2 | foo.classList.add(c, d,);
+    |               ^^^ Do not call \`Element#classList.add()\` multiple times.
+
+Output:
+  1 | foo.classList.add(a, b, c, d,);
+
+`;
+
+exports[`prefer-single-call > invalid(12): foo.push(1, 2,);\nfoo.push(3, 4,); 1`] = `
+
+  1 | foo.push(1, 2,);
+  2 | foo.push(3, 4,);
+
+`;
+
+exports[`prefer-single-call > invalid(12): foo.push(1, 2,);\nfoo.push(3, 4,); 2`] = `
+
+Message:
+  1 | foo.push(1, 2,);
+> 2 | foo.push(3, 4,);
+    |     ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.push(1, 2, 3, 4,);
+
+`;
+
+exports[`prefer-single-call > invalid(12): foo.unshift(1, 2,);\nfoo.unshift(3, 4,); 1`] = `
+
+  1 | foo.unshift(1, 2,);
+  2 | foo.unshift(3, 4,);
+
+`;
+
+exports[`prefer-single-call > invalid(12): foo.unshift(1, 2,);\nfoo.unshift(3, 4,); 2`] = `
+
+Message:
+  1 | foo.unshift(1, 2,);
+> 2 | foo.unshift(3, 4,);
+    |     ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.unshift(3, 4, 1, 2,);
+
+`;
+
+exports[`prefer-single-call > invalid(12): importScripts(a);\nimportScripts(bar()); 1`] = `
+
+  1 | importScripts(a);
+  2 | importScripts(bar());
+
+`;
+
+exports[`prefer-single-call > invalid(12): importScripts(a);\nimportScripts(bar()); 2`] = `
+
+Message:
+  1 | importScripts(a);
+> 2 | importScripts(bar());
+    | ^^^^^^^^^^^^^ Do not call \`importScripts()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | importScripts(a, bar());
+
+`;
+
+exports[`prefer-single-call > invalid(13): foo.classList.add(a, b, ...c,);\nfoo.classList.add(...d,); 1`] = `
+
+  1 | foo.classList.add(a, b, ...c,);
+  2 | foo.classList.add(...d,);
+
+`;
+
+exports[`prefer-single-call > invalid(13): foo.classList.add(a, b, ...c,);\nfoo.classList.add(...d,); 2`] = `
+
+Message:
+  1 | foo.classList.add(a, b, ...c,);
+> 2 | foo.classList.add(...d,);
+    |               ^^^ Do not call \`Element#classList.add()\` multiple times.
+
+Output:
+  1 | foo.classList.add(a, b, ...c, ...d,);
+
+`;
+
+exports[`prefer-single-call > invalid(13): foo.push(1, 2, ...a,);\nfoo.push(...b,); 1`] = `
+
+  1 | foo.push(1, 2, ...a,);
+  2 | foo.push(...b,);
+
+`;
+
+exports[`prefer-single-call > invalid(13): foo.push(1, 2, ...a,);\nfoo.push(...b,); 2`] = `
+
+Message:
+  1 | foo.push(1, 2, ...a,);
+> 2 | foo.push(...b,);
+    |     ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.push(1, 2, ...a, ...b,);
+
+`;
+
+exports[`prefer-single-call > invalid(13): foo.unshift(1, 2, ...a,);\nfoo.unshift(...b,); 1`] = `
+
+  1 | foo.unshift(1, 2, ...a,);
+  2 | foo.unshift(...b,);
+
+`;
+
+exports[`prefer-single-call > invalid(13): foo.unshift(1, 2, ...a,);\nfoo.unshift(...b,); 2`] = `
+
+Message:
+  1 | foo.unshift(1, 2, ...a,);
+> 2 | foo.unshift(...b,);
+    |     ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.unshift(...b, 1, 2, ...a,);
+
+`;
+
+exports[`prefer-single-call > invalid(13): importScripts(a,);\nimportScripts(b,);\nimportScripts(c,); 1`] = `
+
+  1 | importScripts(a,);
+  2 | importScripts(b,);
+  3 | importScripts(c,);
+
+`;
+
+exports[`prefer-single-call > invalid(13): importScripts(a,);\nimportScripts(b,);\nimportScripts(c,); 2`] = `
+
+Message:
+  1 | importScripts(a,);
+> 2 | importScripts(b,);
+    | ^^^^^^^^^^^^^ Do not call \`importScripts()\` multiple times.
+  3 | importScripts(c,);
+
+Output:
+  1 | importScripts(a, b,);
+  2 | importScripts(c,);
+
+`;
+
+exports[`prefer-single-call > invalid(13): importScripts(a,);\nimportScripts(b,);\nimportScripts(c,); 3`] = `
+
+Message:
+  1 | importScripts(a,);
+  2 | importScripts(b,);
+> 3 | importScripts(c,);
+    | ^^^^^^^^^^^^^ Do not call \`importScripts()\` multiple times.
+
+Output:
+  1 | importScripts(a,);
+  2 | importScripts(b, c,);
+
+`;
+
+exports[`prefer-single-call > invalid(14): foo.classList.add(bar());\nfoo.classList.add(\"foo\"); 1`] = `
+
+  1 | foo.classList.add(bar());
+  2 | foo.classList.add("foo");
+
+`;
+
+exports[`prefer-single-call > invalid(14): foo.classList.add(bar());\nfoo.classList.add(\"foo\"); 2`] = `
+
+Message:
+  1 | foo.classList.add(bar());
+> 2 | foo.classList.add("foo");
+    |               ^^^ Do not call \`Element#classList.add()\` multiple times.
+
+Output:
+  1 | foo.classList.add(bar(), "foo");
+
+`;
+
+exports[`prefer-single-call > invalid(14): foo.push(bar());\nfoo.push(1); 1`] = `
+
+  1 | foo.push(bar());
+  2 | foo.push(1);
+
+`;
+
+exports[`prefer-single-call > invalid(14): foo.push(bar());\nfoo.push(1); 2`] = `
+
+Message:
+  1 | foo.push(bar());
+> 2 | foo.push(1);
+    |     ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.push(bar(), 1);
+
+`;
+
+exports[`prefer-single-call > invalid(14): foo.unshift(bar());\nfoo.unshift(1); 1`] = `
+
+  1 | foo.unshift(bar());
+  2 | foo.unshift(1);
+
+`;
+
+exports[`prefer-single-call > invalid(14): foo.unshift(bar());\nfoo.unshift(1); 2`] = `
+
+Message:
+  1 | foo.unshift(bar());
+> 2 | foo.unshift(1);
+    |     ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.unshift(1, bar());
+
+`;
+
+exports[`prefer-single-call > invalid(14): if (a) {\n\timportScripts(a);\n\timportScripts(b);\n} 1`] = `
+
+  1 | if (a) {
+  2 | 	importScripts(a);
+  3 | 	importScripts(b);
+  4 | }
+
+`;
+
+exports[`prefer-single-call > invalid(14): if (a) {\n\timportScripts(a);\n\timportScripts(b);\n} 2`] = `
+
+Message:
+  1 | if (a) {
+  2 | 	importScripts(a);
+> 3 | 	importScripts(b);
+    | 	^^^^^^^^^^^^^ Do not call \`importScripts()\` multiple times.
+  4 | }
+
+Output:
+  1 | if (a) {
+  2 | 	importScripts(a, b);
+  3 | }
+
+`;
+
+exports[`prefer-single-call > invalid(15): foo.classList.add(a);\nfoo.classList.add(bar()); 1`] = `
+
+  1 | foo.classList.add(a);
+  2 | foo.classList.add(bar());
+
+`;
+
+exports[`prefer-single-call > invalid(15): foo.classList.add(a);\nfoo.classList.add(bar()); 2`] = `
+
+Message:
+  1 | foo.classList.add(a);
+> 2 | foo.classList.add(bar());
+    |               ^^^ Do not call \`Element#classList.add()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.classList.add(a, bar());
+
+`;
+
+exports[`prefer-single-call > invalid(15): foo.push(1);\nfoo.push(bar()); 1`] = `
+
+  1 | foo.push(1);
+  2 | foo.push(bar());
+
+`;
+
+exports[`prefer-single-call > invalid(15): foo.push(1);\nfoo.push(bar()); 2`] = `
+
+Message:
+  1 | foo.push(1);
+> 2 | foo.push(bar());
+    |     ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.push(1, bar());
+
+`;
+
+exports[`prefer-single-call > invalid(15): foo.unshift(1);\nfoo.unshift(bar()); 1`] = `
+
+  1 | foo.unshift(1);
+  2 | foo.unshift(bar());
+
+`;
+
+exports[`prefer-single-call > invalid(15): foo.unshift(1);\nfoo.unshift(bar()); 2`] = `
+
+Message:
+  1 | foo.unshift(1);
+> 2 | foo.unshift(bar());
+    |     ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.unshift(bar(), 1);
+
+`;
+
+exports[`prefer-single-call > invalid(15): switch (a) {\n\tdefault:\n\t\timportScripts(a);\n\t\timportScripts(b);\n} 1`] = `
+
+  1 | switch (a) {
+  2 | 	default:
+  3 | 		importScripts(a);
+  4 | 		importScripts(b);
+  5 | }
+
+`;
+
+exports[`prefer-single-call > invalid(15): switch (a) {\n\tdefault:\n\t\timportScripts(a);\n\t\timportScripts(b);\n} 2`] = `
+
+Message:
+  1 | switch (a) {
+  2 | 	default:
+  3 | 		importScripts(a);
+> 4 | 		importScripts(b);
+    | 		^^^^^^^^^^^^^ Do not call \`importScripts()\` multiple times.
+  5 | }
+
+Output:
+  1 | switch (a) {
+  2 | 	default:
+  3 | 		importScripts(a, b);
+  4 | }
+
+`;
+
+exports[`prefer-single-call > invalid(16): foo.classList.add(a,);\nfoo.classList.add(b,);\nfoo.classList.add(c,); 1`] = `
+
+  1 | foo.classList.add(a,);
+  2 | foo.classList.add(b,);
+  3 | foo.classList.add(c,);
+
+`;
+
+exports[`prefer-single-call > invalid(16): foo.classList.add(a,);\nfoo.classList.add(b,);\nfoo.classList.add(c,); 2`] = `
+
+Message:
+  1 | foo.classList.add(a,);
+> 2 | foo.classList.add(b,);
+    |               ^^^ Do not call \`Element#classList.add()\` multiple times.
+  3 | foo.classList.add(c,);
+
+Output:
+  1 | foo.classList.add(a, b,);
+  2 | foo.classList.add(c,);
+
+`;
+
+exports[`prefer-single-call > invalid(16): foo.classList.add(a,);\nfoo.classList.add(b,);\nfoo.classList.add(c,); 3`] = `
+
+Message:
+  1 | foo.classList.add(a,);
+  2 | foo.classList.add(b,);
+> 3 | foo.classList.add(c,);
+    |               ^^^ Do not call \`Element#classList.add()\` multiple times.
+
+Output:
+  1 | foo.classList.add(a,);
+  2 | foo.classList.add(b, c,);
+
+`;
+
+exports[`prefer-single-call > invalid(16): foo.push(1,);\nfoo.push(2,);\nfoo.push(3,); 1`] = `
+
+  1 | foo.push(1,);
+  2 | foo.push(2,);
+  3 | foo.push(3,);
+
+`;
+
+exports[`prefer-single-call > invalid(16): foo.push(1,);\nfoo.push(2,);\nfoo.push(3,); 2`] = `
+
+Message:
+  1 | foo.push(1,);
+> 2 | foo.push(2,);
+    |     ^^^^ Do not call \`Array#push()\` multiple times.
+  3 | foo.push(3,);
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.push(1, 2,);
+  2 | foo.push(3,);
+
+`;
+
+exports[`prefer-single-call > invalid(16): foo.push(1,);\nfoo.push(2,);\nfoo.push(3,); 3`] = `
+
+Message:
+  1 | foo.push(1,);
+  2 | foo.push(2,);
+> 3 | foo.push(3,);
+    |     ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.push(1,);
+  2 | foo.push(2, 3,);
+
+`;
+
+exports[`prefer-single-call > invalid(16): foo.unshift(x);\nfoo.unshift(foo.length); 1`] = `
+
+  1 | foo.unshift(x);
+  2 | foo.unshift(foo.length);
+
+`;
+
+exports[`prefer-single-call > invalid(16): foo.unshift(x);\nfoo.unshift(foo.length); 2`] = `
+
+Message:
+  1 | foo.unshift(x);
+> 2 | foo.unshift(foo.length);
+    |     ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.unshift(foo.length, x);
+
+`;
+
+exports[`prefer-single-call > invalid(16): function _() {\n\timportScripts(a);\n\timportScripts(b);\n} 1`] = `
+
+  1 | function _() {
+  2 | 	importScripts(a);
+  3 | 	importScripts(b);
+  4 | }
+
+`;
+
+exports[`prefer-single-call > invalid(16): function _() {\n\timportScripts(a);\n\timportScripts(b);\n} 2`] = `
+
+Message:
+  1 | function _() {
+  2 | 	importScripts(a);
+> 3 | 	importScripts(b);
+    | 	^^^^^^^^^^^^^ Do not call \`importScripts()\` multiple times.
+  4 | }
+
+Output:
+  1 | function _() {
+  2 | 	importScripts(a, b);
+  3 | }
+
+`;
+
+exports[`prefer-single-call > invalid(17): foo.unshift(1);\n// Keep this comment\nfoo.unshift(2); 1`] = `
+
+  1 | foo.unshift(1);
+  2 | // Keep this comment
+  3 | foo.unshift(2);
+
+`;
+
+exports[`prefer-single-call > invalid(17): foo.unshift(1);\n// Keep this comment\nfoo.unshift(2); 2`] = `
+
+Message:
+  1 | foo.unshift(1);
+  2 | // Keep this comment
+> 3 | foo.unshift(2);
+    |     ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+`;
+
+exports[`prefer-single-call > invalid(17): if (a) {\n\tfoo.classList.add(a);\n\tfoo.classList.add(b);\n} 1`] = `
+
+  1 | if (a) {
+  2 | 	foo.classList.add(a);
+  3 | 	foo.classList.add(b);
+  4 | }
+
+`;
+
+exports[`prefer-single-call > invalid(17): if (a) {\n\tfoo.classList.add(a);\n\tfoo.classList.add(b);\n} 2`] = `
+
+Message:
+  1 | if (a) {
+  2 | 	foo.classList.add(a);
+> 3 | 	foo.classList.add(b);
+    | 	              ^^^ Do not call \`Element#classList.add()\` multiple times.
+  4 | }
+
+Output:
+  1 | if (a) {
+  2 | 	foo.classList.add(a, b);
+  3 | }
+
+`;
+
+exports[`prefer-single-call > invalid(17): if (a) {\n\tfoo.push(1);\n\tfoo.push(2);\n} 1`] = `
+
+  1 | if (a) {
+  2 | 	foo.push(1);
+  3 | 	foo.push(2);
+  4 | }
+
+`;
+
+exports[`prefer-single-call > invalid(17): if (a) {\n\tfoo.push(1);\n\tfoo.push(2);\n} 2`] = `
+
+Message:
+  1 | if (a) {
+  2 | 	foo.push(1);
+> 3 | 	foo.push(2);
+    | 	    ^^^^ Do not call \`Array#push()\` multiple times.
+  4 | }
+
+Suggestion 1/1: Merge with previous one.:
+  1 | if (a) {
+  2 | 	foo.push(1, 2);
+  3 | }
+
+`;
+
+exports[`prefer-single-call > invalid(17): importScripts(a)\nimportScripts(b)\n;[foo].forEach(bar) 1`] = `
+
+  1 | importScripts(a)
+  2 | importScripts(b)
+  3 | ;[foo].forEach(bar)
+
+`;
+
+exports[`prefer-single-call > invalid(17): importScripts(a)\nimportScripts(b)\n;[foo].forEach(bar) 2`] = `
+
+Message:
+  1 | importScripts(a)
+> 2 | importScripts(b)
+    | ^^^^^^^^^^^^^ Do not call \`importScripts()\` multiple times.
+  3 | ;[foo].forEach(bar)
+
+Output:
+  1 | importScripts(a, b);[foo].forEach(bar)
+
+`;
+
+exports[`prefer-single-call > invalid(18): foo.unshift(1,);\nfoo.unshift(2,);\nfoo.unshift(3,); 1`] = `
+
+  1 | foo.unshift(1,);
+  2 | foo.unshift(2,);
+  3 | foo.unshift(3,);
+
+`;
+
+exports[`prefer-single-call > invalid(18): foo.unshift(1,);\nfoo.unshift(2,);\nfoo.unshift(3,); 2`] = `
+
+Message:
+  1 | foo.unshift(1,);
+> 2 | foo.unshift(2,);
+    |     ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+  3 | foo.unshift(3,);
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.unshift(2, 1,);
+  2 | foo.unshift(3,);
+
+`;
+
+exports[`prefer-single-call > invalid(18): foo.unshift(1,);\nfoo.unshift(2,);\nfoo.unshift(3,); 3`] = `
+
+Message:
+  1 | foo.unshift(1,);
+  2 | foo.unshift(2,);
+> 3 | foo.unshift(3,);
+    |     ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.unshift(1,);
+  2 | foo.unshift(3, 2,);
+
+`;
+
+exports[`prefer-single-call > invalid(18): importScripts?.(\"foo.js\");\nimportScripts(\"bar.js\"); 1`] = `
+
+  1 | importScripts?.("foo.js");
+  2 | importScripts("bar.js");
+
+`;
+
+exports[`prefer-single-call > invalid(18): importScripts?.(\"foo.js\");\nimportScripts(\"bar.js\"); 2`] = `
+
+Message:
+  1 | importScripts?.("foo.js");
+> 2 | importScripts("bar.js");
+    | ^^^^^^^^^^^^^ Do not call \`importScripts()\` multiple times.
+
+Output:
+  1 | importScripts?.("foo.js", "bar.js");
+
+`;
+
+exports[`prefer-single-call > invalid(18): switch (a) {\n\tdefault:\n\t\tfoo.classList.add(a);\n\t\tfoo.classList.add(b);\n} 1`] = `
+
+  1 | switch (a) {
+  2 | 	default:
+  3 | 		foo.classList.add(a);
+  4 | 		foo.classList.add(b);
+  5 | }
+
+`;
+
+exports[`prefer-single-call > invalid(18): switch (a) {\n\tdefault:\n\t\tfoo.classList.add(a);\n\t\tfoo.classList.add(b);\n} 2`] = `
+
+Message:
+  1 | switch (a) {
+  2 | 	default:
+  3 | 		foo.classList.add(a);
+> 4 | 		foo.classList.add(b);
+    | 		              ^^^ Do not call \`Element#classList.add()\` multiple times.
+  5 | }
+
+Output:
+  1 | switch (a) {
+  2 | 	default:
+  3 | 		foo.classList.add(a, b);
+  4 | }
+
+`;
+
+exports[`prefer-single-call > invalid(18): switch (a) {\n\tdefault:\n\t\tfoo.push(1);\n\t\tfoo.push(2);\n} 1`] = `
+
+  1 | switch (a) {
+  2 | 	default:
+  3 | 		foo.push(1);
+  4 | 		foo.push(2);
+  5 | }
+
+`;
+
+exports[`prefer-single-call > invalid(18): switch (a) {\n\tdefault:\n\t\tfoo.push(1);\n\t\tfoo.push(2);\n} 2`] = `
+
+Message:
+  1 | switch (a) {
+  2 | 	default:
+  3 | 		foo.push(1);
+> 4 | 		foo.push(2);
+    | 		    ^^^^ Do not call \`Array#push()\` multiple times.
+  5 | }
+
+Suggestion 1/1: Merge with previous one.:
+  1 | switch (a) {
+  2 | 	default:
+  3 | 		foo.push(1, 2);
+  4 | }
+
+`;
+
+exports[`prefer-single-call > invalid(19): function _() {\n\tfoo.classList.add(a);\n\tfoo.classList.add(b);\n} 1`] = `
+
+  1 | function _() {
+  2 | 	foo.classList.add(a);
+  3 | 	foo.classList.add(b);
+  4 | }
+
+`;
+
+exports[`prefer-single-call > invalid(19): function _() {\n\tfoo.classList.add(a);\n\tfoo.classList.add(b);\n} 2`] = `
+
+Message:
+  1 | function _() {
+  2 | 	foo.classList.add(a);
+> 3 | 	foo.classList.add(b);
+    | 	              ^^^ Do not call \`Element#classList.add()\` multiple times.
+  4 | }
+
+Output:
+  1 | function _() {
+  2 | 	foo.classList.add(a, b);
+  3 | }
+
+`;
+
+exports[`prefer-single-call > invalid(19): function a() {\n\tfoo.push(1);\n\tfoo.push(2);\n} 1`] = `
+
+  1 | function a() {
+  2 | 	foo.push(1);
+  3 | 	foo.push(2);
+  4 | }
+
+`;
+
+exports[`prefer-single-call > invalid(19): function a() {\n\tfoo.push(1);\n\tfoo.push(2);\n} 2`] = `
+
+Message:
+  1 | function a() {
+  2 | 	foo.push(1);
+> 3 | 	foo.push(2);
+    | 	    ^^^^ Do not call \`Array#push()\` multiple times.
+  4 | }
+
+Suggestion 1/1: Merge with previous one.:
+  1 | function a() {
+  2 | 	foo.push(1, 2);
+  3 | }
+
+`;
+
+exports[`prefer-single-call > invalid(19): if (a) {\n\tfoo.unshift(1);\n\tfoo.unshift(2);\n} 1`] = `
+
+  1 | if (a) {
+  2 | 	foo.unshift(1);
+  3 | 	foo.unshift(2);
+  4 | }
+
+`;
+
+exports[`prefer-single-call > invalid(19): if (a) {\n\tfoo.unshift(1);\n\tfoo.unshift(2);\n} 2`] = `
+
+Message:
+  1 | if (a) {
+  2 | 	foo.unshift(1);
+> 3 | 	foo.unshift(2);
+    | 	    ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+  4 | }
+
+Suggestion 1/1: Merge with previous one.:
+  1 | if (a) {
+  2 | 	foo.unshift(2, 1);
+  3 | }
+
+`;
+
+exports[`prefer-single-call > invalid(19): importScripts(\"foo.js\");\nimportScripts?.(\"bar.js\"); 1`] = `
+
+  1 | importScripts("foo.js");
+  2 | importScripts?.("bar.js");
+
+`;
+
+exports[`prefer-single-call > invalid(19): importScripts(\"foo.js\");\nimportScripts?.(\"bar.js\"); 2`] = `
+
+Message:
+  1 | importScripts("foo.js");
+> 2 | importScripts?.("bar.js");
+    | ^^^^^^^^^^^^^ Do not call \`importScripts()\` multiple times.
+
+Output:
+  1 | importScripts("foo.js", "bar.js");
+
+`;
+
+exports[`prefer-single-call > invalid(2): (foo.unshift)(1);\n(foo.unshift)(2); 1`] = `
+
+  1 | (foo.unshift)(1);
+  2 | (foo.unshift)(2);
+
+`;
+
+exports[`prefer-single-call > invalid(2): (foo.unshift)(1);\n(foo.unshift)(2); 2`] = `
+
+Message:
+  1 | (foo.unshift)(1);
+> 2 | (foo.unshift)(2);
+    |      ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | (foo.unshift)(2, 1);
+
+`;
+
+exports[`prefer-single-call > invalid(2): (importScripts)(\"foo.js\");\n(importScripts)(\"bar.js\"); 1`] = `
+
+  1 | (importScripts)("foo.js");
+  2 | (importScripts)("bar.js");
+
+`;
+
+exports[`prefer-single-call > invalid(2): (importScripts)(\"foo.js\");\n(importScripts)(\"bar.js\"); 2`] = `
+
+Message:
+  1 | (importScripts)("foo.js");
+> 2 | (importScripts)("bar.js");
+    |  ^^^^^^^^^^^^^ Do not call \`importScripts()\` multiple times.
+
+Output:
+  1 | (importScripts)("foo.js", "bar.js");
+
+`;
+
+exports[`prefer-single-call > invalid(2): foo.classList.remove(\"foo\");\nfoo.classList.remove(\"bar\"); 1`] = `
+
+  1 | foo.classList.remove("foo");
+  2 | foo.classList.remove("bar");
+
+`;
+
+exports[`prefer-single-call > invalid(2): foo.classList.remove(\"foo\");\nfoo.classList.remove(\"bar\"); 2`] = `
+
+Message:
+  1 | foo.classList.remove("foo");
+> 2 | foo.classList.remove("bar");
+    |               ^^^^^^ Do not call \`Element#classList.remove()\` multiple times.
+
+Output:
+  1 | foo.classList.remove("foo", "bar");
+
+`;
+
+exports[`prefer-single-call > invalid(2): foo.push(1);\nfoo.push(2); 1`] = `
+
+  1 | foo.push(1);
+  2 | foo.push(2);
+
+`;
+
+exports[`prefer-single-call > invalid(2): foo.push(1);\nfoo.push(2); 2`] = `
+
+Message:
+  1 | foo.push(1);
+> 2 | foo.push(2);
+    |     ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.push(1, 2);
+
+`;
+
+exports[`prefer-single-call > invalid(20): foo.classList.add(a)\nfoo.classList.add(b)\n;[foo].forEach(bar) 1`] = `
+
+  1 | foo.classList.add(a)
+  2 | foo.classList.add(b)
+  3 | ;[foo].forEach(bar)
+
+`;
+
+exports[`prefer-single-call > invalid(20): foo.classList.add(a)\nfoo.classList.add(b)\n;[foo].forEach(bar) 2`] = `
+
+Message:
+  1 | foo.classList.add(a)
+> 2 | foo.classList.add(b)
+    |               ^^^ Do not call \`Element#classList.add()\` multiple times.
+  3 | ;[foo].forEach(bar)
+
+Output:
+  1 | foo.classList.add(a, b);[foo].forEach(bar)
+
+`;
+
+exports[`prefer-single-call > invalid(20): foo.push(1)\nfoo.push(2)\n;[foo].forEach(bar) 1`] = `
+
+  1 | foo.push(1)
+  2 | foo.push(2)
+  3 | ;[foo].forEach(bar)
+
+`;
+
+exports[`prefer-single-call > invalid(20): foo.push(1)\nfoo.push(2)\n;[foo].forEach(bar) 2`] = `
+
+Message:
+  1 | foo.push(1)
+> 2 | foo.push(2)
+    |     ^^^^ Do not call \`Array#push()\` multiple times.
+  3 | ;[foo].forEach(bar)
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.push(1, 2);[foo].forEach(bar)
+
+`;
+
+exports[`prefer-single-call > invalid(20): importScripts?.(\"foo.js\");\nimportScripts?.(\"bar.js\"); 1`] = `
+
+  1 | importScripts?.("foo.js");
+  2 | importScripts?.("bar.js");
+
+`;
+
+exports[`prefer-single-call > invalid(20): importScripts?.(\"foo.js\");\nimportScripts?.(\"bar.js\"); 2`] = `
+
+Message:
+  1 | importScripts?.("foo.js");
+> 2 | importScripts?.("bar.js");
+    | ^^^^^^^^^^^^^ Do not call \`importScripts()\` multiple times.
+
+Output:
+  1 | importScripts?.("foo.js", "bar.js");
+
+`;
+
+exports[`prefer-single-call > invalid(20): switch (a) {\n\tdefault:\n\t\tfoo.unshift(1);\n\t\tfoo.unshift(2);\n} 1`] = `
+
+  1 | switch (a) {
+  2 | 	default:
+  3 | 		foo.unshift(1);
+  4 | 		foo.unshift(2);
+  5 | }
+
+`;
+
+exports[`prefer-single-call > invalid(20): switch (a) {\n\tdefault:\n\t\tfoo.unshift(1);\n\t\tfoo.unshift(2);\n} 2`] = `
+
+Message:
+  1 | switch (a) {
+  2 | 	default:
+  3 | 		foo.unshift(1);
+> 4 | 		foo.unshift(2);
+    | 		    ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+  5 | }
+
+Suggestion 1/1: Merge with previous one.:
+  1 | switch (a) {
+  2 | 	default:
+  3 | 		foo.unshift(2, 1);
+  4 | }
+
+`;
+
+exports[`prefer-single-call > invalid(21): foo.bar.classList.add(a);\n(foo)['bar'].classList.add(b); 1`] = `
+
+  1 | foo.bar.classList.add(a);
+  2 | (foo)['bar'].classList.add(b);
+
+`;
+
+exports[`prefer-single-call > invalid(21): foo.bar.classList.add(a);\n(foo)['bar'].classList.add(b); 2`] = `
+
+Message:
+  1 | foo.bar.classList.add(a);
+> 2 | (foo)['bar'].classList.add(b);
+    |                        ^^^ Do not call \`Element#classList.add()\` multiple times.
+
+Output:
+  1 | foo.bar.classList.add(a, b);
+
+`;
+
+exports[`prefer-single-call > invalid(21): foo.bar.push(1);\n(foo)['bar'].push(2); 1`] = `
+
+  1 | foo.bar.push(1);
+  2 | (foo)['bar'].push(2);
+
+`;
+
+exports[`prefer-single-call > invalid(21): foo.bar.push(1);\n(foo)['bar'].push(2); 2`] = `
+
+Message:
+  1 | foo.bar.push(1);
+> 2 | (foo)['bar'].push(2);
+    |              ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.bar.push(1, 2);
+
+`;
+
+exports[`prefer-single-call > invalid(21): function a() {\n\tfoo.unshift(1);\n\tfoo.unshift(2);\n} 1`] = `
+
+  1 | function a() {
+  2 | 	foo.unshift(1);
+  3 | 	foo.unshift(2);
+  4 | }
+
+`;
+
+exports[`prefer-single-call > invalid(21): function a() {\n\tfoo.unshift(1);\n\tfoo.unshift(2);\n} 2`] = `
+
+Message:
+  1 | function a() {
+  2 | 	foo.unshift(1);
+> 3 | 	foo.unshift(2);
+    | 	    ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+  4 | }
+
+Suggestion 1/1: Merge with previous one.:
+  1 | function a() {
+  2 | 	foo.unshift(2, 1);
+  3 | }
+
+`;
+
+exports[`prefer-single-call > invalid(22): foo.push(1);\nfoo.push(2);\nstream.push(1);\nstream.push(2); 1`] = `
+
+  1 | foo.push(1);
+  2 | foo.push(2);
+  3 | stream.push(1);
+  4 | stream.push(2);
+
+`;
+
+exports[`prefer-single-call > invalid(22): foo.push(1);\nfoo.push(2);\nstream.push(1);\nstream.push(2); 2`] = `
+
+Message:
+  1 | foo.push(1);
+> 2 | foo.push(2);
+    |     ^^^^ Do not call \`Array#push()\` multiple times.
+  3 | stream.push(1);
+  4 | stream.push(2);
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.push(1, 2);
+  2 | stream.push(1);
+  3 | stream.push(2);
+
+`;
+
+exports[`prefer-single-call > invalid(22): foo.unshift(1)\nfoo.unshift(2)\n;[foo].forEach(bar) 1`] = `
+
+  1 | foo.unshift(1)
+  2 | foo.unshift(2)
+  3 | ;[foo].forEach(bar)
+
+`;
+
+exports[`prefer-single-call > invalid(22): foo.unshift(1)\nfoo.unshift(2)\n;[foo].forEach(bar) 2`] = `
+
+Message:
+  1 | foo.unshift(1)
+> 2 | foo.unshift(2)
+    |     ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+  3 | ;[foo].forEach(bar)
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.unshift(2, 1)
+  2 | ;[foo].forEach(bar)
+
+`;
+
+exports[`prefer-single-call > invalid(22): foo?.classList.add(\"foo\");\nfoo.classList.add(\"bar\"); 1`] = `
+
+  1 | foo?.classList.add("foo");
+  2 | foo.classList.add("bar");
+
+`;
+
+exports[`prefer-single-call > invalid(22): foo?.classList.add(\"foo\");\nfoo.classList.add(\"bar\"); 2`] = `
+
+Message:
+  1 | foo?.classList.add("foo");
+> 2 | foo.classList.add("bar");
+    |               ^^^ Do not call \`Element#classList.add()\` multiple times.
+
+Output:
+  1 | foo?.classList.add("foo", "bar");
+
+`;
+
+exports[`prefer-single-call > invalid(23): foo.bar.push(1);\nfoo.bar.push(2);\nfoo.push(1);\nfoo.push(2);\nbar.foo.push(1);\nbar.foo.push(2); 1`] = `
+
+Options:
+- ignore:
+    - 'foo'
+    - 'foo.bar'
+
+Code:
+  1 | foo.bar.push(1);
+  2 | foo.bar.push(2);
+  3 | foo.push(1);
+  4 | foo.push(2);
+  5 | bar.foo.push(1);
+  6 | bar.foo.push(2);
+
+`;
+
+exports[`prefer-single-call > invalid(23): foo.bar.push(1);\nfoo.bar.push(2);\nfoo.push(1);\nfoo.push(2);\nbar.foo.push(1);\nbar.foo.push(2); 2`] = `
+
+Message:
+  1 | foo.bar.push(1);
+> 2 | foo.bar.push(2);
+    |         ^^^^ Do not call \`Array#push()\` multiple times.
+  3 | foo.push(1);
+  4 | foo.push(2);
+  5 | bar.foo.push(1);
+  6 | bar.foo.push(2);
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.bar.push(1, 2);
+  2 | foo.push(1);
+  3 | foo.push(2);
+  4 | bar.foo.push(1);
+  5 | bar.foo.push(2);
+
+`;
+
+exports[`prefer-single-call > invalid(23): foo.bar.push(1);\nfoo.bar.push(2);\nfoo.push(1);\nfoo.push(2);\nbar.foo.push(1);\nbar.foo.push(2); 3`] = `
+
+Message:
+  1 | foo.bar.push(1);
+  2 | foo.bar.push(2);
+  3 | foo.push(1);
+> 4 | foo.push(2);
+    |     ^^^^ Do not call \`Array#push()\` multiple times.
+  5 | bar.foo.push(1);
+  6 | bar.foo.push(2);
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.bar.push(1);
+  2 | foo.bar.push(2);
+  3 | foo.push(1, 2);
+  4 | bar.foo.push(1);
+  5 | bar.foo.push(2);
+
+`;
+
+exports[`prefer-single-call > invalid(23): foo.bar.push(1);\nfoo.bar.push(2);\nfoo.push(1);\nfoo.push(2);\nbar.foo.push(1);\nbar.foo.push(2); 4`] = `
+
+Message:
+  1 | foo.bar.push(1);
+  2 | foo.bar.push(2);
+  3 | foo.push(1);
+  4 | foo.push(2);
+  5 | bar.foo.push(1);
+> 6 | bar.foo.push(2);
+    |         ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.bar.push(1);
+  2 | foo.bar.push(2);
+  3 | foo.push(1);
+  4 | foo.push(2);
+  5 | bar.foo.push(1, 2);
+
+`;
+
+exports[`prefer-single-call > invalid(23): foo.bar.unshift(1);\n(foo)['bar'].unshift(2); 1`] = `
+
+  1 | foo.bar.unshift(1);
+  2 | (foo)['bar'].unshift(2);
+
+`;
+
+exports[`prefer-single-call > invalid(23): foo.bar.unshift(1);\n(foo)['bar'].unshift(2); 2`] = `
+
+Message:
+  1 | foo.bar.unshift(1);
+> 2 | (foo)['bar'].unshift(2);
+    |              ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | (foo)['bar'].unshift(2, 1);
+
+`;
+
+exports[`prefer-single-call > invalid(23): foo.classList.add(\"foo\");\nfoo?.classList.add(\"bar\"); 1`] = `
+
+  1 | foo.classList.add("foo");
+  2 | foo?.classList.add("bar");
+
+`;
+
+exports[`prefer-single-call > invalid(23): foo.classList.add(\"foo\");\nfoo?.classList.add(\"bar\"); 2`] = `
+
+Message:
+  1 | foo.classList.add("foo");
+> 2 | foo?.classList.add("bar");
+    |                ^^^ Do not call \`Element#classList.add()\` multiple times.
+
+Output:
+  1 | foo.classList.add("foo", "bar");
+
+`;
+
+exports[`prefer-single-call > invalid(24): foo.push(1);\nfoo?.push(2); 1`] = `
+
+  1 | foo.push(1);
+  2 | foo?.push(2);
+
+`;
+
+exports[`prefer-single-call > invalid(24): foo.push(1);\nfoo?.push(2); 2`] = `
+
+Message:
+  1 | foo.push(1);
+> 2 | foo?.push(2);
+    |      ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.push(1, 2);
+
+`;
+
+exports[`prefer-single-call > invalid(24): foo.unshift(1);\nfoo?.unshift(2); 1`] = `
+
+  1 | foo.unshift(1);
+  2 | foo?.unshift(2);
+
+`;
+
+exports[`prefer-single-call > invalid(24): foo.unshift(1);\nfoo?.unshift(2); 2`] = `
+
+Message:
+  1 | foo.unshift(1);
+> 2 | foo?.unshift(2);
+    |      ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.unshift(2, 1);
+
+`;
+
+exports[`prefer-single-call > invalid(24): foo?.classList.add(\"foo\");\nfoo?.classList.add(\"bar\"); 1`] = `
+
+  1 | foo?.classList.add("foo");
+  2 | foo?.classList.add("bar");
+
+`;
+
+exports[`prefer-single-call > invalid(24): foo?.classList.add(\"foo\");\nfoo?.classList.add(\"bar\"); 2`] = `
+
+Message:
+  1 | foo?.classList.add("foo");
+> 2 | foo?.classList.add("bar");
+    |                ^^^ Do not call \`Element#classList.add()\` multiple times.
+
+Output:
+  1 | foo?.classList.add("foo", "bar");
+
+`;
+
+exports[`prefer-single-call > invalid(25): foo.unshift(1);\nfoo?.unshift(2,); 1`] = `
+
+  1 | foo.unshift(1);
+  2 | foo?.unshift(2,);
+
+`;
+
+exports[`prefer-single-call > invalid(25): foo.unshift(1);\nfoo?.unshift(2,); 2`] = `
+
+Message:
+  1 | foo.unshift(1);
+> 2 | foo?.unshift(2,);
+    |      ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.unshift(2, 1);
+
+`;
+
+exports[`prefer-single-call > invalid(25): foo?.push(1);\nfoo.push(2); 1`] = `
+
+  1 | foo?.push(1);
+  2 | foo.push(2);
+
+`;
+
+exports[`prefer-single-call > invalid(25): foo?.push(1);\nfoo.push(2); 2`] = `
+
+Message:
+  1 | foo?.push(1);
+> 2 | foo.push(2);
+    |     ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo?.push(1, 2);
+
+`;
+
+exports[`prefer-single-call > invalid(26): foo?.push(1);\nfoo?.push(2); 1`] = `
+
+  1 | foo?.push(1);
+  2 | foo?.push(2);
+
+`;
+
+exports[`prefer-single-call > invalid(26): foo?.push(1);\nfoo?.push(2); 2`] = `
+
+Message:
+  1 | foo?.push(1);
+> 2 | foo?.push(2);
+    |      ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo?.push(1, 2);
+
+`;
+
+exports[`prefer-single-call > invalid(26): foo?.unshift(1);\nfoo.unshift(2); 1`] = `
+
+  1 | foo?.unshift(1);
+  2 | foo.unshift(2);
+
+`;
+
+exports[`prefer-single-call > invalid(26): foo?.unshift(1);\nfoo.unshift(2); 2`] = `
+
+Message:
+  1 | foo?.unshift(1);
+> 2 | foo.unshift(2);
+    |     ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.unshift(2, 1);
+
+`;
+
+exports[`prefer-single-call > invalid(27): foo?.bar.push(1);\nfoo?.bar.push(2); 1`] = `
+
+  1 | foo?.bar.push(1);
+  2 | foo?.bar.push(2);
+
+`;
+
+exports[`prefer-single-call > invalid(27): foo?.bar.push(1);\nfoo?.bar.push(2); 2`] = `
+
+Message:
+  1 | foo?.bar.push(1);
+> 2 | foo?.bar.push(2);
+    |          ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo?.bar.push(1, 2);
+
+`;
+
+exports[`prefer-single-call > invalid(27): foo?.unshift(1);\nfoo?.unshift(2); 1`] = `
+
+  1 | foo?.unshift(1);
+  2 | foo?.unshift(2);
+
+`;
+
+exports[`prefer-single-call > invalid(27): foo?.unshift(1);\nfoo?.unshift(2); 2`] = `
+
+Message:
+  1 | foo?.unshift(1);
+> 2 | foo?.unshift(2);
+    |      ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo?.unshift(2, 1);
+
+`;
+
+exports[`prefer-single-call > invalid(28): (foo as any[]).push(1);\n(foo as any[]).push(2); 1`] = `
+
+  1 | (foo as any[]).push(1);
+  2 | (foo as any[]).push(2);
+
+`;
+
+exports[`prefer-single-call > invalid(28): (foo as any[]).push(1);\n(foo as any[]).push(2); 2`] = `
+
+Message:
+  1 | (foo as any[]).push(1);
+> 2 | (foo as any[]).push(2);
+    |                ^^^^ Do not call \`Array#push()\` multiple times.
+
+Output:
+  1 | (foo as any[]).push(1, 2);
+
+`;
+
+exports[`prefer-single-call > invalid(28): foo?.bar.unshift(1);\nfoo?.bar.unshift(2); 1`] = `
+
+  1 | foo?.bar.unshift(1);
+  2 | foo?.bar.unshift(2);
+
+`;
+
+exports[`prefer-single-call > invalid(28): foo?.bar.unshift(1);\nfoo?.bar.unshift(2); 2`] = `
+
+Message:
+  1 | foo?.bar.unshift(1);
+> 2 | foo?.bar.unshift(2);
+    |          ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo?.bar.unshift(2, 1);
+
+`;
+
+exports[`prefer-single-call > invalid(29): (foo as any[]).unshift(1);\n(foo as any[]).unshift(2); 1`] = `
+
+  1 | (foo as any[]).unshift(1);
+  2 | (foo as any[]).unshift(2);
+
+`;
+
+exports[`prefer-single-call > invalid(29): (foo as any[]).unshift(1);\n(foo as any[]).unshift(2); 2`] = `
+
+Message:
+  1 | (foo as any[]).unshift(1);
+> 2 | (foo as any[]).unshift(2);
+    |                ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Output:
+  1 | (foo as any[]).unshift(2, 1);
+
+`;
+
+exports[`prefer-single-call > invalid(29): foo!.push(1);\nfoo!.push(2); 1`] = `
+
+  1 | foo!.push(1);
+  2 | foo!.push(2);
+
+`;
+
+exports[`prefer-single-call > invalid(29): foo!.push(1);\nfoo!.push(2); 2`] = `
+
+Message:
+  1 | foo!.push(1);
+> 2 | foo!.push(2);
+    |      ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo!.push(1, 2);
+
+`;
+
+exports[`prefer-single-call > invalid(3): (foo.classList.add)(\"foo\");\n(foo.classList.add)(\"bar\"); 1`] = `
+
+  1 | (foo.classList.add)("foo");
+  2 | (foo.classList.add)("bar");
+
+`;
+
+exports[`prefer-single-call > invalid(3): (foo.classList.add)(\"foo\");\n(foo.classList.add)(\"bar\"); 2`] = `
+
+Message:
+  1 | (foo.classList.add)("foo");
+> 2 | (foo.classList.add)("bar");
+    |                ^^^ Do not call \`Element#classList.add()\` multiple times.
+
+Output:
+  1 | (foo.classList.add)("foo", "bar");
+
+`;
+
+exports[`prefer-single-call > invalid(3): (foo.push)(1);\n(foo.push)(2); 1`] = `
+
+  1 | (foo.push)(1);
+  2 | (foo.push)(2);
+
+`;
+
+exports[`prefer-single-call > invalid(3): (foo.push)(1);\n(foo.push)(2); 2`] = `
+
+Message:
+  1 | (foo.push)(1);
+> 2 | (foo.push)(2);
+    |      ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | (foo.push)(1, 2);
+
+`;
+
+exports[`prefer-single-call > invalid(3): foo.bar.unshift(1);\nfoo.bar.unshift(2); 1`] = `
+
+  1 | foo.bar.unshift(1);
+  2 | foo.bar.unshift(2);
+
+`;
+
+exports[`prefer-single-call > invalid(3): foo.bar.unshift(1);\nfoo.bar.unshift(2); 2`] = `
+
+Message:
+  1 | foo.bar.unshift(1);
+> 2 | foo.bar.unshift(2);
+    |         ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.bar.unshift(2, 1);
+
+`;
+
+exports[`prefer-single-call > invalid(3): importScripts();\nimportScripts(); 1`] = `
+
+  1 | importScripts();
+  2 | importScripts();
+
+`;
+
+exports[`prefer-single-call > invalid(3): importScripts();\nimportScripts(); 2`] = `
+
+Message:
+  1 | importScripts();
+> 2 | importScripts();
+    | ^^^^^^^^^^^^^ Do not call \`importScripts()\` multiple times.
+
+Output:
+  1 | importScripts();
+
+`;
+
+exports[`prefer-single-call > invalid(30): foo!.unshift(1);\nfoo!.unshift(2); 1`] = `
+
+  1 | foo!.unshift(1);
+  2 | foo!.unshift(2);
+
+`;
+
+exports[`prefer-single-call > invalid(30): foo!.unshift(1);\nfoo!.unshift(2); 2`] = `
+
+Message:
+  1 | foo!.unshift(1);
+> 2 | foo!.unshift(2);
+    |      ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo!.unshift(2, 1);
+
+`;
+
+exports[`prefer-single-call > invalid(30): function f(foo: number[]) { foo.push(1); foo.push(2); } 1`] = `
+
+  1 | function f(foo: number[]) { foo.push(1); foo.push(2); }
+
+`;
+
+exports[`prefer-single-call > invalid(30): function f(foo: number[]) { foo.push(1); foo.push(2); } 2`] = `
+
+Message:
+> 1 | function f(foo: number[]) { foo.push(1); foo.push(2); }
+    |                                              ^^^^ Do not call \`Array#push()\` multiple times.
+
+Output:
+  1 | function f(foo: number[]) { foo.push(1, 2); }
+
+`;
+
+exports[`prefer-single-call > invalid(31): const array = [0].map(value => value); array.push(1); array.push(2); 1`] = `
+
+  1 | const array = [0].map(value => value); array.push(1); array.push(2);
+
+`;
+
+exports[`prefer-single-call > invalid(31): const array = [0].map(value => value); array.push(1); array.push(2); 2`] = `
+
+Message:
+> 1 | const array = [0].map(value => value); array.push(1); array.push(2);
+    |                                                             ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | const array = [0].map(value => value); array.push(1, 2);
+
+`;
+
+exports[`prefer-single-call > invalid(31): function f(foo: number[]) { foo.unshift(1); foo.unshift(2); } 1`] = `
+
+  1 | function f(foo: number[]) { foo.unshift(1); foo.unshift(2); }
+
+`;
+
+exports[`prefer-single-call > invalid(31): function f(foo: number[]) { foo.unshift(1); foo.unshift(2); } 2`] = `
+
+Message:
+> 1 | function f(foo: number[]) { foo.unshift(1); foo.unshift(2); }
+    |                                                 ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Output:
+  1 | function f(foo: number[]) { foo.unshift(2, 1); }
+
+`;
+
+exports[`prefer-single-call > invalid(32): const array = [0].map(value => value); array.push(1); array.push(2); 1`] = `
+
+Filename: file.ts
+
+  1 | const array = [0].map(value => value); array.push(1); array.push(2);
+
+`;
+
+exports[`prefer-single-call > invalid(32): const array = [0].map(value => value); array.push(1); array.push(2); 2`] = `
+
+Message:
+> 1 | const array = [0].map(value => value); array.push(1); array.push(2);
+    |                                                             ^^^^ Do not call \`Array#push()\` multiple times.
+
+Output:
+  1 | const array = [0].map(value => value); array.push(1, 2);
+
+`;
+
+exports[`prefer-single-call > invalid(32): const container = {data: {entries: {unshift(value) { console.log(value); }}}}; container.data.entries.unshift(1); container.data.entries.unshift(2); 1`] = `
+
+  1 | const container = {data: {entries: {unshift(value) { console.log(value); }}}}; container.data.entries.unshift(1); container.data.entries.unshift(2);
+
+`;
+
+exports[`prefer-single-call > invalid(32): const container = {data: {entries: {unshift(value) { console.log(value); }}}}; container.data.entries.unshift(1); container.data.entries.unshift(2); 2`] = `
+
+Message:
+> 1 | const container = {data: {entries: {unshift(value) { console.log(value); }}}}; container.data.entries.unshift(1); container.data.entries.unshift(2);
+    |                                                                                                                                          ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | const container = {data: {entries: {unshift(value) { console.log(value); }}}}; container.data.entries.unshift(2, 1);
+
+`;
+
+exports[`prefer-single-call > invalid(33): const values = []; values.unshift(1); values.unshift(2); 1`] = `
+
+  1 | const values = []; values.unshift(1); values.unshift(2);
+
+`;
+
+exports[`prefer-single-call > invalid(33): const values = []; values.unshift(1); values.unshift(2); 2`] = `
+
+Message:
+> 1 | const values = []; values.unshift(1); values.unshift(2);
+    |                                              ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Output:
+  1 | const values = []; values.unshift(2, 1);
+
+`;
+
+exports[`prefer-single-call > invalid(33): declare const receiver: number[] | {push(value: number): void}; receiver.push(1); receiver.push(2); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const receiver: number[] | {push(value: number): void}; receiver.push(1); receiver.push(2);
+
+`;
+
+exports[`prefer-single-call > invalid(33): declare const receiver: number[] | {push(value: number): void}; receiver.push(1); receiver.push(2); 2`] = `
+
+Message:
+> 1 | declare const receiver: number[] | {push(value: number): void}; receiver.push(1); receiver.push(2);
+    |                                                                                            ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | declare const receiver: number[] | {push(value: number): void}; receiver.push(1, 2);
+
+`;
+
+exports[`prefer-single-call > invalid(34): const array = []; array.unshift(1); array.unshift(array.length); 1`] = `
+
+  1 | const array = []; array.unshift(1); array.unshift(array.length);
+
+`;
+
+exports[`prefer-single-call > invalid(34): const array = []; array.unshift(1); array.unshift(array.length); 2`] = `
+
+Message:
+> 1 | const array = []; array.unshift(1); array.unshift(array.length);
+    |                                           ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | const array = []; array.unshift(array.length, 1);
+
+`;
+
+exports[`prefer-single-call > invalid(34): function makeSink() { return {push(value: number) {}}; } const sink = makeSink(); sink.push(1); sink.push(2); 1`] = `
+
+  1 | function makeSink() { return {push(value: number) {}}; } const sink = makeSink(); sink.push(1); sink.push(2);
+
+`;
+
+exports[`prefer-single-call > invalid(34): function makeSink() { return {push(value: number) {}}; } const sink = makeSink(); sink.push(1); sink.push(2); 2`] = `
+
+Message:
+> 1 | function makeSink() { return {push(value: number) {}}; } const sink = makeSink(); sink.push(1); sink.push(2);
+    |                                                                                                      ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | function makeSink() { return {push(value: number) {}}; } const sink = makeSink(); sink.push(1, 2);
+
+`;
+
+exports[`prefer-single-call > invalid(35): const container = {data: {entries: {push(value) { console.log(value); }}}}; container.data.entries.push(1); container.data.entries.push(2); 1`] = `
+
+  1 | const container = {data: {entries: {push(value) { console.log(value); }}}}; container.data.entries.push(1); container.data.entries.push(2);
+
+`;
+
+exports[`prefer-single-call > invalid(35): const container = {data: {entries: {push(value) { console.log(value); }}}}; container.data.entries.push(1); container.data.entries.push(2); 2`] = `
+
+Message:
+> 1 | const container = {data: {entries: {push(value) { console.log(value); }}}}; container.data.entries.push(1); container.data.entries.push(2);
+    |                                                                                                                                    ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | const container = {data: {entries: {push(value) { console.log(value); }}}}; container.data.entries.push(1, 2);
+
+`;
+
+exports[`prefer-single-call > invalid(36): const values = []; values.push(1); values.push(2); 1`] = `
+
+  1 | const values = []; values.push(1); values.push(2);
+
+`;
+
+exports[`prefer-single-call > invalid(36): const values = []; values.push(1); values.push(2); 2`] = `
+
+Message:
+> 1 | const values = []; values.push(1); values.push(2);
+    |                                           ^^^^ Do not call \`Array#push()\` multiple times.
+
+Output:
+  1 | const values = []; values.push(1, 2);
+
+`;
+
+exports[`prefer-single-call > invalid(4): foo.bar.classList.add(\"foo\");\nfoo.bar.classList.add(\"bar\"); 1`] = `
+
+  1 | foo.bar.classList.add("foo");
+  2 | foo.bar.classList.add("bar");
+
+`;
+
+exports[`prefer-single-call > invalid(4): foo.bar.classList.add(\"foo\");\nfoo.bar.classList.add(\"bar\"); 2`] = `
+
+Message:
+  1 | foo.bar.classList.add("foo");
+> 2 | foo.bar.classList.add("bar");
+    |                   ^^^ Do not call \`Element#classList.add()\` multiple times.
+
+Output:
+  1 | foo.bar.classList.add("foo", "bar");
+
+`;
+
+exports[`prefer-single-call > invalid(4): foo.bar.push(1);\nfoo.bar.push(2); 1`] = `
+
+  1 | foo.bar.push(1);
+  2 | foo.bar.push(2);
+
+`;
+
+exports[`prefer-single-call > invalid(4): foo.bar.push(1);\nfoo.bar.push(2); 2`] = `
+
+Message:
+  1 | foo.bar.push(1);
+> 2 | foo.bar.push(2);
+    |         ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.bar.push(1, 2);
+
+`;
+
+exports[`prefer-single-call > invalid(4): foo.unshift(1);\n(foo).unshift(2); 1`] = `
+
+  1 | foo.unshift(1);
+  2 | (foo).unshift(2);
+
+`;
+
+exports[`prefer-single-call > invalid(4): foo.unshift(1);\n(foo).unshift(2); 2`] = `
+
+Message:
+  1 | foo.unshift(1);
+> 2 | (foo).unshift(2);
+    |       ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | (foo).unshift(2, 1);
+
+`;
+
+exports[`prefer-single-call > invalid(4): importScripts(\"foo.js\");\nimportScripts(); 1`] = `
+
+  1 | importScripts("foo.js");
+  2 | importScripts();
+
+`;
+
+exports[`prefer-single-call > invalid(4): importScripts(\"foo.js\");\nimportScripts(); 2`] = `
+
+Message:
+  1 | importScripts("foo.js");
+> 2 | importScripts();
+    | ^^^^^^^^^^^^^ Do not call \`importScripts()\` multiple times.
+
+Output:
+  1 | importScripts("foo.js");
+
+`;
+
+exports[`prefer-single-call > invalid(5): bar()\nfoo.unshift(1);\n(foo).unshift(2); 1`] = `
+
+  1 | bar()
+  2 | foo.unshift(1);
+  3 | (foo).unshift(2);
+
+`;
+
+exports[`prefer-single-call > invalid(5): bar()\nfoo.unshift(1);\n(foo).unshift(2); 2`] = `
+
+Message:
+  1 | bar()
+  2 | foo.unshift(1);
+> 3 | (foo).unshift(2);
+    |       ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | bar()
+  2 | ;(foo).unshift(2, 1);
+
+`;
+
+exports[`prefer-single-call > invalid(5): foo.classList.add(\"foo\");\n(foo).classList.add(\"bar\"); 1`] = `
+
+  1 | foo.classList.add("foo");
+  2 | (foo).classList.add("bar");
+
+`;
+
+exports[`prefer-single-call > invalid(5): foo.classList.add(\"foo\");\n(foo).classList.add(\"bar\"); 2`] = `
+
+Message:
+  1 | foo.classList.add("foo");
+> 2 | (foo).classList.add("bar");
+    |                 ^^^ Do not call \`Element#classList.add()\` multiple times.
+
+Output:
+  1 | foo.classList.add("foo", "bar");
+
+`;
+
+exports[`prefer-single-call > invalid(5): foo.push(1);\n(foo).push(2); 1`] = `
+
+  1 | foo.push(1);
+  2 | (foo).push(2);
+
+`;
+
+exports[`prefer-single-call > invalid(5): foo.push(1);\n(foo).push(2); 2`] = `
+
+Message:
+  1 | foo.push(1);
+> 2 | (foo).push(2);
+    |       ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.push(1, 2);
+
+`;
+
+exports[`prefer-single-call > invalid(5): importScripts();\nimportScripts(2); 1`] = `
+
+  1 | importScripts();
+  2 | importScripts(2);
+
+`;
+
+exports[`prefer-single-call > invalid(5): importScripts();\nimportScripts(2); 2`] = `
+
+Message:
+  1 | importScripts();
+> 2 | importScripts(2);
+    | ^^^^^^^^^^^^^ Do not call \`importScripts()\` multiple times.
+
+Output:
+  1 | importScripts(2);
+
+`;
+
+exports[`prefer-single-call > invalid(6): foo.classList.add();\nfoo.classList.add(); 1`] = `
+
+  1 | foo.classList.add();
+  2 | foo.classList.add();
+
+`;
+
+exports[`prefer-single-call > invalid(6): foo.classList.add();\nfoo.classList.add(); 2`] = `
+
+Message:
+  1 | foo.classList.add();
+> 2 | foo.classList.add();
+    |               ^^^ Do not call \`Element#classList.add()\` multiple times.
+
+Output:
+  1 | foo.classList.add();
+
+`;
+
+exports[`prefer-single-call > invalid(6): foo.push();\nfoo.push(); 1`] = `
+
+  1 | foo.push();
+  2 | foo.push();
+
+`;
+
+exports[`prefer-single-call > invalid(6): foo.push();\nfoo.push(); 2`] = `
+
+Message:
+  1 | foo.push();
+> 2 | foo.push();
+    |     ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.push();
+
+`;
+
+exports[`prefer-single-call > invalid(6): foo.unshift();\nfoo.unshift(); 1`] = `
+
+  1 | foo.unshift();
+  2 | foo.unshift();
+
+`;
+
+exports[`prefer-single-call > invalid(6): foo.unshift();\nfoo.unshift(); 2`] = `
+
+Message:
+  1 | foo.unshift();
+> 2 | foo.unshift();
+    |     ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.unshift();
+
+`;
+
+exports[`prefer-single-call > invalid(6): importScripts(a, b);\nimportScripts((c), (d)); 1`] = `
+
+  1 | importScripts(a, b);
+  2 | importScripts((c), (d));
+
+`;
+
+exports[`prefer-single-call > invalid(6): importScripts(a, b);\nimportScripts((c), (d)); 2`] = `
+
+Message:
+  1 | importScripts(a, b);
+> 2 | importScripts((c), (d));
+    | ^^^^^^^^^^^^^ Do not call \`importScripts()\` multiple times.
+
+Output:
+  1 | importScripts(a, b, (c), (d));
+
+`;
+
+exports[`prefer-single-call > invalid(7): foo.classList.add(\"foo\");\nfoo.classList.add(); 1`] = `
+
+  1 | foo.classList.add("foo");
+  2 | foo.classList.add();
+
+`;
+
+exports[`prefer-single-call > invalid(7): foo.classList.add(\"foo\");\nfoo.classList.add(); 2`] = `
+
+Message:
+  1 | foo.classList.add("foo");
+> 2 | foo.classList.add();
+    |               ^^^ Do not call \`Element#classList.add()\` multiple times.
+
+Output:
+  1 | foo.classList.add("foo");
+
+`;
+
+exports[`prefer-single-call > invalid(7): foo.push(1);\nfoo.push(); 1`] = `
+
+  1 | foo.push(1);
+  2 | foo.push();
+
+`;
+
+exports[`prefer-single-call > invalid(7): foo.push(1);\nfoo.push(); 2`] = `
+
+Message:
+  1 | foo.push(1);
+> 2 | foo.push();
+    |     ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.push(1);
+
+`;
+
+exports[`prefer-single-call > invalid(7): foo.unshift(1);\nfoo.unshift(); 1`] = `
+
+  1 | foo.unshift(1);
+  2 | foo.unshift();
+
+`;
+
+exports[`prefer-single-call > invalid(7): foo.unshift(1);\nfoo.unshift(); 2`] = `
+
+Message:
+  1 | foo.unshift(1);
+> 2 | foo.unshift();
+    |     ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.unshift(1);
+
+`;
+
+exports[`prefer-single-call > invalid(7): importScripts(a, b,);\nimportScripts(c, d); 1`] = `
+
+  1 | importScripts(a, b,);
+  2 | importScripts(c, d);
+
+`;
+
+exports[`prefer-single-call > invalid(7): importScripts(a, b,);\nimportScripts(c, d); 2`] = `
+
+Message:
+  1 | importScripts(a, b,);
+> 2 | importScripts(c, d);
+    | ^^^^^^^^^^^^^ Do not call \`importScripts()\` multiple times.
+
+Output:
+  1 | importScripts(a, b, c, d);
+
+`;
+
+exports[`prefer-single-call > invalid(8): foo.classList.add();\nfoo.classList.add(2); 1`] = `
+
+  1 | foo.classList.add();
+  2 | foo.classList.add(2);
+
+`;
+
+exports[`prefer-single-call > invalid(8): foo.classList.add();\nfoo.classList.add(2); 2`] = `
+
+Message:
+  1 | foo.classList.add();
+> 2 | foo.classList.add(2);
+    |               ^^^ Do not call \`Element#classList.add()\` multiple times.
+
+Output:
+  1 | foo.classList.add(2);
+
+`;
+
+exports[`prefer-single-call > invalid(8): foo.push();\nfoo.push(2); 1`] = `
+
+  1 | foo.push();
+  2 | foo.push(2);
+
+`;
+
+exports[`prefer-single-call > invalid(8): foo.push();\nfoo.push(2); 2`] = `
+
+Message:
+  1 | foo.push();
+> 2 | foo.push(2);
+    |     ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.push(2);
+
+`;
+
+exports[`prefer-single-call > invalid(8): foo.unshift();\nfoo.unshift(2); 1`] = `
+
+  1 | foo.unshift();
+  2 | foo.unshift(2);
+
+`;
+
+exports[`prefer-single-call > invalid(8): foo.unshift();\nfoo.unshift(2); 2`] = `
+
+Message:
+  1 | foo.unshift();
+> 2 | foo.unshift(2);
+    |     ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.unshift(2);
+
+`;
+
+exports[`prefer-single-call > invalid(8): importScripts(a, b);\nimportScripts(c, d,); 1`] = `
+
+  1 | importScripts(a, b);
+  2 | importScripts(c, d,);
+
+`;
+
+exports[`prefer-single-call > invalid(8): importScripts(a, b);\nimportScripts(c, d,); 2`] = `
+
+Message:
+  1 | importScripts(a, b);
+> 2 | importScripts(c, d,);
+    | ^^^^^^^^^^^^^ Do not call \`importScripts()\` multiple times.
+
+Output:
+  1 | importScripts(a, b, c, d,);
+
+`;
+
+exports[`prefer-single-call > invalid(9): foo.classList.add(a, b);\nfoo.classList.add((c), (d)); 1`] = `
+
+  1 | foo.classList.add(a, b);
+  2 | foo.classList.add((c), (d));
+
+`;
+
+exports[`prefer-single-call > invalid(9): foo.classList.add(a, b);\nfoo.classList.add((c), (d)); 2`] = `
+
+Message:
+  1 | foo.classList.add(a, b);
+> 2 | foo.classList.add((c), (d));
+    |               ^^^ Do not call \`Element#classList.add()\` multiple times.
+
+Output:
+  1 | foo.classList.add(a, b, (c), (d));
+
+`;
+
+exports[`prefer-single-call > invalid(9): foo.push(1, 2);\nfoo.push((3), (4)); 1`] = `
+
+  1 | foo.push(1, 2);
+  2 | foo.push((3), (4));
+
+`;
+
+exports[`prefer-single-call > invalid(9): foo.push(1, 2);\nfoo.push((3), (4)); 2`] = `
+
+Message:
+  1 | foo.push(1, 2);
+> 2 | foo.push((3), (4));
+    |     ^^^^ Do not call \`Array#push()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.push(1, 2, (3), (4));
+
+`;
+
+exports[`prefer-single-call > invalid(9): foo.unshift(1, 2);\nfoo.unshift((3), (4)); 1`] = `
+
+  1 | foo.unshift(1, 2);
+  2 | foo.unshift((3), (4));
+
+`;
+
+exports[`prefer-single-call > invalid(9): foo.unshift(1, 2);\nfoo.unshift((3), (4)); 2`] = `
+
+Message:
+  1 | foo.unshift(1, 2);
+> 2 | foo.unshift((3), (4));
+    |     ^^^^^^^ Do not call \`Array#unshift()\` multiple times.
+
+Suggestion 1/1: Merge with previous one.:
+  1 | foo.unshift((3), (4), 1, 2);
+
+`;
+
+exports[`prefer-single-call > invalid(9): importScripts(a, b,);\nimportScripts(c, d,); 1`] = `
+
+  1 | importScripts(a, b,);
+  2 | importScripts(c, d,);
+
+`;
+
+exports[`prefer-single-call > invalid(9): importScripts(a, b,);\nimportScripts(c, d,); 2`] = `
+
+Message:
+  1 | importScripts(a, b,);
+> 2 | importScripts(c, d,);
+    | ^^^^^^^^^^^^^ Do not call \`importScripts()\` multiple times.
+
+Output:
+  1 | importScripts(a, b, c, d,);
+
+`;

@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import {tokenize, tokenTypes} from '@eslint/css-tree';
 import unicorn from '../index.js';
@@ -141,9 +141,9 @@ for (const separator of ['\u2028', '\u2029']) {
 		const linter = new Linter();
 		const code = `{\n${separator}   value: 1\n}`;
 		const result = linter.verifyAndFix(code, getConfig(languages.json5));
-		t.deepEqual(result.messages, []);
-		t.false(result.fixed);
-		t.is(result.output, code);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
 	});
 }
 
@@ -155,9 +155,9 @@ for (const {language, code, output} of [
 		const linter = new Linter();
 		const config = getConfig(language);
 		const result = linter.verifyAndFix(code, config);
-		t.is(result.output, output);
-		t.deepEqual(result.messages, []);
-		t.false(linter.verifyAndFix(result.output, config).fixed);
+		t.assert.strictEqual(result.output, output);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(linter.verifyAndFix(result.output, config).fixed, false);
 	});
 }
 
@@ -169,10 +169,10 @@ for (const [index, {language, code, output, options}] of fixCases.entries()) {
 			const original = '\uFEFF' + code.replaceAll('\n', () => linebreak);
 			const expected = '\uFEFF' + output.replaceAll('\n', () => linebreak);
 			const fixed = linter.verifyAndFix(original, config);
-			t.true(fixed.fixed);
-			t.is(fixed.output, expected);
-			t.deepEqual(fixed.messages, []);
-			t.false(linter.verifyAndFix(fixed.output, config).fixed);
+			t.assert.strictEqual(fixed.fixed, true);
+			t.assert.strictEqual(fixed.output, expected);
+			t.assert.deepStrictEqual(fixed.messages, []);
+			t.assert.strictEqual(linter.verifyAndFix(fixed.output, config).fixed, false);
 
 			if (language !== languages.css) {
 				return;
@@ -188,22 +188,31 @@ for (const [index, {language, code, output, options}] of fixCases.entries()) {
 				return tokens;
 			};
 
-			t.deepEqual(getTokens(fixed.output), getTokens(original));
+			t.assert.deepStrictEqual(getTokens(fixed.output), getTokens(original));
 		});
 	}
 }
 
-for (const options of ['tab', 2, {indent: 'space'}, {indent: 0}, {indent: 1.5}, {tabWidth: 0}, {tabWidth: 1.5}, {unknown: true}]) {
+for (const [options, message] of [
+	['tab', /Value "tab" should be object/u],
+	[2, /Value 2 should be object/u],
+	[{indent: 'space'}, /Value "space" should be equal to one of the allowed values/u],
+	[{indent: 0}, /Value 0 should be equal to one of the allowed values/u],
+	[{indent: 1.5}, /Value 1\.5 should be equal to one of the allowed values/u],
+	[{tabWidth: 0}, /Value 0 should be >= 1/u],
+	[{tabWidth: 1.5}, /Value 1\.5 should be integer/u],
+	[{unknown: true}, /should NOT have additional properties/u],
+]) {
 	test(`reject invalid options ${JSON.stringify(options)}`, t => {
 		const linter = new Linter();
-		t.throws(() => linter.verify('{}', getConfig(json, options)));
+		t.assert.throws(() => linter.verify('{}', getConfig(json, options)), {message});
 	});
 }
 
 test('indent is opt-in and does not replace JavaScript indent', t => {
-	t.false(unicorn.rules.indent.meta.docs.recommended);
-	t.is(unicorn.configs.recommended.rules['unicorn/indent'], 'off');
-	t.is(unicorn.configs.unopinionated.rules['unicorn/indent'], 'off');
-	t.is(unicorn.configs.all.rules['unicorn/indent'], undefined);
-	t.is(unicorn.configs.all.rules.indent, undefined);
+	t.assert.strictEqual(unicorn.rules.indent.meta.docs.recommended, false);
+	t.assert.strictEqual(unicorn.configs.recommended.rules['unicorn/indent'], 'off');
+	t.assert.strictEqual(unicorn.configs.unopinionated.rules['unicorn/indent'], 'off');
+	t.assert.strictEqual(unicorn.configs.all.rules['unicorn/indent'], undefined);
+	t.assert.strictEqual(unicorn.configs.all.rules.indent, undefined);
 });

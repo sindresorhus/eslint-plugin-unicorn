@@ -1,0 +1,1811 @@
+exports[`require-text-decoder-streaming > invalid(1): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk);\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(1): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk);\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk);
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+Suggestion 1/1: Enable streaming decoding and consume the final flush.:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	let text = '';
+   5 | 	
+   6 | 	for await (const chunk of response.body) {
+   7 | 		text += decoder.decode(chunk, {stream: true});
+   8 | 	}
+   9 | 	text += decoder.decode();
+  10 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(10): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {stream: true, stream: false});\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk, {stream: true, stream: false});
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(10): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {stream: true, stream: false});\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk, {stream: true, stream: false});
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(11): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {[\"stream\"]: false});\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk, {["stream"]: false});
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(11): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {[\"stream\"]: false});\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk, {["stream"]: false});
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+Suggestion 1/1: Enable streaming decoding and consume the final flush.:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	let text = '';
+   5 | 	
+   6 | 	for await (const chunk of response.body) {
+   7 | 		text += decoder.decode(chunk, {["stream"]: true});
+   8 | 	}
+   9 | 	text += decoder.decode();
+  10 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(12): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, undefined);\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk, undefined);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(12): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, undefined);\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk, undefined);
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(13): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, null);\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk, null);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(13): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, null);\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk, null);
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(14): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, void 0);\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk, void 0);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(14): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, void 0);\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk, void 0);
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(15): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\tconst flag = false;\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {stream: flag});\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	const flag = false;
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk, {stream: flag});
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(15): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\tconst flag = false;\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {stream: flag});\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	const flag = false;
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk, {stream: flag});
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(16): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\tparse(decoder.decode(chunk));\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		parse(decoder.decode(chunk));
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(16): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\tparse(decoder.decode(chunk));\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		parse(decoder.decode(chunk));
+    | 		              ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(17): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += new TextDecoder().decode(chunk);\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += new TextDecoder().decode(chunk);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(17): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += new TextDecoder().decode(chunk);\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += new TextDecoder().decode(chunk);
+    | 		                          ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(18): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\tconst decoder = new TextDecoder(); text += decoder.decode(chunk);\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		const decoder = new TextDecoder(); text += decoder.decode(chunk);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(18): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\tconst decoder = new TextDecoder(); text += decoder.decode(chunk);\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		const decoder = new TextDecoder(); text += decoder.decode(chunk);
+    | 		                                                   ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(19): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\tconst bytes = chunk; text += decoder.decode(bytes);\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		const bytes = chunk; text += decoder.decode(bytes);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(19): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\tconst bytes = chunk; text += decoder.decode(bytes);\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		const bytes = chunk; text += decoder.decode(bytes);
+    | 		                                     ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(2): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst reader = response.body.getReader();\n\tlet text = '';\n\twhile (true) {\n\t\tconst {value, done} = await reader.read();\n\t\tif (done) {\n\t\t\tbreak;\n\t\t}\n\t\ttext += decoder.decode(value);\n\t}\n} 1`] = `
+
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body.getReader();
+   5 | 	let text = '';
+   6 | 	while (true) {
+   7 | 		const {value, done} = await reader.read();
+   8 | 		if (done) {
+   9 | 			break;
+  10 | 		}
+  11 | 		text += decoder.decode(value);
+  12 | 	}
+  13 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(2): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst reader = response.body.getReader();\n\tlet text = '';\n\twhile (true) {\n\t\tconst {value, done} = await reader.read();\n\t\tif (done) {\n\t\t\tbreak;\n\t\t}\n\t\ttext += decoder.decode(value);\n\t}\n} 2`] = `
+
+Message:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body.getReader();
+   5 | 	let text = '';
+   6 | 	while (true) {
+   7 | 		const {value, done} = await reader.read();
+   8 | 		if (done) {
+   9 | 			break;
+  10 | 		}
+> 11 | 		text += decoder.decode(value);
+     | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  12 | 	}
+  13 | }
+
+Suggestion 1/1: Enable streaming decoding and consume the final flush.:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body.getReader();
+   5 | 	let text = '';
+   6 | 	while (true) {
+   7 | 		const {value, done} = await reader.read();
+   8 | 		if (done) {
+   9 | 			break;
+  10 | 		}
+  11 | 		text += decoder.decode(value, {stream: true});
+  12 | 	}
+  13 | 	text += decoder.decode();
+  14 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(20): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk); text += decoder.decode(chunk);\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk); text += decoder.decode(chunk);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(20): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk); text += decoder.decode(chunk);\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk); text += decoder.decode(chunk);
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(20): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk); text += decoder.decode(chunk);\n\t}\n} 3`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk); text += decoder.decode(chunk);
+    | 		                                               ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(21): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += (decoder).decode((chunk));\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += (decoder).decode((chunk));
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(21): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += (decoder).decode((chunk));\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += (decoder).decode((chunk));
+    | 		                  ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+Suggestion 1/1: Enable streaming decoding and consume the final flush.:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	let text = '';
+   5 | 	
+   6 | 	for await (const chunk of response.body) {
+   7 | 		text += (decoder).decode((chunk), {stream: true});
+   8 | 	}
+   9 | 	text += decoder.decode();
+  10 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(22): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder?.decode?.(chunk);\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder?.decode?.(chunk);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(22): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder?.decode?.(chunk);\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder?.decode?.(chunk);
+    | 		                 ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(23): async function run() {\n\tconst response = await globalThis.fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk);\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await globalThis.fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(23): async function run() {\n\tconst response = await globalThis.fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk);\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await globalThis.fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk);
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+Suggestion 1/1: Enable streaming decoding and consume the final flush.:
+   1 | async function run() {
+   2 | 	const response = await globalThis.fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	let text = '';
+   5 | 	
+   6 | 	for await (const chunk of response.body) {
+   7 | 		text += decoder.decode(chunk, {stream: true});
+   8 | 	}
+   9 | 	text += decoder.decode();
+  10 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(24): async function run() {\n\tconst response = (await fetch(url));\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk);\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = (await fetch(url));
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(24): async function run() {\n\tconst response = (await fetch(url));\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk);\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = (await fetch(url));
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk);
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+Suggestion 1/1: Enable streaming decoding and consume the final flush.:
+   1 | async function run() {
+   2 | 	const response = (await fetch(url));
+   3 | 	const decoder = new TextDecoder();
+   4 | 	let text = '';
+   5 | 	
+   6 | 	for await (const chunk of response.body) {
+   7 | 		text += decoder.decode(chunk, {stream: true});
+   8 | 	}
+   9 | 	text += decoder.decode();
+  10 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(25): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of (await fetch(url)).body) {\n\t\ttext += decoder.decode(chunk);\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of (await fetch(url)).body) {
+  7 | 		text += decoder.decode(chunk);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(25): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of (await fetch(url)).body) {\n\t\ttext += decoder.decode(chunk);\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of (await fetch(url)).body) {
+> 7 | 		text += decoder.decode(chunk);
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+Suggestion 1/1: Enable streaming decoding and consume the final flush.:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	let text = '';
+   5 | 	
+   6 | 	for await (const chunk of (await fetch(url)).body) {
+   7 | 		text += decoder.decode(chunk, {stream: true});
+   8 | 	}
+   9 | 	text += decoder.decode();
+  10 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(26): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst body = response.body; let text = '';\n\t\n\tfor await (const chunk of body) {\n\t\ttext += decoder.decode(chunk);\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	const body = response.body; let text = '';
+  5 | 	
+  6 | 	for await (const chunk of body) {
+  7 | 		text += decoder.decode(chunk);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(26): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst body = response.body; let text = '';\n\t\n\tfor await (const chunk of body) {\n\t\ttext += decoder.decode(chunk);\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	const body = response.body; let text = '';
+  5 | 	
+  6 | 	for await (const chunk of body) {
+> 7 | 		text += decoder.decode(chunk);
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+Suggestion 1/1: Enable streaming decoding and consume the final flush.:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const body = response.body; let text = '';
+   5 | 	
+   6 | 	for await (const chunk of body) {
+   7 | 		text += decoder.decode(chunk, {stream: true});
+   8 | 	}
+   9 | 	text += decoder.decode();
+  10 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(27): async function run() {\n\tconst response = await fetch(url);\n\tconst original = new TextDecoder(); const decoder = original;\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk);\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const original = new TextDecoder(); const decoder = original;
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(27): async function run() {\n\tconst response = await fetch(url);\n\tconst original = new TextDecoder(); const decoder = original;\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk);\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const original = new TextDecoder(); const decoder = original;
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk);
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(28): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst body = response.body; const original = body.getReader(); const reader = original;\n\tlet text = '';\n\twhile (true) {\n\t\tconst {value, done} = await reader.read();\n\t\tif (done) {\n\t\t\tbreak;\n\t\t}\n\t\ttext += decoder.decode(value);\n\t}\n} 1`] = `
+
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const body = response.body; const original = body.getReader(); const reader = original;
+   5 | 	let text = '';
+   6 | 	while (true) {
+   7 | 		const {value, done} = await reader.read();
+   8 | 		if (done) {
+   9 | 			break;
+  10 | 		}
+  11 | 		text += decoder.decode(value);
+  12 | 	}
+  13 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(28): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst body = response.body; const original = body.getReader(); const reader = original;\n\tlet text = '';\n\twhile (true) {\n\t\tconst {value, done} = await reader.read();\n\t\tif (done) {\n\t\t\tbreak;\n\t\t}\n\t\ttext += decoder.decode(value);\n\t}\n} 2`] = `
+
+Message:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const body = response.body; const original = body.getReader(); const reader = original;
+   5 | 	let text = '';
+   6 | 	while (true) {
+   7 | 		const {value, done} = await reader.read();
+   8 | 		if (done) {
+   9 | 			break;
+  10 | 		}
+> 11 | 		text += decoder.decode(value);
+     | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  12 | 	}
+  13 | }
+
+Suggestion 1/1: Enable streaming decoding and consume the final flush.:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const body = response.body; const original = body.getReader(); const reader = original;
+   5 | 	let text = '';
+   6 | 	while (true) {
+   7 | 		const {value, done} = await reader.read();
+   8 | 		if (done) {
+   9 | 			break;
+  10 | 		}
+  11 | 		text += decoder.decode(value, {stream: true});
+  12 | 	}
+  13 | 	text += decoder.decode();
+  14 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(29): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst reader = response.body.getReader();\n\tlet text = '';\n\twhile (true) {\n\t\tconst {value: chunk, done: finished} = await reader.read();\n\t\tif (finished) {\n\t\t\tbreak;\n\t\t}\n\t\ttext += decoder.decode(chunk);\n\t}\n} 1`] = `
+
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body.getReader();
+   5 | 	let text = '';
+   6 | 	while (true) {
+   7 | 		const {value: chunk, done: finished} = await reader.read();
+   8 | 		if (finished) {
+   9 | 			break;
+  10 | 		}
+  11 | 		text += decoder.decode(chunk);
+  12 | 	}
+  13 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(29): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst reader = response.body.getReader();\n\tlet text = '';\n\twhile (true) {\n\t\tconst {value: chunk, done: finished} = await reader.read();\n\t\tif (finished) {\n\t\t\tbreak;\n\t\t}\n\t\ttext += decoder.decode(chunk);\n\t}\n} 2`] = `
+
+Message:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body.getReader();
+   5 | 	let text = '';
+   6 | 	while (true) {
+   7 | 		const {value: chunk, done: finished} = await reader.read();
+   8 | 		if (finished) {
+   9 | 			break;
+  10 | 		}
+> 11 | 		text += decoder.decode(chunk);
+     | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  12 | 	}
+  13 | }
+
+Suggestion 1/1: Enable streaming decoding and consume the final flush.:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body.getReader();
+   5 | 	let text = '';
+   6 | 	while (true) {
+   7 | 		const {value: chunk, done: finished} = await reader.read();
+   8 | 		if (finished) {
+   9 | 			break;
+  10 | 		}
+  11 | 		text += decoder.decode(chunk, {stream: true});
+  12 | 	}
+  13 | 	text += decoder.decode();
+  14 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(3): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {});\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk, {});
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(3): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {});\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk, {});
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+Suggestion 1/1: Enable streaming decoding and consume the final flush.:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	let text = '';
+   5 | 	
+   6 | 	for await (const chunk of response.body) {
+   7 | 		text += decoder.decode(chunk, {stream: true});
+   8 | 	}
+   9 | 	text += decoder.decode();
+  10 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(30): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst reader = response.body.getReader();\n\tlet text = '';\n\twhile (true) {\n\t\tconst result = await reader.read();\n\t\tif (result.done) {\n\t\t\tbreak;\n\t\t}\n\t\ttext += decoder.decode(result.value);\n\t}\n} 1`] = `
+
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body.getReader();
+   5 | 	let text = '';
+   6 | 	while (true) {
+   7 | 		const result = await reader.read();
+   8 | 		if (result.done) {
+   9 | 			break;
+  10 | 		}
+  11 | 		text += decoder.decode(result.value);
+  12 | 	}
+  13 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(30): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst reader = response.body.getReader();\n\tlet text = '';\n\twhile (true) {\n\t\tconst result = await reader.read();\n\t\tif (result.done) {\n\t\t\tbreak;\n\t\t}\n\t\ttext += decoder.decode(result.value);\n\t}\n} 2`] = `
+
+Message:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body.getReader();
+   5 | 	let text = '';
+   6 | 	while (true) {
+   7 | 		const result = await reader.read();
+   8 | 		if (result.done) {
+   9 | 			break;
+  10 | 		}
+> 11 | 		text += decoder.decode(result.value);
+     | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  12 | 	}
+  13 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(31): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst reader = response.body.getReader();\n\tlet text = '';\n\twhile (true) {\n\t\tconst {value, done} = await reader.read();\n\t\tif (done) {\n\t\t\tbreak;\n\t\t}\n\t\ttext += decoder.decode((await reader.read()).value);\n\t}\n} 1`] = `
+
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body.getReader();
+   5 | 	let text = '';
+   6 | 	while (true) {
+   7 | 		const {value, done} = await reader.read();
+   8 | 		if (done) {
+   9 | 			break;
+  10 | 		}
+  11 | 		text += decoder.decode((await reader.read()).value);
+  12 | 	}
+  13 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(31): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst reader = response.body.getReader();\n\tlet text = '';\n\twhile (true) {\n\t\tconst {value, done} = await reader.read();\n\t\tif (done) {\n\t\t\tbreak;\n\t\t}\n\t\ttext += decoder.decode((await reader.read()).value);\n\t}\n} 2`] = `
+
+Message:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body.getReader();
+   5 | 	let text = '';
+   6 | 	while (true) {
+   7 | 		const {value, done} = await reader.read();
+   8 | 		if (done) {
+   9 | 			break;
+  10 | 		}
+> 11 | 		text += decoder.decode((await reader.read()).value);
+     | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  12 | 	}
+  13 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(32): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst reader = response.body?.getReader();\n\tlet text = '';\n\twhile (true) {\n\t\tconst {value, done} = await reader?.read?.();\n\t\tif (done) {\n\t\t\tbreak;\n\t\t}\n\t\ttext += decoder.decode(value);\n\t}\n} 1`] = `
+
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body?.getReader();
+   5 | 	let text = '';
+   6 | 	while (true) {
+   7 | 		const {value, done} = await reader?.read?.();
+   8 | 		if (done) {
+   9 | 			break;
+  10 | 		}
+  11 | 		text += decoder.decode(value);
+  12 | 	}
+  13 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(32): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst reader = response.body?.getReader();\n\tlet text = '';\n\twhile (true) {\n\t\tconst {value, done} = await reader?.read?.();\n\t\tif (done) {\n\t\t\tbreak;\n\t\t}\n\t\ttext += decoder.decode(value);\n\t}\n} 2`] = `
+
+Message:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body?.getReader();
+   5 | 	let text = '';
+   6 | 	while (true) {
+   7 | 		const {value, done} = await reader?.read?.();
+   8 | 		if (done) {
+   9 | 			break;
+  10 | 		}
+> 11 | 		text += decoder.decode(value);
+     | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  12 | 	}
+  13 | }
+
+Suggestion 1/1: Enable streaming decoding and consume the final flush.:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body?.getReader();
+   5 | 	let text = '';
+   6 | 	while (true) {
+   7 | 		const {value, done} = await reader?.read?.();
+   8 | 		if (done) {
+   9 | 			break;
+  10 | 		}
+  11 | 		text += decoder.decode(value, {stream: true});
+  12 | 	}
+  13 | 	text += decoder.decode();
+  14 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(33): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst reader = response.body.getReader();\n\tlet text = '';\n\tdo {\n\t\tconst {value, done} = await reader.read();\n\t\tif (done) {\n\t\t\tbreak;\n\t\t}\n\t\ttext += decoder.decode(value);\n\t} while (condition);\n} 1`] = `
+
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body.getReader();
+   5 | 	let text = '';
+   6 | 	do {
+   7 | 		const {value, done} = await reader.read();
+   8 | 		if (done) {
+   9 | 			break;
+  10 | 		}
+  11 | 		text += decoder.decode(value);
+  12 | 	} while (condition);
+  13 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(33): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst reader = response.body.getReader();\n\tlet text = '';\n\tdo {\n\t\tconst {value, done} = await reader.read();\n\t\tif (done) {\n\t\t\tbreak;\n\t\t}\n\t\ttext += decoder.decode(value);\n\t} while (condition);\n} 2`] = `
+
+Message:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body.getReader();
+   5 | 	let text = '';
+   6 | 	do {
+   7 | 		const {value, done} = await reader.read();
+   8 | 		if (done) {
+   9 | 			break;
+  10 | 		}
+> 11 | 		text += decoder.decode(value);
+     | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  12 | 	} while (condition);
+  13 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(34): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst reader = response.body.getReader();\n\tlet text = '';\n\tfor (;;) {\n\t\tconst {value, done} = await reader.read();\n\t\tif (done) {\n\t\t\tbreak;\n\t\t}\n\t\ttext += decoder.decode(value);\n\t}\n} 1`] = `
+
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body.getReader();
+   5 | 	let text = '';
+   6 | 	for (;;) {
+   7 | 		const {value, done} = await reader.read();
+   8 | 		if (done) {
+   9 | 			break;
+  10 | 		}
+  11 | 		text += decoder.decode(value);
+  12 | 	}
+  13 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(34): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst reader = response.body.getReader();\n\tlet text = '';\n\tfor (;;) {\n\t\tconst {value, done} = await reader.read();\n\t\tif (done) {\n\t\t\tbreak;\n\t\t}\n\t\ttext += decoder.decode(value);\n\t}\n} 2`] = `
+
+Message:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body.getReader();
+   5 | 	let text = '';
+   6 | 	for (;;) {
+   7 | 		const {value, done} = await reader.read();
+   8 | 		if (done) {
+   9 | 			break;
+  10 | 		}
+> 11 | 		text += decoder.decode(value);
+     | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  12 | 	}
+  13 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(35): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk,);\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk,);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(35): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk,);\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk,);
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+Suggestion 1/1: Enable streaming decoding and consume the final flush.:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	let text = '';
+   5 | 	
+   6 | 	for await (const chunk of response.body) {
+   7 | 		text += decoder.decode(chunk, {stream: true},);
+   8 | 	}
+   9 | 	text += decoder.decode();
+  10 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(36): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {stream: false,});\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk, {stream: false,});
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(36): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {stream: false,});\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk, {stream: false,});
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+Suggestion 1/1: Enable streaming decoding and consume the final flush.:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	let text = '';
+   5 | 	
+   6 | 	for await (const chunk of response.body) {
+   7 | 		text += decoder.decode(chunk, {stream: true,});
+   8 | 	}
+   9 | 	text += decoder.decode();
+  10 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(37): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(/* bytes */ chunk);\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(/* bytes */ chunk);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(37): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(/* bytes */ chunk);\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(/* bytes */ chunk);
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(38): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {/* mode */ stream: false});\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk, {/* mode */ stream: false});
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(38): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {/* mode */ stream: false});\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk, {/* mode */ stream: false});
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(39): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk);\n\t} // Keep this comment\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk);
+  8 | 	} // Keep this comment
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(39): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk);\n\t} // Keep this comment\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk);
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	} // Keep this comment
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(4): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {other: value});\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk, {other: value});
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(4): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {other: value});\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk, {other: value});
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(40): async function run() {\n  const response = await fetch(url);\n  const decoder = new TextDecoder();\n  let text = '';\n  \n  for await (const chunk of response.body) {\n    text += decoder.decode(chunk);\n  }\n} 1`] = `
+
+  1 | async function run() {
+  2 |   const response = await fetch(url);
+  3 |   const decoder = new TextDecoder();
+  4 |   let text = '';
+  5 |   
+  6 |   for await (const chunk of response.body) {
+  7 |     text += decoder.decode(chunk);
+  8 |   }
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(40): async function run() {\n  const response = await fetch(url);\n  const decoder = new TextDecoder();\n  let text = '';\n  \n  for await (const chunk of response.body) {\n    text += decoder.decode(chunk);\n  }\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 |   const response = await fetch(url);
+  3 |   const decoder = new TextDecoder();
+  4 |   let text = '';
+  5 |   
+  6 |   for await (const chunk of response.body) {
+> 7 |     text += decoder.decode(chunk);
+    |                     ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 |   }
+  9 | }
+
+Suggestion 1/1: Enable streaming decoding and consume the final flush.:
+   1 | async function run() {
+   2 |   const response = await fetch(url);
+   3 |   const decoder = new TextDecoder();
+   4 |   let text = '';
+   5 |   
+   6 |   for await (const chunk of response.body) {
+   7 |     text += decoder.decode(chunk, {stream: true});
+   8 |   }
+   9 |   text += decoder.decode();
+  10 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(41): async function run() {\r\n\tconst response = await fetch(url);\r\n\tconst decoder = new TextDecoder();\r\n\tlet text = '';\r\n\t\r\n\tfor await (const chunk of response.body) {\r\n\t\ttext += decoder.decode(chunk);\r\n\t}\r\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(41): async function run() {\r\n\tconst response = await fetch(url);\r\n\tconst decoder = new TextDecoder();\r\n\tlet text = '';\r\n\t\r\n\tfor await (const chunk of response.body) {\r\n\t\ttext += decoder.decode(chunk);\r\n\t}\r\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk);
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+Suggestion 1/1: Enable streaming decoding and consume the final flush.:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	let text = '';
+   5 | 	
+   6 | 	for await (const chunk of response.body) {
+   7 | 		text += decoder.decode(chunk, {stream: true});
+   8 | 	}
+   9 | 	text += decoder.decode();
+  10 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(42): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += (decoder as TextDecoder).decode(chunk as Uint8Array);\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += (decoder as TextDecoder).decode(chunk as Uint8Array);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(42): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += (decoder as TextDecoder).decode(chunk as Uint8Array);\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += (decoder as TextDecoder).decode(chunk as Uint8Array);
+    | 		                                 ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(43): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body!) {\n\t\ttext += decoder!.decode(chunk!);\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body!) {
+  7 | 		text += decoder!.decode(chunk!);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(43): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body!) {\n\t\ttext += decoder!.decode(chunk!);\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body!) {
+> 7 | 		text += decoder!.decode(chunk!);
+    | 		                 ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(44): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk satisfies Uint8Array, {stream: false} satisfies TextDecodeOptions);\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk satisfies Uint8Array, {stream: false} satisfies TextDecodeOptions);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(44): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk satisfies Uint8Array, {stream: false} satisfies TextDecodeOptions);\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk satisfies Uint8Array, {stream: false} satisfies TextDecodeOptions);
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(45): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += (<TextDecoder>decoder).decode(<Uint8Array>chunk);\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += (<TextDecoder>decoder).decode(<Uint8Array>chunk);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(45): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += (<TextDecoder>decoder).decode(<Uint8Array>chunk);\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += (<TextDecoder>decoder).decode(<Uint8Array>chunk);
+    | 		                               ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(46): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst reader = response.body.getReader();\n\tlet text = '';\n\twhile (true) {\n\t\tconst {value, done} = (await reader.read()) as ReadableStreamReadResult<Uint8Array>;\n\t\tif (done) {\n\t\t\tbreak;\n\t\t}\n\t\ttext += decoder.decode(value);\n\t}\n} 1`] = `
+
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body.getReader();
+   5 | 	let text = '';
+   6 | 	while (true) {
+   7 | 		const {value, done} = (await reader.read()) as ReadableStreamReadResult<Uint8Array>;
+   8 | 		if (done) {
+   9 | 			break;
+  10 | 		}
+  11 | 		text += decoder.decode(value);
+  12 | 	}
+  13 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(46): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst reader = response.body.getReader();\n\tlet text = '';\n\twhile (true) {\n\t\tconst {value, done} = (await reader.read()) as ReadableStreamReadResult<Uint8Array>;\n\t\tif (done) {\n\t\t\tbreak;\n\t\t}\n\t\ttext += decoder.decode(value);\n\t}\n} 2`] = `
+
+Message:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body.getReader();
+   5 | 	let text = '';
+   6 | 	while (true) {
+   7 | 		const {value, done} = (await reader.read()) as ReadableStreamReadResult<Uint8Array>;
+   8 | 		if (done) {
+   9 | 			break;
+  10 | 		}
+> 11 | 		text += decoder.decode(value);
+     | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  12 | 	}
+  13 | }
+
+Suggestion 1/1: Enable streaming decoding and consume the final flush.:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body.getReader();
+   5 | 	let text = '';
+   6 | 	while (true) {
+   7 | 		const {value, done} = (await reader.read()) as ReadableStreamReadResult<Uint8Array>;
+   8 | 		if (done) {
+   9 | 			break;
+  10 | 		}
+  11 | 		text += decoder.decode(value, {stream: true});
+  12 | 	}
+  13 | 	text += decoder.decode();
+  14 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(47): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst reader = response.body.getReader();\n\tlet text = '';\n\twhile (true) {\n\t\tconst {value, done} = await reader.read();\n\t\tif (done) {\n\t\t\tbreak;\n\t\t} else {\n\t\t\tcontinue;\n\t\t}\n\t\ttext += decoder.decode(value);\n\t}\n} 1`] = `
+
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body.getReader();
+   5 | 	let text = '';
+   6 | 	while (true) {
+   7 | 		const {value, done} = await reader.read();
+   8 | 		if (done) {
+   9 | 			break;
+  10 | 		} else {
+  11 | 			continue;
+  12 | 		}
+  13 | 		text += decoder.decode(value);
+  14 | 	}
+  15 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(47): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst reader = response.body.getReader();\n\tlet text = '';\n\twhile (true) {\n\t\tconst {value, done} = await reader.read();\n\t\tif (done) {\n\t\t\tbreak;\n\t\t} else {\n\t\t\tcontinue;\n\t\t}\n\t\ttext += decoder.decode(value);\n\t}\n} 2`] = `
+
+Message:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body.getReader();
+   5 | 	let text = '';
+   6 | 	while (true) {
+   7 | 		const {value, done} = await reader.read();
+   8 | 		if (done) {
+   9 | 			break;
+  10 | 		} else {
+  11 | 			continue;
+  12 | 		}
+> 13 | 		text += decoder.decode(value);
+     | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  14 | 	}
+  15 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(48): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst reader = response.body.getReader();\n\tlet text = '';\n\twhile (true) {\n\t\tconst {value, done} = await reader.read();\n\t\tif (done) {\n\t\t\tcleanup();\n\t\t\tbreak;\n\t\t}\n\t\ttext += decoder.decode(value);\n\t}\n} 1`] = `
+
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body.getReader();
+   5 | 	let text = '';
+   6 | 	while (true) {
+   7 | 		const {value, done} = await reader.read();
+   8 | 		if (done) {
+   9 | 			cleanup();
+  10 | 			break;
+  11 | 		}
+  12 | 		text += decoder.decode(value);
+  13 | 	}
+  14 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(48): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tconst reader = response.body.getReader();\n\tlet text = '';\n\twhile (true) {\n\t\tconst {value, done} = await reader.read();\n\t\tif (done) {\n\t\t\tcleanup();\n\t\t\tbreak;\n\t\t}\n\t\ttext += decoder.decode(value);\n\t}\n} 2`] = `
+
+Message:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	const reader = response.body.getReader();
+   5 | 	let text = '';
+   6 | 	while (true) {
+   7 | 		const {value, done} = await reader.read();
+   8 | 		if (done) {
+   9 | 			cleanup();
+  10 | 			break;
+  11 | 		}
+> 12 | 		text += decoder.decode(value);
+     | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  13 | 	}
+  14 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(49): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) text += decoder.decode(chunk);\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) text += decoder.decode(chunk);
+  7 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(49): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) text += decoder.decode(chunk);\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+> 6 | 	for await (const chunk of response.body) text += decoder.decode(chunk);
+    | 	                                                         ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  7 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(5): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {stream: false});\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk, {stream: false});
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(5): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {stream: false});\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk, {stream: false});
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+Suggestion 1/1: Enable streaming decoding and consume the final flush.:
+   1 | async function run() {
+   2 | 	const response = await fetch(url);
+   3 | 	const decoder = new TextDecoder();
+   4 | 	let text = '';
+   5 | 	
+   6 | 	for await (const chunk of response.body) {
+   7 | 		text += decoder.decode(chunk, {stream: true});
+   8 | 	}
+   9 | 	text += decoder.decode();
+  10 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(6): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {stream: 0});\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk, {stream: 0});
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(6): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {stream: 0});\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk, {stream: 0});
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(7): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {stream: \"\"});\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk, {stream: ""});
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(7): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {stream: \"\"});\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk, {stream: ""});
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(8): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {stream: undefined});\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk, {stream: undefined});
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(8): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {stream: undefined});\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk, {stream: undefined});
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(9): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {stream: null});\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+  7 | 		text += decoder.decode(chunk, {stream: null});
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`require-text-decoder-streaming > invalid(9): async function run() {\n\tconst response = await fetch(url);\n\tconst decoder = new TextDecoder();\n\tlet text = '';\n\t\n\tfor await (const chunk of response.body) {\n\t\ttext += decoder.decode(chunk, {stream: null});\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	const response = await fetch(url);
+  3 | 	const decoder = new TextDecoder();
+  4 | 	let text = '';
+  5 | 	
+  6 | 	for await (const chunk of response.body) {
+> 7 | 		text += decoder.decode(chunk, {stream: null});
+    | 		                ^^^^^^ Decode fetch-body chunks with \`{stream: true}\` using the same decoder, then consume a final \`decode()\` flush, or use \`TextDecoderStream\`.
+  8 | 	}
+  9 | }
+
+`;

@@ -1,0 +1,27 @@
+exports[`prefer-blob-reading-methods > invalid(1): fileReader.readAsArrayBuffer(blob) 1`] = `
+
+  1 | fileReader.readAsArrayBuffer(blob)
+
+`;
+
+exports[`prefer-blob-reading-methods > invalid(1): fileReader.readAsArrayBuffer(blob) 2`] = `
+
+Message:
+> 1 | fileReader.readAsArrayBuffer(blob)
+    |            ^^^^^^^^^^^^^^^^^ Prefer \`Blob#arrayBuffer()\` over \`FileReader#readAsArrayBuffer(blob)\`.
+
+`;
+
+exports[`prefer-blob-reading-methods > invalid(2): fileReader.readAsText(blob) 1`] = `
+
+  1 | fileReader.readAsText(blob)
+
+`;
+
+exports[`prefer-blob-reading-methods > invalid(2): fileReader.readAsText(blob) 2`] = `
+
+Message:
+> 1 | fileReader.readAsText(blob)
+    |            ^^^^^^^^^^ Prefer \`Blob#text()\` over \`FileReader#readAsText(blob)\`.
+
+`;

@@ -7,7 +7,7 @@ import {
 	isNodeMatches,
 	isParenthesized,
 	isSameIdentifier,
-	shouldAddParenthesesToMemberExpressionObject,
+	getMemberExpressionObjectText,
 	shouldSkipKnownNonArrayReceiver,
 	wouldRemoveComments,
 } from './utils/index.js';
@@ -64,15 +64,6 @@ function getConditionalTestText(node, context) {
 
 	const text = context.sourceCode.getText(node);
 	return conditionalTestExpressionTypesRequiringParentheses.has(node.type) ? `(${text})` : text;
-}
-
-function getMemberExpressionObjectText(node, context) {
-	if (isParenthesized(node, context)) {
-		return getParenthesizedText(node, context);
-	}
-
-	const text = context.sourceCode.getText(node);
-	return shouldAddParenthesesToMemberExpressionObject(node, context) ? `(${text})` : text;
 }
 
 /**

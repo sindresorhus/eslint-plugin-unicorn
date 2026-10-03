@@ -1,0 +1,617 @@
+exports[`no-unsafe-sqlite-interpolation > invalid(1): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.exec(\`SELECT * FROM users WHERE id = \${id}\`); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(\`SELECT * FROM users WHERE id = \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(1): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.exec(\`SELECT * FROM users WHERE id = \${id}\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(\`SELECT * FROM users WHERE id = \${id}\`);
+    |                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(10): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database[\"prepare\"]?.(\`SELECT * FROM users WHERE id = \${id}\`); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database["prepare"]?.(\`SELECT * FROM users WHERE id = \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(10): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database[\"prepare\"]?.(\`SELECT * FROM users WHERE id = \${id}\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database["prepare"]?.(\`SELECT * FROM users WHERE id = \${id}\`);
+    |                                                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(11): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database[\"prepare\"](\`SELECT * FROM users WHERE id = \${id}\`); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database["prepare"](\`SELECT * FROM users WHERE id = \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(11): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database[\"prepare\"](\`SELECT * FROM users WHERE id = \${id}\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database["prepare"](\`SELECT * FROM users WHERE id = \${id}\`);
+    |                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(12): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.exec(\`SELECT \${first} FROM users WHERE id = \${second}\`); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(\`SELECT \${first} FROM users WHERE id = \${second}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(12): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.exec(\`SELECT \${first} FROM users WHERE id = \${second}\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(\`SELECT \${first} FROM users WHERE id = \${second}\`);
+    |                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(13): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.exec(/* keep */ \`SELECT * FROM users WHERE id = \${id}\`); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(/* keep */ \`SELECT * FROM users WHERE id = \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(13): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.exec(/* keep */ \`SELECT * FROM users WHERE id = \${id}\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(/* keep */ \`SELECT * FROM users WHERE id = \${id}\`);
+    |                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(14): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.exec(String.raw\`SELECT * FROM users WHERE id = \${id}\`); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(String.raw\`SELECT * FROM users WHERE id = \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(14): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.exec(String.raw\`SELECT * FROM users WHERE id = \${id}\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(String.raw\`SELECT * FROM users WHERE id = \${id}\`);
+    |                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(15): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.prepare(String.raw\`SELECT 1\`); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.prepare(String.raw\`SELECT 1\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(15): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.prepare(String.raw\`SELECT 1\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.prepare(String.raw\`SELECT 1\`);
+    |                                                                                                           ^^^^^^^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(16): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); const sql = \`SELECT \${id}\`; database.exec(sql); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const sql = \`SELECT \${id}\`; database.exec(sql);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(16): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); const sql = \`SELECT \${id}\`; database.exec(sql); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const sql = \`SELECT \${id}\`; database.exec(sql);
+    |                                                                                                                                    ^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(17): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); const sql = \`SELECT \${id}\`; const alias = sql; database.prepare(alias); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const sql = \`SELECT \${id}\`; const alias = sql; database.prepare(alias);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(17): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); const sql = \`SELECT \${id}\`; const alias = sql; database.prepare(alias); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const sql = \`SELECT \${id}\`; const alias = sql; database.prepare(alias);
+    |                                                                                                                                                          ^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(18): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); const alias = database; alias.exec(\`SELECT \${id}\`); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const alias = database; alias.exec(\`SELECT \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(18): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); const alias = database; alias.exec(\`SELECT \${id}\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const alias = database; alias.exec(\`SELECT \${id}\`);
+    |                                                                                                                             ^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(19): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database[\"exec\"](\`SELECT \${id}\`); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database["exec"](\`SELECT \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(19): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database[\"exec\"](\`SELECT \${id}\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database["exec"](\`SELECT \${id}\`);
+    |                                                                                                           ^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(2): import {DatabaseSync as Database} from \"node:sqlite\"; const database = new Database(\":memory:\"); database.prepare(\`SELECT * FROM users WHERE id = \${id}\`); 1`] = `
+
+  1 | import {DatabaseSync as Database} from "node:sqlite"; const database = new Database(":memory:"); database.prepare(\`SELECT * FROM users WHERE id = \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(2): import {DatabaseSync as Database} from \"node:sqlite\"; const database = new Database(\":memory:\"); database.prepare(\`SELECT * FROM users WHERE id = \${id}\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync as Database} from "node:sqlite"; const database = new Database(":memory:"); database.prepare(\`SELECT * FROM users WHERE id = \${id}\`);
+    |                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(20): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); const method = \"exec\"; database[method](\`SELECT \${id}\`); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const method = "exec"; database[method](\`SELECT \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(20): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); const method = \"exec\"; database[method](\`SELECT \${id}\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const method = "exec"; database[method](\`SELECT \${id}\`);
+    |                                                                                                                                  ^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(21): import {DatabaseSync} from \"node:sqlite\"; const Database = DatabaseSync; const database = new Database(\":memory:\"); database.exec(\`SELECT \${id}\`); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const Database = DatabaseSync; const database = new Database(":memory:"); database.exec(\`SELECT \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(21): import {DatabaseSync} from \"node:sqlite\"; const Database = DatabaseSync; const database = new Database(\":memory:\"); database.exec(\`SELECT \${id}\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const Database = DatabaseSync; const database = new Database(":memory:"); database.exec(\`SELECT \${id}\`);
+    |                                                                                                                                   ^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(22): import * as sqlite from \"node:sqlite\"; const alias = sqlite; const database = new alias.DatabaseSync(\":memory:\"); database.exec(\`SELECT \${id}\`); 1`] = `
+
+  1 | import * as sqlite from "node:sqlite"; const alias = sqlite; const database = new alias.DatabaseSync(":memory:"); database.exec(\`SELECT \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(22): import * as sqlite from \"node:sqlite\"; const alias = sqlite; const database = new alias.DatabaseSync(\":memory:\"); database.exec(\`SELECT \${id}\`); 2`] = `
+
+Message:
+> 1 | import * as sqlite from "node:sqlite"; const alias = sqlite; const database = new alias.DatabaseSync(":memory:"); database.exec(\`SELECT \${id}\`);
+    |                                                                                                                                 ^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(23): import * as sqlite from \"node:sqlite\"; const Database = sqlite.DatabaseSync; const database = new Database(\":memory:\"); database.exec(\`SELECT \${id}\`); 1`] = `
+
+  1 | import * as sqlite from "node:sqlite"; const Database = sqlite.DatabaseSync; const database = new Database(":memory:"); database.exec(\`SELECT \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(23): import * as sqlite from \"node:sqlite\"; const Database = sqlite.DatabaseSync; const database = new Database(\":memory:\"); database.exec(\`SELECT \${id}\`); 2`] = `
+
+Message:
+> 1 | import * as sqlite from "node:sqlite"; const Database = sqlite.DatabaseSync; const database = new Database(":memory:"); database.exec(\`SELECT \${id}\`);
+    |                                                                                                                                       ^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(24): import * as sqlite from \"node:sqlite\"; const database = new sqlite[\"DatabaseSync\"](\":memory:\"); database.exec(\`SELECT \${id}\`); 1`] = `
+
+  1 | import * as sqlite from "node:sqlite"; const database = new sqlite["DatabaseSync"](":memory:"); database.exec(\`SELECT \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(24): import * as sqlite from \"node:sqlite\"; const database = new sqlite[\"DatabaseSync\"](\":memory:\"); database.exec(\`SELECT \${id}\`); 2`] = `
+
+Message:
+> 1 | import * as sqlite from "node:sqlite"; const database = new sqlite["DatabaseSync"](":memory:"); database.exec(\`SELECT \${id}\`);
+    |                                                                                                               ^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(25): import {\"DatabaseSync\" as Database} from \"node:sqlite\"; const database = new Database(\":memory:\"); database.exec(\`SELECT \${id}\`); 1`] = `
+
+  1 | import {"DatabaseSync" as Database} from "node:sqlite"; const database = new Database(":memory:"); database.exec(\`SELECT \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(25): import {\"DatabaseSync\" as Database} from \"node:sqlite\"; const database = new Database(\":memory:\"); database.exec(\`SELECT \${id}\`); 2`] = `
+
+Message:
+> 1 | import {"DatabaseSync" as Database} from "node:sqlite"; const database = new Database(":memory:"); database.exec(\`SELECT \${id}\`);
+    |                                                                                                                  ^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(26): import {\"default\" as sqlite} from \"node:sqlite\"; const database = new sqlite.DatabaseSync(\":memory:\"); database.exec(\`SELECT \${id}\`); 1`] = `
+
+  1 | import {"default" as sqlite} from "node:sqlite"; const database = new sqlite.DatabaseSync(":memory:"); database.exec(\`SELECT \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(26): import {\"default\" as sqlite} from \"node:sqlite\"; const database = new sqlite.DatabaseSync(\":memory:\"); database.exec(\`SELECT \${id}\`); 2`] = `
+
+Message:
+> 1 | import {"default" as sqlite} from "node:sqlite"; const database = new sqlite.DatabaseSync(":memory:"); database.exec(\`SELECT \${id}\`);
+    |                                                                                                                      ^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(27): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.exec(\`SELECT \${id}\`); database.prepare(\`SELECT \${id}\`); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(\`SELECT \${id}\`); database.prepare(\`SELECT \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(27): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.exec(\`SELECT \${id}\`); database.prepare(\`SELECT \${id}\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(\`SELECT \${id}\`); database.prepare(\`SELECT \${id}\`);
+    |                                                                                                        ^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(27): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.exec(\`SELECT \${id}\`); database.prepare(\`SELECT \${id}\`); 3`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(\`SELECT \${id}\`); database.prepare(\`SELECT \${id}\`);
+    |                                                                                                                                          ^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(28): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.prepare(customTag\`SELECT \${id}\`); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.prepare(customTag\`SELECT \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(28): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.prepare(customTag\`SELECT \${id}\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.prepare(customTag\`SELECT \${id}\`);
+    |                                                                                                           ^^^^^^^^^^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(29): import {DatabaseSync} from \"node:sqlite\"; function query() { type DatabaseSync = {}; const database = new DatabaseSync(\":memory:\"); database.exec(\`SELECT \${id}\`); } 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; function query() { type DatabaseSync = {}; const database = new DatabaseSync(":memory:"); database.exec(\`SELECT \${id}\`); }
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(29): import {DatabaseSync} from \"node:sqlite\"; function query() { type DatabaseSync = {}; const database = new DatabaseSync(\":memory:\"); database.exec(\`SELECT \${id}\`); } 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; function query() { type DatabaseSync = {}; const database = new DatabaseSync(":memory:"); database.exec(\`SELECT \${id}\`); }
+    |                                                                                                                                                   ^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(3): import * as sqlite from \"node:sqlite\"; const database = new sqlite.DatabaseSync(\":memory:\"); database.exec(\`SELECT * FROM users WHERE id = \${id}\`); 1`] = `
+
+  1 | import * as sqlite from "node:sqlite"; const database = new sqlite.DatabaseSync(":memory:"); database.exec(\`SELECT * FROM users WHERE id = \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(3): import * as sqlite from \"node:sqlite\"; const database = new sqlite.DatabaseSync(\":memory:\"); database.exec(\`SELECT * FROM users WHERE id = \${id}\`); 2`] = `
+
+Message:
+> 1 | import * as sqlite from "node:sqlite"; const database = new sqlite.DatabaseSync(":memory:"); database.exec(\`SELECT * FROM users WHERE id = \${id}\`);
+    |                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(30): import {DatabaseSync} from \"node:sqlite\"; type DatabaseSync = {}; const database = new DatabaseSync(\":memory:\"); database.exec(\`SELECT \${id}\`); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; type DatabaseSync = {}; const database = new DatabaseSync(":memory:"); database.exec(\`SELECT \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(30): import {DatabaseSync} from \"node:sqlite\"; type DatabaseSync = {}; const database = new DatabaseSync(\":memory:\"); database.exec(\`SELECT \${id}\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; type DatabaseSync = {}; const database = new DatabaseSync(":memory:"); database.exec(\`SELECT \${id}\`);
+    |                                                                                                                                ^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(31): import * as sqlite from \"node:sqlite\"; function query() { type sqlite = {}; const database = new sqlite.DatabaseSync(\":memory:\"); database.exec(\`SELECT \${id}\`); } 1`] = `
+
+  1 | import * as sqlite from "node:sqlite"; function query() { type sqlite = {}; const database = new sqlite.DatabaseSync(":memory:"); database.exec(\`SELECT \${id}\`); }
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(31): import * as sqlite from \"node:sqlite\"; function query() { type sqlite = {}; const database = new sqlite.DatabaseSync(\":memory:\"); database.exec(\`SELECT \${id}\`); } 2`] = `
+
+Message:
+> 1 | import * as sqlite from "node:sqlite"; function query() { type sqlite = {}; const database = new sqlite.DatabaseSync(":memory:"); database.exec(\`SELECT \${id}\`); }
+    |                                                                                                                                                 ^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(32): import * as sqlite from \"node:sqlite\"; type sqlite = {}; const database = new sqlite.DatabaseSync(\":memory:\"); database.exec(\`SELECT \${id}\`); 1`] = `
+
+  1 | import * as sqlite from "node:sqlite"; type sqlite = {}; const database = new sqlite.DatabaseSync(":memory:"); database.exec(\`SELECT \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(32): import * as sqlite from \"node:sqlite\"; type sqlite = {}; const database = new sqlite.DatabaseSync(\":memory:\"); database.exec(\`SELECT \${id}\`); 2`] = `
+
+Message:
+> 1 | import * as sqlite from "node:sqlite"; type sqlite = {}; const database = new sqlite.DatabaseSync(":memory:"); database.exec(\`SELECT \${id}\`);
+    |                                                                                                                              ^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(33): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.exec(\`SELECT \${id}\` as string); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(\`SELECT \${id}\` as string);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(33): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.exec(\`SELECT \${id}\` as string); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(\`SELECT \${id}\` as string);
+    |                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(34): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.exec(<string>\`SELECT \${id}\`); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(<string>\`SELECT \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(34): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.exec(<string>\`SELECT \${id}\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(<string>\`SELECT \${id}\`);
+    |                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(35): import {DatabaseSync} from \"node:sqlite\"; const database = new (DatabaseSync<string>)(\":memory:\"); database.exec(\`SELECT \${id}\`); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new (DatabaseSync<string>)(":memory:"); database.exec(\`SELECT \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(35): import {DatabaseSync} from \"node:sqlite\"; const database = new (DatabaseSync<string>)(\":memory:\"); database.exec(\`SELECT \${id}\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new (DatabaseSync<string>)(":memory:"); database.exec(\`SELECT \${id}\`);
+    |                                                                                                                  ^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(36): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.exec<string>(\`SELECT \${id}\`); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec<string>(\`SELECT \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(36): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.exec<string>(\`SELECT \${id}\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec<string>(\`SELECT \${id}\`);
+    |                                                                                                                ^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(37): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.exec(\`SELECT \${id}\`!); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(\`SELECT \${id}\`!);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(37): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.exec(\`SELECT \${id}\`!); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(\`SELECT \${id}\`!);
+    |                                                                                                        ^^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(38): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database!.exec(\`SELECT \${id}\`); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database!.exec(\`SELECT \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(38): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database!.exec(\`SELECT \${id}\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database!.exec(\`SELECT \${id}\`);
+    |                                                                                                         ^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(39): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.exec(\`SELECT \${id}\` satisfies string); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(\`SELECT \${id}\` satisfies string);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(39): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.exec(\`SELECT \${id}\` satisfies string); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec(\`SELECT \${id}\` satisfies string);
+    |                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(4): import sqlite from \"node:sqlite\"; const database = new sqlite.DatabaseSync(\":memory:\"); database.prepare(\`SELECT * FROM users WHERE id = \${id}\`); 1`] = `
+
+  1 | import sqlite from "node:sqlite"; const database = new sqlite.DatabaseSync(":memory:"); database.prepare(\`SELECT * FROM users WHERE id = \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(4): import sqlite from \"node:sqlite\"; const database = new sqlite.DatabaseSync(\":memory:\"); database.prepare(\`SELECT * FROM users WHERE id = \${id}\`); 2`] = `
+
+Message:
+> 1 | import sqlite from "node:sqlite"; const database = new sqlite.DatabaseSync(":memory:"); database.prepare(\`SELECT * FROM users WHERE id = \${id}\`);
+    |                                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(40): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); (database as DatabaseSync).exec(\`SELECT \${id}\`); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); (database as DatabaseSync).exec(\`SELECT \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(40): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); (database as DatabaseSync).exec(\`SELECT \${id}\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); (database as DatabaseSync).exec(\`SELECT \${id}\`);
+    |                                                                                                                          ^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(41): import * as sqlite from \"node:sqlite\"; const database = new (sqlite as typeof import(\"node:sqlite\")).DatabaseSync(\":memory:\"); database.exec(\`SELECT \${id}\`); 1`] = `
+
+  1 | import * as sqlite from "node:sqlite"; const database = new (sqlite as typeof import("node:sqlite")).DatabaseSync(":memory:"); database.exec(\`SELECT \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(41): import * as sqlite from \"node:sqlite\"; const database = new (sqlite as typeof import(\"node:sqlite\")).DatabaseSync(\":memory:\"); database.exec(\`SELECT \${id}\`); 2`] = `
+
+Message:
+> 1 | import * as sqlite from "node:sqlite"; const database = new (sqlite as typeof import("node:sqlite")).DatabaseSync(":memory:"); database.exec(\`SELECT \${id}\`);
+    |                                                                                                                                              ^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(42): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); const sql = \`SELECT \${id}\`; database.exec(sql); database.prepare(sql); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const sql = \`SELECT \${id}\`; database.exec(sql); database.prepare(sql);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(42): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); const sql = \`SELECT \${id}\`; database.exec(sql); database.prepare(sql); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const sql = \`SELECT \${id}\`; database.exec(sql); database.prepare(sql);
+    |                                                                                                                                    ^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(42): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); const sql = \`SELECT \${id}\`; database.exec(sql); database.prepare(sql); 3`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const sql = \`SELECT \${id}\`; database.exec(sql); database.prepare(sql);
+    |                                                                                                                                                           ^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(43): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); function run() { type database = string; database.exec(\`SELECT \${id}\`); } 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); function run() { type database = string; database.exec(\`SELECT \${id}\`); }
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(43): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); function run() { type database = string; database.exec(\`SELECT \${id}\`); } 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); function run() { type database = string; database.exec(\`SELECT \${id}\`); }
+    |                                                                                                                                                 ^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(5): import {DatabaseSync} from \"node:sqlite\"; new DatabaseSync(\":memory:\").exec(\`SELECT * FROM users WHERE id = \${id}\`); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; new DatabaseSync(":memory:").exec(\`SELECT * FROM users WHERE id = \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(5): import {DatabaseSync} from \"node:sqlite\"; new DatabaseSync(\":memory:\").exec(\`SELECT * FROM users WHERE id = \${id}\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; new DatabaseSync(":memory:").exec(\`SELECT * FROM users WHERE id = \${id}\`);
+    |                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(6): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); const query = \`SELECT * FROM users WHERE id = \${id}\`; const alias = query; database.prepare(alias); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const query = \`SELECT * FROM users WHERE id = \${id}\`; const alias = query; database.prepare(alias);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(6): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); const query = \`SELECT * FROM users WHERE id = \${id}\`; const alias = query; database.prepare(alias); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); const query = \`SELECT * FROM users WHERE id = \${id}\`; const alias = query; database.prepare(alias);
+    |                                                                                                                                                                                      ^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(7): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database?.exec(\`SELECT * FROM users WHERE id = \${id}\`); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database?.exec(\`SELECT * FROM users WHERE id = \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(7): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database?.exec(\`SELECT * FROM users WHERE id = \${id}\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database?.exec(\`SELECT * FROM users WHERE id = \${id}\`);
+    |                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(8): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.exec?.(\`SELECT * FROM users WHERE id = \${id}\`); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec?.(\`SELECT * FROM users WHERE id = \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(8): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database.exec?.(\`SELECT * FROM users WHERE id = \${id}\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database.exec?.(\`SELECT * FROM users WHERE id = \${id}\`);
+    |                                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(9): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database?.[\"exec\"](\`SELECT * FROM users WHERE id = \${id}\`); 1`] = `
+
+  1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database?.["exec"](\`SELECT * FROM users WHERE id = \${id}\`);
+
+`;
+
+exports[`no-unsafe-sqlite-interpolation > invalid(9): import {DatabaseSync} from \"node:sqlite\"; const database = new DatabaseSync(\":memory:\"); database?.[\"exec\"](\`SELECT * FROM users WHERE id = \${id}\`); 2`] = `
+
+Message:
+> 1 | import {DatabaseSync} from "node:sqlite"; const database = new DatabaseSync(":memory:"); database?.["exec"](\`SELECT * FROM users WHERE id = \${id}\`);
+    |                                                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not interpolate values into \`node:sqlite\` SQL strings.
+
+`;

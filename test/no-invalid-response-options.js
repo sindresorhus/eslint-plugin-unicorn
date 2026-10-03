@@ -1,5 +1,5 @@
 /* eslint-disable no-template-curly-in-string */
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import plugin from '../index.js';
 import {getTester, parsers} from './utils/test.js';
@@ -98,6 +98,7 @@ testRule.snapshot({
 		'const object = {}; Object.defineProperty(object, "valueOf", {value() { return 302; }}); const status = +object; Response.redirect(url, status)',
 		'const object = {}; Object.defineProperty(object, "valueOf", {value() { return 1; }}); new Response(+object ? null : "", {status: 204})',
 		'const object = {}; Object.defineProperty(object, "toString", {value() { return "status"; }}); new Response("", {status: 204, [`${object}`]: 200})',
+		'const status = undefined; new Response("", {status})',
 	],
 	invalid: [
 		...[204, 205, 304].flatMap(status => [
@@ -246,8 +247,8 @@ test('works with related rules after Response.json autofixing', t => {
 			'unicorn/no-null': 'error',
 		},
 	});
-	t.is(result.output, 'Response.json(data, {status: 204})');
-	t.is(result.messages.length, 1);
-	t.is(result.messages[0].ruleId, 'unicorn/no-invalid-response-options');
-	t.is(result.messages[0].messageId, 'body-with-null-body-status');
+	t.assert.strictEqual(result.output, 'Response.json(data, {status: 204})');
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-invalid-response-options');
+	t.assert.strictEqual(result.messages[0].messageId, 'body-with-null-body-status');
 });

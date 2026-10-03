@@ -1,0 +1,189 @@
+exports[`no-exports-in-scripts > invalid(1): #!/usr/bin/env node\nexport const foo = 1; 1`] = `
+
+  1 | #!/usr/bin/env node
+  2 | export const foo = 1;
+
+`;
+
+exports[`no-exports-in-scripts > invalid(1): #!/usr/bin/env node\nexport const foo = 1; 2`] = `
+
+Message:
+  1 | #!/usr/bin/env node
+> 2 | export const foo = 1;
+    | ^^^^^^^^^^^^^^^^^^^^^ Do not use exports in scripts.
+
+`;
+
+exports[`no-exports-in-scripts > invalid(10): #!/usr/bin/env node\nexport interface Foo {} 1`] = `
+
+  1 | #!/usr/bin/env node
+  2 | export interface Foo {}
+
+`;
+
+exports[`no-exports-in-scripts > invalid(10): #!/usr/bin/env node\nexport interface Foo {} 2`] = `
+
+Message:
+  1 | #!/usr/bin/env node
+> 2 | export interface Foo {}
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Do not use exports in scripts.
+
+`;
+
+exports[`no-exports-in-scripts > invalid(11): #!/usr/bin/env node\nexport = foo; 1`] = `
+
+  1 | #!/usr/bin/env node
+  2 | export = foo;
+
+`;
+
+exports[`no-exports-in-scripts > invalid(11): #!/usr/bin/env node\nexport = foo; 2`] = `
+
+Message:
+  1 | #!/usr/bin/env node
+> 2 | export = foo;
+    | ^^^^^^^^^^^^^ Do not use exports in scripts.
+
+`;
+
+exports[`no-exports-in-scripts > invalid(2): #!/usr/bin/env node\nexport default foo; 1`] = `
+
+  1 | #!/usr/bin/env node
+  2 | export default foo;
+
+`;
+
+exports[`no-exports-in-scripts > invalid(2): #!/usr/bin/env node\nexport default foo; 2`] = `
+
+Message:
+  1 | #!/usr/bin/env node
+> 2 | export default foo;
+    | ^^^^^^^^^^^^^^^^^^^ Do not use exports in scripts.
+
+`;
+
+exports[`no-exports-in-scripts > invalid(3): #!/usr/bin/env node\nexport * from './foo.js'; 1`] = `
+
+  1 | #!/usr/bin/env node
+  2 | export * from './foo.js';
+
+`;
+
+exports[`no-exports-in-scripts > invalid(3): #!/usr/bin/env node\nexport * from './foo.js'; 2`] = `
+
+Message:
+  1 | #!/usr/bin/env node
+> 2 | export * from './foo.js';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use exports in scripts.
+
+`;
+
+exports[`no-exports-in-scripts > invalid(4): #!/usr/bin/env node\nexport * as foo from './foo.js'; 1`] = `
+
+  1 | #!/usr/bin/env node
+  2 | export * as foo from './foo.js';
+
+`;
+
+exports[`no-exports-in-scripts > invalid(4): #!/usr/bin/env node\nexport * as foo from './foo.js'; 2`] = `
+
+Message:
+  1 | #!/usr/bin/env node
+> 2 | export * as foo from './foo.js';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use exports in scripts.
+
+`;
+
+exports[`no-exports-in-scripts > invalid(5): #!/usr/bin/env node\nconst foo = 1;\nexport {foo}; 1`] = `
+
+  1 | #!/usr/bin/env node
+  2 | const foo = 1;
+  3 | export {foo};
+
+`;
+
+exports[`no-exports-in-scripts > invalid(5): #!/usr/bin/env node\nconst foo = 1;\nexport {foo}; 2`] = `
+
+Message:
+  1 | #!/usr/bin/env node
+  2 | const foo = 1;
+> 3 | export {foo};
+    | ^^^^^^^^^^^^^ Do not use exports in scripts.
+
+`;
+
+exports[`no-exports-in-scripts > invalid(6): #!/usr/bin/env node\nexport {foo} from './foo.js'; 1`] = `
+
+  1 | #!/usr/bin/env node
+  2 | export {foo} from './foo.js';
+
+`;
+
+exports[`no-exports-in-scripts > invalid(6): #!/usr/bin/env node\nexport {foo} from './foo.js'; 2`] = `
+
+Message:
+  1 | #!/usr/bin/env node
+> 2 | export {foo} from './foo.js';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use exports in scripts.
+
+`;
+
+exports[`no-exports-in-scripts > invalid(7): #!/usr/bin/env node\nexport {}; 1`] = `
+
+  1 | #!/usr/bin/env node
+  2 | export {};
+
+`;
+
+exports[`no-exports-in-scripts > invalid(7): #!/usr/bin/env node\nexport {}; 2`] = `
+
+Message:
+  1 | #!/usr/bin/env node
+> 2 | export {};
+    | ^^^^^^^^^^ Do not use exports in scripts.
+
+`;
+
+exports[`no-exports-in-scripts > invalid(8): #!/usr/bin/env node\nexport const foo = 1;\nexport const bar = 2; 1`] = `
+
+  1 | #!/usr/bin/env node
+  2 | export const foo = 1;
+  3 | export const bar = 2;
+
+`;
+
+exports[`no-exports-in-scripts > invalid(8): #!/usr/bin/env node\nexport const foo = 1;\nexport const bar = 2; 2`] = `
+
+Message:
+  1 | #!/usr/bin/env node
+> 2 | export const foo = 1;
+    | ^^^^^^^^^^^^^^^^^^^^^ Do not use exports in scripts.
+  3 | export const bar = 2;
+
+`;
+
+exports[`no-exports-in-scripts > invalid(8): #!/usr/bin/env node\nexport const foo = 1;\nexport const bar = 2; 3`] = `
+
+Message:
+  1 | #!/usr/bin/env node
+  2 | export const foo = 1;
+> 3 | export const bar = 2;
+    | ^^^^^^^^^^^^^^^^^^^^^ Do not use exports in scripts.
+
+`;
+
+exports[`no-exports-in-scripts > invalid(9): #!/usr/bin/env node\nexport type Foo = string; 1`] = `
+
+  1 | #!/usr/bin/env node
+  2 | export type Foo = string;
+
+`;
+
+exports[`no-exports-in-scripts > invalid(9): #!/usr/bin/env node\nexport type Foo = string; 2`] = `
+
+Message:
+  1 | #!/usr/bin/env node
+> 2 | export type Foo = string;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use exports in scripts.
+
+`;

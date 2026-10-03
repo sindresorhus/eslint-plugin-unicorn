@@ -715,6 +715,37 @@ test.snapshot({
 				_foo = 2;
 			}
 		`,
+
+		// Report-only: \`this\` outside any class
+		outdent`
+			class Foo {
+				_bar = 1;
+			}
+
+			this._bar;
+		`,
+
+		// Report-only: computed destructuring assignment from \`this\`
+		outdent`
+			class Foo {
+				_bar = 1;
+				baz(key) {
+					let value;
+					({[key]: value} = this);
+					return this._bar;
+				}
+			}
+		`,
+
+		// Computed destructuring of a parameter does not block autofix
+		outdent`
+			class Foo {
+				_bar = 1;
+				baz({[key]: value}) {
+					return this._bar;
+				}
+			}
+		`,
 	],
 });
 

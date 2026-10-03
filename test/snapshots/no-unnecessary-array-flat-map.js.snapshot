@@ -1,0 +1,1826 @@
+exports[`no-unnecessary-array-flat-map > invalid(1): array.flatMap(() => [1]); 1`] = `
+
+  1 | array.flatMap(() => [1]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(1): array.flatMap(() => [1]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => [1]);
+    |                     ^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => 1);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(1): array.flatMap(value => [value]); 1`] = `
+
+  1 | array.flatMap(value => [value]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(1): array.flatMap(value => [value]); 2`] = `
+
+Message:
+> 1 | array.flatMap(value => [value]);
+    |       ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(10): array.flatMap(() => [1n]); 1`] = `
+
+  1 | array.flatMap(() => [1n]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(10): array.flatMap(() => [1n]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => [1n]);
+    |                     ^^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => 1n);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(10): array.flatMap(value => value.active ? [value] : []); 1`] = `
+
+  1 | array.flatMap(value => value.active ? [value] : []);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(10): array.flatMap(value => value.active ? [value] : []); 2`] = `
+
+Message:
+> 1 | array.flatMap(value => value.active ? [value] : []);
+    |       ^^^^^^^ Prefer \`.filter(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Output:
+  1 | array.filter(value => value.active);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(11): array.flatMap(() => [/expression/]); 1`] = `
+
+  1 | array.flatMap(() => [/expression/]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(11): array.flatMap(() => [/expression/]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => [/expression/]);
+    |                     ^^^^^^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => /expression/);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(11): array.flatMap(value => value.active ? [value.id] : []); 1`] = `
+
+  1 | array.flatMap(value => value.active ? [value.id] : []);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(11): array.flatMap(value => value.active ? [value.id] : []); 2`] = `
+
+Message:
+> 1 | array.flatMap(value => value.active ? [value.id] : []);
+    |       ^^^^^^^ Prefer \`.filter().map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Suggestion 1/1: Replace \`.flatMap(…)\` with \`.filter(…).map(…)\`.:
+  1 | array.filter(value => value.active).map(value => value.id);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(12): array.flatMap(() => [\`value: \${value}\`]); 1`] = `
+
+  1 | array.flatMap(() => [\`value: \${value}\`]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(12): array.flatMap(() => [\`value: \${value}\`]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => [\`value: \${value}\`]);
+    |                     ^^^^^^^^^^^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => \`value: \${value}\`);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(12): class ArraySubclass extends Array { method() { return super.flatMap(value => [value.id]); } } 1`] = `
+
+  1 | class ArraySubclass extends Array { method() { return super.flatMap(value => [value.id]); } }
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(12): class ArraySubclass extends Array { method() { return super.flatMap(value => [value.id]); } } 2`] = `
+
+Message:
+> 1 | class ArraySubclass extends Array { method() { return super.flatMap(value => [value.id]); } }
+    |                                                             ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(13): array.flatMap(() => [typeof value]); 1`] = `
+
+  1 | array.flatMap(() => [typeof value]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(13): array.flatMap(() => [typeof value]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => [typeof value]);
+    |                     ^^^^^^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => typeof value);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(13): class ArraySubclass extends Array { method() { return super.flatMap(value => value.active ? [value] : []); } } 1`] = `
+
+  1 | class ArraySubclass extends Array { method() { return super.flatMap(value => value.active ? [value] : []); } }
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(13): class ArraySubclass extends Array { method() { return super.flatMap(value => value.active ? [value] : []); } } 2`] = `
+
+Message:
+> 1 | class ArraySubclass extends Array { method() { return super.flatMap(value => value.active ? [value] : []); } }
+    |                                                             ^^^^^^^ Prefer \`.filter(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Output:
+  1 | class ArraySubclass extends Array { method() { return super.filter(value => value.active); } }
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(14): array.flatMap(() => [void value]); 1`] = `
+
+  1 | array.flatMap(() => [void value]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(14): array.flatMap(() => [void value]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => [void value]);
+    |                     ^^^^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => void value);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(14): class ArraySubclass extends Array { method() { return super.flatMap(value => value.active ? [value.id] : []); } } 1`] = `
+
+  1 | class ArraySubclass extends Array { method() { return super.flatMap(value => value.active ? [value.id] : []); } }
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(14): class ArraySubclass extends Array { method() { return super.flatMap(value => value.active ? [value.id] : []); } } 2`] = `
+
+Message:
+> 1 | class ArraySubclass extends Array { method() { return super.flatMap(value => value.active ? [value.id] : []); } }
+    |                                                             ^^^^^^^ Prefer \`.filter().map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Suggestion 1/1: Replace \`.flatMap(…)\` with \`.filter(…).map(…)\`.:
+  1 | class ArraySubclass extends Array { method() { return super.filter(value => value.active).map(value => value.id); } }
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(15): array.flatMap(() => [!value]); 1`] = `
+
+  1 | array.flatMap(() => [!value]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(15): array.flatMap(() => [!value]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => [!value]);
+    |                     ^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => !value);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(15): array.flatMap(value => value.active ? [/* comment */ value.id] : []); 1`] = `
+
+  1 | array.flatMap(value => value.active ? [/* comment */ value.id] : []);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(15): array.flatMap(value => value.active ? [/* comment */ value.id] : []); 2`] = `
+
+Message:
+> 1 | array.flatMap(value => value.active ? [/* comment */ value.id] : []);
+    |       ^^^^^^^ Prefer \`.filter().map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(16): array.flatMap(() => [left + right]); 1`] = `
+
+  1 | array.flatMap(() => [left + right]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(16): array.flatMap(() => [left + right]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => [left + right]);
+    |                     ^^^^^^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => left + right);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(16): array.flatMap(value => (value.active) ? ([value.id]) : []); 1`] = `
+
+  1 | array.flatMap(value => (value.active) ? ([value.id]) : []);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(16): array.flatMap(value => (value.active) ? ([value.id]) : []); 2`] = `
+
+Message:
+> 1 | array.flatMap(value => (value.active) ? ([value.id]) : []);
+    |       ^^^^^^^ Prefer \`.filter().map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Suggestion 1/1: Replace \`.flatMap(…)\` with \`.filter(…).map(…)\`.:
+  1 | array.filter(value => (value.active)).map(value => value.id);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(17): array.flatMap(() => [{value}]); 1`] = `
+
+  1 | array.flatMap(() => [{value}]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(17): array.flatMap(() => [{value}]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => [{value}]);
+    |                     ^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => ({value}));
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(17): array.flatMap(value => value.active ? [{id: value.id}] : []); 1`] = `
+
+  1 | array.flatMap(value => value.active ? [{id: value.id}] : []);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(17): array.flatMap(value => value.active ? [{id: value.id}] : []); 2`] = `
+
+Message:
+> 1 | array.flatMap(value => value.active ? [{id: value.id}] : []);
+    |       ^^^^^^^ Prefer \`.filter().map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Suggestion 1/1: Replace \`.flatMap(…)\` with \`.filter(…).map(…)\`.:
+  1 | array.filter(value => value.active).map(value => ({id: value.id}));
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(18): array.flatMap(() => [function () {}]); 1`] = `
+
+  1 | array.flatMap(() => [function () {}]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(18): array.flatMap(() => [function () {}]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => [function () {}]);
+    |                     ^^^^^^^^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => function () {});
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(18): array.flatMap(value => value.active ? [(value.id, value.name)] : []); 1`] = `
+
+  1 | array.flatMap(value => value.active ? [(value.id, value.name)] : []);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(18): array.flatMap(value => value.active ? [(value.id, value.name)] : []); 2`] = `
+
+Message:
+> 1 | array.flatMap(value => value.active ? [(value.id, value.name)] : []);
+    |       ^^^^^^^ Prefer \`.filter().map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Suggestion 1/1: Replace \`.flatMap(…)\` with \`.filter(…).map(…)\`.:
+  1 | array.filter(value => value.active).map(value => (value.id, value.name));
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(19): array.flatMap(() => [() => [1]]); 1`] = `
+
+  1 | array.flatMap(() => [() => [1]]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(19): array.flatMap(() => [() => [1]]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => [() => [1]]);
+    |                     ^^^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => () => [1]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(19): array.flatMap(value => (value = value.id) ? [value] : []); 1`] = `
+
+  1 | array.flatMap(value => (value = value.id) ? [value] : []);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(19): array.flatMap(value => (value = value.id) ? [value] : []); 2`] = `
+
+Message:
+> 1 | array.flatMap(value => (value = value.id) ? [value] : []);
+    |       ^^^^^^^ Prefer \`.filter(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(2): array.flatMap(() => condition ? [1] : [2]); 1`] = `
+
+  1 | array.flatMap(() => condition ? [1] : [2]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(2): array.flatMap(() => condition ? [1] : [2]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => condition ? [1] : [2]);
+    |                                 ^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => condition ? 1 : [2]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(2): array.flatMap(() => condition ? [1] : [2]); 3`] = `
+
+Message:
+> 1 | array.flatMap(() => condition ? [1] : [2]);
+    |                                       ^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => condition ? [1] : 2);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(2): array.flatMap(value => [value.id]); 1`] = `
+
+  1 | array.flatMap(value => [value.id]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(2): array.flatMap(value => [value.id]); 2`] = `
+
+Message:
+> 1 | array.flatMap(value => [value.id]);
+    |       ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(20): array.flatMap(() => [class {}]); 1`] = `
+
+  1 | array.flatMap(() => [class {}]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(20): array.flatMap(() => [class {}]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => [class {}]);
+    |                     ^^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => class {});
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(20): array.flatMap(value => (index++, value.active) ? [index] : []); 1`] = `
+
+  1 | array.flatMap(value => (index++, value.active) ? [index] : []);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(20): array.flatMap(value => (index++, value.active) ? [index] : []); 2`] = `
+
+Message:
+> 1 | array.flatMap(value => (index++, value.active) ? [index] : []);
+    |       ^^^^^^^ Prefer \`.filter().map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(21): array.flatMap(value => value.active ? [sideEffect(value)] : []); 1`] = `
+
+  1 | array.flatMap(value => value.active ? [sideEffect(value)] : []);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(21): array.flatMap(value => value.active ? [sideEffect(value)] : []); 2`] = `
+
+Message:
+> 1 | array.flatMap(value => value.active ? [sideEffect(value)] : []);
+    |       ^^^^^^^ Prefer \`.filter().map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(21): const value = 1; array.flatMap(() => condition ? [value] : [2, 3]); 1`] = `
+
+  1 | const value = 1; array.flatMap(() => condition ? [value] : [2, 3]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(21): const value = 1; array.flatMap(() => condition ? [value] : [2, 3]); 2`] = `
+
+Message:
+> 1 | const value = 1; array.flatMap(() => condition ? [value] : [2, 3]);
+    |                                                  ^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | const value = 1; array.flatMap(() => condition ? value : [2, 3]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(22): array.flatMap(() => [1,]); 1`] = `
+
+  1 | array.flatMap(() => [1,]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(22): array.flatMap(() => [1,]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => [1,]);
+    |                     ^^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => 1);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(22): const result = array\n\t.filter(value => value.active)\n\t.flatMap(value => [value.id]); 1`] = `
+
+  1 | const result = array
+  2 | 	.filter(value => value.active)
+  3 | 	.flatMap(value => [value.id]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(22): const result = array\n\t.filter(value => value.active)\n\t.flatMap(value => [value.id]); 2`] = `
+
+Message:
+  1 | const result = array
+  2 | 	.filter(value => value.active)
+> 3 | 	.flatMap(value => [value.id]);
+    | 	 ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Output:
+  1 | const result = array
+  2 | 	.filter(value => value.active)
+  3 | 	.map(value => value.id);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(23): array.filter(value => value.active).flatMap(value => [/* comment */ value.id]); 1`] = `
+
+  1 | array.filter(value => value.active).flatMap(value => [/* comment */ value.id]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(23): array.filter(value => value.active).flatMap(value => [/* comment */ value.id]); 2`] = `
+
+Message:
+> 1 | array.filter(value => value.active).flatMap(value => [/* comment */ value.id]);
+    |                                     ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(23): array.flatMap(() => [(1)]); 1`] = `
+
+  1 | array.flatMap(() => [(1)]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(23): array.flatMap(() => [(1)]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => [(1)]);
+    |                     ^^^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => (1));
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(24): array.filter<string>(value => value.active).flatMap(value => [value.id]); 1`] = `
+
+  1 | array.filter<string>(value => value.active).flatMap(value => [value.id]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(24): array.filter<string>(value => value.active).flatMap(value => [value.id]); 2`] = `
+
+Message:
+> 1 | array.filter<string>(value => value.active).flatMap(value => [value.id]);
+    |                                             ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(24): array.flatMap(() => [(sideEffect(), 1)]); 1`] = `
+
+  1 | array.flatMap(() => [(sideEffect(), 1)]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(24): array.flatMap(() => [(sideEffect(), 1)]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => [(sideEffect(), 1)]);
+    |                     ^^^^^^^^^^^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => (sideEffect(), 1));
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(25): array.filter(value => value.active).flatMap<string>(value => [value.id]); 1`] = `
+
+  1 | array.filter(value => value.active).flatMap<string>(value => [value.id]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(25): array.filter(value => value.active).flatMap<string>(value => [value.id]); 2`] = `
+
+Message:
+> 1 | array.filter(value => value.active).flatMap<string>(value => [value.id]);
+    |                                     ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(25): array.flatMap(() => ([{value}])); 1`] = `
+
+  1 | array.flatMap(() => ([{value}]));
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(25): array.flatMap(() => ([{value}])); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => ([{value}]));
+    |                      ^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => ({value}));
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(26): array.filter((value: string) => value.length > 1).flatMap(value => [value.length]); 1`] = `
+
+  1 | array.filter((value: string) => value.length > 1).flatMap(value => [value.length]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(26): array.filter((value: string) => value.length > 1).flatMap(value => [value.length]); 2`] = `
+
+Message:
+> 1 | array.filter((value: string) => value.length > 1).flatMap(value => [value.length]);
+    |                                                   ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Output:
+  1 | array.filter((value: string) => value.length > 1).map(value => value.length);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(26): array.flatMap(() => [/* keep */ 1]); 1`] = `
+
+  1 | array.flatMap(() => [/* keep */ 1]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(26): array.flatMap(() => [/* keep */ 1]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => [/* keep */ 1]);
+    |                     ^^^^^^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(27): array.filter((value): value is string => typeof value === \"string\").flatMap(value => [value.length]); 1`] = `
+
+  1 | array.filter((value): value is string => typeof value === "string").flatMap(value => [value.length]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(27): array.filter((value): value is string => typeof value === \"string\").flatMap(value => [value.length]); 2`] = `
+
+Message:
+> 1 | array.filter((value): value is string => typeof value === "string").flatMap(value => [value.length]);
+    |                                                                     ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Output:
+  1 | array.filter((value): value is string => typeof value === "string").map(value => value.length);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(27): array.flatMap(() => [1 /* keep */]); 1`] = `
+
+  1 | array.flatMap(() => [1 /* keep */]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(27): array.flatMap(() => [1 /* keep */]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => [1 /* keep */]);
+    |                     ^^^^^^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(28): array.flatMap(() => [{/* keep */ value}]); 1`] = `
+
+  1 | array.flatMap(() => [{/* keep */ value}]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(28): array.flatMap(() => [{/* keep */ value}]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => [{/* keep */ value}]);
+    |                     ^^^^^^^^^^^^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => ({/* keep */ value}));
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(28): function foo(array: string[]) { return array.flatMap((value: string) => [value as string]); } 1`] = `
+
+  1 | function foo(array: string[]) { return array.flatMap((value: string) => [value as string]); }
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(28): function foo(array: string[]) { return array.flatMap((value: string) => [value as string]); } 2`] = `
+
+Message:
+> 1 | function foo(array: string[]) { return array.flatMap((value: string) => [value as string]); }
+    |                                              ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(29): array.flatMap(() => [({value: 1} /* keep */)]); 1`] = `
+
+  1 | array.flatMap(() => [({value: 1} /* keep */)]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(29): array.flatMap(() => [({value: 1} /* keep */)]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => [({value: 1} /* keep */)]);
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => ({value: 1} /* keep */));
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(29): array.flatMap(value => [{id: value.id} as Item]); 1`] = `
+
+  1 | array.flatMap(value => [{id: value.id} as Item]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(29): array.flatMap(value => [{id: value.id} as Item]); 2`] = `
+
+Message:
+> 1 | array.flatMap(value => [{id: value.id} as Item]);
+    |       ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(3): array.flatMap(() => condition ? [] : [1]); 1`] = `
+
+  1 | array.flatMap(() => condition ? [] : [1]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(3): array.flatMap(() => condition ? [] : [1]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => condition ? [] : [1]);
+    |                                      ^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => condition ? [] : 1);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(3): array.flatMap(value => [{id: value.id}]); 1`] = `
+
+  1 | array.flatMap(value => [{id: value.id}]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(3): array.flatMap(value => [{id: value.id}]); 2`] = `
+
+Message:
+> 1 | array.flatMap(value => [{id: value.id}]);
+    |       ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(30): array.flatMap(() => { return [((/* keep */ 1 /* keep */))]; }); 1`] = `
+
+  1 | array.flatMap(() => { return [((/* keep */ 1 /* keep */))]; });
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(30): array.flatMap(() => { return [((/* keep */ 1 /* keep */))]; }); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => { return [((/* keep */ 1 /* keep */))]; });
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => { return ((/* keep */ 1 /* keep */)); });
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(30): array.flatMap(value => [{id: value.id} satisfies Item]); 1`] = `
+
+  1 | array.flatMap(value => [{id: value.id} satisfies Item]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(30): array.flatMap(value => [{id: value.id} satisfies Item]); 2`] = `
+
+Message:
+> 1 | array.flatMap(value => [{id: value.id} satisfies Item]);
+    |       ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(31): array.flatMap(() => {return[1];}); 1`] = `
+
+  1 | array.flatMap(() => {return[1];});
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(31): array.flatMap(() => {return[1];}); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => {return[1];});
+    |                            ^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => {return 1;});
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(31): array.flatMap(value => [<Item>{id: value.id}]); 1`] = `
+
+  1 | array.flatMap(value => [<Item>{id: value.id}]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(31): array.flatMap(value => [<Item>{id: value.id}]); 2`] = `
+
+Message:
+> 1 | array.flatMap(value => [<Item>{id: value.id}]);
+    |       ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(32): array.flatMap(() => { return [\n  1,\n]; }); 1`] = `
+
+  1 | array.flatMap(() => { return [
+  2 |   1,
+  3 | ]; });
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(32): array.flatMap(() => { return [\n  1,\n]; }); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => { return [
+    |                              ^
+> 2 |   1,
+    | ^^^^
+> 3 | ]; });
+    | ^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => { return 1; });
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(32): array.flatMap(value => [{id: value.id}!]); 1`] = `
+
+  1 | array.flatMap(value => [{id: value.id}!]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(32): array.flatMap(value => [{id: value.id}!]); 2`] = `
+
+Message:
+> 1 | array.flatMap(value => [{id: value.id}!]);
+    |       ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(33): array.flatMap(() => {\r\n  return [\r\n    1,\r\n  ];\r\n}); 1`] = `
+
+  1 | array.flatMap(() => {
+  2 |   return [
+  3 |     1,
+  4 |   ];
+  5 | });
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(33): array.flatMap(() => {\r\n  return [\r\n    1,\r\n  ];\r\n}); 2`] = `
+
+Message:
+  1 | array.flatMap(() => {
+> 2 |   return [
+    |          ^
+> 3 |     1,
+    | ^^^^^^
+> 4 |   ];
+    | ^^^ Wrapping this value in an array is unnecessary.
+  5 | });
+
+Output:
+  1 | array.flatMap(() => {
+  2 |   return 1;
+  3 | });
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(33): array.flatMap<string>(value => [value]); 1`] = `
+
+  1 | array.flatMap<string>(value => [value]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(33): array.flatMap<string>(value => [value]); 2`] = `
+
+Message:
+> 1 | array.flatMap<string>(value => [value]);
+    |       ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(34): array.flatMap(() => condition ? [array.flatMap(() => [1])] : [2, 3]); 1`] = `
+
+  1 | array.flatMap(() => condition ? [array.flatMap(() => [1])] : [2, 3]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(34): array.flatMap(() => condition ? [array.flatMap(() => [1])] : [2, 3]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => condition ? [array.flatMap(() => [1])] : [2, 3]);
+    |                                                      ^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => condition ? [array.flatMap(() => 1)] : [2, 3]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(34): declare const array: string[]; array.flatMap(value => [value]); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const array: string[]; array.flatMap(value => [value]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(34): declare const array: string[]; array.flatMap(value => [value]); 2`] = `
+
+Message:
+> 1 | declare const array: string[]; array.flatMap(value => [value]);
+    |                                      ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(35): array.filter(value => value).flatMap(value => [value as string]); 1`] = `
+
+Filename: file.ts
+
+  1 | array.filter(value => value).flatMap(value => [value as string]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(35): array.filter(value => value).flatMap(value => [value as string]); 2`] = `
+
+Message:
+> 1 | array.filter(value => value).flatMap(value => [value as string]);
+    |                              ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Output:
+  1 | array.filter(value => value).map(value => value as string);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(35): declare const value: string; array.flatMap(() => [value]); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: string; array.flatMap(() => [value]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(35): declare const value: string; array.flatMap(() => [value]); 2`] = `
+
+Message:
+> 1 | declare const value: string; array.flatMap(() => [value]);
+    |                                                  ^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Suggestion 1/1: Remove the array wrapper.:
+  1 | declare const value: string; array.flatMap(() => value);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(36): array.filter(value => value).flatMap(value => [value satisfies string]); 1`] = `
+
+Filename: file.ts
+
+  1 | array.filter(value => value).flatMap(value => [value satisfies string]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(36): array.filter(value => value).flatMap(value => [value satisfies string]); 2`] = `
+
+Message:
+> 1 | array.filter(value => value).flatMap(value => [value satisfies string]);
+    |                              ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Output:
+  1 | array.filter(value => value).map(value => value satisfies string);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(36): declare const value: number; array.flatMap(() => [value]); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: number; array.flatMap(() => [value]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(36): declare const value: number; array.flatMap(() => [value]); 2`] = `
+
+Message:
+> 1 | declare const value: number; array.flatMap(() => [value]);
+    |                                                  ^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Suggestion 1/1: Remove the array wrapper.:
+  1 | declare const value: number; array.flatMap(() => value);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(37): array.filter(value => value).flatMap(value => [<string>value]); 1`] = `
+
+Filename: file.ts
+
+  1 | array.filter(value => value).flatMap(value => [<string>value]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(37): array.filter(value => value).flatMap(value => [<string>value]); 2`] = `
+
+Message:
+> 1 | array.filter(value => value).flatMap(value => [<string>value]);
+    |                              ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Output:
+  1 | array.filter(value => value).map(value => <string>value);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(37): declare const value: boolean; array.flatMap(() => [value]); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: boolean; array.flatMap(() => [value]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(37): declare const value: boolean; array.flatMap(() => [value]); 2`] = `
+
+Message:
+> 1 | declare const value: boolean; array.flatMap(() => [value]);
+    |                                                   ^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Suggestion 1/1: Remove the array wrapper.:
+  1 | declare const value: boolean; array.flatMap(() => value);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(38): array.filter(value => value).flatMap(value => [value!]); 1`] = `
+
+Filename: file.ts
+
+  1 | array.filter(value => value).flatMap(value => [value!]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(38): array.filter(value => value).flatMap(value => [value!]); 2`] = `
+
+Message:
+> 1 | array.filter(value => value).flatMap(value => [value!]);
+    |                              ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Output:
+  1 | array.filter(value => value).map(value => value!);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(38): declare const value: bigint; array.flatMap(() => [value]); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: bigint; array.flatMap(() => [value]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(38): declare const value: bigint; array.flatMap(() => [value]); 2`] = `
+
+Message:
+> 1 | declare const value: bigint; array.flatMap(() => [value]);
+    |                                                  ^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Suggestion 1/1: Remove the array wrapper.:
+  1 | declare const value: bigint; array.flatMap(() => value);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(39): array.filter(value => value).flatMap(value => [{id: value.id} as Item]); 1`] = `
+
+Filename: file.ts
+
+  1 | array.filter(value => value).flatMap(value => [{id: value.id} as Item]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(39): array.filter(value => value).flatMap(value => [{id: value.id} as Item]); 2`] = `
+
+Message:
+> 1 | array.filter(value => value).flatMap(value => [{id: value.id} as Item]);
+    |                              ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Output:
+  1 | array.filter(value => value).map(value => ({id: value.id} as Item));
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(39): declare const value: symbol; array.flatMap(() => [value]); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: symbol; array.flatMap(() => [value]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(39): declare const value: symbol; array.flatMap(() => [value]); 2`] = `
+
+Message:
+> 1 | declare const value: symbol; array.flatMap(() => [value]);
+    |                                                  ^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Suggestion 1/1: Remove the array wrapper.:
+  1 | declare const value: symbol; array.flatMap(() => value);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(4): array.flatMap(() => condition ? (otherCondition ? [1] : [2, 3]) : [4]); 1`] = `
+
+  1 | array.flatMap(() => condition ? (otherCondition ? [1] : [2, 3]) : [4]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(4): array.flatMap(() => condition ? (otherCondition ? [1] : [2, 3]) : [4]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => condition ? (otherCondition ? [1] : [2, 3]) : [4]);
+    |                                                   ^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => condition ? (otherCondition ? 1 : [2, 3]) : [4]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(4): array.flatMap(() => condition ? (otherCondition ? [1] : [2, 3]) : [4]); 3`] = `
+
+Message:
+> 1 | array.flatMap(() => condition ? (otherCondition ? [1] : [2, 3]) : [4]);
+    |                                                                   ^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => condition ? (otherCondition ? [1] : [2, 3]) : 4);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(4): array.flatMap(value => [(value.id, value.name)]); 1`] = `
+
+  1 | array.flatMap(value => [(value.id, value.name)]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(4): array.flatMap(value => [(value.id, value.name)]); 2`] = `
+
+Message:
+> 1 | array.flatMap(value => [(value.id, value.name)]);
+    |       ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(40): array.filter(value => value).flatMap(value => [(value.id, value.name) as Item]); 1`] = `
+
+Filename: file.ts
+
+  1 | array.filter(value => value).flatMap(value => [(value.id, value.name) as Item]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(40): array.filter(value => value).flatMap(value => [(value.id, value.name) as Item]); 2`] = `
+
+Message:
+> 1 | array.filter(value => value).flatMap(value => [(value.id, value.name) as Item]);
+    |                              ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Output:
+  1 | array.filter(value => value).map(value => (value.id, value.name) as Item);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(40): declare const value: string | number; array.flatMap(() => [value]); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: string | number; array.flatMap(() => [value]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(40): declare const value: string | number; array.flatMap(() => [value]); 2`] = `
+
+Message:
+> 1 | declare const value: string | number; array.flatMap(() => [value]);
+    |                                                           ^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Suggestion 1/1: Remove the array wrapper.:
+  1 | declare const value: string | number; array.flatMap(() => value);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(41): <script setup lang=\"ts\">array.flatMap(value => [value.id]);</script> 1`] = `
+
+Filename: file.vue
+
+  1 | <script setup lang="ts">array.flatMap(value => [value.id]);</script>
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(41): <script setup lang=\"ts\">array.flatMap(value => [value.id]);</script> 2`] = `
+
+Message:
+> 1 | <script setup lang="ts">array.flatMap(value => [value.id]);</script>
+    |                               ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(41): declare const value: string | undefined; array.flatMap(() => [value]); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: string | undefined; array.flatMap(() => [value]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(41): declare const value: string | undefined; array.flatMap(() => [value]); 2`] = `
+
+Message:
+> 1 | declare const value: string | undefined; array.flatMap(() => [value]);
+    |                                                              ^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Suggestion 1/1: Remove the array wrapper.:
+  1 | declare const value: string | undefined; array.flatMap(() => value);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(42): <script setup lang=\"tsx\">array.flatMap(value => [value.id]); array.flatMap(value => value.active ? [value.id] : []);</script> 1`] = `
+
+Filename: file.vue
+
+  1 | <script setup lang="tsx">array.flatMap(value => [value.id]); array.flatMap(value => value.active ? [value.id] : []);</script>
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(42): <script setup lang=\"tsx\">array.flatMap(value => [value.id]); array.flatMap(value => value.active ? [value.id] : []);</script> 2`] = `
+
+Message:
+> 1 | <script setup lang="tsx">array.flatMap(value => [value.id]); array.flatMap(value => value.active ? [value.id] : []);</script>
+    |                                ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(42): declare const value: \"a\" | 1 | true; array.flatMap(() => [value]); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: "a" | 1 | true; array.flatMap(() => [value]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(42): declare const value: \"a\" | 1 | true; array.flatMap(() => [value]); 2`] = `
+
+Message:
+> 1 | declare const value: "a" | 1 | true; array.flatMap(() => [value]);
+    |                                                          ^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Suggestion 1/1: Remove the array wrapper.:
+  1 | declare const value: "a" | 1 | true; array.flatMap(() => value);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(43): <script>array.flatMap(value => value.active ? [value] : []);</script> 1`] = `
+
+Filename: file.vue
+
+  1 | <script>array.flatMap(value => value.active ? [value] : []);</script>
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(43): <script>array.flatMap(value => value.active ? [value] : []);</script> 2`] = `
+
+Message:
+> 1 | <script>array.flatMap(value => value.active ? [value] : []);</script>
+    |               ^^^^^^^ Prefer \`.filter(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Output:
+  1 | <script>array.filter(value => value.active);</script>
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(43): function foo(array: string[]) { return array.flatMap((value: string) => value.length > 1 ? [value] : []); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(array: string[]) { return array.flatMap((value: string) => value.length > 1 ? [value] : []); }
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(43): function foo(array: string[]) { return array.flatMap((value: string) => value.length > 1 ? [value] : []); } 2`] = `
+
+Message:
+> 1 | function foo(array: string[]) { return array.flatMap((value: string) => value.length > 1 ? [value] : []); }
+    |                                                                                            ^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Suggestion 1/1: Remove the array wrapper.:
+  1 | function foo(array: string[]) { return array.flatMap((value: string) => value.length > 1 ? value : []); }
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(44): <script setup lang=\"js\">array.flatMap(value => value.active ? [value.id] : []);</script> 1`] = `
+
+Filename: file.vue
+
+  1 | <script setup lang="js">array.flatMap(value => value.active ? [value.id] : []);</script>
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(44): <script setup lang=\"js\">array.flatMap(value => value.active ? [value.id] : []);</script> 2`] = `
+
+Message:
+> 1 | <script setup lang="js">array.flatMap(value => value.active ? [value.id] : []);</script>
+    |                               ^^^^^^^ Prefer \`.filter().map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Suggestion 1/1: Replace \`.flatMap(…)\` with \`.filter(…).map(…)\`.:
+  1 | <script setup lang="js">array.filter(value => value.active).map(value => value.id);</script>
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(44): type Record = {type?: string}; declare const records: Record[]; records.flatMap(record => record.type ? [{type: record.type}] : []); 1`] = `
+
+Filename: file.ts
+
+  1 | type Record = {type?: string}; declare const records: Record[]; records.flatMap(record => record.type ? [{type: record.type}] : []);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(44): type Record = {type?: string}; declare const records: Record[]; records.flatMap(record => record.type ? [{type: record.type}] : []); 2`] = `
+
+Message:
+> 1 | type Record = {type?: string}; declare const records: Record[]; records.flatMap(record => record.type ? [{type: record.type}] : []);
+    |                                                                                                         ^^^^^^^^^^^^^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Suggestion 1/1: Remove the array wrapper.:
+  1 | type Record = {type?: string}; declare const records: Record[]; records.flatMap(record => record.type ? {type: record.type} : []);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(45): <script lang=\"js\">array.flatMap(value => value.active ? [value.id] : []);</script> 1`] = `
+
+Filename: file.vue
+
+  1 | <script lang="js">array.flatMap(value => value.active ? [value.id] : []);</script>
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(45): <script lang=\"js\">array.flatMap(value => value.active ? [value.id] : []);</script> 2`] = `
+
+Message:
+> 1 | <script lang="js">array.flatMap(value => value.active ? [value.id] : []);</script>
+    |                         ^^^^^^^ Prefer \`.filter().map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Suggestion 1/1: Replace \`.flatMap(…)\` with \`.filter(…).map(…)\`.:
+  1 | <script lang="js">array.filter(value => value.active).map(value => value.id);</script>
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(45): array.flatMap(() => [value as string]); 1`] = `
+
+Filename: file.ts
+
+  1 | array.flatMap(() => [value as string]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(45): array.flatMap(() => [value as string]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => [value as string]);
+    |                     ^^^^^^^^^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Suggestion 1/1: Remove the array wrapper.:
+  1 | array.flatMap(() => value as string);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(46): (array).flatMap(value => value.active ? [value] : []); 1`] = `
+
+  1 | (array).flatMap(value => value.active ? [value] : []);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(46): (array).flatMap(value => value.active ? [value] : []); 2`] = `
+
+Message:
+> 1 | (array).flatMap(value => value.active ? [value] : []);
+    |         ^^^^^^^ Prefer \`.filter(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Output:
+  1 | (array).filter(value => value.active);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(46): array.flatMap(() => [<string>value]); 1`] = `
+
+Filename: file.ts
+
+  1 | array.flatMap(() => [<string>value]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(46): array.flatMap(() => [<string>value]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => [<string>value]);
+    |                     ^^^^^^^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Suggestion 1/1: Remove the array wrapper.:
+  1 | array.flatMap(() => <string>value);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(47): (array).flatMap(value => value.active ? [value.id] : []); 1`] = `
+
+  1 | (array).flatMap(value => value.active ? [value.id] : []);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(47): (array).flatMap(value => value.active ? [value.id] : []); 2`] = `
+
+Message:
+> 1 | (array).flatMap(value => value.active ? [value.id] : []);
+    |         ^^^^^^^ Prefer \`.filter().map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Suggestion 1/1: Replace \`.flatMap(…)\` with \`.filter(…).map(…)\`.:
+  1 | (array).filter(value => value.active).map(value => value.id);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(47): declare const value: string; array.flatMap(() => [value satisfies string]); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: string; array.flatMap(() => [value satisfies string]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(47): declare const value: string; array.flatMap(() => [value satisfies string]); 2`] = `
+
+Message:
+> 1 | declare const value: string; array.flatMap(() => [value satisfies string]);
+    |                                                  ^^^^^^^^^^^^^^^^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Suggestion 1/1: Remove the array wrapper.:
+  1 | declare const value: string; array.flatMap(() => value satisfies string);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(48): declare const value: string; array.flatMap(() => [value!]); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: string; array.flatMap(() => [value!]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(48): declare const value: string; array.flatMap(() => [value!]); 2`] = `
+
+Message:
+> 1 | declare const value: string; array.flatMap(() => [value!]);
+    |                                                  ^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Suggestion 1/1: Remove the array wrapper.:
+  1 | declare const value: string; array.flatMap(() => value!);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(48): tag\`array\`.flatMap(value => value.active ? [value] : []); 1`] = `
+
+  1 | tag\`array\`.flatMap(value => value.active ? [value] : []);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(48): tag\`array\`.flatMap(value => value.active ? [value] : []); 2`] = `
+
+Message:
+> 1 | tag\`array\`.flatMap(value => value.active ? [value] : []);
+    |            ^^^^^^^ Prefer \`.filter(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Output:
+  1 | tag\`array\`.filter(value => value.active);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(49): array.flatMap((value: string) => value.length > 1 ? [value] : []); 1`] = `
+
+  1 | array.flatMap((value: string) => value.length > 1 ? [value] : []);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(49): array.flatMap((value: string) => value.length > 1 ? [value] : []); 2`] = `
+
+Message:
+> 1 | array.flatMap((value: string) => value.length > 1 ? [value] : []);
+    |       ^^^^^^^ Prefer \`.filter(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Output:
+  1 | array.filter((value: string) => value.length > 1);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(49): function foo(array: string[]) { return array.flatMap(value => value.length > 1 ? [value as string] : []); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(array: string[]) { return array.flatMap(value => value.length > 1 ? [value as string] : []); }
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(49): function foo(array: string[]) { return array.flatMap(value => value.length > 1 ? [value as string] : []); } 2`] = `
+
+Message:
+> 1 | function foo(array: string[]) { return array.flatMap(value => value.length > 1 ? [value as string] : []); }
+    |                                                                                  ^^^^^^^^^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Suggestion 1/1: Remove the array wrapper.:
+  1 | function foo(array: string[]) { return array.flatMap(value => value.length > 1 ? value as string : []); }
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(5): array.flatMap(() => { if (condition) { return [1]; } return [2, 3]; }); 1`] = `
+
+  1 | array.flatMap(() => { if (condition) { return [1]; } return [2, 3]; });
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(5): array.flatMap(() => { if (condition) { return [1]; } return [2, 3]; }); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => { if (condition) { return [1]; } return [2, 3]; });
+    |                                               ^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => { if (condition) { return 1; } return [2, 3]; });
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(5): array.flatMap(value => [/* comment */ value]); 1`] = `
+
+  1 | array.flatMap(value => [/* comment */ value]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(5): array.flatMap(value => [/* comment */ value]); 2`] = `
+
+Message:
+> 1 | array.flatMap(value => [/* comment */ value]);
+    |       ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(50): array.flatMap<string>(() => condition ? [\"a\"] : [\"b\", \"c\"]); 1`] = `
+
+Filename: file.ts
+
+  1 | array.flatMap<string>(() => condition ? ["a"] : ["b", "c"]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(50): array.flatMap<string>(() => condition ? [\"a\"] : [\"b\", \"c\"]); 2`] = `
+
+Message:
+> 1 | array.flatMap<string>(() => condition ? ["a"] : ["b", "c"]);
+    |                                         ^^^^^ Wrapping this value in an array is unnecessary.
+
+Suggestion 1/1: Remove the array wrapper.:
+  1 | array.flatMap<string>(() => condition ? "a" : ["b", "c"]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(51): declare const array: string[]; array.flatMap(value => condition ? [value] : [\"a\", \"b\"]); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const array: string[]; array.flatMap(value => condition ? [value] : ["a", "b"]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(51): declare const array: string[]; array.flatMap(value => condition ? [value] : [\"a\", \"b\"]); 2`] = `
+
+Message:
+> 1 | declare const array: string[]; array.flatMap(value => condition ? [value] : ["a", "b"]);
+    |                                                                   ^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Suggestion 1/1: Remove the array wrapper.:
+  1 | declare const array: string[]; array.flatMap(value => condition ? value : ["a", "b"]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(52): declare const array: (string | number)[]; array.flatMap(value => condition ? [value] : [1, 2]); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const array: (string | number)[]; array.flatMap(value => condition ? [value] : [1, 2]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(52): declare const array: (string | number)[]; array.flatMap(value => condition ? [value] : [1, 2]); 2`] = `
+
+Message:
+> 1 | declare const array: (string | number)[]; array.flatMap(value => condition ? [value] : [1, 2]);
+    |                                                                              ^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Suggestion 1/1: Remove the array wrapper.:
+  1 | declare const array: (string | number)[]; array.flatMap(value => condition ? value : [1, 2]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(53): declare const array: {type?: string}[]; array.flatMap(value => value.type ? [value.type] : []); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const array: {type?: string}[]; array.flatMap(value => value.type ? [value.type] : []);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(53): declare const array: {type?: string}[]; array.flatMap(value => value.type ? [value.type] : []); 2`] = `
+
+Message:
+> 1 | declare const array: {type?: string}[]; array.flatMap(value => value.type ? [value.type] : []);
+    |                                                                             ^^^^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Suggestion 1/1: Remove the array wrapper.:
+  1 | declare const array: {type?: string}[]; array.flatMap(value => value.type ? value.type : []);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(54): <script setup lang=\"ts\">declare const value: string; array.flatMap(() => condition ? [value] : [\"a\", \"b\"]);</script> 1`] = `
+
+Filename: file.vue
+
+  1 | <script setup lang="ts">declare const value: string; array.flatMap(() => condition ? [value] : ["a", "b"]);</script>
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(54): <script setup lang=\"ts\">declare const value: string; array.flatMap(() => condition ? [value] : [\"a\", \"b\"]);</script> 2`] = `
+
+Message:
+> 1 | <script setup lang="ts">declare const value: string; array.flatMap(() => condition ? [value] : ["a", "b"]);</script>
+    |                                                                                      ^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Suggestion 1/1: Remove the array wrapper.:
+  1 | <script setup lang="ts">declare const value: string; array.flatMap(() => condition ? value : ["a", "b"]);</script>
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(55): const value = \"a\"; declare const condition: boolean; const output = [0].flatMap(() => { if (condition) { return [value]; } return []; }); output.push(\"b\"); 1`] = `
+
+Filename: file.ts
+
+  1 | const value = "a"; declare const condition: boolean; const output = [0].flatMap(() => { if (condition) { return [value]; } return []; }); output.push("b");
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(55): const value = \"a\"; declare const condition: boolean; const output = [0].flatMap(() => { if (condition) { return [value]; } return []; }); output.push(\"b\"); 2`] = `
+
+Message:
+> 1 | const value = "a"; declare const condition: boolean; const output = [0].flatMap(() => { if (condition) { return [value]; } return []; }); output.push("b");
+    |                                                                                                                 ^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Suggestion 1/1: Remove the array wrapper.:
+  1 | const value = "a"; declare const condition: boolean; const output = [0].flatMap(() => { if (condition) { return value; } return []; }); output.push("b");
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(56): declare const condition: boolean; const output = [0].flatMap(() => condition ? [1] : []); output.push(2); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const condition: boolean; const output = [0].flatMap(() => condition ? [1] : []); output.push(2);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(56): declare const condition: boolean; const output = [0].flatMap(() => condition ? [1] : []); output.push(2); 2`] = `
+
+Message:
+> 1 | declare const condition: boolean; const output = [0].flatMap(() => condition ? [1] : []); output.push(2);
+    |                                                                                ^^^ Wrapping this value in an array is unnecessary.
+
+Suggestion 1/1: Remove the array wrapper.:
+  1 | declare const condition: boolean; const output = [0].flatMap(() => condition ? 1 : []); output.push(2);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(6): array.filter(value => value.active).flatMap(value => [value.id]); 1`] = `
+
+  1 | array.filter(value => value.active).flatMap(value => [value.id]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(6): array.filter(value => value.active).flatMap(value => [value.id]); 2`] = `
+
+Message:
+> 1 | array.filter(value => value.active).flatMap(value => [value.id]);
+    |                                     ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Output:
+  1 | array.filter(value => value.active).map(value => value.id);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(6): array.flatMap(function (value, index) { return [index + 1]; }); 1`] = `
+
+  1 | array.flatMap(function (value, index) { return [index + 1]; });
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(6): array.flatMap(function (value, index) { return [index + 1]; }); 2`] = `
+
+Message:
+> 1 | array.flatMap(function (value, index) { return [index + 1]; });
+    |                                                ^^^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(function (value, index) { return index + 1; });
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(7): array.filter(value => value.active).flatMap(value => [value]); 1`] = `
+
+  1 | array.filter(value => value.active).flatMap(value => [value]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(7): array.filter(value => value.active).flatMap(value => [value]); 2`] = `
+
+Message:
+> 1 | array.filter(value => value.active).flatMap(value => [value]);
+    |                                     ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Output:
+  1 | array.filter(value => value.active).map(value => value);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(7): array.flatMap(({value}, index) => condition ? [index + 1] : [value, index]); 1`] = `
+
+  1 | array.flatMap(({value}, index) => condition ? [index + 1] : [value, index]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(7): array.flatMap(({value}, index) => condition ? [index + 1] : [value, index]); 2`] = `
+
+Message:
+> 1 | array.flatMap(({value}, index) => condition ? [index + 1] : [value, index]);
+    |                                               ^^^^^^^^^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(({value}, index) => condition ? index + 1 : [value, index]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(8): array.filter(value => value.active).flatMap(value => [{id: value.id}]); 1`] = `
+
+  1 | array.filter(value => value.active).flatMap(value => [{id: value.id}]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(8): array.filter(value => value.active).flatMap(value => [{id: value.id}]); 2`] = `
+
+Message:
+> 1 | array.filter(value => value.active).flatMap(value => [{id: value.id}]);
+    |                                     ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Output:
+  1 | array.filter(value => value.active).map(value => ({id: value.id}));
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(8): array.flatMap(() => [null]); 1`] = `
+
+  1 | array.flatMap(() => [null]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(8): array.flatMap(() => [null]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => [null]);
+    |                     ^^^^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => null);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(9): array.filter(value => value.active).flatMap(value => [(value.id, value.name)]); 1`] = `
+
+  1 | array.filter(value => value.active).flatMap(value => [(value.id, value.name)]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(9): array.filter(value => value.active).flatMap(value => [(value.id, value.name)]); 2`] = `
+
+Message:
+> 1 | array.filter(value => value.active).flatMap(value => [(value.id, value.name)]);
+    |                                     ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Output:
+  1 | array.filter(value => value.active).map(value => (value.id, value.name));
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(9): array.flatMap(() => [true]); 1`] = `
+
+  1 | array.flatMap(() => [true]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(9): array.flatMap(() => [true]); 2`] = `
+
+Message:
+> 1 | array.flatMap(() => [true]);
+    |                     ^^^^^^ Wrapping this value in an array is unnecessary.
+
+Output:
+  1 | array.flatMap(() => true);
+
+`;

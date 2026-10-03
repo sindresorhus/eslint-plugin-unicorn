@@ -16,7 +16,6 @@ const messages = {
 
 const expressionWrapperTypes = new Set([
 	'ChainExpression',
-	'ParenthesizedExpression',
 	'TSAsExpression',
 	'TSInstantiationExpression',
 	'TSNonNullExpression',
@@ -1159,10 +1158,7 @@ const resolveLiteralReference = node => {
 		};
 	}
 
-	if (
-		typeof node.value === 'bigint'
-		|| typeof node.bigint === 'string'
-	) {
+	if (typeof node.value === 'bigint') {
 		return {
 			typeName: 'BigInt',
 			usage: 'instance',

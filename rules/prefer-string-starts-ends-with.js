@@ -4,6 +4,7 @@ import {
 	getParenthesizedRange,
 	escapeString,
 	shouldAddParenthesesToMemberExpressionObject,
+	getMemberExpressionObjectText,
 	shouldAddParenthesesToLogicalExpressionChild,
 	isKnownNonString,
 	isString,
@@ -114,19 +115,6 @@ const getSliceComparison = (sliceCall, searchArgument, context) => {
 			messageId: MESSAGE_SLICE_ENDS_WITH,
 		};
 	}
-};
-
-const getMethodReceiverText = (node, context) => {
-	let text = getParenthesizedText(node, context);
-
-	if (
-		!isParenthesized(node, context)
-		&& shouldAddParenthesesToMemberExpressionObject(node, context)
-	) {
-		text = `(${text})`;
-	}
-
-	return text;
 };
 
 const getRegexProblem = ({pattern, flags}) => {
@@ -346,7 +334,7 @@ const create = context => {
 					return abort();
 				}
 
-				const targetText = getMethodReceiverText(target, context);
+				const targetText = getMemberExpressionObjectText(target, context);
 				const searchText = getParenthesizedText(searchArgument, context);
 				let replacement = `${isNegated ? '!' : ''}${targetText}.startsWith(${searchText})`;
 				if (needsSemicolon(sourceCode.getTokenBefore(node), context, replacement)) {
@@ -410,7 +398,7 @@ const create = context => {
 					return abort();
 				}
 
-				const targetText = getMethodReceiverText(target, context);
+				const targetText = getMemberExpressionObjectText(target, context);
 				const searchText = getParenthesizedText(searchArgument, context);
 				let replacement = `${isNegatedEqualityOperator(operator) ? '!' : ''}${targetText}.${comparison.method}(${searchText})`;
 				if (needsSemicolon(sourceCode.getTokenBefore(node), context, replacement)) {

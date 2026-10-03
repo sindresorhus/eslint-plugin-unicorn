@@ -1,0 +1,279 @@
+exports[`no-unreadable-new-expression > invalid(1): const bar = new Foo().getBar(); 1`] = `
+
+  1 | const bar = new Foo().getBar();
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(1): const bar = new Foo().getBar(); 2`] = `
+
+Message:
+> 1 | const bar = new Foo().getBar();
+    |                       ^^^^^^ Do not access members directly from a \`new\` expression.
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(10): new Foo().bar\`x\`; 1`] = `
+
+  1 | new Foo().bar\`x\`;
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(10): new Foo().bar\`x\`; 2`] = `
+
+Message:
+> 1 | new Foo().bar\`x\`;
+    |           ^^^ Do not access members directly from a \`new\` expression.
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(11): const Bar = new (Foo().Bar); 1`] = `
+
+  1 | const Bar = new (Foo().Bar);
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(11): const Bar = new (Foo().Bar); 2`] = `
+
+Message:
+> 1 | const Bar = new (Foo().Bar);
+    |                  ^^^^^^^^^ Do not use a complex expression as a constructor.
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(12): const bar = new foo[Bar](); 1`] = `
+
+  1 | const bar = new foo[Bar]();
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(12): const bar = new foo[Bar](); 2`] = `
+
+Message:
+> 1 | const bar = new foo[Bar]();
+    |                 ^^^^^^^^ Do not use a complex expression as a constructor.
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(13): const bar = (new foo).Bar(); 1`] = `
+
+  1 | const bar = (new foo).Bar();
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(13): const bar = (new foo).Bar(); 2`] = `
+
+Message:
+> 1 | const bar = (new foo).Bar();
+    |                       ^^^ Do not access members directly from a \`new\` expression.
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(14): const bar = new foo().Bar(); 1`] = `
+
+  1 | const bar = new foo().Bar();
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(14): const bar = new foo().Bar(); 2`] = `
+
+Message:
+> 1 | const bar = new foo().Bar();
+    |                       ^^^ Do not access members directly from a \`new\` expression.
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(15): const bar = new (foo().Bar)(); 1`] = `
+
+  1 | const bar = new (foo().Bar)();
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(15): const bar = new (foo().Bar)(); 2`] = `
+
+Message:
+> 1 | const bar = new (foo().Bar)();
+    |                  ^^^^^^^^^ Do not use a complex expression as a constructor.
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(16): const bar = new (foo())(); 1`] = `
+
+  1 | const bar = new (foo())();
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(16): const bar = new (foo())(); 2`] = `
+
+Message:
+> 1 | const bar = new (foo())();
+    |                  ^^^^^ Do not use a complex expression as a constructor.
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(17): const bar = new (foo ? Foo : Bar)(); 1`] = `
+
+  1 | const bar = new (foo ? Foo : Bar)();
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(17): const bar = new (foo ? Foo : Bar)(); 2`] = `
+
+Message:
+> 1 | const bar = new (foo ? Foo : Bar)();
+    |                  ^^^^^^^^^^^^^^^ Do not use a complex expression as a constructor.
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(18): const bar = new class {}(); 1`] = `
+
+  1 | const bar = new class {}();
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(18): const bar = new class {}(); 2`] = `
+
+Message:
+> 1 | const bar = new class {}();
+    |                 ^^^^^^^^ Do not use a complex expression as a constructor.
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(19): const timestamp = new Date().getTime(); 1`] = `
+
+  1 | const timestamp = new Date().getTime();
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(19): const timestamp = new Date().getTime(); 2`] = `
+
+Message:
+> 1 | const timestamp = new Date().getTime();
+    |                              ^^^^^^^ Do not access members directly from a \`new\` expression.
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(2): const bar = (new Foo()).getBar(); 1`] = `
+
+  1 | const bar = (new Foo()).getBar();
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(2): const bar = (new Foo()).getBar(); 2`] = `
+
+Message:
+> 1 | const bar = (new Foo()).getBar();
+    |                         ^^^^^^ Do not access members directly from a \`new\` expression.
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(20): const formatted = new Intl.ListFormat(\"en-US\", {type: \"disjunction\"}).format(words); 1`] = `
+
+  1 | const formatted = new Intl.ListFormat("en-US", {type: "disjunction"}).format(words);
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(20): const formatted = new Intl.ListFormat(\"en-US\", {type: \"disjunction\"}).format(words); 2`] = `
+
+Message:
+> 1 | const formatted = new Intl.ListFormat("en-US", {type: "disjunction"}).format(words);
+    |                                                                       ^^^^^^ Do not access members directly from a \`new\` expression.
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(3): const Bar = new Foo().Bar; 1`] = `
+
+  1 | const Bar = new Foo().Bar;
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(3): const Bar = new Foo().Bar; 2`] = `
+
+Message:
+> 1 | const Bar = new Foo().Bar;
+    |                       ^^^ Do not access members directly from a \`new\` expression.
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(4): const Bar = (new Foo()).Bar; 1`] = `
+
+  1 | const Bar = (new Foo()).Bar;
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(4): const Bar = (new Foo()).Bar; 2`] = `
+
+Message:
+> 1 | const Bar = (new Foo()).Bar;
+    |                         ^^^ Do not access members directly from a \`new\` expression.
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(5): const Bar = (new Foo).Bar; 1`] = `
+
+  1 | const Bar = (new Foo).Bar;
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(5): const Bar = (new Foo).Bar; 2`] = `
+
+Message:
+> 1 | const Bar = (new Foo).Bar;
+    |                       ^^^ Do not access members directly from a \`new\` expression.
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(6): const Bar = new Foo()[Bar]; 1`] = `
+
+  1 | const Bar = new Foo()[Bar];
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(6): const Bar = new Foo()[Bar]; 2`] = `
+
+Message:
+> 1 | const Bar = new Foo()[Bar];
+    |                       ^^^ Do not access members directly from a \`new\` expression.
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(7): const Bar = (new Foo())[Bar]; 1`] = `
+
+  1 | const Bar = (new Foo())[Bar];
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(7): const Bar = (new Foo())[Bar]; 2`] = `
+
+Message:
+> 1 | const Bar = (new Foo())[Bar];
+    |                         ^^^ Do not access members directly from a \`new\` expression.
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(8): const bar = (new Foo)?.getBar(); 1`] = `
+
+  1 | const bar = (new Foo)?.getBar();
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(8): const bar = (new Foo)?.getBar(); 2`] = `
+
+Message:
+> 1 | const bar = (new Foo)?.getBar();
+    |                        ^^^^^^ Do not access members directly from a \`new\` expression.
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(9): const baz = new Foo().bar.baz; 1`] = `
+
+  1 | const baz = new Foo().bar.baz;
+
+`;
+
+exports[`no-unreadable-new-expression > invalid(9): const baz = new Foo().bar.baz; 2`] = `
+
+Message:
+> 1 | const baz = new Foo().bar.baz;
+    |                       ^^^ Do not access members directly from a \`new\` expression.
+
+`;

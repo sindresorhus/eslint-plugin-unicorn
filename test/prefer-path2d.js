@@ -453,6 +453,231 @@ test.snapshot({
 				}
 			}
 		`),
+		// Recursive type alias
+		{
+			code: outdent`
+				type Context = Context | CanvasRenderingContext2D;
+
+				function draw(context: Context) {
+					for (const item of items) {
+						context.moveTo(item.x, item.y);
+						context.lineTo(item.x + 1, item.y + 1);
+						context.stroke();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				interface Context extends Types.CanvasRenderingContext2D {}
+
+				function draw(context: Context) {
+					for (const item of items) {
+						context.moveTo(item.x, item.y);
+						context.lineTo(item.x + 1, item.y + 1);
+						context.stroke();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function draw<Context>(context: Context) {
+					for (const item of items) {
+						context.moveTo(item.x, item.y);
+						context.lineTo(item.x + 1, item.y + 1);
+						context.stroke();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				class Context {}
+
+				function draw(context: Context) {
+					for (const item of items) {
+						context.moveTo(item.x, item.y);
+						context.lineTo(item.x + 1, item.y + 1);
+						context.stroke();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				import type {Context} from './types';
+
+				function draw(context: Context) {
+					for (const item of items) {
+						context.moveTo(item.x, item.y);
+						context.lineTo(item.x + 1, item.y + 1);
+						context.stroke();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function draw(context: readonly CanvasRenderingContext2D[]) {
+					for (const item of items) {
+						context.moveTo(item.x, item.y);
+						context.lineTo(item.x + 1, item.y + 1);
+						context.stroke();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function draw(context: keyof CanvasRenderingContext2D) {
+					for (const item of items) {
+						context.moveTo(item.x, item.y);
+						context.lineTo(item.x + 1, item.y + 1);
+						context.stroke();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function draw(context: string | number) {
+					for (const item of items) {
+						context.moveTo(item.x, item.y);
+						context.lineTo(item.x + 1, item.y + 1);
+						context.stroke();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function draw(context: typeof canvasContext | null) {
+					for (const item of items) {
+						context.moveTo(item.x, item.y);
+						context.lineTo(item.x + 1, item.y + 1);
+						context.stroke();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function draw(context: {x: number} & {y: number}) {
+					for (const item of items) {
+						context.moveTo(item.x, item.y);
+						context.lineTo(item.x + 1, item.y + 1);
+						context.stroke();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function draw(context: typeof canvasContext & {scaleFactor: number}) {
+					for (const item of items) {
+						context.moveTo(item.x, item.y);
+						context.lineTo(item.x + 1, item.y + 1);
+						context.stroke();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function draw(renderingContext: unknown) {
+					for (const item of items) {
+						(renderingContext as any).moveTo(item.x, item.y);
+						(renderingContext as any).lineTo(item.x + 1, item.y + 1);
+						(renderingContext as any).stroke();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		outdent`
+			for (const item of items) {
+				renderer.moveTo(item.x, item.y);
+				renderer.lineTo(item.x + 1, item.y + 1);
+				renderer.stroke();
+			}
+		`,
+		outdent`
+			for (const item of items) {
+				(renderer?.context).moveTo(item.x, item.y);
+				(renderer?.context).lineTo(item.x + 1, item.y + 1);
+				(renderer?.context).stroke();
+			}
+		`,
+		outdent`
+			const context = canvas.getContext('webgl');
+
+			for (const item of items) {
+				context.moveTo(item.x, item.y);
+				context.lineTo(item.x + 1, item.y + 1);
+				context.stroke();
+			}
+		`,
+		// Each `getContext()` call is a different receiver
+		outdent`
+			for (const item of items) {
+				canvas.getContext('2d').moveTo(item.x, item.y);
+				canvas.getContext('2d').lineTo(item.x + 1, item.y + 1);
+				canvas.getContext('2d').stroke();
+			}
+		`,
+		typeAware(outdent`
+			function draw(context: any) {
+				for (const item of items) {
+					context.moveTo(item.x, item.y);
+					context.lineTo(item.x + 1, item.y + 1);
+					context.stroke();
+				}
+			}
+		`),
+		typeAware(outdent`
+			interface Base {
+				moveTo(x: number, y: number): void;
+				lineTo(x: number, y: number): void;
+				stroke(): void;
+			}
+
+			interface First extends Base {
+				first: true;
+			}
+
+			interface Second extends Base {
+				second: true;
+			}
+
+			function draw(context: First | Second) {
+				for (const item of items) {
+					context.moveTo(item.x, item.y);
+					context.lineTo(item.x + 1, item.y + 1);
+					context.stroke();
+				}
+			}
+		`),
+		typeAware(outdent`
+			function draw<Context>(context: Context) {
+				for (const item of items) {
+					context.moveTo(item.x, item.y);
+					context.lineTo(item.x + 1, item.y + 1);
+					context.stroke();
+				}
+			}
+		`),
 	],
 	invalid: [
 		outdent`
@@ -764,5 +989,116 @@ test.snapshot({
 			`,
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: outdent`
+				type Context = CanvasRenderingContext2D;
+
+				function draw(renderingContext: Context) {
+					for (const item of items) {
+						renderingContext.moveTo(item.x, item.y);
+						renderingContext.lineTo(item.x + 1, item.y + 1);
+						renderingContext.stroke();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				interface Context extends CanvasRenderingContext2D {}
+
+				function draw(renderingContext: Context) {
+					for (const item of items) {
+						renderingContext.moveTo(item.x, item.y);
+						renderingContext.lineTo(item.x + 1, item.y + 1);
+						renderingContext.stroke();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function draw(renderingContext: CanvasRenderingContext2D | undefined) {
+					for (const item of items) {
+						renderingContext!.moveTo(item.x, item.y);
+						renderingContext!.lineTo(item.x + 1, item.y + 1);
+						renderingContext!.stroke();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function draw(renderingContext: CanvasRenderingContext2D & {scaleFactor: number}) {
+					for (const item of items) {
+						renderingContext.moveTo(item.x, item.y);
+						renderingContext.lineTo(item.x + 1, item.y + 1);
+						renderingContext.stroke();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function draw(renderingContext: unknown) {
+					for (const item of items) {
+						(renderingContext as CanvasRenderingContext2D).moveTo(item.x, item.y);
+						(renderingContext as CanvasRenderingContext2D).lineTo(item.x + 1, item.y + 1);
+						(renderingContext as CanvasRenderingContext2D).stroke();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				function draw(renderingContext: unknown) {
+					for (const item of items) {
+						(<CanvasRenderingContext2D>renderingContext).moveTo(item.x, item.y);
+						(<CanvasRenderingContext2D>renderingContext).lineTo(item.x + 1, item.y + 1);
+						(<CanvasRenderingContext2D>renderingContext).stroke();
+					}
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				for (const item of items) {
+					(ctx satisfies object).moveTo(item.x, item.y);
+					(ctx as object).lineTo(item.x + 1, item.y + 1);
+					ctx.stroke();
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware(outdent`
+			for (const item of items) {
+				ctx.moveTo(item.x, item.y);
+				ctx.lineTo(item.x + 1, item.y + 1);
+				ctx.stroke();
+			}
+		`),
+		typeAware(outdent`
+			function draw(context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D) {
+				for (const item of items) {
+					context.moveTo(item.x, item.y);
+					context.lineTo(item.x + 1, item.y + 1);
+					context.stroke();
+				}
+			}
+		`),
+		typeAware(outdent`
+			function draw(layer: {context: CanvasRenderingContext2D} | undefined) {
+				for (const item of items) {
+					(layer?.context).moveTo(item.x, item.y);
+					(layer?.context).lineTo(item.x + 1, item.y + 1);
+					(layer?.context).stroke();
+				}
+			}
+		`),
 	],
 });

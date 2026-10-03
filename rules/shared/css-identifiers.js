@@ -4,18 +4,10 @@ import {toLocation} from '../utils/index.js';
 const namedAtRulePattern = /^(?:(?:-(?:webkit|moz|o)-)?keyframes|container|custom-media|property)$/i;
 const animationKeywords = new Set(['none', 'default', 'inherit', 'initial', 'unset', 'revert', 'revert-layer', 'revert-rule']);
 const containerKeywords = new Set(['and', 'or', 'not', ...animationKeywords]);
+// In the `container` shorthand, the names come before the `/`
 const isContainerShorthandName = (node, value) => {
-	for (const child of value.children) {
-		if (child === node) {
-			return true;
-		}
-
-		if (child.type === 'Operator' && child.value === '/') {
-			return false;
-		}
-	}
-
-	return false;
+	const slashIndex = value.children.findIndex(child => child.type === 'Operator' && child.value === '/');
+	return slashIndex === -1 || value.children.indexOf(node) < slashIndex;
 };
 
 const isNamedAtRuleName = (node, parent, grandparent) => parent?.type === 'AtrulePrelude'

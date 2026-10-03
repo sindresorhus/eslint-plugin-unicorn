@@ -19,9 +19,8 @@ const isKnownNonReplaceChildrenReceiverType = (type, options) => {
 	return (options.checkInnerHTML ? nonInnerHtmlParentNodeTypeNames : nonParentNodeTypeNames).has(typeName);
 };
 
+// Do not unwrap with `checker.getNonNullableType()` here: for a type parameter `T`, it returns `T & {}`, which recurses back into `T` forever.
 const isUnknownOrAllUnknownTypes = (type, checker) => {
-	type = checker.getNonNullableType(type);
-
 	if (isUnknownType(type)) {
 		return true;
 	}
@@ -167,14 +166,15 @@ const shouldReportReplaceChildrenReceiver = (context, node, options) => {
 		}
 
 		return shouldReportReplaceChildrenReceiverType(type, checker, options);
+		// Defensive: the TypeScript checker can throw on unusual nodes or types, and no known input does. Fall back to the syntax check.
+		/* node:coverage ignore next 3 */
 	} catch {
 		return shouldReportReplaceChildrenReceiverFromSyntax(context, node, options);
 	}
 };
 
+// Like `isUnknownOrAllUnknownTypes()`, this must not unwrap with `checker.getNonNullableType()`. A nullish union member is never a template element anyway.
 const mayBeHtmlTemplateElementType = (type, checker) => {
-	type = checker.getNonNullableType(type);
-
 	if (isUnknownType(type)) {
 		return false;
 	}
@@ -211,6 +211,8 @@ const mayBeHtmlTemplateElement = (context, node) => {
 			parserServices.getTypeAtLocation(node),
 			parserServices.program.getTypeChecker(),
 		);
+		// Defensive: the TypeScript checker can throw on unusual nodes or types, and no known input does. Fall back to the syntax check.
+		/* node:coverage ignore next 3 */
 	} catch {
 		return isHtmlTemplateElementFromSyntax(node, context, htmlTemplateElementSyntaxOptions);
 	}

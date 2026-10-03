@@ -237,7 +237,8 @@ const getTrapFunctionProblem = ({functionNode, name}, sourceCode, functionBodyAl
 	}
 
 	const returnStatements = [...getReturnStatements(functionNode.body)];
-	const doesAlwaysExit = functionBodyAlwaysExits.get(functionNode) ?? false;
+	// Always set, the trap function body was analyzed before this `onExit` listener runs
+	const doesAlwaysExit = functionBodyAlwaysExits.get(functionNode);
 	if (returnStatements.length === 0) {
 		if (doesAlwaysExit) {
 			return;

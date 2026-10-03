@@ -1,0 +1,379 @@
+exports[`no-array-sort-for-min-max > invalid(1): const minimum = array.sort((a, b) => a - b)[0]; 1`] = `
+
+  1 | const minimum = array.sort((a, b) => a - b)[0];
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(1): const minimum = array.sort((a, b) => a - b)[0]; 2`] = `
+
+Message:
+> 1 | const minimum = array.sort((a, b) => a - b)[0];
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Math.min()\` instead of sorting to get the minimum value.
+
+Suggestion 1/1: Replace with \`Math.min(...array)\`.:
+  1 | const minimum = Math.min(...array);
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(10): const minimum = array.sort((a, b) => b - a).at(-1); 1`] = `
+
+  1 | const minimum = array.sort((a, b) => b - a).at(-1);
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(10): const minimum = array.sort((a, b) => b - a).at(-1); 2`] = `
+
+Message:
+> 1 | const minimum = array.sort((a, b) => b - a).at(-1);
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Math.min()\` instead of sorting to get the minimum value.
+
+Suggestion 1/1: Replace with \`Math.min(...array)\`.:
+  1 | const minimum = Math.min(...array);
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(11): const minimum = array.toSorted((a, b) => b - a).at(-1); 1`] = `
+
+  1 | const minimum = array.toSorted((a, b) => b - a).at(-1);
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(11): const minimum = array.toSorted((a, b) => b - a).at(-1); 2`] = `
+
+Message:
+> 1 | const minimum = array.toSorted((a, b) => b - a).at(-1);
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Math.min()\` instead of sorting to get the minimum value.
+
+Suggestion 1/1: Replace with \`Math.min(...array)\`.:
+  1 | const minimum = Math.min(...array);
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(12): const minimum = array.sort(function (a, b) {\n\treturn a - b;\n})[0]; 1`] = `
+
+  1 | const minimum = array.sort(function (a, b) {
+  2 | 	return a - b;
+  3 | })[0];
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(12): const minimum = array.sort(function (a, b) {\n\treturn a - b;\n})[0]; 2`] = `
+
+Message:
+> 1 | const minimum = array.sort(function (a, b) {
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	return a - b;
+    | ^^^^^^^^^^^^^^
+> 3 | })[0];
+    | ^^^^^ Use \`Math.min()\` instead of sorting to get the minimum value.
+
+Suggestion 1/1: Replace with \`Math.min(...array)\`.:
+  1 | const minimum = Math.min(...array);
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(13): const maximum = array.toSorted((a, b) => {\n\treturn a - b;\n}).at(-1); 1`] = `
+
+  1 | const maximum = array.toSorted((a, b) => {
+  2 | 	return a - b;
+  3 | }).at(-1);
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(13): const maximum = array.toSorted((a, b) => {\n\treturn a - b;\n}).at(-1); 2`] = `
+
+Message:
+> 1 | const maximum = array.toSorted((a, b) => {
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	return a - b;
+    | ^^^^^^^^^^^^^^
+> 3 | }).at(-1);
+    | ^^^^^^^^^ Use \`Math.max()\` instead of sorting to get the maximum value.
+
+Suggestion 1/1: Replace with \`Math.max(...array)\`.:
+  1 | const maximum = Math.max(...array);
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(14): const minimum = (array ?? fallback).toSorted((a, b) => a - b)[0]; 1`] = `
+
+  1 | const minimum = (array ?? fallback).toSorted((a, b) => a - b)[0];
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(14): const minimum = (array ?? fallback).toSorted((a, b) => a - b)[0]; 2`] = `
+
+Message:
+> 1 | const minimum = (array ?? fallback).toSorted((a, b) => a - b)[0];
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Math.min()\` instead of sorting to get the minimum value.
+
+Suggestion 1/1: Replace with \`Math.min(...(array ?? fallback))\`.:
+  1 | const minimum = Math.min(...(array ?? fallback));
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(15): const minimum = array.toSorted((a, b) => {\n\t// Compare numerically.\n\treturn a - b;\n})[0]; 1`] = `
+
+  1 | const minimum = array.toSorted((a, b) => {
+  2 | 	// Compare numerically.
+  3 | 	return a - b;
+  4 | })[0];
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(15): const minimum = array.toSorted((a, b) => {\n\t// Compare numerically.\n\treturn a - b;\n})[0]; 2`] = `
+
+Message:
+> 1 | const minimum = array.toSorted((a, b) => {
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	// Compare numerically.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	return a - b;
+    | ^^^^^^^^^^^^^^
+> 4 | })[0];
+    | ^^^^^ Use \`Math.min()\` instead of sorting to get the minimum value.
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(16): class ArraySubclass extends Array {\n\tgetMinimum() {\n\t\treturn super.sort((a, b) => a - b)[0];\n\t}\n} 1`] = `
+
+  1 | class ArraySubclass extends Array {
+  2 | 	getMinimum() {
+  3 | 		return super.sort((a, b) => a - b)[0];
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(16): class ArraySubclass extends Array {\n\tgetMinimum() {\n\t\treturn super.sort((a, b) => a - b)[0];\n\t}\n} 2`] = `
+
+Message:
+  1 | class ArraySubclass extends Array {
+  2 | 	getMinimum() {
+> 3 | 		return super.sort((a, b) => a - b)[0];
+    | 		       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Math.min()\` instead of sorting to get the minimum value.
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(17): const minimum = array.sort((a: number, b: number) => a - b)[0]; 1`] = `
+
+  1 | const minimum = array.sort((a: number, b: number) => a - b)[0];
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(17): const minimum = array.sort((a: number, b: number) => a - b)[0]; 2`] = `
+
+Message:
+> 1 | const minimum = array.sort((a: number, b: number) => a - b)[0];
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Math.min()\` instead of sorting to get the minimum value.
+
+Suggestion 1/1: Replace with \`Math.min(...array)\`.:
+  1 | const minimum = Math.min(...array);
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(18): const minimum = array.toSorted((a, b) => (a - b) as number)[0]; 1`] = `
+
+  1 | const minimum = array.toSorted((a, b) => (a - b) as number)[0];
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(18): const minimum = array.toSorted((a, b) => (a - b) as number)[0]; 2`] = `
+
+Message:
+> 1 | const minimum = array.toSorted((a, b) => (a - b) as number)[0];
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Math.min()\` instead of sorting to get the minimum value.
+
+Suggestion 1/1: Replace with \`Math.min(...array)\`.:
+  1 | const minimum = Math.min(...array);
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(19): const minimum = array.toSorted((a, b) => a - b satisfies number)[0]; 1`] = `
+
+  1 | const minimum = array.toSorted((a, b) => a - b satisfies number)[0];
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(19): const minimum = array.toSorted((a, b) => a - b satisfies number)[0]; 2`] = `
+
+Message:
+> 1 | const minimum = array.toSorted((a, b) => a - b satisfies number)[0];
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Math.min()\` instead of sorting to get the minimum value.
+
+Suggestion 1/1: Replace with \`Math.min(...array)\`.:
+  1 | const minimum = Math.min(...array);
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(2): const minimum = array.toSorted((a, b) => a - b)[0]; 1`] = `
+
+  1 | const minimum = array.toSorted((a, b) => a - b)[0];
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(2): const minimum = array.toSorted((a, b) => a - b)[0]; 2`] = `
+
+Message:
+> 1 | const minimum = array.toSorted((a, b) => a - b)[0];
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Math.min()\` instead of sorting to get the minimum value.
+
+Suggestion 1/1: Replace with \`Math.min(...array)\`.:
+  1 | const minimum = Math.min(...array);
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(20): function f(array: Int8Array) { return array.toSorted((a, b) => a - b)[0]; } 1`] = `
+
+  1 | function f(array: Int8Array) { return array.toSorted((a, b) => a - b)[0]; }
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(20): function f(array: Int8Array) { return array.toSorted((a, b) => a - b)[0]; } 2`] = `
+
+Message:
+> 1 | function f(array: Int8Array) { return array.toSorted((a, b) => a - b)[0]; }
+    |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Math.min()\` instead of sorting to get the minimum value.
+
+Suggestion 1/1: Replace with \`Math.min(...array)\`.:
+  1 | function f(array: Int8Array) { return Math.min(...array); }
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(21): for (const value of array.sort((a, b) => a - b)[0]) {} 1`] = `
+
+  1 | for (const value of array.sort((a, b) => a - b)[0]) {}
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(21): for (const value of array.sort((a, b) => a - b)[0]) {} 2`] = `
+
+Message:
+> 1 | for (const value of array.sort((a, b) => a - b)[0]) {}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Math.min()\` instead of sorting to get the minimum value.
+
+Suggestion 1/1: Replace with \`Math.min(...array)\`.:
+  1 | for (const value of Math.min(...array)) {}
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(3): const minimum = arrays[key?.name].toSorted((a, b) => a - b)[0]; 1`] = `
+
+  1 | const minimum = arrays[key?.name].toSorted((a, b) => a - b)[0];
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(3): const minimum = arrays[key?.name].toSorted((a, b) => a - b)[0]; 2`] = `
+
+Message:
+> 1 | const minimum = arrays[key?.name].toSorted((a, b) => a - b)[0];
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Math.min()\` instead of sorting to get the minimum value.
+
+Suggestion 1/1: Replace with \`Math.min(...arrays[key?.name])\`.:
+  1 | const minimum = Math.min(...arrays[key?.name]);
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(4): const minimum = array.sort((a, b) => a - b).at(0); 1`] = `
+
+  1 | const minimum = array.sort((a, b) => a - b).at(0);
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(4): const minimum = array.sort((a, b) => a - b).at(0); 2`] = `
+
+Message:
+> 1 | const minimum = array.sort((a, b) => a - b).at(0);
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Math.min()\` instead of sorting to get the minimum value.
+
+Suggestion 1/1: Replace with \`Math.min(...array)\`.:
+  1 | const minimum = Math.min(...array);
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(5): const minimum = array.toSorted((a, b) => a - b).at(0); 1`] = `
+
+  1 | const minimum = array.toSorted((a, b) => a - b).at(0);
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(5): const minimum = array.toSorted((a, b) => a - b).at(0); 2`] = `
+
+Message:
+> 1 | const minimum = array.toSorted((a, b) => a - b).at(0);
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Math.min()\` instead of sorting to get the minimum value.
+
+Suggestion 1/1: Replace with \`Math.min(...array)\`.:
+  1 | const minimum = Math.min(...array);
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(6): const maximum = array.sort((a, b) => a - b).at(-1); 1`] = `
+
+  1 | const maximum = array.sort((a, b) => a - b).at(-1);
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(6): const maximum = array.sort((a, b) => a - b).at(-1); 2`] = `
+
+Message:
+> 1 | const maximum = array.sort((a, b) => a - b).at(-1);
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Math.max()\` instead of sorting to get the maximum value.
+
+Suggestion 1/1: Replace with \`Math.max(...array)\`.:
+  1 | const maximum = Math.max(...array);
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(7): const maximum = array.toSorted((a, b) => a - b).at(-1); 1`] = `
+
+  1 | const maximum = array.toSorted((a, b) => a - b).at(-1);
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(7): const maximum = array.toSorted((a, b) => a - b).at(-1); 2`] = `
+
+Message:
+> 1 | const maximum = array.toSorted((a, b) => a - b).at(-1);
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Math.max()\` instead of sorting to get the maximum value.
+
+Suggestion 1/1: Replace with \`Math.max(...array)\`.:
+  1 | const maximum = Math.max(...array);
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(8): const maximum = array.sort((a, b) => b - a)[0]; 1`] = `
+
+  1 | const maximum = array.sort((a, b) => b - a)[0];
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(8): const maximum = array.sort((a, b) => b - a)[0]; 2`] = `
+
+Message:
+> 1 | const maximum = array.sort((a, b) => b - a)[0];
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Math.max()\` instead of sorting to get the maximum value.
+
+Suggestion 1/1: Replace with \`Math.max(...array)\`.:
+  1 | const maximum = Math.max(...array);
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(9): const maximum = array.toSorted((a, b) => b - a)[0]; 1`] = `
+
+  1 | const maximum = array.toSorted((a, b) => b - a)[0];
+
+`;
+
+exports[`no-array-sort-for-min-max > invalid(9): const maximum = array.toSorted((a, b) => b - a)[0]; 2`] = `
+
+Message:
+> 1 | const maximum = array.toSorted((a, b) => b - a)[0];
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Math.max()\` instead of sorting to get the maximum value.
+
+Suggestion 1/1: Replace with \`Math.max(...array)\`.:
+  1 | const maximum = Math.max(...array);
+
+`;

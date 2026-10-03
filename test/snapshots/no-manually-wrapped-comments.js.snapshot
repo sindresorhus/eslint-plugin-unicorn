@@ -1,0 +1,1182 @@
+exports[`no-manually-wrapped-comments > invalid(1): # A YAML sentence\n# continued here 1`] = `
+
+  1 | # A YAML sentence
+  2 | # continued here
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(1): # A YAML sentence\n# continued here 2`] = `
+
+Message:
+> 1 | # A YAML sentence
+    | ^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  2 | # continued here
+
+Output:
+  1 | # A YAML sentence continued here
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(1): # A wrapped sentence\n# continued here 1`] = `
+
+Filename: example.toml
+
+  1 | # A wrapped sentence
+  2 | # continued here
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(1): # A wrapped sentence\n# continued here 2`] = `
+
+Message:
+> 1 | # A wrapped sentence
+    | ^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  2 | # continued here
+
+Output:
+  1 | # A wrapped sentence continued here
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(1): /* A wrapped sentence\n   continued here */ 1`] = `
+
+Filename: example.css
+
+  1 | /* A wrapped sentence
+  2 |    continued here */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(1): /* A wrapped sentence\n   continued here */ 2`] = `
+
+Message:
+> 1 | /* A wrapped sentence
+    |    ^^^^^^^^^^^^^^^^^^
+> 2 |    continued here */
+    | ^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+
+Output:
+  1 | /* A wrapped sentence continued here */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(1): /* This is a wrapped block comment but\nit should be on one line */\n\n{\"key\": \"value\"} 1`] = `
+
+  1 | /* This is a wrapped block comment but
+  2 | it should be on one line */
+  3 |
+  4 | {"key": "value"}
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(1): /* This is a wrapped block comment but\nit should be on one line */\n\n{\"key\": \"value\"} 2`] = `
+
+Message:
+> 1 | /* This is a wrapped block comment but
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | it should be on one line */
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  3 |
+  4 | {"key": "value"}
+
+Output:
+  1 | /* This is a wrapped block comment but it should be on one line */
+  2 |
+  3 | {"key": "value"}
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(1): // This is a long comment but\n// I don't like long lines 1`] = `
+
+  1 | // This is a long comment but
+  2 | // I don't like long lines
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(1): // This is a long comment but\n// I don't like long lines 2`] = `
+
+Message:
+> 1 | // This is a long comment but
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  2 | // I don't like long lines
+
+Output:
+  1 | // This is a long comment but I don't like long lines
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(10): /* This is a long comment but\nI don't like long lines. */ 1`] = `
+
+  1 | /* This is a long comment but
+  2 | I don't like long lines. */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(10): /* This is a long comment but\nI don't like long lines. */ 2`] = `
+
+Message:
+> 1 | /* This is a long comment but
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | I don't like long lines. */
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+
+Output:
+  1 | /* This is a long comment but I don't like long lines. */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(11): /*\n\tThis is a long comment but\n\tI don't like long lines\n*/ 1`] = `
+
+  1 | /*
+  2 | 	This is a long comment but
+  3 | 	I don't like long lines
+  4 | */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(11): /*\n\tThis is a long comment but\n\tI don't like long lines\n*/ 2`] = `
+
+Message:
+  1 | /*
+> 2 | 	This is a long comment but
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	I don't like long lines
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  4 | */
+
+Output:
+  1 | /*
+  2 | 	This is a long comment but I don't like long lines
+  3 | */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(12): /**\n * This is a long comment but\n * I don't like long lines.\n */\nfunction foo() {} 1`] = `
+
+  1 | /**
+  2 |  * This is a long comment but
+  3 |  * I don't like long lines.
+  4 |  */
+  5 | function foo() {}
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(12): /**\n * This is a long comment but\n * I don't like long lines.\n */\nfunction foo() {} 2`] = `
+
+Message:
+  1 | /**
+> 2 |  * This is a long comment but
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 |  * I don't like long lines.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  4 |  */
+  5 | function foo() {}
+
+Output:
+  1 | /**
+  2 |  * This is a long comment but I don't like long lines.
+  3 |  */
+  4 | function foo() {}
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(13): /** This is a long comment but\n * I don't like long lines\n */ 1`] = `
+
+  1 | /** This is a long comment but
+  2 |  * I don't like long lines
+  3 |  */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(13): /** This is a long comment but\n * I don't like long lines\n */ 2`] = `
+
+Message:
+> 1 | /** This is a long comment but
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 |  * I don't like long lines
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  3 |  */
+
+Output:
+  1 | /** This is a long comment but I don't like long lines
+  2 |  */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(14): /**\n * This is a long comment but\n * I don't like long lines and\n * I still don't want to use long lines\n */ 1`] = `
+
+  1 | /**
+  2 |  * This is a long comment but
+  3 |  * I don't like long lines and
+  4 |  * I still don't want to use long lines
+  5 |  */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(14): /**\n * This is a long comment but\n * I don't like long lines and\n * I still don't want to use long lines\n */ 2`] = `
+
+Message:
+  1 | /**
+> 2 |  * This is a long comment but
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 |  * I don't like long lines and
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 |  * I still don't want to use long lines
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  5 |  */
+
+Output:
+  1 | /**
+  2 |  * This is a long comment but I don't like long lines and I still don't want to use long lines
+  3 |  */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(15): /**\n * First sentence.\n * This is wrapped but\n * continued\n */ 1`] = `
+
+  1 | /**
+  2 |  * First sentence.
+  3 |  * This is wrapped but
+  4 |  * continued
+  5 |  */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(15): /**\n * First sentence.\n * This is wrapped but\n * continued\n */ 2`] = `
+
+Message:
+  1 | /**
+  2 |  * First sentence.
+> 3 |  * This is wrapped but
+    |    ^^^^^^^^^^^^^^^^^^^
+> 4 |  * continued
+    | ^^^^^^^^^^^^ Avoid manually wrapping comments.
+  5 |  */
+
+Output:
+  1 | /**
+  2 |  * First sentence.
+  3 |  * This is wrapped but continued
+  4 |  */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(16): /**\n * This is a long comment but\n * it ends here.\n * This is intentionally separate.\n */ 1`] = `
+
+  1 | /**
+  2 |  * This is a long comment but
+  3 |  * it ends here.
+  4 |  * This is intentionally separate.
+  5 |  */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(16): /**\n * This is a long comment but\n * it ends here.\n * This is intentionally separate.\n */ 2`] = `
+
+Message:
+  1 | /**
+> 2 |  * This is a long comment but
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 |  * it ends here.
+    | ^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  4 |  * This is intentionally separate.
+  5 |  */
+
+Output:
+  1 | /**
+  2 |  * This is a long comment but it ends here.
+  3 |  * This is intentionally separate.
+  4 |  */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(17): /**\n * This is a long comment but\n * I don't like long lines\n *\n * This is another long comment but\n * I still don't like long lines\n */ 1`] = `
+
+  1 | /**
+  2 |  * This is a long comment but
+  3 |  * I don't like long lines
+  4 |  *
+  5 |  * This is another long comment but
+  6 |  * I still don't like long lines
+  7 |  */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(17): /**\n * This is a long comment but\n * I don't like long lines\n *\n * This is another long comment but\n * I still don't like long lines\n */ 2`] = `
+
+Message:
+  1 | /**
+> 2 |  * This is a long comment but
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 |  * I don't like long lines
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  4 |  *
+  5 |  * This is another long comment but
+  6 |  * I still don't like long lines
+  7 |  */
+
+Output:
+  1 | /**
+  2 |  * This is a long comment but I don't like long lines
+  3 |  *
+  4 |  * This is another long comment but
+  5 |  * I still don't like long lines
+  6 |  */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(17): /**\n * This is a long comment but\n * I don't like long lines\n *\n * This is another long comment but\n * I still don't like long lines\n */ 3`] = `
+
+Message:
+  1 | /**
+  2 |  * This is a long comment but
+  3 |  * I don't like long lines
+  4 |  *
+> 5 |  * This is another long comment but
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 6 |  * I still don't like long lines
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  7 |  */
+
+Output:
+  1 | /**
+  2 |  * This is a long comment but
+  3 |  * I don't like long lines
+  4 |  *
+  5 |  * This is another long comment but I still don't like long lines
+  6 |  */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(18): /**\n * This is a long comment but\n * I don't like long lines\n *\n * @param {string} foo\n */ 1`] = `
+
+  1 | /**
+  2 |  * This is a long comment but
+  3 |  * I don't like long lines
+  4 |  *
+  5 |  * @param {string} foo
+  6 |  */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(18): /**\n * This is a long comment but\n * I don't like long lines\n *\n * @param {string} foo\n */ 2`] = `
+
+Message:
+  1 | /**
+> 2 |  * This is a long comment but
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 |  * I don't like long lines
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  4 |  *
+  5 |  * @param {string} foo
+  6 |  */
+
+Output:
+  1 | /**
+  2 |  * This is a long comment but I don't like long lines
+  3 |  *
+  4 |  * @param {string} foo
+  5 |  */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(19): /**\n *This is a long comment but\n *   spacing should be normalized\n */ 1`] = `
+
+  1 | /**
+  2 |  *This is a long comment but
+  3 |  *   spacing should be normalized
+  4 |  */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(19): /**\n *This is a long comment but\n *   spacing should be normalized\n */ 2`] = `
+
+Message:
+  1 | /**
+> 2 |  *This is a long comment but
+    |   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 |  *   spacing should be normalized
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  4 |  */
+
+Output:
+  1 | /**
+  2 |  *This is a long comment but spacing should be normalized
+  3 |  */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(2): # First YAML sentence.\n# A wrapped sentence\n# continued here 1`] = `
+
+  1 | # First YAML sentence.
+  2 | # A wrapped sentence
+  3 | # continued here
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(2): # First YAML sentence.\n# A wrapped sentence\n# continued here 2`] = `
+
+Message:
+  1 | # First YAML sentence.
+> 2 | # A wrapped sentence
+    | ^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  3 | # continued here
+
+Output:
+  1 | # First YAML sentence.
+  2 | # A wrapped sentence continued here
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(2): # First sentence.\n# A wrapped sentence\n# continued here 1`] = `
+
+Filename: example.toml
+
+  1 | # First sentence.
+  2 | # A wrapped sentence
+  3 | # continued here
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(2): # First sentence.\n# A wrapped sentence\n# continued here 2`] = `
+
+Message:
+  1 | # First sentence.
+> 2 | # A wrapped sentence
+    | ^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  3 | # continued here
+
+Output:
+  1 | # First sentence.
+  2 | # A wrapped sentence continued here
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(2): /* First sentence.\n   A wrapped sentence\n   continued here */ 1`] = `
+
+Filename: example.css
+
+  1 | /* First sentence.
+  2 |    A wrapped sentence
+  3 |    continued here */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(2): /* First sentence.\n   A wrapped sentence\n   continued here */ 2`] = `
+
+Message:
+  1 | /* First sentence.
+> 2 |    A wrapped sentence
+    |    ^^^^^^^^^^^^^^^^^^
+> 3 |    continued here */
+    | ^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+
+Output:
+  1 | /* First sentence.
+  2 |    A wrapped sentence continued here */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(2): /**\n * This is a wrapped block comment but\n * it should be on one line\n */\n\n{\"key\": \"value\"} 1`] = `
+
+  1 | /**
+  2 |  * This is a wrapped block comment but
+  3 |  * it should be on one line
+  4 |  */
+  5 |
+  6 | {"key": "value"}
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(2): /**\n * This is a wrapped block comment but\n * it should be on one line\n */\n\n{\"key\": \"value\"} 2`] = `
+
+Message:
+  1 | /**
+> 2 |  * This is a wrapped block comment but
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 |  * it should be on one line
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  4 |  */
+  5 |
+  6 | {"key": "value"}
+
+Output:
+  1 | /**
+  2 |  * This is a wrapped block comment but it should be on one line
+  3 |  */
+  4 |
+  5 | {"key": "value"}
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(2): // This is a long comment but\n// I don't like long lines and\n// I still don't want to use long lines 1`] = `
+
+  1 | // This is a long comment but
+  2 | // I don't like long lines and
+  3 | // I still don't want to use long lines
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(2): // This is a long comment but\n// I don't like long lines and\n// I still don't want to use long lines 2`] = `
+
+Message:
+> 1 | // This is a long comment but
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  2 | // I don't like long lines and
+  3 | // I still don't want to use long lines
+
+Output:
+  1 | // This is a long comment but I don't like long lines and I still don't want to use long lines
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(20): if (unicorn) {\n\t/*\n\t * This is a long comment but\n\t * I don't like long lines\n\t */\n} 1`] = `
+
+  1 | if (unicorn) {
+  2 | 	/*
+  3 | 	 * This is a long comment but
+  4 | 	 * I don't like long lines
+  5 | 	 */
+  6 | }
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(20): if (unicorn) {\n\t/*\n\t * This is a long comment but\n\t * I don't like long lines\n\t */\n} 2`] = `
+
+Message:
+  1 | if (unicorn) {
+  2 | 	/*
+> 3 | 	 * This is a long comment but
+    | 	   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 	 * I don't like long lines
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  5 | 	 */
+  6 | }
+
+Output:
+  1 | if (unicorn) {
+  2 | 	/*
+  3 | 	 * This is a long comment but I don't like long lines
+  4 | 	 */
+  5 | }
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(21): /* This is a long comment but\r\n   I don't like long lines */\r\n 1`] = `
+
+  1 | /* This is a long comment but
+  2 |    I don't like long lines */
+  3 |
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(21): /* This is a long comment but\r\n   I don't like long lines */\r\n 2`] = `
+
+Message:
+> 1 | /* This is a long comment but
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 |    I don't like long lines */
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  3 |
+
+Output:
+  1 | /* This is a long comment but I don't like long lines */
+  2 |
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(22): /**\r\n * This is a long comment but\r\n * I don't like long lines\r\n */\r\n 1`] = `
+
+  1 | /**
+  2 |  * This is a long comment but
+  3 |  * I don't like long lines
+  4 |  */
+  5 |
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(22): /**\r\n * This is a long comment but\r\n * I don't like long lines\r\n */\r\n 2`] = `
+
+Message:
+  1 | /**
+> 2 |  * This is a long comment but
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 |  * I don't like long lines
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  4 |  */
+  5 |
+
+Output:
+  1 | /**
+  2 |  * This is a long comment but I don't like long lines
+  3 |  */
+  4 |
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(23): /**\n * This is a long comment but\n * I don't like long lines\n */\nfunction foo() {} 1`] = `
+
+  1 | /**
+  2 |  * This is a long comment but
+  3 |  * I don't like long lines
+  4 |  */
+  5 | function foo() {}
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(23): /**\n * This is a long comment but\n * I don't like long lines\n */\nfunction foo() {} 2`] = `
+
+Message:
+  1 | /**
+> 2 |  * This is a long comment but
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 |  * I don't like long lines
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  4 |  */
+  5 | function foo() {}
+
+Output:
+  1 | /**
+  2 |  * This is a long comment but I don't like long lines
+  3 |  */
+  4 | function foo() {}
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(24): /**\n * This is a long comment but\n * it ends here.\n * This is another long comment but\n * I still don't like long lines\n */ 1`] = `
+
+  1 | /**
+  2 |  * This is a long comment but
+  3 |  * it ends here.
+  4 |  * This is another long comment but
+  5 |  * I still don't like long lines
+  6 |  */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(24): /**\n * This is a long comment but\n * it ends here.\n * This is another long comment but\n * I still don't like long lines\n */ 2`] = `
+
+Message:
+  1 | /**
+> 2 |  * This is a long comment but
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 |  * it ends here.
+    | ^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  4 |  * This is another long comment but
+  5 |  * I still don't like long lines
+  6 |  */
+
+Output:
+  1 | /**
+  2 |  * This is a long comment but it ends here.
+  3 |  * This is another long comment but
+  4 |  * I still don't like long lines
+  5 |  */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(24): /**\n * This is a long comment but\n * it ends here.\n * This is another long comment but\n * I still don't like long lines\n */ 3`] = `
+
+Message:
+  1 | /**
+  2 |  * This is a long comment but
+  3 |  * it ends here.
+> 4 |  * This is another long comment but
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 |  * I still don't like long lines
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  6 |  */
+
+Output:
+  1 | /**
+  2 |  * This is a long comment but
+  3 |  * it ends here.
+  4 |  * This is another long comment but I still don't like long lines
+  5 |  */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(25): /* This is a long comment but\n   I don't like long lines */ const foo = 1; 1`] = `
+
+  1 | /* This is a long comment but
+  2 |    I don't like long lines */ const foo = 1;
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(25): /* This is a long comment but\n   I don't like long lines */ const foo = 1; 2`] = `
+
+Message:
+> 1 | /* This is a long comment but
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 |    I don't like long lines */ const foo = 1;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+
+Output:
+  1 | /* This is a long comment but I don't like long lines */ const foo = 1;
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(3):   # A YAML sentence\n  # continues on another line\n  # and ends here. 1`] = `
+
+  1 |   # A YAML sentence
+  2 |   # continues on another line
+  3 |   # and ends here.
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(3):   # A YAML sentence\n  # continues on another line\n  # and ends here. 2`] = `
+
+Message:
+> 1 |   # A YAML sentence
+    |   ^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  2 |   # continues on another line
+  3 |   # and ends here.
+
+Output:
+  1 |   # A YAML sentence continues on another line and ends here.
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(3): # A wrapped sentence\n# ends here.\n# A separate sentence. 1`] = `
+
+Filename: example.toml
+
+  1 | # A wrapped sentence
+  2 | # ends here.
+  3 | # A separate sentence.
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(3): # A wrapped sentence\n# ends here.\n# A separate sentence. 2`] = `
+
+Message:
+> 1 | # A wrapped sentence
+    | ^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  2 | # ends here.
+  3 | # A separate sentence.
+
+Output:
+  1 | # A wrapped sentence ends here.
+  2 | # A separate sentence.
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(3): // This is a wrapped JSONC comment but\n// it should be on one line\n\n{\"key\": \"value\"} 1`] = `
+
+  1 | // This is a wrapped JSONC comment but
+  2 | // it should be on one line
+  3 |
+  4 | {"key": "value"}
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(3): // This is a wrapped JSONC comment but\n// it should be on one line\n\n{\"key\": \"value\"} 2`] = `
+
+Message:
+> 1 | // This is a wrapped JSONC comment but
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  2 | // it should be on one line
+  3 |
+  4 | {"key": "value"}
+
+Output:
+  1 | // This is a wrapped JSONC comment but it should be on one line
+  2 |
+  3 | {"key": "value"}
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(3): a {\n\t/* A wrapped sentence\n\t   continued here */\n\tcolor: red;\n} 1`] = `
+
+Filename: example.css
+
+  1 | a {
+  2 | 	/* A wrapped sentence
+  3 | 	   continued here */
+  4 | 	color: red;
+  5 | }
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(3): a {\n\t/* A wrapped sentence\n\t   continued here */\n\tcolor: red;\n} 2`] = `
+
+Message:
+  1 | a {
+> 2 | 	/* A wrapped sentence
+    | 	   ^^^^^^^^^^^^^^^^^^
+> 3 | 	   continued here */
+    | ^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  4 | 	color: red;
+  5 | }
+
+Output:
+  1 | a {
+  2 | 	/* A wrapped sentence continued here */
+  3 | 	color: red;
+  4 | }
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(3): if (unicorn) {\n\n\t// This is a long comment but\n\t// I don't like long lines\n\n} 1`] = `
+
+  1 | if (unicorn) {
+  2 |
+  3 | 	// This is a long comment but
+  4 | 	// I don't like long lines
+  5 |
+  6 | }
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(3): if (unicorn) {\n\n\t// This is a long comment but\n\t// I don't like long lines\n\n} 2`] = `
+
+Message:
+  1 | if (unicorn) {
+  2 |
+> 3 | 	// This is a long comment but
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  4 | 	// I don't like long lines
+  5 |
+  6 | }
+
+Output:
+  1 | if (unicorn) {
+  2 |
+  3 | 	// This is a long comment but I don't like long lines
+  4 |
+  5 | }
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(4):   # A wrapped sentence\n  # continues on another line\n  # and ends here. 1`] = `
+
+Filename: example.toml
+
+  1 |   # A wrapped sentence
+  2 |   # continues on another line
+  3 |   # and ends here.
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(4):   # A wrapped sentence\n  # continues on another line\n  # and ends here. 2`] = `
+
+Message:
+> 1 |   # A wrapped sentence
+    |   ^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  2 |   # continues on another line
+  3 |   # and ends here.
+
+Output:
+  1 |   # A wrapped sentence continues on another line and ends here.
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(4): #A YAML sentence\r\n#   continued here\r\n\r\nkey: 1 1`] = `
+
+  1 | #A YAML sentence
+  2 | #   continued here
+  3 |
+  4 | key: 1
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(4): #A YAML sentence\r\n#   continued here\r\n\r\nkey: 1 2`] = `
+
+Message:
+> 1 | #A YAML sentence
+    | ^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  2 | #   continued here
+  3 |
+  4 | key: 1
+
+Output:
+  1 | # A YAML sentence continued here
+  2 |
+  3 | key: 1
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(4): /**\n * A wrapped sentence\n * continued here\n */ 1`] = `
+
+Filename: example.css
+
+  1 | /**
+  2 |  * A wrapped sentence
+  3 |  * continued here
+  4 |  */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(4): /**\n * A wrapped sentence\n * continued here\n */ 2`] = `
+
+Message:
+  1 | /**
+> 2 |  * A wrapped sentence
+    |    ^^^^^^^^^^^^^^^^^^
+> 3 |  * continued here
+    | ^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  4 |  */
+
+Output:
+  1 | /**
+  2 |  * A wrapped sentence continued here
+  3 |  */
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(4): // First sentence.\n// This is wrapped but\n// continued 1`] = `
+
+  1 | // First sentence.
+  2 | // This is wrapped but
+  3 | // continued
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(4): // First sentence.\n// This is wrapped but\n// continued 2`] = `
+
+Message:
+  1 | // First sentence.
+> 2 | // This is wrapped but
+    | ^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  3 | // continued
+
+Output:
+  1 | // First sentence.
+  2 | // This is wrapped but continued
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(4): // This is a wrapped JSON5 comment but\n// it should be on one line\n\n{\"key\": \"value\"} 1`] = `
+
+  1 | // This is a wrapped JSON5 comment but
+  2 | // it should be on one line
+  3 |
+  4 | {"key": "value"}
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(4): // This is a wrapped JSON5 comment but\n// it should be on one line\n\n{\"key\": \"value\"} 2`] = `
+
+Message:
+> 1 | // This is a wrapped JSON5 comment but
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  2 | // it should be on one line
+  3 |
+  4 | {"key": "value"}
+
+Output:
+  1 | // This is a wrapped JSON5 comment but it should be on one line
+  2 |
+  3 | {"key": "value"}
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(5): #A wrapped sentence\r\n#   continued here\r\n\r\nkey = 1 1`] = `
+
+Filename: example.toml
+
+  1 | #A wrapped sentence
+  2 | #   continued here
+  3 |
+  4 | key = 1
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(5): #A wrapped sentence\r\n#   continued here\r\n\r\nkey = 1 2`] = `
+
+Message:
+> 1 | #A wrapped sentence
+    | ^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  2 | #   continued here
+  3 |
+  4 | key = 1
+
+Output:
+  1 | # A wrapped sentence continued here
+  2 |
+  3 | key = 1
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(5): // Global state is initialized but\n// the next step runs later 1`] = `
+
+  1 | // Global state is initialized but
+  2 | // the next step runs later
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(5): // Global state is initialized but\n// the next step runs later 2`] = `
+
+Message:
+> 1 | // Global state is initialized but
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  2 | // the next step runs later
+
+Output:
+  1 | // Global state is initialized but the next step runs later
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(6): # A wrapped sentence\n# continued here\n\nkey = 1\n\n# Another sentence\n# continues here 1`] = `
+
+Filename: example.toml
+
+  1 | # A wrapped sentence
+  2 | # continued here
+  3 |
+  4 | key = 1
+  5 |
+  6 | # Another sentence
+  7 | # continues here
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(6): # A wrapped sentence\n# continued here\n\nkey = 1\n\n# Another sentence\n# continues here 2`] = `
+
+Message:
+> 1 | # A wrapped sentence
+    | ^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  2 | # continued here
+  3 |
+  4 | key = 1
+  5 |
+  6 | # Another sentence
+  7 | # continues here
+
+Output:
+  1 | # A wrapped sentence continued here
+  2 |
+  3 | key = 1
+  4 |
+  5 | # Another sentence
+  6 | # continues here
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(6): # A wrapped sentence\n# continued here\n\nkey = 1\n\n# Another sentence\n# continues here 3`] = `
+
+Message:
+  1 | # A wrapped sentence
+  2 | # continued here
+  3 |
+  4 | key = 1
+  5 |
+> 6 | # Another sentence
+    | ^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  7 | # continues here
+
+Output:
+  1 | # A wrapped sentence
+  2 | # continued here
+  3 |
+  4 | key = 1
+  5 |
+  6 | # Another sentence continues here
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(6): // Region-specific behavior is initialized but\n// the next step runs later 1`] = `
+
+  1 | // Region-specific behavior is initialized but
+  2 | // the next step runs later
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(6): // Region-specific behavior is initialized but\n// the next step runs later 2`] = `
+
+Message:
+> 1 | // Region-specific behavior is initialized but
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  2 | // the next step runs later
+
+Output:
+  1 | // Region-specific behavior is initialized but the next step runs later
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(7): //This is a long comment but\n//   spacing should be normalized 1`] = `
+
+  1 | //This is a long comment but
+  2 | //   spacing should be normalized
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(7): //This is a long comment but\n//   spacing should be normalized 2`] = `
+
+Message:
+> 1 | //This is a long comment but
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  2 | //   spacing should be normalized
+
+Output:
+  1 | // This is a long comment but spacing should be normalized
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(8): // This is a long comment but\n// it ends here.\n// This is intentionally separate. 1`] = `
+
+  1 | // This is a long comment but
+  2 | // it ends here.
+  3 | // This is intentionally separate.
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(8): // This is a long comment but\n// it ends here.\n// This is intentionally separate. 2`] = `
+
+Message:
+> 1 | // This is a long comment but
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  2 | // it ends here.
+  3 | // This is intentionally separate.
+
+Output:
+  1 | // This is a long comment but it ends here.
+  2 | // This is intentionally separate.
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(9): // This is a long comment but\n// I don't like long lines\n\n// This is another long comment but\n// I still don't like long lines 1`] = `
+
+  1 | // This is a long comment but
+  2 | // I don't like long lines
+  3 |
+  4 | // This is another long comment but
+  5 | // I still don't like long lines
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(9): // This is a long comment but\n// I don't like long lines\n\n// This is another long comment but\n// I still don't like long lines 2`] = `
+
+Message:
+> 1 | // This is a long comment but
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  2 | // I don't like long lines
+  3 |
+  4 | // This is another long comment but
+  5 | // I still don't like long lines
+
+Output:
+  1 | // This is a long comment but I don't like long lines
+  2 |
+  3 | // This is another long comment but
+  4 | // I still don't like long lines
+
+`;
+
+exports[`no-manually-wrapped-comments > invalid(9): // This is a long comment but\n// I don't like long lines\n\n// This is another long comment but\n// I still don't like long lines 3`] = `
+
+Message:
+  1 | // This is a long comment but
+  2 | // I don't like long lines
+  3 |
+> 4 | // This is another long comment but
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid manually wrapping comments.
+  5 | // I still don't like long lines
+
+Output:
+  1 | // This is a long comment but
+  2 | // I don't like long lines
+  3 |
+  4 | // This is another long comment but I still don't like long lines
+
+`;

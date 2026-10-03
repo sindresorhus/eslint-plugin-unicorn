@@ -1,3 +1,5 @@
+import getVisitorChildNodes from './get-visitor-child-nodes.js';
+
 /**
 Check whether a node subtree contains a lexical `this`, `super`, or `new.target`, the three bindings an arrow function inherits from its enclosing function.
 
@@ -40,35 +42,7 @@ const isNodeContainsLexicalThis = (node, visitorKeys) => {
 		return false;
 	}
 
-	const keys = visitorKeys[node.type];
-
-	if (!keys) {
-		return false;
-	}
-
-	for (const key of keys) {
-		const value = node[key];
-
-		if (!value) {
-			continue;
-		}
-
-		if (Array.isArray(value)) {
-			for (const childNode of value) {
-				if (childNode && isNodeContainsLexicalThis(childNode, visitorKeys)) {
-					return true;
-				}
-			}
-
-			continue;
-		}
-
-		if (isNodeContainsLexicalThis(value, visitorKeys)) {
-			return true;
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, visitorKeys).some(child => isNodeContainsLexicalThis(child, visitorKeys));
 };
 
 export default isNodeContainsLexicalThis;

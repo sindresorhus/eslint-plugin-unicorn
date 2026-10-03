@@ -1,14 +1,12 @@
 import {
 	getConstVariableInitializer,
-	getParenthesizedText,
 	isArrayPrototypeProperty,
 	isKnownNonArray,
 	isNodeMatches,
 	isNodeMatchesNameOrPath,
-	isParenthesized,
 	isSameIdentifier,
 	needsSemicolon,
-	shouldAddParenthesesToMemberExpressionObject,
+	getMemberExpressionObjectText,
 } from './utils/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
@@ -194,26 +192,10 @@ const isObviouslyNonArrayFlatMapReceiver = (node, context) =>
 	(isPascalCaseIdentifier(node) && !isConstArrayVariable(node, context))
 	|| isConstNonArrayVariable(node, context);
 
-function fix(node, array, context, shouldSwitchToArray, optional) {
-	if (typeof shouldSwitchToArray === 'function') {
-		shouldSwitchToArray = shouldSwitchToArray(node);
-	}
-
+function fix(node, array, context, optional) {
 	return function * (fixer) {
 		const {sourceCode} = context;
-		let fixed = getParenthesizedText(array, context);
-		if (shouldSwitchToArray) {
-			// `array` is an argument, when it changes to `array[]`, we don't need to add extra parentheses
-			fixed = `[${fixed}]`;
-			// And we don't need to add parentheses to the new array to call `.flat()`
-		} else if (
-			!isParenthesized(array, sourceCode)
-			&& shouldAddParenthesesToMemberExpressionObject(array, context)
-		) {
-			fixed = `(${fixed})`;
-		}
-
-		fixed += `${optional ? '?' : ''}.flat()`;
+		let fixed = `${getMemberExpressionObjectText(array, context)}${optional ? '?' : ''}.flat()`;
 
 		const tokenBefore = sourceCode.getTokenBefore(node);
 		if (needsSemicolon(tokenBefore, context, fixed)) {
@@ -246,7 +228,7 @@ function create(context) {
 	];
 
 	context.on('CallExpression', function * (node) {
-		for (const {testFunction, description, getArrayNode, shouldSwitchToArray, isOptionalArray} of cases) {
+		for (const {testFunction, description, getArrayNode, isOptionalArray} of cases) {
 			if (!testFunction(node, context)) {
 				continue;
 			}
@@ -277,7 +259,7 @@ function create(context) {
 				sourceCode.getCommentsInside(node).length
 				=== sourceCode.getCommentsInside(array).length
 			) {
-				problem.fix = fix(node, array, context, shouldSwitchToArray, optional);
+				problem.fix = fix(node, array, context, optional);
 			}
 
 			yield problem;

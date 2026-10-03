@@ -1,0 +1,362 @@
+exports[`prefer-string-match-all > invalid(1): const regexp = /foo/g;\nconst string = 'foofoo';\nlet match;\nwhile ((match = regexp.exec(string)) !== null) {\n\tconsole.log(match);\n} 1`] = `
+
+  1 | const regexp = /foo/g;
+  2 | const string = 'foofoo';
+  3 | let match;
+  4 | while ((match = regexp.exec(string)) !== null) {
+  5 | 	console.log(match);
+  6 | }
+
+`;
+
+exports[`prefer-string-match-all > invalid(1): const regexp = /foo/g;\nconst string = 'foofoo';\nlet match;\nwhile ((match = regexp.exec(string)) !== null) {\n\tconsole.log(match);\n} 2`] = `
+
+Message:
+  1 | const regexp = /foo/g;
+  2 | const string = 'foofoo';
+  3 | let match;
+> 4 | while ((match = regexp.exec(string)) !== null) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | 	console.log(match);
+    | ^^^^^^^^^^^^^^^^^^^^
+> 6 | }
+    | ^ Prefer \`String#matchAll()\` over a \`RegExp#exec()\` loop.
+
+Output:
+  1 | const regexp = /foo/g;
+  2 | const string = 'foofoo';
+  3 | for (const match of string.matchAll(regexp)) {
+  4 | 	console.log(match);
+  5 | }
+
+`;
+
+exports[`prefer-string-match-all > invalid(10): const regexp = /[a-z]+/g;\nconst string = 'foo bar';\nlet match;\nwhile ((match = regexp.exec(string)) !== null) {\n\tconsole.log(match);\n} 1`] = `
+
+  1 | const regexp = /[a-z]+/g;
+  2 | const string = 'foo bar';
+  3 | let match;
+  4 | while ((match = regexp.exec(string)) !== null) {
+  5 | 	console.log(match);
+  6 | }
+
+`;
+
+exports[`prefer-string-match-all > invalid(10): const regexp = /[a-z]+/g;\nconst string = 'foo bar';\nlet match;\nwhile ((match = regexp.exec(string)) !== null) {\n\tconsole.log(match);\n} 2`] = `
+
+Message:
+  1 | const regexp = /[a-z]+/g;
+  2 | const string = 'foo bar';
+  3 | let match;
+> 4 | while ((match = regexp.exec(string)) !== null) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | 	console.log(match);
+    | ^^^^^^^^^^^^^^^^^^^^
+> 6 | }
+    | ^ Prefer \`String#matchAll()\` over a \`RegExp#exec()\` loop.
+
+Output:
+  1 | const regexp = /[a-z]+/g;
+  2 | const string = 'foo bar';
+  3 | for (const match of string.matchAll(regexp)) {
+  4 | 	console.log(match);
+  5 | }
+
+`;
+
+exports[`prefer-string-match-all > invalid(11): const regexp = /\\p{L}+/gv;\nconst string = 'foo bar';\nlet match;\nwhile ((match = regexp.exec(string)) !== null) {\n\tconsole.log(match);\n} 1`] = `
+
+  1 | const regexp = /\\p{L}+/gv;
+  2 | const string = 'foo bar';
+  3 | let match;
+  4 | while ((match = regexp.exec(string)) !== null) {
+  5 | 	console.log(match);
+  6 | }
+
+`;
+
+exports[`prefer-string-match-all > invalid(11): const regexp = /\\p{L}+/gv;\nconst string = 'foo bar';\nlet match;\nwhile ((match = regexp.exec(string)) !== null) {\n\tconsole.log(match);\n} 2`] = `
+
+Message:
+  1 | const regexp = /\\p{L}+/gv;
+  2 | const string = 'foo bar';
+  3 | let match;
+> 4 | while ((match = regexp.exec(string)) !== null) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | 	console.log(match);
+    | ^^^^^^^^^^^^^^^^^^^^
+> 6 | }
+    | ^ Prefer \`String#matchAll()\` over a \`RegExp#exec()\` loop.
+
+Output:
+  1 | const regexp = /\\p{L}+/gv;
+  2 | const string = 'foo bar';
+  3 | for (const match of string.matchAll(regexp)) {
+  4 | 	console.log(match);
+  5 | }
+
+`;
+
+exports[`prefer-string-match-all > invalid(2): const regexp = /foo/g;\nconst string = 'foofoo';\nlet match;\nwhile (null !== (match = regexp.exec(string))) {\n\tconsole.log(match);\n} 1`] = `
+
+  1 | const regexp = /foo/g;
+  2 | const string = 'foofoo';
+  3 | let match;
+  4 | while (null !== (match = regexp.exec(string))) {
+  5 | 	console.log(match);
+  6 | }
+
+`;
+
+exports[`prefer-string-match-all > invalid(2): const regexp = /foo/g;\nconst string = 'foofoo';\nlet match;\nwhile (null !== (match = regexp.exec(string))) {\n\tconsole.log(match);\n} 2`] = `
+
+Message:
+  1 | const regexp = /foo/g;
+  2 | const string = 'foofoo';
+  3 | let match;
+> 4 | while (null !== (match = regexp.exec(string))) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | 	console.log(match);
+    | ^^^^^^^^^^^^^^^^^^^^
+> 6 | }
+    | ^ Prefer \`String#matchAll()\` over a \`RegExp#exec()\` loop.
+
+Output:
+  1 | const regexp = /foo/g;
+  2 | const string = 'foofoo';
+  3 | for (const match of string.matchAll(regexp)) {
+  4 | 	console.log(match);
+  5 | }
+
+`;
+
+exports[`prefer-string-match-all > invalid(3): const regexp = /foo/g;\nconst string = 'foofoo';\nlet match;\nwhile ((match = regexp.exec(string)) != null) {\n\tconsole.log(match);\n} 1`] = `
+
+  1 | const regexp = /foo/g;
+  2 | const string = 'foofoo';
+  3 | let match;
+  4 | while ((match = regexp.exec(string)) != null) {
+  5 | 	console.log(match);
+  6 | }
+
+`;
+
+exports[`prefer-string-match-all > invalid(3): const regexp = /foo/g;\nconst string = 'foofoo';\nlet match;\nwhile ((match = regexp.exec(string)) != null) {\n\tconsole.log(match);\n} 2`] = `
+
+Message:
+  1 | const regexp = /foo/g;
+  2 | const string = 'foofoo';
+  3 | let match;
+> 4 | while ((match = regexp.exec(string)) != null) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | 	console.log(match);
+    | ^^^^^^^^^^^^^^^^^^^^
+> 6 | }
+    | ^ Prefer \`String#matchAll()\` over a \`RegExp#exec()\` loop.
+
+Output:
+  1 | const regexp = /foo/g;
+  2 | const string = 'foofoo';
+  3 | for (const match of string.matchAll(regexp)) {
+  4 | 	console.log(match);
+  5 | }
+
+`;
+
+exports[`prefer-string-match-all > invalid(4): const regexp = /foo/g;\nconst string = 'foofoo';\nlet match;\nwhile (null != (match = regexp.exec(string))) {\n\tconsole.log(match);\n} 1`] = `
+
+  1 | const regexp = /foo/g;
+  2 | const string = 'foofoo';
+  3 | let match;
+  4 | while (null != (match = regexp.exec(string))) {
+  5 | 	console.log(match);
+  6 | }
+
+`;
+
+exports[`prefer-string-match-all > invalid(4): const regexp = /foo/g;\nconst string = 'foofoo';\nlet match;\nwhile (null != (match = regexp.exec(string))) {\n\tconsole.log(match);\n} 2`] = `
+
+Message:
+  1 | const regexp = /foo/g;
+  2 | const string = 'foofoo';
+  3 | let match;
+> 4 | while (null != (match = regexp.exec(string))) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | 	console.log(match);
+    | ^^^^^^^^^^^^^^^^^^^^
+> 6 | }
+    | ^ Prefer \`String#matchAll()\` over a \`RegExp#exec()\` loop.
+
+Output:
+  1 | const regexp = /foo/g;
+  2 | const string = 'foofoo';
+  3 | for (const match of string.matchAll(regexp)) {
+  4 | 	console.log(match);
+  5 | }
+
+`;
+
+exports[`prefer-string-match-all > invalid(5): const regexp = /foo/g;\nconst string = 'foofoo';\nlet match;\nwhile (match = regexp.exec(string)) {\n\tconsole.log(match);\n} 1`] = `
+
+  1 | const regexp = /foo/g;
+  2 | const string = 'foofoo';
+  3 | let match;
+  4 | while (match = regexp.exec(string)) {
+  5 | 	console.log(match);
+  6 | }
+
+`;
+
+exports[`prefer-string-match-all > invalid(5): const regexp = /foo/g;\nconst string = 'foofoo';\nlet match;\nwhile (match = regexp.exec(string)) {\n\tconsole.log(match);\n} 2`] = `
+
+Message:
+  1 | const regexp = /foo/g;
+  2 | const string = 'foofoo';
+  3 | let match;
+> 4 | while (match = regexp.exec(string)) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | 	console.log(match);
+    | ^^^^^^^^^^^^^^^^^^^^
+> 6 | }
+    | ^ Prefer \`String#matchAll()\` over a \`RegExp#exec()\` loop.
+
+Output:
+  1 | const regexp = /foo/g;
+  2 | const string = 'foofoo';
+  3 | for (const match of string.matchAll(regexp)) {
+  4 | 	console.log(match);
+  5 | }
+
+`;
+
+exports[`prefer-string-match-all > invalid(6): const regexp = new RegExp('foo', 'g');\nconst string = 'foofoo';\nlet match;\nwhile ((match = regexp.exec(string)) !== null) {\n\tconsole.log(match);\n} 1`] = `
+
+  1 | const regexp = new RegExp('foo', 'g');
+  2 | const string = 'foofoo';
+  3 | let match;
+  4 | while ((match = regexp.exec(string)) !== null) {
+  5 | 	console.log(match);
+  6 | }
+
+`;
+
+exports[`prefer-string-match-all > invalid(6): const regexp = new RegExp('foo', 'g');\nconst string = 'foofoo';\nlet match;\nwhile ((match = regexp.exec(string)) !== null) {\n\tconsole.log(match);\n} 2`] = `
+
+Message:
+  1 | const regexp = new RegExp('foo', 'g');
+  2 | const string = 'foofoo';
+  3 | let match;
+> 4 | while ((match = regexp.exec(string)) !== null) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | 	console.log(match);
+    | ^^^^^^^^^^^^^^^^^^^^
+> 6 | }
+    | ^ Prefer \`String#matchAll()\` over a \`RegExp#exec()\` loop.
+
+Output:
+  1 | const regexp = new RegExp('foo', 'g');
+  2 | const string = 'foofoo';
+  3 | for (const match of string.matchAll(regexp)) {
+  4 | 	console.log(match);
+  5 | }
+
+`;
+
+exports[`prefer-string-match-all > invalid(7): const regexp = new RegExp('foo', 'gi');\nconst string = 'foofoo';\nlet match;\nwhile ((match = regexp.exec(string)) !== null) {\n\tconsole.log(match);\n} 1`] = `
+
+  1 | const regexp = new RegExp('foo', 'gi');
+  2 | const string = 'foofoo';
+  3 | let match;
+  4 | while ((match = regexp.exec(string)) !== null) {
+  5 | 	console.log(match);
+  6 | }
+
+`;
+
+exports[`prefer-string-match-all > invalid(7): const regexp = new RegExp('foo', 'gi');\nconst string = 'foofoo';\nlet match;\nwhile ((match = regexp.exec(string)) !== null) {\n\tconsole.log(match);\n} 2`] = `
+
+Message:
+  1 | const regexp = new RegExp('foo', 'gi');
+  2 | const string = 'foofoo';
+  3 | let match;
+> 4 | while ((match = regexp.exec(string)) !== null) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | 	console.log(match);
+    | ^^^^^^^^^^^^^^^^^^^^
+> 6 | }
+    | ^ Prefer \`String#matchAll()\` over a \`RegExp#exec()\` loop.
+
+Output:
+  1 | const regexp = new RegExp('foo', 'gi');
+  2 | const string = 'foofoo';
+  3 | for (const match of string.matchAll(regexp)) {
+  4 | 	console.log(match);
+  5 | }
+
+`;
+
+exports[`prefer-string-match-all > invalid(8): const regexp = /(a+)+b/g;\nconst string = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaa';\nlet match;\nwhile ((match = regexp.exec(string)) !== null) {\n\tconsole.log(match);\n} 1`] = `
+
+  1 | const regexp = /(a+)+b/g;
+  2 | const string = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+  3 | let match;
+  4 | while ((match = regexp.exec(string)) !== null) {
+  5 | 	console.log(match);
+  6 | }
+
+`;
+
+exports[`prefer-string-match-all > invalid(8): const regexp = /(a+)+b/g;\nconst string = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaa';\nlet match;\nwhile ((match = regexp.exec(string)) !== null) {\n\tconsole.log(match);\n} 2`] = `
+
+Message:
+  1 | const regexp = /(a+)+b/g;
+  2 | const string = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+  3 | let match;
+> 4 | while ((match = regexp.exec(string)) !== null) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | 	console.log(match);
+    | ^^^^^^^^^^^^^^^^^^^^
+> 6 | }
+    | ^ Prefer \`String#matchAll()\` over a \`RegExp#exec()\` loop.
+
+Output:
+  1 | const regexp = /(a+)+b/g;
+  2 | const string = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+  3 | for (const match of string.matchAll(regexp)) {
+  4 | 	console.log(match);
+  5 | }
+
+`;
+
+exports[`prefer-string-match-all > invalid(9): const regexp = /foo|bar/g;\nconst string = 'foobar';\nlet match;\nwhile ((match = regexp.exec(string)) !== null) {\n\tconsole.log(match);\n} 1`] = `
+
+  1 | const regexp = /foo|bar/g;
+  2 | const string = 'foobar';
+  3 | let match;
+  4 | while ((match = regexp.exec(string)) !== null) {
+  5 | 	console.log(match);
+  6 | }
+
+`;
+
+exports[`prefer-string-match-all > invalid(9): const regexp = /foo|bar/g;\nconst string = 'foobar';\nlet match;\nwhile ((match = regexp.exec(string)) !== null) {\n\tconsole.log(match);\n} 2`] = `
+
+Message:
+  1 | const regexp = /foo|bar/g;
+  2 | const string = 'foobar';
+  3 | let match;
+> 4 | while ((match = regexp.exec(string)) !== null) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | 	console.log(match);
+    | ^^^^^^^^^^^^^^^^^^^^
+> 6 | }
+    | ^ Prefer \`String#matchAll()\` over a \`RegExp#exec()\` loop.
+
+Output:
+  1 | const regexp = /foo|bar/g;
+  2 | const string = 'foobar';
+  3 | for (const match of string.matchAll(regexp)) {
+  4 | 	console.log(match);
+  5 | }
+
+`;

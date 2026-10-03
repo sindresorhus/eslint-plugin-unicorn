@@ -94,11 +94,6 @@ const referencesClassName = (value, id, context) => {
 
 	const {sourceCode} = context;
 	const variable = findVariable(sourceCode.getScope(id), id);
-
-	if (!variable) {
-		return false;
-	}
-
 	const [start, end] = sourceCode.getRange(value);
 	return variable.references.some(({identifier}) => {
 		const [referenceStart, referenceEnd] = sourceCode.getRange(identifier);
@@ -161,7 +156,7 @@ function switchClassToObject(node, context) {
 
 	return function * (fixer) {
 		const classToken = sourceCode.getFirstToken(node);
-		/* c8 ignore next */
+		/* node:coverage ignore next */
 		assertToken(classToken, {
 			expected: {type: 'Keyword', value: 'class'},
 			ruleId: 'no-static-only-class',

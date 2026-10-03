@@ -1,10 +1,10 @@
 import {fileURLToPath} from 'node:url';
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
 const fixtureDirectory = fileURLToPath(new URL('fixtures/prefer-regexp-test/', import.meta.url));
@@ -152,6 +152,19 @@ ruleTest.snapshot({
 		'if (!Boolean(uri.match(/unicorn/).length)) {}',
 		'if (!Boolean(uri.match(/unicorn/).length > 0)) {}',
 		'if (!Boolean(foo || uri.match(/unicorn/).length)) {}',
+		// Every branch is a string or `null`, so the argument is not a `RegExp`
+		'if (foo.match(a ? (b ? "x" : null) : "y")) {}',
+		// The type annotation shows the pattern or receiver is not the expected type
+		{code: 'function foo(pattern: 1) { if ("string".match(pattern)) {} }', languageOptions: {parser: parsers.typescript}},
+		{code: 'function foo(pattern: "a" | 1) { if ("string".match(pattern)) {} }', languageOptions: {parser: parsers.typescript}},
+		{code: 'function foo(regexp: String, value: string) { if (regexp.exec(value)) {} }', languageOptions: {parser: parsers.typescript}},
+		{code: 'function foo(regexp: (string & {brand: 1}) | number, value: string) { if (regexp.exec(value)) {} }', languageOptions: {parser: parsers.typescript}},
+		{code: 'function foo(value: RegExp & {brand: 1}) { if (value.match(/a/)) {} }', languageOptions: {parser: parsers.typescript}},
+		{code: 'function foo(pattern) { if ("string".match(<number>pattern)) {} }', languageOptions: {parser: parsers.typescript}},
+		{code: 'function foo(pattern) { if ("string".match(pattern satisfies number)) {} }', languageOptions: {parser: parsers.typescript}},
+		{code: 'function foo(regexp: String | "a", value: string) { if (regexp.exec(value)) {} }', languageOptions: {parser: parsers.typescript}},
+		// `String#match()` turns a number into a `RegExp`, but `1.test(foo)` is not the same
+		'if (foo.match(a ? 1 : null)) {}',
 	],
 	invalid: [
 		// `String#match()`
@@ -310,6 +323,18 @@ ruleTest.snapshot({
 		`,
 		'!/a/u.exec(foo)',
 		'!/a/v.exec(foo)',
+		// The constant is declared after the function, so only its static value is known
+		'function foo() { if (string[0].match(/a/)) {} } const string = "abc";',
+		'if (foo.match(a ? (b ? /x/ : null) : /y/)) {}',
+		'if (foo.match(a ? /x/ : /y/)) {}',
+		// The type annotation does not rule out a `RegExp`
+		{code: 'function foo(pattern: string | Foo) { if ("string".match(pattern)) {} }', languageOptions: {parser: parsers.typescript}},
+		{code: 'function foo(pattern: Foo & RegExp) { if ("string".match(pattern)) {} }', languageOptions: {parser: parsers.typescript}},
+		{code: 'function foo(pattern: ({a: 1} & {b: 1}) | RegExp) { if ("string".match(pattern)) {} }', languageOptions: {parser: parsers.typescript}},
+		{code: 'function foo(pattern: Foo.Bar) { if ("string".match(pattern)) {} }', languageOptions: {parser: parsers.typescript}},
+		{code: 'function foo(pattern) { if ("string".match(pattern as RegExp)) {} }', languageOptions: {parser: parsers.typescript}},
+		{code: 'function foo(pattern) { if ("string".match(pattern as Foo)) {} }', languageOptions: {parser: parsers.typescript}},
+		{code: 'function foo(pattern: RegExp | undefined) { if ("string".match(pattern!)) {} }', languageOptions: {parser: parsers.typescript}},
 	],
 });
 
@@ -473,6 +498,10 @@ ruleTest({
 
 			if (increment.match(action)) {}
 		`),
+		typeAware(outdent`
+			declare function getPattern(): string | number;
+			if ("string".match(getPattern())) {}
+		`),
 	],
 	invalid: [
 		{
@@ -501,6 +530,27 @@ ruleTest({
 				},
 			],
 		},
+		...[
+			'declare function getPattern(): RegExp | number; if ("string".match(getPattern())) {}',
+			'declare class Pattern extends RegExp {} declare function getPattern(): Pattern; if ("string".match(getPattern())) {}',
+			'function foo<Type extends RegExp>(getPattern: () => Type | null) { if ("string".match(getPattern())) {} }',
+			// An unconstrained type parameter can be anything
+			'function foo<Type>(getPattern: () => Type) { if ("string".match(getPattern())) {} }',
+			'function foo<Type>(getPattern: () => NonNullable<Type>) { if ("string".match(getPattern())) {} }',
+		].map(code => ({
+			...typeAware(code),
+			errors: [
+				{
+					message: 'Prefer `RegExp#test(…)` over `String#match(…)`.',
+					suggestions: [
+						{
+							desc: 'Switch to `RegExp#test(…)`.',
+							output: code.replace('"string".match(getPattern())', 'getPattern().test("string")'),
+						},
+					],
+				},
+			],
+		})),
 	],
 });
 
@@ -629,6 +679,6 @@ test('no redundant semicolon, and CRLF input', t => {
 	]) {
 		const result = linter.verifyAndFix(code, config, 'index.js');
 
-		t.is(result.output, expected, `output for \`${code}\``);
+		t.assert.strictEqual(result.output, expected, `output for \`${code}\``);
 	}
 });

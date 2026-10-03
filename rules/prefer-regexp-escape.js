@@ -126,10 +126,6 @@ const create = context => {
 	const lodashObjectVariables = new WeakSet();
 
 	context.on('ImportDeclaration', node => {
-		if (!isStringLiteral(node.source)) {
-			return;
-		}
-
 		const {value: packageName} = node.source;
 
 		if (REGEXP_ESCAPE_FUNCTION_PACKAGES.has(packageName)) {

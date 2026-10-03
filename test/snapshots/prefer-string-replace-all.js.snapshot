@@ -1,0 +1,1700 @@
+exports[`prefer-string-replace-all > invalid(1): foo.replace(/a/g, bar) 1`] = `
+
+  1 | foo.replace(/a/g, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(1): foo.replace(/a/g, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/a/g, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('a', bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(10): foo.replace(/a/ug, bar) 1`] = `
+
+  1 | foo.replace(/a/ug, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(10): foo.replace(/a/ug, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/a/ug, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('a', bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(11): foo.replace(/[a]/g, bar) 1`] = `
+
+  1 | foo.replace(/[a]/g, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(11): foo.replace(/[a]/g, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/[a]/g, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('a', bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(12): foo.replace(/[.]/g, bar) 1`] = `
+
+  1 | foo.replace(/[.]/g, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(12): foo.replace(/[.]/g, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/[.]/g, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('.', bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(13): foo.replace(/[)-|.*+?^$]/g, '\\\\$&') 1`] = `
+
+  1 | foo.replace(/[)-|.*+?^$]/g, '\\\\$&')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(13): foo.replace(/[)-|.*+?^$]/g, '\\\\$&') 2`] = `
+
+Message:
+> 1 | foo.replace(/[)-|.*+?^$]/g, '\\\\$&')
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/[)-|.*+?^$]/g, '\\\\$&')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(14): foo.replace(/[.*+?^\${}()|]\\[\\]\\\\]/g, '\\\\$&') 1`] = `
+
+  1 | foo.replace(/[.*+?^\${}()|]\\[\\]\\\\]/g, '\\\\$&')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(14): foo.replace(/[.*+?^\${}()|]\\[\\]\\\\]/g, '\\\\$&') 2`] = `
+
+Message:
+> 1 | foo.replace(/[.*+?^\${}()|]\\[\\]\\\\]/g, '\\\\$&')
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/[.*+?^\${}()|]\\[\\]\\\\]/g, '\\\\$&')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(15): foo.replace(/[\\n]/g, bar) 1`] = `
+
+  1 | foo.replace(/[\\n]/g, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(15): foo.replace(/[\\n]/g, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/[\\n]/g, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\n', bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(16): foo.replace(/a?/g, bar) 1`] = `
+
+  1 | foo.replace(/a?/g, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(16): foo.replace(/a?/g, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/a?/g, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/a?/g, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(17): foo.replace(/.*/g, bar) 1`] = `
+
+  1 | foo.replace(/.*/g, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(17): foo.replace(/.*/g, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/.*/g, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/.*/g, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(18): foo.replace(/a|b/g, bar) 1`] = `
+
+  1 | foo.replace(/a|b/g, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(18): foo.replace(/a|b/g, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/a|b/g, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/a|b/g, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(19): foo.replace(/\\W/g, bar) 1`] = `
+
+  1 | foo.replace(/\\W/g, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(19): foo.replace(/\\W/g, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\W/g, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/\\W/g, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(2): foo?.replace(/a/g, bar) 1`] = `
+
+  1 | foo?.replace(/a/g, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(2): foo?.replace(/a/g, bar) 2`] = `
+
+Message:
+> 1 | foo?.replace(/a/g, bar)
+    |      ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo?.replaceAll('a', bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(20): foo.replace(/\\u{61}/g, bar) 1`] = `
+
+  1 | foo.replace(/\\u{61}/g, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(20): foo.replace(/\\u{61}/g, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\u{61}/g, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/\\u{61}/g, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(21): foo.replace(/\\u{61}/gu, bar) 1`] = `
+
+  1 | foo.replace(/\\u{61}/gu, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(21): foo.replace(/\\u{61}/gu, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\u{61}/gu, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\u{61}', bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(22): foo.replace(/\\u{61}/gv, bar) 1`] = `
+
+  1 | foo.replace(/\\u{61}/gv, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(22): foo.replace(/\\u{61}/gv, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\u{61}/gv, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\u{61}', bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(23): str.replace(/\\u200B/g, '') 1`] = `
+
+  1 | str.replace(/\\u200B/g, '')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(23): str.replace(/\\u200B/g, '') 2`] = `
+
+Message:
+> 1 | str.replace(/\\u200B/g, '')
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | str.replaceAll('\\u200B', '')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(24): str.replace(/\\x20/g, '') 1`] = `
+
+  1 | str.replace(/\\x20/g, '')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(24): str.replace(/\\x20/g, '') 2`] = `
+
+Message:
+> 1 | str.replace(/\\x20/g, '')
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | str.replaceAll('\\x20', '')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(25): foo.replace(/]/g, \"bar\") 1`] = `
+
+  1 | foo.replace(/]/g, "bar")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(25): foo.replace(/]/g, \"bar\") 2`] = `
+
+Message:
+> 1 | foo.replace(/]/g, "bar")
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(']', "bar")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(26): foo.replace(/a/gs, bar) 1`] = `
+
+  1 | foo.replace(/a/gs, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(26): foo.replace(/a/gs, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/a/gs, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('a', bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(27): foo.replace(/\\./gs, bar) 1`] = `
+
+  1 | foo.replace(/\\./gs, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(27): foo.replace(/\\./gs, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\./gs, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('.', bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(28): foo.replace(/a/gm, bar) 1`] = `
+
+  1 | foo.replace(/a/gm, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(28): foo.replace(/a/gm, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/a/gm, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('a', bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(29): foo.replace(/a/dg, bar) 1`] = `
+
+  1 | foo.replace(/a/dg, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(29): foo.replace(/a/dg, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/a/dg, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('a', bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(3): foo?.replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&'); 1`] = `
+
+  1 | foo?.replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&');
+
+`;
+
+exports[`prefer-string-replace-all > invalid(3): foo?.replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&'); 2`] = `
+
+Message:
+> 1 | foo?.replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&');
+    |      ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo?.replaceAll(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&');
+
+`;
+
+exports[`prefer-string-replace-all > invalid(30): foo.replace(/a/dgms, bar) 1`] = `
+
+  1 | foo.replace(/a/dgms, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(30): foo.replace(/a/dgms, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/a/dgms, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('a', bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(31): foo.replaceAll(/a/gms, bar) 1`] = `
+
+  1 | foo.replaceAll(/a/gms, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(31): foo.replaceAll(/a/gms, bar) 2`] = `
+
+Message:
+> 1 | foo.replaceAll(/a/gms, bar)
+    |                ^^^^^^ This pattern can be replaced with 'a'.
+
+Output:
+  1 | foo.replaceAll('a', bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(32): foo.replace(/a/gi, bar) 1`] = `
+
+  1 | foo.replace(/a/gi, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(32): foo.replace(/a/gi, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/a/gi, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/a/gi, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(33): foo.replace(/a/dgims, bar) 1`] = `
+
+  1 | foo.replace(/a/dgims, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(33): foo.replace(/a/dgims, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/a/dgims, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/a/dgims, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(34): foo.replace(/a/gy, bar) 1`] = `
+
+  1 | foo.replace(/a/gy, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(34): foo.replace(/a/gy, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/a/gy, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/a/gy, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(35): foo.replace(/./gs, bar) 1`] = `
+
+  1 | foo.replace(/./gs, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(35): foo.replace(/./gs, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/./gs, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/./gs, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(36): foo.replace(/^a/gm, bar) 1`] = `
+
+  1 | foo.replace(/^a/gm, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(36): foo.replace(/^a/gm, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/^a/gm, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/^a/gm, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(37): foo.replace(/a/gui, bar) 1`] = `
+
+  1 | foo.replace(/a/gui, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(37): foo.replace(/a/gui, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/a/gui, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/a/gui, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(38): foo.replace(/a/uig, bar) 1`] = `
+
+  1 | foo.replace(/a/uig, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(38): foo.replace(/a/uig, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/a/uig, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/a/uig, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(39): foo.replace(/a/vig, bar) 1`] = `
+
+  1 | foo.replace(/a/vig, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(39): foo.replace(/a/vig, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/a/vig, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/a/vig, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(4): foo/* comment 1 */\n\t.replace/* comment 2 */(\n\t\t/* comment 3 */\n\t\t/a/g // comment 4\n\t\t,\n\t\tbar\n\t) 1`] = `
+
+  1 | foo/* comment 1 */
+  2 | 	.replace/* comment 2 */(
+  3 | 		/* comment 3 */
+  4 | 		/a/g // comment 4
+  5 | 		,
+  6 | 		bar
+  7 | 	)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(4): foo/* comment 1 */\n\t.replace/* comment 2 */(\n\t\t/* comment 3 */\n\t\t/a/g // comment 4\n\t\t,\n\t\tbar\n\t) 2`] = `
+
+Message:
+  1 | foo/* comment 1 */
+> 2 | 	.replace/* comment 2 */(
+    | 	 ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+  3 | 		/* comment 3 */
+  4 | 		/a/g // comment 4
+  5 | 		,
+  6 | 		bar
+  7 | 	)
+
+Output:
+  1 | foo/* comment 1 */
+  2 | 	.replaceAll/* comment 2 */(
+  3 | 		/* comment 3 */
+  4 | 		'a' // comment 4
+  5 | 		,
+  6 | 		bar
+  7 | 	)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(40): const pattern = new RegExp(\"foo\", \"g\"); foo.replace(pattern, bar) 1`] = `
+
+  1 | const pattern = new RegExp("foo", "g"); foo.replace(pattern, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(40): const pattern = new RegExp(\"foo\", \"g\"); foo.replace(pattern, bar) 2`] = `
+
+Message:
+> 1 | const pattern = new RegExp("foo", "g"); foo.replace(pattern, bar)
+    |                                             ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | const pattern = new RegExp("foo", "g"); foo.replaceAll(pattern, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(41): foo.replace(new RegExp(\"foo\", \"g\"), bar) 1`] = `
+
+  1 | foo.replace(new RegExp("foo", "g"), bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(41): foo.replace(new RegExp(\"foo\", \"g\"), bar) 2`] = `
+
+Message:
+> 1 | foo.replace(new RegExp("foo", "g"), bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(new RegExp("foo", "g"), bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(42): foo.replace(/a]/g, _) 1`] = `
+
+  1 | foo.replace(/a]/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(42): foo.replace(/a]/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/a]/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('a]', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(43): foo.replace(/[ab]/g, _) 1`] = `
+
+  1 | foo.replace(/[ab]/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(43): foo.replace(/[ab]/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/[ab]/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/[ab]/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(44): foo.replace(/[a-z]/g, _) 1`] = `
+
+  1 | foo.replace(/[a-z]/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(44): foo.replace(/[a-z]/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/[a-z]/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/[a-z]/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(45): foo.replace(/[^a]/g, _) 1`] = `
+
+  1 | foo.replace(/[^a]/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(45): foo.replace(/[^a]/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/[^a]/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/[^a]/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(46): foo.replace(/a{1/g, _) 1`] = `
+
+  1 | foo.replace(/a{1/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(46): foo.replace(/a{1/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/a{1/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('a{1', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(47): foo.replace(/a{1}/g, _) 1`] = `
+
+  1 | foo.replace(/a{1}/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(47): foo.replace(/a{1}/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/a{1}/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('a', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(48): foo.replace(/[a]{1}/g, _) 1`] = `
+
+  1 | foo.replace(/[a]{1}/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(48): foo.replace(/[a]{1}/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/[a]{1}/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('a', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(49): foo.replace(/(?:a)/g, _) 1`] = `
+
+  1 | foo.replace(/(?:a)/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(49): foo.replace(/(?:a)/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/(?:a)/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('a', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(5): foo.replace(/\"'/g, '\\'') 1`] = `
+
+  1 | foo.replace(/"'/g, '\\'')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(5): foo.replace(/\"'/g, '\\'') 2`] = `
+
+Message:
+> 1 | foo.replace(/"'/g, '\\'')
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('"\\'', '\\'')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(50): foo.replace(/(?:[a])/g, _) 1`] = `
+
+  1 | foo.replace(/(?:[a])/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(50): foo.replace(/(?:[a])/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/(?:[a])/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('a', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(51): foo.replace(/(?:ab)/g, _) 1`] = `
+
+  1 | foo.replace(/(?:ab)/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(51): foo.replace(/(?:ab)/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/(?:ab)/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('ab', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(52): foo.replace(/(?:a)(?:b)/g, _) 1`] = `
+
+  1 | foo.replace(/(?:a)(?:b)/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(52): foo.replace(/(?:a)(?:b)/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/(?:a)(?:b)/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('ab', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(53): foo.replace(/(?:a){1}/g, _) 1`] = `
+
+  1 | foo.replace(/(?:a){1}/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(53): foo.replace(/(?:a){1}/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/(?:a){1}/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('a', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(54): foo.replace(/(a)/g, _) 1`] = `
+
+  1 | foo.replace(/(a)/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(54): foo.replace(/(a)/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/(a)/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/(a)/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(55): foo.replace(/(?:a|b)/g, _) 1`] = `
+
+  1 | foo.replace(/(?:a|b)/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(55): foo.replace(/(?:a|b)/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/(?:a|b)/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/(?:a|b)/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(56): foo.replace(/\\u0022/g, _) 1`] = `
+
+  1 | foo.replace(/\\u0022/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(56): foo.replace(/\\u0022/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\u0022/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\u0022', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(57): foo.replace(/\\u0027/g, _) 1`] = `
+
+  1 | foo.replace(/\\u0027/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(57): foo.replace(/\\u0027/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\u0027/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\u0027', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(58): foo.replace(/\\cM\\cj\\cI/g, _) 1`] = `
+
+  1 | foo.replace(/\\cM\\cj\\cI/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(58): foo.replace(/\\cM\\cj\\cI/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\cM\\cj\\cI/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\r\\n\\t', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(59): foo.replace(/\\cZ/g, _) 1`] = `
+
+  1 | foo.replace(/\\cZ/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(59): foo.replace(/\\cZ/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\cZ/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\u{1A}', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(6): foo.replace(/\\./g, bar) 1`] = `
+
+  1 | foo.replace(/\\./g, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(6): foo.replace(/\\./g, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\./g, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('.', bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(60): foo.replace(/\\377/g, _) 1`] = `
+
+  1 | foo.replace(/\\377/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(60): foo.replace(/\\377/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\377/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\u{FF}', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(61): foo.replace(/\\x0d\\x0a\\x09/g, _) 1`] = `
+
+  1 | foo.replace(/\\x0d\\x0a\\x09/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(61): foo.replace(/\\x0d\\x0a\\x09/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\x0d\\x0a\\x09/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\x0d\\x0a\\x09', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(62): foo.replace(/\\u000d\\u000a\\u0009/g, _) 1`] = `
+
+  1 | foo.replace(/\\u000d\\u000a\\u0009/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(62): foo.replace(/\\u000d\\u000a\\u0009/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\u000d\\u000a\\u0009/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\u000d\\u000a\\u0009', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(63): foo.replace(/\\x22/g, _) 1`] = `
+
+  1 | foo.replace(/\\x22/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(63): foo.replace(/\\x22/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\x22/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\x22', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(64): foo.replace(/\\x27/g, _) 1`] = `
+
+  1 | foo.replace(/\\x27/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(64): foo.replace(/\\x27/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\x27/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\x27', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(65): foo.replace(/\\uD83D\\ude00/g, _) 1`] = `
+
+  1 | foo.replace(/\\uD83D\\ude00/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(65): foo.replace(/\\uD83D\\ude00/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\uD83D\\ude00/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\uD83D\\ude00', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(66): foo.replace(/\\u{1f600}/gu, _) 1`] = `
+
+  1 | foo.replace(/\\u{1f600}/gu, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(66): foo.replace(/\\u{1f600}/gu, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\u{1f600}/gu, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\u{1f600}', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(67): foo.replace(/\\n/g, _) 1`] = `
+
+  1 | foo.replace(/\\n/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(67): foo.replace(/\\n/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\n/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\n', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(68): foo.replace(/\\u{20}/gu, _) 1`] = `
+
+  1 | foo.replace(/\\u{20}/gu, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(68): foo.replace(/\\u{20}/gu, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\u{20}/gu, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\u{20}', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(69): foo.replace(/\\u{20}/gv, _) 1`] = `
+
+  1 | foo.replace(/\\u{20}/gv, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(69): foo.replace(/\\u{20}/gv, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\u{20}/gv, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\u{20}', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(7): foo.replace(/\\\\\\./g, bar) 1`] = `
+
+  1 | foo.replace(/\\\\\\./g, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(7): foo.replace(/\\\\\\./g, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\\\\\./g, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\\\.', bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(70): foo.replace(/\\1/g, _) 1`] = `
+
+  1 | foo.replace(/\\1/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(70): foo.replace(/\\1/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\1/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\u{1}', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(71): foo.replace(/\\8/g, _) 1`] = `
+
+  1 | foo.replace(/\\8/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(71): foo.replace(/\\8/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\8/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('8', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(72): foo.replace(/\\00/g, _) 1`] = `
+
+  1 | foo.replace(/\\00/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(72): foo.replace(/\\00/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\00/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\u{0}', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(73): foo.replace(/\\08/g, _) 1`] = `
+
+  1 | foo.replace(/\\08/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(73): foo.replace(/\\08/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\08/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\u{0}8', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(74): foo.replace(/\\c_/g, _) 1`] = `
+
+  1 | foo.replace(/\\c_/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(74): foo.replace(/\\c_/g, _) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\c_/g, _)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\\\c_', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(75): foo.replaceAll(/a]/g, _) 1`] = `
+
+  1 | foo.replaceAll(/a]/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(75): foo.replaceAll(/a]/g, _) 2`] = `
+
+Message:
+> 1 | foo.replaceAll(/a]/g, _)
+    |                ^^^^^ This pattern can be replaced with 'a]'.
+
+Output:
+  1 | foo.replaceAll('a]', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(76): foo?.replaceAll(/a/g, _) 1`] = `
+
+  1 | foo?.replaceAll(/a/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(76): foo?.replaceAll(/a/g, _) 2`] = `
+
+Message:
+> 1 | foo?.replaceAll(/a/g, _)
+    |                 ^^^^ This pattern can be replaced with 'a'.
+
+Output:
+  1 | foo?.replaceAll('a', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(77): foo.replaceAll(/\\r\\n\\u{1f600}/gu, _) 1`] = `
+
+  1 | foo.replaceAll(/\\r\\n\\u{1f600}/gu, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(77): foo.replaceAll(/\\r\\n\\u{1f600}/gu, _) 2`] = `
+
+Message:
+> 1 | foo.replaceAll(/\\r\\n\\u{1f600}/gu, _)
+    |                ^^^^^^^^^^^^^^^^^ This pattern can be replaced with '\\r\\n\\u{1f600}'.
+
+Output:
+  1 | foo.replaceAll('\\r\\n\\u{1f600}', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(78): foo.replaceAll(/\\r\\n\\u{1f600}/gv, _) 1`] = `
+
+  1 | foo.replaceAll(/\\r\\n\\u{1f600}/gv, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(78): foo.replaceAll(/\\r\\n\\u{1f600}/gv, _) 2`] = `
+
+Message:
+> 1 | foo.replaceAll(/\\r\\n\\u{1f600}/gv, _)
+    |                ^^^^^^^^^^^^^^^^^ This pattern can be replaced with '\\r\\n\\u{1f600}'.
+
+Output:
+  1 | foo.replaceAll('\\r\\n\\u{1f600}', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(79): foo.replaceAll(/a very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long string/g, _) 1`] = `
+
+  1 | foo.replaceAll(/a very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long string/g, _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(79): foo.replaceAll(/a very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long string/g, _) 2`] = `
+
+Message:
+> 1 | foo.replaceAll(/a very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long string/g, _)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This pattern can be replaced with a string literal.
+
+Output:
+  1 | foo.replaceAll('a very very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long string', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(8): foo.replace(/\\|/g, bar) 1`] = `
+
+  1 | foo.replace(/\\|/g, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(8): foo.replace(/\\|/g, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/\\|/g, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('|', bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(80): foo.replace(/(?!a)+/g, \"\") 1`] = `
+
+  1 | foo.replace(/(?!a)+/g, "")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(80): foo.replace(/(?!a)+/g, \"\") 2`] = `
+
+Message:
+> 1 | foo.replace(/(?!a)+/g, "")
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/(?!a)+/g, "")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(81): foo.split(\"a\").join(\"b\") 1`] = `
+
+  1 | foo.split("a").join("b")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(81): foo.split(\"a\").join(\"b\") 2`] = `
+
+Message:
+> 1 | foo.split("a").join("b")
+    |                ^^^^ Prefer \`String#replaceAll()\` over \`String#split().join()\`.
+
+Output:
+  1 | foo.replaceAll('a', 'b')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(82): foo.split(\`a\`).join(\"b\") 1`] = `
+
+  1 | foo.split(\`a\`).join("b")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(82): foo.split(\`a\`).join(\"b\") 2`] = `
+
+Message:
+> 1 | foo.split(\`a\`).join("b")
+    |                ^^^^ Prefer \`String#replaceAll()\` over \`String#split().join()\`.
+
+Output:
+  1 | foo.replaceAll('a', 'b')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(83): foo.split(\"a\").join(\`b\`) 1`] = `
+
+  1 | foo.split("a").join(\`b\`)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(83): foo.split(\"a\").join(\`b\`) 2`] = `
+
+Message:
+> 1 | foo.split("a").join(\`b\`)
+    |                ^^^^ Prefer \`String#replaceAll()\` over \`String#split().join()\`.
+
+Output:
+  1 | foo.replaceAll('a', 'b')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(84): foo.split(\"_\").join(\"$&\") 1`] = `
+
+  1 | foo.split("_").join("$&")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(84): foo.split(\"_\").join(\"$&\") 2`] = `
+
+Message:
+> 1 | foo.split("_").join("$&")
+    |                ^^^^ Prefer \`String#replaceAll()\` over \`String#split().join()\`.
+
+Output:
+  1 | foo.replaceAll('_', '$$&')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(85): foo.split(\"_\").join(\"$1\") 1`] = `
+
+  1 | foo.split("_").join("$1")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(85): foo.split(\"_\").join(\"$1\") 2`] = `
+
+Message:
+> 1 | foo.split("_").join("$1")
+    |                ^^^^ Prefer \`String#replaceAll()\` over \`String#split().join()\`.
+
+Output:
+  1 | foo.replaceAll('_', '$$1')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(86): foo.split(\"_\").join(\"$$\") 1`] = `
+
+  1 | foo.split("_").join("$$")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(86): foo.split(\"_\").join(\"$$\") 2`] = `
+
+Message:
+> 1 | foo.split("_").join("$$")
+    |                ^^^^ Prefer \`String#replaceAll()\` over \`String#split().join()\`.
+
+Output:
+  1 | foo.replaceAll('_', '$$$$')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(87): (foo).split(\"a\").join(\"b\") 1`] = `
+
+  1 | (foo).split("a").join("b")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(87): (foo).split(\"a\").join(\"b\") 2`] = `
+
+Message:
+> 1 | (foo).split("a").join("b")
+    |                  ^^^^ Prefer \`String#replaceAll()\` over \`String#split().join()\`.
+
+Output:
+  1 | (foo).replaceAll('a', 'b')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(88): foo.split(/a+/).join(\"b\") 1`] = `
+
+  1 | foo.split(/a+/).join("b")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(88): foo.split(/a+/).join(\"b\") 2`] = `
+
+Message:
+> 1 | foo.split(/a+/).join("b")
+    |                 ^^^^ Prefer \`String#replaceAll()\` over \`String#split().join()\`.
+
+Output:
+  1 | foo.replaceAll(/a+/g, 'b')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(89): foo.split(/(?:a)/).join(\"b\") 1`] = `
+
+  1 | foo.split(/(?:a)/).join("b")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(89): foo.split(/(?:a)/).join(\"b\") 2`] = `
+
+Message:
+> 1 | foo.split(/(?:a)/).join("b")
+    |                    ^^^^ Prefer \`String#replaceAll()\` over \`String#split().join()\`.
+
+Output:
+  1 | foo.replaceAll(/(?:a)/g, 'b')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(9): foo.replace(/a/gu, bar) 1`] = `
+
+  1 | foo.replace(/a/gu, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(9): foo.replace(/a/gu, bar) 2`] = `
+
+Message:
+> 1 | foo.replace(/a/gu, bar)
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('a', bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(90): foo.split(/[ab]+/).join(\"b\") 1`] = `
+
+  1 | foo.split(/[ab]+/).join("b")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(90): foo.split(/[ab]+/).join(\"b\") 2`] = `
+
+Message:
+> 1 | foo.split(/[ab]+/).join("b")
+    |                    ^^^^ Prefer \`String#replaceAll()\` over \`String#split().join()\`.
+
+Output:
+  1 | foo.replaceAll(/[ab]+/g, 'b')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(91): foo.split(/\\s+/).join(\"b\") 1`] = `
+
+  1 | foo.split(/\\s+/).join("b")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(91): foo.split(/\\s+/).join(\"b\") 2`] = `
+
+Message:
+> 1 | foo.split(/\\s+/).join("b")
+    |                  ^^^^ Prefer \`String#replaceAll()\` over \`String#split().join()\`.
+
+Output:
+  1 | foo.replaceAll(/\\s+/g, 'b')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(92): foo.split(/a|b/).join(\"b\") 1`] = `
+
+  1 | foo.split(/a|b/).join("b")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(92): foo.split(/a|b/).join(\"b\") 2`] = `
+
+Message:
+> 1 | foo.split(/a|b/).join("b")
+    |                  ^^^^ Prefer \`String#replaceAll()\` over \`String#split().join()\`.
+
+Output:
+  1 | foo.replaceAll(/a|b/g, 'b')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(93): foo.split(/a/i).join(\"b\") 1`] = `
+
+  1 | foo.split(/a/i).join("b")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(93): foo.split(/a/i).join(\"b\") 2`] = `
+
+Message:
+> 1 | foo.split(/a/i).join("b")
+    |                 ^^^^ Prefer \`String#replaceAll()\` over \`String#split().join()\`.
+
+Output:
+  1 | foo.replaceAll(/a/gi, 'b')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(94): foo.split(/a/g).join(\"b\") 1`] = `
+
+  1 | foo.split(/a/g).join("b")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(94): foo.split(/a/g).join(\"b\") 2`] = `
+
+Message:
+> 1 | foo.split(/a/g).join("b")
+    |                 ^^^^ Prefer \`String#replaceAll()\` over \`String#split().join()\`.
+
+Output:
+  1 | foo.replaceAll(/a/g, 'b')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(95): foo.split(/a/gi).join(\"b\") 1`] = `
+
+  1 | foo.split(/a/gi).join("b")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(95): foo.split(/a/gi).join(\"b\") 2`] = `
+
+Message:
+> 1 | foo.split(/a/gi).join("b")
+    |                  ^^^^ Prefer \`String#replaceAll()\` over \`String#split().join()\`.
+
+Output:
+  1 | foo.replaceAll(/a/gi, 'b')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(96): foo.split(/a\\b/g).join(\"c\") 1`] = `
+
+  1 | foo.split(/a\\b/g).join("c")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(96): foo.split(/a\\b/g).join(\"c\") 2`] = `
+
+Message:
+> 1 | foo.split(/a\\b/g).join("c")
+    |                   ^^^^ Prefer \`String#replaceAll()\` over \`String#split().join()\`.
+
+Output:
+  1 | foo.replaceAll(/a\\b/g, 'c')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(97): foo.split(/ab/g).join(\"c\") 1`] = `
+
+  1 | foo.split(/ab/g).join("c")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(97): foo.split(/ab/g).join(\"c\") 2`] = `
+
+Message:
+> 1 | foo.split(/ab/g).join("c")
+    |                  ^^^^ Prefer \`String#replaceAll()\` over \`String#split().join()\`.
+
+Output:
+  1 | foo.replaceAll(/ab/g, 'c')
+
+`;
+
+exports[`prefer-string-replace-all > invalid(98): foo.replace(/\\p{RGI_Emoji}/gv, \"b\") 1`] = `
+
+  1 | foo.replace(/\\p{RGI_Emoji}/gv, "b")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(98): foo.replace(/\\p{RGI_Emoji}/gv, \"b\") 2`] = `
+
+Message:
+> 1 | foo.replace(/\\p{RGI_Emoji}/gv, "b")
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/\\p{RGI_Emoji}/gv, "b")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(99): foo.split(/\\p{L}/gv).join(\"b\") 1`] = `
+
+  1 | foo.split(/\\p{L}/gv).join("b")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(99): foo.split(/\\p{L}/gv).join(\"b\") 2`] = `
+
+Message:
+> 1 | foo.split(/\\p{L}/gv).join("b")
+    |                      ^^^^ Prefer \`String#replaceAll()\` over \`String#split().join()\`.
+
+Output:
+  1 | foo.replaceAll(/\\p{L}/gv, 'b')
+
+`;

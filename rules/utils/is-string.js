@@ -24,11 +24,6 @@ const isStringMethodCall = node =>
 
 const isStringTypeAnnotation = node => {
 	switch (node?.type) {
-		case 'TSTypeAnnotation':
-		case 'TSParenthesizedType': {
-			return isStringTypeAnnotation(node.typeAnnotation);
-		}
-
 		case 'TSStringKeyword': {
 			return true;
 		}

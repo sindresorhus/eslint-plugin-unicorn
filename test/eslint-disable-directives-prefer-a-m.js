@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
@@ -50,12 +50,12 @@ test('prefer-combined-guards honors directives before the first guard', t => {
 	const ruleId = 'unicorn/prefer-combined-guards';
 	const code = `function foo() { /* eslint-disable ${ruleId} */ if (a) { return; } if (b) { return; } /* eslint-enable ${ruleId} */ }`;
 	const linter = new Linter();
-	t.deepEqual(linter.verify(code, {
+	t.assert.deepStrictEqual(linter.verify(code, {
 		plugins: {unicorn},
 		rules: {[ruleId]: 'error'},
 		linterOptions: {reportUnusedDisableDirectives: 'error'},
 	}), []);
 	const suppressed = linter.getSuppressedMessages();
-	t.is(suppressed.length, 1);
-	t.is(suppressed[0].fix, undefined);
+	t.assert.strictEqual(suppressed.length, 1);
+	t.assert.strictEqual(suppressed[0].fix, undefined);
 });

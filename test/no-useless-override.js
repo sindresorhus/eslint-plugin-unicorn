@@ -186,6 +186,8 @@ test.snapshot({
 		typeAware('class Base { foo(a: number) {} } class Foo extends Base { async foo(a: number) { super.foo(a); } }'),
 		// `return await super.foo()` is not a plain `return super.foo()`, so it is left alone.
 		typeAware('class Base { async foo() { return 1; } } class Foo extends Base { async foo() { return await super.foo(); } }'),
+		// Statement-form passthrough whose parent may return a value.
+		typeAware('class Base { foo(a: number): number | undefined { return a; } } class Foo extends Base { foo(a: number) { super.foo(a); } }'),
 	],
 	invalid: [
 		// Parent is `async`, so the override adds nothing.
@@ -196,5 +198,7 @@ test.snapshot({
 		typeAware('class Base { foo(a: number) { return a; } } class Foo extends Base { foo(a: number) { return super.foo(a); } }'),
 		// Statement-form passthrough whose parent returns nothing.
 		typeAware('class Base { foo(a: number) {} } class Foo extends Base { foo(a: number) { super.foo(a); } }'),
+		// Statement-form passthrough whose parent returns a union of nothing types.
+		typeAware('class Base { foo(a: number): void | undefined {} } class Foo extends Base { foo(a: number) { super.foo(a); } }'),
 	],
 });

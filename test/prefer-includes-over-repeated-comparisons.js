@@ -72,6 +72,11 @@ test.snapshot({
 			code: '(foo?.bar as Foo).baz === "a" || (foo?.bar as Foo).baz === "b";',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'foo?.bar === "a" || foo?.bar === "b" || foo?.bar === "c";',
+		// Both operands of the first comparison stay shared, so there is no single subject
+		'foo === bar || foo === bar || foo === bar;',
+		// A comparison of the shared reference with itself has no compared value
+		'foo === 1 || foo === 2 || foo === foo;',
 	],
 	invalid: [
 		'value === "a" || value === "b" || value === "c";',

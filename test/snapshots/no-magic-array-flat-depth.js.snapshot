@@ -1,0 +1,139 @@
+exports[`no-magic-array-flat-depth > invalid(1): array.flat(2) 1`] = `
+
+  1 | array.flat(2)
+
+`;
+
+exports[`no-magic-array-flat-depth > invalid(1): array.flat(2) 2`] = `
+
+Message:
+> 1 | array.flat(2)
+    |            ^ Magic number as depth is not allowed.
+
+`;
+
+exports[`no-magic-array-flat-depth > invalid(10): array.flat(-2 as number) 1`] = `
+
+  1 | array.flat(-2 as number)
+
+`;
+
+exports[`no-magic-array-flat-depth > invalid(10): array.flat(-2 as number) 2`] = `
+
+Message:
+> 1 | array.flat(-2 as number)
+    |            ^^^^^^^^^^^^ Magic number as depth is not allowed.
+
+`;
+
+exports[`no-magic-array-flat-depth > invalid(2): array?.flat(2) 1`] = `
+
+  1 | array?.flat(2)
+
+`;
+
+exports[`no-magic-array-flat-depth > invalid(2): array?.flat(2) 2`] = `
+
+Message:
+> 1 | array?.flat(2)
+    |             ^ Magic number as depth is not allowed.
+
+`;
+
+exports[`no-magic-array-flat-depth > invalid(3): array.flat(99,) 1`] = `
+
+  1 | array.flat(99,)
+
+`;
+
+exports[`no-magic-array-flat-depth > invalid(3): array.flat(99,) 2`] = `
+
+Message:
+> 1 | array.flat(99,)
+    |            ^^ Magic number as depth is not allowed.
+
+`;
+
+exports[`no-magic-array-flat-depth > invalid(4): array.flat(0b10,) 1`] = `
+
+  1 | array.flat(0b10,)
+
+`;
+
+exports[`no-magic-array-flat-depth > invalid(4): array.flat(0b10,) 2`] = `
+
+Message:
+> 1 | array.flat(0b10,)
+    |            ^^^^ Magic number as depth is not allowed.
+
+`;
+
+exports[`no-magic-array-flat-depth > invalid(5): function f(foo: number[][]) { foo.flat(2); } 1`] = `
+
+  1 | function f(foo: number[][]) { foo.flat(2); }
+
+`;
+
+exports[`no-magic-array-flat-depth > invalid(5): function f(foo: number[][]) { foo.flat(2); } 2`] = `
+
+Message:
+> 1 | function f(foo: number[][]) { foo.flat(2); }
+    |                                        ^ Magic number as depth is not allowed.
+
+`;
+
+exports[`no-magic-array-flat-depth > invalid(6): array.flat(-2) 1`] = `
+
+  1 | array.flat(-2)
+
+`;
+
+exports[`no-magic-array-flat-depth > invalid(6): array.flat(-2) 2`] = `
+
+Message:
+> 1 | array.flat(-2)
+    |            ^^ Magic number as depth is not allowed.
+
+`;
+
+exports[`no-magic-array-flat-depth > invalid(7): array.flat(+2) 1`] = `
+
+  1 | array.flat(+2)
+
+`;
+
+exports[`no-magic-array-flat-depth > invalid(7): array.flat(+2) 2`] = `
+
+Message:
+> 1 | array.flat(+2)
+    |            ^^ Magic number as depth is not allowed.
+
+`;
+
+exports[`no-magic-array-flat-depth > invalid(8): array.flat(-1.5) 1`] = `
+
+  1 | array.flat(-1.5)
+
+`;
+
+exports[`no-magic-array-flat-depth > invalid(8): array.flat(-1.5) 2`] = `
+
+Message:
+> 1 | array.flat(-1.5)
+    |            ^^^^ Magic number as depth is not allowed.
+
+`;
+
+exports[`no-magic-array-flat-depth > invalid(9): array.flat(-1) 1`] = `
+
+  1 | array.flat(-1)
+
+`;
+
+exports[`no-magic-array-flat-depth > invalid(9): array.flat(-1) 2`] = `
+
+Message:
+> 1 | array.flat(-1)
+    |            ^^ Magic number as depth is not allowed.
+
+`;

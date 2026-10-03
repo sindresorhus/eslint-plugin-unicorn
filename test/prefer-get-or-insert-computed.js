@@ -30,6 +30,7 @@ test.snapshot({
 		'map.notGetOrInsert(key, call())',
 		'getOrInsert(key, call())',
 		'new map.getOrInsert(key, call())',
+		'map.getOrInsert(key, -value)',
 	],
 	invalid: [
 		'map.getOrInsert(key, call())',
@@ -59,5 +60,8 @@ test.snapshot({
 		'map.getOrInsert(key, class { [eval(key)]() {} })',
 		'map.getOrInsert(key, (/* comment */ call()))',
 		'map.getOrInsert(key, call(/* comment */ key))',
+		// Computed keys of non-static fields run when the class expression is created.
+		'map.getOrInsert(key, class { [call()] = value; })',
+		'map.getOrInsert(key, delete object.value)',
 	],
 });

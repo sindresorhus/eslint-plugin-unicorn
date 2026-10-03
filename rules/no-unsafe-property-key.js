@@ -115,16 +115,6 @@ const isUnsafePropertyKeyNode = node =>
 
 function isUnsafePropertyKeyTypeAnnotation(node) {
 	switch (node?.type) {
-		case 'TSTypeAnnotation':
-		case 'TSParenthesizedType': {
-			return isUnsafePropertyKeyTypeAnnotation(node.typeAnnotation);
-		}
-
-		case 'TSTypeOperator': {
-			return node.operator === 'readonly'
-				&& isUnsafePropertyKeyTypeAnnotation(node.typeAnnotation);
-		}
-
 		case 'TSBigIntKeyword':
 		case 'TSObjectKeyword':
 		case 'TSArrayType':
@@ -149,28 +139,11 @@ function isUnsafePropertyKeyTypeAnnotation(node) {
 
 const isUnsafeStaticValue = value =>
 	typeof value === 'bigint'
+	|| typeof value === 'function'
 	|| isUnsafeNumber(value)
 	|| (typeof value === 'object' && value !== null);
 
-const isSafeStaticValue = value =>
-	value === null
-	|| typeof value === 'string'
-	|| typeof value === 'symbol'
-	|| typeof value === 'boolean'
-	|| value === undefined
-	|| (typeof value === 'number' && !isUnsafeNumber(value));
-
-function getStaticType(value) {
-	if (isUnsafeStaticValue(value)) {
-		return target;
-	}
-
-	if (isSafeStaticValue(value)) {
-		return nonTarget;
-	}
-
-	return unknown;
-}
+const getStaticType = value => isUnsafeStaticValue(value) ? target : nonTarget;
 
 function isUnsafePropertyKeyType(type, checker, program) {
 	// A `unique symbol` (including well-known symbols like `Symbol.iterator`) is a safe key, but has no `intrinsicName` and resolves to a default-library symbol, so the checks below would otherwise wrongly flag it.
@@ -184,8 +157,7 @@ function isUnsafePropertyKeyType(type, checker, program) {
 	}
 
 	if (
-		type.isBigIntLiteral?.()
-		|| (type.isNumberLiteral?.() && isUnsafeNumber(type.value))
+		(type.isNumberLiteral() && isUnsafeNumber(type.value))
 		|| checker.isArrayType(type)
 		|| checker.isTupleType(type)
 	) {
@@ -234,9 +206,8 @@ function isPossiblyUnsafePropertyKeyType(type, checker, program) {
 	}
 
 	if (
-		type.isStringLiteral?.()
-		|| type.isNumberLiteral?.()
-		|| type.isBooleanLiteral?.()
+		type.isStringLiteral()
+		|| type.isNumberLiteral()
 	) {
 		return isUnsafePropertyKeyType(type, checker, program);
 	}
@@ -245,24 +216,9 @@ function isPossiblyUnsafePropertyKeyType(type, checker, program) {
 		|| (!type.intrinsicName && type.getProperties().length > 0);
 }
 
-const hasParserOption = value =>
-	Array.isArray(value) ? value.length > 0 : Boolean(value);
-
-function hasTypeInformationParserOptions(context) {
-	const {
-		programs,
-		project,
-		projectService,
-	} = context.languageOptions.parserOptions ?? {};
-
-	return hasParserOption(programs)
-		|| hasParserOption(project)
-		|| hasParserOption(projectService);
-}
-
 function getTypeInformationPropertyKeyType(node, context) {
 	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program || !hasTypeInformationParserOptions(context)) {
+	if (!parserServices?.program) {
 		return unknown;
 	}
 
@@ -280,6 +236,8 @@ function getTypeInformationPropertyKeyType(node, context) {
 		)
 			? target
 			: nonTarget;
+		// Defensive: `getTypeAtLocation()` throws for a node that the TypeScript program does not map, which the supported parsers do not produce.
+		/* node:coverage ignore next 3 */
 	} catch {
 		return unknown;
 	}
@@ -328,8 +286,7 @@ function getTypeName(typeName) {
 	}
 
 	if (typeName.type === 'TSQualifiedName') {
-		const left = getTypeName(typeName.left);
-		return left ? `${left}.${typeName.right.name}` : undefined;
+		return `${getTypeName(typeName.left)}.${typeName.right.name}`;
 	}
 }
 

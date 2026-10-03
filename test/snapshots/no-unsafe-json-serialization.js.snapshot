@@ -1,0 +1,1672 @@
+exports[`no-unsafe-json-serialization > invalid(1): JSON.stringify(new Set([1])) 1`] = `
+
+  1 | JSON.stringify(new Set([1]))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(1): JSON.stringify(new Set([1])) 2`] = `
+
+Message:
+> 1 | JSON.stringify(new Set([1]))
+    |                ^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | JSON.stringify(Array.from(new Set([1])))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(10): JSON.stringify((sideEffect(), new Set())) 1`] = `
+
+  1 | JSON.stringify((sideEffect(), new Set()))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(10): JSON.stringify((sideEffect(), new Set())) 2`] = `
+
+Message:
+> 1 | JSON.stringify((sideEffect(), new Set()))
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | JSON.stringify((Array.from((sideEffect(), new Set()))))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(100): Response?.json?.(new Set()) 1`] = `
+
+  1 | Response?.json?.(new Set())
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(100): Response?.json?.(new Set()) 2`] = `
+
+Message:
+> 1 | Response?.json?.(new Set())
+    |                  ^^^^^^^^^ \`Response.json()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | Response?.json?.(Array.from(new Set()))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(101): Response[\"json\"](new Set()) 1`] = `
+
+  1 | Response["json"](new Set())
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(101): Response[\"json\"](new Set()) 2`] = `
+
+Message:
+> 1 | Response["json"](new Set())
+    |                  ^^^^^^^^^ \`Response.json()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | Response["json"](Array.from(new Set()))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(102): Response.json({value: new Set<string>() as Set<string>}) 1`] = `
+
+  1 | Response.json({value: new Set<string>() as Set<string>})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(102): Response.json({value: new Set<string>() as Set<string>}) 2`] = `
+
+Message:
+> 1 | Response.json({value: new Set<string>() as Set<string>})
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`Response.json()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | Response.json({value: Array.from(new Set<string>() as Set<string>)})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(103): function serialize<T extends Set<string>>(value: T) {return JSON.stringify(value)} 1`] = `
+
+  1 | function serialize<T extends Set<string>>(value: T) {return JSON.stringify(value)}
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(103): function serialize<T extends Set<string>>(value: T) {return JSON.stringify(value)} 2`] = `
+
+Message:
+> 1 | function serialize<T extends Set<string>>(value: T) {return JSON.stringify(value)}
+    |                                                                            ^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | function serialize<T extends Set<string>>(value: T) {return JSON.stringify(Array.from(value))}
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(11): JSON.stringify((new Set(/* keep */ [1]))) 1`] = `
+
+  1 | JSON.stringify((new Set(/* keep */ [1])))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(11): JSON.stringify((new Set(/* keep */ [1]))) 2`] = `
+
+Message:
+> 1 | JSON.stringify((new Set(/* keep */ [1])))
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | JSON.stringify((Array.from(new Set(/* keep */ [1]))))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(12): JSON.stringify((/* keep */ new Set())) 1`] = `
+
+  1 | JSON.stringify((/* keep */ new Set()))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(12): JSON.stringify((/* keep */ new Set())) 2`] = `
+
+Message:
+> 1 | JSON.stringify((/* keep */ new Set()))
+    |                            ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | JSON.stringify((/* keep */ Array.from(new Set())))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(13): JSON.stringify((new Map() /* keep */)) 1`] = `
+
+  1 | JSON.stringify((new Map() /* keep */))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(13): JSON.stringify((new Map() /* keep */)) 2`] = `
+
+Message:
+> 1 | JSON.stringify((new Map() /* keep */))
+    |                 ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Map values.
+
+Suggestion 1/2: Convert the Map to an array.:
+  1 | JSON.stringify((Array.from(new Map()) /* keep */))
+
+Suggestion 2/2: Convert the Map to an object (requires string keys).:
+  1 | JSON.stringify((Object.fromEntries(new Map()) /* keep */))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(14): JSON.stringify(new Map(/* keep */ entries)) 1`] = `
+
+  1 | JSON.stringify(new Map(/* keep */ entries))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(14): JSON.stringify(new Map(/* keep */ entries)) 2`] = `
+
+Message:
+> 1 | JSON.stringify(new Map(/* keep */ entries))
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Map values.
+
+Suggestion 1/2: Convert the Map to an array.:
+  1 | JSON.stringify(Array.from(new Map(/* keep */ entries)))
+
+Suggestion 2/2: Convert the Map to an object (requires string keys).:
+  1 | JSON.stringify(Object.fromEntries(new Map(/* keep */ entries)))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(15): JSON.stringify(new Set(), null, 2) 1`] = `
+
+  1 | JSON.stringify(new Set(), null, 2)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(15): JSON.stringify(new Set(), null, 2) 2`] = `
+
+Message:
+> 1 | JSON.stringify(new Set(), null, 2)
+    |                ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | JSON.stringify(Array.from(new Set()), null, 2)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(16): JSON.stringify(new Set(), undefined) 1`] = `
+
+  1 | JSON.stringify(new Set(), undefined)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(16): JSON.stringify(new Set(), undefined) 2`] = `
+
+Message:
+> 1 | JSON.stringify(new Set(), undefined)
+    |                ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | JSON.stringify(Array.from(new Set()), undefined)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(17): JSON.stringify(new Set(), false) 1`] = `
+
+  1 | JSON.stringify(new Set(), false)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(17): JSON.stringify(new Set(), false) 2`] = `
+
+Message:
+> 1 | JSON.stringify(new Set(), false)
+    |                ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | JSON.stringify(Array.from(new Set()), false)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(18): JSON.stringify(new Set(), []) 1`] = `
+
+  1 | JSON.stringify(new Set(), [])
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(18): JSON.stringify(new Set(), []) 2`] = `
+
+Message:
+> 1 | JSON.stringify(new Set(), [])
+    |                ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | JSON.stringify(Array.from(new Set()), [])
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(19): JSON.stringify({value: new Set()}, [\"value\"]) 1`] = `
+
+  1 | JSON.stringify({value: new Set()}, ["value"])
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(19): JSON.stringify({value: new Set()}, [\"value\"]) 2`] = `
+
+Message:
+> 1 | JSON.stringify({value: new Set()}, ["value"])
+    |                        ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | JSON.stringify({value: Array.from(new Set())}, ["value"])
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(2): JSON.stringify(new Map([[\"key\", 1]])) 1`] = `
+
+  1 | JSON.stringify(new Map([["key", 1]]))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(2): JSON.stringify(new Map([[\"key\", 1]])) 2`] = `
+
+Message:
+> 1 | JSON.stringify(new Map([["key", 1]]))
+    |                ^^^^^^^^^^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Map values.
+
+Suggestion 1/2: Convert the Map to an array.:
+  1 | JSON.stringify(Array.from(new Map([["key", 1]])))
+
+Suggestion 2/2: Convert the Map to an object (requires string keys).:
+  1 | JSON.stringify(Object.fromEntries(new Map([["key", 1]])))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(20): const keys = [\"value\"]; JSON.stringify({value: new Set()}, keys) 1`] = `
+
+  1 | const keys = ["value"]; JSON.stringify({value: new Set()}, keys)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(20): const keys = [\"value\"]; JSON.stringify({value: new Set()}, keys) 2`] = `
+
+Message:
+> 1 | const keys = ["value"]; JSON.stringify({value: new Set()}, keys)
+    |                                                ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | const keys = ["value"]; JSON.stringify({value: Array.from(new Set())}, keys)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(21): JSON.stringify([new Set()], []) 1`] = `
+
+  1 | JSON.stringify([new Set()], [])
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(21): JSON.stringify([new Set()], []) 2`] = `
+
+Message:
+> 1 | JSON.stringify([new Set()], [])
+    |                 ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | JSON.stringify([Array.from(new Set())], [])
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(22): JSON.stringify({1: new Set()}, [1]) 1`] = `
+
+  1 | JSON.stringify({1: new Set()}, [1])
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(22): JSON.stringify({1: new Set()}, [1]) 2`] = `
+
+Message:
+> 1 | JSON.stringify({1: new Set()}, [1])
+    |                    ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | JSON.stringify({1: Array.from(new Set())}, [1])
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(23): JSON.stringify({value: {other: new Set()}}, [\"value\", \"other\"]) 1`] = `
+
+  1 | JSON.stringify({value: {other: new Set()}}, ["value", "other"])
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(23): JSON.stringify({value: {other: new Set()}}, [\"value\", \"other\"]) 2`] = `
+
+Message:
+> 1 | JSON.stringify({value: {other: new Set()}}, ["value", "other"])
+    |                                ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | JSON.stringify({value: {other: Array.from(new Set())}}, ["value", "other"])
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(24): JSON.stringify({value: [new Set()]}, [\"value\"]) 1`] = `
+
+  1 | JSON.stringify({value: [new Set()]}, ["value"])
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(24): JSON.stringify({value: [new Set()]}, [\"value\"]) 2`] = `
+
+Message:
+> 1 | JSON.stringify({value: [new Set()]}, ["value"])
+    |                         ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | JSON.stringify({value: [Array.from(new Set())]}, ["value"])
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(25): JSON.stringify(1n) 1`] = `
+
+  1 | JSON.stringify(1n)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(25): JSON.stringify(1n) 2`] = `
+
+Message:
+> 1 | JSON.stringify(1n)
+    |                ^^ \`JSON.stringify()\` cannot faithfully serialize BigInt values.
+
+Suggestion 1/1: Convert the BigInt to a string.:
+  1 | JSON.stringify(String(1n))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(26): JSON.stringify(-1n) 1`] = `
+
+  1 | JSON.stringify(-1n)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(26): JSON.stringify(-1n) 2`] = `
+
+Message:
+> 1 | JSON.stringify(-1n)
+    |                ^^^ \`JSON.stringify()\` cannot faithfully serialize BigInt values.
+
+Suggestion 1/1: Convert the BigInt to a string.:
+  1 | JSON.stringify(String(-1n))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(27): JSON.stringify(BigInt(value)) 1`] = `
+
+  1 | JSON.stringify(BigInt(value))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(27): JSON.stringify(BigInt(value)) 2`] = `
+
+Message:
+> 1 | JSON.stringify(BigInt(value))
+    |                ^^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize BigInt values.
+
+Suggestion 1/1: Convert the BigInt to a string.:
+  1 | JSON.stringify(String(BigInt(value)))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(28): JSON.stringify(BigInt.asUintN(64, value)) 1`] = `
+
+  1 | JSON.stringify(BigInt.asUintN(64, value))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(28): JSON.stringify(BigInt.asUintN(64, value)) 2`] = `
+
+Message:
+> 1 | JSON.stringify(BigInt.asUintN(64, value))
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize BigInt values.
+
+Suggestion 1/1: Convert the BigInt to a string.:
+  1 | JSON.stringify(String(BigInt.asUintN(64, value)))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(29): JSON.stringify({value: 1n}) 1`] = `
+
+  1 | JSON.stringify({value: 1n})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(29): JSON.stringify({value: 1n}) 2`] = `
+
+Message:
+> 1 | JSON.stringify({value: 1n})
+    |                        ^^ \`JSON.stringify()\` cannot faithfully serialize BigInt values.
+
+Suggestion 1/1: Convert the BigInt to a string.:
+  1 | JSON.stringify({value: String(1n)})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(3): JSON.stringify(new WeakMap()) 1`] = `
+
+  1 | JSON.stringify(new WeakMap())
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(3): JSON.stringify(new WeakMap()) 2`] = `
+
+Message:
+> 1 | JSON.stringify(new WeakMap())
+    |                ^^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize WeakMap values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(30): const value = 1n; JSON.stringify({value}) 1`] = `
+
+  1 | const value = 1n; JSON.stringify({value})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(30): const value = 1n; JSON.stringify({value}) 2`] = `
+
+Message:
+> 1 | const value = 1n; JSON.stringify({value})
+    |                                   ^^^^^ \`JSON.stringify()\` cannot faithfully serialize BigInt values.
+
+Suggestion 1/1: Convert the BigInt to a string.:
+  1 | const value = 1n; JSON.stringify({value: String(value)})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(31): JSON.stringify(undefined) 1`] = `
+
+  1 | JSON.stringify(undefined)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(31): JSON.stringify(undefined) 2`] = `
+
+Message:
+> 1 | JSON.stringify(undefined)
+    |                ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize undefined values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(32): const value = undefined; JSON.stringify(value) 1`] = `
+
+  1 | const value = undefined; JSON.stringify(value)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(32): const value = undefined; JSON.stringify(value) 2`] = `
+
+Message:
+> 1 | const value = undefined; JSON.stringify(value)
+    |                                         ^^^^^ \`JSON.stringify()\` cannot faithfully serialize undefined values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(33): JSON.stringify(void sideEffect()) 1`] = `
+
+  1 | JSON.stringify(void sideEffect())
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(33): JSON.stringify(void sideEffect()) 2`] = `
+
+Message:
+> 1 | JSON.stringify(void sideEffect())
+    |                ^^^^^^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize undefined values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(34): JSON.stringify([undefined]) 1`] = `
+
+  1 | JSON.stringify([undefined])
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(34): JSON.stringify([undefined]) 2`] = `
+
+Message:
+> 1 | JSON.stringify([undefined])
+    |                 ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize undefined values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(35): const value = [undefined]; JSON.stringify({value}) 1`] = `
+
+  1 | const value = [undefined]; JSON.stringify({value})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(35): const value = [undefined]; JSON.stringify({value}) 2`] = `
+
+Message:
+> 1 | const value = [undefined]; JSON.stringify({value})
+    |                                            ^^^^^ \`JSON.stringify()\` cannot faithfully serialize undefined values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(36): JSON.stringify(() => {}) 1`] = `
+
+  1 | JSON.stringify(() => {})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(36): JSON.stringify(() => {}) 2`] = `
+
+Message:
+> 1 | JSON.stringify(() => {})
+    |                ^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize function values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(37): JSON.stringify(function () {}) 1`] = `
+
+  1 | JSON.stringify(function () {})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(37): JSON.stringify(function () {}) 2`] = `
+
+Message:
+> 1 | JSON.stringify(function () {})
+    |                ^^^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize function values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(38): JSON.stringify(class {}) 1`] = `
+
+  1 | JSON.stringify(class {})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(38): JSON.stringify(class {}) 2`] = `
+
+Message:
+> 1 | JSON.stringify(class {})
+    |                ^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize function values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(39): function value() {} JSON.stringify(value) 1`] = `
+
+  1 | function value() {} JSON.stringify(value)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(39): function value() {} JSON.stringify(value) 2`] = `
+
+Message:
+> 1 | function value() {} JSON.stringify(value)
+    |                                    ^^^^^ \`JSON.stringify()\` cannot faithfully serialize function values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(4): JSON.stringify(new WeakSet()) 1`] = `
+
+  1 | JSON.stringify(new WeakSet())
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(4): JSON.stringify(new WeakSet()) 2`] = `
+
+Message:
+> 1 | JSON.stringify(new WeakSet())
+    |                ^^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize WeakSet values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(40): class Value {} JSON.stringify(Value) 1`] = `
+
+  1 | class Value {} JSON.stringify(Value)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(40): class Value {} JSON.stringify(Value) 2`] = `
+
+Message:
+> 1 | class Value {} JSON.stringify(Value)
+    |                               ^^^^^ \`JSON.stringify()\` cannot faithfully serialize function values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(41): JSON.stringify({method() {}}) 1`] = `
+
+  1 | JSON.stringify({method() {}})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(41): JSON.stringify({method() {}}) 2`] = `
+
+Message:
+> 1 | JSON.stringify({method() {}})
+    |                       ^^^^^ \`JSON.stringify()\` cannot faithfully serialize function values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(42): JSON.stringify({value: () => {}}) 1`] = `
+
+  1 | JSON.stringify({value: () => {}})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(42): JSON.stringify({value: () => {}}) 2`] = `
+
+Message:
+> 1 | JSON.stringify({value: () => {}})
+    |                        ^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize function values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(43): const value = () => {}; JSON.stringify(value) 1`] = `
+
+  1 | const value = () => {}; JSON.stringify(value)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(43): const value = () => {}; JSON.stringify(value) 2`] = `
+
+Message:
+> 1 | const value = () => {}; JSON.stringify(value)
+    |                                        ^^^^^ \`JSON.stringify()\` cannot faithfully serialize function values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(44): JSON.stringify(Symbol(\"key\")) 1`] = `
+
+  1 | JSON.stringify(Symbol("key"))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(44): JSON.stringify(Symbol(\"key\")) 2`] = `
+
+Message:
+> 1 | JSON.stringify(Symbol("key"))
+    |                ^^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize symbol values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(45): JSON.stringify(Symbol.for(\"key\")) 1`] = `
+
+  1 | JSON.stringify(Symbol.for("key"))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(45): JSON.stringify(Symbol.for(\"key\")) 2`] = `
+
+Message:
+> 1 | JSON.stringify(Symbol.for("key"))
+    |                ^^^^^^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize symbol values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(46): JSON.stringify(Symbol.iterator) 1`] = `
+
+  1 | JSON.stringify(Symbol.iterator)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(46): JSON.stringify(Symbol.iterator) 2`] = `
+
+Message:
+> 1 | JSON.stringify(Symbol.iterator)
+    |                ^^^^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize symbol values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(47): JSON.stringify({value: Symbol()}) 1`] = `
+
+  1 | JSON.stringify({value: Symbol()})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(47): JSON.stringify({value: Symbol()}) 2`] = `
+
+Message:
+> 1 | JSON.stringify({value: Symbol()})
+    |                        ^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize symbol values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(48): JSON.stringify(NaN) 1`] = `
+
+  1 | JSON.stringify(NaN)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(48): JSON.stringify(NaN) 2`] = `
+
+Message:
+> 1 | JSON.stringify(NaN)
+    |                ^^^ \`JSON.stringify()\` cannot faithfully serialize non-finite number values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(49): JSON.stringify(Infinity) 1`] = `
+
+  1 | JSON.stringify(Infinity)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(49): JSON.stringify(Infinity) 2`] = `
+
+Message:
+> 1 | JSON.stringify(Infinity)
+    |                ^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize non-finite number values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(5): JSON.stringify({permissions: new Set([\"read\"]), nested: [new Map()]}) 1`] = `
+
+  1 | JSON.stringify({permissions: new Set(["read"]), nested: [new Map()]})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(5): JSON.stringify({permissions: new Set([\"read\"]), nested: [new Map()]}) 2`] = `
+
+Message:
+> 1 | JSON.stringify({permissions: new Set(["read"]), nested: [new Map()]})
+    |                              ^^^^^^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | JSON.stringify({permissions: Array.from(new Set(["read"])), nested: [new Map()]})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(5): JSON.stringify({permissions: new Set([\"read\"]), nested: [new Map()]}) 3`] = `
+
+Message:
+> 1 | JSON.stringify({permissions: new Set(["read"]), nested: [new Map()]})
+    |                                                          ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Map values.
+
+Suggestion 1/2: Convert the Map to an array.:
+  1 | JSON.stringify({permissions: new Set(["read"]), nested: [Array.from(new Map())]})
+
+Suggestion 2/2: Convert the Map to an object (requires string keys).:
+  1 | JSON.stringify({permissions: new Set(["read"]), nested: [Object.fromEntries(new Map())]})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(50): JSON.stringify(-Infinity) 1`] = `
+
+  1 | JSON.stringify(-Infinity)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(50): JSON.stringify(-Infinity) 2`] = `
+
+Message:
+> 1 | JSON.stringify(-Infinity)
+    |                ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize non-finite number values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(51): JSON.stringify(Number.NaN) 1`] = `
+
+  1 | JSON.stringify(Number.NaN)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(51): JSON.stringify(Number.NaN) 2`] = `
+
+Message:
+> 1 | JSON.stringify(Number.NaN)
+    |                ^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize non-finite number values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(52): JSON.stringify(1 / 0) 1`] = `
+
+  1 | JSON.stringify(1 / 0)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(52): JSON.stringify(1 / 0) 2`] = `
+
+Message:
+> 1 | JSON.stringify(1 / 0)
+    |                ^^^^^ \`JSON.stringify()\` cannot faithfully serialize non-finite number values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(53): JSON.stringify({value: 0 / 0}) 1`] = `
+
+  1 | JSON.stringify({value: 0 / 0})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(53): JSON.stringify({value: 0 / 0}) 2`] = `
+
+Message:
+> 1 | JSON.stringify({value: 0 / 0})
+    |                        ^^^^^ \`JSON.stringify()\` cannot faithfully serialize non-finite number values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(54): JSON.stringify([1e400]) 1`] = `
+
+  1 | JSON.stringify([1e400])
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(54): JSON.stringify([1e400]) 2`] = `
+
+Message:
+> 1 | JSON.stringify([1e400])
+    |                 ^^^^^ \`JSON.stringify()\` cannot faithfully serialize non-finite number values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(55): JSON.stringify(new Set()).length 1`] = `
+
+  1 | JSON.stringify(new Set()).length
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(55): JSON.stringify(new Set()).length 2`] = `
+
+Message:
+> 1 | JSON.stringify(new Set()).length
+    |                ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | JSON.stringify(Array.from(new Set())).length
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(56): JSON?.stringify(new Set()) 1`] = `
+
+  1 | JSON?.stringify(new Set())
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(56): JSON?.stringify(new Set()) 2`] = `
+
+Message:
+> 1 | JSON?.stringify(new Set())
+    |                 ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | JSON?.stringify(Array.from(new Set()))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(57): JSON.stringify?.(new Set()) 1`] = `
+
+  1 | JSON.stringify?.(new Set())
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(57): JSON.stringify?.(new Set()) 2`] = `
+
+Message:
+> 1 | JSON.stringify?.(new Set())
+    |                  ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | JSON.stringify?.(Array.from(new Set()))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(58): JSON[\"stringify\"](new Set()) 1`] = `
+
+  1 | JSON["stringify"](new Set())
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(58): JSON[\"stringify\"](new Set()) 2`] = `
+
+Message:
+> 1 | JSON["stringify"](new Set())
+    |                   ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | JSON["stringify"](Array.from(new Set()))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(59): const method = \"stringify\"; JSON[method](new Set()) 1`] = `
+
+  1 | const method = "stringify"; JSON[method](new Set())
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(59): const method = \"stringify\"; JSON[method](new Set()) 2`] = `
+
+Message:
+> 1 | const method = "stringify"; JSON[method](new Set())
+    |                                          ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | const method = "stringify"; JSON[method](Array.from(new Set()))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(6): const value = new Set(); JSON.stringify(value) 1`] = `
+
+  1 | const value = new Set(); JSON.stringify(value)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(6): const value = new Set(); JSON.stringify(value) 2`] = `
+
+Message:
+> 1 | const value = new Set(); JSON.stringify(value)
+    |                                         ^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | const value = new Set(); JSON.stringify(Array.from(value))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(60): const element = <div>{JSON.stringify(new Set())}</div> 1`] = `
+
+  1 | const element = <div>{JSON.stringify(new Set())}</div>
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(60): const element = <div>{JSON.stringify(new Set())}</div> 2`] = `
+
+Message:
+> 1 | const element = <div>{JSON.stringify(new Set())}</div>
+    |                                      ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | const element = <div>{JSON.stringify(Array.from(new Set()))}</div>
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(61):   JSON.stringify({\r\n    value: new Set([1]),\r\n  }) 1`] = `
+
+  1 |   JSON.stringify({
+  2 |     value: new Set([1]),
+  3 |   })
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(61):   JSON.stringify({\r\n    value: new Set([1]),\r\n  }) 2`] = `
+
+Message:
+  1 |   JSON.stringify({
+> 2 |     value: new Set([1]),
+    |            ^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+  3 |   })
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 |   JSON.stringify({
+  2 |     value: Array.from(new Set([1])),
+  3 |   })
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(62): JSON.stringify(new Set<string>() as Set<string>) 1`] = `
+
+  1 | JSON.stringify(new Set<string>() as Set<string>)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(62): JSON.stringify(new Set<string>() as Set<string>) 2`] = `
+
+Message:
+> 1 | JSON.stringify(new Set<string>() as Set<string>)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | JSON.stringify(Array.from(new Set<string>() as Set<string>))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(63): JSON.stringify(<Map<string, number>>value) 1`] = `
+
+  1 | JSON.stringify(<Map<string, number>>value)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(63): JSON.stringify(<Map<string, number>>value) 2`] = `
+
+Message:
+> 1 | JSON.stringify(<Map<string, number>>value)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Map values.
+
+Suggestion 1/2: Convert the Map to an array.:
+  1 | JSON.stringify(Array.from(<Map<string, number>>value))
+
+Suggestion 2/2: Convert the Map to an object (requires string keys).:
+  1 | JSON.stringify(Object.fromEntries(<Map<string, number>>value))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(64): JSON.stringify((new Set())!) 1`] = `
+
+  1 | JSON.stringify((new Set())!)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(64): JSON.stringify((new Set())!) 2`] = `
+
+Message:
+> 1 | JSON.stringify((new Set())!)
+    |                ^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | JSON.stringify(Array.from((new Set())!))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(65): JSON.stringify((void sideEffect()) as undefined) 1`] = `
+
+  1 | JSON.stringify((void sideEffect()) as undefined)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(65): JSON.stringify((void sideEffect()) as undefined) 2`] = `
+
+Message:
+> 1 | JSON.stringify((void sideEffect()) as undefined)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize undefined values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(66): JSON.stringify({value: new Set() satisfies Set<string>}) 1`] = `
+
+  1 | JSON.stringify({value: new Set() satisfies Set<string>})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(66): JSON.stringify({value: new Set() satisfies Set<string>}) 2`] = `
+
+Message:
+> 1 | JSON.stringify({value: new Set() satisfies Set<string>})
+    |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | JSON.stringify({value: Array.from(new Set() satisfies Set<string>)})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(67): JSON.stringify({value: 1n} as unknown as Map<string, bigint>) 1`] = `
+
+  1 | JSON.stringify({value: 1n} as unknown as Map<string, bigint>)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(67): JSON.stringify({value: 1n} as unknown as Map<string, bigint>) 2`] = `
+
+Message:
+> 1 | JSON.stringify({value: 1n} as unknown as Map<string, bigint>)
+    |                        ^^ \`JSON.stringify()\` cannot faithfully serialize BigInt values.
+
+Suggestion 1/1: Convert the BigInt to a string.:
+  1 | JSON.stringify({value: String(1n)} as unknown as Map<string, bigint>)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(68): JSON.stringify([new Set()] as unknown as Set<number>) 1`] = `
+
+  1 | JSON.stringify([new Set()] as unknown as Set<number>)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(68): JSON.stringify([new Set()] as unknown as Set<number>) 2`] = `
+
+Message:
+> 1 | JSON.stringify([new Set()] as unknown as Set<number>)
+    |                 ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | JSON.stringify([Array.from(new Set())] as unknown as Set<number>)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(69): declare const value: ReadonlySet<string>; JSON.stringify(value) 1`] = `
+
+  1 | declare const value: ReadonlySet<string>; JSON.stringify(value)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(69): declare const value: ReadonlySet<string>; JSON.stringify(value) 2`] = `
+
+Message:
+> 1 | declare const value: ReadonlySet<string>; JSON.stringify(value)
+    |                                                          ^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | declare const value: ReadonlySet<string>; JSON.stringify(Array.from(value))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(7): const value = new Map(); const alias = value; JSON.stringify({alias}) 1`] = `
+
+  1 | const value = new Map(); const alias = value; JSON.stringify({alias})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(7): const value = new Map(); const alias = value; JSON.stringify({alias}) 2`] = `
+
+Message:
+> 1 | const value = new Map(); const alias = value; JSON.stringify({alias})
+    |                                                               ^^^^^ \`JSON.stringify()\` cannot faithfully serialize Map values.
+
+Suggestion 1/2: Convert the Map to an array.:
+  1 | const value = new Map(); const alias = value; JSON.stringify({alias: Array.from(alias)})
+
+Suggestion 2/2: Convert the Map to an object (requires string keys).:
+  1 | const value = new Map(); const alias = value; JSON.stringify({alias: Object.fromEntries(alias)})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(70): function serialize(value: bigint) {return JSON.stringify(value)} 1`] = `
+
+  1 | function serialize(value: bigint) {return JSON.stringify(value)}
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(70): function serialize(value: bigint) {return JSON.stringify(value)} 2`] = `
+
+Message:
+> 1 | function serialize(value: bigint) {return JSON.stringify(value)}
+    |                                                          ^^^^^ \`JSON.stringify()\` cannot faithfully serialize BigInt values.
+
+Suggestion 1/1: Convert the BigInt to a string.:
+  1 | function serialize(value: bigint) {return JSON.stringify(String(value))}
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(71): function serialize(value: symbol) {return JSON.stringify(value)} 1`] = `
+
+  1 | function serialize(value: symbol) {return JSON.stringify(value)}
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(71): function serialize(value: symbol) {return JSON.stringify(value)} 2`] = `
+
+Message:
+> 1 | function serialize(value: symbol) {return JSON.stringify(value)}
+    |                                                          ^^^^^ \`JSON.stringify()\` cannot faithfully serialize symbol values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(72): function serialize(value: () => void) {return JSON.stringify(value)} 1`] = `
+
+  1 | function serialize(value: () => void) {return JSON.stringify(value)}
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(72): function serialize(value: () => void) {return JSON.stringify(value)} 2`] = `
+
+Message:
+> 1 | function serialize(value: () => void) {return JSON.stringify(value)}
+    |                                                              ^^^^^ \`JSON.stringify()\` cannot faithfully serialize function values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(73): declare const value: ReturnType<() => Set<string>>; JSON.stringify(value) 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: ReturnType<() => Set<string>>; JSON.stringify(value)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(73): declare const value: ReturnType<() => Set<string>>; JSON.stringify(value) 2`] = `
+
+Message:
+> 1 | declare const value: ReturnType<() => Set<string>>; JSON.stringify(value)
+    |                                                                    ^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | declare const value: ReturnType<() => Set<string>>; JSON.stringify(Array.from(value))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(74): declare const value: ReturnType<() => Map<string, number>>; JSON.stringify(value) 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: ReturnType<() => Map<string, number>>; JSON.stringify(value)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(74): declare const value: ReturnType<() => Map<string, number>>; JSON.stringify(value) 2`] = `
+
+Message:
+> 1 | declare const value: ReturnType<() => Map<string, number>>; JSON.stringify(value)
+    |                                                                            ^^^^^ \`JSON.stringify()\` cannot faithfully serialize Map values.
+
+Suggestion 1/2: Convert the Map to an array.:
+  1 | declare const value: ReturnType<() => Map<string, number>>; JSON.stringify(Array.from(value))
+
+Suggestion 2/2: Convert the Map to an object (requires string keys).:
+  1 | declare const value: ReturnType<() => Map<string, number>>; JSON.stringify(Object.fromEntries(value))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(75): declare const value: ReturnType<() => bigint>; JSON.stringify(value) 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: ReturnType<() => bigint>; JSON.stringify(value)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(75): declare const value: ReturnType<() => bigint>; JSON.stringify(value) 2`] = `
+
+Message:
+> 1 | declare const value: ReturnType<() => bigint>; JSON.stringify(value)
+    |                                                               ^^^^^ \`JSON.stringify()\` cannot faithfully serialize BigInt values.
+
+Suggestion 1/1: Convert the BigInt to a string.:
+  1 | declare const value: ReturnType<() => bigint>; JSON.stringify(String(value))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(76): declare const value: ReturnType<() => symbol>; JSON.stringify(value) 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: ReturnType<() => symbol>; JSON.stringify(value)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(76): declare const value: ReturnType<() => symbol>; JSON.stringify(value) 2`] = `
+
+Message:
+> 1 | declare const value: ReturnType<() => symbol>; JSON.stringify(value)
+    |                                                               ^^^^^ \`JSON.stringify()\` cannot faithfully serialize symbol values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(77): declare const value: ReturnType<() => () => void>; JSON.stringify(value) 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: ReturnType<() => () => void>; JSON.stringify(value)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(77): declare const value: ReturnType<() => () => void>; JSON.stringify(value) 2`] = `
+
+Message:
+> 1 | declare const value: ReturnType<() => () => void>; JSON.stringify(value)
+    |                                                                   ^^^^^ \`JSON.stringify()\` cannot faithfully serialize function values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(78): declare const value: unique symbol; JSON.stringify(value) 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: unique symbol; JSON.stringify(value)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(78): declare const value: unique symbol; JSON.stringify(value) 2`] = `
+
+Message:
+> 1 | declare const value: unique symbol; JSON.stringify(value)
+    |                                                    ^^^^^ \`JSON.stringify()\` cannot faithfully serialize symbol values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(79): JSON.stringify(condition ? new Set() : new Set()) 1`] = `
+
+  1 | JSON.stringify(condition ? new Set() : new Set())
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(79): JSON.stringify(condition ? new Set() : new Set()) 2`] = `
+
+Message:
+> 1 | JSON.stringify(condition ? new Set() : new Set())
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | JSON.stringify(Array.from(condition ? new Set() : new Set()))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(8): const value = {nested: [new Set()]}; JSON.stringify(value) 1`] = `
+
+  1 | const value = {nested: [new Set()]}; JSON.stringify(value)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(8): const value = {nested: [new Set()]}; JSON.stringify(value) 2`] = `
+
+Message:
+> 1 | const value = {nested: [new Set()]}; JSON.stringify(value)
+    |                                                     ^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(80): JSON.stringify(/unicorn/gi) 1`] = `
+
+  1 | JSON.stringify(/unicorn/gi)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(80): JSON.stringify(/unicorn/gi) 2`] = `
+
+Message:
+> 1 | JSON.stringify(/unicorn/gi)
+    |                ^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize RegExp values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(81): JSON.stringify(new RegExp(pattern, flags)) 1`] = `
+
+  1 | JSON.stringify(new RegExp(pattern, flags))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(81): JSON.stringify(new RegExp(pattern, flags)) 2`] = `
+
+Message:
+> 1 | JSON.stringify(new RegExp(pattern, flags))
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize RegExp values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(82): JSON.stringify(RegExp(pattern)) 1`] = `
+
+  1 | JSON.stringify(RegExp(pattern))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(82): JSON.stringify(RegExp(pattern)) 2`] = `
+
+Message:
+> 1 | JSON.stringify(RegExp(pattern))
+    |                ^^^^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize RegExp values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(83): const value = /unicorn/; JSON.stringify(value) 1`] = `
+
+  1 | const value = /unicorn/; JSON.stringify(value)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(83): const value = /unicorn/; JSON.stringify(value) 2`] = `
+
+Message:
+> 1 | const value = /unicorn/; JSON.stringify(value)
+    |                                         ^^^^^ \`JSON.stringify()\` cannot faithfully serialize RegExp values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(84): JSON.stringify({pattern: /unicorn/}) 1`] = `
+
+  1 | JSON.stringify({pattern: /unicorn/})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(84): JSON.stringify({pattern: /unicorn/}) 2`] = `
+
+Message:
+> 1 | JSON.stringify({pattern: /unicorn/})
+    |                          ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize RegExp values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(85): declare const value: RegExp; JSON.stringify(value) 1`] = `
+
+  1 | declare const value: RegExp; JSON.stringify(value)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(85): declare const value: RegExp; JSON.stringify(value) 2`] = `
+
+Message:
+> 1 | declare const value: RegExp; JSON.stringify(value)
+    |                                             ^^^^^ \`JSON.stringify()\` cannot faithfully serialize RegExp values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(86): declare const value: ReturnType<() => RegExp>; JSON.stringify(value) 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: ReturnType<() => RegExp>; JSON.stringify(value)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(86): declare const value: ReturnType<() => RegExp>; JSON.stringify(value) 2`] = `
+
+Message:
+> 1 | declare const value: ReturnType<() => RegExp>; JSON.stringify(value)
+    |                                                               ^^^^^ \`JSON.stringify()\` cannot faithfully serialize RegExp values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(87): Response.json(new Set()) 1`] = `
+
+  1 | Response.json(new Set())
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(87): Response.json(new Set()) 2`] = `
+
+Message:
+> 1 | Response.json(new Set())
+    |               ^^^^^^^^^ \`Response.json()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | Response.json(Array.from(new Set()))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(88): Response.json(new Set(), options) 1`] = `
+
+  1 | Response.json(new Set(), options)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(88): Response.json(new Set(), options) 2`] = `
+
+Message:
+> 1 | Response.json(new Set(), options)
+    |               ^^^^^^^^^ \`Response.json()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | Response.json(Array.from(new Set()), options)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(89): Response.json(new Set(), {status: 201}) 1`] = `
+
+  1 | Response.json(new Set(), {status: 201})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(89): Response.json(new Set(), {status: 201}) 2`] = `
+
+Message:
+> 1 | Response.json(new Set(), {status: 201})
+    |               ^^^^^^^^^ \`Response.json()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | Response.json(Array.from(new Set()), {status: 201})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(9): const value = {nested: new Set()}; JSON.stringify([value, value]) 1`] = `
+
+  1 | const value = {nested: new Set()}; JSON.stringify([value, value])
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(9): const value = {nested: new Set()}; JSON.stringify([value, value]) 2`] = `
+
+Message:
+> 1 | const value = {nested: new Set()}; JSON.stringify([value, value])
+    |                                                    ^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(9): const value = {nested: new Set()}; JSON.stringify([value, value]) 3`] = `
+
+Message:
+> 1 | const value = {nested: new Set()}; JSON.stringify([value, value])
+    |                                                           ^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(90): Response.json({value: new Set()}, [\"other\"]) 1`] = `
+
+  1 | Response.json({value: new Set()}, ["other"])
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(90): Response.json({value: new Set()}, [\"other\"]) 2`] = `
+
+Message:
+> 1 | Response.json({value: new Set()}, ["other"])
+    |                       ^^^^^^^^^ \`Response.json()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | Response.json({value: Array.from(new Set())}, ["other"])
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(91): Response.json({value: new Map()}) 1`] = `
+
+  1 | Response.json({value: new Map()})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(91): Response.json({value: new Map()}) 2`] = `
+
+Message:
+> 1 | Response.json({value: new Map()})
+    |                       ^^^^^^^^^ \`Response.json()\` cannot faithfully serialize Map values.
+
+Suggestion 1/2: Convert the Map to an array.:
+  1 | Response.json({value: Array.from(new Map())})
+
+Suggestion 2/2: Convert the Map to an object (requires string keys).:
+  1 | Response.json({value: Object.fromEntries(new Map())})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(92): const value = {nested: [new Set()]}; Response.json(value) 1`] = `
+
+  1 | const value = {nested: [new Set()]}; Response.json(value)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(92): const value = {nested: [new Set()]}; Response.json(value) 2`] = `
+
+Message:
+> 1 | const value = {nested: [new Set()]}; Response.json(value)
+    |                                                    ^^^^^ \`Response.json()\` cannot faithfully serialize Set values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(93): const value = new Set(); Response.json({value}) 1`] = `
+
+  1 | const value = new Set(); Response.json({value})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(93): const value = new Set(); Response.json({value}) 2`] = `
+
+Message:
+> 1 | const value = new Set(); Response.json({value})
+    |                                         ^^^^^ \`Response.json()\` cannot faithfully serialize Set values.
+
+Suggestion 1/1: Convert the Set to an array.:
+  1 | const value = new Set(); Response.json({value: Array.from(value)})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(94): Response.json(1n) 1`] = `
+
+  1 | Response.json(1n)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(94): Response.json(1n) 2`] = `
+
+Message:
+> 1 | Response.json(1n)
+    |               ^^ \`Response.json()\` cannot faithfully serialize BigInt values.
+
+Suggestion 1/1: Convert the BigInt to a string.:
+  1 | Response.json(String(1n))
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(95): Response.json(undefined) 1`] = `
+
+  1 | Response.json(undefined)
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(95): Response.json(undefined) 2`] = `
+
+Message:
+> 1 | Response.json(undefined)
+    |               ^^^^^^^^^ \`Response.json()\` cannot faithfully serialize undefined values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(96): Response.json(() => {}) 1`] = `
+
+  1 | Response.json(() => {})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(96): Response.json(() => {}) 2`] = `
+
+Message:
+> 1 | Response.json(() => {})
+    |               ^^^^^^^^ \`Response.json()\` cannot faithfully serialize function values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(97): Response.json([Symbol()]) 1`] = `
+
+  1 | Response.json([Symbol()])
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(97): Response.json([Symbol()]) 2`] = `
+
+Message:
+> 1 | Response.json([Symbol()])
+    |                ^^^^^^^^ \`Response.json()\` cannot faithfully serialize symbol values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(98): Response.json({value: NaN}) 1`] = `
+
+  1 | Response.json({value: NaN})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(98): Response.json({value: NaN}) 2`] = `
+
+Message:
+> 1 | Response.json({value: NaN})
+    |                       ^^^ \`Response.json()\` cannot faithfully serialize non-finite number values.
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(99): Response.json({pattern: /unicorn/}) 1`] = `
+
+  1 | Response.json({pattern: /unicorn/})
+
+`;
+
+exports[`no-unsafe-json-serialization > invalid(99): Response.json({pattern: /unicorn/}) 2`] = `
+
+Message:
+> 1 | Response.json({pattern: /unicorn/})
+    |                         ^^^^^^^^^ \`Response.json()\` cannot faithfully serialize RegExp values.
+
+`;

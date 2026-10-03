@@ -4,17 +4,14 @@
 */
 
 /**
-@param {ESTree.Node | ESTree.Token | number} indexOrNodeOrToken
+@param {ESTree.Node | ESTree.Token} nodeOrToken
 @param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
 @param {ESLint.Rule.RuleFixer} fixer
 @returns {ESLint.Rule.ReportFixer}
 */
 
-export default function removeSpacesAfter(indexOrNodeOrToken, context, fixer) {
-	const index = typeof indexOrNodeOrToken === 'object'
-		? context.sourceCode.getRange(indexOrNodeOrToken)[1]
-		: indexOrNodeOrToken;
-
+export default function removeSpacesAfter(nodeOrToken, context, fixer) {
+	const [, index] = context.sourceCode.getRange(nodeOrToken);
 	const textAfter = context.sourceCode.text.slice(index);
 	const [leadingSpaces] = textAfter.match(/^\s*/);
 	return fixer.removeRange([index, index + leadingSpaces.length]);

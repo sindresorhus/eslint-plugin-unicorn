@@ -1,8 +1,4 @@
-import {
-	createTypeCheckers,
-	target,
-	unknown,
-} from './type-helpers.js';
+import {createTypeCheckers} from './type-helpers.js';
 
 const domNodeTypeNames = new Set([
 	'CharacterData',
@@ -28,16 +24,10 @@ const keyboardEventNonTargetTypeNames = new Set([
 	'React.PointerEvent',
 ]);
 
-const getStaticDomNodeType = value => {
-	const {Node} = globalThis;
-	return typeof Node === 'function' && value instanceof Node ? target : unknown;
-};
-
 const {
 	isKnownNonTarget: isKnownNonDomNode,
 } = createTypeCheckers({
 	targetTypeNames: domNodeTypeNames,
-	getStaticType: getStaticDomNodeType,
 });
 
 const {

@@ -1,6 +1,5 @@
-import {isSemicolonToken} from '@eslint-community/eslint-utils';
 import {isDirective, isFunction} from './ast/index.js';
-import {getCommentSafeProblem, hasNonDirectiveComment} from './utils/index.js';
+import {getCommentSafeProblem, hasNonDirectiveComment, getVisitorChildNodes} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -44,18 +43,7 @@ function containsNodeMatching(node, visitorKeys, predicate, shouldSkip = isNeste
 			return false;
 		}
 
-		for (const key of visitorKeys[node.type] ?? []) {
-			const child = node[key];
-			const children = Array.isArray(child) ? child : [child];
-
-			for (const childNode of children) {
-				if (childNode?.type && containsMatch(childNode)) {
-					return true;
-				}
-			}
-		}
-
-		return false;
+		return getVisitorChildNodes(node, visitorKeys).some(childNode => containsMatch(childNode));
 	}
 
 	return containsMatch(node);
@@ -74,22 +62,11 @@ const hasScriptFunctionDeclaration = (body, sourceCode) =>
 	sourceCode.ast.sourceType === 'script'
 	&& containsNodeMatching(body, sourceCode.visitorKeys, node => node.type === 'FunctionDeclaration');
 
-const getReplacementRange = (expressionStatement, sourceCode) => {
-	const [start, end] = sourceCode.getRange(expressionStatement);
-	const lastToken = sourceCode.getLastToken(expressionStatement);
-	const rangeEnd = isSemicolonToken(lastToken) ? sourceCode.getRange(lastToken)[1] : end;
-
-	return [start, rangeEnd];
-};
-
 const hasWrapperComment = (expressionStatement, body, context) =>
-	hasNonDirectiveComment(context, getReplacementRange(expressionStatement, context.sourceCode), [body]);
+	hasNonDirectiveComment(context, context.sourceCode.getRange(expressionStatement), [body]);
 
 const getFix = (expressionStatement, body, context) => fixer =>
-	fixer.replaceTextRange(
-		getReplacementRange(expressionStatement, context.sourceCode),
-		context.sourceCode.getText(body),
-	);
+	fixer.replaceText(expressionStatement, context.sourceCode.getText(body));
 
 /**
 @param {ESLint.Rule.RuleContext} context
@@ -136,7 +113,7 @@ const create = context => {
 			node: expression,
 			messageId: MESSAGE_ID,
 			fix: getFix(expressionStatement, callee.body, context),
-		}, getReplacementRange(expressionStatement, sourceCode), [callee.body]);
+		}, sourceCode.getRange(expressionStatement), [callee.body]);
 	});
 };
 

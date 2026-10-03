@@ -271,6 +271,8 @@ function areSetsEqual(set, otherSet) {
 	}
 
 	for (const value of set) {
+		// Defensive: the sets only grow between iterations, so sets of the same size are equal in practice.
+		/* node:coverage ignore next 3 */
 		if (!otherSet.has(value)) {
 			return false;
 		}
@@ -550,7 +552,6 @@ const isAlwaysEvaluatedExpression = (node, child, context) => (
 	|| (node.type === 'LogicalExpression' && node.left === child)
 	|| (node.type === 'BinaryExpression' && (node.left === child || node.right === child))
 	|| (node.type === 'UnaryExpression' && node.argument === child)
-	|| (node.type === 'AwaitExpression' && node.argument === child)
 	|| (node.type === 'ConditionalExpression' && isBranchExit(node, context, isReturnOrThrowStatement))
 	|| (isTransparentTypeScriptExpressionWrapper(node) && node.expression === child)
 	|| isAlwaysEvaluatedCall(node, child)
@@ -561,7 +562,8 @@ const isAlwaysEvaluatedExpression = (node, child, context) => (
 function isInAlwaysExecutedParameterDefault(node, context) {
 	let child = node;
 	let {parent} = node;
-	while (parent) {
+	// The walk always ends at a node that is not an expression, at the latest the enclosing function.
+	while (true) {
 		if (parent.type === 'AssignmentPattern') {
 			return parent.right === child
 				&& isPromiseExecutor(parent.parent, context)
@@ -575,8 +577,6 @@ function isInAlwaysExecutedParameterDefault(node, context) {
 		child = parent;
 		({parent} = parent);
 	}
-
-	return false;
 }
 
 const isTerminalTryStatement = (node, context) => isProcessExitBranch(node, context);
@@ -607,7 +607,8 @@ function isInCatchableTryAfterPotentiallyThrowingCode(node, context, resolverRef
 	let child = node;
 	let {parent} = node;
 	let hasPotentiallyThrowingCode = false;
-	while (parent) {
+	// The node is always inside the executor or a function nested in it, so the walk ends there at the latest.
+	while (true) {
 		if (isFunction(parent)) {
 			return false;
 		}
@@ -640,8 +641,6 @@ function isInCatchableTryAfterPotentiallyThrowingCode(node, context, resolverRef
 		child = parent;
 		({parent} = parent);
 	}
-
-	return false;
 }
 
 const isSynchronousCodePath = (codePath, node) => (
@@ -665,11 +664,8 @@ function isContinueAcrossFinally(node) {
 	let crossesFinally = false;
 	let child = node;
 	let {parent} = node;
-	while (parent) {
-		if (isFunction(parent)) {
-			return false;
-		}
-
+	// A `continue` is always inside the loop it continues, so the walk ends there.
+	while (true) {
 		if (
 			parent.type === 'TryStatement'
 			&& parent.finalizer
@@ -688,8 +684,6 @@ function isContinueAcrossFinally(node) {
 		child = parent;
 		({parent} = parent);
 	}
-
-	return false;
 }
 
 /**

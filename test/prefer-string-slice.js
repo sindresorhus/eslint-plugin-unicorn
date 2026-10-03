@@ -1,5 +1,5 @@
+import test from 'node:test';
 import outdent from 'outdent';
-import test from 'ava';
 import {Linter} from 'eslint';
 import plugin from '../index.js';
 import {getTester, parsers} from './utils/test.js';
@@ -554,8 +554,8 @@ test('a `null` end is not rewritten to the whole string', t => {
 	]) {
 		const result = linter.verifyAndFix(code, config, 'index.js');
 
-		t.true(result.fixed, `should fix \`${code}\``);
-		t.true(result.output.includes(expectedEnd), `expected \`${expectedEnd}\` in \`${result.output}\``);
+		t.assert.strictEqual(result.fixed, true, `should fix \`${code}\``);
+		t.assert.strictEqual(result.output.includes(expectedEnd), true, `expected \`${expectedEnd}\` in \`${result.output}\``);
 	}
 });
 
@@ -575,6 +575,6 @@ test('an end with a side effect is not rewritten', t => {
 	]) {
 		const problem = linter.verify(code, config).find(problem => !problem.fatal);
 
-		t.is(problem.fix, undefined, `should not fix \`${code}\``);
+		t.assert.strictEqual(problem.fix, undefined, `should not fix \`${code}\``);
 	}
 });

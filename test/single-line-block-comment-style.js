@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, languages} from './utils/test.js';
@@ -75,6 +75,10 @@ ruleTest.snapshot({
 		'/* istanbul ignore next */',
 		'/* nyc ignore next */',
 		'/* v8 ignore next */',
+		'/* node:coverage ignore next */',
+		'/* node:coverage ignore next 3 */',
+		'/* node:coverage disable */',
+		'/* node:coverage enable */',
 		'/* biome-ignore lint/suspicious/noExplicitAny */',
 		'/* deno-lint-ignore no-explicit-any */',
 		'/* deno-lint-ignore-file */',
@@ -195,6 +199,8 @@ ruleTest.snapshot({
 			code: '/*\nValue. */',
 			options: ['single-line'],
 		},
+		// Not a Node.js coverage directive
+		'/* node:coverage report */',
 	],
 });
 
@@ -609,12 +615,12 @@ test('autofixes are idempotent', t => {
 		const config = getConfig(options);
 		const firstFix = linter.verifyAndFix(code, config);
 
-		t.is(firstFix.output, output);
-		t.deepEqual(firstFix.messages, []);
+		t.assert.strictEqual(firstFix.output, output);
+		t.assert.deepStrictEqual(firstFix.messages, []);
 
 		const secondFix = linter.verifyAndFix(firstFix.output, config);
-		t.is(secondFix.output, output);
-		t.deepEqual(secondFix.messages, []);
+		t.assert.strictEqual(secondFix.output, output);
+		t.assert.deepStrictEqual(secondFix.messages, []);
 	}
 });
 

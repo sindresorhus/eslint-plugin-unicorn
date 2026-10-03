@@ -1,0 +1,554 @@
+exports[`prefer-unary-minus > invalid(1): x * -1; 1`] = `
+
+  1 | x * -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(1): x * -1; 2`] = `
+
+Message:
+> 1 | x * -1;
+    | ^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -x;
+
+`;
+
+exports[`prefer-unary-minus > invalid(10): --x * -1; 1`] = `
+
+  1 | --x * -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(10): --x * -1; 2`] = `
+
+Message:
+> 1 | --x * -1;
+    | ^^^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -(--x);
+
+`;
+
+exports[`prefer-unary-minus > invalid(11): x++ * -1; 1`] = `
+
+  1 | x++ * -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(11): x++ * -1; 2`] = `
+
+Message:
+> 1 | x++ * -1;
+    | ^^^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -(x++);
+
+`;
+
+exports[`prefer-unary-minus > invalid(12): -y * -1; 1`] = `
+
+  1 | -y * -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(12): -y * -1; 2`] = `
+
+Message:
+> 1 | -y * -1;
+    | ^^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -(-y);
+
+`;
+
+exports[`prefer-unary-minus > invalid(13): +x * -1; 1`] = `
+
+  1 | +x * -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(13): +x * -1; 2`] = `
+
+Message:
+> 1 | +x * -1;
+    | ^^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -+x;
+
+`;
+
+exports[`prefer-unary-minus > invalid(14): (a + b) * -1; 1`] = `
+
+  1 | (a + b) * -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(14): (a + b) * -1; 2`] = `
+
+Message:
+> 1 | (a + b) * -1;
+    | ^^^^^^^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -(a + b);
+
+`;
+
+exports[`prefer-unary-minus > invalid(15): -1 * (a + b); 1`] = `
+
+  1 | -1 * (a + b);
+
+`;
+
+exports[`prefer-unary-minus > invalid(15): -1 * (a + b); 2`] = `
+
+Message:
+> 1 | -1 * (a + b);
+    | ^^^^^^^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -(a + b);
+
+`;
+
+exports[`prefer-unary-minus > invalid(16): (a ? b : c) * -1; 1`] = `
+
+  1 | (a ? b : c) * -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(16): (a ? b : c) * -1; 2`] = `
+
+Message:
+> 1 | (a ? b : c) * -1;
+    | ^^^^^^^^^^^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -(a ? b : c);
+
+`;
+
+exports[`prefer-unary-minus > invalid(17): (a, b) * -1; 1`] = `
+
+  1 | (a, b) * -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(17): (a, b) * -1; 2`] = `
+
+Message:
+> 1 | (a, b) * -1;
+    | ^^^^^^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -(a, b);
+
+`;
+
+exports[`prefer-unary-minus > invalid(18): (a = b) * -1; 1`] = `
+
+  1 | (a = b) * -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(18): (a = b) * -1; 2`] = `
+
+Message:
+> 1 | (a = b) * -1;
+    | ^^^^^^^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -(a = b);
+
+`;
+
+exports[`prefer-unary-minus > invalid(19): (a + b) / -1; 1`] = `
+
+  1 | (a + b) / -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(19): (a + b) / -1; 2`] = `
+
+Message:
+> 1 | (a + b) / -1;
+    | ^^^^^^^^^^^^ Prefer the unary minus operator over dividing by \`-1\`.
+
+Output:
+  1 | -(a + b);
+
+`;
+
+exports[`prefer-unary-minus > invalid(2): -1 * x; 1`] = `
+
+  1 | -1 * x;
+
+`;
+
+exports[`prefer-unary-minus > invalid(2): -1 * x; 2`] = `
+
+Message:
+> 1 | -1 * x;
+    | ^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -x;
+
+`;
+
+exports[`prefer-unary-minus > invalid(20): (x) * -1; 1`] = `
+
+  1 | (x) * -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(20): (x) * -1; 2`] = `
+
+Message:
+> 1 | (x) * -1;
+    | ^^^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -x;
+
+`;
+
+exports[`prefer-unary-minus > invalid(21): (x * -1) ** 2; 1`] = `
+
+  1 | (x * -1) ** 2;
+
+`;
+
+exports[`prefer-unary-minus > invalid(21): (x * -1) ** 2; 2`] = `
+
+Message:
+> 1 | (x * -1) ** 2;
+    |  ^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | (-x) ** 2;
+
+`;
+
+exports[`prefer-unary-minus > invalid(22): a-x*-1; 1`] = `
+
+  1 | a-x*-1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(22): a-x*-1; 2`] = `
+
+Message:
+> 1 | a-x*-1;
+    |   ^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | a- -x;
+
+`;
+
+exports[`prefer-unary-minus > invalid(23): a - x * -1; 1`] = `
+
+  1 | a - x * -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(23): a - x * -1; 2`] = `
+
+Message:
+> 1 | a - x * -1;
+    |     ^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | a - -x;
+
+`;
+
+exports[`prefer-unary-minus > invalid(24): foo\nx * -1; 1`] = `
+
+  1 | foo
+  2 | x * -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(24): foo\nx * -1; 2`] = `
+
+Message:
+  1 | foo
+> 2 | x * -1;
+    | ^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | foo
+  2 | ;-x;
+
+`;
+
+exports[`prefer-unary-minus > invalid(25): function f() { return x * -1; } 1`] = `
+
+  1 | function f() { return x * -1; }
+
+`;
+
+exports[`prefer-unary-minus > invalid(25): function f() { return x * -1; } 2`] = `
+
+Message:
+> 1 | function f() { return x * -1; }
+    |                       ^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | function f() { return -x; }
+
+`;
+
+exports[`prefer-unary-minus > invalid(26): x * -1 * -1; 1`] = `
+
+  1 | x * -1 * -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(26): x * -1 * -1; 2`] = `
+
+Message:
+> 1 | x * -1 * -1;
+    | ^^^^^^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -(x * -1);
+
+`;
+
+exports[`prefer-unary-minus > invalid(26): x * -1 * -1; 3`] = `
+
+Message:
+> 1 | x * -1 * -1;
+    | ^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -x * -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(27): a + b * -1; 1`] = `
+
+  1 | a + b * -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(27): a + b * -1; 2`] = `
+
+Message:
+> 1 | a + b * -1;
+    |     ^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | a + -b;
+
+`;
+
+exports[`prefer-unary-minus > invalid(28): x /* c */ * -1; 1`] = `
+
+  1 | x /* c */ * -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(28): x /* c */ * -1; 2`] = `
+
+Message:
+> 1 | x /* c */ * -1;
+    | ^^^^^^^^^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+`;
+
+exports[`prefer-unary-minus > invalid(29): x * -1 /* c */; 1`] = `
+
+  1 | x * -1 /* c */;
+
+`;
+
+exports[`prefer-unary-minus > invalid(29): x * -1 /* c */; 2`] = `
+
+Message:
+> 1 | x * -1 /* c */;
+    | ^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -x /* c */;
+
+`;
+
+exports[`prefer-unary-minus > invalid(3): x / -1; 1`] = `
+
+  1 | x / -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(3): x / -1; 2`] = `
+
+Message:
+> 1 | x / -1;
+    | ^^^^^^ Prefer the unary minus operator over dividing by \`-1\`.
+
+Output:
+  1 | -x;
+
+`;
+
+exports[`prefer-unary-minus > invalid(30): (x as number) * -1; 1`] = `
+
+  1 | (x as number) * -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(30): (x as number) * -1; 2`] = `
+
+Message:
+> 1 | (x as number) * -1;
+    | ^^^^^^^^^^^^^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -(x as number);
+
+`;
+
+exports[`prefer-unary-minus > invalid(31): -1 * (x as number); 1`] = `
+
+  1 | -1 * (x as number);
+
+`;
+
+exports[`prefer-unary-minus > invalid(31): -1 * (x as number); 2`] = `
+
+Message:
+> 1 | -1 * (x as number);
+    | ^^^^^^^^^^^^^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -(x as number);
+
+`;
+
+exports[`prefer-unary-minus > invalid(32): x! * -1; 1`] = `
+
+  1 | x! * -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(32): x! * -1; 2`] = `
+
+Message:
+> 1 | x! * -1;
+    | ^^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -(x!);
+
+`;
+
+exports[`prefer-unary-minus > invalid(4): a.b * -1; 1`] = `
+
+  1 | a.b * -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(4): a.b * -1; 2`] = `
+
+Message:
+> 1 | a.b * -1;
+    | ^^^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -a.b;
+
+`;
+
+exports[`prefer-unary-minus > invalid(5): foo() * -1; 1`] = `
+
+  1 | foo() * -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(5): foo() * -1; 2`] = `
+
+Message:
+> 1 | foo() * -1;
+    | ^^^^^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -foo();
+
+`;
+
+exports[`prefer-unary-minus > invalid(6): 5 * -1; 1`] = `
+
+  1 | 5 * -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(6): 5 * -1; 2`] = `
+
+Message:
+> 1 | 5 * -1;
+    | ^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -5;
+
+`;
+
+exports[`prefer-unary-minus > invalid(7): -1 * 5; 1`] = `
+
+  1 | -1 * 5;
+
+`;
+
+exports[`prefer-unary-minus > invalid(7): -1 * 5; 2`] = `
+
+Message:
+> 1 | -1 * 5;
+    | ^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -5;
+
+`;
+
+exports[`prefer-unary-minus > invalid(8): foo?.bar * -1; 1`] = `
+
+  1 | foo?.bar * -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(8): foo?.bar * -1; 2`] = `
+
+Message:
+> 1 | foo?.bar * -1;
+    | ^^^^^^^^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -foo?.bar;
+
+`;
+
+exports[`prefer-unary-minus > invalid(9): tag\`str\` * -1; 1`] = `
+
+  1 | tag\`str\` * -1;
+
+`;
+
+exports[`prefer-unary-minus > invalid(9): tag\`str\` * -1; 2`] = `
+
+Message:
+> 1 | tag\`str\` * -1;
+    | ^^^^^^^^^^^^^ Prefer the unary minus operator over multiplying by \`-1\`.
+
+Output:
+  1 | -tag\`str\`;
+
+`;

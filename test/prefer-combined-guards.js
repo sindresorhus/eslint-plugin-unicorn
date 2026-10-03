@@ -1,5 +1,5 @@
 import {runInNewContext} from 'node:vm';
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
@@ -694,8 +694,8 @@ const config = {
 test('repeated fixes combine all consecutive guards', t => {
 	const linter = new Linter();
 	const {output, messages} = linter.verifyAndFix('function foo() { if (a) { return; } if (b) { return; } if (c) { return; } }', config);
-	t.is(output, 'function foo() { if (a || b || c) { return; } }');
-	t.deepEqual(messages, []);
+	t.assert.strictEqual(output, 'function foo() { if (a || b || c) { return; } }');
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('repeated fixes preserve compound and documented guard boundaries', t => {
@@ -712,9 +712,9 @@ test('repeated fixes preserve compound and documented guard boundaries', t => {
 		}
 	`;
 	const {output, messages} = linter.verifyAndFix(code, config);
-	t.is(output, code.replace('if (a) { return; }\n\tif (b || c)', 'if (a || b || c)'));
-	t.deepEqual(messages, []);
-	t.false(linter.verifyAndFix(output, config).fixed);
+	t.assert.strictEqual(output, code.replace('if (a) { return; }\n\tif (b || c)', 'if (a || b || c)'));
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
 });
 
 test('fixes compose with related control-flow rules', t => {
@@ -738,8 +738,8 @@ test('fixes compose with related control-flow rules', t => {
 			'unicorn/prefer-boolean-return': 'error',
 		},
 	});
-	t.is(output, 'function foo(a, b) {\n\treturn !(a || b);\n}');
-	t.deepEqual(messages, []);
+	t.assert.strictEqual(output, 'function foo(a, b) {\n\treturn !(a || b);\n}');
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('fixes preserve exit values and evaluation order', t => {
@@ -763,9 +763,9 @@ test('fixes preserve exit values and evaluation order', t => {
 					JSON.stringify(events);
 				`;
 				const {output, messages, fixed} = linter.verifyAndFix(code, config);
-				t.true(fixed);
-				t.deepEqual(messages, []);
-				t.is(runInNewContext(output), runInNewContext(code));
+				t.assert.strictEqual(fixed, true);
+				t.assert.deepStrictEqual(messages, []);
+				t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
 			}
 		}
 	}
@@ -806,9 +806,9 @@ test('fixes preserve statements before the exit and evaluation order', t => {
 						JSON.stringify(events);
 					`;
 					const {output, messages, fixed} = linter.verifyAndFix(code, multiStatementConfig);
-					t.true(fixed, body);
-					t.deepEqual(messages, []);
-					t.is(runInNewContext(output), runInNewContext(code), body);
+					t.assert.strictEqual(fixed, true, body);
+					t.assert.deepStrictEqual(messages, []);
+					t.assert.strictEqual(runInNewContext(output), runInNewContext(code), body);
 				}
 			}
 		}
@@ -824,10 +824,10 @@ test('directives between guards do not prevent reporting', t => {
 			rules: {'unicorn/prefer-combined-guards': ['error', options]},
 			linterOptions: {reportUnusedDisableDirectives: 'off'},
 		});
-		t.is(result.messages.length, 1);
-		t.is(result.messages[0].ruleId, 'unicorn/prefer-combined-guards');
-		t.is(result.messages[0].fix, undefined);
-		t.false(result.fixed);
-		t.is(result.output, code);
+		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/prefer-combined-guards');
+		t.assert.strictEqual(result.messages[0].fix, undefined);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
 	}
 });

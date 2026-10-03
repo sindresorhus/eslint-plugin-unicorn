@@ -37,6 +37,8 @@ test.snapshot({
 		'document.querySelector(`#${id}`);', // eslint-disable-line no-template-curly-in-string
 		'document.querySelectorAll(`.${className}`);', // eslint-disable-line no-template-curly-in-string
 		'element.matches(`section > .${className}`);', // eslint-disable-line no-template-curly-in-string
+		// The attribute selector is never closed
+		'document.querySelector(`[data-id="${id}`);', // eslint-disable-line no-template-curly-in-string
 	],
 	invalid: [
 		'document.querySelector(`[data-id="${id}"]`);', // eslint-disable-line no-template-curly-in-string

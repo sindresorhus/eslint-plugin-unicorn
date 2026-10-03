@@ -59,7 +59,6 @@ function * removeImportOrExport(node, fixer, context) {
 			return;
 		}
 
-		case 'ImportDeclaration':
 		case 'ExportDefaultDeclaration':
 		case 'ExportNamedDeclaration': {
 			yield fixer.remove(node);
@@ -198,7 +197,7 @@ function getExported(identifier, sourceCode) {
 function isVariableUnused(node, sourceCode) {
 	const variables = sourceCode.getDeclaredVariables(node);
 
-	/* c8 ignore next 3 */
+	/* node:coverage ignore next 3 */
 	if (variables.length !== 1) {
 		return false;
 	}

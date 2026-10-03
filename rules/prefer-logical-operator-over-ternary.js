@@ -212,6 +212,8 @@ function isBooleanTernaryExpression(node, context) {
 		return isBoolean(node, context);
 	} catch (error) {
 		// Treat pathological recursive inference as unknown instead of crashing linting.
+		// Tests cannot make `isBoolean` throw anything else.
+		/* node:coverage ignore next 6 */
 		if (error instanceof RangeError) {
 			return false;
 		}
@@ -278,11 +280,6 @@ function getBooleanTernaryProblem(conditionalExpression, context) {
 function getOptionalChainText(memberExpression, context) {
 	const {sourceCode} = context;
 	const range = getMemberAccessOperatorRange(memberExpression, context);
-
-	if (hasNonDirectiveComment(context, range)) {
-		return;
-	}
-
 	const [nodeStart, nodeEnd] = sourceCode.getRange(memberExpression);
 	const [operatorStart, operatorEnd] = range;
 
@@ -494,10 +491,6 @@ function getNullishTernaryProblem(conditionalExpression, context) {
 	}
 
 	const optionalChainText = getOptionalChainText(nonNullishBranch, context);
-
-	if (!optionalChainText) {
-		return;
-	}
 
 	return getCommentSafeProblem(context, {
 		node: conditionalExpression,

@@ -108,6 +108,10 @@ test.snapshot({
 			code: 'async () => ({...(await foo && await foo)})',
 			options: ['ternary'],
 		},
+		'const object = {...(foo || bar ? foo || bar : {})}',
+		'const object = {...(!foo ? !foo : {})}',
+		'const object = {...(null == foo ? {} : foo)}',
+		'const object = {...(undefined === foo || null === foo ? {} : foo)}',
 	],
 	invalid: [
 		'const object = {...(foo ? {bar: true} : {})}',
@@ -274,5 +278,9 @@ test.snapshot({
 		'function * generator() {\n\treturn {...(Boolean(yield foo) && {a: 1})};\n}',
 		// The ternary fix only removes a leading `!`, so `Boolean()` is kept.
 		'const object = {...(Boolean(foo) ? {} : {a: 1})}',
+		// Update expressions have side effects, so they are never the same value.
+		'const object = {...(foo++ ? foo++ : {})}',
+		'const object = {...(foo || bar ? foo && bar : {})}',
+		'const object = {...(foo === bar ? {} : foo)}',
 	],
 });

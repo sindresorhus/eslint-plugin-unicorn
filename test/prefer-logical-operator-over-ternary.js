@@ -487,5 +487,9 @@ test.snapshot({
 		'foo?.bar.c == null ? undefined : foo.bar.c',
 		'f(foo?.bar == null ? undefined : foo.bar)',
 		'foo?.bar == null ? null : foo.bar',
+		outdent`
+			foo
+			bar == null ? undefined : (bar).baz
+		`,
 	],
 });

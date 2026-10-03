@@ -973,7 +973,7 @@ function getCaseProblem(
 	}
 
 	const variable = getVariable(assignNode, context);
-	/* c8 ignore next */
+	/* node:coverage ignore next 3 */
 	if (!variable) {
 		return;
 	}

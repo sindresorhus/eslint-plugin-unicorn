@@ -1,7 +1,6 @@
 import {
 	isMemberExpression,
 	isEmptyArrayExpression,
-	isEmptyObjectExpression,
 } from '../ast/index.js';
 
 /**
@@ -44,10 +43,7 @@ function isPrototypeProperty(node, options) {
 		})
 		// `[].method`
 		|| (object === 'Array' && isEmptyArrayExpression(objectNode))
-		// `{}.method`
-		|| (object === 'Object' && isEmptyObjectExpression(objectNode))
 	);
 }
 
 export const isArrayPrototypeProperty = (node, options) => isPrototypeProperty(node, {...options, object: 'Array'});
-export const isObjectPrototypeProperty = (node, options) => isPrototypeProperty(node, {...options, object: 'Object'});

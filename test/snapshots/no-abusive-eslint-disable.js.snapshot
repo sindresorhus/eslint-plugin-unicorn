@@ -1,0 +1,149 @@
+exports[`no-abusive-eslint-disable > invalid(1): eval(); // eslint-disable-line 1`] = `
+
+  1 | eval(); // eslint-disable-line
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(1): eval(); // eslint-disable-line 2`] = `
+
+Message:
+> 1 | eval(); // eslint-disable-line
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Specify the rules you want to disable.
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(2): foo();\neval(); // eslint-disable-line 1`] = `
+
+  1 | foo();
+  2 | eval(); // eslint-disable-line
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(2): foo();\neval(); // eslint-disable-line 2`] = `
+
+Message:
+  1 | foo();
+> 2 | eval(); // eslint-disable-line
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Specify the rules you want to disable.
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(3): /* eslint-disable */ 1`] = `
+
+  1 | /* eslint-disable */
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(3): /* eslint-disable */ 2`] = `
+
+Message:
+> 1 | /* eslint-disable */
+    | ^^^^^^^^^^^^^^^^^^^^ Specify the rules you want to disable.
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(4): // Test\n/* eslint-disable */\neval(); 1`] = `
+
+  1 | // Test
+  2 | /* eslint-disable */
+  3 | eval();
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(4): // Test\n/* eslint-disable */\neval(); 2`] = `
+
+Message:
+  1 | // Test
+> 2 | /* eslint-disable */
+    | ^^^^^^^^^^^^^^^^^^^^ Specify the rules you want to disable.
+  3 | eval();
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(5): foo();\n/* eslint-disable */\neval(); 1`] = `
+
+  1 | foo();
+  2 | /* eslint-disable */
+  3 | eval();
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(5): foo();\n/* eslint-disable */\neval(); 2`] = `
+
+Message:
+  1 | foo();
+> 2 | /* eslint-disable */
+    | ^^^^^^^^^^^^^^^^^^^^ Specify the rules you want to disable.
+  3 | eval();
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(6): foo();\n\t/* eslint-disable-next-line */\n\t\teval(); 1`] = `
+
+  1 | foo();
+  2 | 	/* eslint-disable-next-line */
+  3 | 		eval();
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(6): foo();\n\t/* eslint-disable-next-line */\n\t\teval(); 2`] = `
+
+Message:
+  1 | foo();
+> 2 | 	/* eslint-disable-next-line */
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Specify the rules you want to disable.
+  3 | 		eval();
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(7): // eslint-disable-next-line\neval(); 1`] = `
+
+  1 | // eslint-disable-next-line
+  2 | eval();
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(7): // eslint-disable-next-line\neval(); 2`] = `
+
+Message:
+> 1 | // eslint-disable-next-line
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Specify the rules you want to disable.
+  2 | eval();
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(8): // eslint-disable-next-line -- reason\neval(); 1`] = `
+
+  1 | // eslint-disable-next-line -- reason
+  2 | eval();
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(8): // eslint-disable-next-line -- reason\neval(); 2`] = `
+
+Message:
+> 1 | // eslint-disable-next-line -- reason
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Specify the rules you want to disable.
+  2 | eval();
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(9): // eslint-disable-next-line no-eval\neval();\n// eslint-disable-next-line\neval(); 1`] = `
+
+  1 | // eslint-disable-next-line no-eval
+  2 | eval();
+  3 | // eslint-disable-next-line
+  4 | eval();
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(9): // eslint-disable-next-line no-eval\neval();\n// eslint-disable-next-line\neval(); 2`] = `
+
+Message:
+  1 | // eslint-disable-next-line no-eval
+  2 | eval();
+> 3 | // eslint-disable-next-line
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Specify the rules you want to disable.
+  4 | eval();
+
+`;

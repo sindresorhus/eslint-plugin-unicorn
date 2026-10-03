@@ -1,0 +1,311 @@
+exports[`numeric-separators-style > invalid(1): console.log(0XdeEdBeeFn) 1`] = `
+
+  1 | console.log(0XdeEdBeeFn)
+
+`;
+
+exports[`numeric-separators-style > invalid(1): console.log(0XdeEdBeeFn) 2`] = `
+
+Message:
+> 1 | console.log(0XdeEdBeeFn)
+    |             ^^^^^^^^^^^ Invalid group length in numeric value.
+
+Output:
+  1 | console.log(0Xde_Ed_Be_eFn)
+
+`;
+
+exports[`numeric-separators-style > invalid(1): value = 1000000 # Preserve this comment. 1`] = `
+
+Filename: example.toml
+
+  1 | value = 1000000 # Preserve this comment.
+
+`;
+
+exports[`numeric-separators-style > invalid(1): value = 1000000 # Preserve this comment. 2`] = `
+
+Message:
+> 1 | value = 1000000 # Preserve this comment.
+    |         ^^^^^^^ Invalid group length in numeric value.
+
+Output:
+  1 | value = 1_000_000 # Preserve this comment.
+
+`;
+
+exports[`numeric-separators-style > invalid(2): const foo = 12345678..toString() 1`] = `
+
+  1 | const foo = 12345678..toString()
+
+`;
+
+exports[`numeric-separators-style > invalid(2): const foo = 12345678..toString() 2`] = `
+
+Message:
+> 1 | const foo = 12345678..toString()
+    |             ^^^^^^^^^ Invalid group length in numeric value.
+
+Output:
+  1 | const foo = 12_345_678..toString()
+
+`;
+
+exports[`numeric-separators-style > invalid(2): value = [-123456, +123456] 1`] = `
+
+Filename: example.toml
+
+  1 | value = [-123456, +123456]
+
+`;
+
+exports[`numeric-separators-style > invalid(2): value = [-123456, +123456] 2`] = `
+
+Message:
+> 1 | value = [-123456, +123456]
+    |          ^^^^^^^ Invalid group length in numeric value.
+
+Output:
+  1 | value = [-123_456, +123456]
+
+`;
+
+exports[`numeric-separators-style > invalid(2): value = [-123456, +123456] 3`] = `
+
+Message:
+> 1 | value = [-123456, +123456]
+    |                   ^^^^^^^ Invalid group length in numeric value.
+
+Output:
+  1 | value = [-123456, +123_456]
+
+`;
+
+exports[`numeric-separators-style > invalid(3): value = 9223372036854775807 1`] = `
+
+Filename: example.toml
+
+  1 | value = 9223372036854775807
+
+`;
+
+exports[`numeric-separators-style > invalid(3): value = 9223372036854775807 2`] = `
+
+Message:
+> 1 | value = 9223372036854775807
+    |         ^^^^^^^^^^^^^^^^^^^ Invalid group length in numeric value.
+
+Output:
+  1 | value = 9_223_372_036_854_775_807
+
+`;
+
+exports[`numeric-separators-style > invalid(4): value = [0xABCDEF, 0o12345670, 0b10101010] 1`] = `
+
+Filename: example.toml
+
+  1 | value = [0xABCDEF, 0o12345670, 0b10101010]
+
+`;
+
+exports[`numeric-separators-style > invalid(4): value = [0xABCDEF, 0o12345670, 0b10101010] 2`] = `
+
+Message:
+> 1 | value = [0xABCDEF, 0o12345670, 0b10101010]
+    |          ^^^^^^^^ Invalid group length in numeric value.
+
+Output:
+  1 | value = [0xAB_CD_EF, 0o12345670, 0b10101010]
+
+`;
+
+exports[`numeric-separators-style > invalid(4): value = [0xABCDEF, 0o12345670, 0b10101010] 3`] = `
+
+Message:
+> 1 | value = [0xABCDEF, 0o12345670, 0b10101010]
+    |                    ^^^^^^^^^^ Invalid group length in numeric value.
+
+Output:
+  1 | value = [0xABCDEF, 0o1234_5670, 0b10101010]
+
+`;
+
+exports[`numeric-separators-style > invalid(4): value = [0xABCDEF, 0o12345670, 0b10101010] 4`] = `
+
+Message:
+> 1 | value = [0xABCDEF, 0o12345670, 0b10101010]
+    |                                ^^^^^^^^^^ Invalid group length in numeric value.
+
+Output:
+  1 | value = [0xABCDEF, 0o12345670, 0b1010_1010]
+
+`;
+
+exports[`numeric-separators-style > invalid(5): value = {nested = [12345, 1_2_345, 0.123_456]} 1`] = `
+
+Filename: example.toml
+
+  1 | value = {nested = [12345, 1_2_345, 0.123_456]}
+
+`;
+
+exports[`numeric-separators-style > invalid(5): value = {nested = [12345, 1_2_345, 0.123_456]} 2`] = `
+
+Message:
+> 1 | value = {nested = [12345, 1_2_345, 0.123_456]}
+    |                    ^^^^^ Invalid group length in numeric value.
+
+Output:
+  1 | value = {nested = [12_345, 1_2_345, 0.123_456]}
+
+`;
+
+exports[`numeric-separators-style > invalid(5): value = {nested = [12345, 1_2_345, 0.123_456]} 3`] = `
+
+Message:
+> 1 | value = {nested = [12345, 1_2_345, 0.123_456]}
+    |                           ^^^^^^^ Invalid group length in numeric value.
+
+Output:
+  1 | value = {nested = [12345, 12_345, 0.123_456]}
+
+`;
+
+exports[`numeric-separators-style > invalid(5): value = {nested = [12345, 1_2_345, 0.123_456]} 4`] = `
+
+Message:
+> 1 | value = {nested = [12345, 1_2_345, 0.123_456]}
+    |                                    ^^^^^^^^^ Invalid group length in numeric value.
+
+Output:
+  1 | value = {nested = [12345, 1_2_345, 0.123456]}
+
+`;
+
+exports[`numeric-separators-style > invalid(6): value = [-12345.123456E+10000, +12345.123456e-10000] 1`] = `
+
+Filename: example.toml
+
+  1 | value = [-12345.123456E+10000, +12345.123456e-10000]
+
+`;
+
+exports[`numeric-separators-style > invalid(6): value = [-12345.123456E+10000, +12345.123456e-10000] 2`] = `
+
+Message:
+> 1 | value = [-12345.123456E+10000, +12345.123456e-10000]
+    |          ^^^^^^^^^^^^^^^^^^^^ Invalid group length in numeric value.
+
+Output:
+  1 | value = [-12_345.123456E+10_000, +12345.123456e-10000]
+
+`;
+
+exports[`numeric-separators-style > invalid(6): value = [-12345.123456E+10000, +12345.123456e-10000] 3`] = `
+
+Message:
+> 1 | value = [-12345.123456E+10000, +12345.123456e-10000]
+    |                                ^^^^^^^^^^^^^^^^^^^^ Invalid group length in numeric value.
+
+Output:
+  1 | value = [-12345.123456E+10000, +12_345.123456e-10_000]
+
+`;
+
+exports[`numeric-separators-style > invalid(7): value = -1234567.12345678 1`] = `
+
+Filename: example.toml
+
+Options:
+- number:
+    groupLength: 4
+    fractionGroupLength: 3
+
+Code:
+  1 | value = -1234567.12345678
+
+`;
+
+exports[`numeric-separators-style > invalid(7): value = -1234567.12345678 2`] = `
+
+Message:
+> 1 | value = -1234567.12345678
+    |         ^^^^^^^^^^^^^^^^^ Invalid group length in numeric value.
+
+Output:
+  1 | value = -123_4567.123_456_78
+
+`;
+
+exports[`numeric-separators-style > invalid(8): value = [+123, -123] 1`] = `
+
+Filename: example.toml
+
+Options:
+- number:
+    minimumDigits: 0
+    groupLength: 1
+
+Code:
+  1 | value = [+123, -123]
+
+`;
+
+exports[`numeric-separators-style > invalid(8): value = [+123, -123] 2`] = `
+
+Message:
+> 1 | value = [+123, -123]
+    |          ^^^^ Invalid group length in numeric value.
+
+Output:
+  1 | value = [+1_2_3, -123]
+
+`;
+
+exports[`numeric-separators-style > invalid(8): value = [+123, -123] 3`] = `
+
+Message:
+> 1 | value = [+123, -123]
+    |                ^^^^ Invalid group length in numeric value.
+
+Output:
+  1 | value = [+123, -1_2_3]
+
+`;
+
+exports[`numeric-separators-style > invalid(9): value = [1234567, 12_34567, 0xABCDEF] 1`] = `
+
+Filename: example.toml
+
+Options:
+- onlyIfContainsSeparator: true
+  hexadecimal:
+    onlyIfContainsSeparator: false
+    groupLength: 3
+
+Code:
+  1 | value = [1234567, 12_34567, 0xABCDEF]
+
+`;
+
+exports[`numeric-separators-style > invalid(9): value = [1234567, 12_34567, 0xABCDEF] 2`] = `
+
+Message:
+> 1 | value = [1234567, 12_34567, 0xABCDEF]
+    |                   ^^^^^^^^ Invalid group length in numeric value.
+
+Output:
+  1 | value = [1234567, 1_234_567, 0xABCDEF]
+
+`;
+
+exports[`numeric-separators-style > invalid(9): value = [1234567, 12_34567, 0xABCDEF] 3`] = `
+
+Message:
+> 1 | value = [1234567, 12_34567, 0xABCDEF]
+    |                             ^^^^^^^^ Invalid group length in numeric value.
+
+Output:
+  1 | value = [1234567, 12_34567, 0xABC_DEF]
+
+`;

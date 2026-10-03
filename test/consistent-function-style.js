@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import unicorn from '../index.js';
@@ -238,6 +238,18 @@ ruleTest.snapshot({
 			code: 'export const parse: Parser = value => value;',
 			options: [{typedVariables: 'function-expression', namedExports: 'declaration'}],
 		}),
+		{
+			code: 'items.map(async function (item) { return item; });',
+			options: [{callbacks: 'arrow-function'}],
+		},
+		{
+			code: 'items.map(item => { return item; });',
+			options: [{callbacks: 'function-expression'}],
+		},
+		typescript({
+			code: 'items.map(function (item): number { return item; });',
+			options: [{callbacks: 'arrow-function'}],
+		}),
 	],
 });
 
@@ -258,7 +270,7 @@ test('separate default exports remain governed by default-export-style', t => {
 		},
 	);
 
-	t.deepEqual(messages.map(message => message.ruleId), ['unicorn/default-export-style']);
+	t.assert.deepStrictEqual(messages.map(message => message.ruleId), ['unicorn/default-export-style']);
 });
 
 test('anonymous default exports can produce syntax and naming reports', t => {
@@ -278,8 +290,8 @@ test('anonymous default exports can produce syntax and naming reports', t => {
 		},
 	);
 
-	t.is(messages.length, 2);
-	t.deepEqual(
+	t.assert.strictEqual(messages.length, 2);
+	t.assert.deepStrictEqual(
 		new Set(messages.map(message => message.ruleId)),
 		new Set(['unicorn/consistent-function-style', 'unicorn/no-anonymous-default-export']),
 	);

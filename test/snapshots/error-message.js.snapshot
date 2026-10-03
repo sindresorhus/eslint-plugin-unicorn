@@ -1,0 +1,771 @@
+exports[`error-message > invalid(1): new AggregateError(errors) 1`] = `
+
+  1 | new AggregateError(errors)
+
+`;
+
+exports[`error-message > invalid(1): new AggregateError(errors) 2`] = `
+
+Message:
+> 1 | new AggregateError(errors)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Pass a message to the \`AggregateError\` constructor.
+
+`;
+
+exports[`error-message > invalid(1): new SuppressedError(error, suppressed,) 1`] = `
+
+  1 | new SuppressedError(error, suppressed,)
+
+`;
+
+exports[`error-message > invalid(1): new SuppressedError(error, suppressed,) 2`] = `
+
+Message:
+> 1 | new SuppressedError(error, suppressed,)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Pass a message to the \`SuppressedError\` constructor.
+
+`;
+
+exports[`error-message > invalid(1): throw new Error() 1`] = `
+
+  1 | throw new Error()
+
+`;
+
+exports[`error-message > invalid(1): throw new Error() 2`] = `
+
+Message:
+> 1 | throw new Error()
+    |       ^^^^^^^^^^^ Pass a message to the \`Error\` constructor.
+
+`;
+
+exports[`error-message > invalid(10): const errorMessage = Object.freeze({errorMessage: 1}).errorMessage;\nthrow new Error(errorMessage) 1`] = `
+
+  1 | const errorMessage = Object.freeze({errorMessage: 1}).errorMessage;
+  2 | throw new Error(errorMessage)
+
+`;
+
+exports[`error-message > invalid(10): const errorMessage = Object.freeze({errorMessage: 1}).errorMessage;\nthrow new Error(errorMessage) 2`] = `
+
+Message:
+  1 | const errorMessage = Object.freeze({errorMessage: 1}).errorMessage;
+> 2 | throw new Error(errorMessage)
+    |                 ^^^^^^^^^^^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(10): const errorMessage = Object.freeze({errorMessage: 1}).errorMessage;\nthrow new SuppressedError(error, suppressed, errorMessage) 1`] = `
+
+  1 | const errorMessage = Object.freeze({errorMessage: 1}).errorMessage;
+  2 | throw new SuppressedError(error, suppressed, errorMessage)
+
+`;
+
+exports[`error-message > invalid(10): const errorMessage = Object.freeze({errorMessage: 1}).errorMessage;\nthrow new SuppressedError(error, suppressed, errorMessage) 2`] = `
+
+Message:
+  1 | const errorMessage = Object.freeze({errorMessage: 1}).errorMessage;
+> 2 | throw new SuppressedError(error, suppressed, errorMessage)
+    |                                              ^^^^^^^^^^^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(10): new AggregateError(errors, {}) 1`] = `
+
+  1 | new AggregateError(errors, {})
+
+`;
+
+exports[`error-message > invalid(10): new AggregateError(errors, {}) 2`] = `
+
+Message:
+> 1 | new AggregateError(errors, {})
+    |                            ^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(11): new AggregateError(errors, {foo}) 1`] = `
+
+  1 | new AggregateError(errors, {foo})
+
+`;
+
+exports[`error-message > invalid(11): new AggregateError(errors, {foo}) 2`] = `
+
+Message:
+> 1 | new AggregateError(errors, {foo})
+    |                            ^^^^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(11): new SuppressedError(error, suppressed, []) 1`] = `
+
+  1 | new SuppressedError(error, suppressed, [])
+
+`;
+
+exports[`error-message > invalid(11): new SuppressedError(error, suppressed, []) 2`] = `
+
+Message:
+> 1 | new SuppressedError(error, suppressed, [])
+    |                                        ^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(11): throw new Error([]) 1`] = `
+
+  1 | throw new Error([])
+
+`;
+
+exports[`error-message > invalid(11): throw new Error([]) 2`] = `
+
+Message:
+> 1 | throw new Error([])
+    |                 ^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(12): new AggregateError(errors, {foo: 0}.foo) 1`] = `
+
+  1 | new AggregateError(errors, {foo: 0}.foo)
+
+`;
+
+exports[`error-message > invalid(12): new AggregateError(errors, {foo: 0}.foo) 2`] = `
+
+Message:
+> 1 | new AggregateError(errors, {foo: 0}.foo)
+    |                            ^^^^^^^^^^^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(12): new SuppressedError(error, suppressed, [foo]) 1`] = `
+
+  1 | new SuppressedError(error, suppressed, [foo])
+
+`;
+
+exports[`error-message > invalid(12): new SuppressedError(error, suppressed, [foo]) 2`] = `
+
+Message:
+> 1 | new SuppressedError(error, suppressed, [foo])
+    |                                        ^^^^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(12): throw new Error([foo]) 1`] = `
+
+  1 | throw new Error([foo])
+
+`;
+
+exports[`error-message > invalid(12): throw new Error([foo]) 2`] = `
+
+Message:
+> 1 | throw new Error([foo])
+    |                 ^^^^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(13): new AggregateError(errors, lineNumber=2) 1`] = `
+
+  1 | new AggregateError(errors, lineNumber=2)
+
+`;
+
+exports[`error-message > invalid(13): new AggregateError(errors, lineNumber=2) 2`] = `
+
+Message:
+> 1 | new AggregateError(errors, lineNumber=2)
+    |                            ^^^^^^^^^^^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(13): new SuppressedError(error, suppressed, [0][0]) 1`] = `
+
+  1 | new SuppressedError(error, suppressed, [0][0])
+
+`;
+
+exports[`error-message > invalid(13): new SuppressedError(error, suppressed, [0][0]) 2`] = `
+
+Message:
+> 1 | new SuppressedError(error, suppressed, [0][0])
+    |                                        ^^^^^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(13): throw new Error([0][0]) 1`] = `
+
+  1 | throw new Error([0][0])
+
+`;
+
+exports[`error-message > invalid(13): throw new Error([0][0]) 2`] = `
+
+Message:
+> 1 | throw new Error([0][0])
+    |                 ^^^^^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(14): const error = new AggregateError; 1`] = `
+
+  1 | const error = new AggregateError;
+
+`;
+
+exports[`error-message > invalid(14): const error = new AggregateError; 2`] = `
+
+Message:
+> 1 | const error = new AggregateError;
+    |               ^^^^^^^^^^^^^^^^^^ Pass a message to the \`AggregateError\` constructor.
+
+`;
+
+exports[`error-message > invalid(14): new SuppressedError(error, suppressed, {}) 1`] = `
+
+  1 | new SuppressedError(error, suppressed, {})
+
+`;
+
+exports[`error-message > invalid(14): new SuppressedError(error, suppressed, {}) 2`] = `
+
+Message:
+> 1 | new SuppressedError(error, suppressed, {})
+    |                                        ^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(14): throw new Error({}) 1`] = `
+
+  1 | throw new Error({})
+
+`;
+
+exports[`error-message > invalid(14): throw new Error({}) 2`] = `
+
+Message:
+> 1 | throw new Error({})
+    |                 ^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(15): new SuppressedError(error, suppressed, {foo}) 1`] = `
+
+  1 | new SuppressedError(error, suppressed, {foo})
+
+`;
+
+exports[`error-message > invalid(15): new SuppressedError(error, suppressed, {foo}) 2`] = `
+
+Message:
+> 1 | new SuppressedError(error, suppressed, {foo})
+    |                                        ^^^^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(15): throw new Error({foo}) 1`] = `
+
+  1 | throw new Error({foo})
+
+`;
+
+exports[`error-message > invalid(15): throw new Error({foo}) 2`] = `
+
+Message:
+> 1 | throw new Error({foo})
+    |                 ^^^^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(16): new SuppressedError(error, suppressed, {foo: 0}.foo) 1`] = `
+
+  1 | new SuppressedError(error, suppressed, {foo: 0}.foo)
+
+`;
+
+exports[`error-message > invalid(16): new SuppressedError(error, suppressed, {foo: 0}.foo) 2`] = `
+
+Message:
+> 1 | new SuppressedError(error, suppressed, {foo: 0}.foo)
+    |                                        ^^^^^^^^^^^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(16): throw new Error({foo: 0}.foo) 1`] = `
+
+  1 | throw new Error({foo: 0}.foo)
+
+`;
+
+exports[`error-message > invalid(16): throw new Error({foo: 0}.foo) 2`] = `
+
+Message:
+> 1 | throw new Error({foo: 0}.foo)
+    |                 ^^^^^^^^^^^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(17): new SuppressedError(error, suppressed, lineNumber=2) 1`] = `
+
+  1 | new SuppressedError(error, suppressed, lineNumber=2)
+
+`;
+
+exports[`error-message > invalid(17): new SuppressedError(error, suppressed, lineNumber=2) 2`] = `
+
+Message:
+> 1 | new SuppressedError(error, suppressed, lineNumber=2)
+    |                                        ^^^^^^^^^^^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(17): throw new Error(lineNumber=2) 1`] = `
+
+  1 | throw new Error(lineNumber=2)
+
+`;
+
+exports[`error-message > invalid(17): throw new Error(lineNumber=2) 2`] = `
+
+Message:
+> 1 | throw new Error(lineNumber=2)
+    |                 ^^^^^^^^^^^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(18): const error = new SuppressedError; 1`] = `
+
+  1 | const error = new SuppressedError;
+
+`;
+
+exports[`error-message > invalid(18): const error = new SuppressedError; 2`] = `
+
+Message:
+> 1 | const error = new SuppressedError;
+    |               ^^^^^^^^^^^^^^^^^^^ Pass a message to the \`SuppressedError\` constructor.
+
+`;
+
+exports[`error-message > invalid(18): throw new Error(false) 1`] = `
+
+  1 | throw new Error(false)
+
+`;
+
+exports[`error-message > invalid(18): throw new Error(false) 2`] = `
+
+Message:
+> 1 | throw new Error(false)
+    |                 ^^^^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(19): const condition = true; let value; new Error(condition ? {} : value); 1`] = `
+
+  1 | const condition = true; let value; new Error(condition ? {} : value);
+
+`;
+
+exports[`error-message > invalid(19): const condition = true; let value; new Error(condition ? {} : value); 2`] = `
+
+Message:
+> 1 | const condition = true; let value; new Error(condition ? {} : value);
+    |                                              ^^^^^^^^^^^^^^^^^^^^^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(2): AggregateError(errors) 1`] = `
+
+  1 | AggregateError(errors)
+
+`;
+
+exports[`error-message > invalid(2): AggregateError(errors) 2`] = `
+
+Message:
+> 1 | AggregateError(errors)
+    | ^^^^^^^^^^^^^^^^^^^^^^ Pass a message to the \`AggregateError\` constructor.
+
+`;
+
+exports[`error-message > invalid(2): new SuppressedError(error,) 1`] = `
+
+  1 | new SuppressedError(error,)
+
+`;
+
+exports[`error-message > invalid(2): new SuppressedError(error,) 2`] = `
+
+Message:
+> 1 | new SuppressedError(error,)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Pass a message to the \`SuppressedError\` constructor.
+
+`;
+
+exports[`error-message > invalid(2): throw Error() 1`] = `
+
+  1 | throw Error()
+
+`;
+
+exports[`error-message > invalid(2): throw Error() 2`] = `
+
+Message:
+> 1 | throw Error()
+    |       ^^^^^^^ Pass a message to the \`Error\` constructor.
+
+`;
+
+exports[`error-message > invalid(20): const object = {value: 1}; new Error(Object.freeze(object).value); 1`] = `
+
+  1 | const object = {value: 1}; new Error(Object.freeze(object).value);
+
+`;
+
+exports[`error-message > invalid(20): const object = {value: 1}; new Error(Object.freeze(object).value); 2`] = `
+
+Message:
+> 1 | const object = {value: 1}; new Error(Object.freeze(object).value);
+    |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(21): const error = new RangeError; 1`] = `
+
+  1 | const error = new RangeError;
+
+`;
+
+exports[`error-message > invalid(21): const error = new RangeError; 2`] = `
+
+Message:
+> 1 | const error = new RangeError;
+    |               ^^^^^^^^^^^^^^ Pass a message to the \`RangeError\` constructor.
+
+`;
+
+exports[`error-message > invalid(22): throw Object.assign(new Error(), {foo}) 1`] = `
+
+  1 | throw Object.assign(new Error(), {foo})
+
+`;
+
+exports[`error-message > invalid(22): throw Object.assign(new Error(), {foo}) 2`] = `
+
+Message:
+> 1 | throw Object.assign(new Error(), {foo})
+    |                     ^^^^^^^^^^^ Pass a message to the \`Error\` constructor.
+
+`;
+
+exports[`error-message > invalid(3): new AggregateError(errors, \"\") 1`] = `
+
+  1 | new AggregateError(errors, "")
+
+`;
+
+exports[`error-message > invalid(3): new AggregateError(errors, \"\") 2`] = `
+
+Message:
+> 1 | new AggregateError(errors, "")
+    |                            ^^ Error message should not be an empty string.
+
+`;
+
+exports[`error-message > invalid(3): new SuppressedError() 1`] = `
+
+  1 | new SuppressedError()
+
+`;
+
+exports[`error-message > invalid(3): new SuppressedError() 2`] = `
+
+Message:
+> 1 | new SuppressedError()
+    | ^^^^^^^^^^^^^^^^^^^^^ Pass a message to the \`SuppressedError\` constructor.
+
+`;
+
+exports[`error-message > invalid(3): throw new Error('') 1`] = `
+
+  1 | throw new Error('')
+
+`;
+
+exports[`error-message > invalid(3): throw new Error('') 2`] = `
+
+Message:
+> 1 | throw new Error('')
+    |                 ^^ Error message should not be an empty string.
+
+`;
+
+exports[`error-message > invalid(4): SuppressedError(error, suppressed,) 1`] = `
+
+  1 | SuppressedError(error, suppressed,)
+
+`;
+
+exports[`error-message > invalid(4): SuppressedError(error, suppressed,) 2`] = `
+
+Message:
+> 1 | SuppressedError(error, suppressed,)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Pass a message to the \`SuppressedError\` constructor.
+
+`;
+
+exports[`error-message > invalid(4): new AggregateError(errors, \`\`) 1`] = `
+
+  1 | new AggregateError(errors, \`\`)
+
+`;
+
+exports[`error-message > invalid(4): new AggregateError(errors, \`\`) 2`] = `
+
+Message:
+> 1 | new AggregateError(errors, \`\`)
+    |                            ^^ Error message should not be an empty string.
+
+`;
+
+exports[`error-message > invalid(4): throw new Error(\`\`) 1`] = `
+
+  1 | throw new Error(\`\`)
+
+`;
+
+exports[`error-message > invalid(4): throw new Error(\`\`) 2`] = `
+
+Message:
+> 1 | throw new Error(\`\`)
+    |                 ^^ Error message should not be an empty string.
+
+`;
+
+exports[`error-message > invalid(5): SuppressedError(error,) 1`] = `
+
+  1 | SuppressedError(error,)
+
+`;
+
+exports[`error-message > invalid(5): SuppressedError(error,) 2`] = `
+
+Message:
+> 1 | SuppressedError(error,)
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Pass a message to the \`SuppressedError\` constructor.
+
+`;
+
+exports[`error-message > invalid(5): const err = new Error();\nthrow err; 1`] = `
+
+  1 | const err = new Error();
+  2 | throw err;
+
+`;
+
+exports[`error-message > invalid(5): const err = new Error();\nthrow err; 2`] = `
+
+Message:
+> 1 | const err = new Error();
+    |             ^^^^^^^^^^^ Pass a message to the \`Error\` constructor.
+  2 | throw err;
+
+`;
+
+exports[`error-message > invalid(5): new AggregateError(errors, \"\", extraArgument) 1`] = `
+
+  1 | new AggregateError(errors, "", extraArgument)
+
+`;
+
+exports[`error-message > invalid(5): new AggregateError(errors, \"\", extraArgument) 2`] = `
+
+Message:
+> 1 | new AggregateError(errors, "", extraArgument)
+    |                            ^^ Error message should not be an empty string.
+
+`;
+
+exports[`error-message > invalid(6): SuppressedError() 1`] = `
+
+  1 | SuppressedError()
+
+`;
+
+exports[`error-message > invalid(6): SuppressedError() 2`] = `
+
+Message:
+> 1 | SuppressedError()
+    | ^^^^^^^^^^^^^^^^^ Pass a message to the \`SuppressedError\` constructor.
+
+`;
+
+exports[`error-message > invalid(6): const errorMessage = Object.freeze({errorMessage: 1}).errorMessage;\nthrow new AggregateError(errors, errorMessage) 1`] = `
+
+  1 | const errorMessage = Object.freeze({errorMessage: 1}).errorMessage;
+  2 | throw new AggregateError(errors, errorMessage)
+
+`;
+
+exports[`error-message > invalid(6): const errorMessage = Object.freeze({errorMessage: 1}).errorMessage;\nthrow new AggregateError(errors, errorMessage) 2`] = `
+
+Message:
+  1 | const errorMessage = Object.freeze({errorMessage: 1}).errorMessage;
+> 2 | throw new AggregateError(errors, errorMessage)
+    |                                  ^^^^^^^^^^^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(6): let err = 1;\nerr = new Error();\nthrow err; 1`] = `
+
+  1 | let err = 1;
+  2 | err = new Error();
+  3 | throw err;
+
+`;
+
+exports[`error-message > invalid(6): let err = 1;\nerr = new Error();\nthrow err; 2`] = `
+
+Message:
+  1 | let err = 1;
+> 2 | err = new Error();
+    |       ^^^^^^^^^^^ Pass a message to the \`Error\` constructor.
+  3 | throw err;
+
+`;
+
+exports[`error-message > invalid(7): let err = new Error();\nerr = 1;\nthrow err; 1`] = `
+
+  1 | let err = new Error();
+  2 | err = 1;
+  3 | throw err;
+
+`;
+
+exports[`error-message > invalid(7): let err = new Error();\nerr = 1;\nthrow err; 2`] = `
+
+Message:
+> 1 | let err = new Error();
+    |           ^^^^^^^^^^^ Pass a message to the \`Error\` constructor.
+  2 | err = 1;
+  3 | throw err;
+
+`;
+
+exports[`error-message > invalid(7): new AggregateError(errors, []) 1`] = `
+
+  1 | new AggregateError(errors, [])
+
+`;
+
+exports[`error-message > invalid(7): new AggregateError(errors, []) 2`] = `
+
+Message:
+> 1 | new AggregateError(errors, [])
+    |                            ^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(7): new SuppressedError(error, suppressed, \"\") 1`] = `
+
+  1 | new SuppressedError(error, suppressed, "")
+
+`;
+
+exports[`error-message > invalid(7): new SuppressedError(error, suppressed, \"\") 2`] = `
+
+Message:
+> 1 | new SuppressedError(error, suppressed, "")
+    |                                        ^^ Error message should not be an empty string.
+
+`;
+
+exports[`error-message > invalid(8): const foo = new TypeError() 1`] = `
+
+  1 | const foo = new TypeError()
+
+`;
+
+exports[`error-message > invalid(8): const foo = new TypeError() 2`] = `
+
+Message:
+> 1 | const foo = new TypeError()
+    |             ^^^^^^^^^^^^^^^ Pass a message to the \`TypeError\` constructor.
+
+`;
+
+exports[`error-message > invalid(8): new AggregateError(errors, [foo]) 1`] = `
+
+  1 | new AggregateError(errors, [foo])
+
+`;
+
+exports[`error-message > invalid(8): new AggregateError(errors, [foo]) 2`] = `
+
+Message:
+> 1 | new AggregateError(errors, [foo])
+    |                            ^^^^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(8): new SuppressedError(error, suppressed, \`\`) 1`] = `
+
+  1 | new SuppressedError(error, suppressed, \`\`)
+
+`;
+
+exports[`error-message > invalid(8): new SuppressedError(error, suppressed, \`\`) 2`] = `
+
+Message:
+> 1 | new SuppressedError(error, suppressed, \`\`)
+    |                                        ^^ Error message should not be an empty string.
+
+`;
+
+exports[`error-message > invalid(9): const foo = new SyntaxError() 1`] = `
+
+  1 | const foo = new SyntaxError()
+
+`;
+
+exports[`error-message > invalid(9): const foo = new SyntaxError() 2`] = `
+
+Message:
+> 1 | const foo = new SyntaxError()
+    |             ^^^^^^^^^^^^^^^^^ Pass a message to the \`SyntaxError\` constructor.
+
+`;
+
+exports[`error-message > invalid(9): new AggregateError(errors, [0][0]) 1`] = `
+
+  1 | new AggregateError(errors, [0][0])
+
+`;
+
+exports[`error-message > invalid(9): new AggregateError(errors, [0][0]) 2`] = `
+
+Message:
+> 1 | new AggregateError(errors, [0][0])
+    |                            ^^^^^^ Error message should be a string.
+
+`;
+
+exports[`error-message > invalid(9): new SuppressedError(error, suppressed, \"\", options) 1`] = `
+
+  1 | new SuppressedError(error, suppressed, "", options)
+
+`;
+
+exports[`error-message > invalid(9): new SuppressedError(error, suppressed, \"\", options) 2`] = `
+
+Message:
+> 1 | new SuppressedError(error, suppressed, "", options)
+    |                                        ^^ Error message should not be an empty string.
+
+`;

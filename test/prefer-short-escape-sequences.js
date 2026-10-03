@@ -1,5 +1,5 @@
 /* eslint-disable no-template-curly-in-string */
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
 import {getTester, languages, parsers} from './utils/test.js';
@@ -220,10 +220,10 @@ test('Short and code point escapes converge when both rules are enabled', t => {
 	const expected = 'const text = "\\n\\u{0}1\\u{2661}"; const pattern = /\\u{A}/u;\nconst template = `\\n`;';
 	const result = linter.verifyAndFix(code, config);
 
-	t.true(result.fixed);
-	t.deepEqual(result.messages, []);
-	t.is(result.output, expected);
-	t.false(linter.verifyAndFix(result.output, config).fixed);
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(result.output, expected);
+	t.assert.strictEqual(linter.verifyAndFix(result.output, config).fixed, false);
 });
 
 test('Printable ASCII escapes are reported only by prefer-literal-ascii', t => {
@@ -235,11 +235,11 @@ test('Printable ASCII escapes are reported only by prefer-literal-ascii', t => {
 
 	for (const code of [String.raw`const value = '\u002F';`, String.raw`const value = '\u0022';`]) {
 		const messages = linter.verify(code, [{plugins: {unicorn}, rules}]);
-		t.deepEqual(messages.map(({ruleId}) => ruleId), ['unicorn/prefer-literal-ascii']);
+		t.assert.deepStrictEqual(messages.map(({ruleId}) => ruleId), ['unicorn/prefer-literal-ascii']);
 	}
 
 	const messages = linter.verify(String.raw`{"value":"\u002F"}`, [{language: 'json/json', plugins: {json: languages.jsonc.plugins.json, unicorn}, rules}]);
-	t.deepEqual(messages.map(({ruleId}) => ruleId), ['unicorn/prefer-literal-ascii']);
+	t.assert.deepStrictEqual(messages.map(({ruleId}) => ruleId), ['unicorn/prefer-literal-ascii']);
 });
 
 ruleTest({

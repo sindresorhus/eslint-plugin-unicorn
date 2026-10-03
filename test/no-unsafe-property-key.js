@@ -76,6 +76,8 @@ object[object.value];`,
 		'class A {["key"]() {}}',
 		'class A {[`feature:${from}`]() {}}',
 		'class A {[`feature:${from}`] = value}',
+		// One branch is unknown
+		'object[condition ? key : "key"]',
 	],
 	invalid: [
 		'object[{}]',
@@ -150,6 +152,9 @@ object[object.value];`,
 			const key = {};
 			object[key];
 		`,
+		// A function is turned into its source text
+		'object[Object.keys]',
+		'const key = Object.keys; object[key]',
 	],
 });
 
@@ -184,6 +189,11 @@ test.snapshot({
 		'object[(`feature:${from}` as const)]',
 		'enum Key {A} object[Key.A]',
 		'enum Key {A} object[Key["A"]]',
+		'declare const key: keyof Foo; object[key]',
+		'declare const key: {id: string} & string; object[key]',
+		'declare const key: Foo.Bar; object[key]',
+		'interface Key extends Foo.Bar {} declare const key: Key; object[key]',
+		'interface Key extends Foo {} declare const key: Key; object[key]',
 	],
 	invalid: [
 		'object[({} as Foo)]',
@@ -231,6 +241,8 @@ test.snapshot({
 		'abstract class A { abstract [{}](): void }',
 		'abstract class A { abstract accessor [{}]: string }',
 		'abstract class A { abstract 4n(): void }',
+		'declare const key: readonly string[]; object[key]',
+		'declare const key: {id: string} & {name: string}; object[key]',
 	],
 });
 
@@ -313,6 +325,9 @@ test.snapshot({
 				}
 			}
 		`),
+		typeAware('declare function getKey(): Uppercase<string>; object[getKey()]'),
+		typeAware('declare const key: any; object[key]'),
+		typeAware('function f<T>(key: T) {object[key]}'),
 	],
 	invalid: [
 		typeAware('declare const key: unique symbol | {id: string}; object[key]'),
@@ -359,6 +374,8 @@ test.snapshot({
 		typeAware('declare const key: Lowercase<string> | {id: string}; object[key]'),
 		typeAware('declare function tag(strings: TemplateStringsArray): {id: string}; object[tag`feature:${string}`]'),
 		typeAware('declare function tag(strings: TemplateStringsArray): {id: string}; const key = tag`feature:${string}`; object[key]'),
+		typeAware('declare const key: () => void; object[key]'),
+		typeAware('declare const key: new () => object; object[key]'),
 	],
 });
 

@@ -1,5 +1,5 @@
 /* eslint-disable no-template-curly-in-string */
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
 import {getTester, parsers} from './utils/test.js';
@@ -177,6 +177,6 @@ test('scans long backslash runs efficiently', t => {
 	const messages = linter.verify(code, config);
 	const duration = performance.now() - startTime;
 
-	t.deepEqual(messages, []);
-	t.true(duration < 2000, `Expected linting to take less than 2 seconds, but it took ${duration} milliseconds.`);
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(duration < 2000, true, `Expected linting to take less than 2 seconds, but it took ${duration} milliseconds.`);
 });

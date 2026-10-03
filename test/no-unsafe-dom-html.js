@@ -47,6 +47,7 @@ test.snapshot({
 		'const Document = {parseHTMLUnsafe() {}}; Document.parseHTMLUnsafe(html);',
 		'function render(document) { document.write(html); }',
 		'const document = {write() {}}; document.write(html);',
+		'const {foo = element.innerHTML} = object;',
 	],
 	invalid: [
 		'element.innerHTML = html;',
@@ -106,5 +107,6 @@ test.snapshot({
 				html,
 			);
 		`,
+		'(element?.insertAdjacentHTML)("beforeend", html);',
 	],
 });

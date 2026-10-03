@@ -1,0 +1,368 @@
+exports[`prefer-dom-node-html-methods > invalid(1): const html = element.innerHTML; 1`] = `
+
+Options:
+- checkSetHTML: true
+
+Code:
+  1 | const html = element.innerHTML;
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(1): const html = element.innerHTML; 2`] = `
+
+Message:
+> 1 | const html = element.innerHTML;
+    |                      ^^^^^^^^^ Prefer \`.getHTML()\` over \`.innerHTML\`.
+
+Output:
+  1 | const html = element.getHTML();
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(1): element.innerHTML; 1`] = `
+
+  1 | element.innerHTML;
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(1): element.innerHTML; 2`] = `
+
+Message:
+> 1 | element.innerHTML;
+    |         ^^^^^^^^^ Prefer \`.getHTML()\` over \`.innerHTML\`.
+
+Output:
+  1 | element.getHTML();
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(10): element.innerHTML /* comment */; 1`] = `
+
+  1 | element.innerHTML /* comment */;
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(10): element.innerHTML /* comment */; 2`] = `
+
+Message:
+> 1 | element.innerHTML /* comment */;
+    |         ^^^^^^^^^ Prefer \`.getHTML()\` over \`.innerHTML\`.
+
+Output:
+  1 | element.getHTML() /* comment */;
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(11): element.innerHTML = /* comment */ html; 1`] = `
+
+Options:
+- checkSetHTML: true
+
+Code:
+  1 | element.innerHTML = /* comment */ html;
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(11): element.innerHTML = /* comment */ html; 2`] = `
+
+Message:
+> 1 | element.innerHTML = /* comment */ html;
+    |         ^^^^^^^^^ Prefer \`.setHTML()\` over assigning to \`.innerHTML\`.
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(2): element.innerHTML = html; 1`] = `
+
+Options:
+- checkSetHTML: true
+
+Code:
+  1 | element.innerHTML = html;
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(2): element.innerHTML = html; 2`] = `
+
+Message:
+> 1 | element.innerHTML = html;
+    |         ^^^^^^^^^ Prefer \`.setHTML()\` over assigning to \`.innerHTML\`.
+
+Suggestion 1/1: Switch to \`.setHTML()\`.:
+  1 | element.setHTML(html);
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(2): element?.innerHTML; 1`] = `
+
+  1 | element?.innerHTML;
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(2): element?.innerHTML; 2`] = `
+
+Message:
+> 1 | element?.innerHTML;
+    |          ^^^^^^^^^ Prefer \`.getHTML()\` over \`.innerHTML\`.
+
+Output:
+  1 | element?.getHTML();
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(3): const html = element.innerHTML; 1`] = `
+
+  1 | const html = element.innerHTML;
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(3): const html = element.innerHTML; 2`] = `
+
+Message:
+> 1 | const html = element.innerHTML;
+    |                      ^^^^^^^^^ Prefer \`.getHTML()\` over \`.innerHTML\`.
+
+Output:
+  1 | const html = element.getHTML();
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(3): element.innerHTML = \"<h2>Mambo No. 2</h2>\"; 1`] = `
+
+Options:
+- checkSetHTML: true
+
+Code:
+  1 | element.innerHTML = "<h2>Mambo No. 2</h2>";
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(3): element.innerHTML = \"<h2>Mambo No. 2</h2>\"; 2`] = `
+
+Message:
+> 1 | element.innerHTML = "<h2>Mambo No. 2</h2>";
+    |         ^^^^^^^^^ Prefer \`.setHTML()\` over assigning to \`.innerHTML\`.
+
+Suggestion 1/1: Switch to \`.setHTML()\`.:
+  1 | element.setHTML("<h2>Mambo No. 2</h2>");
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(4): (element || fallback).innerHTML = html; 1`] = `
+
+Options:
+- checkSetHTML: true
+
+Code:
+  1 | (element || fallback).innerHTML = html;
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(4): (element || fallback).innerHTML = html; 2`] = `
+
+Message:
+> 1 | (element || fallback).innerHTML = html;
+    |                       ^^^^^^^^^ Prefer \`.setHTML()\` over assigning to \`.innerHTML\`.
+
+Suggestion 1/1: Switch to \`.setHTML()\`.:
+  1 | (element || fallback).setHTML(html);
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(4): element.innerHTML.trim(); 1`] = `
+
+  1 | element.innerHTML.trim();
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(4): element.innerHTML.trim(); 2`] = `
+
+Message:
+> 1 | element.innerHTML.trim();
+    |         ^^^^^^^^^ Prefer \`.getHTML()\` over \`.innerHTML\`.
+
+Output:
+  1 | element.getHTML().trim();
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(5): (element || fallback).innerHTML; 1`] = `
+
+  1 | (element || fallback).innerHTML;
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(5): (element || fallback).innerHTML; 2`] = `
+
+Message:
+> 1 | (element || fallback).innerHTML;
+    |                       ^^^^^^^^^ Prefer \`.getHTML()\` over \`.innerHTML\`.
+
+Output:
+  1 | (element || fallback).getHTML();
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(5): element.innerHTML += html; 1`] = `
+
+Options:
+- checkSetHTML: true
+
+Code:
+  1 | element.innerHTML += html;
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(5): element.innerHTML += html; 2`] = `
+
+Message:
+> 1 | element.innerHTML += html;
+    |         ^^^^^^^^^ Prefer \`.setHTML()\` over assigning to \`.innerHTML\`.
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(6): const html = element.innerHTML = value; 1`] = `
+
+Options:
+- checkSetHTML: true
+
+Code:
+  1 | const html = element.innerHTML = value;
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(6): const html = element.innerHTML = value; 2`] = `
+
+Message:
+> 1 | const html = element.innerHTML = value;
+    |                      ^^^^^^^^^ Prefer \`.setHTML()\` over assigning to \`.innerHTML\`.
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(6): element.innerHTML(); 1`] = `
+
+  1 | element.innerHTML();
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(6): element.innerHTML(); 2`] = `
+
+Message:
+> 1 | element.innerHTML();
+    |         ^^^^^^^^^ Prefer \`.getHTML()\` over \`.innerHTML\`.
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(7): element.innerHTML = html; 1`] = `
+
+Options:
+- checkGetHTML: false
+  checkSetHTML: true
+
+Code:
+  1 | element.innerHTML = html;
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(7): element.innerHTML = html; 2`] = `
+
+Message:
+> 1 | element.innerHTML = html;
+    |         ^^^^^^^^^ Prefer \`.setHTML()\` over assigning to \`.innerHTML\`.
+
+Suggestion 1/1: Switch to \`.setHTML()\`.:
+  1 | element.setHTML(html);
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(7): new element.innerHTML(); 1`] = `
+
+  1 | new element.innerHTML();
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(7): new element.innerHTML(); 2`] = `
+
+Message:
+> 1 | new element.innerHTML();
+    |             ^^^^^^^^^ Prefer \`.getHTML()\` over \`.innerHTML\`.
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(8): element.innerHTML = (a, b); 1`] = `
+
+Options:
+- checkSetHTML: true
+
+Code:
+  1 | element.innerHTML = (a, b);
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(8): element.innerHTML = (a, b); 2`] = `
+
+Message:
+> 1 | element.innerHTML = (a, b);
+    |         ^^^^^^^^^ Prefer \`.setHTML()\` over assigning to \`.innerHTML\`.
+
+Suggestion 1/1: Switch to \`.setHTML()\`.:
+  1 | element.setHTML((a, b));
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(8): element.innerHTML\`html\`; 1`] = `
+
+  1 | element.innerHTML\`html\`;
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(8): element.innerHTML\`html\`; 2`] = `
+
+Message:
+> 1 | element.innerHTML\`html\`;
+    |         ^^^^^^^^^ Prefer \`.getHTML()\` over \`.innerHTML\`.
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(9): element.innerHTML = (a, (b, c)); 1`] = `
+
+Options:
+- checkSetHTML: true
+
+Code:
+  1 | element.innerHTML = (a, (b, c));
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(9): element.innerHTML = (a, (b, c)); 2`] = `
+
+Message:
+> 1 | element.innerHTML = (a, (b, c));
+    |         ^^^^^^^^^ Prefer \`.setHTML()\` over assigning to \`.innerHTML\`.
+
+Suggestion 1/1: Switch to \`.setHTML()\`.:
+  1 | element.setHTML((a, (b, c)));
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(9): element\n\t.innerHTML = html; 1`] = `
+
+Options:
+- checkSetHTML: true
+
+Code:
+  1 | element
+  2 | 	.innerHTML = html;
+
+`;
+
+exports[`prefer-dom-node-html-methods > invalid(9): element\n\t.innerHTML = html; 2`] = `
+
+Message:
+  1 | element
+> 2 | 	.innerHTML = html;
+    | 	 ^^^^^^^^^ Prefer \`.setHTML()\` over assigning to \`.innerHTML\`.
+
+Suggestion 1/1: Switch to \`.setHTML()\`.:
+  1 | element.setHTML(html);
+
+`;

@@ -1,0 +1,505 @@
+exports[`prefer-modern-math-apis > invalid(1): Math.log(x) * Math.LOG10E 1`] = `
+
+  1 | Math.log(x) * Math.LOG10E
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(1): Math.log(x) * Math.LOG10E 2`] = `
+
+Message:
+> 1 | Math.log(x) * Math.LOG10E
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.log10(…)\` over \`Math.log(…) * Math.LOG10E\`.
+
+Output:
+  1 | Math.log10(x)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(1): Math.sqrt(a * a + b * b) 1`] = `
+
+  1 | Math.sqrt(a * a + b * b)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(1): Math.sqrt(a * a + b * b) 2`] = `
+
+Message:
+> 1 | Math.sqrt(a * a + b * b)
+    |      ^^^^ Prefer \`Math.hypot(…)\` over \`Math.sqrt(…)\`.
+
+Output:
+  1 | Math.hypot(a, b)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(10): Math.LOG2E * Math.log((( 0,x ))) 1`] = `
+
+  1 | Math.LOG2E * Math.log((( 0,x )))
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(10): Math.LOG2E * Math.log((( 0,x ))) 2`] = `
+
+Message:
+> 1 | Math.LOG2E * Math.log((( 0,x )))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.log2(…)\` over \`Math.LOG2E * Math.log(…)\`.
+
+Output:
+  1 | Math.log2((( 0,x )))
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(10): Math.sqrt((a, b) ** 2) 1`] = `
+
+  1 | Math.sqrt((a, b) ** 2)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(10): Math.sqrt((a, b) ** 2) 2`] = `
+
+Message:
+> 1 | Math.sqrt((a, b) ** 2)
+    |      ^^^^ Prefer \`Math.abs(…)\` over \`Math.sqrt(…)\`.
+
+Output:
+  1 | Math.abs((a, b))
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(11): Math.log((( 0,x ))) / Math.LN10 1`] = `
+
+  1 | Math.log((( 0,x ))) / Math.LN10
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(11): Math.log((( 0,x ))) / Math.LN10 2`] = `
+
+Message:
+> 1 | Math.log((( 0,x ))) / Math.LN10
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.log10(…)\` over \`Math.log(…) / Math.LN10\`.
+
+Output:
+  1 | Math.log10((( 0,x )))
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(11): Math.sqrt((++a) ** 2) 1`] = `
+
+  1 | Math.sqrt((++a) ** 2)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(11): Math.sqrt((++a) ** 2) 2`] = `
+
+Message:
+> 1 | Math.sqrt((++a) ** 2)
+    |      ^^^^ Prefer \`Math.abs(…)\` over \`Math.sqrt(…)\`.
+
+Output:
+  1 | Math.abs((++a))
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(12): Math.log((( 0,x ))) / Math.LN2 1`] = `
+
+  1 | Math.log((( 0,x ))) / Math.LN2
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(12): Math.log((( 0,x ))) / Math.LN2 2`] = `
+
+Message:
+> 1 | Math.log((( 0,x ))) / Math.LN2
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.log2(…)\` over \`Math.log(…) / Math.LN2\`.
+
+Output:
+  1 | Math.log2((( 0,x )))
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(12): Math.sqrt(a * a + b * b,) 1`] = `
+
+  1 | Math.sqrt(a * a + b * b,)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(12): Math.sqrt(a * a + b * b,) 2`] = `
+
+Message:
+> 1 | Math.sqrt(a * a + b * b,)
+    |      ^^^^ Prefer \`Math.hypot(…)\` over \`Math.sqrt(…)\`.
+
+Output:
+  1 | Math.hypot(a, b,)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(13): Math.sqrt(a ** 2 + b ** 2,) 1`] = `
+
+  1 | Math.sqrt(a ** 2 + b ** 2,)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(13): Math.sqrt(a ** 2 + b ** 2,) 2`] = `
+
+Message:
+> 1 | Math.sqrt(a ** 2 + b ** 2,)
+    |      ^^^^ Prefer \`Math.hypot(…)\` over \`Math.sqrt(…)\`.
+
+Output:
+  1 | Math.hypot(a, b,)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(13): function foo(x) {\n\treturn (\n\t\tMath.log(x)\n\t\t\t/ Math.LN10\n\t);\n} 1`] = `
+
+  1 | function foo(x) {
+  2 | 	return (
+  3 | 		Math.log(x)
+  4 | 			/ Math.LN10
+  5 | 	);
+  6 | }
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(13): function foo(x) {\n\treturn (\n\t\tMath.log(x)\n\t\t\t/ Math.LN10\n\t);\n} 2`] = `
+
+Message:
+  1 | function foo(x) {
+  2 | 	return (
+> 3 | 		Math.log(x)
+    | 		^^^^^^^^^^^
+> 4 | 			/ Math.LN10
+    | ^^^^^^^^^^^^^^ Prefer \`Math.log10(…)\` over \`Math.log(…) / Math.LN10\`.
+  5 | 	);
+  6 | }
+
+Output:
+  1 | function foo(x) {
+  2 | 	return (
+  3 | 		Math.log10(x)
+  4 | 	);
+  5 | }
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(14): Math.sqrt((( a ** 2 )) + (( b ** 2 + c ** 2 )) + (( d )) * (( d )) + (( e )) ** (( 2 ))) 1`] = `
+
+  1 | Math.sqrt((( a ** 2 )) + (( b ** 2 + c ** 2 )) + (( d )) * (( d )) + (( e )) ** (( 2 )))
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(14): Math.sqrt((( a ** 2 )) + (( b ** 2 + c ** 2 )) + (( d )) * (( d )) + (( e )) ** (( 2 ))) 2`] = `
+
+Message:
+> 1 | Math.sqrt((( a ** 2 )) + (( b ** 2 + c ** 2 )) + (( d )) * (( d )) + (( e )) ** (( 2 )))
+    |      ^^^^ Prefer \`Math.hypot(…)\` over \`Math.sqrt(…)\`.
+
+Output:
+  1 | Math.hypot((( a )),  b, c , (( d )), (( e )))
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(14): function foo(x) {\n\treturn (\n\t\tMath.log(x)\n\t\t\t/ Math.LN2\n\t);\n} 1`] = `
+
+  1 | function foo(x) {
+  2 | 	return (
+  3 | 		Math.log(x)
+  4 | 			/ Math.LN2
+  5 | 	);
+  6 | }
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(14): function foo(x) {\n\treturn (\n\t\tMath.log(x)\n\t\t\t/ Math.LN2\n\t);\n} 2`] = `
+
+Message:
+  1 | function foo(x) {
+  2 | 	return (
+> 3 | 		Math.log(x)
+    | 		^^^^^^^^^^^
+> 4 | 			/ Math.LN2
+    | ^^^^^^^^^^^^^ Prefer \`Math.log2(…)\` over \`Math.log(…) / Math.LN2\`.
+  5 | 	);
+  6 | }
+
+Output:
+  1 | function foo(x) {
+  2 | 	return (
+  3 | 		Math.log2(x)
+  4 | 	);
+  5 | }
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(2): Math.log(x) * Math.LOG2E 1`] = `
+
+  1 | Math.log(x) * Math.LOG2E
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(2): Math.log(x) * Math.LOG2E 2`] = `
+
+Message:
+> 1 | Math.log(x) * Math.LOG2E
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.log2(…)\` over \`Math.log(…) * Math.LOG2E\`.
+
+Output:
+  1 | Math.log2(x)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(2): Math.sqrt(a ** 2 + b ** 2) 1`] = `
+
+  1 | Math.sqrt(a ** 2 + b ** 2)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(2): Math.sqrt(a ** 2 + b ** 2) 2`] = `
+
+Message:
+> 1 | Math.sqrt(a ** 2 + b ** 2)
+    |      ^^^^ Prefer \`Math.hypot(…)\` over \`Math.sqrt(…)\`.
+
+Output:
+  1 | Math.hypot(a, b)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(3): Math.LOG10E * Math.log(x) 1`] = `
+
+  1 | Math.LOG10E * Math.log(x)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(3): Math.LOG10E * Math.log(x) 2`] = `
+
+Message:
+> 1 | Math.LOG10E * Math.log(x)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.log10(…)\` over \`Math.LOG10E * Math.log(…)\`.
+
+Output:
+  1 | Math.log10(x)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(3): Math.sqrt(a * a + b ** 2) 1`] = `
+
+  1 | Math.sqrt(a * a + b ** 2)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(3): Math.sqrt(a * a + b ** 2) 2`] = `
+
+Message:
+> 1 | Math.sqrt(a * a + b ** 2)
+    |      ^^^^ Prefer \`Math.hypot(…)\` over \`Math.sqrt(…)\`.
+
+Output:
+  1 | Math.hypot(a, b)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(4): Math.LOG2E * Math.log(x) 1`] = `
+
+  1 | Math.LOG2E * Math.log(x)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(4): Math.LOG2E * Math.log(x) 2`] = `
+
+Message:
+> 1 | Math.LOG2E * Math.log(x)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.log2(…)\` over \`Math.LOG2E * Math.log(…)\`.
+
+Output:
+  1 | Math.log2(x)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(4): Math.sqrt(a * a + b * b + c * c) 1`] = `
+
+  1 | Math.sqrt(a * a + b * b + c * c)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(4): Math.sqrt(a * a + b * b + c * c) 2`] = `
+
+Message:
+> 1 | Math.sqrt(a * a + b * b + c * c)
+    |      ^^^^ Prefer \`Math.hypot(…)\` over \`Math.sqrt(…)\`.
+
+Output:
+  1 | Math.hypot(a, b, c)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(5): Math.log(x) / Math.LN10 1`] = `
+
+  1 | Math.log(x) / Math.LN10
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(5): Math.log(x) / Math.LN10 2`] = `
+
+Message:
+> 1 | Math.log(x) / Math.LN10
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.log10(…)\` over \`Math.log(…) / Math.LN10\`.
+
+Output:
+  1 | Math.log10(x)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(5): Math.sqrt(a ** 2 + b ** 2 + c ** 2) 1`] = `
+
+  1 | Math.sqrt(a ** 2 + b ** 2 + c ** 2)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(5): Math.sqrt(a ** 2 + b ** 2 + c ** 2) 2`] = `
+
+Message:
+> 1 | Math.sqrt(a ** 2 + b ** 2 + c ** 2)
+    |      ^^^^ Prefer \`Math.hypot(…)\` over \`Math.sqrt(…)\`.
+
+Output:
+  1 | Math.hypot(a, b, c)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(6): Math.log(x) / Math.LN2 1`] = `
+
+  1 | Math.log(x) / Math.LN2
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(6): Math.log(x) / Math.LN2 2`] = `
+
+Message:
+> 1 | Math.log(x) / Math.LN2
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.log2(…)\` over \`Math.log(…) / Math.LN2\`.
+
+Output:
+  1 | Math.log2(x)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(6): Math.sqrt(a * a) 1`] = `
+
+  1 | Math.sqrt(a * a)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(6): Math.sqrt(a * a) 2`] = `
+
+Message:
+> 1 | Math.sqrt(a * a)
+    |      ^^^^ Prefer \`Math.abs(…)\` over \`Math.sqrt(…)\`.
+
+Output:
+  1 | Math.abs(a)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(7): Math.log((( 0,x ))) * Math.LOG10E 1`] = `
+
+  1 | Math.log((( 0,x ))) * Math.LOG10E
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(7): Math.log((( 0,x ))) * Math.LOG10E 2`] = `
+
+Message:
+> 1 | Math.log((( 0,x ))) * Math.LOG10E
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.log10(…)\` over \`Math.log(…) * Math.LOG10E\`.
+
+Output:
+  1 | Math.log10((( 0,x )))
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(7): Math.sqrt(a ** 2) 1`] = `
+
+  1 | Math.sqrt(a ** 2)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(7): Math.sqrt(a ** 2) 2`] = `
+
+Message:
+> 1 | Math.sqrt(a ** 2)
+    |      ^^^^ Prefer \`Math.abs(…)\` over \`Math.sqrt(…)\`.
+
+Output:
+  1 | Math.abs(a)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(8): Math.log((( 0,x ))) * Math.LOG2E 1`] = `
+
+  1 | Math.log((( 0,x ))) * Math.LOG2E
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(8): Math.log((( 0,x ))) * Math.LOG2E 2`] = `
+
+Message:
+> 1 | Math.log((( 0,x ))) * Math.LOG2E
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.log2(…)\` over \`Math.log(…) * Math.LOG2E\`.
+
+Output:
+  1 | Math.log2((( 0,x )))
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(8): Math.sqrt(a * a,) 1`] = `
+
+  1 | Math.sqrt(a * a,)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(8): Math.sqrt(a * a,) 2`] = `
+
+Message:
+> 1 | Math.sqrt(a * a,)
+    |      ^^^^ Prefer \`Math.abs(…)\` over \`Math.sqrt(…)\`.
+
+Output:
+  1 | Math.abs(a,)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(9): Math.LOG10E * Math.log((( 0,x ))) 1`] = `
+
+  1 | Math.LOG10E * Math.log((( 0,x )))
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(9): Math.LOG10E * Math.log((( 0,x ))) 2`] = `
+
+Message:
+> 1 | Math.LOG10E * Math.log((( 0,x )))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.log10(…)\` over \`Math.LOG10E * Math.log(…)\`.
+
+Output:
+  1 | Math.log10((( 0,x )))
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(9): Math.sqrt(a ** 2,) 1`] = `
+
+  1 | Math.sqrt(a ** 2,)
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(9): Math.sqrt(a ** 2,) 2`] = `
+
+Message:
+> 1 | Math.sqrt(a ** 2,)
+    |      ^^^^ Prefer \`Math.abs(…)\` over \`Math.sqrt(…)\`.
+
+Output:
+  1 | Math.abs(a,)
+
+`;

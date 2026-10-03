@@ -5,6 +5,7 @@ import {
 	getScopes,
 	isLeftHandSide,
 	isSameReference,
+	getVisitorChildNodes,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-object-iterable-methods';
@@ -128,18 +129,8 @@ function * traverse(node, visitorKeys, root = node) {
 		return;
 	}
 
-	for (const key of visitorKeys[node.type] ?? []) {
-		const value = node[key];
-
-		if (Array.isArray(value)) {
-			for (const child of value) {
-				if (child?.type) {
-					yield * traverse(child, visitorKeys, root);
-				}
-			}
-		} else if (value?.type) {
-			yield * traverse(value, visitorKeys, root);
-		}
+	for (const child of getVisitorChildNodes(node, visitorKeys)) {
+		yield * traverse(child, visitorKeys, root);
 	}
 }
 
@@ -153,18 +144,8 @@ function * traverseCallbackArguments(node, visitorKeys, root = node) {
 		return;
 	}
 
-	for (const key of visitorKeys[node.type] ?? []) {
-		const value = node[key];
-
-		if (Array.isArray(value)) {
-			for (const child of value) {
-				if (child?.type) {
-					yield * traverseCallbackArguments(child, visitorKeys, root);
-				}
-			}
-		} else if (value?.type) {
-			yield * traverseCallbackArguments(value, visitorKeys, root);
-		}
+	for (const child of getVisitorChildNodes(node, visitorKeys)) {
+		yield * traverseCallbackArguments(child, visitorKeys, root);
 	}
 }
 
@@ -407,10 +388,6 @@ const getObjectKeysProblem = ({methodCall, binding, targetNode, context, canFix 
 	}
 
 	const keyVariable = getVariable(binding, context);
-	if (!keyVariable) {
-		return;
-	}
-
 	const references = getVariableReferencesInNode(keyVariable, targetNode, context);
 	if (references.some(reference => isWriteReference(reference))) {
 		return;
@@ -448,9 +425,6 @@ const getObjectKeysProblem = ({methodCall, binding, targetNode, context, canFix 
 	const valueMemberProperties = new Set(valueMembers.map(node => node.property));
 	const keyReferences = references.filter(reference => !valueMemberProperties.has(reference.identifier));
 	const valueName = getAvailableName('value', binding, context);
-	if (!valueName) {
-		return;
-	}
 
 	const preferredMethod = keyReferences.length === 0 ? 'values' : 'entries';
 	const keyName = binding.name;
@@ -514,10 +488,6 @@ const getReferencesForBinding = ({binding, targetNode, context}) => {
 	}
 
 	const variable = getVariable(binding, context);
-	if (!variable) {
-		return;
-	}
-
 	const references = getVariableReferencesInNode(variable, targetNode, context);
 	if (references.some(reference => isWriteReference(reference))) {
 		return;

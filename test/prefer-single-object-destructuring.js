@@ -1,5 +1,5 @@
 import {runInNewContext} from 'node:vm';
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import unicorn from '../index.js';
@@ -316,29 +316,29 @@ test('merges destructurings and inlines their source across fix passes', t => {
 	const linter = new Linter();
 	const result = linter.verifyAndFix('const foo = getFoo();\nconst {bar} = foo;\nconst {baz} = foo;', ruleConfig);
 
-	t.true(result.fixed);
-	t.deepEqual(result.messages, []);
-	t.is(result.output, 'const {bar, baz} = getFoo();');
-	t.false(linter.verifyAndFix(result.output, ruleConfig).fixed);
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(result.output, 'const {bar, baz} = getFoo();');
+	t.assert.strictEqual(linter.verifyAndFix(result.output, ruleConfig).fixed, false);
 });
 
 test('inlines chained source aliases across fix passes', t => {
 	const linter = new Linter();
 	const result = linter.verifyAndFix('const original = getFoo();\nconst source = original;\nconst {bar} = source;', ruleConfig);
 
-	t.true(result.fixed);
-	t.deepEqual(result.messages, []);
-	t.is(result.output, 'const {bar} = getFoo();');
-	t.false(linter.verifyAndFix(result.output, ruleConfig).fixed);
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(result.output, 'const {bar} = getFoo();');
+	t.assert.strictEqual(linter.verifyAndFix(result.output, ruleConfig).fixed, false);
 });
 
 test('keeps a source with additional reads when merging destructurings', t => {
 	const linter = new Linter();
 	const result = linter.verifyAndFix('const foo = getFoo();\nconst {bar} = foo;\nconst {baz} = foo;\nconsume(foo);', ruleConfig);
 
-	t.true(result.fixed);
-	t.deepEqual(result.messages, []);
-	t.is(result.output, 'const foo = getFoo();\nconst {bar, baz} = foo;\nconsume(foo);');
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(result.output, 'const foo = getFoo();\nconst {bar, baz} = foo;\nconsume(foo);');
 });
 
 for (const declarationKind of ['const', 'let']) {
@@ -346,10 +346,10 @@ for (const declarationKind of ['const', 'let']) {
 		const linter = new Linter();
 		const result = linter.verifyAndFix(`const foo = getFoo();\n${declarationKind} {bar} = foo;\n${declarationKind} {baz} = foo;\n${declarationKind} {qux} = foo;`, ruleConfig);
 
-		t.true(result.fixed);
-		t.deepEqual(result.messages, []);
-		t.is(result.output, `${declarationKind} {bar, baz, qux} = getFoo();`);
-		t.false(linter.verifyAndFix(result.output, ruleConfig).fixed);
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(result.output, `${declarationKind} {bar, baz, qux} = getFoo();`);
+		t.assert.strictEqual(linter.verifyAndFix(result.output, ruleConfig).fixed, false);
 	});
 }
 
@@ -364,8 +364,8 @@ test('inlining evaluates the initializer once and preserves mutable bindings', t
 		},
 	});
 
-	t.true(result.fixed);
-	t.deepEqual(result.messages, []);
-	t.is(value, 2);
-	t.is(calls, 1);
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(value, 2);
+	t.assert.strictEqual(calls, 1);
 });

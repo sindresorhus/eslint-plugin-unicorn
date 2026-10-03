@@ -10,6 +10,7 @@ import {
 	isMap,
 	isSet,
 	trackBranchExits,
+	getVisitorChildNodes,
 } from './utils/index.js';
 
 /**
@@ -89,12 +90,9 @@ function isMutationMethod(method, collectionKind) {
 	return mutationMethodsByCollectionKind[collectionKind ?? 'unknown'].has(method);
 }
 
+// Only called for `const` loop bindings
 function getLoopBinding(loop) {
-	if (loop.left.type === 'VariableDeclaration') {
-		return loop.left.declarations[0].id;
-	}
-
-	return loop.left;
+	return loop.left.declarations[0].id;
 }
 
 function isConstantLoopBinding(loop) {
@@ -144,7 +142,6 @@ function getLiveIterable(node, context) {
 
 	if (
 		!iteratorMethods.has(method)
-		|| containsOptionalChain(node.callee.object)
 		|| !isReference(node.callee.object)
 	) {
 		return;
@@ -522,24 +519,8 @@ function * getMutationProblems(node, loopInformation, nestedLoopInformation, con
 		}
 	}
 
-	const visitorKeys = context.sourceCode.visitorKeys[node.type] ?? [];
-
-	for (const key of visitorKeys) {
-		const value = node[key];
-
-		if (Array.isArray(value)) {
-			for (const child of value) {
-				if (child) {
-					yield * getMutationProblems(child, loopInformation, childNestedLoopInformation, context);
-				}
-			}
-
-			continue;
-		}
-
-		if (value) {
-			yield * getMutationProblems(value, loopInformation, childNestedLoopInformation, context);
-		}
+	for (const child of getVisitorChildNodes(node, context.sourceCode.visitorKeys)) {
+		yield * getMutationProblems(child, loopInformation, childNestedLoopInformation, context);
 	}
 }
 

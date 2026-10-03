@@ -218,6 +218,8 @@ const create = context => {
 				exact.add(entry);
 
 				const normalizedEntry = entry.toLowerCase();
+				// Entries that differ only in case cannot exist on case-insensitive file systems like the macOS default, where coverage is collected
+				/* node:coverage ignore next 3 */
 				if (insensitive.has(normalizedEntry)) {
 					insensitive.set(normalizedEntry, undefined);
 				} else {
@@ -268,7 +270,11 @@ const create = context => {
 			directory += path.sep + correctedPart;
 		}
 
-		const result = fs.existsSync(directory)
+		const exists = resourcePath.endsWith('/')
+			// Windows ignores a trailing separator and finds a file of that name, so check for a directory explicitly
+			? fs.statSync(path.resolve(directory), {throwIfNoEntry: false})?.isDirectory() === true
+			: fs.existsSync(directory);
+		const result = exists
 			? {
 				exists: true,
 				correctedPath: hasIncorrectCase ? correctedParts.join('/') : undefined,

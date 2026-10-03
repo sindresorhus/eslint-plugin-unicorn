@@ -1,0 +1,398 @@
+exports[`consistent-optional-chaining > invalid(1): foo?.bar || foo.baz; 1`] = `
+
+  1 | foo?.bar || foo.baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(1): foo?.bar || foo.baz; 2`] = `
+
+Message:
+> 1 | foo?.bar || foo.baz;
+    |             ^^^^^^^ Use optional chaining consistently.
+
+Suggestion 1/1: Use optional chaining.:
+  1 | foo?.bar || foo?.baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(10): class Foo extends Bar { baz() { super.foo?.bar || super.foo.baz; } } 1`] = `
+
+  1 | class Foo extends Bar { baz() { super.foo?.bar || super.foo.baz; } }
+
+`;
+
+exports[`consistent-optional-chaining > invalid(10): class Foo extends Bar { baz() { super.foo?.bar || super.foo.baz; } } 2`] = `
+
+Message:
+> 1 | class Foo extends Bar { baz() { super.foo?.bar || super.foo.baz; } }
+    |                                                   ^^^^^^^^^^^^^ Use optional chaining consistently.
+
+Suggestion 1/1: Use optional chaining.:
+  1 | class Foo extends Bar { baz() { super.foo?.bar || super.foo?.baz; } }
+
+`;
+
+exports[`consistent-optional-chaining > invalid(11): foo.bar?.baz || foo.bar.qux; 1`] = `
+
+  1 | foo.bar?.baz || foo.bar.qux;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(11): foo.bar?.baz || foo.bar.qux; 2`] = `
+
+Message:
+> 1 | foo.bar?.baz || foo.bar.qux;
+    |                 ^^^^^^^^^^^ Use optional chaining consistently.
+
+Suggestion 1/1: Use optional chaining.:
+  1 | foo.bar?.baz || foo.bar?.qux;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(12): (foo?.bar) || (foo.baz); 1`] = `
+
+  1 | (foo?.bar) || (foo.baz);
+
+`;
+
+exports[`consistent-optional-chaining > invalid(12): (foo?.bar) || (foo.baz); 2`] = `
+
+Message:
+> 1 | (foo?.bar) || (foo.baz);
+    |                ^^^^^^^ Use optional chaining consistently.
+
+Suggestion 1/1: Use optional chaining.:
+  1 | (foo?.bar) || (foo?.baz);
+
+`;
+
+exports[`consistent-optional-chaining > invalid(13): foo?.bar || foo.baz || foo.qux; 1`] = `
+
+  1 | foo?.bar || foo.baz || foo.qux;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(13): foo?.bar || foo.baz || foo.qux; 2`] = `
+
+Message:
+> 1 | foo?.bar || foo.baz || foo.qux;
+    |             ^^^^^^^ Use optional chaining consistently.
+
+Suggestion 1/1: Use optional chaining.:
+  1 | foo?.bar || foo?.baz || foo.qux;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(14): (foo)?.bar && (foo)?.baz; 1`] = `
+
+  1 | (foo)?.bar && (foo)?.baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(14): (foo)?.bar && (foo)?.baz; 2`] = `
+
+Message:
+> 1 | (foo)?.bar && (foo)?.baz;
+    |               ^^^^^^^^^^ Remove unnecessary optional chaining.
+
+Suggestion 1/1: Remove optional chaining.:
+  1 | (foo)?.bar && (foo).baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(15): (foo).bar || (foo)?.baz; 1`] = `
+
+  1 | (foo).bar || (foo)?.baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(15): (foo).bar || (foo)?.baz; 2`] = `
+
+Message:
+> 1 | (foo).bar || (foo)?.baz;
+    |              ^^^^^^^^^^ Remove unnecessary optional chaining.
+
+Suggestion 1/1: Remove optional chaining.:
+  1 | (foo).bar || (foo).baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(16): foo.bar && foo /* comment */ ?.baz; 1`] = `
+
+  1 | foo.bar && foo /* comment */ ?.baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(16): foo.bar && foo /* comment */ ?.baz; 2`] = `
+
+Message:
+> 1 | foo.bar && foo /* comment */ ?.baz;
+    |            ^^^^^^^^^^^^^^^^^^^^^^^ Remove unnecessary optional chaining.
+
+`;
+
+exports[`consistent-optional-chaining > invalid(17): foo?.bar || foo /* comment */ .baz; 1`] = `
+
+  1 | foo?.bar || foo /* comment */ .baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(17): foo?.bar || foo /* comment */ .baz; 2`] = `
+
+Message:
+> 1 | foo?.bar || foo /* comment */ .baz;
+    |             ^^^^^^^^^^^^^^^^^^^^^^ Use optional chaining consistently.
+
+`;
+
+exports[`consistent-optional-chaining > invalid(18): foo?.[bar] || foo /* comment */ [baz]; 1`] = `
+
+  1 | foo?.[bar] || foo /* comment */ [baz];
+
+`;
+
+exports[`consistent-optional-chaining > invalid(18): foo?.[bar] || foo /* comment */ [baz]; 2`] = `
+
+Message:
+> 1 | foo?.[bar] || foo /* comment */ [baz];
+    |               ^^^^^^^^^^^^^^^^^^^^^^^ Use optional chaining consistently.
+
+`;
+
+exports[`consistent-optional-chaining > invalid(19): foo?.[bar] || foo[/* comment */ baz]; 1`] = `
+
+  1 | foo?.[bar] || foo[/* comment */ baz];
+
+`;
+
+exports[`consistent-optional-chaining > invalid(19): foo?.[bar] || foo[/* comment */ baz]; 2`] = `
+
+Message:
+> 1 | foo?.[bar] || foo[/* comment */ baz];
+    |               ^^^^^^^^^^^^^^^^^^^^^^ Use optional chaining consistently.
+
+Suggestion 1/1: Use optional chaining.:
+  1 | foo?.[bar] || foo?.[/* comment */ baz];
+
+`;
+
+exports[`consistent-optional-chaining > invalid(2): foo.bar || foo?.baz; 1`] = `
+
+  1 | foo.bar || foo?.baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(2): foo.bar || foo?.baz; 2`] = `
+
+Message:
+> 1 | foo.bar || foo?.baz;
+    |            ^^^^^^^^ Remove unnecessary optional chaining.
+
+Suggestion 1/1: Remove optional chaining.:
+  1 | foo.bar || foo.baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(20): (foo)?.[bar] || (foo)[baz]; 1`] = `
+
+  1 | (foo)?.[bar] || (foo)[baz];
+
+`;
+
+exports[`consistent-optional-chaining > invalid(20): (foo)?.[bar] || (foo)[baz]; 2`] = `
+
+Message:
+> 1 | (foo)?.[bar] || (foo)[baz];
+    |                 ^^^^^^^^^^ Use optional chaining consistently.
+
+Suggestion 1/1: Use optional chaining.:
+  1 | (foo)?.[bar] || (foo)?.[baz];
+
+`;
+
+exports[`consistent-optional-chaining > invalid(21): (foo as Foo).bar || foo?.baz; 1`] = `
+
+  1 | (foo as Foo).bar || foo?.baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(21): (foo as Foo).bar || foo?.baz; 2`] = `
+
+Message:
+> 1 | (foo as Foo).bar || foo?.baz;
+    |                     ^^^^^^^^ Remove unnecessary optional chaining.
+
+Suggestion 1/1: Remove optional chaining.:
+  1 | (foo as Foo).bar || foo.baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(22): foo!.bar || foo?.baz; 1`] = `
+
+  1 | foo!.bar || foo?.baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(22): foo!.bar || foo?.baz; 2`] = `
+
+Message:
+> 1 | foo!.bar || foo?.baz;
+    |             ^^^^^^^^ Remove unnecessary optional chaining.
+
+Suggestion 1/1: Remove optional chaining.:
+  1 | foo!.bar || foo.baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(23): (foo?.bar as Foo) || foo.baz; 1`] = `
+
+  1 | (foo?.bar as Foo) || foo.baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(23): (foo?.bar as Foo) || foo.baz; 2`] = `
+
+Message:
+> 1 | (foo?.bar as Foo) || foo.baz;
+    |                      ^^^^^^^ Use optional chaining consistently.
+
+Suggestion 1/1: Use optional chaining.:
+  1 | (foo?.bar as Foo) || foo?.baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(24): ((foo?.bar) satisfies Foo) || foo.baz; 1`] = `
+
+  1 | ((foo?.bar) satisfies Foo) || foo.baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(24): ((foo?.bar) satisfies Foo) || foo.baz; 2`] = `
+
+Message:
+> 1 | ((foo?.bar) satisfies Foo) || foo.baz;
+    |                               ^^^^^^^ Use optional chaining consistently.
+
+Suggestion 1/1: Use optional chaining.:
+  1 | ((foo?.bar) satisfies Foo) || foo?.baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(3): foo?.bar && foo?.baz; 1`] = `
+
+  1 | foo?.bar && foo?.baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(3): foo?.bar && foo?.baz; 2`] = `
+
+Message:
+> 1 | foo?.bar && foo?.baz;
+    |             ^^^^^^^^ Remove unnecessary optional chaining.
+
+Suggestion 1/1: Remove optional chaining.:
+  1 | foo?.bar && foo.baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(4): foo.bar && foo?.baz; 1`] = `
+
+  1 | foo.bar && foo?.baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(4): foo.bar && foo?.baz; 2`] = `
+
+Message:
+> 1 | foo.bar && foo?.baz;
+    |            ^^^^^^^^ Remove unnecessary optional chaining.
+
+Suggestion 1/1: Remove optional chaining.:
+  1 | foo.bar && foo.baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(5): foo?.[bar] || foo[bar]; 1`] = `
+
+  1 | foo?.[bar] || foo[bar];
+
+`;
+
+exports[`consistent-optional-chaining > invalid(5): foo?.[bar] || foo[bar]; 2`] = `
+
+Message:
+> 1 | foo?.[bar] || foo[bar];
+    |               ^^^^^^^^ Use optional chaining consistently.
+
+Suggestion 1/1: Use optional chaining.:
+  1 | foo?.[bar] || foo?.[bar];
+
+`;
+
+exports[`consistent-optional-chaining > invalid(6): foo[bar] && foo?.[baz]; 1`] = `
+
+  1 | foo[bar] && foo?.[baz];
+
+`;
+
+exports[`consistent-optional-chaining > invalid(6): foo[bar] && foo?.[baz]; 2`] = `
+
+Message:
+> 1 | foo[bar] && foo?.[baz];
+    |             ^^^^^^^^^^ Remove unnecessary optional chaining.
+
+Suggestion 1/1: Remove optional chaining.:
+  1 | foo[bar] && foo[baz];
+
+`;
+
+exports[`consistent-optional-chaining > invalid(7): foo[bar]?.baz || foo[bar].qux; 1`] = `
+
+  1 | foo[bar]?.baz || foo[bar].qux;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(7): foo[bar]?.baz || foo[bar].qux; 2`] = `
+
+Message:
+> 1 | foo[bar]?.baz || foo[bar].qux;
+    |                  ^^^^^^^^^^^^ Use optional chaining consistently.
+
+Suggestion 1/1: Use optional chaining.:
+  1 | foo[bar]?.baz || foo[bar]?.qux;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(8): this?.bar || this.baz; 1`] = `
+
+  1 | this?.bar || this.baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(8): this?.bar || this.baz; 2`] = `
+
+Message:
+> 1 | this?.bar || this.baz;
+    |              ^^^^^^^^ Use optional chaining consistently.
+
+Suggestion 1/1: Use optional chaining.:
+  1 | this?.bar || this?.baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(9): this.bar && this?.baz; 1`] = `
+
+  1 | this.bar && this?.baz;
+
+`;
+
+exports[`consistent-optional-chaining > invalid(9): this.bar && this?.baz; 2`] = `
+
+Message:
+> 1 | this.bar && this?.baz;
+    |             ^^^^^^^^^ Remove unnecessary optional chaining.
+
+Suggestion 1/1: Remove optional chaining.:
+  1 | this.bar && this.baz;
+
+`;

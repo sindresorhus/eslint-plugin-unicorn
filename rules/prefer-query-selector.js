@@ -58,10 +58,6 @@ const wrapQuoted = (value, originalQuote) => {
 			return `'${value}'`;
 		}
 
-		case '`': {
-			return `'${value}'`;
-		}
-
 		// No default
 	}
 };
@@ -83,7 +79,7 @@ function * getLiteralFix(fixer, node, identifierName, shouldScopeSelector) {
 	yield fixer.replaceText(node, getQuotedReplacement(node, replacementValue));
 }
 
-function getTemplateElementReplacement(identifierName, value, prefix, node) {
+function getTemplateElementReplacement(identifierName, value, prefix) {
 	switch (identifierName) {
 		case 'getElementById': {
 			return prefix + getReplacementForId(value);
@@ -94,16 +90,13 @@ function getTemplateElementReplacement(identifierName, value, prefix, node) {
 		}
 
 		case 'getElementsByName': {
-			const quoted = node.raw ? node.raw.charAt(0) : '"';
-			return prefix + getReplacementForName(value, quoted);
+			// The selector stays inside the template literal, so its quote does not matter
+			return prefix + getReplacementForName(value, '"');
 		}
 
-		case 'getElementsByTagName': {
-			return prefix + value;
-		}
-
+		// `getElementsByTagName`
 		default: {
-			throw new Error(`Unexpected identifier name: ${identifierName}`);
+			return prefix + value;
 		}
 	}
 }
@@ -118,7 +111,6 @@ function * getTemplateLiteralFix(fixer, node, identifierName, shouldScopeSelecto
 			identifierName,
 			templateElement.value.cooked,
 			prefix,
-			node,
 		);
 
 		yield fixer.replaceText(templateElement, replacement);
@@ -148,7 +140,7 @@ const nameValueNeedsEscaping = node => {
 	}
 
 	if (node.type === 'TemplateLiteral' && node.expressions.length === 0) {
-		return node.quasis.some(quasi => stringNeedsEscaping(quasi.value.cooked ?? '', quasi.value.raw));
+		return node.quasis.some(quasi => stringNeedsEscaping(quasi.value.cooked, quasi.value.raw));
 	}
 
 	return false;

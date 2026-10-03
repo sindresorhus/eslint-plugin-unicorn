@@ -1,0 +1,639 @@
+exports[`require-module-specifiers > invalid(1): import \"foo\";\nexport {} 1`] = `
+
+  1 | import "foo";
+  2 | export {}
+
+`;
+
+exports[`require-module-specifiers > invalid(1): import \"foo\";\nexport {} 2`] = `
+
+Message:
+  1 | import "foo";
+> 2 | export {}
+    |        ^^ export statement without specifiers is not allowed.
+
+Output:
+  1 | import "foo";
+  2 |
+
+`;
+
+exports[`require-module-specifiers > invalid(1): import {} from \"foo\"; 1`] = `
+
+  1 | import {} from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(1): import {} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import {} from "foo";
+    |        ^^ import statement without specifiers is not allowed.
+
+Suggestion 1/2: Remove this import statement.:
+  1 |
+
+Suggestion 2/2: Switch to side effect import.:
+  1 | import   "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(10): export {};\nexport {}; 1`] = `
+
+  1 | export {};
+  2 | export {};
+
+`;
+
+exports[`require-module-specifiers > invalid(10): export {};\nexport {}; 2`] = `
+
+Message:
+  1 | export {};
+> 2 | export {};
+    |        ^^ export statement without specifiers is not allowed.
+
+Output:
+  1 | export {};
+  2 |
+
+`;
+
+exports[`require-module-specifiers > invalid(11): export type{} 1`] = `
+
+  1 | export type{}
+
+`;
+
+exports[`require-module-specifiers > invalid(11): export type{} 2`] = `
+
+Message:
+> 1 | export type{}
+    |            ^^ export statement without specifiers is not allowed.
+
+Output:
+  1 |
+
+`;
+
+exports[`require-module-specifiers > invalid(12): export type {} from \"foo\"; 1`] = `
+
+  1 | export type {} from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(12): export type {} from \"foo\"; 2`] = `
+
+Message:
+> 1 | export type {} from "foo";
+    |             ^^ export statement without specifiers is not allowed.
+
+Output:
+  1 |
+
+`;
+
+exports[`require-module-specifiers > invalid(13): declare export type {} from \"foo\"; 1`] = `
+
+  1 | declare export type {} from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(13): declare export type {} from \"foo\"; 2`] = `
+
+Message:
+> 1 | declare export type {} from "foo";
+    |                     ^^ export statement without specifiers is not allowed.
+
+Output:
+  1 |
+
+`;
+
+exports[`require-module-specifiers > invalid(14): export {} from \"foo\"; 1`] = `
+
+  1 | export {} from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(14): export {} from \"foo\"; 2`] = `
+
+Message:
+> 1 | export {} from "foo";
+    |        ^^ export statement without specifiers is not allowed.
+
+Suggestion 1/2: Remove this export statement.:
+  1 |
+
+Suggestion 2/2: Switch to side effect import.:
+  1 | import   "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(15): export{}from\"foo\"; 1`] = `
+
+  1 | export{}from"foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(15): export{}from\"foo\"; 2`] = `
+
+Message:
+> 1 | export{}from"foo";
+    |       ^^ export statement without specifiers is not allowed.
+
+Suggestion 1/2: Remove this export statement.:
+  1 |
+
+Suggestion 2/2: Switch to side effect import.:
+  1 | import"foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(16): export {\n} from \"foo\"; 1`] = `
+
+  1 | export {
+  2 | } from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(16): export {\n} from \"foo\"; 2`] = `
+
+Message:
+> 1 | export {
+    |        ^
+> 2 | } from "foo";
+    | ^ export statement without specifiers is not allowed.
+
+Suggestion 1/2: Remove this export statement.:
+  1 |
+
+Suggestion 2/2: Switch to side effect import.:
+  1 | import 
+  2 |   "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(17): export {} from \"foo\" with {type: \"json\"}; 1`] = `
+
+  1 | export {} from "foo" with {type: "json"};
+
+`;
+
+exports[`require-module-specifiers > invalid(17): export {} from \"foo\" with {type: \"json\"}; 2`] = `
+
+Message:
+> 1 | export {} from "foo" with {type: "json"};
+    |        ^^ export statement without specifiers is not allowed.
+
+Suggestion 1/2: Remove this export statement.:
+  1 |
+
+Suggestion 2/2: Switch to side effect import.:
+  1 | import   "foo" with {type: "json"};
+
+`;
+
+exports[`require-module-specifiers > invalid(18): import \"foo\";\nexport {/* keep */} 1`] = `
+
+  1 | import "foo";
+  2 | export {/* keep */}
+
+`;
+
+exports[`require-module-specifiers > invalid(18): import \"foo\";\nexport {/* keep */} 2`] = `
+
+Message:
+  1 | import "foo";
+> 2 | export {/* keep */}
+    |        ^^^^^^^^^^^^ export statement without specifiers is not allowed.
+
+`;
+
+exports[`require-module-specifiers > invalid(19): export type {/* keep */} from \"foo\"; 1`] = `
+
+  1 | export type {/* keep */} from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(19): export type {/* keep */} from \"foo\"; 2`] = `
+
+Message:
+> 1 | export type {/* keep */} from "foo";
+    |             ^^^^^^^^^^^^ export statement without specifiers is not allowed.
+
+`;
+
+exports[`require-module-specifiers > invalid(2): import foo from \"foo\";\nexport {} 1`] = `
+
+  1 | import foo from "foo";
+  2 | export {}
+
+`;
+
+exports[`require-module-specifiers > invalid(2): import foo from \"foo\";\nexport {} 2`] = `
+
+Message:
+  1 | import foo from "foo";
+> 2 | export {}
+    |        ^^ export statement without specifiers is not allowed.
+
+Output:
+  1 | import foo from "foo";
+  2 |
+
+`;
+
+exports[`require-module-specifiers > invalid(2): import{}from\"foo\"; 1`] = `
+
+  1 | import{}from"foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(2): import{}from\"foo\"; 2`] = `
+
+Message:
+> 1 | import{}from"foo";
+    |       ^^ import statement without specifiers is not allowed.
+
+Suggestion 1/2: Remove this import statement.:
+  1 |
+
+Suggestion 2/2: Switch to side effect import.:
+  1 | import"foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(20): import a from \"foo\";\nexport {/* keep */} from \"foo\"; 1`] = `
+
+  1 | import a from "foo";
+  2 | export {/* keep */} from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(20): import a from \"foo\";\nexport {/* keep */} from \"foo\"; 2`] = `
+
+Message:
+  1 | import a from "foo";
+> 2 | export {/* keep */} from "foo";
+    |        ^^^^^^^^^^^^ export statement without specifiers is not allowed.
+
+Suggestion 1/1: Switch to side effect import.:
+  1 | import a from "foo";
+  2 | import /* keep */  "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(21): import a from \"foo\";\nexport/* keep */ {/* keep */} from \"foo\"; 1`] = `
+
+  1 | import a from "foo";
+  2 | export/* keep */ {/* keep */} from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(21): import a from \"foo\";\nexport/* keep */ {/* keep */} from \"foo\"; 2`] = `
+
+Message:
+  1 | import a from "foo";
+> 2 | export/* keep */ {/* keep */} from "foo";
+    |                  ^^^^^^^^^^^^ export statement without specifiers is not allowed.
+
+Suggestion 1/1: Switch to side effect import.:
+  1 | import a from "foo";
+  2 | import/* keep */ /* keep */  "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(22): import/* keep */ {} from \"foo\"; 1`] = `
+
+  1 | import/* keep */ {} from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(22): import/* keep */ {} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import/* keep */ {} from "foo";
+    |                  ^^ import statement without specifiers is not allowed.
+
+Suggestion 1/1: Switch to side effect import.:
+  1 | import/* keep */   "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(23): import foo, /* keep */ {} from \"foo\"; 1`] = `
+
+  1 | import foo, /* keep */ {} from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(23): import foo, /* keep */ {} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import foo, /* keep */ {} from "foo";
+    |                        ^^ import statement without specifiers is not allowed.
+
+Output:
+  1 | import foo /* keep */  from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(24): import foo, {/* keep */} from \"foo\"; 1`] = `
+
+  1 | import foo, {/* keep */} from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(24): import foo, {/* keep */} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import foo, {/* keep */} from "foo";
+    |             ^^^^^^^^^^^^ import statement without specifiers is not allowed.
+
+Output:
+  1 | import foo /* keep */ from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(25): import type {/* keep */} from \"foo\"; 1`] = `
+
+  1 | import type {/* keep */} from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(25): import type {/* keep */} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import type {/* keep */} from "foo";
+    |             ^^^^^^^^^^^^ import statement without specifiers is not allowed.
+
+`;
+
+exports[`require-module-specifiers > invalid(3): export const foo = 1;\nexport {} 1`] = `
+
+  1 | export const foo = 1;
+  2 | export {}
+
+`;
+
+exports[`require-module-specifiers > invalid(3): export const foo = 1;\nexport {} 2`] = `
+
+Message:
+  1 | export const foo = 1;
+> 2 | export {}
+    |        ^^ export statement without specifiers is not allowed.
+
+Output:
+  1 | export const foo = 1;
+  2 |
+
+`;
+
+exports[`require-module-specifiers > invalid(3): import {\n} from \"foo\"; 1`] = `
+
+  1 | import {
+  2 | } from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(3): import {\n} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import {
+    |        ^
+> 2 | } from "foo";
+    | ^ import statement without specifiers is not allowed.
+
+Suggestion 1/2: Remove this import statement.:
+  1 |
+
+Suggestion 2/2: Switch to side effect import.:
+  1 | import 
+  2 |   "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(4): export * from \"foo\";\nexport {} 1`] = `
+
+  1 | export * from "foo";
+  2 | export {}
+
+`;
+
+exports[`require-module-specifiers > invalid(4): export * from \"foo\";\nexport {} 2`] = `
+
+Message:
+  1 | export * from "foo";
+> 2 | export {}
+    |        ^^ export statement without specifiers is not allowed.
+
+Output:
+  1 | export * from "foo";
+  2 |
+
+`;
+
+exports[`require-module-specifiers > invalid(4): import foo, {} from \"foo\"; 1`] = `
+
+  1 | import foo, {} from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(4): import foo, {} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import foo, {} from "foo";
+    |             ^^ import statement without specifiers is not allowed.
+
+Output:
+  1 | import foo  from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(5): export {foo} from \"foo\";\nexport {} 1`] = `
+
+  1 | export {foo} from "foo";
+  2 | export {}
+
+`;
+
+exports[`require-module-specifiers > invalid(5): export {foo} from \"foo\";\nexport {} 2`] = `
+
+Message:
+  1 | export {foo} from "foo";
+> 2 | export {}
+    |        ^^ export statement without specifiers is not allowed.
+
+Output:
+  1 | export {foo} from "foo";
+  2 |
+
+`;
+
+exports[`require-module-specifiers > invalid(5): import foo,{}from \"foo\"; 1`] = `
+
+  1 | import foo,{}from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(5): import foo,{}from \"foo\"; 2`] = `
+
+Message:
+> 1 | import foo,{}from "foo";
+    |            ^^ import statement without specifiers is not allowed.
+
+Output:
+  1 | import foo from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(6): export {};\nimport \"foo\"; 1`] = `
+
+  1 | export {};
+  2 | import "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(6): export {};\nimport \"foo\"; 2`] = `
+
+Message:
+> 1 | export {};
+    |        ^^ export statement without specifiers is not allowed.
+  2 | import "foo";
+
+Output:
+  1 |
+  2 | import "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(6): import foo, {\n} from \"foo\"; 1`] = `
+
+  1 | import foo, {
+  2 | } from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(6): import foo, {\n} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import foo, {
+    |             ^
+> 2 | } from "foo";
+    | ^ import statement without specifiers is not allowed.
+
+Output:
+  1 | import foo 
+  2 |  from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(7): export {};\nexport const foo = 1; 1`] = `
+
+  1 | export {};
+  2 | export const foo = 1;
+
+`;
+
+exports[`require-module-specifiers > invalid(7): export {};\nexport const foo = 1; 2`] = `
+
+Message:
+> 1 | export {};
+    |        ^^ export statement without specifiers is not allowed.
+  2 | export const foo = 1;
+
+Output:
+  1 |
+  2 | export const foo = 1;
+
+`;
+
+exports[`require-module-specifiers > invalid(7): import foo,{}/* comment */from \"foo\"; 1`] = `
+
+  1 | import foo,{}/* comment */from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(7): import foo,{}/* comment */from \"foo\"; 2`] = `
+
+Message:
+> 1 | import foo,{}/* comment */from "foo";
+    |            ^^ import statement without specifiers is not allowed.
+
+Output:
+  1 | import foo/* comment */from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(8): import type {} from \"foo\"; 1`] = `
+
+  1 | import type {} from "foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(8): import type {} from \"foo\"; 2`] = `
+
+Message:
+> 1 | import type {} from "foo";
+    |             ^^ import statement without specifiers is not allowed.
+
+Output:
+  1 |
+
+`;
+
+exports[`require-module-specifiers > invalid(8): import {type foo, bar} from \"foo\";\nexport {} 1`] = `
+
+  1 | import {type foo, bar} from "foo";
+  2 | export {}
+
+`;
+
+exports[`require-module-specifiers > invalid(8): import {type foo, bar} from \"foo\";\nexport {} 2`] = `
+
+Message:
+  1 | import {type foo, bar} from "foo";
+> 2 | export {}
+    |        ^^ export statement without specifiers is not allowed.
+
+Output:
+  1 | import {type foo, bar} from "foo";
+  2 |
+
+`;
+
+exports[`require-module-specifiers > invalid(9): export {type foo, bar} from \"foo\";\nexport {} 1`] = `
+
+  1 | export {type foo, bar} from "foo";
+  2 | export {}
+
+`;
+
+exports[`require-module-specifiers > invalid(9): export {type foo, bar} from \"foo\";\nexport {} 2`] = `
+
+Message:
+  1 | export {type foo, bar} from "foo";
+> 2 | export {}
+    |        ^^ export statement without specifiers is not allowed.
+
+Output:
+  1 | export {type foo, bar} from "foo";
+  2 |
+
+`;
+
+exports[`require-module-specifiers > invalid(9): import type{}from\"foo\"; 1`] = `
+
+  1 | import type{}from"foo";
+
+`;
+
+exports[`require-module-specifiers > invalid(9): import type{}from\"foo\"; 2`] = `
+
+Message:
+> 1 | import type{}from"foo";
+    |            ^^ import statement without specifiers is not allowed.
+
+Output:
+  1 |
+
+`;

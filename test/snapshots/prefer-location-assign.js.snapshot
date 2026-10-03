@@ -1,0 +1,230 @@
+exports[`prefer-location-assign > invalid(1): location.href = url; 1`] = `
+
+  1 | location.href = url;
+
+`;
+
+exports[`prefer-location-assign > invalid(1): location.href = url; 2`] = `
+
+Message:
+> 1 | location.href = url;
+    |          ^^^^ Prefer \`Location#assign()\` over assigning to \`Location#href\`.
+
+Output:
+  1 | location.assign(url);
+
+`;
+
+exports[`prefer-location-assign > invalid(10): const result = location.href = url; 1`] = `
+
+  1 | const result = location.href = url;
+
+`;
+
+exports[`prefer-location-assign > invalid(10): const result = location.href = url; 2`] = `
+
+Message:
+> 1 | const result = location.href = url;
+    |                         ^^^^ Prefer \`Location#assign()\` over assigning to \`Location#href\`.
+
+`;
+
+exports[`prefer-location-assign > invalid(11): location.href += hash; 1`] = `
+
+  1 | location.href += hash;
+
+`;
+
+exports[`prefer-location-assign > invalid(11): location.href += hash; 2`] = `
+
+Message:
+> 1 | location.href += hash;
+    |          ^^^^ Prefer \`Location#assign()\` over assigning to \`Location#href\`.
+
+`;
+
+exports[`prefer-location-assign > invalid(12): location.href = (a, b); 1`] = `
+
+  1 | location.href = (a, b);
+
+`;
+
+exports[`prefer-location-assign > invalid(12): location.href = (a, b); 2`] = `
+
+Message:
+> 1 | location.href = (a, b);
+    |          ^^^^ Prefer \`Location#assign()\` over assigning to \`Location#href\`.
+
+Output:
+  1 | location.assign((a, b));
+
+`;
+
+exports[`prefer-location-assign > invalid(13): location.href = (a, (b, c)); 1`] = `
+
+  1 | location.href = (a, (b, c));
+
+`;
+
+exports[`prefer-location-assign > invalid(13): location.href = (a, (b, c)); 2`] = `
+
+Message:
+> 1 | location.href = (a, (b, c));
+    |          ^^^^ Prefer \`Location#assign()\` over assigning to \`Location#href\`.
+
+Output:
+  1 | location.assign((a, (b, c)));
+
+`;
+
+exports[`prefer-location-assign > invalid(14): location.href = /* comment */ url; 1`] = `
+
+  1 | location.href = /* comment */ url;
+
+`;
+
+exports[`prefer-location-assign > invalid(14): location.href = /* comment */ url; 2`] = `
+
+Message:
+> 1 | location.href = /* comment */ url;
+    |          ^^^^ Prefer \`Location#assign()\` over assigning to \`Location#href\`.
+
+`;
+
+exports[`prefer-location-assign > invalid(15): location.href = url /* comment */; 1`] = `
+
+  1 | location.href = url /* comment */;
+
+`;
+
+exports[`prefer-location-assign > invalid(15): location.href = url /* comment */; 2`] = `
+
+Message:
+> 1 | location.href = url /* comment */;
+    |          ^^^^ Prefer \`Location#assign()\` over assigning to \`Location#href\`.
+
+`;
+
+exports[`prefer-location-assign > invalid(2): window.location.href = url; 1`] = `
+
+  1 | window.location.href = url;
+
+`;
+
+exports[`prefer-location-assign > invalid(2): window.location.href = url; 2`] = `
+
+Message:
+> 1 | window.location.href = url;
+    |                 ^^^^ Prefer \`Location#assign()\` over assigning to \`Location#href\`.
+
+Output:
+  1 | window.location.assign(url);
+
+`;
+
+exports[`prefer-location-assign > invalid(3): globalThis.location.href = url; 1`] = `
+
+  1 | globalThis.location.href = url;
+
+`;
+
+exports[`prefer-location-assign > invalid(3): globalThis.location.href = url; 2`] = `
+
+Message:
+> 1 | globalThis.location.href = url;
+    |                     ^^^^ Prefer \`Location#assign()\` over assigning to \`Location#href\`.
+
+Output:
+  1 | globalThis.location.assign(url);
+
+`;
+
+exports[`prefer-location-assign > invalid(4): location[\"href\"] = url; 1`] = `
+
+  1 | location["href"] = url;
+
+`;
+
+exports[`prefer-location-assign > invalid(4): location[\"href\"] = url; 2`] = `
+
+Message:
+> 1 | location["href"] = url;
+    |          ^^^^^^ Prefer \`Location#assign()\` over assigning to \`Location#href\`.
+
+Output:
+  1 | location.assign(url);
+
+`;
+
+exports[`prefer-location-assign > invalid(5): location[\`href\`] = url; 1`] = `
+
+  1 | location[\`href\`] = url;
+
+`;
+
+exports[`prefer-location-assign > invalid(5): location[\`href\`] = url; 2`] = `
+
+Message:
+> 1 | location[\`href\`] = url;
+    |          ^^^^^^ Prefer \`Location#assign()\` over assigning to \`Location#href\`.
+
+Output:
+  1 | location.assign(url);
+
+`;
+
+exports[`prefer-location-assign > invalid(6): const target = location; target.href = url; 1`] = `
+
+  1 | const target = location; target.href = url;
+
+`;
+
+exports[`prefer-location-assign > invalid(6): const target = location; target.href = url; 2`] = `
+
+Message:
+> 1 | const target = location; target.href = url;
+    |                                 ^^^^ Prefer \`Location#assign()\` over assigning to \`Location#href\`.
+
+`;
+
+exports[`prefer-location-assign > invalid(7): const target = location; target[\"href\"] = url; 1`] = `
+
+  1 | const target = location; target["href"] = url;
+
+`;
+
+exports[`prefer-location-assign > invalid(7): const target = location; target[\"href\"] = url; 2`] = `
+
+Message:
+> 1 | const target = location; target["href"] = url;
+    |                                 ^^^^^^ Prefer \`Location#assign()\` over assigning to \`Location#href\`.
+
+`;
+
+exports[`prefer-location-assign > invalid(8): const target = window.location; target.href = url; 1`] = `
+
+  1 | const target = window.location; target.href = url;
+
+`;
+
+exports[`prefer-location-assign > invalid(8): const target = window.location; target.href = url; 2`] = `
+
+Message:
+> 1 | const target = window.location; target.href = url;
+    |                                        ^^^^ Prefer \`Location#assign()\` over assigning to \`Location#href\`.
+
+`;
+
+exports[`prefer-location-assign > invalid(9): const target = globalThis.location; target.href = url; 1`] = `
+
+  1 | const target = globalThis.location; target.href = url;
+
+`;
+
+exports[`prefer-location-assign > invalid(9): const target = globalThis.location; target.href = url; 2`] = `
+
+Message:
+> 1 | const target = globalThis.location; target.href = url;
+    |                                            ^^^^ Prefer \`Location#assign()\` over assigning to \`Location#href\`.
+
+`;

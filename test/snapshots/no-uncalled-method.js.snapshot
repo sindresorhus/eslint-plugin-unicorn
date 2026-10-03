@@ -1,0 +1,663 @@
+exports[`no-uncalled-method > invalid(1): const method = [].reverse 1`] = `
+
+  1 | const method = [].reverse
+
+`;
+
+exports[`no-uncalled-method > invalid(1): const method = [].reverse 2`] = `
+
+Message:
+> 1 | const method = [].reverse
+    |                   ^^^^^^^ Call \`reverse()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(10): const alias = array; const method = alias.shift 1`] = `
+
+  1 | const alias = array; const method = alias.shift
+
+`;
+
+exports[`no-uncalled-method > invalid(10): const alias = array; const method = alias.shift 2`] = `
+
+Message:
+> 1 | const alias = array; const method = alias.shift
+    |                                           ^^^^^ Call \`shift()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(11): const method = array.reverse 1`] = `
+
+  1 | const method = array.reverse
+
+`;
+
+exports[`no-uncalled-method > invalid(11): const method = array.reverse 2`] = `
+
+Message:
+> 1 | const method = array.reverse
+    |                      ^^^^^^^ Call \`reverse()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(12): const method = array?.reverse 1`] = `
+
+  1 | const method = array?.reverse
+
+`;
+
+exports[`no-uncalled-method > invalid(12): const method = array?.reverse 2`] = `
+
+Message:
+> 1 | const method = array?.reverse
+    |                       ^^^^^^^ Call \`reverse()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(13): if (array.pop) {} 1`] = `
+
+  1 | if (array.pop) {}
+
+`;
+
+exports[`no-uncalled-method > invalid(13): if (array.pop) {} 2`] = `
+
+Message:
+> 1 | if (array.pop) {}
+    |           ^^^ Call \`pop()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(14): function foo() { return array[\"reverse\"]; } 1`] = `
+
+  1 | function foo() { return array["reverse"]; }
+
+`;
+
+exports[`no-uncalled-method > invalid(14): function foo() { return array[\"reverse\"]; } 2`] = `
+
+Message:
+> 1 | function foo() { return array["reverse"]; }
+    |                               ^^^^^^^^^ Call \`reverse()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(15): const method = \"\".toLowerCase 1`] = `
+
+  1 | const method = "".toLowerCase
+
+`;
+
+exports[`no-uncalled-method > invalid(15): const method = \"\".toLowerCase 2`] = `
+
+Message:
+> 1 | const method = "".toLowerCase
+    |                   ^^^^^^^^^^^ Call \`toLowerCase()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(16): const method = \`text\`.trim 1`] = `
+
+  1 | const method = \`text\`.trim
+
+`;
+
+exports[`no-uncalled-method > invalid(16): const method = \`text\`.trim 2`] = `
+
+Message:
+> 1 | const method = \`text\`.trim
+    |                       ^^^^ Call \`trim()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(17): const string = \"text\"; const method = string.normalize 1`] = `
+
+  1 | const string = "text"; const method = string.normalize
+
+`;
+
+exports[`no-uncalled-method > invalid(17): const string = \"text\"; const method = string.normalize 2`] = `
+
+Message:
+> 1 | const string = "text"; const method = string.normalize
+    |                                              ^^^^^^^^^ Call \`normalize()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(18): const alias = string; const method = alias.toUpperCase 1`] = `
+
+  1 | const alias = string; const method = alias.toUpperCase
+
+`;
+
+exports[`no-uncalled-method > invalid(18): const alias = string; const method = alias.toUpperCase 2`] = `
+
+Message:
+> 1 | const alias = string; const method = alias.toUpperCase
+    |                                            ^^^^^^^^^^^ Call \`toUpperCase()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(19): const method = string.trim 1`] = `
+
+  1 | const method = string.trim
+
+`;
+
+exports[`no-uncalled-method > invalid(19): const method = string.trim 2`] = `
+
+Message:
+> 1 | const method = string.trim
+    |                       ^^^^ Call \`trim()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(2): const method = [1, 2, 3].sort 1`] = `
+
+  1 | const method = [1, 2, 3].sort
+
+`;
+
+exports[`no-uncalled-method > invalid(2): const method = [1, 2, 3].sort 2`] = `
+
+Message:
+> 1 | const method = [1, 2, 3].sort
+    |                          ^^^^ Call \`sort()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(20): const method = string?.trim 1`] = `
+
+  1 | const method = string?.trim
+
+`;
+
+exports[`no-uncalled-method > invalid(20): const method = string?.trim 2`] = `
+
+Message:
+> 1 | const method = string?.trim
+    |                        ^^^^ Call \`trim()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(21): const method = string.includes 1`] = `
+
+  1 | const method = string.includes
+
+`;
+
+exports[`no-uncalled-method > invalid(21): const method = string.includes 2`] = `
+
+Message:
+> 1 | const method = string.includes
+    |                       ^^^^^^^^ Call \`includes()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(22): const method = string.replace 1`] = `
+
+  1 | const method = string.replace
+
+`;
+
+exports[`no-uncalled-method > invalid(22): const method = string.replace 2`] = `
+
+Message:
+> 1 | const method = string.replace
+    |                       ^^^^^^^ Call \`replace()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(23): const method = string.startsWith 1`] = `
+
+  1 | const method = string.startsWith
+
+`;
+
+exports[`no-uncalled-method > invalid(23): const method = string.startsWith 2`] = `
+
+Message:
+> 1 | const method = string.startsWith
+    |                       ^^^^^^^^^^ Call \`startsWith()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(24): const method = string.trimLeft 1`] = `
+
+  1 | const method = string.trimLeft
+
+`;
+
+exports[`no-uncalled-method > invalid(24): const method = string.trimLeft 2`] = `
+
+Message:
+> 1 | const method = string.trimLeft
+    |                       ^^^^^^^^ Call \`trimLeft()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(25): const method = string.trimRight 1`] = `
+
+  1 | const method = string.trimRight
+
+`;
+
+exports[`no-uncalled-method > invalid(25): const method = string.trimRight 2`] = `
+
+Message:
+> 1 | const method = string.trimRight
+    |                       ^^^^^^^^^ Call \`trimRight()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(26): Reflect.apply(fn, array.reverse, []) 1`] = `
+
+  1 | Reflect.apply(fn, array.reverse, [])
+
+`;
+
+exports[`no-uncalled-method > invalid(26): Reflect.apply(fn, array.reverse, []) 2`] = `
+
+Message:
+> 1 | Reflect.apply(fn, array.reverse, [])
+    |                         ^^^^^^^ Call \`reverse()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(27): Reflect.apply(fn, thisArgument, string.trim) 1`] = `
+
+  1 | Reflect.apply(fn, thisArgument, string.trim)
+
+`;
+
+exports[`no-uncalled-method > invalid(27): Reflect.apply(fn, thisArgument, string.trim) 2`] = `
+
+Message:
+> 1 | Reflect.apply(fn, thisArgument, string.trim)
+    |                                        ^^^^ Call \`trim()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(28): const method = array.reverse.call 1`] = `
+
+  1 | const method = array.reverse.call
+
+`;
+
+exports[`no-uncalled-method > invalid(28): const method = array.reverse.call 2`] = `
+
+Message:
+> 1 | const method = array.reverse.call
+    |                      ^^^^^^^ Call \`reverse()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(29): const method = array!.reverse 1`] = `
+
+  1 | const method = array!.reverse
+
+`;
+
+exports[`no-uncalled-method > invalid(29): const method = array!.reverse 2`] = `
+
+Message:
+> 1 | const method = array!.reverse
+    |                       ^^^^^^^ Call \`reverse()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(3): const method = Array.from(iterable).join 1`] = `
+
+  1 | const method = Array.from(iterable).join
+
+`;
+
+exports[`no-uncalled-method > invalid(3): const method = Array.from(iterable).join 2`] = `
+
+Message:
+> 1 | const method = Array.from(iterable).join
+    |                                     ^^^^ Call \`join()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(30): const method = (array as unknown).reverse 1`] = `
+
+  1 | const method = (array as unknown).reverse
+
+`;
+
+exports[`no-uncalled-method > invalid(30): const method = (array as unknown).reverse 2`] = `
+
+Message:
+> 1 | const method = (array as unknown).reverse
+    |                                   ^^^^^^^ Call \`reverse()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(31): const method = (array satisfies unknown).reverse 1`] = `
+
+  1 | const method = (array satisfies unknown).reverse
+
+`;
+
+exports[`no-uncalled-method > invalid(31): const method = (array satisfies unknown).reverse 2`] = `
+
+Message:
+> 1 | const method = (array satisfies unknown).reverse
+    |                                          ^^^^^^^ Call \`reverse()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(32): const method = (array.reverse as unknown) 1`] = `
+
+  1 | const method = (array.reverse as unknown)
+
+`;
+
+exports[`no-uncalled-method > invalid(32): const method = (array.reverse as unknown) 2`] = `
+
+Message:
+> 1 | const method = (array.reverse as unknown)
+    |                       ^^^^^^^ Call \`reverse()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(33): const method = (array.reverse satisfies unknown) 1`] = `
+
+  1 | const method = (array.reverse satisfies unknown)
+
+`;
+
+exports[`no-uncalled-method > invalid(33): const method = (array.reverse satisfies unknown) 2`] = `
+
+Message:
+> 1 | const method = (array.reverse satisfies unknown)
+    |                       ^^^^^^^ Call \`reverse()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(34): const method = array.map<string> 1`] = `
+
+  1 | const method = array.map<string>
+
+`;
+
+exports[`no-uncalled-method > invalid(34): const method = array.map<string> 2`] = `
+
+Message:
+> 1 | const method = array.map<string>
+    |                      ^^^ Call \`map()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(35): const method = string!.trim 1`] = `
+
+  1 | const method = string!.trim
+
+`;
+
+exports[`no-uncalled-method > invalid(35): const method = string!.trim 2`] = `
+
+Message:
+> 1 | const method = string!.trim
+    |                        ^^^^ Call \`trim()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(36): const method = (string satisfies unknown).trim 1`] = `
+
+  1 | const method = (string satisfies unknown).trim
+
+`;
+
+exports[`no-uncalled-method > invalid(36): const method = (string satisfies unknown).trim 2`] = `
+
+Message:
+> 1 | const method = (string satisfies unknown).trim
+    |                                           ^^^^ Call \`trim()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(37): const alias = array!; const method = alias.reverse 1`] = `
+
+  1 | const alias = array!; const method = alias.reverse
+
+`;
+
+exports[`no-uncalled-method > invalid(37): const alias = array!; const method = alias.reverse 2`] = `
+
+Message:
+> 1 | const alias = array!; const method = alias.reverse
+    |                                            ^^^^^^^ Call \`reverse()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(38): const items: string[] = []; const method = items.reverse 1`] = `
+
+  1 | const items: string[] = []; const method = items.reverse
+
+`;
+
+exports[`no-uncalled-method > invalid(38): const items: string[] = []; const method = items.reverse 2`] = `
+
+Message:
+> 1 | const items: string[] = []; const method = items.reverse
+    |                                                  ^^^^^^^ Call \`reverse()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(39): const items: Array<string> = []; const method = items.join 1`] = `
+
+  1 | const items: Array<string> = []; const method = items.join
+
+`;
+
+exports[`no-uncalled-method > invalid(39): const items: Array<string> = []; const method = items.join 2`] = `
+
+Message:
+> 1 | const items: Array<string> = []; const method = items.join
+    |                                                       ^^^^ Call \`join()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(4): const method = Array.of(1, 2, 3).toReversed 1`] = `
+
+  1 | const method = Array.of(1, 2, 3).toReversed
+
+`;
+
+exports[`no-uncalled-method > invalid(4): const method = Array.of(1, 2, 3).toReversed 2`] = `
+
+Message:
+> 1 | const method = Array.of(1, 2, 3).toReversed
+    |                                  ^^^^^^^^^^ Call \`toReversed()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(40): const items: readonly string[] = []; const method = items.slice 1`] = `
+
+  1 | const items: readonly string[] = []; const method = items.slice
+
+`;
+
+exports[`no-uncalled-method > invalid(40): const items: readonly string[] = []; const method = items.slice 2`] = `
+
+Message:
+> 1 | const items: readonly string[] = []; const method = items.slice
+    |                                                           ^^^^^ Call \`slice()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(41): const items: ReadonlyArray<string> = []; const method = items.slice 1`] = `
+
+  1 | const items: ReadonlyArray<string> = []; const method = items.slice
+
+`;
+
+exports[`no-uncalled-method > invalid(41): const items: ReadonlyArray<string> = []; const method = items.slice 2`] = `
+
+Message:
+> 1 | const items: ReadonlyArray<string> = []; const method = items.slice
+    |                                                               ^^^^^ Call \`slice()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(42): const text: string = value; const method = text.split 1`] = `
+
+  1 | const text: string = value; const method = text.split
+
+`;
+
+exports[`no-uncalled-method > invalid(42): const text: string = value; const method = text.split 2`] = `
+
+Message:
+> 1 | const text: string = value; const method = text.split
+    |                                                 ^^^^^ Call \`split()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(43): const method = (value as string[]).toSorted 1`] = `
+
+  1 | const method = (value as string[]).toSorted
+
+`;
+
+exports[`no-uncalled-method > invalid(43): const method = (value as string[]).toSorted 2`] = `
+
+Message:
+> 1 | const method = (value as string[]).toSorted
+    |                                    ^^^^^^^^ Call \`toSorted()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(44): const method = (value as string).trimStart 1`] = `
+
+  1 | const method = (value as string).trimStart
+
+`;
+
+exports[`no-uncalled-method > invalid(44): const method = (value as string).trimStart 2`] = `
+
+Message:
+> 1 | const method = (value as string).trimStart
+    |                                  ^^^^^^^^^ Call \`trimStart()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(45): function getArray(): string[] {\n\treturn [];\n}\n\nconst method = getArray().reverse; 1`] = `
+
+Filename: file.ts
+
+  1 | function getArray(): string[] {
+  2 | 	return [];
+  3 | }
+  4 |
+  5 | const method = getArray().reverse;
+
+`;
+
+exports[`no-uncalled-method > invalid(45): function getArray(): string[] {\n\treturn [];\n}\n\nconst method = getArray().reverse; 2`] = `
+
+Message:
+  1 | function getArray(): string[] {
+  2 | 	return [];
+  3 | }
+  4 |
+> 5 | const method = getArray().reverse;
+    |                           ^^^^^^^ Call \`reverse()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(46): function getString(): string {\n\treturn '';\n}\n\nconst method = getString().split; 1`] = `
+
+Filename: file.ts
+
+  1 | function getString(): string {
+  2 | 	return '';
+  3 | }
+  4 |
+  5 | const method = getString().split;
+
+`;
+
+exports[`no-uncalled-method > invalid(46): function getString(): string {\n\treturn '';\n}\n\nconst method = getString().split; 2`] = `
+
+Message:
+  1 | function getString(): string {
+  2 | 	return '';
+  3 | }
+  4 |
+> 5 | const method = getString().split;
+    |                            ^^^^^ Call \`split()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(5): const method = array.map 1`] = `
+
+  1 | const method = array.map
+
+`;
+
+exports[`no-uncalled-method > invalid(5): const method = array.map 2`] = `
+
+Message:
+> 1 | const method = array.map
+    |                      ^^^ Call \`map()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(6): const method = array.push 1`] = `
+
+  1 | const method = array.push
+
+`;
+
+exports[`no-uncalled-method > invalid(6): const method = array.push 2`] = `
+
+Message:
+> 1 | const method = array.push
+    |                      ^^^^ Call \`push()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(7): const method = array.includes 1`] = `
+
+  1 | const method = array.includes
+
+`;
+
+exports[`no-uncalled-method > invalid(7): const method = array.includes 2`] = `
+
+Message:
+> 1 | const method = array.includes
+    |                      ^^^^^^^^ Call \`includes()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(8): const array = []; const method = array.pop 1`] = `
+
+  1 | const array = []; const method = array.pop
+
+`;
+
+exports[`no-uncalled-method > invalid(8): const array = []; const method = array.pop 2`] = `
+
+Message:
+> 1 | const array = []; const method = array.pop
+    |                                        ^^^ Call \`pop()\` instead of referencing the method.
+
+`;
+
+exports[`no-uncalled-method > invalid(9): const array = Array.from(iterable); const method = array.entries 1`] = `
+
+  1 | const array = Array.from(iterable); const method = array.entries
+
+`;
+
+exports[`no-uncalled-method > invalid(9): const array = Array.from(iterable); const method = array.entries 2`] = `
+
+Message:
+> 1 | const array = Array.from(iterable); const method = array.entries
+    |                                                          ^^^^^^^ Call \`entries()\` instead of referencing the method.
+
+`;

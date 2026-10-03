@@ -1,0 +1,41 @@
+exports[`no-this-assignment > invalid(1): const foo = this; 1`] = `
+
+  1 | const foo = this;
+
+`;
+
+exports[`no-this-assignment > invalid(1): const foo = this; 2`] = `
+
+Message:
+> 1 | const foo = this;
+    |       ^^^^^^^^^^ Do not assign \`this\` to \`foo\`.
+
+`;
+
+exports[`no-this-assignment > invalid(2): let foo;foo = this; 1`] = `
+
+  1 | let foo;foo = this;
+
+`;
+
+exports[`no-this-assignment > invalid(2): let foo;foo = this; 2`] = `
+
+Message:
+> 1 | let foo;foo = this;
+    |         ^^^^^^^^^^ Do not assign \`this\` to \`foo\`.
+
+`;
+
+exports[`no-this-assignment > invalid(3): var foo = bar, baz = this; 1`] = `
+
+  1 | var foo = bar, baz = this;
+
+`;
+
+exports[`no-this-assignment > invalid(3): var foo = bar, baz = this; 2`] = `
+
+Message:
+> 1 | var foo = bar, baz = this;
+    |                ^^^^^^^^^^ Do not assign \`this\` to \`baz\`.
+
+`;

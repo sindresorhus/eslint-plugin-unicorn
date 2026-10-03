@@ -21,6 +21,7 @@ import {
 	isDefaultLibrarySymbol,
 	getStaticValueIfNoSideEffects,
 	hasPotentiallyMutableMemberAccess,
+	getVisitorChildNodes,
 } from './utils/index.js';
 import {removeMethodCall} from './fix/index.js';
 import {
@@ -222,7 +223,7 @@ function fixConcat(node, context, fixableArguments) {
 					text = `...${text}`;
 				}
 
-				return text || ' ';
+				return text;
 			})
 			.join(', ');
 
@@ -542,10 +543,6 @@ function getTypeReferenceArrayState(node, scope, visitedTypeNames) {
 		return;
 	}
 
-	if (node.typeName.type !== 'Identifier') {
-		return;
-	}
-
 	const {name} = node.typeName;
 
 	if (arrayTypeNames.has(name)) {
@@ -608,10 +605,6 @@ function getTypeAnnotationArrayState(node, scope, visitedTypeNames = new Set()) 
 }
 
 function getIdentifierAnnotationArrayState(node, context) {
-	if (node.type !== 'Identifier') {
-		return;
-	}
-
 	const variable = findVariable(context.sourceCode.getScope(node), node);
 
 	for (const definition of variable?.defs ?? []) {
@@ -669,15 +662,7 @@ function getTypeArrayState(type, checker, program) {
 		return states.some(Boolean) ? undefined : false;
 	}
 
-	const constraint = checker.getBaseConstraintOfType(type);
-	if (constraint && constraint !== type) {
-		return getTypeArrayState(constraint, checker, program);
-	}
-
-	if (isTypeParameterType(type)) {
-		return;
-	}
-
+	// Checked before the base constraint, which would replace an unconstrained type parameter in `T & {…}` with `unknown` and make the intersection look like a non-array
 	if (type.isIntersection()) {
 		const states = type.types.map(type => getTypeArrayState(type, checker, program));
 
@@ -686,6 +671,15 @@ function getTypeArrayState(type, checker, program) {
 		}
 
 		return states.includes(undefined) ? undefined : false;
+	}
+
+	const constraint = checker.getBaseConstraintOfType(type);
+	if (constraint && constraint !== type) {
+		return getTypeArrayState(constraint, checker, program);
+	}
+
+	if (isTypeParameterType(type)) {
+		return;
 	}
 
 	if (checker.isArrayType(type) || checker.isTupleType(type)) {
@@ -711,6 +705,8 @@ function getTypeInformationArrayState(node, context) {
 			program.getTypeChecker(),
 			program,
 		);
+		// Tests cannot make TypeScript throw here.
+		/* node:coverage ignore next 3 */
 	} catch {
 		// TypeScript can throw while resolving incomplete projects; keep this fallback best-effort.
 	}
@@ -1033,27 +1029,11 @@ const getOnlyExpression = node => {
 const isIdentifierNamed = (node, name) => node.type === 'Identifier' && node.name === name;
 
 const hasIdentifierName = (node, name, visitorKeys) => {
-	if (!node || typeof node.type !== 'string') {
-		return false;
-	}
-
 	if (node.type === 'Identifier' && node.name === name) {
 		return true;
 	}
 
-	for (const key of visitorKeys[node.type] ?? []) {
-		const value = node[key];
-
-		if (Array.isArray(value)) {
-			if (value.some(node => hasIdentifierName(node, name, visitorKeys))) {
-				return true;
-			}
-		} else if (hasIdentifierName(value, name, visitorKeys)) {
-			return true;
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, visitorKeys).some(child => hasIdentifierName(child, name, visitorKeys));
 };
 
 const getSingleForOfBinding = node => {
@@ -1065,11 +1045,8 @@ const getSingleForOfBinding = node => {
 		return;
 	}
 
-	const [{id, init}] = node.left.declarations;
-
-	if (init) {
-		return;
-	}
+	// A `for…of` declaration cannot have an initializer
+	const [{id}] = node.left.declarations;
 
 	if (id.type === 'Identifier') {
 		return {id};

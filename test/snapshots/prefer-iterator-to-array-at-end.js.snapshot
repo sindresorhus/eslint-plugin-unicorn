@@ -1,0 +1,368 @@
+exports[`prefer-iterator-to-array-at-end > invalid(1): const result = ((iterator.toArray()).map)(value => value); 1`] = `
+
+  1 | const result = ((iterator.toArray()).map)(value => value);
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(1): const result = ((iterator.toArray()).map)(value => value); 2`] = `
+
+Message:
+> 1 | const result = ((iterator.toArray()).map)(value => value);
+    |                           ^^^^^^^ Move \`.toArray()\` after \`.map(…)\`.
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(1): iterator.toArray().filter(function (value) { return value; }) 1`] = `
+
+  1 | iterator.toArray().filter(function (value) { return value; })
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(1): iterator.toArray().filter(function (value) { return value; }) 2`] = `
+
+Message:
+> 1 | iterator.toArray().filter(function (value) { return value; })
+    |          ^^^^^^^ Move \`.toArray()\` after \`.filter(…)\`.
+
+Suggestion 1/1: Move \`.toArray()\` after \`.filter(…)\`.:
+  1 | iterator.filter(function (value) { return value; }).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(10): iterator.toArray().map /* comment */ (value => value) 1`] = `
+
+  1 | iterator.toArray().map /* comment */ (value => value)
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(10): iterator.toArray().map /* comment */ (value => value) 2`] = `
+
+Message:
+> 1 | iterator.toArray().map /* comment */ (value => value)
+    |          ^^^^^^^ Move \`.toArray()\` after \`.map(…)\`.
+
+Suggestion 1/1: Move \`.toArray()\` after \`.map(…)\`.:
+  1 | iterator.map /* comment */ (value => value).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(11): const result = iterator\n\t.toArray()\n\t.map(value => value * 2); 1`] = `
+
+  1 | const result = iterator
+  2 | 	.toArray()
+  3 | 	.map(value => value * 2);
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(11): const result = iterator\n\t.toArray()\n\t.map(value => value * 2); 2`] = `
+
+Message:
+  1 | const result = iterator
+> 2 | 	.toArray()
+    | 	 ^^^^^^^ Move \`.toArray()\` after \`.map(…)\`.
+  3 | 	.map(value => value * 2);
+
+Suggestion 1/1: Move \`.toArray()\` after \`.map(…)\`.:
+  1 | const result = iterator.map(value => value * 2).toArray();
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(12): (iterator as Iterator<number>).toArray().map(value => value * 2) 1`] = `
+
+  1 | (iterator as Iterator<number>).toArray().map(value => value * 2)
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(12): (iterator as Iterator<number>).toArray().map(value => value * 2) 2`] = `
+
+Message:
+> 1 | (iterator as Iterator<number>).toArray().map(value => value * 2)
+    |                                ^^^^^^^ Move \`.toArray()\` after \`.map(…)\`.
+
+Suggestion 1/1: Move \`.toArray()\` after \`.map(…)\`.:
+  1 | (iterator as Iterator<number>).map(value => value * 2).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(13): iterator.toArray().map<string>(value => value) 1`] = `
+
+  1 | iterator.toArray().map<string>(value => value)
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(13): iterator.toArray().map<string>(value => value) 2`] = `
+
+Message:
+> 1 | iterator.toArray().map<string>(value => value)
+    |          ^^^^^^^ Move \`.toArray()\` after \`.map(…)\`.
+
+Suggestion 1/1: Move \`.toArray()\` after \`.map(…)\`.:
+  1 | iterator.map<string>(value => value).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(14): iterator!.toArray().filter(value => value) 1`] = `
+
+  1 | iterator!.toArray().filter(value => value)
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(14): iterator!.toArray().filter(value => value) 2`] = `
+
+Message:
+> 1 | iterator!.toArray().filter(value => value)
+    |           ^^^^^^^ Move \`.toArray()\` after \`.filter(…)\`.
+
+Suggestion 1/1: Move \`.toArray()\` after \`.filter(…)\`.:
+  1 | iterator!.filter(value => value).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(15): const iterator = set.values().filter(Boolean); iterator.toArray().map(value => value * 2); 1`] = `
+
+  1 | const iterator = set.values().filter(Boolean); iterator.toArray().map(value => value * 2);
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(15): const iterator = set.values().filter(Boolean); iterator.toArray().map(value => value * 2); 2`] = `
+
+Message:
+> 1 | const iterator = set.values().filter(Boolean); iterator.toArray().map(value => value * 2);
+    |                                                         ^^^^^^^ Move \`.toArray()\` after \`.map(…)\`.
+
+Suggestion 1/1: Move \`.toArray()\` after \`.map(…)\`.:
+  1 | const iterator = set.values().filter(Boolean); iterator.map(value => value * 2).toArray();
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(2): getIterator().toArray().map(value => value) 1`] = `
+
+  1 | getIterator().toArray().map(value => value)
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(2): getIterator().toArray().map(value => value) 2`] = `
+
+Message:
+> 1 | getIterator().toArray().map(value => value)
+    |               ^^^^^^^ Move \`.toArray()\` after \`.map(…)\`.
+
+Suggestion 1/1: Move \`.toArray()\` after \`.map(…)\`.:
+  1 | getIterator().map(value => value).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(2): iterator.toArray().map(value => value * 2) 1`] = `
+
+  1 | iterator.toArray().map(value => value * 2)
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(2): iterator.toArray().map(value => value * 2) 2`] = `
+
+Message:
+> 1 | iterator.toArray().map(value => value * 2)
+    |          ^^^^^^^ Move \`.toArray()\` after \`.map(…)\`.
+
+Suggestion 1/1: Move \`.toArray()\` after \`.map(…)\`.:
+  1 | iterator.map(value => value * 2).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(3): (condition ? iterator : otherIterator).toArray().filter(value => value) 1`] = `
+
+  1 | (condition ? iterator : otherIterator).toArray().filter(value => value)
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(3): (condition ? iterator : otherIterator).toArray().filter(value => value) 2`] = `
+
+Message:
+> 1 | (condition ? iterator : otherIterator).toArray().filter(value => value)
+    |                                        ^^^^^^^ Move \`.toArray()\` after \`.filter(…)\`.
+
+Suggestion 1/1: Move \`.toArray()\` after \`.filter(…)\`.:
+  1 | (condition ? iterator : otherIterator).filter(value => value).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(3): iterator.toArray().filter((value, index) => index > 0) 1`] = `
+
+  1 | iterator.toArray().filter((value, index) => index > 0)
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(3): iterator.toArray().filter((value, index) => index > 0) 2`] = `
+
+Message:
+> 1 | iterator.toArray().filter((value, index) => index > 0)
+    |          ^^^^^^^ Move \`.toArray()\` after \`.filter(…)\`.
+
+Suggestion 1/1: Move \`.toArray()\` after \`.filter(…)\`.:
+  1 | iterator.filter((value, index) => index > 0).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(4): const iterator = [1, 2, 3].values(); iterator.toArray().map(value => value * 2); 1`] = `
+
+  1 | const iterator = [1, 2, 3].values(); iterator.toArray().map(value => value * 2);
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(4): const iterator = [1, 2, 3].values(); iterator.toArray().map(value => value * 2); 2`] = `
+
+Message:
+> 1 | const iterator = [1, 2, 3].values(); iterator.toArray().map(value => value * 2);
+    |                                               ^^^^^^^ Move \`.toArray()\` after \`.map(…)\`.
+
+Suggestion 1/1: Move \`.toArray()\` after \`.map(…)\`.:
+  1 | const iterator = [1, 2, 3].values(); iterator.map(value => value * 2).toArray();
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(4): iterator.toArray().flatMap(value => [value]) 1`] = `
+
+  1 | iterator.toArray().flatMap(value => [value])
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(4): iterator.toArray().flatMap(value => [value]) 2`] = `
+
+Message:
+> 1 | iterator.toArray().flatMap(value => [value])
+    |          ^^^^^^^ Move \`.toArray()\` after \`.flatMap(…)\`.
+
+Suggestion 1/1: Move \`.toArray()\` after \`.flatMap(…)\`.:
+  1 | iterator.flatMap(value => [value]).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(5): iterator.toArray().flatMap(value => value) 1`] = `
+
+  1 | iterator.toArray().flatMap(value => value)
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(5): iterator.toArray().flatMap(value => value) 2`] = `
+
+Message:
+> 1 | iterator.toArray().flatMap(value => value)
+    |          ^^^^^^^ Move \`.toArray()\` after \`.flatMap(…)\`.
+
+Suggestion 1/1: Move \`.toArray()\` after \`.flatMap(…)\`.:
+  1 | iterator.flatMap(value => value).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(5): iterator.toArray().map(value => value).filter(value => value) 1`] = `
+
+  1 | iterator.toArray().map(value => value).filter(value => value)
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(5): iterator.toArray().map(value => value).filter(value => value) 2`] = `
+
+Message:
+> 1 | iterator.toArray().map(value => value).filter(value => value)
+    |          ^^^^^^^ Move \`.toArray()\` after \`.map(…)\`.
+
+Suggestion 1/1: Move \`.toArray()\` after \`.map(…)\`.:
+  1 | iterator.map(value => value).toArray().filter(value => value)
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(6): (iterator.toArray()).map(value => value) 1`] = `
+
+  1 | (iterator.toArray()).map(value => value)
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(6): (iterator.toArray()).map(value => value) 2`] = `
+
+Message:
+> 1 | (iterator.toArray()).map(value => value)
+    |           ^^^^^^^ Move \`.toArray()\` after \`.map(…)\`.
+
+Suggestion 1/1: Move \`.toArray()\` after \`.map(…)\`.:
+  1 | iterator.map(value => value).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(6): iterator.toArray().map(/* comment */ value => value) 1`] = `
+
+  1 | iterator.toArray().map(/* comment */ value => value)
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(6): iterator.toArray().map(/* comment */ value => value) 2`] = `
+
+Message:
+> 1 | iterator.toArray().map(/* comment */ value => value)
+    |          ^^^^^^^ Move \`.toArray()\` after \`.map(…)\`.
+
+Suggestion 1/1: Move \`.toArray()\` after \`.map(…)\`.:
+  1 | iterator.map(/* comment */ value => value).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(7): ((iterator.toArray())).filter(value => value) 1`] = `
+
+  1 | ((iterator.toArray())).filter(value => value)
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(7): ((iterator.toArray())).filter(value => value) 2`] = `
+
+Message:
+> 1 | ((iterator.toArray())).filter(value => value)
+    |            ^^^^^^^ Move \`.toArray()\` after \`.filter(…)\`.
+
+Suggestion 1/1: Move \`.toArray()\` after \`.filter(…)\`.:
+  1 | iterator.filter(value => value).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(7): iterator.toArray(/* comment */).map(value => value) 1`] = `
+
+  1 | iterator.toArray(/* comment */).map(value => value)
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(7): iterator.toArray(/* comment */).map(value => value) 2`] = `
+
+Message:
+> 1 | iterator.toArray(/* comment */).map(value => value)
+    |          ^^^^^^^ Move \`.toArray()\` after \`.map(…)\`.
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(8): ((iterator).toArray()).flatMap(value => [value]) 1`] = `
+
+  1 | ((iterator).toArray()).flatMap(value => [value])
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(8): ((iterator).toArray()).flatMap(value => [value]) 2`] = `
+
+Message:
+> 1 | ((iterator).toArray()).flatMap(value => [value])
+    |             ^^^^^^^ Move \`.toArray()\` after \`.flatMap(…)\`.
+
+Suggestion 1/1: Move \`.toArray()\` after \`.flatMap(…)\`.:
+  1 | (iterator).flatMap(value => [value]).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(9): iterator.toArray() /* comment */ .map(value => value) 1`] = `
+
+  1 | iterator.toArray() /* comment */ .map(value => value)
+
+`;
+
+exports[`prefer-iterator-to-array-at-end > invalid(9): iterator.toArray() /* comment */ .map(value => value) 2`] = `
+
+Message:
+> 1 | iterator.toArray() /* comment */ .map(value => value)
+    |          ^^^^^^^ Move \`.toArray()\` after \`.map(…)\`.
+
+`;

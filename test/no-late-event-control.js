@@ -81,6 +81,7 @@ test.snapshot({
 				event.preventDefault();
 			}
 		`),
+		'async function onClick(event) { await load(); event.detail.preventDefault(); }',
 	],
 	invalid: [
 		// After `await`

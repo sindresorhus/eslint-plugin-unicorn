@@ -69,10 +69,6 @@ const getNamedCallbackFunction = (identifier, context) => {
 
 // `Iterator` callbacks take fewer arguments than the array ones, so a callback that reads the array argument works on the array but not on the iterator
 const canObserveArrayArgument = (callback, arrayParameterIndex, context) => {
-	if (!callback) {
-		return false;
-	}
-
 	callback = unwrapExpression(callback);
 
 	if (callback.type === 'Identifier') {

@@ -1,0 +1,311 @@
+exports[`prefer-queue-microtask > invalid(1): process.nextTick(callback); 1`] = `
+
+  1 | process.nextTick(callback);
+
+`;
+
+exports[`prefer-queue-microtask > invalid(1): process.nextTick(callback); 2`] = `
+
+Message:
+> 1 | process.nextTick(callback);
+    |         ^^^^^^^^ Prefer \`queueMicrotask()\` over \`process.nextTick()\`.
+
+Output:
+  1 | queueMicrotask(callback);
+
+`;
+
+exports[`prefer-queue-microtask > invalid(10): setImmediate(callback, value); 1`] = `
+
+Options:
+- checkSetImmediate: true
+
+Code:
+  1 | setImmediate(callback, value);
+
+`;
+
+exports[`prefer-queue-microtask > invalid(10): setImmediate(callback, value); 2`] = `
+
+Message:
+> 1 | setImmediate(callback, value);
+    | ^^^^^^^^^^^^ Prefer \`queueMicrotask()\` over \`setImmediate()\`.
+
+`;
+
+exports[`prefer-queue-microtask > invalid(11): setTimeout(callback, 0); 1`] = `
+
+Options:
+- checkSetTimeout: true
+
+Code:
+  1 | setTimeout(callback, 0);
+
+`;
+
+exports[`prefer-queue-microtask > invalid(11): setTimeout(callback, 0); 2`] = `
+
+Message:
+> 1 | setTimeout(callback, 0);
+    | ^^^^^^^^^^ Prefer \`queueMicrotask()\` over \`setTimeout()\`.
+
+Output:
+  1 | queueMicrotask(callback);
+
+`;
+
+exports[`prefer-queue-microtask > invalid(12): setTimeout(callback, 0, value); 1`] = `
+
+Options:
+- checkSetTimeout: true
+
+Code:
+  1 | setTimeout(callback, 0, value);
+
+`;
+
+exports[`prefer-queue-microtask > invalid(12): setTimeout(callback, 0, value); 2`] = `
+
+Message:
+> 1 | setTimeout(callback, 0, value);
+    | ^^^^^^^^^^ Prefer \`queueMicrotask()\` over \`setTimeout()\`.
+
+`;
+
+exports[`prefer-queue-microtask > invalid(13): setTimeout(callback, /* delay */ 0); 1`] = `
+
+Options:
+- checkSetTimeout: true
+
+Code:
+  1 | setTimeout(callback, /* delay */ 0);
+
+`;
+
+exports[`prefer-queue-microtask > invalid(13): setTimeout(callback, /* delay */ 0); 2`] = `
+
+Message:
+> 1 | setTimeout(callback, /* delay */ 0);
+    | ^^^^^^^^^^ Prefer \`queueMicrotask()\` over \`setTimeout()\`.
+
+`;
+
+exports[`prefer-queue-microtask > invalid(14): setTimeout(callback, 0 /* delay */); 1`] = `
+
+Options:
+- checkSetTimeout: true
+
+Code:
+  1 | setTimeout(callback, 0 /* delay */);
+
+`;
+
+exports[`prefer-queue-microtask > invalid(14): setTimeout(callback, 0 /* delay */); 2`] = `
+
+Message:
+> 1 | setTimeout(callback, 0 /* delay */);
+    | ^^^^^^^^^^ Prefer \`queueMicrotask()\` over \`setTimeout()\`.
+
+`;
+
+exports[`prefer-queue-microtask > invalid(15): setTimeout(callback, 0 // delay\n); 1`] = `
+
+Options:
+- checkSetTimeout: true
+
+Code:
+  1 | setTimeout(callback, 0 // delay
+  2 | );
+
+`;
+
+exports[`prefer-queue-microtask > invalid(15): setTimeout(callback, 0 // delay\n); 2`] = `
+
+Message:
+> 1 | setTimeout(callback, 0 // delay
+    | ^^^^^^^^^^ Prefer \`queueMicrotask()\` over \`setTimeout()\`.
+  2 | );
+
+`;
+
+exports[`prefer-queue-microtask > invalid(16): setTimeout(callback, 0,); 1`] = `
+
+Options:
+- checkSetTimeout: true
+
+Code:
+  1 | setTimeout(callback, 0,);
+
+`;
+
+exports[`prefer-queue-microtask > invalid(16): setTimeout(callback, 0,); 2`] = `
+
+Message:
+> 1 | setTimeout(callback, 0,);
+    | ^^^^^^^^^^ Prefer \`queueMicrotask()\` over \`setTimeout()\`.
+
+Output:
+  1 | queueMicrotask(callback);
+
+`;
+
+exports[`prefer-queue-microtask > invalid(17): setTimeout(callback, 0, /* trailing */); 1`] = `
+
+Options:
+- checkSetTimeout: true
+
+Code:
+  1 | setTimeout(callback, 0, /* trailing */);
+
+`;
+
+exports[`prefer-queue-microtask > invalid(17): setTimeout(callback, 0, /* trailing */); 2`] = `
+
+Message:
+> 1 | setTimeout(callback, 0, /* trailing */);
+    | ^^^^^^^^^^ Prefer \`queueMicrotask()\` over \`setTimeout()\`.
+
+`;
+
+exports[`prefer-queue-microtask > invalid(18): setTimeout(callback /* keep */, 0); 1`] = `
+
+Options:
+- checkSetTimeout: true
+
+Code:
+  1 | setTimeout(callback /* keep */, 0);
+
+`;
+
+exports[`prefer-queue-microtask > invalid(18): setTimeout(callback /* keep */, 0); 2`] = `
+
+Message:
+> 1 | setTimeout(callback /* keep */, 0);
+    | ^^^^^^^^^^ Prefer \`queueMicrotask()\` over \`setTimeout()\`.
+
+Output:
+  1 | queueMicrotask(callback /* keep */);
+
+`;
+
+exports[`prefer-queue-microtask > invalid(2): const result = process.nextTick(callback); 1`] = `
+
+  1 | const result = process.nextTick(callback);
+
+`;
+
+exports[`prefer-queue-microtask > invalid(2): const result = process.nextTick(callback); 2`] = `
+
+Message:
+> 1 | const result = process.nextTick(callback);
+    |                        ^^^^^^^^ Prefer \`queueMicrotask()\` over \`process.nextTick()\`.
+
+Output:
+  1 | const result = queueMicrotask(callback);
+
+`;
+
+exports[`prefer-queue-microtask > invalid(3): process /* keep */ .nextTick(callback); 1`] = `
+
+  1 | process /* keep */ .nextTick(callback);
+
+`;
+
+exports[`prefer-queue-microtask > invalid(3): process /* keep */ .nextTick(callback); 2`] = `
+
+Message:
+> 1 | process /* keep */ .nextTick(callback);
+    |                     ^^^^^^^^ Prefer \`queueMicrotask()\` over \`process.nextTick()\`.
+
+`;
+
+exports[`prefer-queue-microtask > invalid(4): process.nextTick(...argumentsArray); 1`] = `
+
+  1 | process.nextTick(...argumentsArray);
+
+`;
+
+exports[`prefer-queue-microtask > invalid(4): process.nextTick(...argumentsArray); 2`] = `
+
+Message:
+> 1 | process.nextTick(...argumentsArray);
+    |         ^^^^^^^^ Prefer \`queueMicrotask()\` over \`process.nextTick()\`.
+
+`;
+
+exports[`prefer-queue-microtask > invalid(5): process.nextTick(callback, value); 1`] = `
+
+  1 | process.nextTick(callback, value);
+
+`;
+
+exports[`prefer-queue-microtask > invalid(5): process.nextTick(callback, value); 2`] = `
+
+Message:
+> 1 | process.nextTick(callback, value);
+    |         ^^^^^^^^ Prefer \`queueMicrotask()\` over \`process.nextTick()\`.
+
+`;
+
+exports[`prefer-queue-microtask > invalid(6): const tick = process.nextTick; 1`] = `
+
+  1 | const tick = process.nextTick;
+
+`;
+
+exports[`prefer-queue-microtask > invalid(6): const tick = process.nextTick; 2`] = `
+
+Message:
+> 1 | const tick = process.nextTick;
+    |                      ^^^^^^^^ Prefer \`queueMicrotask()\` over \`process.nextTick()\`.
+
+`;
+
+exports[`prefer-queue-microtask > invalid(7): foo(process.nextTick); 1`] = `
+
+  1 | foo(process.nextTick);
+
+`;
+
+exports[`prefer-queue-microtask > invalid(7): foo(process.nextTick); 2`] = `
+
+Message:
+> 1 | foo(process.nextTick);
+    |             ^^^^^^^^ Prefer \`queueMicrotask()\` over \`process.nextTick()\`.
+
+`;
+
+exports[`prefer-queue-microtask > invalid(8): process.nextTick; 1`] = `
+
+  1 | process.nextTick;
+
+`;
+
+exports[`prefer-queue-microtask > invalid(8): process.nextTick; 2`] = `
+
+Message:
+> 1 | process.nextTick;
+    |         ^^^^^^^^ Prefer \`queueMicrotask()\` over \`process.nextTick()\`.
+
+`;
+
+exports[`prefer-queue-microtask > invalid(9): setImmediate(callback); 1`] = `
+
+Options:
+- checkSetImmediate: true
+
+Code:
+  1 | setImmediate(callback);
+
+`;
+
+exports[`prefer-queue-microtask > invalid(9): setImmediate(callback); 2`] = `
+
+Message:
+> 1 | setImmediate(callback);
+    | ^^^^^^^^^^^^ Prefer \`queueMicrotask()\` over \`setImmediate()\`.
+
+Output:
+  1 | queueMicrotask(callback);
+
+`;

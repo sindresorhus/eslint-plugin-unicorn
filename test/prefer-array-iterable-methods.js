@@ -107,5 +107,6 @@ test.snapshot({
 		'for(const[,value]of[].entries()){\n\tfoo(value);\n}',
 		'for(const[index,value]of[\'a\'].entries()){\n\tfoo(value);\n}',
 		'for(let[,value]of[].entries()){\n\tfoo(value);\n}',
+		'for (const [index, /* value */] of [].entries()) {\n\tfoo(index);\n}',
 	],
 });

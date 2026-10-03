@@ -50,10 +50,6 @@ const methodsReturnsArrayAndString = [
 ];
 
 const isIdentifierInitializedWithArray = (node, scope, visitedVariables = new Set()) => {
-	if (node.type !== 'Identifier') {
-		return false;
-	}
-
 	const variable = findVariable(scope, node);
 	if (!variable || visitedVariables.has(variable) || variable.defs.length !== 1) {
 		return false;
@@ -215,9 +211,9 @@ const getArrayFromSize = (node, context) => {
 		return hasSpread(source.elements) ? undefined : source.elements.length;
 	}
 
-	if (getStaticStringValue(source) !== undefined) {
-		const result = getStaticValueIfNoSideEffects(source, context);
-		return typeof result?.value === 'string' ? [...result.value].length : undefined;
+	const string = getStaticStringValue(source);
+	if (string !== undefined) {
+		return [...string].length;
 	}
 
 	return getObjectLength(source, context);
@@ -356,13 +352,6 @@ const isTypeScriptExpressionWrapper = (parent, child) =>
 	)
 	&& parent.expression === child;
 
-const isForInOrForOfTarget = node =>
-	(
-		node.parent.type === 'ForInStatement'
-		|| node.parent.type === 'ForOfStatement'
-	)
-	&& node.parent.left === node;
-
 const isAssignmentTarget = node => {
 	let target = node;
 
@@ -370,8 +359,7 @@ const isAssignmentTarget = node => {
 		target = target.parent;
 	}
 
-	return isLeftHandSide(target)
-		|| isForInOrForOfTarget(target);
+	return isLeftHandSide(target);
 };
 
 const isLengthRead = identifier => {
@@ -509,7 +497,7 @@ const create = context => {
 
 		// This was reported https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1075#issuecomment-768073342
 		// But can't reproduce, just ignore this case
-		/* c8 ignore next 3 */
+		/* node:coverage ignore next 3 */
 		if (!variable) {
 			return;
 		}

@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import {
 	getCommentSafeProblem,
@@ -49,10 +49,10 @@ for (const [comment, isOrdinary] of [
 ]) {
 	test(`comment helpers distinguish directives: ${comment || 'no comments'}`, t => {
 		inspectComments(`foo(${comment}value);`, (context, node) => {
-			t.is(hasNonDirectiveComment(context, node), isOrdinary);
-			t.is(hasNonDirectiveComment(context, context.sourceCode.getRange(node)), isOrdinary);
-			t.is(wouldRemoveComments(context, node), comment !== '');
-			t.is(hasCommentInRange(context, context.sourceCode.getRange(node)), comment !== '');
+			t.assert.strictEqual(hasNonDirectiveComment(context, node), isOrdinary);
+			t.assert.strictEqual(hasNonDirectiveComment(context, context.sourceCode.getRange(node)), isOrdinary);
+			t.assert.strictEqual(wouldRemoveComments(context, node), comment !== '');
+			t.assert.strictEqual(hasCommentInRange(context, context.sourceCode.getRange(node)), comment !== '');
 
 			const fix = () => {};
 			const suggest = [{messageId: 'suggestion', fix}];
@@ -61,13 +61,13 @@ for (const [comment, isOrdinary] of [
 			};
 			const safeProblem = getCommentSafeProblem(context, problem);
 			if (comment === '') {
-				t.is(safeProblem, problem);
+				t.assert.strictEqual(safeProblem, problem);
 			} else {
-				t.deepEqual(safeProblem, {node, messageId: 'problem', data: {value: 1}});
+				t.assert.deepStrictEqual(safeProblem, {node, messageId: 'problem', data: {value: 1}});
 			}
 
-			t.is(problem.fix, fix);
-			t.is(problem.suggest, suggest);
+			t.assert.strictEqual(problem.fix, fix);
+			t.assert.strictEqual(problem.suggest, suggest);
 		});
 	});
 }
@@ -78,7 +78,7 @@ test('comment helpers ignore comments outside the affected range', t => {
 		removed: wouldRemoveComments(context, node),
 		inRange: hasCommentInRange(context, context.sourceCode.getRange(node)),
 	}));
-	t.deepEqual(result, {ordinary: false, removed: false, inRange: false});
+	t.assert.deepStrictEqual(result, {ordinary: false, removed: false, inRange: false});
 });
 
 test('range comment checks require the whole comment to be inside the range', t => {
@@ -91,8 +91,8 @@ test('range comment checks require the whole comment to be inside the range', t 
 			[[start, end - 1], false],
 			[[start, start], false],
 		]) {
-			t.is(hasCommentInRange(context, range), expected);
-			t.is(wouldRemoveComments(context, range), expected);
+			t.assert.strictEqual(hasCommentInRange(context, range), expected);
+			t.assert.strictEqual(wouldRemoveComments(context, range), expected);
 		}
 	});
 });
@@ -104,9 +104,9 @@ test('comment helpers retain fixes for comments in preserved nodes and ranges', 
 			const fix = () => {};
 			const problem = {node, messageId: 'problem', fix};
 			for (const preserved of [preservedNode, context.sourceCode.getRange(preservedNode)]) {
-				t.false(hasNonDirectiveComment(context, node, [preserved]));
-				t.false(wouldRemoveComments(context, node, [preserved]));
-				t.is(getCommentSafeProblem(context, problem, node, [preserved]), problem);
+				t.assert.strictEqual(hasNonDirectiveComment(context, node, [preserved]), false);
+				t.assert.strictEqual(wouldRemoveComments(context, node, [preserved]), false);
+				t.assert.strictEqual(getCommentSafeProblem(context, problem, node, [preserved]), problem);
 			}
 		});
 	}
@@ -115,21 +115,21 @@ test('comment helpers retain fixes for comments in preserved nodes and ranges', 
 test('directive recognition also supports separately synthesized comment nodes', t => {
 	inspectComments('foo(  /* eslint-disable */  value);', (context, node) => {
 		const [comment] = context.sourceCode.getCommentsInside(node);
-		t.true(isEslintDisableOrEnableDirective(context, {...comment}));
-		t.true(isEslintDisableOrEnableDirective(context, {...comment, range: [comment.range[0] - 2, comment.range[1] + 2]}));
-		t.false(isEslintDisableOrEnableDirective(context, {...comment, range: [0, comment.range[1]]}));
-		t.false(isEslintDisableOrEnableDirective(context, {...comment, range: [0, 1]}));
+		t.assert.strictEqual(isEslintDisableOrEnableDirective(context, {...comment}), true);
+		t.assert.strictEqual(isEslintDisableOrEnableDirective(context, {...comment, range: [comment.range[0] - 2, comment.range[1] + 2]}), true);
+		t.assert.strictEqual(isEslintDisableOrEnableDirective(context, {...comment, range: [0, comment.range[1]]}), false);
+		t.assert.strictEqual(isEslintDisableOrEnableDirective(context, {...comment, range: [0, 1]}), false);
 	});
 });
 
 test('trailing comment lookup can ignore directives while retaining ordinary comments', t => {
 	inspectComments('foo(); /* Explanation. */ /* eslint-enable */\n/* Later. */', (context, node) => {
 		const lastComment = getLastTrailingCommentOnSameLine(context, node.parent);
-		t.true(isEslintDisableOrEnableDirective(context, lastComment));
+		t.assert.strictEqual(isEslintDisableOrEnableDirective(context, lastComment), true);
 		const ordinaryComment = getLastTrailingCommentOnSameLine(context, node.parent, {ignoreDirectives: true});
-		t.is(ordinaryComment.value.trim(), 'Explanation.');
+		t.assert.strictEqual(ordinaryComment.value.trim(), 'Explanation.');
 	});
 	inspectComments('foo(); /* eslint-enable */', (context, node) => {
-		t.is(getLastTrailingCommentOnSameLine(context, node.parent, {ignoreDirectives: true}), undefined);
+		t.assert.strictEqual(getLastTrailingCommentOnSameLine(context, node.parent, {ignoreDirectives: true}), undefined);
 	});
 });

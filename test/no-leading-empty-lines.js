@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import {getTester, languages, parsers} from './utils/test.js';
 
@@ -72,13 +72,13 @@ for (const {language, code} of languageCases) {
 		};
 		const input = `\uFEFF \t\r\n\r\n${code}`;
 		const messages = linter.verify(input, config);
-		t.is(messages.length, 1);
-		t.is(messages[0].messageId, 'no-leading-empty-lines');
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].messageId, 'no-leading-empty-lines');
 		const result = linter.verifyAndFix(input, config);
-		t.true(result.fixed);
-		t.is(result.output, `\uFEFF${code}`);
-		t.deepEqual(result.messages, []);
-		t.false(linter.verifyAndFix(result.output, config).fixed);
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.strictEqual(result.output, `\uFEFF${code}`);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(linter.verifyAndFix(result.output, config).fixed, false);
 	});
 }
 
@@ -98,7 +98,7 @@ test('ignores virtual files from processors', t => {
 			rules: {'unicorn/no-leading-empty-lines': 'error', 'no-debugger': 'error'},
 		},
 	], {filename: 'document.txt'});
-	t.deepEqual(messages.map(({ruleId}) => ruleId), ['no-debugger']);
+	t.assert.deepStrictEqual(messages.map(({ruleId}) => ruleId), ['no-debugger']);
 });
 
 test('checks processor output that retains the physical filename', t => {
@@ -114,12 +114,12 @@ test('checks processor output that retains the physical filename', t => {
 	};
 	const input = '\n\n  const value = 3;';
 	const messages = linter.verify(input, config);
-	t.is(messages.length, 1);
-	t.is(messages[0].messageId, 'no-leading-empty-lines');
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].messageId, 'no-leading-empty-lines');
 	const result = linter.verifyAndFix(input, config);
-	t.true(result.fixed);
-	t.is(result.output, '  const value = 3;');
-	t.deepEqual(result.messages, []);
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, '  const value = 3;');
+	t.assert.deepStrictEqual(result.messages, []);
 });
 
 test('fixes whitespace-only files in native languages', t => {
@@ -131,14 +131,14 @@ test('fixes whitespace-only files in native languages', t => {
 			plugins: {...plugins, unicorn: {rules: {'no-leading-empty-lines': rule}}},
 			rules: {'unicorn/no-leading-empty-lines': 'error'},
 		};
-		t.deepEqual(linter.verify(' \t ', config), []);
+		t.assert.deepStrictEqual(linter.verify(' \t ', config), []);
 		const messages = linter.verify(' \t\r\n\n', config);
-		t.is(messages.length, 1);
-		t.is(messages[0].messageId, 'no-leading-empty-lines');
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].messageId, 'no-leading-empty-lines');
 		const result = linter.verifyAndFix(' \t\r\n\n', config);
-		t.true(result.fixed);
-		t.is(result.output, '');
-		t.deepEqual(result.messages, []);
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.strictEqual(result.output, '');
+		t.assert.deepStrictEqual(result.messages, []);
 	}
 });
 

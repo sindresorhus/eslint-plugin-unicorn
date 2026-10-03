@@ -25,10 +25,6 @@ const getNonTypeDefinitions = variable => variable.defs.filter(definition => def
 Get the unique value binding and definition for an identifier, skipping type-only bindings.
 */
 const getVariableInfo = (node, context) => {
-	if (node.type !== 'Identifier') {
-		return;
-	}
-
 	let scope = context.sourceCode.getScope(node);
 	let variable = findVariable(scope, node);
 	let definitions = variable ? getNonTypeDefinitions(variable) : [];

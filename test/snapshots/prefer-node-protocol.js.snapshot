@@ -1,0 +1,346 @@
+exports[`prefer-node-protocol > invalid(1): const fs = process.getBuiltinModule(\"fs\") 1`] = `
+
+  1 | const fs = process.getBuiltinModule("fs")
+
+`;
+
+exports[`prefer-node-protocol > invalid(1): const fs = process.getBuiltinModule(\"fs\") 2`] = `
+
+Message:
+> 1 | const fs = process.getBuiltinModule("fs")
+    |                                     ^^^^ Prefer \`node:fs\` over \`fs\`.
+
+Output:
+  1 | const fs = process.getBuiltinModule("node:fs")
+
+`;
+
+exports[`prefer-node-protocol > invalid(1): const {promises} = require(\"fs\") 1`] = `
+
+  1 | const {promises} = require("fs")
+
+`;
+
+exports[`prefer-node-protocol > invalid(1): const {promises} = require(\"fs\") 2`] = `
+
+Message:
+> 1 | const {promises} = require("fs")
+    |                            ^^^^ Prefer \`node:fs\` over \`fs\`.
+
+Output:
+  1 | const {promises} = require("node:fs")
+
+`;
+
+exports[`prefer-node-protocol > invalid(1): import fs from \"fs\"; 1`] = `
+
+  1 | import fs from "fs";
+
+`;
+
+exports[`prefer-node-protocol > invalid(1): import fs from \"fs\"; 2`] = `
+
+Message:
+> 1 | import fs from "fs";
+    |                ^^^^ Prefer \`node:fs\` over \`fs\`.
+
+Output:
+  1 | import fs from "node:fs";
+
+`;
+
+exports[`prefer-node-protocol > invalid(10): export {default as promises} from \"fs\"; 1`] = `
+
+  1 | export {default as promises} from "fs";
+
+`;
+
+exports[`prefer-node-protocol > invalid(10): export {default as promises} from \"fs\"; 2`] = `
+
+Message:
+> 1 | export {default as promises} from "fs";
+    |                                   ^^^^ Prefer \`node:fs\` over \`fs\`.
+
+Output:
+  1 | export {default as promises} from "node:fs";
+
+`;
+
+exports[`prefer-node-protocol > invalid(11): import {promises} from 'fs'; 1`] = `
+
+  1 | import {promises} from 'fs';
+
+`;
+
+exports[`prefer-node-protocol > invalid(11): import {promises} from 'fs'; 2`] = `
+
+Message:
+> 1 | import {promises} from 'fs';
+    |                        ^^^^ Prefer \`node:fs\` over \`fs\`.
+
+Output:
+  1 | import {promises} from 'node:fs';
+
+`;
+
+exports[`prefer-node-protocol > invalid(12): async function foo() {\n\tconst fs = await import(\"fs/promises\");\n} 1`] = `
+
+  1 | async function foo() {
+  2 | 	const fs = await import("fs/promises");
+  3 | }
+
+`;
+
+exports[`prefer-node-protocol > invalid(12): async function foo() {\n\tconst fs = await import(\"fs/promises\");\n} 2`] = `
+
+Message:
+  1 | async function foo() {
+> 2 | 	const fs = await import("fs/promises");
+    | 	                        ^^^^^^^^^^^^^ Prefer \`node:fs/promises\` over \`fs/promises\`.
+  3 | }
+
+Output:
+  1 | async function foo() {
+  2 | 	const fs = await import("node:fs/promises");
+  3 | }
+
+`;
+
+exports[`prefer-node-protocol > invalid(13): async function foo() {\n\tconst fs = await import(/* escaped */\"\\u{66}s/promises\");\n} 1`] = `
+
+  1 | async function foo() {
+  2 | 	const fs = await import(/* escaped */"\\u{66}s/promises");
+  3 | }
+
+`;
+
+exports[`prefer-node-protocol > invalid(13): async function foo() {\n\tconst fs = await import(/* escaped */\"\\u{66}s/promises\");\n} 2`] = `
+
+Message:
+  1 | async function foo() {
+> 2 | 	const fs = await import(/* escaped */"\\u{66}s/promises");
+    | 	                                     ^^^^^^^^^^^^^^^^^^ Prefer \`node:fs/promises\` over \`fs/promises\`.
+  3 | }
+
+Output:
+  1 | async function foo() {
+  2 | 	const fs = await import(/* escaped */"node:\\u{66}s/promises");
+  3 | }
+
+`;
+
+exports[`prefer-node-protocol > invalid(14): import \"buffer\"; 1`] = `
+
+  1 | import "buffer";
+
+`;
+
+exports[`prefer-node-protocol > invalid(14): import \"buffer\"; 2`] = `
+
+Message:
+> 1 | import "buffer";
+    |        ^^^^^^^^ Prefer \`node:buffer\` over \`buffer\`.
+
+Output:
+  1 | import "node:buffer";
+
+`;
+
+exports[`prefer-node-protocol > invalid(15): import \"child_process\"; 1`] = `
+
+  1 | import "child_process";
+
+`;
+
+exports[`prefer-node-protocol > invalid(15): import \"child_process\"; 2`] = `
+
+Message:
+> 1 | import "child_process";
+    |        ^^^^^^^^^^^^^^^ Prefer \`node:child_process\` over \`child_process\`.
+
+Output:
+  1 | import "node:child_process";
+
+`;
+
+exports[`prefer-node-protocol > invalid(16): import \"timers/promises\"; 1`] = `
+
+  1 | import "timers/promises";
+
+`;
+
+exports[`prefer-node-protocol > invalid(16): import \"timers/promises\"; 2`] = `
+
+Message:
+> 1 | import "timers/promises";
+    |        ^^^^^^^^^^^^^^^^^ Prefer \`node:timers/promises\` over \`timers/promises\`.
+
+Output:
+  1 | import "node:timers/promises";
+
+`;
+
+exports[`prefer-node-protocol > invalid(2): const fs = require('fs/promises') 1`] = `
+
+  1 | const fs = require('fs/promises')
+
+`;
+
+exports[`prefer-node-protocol > invalid(2): const fs = require('fs/promises') 2`] = `
+
+Message:
+> 1 | const fs = require('fs/promises')
+    |                    ^^^^^^^^^^^^^ Prefer \`node:fs/promises\` over \`fs/promises\`.
+
+Output:
+  1 | const fs = require('node:fs/promises')
+
+`;
+
+exports[`prefer-node-protocol > invalid(2): export {promises} from \"fs\"; 1`] = `
+
+  1 | export {promises} from "fs";
+
+`;
+
+exports[`prefer-node-protocol > invalid(2): export {promises} from \"fs\"; 2`] = `
+
+Message:
+> 1 | export {promises} from "fs";
+    |                        ^^^^ Prefer \`node:fs\` over \`fs\`.
+
+Output:
+  1 | export {promises} from "node:fs";
+
+`;
+
+exports[`prefer-node-protocol > invalid(3): export * from \"fs\"; 1`] = `
+
+  1 | export * from "fs";
+
+`;
+
+exports[`prefer-node-protocol > invalid(3): export * from \"fs\"; 2`] = `
+
+Message:
+> 1 | export * from "fs";
+    |               ^^^^ Prefer \`node:fs\` over \`fs\`.
+
+Output:
+  1 | export * from "node:fs";
+
+`;
+
+exports[`prefer-node-protocol > invalid(4): export * as ns from \"fs\"; 1`] = `
+
+  1 | export * as ns from "fs";
+
+`;
+
+exports[`prefer-node-protocol > invalid(4): export * as ns from \"fs\"; 2`] = `
+
+Message:
+> 1 | export * as ns from "fs";
+    |                     ^^^^ Prefer \`node:fs\` over \`fs\`.
+
+Output:
+  1 | export * as ns from "node:fs";
+
+`;
+
+exports[`prefer-node-protocol > invalid(5): async function foo() {\n\tconst fs = await import('fs');\n} 1`] = `
+
+  1 | async function foo() {
+  2 | 	const fs = await import('fs');
+  3 | }
+
+`;
+
+exports[`prefer-node-protocol > invalid(5): async function foo() {\n\tconst fs = await import('fs');\n} 2`] = `
+
+Message:
+  1 | async function foo() {
+> 2 | 	const fs = await import('fs');
+    | 	                        ^^^^ Prefer \`node:fs\` over \`fs\`.
+  3 | }
+
+Output:
+  1 | async function foo() {
+  2 | 	const fs = await import('node:fs');
+  3 | }
+
+`;
+
+exports[`prefer-node-protocol > invalid(6): import fs from \"fs/promises\"; 1`] = `
+
+  1 | import fs from "fs/promises";
+
+`;
+
+exports[`prefer-node-protocol > invalid(6): import fs from \"fs/promises\"; 2`] = `
+
+Message:
+> 1 | import fs from "fs/promises";
+    |                ^^^^^^^^^^^^^ Prefer \`node:fs/promises\` over \`fs/promises\`.
+
+Output:
+  1 | import fs from "node:fs/promises";
+
+`;
+
+exports[`prefer-node-protocol > invalid(7): export {default} from \"fs/promises\"; 1`] = `
+
+  1 | export {default} from "fs/promises";
+
+`;
+
+exports[`prefer-node-protocol > invalid(7): export {default} from \"fs/promises\"; 2`] = `
+
+Message:
+> 1 | export {default} from "fs/promises";
+    |                       ^^^^^^^^^^^^^ Prefer \`node:fs/promises\` over \`fs/promises\`.
+
+Output:
+  1 | export {default} from "node:fs/promises";
+
+`;
+
+exports[`prefer-node-protocol > invalid(8): async function foo() {\n\tconst fs = await import('fs/promises');\n} 1`] = `
+
+  1 | async function foo() {
+  2 | 	const fs = await import('fs/promises');
+  3 | }
+
+`;
+
+exports[`prefer-node-protocol > invalid(8): async function foo() {\n\tconst fs = await import('fs/promises');\n} 2`] = `
+
+Message:
+  1 | async function foo() {
+> 2 | 	const fs = await import('fs/promises');
+    | 	                        ^^^^^^^^^^^^^ Prefer \`node:fs/promises\` over \`fs/promises\`.
+  3 | }
+
+Output:
+  1 | async function foo() {
+  2 | 	const fs = await import('node:fs/promises');
+  3 | }
+
+`;
+
+exports[`prefer-node-protocol > invalid(9): import {promises} from \"fs\"; 1`] = `
+
+  1 | import {promises} from "fs";
+
+`;
+
+exports[`prefer-node-protocol > invalid(9): import {promises} from \"fs\"; 2`] = `
+
+Message:
+> 1 | import {promises} from "fs";
+    |                        ^^^^ Prefer \`node:fs\` over \`fs\`.
+
+Output:
+  1 | import {promises} from "node:fs";
+
+`;

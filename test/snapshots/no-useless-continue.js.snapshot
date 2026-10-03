@@ -1,0 +1,654 @@
+exports[`no-useless-continue > invalid(1): for (const x of xs) {\n\tprocess(x);\n\tcontinue;\n} 1`] = `
+
+  1 | for (const x of xs) {
+  2 | 	process(x);
+  3 | 	continue;
+  4 | }
+
+`;
+
+exports[`no-useless-continue > invalid(1): for (const x of xs) {\n\tprocess(x);\n\tcontinue;\n} 2`] = `
+
+Message:
+  1 | for (const x of xs) {
+  2 | 	process(x);
+> 3 | 	continue;
+    | 	^^^^^^^^^ Unnecessary \`continue\` statement.
+  4 | }
+
+Output:
+  1 | for (const x of xs) {
+  2 | 	process(x);
+  3 | }
+
+`;
+
+exports[`no-useless-continue > invalid(10): for (const x of xs) {\n\tif (a) {\n\t\tdoX();\n\t\tcontinue;\n\t} else {\n\t\tdoY();\n\t}\n} 1`] = `
+
+  1 | for (const x of xs) {
+  2 | 	if (a) {
+  3 | 		doX();
+  4 | 		continue;
+  5 | 	} else {
+  6 | 		doY();
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`no-useless-continue > invalid(10): for (const x of xs) {\n\tif (a) {\n\t\tdoX();\n\t\tcontinue;\n\t} else {\n\t\tdoY();\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const x of xs) {
+  2 | 	if (a) {
+  3 | 		doX();
+> 4 | 		continue;
+    | 		^^^^^^^^^ Unnecessary \`continue\` statement.
+  5 | 	} else {
+  6 | 		doY();
+  7 | 	}
+  8 | }
+
+Output:
+  1 | for (const x of xs) {
+  2 | 	if (a) {
+  3 | 		doX();
+  4 | 	} else {
+  5 | 		doY();
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`no-useless-continue > invalid(11): for (const x of xs) {\n\tif (a) {\n\t\tdoX();\n\t} else {\n\t\tdoY();\n\t\tcontinue;\n\t}\n} 1`] = `
+
+  1 | for (const x of xs) {
+  2 | 	if (a) {
+  3 | 		doX();
+  4 | 	} else {
+  5 | 		doY();
+  6 | 		continue;
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`no-useless-continue > invalid(11): for (const x of xs) {\n\tif (a) {\n\t\tdoX();\n\t} else {\n\t\tdoY();\n\t\tcontinue;\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const x of xs) {
+  2 | 	if (a) {
+  3 | 		doX();
+  4 | 	} else {
+  5 | 		doY();
+> 6 | 		continue;
+    | 		^^^^^^^^^ Unnecessary \`continue\` statement.
+  7 | 	}
+  8 | }
+
+Output:
+  1 | for (const x of xs) {
+  2 | 	if (a) {
+  3 | 		doX();
+  4 | 	} else {
+  5 | 		doY();
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`no-useless-continue > invalid(12): for (const x of xs) {\n\tif (a) {\n\t\tdoX();\n\t} else if (b) {\n\t\tdoY();\n\t\tcontinue;\n\t}\n} 1`] = `
+
+  1 | for (const x of xs) {
+  2 | 	if (a) {
+  3 | 		doX();
+  4 | 	} else if (b) {
+  5 | 		doY();
+  6 | 		continue;
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`no-useless-continue > invalid(12): for (const x of xs) {\n\tif (a) {\n\t\tdoX();\n\t} else if (b) {\n\t\tdoY();\n\t\tcontinue;\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const x of xs) {
+  2 | 	if (a) {
+  3 | 		doX();
+  4 | 	} else if (b) {
+  5 | 		doY();
+> 6 | 		continue;
+    | 		^^^^^^^^^ Unnecessary \`continue\` statement.
+  7 | 	}
+  8 | }
+
+Output:
+  1 | for (const x of xs) {
+  2 | 	if (a) {
+  3 | 		doX();
+  4 | 	} else if (b) {
+  5 | 		doY();
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`no-useless-continue > invalid(13): async function run() {\n\tfor await (const x of xs) {\n\t\tprocess(x);\n\t\tcontinue;\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	for await (const x of xs) {
+  3 | 		process(x);
+  4 | 		continue;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`no-useless-continue > invalid(13): async function run() {\n\tfor await (const x of xs) {\n\t\tprocess(x);\n\t\tcontinue;\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	for await (const x of xs) {
+  3 | 		process(x);
+> 4 | 		continue;
+    | 		^^^^^^^^^ Unnecessary \`continue\` statement.
+  5 | 	}
+  6 | }
+
+Output:
+  1 | async function run() {
+  2 | 	for await (const x of xs) {
+  3 | 		process(x);
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-continue > invalid(14): for (const x of xs) {\n\t{\n\t\tcontinue;\n\t}\n} 1`] = `
+
+  1 | for (const x of xs) {
+  2 | 	{
+  3 | 		continue;
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-continue > invalid(14): for (const x of xs) {\n\t{\n\t\tcontinue;\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const x of xs) {
+  2 | 	{
+> 3 | 		continue;
+    | 		^^^^^^^^^ Unnecessary \`continue\` statement.
+  4 | 	}
+  5 | }
+
+Output:
+  1 | for (const x of xs) {
+  2 | 	{
+  3 | 	}
+  4 | }
+
+`;
+
+exports[`no-useless-continue > invalid(15): for (const x of xs) {\n\tfor (const y of ys) {\n\t\tprocess(y);\n\t\tcontinue;\n\t}\n} 1`] = `
+
+  1 | for (const x of xs) {
+  2 | 	for (const y of ys) {
+  3 | 		process(y);
+  4 | 		continue;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`no-useless-continue > invalid(15): for (const x of xs) {\n\tfor (const y of ys) {\n\t\tprocess(y);\n\t\tcontinue;\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const x of xs) {
+  2 | 	for (const y of ys) {
+  3 | 		process(y);
+> 4 | 		continue;
+    | 		^^^^^^^^^ Unnecessary \`continue\` statement.
+  5 | 	}
+  6 | }
+
+Output:
+  1 | for (const x of xs) {
+  2 | 	for (const y of ys) {
+  3 | 		process(y);
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-continue > invalid(16): for (const x of xs) {\n\tfor (const y of ys) {\n\t\tcontinue;\n\t}\n\n\tcontinue;\n} 1`] = `
+
+  1 | for (const x of xs) {
+  2 | 	for (const y of ys) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	continue;
+  7 | }
+
+`;
+
+exports[`no-useless-continue > invalid(16): for (const x of xs) {\n\tfor (const y of ys) {\n\t\tcontinue;\n\t}\n\n\tcontinue;\n} 2`] = `
+
+Message:
+  1 | for (const x of xs) {
+  2 | 	for (const y of ys) {
+> 3 | 		continue;
+    | 		^^^^^^^^^ Unnecessary \`continue\` statement.
+  4 | 	}
+  5 |
+  6 | 	continue;
+  7 | }
+
+Output:
+  1 | for (const x of xs) {
+  2 | 	for (const y of ys) {
+  3 | 	}
+  4 |
+  5 | 	continue;
+  6 | }
+
+`;
+
+exports[`no-useless-continue > invalid(16): for (const x of xs) {\n\tfor (const y of ys) {\n\t\tcontinue;\n\t}\n\n\tcontinue;\n} 3`] = `
+
+Message:
+  1 | for (const x of xs) {
+  2 | 	for (const y of ys) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+> 6 | 	continue;
+    | 	^^^^^^^^^ Unnecessary \`continue\` statement.
+  7 | }
+
+Output:
+  1 | for (const x of xs) {
+  2 | 	for (const y of ys) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | }
+
+`;
+
+exports[`no-useless-continue > invalid(17): outer: for (const x of xs) {\n\tdoX();\n\tcontinue;\n} 1`] = `
+
+  1 | outer: for (const x of xs) {
+  2 | 	doX();
+  3 | 	continue;
+  4 | }
+
+`;
+
+exports[`no-useless-continue > invalid(17): outer: for (const x of xs) {\n\tdoX();\n\tcontinue;\n} 2`] = `
+
+Message:
+  1 | outer: for (const x of xs) {
+  2 | 	doX();
+> 3 | 	continue;
+    | 	^^^^^^^^^ Unnecessary \`continue\` statement.
+  4 | }
+
+Output:
+  1 | outer: for (const x of xs) {
+  2 | 	doX();
+  3 | }
+
+`;
+
+exports[`no-useless-continue > invalid(18): for (const x of xs) {\n\tcontinue;\n\tcontinue;\n} 1`] = `
+
+  1 | for (const x of xs) {
+  2 | 	continue;
+  3 | 	continue;
+  4 | }
+
+`;
+
+exports[`no-useless-continue > invalid(18): for (const x of xs) {\n\tcontinue;\n\tcontinue;\n} 2`] = `
+
+Message:
+  1 | for (const x of xs) {
+  2 | 	continue;
+> 3 | 	continue;
+    | 	^^^^^^^^^ Unnecessary \`continue\` statement.
+  4 | }
+
+Output:
+  1 | for (const x of xs) {
+  2 | 	continue;
+  3 | }
+
+`;
+
+exports[`no-useless-continue > invalid(19): for (const x of xs) {\n\tif (a) {\n\t\tdoX();\n\t} else {\n\t\tif (b) {\n\t\t\tcontinue;\n\t\t}\n\t}\n} 1`] = `
+
+  1 | for (const x of xs) {
+  2 | 	if (a) {
+  3 | 		doX();
+  4 | 	} else {
+  5 | 		if (b) {
+  6 | 			continue;
+  7 | 		}
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`no-useless-continue > invalid(19): for (const x of xs) {\n\tif (a) {\n\t\tdoX();\n\t} else {\n\t\tif (b) {\n\t\t\tcontinue;\n\t\t}\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const x of xs) {
+  2 | 	if (a) {
+  3 | 		doX();
+  4 | 	} else {
+  5 | 		if (b) {
+> 6 | 			continue;
+    | 			^^^^^^^^^ Unnecessary \`continue\` statement.
+  7 | 		}
+  8 | 	}
+  9 | }
+
+Output:
+  1 | for (const x of xs) {
+  2 | 	if (a) {
+  3 | 		doX();
+  4 | 	} else {
+  5 | 		if (b) {
+  6 | 		}
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`no-useless-continue > invalid(2): for (const x of xs) {\n\tcontinue;\n} 1`] = `
+
+  1 | for (const x of xs) {
+  2 | 	continue;
+  3 | }
+
+`;
+
+exports[`no-useless-continue > invalid(2): for (const x of xs) {\n\tcontinue;\n} 2`] = `
+
+Message:
+  1 | for (const x of xs) {
+> 2 | 	continue;
+    | 	^^^^^^^^^ Unnecessary \`continue\` statement.
+  3 | }
+
+Output:
+  1 | for (const x of xs) {
+  2 | }
+
+`;
+
+exports[`no-useless-continue > invalid(20): do {\n\tif (a) {\n\t\tcontinue;\n\t}\n} while (cond); 1`] = `
+
+  1 | do {
+  2 | 	if (a) {
+  3 | 		continue;
+  4 | 	}
+  5 | } while (cond);
+
+`;
+
+exports[`no-useless-continue > invalid(20): do {\n\tif (a) {\n\t\tcontinue;\n\t}\n} while (cond); 2`] = `
+
+Message:
+  1 | do {
+  2 | 	if (a) {
+> 3 | 		continue;
+    | 		^^^^^^^^^ Unnecessary \`continue\` statement.
+  4 | 	}
+  5 | } while (cond);
+
+Output:
+  1 | do {
+  2 | 	if (a) {
+  3 | 	}
+  4 | } while (cond);
+
+`;
+
+exports[`no-useless-continue > invalid(21): for (const x of xs) {\n\tdoX();\n\tcontinue; // trailing comment\n} 1`] = `
+
+  1 | for (const x of xs) {
+  2 | 	doX();
+  3 | 	continue; // trailing comment
+  4 | }
+
+`;
+
+exports[`no-useless-continue > invalid(21): for (const x of xs) {\n\tdoX();\n\tcontinue; // trailing comment\n} 2`] = `
+
+Message:
+  1 | for (const x of xs) {
+  2 | 	doX();
+> 3 | 	continue; // trailing comment
+    | 	^^^^^^^^^ Unnecessary \`continue\` statement.
+  4 | }
+
+Output:
+  1 | for (const x of xs) {
+  2 | 	doX();
+  3 | 	 // trailing comment
+  4 | }
+
+`;
+
+exports[`no-useless-continue > invalid(22): for (const x of xs) {\n\tdoX();\n\t// leading comment\n\tcontinue;\n} 1`] = `
+
+  1 | for (const x of xs) {
+  2 | 	doX();
+  3 | 	// leading comment
+  4 | 	continue;
+  5 | }
+
+`;
+
+exports[`no-useless-continue > invalid(22): for (const x of xs) {\n\tdoX();\n\t// leading comment\n\tcontinue;\n} 2`] = `
+
+Message:
+  1 | for (const x of xs) {
+  2 | 	doX();
+  3 | 	// leading comment
+> 4 | 	continue;
+    | 	^^^^^^^^^ Unnecessary \`continue\` statement.
+  5 | }
+
+Output:
+  1 | for (const x of xs) {
+  2 | 	doX();
+  3 | 	// leading comment
+  4 | }
+
+`;
+
+exports[`no-useless-continue > invalid(3): while (cond) {\n\tdoX();\n\tcontinue;\n} 1`] = `
+
+  1 | while (cond) {
+  2 | 	doX();
+  3 | 	continue;
+  4 | }
+
+`;
+
+exports[`no-useless-continue > invalid(3): while (cond) {\n\tdoX();\n\tcontinue;\n} 2`] = `
+
+Message:
+  1 | while (cond) {
+  2 | 	doX();
+> 3 | 	continue;
+    | 	^^^^^^^^^ Unnecessary \`continue\` statement.
+  4 | }
+
+Output:
+  1 | while (cond) {
+  2 | 	doX();
+  3 | }
+
+`;
+
+exports[`no-useless-continue > invalid(4): do {\n\tdoX();\n\tcontinue;\n} while (cond); 1`] = `
+
+  1 | do {
+  2 | 	doX();
+  3 | 	continue;
+  4 | } while (cond);
+
+`;
+
+exports[`no-useless-continue > invalid(4): do {\n\tdoX();\n\tcontinue;\n} while (cond); 2`] = `
+
+Message:
+  1 | do {
+  2 | 	doX();
+> 3 | 	continue;
+    | 	^^^^^^^^^ Unnecessary \`continue\` statement.
+  4 | } while (cond);
+
+Output:
+  1 | do {
+  2 | 	doX();
+  3 | } while (cond);
+
+`;
+
+exports[`no-useless-continue > invalid(5): for (const x in object) {\n\tdoX();\n\tcontinue;\n} 1`] = `
+
+  1 | for (const x in object) {
+  2 | 	doX();
+  3 | 	continue;
+  4 | }
+
+`;
+
+exports[`no-useless-continue > invalid(5): for (const x in object) {\n\tdoX();\n\tcontinue;\n} 2`] = `
+
+Message:
+  1 | for (const x in object) {
+  2 | 	doX();
+> 3 | 	continue;
+    | 	^^^^^^^^^ Unnecessary \`continue\` statement.
+  4 | }
+
+Output:
+  1 | for (const x in object) {
+  2 | 	doX();
+  3 | }
+
+`;
+
+exports[`no-useless-continue > invalid(6): for (let i = 0; i < n; i++) {\n\tdoX();\n\tcontinue;\n} 1`] = `
+
+  1 | for (let i = 0; i < n; i++) {
+  2 | 	doX();
+  3 | 	continue;
+  4 | }
+
+`;
+
+exports[`no-useless-continue > invalid(6): for (let i = 0; i < n; i++) {\n\tdoX();\n\tcontinue;\n} 2`] = `
+
+Message:
+  1 | for (let i = 0; i < n; i++) {
+  2 | 	doX();
+> 3 | 	continue;
+    | 	^^^^^^^^^ Unnecessary \`continue\` statement.
+  4 | }
+
+Output:
+  1 | for (let i = 0; i < n; i++) {
+  2 | 	doX();
+  3 | }
+
+`;
+
+exports[`no-useless-continue > invalid(7): for (const x of xs) if (a) { continue; } 1`] = `
+
+  1 | for (const x of xs) if (a) { continue; }
+
+`;
+
+exports[`no-useless-continue > invalid(7): for (const x of xs) if (a) { continue; } 2`] = `
+
+Message:
+> 1 | for (const x of xs) if (a) { continue; }
+    |                              ^^^^^^^^^ Unnecessary \`continue\` statement.
+
+Output:
+  1 | for (const x of xs) if (a) {  }
+
+`;
+
+exports[`no-useless-continue > invalid(8): for (const x of xs) {\n\tif (a) {\n\t\tcontinue;\n\t}\n} 1`] = `
+
+  1 | for (const x of xs) {
+  2 | 	if (a) {
+  3 | 		continue;
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-continue > invalid(8): for (const x of xs) {\n\tif (a) {\n\t\tcontinue;\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const x of xs) {
+  2 | 	if (a) {
+> 3 | 		continue;
+    | 		^^^^^^^^^ Unnecessary \`continue\` statement.
+  4 | 	}
+  5 | }
+
+Output:
+  1 | for (const x of xs) {
+  2 | 	if (a) {
+  3 | 	}
+  4 | }
+
+`;
+
+exports[`no-useless-continue > invalid(9): for (const x of xs) {\n\tif (a) {\n\t\tif (b) {\n\t\t\tcontinue;\n\t\t}\n\t}\n} 1`] = `
+
+  1 | for (const x of xs) {
+  2 | 	if (a) {
+  3 | 		if (b) {
+  4 | 			continue;
+  5 | 		}
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`no-useless-continue > invalid(9): for (const x of xs) {\n\tif (a) {\n\t\tif (b) {\n\t\t\tcontinue;\n\t\t}\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const x of xs) {
+  2 | 	if (a) {
+  3 | 		if (b) {
+> 4 | 			continue;
+    | 			^^^^^^^^^ Unnecessary \`continue\` statement.
+  5 | 		}
+  6 | 	}
+  7 | }
+
+Output:
+  1 | for (const x of xs) {
+  2 | 	if (a) {
+  3 | 		if (b) {
+  4 | 		}
+  5 | 	}
+  6 | }
+
+`;

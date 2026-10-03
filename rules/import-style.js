@@ -59,10 +59,6 @@ const getActualExportDeclarationStyles = exportDeclaration => {
 	const styles = new Set();
 
 	for (const specifier of specifiers) {
-		if (specifier.type !== 'ExportSpecifier') {
-			continue;
-		}
-
 		if (specifier.exported.type === 'Identifier' && specifier.exported.name === 'default') {
 			styles.add('default');
 			continue;
@@ -102,13 +98,14 @@ const getActualAssignmentTargetImportStyles = assignmentTarget => {
 		}
 
 		return [...styles];
+		/* node:coverage disable */
 	}
 
 	// Next line is not test-coverable until unforceable changes to the language
 	// like an addition of new AST node types usable in `const __HERE__ = foo;`.
 	// An exotic custom parser or a bug in one could cover it too.
-	/* c8 ignore next */
 	return [];
+	/* node:coverage enable */
 };
 
 const isAssignedDynamicImport = node =>

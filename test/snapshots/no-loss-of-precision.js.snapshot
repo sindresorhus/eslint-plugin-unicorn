@@ -1,0 +1,349 @@
+exports[`no-loss-of-precision > invalid(1): 1.23456789012345678 1`] = `
+
+  1 | 1.23456789012345678
+
+`;
+
+exports[`no-loss-of-precision > invalid(1): 1.23456789012345678 2`] = `
+
+Message:
+> 1 | 1.23456789012345678
+    | ^^^^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(10): {\"value\": 1.23456789012345678} 1`] = `
+
+  1 | {"value": 1.23456789012345678}
+
+`;
+
+exports[`no-loss-of-precision > invalid(10): {\"value\": 1.23456789012345678} 2`] = `
+
+Message:
+> 1 | {"value": 1.23456789012345678}
+    |           ^^^^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(11): {value: 0x20000000000001} 1`] = `
+
+  1 | {value: 0x20000000000001}
+
+`;
+
+exports[`no-loss-of-precision > invalid(11): {value: 0x20000000000001} 2`] = `
+
+Message:
+> 1 | {value: 0x20000000000001}
+    |         ^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(12): 0x20000000000003 1`] = `
+
+  1 | 0x20000000000003
+
+`;
+
+exports[`no-loss-of-precision > invalid(12): 0x20000000000003 2`] = `
+
+Message:
+> 1 | 0x20000000000003
+    | ^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(13): -0x20000000000001 1`] = `
+
+  1 | -0x20000000000001
+
+`;
+
+exports[`no-loss-of-precision > invalid(13): -0x20000000000001 2`] = `
+
+Message:
+> 1 | -0x20000000000001
+    | ^^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(14): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff 1`] = `
+
+  1 | 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+
+`;
+
+exports[`no-loss-of-precision > invalid(14): 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff 2`] = `
+
+Message:
+> 1 | 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(15): +1.0000000000000001 1`] = `
+
+  1 | +1.0000000000000001
+
+`;
+
+exports[`no-loss-of-precision > invalid(15): +1.0000000000000001 2`] = `
+
+Message:
+> 1 | +1.0000000000000001
+    | ^^^^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(16): 9007199254740993. 1`] = `
+
+  1 | 9007199254740993.
+
+`;
+
+exports[`no-loss-of-precision > invalid(16): 9007199254740993. 2`] = `
+
+Message:
+> 1 | 9007199254740993.
+    | ^^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(17): 21704549104043530.0 1`] = `
+
+  1 | 21704549104043530.0
+
+`;
+
+exports[`no-loss-of-precision > invalid(17): 21704549104043530.0 2`] = `
+
+Message:
+> 1 | 21704549104043530.0
+    | ^^^^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(18): 21704549104043530.e0 1`] = `
+
+  1 | 21704549104043530.e0
+
+`;
+
+exports[`no-loss-of-precision > invalid(18): 21704549104043530.e0 2`] = `
+
+Message:
+> 1 | 21704549104043530.e0
+    | ^^^^^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(19): value = 1.23456789012345678 1`] = `
+
+  1 | value = 1.23456789012345678
+
+`;
+
+exports[`no-loss-of-precision > invalid(19): value = 1.23456789012345678 2`] = `
+
+Message:
+> 1 | value = 1.23456789012345678
+    |         ^^^^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(2): 1.0000000000000001 1`] = `
+
+  1 | 1.0000000000000001
+
+`;
+
+exports[`no-loss-of-precision > invalid(2): 1.0000000000000001 2`] = `
+
+Message:
+> 1 | 1.0000000000000001
+    | ^^^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(20): value = -1.000_000_000_000_000_1 1`] = `
+
+  1 | value = -1.000_000_000_000_000_1
+
+`;
+
+exports[`no-loss-of-precision > invalid(20): value = -1.000_000_000_000_000_1 2`] = `
+
+Message:
+> 1 | value = -1.000_000_000_000_000_1
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(21): value = 2e999 1`] = `
+
+  1 | value = 2e999
+
+`;
+
+exports[`no-loss-of-precision > invalid(21): value = 2e999 2`] = `
+
+Message:
+> 1 | value = 2e999
+    |         ^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(22): .a { opacity: 1.23456789012345678; } 1`] = `
+
+  1 | .a { opacity: 1.23456789012345678; }
+
+`;
+
+exports[`no-loss-of-precision > invalid(22): .a { opacity: 1.23456789012345678; } 2`] = `
+
+Message:
+> 1 | .a { opacity: 1.23456789012345678; }
+    |               ^^^^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(23): .a { width: -1.0000000000000001px; } 1`] = `
+
+  1 | .a { width: -1.0000000000000001px; }
+
+`;
+
+exports[`no-loss-of-precision > invalid(23): .a { width: -1.0000000000000001px; } 2`] = `
+
+Message:
+> 1 | .a { width: -1.0000000000000001px; }
+    |             ^^^^^^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(24): .a { width: 1e-324px; } 1`] = `
+
+  1 | .a { width: 1e-324px; }
+
+`;
+
+exports[`no-loss-of-precision > invalid(24): .a { width: 1e-324px; } 2`] = `
+
+Message:
+> 1 | .a { width: 1e-324px; }
+    |             ^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(25): .a { width: 99999999999999999%; } 1`] = `
+
+  1 | .a { width: 99999999999999999%; }
+
+`;
+
+exports[`no-loss-of-precision > invalid(25): .a { width: 99999999999999999%; } 2`] = `
+
+Message:
+> 1 | .a { width: 99999999999999999%; }
+    |             ^^^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(3): 99999999999999999 1`] = `
+
+  1 | 99999999999999999
+
+`;
+
+exports[`no-loss-of-precision > invalid(3): 99999999999999999 2`] = `
+
+Message:
+> 1 | 99999999999999999
+    | ^^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(4): 9007199254740993 1`] = `
+
+  1 | 9007199254740993
+
+`;
+
+exports[`no-loss-of-precision > invalid(4): 9007199254740993 2`] = `
+
+Message:
+> 1 | 9007199254740993
+    | ^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(5): 1.23456789012345678e10 1`] = `
+
+  1 | 1.23456789012345678e10
+
+`;
+
+exports[`no-loss-of-precision > invalid(5): 1.23456789012345678e10 2`] = `
+
+Message:
+> 1 | 1.23456789012345678e10
+    | ^^^^^^^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(6): 1230000000000000000000000.0 1`] = `
+
+  1 | 1230000000000000000000000.0
+
+`;
+
+exports[`no-loss-of-precision > invalid(6): 1230000000000000000000000.0 2`] = `
+
+Message:
+> 1 | 1230000000000000000000000.0
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(7): 1e-324 1`] = `
+
+  1 | 1e-324
+
+`;
+
+exports[`no-loss-of-precision > invalid(7): 1e-324 2`] = `
+
+Message:
+> 1 | 1e-324
+    | ^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(8): 2e999 1`] = `
+
+  1 | 2e999
+
+`;
+
+exports[`no-loss-of-precision > invalid(8): 2e999 2`] = `
+
+Message:
+> 1 | 2e999
+    | ^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(9): 1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 1`] = `
+
+  1 | 1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+`;
+
+exports[`no-loss-of-precision > invalid(9): 1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 2`] = `
+
+Message:
+> 1 | 1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;

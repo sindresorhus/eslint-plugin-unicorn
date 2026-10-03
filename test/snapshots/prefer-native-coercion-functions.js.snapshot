@@ -1,0 +1,1147 @@
+exports[`prefer-native-coercion-functions > invalid(1): array.every(v => v) 1`] = `
+
+  1 | array.every(v => v)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(1): array.every(v => v) 2`] = `
+
+Message:
+> 1 | array.every(v => v)
+    |               ^^ arrow function is equivalent to \`Boolean\`. Use \`Boolean\` directly.
+
+Output:
+  1 | array.every(Boolean)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(1): const foo = v => String(v) 1`] = `
+
+  1 | const foo = v => String(v)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(1): const foo = v => String(v) 2`] = `
+
+Message:
+> 1 | const foo = v => String(v)
+    |               ^^ arrow function 'foo' is equivalent to \`String\`. Use \`String\` directly.
+
+Output:
+  1 | const foo = String
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(1): const foo = v => {\n\treturn String(v);\n}\n/^a/.test(s) && log(1); 1`] = `
+
+  1 | const foo = v => {
+  2 | 	return String(v);
+  3 | }
+  4 | /^a/.test(s) && log(1);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(1): const foo = v => {\n\treturn String(v);\n}\n/^a/.test(s) && log(1); 2`] = `
+
+Message:
+> 1 | const foo = v => {
+    |               ^^ arrow function 'foo' is equivalent to \`String\`. Use \`String\` directly.
+  2 | 	return String(v);
+  3 | }
+  4 | /^a/.test(s) && log(1);
+
+Output:
+  1 | const foo = String;
+  2 | /^a/.test(s) && log(1);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(1): const toString = (value: unknown) => String(value) as string; 1`] = `
+
+  1 | const toString = (value: unknown) => String(value) as string;
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(1): const toString = (value: unknown) => String(value) as string; 2`] = `
+
+Message:
+> 1 | const toString = (value: unknown) => String(value) as string;
+    |                                   ^^ arrow function 'toString' is equivalent to \`String\`. Use \`String\` directly.
+
+Output:
+  1 | const toString = String;
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(10): array.some((v, extra) => v) 1`] = `
+
+  1 | array.some((v, extra) => v)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(10): array.some((v, extra) => v) 2`] = `
+
+Message:
+> 1 | array.some((v, extra) => v)
+    |                       ^^ arrow function is equivalent to \`Boolean\`. Use \`Boolean\` directly.
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(10): class A { m(v) { return String(v); } }\nlog(1); 1`] = `
+
+  1 | class A { m(v) { return String(v); } }
+  2 | log(1);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(10): class A { m(v) { return String(v); } }\nlog(1); 2`] = `
+
+Message:
+> 1 | class A { m(v) { return String(v); } }
+    |           ^ method 'm' is equivalent to \`String\`. Use \`String\` directly.
+  2 | log(1);
+
+Suggestion 1/1: Replace with \`String\`.:
+  1 | class A { m = String; }
+  2 | log(1);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(10): export default function (v) { return String(v); } 1`] = `
+
+  1 | export default function (v) { return String(v); }
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(10): export default function (v) { return String(v); } 2`] = `
+
+Message:
+> 1 | export default function (v) { return String(v); }
+    |                ^^^^^^^^^ function 'default' is equivalent to \`String\`. Use \`String\` directly.
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(11): array.some((v, ) => /* comment */ v) 1`] = `
+
+  1 | array.some((v, ) => /* comment */ v)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(11): array.some((v, ) => /* comment */ v) 2`] = `
+
+Message:
+> 1 | array.some((v, ) => /* comment */ v)
+    |                  ^^ arrow function is equivalent to \`Boolean\`. Use \`Boolean\` directly.
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(11): class A {\n\tfoo(v) {\n\t\treturn String(v);\n\t}\n\n\tbar() {}\n} 1`] = `
+
+  1 | class A {
+  2 | 	foo(v) {
+  3 | 		return String(v);
+  4 | 	}
+  5 |
+  6 | 	bar() {}
+  7 | }
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(11): class A {\n\tfoo(v) {\n\t\treturn String(v);\n\t}\n\n\tbar() {}\n} 2`] = `
+
+Message:
+  1 | class A {
+> 2 | 	foo(v) {
+    | 	^^^ method 'foo' is equivalent to \`String\`. Use \`String\` directly.
+  3 | 		return String(v);
+  4 | 	}
+  5 |
+  6 | 	bar() {}
+  7 | }
+
+Suggestion 1/1: Replace with \`String\`.:
+  1 | class A {
+  2 | 	foo = String;
+  3 |
+  4 | 	bar() {}
+  5 | }
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(11): q ? function f(v) { return String(v); } : 0 1`] = `
+
+  1 | q ? function f(v) { return String(v); } : 0
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(11): q ? function f(v) { return String(v); } : 0 2`] = `
+
+Message:
+> 1 | q ? function f(v) { return String(v); } : 0
+    |     ^^^^^^^^^^ function 'f' is equivalent to \`String\`. Use \`String\` directly.
+
+Output:
+  1 | q ? String : 0
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(12): array.filter((value): boolean => value) 1`] = `
+
+  1 | array.filter((value): boolean => value)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(12): array.filter((value): boolean => value) 2`] = `
+
+Message:
+> 1 | array.filter((value): boolean => value)
+    |                               ^^ arrow function is equivalent to \`Boolean\`. Use \`Boolean\` directly.
+
+Output:
+  1 | array.filter(Boolean)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(12): class A {\n\tstatic foo(v) {\n\t\treturn String(v);\n\t}\n\n\tbar() {}\n} 1`] = `
+
+  1 | class A {
+  2 | 	static foo(v) {
+  3 | 		return String(v);
+  4 | 	}
+  5 |
+  6 | 	bar() {}
+  7 | }
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(12): class A {\n\tstatic foo(v) {\n\t\treturn String(v);\n\t}\n\n\tbar() {}\n} 2`] = `
+
+Message:
+  1 | class A {
+> 2 | 	static foo(v) {
+    | 	^^^^^^^^^^ static method 'foo' is equivalent to \`String\`. Use \`String\` directly.
+  3 | 		return String(v);
+  4 | 	}
+  5 |
+  6 | 	bar() {}
+  7 | }
+
+Suggestion 1/1: Replace with \`String\`.:
+  1 | class A {
+  2 | 	static foo = String;
+  3 |
+  4 | 	bar() {}
+  5 | }
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(12): const o = {k: function (v) { return String(v); }}; 1`] = `
+
+  1 | const o = {k: function (v) { return String(v); }};
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(12): const o = {k: function (v) { return String(v); }}; 2`] = `
+
+Message:
+> 1 | const o = {k: function (v) { return String(v); }};
+    |            ^^^^^^^^^^^^ method 'k' is equivalent to \`String\`. Use \`String\` directly.
+
+Output:
+  1 | const o = {k: String};
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(13): \`\${v => { return String(v); }}\` 1`] = `
+
+  1 | \`\${v => { return String(v); }}\`
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(13): \`\${v => { return String(v); }}\` 2`] = `
+
+Message:
+> 1 | \`\${v => { return String(v); }}\`
+    |      ^^ arrow function is equivalent to \`String\`. Use \`String\` directly.
+
+Output:
+  1 | \`\${String}\`
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(13): class A {\n\t#foo(v) {\n\t\treturn String(v);\n\t}\n\n\tbar() {}\n} 1`] = `
+
+  1 | class A {
+  2 | 	#foo(v) {
+  3 | 		return String(v);
+  4 | 	}
+  5 |
+  6 | 	bar() {}
+  7 | }
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(13): class A {\n\t#foo(v) {\n\t\treturn String(v);\n\t}\n\n\tbar() {}\n} 2`] = `
+
+Message:
+  1 | class A {
+> 2 | 	#foo(v) {
+    | 	^^^^ private method #foo is equivalent to \`String\`. Use \`String\` directly.
+  3 | 		return String(v);
+  4 | 	}
+  5 |
+  6 | 	bar() {}
+  7 | }
+
+Suggestion 1/1: Replace with \`String\`.:
+  1 | class A {
+  2 | 	#foo = String;
+  3 |
+  4 | 	bar() {}
+  5 | }
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(14): class A {\n\tstatic #foo(v) {\n\t\treturn String(v);\n\t}\n\n\tbar() {}\n} 1`] = `
+
+  1 | class A {
+  2 | 	static #foo(v) {
+  3 | 		return String(v);
+  4 | 	}
+  5 |
+  6 | 	bar() {}
+  7 | }
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(14): class A {\n\tstatic #foo(v) {\n\t\treturn String(v);\n\t}\n\n\tbar() {}\n} 2`] = `
+
+Message:
+  1 | class A {
+> 2 | 	static #foo(v) {
+    | 	^^^^^^^^^^^ static private method #foo is equivalent to \`String\`. Use \`String\` directly.
+  3 | 		return String(v);
+  4 | 	}
+  5 |
+  6 | 	bar() {}
+  7 | }
+
+Suggestion 1/1: Replace with \`String\`.:
+  1 | class A {
+  2 | 	static #foo = String;
+  3 |
+  4 | 	bar() {}
+  5 | }
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(14): foo = function (v) { return String(v); }(bar); 1`] = `
+
+  1 | foo = function (v) { return String(v); }(bar);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(14): foo = function (v) { return String(v); }(bar); 2`] = `
+
+Message:
+> 1 | foo = function (v) { return String(v); }(bar);
+    |       ^^^^^^^^^ function is equivalent to \`String\`. Use \`String\` directly.
+
+Output:
+  1 | foo = String(bar);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(15): foo = function (v) { return String(v); }\n(bar); 1`] = `
+
+  1 | foo = function (v) { return String(v); }
+  2 | (bar);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(15): foo = function (v) { return String(v); }\n(bar); 2`] = `
+
+Message:
+> 1 | foo = function (v) { return String(v); }
+    |       ^^^^^^^^^ function is equivalent to \`String\`. Use \`String\` directly.
+  2 | (bar);
+
+Output:
+  1 | foo = String
+  2 | (bar);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(15): object = {\n\tfoo(v) {\n\t\treturn String(v);\n\t},\n\tbar\n} 1`] = `
+
+  1 | object = {
+  2 | 	foo(v) {
+  3 | 		return String(v);
+  4 | 	},
+  5 | 	bar
+  6 | }
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(15): object = {\n\tfoo(v) {\n\t\treturn String(v);\n\t},\n\tbar\n} 2`] = `
+
+Message:
+  1 | object = {
+> 2 | 	foo(v) {
+    | 	^^^ method 'foo' is equivalent to \`String\`. Use \`String\` directly.
+  3 | 		return String(v);
+  4 | 	},
+  5 | 	bar
+  6 | }
+
+Output:
+  1 | object = {
+  2 | 	foo: String,
+  3 | 	bar
+  4 | }
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(16): foo = function (v) { return String(v); } + bar; 1`] = `
+
+  1 | foo = function (v) { return String(v); } + bar;
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(16): foo = function (v) { return String(v); } + bar; 2`] = `
+
+Message:
+> 1 | foo = function (v) { return String(v); } + bar;
+    |       ^^^^^^^^^ function is equivalent to \`String\`. Use \`String\` directly.
+
+Output:
+  1 | foo = String + bar;
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(16): object = {\n\tfoo: function(v) {\n\t\treturn String(v);\n\t},\n\tbar\n} 1`] = `
+
+  1 | object = {
+  2 | 	foo: function(v) {
+  3 | 		return String(v);
+  4 | 	},
+  5 | 	bar
+  6 | }
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(16): object = {\n\tfoo: function(v) {\n\t\treturn String(v);\n\t},\n\tbar\n} 2`] = `
+
+Message:
+  1 | object = {
+> 2 | 	foo: function(v) {
+    | 	^^^^^^^^^^^^^ method 'foo' is equivalent to \`String\`. Use \`String\` directly.
+  3 | 		return String(v);
+  4 | 	},
+  5 | 	bar
+  6 | }
+
+Output:
+  1 | object = {
+  2 | 	foo: String,
+  3 | 	bar
+  4 | }
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(17): foo = function (v) { return String(v); }[bar]; 1`] = `
+
+  1 | foo = function (v) { return String(v); }[bar];
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(17): foo = function (v) { return String(v); }[bar]; 2`] = `
+
+Message:
+> 1 | foo = function (v) { return String(v); }[bar];
+    |       ^^^^^^^^^ function is equivalent to \`String\`. Use \`String\` directly.
+
+Output:
+  1 | foo = String[bar];
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(17): object = {\n\t[function(v) {return String(v);}]: 1,\n} 1`] = `
+
+  1 | object = {
+  2 | 	[function(v) {return String(v);}]: 1,
+  3 | }
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(17): object = {\n\t[function(v) {return String(v);}]: 1,\n} 2`] = `
+
+Message:
+  1 | object = {
+> 2 | 	[function(v) {return String(v);}]: 1,
+    | 	^^^^^^^^^ function is equivalent to \`String\`. Use \`String\` directly.
+  3 | }
+
+Output:
+  1 | object = {
+  2 | 	[String]: 1,
+  3 | }
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(18): const foo = (v, extra) => String(v) 1`] = `
+
+  1 | const foo = (v, extra) => String(v)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(18): const foo = (v, extra) => String(v) 2`] = `
+
+Message:
+> 1 | const foo = (v, extra) => String(v)
+    |                        ^^ arrow function 'foo' is equivalent to \`String\`. Use \`String\` directly.
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(18): foo = function (v) { return String(v); }\`bar\`; 1`] = `
+
+  1 | foo = function (v) { return String(v); }\`bar\`;
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(18): foo = function (v) { return String(v); }\`bar\`; 2`] = `
+
+Message:
+> 1 | foo = function (v) { return String(v); }\`bar\`;
+    |       ^^^^^^^^^ function is equivalent to \`String\`. Use \`String\` directly.
+
+Output:
+  1 | foo = String\`bar\`;
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(19): const foo = (v, ) => String(v, extra) 1`] = `
+
+  1 | const foo = (v, ) => String(v, extra)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(19): const foo = (v, ) => String(v, extra) 2`] = `
+
+Message:
+> 1 | const foo = (v, ) => String(v, extra)
+    |                   ^^ arrow function 'foo' is equivalent to \`String\`. Use \`String\` directly.
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(19): foo = (v => { return String(v); })\n(bar); 1`] = `
+
+  1 | foo = (v => { return String(v); })
+  2 | (bar);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(19): foo = (v => { return String(v); })\n(bar); 2`] = `
+
+Message:
+> 1 | foo = (v => { return String(v); })
+    |          ^^ arrow function is equivalent to \`String\`. Use \`String\` directly.
+  2 | (bar);
+
+Output:
+  1 | foo = (String)
+  2 | (bar);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(2): array.filter(v => v) 1`] = `
+
+  1 | array.filter(v => v)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(2): array.filter(v => v) 2`] = `
+
+Message:
+> 1 | array.filter(v => v)
+    |                ^^ arrow function is equivalent to \`Boolean\`. Use \`Boolean\` directly.
+
+Output:
+  1 | array.filter(Boolean)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(2): const foo = v => Number(v) 1`] = `
+
+  1 | const foo = v => Number(v)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(2): const foo = v => Number(v) 2`] = `
+
+Message:
+> 1 | const foo = v => Number(v)
+    |               ^^ arrow function 'foo' is equivalent to \`Number\`. Use \`Number\` directly.
+
+Output:
+  1 | const foo = Number
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(2): const foo = v => String(v);\n/^a/.test(s); 1`] = `
+
+  1 | const foo = v => String(v);
+  2 | /^a/.test(s);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(2): const foo = v => String(v);\n/^a/.test(s); 2`] = `
+
+Message:
+> 1 | const foo = v => String(v);
+    |               ^^ arrow function 'foo' is equivalent to \`String\`. Use \`String\` directly.
+  2 | /^a/.test(s);
+
+Output:
+  1 | const foo = String;
+  2 | /^a/.test(s);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(2): const toString = (value: unknown) => String(value) satisfies string; 1`] = `
+
+  1 | const toString = (value: unknown) => String(value) satisfies string;
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(2): const toString = (value: unknown) => String(value) satisfies string; 2`] = `
+
+Message:
+> 1 | const toString = (value: unknown) => String(value) satisfies string;
+    |                                   ^^ arrow function 'toString' is equivalent to \`String\`. Use \`String\` directly.
+
+Output:
+  1 | const toString = String;
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(20): const foo = (v, ) => /* comment */ String(v) 1`] = `
+
+  1 | const foo = (v, ) => /* comment */ String(v)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(20): const foo = (v, ) => /* comment */ String(v) 2`] = `
+
+Message:
+> 1 | const foo = (v, ) => /* comment */ String(v)
+    |                   ^^ arrow function 'foo' is equivalent to \`String\`. Use \`String\` directly.
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(3): array.find(v => v) 1`] = `
+
+  1 | array.find(v => v)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(3): array.find(v => v) 2`] = `
+
+Message:
+> 1 | array.find(v => v)
+    |              ^^ arrow function is equivalent to \`Boolean\`. Use \`Boolean\` directly.
+
+Output:
+  1 | array.find(Boolean)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(3): const foo = v => BigInt(v) 1`] = `
+
+  1 | const foo = v => BigInt(v)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(3): const foo = v => BigInt(v) 2`] = `
+
+Message:
+> 1 | const foo = v => BigInt(v)
+    |               ^^ arrow function 'foo' is equivalent to \`BigInt\`. Use \`BigInt\` directly.
+
+Output:
+  1 | const foo = BigInt
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(3): const foo = v => String(v);\n[1, 2].forEach(log); 1`] = `
+
+  1 | const foo = v => String(v);
+  2 | [1, 2].forEach(log);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(3): const foo = v => String(v);\n[1, 2].forEach(log); 2`] = `
+
+Message:
+> 1 | const foo = v => String(v);
+    |               ^^ arrow function 'foo' is equivalent to \`String\`. Use \`String\` directly.
+  2 | [1, 2].forEach(log);
+
+Output:
+  1 | const foo = String;
+  2 | [1, 2].forEach(log);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(3): const toString = (value: unknown) => String(value)!; 1`] = `
+
+  1 | const toString = (value: unknown) => String(value)!;
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(3): const toString = (value: unknown) => String(value)!; 2`] = `
+
+Message:
+> 1 | const toString = (value: unknown) => String(value)!;
+    |                                   ^^ arrow function 'toString' is equivalent to \`String\`. Use \`String\` directly.
+
+Output:
+  1 | const toString = String;
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(4): array.findLast(v => v) 1`] = `
+
+  1 | array.findLast(v => v)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(4): array.findLast(v => v) 2`] = `
+
+Message:
+> 1 | array.findLast(v => v)
+    |                  ^^ arrow function is equivalent to \`Boolean\`. Use \`Boolean\` directly.
+
+Output:
+  1 | array.findLast(Boolean)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(4): array.some(value => value!); 1`] = `
+
+  1 | array.some(value => value!);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(4): array.some(value => value!); 2`] = `
+
+Message:
+> 1 | array.some(value => value!);
+    |                  ^^ arrow function is equivalent to \`Boolean\`. Use \`Boolean\` directly.
+
+Output:
+  1 | array.some(Boolean);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(4): const foo = v => Boolean(v) 1`] = `
+
+  1 | const foo = v => Boolean(v)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(4): const foo = v => Boolean(v) 2`] = `
+
+Message:
+> 1 | const foo = v => Boolean(v)
+    |               ^^ arrow function 'foo' is equivalent to \`Boolean\`. Use \`Boolean\` directly.
+
+Output:
+  1 | const foo = Boolean
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(4): foo = v => {\n\treturn String(v);\n}\n(bar); 1`] = `
+
+  1 | foo = v => {
+  2 | 	return String(v);
+  3 | }
+  4 | (bar);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(4): foo = v => {\n\treturn String(v);\n}\n(bar); 2`] = `
+
+Message:
+> 1 | foo = v => {
+    |         ^^ arrow function 'foo' is equivalent to \`String\`. Use \`String\` directly.
+  2 | 	return String(v);
+  3 | }
+  4 | (bar);
+
+Output:
+  1 | foo = String;
+  2 | (bar);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(5): array.some((value: boolean) => value satisfies boolean); 1`] = `
+
+  1 | array.some((value: boolean) => value satisfies boolean);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(5): array.some((value: boolean) => value satisfies boolean); 2`] = `
+
+Message:
+> 1 | array.some((value: boolean) => value satisfies boolean);
+    |                             ^^ arrow function is equivalent to \`Boolean\`. Use \`Boolean\` directly.
+
+Output:
+  1 | array.some(Boolean);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(5): array.some(v => v) 1`] = `
+
+  1 | array.some(v => v)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(5): array.some(v => v) 2`] = `
+
+Message:
+> 1 | array.some(v => v)
+    |              ^^ arrow function is equivalent to \`Boolean\`. Use \`Boolean\` directly.
+
+Output:
+  1 | array.some(Boolean)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(5): const foo = v => Symbol(v) 1`] = `
+
+  1 | const foo = v => Symbol(v)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(5): const foo = v => Symbol(v) 2`] = `
+
+Message:
+> 1 | const foo = v => Symbol(v)
+    |               ^^ arrow function 'foo' is equivalent to \`Symbol\`. Use \`Symbol\` directly.
+
+Output:
+  1 | const foo = Symbol
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(5): foo = v => {\n\treturn String(v);\n}\n[bar] = baz; 1`] = `
+
+  1 | foo = v => {
+  2 | 	return String(v);
+  3 | }
+  4 | [bar] = baz;
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(5): foo = v => {\n\treturn String(v);\n}\n[bar] = baz; 2`] = `
+
+Message:
+> 1 | foo = v => {
+    |         ^^ arrow function 'foo' is equivalent to \`String\`. Use \`String\` directly.
+  2 | 	return String(v);
+  3 | }
+  4 | [bar] = baz;
+
+Output:
+  1 | foo = String;
+  2 | [bar] = baz;
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(6): array.findIndex(v => v) 1`] = `
+
+  1 | array.findIndex(v => v)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(6): array.findIndex(v => v) 2`] = `
+
+Message:
+> 1 | array.findIndex(v => v)
+    |                   ^^ arrow function is equivalent to \`Boolean\`. Use \`Boolean\` directly.
+
+Output:
+  1 | array.findIndex(Boolean)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(6): const foo = v => {\n\treturn String(v);\n} 1`] = `
+
+  1 | const foo = v => {
+  2 | 	return String(v);
+  3 | }
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(6): const foo = v => {\n\treturn String(v);\n} 2`] = `
+
+Message:
+> 1 | const foo = v => {
+    |               ^^ arrow function 'foo' is equivalent to \`String\`. Use \`String\` directly.
+  2 | 	return String(v);
+  3 | }
+
+Output:
+  1 | const foo = String
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(6): const toString = (value: unknown) => {\n\treturn String(value) as string;\n}; 1`] = `
+
+  1 | const toString = (value: unknown) => {
+  2 | 	return String(value) as string;
+  3 | };
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(6): const toString = (value: unknown) => {\n\treturn String(value) as string;\n}; 2`] = `
+
+Message:
+> 1 | const toString = (value: unknown) => {
+    |                                   ^^ arrow function 'toString' is equivalent to \`String\`. Use \`String\` directly.
+  2 | 	return String(value) as string;
+  3 | };
+
+Output:
+  1 | const toString = String;
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(6): foo = v => {\n\treturn String(v);\n}\n\`bar\`; 1`] = `
+
+  1 | foo = v => {
+  2 | 	return String(v);
+  3 | }
+  4 | \`bar\`;
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(6): foo = v => {\n\treturn String(v);\n}\n\`bar\`; 2`] = `
+
+Message:
+> 1 | foo = v => {
+    |         ^^ arrow function 'foo' is equivalent to \`String\`. Use \`String\` directly.
+  2 | 	return String(v);
+  3 | }
+  4 | \`bar\`;
+
+Output:
+  1 | foo = String;
+  2 | \`bar\`;
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(7): array.findLastIndex(v => v) 1`] = `
+
+  1 | array.findLastIndex(v => v)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(7): array.findLastIndex(v => v) 2`] = `
+
+Message:
+> 1 | array.findLastIndex(v => v)
+    |                       ^^ arrow function is equivalent to \`Boolean\`. Use \`Boolean\` directly.
+
+Output:
+  1 | array.findLastIndex(Boolean)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(7): array.some(function (value) {\n\treturn value!;\n}); 1`] = `
+
+  1 | array.some(function (value) {
+  2 | 	return value!;
+  3 | });
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(7): array.some(function (value) {\n\treturn value!;\n}); 2`] = `
+
+Message:
+> 1 | array.some(function (value) {
+    |            ^^^^^^^^^ function is equivalent to \`Boolean\`. Use \`Boolean\` directly.
+  2 | 	return value!;
+  3 | });
+
+Output:
+  1 | array.some(Boolean);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(7): const foo = function (v) {\n\treturn String(v);\n} 1`] = `
+
+  1 | const foo = function (v) {
+  2 | 	return String(v);
+  3 | }
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(7): const foo = function (v) {\n\treturn String(v);\n} 2`] = `
+
+Message:
+> 1 | const foo = function (v) {
+    |             ^^^^^^^^^ function 'foo' is equivalent to \`String\`. Use \`String\` directly.
+  2 | 	return String(v);
+  3 | }
+
+Output:
+  1 | const foo = String
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(7): foo = v => {\n\treturn String(v);\n}\n-bar; 1`] = `
+
+  1 | foo = v => {
+  2 | 	return String(v);
+  3 | }
+  4 | -bar;
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(7): foo = v => {\n\treturn String(v);\n}\n-bar; 2`] = `
+
+Message:
+> 1 | foo = v => {
+    |         ^^ arrow function 'foo' is equivalent to \`String\`. Use \`String\` directly.
+  2 | 	return String(v);
+  3 | }
+  4 | -bar;
+
+Output:
+  1 | foo = String;
+  2 | -bar;
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(8): array.some(v => {\n\treturn v;\n}) 1`] = `
+
+  1 | array.some(v => {
+  2 | 	return v;
+  3 | })
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(8): array.some(v => {\n\treturn v;\n}) 2`] = `
+
+Message:
+> 1 | array.some(v => {
+    |              ^^ arrow function is equivalent to \`Boolean\`. Use \`Boolean\` directly.
+  2 | 	return v;
+  3 | })
+
+Output:
+  1 | array.some(Boolean)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(8): class A {\n\tfoo = v => {\n\t\treturn String(v);\n\t}\n\t[bar] = 1;\n} 1`] = `
+
+  1 | class A {
+  2 | 	foo = v => {
+  3 | 		return String(v);
+  4 | 	}
+  5 | 	[bar] = 1;
+  6 | }
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(8): class A {\n\tfoo = v => {\n\t\treturn String(v);\n\t}\n\t[bar] = 1;\n} 2`] = `
+
+Message:
+  1 | class A {
+> 2 | 	foo = v => {
+    | 	        ^^ method 'foo' is equivalent to \`String\`. Use \`String\` directly.
+  3 | 		return String(v);
+  4 | 	}
+  5 | 	[bar] = 1;
+  6 | }
+
+Output:
+  1 | class A {
+  2 | 	foo = String;
+  3 | 	[bar] = 1;
+  4 | }
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(8): function foo(v) { return String(v); } 1`] = `
+
+  1 | function foo(v) { return String(v); }
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(8): function foo(v) { return String(v); } 2`] = `
+
+Message:
+> 1 | function foo(v) { return String(v); }
+    | ^^^^^^^^^^^^ function 'foo' is equivalent to \`String\`. Use \`String\` directly.
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(9): array.some(function (v) {\n\treturn v;\n}) 1`] = `
+
+  1 | array.some(function (v) {
+  2 | 	return v;
+  3 | })
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(9): array.some(function (v) {\n\treturn v;\n}) 2`] = `
+
+Message:
+> 1 | array.some(function (v) {
+    |            ^^^^^^^^^ function is equivalent to \`Boolean\`. Use \`Boolean\` directly.
+  2 | 	return v;
+  3 | })
+
+Output:
+  1 | array.some(Boolean)
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(9): const foo = v => String(v);\nlog(1); 1`] = `
+
+  1 | const foo = v => String(v);
+  2 | log(1);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(9): const foo = v => String(v);\nlog(1); 2`] = `
+
+Message:
+> 1 | const foo = v => String(v);
+    |               ^^ arrow function 'foo' is equivalent to \`String\`. Use \`String\` directly.
+  2 | log(1);
+
+Output:
+  1 | const foo = String;
+  2 | log(1);
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(9): export default function foo(v) { return String(v); } 1`] = `
+
+  1 | export default function foo(v) { return String(v); }
+
+`;
+
+exports[`prefer-native-coercion-functions > invalid(9): export default function foo(v) { return String(v); } 2`] = `
+
+Message:
+> 1 | export default function foo(v) { return String(v); }
+    |                ^^^^^^^^^^^^ function 'foo' is equivalent to \`String\`. Use \`String\` directly.
+
+`;

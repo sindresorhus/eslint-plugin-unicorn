@@ -1,0 +1,1031 @@
+exports[`no-using-resource-escape > invalid(1): function f() { using resource = acquire(); return () => <resource.Component />; } 1`] = `
+
+Filename: index.tsx
+
+  1 | function f() { using resource = acquire(); return () => <resource.Component />; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(1): function f() { using resource = acquire(); return () => <resource.Component />; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return () => <resource.Component />; }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(1): function f() { using resource = acquire(); return resource as Resource; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return resource as Resource; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(1): function f() { using resource = acquire(); return resource as Resource; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return resource as Resource; }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(1): using resource = acquire(); export default function read() { return resource.read(); } 1`] = `
+
+  1 | using resource = acquire(); export default function read() { return resource.read(); }
+
+`;
+
+exports[`no-using-resource-escape > invalid(1): using resource = acquire(); export default function read() { return resource.read(); } 2`] = `
+
+Message:
+> 1 | using resource = acquire(); export default function read() { return resource.read(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not export resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(10): async function f() { for await (await using resource of resources) { return () => resource.read(); } } 1`] = `
+
+  1 | async function f() { for await (await using resource of resources) { return () => resource.read(); } }
+
+`;
+
+exports[`no-using-resource-escape > invalid(10): async function f() { for await (await using resource of resources) { return () => resource.read(); } } 2`] = `
+
+Message:
+> 1 | async function f() { for await (await using resource of resources) { return () => resource.read(); } }
+    |                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(10): using resource = acquire(); export = resource; 1`] = `
+
+  1 | using resource = acquire(); export = resource;
+
+`;
+
+exports[`no-using-resource-escape > invalid(10): using resource = acquire(); export = resource; 2`] = `
+
+Message:
+> 1 | using resource = acquire(); export = resource;
+    |                             ^^^^^^^^^^^^^^^^^^ Do not export resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(11): function f() { using resource = acquire(); return () => resource.read(); } 1`] = `
+
+  1 | function f() { using resource = acquire(); return () => resource.read(); }
+
+`;
+
+exports[`no-using-resource-escape > invalid(11): function f() { using resource = acquire(); return () => resource.read(); } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return () => resource.read(); }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(11): using resource = acquire(); export = () => resource.read(); 1`] = `
+
+  1 | using resource = acquire(); export = () => resource.read();
+
+`;
+
+exports[`no-using-resource-escape > invalid(11): using resource = acquire(); export = () => resource.read(); 2`] = `
+
+Message:
+> 1 | using resource = acquire(); export = () => resource.read();
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not export resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(12): function f() { using resource = acquire(); return function () { return resource.read(); }; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return function () { return resource.read(); }; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(12): function f() { using resource = acquire(); return function () { return resource.read(); }; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return function () { return resource.read(); }; }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(12): namespace N { using resource = acquire(); export const value = resource; } 1`] = `
+
+  1 | namespace N { using resource = acquire(); export const value = resource; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(12): namespace N { using resource = acquire(); export const value = resource; } 2`] = `
+
+Message:
+> 1 | namespace N { using resource = acquire(); export const value = resource; }
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not export resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(13): function f() { interface resource {} using resource = acquire(); return resource; } 1`] = `
+
+  1 | function f() { interface resource {} using resource = acquire(); return resource; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(13): function f() { interface resource {} using resource = acquire(); return resource; } 2`] = `
+
+Message:
+> 1 | function f() { interface resource {} using resource = acquire(); return resource; }
+    |                                                                  ^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(13): function f() { using resource = acquire(); const read = () => resource.read(); return read; } 1`] = `
+
+  1 | function f() { using resource = acquire(); const read = () => resource.read(); return read; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(13): function f() { using resource = acquire(); const read = () => resource.read(); return read; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); const read = () => resource.read(); return read; }
+    |                                                                                ^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(14): function f() { using resource = acquire(); return read; function read() { return resource.read(); } } 1`] = `
+
+  1 | function f() { using resource = acquire(); return read; function read() { return resource.read(); } }
+
+`;
+
+exports[`no-using-resource-escape > invalid(14): function f() { using resource = acquire(); return read; function read() { return resource.read(); } } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return read; function read() { return resource.read(); } }
+    |                                            ^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(14): function f() { using resource = acquire(); type read = () => void; const read = () => resource.read(); return read; } 1`] = `
+
+  1 | function f() { using resource = acquire(); type read = () => void; const read = () => resource.read(); return read; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(14): function f() { using resource = acquire(); type read = () => void; const read = () => resource.read(); return read; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); type read = () => void; const read = () => resource.read(); return read; }
+    |                                                                                                        ^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(15): function f() { using resource = acquire(); return () => () => resource.read(); } 1`] = `
+
+  1 | function f() { using resource = acquire(); return () => () => resource.read(); }
+
+`;
+
+exports[`no-using-resource-escape > invalid(15): function f() { using resource = acquire(); return () => () => resource.read(); } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return () => () => resource.read(); }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(15): using resource = acquire(); interface read {} function read() { return resource.read(); } export {read}; 1`] = `
+
+  1 | using resource = acquire(); interface read {} function read() { return resource.read(); } export {read};
+
+`;
+
+exports[`no-using-resource-escape > invalid(15): using resource = acquire(); interface read {} function read() { return resource.read(); } export {read}; 2`] = `
+
+Message:
+> 1 | using resource = acquire(); interface read {} function read() { return resource.read(); } export {read};
+    |                                                                                           ^^^^^^^^^^^^^^ Do not export resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(16): function f() { using resource = acquire(); return [resource, {resource}]; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return [resource, {resource}]; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(16): function f() { using resource = acquire(); return [resource, {resource}]; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return [resource, {resource}]; }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(16): using resource = acquire(); function read() { return resource.read(); } namespace read { export const label = \"read\"; } export {read}; 1`] = `
+
+  1 | using resource = acquire(); function read() { return resource.read(); } namespace read { export const label = "read"; } export {read};
+
+`;
+
+exports[`no-using-resource-escape > invalid(16): using resource = acquire(); function read() { return resource.read(); } namespace read { export const label = \"read\"; } export {read}; 2`] = `
+
+Message:
+> 1 | using resource = acquire(); function read() { return resource.read(); } namespace read { export const label = "read"; } export {read};
+    |                                                                                                                         ^^^^^^^^^^^^^^ Do not export resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(17): function f() { using resource = acquire(); return {read() { return resource.read(); }}; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return {read() { return resource.read(); }}; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(17): function f() { using resource = acquire(); return {read() { return resource.read(); }}; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return {read() { return resource.read(); }}; }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(17): function f() { using resource: any = acquire(); return () => { class Type { [resource] = other; } return other; }; } 1`] = `
+
+  1 | function f() { using resource: any = acquire(); return () => { class Type { [resource] = other; } return other; }; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(17): function f() { using resource: any = acquire(); return () => { class Type { [resource] = other; } return other; }; } 2`] = `
+
+Message:
+> 1 | function f() { using resource: any = acquire(); return () => { class Type { [resource] = other; } return other; }; }
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(18): function f() { using resource = acquire(); return condition ? resource : other; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return condition ? resource : other; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(18): function f() { using resource = acquire(); return condition ? resource : other; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return condition ? resource : other; }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(18): function f() { using resource: any = acquire(); return () => { class Type { [resource]() {} } return other; }; } 1`] = `
+
+  1 | function f() { using resource: any = acquire(); return () => { class Type { [resource]() {} } return other; }; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(18): function f() { using resource: any = acquire(); return () => { class Type { [resource]() {} } return other; }; } 2`] = `
+
+Message:
+> 1 | function f() { using resource: any = acquire(); return () => { class Type { [resource]() {} } return other; }; }
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(19): function f() { using resource = acquire(); return resource ? resource : undefined; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return resource ? resource : undefined; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(19): function f() { using resource = acquire(); return resource ? resource : undefined; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return resource ? resource : undefined; }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(19): function f() { using resource: any = acquire(); return () => { class Type { accessor [resource] = other; } return other; }; } 1`] = `
+
+  1 | function f() { using resource: any = acquire(); return () => { class Type { accessor [resource] = other; } return other; }; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(19): function f() { using resource: any = acquire(); return () => { class Type { accessor [resource] = other; } return other; }; } 2`] = `
+
+Message:
+> 1 | function f() { using resource: any = acquire(); return () => { class Type { accessor [resource] = other; } return other; }; }
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(2): function f() { using resource = acquire(); return <Resource>resource; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return <Resource>resource; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(2): function f() { using resource = acquire(); return <Resource>resource; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return <Resource>resource; }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(2): using resource = acquire(); export default function read(read) { return resource.read(); } 1`] = `
+
+  1 | using resource = acquire(); export default function read(read) { return resource.read(); }
+
+`;
+
+exports[`no-using-resource-escape > invalid(2): using resource = acquire(); export default function read(read) { return resource.read(); } 2`] = `
+
+Message:
+> 1 | using resource = acquire(); export default function read(read) { return resource.read(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not export resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(20): function f() { using resource = acquire(), other = acquire(); return resource ? undefined : [resource, other]; } 1`] = `
+
+  1 | function f() { using resource = acquire(), other = acquire(); return resource ? undefined : [resource, other]; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(20): function f() { using resource = acquire(), other = acquire(); return resource ? undefined : [resource, other]; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(), other = acquire(); return resource ? undefined : [resource, other]; }
+    |                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`other\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(20): function f() { using resource: any = acquire(); return () => { abstract class Type { @decorator abstract [resource]: string; } return other; }; } 1`] = `
+
+  1 | function f() { using resource: any = acquire(); return () => { abstract class Type { @decorator abstract [resource]: string; } return other; }; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(20): function f() { using resource: any = acquire(); return () => { abstract class Type { @decorator abstract [resource]: string; } return other; }; } 2`] = `
+
+Message:
+> 1 | function f() { using resource: any = acquire(); return () => { abstract class Type { @decorator abstract [resource]: string; } return other; }; }
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(21): function f() { using resource = acquire(); return resource || other; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return resource || other; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(21): function f() { using resource = acquire(); return resource || other; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return resource || other; }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(21): function f() { using resource: any = acquire(); return () => { abstract class Type { @decorator abstract accessor [resource]: string; } return other; }; } 1`] = `
+
+  1 | function f() { using resource: any = acquire(); return () => { abstract class Type { @decorator abstract accessor [resource]: string; } return other; }; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(21): function f() { using resource: any = acquire(); return () => { abstract class Type { @decorator abstract accessor [resource]: string; } return other; }; } 2`] = `
+
+Message:
+> 1 | function f() { using resource: any = acquire(); return () => { abstract class Type { @decorator abstract accessor [resource]: string; } return other; }; }
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(22): function f() { using resource = acquire(); return other && resource; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return other && resource; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(22): function f() { using resource = acquire(); return other && resource; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return other && resource; }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(22): function f() { using resource: any = acquire(); return () => { class Type { @decorator declare [resource]: string; } return other; }; } 1`] = `
+
+  1 | function f() { using resource: any = acquire(); return () => { class Type { @decorator declare [resource]: string; } return other; }; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(22): function f() { using resource: any = acquire(); return () => { class Type { @decorator declare [resource]: string; } return other; }; } 2`] = `
+
+Message:
+> 1 | function f() { using resource: any = acquire(); return () => { class Type { @decorator declare [resource]: string; } return other; }; }
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(23): function f() { using resource = acquire(); return other ?? resource; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return other ?? resource; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(23): function f() { using resource = acquire(); return other ?? resource; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return other ?? resource; }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(23): function f() { using resource = acquire(); { type resource = Resource; return resource; } } 1`] = `
+
+  1 | function f() { using resource = acquire(); { type resource = Resource; return resource; } }
+
+`;
+
+exports[`no-using-resource-escape > invalid(23): function f() { using resource = acquire(); { type resource = Resource; return resource; } } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); { type resource = Resource; return resource; } }
+    |                                                                        ^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(24): function f() { using resource = acquire(); const read = () => resource.read(); { interface read {} return read; } } 1`] = `
+
+  1 | function f() { using resource = acquire(); const read = () => resource.read(); { interface read {} return read; } }
+
+`;
+
+exports[`no-using-resource-escape > invalid(24): function f() { using resource = acquire(); const read = () => resource.read(); { interface read {} return read; } } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); const read = () => resource.read(); { interface read {} return read; } }
+    |                                                                                                    ^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(24): function f() { using resource = acquire(); return (other, resource); } 1`] = `
+
+  1 | function f() { using resource = acquire(); return (other, resource); }
+
+`;
+
+exports[`no-using-resource-escape > invalid(24): function f() { using resource = acquire(); return (other, resource); } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return (other, resource); }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(25): function f() { using resource = acquire(); return ((resource)); } 1`] = `
+
+  1 | function f() { using resource = acquire(); return ((resource)); }
+
+`;
+
+exports[`no-using-resource-escape > invalid(25): function f() { using resource = acquire(); return ((resource)); } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return ((resource)); }
+    |                                            ^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(25): using resource = acquire(); export function read() { type resource = Resource; return resource.read(); } 1`] = `
+
+  1 | using resource = acquire(); export function read() { type resource = Resource; return resource.read(); }
+
+`;
+
+exports[`no-using-resource-escape > invalid(25): using resource = acquire(); export function read() { type resource = Resource; return resource.read(); } 2`] = `
+
+Message:
+> 1 | using resource = acquire(); export function read() { type resource = Resource; return resource.read(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not export resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(26): function f() { using first = acquire(), second = acquire(); return () => [first, second, first]; } 1`] = `
+
+  1 | function f() { using first = acquire(), second = acquire(); return () => [first, second, first]; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(26): function f() { using first = acquire(), second = acquire(); return () => [first, second, first]; } 2`] = `
+
+Message:
+> 1 | function f() { using first = acquire(), second = acquire(); return () => [first, second, first]; }
+    |                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`first\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(26): function f() { using first = acquire(), second = acquire(); return () => [first, second, first]; } 3`] = `
+
+Message:
+> 1 | function f() { using first = acquire(), second = acquire(); return () => [first, second, first]; }
+    |                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`second\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(26): function f() { using resource = acquire(); return <resource>() => resource; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return <resource>() => resource; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(26): function f() { using resource = acquire(); return <resource>() => resource; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return <resource>() => resource; }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(27): function f() { using resource = acquire(); return () => { const value = resource.read(); return resource.read() + value; }; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return () => { const value = resource.read(); return resource.read() + value; }; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(27): function f() { using resource = acquire(); return () => { const value = resource.read(); return resource.read() + value; }; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return () => { const value = resource.read(); return resource.read() + value; }; }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(28): function f() { using resource = acquire(); return () => { using resource = acquire(); return resource; }; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return () => { using resource = acquire(); return resource; }; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(28): function f() { using resource = acquire(); return () => { using resource = acquire(); return resource; }; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return () => { using resource = acquire(); return resource; }; }
+    |                                                                                       ^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(29): using resource = acquire(); export {resource}; 1`] = `
+
+  1 | using resource = acquire(); export {resource};
+
+`;
+
+exports[`no-using-resource-escape > invalid(29): using resource = acquire(); export {resource}; 2`] = `
+
+Message:
+> 1 | using resource = acquire(); export {resource};
+    |                             ^^^^^^^^^^^^^^^^^^ Do not export resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(3): async function f() { await using resource = acquire(); return resource!; } 1`] = `
+
+  1 | async function f() { await using resource = acquire(); return resource!; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(3): async function f() { await using resource = acquire(); return resource!; } 2`] = `
+
+Message:
+> 1 | async function f() { await using resource = acquire(); return resource!; }
+    |                                                        ^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(3): function f() { using resource = acquire(); return function read() { return resource.read(); }; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return function read() { return resource.read(); }; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(3): function f() { using resource = acquire(); return function read() { return resource.read(); }; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return function read() { return resource.read(); }; }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(30): await using resource = acquire(); export default resource; 1`] = `
+
+  1 | await using resource = acquire(); export default resource;
+
+`;
+
+exports[`no-using-resource-escape > invalid(30): await using resource = acquire(); export default resource; 2`] = `
+
+Message:
+> 1 | await using resource = acquire(); export default resource;
+    |                                   ^^^^^^^^^^^^^^^^^^^^^^^^ Do not export resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(31): export {resource as renamed}; using resource = acquire(); 1`] = `
+
+  1 | export {resource as renamed}; using resource = acquire();
+
+`;
+
+exports[`no-using-resource-escape > invalid(31): export {resource as renamed}; using resource = acquire(); 2`] = `
+
+Message:
+> 1 | export {resource as renamed}; using resource = acquire();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not export resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(32): using resource = acquire(); export default () => resource.read(); 1`] = `
+
+  1 | using resource = acquire(); export default () => resource.read();
+
+`;
+
+exports[`no-using-resource-escape > invalid(32): using resource = acquire(); export default () => resource.read(); 2`] = `
+
+Message:
+> 1 | using resource = acquire(); export default () => resource.read();
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not export resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(33): using resource = acquire(); export function read() { return resource.read(); } 1`] = `
+
+  1 | using resource = acquire(); export function read() { return resource.read(); }
+
+`;
+
+exports[`no-using-resource-escape > invalid(33): using resource = acquire(); export function read() { return resource.read(); } 2`] = `
+
+Message:
+> 1 | using resource = acquire(); export function read() { return resource.read(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not export resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(34): using resource = acquire(); export const read = () => resource.read(); 1`] = `
+
+  1 | using resource = acquire(); export const read = () => resource.read();
+
+`;
+
+exports[`no-using-resource-escape > invalid(34): using resource = acquire(); export const read = () => resource.read(); 2`] = `
+
+Message:
+> 1 | using resource = acquire(); export const read = () => resource.read();
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not export resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(35): using resource = acquire(); const read = () => resource.read(); export {read}; 1`] = `
+
+  1 | using resource = acquire(); const read = () => resource.read(); export {read};
+
+`;
+
+exports[`no-using-resource-escape > invalid(35): using resource = acquire(); const read = () => resource.read(); export {read}; 2`] = `
+
+Message:
+> 1 | using resource = acquire(); const read = () => resource.read(); export {read};
+    |                                                                 ^^^^^^^^^^^^^^ Do not export resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(36): using resource = acquire(); export default {resource, read() { return resource.read(); }}; 1`] = `
+
+  1 | using resource = acquire(); export default {resource, read() { return resource.read(); }};
+
+`;
+
+exports[`no-using-resource-escape > invalid(36): using resource = acquire(); export default {resource, read() { return resource.read(); }}; 2`] = `
+
+Message:
+> 1 | using resource = acquire(); export default {resource, read() { return resource.read(); }};
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not export resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(37): using resource = acquire(); export const value = [resource]; 1`] = `
+
+  1 | using resource = acquire(); export const value = [resource];
+
+`;
+
+exports[`no-using-resource-escape > invalid(37): using resource = acquire(); export const value = [resource]; 2`] = `
+
+Message:
+> 1 | using resource = acquire(); export const value = [resource];
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not export resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(38): function f() { using resource = acquire(); return {get value() { return resource.read(); }}; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return {get value() { return resource.read(); }}; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(38): function f() { using resource = acquire(); return {get value() { return resource.read(); }}; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return {get value() { return resource.read(); }}; }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(39): function f() { using resource = acquire(); return {set value(value) { resource.write(value); }}; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return {set value(value) { resource.write(value); }}; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(39): function f() { using resource = acquire(); return {set value(value) { resource.write(value); }}; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return {set value(value) { resource.write(value); }}; }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(4): function f() { using resource = acquire(); return resource satisfies Resource; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return resource satisfies Resource; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(4): function f() { using resource = acquire(); return resource satisfies Resource; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return resource satisfies Resource; }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(4): using resource = acquire(); export {resource as first, resource as second}; 1`] = `
+
+  1 | using resource = acquire(); export {resource as first, resource as second};
+
+`;
+
+exports[`no-using-resource-escape > invalid(4): using resource = acquire(); export {resource as first, resource as second}; 2`] = `
+
+Message:
+> 1 | using resource = acquire(); export {resource as first, resource as second};
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not export resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(40): function f() { using resource = acquire(); return (value = resource) => value; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return (value = resource) => value; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(40): function f() { using resource = acquire(); return (value = resource) => value; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return (value = resource) => value; }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(41): function f() { using resource = acquire(); const read = function reader() { return resource.read(); }; return read; } 1`] = `
+
+  1 | function f() { using resource = acquire(); const read = function reader() { return resource.read(); }; return read; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(41): function f() { using resource = acquire(); const read = function reader() { return resource.read(); }; return read; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); const read = function reader() { return resource.read(); }; return read; }
+    |                                                                                                        ^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(42): using resource = acquire(); export default function () { return resource.read(); } 1`] = `
+
+  1 | using resource = acquire(); export default function () { return resource.read(); }
+
+`;
+
+exports[`no-using-resource-escape > invalid(42): using resource = acquire(); export default function () { return resource.read(); } 2`] = `
+
+Message:
+> 1 | using resource = acquire(); export default function () { return resource.read(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not export resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(43): export {read}; using resource = acquire(); function read() { return resource.read(); } 1`] = `
+
+  1 | export {read}; using resource = acquire(); function read() { return resource.read(); }
+
+`;
+
+exports[`no-using-resource-escape > invalid(43): export {read}; using resource = acquire(); function read() { return resource.read(); } 2`] = `
+
+Message:
+> 1 | export {read}; using resource = acquire(); function read() { return resource.read(); }
+    | ^^^^^^^^^^^^^^ Do not export resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(44): using resource = acquire(); export function read(read) { read = other; return resource.read(); } 1`] = `
+
+  1 | using resource = acquire(); export function read(read) { read = other; return resource.read(); }
+
+`;
+
+exports[`no-using-resource-escape > invalid(44): using resource = acquire(); export function read(read) { read = other; return resource.read(); } 2`] = `
+
+Message:
+> 1 | using resource = acquire(); export function read(read) { read = other; return resource.read(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not export resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(45): function f() { using resource = acquire(); return function* () { yield resource.read(); }; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return function* () { yield resource.read(); }; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(45): function f() { using resource = acquire(); return function* () { yield resource.read(); }; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return function* () { yield resource.read(); }; }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(46): function f() { using resource = acquire(); return resource.isReady() ? other : resource; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return resource.isReady() ? other : resource; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(46): function f() { using resource = acquire(); return resource.isReady() ? other : resource; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return resource.isReady() ? other : resource; }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(5): function f() { using resource = acquire(); return (() => resource?.read()) as Reader; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return (() => resource?.read()) as Reader; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(5): function f() { using resource = acquire(); return (() => resource?.read()) as Reader; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return (() => resource?.read()) as Reader; }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(5): function f() { using resource = acquire(); return [,, resource]; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return [,, resource]; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(5): function f() { using resource = acquire(); return [,, resource]; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return [,, resource]; }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(6): function f() { using resource = acquire(); return resource; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return resource; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(6): function f() { using resource = acquire(); return resource; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return resource; }
+    |                                            ^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(6): using resource = acquire(); export {resource}; 1`] = `
+
+  1 | using resource = acquire(); export {resource};
+
+`;
+
+exports[`no-using-resource-escape > invalid(6): using resource = acquire(); export {resource}; 2`] = `
+
+Message:
+> 1 | using resource = acquire(); export {resource};
+    |                             ^^^^^^^^^^^^^^^^^^ Do not export resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(7): async function f() { await using resource = acquire(); return resource; } 1`] = `
+
+  1 | async function f() { await using resource = acquire(); return resource; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(7): async function f() { await using resource = acquire(); return resource; } 2`] = `
+
+Message:
+> 1 | async function f() { await using resource = acquire(); return resource; }
+    |                                                        ^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(7): function f() { using resource = acquire(); const read = (() => resource.read()) satisfies Reader; return read; } 1`] = `
+
+  1 | function f() { using resource = acquire(); const read = (() => resource.read()) satisfies Reader; return read; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(7): function f() { using resource = acquire(); const read = (() => resource.read()) satisfies Reader; return read; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); const read = (() => resource.read()) satisfies Reader; return read; }
+    |                                                                                                   ^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(8): function f() { using resource = acquire(); return (): typeof resource => resource; } 1`] = `
+
+  1 | function f() { using resource = acquire(); return (): typeof resource => resource; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(8): function f() { using resource = acquire(); return (): typeof resource => resource; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); return (): typeof resource => resource; }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(8): function f() { { using resource = acquire(); return resource; } } 1`] = `
+
+  1 | function f() { { using resource = acquire(); return resource; } }
+
+`;
+
+exports[`no-using-resource-escape > invalid(8): function f() { { using resource = acquire(); return resource; } } 2`] = `
+
+Message:
+> 1 | function f() { { using resource = acquire(); return resource; } }
+    |                                              ^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(9): function f() { for (using resource of resources) { return resource; } } 1`] = `
+
+  1 | function f() { for (using resource of resources) { return resource; } }
+
+`;
+
+exports[`no-using-resource-escape > invalid(9): function f() { for (using resource of resources) { return resource; } } 2`] = `
+
+Message:
+> 1 | function f() { for (using resource of resources) { return resource; } }
+    |                                                    ^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
+exports[`no-using-resource-escape > invalid(9): using typeOnly = acquire(), value = acquire(); export {type typeOnly, value}; 1`] = `
+
+  1 | using typeOnly = acquire(), value = acquire(); export {type typeOnly, value};
+
+`;
+
+exports[`no-using-resource-escape > invalid(9): using typeOnly = acquire(), value = acquire(); export {type typeOnly, value}; 2`] = `
+
+Message:
+> 1 | using typeOnly = acquire(), value = acquire(); export {type typeOnly, value};
+    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not export resource \`value\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;

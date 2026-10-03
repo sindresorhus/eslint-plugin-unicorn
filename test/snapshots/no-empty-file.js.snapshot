@@ -1,0 +1,1174 @@
+exports[`no-empty-file > invalid(1):  1`] = `
+
+Filename: example.js
+
+  1 |
+
+`;
+
+exports[`no-empty-file > invalid(1):  2`] = `
+
+Message:
+> 1 |
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(10): /* comment */ 1`] = `
+
+Filename: example.js
+
+  1 | /* comment */
+
+`;
+
+exports[`no-empty-file > invalid(10): /* comment */ 2`] = `
+
+Message:
+> 1 | /* comment */
+    | ^^^^^^^^^^^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(11): #!/usr/bin/env node 1`] = `
+
+Filename: example.js
+
+  1 | #!/usr/bin/env node
+
+`;
+
+exports[`no-empty-file > invalid(11): #!/usr/bin/env node 2`] = `
+
+Message:
+> 1 | #!/usr/bin/env node
+    | ^^^^^^^^^^^^^^^^^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(12): 'use asm'; 1`] = `
+
+Filename: example.js
+
+  1 | 'use asm';
+
+`;
+
+exports[`no-empty-file > invalid(12): 'use asm'; 2`] = `
+
+Message:
+> 1 | 'use asm';
+    | ^^^^^^^^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(13): 'use strict'; 1`] = `
+
+Filename: example.js
+
+  1 | 'use strict';
+
+`;
+
+exports[`no-empty-file > invalid(13): 'use strict'; 2`] = `
+
+Message:
+> 1 | 'use strict';
+    | ^^^^^^^^^^^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(14): \"use strict\" 1`] = `
+
+Filename: example.js
+
+  1 | "use strict"
+
+`;
+
+exports[`no-empty-file > invalid(14): \"use strict\" 2`] = `
+
+Message:
+> 1 | "use strict"
+    | ^^^^^^^^^^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(15): \"\" 1`] = `
+
+Filename: example.js
+
+  1 | ""
+
+`;
+
+exports[`no-empty-file > invalid(15): \"\" 2`] = `
+
+Message:
+> 1 | ""
+    | ^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(16): ; 1`] = `
+
+Filename: example.js
+
+  1 | ;
+
+`;
+
+exports[`no-empty-file > invalid(16): ; 2`] = `
+
+Message:
+> 1 | ;
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(17): ;; 1`] = `
+
+Filename: example.js
+
+  1 | ;;
+
+`;
+
+exports[`no-empty-file > invalid(17): ;; 2`] = `
+
+Message:
+> 1 | ;;
+    | ^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(18): {} 1`] = `
+
+Filename: example.js
+
+  1 | {}
+
+`;
+
+exports[`no-empty-file > invalid(18): {} 2`] = `
+
+Message:
+> 1 | {}
+    | ^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(19): {;;} 1`] = `
+
+Filename: example.js
+
+  1 | {;;}
+
+`;
+
+exports[`no-empty-file > invalid(19): {;;} 2`] = `
+
+Message:
+> 1 | {;;}
+    | ^^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(2): ﻿ 1`] = `
+
+Filename: example.js
+
+  1 | ﻿
+
+`;
+
+exports[`no-empty-file > invalid(2): ﻿ 2`] = `
+
+Message:
+> 1 | ﻿
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(20): {{}} 1`] = `
+
+Filename: example.js
+
+  1 | {{}}
+
+`;
+
+exports[`no-empty-file > invalid(20): {{}} 2`] = `
+
+Message:
+> 1 | {{}}
+    | ^^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(21):  1`] = `
+
+Filename: example.js
+
+Options:
+- allowComments: true
+
+Code:
+  1 |
+
+`;
+
+exports[`no-empty-file > invalid(21):  2`] = `
+
+Message:
+> 1 |
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(22):   1`] = `
+
+Filename: example.js
+
+Options:
+- allowComments: true
+
+Code:
+  1 |  
+
+`;
+
+exports[`no-empty-file > invalid(22):   2`] = `
+
+Message:
+> 1 |  
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(23): #!/usr/bin/env node 1`] = `
+
+Filename: example.js
+
+Options:
+- allowComments: true
+
+Code:
+  1 | #!/usr/bin/env node
+
+`;
+
+exports[`no-empty-file > invalid(23): #!/usr/bin/env node 2`] = `
+
+Message:
+> 1 | #!/usr/bin/env node
+    | ^^^^^^^^^^^^^^^^^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(24): #!/usr/bin/env node\n// comment 1`] = `
+
+Filename: example.js
+
+Options:
+- allowComments: true
+
+Code:
+  1 | #!/usr/bin/env node
+  2 | // comment
+
+`;
+
+exports[`no-empty-file > invalid(24): #!/usr/bin/env node\n// comment 2`] = `
+
+Message:
+> 1 | #!/usr/bin/env node
+    | ^^^^^^^^^^^^^^^^^^^
+> 2 | // comment
+    | ^^^^^^^^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(25): ; // comment 1`] = `
+
+Filename: example.js
+
+Options:
+- allowComments: true
+
+Code:
+  1 | ; // comment
+
+`;
+
+exports[`no-empty-file > invalid(25): ; // comment 2`] = `
+
+Message:
+> 1 | ; // comment
+    | ^^^^^^^^^^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(26): 'use strict'; // comment 1`] = `
+
+Filename: example.js
+
+Options:
+- allowComments: true
+
+Code:
+  1 | 'use strict'; // comment
+
+`;
+
+exports[`no-empty-file > invalid(26): 'use strict'; // comment 2`] = `
+
+Message:
+> 1 | 'use strict'; // comment
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(27): {/* comment */} 1`] = `
+
+Filename: example.js
+
+Options:
+- allowComments: true
+
+Code:
+  1 | {/* comment */}
+
+`;
+
+exports[`no-empty-file > invalid(27): {/* comment */} 2`] = `
+
+Message:
+> 1 | {/* comment */}
+    | ^^^^^^^^^^^^^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(28): {} 1`] = `
+
+Filename: example.mjs
+
+  1 | {}
+
+`;
+
+exports[`no-empty-file > invalid(28): {} 2`] = `
+
+Message:
+> 1 | {}
+    | ^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(29): {} 1`] = `
+
+Filename: example.cJs
+
+  1 | {}
+
+`;
+
+exports[`no-empty-file > invalid(29): {} 2`] = `
+
+Message:
+> 1 | {}
+    | ^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(3):   1`] = `
+
+Filename: example.js
+
+  1 |  
+
+`;
+
+exports[`no-empty-file > invalid(3):   2`] = `
+
+Message:
+> 1 |  
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(30): {} 1`] = `
+
+Filename: example.ts
+
+  1 | {}
+
+`;
+
+exports[`no-empty-file > invalid(30): {} 2`] = `
+
+Message:
+> 1 | {}
+    | ^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(31): {} 1`] = `
+
+Filename: example.tsx
+
+  1 | {}
+
+`;
+
+exports[`no-empty-file > invalid(31): {} 2`] = `
+
+Message:
+> 1 | {}
+    | ^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(32): {} 1`] = `
+
+Filename: example.jsx
+
+  1 | {}
+
+`;
+
+exports[`no-empty-file > invalid(32): {} 2`] = `
+
+Message:
+> 1 | {}
+    | ^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(33): {} 1`] = `
+
+Filename: example.MTS
+
+  1 | {}
+
+`;
+
+exports[`no-empty-file > invalid(33): {} 2`] = `
+
+Message:
+> 1 | {}
+    | ^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(34): {} 1`] = `
+
+Filename: example.cts
+
+  1 | {}
+
+`;
+
+exports[`no-empty-file > invalid(34): {} 2`] = `
+
+Message:
+> 1 | {}
+    | ^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(35):  1`] = `
+
+Filename: example.md
+
+  1 |
+
+`;
+
+exports[`no-empty-file > invalid(35):  2`] = `
+
+Message:
+> 1 |
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(36):  1`] = `
+
+Filename: example.vue
+
+  1 |
+
+`;
+
+exports[`no-empty-file > invalid(36):  2`] = `
+
+Message:
+> 1 |
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(37):  1`] = `
+
+Filename: example.svelte
+
+  1 |
+
+`;
+
+exports[`no-empty-file > invalid(37):  2`] = `
+
+Message:
+> 1 |
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(38):  1`] = `
+
+Filename: example.astro
+
+  1 |
+
+`;
+
+exports[`no-empty-file > invalid(38):  2`] = `
+
+Message:
+> 1 |
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(39):  1`] = `
+
+Filename: example.css
+
+  1 |
+
+`;
+
+exports[`no-empty-file > invalid(39):  2`] = `
+
+Message:
+> 1 |
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(4): \t 1`] = `
+
+Filename: example.js
+
+  1 | 	
+
+`;
+
+exports[`no-empty-file > invalid(4): \t 2`] = `
+
+Message:
+> 1 | 	
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(40):  1`] = `
+
+Filename: example.txt
+
+  1 |
+
+`;
+
+exports[`no-empty-file > invalid(40):  2`] = `
+
+Message:
+> 1 |
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(41):  1`] = `
+
+Filename: example.vue
+
+  1 |
+
+`;
+
+exports[`no-empty-file > invalid(41):  2`] = `
+
+Message:
+> 1 |
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(42):  1`] = `
+
+Filename: example.html
+
+  1 |
+
+`;
+
+exports[`no-empty-file > invalid(42):  2`] = `
+
+Message:
+> 1 |
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(43):    \n\t  1`] = `
+
+Filename: example.html
+
+  1 |    
+  2 | 	 
+
+`;
+
+exports[`no-empty-file > invalid(43):    \n\t  2`] = `
+
+Message:
+> 1 |    
+    | ^^^
+> 2 | 	 
+    | ^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(44): <!-- comment --> 1`] = `
+
+Filename: example.html
+
+  1 | <!-- comment -->
+
+`;
+
+exports[`no-empty-file > invalid(44): <!-- comment --> 2`] = `
+
+Message:
+> 1 | <!-- comment -->
+    | ^^^^^^^^^^^^^^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(45):  1`] = `
+
+Filename: example.css
+
+  1 |
+
+`;
+
+exports[`no-empty-file > invalid(45):  2`] = `
+
+Message:
+> 1 |
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(46):    \n\t  1`] = `
+
+Filename: example.css
+
+  1 |    
+  2 | 	 
+
+`;
+
+exports[`no-empty-file > invalid(46):    \n\t  2`] = `
+
+Message:
+> 1 |    
+    | ^^^
+> 2 | 	 
+    | ^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(47): /* comment */ 1`] = `
+
+Filename: example.css
+
+  1 | /* comment */
+
+`;
+
+exports[`no-empty-file > invalid(47): /* comment */ 2`] = `
+
+Message:
+> 1 | /* comment */
+    | ^^^^^^^^^^^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(48):  1`] = `
+
+Filename: example.md
+
+  1 |
+
+`;
+
+exports[`no-empty-file > invalid(48):  2`] = `
+
+Message:
+> 1 |
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(49):    \n\t  1`] = `
+
+Filename: example.md
+
+  1 |    
+  2 | 	 
+
+`;
+
+exports[`no-empty-file > invalid(49):    \n\t  2`] = `
+
+Message:
+> 1 |    
+    | ^^^
+> 2 | 	 
+    | ^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(5): \n 1`] = `
+
+Filename: example.js
+
+  1 |
+  2 |
+
+`;
+
+exports[`no-empty-file > invalid(5): \n 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 |
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(50): <!-- comment --> 1`] = `
+
+Filename: example.md
+
+  1 | <!-- comment -->
+
+`;
+
+exports[`no-empty-file > invalid(50): <!-- comment --> 2`] = `
+
+Message:
+> 1 | <!-- comment -->
+    | ^^^^^^^^^^^^^^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(51):  1`] = `
+
+Filename: example.yaml
+
+  1 |
+
+`;
+
+exports[`no-empty-file > invalid(51):  2`] = `
+
+Message:
+> 1 |
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(52):    \n\t  1`] = `
+
+Filename: example.yaml
+
+  1 |    
+  2 | 	 
+
+`;
+
+exports[`no-empty-file > invalid(52):    \n\t  2`] = `
+
+Message:
+> 1 |    
+    | ^^^
+> 2 | 	 
+    | ^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(53): # comment 1`] = `
+
+Filename: example.yaml
+
+  1 | # comment
+
+`;
+
+exports[`no-empty-file > invalid(53): # comment 2`] = `
+
+Message:
+> 1 | # comment
+    | ^^^^^^^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(54): %YAML 1.2\n# comment 1`] = `
+
+Filename: example.yaml
+
+Options:
+- allowComments: true
+
+Code:
+  1 | %YAML 1.2
+  2 | # comment
+
+`;
+
+exports[`no-empty-file > invalid(54): %YAML 1.2\n# comment 2`] = `
+
+Message:
+> 1 | %YAML 1.2
+    | ^^^^^^^^^
+> 2 | # comment
+    | ^^^^^^^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(55): &anchor 1`] = `
+
+Filename: example.yaml
+
+  1 | &anchor
+
+`;
+
+exports[`no-empty-file > invalid(55): &anchor 2`] = `
+
+Message:
+> 1 | &anchor
+    | ^^^^^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(56): &anchor\n# comment 1`] = `
+
+Filename: example.yaml
+
+Options:
+- allowComments: true
+
+Code:
+  1 | &anchor
+  2 | # comment
+
+`;
+
+exports[`no-empty-file > invalid(56): &anchor\n# comment 2`] = `
+
+Message:
+> 1 | &anchor
+    | ^^^^^^^
+> 2 | # comment
+    | ^^^^^^^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(57): !tag\n# comment 1`] = `
+
+Filename: example.yaml
+
+Options:
+- allowComments: true
+
+Code:
+  1 | !tag
+  2 | # comment
+
+`;
+
+exports[`no-empty-file > invalid(57): !tag\n# comment 2`] = `
+
+Message:
+> 1 | !tag
+    | ^^^^
+> 2 | # comment
+    | ^^^^^^^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(58): ---\n# comment 1`] = `
+
+Filename: example.yaml
+
+Options:
+- allowComments: true
+
+Code:
+  1 | ---
+  2 | # comment
+
+`;
+
+exports[`no-empty-file > invalid(58): ---\n# comment 2`] = `
+
+Message:
+> 1 | ---
+    | ^^^
+> 2 | # comment
+    | ^^^^^^^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(59): ...\n# comment 1`] = `
+
+Filename: example.yaml
+
+Options:
+- allowComments: true
+
+Code:
+  1 | ...
+  2 | # comment
+
+`;
+
+exports[`no-empty-file > invalid(59): ...\n# comment 2`] = `
+
+Message:
+> 1 | ...
+    | ^^^
+> 2 | # comment
+    | ^^^^^^^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(6): \r 1`] = `
+
+Filename: example.js
+
+  1 |
+  2 |
+
+`;
+
+exports[`no-empty-file > invalid(6): \r 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 |
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(60): ---\n--- 1`] = `
+
+Filename: example.yaml
+
+  1 | ---
+  2 | ---
+
+`;
+
+exports[`no-empty-file > invalid(60): ---\n--- 2`] = `
+
+Message:
+> 1 | ---
+    | ^^^
+> 2 | ---
+    | ^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(61):  1`] = `
+
+Filename: .gitignore
+
+  1 |
+
+`;
+
+exports[`no-empty-file > invalid(61):  2`] = `
+
+Message:
+
+
+`;
+
+exports[`no-empty-file > invalid(62):    \n\t  1`] = `
+
+Filename: .gitignore
+
+  1 |    
+  2 | 	 
+
+`;
+
+exports[`no-empty-file > invalid(62):    \n\t  2`] = `
+
+Message:
+
+
+`;
+
+exports[`no-empty-file > invalid(63):  1`] = `
+
+Filename: example.toml
+
+  1 |
+
+`;
+
+exports[`no-empty-file > invalid(63):  2`] = `
+
+Message:
+> 1 |
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(64):    \n\t  1`] = `
+
+Filename: example.toml
+
+  1 |    
+  2 | 	 
+
+`;
+
+exports[`no-empty-file > invalid(64):    \n\t  2`] = `
+
+Message:
+> 1 |    
+    | ^^^
+> 2 | 	 
+    | ^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(65): # comment 1`] = `
+
+Filename: example.toml
+
+  1 | # comment
+
+`;
+
+exports[`no-empty-file > invalid(65): # comment 2`] = `
+
+Message:
+> 1 | # comment
+    | ^^^^^^^^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(66):  1`] = `
+
+Filename: example.toml
+
+Options:
+- allowComments: true
+
+Code:
+  1 |
+
+`;
+
+exports[`no-empty-file > invalid(66):  2`] = `
+
+Message:
+> 1 |
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(67):    \n\t  1`] = `
+
+Filename: example.toml
+
+Options:
+- allowComments: true
+
+Code:
+  1 |    
+  2 | 	 
+
+`;
+
+exports[`no-empty-file > invalid(67):    \n\t  2`] = `
+
+Message:
+> 1 |    
+    | ^^^
+> 2 | 	 
+    | ^^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(7): \r\n 1`] = `
+
+Filename: example.js
+
+  1 |
+  2 |
+
+`;
+
+exports[`no-empty-file > invalid(7): \r\n 2`] = `
+
+Message:
+> 1 |
+    | ^
+> 2 |
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(8):  1`] = `
+
+Filename: example.js
+
+  1 |
+
+`;
+
+exports[`no-empty-file > invalid(8):  2`] = `
+
+Message:
+> 1 |
+    | ^ Empty files are not allowed.
+
+`;
+
+exports[`no-empty-file > invalid(9): // comment 1`] = `
+
+Filename: example.js
+
+  1 | // comment
+
+`;
+
+exports[`no-empty-file > invalid(9): // comment 2`] = `
+
+Message:
+> 1 | // comment
+    | ^^^^^^^^^^ Empty files are not allowed.
+
+`;

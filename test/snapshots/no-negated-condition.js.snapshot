@@ -1,0 +1,1009 @@
+exports[`no-negated-condition > invalid(1): if (!a) {;} else {;} 1`] = `
+
+  1 | if (!a) {;} else {;}
+
+`;
+
+exports[`no-negated-condition > invalid(1): if (!a) {;} else {;} 2`] = `
+
+Message:
+> 1 | if (!a) {;} else {;}
+    |     ^^ Unexpected negated condition.
+
+Output:
+  1 | if (a) {;} else {;}
+
+`;
+
+exports[`no-negated-condition > invalid(10): if((( !a ))) b(); else c(); 1`] = `
+
+  1 | if((( !a ))) b(); else c();
+
+`;
+
+exports[`no-negated-condition > invalid(10): if((( !a ))) b(); else c(); 2`] = `
+
+Message:
+> 1 | if((( !a ))) b(); else c();
+    |       ^^ Unexpected negated condition.
+
+Output:
+  1 | if((( a ))) {c();} else {b();}
+
+`;
+
+exports[`no-negated-condition > invalid(11): function a() {return!a ? b : c} 1`] = `
+
+  1 | function a() {return!a ? b : c}
+
+`;
+
+exports[`no-negated-condition > invalid(11): function a() {return!a ? b : c} 2`] = `
+
+Message:
+> 1 | function a() {return!a ? b : c}
+    |                     ^^ Unexpected negated condition.
+
+Output:
+  1 | function a() {return a ? c : b}
+
+`;
+
+exports[`no-negated-condition > invalid(12): function a() {return!(( a )) ? b : c} 1`] = `
+
+  1 | function a() {return!(( a )) ? b : c}
+
+`;
+
+exports[`no-negated-condition > invalid(12): function a() {return!(( a )) ? b : c} 2`] = `
+
+Message:
+> 1 | function a() {return!(( a )) ? b : c}
+    |                     ^^^^^^^^ Unexpected negated condition.
+
+Output:
+  1 | function a() {return (( a )) ? c : b}
+
+`;
+
+exports[`no-negated-condition > invalid(13): function a() {\n\treturn ! // comment\n\t\ta ? b : c;\n} 1`] = `
+
+  1 | function a() {
+  2 | 	return ! // comment
+  3 | 		a ? b : c;
+  4 | }
+
+`;
+
+exports[`no-negated-condition > invalid(13): function a() {\n\treturn ! // comment\n\t\ta ? b : c;\n} 2`] = `
+
+Message:
+  1 | function a() {
+> 2 | 	return ! // comment
+    | 	       ^^^^^^^^^^^^
+> 3 | 		a ? b : c;
+    | ^^^ Unexpected negated condition.
+  4 | }
+
+Output:
+  1 | function a() {
+  2 | 	return (  // comment
+  3 | 		a ? c : b);
+  4 | }
+
+`;
+
+exports[`no-negated-condition > invalid(14): function a() {\n\treturn (! // ReturnStatement argument is parenthesized\n\t\ta ? b : c);\n} 1`] = `
+
+  1 | function a() {
+  2 | 	return (! // ReturnStatement argument is parenthesized
+  3 | 		a ? b : c);
+  4 | }
+
+`;
+
+exports[`no-negated-condition > invalid(14): function a() {\n\treturn (! // ReturnStatement argument is parenthesized\n\t\ta ? b : c);\n} 2`] = `
+
+Message:
+  1 | function a() {
+> 2 | 	return (! // ReturnStatement argument is parenthesized
+    | 	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		a ? b : c);
+    | ^^^ Unexpected negated condition.
+  4 | }
+
+Output:
+  1 | function a() {
+  2 | 	return ( // ReturnStatement argument is parenthesized
+  3 | 		a ? c : b);
+  4 | }
+
+`;
+
+exports[`no-negated-condition > invalid(15): function a() {\n\treturn (\n\t\t! // UnaryExpression argument is parenthesized\n\t\ta) ? b : c;\n} 1`] = `
+
+  1 | function a() {
+  2 | 	return (
+  3 | 		! // UnaryExpression argument is parenthesized
+  4 | 		a) ? b : c;
+  5 | }
+
+`;
+
+exports[`no-negated-condition > invalid(15): function a() {\n\treturn (\n\t\t! // UnaryExpression argument is parenthesized\n\t\ta) ? b : c;\n} 2`] = `
+
+Message:
+  1 | function a() {
+  2 | 	return (
+> 3 | 		! // UnaryExpression argument is parenthesized
+    | 		^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		a) ? b : c;
+    | ^^^ Unexpected negated condition.
+  5 | }
+
+Output:
+  1 | function a() {
+  2 | 	return (
+  3 | 		 // UnaryExpression argument is parenthesized
+  4 | 		a) ? c : b;
+  5 | }
+
+`;
+
+exports[`no-negated-condition > invalid(16): function a() {\n\tthrow ! // comment\n\t\ta ? b : c;\n} 1`] = `
+
+  1 | function a() {
+  2 | 	throw ! // comment
+  3 | 		a ? b : c;
+  4 | }
+
+`;
+
+exports[`no-negated-condition > invalid(16): function a() {\n\tthrow ! // comment\n\t\ta ? b : c;\n} 2`] = `
+
+Message:
+  1 | function a() {
+> 2 | 	throw ! // comment
+    | 	      ^^^^^^^^^^^^
+> 3 | 		a ? b : c;
+    | ^^^ Unexpected negated condition.
+  4 | }
+
+Output:
+  1 | function a() {
+  2 | 	throw (  // comment
+  3 | 		a ? c : b);
+  4 | }
+
+`;
+
+exports[`no-negated-condition > invalid(17): !a ? b : c ? d : e 1`] = `
+
+  1 | !a ? b : c ? d : e
+
+`;
+
+exports[`no-negated-condition > invalid(17): !a ? b : c ? d : e 2`] = `
+
+Message:
+> 1 | !a ? b : c ? d : e
+    | ^^ Unexpected negated condition.
+
+Output:
+  1 | a ? c ? d : e : b
+
+`;
+
+exports[`no-negated-condition > invalid(18): !a ? b : (( c ? d : e )) 1`] = `
+
+  1 | !a ? b : (( c ? d : e ))
+
+`;
+
+exports[`no-negated-condition > invalid(18): !a ? b : (( c ? d : e )) 2`] = `
+
+Message:
+> 1 | !a ? b : (( c ? d : e ))
+    | ^^ Unexpected negated condition.
+
+Output:
+  1 | a ? (( c ? d : e )) : b
+
+`;
+
+exports[`no-negated-condition > invalid(19): a\n![] ? b : c 1`] = `
+
+  1 | a
+  2 | ![] ? b : c
+
+`;
+
+exports[`no-negated-condition > invalid(19): a\n![] ? b : c 2`] = `
+
+Message:
+  1 | a
+> 2 | ![] ? b : c
+    | ^^^ Unexpected negated condition.
+
+Output:
+  1 | a
+  2 | ;[] ? c : b
+
+`;
+
+exports[`no-negated-condition > invalid(2): if (a != b) {;} else {;} 1`] = `
+
+  1 | if (a != b) {;} else {;}
+
+`;
+
+exports[`no-negated-condition > invalid(2): if (a != b) {;} else {;} 2`] = `
+
+Message:
+> 1 | if (a != b) {;} else {;}
+    |     ^^^^^^ Unexpected negated condition.
+
+Output:
+  1 | if (a == b) {;} else {;}
+
+`;
+
+exports[`no-negated-condition > invalid(20): a\n!+b ? c : d 1`] = `
+
+  1 | a
+  2 | !+b ? c : d
+
+`;
+
+exports[`no-negated-condition > invalid(20): a\n!+b ? c : d 2`] = `
+
+Message:
+  1 | a
+> 2 | !+b ? c : d
+    | ^^^ Unexpected negated condition.
+
+Output:
+  1 | a
+  2 | ;+b ? d : c
+
+`;
+
+exports[`no-negated-condition > invalid(21): a\n!(b) ? c : d 1`] = `
+
+  1 | a
+  2 | !(b) ? c : d
+
+`;
+
+exports[`no-negated-condition > invalid(21): a\n!(b) ? c : d 2`] = `
+
+Message:
+  1 | a
+> 2 | !(b) ? c : d
+    | ^^^^ Unexpected negated condition.
+
+Output:
+  1 | a
+  2 | ;(b) ? d : c
+
+`;
+
+exports[`no-negated-condition > invalid(22): a\n!b ? c : d 1`] = `
+
+  1 | a
+  2 | !b ? c : d
+
+`;
+
+exports[`no-negated-condition > invalid(22): a\n!b ? c : d 2`] = `
+
+Message:
+  1 | a
+> 2 | !b ? c : d
+    | ^^ Unexpected negated condition.
+
+Output:
+  1 | a
+  2 | b ? d : c
+
+`;
+
+exports[`no-negated-condition > invalid(23): if (!a)\n\tb()\nelse\n\tc() 1`] = `
+
+  1 | if (!a)
+  2 | 	b()
+  3 | else
+  4 | 	c()
+
+`;
+
+exports[`no-negated-condition > invalid(23): if (!a)\n\tb()\nelse\n\tc() 2`] = `
+
+Message:
+> 1 | if (!a)
+    |     ^^ Unexpected negated condition.
+  2 | 	b()
+  3 | else
+  4 | 	c()
+
+Output:
+  1 | if (a)
+  2 | 	{c()}
+  3 | else
+  4 | 	{b()}
+
+`;
+
+exports[`no-negated-condition > invalid(24): if(!a) b(); else c() 1`] = `
+
+  1 | if(!a) b(); else c()
+
+`;
+
+exports[`no-negated-condition > invalid(24): if(!a) b(); else c() 2`] = `
+
+Message:
+> 1 | if(!a) b(); else c()
+    |    ^^ Unexpected negated condition.
+
+Output:
+  1 | if(a) {c()} else {b();}
+
+`;
+
+exports[`no-negated-condition > invalid(25): function fn() {\n\tif(!a) b(); else return\n} 1`] = `
+
+  1 | function fn() {
+  2 | 	if(!a) b(); else return
+  3 | }
+
+`;
+
+exports[`no-negated-condition > invalid(25): function fn() {\n\tif(!a) b(); else return\n} 2`] = `
+
+Message:
+  1 | function fn() {
+> 2 | 	if(!a) b(); else return
+    | 	   ^^ Unexpected negated condition.
+  3 | }
+
+Output:
+  1 | function fn() {
+  2 | 	if(a) {return} else {b();}
+  3 | }
+
+`;
+
+exports[`no-negated-condition > invalid(26): if(!a) {b()} else {c()} 1`] = `
+
+  1 | if(!a) {b()} else {c()}
+
+`;
+
+exports[`no-negated-condition > invalid(26): if(!a) {b()} else {c()} 2`] = `
+
+Message:
+> 1 | if(!a) {b()} else {c()}
+    |    ^^ Unexpected negated condition.
+
+Output:
+  1 | if(a) {c()} else {b()}
+
+`;
+
+exports[`no-negated-condition > invalid(27): if(!!a) b(); else c(); 1`] = `
+
+  1 | if(!!a) b(); else c();
+
+`;
+
+exports[`no-negated-condition > invalid(27): if(!!a) b(); else c(); 2`] = `
+
+Message:
+> 1 | if(!!a) b(); else c();
+    |    ^^^ Unexpected negated condition.
+
+Output:
+  1 | if(!a) {c();} else {b();}
+
+`;
+
+exports[`no-negated-condition > invalid(28): (!!a) ? b() : c(); 1`] = `
+
+  1 | (!!a) ? b() : c();
+
+`;
+
+exports[`no-negated-condition > invalid(28): (!!a) ? b() : c(); 2`] = `
+
+Message:
+> 1 | (!!a) ? b() : c();
+    |  ^^^ Unexpected negated condition.
+
+Output:
+  1 | (!a) ? c() : b();
+
+`;
+
+exports[`no-negated-condition > invalid(29): function fn() {\n\treturn!a !== b ? c : d\n\treturn((!((a)) != b)) ? c : d\n} 1`] = `
+
+  1 | function fn() {
+  2 | 	return!a !== b ? c : d
+  3 | 	return((!((a)) != b)) ? c : d
+  4 | }
+
+`;
+
+exports[`no-negated-condition > invalid(29): function fn() {\n\treturn!a !== b ? c : d\n\treturn((!((a)) != b)) ? c : d\n} 2`] = `
+
+Message:
+  1 | function fn() {
+> 2 | 	return!a !== b ? c : d
+    | 	      ^^^^^^^^ Unexpected negated condition.
+  3 | 	return((!((a)) != b)) ? c : d
+  4 | }
+
+Output:
+  1 | function fn() {
+  2 | 	return!a === b ? d : c
+  3 | 	return((!((a)) != b)) ? c : d
+  4 | }
+
+`;
+
+exports[`no-negated-condition > invalid(29): function fn() {\n\treturn!a !== b ? c : d\n\treturn((!((a)) != b)) ? c : d\n} 3`] = `
+
+Message:
+  1 | function fn() {
+  2 | 	return!a !== b ? c : d
+> 3 | 	return((!((a)) != b)) ? c : d
+    | 	        ^^^^^^^^^^^ Unexpected negated condition.
+  4 | }
+
+Output:
+  1 | function fn() {
+  2 | 	return!a !== b ? c : d
+  3 | 	return((!((a)) == b)) ? d : c
+  4 | }
+
+`;
+
+exports[`no-negated-condition > invalid(3): if (a !== b) {;} else {;} 1`] = `
+
+  1 | if (a !== b) {;} else {;}
+
+`;
+
+exports[`no-negated-condition > invalid(3): if (a !== b) {;} else {;} 2`] = `
+
+Message:
+> 1 | if (a !== b) {;} else {;}
+    |     ^^^^^^^ Unexpected negated condition.
+
+Output:
+  1 | if (a === b) {;} else {;}
+
+`;
+
+exports[`no-negated-condition > invalid(30): if (!a) {\n\tb();\n} else if (!c) {\n\td();\n} else {\n\te();\n} 1`] = `
+
+  1 | if (!a) {
+  2 | 	b();
+  3 | } else if (!c) {
+  4 | 	d();
+  5 | } else {
+  6 | 	e();
+  7 | }
+
+`;
+
+exports[`no-negated-condition > invalid(30): if (!a) {\n\tb();\n} else if (!c) {\n\td();\n} else {\n\te();\n} 2`] = `
+
+Message:
+  1 | if (!a) {
+  2 | 	b();
+> 3 | } else if (!c) {
+    |            ^^ Unexpected negated condition.
+  4 | 	d();
+  5 | } else {
+  6 | 	e();
+  7 | }
+
+Output:
+  1 | if (!a) {
+  2 | 	b();
+  3 | } else if (c) {
+  4 | 	e();
+  5 | } else {
+  6 | 	d();
+  7 | }
+
+`;
+
+exports[`no-negated-condition > invalid(31): !x ? /* one */ 1 : 2 1`] = `
+
+  1 | !x ? /* one */ 1 : 2
+
+`;
+
+exports[`no-negated-condition > invalid(31): !x ? /* one */ 1 : 2 2`] = `
+
+Message:
+> 1 | !x ? /* one */ 1 : 2
+    | ^^ Unexpected negated condition.
+
+Output:
+  1 | x ? 2 : /* one */ 1
+
+`;
+
+exports[`no-negated-condition > invalid(32): !x ? 1 : /* two */ 2 1`] = `
+
+  1 | !x ? 1 : /* two */ 2
+
+`;
+
+exports[`no-negated-condition > invalid(32): !x ? 1 : /* two */ 2 2`] = `
+
+Message:
+> 1 | !x ? 1 : /* two */ 2
+    | ^^ Unexpected negated condition.
+
+Output:
+  1 | x ? /* two */ 2 : 1
+
+`;
+
+exports[`no-negated-condition > invalid(33): !x ? /* one */ /* first */ 1 : /* two */ /* second */ 2 1`] = `
+
+  1 | !x ? /* one */ /* first */ 1 : /* two */ /* second */ 2
+
+`;
+
+exports[`no-negated-condition > invalid(33): !x ? /* one */ /* first */ 1 : /* two */ /* second */ 2 2`] = `
+
+Message:
+> 1 | !x ? /* one */ /* first */ 1 : /* two */ /* second */ 2
+    | ^^ Unexpected negated condition.
+
+Output:
+  1 | x ? /* two */ /* second */ 2 : /* one */ /* first */ 1
+
+`;
+
+exports[`no-negated-condition > invalid(34): !x ? /* one */ 1 : /* two */ 1 1`] = `
+
+  1 | !x ? /* one */ 1 : /* two */ 1
+
+`;
+
+exports[`no-negated-condition > invalid(34): !x ? /* one */ 1 : /* two */ 1 2`] = `
+
+Message:
+> 1 | !x ? /* one */ 1 : /* two */ 1
+    | ^^ Unexpected negated condition.
+
+Output:
+  1 | x ? /* two */ 1 : /* one */ 1
+
+`;
+
+exports[`no-negated-condition > invalid(35): !x ? /* one */ ((1)) : /* two */ ((2)) 1`] = `
+
+  1 | !x ? /* one */ ((1)) : /* two */ ((2))
+
+`;
+
+exports[`no-negated-condition > invalid(35): !x ? /* one */ ((1)) : /* two */ ((2)) 2`] = `
+
+Message:
+> 1 | !x ? /* one */ ((1)) : /* two */ ((2))
+    | ^^ Unexpected negated condition.
+
+Output:
+  1 | x ? /* two */ ((2)) : /* one */ ((1))
+
+`;
+
+exports[`no-negated-condition > invalid(36): !x ? (/* one */ 1) : (/* two */ 2) 1`] = `
+
+  1 | !x ? (/* one */ 1) : (/* two */ 2)
+
+`;
+
+exports[`no-negated-condition > invalid(36): !x ? (/* one */ 1) : (/* two */ 2) 2`] = `
+
+Message:
+> 1 | !x ? (/* one */ 1) : (/* two */ 2)
+    | ^^ Unexpected negated condition.
+
+Output:
+  1 | x ? (/* two */ 2) : (/* one */ 1)
+
+`;
+
+exports[`no-negated-condition > invalid(37): !x ? /* one */ (1 /* inside */) : /* two */ 2 1`] = `
+
+  1 | !x ? /* one */ (1 /* inside */) : /* two */ 2
+
+`;
+
+exports[`no-negated-condition > invalid(37): !x ? /* one */ (1 /* inside */) : /* two */ 2 2`] = `
+
+Message:
+> 1 | !x ? /* one */ (1 /* inside */) : /* two */ 2
+    | ^^ Unexpected negated condition.
+
+Output:
+  1 | x ? /* two */ 2 : /* one */ (1 /* inside */)
+
+`;
+
+exports[`no-negated-condition > invalid(38): !x ? /* one */ first(/* inside */ 1) : /* two */ second(2) 1`] = `
+
+  1 | !x ? /* one */ first(/* inside */ 1) : /* two */ second(2)
+
+`;
+
+exports[`no-negated-condition > invalid(38): !x ? /* one */ first(/* inside */ 1) : /* two */ second(2) 2`] = `
+
+Message:
+> 1 | !x ? /* one */ first(/* inside */ 1) : /* two */ second(2)
+    | ^^ Unexpected negated condition.
+
+Output:
+  1 | x ? /* two */ second(2) : /* one */ first(/* inside */ 1)
+
+`;
+
+exports[`no-negated-condition > invalid(39): x != y ? /* one */ 1 : /* two */ 2 1`] = `
+
+  1 | x != y ? /* one */ 1 : /* two */ 2
+
+`;
+
+exports[`no-negated-condition > invalid(39): x != y ? /* one */ 1 : /* two */ 2 2`] = `
+
+Message:
+> 1 | x != y ? /* one */ 1 : /* two */ 2
+    | ^^^^^^ Unexpected negated condition.
+
+Output:
+  1 | x == y ? /* two */ 2 : /* one */ 1
+
+`;
+
+exports[`no-negated-condition > invalid(4): !a ? b : c 1`] = `
+
+  1 | !a ? b : c
+
+`;
+
+exports[`no-negated-condition > invalid(4): !a ? b : c 2`] = `
+
+Message:
+> 1 | !a ? b : c
+    | ^^ Unexpected negated condition.
+
+Output:
+  1 | a ? c : b
+
+`;
+
+exports[`no-negated-condition > invalid(40): x !== y ? /* one */ 1 : /* two */ 2 1`] = `
+
+  1 | x !== y ? /* one */ 1 : /* two */ 2
+
+`;
+
+exports[`no-negated-condition > invalid(40): x !== y ? /* one */ 1 : /* two */ 2 2`] = `
+
+Message:
+> 1 | x !== y ? /* one */ 1 : /* two */ 2
+    | ^^^^^^^ Unexpected negated condition.
+
+Output:
+  1 | x === y ? /* two */ 2 : /* one */ 1
+
+`;
+
+exports[`no-negated-condition > invalid(41): !x ? // one\n 1 : // two\n 2 1`] = `
+
+  1 | !x ? // one
+  2 |  1 : // two
+  3 |  2
+
+`;
+
+exports[`no-negated-condition > invalid(41): !x ? // one\n 1 : // two\n 2 2`] = `
+
+Message:
+> 1 | !x ? // one
+    | ^^ Unexpected negated condition.
+  2 |  1 : // two
+  3 |  2
+
+Output:
+  1 | x ? // two
+  2 |  2 : // one
+  3 |  1
+
+`;
+
+exports[`no-negated-condition > invalid(42): !x ? /* one */ 1 : // two\n 2 1`] = `
+
+  1 | !x ? /* one */ 1 : // two
+  2 |  2
+
+`;
+
+exports[`no-negated-condition > invalid(42): !x ? /* one */ 1 : // two\n 2 2`] = `
+
+Message:
+> 1 | !x ? /* one */ 1 : // two
+    | ^^ Unexpected negated condition.
+  2 |  2
+
+Output:
+  1 | x ? // two
+  2 |  2 : /* one */ 1
+
+`;
+
+exports[`no-negated-condition > invalid(43): !x ? // one\r\n 1 : 2 1`] = `
+
+  1 | !x ? // one
+  2 |  1 : 2
+
+`;
+
+exports[`no-negated-condition > invalid(43): !x ? // one\r\n 1 : 2 2`] = `
+
+Message:
+> 1 | !x ? // one
+    | ^^ Unexpected negated condition.
+  2 |  1 : 2
+
+Output:
+  1 | x ? 2 : // one
+  2 |  1
+
+`;
+
+exports[`no-negated-condition > invalid(44): !x ? /* outer */ (!y ? /* one */ 1 : /* two */ 2) : /* three */ 3 1`] = `
+
+  1 | !x ? /* outer */ (!y ? /* one */ 1 : /* two */ 2) : /* three */ 3
+
+`;
+
+exports[`no-negated-condition > invalid(44): !x ? /* outer */ (!y ? /* one */ 1 : /* two */ 2) : /* three */ 3 2`] = `
+
+Message:
+> 1 | !x ? /* outer */ (!y ? /* one */ 1 : /* two */ 2) : /* three */ 3
+    | ^^ Unexpected negated condition.
+
+Output:
+  1 | x ? /* three */ 3 : /* outer */ (!y ? /* one */ 1 : /* two */ 2)
+
+`;
+
+exports[`no-negated-condition > invalid(44): !x ? /* outer */ (!y ? /* one */ 1 : /* two */ 2) : /* three */ 3 3`] = `
+
+Message:
+> 1 | !x ? /* outer */ (!y ? /* one */ 1 : /* two */ 2) : /* three */ 3
+    |                   ^^ Unexpected negated condition.
+
+Output:
+  1 | !x ? /* outer */ (y ? /* two */ 2 : /* one */ 1) : /* three */ 3
+
+`;
+
+exports[`no-negated-condition > invalid(45): if (!x) /* one */ {one();} else /* two */ {two();} 1`] = `
+
+  1 | if (!x) /* one */ {one();} else /* two */ {two();}
+
+`;
+
+exports[`no-negated-condition > invalid(45): if (!x) /* one */ {one();} else /* two */ {two();} 2`] = `
+
+Message:
+> 1 | if (!x) /* one */ {one();} else /* two */ {two();}
+    |     ^^ Unexpected negated condition.
+
+Output:
+  1 | if (x) /* two */ {two();} else /* one */ {one();}
+
+`;
+
+exports[`no-negated-condition > invalid(46): if (!x) /* one */ one(); else /* two */ two(); 1`] = `
+
+  1 | if (!x) /* one */ one(); else /* two */ two();
+
+`;
+
+exports[`no-negated-condition > invalid(46): if (!x) /* one */ one(); else /* two */ two(); 2`] = `
+
+Message:
+> 1 | if (!x) /* one */ one(); else /* two */ two();
+    |     ^^ Unexpected negated condition.
+
+Output:
+  1 | if (x) {/* two */ two();} else {/* one */ one();}
+
+`;
+
+exports[`no-negated-condition > invalid(47): if (!x) // one\n one(); else // two\n two(); 1`] = `
+
+  1 | if (!x) // one
+  2 |  one(); else // two
+  3 |  two();
+
+`;
+
+exports[`no-negated-condition > invalid(47): if (!x) // one\n one(); else // two\n two(); 2`] = `
+
+Message:
+> 1 | if (!x) // one
+    |     ^^ Unexpected negated condition.
+  2 |  one(); else // two
+  3 |  two();
+
+Output:
+  1 | if (x) {// two
+  2 |  two();} else {// one
+  3 |  one();}
+
+`;
+
+exports[`no-negated-condition > invalid(48): if (!x) { /* one */ one(); } else { /* two */ two(); } 1`] = `
+
+  1 | if (!x) { /* one */ one(); } else { /* two */ two(); }
+
+`;
+
+exports[`no-negated-condition > invalid(48): if (!x) { /* one */ one(); } else { /* two */ two(); } 2`] = `
+
+Message:
+> 1 | if (!x) { /* one */ one(); } else { /* two */ two(); }
+    |     ^^ Unexpected negated condition.
+
+Output:
+  1 | if (x) { /* two */ two(); } else { /* one */ one(); }
+
+`;
+
+exports[`no-negated-condition > invalid(49): if (!x) /* one */ one(); else {two();} 1`] = `
+
+  1 | if (!x) /* one */ one(); else {two();}
+
+`;
+
+exports[`no-negated-condition > invalid(49): if (!x) /* one */ one(); else {two();} 2`] = `
+
+Message:
+> 1 | if (!x) /* one */ one(); else {two();}
+    |     ^^ Unexpected negated condition.
+
+Output:
+  1 | if (x) {two();} else {/* one */ one();}
+
+`;
+
+exports[`no-negated-condition > invalid(5): a != b ? c : d 1`] = `
+
+  1 | a != b ? c : d
+
+`;
+
+exports[`no-negated-condition > invalid(5): a != b ? c : d 2`] = `
+
+Message:
+> 1 | a != b ? c : d
+    | ^^^^^^ Unexpected negated condition.
+
+Output:
+  1 | a == b ? d : c
+
+`;
+
+exports[`no-negated-condition > invalid(50): if (!x) {one();} else /* two */ two(); 1`] = `
+
+  1 | if (!x) {one();} else /* two */ two();
+
+`;
+
+exports[`no-negated-condition > invalid(50): if (!x) {one();} else /* two */ two(); 2`] = `
+
+Message:
+> 1 | if (!x) {one();} else /* two */ two();
+    |     ^^ Unexpected negated condition.
+
+Output:
+  1 | if (x) {/* two */ two();} else {one();}
+
+`;
+
+exports[`no-negated-condition > invalid(51): !x ? /* one */ (one as number) : /* two */ two! 1`] = `
+
+  1 | !x ? /* one */ (one as number) : /* two */ two!
+
+`;
+
+exports[`no-negated-condition > invalid(51): !x ? /* one */ (one as number) : /* two */ two! 2`] = `
+
+Message:
+> 1 | !x ? /* one */ (one as number) : /* two */ two!
+    | ^^ Unexpected negated condition.
+
+Output:
+  1 | x ? /* two */ two! : /* one */ (one as number)
+
+`;
+
+exports[`no-negated-condition > invalid(6): a !== b ? c : d 1`] = `
+
+  1 | a !== b ? c : d
+
+`;
+
+exports[`no-negated-condition > invalid(6): a !== b ? c : d 2`] = `
+
+Message:
+> 1 | a !== b ? c : d
+    | ^^^^^^^ Unexpected negated condition.
+
+Output:
+  1 | a === b ? d : c
+
+`;
+
+exports[`no-negated-condition > invalid(7): (( !a )) ? b : c 1`] = `
+
+  1 | (( !a )) ? b : c
+
+`;
+
+exports[`no-negated-condition > invalid(7): (( !a )) ? b : c 2`] = `
+
+Message:
+> 1 | (( !a )) ? b : c
+    |    ^^ Unexpected negated condition.
+
+Output:
+  1 | (( a )) ? c : b
+
+`;
+
+exports[`no-negated-condition > invalid(8): !(( a )) ? b : c 1`] = `
+
+  1 | !(( a )) ? b : c
+
+`;
+
+exports[`no-negated-condition > invalid(8): !(( a )) ? b : c 2`] = `
+
+Message:
+> 1 | !(( a )) ? b : c
+    | ^^^^^^^^ Unexpected negated condition.
+
+Output:
+  1 | (( a )) ? c : b
+
+`;
+
+exports[`no-negated-condition > invalid(9): if(!(( a ))) b(); else c(); 1`] = `
+
+  1 | if(!(( a ))) b(); else c();
+
+`;
+
+exports[`no-negated-condition > invalid(9): if(!(( a ))) b(); else c(); 2`] = `
+
+Message:
+> 1 | if(!(( a ))) b(); else c();
+    |    ^^^^^^^^ Unexpected negated condition.
+
+Output:
+  1 | if( a ) {c();} else {b();}
+
+`;

@@ -1,0 +1,508 @@
+exports[`prefer-scoped-selector > invalid(1): element.querySelector(\".outer .inner\"); 1`] = `
+
+  1 | element.querySelector(".outer .inner");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(1): element.querySelector(\".outer .inner\"); 2`] = `
+
+Message:
+> 1 | element.querySelector(".outer .inner");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelector(":scope .outer .inner");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(10): element.querySelector(\"a+b\"); 1`] = `
+
+  1 | element.querySelector("a+b");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(10): element.querySelector(\"a+b\"); 2`] = `
+
+Message:
+> 1 | element.querySelector("a+b");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelector(":scope a+b");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(11): element.querySelector(\"a~b\"); 1`] = `
+
+  1 | element.querySelector("a~b");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(11): element.querySelector(\"a~b\"); 2`] = `
+
+Message:
+> 1 | element.querySelector("a~b");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelector(":scope a~b");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(12): element.querySelector(\"[data-foo] .inner\"); 1`] = `
+
+  1 | element.querySelector("[data-foo] .inner");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(12): element.querySelector(\"[data-foo] .inner\"); 2`] = `
+
+Message:
+> 1 | element.querySelector("[data-foo] .inner");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelector(":scope [data-foo] .inner");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(13): element.querySelector(\"a:has(b) .c\"); 1`] = `
+
+  1 | element.querySelector("a:has(b) .c");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(13): element.querySelector(\"a:has(b) .c\"); 2`] = `
+
+Message:
+> 1 | element.querySelector("a:has(b) .c");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelector(":scope a:has(b) .c");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(14): element.querySelectorAll(\"div\\n.a\"); 1`] = `
+
+  1 | element.querySelectorAll("div\\n.a");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(14): element.querySelectorAll(\"div\\n.a\"); 2`] = `
+
+Message:
+> 1 | element.querySelectorAll("div\\n.a");
+    |         ^^^^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelectorAll(":scope div\\n.a");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(15): element.querySelector(\".a, div .b\"); 1`] = `
+
+  1 | element.querySelector(".a, div .b");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(15): element.querySelector(\".a, div .b\"); 2`] = `
+
+Message:
+> 1 | element.querySelector(".a, div .b");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+`;
+
+exports[`prefer-scoped-selector > invalid(16): element.querySelectorAll(\".a .b, .c .d\"); 1`] = `
+
+  1 | element.querySelectorAll(".a .b, .c .d");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(16): element.querySelectorAll(\".a .b, .c .d\"); 2`] = `
+
+Message:
+> 1 | element.querySelectorAll(".a .b, .c .d");
+    |         ^^^^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+`;
+
+exports[`prefer-scoped-selector > invalid(17): element.querySelector(\"a, :scope b c, .d .e\"); 1`] = `
+
+  1 | element.querySelector("a, :scope b c, .d .e");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(17): element.querySelector(\"a, :scope b c, .d .e\"); 2`] = `
+
+Message:
+> 1 | element.querySelector("a, :scope b c, .d .e");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+`;
+
+exports[`prefer-scoped-selector > invalid(18): element.querySelector(\":scope div .a, div b\"); 1`] = `
+
+  1 | element.querySelector(":scope div .a, div b");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(18): element.querySelector(\":scope div .a, div b\"); 2`] = `
+
+Message:
+> 1 | element.querySelector(":scope div .a, div b");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+`;
+
+exports[`prefer-scoped-selector > invalid(19): element.querySelector(\"div:is(a, b) .x\"); 1`] = `
+
+  1 | element.querySelector("div:is(a, b) .x");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(19): element.querySelector(\"div:is(a, b) .x\"); 2`] = `
+
+Message:
+> 1 | element.querySelector("div:is(a, b) .x");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelector(":scope div:is(a, b) .x");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(2): element.querySelectorAll(\".outer .inner\"); 1`] = `
+
+  1 | element.querySelectorAll(".outer .inner");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(2): element.querySelectorAll(\".outer .inner\"); 2`] = `
+
+Message:
+> 1 | element.querySelectorAll(".outer .inner");
+    |         ^^^^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelectorAll(":scope .outer .inner");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(20): element.querySelector(\"[data-value=':scope'] .inner\"); 1`] = `
+
+  1 | element.querySelector("[data-value=':scope'] .inner");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(20): element.querySelector(\"[data-value=':scope'] .inner\"); 2`] = `
+
+Message:
+> 1 | element.querySelector("[data-value=':scope'] .inner");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelector(":scope [data-value=':scope'] .inner");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(21): element.querySelector(\"/* :scope */ div .a\"); 1`] = `
+
+  1 | element.querySelector("/* :scope */ div .a");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(21): element.querySelector(\"/* :scope */ div .a\"); 2`] = `
+
+Message:
+> 1 | element.querySelector("/* :scope */ div .a");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelector(":scope /* :scope */ div .a");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(22): element.querySelector(\".a\\\\, .b\"); 1`] = `
+
+  1 | element.querySelector(".a\\\\, .b");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(22): element.querySelector(\".a\\\\, .b\"); 2`] = `
+
+Message:
+> 1 | element.querySelector(".a\\\\, .b");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelector(":scope .a\\\\, .b");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(23): element.querySelector(\".foo\\\\:scope a\"); 1`] = `
+
+  1 | element.querySelector(".foo\\\\:scope a");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(23): element.querySelector(\".foo\\\\:scope a\"); 2`] = `
+
+Message:
+> 1 | element.querySelector(".foo\\\\:scope a");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelector(":scope .foo\\\\:scope a");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(24): element.querySelector(\"[data-foo='a, b'] .x\"); 1`] = `
+
+  1 | element.querySelector("[data-foo='a, b'] .x");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(24): element.querySelector(\"[data-foo='a, b'] .x\"); 2`] = `
+
+Message:
+> 1 | element.querySelector("[data-foo='a, b'] .x");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelector(":scope [data-foo='a, b'] .x");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(25): element.querySelector(\":scope a, [data-foo='x, y'] b\"); 1`] = `
+
+  1 | element.querySelector(":scope a, [data-foo='x, y'] b");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(25): element.querySelector(\":scope a, [data-foo='x, y'] b\"); 2`] = `
+
+Message:
+> 1 | element.querySelector(":scope a, [data-foo='x, y'] b");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+`;
+
+exports[`prefer-scoped-selector > invalid(26): element.querySelector(\"[data-foo=']'] .a\"); 1`] = `
+
+  1 | element.querySelector("[data-foo=']'] .a");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(26): element.querySelector(\"[data-foo=']'] .a\"); 2`] = `
+
+Message:
+> 1 | element.querySelector("[data-foo=']'] .a");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelector(":scope [data-foo=']'] .a");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(27): element.querySelector(\":scoped .a\"); 1`] = `
+
+  1 | element.querySelector(":scoped .a");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(27): element.querySelector(\":scoped .a\"); 2`] = `
+
+Message:
+> 1 | element.querySelector(":scoped .a");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelector(":scope :scoped .a");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(28): element.querySelector(\"::scope .a\"); 1`] = `
+
+  1 | element.querySelector("::scope .a");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(28): element.querySelector(\"::scope .a\"); 2`] = `
+
+Message:
+> 1 | element.querySelector("::scope .a");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelector(":scope ::scope .a");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(29): element.querySelectorAll(\`:scope .a, div .b\`); 1`] = `
+
+  1 | element.querySelectorAll(\`:scope .a, div .b\`);
+
+`;
+
+exports[`prefer-scoped-selector > invalid(29): element.querySelectorAll(\`:scope .a, div .b\`); 2`] = `
+
+Message:
+> 1 | element.querySelectorAll(\`:scope .a, div .b\`);
+    |         ^^^^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+`;
+
+exports[`prefer-scoped-selector > invalid(3): element.querySelector(\`.outer .inner\`); 1`] = `
+
+  1 | element.querySelector(\`.outer .inner\`);
+
+`;
+
+exports[`prefer-scoped-selector > invalid(3): element.querySelector(\`.outer .inner\`); 2`] = `
+
+Message:
+> 1 | element.querySelector(\`.outer .inner\`);
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelector(\`:scope .outer .inner\`);
+
+`;
+
+exports[`prefer-scoped-selector > invalid(30): element.querySelector(\".outer .inner\")!; 1`] = `
+
+  1 | element.querySelector(".outer .inner")!;
+
+`;
+
+exports[`prefer-scoped-selector > invalid(30): element.querySelector(\".outer .inner\")!; 2`] = `
+
+Message:
+> 1 | element.querySelector(".outer .inner")!;
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelector(":scope .outer .inner")!;
+
+`;
+
+exports[`prefer-scoped-selector > invalid(31): element.querySelector(\"[data-foo='a\\\\' :scope'] .x\"); 1`] = `
+
+  1 | element.querySelector("[data-foo='a\\\\' :scope'] .x");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(31): element.querySelector(\"[data-foo='a\\\\' :scope'] .x\"); 2`] = `
+
+Message:
+> 1 | element.querySelector("[data-foo='a\\\\' :scope'] .x");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelector(":scope [data-foo='a\\\\' :scope'] .x");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(4): element?.querySelector(\".outer .inner\"); 1`] = `
+
+  1 | element?.querySelector(".outer .inner");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(4): element?.querySelector(\".outer .inner\"); 2`] = `
+
+Message:
+> 1 | element?.querySelector(".outer .inner");
+    |          ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element?.querySelector(":scope .outer .inner");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(5): element.querySelector?.(\".outer .inner\"); 1`] = `
+
+  1 | element.querySelector?.(".outer .inner");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(5): element.querySelector?.(\".outer .inner\"); 2`] = `
+
+Message:
+> 1 | element.querySelector?.(".outer .inner");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelector?.(":scope .outer .inner");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(6): element.querySelector(\"a > b\"); 1`] = `
+
+  1 | element.querySelector("a > b");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(6): element.querySelector(\"a > b\"); 2`] = `
+
+Message:
+> 1 | element.querySelector("a > b");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelector(":scope a > b");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(7): element.querySelector(\"a + b\"); 1`] = `
+
+  1 | element.querySelector("a + b");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(7): element.querySelector(\"a + b\"); 2`] = `
+
+Message:
+> 1 | element.querySelector("a + b");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelector(":scope a + b");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(8): element.querySelector(\"a ~ b\"); 1`] = `
+
+  1 | element.querySelector("a ~ b");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(8): element.querySelector(\"a ~ b\"); 2`] = `
+
+Message:
+> 1 | element.querySelector("a ~ b");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelector(":scope a ~ b");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(9): element.querySelector(\"a>b\"); 1`] = `
+
+  1 | element.querySelector("a>b");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(9): element.querySelector(\"a>b\"); 2`] = `
+
+Message:
+> 1 | element.querySelector("a>b");
+    |         ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | element.querySelector(":scope a>b");
+
+`;

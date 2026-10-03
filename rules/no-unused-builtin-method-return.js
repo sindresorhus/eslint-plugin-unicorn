@@ -95,7 +95,7 @@ const isKnownReceiver = (node, method, context) => {
 		return true;
 	}
 
-	return temporalMethodCheckers.get(method)?.(node, context) ?? false;
+	return temporalMethodCheckers.get(method)(node, context);
 };
 
 const pascalCaseNamePattern = /^\p{Uppercase_Letter}/v;
@@ -209,10 +209,6 @@ function getVariableValue(node, context, isSupportedType) {
 }
 
 function resolveReceiver(node, context, isSupportedType, visitedNodes = new Set()) {
-	if (!node || node === uncertainValue) {
-		return node;
-	}
-
 	if (visitedNodes.has(node)) {
 		return node;
 	}

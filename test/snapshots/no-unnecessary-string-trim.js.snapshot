@@ -1,0 +1,694 @@
+exports[`no-unnecessary-string-trim > invalid(1): foo.trim().startsWith(\"-\") 1`] = `
+
+  1 | foo.trim().startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(1): foo.trim().startsWith(\"-\") 2`] = `
+
+Message:
+> 1 | foo.trim().startsWith("-")
+    |     ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | foo.trimStart().startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(10): foo.trim().endsWith(\`foo\`) 1`] = `
+
+  1 | foo.trim().endsWith(\`foo\`)
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(10): foo.trim().endsWith(\`foo\`) 2`] = `
+
+Message:
+> 1 | foo.trim().endsWith(\`foo\`)
+    |     ^^^^ Prefer \`String#trimEnd()\` before \`String#endsWith()\`.
+
+Output:
+  1 | foo.trimEnd().endsWith(\`foo\`)
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(11): const prefix = \"foo\"; foo.trim().startsWith(prefix) 1`] = `
+
+  1 | const prefix = "foo"; foo.trim().startsWith(prefix)
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(11): const prefix = \"foo\"; foo.trim().startsWith(prefix) 2`] = `
+
+Message:
+> 1 | const prefix = "foo"; foo.trim().startsWith(prefix)
+    |                           ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | const prefix = "foo"; foo.trimStart().startsWith(prefix)
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(12): const suffix = \"foo\"; foo.trim().endsWith(suffix) 1`] = `
+
+  1 | const suffix = "foo"; foo.trim().endsWith(suffix)
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(12): const suffix = \"foo\"; foo.trim().endsWith(suffix) 2`] = `
+
+Message:
+> 1 | const suffix = "foo"; foo.trim().endsWith(suffix)
+    |                           ^^^^ Prefer \`String#trimEnd()\` before \`String#endsWith()\`.
+
+Output:
+  1 | const suffix = "foo"; foo.trimEnd().endsWith(suffix)
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(13): foo.trim().startsWith(\"foo\" + \"bar\") 1`] = `
+
+  1 | foo.trim().startsWith("foo" + "bar")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(13): foo.trim().startsWith(\"foo\" + \"bar\") 2`] = `
+
+Message:
+> 1 | foo.trim().startsWith("foo" + "bar")
+    |     ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | foo.trimStart().startsWith("foo" + "bar")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(14): import {z} from \"other-package\"; z.string().trim().startsWith(\"-\") 1`] = `
+
+  1 | import {z} from "other-package"; z.string().trim().startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(14): import {z} from \"other-package\"; z.string().trim().startsWith(\"-\") 2`] = `
+
+Message:
+> 1 | import {z} from "other-package"; z.string().trim().startsWith("-")
+    |                                             ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | import {z} from "other-package"; z.string().trimStart().startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(15): import * as z from \"other-package\"; z.string().trim().startsWith(\"-\") 1`] = `
+
+  1 | import * as z from "other-package"; z.string().trim().startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(15): import * as z from \"other-package\"; z.string().trim().startsWith(\"-\") 2`] = `
+
+Message:
+> 1 | import * as z from "other-package"; z.string().trim().startsWith("-")
+    |                                                ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | import * as z from "other-package"; z.string().trimStart().startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(16): import {z} from \"zod/mini\"; z.string().trim().startsWith(\"-\") 1`] = `
+
+  1 | import {z} from "zod/mini"; z.string().trim().startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(16): import {z} from \"zod/mini\"; z.string().trim().startsWith(\"-\") 2`] = `
+
+Message:
+> 1 | import {z} from "zod/mini"; z.string().trim().startsWith("-")
+    |                                        ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | import {z} from "zod/mini"; z.string().trimStart().startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(17): import z from \"zod\"; z.string().trim().startsWith(\"-\") 1`] = `
+
+  1 | import z from "zod"; z.string().trim().startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(17): import z from \"zod\"; z.string().trim().startsWith(\"-\") 2`] = `
+
+Message:
+> 1 | import z from "zod"; z.string().trim().startsWith("-")
+    |                                 ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | import z from "zod"; z.string().trimStart().startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(18): import {z} from \"zod\"; z[\"string\"]().trim().startsWith(\"-\") 1`] = `
+
+  1 | import {z} from "zod"; z["string"]().trim().startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(18): import {z} from \"zod\"; z[\"string\"]().trim().startsWith(\"-\") 2`] = `
+
+Message:
+> 1 | import {z} from "zod"; z["string"]().trim().startsWith("-")
+    |                                      ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | import {z} from "zod"; z["string"]().trimStart().startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(19): import {z} from \"zod\"; z.string(\"argument\").trim().startsWith(\"-\") 1`] = `
+
+  1 | import {z} from "zod"; z.string("argument").trim().startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(19): import {z} from \"zod\"; z.string(\"argument\").trim().startsWith(\"-\") 2`] = `
+
+Message:
+> 1 | import {z} from "zod"; z.string("argument").trim().startsWith("-")
+    |                                             ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | import {z} from "zod"; z.string("argument").trimStart().startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(2): foo.trim().endsWith(\"-\") 1`] = `
+
+  1 | foo.trim().endsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(2): foo.trim().endsWith(\"-\") 2`] = `
+
+Message:
+> 1 | foo.trim().endsWith("-")
+    |     ^^^^ Prefer \`String#trimEnd()\` before \`String#endsWith()\`.
+
+Output:
+  1 | foo.trimEnd().endsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(20): import {z} from \"zod\"; z.number().trim().startsWith(\"-\") 1`] = `
+
+  1 | import {z} from "zod"; z.number().trim().startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(20): import {z} from \"zod\"; z.number().trim().startsWith(\"-\") 2`] = `
+
+Message:
+> 1 | import {z} from "zod"; z.number().trim().startsWith("-")
+    |                                   ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | import {z} from "zod"; z.number().trimStart().startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(21): import {z} from \"zod\"; function foo(z) { z.string().trim().startsWith(\"-\"); } 1`] = `
+
+  1 | import {z} from "zod"; function foo(z) { z.string().trim().startsWith("-"); }
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(21): import {z} from \"zod\"; function foo(z) { z.string().trim().startsWith(\"-\"); } 2`] = `
+
+Message:
+> 1 | import {z} from "zod"; function foo(z) { z.string().trim().startsWith("-"); }
+    |                                                     ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | import {z} from "zod"; function foo(z) { z.string().trimStart().startsWith("-"); }
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(22): import type {z} from \"zod\"; z.string().trim().startsWith(\"-\"); 1`] = `
+
+  1 | import type {z} from "zod"; z.string().trim().startsWith("-");
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(22): import type {z} from \"zod\"; z.string().trim().startsWith(\"-\"); 2`] = `
+
+Message:
+> 1 | import type {z} from "zod"; z.string().trim().startsWith("-");
+    |                                        ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | import type {z} from "zod"; z.string().trimStart().startsWith("-");
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(23): import type * as z from \"zod\"; z.string().trim().endsWith(\"-\"); 1`] = `
+
+  1 | import type * as z from "zod"; z.string().trim().endsWith("-");
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(23): import type * as z from \"zod\"; z.string().trim().endsWith(\"-\"); 2`] = `
+
+Message:
+> 1 | import type * as z from "zod"; z.string().trim().endsWith("-");
+    |                                           ^^^^ Prefer \`String#trimEnd()\` before \`String#endsWith()\`.
+
+Output:
+  1 | import type * as z from "zod"; z.string().trimEnd().endsWith("-");
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(24): import z = require(\"zod\"); z.string().trim().startsWith(\"-\"); 1`] = `
+
+  1 | import z = require("zod"); z.string().trim().startsWith("-");
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(24): import z = require(\"zod\"); z.string().trim().startsWith(\"-\"); 2`] = `
+
+Message:
+> 1 | import z = require("zod"); z.string().trim().startsWith("-");
+    |                                       ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | import z = require("zod"); z.string().trimStart().startsWith("-");
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(25): foo.trim().startsWith(undefined) 1`] = `
+
+  1 | foo.trim().startsWith(undefined)
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(25): foo.trim().startsWith(undefined) 2`] = `
+
+Message:
+> 1 | foo.trim().startsWith(undefined)
+    |     ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | foo.trimStart().startsWith(undefined)
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(26): foo.trim().endsWith(void 0) 1`] = `
+
+  1 | foo.trim().endsWith(void 0)
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(26): foo.trim().endsWith(void 0) 2`] = `
+
+Message:
+> 1 | foo.trim().endsWith(void 0)
+    |     ^^^^ Prefer \`String#trimEnd()\` before \`String#endsWith()\`.
+
+Output:
+  1 | foo.trimEnd().endsWith(void 0)
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(27): const search = undefined; foo.trim().startsWith(search) 1`] = `
+
+  1 | const search = undefined; foo.trim().startsWith(search)
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(27): const search = undefined; foo.trim().startsWith(search) 2`] = `
+
+Message:
+> 1 | const search = undefined; foo.trim().startsWith(search)
+    |                               ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | const search = undefined; foo.trimStart().startsWith(search)
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(28): foo.trim().startsWith(123) 1`] = `
+
+  1 | foo.trim().startsWith(123)
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(28): foo.trim().startsWith(123) 2`] = `
+
+Message:
+> 1 | foo.trim().startsWith(123)
+    |     ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | foo.trimStart().startsWith(123)
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(29): foo.trim().endsWith(false) 1`] = `
+
+  1 | foo.trim().endsWith(false)
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(29): foo.trim().endsWith(false) 2`] = `
+
+Message:
+> 1 | foo.trim().endsWith(false)
+    |     ^^^^ Prefer \`String#trimEnd()\` before \`String#endsWith()\`.
+
+Output:
+  1 | foo.trimEnd().endsWith(false)
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(3): foo.trim().startsWith() 1`] = `
+
+  1 | foo.trim().startsWith()
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(3): foo.trim().startsWith() 2`] = `
+
+Message:
+> 1 | foo.trim().startsWith()
+    |     ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | foo.trimStart().startsWith()
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(30): foo.trim().startsWith(null) 1`] = `
+
+  1 | foo.trim().startsWith(null)
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(30): foo.trim().startsWith(null) 2`] = `
+
+Message:
+> 1 | foo.trim().startsWith(null)
+    |     ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | foo.trimStart().startsWith(null)
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(31): foo.trim().endsWith(1n) 1`] = `
+
+  1 | foo.trim().endsWith(1n)
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(31): foo.trim().endsWith(1n) 2`] = `
+
+Message:
+> 1 | foo.trim().endsWith(1n)
+    |     ^^^^ Prefer \`String#trimEnd()\` before \`String#endsWith()\`.
+
+Output:
+  1 | foo.trimEnd().endsWith(1n)
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(32): (foo).trim().startsWith(\"-\") 1`] = `
+
+  1 | (foo).trim().startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(32): (foo).trim().startsWith(\"-\") 2`] = `
+
+Message:
+> 1 | (foo).trim().startsWith("-")
+    |       ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | (foo).trimStart().startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(33): (foo.trim()).startsWith(\"-\") 1`] = `
+
+  1 | (foo.trim()).startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(33): (foo.trim()).startsWith(\"-\") 2`] = `
+
+Message:
+> 1 | (foo.trim()).startsWith("-")
+    |      ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | (foo.trimStart()).startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(34): if (foo.trim().startsWith(\"-\")) {\n\tbar();\n} 1`] = `
+
+  1 | if (foo.trim().startsWith("-")) {
+  2 | 	bar();
+  3 | }
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(34): if (foo.trim().startsWith(\"-\")) {\n\tbar();\n} 2`] = `
+
+Message:
+> 1 | if (foo.trim().startsWith("-")) {
+    |         ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+  2 | 	bar();
+  3 | }
+
+Output:
+  1 | if (foo.trimStart().startsWith("-")) {
+  2 | 	bar();
+  3 | }
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(35): foo\n\t// comment\n\t.trim/* comment */()\n\t.startsWith(\"-\") 1`] = `
+
+  1 | foo
+  2 | 	// comment
+  3 | 	.trim/* comment */()
+  4 | 	.startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(35): foo\n\t// comment\n\t.trim/* comment */()\n\t.startsWith(\"-\") 2`] = `
+
+Message:
+  1 | foo
+  2 | 	// comment
+> 3 | 	.trim/* comment */()
+    | 	 ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+  4 | 	.startsWith("-")
+
+Output:
+  1 | foo
+  2 | 	// comment
+  3 | 	.trimStart/* comment */()
+  4 | 	.startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(36): function foo(value: string) { value.trim().endsWith(\"-\"); } 1`] = `
+
+  1 | function foo(value: string) { value.trim().endsWith("-"); }
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(36): function foo(value: string) { value.trim().endsWith(\"-\"); } 2`] = `
+
+Message:
+> 1 | function foo(value: string) { value.trim().endsWith("-"); }
+    |                                     ^^^^ Prefer \`String#trimEnd()\` before \`String#endsWith()\`.
+
+Output:
+  1 | function foo(value: string) { value.trimEnd().endsWith("-"); }
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(37): function foo(value: string) { value.trim().startsWith(\"-\" as const); } 1`] = `
+
+  1 | function foo(value: string) { value.trim().startsWith("-" as const); }
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(37): function foo(value: string) { value.trim().startsWith(\"-\" as const); } 2`] = `
+
+Message:
+> 1 | function foo(value: string) { value.trim().startsWith("-" as const); }
+    |                                     ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | function foo(value: string) { value.trimStart().startsWith("-" as const); }
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(38): function foo(value: string) { value.trim().endsWith(\"-\" satisfies string); } 1`] = `
+
+  1 | function foo(value: string) { value.trim().endsWith("-" satisfies string); }
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(38): function foo(value: string) { value.trim().endsWith(\"-\" satisfies string); } 2`] = `
+
+Message:
+> 1 | function foo(value: string) { value.trim().endsWith("-" satisfies string); }
+    |                                     ^^^^ Prefer \`String#trimEnd()\` before \`String#endsWith()\`.
+
+Output:
+  1 | function foo(value: string) { value.trimEnd().endsWith("-" satisfies string); }
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(39): import {string as z} from \"zod\"; z.string().trim().startsWith(\"-\") 1`] = `
+
+  1 | import {string as z} from "zod"; z.string().trim().startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(39): import {string as z} from \"zod\"; z.string().trim().startsWith(\"-\") 2`] = `
+
+Message:
+> 1 | import {string as z} from "zod"; z.string().trim().startsWith("-")
+    |                                             ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | import {string as z} from "zod"; z.string().trimStart().startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(4): foo.trim().endsWith() 1`] = `
+
+  1 | foo.trim().endsWith()
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(4): foo.trim().endsWith() 2`] = `
+
+Message:
+> 1 | foo.trim().endsWith()
+    |     ^^^^ Prefer \`String#trimEnd()\` before \`String#endsWith()\`.
+
+Output:
+  1 | foo.trimEnd().endsWith()
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(40): z.string().trim().startsWith(\"-\") 1`] = `
+
+  1 | z.string().trim().startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(40): z.string().trim().startsWith(\"-\") 2`] = `
+
+Message:
+> 1 | z.string().trim().startsWith("-")
+    |            ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | z.string().trimStart().startsWith("-")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(5): \" foo \".trim().startsWith(\"f\") 1`] = `
+
+  1 | " foo ".trim().startsWith("f")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(5): \" foo \".trim().startsWith(\"f\") 2`] = `
+
+Message:
+> 1 | " foo ".trim().startsWith("f")
+    |         ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | " foo ".trimStart().startsWith("f")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(6): \" foo \".trim().endsWith(\"o\") 1`] = `
+
+  1 | " foo ".trim().endsWith("o")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(6): \" foo \".trim().endsWith(\"o\") 2`] = `
+
+Message:
+> 1 | " foo ".trim().endsWith("o")
+    |         ^^^^ Prefer \`String#trimEnd()\` before \`String#endsWith()\`.
+
+Output:
+  1 | " foo ".trimEnd().endsWith("o")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(7): foo.trim().startsWith(\" foo\") 1`] = `
+
+  1 | foo.trim().startsWith(" foo")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(7): foo.trim().startsWith(\" foo\") 2`] = `
+
+Message:
+> 1 | foo.trim().startsWith(" foo")
+    |     ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | foo.trimStart().startsWith(" foo")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(8): foo.trim().endsWith(\"foo \") 1`] = `
+
+  1 | foo.trim().endsWith("foo ")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(8): foo.trim().endsWith(\"foo \") 2`] = `
+
+Message:
+> 1 | foo.trim().endsWith("foo ")
+    |     ^^^^ Prefer \`String#trimEnd()\` before \`String#endsWith()\`.
+
+Output:
+  1 | foo.trimEnd().endsWith("foo ")
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(9): foo.trim().startsWith(\`foo\`) 1`] = `
+
+  1 | foo.trim().startsWith(\`foo\`)
+
+`;
+
+exports[`no-unnecessary-string-trim > invalid(9): foo.trim().startsWith(\`foo\`) 2`] = `
+
+Message:
+> 1 | foo.trim().startsWith(\`foo\`)
+    |     ^^^^ Prefer \`String#trimStart()\` before \`String#startsWith()\`.
+
+Output:
+  1 | foo.trimStart().startsWith(\`foo\`)
+
+`;

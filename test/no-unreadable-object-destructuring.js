@@ -45,6 +45,7 @@ const {[String({})]: value, ...rest} = object;`,
 		},
 		'try {} catch ({message}) {}',
 		'for (const {foo} of array) {}',
+		'const {[window.key]: value, ...rest} = object;',
 	],
 	invalid: [
 		'const {[key]: value} = object;',
@@ -103,5 +104,6 @@ const {[String({})]: value, ...rest} = object;`,
 		'for (const {foo: [bar]} of array) {}',
 		'for (const {foo: {bar: {baz}}} of array) {}',
 		'for ({foo: this.bar} of array) {}',
+		'const {[String.raw`${String(1)}`]: value, ...rest} = object;', // eslint-disable-line no-template-curly-in-string
 	],
 });

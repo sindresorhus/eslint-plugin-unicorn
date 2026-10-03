@@ -1,7 +1,7 @@
 import {isNumericLiteral} from '../ast/index.js';
 import isString from './is-string.js';
 import {isFunctionCall, isStaticProperties, hasTypeAnnotation} from './type-check.js';
-import {createTypeCheckers, target, unknown} from './type-helpers.js';
+import {createTypeCheckers} from './type-helpers.js';
 import {getStaticValueForControlFlow} from './get-static-value.js';
 import getConstVariableInitializer from './get-const-variable-initializer.js';
 
@@ -290,15 +290,12 @@ export default function isNumber(node, context) {
 	return isStaticNumber(node, context);
 }
 
-const getStaticType = value => (typeof value === 'number' ? target : unknown);
-
 // Complements the AST-based `isNumber` above by using type information when available: resolves type annotations (`: number`), `as`/`satisfies` casts, and inferred element types (e.g. `number[]`) via the TypeScript type checker.
 const {isKnownNonTarget: isKnownNonNumber} = createTypeCheckers({
 	targetTypeNames: new Set(),
 	targetCallNames: ['Number'],
 	isTargetTypeAnnotation: isNumberTypeAnnotation,
 	isTargetType: type => type.isNumberLiteral?.() || type.intrinsicName === 'number',
-	getStaticType,
 });
 
 export {isKnownNonNumber};

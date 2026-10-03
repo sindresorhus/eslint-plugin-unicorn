@@ -1,0 +1,469 @@
+exports[`no-useless-fallback-in-spread > invalid(1): const object = {...(foo || {})} 1`] = `
+
+  1 | const object = {...(foo || {})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(1): const object = {...(foo || {})} 2`] = `
+
+Message:
+> 1 | const object = {...(foo || {})}
+    |                            ^^ The empty object is useless.
+
+Output:
+  1 | const object = {...foo}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(10): const object = {...(0n || {})} 1`] = `
+
+  1 | const object = {...(0n || {})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(10): const object = {...(0n || {})} 2`] = `
+
+Message:
+> 1 | const object = {...(0n || {})}
+    |                           ^^ The empty object is useless.
+
+Output:
+  1 | const object = {...0n}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(11): const object = {...(false || {})} 1`] = `
+
+  1 | const object = {...(false || {})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(11): const object = {...(false || {})} 2`] = `
+
+Message:
+> 1 | const object = {...(false || {})}
+    |                              ^^ The empty object is useless.
+
+Output:
+  1 | const object = {...false}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(12): const object = {...(null || {})} 1`] = `
+
+  1 | const object = {...(null || {})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(12): const object = {...(null || {})} 2`] = `
+
+Message:
+> 1 | const object = {...(null || {})}
+    |                             ^^ The empty object is useless.
+
+Output:
+  1 | const object = {...null}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(13): const object = {...(undefined || {})} 1`] = `
+
+  1 | const object = {...(undefined || {})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(13): const object = {...(undefined || {})} 2`] = `
+
+Message:
+> 1 | const object = {...(undefined || {})}
+    |                                  ^^ The empty object is useless.
+
+Output:
+  1 | const object = {...undefined}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(14): const object = {...((a && b) || {})} 1`] = `
+
+  1 | const object = {...((a && b) || {})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(14): const object = {...((a && b) || {})} 2`] = `
+
+Message:
+> 1 | const object = {...((a && b) || {})}
+    |                                 ^^ The empty object is useless.
+
+Output:
+  1 | const object = {...(a && b)}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(15): const object = {...(NaN || {})} 1`] = `
+
+  1 | const object = {...(NaN || {})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(15): const object = {...(NaN || {})} 2`] = `
+
+Message:
+> 1 | const object = {...(NaN || {})}
+    |                            ^^ The empty object is useless.
+
+Output:
+  1 | const object = {...NaN}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(16): const object = {...(\"\" || {})} 1`] = `
+
+  1 | const object = {...("" || {})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(16): const object = {...(\"\" || {})} 2`] = `
+
+Message:
+> 1 | const object = {...("" || {})}
+    |                           ^^ The empty object is useless.
+
+Output:
+  1 | const object = {...""}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(17): const object = {...([] || {})} 1`] = `
+
+  1 | const object = {...([] || {})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(17): const object = {...([] || {})} 2`] = `
+
+Message:
+> 1 | const object = {...([] || {})}
+    |                           ^^ The empty object is useless.
+
+Output:
+  1 | const object = {...[]}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(18): const object = {...({} || {})} 1`] = `
+
+  1 | const object = {...({} || {})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(18): const object = {...({} || {})} 2`] = `
+
+Message:
+> 1 | const object = {...({} || {})}
+    |                           ^^ The empty object is useless.
+
+Output:
+  1 | const object = {...{}}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(19): const object = {...(foo || {}),} 1`] = `
+
+  1 | const object = {...(foo || {}),}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(19): const object = {...(foo || {}),} 2`] = `
+
+Message:
+> 1 | const object = {...(foo || {}),}
+    |                            ^^ The empty object is useless.
+
+Output:
+  1 | const object = {...foo,}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(2): const object = {...(foo ?? {})} 1`] = `
+
+  1 | const object = {...(foo ?? {})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(2): const object = {...(foo ?? {})} 2`] = `
+
+Message:
+> 1 | const object = {...(foo ?? {})}
+    |                            ^^ The empty object is useless.
+
+Output:
+  1 | const object = {...foo}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(20): const object = {...(foo /* keep */ || {})} 1`] = `
+
+  1 | const object = {...(foo /* keep */ || {})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(20): const object = {...(foo /* keep */ || {})} 2`] = `
+
+Message:
+> 1 | const object = {...(foo /* keep */ || {})}
+    |                                       ^^ The empty object is useless.
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(21): const object = {...(foo || /* keep */ {})} 1`] = `
+
+  1 | const object = {...(foo || /* keep */ {})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(21): const object = {...(foo || /* keep */ {})} 2`] = `
+
+Message:
+> 1 | const object = {...(foo || /* keep */ {})}
+    |                                       ^^ The empty object is useless.
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(22): const object = {...((foo ?? {}) || {})} 1`] = `
+
+  1 | const object = {...((foo ?? {}) || {})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(22): const object = {...((foo ?? {}) || {})} 2`] = `
+
+Message:
+> 1 | const object = {...((foo ?? {}) || {})}
+    |                                    ^^ The empty object is useless.
+
+Output:
+  1 | const object = {...(foo ?? {})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(23): const object = {...((foo && {}) || {})} 1`] = `
+
+  1 | const object = {...((foo && {}) || {})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(23): const object = {...((foo && {}) || {})} 2`] = `
+
+Message:
+> 1 | const object = {...((foo && {}) || {})}
+    |                                    ^^ The empty object is useless.
+
+Output:
+  1 | const object = {...(foo && {})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(24): const object = {...(foo && {} || {})} 1`] = `
+
+  1 | const object = {...(foo && {} || {})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(24): const object = {...(foo && {} || {})} 2`] = `
+
+Message:
+> 1 | const object = {...(foo && {} || {})}
+    |                                  ^^ The empty object is useless.
+
+Output:
+  1 | const object = {...foo && {}}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(25): const object = {...({...(foo || {})})} 1`] = `
+
+  1 | const object = {...({...(foo || {})})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(25): const object = {...({...(foo || {})})} 2`] = `
+
+Message:
+> 1 | const object = {...({...(foo || {})})}
+    |                                 ^^ The empty object is useless.
+
+Output:
+  1 | const object = {...({...foo})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(26): const object = {...({...((0, foo) || {})})} 1`] = `
+
+  1 | const object = {...({...((0, foo) || {})})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(26): const object = {...({...((0, foo) || {})})} 2`] = `
+
+Message:
+> 1 | const object = {...({...((0, foo) || {})})}
+    |                                      ^^ The empty object is useless.
+
+Output:
+  1 | const object = {...({...(0, foo)})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(27): function foo(a = {...(bar || {})}){} 1`] = `
+
+  1 | function foo(a = {...(bar || {})}){}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(27): function foo(a = {...(bar || {})}){} 2`] = `
+
+Message:
+> 1 | function foo(a = {...(bar || {})}){}
+    |                              ^^ The empty object is useless.
+
+Output:
+  1 | function foo(a = {...bar}){}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(28): const object = {...(document.all || {})} 1`] = `
+
+  1 | const object = {...(document.all || {})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(28): const object = {...(document.all || {})} 2`] = `
+
+Message:
+> 1 | const object = {...(document.all || {})}
+    |                                     ^^ The empty object is useless.
+
+Output:
+  1 | const object = {...document.all}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(3): const object = {...(foo ?? (( {} )))} 1`] = `
+
+  1 | const object = {...(foo ?? (( {} )))}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(3): const object = {...(foo ?? (( {} )))} 2`] = `
+
+Message:
+> 1 | const object = {...(foo ?? (( {} )))}
+    |                               ^^ The empty object is useless.
+
+Output:
+  1 | const object = {...foo}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(4): const object = {...((( foo )) ?? (( {} )))} 1`] = `
+
+  1 | const object = {...((( foo )) ?? (( {} )))}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(4): const object = {...((( foo )) ?? (( {} )))} 2`] = `
+
+Message:
+> 1 | const object = {...((( foo )) ?? (( {} )))}
+    |                                     ^^ The empty object is useless.
+
+Output:
+  1 | const object = {...(( foo ))}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(5): const object = {...(( (( foo )) ?? (( {} )) ))} 1`] = `
+
+  1 | const object = {...(( (( foo )) ?? (( {} )) ))}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(5): const object = {...(( (( foo )) ?? (( {} )) ))} 2`] = `
+
+Message:
+> 1 | const object = {...(( (( foo )) ?? (( {} )) ))}
+    |                                       ^^ The empty object is useless.
+
+Output:
+  1 | const object = {... (( foo )) }
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(6): async ()=> ({...((await foo) || {})}) 1`] = `
+
+  1 | async ()=> ({...((await foo) || {})})
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(6): async ()=> ({...((await foo) || {})}) 2`] = `
+
+Message:
+> 1 | async ()=> ({...((await foo) || {})})
+    |                                 ^^ The empty object is useless.
+
+Output:
+  1 | async ()=> ({...(await foo)})
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(7): const object = {...(0 || {})} 1`] = `
+
+  1 | const object = {...(0 || {})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(7): const object = {...(0 || {})} 2`] = `
+
+Message:
+> 1 | const object = {...(0 || {})}
+    |                          ^^ The empty object is useless.
+
+Output:
+  1 | const object = {...0}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(8): const object = {...((-0) || {})} 1`] = `
+
+  1 | const object = {...((-0) || {})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(8): const object = {...((-0) || {})} 2`] = `
+
+Message:
+> 1 | const object = {...((-0) || {})}
+    |                             ^^ The empty object is useless.
+
+Output:
+  1 | const object = {...(-0)}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(9): const object = {...(.0 || {})} 1`] = `
+
+  1 | const object = {...(.0 || {})}
+
+`;
+
+exports[`no-useless-fallback-in-spread > invalid(9): const object = {...(.0 || {})} 2`] = `
+
+Message:
+> 1 | const object = {...(.0 || {})}
+    |                           ^^ The empty object is useless.
+
+Output:
+  1 | const object = {....0}
+
+`;

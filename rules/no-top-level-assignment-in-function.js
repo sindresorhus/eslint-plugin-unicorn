@@ -6,18 +6,10 @@ const messages = {
 };
 
 const isInsideFunction = node => {
-	let current = node.parent;
-
-	while (current) {
+	for (let current = node.parent; current.type !== 'Program'; current = current.parent) {
 		if (functionTypes.includes(current.type)) {
 			return true;
 		}
-
-		if (current.type === 'Program') {
-			return false;
-		}
-
-		current = current.parent;
 	}
 
 	return false;

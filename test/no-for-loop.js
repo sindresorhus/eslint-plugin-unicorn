@@ -1777,3 +1777,131 @@ test({
 		},
 	],
 });
+
+// Type annotations decide whether `.entries()` exists
+const typeAnnotatedIndexUsageFixed = (type, parameterName = 'items') => [
+	`function foo(${parameterName}: ${type}) {`,
+	`\tfor (const [i, item] of ${parameterName}.entries()) {`,
+	'\t\tconsole.log(i, item);',
+	'\t}',
+	'}',
+].join('\n');
+
+const loopWithIndexUsage = [
+	'for (let i = 0; i < items.length; i++) {',
+	'\tconsole.log(i, items[i]);',
+	'}',
+].join('\n');
+
+test.typescript({
+	valid: [],
+	invalid: [
+		testCase(typeAnnotatedIndexUsage('string[] | number[]'), typeAnnotatedIndexUsageFixed('string[] | number[]')),
+		testCase(typeAnnotatedIndexUsage('Array<string> | string')),
+		testCase(typeAnnotatedIndexUsage('ReadonlyArray<string>'), typeAnnotatedIndexUsageFixed('ReadonlyArray<string>')),
+		testCase(typeAnnotatedIndexUsage('string[] | Foo'), typeAnnotatedIndexUsageFixed('string[] | Foo')),
+		testCase(typeAnnotatedIndexUsage('string & number')),
+		testCase(typeAnnotatedIndexUsage('string[] & Foo'), typeAnnotatedIndexUsageFixed('string[] & Foo')),
+		testCase(typeAnnotatedIndexUsage('Foo & Bar'), typeAnnotatedIndexUsageFixed('Foo & Bar')),
+		testCase(typeAnnotatedIndexUsage('Foo.Bar'), typeAnnotatedIndexUsageFixed('Foo.Bar')),
+		testCase(typeAnnotatedIndexUsage('readonly string[]'), typeAnnotatedIndexUsageFixed('readonly string[]')),
+		testCase(typeAnnotatedIndexUsage('readonly string[] | string')),
+		testCase(typeAnnotatedIndexUsage('keyof Foo'), typeAnnotatedIndexUsageFixed('keyof Foo')),
+		// Recursive type alias
+		testCase(`type Items = Items | string;\n${typeAnnotatedIndexUsage('Items')}`),
+		testCase(`interface Items {}\n${typeAnnotatedIndexUsage('Items')}`, `interface Items {}\n${typeAnnotatedIndexUsageFixed('Items')}`),
+		testCase(typeAnnotatedIndexUsage('T').replace('function foo(', 'function foo<T extends string>(')),
+		testCase(`const items = foo as string;\n${loopWithIndexUsage}`),
+		testCase(`const items = <string>foo;\n${loopWithIndexUsage}`),
+		testCase(`const text: string = foo;\nconst items = text as Foo;\n${loopWithIndexUsage}`),
+		testCase(`const text: string = foo;\nconst items = text!;\n${loopWithIndexUsage}`),
+		testCase(`const text: string = foo;\nconst items = text satisfies string;\n${loopWithIndexUsage}`),
+		testCase(`const text: string = foo;\nconst items = (0, text);\n${loopWithIndexUsage}`),
+		testCase(`const text: string = foo;\nconst items = bar ? text : text;\n${loopWithIndexUsage}`),
+	],
+});
+
+test({
+	valid: [
+		// A `let` that is never reassigned still has a static string value
+		'let items = \'abc\';\nfor (let i = 0; i < items.length; i++) {\n\tconsole.log(i, items[i]);\n}',
+		// A static string from a call
+		'const items = String(1);\nfor (let i = 0; i < items.length; i++) {\n\tconsole.log(i, items[i]);\n}',
+	],
+	invalid: [
+		testCase(
+			'let items = [1, 2];\nfor (let i = 0; i < items.length; i++) {\n\tconsole.log(i, items[i]);\n}',
+			'let items = [1, 2];\nfor (const [i, item] of items.entries()) {\n\tconsole.log(i, item);\n}',
+		),
+		testCase(
+			'for (let i = 0; i < items.length; i = 1 + i) {\n\tconsole.log(items[i]);\n}',
+			'for (const item of items) {\n\tconsole.log(item);\n}',
+		),
+		testCase(
+			'for (let i = 0; i < items.length; i++) {\n\tconsole.log({a: items[i]});\n}',
+			'for (const item of items) {\n\tconsole.log({a: item});\n}',
+		),
+		testCase(
+			'for (let i = 0; i < items.length; i++) {\n\tconsole.log([items[i]]);\n}',
+			'for (const item of items) {\n\tconsole.log([item]);\n}',
+		),
+	],
+});
+
+const collectionWithEntries = (entriesReturnType, prefix = '') => outdent`
+	${prefix}interface Collection<T> {
+		length: number;
+		[index: number]: T;
+		entries(): ${entriesReturnType};
+	}
+	declare const items: Collection<string>;
+	for (let index = 0; index < items.length; index++) {
+		console.log(index, items[index]);
+	}
+`;
+
+const collectionWithEntriesFixed = (entriesReturnType, prefix = '') => outdent`
+	${prefix}interface Collection<T> {
+		length: number;
+		[index: number]: T;
+		entries(): ${entriesReturnType};
+	}
+	declare const items: Collection<string>;
+	for (const [index, item] of items.entries()) {
+		console.log(index, item);
+	}
+`;
+
+const typeAwareLoop = prefix => `${prefix}\nfor (let index = 0; index < items.length; index++) {\n\tconsole.log(index, items[index]);\n}`;
+const typeAwareLoopFixed = prefix => `${prefix}\nfor (const [index, item] of items.entries()) {\n\tconsole.log(index, item);\n}`;
+const entryIteratorWithEntryValue = 'interface EntryIterator {\n\tnext(): {value: [number, string]; done: boolean};\n}\n';
+const entryIteratorWithStringValue = 'interface EntryIterator {\n\tnext(): {value: string; done: boolean};\n}\n';
+const entryIteratorWithoutValue = 'interface EntryIterator {\n\tnext(): {done: boolean};\n}\n';
+
+test({
+	valid: [],
+	invalid: [
+		typeAware(collectionWithEntries('IterableIterator<any>'), collectionWithEntriesFixed('IterableIterator<any>')),
+		typeAware(collectionWithEntries('IterableIterator<[number, string] | undefined>'), collectionWithEntriesFixed('IterableIterator<[number, string] | undefined>')),
+		typeAware(collectionWithEntries('IterableIterator<null | undefined>'), collectionWithEntriesFixed('IterableIterator<null | undefined>')),
+		typeAware(collectionWithEntries('IterableIterator<string | undefined>')),
+		// An iterator without type arguments, the entry type comes from `next().value`
+		typeAware(collectionWithEntries('EntryIterator', entryIteratorWithEntryValue), collectionWithEntriesFixed('EntryIterator', entryIteratorWithEntryValue)),
+		typeAware(collectionWithEntries('EntryIterator', entryIteratorWithStringValue)),
+		typeAware(collectionWithEntries('EntryIterator', entryIteratorWithoutValue), collectionWithEntriesFixed('EntryIterator', entryIteratorWithoutValue)),
+		typeAware(collectionWithEntries('any'), collectionWithEntriesFixed('any')),
+		typeAware(collectionWithEntries('[number, string][] | string[]')),
+		typeAware(typeAwareLoop('declare const items: any;'), typeAwareLoopFixed('declare const items: any;')),
+		typeAware(typeAwareLoop('function foo<T extends string[]>(items: T) {') + '\n}', typeAwareLoopFixed('function foo<T extends string[]>(items: T) {') + '\n}'),
+		typeAware(typeAwareLoop('function foo<T extends string>(items: T) {') + '\n}'),
+		typeAware(typeAwareLoop('function foo<T>(items: T) {') + '\n}', typeAwareLoopFixed('function foo<T>(items: T) {') + '\n}'),
+		typeAware(typeAwareLoop('declare const items: string[] | Uint8Array;'), typeAwareLoopFixed('declare const items: string[] | Uint8Array;')),
+		typeAware(typeAwareLoop('declare const items: string[] | string;')),
+		typeAware(typeAwareLoop('declare const items: string & {extra: true};')),
+		typeAware(typeAwareLoop('declare const items: string[] & {extra: true};'), typeAwareLoopFixed('declare const items: string[] & {extra: true};')),
+		typeAware(typeAwareLoop('declare const items: [string, number];'), typeAwareLoopFixed('declare const items: [string, number];')),
+		// The base constraint of `T['items']`
+		typeAware(typeAwareLoop('function foo<T extends {items: string}>(items: T[\'items\']) {') + '\n}'),
+		typeAware(typeAwareLoop('function foo<T extends {items: string[]}>(items: T[\'items\']) {') + '\n}', typeAwareLoopFixed('function foo<T extends {items: string[]}>(items: T[\'items\']) {') + '\n}'),
+	],
+});

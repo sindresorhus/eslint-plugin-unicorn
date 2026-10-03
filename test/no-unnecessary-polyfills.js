@@ -132,6 +132,35 @@ test({
 			code: 'import "core-js/stable/array/to-spliced"',
 			options: [{targets: {node: '18'}}],
 		},
+		// No polyfill token starts with `@`
+		{
+			code: 'require("@sindresorhus/is")',
+			options: [{targets: {node: '18'}}],
+		},
+		// A token prefix matches, but no polyfill pattern does
+		{
+			code: 'require("arrayish")',
+			options: [{targets: {node: '18'}}],
+		},
+		// The feature checked directly is not available
+		{
+			code: 'require("es6-promise")',
+			options: [{targets: {node: '0.10'}}],
+		},
+		// Invalid targets are ignored
+		{
+			code: 'require("es6-promise")',
+			options: [{targets: 'invalid browserslist query'}],
+		},
+		{
+			code: 'require("es6-promise")',
+			options: [{targets: {node: '*'}}],
+		},
+		// Starts like the `es` token, but is not an `es` prefix
+		{
+			code: 'require("events")',
+			options: [{targets: {node: '18'}}],
+		},
 	],
 	invalid: [
 		{

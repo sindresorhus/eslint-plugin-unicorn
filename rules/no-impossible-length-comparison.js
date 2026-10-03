@@ -1,4 +1,3 @@
-import {getStaticValue as getStaticValueFromEslintUtilities} from '@eslint-community/eslint-utils';
 import {
 	hasOptionalChainElement,
 	hasSameObjectShapePropertyCheck,
@@ -24,28 +23,7 @@ const flipOperator = {
 	'!=': '!=',
 };
 
-const isKnownStaticProperty = node => {
-	node = unwrapTypeScriptExpression(node);
-	if (node.type === 'UnaryExpression' && (node.operator === '+' || node.operator === '-')) {
-		node = unwrapTypeScriptExpression(node.argument);
-	}
-
-	return node.type === 'MemberExpression'
-		&& (!node.computed || node.property.type === 'Literal')
-		&& node.object.type === 'Identifier'
-		&& (node.object.name === 'Math' || node.object.name === 'Number');
-};
-
-const getStaticComparisonValue = (node, context) => {
-	const staticValue = getStaticValueForControlFlow(node, context);
-	if (staticValue !== undefined) {
-		return staticValue.value;
-	}
-
-	return isKnownStaticProperty(node)
-		? getStaticValueFromEslintUtilities(node, context.sourceCode.getScope(node))?.value
-		: undefined;
-};
+const getStaticComparisonValue = (node, context) => getStaticValueForControlFlow(node, context)?.value;
 
 function getComparisonSubject(node, context) {
 	const left = unwrapTypeScriptExpression(node.left);
@@ -103,29 +81,10 @@ function getConstantResult({operator, value}) {
 			return value < 0 ? true : undefined;
 		}
 
+		// Every operator in `flipOperator` has a case above.
+		/* node:coverage ignore next */
 		default:
 	}
-}
-
-function hasOptionalChain(node) {
-	node = unwrapTypeScriptExpression(node);
-	if (node.type === 'ChainExpression' || hasOptionalChainElement(node)) {
-		return true;
-	}
-
-	if (node.type === 'MemberExpression') {
-		return hasOptionalChain(node.object);
-	}
-
-	if (node.type === 'CallExpression') {
-		return hasOptionalChain(node.callee);
-	}
-
-	return false;
-}
-
-function isOptionalChainReceiver(memberExpression) {
-	return hasOptionalChain(memberExpression.object);
 }
 
 function isCustomClassReceiver(memberExpression) {
@@ -150,7 +109,7 @@ const create = context => {
 		const {memberExpression} = comparison;
 		if (
 			isCustomClassReceiver(memberExpression)
-			|| isOptionalChainReceiver(memberExpression)
+			|| hasOptionalChainElement(memberExpression.object)
 			|| isKnownNonCollectionLengthOrSize(memberExpression, context)
 			|| hasSameObjectShapePropertyCheck({node, lengthOrSizeNode: memberExpression})
 		) {

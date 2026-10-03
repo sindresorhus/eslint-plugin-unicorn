@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
@@ -211,8 +211,8 @@ test('preserves diagnostics after prefer-response-static-json autofix', t => {
 		},
 	});
 
-	t.is(result.output, 'Response.json({permissions: new Set(["read"])})');
-	t.is(result.messages.length, 1);
-	t.is(result.messages[0].messageId, 'no-unsafe-json-serialization');
-	t.is(result.messages[0].message, '`Response.json()` cannot faithfully serialize Set values.');
+	t.assert.strictEqual(result.output, 'Response.json({permissions: new Set(["read"])})');
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(result.messages[0].messageId, 'no-unsafe-json-serialization');
+	t.assert.strictEqual(result.messages[0].message, '`Response.json()` cannot faithfully serialize Set values.');
 });

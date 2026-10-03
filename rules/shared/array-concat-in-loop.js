@@ -10,27 +10,10 @@ import {
 	unwrapTypeScriptExpression,
 } from '../utils/index.js';
 
-function unwrapExpression(node) {
-	while (true) {
-		const unwrappedNode = unwrapTypeScriptExpression(node);
-
-		if (unwrappedNode !== node) {
-			node = unwrappedNode;
-			continue;
-		}
-
-		if (node?.type !== 'ParenthesizedExpression') {
-			return node;
-		}
-
-		node = node.expression;
-	}
-}
-
 function getIdentifier(node) {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
-	return node?.type === 'Identifier' ? node : undefined;
+	return node.type === 'Identifier' ? node : undefined;
 }
 
 function getVariable(identifier, context) {
@@ -38,11 +21,10 @@ function getVariable(identifier, context) {
 }
 
 function isReassignableEmptyArrayVariable(variable) {
-	const [definition] = variable?.defs ?? [];
+	const [definition] = variable.defs;
 
 	if (
-		!definition
-		|| variable.defs.length !== 1
+		variable.defs.length !== 1
 		|| variable.scope.type === 'global'
 		|| definition.type !== 'Variable'
 		|| definition.node.id.type !== 'Identifier'
@@ -51,7 +33,7 @@ function isReassignableEmptyArrayVariable(variable) {
 		return false;
 	}
 
-	const init = definition.node.init && unwrapExpression(definition.node.init);
+	const init = definition.node.init && unwrapTypeScriptExpression(definition.node.init);
 
 	return Boolean(init && isEmptyArrayExpression(init));
 }
@@ -81,7 +63,7 @@ export function getArrayConcatInLoop(assignmentExpression, context) {
 	}
 
 	const left = assignmentExpression.left.type === 'Identifier' ? assignmentExpression.left : undefined;
-	const callExpression = unwrapExpression(assignmentExpression.right);
+	const callExpression = unwrapTypeScriptExpression(assignmentExpression.right);
 
 	if (
 		!left
@@ -127,13 +109,7 @@ function getParentAssignmentExpression(node) {
 	let child = node;
 	let {parent} = child;
 
-	while (
-		parent
-		&& (
-			parent.type === 'ParenthesizedExpression'
-			|| isTypeScriptExpressionWrapper(parent)
-		)
-	) {
+	while (isTypeScriptExpressionWrapper(parent)) {
 		child = parent;
 		parent = child.parent;
 	}

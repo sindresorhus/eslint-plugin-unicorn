@@ -65,7 +65,7 @@ const getTypeAnnotation = (node, context) => {
 	}
 
 	const variable = findVariable(context.sourceCode.getScope(node), node);
-	return variable?.defs[0]?.name?.typeAnnotation?.typeAnnotation ?? node.typeAnnotation?.typeAnnotation;
+	return variable?.defs[0]?.name?.typeAnnotation?.typeAnnotation;
 };
 
 const isObjectValue = value => value !== null && (

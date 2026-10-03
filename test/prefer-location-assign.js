@@ -1,5 +1,5 @@
+import test from 'node:test';
 import outdent from 'outdent';
-import test from 'ava';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
 import {getTester} from './utils/test.js';
@@ -87,10 +87,11 @@ test('works with the recommended config without browser globals', t => {
 		const messages = linter.verify(code, unicorn.configs.recommended);
 		const result = linter.verifyAndFix(code, unicorn.configs.recommended);
 
-		t.true(
+		t.assert.strictEqual(
 			messages.some(({ruleId}) => ruleId === 'unicorn/prefer-location-assign'),
+			true,
 			`Expected \`prefer-location-assign\` report for: ${code}`,
 		);
-		t.is(result.output, output);
+		t.assert.strictEqual(result.output, output);
 	}
 });

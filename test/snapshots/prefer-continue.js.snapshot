@@ -1,0 +1,3324 @@
+exports[`prefer-continue > invalid(1): for (const item of items) { if (!condition) { continue; } work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!condition) { continue; } work(); }
+
+`;
+
+exports[`prefer-continue > invalid(1): for (const item of items) { if (!condition) { continue; } work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!condition) { continue; } work(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (condition) {
+  2 | 	work();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(1): for (const item of items) {\n\tif (!condition) {\n\t\tcontinue;\n\t}\n\n\tperformWork();\n} 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) {
+  2 | 	if (!condition) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	performWork();
+  7 | }
+
+`;
+
+exports[`prefer-continue > invalid(1): for (const item of items) {\n\tif (!condition) {\n\t\tcontinue;\n\t}\n\n\tperformWork();\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (!condition) {
+    | 	^^^^^^^^^^^^^^^^^
+> 3 | 		continue;
+    | ^^^^^^^^^^^
+> 4 | 	}
+    | ^^ Prefer conditional wrapping over an early continue for a short body.
+  5 |
+  6 | 	performWork();
+  7 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (condition) {
+  3 | 		performWork();
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-continue > invalid(1): for (const key in items) { before(); if (condition) { first(); second(); } } 1`] = `
+
+  1 | for (const key in items) { before(); if (condition) { first(); second(); } }
+
+`;
+
+exports[`prefer-continue > invalid(1): for (const key in items) { before(); if (condition) { first(); second(); } } 2`] = `
+
+Message:
+> 1 | for (const key in items) { before(); if (condition) { first(); second(); } }
+    |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+
+Output:
+  1 | for (const key in items) { before(); if (!condition) {
+  2 | 	continue;
+  3 | }
+  4 |
+  5 | first(); second(); }
+
+`;
+
+exports[`prefer-continue > invalid(1): function run(items) {\n\tfor (const item of items) {\n\t\tif (item.isActive) {\n\t\t\tif (item.isReady) {\n\t\t\t\treturn;\n\t\t\t}\n\n\t\t\tprocess(item);\n\t\t\tsave(item);\n\t\t}\n\t}\n} 1`] = `
+
+   1 | function run(items) {
+   2 | 	for (const item of items) {
+   3 | 		if (item.isActive) {
+   4 | 			if (item.isReady) {
+   5 | 				return;
+   6 | 			}
+   7 |
+   8 | 			process(item);
+   9 | 			save(item);
+  10 | 		}
+  11 | 	}
+  12 | }
+
+`;
+
+exports[`prefer-continue > invalid(1): function run(items) {\n\tfor (const item of items) {\n\t\tif (item.isActive) {\n\t\t\tif (item.isReady) {\n\t\t\t\treturn;\n\t\t\t}\n\n\t\t\tprocess(item);\n\t\t\tsave(item);\n\t\t}\n\t}\n} 2`] = `
+
+Message:
+   1 | function run(items) {
+   2 | 	for (const item of items) {
+>  3 | 		if (item.isActive) {
+     | 		^^^^^^^^^^^^^^^^^^^^
+>  4 | 			if (item.isReady) {
+     | ^^^^^^^^^^^^^^^^^^^^^^
+>  5 | 				return;
+     | ^^^^^^^^^^^
+>  6 | 			}
+     | ^^^^
+>  7 |
+     | ^
+>  8 | 			process(item);
+     | ^^^^^^^^^^^^^^^^^
+>  9 | 			save(item);
+     | ^^^^^^^^^^^^^^
+> 10 | 		}
+     | ^^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  11 | 	}
+  12 | }
+
+Output:
+   1 | function run(items) {
+   2 | 	for (const item of items) {
+   3 | 		if (!item.isActive) {
+   4 | 			continue;
+   5 | 		}
+   6 |
+   7 | 		if (item.isReady) {
+   8 | 			return;
+   9 | 		}
+  10 |
+  11 | 		process(item);
+  12 | 		save(item);
+  13 | 	}
+  14 | }
+
+`;
+
+exports[`prefer-continue > invalid(10): for (const item of items) { if (!(condition && other)) { continue; } work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!(condition && other)) { continue; } work(); }
+
+`;
+
+exports[`prefer-continue > invalid(10): for (const item of items) { if (!(condition && other)) { continue; } work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!(condition && other)) { continue; } work(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if ((condition && other)) {
+  2 | 	work();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(10): for (const item of items) { if (!condition) { continue; } performWork(\`first\nsecond\`); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!condition) { continue; } performWork(\`first
+  2 | second\`); }
+
+`;
+
+exports[`prefer-continue > invalid(10): for (const item of items) { if (!condition) { continue; } performWork(\`first\nsecond\`); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!condition) { continue; } performWork(\`first
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+  2 | second\`); }
+
+`;
+
+exports[`prefer-continue > invalid(10): for (const item of items) {\n\tconst ready = prepare();\n\t// Keep this comment before the guard.\n\tif (ready) {\n\t\t// Keep this comment with the moved body.\n\t\tfirst();\n\t\tsecond();\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	const ready = prepare();
+  3 | 	// Keep this comment before the guard.
+  4 | 	if (ready) {
+  5 | 		// Keep this comment with the moved body.
+  6 | 		first();
+  7 | 		second();
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`prefer-continue > invalid(10): for (const item of items) {\n\tconst ready = prepare();\n\t// Keep this comment before the guard.\n\tif (ready) {\n\t\t// Keep this comment with the moved body.\n\t\tfirst();\n\t\tsecond();\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+  2 | 	const ready = prepare();
+  3 | 	// Keep this comment before the guard.
+> 4 | 	if (ready) {
+    | 	^^^^^^^^^^^^
+> 5 | 		// Keep this comment with the moved body.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 6 | 		first();
+    | ^^^^^^^^^^
+> 7 | 		second();
+    | ^^^^^^^^^^^
+> 8 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  9 | }
+
+Output:
+   1 | for (const item of items) {
+   2 | 	const ready = prepare();
+   3 | 	// Keep this comment before the guard.
+   4 | 	if (!ready) {
+   5 | 		continue;
+   6 | 	}
+   7 |
+   8 | 	// Keep this comment with the moved body.
+   9 | 	first();
+  10 | 	second();
+  11 | }
+
+`;
+
+exports[`prefer-continue > invalid(10): for (const item of items) {\n\tif (item.isActive || item.isPending) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (item.isActive || item.isPending) {
+  3 | 		process(item);
+  4 | 		save(item);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(10): for (const item of items) {\n\tif (item.isActive || item.isPending) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (item.isActive || item.isPending) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		process(item);
+    | ^^^^^^^^^^^^^^^^
+> 4 | 		save(item);
+    | ^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!(item.isActive || item.isPending)) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	process(item);
+  7 | 	save(item);
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(11): for (const item of items) { if (!condition) { continue; } else { performWork(\`first\nsecond\`); } } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!condition) { continue; } else { performWork(\`first
+  2 | second\`); } }
+
+`;
+
+exports[`prefer-continue > invalid(11): for (const item of items) { if (!condition) { continue; } else { performWork(\`first\nsecond\`); } } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!condition) { continue; } else { performWork(\`first
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | second\`); } }
+    | ^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (condition) { performWork(\`first
+  2 | second\`); } }
+
+`;
+
+exports[`prefer-continue > invalid(11): for (const item of items) { if ((condition)) { continue; } (work)(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if ((condition)) { continue; } (work)(); }
+
+`;
+
+exports[`prefer-continue > invalid(11): for (const item of items) { if ((condition)) { continue; } (work)(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if ((condition)) { continue; } (work)(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (!condition) {
+  2 | 	(work)();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(11): for (const item of items) {\n\tif (item.isActive)\n\t\tprocess(item);\n} 1`] = `
+
+Options:
+- maximumStatements: 0
+
+Code:
+  1 | for (const item of items) {
+  2 | 	if (item.isActive)
+  3 | 		process(item);
+  4 | }
+
+`;
+
+exports[`prefer-continue > invalid(11): for (const item of items) {\n\tif (item.isActive)\n\t\tprocess(item);\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (item.isActive)
+    | 	^^^^^^^^^^^^^^^^^^
+> 3 | 		process(item);
+    | ^^^^^^^^^^^^^^^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  4 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!item.isActive) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	process(item);
+  7 | }
+
+`;
+
+exports[`prefer-continue > invalid(12): for (const item of items) { if (!condition) { continue; } performWork(<Component value={value} />); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!condition) { continue; } performWork(<Component value={value} />); }
+
+`;
+
+exports[`prefer-continue > invalid(12): for (const item of items) { if (!condition) { continue; } performWork(<Component value={value} />); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!condition) { continue; } performWork(<Component value={value} />); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (condition) {
+  2 | 	performWork(<Component value={value} />);
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(12): for (const item of items) { if (value?.active) { continue; } work?.(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (value?.active) { continue; } work?.(); }
+
+`;
+
+exports[`prefer-continue > invalid(12): for (const item of items) { if (value?.active) { continue; } work?.(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (value?.active) { continue; } work?.(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (!value?.active) {
+  2 | 	work?.();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(12): for (const item of items) {\n\tif (item.isActive) {\n\t\tif (item.isReady) {\n\t\t\tprocess(item);\n\t\t}\n\t}\n} 1`] = `
+
+Options:
+- maximumStatements: 0
+
+Code:
+  1 | for (const item of items) {
+  2 | 	if (item.isActive) {
+  3 | 		if (item.isReady) {
+  4 | 			process(item);
+  5 | 		}
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-continue > invalid(12): for (const item of items) {\n\tif (item.isActive) {\n\t\tif (item.isReady) {\n\t\t\tprocess(item);\n\t\t}\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (item.isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^
+> 3 | 		if (item.isReady) {
+    | ^^^^^^^^^^^^^^^^^^^^^
+> 4 | 			process(item);
+    | ^^^^^^^^^^^^^^^^^
+> 5 | 		}
+    | ^^^
+> 6 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  7 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!item.isActive) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	if (item.isReady) {
+  7 | 		process(item);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`prefer-continue > invalid(13): for (const item of items) { if (!condition) { continue; } const value = work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!condition) { continue; } const value = work(); }
+
+`;
+
+exports[`prefer-continue > invalid(13): for (const item of items) { if (!condition) { continue; } const value = work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!condition) { continue; } const value = work(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+`;
+
+exports[`prefer-continue > invalid(13): for (const item of items) { if (!condition) { continue; } performWork(<div>first\nsecond</div>); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!condition) { continue; } performWork(<div>first
+  2 | second</div>); }
+
+`;
+
+exports[`prefer-continue > invalid(13): for (const item of items) { if (!condition) { continue; } performWork(<div>first\nsecond</div>); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!condition) { continue; } performWork(<div>first
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+  2 | second</div>); }
+
+`;
+
+exports[`prefer-continue > invalid(13): for (const item of items) {\n\tif (item as ActiveItem) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (item as ActiveItem) {
+  3 | 		process(item);
+  4 | 		save(item);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(13): for (const item of items) {\n\tif (item as ActiveItem) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (item as ActiveItem) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		process(item);
+    | ^^^^^^^^^^^^^^^^
+> 4 | 		save(item);
+    | ^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!(item as ActiveItem)) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	process(item);
+  7 | 	save(item);
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(14): for (const item of items) { if (!condition) { continue; } function work() {} } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!condition) { continue; } function work() {} }
+
+`;
+
+exports[`prefer-continue > invalid(14): for (const item of items) { if (!condition) { continue; } function work() {} } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!condition) { continue; } function work() {} }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+`;
+
+exports[`prefer-continue > invalid(14): for (const item of items) {\n\tif (item!) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (item!) {
+  3 | 		process(item);
+  4 | 		save(item);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(14): for (const item of items) {\n\tif (item!) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (item!) {
+    | 	^^^^^^^^^^^^
+> 3 | 		process(item);
+    | ^^^^^^^^^^^^^^^^
+> 4 | 		save(item);
+    | ^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!(item!)) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	process(item);
+  7 | 	save(item);
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(14): for (const item of items) {\n\tprepare(item);\n\tif (!item.isActive) {\n\t\tcontinue;\n\t}\n\n\tprocessItem(item);\n} 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) {
+  2 | 	prepare(item);
+  3 | 	if (!item.isActive) {
+  4 | 		continue;
+  5 | 	}
+  6 |
+  7 | 	processItem(item);
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(14): for (const item of items) {\n\tprepare(item);\n\tif (!item.isActive) {\n\t\tcontinue;\n\t}\n\n\tprocessItem(item);\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+  2 | 	prepare(item);
+> 3 | 	if (!item.isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		continue;
+    | ^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer conditional wrapping over an early continue for a short body.
+  6 |
+  7 | 	processItem(item);
+  8 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	prepare(item);
+  3 | 	if (item.isActive) {
+  4 | 		processItem(item);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(15): for (const item of items) { if (!condition) { continue; } else { const value = work(); } } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!condition) { continue; } else { const value = work(); } }
+
+`;
+
+exports[`prefer-continue > invalid(15): for (const item of items) { if (!condition) { continue; } else { const value = work(); } } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!condition) { continue; } else { const value = work(); } }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (condition) { const value = work(); } }
+
+`;
+
+exports[`prefer-continue > invalid(15): for (const item of items) {\n  prepare(item);\n  if (!item.isActive) {\n    continue;\n  }\n\n  processItem(item);\n} 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) {
+  2 |   prepare(item);
+  3 |   if (!item.isActive) {
+  4 |     continue;
+  5 |   }
+  6 |
+  7 |   processItem(item);
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(15): for (const item of items) {\n  prepare(item);\n  if (!item.isActive) {\n    continue;\n  }\n\n  processItem(item);\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+  2 |   prepare(item);
+> 3 |   if (!item.isActive) {
+    |   ^^^^^^^^^^^^^^^^^^^^^
+> 4 |     continue;
+    | ^^^^^^^^^^^^^
+> 5 |   }
+    | ^^^ Prefer conditional wrapping over an early continue for a short body.
+  6 |
+  7 |   processItem(item);
+  8 | }
+
+Output:
+  1 | for (const item of items) {
+  2 |   prepare(item);
+  3 |   if (item.isActive) {
+  4 |     processItem(item);
+  5 |   }
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(15): for (const item of items) {\n\tif (<ActiveItem>item) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (<ActiveItem>item) {
+  3 | 		process(item);
+  4 | 		save(item);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(15): for (const item of items) {\n\tif (<ActiveItem>item) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (<ActiveItem>item) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		process(item);
+    | ^^^^^^^^^^^^^^^^
+> 4 | 		save(item);
+    | ^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!(<ActiveItem>item)) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	process(item);
+  7 | 	save(item);
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(16): for (const item of items) { if (!condition) { /* keep */ continue; } work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!condition) { /* keep */ continue; } work(); }
+
+`;
+
+exports[`prefer-continue > invalid(16): for (const item of items) { if (!condition) { /* keep */ continue; } work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!condition) { /* keep */ continue; } work(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+`;
+
+exports[`prefer-continue > invalid(16): for (const item of items) {\n\tif (item satisfies ActiveItem) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (item satisfies ActiveItem) {
+  3 | 		process(item);
+  4 | 		save(item);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(16): for (const item of items) {\n\tif (item satisfies ActiveItem) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (item satisfies ActiveItem) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		process(item);
+    | ^^^^^^^^^^^^^^^^
+> 4 | 		save(item);
+    | ^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!(item satisfies ActiveItem)) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	process(item);
+  7 | 	save(item);
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(16): for (const item of items) {\r\n\tprepare(item);\r\n\tif (!item.isActive) {\r\n\t\tcontinue;\r\n\t}\r\n\r\n\tprocessItem(item);\r\n}\r\n 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) {
+  2 | 	prepare(item);
+  3 | 	if (!item.isActive) {
+  4 | 		continue;
+  5 | 	}
+  6 |
+  7 | 	processItem(item);
+  8 | }
+  9 |
+
+`;
+
+exports[`prefer-continue > invalid(16): for (const item of items) {\r\n\tprepare(item);\r\n\tif (!item.isActive) {\r\n\t\tcontinue;\r\n\t}\r\n\r\n\tprocessItem(item);\r\n}\r\n 2`] = `
+
+Message:
+  1 | for (const item of items) {
+  2 | 	prepare(item);
+> 3 | 	if (!item.isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		continue;
+    | ^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer conditional wrapping over an early continue for a short body.
+  6 |
+  7 | 	processItem(item);
+  8 | }
+  9 |
+
+Output:
+  1 | for (const item of items) {
+  2 | 	prepare(item);
+  3 | 	if (item.isActive) {
+  4 | 		processItem(item);
+  5 | 	}
+  6 | }
+  7 |
+
+`;
+
+exports[`prefer-continue > invalid(17): for (const group of groups) {\n\tfor (const item of group) {\n\t\tprepare(item);\n\t\tif (!item.isActive) {\n\t\t\tcontinue;\n\t\t}\n\n\t\tprocessItem(item);\n\t\tsaveItem(item);\n\t}\n} 1`] = `
+
+Options:
+- checkShortBodies: true
+  maximumStatements: 2
+
+Code:
+   1 | for (const group of groups) {
+   2 | 	for (const item of group) {
+   3 | 		prepare(item);
+   4 | 		if (!item.isActive) {
+   5 | 			continue;
+   6 | 		}
+   7 |
+   8 | 		processItem(item);
+   9 | 		saveItem(item);
+  10 | 	}
+  11 | }
+
+`;
+
+exports[`prefer-continue > invalid(17): for (const group of groups) {\n\tfor (const item of group) {\n\t\tprepare(item);\n\t\tif (!item.isActive) {\n\t\t\tcontinue;\n\t\t}\n\n\t\tprocessItem(item);\n\t\tsaveItem(item);\n\t}\n} 2`] = `
+
+Message:
+   1 | for (const group of groups) {
+   2 | 	for (const item of group) {
+   3 | 		prepare(item);
+>  4 | 		if (!item.isActive) {
+     | 		^^^^^^^^^^^^^^^^^^^^^
+>  5 | 			continue;
+     | ^^^^^^^^^^^^
+>  6 | 		}
+     | ^^^ Prefer conditional wrapping over an early continue for a short body.
+   7 |
+   8 | 		processItem(item);
+   9 | 		saveItem(item);
+  10 | 	}
+  11 | }
+
+Output:
+  1 | for (const group of groups) {
+  2 | 	for (const item of group) {
+  3 | 		prepare(item);
+  4 | 		if (item.isActive) {
+  5 | 			processItem(item);
+  6 | 			saveItem(item);
+  7 | 		}
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`prefer-continue > invalid(17): for (const item of items) { if (!condition) { continue; } /* keep */ work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!condition) { continue; } /* keep */ work(); }
+
+`;
+
+exports[`prefer-continue > invalid(17): for (const item of items) { if (!condition) { continue; } /* keep */ work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!condition) { continue; } /* keep */ work(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+`;
+
+exports[`prefer-continue > invalid(17): for (const item of items) {\n\tif (! /* Keep this comment with the condition. */ item.isActive) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (! /* Keep this comment with the condition. */ item.isActive) {
+  3 | 		process(item);
+  4 | 		save(item);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(17): for (const item of items) {\n\tif (! /* Keep this comment with the condition. */ item.isActive) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (! /* Keep this comment with the condition. */ item.isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		process(item);
+    | ^^^^^^^^^^^^^^^^
+> 4 | 		save(item);
+    | ^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (/* Keep this comment with the condition. */ item.isActive) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	process(item);
+  7 | 	save(item);
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(18): for (const item of items) { if (!condition) { continue; } work(/* keep */); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!condition) { continue; } work(/* keep */); }
+
+`;
+
+exports[`prefer-continue > invalid(18): for (const item of items) { if (!condition) { continue; } work(/* keep */); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!condition) { continue; } work(/* keep */); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+`;
+
+exports[`prefer-continue > invalid(18): for (const item of items) {\n\tif (\n\t\t/* Keep this comment with the condition. */\n\t\titem.isActive\n\t) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (
+  3 | 		/* Keep this comment with the condition. */
+  4 | 		item.isActive
+  5 | 	) {
+  6 | 		process(item);
+  7 | 		save(item);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`prefer-continue > invalid(18): for (const item of items) {\n\tif (\n\t\t/* Keep this comment with the condition. */\n\t\titem.isActive\n\t) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (
+    | 	^^^^
+> 3 | 		/* Keep this comment with the condition. */
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		item.isActive
+    | ^^^^^^^^^^^^^^^
+> 5 | 	) {
+    | ^^^^
+> 6 | 		process(item);
+    | ^^^^^^^^^^^^^^^^
+> 7 | 		save(item);
+    | ^^^^^^^^^^^^^
+> 8 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  9 | }
+
+Output:
+   1 | for (const item of items) {
+   2 | 	if (!(/* Keep this comment with the condition. */
+   3 | 		item.isActive
+   4 | 	)) {
+   5 | 		continue;
+   6 | 	}
+   7 |
+   8 | 	process(item);
+   9 | 	save(item);
+  10 | }
+
+`;
+
+exports[`prefer-continue > invalid(18): for (const item of items) {\n\tprepare(item);\n\tif (!item.isActive) {\n\t\tcontinue;\n\t}\n\n\tprocessItem({\n\t\titem,\n\t});\n} 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+   1 | for (const item of items) {
+   2 | 	prepare(item);
+   3 | 	if (!item.isActive) {
+   4 | 		continue;
+   5 | 	}
+   6 |
+   7 | 	processItem({
+   8 | 		item,
+   9 | 	});
+  10 | }
+
+`;
+
+exports[`prefer-continue > invalid(18): for (const item of items) {\n\tprepare(item);\n\tif (!item.isActive) {\n\t\tcontinue;\n\t}\n\n\tprocessItem({\n\t\titem,\n\t});\n} 2`] = `
+
+Message:
+   1 | for (const item of items) {
+   2 | 	prepare(item);
+>  3 | 	if (!item.isActive) {
+     | 	^^^^^^^^^^^^^^^^^^^^^
+>  4 | 		continue;
+     | ^^^^^^^^^^^
+>  5 | 	}
+     | ^^ Prefer conditional wrapping over an early continue for a short body.
+   6 |
+   7 | 	processItem({
+   8 | 		item,
+   9 | 	});
+  10 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	prepare(item);
+  3 | 	if (item.isActive) {
+  4 | 		processItem({
+  5 | 			item,
+  6 | 		});
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(19): for (const item of items) { if (condition as boolean) { continue; } work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (condition as boolean) { continue; } work(); }
+
+`;
+
+exports[`prefer-continue > invalid(19): for (const item of items) { if (condition as boolean) { continue; } work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (condition as boolean) { continue; } work(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (!(condition as boolean)) {
+  2 | 	work();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(19): for (const item of items) {\n\tprepare(item);\n\tif (!item.isActive) {\n\t\tcontinue;\n\t} else {\n\t\tprocessItem(item);\n\t}\n} 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) {
+  2 | 	prepare(item);
+  3 | 	if (!item.isActive) {
+  4 | 		continue;
+  5 | 	} else {
+  6 | 		processItem(item);
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(19): for (const item of items) {\n\tprepare(item);\n\tif (!item.isActive) {\n\t\tcontinue;\n\t} else {\n\t\tprocessItem(item);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+  2 | 	prepare(item);
+> 3 | 	if (!item.isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		continue;
+    | ^^^^^^^^^^^
+> 5 | 	} else {
+    | ^^^^^^^^^
+> 6 | 		processItem(item);
+    | ^^^^^^^^^^^^^^^^^^^^
+> 7 | 	}
+    | ^^ Prefer conditional wrapping over an early continue for a short body.
+  8 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	prepare(item);
+  3 | 	if (item.isActive) {
+  4 | 		processItem(item);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(19): for (const {isActive, value} of items) {\n\tif (isActive) {\n\t\tprocess(value);\n\t\tsave(value);\n\t}\n} 1`] = `
+
+  1 | for (const {isActive, value} of items) {
+  2 | 	if (isActive) {
+  3 | 		process(value);
+  4 | 		save(value);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(19): for (const {isActive, value} of items) {\n\tif (isActive) {\n\t\tprocess(value);\n\t\tsave(value);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const {isActive, value} of items) {
+> 2 | 	if (isActive) {
+    | 	^^^^^^^^^^^^^^^
+> 3 | 		process(value);
+    | ^^^^^^^^^^^^^^^^^
+> 4 | 		save(value);
+    | ^^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const {isActive, value} of items) {
+  2 | 	if (!isActive) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	process(value);
+  7 | 	save(value);
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(2): for (const item of items) { if (condition) { continue; } work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (condition) { continue; } work(); }
+
+`;
+
+exports[`prefer-continue > invalid(2): for (const item of items) { if (condition) { continue; } work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (condition) { continue; } work(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (!condition) {
+  2 | 	work();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(2): for (const item of items) {\n\tif (condition) { continue; }\n\tperformWork(\n\t\tvalue,\n\t);\n} 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) {
+  2 | 	if (condition) { continue; }
+  3 | 	performWork(
+  4 | 		value,
+  5 | 	);
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(2): for (const item of items) {\n\tif (condition) { continue; }\n\tperformWork(\n\t\tvalue,\n\t);\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (condition) { continue; }
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+  3 | 	performWork(
+  4 | 		value,
+  5 | 	);
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!condition) {
+  3 | 		performWork(
+  4 | 			value,
+  5 | 		);
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-continue > invalid(2): for (let index = 0; index < 10; index++) { before(); if (condition) { first(); second(); } } 1`] = `
+
+  1 | for (let index = 0; index < 10; index++) { before(); if (condition) { first(); second(); } }
+
+`;
+
+exports[`prefer-continue > invalid(2): for (let index = 0; index < 10; index++) { before(); if (condition) { first(); second(); } } 2`] = `
+
+Message:
+> 1 | for (let index = 0; index < 10; index++) { before(); if (condition) { first(); second(); } }
+    |                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+
+Output:
+  1 | for (let index = 0; index < 10; index++) { before(); if (!condition) {
+  2 | 	continue;
+  3 | }
+  4 |
+  5 | first(); second(); }
+
+`;
+
+exports[`prefer-continue > invalid(2): function run(items) {\n\tfor (const item of items) {\n\t\tif (item.isActive) {\n\t\t\tprocess(item);\n\t\t\tif (item.isDone) {\n\t\t\t\treturn;\n\t\t\t}\n\t\t}\n\t}\n} 1`] = `
+
+   1 | function run(items) {
+   2 | 	for (const item of items) {
+   3 | 		if (item.isActive) {
+   4 | 			process(item);
+   5 | 			if (item.isDone) {
+   6 | 				return;
+   7 | 			}
+   8 | 		}
+   9 | 	}
+  10 | }
+
+`;
+
+exports[`prefer-continue > invalid(2): function run(items) {\n\tfor (const item of items) {\n\t\tif (item.isActive) {\n\t\t\tprocess(item);\n\t\t\tif (item.isDone) {\n\t\t\t\treturn;\n\t\t\t}\n\t\t}\n\t}\n} 2`] = `
+
+Message:
+   1 | function run(items) {
+   2 | 	for (const item of items) {
+>  3 | 		if (item.isActive) {
+     | 		^^^^^^^^^^^^^^^^^^^^
+>  4 | 			process(item);
+     | ^^^^^^^^^^^^^^^^^
+>  5 | 			if (item.isDone) {
+     | ^^^^^^^^^^^^^^^^^^^^^
+>  6 | 				return;
+     | ^^^^^^^^^^^
+>  7 | 			}
+     | ^^^^
+>  8 | 		}
+     | ^^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+   9 | 	}
+  10 | }
+
+Output:
+   1 | function run(items) {
+   2 | 	for (const item of items) {
+   3 | 		if (!item.isActive) {
+   4 | 			continue;
+   5 | 		}
+   6 |
+   7 | 		process(item);
+   8 | 		if (item.isDone) {
+   9 | 			return;
+  10 | 		}
+  11 | 	}
+  12 | }
+
+`;
+
+exports[`prefer-continue > invalid(20): for (const item of items) { if (condition!) { continue; } work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (condition!) { continue; } work(); }
+
+`;
+
+exports[`prefer-continue > invalid(20): for (const item of items) { if (condition!) { continue; } work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (condition!) { continue; } work(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (!(condition!)) {
+  2 | 	work();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(20): for (const item of items) {\n\tif (item.isActive) {\n\t\t// Keep this comment with the moved body.\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (item.isActive) {
+  3 | 		// Keep this comment with the moved body.
+  4 | 		process(item);
+  5 | 		save(item);
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-continue > invalid(20): for (const item of items) {\n\tif (item.isActive) {\n\t\t// Keep this comment with the moved body.\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (item.isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^
+> 3 | 		// Keep this comment with the moved body.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		process(item);
+    | ^^^^^^^^^^^^^^^^
+> 5 | 		save(item);
+    | ^^^^^^^^^^^^^
+> 6 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  7 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!item.isActive) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	// Keep this comment with the moved body.
+  7 | 	process(item);
+  8 | 	save(item);
+  9 | }
+
+`;
+
+exports[`prefer-continue > invalid(21): for (const item of items) { if (condition satisfies boolean) { continue; } work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (condition satisfies boolean) { continue; } work(); }
+
+`;
+
+exports[`prefer-continue > invalid(21): for (const item of items) { if (condition satisfies boolean) { continue; } work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (condition satisfies boolean) { continue; } work(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (!(condition satisfies boolean)) {
+  2 | 	work();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(21): let isActive = true;\n\nfor (const item of items) {\n\tif (isActive) {\n\t\tconst isActive = item.active;\n\t\tprocess(isActive);\n\t}\n} 1`] = `
+
+  1 | let isActive = true;
+  2 |
+  3 | for (const item of items) {
+  4 | 	if (isActive) {
+  5 | 		const isActive = item.active;
+  6 | 		process(isActive);
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(21): let isActive = true;\n\nfor (const item of items) {\n\tif (isActive) {\n\t\tconst isActive = item.active;\n\t\tprocess(isActive);\n\t}\n} 2`] = `
+
+Message:
+  1 | let isActive = true;
+  2 |
+  3 | for (const item of items) {
+> 4 | 	if (isActive) {
+    | 	^^^^^^^^^^^^^^^
+> 5 | 		const isActive = item.active;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 6 | 		process(isActive);
+    | ^^^^^^^^^^^^^^^^^^^^
+> 7 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(22): for (const item of items) { if (<boolean>condition) { continue; } work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (<boolean>condition) { continue; } work(); }
+
+`;
+
+exports[`prefer-continue > invalid(22): for (const item of items) { if (<boolean>condition) { continue; } work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (<boolean>condition) { continue; } work(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (!(<boolean>condition)) {
+  2 | 	work();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(22): for (const item of items) {\n\tif (item.isActive) {\n\t\tconst result = getResult(item);\n\t\tprocess(result);\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (item.isActive) {
+  3 | 		const result = getResult(item);
+  4 | 		process(result);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(22): for (const item of items) {\n\tif (item.isActive) {\n\t\tconst result = getResult(item);\n\t\tprocess(result);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (item.isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^
+> 3 | 		const result = getResult(item);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		process(result);
+    | ^^^^^^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!item.isActive) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	const result = getResult(item);
+  7 | 	process(result);
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(23): for (const item of items) { prepare(); if (!condition) { continue; } work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { prepare(); if (!condition) { continue; } work(); }
+
+`;
+
+exports[`prefer-continue > invalid(23): for (const item of items) { prepare(); if (!condition) { continue; } work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { prepare(); if (!condition) { continue; } work(); }
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { prepare(); if (condition) {
+  2 | 	work();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(23): for (const item of items) {\n\tif (eval('item.active')) {\n\t\tconst result = getResult(item);\n\t\tprocess(result);\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (eval('item.active')) {
+  3 | 		const result = getResult(item);
+  4 | 		process(result);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(23): for (const item of items) {\n\tif (eval('item.active')) {\n\t\tconst result = getResult(item);\n\t\tprocess(result);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (eval('item.active')) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		const result = getResult(item);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		process(result);
+    | ^^^^^^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(24): for (const item of items) { prepare(); if (!condition) { continue; } else { work(); } } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { prepare(); if (!condition) { continue; } else { work(); } }
+
+`;
+
+exports[`prefer-continue > invalid(24): for (const item of items) { prepare(); if (!condition) { continue; } else { work(); } } 2`] = `
+
+Message:
+> 1 | for (const item of items) { prepare(); if (!condition) { continue; } else { work(); } }
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { prepare(); if (condition) { work(); } }
+
+`;
+
+exports[`prefer-continue > invalid(24): for (const item of items) {\n\tif (item.isActive) {\n\t\tconst item = getItem();\n\t\tprocess(item);\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (item.isActive) {
+  3 | 		const item = getItem();
+  4 | 		process(item);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(24): for (const item of items) {\n\tif (item.isActive) {\n\t\tconst item = getItem();\n\t\tprocess(item);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (item.isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^
+> 3 | 		const item = getItem();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		process(item);
+    | ^^^^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(25): for (const item of items) { const value = prepare(item); if (!value) { continue; } work(value); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { const value = prepare(item); if (!value) { continue; } work(value); }
+
+`;
+
+exports[`prefer-continue > invalid(25): for (const item of items) { const value = prepare(item); if (!value) { continue; } work(value); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { const value = prepare(item); if (!value) { continue; } work(value); }
+    |                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { const value = prepare(item); if (value) {
+  2 | 	work(value);
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(25): for (const {value: item} of items) {\n\tif (item.isActive) {\n\t\tconst item = getItem();\n\t\tprocess(item);\n\t}\n} 1`] = `
+
+  1 | for (const {value: item} of items) {
+  2 | 	if (item.isActive) {
+  3 | 		const item = getItem();
+  4 | 		process(item);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(25): for (const {value: item} of items) {\n\tif (item.isActive) {\n\t\tconst item = getItem();\n\t\tprocess(item);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const {value: item} of items) {
+> 2 | 	if (item.isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^
+> 3 | 		const item = getItem();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		process(item);
+    | ^^^^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(26): for (const [item] of items) {\n\tif (item.isActive) {\n\t\tconst item = getItem();\n\t\tprocess(item);\n\t}\n} 1`] = `
+
+  1 | for (const [item] of items) {
+  2 | 	if (item.isActive) {
+  3 | 		const item = getItem();
+  4 | 		process(item);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(26): for (const [item] of items) {\n\tif (item.isActive) {\n\t\tconst item = getItem();\n\t\tprocess(item);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const [item] of items) {
+> 2 | 	if (item.isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^
+> 3 | 		const item = getItem();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		process(item);
+    | ^^^^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(26): for (const item of items) { if (!first) { continue; } prepare(); if (!second) { continue; } work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!first) { continue; } prepare(); if (!second) { continue; } work(); }
+
+`;
+
+exports[`prefer-continue > invalid(26): for (const item of items) { if (!first) { continue; } prepare(); if (!second) { continue; } work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!first) { continue; } prepare(); if (!second) { continue; } work(); }
+    |                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (!first) { continue; } prepare(); if (second) {
+  2 | 	work();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(27): for (const item of items) { prepare(); if (!condition) { continue; } if (other) { work(); finish(); } } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { prepare(); if (!condition) { continue; } if (other) { work(); finish(); } }
+
+`;
+
+exports[`prefer-continue > invalid(27): for (const item of items) { prepare(); if (!condition) { continue; } if (other) { work(); finish(); } } 2`] = `
+
+Message:
+> 1 | for (const item of items) { prepare(); if (!condition) { continue; } if (other) { work(); finish(); } }
+    |                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+
+Output:
+  1 | for (const item of items) { prepare(); if (!condition) { continue; } if (!other) {
+  2 | 	continue;
+  3 | }
+  4 |
+  5 | work(); finish(); }
+
+`;
+
+exports[`prefer-continue > invalid(27): for (const item of items) {\n\tif (shouldProcess) {\n\t\tconst item = getItem();\n\t\tprocess(item);\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (shouldProcess) {
+  3 | 		const item = getItem();
+  4 | 		process(item);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(27): for (const item of items) {\n\tif (shouldProcess) {\n\t\tconst item = getItem();\n\t\tprocess(item);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (shouldProcess) {
+    | 	^^^^^^^^^^^^^^^^^^^^
+> 3 | 		const item = getItem();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		process(item);
+    | ^^^^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!shouldProcess) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	const item = getItem();
+  7 | 	process(item);
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(28): for (const item of items) { /* keep */ prepare(); if (!condition) { continue; } work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { /* keep */ prepare(); if (!condition) { continue; } work(); }
+
+`;
+
+exports[`prefer-continue > invalid(28): for (const item of items) { /* keep */ prepare(); if (!condition) { continue; } work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { /* keep */ prepare(); if (!condition) { continue; } work(); }
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { /* keep */ prepare(); if (condition) {
+  2 | 	work();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(28): for (const {value} of items) {\n\tif (shouldProcess) {\n\t\tconst value = getValue();\n\t\tprocess(value);\n\t}\n} 1`] = `
+
+  1 | for (const {value} of items) {
+  2 | 	if (shouldProcess) {
+  3 | 		const value = getValue();
+  4 | 		process(value);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(28): for (const {value} of items) {\n\tif (shouldProcess) {\n\t\tconst value = getValue();\n\t\tprocess(value);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const {value} of items) {
+> 2 | 	if (shouldProcess) {
+    | 	^^^^^^^^^^^^^^^^^^^^
+> 3 | 		const value = getValue();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		process(value);
+    | ^^^^^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const {value} of items) {
+  2 | 	if (!shouldProcess) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	const value = getValue();
+  7 | 	process(value);
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(29): for (const item of items) { prepare(); /* keep */ if (!condition) { continue; } work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { prepare(); /* keep */ if (!condition) { continue; } work(); }
+
+`;
+
+exports[`prefer-continue > invalid(29): for (const item of items) { prepare(); /* keep */ if (!condition) { continue; } work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { prepare(); /* keep */ if (!condition) { continue; } work(); }
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { prepare(); /* keep */ if (condition) {
+  2 | 	work();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(29): for (let index = 0; index < items.length; index++) {\n\tif (shouldProcess) {\n\t\tconst index = getIndex();\n\t\tprocess(index);\n\t}\n} 1`] = `
+
+  1 | for (let index = 0; index < items.length; index++) {
+  2 | 	if (shouldProcess) {
+  3 | 		const index = getIndex();
+  4 | 		process(index);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(29): for (let index = 0; index < items.length; index++) {\n\tif (shouldProcess) {\n\t\tconst index = getIndex();\n\t\tprocess(index);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (let index = 0; index < items.length; index++) {
+> 2 | 	if (shouldProcess) {
+    | 	^^^^^^^^^^^^^^^^^^^^
+> 3 | 		const index = getIndex();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		process(index);
+    | ^^^^^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (let index = 0; index < items.length; index++) {
+  2 | 	if (!shouldProcess) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	const index = getIndex();
+  7 | 	process(index);
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(3): for (const item of items) { if (!condition) continue; work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!condition) continue; work(); }
+
+`;
+
+exports[`prefer-continue > invalid(3): for (const item of items) { if (!condition) continue; work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!condition) continue; work(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (condition) {
+  2 | 	work();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(3): for (const item of items) {\n\tif (condition) { continue; }\n\tperformWork(); // keep here\n} 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) {
+  2 | 	if (condition) { continue; }
+  3 | 	performWork(); // keep here
+  4 | }
+
+`;
+
+exports[`prefer-continue > invalid(3): for (const item of items) {\n\tif (condition) { continue; }\n\tperformWork(); // keep here\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (condition) { continue; }
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+  3 | 	performWork(); // keep here
+  4 | }
+
+`;
+
+exports[`prefer-continue > invalid(3): for (const item of items) {\n\tif (item.isActive) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (item.isActive) {
+  3 | 		process(item);
+  4 | 		save(item);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(3): for (const item of items) {\n\tif (item.isActive) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (item.isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^
+> 3 | 		process(item);
+    | ^^^^^^^^^^^^^^^^
+> 4 | 		save(item);
+    | ^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!item.isActive) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	process(item);
+  7 | 	save(item);
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(3): while (condition) { before(); if (condition) { first(); second(); } } 1`] = `
+
+  1 | while (condition) { before(); if (condition) { first(); second(); } }
+
+`;
+
+exports[`prefer-continue > invalid(3): while (condition) { before(); if (condition) { first(); second(); } } 2`] = `
+
+Message:
+> 1 | while (condition) { before(); if (condition) { first(); second(); } }
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+
+Output:
+  1 | while (condition) { before(); if (!condition) {
+  2 | 	continue;
+  3 | }
+  4 |
+  5 | first(); second(); }
+
+`;
+
+exports[`prefer-continue > invalid(30): for (const item of items) { prepare();; if (!condition) { continue; } work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { prepare();; if (!condition) { continue; } work(); }
+
+`;
+
+exports[`prefer-continue > invalid(30): for (const item of items) { prepare();; if (!condition) { continue; } work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { prepare();; if (!condition) { continue; } work(); }
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { prepare();; if (condition) {
+  2 | 	work();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(30): for (const item of items) {\n\tif (item.isActive) /* Keep this comment with the wrapper. */ {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (item.isActive) /* Keep this comment with the wrapper. */ {
+  3 | 		process(item);
+  4 | 		save(item);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(30): for (const item of items) {\n\tif (item.isActive) /* Keep this comment with the wrapper. */ {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (item.isActive) /* Keep this comment with the wrapper. */ {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		process(item);
+    | ^^^^^^^^^^^^^^^^
+> 4 | 		save(item);
+    | ^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(31): for (const item of items) { if (!first) { break; } if (!second) { continue; } work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!first) { break; } if (!second) { continue; } work(); }
+
+`;
+
+exports[`prefer-continue > invalid(31): for (const item of items) { if (!first) { break; } if (!second) { continue; } work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!first) { break; } if (!second) { continue; } work(); }
+    |                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (!first) { break; } if (second) {
+  2 | 	work();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(31): for (const item of items) {\n\tif (item.isActive) {\n\t\tconst message = \`Hello\n\t\t\t\tworld\`;\n\t\tprocess(message);\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (item.isActive) {
+  3 | 		const message = \`Hello
+  4 | 				world\`;
+  5 | 		process(message);
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-continue > invalid(31): for (const item of items) {\n\tif (item.isActive) {\n\t\tconst message = \`Hello\n\t\t\t\tworld\`;\n\t\tprocess(message);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (item.isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^
+> 3 | 		const message = \`Hello
+    | ^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 				world\`;
+    | ^^^^^^^^^^^
+> 5 | 		process(message);
+    | ^^^^^^^^^^^^^^^^^^^
+> 6 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  7 | }
+
+`;
+
+exports[`prefer-continue > invalid(32): for (const item of items) {\n\tif (item.isActive) {\n\t\tclass ItemProcessor {}\n\t\tprocess(new ItemProcessor());\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (item.isActive) {
+  3 | 		class ItemProcessor {}
+  4 | 		process(new ItemProcessor());
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(32): for (const item of items) {\n\tif (item.isActive) {\n\t\tclass ItemProcessor {}\n\t\tprocess(new ItemProcessor());\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (item.isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^
+> 3 | 		class ItemProcessor {}
+    | ^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		process(new ItemProcessor());
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(32): function foo() { for (const item of items) { if (!first) { return; } if (!second) { continue; } work(); } } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | function foo() { for (const item of items) { if (!first) { return; } if (!second) { continue; } work(); } }
+
+`;
+
+exports[`prefer-continue > invalid(32): function foo() { for (const item of items) { if (!first) { return; } if (!second) { continue; } work(); } } 2`] = `
+
+Message:
+> 1 | function foo() { for (const item of items) { if (!first) { return; } if (!second) { continue; } work(); } }
+    |                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | function foo() { for (const item of items) { if (!first) { return; } if (second) {
+  2 | 	work();
+  3 | } } }
+
+`;
+
+exports[`prefer-continue > invalid(33): for (const item of items) {\n\tif (item.isActive) {\n\t\tfunction processItem() {}\n\t\tprocessItem();\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (item.isActive) {
+  3 | 		function processItem() {}
+  4 | 		processItem();
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(33): for (const item of items) {\n\tif (item.isActive) {\n\t\tfunction processItem() {}\n\t\tprocessItem();\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (item.isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^
+> 3 | 		function processItem() {}
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		processItem();
+    | ^^^^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(33): outer: for (const item of items) { if (!first) { continue outer; } if (!second) { continue; } work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | outer: for (const item of items) { if (!first) { continue outer; } if (!second) { continue; } work(); }
+
+`;
+
+exports[`prefer-continue > invalid(33): outer: for (const item of items) { if (!first) { continue outer; } if (!second) { continue; } work(); } 2`] = `
+
+Message:
+> 1 | outer: for (const item of items) { if (!first) { continue outer; } if (!second) { continue; } work(); }
+    |                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | outer: for (const item of items) { if (!first) { continue outer; } if (second) {
+  2 | 	work();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(34): for (const item of items) { if (!first) { log(); continue; } if (!second) { continue; } work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!first) { log(); continue; } if (!second) { continue; } work(); }
+
+`;
+
+exports[`prefer-continue > invalid(34): for (const item of items) { if (!first) { log(); continue; } if (!second) { continue; } work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!first) { log(); continue; } if (!second) { continue; } work(); }
+    |                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (!first) { log(); continue; } if (second) {
+  2 | 	work();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(34): for (const item of items) {\n\tif (item.isActive) {\n\t\ttype ActiveItem = typeof item;\n\t\tprocess(item as ActiveItem);\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (item.isActive) {
+  3 | 		type ActiveItem = typeof item;
+  4 | 		process(item as ActiveItem);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(34): for (const item of items) {\n\tif (item.isActive) {\n\t\ttype ActiveItem = typeof item;\n\t\tprocess(item as ActiveItem);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (item.isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^
+> 3 | 		type ActiveItem = typeof item;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		process(item as ActiveItem);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(35): for (const group of groups) { for (const item of group) { prepare(item); if (!item.isActive) { continue; } work(item); } } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const group of groups) { for (const item of group) { prepare(item); if (!item.isActive) { continue; } work(item); } }
+
+`;
+
+exports[`prefer-continue > invalid(35): for (const group of groups) { for (const item of group) { prepare(item); if (!item.isActive) { continue; } work(item); } } 2`] = `
+
+Message:
+> 1 | for (const group of groups) { for (const item of group) { prepare(item); if (!item.isActive) { continue; } work(item); } }
+    |                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const group of groups) { for (const item of group) { prepare(item); if (item.isActive) {
+  2 | 	work(item);
+  3 | } } }
+
+`;
+
+exports[`prefer-continue > invalid(35): for (const item of items) {\n\tif (item.isActive) {\n\t\tusing resource = getResource(item);\n\t\tprocess(resource);\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (item.isActive) {
+  3 | 		using resource = getResource(item);
+  4 | 		process(resource);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(35): for (const item of items) {\n\tif (item.isActive) {\n\t\tusing resource = getResource(item);\n\t\tprocess(resource);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (item.isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^
+> 3 | 		using resource = getResource(item);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		process(resource);
+    | ^^^^^^^^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(36): async function run() {\n\tfor (const item of items) {\n\t\tif (item.isActive) {\n\t\t\tawait using resource = getResource(item);\n\t\t\tprocess(resource);\n\t\t}\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	for (const item of items) {
+  3 | 		if (item.isActive) {
+  4 | 			await using resource = getResource(item);
+  5 | 			process(resource);
+  6 | 		}
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(36): async function run() {\n\tfor (const item of items) {\n\t\tif (item.isActive) {\n\t\t\tawait using resource = getResource(item);\n\t\t\tprocess(resource);\n\t\t}\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	for (const item of items) {
+> 3 | 		if (item.isActive) {
+    | 		^^^^^^^^^^^^^^^^^^^^
+> 4 | 			await using resource = getResource(item);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | 			process(resource);
+    | ^^^^^^^^^^^^^^^^^^^^^
+> 6 | 		}
+    | ^^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(36): for (const item of items) { prepare(); if (!condition) continue; work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { prepare(); if (!condition) continue; work(); }
+
+`;
+
+exports[`prefer-continue > invalid(36): for (const item of items) { prepare(); if (!condition) continue; work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { prepare(); if (!condition) continue; work(); }
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { prepare(); if (condition) {
+  2 | 	work();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(37): for (const item of items) { prepare(); if (!condition) continue; else work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { prepare(); if (!condition) continue; else work(); }
+
+`;
+
+exports[`prefer-continue > invalid(37): for (const item of items) { prepare(); if (!condition) continue; else work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { prepare(); if (!condition) continue; else work(); }
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { prepare(); if (condition) {
+  2 | 	work();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(37): for (const item of items) {\n\tif (item.isActive) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} // Keep this comment with the loop. 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (item.isActive) {
+  3 | 		process(item);
+  4 | 		save(item);
+  5 | 	}
+  6 | } // Keep this comment with the loop.
+
+`;
+
+exports[`prefer-continue > invalid(37): for (const item of items) {\n\tif (item.isActive) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} // Keep this comment with the loop. 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (item.isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^
+> 3 | 		process(item);
+    | ^^^^^^^^^^^^^^^^
+> 4 | 		save(item);
+    | ^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | } // Keep this comment with the loop.
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!item.isActive) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	process(item);
+  7 | 	save(item);
+  8 | } // Keep this comment with the loop.
+
+`;
+
+exports[`prefer-continue > invalid(38): for (const item of items) { prepare(); if (!condition) { continue; } work(); finish(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+  maximumStatements: 2
+
+Code:
+  1 | for (const item of items) { prepare(); if (!condition) { continue; } work(); finish(); }
+
+`;
+
+exports[`prefer-continue > invalid(38): for (const item of items) { prepare(); if (!condition) { continue; } work(); finish(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { prepare(); if (!condition) { continue; } work(); finish(); }
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { prepare(); if (condition) {
+  2 | 	work(); finish();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(38): for (const item of items) {\n\tif (item.isActive) {\n\t\tprocess(item);\n\t\tsave(item);\n\t} // Keep this comment with the wrapper.\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (item.isActive) {
+  3 | 		process(item);
+  4 | 		save(item);
+  5 | 	} // Keep this comment with the wrapper.
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(38): for (const item of items) {\n\tif (item.isActive) {\n\t\tprocess(item);\n\t\tsave(item);\n\t} // Keep this comment with the wrapper.\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (item.isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^
+> 3 | 		process(item);
+    | ^^^^^^^^^^^^^^^^
+> 4 | 		save(item);
+    | ^^^^^^^^^^^^^
+> 5 | 	} // Keep this comment with the wrapper.
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(39): for (const item of items) { prepare(); if (!condition) { continue; } const value = work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { prepare(); if (!condition) { continue; } const value = work(); }
+
+`;
+
+exports[`prefer-continue > invalid(39): for (const item of items) { prepare(); if (!condition) { continue; } const value = work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { prepare(); if (!condition) { continue; } const value = work(); }
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+`;
+
+exports[`prefer-continue > invalid(39): for (const item of items) {\n\tif (item.isActive) {\n\t\t;(event.target as HTMLInputElement).blur();\n\t}\n} 1`] = `
+
+Options:
+- maximumStatements: 0
+
+Code:
+  1 | for (const item of items) {
+  2 | 	if (item.isActive) {
+  3 | 		;(event.target as HTMLInputElement).blur();
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-continue > invalid(39): for (const item of items) {\n\tif (item.isActive) {\n\t\t;(event.target as HTMLInputElement).blur();\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (item.isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^
+> 3 | 		;(event.target as HTMLInputElement).blur();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  5 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!item.isActive) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	;(event.target as HTMLInputElement).blur();
+  7 | }
+
+`;
+
+exports[`prefer-continue > invalid(4): do { before(); if (condition) { first(); second(); } } while (condition); 1`] = `
+
+  1 | do { before(); if (condition) { first(); second(); } } while (condition);
+
+`;
+
+exports[`prefer-continue > invalid(4): do { before(); if (condition) { first(); second(); } } while (condition); 2`] = `
+
+Message:
+> 1 | do { before(); if (condition) { first(); second(); } } while (condition);
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+
+Output:
+  1 | do { before(); if (!condition) {
+  2 | 	continue;
+  3 | }
+  4 |
+  5 | first(); second(); } while (condition);
+
+`;
+
+exports[`prefer-continue > invalid(4): for (const item of items) { if (!condition) { continue; } else { work(); } } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!condition) { continue; } else { work(); } }
+
+`;
+
+exports[`prefer-continue > invalid(4): for (const item of items) { if (!condition) { continue; } else { work(); } } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!condition) { continue; } else { work(); } }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (condition) { work(); } }
+
+`;
+
+exports[`prefer-continue > invalid(4): for (const item of items) { if (/* condition */ condition) { continue; } performWork(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (/* condition */ condition) { continue; } performWork(); }
+
+`;
+
+exports[`prefer-continue > invalid(4): for (const item of items) { if (/* condition */ condition) { continue; } performWork(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (/* condition */ condition) { continue; } performWork(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+`;
+
+exports[`prefer-continue > invalid(4): for (let index = 0; index < items.length; index++) {\n\tif (items[index].isActive) {\n\t\tprocess(items[index]);\n\t\tsave(items[index]);\n\t}\n} 1`] = `
+
+  1 | for (let index = 0; index < items.length; index++) {
+  2 | 	if (items[index].isActive) {
+  3 | 		process(items[index]);
+  4 | 		save(items[index]);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(4): for (let index = 0; index < items.length; index++) {\n\tif (items[index].isActive) {\n\t\tprocess(items[index]);\n\t\tsave(items[index]);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (let index = 0; index < items.length; index++) {
+> 2 | 	if (items[index].isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		process(items[index]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		save(items[index]);
+    | ^^^^^^^^^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (let index = 0; index < items.length; index++) {
+  2 | 	if (!items[index].isActive) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	process(items[index]);
+  7 | 	save(items[index]);
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(40): for (const item of items) { prepare(); if (!condition) { continue; } if (other) { work(); } } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { prepare(); if (!condition) { continue; } if (other) { work(); } }
+
+`;
+
+exports[`prefer-continue > invalid(40): for (const item of items) { prepare(); if (!condition) { continue; } if (other) { work(); } } 2`] = `
+
+Message:
+> 1 | for (const item of items) { prepare(); if (!condition) { continue; } if (other) { work(); } }
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { prepare(); if (condition) {
+  2 | 	if (other) { work(); }
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(40): for (const item of items) {\n\tif (!isActive(eval('item.active'))) {\n\t\tconst result = getResult(item);\n\t\tprocess(result);\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (!isActive(eval('item.active'))) {
+  3 | 		const result = getResult(item);
+  4 | 		process(result);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(40): for (const item of items) {\n\tif (!isActive(eval('item.active'))) {\n\t\tconst result = getResult(item);\n\t\tprocess(result);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (!isActive(eval('item.active'))) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		const result = getResult(item);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		process(result);
+    | ^^^^^^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(41): for (const item of items) { prepare(); if (!condition) { continue; } if (other) { break; } } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { prepare(); if (!condition) { continue; } if (other) { break; } }
+
+`;
+
+exports[`prefer-continue > invalid(41): for (const item of items) { prepare(); if (!condition) { continue; } if (other) { break; } } 2`] = `
+
+Message:
+> 1 | for (const item of items) { prepare(); if (!condition) { continue; } if (other) { break; } }
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { prepare(); if (condition) {
+  2 | 	if (other) { break; }
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(41): for (const item of items) {\n\tif (isActive(item)) {\n\t\tconst result = getResult(item);\n\t\tprocess(result);\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (isActive(item)) {
+  3 | 		const result = getResult(item);
+  4 | 		process(result);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(41): for (const item of items) {\n\tif (isActive(item)) {\n\t\tconst result = getResult(item);\n\t\tprocess(result);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (isActive(item)) {
+    | 	^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		const result = getResult(item);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		process(result);
+    | ^^^^^^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!isActive(item)) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	const result = getResult(item);
+  7 | 	process(result);
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(42): for (const item of items) { prepare(); if (a || b) { continue; } work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { prepare(); if (a || b) { continue; } work(); }
+
+`;
+
+exports[`prefer-continue > invalid(42): for (const item of items) { prepare(); if (a || b) { continue; } work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { prepare(); if (a || b) { continue; } work(); }
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { prepare(); if (!(a || b)) {
+  2 | 	work();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(43): for (const item of items) { prepare(); if (!condition) { continue; } work(); // keep\n} 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { prepare(); if (!condition) { continue; } work(); // keep
+  2 | }
+
+`;
+
+exports[`prefer-continue > invalid(43): for (const item of items) { prepare(); if (!condition) { continue; } work(); // keep\n} 2`] = `
+
+Message:
+> 1 | for (const item of items) { prepare(); if (!condition) { continue; } work(); // keep
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+  2 | }
+
+`;
+
+exports[`prefer-continue > invalid(44): for (const item of items) { const value = item.value as Value; if (!value) { continue; } use(value!); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { const value = item.value as Value; if (!value) { continue; } use(value!); }
+
+`;
+
+exports[`prefer-continue > invalid(44): for (const item of items) { const value = item.value as Value; if (!value) { continue; } use(value!); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { const value = item.value as Value; if (!value) { continue; } use(value!); }
+    |                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { const value = item.value as Value; if (value) {
+  2 | 	use(value!);
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(45): for (const item of items) { if (!first) { continue; } else if (other) { log(); } if (!second) { continue; } work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!first) { continue; } else if (other) { log(); } if (!second) { continue; } work(); }
+
+`;
+
+exports[`prefer-continue > invalid(45): for (const item of items) { if (!first) { continue; } else if (other) { log(); } if (!second) { continue; } work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!first) { continue; } else if (other) { log(); } if (!second) { continue; } work(); }
+    |                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (!first) { continue; } else if (other) { log(); } if (second) {
+  2 | 	work();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(46): for (const item of items) { if (!first) { continue; } prepare(); if (second) { work(); } } 1`] = `
+
+Options:
+- checkShortBodies: true
+  maximumStatements: 2
+
+Code:
+  1 | for (const item of items) { if (!first) { continue; } prepare(); if (second) { work(); } }
+
+`;
+
+exports[`prefer-continue > invalid(46): for (const item of items) { if (!first) { continue; } prepare(); if (second) { work(); } } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!first) { continue; } prepare(); if (second) { work(); } }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (first) {
+  2 | 	prepare(); if (second) { work(); }
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(47): for (const item of items) { prepare(); if (!condition) { continue; } if (other) { work(); break; } } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { prepare(); if (!condition) { continue; } if (other) { work(); break; } }
+
+`;
+
+exports[`prefer-continue > invalid(47): for (const item of items) { prepare(); if (!condition) { continue; } if (other) { work(); break; } } 2`] = `
+
+Message:
+> 1 | for (const item of items) { prepare(); if (!condition) { continue; } if (other) { work(); break; } }
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { prepare(); if (condition) {
+  2 | 	if (other) { work(); break; }
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(5): async function foo() { for await (const item of items) { before(); if (condition) { first(); second(); } } } 1`] = `
+
+  1 | async function foo() { for await (const item of items) { before(); if (condition) { first(); second(); } } }
+
+`;
+
+exports[`prefer-continue > invalid(5): async function foo() { for await (const item of items) { before(); if (condition) { first(); second(); } } } 2`] = `
+
+Message:
+> 1 | async function foo() { for await (const item of items) { before(); if (condition) { first(); second(); } } }
+    |                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+
+Output:
+  1 | async function foo() { for await (const item of items) { before(); if (!condition) {
+  2 | 	continue;
+  3 | }
+  4 |
+  5 | first(); second(); } }
+
+`;
+
+exports[`prefer-continue > invalid(5): for (const item of items) { if (!condition) continue; else work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!condition) continue; else work(); }
+
+`;
+
+exports[`prefer-continue > invalid(5): for (const item of items) { if (!condition) continue; else work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!condition) continue; else work(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (condition) {
+  2 | 	work();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(5): for (const item of items) { if (!condition) { continue; } else { /* keep */ performWork(); } } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!condition) { continue; } else { /* keep */ performWork(); } }
+
+`;
+
+exports[`prefer-continue > invalid(5): for (const item of items) { if (!condition) { continue; } else { /* keep */ performWork(); } } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!condition) { continue; } else { /* keep */ performWork(); } }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+`;
+
+exports[`prefer-continue > invalid(5): for (const key in items) {\n\tif (items[key].isActive) {\n\t\tprocess(items[key]);\n\t\tsave(items[key]);\n\t}\n} 1`] = `
+
+  1 | for (const key in items) {
+  2 | 	if (items[key].isActive) {
+  3 | 		process(items[key]);
+  4 | 		save(items[key]);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(5): for (const key in items) {\n\tif (items[key].isActive) {\n\t\tprocess(items[key]);\n\t\tsave(items[key]);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const key in items) {
+> 2 | 	if (items[key].isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		process(items[key]);
+    | ^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		save(items[key]);
+    | ^^^^^^^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const key in items) {
+  2 | 	if (!items[key].isActive) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	process(items[key]);
+  7 | 	save(items[key]);
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(6): for (const item of items) { before(); if (condition) { first(); } } 1`] = `
+
+Options:
+- maximumStatements: 0
+
+Code:
+  1 | for (const item of items) { before(); if (condition) { first(); } }
+
+`;
+
+exports[`prefer-continue > invalid(6): for (const item of items) { before(); if (condition) { first(); } } 2`] = `
+
+Message:
+> 1 | for (const item of items) { before(); if (condition) { first(); } }
+    |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+
+Output:
+  1 | for (const item of items) { before(); if (!condition) {
+  2 | 	continue;
+  3 | }
+  4 |
+  5 | first(); }
+
+`;
+
+exports[`prefer-continue > invalid(6): for (const item of items) { if (!condition) { continue; } const {value} = source; } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!condition) { continue; } const {value} = source; }
+
+`;
+
+exports[`prefer-continue > invalid(6): for (const item of items) { if (!condition) { continue; } const {value} = source; } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!condition) { continue; } const {value} = source; }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+`;
+
+exports[`prefer-continue > invalid(6): for (const item of items) { if (!condition) { continue; } work(); finish(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+  maximumStatements: 2
+
+Code:
+  1 | for (const item of items) { if (!condition) { continue; } work(); finish(); }
+
+`;
+
+exports[`prefer-continue > invalid(6): for (const item of items) { if (!condition) { continue; } work(); finish(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!condition) { continue; } work(); finish(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (condition) {
+  2 | 	work(); finish();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(6): while (item = items.shift()) {\n\tif (item.isActive) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 1`] = `
+
+  1 | while (item = items.shift()) {
+  2 | 	if (item.isActive) {
+  3 | 		process(item);
+  4 | 		save(item);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(6): while (item = items.shift()) {\n\tif (item.isActive) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 2`] = `
+
+Message:
+  1 | while (item = items.shift()) {
+> 2 | 	if (item.isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^
+> 3 | 		process(item);
+    | ^^^^^^^^^^^^^^^^
+> 4 | 		save(item);
+    | ^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | while (item = items.shift()) {
+  2 | 	if (!item.isActive) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	process(item);
+  7 | 	save(item);
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(7): do {\n\tif (item.isActive) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} while (next()); 1`] = `
+
+  1 | do {
+  2 | 	if (item.isActive) {
+  3 | 		process(item);
+  4 | 		save(item);
+  5 | 	}
+  6 | } while (next());
+
+`;
+
+exports[`prefer-continue > invalid(7): do {\n\tif (item.isActive) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} while (next()); 2`] = `
+
+Message:
+  1 | do {
+> 2 | 	if (item.isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^
+> 3 | 		process(item);
+    | ^^^^^^^^^^^^^^^^
+> 4 | 		save(item);
+    | ^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | } while (next());
+
+Output:
+  1 | do {
+  2 | 	if (!item.isActive) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	process(item);
+  7 | 	save(item);
+  8 | } while (next());
+
+`;
+
+exports[`prefer-continue > invalid(7): for (const item of items) { before(); if (condition) first(); } 1`] = `
+
+Options:
+- maximumStatements: 0
+
+Code:
+  1 | for (const item of items) { before(); if (condition) first(); }
+
+`;
+
+exports[`prefer-continue > invalid(7): for (const item of items) { before(); if (condition) first(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { before(); if (condition) first(); }
+    |                                       ^^^^^^^^^^^^^^^^^^^^^^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+
+Output:
+  1 | for (const item of items) { before(); if (!condition) {
+  2 | 	continue;
+  3 | }
+  4 |
+  5 | first(); }
+
+`;
+
+exports[`prefer-continue > invalid(7): for (const item of items) { if (!condition) { continue; } class Example {} } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!condition) { continue; } class Example {} }
+
+`;
+
+exports[`prefer-continue > invalid(7): for (const item of items) { if (!condition) { continue; } class Example {} } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!condition) { continue; } class Example {} }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+`;
+
+exports[`prefer-continue > invalid(7): for (const item of items) { if (!condition) { continue; } else { work(); finish(); } } 1`] = `
+
+Options:
+- checkShortBodies: true
+  maximumStatements: 2
+
+Code:
+  1 | for (const item of items) { if (!condition) { continue; } else { work(); finish(); } }
+
+`;
+
+exports[`prefer-continue > invalid(7): for (const item of items) { if (!condition) { continue; } else { work(); finish(); } } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!condition) { continue; } else { work(); finish(); } }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (condition) { work(); finish(); } }
+
+`;
+
+exports[`prefer-continue > invalid(8): async function run() {\n\tfor await (const item of items) {\n\t\tif (item.isActive) {\n\t\t\tprocess(item);\n\t\t\tsave(item);\n\t\t}\n\t}\n} 1`] = `
+
+  1 | async function run() {
+  2 | 	for await (const item of items) {
+  3 | 		if (item.isActive) {
+  4 | 			process(item);
+  5 | 			save(item);
+  6 | 		}
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(8): async function run() {\n\tfor await (const item of items) {\n\t\tif (item.isActive) {\n\t\t\tprocess(item);\n\t\t\tsave(item);\n\t\t}\n\t}\n} 2`] = `
+
+Message:
+  1 | async function run() {
+  2 | 	for await (const item of items) {
+> 3 | 		if (item.isActive) {
+    | 		^^^^^^^^^^^^^^^^^^^^
+> 4 | 			process(item);
+    | ^^^^^^^^^^^^^^^^^
+> 5 | 			save(item);
+    | ^^^^^^^^^^^^^^
+> 6 | 		}
+    | ^^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  7 | 	}
+  8 | }
+
+Output:
+   1 | async function run() {
+   2 | 	for await (const item of items) {
+   3 | 		if (!item.isActive) {
+   4 | 			continue;
+   5 | 		}
+   6 |
+   7 | 		process(item);
+   8 | 		save(item);
+   9 | 	}
+  10 | }
+
+`;
+
+exports[`prefer-continue > invalid(8): for (const item of items) { before(); if (condition) { first(); second(); third(); } } 1`] = `
+
+Options:
+- maximumStatements: 2
+
+Code:
+  1 | for (const item of items) { before(); if (condition) { first(); second(); third(); } }
+
+`;
+
+exports[`prefer-continue > invalid(8): for (const item of items) { before(); if (condition) { first(); second(); third(); } } 2`] = `
+
+Message:
+> 1 | for (const item of items) { before(); if (condition) { first(); second(); third(); } }
+    |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+
+Output:
+  1 | for (const item of items) { before(); if (!condition) {
+  2 | 	continue;
+  3 | }
+  4 |
+  5 | first(); second(); third(); }
+
+`;
+
+exports[`prefer-continue > invalid(8): for (const item of items) { if (!condition) { continue; } ;work(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!condition) { continue; } ;work(); }
+
+`;
+
+exports[`prefer-continue > invalid(8): for (const item of items) { if (!condition) { continue; } ;work(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!condition) { continue; } ;work(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (condition) {
+  2 | 	;work();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(8): for (const item of items) { if (!condition) { continue; } var value = performWork(); } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!condition) { continue; } var value = performWork(); }
+
+`;
+
+exports[`prefer-continue > invalid(8): for (const item of items) { if (!condition) { continue; } var value = performWork(); } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!condition) { continue; } var value = performWork(); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (condition) {
+  2 | 	var value = performWork();
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(9): for (const item of items) { before(); if (condition as boolean) { first(); second(); } } 1`] = `
+
+  1 | for (const item of items) { before(); if (condition as boolean) { first(); second(); } }
+
+`;
+
+exports[`prefer-continue > invalid(9): for (const item of items) { before(); if (condition as boolean) { first(); second(); } } 2`] = `
+
+Message:
+> 1 | for (const item of items) { before(); if (condition as boolean) { first(); second(); } }
+    |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+
+Output:
+  1 | for (const item of items) { before(); if (!(condition as boolean)) {
+  2 | 	continue;
+  3 | }
+  4 |
+  5 | first(); second(); }
+
+`;
+
+exports[`prefer-continue > invalid(9): for (const item of items) { if (!condition) { continue; } if (other) { work(); finish(); } } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!condition) { continue; } if (other) { work(); finish(); } }
+
+`;
+
+exports[`prefer-continue > invalid(9): for (const item of items) { if (!condition) { continue; } if (other) { work(); finish(); } } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!condition) { continue; } if (other) { work(); finish(); } }
+    |                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+
+Output:
+  1 | for (const item of items) { if (!condition) { continue; } if (!other) {
+  2 | 	continue;
+  3 | }
+  4 |
+  5 | work(); finish(); }
+
+`;
+
+exports[`prefer-continue > invalid(9): for (const item of items) { if (!condition) { continue; } { const value = performWork(); } } 1`] = `
+
+Options:
+- checkShortBodies: true
+
+Code:
+  1 | for (const item of items) { if (!condition) { continue; } { const value = performWork(); } }
+
+`;
+
+exports[`prefer-continue > invalid(9): for (const item of items) { if (!condition) { continue; } { const value = performWork(); } } 2`] = `
+
+Message:
+> 1 | for (const item of items) { if (!condition) { continue; } { const value = performWork(); } }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+Output:
+  1 | for (const item of items) { if (condition) {
+  2 | 	{ const value = performWork(); }
+  3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(9): for (const item of items) {\n\tif (!item.isActive) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (!item.isActive) {
+  3 | 		process(item);
+  4 | 		save(item);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(9): for (const item of items) {\n\tif (!item.isActive) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (!item.isActive) {
+    | 	^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		process(item);
+    | ^^^^^^^^^^^^^^^^
+> 4 | 		save(item);
+    | ^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (item.isActive) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	process(item);
+  7 | 	save(item);
+  8 | }
+
+`;

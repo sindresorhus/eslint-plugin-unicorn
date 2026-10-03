@@ -21,6 +21,7 @@ import {
 	unwrapTypeScriptExpression,
 	wouldRemoveComments,
 	getStaticValueIfNoSideEffects,
+	getVisitorChildNodes,
 } from './utils/index.js';
 import {createTypeCheckers} from './utils/type-helpers.js';
 
@@ -223,25 +224,7 @@ const containsChainExpression = (node, sourceCode) => {
 		return true;
 	}
 
-	const keys = sourceCode.visitorKeys[node.type] ?? [];
-	for (const key of keys) {
-		const child = node[key];
-		if (Array.isArray(child)) {
-			for (const childNode of child) {
-				if (childNode && containsChainExpression(childNode, sourceCode)) {
-					return true;
-				}
-			}
-
-			continue;
-		}
-
-		if (child && containsChainExpression(child, sourceCode)) {
-			return true;
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, sourceCode.visitorKeys).some(child => containsChainExpression(child, sourceCode));
 };
 
 const getParentNodeText = (parentNode, context) => {

@@ -286,6 +286,8 @@ const getTypesFromTypeInformation = (node, context) => {
 
 	try {
 		return getNativeTypes(parserServices.getTypeAtLocation(node), parserServices.program);
+		// Defensive: `getTypeAtLocation()` throws for a node that the TypeScript program does not map, which the supported parsers do not produce.
+		/* node:coverage ignore next 3 */
 	} catch {
 		// Type information is optional, including when a project cannot be resolved.
 	}

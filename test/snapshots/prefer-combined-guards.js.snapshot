@@ -1,0 +1,2871 @@
+exports[`prefer-combined-guards > invalid(1): function check(context) {\n\tif (context.finished) {\n\t\tcleanup();\n\t\treturn;\n\t}\n\n\tif (context.cancelled) {\n\t\tcleanup();\n\t\treturn;\n\t}\n\n\tdoSomething();\n} 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+   1 | function check(context) {
+   2 | 	if (context.finished) {
+   3 | 		cleanup();
+   4 | 		return;
+   5 | 	}
+   6 |
+   7 | 	if (context.cancelled) {
+   8 | 		cleanup();
+   9 | 		return;
+  10 | 	}
+  11 |
+  12 | 	doSomething();
+  13 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(1): function check(context) {\n\tif (context.finished) {\n\t\tcleanup();\n\t\treturn;\n\t}\n\n\tif (context.cancelled) {\n\t\tcleanup();\n\t\treturn;\n\t}\n\n\tdoSomething();\n} 2`] = `
+
+Message:
+   1 | function check(context) {
+   2 | 	if (context.finished) {
+   3 | 		cleanup();
+   4 | 		return;
+   5 | 	}
+   6 |
+>  7 | 	if (context.cancelled) {
+     | 	^^^^^^^^^^^^^^^^^^^^^^^^
+>  8 | 		cleanup();
+     | ^^^^^^^^^^^^
+>  9 | 		return;
+     | ^^^^^^^^^
+> 10 | 	}
+     | ^^ Combine this guard with the previous one using \`||\`.
+  11 |
+  12 | 	doSomething();
+  13 | }
+
+Output:
+  1 | function check(context) {
+  2 | 	if (context.finished || context.cancelled) {
+  3 | 		cleanup();
+  4 | 		return;
+  5 | 	}
+  6 |
+  7 | 	doSomething();
+  8 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(1): function check(context) {\n\tif (context.finished) {\n\t\treturn;\n\t}\n\tif (!context.hasResult && !context.hasError) {\n\t\treturn;\n\t}\n} 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function check(context) {
+  2 | 	if (context.finished) {
+  3 | 		return;
+  4 | 	}
+  5 | 	if (!context.hasResult && !context.hasError) {
+  6 | 		return;
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(1): function check(context) {\n\tif (context.finished) {\n\t\treturn;\n\t}\n\tif (!context.hasResult && !context.hasError) {\n\t\treturn;\n\t}\n} 2`] = `
+
+Message:
+  1 | function check(context) {
+  2 | 	if (context.finished) {
+  3 | 		return;
+  4 | 	}
+> 5 | 	if (!context.hasResult && !context.hasError) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 6 | 		return;
+    | ^^^^^^^^^
+> 7 | 	}
+    | ^^ Combine this guard with the previous one using \`||\`.
+  8 | }
+
+Output:
+  1 | function check(context) {
+  2 | 	if (context.finished || (!context.hasResult && !context.hasError)) {
+  3 | 		return;
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(1): function foo() { if (a && b) { return; } if (other) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if (a && b) { return; } if (other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(1): function foo() { if (a && b) { return; } if (other) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a && b) { return; } if (other) { return; } }
+    |                                          ^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if ((a && b) || other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(10): function foo() { if (a) return; if (b) { return; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) return; if (b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(10): function foo() { if (a) return; if (b) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) return; if (b) { return; } }
+    |                                 ^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(10): function foo() { if (a) { return; } if (b) { return; } if (c) { return; } } 1`] = `
+
+  1 | function foo() { if (a) { return; } if (b) { return; } if (c) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(10): function foo() { if (a) { return; } if (b) { return; } if (c) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { return; } if (b) { return; } if (c) { return; } }
+    |                                     ^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { return; } if (c) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(10): function foo() { if (a) { return; } if (b) { return; } if (c) { return; } } 3`] = `
+
+Message:
+> 1 | function foo() { if (a) { return; } if (b) { return; } if (c) { return; } }
+    |                                                        ^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a) { return; } if (b || c) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(10): function foo() { if (other) { return; } if (a, b) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if (other) { return; } if (a, b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(10): function foo() { if (other) { return; } if (a, b) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (other) { return; } if (a, b) { return; } }
+    |                                         ^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (other || (a, b)) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(11): function foo() { if (() => a) { return; } if (other) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if (() => a) { return; } if (other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(11): function foo() { if (() => a) { return; } if (other) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (() => a) { return; } if (other) { return; } }
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if ((() => a) || other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(11): function foo() { if (a) { log(); return; } if (b && c) { log(); return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+  checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { log(); return; } if (b && c) { log(); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(11): function foo() { if (a) { log(); return; } if (b && c) { log(); return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { log(); return; } if (b && c) { log(); return; } }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || (b && c)) { log(); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(11): function foo() { if (a) { return first; } if (b) { return first; } if (c) { return second; } if (d) { return second; } } 1`] = `
+
+  1 | function foo() { if (a) { return first; } if (b) { return first; } if (c) { return second; } if (d) { return second; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(11): function foo() { if (a) { return first; } if (b) { return first; } if (c) { return second; } if (d) { return second; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { return first; } if (b) { return first; } if (c) { return second; } if (d) { return second; } }
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { return first; } if (c) { return second; } if (d) { return second; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(11): function foo() { if (a) { return first; } if (b) { return first; } if (c) { return second; } if (d) { return second; } } 3`] = `
+
+Message:
+> 1 | function foo() { if (a) { return first; } if (b) { return first; } if (c) { return second; } if (d) { return second; } }
+    |                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a) { return first; } if (b) { return first; } if (c || d) { return second; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(12): for (;;) { if (a) { continue; } if (b) { continue; } } 1`] = `
+
+  1 | for (;;) { if (a) { continue; } if (b) { continue; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(12): for (;;) { if (a) { continue; } if (b) { continue; } } 2`] = `
+
+Message:
+> 1 | for (;;) { if (a) { continue; } if (b) { continue; } }
+    |                                 ^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | for (;;) { if (a || b) { continue; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(12): function foo() { if (a) { return; } if (b) { return; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { return; } if (b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(12): function foo() { if (a) { return; } if (b) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { return; } if (b) { return; } }
+    |                                     ^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(12): function foo() { if (other) { return; } if (() => a) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if (other) { return; } if (() => a) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(12): function foo() { if (other) { return; } if (() => a) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (other) { return; } if (() => a) { return; } }
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (other || (() => a)) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(13): for (;;) { if (a) { break; } if (b) { break; } } 1`] = `
+
+  1 | for (;;) { if (a) { break; } if (b) { break; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(13): for (;;) { if (a) { break; } if (b) { break; } } 2`] = `
+
+Message:
+> 1 | for (;;) { if (a) { break; } if (b) { break; } }
+    |                              ^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | for (;;) { if (a || b) { break; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(13): function foo() { if (a || (b && c)) { return; } if (other) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if (a || (b && c)) { return; } if (other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(13): function foo() { if (a || (b && c)) { return; } if (other) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a || (b && c)) { return; } if (other) { return; } }
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || (b && c) || other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(13): function foo() { if (a) { var value = compute(); return value; } if (b) { var value = compute(); return value; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { var value = compute(); return value; } if (b) { var value = compute(); return value; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(13): function foo() { if (a) { var value = compute(); return value; } if (b) { var value = compute(); return value; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { var value = compute(); return value; } if (b) { var value = compute(); return value; } }
+    |                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { var value = compute(); return value; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(14): function foo() { if (a) { function helper() {} register(helper); return; } if (b) { function helper() {} register(helper); return; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { function helper() {} register(helper); return; } if (b) { function helper() {} register(helper); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(14): function foo() { if (a) { function helper() {} register(helper); return; } if (b) { function helper() {} register(helper); return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { function helper() {} register(helper); return; } if (b) { function helper() {} register(helper); return; } }
+    |                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { function helper() {} register(helper); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(14): function foo() { if (other) { return; } if (a || (b && c)) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if (other) { return; } if (a || (b && c)) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(14): function foo() { if (other) { return; } if (a || (b && c)) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (other) { return; } if (a || (b && c)) { return; } }
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (other || a || (b && c)) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(14): outer: for (;;) { for (;;) { if (a) { continue outer; } if (b) { continue outer; } } } 1`] = `
+
+  1 | outer: for (;;) { for (;;) { if (a) { continue outer; } if (b) { continue outer; } } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(14): outer: for (;;) { for (;;) { if (a) { continue outer; } if (b) { continue outer; } } } 2`] = `
+
+Message:
+> 1 | outer: for (;;) { for (;;) { if (a) { continue outer; } if (b) { continue outer; } } }
+    |                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | outer: for (;;) { for (;;) { if (a || b) { continue outer; } } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(15): function foo() { if ((a && b) || c) { return; } if (other) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if ((a && b) || c) { return; } if (other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(15): function foo() { if ((a && b) || c) { return; } if (other) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if ((a && b) || c) { return; } if (other) { return; } }
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if ((a && b) || c || other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(15): function foo() { if (a) { class Helper {} register(Helper); return; } if (b) { class Helper {} register(Helper); return; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { class Helper {} register(Helper); return; } if (b) { class Helper {} register(Helper); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(15): function foo() { if (a) { class Helper {} register(Helper); return; } if (b) { class Helper {} register(Helper); return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { class Helper {} register(Helper); return; } if (b) { class Helper {} register(Helper); return; } }
+    |                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { class Helper {} register(Helper); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(15): outer: { if (a) { break outer; } if (b) { break outer; } } 1`] = `
+
+  1 | outer: { if (a) { break outer; } if (b) { break outer; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(15): outer: { if (a) { break outer; } if (b) { break outer; } } 2`] = `
+
+Message:
+> 1 | outer: { if (a) { break outer; } if (b) { break outer; } }
+    |                                  ^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | outer: { if (a || b) { break outer; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(16): function foo() { if (a) { const {x, y: [z]} = value; log(x, z); return; } if (b) { const {x, y: [z]} = value; log(x, z); return; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { const {x, y: [z]} = value; log(x, z); return; } if (b) { const {x, y: [z]} = value; log(x, z); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(16): function foo() { if (a) { const {x, y: [z]} = value; log(x, z); return; } if (b) { const {x, y: [z]} = value; log(x, z); return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { const {x, y: [z]} = value; log(x, z); return; } if (b) { const {x, y: [z]} = value; log(x, z); return; } }
+    |                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { const {x, y: [z]} = value; log(x, z); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(16): function foo() { if (other) { return; } if ((a && b) || c) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if (other) { return; } if ((a && b) || c) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(16): function foo() { if (other) { return; } if ((a && b) || c) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (other) { return; } if ((a && b) || c) { return; } }
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (other || (a && b) || c) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(16): switch (value) { case 1: if (a) { break; } if (b) { break; } } 1`] = `
+
+  1 | switch (value) { case 1: if (a) { break; } if (b) { break; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(16): switch (value) { case 1: if (a) { break; } if (b) { break; } } 2`] = `
+
+Message:
+> 1 | switch (value) { case 1: if (a) { break; } if (b) { break; } }
+    |                                            ^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | switch (value) { case 1: if (a || b) { break; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(17): function foo() { if (!(a || b)) { return; } if (other) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if (!(a || b)) { return; } if (other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(17): function foo() { if (!(a || b)) { return; } if (other) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (!(a || b)) { return; } if (other) { return; } }
+    |                                             ^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (!(a || b) || other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(17): function foo() { if (a) { for (const item of items) { log(item); } return; } if (b) { for (const item of items) { log(item); } return; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { for (const item of items) { log(item); } return; } if (b) { for (const item of items) { log(item); } return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(17): function foo() { if (a) { for (const item of items) { log(item); } return; } if (b) { for (const item of items) { log(item); } return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { for (const item of items) { log(item); } return; } if (b) { for (const item of items) { log(item); } return; } }
+    |                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { for (const item of items) { log(item); } return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(17): if (a) { process.exit(1); } if (b) { process.exit(1); } 1`] = `
+
+  1 | if (a) { process.exit(1); } if (b) { process.exit(1); }
+
+`;
+
+exports[`prefer-combined-guards > invalid(17): if (a) { process.exit(1); } if (b) { process.exit(1); } 2`] = `
+
+Message:
+> 1 | if (a) { process.exit(1); } if (b) { process.exit(1); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | if (a || b) { process.exit(1); }
+
+`;
+
+exports[`prefer-combined-guards > invalid(18): function foo() { if (a) { try { cleanup(); } catch {} return; } if (b) { try { cleanup(); } catch {} return; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { try { cleanup(); } catch {} return; } if (b) { try { cleanup(); } catch {} return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(18): function foo() { if (a) { try { cleanup(); } catch {} return; } if (b) { try { cleanup(); } catch {} return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { try { cleanup(); } catch {} return; } if (b) { try { cleanup(); } catch {} return; } }
+    |                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { try { cleanup(); } catch {} return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(18): function foo() { if (other) { return; } if (!(a || b)) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if (other) { return; } if (!(a || b)) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(18): function foo() { if (other) { return; } if (!(a || b)) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (other) { return; } if (!(a || b)) { return; } }
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (other || !(a || b)) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(18): if (a) { process.exit(); } if (b) { process.exit(); } 1`] = `
+
+  1 | if (a) { process.exit(); } if (b) { process.exit(); }
+
+`;
+
+exports[`prefer-combined-guards > invalid(18): if (a) { process.exit(); } if (b) { process.exit(); } 2`] = `
+
+Message:
+> 1 | if (a) { process.exit(); } if (b) { process.exit(); }
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | if (a || b) { process.exit(); }
+
+`;
+
+exports[`prefer-combined-guards > invalid(19): class Foo { static { if (a) { throw error; } if (b) { throw error; } } } 1`] = `
+
+  1 | class Foo { static { if (a) { throw error; } if (b) { throw error; } } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(19): class Foo { static { if (a) { throw error; } if (b) { throw error; } } } 2`] = `
+
+Message:
+> 1 | class Foo { static { if (a) { throw error; } if (b) { throw error; } } }
+    |                                              ^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | class Foo { static { if (a || b) { throw error; } } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(19): function foo() { if (!!(a && b)) { return; } if (other) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if (!!(a && b)) { return; } if (other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(19): function foo() { if (!!(a && b)) { return; } if (other) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (!!(a && b)) { return; } if (other) { return; } }
+    |                                              ^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (!!(a && b) || other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(19): function foo() { if (a) { switch (value) { case 1: { log(); break; } } return; } if (b) { switch (value) { case 1: { log(); break; } } return; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { switch (value) { case 1: { log(); break; } } return; } if (b) { switch (value) { case 1: { log(); break; } } return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(19): function foo() { if (a) { switch (value) { case 1: { log(); break; } } return; } if (b) { switch (value) { case 1: { log(); break; } } return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { switch (value) { case 1: { log(); break; } } return; } if (b) { switch (value) { case 1: { log(); break; } } return; } }
+    |                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { switch (value) { case 1: { log(); break; } } return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(2): for (const item of items) {\n\tif (item.hidden) {\n\t\tlogSkip(item);\n\t\tcontinue;\n\t}\n\n\tif (item.disabled) {\n\t\tlogSkip(item);\n\t\tcontinue;\n\t}\n\n\tprocessItem(item);\n} 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+   1 | for (const item of items) {
+   2 | 	if (item.hidden) {
+   3 | 		logSkip(item);
+   4 | 		continue;
+   5 | 	}
+   6 |
+   7 | 	if (item.disabled) {
+   8 | 		logSkip(item);
+   9 | 		continue;
+  10 | 	}
+  11 |
+  12 | 	processItem(item);
+  13 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(2): for (const item of items) {\n\tif (item.hidden) {\n\t\tlogSkip(item);\n\t\tcontinue;\n\t}\n\n\tif (item.disabled) {\n\t\tlogSkip(item);\n\t\tcontinue;\n\t}\n\n\tprocessItem(item);\n} 2`] = `
+
+Message:
+   1 | for (const item of items) {
+   2 | 	if (item.hidden) {
+   3 | 		logSkip(item);
+   4 | 		continue;
+   5 | 	}
+   6 |
+>  7 | 	if (item.disabled) {
+     | 	^^^^^^^^^^^^^^^^^^^^
+>  8 | 		logSkip(item);
+     | ^^^^^^^^^^^^^^^^
+>  9 | 		continue;
+     | ^^^^^^^^^^^
+> 10 | 	}
+     | ^^ Combine this guard with the previous one using \`||\`.
+  11 |
+  12 | 	processItem(item);
+  13 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (item.hidden || item.disabled) {
+  3 | 		logSkip(item);
+  4 | 		continue;
+  5 | 	}
+  6 |
+  7 | 	processItem(item);
+  8 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(2): function foo() { if (other) { return; } if (a && b) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if (other) { return; } if (a && b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(2): function foo() { if (other) { return; } if (a && b) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (other) { return; } if (a && b) { return; } }
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (other || (a && b)) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(2): if (value < 0) { throw invalidValue; } if (!Number.isFinite(value)) { throw invalidValue; } 1`] = `
+
+  1 | if (value < 0) { throw invalidValue; } if (!Number.isFinite(value)) { throw invalidValue; }
+
+`;
+
+exports[`prefer-combined-guards > invalid(2): if (value < 0) { throw invalidValue; } if (!Number.isFinite(value)) { throw invalidValue; } 2`] = `
+
+Message:
+> 1 | if (value < 0) { throw invalidValue; } if (!Number.isFinite(value)) { throw invalidValue; }
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | if ((value < 0) || !Number.isFinite(value)) { throw invalidValue; }
+
+`;
+
+exports[`prefer-combined-guards > invalid(20): async function foo() { if (await a) { return await result; } if (await b) { return await result; } } 1`] = `
+
+  1 | async function foo() { if (await a) { return await result; } if (await b) { return await result; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(20): async function foo() { if (await a) { return await result; } if (await b) { return await result; } } 2`] = `
+
+Message:
+> 1 | async function foo() { if (await a) { return await result; } if (await b) { return await result; } }
+    |                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | async function foo() { if ((await a) || (await b)) { return await result; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(20): function foo() { if (a) { const handler = () => { return value; }; register(handler); return; } if (b) { const handler = () => { return value; }; register(handler); return; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { const handler = () => { return value; }; register(handler); return; } if (b) { const handler = () => { return value; }; register(handler); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(20): function foo() { if (a) { const handler = () => { return value; }; register(handler); return; } if (b) { const handler = () => { return value; }; register(handler); return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { const handler = () => { return value; }; register(handler); return; } if (b) { const handler = () => { return value; }; register(handler); return; } }
+    |                                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { const handler = () => { return value; }; register(handler); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(20): function foo() { if (other) { return; } if (!!(a && b)) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if (other) { return; } if (!!(a && b)) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(20): function foo() { if (other) { return; } if (!!(a && b)) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (other) { return; } if (!!(a && b)) { return; } }
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (other || !!(a && b)) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(21): function foo() { if (!(a ? b : c)) { return; } if (other) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if (!(a ? b : c)) { return; } if (other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(21): function foo() { if (!(a ? b : c)) { return; } if (other) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (!(a ? b : c)) { return; } if (other) { return; } }
+    |                                                ^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (!(a ? b : c) || other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(21): function* foo() { if (yield a) { return yield result; } if (yield b) { return yield result; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function* foo() { if (yield a) { return yield result; } if (yield b) { return yield result; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(21): function* foo() { if (yield a) { return yield result; } if (yield b) { return yield result; } } 2`] = `
+
+Message:
+> 1 | function* foo() { if (yield a) { return yield result; } if (yield b) { return yield result; } }
+    |                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function* foo() { if ((yield a) || (yield b)) { return yield result; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(21): outer: { if (a) { log(); break outer; } if (b) { log(); break outer; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | outer: { if (a) { log(); break outer; } if (b) { log(); break outer; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(21): outer: { if (a) { log(); break outer; } if (b) { log(); break outer; } } 2`] = `
+
+Message:
+> 1 | outer: { if (a) { log(); break outer; } if (b) { log(); break outer; } }
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | outer: { if (a || b) { log(); break outer; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(22): function foo() { if (a || b) { return; } if (a || b) { return; } } 1`] = `
+
+  1 | function foo() { if (a || b) { return; } if (a || b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(22): function foo() { if (a || b) { return; } if (a || b) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a || b) { return; } if (a || b) { return; } }
+    |                                          ^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b || a || b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(22): function foo() { if (other) { return; } if (!(a ? b : c)) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if (other) { return; } if (!(a ? b : c)) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(22): function foo() { if (other) { return; } if (!(a ? b : c)) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (other) { return; } if (!(a ? b : c)) { return; } }
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (other || !(a ? b : c)) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(22): outer: for (;;) { for (;;) { if (a) { log(); continue outer; } if (b) { log(); continue outer; } } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | outer: for (;;) { for (;;) { if (a) { log(); continue outer; } if (b) { log(); continue outer; } } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(22): outer: for (;;) { for (;;) { if (a) { log(); continue outer; } if (b) { log(); continue outer; } } } 2`] = `
+
+Message:
+> 1 | outer: for (;;) { for (;;) { if (a) { log(); continue outer; } if (b) { log(); continue outer; } } }
+    |                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | outer: for (;;) { for (;;) { if (a || b) { log(); continue outer; } } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(23): async function foo() { if (await (a && b)) { return; } if (other) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | async function foo() { if (await (a && b)) { return; } if (other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(23): async function foo() { if (await (a && b)) { return; } if (other) { return; } } 2`] = `
+
+Message:
+> 1 | async function foo() { if (await (a && b)) { return; } if (other) { return; } }
+    |                                                        ^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | async function foo() { if ((await (a && b)) || other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(23): function foo() { if (((a))) { return; } if (((a))) { return; } } 1`] = `
+
+  1 | function foo() { if (((a))) { return; } if (((a))) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(23): function foo() { if (((a))) { return; } if (((a))) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (((a))) { return; } if (((a))) { return; } }
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (((a)) || ((a))) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(23): switch (value) { case 1: if (a) { log(); break; } if (b) { log(); break; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | switch (value) { case 1: if (a) { log(); break; } if (b) { log(); break; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(23): switch (value) { case 1: if (a) { log(); break; } if (b) { log(); break; } } 2`] = `
+
+Message:
+> 1 | switch (value) { case 1: if (a) { log(); break; } if (b) { log(); break; } }
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | switch (value) { case 1: if (a || b) { log(); break; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(24): async function foo() { if (await (a || b)) { return; } if (other) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | async function foo() { if (await (a || b)) { return; } if (other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(24): async function foo() { if (await (a || b)) { return; } if (other) { return; } } 2`] = `
+
+Message:
+> 1 | async function foo() { if (await (a || b)) { return; } if (other) { return; } }
+    |                                                        ^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | async function foo() { if ((await (a || b)) || other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(24): class Foo { static { if (a) { this.cleanup(); throw error; } if (b) { this.cleanup(); throw error; } } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | class Foo { static { if (a) { this.cleanup(); throw error; } if (b) { this.cleanup(); throw error; } } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(24): class Foo { static { if (a) { this.cleanup(); throw error; } if (b) { this.cleanup(); throw error; } } } 2`] = `
+
+Message:
+> 1 | class Foo { static { if (a) { this.cleanup(); throw error; } if (b) { this.cleanup(); throw error; } } }
+    |                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | class Foo { static { if (a || b) { this.cleanup(); throw error; } } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(24): function foo() { if (!a) { return; } if (!a) { return; } } 1`] = `
+
+  1 | function foo() { if (!a) { return; } if (!a) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(24): function foo() { if (!a) { return; } if (!a) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (!a) { return; } if (!a) { return; } }
+    |                                      ^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (!a || !a) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(25): async function foo() { if (await a) { await cleanup(); return; } if (await b) { await cleanup(); return; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | async function foo() { if (await a) { await cleanup(); return; } if (await b) { await cleanup(); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(25): async function foo() { if (await a) { await cleanup(); return; } if (await b) { await cleanup(); return; } } 2`] = `
+
+Message:
+> 1 | async function foo() { if (await a) { await cleanup(); return; } if (await b) { await cleanup(); return; } }
+    |                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | async function foo() { if ((await a) || (await b)) { await cleanup(); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(25): function foo() { if (!!a) { return; } if (!!a) { return; } } 1`] = `
+
+  1 | function foo() { if (!!a) { return; } if (!!a) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(25): function foo() { if (!!a) { return; } if (!!a) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (!!a) { return; } if (!!a) { return; } }
+    |                                       ^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (!!a || !!a) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(25): function foo() { if ((a && b) as boolean) { return; } if (other) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if ((a && b) as boolean) { return; } if (other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(25): function foo() { if ((a && b) as boolean) { return; } if (other) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if ((a && b) as boolean) { return; } if (other) { return; } }
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (((a && b) as boolean) || other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(26): function foo() { if (<boolean>(a && b)) { return; } if (other) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if (<boolean>(a && b)) { return; } if (other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(26): function foo() { if (<boolean>(a && b)) { return; } if (other) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (<boolean>(a && b)) { return; } if (other) { return; } }
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if ((<boolean>(a && b)) || other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(26): function foo() { if (a || (b || c)) { return; } if (a || (b || c)) { return; } } 1`] = `
+
+  1 | function foo() { if (a || (b || c)) { return; } if (a || (b || c)) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(26): function foo() { if (a || (b || c)) { return; } if (a || (b || c)) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a || (b || c)) { return; } if (a || (b || c)) { return; } }
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || (b || c) || a || (b || c)) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(26): function* foo() { if (a) { yield value; return; } if (b) { yield value; return; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function* foo() { if (a) { yield value; return; } if (b) { yield value; return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(26): function* foo() { if (a) { yield value; return; } if (b) { yield value; return; } } 2`] = `
+
+Message:
+> 1 | function* foo() { if (a) { yield value; return; } if (b) { yield value; return; } }
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function* foo() { if (a || b) { yield value; return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(27): function foo() { if ((a && b)!) { return; } if (other) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if ((a && b)!) { return; } if (other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(27): function foo() { if ((a && b)!) { return; } if (other) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if ((a && b)!) { return; } if (other) { return; } }
+    |                                             ^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (((a && b)!) || other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(27): function foo() { if (a) { this.cleanup?.(); return; } if (b) { this.cleanup?.(); return; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { this.cleanup?.(); return; } if (b) { this.cleanup?.(); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(27): function foo() { if (a) { this.cleanup?.(); return; } if (b) { this.cleanup?.(); return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { this.cleanup?.(); return; } if (b) { this.cleanup?.(); return; } }
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { this.cleanup?.(); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(27): function foo() { if (predicate(a && b)) { return; } if (predicate(a && b)) { return; } } 1`] = `
+
+  1 | function foo() { if (predicate(a && b)) { return; } if (predicate(a && b)) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(27): function foo() { if (predicate(a && b)) { return; } if (predicate(a && b)) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (predicate(a && b)) { return; } if (predicate(a && b)) { return; } }
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (predicate(a && b) || predicate(a && b)) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(28): function foo() { if ((a && b) satisfies boolean) { return; } if (other) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if ((a && b) satisfies boolean) { return; } if (other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(28): function foo() { if ((a && b) satisfies boolean) { return; } if (other) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if ((a && b) satisfies boolean) { return; } if (other) { return; } }
+    |                                                              ^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (((a && b) satisfies boolean) || other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(28): function foo() { if (a) { log();; return; } if (b) { log();; return; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { log();; return; } if (b) { log();; return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(28): function foo() { if (a) { log();; return; } if (b) { log();; return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { log();; return; } if (b) { log();; return; } }
+    |                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { log();; return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(28): function foo() { if (a?.b) { return result?.(); } if (c?.[d]) { return result?.(); } } 1`] = `
+
+  1 | function foo() { if (a?.b) { return result?.(); } if (c?.[d]) { return result?.(); } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(28): function foo() { if (a?.b) { return result?.(); } if (c?.[d]) { return result?.(); } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a?.b) { return result?.(); } if (c?.[d]) { return result?.(); } }
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a?.b || c?.[d]) { return result?.(); } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(29): function foo() { if (!((a || b) as boolean)) { return; } if (other) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if (!((a || b) as boolean)) { return; } if (other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(29): function foo() { if (!((a || b) as boolean)) { return; } if (other) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (!((a || b) as boolean)) { return; } if (other) { return; } }
+    |                                                          ^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (!((a || b) as boolean) || other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(29): function foo() { if (tag\`first\`) { return [...values]; } if (tag\`second\`) { return [...values]; } } 1`] = `
+
+  1 | function foo() { if (tag\`first\`) { return [...values]; } if (tag\`second\`) { return [...values]; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(29): function foo() { if (tag\`first\`) { return [...values]; } if (tag\`second\`) { return [...values]; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (tag\`first\`) { return [...values]; } if (tag\`second\`) { return [...values]; } }
+    |                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (tag\`first\` || tag\`second\`) { return [...values]; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(29): if (a) { log(); process.exit(); } if (b) { log(); process.exit(); } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | if (a) { log(); process.exit(); } if (b) { log(); process.exit(); }
+
+`;
+
+exports[`prefer-combined-guards > invalid(29): if (a) { log(); process.exit(); } if (b) { log(); process.exit(); } 2`] = `
+
+Message:
+> 1 | if (a) { log(); process.exit(); } if (b) { log(); process.exit(); }
+    |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | if (a || b) { log(); process.exit(); }
+
+`;
+
+exports[`prefer-combined-guards > invalid(3): function foo() { if (a ?? b) { return; } if (other) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if (a ?? b) { return; } if (other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(3): function foo() { if (a ?? b) { return; } if (other) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a ?? b) { return; } if (other) { return; } }
+    |                                          ^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if ((a ?? b) || other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(3): function foo() { if (a) { const message = format(a); log(message); throw new Error(message); } if (b) { const message = format(a); log(message); throw new Error(message); } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { const message = format(a); log(message); throw new Error(message); } if (b) { const message = format(a); log(message); throw new Error(message); } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(3): function foo() { if (a) { const message = format(a); log(message); throw new Error(message); } if (b) { const message = format(a); log(message); throw new Error(message); } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { const message = format(a); log(message); throw new Error(message); } if (b) { const message = format(a); log(message); throw new Error(message); } }
+    |                                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { const message = format(a); log(message); throw new Error(message); } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(3): function foo() { if (a) { return result; } if (b) { return result; } } 1`] = `
+
+  1 | function foo() { if (a) { return result; } if (b) { return result; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(3): function foo() { if (a) { return result; } if (b) { return result; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { return result; } if (b) { return result; } }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { return result; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(30): function foo() { if (value < 0) { log(); return; } if (value instanceof Error) { log(); return; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (value < 0) { log(); return; } if (value instanceof Error) { log(); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(30): function foo() { if (value < 0) { log(); return; } if (value instanceof Error) { log(); return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (value < 0) { log(); return; } if (value instanceof Error) { log(); return; } }
+    |                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if ((value < 0) || (value instanceof Error)) { log(); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(30): function foo({a, b}) { if (a) { return {value}; } if (b) { return {value}; } } 1`] = `
+
+  1 | function foo({a, b}) { if (a) { return {value}; } if (b) { return {value}; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(30): function foo({a, b}) { if (a) { return {value}; } if (b) { return {value}; } } 2`] = `
+
+Message:
+> 1 | function foo({a, b}) { if (a) { return {value}; } if (b) { return {value}; } }
+    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo({a, b}) { if (a || b) { return {value}; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(31): function foo() { if (a) return value\nif (b) { return value }\n[1].forEach(log) } 1`] = `
+
+  1 | function foo() { if (a) return value
+  2 | if (b) { return value }
+  3 | [1].forEach(log) }
+
+`;
+
+exports[`prefer-combined-guards > invalid(31): function foo() { if (a) return value\nif (b) { return value }\n[1].forEach(log) } 2`] = `
+
+Message:
+  1 | function foo() { if (a) return value
+> 2 | if (b) { return value }
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+  3 | [1].forEach(log) }
+
+Output:
+  1 | function foo() { if (a || b) { return value }
+  2 | [1].forEach(log) }
+
+`;
+
+exports[`prefer-combined-guards > invalid(31): function foo() { if (a) { log({\nvalue,\n}); return; } if (b) { log({\nvalue,\n}); return; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { log({
+  2 | value,
+  3 | }); return; } if (b) { log({
+  4 | value,
+  5 | }); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(31): function foo() { if (a) { log({\nvalue,\n}); return; } if (b) { log({\nvalue,\n}); return; } } 2`] = `
+
+Message:
+  1 | function foo() { if (a) { log({
+  2 | value,
+> 3 | }); return; } if (b) { log({
+    |               ^^^^^^^^^^^^^^
+> 4 | value,
+    | ^^^^^^
+> 5 | }); return; } }
+    | ^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { log({
+  2 | value,
+  3 | }); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(32): function foo() { if (a) { return value }\nif (b) return value\ndone() } 1`] = `
+
+  1 | function foo() { if (a) { return value }
+  2 | if (b) return value
+  3 | done() }
+
+`;
+
+exports[`prefer-combined-guards > invalid(32): function foo() { if (a) { return value }\nif (b) return value\ndone() } 2`] = `
+
+Message:
+  1 | function foo() { if (a) { return value }
+> 2 | if (b) return value
+    | ^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+  3 | done() }
+
+Output:
+  1 | function foo() { if (a || b) return value
+  2 | done() }
+
+`;
+
+exports[`prefer-combined-guards > invalid(32): function foo() {\r\n\tif (a) {\r\n\t\tlog();\r\n\t\treturn;\r\n\t}\r\n\tif (b) {\r\n\t\tlog();\r\n\t\treturn;\r\n\t}\r\n} 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+   1 | function foo() {
+   2 | 	if (a) {
+   3 | 		log();
+   4 | 		return;
+   5 | 	}
+   6 | 	if (b) {
+   7 | 		log();
+   8 | 		return;
+   9 | 	}
+  10 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(32): function foo() {\r\n\tif (a) {\r\n\t\tlog();\r\n\t\treturn;\r\n\t}\r\n\tif (b) {\r\n\t\tlog();\r\n\t\treturn;\r\n\t}\r\n} 2`] = `
+
+Message:
+   1 | function foo() {
+   2 | 	if (a) {
+   3 | 		log();
+   4 | 		return;
+   5 | 	}
+>  6 | 	if (b) {
+     | 	^^^^^^^^
+>  7 | 		log();
+     | ^^^^^^^^
+>  8 | 		return;
+     | ^^^^^^^^^
+>  9 | 	}
+     | ^^ Combine this guard with the previous one using \`||\`.
+  10 | }
+
+Output:
+  1 | function foo() {
+  2 | 	if (a || b) {
+  3 | 		log();
+  4 | 		return;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(33): for (;;) { if (a) break\nif (b) break\ndone() } 1`] = `
+
+  1 | for (;;) { if (a) break
+  2 | if (b) break
+  3 | done() }
+
+`;
+
+exports[`prefer-combined-guards > invalid(33): for (;;) { if (a) break\nif (b) break\ndone() } 2`] = `
+
+Message:
+  1 | for (;;) { if (a) break
+> 2 | if (b) break
+    | ^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+  3 | done() }
+
+Output:
+  1 | for (;;) { if (a || b) break
+  2 | done() }
+
+`;
+
+exports[`prefer-combined-guards > invalid(33): function foo() { if (a) { log(); return; } if (b) { log(); return; } /* Keep trailing comment. */ } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { log(); return; } if (b) { log(); return; } /* Keep trailing comment. */ }
+
+`;
+
+exports[`prefer-combined-guards > invalid(33): function foo() { if (a) { log(); return; } if (b) { log(); return; } /* Keep trailing comment. */ } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { log(); return; } if (b) { log(); return; } /* Keep trailing comment. */ }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { log(); return; } /* Keep trailing comment. */ }
+
+`;
+
+exports[`prefer-combined-guards > invalid(34): function foo() { if (a) { log(); return } if (b) { log(); return }\n(value || other).run() } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { log(); return } if (b) { log(); return }
+  2 | (value || other).run() }
+
+`;
+
+exports[`prefer-combined-guards > invalid(34): function foo() { if (a) { log(); return } if (b) { log(); return }\n(value || other).run() } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { log(); return } if (b) { log(); return }
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+  2 | (value || other).run() }
+
+Output:
+  1 | function foo() { if (a || b) { log(); return }
+  2 | (value || other).run() }
+
+`;
+
+exports[`prefer-combined-guards > invalid(34): function foo() { if (a) { return; } if (b) { return; } /* Keep trailing comment. */ } 1`] = `
+
+  1 | function foo() { if (a) { return; } if (b) { return; } /* Keep trailing comment. */ }
+
+`;
+
+exports[`prefer-combined-guards > invalid(34): function foo() { if (a) { return; } if (b) { return; } /* Keep trailing comment. */ } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { return; } if (b) { return; } /* Keep trailing comment. */ }
+    |                                     ^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { return; } /* Keep trailing comment. */ }
+
+`;
+
+exports[`prefer-combined-guards > invalid(35): function foo() { if (a as boolean) { return; } if (b) { return; } } 1`] = `
+
+  1 | function foo() { if (a as boolean) { return; } if (b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(35): function foo() { if (a as boolean) { return; } if (b) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a as boolean) { return; } if (b) { return; } }
+    |                                                ^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if ((a as boolean) || b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(35): function foo() { if (a) { render(<Spinner />); return; } if (b) { render(<Spinner />); return; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { render(<Spinner />); return; } if (b) { render(<Spinner />); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(35): function foo() { if (a) { render(<Spinner />); return; } if (b) { render(<Spinner />); return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { render(<Spinner />); return; } if (b) { render(<Spinner />); return; } }
+    |                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { render(<Spinner />); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(36): function foo() { if (<boolean>a) { return; } if (b) { return; } } 1`] = `
+
+  1 | function foo() { if (<boolean>a) { return; } if (b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(36): function foo() { if (<boolean>a) { return; } if (b) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (<boolean>a) { return; } if (b) { return; } }
+    |                                              ^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if ((<boolean>a) || b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(36): function foo() { if (a ?? b) { log(); return; } if (c ? d : e) { log(); return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+  checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a ?? b) { log(); return; } if (c ? d : e) { log(); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(36): function foo() { if (a ?? b) { log(); return; } if (c ? d : e) { log(); return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a ?? b) { log(); return; } if (c ? d : e) { log(); return; } }
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if ((a ?? b) || (c ? d : e)) { log(); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(37): declare function log(value: unknown): void;\nfunction run(value: string | undefined, other: number) {\n\tif (value === undefined) {\n\t\tlog(other);\n\t\treturn;\n\t}\n\tif (other > 1) {\n\t\tlog(other);\n\t\treturn;\n\t}\n} 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+   1 | declare function log(value: unknown): void;
+   2 | function run(value: string | undefined, other: number) {
+   3 | 	if (value === undefined) {
+   4 | 		log(other);
+   5 | 		return;
+   6 | 	}
+   7 | 	if (other > 1) {
+   8 | 		log(other);
+   9 | 		return;
+  10 | 	}
+  11 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(37): declare function log(value: unknown): void;\nfunction run(value: string | undefined, other: number) {\n\tif (value === undefined) {\n\t\tlog(other);\n\t\treturn;\n\t}\n\tif (other > 1) {\n\t\tlog(other);\n\t\treturn;\n\t}\n} 2`] = `
+
+Message:
+   1 | declare function log(value: unknown): void;
+   2 | function run(value: string | undefined, other: number) {
+   3 | 	if (value === undefined) {
+   4 | 		log(other);
+   5 | 		return;
+   6 | 	}
+>  7 | 	if (other > 1) {
+     | 	^^^^^^^^^^^^^^^^
+>  8 | 		log(other);
+     | ^^^^^^^^^^^^^
+>  9 | 		return;
+     | ^^^^^^^^^
+> 10 | 	}
+     | ^^ Combine this guard with the previous one using \`||\`.
+  11 | }
+
+Output:
+  1 | declare function log(value: unknown): void;
+  2 | function run(value: string | undefined, other: number) {
+  3 | 	if ((value === undefined) || (other > 1)) {
+  4 | 		log(other);
+  5 | 		return;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(37): function foo() { if (a!) { return; } if (b) { return; } } 1`] = `
+
+  1 | function foo() { if (a!) { return; } if (b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(37): function foo() { if (a!) { return; } if (b) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a!) { return; } if (b) { return; } }
+    |                                      ^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if ((a!) || b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(38): declare function cleanup(): void;\nfunction run(first: boolean, second: boolean) {\n\tif (first) {\n\t\tcleanup();\n\t\treturn;\n\t}\n\tif (second) {\n\t\tcleanup();\n\t\treturn;\n\t}\n} 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+   1 | declare function cleanup(): void;
+   2 | function run(first: boolean, second: boolean) {
+   3 | 	if (first) {
+   4 | 		cleanup();
+   5 | 		return;
+   6 | 	}
+   7 | 	if (second) {
+   8 | 		cleanup();
+   9 | 		return;
+  10 | 	}
+  11 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(38): declare function cleanup(): void;\nfunction run(first: boolean, second: boolean) {\n\tif (first) {\n\t\tcleanup();\n\t\treturn;\n\t}\n\tif (second) {\n\t\tcleanup();\n\t\treturn;\n\t}\n} 2`] = `
+
+Message:
+   1 | declare function cleanup(): void;
+   2 | function run(first: boolean, second: boolean) {
+   3 | 	if (first) {
+   4 | 		cleanup();
+   5 | 		return;
+   6 | 	}
+>  7 | 	if (second) {
+     | 	^^^^^^^^^^^^^
+>  8 | 		cleanup();
+     | ^^^^^^^^^^^^
+>  9 | 		return;
+     | ^^^^^^^^^
+> 10 | 	}
+     | ^^ Combine this guard with the previous one using \`||\`.
+  11 | }
+
+Output:
+  1 | declare function cleanup(): void;
+  2 | function run(first: boolean, second: boolean) {
+  3 | 	if (first || second) {
+  4 | 		cleanup();
+  5 | 		return;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(38): function foo() { if (a satisfies boolean) { return; } if (b) { return; } } 1`] = `
+
+  1 | function foo() { if (a satisfies boolean) { return; } if (b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(38): function foo() { if (a satisfies boolean) { return; } if (b) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a satisfies boolean) { return; } if (b) { return; } }
+    |                                                       ^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if ((a satisfies boolean) || b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(39): declare function format(value: number): string;\ndeclare function log(value: string): void;\nfunction run(items: number[], first: boolean, second: boolean) {\n\touter: for (const item of items) {\n\t\tif (first) {\n\t\t\tconst message: string = format(item);\n\t\t\tlog(message);\n\t\t\tcontinue outer;\n\t\t}\n\t\tif (second) {\n\t\t\tconst message: string = format(item);\n\t\t\tlog(message);\n\t\t\tcontinue outer;\n\t\t}\n\t}\n} 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+   1 | declare function format(value: number): string;
+   2 | declare function log(value: string): void;
+   3 | function run(items: number[], first: boolean, second: boolean) {
+   4 | 	outer: for (const item of items) {
+   5 | 		if (first) {
+   6 | 			const message: string = format(item);
+   7 | 			log(message);
+   8 | 			continue outer;
+   9 | 		}
+  10 | 		if (second) {
+  11 | 			const message: string = format(item);
+  12 | 			log(message);
+  13 | 			continue outer;
+  14 | 		}
+  15 | 	}
+  16 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(39): declare function format(value: number): string;\ndeclare function log(value: string): void;\nfunction run(items: number[], first: boolean, second: boolean) {\n\touter: for (const item of items) {\n\t\tif (first) {\n\t\t\tconst message: string = format(item);\n\t\t\tlog(message);\n\t\t\tcontinue outer;\n\t\t}\n\t\tif (second) {\n\t\t\tconst message: string = format(item);\n\t\t\tlog(message);\n\t\t\tcontinue outer;\n\t\t}\n\t}\n} 2`] = `
+
+Message:
+   1 | declare function format(value: number): string;
+   2 | declare function log(value: string): void;
+   3 | function run(items: number[], first: boolean, second: boolean) {
+   4 | 	outer: for (const item of items) {
+   5 | 		if (first) {
+   6 | 			const message: string = format(item);
+   7 | 			log(message);
+   8 | 			continue outer;
+   9 | 		}
+> 10 | 		if (second) {
+     | 		^^^^^^^^^^^^^
+> 11 | 			const message: string = format(item);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 12 | 			log(message);
+     | ^^^^^^^^^^^^^^^^
+> 13 | 			continue outer;
+     | ^^^^^^^^^^^^^^^^^^
+> 14 | 		}
+     | ^^^ Combine this guard with the previous one using \`||\`.
+  15 | 	}
+  16 | }
+
+Output:
+   1 | declare function format(value: number): string;
+   2 | declare function log(value: string): void;
+   3 | function run(items: number[], first: boolean, second: boolean) {
+   4 | 	outer: for (const item of items) {
+   5 | 		if (first || second) {
+   6 | 			const message: string = format(item);
+   7 | 			log(message);
+   8 | 			continue outer;
+   9 | 		}
+  10 | 	}
+  11 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(39): function foo() { if (predicate<string>(a)) { return; } if (b) { return; } } 1`] = `
+
+  1 | function foo() { if (predicate<string>(a)) { return; } if (b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(39): function foo() { if (predicate<string>(a)) { return; } if (b) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (predicate<string>(a)) { return; } if (b) { return; } }
+    |                                                        ^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (predicate<string>(a) || b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(4): function foo() { if (a) { if (c) { return first; } return second; } if (b) { if (c) { return first; } return second; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { if (c) { return first; } return second; } if (b) { if (c) { return first; } return second; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(4): function foo() { if (a) { if (c) { return first; } return second; } if (b) { if (c) { return first; } return second; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { if (c) { return first; } return second; } if (b) { if (c) { return first; } return second; } }
+    |                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { if (c) { return first; } return second; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(4): function foo() { if (first()) { return result(); } if (second()) { return result(); } } 1`] = `
+
+  1 | function foo() { if (first()) { return result(); } if (second()) { return result(); } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(4): function foo() { if (first()) { return result(); } if (second()) { return result(); } } 2`] = `
+
+Message:
+> 1 | function foo() { if (first()) { return result(); } if (second()) { return result(); } }
+    |                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (first() || second()) { return result(); } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(4): function foo() { if (other) { return; } if (a ?? b) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if (other) { return; } if (a ?? b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(4): function foo() { if (other) { return; } if (a ?? b) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (other) { return; } if (a ?? b) { return; } }
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (other || (a ?? b)) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(40): declare function log(value: unknown): void;\nclass Logger {\n\tvalue = 1;\n\trun(first: boolean, second: boolean) {\n\t\tif (first) {\n\t\t\tlog(this.value);\n\t\t\treturn;\n\t\t}\n\t\tif (second) {\n\t\t\tlog(this.value);\n\t\t\treturn;\n\t\t}\n\t}\n} 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+   1 | declare function log(value: unknown): void;
+   2 | class Logger {
+   3 | 	value = 1;
+   4 | 	run(first: boolean, second: boolean) {
+   5 | 		if (first) {
+   6 | 			log(this.value);
+   7 | 			return;
+   8 | 		}
+   9 | 		if (second) {
+  10 | 			log(this.value);
+  11 | 			return;
+  12 | 		}
+  13 | 	}
+  14 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(40): declare function log(value: unknown): void;\nclass Logger {\n\tvalue = 1;\n\trun(first: boolean, second: boolean) {\n\t\tif (first) {\n\t\t\tlog(this.value);\n\t\t\treturn;\n\t\t}\n\t\tif (second) {\n\t\t\tlog(this.value);\n\t\t\treturn;\n\t\t}\n\t}\n} 2`] = `
+
+Message:
+   1 | declare function log(value: unknown): void;
+   2 | class Logger {
+   3 | 	value = 1;
+   4 | 	run(first: boolean, second: boolean) {
+   5 | 		if (first) {
+   6 | 			log(this.value);
+   7 | 			return;
+   8 | 		}
+>  9 | 		if (second) {
+     | 		^^^^^^^^^^^^^
+> 10 | 			log(this.value);
+     | ^^^^^^^^^^^^^^^^^^^
+> 11 | 			return;
+     | ^^^^^^^^^^
+> 12 | 		}
+     | ^^^ Combine this guard with the previous one using \`||\`.
+  13 | 	}
+  14 | }
+
+Output:
+   1 | declare function log(value: unknown): void;
+   2 | class Logger {
+   3 | 	value = 1;
+   4 | 	run(first: boolean, second: boolean) {
+   5 | 		if (first || second) {
+   6 | 			log(this.value);
+   7 | 			return;
+   8 | 		}
+   9 | 	}
+  10 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(40): function foo() { if ((a || b) as boolean) { return; } if (b) { return; } } 1`] = `
+
+  1 | function foo() { if ((a || b) as boolean) { return; } if (b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(40): function foo() { if ((a || b) as boolean) { return; } if (b) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if ((a || b) as boolean) { return; } if (b) { return; } }
+    |                                                       ^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (((a || b) as boolean) || b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(41): declare function log(value: unknown): void;\nfunction run(value: string | number, first: boolean) {\n\tif (typeof value === 'string') {\n\t\treturn;\n\t}\n\tif (first) {\n\t\tlog(value);\n\t\treturn;\n\t}\n\tif (value > 1) {\n\t\tlog(value);\n\t\treturn;\n\t}\n} 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+   1 | declare function log(value: unknown): void;
+   2 | function run(value: string | number, first: boolean) {
+   3 | 	if (typeof value === 'string') {
+   4 | 		return;
+   5 | 	}
+   6 | 	if (first) {
+   7 | 		log(value);
+   8 | 		return;
+   9 | 	}
+  10 | 	if (value > 1) {
+  11 | 		log(value);
+  12 | 		return;
+  13 | 	}
+  14 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(41): declare function log(value: unknown): void;\nfunction run(value: string | number, first: boolean) {\n\tif (typeof value === 'string') {\n\t\treturn;\n\t}\n\tif (first) {\n\t\tlog(value);\n\t\treturn;\n\t}\n\tif (value > 1) {\n\t\tlog(value);\n\t\treturn;\n\t}\n} 2`] = `
+
+Message:
+   1 | declare function log(value: unknown): void;
+   2 | function run(value: string | number, first: boolean) {
+   3 | 	if (typeof value === 'string') {
+   4 | 		return;
+   5 | 	}
+   6 | 	if (first) {
+   7 | 		log(value);
+   8 | 		return;
+   9 | 	}
+> 10 | 	if (value > 1) {
+     | 	^^^^^^^^^^^^^^^^
+> 11 | 		log(value);
+     | ^^^^^^^^^^^^^
+> 12 | 		return;
+     | ^^^^^^^^^
+> 13 | 	}
+     | ^^ Combine this guard with the previous one using \`||\`.
+  14 | }
+
+Output:
+   1 | declare function log(value: unknown): void;
+   2 | function run(value: string | number, first: boolean) {
+   3 | 	if (typeof value === 'string') {
+   4 | 		return;
+   5 | 	}
+   6 | 	if (first || (value > 1)) {
+   7 | 		log(value);
+   8 | 		return;
+   9 | 	}
+  10 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(41): function foo() { if (a) { return <Component value={value} />; } if (b) { return <Component value={value} />; } } 1`] = `
+
+  1 | function foo() { if (a) { return <Component value={value} />; } if (b) { return <Component value={value} />; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(41): function foo() { if (a) { return <Component value={value} />; } if (b) { return <Component value={value} />; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { return <Component value={value} />; } if (b) { return <Component value={value} />; } }
+    |                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { return <Component value={value} />; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(42): function foo() { if (a) { return result; } if (b) { return (((result))); } } 1`] = `
+
+  1 | function foo() { if (a) { return result; } if (b) { return (((result))); } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(42): function foo() { if (a) { return result; } if (b) { return (((result))); } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { return result; } if (b) { return (((result))); } }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { return (((result))); } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(42): function foo() { if (a) { using resource = open(); return; } if (b) { using resource = open(); return; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { using resource = open(); return; } if (b) { using resource = open(); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(42): function foo() { if (a) { using resource = open(); return; } if (b) { using resource = open(); return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { using resource = open(); return; } if (b) { using resource = open(); return; } }
+    |                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { using resource = open(); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(43): async function foo() { if (a) { await using resource = open(); return; } if (b) { await using resource = open(); return; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | async function foo() { if (a) { await using resource = open(); return; } if (b) { await using resource = open(); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(43): async function foo() { if (a) { await using resource = open(); return; } if (b) { await using resource = open(); return; } } 2`] = `
+
+Message:
+> 1 | async function foo() { if (a) { await using resource = open(); return; } if (b) { await using resource = open(); return; } }
+    |                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | async function foo() { if (a || b) { await using resource = open(); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(43): function foo() { if (<First />) { return; } if (<Second />) { return; } } 1`] = `
+
+  1 | function foo() { if (<First />) { return; } if (<Second />) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(43): function foo() { if (<First />) { return; } if (<Second />) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (<First />) { return; } if (<Second />) { return; } }
+    |                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (<First /> || <Second />) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(44): function foo() { if (a) { if (c) { return; } if (d) { return; } return; } if (b) { if (c) { return; } if (d) { return; } return; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { if (c) { return; } if (d) { return; } return; } if (b) { if (c) { return; } if (d) { return; } return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(44): function foo() { if (a) { if (c) { return; } if (d) { return; } return; } if (b) { if (c) { return; } if (d) { return; } return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { if (c) { return; } if (d) { return; } return; } if (b) { if (c) { return; } if (d) { return; } return; } }
+    |                                              ^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a) { if (c || d) { return; } return; } if (b) { if (c) { return; } if (d) { return; } return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(44): function foo() { if (a) { if (c) { return; } if (d) { return; } return; } if (b) { if (c) { return; } if (d) { return; } return; } } 3`] = `
+
+Message:
+> 1 | function foo() { if (a) { if (c) { return; } if (d) { return; } return; } if (b) { if (c) { return; } if (d) { return; } return; } }
+    |                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { if (c) { return; } if (d) { return; } return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(44): function foo() { if (a) { if (c) { return; } if (d) { return; } return; } if (b) { if (c) { return; } if (d) { return; } return; } } 4`] = `
+
+Message:
+> 1 | function foo() { if (a) { if (c) { return; } if (d) { return; } return; } if (b) { if (c) { return; } if (d) { return; } return; } }
+    |                                                                                                       ^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a) { if (c) { return; } if (d) { return; } return; } if (b) { if (c || d) { return; } return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(44): if (a) { process.exit(1); } if (b) { process.exit(1); } 1`] = `
+
+  1 | if (a) { process.exit(1); } if (b) { process.exit(1); }
+
+`;
+
+exports[`prefer-combined-guards > invalid(44): if (a) { process.exit(1); } if (b) { process.exit(1); } 2`] = `
+
+Message:
+> 1 | if (a) { process.exit(1); } if (b) { process.exit(1); }
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | if (a || b) { process.exit(1); }
+
+`;
+
+exports[`prefer-combined-guards > invalid(45): function foo() { if (a) { log(...values); return; } if (b) { log(...values); return; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { log(...values); return; } if (b) { log(...values); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(45): function foo() { if (a) { log(...values); return; } if (b) { log(...values); return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { log(...values); return; } if (b) { log(...values); return; } }
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { log(...values); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(45): function foo() { if (a) { return false; } if (b) { return false; } } 1`] = `
+
+  1 | function foo() { if (a) { return false; } if (b) { return false; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(45): function foo() { if (a) { return false; } if (b) { return false; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { return false; } if (b) { return false; } }
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { return false; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(46): declare function log(value: unknown): void;\nfunction run(value: string | undefined, other: number | undefined, first: boolean) {\n\tif (value === undefined) {\n\t\tlog(other!);\n\t\treturn;\n\t}\n\tif (first) {\n\t\tlog(other!);\n\t\treturn;\n\t}\n} 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+   1 | declare function log(value: unknown): void;
+   2 | function run(value: string | undefined, other: number | undefined, first: boolean) {
+   3 | 	if (value === undefined) {
+   4 | 		log(other!);
+   5 | 		return;
+   6 | 	}
+   7 | 	if (first) {
+   8 | 		log(other!);
+   9 | 		return;
+  10 | 	}
+  11 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(46): declare function log(value: unknown): void;\nfunction run(value: string | undefined, other: number | undefined, first: boolean) {\n\tif (value === undefined) {\n\t\tlog(other!);\n\t\treturn;\n\t}\n\tif (first) {\n\t\tlog(other!);\n\t\treturn;\n\t}\n} 2`] = `
+
+Message:
+   1 | declare function log(value: unknown): void;
+   2 | function run(value: string | undefined, other: number | undefined, first: boolean) {
+   3 | 	if (value === undefined) {
+   4 | 		log(other!);
+   5 | 		return;
+   6 | 	}
+>  7 | 	if (first) {
+     | 	^^^^^^^^^^^^
+>  8 | 		log(other!);
+     | ^^^^^^^^^^^^^^
+>  9 | 		return;
+     | ^^^^^^^^^
+> 10 | 	}
+     | ^^ Combine this guard with the previous one using \`||\`.
+  11 | }
+
+Output:
+  1 | declare function log(value: unknown): void;
+  2 | function run(value: string | undefined, other: number | undefined, first: boolean) {
+  3 | 	if ((value === undefined) || first) {
+  4 | 		log(other!);
+  5 | 		return;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(47): declare namespace JSX {\n\tinterface Element {}\n}\ndeclare function render(element: JSX.Element): void;\ndeclare function Spinner(properties: {size: number}): JSX.Element;\nfunction run(first: boolean, second: boolean) {\n\tif (first) {\n\t\trender(<Spinner size={1} />);\n\t\treturn;\n\t}\n\tif (second) {\n\t\trender(<Spinner size={1} />);\n\t\treturn;\n\t}\n} 1`] = `
+
+Filename: file.tsx
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+   1 | declare namespace JSX {
+   2 | 	interface Element {}
+   3 | }
+   4 | declare function render(element: JSX.Element): void;
+   5 | declare function Spinner(properties: {size: number}): JSX.Element;
+   6 | function run(first: boolean, second: boolean) {
+   7 | 	if (first) {
+   8 | 		render(<Spinner size={1} />);
+   9 | 		return;
+  10 | 	}
+  11 | 	if (second) {
+  12 | 		render(<Spinner size={1} />);
+  13 | 		return;
+  14 | 	}
+  15 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(47): declare namespace JSX {\n\tinterface Element {}\n}\ndeclare function render(element: JSX.Element): void;\ndeclare function Spinner(properties: {size: number}): JSX.Element;\nfunction run(first: boolean, second: boolean) {\n\tif (first) {\n\t\trender(<Spinner size={1} />);\n\t\treturn;\n\t}\n\tif (second) {\n\t\trender(<Spinner size={1} />);\n\t\treturn;\n\t}\n} 2`] = `
+
+Message:
+   1 | declare namespace JSX {
+   2 | 	interface Element {}
+   3 | }
+   4 | declare function render(element: JSX.Element): void;
+   5 | declare function Spinner(properties: {size: number}): JSX.Element;
+   6 | function run(first: boolean, second: boolean) {
+   7 | 	if (first) {
+   8 | 		render(<Spinner size={1} />);
+   9 | 		return;
+  10 | 	}
+> 11 | 	if (second) {
+     | 	^^^^^^^^^^^^^
+> 12 | 		render(<Spinner size={1} />);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 13 | 		return;
+     | ^^^^^^^^^
+> 14 | 	}
+     | ^^ Combine this guard with the previous one using \`||\`.
+  15 | }
+
+Output:
+   1 | declare namespace JSX {
+   2 | 	interface Element {}
+   3 | }
+   4 | declare function render(element: JSX.Element): void;
+   5 | declare function Spinner(properties: {size: number}): JSX.Element;
+   6 | function run(first: boolean, second: boolean) {
+   7 | 	if (first || second) {
+   8 | 		render(<Spinner size={1} />);
+   9 | 		return;
+  10 | 	}
+  11 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(5): function foo() { if (a ? b : c) { return; } if (other) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if (a ? b : c) { return; } if (other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(5): function foo() { if (a ? b : c) { return; } if (other) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a ? b : c) { return; } if (other) { return; } }
+    |                                             ^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if ((a ? b : c) || other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(5): function foo() { if (a) return; if (b) return; } 1`] = `
+
+  1 | function foo() { if (a) return; if (b) return; }
+
+`;
+
+exports[`prefer-combined-guards > invalid(5): function foo() { if (a) return; if (b) return; } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) return; if (b) return; }
+    |                                 ^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) return; }
+
+`;
+
+exports[`prefer-combined-guards > invalid(5): function foo() { if (a) { log(); return; } if (b) { log(); return; } if (c) { log(); return; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { log(); return; } if (b) { log(); return; } if (c) { log(); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(5): function foo() { if (a) { log(); return; } if (b) { log(); return; } if (c) { log(); return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { log(); return; } if (b) { log(); return; } if (c) { log(); return; } }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { log(); return; } if (c) { log(); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(5): function foo() { if (a) { log(); return; } if (b) { log(); return; } if (c) { log(); return; } } 3`] = `
+
+Message:
+> 1 | function foo() { if (a) { log(); return; } if (b) { log(); return; } if (c) { log(); return; } }
+    |                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a) { log(); return; } if (b || c) { log(); return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(6): function foo() { if (a) return; if (b) { return; } } 1`] = `
+
+  1 | function foo() { if (a) return; if (b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(6): function foo() { if (a) return; if (b) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) return; if (b) { return; } }
+    |                                 ^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(6): function foo() { if (a) { log(); return; } if (b) { log(); return; } if (c) { return; } if (d) { return; } } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { log(); return; } if (b) { log(); return; } if (c) { return; } if (d) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(6): function foo() { if (a) { log(); return; } if (b) { log(); return; } if (c) { return; } if (d) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { log(); return; } if (b) { log(); return; } if (c) { return; } if (d) { return; } }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { log(); return; } if (c) { return; } if (d) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(6): function foo() { if (a) { log(); return; } if (b) { log(); return; } if (c) { return; } if (d) { return; } } 3`] = `
+
+Message:
+> 1 | function foo() { if (a) { log(); return; } if (b) { log(); return; } if (c) { return; } if (d) { return; } }
+    |                                                                                         ^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a) { log(); return; } if (b) { log(); return; } if (c || d) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(6): function foo() { if (other) { return; } if (a ? b : c) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if (other) { return; } if (a ? b : c) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(6): function foo() { if (other) { return; } if (a ? b : c) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (other) { return; } if (a ? b : c) { return; } }
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (other || (a ? b : c)) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(7): function foo() { if (a = b) { return; } if (other) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if (a = b) { return; } if (other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(7): function foo() { if (a = b) { return; } if (other) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a = b) { return; } if (other) { return; } }
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if ((a = b) || other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(7): function foo() { if (a) { return; } if (b) return; } 1`] = `
+
+  1 | function foo() { if (a) { return; } if (b) return; }
+
+`;
+
+exports[`prefer-combined-guards > invalid(7): function foo() { if (a) { return; } if (b) return; } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { return; } if (b) return; }
+    |                                     ^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) return; }
+
+`;
+
+exports[`prefer-combined-guards > invalid(7): function foo() {\n    if (a) {\n        log();\n        return;\n    }\n    if (b) {\n            log();\n            return;\n    }\n} 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+   1 | function foo() {
+   2 |     if (a) {
+   3 |         log();
+   4 |         return;
+   5 |     }
+   6 |     if (b) {
+   7 |             log();
+   8 |             return;
+   9 |     }
+  10 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(7): function foo() {\n    if (a) {\n        log();\n        return;\n    }\n    if (b) {\n            log();\n            return;\n    }\n} 2`] = `
+
+Message:
+   1 | function foo() {
+   2 |     if (a) {
+   3 |         log();
+   4 |         return;
+   5 |     }
+>  6 |     if (b) {
+     |     ^^^^^^^^
+>  7 |             log();
+     | ^^^^^^^^^^^^^^^^^^
+>  8 |             return;
+     | ^^^^^^^^^^^^^^^^^^^
+>  9 |     }
+     | ^^^^^ Combine this guard with the previous one using \`||\`.
+  10 | }
+
+Output:
+  1 | function foo() {
+  2 |     if (a || b) {
+  3 |             log();
+  4 |             return;
+  5 |     }
+  6 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(8): function foo() { if (a) { log(); return } if (b) { log(); return }\n[1].forEach(log) } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | function foo() { if (a) { log(); return } if (b) { log(); return }
+  2 | [1].forEach(log) }
+
+`;
+
+exports[`prefer-combined-guards > invalid(8): function foo() { if (a) { log(); return } if (b) { log(); return }\n[1].forEach(log) } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { log(); return } if (b) { log(); return }
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+  2 | [1].forEach(log) }
+
+Output:
+  1 | function foo() { if (a || b) { log(); return }
+  2 | [1].forEach(log) }
+
+`;
+
+exports[`prefer-combined-guards > invalid(8): function foo() { if (a) { return result; } if (b) { return result } } 1`] = `
+
+  1 | function foo() { if (a) { return result; } if (b) { return result } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(8): function foo() { if (a) { return result; } if (b) { return result } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { return result; } if (b) { return result } }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { return result } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(8): function foo() { if (other) { return; } if (a = b) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if (other) { return; } if (a = b) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(8): function foo() { if (other) { return; } if (a = b) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (other) { return; } if (a = b) { return; } }
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (other || (a = b)) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(9): function foo() { if (a) { return result } if (b) { return result; } } 1`] = `
+
+  1 | function foo() { if (a) { return result } if (b) { return result; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(9): function foo() { if (a) { return result } if (b) { return result; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a) { return result } if (b) { return result; } }
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if (a || b) { return result; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(9): function foo() { if (a, b) { return; } if (other) { return; } } 1`] = `
+
+Options:
+- checkCompoundConditions: true
+
+Code:
+  1 | function foo() { if (a, b) { return; } if (other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(9): function foo() { if (a, b) { return; } if (other) { return; } } 2`] = `
+
+Message:
+> 1 | function foo() { if (a, b) { return; } if (other) { return; } }
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function foo() { if ((a, b) || other) { return; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(9): if (a) { log(); process.exit(1); } if (b) { log(); process.exit(1); } 1`] = `
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | if (a) { log(); process.exit(1); } if (b) { log(); process.exit(1); }
+
+`;
+
+exports[`prefer-combined-guards > invalid(9): if (a) { log(); process.exit(1); } if (b) { log(); process.exit(1); } 2`] = `
+
+Message:
+> 1 | if (a) { log(); process.exit(1); } if (b) { log(); process.exit(1); }
+    |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | if (a || b) { log(); process.exit(1); }
+
+`;

@@ -112,7 +112,7 @@ const isReferenceInsideNode = (reference, node, sourceCode) => {
 const referencesExecutorParameter = (node, executor, context) => {
 	const parameter = executor.params[0];
 	const variable = findVariable(context.sourceCode.getScope(parameter), parameter);
-	return variable?.references.some(reference => isReferenceInsideNode(reference, node, context.sourceCode)) ?? false;
+	return variable.references.some(reference => isReferenceInsideNode(reference, node, context.sourceCode));
 };
 
 function getResolvedCallExpression(newExpression, context) {

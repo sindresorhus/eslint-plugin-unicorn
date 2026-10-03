@@ -1,8 +1,5 @@
-const getDefinitionNode = definition =>
-	definition.name ?? definition.node;
-
 const isDefinitionBeforeReference = (definition, referenceNode, context) =>
-	context.sourceCode.getRange(getDefinitionNode(definition))[0] <= context.sourceCode.getRange(referenceNode)[0];
+	context.sourceCode.getRange(definition.name)[0] <= context.sourceCode.getRange(referenceNode)[0];
 
 const getVariableByName = (name, scope) => {
 	while (scope) {

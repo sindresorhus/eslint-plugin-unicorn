@@ -356,6 +356,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		'const foo = async () => {}; (foo()).bar;',
+		'const foo = async () => {}; foo()`bar`;',
 	],
 });
 

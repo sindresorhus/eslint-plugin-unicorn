@@ -1,0 +1,179 @@
+exports[`no-array-from-fill > invalid(1): Array.from({length: 3}).fill(0) 1`] = `
+
+  1 | Array.from({length: 3}).fill(0)
+
+`;
+
+exports[`no-array-from-fill > invalid(1): Array.from({length: 3}).fill(0) 2`] = `
+
+Message:
+> 1 | Array.from({length: 3}).fill(0)
+    |                         ^^^^ Use the \`Array.from(…, mapFunction)\` argument instead of chaining \`.fill()\`.
+
+`;
+
+exports[`no-array-from-fill > invalid(10): Array.from({length: 3}).fill(0).filter(Boolean) 1`] = `
+
+  1 | Array.from({length: 3}).fill(0).filter(Boolean)
+
+`;
+
+exports[`no-array-from-fill > invalid(10): Array.from({length: 3}).fill(0).filter(Boolean) 2`] = `
+
+Message:
+> 1 | Array.from({length: 3}).fill(0).filter(Boolean)
+    |                         ^^^^ Use the \`Array.from(…, mapFunction)\` argument instead of chaining \`.fill()\`.
+
+`;
+
+exports[`no-array-from-fill > invalid(11): Array.from({length: 3})\n\t.fill(0)\n\t.map((_, index) => index); 1`] = `
+
+  1 | Array.from({length: 3})
+  2 | 	.fill(0)
+  3 | 	.map((_, index) => index);
+
+`;
+
+exports[`no-array-from-fill > invalid(11): Array.from({length: 3})\n\t.fill(0)\n\t.map((_, index) => index); 2`] = `
+
+Message:
+  1 | Array.from({length: 3})
+> 2 | 	.fill(0)
+    | 	 ^^^^ Use the \`Array.from(…, mapFunction)\` argument instead of chaining \`.fill()\`.
+  3 | 	.map((_, index) => index);
+
+`;
+
+exports[`no-array-from-fill > invalid(12): Array.from(\n\t{length: 3}\n)\n\t.fill(0)\n\t.map((_, index) => index); 1`] = `
+
+  1 | Array.from(
+  2 | 	{length: 3}
+  3 | )
+  4 | 	.fill(0)
+  5 | 	.map((_, index) => index);
+
+`;
+
+exports[`no-array-from-fill > invalid(12): Array.from(\n\t{length: 3}\n)\n\t.fill(0)\n\t.map((_, index) => index); 2`] = `
+
+Message:
+  1 | Array.from(
+  2 | 	{length: 3}
+  3 | )
+> 4 | 	.fill(0)
+    | 	 ^^^^ Use the \`Array.from(…, mapFunction)\` argument instead of chaining \`.fill()\`.
+  5 | 	.map((_, index) => index);
+
+`;
+
+exports[`no-array-from-fill > invalid(2): Array.from({length: 3}).fill() 1`] = `
+
+  1 | Array.from({length: 3}).fill()
+
+`;
+
+exports[`no-array-from-fill > invalid(2): Array.from({length: 3}).fill() 2`] = `
+
+Message:
+> 1 | Array.from({length: 3}).fill()
+    |                         ^^^^ Use the \`Array.from(…, mapFunction)\` argument instead of chaining \`.fill()\`.
+
+`;
+
+exports[`no-array-from-fill > invalid(3): Array.from({length}).fill(null) 1`] = `
+
+  1 | Array.from({length}).fill(null)
+
+`;
+
+exports[`no-array-from-fill > invalid(3): Array.from({length}).fill(null) 2`] = `
+
+Message:
+> 1 | Array.from({length}).fill(null)
+    |                      ^^^^ Use the \`Array.from(…, mapFunction)\` argument instead of chaining \`.fill()\`.
+
+`;
+
+exports[`no-array-from-fill > invalid(4): Array.from({\"length\": 3}).fill(0) 1`] = `
+
+  1 | Array.from({"length": 3}).fill(0)
+
+`;
+
+exports[`no-array-from-fill > invalid(4): Array.from({\"length\": 3}).fill(0) 2`] = `
+
+Message:
+> 1 | Array.from({"length": 3}).fill(0)
+    |                           ^^^^ Use the \`Array.from(…, mapFunction)\` argument instead of chaining \`.fill()\`.
+
+`;
+
+exports[`no-array-from-fill > invalid(5): Array.from({length: 3}).fill({}) 1`] = `
+
+  1 | Array.from({length: 3}).fill({})
+
+`;
+
+exports[`no-array-from-fill > invalid(5): Array.from({length: 3}).fill({}) 2`] = `
+
+Message:
+> 1 | Array.from({length: 3}).fill({})
+    |                         ^^^^ Use the \`Array.from(…, mapFunction)\` argument instead of chaining \`.fill()\`.
+
+`;
+
+exports[`no-array-from-fill > invalid(6): Array.from({length: 3}).fill(0).map((_, index) => index) 1`] = `
+
+  1 | Array.from({length: 3}).fill(0).map((_, index) => index)
+
+`;
+
+exports[`no-array-from-fill > invalid(6): Array.from({length: 3}).fill(0).map((_, index) => index) 2`] = `
+
+Message:
+> 1 | Array.from({length: 3}).fill(0).map((_, index) => index)
+    |                         ^^^^ Use the \`Array.from(…, mapFunction)\` argument instead of chaining \`.fill()\`.
+
+`;
+
+exports[`no-array-from-fill > invalid(7): Array.from({length: 3}).fill().map((value, index) => index) 1`] = `
+
+  1 | Array.from({length: 3}).fill().map((value, index) => index)
+
+`;
+
+exports[`no-array-from-fill > invalid(7): Array.from({length: 3}).fill().map((value, index) => index) 2`] = `
+
+Message:
+> 1 | Array.from({length: 3}).fill().map((value, index) => index)
+    |                         ^^^^ Use the \`Array.from(…, mapFunction)\` argument instead of chaining \`.fill()\`.
+
+`;
+
+exports[`no-array-from-fill > invalid(8): Array.from({length: 3}).fill(0).flatMap((_, index) => [index]) 1`] = `
+
+  1 | Array.from({length: 3}).fill(0).flatMap((_, index) => [index])
+
+`;
+
+exports[`no-array-from-fill > invalid(8): Array.from({length: 3}).fill(0).flatMap((_, index) => [index]) 2`] = `
+
+Message:
+> 1 | Array.from({length: 3}).fill(0).flatMap((_, index) => [index])
+    |                         ^^^^ Use the \`Array.from(…, mapFunction)\` argument instead of chaining \`.fill()\`.
+
+`;
+
+exports[`no-array-from-fill > invalid(9): Array.from({length: 3}).fill().flatMap(value => [value]) 1`] = `
+
+  1 | Array.from({length: 3}).fill().flatMap(value => [value])
+
+`;
+
+exports[`no-array-from-fill > invalid(9): Array.from({length: 3}).fill().flatMap(value => [value]) 2`] = `
+
+Message:
+> 1 | Array.from({length: 3}).fill().flatMap(value => [value])
+    |                         ^^^^ Use the \`Array.from(…, mapFunction)\` argument instead of chaining \`.fill()\`.
+
+`;

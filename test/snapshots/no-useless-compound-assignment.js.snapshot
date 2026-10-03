@@ -1,0 +1,568 @@
+exports[`no-useless-compound-assignment > invalid(1): x += 0; 1`] = `
+
+  1 | x += 0;
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(1): x += 0; 2`] = `
+
+Message:
+> 1 | x += 0;
+    | ^^^^^^ This compound assignment is useless as \`+= 0\` does not change the value.
+
+Suggestion 1/1: Remove the useless assignment.:
+  1 |
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(10): obj.x += 0; 1`] = `
+
+  1 | obj.x += 0;
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(10): obj.x += 0; 2`] = `
+
+Message:
+> 1 | obj.x += 0;
+    | ^^^^^^^^^^ This compound assignment is useless as \`+= 0\` does not change the value.
+
+Suggestion 1/1: Remove the useless assignment.:
+  1 |
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(11): this.count -= 0; 1`] = `
+
+  1 | this.count -= 0;
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(11): this.count -= 0; 2`] = `
+
+Message:
+> 1 | this.count -= 0;
+    | ^^^^^^^^^^^^^^^ This compound assignment is useless as \`-= 0\` does not change the value.
+
+Suggestion 1/1: Remove the useless assignment.:
+  1 |
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(12): foo.bar.baz *= 1; 1`] = `
+
+  1 | foo.bar.baz *= 1;
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(12): foo.bar.baz *= 1; 2`] = `
+
+Message:
+> 1 | foo.bar.baz *= 1;
+    | ^^^^^^^^^^^^^^^^ This compound assignment is useless as \`*= 1\` does not change the value.
+
+Suggestion 1/1: Remove the useless assignment.:
+  1 |
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(13): foo(x += 0); 1`] = `
+
+  1 | foo(x += 0);
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(13): foo(x += 0); 2`] = `
+
+Message:
+> 1 | foo(x += 0);
+    |     ^^^^^^ This compound assignment is useless as \`+= 0\` does not change the value.
+
+Suggestion 1/1: Replace the useless assignment with \`x\`.:
+  1 | foo(x);
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(14): foo(obj.x += 0); 1`] = `
+
+  1 | foo(obj.x += 0);
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(14): foo(obj.x += 0); 2`] = `
+
+Message:
+> 1 | foo(obj.x += 0);
+    |     ^^^^^^^^^^ This compound assignment is useless as \`+= 0\` does not change the value.
+
+Suggestion 1/1: Replace the useless assignment with \`obj.x\`.:
+  1 | foo(obj.x);
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(15): const y = (x *= 1); 1`] = `
+
+  1 | const y = (x *= 1);
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(15): const y = (x *= 1); 2`] = `
+
+Message:
+> 1 | const y = (x *= 1);
+    |            ^^^^^^ This compound assignment is useless as \`*= 1\` does not change the value.
+
+Suggestion 1/1: Replace the useless assignment with \`x\`.:
+  1 | const y = (x);
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(16): function f() { return x -= 0; } 1`] = `
+
+  1 | function f() { return x -= 0; }
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(16): function f() { return x -= 0; } 2`] = `
+
+Message:
+> 1 | function f() { return x -= 0; }
+    |                       ^^^^^^ This compound assignment is useless as \`-= 0\` does not change the value.
+
+Suggestion 1/1: Replace the useless assignment with \`x\`.:
+  1 | function f() { return x; }
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(17): a = x += 0; 1`] = `
+
+  1 | a = x += 0;
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(17): a = x += 0; 2`] = `
+
+Message:
+> 1 | a = x += 0;
+    |     ^^^^^^ This compound assignment is useless as \`+= 0\` does not change the value.
+
+Suggestion 1/1: Replace the useless assignment with \`x\`.:
+  1 | a = x;
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(18): const f = () => x /= 1; 1`] = `
+
+  1 | const f = () => x /= 1;
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(18): const f = () => x /= 1; 2`] = `
+
+Message:
+> 1 | const f = () => x /= 1;
+    |                 ^^^^^^ This compound assignment is useless as \`/= 1\` does not change the value.
+
+Suggestion 1/1: Replace the useless assignment with \`x\`.:
+  1 | const f = () => x;
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(19): (x += 0, y); 1`] = `
+
+  1 | (x += 0, y);
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(19): (x += 0, y); 2`] = `
+
+Message:
+> 1 | (x += 0, y);
+    |  ^^^^^^ This compound assignment is useless as \`+= 0\` does not change the value.
+
+Suggestion 1/1: Replace the useless assignment with \`x\`.:
+  1 | (x, y);
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(2): x -= 0; 1`] = `
+
+  1 | x -= 0;
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(2): x -= 0; 2`] = `
+
+Message:
+> 1 | x -= 0;
+    | ^^^^^^ This compound assignment is useless as \`-= 0\` does not change the value.
+
+Suggestion 1/1: Remove the useless assignment.:
+  1 |
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(20): for (let i = 0; i < n; i += 0) {} 1`] = `
+
+  1 | for (let i = 0; i < n; i += 0) {}
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(20): for (let i = 0; i < n; i += 0) {} 2`] = `
+
+Message:
+> 1 | for (let i = 0; i < n; i += 0) {}
+    |                        ^^^^^^ This compound assignment is useless as \`+= 0\` does not change the value.
+
+Suggestion 1/1: Replace the useless assignment with \`i\`.:
+  1 | for (let i = 0; i < n; i) {}
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(21): function f() {\n\tx += 0;\n} 1`] = `
+
+  1 | function f() {
+  2 | 	x += 0;
+  3 | }
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(21): function f() {\n\tx += 0;\n} 2`] = `
+
+Message:
+  1 | function f() {
+> 2 | 	x += 0;
+    | 	^^^^^^ This compound assignment is useless as \`+= 0\` does not change the value.
+  3 | }
+
+Suggestion 1/1: Remove the useless assignment.:
+  1 | function f() {
+  2 | }
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(22): switch (x) {\n\tcase 1:\n\t\ty += 0;\n} 1`] = `
+
+  1 | switch (x) {
+  2 | 	case 1:
+  3 | 		y += 0;
+  4 | }
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(22): switch (x) {\n\tcase 1:\n\t\ty += 0;\n} 2`] = `
+
+Message:
+  1 | switch (x) {
+  2 | 	case 1:
+> 3 | 		y += 0;
+    | 		^^^^^^ This compound assignment is useless as \`+= 0\` does not change the value.
+  4 | }
+
+Suggestion 1/1: Remove the useless assignment.:
+  1 | switch (x) {
+  2 | 	case 1:
+  3 | }
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(23): class Foo {\n\tstatic {\n\t\tx += 0;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	static {
+  3 | 		x += 0;
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(23): class Foo {\n\tstatic {\n\t\tx += 0;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	static {
+> 3 | 		x += 0;
+    | 		^^^^^^ This compound assignment is useless as \`+= 0\` does not change the value.
+  4 | 	}
+  5 | }
+
+Suggestion 1/1: Remove the useless assignment.:
+  1 | class Foo {
+  2 | 	static {
+  3 | 	}
+  4 | }
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(24): x += /* keep */ 0; 1`] = `
+
+  1 | x += /* keep */ 0;
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(24): x += /* keep */ 0; 2`] = `
+
+Message:
+> 1 | x += /* keep */ 0;
+    | ^^^^^^^^^^^^^^^^^ This compound assignment is useless as \`+= 0\` does not change the value.
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(25): x /* keep */ *= 1; 1`] = `
+
+  1 | x /* keep */ *= 1;
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(25): x /* keep */ *= 1; 2`] = `
+
+Message:
+> 1 | x /* keep */ *= 1;
+    | ^^^^^^^^^^^^^^^^^ This compound assignment is useless as \`*= 1\` does not change the value.
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(26): x += 0; // keep 1`] = `
+
+  1 | x += 0; // keep
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(26): x += 0; // keep 2`] = `
+
+Message:
+> 1 | x += 0; // keep
+    | ^^^^^^ This compound assignment is useless as \`+= 0\` does not change the value.
+
+Suggestion 1/1: Remove the useless assignment.:
+  1 |  // keep
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(27): x += 0; 1`] = `
+
+  1 | x += 0;
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(27): x += 0; 2`] = `
+
+Message:
+> 1 | x += 0;
+    | ^^^^^^ This compound assignment is useless as \`+= 0\` does not change the value.
+
+Suggestion 1/1: Remove the useless assignment.:
+  1 |
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(28): function f() {\n\tx *= 1/* keep */;\n\ty();\n} 1`] = `
+
+  1 | function f() {
+  2 | 	x *= 1/* keep */;
+  3 | 	y();
+  4 | }
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(28): function f() {\n\tx *= 1/* keep */;\n\ty();\n} 2`] = `
+
+Message:
+  1 | function f() {
+> 2 | 	x *= 1/* keep */;
+    | 	^^^^^^ This compound assignment is useless as \`*= 1\` does not change the value.
+  3 | 	y();
+  4 | }
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(29): x += 0/* keep */; 1`] = `
+
+  1 | x += 0/* keep */;
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(29): x += 0/* keep */; 2`] = `
+
+Message:
+> 1 | x += 0/* keep */;
+    | ^^^^^^ This compound assignment is useless as \`+= 0\` does not change the value.
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(3): x *= 1; 1`] = `
+
+  1 | x *= 1;
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(3): x *= 1; 2`] = `
+
+Message:
+> 1 | x *= 1;
+    | ^^^^^^ This compound assignment is useless as \`*= 1\` does not change the value.
+
+Suggestion 1/1: Remove the useless assignment.:
+  1 |
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(30): function f() {\n\tx += 0 /* keep */;\n} 1`] = `
+
+  1 | function f() {
+  2 | 	x += 0 /* keep */;
+  3 | }
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(30): function f() {\n\tx += 0 /* keep */;\n} 2`] = `
+
+Message:
+  1 | function f() {
+> 2 | 	x += 0 /* keep */;
+    | 	^^^^^^ This compound assignment is useless as \`+= 0\` does not change the value.
+  3 | }
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(31): if (a) x += 0 /* keep */; 1`] = `
+
+  1 | if (a) x += 0 /* keep */;
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(31): if (a) x += 0 /* keep */; 2`] = `
+
+Message:
+> 1 | if (a) x += 0 /* keep */;
+    |        ^^^^^^ This compound assignment is useless as \`+= 0\` does not change the value.
+
+Suggestion 1/1: Replace the useless assignment with \`x\`.:
+  1 | if (a) x /* keep */;
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(32): function f() {\n\tx += 0; // keep\n} 1`] = `
+
+  1 | function f() {
+  2 | 	x += 0; // keep
+  3 | }
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(32): function f() {\n\tx += 0; // keep\n} 2`] = `
+
+Message:
+  1 | function f() {
+> 2 | 	x += 0; // keep
+    | 	^^^^^^ This compound assignment is useless as \`+= 0\` does not change the value.
+  3 | }
+
+Suggestion 1/1: Remove the useless assignment.:
+  1 | function f() {
+  2 | 	 // keep
+  3 | }
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(4): x /= 1; 1`] = `
+
+  1 | x /= 1;
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(4): x /= 1; 2`] = `
+
+Message:
+> 1 | x /= 1;
+    | ^^^^^^ This compound assignment is useless as \`/= 1\` does not change the value.
+
+Suggestion 1/1: Remove the useless assignment.:
+  1 |
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(5): x **= 1; 1`] = `
+
+  1 | x **= 1;
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(5): x **= 1; 2`] = `
+
+Message:
+> 1 | x **= 1;
+    | ^^^^^^^ This compound assignment is useless as \`**= 1\` does not change the value.
+
+Suggestion 1/1: Remove the useless assignment.:
+  1 |
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(6): x += 0.0; 1`] = `
+
+  1 | x += 0.0;
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(6): x += 0.0; 2`] = `
+
+Message:
+> 1 | x += 0.0;
+    | ^^^^^^^^ This compound assignment is useless as \`+= 0.0\` does not change the value.
+
+Suggestion 1/1: Remove the useless assignment.:
+  1 |
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(7): x /= 1.0; 1`] = `
+
+  1 | x /= 1.0;
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(7): x /= 1.0; 2`] = `
+
+Message:
+> 1 | x /= 1.0;
+    | ^^^^^^^^ This compound assignment is useless as \`/= 1.0\` does not change the value.
+
+Suggestion 1/1: Remove the useless assignment.:
+  1 |
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(8): x *= 0x1; 1`] = `
+
+  1 | x *= 0x1;
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(8): x *= 0x1; 2`] = `
+
+Message:
+> 1 | x *= 0x1;
+    | ^^^^^^^^ This compound assignment is useless as \`*= 0x1\` does not change the value.
+
+Suggestion 1/1: Remove the useless assignment.:
+  1 |
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(9): x -= 0e3; 1`] = `
+
+  1 | x -= 0e3;
+
+`;
+
+exports[`no-useless-compound-assignment > invalid(9): x -= 0e3; 2`] = `
+
+Message:
+> 1 | x -= 0e3;
+    | ^^^^^^^^ This compound assignment is useless as \`-= 0e3\` does not change the value.
+
+Suggestion 1/1: Remove the useless assignment.:
+  1 |
+
+`;

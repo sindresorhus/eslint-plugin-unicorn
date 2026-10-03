@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
@@ -33,12 +33,12 @@ test('preserves a `continue` made meaningful by removing `else`', t => {
 
 	const linter = new Linter();
 	const messages = linter.verify(code, config);
-	t.deepEqual(messages.map(({ruleId}) => ruleId), [
+	t.assert.deepStrictEqual(messages.map(({ruleId}) => ruleId), [
 		'unicorn/no-useless-continue',
 		'unicorn/no-useless-else',
 	]);
 
-	t.is(fixCode(code), outdent`
+	t.assert.strictEqual(fixCode(code), outdent`
 		function deleteThings() {
 			for (const thing of things) {
 				if (dryRun) {
@@ -66,7 +66,7 @@ test('preserves a nested `continue` while fixing nested `else` branches', t => {
 		}
 	`;
 
-	t.is(fixCode(code), outdent`
+	t.assert.strictEqual(fixCode(code), outdent`
 		for (const item of items) {
 			if (skipItem) {
 				if (retryItem) {
@@ -90,7 +90,7 @@ test('preserves a `continue` when flattening an `else if` chain', t => {
 		}
 	`;
 
-	t.is(fixCode(code), outdent`
+	t.assert.strictEqual(fixCode(code), outdent`
 		for (const item of items) {
 			if (skipItem) {
 				continue;

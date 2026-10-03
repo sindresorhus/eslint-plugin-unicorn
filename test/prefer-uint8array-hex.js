@@ -1,5 +1,5 @@
 /* eslint-disable no-template-curly-in-string */
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
@@ -508,34 +508,34 @@ test('works with array and number style rules across fixing passes and suggestio
 		].map(name => [`unicorn/${name}`, 'error'])),
 	};
 	const encoded = linter.verifyAndFix(`const bytes = new Uint8Array([0, 255]); Array.from(bytes).map(${encode}).join('');`, config);
-	t.is(encoded.output, 'const bytes = new Uint8Array([0, 255]); bytes.toHex();');
-	t.deepEqual(encoded.messages, []);
+	t.assert.strictEqual(encoded.output, 'const bytes = new Uint8Array([0, 255]); bytes.toHex();');
+	t.assert.deepStrictEqual(encoded.messages, []);
 
 	for (const pipeline of encodingPipelines) {
 		const sliced = linter.verifyAndFix(`const bytes = new Uint8Array([0, 255]); ${pipeline(sliceEncoders[0])};`, config);
-		t.is(sliced.output, 'const bytes = new Uint8Array([0, 255]); bytes.toHex();');
-		t.deepEqual(sliced.messages, []);
+		t.assert.strictEqual(sliced.output, 'const bytes = new Uint8Array([0, 255]); bytes.toHex();');
+		t.assert.deepStrictEqual(sliced.messages, []);
 	}
 
 	const legacy = linter.verifyAndFix('const bytes = new Uint8Array([0, 255]); [].map.call(bytes, byte => (\'0\' + byte.toString(16)).substr(-2)).join(\'\');', config);
-	t.is(legacy.output, 'const bytes = new Uint8Array([0, 255]); bytes.toHex();');
-	t.deepEqual(legacy.messages, []);
+	t.assert.strictEqual(legacy.output, 'const bytes = new Uint8Array([0, 255]); bytes.toHex();');
+	t.assert.deepStrictEqual(legacy.messages, []);
 
 	const decoded = linter.verifyAndFix('new Uint8Array(text.match(/.{2}/g).map(pair => parseInt(pair, 16)))', config);
-	t.true(decoded.output.includes('Number.parseInt'));
+	t.assert.strictEqual(decoded.output.includes('Number.parseInt'), true);
 	const [message] = decoded.messages;
-	t.is(message.ruleId, 'unicorn/prefer-uint8array-hex');
-	t.is(decoded.messages.length, 1);
+	t.assert.strictEqual(message.ruleId, 'unicorn/prefer-uint8array-hex');
+	t.assert.strictEqual(decoded.messages.length, 1);
 	const [{fix}] = message.suggestions;
 	const suggested = decoded.output.slice(0, fix.range[0]) + fix.text + decoded.output.slice(fix.range[1]);
-	t.is(suggested, 'Uint8Array.fromHex(text)');
-	t.deepEqual(linter.verify(suggested, config), []);
+	t.assert.strictEqual(suggested, 'Uint8Array.fromHex(text)');
+	t.assert.deepStrictEqual(linter.verify(suggested, config), []);
 
 	const buffer = linter.verifyAndFix('new Buffer([255]).toString(\'hex\')', config);
-	t.is(buffer.output, 'Buffer.from([255]).toHex()');
-	t.deepEqual(buffer.messages, []);
+	t.assert.strictEqual(buffer.output, 'Buffer.from([255]).toHex()');
+	t.assert.deepStrictEqual(buffer.messages, []);
 
 	const view = linter.verifyAndFix('Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString(\'hex\')', config);
-	t.is(view.output, 'Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toHex()');
-	t.deepEqual(view.messages, []);
+	t.assert.strictEqual(view.output, 'Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toHex()');
+	t.assert.deepStrictEqual(view.messages, []);
 });

@@ -1,0 +1,429 @@
+exports[`prefer-string-slice > invalid(1): /* 1 */ (( /* 2 */ 0 /* 3 */, /* 4 */ foo /* 5 */ )) /* 6 */\n\t. /* 7 */ substring /* 8 */ (\n\t\t/* 9 */ (( /* 10 */ bar /* 11 */ )) /* 12 */,\n\t\t/* 13 */ (( /* 14 */ 0 /* 15 */ )) /* 16 */,\n\t\t/* 17 */\n\t)\n/* 18 */ 1`] = `
+
+  1 | /* 1 */ (( /* 2 */ 0 /* 3 */, /* 4 */ foo /* 5 */ )) /* 6 */
+  2 | 	. /* 7 */ substring /* 8 */ (
+  3 | 		/* 9 */ (( /* 10 */ bar /* 11 */ )) /* 12 */,
+  4 | 		/* 13 */ (( /* 14 */ 0 /* 15 */ )) /* 16 */,
+  5 | 		/* 17 */
+  6 | 	)
+  7 | /* 18 */
+
+`;
+
+exports[`prefer-string-slice > invalid(1): /* 1 */ (( /* 2 */ 0 /* 3 */, /* 4 */ foo /* 5 */ )) /* 6 */\n\t. /* 7 */ substring /* 8 */ (\n\t\t/* 9 */ (( /* 10 */ bar /* 11 */ )) /* 12 */,\n\t\t/* 13 */ (( /* 14 */ 0 /* 15 */ )) /* 16 */,\n\t\t/* 17 */\n\t)\n/* 18 */ 2`] = `
+
+Message:
+> 1 | /* 1 */ (( /* 2 */ 0 /* 3 */, /* 4 */ foo /* 5 */ )) /* 6 */
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	. /* 7 */ substring /* 8 */ (
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		/* 9 */ (( /* 10 */ bar /* 11 */ )) /* 12 */,
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		/* 13 */ (( /* 14 */ 0 /* 15 */ )) /* 16 */,
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | 		/* 17 */
+    | ^^^^^^^^^^
+> 6 | 	)
+    | ^^ Prefer \`String#slice()\` over \`String#substring()\`.
+  7 | /* 18 */
+
+`;
+
+exports[`prefer-string-slice > invalid(10): foo.substring((10, bar)) 1`] = `
+
+  1 | foo.substring((10, bar))
+
+`;
+
+exports[`prefer-string-slice > invalid(10): foo.substring((10, bar)) 2`] = `
+
+Message:
+> 1 | foo.substring((10, bar))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substring()\`.
+
+Output:
+  1 | foo.slice(Math.max(0, (10, bar)))
+
+`;
+
+exports[`prefer-string-slice > invalid(11): const string = \"::\";\nconst output = string.substr(-2, 2); 1`] = `
+
+  1 | const string = "::";
+  2 | const output = string.substr(-2, 2);
+
+`;
+
+exports[`prefer-string-slice > invalid(11): const string = \"::\";\nconst output = string.substr(-2, 2); 2`] = `
+
+Message:
+  1 | const string = "::";
+> 2 | const output = string.substr(-2, 2);
+    |                ^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substr()\`.
+
+`;
+
+exports[`prefer-string-slice > invalid(12): foo.substr(0.5, 0.5) 1`] = `
+
+  1 | foo.substr(0.5, 0.5)
+
+`;
+
+exports[`prefer-string-slice > invalid(12): foo.substr(0.5, 0.5) 2`] = `
+
+Message:
+> 1 | foo.substr(0.5, 0.5)
+    | ^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substr()\`.
+
+Output:
+  1 | foo.slice(0.5, 0)
+
+`;
+
+exports[`prefer-string-slice > invalid(13): foo.substr(1.5, 2.5) 1`] = `
+
+  1 | foo.substr(1.5, 2.5)
+
+`;
+
+exports[`prefer-string-slice > invalid(13): foo.substr(1.5, 2.5) 2`] = `
+
+Message:
+> 1 | foo.substr(1.5, 2.5)
+    | ^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substr()\`.
+
+Output:
+  1 | foo.slice(1.5, 3)
+
+`;
+
+exports[`prefer-string-slice > invalid(14): foo.substr(-1.5, 2.5) 1`] = `
+
+  1 | foo.substr(-1.5, 2.5)
+
+`;
+
+exports[`prefer-string-slice > invalid(14): foo.substr(-1.5, 2.5) 2`] = `
+
+Message:
+> 1 | foo.substr(-1.5, 2.5)
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substr()\`.
+
+`;
+
+exports[`prefer-string-slice > invalid(15): foo.substring(1, -n) 1`] = `
+
+  1 | foo.substring(1, -n)
+
+`;
+
+exports[`prefer-string-slice > invalid(15): foo.substring(1, -n) 2`] = `
+
+Message:
+> 1 | foo.substring(1, -n)
+    | ^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substring()\`.
+
+`;
+
+exports[`prefer-string-slice > invalid(16): foo.substring(1, -Infinity) 1`] = `
+
+  1 | foo.substring(1, -Infinity)
+
+`;
+
+exports[`prefer-string-slice > invalid(16): foo.substring(1, -Infinity) 2`] = `
+
+Message:
+> 1 | foo.substring(1, -Infinity)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substring()\`.
+
+`;
+
+exports[`prefer-string-slice > invalid(17): foo.substring(1, -foo.length) 1`] = `
+
+  1 | foo.substring(1, -foo.length)
+
+`;
+
+exports[`prefer-string-slice > invalid(17): foo.substring(1, -foo.length) 2`] = `
+
+Message:
+> 1 | foo.substring(1, -foo.length)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substring()\`.
+
+`;
+
+exports[`prefer-string-slice > invalid(18): foo.substring((/* keep */ 5), 2) 1`] = `
+
+  1 | foo.substring((/* keep */ 5), 2)
+
+`;
+
+exports[`prefer-string-slice > invalid(18): foo.substring((/* keep */ 5), 2) 2`] = `
+
+Message:
+> 1 | foo.substring((/* keep */ 5), 2)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substring()\`.
+
+`;
+
+exports[`prefer-string-slice > invalid(19): foo.substring((/* keep */ -1)) 1`] = `
+
+  1 | foo.substring((/* keep */ -1))
+
+`;
+
+exports[`prefer-string-slice > invalid(19): foo.substring((/* keep */ -1)) 2`] = `
+
+Message:
+> 1 | foo.substring((/* keep */ -1))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substring()\`.
+
+`;
+
+exports[`prefer-string-slice > invalid(2): foo.substr(0, ...bar) 1`] = `
+
+  1 | foo.substr(0, ...bar)
+
+`;
+
+exports[`prefer-string-slice > invalid(2): foo.substr(0, ...bar) 2`] = `
+
+Message:
+> 1 | foo.substr(0, ...bar)
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substr()\`.
+
+`;
+
+exports[`prefer-string-slice > invalid(20): foo.substring((/* keep */ -1), 3) 1`] = `
+
+  1 | foo.substring((/* keep */ -1), 3)
+
+`;
+
+exports[`prefer-string-slice > invalid(20): foo.substring((/* keep */ -1), 3) 2`] = `
+
+Message:
+> 1 | foo.substring((/* keep */ -1), 3)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substring()\`.
+
+`;
+
+exports[`prefer-string-slice > invalid(21): foo.substr(1, (/* keep */ 2)) 1`] = `
+
+  1 | foo.substr(1, (/* keep */ 2))
+
+`;
+
+exports[`prefer-string-slice > invalid(21): foo.substr(1, (/* keep */ 2)) 2`] = `
+
+Message:
+> 1 | foo.substr(1, (/* keep */ 2))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substr()\`.
+
+`;
+
+exports[`prefer-string-slice > invalid(22): foo.substr(0, (/* keep */ -1)) 1`] = `
+
+  1 | foo.substr(0, (/* keep */ -1))
+
+`;
+
+exports[`prefer-string-slice > invalid(22): foo.substr(0, (/* keep */ -1)) 2`] = `
+
+Message:
+> 1 | foo.substr(0, (/* keep */ -1))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substr()\`.
+
+`;
+
+exports[`prefer-string-slice > invalid(23): foo.substring(0, (/* keep */ 2)) 1`] = `
+
+  1 | foo.substring(0, (/* keep */ 2))
+
+`;
+
+exports[`prefer-string-slice > invalid(23): foo.substring(0, (/* keep */ 2)) 2`] = `
+
+Message:
+> 1 | foo.substring(0, (/* keep */ 2))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substring()\`.
+
+Output:
+  1 | foo.slice(0, (/* keep */ 2))
+
+`;
+
+exports[`prefer-string-slice > invalid(24): foo.substr(0, undefined) 1`] = `
+
+  1 | foo.substr(0, undefined)
+
+`;
+
+exports[`prefer-string-slice > invalid(24): foo.substr(0, undefined) 2`] = `
+
+Message:
+> 1 | foo.substr(0, undefined)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substr()\`.
+
+Output:
+  1 | foo.slice(0, Math.max(0, undefined === undefined ? Infinity : undefined))
+
+`;
+
+exports[`prefer-string-slice > invalid(25): foo.substring(0, undefined) 1`] = `
+
+  1 | foo.substring(0, undefined)
+
+`;
+
+exports[`prefer-string-slice > invalid(25): foo.substring(0, undefined) 2`] = `
+
+Message:
+> 1 | foo.substring(0, undefined)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substring()\`.
+
+Output:
+  1 | foo.slice(0, Math.max(0, undefined === undefined ? Infinity : undefined))
+
+`;
+
+exports[`prefer-string-slice > invalid(26): foo.substring(0, null) 1`] = `
+
+  1 | foo.substring(0, null)
+
+`;
+
+exports[`prefer-string-slice > invalid(26): foo.substring(0, null) 2`] = `
+
+Message:
+> 1 | foo.substring(0, null)
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substring()\`.
+
+Output:
+  1 | foo.slice(0, Math.max(0, null === undefined ? Infinity : null))
+
+`;
+
+exports[`prefer-string-slice > invalid(27): foo.substring(0, NaN) 1`] = `
+
+  1 | foo.substring(0, NaN)
+
+`;
+
+exports[`prefer-string-slice > invalid(27): foo.substring(0, NaN) 2`] = `
+
+Message:
+> 1 | foo.substring(0, NaN)
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substring()\`.
+
+Output:
+  1 | foo.slice(0, Math.max(0, NaN === undefined ? Infinity : NaN))
+
+`;
+
+exports[`prefer-string-slice > invalid(3): foo.substr(...bar) 1`] = `
+
+  1 | foo.substr(...bar)
+
+`;
+
+exports[`prefer-string-slice > invalid(3): foo.substr(...bar) 2`] = `
+
+Message:
+> 1 | foo.substr(...bar)
+    | ^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substr()\`.
+
+`;
+
+exports[`prefer-string-slice > invalid(4): foo.substr(0, (100, 1)) 1`] = `
+
+  1 | foo.substr(0, (100, 1))
+
+`;
+
+exports[`prefer-string-slice > invalid(4): foo.substr(0, (100, 1)) 2`] = `
+
+Message:
+> 1 | foo.substr(0, (100, 1))
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substr()\`.
+
+Output:
+  1 | foo.slice(0, Math.max(0, (100, 1) === undefined ? Infinity : (100, 1)))
+
+`;
+
+exports[`prefer-string-slice > invalid(5): foo.substr(0, 1, extraArgument) 1`] = `
+
+  1 | foo.substr(0, 1, extraArgument)
+
+`;
+
+exports[`prefer-string-slice > invalid(5): foo.substr(0, 1, extraArgument) 2`] = `
+
+Message:
+> 1 | foo.substr(0, 1, extraArgument)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substr()\`.
+
+`;
+
+exports[`prefer-string-slice > invalid(6): foo.substr((0, bar.length), (0, baz.length)) 1`] = `
+
+  1 | foo.substr((0, bar.length), (0, baz.length))
+
+`;
+
+exports[`prefer-string-slice > invalid(6): foo.substr((0, bar.length), (0, baz.length)) 2`] = `
+
+Message:
+> 1 | foo.substr((0, bar.length), (0, baz.length))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substr()\`.
+
+`;
+
+exports[`prefer-string-slice > invalid(7): foo.substring((10, 1), 0) 1`] = `
+
+  1 | foo.substring((10, 1), 0)
+
+`;
+
+exports[`prefer-string-slice > invalid(7): foo.substring((10, 1), 0) 2`] = `
+
+Message:
+> 1 | foo.substring((10, 1), 0)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substring()\`.
+
+Output:
+  1 | foo.slice(0, Math.max(0, (10, 1)))
+
+`;
+
+exports[`prefer-string-slice > invalid(8): foo.substring(0, (10, 1)) 1`] = `
+
+  1 | foo.substring(0, (10, 1))
+
+`;
+
+exports[`prefer-string-slice > invalid(8): foo.substring(0, (10, 1)) 2`] = `
+
+Message:
+> 1 | foo.substring(0, (10, 1))
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substring()\`.
+
+Output:
+  1 | foo.slice(0, Math.max(0, (10, 1) === undefined ? Infinity : (10, 1)))
+
+`;
+
+exports[`prefer-string-slice > invalid(9): foo.substring(0, await 1) 1`] = `
+
+  1 | foo.substring(0, await 1)
+
+`;
+
+exports[`prefer-string-slice > invalid(9): foo.substring(0, await 1) 2`] = `
+
+Message:
+> 1 | foo.substring(0, await 1)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`String#slice()\` over \`String#substring()\`.
+
+`;

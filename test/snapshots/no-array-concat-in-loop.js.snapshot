@@ -1,0 +1,307 @@
+exports[`no-array-concat-in-loop > invalid(1): let result = [];\nfor (const chunk of chunks) {\n\tresult = result.concat(chunk);\n} 1`] = `
+
+  1 | let result = [];
+  2 | for (const chunk of chunks) {
+  3 | 	result = result.concat(chunk);
+  4 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(1): let result = [];\nfor (const chunk of chunks) {\n\tresult = result.concat(chunk);\n} 2`] = `
+
+Message:
+  1 | let result = [];
+  2 | for (const chunk of chunks) {
+> 3 | 	result = result.concat(chunk);
+    | 	                ^^^^^^ Do not use \`Array#concat()\` to accumulate an array in a loop.
+  4 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(10): let result = [];\nfor (const chunk of chunks) {\n\tresult = result.concat(first, second);\n} 1`] = `
+
+  1 | let result = [];
+  2 | for (const chunk of chunks) {
+  3 | 	result = result.concat(first, second);
+  4 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(10): let result = [];\nfor (const chunk of chunks) {\n\tresult = result.concat(first, second);\n} 2`] = `
+
+Message:
+  1 | let result = [];
+  2 | for (const chunk of chunks) {
+> 3 | 	result = result.concat(first, second);
+    | 	                ^^^^^^ Do not use \`Array#concat()\` to accumulate an array in a loop.
+  4 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(11): let result = [];\nfor (const chunk of chunks) {\n\tresult = result.concat(...chunkGroups);\n} 1`] = `
+
+  1 | let result = [];
+  2 | for (const chunk of chunks) {
+  3 | 	result = result.concat(...chunkGroups);
+  4 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(11): let result = [];\nfor (const chunk of chunks) {\n\tresult = result.concat(...chunkGroups);\n} 2`] = `
+
+Message:
+  1 | let result = [];
+  2 | for (const chunk of chunks) {
+> 3 | 	result = result.concat(...chunkGroups);
+    | 	                ^^^^^^ Do not use \`Array#concat()\` to accumulate an array in a loop.
+  4 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(12): let result = [] as string[];\nfor (const chunk of chunks) {\n\tresult = (result as string[]).concat(chunk);\n} 1`] = `
+
+  1 | let result = [] as string[];
+  2 | for (const chunk of chunks) {
+  3 | 	result = (result as string[]).concat(chunk);
+  4 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(12): let result = [] as string[];\nfor (const chunk of chunks) {\n\tresult = (result as string[]).concat(chunk);\n} 2`] = `
+
+Message:
+  1 | let result = [] as string[];
+  2 | for (const chunk of chunks) {
+> 3 | 	result = (result as string[]).concat(chunk);
+    | 	                              ^^^^^^ Do not use \`Array#concat()\` to accumulate an array in a loop.
+  4 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(13): let result = [] satisfies string[];\nfor (const chunk of chunks) {\n\tresult = result!.concat(chunk);\n} 1`] = `
+
+  1 | let result = [] satisfies string[];
+  2 | for (const chunk of chunks) {
+  3 | 	result = result!.concat(chunk);
+  4 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(13): let result = [] satisfies string[];\nfor (const chunk of chunks) {\n\tresult = result!.concat(chunk);\n} 2`] = `
+
+Message:
+  1 | let result = [] satisfies string[];
+  2 | for (const chunk of chunks) {
+> 3 | 	result = result!.concat(chunk);
+    | 	                 ^^^^^^ Do not use \`Array#concat()\` to accumulate an array in a loop.
+  4 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(14): let result = <string[]>[];\nfor (const chunk of chunks) {\n\tresult = (<string[]>result).concat(chunk);\n} 1`] = `
+
+  1 | let result = <string[]>[];
+  2 | for (const chunk of chunks) {
+  3 | 	result = (<string[]>result).concat(chunk);
+  4 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(14): let result = <string[]>[];\nfor (const chunk of chunks) {\n\tresult = (<string[]>result).concat(chunk);\n} 2`] = `
+
+Message:
+  1 | let result = <string[]>[];
+  2 | for (const chunk of chunks) {
+> 3 | 	result = (<string[]>result).concat(chunk);
+    | 	                            ^^^^^^ Do not use \`Array#concat()\` to accumulate an array in a loop.
+  4 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(15): for (let result = []; condition; result = result.concat(chunk)) {} 1`] = `
+
+  1 | for (let result = []; condition; result = result.concat(chunk)) {}
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(15): for (let result = []; condition; result = result.concat(chunk)) {} 2`] = `
+
+Message:
+> 1 | for (let result = []; condition; result = result.concat(chunk)) {}
+    |                                                  ^^^^^^ Do not use \`Array#concat()\` to accumulate an array in a loop.
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(16): for (let result = []; condition;) {\n\tresult = result.concat(chunk);\n} 1`] = `
+
+  1 | for (let result = []; condition;) {
+  2 | 	result = result.concat(chunk);
+  3 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(16): for (let result = []; condition;) {\n\tresult = result.concat(chunk);\n} 2`] = `
+
+Message:
+  1 | for (let result = []; condition;) {
+> 2 | 	result = result.concat(chunk);
+    | 	                ^^^^^^ Do not use \`Array#concat()\` to accumulate an array in a loop.
+  3 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(2): let result = [];\nfor (let index = 0; index < chunks.length; index++) {\n\tresult = result.concat(chunks[index]);\n} 1`] = `
+
+  1 | let result = [];
+  2 | for (let index = 0; index < chunks.length; index++) {
+  3 | 	result = result.concat(chunks[index]);
+  4 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(2): let result = [];\nfor (let index = 0; index < chunks.length; index++) {\n\tresult = result.concat(chunks[index]);\n} 2`] = `
+
+Message:
+  1 | let result = [];
+  2 | for (let index = 0; index < chunks.length; index++) {
+> 3 | 	result = result.concat(chunks[index]);
+    | 	                ^^^^^^ Do not use \`Array#concat()\` to accumulate an array in a loop.
+  4 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(3): let result = [];\nfor (const index in chunks) {\n\tresult = result.concat(chunks[index]);\n} 1`] = `
+
+  1 | let result = [];
+  2 | for (const index in chunks) {
+  3 | 	result = result.concat(chunks[index]);
+  4 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(3): let result = [];\nfor (const index in chunks) {\n\tresult = result.concat(chunks[index]);\n} 2`] = `
+
+Message:
+  1 | let result = [];
+  2 | for (const index in chunks) {
+> 3 | 	result = result.concat(chunks[index]);
+    | 	                ^^^^^^ Do not use \`Array#concat()\` to accumulate an array in a loop.
+  4 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(4): let result = [];\nwhile (chunks.length > 0) {\n\tresult = result.concat(chunks.pop());\n} 1`] = `
+
+  1 | let result = [];
+  2 | while (chunks.length > 0) {
+  3 | 	result = result.concat(chunks.pop());
+  4 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(4): let result = [];\nwhile (chunks.length > 0) {\n\tresult = result.concat(chunks.pop());\n} 2`] = `
+
+Message:
+  1 | let result = [];
+  2 | while (chunks.length > 0) {
+> 3 | 	result = result.concat(chunks.pop());
+    | 	                ^^^^^^ Do not use \`Array#concat()\` to accumulate an array in a loop.
+  4 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(5): let result = [];\ndo {\n\tresult = result.concat(getChunk());\n} while (hasMoreChunks()); 1`] = `
+
+  1 | let result = [];
+  2 | do {
+  3 | 	result = result.concat(getChunk());
+  4 | } while (hasMoreChunks());
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(5): let result = [];\ndo {\n\tresult = result.concat(getChunk());\n} while (hasMoreChunks()); 2`] = `
+
+Message:
+  1 | let result = [];
+  2 | do {
+> 3 | 	result = result.concat(getChunk());
+    | 	                ^^^^^^ Do not use \`Array#concat()\` to accumulate an array in a loop.
+  4 | } while (hasMoreChunks());
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(6): let result = [];\nfor (let index = 0; index < chunks.length; result = result.concat(chunks[index++])) {} 1`] = `
+
+  1 | let result = [];
+  2 | for (let index = 0; index < chunks.length; result = result.concat(chunks[index++])) {}
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(6): let result = [];\nfor (let index = 0; index < chunks.length; result = result.concat(chunks[index++])) {} 2`] = `
+
+Message:
+  1 | let result = [];
+> 2 | for (let index = 0; index < chunks.length; result = result.concat(chunks[index++])) {}
+    |                                                            ^^^^^^ Do not use \`Array#concat()\` to accumulate an array in a loop.
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(7): let result = [];\nfor (const chunk of chunks) {\n\tresult = (result.concat(chunk));\n} 1`] = `
+
+  1 | let result = [];
+  2 | for (const chunk of chunks) {
+  3 | 	result = (result.concat(chunk));
+  4 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(7): let result = [];\nfor (const chunk of chunks) {\n\tresult = (result.concat(chunk));\n} 2`] = `
+
+Message:
+  1 | let result = [];
+  2 | for (const chunk of chunks) {
+> 3 | 	result = (result.concat(chunk));
+    | 	                 ^^^^^^ Do not use \`Array#concat()\` to accumulate an array in a loop.
+  4 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(8): var result = [];\nfor (const chunk of chunks) {\n\tresult = result.concat(chunk);\n} 1`] = `
+
+  1 | var result = [];
+  2 | for (const chunk of chunks) {
+  3 | 	result = result.concat(chunk);
+  4 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(8): var result = [];\nfor (const chunk of chunks) {\n\tresult = result.concat(chunk);\n} 2`] = `
+
+Message:
+  1 | var result = [];
+  2 | for (const chunk of chunks) {
+> 3 | 	result = result.concat(chunk);
+    | 	                ^^^^^^ Do not use \`Array#concat()\` to accumulate an array in a loop.
+  4 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(9): let result = [];\nfor (const chunk of chunks) {\n\t(result) = (result).concat(chunk);\n} 1`] = `
+
+  1 | let result = [];
+  2 | for (const chunk of chunks) {
+  3 | 	(result) = (result).concat(chunk);
+  4 | }
+
+`;
+
+exports[`no-array-concat-in-loop > invalid(9): let result = [];\nfor (const chunk of chunks) {\n\t(result) = (result).concat(chunk);\n} 2`] = `
+
+Message:
+  1 | let result = [];
+  2 | for (const chunk of chunks) {
+> 3 | 	(result) = (result).concat(chunk);
+    | 	                    ^^^^^^ Do not use \`Array#concat()\` to accumulate an array in a loop.
+  4 | }
+
+`;

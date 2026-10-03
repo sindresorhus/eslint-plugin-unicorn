@@ -1,0 +1,1421 @@
+exports[`no-empty-link-text > invalid(1): ---\ntitle: \"[](https://example.com)\"\n---\n\n[](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | ---
+  2 | title: "[](https://example.com)"
+  3 | ---
+  4 |
+  5 | [](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(1): ---\ntitle: \"[](https://example.com)\"\n---\n\n[](https://example.com) 2`] = `
+
+Message:
+  1 | ---
+  2 | title: "[](https://example.com)"
+  3 | ---
+  4 |
+> 5 | [](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(1): [$ $](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [$ $](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(1): [$ $](https://example.com) 2`] = `
+
+Message:
+> 1 | [$ $](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(1): [](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(1): [](https://example.com) 2`] = `
+
+Message:
+> 1 | [](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(1): [~~&nbsp;~~](https://example.com) 1`] = `
+
+  1 | [~~&nbsp;~~](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(1): [~~&nbsp;~~](https://example.com) 2`] = `
+
+Message:
+> 1 | [~~&nbsp;~~](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(10): [ \r\n ](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [ 
+  2 |  ](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(10): [ \r\n ](https://example.com) 2`] = `
+
+Message:
+> 1 | [ 
+    | ^^
+> 2 |  ](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(11): [&nbsp;](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [&nbsp;](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(11): [&nbsp;](https://example.com) 2`] = `
+
+Message:
+> 1 | [&nbsp;](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(12): [&nbsp;](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [&nbsp;](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(12): [&nbsp;](https://example.com) 2`] = `
+
+Message:
+> 1 | [&nbsp;](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(13): [&#32;&#xA0;](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [&#32;&#xA0;](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(13): [&#32;&#xA0;](https://example.com) 2`] = `
+
+Message:
+> 1 | [&#32;&#xA0;](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(14): [&#32;&#xA0;](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [&#32;&#xA0;](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(14): [&#32;&#xA0;](https://example.com) 2`] = `
+
+Message:
+> 1 | [&#32;&#xA0;](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(15): [*&nbsp;*](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [*&nbsp;*](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(15): [*&nbsp;*](https://example.com) 2`] = `
+
+Message:
+> 1 | [*&nbsp;*](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(16): [*&nbsp;*](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [*&nbsp;*](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(16): [*&nbsp;*](https://example.com) 2`] = `
+
+Message:
+> 1 | [*&nbsp;*](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(17): [**&nbsp;**](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [**&nbsp;**](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(17): [**&nbsp;**](https://example.com) 2`] = `
+
+Message:
+> 1 | [**&nbsp;**](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(18): [**&nbsp;**](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [**&nbsp;**](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(18): [**&nbsp;**](https://example.com) 2`] = `
+
+Message:
+> 1 | [**&nbsp;**](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(19): [***&nbsp;***](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [***&nbsp;***](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(19): [***&nbsp;***](https://example.com) 2`] = `
+
+Message:
+> 1 | [***&nbsp;***](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(2): ---\ntitle: \"[](https://example.com)\"\n---\n\n[](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | ---
+  2 | title: "[](https://example.com)"
+  3 | ---
+  4 |
+  5 | [](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(2): ---\ntitle: \"[](https://example.com)\"\n---\n\n[](https://example.com) 2`] = `
+
+Message:
+  1 | ---
+  2 | title: "[](https://example.com)"
+  3 | ---
+  4 |
+> 5 | [](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(2): [$ $](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [$ $](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(2): [$ $](https://example.com) 2`] = `
+
+Message:
+> 1 | [$ $](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(2): [](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(2): [](https://example.com) 2`] = `
+
+Message:
+> 1 | [](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(20): [***&nbsp;***](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [***&nbsp;***](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(20): [***&nbsp;***](https://example.com) 2`] = `
+
+Message:
+> 1 | [***&nbsp;***](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(21): [\` \`](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [\` \`](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(21): [\` \`](https://example.com) 2`] = `
+
+Message:
+> 1 | [\` \`](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(22): [\` \`](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [\` \`](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(22): [\` \`](https://example.com) 2`] = `
+
+Message:
+> 1 | [\` \`](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(23): [  \n](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [  
+  2 | ](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(23): [  \n](https://example.com) 2`] = `
+
+Message:
+> 1 | [  
+    | ^^^
+> 2 | ](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(24): [  \n](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [  
+  2 | ](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(24): [  \n](https://example.com) 2`] = `
+
+Message:
+> 1 | [  
+    | ^^^
+> 2 | ](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(25): [\\\n](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [\\
+  2 | ](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(25): [\\\n](https://example.com) 2`] = `
+
+Message:
+> 1 | [\\
+    | ^^
+> 2 | ](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(26): [\\\n](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [\\
+  2 | ](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(26): [\\\n](https://example.com) 2`] = `
+
+Message:
+> 1 | [\\
+    | ^^
+> 2 | ](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(27): [![](badge.svg)](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [![](badge.svg)](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(27): [![](badge.svg)](https://example.com) 2`] = `
+
+Message:
+> 1 | [![](badge.svg)](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(28): [![](badge.svg)](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [![](badge.svg)](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(28): [![](badge.svg)](https://example.com) 2`] = `
+
+Message:
+> 1 | [![](badge.svg)](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(29): [![   ](badge.svg)](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [![   ](badge.svg)](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(29): [![   ](badge.svg)](https://example.com) 2`] = `
+
+Message:
+> 1 | [![   ](badge.svg)](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(3): [   ](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [   ](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(3): [   ](https://example.com) 2`] = `
+
+Message:
+> 1 | [   ](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(3): [*$ $*](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [*$ $*](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(3): [*$ $*](https://example.com) 2`] = `
+
+Message:
+> 1 | [*$ $*](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(30): [![   ](badge.svg)](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [![   ](badge.svg)](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(30): [![   ](badge.svg)](https://example.com) 2`] = `
+
+Message:
+> 1 | [![   ](badge.svg)](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(31): [![&nbsp;](badge.svg)](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [![&nbsp;](badge.svg)](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(31): [![&nbsp;](badge.svg)](https://example.com) 2`] = `
+
+Message:
+> 1 | [![&nbsp;](badge.svg)](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(32): [![&nbsp;](badge.svg)](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [![&nbsp;](badge.svg)](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(32): [![&nbsp;](badge.svg)](https://example.com) 2`] = `
+
+Message:
+> 1 | [![&nbsp;](badge.svg)](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(33): [![**&nbsp;**](badge.svg)](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [![**&nbsp;**](badge.svg)](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(33): [![**&nbsp;**](badge.svg)](https://example.com) 2`] = `
+
+Message:
+> 1 | [![**&nbsp;**](badge.svg)](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(34): [![**&nbsp;**](badge.svg)](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [![**&nbsp;**](badge.svg)](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(34): [![**&nbsp;**](badge.svg)](https://example.com) 2`] = `
+
+Message:
+> 1 | [![**&nbsp;**](badge.svg)](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(35): [*![](badge.svg)*](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [*![](badge.svg)*](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(35): [*![](badge.svg)*](https://example.com) 2`] = `
+
+Message:
+> 1 | [*![](badge.svg)*](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(36): [*![](badge.svg)*](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [*![](badge.svg)*](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(36): [*![](badge.svg)*](https://example.com) 2`] = `
+
+Message:
+> 1 | [*![](badge.svg)*](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(37): [![](badge.svg) \` \`](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [![](badge.svg) \` \`](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(37): [![](badge.svg) \` \`](https://example.com) 2`] = `
+
+Message:
+> 1 | [![](badge.svg) \` \`](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(38): [![](badge.svg) \` \`](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [![](badge.svg) \` \`](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(38): [![](badge.svg) \` \`](https://example.com) 2`] = `
+
+Message:
+> 1 | [![](badge.svg) \` \`](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(39): [![ ](first.svg) ![](second.svg)](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [![ ](first.svg) ![](second.svg)](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(39): [![ ](first.svg) ![](second.svg)](https://example.com) 2`] = `
+
+Message:
+> 1 | [![ ](first.svg) ![](second.svg)](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(4): [   ](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [   ](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(4): [   ](https://example.com) 2`] = `
+
+Message:
+> 1 | [   ](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(4): [*$ $*](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [*$ $*](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(4): [*$ $*](https://example.com) 2`] = `
+
+Message:
+> 1 | [*$ $*](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(40): [![ ](first.svg) ![](second.svg)](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [![ ](first.svg) ![](second.svg)](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(40): [![ ](first.svg) ![](second.svg)](https://example.com) 2`] = `
+
+Message:
+> 1 | [![ ](first.svg) ![](second.svg)](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(41): [](https://example.com \"Website\") 1`] = `
+
+Filename: example.md
+
+  1 | [](https://example.com "Website")
+
+`;
+
+exports[`no-empty-link-text > invalid(41): [](https://example.com \"Website\") 2`] = `
+
+Message:
+> 1 | [](https://example.com "Website")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(42): [](https://example.com \"Website\") 1`] = `
+
+Filename: example.md
+
+  1 | [](https://example.com "Website")
+
+`;
+
+exports[`no-empty-link-text > invalid(42): [](https://example.com \"Website\") 2`] = `
+
+Message:
+> 1 | [](https://example.com "Website")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(43): [![](badge.svg \"Build\")](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [![](badge.svg "Build")](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(43): [![](badge.svg \"Build\")](https://example.com) 2`] = `
+
+Message:
+> 1 | [![](badge.svg "Build")](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(44): [![](badge.svg \"Build\")](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [![](badge.svg "Build")](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(44): [![](badge.svg \"Build\")](https://example.com) 2`] = `
+
+Message:
+> 1 | [![](badge.svg "Build")](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(45): []() 1`] = `
+
+Filename: example.md
+
+  1 | []()
+
+`;
+
+exports[`no-empty-link-text > invalid(45): []() 2`] = `
+
+Message:
+> 1 | []()
+    | ^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(46): []() 1`] = `
+
+Filename: example.md
+
+  1 | []()
+
+`;
+
+exports[`no-empty-link-text > invalid(46): []() 2`] = `
+
+Message:
+> 1 | []()
+    | ^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(47): [](#) 1`] = `
+
+Filename: example.md
+
+  1 | [](#)
+
+`;
+
+exports[`no-empty-link-text > invalid(47): [](#) 2`] = `
+
+Message:
+> 1 | [](#)
+    | ^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(48): [](#) 1`] = `
+
+Filename: example.md
+
+  1 | [](#)
+
+`;
+
+exports[`no-empty-link-text > invalid(48): [](#) 2`] = `
+
+Message:
+> 1 | [](#)
+    | ^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(49): [][destination]\n\n[destination]: https://example.com 1`] = `
+
+Filename: example.md
+
+  1 | [][destination]
+  2 |
+  3 | [destination]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(49): [][destination]\n\n[destination]: https://example.com 2`] = `
+
+Message:
+> 1 | [][destination]
+    | ^^^^^^^^^^^^^^^ Link text must not be empty.
+  2 |
+  3 | [destination]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(5): [\t](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [	](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(5): [\t](https://example.com) 2`] = `
+
+Message:
+> 1 | [	](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(50): [][destination]\n\n[destination]: https://example.com 1`] = `
+
+Filename: example.md
+
+  1 | [][destination]
+  2 |
+  3 | [destination]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(50): [][destination]\n\n[destination]: https://example.com 2`] = `
+
+Message:
+> 1 | [][destination]
+    | ^^^^^^^^^^^^^^^ Link text must not be empty.
+  2 |
+  3 | [destination]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(51): [ ][destination]\n\n[destination]: https://example.com 1`] = `
+
+Filename: example.md
+
+  1 | [ ][destination]
+  2 |
+  3 | [destination]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(51): [ ][destination]\n\n[destination]: https://example.com 2`] = `
+
+Message:
+> 1 | [ ][destination]
+    | ^^^^^^^^^^^^^^^^ Link text must not be empty.
+  2 |
+  3 | [destination]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(52): [ ][destination]\n\n[destination]: https://example.com 1`] = `
+
+Filename: example.md
+
+  1 | [ ][destination]
+  2 |
+  3 | [destination]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(52): [ ][destination]\n\n[destination]: https://example.com 2`] = `
+
+Message:
+> 1 | [ ][destination]
+    | ^^^^^^^^^^^^^^^^ Link text must not be empty.
+  2 |
+  3 | [destination]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(53): [&nbsp;][]\n\n[&nbsp;]: https://example.com 1`] = `
+
+Filename: example.md
+
+  1 | [&nbsp;][]
+  2 |
+  3 | [&nbsp;]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(53): [&nbsp;][]\n\n[&nbsp;]: https://example.com 2`] = `
+
+Message:
+> 1 | [&nbsp;][]
+    | ^^^^^^^^^^ Link text must not be empty.
+  2 |
+  3 | [&nbsp;]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(54): [&nbsp;][]\n\n[&nbsp;]: https://example.com 1`] = `
+
+Filename: example.md
+
+  1 | [&nbsp;][]
+  2 |
+  3 | [&nbsp;]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(54): [&nbsp;][]\n\n[&nbsp;]: https://example.com 2`] = `
+
+Message:
+> 1 | [&nbsp;][]
+    | ^^^^^^^^^^ Link text must not be empty.
+  2 |
+  3 | [&nbsp;]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(55): [&nbsp;]\n\n[&nbsp;]: https://example.com 1`] = `
+
+Filename: example.md
+
+  1 | [&nbsp;]
+  2 |
+  3 | [&nbsp;]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(55): [&nbsp;]\n\n[&nbsp;]: https://example.com 2`] = `
+
+Message:
+> 1 | [&nbsp;]
+    | ^^^^^^^^ Link text must not be empty.
+  2 |
+  3 | [&nbsp;]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(56): [&nbsp;]\n\n[&nbsp;]: https://example.com 1`] = `
+
+Filename: example.md
+
+  1 | [&nbsp;]
+  2 |
+  3 | [&nbsp;]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(56): [&nbsp;]\n\n[&nbsp;]: https://example.com 2`] = `
+
+Message:
+> 1 | [&nbsp;]
+    | ^^^^^^^^ Link text must not be empty.
+  2 |
+  3 | [&nbsp;]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(57): [**&nbsp;**][destination]\n\n[destination]: https://example.com 1`] = `
+
+Filename: example.md
+
+  1 | [**&nbsp;**][destination]
+  2 |
+  3 | [destination]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(57): [**&nbsp;**][destination]\n\n[destination]: https://example.com 2`] = `
+
+Message:
+> 1 | [**&nbsp;**][destination]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+  2 |
+  3 | [destination]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(58): [**&nbsp;**][destination]\n\n[destination]: https://example.com 1`] = `
+
+Filename: example.md
+
+  1 | [**&nbsp;**][destination]
+  2 |
+  3 | [destination]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(58): [**&nbsp;**][destination]\n\n[destination]: https://example.com 2`] = `
+
+Message:
+> 1 | [**&nbsp;**][destination]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+  2 |
+  3 | [destination]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(59): [![][badge]](https://example.com)\n\n[badge]: badge.svg 1`] = `
+
+Filename: example.md
+
+  1 | [![][badge]](https://example.com)
+  2 |
+  3 | [badge]: badge.svg
+
+`;
+
+exports[`no-empty-link-text > invalid(59): [![][badge]](https://example.com)\n\n[badge]: badge.svg 2`] = `
+
+Message:
+> 1 | [![][badge]](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+  2 |
+  3 | [badge]: badge.svg
+
+`;
+
+exports[`no-empty-link-text > invalid(6): [\t](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [	](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(6): [\t](https://example.com) 2`] = `
+
+Message:
+> 1 | [	](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(60): [![][badge]](https://example.com)\n\n[badge]: badge.svg 1`] = `
+
+Filename: example.md
+
+  1 | [![][badge]](https://example.com)
+  2 |
+  3 | [badge]: badge.svg
+
+`;
+
+exports[`no-empty-link-text > invalid(60): [![][badge]](https://example.com)\n\n[badge]: badge.svg 2`] = `
+
+Message:
+> 1 | [![][badge]](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+  2 |
+  3 | [badge]: badge.svg
+
+`;
+
+exports[`no-empty-link-text > invalid(61): [![   ][badge]][destination]\n\n[badge]: badge.svg\n[destination]: https://example.com 1`] = `
+
+Filename: example.md
+
+  1 | [![   ][badge]][destination]
+  2 |
+  3 | [badge]: badge.svg
+  4 | [destination]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(61): [![   ][badge]][destination]\n\n[badge]: badge.svg\n[destination]: https://example.com 2`] = `
+
+Message:
+> 1 | [![   ][badge]][destination]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+  2 |
+  3 | [badge]: badge.svg
+  4 | [destination]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(62): [![   ][badge]][destination]\n\n[badge]: badge.svg\n[destination]: https://example.com 1`] = `
+
+Filename: example.md
+
+  1 | [![   ][badge]][destination]
+  2 |
+  3 | [badge]: badge.svg
+  4 | [destination]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(62): [![   ][badge]][destination]\n\n[badge]: badge.svg\n[destination]: https://example.com 2`] = `
+
+Message:
+> 1 | [![   ][badge]][destination]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+  2 |
+  3 | [badge]: badge.svg
+  4 | [destination]: https://example.com
+
+`;
+
+exports[`no-empty-link-text > invalid(63): [Website](https://example.com) [](first)\n\nText [ ](second) 1`] = `
+
+Filename: example.md
+
+  1 | [Website](https://example.com) [](first)
+  2 |
+  3 | Text [ ](second)
+
+`;
+
+exports[`no-empty-link-text > invalid(63): [Website](https://example.com) [](first)\n\nText [ ](second) 2`] = `
+
+Message:
+> 1 | [Website](https://example.com) [](first)
+    |                                ^^^^^^^^^ Link text must not be empty.
+  2 |
+  3 | Text [ ](second)
+
+`;
+
+exports[`no-empty-link-text > invalid(63): [Website](https://example.com) [](first)\n\nText [ ](second) 3`] = `
+
+Message:
+  1 | [Website](https://example.com) [](first)
+  2 |
+> 3 | Text [ ](second)
+    |      ^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(64): [Website](https://example.com) [](first)\n\nText [ ](second) 1`] = `
+
+Filename: example.md
+
+  1 | [Website](https://example.com) [](first)
+  2 |
+  3 | Text [ ](second)
+
+`;
+
+exports[`no-empty-link-text > invalid(64): [Website](https://example.com) [](first)\n\nText [ ](second) 2`] = `
+
+Message:
+> 1 | [Website](https://example.com) [](first)
+    |                                ^^^^^^^^^ Link text must not be empty.
+  2 |
+  3 | Text [ ](second)
+
+`;
+
+exports[`no-empty-link-text > invalid(64): [Website](https://example.com) [](first)\n\nText [ ](second) 3`] = `
+
+Message:
+  1 | [Website](https://example.com) [](first)
+  2 |
+> 3 | Text [ ](second)
+    |      ^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(65): [ ](first) [<span></span>](second) [](third) 1`] = `
+
+Filename: example.md
+
+  1 | [ ](first) [<span></span>](second) [](third)
+
+`;
+
+exports[`no-empty-link-text > invalid(65): [ ](first) [<span></span>](second) [](third) 2`] = `
+
+Message:
+> 1 | [ ](first) [<span></span>](second) [](third)
+    | ^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(65): [ ](first) [<span></span>](second) [](third) 3`] = `
+
+Message:
+> 1 | [ ](first) [<span></span>](second) [](third)
+    |                                    ^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(66): [ ](first) [<span></span>](second) [](third) 1`] = `
+
+Filename: example.md
+
+  1 | [ ](first) [<span></span>](second) [](third)
+
+`;
+
+exports[`no-empty-link-text > invalid(66): [ ](first) [<span></span>](second) [](third) 2`] = `
+
+Message:
+> 1 | [ ](first) [<span></span>](second) [](third)
+    | ^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(66): [ ](first) [<span></span>](second) [](third) 3`] = `
+
+Message:
+> 1 | [ ](first) [<span></span>](second) [](third)
+    |                                    ^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(67): [![&nbsp;][]](https://example.com)\n\n[&nbsp;]: badge.svg 1`] = `
+
+Filename: example.md
+
+  1 | [![&nbsp;][]](https://example.com)
+  2 |
+  3 | [&nbsp;]: badge.svg
+
+`;
+
+exports[`no-empty-link-text > invalid(67): [![&nbsp;][]](https://example.com)\n\n[&nbsp;]: badge.svg 2`] = `
+
+Message:
+> 1 | [![&nbsp;][]](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+  2 |
+  3 | [&nbsp;]: badge.svg
+
+`;
+
+exports[`no-empty-link-text > invalid(68): [![&nbsp;][]](https://example.com)\n\n[&nbsp;]: badge.svg 1`] = `
+
+Filename: example.md
+
+  1 | [![&nbsp;][]](https://example.com)
+  2 |
+  3 | [&nbsp;]: badge.svg
+
+`;
+
+exports[`no-empty-link-text > invalid(68): [![&nbsp;][]](https://example.com)\n\n[&nbsp;]: badge.svg 2`] = `
+
+Message:
+> 1 | [![&nbsp;][]](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+  2 |
+  3 | [&nbsp;]: badge.svg
+
+`;
+
+exports[`no-empty-link-text > invalid(69): [![&nbsp;]](https://example.com)\n\n[&nbsp;]: badge.svg 1`] = `
+
+Filename: example.md
+
+  1 | [![&nbsp;]](https://example.com)
+  2 |
+  3 | [&nbsp;]: badge.svg
+
+`;
+
+exports[`no-empty-link-text > invalid(69): [![&nbsp;]](https://example.com)\n\n[&nbsp;]: badge.svg 2`] = `
+
+Message:
+> 1 | [![&nbsp;]](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+  2 |
+  3 | [&nbsp;]: badge.svg
+
+`;
+
+exports[`no-empty-link-text > invalid(7): [ \n ](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [ 
+  2 |  ](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(7): [ \n ](https://example.com) 2`] = `
+
+Message:
+> 1 | [ 
+    | ^^
+> 2 |  ](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(70): [![&nbsp;]](https://example.com)\n\n[&nbsp;]: badge.svg 1`] = `
+
+Filename: example.md
+
+  1 | [![&nbsp;]](https://example.com)
+  2 |
+  3 | [&nbsp;]: badge.svg
+
+`;
+
+exports[`no-empty-link-text > invalid(70): [![&nbsp;]](https://example.com)\n\n[&nbsp;]: badge.svg 2`] = `
+
+Message:
+> 1 | [![&nbsp;]](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+  2 |
+  3 | [&nbsp;]: badge.svg
+
+`;
+
+exports[`no-empty-link-text > invalid(71): [![\` \`](image.png)](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [![\` \`](image.png)](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(71): [![\` \`](image.png)](https://example.com) 2`] = `
+
+Message:
+> 1 | [![\` \`](image.png)](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(72): [![\` \`](image.png)](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [![\` \`](image.png)](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(72): [![\` \`](image.png)](https://example.com) 2`] = `
+
+Message:
+> 1 | [![\` \`](image.png)](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(8): [ \n ](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [ 
+  2 |  ](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(8): [ \n ](https://example.com) 2`] = `
+
+Message:
+> 1 | [ 
+    | ^^
+> 2 |  ](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;
+
+exports[`no-empty-link-text > invalid(9): [ \r\n ](https://example.com) 1`] = `
+
+Filename: example.md
+
+  1 | [ 
+  2 |  ](https://example.com)
+
+`;
+
+exports[`no-empty-link-text > invalid(9): [ \r\n ](https://example.com) 2`] = `
+
+Message:
+> 1 | [ 
+    | ^^
+> 2 |  ](https://example.com)
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Link text must not be empty.
+
+`;

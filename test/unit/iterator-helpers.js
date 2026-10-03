@@ -1,5 +1,5 @@
+import test from 'node:test';
 import {Linter} from 'eslint';
-import test from 'ava';
 import outdent from 'outdent';
 import plugin from '../../index.js';
 import {isIteratorExpression} from '../../rules/shared/iterator-helpers.js';
@@ -41,6 +41,8 @@ for (const [expected, cases] of [
 		'const {generate} = { * generate() { yield 1; } }; inspect(generate());',
 		'function * generate() { yield 1; } inspect(generate?.());',
 		'const array = []; inspect(array);',
+		'inspect(getIterator().from(items));',
+		'inspect(globalThis.Other.from(items));',
 	]],
 ]) {
 	for (const code of cases) {
@@ -65,8 +67,8 @@ for (const [expected, cases] of [
 				},
 				rules: {'test/inspect': 'error'},
 			});
-			t.deepEqual(messages, []);
-			t.deepEqual(results, [expected]);
+			t.assert.deepStrictEqual(messages, []);
+			t.assert.deepStrictEqual(results, [expected]);
 		});
 	}
 }
@@ -91,7 +93,7 @@ test('builtin and iterator rules report each discarded call once', t => {
 			'unicorn/no-unused-iterator-helper': 'error',
 		},
 	});
-	t.deepEqual(messages.map(({ruleId}) => ruleId), [
+	t.assert.deepStrictEqual(messages.map(({ruleId}) => ruleId), [
 		'unicorn/no-unused-iterator-helper',
 		'unicorn/no-unused-iterator-helper',
 		'unicorn/no-unused-iterator-helper',

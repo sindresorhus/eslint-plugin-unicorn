@@ -1,0 +1,1635 @@
+exports[`prefer-module > invalid(1): 'use strict';\n\nconsole.log(1); 1`] = `
+
+  1 | 'use strict';
+  2 |
+  3 | console.log(1);
+
+`;
+
+exports[`prefer-module > invalid(1): 'use strict';\n\nconsole.log(1); 2`] = `
+
+Message:
+> 1 | 'use strict';
+    | ^^^^^^^^^^^^^ Do not use "use strict" directive.
+  2 |
+  3 | console.log(1);
+
+Suggestion 1/1: Remove "use strict" directive.:
+  1 | console.log(1);
+
+`;
+
+exports[`prefer-module > invalid(1): __filename 1`] = `
+
+Filename: foo.mjs
+
+  1 | __filename
+
+`;
+
+exports[`prefer-module > invalid(1): __filename 2`] = `
+
+Message:
+> 1 | __filename
+    | ^^^^^^^^^^ Do not use "__filename".
+
+Suggestion 1/2: Replace \`__filename\` with \`import.meta.filename\`.:
+  1 | import.meta.filename
+
+Suggestion 2/2: Replace \`__filename\` with \`…(import.meta.url)\`.:
+  1 | url.fileURLToPath(import.meta.url)
+
+`;
+
+exports[`prefer-module > invalid(1): const dirname = __dirname; 1`] = `
+
+  1 | const dirname = __dirname;
+
+`;
+
+exports[`prefer-module > invalid(1): const dirname = __dirname; 2`] = `
+
+Message:
+> 1 | const dirname = __dirname;
+    |                 ^^^^^^^^^ Do not use "__dirname".
+
+Suggestion 1/2: Replace \`__dirname\` with \`import.meta.dirname\`.:
+  1 | const dirname = import.meta.dirname;
+
+Suggestion 2/2: Replace \`__dirname\` with \`…(import.meta.url)\`.:
+  1 | const dirname = path.dirname(url.fileURLToPath(import.meta.url));
+
+`;
+
+exports[`prefer-module > invalid(1): exports = foo; 1`] = `
+
+  1 | exports = foo;
+
+`;
+
+exports[`prefer-module > invalid(1): exports = foo; 2`] = `
+
+Message:
+> 1 | exports = foo;
+    | ^^^^^^^ Do not use "exports".
+
+Suggestion 1/1: Switch to \`export\`.:
+  1 | export default foo;
+
+`;
+
+exports[`prefer-module > invalid(1): require(\"foo\"); 1`] = `
+
+  1 | require("foo");
+
+`;
+
+exports[`prefer-module > invalid(1): require(\"foo\"); 2`] = `
+
+Message:
+> 1 | require("foo");
+    | ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import "foo";
+
+`;
+
+exports[`prefer-module > invalid(10): const foo = exports.foo; 1`] = `
+
+  1 | const foo = exports.foo;
+
+`;
+
+exports[`prefer-module > invalid(10): const foo = exports.foo; 2`] = `
+
+Message:
+> 1 | const foo = exports.foo;
+    |             ^^^^^^^ Do not use "exports".
+
+`;
+
+exports[`prefer-module > invalid(10): const foo = require( ((\"foo\")) ); 1`] = `
+
+  1 | const foo = require( (("foo")) );
+
+`;
+
+exports[`prefer-module > invalid(10): const foo = require( ((\"foo\")) ); 2`] = `
+
+Message:
+> 1 | const foo = require( (("foo")) );
+    |             ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import foo from  "foo" ;
+
+`;
+
+exports[`prefer-module > invalid(11): const foo = ((require))(\"foo\"); 1`] = `
+
+  1 | const foo = ((require))("foo");
+
+`;
+
+exports[`prefer-module > invalid(11): const foo = ((require))(\"foo\"); 2`] = `
+
+Message:
+> 1 | const foo = ((require))("foo");
+    |               ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import foo from "foo";
+
+`;
+
+exports[`prefer-module > invalid(11): const foo = module.exports; 1`] = `
+
+  1 | const foo = module.exports;
+
+`;
+
+exports[`prefer-module > invalid(11): const foo = module.exports; 2`] = `
+
+Message:
+> 1 | const foo = module.exports;
+    |             ^^^^^^ Do not use "module".
+
+`;
+
+exports[`prefer-module > invalid(12): const foo = (( require(\"foo\") )); 1`] = `
+
+  1 | const foo = (( require("foo") ));
+
+`;
+
+exports[`prefer-module > invalid(12): const foo = (( require(\"foo\") )); 2`] = `
+
+Message:
+> 1 | const foo = (( require("foo") ));
+    |                ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import foo from  "foo" ;
+
+`;
+
+exports[`prefer-module > invalid(12): const foo = module.exports.foo; 1`] = `
+
+  1 | const foo = module.exports.foo;
+
+`;
+
+exports[`prefer-module > invalid(12): const foo = module.exports.foo; 2`] = `
+
+Message:
+> 1 | const foo = module.exports.foo;
+    |             ^^^^^^ Do not use "module".
+
+`;
+
+exports[`prefer-module > invalid(13): const {foo}=require(\"foo\"); 1`] = `
+
+  1 | const {foo}=require("foo");
+
+`;
+
+exports[`prefer-module > invalid(13): const {foo}=require(\"foo\"); 2`] = `
+
+Message:
+> 1 | const {foo}=require("foo");
+    |             ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {foo} from "foo";
+
+`;
+
+exports[`prefer-module > invalid(13): module[\"exports\"] = foo; 1`] = `
+
+  1 | module["exports"] = foo;
+
+`;
+
+exports[`prefer-module > invalid(13): module[\"exports\"] = foo; 2`] = `
+
+Message:
+> 1 | module["exports"] = foo;
+    | ^^^^^^ Do not use "module".
+
+`;
+
+exports[`prefer-module > invalid(14): const {foo}\n\t=\n\trequire(\"foo\"); 1`] = `
+
+  1 | const {foo}
+  2 | 	=
+  3 | 	require("foo");
+
+`;
+
+exports[`prefer-module > invalid(14): const {foo}\n\t=\n\trequire(\"foo\"); 2`] = `
+
+Message:
+  1 | const {foo}
+  2 | 	=
+> 3 | 	require("foo");
+    | 	^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {foo} from "foo";
+
+`;
+
+exports[`prefer-module > invalid(14): module[exports] = foo; 1`] = `
+
+  1 | module[exports] = foo;
+
+`;
+
+exports[`prefer-module > invalid(14): module[exports] = foo; 2`] = `
+
+Message:
+> 1 | module[exports] = foo;
+    | ^^^^^^ Do not use "module".
+
+`;
+
+exports[`prefer-module > invalid(14): module[exports] = foo; 3`] = `
+
+Message:
+> 1 | module[exports] = foo;
+    |        ^^^^^^^ Do not use "exports".
+
+`;
+
+exports[`prefer-module > invalid(15): const {foo} = require(\"foo\"); 1`] = `
+
+  1 | const {foo} = require("foo");
+
+`;
+
+exports[`prefer-module > invalid(15): const {foo} = require(\"foo\"); 2`] = `
+
+Message:
+> 1 | const {foo} = require("foo");
+    |               ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {foo} from "foo";
+
+`;
+
+exports[`prefer-module > invalid(15): module.exports.foo.bar = foo; 1`] = `
+
+  1 | module.exports.foo.bar = foo;
+
+`;
+
+exports[`prefer-module > invalid(15): module.exports.foo.bar = foo; 2`] = `
+
+Message:
+> 1 | module.exports.foo.bar = foo;
+    | ^^^^^^ Do not use "module".
+
+`;
+
+exports[`prefer-module > invalid(16): const foo = 1;exports.default = foo; 1`] = `
+
+  1 | const foo = 1;exports.default = foo;
+
+`;
+
+exports[`prefer-module > invalid(16): const foo = 1;exports.default = foo; 2`] = `
+
+Message:
+> 1 | const foo = 1;exports.default = foo;
+    |               ^^^^^^^ Do not use "exports".
+
+Suggestion 1/1: Switch to \`export\`.:
+  1 | const foo = 1;export {foo as default};
+
+`;
+
+exports[`prefer-module > invalid(16): const {foo} = require( ((\"foo\")) ); 1`] = `
+
+  1 | const {foo} = require( (("foo")) );
+
+`;
+
+exports[`prefer-module > invalid(16): const {foo} = require( ((\"foo\")) ); 2`] = `
+
+Message:
+> 1 | const {foo} = require( (("foo")) );
+    |               ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {foo} from  "foo" ;
+
+`;
+
+exports[`prefer-module > invalid(17): const foo = 1;module.exports.default = foo; 1`] = `
+
+  1 | const foo = 1;module.exports.default = foo;
+
+`;
+
+exports[`prefer-module > invalid(17): const foo = 1;module.exports.default = foo; 2`] = `
+
+Message:
+> 1 | const foo = 1;module.exports.default = foo;
+    |               ^^^^^^ Do not use "module".
+
+Suggestion 1/1: Switch to \`export\`.:
+  1 | const foo = 1;export {foo as default};
+
+`;
+
+exports[`prefer-module > invalid(17): const {foo} = ((require))(\"foo\"); 1`] = `
+
+  1 | const {foo} = ((require))("foo");
+
+`;
+
+exports[`prefer-module > invalid(17): const {foo} = ((require))(\"foo\"); 2`] = `
+
+Message:
+> 1 | const {foo} = ((require))("foo");
+    |                 ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {foo} from "foo";
+
+`;
+
+exports[`prefer-module > invalid(18): const {foo} = (( require(\"foo\") )); 1`] = `
+
+  1 | const {foo} = (( require("foo") ));
+
+`;
+
+exports[`prefer-module > invalid(18): const {foo} = (( require(\"foo\") )); 2`] = `
+
+Message:
+> 1 | const {foo} = (( require("foo") ));
+    |                  ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {foo} from  "foo" ;
+
+`;
+
+exports[`prefer-module > invalid(18): exports.foo.bar = foo; 1`] = `
+
+  1 | exports.foo.bar = foo;
+
+`;
+
+exports[`prefer-module > invalid(18): exports.foo.bar = foo; 2`] = `
+
+Message:
+> 1 | exports.foo.bar = foo;
+    | ^^^^^^^ Do not use "exports".
+
+`;
+
+exports[`prefer-module > invalid(19): const {foo: foo}=require(\"foo\"); 1`] = `
+
+  1 | const {foo: foo}=require("foo");
+
+`;
+
+exports[`prefer-module > invalid(19): const {foo: foo}=require(\"foo\"); 2`] = `
+
+Message:
+> 1 | const {foo: foo}=require("foo");
+    |                  ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {foo as foo} from "foo";
+
+`;
+
+exports[`prefer-module > invalid(19): exports = 1; 1`] = `
+
+  1 | exports = 1;
+
+`;
+
+exports[`prefer-module > invalid(19): exports = 1; 2`] = `
+
+Message:
+> 1 | exports = 1;
+    | ^^^^^^^ Do not use "exports".
+
+Suggestion 1/1: Switch to \`export\`.:
+  1 | export default 1;
+
+`;
+
+exports[`prefer-module > invalid(2): \"use strict\";\n\nconsole.log(1); 1`] = `
+
+  1 | "use strict";
+  2 |
+  3 | console.log(1);
+
+`;
+
+exports[`prefer-module > invalid(2): \"use strict\";\n\nconsole.log(1); 2`] = `
+
+Message:
+> 1 | "use strict";
+    | ^^^^^^^^^^^^^ Do not use "use strict" directive.
+  2 |
+  3 | console.log(1);
+
+Suggestion 1/1: Remove "use strict" directive.:
+  1 | console.log(1);
+
+`;
+
+exports[`prefer-module > invalid(2): const dirname = __filename; 1`] = `
+
+  1 | const dirname = __filename;
+
+`;
+
+exports[`prefer-module > invalid(2): const dirname = __filename; 2`] = `
+
+Message:
+> 1 | const dirname = __filename;
+    |                 ^^^^^^^^^^ Do not use "__filename".
+
+Suggestion 1/2: Replace \`__filename\` with \`import.meta.filename\`.:
+  1 | const dirname = import.meta.filename;
+
+Suggestion 2/2: Replace \`__filename\` with \`…(import.meta.url)\`.:
+  1 | const dirname = url.fileURLToPath(import.meta.url);
+
+`;
+
+exports[`prefer-module > invalid(2): module.exports = foo; 1`] = `
+
+  1 | module.exports = foo;
+
+`;
+
+exports[`prefer-module > invalid(2): module.exports = foo; 2`] = `
+
+Message:
+> 1 | module.exports = foo;
+    | ^^^^^^ Do not use "module".
+
+Suggestion 1/1: Switch to \`export\`.:
+  1 | export default foo;
+
+`;
+
+exports[`prefer-module > invalid(2): require('foo'); 1`] = `
+
+  1 | require('foo');
+
+`;
+
+exports[`prefer-module > invalid(2): require('foo'); 2`] = `
+
+Message:
+> 1 | require('foo');
+    | ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import 'foo';
+
+`;
+
+exports[`prefer-module > invalid(2): require(\"lodash\") 1`] = `
+
+Filename: foo.js
+
+  1 | require("lodash")
+
+`;
+
+exports[`prefer-module > invalid(2): require(\"lodash\") 2`] = `
+
+Message:
+> 1 | require("lodash")
+    | ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import "lodash"
+
+`;
+
+exports[`prefer-module > invalid(20): const {foo: foo}\n\t=\n\trequire(\"foo\"); 1`] = `
+
+  1 | const {foo: foo}
+  2 | 	=
+  3 | 	require("foo");
+
+`;
+
+exports[`prefer-module > invalid(20): const {foo: foo}\n\t=\n\trequire(\"foo\"); 2`] = `
+
+Message:
+  1 | const {foo: foo}
+  2 | 	=
+> 3 | 	require("foo");
+    | 	^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {foo as foo} from "foo";
+
+`;
+
+exports[`prefer-module > invalid(20): exports.foo = []; 1`] = `
+
+  1 | exports.foo = [];
+
+`;
+
+exports[`prefer-module > invalid(20): exports.foo = []; 2`] = `
+
+Message:
+> 1 | exports.foo = [];
+    | ^^^^^^^ Do not use "exports".
+
+`;
+
+exports[`prefer-module > invalid(21): const {foo: foo} = require(\"foo\"); 1`] = `
+
+  1 | const {foo: foo} = require("foo");
+
+`;
+
+exports[`prefer-module > invalid(21): const {foo: foo} = require(\"foo\"); 2`] = `
+
+Message:
+> 1 | const {foo: foo} = require("foo");
+    |                    ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {foo as foo} from "foo";
+
+`;
+
+exports[`prefer-module > invalid(21): module.exports = function() {}; 1`] = `
+
+  1 | module.exports = function() {};
+
+`;
+
+exports[`prefer-module > invalid(21): module.exports = function() {}; 2`] = `
+
+Message:
+> 1 | module.exports = function() {};
+    | ^^^^^^ Do not use "module".
+
+Suggestion 1/1: Switch to \`export\`.:
+  1 | export default function() {};
+
+`;
+
+exports[`prefer-module > invalid(22): const {foo: foo} = require( ((\"foo\")) ); 1`] = `
+
+  1 | const {foo: foo} = require( (("foo")) );
+
+`;
+
+exports[`prefer-module > invalid(22): const {foo: foo} = require( ((\"foo\")) ); 2`] = `
+
+Message:
+> 1 | const {foo: foo} = require( (("foo")) );
+    |                    ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {foo as foo} from  "foo" ;
+
+`;
+
+exports[`prefer-module > invalid(22): module.exports.foo = foo || bar; 1`] = `
+
+  1 | module.exports.foo = foo || bar;
+
+`;
+
+exports[`prefer-module > invalid(22): module.exports.foo = foo || bar; 2`] = `
+
+Message:
+> 1 | module.exports.foo = foo || bar;
+    | ^^^^^^ Do not use "module".
+
+`;
+
+exports[`prefer-module > invalid(23): const {foo: foo} = ((require))(\"foo\"); 1`] = `
+
+  1 | const {foo: foo} = ((require))("foo");
+
+`;
+
+exports[`prefer-module > invalid(23): const {foo: foo} = ((require))(\"foo\"); 2`] = `
+
+Message:
+> 1 | const {foo: foo} = ((require))("foo");
+    |                      ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {foo as foo} from "foo";
+
+`;
+
+exports[`prefer-module > invalid(23): exports += foo; 1`] = `
+
+  1 | exports += foo;
+
+`;
+
+exports[`prefer-module > invalid(23): exports += foo; 2`] = `
+
+Message:
+> 1 | exports += foo;
+    | ^^^^^^^ Do not use "exports".
+
+`;
+
+exports[`prefer-module > invalid(24): const foo = module.children 1`] = `
+
+  1 | const foo = module.children
+
+`;
+
+exports[`prefer-module > invalid(24): const foo = module.children 2`] = `
+
+Message:
+> 1 | const foo = module.children
+    |             ^^^^^^ Do not use "module".
+
+`;
+
+exports[`prefer-module > invalid(24): const {foo: foo} = (( require(\"foo\") )); 1`] = `
+
+  1 | const {foo: foo} = (( require("foo") ));
+
+`;
+
+exports[`prefer-module > invalid(24): const {foo: foo} = (( require(\"foo\") )); 2`] = `
+
+Message:
+> 1 | const {foo: foo} = (( require("foo") ));
+    |                       ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {foo as foo} from  "foo" ;
+
+`;
+
+exports[`prefer-module > invalid(25): const parentModule = module.parent 1`] = `
+
+  1 | const parentModule = module.parent
+
+`;
+
+exports[`prefer-module > invalid(25): const parentModule = module.parent 2`] = `
+
+Message:
+> 1 | const parentModule = module.parent
+    |                      ^^^^^^ Do not use "module".
+
+`;
+
+exports[`prefer-module > invalid(25): const {foo:bar}=require(\"foo\"); 1`] = `
+
+  1 | const {foo:bar}=require("foo");
+
+`;
+
+exports[`prefer-module > invalid(25): const {foo:bar}=require(\"foo\"); 2`] = `
+
+Message:
+> 1 | const {foo:bar}=require("foo");
+    |                 ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {foo as bar} from "foo";
+
+`;
+
+exports[`prefer-module > invalid(26): const {foo:bar}\n\t=\n\trequire(\"foo\"); 1`] = `
+
+  1 | const {foo:bar}
+  2 | 	=
+  3 | 	require("foo");
+
+`;
+
+exports[`prefer-module > invalid(26): const {foo:bar}\n\t=\n\trequire(\"foo\"); 2`] = `
+
+Message:
+  1 | const {foo:bar}
+  2 | 	=
+> 3 | 	require("foo");
+    | 	^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {foo as bar} from "foo";
+
+`;
+
+exports[`prefer-module > invalid(26): function foo() {\n\texports.foo = foo;\n\tmodule.exports.foo = foo;\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	exports.foo = foo;
+  3 | 	module.exports.foo = foo;
+  4 | }
+
+`;
+
+exports[`prefer-module > invalid(26): function foo() {\n\texports.foo = foo;\n\tmodule.exports.foo = foo;\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	exports.foo = foo;
+    | 	^^^^^^^ Do not use "exports".
+  3 | 	module.exports.foo = foo;
+  4 | }
+
+`;
+
+exports[`prefer-module > invalid(26): function foo() {\n\texports.foo = foo;\n\tmodule.exports.foo = foo;\n} 3`] = `
+
+Message:
+  1 | function foo() {
+  2 | 	exports.foo = foo;
+> 3 | 	module.exports.foo = foo;
+    | 	^^^^^^ Do not use "module".
+  4 | }
+
+`;
+
+exports[`prefer-module > invalid(27): const {foo:bar} = require(\"foo\"); 1`] = `
+
+  1 | const {foo:bar} = require("foo");
+
+`;
+
+exports[`prefer-module > invalid(27): const {foo:bar} = require(\"foo\"); 2`] = `
+
+Message:
+> 1 | const {foo:bar} = require("foo");
+    |                   ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {foo as bar} from "foo";
+
+`;
+
+exports[`prefer-module > invalid(28): const {foo:bar} = require( ((\"foo\")) ); 1`] = `
+
+  1 | const {foo:bar} = require( (("foo")) );
+
+`;
+
+exports[`prefer-module > invalid(28): const {foo:bar} = require( ((\"foo\")) ); 2`] = `
+
+Message:
+> 1 | const {foo:bar} = require( (("foo")) );
+    |                   ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {foo as bar} from  "foo" ;
+
+`;
+
+exports[`prefer-module > invalid(29): const {foo:bar} = ((require))(\"foo\"); 1`] = `
+
+  1 | const {foo:bar} = ((require))("foo");
+
+`;
+
+exports[`prefer-module > invalid(29): const {foo:bar} = ((require))(\"foo\"); 2`] = `
+
+Message:
+> 1 | const {foo:bar} = ((require))("foo");
+    |                     ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {foo as bar} from "foo";
+
+`;
+
+exports[`prefer-module > invalid(3): (( ((exports)) = ((foo)) )); 1`] = `
+
+  1 | (( ((exports)) = ((foo)) ));
+
+`;
+
+exports[`prefer-module > invalid(3): (( ((exports)) = ((foo)) )); 2`] = `
+
+Message:
+> 1 | (( ((exports)) = ((foo)) ));
+    |      ^^^^^^^ Do not use "exports".
+
+Suggestion 1/1: Switch to \`export\`.:
+  1 |  export default  ((foo)) ;
+
+`;
+
+exports[`prefer-module > invalid(3): const foo = { __dirname}; 1`] = `
+
+  1 | const foo = { __dirname};
+
+`;
+
+exports[`prefer-module > invalid(3): const foo = { __dirname}; 2`] = `
+
+Message:
+> 1 | const foo = { __dirname};
+    |               ^^^^^^^^^ Do not use "__dirname".
+
+Suggestion 1/2: Replace \`__dirname\` with \`import.meta.dirname\`.:
+  1 | const foo = { __dirname: import.meta.dirname};
+
+Suggestion 2/2: Replace \`__dirname\` with \`…(import.meta.url)\`.:
+  1 | const foo = { __dirname: path.dirname(url.fileURLToPath(import.meta.url))};
+
+`;
+
+exports[`prefer-module > invalid(3): function foo () {\n\t\"use strict\";\n\tconsole.log(1);\n} 1`] = `
+
+  1 | function foo () {
+  2 | 	"use strict";
+  3 | 	console.log(1);
+  4 | }
+
+`;
+
+exports[`prefer-module > invalid(3): function foo () {\n\t\"use strict\";\n\tconsole.log(1);\n} 2`] = `
+
+Message:
+  1 | function foo () {
+> 2 | 	"use strict";
+    | 	^^^^^^^^^^^^^ Do not use "use strict" directive.
+  3 | 	console.log(1);
+  4 | }
+
+Suggestion 1/1: Remove "use strict" directive.:
+  1 | function foo () {
+  2 | 	console.log(1);
+  3 | }
+
+`;
+
+exports[`prefer-module > invalid(3): require( ((\"foo\")) ); 1`] = `
+
+  1 | require( (("foo")) );
+
+`;
+
+exports[`prefer-module > invalid(3): require( ((\"foo\")) ); 2`] = `
+
+Message:
+> 1 | require( (("foo")) );
+    | ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import  "foo" ;
+
+`;
+
+exports[`prefer-module > invalid(3): require(\"lodash\") 1`] = `
+
+Filename: foo.cjs/foo.js
+
+  1 | require("lodash")
+
+`;
+
+exports[`prefer-module > invalid(3): require(\"lodash\") 2`] = `
+
+Message:
+> 1 | require("lodash")
+    | ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import "lodash"
+
+`;
+
+exports[`prefer-module > invalid(30): const {foo:bar} = (( require(\"foo\") )); 1`] = `
+
+  1 | const {foo:bar} = (( require("foo") ));
+
+`;
+
+exports[`prefer-module > invalid(30): const {foo:bar} = (( require(\"foo\") )); 2`] = `
+
+Message:
+> 1 | const {foo:bar} = (( require("foo") ));
+    |                      ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {foo as bar} from  "foo" ;
+
+`;
+
+exports[`prefer-module > invalid(31): const {a   :foo, b:   bar, default   :   baz}=require(\"foo\"); 1`] = `
+
+  1 | const {a   :foo, b:   bar, default   :   baz}=require("foo");
+
+`;
+
+exports[`prefer-module > invalid(31): const {a   :foo, b:   bar, default   :   baz}=require(\"foo\"); 2`] = `
+
+Message:
+> 1 | const {a   :foo, b:   bar, default   :   baz}=require("foo");
+    |                                               ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {a as foo, b as bar, default as baz} from "foo";
+
+`;
+
+exports[`prefer-module > invalid(32): const {\n\ta   :foo,\n\tb:   bar,\n\tdefault   :   baz,\n}\n\t=\n\trequire(\"foo\"); 1`] = `
+
+  1 | const {
+  2 | 	a   :foo,
+  3 | 	b:   bar,
+  4 | 	default   :   baz,
+  5 | }
+  6 | 	=
+  7 | 	require("foo");
+
+`;
+
+exports[`prefer-module > invalid(32): const {\n\ta   :foo,\n\tb:   bar,\n\tdefault   :   baz,\n}\n\t=\n\trequire(\"foo\"); 2`] = `
+
+Message:
+  1 | const {
+  2 | 	a   :foo,
+  3 | 	b:   bar,
+  4 | 	default   :   baz,
+  5 | }
+  6 | 	=
+> 7 | 	require("foo");
+    | 	^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {
+  2 | 	a as foo,
+  3 | 	b as bar,
+  4 | 	default as baz,
+  5 | } from "foo";
+
+`;
+
+exports[`prefer-module > invalid(33): const {a   :foo, b:   bar, default   :   baz} = require(\"foo\"); 1`] = `
+
+  1 | const {a   :foo, b:   bar, default   :   baz} = require("foo");
+
+`;
+
+exports[`prefer-module > invalid(33): const {a   :foo, b:   bar, default   :   baz} = require(\"foo\"); 2`] = `
+
+Message:
+> 1 | const {a   :foo, b:   bar, default   :   baz} = require("foo");
+    |                                                 ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {a as foo, b as bar, default as baz} from "foo";
+
+`;
+
+exports[`prefer-module > invalid(34): const {a   :foo, b:   bar, default   :   baz} = require( ((\"foo\")) ); 1`] = `
+
+  1 | const {a   :foo, b:   bar, default   :   baz} = require( (("foo")) );
+
+`;
+
+exports[`prefer-module > invalid(34): const {a   :foo, b:   bar, default   :   baz} = require( ((\"foo\")) ); 2`] = `
+
+Message:
+> 1 | const {a   :foo, b:   bar, default   :   baz} = require( (("foo")) );
+    |                                                 ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {a as foo, b as bar, default as baz} from  "foo" ;
+
+`;
+
+exports[`prefer-module > invalid(35): const {a   :foo, b:   bar, default   :   baz} = ((require))(\"foo\"); 1`] = `
+
+  1 | const {a   :foo, b:   bar, default   :   baz} = ((require))("foo");
+
+`;
+
+exports[`prefer-module > invalid(35): const {a   :foo, b:   bar, default   :   baz} = ((require))(\"foo\"); 2`] = `
+
+Message:
+> 1 | const {a   :foo, b:   bar, default   :   baz} = ((require))("foo");
+    |                                                   ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {a as foo, b as bar, default as baz} from "foo";
+
+`;
+
+exports[`prefer-module > invalid(36): const {a   :foo, b:   bar, default   :   baz} = (( require(\"foo\") )); 1`] = `
+
+  1 | const {a   :foo, b:   bar, default   :   baz} = (( require("foo") ));
+
+`;
+
+exports[`prefer-module > invalid(36): const {a   :foo, b:   bar, default   :   baz} = (( require(\"foo\") )); 2`] = `
+
+Message:
+> 1 | const {a   :foo, b:   bar, default   :   baz} = (( require("foo") ));
+    |                                                    ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {a as foo, b as bar, default as baz} from  "foo" ;
+
+`;
+
+exports[`prefer-module > invalid(37): const {} = require(\"foo\"); 1`] = `
+
+  1 | const {} = require("foo");
+
+`;
+
+exports[`prefer-module > invalid(37): const {} = require(\"foo\"); 2`] = `
+
+Message:
+> 1 | const {} = require("foo");
+    |            ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import {} from "foo";
+
+`;
+
+exports[`prefer-module > invalid(38): const{   }=require(\"foo\"); 1`] = `
+
+  1 | const{   }=require("foo");
+
+`;
+
+exports[`prefer-module > invalid(38): const{   }=require(\"foo\"); 2`] = `
+
+Message:
+> 1 | const{   }=require("foo");
+    |            ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import{   } from "foo";
+
+`;
+
+exports[`prefer-module > invalid(39): const r = require;\nconst foo = r(\"foo\"); 1`] = `
+
+  1 | const r = require;
+  2 | const foo = r("foo");
+
+`;
+
+exports[`prefer-module > invalid(39): const r = require;\nconst foo = r(\"foo\"); 2`] = `
+
+Message:
+> 1 | const r = require;
+    |           ^^^^^^^ Do not use "require".
+  2 | const foo = r("foo");
+
+`;
+
+exports[`prefer-module > invalid(4): 'use strict';\n\nconsole.log(1); 1`] = `
+
+Filename: example.mjs
+
+  1 | 'use strict';
+  2 |
+  3 | console.log(1);
+
+`;
+
+exports[`prefer-module > invalid(4): 'use strict';\n\nconsole.log(1); 2`] = `
+
+Message:
+> 1 | 'use strict';
+    | ^^^^^^^^^^^^^ Do not use "use strict" directive.
+  2 |
+  3 | console.log(1);
+
+Output:
+  1 | console.log(1);
+
+`;
+
+exports[`prefer-module > invalid(4): (( ((module.exports)) = ((foo)) )); 1`] = `
+
+  1 | (( ((module.exports)) = ((foo)) ));
+
+`;
+
+exports[`prefer-module > invalid(4): (( ((module.exports)) = ((foo)) )); 2`] = `
+
+Message:
+> 1 | (( ((module.exports)) = ((foo)) ));
+    |      ^^^^^^ Do not use "module".
+
+Suggestion 1/1: Switch to \`export\`.:
+  1 |  export default  ((foo)) ;
+
+`;
+
+exports[`prefer-module > invalid(4): ((require))(\"foo\"); 1`] = `
+
+  1 | ((require))("foo");
+
+`;
+
+exports[`prefer-module > invalid(4): ((require))(\"foo\"); 2`] = `
+
+Message:
+> 1 | ((require))("foo");
+    |   ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import "foo";
+
+`;
+
+exports[`prefer-module > invalid(4): const foo = {__filename, }; 1`] = `
+
+  1 | const foo = {__filename, };
+
+`;
+
+exports[`prefer-module > invalid(4): const foo = {__filename, }; 2`] = `
+
+Message:
+> 1 | const foo = {__filename, };
+    |              ^^^^^^^^^^ Do not use "__filename".
+
+Suggestion 1/2: Replace \`__filename\` with \`import.meta.filename\`.:
+  1 | const foo = {__filename: import.meta.filename, };
+
+Suggestion 2/2: Replace \`__filename\` with \`…(import.meta.url)\`.:
+  1 | const foo = {__filename: url.fileURLToPath(import.meta.url), };
+
+`;
+
+exports[`prefer-module > invalid(40): new require(\"foo\") 1`] = `
+
+  1 | new require("foo")
+
+`;
+
+exports[`prefer-module > invalid(40): new require(\"foo\") 2`] = `
+
+Message:
+> 1 | new require("foo")
+    |     ^^^^^^^ Do not use "require".
+
+`;
+
+exports[`prefer-module > invalid(41): require(\"foo\", extraArgument) 1`] = `
+
+  1 | require("foo", extraArgument)
+
+`;
+
+exports[`prefer-module > invalid(41): require(\"foo\", extraArgument) 2`] = `
+
+Message:
+> 1 | require("foo", extraArgument)
+    | ^^^^^^^ Do not use "require".
+
+`;
+
+exports[`prefer-module > invalid(42): const a = require() 1`] = `
+
+  1 | const a = require()
+
+`;
+
+exports[`prefer-module > invalid(42): const a = require() 2`] = `
+
+Message:
+> 1 | const a = require()
+    |           ^^^^^^^ Do not use "require".
+
+`;
+
+exports[`prefer-module > invalid(43): require(...\"foo\") 1`] = `
+
+  1 | require(..."foo")
+
+`;
+
+exports[`prefer-module > invalid(43): require(...\"foo\") 2`] = `
+
+Message:
+> 1 | require(..."foo")
+    | ^^^^^^^ Do not use "require".
+
+`;
+
+exports[`prefer-module > invalid(44): require(\"../\" + \"file.js\") 1`] = `
+
+  1 | require("../" + "file.js")
+
+`;
+
+exports[`prefer-module > invalid(44): require(\"../\" + \"file.js\") 2`] = `
+
+Message:
+> 1 | require("../" + "file.js")
+    | ^^^^^^^ Do not use "require".
+
+`;
+
+exports[`prefer-module > invalid(45): require(file) 1`] = `
+
+  1 | require(file)
+
+`;
+
+exports[`prefer-module > invalid(45): require(file) 2`] = `
+
+Message:
+> 1 | require(file)
+    | ^^^^^^^ Do not use "require".
+
+`;
+
+exports[`prefer-module > invalid(46): a = require(\"foo\") 1`] = `
+
+  1 | a = require("foo")
+
+`;
+
+exports[`prefer-module > invalid(46): a = require(\"foo\") 2`] = `
+
+Message:
+> 1 | a = require("foo")
+    |     ^^^^^^^ Do not use "require".
+
+`;
+
+exports[`prefer-module > invalid(47): function a(a = require(\"foo\")) {} 1`] = `
+
+  1 | function a(a = require("foo")) {}
+
+`;
+
+exports[`prefer-module > invalid(47): function a(a = require(\"foo\")) {} 2`] = `
+
+Message:
+> 1 | function a(a = require("foo")) {}
+    |                ^^^^^^^ Do not use "require".
+
+`;
+
+exports[`prefer-module > invalid(48): let foo = require(\"foo\"); 1`] = `
+
+  1 | let foo = require("foo");
+
+`;
+
+exports[`prefer-module > invalid(48): let foo = require(\"foo\"); 2`] = `
+
+Message:
+> 1 | let foo = require("foo");
+    |           ^^^^^^^ Do not use "require".
+
+`;
+
+exports[`prefer-module > invalid(49): const foo = require(\"foo\"), bar = require(\"bar\"); 1`] = `
+
+  1 | const foo = require("foo"), bar = require("bar");
+
+`;
+
+exports[`prefer-module > invalid(49): const foo = require(\"foo\"), bar = require(\"bar\"); 2`] = `
+
+Message:
+> 1 | const foo = require("foo"), bar = require("bar");
+    |             ^^^^^^^ Do not use "require".
+
+`;
+
+exports[`prefer-module > invalid(49): const foo = require(\"foo\"), bar = require(\"bar\"); 3`] = `
+
+Message:
+> 1 | const foo = require("foo"), bar = require("bar");
+    |                                   ^^^^^^^ Do not use "require".
+
+`;
+
+exports[`prefer-module > invalid(5): (( require(\"foo\") )); 1`] = `
+
+  1 | (( require("foo") ));
+
+`;
+
+exports[`prefer-module > invalid(5): (( require(\"foo\") )); 2`] = `
+
+Message:
+> 1 | (( require("foo") ));
+    |    ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 |  import "foo" ;
+
+`;
+
+exports[`prefer-module > invalid(5): const foo = 1;exports.foo = foo; 1`] = `
+
+  1 | const foo = 1;exports.foo = foo;
+
+`;
+
+exports[`prefer-module > invalid(5): const foo = 1;exports.foo = foo; 2`] = `
+
+Message:
+> 1 | const foo = 1;exports.foo = foo;
+    |               ^^^^^^^ Do not use "exports".
+
+Suggestion 1/1: Switch to \`export\`.:
+  1 | const foo = 1;export {foo as foo};
+
+`;
+
+exports[`prefer-module > invalid(5): if (__dirname.startsWith(\"/project/src/\")) {} 1`] = `
+
+  1 | if (__dirname.startsWith("/project/src/")) {}
+
+`;
+
+exports[`prefer-module > invalid(5): if (__dirname.startsWith(\"/project/src/\")) {} 2`] = `
+
+Message:
+> 1 | if (__dirname.startsWith("/project/src/")) {}
+    |     ^^^^^^^^^ Do not use "__dirname".
+
+Suggestion 1/2: Replace \`__dirname\` with \`import.meta.dirname\`.:
+  1 | if (import.meta.dirname.startsWith("/project/src/")) {}
+
+Suggestion 2/2: Replace \`__dirname\` with \`…(import.meta.url)\`.:
+  1 | if (path.dirname(url.fileURLToPath(import.meta.url)).startsWith("/project/src/")) {}
+
+`;
+
+exports[`prefer-module > invalid(50): const {[foo]: foo} = require(\"foo\"); 1`] = `
+
+  1 | const {[foo]: foo} = require("foo");
+
+`;
+
+exports[`prefer-module > invalid(50): const {[foo]: foo} = require(\"foo\"); 2`] = `
+
+Message:
+> 1 | const {[foo]: foo} = require("foo");
+    |                      ^^^^^^^ Do not use "require".
+
+`;
+
+exports[`prefer-module > invalid(51): const {[\"foo\"]: foo} = require(\"foo\"); 1`] = `
+
+  1 | const {["foo"]: foo} = require("foo");
+
+`;
+
+exports[`prefer-module > invalid(51): const {[\"foo\"]: foo} = require(\"foo\"); 2`] = `
+
+Message:
+> 1 | const {["foo"]: foo} = require("foo");
+    |                        ^^^^^^^ Do not use "require".
+
+`;
+
+exports[`prefer-module > invalid(52): if (foo) require(\"foo\"); 1`] = `
+
+  1 | if (foo) require("foo");
+
+`;
+
+exports[`prefer-module > invalid(52): if (foo) require(\"foo\"); 2`] = `
+
+Message:
+> 1 | if (foo) require("foo");
+    |          ^^^^^^^ Do not use "require".
+
+`;
+
+exports[`prefer-module > invalid(53): const foo = require\`foo\`; 1`] = `
+
+  1 | const foo = require\`foo\`;
+
+`;
+
+exports[`prefer-module > invalid(53): const foo = require\`foo\`; 2`] = `
+
+Message:
+> 1 | const foo = require\`foo\`;
+    |             ^^^^^^^ Do not use "require".
+
+`;
+
+exports[`prefer-module > invalid(54): function loadModule() {\n\treturn require(\"foo\");\n} 1`] = `
+
+  1 | function loadModule() {
+  2 | 	return require("foo");
+  3 | }
+
+`;
+
+exports[`prefer-module > invalid(54): function loadModule() {\n\treturn require(\"foo\");\n} 2`] = `
+
+Message:
+  1 | function loadModule() {
+> 2 | 	return require("foo");
+    | 	       ^^^^^^^ Do not use "require".
+  3 | }
+
+`;
+
+exports[`prefer-module > invalid(55): function loadModule() {\n\tconst foo = require(\"foo\");\n\treturn foo;\n} 1`] = `
+
+  1 | function loadModule() {
+  2 | 	const foo = require("foo");
+  3 | 	return foo;
+  4 | }
+
+`;
+
+exports[`prefer-module > invalid(55): function loadModule() {\n\tconst foo = require(\"foo\");\n\treturn foo;\n} 2`] = `
+
+Message:
+  1 | function loadModule() {
+> 2 | 	const foo = require("foo");
+    | 	            ^^^^^^^ Do not use "require".
+  3 | 	return foo;
+  4 | }
+
+`;
+
+exports[`prefer-module > invalid(56): const foo = require(\"foo\"), bar = 1; 1`] = `
+
+  1 | const foo = require("foo"), bar = 1;
+
+`;
+
+exports[`prefer-module > invalid(56): const foo = require(\"foo\"), bar = 1; 2`] = `
+
+Message:
+> 1 | const foo = require("foo"), bar = 1;
+    |             ^^^^^^^ Do not use "require".
+
+`;
+
+exports[`prefer-module > invalid(6): const foo = 1;module.exports.foo = foo; 1`] = `
+
+  1 | const foo = 1;module.exports.foo = foo;
+
+`;
+
+exports[`prefer-module > invalid(6): const foo = 1;module.exports.foo = foo; 2`] = `
+
+Message:
+> 1 | const foo = 1;module.exports.foo = foo;
+    |               ^^^^^^ Do not use "module".
+
+Suggestion 1/1: Switch to \`export\`.:
+  1 | const foo = 1;export {foo as foo};
+
+`;
+
+exports[`prefer-module > invalid(6): const foo=require(\"foo\"); 1`] = `
+
+  1 | const foo=require("foo");
+
+`;
+
+exports[`prefer-module > invalid(6): const foo=require(\"foo\"); 2`] = `
+
+Message:
+> 1 | const foo=require("foo");
+    |           ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import foo from "foo";
+
+`;
+
+exports[`prefer-module > invalid(6): if (__filename.endsWith(\".js\")) {} 1`] = `
+
+  1 | if (__filename.endsWith(".js")) {}
+
+`;
+
+exports[`prefer-module > invalid(6): if (__filename.endsWith(\".js\")) {} 2`] = `
+
+Message:
+> 1 | if (__filename.endsWith(".js")) {}
+    |     ^^^^^^^^^^ Do not use "__filename".
+
+Suggestion 1/2: Replace \`__filename\` with \`import.meta.filename\`.:
+  1 | if (import.meta.filename.endsWith(".js")) {}
+
+Suggestion 2/2: Replace \`__filename\` with \`…(import.meta.url)\`.:
+  1 | if (url.fileURLToPath(import.meta.url).endsWith(".js")) {}
+
+`;
+
+exports[`prefer-module > invalid(7): const foo = require.resolve(\"foo\"); 1`] = `
+
+  1 | const foo = require.resolve("foo");
+
+`;
+
+exports[`prefer-module > invalid(7): const foo = require.resolve(\"foo\"); 2`] = `
+
+Message:
+> 1 | const foo = require.resolve("foo");
+    |             ^^^^^^^ Do not use "require".
+
+`;
+
+exports[`prefer-module > invalid(7): exports[\"foo\"] = foo; 1`] = `
+
+  1 | exports["foo"] = foo;
+
+`;
+
+exports[`prefer-module > invalid(7): exports[\"foo\"] = foo; 2`] = `
+
+Message:
+> 1 | exports["foo"] = foo;
+    | ^^^^^^^ Do not use "exports".
+
+`;
+
+exports[`prefer-module > invalid(8): const foo\n\t=\n\trequire(\"foo\"); 1`] = `
+
+  1 | const foo
+  2 | 	=
+  3 | 	require("foo");
+
+`;
+
+exports[`prefer-module > invalid(8): const foo\n\t=\n\trequire(\"foo\"); 2`] = `
+
+Message:
+  1 | const foo
+  2 | 	=
+> 3 | 	require("foo");
+    | 	^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import foo from "foo";
+
+`;
+
+exports[`prefer-module > invalid(8): module.exports[\"foo\"] = foo; 1`] = `
+
+  1 | module.exports["foo"] = foo;
+
+`;
+
+exports[`prefer-module > invalid(8): module.exports[\"foo\"] = foo; 2`] = `
+
+Message:
+> 1 | module.exports["foo"] = foo;
+    | ^^^^^^ Do not use "module".
+
+`;
+
+exports[`prefer-module > invalid(9): const foo = exports; 1`] = `
+
+  1 | const foo = exports;
+
+`;
+
+exports[`prefer-module > invalid(9): const foo = exports; 2`] = `
+
+Message:
+> 1 | const foo = exports;
+    |             ^^^^^^^ Do not use "exports".
+
+`;
+
+exports[`prefer-module > invalid(9): const foo = require(\"foo\"); 1`] = `
+
+  1 | const foo = require("foo");
+
+`;
+
+exports[`prefer-module > invalid(9): const foo = require(\"foo\"); 2`] = `
+
+Message:
+> 1 | const foo = require("foo");
+    |             ^^^^^^^ Do not use "require".
+
+Suggestion 1/1: Switch to \`import\`.:
+  1 | import foo from "foo";
+
+`;

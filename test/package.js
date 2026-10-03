@@ -1,7 +1,7 @@
 import fs, {promises as fsAsync} from 'node:fs';
 import path from 'node:path';
 /// import process from 'node:process';
-import test from 'ava';
+import test from 'node:test';
 import css from '@eslint/css';
 import {ESLint, Linter} from 'eslint';
 import {defineConfig} from 'eslint/config';
@@ -46,7 +46,7 @@ const RULES_WITHOUT_EXAMPLES_SECTION = new Set([
 ]);
 
 test('exports only the supported presets', t => {
-	t.deepEqual(Object.keys(eslintPluginUnicorn.configs), [
+	t.assert.deepStrictEqual(Object.keys(eslintPluginUnicorn.configs), [
 		'recommended',
 		'unopinionated',
 		'all',
@@ -57,9 +57,9 @@ test('exports only the supported presets', t => {
 test('Every rule is defined in index file in alphabetical order', t => {
 	for (const file of ruleFiles) {
 		const name = path.basename(file, '.js');
-		t.truthy(eslintPluginUnicorn.rules[name], `'${name}' is not exported in 'index.js'`);
+		t.assert.ok(eslintPluginUnicorn.rules[name], `'${name}' is not exported in 'index.js'`);
 		if (!deprecatedRules.includes(name)) {
-			t.truthy(
+			t.assert.ok(
 				eslintPluginUnicorn.configs.recommended.rules[`unicorn/${name}`],
 				`'${name}' is not set in the recommended config`,
 			);
@@ -68,26 +68,26 @@ test('Every rule is defined in index file in alphabetical order', t => {
 		const documentationPath = path.join('docs/rules', `${name}.md`);
 		const testPath = path.join('test', file.replace(/\.js$/, '.js'));
 
-		t.truthy(fs.existsSync(documentationPath), `There is no documentation for '${name}'`);
-		t.truthy(fs.existsSync(testPath), `There are no tests for '${name}'`);
+		t.assert.ok(fs.existsSync(documentationPath), `There is no documentation for '${name}'`);
+		t.assert.ok(fs.existsSync(testPath), `There are no tests for '${name}'`);
 	}
 
-	t.is(
+	t.assert.strictEqual(
 		Object.keys(eslintPluginUnicorn.rules).length - deprecatedRules.length,
 		ruleFiles.length,
 		'There are more exported rules than rule files.',
 	);
-	t.is(
+	t.assert.strictEqual(
 		Object.keys(eslintPluginUnicorn.configs.recommended.rules).length - deprecatedRules.length - countCoreRuleReplacements(eslintPluginUnicorn.configs.recommended),
 		ruleFiles.length - deprecatedRules.length,
 		'There are more exported rules in the recommended config than rule files.',
 	);
-	t.is(
+	t.assert.strictEqual(
 		Object.keys(eslintPluginUnicorn.configs.unopinionated.rules).length - deprecatedRules.length - countCoreRuleReplacements(eslintPluginUnicorn.configs.unopinionated),
 		ruleFiles.length - deprecatedRules.length,
 		'There are more exported rules in the unopinionated config than rule files.',
 	);
-	t.is(
+	t.assert.strictEqual(
 		Object.keys(eslintPluginUnicorn.configs.all.rules).length - deprecatedRules.length - countCoreRuleReplacements(eslintPluginUnicorn.configs.all),
 		ruleFiles.filter(file => isJavaScriptRule(eslintPluginUnicorn.rules[path.basename(file, '.js')])).length - deprecatedRules.length,
 		'There are more rules than those exported in the all config.',
@@ -101,18 +101,18 @@ test('core rule replacements are disabled only when the Unicorn replacement is e
 		const externalRules = Object.keys(config.rules)
 			.filter(ruleId => !ruleId.startsWith('unicorn/'));
 
-		t.deepEqual(externalRules, enabledCoreRuleReplacements, `${configName} should only disable core rules with enabled Unicorn replacements.`);
+		t.assert.deepStrictEqual(externalRules, enabledCoreRuleReplacements, `${configName} should only disable core rules with enabled Unicorn replacements.`);
 
 		for (const ruleName of coreRuleReplacements) {
-			t.true(builtinRules.has(ruleName), `'${ruleName}' should be an ESLint core rule.`);
-			t.truthy(eslintPluginUnicorn.rules[ruleName], `'unicorn/${ruleName}' should exist.`);
+			t.assert.strictEqual(builtinRules.has(ruleName), true, `'${ruleName}' should be an ESLint core rule.`);
+			t.assert.ok(eslintPluginUnicorn.rules[ruleName], `'unicorn/${ruleName}' should exist.`);
 
 			const unicornRuleSeverity = config.rules[`unicorn/${ruleName}`];
 
 			if (unicornRuleSeverity === 'error') {
-				t.is(config.rules[ruleName], 'off', `${configName} should disable '${ruleName}' when 'unicorn/${ruleName}' is enabled.`);
+				t.assert.strictEqual(config.rules[ruleName], 'off', `${configName} should disable '${ruleName}' when 'unicorn/${ruleName}' is enabled.`);
 			} else {
-				t.is(config.rules[ruleName], undefined, `${configName} should not disable '${ruleName}' when 'unicorn/${ruleName}' is disabled.`);
+				t.assert.strictEqual(config.rules[ruleName], undefined, `${configName} should not disable '${ruleName}' when 'unicorn/${ruleName}' is disabled.`);
 			}
 		}
 	}
@@ -131,7 +131,7 @@ test('validate configuration', async t => {
 	}));
 
 	for (const {name, config, result} of results) {
-		t.deepEqual(
+		t.assert.deepStrictEqual(
 			Object.keys(result.rules),
 			Object.keys(config.rules),
 			`Configuration for "${name}" is invalid.`,
@@ -146,14 +146,14 @@ test('preset configs only enable language-compatible rules', t => {
 			.map(([ruleId]) => ruleId);
 		for (const ruleId of enabledUnicornRuleIds) {
 			const ruleName = ruleId.slice('unicorn/'.length);
-			t.true(isJavaScriptRule(eslintPluginUnicorn.rules[ruleName]), `'${ruleId}' in '${configName}' does not support JavaScript.`);
+			t.assert.strictEqual(isJavaScriptRule(eslintPluginUnicorn.rules[ruleName]), true, `'${ruleId}' in '${configName}' does not support JavaScript.`);
 		}
 	}
 });
 
 test('prefer-escaped-irregular-whitespace is enabled in the JavaScript unopinionated preset', t => {
 	const ruleName = 'prefer-escaped-irregular-whitespace';
-	t.is(eslintPluginUnicorn.configs.unopinionated.rules[`unicorn/${ruleName}`], 'error');
+	t.assert.strictEqual(eslintPluginUnicorn.configs.unopinionated.rules[`unicorn/${ruleName}`], 'error');
 });
 
 test('recommended config works with defineConfig', async t => {
@@ -171,7 +171,7 @@ test('recommended config works with defineConfig', async t => {
 	});
 
 	const [result] = await eslint.lintText('[1, 2, 3].indexOf(2) !== -1;', {filePath: 'file.js'});
-	t.true(result.messages.some(message => message.ruleId === 'unicorn/prefer-includes'));
+	t.assert.strictEqual(result.messages.some(message => message.ruleId === 'unicorn/prefer-includes'), true);
 });
 
 test('rules moved to eslint-cssicorn are deprecated no-ops in CSS configs', async t => {
@@ -191,8 +191,8 @@ test('rules moved to eslint-cssicorn are deprecated no-ops in CSS configs', asyn
 	});
 
 	const [result] = await eslint.lintText('a { word-wrap: break-word; }', {filePath: 'file.css'});
-	t.deepEqual(result.messages, []);
-	t.deepEqual(result.usedDeprecatedRules.map(({ruleId, replacedBy}) => ({ruleId, replacedBy})), [
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.deepStrictEqual(result.usedDeprecatedRules.map(({ruleId, replacedBy}) => ({ruleId, replacedBy})), [
 		{ruleId: 'unicorn/no-deprecated-css-features', replacedBy: ['eslint-cssicorn/no-deprecated-features']},
 	]);
 });
@@ -214,15 +214,15 @@ for (const [configName, supportedLanguages] of Object.entries(nonJavaScriptConfi
 	for (const {name, language, plugins} of supportedLanguages) {
 		test(`${configName} works with ${language} through string extends`, async t => {
 			const preset = eslintPluginUnicorn.configs[configName];
-			t.deepEqual(Object.keys(preset), ['name', 'plugins', 'rules']);
-			t.is(preset.name, `unicorn/${configName}`);
-			t.deepEqual(Object.keys(preset.plugins), ['unicorn']);
-			t.true(Object.keys(preset.rules).every(ruleId => ruleId.startsWith('unicorn/')));
-			t.is(preset.rules['unicorn/prefer-includes'], undefined);
-			t.is(preset.rules['unicorn/comment-content'], 'off');
-			t.is(preset.rules['unicorn/no-empty-file'], 'error');
+			t.assert.deepStrictEqual(Object.keys(preset), ['name', 'plugins', 'rules']);
+			t.assert.strictEqual(preset.name, `unicorn/${configName}`);
+			t.assert.deepStrictEqual(Object.keys(preset.plugins), ['unicorn']);
+			t.assert.strictEqual(Object.keys(preset.rules).every(ruleId => ruleId.startsWith('unicorn/')), true);
+			t.assert.strictEqual(preset.rules['unicorn/prefer-includes'], undefined);
+			t.assert.strictEqual(preset.rules['unicorn/comment-content'], 'off');
+			t.assert.strictEqual(preset.rules['unicorn/no-empty-file'], 'error');
 			for (const ruleName of deprecatedRules) {
-				t.is(preset.rules[`unicorn/${ruleName}`], undefined);
+				t.assert.strictEqual(preset.rules[`unicorn/${ruleName}`], undefined);
 			}
 
 			const filePath = `file.${name}`;
@@ -237,9 +237,9 @@ for (const [configName, supportedLanguages] of Object.entries(nonJavaScriptConfi
 				}),
 			});
 			const config = await eslint.calculateConfigForFile(filePath);
-			t.is(config.languageOptions.globals, undefined);
+			t.assert.strictEqual(config.languageOptions.globals, undefined);
 			const [result] = await eslint.lintText(nonJavaScriptCode[name], {filePath});
-			t.deepEqual(result.messages.map(({ruleId, severity}) => ({ruleId, severity})), [{ruleId: 'unicorn/prefer-https', severity: 1}]);
+			t.assert.deepStrictEqual(result.messages.map(({ruleId, severity}) => ({ruleId, severity})), [{ruleId: 'unicorn/prefer-https', severity: 1}]);
 		});
 	}
 }
@@ -264,18 +264,18 @@ test('direct presets register Unicorn and stay scoped alongside JavaScript with 
 		]),
 	});
 	const javaScriptConfig = await eslint.calculateConfigForFile('file.js');
-	t.is(javaScriptConfig.rules['unicorn/prefer-includes'][0], 2);
+	t.assert.strictEqual(javaScriptConfig.rules['unicorn/prefer-includes'][0], 2);
 	const [javaScriptResult] = await eslint.lintText(`export default ${nonJavaScriptCode.json};`, {filePath: 'file.js'});
-	t.deepEqual(javaScriptResult.messages, []);
+	t.assert.deepStrictEqual(javaScriptResult.messages, []);
 
 	await Promise.all(Object.values(nonJavaScriptConfigs).flat().map(async ({name, language}) => {
 		const filePath = `file.${language.split('/').at(-1)}`;
 		const config = await eslint.calculateConfigForFile(filePath);
-		t.is(config.rules['unicorn/prefer-includes'], undefined);
-		t.is(config.languageOptions.globals, undefined);
-		t.is(config.rules['unicorn/prefer-https'][0], 0);
+		t.assert.strictEqual(config.rules['unicorn/prefer-includes'], undefined);
+		t.assert.strictEqual(config.languageOptions.globals, undefined);
+		t.assert.strictEqual(config.rules['unicorn/prefer-https'][0], 0);
 		const [result] = await eslint.lintText(nonJavaScriptCode[name], {filePath});
-		t.deepEqual(result.messages, [], language);
+		t.assert.deepStrictEqual(result.messages, [], language);
 	}));
 });
 
@@ -292,31 +292,31 @@ test('non-JavaScript preset recommendation levels match rule metadata', t => {
 				expectedSeverity = rule.meta.docs.recommended ? 'error' : 'off';
 			}
 
-			t.is(rules[`unicorn/${name}`], expectedSeverity, `${configName}: ${name}`);
+			t.assert.strictEqual(rules[`unicorn/${name}`], expectedSeverity, `${configName}: ${name}`);
 		}
 	}
 });
 
-test.serial('non-JavaScript presets honor wildcards, require every dialect, and exclude deprecated rules', async t => {
+test('non-JavaScript presets honor wildcards, require every dialect, and exclude deprecated rules', async t => {
 	const rule = rawRules.indent;
 	const originalMeta = rule.meta;
-	t.teardown(() => {
+	t.after(() => {
 		rule.meta = originalMeta;
 	});
 
 	rule.meta = {...originalMeta, languages: ['json/*']};
 	const {default: wildcardPlugin} = await import('../index.js?json-wildcard');
-	t.is(wildcardPlugin.configs['recommended-json'].rules['unicorn/indent'], 'off');
-	t.is(wildcardPlugin.configs['recommended-css'].rules['unicorn/indent'], undefined);
+	t.assert.strictEqual(wildcardPlugin.configs['recommended-json'].rules['unicorn/indent'], 'off');
+	t.assert.strictEqual(wildcardPlugin.configs['recommended-css'].rules['unicorn/indent'], undefined);
 
 	rule.meta = {...originalMeta, languages: ['json/jsonc']};
 	const {default: dialectPlugin} = await import('../index.js?jsonc-only');
-	t.is(dialectPlugin.configs['recommended-json'].rules['unicorn/indent'], undefined);
+	t.assert.strictEqual(dialectPlugin.configs['recommended-json'].rules['unicorn/indent'], undefined);
 
 	rule.meta = {...originalMeta, languages: ['*'], deprecated: true};
 	const {default: deprecatedPlugin} = await import('../index.js?deprecated-rule');
 	for (const configName of Object.keys(nonJavaScriptConfigs)) {
-		t.is(deprecatedPlugin.configs[configName].rules['unicorn/indent'], undefined);
+		t.assert.strictEqual(deprecatedPlugin.configs[configName].rules['unicorn/indent'], undefined);
 	}
 });
 
@@ -334,9 +334,9 @@ for (const ruleName of ['expiring-todo-comments', 'no-asterisk-prefix-in-documen
 					: 'error',
 			},
 		}, {filename: 'file.json'});
-		t.deepEqual(result.messages, []);
-		t.is(result.output, code);
-		t.false(result.fixed);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(result.output, code);
+		t.assert.strictEqual(result.fixed, false);
 	});
 }
 
@@ -351,9 +351,9 @@ for (const {language, plugins} of [languages.json, languages.jsonc, languages.js
 				language,
 				plugins: {...plugins, unicorn: eslintPluginUnicorn},
 			}, {filename});
-			t.deepEqual(result.messages, [], filename);
-			t.is(result.output, String.raw`{"value":"\u0000\u000B\n"}`, filename);
-			t.true(result.fixed);
+			t.assert.deepStrictEqual(result.messages, [], filename);
+			t.assert.strictEqual(result.output, String.raw`{"value":"\u0000\u000B\n"}`, filename);
+			t.assert.strictEqual(result.fixed, true);
 		}
 	});
 }
@@ -371,8 +371,8 @@ for (const {name, language, plugins} of [languages.jsonc, languages.json5]) {
 			}),
 		});
 		const [result] = await eslint.lintText('/**\n * Comment.\n */\n{}', {filePath: `file.${name}`});
-		t.deepEqual(result.messages, []);
-		t.is(result.output, '/**\nComment.\n*/\n{}');
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(result.output, '/**\nComment.\n*/\n{}');
 	});
 }
 
@@ -380,11 +380,11 @@ test('Every rule declares valid supported languages', t => {
 	const knownLanguages = ['js/js', 'markdown/gfm', ...Object.values(languages).map(({language}) => language)];
 	const supportedLanguages = new Set(['*', ...knownLanguages, ...knownLanguages.map(language => `${language.split('/', 1)[0]}/*`)]);
 	for (const [name, rule] of Object.entries(rawRules)) {
-		t.true(Array.isArray(rule.meta.languages), name);
-		t.true(rule.meta.languages.length > 0, name);
-		t.deepEqual(rule.meta.languages, [...new Set(rule.meta.languages)], name);
+		t.assert.strictEqual(Array.isArray(rule.meta.languages), true, name);
+		t.assert.strictEqual(rule.meta.languages.length > 0, true, name);
+		t.assert.deepStrictEqual(rule.meta.languages, [...new Set(rule.meta.languages)], name);
 		for (const language of rule.meta.languages) {
-			t.true(supportedLanguages.has(language), `${name}: ${language}`);
+			t.assert.strictEqual(supportedLanguages.has(language), true, `${name}: ${language}`);
 		}
 	}
 });
@@ -400,23 +400,23 @@ for (const [ruleName, code, recommendedSeverity] of [
 			plugins: {unicorn: eslintPluginUnicorn},
 			rules: {[`unicorn/${ruleName}`]: 'error'},
 		}, {filename: 'file.js'});
-		t.deepEqual(messages.map(({ruleId}) => ruleId), [`unicorn/${ruleName}`]);
-		t.is(eslintPluginUnicorn.configs.all.rules[`unicorn/${ruleName}`], 'error');
-		t.is(eslintPluginUnicorn.configs.recommended.rules[`unicorn/${ruleName}`], recommendedSeverity);
-		t.is(eslintPluginUnicorn.configs.unopinionated.rules[`unicorn/${ruleName}`], recommendedSeverity);
+		t.assert.deepStrictEqual(messages.map(({ruleId}) => ruleId), [`unicorn/${ruleName}`]);
+		t.assert.strictEqual(eslintPluginUnicorn.configs.all.rules[`unicorn/${ruleName}`], 'error');
+		t.assert.strictEqual(eslintPluginUnicorn.configs.recommended.rules[`unicorn/${ruleName}`], recommendedSeverity);
+		t.assert.strictEqual(eslintPluginUnicorn.configs.unopinionated.rules[`unicorn/${ruleName}`], recommendedSeverity);
 	});
 }
 
 test('require-frontmatter-fields rejects JavaScript and is excluded from JavaScript presets', t => {
 	const ruleId = 'unicorn/require-frontmatter-fields';
 	const linter = new Linter();
-	t.throws(() => linter.verify('const value = 1;', {
+	t.assert.throws(() => linter.verify('const value = 1;', {
 		plugins: {unicorn: eslintPluginUnicorn},
 		rules: {[ruleId]: 'error'},
 	}), {message: /do not support the language "js\/js"/});
-	t.is(eslintPluginUnicorn.configs.all.rules[ruleId], undefined);
-	t.is(eslintPluginUnicorn.configs.recommended.rules[ruleId], 'off');
-	t.is(eslintPluginUnicorn.configs.unopinionated.rules[ruleId], 'off');
+	t.assert.strictEqual(eslintPluginUnicorn.configs.all.rules[ruleId], undefined);
+	t.assert.strictEqual(eslintPluginUnicorn.configs.recommended.rules[ruleId], 'off');
+	t.assert.strictEqual(eslintPluginUnicorn.configs.unopinionated.rules[ruleId], 'off');
 });
 
 test('Every rule has valid meta.type', t => {
@@ -426,9 +426,9 @@ test('Every rule has valid meta.type', t => {
 		const name = path.basename(file, '.js');
 		const rule = eslintPluginUnicorn.rules[name];
 
-		t.true(rule.meta !== null && rule.meta !== undefined, `${name} has no meta`);
-		t.is(typeof rule.meta.type, 'string', `${name} meta.type is not string`);
-		t.true(validTypes.includes(rule.meta.type), `${name} meta.type is not one of [${validTypes.join(', ')}]`);
+		t.assert.strictEqual(rule.meta !== null && rule.meta !== undefined, true, `${name} has no meta`);
+		t.assert.strictEqual(typeof rule.meta.type, 'string', `${name} meta.type is not string`);
+		t.assert.strictEqual(validTypes.includes(rule.meta.type), true, `${name} meta.type is not one of [${validTypes.join(', ')}]`);
 	}
 });
 
@@ -436,27 +436,27 @@ test('Every deprecated rules listed in docs/deleted-and-deprecated-rules.md', as
 	const content = await fsAsync.readFile('docs/deleted-and-deprecated-rules.md', 'utf8');
 	for (const name of deprecatedRules) {
 		const rule = eslintPluginUnicorn.rules[name];
-		t.is(typeof rule.create, 'function', `${name} create is not function`);
-		t.deepEqual(rule.create(), {}, `${name} create should return empty object`);
-		t.is(typeof rule.meta.deprecated.message, 'string', `${name} meta.deprecated.message should be string`);
-		t.true(Array.isArray(rule.meta.deprecated.replacedBy), `${name} meta.deprecated.replacedBy should be array`);
+		t.assert.strictEqual(typeof rule.create, 'function', `${name} create is not function`);
+		t.assert.deepStrictEqual(rule.create(), {}, `${name} create should return empty object`);
+		t.assert.strictEqual(typeof rule.meta.deprecated.message, 'string', `${name} meta.deprecated.message should be string`);
+		t.assert.strictEqual(Array.isArray(rule.meta.deprecated.replacedBy), true, `${name} meta.deprecated.replacedBy should be array`);
 
 		for (const replacement of rule.meta.deprecated.replacedBy) {
-			t.is(typeof replacement.rule.name, 'string', `${name} meta.deprecated.replacedBy[].rule.name should be string`);
-			t.is(typeof replacement.rule.url, 'string', `${name} meta.deprecated.replacedBy[].rule.url should be string`);
+			t.assert.strictEqual(typeof replacement.rule.name, 'string', `${name} meta.deprecated.replacedBy[].rule.name should be string`);
+			t.assert.strictEqual(typeof replacement.rule.url, 'string', `${name} meta.deprecated.replacedBy[].rule.url should be string`);
 
 			if (replacement.plugin === undefined) {
-				t.true(replacement.rule.name.startsWith('unicorn/'), `${name} meta.deprecated.replacedBy[].rule.name should be a Unicorn rule ID when there is no plugin`);
+				t.assert.strictEqual(replacement.rule.name.startsWith('unicorn/'), true, `${name} meta.deprecated.replacedBy[].rule.name should be a Unicorn rule ID when there is no plugin`);
 			} else {
-				t.is(typeof replacement.plugin.name, 'string', `${name} meta.deprecated.replacedBy[].plugin.name should be string`);
-				t.is(typeof replacement.plugin.url, 'string', `${name} meta.deprecated.replacedBy[].plugin.url should be string`);
+				t.assert.strictEqual(typeof replacement.plugin.name, 'string', `${name} meta.deprecated.replacedBy[].plugin.name should be string`);
+				t.assert.strictEqual(typeof replacement.plugin.url, 'string', `${name} meta.deprecated.replacedBy[].plugin.url should be string`);
 				// ESLint prefixes the rule name with the plugin name.
-				t.false(replacement.rule.name.includes('/'), `${name} meta.deprecated.replacedBy[].rule.name should not include a plugin prefix`);
+				t.assert.strictEqual(replacement.rule.name.includes('/'), false, `${name} meta.deprecated.replacedBy[].rule.name should not include a plugin prefix`);
 			}
 		}
 
-		t.true(content.includes(`\n### ${name}\n`));
-		t.false(content.includes(`\n### ~${name}~\n`));
+		t.assert.strictEqual(content.includes(`\n### ${name}\n`), true);
+		t.assert.strictEqual(content.includes(`\n### ~${name}~\n`), false);
 	}
 });
 
@@ -464,7 +464,7 @@ test('no-hex-escape lists both replacement rules', t => {
 	const replacementRuleNames = eslintPluginUnicorn.rules['no-hex-escape'].meta.deprecated.replacedBy
 		.map(replacement => replacement.rule.name);
 
-	t.deepEqual(replacementRuleNames, [
+	t.assert.deepStrictEqual(replacementRuleNames, [
 		'unicorn/prefer-literal-ascii',
 		'unicorn/prefer-unicode-code-point-escapes',
 	]);
@@ -472,7 +472,7 @@ test('no-hex-escape lists both replacement rules', t => {
 
 test('Removed rules are listed in docs/deleted-and-deprecated-rules.md', async t => {
 	const content = await fsAsync.readFile('docs/deleted-and-deprecated-rules.md', 'utf8');
-	t.true(content.includes('\n### ~no-array-for-each~\n'));
+	t.assert.strictEqual(content.includes('\n### ~no-array-for-each~\n'), true);
 });
 
 test('Every rule file has the appropriate contents', t => {
@@ -481,7 +481,7 @@ test('Every rule file has the appropriate contents', t => {
 		const rulePath = path.join('rules', `${ruleName}.js`);
 		const ruleContents = fs.readFileSync(rulePath, 'utf8');
 
-		t.regex(
+		t.assert.match(
 			ruleContents,
 			// TODO: Use `@import` instead of `import('eslint')`
 			/\/\*\*\s*@type \{(?:import\('eslint'\)|ESLint)\.Rule\.RuleModule\}\s*\*\//,
@@ -502,13 +502,13 @@ test('Every rule has a doc with the appropriate content', t => {
 		const documentContents = fs.readFileSync(documentPath, 'utf8');
 
 		// Check for examples.
-		t.true(documentContents.includes('## Examples'), `${ruleName} includes '## Examples' examples section`);
+		t.assert.strictEqual(documentContents.includes('## Examples'), true, `${ruleName} includes '## Examples' examples section`);
 	}
 });
 
 test('Plugin should have metadata', t => {
-	t.is(typeof eslintPluginUnicorn.meta.name, 'string');
-	t.is(typeof eslintPluginUnicorn.meta.version, 'string');
+	t.assert.strictEqual(typeof eslintPluginUnicorn.meta.name, 'string');
+	t.assert.strictEqual(typeof eslintPluginUnicorn.meta.version, 'string');
 });
 
 /// function getCompactConfig(config) {
@@ -567,18 +567,18 @@ test('rule.meta.docs.recommended should be synchronized with presets', t => {
 		}
 
 		const {recommended} = rule.meta.docs;
-		t.true(typeof recommended === 'boolean' || recommended === 'unopinionated', `meta.docs.recommended in '${name}' rule should be a boolean or 'unopinionated'.`);
+		t.assert.strictEqual(typeof recommended === 'boolean' || recommended === 'unopinionated', true, `meta.docs.recommended in '${name}' rule should be a boolean or 'unopinionated'.`);
 		const shouldEnableJavaScriptPreset = isJavaScriptRule(rule);
 		if (shouldEnableJavaScriptPreset) {
 			const recommendedSeverity = eslintPluginUnicorn.configs.recommended.rules[`unicorn/${name}`];
-			t.is(recommendedSeverity, recommended ? 'error' : 'off', `'${name}' rule should have the correct severity in the recommended config.`);
+			t.assert.strictEqual(recommendedSeverity, recommended ? 'error' : 'off', `'${name}' rule should have the correct severity in the recommended config.`);
 		}
 
 		const unopinionatedSeverity = eslintPluginUnicorn.configs.unopinionated.rules[`unicorn/${name}`];
 		if (recommended === 'unopinionated' && shouldEnableJavaScriptPreset) {
-			t.is(unopinionatedSeverity, 'error', `'${name}' rule should set to 'error' in the unopinionated config.`);
+			t.assert.strictEqual(unopinionatedSeverity, 'error', `'${name}' rule should set to 'error' in the unopinionated config.`);
 		} else {
-			t.is(unopinionatedSeverity, 'off', `'${name}' rule should set to 'off' in the unopinionated config.`);
+			t.assert.strictEqual(unopinionatedSeverity, 'off', `'${name}' rule should set to 'off' in the unopinionated config.`);
 		}
 	}
 });

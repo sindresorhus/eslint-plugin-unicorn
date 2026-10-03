@@ -113,6 +113,33 @@ test.snapshot({
 				}
 			}
 		`,
+		outdent`
+			class Foo {
+				'name' = 'foo';
+				getName() {
+					return this.name;
+				}
+			}
+		`,
+		outdent`
+			class Foo {
+				[\`name\`] = 'foo';
+				getName() {
+					return this.name;
+				}
+			}
+		`,
+		// `this` outside a class
+		outdent`
+			class Foo {}
+			const getName = () => this.name;
+		`,
+		// `this` in a computed key is not the instance
+		outdent`
+			class Foo {
+				[this.name] = 'foo';
+			}
+		`,
 	],
 	invalid: [
 		outdent`
@@ -212,6 +239,17 @@ test.snapshot({
 			}
 		`,
 		'class Foo { setName(name) { this.name = name; } }',
+		// These keys do not declare `name`
+		outdent`
+			class Foo {
+				1() {}
+				[name]() {}
+				[\`\${prefix}name\`]() {}
+				getName() {
+					return this.name;
+				}
+			}
+		`,
 	],
 });
 
@@ -254,6 +292,13 @@ test.snapshot({
 				}
 			}
 		`,
+		// `this` in a decorator is not the instance
+		outdent`
+			class Foo {
+				@decorator(this.name)
+				getName() {}
+			}
+		`,
 	],
 	invalid: [
 		outdent`
@@ -275,6 +320,14 @@ test.snapshot({
 			class Foo {
 				getName() {
 					return this!.name;
+				}
+			}
+		`,
+		outdent`
+			class Foo {
+				@decorator
+				getName() {
+					return this.name;
 				}
 			}
 		`,

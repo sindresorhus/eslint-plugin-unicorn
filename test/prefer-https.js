@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import css from '@eslint/css';
 import json from '@eslint/json';
@@ -260,9 +260,7 @@ test('rejects non-HTTP string ignores', t => {
 		},
 	};
 
-	const error = t.throws(() => linter.verify('const url = "http://example.com";', config));
-
-	t.regex(error.message, /ignore.*start with.*http:\/\//iv);
+	t.assert.throws(() => linter.verify('const url = "http://example.com";', config), {message: /ignore.*start with.*http:\/\//iv});
 });
 
 test('does not ignore URLs that do not match a regular expression', t => {
@@ -277,10 +275,10 @@ test('does not ignore URLs that do not match a regular expression', t => {
 	const messages = linter.verify(code, config);
 	const result = linter.verifyAndFix(code, config);
 
-	t.is(messages.length, 1);
-	t.is(messages[0].message, MESSAGE);
-	t.true(result.fixed);
-	t.is(result.output, 'const url = "https://example.com/identifier/value";');
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].message, MESSAGE);
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, 'const url = "https://example.com/identifier/value";');
 });
 
 test('handles long hostname dot sequences efficiently', t => {
@@ -296,8 +294,8 @@ test('handles long hostname dot sequences efficiently', t => {
 	const messages = linter.verify(code, config);
 	const duration = performance.now() - startTime;
 
-	t.is(messages.length, 1);
-	t.true(duration < 2000, `Expected linting to take less than 2 seconds, but it took ${duration} milliseconds.`);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(duration < 2000, true, `Expected linting to take less than 2 seconds, but it took ${duration} milliseconds.`);
 });
 
 function createLanguageConfig(language, rule = 'error') {
@@ -406,9 +404,9 @@ for (const {name, code, output, language, filename, errors, fixed = true, rule} 
 		const messages = linter.verify(code, config, {filename});
 		const result = linter.verifyAndFix(code, config, {filename});
 
-		t.is(result.fixed, fixed);
-		t.is(result.output, output);
-		t.deepEqual(
+		t.assert.strictEqual(result.fixed, fixed);
+		t.assert.strictEqual(result.output, output);
+		t.assert.deepStrictEqual(
 			messages.map(({message, ruleId}) => ({message, ruleId})),
 			Array.from({length: errors}, () => (
 				{

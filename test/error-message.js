@@ -137,6 +137,9 @@ test.snapshot({
 			new Error(Object.freeze(object).value);
 		`,
 		'new Error(Object.freeze({get value() { return "message"; }}).value);',
+		'new Error(Object.freeze(getObject()).value);',
+		'new Error(Object.freeze(object).value);',
+		'var object = {value: 1}; var object = {value: 2}; new Error(Object.freeze(object).value);',
 	],
 	invalid: [
 		'throw new Error()',

@@ -1,5 +1,5 @@
+import test from 'node:test';
 import {Linter} from 'eslint';
-import test from 'ava';
 import outdent from 'outdent';
 import getLineIndent from '../../rules/utils/get-line-indent.js';
 import getIndentString from '../../rules/utils/get-indent-string.js';
@@ -50,10 +50,10 @@ const capture = code => {
 };
 
 test('returns the indentation of the line the node starts on', t => {
-	t.is(capture('target;').lineIndent, '');
-	t.is(capture('\ttarget;').lineIndent, '\t');
-	t.is(capture('  target;').lineIndent, '  ');
-	t.is(capture(outdent`
+	t.assert.strictEqual(capture('target;').lineIndent, '');
+	t.assert.strictEqual(capture('\ttarget;').lineIndent, '\t');
+	t.assert.strictEqual(capture('  target;').lineIndent, '  ');
+	t.assert.strictEqual(capture(outdent`
 		function foo() {
 		\t\ttarget;
 		}
@@ -62,10 +62,10 @@ test('returns the indentation of the line the node starts on', t => {
 
 test('ignores where on the line the node sits, unlike `getIndentString()`', t => {
 	const result = capture('\tfoo = target;');
-	t.is(result.lineIndent, '\t');
-	t.is(result.indentString, ' ');
-	t.is(capture('  const value = foo(target);').lineIndent, '  ');
-	t.is(capture('\tfoo(); target;').lineIndent, '\t');
+	t.assert.strictEqual(result.lineIndent, '\t');
+	t.assert.strictEqual(result.indentString, ' ');
+	t.assert.strictEqual(capture('  const value = foo(target);').lineIndent, '  ');
+	t.assert.strictEqual(capture('\tfoo(); target;').lineIndent, '\t');
 });
 
 test('accepts tokens and comments', t => {
@@ -75,19 +75,19 @@ test('accepts tokens and comments', t => {
 		\t\ttarget;
 		}
 	`);
-	t.is(result.tokenLineIndent, '\t\t');
-	t.is(result.commentLineIndent, '\t\t');
+	t.assert.strictEqual(result.tokenLineIndent, '\t\t');
+	t.assert.strictEqual(result.commentLineIndent, '\t\t');
 });
 
 test('keeps mixed tabs and spaces', t => {
-	t.is(capture('\t  target;').lineIndent, '\t  ');
+	t.assert.strictEqual(capture('\t  target;').lineIndent, '\t  ');
 });
 
 test('only counts tabs and spaces', t => {
-	t.is(capture('\u00A0target;').lineIndent, '');
-	t.is(capture(' \u00A0target;').lineIndent, ' ');
+	t.assert.strictEqual(capture('\u00A0target;').lineIndent, '');
+	t.assert.strictEqual(capture(' \u00A0target;').lineIndent, ' ');
 });
 
 test('handles CRLF line endings', t => {
-	t.is(capture('foo();\r\n  target;\r\n').lineIndent, '  ');
+	t.assert.strictEqual(capture('foo();\r\n  target;\r\n').lineIndent, '  ');
 });

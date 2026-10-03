@@ -1,0 +1,145 @@
+exports[`prefer-event-target > invalid(1): class Foo extends EventEmitter {} 1`] = `
+
+  1 | class Foo extends EventEmitter {}
+
+`;
+
+exports[`prefer-event-target > invalid(1): class Foo extends EventEmitter {} 2`] = `
+
+Message:
+> 1 | class Foo extends EventEmitter {}
+    |                   ^^^^^^^^^^^^ Prefer \`EventTarget\` over \`EventEmitter\`.
+
+`;
+
+exports[`prefer-event-target > invalid(10): for (const EventEmitter of []) {new EventEmitter} 1`] = `
+
+  1 | for (const EventEmitter of []) {new EventEmitter}
+
+`;
+
+exports[`prefer-event-target > invalid(10): for (const EventEmitter of []) {new EventEmitter} 2`] = `
+
+Message:
+> 1 | for (const EventEmitter of []) {new EventEmitter}
+    |                                     ^^^^^^^^^^^^ Prefer \`EventTarget\` over \`EventEmitter\`.
+
+`;
+
+exports[`prefer-event-target > invalid(2): class Foo extends EventEmitter { someMethod() {} } 1`] = `
+
+  1 | class Foo extends EventEmitter { someMethod() {} }
+
+`;
+
+exports[`prefer-event-target > invalid(2): class Foo extends EventEmitter { someMethod() {} } 2`] = `
+
+Message:
+> 1 | class Foo extends EventEmitter { someMethod() {} }
+    |                   ^^^^^^^^^^^^ Prefer \`EventTarget\` over \`EventEmitter\`.
+
+`;
+
+exports[`prefer-event-target > invalid(3): const Foo = class extends EventEmitter {} 1`] = `
+
+  1 | const Foo = class extends EventEmitter {}
+
+`;
+
+exports[`prefer-event-target > invalid(3): const Foo = class extends EventEmitter {} 2`] = `
+
+Message:
+> 1 | const Foo = class extends EventEmitter {}
+    |                           ^^^^^^^^^^^^ Prefer \`EventTarget\` over \`EventEmitter\`.
+
+`;
+
+exports[`prefer-event-target > invalid(4): class Foo extends EventEmitter {\n\taddListener() {}\n\tremoveListener() {}\n} 1`] = `
+
+  1 | class Foo extends EventEmitter {
+  2 | 	addListener() {}
+  3 | 	removeListener() {}
+  4 | }
+
+`;
+
+exports[`prefer-event-target > invalid(4): class Foo extends EventEmitter {\n\taddListener() {}\n\tremoveListener() {}\n} 2`] = `
+
+Message:
+> 1 | class Foo extends EventEmitter {
+    |                   ^^^^^^^^^^^^ Prefer \`EventTarget\` over \`EventEmitter\`.
+  2 | 	addListener() {}
+  3 | 	removeListener() {}
+  4 | }
+
+`;
+
+exports[`prefer-event-target > invalid(5): new EventEmitter 1`] = `
+
+  1 | new EventEmitter
+
+`;
+
+exports[`prefer-event-target > invalid(5): new EventEmitter 2`] = `
+
+Message:
+> 1 | new EventEmitter
+    |     ^^^^^^^^^^^^ Prefer \`EventTarget\` over \`EventEmitter\`.
+
+`;
+
+exports[`prefer-event-target > invalid(6): new EventEmitter() 1`] = `
+
+  1 | new EventEmitter()
+
+`;
+
+exports[`prefer-event-target > invalid(6): new EventEmitter() 2`] = `
+
+Message:
+> 1 | new EventEmitter()
+    |     ^^^^^^^^^^^^ Prefer \`EventTarget\` over \`EventEmitter\`.
+
+`;
+
+exports[`prefer-event-target > invalid(7): new EventEmitter(options) 1`] = `
+
+  1 | new EventEmitter(options)
+
+`;
+
+exports[`prefer-event-target > invalid(7): new EventEmitter(options) 2`] = `
+
+Message:
+> 1 | new EventEmitter(options)
+    |     ^^^^^^^^^^^^ Prefer \`EventTarget\` over \`EventEmitter\`.
+
+`;
+
+exports[`prefer-event-target > invalid(8): const emitter = new EventEmitter; 1`] = `
+
+  1 | const emitter = new EventEmitter;
+
+`;
+
+exports[`prefer-event-target > invalid(8): const emitter = new EventEmitter; 2`] = `
+
+Message:
+> 1 | const emitter = new EventEmitter;
+    |                     ^^^^^^^^^^^^ Prefer \`EventTarget\` over \`EventEmitter\`.
+
+`;
+
+exports[`prefer-event-target > invalid(9): for (const {EventEmitter} of []) {new EventEmitter} 1`] = `
+
+  1 | for (const {EventEmitter} of []) {new EventEmitter}
+
+`;
+
+exports[`prefer-event-target > invalid(9): for (const {EventEmitter} of []) {new EventEmitter} 2`] = `
+
+Message:
+> 1 | for (const {EventEmitter} of []) {new EventEmitter}
+    |                                       ^^^^^^^^^^^^ Prefer \`EventTarget\` over \`EventEmitter\`.
+
+`;

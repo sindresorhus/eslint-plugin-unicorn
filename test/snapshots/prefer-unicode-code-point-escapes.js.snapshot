@@ -1,0 +1,639 @@
+exports[`prefer-unicode-code-point-escapes > invalid(1): const foo = '\\x1F' 1`] = `
+
+  1 | const foo = '\\x1F'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(1): const foo = '\\x1F' 2`] = `
+
+Message:
+> 1 | const foo = '\\x1F'
+    |             ^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = '\\u{1F}'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(10): const foo = '\\123' 1`] = `
+
+  1 | const foo = '\\123'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(10): const foo = '\\123' 2`] = `
+
+Message:
+> 1 | const foo = '\\123'
+    |             ^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = '\\u{53}'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(11): const foo = '\\00' 1`] = `
+
+  1 | const foo = '\\00'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(11): const foo = '\\00' 2`] = `
+
+Message:
+> 1 | const foo = '\\00'
+    |             ^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = '\\u{0}'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(12): const foo = '\\1\\12\\123\\4\\45' 1`] = `
+
+  1 | const foo = '\\1\\12\\123\\4\\45'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(12): const foo = '\\1\\12\\123\\4\\45' 2`] = `
+
+Message:
+> 1 | const foo = '\\1\\12\\123\\4\\45'
+    |             ^^^^^^^^^^^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = '\\u{1}\\u{A}\\u{53}\\u{4}\\u{25}'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(13): const foo = '\\377' 1`] = `
+
+  1 | const foo = '\\377'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(13): const foo = '\\377' 2`] = `
+
+Message:
+> 1 | const foo = '\\377'
+    |             ^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = '\\u{FF}'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(14): const foo = '\\400' 1`] = `
+
+  1 | const foo = '\\400'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(14): const foo = '\\400' 2`] = `
+
+Message:
+> 1 | const foo = '\\400'
+    |             ^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = '\\u{20}0'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(15): const foo = '\\x7A\\u2661\\uD83D\\uDCA9' 1`] = `
+
+  1 | const foo = '\\x7A\\u2661\\uD83D\\uDCA9'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(15): const foo = '\\x7A\\u2661\\uD83D\\uDCA9' 2`] = `
+
+Message:
+> 1 | const foo = '\\x7A\\u2661\\uD83D\\uDCA9'
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = '\\x7A\\u{2661}\\u{1F4A9}'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(16): const foo = \`\\x7A\${bar}\\u2661\` 1`] = `
+
+  1 | const foo = \`\\x7A\${bar}\\u2661\`
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(16): const foo = \`\\x7A\${bar}\\u2661\` 2`] = `
+
+Message:
+> 1 | const foo = \`\\x7A\${bar}\\u2661\`
+    |                       ^^^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = \`\\x7A\${bar}\\u{2661}\`
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(17): type Value = \`\\xA9\`; 1`] = `
+
+  1 | type Value = \`\\xA9\`;
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(17): type Value = \`\\xA9\`; 2`] = `
+
+Message:
+> 1 | type Value = \`\\xA9\`;
+    |              ^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | type Value = \`\\u{A9}\`;
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(18): const foo = /\\x7A/u 1`] = `
+
+  1 | const foo = /\\x7A/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(18): const foo = /\\x7A/u 2`] = `
+
+Message:
+> 1 | const foo = /\\x7A/u
+    |             ^^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = /\\u{7A}/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(19): const foo = /\\u0061/v 1`] = `
+
+  1 | const foo = /\\u0061/v
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(19): const foo = /\\u0061/v 2`] = `
+
+Message:
+> 1 | const foo = /\\u0061/v
+    |             ^^^^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = /\\u{61}/v
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(2): const foo = '\\u007F' 1`] = `
+
+  1 | const foo = '\\u007F'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(2): const foo = '\\u007F' 2`] = `
+
+Message:
+> 1 | const foo = '\\u007F'
+    |             ^^^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = '\\u{7F}'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(20): const foo = /\\u000A/u 1`] = `
+
+  1 | const foo = /\\u000A/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(20): const foo = /\\u000A/u 2`] = `
+
+Message:
+> 1 | const foo = /\\u000A/u
+    |             ^^^^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = /\\u{A}/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(21): const foo = /\\uD83D\\uDCA9/u 1`] = `
+
+  1 | const foo = /\\uD83D\\uDCA9/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(21): const foo = /\\uD83D\\uDCA9/u 2`] = `
+
+Message:
+> 1 | const foo = /\\uD83D\\uDCA9/u
+    |             ^^^^^^^^^^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = /\\u{1F4A9}/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(22): const foo = /\\uDFFF/u 1`] = `
+
+  1 | const foo = /\\uDFFF/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(22): const foo = /\\uDFFF/u 2`] = `
+
+Message:
+> 1 | const foo = /\\uDFFF/u
+    |             ^^^^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = /\\u{DFFF}/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(23): const foo = /\\[\\uD83D\\uDCA9/u 1`] = `
+
+  1 | const foo = /\\[\\uD83D\\uDCA9/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(23): const foo = /\\[\\uD83D\\uDCA9/u 2`] = `
+
+Message:
+> 1 | const foo = /\\[\\uD83D\\uDCA9/u
+    |             ^^^^^^^^^^^^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = /\\[\\u{1F4A9}/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(24): const foo = /[\\\\]\\uD83D\\uDCA9/u 1`] = `
+
+  1 | const foo = /[\\\\]\\uD83D\\uDCA9/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(24): const foo = /[\\\\]\\uD83D\\uDCA9/u 2`] = `
+
+Message:
+> 1 | const foo = /[\\\\]\\uD83D\\uDCA9/u
+    |             ^^^^^^^^^^^^^^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = /[\\\\]\\u{1F4A9}/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(25): const foo = /[\\x2D]/u 1`] = `
+
+  1 | const foo = /[\\x2D]/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(25): const foo = /[\\x2D]/u 2`] = `
+
+Message:
+> 1 | const foo = /[\\x2D]/u
+    |             ^^^^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = /[\\u{2D}]/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(26): const foo = /[\\cA]/u 1`] = `
+
+  1 | const foo = /[\\cA]/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(26): const foo = /[\\cA]/u 2`] = `
+
+Message:
+> 1 | const foo = /[\\cA]/u
+    |             ^^^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = /[\\u{1}]/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(27): const foo = /\\cA/u 1`] = `
+
+  1 | const foo = /\\cA/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(27): const foo = /\\cA/u 2`] = `
+
+Message:
+> 1 | const foo = /\\cA/u
+    |             ^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = /\\u{1}/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(28): const foo = /\\ca/u 1`] = `
+
+  1 | const foo = /\\ca/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(28): const foo = /\\ca/u 2`] = `
+
+Message:
+> 1 | const foo = /\\ca/u
+    |             ^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = /\\u{1}/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(29): const foo = /\\cZ/u 1`] = `
+
+  1 | const foo = /\\cZ/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(29): const foo = /\\cZ/u 2`] = `
+
+Message:
+> 1 | const foo = /\\cZ/u
+    |             ^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = /\\u{1A}/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(3): const foo = '\\xa9' 1`] = `
+
+  1 | const foo = '\\xa9'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(3): const foo = '\\xa9' 2`] = `
+
+Message:
+> 1 | const foo = '\\xa9'
+    |             ^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = '\\u{A9}'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(30): const foo = /\\cA/ 1`] = `
+
+  1 | const foo = /\\cA/
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(30): const foo = /\\cA/ 2`] = `
+
+Message:
+> 1 | const foo = /\\cA/
+    |             ^^^^^ Prefer Unicode code point escapes.
+
+Suggestion 1/1: Use Unicode code point escapes and add the \`u\` flag.:
+  1 | const foo = /\\u{1}/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(31): const foo = /\\u0061/ 1`] = `
+
+  1 | const foo = /\\u0061/
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(31): const foo = /\\u0061/ 2`] = `
+
+Message:
+> 1 | const foo = /\\u0061/
+    |             ^^^^^^^^ Prefer Unicode code point escapes.
+
+Suggestion 1/1: Use Unicode code point escapes and add the \`u\` flag.:
+  1 | const foo = /\\u{61}/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(32): const foo = /\\u{61}/ 1`] = `
+
+  1 | const foo = /\\u{61}/
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(32): const foo = /\\u{61}/ 2`] = `
+
+Message:
+> 1 | const foo = /\\u{61}/
+    |             ^^^^^^^^ Prefer Unicode code point escapes.
+
+Suggestion 1/1: Use Unicode code point escapes and add the \`u\` flag.:
+  1 | const foo = /\\u{61}/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(33): const foo = /\\u{10FFFF}/ 1`] = `
+
+  1 | const foo = /\\u{10FFFF}/
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(33): const foo = /\\u{10FFFF}/ 2`] = `
+
+Message:
+> 1 | const foo = /\\u{10FFFF}/
+    |             ^^^^^^^^^^^^ Prefer Unicode code point escapes.
+
+Suggestion 1/1: Use Unicode code point escapes and add the \`u\` flag.:
+  1 | const foo = /\\u{10FFFF}/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(34): const foo = /\\\\\\u{61}/ 1`] = `
+
+  1 | const foo = /\\\\\\u{61}/
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(34): const foo = /\\\\\\u{61}/ 2`] = `
+
+Message:
+> 1 | const foo = /\\\\\\u{61}/
+    |             ^^^^^^^^^^ Prefer Unicode code point escapes.
+
+Suggestion 1/1: Use Unicode code point escapes and add the \`u\` flag.:
+  1 | const foo = /\\\\\\u{61}/u
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(35): const foo = /\\x7A/g 1`] = `
+
+  1 | const foo = /\\x7A/g
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(35): const foo = /\\x7A/g 2`] = `
+
+Message:
+> 1 | const foo = /\\x7A/g
+    |             ^^^^^^^ Prefer Unicode code point escapes.
+
+Suggestion 1/1: Use Unicode code point escapes and add the \`u\` flag.:
+  1 | const foo = /\\u{7A}/gu
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(36): const foo = /\\x61\\_/ 1`] = `
+
+  1 | const foo = /\\x61\\_/
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(36): const foo = /\\x61\\_/ 2`] = `
+
+Message:
+> 1 | const foo = /\\x61\\_/
+    |             ^^^^^^^^ Prefer Unicode code point escapes.
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(37): const foo = /\\u{61}\\_/ 1`] = `
+
+  1 | const foo = /\\u{61}\\_/
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(37): const foo = /\\u{61}\\_/ 2`] = `
+
+Message:
+> 1 | const foo = /\\u{61}\\_/
+    |             ^^^^^^^^^^ Prefer Unicode code point escapes.
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(38): const element = <Component value={'\\u2661'} />; 1`] = `
+
+  1 | const element = <Component value={'\\u2661'} />;
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(38): const element = <Component value={'\\u2661'} />; 2`] = `
+
+Message:
+> 1 | const element = <Component value={'\\u2661'} />;
+    |                                   ^^^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const element = <Component value={'\\u{2661}'} />;
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(4): const foo = '\\u2661' 1`] = `
+
+  1 | const foo = '\\u2661'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(4): const foo = '\\u2661' 2`] = `
+
+Message:
+> 1 | const foo = '\\u2661'
+    |             ^^^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = '\\u{2661}'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(5): const foo = '\\u00001' 1`] = `
+
+  1 | const foo = '\\u00001'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(5): const foo = '\\u00001' 2`] = `
+
+Message:
+> 1 | const foo = '\\u00001'
+    |             ^^^^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = '\\u{0}1'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(6): const foo = '\\uD800' 1`] = `
+
+  1 | const foo = '\\uD800'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(6): const foo = '\\uD800' 2`] = `
+
+Message:
+> 1 | const foo = '\\uD800'
+    |             ^^^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = '\\u{D800}'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(7): const foo = '\\uD83D\\uDCA9' 1`] = `
+
+  1 | const foo = '\\uD83D\\uDCA9'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(7): const foo = '\\uD83D\\uDCA9' 2`] = `
+
+Message:
+> 1 | const foo = '\\uD83D\\uDCA9'
+    |             ^^^^^^^^^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = '\\u{1F4A9}'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(8): const foo = '\\uD800\\uDC00' 1`] = `
+
+  1 | const foo = '\\uD800\\uDC00'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(8): const foo = '\\uD800\\uDC00' 2`] = `
+
+Message:
+> 1 | const foo = '\\uD800\\uDC00'
+    |             ^^^^^^^^^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = '\\u{10000}'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(9): const foo = '\\uDBFF\\uDFFF' 1`] = `
+
+  1 | const foo = '\\uDBFF\\uDFFF'
+
+`;
+
+exports[`prefer-unicode-code-point-escapes > invalid(9): const foo = '\\uDBFF\\uDFFF' 2`] = `
+
+Message:
+> 1 | const foo = '\\uDBFF\\uDFFF'
+    |             ^^^^^^^^^^^^^^ Prefer Unicode code point escapes.
+
+Output:
+  1 | const foo = '\\u{10FFFF}'
+
+`;

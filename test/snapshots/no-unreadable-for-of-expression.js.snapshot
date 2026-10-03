@@ -1,0 +1,787 @@
+exports[`no-unreadable-for-of-expression > invalid(1): for (const pair of Iterator.zip([names, getScores(seed)])) {} 1`] = `
+
+  1 | for (const pair of Iterator.zip([names, getScores(seed)])) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(1): for (const pair of Iterator.zip([names, getScores(seed)])) {} 2`] = `
+
+Message:
+> 1 | for (const pair of Iterator.zip([names, getScores(seed)])) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(10): for (const item of items[method]()) {} 1`] = `
+
+  1 | for (const item of items[method]()) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(10): for (const item of items[method]()) {} 2`] = `
+
+Message:
+> 1 | for (const item of items[method]()) {}
+    |                    ^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(11): for (const item of items[index]) {} 1`] = `
+
+  1 | for (const item of items[index]) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(11): for (const item of items[index]) {} 2`] = `
+
+Message:
+> 1 | for (const item of items[index]) {}
+    |                    ^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(12): for (const item of items?.values()) {} 1`] = `
+
+  1 | for (const item of items?.values()) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(12): for (const item of items?.values()) {} 2`] = `
+
+Message:
+> 1 | for (const item of items?.values()) {}
+    |                    ^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(13): for (const item of condition ? first : second) {} 1`] = `
+
+  1 | for (const item of condition ? first : second) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(13): for (const item of condition ? first : second) {} 2`] = `
+
+Message:
+> 1 | for (const item of condition ? first : second) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(14): for (const item of first || second) {} 1`] = `
+
+  1 | for (const item of first || second) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(14): for (const item of first || second) {} 2`] = `
+
+Message:
+> 1 | for (const item of first || second) {}
+    |                    ^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(15): for (const item of new Set(items)) {} 1`] = `
+
+  1 | for (const item of new Set(items)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(15): for (const item of new Set(items)) {} 2`] = `
+
+Message:
+> 1 | for (const item of new Set(items)) {}
+    |                    ^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(16): for (const item of tag\`items\`) {} 1`] = `
+
+  1 | for (const item of tag\`items\`) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(16): for (const item of tag\`items\`) {} 2`] = `
+
+Message:
+> 1 | for (const item of tag\`items\`) {}
+    |                    ^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(17): for (const item of Object.keys(Object.fromEntries(entries))) {} 1`] = `
+
+  1 | for (const item of Object.keys(Object.fromEntries(entries))) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(17): for (const item of Object.keys(Object.fromEntries(entries))) {} 2`] = `
+
+Message:
+> 1 | for (const item of Object.keys(Object.fromEntries(entries))) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(18): for (const item of Object.values(items.filter(item => item.isEnabled))) {} 1`] = `
+
+  1 | for (const item of Object.values(items.filter(item => item.isEnabled))) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(18): for (const item of Object.values(items.filter(item => item.isEnabled))) {} 2`] = `
+
+Message:
+> 1 | for (const item of Object.values(items.filter(item => item.isEnabled))) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(19): for (const item of items?.map(item => item.value)) {} 1`] = `
+
+  1 | for (const item of items?.map(item => item.value)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(19): for (const item of items?.map(item => item.value)) {} 2`] = `
+
+Message:
+> 1 | for (const item of items?.map(item => item.value)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(2): for (const pair of Iterator.zip([...inputs])) {} 1`] = `
+
+  1 | for (const pair of Iterator.zip([...inputs])) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(2): for (const pair of Iterator.zip([...inputs])) {} 2`] = `
+
+Message:
+> 1 | for (const pair of Iterator.zip([...inputs])) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(20): for (const item of items?.map(callback)) {} 1`] = `
+
+  1 | for (const item of items?.map(callback)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(20): for (const item of items?.map(callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of items?.map(callback)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(21): for (const item of items.filter?.(item => item.isEnabled)) {} 1`] = `
+
+  1 | for (const item of items.filter?.(item => item.isEnabled)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(21): for (const item of items.filter?.(item => item.isEnabled)) {} 2`] = `
+
+Message:
+> 1 | for (const item of items.filter?.(item => item.isEnabled)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(22): for (const item of items.filter?.(callback)) {} 1`] = `
+
+  1 | for (const item of items.filter?.(callback)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(22): for (const item of items.filter?.(callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of items.filter?.(callback)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(23): for (const item of globalThis.Iterator.from(items).map(callback)) {} 1`] = `
+
+  1 | for (const item of globalThis.Iterator.from(items).map(callback)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(23): for (const item of globalThis.Iterator.from(items).map(callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of globalThis.Iterator.from(items).map(callback)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(24): for (const item of (globalThis).Iterator.from(items).map(callback)) {} 1`] = `
+
+  1 | for (const item of (globalThis).Iterator.from(items).map(callback)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(24): for (const item of (globalThis).Iterator.from(items).map(callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of (globalThis).Iterator.from(items).map(callback)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(25): for (const item of (Iterator).from(items).map(callback)) {} 1`] = `
+
+  1 | for (const item of (Iterator).from(items).map(callback)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(25): for (const item of (Iterator).from(items).map(callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of (Iterator).from(items).map(callback)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(26): for (const item of Iterator.from(items).map(item => item.value)) {} 1`] = `
+
+  1 | for (const item of Iterator.from(items).map(item => item.value)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(26): for (const item of Iterator.from(items).map(item => item.value)) {} 2`] = `
+
+Message:
+> 1 | for (const item of Iterator.from(items).map(item => item.value)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(27): for (const item of Iterator.from(items).map(callback)) {} 1`] = `
+
+  1 | for (const item of Iterator.from(items).map(callback)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(27): for (const item of Iterator.from(items).map(callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of Iterator.from(items).map(callback)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(28): for (const item of Iterator.from(items).filter(item => item.isEnabled)) {} 1`] = `
+
+  1 | for (const item of Iterator.from(items).filter(item => item.isEnabled)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(28): for (const item of Iterator.from(items).filter(item => item.isEnabled)) {} 2`] = `
+
+Message:
+> 1 | for (const item of Iterator.from(items).filter(item => item.isEnabled)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(29): for (const item of Iterator.from(items).filter(callback)) {} 1`] = `
+
+  1 | for (const item of Iterator.from(items).filter(callback)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(29): for (const item of Iterator.from(items).filter(callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of Iterator.from(items).filter(callback)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(3): for (const pair of Iterator.zip([[first], [second]])) {} 1`] = `
+
+  1 | for (const pair of Iterator.zip([[first], [second]])) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(3): for (const pair of Iterator.zip([[first], [second]])) {} 2`] = `
+
+Message:
+> 1 | for (const pair of Iterator.zip([[first], [second]])) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(30): for (const item of Iterator.from(items).take(1)) {} 1`] = `
+
+  1 | for (const item of Iterator.from(items).take(1)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(30): for (const item of Iterator.from(items).take(1)) {} 2`] = `
+
+Message:
+> 1 | for (const item of Iterator.from(items).take(1)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(31): for (const item of Iterator.from(items).drop(1)) {} 1`] = `
+
+  1 | for (const item of Iterator.from(items).drop(1)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(31): for (const item of Iterator.from(items).drop(1)) {} 2`] = `
+
+Message:
+> 1 | for (const item of Iterator.from(items).drop(1)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(32): for (const item of Iterator.from(items).flatMap(callback)) {} 1`] = `
+
+  1 | for (const item of Iterator.from(items).flatMap(callback)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(32): for (const item of Iterator.from(items).flatMap(callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of Iterator.from(items).flatMap(callback)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(33): for (const item of Iterator.concat(first, second).map(callback)) {} 1`] = `
+
+  1 | for (const item of Iterator.concat(first, second).map(callback)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(33): for (const item of Iterator.concat(first, second).map(callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of Iterator.concat(first, second).map(callback)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(34): for (const item of Iterator.zip(iterables).filter(callback)) {} 1`] = `
+
+  1 | for (const item of Iterator.zip(iterables).filter(callback)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(34): for (const item of Iterator.zip(iterables).filter(callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of Iterator.zip(iterables).filter(callback)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(35): for (const item of Iterator.zipKeyed(iterables).take(1)) {} 1`] = `
+
+  1 | for (const item of Iterator.zipKeyed(iterables).take(1)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(35): for (const item of Iterator.zipKeyed(iterables).take(1)) {} 2`] = `
+
+Message:
+> 1 | for (const item of Iterator.zipKeyed(iterables).take(1)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(36): for (const item of Iterator.from(items).take(1).map(callback)) {} 1`] = `
+
+  1 | for (const item of Iterator.from(items).take(1).map(callback)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(36): for (const item of Iterator.from(items).take(1).map(callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of Iterator.from(items).take(1).map(callback)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(37): for (const item of items.values().map(item => item.value)) {} 1`] = `
+
+  1 | for (const item of items.values().map(item => item.value)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(37): for (const item of items.values().map(item => item.value)) {} 2`] = `
+
+Message:
+> 1 | for (const item of items.values().map(item => item.value)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(38): for (const item of items.values().map(callback)) {} 1`] = `
+
+  1 | for (const item of items.values().map(callback)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(38): for (const item of items.values().map(callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of items.values().map(callback)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(39): for (const item of items.values().filter(callback)) {} 1`] = `
+
+  1 | for (const item of items.values().filter(callback)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(39): for (const item of items.values().filter(callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of items.values().filter(callback)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(4): for (const pair of Iterator.zip([first, , second])) {} 1`] = `
+
+  1 | for (const pair of Iterator.zip([first, , second])) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(4): for (const pair of Iterator.zip([first, , second])) {} 2`] = `
+
+Message:
+> 1 | for (const pair of Iterator.zip([first, , second])) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(40): for (const item of items.values().take(1)) {} 1`] = `
+
+  1 | for (const item of items.values().take(1)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(40): for (const item of items.values().take(1)) {} 2`] = `
+
+Message:
+> 1 | for (const item of items.values().take(1)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(41): for (const item of items.values().take(1).map(callback)) {} 1`] = `
+
+  1 | for (const item of items.values().take(1).map(callback)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(41): for (const item of items.values().take(1).map(callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of items.values().take(1).map(callback)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(42): for (const item of items.keys().map(callback)) {} 1`] = `
+
+  1 | for (const item of items.keys().map(callback)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(42): for (const item of items.keys().map(callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of items.keys().map(callback)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(43): for (const item of items.entries().filter(callback)) {} 1`] = `
+
+  1 | for (const item of items.entries().filter(callback)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(43): for (const item of items.entries().filter(callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of items.entries().filter(callback)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(44): for (const item of items.matchAll(pattern).map(callback)) {} 1`] = `
+
+  1 | for (const item of items.matchAll(pattern).map(callback)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(44): for (const item of items.matchAll(pattern).map(callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of items.matchAll(pattern).map(callback)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(45): for await (const item of getItems(createArgument(seed))) {} 1`] = `
+
+  1 | for await (const item of getItems(createArgument(seed))) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(45): for await (const item of getItems(createArgument(seed))) {} 2`] = `
+
+Message:
+> 1 | for await (const item of getItems(createArgument(seed))) {}
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for await…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(46): for (const item of getItems(createArgument(seed)) as string[]) {} 1`] = `
+
+  1 | for (const item of getItems(createArgument(seed)) as string[]) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(46): for (const item of getItems(createArgument(seed)) as string[]) {} 2`] = `
+
+Message:
+> 1 | for (const item of getItems(createArgument(seed)) as string[]) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(47): for (const item of (Iterator as typeof Iterator).from(items).map(callback)) {} 1`] = `
+
+  1 | for (const item of (Iterator as typeof Iterator).from(items).map(callback)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(47): for (const item of (Iterator as typeof Iterator).from(items).map(callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of (Iterator as typeof Iterator).from(items).map(callback)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(48): for (const item of (Iterator.from(items) as Iterator<string>).map(callback)) {} 1`] = `
+
+  1 | for (const item of (Iterator.from(items) as Iterator<string>).map(callback)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(48): for (const item of (Iterator.from(items) as Iterator<string>).map(callback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of (Iterator.from(items) as Iterator<string>).map(callback)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(49): for (const item of Iterator.from(items).take(1) as Iterator<string>) {} 1`] = `
+
+  1 | for (const item of Iterator.from(items).take(1) as Iterator<string>) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(49): for (const item of Iterator.from(items).take(1) as Iterator<string>) {} 2`] = `
+
+Message:
+> 1 | for (const item of Iterator.from(items).take(1) as Iterator<string>) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(5): for (const item of getItems(createArgument(seed))) {} 1`] = `
+
+  1 | for (const item of getItems(createArgument(seed))) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(5): for (const item of getItems(createArgument(seed))) {} 2`] = `
+
+Message:
+> 1 | for (const item of getItems(createArgument(seed))) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(50): for (const item of (items[index] satisfies Iterable<string>)) {} 1`] = `
+
+  1 | for (const item of (items[index] satisfies Iterable<string>)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(50): for (const item of (items[index] satisfies Iterable<string>)) {} 2`] = `
+
+Message:
+> 1 | for (const item of (items[index] satisfies Iterable<string>)) {}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(51): for (const pair of Iterator.zip([names, getScores(seed)] as const)) {} 1`] = `
+
+  1 | for (const pair of Iterator.zip([names, getScores(seed)] as const)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(51): for (const pair of Iterator.zip([names, getScores(seed)] as const)) {} 2`] = `
+
+Message:
+> 1 | for (const pair of Iterator.zip([names, getScores(seed)] as const)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(52): for (const pair of Iterator.zip([[names], [scores]] as const)) {} 1`] = `
+
+  1 | for (const pair of Iterator.zip([[names], [scores]] as const)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(52): for (const pair of Iterator.zip([[names], [scores]] as const)) {} 2`] = `
+
+Message:
+> 1 | for (const pair of Iterator.zip([[names], [scores]] as const)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(53): for (const pair of Iterator.zip([getNames(seed) as string[], scores])) {} 1`] = `
+
+  1 | for (const pair of Iterator.zip([getNames(seed) as string[], scores])) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(53): for (const pair of Iterator.zip([getNames(seed) as string[], scores])) {} 2`] = `
+
+Message:
+> 1 | for (const pair of Iterator.zip([getNames(seed) as string[], scores])) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(54): for (\n\tconst item of getItems(createArgument(seed))\n) {} 1`] = `
+
+  1 | for (
+  2 | 	const item of getItems(createArgument(seed))
+  3 | ) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(54): for (\n\tconst item of getItems(createArgument(seed))\n) {} 2`] = `
+
+Message:
+  1 | for (
+> 2 | 	const item of getItems(createArgument(seed))
+    | 	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+  3 | ) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(55): const iterator = items.values(); for (const item of iterator.map(callback)) {} 1`] = `
+
+  1 | const iterator = items.values(); for (const item of iterator.map(callback)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(55): const iterator = items.values(); for (const item of iterator.map(callback)) {} 2`] = `
+
+Message:
+> 1 | const iterator = items.values(); for (const item of iterator.map(callback)) {}
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(56): function * generate() { yield 1; } for (const item of generate().filter(callback)) {} 1`] = `
+
+  1 | function * generate() { yield 1; } for (const item of generate().filter(callback)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(56): function * generate() { yield 1; } for (const item of generate().filter(callback)) {} 2`] = `
+
+Message:
+> 1 | function * generate() { yield 1; } for (const item of generate().filter(callback)) {}
+    |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(6): for (const item of getItems(argument || fallback)) {} 1`] = `
+
+  1 | for (const item of getItems(argument || fallback)) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(6): for (const item of getItems(argument || fallback)) {} 2`] = `
+
+Message:
+> 1 | for (const item of getItems(argument || fallback)) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(7): for (const item of Object.keys({a: 1})) {} 1`] = `
+
+  1 | for (const item of Object.keys({a: 1})) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(7): for (const item of Object.keys({a: 1})) {} 2`] = `
+
+Message:
+> 1 | for (const item of Object.keys({a: 1})) {}
+    |                    ^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(8): for (const item of (header || \"\").split(\",\")) {} 1`] = `
+
+  1 | for (const item of (header || "").split(",")) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(8): for (const item of (header || \"\").split(\",\")) {} 2`] = `
+
+Message:
+> 1 | for (const item of (header || "").split(",")) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(9): for (const item of (condition ? first : second).values()) {} 1`] = `
+
+  1 | for (const item of (condition ? first : second).values()) {}
+
+`;
+
+exports[`no-unreadable-for-of-expression > invalid(9): for (const item of (condition ? first : second).values()) {} 2`] = `
+
+Message:
+> 1 | for (const item of (condition ? first : second).values()) {}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Move the complex iterable expression out of the \`for…of\` loop header.
+
+`;

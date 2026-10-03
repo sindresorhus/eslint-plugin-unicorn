@@ -121,11 +121,8 @@ const create = context => {
 			return;
 		}
 
-		const prefix = sourceCode.getText(node).match(/^url\([\t\n\f\r ]*["']?/i)?.[0];
-		if (!prefix) {
-			return;
-		}
-
+		// The CSS tokenizer only creates `Url` nodes from a literal `url(` (no escapes), so this always matches.
+		const [prefix] = sourceCode.getText(node).match(/^url\([\t\n\f\r ]*["']?/i);
 		return getMarkupProblem(node, node.value, sourceCode.getRange(node)[0] + prefix.length);
 	});
 

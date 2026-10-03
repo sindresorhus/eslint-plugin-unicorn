@@ -1,0 +1,203 @@
+exports[`no-xor-as-exponentiation > invalid(1): 2 ^ 32 1`] = `
+
+  1 | 2 ^ 32
+
+`;
+
+exports[`no-xor-as-exponentiation > invalid(1): 2 ^ 32 2`] = `
+
+Message:
+> 1 | 2 ^ 32
+    |   ^ Unexpected bitwise XOR operator \`^\`. Did you mean the exponentiation operator \`**\`?
+
+Suggestion 1/1: Replace \`^\` with \`**\`.:
+  1 | 2 ** 32
+
+`;
+
+exports[`no-xor-as-exponentiation > invalid(10): 2 ^ 8 ^ 2 1`] = `
+
+  1 | 2 ^ 8 ^ 2
+
+`;
+
+exports[`no-xor-as-exponentiation > invalid(10): 2 ^ 8 ^ 2 2`] = `
+
+Message:
+> 1 | 2 ^ 8 ^ 2
+    |   ^ Unexpected bitwise XOR operator \`^\`. Did you mean the exponentiation operator \`**\`?
+
+Suggestion 1/1: Replace \`^\` with \`**\`.:
+  1 | 2 ** 8 ^ 2
+
+`;
+
+exports[`no-xor-as-exponentiation > invalid(11): 2 /* comment */ ^ 8 1`] = `
+
+  1 | 2 /* comment */ ^ 8
+
+`;
+
+exports[`no-xor-as-exponentiation > invalid(11): 2 /* comment */ ^ 8 2`] = `
+
+Message:
+> 1 | 2 /* comment */ ^ 8
+    |                 ^ Unexpected bitwise XOR operator \`^\`. Did you mean the exponentiation operator \`**\`?
+
+Suggestion 1/1: Replace \`^\` with \`**\`.:
+  1 | 2 /* comment */ ** 8
+
+`;
+
+exports[`no-xor-as-exponentiation > invalid(12): 2 ^ 8 1`] = `
+
+  1 | 2 ^ 8
+
+`;
+
+exports[`no-xor-as-exponentiation > invalid(12): 2 ^ 8 2`] = `
+
+Message:
+> 1 | 2 ^ 8
+    |   ^ Unexpected bitwise XOR operator \`^\`. Did you mean the exponentiation operator \`**\`?
+
+Suggestion 1/1: Replace \`^\` with \`**\`.:
+  1 | 2 ** 8
+
+`;
+
+exports[`no-xor-as-exponentiation > invalid(2): 3 ^ 3 1`] = `
+
+  1 | 3 ^ 3
+
+`;
+
+exports[`no-xor-as-exponentiation > invalid(2): 3 ^ 3 2`] = `
+
+Message:
+> 1 | 3 ^ 3
+    |   ^ Unexpected bitwise XOR operator \`^\`. Did you mean the exponentiation operator \`**\`?
+
+Suggestion 1/1: Replace \`^\` with \`**\`.:
+  1 | 3 ** 3
+
+`;
+
+exports[`no-xor-as-exponentiation > invalid(3): 10 ^ 6 1`] = `
+
+  1 | 10 ^ 6
+
+`;
+
+exports[`no-xor-as-exponentiation > invalid(3): 10 ^ 6 2`] = `
+
+Message:
+> 1 | 10 ^ 6
+    |    ^ Unexpected bitwise XOR operator \`^\`. Did you mean the exponentiation operator \`**\`?
+
+Suggestion 1/1: Replace \`^\` with \`**\`.:
+  1 | 10 ** 6
+
+`;
+
+exports[`no-xor-as-exponentiation > invalid(4): 0 ^ 0 1`] = `
+
+  1 | 0 ^ 0
+
+`;
+
+exports[`no-xor-as-exponentiation > invalid(4): 0 ^ 0 2`] = `
+
+Message:
+> 1 | 0 ^ 0
+    |   ^ Unexpected bitwise XOR operator \`^\`. Did you mean the exponentiation operator \`**\`?
+
+Suggestion 1/1: Replace \`^\` with \`**\`.:
+  1 | 0 ** 0
+
+`;
+
+exports[`no-xor-as-exponentiation > invalid(5): 2 ^ 8 1`] = `
+
+  1 | 2 ^ 8
+
+`;
+
+exports[`no-xor-as-exponentiation > invalid(5): 2 ^ 8 2`] = `
+
+Message:
+> 1 | 2 ^ 8
+    |   ^ Unexpected bitwise XOR operator \`^\`. Did you mean the exponentiation operator \`**\`?
+
+Suggestion 1/1: Replace \`^\` with \`**\`.:
+  1 | 2 ** 8
+
+`;
+
+exports[`no-xor-as-exponentiation > invalid(6): 2  ^  8 1`] = `
+
+  1 | 2  ^  8
+
+`;
+
+exports[`no-xor-as-exponentiation > invalid(6): 2  ^  8 2`] = `
+
+Message:
+> 1 | 2  ^  8
+    |    ^ Unexpected bitwise XOR operator \`^\`. Did you mean the exponentiation operator \`**\`?
+
+Suggestion 1/1: Replace \`^\` with \`**\`.:
+  1 | 2  **  8
+
+`;
+
+exports[`no-xor-as-exponentiation > invalid(7): const x = 2 ^ 8; 1`] = `
+
+  1 | const x = 2 ^ 8;
+
+`;
+
+exports[`no-xor-as-exponentiation > invalid(7): const x = 2 ^ 8; 2`] = `
+
+Message:
+> 1 | const x = 2 ^ 8;
+    |             ^ Unexpected bitwise XOR operator \`^\`. Did you mean the exponentiation operator \`**\`?
+
+Suggestion 1/1: Replace \`^\` with \`**\`.:
+  1 | const x = 2 ** 8;
+
+`;
+
+exports[`no-xor-as-exponentiation > invalid(8): foo(2 ^ 8) 1`] = `
+
+  1 | foo(2 ^ 8)
+
+`;
+
+exports[`no-xor-as-exponentiation > invalid(8): foo(2 ^ 8) 2`] = `
+
+Message:
+> 1 | foo(2 ^ 8)
+    |       ^ Unexpected bitwise XOR operator \`^\`. Did you mean the exponentiation operator \`**\`?
+
+Suggestion 1/1: Replace \`^\` with \`**\`.:
+  1 | foo(2 ** 8)
+
+`;
+
+exports[`no-xor-as-exponentiation > invalid(9): 10 ^ 1_000 1`] = `
+
+  1 | 10 ^ 1_000
+
+`;
+
+exports[`no-xor-as-exponentiation > invalid(9): 10 ^ 1_000 2`] = `
+
+Message:
+> 1 | 10 ^ 1_000
+    |    ^ Unexpected bitwise XOR operator \`^\`. Did you mean the exponentiation operator \`**\`?
+
+Suggestion 1/1: Replace \`^\` with \`**\`.:
+  1 | 10 ** 1_000
+
+`;

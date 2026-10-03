@@ -1,4 +1,5 @@
 import {
+	getChildNodes,
 	isNodeValueNotDomNode,
 	isSameReference,
 	isValueNotUsable,
@@ -120,31 +121,9 @@ const getChildNodeMemberExpression = node => {
 	}
 };
 
-const containsChainExpression = (node, sourceCode) => {
-	if (node.type === 'ChainExpression') {
-		return true;
-	}
-
-	const keys = sourceCode.visitorKeys[node.type] ?? [];
-	for (const key of keys) {
-		const child = node[key];
-		if (Array.isArray(child)) {
-			for (const childNode of child) {
-				if (childNode && containsChainExpression(childNode, sourceCode)) {
-					return true;
-				}
-			}
-
-			continue;
-		}
-
-		if (child && containsChainExpression(child, sourceCode)) {
-			return true;
-		}
-	}
-
-	return false;
-};
+const containsChainExpression = node =>
+	node.type === 'ChainExpression'
+	|| [...getChildNodes(node)].some(child => containsChainExpression(child));
 
 const getReplaceChildrenProblem = (context, node) => {
 	const childNode = getChildNodeMemberExpression(node.test);
@@ -174,7 +153,7 @@ const getReplaceChildrenProblem = (context, node) => {
 	const parentNode = childNode.object;
 	if (
 		isNodeValueNotDomNode(parentNode)
-		|| containsChainExpression(parentNode, sourceCode)
+		|| containsChainExpression(parentNode)
 		|| !shouldReportReplaceChildrenReceiver(context, parentNode)
 	) {
 		return;

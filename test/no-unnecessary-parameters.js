@@ -1,6 +1,6 @@
 import vm from 'node:vm';
 import {stripTypeScriptTypes} from 'node:module';
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
@@ -65,6 +65,10 @@ testRule.snapshot({
 		{code: 'function format(value) { return value; } format(1); format(1);', languageOptions: {sourceType: 'script'}},
 		{code: 'function format(value) { return value; } with (object) { format(1); format(1); }', languageOptions: {sourceType: 'script'}},
 		{code: 'function format(value) { return value; } format(1); format(1);', options: [{minimumCallCount: 3}]},
+		'function format(value) { return value; } format(onload); format(onload);',
+		'function format({[key]: value}) { return value; } format({}); format({});',
+		'function format({toString}) { return toString; } format({}); format({});',
+		'class Formatter { #format = value => value; run() { this.#format(1); this.#format(1); } }',
 	],
 	invalid: [
 		'function format(value) { return value; } format(1); format(1);',
@@ -172,6 +176,9 @@ testRule.snapshot({
 			format(2);
 		`,
 		'function format(first, second = first) {\r\n    return first + second;\r\n}\r\nformat(1);\r\nformat(2);',
+		'function make(value) { return new Foo(value); } make(1); make(1);',
+		'function outer() { let limit; function format(value) { return value; } format(limit); format(limit); }',
+		'function format(first, second = first) { "use custom directive"; } format(1); format(2);',
 	],
 });
 
@@ -199,6 +206,7 @@ testRule.snapshot({
 		'function format(value) { return value; } type Signature = typeof format; format(1); format(1);',
 		'function format(value) { <string>value; return value; } format("use strict"); format("use strict");',
 		{code: 'function outer() { function format(value) { return delete (<number>value); } format(1); format(1); } outer();', languageOptions: {sourceType: 'script'}},
+		'function format(value) { return value; } type Length = typeof format.length; format(1); format(1);',
 	],
 });
 
@@ -213,11 +221,11 @@ const linter = new Linter();
 test('fixes multiple parameters across successive passes', t => {
 	const code = 'function format(first, second, third) { return [first, second, third]; } format(1, 2, 3); format(1, 2, 3);';
 	const result = linter.verifyAndFix(code, config);
-	t.true(result.fixed);
-	t.deepEqual(result.messages, []);
-	t.regex(result.output, /function format\(\)/);
-	t.regex(result.output, /format\(\); format\(\);$/);
-	t.false(linter.verifyAndFix(result.output, config).fixed);
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.match(result.output, /function format\(\)/);
+	t.assert.match(result.output, /format\(\); format\(\);$/);
+	t.assert.strictEqual(linter.verifyAndFix(result.output, config).fixed, false);
 });
 
 test('preserves results when fixing literal, constructor, and recursive arguments', t => {
@@ -243,41 +251,41 @@ test('preserves results when fixing literal, constructor, and recursive argument
 		];
 	`;
 	const result = linter.verifyAndFix(code, config);
-	t.true(result.fixed);
-	t.deepEqual(result.messages, []);
-	t.is(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
 });
 
 test('preserves object rest while removing a destructured property', t => {
 	const code = 'function format({value, ...rest}) { return [value, rest]; } [format({value: 1, other: 2}), format({value: 1, other: 3})];';
 	const result = linter.verifyAndFix(code, config);
-	t.true(result.fixed);
-	t.deepEqual(result.messages, []);
-	t.is(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
 });
 
 test('preserves earlier-parameter defaults and parameter mutation', t => {
 	const code = 'function format(first, second = first) { second++; return [first, second]; } [format(1), format(2)];';
 	const result = linter.verifyAndFix(code, config);
-	t.true(result.fixed);
-	t.deepEqual(result.messages, []);
-	t.is(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
 });
 
 test('does not inline a callback into a direct eval call', t => {
 	const code = 'function format(callback) { const secret = 1; return callback("typeof secret"); } format(eval); format(eval);';
 	const result = linter.verifyAndFix(code, {...config, languageOptions: {globals: {eval: 'readonly'}}});
-	t.false(result.fixed);
-	t.is(result.messages.length, 1);
-	t.is(vm.runInNewContext(result.output), 'undefined');
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(vm.runInNewContext(result.output), 'undefined');
 });
 
 test('keeps a default that reads a parameter shadowed by a body variable', t => {
 	const code = 'function format(first, second = first) { var first = 10; return second; } [format(1), format(2)];';
 	const result = linter.verifyAndFix(code, config);
-	t.false(result.fixed);
-	t.is(result.messages.length, 1);
-	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,2]');
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[1,2]');
 });
 
 test('keeps parameter bindings redeclared in the body', t => {
@@ -288,51 +296,51 @@ test('keeps parameter bindings redeclared in the body', t => {
 		['function format(first, second = first) { function second() { return 10; } return second(); } [format(1), format(2)];', '[10,10]'],
 	]) {
 		const result = linter.verifyAndFix(code, config);
-		t.false(result.fixed);
-		t.is(result.output, code);
-		t.is(result.messages.length, 1);
-		t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
-		t.is(JSON.stringify(vm.runInNewContext(result.output)), expected);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), expected);
 	}
 });
 
 test('does not move fresh default values into a generator body', t => {
 	const code = 'let count = 0; function * format(value = ++count) { yield value; } const first = format(); const second = format(); [count, first.next().value, second.next().value];';
 	const result = linter.verifyAndFix(code, config);
-	t.false(result.fixed);
-	t.is(result.messages.length, 1);
-	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[2,1,2]');
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[2,1,2]');
 });
 
 test('keeps comments in ranges removed by positional fixes', t => {
 	const code = 'function format(value /* signature */) { return value; } format(/* argument */ 1); format(1);';
 	const result = linter.verifyAndFix(code, config);
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.is(result.messages.length, 1);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.strictEqual(result.messages.length, 1);
 });
 
 test('keeps distinct object identities from default initializers', t => {
 	const code = 'function format(value = {}) { return value; } const values = [format(), format()]; values[0] === values[1];';
 	const result = linter.verifyAndFix(code, config);
-	t.false(result.fixed);
-	t.is(result.messages.length, 1);
-	t.false(vm.runInNewContext(result.output));
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(vm.runInNewContext(result.output), false);
 });
 
 test('reports readonly globals without replacing argument snapshots', t => {
 	const code = 'function format(root) { return () => root; } format(document); format(document);';
 	const result = linter.verifyAndFix(code, {...config, languageOptions: {globals: {document: 'readonly'}}});
-	t.false(result.fixed);
-	t.is(result.messages.length, 1);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.messages.length, 1);
 });
 
 test('does not turn a replaced parameter into a strict-mode directive', t => {
 	const code = 'function format(value) { value; return this === undefined; } [format("use strict"), format("use strict")];';
 	const result = linter.verifyAndFix(code, config);
-	t.true(result.fixed);
-	t.deepEqual(result.messages, []);
-	t.is(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
 });
 
 test('preserves statement boundaries before a parenthesized numeric receiver', t => {
@@ -346,59 +354,59 @@ test('preserves statement boundaries before a parenthesized numeric receiver', t
 		[format(1), format(1)];
 	`;
 	const result = linter.verifyAndFix(code, config);
-	t.true(result.fixed);
-	t.deepEqual(result.messages, []);
-	t.is(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
 });
 
 test('parenthesizes negative literals on the left of exponentiation', t => {
 	const code = 'function square(value) { return value ** 2; } [square(-2), square(-2)];';
 	const result = linter.verifyAndFix(code, config);
-	t.true(result.fixed);
-	t.deepEqual(result.messages, []);
-	t.is(result.output, 'function square() { return (-2) ** 2; } [square(), square()];');
-	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[4,4]');
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(result.output, 'function square() { return (-2) ** 2; } [square(), square()];');
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[4,4]');
 });
 
 test('preserves rest arguments when removing a middle parameter', t => {
 	const code = 'function format(first, unit, ...rest) { return [first, unit, rest]; } [format(1, "px", 2), format(3, "px", 4, 5)];';
 	const result = linter.verifyAndFix(code, config);
-	t.true(result.fixed);
-	t.deepEqual(result.messages, []);
-	t.is(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
 });
 
 test('keeps the original earlier-parameter snapshot across recursive forwarding', t => {
 	const code = 'function walk(node, saved = node) { return node.next ? walk(node.next, saved) : saved.value; } [walk({value: 1, next: {value: 2}}), walk({value: 3, next: {value: 4}})];';
 	const result = linter.verifyAndFix(code, config);
-	t.false(result.fixed);
-	t.is(result.messages.length, 1);
-	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,3]');
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[1,3]');
 });
 
 test('fixes a parameter with the same name as a stable outer binding', t => {
 	const code = 'const value = 1; function format(value) { return value; } [format(value), format(value)];';
 	const result = linter.verifyAndFix(code, config);
-	t.true(result.fixed);
-	t.deepEqual(result.messages, []);
-	t.regex(result.output, /function format\(\)/);
-	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.match(result.output, /function format\(\)/);
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
 });
 
 test('fixes shorthand object arguments with the same name as an outer binding', t => {
 	const code = 'const value = 1; function format({value}) { return value; } [format({value}), format({value})];';
 	const result = linter.verifyAndFix(code, config);
-	t.true(result.fixed);
-	t.deepEqual(result.messages, []);
-	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
 });
 
 test('does not remove snapshots from async and generator signatures', t => {
 	for (const declaration of ['async function', 'function *']) {
 		const code = `${declaration} format(first, second = first) { return first + second; } format(1); format(2);`;
 		const result = linter.verifyAndFix(code, config);
-		t.false(result.fixed);
-		t.is(result.messages.length, 1);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.messages.length, 1);
 	}
 });
 
@@ -406,9 +414,9 @@ test('skips own arguments in named function expressions and their arrows', t => 
 	for (const body of ['return arguments[0];', 'return (() => arguments[0])();']) {
 		const code = `const format = function inner(value) { ${body} }; [format(1), format(1)];`;
 		const result = linter.verifyAndFix(code, config);
-		t.false(result.fixed);
-		t.deepEqual(result.messages, []);
-		t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
 	}
 });
 
@@ -421,18 +429,18 @@ test('fixes arrows using an enclosing function arguments object', t => {
 		[outer(2), outer(3)];
 	`;
 	const result = linter.verifyAndFix(code, config);
-	t.true(result.fixed);
-	t.deepEqual(result.messages, []);
-	t.regex(result.output, /const format = \(\) => \[1, arguments\[0\]\]/);
-	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[[[1,2],[1,2]],[[1,3],[1,3]]]');
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.match(result.output, /const format = \(\) => \[1, arguments\[0\]\]/);
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[[[1,2],[1,2]],[[1,3],[1,3]]]');
 });
 
 test('avoids overlapping edits while expanding a recursive concise arrow', t => {
 	const code = 'const format = (first, second = first) => first ? format(0, undefined) : second; [format(1), format(2)];';
 	const result = linter.verifyAndFix(code, config);
-	t.false(result.fixed);
-	t.is(result.messages.length, 1);
-	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[0,0]');
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[0,0]');
 });
 
 test('preserves a class argument temporal dead zone before entering the function', t => {
@@ -448,9 +456,9 @@ test('preserves a class argument temporal dead zone before entering the function
 		count;
 	`;
 	const result = linter.verifyAndFix(code, config);
-	t.false(result.fixed);
-	t.is(result.messages.length, 1);
-	t.is(vm.runInNewContext(result.output), 0);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(vm.runInNewContext(result.output), 0);
 });
 
 test('keeps parameter snapshots when a var initializer executes repeatedly', t => {
@@ -465,9 +473,9 @@ test('keeps parameter snapshots when a var initializer executes repeatedly', t =
 		callbacks.map(callback => callback());
 	`;
 	const result = linter.verifyAndFix(code, config);
-	t.false(result.fixed);
-	t.deepEqual(result.messages, []);
-	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1,2,2]');
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[1,1,2,2]');
 });
 
 test('preserves a parameter temporal dead zone in an earlier initializer', t => {
@@ -482,9 +490,9 @@ test('preserves a parameter temporal dead zone in an earlier initializer', t => 
 		count;
 	`;
 	const result = linter.verifyAndFix(code, config);
-	t.false(result.fixed);
-	t.is(result.messages.length, 2);
-	t.is(vm.runInNewContext(result.output), 0);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.messages.length, 2);
+	t.assert.strictEqual(vm.runInNewContext(result.output), 0);
 });
 
 test('keeps omitted defaults in parameter scope before the body runs', t => {
@@ -495,9 +503,9 @@ test('keeps omitted defaults in parameter scope before the body runs', t => {
 	]) {
 		const code = `let count = 0; function format(${parameter}) { count++; return value; } try { format(); } catch {} try { format(); } catch {} ${declaration} count;`;
 		const result = linter.verifyAndFix(code, config);
-		t.false(result.fixed);
-		t.is(result.messages.length, 1);
-		t.is(vm.runInNewContext(result.output), 0);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(vm.runInNewContext(result.output), 0);
 	}
 });
 
@@ -509,10 +517,10 @@ test('keeps JSX tag parameters intact', t => {
 		'const component = () => null; function render(Component) { return <Component />; } render(component); render(component);',
 	]) {
 		const result = linter.verifyAndFix(code, jsxConfig);
-		t.false(result.fixed);
-		t.is(result.output, code);
-		t.is(result.messages.length, 1);
-		t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
 	}
 });
 
@@ -532,10 +540,10 @@ test('keeps binding snapshots in callers with independent execution timing', t =
 		count;
 	`;
 	const result = linter.verifyAndFix(code, config);
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.is(result.messages.length, 1);
-	t.is(vm.runInNewContext(result.output), 0);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(vm.runInNewContext(result.output), 0);
 });
 
 test('keeps outer parameter snapshots when arguments can mutate the binding', t => {
@@ -551,18 +559,18 @@ test('keeps outer parameter snapshots when arguments can mutate the binding', t 
 		outer(1);
 	`;
 	const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.is(result.messages.length, 1);
-	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
 });
 
 test('preserves an earlier-parameter snapshot before its source is mutated', t => {
 	const code = 'function format(first, second = first) { first++; return [first, second]; } [format(1), format(2)];';
 	const result = linter.verifyAndFix(code, config);
-	t.true(result.fixed);
-	t.deepEqual(result.messages, []);
-	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[[2,1],[3,2]]');
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[[2,1],[3,2]]');
 });
 
 test('preserves default snapshots before super mutates an earlier parameter', t => {
@@ -581,10 +589,10 @@ test('preserves default snapshots before super mutates an earlier parameter', t 
 		[new Point(1).values, new Point(2).values];
 	`;
 	const result = linter.verifyAndFix(code, config);
-	t.true(result.fixed);
-	t.deepEqual(result.messages, []);
-	t.regex(result.output, /constructor\(first\) \{\s+const second = first;\s+super\(/);
-	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[[2,1],[3,2]]');
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.match(result.output, /constructor\(first\) \{\s+const second = first;\s+super\(/);
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[[2,1],[3,2]]');
 });
 
 test('does not introduce a strict directive after stripping TypeScript wrappers', t => {
@@ -592,12 +600,12 @@ test('does not introduce a strict directive after stripping TypeScript wrappers'
 	for (const expression of ['value as string', 'value satisfies string', 'value!', '(value as string)!']) {
 		const code = `function outer() { function format(value) { ${expression}; return this === undefined; } return [format("use strict"), format("use strict")]; } outer();`;
 		const result = linter.verifyAndFix(code, typescriptConfig);
-		t.false(result.fixed);
-		t.is(result.output, code);
-		t.is(result.messages.length, 1);
-		t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
 		const javascript = stripTypeScriptTypes(result.output);
-		t.is(JSON.stringify(vm.runInNewContext(javascript)), '[false,false]');
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(javascript)), '[false,false]');
 	}
 });
 
@@ -608,10 +616,10 @@ test('keeps shorthand prototype keys as own properties', t => {
 		'function format({value: __proto__}) { return {__proto__}; } [format({value: 1}), format({value: 1})];',
 	]) {
 		const result = linter.verifyAndFix(code, config);
-		t.false(result.fixed);
-		t.is(result.output, code);
-		t.is(result.messages.length, 1);
-		t.is(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
 	}
 });
 
@@ -619,10 +627,10 @@ test('ignores explicit arguments parameter bindings', t => {
 	for (const [parameter, argument] of [['arguments', 'arguments'], ['{value: arguments}', '{value: arguments}']]) {
 		const code = `function outer() { const arguments = 1; function format(${parameter}) { return arguments; } return [format(${argument}), format(${argument})]; } outer();`;
 		const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
-		t.false(result.fixed);
-		t.is(result.output, code);
-		t.deepEqual(result.messages, []);
-		t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
 	}
 });
 
@@ -633,10 +641,10 @@ test('does not inline binding names with context-dependent syntax', t => {
 		'function outer() { function package() {} function format(value) { "use strict"; return value; } format(package); format(package); } outer();',
 	]) {
 		const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
-		t.false(result.fixed);
-		t.is(result.output, code);
-		t.is(result.messages.length, 1);
-		t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
 	}
 });
 
@@ -645,11 +653,11 @@ test('keeps delete operations on TypeScript-wrapped parameter references', t => 
 	for (const expression of ['value as any', 'value satisfies number', 'value!', '(value as any)!']) {
 		const code = `function outer() { function format(value) { return delete (${expression}); } return [format(1), format(1)]; } outer();`;
 		const result = linter.verifyAndFix(code, typescriptConfig);
-		t.false(result.fixed);
-		t.is(result.output, code);
-		t.is(result.messages.length, 1);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.strictEqual(result.messages.length, 1);
 		const javascript = stripTypeScriptTypes(result.output);
-		t.is(JSON.stringify(vm.runInNewContext(javascript)), '[false,false]');
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(javascript)), '[false,false]');
 	}
 });
 
@@ -663,11 +671,11 @@ test('keeps literals in their original strictness context', t => {
 		]) {
 			const code = `function outer() { ${declaration} return [${call}(${literal})${suffix}, ${call}(${literal})${suffix}]; } outer();`;
 			const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
-			t.false(result.fixed);
-			t.is(result.output, code);
-			t.is(result.messages.length, 1);
-			t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
-			t.is(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
+			t.assert.strictEqual(result.fixed, false);
+			t.assert.strictEqual(result.output, code);
+			t.assert.strictEqual(result.messages.length, 1);
+			t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+			t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
 		}
 	}
 });
@@ -676,11 +684,11 @@ test('keeps reserved parameter names out of local default declarations', t => {
 	for (const body of ['return let;', 'let++; return let;']) {
 		const code = `function outer() { function format(first, let = first) { ${body} } return [format(1), format(2)]; } outer();`;
 		const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
-		t.false(result.fixed);
-		t.is(result.output, code);
-		t.is(result.messages.length, 1);
-		t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
-		t.is(JSON.stringify(vm.runInNewContext(result.output)), body.startsWith('let++') ? '[2,3]' : '[1,2]');
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), body.startsWith('let++') ? '[2,3]' : '[1,2]');
 	}
 });
 
@@ -693,9 +701,9 @@ test('ignores TypeScript bindings initialized by enum and namespace declarations
 		]) {
 			const code = `function format(value) { return () => value; } ${calls} callbacks.map(callback => callback());`;
 			const result = linter.verifyAndFix(code, typescriptConfig);
-			t.false(result.fixed);
-			t.is(result.output, code);
-			t.deepEqual(result.messages, []);
+			t.assert.strictEqual(result.fixed, false);
+			t.assert.strictEqual(result.output, code);
+			t.assert.deepStrictEqual(result.messages, []);
 		}
 	}
 });
@@ -708,10 +716,10 @@ test('ignores sloppy block declarations with implicit outer aliases', t => {
 	]) {
 		const code = `function outer() { let results; ${block} results.push(format(2)); return results; } outer();`;
 		const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
-		t.false(result.fixed);
-		t.is(result.output, code);
-		t.deepEqual(result.messages, []);
-		t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1,2]');
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[1,1,2]');
 	}
 });
 
@@ -722,20 +730,20 @@ test('still fixes strict block declarations and sloppy block function expression
 	]) {
 		const code = `function outer() { ${directive} { ${declaration} return [format(1), format(1)]; } } outer();`;
 		const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
-		t.true(result.fixed);
-		t.deepEqual(result.messages, []);
-		t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
 	}
 });
 
 test('reports stable catch bindings without inlining', t => {
 	const code = 'try { throw 1; } catch (limit) { const format = value => value; [format(limit), format(limit)]; }';
 	const result = linter.verifyAndFix(code, config);
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.is(result.messages.length, 1);
-	t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
-	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
 });
 
 test('ignores decorated class expressions', t => {
@@ -748,9 +756,9 @@ test('ignores decorated class expressions', t => {
 	]) {
 		const code = `const Point = ${initializer}; new Point(1); new Point(1);`;
 		const result = linter.verifyAndFix(code, typescriptConfig);
-		t.false(result.fixed);
-		t.is(result.output, code);
-		t.deepEqual(result.messages, []);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.deepStrictEqual(result.messages, []);
 	}
 });
 
@@ -762,21 +770,21 @@ test('keeps comments in place when reporting earlier-parameter defaults', t => {
 	]) {
 		const code = `function format(first, second = first) { ${body} } [format(1), format(2)];`;
 		const result = linter.verifyAndFix(code, config);
-		t.false(result.fixed);
-		t.is(result.output, code);
-		t.is(result.messages.length, 1);
-		t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
-		t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,2]');
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[1,2]');
 	}
 });
 
 test('still fixes primitive references beside body comments', t => {
 	const code = 'function format(value) { /* keep */ return value; } [format(1), format(1)];';
 	const result = linter.verifyAndFix(code, config);
-	t.true(result.fixed);
-	t.deepEqual(result.messages, []);
-	t.is(result.output, 'function format() { /* keep */ return 1; } [format(), format()];');
-	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(result.output, 'function format() { /* keep */ return 1; } [format(), format()];');
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
 });
 
 test('ignores own arguments objects with var redeclarations', t => {
@@ -784,10 +792,10 @@ test('ignores own arguments objects with var redeclarations', t => {
 		for (const expression of ['arguments[0]', '(() => arguments[0])()']) {
 			const code = `function outer() { function format(value) { ${declaration} return ${expression}; } return [format(1), format(1)]; } outer();`;
 			const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
-			t.false(result.fixed);
-			t.is(result.output, code);
-			t.deepEqual(result.messages, []);
-			t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+			t.assert.strictEqual(result.fixed, false);
+			t.assert.strictEqual(result.output, code);
+			t.assert.deepStrictEqual(result.messages, []);
+			t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
 		}
 	}
 });
@@ -797,11 +805,11 @@ test('ignores ambient declaration bindings', t => {
 	for (const declaration of ['declare function callback(): number;', 'declare class callback {}', 'declare const callback: () => number;', 'declare let callback: () => number;']) {
 		const code = `${declaration} function format(value) { return () => value; } const values = [format(callback), format(callback)]; globalThis.callback = () => 2; values.map(get => get()());`;
 		const result = linter.verifyAndFix(code, typescriptConfig);
-		t.false(result.fixed);
-		t.is(result.output, code);
-		t.deepEqual(result.messages, []);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.deepStrictEqual(result.messages, []);
 		const javascript = stripTypeScriptTypes(result.output);
-		t.is(JSON.stringify(vm.runInNewContext(javascript, {callback: () => 1})), '[1,1]');
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(javascript, {callback: () => 1})), '[1,1]');
 	}
 });
 
@@ -821,20 +829,20 @@ test('keeps argument reads before body effects for uninitialized switch bindings
 			count;
 		`;
 		const result = linter.verifyAndFix(code, config);
-		t.false(result.fixed);
-		t.is(result.output, code);
-		t.is(result.messages.length, 1);
-		t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
-		t.is(vm.runInNewContext(result.output), 0);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+		t.assert.strictEqual(vm.runInNewContext(result.output), 0);
 	}
 });
 
 test('still fixes hoisted function bindings from other switch cases', t => {
 	const code = 'switch (1) { case 0: function limit() { return 1; } break; case 1: const format = value => value(); [format(limit), format(limit)]; }';
 	const result = linter.verifyAndFix(code, config);
-	t.true(result.fixed);
-	t.deepEqual(result.messages, []);
-	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
 });
 
 test('keeps argument reads before body effects in outer parameter initializers', t => {
@@ -849,11 +857,11 @@ test('keeps argument reads before body effects in outer parameter initializers',
 		count;
 	`;
 	const result = linter.verifyAndFix(code, config);
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.is(result.messages.length, 1);
-	t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
-	t.is(vm.runInNewContext(result.output), 0);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+	t.assert.strictEqual(vm.runInNewContext(result.output), 0);
 });
 
 test('keeps argument reads before body effects in catch binding initializers', t => {
@@ -867,23 +875,23 @@ test('keeps argument reads before body effects in catch binding initializers', t
 		count;
 	`;
 	const result = linter.verifyAndFix(code, config);
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.is(result.messages.length, 1);
-	t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
-	t.is(vm.runInNewContext(result.output), 0);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+	t.assert.strictEqual(vm.runInNewContext(result.output), 0);
 });
 
 test('reports TypeScript earlier-parameter defaults without changing assertions', t => {
 	const typescriptConfig = {...config, languageOptions: {parser: parsers.typescript.implementation}};
 	const code = 'function format(first = 1 as string | number, second = first as number) { return second.toFixed(); } [format(1), format(2)];';
 	const result = linter.verifyAndFix(code, typescriptConfig);
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.is(result.messages.length, 1);
-	t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
 	const javascript = stripTypeScriptTypes(result.output);
-	t.is(JSON.stringify(vm.runInNewContext(javascript)), '["1","2"]');
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(javascript)), '["1","2"]');
 });
 
 test('keeps snapshots of script bindings mutated through the global object', t => {
@@ -898,11 +906,11 @@ test('keeps snapshots of script bindings mutated through the global object', t =
 		outer();
 	`;
 	const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.is(result.messages.length, 1);
-	t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
-	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
 });
 
 test('fixes recursive calls inside removed defaults without overlapping edits', t => {
@@ -912,10 +920,10 @@ test('fixes recursive calls inside removed defaults without overlapping edits', 
 		'function format({value = format({value: 1})}) { return value; } [format({value: 1}), format({value: 1})];',
 	]) {
 		const result = linter.verifyAndFix(code, config);
-		t.true(result.fixed);
-		t.deepEqual(result.messages, []);
-		t.is(JSON.stringify(vm.runInNewContext(code)), '[1,1]');
-		t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(code)), '[1,1]');
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
 	}
 });
 
@@ -931,11 +939,11 @@ test('keeps snapshots of function bindings reassigned by sloppy block declaratio
 		outer();
 	`;
 	const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
-	t.false(result.fixed);
-	t.is(result.output, code);
-	t.deepEqual(result.messages, []);
-	t.is(JSON.stringify(vm.runInNewContext(code)), '[1,1]');
-	t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(code)), '[1,1]');
+	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
 });
 
 test('ignores callers redirected by sloppy block function declarations', t => {
@@ -950,11 +958,11 @@ test('ignores callers redirected by sloppy block function declarations', t => {
 			outer();
 		`;
 		const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
-		t.false(result.fixed);
-		t.is(result.output, code);
-		t.deepEqual(result.messages, []);
-		t.is(JSON.stringify(vm.runInNewContext(code)), '[1,2]');
-		t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,2]');
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(code)), '[1,2]');
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[1,2]');
 	}
 });
 
@@ -976,18 +984,18 @@ test('resolves private calls in class heritage using the enclosing class', t => 
 			new Outer().run();
 		`;
 		const result = linter.verifyAndFix(code, config);
-		t.false(result.fixed);
-		t.is(result.output, code);
-		t.deepEqual(result.messages, []);
-		t.is(JSON.stringify(vm.runInNewContext(code)), '[1,1,2]');
-		t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1,2]');
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(code)), '[1,1,2]');
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[1,1,2]');
 		const matchingCode = code.replace('extends this.#format(2)', 'extends this.#format(1)');
 		const matchingResult = linter.verifyAndFix(matchingCode, config);
-		t.true(matchingResult.fixed);
-		t.deepEqual(matchingResult.messages, []);
-		t.regex(matchingResult.output, /extends this\.#format\(\)/);
-		t.is(JSON.stringify(vm.runInNewContext(matchingCode)), '[1,1,1]');
-		t.is(JSON.stringify(vm.runInNewContext(matchingResult.output)), '[1,1,1]');
+		t.assert.strictEqual(matchingResult.fixed, true);
+		t.assert.deepStrictEqual(matchingResult.messages, []);
+		t.assert.match(matchingResult.output, /extends this\.#format\(\)/);
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(matchingCode)), '[1,1,1]');
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(matchingResult.output)), '[1,1,1]');
 	}
 });
 
@@ -1006,13 +1014,13 @@ test('reports TypeScript parameters without changing inferred or asserted types'
 		`,
 	]) {
 		const result = linter.verifyAndFix(code, typescriptConfig);
-		t.false(result.fixed);
-		t.is(result.output, code);
-		t.is(result.messages.length, 1);
-		t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
 		const javascript = stripTypeScriptTypes(result.output);
 		const originalJavascript = stripTypeScriptTypes(code);
-		t.is(JSON.stringify(vm.runInNewContext(javascript)), JSON.stringify(vm.runInNewContext(originalJavascript)));
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(javascript)), JSON.stringify(vm.runInNewContext(originalJavascript)));
 	}
 });
 
@@ -1021,16 +1029,16 @@ test('requires manual fixes for TypeScript filenames without parser services', t
 	for (const extension of ['ts', 'mts', 'cts', 'tsx', 'js']) {
 		const result = linter.verifyAndFix(code, {...config, files: ['**/*.{js,ts,mts,cts,tsx}']}, {filename: `input.${extension}`});
 		if (extension === 'js') {
-			t.true(result.fixed);
-			t.deepEqual(result.messages, []);
+			t.assert.strictEqual(result.fixed, true);
+			t.assert.deepStrictEqual(result.messages, []);
 		} else {
-			t.false(result.fixed);
-			t.is(result.output, code);
-			t.is(result.messages.length, 1);
-			t.is(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+			t.assert.strictEqual(result.fixed, false);
+			t.assert.strictEqual(result.output, code);
+			t.assert.strictEqual(result.messages.length, 1);
+			t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
 		}
 
-		t.is(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
 	}
 });
 
@@ -1039,13 +1047,13 @@ test('preserves arrow parameter parentheses and trailing commas', async t => {
 	for (const parameter of ['value', '(value)', '(value,)', '(value = 1,)', 'async value', 'async (value,)', 'async (value = 1,)']) {
 		const code = `const format = ${parameter} => value; [format(1,), format(1,)];`;
 		const result = linter.verifyAndFix(code, config);
-		t.true(result.fixed);
-		t.deepEqual(result.messages, []);
-		t.is(result.output, `const format = ${parameter.startsWith('async') ? 'async ' : ''}() => 1; [format(), format()];`);
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(result.output, `const format = ${parameter.startsWith('async') ? 'async ' : ''}() => 1; [format(), format()];`);
 		results.push(Promise.all(vm.runInNewContext(result.output)));
 	}
 
 	for (const values of await Promise.all(results)) {
-		t.is(JSON.stringify(values), '[1,1]');
+		t.assert.strictEqual(JSON.stringify(values), '[1,1]');
 	}
 });

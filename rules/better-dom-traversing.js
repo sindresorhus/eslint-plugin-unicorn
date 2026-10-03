@@ -144,14 +144,7 @@ const isDocumentObject = node =>
 		node.type === 'Identifier'
 		&& node.name === 'document'
 	)
-	|| (
-		node.type === 'MemberExpression'
-		&& !node.computed
-		&& node.object.type === 'Identifier'
-		&& ['globalThis', 'window'].includes(node.object.name)
-		&& node.property.type === 'Identifier'
-		&& node.property.name === 'document'
-	);
+	|| isMemberExpression(node, {objects: ['globalThis', 'window'], property: 'document'});
 
 const canMergeSelectorValues = selectors =>
 	selectors.every(selector => !selector.includes(',') && !selector.includes(':scope'));

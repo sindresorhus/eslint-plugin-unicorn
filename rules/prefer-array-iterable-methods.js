@@ -39,9 +39,6 @@ const isElementUnused = (element, context) => {
 	}
 
 	const variable = findVariable(context.sourceCode.getScope(element), element);
-	if (!variable) {
-		return false;
-	}
 
 	// The `for…of` binding itself counts as a write reference. Any other reference is a real
 	// use, whether in the loop body or in a sibling element's default or computed key.

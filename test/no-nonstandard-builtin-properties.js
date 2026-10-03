@@ -129,6 +129,11 @@ test.snapshot({
 		'({foo: 1}).foo',
 		'unknown.foo',
 		'object.toSorted',
+		'class Foo { #bar; static baz() { return Math.#bar; } }',
+		'(!1).foo',
+		'(-value).foo',
+		'Foo.prototype.bar',
+		'new Math().foo',
 	],
 	invalid: [
 		'Object.entires(value)',
@@ -200,6 +205,11 @@ test.snapshot({
 		},
 		{
 			code: 'type Disposable = {[Symbol.nonstandard](): void}',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'`x`.foo',
+		{
+			code: 'Math.PI!()',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],

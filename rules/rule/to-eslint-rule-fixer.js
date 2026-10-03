@@ -46,7 +46,7 @@ export default function toEslintRuleFixer(fix) {
 				return;
 			}
 
-			/* c8 ignore next */
+			/* node:coverage ignore next */
 			throw error;
 		}
 	};

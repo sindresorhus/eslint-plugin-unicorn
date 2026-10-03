@@ -81,7 +81,8 @@ function getConstBinding(node, context) {
 }
 
 // Resolve only local constant aliases. Destructuring and loop bindings are handled at the chunk boundary below.
-function resolveExpression(node, context, visitedVariables = new Set()) {
+// An alias must be declared before its use in the same function, so the resolution cannot loop.
+function resolveExpression(node, context) {
 	node = unwrapExpression(node);
 	if (node?.type !== 'Identifier') {
 		return node;
@@ -92,12 +93,7 @@ function resolveExpression(node, context, visitedVariables = new Set()) {
 		return;
 	}
 
-	const {variable, definition} = binding;
-	if (visitedVariables.has(variable)) {
-		return;
-	}
-
-	visitedVariables.add(variable);
+	const {definition} = binding;
 	if (definition.node.id.type !== 'Identifier' || !definition.node.init) {
 		return node;
 	}
@@ -106,7 +102,7 @@ function resolveExpression(node, context, visitedVariables = new Set()) {
 		return;
 	}
 
-	return resolveExpression(definition.node.init, context, visitedVariables);
+	return resolveExpression(definition.node.init, context);
 }
 
 function isFetchBody(node, context) {

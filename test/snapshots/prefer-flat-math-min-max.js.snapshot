@@ -1,0 +1,304 @@
+exports[`prefer-flat-math-min-max > invalid(1): Math.max(Math.max(a, b), c); 1`] = `
+
+  1 | Math.max(Math.max(a, b), c);
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(1): Math.max(Math.max(a, b), c); 2`] = `
+
+Message:
+> 1 | Math.max(Math.max(a, b), c);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a flat \`Math.max()\` call instead of nested calls.
+
+Output:
+  1 | Math.max(a, b, c);
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(10): const value = Math.max(\n\tMath.max(a, b),\n\tc,\n); 1`] = `
+
+  1 | const value = Math.max(
+  2 | 	Math.max(a, b),
+  3 | 	c,
+  4 | );
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(10): const value = Math.max(\n\tMath.max(a, b),\n\tc,\n); 2`] = `
+
+Message:
+> 1 | const value = Math.max(
+    |               ^^^^^^^^^
+> 2 | 	Math.max(a, b),
+    | ^^^^^^^^^^^^^^^^
+> 3 | 	c,
+    | ^^^
+> 4 | );
+    | ^ Prefer a flat \`Math.max()\` call instead of nested calls.
+
+Output:
+  1 | const value = Math.max(a, b, c);
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(11): const value = Math.max(\n\tMath.max(\n\t\ta,\n\t\tb,\n\t),\n\tc,\n); 1`] = `
+
+  1 | const value = Math.max(
+  2 | 	Math.max(
+  3 | 		a,
+  4 | 		b,
+  5 | 	),
+  6 | 	c,
+  7 | );
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(11): const value = Math.max(\n\tMath.max(\n\t\ta,\n\t\tb,\n\t),\n\tc,\n); 2`] = `
+
+Message:
+> 1 | const value = Math.max(
+    |               ^^^^^^^^^
+> 2 | 	Math.max(
+    | ^^^^^^^^^^
+> 3 | 		a,
+    | ^^^^
+> 4 | 		b,
+    | ^^^^
+> 5 | 	),
+    | ^^^
+> 6 | 	c,
+    | ^^^
+> 7 | );
+    | ^ Prefer a flat \`Math.max()\` call instead of nested calls.
+
+Output:
+  1 | const value = Math.max(a, b, c);
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(12): const value = Math.max(\n\tMath.max(/* keep */ a, b),\n\tc,\n); 1`] = `
+
+  1 | const value = Math.max(
+  2 | 	Math.max(/* keep */ a, b),
+  3 | 	c,
+  4 | );
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(12): const value = Math.max(\n\tMath.max(/* keep */ a, b),\n\tc,\n); 2`] = `
+
+Message:
+> 1 | const value = Math.max(
+    |               ^^^^^^^^^
+> 2 | 	Math.max(/* keep */ a, b),
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	c,
+    | ^^^
+> 4 | );
+    | ^ Prefer a flat \`Math.max()\` call instead of nested calls.
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(13): Math.max(Math.max((a, b), c), d); 1`] = `
+
+  1 | Math.max(Math.max((a, b), c), d);
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(13): Math.max(Math.max((a, b), c), d); 2`] = `
+
+Message:
+> 1 | Math.max(Math.max((a, b), c), d);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a flat \`Math.max()\` call instead of nested calls.
+
+Output:
+  1 | Math.max((a, b), c, d);
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(14): Math.max(c, Math.max((a, b), d)); 1`] = `
+
+  1 | Math.max(c, Math.max((a, b), d));
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(14): Math.max(c, Math.max((a, b), d)); 2`] = `
+
+Message:
+> 1 | Math.max(c, Math.max((a, b), d));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a flat \`Math.max()\` call instead of nested calls.
+
+Output:
+  1 | Math.max(c, (a, b), d);
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(15): Math.min(Math.min((a, b), c), d); 1`] = `
+
+  1 | Math.min(Math.min((a, b), c), d);
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(15): Math.min(Math.min((a, b), c), d); 2`] = `
+
+Message:
+> 1 | Math.min(Math.min((a, b), c), d);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a flat \`Math.min()\` call instead of nested calls.
+
+Output:
+  1 | Math.min((a, b), c, d);
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(16): Math.max(Math.max((a), ...(b)), c); 1`] = `
+
+  1 | Math.max(Math.max((a), ...(b)), c);
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(16): Math.max(Math.max((a), ...(b)), c); 2`] = `
+
+Message:
+> 1 | Math.max(Math.max((a), ...(b)), c);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a flat \`Math.max()\` call instead of nested calls.
+
+Output:
+  1 | Math.max((a), ...(b), c);
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(2): Math.min(a, Math.min(b, c)); 1`] = `
+
+  1 | Math.min(a, Math.min(b, c));
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(2): Math.min(a, Math.min(b, c)); 2`] = `
+
+Message:
+> 1 | Math.min(a, Math.min(b, c));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a flat \`Math.min()\` call instead of nested calls.
+
+Output:
+  1 | Math.min(a, b, c);
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(3): Math.max(Math.max(a, b), Math.max(c, d), e); 1`] = `
+
+  1 | Math.max(Math.max(a, b), Math.max(c, d), e);
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(3): Math.max(Math.max(a, b), Math.max(c, d), e); 2`] = `
+
+Message:
+> 1 | Math.max(Math.max(a, b), Math.max(c, d), e);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a flat \`Math.max()\` call instead of nested calls.
+
+Output:
+  1 | Math.max(a, b, c, d, e);
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(4): Math.min(Math.min(Math.min(a, b), c), d); 1`] = `
+
+  1 | Math.min(Math.min(Math.min(a, b), c), d);
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(4): Math.min(Math.min(Math.min(a, b), c), d); 2`] = `
+
+Message:
+> 1 | Math.min(Math.min(Math.min(a, b), c), d);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a flat \`Math.min()\` call instead of nested calls.
+
+Output:
+  1 | Math.min(a, b, c, d);
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(5): Math.max(Math.max(a, b)); 1`] = `
+
+  1 | Math.max(Math.max(a, b));
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(5): Math.max(Math.max(a, b)); 2`] = `
+
+Message:
+> 1 | Math.max(Math.max(a, b));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a flat \`Math.max()\` call instead of nested calls.
+
+Output:
+  1 | Math.max(a, b);
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(6): Math.min(Math.min()); 1`] = `
+
+  1 | Math.min(Math.min());
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(6): Math.min(Math.min()); 2`] = `
+
+Message:
+> 1 | Math.min(Math.min());
+    | ^^^^^^^^^^^^^^^^^^^^ Prefer a flat \`Math.min()\` call instead of nested calls.
+
+Output:
+  1 | Math.min();
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(7): Math.max(Math.max(...values), fallback); 1`] = `
+
+  1 | Math.max(Math.max(...values), fallback);
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(7): Math.max(Math.max(...values), fallback); 2`] = `
+
+Message:
+> 1 | Math.max(Math.max(...values), fallback);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a flat \`Math.max()\` call instead of nested calls.
+
+Output:
+  1 | Math.max(...values, fallback);
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(8): const value = Math.max(foo, Math.max(bar, baz)).toString(); 1`] = `
+
+  1 | const value = Math.max(foo, Math.max(bar, baz)).toString();
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(8): const value = Math.max(foo, Math.max(bar, baz)).toString(); 2`] = `
+
+Message:
+> 1 | const value = Math.max(foo, Math.max(bar, baz)).toString();
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a flat \`Math.max()\` call instead of nested calls.
+
+Output:
+  1 | const value = Math.max(foo, bar, baz).toString();
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(9): const value = Math.min((Math.min(a, b)), c); 1`] = `
+
+  1 | const value = Math.min((Math.min(a, b)), c);
+
+`;
+
+exports[`prefer-flat-math-min-max > invalid(9): const value = Math.min((Math.min(a, b)), c); 2`] = `
+
+Message:
+> 1 | const value = Math.min((Math.min(a, b)), c);
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a flat \`Math.min()\` call instead of nested calls.
+
+Output:
+  1 | const value = Math.min(a, b, c);
+
+`;

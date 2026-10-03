@@ -156,6 +156,7 @@ test.snapshot({
 			code: 'function convert(source: Temporal.PlainDateTime) { return Temporal.PlainDate.from(source as Temporal.PlainDateTime); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		`${zoned} Temporal.PlainDate.from({"year": source.year, "month": source.month, "day": source.day})`,
 	],
 });
 
@@ -188,6 +189,12 @@ test.snapshot({
 		typeAware(`${types}
 			declare const holder: {source: Temporal.ZonedDateTime};
 			Temporal.PlainDate.from({year: holder.source.year, month: holder.source.month, day: holder.source.day, calendar: holder.source.calendarId})
+		`),
+		// A namespaced `Temporal`, like from a polyfill
+		typeAware(`
+			declare namespace Polyfill { namespace Temporal { class ZonedDateTime { epochNanoseconds: bigint; } } }
+			declare function getSource(): Polyfill.Temporal.ZonedDateTime;
+			new Temporal.Instant(getSource().epochNanoseconds)
 		`),
 	],
 });

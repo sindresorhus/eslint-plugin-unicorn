@@ -145,5 +145,11 @@ test.typescript({
 			code: 'type ElementUnion = {foo: string} | Other /* comment */',
 			errors: [{messageId: 'prefer-type-literal-last'}],
 		},
+		// Comments outside the union do not block the fix
+		{
+			code: '/* before */ type ElementUnion = {foo: string} | Other; /* after */',
+			output: '/* before */ type ElementUnion = Other | {foo: string}; /* after */',
+			errors: [{messageId: 'prefer-type-literal-last'}],
+		},
 	],
 });

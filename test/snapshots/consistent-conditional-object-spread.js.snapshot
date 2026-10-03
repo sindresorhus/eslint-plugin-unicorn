@@ -1,0 +1,1719 @@
+exports[`consistent-conditional-object-spread > invalid(1): const object = {...(foo ? {bar: true} : {})} 1`] = `
+
+  1 | const object = {...(foo ? {bar: true} : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(1): const object = {...(foo ? {bar: true} : {})} 2`] = `
+
+Message:
+> 1 | const object = {...(foo ? {bar: true} : {})}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(foo && {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(10): const object = {...((a, b) ? {x: 1} : {})} 1`] = `
+
+  1 | const object = {...((a, b) ? {x: 1} : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(10): const object = {...((a, b) ? {x: 1} : {})} 2`] = `
+
+Message:
+> 1 | const object = {...((a, b) ? {x: 1} : {})}
+    |                     ^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...((a, b) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(11): const object = {...((a, b) ? {} : {x: 1})} 1`] = `
+
+  1 | const object = {...((a, b) ? {} : {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(11): const object = {...((a, b) ? {} : {x: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...((a, b) ? {} : {x: 1})}
+    |                     ^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(!(a, b) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(12): const object = {...(foo ? (() => x) : {})} 1`] = `
+
+  1 | const object = {...(foo ? (() => x) : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(12): const object = {...(foo ? (() => x) : {})} 2`] = `
+
+Message:
+> 1 | const object = {...(foo ? (() => x) : {})}
+    |                     ^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(foo && (() => x))}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(13): const object = {...(foo ? a || b : {})} 1`] = `
+
+  1 | const object = {...(foo ? a || b : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(13): const object = {...(foo ? a || b : {})} 2`] = `
+
+Message:
+> 1 | const object = {...(foo ? a || b : {})}
+    |                     ^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(foo && (a || b))}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(14): const object = {...(foo ? a ?? b : {})} 1`] = `
+
+  1 | const object = {...(foo ? a ?? b : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(14): const object = {...(foo ? a ?? b : {})} 2`] = `
+
+Message:
+> 1 | const object = {...(foo ? a ?? b : {})}
+    |                     ^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(foo && (a ?? b))}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(15): const object = {...(foo ? {} : a ?? b)} 1`] = `
+
+  1 | const object = {...(foo ? {} : a ?? b)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(15): const object = {...(foo ? {} : a ?? b)} 2`] = `
+
+Message:
+> 1 | const object = {...(foo ? {} : a ?? b)}
+    |                     ^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(!foo && (a ?? b))}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(16): const object = {...(foo?.bar ? {a: 1} : {})} 1`] = `
+
+  1 | const object = {...(foo?.bar ? {a: 1} : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(16): const object = {...(foo?.bar ? {a: 1} : {})} 2`] = `
+
+Message:
+> 1 | const object = {...(foo?.bar ? {a: 1} : {})}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(foo?.bar && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(17): const object = {...((( foo )) ? (( {a: 1} )) : (( {} )))} 1`] = `
+
+  1 | const object = {...((( foo )) ? (( {a: 1} )) : (( {} )))}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(17): const object = {...((( foo )) ? (( {a: 1} )) : (( {} )))} 2`] = `
+
+Message:
+> 1 | const object = {...((( foo )) ? (( {a: 1} )) : (( {} )))}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...((( foo )) && (( {a: 1} )))}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(18): const object = ({...foo ? {a: 1} : {}}) 1`] = `
+
+  1 | const object = ({...foo ? {a: 1} : {}})
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(18): const object = ({...foo ? {a: 1} : {}}) 2`] = `
+
+Message:
+> 1 | const object = ({...foo ? {a: 1} : {}})
+    |                     ^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = ({...foo && {a: 1}})
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(19): const object = {...(!!foo ? {} : {bar: true})} 1`] = `
+
+  1 | const object = {...(!!foo ? {} : {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(19): const object = {...(!!foo ? {} : {bar: true})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!foo ? {} : {bar: true})}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(!foo && {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(2): const object = {...(foo ? {} : {bar: true})} 1`] = `
+
+  1 | const object = {...(foo ? {} : {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(2): const object = {...(foo ? {} : {bar: true})} 2`] = `
+
+Message:
+> 1 | const object = {...(foo ? {} : {bar: true})}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(!foo && {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(20): const object = {...(foo ? bar! : {})} 1`] = `
+
+  1 | const object = {...(foo ? bar! : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(20): const object = {...(foo ? bar! : {})} 2`] = `
+
+Message:
+> 1 | const object = {...(foo ? bar! : {})}
+    |                     ^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(foo && bar!)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(21): const object = {...(foo as string ? {} : bar)} 1`] = `
+
+  1 | const object = {...(foo as string ? {} : bar)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(21): const object = {...(foo as string ? {} : bar)} 2`] = `
+
+Message:
+> 1 | const object = {...(foo as string ? {} : bar)}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(!(foo as string) && bar)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(22): const object = {...(foo satisfies string ? {} : bar)} 1`] = `
+
+  1 | const object = {...(foo satisfies string ? {} : bar)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(22): const object = {...(foo satisfies string ? {} : bar)} 2`] = `
+
+Message:
+> 1 | const object = {...(foo satisfies string ? {} : bar)}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(!(foo satisfies string) && bar)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(23): const object = {...(<string>foo ? {} : bar)} 1`] = `
+
+  1 | const object = {...(<string>foo ? {} : bar)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(23): const object = {...(<string>foo ? {} : bar)} 2`] = `
+
+Message:
+> 1 | const object = {...(<string>foo ? {} : bar)}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(!(<string>foo) && bar)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(24): const object = {...(foo! ? {} : bar)} 1`] = `
+
+  1 | const object = {...(foo! ? {} : bar)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(24): const object = {...(foo! ? {} : bar)} 2`] = `
+
+Message:
+> 1 | const object = {...(foo! ? {} : bar)}
+    |                     ^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(!(foo!) && bar)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(25): const object = {...(foo ? {bar: true} : undefined)} 1`] = `
+
+  1 | const object = {...(foo ? {bar: true} : undefined)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(25): const object = {...(foo ? {bar: true} : undefined)} 2`] = `
+
+Message:
+> 1 | const object = {...(foo ? {bar: true} : undefined)}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(foo && {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(26): const object = {...(foo ? {bar: true} : null)} 1`] = `
+
+  1 | const object = {...(foo ? {bar: true} : null)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(26): const object = {...(foo ? {bar: true} : null)} 2`] = `
+
+Message:
+> 1 | const object = {...(foo ? {bar: true} : null)}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(foo && {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(27): const object = {...(foo ? undefined : {bar: true})} 1`] = `
+
+  1 | const object = {...(foo ? undefined : {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(27): const object = {...(foo ? undefined : {bar: true})} 2`] = `
+
+Message:
+> 1 | const object = {...(foo ? undefined : {bar: true})}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(!foo && {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(28): const object = {...(!foo ? undefined : {bar: true})} 1`] = `
+
+  1 | const object = {...(!foo ? undefined : {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(28): const object = {...(!foo ? undefined : {bar: true})} 2`] = `
+
+Message:
+> 1 | const object = {...(!foo ? undefined : {bar: true})}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(foo && {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(29): const object = {...(foo ? null : {bar: true})} 1`] = `
+
+  1 | const object = {...(foo ? null : {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(29): const object = {...(foo ? null : {bar: true})} 2`] = `
+
+Message:
+> 1 | const object = {...(foo ? null : {bar: true})}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(!foo && {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(3): const object = {...(!foo ? {} : {bar: true})} 1`] = `
+
+  1 | const object = {...(!foo ? {} : {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(3): const object = {...(!foo ? {} : {bar: true})} 2`] = `
+
+Message:
+> 1 | const object = {...(!foo ? {} : {bar: true})}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(foo && {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(30): const object = {...(foo ? bar : undefined)} 1`] = `
+
+  1 | const object = {...(foo ? bar : undefined)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(30): const object = {...(foo ? bar : undefined)} 2`] = `
+
+Message:
+> 1 | const object = {...(foo ? bar : undefined)}
+    |                     ^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(foo && bar)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(31): const object = {...(foo ? null : bar)} 1`] = `
+
+  1 | const object = {...(foo ? null : bar)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(31): const object = {...(foo ? null : bar)} 2`] = `
+
+Message:
+> 1 | const object = {...(foo ? null : bar)}
+    |                     ^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(!foo && bar)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(32): const object = {...(foo == null ? undefined : bar)} 1`] = `
+
+  1 | const object = {...(foo == null ? undefined : bar)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(32): const object = {...(foo == null ? undefined : bar)} 2`] = `
+
+Message:
+> 1 | const object = {...(foo == null ? undefined : bar)}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(!(foo == null) && bar)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(33): const object = {...(foo != null ? bar : undefined)} 1`] = `
+
+  1 | const object = {...(foo != null ? bar : undefined)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(33): const object = {...(foo != null ? bar : undefined)} 2`] = `
+
+Message:
+> 1 | const object = {...(foo != null ? bar : undefined)}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...((foo != null) && bar)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(34): const object = {...(foo == null ? /* keep */ {} : foo)} 1`] = `
+
+  1 | const object = {...(foo == null ? /* keep */ {} : foo)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(34): const object = {...(foo == null ? /* keep */ {} : foo)} 2`] = `
+
+Message:
+> 1 | const object = {...(foo == null ? /* keep */ {} : foo)}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(35): const object = {...(foo ? {a: 1} : /* keep */ {})} 1`] = `
+
+  1 | const object = {...(foo ? {a: 1} : /* keep */ {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(35): const object = {...(foo ? {a: 1} : /* keep */ {})} 2`] = `
+
+Message:
+> 1 | const object = {...(foo ? {a: 1} : /* keep */ {})}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(36): const object = {...(foo ? {a: 1} : /* keep */ undefined)} 1`] = `
+
+  1 | const object = {...(foo ? {a: 1} : /* keep */ undefined)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(36): const object = {...(foo ? {a: 1} : /* keep */ undefined)} 2`] = `
+
+Message:
+> 1 | const object = {...(foo ? {a: 1} : /* keep */ undefined)}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(37): const object = {...(foo ? {a: 1} : /* keep */ null)} 1`] = `
+
+  1 | const object = {...(foo ? {a: 1} : /* keep */ null)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(37): const object = {...(foo ? {a: 1} : /* keep */ null)} 2`] = `
+
+Message:
+> 1 | const object = {...(foo ? {a: 1} : /* keep */ null)}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(38): const object = {...(/* keep */ foo ? {a: 1} : {})} 1`] = `
+
+  1 | const object = {...(/* keep */ foo ? {a: 1} : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(38): const object = {...(/* keep */ foo ? {a: 1} : {})} 2`] = `
+
+Message:
+> 1 | const object = {...(/* keep */ foo ? {a: 1} : {})}
+    |                                ^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(/* keep */ foo && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(39): const object = {...(foo && {bar: true})} 1`] = `
+
+Options:
+- 'ternary'
+
+Code:
+  1 | const object = {...(foo && {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(39): const object = {...(foo && {bar: true})} 2`] = `
+
+Message:
+> 1 | const object = {...(foo && {bar: true})}
+    |                     ^^^^^^^^^^^^^^^^^^ Prefer ternary conditional object spreads.
+
+Output:
+  1 | const object = {...(foo ? {bar: true} : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(4): const object = {...(foo ? bar : {})} 1`] = `
+
+  1 | const object = {...(foo ? bar : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(4): const object = {...(foo ? bar : {})} 2`] = `
+
+Message:
+> 1 | const object = {...(foo ? bar : {})}
+    |                     ^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(foo && bar)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(40): const object = {...(!foo && {bar: true})} 1`] = `
+
+Options:
+- 'ternary'
+
+Code:
+  1 | const object = {...(!foo && {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(40): const object = {...(!foo && {bar: true})} 2`] = `
+
+Message:
+> 1 | const object = {...(!foo && {bar: true})}
+    |                     ^^^^^^^^^^^^^^^^^^^ Prefer ternary conditional object spreads.
+
+Output:
+  1 | const object = {...(!foo ? {bar: true} : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(41): const object = {...(foo && bar)} 1`] = `
+
+Options:
+- 'ternary'
+
+Code:
+  1 | const object = {...(foo && bar)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(41): const object = {...(foo && bar)} 2`] = `
+
+Message:
+> 1 | const object = {...(foo && bar)}
+    |                     ^^^^^^^^^^ Prefer ternary conditional object spreads.
+
+Output:
+  1 | const object = {...(foo ? bar : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(42): const object = {...((a || b) && {x: 1})} 1`] = `
+
+Options:
+- 'ternary'
+
+Code:
+  1 | const object = {...((a || b) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(42): const object = {...((a || b) && {x: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...((a || b) && {x: 1})}
+    |                     ^^^^^^^^^^^^^^^^^^ Prefer ternary conditional object spreads.
+
+Output:
+  1 | const object = {...((a || b) ? {x: 1} : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(43): const object = {...((a, b) && {x: 1})} 1`] = `
+
+Options:
+- 'ternary'
+
+Code:
+  1 | const object = {...((a, b) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(43): const object = {...((a, b) && {x: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...((a, b) && {x: 1})}
+    |                     ^^^^^^^^^^^^^^^^ Prefer ternary conditional object spreads.
+
+Output:
+  1 | const object = {...((a, b) ? {x: 1} : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(44): async () => ({...(await foo && {a: 1})}) 1`] = `
+
+Options:
+- 'ternary'
+
+Code:
+  1 | async () => ({...(await foo && {a: 1})})
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(44): async () => ({...(await foo && {a: 1})}) 2`] = `
+
+Message:
+> 1 | async () => ({...(await foo && {a: 1})})
+    |                   ^^^^^^^^^^^^^^^^^^^ Prefer ternary conditional object spreads.
+
+Output:
+  1 | async () => ({...((await foo) ? {a: 1} : {})})
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(45): const object = {...(foo && (() => x))} 1`] = `
+
+Options:
+- 'ternary'
+
+Code:
+  1 | const object = {...(foo && (() => x))}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(45): const object = {...(foo && (() => x))} 2`] = `
+
+Message:
+> 1 | const object = {...(foo && (() => x))}
+    |                     ^^^^^^^^^^^^^^^^ Prefer ternary conditional object spreads.
+
+Output:
+  1 | const object = {...(foo ? (() => x) : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(46): const object = {...(foo && (a = b))} 1`] = `
+
+Options:
+- 'ternary'
+
+Code:
+  1 | const object = {...(foo && (a = b))}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(46): const object = {...(foo && (a = b))} 2`] = `
+
+Message:
+> 1 | const object = {...(foo && (a = b))}
+    |                     ^^^^^^^^^^^^^^ Prefer ternary conditional object spreads.
+
+Output:
+  1 | const object = {...(foo ? (a = b) : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(47): const object = {...(foo && (a, b))} 1`] = `
+
+Options:
+- 'ternary'
+
+Code:
+  1 | const object = {...(foo && (a, b))}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(47): const object = {...(foo && (a, b))} 2`] = `
+
+Message:
+> 1 | const object = {...(foo && (a, b))}
+    |                     ^^^^^^^^^^^^^ Prefer ternary conditional object spreads.
+
+Output:
+  1 | const object = {...(foo ? (a, b) : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(48): const object = {...(foo && bar!)} 1`] = `
+
+Options:
+- 'ternary'
+
+Code:
+  1 | const object = {...(foo && bar!)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(48): const object = {...(foo && bar!)} 2`] = `
+
+Message:
+> 1 | const object = {...(foo && bar!)}
+    |                     ^^^^^^^^^^^ Prefer ternary conditional object spreads.
+
+Output:
+  1 | const object = {...(foo ? bar! : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(49): const object = {...(foo /* keep */ && {bar: true})} 1`] = `
+
+Options:
+- 'ternary'
+
+Code:
+  1 | const object = {...(foo /* keep */ && {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(49): const object = {...(foo /* keep */ && {bar: true})} 2`] = `
+
+Message:
+> 1 | const object = {...(foo /* keep */ && {bar: true})}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer ternary conditional object spreads.
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(5): const object = {...(foo ? {} : bar)} 1`] = `
+
+  1 | const object = {...(foo ? {} : bar)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(5): const object = {...(foo ? {} : bar)} 2`] = `
+
+Message:
+> 1 | const object = {...(foo ? {} : bar)}
+    |                     ^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(!foo && bar)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(50): const object = {...(!!foo && {bar: true})} 1`] = `
+
+  1 | const object = {...(!!foo && {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(50): const object = {...(!!foo && {bar: true})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!foo && {bar: true})}
+    |                     ^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(foo && {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(51): const object = {...!!foo && {bar: true}} 1`] = `
+
+  1 | const object = {...!!foo && {bar: true}}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(51): const object = {...!!foo && {bar: true}} 2`] = `
+
+Message:
+> 1 | const object = {...!!foo && {bar: true}}
+    |                    ^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...foo && {bar: true}}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(52): const object = {...(Boolean(foo) && {bar: true})} 1`] = `
+
+  1 | const object = {...(Boolean(foo) && {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(52): const object = {...(Boolean(foo) && {bar: true})} 2`] = `
+
+Message:
+> 1 | const object = {...(Boolean(foo) && {bar: true})}
+    |                     ^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(foo && {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(53): const object = {...(!!foo && bar)} 1`] = `
+
+  1 | const object = {...(!!foo && bar)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(53): const object = {...(!!foo && bar)} 2`] = `
+
+Message:
+> 1 | const object = {...(!!foo && bar)}
+    |                     ^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(foo && bar)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(54): const object = {...(!!foo.bar && {a: 1})} 1`] = `
+
+  1 | const object = {...(!!foo.bar && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(54): const object = {...(!!foo.bar && {a: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!foo.bar && {a: 1})}
+    |                     ^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(foo.bar && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(55): const object = {...(!!foo() && {a: 1})} 1`] = `
+
+  1 | const object = {...(!!foo() && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(55): const object = {...(!!foo() && {a: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!foo() && {a: 1})}
+    |                     ^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(foo() && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(56): const object = {...(!!(foo) && {a: 1})} 1`] = `
+
+  1 | const object = {...(!!(foo) && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(56): const object = {...(!!(foo) && {a: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!(foo) && {a: 1})}
+    |                     ^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...((foo) && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(57): const object = {...((!!foo) && {a: 1})} 1`] = `
+
+  1 | const object = {...((!!foo) && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(57): const object = {...((!!foo) && {a: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...((!!foo) && {a: 1})}
+    |                      ^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...((foo) && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(58): const object = {...(!(!foo) && {a: 1})} 1`] = `
+
+  1 | const object = {...(!(!foo) && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(58): const object = {...(!(!foo) && {a: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(!(!foo) && {a: 1})}
+    |                     ^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(foo && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(59): const object = {...(!!!foo && {a: 1})} 1`] = `
+
+  1 | const object = {...(!!!foo && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(59): const object = {...(!!!foo && {a: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!!foo && {a: 1})}
+    |                     ^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(!foo && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(6): const object = {...(a || b ? {x: 1} : {})} 1`] = `
+
+  1 | const object = {...(a || b ? {x: 1} : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(6): const object = {...(a || b ? {x: 1} : {})} 2`] = `
+
+Message:
+> 1 | const object = {...(a || b ? {x: 1} : {})}
+    |                     ^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...((a || b) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(60): const object = {...(Boolean(!!foo) && {a: 1})} 1`] = `
+
+  1 | const object = {...(Boolean(!!foo) && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(60): const object = {...(Boolean(!!foo) && {a: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(Boolean(!!foo) && {a: 1})}
+    |                     ^^^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(!!foo && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(61): const object = {...(!!(a || b) && {x: 1})} 1`] = `
+
+  1 | const object = {...(!!(a || b) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(61): const object = {...(!!(a || b) && {x: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!(a || b) && {x: 1})}
+    |                     ^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...((a || b) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(62): const object = {...(Boolean(a || b) && {x: 1})} 1`] = `
+
+  1 | const object = {...(Boolean(a || b) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(62): const object = {...(Boolean(a || b) && {x: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(Boolean(a || b) && {x: 1})}
+    |                     ^^^^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...((a || b) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(63): const object = {...(!!(a ?? b) && {x: 1})} 1`] = `
+
+  1 | const object = {...(!!(a ?? b) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(63): const object = {...(!!(a ?? b) && {x: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!(a ?? b) && {x: 1})}
+    |                     ^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...((a ?? b) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(64): const object = {...(Boolean(a ?? b) && {x: 1})} 1`] = `
+
+  1 | const object = {...(Boolean(a ?? b) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(64): const object = {...(Boolean(a ?? b) && {x: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(Boolean(a ?? b) && {x: 1})}
+    |                     ^^^^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...((a ?? b) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(65): const object = {...(!!(a && b) && {x: 1})} 1`] = `
+
+  1 | const object = {...(!!(a && b) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(65): const object = {...(!!(a && b) && {x: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!(a && b) && {x: 1})}
+    |                     ^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...((a && b) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(66): const object = {...(Boolean(a && b) && {x: 1})} 1`] = `
+
+  1 | const object = {...(Boolean(a && b) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(66): const object = {...(Boolean(a && b) && {x: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(Boolean(a && b) && {x: 1})}
+    |                     ^^^^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(a && b && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(67): const object = {...(Boolean((a, b)) && {x: 1})} 1`] = `
+
+  1 | const object = {...(Boolean((a, b)) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(67): const object = {...(Boolean((a, b)) && {x: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(Boolean((a, b)) && {x: 1})}
+    |                     ^^^^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...((a, b) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(68): const object = {...(Boolean(a = b) && {x: 1})} 1`] = `
+
+  1 | const object = {...(Boolean(a = b) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(68): const object = {...(Boolean(a = b) && {x: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(Boolean(a = b) && {x: 1})}
+    |                     ^^^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...((a = b) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(69): const object = {...(Boolean(a ? b : c) && {x: 1})} 1`] = `
+
+  1 | const object = {...(Boolean(a ? b : c) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(69): const object = {...(Boolean(a ? b : c) && {x: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(Boolean(a ? b : c) && {x: 1})}
+    |                     ^^^^^^^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...((a ? b : c) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(7): const object = {...(a && b ? {} : {x: 1})} 1`] = `
+
+  1 | const object = {...(a && b ? {} : {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(7): const object = {...(a && b ? {} : {x: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(a && b ? {} : {x: 1})}
+    |                     ^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(!(a && b) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(70): const object = {...((!!(a || b)) && {x: 1})} 1`] = `
+
+  1 | const object = {...((!!(a || b)) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(70): const object = {...((!!(a || b)) && {x: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...((!!(a || b)) && {x: 1})}
+    |                      ^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(((a || b)) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(71): async () => ({...(!!await foo && {a: 1})}) 1`] = `
+
+  1 | async () => ({...(!!await foo && {a: 1})})
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(71): async () => ({...(!!await foo && {a: 1})}) 2`] = `
+
+Message:
+> 1 | async () => ({...(!!await foo && {a: 1})})
+    |                   ^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | async () => ({...((await foo) && {a: 1})})
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(72): const object = {...(!!foo && {a: 1}), ...(Boolean(bar) && {b: 2})} 1`] = `
+
+  1 | const object = {...(!!foo && {a: 1}), ...(Boolean(bar) && {b: 2})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(72): const object = {...(!!foo && {a: 1}), ...(Boolean(bar) && {b: 2})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!foo && {a: 1}), ...(Boolean(bar) && {b: 2})}
+    |                     ^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(foo && {a: 1}), ...(Boolean(bar) && {b: 2})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(72): const object = {...(!!foo && {a: 1}), ...(Boolean(bar) && {b: 2})} 3`] = `
+
+Message:
+> 1 | const object = {...(!!foo && {a: 1}), ...(Boolean(bar) && {b: 2})}
+    |                                           ^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(!!foo && {a: 1}), ...(bar && {b: 2})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(73): const object = {...(!! /* keep */ foo && {a: 1})} 1`] = `
+
+  1 | const object = {...(!! /* keep */ foo && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(73): const object = {...(!! /* keep */ foo && {a: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(!! /* keep */ foo && {a: 1})}
+    |                     ^^^^^^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(74): const object = {...(Boolean(foo /* keep */) && {a: 1})} 1`] = `
+
+  1 | const object = {...(Boolean(foo /* keep */) && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(74): const object = {...(Boolean(foo /* keep */) && {a: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(Boolean(foo /* keep */) && {a: 1})}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(75): const object = {...(!!(/* keep */ foo) && {a: 1})} 1`] = `
+
+  1 | const object = {...(!!(/* keep */ foo) && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(75): const object = {...(!!(/* keep */ foo) && {a: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!(/* keep */ foo) && {a: 1})}
+    |                     ^^^^^^^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(76): const object = {...(!!foo ? {a: 1} : {})} 1`] = `
+
+  1 | const object = {...(!!foo ? {a: 1} : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(76): const object = {...(!!foo ? {a: 1} : {})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!foo ? {a: 1} : {})}
+    |                     ^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(!!foo && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(77): const object = {...(!!foo! && {a: 1})} 1`] = `
+
+  1 | const object = {...(!!foo! && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(77): const object = {...(!!foo! && {a: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!foo! && {a: 1})}
+    |                     ^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(foo! && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(78): const object = {...(Boolean(foo as string) && {a: 1})} 1`] = `
+
+  1 | const object = {...(Boolean(foo as string) && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(78): const object = {...(Boolean(foo as string) && {a: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(Boolean(foo as string) && {a: 1})}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(foo as string && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(79): const object = {...(Boolean(foo satisfies string) && {a: 1})} 1`] = `
+
+  1 | const object = {...(Boolean(foo satisfies string) && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(79): const object = {...(Boolean(foo satisfies string) && {a: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(Boolean(foo satisfies string) && {a: 1})}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(foo satisfies string && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(8): const object = {...(a ?? b ? {x: 1} : {})} 1`] = `
+
+  1 | const object = {...(a ?? b ? {x: 1} : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(8): const object = {...(a ?? b ? {x: 1} : {})} 2`] = `
+
+Message:
+> 1 | const object = {...(a ?? b ? {x: 1} : {})}
+    |                     ^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...((a ?? b) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(80): const object = {...(!!<string>foo && {a: 1})} 1`] = `
+
+  1 | const object = {...(!!<string>foo && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(80): const object = {...(!!<string>foo && {a: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!<string>foo && {a: 1})}
+    |                     ^^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(<string>foo && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(81): const object = {...(!!foo && {a: 1})} 1`] = `
+
+Options:
+- 'ternary'
+
+Code:
+  1 | const object = {...(!!foo && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(81): const object = {...(!!foo && {a: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!foo && {a: 1})}
+    |                     ^^^^^^^^^^^^^^^ Prefer ternary conditional object spreads.
+
+Output:
+  1 | const object = {...(!!foo ? {a: 1} : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(82): const object = {...(!!foo?.bar && {a: 1})} 1`] = `
+
+  1 | const object = {...(!!foo?.bar && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(82): const object = {...(!!foo?.bar && {a: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!foo?.bar && {a: 1})}
+    |                     ^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(foo?.bar && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(83): const object = {...(!!foo && bar && {a: 1})} 1`] = `
+
+  1 | const object = {...(!!foo && bar && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(83): const object = {...(!!foo && bar && {a: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!foo && bar && {a: 1})}
+    |                     ^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(foo && bar && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(84): const object = {...(foo && !!bar && {a: 1})} 1`] = `
+
+  1 | const object = {...(foo && !!bar && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(84): const object = {...(foo && !!bar && {a: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(foo && !!bar && {a: 1})}
+    |                            ^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(foo && bar && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(85): const object = {...(!!a && Boolean(b) && !!c && {x: 1})} 1`] = `
+
+  1 | const object = {...(!!a && Boolean(b) && !!c && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(85): const object = {...(!!a && Boolean(b) && !!c && {x: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!a && Boolean(b) && !!c && {x: 1})}
+    |                     ^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(a && Boolean(b) && !!c && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(85): const object = {...(!!a && Boolean(b) && !!c && {x: 1})} 3`] = `
+
+Message:
+> 1 | const object = {...(!!a && Boolean(b) && !!c && {x: 1})}
+    |                            ^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(!!a && b && !!c && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(85): const object = {...(!!a && Boolean(b) && !!c && {x: 1})} 4`] = `
+
+Message:
+> 1 | const object = {...(!!a && Boolean(b) && !!c && {x: 1})}
+    |                                          ^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(!!a && Boolean(b) && c && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(86): const object = {...(a && !!(b || c) && {x: 1})} 1`] = `
+
+  1 | const object = {...(a && !!(b || c) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(86): const object = {...(a && !!(b || c) && {x: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(a && !!(b || c) && {x: 1})}
+    |                          ^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(a && (b || c) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(87): const object = {...(a && Boolean(b ?? c) && {x: 1})} 1`] = `
+
+  1 | const object = {...(a && Boolean(b ?? c) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(87): const object = {...(a && Boolean(b ?? c) && {x: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(a && Boolean(b ?? c) && {x: 1})}
+    |                          ^^^^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(a && (b ?? c) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(88): const object = {...(a && Boolean(b && c) && {x: 1})} 1`] = `
+
+  1 | const object = {...(a && Boolean(b && c) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(88): const object = {...(a && Boolean(b && c) && {x: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(a && Boolean(b && c) && {x: 1})}
+    |                          ^^^^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(a && b && c && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(89): const object = {...(!!a && !! /* keep */ b && {x: 1})} 1`] = `
+
+  1 | const object = {...(!!a && !! /* keep */ b && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(89): const object = {...(!!a && !! /* keep */ b && {x: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!a && !! /* keep */ b && {x: 1})}
+    |                     ^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(a && !! /* keep */ b && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(89): const object = {...(!!a && !! /* keep */ b && {x: 1})} 3`] = `
+
+Message:
+> 1 | const object = {...(!!a && !! /* keep */ b && {x: 1})}
+    |                            ^^^^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(9): async () => ({...(await foo ? {a: 1} : {})}) 1`] = `
+
+  1 | async () => ({...(await foo ? {a: 1} : {})})
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(9): async () => ({...(await foo ? {a: 1} : {})}) 2`] = `
+
+Message:
+> 1 | async () => ({...(await foo ? {a: 1} : {})})
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | async () => ({...((await foo) && {a: 1})})
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(90): const object = {...(!!foo /* keep */ && {a: 1})} 1`] = `
+
+  1 | const object = {...(!!foo /* keep */ && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(90): const object = {...(!!foo /* keep */ && {a: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!foo /* keep */ && {a: 1})}
+    |                     ^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(foo /* keep */ && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(91): const object = {...(!!foo && {})} 1`] = `
+
+  1 | const object = {...(!!foo && {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(91): const object = {...(!!foo && {})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!foo && {})}
+    |                     ^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(foo && {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(92): const element = <div style={{...(!!foo && {color: 'red'})}} /> 1`] = `
+
+  1 | const element = <div style={{...(!!foo && {color: 'red'})}} />
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(92): const element = <div style={{...(!!foo && {color: 'red'})}} /> 2`] = `
+
+Message:
+> 1 | const element = <div style={{...(!!foo && {color: 'red'})}} />
+    |                                  ^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const element = <div style={{...(foo && {color: 'red'})}} />
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(93): function * generator() {\n\treturn {...(Boolean(yield foo) && {a: 1})};\n} 1`] = `
+
+  1 | function * generator() {
+  2 | 	return {...(Boolean(yield foo) && {a: 1})};
+  3 | }
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(93): function * generator() {\n\treturn {...(Boolean(yield foo) && {a: 1})};\n} 2`] = `
+
+Message:
+  1 | function * generator() {
+> 2 | 	return {...(Boolean(yield foo) && {a: 1})};
+    | 	            ^^^^^^^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+  3 | }
+
+Output:
+  1 | function * generator() {
+  2 | 	return {...((yield foo) && {a: 1})};
+  3 | }
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(94): const object = {...(Boolean(foo) ? {} : {a: 1})} 1`] = `
+
+  1 | const object = {...(Boolean(foo) ? {} : {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(94): const object = {...(Boolean(foo) ? {} : {a: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(Boolean(foo) ? {} : {a: 1})}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(!Boolean(foo) && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(95): const object = {...(foo++ ? foo++ : {})} 1`] = `
+
+  1 | const object = {...(foo++ ? foo++ : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(95): const object = {...(foo++ ? foo++ : {})} 2`] = `
+
+Message:
+> 1 | const object = {...(foo++ ? foo++ : {})}
+    |                     ^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(foo++ && foo++)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(96): const object = {...(foo || bar ? foo && bar : {})} 1`] = `
+
+  1 | const object = {...(foo || bar ? foo && bar : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(96): const object = {...(foo || bar ? foo && bar : {})} 2`] = `
+
+Message:
+> 1 | const object = {...(foo || bar ? foo && bar : {})}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...((foo || bar) && foo && bar)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(97): const object = {...(foo === bar ? {} : foo)} 1`] = `
+
+  1 | const object = {...(foo === bar ? {} : foo)}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(97): const object = {...(foo === bar ? {} : foo)} 2`] = `
+
+Message:
+> 1 | const object = {...(foo === bar ? {} : foo)}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
+
+Output:
+  1 | const object = {...(!(foo === bar) && foo)}
+
+`;

@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -76,6 +76,11 @@ test.snapshot({
 		'const indexOf = "indexOf"; const index = foo[indexOf](foo); index < 0;',
 		'const index = foo.indexOf?.(foo); index < 0;',
 		'const index = foo?.indexOf(foo); index < 0;',
+		// A type with the same name makes the binding ambiguous
+		{
+			code: 'const index = foo.indexOf(bar); type index = number; if (index < 0) {}',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		...[

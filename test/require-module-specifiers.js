@@ -84,6 +84,10 @@ test.snapshot({
 		typescriptCode('export type foo = Foo'),
 		'export const {} = foo',
 		'export const [] = foo',
+		outdent`
+			const foo = 1;
+			export {}
+		`,
 	],
 	invalid: [
 		outdent`

@@ -3,13 +3,12 @@ import {
 	isClosingBracketToken,
 } from '@eslint-community/eslint-utils';
 import {
-	isParenthesized,
 	getParenthesizedRange,
 	getParenthesizedText,
 	getConstVariableInitializer,
 	isNodeMatchesNameOrPath,
 	needsSemicolon,
-	shouldAddParenthesesToMemberExpressionObject,
+	getMemberExpressionObjectText,
 	isLeftHandSide,
 	getStaticValueIfNoSideEffects,
 	hasCommentInRange,
@@ -441,16 +440,7 @@ function create(context) {
 		return {
 			...problem,
 			fix(fixer) {
-				let fixed = getParenthesizedText(array, context);
-
-				if (
-					!isParenthesized(array, sourceCode)
-					&& shouldAddParenthesesToMemberExpressionObject(array, context)
-				) {
-					fixed = `(${fixed})`;
-				}
-
-				fixed += '.at(-1)';
+				let fixed = `${getMemberExpressionObjectText(array, context)}.at(-1)`;
 
 				const tokenBefore = sourceCode.getTokenBefore(node);
 				if (needsSemicolon(tokenBefore, context, fixed)) {

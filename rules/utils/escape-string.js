@@ -8,11 +8,11 @@ Escape string and wrap the result in quotes.
 @returns {string} - The quoted and escaped string.
 */
 export default function escapeString(string, quote = '\'') {
-	/* c8 ignore start */
+	/* node:coverage disable */
 	if (typeof string !== 'string') {
 		throw new TypeError('Unexpected string.');
 	}
-	/* c8 ignore end */
+	/* node:coverage enable */
 
 	return quoteJsString(string, quote);
 }

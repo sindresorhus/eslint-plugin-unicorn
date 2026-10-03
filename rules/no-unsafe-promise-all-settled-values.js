@@ -66,15 +66,8 @@ const isFilterCall = node =>
 		optionalMember: false,
 	});
 
-function getTypeName(typeName) {
-	if (typeName.type === 'Identifier') {
-		return typeName.name;
-	}
-
-	if (typeName.type === 'TSQualifiedName') {
-		return getTypeName(typeName.right);
-	}
-}
+// `Namespace.Type` -> `Type`
+const getTypeName = typeName => typeName.type === 'TSQualifiedName' ? typeName.right.name : typeName.name;
 
 function getArrayElementTypeAnnotation(node) {
 	node = node?.type === 'TSTypeAnnotation' ? node.typeAnnotation : node;
@@ -92,6 +85,8 @@ function getArrayElementTypeAnnotation(node) {
 		&& node.typeName.type === 'Identifier'
 		&& (node.typeName.name === 'Array' || node.typeName.name === 'ReadonlyArray')
 	) {
+		// `typeParameters` is for parsers that use the Babel AST shape, which the tests do not use.
+		/* node:coverage ignore next */
 		return node.typeArguments?.params[0] ?? node.typeParameters?.params[0];
 	}
 }
@@ -174,6 +169,8 @@ function getTypeInformation(node, context) {
 			checker: parserServices.program.getTypeChecker(),
 			type: parserServices.getTypeAtLocation(node),
 		};
+		// TypeScript can throw while resolving incomplete projects, which can not be reproduced in a test.
+		/* node:coverage ignore next */
 	} catch {}
 }
 
@@ -281,10 +278,6 @@ function isPromiseSettledResultArray(node, context, visitedVariables = new Set()
 	}
 
 	node = unwrapExpression(node);
-
-	if (!node) {
-		return false;
-	}
 
 	if (isAwaitedPromiseAllSettledCall(node)) {
 		return true;
@@ -549,16 +542,13 @@ function isKnownFulfilledResultArray(node, context, visitedVariables = new Set()
 		&& isPromiseSettledResultArray(node, context);
 }
 
+// The read is inside the `.map()` callback, so the walk always stops at a function.
 function isGuardedByFulfilledCheck(node, readContext) {
 	for (
 		let child = node, current = node.parent;
-		current;
+		current.type !== 'ArrowFunctionExpression' && current.type !== 'FunctionExpression';
 		child = current, current = current.parent
 	) {
-		if (current.type === 'ArrowFunctionExpression' || current.type === 'FunctionExpression') {
-			return false;
-		}
-
 		if (
 			isConditionalFulfilledGuard(current, child, readContext)
 			|| isLogicalFulfilledGuard(current, child, readContext)
@@ -624,22 +614,6 @@ function getValueProperty(parameter) {
 		) {
 			return property;
 		}
-	}
-}
-
-function getParameterValueIdentifier(parameter) {
-	const valueProperty = getValueProperty(parameter);
-	const valueNode = valueProperty?.value;
-
-	if (valueNode?.type === 'Identifier') {
-		return valueNode;
-	}
-
-	if (
-		valueNode?.type === 'AssignmentPattern'
-		&& valueNode.left.type === 'Identifier'
-	) {
-		return valueNode.left;
 	}
 }
 
@@ -749,7 +723,8 @@ function getMapCallbackProblem(callExpression, context, {knownPromiseSettledResu
 
 	const entryName = getIdentifierName(parameter);
 	const entryVariable = entryName && findVariable(context.sourceCode.getScope(parameter), parameter);
-	const valueIdentifier = getParameterValueIdentifier(parameter);
+	// A `value` property that does not bind an identifier was reported above.
+	const valueIdentifier = valueProperty?.value;
 	const valueVariable = valueIdentifier && findVariable(context.sourceCode.getScope(valueIdentifier), valueIdentifier);
 	const statusIdentifier = getParameterStatusIdentifier(parameter);
 	const statusName = statusIdentifier?.name;

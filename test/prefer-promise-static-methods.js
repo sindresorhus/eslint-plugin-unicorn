@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
@@ -86,5 +86,5 @@ test('does not duplicate prefer-promise-try reports', t => {
 		},
 	});
 
-	t.deepEqual(messages.map(({ruleId}) => ruleId), ['unicorn/prefer-promise-try']);
+	t.assert.deepStrictEqual(messages.map(({ruleId}) => ruleId), ['unicorn/prefer-promise-try']);
 });

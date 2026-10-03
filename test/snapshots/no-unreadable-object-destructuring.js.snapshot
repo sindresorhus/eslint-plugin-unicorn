@@ -1,0 +1,637 @@
+exports[`no-unreadable-object-destructuring > invalid(1): const {[key]: value} = object; 1`] = `
+
+  1 | const {[key]: value} = object;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(1): const {[key]: value} = object; 2`] = `
+
+Message:
+> 1 | const {[key]: value} = object;
+    |        ^^^^^^^^^^^^ Do not use computed keys in object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(10): const {[\"key\"]: value, ...rest} = object; 1`] = `
+
+  1 | const {["key"]: value, ...rest} = object;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(10): const {[\"key\"]: value, ...rest} = object; 2`] = `
+
+Message:
+> 1 | const {["key"]: value, ...rest} = object;
+    |        ^^^^^^^^^^^^^^ Do not use computed keys in object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(11): const {[\`key\`]: value, ...rest} = object; 1`] = `
+
+  1 | const {[\`key\`]: value, ...rest} = object;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(11): const {[\`key\`]: value, ...rest} = object; 2`] = `
+
+Message:
+> 1 | const {[\`key\`]: value, ...rest} = object;
+    |        ^^^^^^^^^^^^^^ Do not use computed keys in object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(12): const {[({key: \"foo\"}).key]: value, ...rest} = object; 1`] = `
+
+  1 | const {[({key: "foo"}).key]: value, ...rest} = object;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(12): const {[({key: \"foo\"}).key]: value, ...rest} = object; 2`] = `
+
+Message:
+> 1 | const {[({key: "foo"}).key]: value, ...rest} = object;
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use computed keys in object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(13): const {[\"foo\" + \"bar\"]: value, ...rest} = object; 1`] = `
+
+  1 | const {["foo" + "bar"]: value, ...rest} = object;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(13): const {[\"foo\" + \"bar\"]: value, ...rest} = object; 2`] = `
+
+Message:
+> 1 | const {["foo" + "bar"]: value, ...rest} = object;
+    |        ^^^^^^^^^^^^^^^^^^^^^^ Do not use computed keys in object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(14): const {[undefined]: value, ...rest} = object; 1`] = `
+
+  1 | const {[undefined]: value, ...rest} = object;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(14): const {[undefined]: value, ...rest} = object; 2`] = `
+
+Message:
+> 1 | const {[undefined]: value, ...rest} = object;
+    |        ^^^^^^^^^^^^^^^^^^ Do not use computed keys in object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(15): const {[Math.PI]: value, ...rest} = object; 1`] = `
+
+  1 | const {[Math.PI]: value, ...rest} = object;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(15): const {[Math.PI]: value, ...rest} = object; 2`] = `
+
+Message:
+> 1 | const {[Math.PI]: value, ...rest} = object;
+    |        ^^^^^^^^^^^^^^^^ Do not use computed keys in object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(16): const {[String.raw\`key\`]: value, ...rest} = object; 1`] = `
+
+  1 | const {[String.raw\`key\`]: value, ...rest} = object;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(16): const {[String.raw\`key\`]: value, ...rest} = object; 2`] = `
+
+Message:
+> 1 | const {[String.raw\`key\`]: value, ...rest} = object;
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^ Do not use computed keys in object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(17): const {foo: {bar: [baz]}} = object; 1`] = `
+
+  1 | const {foo: {bar: [baz]}} = object;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(17): const {foo: {bar: [baz]}} = object; 2`] = `
+
+Message:
+> 1 | const {foo: {bar: [baz]}} = object;
+    |                   ^^^^^ Do not use array destructuring inside object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(18): const {foo: {bar: {baz: qux}}} = object; 1`] = `
+
+  1 | const {foo: {bar: {baz: qux}}} = object;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(18): const {foo: {bar: {baz: qux}}} = object; 2`] = `
+
+Message:
+> 1 | const {foo: {bar: {baz: qux}}} = object;
+    |                   ^^^^^^^^^^ Do not use object destructuring deeper than two levels.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(19): const {foo: [bar] = []} = object; 1`] = `
+
+  1 | const {foo: [bar] = []} = object;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(19): const {foo: [bar] = []} = object; 2`] = `
+
+Message:
+> 1 | const {foo: [bar] = []} = object;
+    |             ^^^^^ Do not use array destructuring inside object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(2): const {[\"key\"]: value} = object; 1`] = `
+
+  1 | const {["key"]: value} = object;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(2): const {[\"key\"]: value} = object; 2`] = `
+
+Message:
+> 1 | const {["key"]: value} = object;
+    |        ^^^^^^^^^^^^^^ Do not use computed keys in object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(20): const {foo: {bar: {baz} = defaultValue}} = object; 1`] = `
+
+  1 | const {foo: {bar: {baz} = defaultValue}} = object;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(20): const {foo: {bar: {baz} = defaultValue}} = object; 2`] = `
+
+Message:
+> 1 | const {foo: {bar: {baz} = defaultValue}} = object;
+    |                   ^^^^^ Do not use object destructuring deeper than two levels.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(21): const {[key]: {foo: [bar]} = {}} = object; 1`] = `
+
+  1 | const {[key]: {foo: [bar]} = {}} = object;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(21): const {[key]: {foo: [bar]} = {}} = object; 2`] = `
+
+Message:
+> 1 | const {[key]: {foo: [bar]} = {}} = object;
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^ Do not use computed keys in object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(21): const {[key]: {foo: [bar]} = {}} = object; 3`] = `
+
+Message:
+> 1 | const {[key]: {foo: [bar]} = {}} = object;
+    |                     ^^^^^ Do not use array destructuring inside object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(22): const [{foo: [bar]}] = array; 1`] = `
+
+  1 | const [{foo: [bar]}] = array;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(22): const [{foo: [bar]}] = array; 2`] = `
+
+Message:
+> 1 | const [{foo: [bar]}] = array;
+    |              ^^^^^ Do not use array destructuring inside object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(23): const [{foo: {bar: {baz}}}] = array; 1`] = `
+
+  1 | const [{foo: {bar: {baz}}}] = array;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(23): const [{foo: {bar: {baz}}}] = array; 2`] = `
+
+Message:
+> 1 | const [{foo: {bar: {baz}}}] = array;
+    |                    ^^^^^ Do not use object destructuring deeper than two levels.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(24): ({[key]: value} = object); 1`] = `
+
+  1 | ({[key]: value} = object);
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(24): ({[key]: value} = object); 2`] = `
+
+Message:
+> 1 | ({[key]: value} = object);
+    |   ^^^^^^^^^^^^ Do not use computed keys in object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(25): ({foo: [bar]} = object); 1`] = `
+
+  1 | ({foo: [bar]} = object);
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(25): ({foo: [bar]} = object); 2`] = `
+
+Message:
+> 1 | ({foo: [bar]} = object);
+    |        ^^^^^ Do not use array destructuring inside object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(26): ({[object.property]: value} = object); 1`] = `
+
+  1 | ({[object.property]: value} = object);
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(26): ({[object.property]: value} = object); 2`] = `
+
+Message:
+> 1 | ({[object.property]: value} = object);
+    |   ^^^^^^^^^^^^^^^^^^^^^^^^ Do not use computed keys in object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(27): ({foo: this.bar} = object); 1`] = `
+
+  1 | ({foo: this.bar} = object);
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(27): ({foo: this.bar} = object); 2`] = `
+
+Message:
+> 1 | ({foo: this.bar} = object);
+    |        ^^^^^^^^ Do not assign destructured values to object properties.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(28): ({foo: object.property} = object); 1`] = `
+
+  1 | ({foo: object.property} = object);
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(28): ({foo: object.property} = object); 2`] = `
+
+Message:
+> 1 | ({foo: object.property} = object);
+    |        ^^^^^^^^^^^^^^^ Do not assign destructured values to object properties.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(29): ({foo: object.property = defaultValue} = object); 1`] = `
+
+  1 | ({foo: object.property = defaultValue} = object);
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(29): ({foo: object.property = defaultValue} = object); 2`] = `
+
+Message:
+> 1 | ({foo: object.property = defaultValue} = object);
+    |        ^^^^^^^^^^^^^^^ Do not assign destructured values to object properties.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(3): const {foo: [bar]} = object; 1`] = `
+
+  1 | const {foo: [bar]} = object;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(3): const {foo: [bar]} = object; 2`] = `
+
+Message:
+> 1 | const {foo: [bar]} = object;
+    |             ^^^^^ Do not use array destructuring inside object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(30): ({foo: (condition ? first : second).property} = object); 1`] = `
+
+  1 | ({foo: (condition ? first : second).property} = object);
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(30): ({foo: (condition ? first : second).property} = object); 2`] = `
+
+Message:
+> 1 | ({foo: (condition ? first : second).property} = object);
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not assign destructured values to object properties.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(31): ({foo: this.bar.baz} = object); 1`] = `
+
+  1 | ({foo: this.bar.baz} = object);
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(31): ({foo: this.bar.baz} = object); 2`] = `
+
+Message:
+> 1 | ({foo: this.bar.baz} = object);
+    |        ^^^^^^^^^^^^ Do not assign destructured values to object properties.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(32): ({...object.property} = object); 1`] = `
+
+  1 | ({...object.property} = object);
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(32): ({...object.property} = object); 2`] = `
+
+Message:
+> 1 | ({...object.property} = object);
+    |      ^^^^^^^^^^^^^^^ Do not assign destructured values to object properties.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(33): ({foo: object.property as Foo} = object); 1`] = `
+
+  1 | ({foo: object.property as Foo} = object);
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(33): ({foo: object.property as Foo} = object); 2`] = `
+
+Message:
+> 1 | ({foo: object.property as Foo} = object);
+    |        ^^^^^^^^^^^^^^^ Do not assign destructured values to object properties.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(34): ({...object.property!} = object); 1`] = `
+
+  1 | ({...object.property!} = object);
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(34): ({...object.property!} = object); 2`] = `
+
+Message:
+> 1 | ({...object.property!} = object);
+    |      ^^^^^^^^^^^^^^^ Do not assign destructured values to object properties.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(35): function function_({[key]: value}) {} 1`] = `
+
+  1 | function function_({[key]: value}) {}
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(35): function function_({[key]: value}) {} 2`] = `
+
+Message:
+> 1 | function function_({[key]: value}) {}
+    |                     ^^^^^^^^^^^^ Do not use computed keys in object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(36): function function_({foo: [bar]}) {} 1`] = `
+
+  1 | function function_({foo: [bar]}) {}
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(36): function function_({foo: [bar]}) {} 2`] = `
+
+Message:
+> 1 | function function_({foo: [bar]}) {}
+    |                          ^^^^^ Do not use array destructuring inside object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(37): function function_({foo: {bar: {baz}}}) {} 1`] = `
+
+  1 | function function_({foo: {bar: {baz}}}) {}
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(37): function function_({foo: {bar: {baz}}}) {} 2`] = `
+
+Message:
+> 1 | function function_({foo: {bar: {baz}}}) {}
+    |                                ^^^^^ Do not use object destructuring deeper than two levels.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(38): function function_({foo: {bar: {baz}}}: Options) {} 1`] = `
+
+  1 | function function_({foo: {bar: {baz}}}: Options) {}
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(38): function function_({foo: {bar: {baz}}}: Options) {} 2`] = `
+
+Message:
+> 1 | function function_({foo: {bar: {baz}}}: Options) {}
+    |                                ^^^^^ Do not use object destructuring deeper than two levels.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(39): try {} catch ({[key]: value}) {} 1`] = `
+
+  1 | try {} catch ({[key]: value}) {}
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(39): try {} catch ({[key]: value}) {} 2`] = `
+
+Message:
+> 1 | try {} catch ({[key]: value}) {}
+    |                ^^^^^^^^^^^^ Do not use computed keys in object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(4): const {foo: {bar: {baz}}} = object; 1`] = `
+
+  1 | const {foo: {bar: {baz}}} = object;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(4): const {foo: {bar: {baz}}} = object; 2`] = `
+
+Message:
+> 1 | const {foo: {bar: {baz}}} = object;
+    |                   ^^^^^ Do not use object destructuring deeper than two levels.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(40): try {} catch ({foo: [bar]}) {} 1`] = `
+
+  1 | try {} catch ({foo: [bar]}) {}
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(40): try {} catch ({foo: [bar]}) {} 2`] = `
+
+Message:
+> 1 | try {} catch ({foo: [bar]}) {}
+    |                     ^^^^^ Do not use array destructuring inside object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(41): for (const {[key]: value} of array) {} 1`] = `
+
+  1 | for (const {[key]: value} of array) {}
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(41): for (const {[key]: value} of array) {} 2`] = `
+
+Message:
+> 1 | for (const {[key]: value} of array) {}
+    |             ^^^^^^^^^^^^ Do not use computed keys in object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(42): for (const {foo: [bar]} of array) {} 1`] = `
+
+  1 | for (const {foo: [bar]} of array) {}
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(42): for (const {foo: [bar]} of array) {} 2`] = `
+
+Message:
+> 1 | for (const {foo: [bar]} of array) {}
+    |                  ^^^^^ Do not use array destructuring inside object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(43): for (const {foo: {bar: {baz}}} of array) {} 1`] = `
+
+  1 | for (const {foo: {bar: {baz}}} of array) {}
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(43): for (const {foo: {bar: {baz}}} of array) {} 2`] = `
+
+Message:
+> 1 | for (const {foo: {bar: {baz}}} of array) {}
+    |                        ^^^^^ Do not use object destructuring deeper than two levels.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(44): for ({foo: this.bar} of array) {} 1`] = `
+
+  1 | for ({foo: this.bar} of array) {}
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(44): for ({foo: this.bar} of array) {} 2`] = `
+
+Message:
+> 1 | for ({foo: this.bar} of array) {}
+    |            ^^^^^^^^ Do not assign destructured values to object properties.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(45): const {[String.raw\`\${String(1)}\`]: value, ...rest} = object; 1`] = `
+
+  1 | const {[String.raw\`\${String(1)}\`]: value, ...rest} = object;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(45): const {[String.raw\`\${String(1)}\`]: value, ...rest} = object; 2`] = `
+
+Message:
+> 1 | const {[String.raw\`\${String(1)}\`]: value, ...rest} = object;
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use computed keys in object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(5): const {[key]: {foo}} = object; 1`] = `
+
+  1 | const {[key]: {foo}} = object;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(5): const {[key]: {foo}} = object; 2`] = `
+
+Message:
+> 1 | const {[key]: {foo}} = object;
+    |        ^^^^^^^^^^^^ Do not use computed keys in object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(6): const {[key]: [foo], ...rest} = object; 1`] = `
+
+  1 | const {[key]: [foo], ...rest} = object;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(6): const {[key]: [foo], ...rest} = object; 2`] = `
+
+Message:
+> 1 | const {[key]: [foo], ...rest} = object;
+    |               ^^^^^ Do not use array destructuring inside object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(7): const {[key]: {foo: {bar}}, ...rest} = object; 1`] = `
+
+  1 | const {[key]: {foo: {bar}}, ...rest} = object;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(7): const {[key]: {foo: {bar}}, ...rest} = object; 2`] = `
+
+Message:
+> 1 | const {[key]: {foo: {bar}}, ...rest} = object;
+    |                     ^^^^^ Do not use object destructuring deeper than two levels.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(8): const {foo: {[key]: value}, ...rest} = object; 1`] = `
+
+  1 | const {foo: {[key]: value}, ...rest} = object;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(8): const {foo: {[key]: value}, ...rest} = object; 2`] = `
+
+Message:
+> 1 | const {foo: {[key]: value}, ...rest} = object;
+    |              ^^^^^^^^^^^^ Do not use computed keys in object destructuring.
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(9): const {[key]: {foo, ...rest}} = object; 1`] = `
+
+  1 | const {[key]: {foo, ...rest}} = object;
+
+`;
+
+exports[`no-unreadable-object-destructuring > invalid(9): const {[key]: {foo, ...rest}} = object; 2`] = `
+
+Message:
+> 1 | const {[key]: {foo, ...rest}} = object;
+    |        ^^^^^^^^^^^^^^^^^^^^^ Do not use computed keys in object destructuring.
+
+`;

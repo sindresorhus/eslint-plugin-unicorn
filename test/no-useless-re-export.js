@@ -106,5 +106,10 @@ test.snapshot({
 			`,
 			languageOptions: {parser: parsers.typescript},
 		},
+		// String export name
+		outdent`
+			export * from './foo.js';
+			export {'foo'} from './foo.js';
+		`,
 	],
 });

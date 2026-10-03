@@ -7,7 +7,6 @@ export {
 
 export {
 	isArrayPrototypeProperty,
-	isObjectPrototypeProperty,
 } from './array-or-object-prototype-property.js';
 
 export {
@@ -63,7 +62,6 @@ export {
 	isBranchExpression,
 	isSafeStaticPassThroughCall,
 	hasPotentiallyMutableMemberAccess,
-	hasPotentiallyMutableBinding,
 	hasSideEffectfulConstInitializer,
 } from './get-static-value.js';
 export {getMemberAccessOperatorRange} from './member-expression.js';
@@ -182,7 +180,7 @@ export {default as getPrecedence, PRECEDENCE_ADDITION} from './get-precedence.js
 export {default as shouldAddParenthesesToAwaitExpressionArgument} from './should-add-parentheses-to-await-expression-argument.js';
 export {default as shouldAddParenthesesToCallExpressionCallee} from './should-add-parentheses-to-call-expression-callee.js';
 export {default as shouldAddParenthesesToConditionalExpressionChild} from './should-add-parentheses-to-conditional-expression-child.js';
-export {default as shouldAddParenthesesToMemberExpressionObject} from './should-add-parentheses-to-member-expression-object.js';
+export {default as shouldAddParenthesesToMemberExpressionObject, getMemberExpressionObjectText} from './should-add-parentheses-to-member-expression-object.js';
 export {default as shouldAddParenthesesToUnaryExpressionArgument} from './should-add-parentheses-to-unary-expression.js';
 export {default as shouldAddParenthesesToNewExpressionCallee} from './should-add-parentheses-to-new-expression-callee.js';
 export {default as shouldAddParenthesesToExpressionStatementExpression} from './should-add-parentheses-to-expression-statement-expression.js';
@@ -194,6 +192,7 @@ export {default as trackBranchExits} from './track-branch-exits.js';
 export {default as getAncestor} from './get-ancestor.js';
 export {getPreviousNode, getNextNode, getNextStatement} from './get-sibling-node.js';
 export {default as getChildNodes} from './get-child-nodes.js';
+export {default as getVisitorChildNodes} from './get-visitor-child-nodes.js';
 export * from './string-cases.js';
 export * from './numeric.js';
 export {default as getBuiltinRule} from './get-builtin-rule.js';

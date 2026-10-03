@@ -1,0 +1,13 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"strictNullChecks": false,
+		"lib": [
+			"ESNext",
+			"DOM"
+		]
+	},
+	"include": [
+		"dummy.ts"
+	]
+}

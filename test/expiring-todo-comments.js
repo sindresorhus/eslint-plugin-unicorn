@@ -1,6 +1,8 @@
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import url from 'node:url';
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import css from '@eslint/css';
 import json from '@eslint/json';
@@ -165,6 +167,11 @@ ruleTest({
 				   // fixme [2000-01-01]: too old'
 				   /* eslint-enable rule-to-test/expiring-todo-comments */`,
 			options: [{allowWarningComments: false}],
+		},
+		{
+			// Not due in any environment, whether or not it is a pull request
+			code: '// TODO [3000-01-01]: not due yet',
+			options: [{checkDates: true}],
 		},
 	],
 	invalid: [
@@ -496,7 +503,7 @@ test('supports JSONC comments with @eslint/json', t => {
 		filename: 'fixture.jsonc',
 	});
 
-	t.deepEqual(
+	t.assert.deepStrictEqual(
 		messages.map(({message, ruleId}) => ({message, ruleId})),
 		[
 			{
@@ -528,7 +535,7 @@ test('reports unsupported catalog protocol for dependency version conditions', t
 			eslint: 'catalog:peer',
 		},
 	}, undefined, '\t')}\n`);
-	t.teardown(() => {
+	t.after(() => {
 		fs.rmSync(temporaryDirectoryUrl, {
 			recursive: true,
 			force: true,
@@ -552,7 +559,7 @@ test('reports unsupported catalog protocol for dependency version conditions', t
 		filename: url.fileURLToPath(new URL('index.js', fixtureDirectoryUrl)),
 	});
 
-	t.deepEqual(
+	t.assert.deepStrictEqual(
 		messages.map(({message, ruleId}) => ({message, ruleId})),
 		[
 			{
@@ -573,6 +580,55 @@ test('reports unsupported catalog protocol for dependency version conditions', t
 			},
 		],
 	);
+});
+
+test('ignores peer dependency ranges that are not semver ranges', t => {
+	const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'unicorn-expiring-todo-comments-workspace-'));
+	t.after(() => {
+		fs.rmSync(directory, {recursive: true, force: true});
+	});
+
+	fs.writeFileSync(path.join(directory, 'package.json'), `${JSON.stringify({
+		name: 'workspace-package',
+		peerDependencies: {
+			eslint: 'workspace:*',
+		},
+	}, undefined, '\t')}\n`);
+
+	const linter = new Linter({configType: 'flat', cwd: directory});
+	const messages = linter.verify('// TODO [peer:eslint@>=0]: Drop peer fallback.', {
+		plugins: {
+			unicorn,
+		},
+		rules: {
+			'unicorn/expiring-todo-comments': 'error',
+		},
+	}, {
+		filename: path.join(directory, 'index.js'),
+	});
+
+	t.assert.deepStrictEqual(messages, []);
+});
+
+test('works without a package.json', t => {
+	const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'unicorn-expiring-todo-comments-without-package-'));
+	t.after(() => {
+		fs.rmSync(directory, {recursive: true, force: true});
+	});
+
+	const linter = new Linter({configType: 'flat', cwd: directory});
+	const messages = linter.verify('// TODO [peer:eslint@>=0]: Drop peer fallback.\n// TODO [>=0]: Drop fallback.', {
+		plugins: {
+			unicorn,
+		},
+		rules: {
+			'unicorn/expiring-todo-comments': 'error',
+		},
+	}, {
+		filename: path.join(directory, 'index.js'),
+	});
+
+	t.assert.deepStrictEqual(messages.map(({message}) => message), []);
 });
 
 test('ignores JSONC eslint directive comments with @eslint/json', t => {
@@ -600,7 +656,7 @@ test('ignores JSONC eslint directive comments with @eslint/json', t => {
 		filename: 'fixture.jsonc',
 	});
 
-	t.deepEqual(messages, []);
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('supports JSONC block comments with @eslint/json', t => {
@@ -630,7 +686,7 @@ test('supports JSONC block comments with @eslint/json', t => {
 		filename: 'fixture.jsonc',
 	});
 
-	t.deepEqual(
+	t.assert.deepStrictEqual(
 		messages.map(({message, ruleId}) => ({message, ruleId})),
 		[
 			{
@@ -667,7 +723,7 @@ test('supports HTML comments with @html-eslint', t => {
 		{filename: 'fixture.html'},
 	);
 
-	t.deepEqual(
+	t.assert.deepStrictEqual(
 		messages.map(({message, ruleId}) => ({message, ruleId})),
 		[
 			{
@@ -708,7 +764,7 @@ test('supports Markdown HTML comments with @eslint/markdown', t => {
 		{filename: 'fixture.md'},
 	);
 
-	t.deepEqual(
+	t.assert.deepStrictEqual(
 		messages.map(({message, ruleId}) => ({message, ruleId})),
 		[
 			{
@@ -755,7 +811,7 @@ function lintMarkdown(code, filename = 'fixture.md', language = 'markdown/common
 
 for (const language of ['markdown/commonmark', 'markdown/gfm']) {
 	test(`supports ${language} independently of the file extension`, t => {
-		t.deepEqual(lintMarkdown('<!-- TODO [2000-01-01]: Update -->', 'fixture.txt', language), [{
+		t.assert.deepStrictEqual(lintMarkdown('<!-- TODO [2000-01-01]: Update -->', 'fixture.txt', language), [{
 			message: 'Past due date: 2000-01-01. Update',
 			ruleId: 'unicorn/expiring-todo-comments',
 		}]);
@@ -763,7 +819,7 @@ for (const language of ['markdown/commonmark', 'markdown/gfm']) {
 }
 
 test('ignores HTML comments inside Markdown fenced code blocks', t => {
-	t.deepEqual(
+	t.assert.deepStrictEqual(
 		lintMarkdown('```html\n<!-- TODO [2000-01-01]: Inside fence -->\n```\n\n<!-- TODO [2000-01-01]: Outside fence -->'),
 		[
 			{
@@ -775,7 +831,7 @@ test('ignores HTML comments inside Markdown fenced code blocks', t => {
 });
 
 test('ignores HTML comments inside Markdown tilde fenced code blocks', t => {
-	t.deepEqual(
+	t.assert.deepStrictEqual(
 		lintMarkdown('~~~\n<!-- TODO [2000-01-01]: Inside fence -->\n~~~\n\n<!-- TODO [2000-01-01]: Outside fence -->'),
 		[
 			{
@@ -787,7 +843,7 @@ test('ignores HTML comments inside Markdown tilde fenced code blocks', t => {
 });
 
 test('ignores HTML comments inside Markdown code', t => {
-	t.deepEqual(
+	t.assert.deepStrictEqual(
 		lintMarkdown('`<!-- TODO [2000-01-01]: Inline code -->`\n\n    <!-- TODO [2000-01-01]: Indented code -->\n\n<!-- TODO [2000-01-01]: Outside code -->'),
 		[
 			{
@@ -799,7 +855,7 @@ test('ignores HTML comments inside Markdown code', t => {
 });
 
 test('reports every TODO line inside a multi-line Markdown HTML comment', t => {
-	t.deepEqual(
+	t.assert.deepStrictEqual(
 		lintMarkdown('<!--\nTODO [2000-01-01]: First\nTODO [2000-01-01]: Second\n-->'),
 		[
 			{
@@ -815,7 +871,7 @@ test('reports every TODO line inside a multi-line Markdown HTML comment', t => {
 });
 
 test('handles an unterminated Markdown HTML comment without truncating its text', t => {
-	t.deepEqual(
+	t.assert.deepStrictEqual(
 		lintMarkdown('<!-- TODO [2000-01-01]: Unterminated'),
 		[
 			{
@@ -854,7 +910,7 @@ test('supports CSS comments with @eslint/css', t => {
 		filename: 'fixture.css',
 	});
 
-	t.deepEqual(
+	t.assert.deepStrictEqual(
 		messages.map(({message, ruleId}) => ({message, ruleId})),
 		[
 			{
@@ -893,7 +949,7 @@ test('supports YAML comments with eslint-plugin-yml', t => {
 		filename: 'fixture.yml',
 	});
 
-	t.deepEqual(
+	t.assert.deepStrictEqual(
 		messages.map(({message, ruleId, line, column, endLine, endColumn}) => ({
 			message,
 			ruleId,
@@ -944,7 +1000,7 @@ test('supports ESLint disable directives in YAML', t => {
 		filename: 'fixture.yaml',
 	});
 
-	t.deepEqual(messages, []);
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('supports TOML comments with eslint-plugin-toml', t => {
@@ -971,7 +1027,7 @@ test('supports TOML comments with eslint-plugin-toml', t => {
 		filename: 'fixture.toml',
 	});
 
-	t.deepEqual(
+	t.assert.deepStrictEqual(
 		messages.map(({message, ruleId, line, column, endLine, endColumn}) => ({
 			message,
 			ruleId,
@@ -1022,5 +1078,5 @@ test('supports ESLint disable directives in TOML', t => {
 		filename: 'fixture.toml',
 	});
 
-	t.deepEqual(messages, []);
+	t.assert.deepStrictEqual(messages, []);
 });

@@ -1,0 +1,395 @@
+exports[`prefer-iterator-to-array > invalid(1): [...map.values()] 1`] = `
+
+  1 | [...map.values()]
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(1): [...map.values()] 2`] = `
+
+Message:
+> 1 | [...map.values()]
+    | ^^^^^^^^^^^^^^^^^ Prefer \`Iterator#toArray()\` over a temporary spread array.
+
+Suggestion 1/1: Use \`Iterator#toArray()\`.:
+  1 | map.values().toArray()
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(10): const object = {...[...Iterator.from(iterable)]} 1`] = `
+
+  1 | const object = {...[...Iterator.from(iterable)]}
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(10): const object = {...[...Iterator.from(iterable)]} 2`] = `
+
+Message:
+> 1 | const object = {...[...Iterator.from(iterable)]}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#toArray()\` over a temporary spread array.
+
+Output:
+  1 | const object = {...Iterator.from(iterable).toArray()}
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(11): [...map.values().map(fn)] 1`] = `
+
+  1 | [...map.values().map(fn)]
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(11): [...map.values().map(fn)] 2`] = `
+
+Message:
+> 1 | [...map.values().map(fn)]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#toArray()\` over a temporary spread array.
+
+Suggestion 1/1: Use \`Iterator#toArray()\`.:
+  1 | map.values().map(fn).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(12): [...map.values().filter(fn)] 1`] = `
+
+  1 | [...map.values().filter(fn)]
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(12): [...map.values().filter(fn)] 2`] = `
+
+Message:
+> 1 | [...map.values().filter(fn)]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#toArray()\` over a temporary spread array.
+
+Suggestion 1/1: Use \`Iterator#toArray()\`.:
+  1 | map.values().filter(fn).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(13): [...map.values().flatMap(fn)] 1`] = `
+
+  1 | [...map.values().flatMap(fn)]
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(13): [...map.values().flatMap(fn)] 2`] = `
+
+Message:
+> 1 | [...map.values().flatMap(fn)]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#toArray()\` over a temporary spread array.
+
+Suggestion 1/1: Use \`Iterator#toArray()\`.:
+  1 | map.values().flatMap(fn).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(14): [...map.values().drop(count)] 1`] = `
+
+  1 | [...map.values().drop(count)]
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(14): [...map.values().drop(count)] 2`] = `
+
+Message:
+> 1 | [...map.values().drop(count)]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#toArray()\` over a temporary spread array.
+
+Suggestion 1/1: Use \`Iterator#toArray()\`.:
+  1 | map.values().drop(count).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(15): [...map.values().take(count)] 1`] = `
+
+  1 | [...map.values().take(count)]
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(15): [...map.values().take(count)] 2`] = `
+
+Message:
+> 1 | [...map.values().take(count)]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#toArray()\` over a temporary spread array.
+
+Suggestion 1/1: Use \`Iterator#toArray()\`.:
+  1 | map.values().take(count).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(16): [...(map.values())] 1`] = `
+
+  1 | [...(map.values())]
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(16): [...(map.values())] 2`] = `
+
+Message:
+> 1 | [...(map.values())]
+    | ^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#toArray()\` over a temporary spread array.
+
+Suggestion 1/1: Use \`Iterator#toArray()\`.:
+  1 | (map.values()).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(17): [...((map.values()))] 1`] = `
+
+  1 | [...((map.values()))]
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(17): [...((map.values()))] 2`] = `
+
+Message:
+> 1 | [...((map.values()))]
+    | ^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#toArray()\` over a temporary spread array.
+
+Suggestion 1/1: Use \`Iterator#toArray()\`.:
+  1 | ((map.values())).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(18): [...(condition ? map : set).values()] 1`] = `
+
+  1 | [...(condition ? map : set).values()]
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(18): [...(condition ? map : set).values()] 2`] = `
+
+Message:
+> 1 | [...(condition ? map : set).values()]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#toArray()\` over a temporary spread array.
+
+Suggestion 1/1: Use \`Iterator#toArray()\`.:
+  1 | (condition ? map : set).values().toArray()
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(19): const values = [\n\t...map\n\t\t.values()\n\t\t.map(value => value * 2),\n]; 1`] = `
+
+  1 | const values = [
+  2 | 	...map
+  3 | 		.values()
+  4 | 		.map(value => value * 2),
+  5 | ];
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(19): const values = [\n\t...map\n\t\t.values()\n\t\t.map(value => value * 2),\n]; 2`] = `
+
+Message:
+> 1 | const values = [
+    |                ^
+> 2 | 	...map
+    | ^^^^^^^
+> 3 | 		.values()
+    | ^^^^^^^^^^^
+> 4 | 		.map(value => value * 2),
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | ];
+    | ^ Prefer \`Iterator#toArray()\` over a temporary spread array.
+
+Suggestion 1/1: Use \`Iterator#toArray()\`.:
+  1 | const values = map
+  2 | 		.values()
+  3 | 		.map(value => value * 2).toArray();
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(2): [...map.keys()] 1`] = `
+
+  1 | [...map.keys()]
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(2): [...map.keys()] 2`] = `
+
+Message:
+> 1 | [...map.keys()]
+    | ^^^^^^^^^^^^^^^ Prefer \`Iterator#toArray()\` over a temporary spread array.
+
+Suggestion 1/1: Use \`Iterator#toArray()\`.:
+  1 | map.keys().toArray()
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(20): [...map.values(/* comment */).map(fn)] 1`] = `
+
+  1 | [...map.values(/* comment */).map(fn)]
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(20): [...map.values(/* comment */).map(fn)] 2`] = `
+
+Message:
+> 1 | [...map.values(/* comment */).map(fn)]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#toArray()\` over a temporary spread array.
+
+Suggestion 1/1: Use \`Iterator#toArray()\`.:
+  1 | map.values(/* comment */).map(fn).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(21): [/* comment */ ...map.values()] 1`] = `
+
+  1 | [/* comment */ ...map.values()]
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(21): [/* comment */ ...map.values()] 2`] = `
+
+Message:
+> 1 | [/* comment */ ...map.values()]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#toArray()\` over a temporary spread array.
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(22): [...map.values() /* comment */] 1`] = `
+
+  1 | [...map.values() /* comment */]
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(22): [...map.values() /* comment */] 2`] = `
+
+Message:
+> 1 | [...map.values() /* comment */]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#toArray()\` over a temporary spread array.
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(23): [/* comment */ ...Iterator.from(iterable)] 1`] = `
+
+  1 | [/* comment */ ...Iterator.from(iterable)]
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(23): [/* comment */ ...Iterator.from(iterable)] 2`] = `
+
+Message:
+> 1 | [/* comment */ ...Iterator.from(iterable)]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#toArray()\` over a temporary spread array.
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(3): [...map.entries()] 1`] = `
+
+  1 | [...map.entries()]
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(3): [...map.entries()] 2`] = `
+
+Message:
+> 1 | [...map.entries()]
+    | ^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#toArray()\` over a temporary spread array.
+
+Suggestion 1/1: Use \`Iterator#toArray()\`.:
+  1 | map.entries().toArray()
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(4): [...string.matchAll(pattern)] 1`] = `
+
+  1 | [...string.matchAll(pattern)]
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(4): [...string.matchAll(pattern)] 2`] = `
+
+Message:
+> 1 | [...string.matchAll(pattern)]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#toArray()\` over a temporary spread array.
+
+Suggestion 1/1: Use \`Iterator#toArray()\`.:
+  1 | string.matchAll(pattern).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(5): [...Iterator.from(iterable)] 1`] = `
+
+  1 | [...Iterator.from(iterable)]
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(5): [...Iterator.from(iterable)] 2`] = `
+
+Message:
+> 1 | [...Iterator.from(iterable)]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#toArray()\` over a temporary spread array.
+
+Output:
+  1 | Iterator.from(iterable).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(6): [...Iterator.concat(first, second)] 1`] = `
+
+  1 | [...Iterator.concat(first, second)]
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(6): [...Iterator.concat(first, second)] 2`] = `
+
+Message:
+> 1 | [...Iterator.concat(first, second)]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#toArray()\` over a temporary spread array.
+
+Output:
+  1 | Iterator.concat(first, second).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(7): [...Iterator.concat()] 1`] = `
+
+  1 | [...Iterator.concat()]
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(7): [...Iterator.concat()] 2`] = `
+
+Message:
+> 1 | [...Iterator.concat()]
+    | ^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#toArray()\` over a temporary spread array.
+
+Output:
+  1 | Iterator.concat().toArray()
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(8): [...Iterator.from(iterable).map(fn)] 1`] = `
+
+  1 | [...Iterator.from(iterable).map(fn)]
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(8): [...Iterator.from(iterable).map(fn)] 2`] = `
+
+Message:
+> 1 | [...Iterator.from(iterable).map(fn)]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#toArray()\` over a temporary spread array.
+
+Output:
+  1 | Iterator.from(iterable).map(fn).toArray()
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(9): [...Iterator.concat(first, second).filter(fn)] 1`] = `
+
+  1 | [...Iterator.concat(first, second).filter(fn)]
+
+`;
+
+exports[`prefer-iterator-to-array > invalid(9): [...Iterator.concat(first, second).filter(fn)] 2`] = `
+
+Message:
+> 1 | [...Iterator.concat(first, second).filter(fn)]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Iterator#toArray()\` over a temporary spread array.
+
+Output:
+  1 | Iterator.concat(first, second).filter(fn).toArray()
+
+`;

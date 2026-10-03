@@ -1,0 +1,84 @@
+exports[`no-unnecessary-array-flat-depth > invalid(1): foo.flat(1) 1`] = `
+
+  1 | foo.flat(1)
+
+`;
+
+exports[`no-unnecessary-array-flat-depth > invalid(1): foo.flat(1) 2`] = `
+
+Message:
+> 1 | foo.flat(1)
+    |          ^ Passing \`1\` as the \`depth\` argument is unnecessary.
+
+Output:
+  1 | foo.flat()
+
+`;
+
+exports[`no-unnecessary-array-flat-depth > invalid(2): foo.flat(1.0) 1`] = `
+
+  1 | foo.flat(1.0)
+
+`;
+
+exports[`no-unnecessary-array-flat-depth > invalid(2): foo.flat(1.0) 2`] = `
+
+Message:
+> 1 | foo.flat(1.0)
+    |          ^^^ Passing \`1\` as the \`depth\` argument is unnecessary.
+
+Output:
+  1 | foo.flat()
+
+`;
+
+exports[`no-unnecessary-array-flat-depth > invalid(3): foo.flat(0b01) 1`] = `
+
+  1 | foo.flat(0b01)
+
+`;
+
+exports[`no-unnecessary-array-flat-depth > invalid(3): foo.flat(0b01) 2`] = `
+
+Message:
+> 1 | foo.flat(0b01)
+    |          ^^^^ Passing \`1\` as the \`depth\` argument is unnecessary.
+
+Output:
+  1 | foo.flat()
+
+`;
+
+exports[`no-unnecessary-array-flat-depth > invalid(4): foo?.flat(1) 1`] = `
+
+  1 | foo?.flat(1)
+
+`;
+
+exports[`no-unnecessary-array-flat-depth > invalid(4): foo?.flat(1) 2`] = `
+
+Message:
+> 1 | foo?.flat(1)
+    |           ^ Passing \`1\` as the \`depth\` argument is unnecessary.
+
+Output:
+  1 | foo?.flat()
+
+`;
+
+exports[`no-unnecessary-array-flat-depth > invalid(5): function f(foo: number[][]) { foo.flat(1); } 1`] = `
+
+  1 | function f(foo: number[][]) { foo.flat(1); }
+
+`;
+
+exports[`no-unnecessary-array-flat-depth > invalid(5): function f(foo: number[][]) { foo.flat(1); } 2`] = `
+
+Message:
+> 1 | function f(foo: number[][]) { foo.flat(1); }
+    |                                        ^ Passing \`1\` as the \`depth\` argument is unnecessary.
+
+Output:
+  1 | function f(foo: number[][]) { foo.flat(); }
+
+`;

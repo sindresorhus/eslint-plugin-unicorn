@@ -1,0 +1,704 @@
+exports[`prefer-escaped-irregular-whitespace > invalid(1): const value = '\u000b'; // U+000B 1`] = `
+
+  1 | const value = ''; // U+000B
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(1): const value = '\u000b'; // U+000B 2`] = `
+
+Message:
+> 1 | const value = ''; // U+000B
+    |               ^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{B}'; // U+000B
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(10): const value = ' '; // U+2003 1`] = `
+
+  1 | const value = ' '; // U+2003
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(10): const value = ' '; // U+2003 2`] = `
+
+Message:
+> 1 | const value = ' '; // U+2003
+    |               ^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{2003}'; // U+2003
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(11): const value = ' '; // U+2004 1`] = `
+
+  1 | const value = ' '; // U+2004
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(11): const value = ' '; // U+2004 2`] = `
+
+Message:
+> 1 | const value = ' '; // U+2004
+    |               ^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{2004}'; // U+2004
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(12): const value = ' '; // U+2005 1`] = `
+
+  1 | const value = ' '; // U+2005
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(12): const value = ' '; // U+2005 2`] = `
+
+Message:
+> 1 | const value = ' '; // U+2005
+    |               ^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{2005}'; // U+2005
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(13): const value = ' '; // U+2006 1`] = `
+
+  1 | const value = ' '; // U+2006
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(13): const value = ' '; // U+2006 2`] = `
+
+Message:
+> 1 | const value = ' '; // U+2006
+    |               ^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{2006}'; // U+2006
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(14): const value = ' '; // U+2007 1`] = `
+
+  1 | const value = ' '; // U+2007
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(14): const value = ' '; // U+2007 2`] = `
+
+Message:
+> 1 | const value = ' '; // U+2007
+    |               ^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{2007}'; // U+2007
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(15): const value = ' '; // U+2008 1`] = `
+
+  1 | const value = ' '; // U+2008
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(15): const value = ' '; // U+2008 2`] = `
+
+Message:
+> 1 | const value = ' '; // U+2008
+    |               ^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{2008}'; // U+2008
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(16): const value = ' '; // U+2009 1`] = `
+
+  1 | const value = ' '; // U+2009
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(16): const value = ' '; // U+2009 2`] = `
+
+Message:
+> 1 | const value = ' '; // U+2009
+    |               ^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{2009}'; // U+2009
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(17): const value = ' '; // U+200A 1`] = `
+
+  1 | const value = ' '; // U+200A
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(17): const value = ' '; // U+200A 2`] = `
+
+Message:
+> 1 | const value = ' '; // U+200A
+    |               ^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{200A}'; // U+200A
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(18): const value = '​'; // U+200B 1`] = `
+
+  1 | const value = '​'; // U+200B
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(18): const value = '​'; // U+200B 2`] = `
+
+Message:
+> 1 | const value = '​'; // U+200B
+    |               ^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{200B}'; // U+200B
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(19): const value = ' '; // U+2028 1`] = `
+
+  1 | const value = '
+  2 | '; // U+2028
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(19): const value = ' '; // U+2028 2`] = `
+
+Message:
+> 1 | const value = '
+    |               ^
+> 2 | '; // U+2028
+    | ^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{2028}'; // U+2028
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(2): const value = '\f'; // U+000C 1`] = `
+
+  1 | const value = ''; // U+000C
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(2): const value = '\f'; // U+000C 2`] = `
+
+Message:
+> 1 | const value = ''; // U+000C
+    |               ^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{C}'; // U+000C
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(20): const value = ' '; // U+2029 1`] = `
+
+  1 | const value = '
+  2 | '; // U+2029
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(20): const value = ' '; // U+2029 2`] = `
+
+Message:
+> 1 | const value = '
+    |               ^
+> 2 | '; // U+2029
+    | ^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{2029}'; // U+2029
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(21): const value = ' '; // U+202F 1`] = `
+
+  1 | const value = ' '; // U+202F
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(21): const value = ' '; // U+202F 2`] = `
+
+Message:
+> 1 | const value = ' '; // U+202F
+    |               ^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{202F}'; // U+202F
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(22): const value = ' '; // U+205F 1`] = `
+
+  1 | const value = ' '; // U+205F
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(22): const value = ' '; // U+205F 2`] = `
+
+Message:
+> 1 | const value = ' '; // U+205F
+    |               ^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{205F}'; // U+205F
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(23): const value = '　'; // U+3000 1`] = `
+
+  1 | const value = '　'; // U+3000
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(23): const value = '　'; // U+3000 2`] = `
+
+Message:
+> 1 | const value = '　'; // U+3000
+    |               ^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{3000}'; // U+3000
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(24): const value = '﻿'; // U+FEFF 1`] = `
+
+  1 | const value = '﻿'; // U+FEFF
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(24): const value = '﻿'; // U+FEFF 2`] = `
+
+Message:
+> 1 | const value = '﻿'; // U+FEFF
+    |               ^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{FEFF}'; // U+FEFF
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(25): const value = \"before middle​after\"; 1`] = `
+
+  1 | const value = "before middle​after";
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(25): const value = \"before middle​after\"; 2`] = `
+
+Message:
+> 1 | const value = "before middle​after";
+    |               ^^^^^^^^^^^^^^^^^^^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = "before\\u{A0}middle\\u{200B}after";
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(26): const value = new RegExp(' ​'); 1`] = `
+
+  1 | const value = new RegExp(' ​');
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(26): const value = new RegExp(' ​'); 2`] = `
+
+Message:
+> 1 | const value = new RegExp(' ​');
+    |                          ^^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = new RegExp('\\u{A0}\\u{200B}');
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(27): const value = 'before\\ after'; 1`] = `
+
+  1 | const value = 'before\\ after';
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(27): const value = 'before\\ after'; 2`] = `
+
+Message:
+> 1 | const value = 'before\\ after';
+    |               ^^^^^^^^^^^^^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = 'before\\u{A0}after';
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(28): const value = \`before middle​after\`; 1`] = `
+
+  1 | const value = \`before middle​after\`;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(28): const value = \`before middle​after\`; 2`] = `
+
+Message:
+> 1 | const value = \`before middle​after\`;
+    |               ^^^^^^^^^^^^^^^^^^^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = \`before\\u{A0}middle\\u{200B}after\`;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(29): const value = \`head \${first}middle​\${second}tail \`; 1`] = `
+
+  1 | const value = \`head \${first}middle​\${second}tail \`;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(29): const value = \`head \${first}middle​\${second}tail \`; 2`] = `
+
+Message:
+> 1 | const value = \`head \${first}middle​\${second}tail \`;
+    |               ^^^^^^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = \`head\\u{A0}\${first}middle​\${second}tail \`;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(29): const value = \`head \${first}middle​\${second}tail \`; 3`] = `
+
+Message:
+> 1 | const value = \`head \${first}middle​\${second}tail \`;
+    |                            ^^^^^^^^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = \`head \${first}middle\\u{200B}\${second}tail \`;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(29): const value = \`head \${first}middle​\${second}tail \`; 4`] = `
+
+Message:
+> 1 | const value = \`head \${first}middle​\${second}tail \`;
+    |                                            ^^^^^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = \`head \${first}middle​\${second}tail\\u{202F}\`;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(3): const value = ''; // U+0085 1`] = `
+
+  1 | const value = ''; // U+0085
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(3): const value = ''; // U+0085 2`] = `
+
+Message:
+> 1 | const value = ''; // U+0085
+    |               ^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{85}'; // U+0085
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(30): const pattern = /before middle/u; 1`] = `
+
+  1 | const pattern = /before middle/u;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(30): const pattern = /before middle/u; 2`] = `
+
+Message:
+> 1 | const pattern = /before middle/u;
+    |                 ^^^^^^^^^^^^^^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const pattern = /before\\u{A0}middle/u;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(31): const pattern = /before middle/v; 1`] = `
+
+  1 | const pattern = /before middle/v;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(31): const pattern = /before middle/v; 2`] = `
+
+Message:
+> 1 | const pattern = /before middle/v;
+    |                 ^^^^^^^^^^^^^^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const pattern = /before\\u{A0}middle/v;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(32): const pattern = /[ ​]/u; 1`] = `
+
+  1 | const pattern = /[ ​]/u;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(32): const pattern = /[ ​]/u; 2`] = `
+
+Message:
+> 1 | const pattern = /[ ​]/u;
+    |                 ^^^^^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const pattern = /[\\u{A0}\\u{200B}]/u;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(33): const pattern = /[ ​]/v; 1`] = `
+
+  1 | const pattern = /[ ​]/v;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(33): const pattern = /[ ​]/v; 2`] = `
+
+Message:
+> 1 | const pattern = /[ ​]/v;
+    |                 ^^^^^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const pattern = /[\\u{A0}\\u{200B}]/v;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(34): const pattern = /[\\q{before after}]/v; 1`] = `
+
+  1 | const pattern = /[\\q{before after}]/v;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(34): const pattern = /[\\q{before after}]/v; 2`] = `
+
+Message:
+> 1 | const pattern = /[\\q{before after}]/v;
+    |                 ^^^^^^^^^^^^^^^^^^^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const pattern = /[\\q{before\\u{A0}after}]/v;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(35): const value = \`before after\`; 1`] = `
+
+  1 | const value = \`before
+  2 | after\`;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(35): const value = \`before after\`; 2`] = `
+
+Message:
+> 1 | const value = \`before
+    |               ^^^^^^^
+> 2 | after\`;
+    | ^^^^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = \`before\\u{2028}after\`;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(36): const value = \`before \${/* comment */ middle}​after\`; 1`] = `
+
+  1 | const value = \`before \${/* comment */ middle}​after\`;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(36): const value = \`before \${/* comment */ middle}​after\`; 2`] = `
+
+Message:
+> 1 | const value = \`before \${/* comment */ middle}​after\`;
+    |               ^^^^^^^^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = \`before\\u{A0}\${/* comment */ middle}​after\`;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(36): const value = \`before \${/* comment */ middle}​after\`; 3`] = `
+
+Message:
+> 1 | const value = \`before \${/* comment */ middle}​after\`;
+    |                                             ^^^^^^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = \`before \${/* comment */ middle}\\u{200B}after\`;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(37): <div>{' ​'}</div>; 1`] = `
+
+  1 | <div>{' ​'}</div>;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(37): <div>{' ​'}</div>; 2`] = `
+
+Message:
+> 1 | <div>{' ​'}</div>;
+    |       ^^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | <div>{'\\u{A0}\\u{200B}'}</div>;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(38): const value = ' ​' as const; 1`] = `
+
+  1 | const value = ' ​' as const;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(38): const value = ' ​' as const; 2`] = `
+
+Message:
+> 1 | const value = ' ​' as const;
+    |               ^^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{A0}\\u{200B}' as const;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(39): const value = \` ​\` as const; 1`] = `
+
+  1 | const value = \` ​\` as const;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(39): const value = \` ​\` as const; 2`] = `
+
+Message:
+> 1 | const value = \` ​\` as const;
+    |               ^^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = \`\\u{A0}\\u{200B}\` as const;
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(4): const value = ' '; // U+00A0 1`] = `
+
+  1 | const value = ' '; // U+00A0
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(4): const value = ' '; // U+00A0 2`] = `
+
+Message:
+> 1 | const value = ' '; // U+00A0
+    |               ^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{A0}'; // U+00A0
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(5): const value = ' '; // U+1680 1`] = `
+
+  1 | const value = ' '; // U+1680
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(5): const value = ' '; // U+1680 2`] = `
+
+Message:
+> 1 | const value = ' '; // U+1680
+    |               ^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{1680}'; // U+1680
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(6): const value = '᠎'; // U+180E 1`] = `
+
+  1 | const value = '᠎'; // U+180E
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(6): const value = '᠎'; // U+180E 2`] = `
+
+Message:
+> 1 | const value = '᠎'; // U+180E
+    |               ^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{180E}'; // U+180E
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(7): const value = ' '; // U+2000 1`] = `
+
+  1 | const value = ' '; // U+2000
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(7): const value = ' '; // U+2000 2`] = `
+
+Message:
+> 1 | const value = ' '; // U+2000
+    |               ^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{2000}'; // U+2000
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(8): const value = ' '; // U+2001 1`] = `
+
+  1 | const value = ' '; // U+2001
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(8): const value = ' '; // U+2001 2`] = `
+
+Message:
+> 1 | const value = ' '; // U+2001
+    |               ^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{2001}'; // U+2001
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(9): const value = ' '; // U+2002 1`] = `
+
+  1 | const value = ' '; // U+2002
+
+`;
+
+exports[`prefer-escaped-irregular-whitespace > invalid(9): const value = ' '; // U+2002 2`] = `
+
+Message:
+> 1 | const value = ' '; // U+2002
+    |               ^^^ Prefer escape sequences for irregular whitespace characters.
+
+Output:
+  1 | const value = '\\u{2002}'; // U+2002
+
+`;

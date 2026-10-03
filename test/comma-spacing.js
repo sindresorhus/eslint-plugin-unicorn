@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
 import {getTester, languages} from './utils/test.js';
@@ -51,10 +51,10 @@ for (const language of [languages.json, languages.jsonc, languages.json5]) {
 			['[1 ,\r\n 2\r ,3 ,\n4]', '[1,\r\n 2\r , 3,\n4]'],
 		]) {
 			const result = linter.verifyAndFix(code, config);
-			t.true(result.fixed);
-			t.is(result.output, output);
-			t.deepEqual(result.messages, []);
-			t.deepEqual(linter.verifyAndFix(result.output, config), {...result, fixed: false});
+			t.assert.strictEqual(result.fixed, true);
+			t.assert.strictEqual(result.output, output);
+			t.assert.deepStrictEqual(result.messages, []);
+			t.assert.deepStrictEqual(linter.verifyAndFix(result.output, config), {...result, fixed: false});
 		}
 	});
 }
@@ -101,10 +101,10 @@ for (const language of [languages.jsonc, languages.json5]) {
 			rules: {'unicorn/comma-spacing': 'error'},
 		};
 		const result = linter.verifyAndFix('{"array": [1 ,2 ,  ],"object": {"a": 1 ,\t}}', config);
-		t.true(result.fixed);
-		t.is(result.output, '{"array": [1, 2,  ], "object": {"a": 1,\t}}');
-		t.deepEqual(result.messages, []);
-		t.deepEqual(linter.verifyAndFix(result.output, config), {...result, fixed: false});
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.strictEqual(result.output, '{"array": [1, 2,  ], "object": {"a": 1,\t}}');
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.deepStrictEqual(linter.verifyAndFix(result.output, config), {...result, fixed: false});
 	});
 }
 
@@ -135,10 +135,10 @@ test('preserves JSON5 Unicode line separators while fixing horizontal whitespace
 		rules: {'unicorn/comma-spacing': 'error'},
 	};
 	const result = linter.verifyAndFix('[1 \u2028 ,2 ,\u2029 3\u00A0,\u00A04 ,\t]', config);
-	t.true(result.fixed);
-	t.is(result.output, '[1 \u2028 , 2,\u2029 3, 4,\t]');
-	t.deepEqual(result.messages, []);
-	t.deepEqual(linter.verifyAndFix(result.output, config), {...result, fixed: false});
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, '[1 \u2028 , 2,\u2029 3, 4,\t]');
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.deepStrictEqual(linter.verifyAndFix(result.output, config), {...result, fixed: false});
 });
 
 for (const language of [languages.jsonc, languages.json5]) {
@@ -150,10 +150,10 @@ for (const language of [languages.jsonc, languages.json5]) {
 			rules: {'unicorn/comma-spacing': 'error'},
 		};
 		const result = linter.verifyAndFix('[1 /* before,  */ ,/* after,  */  2,// end,  \r\n3 // before comma,  \r\n\t,4]', config);
-		t.true(result.fixed);
-		t.is(result.output, '[1 /* before,  */, /* after,  */  2, // end,  \r\n3 // before comma,  \r\n\t, 4]');
-		t.deepEqual(result.messages, []);
-		t.deepEqual(linter.verifyAndFix(result.output, config), {...result, fixed: false});
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.strictEqual(result.output, '[1 /* before,  */, /* after,  */  2, // end,  \r\n3 // before comma,  \r\n\t, 4]');
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.deepStrictEqual(linter.verifyAndFix(result.output, config), {...result, fixed: false});
 	});
 }
 
@@ -169,7 +169,7 @@ test('works with indentation and empty delimiter spacing', t => {
 		},
 	};
 	const result = linter.verifyAndFix('{\r\n  "items": [1 ,2,{ }],\r\n  "empty": [ ]\r\n}', config);
-	t.is(result.output, '{\r\n\t"items": [1, 2, {}],\r\n\t"empty": []\r\n}');
-	t.deepEqual(result.messages, []);
-	t.false(linter.verifyAndFix(result.output, config).fixed);
+	t.assert.strictEqual(result.output, '{\r\n\t"items": [1, 2, {}],\r\n\t"empty": []\r\n}');
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(linter.verifyAndFix(result.output, config).fixed, false);
 });

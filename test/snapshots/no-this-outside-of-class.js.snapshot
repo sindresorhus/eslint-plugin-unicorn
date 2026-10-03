@@ -1,0 +1,436 @@
+exports[`no-this-outside-of-class > invalid(1): this.value; 1`] = `
+
+  1 | this.value;
+
+`;
+
+exports[`no-this-outside-of-class > invalid(1): this.value; 2`] = `
+
+Message:
+> 1 | this.value;
+    | ^^^^ Do not use \`this\` outside of classes.
+
+`;
+
+exports[`no-this-outside-of-class > invalid(1): this.value;\n/* commonjs */ 1`] = `
+
+  1 | this.value;
+  2 | /* commonjs */
+
+`;
+
+exports[`no-this-outside-of-class > invalid(1): this.value;\n/* commonjs */ 2`] = `
+
+Message:
+> 1 | this.value;
+    | ^^^^ Do not use \`this\` outside of classes.
+  2 | /* commonjs */
+
+`;
+
+exports[`no-this-outside-of-class > invalid(1): this.value;\n/* script */ 1`] = `
+
+  1 | this.value;
+  2 | /* script */
+
+`;
+
+exports[`no-this-outside-of-class > invalid(1): this.value;\n/* script */ 2`] = `
+
+Message:
+> 1 | this.value;
+    | ^^^^ Do not use \`this\` outside of classes.
+  2 | /* script */
+
+`;
+
+exports[`no-this-outside-of-class > invalid(10): class Foo {\n\tstatic {\n\t\tfunction update() {\n\t\t\tthis.value = 1;\n\t\t}\n\n\t\tupdate();\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	static {
+  3 | 		function update() {
+  4 | 			this.value = 1;
+  5 | 		}
+  6 |
+  7 | 		update();
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`no-this-outside-of-class > invalid(10): class Foo {\n\tstatic {\n\t\tfunction update() {\n\t\t\tthis.value = 1;\n\t\t}\n\n\t\tupdate();\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	static {
+  3 | 		function update() {
+> 4 | 			this.value = 1;
+    | 			^^^^ Do not use \`this\` outside of classes.
+  5 | 		}
+  6 |
+  7 | 		update();
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`no-this-outside-of-class > invalid(11): const foo = {\n\tmethod() {\n\t\treturn this.value;\n\t}\n}; 1`] = `
+
+  1 | const foo = {
+  2 | 	method() {
+  3 | 		return this.value;
+  4 | 	}
+  5 | };
+
+`;
+
+exports[`no-this-outside-of-class > invalid(11): const foo = {\n\tmethod() {\n\t\treturn this.value;\n\t}\n}; 2`] = `
+
+Message:
+  1 | const foo = {
+  2 | 	method() {
+> 3 | 		return this.value;
+    | 		       ^^^^ Do not use \`this\` outside of classes.
+  4 | 	}
+  5 | };
+
+`;
+
+exports[`no-this-outside-of-class > invalid(12): const foo = {\n\tget value() {\n\t\treturn this._value;\n\t},\n\tset value(value) {\n\t\tthis._value = value;\n\t}\n}; 1`] = `
+
+  1 | const foo = {
+  2 | 	get value() {
+  3 | 		return this._value;
+  4 | 	},
+  5 | 	set value(value) {
+  6 | 		this._value = value;
+  7 | 	}
+  8 | };
+
+`;
+
+exports[`no-this-outside-of-class > invalid(12): const foo = {\n\tget value() {\n\t\treturn this._value;\n\t},\n\tset value(value) {\n\t\tthis._value = value;\n\t}\n}; 2`] = `
+
+Message:
+  1 | const foo = {
+  2 | 	get value() {
+> 3 | 		return this._value;
+    | 		       ^^^^ Do not use \`this\` outside of classes.
+  4 | 	},
+  5 | 	set value(value) {
+  6 | 		this._value = value;
+  7 | 	}
+  8 | };
+
+`;
+
+exports[`no-this-outside-of-class > invalid(12): const foo = {\n\tget value() {\n\t\treturn this._value;\n\t},\n\tset value(value) {\n\t\tthis._value = value;\n\t}\n}; 3`] = `
+
+Message:
+  1 | const foo = {
+  2 | 	get value() {
+  3 | 		return this._value;
+  4 | 	},
+  5 | 	set value(value) {
+> 6 | 		this._value = value;
+    | 		^^^^ Do not use \`this\` outside of classes.
+  7 | 	}
+  8 | };
+
+`;
+
+exports[`no-this-outside-of-class > invalid(13): const foo = {\n\tmethod: function () {\n\t\treturn this.value;\n\t}\n}; 1`] = `
+
+  1 | const foo = {
+  2 | 	method: function () {
+  3 | 		return this.value;
+  4 | 	}
+  5 | };
+
+`;
+
+exports[`no-this-outside-of-class > invalid(13): const foo = {\n\tmethod: function () {\n\t\treturn this.value;\n\t}\n}; 2`] = `
+
+Message:
+  1 | const foo = {
+  2 | 	method: function () {
+> 3 | 		return this.value;
+    | 		       ^^^^ Do not use \`this\` outside of classes.
+  4 | 	}
+  5 | };
+
+`;
+
+exports[`no-this-outside-of-class > invalid(14): Foo.prototype.method = function () {\n\tthis.value();\n}; 1`] = `
+
+  1 | Foo.prototype.method = function () {
+  2 | 	this.value();
+  3 | };
+
+`;
+
+exports[`no-this-outside-of-class > invalid(14): Foo.prototype.method = function () {\n\tthis.value();\n}; 2`] = `
+
+Message:
+  1 | Foo.prototype.method = function () {
+> 2 | 	this.value();
+    | 	^^^^ Do not use \`this\` outside of classes.
+  3 | };
+
+`;
+
+exports[`no-this-outside-of-class > invalid(15): new SDK({\n\tonReady: function () {\n\t\tthis.value;\n\t}\n}); 1`] = `
+
+  1 | new SDK({
+  2 | 	onReady: function () {
+  3 | 		this.value;
+  4 | 	}
+  5 | });
+
+`;
+
+exports[`no-this-outside-of-class > invalid(15): new SDK({\n\tonReady: function () {\n\t\tthis.value;\n\t}\n}); 2`] = `
+
+Message:
+  1 | new SDK({
+  2 | 	onReady: function () {
+> 3 | 		this.value;
+    | 		^^^^ Do not use \`this\` outside of classes.
+  4 | 	}
+  5 | });
+
+`;
+
+exports[`no-this-outside-of-class > invalid(16): export default {\n\tmethods: {\n\t\trefresh() {\n\t\t\tthis.list = getList();\n\t\t}\n\t}\n}; 1`] = `
+
+  1 | export default {
+  2 | 	methods: {
+  3 | 		refresh() {
+  4 | 			this.list = getList();
+  5 | 		}
+  6 | 	}
+  7 | };
+
+`;
+
+exports[`no-this-outside-of-class > invalid(16): export default {\n\tmethods: {\n\t\trefresh() {\n\t\t\tthis.list = getList();\n\t\t}\n\t}\n}; 2`] = `
+
+Message:
+  1 | export default {
+  2 | 	methods: {
+  3 | 		refresh() {
+> 4 | 			this.list = getList();
+    | 			^^^^ Do not use \`this\` outside of classes.
+  5 | 		}
+  6 | 	}
+  7 | };
+
+`;
+
+exports[`no-this-outside-of-class > invalid(17): class Foo {\n\t[this.key]() {}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	[this.key]() {}
+  3 | }
+
+`;
+
+exports[`no-this-outside-of-class > invalid(17): class Foo {\n\t[this.key]() {}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	[this.key]() {}
+    | 	 ^^^^ Do not use \`this\` outside of classes.
+  3 | }
+
+`;
+
+exports[`no-this-outside-of-class > invalid(18): class Foo {\n\t[this.key] = 1;\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	[this.key] = 1;
+  3 | }
+
+`;
+
+exports[`no-this-outside-of-class > invalid(18): class Foo {\n\t[this.key] = 1;\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	[this.key] = 1;
+    | 	 ^^^^ Do not use \`this\` outside of classes.
+  3 | }
+
+`;
+
+exports[`no-this-outside-of-class > invalid(19): class Foo extends this.Base {} 1`] = `
+
+  1 | class Foo extends this.Base {}
+
+`;
+
+exports[`no-this-outside-of-class > invalid(19): class Foo extends this.Base {} 2`] = `
+
+Message:
+> 1 | class Foo extends this.Base {}
+    |                   ^^^^ Do not use \`this\` outside of classes.
+
+`;
+
+exports[`no-this-outside-of-class > invalid(2): const getValue = () => this.value; 1`] = `
+
+  1 | const getValue = () => this.value;
+
+`;
+
+exports[`no-this-outside-of-class > invalid(2): const getValue = () => this.value; 2`] = `
+
+Message:
+> 1 | const getValue = () => this.value;
+    |                        ^^^^ Do not use \`this\` outside of classes.
+
+`;
+
+exports[`no-this-outside-of-class > invalid(3): function foo() {\n\treturn this.value;\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	return this.value;
+  3 | }
+
+`;
+
+exports[`no-this-outside-of-class > invalid(3): function foo() {\n\treturn this.value;\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	return this.value;
+    | 	       ^^^^ Do not use \`this\` outside of classes.
+  3 | }
+
+`;
+
+exports[`no-this-outside-of-class > invalid(4): function Foo(value) {\n\tthis.value = value;\n} 1`] = `
+
+  1 | function Foo(value) {
+  2 | 	this.value = value;
+  3 | }
+
+`;
+
+exports[`no-this-outside-of-class > invalid(4): function Foo(value) {\n\tthis.value = value;\n} 2`] = `
+
+Message:
+  1 | function Foo(value) {
+> 2 | 	this.value = value;
+    | 	^^^^ Do not use \`this\` outside of classes.
+  3 | }
+
+`;
+
+exports[`no-this-outside-of-class > invalid(5): const foo = function () {\n\treturn this.value;\n}; 1`] = `
+
+  1 | const foo = function () {
+  2 | 	return this.value;
+  3 | };
+
+`;
+
+exports[`no-this-outside-of-class > invalid(5): const foo = function () {\n\treturn this.value;\n}; 2`] = `
+
+Message:
+  1 | const foo = function () {
+> 2 | 	return this.value;
+    | 	       ^^^^ Do not use \`this\` outside of classes.
+  3 | };
+
+`;
+
+exports[`no-this-outside-of-class > invalid(6): (function () {\n\tthis.value = 1;\n})(); 1`] = `
+
+  1 | (function () {
+  2 | 	this.value = 1;
+  3 | })();
+
+`;
+
+exports[`no-this-outside-of-class > invalid(6): (function () {\n\tthis.value = 1;\n})(); 2`] = `
+
+Message:
+  1 | (function () {
+> 2 | 	this.value = 1;
+    | 	^^^^ Do not use \`this\` outside of classes.
+  3 | })();
+
+`;
+
+exports[`no-this-outside-of-class > invalid(7): function foo() {\n\tconst getValue = () => this.value;\n\treturn getValue();\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	const getValue = () => this.value;
+  3 | 	return getValue();
+  4 | }
+
+`;
+
+exports[`no-this-outside-of-class > invalid(7): function foo() {\n\tconst getValue = () => this.value;\n\treturn getValue();\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	const getValue = () => this.value;
+    | 	                       ^^^^ Do not use \`this\` outside of classes.
+  3 | 	return getValue();
+  4 | }
+
+`;
+
+exports[`no-this-outside-of-class > invalid(8): class Foo {\n\tmethod() {\n\t\tfunction getValue() {\n\t\t\treturn this.value;\n\t\t}\n\n\t\treturn getValue();\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	method() {
+  3 | 		function getValue() {
+  4 | 			return this.value;
+  5 | 		}
+  6 |
+  7 | 		return getValue();
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`no-this-outside-of-class > invalid(8): class Foo {\n\tmethod() {\n\t\tfunction getValue() {\n\t\t\treturn this.value;\n\t\t}\n\n\t\treturn getValue();\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	method() {
+  3 | 		function getValue() {
+> 4 | 			return this.value;
+    | 			       ^^^^ Do not use \`this\` outside of classes.
+  5 | 		}
+  6 |
+  7 | 		return getValue();
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`no-this-outside-of-class > invalid(9): class Foo {\n\tvalue = function () {\n\t\treturn this.value;\n\t};\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	value = function () {
+  3 | 		return this.value;
+  4 | 	};
+  5 | }
+
+`;
+
+exports[`no-this-outside-of-class > invalid(9): class Foo {\n\tvalue = function () {\n\t\treturn this.value;\n\t};\n} 2`] = `
+
+Message:
+  1 | class Foo {
+  2 | 	value = function () {
+> 3 | 		return this.value;
+    | 		       ^^^^ Do not use \`this\` outside of classes.
+  4 | 	};
+  5 | }
+
+`;

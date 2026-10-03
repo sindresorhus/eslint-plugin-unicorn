@@ -1,0 +1,673 @@
+exports[`prefer-aggregate-error > invalid(1): const errors: Error[] = [new Error(\"One failed.\")]; if (errors.length) { throw new Error(); } 1`] = `
+
+  1 | const errors: Error[] = [new Error("One failed.")]; if (errors.length) { throw new Error(); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(1): const errors: Error[] = [new Error(\"One failed.\")]; if (errors.length) { throw new Error(); } 2`] = `
+
+Message:
+> 1 | const errors: Error[] = [new Error("One failed.")]; if (errors.length) { throw new Error(); }
+    |                                                                                    ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | const errors: Error[] = [new Error("One failed.")]; if (errors.length) { throw new AggregateError(errors); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(10): const errorList: RangeError[] = [new RangeError(\"Out of range.\")]; if (errorList.length > 0) { throw new Error(\"Failed.\"); } 1`] = `
+
+  1 | const errorList: RangeError[] = [new RangeError("Out of range.")]; if (errorList.length > 0) { throw new Error("Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(10): const errorList: RangeError[] = [new RangeError(\"Out of range.\")]; if (errorList.length > 0) { throw new Error(\"Failed.\"); } 2`] = `
+
+Message:
+> 1 | const errorList: RangeError[] = [new RangeError("Out of range.")]; if (errorList.length > 0) { throw new Error("Failed."); }
+    |                                                                                                          ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | const errorList: RangeError[] = [new RangeError("Out of range.")]; if (errorList.length > 0) { throw new AggregateError(errorList, "Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(11): type CollectedError = Error; function foo(errors: CollectedError[]) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 1`] = `
+
+  1 | type CollectedError = Error; function foo(errors: CollectedError[]) { if (errors.length > 0) { throw new Error("Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(11): type CollectedError = Error; function foo(errors: CollectedError[]) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 2`] = `
+
+Message:
+> 1 | type CollectedError = Error; function foo(errors: CollectedError[]) { if (errors.length > 0) { throw new Error("Failed."); } }
+    |                                                                                                          ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | type CollectedError = Error; function foo(errors: CollectedError[]) { if (errors.length > 0) { throw new AggregateError(errors, "Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(12): function foo(errors: (Error | TypeError)[]) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 1`] = `
+
+  1 | function foo(errors: (Error | TypeError)[]) { if (errors.length > 0) { throw new Error("Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(12): function foo(errors: (Error | TypeError)[]) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 2`] = `
+
+Message:
+> 1 | function foo(errors: (Error | TypeError)[]) { if (errors.length > 0) { throw new Error("Failed."); } }
+    |                                                                                  ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | function foo(errors: (Error | TypeError)[]) { if (errors.length > 0) { throw new AggregateError(errors, "Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(13): function foo(errors: [Error, TypeError]) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 1`] = `
+
+  1 | function foo(errors: [Error, TypeError]) { if (errors.length > 0) { throw new Error("Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(13): function foo(errors: [Error, TypeError]) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 2`] = `
+
+Message:
+> 1 | function foo(errors: [Error, TypeError]) { if (errors.length > 0) { throw new Error("Failed."); } }
+    |                                                                               ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | function foo(errors: [Error, TypeError]) { if (errors.length > 0) { throw new AggregateError(errors, "Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(14): const errorArray: TypeError[] = [new TypeError(\"Invalid name.\")]; if (errorArray.length > 0 && shouldThrow) { throw new Error(\"Failed.\"); } 1`] = `
+
+  1 | const errorArray: TypeError[] = [new TypeError("Invalid name.")]; if (errorArray.length > 0 && shouldThrow) { throw new Error("Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(14): const errorArray: TypeError[] = [new TypeError(\"Invalid name.\")]; if (errorArray.length > 0 && shouldThrow) { throw new Error(\"Failed.\"); } 2`] = `
+
+Message:
+> 1 | const errorArray: TypeError[] = [new TypeError("Invalid name.")]; if (errorArray.length > 0 && shouldThrow) { throw new Error("Failed."); }
+    |                                                                                                                         ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | const errorArray: TypeError[] = [new TypeError("Invalid name.")]; if (errorArray.length > 0 && shouldThrow) { throw new AggregateError(errorArray, "Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(15): const errors: Error[] = [new Error(\"One failed.\")]; if (shouldThrow && errors.length > 0) throw new Error(\"Failed.\"); 1`] = `
+
+  1 | const errors: Error[] = [new Error("One failed.")]; if (shouldThrow && errors.length > 0) throw new Error("Failed.");
+
+`;
+
+exports[`prefer-aggregate-error > invalid(15): const errors: Error[] = [new Error(\"One failed.\")]; if (shouldThrow && errors.length > 0) throw new Error(\"Failed.\"); 2`] = `
+
+Message:
+> 1 | const errors: Error[] = [new Error("One failed.")]; if (shouldThrow && errors.length > 0) throw new Error("Failed.");
+    |                                                                                                     ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | const errors: Error[] = [new Error("One failed.")]; if (shouldThrow && errors.length > 0) throw new AggregateError(errors, "Failed.");
+
+`;
+
+exports[`prefer-aggregate-error > invalid(16): const errors: Error[] = [new Error(\"One failed.\")]; if ((errors.length > 0)) { throw new Error(\"Failed.\", {cause}); } 1`] = `
+
+  1 | const errors: Error[] = [new Error("One failed.")]; if ((errors.length > 0)) { throw new Error("Failed.", {cause}); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(16): const errors: Error[] = [new Error(\"One failed.\")]; if ((errors.length > 0)) { throw new Error(\"Failed.\", {cause}); } 2`] = `
+
+Message:
+> 1 | const errors: Error[] = [new Error("One failed.")]; if ((errors.length > 0)) { throw new Error("Failed.", {cause}); }
+    |                                                                                          ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | const errors: Error[] = [new Error("One failed.")]; if ((errors.length > 0)) { throw new AggregateError(errors, "Failed.", {cause}); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(17): const errors: Error[] = [new Error('One failed.')];\nif (errors.length > 0) {\n\tthrow new Error(\n\t\t'Failed.'\n\t);\n} 1`] = `
+
+  1 | const errors: Error[] = [new Error('One failed.')];
+  2 | if (errors.length > 0) {
+  3 | 	throw new Error(
+  4 | 		'Failed.'
+  5 | 	);
+  6 | }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(17): const errors: Error[] = [new Error('One failed.')];\nif (errors.length > 0) {\n\tthrow new Error(\n\t\t'Failed.'\n\t);\n} 2`] = `
+
+Message:
+  1 | const errors: Error[] = [new Error('One failed.')];
+  2 | if (errors.length > 0) {
+> 3 | 	throw new Error(
+    | 	          ^^^^^ Use \`AggregateError\` when throwing collected errors.
+  4 | 		'Failed.'
+  5 | 	);
+  6 | }
+
+Output:
+  1 | const errors: Error[] = [new Error('One failed.')];
+  2 | if (errors.length > 0) {
+  3 | 	throw new AggregateError(errors, 'Failed.');
+  4 | }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(18): const errors: Error[] = [new Error(\"One failed.\")]; if (errors.length > 0) { throw new Error(/* message */ message); } 1`] = `
+
+  1 | const errors: Error[] = [new Error("One failed.")]; if (errors.length > 0) { throw new Error(/* message */ message); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(18): const errors: Error[] = [new Error(\"One failed.\")]; if (errors.length > 0) { throw new Error(/* message */ message); } 2`] = `
+
+Message:
+> 1 | const errors: Error[] = [new Error("One failed.")]; if (errors.length > 0) { throw new Error(/* message */ message); }
+    |                                                                                        ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+`;
+
+exports[`prefer-aggregate-error > invalid(19): function foo(errors: Error[]) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 1`] = `
+
+  1 | function foo(errors: Error[]) { if (errors.length > 0) { throw new Error("Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(19): function foo(errors: Error[]) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 2`] = `
+
+Message:
+> 1 | function foo(errors: Error[]) { if (errors.length > 0) { throw new Error("Failed."); } }
+    |                                                                    ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | function foo(errors: Error[]) { if (errors.length > 0) { throw new AggregateError(errors, "Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(2): const errors: Error[] = [new Error(\"One failed.\")]; if (errors.length > 0) { throw new Error(\"Failed.\"); } 1`] = `
+
+  1 | const errors: Error[] = [new Error("One failed.")]; if (errors.length > 0) { throw new Error("Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(2): const errors: Error[] = [new Error(\"One failed.\")]; if (errors.length > 0) { throw new Error(\"Failed.\"); } 2`] = `
+
+Message:
+> 1 | const errors: Error[] = [new Error("One failed.")]; if (errors.length > 0) { throw new Error("Failed."); }
+    |                                                                                        ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | const errors: Error[] = [new Error("One failed.")]; if (errors.length > 0) { throw new AggregateError(errors, "Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(20): function foo(errors: ReadonlyArray<Error>) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 1`] = `
+
+  1 | function foo(errors: ReadonlyArray<Error>) { if (errors.length > 0) { throw new Error("Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(20): function foo(errors: ReadonlyArray<Error>) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 2`] = `
+
+Message:
+> 1 | function foo(errors: ReadonlyArray<Error>) { if (errors.length > 0) { throw new Error("Failed."); } }
+    |                                                                                 ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | function foo(errors: ReadonlyArray<Error>) { if (errors.length > 0) { throw new AggregateError(errors, "Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(21): type Errors = Error[]; function foo(validationErrors: Errors) { if (validationErrors.length > 0) { throw new Error(\"Failed.\"); } } 1`] = `
+
+  1 | type Errors = Error[]; function foo(validationErrors: Errors) { if (validationErrors.length > 0) { throw new Error("Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(21): type Errors = Error[]; function foo(validationErrors: Errors) { if (validationErrors.length > 0) { throw new Error(\"Failed.\"); } } 2`] = `
+
+Message:
+> 1 | type Errors = Error[]; function foo(validationErrors: Errors) { if (validationErrors.length > 0) { throw new Error("Failed."); } }
+    |                                                                                                              ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | type Errors = Error[]; function foo(validationErrors: Errors) { if (validationErrors.length > 0) { throw new AggregateError(validationErrors, "Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(22): declare function getErrors(): Error[]; const errors = getErrors(); if (errors.length > 0) { throw new Error(\"Failed.\"); } 1`] = `
+
+Filename: file.ts
+
+  1 | declare function getErrors(): Error[]; const errors = getErrors(); if (errors.length > 0) { throw new Error("Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(22): declare function getErrors(): Error[]; const errors = getErrors(); if (errors.length > 0) { throw new Error(\"Failed.\"); } 2`] = `
+
+Message:
+> 1 | declare function getErrors(): Error[]; const errors = getErrors(); if (errors.length > 0) { throw new Error("Failed."); }
+    |                                                                                                       ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | declare function getErrors(): Error[]; const errors = getErrors(); if (errors.length > 0) { throw new AggregateError(errors, "Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(23): class ValidationError extends Error {} const errors: ValidationError[] = [new ValidationError(\"Invalid name.\")]; if (errors.length > 0) { throw new Error(\"Failed.\"); } 1`] = `
+
+Filename: file.ts
+
+  1 | class ValidationError extends Error {} const errors: ValidationError[] = [new ValidationError("Invalid name.")]; if (errors.length > 0) { throw new Error("Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(23): class ValidationError extends Error {} const errors: ValidationError[] = [new ValidationError(\"Invalid name.\")]; if (errors.length > 0) { throw new Error(\"Failed.\"); } 2`] = `
+
+Message:
+> 1 | class ValidationError extends Error {} const errors: ValidationError[] = [new ValidationError("Invalid name.")]; if (errors.length > 0) { throw new Error("Failed."); }
+    |                                                                                                                                                     ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | class ValidationError extends Error {} const errors: ValidationError[] = [new ValidationError("Invalid name.")]; if (errors.length > 0) { throw new AggregateError(errors, "Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(24): function foo(errors: readonly Error[]) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 1`] = `
+
+  1 | function foo(errors: readonly Error[]) { if (errors.length > 0) { throw new Error("Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(24): function foo(errors: readonly Error[]) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 2`] = `
+
+Message:
+> 1 | function foo(errors: readonly Error[]) { if (errors.length > 0) { throw new Error("Failed."); } }
+    |                                                                             ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | function foo(errors: readonly Error[]) { if (errors.length > 0) { throw new AggregateError(errors, "Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(25): function foo(errors: [first: Error, ...rest: TypeError[]]) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 1`] = `
+
+  1 | function foo(errors: [first: Error, ...rest: TypeError[]]) { if (errors.length > 0) { throw new Error("Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(25): function foo(errors: [first: Error, ...rest: TypeError[]]) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 2`] = `
+
+Message:
+> 1 | function foo(errors: [first: Error, ...rest: TypeError[]]) { if (errors.length > 0) { throw new Error("Failed."); } }
+    |                                                                                                 ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | function foo(errors: [first: Error, ...rest: TypeError[]]) { if (errors.length > 0) { throw new AggregateError(errors, "Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(26): function foo(errors: SuppressedError[]) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 1`] = `
+
+  1 | function foo(errors: SuppressedError[]) { if (errors.length > 0) { throw new Error("Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(26): function foo(errors: SuppressedError[]) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 2`] = `
+
+Message:
+> 1 | function foo(errors: SuppressedError[]) { if (errors.length > 0) { throw new Error("Failed."); } }
+    |                                                                              ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | function foo(errors: SuppressedError[]) { if (errors.length > 0) { throw new AggregateError(errors, "Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(27): function foo(errors: (Error & {code: string})[]) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 1`] = `
+
+  1 | function foo(errors: (Error & {code: string})[]) { if (errors.length > 0) { throw new Error("Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(27): function foo(errors: (Error & {code: string})[]) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 2`] = `
+
+Message:
+> 1 | function foo(errors: (Error & {code: string})[]) { if (errors.length > 0) { throw new Error("Failed."); } }
+    |                                                                                       ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | function foo(errors: (Error & {code: string})[]) { if (errors.length > 0) { throw new AggregateError(errors, "Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(28): function foo(errors: Error[] | TypeError[]) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 1`] = `
+
+  1 | function foo(errors: Error[] | TypeError[]) { if (errors.length > 0) { throw new Error("Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(28): function foo(errors: Error[] | TypeError[]) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 2`] = `
+
+Message:
+> 1 | function foo(errors: Error[] | TypeError[]) { if (errors.length > 0) { throw new Error("Failed."); } }
+    |                                                                                  ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | function foo(errors: Error[] | TypeError[]) { if (errors.length > 0) { throw new AggregateError(errors, "Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(29): function foo(errors: Error[] & {code: string}) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 1`] = `
+
+  1 | function foo(errors: Error[] & {code: string}) { if (errors.length > 0) { throw new Error("Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(29): function foo(errors: Error[] & {code: string}) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 2`] = `
+
+Message:
+> 1 | function foo(errors: Error[] & {code: string}) { if (errors.length > 0) { throw new Error("Failed."); } }
+    |                                                                                     ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | function foo(errors: Error[] & {code: string}) { if (errors.length > 0) { throw new AggregateError(errors, "Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(3): const errors: Error[] = [new Error(\"One failed.\")]; if (errors.length > 1) { throw new Error(\"Failed.\"); } 1`] = `
+
+  1 | const errors: Error[] = [new Error("One failed.")]; if (errors.length > 1) { throw new Error("Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(3): const errors: Error[] = [new Error(\"One failed.\")]; if (errors.length > 1) { throw new Error(\"Failed.\"); } 2`] = `
+
+Message:
+> 1 | const errors: Error[] = [new Error("One failed.")]; if (errors.length > 1) { throw new Error("Failed."); }
+    |                                                                                        ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | const errors: Error[] = [new Error("One failed.")]; if (errors.length > 1) { throw new AggregateError(errors, "Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(30): function foo(errors: Error[]) { if (1 <= errors.length) { throw new Error(\"Failed.\"); } } 1`] = `
+
+  1 | function foo(errors: Error[]) { if (1 <= errors.length) { throw new Error("Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(30): function foo(errors: Error[]) { if (1 <= errors.length) { throw new Error(\"Failed.\"); } } 2`] = `
+
+Message:
+> 1 | function foo(errors: Error[]) { if (1 <= errors.length) { throw new Error("Failed."); } }
+    |                                                                     ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | function foo(errors: Error[]) { if (1 <= errors.length) { throw new AggregateError(errors, "Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(31): declare function getErrors(): Array<Error | TypeError>; const errors = getErrors(); if (errors.length > 0) { throw new Error(\"Failed.\"); } 1`] = `
+
+Filename: file.ts
+
+  1 | declare function getErrors(): Array<Error | TypeError>; const errors = getErrors(); if (errors.length > 0) { throw new Error("Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(31): declare function getErrors(): Array<Error | TypeError>; const errors = getErrors(); if (errors.length > 0) { throw new Error(\"Failed.\"); } 2`] = `
+
+Message:
+> 1 | declare function getErrors(): Array<Error | TypeError>; const errors = getErrors(); if (errors.length > 0) { throw new Error("Failed."); }
+    |                                                                                                                        ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | declare function getErrors(): Array<Error | TypeError>; const errors = getErrors(); if (errors.length > 0) { throw new AggregateError(errors, "Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(32): declare function getErrors(): Array<Error & {code: string}>; const errors = getErrors(); if (errors.length > 0) { throw new Error(\"Failed.\"); } 1`] = `
+
+Filename: file.ts
+
+  1 | declare function getErrors(): Array<Error & {code: string}>; const errors = getErrors(); if (errors.length > 0) { throw new Error("Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(32): declare function getErrors(): Array<Error & {code: string}>; const errors = getErrors(); if (errors.length > 0) { throw new Error(\"Failed.\"); } 2`] = `
+
+Message:
+> 1 | declare function getErrors(): Array<Error & {code: string}>; const errors = getErrors(); if (errors.length > 0) { throw new Error("Failed."); }
+    |                                                                                                                             ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | declare function getErrors(): Array<Error & {code: string}>; const errors = getErrors(); if (errors.length > 0) { throw new AggregateError(errors, "Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(33): function foo<T extends Error>(errors: T[]) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo<T extends Error>(errors: T[]) { if (errors.length > 0) { throw new Error("Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(33): function foo<T extends Error>(errors: T[]) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 2`] = `
+
+Message:
+> 1 | function foo<T extends Error>(errors: T[]) { if (errors.length > 0) { throw new Error("Failed."); } }
+    |                                                                                 ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | function foo<T extends Error>(errors: T[]) { if (errors.length > 0) { throw new AggregateError(errors, "Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(34): declare function getErrors(): Error[] | TypeError[]; const errors = getErrors(); if (errors.length > 0) { throw new Error(\"Failed.\"); } 1`] = `
+
+Filename: file.ts
+
+  1 | declare function getErrors(): Error[] | TypeError[]; const errors = getErrors(); if (errors.length > 0) { throw new Error("Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(34): declare function getErrors(): Error[] | TypeError[]; const errors = getErrors(); if (errors.length > 0) { throw new Error(\"Failed.\"); } 2`] = `
+
+Message:
+> 1 | declare function getErrors(): Error[] | TypeError[]; const errors = getErrors(); if (errors.length > 0) { throw new Error("Failed."); }
+    |                                                                                                                     ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | declare function getErrors(): Error[] | TypeError[]; const errors = getErrors(); if (errors.length > 0) { throw new AggregateError(errors, "Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(35): declare function getErrors(): Error[] & {code: string}; const errors = getErrors(); if (errors.length > 0) { throw new Error(\"Failed.\"); } 1`] = `
+
+Filename: file.ts
+
+  1 | declare function getErrors(): Error[] & {code: string}; const errors = getErrors(); if (errors.length > 0) { throw new Error("Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(35): declare function getErrors(): Error[] & {code: string}; const errors = getErrors(); if (errors.length > 0) { throw new Error(\"Failed.\"); } 2`] = `
+
+Message:
+> 1 | declare function getErrors(): Error[] & {code: string}; const errors = getErrors(); if (errors.length > 0) { throw new Error("Failed."); }
+    |                                                                                                                        ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | declare function getErrors(): Error[] & {code: string}; const errors = getErrors(); if (errors.length > 0) { throw new AggregateError(errors, "Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(36): function foo<T extends Error[]>(errors: T) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo<T extends Error[]>(errors: T) { if (errors.length > 0) { throw new Error("Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(36): function foo<T extends Error[]>(errors: T) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 2`] = `
+
+Message:
+> 1 | function foo<T extends Error[]>(errors: T) { if (errors.length > 0) { throw new Error("Failed."); } }
+    |                                                                                 ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | function foo<T extends Error[]>(errors: T) { if (errors.length > 0) { throw new AggregateError(errors, "Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(37): export {}; declare global { var errors: Error[]; } if (errors.length > 0) { throw new Error(\"Failed.\"); } 1`] = `
+
+Filename: file.ts
+
+  1 | export {}; declare global { var errors: Error[]; } if (errors.length > 0) { throw new Error("Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(37): export {}; declare global { var errors: Error[]; } if (errors.length > 0) { throw new Error(\"Failed.\"); } 2`] = `
+
+Message:
+> 1 | export {}; declare global { var errors: Error[]; } if (errors.length > 0) { throw new Error("Failed."); }
+    |                                                                                       ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | export {}; declare global { var errors: Error[]; } if (errors.length > 0) { throw new AggregateError(errors, "Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(38): function foo(errors: AggregateError[]) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 1`] = `
+
+  1 | function foo(errors: AggregateError[]) { if (errors.length > 0) { throw new Error("Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(38): function foo(errors: AggregateError[]) { if (errors.length > 0) { throw new Error(\"Failed.\"); } } 2`] = `
+
+Message:
+> 1 | function foo(errors: AggregateError[]) { if (errors.length > 0) { throw new Error("Failed."); } }
+    |                                                                             ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | function foo(errors: AggregateError[]) { if (errors.length > 0) { throw new AggregateError(errors, "Failed."); } }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(4): const errors: Error[] = [new Error(\"One failed.\")]; if (errors.length !== 0) { throw new Error(\"Failed.\"); } 1`] = `
+
+  1 | const errors: Error[] = [new Error("One failed.")]; if (errors.length !== 0) { throw new Error("Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(4): const errors: Error[] = [new Error(\"One failed.\")]; if (errors.length !== 0) { throw new Error(\"Failed.\"); } 2`] = `
+
+Message:
+> 1 | const errors: Error[] = [new Error("One failed.")]; if (errors.length !== 0) { throw new Error("Failed."); }
+    |                                                                                          ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | const errors: Error[] = [new Error("One failed.")]; if (errors.length !== 0) { throw new AggregateError(errors, "Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(5): const errors: Error[] = [new Error(\"One failed.\")]; if (errors.length >= 1) { throw new Error(\"Failed.\"); } 1`] = `
+
+  1 | const errors: Error[] = [new Error("One failed.")]; if (errors.length >= 1) { throw new Error("Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(5): const errors: Error[] = [new Error(\"One failed.\")]; if (errors.length >= 1) { throw new Error(\"Failed.\"); } 2`] = `
+
+Message:
+> 1 | const errors: Error[] = [new Error("One failed.")]; if (errors.length >= 1) { throw new Error("Failed."); }
+    |                                                                                         ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | const errors: Error[] = [new Error("One failed.")]; if (errors.length >= 1) { throw new AggregateError(errors, "Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(6): const errors: Error[] = [new Error(\"One failed.\")]; if (errors.length >= 2) { throw new Error(\"Failed.\"); } 1`] = `
+
+  1 | const errors: Error[] = [new Error("One failed.")]; if (errors.length >= 2) { throw new Error("Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(6): const errors: Error[] = [new Error(\"One failed.\")]; if (errors.length >= 2) { throw new Error(\"Failed.\"); } 2`] = `
+
+Message:
+> 1 | const errors: Error[] = [new Error("One failed.")]; if (errors.length >= 2) { throw new Error("Failed."); }
+    |                                                                                         ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | const errors: Error[] = [new Error("One failed.")]; if (errors.length >= 2) { throw new AggregateError(errors, "Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(7): const errors: Error[] = [new Error(\"One failed.\")]; if (0 < errors.length) { throw new Error(\"Failed.\"); } 1`] = `
+
+  1 | const errors: Error[] = [new Error("One failed.")]; if (0 < errors.length) { throw new Error("Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(7): const errors: Error[] = [new Error(\"One failed.\")]; if (0 < errors.length) { throw new Error(\"Failed.\"); } 2`] = `
+
+Message:
+> 1 | const errors: Error[] = [new Error("One failed.")]; if (0 < errors.length) { throw new Error("Failed."); }
+    |                                                                                        ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | const errors: Error[] = [new Error("One failed.")]; if (0 < errors.length) { throw new AggregateError(errors, "Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(8): const errors: Error[] = [new Error(\"One failed.\")]; if (0 !== errors.length) { throw new Error(\"Failed.\"); } 1`] = `
+
+  1 | const errors: Error[] = [new Error("One failed.")]; if (0 !== errors.length) { throw new Error("Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(8): const errors: Error[] = [new Error(\"One failed.\")]; if (0 !== errors.length) { throw new Error(\"Failed.\"); } 2`] = `
+
+Message:
+> 1 | const errors: Error[] = [new Error("One failed.")]; if (0 !== errors.length) { throw new Error("Failed."); }
+    |                                                                                          ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | const errors: Error[] = [new Error("One failed.")]; if (0 !== errors.length) { throw new AggregateError(errors, "Failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(9): const validationErrors: TypeError[] = [new TypeError(\"Invalid name.\")]; if (validationErrors.length > 0) { throw new Error(\"Validation failed.\"); } 1`] = `
+
+  1 | const validationErrors: TypeError[] = [new TypeError("Invalid name.")]; if (validationErrors.length > 0) { throw new Error("Validation failed."); }
+
+`;
+
+exports[`prefer-aggregate-error > invalid(9): const validationErrors: TypeError[] = [new TypeError(\"Invalid name.\")]; if (validationErrors.length > 0) { throw new Error(\"Validation failed.\"); } 2`] = `
+
+Message:
+> 1 | const validationErrors: TypeError[] = [new TypeError("Invalid name.")]; if (validationErrors.length > 0) { throw new Error("Validation failed."); }
+    |                                                                                                                      ^^^^^ Use \`AggregateError\` when throwing collected errors.
+
+Output:
+  1 | const validationErrors: TypeError[] = [new TypeError("Invalid name.")]; if (validationErrors.length > 0) { throw new AggregateError(validationErrors, "Validation failed."); }
+
+`;

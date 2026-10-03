@@ -1,0 +1,1647 @@
+exports[`prefer-hoisting-branch-code > invalid(1): if (a) { foo(); cleanup(); } else { bar(); cleanup(); } 1`] = `
+
+  1 | if (a) { foo(); cleanup(); } else { bar(); cleanup(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(1): if (a) { foo(); cleanup(); } else { bar(); cleanup(); } 2`] = `
+
+Message:
+> 1 | if (a) { foo(); cleanup(); } else { bar(); cleanup(); }
+    |                 ^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+Output:
+  1 | if (a) { foo(); } else { bar(); }
+  2 | cleanup();
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(10): if (counter === 0) { counter += 1; first(); } else if (counter === 1) { counter += 1; second(); } else { counter += 1; other(); } 1`] = `
+
+  1 | if (counter === 0) { counter += 1; first(); } else if (counter === 1) { counter += 1; second(); } else { counter += 1; other(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(10): if (counter === 0) { counter += 1; first(); } else if (counter === 1) { counter += 1; second(); } else { counter += 1; other(); } 2`] = `
+
+Message:
+> 1 | if (counter === 0) { counter += 1; first(); } else if (counter === 1) { counter += 1; second(); } else { counter += 1; other(); }
+    |                      ^^^^^^^^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Suggestion 1/1: Move the shared code out of the branches.:
+  1 | counter += 1;
+  2 | if (counter === 0) { first(); } else if (counter === 1) { second(); } else { other(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(11): if (initialize()) { ready; foo(); } else { ready; bar(); } 1`] = `
+
+  1 | if (initialize()) { ready; foo(); } else { ready; bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(11): if (initialize()) { ready; foo(); } else { ready; bar(); } 2`] = `
+
+Message:
+> 1 | if (initialize()) { ready; foo(); } else { ready; bar(); }
+    |                     ^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Suggestion 1/1: Move the shared code out of the branches.:
+  1 | ready;
+  2 | if (initialize()) { foo(); } else { bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(12): if (initialize\`x\`) { ready; foo(); } else { ready; bar(); } 1`] = `
+
+  1 | if (initialize\`x\`) { ready; foo(); } else { ready; bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(12): if (initialize\`x\`) { ready; foo(); } else { ready; bar(); } 2`] = `
+
+Message:
+> 1 | if (initialize\`x\`) { ready; foo(); } else { ready; bar(); }
+    |                      ^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Suggestion 1/1: Move the shared code out of the branches.:
+  1 | ready;
+  2 | if (initialize\`x\`) { foo(); } else { bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(13): if (ready) { value; foo(); } else if (initialize()) { value; bar(); } else { value; baz(); } 1`] = `
+
+  1 | if (ready) { value; foo(); } else if (initialize()) { value; bar(); } else { value; baz(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(13): if (ready) { value; foo(); } else if (initialize()) { value; bar(); } else { value; baz(); } 2`] = `
+
+Message:
+> 1 | if (ready) { value; foo(); } else if (initialize()) { value; bar(); } else { value; baz(); }
+    |              ^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Suggestion 1/1: Move the shared code out of the branches.:
+  1 | value;
+  2 | if (ready) { foo(); } else if (initialize()) { bar(); } else { baz(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(14): if (ready) { initialize\`x\`; foo(); } else { initialize\`x\`; bar(); } 1`] = `
+
+  1 | if (ready) { initialize\`x\`; foo(); } else { initialize\`x\`; bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(14): if (ready) { initialize\`x\`; foo(); } else { initialize\`x\`; bar(); } 2`] = `
+
+Message:
+> 1 | if (ready) { initialize\`x\`; foo(); } else { initialize\`x\`; bar(); }
+    |              ^^^^^^^^^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Suggestion 1/1: Move the shared code out of the branches.:
+  1 | initialize\`x\`;
+  2 | if (ready) { foo(); } else { bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(15): if (a) { x; foo(); } else { x; bar(); } 1`] = `
+
+  1 | if (a) { x; foo(); } else { x; bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(15): if (a) { x; foo(); } else { x; bar(); } 2`] = `
+
+Message:
+> 1 | if (a) { x; foo(); } else { x; bar(); }
+    |          ^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Output:
+  1 | x;
+  2 | if (a) { foo(); } else { bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(16): if (a) { x\nfoo(); } else { x; bar(); } 1`] = `
+
+  1 | if (a) { x
+  2 | foo(); } else { x; bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(16): if (a) { x\nfoo(); } else { x; bar(); } 2`] = `
+
+Message:
+> 1 | if (a) { x
+    |          ^ These branches start with the same code. Move it before the \`if\` statement.
+  2 | foo(); } else { x; bar(); }
+
+Output:
+  1 | x
+  2 | if (a) { foo(); } else { bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(17): if (a) { x; y; foo(); } else { x; y; bar(); } 1`] = `
+
+  1 | if (a) { x; y; foo(); } else { x; y; bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(17): if (a) { x; y; foo(); } else { x; y; bar(); } 2`] = `
+
+Message:
+> 1 | if (a) { x; y; foo(); } else { x; y; bar(); }
+    |          ^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Output:
+  1 | x; y;
+  2 | if (a) { foo(); } else { bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(18): foo\nif (a) { [x]; bar(); } else { [x]; baz(); } 1`] = `
+
+  1 | foo
+  2 | if (a) { [x]; bar(); } else { [x]; baz(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(18): foo\nif (a) { [x]; bar(); } else { [x]; baz(); } 2`] = `
+
+Message:
+  1 | foo
+> 2 | if (a) { [x]; bar(); } else { [x]; baz(); }
+    |          ^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Output:
+  1 | foo
+  2 | ;[x];
+  3 | if (a) { bar(); } else { baz(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(19): function f() { if (missing) { return x; foo(); } else { return x; bar(); } } 1`] = `
+
+  1 | function f() { if (missing) { return x; foo(); } else { return x; bar(); } }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(19): function f() { if (missing) { return x; foo(); } else { return x; bar(); } } 2`] = `
+
+Message:
+> 1 | function f() { if (missing) { return x; foo(); } else { return x; bar(); } }
+    |                               ^^^^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Suggestion 1/1: Move the shared code out of the branches.:
+  1 | function f() { return x;
+  2 |  if (missing) { foo(); } else { bar(); } }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(2): class C {\n\tstatic {\n\t\tif (a) {\n\t\t\tfoo();\n\t\t\tcleanup();\n\t\t} else {\n\t\t\tbar();\n\t\t\tcleanup();\n\t\t}\n\t}\n} 1`] = `
+
+   1 | class C {
+   2 | 	static {
+   3 | 		if (a) {
+   4 | 			foo();
+   5 | 			cleanup();
+   6 | 		} else {
+   7 | 			bar();
+   8 | 			cleanup();
+   9 | 		}
+  10 | 	}
+  11 | }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(2): class C {\n\tstatic {\n\t\tif (a) {\n\t\t\tfoo();\n\t\t\tcleanup();\n\t\t} else {\n\t\t\tbar();\n\t\t\tcleanup();\n\t\t}\n\t}\n} 2`] = `
+
+Message:
+   1 | class C {
+   2 | 	static {
+   3 | 		if (a) {
+   4 | 			foo();
+>  5 | 			cleanup();
+     | 			^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+   6 | 		} else {
+   7 | 			bar();
+   8 | 			cleanup();
+   9 | 		}
+  10 | 	}
+  11 | }
+
+Output:
+   1 | class C {
+   2 | 	static {
+   3 | 		if (a) {
+   4 | 			foo();
+   5 | 		} else {
+   6 | 			bar();
+   7 | 		}
+   8 | 		cleanup();
+   9 | 	}
+  10 | }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(20): while (condition) { if (a) { break; foo(); } else { break; bar(); } } 1`] = `
+
+  1 | while (condition) { if (a) { break; foo(); } else { break; bar(); } }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(20): while (condition) { if (a) { break; foo(); } else { break; bar(); } } 2`] = `
+
+Message:
+> 1 | while (condition) { if (a) { break; foo(); } else { break; bar(); } }
+    |                              ^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Suggestion 1/1: Move the shared code out of the branches.:
+  1 | while (condition) { break;
+  2 |  if (a) { foo(); } else { bar(); } }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(21): while (condition) { if (a) { continue; foo(); } else { continue; bar(); } } 1`] = `
+
+  1 | while (condition) { if (a) { continue; foo(); } else { continue; bar(); } }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(21): while (condition) { if (a) { continue; foo(); } else { continue; bar(); } } 2`] = `
+
+Message:
+> 1 | while (condition) { if (a) { continue; foo(); } else { continue; bar(); } }
+    |                              ^^^^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Suggestion 1/1: Move the shared code out of the branches.:
+  1 | while (condition) { continue;
+  2 |  if (a) { foo(); } else { bar(); } }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(22): function f() { if (missing) { if (ready) { return x; } foo(); } else { if (ready) { return x; } bar(); } } 1`] = `
+
+  1 | function f() { if (missing) { if (ready) { return x; } foo(); } else { if (ready) { return x; } bar(); } }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(22): function f() { if (missing) { if (ready) { return x; } foo(); } else { if (ready) { return x; } bar(); } } 2`] = `
+
+Message:
+> 1 | function f() { if (missing) { if (ready) { return x; } foo(); } else { if (ready) { return x; } bar(); } }
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Suggestion 1/1: Move the shared code out of the branches.:
+  1 | function f() { if (ready) { return x; }
+  2 |  if (missing) { foo(); } else { bar(); } }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(23): if (a) { setup(); foo(); teardown(); } else { setup(); bar(); teardown(); } 1`] = `
+
+  1 | if (a) { setup(); foo(); teardown(); } else { setup(); bar(); teardown(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(23): if (a) { setup(); foo(); teardown(); } else { setup(); bar(); teardown(); } 2`] = `
+
+Message:
+> 1 | if (a) { setup(); foo(); teardown(); } else { setup(); bar(); teardown(); }
+    |          ^^^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Suggestion 1/1: Move the shared code out of the branches.:
+  1 | setup();
+  2 | if (a) { foo(); teardown(); } else { bar(); teardown(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(23): if (a) { setup(); foo(); teardown(); } else { setup(); bar(); teardown(); } 3`] = `
+
+Message:
+> 1 | if (a) { setup(); foo(); teardown(); } else { setup(); bar(); teardown(); }
+    |                          ^^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+Output:
+  1 | if (a) { setup(); foo(); } else { setup(); bar(); }
+  2 | teardown();
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(24): if (a) { x; foo(); y; } else { x; bar(); y; } 1`] = `
+
+  1 | if (a) { x; foo(); y; } else { x; bar(); y; }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(24): if (a) { x; foo(); y; } else { x; bar(); y; } 2`] = `
+
+Message:
+> 1 | if (a) { x; foo(); y; } else { x; bar(); y; }
+    |          ^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Output:
+  1 | x;
+  2 | if (a) { foo(); y; } else { bar(); y; }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(24): if (a) { x; foo(); y; } else { x; bar(); y; } 3`] = `
+
+Message:
+> 1 | if (a) { x; foo(); y; } else { x; bar(); y; }
+    |                    ^^ These branches end with the same code. Move it after the \`if\` statement.
+
+Output:
+  1 | if (a) { x; foo(); } else { x; bar(); }
+  2 | y;
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(25): while (condition) if (a) { foo(); cleanup(); } else { bar(); cleanup(); } 1`] = `
+
+  1 | while (condition) if (a) { foo(); cleanup(); } else { bar(); cleanup(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(25): while (condition) if (a) { foo(); cleanup(); } else { bar(); cleanup(); } 2`] = `
+
+Message:
+> 1 | while (condition) if (a) { foo(); cleanup(); } else { bar(); cleanup(); }
+    |                                   ^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(26): while (condition) if (a) { x; foo(); } else { x; bar(); } 1`] = `
+
+  1 | while (condition) if (a) { x; foo(); } else { x; bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(26): while (condition) if (a) { x; foo(); } else { x; bar(); } 2`] = `
+
+Message:
+> 1 | while (condition) if (a) { x; foo(); } else { x; bar(); }
+    |                            ^^ These branches start with the same code. Move it before the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(27): /* istanbul ignore next */ if (a) { x; foo(); } else { x; bar(); } 1`] = `
+
+  1 | /* istanbul ignore next */ if (a) { x; foo(); } else { x; bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(27): /* istanbul ignore next */ if (a) { x; foo(); } else { x; bar(); } 2`] = `
+
+Message:
+> 1 | /* istanbul ignore next */ if (a) { x; foo(); } else { x; bar(); }
+    |                                     ^^ These branches start with the same code. Move it before the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(28): previous(); /* istanbul ignore next */ if (a) { x; foo(); } else { x; bar(); } 1`] = `
+
+  1 | previous(); /* istanbul ignore next */ if (a) { x; foo(); } else { x; bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(28): previous(); /* istanbul ignore next */ if (a) { x; foo(); } else { x; bar(); } 2`] = `
+
+Message:
+> 1 | previous(); /* istanbul ignore next */ if (a) { x; foo(); } else { x; bar(); }
+    |                                                 ^^ These branches start with the same code. Move it before the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(29): if (a) { const x = 1; use(x); } else { const x = 2; use(x); } 1`] = `
+
+  1 | if (a) { const x = 1; use(x); } else { const x = 2; use(x); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(29): if (a) { const x = 1; use(x); } else { const x = 2; use(x); } 2`] = `
+
+Message:
+> 1 | if (a) { const x = 1; use(x); } else { const x = 2; use(x); }
+    |                       ^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(3): switch (value) {\n\tcase 1:\n\t\tif (a) {\n\t\t\tfoo();\n\t\t\tcleanup();\n\t\t} else {\n\t\t\tbar();\n\t\t\tcleanup();\n\t\t}\n} 1`] = `
+
+   1 | switch (value) {
+   2 | 	case 1:
+   3 | 		if (a) {
+   4 | 			foo();
+   5 | 			cleanup();
+   6 | 		} else {
+   7 | 			bar();
+   8 | 			cleanup();
+   9 | 		}
+  10 | }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(3): switch (value) {\n\tcase 1:\n\t\tif (a) {\n\t\t\tfoo();\n\t\t\tcleanup();\n\t\t} else {\n\t\t\tbar();\n\t\t\tcleanup();\n\t\t}\n} 2`] = `
+
+Message:
+   1 | switch (value) {
+   2 | 	case 1:
+   3 | 		if (a) {
+   4 | 			foo();
+>  5 | 			cleanup();
+     | 			^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+   6 | 		} else {
+   7 | 			bar();
+   8 | 			cleanup();
+   9 | 		}
+  10 | }
+
+Output:
+  1 | switch (value) {
+  2 | 	case 1:
+  3 | 		if (a) {
+  4 | 			foo();
+  5 | 		} else {
+  6 | 			bar();
+  7 | 		}
+  8 | 		cleanup();
+  9 | }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(30): if (a) { const {x} = objectA; useA(); cleanup(x); } else { const {x} = objectB; useB(); cleanup(x); } 1`] = `
+
+  1 | if (a) { const {x} = objectA; useA(); cleanup(x); } else { const {x} = objectB; useB(); cleanup(x); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(30): if (a) { const {x} = objectA; useA(); cleanup(x); } else { const {x} = objectB; useB(); cleanup(x); } 2`] = `
+
+Message:
+> 1 | if (a) { const {x} = objectA; useA(); cleanup(x); } else { const {x} = objectB; useB(); cleanup(x); }
+    |                                       ^^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(31): if (a) { useA(); function helper() {} doA(); helper(); } else { useB(); function helper() {} doB(); helper(); } 1`] = `
+
+  1 | if (a) { useA(); function helper() {} doA(); helper(); } else { useB(); function helper() {} doB(); helper(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(31): if (a) { useA(); function helper() {} doA(); helper(); } else { useB(); function helper() {} doB(); helper(); } 2`] = `
+
+Message:
+> 1 | if (a) { useA(); function helper() {} doA(); helper(); } else { useB(); function helper() {} doB(); helper(); }
+    |                                              ^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(32): if (a) { const x = 1; foo(); } else { const x = 1; bar(); } 1`] = `
+
+  1 | if (a) { const x = 1; foo(); } else { const x = 1; bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(32): if (a) { const x = 1; foo(); } else { const x = 1; bar(); } 2`] = `
+
+Message:
+> 1 | if (a) { const x = 1; foo(); } else { const x = 1; bar(); }
+    |          ^^^^^^^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(33): if (a) { foo(); const x = compute(); } else { bar(); const x = compute(); } 1`] = `
+
+  1 | if (a) { foo(); const x = compute(); } else { bar(); const x = compute(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(33): if (a) { foo(); const x = compute(); } else { bar(); const x = compute(); } 2`] = `
+
+Message:
+> 1 | if (a) { foo(); const x = compute(); } else { bar(); const x = compute(); }
+    |                 ^^^^^^^^^^^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(34): if (a) { using resource = a(); work(); cleanup(); } else { using resource = b(); work(); cleanup(); } 1`] = `
+
+  1 | if (a) { using resource = a(); work(); cleanup(); } else { using resource = b(); work(); cleanup(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(34): if (a) { using resource = a(); work(); cleanup(); } else { using resource = b(); work(); cleanup(); } 2`] = `
+
+Message:
+> 1 | if (a) { using resource = a(); work(); cleanup(); } else { using resource = b(); work(); cleanup(); }
+    |                                ^^^^^^^^^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(35): async function f() { if (a) { await using resource = a(); work(); cleanup(); } else { await using resource = b(); work(); cleanup(); } } 1`] = `
+
+  1 | async function f() { if (a) { await using resource = a(); work(); cleanup(); } else { await using resource = b(); work(); cleanup(); } }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(35): async function f() { if (a) { await using resource = a(); work(); cleanup(); } else { await using resource = b(); work(); cleanup(); } } 2`] = `
+
+Message:
+> 1 | async function f() { if (a) { await using resource = a(); work(); cleanup(); } else { await using resource = b(); work(); cleanup(); } }
+    |                                                           ^^^^^^^^^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(36): if (a) { /* istanbul ignore next */ x; foo(); } else { /* istanbul ignore next */ x; bar(); } 1`] = `
+
+  1 | if (a) { /* istanbul ignore next */ x; foo(); } else { /* istanbul ignore next */ x; bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(36): if (a) { /* istanbul ignore next */ x; foo(); } else { /* istanbul ignore next */ x; bar(); } 2`] = `
+
+Message:
+> 1 | if (a) { /* istanbul ignore next */ x; foo(); } else { /* istanbul ignore next */ x; bar(); }
+    |                                     ^^ These branches start with the same code. Move it before the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(37): if (a) { x; foo(); } else { /* istanbul ignore next */ x; bar(); } 1`] = `
+
+  1 | if (a) { x; foo(); } else { /* istanbul ignore next */ x; bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(37): if (a) { x; foo(); } else { /* istanbul ignore next */ x; bar(); } 2`] = `
+
+Message:
+> 1 | if (a) { x; foo(); } else { /* istanbul ignore next */ x; bar(); }
+    |          ^^ These branches start with the same code. Move it before the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(38): if (a) { x; foo(); } else if (b) { /* istanbul ignore next */ x; bar(); } else { x; baz(); } 1`] = `
+
+  1 | if (a) { x; foo(); } else if (b) { /* istanbul ignore next */ x; bar(); } else { x; baz(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(38): if (a) { x; foo(); } else if (b) { /* istanbul ignore next */ x; bar(); } else { x; baz(); } 2`] = `
+
+Message:
+> 1 | if (a) { x; foo(); } else if (b) { /* istanbul ignore next */ x; bar(); } else { x; baz(); }
+    |          ^^ These branches start with the same code. Move it before the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(39): if (a) { x; /* keep */ foo(); } else { x; bar(); } 1`] = `
+
+  1 | if (a) { x; /* keep */ foo(); } else { x; bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(39): if (a) { x; /* keep */ foo(); } else { x; bar(); } 2`] = `
+
+Message:
+> 1 | if (a) { x; /* keep */ foo(); } else { x; bar(); }
+    |          ^^ These branches start with the same code. Move it before the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(4): class C {\n\tstatic {\n\t\tif (a) {\n\t\t\tx;\n\t\t\tfoo();\n\t\t} else {\n\t\t\tx;\n\t\t\tbar();\n\t\t}\n\t}\n} 1`] = `
+
+   1 | class C {
+   2 | 	static {
+   3 | 		if (a) {
+   4 | 			x;
+   5 | 			foo();
+   6 | 		} else {
+   7 | 			x;
+   8 | 			bar();
+   9 | 		}
+  10 | 	}
+  11 | }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(4): class C {\n\tstatic {\n\t\tif (a) {\n\t\t\tx;\n\t\t\tfoo();\n\t\t} else {\n\t\t\tx;\n\t\t\tbar();\n\t\t}\n\t}\n} 2`] = `
+
+Message:
+   1 | class C {
+   2 | 	static {
+   3 | 		if (a) {
+>  4 | 			x;
+     | 			^^ These branches start with the same code. Move it before the \`if\` statement.
+   5 | 			foo();
+   6 | 		} else {
+   7 | 			x;
+   8 | 			bar();
+   9 | 		}
+  10 | 	}
+  11 | }
+
+Output:
+   1 | class C {
+   2 | 	static {
+   3 | 		x;
+   4 | 		if (a) {
+   5 | 			foo();
+   6 | 		} else {
+   7 | 			bar();
+   8 | 		}
+   9 | 	}
+  10 | }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(40): if (a) { x; /* keep */ y; foo(); } else { x; y; bar(); } 1`] = `
+
+  1 | if (a) { x; /* keep */ y; foo(); } else { x; y; bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(40): if (a) { x; /* keep */ y; foo(); } else { x; y; bar(); } 2`] = `
+
+Message:
+> 1 | if (a) { x; /* keep */ y; foo(); } else { x; y; bar(); }
+    |          ^^^^^^^^^^^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(41): if (a) { x /* keep */; foo(); } else { x; bar(); } 1`] = `
+
+  1 | if (a) { x /* keep */; foo(); } else { x; bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(41): if (a) { x /* keep */; foo(); } else { x; bar(); } 2`] = `
+
+Message:
+> 1 | if (a) { x /* keep */; foo(); } else { x; bar(); }
+    |          ^^^^^^^^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(42): if (a) { foo(); cleanup(); } else { bar(); /* keep */ cleanup(); } 1`] = `
+
+  1 | if (a) { foo(); cleanup(); } else { bar(); /* keep */ cleanup(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(42): if (a) { foo(); cleanup(); } else { bar(); /* keep */ cleanup(); } 2`] = `
+
+Message:
+> 1 | if (a) { foo(); cleanup(); } else { bar(); /* keep */ cleanup(); }
+    |                 ^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(43): if (a) { foo(); cleanup(); /* keep */ } else { bar(); cleanup(); /* keep */ } 1`] = `
+
+  1 | if (a) { foo(); cleanup(); /* keep */ } else { bar(); cleanup(); /* keep */ }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(43): if (a) { foo(); cleanup(); /* keep */ } else { bar(); cleanup(); /* keep */ } 2`] = `
+
+Message:
+> 1 | if (a) { foo(); cleanup(); /* keep */ } else { bar(); cleanup(); /* keep */ }
+    |                 ^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(44): if (a) {\n\tfoo();\n\tcleanup(); // keep\n} else {\n\tbar();\n\tcleanup();\n} 1`] = `
+
+  1 | if (a) {
+  2 | 	foo();
+  3 | 	cleanup(); // keep
+  4 | } else {
+  5 | 	bar();
+  6 | 	cleanup();
+  7 | }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(44): if (a) {\n\tfoo();\n\tcleanup(); // keep\n} else {\n\tbar();\n\tcleanup();\n} 2`] = `
+
+Message:
+  1 | if (a) {
+  2 | 	foo();
+> 3 | 	cleanup(); // keep
+    | 	^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+  4 | } else {
+  5 | 	bar();
+  6 | 	cleanup();
+  7 | }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(45): if (a) {\n\tfoo();\n\tcleanup();\n} else {\n\tbar();\n\tcleanup(); // keep\n} 1`] = `
+
+  1 | if (a) {
+  2 | 	foo();
+  3 | 	cleanup();
+  4 | } else {
+  5 | 	bar();
+  6 | 	cleanup(); // keep
+  7 | }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(45): if (a) {\n\tfoo();\n\tcleanup();\n} else {\n\tbar();\n\tcleanup(); // keep\n} 2`] = `
+
+Message:
+  1 | if (a) {
+  2 | 	foo();
+> 3 | 	cleanup();
+    | 	^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+  4 | } else {
+  5 | 	bar();
+  6 | 	cleanup(); // keep
+  7 | }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(46): if (a) { foo(); save(); cleanup(); /* keep */ } else { bar(); save(); cleanup(); } 1`] = `
+
+  1 | if (a) { foo(); save(); cleanup(); /* keep */ } else { bar(); save(); cleanup(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(46): if (a) { foo(); save(); cleanup(); /* keep */ } else { bar(); save(); cleanup(); } 2`] = `
+
+Message:
+> 1 | if (a) { foo(); save(); cleanup(); /* keep */ } else { bar(); save(); cleanup(); }
+    |                 ^^^^^^^^^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(47): if (a) { foo(); save(); /* keep */ cleanup(); } else { bar(); save(); cleanup(); } 1`] = `
+
+  1 | if (a) { foo(); save(); /* keep */ cleanup(); } else { bar(); save(); cleanup(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(47): if (a) { foo(); save(); /* keep */ cleanup(); } else { bar(); save(); cleanup(); } 2`] = `
+
+Message:
+> 1 | if (a) { foo(); save(); /* keep */ cleanup(); } else { bar(); save(); cleanup(); }
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(48): if (a) { foo(); save(); cleanup(); } else if (b) { bar(); save(); cleanup(); /* keep */ } else { baz(); save(); cleanup(); } 1`] = `
+
+  1 | if (a) { foo(); save(); cleanup(); } else if (b) { bar(); save(); cleanup(); /* keep */ } else { baz(); save(); cleanup(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(48): if (a) { foo(); save(); cleanup(); } else if (b) { bar(); save(); cleanup(); /* keep */ } else { baz(); save(); cleanup(); } 2`] = `
+
+Message:
+> 1 | if (a) { foo(); save(); cleanup(); } else if (b) { bar(); save(); cleanup(); /* keep */ } else { baz(); save(); cleanup(); }
+    |                 ^^^^^^^^^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(49): if (a) { foo(); cleanup(); } else { bar(); cleanup(); } /* istanbul ignore next */ next(); 1`] = `
+
+  1 | if (a) { foo(); cleanup(); } else { bar(); cleanup(); } /* istanbul ignore next */ next();
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(49): if (a) { foo(); cleanup(); } else { bar(); cleanup(); } /* istanbul ignore next */ next(); 2`] = `
+
+Message:
+> 1 | if (a) { foo(); cleanup(); } else { bar(); cleanup(); } /* istanbul ignore next */ next();
+    |                 ^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(5): switch (value) {\n\tcase 1:\n\t\tif (a) {\n\t\t\tx;\n\t\t\tfoo();\n\t\t} else {\n\t\t\tx;\n\t\t\tbar();\n\t\t}\n} 1`] = `
+
+   1 | switch (value) {
+   2 | 	case 1:
+   3 | 		if (a) {
+   4 | 			x;
+   5 | 			foo();
+   6 | 		} else {
+   7 | 			x;
+   8 | 			bar();
+   9 | 		}
+  10 | }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(5): switch (value) {\n\tcase 1:\n\t\tif (a) {\n\t\t\tx;\n\t\t\tfoo();\n\t\t} else {\n\t\t\tx;\n\t\t\tbar();\n\t\t}\n} 2`] = `
+
+Message:
+   1 | switch (value) {
+   2 | 	case 1:
+   3 | 		if (a) {
+>  4 | 			x;
+     | 			^^ These branches start with the same code. Move it before the \`if\` statement.
+   5 | 			foo();
+   6 | 		} else {
+   7 | 			x;
+   8 | 			bar();
+   9 | 		}
+  10 | }
+
+Output:
+  1 | switch (value) {
+  2 | 	case 1:
+  3 | 		x;
+  4 | 		if (a) {
+  5 | 			foo();
+  6 | 		} else {
+  7 | 			bar();
+  8 | 		}
+  9 | }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(50): if (a) {\n\tfoo();\n\tcleanup();\n} else {\n\tbar();\n\tcleanup();\n} // istanbul ignore next\nnext(); 1`] = `
+
+  1 | if (a) {
+  2 | 	foo();
+  3 | 	cleanup();
+  4 | } else {
+  5 | 	bar();
+  6 | 	cleanup();
+  7 | } // istanbul ignore next
+  8 | next();
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(50): if (a) {\n\tfoo();\n\tcleanup();\n} else {\n\tbar();\n\tcleanup();\n} // istanbul ignore next\nnext(); 2`] = `
+
+Message:
+  1 | if (a) {
+  2 | 	foo();
+> 3 | 	cleanup();
+    | 	^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+  4 | } else {
+  5 | 	bar();
+  6 | 	cleanup();
+  7 | } // istanbul ignore next
+  8 | next();
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(51): if (a) {\n\tfoo();\n\tcleanup();\n} else {\n\tbar();\n\tcleanup();\n}\n/* istanbul ignore next */\nnext(); 1`] = `
+
+  1 | if (a) {
+  2 | 	foo();
+  3 | 	cleanup();
+  4 | } else {
+  5 | 	bar();
+  6 | 	cleanup();
+  7 | }
+  8 | /* istanbul ignore next */
+  9 | next();
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(51): if (a) {\n\tfoo();\n\tcleanup();\n} else {\n\tbar();\n\tcleanup();\n}\n/* istanbul ignore next */\nnext(); 2`] = `
+
+Message:
+  1 | if (a) {
+  2 | 	foo();
+> 3 | 	cleanup();
+    | 	^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+  4 | } else {
+  5 | 	bar();
+  6 | 	cleanup();
+  7 | }
+  8 | /* istanbul ignore next */
+  9 | next();
+
+Output:
+  1 | if (a) {
+  2 | 	foo();
+  3 | } else {
+  4 | 	bar();
+  5 | }
+  6 | cleanup();
+  7 | /* istanbul ignore next */
+  8 | next();
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(52): if (a) { const x = 1; useA(x); cleanup(); } else { const y = 2; useB(y); cleanup(); } 1`] = `
+
+  1 | if (a) { const x = 1; useA(x); cleanup(); } else { const y = 2; useB(y); cleanup(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(52): if (a) { const x = 1; useA(x); cleanup(); } else { const y = 2; useB(y); cleanup(); } 2`] = `
+
+Message:
+> 1 | if (a) { const x = 1; useA(x); cleanup(); } else { const y = 2; useB(y); cleanup(); }
+    |                                ^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+Output:
+  1 | if (a) { const x = 1; useA(x); } else { const y = 2; useB(y); }
+  2 | cleanup();
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(53): if (a) { const x = 1; useA(); cleanup(() => x); } else { const x = 2; useB(); cleanup(() => x); } 1`] = `
+
+  1 | if (a) { const x = 1; useA(); cleanup(() => x); } else { const x = 2; useB(); cleanup(() => x); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(53): if (a) { const x = 1; useA(); cleanup(() => x); } else { const x = 2; useB(); cleanup(() => x); } 2`] = `
+
+Message:
+> 1 | if (a) { const x = 1; useA(); cleanup(() => x); } else { const x = 2; useB(); cleanup(() => x); }
+    |                               ^^^^^^^^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(54): if (a) { start(); a1(); end(); } else if (b) { start(); b1(); end(); } else { start(); c1(); end(); } 1`] = `
+
+  1 | if (a) { start(); a1(); end(); } else if (b) { start(); b1(); end(); } else { start(); c1(); end(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(54): if (a) { start(); a1(); end(); } else if (b) { start(); b1(); end(); } else { start(); c1(); end(); } 2`] = `
+
+Message:
+> 1 | if (a) { start(); a1(); end(); } else if (b) { start(); b1(); end(); } else { start(); c1(); end(); }
+    |          ^^^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Suggestion 1/1: Move the shared code out of the branches.:
+  1 | start();
+  2 | if (a) { a1(); end(); } else if (b) { b1(); end(); } else { c1(); end(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(54): if (a) { start(); a1(); end(); } else if (b) { start(); b1(); end(); } else { start(); c1(); end(); } 3`] = `
+
+Message:
+> 1 | if (a) { start(); a1(); end(); } else if (b) { start(); b1(); end(); } else { start(); c1(); end(); }
+    |                         ^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+Output:
+  1 | if (a) { start(); a1(); } else if (b) { start(); b1(); } else { start(); c1(); }
+  2 | end();
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(55): function f() { if (a) { foo(); return x as Bar; } else { bar(); return x as Bar; } } 1`] = `
+
+  1 | function f() { if (a) { foo(); return x as Bar; } else { bar(); return x as Bar; } }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(55): function f() { if (a) { foo(); return x as Bar; } else { bar(); return x as Bar; } } 2`] = `
+
+Message:
+> 1 | function f() { if (a) { foo(); return x as Bar; } else { bar(); return x as Bar; } }
+    |                                ^^^^^^^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+Output:
+  1 | function f() { if (a) { foo(); } else { bar(); }
+  2 |  return x as Bar; }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(56): if (a) { value!; foo(); } else { value!; bar(); } 1`] = `
+
+  1 | if (a) { value!; foo(); } else { value!; bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(56): if (a) { value!; foo(); } else { value!; bar(); } 2`] = `
+
+Message:
+> 1 | if (a) { value!; foo(); } else { value!; bar(); }
+    |          ^^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Output:
+  1 | value!;
+  2 | if (a) { foo(); } else { bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(57): if (a) { value satisfies Foo; foo(); } else { value satisfies Foo; bar(); } 1`] = `
+
+  1 | if (a) { value satisfies Foo; foo(); } else { value satisfies Foo; bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(57): if (a) { value satisfies Foo; foo(); } else { value satisfies Foo; bar(); } 2`] = `
+
+Message:
+> 1 | if (a) { value satisfies Foo; foo(); } else { value satisfies Foo; bar(); }
+    |          ^^^^^^^^^^^^^^^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Output:
+  1 | value satisfies Foo;
+  2 | if (a) { foo(); } else { bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(58): if (a) {\n\tfoo();\n\tcleanup();\n} else {\n\tbar();\n\tcleanup();\n} 1`] = `
+
+  1 | if (a) {
+  2 | 	foo();
+  3 | 	cleanup();
+  4 | } else {
+  5 | 	bar();
+  6 | 	cleanup();
+  7 | }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(58): if (a) {\n\tfoo();\n\tcleanup();\n} else {\n\tbar();\n\tcleanup();\n} 2`] = `
+
+Message:
+  1 | if (a) {
+  2 | 	foo();
+> 3 | 	cleanup();
+    | 	^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+  4 | } else {
+  5 | 	bar();
+  6 | 	cleanup();
+  7 | }
+
+Output:
+  1 | if (a) {
+  2 | 	foo();
+  3 | } else {
+  4 | 	bar();
+  5 | }
+  6 | cleanup();
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(59): if (a) {\n\tx;\n\tfoo();\n} else {\n\tx;\n\tbar();\n} 1`] = `
+
+  1 | if (a) {
+  2 | 	x;
+  3 | 	foo();
+  4 | } else {
+  5 | 	x;
+  6 | 	bar();
+  7 | }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(59): if (a) {\n\tx;\n\tfoo();\n} else {\n\tx;\n\tbar();\n} 2`] = `
+
+Message:
+  1 | if (a) {
+> 2 | 	x;
+    | 	^^ These branches start with the same code. Move it before the \`if\` statement.
+  3 | 	foo();
+  4 | } else {
+  5 | 	x;
+  6 | 	bar();
+  7 | }
+
+Output:
+  1 | x;
+  2 | if (a) {
+  3 | 	foo();
+  4 | } else {
+  5 | 	bar();
+  6 | }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(6): if (a) { foo(); cleanup(); } else if (b) { bar(); cleanup(); } else { baz(); cleanup(); } 1`] = `
+
+  1 | if (a) { foo(); cleanup(); } else if (b) { bar(); cleanup(); } else { baz(); cleanup(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(6): if (a) { foo(); cleanup(); } else if (b) { bar(); cleanup(); } else { baz(); cleanup(); } 2`] = `
+
+Message:
+> 1 | if (a) { foo(); cleanup(); } else if (b) { bar(); cleanup(); } else { baz(); cleanup(); }
+    |                 ^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+Output:
+  1 | if (a) { foo(); } else if (b) { bar(); } else { baz(); }
+  2 | cleanup();
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(60): function run() {\n\tif (a) {\n\t\tdoA();\n\t\tflush();\n\t} else {\n\t\tdoB();\n\t\tflush();\n\t}\n} 1`] = `
+
+  1 | function run() {
+  2 | 	if (a) {
+  3 | 		doA();
+  4 | 		flush();
+  5 | 	} else {
+  6 | 		doB();
+  7 | 		flush();
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(60): function run() {\n\tif (a) {\n\t\tdoA();\n\t\tflush();\n\t} else {\n\t\tdoB();\n\t\tflush();\n\t}\n} 2`] = `
+
+Message:
+  1 | function run() {
+  2 | 	if (a) {
+  3 | 		doA();
+> 4 | 		flush();
+    | 		^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+  5 | 	} else {
+  6 | 		doB();
+  7 | 		flush();
+  8 | 	}
+  9 | }
+
+Output:
+  1 | function run() {
+  2 | 	if (a) {
+  3 | 		doA();
+  4 | 	} else {
+  5 | 		doB();
+  6 | 	}
+  7 | 	flush();
+  8 | }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(61): if (a) {\n\tfoo();\n\tcleanup(\n\t\tfirst,\n\t\tsecond,\n\t);\n} else {\n\tbar();\n\tcleanup(\n\t\tfirst,\n\t\tsecond,\n\t);\n} 1`] = `
+
+   1 | if (a) {
+   2 | 	foo();
+   3 | 	cleanup(
+   4 | 		first,
+   5 | 		second,
+   6 | 	);
+   7 | } else {
+   8 | 	bar();
+   9 | 	cleanup(
+  10 | 		first,
+  11 | 		second,
+  12 | 	);
+  13 | }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(61): if (a) {\n\tfoo();\n\tcleanup(\n\t\tfirst,\n\t\tsecond,\n\t);\n} else {\n\tbar();\n\tcleanup(\n\t\tfirst,\n\t\tsecond,\n\t);\n} 2`] = `
+
+Message:
+   1 | if (a) {
+   2 | 	foo();
+>  3 | 	cleanup(
+     | 	^^^^^^^^
+>  4 | 		first,
+     | ^^^^^^^^
+>  5 | 		second,
+     | ^^^^^^^^^
+>  6 | 	);
+     | ^^^ These branches end with the same code. Move it after the \`if\` statement.
+   7 | } else {
+   8 | 	bar();
+   9 | 	cleanup(
+  10 | 		first,
+  11 | 		second,
+  12 | 	);
+  13 | }
+
+Output:
+  1 | if (a) {
+  2 | 	foo();
+  3 | } else {
+  4 | 	bar();
+  5 | }
+  6 | cleanup(
+  7 | 	first,
+  8 | 	second,
+  9 | );
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(62): if (a) { foo(); /* note */ cleanup(); } else { bar(); cleanup(); } 1`] = `
+
+  1 | if (a) { foo(); /* note */ cleanup(); } else { bar(); cleanup(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(62): if (a) { foo(); /* note */ cleanup(); } else { bar(); cleanup(); } 2`] = `
+
+Message:
+> 1 | if (a) { foo(); /* note */ cleanup(); } else { bar(); cleanup(); }
+    |                            ^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(63): if (a) { foo(); cleanup(/* keep */); } else { bar(); cleanup(); } 1`] = `
+
+  1 | if (a) { foo(); cleanup(/* keep */); } else { bar(); cleanup(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(63): if (a) { foo(); cleanup(/* keep */); } else { bar(); cleanup(); } 2`] = `
+
+Message:
+> 1 | if (a) { foo(); cleanup(/* keep */); } else { bar(); cleanup(); }
+    |                 ^^^^^^^^^^^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(64): if (a) { /* note */ foo(); cleanup(); } else { /* other */ bar(); cleanup(); } 1`] = `
+
+  1 | if (a) { /* note */ foo(); cleanup(); } else { /* other */ bar(); cleanup(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(64): if (a) { /* note */ foo(); cleanup(); } else { /* other */ bar(); cleanup(); } 2`] = `
+
+Message:
+> 1 | if (a) { /* note */ foo(); cleanup(); } else { /* other */ bar(); cleanup(); }
+    |                            ^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+Output:
+  1 | if (a) { /* note */ foo(); } else { /* other */ bar(); }
+  2 | cleanup();
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(65): if (a) { doA(); foo } else { doB(); foo }\n(bar()) 1`] = `
+
+  1 | if (a) { doA(); foo } else { doB(); foo }
+  2 | (bar())
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(65): if (a) { doA(); foo } else { doB(); foo }\n(bar()) 2`] = `
+
+Message:
+> 1 | if (a) { doA(); foo } else { doB(); foo }
+    |                 ^^^ These branches end with the same code. Move it after the \`if\` statement.
+  2 | (bar())
+
+Output:
+  1 | if (a) { doA(); } else { doB(); }
+  2 | foo;
+  3 | (bar())
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(66): if (a) { foo(); cleanup() } else { bar(); cleanup(); } 1`] = `
+
+  1 | if (a) { foo(); cleanup() } else { bar(); cleanup(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(66): if (a) { foo(); cleanup() } else { bar(); cleanup(); } 2`] = `
+
+Message:
+> 1 | if (a) { foo(); cleanup() } else { bar(); cleanup(); }
+    |                 ^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+Output:
+  1 | if (a) { foo(); } else { bar(); }
+  2 | cleanup()
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(67): if (a) { var x = 1; useA(x); cleanup(); } else { var y = 2; useB(y); cleanup(); } 1`] = `
+
+  1 | if (a) { var x = 1; useA(x); cleanup(); } else { var y = 2; useB(y); cleanup(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(67): if (a) { var x = 1; useA(x); cleanup(); } else { var y = 2; useB(y); cleanup(); } 2`] = `
+
+Message:
+> 1 | if (a) { var x = 1; useA(x); cleanup(); } else { var y = 2; useB(y); cleanup(); }
+    |                              ^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+Output:
+  1 | if (a) { var x = 1; useA(x); } else { var y = 2; useB(y); }
+  2 | cleanup();
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(68): if (a) { doA(); obj[key](); } else { doB(); obj[key](); } 1`] = `
+
+  1 | if (a) { doA(); obj[key](); } else { doB(); obj[key](); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(68): if (a) { doA(); obj[key](); } else { doB(); obj[key](); } 2`] = `
+
+Message:
+> 1 | if (a) { doA(); obj[key](); } else { doB(); obj[key](); }
+    |                 ^^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+Output:
+  1 | if (a) { doA(); } else { doB(); }
+  2 | obj[key]();
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(69): if (a) { doA(); this.cleanup(); } else { doB(); this.cleanup(); } 1`] = `
+
+  1 | if (a) { doA(); this.cleanup(); } else { doB(); this.cleanup(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(69): if (a) { doA(); this.cleanup(); } else { doB(); this.cleanup(); } 2`] = `
+
+Message:
+> 1 | if (a) { doA(); this.cleanup(); } else { doB(); this.cleanup(); }
+    |                 ^^^^^^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+Output:
+  1 | if (a) { doA(); } else { doB(); }
+  2 | this.cleanup();
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(7): if (a) { foo(); save(); flush(); } else { bar(); save(); flush(); } 1`] = `
+
+  1 | if (a) { foo(); save(); flush(); } else { bar(); save(); flush(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(7): if (a) { foo(); save(); flush(); } else { bar(); save(); flush(); } 2`] = `
+
+Message:
+> 1 | if (a) { foo(); save(); flush(); } else { bar(); save(); flush(); }
+    |                 ^^^^^^^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+Output:
+  1 | if (a) { foo(); } else { bar(); }
+  2 | save(); flush();
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(70): if (a) { if (x) { foo(); } doA(); } else { if (x) { foo(); } doB(); } 1`] = `
+
+  1 | if (a) { if (x) { foo(); } doA(); } else { if (x) { foo(); } doB(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(70): if (a) { if (x) { foo(); } doA(); } else { if (x) { foo(); } doB(); } 2`] = `
+
+Message:
+> 1 | if (a) { if (x) { foo(); } doA(); } else { if (x) { foo(); } doB(); }
+    |          ^^^^^^^^^^^^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Suggestion 1/1: Move the shared code out of the branches.:
+  1 | if (x) { foo(); }
+  2 | if (a) { doA(); } else { doB(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(71): if (a) { tag\`x\`; doA(); } else { tag\`x\`; doB(); } 1`] = `
+
+  1 | if (a) { tag\`x\`; doA(); } else { tag\`x\`; doB(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(71): if (a) { tag\`x\`; doA(); } else { tag\`x\`; doB(); } 2`] = `
+
+Message:
+> 1 | if (a) { tag\`x\`; doA(); } else { tag\`x\`; doB(); }
+    |          ^^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Suggestion 1/1: Move the shared code out of the branches.:
+  1 | tag\`x\`;
+  2 | if (a) { doA(); } else { doB(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(72): if (a) { doA(); if (x) { bar(); } } else { doB(); if (x) { bar(); } } 1`] = `
+
+  1 | if (a) { doA(); if (x) { bar(); } } else { doB(); if (x) { bar(); } }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(72): if (a) { doA(); if (x) { bar(); } } else { doB(); if (x) { bar(); } } 2`] = `
+
+Message:
+> 1 | if (a) { doA(); if (x) { bar(); } } else { doB(); if (x) { bar(); } }
+    |                 ^^^^^^^^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+Output:
+  1 | if (a) { doA(); } else { doB(); }
+  2 | if (x) { bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(73): function f() { if (a) { throw new Error(\"x\"); doA(); } else { throw new Error(\"x\"); doB(); } } 1`] = `
+
+  1 | function f() { if (a) { throw new Error("x"); doA(); } else { throw new Error("x"); doB(); } }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(73): function f() { if (a) { throw new Error(\"x\"); doA(); } else { throw new Error(\"x\"); doB(); } } 2`] = `
+
+Message:
+> 1 | function f() { if (a) { throw new Error("x"); doA(); } else { throw new Error("x"); doB(); } }
+    |                         ^^^^^^^^^^^^^^^^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Suggestion 1/1: Move the shared code out of the branches.:
+  1 | function f() { throw new Error("x");
+  2 |  if (a) { doA(); } else { doB(); } }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(74): if (a) { void f; first(); function f() {} } else { void f; second(); function f() {} } 1`] = `
+
+  1 | if (a) { void f; first(); function f() {} } else { void f; second(); function f() {} }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(74): if (a) { void f; first(); function f() {} } else { void f; second(); function f() {} } 2`] = `
+
+Message:
+> 1 | if (a) { void f; first(); function f() {} } else { void f; second(); function f() {} }
+    |          ^^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(74): if (a) { void f; first(); function f() {} } else { void f; second(); function f() {} } 3`] = `
+
+Message:
+> 1 | if (a) { void f; first(); function f() {} } else { void f; second(); function f() {} }
+    |                           ^^^^^^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(75): if (a) { void c; first(); const c = 1; } else { void c; second(); const c = 2; } 1`] = `
+
+  1 | if (a) { void c; first(); const c = 1; } else { void c; second(); const c = 2; }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(75): if (a) { void c; first(); const c = 1; } else { void c; second(); const c = 2; } 2`] = `
+
+Message:
+> 1 | if (a) { void c; first(); const c = 1; } else { void c; second(); const c = 2; }
+    |          ^^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(76): if (a) {\n\tbar();\n\tfoo(\`x\n\ty\`);\n} else {\n\tbaz();\n\tfoo(\`x\n\ty\`);\n} 1`] = `
+
+  1 | if (a) {
+  2 | 	bar();
+  3 | 	foo(\`x
+  4 | 	y\`);
+  5 | } else {
+  6 | 	baz();
+  7 | 	foo(\`x
+  8 | 	y\`);
+  9 | }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(76): if (a) {\n\tbar();\n\tfoo(\`x\n\ty\`);\n} else {\n\tbaz();\n\tfoo(\`x\n\ty\`);\n} 2`] = `
+
+Message:
+  1 | if (a) {
+  2 | 	bar();
+> 3 | 	foo(\`x
+    | 	^^^^^^
+> 4 | 	y\`);
+    | ^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+  5 | } else {
+  6 | 	baz();
+  7 | 	foo(\`x
+  8 | 	y\`);
+  9 | }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(77): if (a) {\n\t\`x\n\ty\`;\n\tbar();\n} else {\n\t\`x\n\ty\`;\n\tbaz();\n} 1`] = `
+
+  1 | if (a) {
+  2 | 	\`x
+  3 | 	y\`;
+  4 | 	bar();
+  5 | } else {
+  6 | 	\`x
+  7 | 	y\`;
+  8 | 	baz();
+  9 | }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(77): if (a) {\n\t\`x\n\ty\`;\n\tbar();\n} else {\n\t\`x\n\ty\`;\n\tbaz();\n} 2`] = `
+
+Message:
+  1 | if (a) {
+> 2 | 	\`x
+    | 	^^
+> 3 | 	y\`;
+    | ^^^^ These branches start with the same code. Move it before the \`if\` statement.
+  4 | 	bar();
+  5 | } else {
+  6 | 	\`x
+  7 | 	y\`;
+  8 | 	baz();
+  9 | }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(78): if (a) { [tag\`x\`]; doA(); } else { [tag\`x\`]; doB(); } 1`] = `
+
+  1 | if (a) { [tag\`x\`]; doA(); } else { [tag\`x\`]; doB(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(78): if (a) { [tag\`x\`]; doA(); } else { [tag\`x\`]; doB(); } 2`] = `
+
+Message:
+> 1 | if (a) { [tag\`x\`]; doA(); } else { [tag\`x\`]; doB(); }
+    |          ^^^^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Suggestion 1/1: Move the shared code out of the branches.:
+  1 | [tag\`x\`];
+  2 | if (a) { doA(); } else { doB(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(79): if (a) { [, b]; doA(); } else { [, b]; doB(); } 1`] = `
+
+  1 | if (a) { [, b]; doA(); } else { [, b]; doB(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(79): if (a) { [, b]; doA(); } else { [, b]; doB(); } 2`] = `
+
+Message:
+> 1 | if (a) { [, b]; doA(); } else { [, b]; doB(); }
+    |          ^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Output:
+  1 | [, b];
+  2 | if (a) { doA(); } else { doB(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(8): function f() { if (a) { foo(); return result; } else { bar(); return result; } } 1`] = `
+
+  1 | function f() { if (a) { foo(); return result; } else { bar(); return result; } }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(8): function f() { if (a) { foo(); return result; } else { bar(); return result; } } 2`] = `
+
+Message:
+> 1 | function f() { if (a) { foo(); return result; } else { bar(); return result; } }
+    |                                ^^^^^^^^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+Output:
+  1 | function f() { if (a) { foo(); } else { bar(); }
+  2 |  return result; }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(80): if (a) { foo: function f() {} f(); doA(); } else { foo: function f() {} f(); doB(); } 1`] = `
+
+  1 | if (a) { foo: function f() {} f(); doA(); } else { foo: function f() {} f(); doB(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(80): if (a) { foo: function f() {} f(); doA(); } else { foo: function f() {} f(); doB(); } 2`] = `
+
+Message:
+> 1 | if (a) { foo: function f() {} f(); doA(); } else { foo: function f() {} f(); doB(); }
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Suggestion 1/1: Move the shared code out of the branches.:
+  1 | foo: function f() {} f();
+  2 | if (a) { doA(); } else { doB(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(9): if (a) { log(\"start\"); foo(); } else { log(\"start\"); bar(); } 1`] = `
+
+  1 | if (a) { log("start"); foo(); } else { log("start"); bar(); }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(9): if (a) { log(\"start\"); foo(); } else { log(\"start\"); bar(); } 2`] = `
+
+Message:
+> 1 | if (a) { log("start"); foo(); } else { log("start"); bar(); }
+    |          ^^^^^^^^^^^^^ These branches start with the same code. Move it before the \`if\` statement.
+
+Suggestion 1/1: Move the shared code out of the branches.:
+  1 | log("start");
+  2 | if (a) { foo(); } else { bar(); }
+
+`;

@@ -36,7 +36,8 @@ const getProperties = value => {
 		return value.properties;
 	}
 
-	return value.type === 'TSTypeLiteral' ? value.members.filter(member => member.type === 'TSPropertySignature') : [];
+	// `TSTypeLiteral`
+	return value.members.filter(member => member.type === 'TSPropertySignature');
 };
 
 // An object literal with a method can be used through `this` in ways static analysis cannot see, so every one of its properties counts as used.
@@ -122,13 +123,8 @@ const isUnusedVariable = variable => {
 */
 const create = context => {
 	const {sourceCode} = context;
-	const getPropertyDisplayName = property => {
-		if (property.key.type === 'Identifier') {
-			return property.key.name;
-		}
-
-		return property.key.type === 'Literal' ? property.key.value : sourceCode.getText(property.key);
-	};
+	// Computed keys other than literals are skipped, so the key is an identifier or a literal
+	const getPropertyDisplayName = property => property.key.type === 'Identifier' ? property.key.name : property.key.value;
 
 	const reportProperty = (property, references) => {
 		if (references.length === 0) {

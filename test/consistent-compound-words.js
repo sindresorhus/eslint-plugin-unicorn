@@ -1,5 +1,5 @@
+import test from 'node:test';
 import outdent from 'outdent';
-import test from 'ava';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
 import {getTester, languages} from './utils/test.js';
@@ -170,6 +170,16 @@ ruleTest.snapshot({
 			code: 'foo[timeOut] = 1;',
 			options: onlyCheckPropertiesOptions,
 		},
+		{
+			code: 'const foo = {__proto__: bar};',
+			options: [{
+				checkProperties: true,
+				extendDefaultReplacements: false,
+				replacements: {
+					__proto: 'prototype',
+				},
+			}],
+		},
 	],
 	invalid: [
 		'const backGround = 1;',
@@ -317,6 +327,37 @@ ruleTest.snapshot({
 				},
 			}],
 		},
+		// Two names with the same replacement in one scope get distinct names.
+		{
+			code: 'const fooBar = 1;\nconst fooBaz = 2;',
+			options: [{
+				extendDefaultReplacements: false,
+				replacements: {
+					fooBar: 'foobar',
+					fooBaz: 'foobar',
+				},
+			}],
+		},
+		{
+			code: 'const $el = 1;',
+			options: [{
+				extendDefaultReplacements: false,
+				replacements: {
+					$el: '$element',
+				},
+			}],
+		},
+		'const foo = class PassWord {};',
+		// The uppercase form of `ıtem` is `Item`, which is not a discouraged name.
+		{
+			code: 'const fooItem = 1;\nconst ıtem = 2;',
+			options: [{
+				extendDefaultReplacements: false,
+				replacements: {
+					ıtem: 'element',
+				},
+			}],
+		},
 	],
 });
 
@@ -433,31 +474,31 @@ test('validates options schema', t => {
 		},
 	});
 
-	t.throws(
+	t.assert.throws(
 		() => verify({checkDefaultAndNamespaceImports: 'not-internal'}),
 		{message: /Value "not-internal" should match some schema in anyOf/u},
 	);
-	t.throws(
+	t.assert.throws(
 		() => verify({checkShorthandImports: 'not-internal'}),
 		{message: /Value "not-internal" should match some schema in anyOf/u},
 	);
-	t.throws(
+	t.assert.throws(
 		() => verify({replacements: {fooBar: ''}}),
 		{message: /Value "" should NOT be shorter than 1 characters/u},
 	);
-	t.throws(
+	t.assert.throws(
 		() => verify({replacements: {'': 'empty'}}),
 		{message: /property name '' is invalid/u},
 	);
-	t.throws(
+	t.assert.throws(
 		() => verify({allowList: {'': true}}),
 		{message: /property name '' is invalid/u},
 	);
-	t.throws(
+	t.assert.throws(
 		() => verify({allowList: {userName: false}}),
 		{message: /Value false should be equal to one of the allowed values/u},
 	);
-	t.throws(
+	t.assert.throws(
 		() => verify({extendDefaultAllowList: false}),
 		{message: /Unexpected property "extendDefaultAllowList"/u},
 	);

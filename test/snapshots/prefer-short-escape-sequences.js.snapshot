@@ -1,0 +1,163 @@
+exports[`prefer-short-escape-sequences > invalid(1): {\"\\u0009\":\"\\u0008\\u0009\\u000a\\u000C\\u000d\\u0022\\u002f\\u005c\"} 1`] = `
+
+Filename: fixture.json
+
+  1 | {"\\u0009":"\\u0008\\u0009\\u000a\\u000C\\u000d\\u0022\\u002f\\u005c"}
+
+`;
+
+exports[`prefer-short-escape-sequences > invalid(1): {\"\\u0009\":\"\\u0008\\u0009\\u000a\\u000C\\u000d\\u0022\\u002f\\u005c\"} 2`] = `
+
+Message:
+> 1 | {"\\u0009":"\\u0008\\u0009\\u000a\\u000C\\u000d\\u0022\\u002f\\u005c"}
+    |  ^^^^^^^^ Prefer shorter alternatives to Unicode escape sequences.
+
+Output:
+  1 | {"\\t":"\\u0008\\u0009\\u000a\\u000C\\u000d\\u0022\\u002f\\u005c"}
+
+`;
+
+exports[`prefer-short-escape-sequences > invalid(1): {\"\\u0009\":\"\\u0008\\u0009\\u000a\\u000C\\u000d\\u0022\\u002f\\u005c\"} 3`] = `
+
+Message:
+> 1 | {"\\u0009":"\\u0008\\u0009\\u000a\\u000C\\u000d\\u0022\\u002f\\u005c"}
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer shorter alternatives to Unicode escape sequences.
+
+Output:
+  1 | {"\\u0009":"\\b\\t\\n\\f\\r\\u0022\\u002f\\u005c"}
+
+`;
+
+exports[`prefer-short-escape-sequences > invalid(2): {\n\t\t\t\t// Keep the comment.\n\t\t\t\t\"\\u000A\": \"\\u0008\\u0009\\u000A\\u000C\\u000D\\u0022\\u002F\\u005C\"\n\t\t\t} 1`] = `
+
+Filename: fixture.jsonc
+
+  1 | {
+  2 | 				// Keep the comment.
+  3 | 				"\\u000A": "\\u0008\\u0009\\u000A\\u000C\\u000D\\u0022\\u002F\\u005C"
+  4 | 			}
+
+`;
+
+exports[`prefer-short-escape-sequences > invalid(2): {\n\t\t\t\t// Keep the comment.\n\t\t\t\t\"\\u000A\": \"\\u0008\\u0009\\u000A\\u000C\\u000D\\u0022\\u002F\\u005C\"\n\t\t\t} 2`] = `
+
+Message:
+  1 | {
+  2 | 				// Keep the comment.
+> 3 | 				"\\u000A": "\\u0008\\u0009\\u000A\\u000C\\u000D\\u0022\\u002F\\u005C"
+    | 				^^^^^^^^ Prefer shorter alternatives to Unicode escape sequences.
+  4 | 			}
+
+Output:
+  1 | {
+  2 | 				// Keep the comment.
+  3 | 				"\\n": "\\u0008\\u0009\\u000A\\u000C\\u000D\\u0022\\u002F\\u005C"
+  4 | 			}
+
+`;
+
+exports[`prefer-short-escape-sequences > invalid(2): {\n\t\t\t\t// Keep the comment.\n\t\t\t\t\"\\u000A\": \"\\u0008\\u0009\\u000A\\u000C\\u000D\\u0022\\u002F\\u005C\"\n\t\t\t} 3`] = `
+
+Message:
+  1 | {
+  2 | 				// Keep the comment.
+> 3 | 				"\\u000A": "\\u0008\\u0009\\u000A\\u000C\\u000D\\u0022\\u002F\\u005C"
+    | 				          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer shorter alternatives to Unicode escape sequences.
+  4 | 			}
+
+Output:
+  1 | {
+  2 | 				// Keep the comment.
+  3 | 				"\\u000A": "\\b\\t\\n\\f\\r\\u0022\\u002F\\u005C"
+  4 | 			}
+
+`;
+
+exports[`prefer-short-escape-sequences > invalid(3): {\"\\u0008\":\"\\u0009\\u000A\\u000C\\u000D\\u0022\\u002F\\u005C\"} 1`] = `
+
+Filename: fixture.json5
+
+  1 | {"\\u0008":"\\u0009\\u000A\\u000C\\u000D\\u0022\\u002F\\u005C"}
+
+`;
+
+exports[`prefer-short-escape-sequences > invalid(3): {\"\\u0008\":\"\\u0009\\u000A\\u000C\\u000D\\u0022\\u002F\\u005C\"} 2`] = `
+
+Message:
+> 1 | {"\\u0008":"\\u0009\\u000A\\u000C\\u000D\\u0022\\u002F\\u005C"}
+    |  ^^^^^^^^ Prefer shorter alternatives to Unicode escape sequences.
+
+Output:
+  1 | {"\\b":"\\u0009\\u000A\\u000C\\u000D\\u0022\\u002F\\u005C"}
+
+`;
+
+exports[`prefer-short-escape-sequences > invalid(3): {\"\\u0008\":\"\\u0009\\u000A\\u000C\\u000D\\u0022\\u002F\\u005C\"} 3`] = `
+
+Message:
+> 1 | {"\\u0008":"\\u0009\\u000A\\u000C\\u000D\\u0022\\u002F\\u005C"}
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer shorter alternatives to Unicode escape sequences.
+
+Output:
+  1 | {"\\u0008":"\\t\\n\\f\\r\\u0022\\u002F\\u005C"}
+
+`;
+
+exports[`prefer-short-escape-sequences > invalid(4): \"\\\\\\u000A\" 1`] = `
+
+Filename: fixture.json
+
+  1 | "\\\\\\u000A"
+
+`;
+
+exports[`prefer-short-escape-sequences > invalid(4): \"\\\\\\u000A\" 2`] = `
+
+Message:
+> 1 | "\\\\\\u000A"
+    | ^^^^^^^^^^ Prefer shorter alternatives to Unicode escape sequences.
+
+Output:
+  1 | "\\\\\\n"
+
+`;
+
+exports[`prefer-short-escape-sequences > invalid(5): 'before\\\n\\u000Aafter' 1`] = `
+
+Filename: fixture.json5
+
+  1 | 'before\\
+  2 | \\u000Aafter'
+
+`;
+
+exports[`prefer-short-escape-sequences > invalid(5): 'before\\\n\\u000Aafter' 2`] = `
+
+Message:
+> 1 | 'before\\
+    | ^^^^^^^^
+> 2 | \\u000Aafter'
+    | ^^^^^^^^^^^^ Prefer shorter alternatives to Unicode escape sequences.
+
+Output:
+  1 | 'before\\
+  2 | \\nafter'
+
+`;
+
+exports[`prefer-short-escape-sequences > invalid(6): \"\\u000A\\u000B\" 1`] = `
+
+  1 | "\\u000A\\u000B"
+
+`;
+
+exports[`prefer-short-escape-sequences > invalid(6): \"\\u000A\\u000B\" 2`] = `
+
+Message:
+> 1 | "\\u000A\\u000B"
+    | ^^^^^^^^^^^^^^ Prefer shorter alternatives to Unicode escape sequences.
+
+Output:
+  1 | "\\n\\u000B"
+
+`;

@@ -81,11 +81,6 @@ function getBooleanValueState(type, checker) {
 }
 
 function getBooleanWrapperMemberState(type, memberName, checker) {
-	const member = checker.getPropertyOfType(type, memberName);
-	if (!member) {
-		return nonBoolean;
-	}
-
 	const memberType = checker.getTypeOfPropertyOfType(type, memberName);
 	if (!memberType) {
 		return nonBoolean;
@@ -98,10 +93,6 @@ function getBooleanWrapperMemberState(type, memberName, checker) {
 }
 
 function getBooleanWrapperTypeState(type, checker, wrappers) {
-	if (!type) {
-		return unknown;
-	}
-
 	const nonNullableType = checker.getNonNullableType(type);
 	if (nonNullableType !== type) {
 		return getBooleanWrapperTypeState(nonNullableType, checker, wrappers);
@@ -140,6 +131,8 @@ function getBooleanWrapperVariableState({variable, definition, context, wrappers
 			parserServices.program.getTypeChecker(),
 			wrappers,
 		);
+		// Defensive: the TypeScript checker can throw on unusual nodes or types, and no known input does. Fall back to an unknown state.
+		/* node:coverage ignore next 3 */
 	} catch {
 		return unknown;
 	}

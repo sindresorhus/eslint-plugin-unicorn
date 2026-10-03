@@ -1,16 +1,16 @@
 import path from 'node:path';
-import test from 'ava';
+import test from 'node:test';
 import {getSnapshotFilename, visualizeEslintMessage} from '../utils/snapshot-rule-tester.js';
 
 test('Snapshot filenames do not include absolute paths', t => {
 	const filename = path.join(process.cwd(), 'test/fixtures/example.js');
 	const fileSystemRoot = path.parse(process.cwd()).root;
 	const externalFilename = path.join(fileSystemRoot, 'path/to/example.js');
-	t.is(
+	t.assert.strictEqual(
 		getSnapshotFilename(filename),
 		'test/fixtures/example.js',
 	);
-	t.is(
+	t.assert.strictEqual(
 		getSnapshotFilename(externalFilename),
 		'path/to/example.js',
 	);
@@ -22,7 +22,7 @@ test('Snapshot formatter includes diagnostic location', t => {
 		'second();',
 	].join('\n');
 
-	t.is(
+	t.assert.strictEqual(
 		visualizeEslintMessage(code, {
 			line: 2,
 			column: 1,
@@ -44,7 +44,7 @@ test('Snapshot formatter changes when diagnostic location moves', t => {
 		'second();',
 	].join('\n');
 
-	t.not(
+	t.assert.notStrictEqual(
 		visualizeEslintMessage(code, {
 			line: 1,
 			column: 1,

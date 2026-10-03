@@ -1174,7 +1174,7 @@ const createConfiguredArgumentCountEntries = (customArgumentCounts = {}) => {
 			entries.push({
 				...parsePattern(pattern),
 				expectedArgumentCount: normalizeArgumentCount(expectedArgumentCount),
-				checkGlobal: !pattern.startsWith('*.'),
+				checkGlobal: true,
 			});
 		}
 	}
@@ -1183,7 +1183,7 @@ const createConfiguredArgumentCountEntries = (customArgumentCounts = {}) => {
 		entries.push({
 			...parsePattern(pattern),
 			expectedArgumentCount: normalizeArgumentCount(expectedArgumentCount),
-			checkGlobal: Object.hasOwn(defaultArgumentCounts, pattern) && !pattern.startsWith('*.'),
+			checkGlobal: Object.hasOwn(defaultArgumentCounts, pattern),
 		});
 	}
 
@@ -1193,7 +1193,6 @@ const createConfiguredArgumentCountEntries = (customArgumentCounts = {}) => {
 const createBuckets = () => ({
 	exactGlobal: new Map(),
 	exactLocal: new Map(),
-	wildcardGlobal: [],
 	wildcardLocal: [],
 });
 
@@ -1209,9 +1208,10 @@ const buildLookup = entries => {
 		const buckets = lookup[entry.type];
 		const indexedEntry = {...entry, index};
 
+		// The default patterns have no wildcards, so a wildcard pattern is always a custom one that matches the raw path
 		if (entry.pattern.includes('*')) {
 			indexedEntry.patternParts = entry.pattern.split('.');
-			(entry.checkGlobal ? buckets.wildcardGlobal : buckets.wildcardLocal).push(indexedEntry);
+			buckets.wildcardLocal.push(indexedEntry);
 		} else {
 			(entry.checkGlobal ? buckets.exactGlobal : buckets.exactLocal).set(entry.pattern, indexedEntry);
 		}
@@ -1247,26 +1247,10 @@ const getConfiguredArgumentCountProblem = (expression, lookup, context) => {
 	// Global patterns match the path with leading global-object names stripped, and only
 	// when the root identifier truly refers to a global binding. The scope lookup is
 	// deferred until a pattern actually matches, since that is rare in real code.
-	if (
-		root.type === 'Identifier'
-		&& (buckets.exactGlobal.size > 0 || buckets.wildcardGlobal.length > 0)
-	) {
-		const globalParts = stripGlobalObjectNames(parts);
-		const globalCandidates = [];
-
-		const entry = buckets.exactGlobal.get(globalParts.join('.'));
-		if (entry) {
-			globalCandidates.push(entry);
-		}
-
-		for (const wildcardEntry of buckets.wildcardGlobal) {
-			if (isMatchingParts(globalParts, wildcardEntry.patternParts)) {
-				globalCandidates.push(wildcardEntry);
-			}
-		}
-
-		if (globalCandidates.length > 0 && isGlobalIdentifier(root, context)) {
-			candidates.push(...globalCandidates);
+	if (root.type === 'Identifier') {
+		const entry = buckets.exactGlobal.get(stripGlobalObjectNames(parts).join('.'));
+		if (entry && isGlobalIdentifier(root, context)) {
+			candidates.push(entry);
 		}
 	}
 

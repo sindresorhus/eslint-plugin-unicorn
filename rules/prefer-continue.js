@@ -9,6 +9,7 @@ import {
 	hasMultilineToken,
 	isBlockScopedDeclaration,
 	shouldAddParenthesesToUnaryExpressionArgument,
+	getVisitorChildNodes,
 } from './utils/index.js';
 
 /**
@@ -194,31 +195,7 @@ const hasDirectEvalCall = (node, sourceCode) => {
 		return true;
 	}
 
-	for (const key of sourceCode.visitorKeys[node.type] ?? []) {
-		const value = node[key];
-
-		if (Array.isArray(value)) {
-			for (const element of value) {
-				if (
-					element
-					&& hasDirectEvalCall(element, sourceCode)
-				) {
-					return true;
-				}
-			}
-
-			continue;
-		}
-
-		if (
-			value
-			&& hasDirectEvalCall(value, sourceCode)
-		) {
-			return true;
-		}
-	}
-
-	return false;
+	return getVisitorChildNodes(node, sourceCode.visitorKeys).some(child => hasDirectEvalCall(child, sourceCode));
 };
 
 const canSafelyMoveLexicalDeclarations = (ifStatement, sourceCode) => {

@@ -1,4 +1,4 @@
-import test from 'ava';
+import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
@@ -177,7 +177,7 @@ test('only an `await` that is the last thing its function runs is unrolled', t =
 	]) {
 		const problem = linter.verify(code, config).find(problem => !problem.fatal);
 
-		t.truthy(problem, `should report \`${code}\``);
-		t.is(Boolean(problem.fix), isFixed, `fix availability for \`${code}\``);
+		t.assert.ok(problem, `should report \`${code}\``);
+		t.assert.strictEqual(Boolean(problem.fix), isFixed, `fix availability for \`${code}\``);
 	}
 });

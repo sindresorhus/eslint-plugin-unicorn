@@ -1,0 +1,105 @@
+exports[`no-transition-all > invalid(1): a { transition: all 150ms; } 1`] = `
+
+  1 | a { transition: all 150ms; }
+
+`;
+
+exports[`no-transition-all > invalid(1): a { transition: all 150ms; } 2`] = `
+
+Message:
+> 1 | a { transition: all 150ms; }
+    |                 ^^^ Do not use \`all\` as a transition property.
+
+`;
+
+exports[`no-transition-all > invalid(2): a { transition-property: all; } 1`] = `
+
+  1 | a { transition-property: all; }
+
+`;
+
+exports[`no-transition-all > invalid(2): a { transition-property: all; } 2`] = `
+
+Message:
+> 1 | a { transition-property: all; }
+    |                          ^^^ Do not use \`all\` as a transition property.
+
+`;
+
+exports[`no-transition-all > invalid(3): @supports (display: grid) { a { transition: all; } } 1`] = `
+
+  1 | @supports (display: grid) { a { transition: all; } }
+
+`;
+
+exports[`no-transition-all > invalid(3): @supports (display: grid) { a { transition: all; } } 2`] = `
+
+Message:
+> 1 | @supports (display: grid) { a { transition: all; } }
+    |                                             ^^^ Do not use \`all\` as a transition property.
+
+`;
+
+exports[`no-transition-all > invalid(4): a { transition: opacity 150ms, all 300ms; } 1`] = `
+
+  1 | a { transition: opacity 150ms, all 300ms; }
+
+`;
+
+exports[`no-transition-all > invalid(4): a { transition: opacity 150ms, all 300ms; } 2`] = `
+
+Message:
+> 1 | a { transition: opacity 150ms, all 300ms; }
+    |                                ^^^ Do not use \`all\` as a transition property.
+
+`;
+
+exports[`no-transition-all > invalid(5): a { transition-property: opacity, all, color; } 1`] = `
+
+  1 | a { transition-property: opacity, all, color; }
+
+`;
+
+exports[`no-transition-all > invalid(5): a { transition-property: opacity, all, color; } 2`] = `
+
+Message:
+> 1 | a { transition-property: opacity, all, color; }
+    |                                   ^^^ Do not use \`all\` as a transition property.
+
+`;
+
+exports[`no-transition-all > invalid(6): a { transition: ALL 150ms; } 1`] = `
+
+  1 | a { transition: ALL 150ms; }
+
+`;
+
+exports[`no-transition-all > invalid(6): a { transition: ALL 150ms; } 2`] = `
+
+Message:
+> 1 | a { transition: ALL 150ms; }
+    |                 ^^^ Do not use \`all\` as a transition property.
+
+`;
+
+exports[`no-transition-all > invalid(7): a { transition-property: all, all; } 1`] = `
+
+  1 | a { transition-property: all, all; }
+
+`;
+
+exports[`no-transition-all > invalid(7): a { transition-property: all, all; } 2`] = `
+
+Message:
+> 1 | a { transition-property: all, all; }
+    |                          ^^^ Do not use \`all\` as a transition property.
+
+`;
+
+exports[`no-transition-all > invalid(7): a { transition-property: all, all; } 3`] = `
+
+Message:
+> 1 | a { transition-property: all, all; }
+    |                               ^^^ Do not use \`all\` as a transition property.
+
+`;

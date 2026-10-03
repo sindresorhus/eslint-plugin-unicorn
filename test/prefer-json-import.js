@@ -99,5 +99,7 @@ test.snapshot({
 		`${fsImport} const first = JSON.parse(fs.readFileSync(new URL("./first.json", import.meta.url))), second = JSON.parse(fs.readFileSync(new URL("./second.json", import.meta.url)));`,
 		`${fsImport} const path = "./data.json"; const data = JSON.parse(fs.readFileSync(new URL(path, import.meta.url)));`,
 		`${fsImport}\n// Leading comment\nconst data = JSON.parse(fs.readFileSync(${url})); // Trailing comment`,
+		`import {"readFileSync" as read} from "fs"; const data = JSON.parse(read(${url}));`,
+		`${fsImport} const data = JSON.parse(fs.readFileSync(${url}, {"encoding": "utf8"}));`,
 	],
 });

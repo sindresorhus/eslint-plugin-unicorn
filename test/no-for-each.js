@@ -575,6 +575,31 @@ test.snapshot({
 			console.log(element);
 			[1, 2, 3].forEach(element => bar(element));
 		`,
+		// Known array receivers, so these are fixable unless noted
+		...[
+			// Not fixable, `return` inside a loop
+			'array.forEach(element => { for (const item of element) { return; } });',
+			'array.forEach(element => { if (element) bar(); else return; });',
+			'array.forEach(element => { element = foo(element); bar(element); });',
+			'(array).forEach(element => bar(element));',
+			'array.forEach(element => {\n\tfoo()\n\treturn [element]\n});',
+			'array.forEach((element => bar(element)));',
+			// Not fixable, comment in the loop head
+			'array.forEach(/* comment */ element => bar(element));',
+			'array.forEach(element => bar(element),);',
+			'const foo = () => array.forEach(element => bar(element));',
+			'array.forEach(function foo(element) { bar(element); });',
+			// Not fixable
+			'array.forEach?.(element => bar(element));',
+			'const result = array.forEach(element => bar(element));',
+			'array.forEach(async element => bar(element));',
+		].map(code => `const array = [];\n${code}`),
+		...[
+			'array.forEach(element => { with (element) return foo; });',
+			// Not fixable, `element` is declared twice
+			'array.forEach(function (element) { var element; bar(element); });',
+		].map(code => ({code: `const array = [];\n${code}`, languageOptions: {sourceType: 'script'}})),
+		'[foo()]?.forEach(element => bar(element));',
 	],
 });
 

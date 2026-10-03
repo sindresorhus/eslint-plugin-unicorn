@@ -1,0 +1,1366 @@
+exports[`no-boolean-sort-comparator > invalid(1): array.sort((a, b) => a > b) 1`] = `
+
+  1 | array.sort((a, b) => a > b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(1): array.sort((a, b) => a > b) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a > b)
+    |            ^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.sort((a, b) => a - b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(10): array.sort((a, b) => b < a) 1`] = `
+
+  1 | array.sort((a, b) => b < a)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(10): array.sort((a, b) => b < a) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => b < a)
+    |            ^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.sort((a, b) => a - b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(11): array.sort((a, b) => b <= a) 1`] = `
+
+  1 | array.sort((a, b) => b <= a)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(11): array.sort((a, b) => b <= a) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => b <= a)
+    |            ^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.sort((a, b) => a - b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(12): array.sort((a, b) => a.score > b.score) 1`] = `
+
+  1 | array.sort((a, b) => a.score > b.score)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(12): array.sort((a, b) => a.score > b.score) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a.score > b.score)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => a.score - b.score\`.:
+  1 | array.sort((a, b) => a.score - b.score)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(13): array.sort((a, b) => a.score >= b.score) 1`] = `
+
+  1 | array.sort((a, b) => a.score >= b.score)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(13): array.sort((a, b) => a.score >= b.score) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a.score >= b.score)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => a.score - b.score\`.:
+  1 | array.sort((a, b) => a.score - b.score)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(14): array.sort((a, b) => a[0] < b[0]) 1`] = `
+
+  1 | array.sort((a, b) => a[0] < b[0])
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(14): array.sort((a, b) => a[0] < b[0]) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a[0] < b[0])
+    |            ^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => b[0] - a[0]\`.:
+  1 | array.sort((a, b) => b[0] - a[0])
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(15): array.sort((a, b) => a[i] <= b[i]) 1`] = `
+
+  1 | array.sort((a, b) => a[i] <= b[i])
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(15): array.sort((a, b) => a[i] <= b[i]) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a[i] <= b[i])
+    |            ^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => b[i] - a[i]\`.:
+  1 | array.sort((a, b) => b[i] - a[i])
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(16): array.sort((a, b) => a.foo.bar > b.foo.bar) 1`] = `
+
+  1 | array.sort((a, b) => a.foo.bar > b.foo.bar)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(16): array.sort((a, b) => a.foo.bar > b.foo.bar) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a.foo.bar > b.foo.bar)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => a.foo.bar - b.foo.bar\`.:
+  1 | array.sort((a, b) => a.foo.bar - b.foo.bar)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(17): array.sort((a, b) => a > c) 1`] = `
+
+  1 | array.sort((a, b) => a > c)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(17): array.sort((a, b) => a > c) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a > c)
+    |            ^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(18): array.sort((a, b) => a.foo > b.bar) 1`] = `
+
+  1 | array.sort((a, b) => a.foo > b.bar)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(18): array.sort((a, b) => a.foo > b.bar) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a.foo > b.bar)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(19): array.sort((a, b) => a[i] > b[j]) 1`] = `
+
+  1 | array.sort((a, b) => a[i] > b[j])
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(19): array.sort((a, b) => a[i] > b[j]) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a[i] > b[j])
+    |            ^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(2): [].sort((a, b) => a > b) 1`] = `
+
+  1 | [].sort((a, b) => a > b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(2): [].sort((a, b) => a > b) 2`] = `
+
+Message:
+> 1 | [].sort((a, b) => a > b)
+    |         ^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | [].sort((a, b) => a - b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(20): array.sort((a, b) => a > b, extraArgument) 1`] = `
+
+  1 | array.sort((a, b) => a > b, extraArgument)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(20): array.sort((a, b) => a > b, extraArgument) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a > b, extraArgument)
+    |            ^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.sort((a, b) => a - b, extraArgument)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(21): array[\"sort\"]((a, b) => a > b) 1`] = `
+
+  1 | array["sort"]((a, b) => a > b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(21): array[\"sort\"]((a, b) => a > b) 2`] = `
+
+Message:
+> 1 | array["sort"]((a, b) => a > b)
+    |               ^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array["sort"]((a, b) => a - b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(22): array[\"toSorted\"]((a, b) => a > b) 1`] = `
+
+  1 | array["toSorted"]((a, b) => a > b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(22): array[\"toSorted\"]((a, b) => a > b) 2`] = `
+
+Message:
+> 1 | array["toSorted"]((a, b) => a > b)
+    |                   ^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array["toSorted"]((a, b) => a - b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(23): const method = \"sort\";\narray[method]((a, b) => a > b) 1`] = `
+
+  1 | const method = "sort";
+  2 | array[method]((a, b) => a > b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(23): const method = \"sort\";\narray[method]((a, b) => a > b) 2`] = `
+
+Message:
+  1 | const method = "sort";
+> 2 | array[method]((a, b) => a > b)
+    |               ^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | const method = "sort";
+  2 | array[method]((a, b) => a - b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(24): array.toSorted((a, b) => a > b) 1`] = `
+
+  1 | array.toSorted((a, b) => a > b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(24): array.toSorted((a, b) => a > b) 2`] = `
+
+Message:
+> 1 | array.toSorted((a, b) => a > b)
+    |                ^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.toSorted((a, b) => a - b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(25): array.sort?.((a, b) => a > b) 1`] = `
+
+  1 | array.sort?.((a, b) => a > b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(25): array.sort?.((a, b) => a > b) 2`] = `
+
+Message:
+> 1 | array.sort?.((a, b) => a > b)
+    |              ^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.sort?.((a, b) => a - b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(26): array?.sort((a, b) => a > b) 1`] = `
+
+  1 | array?.sort((a, b) => a > b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(26): array?.sort((a, b) => a > b) 2`] = `
+
+Message:
+> 1 | array?.sort((a, b) => a > b)
+    |             ^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array?.sort((a, b) => a - b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(27): array.sort(function (a, b) { return a > b; }) 1`] = `
+
+  1 | array.sort(function (a, b) { return a > b; })
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(27): array.sort(function (a, b) { return a > b; }) 2`] = `
+
+Message:
+> 1 | array.sort(function (a, b) { return a > b; })
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.sort((a, b) => a - b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(28): array.sort(function (a, a) { return a > a; }) 1`] = `
+
+  1 | array.sort(function (a, a) { return a > a; })
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(28): array.sort(function (a, a) { return a > a; }) 2`] = `
+
+Message:
+> 1 | array.sort(function (a, a) { return a > a; })
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(29): array.sort((a, b) => {\n\treturn a > b;\n}) 1`] = `
+
+  1 | array.sort((a, b) => {
+  2 | 	return a > b;
+  3 | })
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(29): array.sort((a, b) => {\n\treturn a > b;\n}) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => {
+    |            ^^^^^^^^^^^
+> 2 | 	return a > b;
+    | ^^^^^^^^^^^^^^
+> 3 | })
+    | ^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.sort((a, b) => a - b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(3): Array.from(iterable).sort((a, b) => a > b) 1`] = `
+
+  1 | Array.from(iterable).sort((a, b) => a > b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(3): Array.from(iterable).sort((a, b) => a > b) 2`] = `
+
+Message:
+> 1 | Array.from(iterable).sort((a, b) => a > b)
+    |                           ^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | Array.from(iterable).sort((a, b) => a - b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(30): array.sort((a, b) => (a) > (b)) 1`] = `
+
+  1 | array.sort((a, b) => (a) > (b))
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(30): array.sort((a, b) => (a) > (b)) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => (a) > (b))
+    |            ^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.sort((a, b) => a - b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(31): array.sort((a, b) => {\n\t// Compare\n\treturn a > b;\n}) 1`] = `
+
+  1 | array.sort((a, b) => {
+  2 | 	// Compare
+  3 | 	return a > b;
+  4 | })
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(31): array.sort((a, b) => {\n\t// Compare\n\treturn a > b;\n}) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => {
+    |            ^^^^^^^^^^^
+> 2 | 	// Compare
+    | ^^^^^^^^^^^
+> 3 | 	return a > b;
+    | ^^^^^^^^^^^^^^
+> 4 | })
+    | ^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(32): array.sort((a, b) => a === b) 1`] = `
+
+  1 | array.sort((a, b) => a === b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(32): array.sort((a, b) => a === b) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a === b)
+    |            ^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(33): strings.toSorted((a, b) => a === b) 1`] = `
+
+  1 | strings.toSorted((a, b) => a === b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(33): strings.toSorted((a, b) => a === b) 2`] = `
+
+Message:
+> 1 | strings.toSorted((a, b) => a === b)
+    |                  ^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(34): array.sort((a, b) => a !== b) 1`] = `
+
+  1 | array.sort((a, b) => a !== b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(34): array.sort((a, b) => a !== b) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a !== b)
+    |            ^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(35): array.sort((a, b) => true) 1`] = `
+
+  1 | array.sort((a, b) => true)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(35): array.sort((a, b) => true) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => true)
+    |            ^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(36): array.sort((a, b) => false) 1`] = `
+
+  1 | array.sort((a, b) => false)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(36): array.sort((a, b) => false) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => false)
+    |            ^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(37): array.sort((a, b) => Boolean(a - b)) 1`] = `
+
+  1 | array.sort((a, b) => Boolean(a - b))
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(37): array.sort((a, b) => Boolean(a - b)) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => Boolean(a - b))
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(38): array.sort((a, b) => !(a - b)) 1`] = `
+
+  1 | array.sort((a, b) => !(a - b))
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(38): array.sort((a, b) => !(a - b)) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => !(a - b))
+    |            ^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(39): array.sort((a, b) => a > b && c > d) 1`] = `
+
+  1 | array.sort((a, b) => a > b && c > d)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(39): array.sort((a, b) => a > b && c > d) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a > b && c > d)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(4): new Array().toSorted((a, b) => a > b) 1`] = `
+
+  1 | new Array().toSorted((a, b) => a > b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(4): new Array().toSorted((a, b) => a > b) 2`] = `
+
+Message:
+> 1 | new Array().toSorted((a, b) => a > b)
+    |                      ^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | new Array().toSorted((a, b) => a - b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(40): array.sort((a, b) => a > b ? c > d : e > f) 1`] = `
+
+  1 | array.sort((a, b) => a > b ? c > d : e > f)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(40): array.sort((a, b) => a > b ? c > d : e > f) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a > b ? c > d : e > f)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(41): array.sort((a, b) => a in b) 1`] = `
+
+  1 | array.sort((a, b) => a in b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(41): array.sort((a, b) => a in b) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a in b)
+    |            ^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(42): array.sort((a, b) => a instanceof b) 1`] = `
+
+  1 | array.sort((a, b) => a instanceof b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(42): array.sort((a, b) => a instanceof b) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a instanceof b)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(43): array.sort(Boolean) 1`] = `
+
+  1 | array.sort(Boolean)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(43): array.sort(Boolean) 2`] = `
+
+Message:
+> 1 | array.sort(Boolean)
+    |            ^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(44): array.toSorted(Boolean) 1`] = `
+
+  1 | array.toSorted(Boolean)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(44): array.toSorted(Boolean) 2`] = `
+
+Message:
+> 1 | array.toSorted(Boolean)
+    |                ^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(45): array.sort(isFinite) 1`] = `
+
+  1 | array.sort(isFinite)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(45): array.sort(isFinite) 2`] = `
+
+Message:
+> 1 | array.sort(isFinite)
+    |            ^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(46): array.sort(isNaN) 1`] = `
+
+  1 | array.sort(isNaN)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(46): array.sort(isNaN) 2`] = `
+
+Message:
+> 1 | array.sort(isNaN)
+    |            ^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(47): array.sort(Array.isArray) 1`] = `
+
+  1 | array.sort(Array.isArray)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(47): array.sort(Array.isArray) 2`] = `
+
+Message:
+> 1 | array.sort(Array.isArray)
+    |            ^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(48): array.sort(ArrayBuffer.isView) 1`] = `
+
+  1 | array.sort(ArrayBuffer.isView)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(48): array.sort(ArrayBuffer.isView) 2`] = `
+
+Message:
+> 1 | array.sort(ArrayBuffer.isView)
+    |            ^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(49): array.sort(Atomics.isLockFree) 1`] = `
+
+  1 | array.sort(Atomics.isLockFree)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(49): array.sort(Atomics.isLockFree) 2`] = `
+
+Message:
+> 1 | array.sort(Atomics.isLockFree)
+    |            ^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(5): array.sort((a, b) => a >= b) 1`] = `
+
+  1 | array.sort((a, b) => a >= b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(5): array.sort((a, b) => a >= b) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a >= b)
+    |            ^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | array.sort((a, b) => a - b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(50): array.sort(Number.isFinite) 1`] = `
+
+  1 | array.sort(Number.isFinite)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(50): array.sort(Number.isFinite) 2`] = `
+
+Message:
+> 1 | array.sort(Number.isFinite)
+    |            ^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(51): array.sort(Number.isInteger) 1`] = `
+
+  1 | array.sort(Number.isInteger)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(51): array.sort(Number.isInteger) 2`] = `
+
+Message:
+> 1 | array.sort(Number.isInteger)
+    |            ^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(52): array.sort(Number.isNaN) 1`] = `
+
+  1 | array.sort(Number.isNaN)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(52): array.sort(Number.isNaN) 2`] = `
+
+Message:
+> 1 | array.sort(Number.isNaN)
+    |            ^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(53): array.sort(Number[\"isNaN\"]) 1`] = `
+
+  1 | array.sort(Number["isNaN"])
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(53): array.sort(Number[\"isNaN\"]) 2`] = `
+
+Message:
+> 1 | array.sort(Number["isNaN"])
+    |            ^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(54): array.sort(Number.isSafeInteger) 1`] = `
+
+  1 | array.sort(Number.isSafeInteger)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(54): array.sort(Number.isSafeInteger) 2`] = `
+
+Message:
+> 1 | array.sort(Number.isSafeInteger)
+    |            ^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(55): array.sort(Object.hasOwn) 1`] = `
+
+  1 | array.sort(Object.hasOwn)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(55): array.sort(Object.hasOwn) 2`] = `
+
+Message:
+> 1 | array.sort(Object.hasOwn)
+    |            ^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(56): array.sort(Object.is) 1`] = `
+
+  1 | array.sort(Object.is)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(56): array.sort(Object.is) 2`] = `
+
+Message:
+> 1 | array.sort(Object.is)
+    |            ^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(57): array.sort(Object.isExtensible) 1`] = `
+
+  1 | array.sort(Object.isExtensible)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(57): array.sort(Object.isExtensible) 2`] = `
+
+Message:
+> 1 | array.sort(Object.isExtensible)
+    |            ^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(58): array.sort(Object.isFrozen) 1`] = `
+
+  1 | array.sort(Object.isFrozen)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(58): array.sort(Object.isFrozen) 2`] = `
+
+Message:
+> 1 | array.sort(Object.isFrozen)
+    |            ^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(59): array.sort(Object.isSealed) 1`] = `
+
+  1 | array.sort(Object.isSealed)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(59): array.sort(Object.isSealed) 2`] = `
+
+Message:
+> 1 | array.sort(Object.isSealed)
+    |            ^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(6): array.sort((a, b) => a < b) 1`] = `
+
+  1 | array.sort((a, b) => a < b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(6): array.sort((a, b) => a < b) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a < b)
+    |            ^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => b - a\`.:
+  1 | array.sort((a, b) => b - a)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(60): array.sort(Reflect.deleteProperty) 1`] = `
+
+  1 | array.sort(Reflect.deleteProperty)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(60): array.sort(Reflect.deleteProperty) 2`] = `
+
+Message:
+> 1 | array.sort(Reflect.deleteProperty)
+    |            ^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(61): array.sort(Reflect.has) 1`] = `
+
+  1 | array.sort(Reflect.has)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(61): array.sort(Reflect.has) 2`] = `
+
+Message:
+> 1 | array.sort(Reflect.has)
+    |            ^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(62): array.sort(URL.canParse) 1`] = `
+
+  1 | array.sort(URL.canParse)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(62): array.sort(URL.canParse) 2`] = `
+
+Message:
+> 1 | array.sort(URL.canParse)
+    |            ^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(63): const compare = (a, b) => a > b;\narray.sort(compare) 1`] = `
+
+  1 | const compare = (a, b) => a > b;
+  2 | array.sort(compare)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(63): const compare = (a, b) => a > b;\narray.sort(compare) 2`] = `
+
+Message:
+  1 | const compare = (a, b) => a > b;
+> 2 | array.sort(compare)
+    |            ^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(64): const compare = function (a, b) { return a > b; };\narray.sort(compare) 1`] = `
+
+  1 | const compare = function (a, b) { return a > b; };
+  2 | array.sort(compare)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(64): const compare = function (a, b) { return a > b; };\narray.sort(compare) 2`] = `
+
+Message:
+  1 | const compare = function (a, b) { return a > b; };
+> 2 | array.sort(compare)
+    |            ^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(65): function compare(a, b) { return a > b; }\narray.sort(compare) 1`] = `
+
+  1 | function compare(a, b) { return a > b; }
+  2 | array.sort(compare)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(65): function compare(a, b) { return a > b; }\narray.sort(compare) 2`] = `
+
+Message:
+  1 | function compare(a, b) { return a > b; }
+> 2 | array.sort(compare)
+    |            ^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(66): array.sort((a: number, b: number): boolean => a > b) 1`] = `
+
+  1 | array.sort((a: number, b: number): boolean => a > b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(66): array.sort((a: number, b: number): boolean => a > b) 2`] = `
+
+Message:
+> 1 | array.sort((a: number, b: number): boolean => a > b)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(67): array.sort((Boolean as (value: unknown) => boolean)) 1`] = `
+
+  1 | array.sort((Boolean as (value: unknown) => boolean))
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(67): array.sort((Boolean as (value: unknown) => boolean)) 2`] = `
+
+Message:
+> 1 | array.sort((Boolean as (value: unknown) => boolean))
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(68): const compare: (a: number, b: number) => boolean = (a, b) => compareUnknown(a, b);\narray.sort(compare) 1`] = `
+
+  1 | const compare: (a: number, b: number) => boolean = (a, b) => compareUnknown(a, b);
+  2 | array.sort(compare)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(68): const compare: (a: number, b: number) => boolean = (a, b) => compareUnknown(a, b);\narray.sort(compare) 2`] = `
+
+Message:
+  1 | const compare: (a: number, b: number) => boolean = (a, b) => compareUnknown(a, b);
+> 2 | array.sort(compare)
+    |            ^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(69): type Comparator = (a: number, b: number) => boolean;\narray.sort(((a, b) => a > b) as Comparator) 1`] = `
+
+  1 | type Comparator = (a: number, b: number) => boolean;
+  2 | array.sort(((a, b) => a > b) as Comparator)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(69): type Comparator = (a: number, b: number) => boolean;\narray.sort(((a, b) => a > b) as Comparator) 2`] = `
+
+Message:
+  1 | type Comparator = (a: number, b: number) => boolean;
+> 2 | array.sort(((a, b) => a > b) as Comparator)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(7): array.sort((a, b) => a <= b) 1`] = `
+
+  1 | array.sort((a, b) => a <= b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(7): array.sort((a, b) => a <= b) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a <= b)
+    |            ^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => b - a\`.:
+  1 | array.sort((a, b) => b - a)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(70): type Comparator = (a: number, b: number) => boolean;\narray.sort(compare as Comparator) 1`] = `
+
+  1 | type Comparator = (a: number, b: number) => boolean;
+  2 | array.sort(compare as Comparator)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(70): type Comparator = (a: number, b: number) => boolean;\narray.sort(compare as Comparator) 2`] = `
+
+Message:
+  1 | type Comparator = (a: number, b: number) => boolean;
+> 2 | array.sort(compare as Comparator)
+    |            ^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(71): array.sort(((a: number, b: number) => a > b) as (a: number, b: number) => boolean) 1`] = `
+
+  1 | array.sort(((a: number, b: number) => a > b) as (a: number, b: number) => boolean)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(71): array.sort(((a: number, b: number) => a > b) as (a: number, b: number) => boolean) 2`] = `
+
+Message:
+> 1 | array.sort(((a: number, b: number) => a > b) as (a: number, b: number) => boolean)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(72): array.sort(compare as (a: number, b: number) => boolean) 1`] = `
+
+  1 | array.sort(compare as (a: number, b: number) => boolean)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(72): array.sort(compare as (a: number, b: number) => boolean) 2`] = `
+
+Message:
+> 1 | array.sort(compare as (a: number, b: number) => boolean)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(73): array.sort((a: number, b: number): boolean => compare(a, b)) 1`] = `
+
+  1 | array.sort((a: number, b: number): boolean => compare(a, b))
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(73): array.sort((a: number, b: number): boolean => compare(a, b)) 2`] = `
+
+Message:
+> 1 | array.sort((a: number, b: number): boolean => compare(a, b))
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(74): array.sort(function (a: number, b: number): boolean {\n\treturn compare(a, b);\n}) 1`] = `
+
+  1 | array.sort(function (a: number, b: number): boolean {
+  2 | 	return compare(a, b);
+  3 | })
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(74): array.sort(function (a: number, b: number): boolean {\n\treturn compare(a, b);\n}) 2`] = `
+
+Message:
+> 1 | array.sort(function (a: number, b: number): boolean {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	return compare(a, b);
+    | ^^^^^^^^^^^^^^^^^^^^^^
+> 3 | })
+    | ^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(75): array.sort((a: number, b: number) => (a > b) as boolean) 1`] = `
+
+  1 | array.sort((a: number, b: number) => (a > b) as boolean)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(75): array.sort((a: number, b: number) => (a > b) as boolean) 2`] = `
+
+Message:
+> 1 | array.sort((a: number, b: number) => (a > b) as boolean)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(76): array.sort((a: number, b: number) => <boolean>(a > b)) 1`] = `
+
+  1 | array.sort((a: number, b: number) => <boolean>(a > b))
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(76): array.sort((a: number, b: number) => <boolean>(a > b)) 2`] = `
+
+Message:
+> 1 | array.sort((a: number, b: number) => <boolean>(a > b))
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(77): array.sort((a: number, b: number) => (a > b) satisfies boolean) 1`] = `
+
+  1 | array.sort((a: number, b: number) => (a > b) satisfies boolean)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(77): array.sort((a: number, b: number) => (a > b) satisfies boolean) 2`] = `
+
+Message:
+> 1 | array.sort((a: number, b: number) => (a > b) satisfies boolean)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(78): array.sort((a: number, b: number) => (a > b)!) 1`] = `
+
+  1 | array.sort((a: number, b: number) => (a > b)!)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(78): array.sort((a: number, b: number) => (a > b)!) 2`] = `
+
+Message:
+> 1 | array.sort((a: number, b: number) => (a > b)!)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(79): array.sort(<T extends {score: number}>(a, b) => a.score > b.score) 1`] = `
+
+  1 | array.sort(<T extends {score: number}>(a, b) => a.score > b.score)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(79): array.sort(<T extends {score: number}>(a, b) => a.score > b.score) 2`] = `
+
+Message:
+> 1 | array.sort(<T extends {score: number}>(a, b) => a.score > b.score)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(8): array.sort((a, b) => b > a) 1`] = `
+
+  1 | array.sort((a, b) => b > a)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(8): array.sort((a, b) => b > a) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => b > a)
+    |            ^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => b - a\`.:
+  1 | array.sort((a, b) => b - a)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(80): array.sort((a?, b?) => a > b) 1`] = `
+
+  1 | array.sort((a?, b?) => a > b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(80): array.sort((a?, b?) => a > b) 2`] = `
+
+Message:
+> 1 | array.sort((a?, b?) => a > b)
+    |            ^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(81): array.sort((a: number, b: number): boolean => {\n\tif (a > b) {\n\t\treturn true;\n\t}\n\n\treturn false;\n}) 1`] = `
+
+  1 | array.sort((a: number, b: number): boolean => {
+  2 | 	if (a > b) {
+  3 | 		return true;
+  4 | 	}
+  5 |
+  6 | 	return false;
+  7 | })
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(81): array.sort((a: number, b: number): boolean => {\n\tif (a > b) {\n\t\treturn true;\n\t}\n\n\treturn false;\n}) 2`] = `
+
+Message:
+> 1 | array.sort((a: number, b: number): boolean => {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	if (a > b) {
+    | ^^^^^^^^^^^^^
+> 3 | 		return true;
+    | ^^^^^^^^^^^^^^
+> 4 | 	}
+    | ^^
+> 5 |
+    | ^
+> 6 | 	return false;
+    | ^^^^^^^^^^^^^^
+> 7 | })
+    | ^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(82): array.sort((a: unknown, b: unknown) => (a as number) > (b as number)) 1`] = `
+
+  1 | array.sort((a: unknown, b: unknown) => (a as number) > (b as number))
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(82): array.sort((a: unknown, b: unknown) => (a as number) > (b as number)) 2`] = `
+
+Message:
+> 1 | array.sort((a: unknown, b: unknown) => (a as number) > (b as number))
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(83): array.sort(Boolean!) 1`] = `
+
+  1 | array.sort(Boolean!)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(83): array.sort(Boolean!) 2`] = `
+
+Message:
+> 1 | array.sort(Boolean!)
+    |            ^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(84): array.sort(([a], [b]) => a > b) 1`] = `
+
+  1 | array.sort(([a], [b]) => a > b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(84): array.sort(([a], [b]) => a > b) 2`] = `
+
+Message:
+> 1 | array.sort(([a], [b]) => a > b)
+    |            ^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(85): function f(array: Int8Array) { array.sort((a, b) => a > b); } 1`] = `
+
+  1 | function f(array: Int8Array) { array.sort((a, b) => a > b); }
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(85): function f(array: Int8Array) { array.sort((a, b) => a > b); } 2`] = `
+
+Message:
+> 1 | function f(array: Int8Array) { array.sort((a, b) => a > b); }
+    |                                           ^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => a - b\`.:
+  1 | function f(array: Int8Array) { array.sort((a, b) => a - b); }
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(86): array.sort((a, b) => a.score > b) 1`] = `
+
+  1 | array.sort((a, b) => a.score > b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(86): array.sort((a, b) => a.score > b) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => a.score > b)
+    |            ^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(87): array.sort((a, b) => (a as number) > b) 1`] = `
+
+  1 | array.sort((a, b) => (a as number) > b)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(87): array.sort((a, b) => (a as number) > b) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => (a as number) > b)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(88): array.sort((compare as (a: number, b: number) => boolean)!) 1`] = `
+
+  1 | array.sort((compare as (a: number, b: number) => boolean)!)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(88): array.sort((compare as (a: number, b: number) => boolean)!) 2`] = `
+
+Message:
+> 1 | array.sort((compare as (a: number, b: number) => boolean)!)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(9): array.sort((a, b) => b >= a) 1`] = `
+
+  1 | array.sort((a, b) => b >= a)
+
+`;
+
+exports[`no-boolean-sort-comparator > invalid(9): array.sort((a, b) => b >= a) 2`] = `
+
+Message:
+> 1 | array.sort((a, b) => b >= a)
+    |            ^^^^^^^^^^^^^^^^ Do not return a boolean from a sort comparator.
+
+Suggestion 1/1: Replace with \`(a, b) => b - a\`.:
+  1 | array.sort((a, b) => b - a)
+
+`;
