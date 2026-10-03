@@ -13,7 +13,9 @@ This rule reports direct top-level expression statements and default-exported ex
 
 The rule ignores files without exports and executable scripts with a shebang. Files whose only exports are type-only (`export type`, `export interface`, `export declare`, `export {type Foo}`, …) are treated as having no exports, since those exports are erased when TypeScript is compiled to JavaScript. Top-level assignments and declarations are also out of scope, so `document.title = 'gone';` and `const response = fetch();` are not reported. A default-exported expression is not a declaration, so `export default init();` is reported. This assignment exception is intentionally narrow: other mutation expressions, including `counter++` and `delete object.property`, are reported. When intentionally removing a property while constructing an export, prefer object rest destructuring or locally disable the rule. Use ESLint config overrides or ignores for project-specific entrypoints, polyfills, or setup files.
 
-Direct calls to `memo`, `forwardRef`, `lazy`, `createContext`, `createRef`, `createElement`, `cloneElement`, and `isValidElement` imported from `react` are allowed, including nested calls such as `memo(forwardRef(Component))`. Default, namespace, and named imports are supported, including import aliases. Calls through local variable aliases, computed members, optional chains, or conditional expressions remain conservatively checked. Arguments are still checked for side effects, so `memo(initialize())` is reported. This allowance applies to standalone top-level expression statements and default exports. Calls inside arbitrary object or array expressions remain conservatively checked, and globally supplied React objects are not recognized.
+Direct calls to `memo`, `forwardRef`, `lazy`, `createContext`, `createRef`, `createElement`, `cloneElement`, and `isValidElement` imported from `react` are allowed, including nested calls such as `memo(forwardRef(Component))`. Default, namespace, and named imports are supported, including import aliases. Calls through local variable aliases, computed members, optional chains, or conditional expressions remain conservatively checked. Globally supplied React objects are not recognized.
+
+Arguments are still checked for side effects, so `memo(initialize())` is reported. This allowance applies to standalone top-level expression statements and default exports. Calls inside arbitrary object or array expressions remain conservatively checked.
 
 Tagged templates are checked when they are direct arguments. Tags nested in other expressions, such as object properties, are outside this rule's analysis.
 
@@ -74,6 +76,16 @@ export default memo(initialize());
 
 // ✅
 export default memo(forwardRef(Component));
+```
+
+```ts
+import React from 'react';
+
+// ❌
+export default React.memo<Props>(initialize());
+
+// ✅
+export default React.memo<Props>(Link);
 ```
 
 ## Figma Code Connect templates

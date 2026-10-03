@@ -323,6 +323,25 @@ test({
 	],
 });
 
+for (const [parser, filename] of [[undefined, 'component.jsx'], [parsers.typescript, 'component.tsx']]) {
+	test({
+		testerOptions: {
+			languageOptions: {
+				parser,
+				parserOptions: {ecmaFeatures: {jsx: true}},
+			},
+		},
+		valid: [
+			'import {memo} from "react"; export default memo(() => <Link title={initialize()} />);',
+			'import {cloneElement} from "react"; export default cloneElement(<Link />);',
+		].map(code => ({code, filename})),
+		invalid: [
+			'import {createElement} from "react"; export default createElement("div", {}, <span>{initialize()}</span>);',
+			'import {cloneElement} from "react"; export default cloneElement(<Link title={initialize()} />);',
+		].map(code => ({code, filename, errors: [{messageId: 'no-top-level-side-effects'}]})),
+	});
+}
+
 // `export default init()` runs at module evaluation time just like a bare expression
 test({
 	valid: [
