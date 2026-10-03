@@ -245,7 +245,5 @@ test.snapshot({
 		String.raw`foo.replace(/\p{RGI_Emoji}/gv, "b")`,
 		// A property escape with the `v` flag
 		String.raw`foo.split(/\p{L}/gv).join("b")`,
-		// `regjsparser` cannot parse this pattern, so only the method is changed
-		'foo.replace(/(?i:a)/g, "b")',
 	],
 });

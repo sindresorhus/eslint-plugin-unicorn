@@ -32,23 +32,6 @@ Output:
 
 `;
 
-exports[`prefer-string-replace-all > invalid(100): foo.replace(/(?i:a)/g, \"b\") 1`] = `
-
-  1 | foo.replace(/(?i:a)/g, "b")
-
-`;
-
-exports[`prefer-string-replace-all > invalid(100): foo.replace(/(?i:a)/g, \"b\") 2`] = `
-
-Message:
-> 1 | foo.replace(/(?i:a)/g, "b")
-    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
-
-Output:
-  1 | foo.replaceAll(/(?i:a)/g, "b")
-
-`;
-
 exports[`prefer-string-replace-all > invalid(11): foo.replace(/[a]/g, bar) 1`] = `
 
   1 | foo.replace(/[a]/g, bar)

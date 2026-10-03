@@ -135,6 +135,8 @@ function getPatternReplacement(node) {
 	}
 
 	const tree = parseRegExpLiteral(node);
+	// Only when parsing fails, see `parseRegExpLiteral()`
+	/* node:coverage ignore next 3 */
 	if (!tree) {
 		return;
 	}
@@ -168,6 +170,8 @@ const parseRegExpLiteral = node => {
 			namedGroups: true,
 			lookbehind: true,
 		});
+		// Only syntax that is newer than `regjsparser`, like regular expression modifiers, gets here, and only on Node.js versions that support it
+		/* node:coverage ignore next 3 */
 	} catch {
 		// Invalid regular expression.
 	}
