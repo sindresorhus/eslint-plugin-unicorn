@@ -11,9 +11,20 @@ Top-level side effects run as soon as a module is imported. This can make export
 
 This rule reports direct top-level expression statements and default-exported expressions with side effects in files that have ESM exports. It intentionally stays conservative and does not try to prove full module purity.
 
-The rule ignores files without exports and executable scripts with a shebang. Files whose only exports are type-only (`export type`, `export interface`, `export declare`, `export {type Foo}`, …) are treated as having no exports, since those exports are erased when TypeScript is compiled to JavaScript. Top-level assignments and declarations are also out of scope, so `document.title = 'gone';` and `const response = fetch();` are not reported. A default-exported expression is not a declaration, so `export default init();` is reported. This assignment exception is intentionally narrow: other mutation expressions, including `counter++` and `delete object.property`, are reported. When intentionally removing a property while constructing an export, prefer object rest destructuring or locally disable the rule. Use ESLint config overrides or ignores for project-specific entrypoints, polyfills, or setup files.
+The rule ignores:
+
+- Files without exports.
+- Executable scripts with a shebang.
+- Files whose only exports are type-only (`export type`, `export interface`, `export declare`, `export {type Foo}`, …), since those exports are erased when TypeScript is compiled to JavaScript.
+- Top-level assignments and declarations, such as `document.title = 'gone';` and `const response = fetch();`.
+
+A default-exported expression is not a declaration, so `export default init();` is reported. The assignment exception is intentionally narrow: other mutation expressions, including `counter++` and `delete object.property`, are reported. When intentionally removing a property while constructing an export, prefer object rest destructuring or locally disable the rule.
+
+Use ESLint config overrides or ignores for project-specific entrypoints, polyfills, or setup files.
 
 Direct calls to `memo`, `forwardRef`, `lazy`, `createContext`, `createRef`, `createElement`, `cloneElement`, and `isValidElement` imported from `react` are allowed, including nested calls such as `memo(forwardRef(Component))`. Default, namespace, and named imports are supported, including import aliases. Calls through local variable aliases, computed members, optional chains, or conditional expressions remain conservatively checked. Globally supplied React objects are not recognized.
+
+Direct calls to `defineComponent` imported from `vue` are also allowed, including named import aliases and namespace imports. Setup functions are deferred until component setup, while arguments of `defineComponent` are still checked for side effects.
 
 Direct calls to these configuration helpers are also allowed, including named import aliases and namespace imports:
 
@@ -99,6 +110,20 @@ export default React.memo<Props>(initialize());
 
 // ✅
 export default React.memo<Props>(Link);
+```
+
+```js
+import {defineComponent} from 'vue';
+
+// ❌
+export default defineComponent(loadOptions());
+
+// ✅
+export default defineComponent({
+	setup() {
+		initialize();
+	},
+});
 ```
 
 ```js

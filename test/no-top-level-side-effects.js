@@ -323,6 +323,43 @@ test({
 	],
 });
 
+test({
+	valid: [
+		'import {defineComponent} from "vue"; export default defineComponent({setup() { initialize(); }});',
+		'import {defineComponent as component} from "vue"; export {}; component({});',
+		'import * as Vue from "vue"; export default Vue.defineComponent({});',
+		'import {defineComponent} from "vue"; export default defineComponent(() => { initialize(); return () => null; });',
+		'import {defineComponent} from "vue"; export default defineComponent(() => () => null, {name: "Component"});',
+		typescriptCode('import {defineComponent} from "vue"; export default defineComponent<{title: string}>(() => () => null);'),
+		vueCode('<script>import {defineComponent} from "vue"; export default defineComponent({setup() { initialize(); }});</script>'),
+		vueTypeScriptCode('<script lang="ts">import {defineComponent} from "vue"; export default defineComponent({}) satisfies Component;</script>'),
+	],
+	invalid: [
+		...[
+			'import {defineComponent} from "vue"; export default defineComponent(loadOptions());',
+			'import {defineComponent} from "vue"; export default defineComponent({setup: initialize()});',
+			'import {defineComponent} from "vue"; export default defineComponent(() => () => null, {name: initialize()});',
+			'import {defineComponent as component} from "vue"; export {}; component(loadOptions());',
+			'import * as Vue from "vue"; export default Vue.defineComponent(loadOptions());',
+			'import {defineComponent} from "other"; export default defineComponent({});',
+			'import {createApp} from "vue"; export default createApp({});',
+			'export default defineComponent({});',
+		].map(code => ({code, errors: [{messageId: 'no-top-level-side-effects'}]})),
+		{
+			...typescriptCode('import type {defineComponent} from "vue"; export default defineComponent({});'),
+			errors: [{messageId: 'no-top-level-side-effects'}],
+		},
+		{
+			...vueCode('<script>import {defineComponent} from "vue"; export default defineComponent({setup: initialize()});</script>'),
+			errors: [{messageId: 'no-top-level-side-effects'}],
+		},
+		{
+			code: 'import {defineComponent} from "vue"; export default defineComponent({});\ninit();',
+			errors: [{messageId: 'no-top-level-side-effects', line: 2}],
+		},
+	],
+});
+
 for (const moduleName of ['eslint/config', '@eslint/config-helpers']) {
 	test({
 		valid: [
@@ -383,8 +420,6 @@ for (const [moduleName, method] of [
 			`import {${method}} from "${moduleName}"; export default ${method}({});`,
 			`import {${method} as configure} from "${moduleName}"; export {}; configure({});`,
 			`import * as configHelpers from "${moduleName}"; export default configHelpers.${method}({});`,
-			`import {${method}} from "${moduleName}"; export default ${method}(() => ({plugins: [initialize()]}));`,
-			`import {${method}} from "${moduleName}"; export default ${method}(async () => loadConfig());`,
 			typescriptCode(`import {${method}} from "${moduleName}"; export default ${method}({}) satisfies Config;`),
 		],
 		invalid: [
@@ -401,6 +436,19 @@ for (const [moduleName, method] of [
 		],
 	});
 }
+
+test({
+	valid: [
+		'import {defineConfig} from "vite"; export default defineConfig(() => ({plugins: [initialize()]}));',
+		'import {defineConfig} from "vite"; export default defineConfig(async () => loadConfig());',
+		'import {defineConfig} from "vite"; export default defineConfig(async () => new Promise(resolve => resolve(loadConfig())));',
+	],
+	invalid: [
+		'import {defineConfig} from "vite"; export default defineConfig({[initialize()]: true});',
+		'import {defineConfig} from "vite"; export default defineConfig({...loadConfig()});',
+		'import {defineConfig} from "vite"; export default defineConfig(new Promise(resolve => resolve(loadConfig())));',
+	].map(code => ({code, errors: [{messageId: 'no-top-level-side-effects'}]})),
+});
 
 test({
 	valid: [],

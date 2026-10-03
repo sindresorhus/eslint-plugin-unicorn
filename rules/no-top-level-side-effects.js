@@ -17,6 +17,7 @@ const knownPureMethods = new Map([
 		'cloneElement',
 		'isValidElement',
 	])],
+	['vue', new Set(['defineComponent'])],
 	['eslint/config', new Set(['defineConfig'])],
 	['@eslint/config-helpers', new Set(['defineConfig'])],
 	['vite', new Set(['defineConfig'])],
