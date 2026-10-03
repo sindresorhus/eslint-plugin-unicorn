@@ -15,7 +15,18 @@ The rule ignores files without exports and executable scripts with a shebang. Fi
 
 Direct calls to `memo`, `forwardRef`, `lazy`, `createContext`, `createRef`, `createElement`, `cloneElement`, and `isValidElement` imported from `react` are allowed, including nested calls such as `memo(forwardRef(Component))`. Default, namespace, and named imports are supported, including import aliases. Calls through local variable aliases, computed members, optional chains, or conditional expressions remain conservatively checked. Globally supplied React objects are not recognized.
 
-Direct calls to `defineConfig` imported from `eslint/config` or `@eslint/config-helpers` are also allowed, including named import aliases and namespace imports. Other helpers from these modules, such as `globalIgnores` and `includeIgnoreFile`, are still reported.
+Direct calls to these configuration helpers are also allowed, including named import aliases and namespace imports:
+
+| Import source | Allowed helpers |
+| --- | --- |
+| `eslint/config` | `defineConfig` |
+| `@eslint/config-helpers` | `defineConfig` |
+| `vite` | `defineConfig` |
+| `vitest/config` | `defineConfig`, `defineProject` |
+| `rollup` | `defineConfig` |
+| `astro/config` | `defineConfig` |
+
+Other helpers, such as `globalIgnores` and `includeIgnoreFile`, are still reported.
 
 Arguments of allowed calls are still checked for side effects, so `memo(initialize())` and `defineConfig([loadConfig()])` are reported. These allowances apply to standalone top-level expression statements and default exports. Calls inside arbitrary object or array expressions remain conservatively checked.
 
@@ -99,6 +110,18 @@ export default defineConfig([loadConfig()]);
 // ✅
 export default defineConfig([{rules: {}}]);
 ```
+
+```js
+import {defineConfig} from 'vite';
+
+// ❌
+export default defineConfig({plugins: [initializePlugin()]});
+
+// ✅
+export default defineConfig(() => ({plugins: [initializePlugin()]}));
+```
+
+Calls inside configuration callbacks are deferred until the callback runs, so they are not top-level side effects.
 
 ## Figma Code Connect templates
 

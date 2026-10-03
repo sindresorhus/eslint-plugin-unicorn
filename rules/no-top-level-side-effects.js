@@ -19,6 +19,10 @@ const knownPureMethods = new Map([
 	])],
 	['eslint/config', new Set(['defineConfig'])],
 	['@eslint/config-helpers', new Set(['defineConfig'])],
+	['vite', new Set(['defineConfig'])],
+	['vitest/config', new Set(['defineConfig', 'defineProject'])],
+	['rollup', new Set(['defineConfig'])],
+	['astro/config', new Set(['defineConfig'])],
 ]);
 
 const exportDeclarationTypes = new Set([

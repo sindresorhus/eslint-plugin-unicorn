@@ -371,6 +371,46 @@ test({
 	],
 });
 
+for (const [moduleName, method] of [
+	['vite', 'defineConfig'],
+	['vitest/config', 'defineConfig'],
+	['vitest/config', 'defineProject'],
+	['rollup', 'defineConfig'],
+	['astro/config', 'defineConfig'],
+]) {
+	test({
+		valid: [
+			`import {${method}} from "${moduleName}"; export default ${method}({});`,
+			`import {${method} as configure} from "${moduleName}"; export {}; configure({});`,
+			`import * as configHelpers from "${moduleName}"; export default configHelpers.${method}({});`,
+			`import {${method}} from "${moduleName}"; export default ${method}(() => ({plugins: [initialize()]}));`,
+			`import {${method}} from "${moduleName}"; export default ${method}(async () => loadConfig());`,
+			typescriptCode(`import {${method}} from "${moduleName}"; export default ${method}({}) satisfies Config;`),
+		],
+		invalid: [
+			...[
+				`import {${method}} from "${moduleName}"; export default ${method}(loadConfig());`,
+				`import {${method}} from "${moduleName}"; export default ${method}({plugins: [initialize()]});`,
+				`import {${method} as configure} from "${moduleName}"; export {}; configure(loadConfig());`,
+				`import * as configHelpers from "${moduleName}"; export default configHelpers.${method}(loadConfig());`,
+			].map(code => ({code, errors: [{messageId: 'no-top-level-side-effects'}]})),
+			{
+				code: `import {${method}} from "${moduleName}"; export default ${method}({});\ninit();`,
+				errors: [{messageId: 'no-top-level-side-effects', line: 2}],
+			},
+		],
+	});
+}
+
+test({
+	valid: [],
+	invalid: [
+		'import {defineProject} from "vite"; export default defineProject({});',
+		'import {defineProject} from "other"; export default defineProject({});',
+		'export default defineProject({});',
+	].map(code => ({code, errors: [{messageId: 'no-top-level-side-effects'}]})),
+});
+
 for (const [parser, filename] of [[undefined, 'component.jsx'], [parsers.typescript, 'component.tsx']]) {
 	test({
 		testerOptions: {
