@@ -296,7 +296,9 @@ test({
 		].map(code => ({code, errors: 1})),
 		{
 			code: 'import {memo} from "react"; export default memo(Link);\ninit();',
-			errors: [{messageId: 'no-top-level-side-effects', line: 2, column: 1, endLine: 2, endColumn: 8}],
+			errors: [{
+				messageId: 'no-top-level-side-effects', line: 2, column: 1, endLine: 2, endColumn: 8,
+			}],
 		},
 		{
 			...typescriptCode('import {memo} from "react"; export default (memo(initialize()) as Component);'),
