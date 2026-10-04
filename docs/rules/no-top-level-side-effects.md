@@ -26,8 +26,8 @@ Direct calls to these imported helpers are allowed:
 
 - `react`: `memo`, `forwardRef`, `lazy`, `createContext`, `createRef`, `createElement`, `cloneElement`, and `isValidElement`.
 - `vue`: `defineComponent`.
-- `defineConfig` from `eslint/config`, `@eslint/config-helpers`, `vite`, `vitest/config`, `rollup`, or `astro/config`.
-- `defineProject` from `vitest/config`.
+- `eslint/config`, `@eslint/config-helpers`, `vite`, `rollup`, and `astro/config`: `defineConfig`.
+- `vitest/config`: `defineConfig` and `defineProject`.
 
 Named and namespace imports support import aliases; React also supports default imports. Recognition requires a direct import: local variable aliases, computed members, optional chains, conditional calls, and globally supplied objects remain conservatively checked.
 
