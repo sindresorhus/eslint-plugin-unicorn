@@ -57,7 +57,7 @@ const isUnmodifiedMutableVariable = (node, context) => {
 	);
 };
 
-const isStringNode = (node, context) => {
+const isStringNode = (node, context, isTarget) => {
 	if (
 		isStringLiteral(node)
 		|| isStringCall(node)
@@ -77,16 +77,16 @@ const isStringNode = (node, context) => {
 
 		case 'BinaryExpression': {
 			return node.operator === '+'
-				&& (isString(node.left, context) || isString(node.right, context));
+				&& (isString(node.left, context, isTarget) || isString(node.right, context, isTarget));
 		}
 
 		case 'AssignmentExpression': {
 			if (node.operator === '=') {
-				return isString(node.right, context);
+				return isString(node.right, context, isTarget);
 			}
 
 			return node.operator === '+='
-				&& (isString(node.left, context) || isString(node.right, context));
+				&& (isString(node.left, context, isTarget) || isString(node.right, context, isTarget));
 		}
 
 		default: {
@@ -107,7 +107,7 @@ const {
 	getStaticType,
 });
 
-export default function isString(node, context) {
+export default function isString(node, context, isTarget = isStringTarget) {
 	if (!node) {
 		return false;
 	}
@@ -119,7 +119,7 @@ export default function isString(node, context) {
 		return true;
 	}
 
-	if (isStringTarget(node, context)) {
+	if (isTarget(node, context)) {
 		return true;
 	}
 

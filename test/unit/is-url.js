@@ -95,3 +95,13 @@ test('treats a type information error as unknown', t => {
 
 	t.assert.deepStrictEqual(getResults('inspect(foo);', {parser}), [false]);
 });
+
+test('resolves different aliases with the same name', t => {
+	t.assert.deepStrictEqual(getResults('type Value = URL; type Alias = Value; { type Value = Alias; function foo(value: Value) { inspect(value); } }'), [true]);
+});
+
+test('terminates recursive aliases and checks repeated concrete branches', t => {
+	t.assert.deepStrictEqual(getResults('type Cycle = Cycle; function foo(value: Cycle) { inspect(value); }'), [false]);
+	t.assert.deepStrictEqual(getResults('type Value = URL; type Either = Value | Value; function foo(value: Either) { inspect(value); }'), [true]);
+	t.assert.deepStrictEqual(getResults('type Value = number; type Alias = Value; { type Value = Alias; function foo(value: Value) { inspect(value); } }'), [false]);
+});

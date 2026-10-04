@@ -147,3 +147,41 @@ test({
 		})),
 	],
 });
+
+// Shared ancestors in separate union branches are not cycles.
+test({
+	valid: [
+		typeAware('type First = Second; type Second = First; declare const errors: First[]; if (errors.length) { throw new Error(); }'),
+		typeAware('class FirstError extends SecondError {} class SecondError extends FirstError {} declare const errors: FirstError[]; if (errors.length) { throw new Error(); }'),
+	],
+	invalid: [
+		'class FirstError extends Error {first = true;} class SecondError extends Error {second = true;}',
+		'class BaseError extends Error {} class FirstError extends BaseError {first = true;} class SecondError extends BaseError {second = true;}',
+	].map(declarations => ({
+		...typeAware(`${declarations} declare function getErrors(): Array<FirstError | SecondError>; const errors = getErrors(); if (errors.length) { throw new Error(); }`),
+		output: `${declarations} declare function getErrors(): Array<FirstError | SecondError>; const errors = getErrors(); if (errors.length) { throw new AggregateError(errors); }`,
+		errors: 1,
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [{
+		...typeAware('function foo<First extends Error[], Second extends Error[]>(errors: First | Second) { if (errors.length) { throw new Error(); } }'),
+		output: 'function foo<First extends Error[], Second extends Error[]>(errors: First | Second) { if (errors.length) { throw new AggregateError(errors); } }',
+		errors: 1,
+	}],
+});
+
+// Same-named aliases in different scopes do not form a cycle.
+test({
+	valid: [],
+	invalid: [
+		'type Issue = Error; type Alias = Issue; { type Issue = Alias; function foo(errors: Issue[]) { if (errors.length) { throw new Error(); } } }',
+		'type Values = Error[]; type Alias = Values; { type Values = Alias; function foo(errors: Values) { if (errors.length) { throw new Error(); } } }',
+	].map(code => ({
+		...typescript(code),
+		output: code.replace('new Error()', 'new AggregateError(errors)'),
+		errors: 1,
+	})),
+});

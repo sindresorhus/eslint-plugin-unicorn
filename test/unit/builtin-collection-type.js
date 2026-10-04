@@ -56,3 +56,10 @@ test('detects mixed map and set types', t => {
 	t.assert.deepStrictEqual(getResults('declare const value: Set<string> | ReadonlySet<string>; inspect(value);'), ['Set']);
 	t.assert.deepStrictEqual(getResults('declare const value: Map<string, string> | Set<string>; inspect(value);'), [undefined]);
 });
+
+test('terminates variable cycles and recognizes repeated concrete branches', t => {
+	t.assert.deepStrictEqual(getResults('const self = self; const first = second; const second = first; inspect(self); inspect(first); inspect(second);'), [undefined, undefined, undefined]);
+	t.assert.deepStrictEqual(getResults('const value = new Set(); const alias = value; inspect(condition ? alias : alias);'), ['Set']);
+	t.assert.deepStrictEqual(getResults('const value = new Map(); const alias = value; inspect(condition ? alias : alias);'), ['Map']);
+	t.assert.deepStrictEqual(getResults('const value = {}; const alias = value; inspect(condition ? alias : alias);'), [undefined]);
+});

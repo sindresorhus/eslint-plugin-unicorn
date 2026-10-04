@@ -84,11 +84,11 @@ function getTypeReferenceName(typeName) {
 	}
 }
 
-function isBooleanCallSignatureMembers(members, context, scope, visitedTypeReferenceNames) {
+function isBooleanCallSignatureMembers(members, context, scope, visitedTypeReferences) {
 	const callSignatures = members.filter(member => member.type === 'TSCallSignatureDeclaration');
 
 	return callSignatures.length > 0
-		&& callSignatures.every(member => isBooleanTypeAnnotation(member.returnType, context, scope, visitedTypeReferenceNames));
+		&& callSignatures.every(member => isBooleanTypeAnnotation(member.returnType, context, scope, visitedTypeReferences));
 }
 
 const hasCallSignatureMembers = members =>
@@ -98,63 +98,66 @@ function isTypeReference({
 	node,
 	context,
 	scope,
-	visitedTypeReferenceNames,
+	visitedTypeReferences,
 	predicate,
 }) {
 	const name = getTypeReferenceName(node.typeName);
-	if (!name || visitedTypeReferenceNames.has(name)) {
+	if (!name) {
 		return false;
 	}
 
-	visitedTypeReferenceNames.add(name);
-
 	const variable = resolveVariableName(name, scope);
-	const [definition] = variable?.defs ?? [];
+	if (!variable || visitedTypeReferences.has(variable)) {
+		return false;
+	}
+
+	visitedTypeReferences.add(variable);
+	const [definition] = variable.defs;
 	const definitionScope = definition?.type === 'Type'
 		? context.sourceCode.getScope(definition.node)
 		: scope;
 	const result = definition?.type === 'Type' && predicate(definition.node, definitionScope);
 
-	visitedTypeReferenceNames.delete(name);
+	visitedTypeReferences.delete(variable);
 	return result;
 }
 
-const isBooleanTypeReference = (node, context, scope, visitedTypeReferenceNames) => isTypeReference(
+const isBooleanTypeReference = (node, context, scope, visitedTypeReferences) => isTypeReference(
 	{
 		node,
 		context,
 		scope,
-		visitedTypeReferenceNames,
+		visitedTypeReferences,
 		predicate: (definitionNode, definitionScope) => definitionNode.type === 'TSTypeAliasDeclaration'
-			&& isBooleanTypeAnnotation(definitionNode.typeAnnotation, context, definitionScope, visitedTypeReferenceNames),
+			&& isBooleanTypeAnnotation(definitionNode.typeAnnotation, context, definitionScope, visitedTypeReferences),
 	},
 );
 
-const isBooleanFunctionTypeReference = (node, context, scope, visitedTypeReferenceNames) => isTypeReference(
+const isBooleanFunctionTypeReference = (node, context, scope, visitedTypeReferences) => isTypeReference(
 	{
 		node,
 		context,
 		scope,
-		visitedTypeReferenceNames,
+		visitedTypeReferences,
 		predicate: (definitionNode, definitionScope) => (
 			definitionNode.type === 'TSTypeAliasDeclaration'
-			&& isBooleanFunctionTypeAnnotation(definitionNode.typeAnnotation, context, definitionScope, visitedTypeReferenceNames)
+			&& isBooleanFunctionTypeAnnotation(definitionNode.typeAnnotation, context, definitionScope, visitedTypeReferences)
 		) || (
 			definitionNode.type === 'TSInterfaceDeclaration'
-			&& isBooleanCallSignatureMembers(definitionNode.body.body, context, definitionScope, visitedTypeReferenceNames)
+			&& isBooleanCallSignatureMembers(definitionNode.body.body, context, definitionScope, visitedTypeReferences)
 		),
 	},
 );
 
-const isFunctionTypeReference = (node, context, scope, visitedTypeReferenceNames) => isTypeReference(
+const isFunctionTypeReference = (node, context, scope, visitedTypeReferences) => isTypeReference(
 	{
 		node,
 		context,
 		scope,
-		visitedTypeReferenceNames,
+		visitedTypeReferences,
 		predicate: (definitionNode, definitionScope) => (
 			definitionNode.type === 'TSTypeAliasDeclaration'
-			&& isFunctionTypeAnnotation(definitionNode.typeAnnotation, context, definitionScope, visitedTypeReferenceNames)
+			&& isFunctionTypeAnnotation(definitionNode.typeAnnotation, context, definitionScope, visitedTypeReferences)
 		) || (
 			definitionNode.type === 'TSInterfaceDeclaration'
 			&& hasCallSignatureMembers(definitionNode.body.body)
@@ -162,11 +165,11 @@ const isFunctionTypeReference = (node, context, scope, visitedTypeReferenceNames
 	},
 );
 
-function isBooleanTypeAnnotation(node, context, scope, visitedTypeReferenceNames = new Set()) {
+function isBooleanTypeAnnotation(node, context, scope, visitedTypeReferences = new Set()) {
 	switch (node?.type) {
 		case 'TSTypeAnnotation':
 		case 'TSParenthesizedType': {
-			return isBooleanTypeAnnotation(node.typeAnnotation, context, scope, visitedTypeReferenceNames);
+			return isBooleanTypeAnnotation(node.typeAnnotation, context, scope, visitedTypeReferences);
 		}
 
 		case 'TSBooleanKeyword': {
@@ -178,7 +181,7 @@ function isBooleanTypeAnnotation(node, context, scope, visitedTypeReferenceNames
 		}
 
 		case 'TSTypeReference': {
-			return isBooleanTypeReference(node, context, scope, visitedTypeReferenceNames);
+			return isBooleanTypeReference(node, context, scope, visitedTypeReferences);
 		}
 
 		case 'TSTypePredicate': {
@@ -186,7 +189,7 @@ function isBooleanTypeAnnotation(node, context, scope, visitedTypeReferenceNames
 		}
 
 		case 'TSUnionType': {
-			return node.types.every(type => isBooleanTypeAnnotation(type, context, scope, visitedTypeReferenceNames));
+			return node.types.every(type => isBooleanTypeAnnotation(type, context, scope, visitedTypeReferences));
 		}
 
 		// Flow annotation from `@babel/eslint-parser`, which the tests do not use.
@@ -201,11 +204,11 @@ function isBooleanTypeAnnotation(node, context, scope, visitedTypeReferenceNames
 	}
 }
 
-function isFunctionTypeAnnotation(node, context, scope, visitedTypeReferenceNames = new Set()) {
+function isFunctionTypeAnnotation(node, context, scope, visitedTypeReferences = new Set()) {
 	switch (node?.type) {
 		case 'TSTypeAnnotation':
 		case 'TSParenthesizedType': {
-			return isFunctionTypeAnnotation(node.typeAnnotation, context, scope, visitedTypeReferenceNames);
+			return isFunctionTypeAnnotation(node.typeAnnotation, context, scope, visitedTypeReferences);
 		}
 
 		case 'TSFunctionType': {
@@ -217,14 +220,14 @@ function isFunctionTypeAnnotation(node, context, scope, visitedTypeReferenceName
 		}
 
 		case 'TSTypeReference': {
-			return isFunctionTypeReference(node, context, scope, visitedTypeReferenceNames);
+			return isFunctionTypeReference(node, context, scope, visitedTypeReferences);
 		}
 
 		case 'TSUnionType': {
 			const types = node.types.filter(type => !nullishTypeAnnotationTypes.has(type.type));
 
 			return types.length > 0
-				&& types.every(type => isFunctionTypeAnnotation(type, context, scope, visitedTypeReferenceNames));
+				&& types.every(type => isFunctionTypeAnnotation(type, context, scope, visitedTypeReferences));
 		}
 
 		default: {
@@ -233,27 +236,27 @@ function isFunctionTypeAnnotation(node, context, scope, visitedTypeReferenceName
 	}
 }
 
-function isBooleanFunctionTypeAnnotation(node, context, scope, visitedTypeReferenceNames = new Set()) {
+function isBooleanFunctionTypeAnnotation(node, context, scope, visitedTypeReferences = new Set()) {
 	switch (node?.type) {
 		case 'TSTypeAnnotation':
 		case 'TSParenthesizedType': {
-			return isBooleanFunctionTypeAnnotation(node.typeAnnotation, context, scope, visitedTypeReferenceNames);
+			return isBooleanFunctionTypeAnnotation(node.typeAnnotation, context, scope, visitedTypeReferences);
 		}
 
 		case 'TSFunctionType': {
-			return isBooleanTypeAnnotation(node.returnType, context, scope, visitedTypeReferenceNames);
+			return isBooleanTypeAnnotation(node.returnType, context, scope, visitedTypeReferences);
 		}
 
 		case 'TSTypeLiteral': {
-			return isBooleanCallSignatureMembers(node.members, context, scope, visitedTypeReferenceNames);
+			return isBooleanCallSignatureMembers(node.members, context, scope, visitedTypeReferences);
 		}
 
 		case 'TSTypeReference': {
-			return isBooleanFunctionTypeReference(node, context, scope, visitedTypeReferenceNames);
+			return isBooleanFunctionTypeReference(node, context, scope, visitedTypeReferences);
 		}
 
 		case 'TSUnionType': {
-			return node.types.every(type => isBooleanFunctionTypeAnnotation(type, context, scope, visitedTypeReferenceNames));
+			return node.types.every(type => isBooleanFunctionTypeAnnotation(type, context, scope, visitedTypeReferences));
 		}
 
 		default: {

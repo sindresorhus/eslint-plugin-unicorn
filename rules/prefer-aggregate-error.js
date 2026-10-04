@@ -49,7 +49,7 @@ function unwrapTypeAnnotation(node) {
 		: node;
 }
 
-function isErrorTypeAnnotation(node, scope, context, visitedTypeNames = new Set()) {
+function isErrorTypeAnnotation(node, scope, context, visitedTypeVariables = new Set()) {
 	node = unwrapTypeAnnotation(node);
 
 	switch (node?.type) {
@@ -63,31 +63,31 @@ function isErrorTypeAnnotation(node, scope, context, visitedTypeNames = new Set(
 				return true;
 			}
 
-			if (visitedTypeNames.has(typeName)) {
+			if (visitedTypeVariables.has(variable)) {
 				return false;
 			}
 
-			visitedTypeNames.add(typeName);
+			visitedTypeVariables.add(variable);
 
 			const [definition] = variable?.defs ?? [];
 			const definitionScope = definition ? context.sourceCode.getScope(definition.name) : scope;
 			const isError = (
 				definition?.type === 'Type'
 				&& definition.node.type === 'TSTypeAliasDeclaration'
-				&& isErrorTypeAnnotation(definition.node.typeAnnotation, definitionScope, context, visitedTypeNames)
+				&& isErrorTypeAnnotation(definition.node.typeAnnotation, definitionScope, context, visitedTypeVariables)
 			);
 
-			visitedTypeNames.delete(typeName);
+			visitedTypeVariables.delete(variable);
 
 			return isError;
 		}
 
 		case 'TSUnionType': {
-			return node.types.every(type => isErrorTypeAnnotation(type, scope, context, visitedTypeNames));
+			return node.types.every(type => isErrorTypeAnnotation(type, scope, context, visitedTypeVariables));
 		}
 
 		case 'TSIntersectionType': {
-			return node.types.some(type => isErrorTypeAnnotation(type, scope, context, visitedTypeNames));
+			return node.types.some(type => isErrorTypeAnnotation(type, scope, context, visitedTypeVariables));
 		}
 
 		default: {
@@ -96,61 +96,60 @@ function isErrorTypeAnnotation(node, scope, context, visitedTypeNames = new Set(
 	}
 }
 
-function isErrorArrayTypeReferenceAnnotation(node, scope, context, visitedTypeNames) {
+function isErrorArrayTypeReferenceAnnotation(node, scope, context, visitedTypeVariables) {
 	const typeName = getTypeName(node.typeName);
 	const typeArguments = node.typeArguments?.params;
 	if (
 		(typeName === 'Array' || typeName === 'ReadonlyArray')
 		&& typeArguments?.length === 1
 	) {
-		return isErrorTypeAnnotation(typeArguments[0], scope, context, visitedTypeNames);
+		return isErrorTypeAnnotation(typeArguments[0], scope, context, visitedTypeVariables);
 	}
 
-	if (visitedTypeNames.has(typeName)) {
+	const variable = getVariableByName(typeName, scope);
+	if (visitedTypeVariables.has(variable)) {
 		return false;
 	}
 
-	visitedTypeNames.add(typeName);
-
-	const variable = getVariableByName(typeName, scope);
+	visitedTypeVariables.add(variable);
 	const [definition] = variable?.defs ?? [];
 	const definitionScope = definition ? context.sourceCode.getScope(definition.name) : scope;
 	const isErrorArray = (
 		definition?.type === 'Type'
 		&& definition.node.type === 'TSTypeAliasDeclaration'
-		&& isErrorArrayTypeAnnotation(definition.node.typeAnnotation, definitionScope, context, visitedTypeNames)
+		&& isErrorArrayTypeAnnotation(definition.node.typeAnnotation, definitionScope, context, visitedTypeVariables)
 	);
 
-	visitedTypeNames.delete(typeName);
+	visitedTypeVariables.delete(variable);
 
 	return isErrorArray;
 }
 
-function isErrorArrayTypeAnnotation(node, scope, context, visitedTypeNames = new Set()) {
+function isErrorArrayTypeAnnotation(node, scope, context, visitedTypeVariables = new Set()) {
 	node = unwrapTypeAnnotation(node);
 
 	switch (node?.type) {
 		case 'TSArrayType': {
-			return isErrorTypeAnnotation(node.elementType, scope, context, visitedTypeNames);
+			return isErrorTypeAnnotation(node.elementType, scope, context, visitedTypeVariables);
 		}
 
 		case 'TSTupleType': {
 			return node.elementTypes.length > 0
 				&& node.elementTypes.every(elementType => elementType.type === 'TSRestType'
-					? isErrorArrayTypeAnnotation(elementType.typeAnnotation, scope, context, visitedTypeNames)
-					: isErrorTypeAnnotation(elementType, scope, context, visitedTypeNames));
+					? isErrorArrayTypeAnnotation(elementType.typeAnnotation, scope, context, visitedTypeVariables)
+					: isErrorTypeAnnotation(elementType, scope, context, visitedTypeVariables));
 		}
 
 		case 'TSTypeReference': {
-			return isErrorArrayTypeReferenceAnnotation(node, scope, context, visitedTypeNames);
+			return isErrorArrayTypeReferenceAnnotation(node, scope, context, visitedTypeVariables);
 		}
 
 		case 'TSUnionType': {
-			return node.types.every(type => isErrorArrayTypeAnnotation(type, scope, context, visitedTypeNames));
+			return node.types.every(type => isErrorArrayTypeAnnotation(type, scope, context, visitedTypeVariables));
 		}
 
 		case 'TSIntersectionType': {
-			return node.types.some(type => isErrorArrayTypeAnnotation(type, scope, context, visitedTypeNames));
+			return node.types.some(type => isErrorArrayTypeAnnotation(type, scope, context, visitedTypeVariables));
 		}
 
 		default: {
@@ -164,6 +163,7 @@ function isErrorType(type, checker, program, visitedTypes = new Set()) {
 		return false;
 	}
 
+	visitedTypes = new Set(visitedTypes);
 	visitedTypes.add(type);
 
 	if (type.isUnion()) {
@@ -197,6 +197,7 @@ function isErrorArrayType(type, checker, program, visitedTypes = new Set()) {
 		return false;
 	}
 
+	visitedTypes = new Set(visitedTypes);
 	visitedTypes.add(type);
 
 	if (type.isUnion()) {

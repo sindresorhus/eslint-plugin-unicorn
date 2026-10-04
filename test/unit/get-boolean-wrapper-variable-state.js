@@ -101,3 +101,20 @@ test('an unconstrained type parameter is unknown without `strictNullChecks`', t 
 	t.assert.strictEqual(getState('function f<T>(isFoo: T) {}', {strict: false}), 'unknown');
 	t.assert.strictEqual(getState('function f<T extends Ref<boolean>>(isFoo: T) {}', {strict: false}), 'boolean');
 });
+
+test('terminates on cyclic wrapper inheritance and constraints', t => {
+	for (const code of [
+		'interface First extends Second {} interface Second extends First {} declare const isFoo: First;',
+		'function foo<T extends U, U extends T>(isFoo: T) {}',
+	]) {
+		t.assert.strictEqual(getState(code), 'unknown', code);
+	}
+
+	for (const [code, expected] of [
+		['interface First extends Second {} interface Second extends Ref<boolean> {} declare const isFoo: First;', 'boolean'],
+		['interface First extends Second {} interface Second extends Ref<string> {} declare const isFoo: First;', 'non-boolean'],
+		['function foo<T extends U, U extends Ref<boolean>>(isFoo: T) {}', 'boolean'],
+	]) {
+		t.assert.strictEqual(getState(code), expected, code);
+	}
+});

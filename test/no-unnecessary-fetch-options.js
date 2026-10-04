@@ -305,3 +305,21 @@ test.snapshot({
 		'const signal = undefined; fetch("/", {signal: signal<string>});',
 	],
 });
+
+// Shared ancestors and constraints in separate union branches are not cycles.
+test({
+	valid: [
+		typeAware('type First = Second; type Second = First; declare const url: First; fetch(url, {method: "GET"});'),
+		typeAware('interface First extends Second {} interface Second extends First {} declare const url: First; fetch(url, {method: "GET"});'),
+		typeAware('function foo<First extends string, Second extends Request>(url: First | Second) { fetch(url, {method: "GET"}); }'),
+	],
+	invalid: [{
+		...typeAware('interface First extends URL {first: true;} interface Second extends URL {second: true;} declare const url: First | Second; fetch(url, {method: "GET"});'),
+		output: 'interface First extends URL {first: true;} interface Second extends URL {second: true;} declare const url: First | Second; fetch(url);',
+		errors: 1,
+	}, {
+		...typeAware('function foo<First extends string, Second extends string>(url: First | Second) { fetch(url, {method: "GET"}); }'),
+		output: 'function foo<First extends string, Second extends string>(url: First | Second) { fetch(url); }',
+		errors: 1,
+	}],
+});

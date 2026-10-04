@@ -143,18 +143,12 @@ const combineIntersectionTypes = types => {
 	return unknown;
 };
 
-const getTypeReferenceType = (node, scope, visitedTypeReferenceNames) => {
+const getTypeReferenceType = (node, scope, visitedTypeVariables) => {
 	if (node.typeName.type === 'TSQualifiedName') {
 		return nonCanvasContext;
 	}
 
 	const typeReferenceName = node.typeName.name;
-
-	if (visitedTypeReferenceNames.has(typeReferenceName)) {
-		return unknown;
-	}
-
-	visitedTypeReferenceNames.add(typeReferenceName);
 
 	const typeVariable = node.typeName.type === 'Identifier'
 		? resolveIdentifierName(typeReferenceName, scope)
@@ -162,62 +156,67 @@ const getTypeReferenceType = (node, scope, visitedTypeReferenceNames) => {
 	const [definition] = typeVariable?.defs ?? [];
 
 	if (!definition) {
-		visitedTypeReferenceNames.delete(typeReferenceName);
 		return canvasContextTypeNames.has(typeReferenceName) ? canvasContext : nonCanvasContext;
 	}
 
+	if (visitedTypeVariables.has(typeVariable)) {
+		return unknown;
+	}
+
+	visitedTypeVariables.add(typeVariable);
+	const definitionScope = typeVariable.scope;
 	let type = nonCanvasContext;
 
 	if (
 		definition.type === 'Type'
 		&& definition.node.type === 'TSTypeAliasDeclaration'
 	) {
-		type = getTypeAnnotationType(definition.node.typeAnnotation, scope, visitedTypeReferenceNames);
+		type = getTypeAnnotationType(definition.node.typeAnnotation, definitionScope, visitedTypeVariables);
 	} else if (
 		definition.type === 'Type'
 		&& definition.node.type === 'TSInterfaceDeclaration'
 	) {
-		const heritageTypes = definition.node.extends.map(heritage => getTypeReferenceType({typeName: heritage.expression}, scope, visitedTypeReferenceNames));
+		const heritageTypes = definition.node.extends.map(heritage => getTypeReferenceType({typeName: heritage.expression}, definitionScope, visitedTypeVariables));
 		type = heritageTypes.includes(canvasContext) ? canvasContext : nonCanvasContext;
 	} else if (
 		definition.type === 'Type'
 		&& definition.node.type === 'TSTypeParameter'
 	) {
 		type = definition.node.constraint
-			? getTypeAnnotationType(definition.node.constraint, scope, visitedTypeReferenceNames)
+			? getTypeAnnotationType(definition.node.constraint, definitionScope, visitedTypeVariables)
 			: nonCanvasContext;
 	} else if (definition.type === 'ClassName') {
 		type = nonCanvasContext;
 	}
 
-	visitedTypeReferenceNames.delete(typeReferenceName);
+	visitedTypeVariables.delete(typeVariable);
 
 	return type;
 };
 
-const getTypeAnnotationType = (node, scope, visitedTypeReferenceNames = new Set()) => {
+const getTypeAnnotationType = (node, scope, visitedTypeVariables = new Set()) => {
 	switch (node?.type) {
 		case 'TSTypeAnnotation':
 		case 'TSParenthesizedType': {
-			return getTypeAnnotationType(node.typeAnnotation, scope, visitedTypeReferenceNames);
+			return getTypeAnnotationType(node.typeAnnotation, scope, visitedTypeVariables);
 		}
 
 		case 'TSTypeOperator': {
 			return node.operator === 'readonly'
-				? getTypeAnnotationType(node.typeAnnotation, scope, visitedTypeReferenceNames)
+				? getTypeAnnotationType(node.typeAnnotation, scope, visitedTypeVariables)
 				: unknown;
 		}
 
 		case 'TSTypeReference': {
-			return getTypeReferenceType(node, scope, visitedTypeReferenceNames);
+			return getTypeReferenceType(node, scope, visitedTypeVariables);
 		}
 
 		case 'TSUnionType': {
-			return combineUnionTypes(node.types.map(type => getTypeAnnotationType(type, scope, visitedTypeReferenceNames)));
+			return combineUnionTypes(node.types.map(type => getTypeAnnotationType(type, scope, visitedTypeVariables)));
 		}
 
 		case 'TSIntersectionType': {
-			return combineIntersectionTypes(node.types.map(type => getTypeAnnotationType(type, scope, visitedTypeReferenceNames)));
+			return combineIntersectionTypes(node.types.map(type => getTypeAnnotationType(type, scope, visitedTypeVariables)));
 		}
 
 		default: {
@@ -241,6 +240,7 @@ const getTypeScriptType = (type, checker, program, visitedTypes = new Set()) => 
 		return unknown;
 	}
 
+	visitedTypes = new Set(visitedTypes);
 	visitedTypes.add(type);
 
 	if (type.isTypeParameter?.()) {

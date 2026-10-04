@@ -560,7 +560,7 @@ const getTupleElementTypeAnnotation = typeAnnotation => {
 	return typeAnnotation;
 };
 
-const isAbortSignalTypeReferenceAnnotation = (typeAnnotation, context, visitedTypeNames) => {
+const isAbortSignalTypeReferenceAnnotation = (typeAnnotation, context, visitedTypeVariables) => {
 	const typeName = getTypeName(typeAnnotation.typeName);
 	if (typeName === 'AbortSignal') {
 		return true;
@@ -569,27 +569,29 @@ const isAbortSignalTypeReferenceAnnotation = (typeAnnotation, context, visitedTy
 	if (
 		!typeName
 		|| typeAnnotation.typeName.type !== 'Identifier'
-		|| visitedTypeNames.has(typeAnnotation.typeName.name)
 	) {
 		return false;
 	}
 
-	visitedTypeNames.add(typeAnnotation.typeName.name);
-
 	const variable = findVariable(context.sourceCode.getScope(typeAnnotation), typeAnnotation.typeName);
+	if (!variable || visitedTypeVariables.has(variable)) {
+		return false;
+	}
+
+	visitedTypeVariables.add(variable);
 	const definition = variable?.defs[0];
 	const isAbortSignal = definition?.type === 'Type'
 		&& definition.node.type === 'TSTypeAliasDeclaration'
-		&& isAbortSignalTypeAnnotation(definition.node.typeAnnotation, context, visitedTypeNames);
-	visitedTypeNames.delete(typeAnnotation.typeName.name);
+		&& isAbortSignalTypeAnnotation(definition.node.typeAnnotation, context, visitedTypeVariables);
+	visitedTypeVariables.delete(variable);
 	return isAbortSignal;
 };
 
-const isAbortSignalTypeAnnotation = (typeAnnotation, context, visitedTypeNames = new Set()) =>
+const isAbortSignalTypeAnnotation = (typeAnnotation, context, visitedTypeVariables = new Set()) =>
 	typeAnnotation.type === 'TSTypeReference'
-	&& isAbortSignalTypeReferenceAnnotation(typeAnnotation, context, visitedTypeNames);
+	&& isAbortSignalTypeReferenceAnnotation(typeAnnotation, context, visitedTypeVariables);
 
-const getAbortSignalArrayTypeReferenceAnnotationState = (typeAnnotation, context, visitedTypeNames) => {
+const getAbortSignalArrayTypeReferenceAnnotationState = (typeAnnotation, context, visitedTypeVariables) => {
 	const typeName = getTypeName(typeAnnotation.typeName);
 	const typeArguments = (typeAnnotation.typeArguments ?? typeAnnotation.typeParameters)?.params;
 	if (
@@ -599,61 +601,63 @@ const getAbortSignalArrayTypeReferenceAnnotationState = (typeAnnotation, context
 		)
 		&& typeArguments?.length === 1
 	) {
-		return isAbortSignalTypeAnnotation(typeArguments[0], context, visitedTypeNames);
+		return isAbortSignalTypeAnnotation(typeArguments[0], context, visitedTypeVariables);
 	}
 
 	if (
 		!typeName
 		|| typeAnnotation.typeName.type !== 'Identifier'
-		|| visitedTypeNames.has(typeAnnotation.typeName.name)
 	) {
 		return false;
 	}
 
-	visitedTypeNames.add(typeAnnotation.typeName.name);
-
 	const variable = findVariable(context.sourceCode.getScope(typeAnnotation), typeAnnotation.typeName);
+	if (!variable || visitedTypeVariables.has(variable)) {
+		return;
+	}
+
+	visitedTypeVariables.add(variable);
 	const definition = variable?.defs[0];
 	let typeAnnotationState;
 	if (
 		definition?.type === 'Type'
 		&& definition.node.type === 'TSTypeAliasDeclaration'
 	) {
-		typeAnnotationState = getAbortSignalArrayTypeAnnotationState(definition.node.typeAnnotation, context, visitedTypeNames);
+		typeAnnotationState = getAbortSignalArrayTypeAnnotationState(definition.node.typeAnnotation, context, visitedTypeVariables);
 	}
 
-	visitedTypeNames.delete(typeAnnotation.typeName.name);
+	visitedTypeVariables.delete(variable);
 	return typeAnnotationState;
 };
 
-const getAbortSignalArrayTypeAnnotationState = (typeAnnotation, context, visitedTypeNames = new Set()) => {
+const getAbortSignalArrayTypeAnnotationState = (typeAnnotation, context, visitedTypeVariables = new Set()) => {
 	if (typeAnnotation?.type === 'TSTypeAnnotation') {
 		typeAnnotation = typeAnnotation.typeAnnotation;
 	}
 
 	if (typeAnnotation?.type === 'TSTypeOperator') {
 		return typeAnnotation.operator === 'readonly'
-			? getAbortSignalArrayTypeAnnotationState(typeAnnotation.typeAnnotation, context, visitedTypeNames)
+			? getAbortSignalArrayTypeAnnotationState(typeAnnotation.typeAnnotation, context, visitedTypeVariables)
 			: undefined;
 	}
 
 	if (typeAnnotation?.type === 'TSArrayType') {
-		return isAbortSignalTypeAnnotation(typeAnnotation.elementType, context, visitedTypeNames);
+		return isAbortSignalTypeAnnotation(typeAnnotation.elementType, context, visitedTypeVariables);
 	}
 
 	if (typeAnnotation?.type === 'TSTupleType') {
 		return typeAnnotation.elementTypes.length > 0
-			&& typeAnnotation.elementTypes.every(elementType => isAbortSignalTypeAnnotation(getTupleElementTypeAnnotation(elementType), context, visitedTypeNames));
+			&& typeAnnotation.elementTypes.every(elementType => isAbortSignalTypeAnnotation(getTupleElementTypeAnnotation(elementType), context, visitedTypeVariables));
 	}
 
 	if (typeAnnotation?.type !== 'TSTypeReference') {
 		return;
 	}
 
-	return getAbortSignalArrayTypeReferenceAnnotationState(typeAnnotation, context, visitedTypeNames);
+	return getAbortSignalArrayTypeReferenceAnnotationState(typeAnnotation, context, visitedTypeVariables);
 };
 
-const isReadonlyArrayTypeAnnotation = (typeAnnotation, context, visitedTypeNames = new Set()) => {
+const isReadonlyArrayTypeAnnotation = (typeAnnotation, context, visitedTypeVariables = new Set()) => {
 	if (typeAnnotation?.type === 'TSTypeAnnotation') {
 		typeAnnotation = typeAnnotation.typeAnnotation;
 	}
@@ -676,18 +680,20 @@ const isReadonlyArrayTypeAnnotation = (typeAnnotation, context, visitedTypeNames
 
 	if (
 		typeAnnotation.typeName.type !== 'Identifier'
-		|| visitedTypeNames.has(typeAnnotation.typeName.name)
 	) {
 		return false;
 	}
 
-	visitedTypeNames.add(typeAnnotation.typeName.name);
-
 	const variable = findVariable(context.sourceCode.getScope(typeAnnotation), typeAnnotation.typeName);
+	if (!variable || visitedTypeVariables.has(variable)) {
+		return false;
+	}
+
+	visitedTypeVariables.add(variable);
 	const definition = variable?.defs[0];
 	return definition?.type === 'Type'
 		&& definition.node.type === 'TSTypeAliasDeclaration'
-		&& isReadonlyArrayTypeAnnotation(definition.node.typeAnnotation, context, visitedTypeNames);
+		&& isReadonlyArrayTypeAnnotation(definition.node.typeAnnotation, context, visitedTypeVariables);
 };
 
 const isReadonlyArrayType = (type, checker, program, seen = new Set()) => {
@@ -752,11 +758,16 @@ const isReadonlyArrayTypeFromTypeInformation = (node, context) => {
 	}
 };
 
-const needsArrayCopyForAbortSignalAny = (node, context) => {
+const needsArrayCopyForAbortSignalAny = (node, context, seen = new Set()) => {
+	if (seen.has(node)) {
+		return false;
+	}
+
+	seen.add(node);
 	if (typeScriptArrayTypeExpressionWrappers.has(node.type)) {
 		return isConstAssertion(node.typeAnnotation)
 			|| isReadonlyArrayTypeAnnotation(node.typeAnnotation, context)
-			|| needsArrayCopyForAbortSignalAny(node.expression, context);
+			|| needsArrayCopyForAbortSignalAny(node.expression, context, seen);
 	}
 
 	node = unwrapTypeScriptExpression(node);
@@ -775,7 +786,7 @@ const needsArrayCopyForAbortSignalAny = (node, context) => {
 		|| (
 			definition?.type === 'Variable'
 			&& definition.node.init
-			&& needsArrayCopyForAbortSignalAny(definition.node.init, context)
+			&& needsArrayCopyForAbortSignalAny(definition.node.init, context, seen)
 		)
 		|| isReadonlyArrayTypeFromTypeInformation(node, context),
 	);
