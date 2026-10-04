@@ -65,7 +65,7 @@ const isInScriptSetup = (node, scriptSetupRange, sourceCode) => {
 	return scriptSetupRange[0] <= nodeRange[0] && nodeRange[1] <= scriptSetupRange[1];
 };
 
-const isKnownPureCall = (node, sourceCode) => {
+const isKnownPureCall = (node, sourceCode, pureMethods) => {
 	if (node.type !== 'CallExpression' || node.optional) {
 		return false;
 	}
@@ -91,7 +91,7 @@ const isKnownPureCall = (node, sourceCode) => {
 			return false;
 		}
 
-		const methods = knownPureMethods.get(definition.parent.source.value);
+		const methods = pureMethods.get(definition.parent.source.value);
 		if (!methods) {
 			return false;
 		}
@@ -103,25 +103,25 @@ const isKnownPureCall = (node, sourceCode) => {
 	}) ?? false;
 };
 
-const hasExpressionSideEffect = (node, sourceCode) => {
+const hasExpressionSideEffect = (node, sourceCode, pureMethods) => {
 	node = unwrapTypeScriptExpression(node);
 
-	if (isKnownPureCall(node, sourceCode)) {
-		return node.arguments.some(argument => hasExpressionSideEffect(argument, sourceCode));
+	if (isKnownPureCall(node, sourceCode, pureMethods)) {
+		return node.arguments.some(argument => hasExpressionSideEffect(argument, sourceCode, pureMethods));
 	}
 
 	return node.type === 'TaggedTemplateExpression'
 		|| hasSideEffect(node, sourceCode);
 };
 
-const hasTopLevelSideEffect = (node, sourceCode) => {
+const hasTopLevelSideEffect = (node, sourceCode, pureMethods) => {
 	node = unwrapTypeScriptExpression(node);
 
 	if (node.type === 'ClassExpression') {
-		return node.superClass ? hasTopLevelSideEffect(node.superClass, sourceCode) : false;
+		return node.superClass ? hasTopLevelSideEffect(node.superClass, sourceCode, pureMethods) : false;
 	}
 
-	return hasExpressionSideEffect(node, sourceCode);
+	return hasExpressionSideEffect(node, sourceCode, pureMethods);
 };
 
 /**
@@ -129,6 +129,12 @@ const hasTopLevelSideEffect = (node, sourceCode) => {
 */
 const create = context => {
 	const {sourceCode} = context;
+	const {allow} = context.options[0];
+	const pureMethods = new Map(knownPureMethods);
+	for (const [source, methods] of Object.entries(allow)) {
+		pureMethods.set(source, new Set([...pureMethods.get(source) ?? [], ...methods]));
+	}
+
 	const scriptSetupRange = getScriptSetupRange(sourceCode);
 	let shouldCheck = false;
 
@@ -143,7 +149,7 @@ const create = context => {
 			|| node.parent.type !== 'Program'
 			|| isInScriptSetup(node, scriptSetupRange, sourceCode)
 			|| isAllowedAssignment(node.expression)
-			|| !hasTopLevelSideEffect(node.expression, sourceCode)
+			|| !hasTopLevelSideEffect(node.expression, sourceCode, pureMethods)
 		) {
 			return;
 		}
@@ -162,7 +168,7 @@ const create = context => {
 			|| (declaration.type === 'FunctionDeclaration' || declaration.type === 'ClassDeclaration')
 			|| isInScriptSetup(node, scriptSetupRange, sourceCode)
 			|| isAllowedAssignment(declaration)
-			|| !hasTopLevelSideEffect(declaration, sourceCode)
+			|| !hasTopLevelSideEffect(declaration, sourceCode, pureMethods)
 		) {
 			return;
 		}
@@ -185,7 +191,23 @@ const config = {
 			description: 'Disallow top-level side effects in exported modules.',
 			recommended: 'unopinionated',
 		},
-		schema: [],
+		schema: [{
+			type: 'object',
+			properties: {
+				allow: {
+					type: 'object',
+					description: 'Additional pure helper names by import source.',
+					additionalProperties: {
+						type: 'array',
+						items: {
+							type: 'string',
+						},
+					},
+				},
+			},
+			additionalProperties: false,
+		}],
+		defaultOptions: [{allow: {}}],
 		messages,
 		languages: [
 			'js/js',

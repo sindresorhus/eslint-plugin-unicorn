@@ -1,4 +1,7 @@
+import nodeTest from 'node:test';
 import outdent from 'outdent';
+import {Linter} from 'eslint';
+import unicorn from '../index.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
@@ -456,6 +459,82 @@ test({
 		'import {defineProject} from "vite"; export default defineProject({});',
 		'import {defineProject} from "other"; export default defineProject({});',
 		'export default defineProject({});',
+	].map(code => ({code, errors: [{messageId: 'no-top-level-side-effects'}]})),
+});
+
+const allowOptions = [{allow: {'@company/config': ['defineConfig', 'wrap'], react: ['custom']}}];
+
+nodeTest('validates the allow option schema', t => {
+	const linter = new Linter();
+	for (const options of [
+		{allow: ['wrap']},
+		{allow: {'@company/config': 'wrap'}},
+		{allow: {'@company/config': [1]}},
+		{unknown: true},
+	]) {
+		t.assert.throws(() => linter.verify('export {};', {
+			plugins: {unicorn},
+			rules: {'unicorn/no-top-level-side-effects': ['error', options]},
+		}), {message: /Key "rules"/v});
+	}
+});
+
+test({
+	valid: [
+		'import {defineConfig} from "@company/config"; export default defineConfig({});',
+		'import {defineConfig as configure} from "@company/config"; export {}; configure({});',
+		'import * as config from "@company/config"; export default config.defineConfig({});',
+		'import {defineConfig, wrap} from "@company/config"; export default wrap(defineConfig({}));',
+		'import {wrap} from "@company/config"; export default wrap(() => initialize());',
+		'import {memo} from "react"; export default memo(Component);',
+		'import {custom} from "react"; export default custom(Component);',
+		'import {defineConfig} from "vite"; export default defineConfig({});',
+		typescriptCode('import {wrap} from "@company/config"; export default wrap<Props>(Component) satisfies Component;'),
+	].map(testCase => ({...(typeof testCase === 'string' ? {code: testCase} : testCase), options: allowOptions})),
+	invalid: [
+		...[
+			'import {defineConfig} from "@company/config"; export default defineConfig(initialize());',
+			'import {defineConfig as configure} from "@company/config"; export {}; configure({value: initialize()});',
+			'import * as config from "@company/config"; export default config.defineConfig(initialize());',
+			'import {defineConfig, wrap} from "@company/config"; export default wrap(defineConfig(initialize()));',
+			'import {other} from "@company/config"; export default other({});',
+			'import {defineConfig} from "@company/other"; export default defineConfig({});',
+			'import {defineConfig} from "@company/config/extra"; export default defineConfig({});',
+			'import {wrap} from "@company/config"; const alias = wrap; export default alias(Component);',
+			'import * as config from "@company/config"; export default config["defineConfig"]({});',
+			'import {wrap} from "@company/config"; export default wrap?.(Component);',
+			'import configure from "@company/config"; export default configure({});',
+			'function wrap(value) { return value; } export default wrap(Component);',
+			'export default defineConfig({});',
+			'import {create} from "constructor"; export default create({});',
+		].map(code => ({code, options: allowOptions, errors: [{messageId: 'no-top-level-side-effects'}]})),
+		{
+			...typescriptCode('import type {wrap} from "@company/config"; export default wrap(Component);'),
+			options: allowOptions,
+			errors: [{messageId: 'no-top-level-side-effects'}],
+		},
+		{
+			code: 'import {defineConfig} from "@company/config"; export default defineConfig({});\ninit();',
+			options: allowOptions,
+			errors: [{messageId: 'no-top-level-side-effects', line: 2}],
+		},
+	],
+});
+
+test({
+	valid: [
+		{
+			code: 'import {memo} from "react"; export default memo(Component);',
+			options: [{allow: {react: []}}],
+		},
+		{
+			code: 'import {create} from "constructor"; export default create({});',
+			options: [{allow: {constructor: ['create']}}],
+		},
+	],
+	invalid: [
+		'import {defineConfig} from "@company/config"; export default defineConfig({});',
+		'import {custom} from "react"; export default custom(Component);',
 	].map(code => ({code, errors: [{messageId: 'no-top-level-side-effects'}]})),
 });
 

@@ -103,3 +103,26 @@ export default defineConfig({plugins: [initializePlugin()]});
 // ✅
 export default defineConfig(() => ({plugins: [initializePlugin()]}));
 ```
+
+## Options
+
+### allow
+
+Type: `object`\
+Default: `{}`
+
+Allow additional pure helpers by mapping exact import sources to exported function names. This extends the built-in allowances; import aliases and namespace imports are supported. Arguments are still checked for side effects. Local functions, globals, and default-imported functions are not covered by this option.
+
+```js
+export default [
+	{
+		rules: {
+			'unicorn/no-top-level-side-effects': ['error', {
+				allow: {
+					'@company/config': ['defineConfig'],
+				},
+			}],
+		},
+	},
+];
+```
