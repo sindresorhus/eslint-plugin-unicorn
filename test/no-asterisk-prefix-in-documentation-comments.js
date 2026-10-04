@@ -99,6 +99,16 @@ test({
 			errors: [error],
 		},
 		{
+			code: '/**\n    Indented example.\n  Description.\n*/',
+			output: '/**\n  Indented example.\nDescription.\n*/',
+			errors: [error],
+		},
+		{
+			code: '/**\n \tDescription.\n  Indented example.\n*/',
+			output: '/**\n\tDescription.\n Indented example.\n*/',
+			errors: [error],
+		},
+		{
 			code: '/**\n  - Item.\n    - Nested item.\n  */',
 			output: '/**\n- Item.\n  - Nested item.\n*/',
 			errors: [error],
