@@ -22,14 +22,12 @@ A default-exported expression is not a declaration, so `export default init();` 
 
 Use ESLint config overrides or ignores for project-specific entrypoints, polyfills, or setup files.
 
-Direct calls to `memo`, `forwardRef`, `lazy`, `createContext`, `createRef`, `createElement`, `cloneElement`, and `isValidElement` imported from `react` are allowed, including nested calls such as `memo(forwardRef(Component))`. Default, namespace, and named imports are supported, including import aliases. Calls through local variable aliases, computed members, optional chains, or conditional expressions remain conservatively checked. Globally supplied React objects are not recognized.
-
-Direct calls to `defineComponent` imported from `vue` are also allowed, including named import aliases and namespace imports. Setup functions are deferred until component setup, while arguments of `defineComponent` are still checked for side effects.
-
-Direct calls to these configuration helpers are also allowed, including named import aliases and namespace imports:
+Direct calls to these imported helpers are allowed:
 
 | Import source | Allowed helpers |
 | --- | --- |
+| `react` | `memo`, `forwardRef`, `lazy`, `createContext`, `createRef`, `createElement`, `cloneElement`, `isValidElement` |
+| `vue` | `defineComponent` |
 | `eslint/config` | `defineConfig` |
 | `@eslint/config-helpers` | `defineConfig` |
 | `vite` | `defineConfig` |
@@ -37,9 +35,9 @@ Direct calls to these configuration helpers are also allowed, including named im
 | `rollup` | `defineConfig` |
 | `astro/config` | `defineConfig` |
 
-Other helpers, such as `globalIgnores` and `includeIgnoreFile`, are still reported.
+Named and namespace imports support import aliases; React also supports default imports. Recognition requires a direct import: local variable aliases, computed members, optional chains, conditional calls, and globally supplied objects remain conservatively checked.
 
-Arguments of allowed calls are still checked for side effects, so `memo(initialize())` and `defineConfig([loadConfig()])` are reported. These allowances apply to standalone top-level expression statements and default exports. Calls inside arbitrary object or array expressions remain conservatively checked.
+Arguments are still checked, so `memo(initialize())` and `defineConfig([loadConfig()])` are reported. Nested helper calls such as `memo(forwardRef(Component))` are allowed, and function bodies are deferred. Calls inside arbitrary object or array expressions remain conservatively checked.
 
 Tagged templates are checked when they are direct arguments. Tags nested in other expressions, such as object properties, are outside this rule's analysis.
 
@@ -92,16 +90,6 @@ export {};
 document.title = 'gone';
 ```
 
-```js
-import {memo, forwardRef} from 'react';
-
-// ❌
-export default memo(initialize());
-
-// ✅
-export default memo(forwardRef(Component));
-```
-
 ```ts
 import React from 'react';
 
@@ -110,30 +98,6 @@ export default React.memo<Props>(initialize());
 
 // ✅
 export default React.memo<Props>(Link);
-```
-
-```js
-import {defineComponent} from 'vue';
-
-// ❌
-export default defineComponent(loadOptions());
-
-// ✅
-export default defineComponent({
-	setup() {
-		initialize();
-	},
-});
-```
-
-```js
-import {defineConfig} from 'eslint/config';
-
-// ❌
-export default defineConfig([loadConfig()]);
-
-// ✅
-export default defineConfig([{rules: {}}]);
 ```
 
 ```js
@@ -146,11 +110,9 @@ export default defineConfig({plugins: [initializePlugin()]});
 export default defineConfig(() => ({plugins: [initializePlugin()]}));
 ```
 
-Calls inside configuration callbacks are deferred until the callback runs, so they are not top-level side effects.
-
 ## Figma Code Connect templates
 
-Figma Code Connect template bodies run inside a function rather than at module scope. Disable this rule for template files with an ESLint config override, adjusting the file pattern to match your project:
+Figma Code Connect templates run inside a function. Disable this rule for them, adjusting the file pattern to match your project:
 
 ```js
 export default [
