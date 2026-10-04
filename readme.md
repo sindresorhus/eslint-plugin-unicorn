@@ -571,7 +571,7 @@ Enabled by the [`recommended-css`](#non-javascript-recommended-configs) preset:
 - [`filename-case`](docs/rules/filename-case.md): Enforce a case style for filenames and directory names.
 - [`name-replacements`](docs/rules/name-replacements.md): Enforce replacements for variable, property, and filenames.
 - [`no-abusive-eslint-disable`](docs/rules/no-abusive-eslint-disable.md): Enforce specifying rules to disable in `eslint-disable` comments.
-- [`no-asterisk-prefix-in-documentation-comments`](docs/rules/no-asterisk-prefix-in-documentation-comments.md): Disallow asterisk prefixes in multiline comments.
+- [`no-asterisk-prefix-in-documentation-comments`](docs/rules/no-asterisk-prefix-in-documentation-comments.md): Disallow asterisk prefixes and shared indentation in multiline comments.
 - [`no-conflicting-constraints`](docs/rules/no-conflicting-constraints.md): Disallow conflicting CSS query and HTML form constraints.
 - [`no-empty-file`](docs/rules/no-empty-file.md): Disallow empty files.
 - [`no-leading-empty-lines`](docs/rules/no-leading-empty-lines.md): Disallow empty lines at the beginning of a file.
@@ -631,7 +631,7 @@ Enabled by the [`recommended-json`](#non-javascript-recommended-configs) preset:
 - [`filename-case`](docs/rules/filename-case.md): Enforce a case style for filenames and directory names.
 - [`name-replacements`](docs/rules/name-replacements.md): Enforce replacements for variable, property, and filenames.
 - [`no-abusive-eslint-disable`](docs/rules/no-abusive-eslint-disable.md): Enforce specifying rules to disable in `eslint-disable` comments.
-- [`no-asterisk-prefix-in-documentation-comments`](docs/rules/no-asterisk-prefix-in-documentation-comments.md): Disallow asterisk prefixes in multiline comments.
+- [`no-asterisk-prefix-in-documentation-comments`](docs/rules/no-asterisk-prefix-in-documentation-comments.md): Disallow asterisk prefixes and shared indentation in multiline comments.
 - [`no-empty-file`](docs/rules/no-empty-file.md): Disallow empty files.
 - [`no-leading-empty-lines`](docs/rules/no-leading-empty-lines.md): Disallow empty lines at the beginning of a file.
 - [`no-zero-fractions`](docs/rules/no-zero-fractions.md): Require consistent decimal numbers without redundant zeros.
