@@ -159,6 +159,13 @@ const isVariableDeclaratorInitializer = node => {
 	return node.parent.type === 'VariableDeclarator' && node.parent.init === node;
 };
 
+const isPromiseAssignmentValue = node => {
+	node = getOutermostTransparentExpression(node);
+	return node.parent.type === 'AssignmentExpression'
+		&& node.parent.right === node
+		&& ['=', '??=', '||=', '&&='].includes(node.parent.operator);
+};
+
 const isArrayElementWrapper = node => (
 	(node.parent.type === 'ChainExpression' && node.parent.expression === node)
 	|| (
@@ -229,6 +236,7 @@ const shouldIgnoreCallExpression = node =>
 	|| isPromiseMethodCalleeObject(node)
 	|| isAwaitExpressionArgument(node)
 	|| isVariableDeclaratorInitializer(node)
+	|| isPromiseAssignmentValue(node)
 	|| isInPromiseMethods(node);
 
 /**

@@ -21,6 +21,7 @@ test.snapshot({
 		'void (async () => {})()',
 		'void async function() {}()',
 		'void (async () => {})().catch(handleError)',
+		'a = (async () => {})()',
 	],
 	invalid: [
 		'(async () => {})()',
@@ -35,7 +36,6 @@ test.snapshot({
 				(async () => {})();
 			}
 		`,
-		'a = (async () => {})()',
 		'!async function() {}()',
 		'(async () => {})().catch(foo)',
 		{
@@ -109,6 +109,7 @@ test.snapshot({
 		'const promise = foo.catch(bar)',
 		'const promise = foo.finally(bar)',
 		'const promise = foo?.then?.(bar)',
+		'promise = foo.then(bar)',
 		{
 			code: outdent`
 				const promise = foo.then(bar) as Promise<void>;
@@ -134,7 +135,6 @@ test.snapshot({
 	],
 	invalid: [
 		'foo.then(bar)',
-		'promise = foo.then(bar)',
 		'foo.then?.(bar)',
 		'foo?.then(bar)',
 		'foo.catch(() => process.exit(1))',
@@ -272,6 +272,10 @@ test.snapshot({
 			async function run() {}
 			const resultOfRun = run();
 		`,
+		outdent`
+			async function run() {}
+			resultOfRun = run();
+		`,
 		'for (const statement of statements) { statement() };',
 		// #2946: lock in that `let`/`var` (and by extension `using`/`await using`)
 		// still fall through under `@typescript-eslint/parser`, preserving the
@@ -327,10 +331,6 @@ test.snapshot({
 			`,
 			languageOptions: {parser: parsers.typescript},
 		},
-		outdent`
-			async function run() {}
-			resultOfRun = run();
-		`,
 		{
 			code: 'const foo = async () => {}; (foo() as Promise<void>);',
 			languageOptions: {parser: parsers.typescript},
@@ -357,6 +357,62 @@ test.snapshot({
 		},
 		'const foo = async () => {}; (foo()).bar;',
 		'const foo = async () => {}; foo()`bar`;',
+	],
+});
+
+// Cached promise assignments
+test.snapshot({
+	valid: [
+		...['cache.promise', 'cache["promise"]'].flatMap(target => ['=', '??=', '||=', '&&='].flatMap(operator => [
+			`${target} ${operator} (async () => {})();`,
+			`${target} ${operator} promise.then(onFulfilled).catch(onRejected).finally(onFinally);`,
+			`async function run() {} ${target} ${operator} run();`,
+		])),
+		'promise ??= (async () => {})();',
+		'promise ||= source.then(onFulfilled);',
+		'async function run() {} promise &&= run();',
+		outdent`
+			cache.promise = (async () => {
+				try {
+					return await run();
+				} catch (error) {
+					console.error(error);
+				}
+				return null;
+			})();
+		`,
+		'cache.promise = (async function() {})();',
+		'(cache).promise = (((async () => {})()));',
+		'cache.promise = (async () => {})?.();',
+		'cache.promise = promise?.then?.(onFulfilled);',
+		'async function run() {} cache.promise = run?.();',
+		{
+			code: outdent`
+				async function run() {}
+				cache.promise = (async () => {})() as Promise<void>;
+				cache.promise ??= promise.then(onFulfilled)!;
+				cache.promise ||= run() satisfies Promise<void>;
+				cache.promise &&= <Promise<void>>(async () => {})();
+				cache.promise = (run?.() as Promise<void>)!;
+				cache.promise ??= promise?.then?.(onFulfilled) satisfies Promise<void>;
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [
+		'cache.promise += (async () => {})();',
+		'cache.promise *= promise.then(onFulfilled);',
+		'async function run() {} cache.promise -= run();',
+		'cache[(async () => {})()] = value;',
+		'cache[promise.then(onFulfilled)] ??= value;',
+		'async function run() {} cache[run()] ||= value;',
+		'cache.promise = !(async () => {})();',
+		'cache.promise = promise.then(onFulfilled).value;',
+		'async function run() {} cache.promise = condition ? run() : undefined;',
+		{
+			code: 'async function run() {} cache[run() as string] = value;',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
