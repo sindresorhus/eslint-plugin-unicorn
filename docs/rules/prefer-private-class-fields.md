@@ -38,33 +38,13 @@ class Foo {
 
 ### Bound methods
 
-For a method bound in the constructor, consider a private arrow-function field. It captures `this`, so the binding assignment can be removed. Fields initialize in declaration order, so place the field before any other fields that use it.
+For constructor-bound methods, use a private arrow-function field and remove the `.bind(this)` assignment. Declare it before fields that use it.
 
 ```js
-// ❌
-class Foo {
-	constructor() {
-		this._method = this._method.bind(this);
-	}
-
-	_method() {
-		return this;
-	}
-
-	getCallback() {
-		return this._method;
-	}
-}
-
-// ✅
 class Foo {
 	#method = () => {
 		return this;
 	};
-
-	getCallback() {
-		return this.#method;
-	}
 }
 ```
 
