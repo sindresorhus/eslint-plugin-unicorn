@@ -151,7 +151,7 @@ const {isTarget: isDocumentReceiver} = createTypeCheckers({
 		'HTMLDocument',
 		'XMLDocument',
 	]),
-	isTargetNode: isGlobalDocument,
+	isTargetNode: (node, context) => isGlobalDocument(node, context),
 });
 
 const isUnknownOrHtmlNamespace = (node, context) => {
