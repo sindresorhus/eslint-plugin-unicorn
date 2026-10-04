@@ -24,16 +24,10 @@ Use ESLint config overrides or ignores for project-specific entrypoints, polyfil
 
 Direct calls to these imported helpers are allowed:
 
-| Import source | Allowed helpers |
-| --- | --- |
-| `react` | `memo`, `forwardRef`, `lazy`, `createContext`, `createRef`, `createElement`, `cloneElement`, `isValidElement` |
-| `vue` | `defineComponent` |
-| `eslint/config` | `defineConfig` |
-| `@eslint/config-helpers` | `defineConfig` |
-| `vite` | `defineConfig` |
-| `vitest/config` | `defineConfig`, `defineProject` |
-| `rollup` | `defineConfig` |
-| `astro/config` | `defineConfig` |
+- `react`: `memo`, `forwardRef`, `lazy`, `createContext`, `createRef`, `createElement`, `cloneElement`, and `isValidElement`.
+- `vue`: `defineComponent`.
+- `defineConfig` from `eslint/config`, `@eslint/config-helpers`, `vite`, `vitest/config`, `rollup`, or `astro/config`.
+- `defineProject` from `vitest/config`.
 
 Named and namespace imports support import aliases; React also supports default imports. Recognition requires a direct import: local variable aliases, computed members, optional chains, conditional calls, and globally supplied objects remain conservatively checked.
 
@@ -108,19 +102,4 @@ export default defineConfig({plugins: [initializePlugin()]});
 
 // ✅
 export default defineConfig(() => ({plugins: [initializePlugin()]}));
-```
-
-## Figma Code Connect templates
-
-Figma Code Connect templates run inside a function. Disable this rule for them, adjusting the file pattern to match your project:
-
-```js
-export default [
-	{
-		files: ['**/*.figma.template.{js,ts}'],
-		rules: {
-			'unicorn/no-top-level-side-effects': 'off',
-		},
-	},
-];
 ```
