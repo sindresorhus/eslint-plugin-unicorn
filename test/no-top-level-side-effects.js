@@ -471,11 +471,13 @@ test({
 		'import {default as wrap} from "@company/wrapper"; export default wrap(Component);',
 		'import * as helpers from "@company/wrapper"; export default helpers.default(Component);',
 		'import wrap from "@company/wrapper"; export default wrap(wrap(Component));',
+		'import wrap from "@company/wrapper"; import {memo} from "react"; export default wrap(memo(Component));',
 		typescriptCode('import wrap from "@company/wrapper"; export default wrap<Props>(Component) satisfies Component;'),
 	].map(testCase => ({...(typeof testCase === 'string' ? {code: testCase} : testCase), options: defaultAllowOptions})),
 	invalid: [
 		...[
 			'import wrap from "@company/wrapper"; export default wrap(initialize());',
+			'import wrap from "@company/wrapper"; import {memo} from "react"; export default wrap(memo(initialize()));',
 			'import wrap from "@company/wrapper"; export {}; wrap({value: initialize()});',
 			'import wrap from "@company/other"; export default wrap(Component);',
 			'import {wrap} from "@company/wrapper"; export default wrap(Component);',
