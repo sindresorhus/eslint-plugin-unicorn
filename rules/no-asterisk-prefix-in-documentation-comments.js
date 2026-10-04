@@ -1,13 +1,14 @@
 import {
 	getComments,
 	onRoot,
+	reindentText,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-asterisk-prefix-in-documentation-comments';
 const LINE_ENDINGS = ['\n', '\r', '\u2028', '\u2029'];
 const LINE_ENDING_PATTERN = /[\n\r\u{2028}\u{2029}]/v;
 const messages = {
-	[MESSAGE_ID]: 'Remove the asterisk prefix from this comment.',
+	[MESSAGE_ID]: 'Remove asterisk prefixes and shared indentation from this comment.',
 };
 
 const getCommentRange = (sourceCode, comment) => {
@@ -25,9 +26,29 @@ const getFixedCommentText = (text, linePrefix) => {
 	const closingDelimiterPattern = new RegExp(`^${linePrefix}[ \t]+\\*/`, 'gmv');
 	const linePrefixPattern = new RegExp(`^${linePrefix}[ \t]+\\*(?:[ \t])?`, 'gmv');
 
-	return text
+	const fixedText = text
 		.replace(closingDelimiterPattern, () => `${linePrefix}*/`)
 		.replace(linePrefixPattern, () => linePrefix);
+	let sharedIndentation;
+
+	for (const line of fixedText.split(LINE_ENDING_PATTERN).slice(1)) {
+		if (/^[\t ]*(?:\*\/)?$/v.test(line)) {
+			continue;
+		}
+
+		const indentation = /^[\t ]*/v.exec(line)[0];
+		sharedIndentation ??= indentation;
+
+		while (!indentation.startsWith(sharedIndentation)) {
+			sharedIndentation = sharedIndentation.slice(0, -1);
+		}
+	}
+
+	if (sharedIndentation?.startsWith(linePrefix) && sharedIndentation.length > linePrefix.length) {
+		return reindentText(fixedText, sharedIndentation, linePrefix);
+	}
+
+	return fixedText;
 };
 
 const getProblem = (context, comment) => {
@@ -83,7 +104,7 @@ const config = {
 	meta: {
 		type: 'layout',
 		docs: {
-			description: 'Disallow asterisk prefixes in multiline comments.',
+			description: 'Disallow asterisk prefixes and shared indentation in multiline comments.',
 			recommended: true,
 		},
 		fixable: 'whitespace',

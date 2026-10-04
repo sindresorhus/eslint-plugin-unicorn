@@ -69,4 +69,17 @@ export async function doSomething() {
 }
 ```
 
+Assigning a top-level promise directly to a variable or property with `=`, `??=`, `||=`, or `&&=` for later awaiting is also allowed:
+
+```js
+// ✅
+cache.promise ??= (async () => {
+	return await prepareSomething();
+})();
+
+export async function doSomething() {
+	await cache.promise;
+}
+```
+
 `.cjs` and `.svelte` files are ignored.

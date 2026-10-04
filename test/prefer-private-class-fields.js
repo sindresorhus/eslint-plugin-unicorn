@@ -3,6 +3,121 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				class Foo {
+					_method() {}
+					constructor() {
+						this._method = this._method.bind(this);
+					}
+				}
+			`,
+			errors: [{
+				messageId: 'prefer-private-class-fields',
+				suggestions: [{
+					messageId: 'prefer-private-class-fields/bound-method',
+					output: outdent`
+						class Foo {
+							#method = () => {};
+							constructor() {
+							}
+						}
+					`,
+				}],
+			}],
+		},
+		...[
+			'this._method = replacement;',
+			'this._method += replacement;',
+			'this._method ||= replacement;',
+			'this._method &&= replacement;',
+			'this._method ??= replacement;',
+			'this._method++;',
+			'--this._method;',
+			'[this._method] = source;',
+			'({method: this._method} = source);',
+			'[this._method = replacement] = source;',
+			'[...this._method] = source;',
+			'({...this._method} = source);',
+			'for (this._method of source) {}',
+			'for (this._method in source) {}',
+			'const bind = () => { this._method = this._method.bind(this); };',
+		].map(statement => ({
+			code: `class Foo { _method() {} replace() { ${statement} } }`,
+			errors: [{messageId: 'prefer-private-class-fields'}],
+		})),
+		// Only standalone constructor binding to the same method is suggested.
+		...[
+			'this._method = this._method.bind(other);',
+			'this._method = this._method.bind(this, value);',
+			'this._method = this.read.bind(this);',
+			'this._method = this._method.bind?.(this);',
+			'this._method = this._method["bind"](this);',
+			'this._method = this._method.bind(...[this]);',
+			'if (condition) { this._method = this._method.bind(this); }',
+			'const bind = () => { this._method = this._method.bind(this); };',
+			'const bound = this._method = this._method.bind(this);',
+			'this._method = this._method.bind(this); this._method = replacement;',
+			'this._method = this._method.bind(this); this._method = this._method.bind(this);',
+			'this._method = this._method.bind(this); this[key];',
+			'this._method = this._method.bind(this); Object.keys(this);',
+			'this._method = this._method.bind(/* keep */ this);',
+		].map(statement => ({
+			code: `class Foo { _method() {} constructor() { ${statement} } }`,
+			errors: [{messageId: 'prefer-private-class-fields'}],
+		})),
+		// These method signatures or lexical bindings cannot become arrow fields.
+		...[
+			'*_method() {}',
+			'async *_method() {}',
+			'_method() { return arguments; }',
+			'_method(value = arguments[0]) {}',
+			'_method() { return () => arguments[0]; }',
+			'_method() { return new.target; }',
+			'_method() { return eval("arguments"); }',
+			'async /* keep */ _method() {}',
+			'_method /* keep */ () {}',
+		].map(method => ({
+			code: `class Foo { ${method} constructor() { this._method = this._method.bind(this); } }`,
+			errors: [{messageId: 'prefer-private-class-fields'}],
+		})),
+		{
+			code: 'class Foo { callback = this._method; _method() {} constructor() { this._method = this._method.bind(this); } }',
+			errors: [{messageId: 'prefer-private-class-fields'}],
+		},
+	],
+});
+
+test.typescript({
+	valid: [],
+	invalid: [
+		'this._method! = replacement;',
+		'(this._method as Function) = replacement;',
+		'(this._method! as Function) = replacement;',
+		'(<Function>this._method) = replacement;',
+		'(this._method satisfies Function) = replacement;',
+		'(this as Foo)._method = replacement;',
+	].map(statement => ({
+		code: `class Foo { _method() {} replace() { ${statement} } }`,
+		errors: [{messageId: 'prefer-private-class-fields'}],
+	})),
+});
+
+test.typescript({
+	valid: [],
+	invalid: [
+		'this._method!',
+		'(this._method as Function)',
+		'(this as Foo)._method',
+	].map(target => ({
+		code: `class Foo { _method() {} constructor() { ${target} = this._method.bind(this); } }`,
+		errors: [{messageId: 'prefer-private-class-fields'}],
+	})),
+});
+
 test.snapshot({
 	valid: [
 		// Already private
@@ -746,6 +861,101 @@ test.snapshot({
 				}
 			}
 		`,
+
+		// A function-valued field remains writable after conversion
+		outdent`
+			class Foo {
+				_method = () => {};
+				constructor() {
+					this._method = this._method.bind(this);
+				}
+			}
+		`,
+
+		// A setter remains writable after conversion
+		outdent`
+			class Foo {
+				get _method() {}
+				set _method(value) {}
+				replace(value) {
+					this._method = value;
+				}
+			}
+		`,
+
+		// Writing a property of a method does not reassign the method
+		'class Foo { _method() {} configure() { this._method.option = true; } }',
+
+		// A method write blocks only that member in its declaring class
+		outdent`
+			class Foo {
+				_value = 1;
+				_method() {}
+				constructor() {
+					this._method = this._method.bind(this);
+					this._value = 2;
+				}
+			}
+
+			class Bar {
+				_method() {}
+				call() {
+					return this._method();
+				}
+			}
+		`,
+
+		// Binding a method without reassigning it remains fixable
+		'class Foo { _method() {} bound = this._method.bind(this); }',
+
+		// Destructuring defaults and computed keys read the method
+		'class Foo { _method() {} read(source) { const [value = this._method] = source; } }',
+		'class Foo { _method() { return "key"; } read(source) { let value; ({[this._method()]: value} = source); return value; } }',
+
+		// The suggestion preserves parameters, body comments, recursive calls, and lexical this.
+		outdent`
+			class Foo {
+				_method({value} = {value: 1}, ...rest) {
+					// Keep the body.
+					return rest.length > 0 ? this._method() : () => [this, value];
+				}
+				constructor() {
+					this._method = this._method.bind(this);
+				}
+				callback() {
+					return this._method;
+				}
+			}
+		`,
+		'class Foo { async _method(value) { return await value; } constructor() { this._method = this._method.bind(this); } }',
+		'class Foo { async _method\n(value) { return await value; } constructor() { this._method = this._method.bind(this); } }',
+		outdent`
+			class Foo {
+				_method(/* keep parameter */ value)
+				// Keep between signature and body.
+				{
+					return [this, value];
+				}
+				constructor() {
+					this._method = this._method.bind(this);
+				}
+			}
+		`,
+		// Removing binding keeps surrounding comments and statement boundaries.
+		outdent`
+			class Foo {
+				_method() {}
+				constructor() {
+					// Keep before.
+					this._method = this._method.bind(this); // Keep after.
+					initialize();
+				}
+			}
+		`,
+		// Space indentation, CRLF, and missing semicolons do not affect the suggestion.
+		'class Foo {\r\n  _method(value) {\r\n    return [this, value]\r\n  }\r\n  constructor() {\r\n    this._method = this._method.bind(this)\r\n  }\r\n}\r\n',
+		// Removing binding must preserve the semicolon separating adjacent expressions.
+		...['[1].forEach(run);', '(run)();'].map(statement => `class Foo { _method() {} constructor() { initialize()\nthis._method = this._method.bind(this);\n${statement} } }`),
 	],
 });
 
@@ -932,5 +1142,19 @@ test.snapshot({
 				}
 			}
 		`,
+
+		// A TypeScript wrapper does not turn a method-property write into a method write
+		'class Foo { _method() {} configure() { (this._method as Function).option = true; } }',
+		// Parameter types and return types survive conversion.
+		'class Foo { _method(value: string): string { return value; } constructor() { this._method = this._method.bind(this); } callback() { return this._method; } }',
+		// Explicit this parameters are not valid in arrow functions.
+		'class Foo { _method(this: Foo) {} constructor() { this._method = this._method.bind(this); } }',
+		// Generic and decorated signatures require manual conversion.
+		{
+			code: 'class Foo { _method<T>(value: T): T { return value; } constructor() { this._method = this._method.bind(this); } }',
+			filename: 'file.tsx',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		'class Foo { _method(@decorator value: string) { return value; } constructor() { this._method = this._method.bind(this); } }',
 	],
 });

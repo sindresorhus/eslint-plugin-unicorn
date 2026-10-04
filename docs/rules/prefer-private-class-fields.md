@@ -4,13 +4,13 @@
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
-🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
 <!-- end auto-generated rule header -->
 
 Before [private class fields](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_elements) existed, a leading underscore was the common convention for marking a class member as "private". That convention is purely cosmetic, the member is still publicly accessible. Private class fields are enforced by the language, so prefer them.
 
-The autofix only runs when every reference is a `this.` access inside the declaring class, since a private field can only be accessed that way. When a member is also accessed in a way that has no private-field equivalent (external access, computed access like `this['_foo']`, destructuring, or `super._foo`), the rule reports it without a fix.
+The autofix only runs when every reference is a `this.` access inside the declaring class, since a private field can only be accessed that way. When a member is also accessed in a way that has no private-field equivalent (external access, computed access like `this['_foo']`, destructuring, or `super._foo`), the rule reports it without a fix. Writes to methods, such as `this._method = this._method.bind(this)`, are also reported without a fix because private methods are not writable.
 
 ## Examples
 
@@ -33,6 +33,18 @@ class Foo {
 	#privateMethod() {
 		return 'hello world';
 	}
+}
+```
+
+### Bound methods
+
+The rule suggests replacing a single standalone constructor `.bind(this)` assignment with a private arrow-function field. Review initialization order: fields initialize at their declaration, before the constructor body. Generators, generic or decorated signatures, and methods using `arguments`, `new.target`, or `eval` need manual conversion.
+
+```js
+class Foo {
+	#method = () => {
+		return this;
+	};
 }
 ```
 

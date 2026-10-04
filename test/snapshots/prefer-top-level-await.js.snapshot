@@ -12,6 +12,20 @@ Message:
 
 `;
 
+exports[`prefer-top-level-await > invalid(1): cache.promise += (async () => {})(); 1`] = `
+
+  1 | cache.promise += (async () => {})();
+
+`;
+
+exports[`prefer-top-level-await > invalid(1): cache.promise += (async () => {})(); 2`] = `
+
+Message:
+> 1 | cache.promise += (async () => {})();
+    |                            ^^ Prefer top-level await over an async IIFE.
+
+`;
+
 exports[`prefer-top-level-await > invalid(1): const foo = async () => {};\nfoo(); 1`] = `
 
   1 | const foo = async () => {};
@@ -69,58 +83,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(10): !async function() {}() 1`] = `
-
-  1 | !async function() {}()
-
-`;
-
-exports[`prefer-top-level-await > invalid(10): !async function() {}() 2`] = `
-
-Message:
-> 1 | !async function() {}()
-    |  ^^^^^^^^^^^^^^ Prefer top-level await over an async IIFE.
-
-`;
-
-exports[`prefer-top-level-await > invalid(10): (async () => {})().catch(() => process.exit(1)) 1`] = `
-
-  1 | (async () => {})().catch(() => process.exit(1))
-
-`;
-
-exports[`prefer-top-level-await > invalid(10): (async () => {})().catch(() => process.exit(1)) 2`] = `
-
-Message:
-> 1 | (async () => {})().catch(() => process.exit(1))
-    |                    ^^^^^ Prefer top-level await over using a promise chain.
-
-`;
-
-exports[`prefer-top-level-await > invalid(10): const foo = async () => {}; (foo() as Promise<void>); 1`] = `
-
-  1 | const foo = async () => {}; (foo() as Promise<void>);
-
-`;
-
-exports[`prefer-top-level-await > invalid(10): const foo = async () => {}; (foo() as Promise<void>); 2`] = `
-
-Message:
-> 1 | const foo = async () => {}; (foo() as Promise<void>);
-    |                              ^^^^^ Prefer top-level await over an async function \`foo\` call.
-
-Suggestion 1/1: Insert \`await\`.:
-  1 | const foo = async () => {}; (await foo() as Promise<void>);
-
-`;
-
-exports[`prefer-top-level-await > invalid(11): (async () => {})().catch(foo) 1`] = `
+exports[`prefer-top-level-await > invalid(10): (async () => {})().catch(foo) 1`] = `
 
   1 | (async () => {})().catch(foo)
 
 `;
 
-exports[`prefer-top-level-await > invalid(11): (async () => {})().catch(foo) 2`] = `
+exports[`prefer-top-level-await > invalid(10): (async () => {})().catch(foo) 2`] = `
 
 Message:
 > 1 | (async () => {})().catch(foo)
@@ -128,13 +97,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(11): (async () => {})().then(bar) 1`] = `
+exports[`prefer-top-level-await > invalid(10): (async () => {})().then(bar) 1`] = `
 
   1 | (async () => {})().then(bar)
 
 `;
 
-exports[`prefer-top-level-await > invalid(11): (async () => {})().then(bar) 2`] = `
+exports[`prefer-top-level-await > invalid(10): (async () => {})().then(bar) 2`] = `
 
 Message:
 > 1 | (async () => {})().then(bar)
@@ -142,14 +111,31 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(11): const foo = async () => {};\nfoo() ** 2; 1`] = `
+exports[`prefer-top-level-await > invalid(10): async function run() {} cache[run() as string] = value; 1`] = `
+
+  1 | async function run() {} cache[run() as string] = value;
+
+`;
+
+exports[`prefer-top-level-await > invalid(10): async function run() {} cache[run() as string] = value; 2`] = `
+
+Message:
+> 1 | async function run() {} cache[run() as string] = value;
+    |                               ^^^^^ Prefer top-level await over an async function \`run\` call.
+
+Suggestion 1/1: Insert \`await\`.:
+  1 | async function run() {} cache[await run() as string] = value;
+
+`;
+
+exports[`prefer-top-level-await > invalid(10): const foo = async () => {};\nfoo() ** 2; 1`] = `
 
   1 | const foo = async () => {};
   2 | foo() ** 2;
 
 `;
 
-exports[`prefer-top-level-await > invalid(11): const foo = async () => {};\nfoo() ** 2; 2`] = `
+exports[`prefer-top-level-await > invalid(10): const foo = async () => {};\nfoo() ** 2; 2`] = `
 
 Message:
   1 | const foo = async () => {};
@@ -162,13 +148,13 @@ Suggestion 1/1: Insert \`await\`.:
 
 `;
 
-exports[`prefer-top-level-await > invalid(12): ((async () => {})() satisfies Promise<void>); 1`] = `
+exports[`prefer-top-level-await > invalid(11): ((async () => {})() satisfies Promise<void>); 1`] = `
 
   1 | ((async () => {})() satisfies Promise<void>);
 
 `;
 
-exports[`prefer-top-level-await > invalid(12): ((async () => {})() satisfies Promise<void>); 2`] = `
+exports[`prefer-top-level-await > invalid(11): ((async () => {})() satisfies Promise<void>); 2`] = `
 
 Message:
 > 1 | ((async () => {})() satisfies Promise<void>);
@@ -176,13 +162,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(12): (async function() {}()).finally(() => {}) 1`] = `
+exports[`prefer-top-level-await > invalid(11): (async function() {}()).finally(() => {}) 1`] = `
 
   1 | (async function() {}()).finally(() => {})
 
 `;
 
-exports[`prefer-top-level-await > invalid(12): (async function() {}()).finally(() => {}) 2`] = `
+exports[`prefer-top-level-await > invalid(11): (async function() {}()).finally(() => {}) 2`] = `
 
 Message:
 > 1 | (async function() {}()).finally(() => {})
@@ -190,13 +176,30 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(12): const foo = async () => {}; foo()! ** 2; 1`] = `
+exports[`prefer-top-level-await > invalid(11): async function run() {} cache[run()] ??= run(); 1`] = `
+
+  1 | async function run() {} cache[run()] ??= run();
+
+`;
+
+exports[`prefer-top-level-await > invalid(11): async function run() {} cache[run()] ??= run(); 2`] = `
+
+Message:
+> 1 | async function run() {} cache[run()] ??= run();
+    |                               ^^^^^ Prefer top-level await over an async function \`run\` call.
+
+Suggestion 1/1: Insert \`await\`.:
+  1 | async function run() {} cache[await run()] ??= run();
+
+`;
+
+exports[`prefer-top-level-await > invalid(11): const foo = async () => {}; foo()! ** 2; 1`] = `
 
   1 | const foo = async () => {}; foo()! ** 2;
 
 `;
 
-exports[`prefer-top-level-await > invalid(12): const foo = async () => {}; foo()! ** 2; 2`] = `
+exports[`prefer-top-level-await > invalid(11): const foo = async () => {}; foo()! ** 2; 2`] = `
 
 Message:
 > 1 | const foo = async () => {}; foo()! ** 2;
@@ -207,13 +210,27 @@ Suggestion 1/1: Insert \`await\`.:
 
 `;
 
-exports[`prefer-top-level-await > invalid(13): const foo = async () => {}; foo?.() ** 2; 1`] = `
+exports[`prefer-top-level-await > invalid(12): async function run() {} run().promise = run(); 1`] = `
+
+  1 | async function run() {} run().promise = run();
+
+`;
+
+exports[`prefer-top-level-await > invalid(12): async function run() {} run().promise = run(); 2`] = `
+
+Message:
+> 1 | async function run() {} run().promise = run();
+    |                         ^^^^^ Prefer top-level await over an async function \`run\` call.
+
+`;
+
+exports[`prefer-top-level-await > invalid(12): const foo = async () => {}; foo?.() ** 2; 1`] = `
 
   1 | const foo = async () => {}; foo?.() ** 2;
 
 `;
 
-exports[`prefer-top-level-await > invalid(13): const foo = async () => {}; foo?.() ** 2; 2`] = `
+exports[`prefer-top-level-await > invalid(12): const foo = async () => {}; foo?.() ** 2; 2`] = `
 
 Message:
 > 1 | const foo = async () => {}; foo?.() ** 2;
@@ -224,13 +241,13 @@ Suggestion 1/1: Insert \`await\`.:
 
 `;
 
-exports[`prefer-top-level-await > invalid(13): for (const foo of bar) foo.then(bar) 1`] = `
+exports[`prefer-top-level-await > invalid(12): for (const foo of bar) foo.then(bar) 1`] = `
 
   1 | for (const foo of bar) foo.then(bar)
 
 `;
 
-exports[`prefer-top-level-await > invalid(13): for (const foo of bar) foo.then(bar) 2`] = `
+exports[`prefer-top-level-await > invalid(12): for (const foo of bar) foo.then(bar) 2`] = `
 
 Message:
 > 1 | for (const foo of bar) foo.then(bar)
@@ -238,13 +255,30 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(14): const foo = async () => {}; (foo()) ** 2; 1`] = `
+exports[`prefer-top-level-await > invalid(13): async function run() {} cache.promise = run(run()); 1`] = `
+
+  1 | async function run() {} cache.promise = run(run());
+
+`;
+
+exports[`prefer-top-level-await > invalid(13): async function run() {} cache.promise = run(run()); 2`] = `
+
+Message:
+> 1 | async function run() {} cache.promise = run(run());
+    |                                             ^^^^^ Prefer top-level await over an async function \`run\` call.
+
+Suggestion 1/1: Insert \`await\`.:
+  1 | async function run() {} cache.promise = run(await run());
+
+`;
+
+exports[`prefer-top-level-await > invalid(13): const foo = async () => {}; (foo()) ** 2; 1`] = `
 
   1 | const foo = async () => {}; (foo()) ** 2;
 
 `;
 
-exports[`prefer-top-level-await > invalid(14): const foo = async () => {}; (foo()) ** 2; 2`] = `
+exports[`prefer-top-level-await > invalid(13): const foo = async () => {}; (foo()) ** 2; 2`] = `
 
 Message:
 > 1 | const foo = async () => {}; (foo()) ** 2;
@@ -255,13 +289,13 @@ Suggestion 1/1: Insert \`await\`.:
 
 `;
 
-exports[`prefer-top-level-await > invalid(14): foo?.then(bar).finally(qux) 1`] = `
+exports[`prefer-top-level-await > invalid(13): foo?.then(bar).finally(qux) 1`] = `
 
   1 | foo?.then(bar).finally(qux)
 
 `;
 
-exports[`prefer-top-level-await > invalid(14): foo?.then(bar).finally(qux) 2`] = `
+exports[`prefer-top-level-await > invalid(13): foo?.then(bar).finally(qux) 2`] = `
 
 Message:
 > 1 | foo?.then(bar).finally(qux)
@@ -269,13 +303,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(15): const foo = async () => {}; foo().bar; 1`] = `
+exports[`prefer-top-level-await > invalid(14): const foo = async () => {}; foo().bar; 1`] = `
 
   1 | const foo = async () => {}; foo().bar;
 
 `;
 
-exports[`prefer-top-level-await > invalid(15): const foo = async () => {}; foo().bar; 2`] = `
+exports[`prefer-top-level-await > invalid(14): const foo = async () => {}; foo().bar; 2`] = `
 
 Message:
 > 1 | const foo = async () => {}; foo().bar;
@@ -283,13 +317,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(15): foo.then().toString() 1`] = `
+exports[`prefer-top-level-await > invalid(14): foo.then().toString() 1`] = `
 
   1 | foo.then().toString()
 
 `;
 
-exports[`prefer-top-level-await > invalid(15): foo.then().toString() 2`] = `
+exports[`prefer-top-level-await > invalid(14): foo.then().toString() 2`] = `
 
 Message:
 > 1 | foo.then().toString()
@@ -297,13 +331,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(16): !foo.then() 1`] = `
+exports[`prefer-top-level-await > invalid(15): !foo.then() 1`] = `
 
   1 | !foo.then()
 
 `;
 
-exports[`prefer-top-level-await > invalid(16): !foo.then() 2`] = `
+exports[`prefer-top-level-await > invalid(15): !foo.then() 2`] = `
 
 Message:
 > 1 | !foo.then()
@@ -311,13 +345,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(16): const foo = async () => {}; foo()[0] ** 2; 1`] = `
+exports[`prefer-top-level-await > invalid(15): const foo = async () => {}; foo()[0] ** 2; 1`] = `
 
   1 | const foo = async () => {}; foo()[0] ** 2;
 
 `;
 
-exports[`prefer-top-level-await > invalid(16): const foo = async () => {}; foo()[0] ** 2; 2`] = `
+exports[`prefer-top-level-await > invalid(15): const foo = async () => {}; foo()[0] ** 2; 2`] = `
 
 Message:
 > 1 | const foo = async () => {}; foo()[0] ** 2;
@@ -325,13 +359,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(17): const foo = async () => {}; foo()(); 1`] = `
+exports[`prefer-top-level-await > invalid(16): const foo = async () => {}; foo()(); 1`] = `
 
   1 | const foo = async () => {}; foo()();
 
 `;
 
-exports[`prefer-top-level-await > invalid(17): const foo = async () => {}; foo()(); 2`] = `
+exports[`prefer-top-level-await > invalid(16): const foo = async () => {}; foo()(); 2`] = `
 
 Message:
 > 1 | const foo = async () => {}; foo()();
@@ -339,13 +373,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(17): foo.then(bar).then(baz)?.then(qux) 1`] = `
+exports[`prefer-top-level-await > invalid(16): foo.then(bar).then(baz)?.then(qux) 1`] = `
 
   1 | foo.then(bar).then(baz)?.then(qux)
 
 `;
 
-exports[`prefer-top-level-await > invalid(17): foo.then(bar).then(baz)?.then(qux) 2`] = `
+exports[`prefer-top-level-await > invalid(16): foo.then(bar).then(baz)?.then(qux) 2`] = `
 
 Message:
 > 1 | foo.then(bar).then(baz)?.then(qux)
@@ -353,13 +387,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(18): const foo = async () => {}; foo()?.bar; 1`] = `
+exports[`prefer-top-level-await > invalid(17): const foo = async () => {}; foo()?.bar; 1`] = `
 
   1 | const foo = async () => {}; foo()?.bar;
 
 `;
 
-exports[`prefer-top-level-await > invalid(18): const foo = async () => {}; foo()?.bar; 2`] = `
+exports[`prefer-top-level-await > invalid(17): const foo = async () => {}; foo()?.bar; 2`] = `
 
 Message:
 > 1 | const foo = async () => {}; foo()?.bar;
@@ -367,13 +401,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(18): foo.then(bar).then(baz).then?.(qux) 1`] = `
+exports[`prefer-top-level-await > invalid(17): foo.then(bar).then(baz).then?.(qux) 1`] = `
 
   1 | foo.then(bar).then(baz).then?.(qux)
 
 `;
 
-exports[`prefer-top-level-await > invalid(18): foo.then(bar).then(baz).then?.(qux) 2`] = `
+exports[`prefer-top-level-await > invalid(17): foo.then(bar).then(baz).then?.(qux) 2`] = `
 
 Message:
 > 1 | foo.then(bar).then(baz).then?.(qux)
@@ -381,13 +415,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(19): const foo = async () => {}; foo()!.bar; 1`] = `
+exports[`prefer-top-level-await > invalid(18): const foo = async () => {}; foo()!.bar; 1`] = `
 
   1 | const foo = async () => {}; foo()!.bar;
 
 `;
 
-exports[`prefer-top-level-await > invalid(19): const foo = async () => {}; foo()!.bar; 2`] = `
+exports[`prefer-top-level-await > invalid(18): const foo = async () => {}; foo()!.bar; 2`] = `
 
 Message:
 > 1 | const foo = async () => {}; foo()!.bar;
@@ -395,17 +429,48 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(19): foo.then(bar).catch(bar).finally(bar) 1`] = `
+exports[`prefer-top-level-await > invalid(18): foo.then(bar).catch(bar).finally(bar) 1`] = `
 
   1 | foo.then(bar).catch(bar).finally(bar)
 
 `;
 
-exports[`prefer-top-level-await > invalid(19): foo.then(bar).catch(bar).finally(bar) 2`] = `
+exports[`prefer-top-level-await > invalid(18): foo.then(bar).catch(bar).finally(bar) 2`] = `
 
 Message:
 > 1 | foo.then(bar).catch(bar).finally(bar)
     |                          ^^^^^^^ Prefer top-level await over using a promise chain.
+
+`;
+
+exports[`prefer-top-level-await > invalid(19): const foo = async () => {}; (foo()).bar; 1`] = `
+
+  1 | const foo = async () => {}; (foo()).bar;
+
+`;
+
+exports[`prefer-top-level-await > invalid(19): const foo = async () => {}; (foo()).bar; 2`] = `
+
+Message:
+> 1 | const foo = async () => {}; (foo()).bar;
+    |                              ^^^^^ Prefer top-level await over an async function \`foo\` call.
+
+Suggestion 1/1: Insert \`await\`.:
+  1 | const foo = async () => {}; (await foo()).bar;
+
+`;
+
+exports[`prefer-top-level-await > invalid(19): objectWithCatch.catch() 1`] = `
+
+  1 | objectWithCatch.catch()
+
+`;
+
+exports[`prefer-top-level-await > invalid(19): objectWithCatch.catch() 2`] = `
+
+Message:
+> 1 | objectWithCatch.catch()
+    |                 ^^^^^ Prefer top-level await over using a promise chain.
 
 `;
 
@@ -420,6 +485,20 @@ exports[`prefer-top-level-await > invalid(2): (async () => {})?.() 2`] = `
 Message:
 > 1 | (async () => {})?.()
     |           ^^ Prefer top-level await over an async IIFE.
+
+`;
+
+exports[`prefer-top-level-await > invalid(2): cache.promise *= promise.then(onFulfilled); 1`] = `
+
+  1 | cache.promise *= promise.then(onFulfilled);
+
+`;
+
+exports[`prefer-top-level-await > invalid(2): cache.promise *= promise.then(onFulfilled); 2`] = `
+
+Message:
+> 1 | cache.promise *= promise.then(onFulfilled);
+    |                          ^^^^ Prefer top-level await over using a promise chain.
 
 `;
 
@@ -443,58 +522,27 @@ Suggestion 1/1: Insert \`await\`.:
 
 `;
 
-exports[`prefer-top-level-await > invalid(2): promise = foo.then(bar) 1`] = `
+exports[`prefer-top-level-await > invalid(2): foo.then?.(bar) 1`] = `
 
-  1 | promise = foo.then(bar)
+  1 | foo.then?.(bar)
 
 `;
 
-exports[`prefer-top-level-await > invalid(2): promise = foo.then(bar) 2`] = `
+exports[`prefer-top-level-await > invalid(2): foo.then?.(bar) 2`] = `
 
 Message:
-> 1 | promise = foo.then(bar)
-    |               ^^^^ Prefer top-level await over using a promise chain.
+> 1 | foo.then?.(bar)
+    |     ^^^^ Prefer top-level await over using a promise chain.
 
 `;
 
-exports[`prefer-top-level-await > invalid(20): const foo = async () => {}; (foo()).bar; 1`] = `
-
-  1 | const foo = async () => {}; (foo()).bar;
-
-`;
-
-exports[`prefer-top-level-await > invalid(20): const foo = async () => {}; (foo()).bar; 2`] = `
-
-Message:
-> 1 | const foo = async () => {}; (foo()).bar;
-    |                              ^^^^^ Prefer top-level await over an async function \`foo\` call.
-
-Suggestion 1/1: Insert \`await\`.:
-  1 | const foo = async () => {}; (await foo()).bar;
-
-`;
-
-exports[`prefer-top-level-await > invalid(20): objectWithCatch.catch() 1`] = `
-
-  1 | objectWithCatch.catch()
-
-`;
-
-exports[`prefer-top-level-await > invalid(20): objectWithCatch.catch() 2`] = `
-
-Message:
-> 1 | objectWithCatch.catch()
-    |                 ^^^^^ Prefer top-level await over using a promise chain.
-
-`;
-
-exports[`prefer-top-level-await > invalid(21): const foo = async () => {}; foo()\`bar\`; 1`] = `
+exports[`prefer-top-level-await > invalid(20): const foo = async () => {}; foo()\`bar\`; 1`] = `
 
   1 | const foo = async () => {}; foo()\`bar\`;
 
 `;
 
-exports[`prefer-top-level-await > invalid(21): const foo = async () => {}; foo()\`bar\`; 2`] = `
+exports[`prefer-top-level-await > invalid(20): const foo = async () => {}; foo()\`bar\`; 2`] = `
 
 Message:
 > 1 | const foo = async () => {}; foo()\`bar\`;
@@ -502,13 +550,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(21): getCatchMethod().catch() 1`] = `
+exports[`prefer-top-level-await > invalid(20): getCatchMethod().catch() 1`] = `
 
   1 | getCatchMethod().catch()
 
 `;
 
-exports[`prefer-top-level-await > invalid(21): getCatchMethod().catch() 2`] = `
+exports[`prefer-top-level-await > invalid(20): getCatchMethod().catch() 2`] = `
 
 Message:
 > 1 | getCatchMethod().catch()
@@ -516,13 +564,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(22): z[\"string\"]().catch(\"fallback\") 1`] = `
+exports[`prefer-top-level-await > invalid(21): z[\"string\"]().catch(\"fallback\") 1`] = `
 
   1 | z["string"]().catch("fallback")
 
 `;
 
-exports[`prefer-top-level-await > invalid(22): z[\"string\"]().catch(\"fallback\") 2`] = `
+exports[`prefer-top-level-await > invalid(21): z[\"string\"]().catch(\"fallback\") 2`] = `
 
 Message:
 > 1 | z["string"]().catch("fallback")
@@ -530,13 +578,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(23): z.string().parse(value).catch(handle) 1`] = `
+exports[`prefer-top-level-await > invalid(22): z.string().parse(value).catch(handle) 1`] = `
 
   1 | z.string().parse(value).catch(handle)
 
 `;
 
-exports[`prefer-top-level-await > invalid(23): z.string().parse(value).catch(handle) 2`] = `
+exports[`prefer-top-level-await > invalid(22): z.string().parse(value).catch(handle) 2`] = `
 
 Message:
 > 1 | z.string().parse(value).catch(handle)
@@ -544,13 +592,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(24): z.string().safeParse(value).catch(handle) 1`] = `
+exports[`prefer-top-level-await > invalid(23): z.string().safeParse(value).catch(handle) 1`] = `
 
   1 | z.string().safeParse(value).catch(handle)
 
 `;
 
-exports[`prefer-top-level-await > invalid(24): z.string().safeParse(value).catch(handle) 2`] = `
+exports[`prefer-top-level-await > invalid(23): z.string().safeParse(value).catch(handle) 2`] = `
 
 Message:
 > 1 | z.string().safeParse(value).catch(handle)
@@ -558,13 +606,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(25): z.string().spa(value).catch(handle) 1`] = `
+exports[`prefer-top-level-await > invalid(24): z.string().spa(value).catch(handle) 1`] = `
 
   1 | z.string().spa(value).catch(handle)
 
 `;
 
-exports[`prefer-top-level-await > invalid(25): z.string().spa(value).catch(handle) 2`] = `
+exports[`prefer-top-level-await > invalid(24): z.string().spa(value).catch(handle) 2`] = `
 
 Message:
 > 1 | z.string().spa(value).catch(handle)
@@ -572,13 +620,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(26): z.string().parseAsync(value).catch(handle) 1`] = `
+exports[`prefer-top-level-await > invalid(25): z.string().parseAsync(value).catch(handle) 1`] = `
 
   1 | z.string().parseAsync(value).catch(handle)
 
 `;
 
-exports[`prefer-top-level-await > invalid(26): z.string().parseAsync(value).catch(handle) 2`] = `
+exports[`prefer-top-level-await > invalid(25): z.string().parseAsync(value).catch(handle) 2`] = `
 
 Message:
 > 1 | z.string().parseAsync(value).catch(handle)
@@ -586,13 +634,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(27): z.string().optional.catch(handle) 1`] = `
+exports[`prefer-top-level-await > invalid(26): z.string().optional.catch(handle) 1`] = `
 
   1 | z.string().optional.catch(handle)
 
 `;
 
-exports[`prefer-top-level-await > invalid(27): z.string().optional.catch(handle) 2`] = `
+exports[`prefer-top-level-await > invalid(26): z.string().optional.catch(handle) 2`] = `
 
 Message:
 > 1 | z.string().optional.catch(handle)
@@ -600,13 +648,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(28): z.string().array.catch(handle) 1`] = `
+exports[`prefer-top-level-await > invalid(27): z.string().array.catch(handle) 1`] = `
 
   1 | z.string().array.catch(handle)
 
 `;
 
-exports[`prefer-top-level-await > invalid(28): z.string().array.catch(handle) 2`] = `
+exports[`prefer-top-level-await > invalid(27): z.string().array.catch(handle) 2`] = `
 
 Message:
 > 1 | z.string().array.catch(handle)
@@ -614,17 +662,31 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(29): z.string().catch.catch(handle) 1`] = `
+exports[`prefer-top-level-await > invalid(28): z.string().catch.catch(handle) 1`] = `
 
   1 | z.string().catch.catch(handle)
 
 `;
 
-exports[`prefer-top-level-await > invalid(29): z.string().catch.catch(handle) 2`] = `
+exports[`prefer-top-level-await > invalid(28): z.string().catch.catch(handle) 2`] = `
 
 Message:
 > 1 | z.string().catch.catch(handle)
     |                  ^^^^^ Prefer top-level await over using a promise chain.
+
+`;
+
+exports[`prefer-top-level-await > invalid(29): z.string.optional().catch(handle) 1`] = `
+
+  1 | z.string.optional().catch(handle)
+
+`;
+
+exports[`prefer-top-level-await > invalid(29): z.string.optional().catch(handle) 2`] = `
+
+Message:
+> 1 | z.string.optional().catch(handle)
+    |                     ^^^^^ Prefer top-level await over using a promise chain.
 
 `;
 
@@ -639,6 +701,23 @@ exports[`prefer-top-level-await > invalid(3): (async function() {})() 2`] = `
 Message:
 > 1 | (async function() {})()
     |  ^^^^^^^^^^^^^^ Prefer top-level await over an async IIFE.
+
+`;
+
+exports[`prefer-top-level-await > invalid(3): async function run() {} cache.promise -= run(); 1`] = `
+
+  1 | async function run() {} cache.promise -= run();
+
+`;
+
+exports[`prefer-top-level-await > invalid(3): async function run() {} cache.promise -= run(); 2`] = `
+
+Message:
+> 1 | async function run() {} cache.promise -= run();
+    |                                          ^^^^^ Prefer top-level await over an async function \`run\` call.
+
+Suggestion 1/1: Insert \`await\`.:
+  1 | async function run() {} cache.promise -= await run();
 
 `;
 
@@ -662,41 +741,27 @@ Suggestion 1/1: Insert \`await\`.:
 
 `;
 
-exports[`prefer-top-level-await > invalid(3): foo.then?.(bar) 1`] = `
+exports[`prefer-top-level-await > invalid(3): foo?.then(bar) 1`] = `
 
-  1 | foo.then?.(bar)
+  1 | foo?.then(bar)
 
 `;
 
-exports[`prefer-top-level-await > invalid(3): foo.then?.(bar) 2`] = `
+exports[`prefer-top-level-await > invalid(3): foo?.then(bar) 2`] = `
 
 Message:
-> 1 | foo.then?.(bar)
-    |     ^^^^ Prefer top-level await over using a promise chain.
+> 1 | foo?.then(bar)
+    |      ^^^^ Prefer top-level await over using a promise chain.
 
 `;
 
-exports[`prefer-top-level-await > invalid(30): z.string.optional().catch(handle) 1`] = `
-
-  1 | z.string.optional().catch(handle)
-
-`;
-
-exports[`prefer-top-level-await > invalid(30): z.string.optional().catch(handle) 2`] = `
-
-Message:
-> 1 | z.string.optional().catch(handle)
-    |                     ^^^^^ Prefer top-level await over using a promise chain.
-
-`;
-
-exports[`prefer-top-level-await > invalid(31): z.coerce.string.optional().catch(handle) 1`] = `
+exports[`prefer-top-level-await > invalid(30): z.coerce.string.optional().catch(handle) 1`] = `
 
   1 | z.coerce.string.optional().catch(handle)
 
 `;
 
-exports[`prefer-top-level-await > invalid(31): z.coerce.string.optional().catch(handle) 2`] = `
+exports[`prefer-top-level-await > invalid(30): z.coerce.string.optional().catch(handle) 2`] = `
 
 Message:
 > 1 | z.coerce.string.optional().catch(handle)
@@ -704,13 +769,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(32): z.string.array().catch(handle) 1`] = `
+exports[`prefer-top-level-await > invalid(31): z.string.array().catch(handle) 1`] = `
 
   1 | z.string.array().catch(handle)
 
 `;
 
-exports[`prefer-top-level-await > invalid(32): z.string.array().catch(handle) 2`] = `
+exports[`prefer-top-level-await > invalid(31): z.string.array().catch(handle) 2`] = `
 
 Message:
 > 1 | z.string.array().catch(handle)
@@ -718,13 +783,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(33): z.coerce().string().catch(handle) 1`] = `
+exports[`prefer-top-level-await > invalid(32): z.coerce().string().catch(handle) 1`] = `
 
   1 | z.coerce().string().catch(handle)
 
 `;
 
-exports[`prefer-top-level-await > invalid(33): z.coerce().string().catch(handle) 2`] = `
+exports[`prefer-top-level-await > invalid(32): z.coerce().string().catch(handle) 2`] = `
 
 Message:
 > 1 | z.coerce().string().catch(handle)
@@ -732,13 +797,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(34): z.string().coerce().catch(handle) 1`] = `
+exports[`prefer-top-level-await > invalid(33): z.string().coerce().catch(handle) 1`] = `
 
   1 | z.string().coerce().catch(handle)
 
 `;
 
-exports[`prefer-top-level-await > invalid(34): z.string().coerce().catch(handle) 2`] = `
+exports[`prefer-top-level-await > invalid(33): z.string().coerce().catch(handle) 2`] = `
 
 Message:
 > 1 | z.string().coerce().catch(handle)
@@ -746,13 +811,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(35): schema.fetch().catch(handle) 1`] = `
+exports[`prefer-top-level-await > invalid(34): schema.fetch().catch(handle) 1`] = `
 
   1 | schema.fetch().catch(handle)
 
 `;
 
-exports[`prefer-top-level-await > invalid(35): schema.fetch().catch(handle) 2`] = `
+exports[`prefer-top-level-await > invalid(34): schema.fetch().catch(handle) 2`] = `
 
 Message:
 > 1 | schema.fetch().catch(handle)
@@ -760,13 +825,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(36): userSchema.validate().catch(handle) 1`] = `
+exports[`prefer-top-level-await > invalid(35): userSchema.validate().catch(handle) 1`] = `
 
   1 | userSchema.validate().catch(handle)
 
 `;
 
-exports[`prefer-top-level-await > invalid(36): userSchema.validate().catch(handle) 2`] = `
+exports[`prefer-top-level-await > invalid(35): userSchema.validate().catch(handle) 2`] = `
 
 Message:
 > 1 | userSchema.validate().catch(handle)
@@ -774,13 +839,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(37): someSchema.optional.catch(handle) 1`] = `
+exports[`prefer-top-level-await > invalid(36): someSchema.optional.catch(handle) 1`] = `
 
   1 | someSchema.optional.catch(handle)
 
 `;
 
-exports[`prefer-top-level-await > invalid(37): someSchema.optional.catch(handle) 2`] = `
+exports[`prefer-top-level-await > invalid(36): someSchema.optional.catch(handle) 2`] = `
 
 Message:
 > 1 | someSchema.optional.catch(handle)
@@ -788,13 +853,13 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(38): someSchema.parseAsync(value).catch(handle) 1`] = `
+exports[`prefer-top-level-await > invalid(37): someSchema.parseAsync(value).catch(handle) 1`] = `
 
   1 | someSchema.parseAsync(value).catch(handle)
 
 `;
 
-exports[`prefer-top-level-await > invalid(38): someSchema.parseAsync(value).catch(handle) 2`] = `
+exports[`prefer-top-level-await > invalid(37): someSchema.parseAsync(value).catch(handle) 2`] = `
 
 Message:
 > 1 | someSchema.parseAsync(value).catch(handle)
@@ -802,17 +867,31 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(39): someSchema.then(foo).catch(bar) 1`] = `
+exports[`prefer-top-level-await > invalid(38): someSchema.then(foo).catch(bar) 1`] = `
 
   1 | someSchema.then(foo).catch(bar)
 
 `;
 
-exports[`prefer-top-level-await > invalid(39): someSchema.then(foo).catch(bar) 2`] = `
+exports[`prefer-top-level-await > invalid(38): someSchema.then(foo).catch(bar) 2`] = `
 
 Message:
 > 1 | someSchema.then(foo).catch(bar)
     |                      ^^^^^ Prefer top-level await over using a promise chain.
+
+`;
+
+exports[`prefer-top-level-await > invalid(39): (foo.then(bar) as Promise<void>); 1`] = `
+
+  1 | (foo.then(bar) as Promise<void>);
+
+`;
+
+exports[`prefer-top-level-await > invalid(39): (foo.then(bar) as Promise<void>); 2`] = `
+
+Message:
+> 1 | (foo.then(bar) as Promise<void>);
+    |      ^^^^ Prefer top-level await over using a promise chain.
 
 `;
 
@@ -827,6 +906,20 @@ exports[`prefer-top-level-await > invalid(4): (async function() {}()) 2`] = `
 Message:
 > 1 | (async function() {}())
     |  ^^^^^^^^^^^^^^ Prefer top-level await over an async IIFE.
+
+`;
+
+exports[`prefer-top-level-await > invalid(4): cache[(async () => {})()] = value; 1`] = `
+
+  1 | cache[(async () => {})()] = value;
+
+`;
+
+exports[`prefer-top-level-await > invalid(4): cache[(async () => {})()] = value; 2`] = `
+
+Message:
+> 1 | cache[(async () => {})()] = value;
+    |                 ^^ Prefer top-level await over an async IIFE.
 
 `;
 
@@ -846,41 +939,27 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(4): foo?.then(bar) 1`] = `
+exports[`prefer-top-level-await > invalid(4): foo.catch(() => process.exit(1)) 1`] = `
 
-  1 | foo?.then(bar)
+  1 | foo.catch(() => process.exit(1))
 
 `;
 
-exports[`prefer-top-level-await > invalid(4): foo?.then(bar) 2`] = `
+exports[`prefer-top-level-await > invalid(4): foo.catch(() => process.exit(1)) 2`] = `
 
 Message:
-> 1 | foo?.then(bar)
-    |      ^^^^ Prefer top-level await over using a promise chain.
+> 1 | foo.catch(() => process.exit(1))
+    |     ^^^^^ Prefer top-level await over using a promise chain.
 
 `;
 
-exports[`prefer-top-level-await > invalid(40): (foo.then(bar) as Promise<void>); 1`] = `
-
-  1 | (foo.then(bar) as Promise<void>);
-
-`;
-
-exports[`prefer-top-level-await > invalid(40): (foo.then(bar) as Promise<void>); 2`] = `
-
-Message:
-> 1 | (foo.then(bar) as Promise<void>);
-    |      ^^^^ Prefer top-level await over using a promise chain.
-
-`;
-
-exports[`prefer-top-level-await > invalid(41): (foo.then(bar) as Promise<void>).catch(handleError); 1`] = `
+exports[`prefer-top-level-await > invalid(40): (foo.then(bar) as Promise<void>).catch(handleError); 1`] = `
 
   1 | (foo.then(bar) as Promise<void>).catch(handleError);
 
 `;
 
-exports[`prefer-top-level-await > invalid(41): (foo.then(bar) as Promise<void>).catch(handleError); 2`] = `
+exports[`prefer-top-level-await > invalid(40): (foo.then(bar) as Promise<void>).catch(handleError); 2`] = `
 
 Message:
 > 1 | (foo.then(bar) as Promise<void>).catch(handleError);
@@ -899,6 +978,20 @@ exports[`prefer-top-level-await > invalid(5): (async function run() {})() 2`] = 
 Message:
 > 1 | (async function run() {})()
     |  ^^^^^^^^^^^^^^^^^^ Prefer top-level await over an async IIFE.
+
+`;
+
+exports[`prefer-top-level-await > invalid(5): cache[promise.then(onFulfilled)] ??= value; 1`] = `
+
+  1 | cache[promise.then(onFulfilled)] ??= value;
+
+`;
+
+exports[`prefer-top-level-await > invalid(5): cache[promise.then(onFulfilled)] ??= value; 2`] = `
+
+Message:
+> 1 | cache[promise.then(onFulfilled)] ??= value;
+    |               ^^^^ Prefer top-level await over using a promise chain.
 
 `;
 
@@ -922,17 +1015,17 @@ Suggestion 1/1: Insert \`await\`.:
 
 `;
 
-exports[`prefer-top-level-await > invalid(5): foo.catch(() => process.exit(1)) 1`] = `
+exports[`prefer-top-level-await > invalid(5): foo.finally(bar) 1`] = `
 
-  1 | foo.catch(() => process.exit(1))
+  1 | foo.finally(bar)
 
 `;
 
-exports[`prefer-top-level-await > invalid(5): foo.catch(() => process.exit(1)) 2`] = `
+exports[`prefer-top-level-await > invalid(5): foo.finally(bar) 2`] = `
 
 Message:
-> 1 | foo.catch(() => process.exit(1))
-    |     ^^^^^ Prefer top-level await over using a promise chain.
+> 1 | foo.finally(bar)
+    |     ^^^^^^^ Prefer top-level await over using a promise chain.
 
 `;
 
@@ -947,6 +1040,23 @@ exports[`prefer-top-level-await > invalid(6): (async function(c, d) {})(a, b) 2`
 Message:
 > 1 | (async function(c, d) {})(a, b)
     |  ^^^^^^^^^^^^^^ Prefer top-level await over an async IIFE.
+
+`;
+
+exports[`prefer-top-level-await > invalid(6): async function run() {} cache[run()] ||= value; 1`] = `
+
+  1 | async function run() {} cache[run()] ||= value;
+
+`;
+
+exports[`prefer-top-level-await > invalid(6): async function run() {} cache[run()] ||= value; 2`] = `
+
+Message:
+> 1 | async function run() {} cache[run()] ||= value;
+    |                               ^^^^^ Prefer top-level await over an async function \`run\` call.
+
+Suggestion 1/1: Insert \`await\`.:
+  1 | async function run() {} cache[await run()] ||= value;
 
 `;
 
@@ -970,17 +1080,31 @@ Suggestion 1/1: Insert \`await\`.:
 
 `;
 
-exports[`prefer-top-level-await > invalid(6): foo.finally(bar) 1`] = `
+exports[`prefer-top-level-await > invalid(6): foo.then(bar, baz) 1`] = `
 
-  1 | foo.finally(bar)
+  1 | foo.then(bar, baz)
 
 `;
 
-exports[`prefer-top-level-await > invalid(6): foo.finally(bar) 2`] = `
+exports[`prefer-top-level-await > invalid(6): foo.then(bar, baz) 2`] = `
 
 Message:
-> 1 | foo.finally(bar)
-    |     ^^^^^^^ Prefer top-level await over using a promise chain.
+> 1 | foo.then(bar, baz)
+    |     ^^^^ Prefer top-level await over using a promise chain.
+
+`;
+
+exports[`prefer-top-level-await > invalid(7): cache.promise = !(async () => {})(); 1`] = `
+
+  1 | cache.promise = !(async () => {})();
+
+`;
+
+exports[`prefer-top-level-await > invalid(7): cache.promise = !(async () => {})(); 2`] = `
+
+Message:
+> 1 | cache.promise = !(async () => {})();
+    |                            ^^ Prefer top-level await over an async IIFE.
 
 `;
 
@@ -1016,17 +1140,17 @@ Suggestion 1/1: Insert \`await\`.:
 
 `;
 
-exports[`prefer-top-level-await > invalid(7): foo.then(bar, baz) 1`] = `
+exports[`prefer-top-level-await > invalid(7): foo.then(bar, baz).finally(qux) 1`] = `
 
-  1 | foo.then(bar, baz)
+  1 | foo.then(bar, baz).finally(qux)
 
 `;
 
-exports[`prefer-top-level-await > invalid(7): foo.then(bar, baz) 2`] = `
+exports[`prefer-top-level-await > invalid(7): foo.then(bar, baz).finally(qux) 2`] = `
 
 Message:
-> 1 | foo.then(bar, baz)
-    |     ^^^^ Prefer top-level await over using a promise chain.
+> 1 | foo.then(bar, baz).finally(qux)
+    |                    ^^^^^^^ Prefer top-level await over using a promise chain.
 
 `;
 
@@ -1041,6 +1165,34 @@ exports[`prefer-top-level-await > invalid(7): if (foo) (async () => {})() 2`] = 
 Message:
 > 1 | if (foo) (async () => {})()
     |                    ^^ Prefer top-level await over an async IIFE.
+
+`;
+
+exports[`prefer-top-level-await > invalid(8): (foo.then(bar, baz)).finally(qux) 1`] = `
+
+  1 | (foo.then(bar, baz)).finally(qux)
+
+`;
+
+exports[`prefer-top-level-await > invalid(8): (foo.then(bar, baz)).finally(qux) 2`] = `
+
+Message:
+> 1 | (foo.then(bar, baz)).finally(qux)
+    |                      ^^^^^^^ Prefer top-level await over using a promise chain.
+
+`;
+
+exports[`prefer-top-level-await > invalid(8): cache.promise = promise.then(onFulfilled).value; 1`] = `
+
+  1 | cache.promise = promise.then(onFulfilled).value;
+
+`;
+
+exports[`prefer-top-level-await > invalid(8): cache.promise = promise.then(onFulfilled).value; 2`] = `
+
+Message:
+> 1 | cache.promise = promise.then(onFulfilled).value;
+    |                         ^^^^ Prefer top-level await over using a promise chain.
 
 `;
 
@@ -1064,20 +1216,6 @@ Suggestion 1/1: Insert \`await\`.:
 
 `;
 
-exports[`prefer-top-level-await > invalid(8): foo.then(bar, baz).finally(qux) 1`] = `
-
-  1 | foo.then(bar, baz).finally(qux)
-
-`;
-
-exports[`prefer-top-level-await > invalid(8): foo.then(bar, baz).finally(qux) 2`] = `
-
-Message:
-> 1 | foo.then(bar, baz).finally(qux)
-    |                    ^^^^^^^ Prefer top-level await over using a promise chain.
-
-`;
-
 exports[`prefer-top-level-await > invalid(8): {\n\t(async () => {})();\n} 1`] = `
 
   1 | {
@@ -1096,50 +1234,64 @@ Message:
 
 `;
 
-exports[`prefer-top-level-await > invalid(9): (foo.then(bar, baz)).finally(qux) 1`] = `
+exports[`prefer-top-level-await > invalid(9): !async function() {}() 1`] = `
 
-  1 | (foo.then(bar, baz)).finally(qux)
+  1 | !async function() {}()
 
 `;
 
-exports[`prefer-top-level-await > invalid(9): (foo.then(bar, baz)).finally(qux) 2`] = `
+exports[`prefer-top-level-await > invalid(9): !async function() {}() 2`] = `
 
 Message:
-> 1 | (foo.then(bar, baz)).finally(qux)
-    |                      ^^^^^^^ Prefer top-level await over using a promise chain.
+> 1 | !async function() {}()
+    |  ^^^^^^^^^^^^^^ Prefer top-level await over an async IIFE.
 
 `;
 
-exports[`prefer-top-level-await > invalid(9): a = (async () => {})() 1`] = `
+exports[`prefer-top-level-await > invalid(9): (async () => {})().catch(() => process.exit(1)) 1`] = `
 
-  1 | a = (async () => {})()
+  1 | (async () => {})().catch(() => process.exit(1))
 
 `;
 
-exports[`prefer-top-level-await > invalid(9): a = (async () => {})() 2`] = `
+exports[`prefer-top-level-await > invalid(9): (async () => {})().catch(() => process.exit(1)) 2`] = `
 
 Message:
-> 1 | a = (async () => {})()
-    |               ^^ Prefer top-level await over an async IIFE.
+> 1 | (async () => {})().catch(() => process.exit(1))
+    |                    ^^^^^ Prefer top-level await over using a promise chain.
 
 `;
 
-exports[`prefer-top-level-await > invalid(9): async function run() {}\nresultOfRun = run(); 1`] = `
+exports[`prefer-top-level-await > invalid(9): async function run() {} cache.promise = condition ? run() : undefined; 1`] = `
 
-  1 | async function run() {}
-  2 | resultOfRun = run();
+  1 | async function run() {} cache.promise = condition ? run() : undefined;
 
 `;
 
-exports[`prefer-top-level-await > invalid(9): async function run() {}\nresultOfRun = run(); 2`] = `
+exports[`prefer-top-level-await > invalid(9): async function run() {} cache.promise = condition ? run() : undefined; 2`] = `
 
 Message:
-  1 | async function run() {}
-> 2 | resultOfRun = run();
-    |               ^^^^^ Prefer top-level await over an async function \`run\` call.
+> 1 | async function run() {} cache.promise = condition ? run() : undefined;
+    |                                                     ^^^^^ Prefer top-level await over an async function \`run\` call.
 
 Suggestion 1/1: Insert \`await\`.:
-  1 | async function run() {}
-  2 | resultOfRun = await run();
+  1 | async function run() {} cache.promise = condition ? await run() : undefined;
+
+`;
+
+exports[`prefer-top-level-await > invalid(9): const foo = async () => {}; (foo() as Promise<void>); 1`] = `
+
+  1 | const foo = async () => {}; (foo() as Promise<void>);
+
+`;
+
+exports[`prefer-top-level-await > invalid(9): const foo = async () => {}; (foo() as Promise<void>); 2`] = `
+
+Message:
+> 1 | const foo = async () => {}; (foo() as Promise<void>);
+    |                              ^^^^^ Prefer top-level await over an async function \`foo\` call.
+
+Suggestion 1/1: Insert \`await\`.:
+  1 | const foo = async () => {}; (await foo() as Promise<void>);
 
 `;
