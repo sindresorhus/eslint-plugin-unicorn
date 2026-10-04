@@ -298,7 +298,7 @@ function getAsyncFunctionTypeAnnotationBooleanState(node, context, scope, typeSt
 		state !== unknown
 		|| !context.sourceCode.parserServices?.program
 		|| hasNullableType(node, context)
-		|| hasUnresolvedTypeParameterReference(node, normalizedTypeState, scope, false)
+		|| hasUnresolvedTypeParameterReference(node, context, normalizedTypeState, scope, false)
 	) {
 		return state;
 	}
@@ -720,7 +720,7 @@ function getPromisedInterfaceState(interfaceNode, context, scope, {visitedTypeRe
 			const definitionScope = context.sourceCode.getScope(definition.node);
 			const definitionTypeState = {
 				...typeState,
-				typeParameterTypes: getTypeParameterTypes(definition.node, getTypeArguments(heritage), typeState),
+				typeParameterTypes: getTypeParameterTypes(definition.node, context, getTypeArguments(heritage), typeState),
 			};
 			if (definition.node.type === 'TSInterfaceDeclaration') {
 				const state = getPromisedInterfaceState(definition.node, context, definitionScope, {
@@ -782,7 +782,7 @@ function getCallSignatureReturnTypesFromDefinition(definition, context, scope, {
 	const definitionScope = context.sourceCode.getScope(definition.node);
 	const definitionTypeState = {
 		...typeState,
-		typeParameterTypes: getTypeParameterTypes(definition.node, typeArguments, typeState),
+		typeParameterTypes: getTypeParameterTypes(definition.node, context, typeArguments, typeState),
 	};
 	if (definition.node.type === 'TSInterfaceDeclaration') {
 		return getCallSignatureReturnTypes(definition.node, context, definitionScope, {
@@ -805,13 +805,13 @@ function getCallSignatureReturnTypes(node, context, scope, {typeState = getTypeS
 	}
 
 	if (node?.type === 'TSFunctionType') {
-		return [resolveTypeParameterType(node.returnType, typeState)];
+		return [resolveTypeParameterType(node.returnType, context, typeState)];
 	}
 
 	if (node?.type === 'TSTypeLiteral') {
 		return node.members
 			.filter(member => member.type === 'TSCallSignatureDeclaration')
-			.map(member => resolveTypeParameterType(member.returnType, typeState));
+			.map(member => resolveTypeParameterType(member.returnType, context, typeState));
 	}
 
 	if (node?.type === 'TSIntersectionType') {
@@ -821,7 +821,7 @@ function getCallSignatureReturnTypes(node, context, scope, {typeState = getTypeS
 	if (node?.type === 'TSInterfaceDeclaration') {
 		const returnTypes = node.body.body
 			.filter(member => member.type === 'TSCallSignatureDeclaration')
-			.map(member => resolveTypeParameterType(member.returnType, typeState));
+			.map(member => resolveTypeParameterType(member.returnType, context, typeState));
 
 		for (const heritage of node.extends) {
 			const name = getTypeReferenceName(heritage.expression);
@@ -882,7 +882,7 @@ function isPromisedTypeReference(node, context, scope, {visitedTypeReferenceName
 		const definitionScope = context.sourceCode.getScope(definition.node);
 		const definitionTypeState = {
 			...typeState,
-			typeParameterTypes: getTypeParameterTypes(definition.node, getTypeArguments(node), typeState),
+			typeParameterTypes: getTypeParameterTypes(definition.node, context, getTypeArguments(node), typeState),
 		};
 
 		if (definition.node.type === 'TSTypeAliasDeclaration') {
@@ -908,7 +908,7 @@ function isPromisedTypeAnnotation(node, context, scope, {visitedTypeReferenceNam
 		return false;
 	}
 
-	const typeParameter = getTypeParameterResolution(node, typeState);
+	const typeParameter = getTypeParameterResolution(node, context, typeState);
 	if (typeParameter) {
 		return isPromisedTypeAnnotation(typeParameter.type, context, scope, {
 			visitedTypeReferenceNames,
@@ -960,7 +960,7 @@ function isCallableTypeAnnotation(node, context, scope, {visitedTypeReferenceNod
 		return false;
 	}
 
-	const typeParameter = getTypeParameterResolution(node, typeState);
+	const typeParameter = getTypeParameterResolution(node, context, typeState);
 	if (typeParameter) {
 		return isCallableTypeAnnotation(typeParameter.type, context, scope, {visitedTypeReferenceNodes, typeState: typeParameter.typeState});
 	}
@@ -1017,7 +1017,7 @@ function isCallableTypeAnnotation(node, context, scope, {visitedTypeReferenceNod
 		const definitionScope = context.sourceCode.getScope(definition.node);
 		const definitionTypeState = {
 			...typeState,
-			typeParameterTypes: getTypeParameterTypes(definition.node, getTypeArguments(node), typeState),
+			typeParameterTypes: getTypeParameterTypes(definition.node, context, getTypeArguments(node), typeState),
 		};
 		if (definition.node.type === 'TSInterfaceDeclaration') {
 			return getInterfaceCallSignatureBooleanStates(definition.node, context, definitionScope, {
@@ -1063,18 +1063,18 @@ const getTypeState = typeState => ({
 	...typeState,
 });
 
-function getTypeParameterResolution(node, typeState) {
+function getTypeParameterResolution(node, context, typeState) {
 	let currentNode = node;
 	let currentTypeState = typeState;
 	for (;;) {
 		const name = getTypeReferenceName(currentNode?.typeName);
 		const typeParameterType = currentTypeState.typeParameterTypes.get(name);
-		if (!typeParameterType || currentTypeState.visitedTypeParameterRanges.has(typeParameterType.range)) {
+		if (!typeParameterType || currentTypeState.visitedTypeParameterRanges.has(context.sourceCode.getRange(typeParameterType))) {
 			return;
 		}
 
 		const visitedTypeParameterRanges = new Set(currentTypeState.visitedTypeParameterRanges);
-		visitedTypeParameterRanges.add(typeParameterType.range);
+		visitedTypeParameterRanges.add(context.sourceCode.getRange(typeParameterType));
 		const nextTypeState = {
 			...currentTypeState,
 			visitedTypeParameterRanges,
@@ -1084,7 +1084,7 @@ function getTypeParameterResolution(node, typeState) {
 		/* node:coverage disable */
 		if (
 			!nextTypeParameterType
-			|| visitedTypeParameterRanges.has(nextTypeParameterType.range)
+			|| visitedTypeParameterRanges.has(context.sourceCode.getRange(nextTypeParameterType))
 		) {
 			return {
 				type: typeParameterType,
@@ -1124,7 +1124,7 @@ function hasTypeParameterReference(node, name) {
 	return false;
 }
 
-function resolveTypeParameterType(node, typeState, resolvedTypeParameterTypes = new Set(), resolvedTypeParameterNames = new Set(), visitedNodes = new Set()) {
+function resolveTypeParameterType(node, context, typeState, resolvedTypeParameterTypes = new Set(), resolvedTypeParameterNames = new Set(), visitedNodes = new Set()) {
 	const createResolveTask = (node, state) => ({kind: 'resolve', node, ...state});
 	const initialState = {
 		typeState, resolvedTypeParameterTypes, resolvedTypeParameterNames, visitedNodes,
@@ -1195,7 +1195,7 @@ function resolveTypeParameterType(node, typeState, resolvedTypeParameterTypes = 
 
 				const nextVisitedNodes = new Set(visitedNodes);
 				nextVisitedNodes.add(node);
-				const typeParameter = getTypeParameterResolution(node, typeState);
+				const typeParameter = getTypeParameterResolution(node, context, typeState);
 				if (typeParameter) {
 					const name = getTypeReferenceName(node.typeName);
 					// Guard against cyclic type parameters. No known input reaches it.
@@ -1281,14 +1281,14 @@ function resolveTypeParameterType(node, typeState, resolvedTypeParameterTypes = 
 	return results[0];
 }
 
-function getTypeParameterTypes(definitionNode, typeArguments, typeState) {
+function getTypeParameterTypes(definitionNode, context, typeArguments, typeState) {
 	const typeParameterTypes = new Map(typeState.typeParameterTypes);
 	for (const [index, parameter] of (definitionNode.typeParameters?.params ?? []).entries()) {
 		const typeArgument = typeArguments?.[index];
 		if (typeArgument) {
-			typeParameterTypes.set(parameter.name.name, resolveTypeParameterType(typeArgument, typeState));
+			typeParameterTypes.set(parameter.name.name, resolveTypeParameterType(typeArgument, context, typeState));
 		} else if (parameter.default) {
-			typeParameterTypes.set(parameter.name.name, resolveTypeParameterType(parameter.default, {
+			typeParameterTypes.set(parameter.name.name, resolveTypeParameterType(parameter.default, context, {
 				...typeState,
 				typeParameterTypes,
 			}));
@@ -1303,7 +1303,7 @@ function getTypeParameterTypes(definitionNode, typeArguments, typeState) {
 const hasTypeParameterReferenceInType = (node, typeState) =>
 	typeState.typeParameterTypes.keys().some(name => hasTypeParameterReference(node, name));
 
-function hasUnresolvedTypeParameterReference(node, typeState, scope, checkNode = true) {
+function hasUnresolvedTypeParameterReference(node, context, typeState, scope, checkNode = true) {
 	const nodes = [{node, checkNode}];
 	const visitedNodes = new Set();
 	while (nodes.length > 0) {
@@ -1317,7 +1317,7 @@ function hasUnresolvedTypeParameterReference(node, typeState, scope, checkNode =
 		if (
 			current.checkNode
 			&& name
-			&& !getTypeParameterResolution(current.node, typeState)
+			&& !getTypeParameterResolution(current.node, context, typeState)
 			&& getTypeDefinitions(name, scope)
 				.some(definition => definition.node.type === 'TSTypeParameter')
 		) {
@@ -1335,10 +1335,10 @@ function hasUnresolvedTypeParameterReference(node, typeState, scope, checkNode =
 const hasUnresolvedTypeParameters = typeState =>
 	typeState.typeParameterTypes.entries().some(([name, type]) => hasTypeParameterReference(type, name));
 
-function canUseTypeInformationFallback(node, typeState, scope, definitions) {
+function canUseTypeInformationFallback(node, context, typeState, scope, definitions) {
 	return !hasTypeParameterReferenceInType(node, typeState)
 		&& !hasUnresolvedTypeParameters(typeState)
-		&& !hasUnresolvedTypeParameterReference(node, typeState, scope)
+		&& !hasUnresolvedTypeParameterReference(node, context, typeState, scope)
 		&& (
 			definitions.some(definition =>
 				['TSInterfaceDeclaration', 'TSTypeAliasDeclaration'].includes(definition.node.type),
@@ -1383,7 +1383,7 @@ function getInterfaceCallSignatureBooleanStates(interfaceNode, context, scope, {
 			const definitionScope = context.sourceCode.getScope(definition.node);
 			const definitionTypeState = {
 				...normalizedTypeState,
-				typeParameterTypes: getTypeParameterTypes(definition.node, getTypeArguments(heritage), normalizedTypeState),
+				typeParameterTypes: getTypeParameterTypes(definition.node, context, getTypeArguments(heritage), normalizedTypeState),
 			};
 			if (definition.node.type === 'TSInterfaceDeclaration') {
 				callSignatureStates.push(...getInterfaceCallSignatureBooleanStates(definition.node, context, definitionScope, {
@@ -1425,7 +1425,7 @@ function getTypeReferenceBooleanState(node, context, scope, typeState) {
 			const definitionScope = context.sourceCode.getScope(definition.node);
 			const definitionTypeState = {
 				...normalizedTypeState,
-				typeParameterTypes: getTypeParameterTypes(definition.node, getTypeArguments(node), normalizedTypeState),
+				typeParameterTypes: getTypeParameterTypes(definition.node, context, getTypeArguments(node), normalizedTypeState),
 			};
 			return getInterfaceCallSignatureBooleanStates(definition.node, context, definitionScope, {
 				typeState: definitionTypeState,
@@ -1448,7 +1448,7 @@ function getTypeReferenceBooleanState(node, context, scope, typeState) {
 			const definitionScope = context.sourceCode.getScope(definition.node);
 			const definitionTypeState = {
 				...normalizedTypeState,
-				typeParameterTypes: getTypeParameterTypes(definition.node, getTypeArguments(node), normalizedTypeState),
+				typeParameterTypes: getTypeParameterTypes(definition.node, context, getTypeArguments(node), normalizedTypeState),
 			};
 			result = getDirectTypeAnnotationBooleanState(definition.node.typeAnnotation, context, definitionScope, definitionTypeState);
 		}
@@ -1458,7 +1458,7 @@ function getTypeReferenceBooleanState(node, context, scope, typeState) {
 	if (
 		result === unknown
 		&& context.sourceCode.parserServices?.program
-		&& canUseTypeInformationFallback(node, normalizedTypeState, scope, definitions)
+		&& canUseTypeInformationFallback(node, context, normalizedTypeState, scope, definitions)
 	) {
 		result = getTypeInformationBooleanState(node, context, normalizedTypeState.functionTypesAreBoolean, normalizedTypeState.allowNullish);
 	}
@@ -1527,7 +1527,7 @@ function getTypeAnnotationBooleanState(node, context, scope, typeState) {
 	}
 
 	if (node?.type === 'TSTypeReference') {
-		const typeParameter = getTypeParameterResolution(node, normalizedTypeState);
+		const typeParameter = getTypeParameterResolution(node, context, normalizedTypeState);
 		if (typeParameter) {
 			return getTypeAnnotationBooleanState(typeParameter.type, context, scope, typeParameter.typeState);
 		}
@@ -1566,7 +1566,7 @@ function getTypeAnnotationBooleanState(node, context, scope, typeState) {
 function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 	const normalizedTypeState = getTypeState(typeState);
 	const name = getTypeReferenceName(node.typeName);
-	const typeParameter = getTypeParameterResolution(node, normalizedTypeState);
+	const typeParameter = getTypeParameterResolution(node, context, normalizedTypeState);
 	if (typeParameter) {
 		return getPromisedTypeAnnotationBooleanState(typeParameter.type, context, scope, typeParameter.typeState);
 	}
@@ -1593,7 +1593,7 @@ function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 			const definitionScope = context.sourceCode.getScope(definition.node);
 			const definitionTypeState = {
 				...normalizedTypeState,
-				typeParameterTypes: getTypeParameterTypes(definition.node, typeArguments, normalizedTypeState),
+				typeParameterTypes: getTypeParameterTypes(definition.node, context, typeArguments, normalizedTypeState),
 			};
 			return getInterfaceCallSignatureBooleanStates(definition.node, context, definitionScope, {
 				typeState: definitionTypeState,
@@ -1616,7 +1616,7 @@ function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 			const definitionScope = context.sourceCode.getScope(definition.node);
 			const definitionTypeState = {
 				...normalizedTypeState,
-				typeParameterTypes: getTypeParameterTypes(definition.node, typeArguments, normalizedTypeState),
+				typeParameterTypes: getTypeParameterTypes(definition.node, context, typeArguments, normalizedTypeState),
 			};
 			result = getPromisedTypeAnnotationBooleanState(definition.node.typeAnnotation, context, definitionScope, definitionTypeState);
 		}
@@ -1626,7 +1626,7 @@ function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 	if (
 		result === unknown
 		&& context.sourceCode.parserServices?.program
-		&& canUseTypeInformationFallback(node, normalizedTypeState, scope, definitions)
+		&& canUseTypeInformationFallback(node, context, normalizedTypeState, scope, definitions)
 	) {
 		result = interfaceDefinitions.length > 0
 			? getAsyncFunctionTypeInformationBooleanState(node, context, normalizedTypeState.allowNullish)
@@ -1781,7 +1781,7 @@ function getFunctionBooleanState(node, context, visitedVariables = new Set(), is
 
 	const scope = context.sourceCode.getScope(node);
 	const hasUnresolvedReturnType = isAsync
-		&& hasUnresolvedTypeParameterReference(node.returnType, getTypeState(), scope, false);
+		&& hasUnresolvedTypeParameterReference(node.returnType, context, getTypeState(), scope, false);
 	// Only actual async function implementations and their overload signatures get `Promise<T>` unwrapped in function-body analysis. Promise-valued variables are not predicates; type-only callable signatures are handled separately by direct annotation analysis.
 	const stateFromPromisedReturnType = isAsync && !hasUnresolvedReturnType
 		? getPromisedReturnTypeBooleanState(node.returnType, context, scope)
@@ -1941,7 +1941,7 @@ function getExpressionBooleanState(node, context, visitedVariables = new Set(), 
 
 	const scope = context.sourceCode.getScope(node);
 	const typeState = getTypeState();
-	const stateFromTypeInformation = hasUnresolvedTypeParameterReference(node.typeAnnotation, typeState, scope, false)
+	const stateFromTypeInformation = hasUnresolvedTypeParameterReference(node.typeAnnotation, context, typeState, scope, false)
 		? unknown
 		: getTypeInformationBooleanState(node, context, functionValuesAreBoolean);
 	if (stateFromTypeInformation !== unknown) {
@@ -2289,7 +2289,7 @@ const getMemberReportKey = node => [
 ].join(':');
 
 function getPromisedReturnTypeBooleanState(node, context, scope) {
-	if (hasUnresolvedTypeParameterReference(node, getTypeState(), scope, false)) {
+	if (hasUnresolvedTypeParameterReference(node, context, getTypeState(), scope, false)) {
 		return unknown;
 	}
 
@@ -2380,7 +2380,7 @@ function getExplicitPropertyBooleanState(node, context) {
 
 	// The remaining node type is `TSMethodSignature`.
 	const scope = sourceCode.getScope(node);
-	const hasUnresolvedReturnType = hasUnresolvedTypeParameterReference(node.returnType, getTypeState(), scope, false);
+	const hasUnresolvedReturnType = hasUnresolvedTypeParameterReference(node.returnType, context, getTypeState(), scope, false);
 	const stateFromPromisedReturnType = getPromisedReturnTypeBooleanState(node.returnType, context, scope);
 
 	return stateFromPromisedReturnType === unknown
