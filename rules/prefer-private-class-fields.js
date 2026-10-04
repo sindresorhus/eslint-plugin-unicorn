@@ -1,15 +1,24 @@
-import {getStaticStringValue} from './ast/index.js';
-import {isIdentifierName, isLeftHandSide} from './utils/index.js';
+import {getStaticStringValue, isMemberExpression, isMethodCall} from './ast/index.js';
+import {removeStatement} from './fix/index.js';
+import {
+	getVisitorChildNodes,
+	isIdentifierName,
+	isLeftHandSide,
+	needsSemicolon,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-private-class-fields';
+const MESSAGE_ID_BOUND_METHOD = 'prefer-private-class-fields/bound-method';
 const messages = {
 	[MESSAGE_ID]: 'Prefer the private class field `{{replacement}}` over the underscore-prefixed `{{original}}`.',
+	[MESSAGE_ID_BOUND_METHOD]: 'Convert to a private arrow-function field.',
 };
 
 const memberAccessState = {
 	blocked: 'blocked',
 	convertible: 'convertible',
 	ignored: 'ignored',
+	written: 'written',
 };
 
 /*
@@ -156,10 +165,7 @@ const isInStaticContext = (node, classBody) => {
 };
 
 const isInFieldInitializerBeforeOrAtMember = (node, member, classBody) => {
-	if (
-		member.type !== 'PropertyDefinition'
-		|| member.static
-	) {
+	if (member.static) {
 		return false;
 	}
 
@@ -298,22 +304,99 @@ const getMemberAccessState = ({access, name, member, classBody, candidatesByClas
 	}
 
 	if (
-		member.type === 'MethodDefinition'
-		&& member.kind === 'method'
-		&& isLeftHandSide(getTransparentExpression(access))
+		member.static
+		|| isInStaticContext(access, classBody)
+		|| (member.type === 'PropertyDefinition' && isInFieldInitializerBeforeOrAtMember(access, member, classBody))
 	) {
 		return memberAccessState.blocked;
 	}
 
 	if (
-		member.static
-		|| isInStaticContext(access, classBody)
-		|| isInFieldInitializerBeforeOrAtMember(access, member, classBody)
+		member.type === 'MethodDefinition'
+		&& member.kind === 'method'
+		&& isLeftHandSide(getTransparentExpression(access))
 	) {
-		return memberAccessState.blocked;
+		return memberAccessState.written;
 	}
 
 	return memberAccessState.convertible;
+};
+
+const getConstructorBindingStatement = (access, name) => {
+	const assignment = access.parent;
+	if (
+		assignment.type !== 'AssignmentExpression'
+		|| assignment.left !== access
+		|| assignment.operator !== '='
+		|| access.object.type !== 'ThisExpression'
+		|| !isMethodCall(assignment.right, {
+			method: 'bind', argumentsLength: 1, optionalCall: false, optionalMember: false,
+		})
+		|| assignment.right.arguments[0].type !== 'ThisExpression'
+		|| !isMemberExpression(assignment.right.callee.object, {property: name, optional: false})
+		|| assignment.right.callee.object.object.type !== 'ThisExpression'
+	) {
+		return;
+	}
+
+	const statement = assignment.parent;
+	const constructor = statement.parent.parent.parent;
+	if (
+		statement.type === 'ExpressionStatement'
+		&& statement.parent.type === 'BlockStatement'
+		&& constructor.type === 'MethodDefinition'
+		&& constructor.kind === 'constructor'
+		&& constructor.value.body === statement.parent
+	) {
+		return statement;
+	}
+};
+
+// Conservatively skip references whose bindings differ between methods and arrow functions, including references in nested functions.
+const hasMethodOnlyReference = (node, visitorKeys) =>
+	(node.type === 'Identifier' && (node.name === 'arguments' || node.name === 'eval'))
+	|| (node.type === 'MetaProperty' && node.meta.name === 'new' && node.property.name === 'target')
+	|| getVisitorChildNodes(node, visitorKeys).some(child => hasMethodOnlyReference(child, visitorKeys));
+
+const getBoundMethodSuggestion = ({member, writes, accesses, name, replacement, context}) => {
+	const {sourceCode} = context;
+	const signatureStart = sourceCode.getRange(sourceCode.getTokenAfter(member.key))[0];
+	if (
+		writes.length !== 1
+		|| !member.value.body
+		|| member.value.generator
+		|| member.value.typeParameters
+		|| member.optional
+		|| member.value.params.some(parameter => parameter.decorators?.length > 0 || (parameter.type === 'Identifier' && parameter.name === 'this'))
+		|| accesses.some(access => isInFieldInitializerBeforeOrAtMember(access, member, member.parent))
+		|| hasMethodOnlyReference(member.value, sourceCode.visitorKeys)
+		|| sourceCode.getCommentsInside(member).some(comment => sourceCode.getRange(comment)[0] < signatureStart)
+	) {
+		return;
+	}
+
+	const statement = getConstructorBindingStatement(writes[0], name);
+	if (!statement || sourceCode.getCommentsInside(statement).length > 0) {
+		return;
+	}
+
+	return {
+		messageId: MESSAGE_ID_BOUND_METHOD,
+		* fix(fixer) {
+			yield fixer.replaceTextRange([sourceCode.getRange(member)[0], signatureStart], `${replacement} = ${member.value.async ? 'async ' : ''}`);
+			yield fixer.insertTextAfter(sourceCode.getTokenBefore(member.value.body), ' =>');
+			yield fixer.insertTextAfter(member, ';');
+
+			for (const access of accesses) {
+				if (!isInside(access, statement)) {
+					yield fixer.replaceText(access.property, replacement);
+				}
+			}
+
+			const preserveSemicolon = needsSemicolon(sourceCode.getTokenBefore(statement), context, sourceCode.getTokenAfter(statement).value);
+			yield removeStatement(statement, context, fixer, preserveSemicolon);
+		},
+	};
 };
 
 /**
@@ -429,6 +512,7 @@ const create = context => {
 				}
 
 				const convertibleAccesses = [];
+				const methodWrites = [];
 				// `classesWithObservableThis` covers the common enumeration patterns (see the boundary note on `objectObserverMethods`)
 				let isBlocked = hasUnknownComputedReference
 					|| blockingNames.has(name)
@@ -460,6 +544,10 @@ const create = context => {
 					if (accessState === memberAccessState.convertible) {
 						convertibleAccesses.push(access);
 					}
+
+					if (accessState === memberAccessState.written) {
+						methodWrites.push(access);
+					}
 				}
 
 				const problem = {
@@ -468,7 +556,14 @@ const create = context => {
 					data: {original: name, replacement},
 				};
 
-				if (!isBlocked) {
+				if (!isBlocked && methodWrites.length > 0) {
+					const suggestion = getBoundMethodSuggestion({
+						member: members[0], writes: methodWrites, accesses: convertibleAccesses, name, replacement, context,
+					});
+					if (suggestion) {
+						problem.suggest = [suggestion];
+					}
+				} else if (!isBlocked) {
 					problem.fix = function * (fixer) {
 						for (const member of members) {
 							yield fixer.replaceText(member.key, replacement);
@@ -498,6 +593,7 @@ const config = {
 			recommended: true,
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema: [],
 		messages,
 		languages: [

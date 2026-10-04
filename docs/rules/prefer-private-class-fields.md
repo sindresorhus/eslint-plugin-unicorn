@@ -4,7 +4,7 @@
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
-🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
 <!-- end auto-generated rule header -->
 
@@ -38,7 +38,7 @@ class Foo {
 
 ### Bound methods
 
-For constructor-bound methods, use a private arrow-function field and remove the `.bind(this)` assignment. Declare it before fields that use it.
+For a single, standalone constructor binding, the rule suggests a private arrow-function field and removes the `.bind(this)` assignment. Review initialization order: the field is initialized at its declaration, before the constructor body. Generators, generic or decorated signatures, and methods using `arguments`, `new.target`, or `eval` require manual changes.
 
 ```js
 class Foo {
