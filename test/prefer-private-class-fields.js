@@ -847,7 +847,7 @@ test.snapshot({
 
 		// Destructuring defaults and computed keys read the method
 		'class Foo { _method() {} read(source) { const [value = this._method] = source; } }',
-		'class Foo { _method() {} read(source) { ({[this._method]: value} = source); } }',
+		'class Foo { _method() { return "key"; } read(source) { let value; ({[this._method()]: value} = source); return value; } }',
 	],
 });
 

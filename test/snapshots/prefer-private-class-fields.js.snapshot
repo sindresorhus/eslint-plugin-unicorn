@@ -2714,20 +2714,20 @@ Output:
 
 `;
 
-exports[`prefer-private-class-fields > invalid(75): class Foo { _method() {} read(source) { ({[this._method]: value} = source); } } 1`] = `
+exports[`prefer-private-class-fields > invalid(75): class Foo { _method() { return \"key\"; } read(source) { let value; ({[this._method()]: value} = source); return value; } } 1`] = `
 
-  1 | class Foo { _method() {} read(source) { ({[this._method]: value} = source); } }
+  1 | class Foo { _method() { return "key"; } read(source) { let value; ({[this._method()]: value} = source); return value; } }
 
 `;
 
-exports[`prefer-private-class-fields > invalid(75): class Foo { _method() {} read(source) { ({[this._method]: value} = source); } } 2`] = `
+exports[`prefer-private-class-fields > invalid(75): class Foo { _method() { return \"key\"; } read(source) { let value; ({[this._method()]: value} = source); return value; } } 2`] = `
 
 Message:
-> 1 | class Foo { _method() {} read(source) { ({[this._method]: value} = source); } }
+> 1 | class Foo { _method() { return "key"; } read(source) { let value; ({[this._method()]: value} = source); return value; } }
     |             ^^^^^^^ Prefer the private class field \`#method\` over the underscore-prefixed \`_method\`.
 
 Output:
-  1 | class Foo { #method() {} read(source) { ({[this.#method]: value} = source); } }
+  1 | class Foo { #method() { return "key"; } read(source) { let value; ({[this.#method()]: value} = source); return value; } }
 
 `;
 
