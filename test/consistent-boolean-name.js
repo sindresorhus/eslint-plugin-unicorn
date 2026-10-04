@@ -59,6 +59,7 @@ test({
 	valid: [
 		typescript('type Fn<A, B> = () => B; function f<A, B>(g: Fn<B, A>) {}'),
 		typescript('type Id<T> = T; type Fn<A, B> = () => B; function f<A, B>(g: Fn<Id<B>, Id<A>>) {}'),
+		typescript('type Id<T> = T; type Fn<A, B> = () => B; function f<A, B>(isReady: Fn<Id<B>, Id<A>>) {}'),
 		typescript('type Fn<A, B> = () => B; function f<A, B>(g: Fn<B | undefined, A | undefined>) {}'),
 		typescript('type Fn<A, B> = () => B; function f<A, B>(g: Fn<B & {}, A & {}>) {}'),
 		typescript('type Id<T> = T; type Fn<A, B> = B; function f<A, B>(g: Fn<Id<B>, Id<A>>) {}'),
@@ -69,6 +70,18 @@ test({
 		typeAware('type Id<T> = T; type Fn<A, B> = () => B; function f<A, B>(g: Fn<Id<B>, Id<A>>) {}'),
 	],
 	invalid: [
+		typescript({
+			code: 'type Id<A> = A; type Inner<A, B> = A; type Outer<B> = Inner<() => Id<B>, B>; function f(completed: Outer<boolean>, isReady: Outer<string>) {}',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			code: 'type Id<A> = A; type Inner<A, B> = A; type Outer<B> = Inner<{(): Promise<Id<B>>}, B>; function f(completed: Outer<boolean>, isReady: Outer<string>) {}',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			code: 'interface Fn<A, B> {(): Promise<B>} function f<A, B>(g: Fn<B, A>, isReady: Fn<B, A>, concrete: Fn<string, boolean>, isText: Fn<boolean, string>) {}',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
 		typescript({
 			code: 'type Fn<A, B> = () => B; type Swapped<A, B> = Fn<B, A>; function f(g: Swapped<boolean, string>, isReady: Swapped<string, boolean>) {}',
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],

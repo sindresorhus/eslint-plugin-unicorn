@@ -1056,7 +1056,7 @@ function isBooleanTypeAnnotatedValue(node, context) {
 
 const getTypeState = typeState => ({
 	visitedTypeReferenceNodes: new Set(),
-	visitedTypeParameterNames: new Set(),
+	visitedTypeParameterRanges: new Set(),
 	functionTypesAreBoolean: true,
 	allowNullish: true,
 	typeParameterTypes: new Map(),
@@ -1068,34 +1068,27 @@ function getTypeParameterResolution(node, typeState) {
 	let currentTypeState = typeState;
 	for (;;) {
 		const name = getTypeReferenceName(currentNode?.typeName);
-		if (!name || currentTypeState.visitedTypeParameterNames.has(name)) {
-			return;
-		}
-
 		const typeParameterType = currentTypeState.typeParameterTypes.get(name);
-		if (!typeParameterType) {
+		if (!typeParameterType || currentTypeState.visitedTypeParameterRanges.has(typeParameterType.range)) {
 			return;
 		}
 
-		const visitedTypeParameterNames = new Set(currentTypeState.visitedTypeParameterNames);
-		visitedTypeParameterNames.add(name);
+		const visitedTypeParameterRanges = new Set(currentTypeState.visitedTypeParameterRanges);
+		visitedTypeParameterRanges.add(typeParameterType.range);
 		const nextTypeState = {
 			...currentTypeState,
-			visitedTypeParameterNames,
+			visitedTypeParameterRanges,
 		};
-		const nextName = getTypeReferenceName(typeParameterType?.typeName);
-		// Stored type arguments can still reference outer type parameters with the same names as this definition's parameters. Keep cycle tracking while following such references.
+		const nextTypeParameterType = nextTypeState.typeParameterTypes.get(getTypeReferenceName(typeParameterType.typeName));
+		// Stored type arguments can still reference outer type parameters. Track their range arrays, which are shared by cloned nodes, so rebinding the same parameter name does not look cyclic.
 		/* node:coverage disable */
 		if (
-			!nextName
-			|| nextTypeState.visitedTypeParameterNames.has(nextName)
-			|| !nextTypeState.typeParameterTypes.get(nextName)
+			!nextTypeParameterType
+			|| visitedTypeParameterRanges.has(nextTypeParameterType.range)
 		) {
 			return {
 				type: typeParameterType,
-				typeState: hasTypeParameterReferenceInType(typeParameterType, nextTypeState)
-					? nextTypeState
-					: {...nextTypeState, visitedTypeParameterNames: new Set()},
+				typeState: nextTypeState,
 			};
 		}
 
