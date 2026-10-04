@@ -66,10 +66,32 @@ test({
 		typescript('type Id<T> = T; type Fn<A, B, C> = () => C; function f<A, B, C>(g: Fn<Id<B>, Id<C>, Id<A>>) {}'),
 		typescript('type Fn<A, B, C> = () => C; function f<A, B, C>(g: Fn<B, C, A>) {}'),
 		typescript('type Fn<A, B> = () => Promise<B>; function f<A, B>(g: Fn<B, A>) {}'),
+		typescript({
+			name: 'omitted generic defaults with unresolved type arguments remain unknown',
+			code: 'type Fn<A, B = A | undefined> = () => Promise<B>; function f<A>(g: Fn<A>, isReady: Fn<A>) {}',
+		}),
+		typescript({
+			name: 'repeated sibling type argument cycles remain unknown',
+			code: [
+				'type Id<T> = T;',
+				'type Fn<A, B> = () => B;',
+				'function f<A, B>(g: Fn<Id<B> | Id<B>, Id<A> | Id<A>>, isReady: Fn<Id<B> | Id<B>, Id<A> | Id<A>>) {}',
+			].join(' '),
+		}),
 		typeAware('type Fn<A, B> = () => B; function f<A, B>(g: Fn<B, A>) {}'),
 		typeAware('type Id<T> = T; type Fn<A, B> = () => B; function f<A, B>(g: Fn<Id<B>, Id<A>>) {}'),
 	],
 	invalid: [
+		typescript({
+			name: 'sibling type arguments sharing a concrete type resolve independently',
+			code: [
+				'type Id<T> = T;',
+				'type Fn<A, B> = () => Id<A> | Id<B>;',
+				'type Both<T> = Fn<T, T>;',
+				'function f(completed: Both<boolean>, isReady: Both<string>) {}',
+			].join(' '),
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
 		typescript({
 			code: 'type Id<A> = A; type Inner<A, B> = A; type Outer<B> = Inner<() => Id<B>, B>; function f(completed: Outer<boolean>, isReady: Outer<string>) {}',
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],

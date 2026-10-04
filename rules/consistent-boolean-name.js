@@ -1124,10 +1124,13 @@ function hasTypeParameterReference(node, name) {
 	return false;
 }
 
-function resolveTypeParameterType(node, context, typeState, resolvedTypeParameterTypes = new Set(), resolvedTypeParameterNames = new Set(), visitedNodes = new Set()) {
+function resolveTypeParameterType(node, context, typeState) {
 	const createResolveTask = (node, state) => ({kind: 'resolve', node, ...state});
 	const initialState = {
-		typeState, resolvedTypeParameterTypes, resolvedTypeParameterNames, visitedNodes,
+		typeState,
+		resolvedTypeParameterTypes: new Set(),
+		resolvedTypeParameterNames: new Set(),
+		visitedNodes: new Set(),
 	};
 	const stack = [createResolveTask(node, initialState)];
 	const results = [];
