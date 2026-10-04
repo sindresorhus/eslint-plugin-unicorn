@@ -1,5 +1,5 @@
 import {getStaticStringValue} from './ast/index.js';
-import {isIdentifierName} from './utils/index.js';
+import {isIdentifierName, isLeftHandSide} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-private-class-fields';
 const messages = {
@@ -294,6 +294,14 @@ const getMemberAccessState = ({access, name, member, classBody, candidatesByClas
 		}
 
 		// `this` is rebound, outside any class, or belongs to a class that doesn't declare its own member with this name (the access could be reaching this class's member via inheritance)
+		return memberAccessState.blocked;
+	}
+
+	if (
+		member.type === 'MethodDefinition'
+		&& member.kind === 'method'
+		&& isLeftHandSide(getTransparentExpression(access))
+	) {
 		return memberAccessState.blocked;
 	}
 

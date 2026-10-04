@@ -2383,6 +2383,38 @@ Output:
 
 `;
 
+exports[`prefer-private-class-fields > invalid(69): class Foo {\n\t_method = () => {};\n\tconstructor() {\n\t\tthis._method = this._method.bind(this);\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	_method = () => {};
+  3 | 	constructor() {
+  4 | 		this._method = this._method.bind(this);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(69): class Foo {\n\t_method = () => {};\n\tconstructor() {\n\t\tthis._method = this._method.bind(this);\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	_method = () => {};
+    | 	^^^^^^^ Prefer the private class field \`#method\` over the underscore-prefixed \`_method\`.
+  3 | 	constructor() {
+  4 | 		this._method = this._method.bind(this);
+  5 | 	}
+  6 | }
+
+Output:
+  1 | class Foo {
+  2 | 	#method = () => {};
+  3 | 	constructor() {
+  4 | 		this.#method = this.#method.bind(this);
+  5 | 	}
+  6 | }
+
+`;
+
 exports[`prefer-private-class-fields > invalid(7): class Foo {\n\t#value = 1;\n\tget _bar() {\n\t\treturn this.#value;\n\t}\n\n\tbaz() {\n\t\treturn this._bar;\n\t}\n} 1`] = `
 
    1 | class Foo {
@@ -2456,6 +2488,178 @@ Output:
   4 | 		return (this satisfies Foo).#bar;
   5 | 	}
   6 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(70): class Foo {\n\tget _method() {}\n\tset _method(value) {}\n\treplace(value) {\n\t\tthis._method = value;\n\t}\n} 1`] = `
+
+  1 | class Foo {
+  2 | 	get _method() {}
+  3 | 	set _method(value) {}
+  4 | 	replace(value) {
+  5 | 		this._method = value;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(70): class Foo {\n\tget _method() {}\n\tset _method(value) {}\n\treplace(value) {\n\t\tthis._method = value;\n\t}\n} 2`] = `
+
+Message:
+  1 | class Foo {
+> 2 | 	get _method() {}
+    | 	    ^^^^^^^ Prefer the private class field \`#method\` over the underscore-prefixed \`_method\`.
+  3 | 	set _method(value) {}
+  4 | 	replace(value) {
+  5 | 		this._method = value;
+  6 | 	}
+  7 | }
+
+Output:
+  1 | class Foo {
+  2 | 	get #method() {}
+  3 | 	set #method(value) {}
+  4 | 	replace(value) {
+  5 | 		this.#method = value;
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(71): class Foo { _method() {} configure() { this._method.option = true; } } 1`] = `
+
+  1 | class Foo { _method() {} configure() { this._method.option = true; } }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(71): class Foo { _method() {} configure() { this._method.option = true; } } 2`] = `
+
+Message:
+> 1 | class Foo { _method() {} configure() { this._method.option = true; } }
+    |             ^^^^^^^ Prefer the private class field \`#method\` over the underscore-prefixed \`_method\`.
+
+Output:
+  1 | class Foo { #method() {} configure() { this.#method.option = true; } }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(72): class Foo {\n\t_value = 1;\n\t_method() {}\n\tconstructor() {\n\t\tthis._method = this._method.bind(this);\n\t\tthis._value = 2;\n\t}\n}\n\nclass Bar {\n\t_method() {}\n\tcall() {\n\t\treturn this._method();\n\t}\n} 1`] = `
+
+   1 | class Foo {
+   2 | 	_value = 1;
+   3 | 	_method() {}
+   4 | 	constructor() {
+   5 | 		this._method = this._method.bind(this);
+   6 | 		this._value = 2;
+   7 | 	}
+   8 | }
+   9 |
+  10 | class Bar {
+  11 | 	_method() {}
+  12 | 	call() {
+  13 | 		return this._method();
+  14 | 	}
+  15 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(72): class Foo {\n\t_value = 1;\n\t_method() {}\n\tconstructor() {\n\t\tthis._method = this._method.bind(this);\n\t\tthis._value = 2;\n\t}\n}\n\nclass Bar {\n\t_method() {}\n\tcall() {\n\t\treturn this._method();\n\t}\n} 2`] = `
+
+Message:
+   1 | class Foo {
+>  2 | 	_value = 1;
+     | 	^^^^^^ Prefer the private class field \`#value\` over the underscore-prefixed \`_value\`.
+   3 | 	_method() {}
+   4 | 	constructor() {
+   5 | 		this._method = this._method.bind(this);
+   6 | 		this._value = 2;
+   7 | 	}
+   8 | }
+   9 |
+  10 | class Bar {
+  11 | 	_method() {}
+  12 | 	call() {
+  13 | 		return this._method();
+  14 | 	}
+  15 | }
+
+Output:
+   1 | class Foo {
+   2 | 	#value = 1;
+   3 | 	_method() {}
+   4 | 	constructor() {
+   5 | 		this._method = this._method.bind(this);
+   6 | 		this.#value = 2;
+   7 | 	}
+   8 | }
+   9 |
+  10 | class Bar {
+  11 | 	_method() {}
+  12 | 	call() {
+  13 | 		return this._method();
+  14 | 	}
+  15 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(72): class Foo {\n\t_value = 1;\n\t_method() {}\n\tconstructor() {\n\t\tthis._method = this._method.bind(this);\n\t\tthis._value = 2;\n\t}\n}\n\nclass Bar {\n\t_method() {}\n\tcall() {\n\t\treturn this._method();\n\t}\n} 3`] = `
+
+Message:
+   1 | class Foo {
+   2 | 	_value = 1;
+>  3 | 	_method() {}
+     | 	^^^^^^^ Prefer the private class field \`#method\` over the underscore-prefixed \`_method\`.
+   4 | 	constructor() {
+   5 | 		this._method = this._method.bind(this);
+   6 | 		this._value = 2;
+   7 | 	}
+   8 | }
+   9 |
+  10 | class Bar {
+  11 | 	_method() {}
+  12 | 	call() {
+  13 | 		return this._method();
+  14 | 	}
+  15 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(72): class Foo {\n\t_value = 1;\n\t_method() {}\n\tconstructor() {\n\t\tthis._method = this._method.bind(this);\n\t\tthis._value = 2;\n\t}\n}\n\nclass Bar {\n\t_method() {}\n\tcall() {\n\t\treturn this._method();\n\t}\n} 4`] = `
+
+Message:
+   1 | class Foo {
+   2 | 	_value = 1;
+   3 | 	_method() {}
+   4 | 	constructor() {
+   5 | 		this._method = this._method.bind(this);
+   6 | 		this._value = 2;
+   7 | 	}
+   8 | }
+   9 |
+  10 | class Bar {
+> 11 | 	_method() {}
+     | 	^^^^^^^ Prefer the private class field \`#method\` over the underscore-prefixed \`_method\`.
+  12 | 	call() {
+  13 | 		return this._method();
+  14 | 	}
+  15 | }
+
+Output:
+   1 | class Foo {
+   2 | 	_value = 1;
+   3 | 	_method() {}
+   4 | 	constructor() {
+   5 | 		this._method = this._method.bind(this);
+   6 | 		this._value = 2;
+   7 | 	}
+   8 | }
+   9 |
+  10 | class Bar {
+  11 | 	#method() {}
+  12 | 	call() {
+  13 | 		return this.#method();
+  14 | 	}
+  15 | }
 
 `;
 

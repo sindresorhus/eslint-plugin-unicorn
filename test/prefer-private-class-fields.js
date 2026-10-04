@@ -3,6 +3,57 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		{
+			code: outdent`
+				class Foo {
+					_method() {}
+					constructor() {
+						this._method = this._method.bind(this);
+					}
+				}
+			`,
+			errors: [{messageId: 'prefer-private-class-fields'}],
+		},
+		...[
+			'this._method = replacement;',
+			'this._method += replacement;',
+			'this._method ||= replacement;',
+			'this._method &&= replacement;',
+			'this._method ??= replacement;',
+			'this._method++;',
+			'--this._method;',
+			'[this._method] = source;',
+			'({method: this._method} = source);',
+			'[this._method = replacement] = source;',
+			'[...this._method] = source;',
+			'({...this._method} = source);',
+			'for (this._method of source) {}',
+			'for (this._method in source) {}',
+			'const bind = () => { this._method = this._method.bind(this); };',
+		].map(statement => ({
+			code: `class Foo { _method() {} replace() { ${statement} } }`,
+			errors: [{messageId: 'prefer-private-class-fields'}],
+		})),
+	],
+});
+
+test.typescript({
+	valid: [],
+	invalid: [
+		'this._method! = replacement;',
+		'(this._method as Function) = replacement;',
+		'(<Function>this._method) = replacement;',
+		'(this._method satisfies Function) = replacement;',
+		'(this as Foo)._method = replacement;',
+	].map(statement => ({
+		code: `class Foo { _method() {} replace() { ${statement} } }`,
+		errors: [{messageId: 'prefer-private-class-fields'}],
+	})),
+});
+
 test.snapshot({
 	valid: [
 		// Already private
@@ -743,6 +794,49 @@ test.snapshot({
 				_bar = 1;
 				baz({[key]: value}) {
 					return this._bar;
+				}
+			}
+		`,
+
+		// A function-valued field remains writable after conversion
+		outdent`
+			class Foo {
+				_method = () => {};
+				constructor() {
+					this._method = this._method.bind(this);
+				}
+			}
+		`,
+
+		// A setter remains writable after conversion
+		outdent`
+			class Foo {
+				get _method() {}
+				set _method(value) {}
+				replace(value) {
+					this._method = value;
+				}
+			}
+		`,
+
+		// Writing a property of a method does not reassign the method
+		'class Foo { _method() {} configure() { this._method.option = true; } }',
+
+		// A method write blocks only that member in its declaring class
+		outdent`
+			class Foo {
+				_value = 1;
+				_method() {}
+				constructor() {
+					this._method = this._method.bind(this);
+					this._value = 2;
+				}
+			}
+
+			class Bar {
+				_method() {}
+				call() {
+					return this._method();
 				}
 			}
 		`,

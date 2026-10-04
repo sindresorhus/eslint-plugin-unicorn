@@ -10,7 +10,7 @@
 
 Before [private class fields](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_elements) existed, a leading underscore was the common convention for marking a class member as "private". That convention is purely cosmetic, the member is still publicly accessible. Private class fields are enforced by the language, so prefer them.
 
-The autofix only runs when every reference is a `this.` access inside the declaring class, since a private field can only be accessed that way. When a member is also accessed in a way that has no private-field equivalent (external access, computed access like `this['_foo']`, destructuring, or `super._foo`), the rule reports it without a fix.
+The autofix only runs when every reference is a `this.` access inside the declaring class, since a private field can only be accessed that way. When a member is also accessed in a way that has no private-field equivalent (external access, computed access like `this['_foo']`, destructuring, or `super._foo`), the rule reports it without a fix. Writes to methods, such as `this._method = this._method.bind(this)`, are also reported without a fix because private methods are not writable.
 
 ## Examples
 
