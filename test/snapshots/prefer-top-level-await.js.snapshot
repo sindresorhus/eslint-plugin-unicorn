@@ -176,6 +176,23 @@ Message:
 
 `;
 
+exports[`prefer-top-level-await > invalid(11): async function run() {} cache[run()] ??= run(); 1`] = `
+
+  1 | async function run() {} cache[run()] ??= run();
+
+`;
+
+exports[`prefer-top-level-await > invalid(11): async function run() {} cache[run()] ??= run(); 2`] = `
+
+Message:
+> 1 | async function run() {} cache[run()] ??= run();
+    |                               ^^^^^ Prefer top-level await over an async function \`run\` call.
+
+Suggestion 1/1: Insert \`await\`.:
+  1 | async function run() {} cache[await run()] ??= run();
+
+`;
+
 exports[`prefer-top-level-await > invalid(11): const foo = async () => {}; foo()! ** 2; 1`] = `
 
   1 | const foo = async () => {}; foo()! ** 2;
@@ -190,6 +207,20 @@ Message:
 
 Suggestion 1/1: Insert \`await\`.:
   1 | const foo = async () => {}; (await foo()!) ** 2;
+
+`;
+
+exports[`prefer-top-level-await > invalid(12): async function run() {} run().promise = run(); 1`] = `
+
+  1 | async function run() {} run().promise = run();
+
+`;
+
+exports[`prefer-top-level-await > invalid(12): async function run() {} run().promise = run(); 2`] = `
+
+Message:
+> 1 | async function run() {} run().promise = run();
+    |                         ^^^^^ Prefer top-level await over an async function \`run\` call.
 
 `;
 
@@ -221,6 +252,23 @@ exports[`prefer-top-level-await > invalid(12): for (const foo of bar) foo.then(b
 Message:
 > 1 | for (const foo of bar) foo.then(bar)
     |                            ^^^^ Prefer top-level await over using a promise chain.
+
+`;
+
+exports[`prefer-top-level-await > invalid(13): async function run() {} cache.promise = run(run()); 1`] = `
+
+  1 | async function run() {} cache.promise = run(run());
+
+`;
+
+exports[`prefer-top-level-await > invalid(13): async function run() {} cache.promise = run(run()); 2`] = `
+
+Message:
+> 1 | async function run() {} cache.promise = run(run());
+    |                                             ^^^^^ Prefer top-level await over an async function \`run\` call.
+
+Suggestion 1/1: Insert \`await\`.:
+  1 | async function run() {} cache.promise = run(await run());
 
 `;
 

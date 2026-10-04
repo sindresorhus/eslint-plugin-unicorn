@@ -413,6 +413,9 @@ test.snapshot({
 			code: 'async function run() {} cache[run() as string] = value;',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'async function run() {} cache[run()] ??= run();',
+		'async function run() {} run().promise = run();',
+		'async function run() {} cache.promise = run(run());',
 	],
 });
 
