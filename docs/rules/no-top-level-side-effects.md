@@ -29,11 +29,11 @@ Direct calls to these imported helpers are allowed:
 - `eslint/config`, `@eslint/config-helpers`, `vite`, `rollup`, and `astro/config`: `defineConfig`.
 - `vitest/config`: `defineConfig` and `defineProject`.
 
-Named and namespace imports support import aliases; React also supports default imports. Recognition requires a direct import: local variable aliases, computed members, optional chains, conditional calls, and globally supplied objects remain conservatively checked.
+Named imports (including aliases), namespace imports, and React default imports are supported. Local variable aliases, computed members, optional chains, conditional calls, and globals remain conservatively checked.
 
-Arguments are still checked, so `memo(initialize())` and `defineConfig([loadConfig()])` are reported. Nested helper calls such as `memo(forwardRef(Component))` are allowed, and function bodies are deferred. Calls inside arbitrary object or array expressions remain conservatively checked.
+Arguments are checked: `memo(initialize())` and `defineConfig([loadConfig()])` are reported. Nested helpers like `memo(forwardRef(Component))` are allowed; callback bodies are deferred. Calls inside objects or arrays remain conservatively checked.
 
-Tagged templates are checked when they are direct arguments. Tags nested in other expressions, such as object properties, are outside this rule's analysis.
+Direct tagged-template arguments are checked; tags nested in other expressions are outside the analysis.
 
 With `vue-eslint-parser`, direct top-level expressions in `<script setup>` are ignored because they run in component setup scope, not module scope. The normal `<script>` is still checked when the module has a runtime export.
 
@@ -111,7 +111,7 @@ export default defineConfig(() => ({plugins: [initializePlugin()]}));
 Type: `object`\
 Default: `{}`
 
-Allow additional pure helpers by mapping exact import sources to exported function names. This extends the built-in allowances; import aliases and namespace imports are supported. Arguments are still checked for side effects. Local functions, globals, and default-imported functions are not covered by this option.
+Extend the built-ins by mapping exact import sources to pure exported function names. Arguments remain checked. Local functions, globals, and default-imported functions are unsupported.
 
 ```js
 export default [
