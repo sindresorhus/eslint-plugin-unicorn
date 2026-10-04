@@ -1084,7 +1084,7 @@ function getTypeParameterResolution(node, typeState) {
 			visitedTypeParameterNames,
 		};
 		const nextName = getTypeReferenceName(typeParameterType?.typeName);
-		// `getTypeParameterTypes()` stores resolved types, so a stored type is not expected to be another stored type parameter. Following such a chain is kept as a safeguard.
+		// Stored type arguments can still reference outer type parameters with the same names as this definition's parameters. Keep cycle tracking while following such references.
 		/* node:coverage disable */
 		if (
 			!nextName
@@ -1093,7 +1093,7 @@ function getTypeParameterResolution(node, typeState) {
 		) {
 			return {
 				type: typeParameterType,
-				typeState: hasTypeParameterReference(typeParameterType, name)
+				typeState: hasTypeParameterReferenceInType(typeParameterType, nextTypeState)
 					? nextTypeState
 					: {...nextTypeState, visitedTypeParameterNames: new Set()},
 			};

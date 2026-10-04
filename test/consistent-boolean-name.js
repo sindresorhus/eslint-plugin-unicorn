@@ -57,6 +57,31 @@ const onlyIsPrefixOptions = {
 
 test({
 	valid: [
+		typescript('type Fn<A, B> = () => B; function f<A, B>(g: Fn<B, A>) {}'),
+		typescript('type Id<T> = T; type Fn<A, B> = () => B; function f<A, B>(g: Fn<Id<B>, Id<A>>) {}'),
+		typescript('type Fn<A, B> = () => B; function f<A, B>(g: Fn<B | undefined, A | undefined>) {}'),
+		typescript('type Fn<A, B> = () => B; function f<A, B>(g: Fn<B & {}, A & {}>) {}'),
+		typescript('type Id<T> = T; type Fn<A, B> = B; function f<A, B>(g: Fn<Id<B>, Id<A>>) {}'),
+		typescript('type Id<T> = T; type Fn<A, B, C> = () => C; function f<A, B, C>(g: Fn<Id<B>, Id<C>, Id<A>>) {}'),
+		typescript('type Fn<A, B, C> = () => C; function f<A, B, C>(g: Fn<B, C, A>) {}'),
+		typescript('type Fn<A, B> = () => Promise<B>; function f<A, B>(g: Fn<B, A>) {}'),
+		typeAware('type Fn<A, B> = () => B; function f<A, B>(g: Fn<B, A>) {}'),
+		typeAware('type Id<T> = T; type Fn<A, B> = () => B; function f<A, B>(g: Fn<Id<B>, Id<A>>) {}'),
+	],
+	invalid: [
+		typescript({
+			code: 'type Fn<A, B> = () => B; type Swapped<A, B> = Fn<B, A>; function f(g: Swapped<boolean, string>, isReady: Swapped<string, boolean>) {}',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			code: 'type Id<T> = T; type Fn<A, B> = () => B; function f(g: Fn<Id<string>, Id<Id<boolean>>>, isReady: Fn<Id<boolean>, Id<Id<string>>>) {}',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
+	],
+});
+
+test({
+	valid: [
 		{
 			code: 'function useReady() { return true; }',
 			options: [{
