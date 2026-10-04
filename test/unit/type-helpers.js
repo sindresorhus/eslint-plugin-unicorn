@@ -125,6 +125,8 @@ test('type information without a symbol is unknown', t => {
 test('class aliases resolve in their declaration scope', t => {
 	const options = {checkClassSyntax: true};
 	t.assert.deepStrictEqual(getTypes('class Base extends Foo {} const Alias = Base; { class Base extends Alias {} check(new Base()); }', options), [target]);
+	t.assert.deepStrictEqual(getTypes('class Base extends Foo {} const Alias = class extends Base {}; { class Base {} check(new Alias()); }', options), [target]);
+	t.assert.deepStrictEqual(getTypes('class Base {} const Alias = class extends Base {}; { class Base extends Foo {} check(new Alias()); }', options), [nonTarget]);
 });
 
 test('terminates recursive aliases and inheritance without suppressing repeated concrete types', t => {

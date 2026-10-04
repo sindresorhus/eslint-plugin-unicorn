@@ -3,6 +3,7 @@ import {functionTypes, getStaticStringValue} from './ast/index.js';
 import {
 	getBaseTypes,
 	getTypeSymbol,
+	getVariableByName,
 	isDefaultLibrarySymbol,
 	isSameReference,
 	isUnknownType,
@@ -102,18 +103,6 @@ const createCodePathInfo = () => ({
 	variables: new Set(),
 });
 
-const resolveIdentifierName = (name, scope) => {
-	while (scope) {
-		const variable = scope.set.get(name);
-
-		if (variable) {
-			return variable;
-		}
-
-		scope = scope.upper;
-	}
-};
-
 const combineUnionTypes = types => {
 	const nonNullishTypes = types.filter(type => type !== nullishContext);
 
@@ -151,7 +140,7 @@ const getTypeReferenceType = (node, scope, visitedTypeVariables) => {
 	const typeReferenceName = node.typeName.name;
 
 	const typeVariable = node.typeName.type === 'Identifier'
-		? resolveIdentifierName(typeReferenceName, scope)
+		? getVariableByName(typeReferenceName, scope)
 		: undefined;
 	const [definition] = typeVariable?.defs ?? [];
 

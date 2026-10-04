@@ -783,7 +783,7 @@ function hasMissingRequiredTypeArguments(node, scope) {
 	);
 }
 
-function getCallSignatureReturnTypesFromDefinition(definition, context, scope, {typeArguments, typeState, visitedTypeReferenceRanges = new Set()} = {}) {
+function getCallSignatureReturnTypesFromDefinition(definition, context, {typeArguments, typeState, visitedTypeReferenceRanges = new Set()} = {}) {
 	const definitionScope = context.sourceCode.getScope(definition.node);
 	const definitionTypeState = {
 		...typeState,
@@ -842,7 +842,7 @@ function getCallSignatureReturnTypes(node, context, scope, {typeState = getTypeS
 			const nextVisitedTypeReferenceRanges = new Set(visitedTypeReferenceRanges);
 			nextVisitedTypeReferenceRanges.add(range);
 			for (const definition of getTypeDefinitions(name, scope)) {
-				returnTypes.push(...getCallSignatureReturnTypesFromDefinition(definition, context, scope, {
+				returnTypes.push(...getCallSignatureReturnTypesFromDefinition(definition, context, {
 					typeArguments: getTypeArguments(heritage),
 					typeState,
 					visitedTypeReferenceRanges: nextVisitedTypeReferenceRanges,
@@ -862,7 +862,7 @@ function getCallSignatureReturnTypes(node, context, scope, {typeState = getTypeS
 		const nextVisitedTypeReferenceRanges = new Set(visitedTypeReferenceRanges);
 		nextVisitedTypeReferenceRanges.add(range);
 		const name = getTypeReferenceName(node.typeName);
-		return getTypeDefinitions(name, scope).flatMap(definition => getCallSignatureReturnTypesFromDefinition(definition, context, scope, {
+		return getTypeDefinitions(name, scope).flatMap(definition => getCallSignatureReturnTypesFromDefinition(definition, context, {
 			typeArguments: getTypeArguments(node),
 			typeState,
 			visitedTypeReferenceRanges: nextVisitedTypeReferenceRanges,

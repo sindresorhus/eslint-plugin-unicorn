@@ -90,7 +90,7 @@ test.snapshot({
 		typeAware('declare const request: Request; fetch(request, {headers: {}});'),
 		typeAware('declare const request: Request; new Request(request, {headers: []});'),
 		typeAware('declare const input: Request | string; fetch(input, {method: "GET"});'),
-		// The shared base type is only visited once, so the second one is unknown
+		// An empty shared base does not identify the input as a URL or string.
 		typeAware('interface Base {} interface A extends Base {} interface B extends Base {} declare const input: A | B; fetch(input, {method: "GET"});'),
 		typeAware('declare const input: string & {brand: true}; fetch(input, {method: "GET"});'),
 	],

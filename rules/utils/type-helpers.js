@@ -11,6 +11,7 @@ import {
 	isUnknownType,
 } from './types.js';
 import {getStaticValueForControlFlow} from './get-static-value.js';
+import {getVariableByName} from './scope.js';
 
 const target = 'target';
 const nonTarget = 'non-target';
@@ -90,18 +91,6 @@ const combineIntersectionTypes = types => {
 	}
 
 	return types.includes(target) ? target : nonTarget;
-};
-
-const resolveIdentifierName = (name, scope) => {
-	while (scope) {
-		const variable = scope.set.get(name);
-
-		if (variable) {
-			return variable;
-		}
-
-		scope = scope.upper;
-	}
 };
 
 const getTypeReferenceDefinition = (typeReferenceName, scope) => {
@@ -538,7 +527,7 @@ function getClassReferenceTypeFromScope(node, scope, options, visitedTypeReferen
 			return getKnownTypeReferenceType(typeReferenceName, options);
 		}
 
-		const variable = resolveIdentifierName(typeReferenceName, scope);
+		const variable = getVariableByName(typeReferenceName, scope);
 		const [definition] = variable?.defs ?? [];
 		if (!definition) {
 			return getKnownTypeReferenceType(typeReferenceName, options);
@@ -574,8 +563,8 @@ function getClassReferenceTypeFromScope(node, scope, options, visitedTypeReferen
 	return unknown;
 }
 
-const getClassReferenceType = (node, context, options, visitedTypeReferenceDefinitions) =>
-	getClassReferenceTypeFromScope(node, context.sourceCode.getScope(node), options, visitedTypeReferenceDefinitions);
+const getClassReferenceType = (node, context, options) =>
+	getClassReferenceTypeFromScope(node, context.sourceCode.getScope(node), options);
 
 const getFunctionThisParameterType = (node, context, options) => {
 	const thisParameter = node.params.find(node => node.type === 'Identifier' && node.name === 'this');
