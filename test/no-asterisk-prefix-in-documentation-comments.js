@@ -82,8 +82,109 @@ test.snapshot({
 });
 
 test({
+	valid: [
+		'/**\nDescription.\n  Indented example.\n*/',
+		'/**\n\n*/',
+		'/**\n\t \n*/',
+		'/**\n Description.\n\tDifferent indentation.\n*/',
+		'if (condition) {\n\t/**\nDescription.\n\t*/\n}',
+		'/*\n Description.\n */',
+		'/****\n Decorative banner.\n */',
+		'const value = /**\n Description.\n */ 1;',
+	],
+	invalid: [
+		{
+			code: '/**\n Description.\n   Indented example.\n */',
+			output: '/**\nDescription.\n  Indented example.\n*/',
+			errors: [error],
+		},
+		{
+			code: '/**\n    Indented example.\n  Description.\n*/',
+			output: '/**\n  Indented example.\nDescription.\n*/',
+			errors: [error],
+		},
+		{
+			code: '/**\n \tDescription.\n  Indented example.\n*/',
+			output: '/**\n\tDescription.\n Indented example.\n*/',
+			errors: [error],
+		},
+		{
+			code: '/**\n  - Item.\n    - Nested item.\n  */',
+			output: '/**\n- Item.\n  - Nested item.\n*/',
+			errors: [error],
+		},
+		{
+			code: '/**\n * Description.\n *   Indented example.\n */',
+			output: '/**\nDescription.\n  Indented example.\n*/',
+			errors: [error],
+		},
+		{
+			code: '/**\n *   Description.\n *     Indented example.\n */',
+			output: '/**\nDescription.\n  Indented example.\n*/',
+			errors: [error],
+		},
+		{
+			code: '/**\n\n   Description.\n \n     Indented example.\n \n */',
+			output: '/**\n\nDescription.\n\n  Indented example.\n\n*/',
+			errors: [error],
+		},
+		{
+			code: '/**\n  Description.\n*/',
+			output: '/**\nDescription.\n*/',
+			errors: [error],
+		},
+		{
+			code: '/** Description.\n  More details.\n  */',
+			output: '/** Description.\nMore details.\n*/',
+			errors: [error],
+		},
+		{
+			code: '/**\n  Description. */',
+			output: '/**\nDescription. */',
+			errors: [error],
+		},
+		{
+			code: '/**\n\t\tDescription.\n\t\t\tIndented example.\n\t*/',
+			output: '/**\nDescription.\n\tIndented example.\n*/',
+			errors: [error],
+		},
+		...['\n', '\r\n', '\r', '\u2028', '\u2029'].map(linebreak => ({
+			code: `if (condition) {${linebreak}\t/**${linebreak}\t Description.${linebreak}\t   Indented example.${linebreak}\t */${linebreak}}`,
+			output: `if (condition) {${linebreak}\t/**${linebreak}\tDescription.${linebreak}\t  Indented example.${linebreak}\t*/${linebreak}}`,
+			errors: [error],
+		})),
+		{
+			code: 'if (condition) {\n  /**\n    Description.\n      Indented example.\n    */\n}',
+			output: 'if (condition) {\n  /**\n  Description.\n    Indented example.\n  */\n}',
+			errors: [error],
+		},
+		...['\n', '\r\n'].flatMap(linebreak => [
+			{
+				code: `.example {${linebreak}\t/*${linebreak}\t Description.${linebreak}\t   Indented example.${linebreak}\t */${linebreak}}`,
+				output: `.example {${linebreak}\t/*${linebreak}\tDescription.${linebreak}\t  Indented example.${linebreak}\t*/${linebreak}}`,
+				language: languages.css.language,
+				plugins: languages.css.plugins,
+				errors: [error],
+			},
+			...[languages.jsonc, languages.json5].map(({language, plugins}) => ({
+				code: `{${linebreak}\t/*${linebreak}\t Description.${linebreak}\t   Indented example.${linebreak}\t */${linebreak}\t"value": true${linebreak}}`,
+				output: `{${linebreak}\t/*${linebreak}\tDescription.${linebreak}\t  Indented example.${linebreak}\t*/${linebreak}\t"value": true${linebreak}}`,
+				language,
+				plugins,
+				errors: [error],
+			})),
+		]),
+	],
+});
+
+test({
 	valid: [],
 	invalid: [
+		{
+			code: '/**\n Good class\n */',
+			output: '/**\nGood class\n*/',
+			errors: [error],
+		},
 		{
 			code: '/**\r\n * Description.\r\n */',
 			output: '/**\r\nDescription.\r\n*/',
