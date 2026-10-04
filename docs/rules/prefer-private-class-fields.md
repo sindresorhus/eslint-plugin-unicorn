@@ -36,6 +36,38 @@ class Foo {
 }
 ```
 
+### Bound methods
+
+For a method bound in the constructor, consider a private arrow-function field. It captures `this`, so the binding assignment can be removed. Fields initialize in declaration order, so place the field before any other fields that use it.
+
+```js
+// ❌
+class Foo {
+	constructor() {
+		this._method = this._method.bind(this);
+	}
+
+	_method() {
+		return this;
+	}
+
+	getCallback() {
+		return this._method;
+	}
+}
+
+// ✅
+class Foo {
+	#method = () => {
+		return this;
+	};
+
+	getCallback() {
+		return this.#method;
+	}
+}
+```
+
 > [!NOTE]
 > Private class fields are observably different from underscore-prefixed properties: they are not enumerable, so `Object.keys()`, the spread operator, and `JSON.stringify()` ignore them. Detecting every way an instance's keys can be observed is impossible (the instance can escape to code the rule can't see), so this is best-effort: the rule skips the autofix when it sees the common, local patterns (`{...this}`, a rest destructuring of `this`, and `Object.keys`/`values`/`entries`/`assign(…, this)` and `JSON.stringify(this)`), but it does **not** detect `Reflect.ownKeys`, `Object.getOwnPropertyNames`/`Symbols`/`Descriptor(s)`, `Object.hasOwn`, `Object.prototype.hasOwnProperty.call`, the `in` operator, `for…in`, observing static members through the class name, or passing the bare instance elsewhere — those are autofixed even though it may change behavior.
 >
