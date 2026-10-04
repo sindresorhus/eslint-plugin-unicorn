@@ -29,11 +29,11 @@ Direct calls to these imported helpers are allowed:
 - `eslint/config`, `@eslint/config-helpers`, `vite`, `rollup`, and `astro/config`: `defineConfig`.
 - `vitest/config`: `defineConfig` and `defineProject`.
 
-Named imports (including aliases), namespace imports, and React default imports are supported. Local variable aliases, computed members, optional chains, conditional calls, and globals remain conservatively checked.
+Supports named imports (including aliases), namespace imports, and React default imports. Local aliases, computed or optional calls, conditional callees, and globals remain checked.
 
-Arguments are checked: `memo(initialize())` and `defineConfig([loadConfig()])` are reported. Nested helpers like `memo(forwardRef(Component))` are allowed; callback bodies are deferred. Calls inside objects or arrays remain conservatively checked.
+Nested helpers are allowed, with arguments checked recursively. Callback bodies are ignored; calls inside objects or arrays remain conservatively checked.
 
-Direct tagged-template arguments are checked; tags nested in other expressions are outside the analysis.
+Only direct tagged templates are checked.
 
 With `vue-eslint-parser`, direct top-level expressions in `<script setup>` are ignored because they run in component setup scope, not module scope. The normal `<script>` is still checked when the module has a runtime export.
 
@@ -94,16 +94,6 @@ export default React.memo<Props>(initialize());
 export default React.memo<Props>(Link);
 ```
 
-```js
-import {defineConfig} from 'vite';
-
-// ❌
-export default defineConfig({plugins: [initializePlugin()]});
-
-// ✅
-export default defineConfig(() => ({plugins: [initializePlugin()]}));
-```
-
 ## Options
 
 ### allow
@@ -111,21 +101,15 @@ export default defineConfig(() => ({plugins: [initializePlugin()]}));
 Type: `object`\
 Default: `{}`
 
-Extend the built-ins by mapping exact import sources to pure exported function names. Arguments remain checked. Local functions, globals, and default-imported functions are unsupported.
+Extend the built-ins by mapping exact import sources to pure export names. Arguments remain checked; default-imported functions are unsupported.
 
 ```js
-export default [
+'unicorn/no-top-level-side-effects': [
+	'error',
 	{
-		rules: {
-			'unicorn/no-top-level-side-effects': [
-				'error',
-				{
-					allow: {
-						'@company/config': ['defineConfig'],
-					},
-				},
-			],
+		allow: {
+			'@company/config': ['defineConfig'],
 		},
 	},
-];
+]
 ```
