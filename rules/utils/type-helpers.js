@@ -11,6 +11,7 @@ import {
 	isUnknownType,
 } from './types.js';
 import {getStaticValueForControlFlow} from './get-static-value.js';
+import {getVariableByName} from './scope.js';
 
 const target = 'target';
 const nonTarget = 'non-target';
@@ -90,18 +91,6 @@ const combineIntersectionTypes = types => {
 	}
 
 	return types.includes(target) ? target : nonTarget;
-};
-
-const resolveIdentifierName = (name, scope) => {
-	while (scope) {
-		const variable = scope.set.get(name);
-
-		if (variable) {
-			return variable;
-		}
-
-		scope = scope.upper;
-	}
 };
 
 const getTypeReferenceDefinition = (typeReferenceName, scope) => {
@@ -519,7 +508,7 @@ const getTypeFromFunctionCall = (node, context, options) => {
 		: unknown;
 };
 
-const getClassType = (node, scope, options, visitedNames) => {
+const getClassType = (node, scope, options, visitedTypeReferenceDefinitions) => {
 	if (!node.superClass) {
 		return nonTarget;
 	}
@@ -528,51 +517,54 @@ const getClassType = (node, scope, options, visitedNames) => {
 		return nonTarget;
 	}
 
-	return getClassReferenceTypeFromScope(node.superClass, scope, options, visitedNames);
+	return getClassReferenceTypeFromScope(node.superClass, scope, options, visitedTypeReferenceDefinitions);
 };
 
-function getClassReferenceTypeFromScope(node, scope, options, visitedNames = new Set()) {
+function getClassReferenceTypeFromScope(node, scope, options, visitedTypeReferenceDefinitions = new Set()) {
 	if (node.type === 'Identifier') {
 		const typeReferenceName = node.name;
 		if (!options.checkClassHeritage) {
 			return getKnownTypeReferenceType(typeReferenceName, options);
 		}
 
-		if (visitedNames.has(typeReferenceName)) {
+		const variable = getVariableByName(typeReferenceName, scope);
+		const [definition] = variable?.defs ?? [];
+		if (!definition) {
+			return getKnownTypeReferenceType(typeReferenceName, options);
+		}
+
+		if (visitedTypeReferenceDefinitions.has(definition)) {
 			return unknown;
 		}
 
-		visitedNames.add(typeReferenceName);
-
-		const variable = resolveIdentifierName(typeReferenceName, scope);
-		const [definition] = variable?.defs ?? [];
+		visitedTypeReferenceDefinitions.add(definition);
 		let type = unknown;
 
 		if (
-			definition?.type === 'Variable'
+			definition.type === 'Variable'
 			&& definition.parent.kind === 'const'
 			&& definition.node.id === definition.name
 			&& definition.node.init
 		) {
-			type = getClassReferenceTypeFromScope(definition.node.init, scope, options, visitedNames);
-		} else if (definition?.type === 'ClassName') {
-			type = getClassType(definition.node, scope, options, visitedNames);
+			type = getClassReferenceTypeFromScope(definition.node.init, variable.scope, options, visitedTypeReferenceDefinitions);
+		} else if (definition.type === 'ClassName') {
+			type = getClassType(definition.node, variable.scope, options, visitedTypeReferenceDefinitions);
 		}
 
-		visitedNames.delete(typeReferenceName);
+		visitedTypeReferenceDefinitions.delete(definition);
 
-		return definition ? type : getKnownTypeReferenceType(typeReferenceName, options);
+		return type;
 	}
 
 	if (classNodeTypes.has(node.type)) {
-		return getClassType(node, scope, options, visitedNames);
+		return getClassType(node, scope, options, visitedTypeReferenceDefinitions);
 	}
 
 	return unknown;
 }
 
-const getClassReferenceType = (node, context, options, visitedNames) =>
-	getClassReferenceTypeFromScope(node, context.sourceCode.getScope(node), options, visitedNames);
+const getClassReferenceType = (node, context, options) =>
+	getClassReferenceTypeFromScope(node, context.sourceCode.getScope(node), options);
 
 const getFunctionThisParameterType = (node, context, options) => {
 	const thisParameter = node.params.find(node => node.type === 'Identifier' && node.name === 'this');
@@ -744,7 +736,7 @@ function getType(node, context, options, visitedVariables = new Set()) {
 		}
 	}
 
-	if (options.isTargetNode?.(node, context)) {
+	if (options.isTargetNode?.(node, context, node => getType(node, context, options, visitedVariables) === target)) {
 		return target;
 	}
 

@@ -3,6 +3,7 @@ import {functionTypes, getStaticStringValue} from './ast/index.js';
 import {
 	getBaseTypes,
 	getTypeSymbol,
+	getVariableByName,
 	isDefaultLibrarySymbol,
 	isSameReference,
 	isUnknownType,
@@ -102,18 +103,6 @@ const createCodePathInfo = () => ({
 	variables: new Set(),
 });
 
-const resolveIdentifierName = (name, scope) => {
-	while (scope) {
-		const variable = scope.set.get(name);
-
-		if (variable) {
-			return variable;
-		}
-
-		scope = scope.upper;
-	}
-};
-
 const combineUnionTypes = types => {
 	const nonNullishTypes = types.filter(type => type !== nullishContext);
 
@@ -143,81 +132,80 @@ const combineIntersectionTypes = types => {
 	return unknown;
 };
 
-const getTypeReferenceType = (node, scope, visitedTypeReferenceNames) => {
+const getTypeReferenceType = (node, scope, visitedTypeVariables) => {
 	if (node.typeName.type === 'TSQualifiedName') {
 		return nonCanvasContext;
 	}
 
 	const typeReferenceName = node.typeName.name;
 
-	if (visitedTypeReferenceNames.has(typeReferenceName)) {
-		return unknown;
-	}
-
-	visitedTypeReferenceNames.add(typeReferenceName);
-
 	const typeVariable = node.typeName.type === 'Identifier'
-		? resolveIdentifierName(typeReferenceName, scope)
+		? getVariableByName(typeReferenceName, scope)
 		: undefined;
 	const [definition] = typeVariable?.defs ?? [];
 
 	if (!definition) {
-		visitedTypeReferenceNames.delete(typeReferenceName);
 		return canvasContextTypeNames.has(typeReferenceName) ? canvasContext : nonCanvasContext;
 	}
 
+	if (visitedTypeVariables.has(typeVariable)) {
+		return unknown;
+	}
+
+	visitedTypeVariables.add(typeVariable);
+	const definitionScope = typeVariable.scope;
 	let type = nonCanvasContext;
 
 	if (
 		definition.type === 'Type'
 		&& definition.node.type === 'TSTypeAliasDeclaration'
 	) {
-		type = getTypeAnnotationType(definition.node.typeAnnotation, scope, visitedTypeReferenceNames);
+		type = getTypeAnnotationType(definition.node.typeAnnotation, definitionScope, visitedTypeVariables);
 	} else if (
 		definition.type === 'Type'
 		&& definition.node.type === 'TSInterfaceDeclaration'
 	) {
-		const heritageTypes = definition.node.extends.map(heritage => getTypeReferenceType({typeName: heritage.expression}, scope, visitedTypeReferenceNames));
+		const heritageTypes = definition.node.extends.map(heritage => getTypeReferenceType({typeName: heritage.expression}, definitionScope, visitedTypeVariables));
 		type = heritageTypes.includes(canvasContext) ? canvasContext : nonCanvasContext;
 	} else if (
 		definition.type === 'Type'
 		&& definition.node.type === 'TSTypeParameter'
 	) {
 		type = definition.node.constraint
-			? getTypeAnnotationType(definition.node.constraint, scope, visitedTypeReferenceNames)
+			? getTypeAnnotationType(definition.node.constraint, definitionScope, visitedTypeVariables)
 			: nonCanvasContext;
 	} else if (definition.type === 'ClassName') {
 		type = nonCanvasContext;
 	}
 
-	visitedTypeReferenceNames.delete(typeReferenceName);
+	visitedTypeVariables.delete(typeVariable);
 
 	return type;
 };
 
-const getTypeAnnotationType = (node, scope, visitedTypeReferenceNames = new Set()) => {
+const getTypeAnnotationType = (node, scope, visitedTypeVariables = new Set()) => {
 	switch (node?.type) {
 		case 'TSTypeAnnotation':
 		case 'TSParenthesizedType': {
-			return getTypeAnnotationType(node.typeAnnotation, scope, visitedTypeReferenceNames);
+			return getTypeAnnotationType(node.typeAnnotation, scope, visitedTypeVariables);
 		}
 
 		case 'TSTypeOperator': {
 			return node.operator === 'readonly'
-				? getTypeAnnotationType(node.typeAnnotation, scope, visitedTypeReferenceNames)
+				? getTypeAnnotationType(node.typeAnnotation, scope, visitedTypeVariables)
 				: unknown;
 		}
 
 		case 'TSTypeReference': {
-			return getTypeReferenceType(node, scope, visitedTypeReferenceNames);
+			return getTypeReferenceType(node, scope, visitedTypeVariables);
 		}
 
 		case 'TSUnionType': {
-			return combineUnionTypes(node.types.map(type => getTypeAnnotationType(type, scope, visitedTypeReferenceNames)));
+			return combineUnionTypes(node.types.map(type => getTypeAnnotationType(type, scope, visitedTypeVariables)));
 		}
 
 		case 'TSIntersectionType': {
-			return combineIntersectionTypes(node.types.map(type => getTypeAnnotationType(type, scope, visitedTypeReferenceNames)));
+			return combineIntersectionTypes(node.types.map(type => getTypeAnnotationType(type, scope, visitedTypeVariables)));
 		}
 
 		default: {
@@ -241,6 +229,7 @@ const getTypeScriptType = (type, checker, program, visitedTypes = new Set()) => 
 		return unknown;
 	}
 
+	visitedTypes = new Set(visitedTypes);
 	visitedTypes.add(type);
 
 	if (type.isTypeParameter?.()) {
@@ -300,8 +289,7 @@ const isMutableVariableWithWrite = (definition, variable) =>
 	&& hasWriteAfterInitialization(variable);
 
 const getTypeFromVariable = (node, context, visitedVariables) => {
-	const scope = context.sourceCode.getScope(node);
-	const variable = findVariable(scope, node);
+	const variable = findVariable(context.sourceCode.getScope(node), node);
 
 	if (
 		!variable
@@ -315,7 +303,7 @@ const getTypeFromVariable = (node, context, visitedVariables) => {
 
 	const [definition] = variable.defs;
 	const hasTypeAnnotation = Boolean(definition.name?.typeAnnotation);
-	const typeFromAnnotation = getTypeAnnotationType(definition.name?.typeAnnotation, scope);
+	const typeFromAnnotation = getTypeAnnotationType(definition.name?.typeAnnotation, context.sourceCode.getScope(definition.name));
 	let type = unknown;
 
 	if (hasTypeAnnotation) {

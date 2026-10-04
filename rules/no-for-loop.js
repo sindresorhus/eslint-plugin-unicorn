@@ -94,7 +94,7 @@ const combineIntersectionEntriesSupport = entriesSupports => {
 	return entriesSupports.every(entriesSupport => entriesSupport === entriesUnsupported) ? entriesUnsupported : entriesUnknown;
 };
 
-const getTypeReferenceEntriesSupport = (node, scope, visitedTypeReferenceNames) => {
+const getTypeReferenceEntriesSupport = (node, scope, visitedTypeVariables) => {
 	// A qualified name like `Foo.Bar` cannot be resolved by name
 	if (node.typeName.type !== 'Identifier') {
 		return entriesUnknown;
@@ -110,38 +110,37 @@ const getTypeReferenceEntriesSupport = (node, scope, visitedTypeReferenceNames) 
 		return entriesUnsupported;
 	}
 
-	if (visitedTypeReferenceNames.has(typeReferenceName)) {
+	const typeVariable = scope && getVariableByName(typeReferenceName, scope);
+	if (visitedTypeVariables.has(typeVariable)) {
 		return entriesUnknown;
 	}
 
-	visitedTypeReferenceNames.add(typeReferenceName);
-
-	const typeVariable = scope && getVariableByName(typeReferenceName, scope);
+	visitedTypeVariables.add(typeVariable);
 	const [definition] = typeVariable?.defs ?? [];
 
 	if (!definition || definition.type !== 'Type') {
-		visitedTypeReferenceNames.delete(typeReferenceName);
+		visitedTypeVariables.delete(typeVariable);
 		return entriesUnknown;
 	}
 
 	let entriesSupport = entriesUnknown;
 
 	if (definition.node.type === 'TSTypeAliasDeclaration') {
-		entriesSupport = getTypeAnnotationEntriesSupport(definition.node.typeAnnotation, scope, visitedTypeReferenceNames);
+		entriesSupport = getTypeAnnotationEntriesSupport(definition.node.typeAnnotation, typeVariable.scope, visitedTypeVariables);
 	} else if (definition.node.type === 'TSTypeParameter') {
-		entriesSupport = getTypeAnnotationEntriesSupport(definition.node.constraint, scope, visitedTypeReferenceNames);
+		entriesSupport = getTypeAnnotationEntriesSupport(definition.node.constraint, typeVariable.scope, visitedTypeVariables);
 	}
 
-	visitedTypeReferenceNames.delete(typeReferenceName);
+	visitedTypeVariables.delete(typeVariable);
 
 	return entriesSupport;
 };
 
-const getTypeAnnotationEntriesSupport = (node, scope, visitedTypeReferenceNames = new Set()) => {
+const getTypeAnnotationEntriesSupport = (node, scope, visitedTypeVariables = new Set()) => {
 	switch (node?.type) {
 		case 'TSTypeAnnotation':
 		case 'TSParenthesizedType': {
-			return getTypeAnnotationEntriesSupport(node.typeAnnotation, scope, visitedTypeReferenceNames);
+			return getTypeAnnotationEntriesSupport(node.typeAnnotation, scope, visitedTypeVariables);
 		}
 
 		case 'TSArrayType':
@@ -151,20 +150,20 @@ const getTypeAnnotationEntriesSupport = (node, scope, visitedTypeReferenceNames 
 
 		case 'TSTypeOperator': {
 			return node.operator === 'readonly'
-				? getTypeAnnotationEntriesSupport(node.typeAnnotation, scope, visitedTypeReferenceNames)
+				? getTypeAnnotationEntriesSupport(node.typeAnnotation, scope, visitedTypeVariables)
 				: entriesUnknown;
 		}
 
 		case 'TSTypeReference': {
-			return getTypeReferenceEntriesSupport(node, scope, visitedTypeReferenceNames);
+			return getTypeReferenceEntriesSupport(node, scope, visitedTypeVariables);
 		}
 
 		case 'TSUnionType': {
-			return combineUnionEntriesSupport(node.types.map(type => getTypeAnnotationEntriesSupport(type, scope, visitedTypeReferenceNames)));
+			return combineUnionEntriesSupport(node.types.map(type => getTypeAnnotationEntriesSupport(type, scope, visitedTypeVariables)));
 		}
 
 		case 'TSIntersectionType': {
-			return combineIntersectionEntriesSupport(node.types.map(type => getTypeAnnotationEntriesSupport(type, scope, visitedTypeReferenceNames)));
+			return combineIntersectionEntriesSupport(node.types.map(type => getTypeAnnotationEntriesSupport(type, scope, visitedTypeVariables)));
 		}
 
 		default: {

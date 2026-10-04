@@ -1187,3 +1187,25 @@ ruleTest.snapshot({
 		'if (Array.isArray(foo)) { foo.concat(value); } else {}',
 	],
 });
+
+ruleTest({
+	valid: [
+		typescript('type Value = string; type Alias = Value; { type Value = number[]; function f(value: Alias) { return value.concat("x"); } }'),
+	],
+	invalid: [{
+		...typescript('type Value = number[]; type Alias = Value; { type Value = Alias; function f(value: Value) { return value.concat("x"); } }'),
+		errors: 1,
+		output: 'type Value = number[]; type Alias = Value; { type Value = Alias; function f(value: Value) { return [...value, "x"]; } }',
+	}],
+});
+
+ruleTest({
+	valid: [
+		typescript('type Value = string; const value: Value = source; { type Value = number[]; value.concat("x"); }'),
+	],
+	invalid: [{
+		...typescript('type Value = number[]; const value: Value = source; { type Value = string; value.concat("x"); }'),
+		errors: 1,
+		output: 'type Value = number[]; const value: Value = source; { type Value = string; [...value, "x"]; }',
+	}],
+});

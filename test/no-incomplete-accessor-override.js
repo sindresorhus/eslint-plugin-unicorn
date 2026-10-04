@@ -124,3 +124,16 @@ test({
 		},
 	],
 });
+
+// Both superclass lookup and constant alias lookup must terminate on cycles.
+test({
+	valid: [
+		'const First = Second; const Second = First; class Child extends First { get value() { return 1; } }',
+		'class First extends Second {} class Second extends First {} class Child extends First { get value() { return 1; } }',
+		'class First extends First {} class Child extends First { get value() { return 1; } }',
+	],
+	invalid: [{
+		code: 'class Base { set value(value) {} } const First = Base; const Second = First; class Child extends Second { get value() { return 1; } }',
+		errors: 1,
+	}],
+});

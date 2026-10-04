@@ -132,7 +132,7 @@ const isKnownNonUrlConstructor = (node, context) => {
 const getDefinitionScope = (definition, context) =>
 	context.sourceCode.getScope(definition.name);
 
-const getTypeReferenceType = (node, context, scope, visitedTypeReferenceNames) => {
+const getTypeReferenceType = (node, context, scope, visitedTypeReferenceDefinitions) => {
 	if (node.typeName.type !== 'Identifier') {
 		return unknown;
 	}
@@ -146,7 +146,7 @@ const getTypeReferenceType = (node, context, scope, visitedTypeReferenceNames) =
 		return typeReferenceName === 'URL' ? url : unknown;
 	}
 
-	if (visitedTypeReferenceNames.has(typeReferenceName)) {
+	if (visitedTypeReferenceDefinitions.has(definition)) {
 		return unknown;
 	}
 
@@ -154,7 +154,7 @@ const getTypeReferenceType = (node, context, scope, visitedTypeReferenceNames) =
 		return url;
 	}
 
-	visitedTypeReferenceNames.add(typeReferenceName);
+	visitedTypeReferenceDefinitions.add(definition);
 
 	let type = unknown;
 
@@ -162,33 +162,33 @@ const getTypeReferenceType = (node, context, scope, visitedTypeReferenceNames) =
 		definition.type === 'Type'
 		&& definition.node.type === 'TSTypeAliasDeclaration'
 	) {
-		type = getTypeAnnotationType(definition.node.typeAnnotation, context, getDefinitionScope(definition, context), visitedTypeReferenceNames);
+		type = getTypeAnnotationType(definition.node.typeAnnotation, context, getDefinitionScope(definition, context), visitedTypeReferenceDefinitions);
 	} else if (definition.type === 'ClassName') {
 		type = nonUrl;
 	}
 
-	visitedTypeReferenceNames.delete(typeReferenceName);
+	visitedTypeReferenceDefinitions.delete(definition);
 
 	return type;
 };
 
-const getTypeAnnotationType = (node, context, scope, visitedTypeReferenceNames = new Set()) => {
+const getTypeAnnotationType = (node, context, scope, visitedTypeReferenceDefinitions = new Set()) => {
 	switch (node?.type) {
 		case 'TSTypeAnnotation':
 		case 'TSParenthesizedType': {
-			return getTypeAnnotationType(node.typeAnnotation, context, scope, visitedTypeReferenceNames);
+			return getTypeAnnotationType(node.typeAnnotation, context, scope, visitedTypeReferenceDefinitions);
 		}
 
 		case 'TSTypeReference': {
-			return getTypeReferenceType(node, context, scope, visitedTypeReferenceNames);
+			return getTypeReferenceType(node, context, scope, visitedTypeReferenceDefinitions);
 		}
 
 		case 'TSUnionType': {
-			return combineUnionTypes(node.types.map(type => getTypeAnnotationType(type, context, scope, visitedTypeReferenceNames)));
+			return combineUnionTypes(node.types.map(type => getTypeAnnotationType(type, context, scope, visitedTypeReferenceDefinitions)));
 		}
 
 		case 'TSIntersectionType': {
-			return combineTypes(node.types.map(type => getTypeAnnotationType(type, context, scope, visitedTypeReferenceNames)));
+			return combineTypes(node.types.map(type => getTypeAnnotationType(type, context, scope, visitedTypeReferenceDefinitions)));
 		}
 
 		case 'TSImportType': {

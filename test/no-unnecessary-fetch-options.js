@@ -90,7 +90,7 @@ test.snapshot({
 		typeAware('declare const request: Request; fetch(request, {headers: {}});'),
 		typeAware('declare const request: Request; new Request(request, {headers: []});'),
 		typeAware('declare const input: Request | string; fetch(input, {method: "GET"});'),
-		// The shared base type is only visited once, so the second one is unknown
+		// An empty shared base does not identify the input as a URL or string.
 		typeAware('interface Base {} interface A extends Base {} interface B extends Base {} declare const input: A | B; fetch(input, {method: "GET"});'),
 		typeAware('declare const input: string & {brand: true}; fetch(input, {method: "GET"});'),
 	],
@@ -304,4 +304,22 @@ test.snapshot({
 		'fetch("/", {signal: signal<string>}); const signal = undefined;',
 		'const signal = undefined; fetch("/", {signal: signal<string>});',
 	],
+});
+
+// Shared ancestors and constraints in separate union branches are not cycles.
+test({
+	valid: [
+		typeAware('type First = Second; type Second = First; declare const url: First; fetch(url, {method: "GET"});'),
+		typeAware('interface First extends Second {} interface Second extends First {} declare const url: First; fetch(url, {method: "GET"});'),
+		typeAware('function foo<First extends string, Second extends Request>(url: First | Second) { fetch(url, {method: "GET"}); }'),
+	],
+	invalid: [{
+		...typeAware('interface First extends URL {first: true;} interface Second extends URL {second: true;} declare const url: First | Second; fetch(url, {method: "GET"});'),
+		output: 'interface First extends URL {first: true;} interface Second extends URL {second: true;} declare const url: First | Second; fetch(url);',
+		errors: 1,
+	}, {
+		...typeAware('function foo<First extends string, Second extends string>(url: First | Second) { fetch(url, {method: "GET"}); }'),
+		output: 'function foo<First extends string, Second extends string>(url: First | Second) { fetch(url); }',
+		errors: 1,
+	}],
 });

@@ -1102,3 +1102,44 @@ test.snapshot({
 		`),
 	],
 });
+
+// Shared ancestors in separate union branches are not cycles.
+test({
+	valid: [
+		typeAware('interface First extends Second {} interface Second extends First {} function draw(context: First) { for (const item of items) { context.moveTo(0, 0); context.lineTo(1, 1); context.stroke(); } }'),
+		typeAware('type First = Second; type Second = First; function draw(context: First) { for (const item of items) { context.moveTo(0, 0); context.lineTo(1, 1); context.stroke(); } }'),
+	],
+	invalid: [
+		'interface First extends CanvasRenderingContext2D {first: true;} interface Second extends CanvasRenderingContext2D {second: true;}',
+		'interface Base extends CanvasRenderingContext2D {} interface First extends Base {first: true;} interface Second extends Base {second: true;}',
+	].map(declarations => ({
+		...typeAware(`${declarations} function draw(context: First | Second) { for (const item of items) { context.moveTo(0, 0); context.lineTo(1, 1); context.stroke(); } }`),
+		errors: 1,
+	})),
+});
+
+// Alias definitions resolve their own scope, and same-named aliases in different scopes are distinct.
+test({
+	valid: [],
+	invalid: [
+		'type Context = CanvasRenderingContext2D; type Alias = Context; { type Context = Alias; function draw(context: Context) { for (const item of items) { context.moveTo(0, 0); context.lineTo(1, 1); context.stroke(); } } }',
+		'type Context = CanvasRenderingContext2D; type Alias = Context; { type Context = string; function draw(context: Alias) { for (const item of items) { context.moveTo(0, 0); context.lineTo(1, 1); context.stroke(); } } }',
+	].map(code => ({
+		code,
+		languageOptions: {parser: parsers.typescript},
+		errors: 1,
+	})),
+});
+
+// Receiver annotations resolve at their declaration, even when used in another scope.
+test({
+	valid: [{
+		code: 'type Context = string; declare const drawing: Context; { type Context = CanvasRenderingContext2D; for (const item of items) { drawing.moveTo(0, 0); drawing.lineTo(1, 1); drawing.stroke(); } }',
+		languageOptions: {parser: parsers.typescript},
+	}],
+	invalid: [{
+		code: 'type Context = CanvasRenderingContext2D; declare const drawing: Context; { type Context = string; for (const item of items) { drawing.moveTo(0, 0); drawing.lineTo(1, 1); drawing.stroke(); } }',
+		languageOptions: {parser: parsers.typescript},
+		errors: 1,
+	}],
+});

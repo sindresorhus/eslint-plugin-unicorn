@@ -82,6 +82,16 @@ test({
 		typeAware('type Id<T> = T; type Fn<A, B> = () => B; function f<A, B>(g: Fn<Id<B>, Id<A>>) {}'),
 	],
 	invalid: [
+		typeAware({
+			name: 'type-aware finite nested generic aliases resolve concrete values',
+			code: 'type Id<T> = T; type Value<T> = Id<T>; function f(completed: Value<Value<boolean>>, isReady: Value<Value<string>>) {}',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			name: 'type-aware finite nested generic aliases resolve repeated identity wrappers',
+			code: 'type Id<T> = T; type Value<T> = Id<Id<T>>; function f(completed: Value<Value<boolean>>, isReady: Value<Value<string>>) {}',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
 		typescript({
 			name: 'sibling type arguments sharing a concrete type resolve independently',
 			code: [
@@ -95,6 +105,18 @@ test({
 		typescript({
 			code: 'type Id<A> = A; type Inner<A, B> = A; type Outer<B> = Inner<() => Id<B>, B>; function f(completed: Outer<boolean>, isReady: Outer<string>) {}',
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			name: 'concrete generic rebinding preserves parameter references when suggesting a rename',
+			code: 'type Id<A> = A; type Inner<A, B> = A; type Outer<B> = Inner<() => Id<B>, B>; function f(completed: Outer<boolean>) { return completed(); }',
+			options: [onlyIsPrefixOptions],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					output: 'type Id<A> = A; type Inner<A, B> = A; type Outer<B> = Inner<() => Id<B>, B>; function f(isCompleted: Outer<boolean>) { return isCompleted(); }',
+				}],
+			}],
 		}),
 		typescript({
 			code: 'type Id<A> = A; type Inner<A, B> = A; type Outer<B> = Inner<{(): Promise<Id<B>>}, B>; function f(completed: Outer<boolean>, isReady: Outer<string>) {}',
@@ -2870,5 +2892,106 @@ test.snapshot({
 		'function outer() { function check() { return true; } function check() { return false; } }',
 		typescript('function useFlag(value: string): boolean; function useFlag(value: number): boolean; function useFlag(value: any) { return true; }'),
 		typescript('type Base = () => Promise<boolean>; interface Loader extends Base {} declare const value: Loader;'),
+	],
+});
+
+test({
+	valid: [
+		typescript('type Id<T> = T; type Loop<T> = Id<Loop<T>>; function f(g: Loop<boolean>, isReady: Loop<string>) {}'),
+		typescript('type Id<T> = T; type First<T> = Id<Second<T>>; type Second<T> = Id<First<T>>; function f(g: First<boolean>, isReady: First<string>) {}'),
+		typescript('interface First<T> extends Second<T> {} interface Second<T> extends First<T> {} function f(g: First<boolean>, isReady: First<string>) {}'),
+	],
+	invalid: [
+		typescript({
+			code: 'type Id<T> = T; type Value<T> = Id<Id<T>>; function f(completed: Value<boolean>, isReady: Value<string>) {}',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			code: 'interface First<T> extends Second<T> {} interface Second<T> extends First<T> {(): T} function f(completed: First<boolean>, isReady: First<string>) {}',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			code: 'interface First<T> extends Second<T> {} interface Second<T> extends First<T> {(): Promise<T>} function f(completed: First<boolean>, isReady: First<string>) {}',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		typescript({
+			code: 'interface Predicate {(): boolean} interface Alias extends Predicate {} { interface Predicate extends Alias {} function f(completed: Predicate) {} }',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typescript({
+			code: 'interface Predicate {(): string} interface Alias extends Predicate {} { interface Predicate extends Alias {} function f(isReady: Predicate) {} }',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			code: 'interface Predicate {(): Promise<boolean>} interface Alias extends Predicate {} { interface Predicate extends Alias {} function f(completed: Predicate) {} }',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		typescript({
+			code: 'type Predicate = () => boolean; type Alias = Predicate; { type Predicate = Alias; type Derived = Predicate; interface Callable extends Derived {} function f(completed: Callable) {} }',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typescript({
+			code: 'type Predicate = () => string; type Alias = Predicate; { type Predicate = Alias; type Derived = Predicate; interface Callable extends Derived {} function f(isReady: Callable) {} }',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typescript({
+			code: 'type Predicate = () => Promise<boolean>; type Alias = Predicate; { type Predicate = Alias; type Derived = Predicate; interface Callable extends Derived {} function f(completed: Callable) {} }',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+	],
+});
+
+test({
+	valid: [
+		typescript('type Value = Value; async function completed(): Value & {} { throw new Error(); }'),
+		typescript('type First = Second; type Second = First; function f(completed: () => First & {}) {}'),
+	],
+	invalid: [
+		typescript({
+			code: 'interface Base {(): boolean} interface First extends Base {} interface Second extends Base {} interface Predicate extends First, Second {} function f(completed: Predicate) {}',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typescript({
+			code: 'type Value = Promise<boolean>; function f(completed: {(): Value & {}; (value: string): Value & {}}) {}',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typescript({
+			code: 'type Value = Promise<boolean>; type Alias = Value; { type Value = Alias; async function completed(): Value & {} { throw new Error(); } }',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typescript({
+			code: 'type Value = Promise<boolean>; type Alias = Value; { type Value = Alias; function f(completed: () => Value & {}) {} }',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typescript({
+			code: 'type Value = Promise<boolean>; type Alias = Value; { type Value = Alias; function f(completed: {(): Value & {}}) {} }',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		typescript({
+			code: 'type Id<T> = T; async function completed(): Id<Id<Promise<boolean>>> & {} { throw new Error(); }',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
+		typescript({
+			code: 'type Id<T> = T; function f(completed: () => Id<Id<Promise<boolean>>> & {}) {}',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+		}),
 	],
 });

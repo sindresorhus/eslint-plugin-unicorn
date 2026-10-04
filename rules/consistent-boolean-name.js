@@ -695,7 +695,7 @@ const getTypeDefinitions = (name, scope) =>
 const getInterfaceDefinitions = (name, scope) =>
 	getTypeDefinitions(name, scope).filter(definition => definition.node.type === 'TSInterfaceDeclaration');
 
-function getPromisedInterfaceState(interfaceNode, context, scope, {visitedTypeReferenceNames, typeState}) {
+function getPromisedInterfaceState(interfaceNode, context, scope, {visitedTypeReferenceRanges, typeState}) {
 	let hasCallSignature = false;
 	for (const member of interfaceNode.body.body) {
 		if (member.type !== 'TSCallSignatureDeclaration') {
@@ -703,19 +703,24 @@ function getPromisedInterfaceState(interfaceNode, context, scope, {visitedTypeRe
 		}
 
 		hasCallSignature = true;
-		if (!isPromisedTypeAnnotation(member.returnType, context, scope, {visitedTypeReferenceNames, typeState})) {
+		if (!isPromisedTypeAnnotation(member.returnType, context, scope, {visitedTypeReferenceRanges, typeState})) {
 			return false;
 		}
 	}
 
 	for (const heritage of interfaceNode.extends) {
 		const name = getTypeReferenceName(heritage.expression);
-		if (!name || visitedTypeReferenceNames.has(name)) {
+		if (!name) {
 			continue;
 		}
 
-		const nextVisitedTypeReferenceNames = new Set(visitedTypeReferenceNames);
-		nextVisitedTypeReferenceNames.add(name);
+		const range = context.sourceCode.getRange(heritage);
+		if (visitedTypeReferenceRanges.has(range)) {
+			continue;
+		}
+
+		const nextVisitedTypeReferenceRanges = new Set(visitedTypeReferenceRanges);
+		nextVisitedTypeReferenceRanges.add(range);
 		for (const definition of getTypeDefinitions(name, scope)) {
 			const definitionScope = context.sourceCode.getScope(definition.node);
 			const definitionTypeState = {
@@ -724,7 +729,7 @@ function getPromisedInterfaceState(interfaceNode, context, scope, {visitedTypeRe
 			};
 			if (definition.node.type === 'TSInterfaceDeclaration') {
 				const state = getPromisedInterfaceState(definition.node, context, definitionScope, {
-					visitedTypeReferenceNames: nextVisitedTypeReferenceNames,
+					visitedTypeReferenceRanges: nextVisitedTypeReferenceRanges,
 					typeState: definitionTypeState,
 				});
 				if (state === false) {
@@ -739,7 +744,7 @@ function getPromisedInterfaceState(interfaceNode, context, scope, {visitedTypeRe
 				if (returnTypes.length > 0) {
 					hasCallSignature = true;
 					const hasNonPromisedReturnType = returnTypes.some(returnType => !isPromisedTypeAnnotation(returnType, context, definitionScope, {
-						visitedTypeReferenceNames: nextVisitedTypeReferenceNames,
+						visitedTypeReferenceRanges: nextVisitedTypeReferenceRanges,
 						typeState: definitionTypeState,
 					}));
 					if (hasNonPromisedReturnType) {
@@ -778,7 +783,7 @@ function hasMissingRequiredTypeArguments(node, scope) {
 	);
 }
 
-function getCallSignatureReturnTypesFromDefinition(definition, context, scope, {typeArguments, typeState, visitedTypeReferenceNames} = {}) {
+function getCallSignatureReturnTypesFromDefinition(definition, context, {typeArguments, typeState, visitedTypeReferenceRanges = new Set()} = {}) {
 	const definitionScope = context.sourceCode.getScope(definition.node);
 	const definitionTypeState = {
 		...typeState,
@@ -787,19 +792,19 @@ function getCallSignatureReturnTypesFromDefinition(definition, context, scope, {
 	if (definition.node.type === 'TSInterfaceDeclaration') {
 		return getCallSignatureReturnTypes(definition.node, context, definitionScope, {
 			typeState: definitionTypeState,
-			visitedTypeReferenceNames,
+			visitedTypeReferenceRanges,
 		});
 	}
 
 	return definition.node.type === 'TSTypeAliasDeclaration'
 		? getCallSignatureReturnTypes(definition.node.typeAnnotation, context, definitionScope, {
 			typeState: definitionTypeState,
-			visitedTypeReferenceNames,
+			visitedTypeReferenceRanges,
 		})
 		: [];
 }
 
-function getCallSignatureReturnTypes(node, context, scope, {typeState = getTypeState(), visitedTypeReferenceNames = new Set()} = {}) {
+function getCallSignatureReturnTypes(node, context, scope, {typeState = getTypeState(), visitedTypeReferenceRanges = new Set()} = {}) {
 	if (hasMissingRequiredTypeArguments(node, scope)) {
 		return [];
 	}
@@ -815,7 +820,7 @@ function getCallSignatureReturnTypes(node, context, scope, {typeState = getTypeS
 	}
 
 	if (node?.type === 'TSIntersectionType') {
-		return node.types.flatMap(type => getCallSignatureReturnTypes(type, context, scope, {typeState, visitedTypeReferenceNames}));
+		return node.types.flatMap(type => getCallSignatureReturnTypes(type, context, scope, {typeState, visitedTypeReferenceRanges}));
 	}
 
 	if (node?.type === 'TSInterfaceDeclaration') {
@@ -825,17 +830,22 @@ function getCallSignatureReturnTypes(node, context, scope, {typeState = getTypeS
 
 		for (const heritage of node.extends) {
 			const name = getTypeReferenceName(heritage.expression);
-			if (!name || visitedTypeReferenceNames.has(name)) {
+			if (!name) {
 				continue;
 			}
 
-			const nextVisitedTypeReferenceNames = new Set(visitedTypeReferenceNames);
-			nextVisitedTypeReferenceNames.add(name);
+			const range = context.sourceCode.getRange(heritage);
+			if (visitedTypeReferenceRanges.has(range)) {
+				continue;
+			}
+
+			const nextVisitedTypeReferenceRanges = new Set(visitedTypeReferenceRanges);
+			nextVisitedTypeReferenceRanges.add(range);
 			for (const definition of getTypeDefinitions(name, scope)) {
-				returnTypes.push(...getCallSignatureReturnTypesFromDefinition(definition, context, scope, {
+				returnTypes.push(...getCallSignatureReturnTypesFromDefinition(definition, context, {
 					typeArguments: getTypeArguments(heritage),
 					typeState,
-					visitedTypeReferenceNames: nextVisitedTypeReferenceNames,
+					visitedTypeReferenceRanges: nextVisitedTypeReferenceRanges,
 				}));
 			}
 		}
@@ -844,28 +854,26 @@ function getCallSignatureReturnTypes(node, context, scope, {typeState = getTypeS
 	}
 
 	if (node?.type === 'TSTypeReference') {
-		const name = getTypeReferenceName(node.typeName);
-		if (visitedTypeReferenceNames.has(name)) {
+		const range = context.sourceCode.getRange(node);
+		if (visitedTypeReferenceRanges.has(range)) {
 			return [];
 		}
 
-		const nextVisitedTypeReferenceNames = new Set(visitedTypeReferenceNames);
-		nextVisitedTypeReferenceNames.add(name);
-		return getTypeDefinitions(name, scope).flatMap(definition => getCallSignatureReturnTypesFromDefinition(definition, context, scope, {
+		const nextVisitedTypeReferenceRanges = new Set(visitedTypeReferenceRanges);
+		nextVisitedTypeReferenceRanges.add(range);
+		const name = getTypeReferenceName(node.typeName);
+		return getTypeDefinitions(name, scope).flatMap(definition => getCallSignatureReturnTypesFromDefinition(definition, context, {
 			typeArguments: getTypeArguments(node),
 			typeState,
-			visitedTypeReferenceNames: nextVisitedTypeReferenceNames,
+			visitedTypeReferenceRanges: nextVisitedTypeReferenceRanges,
 		}));
 	}
 
 	return [];
 }
 
-function isPromisedTypeReference(node, context, scope, {visitedTypeReferenceNames, typeState}) {
+function isPromisedTypeReference(node, context, scope, {visitedTypeReferenceRanges, typeState}) {
 	const name = getTypeReferenceName(node.typeName);
-	if (visitedTypeReferenceNames.has(name)) {
-		return false;
-	}
 
 	if (isGlobalPromiseTypeReference(node, scope)) {
 		return true;
@@ -876,8 +884,13 @@ function isPromisedTypeReference(node, context, scope, {visitedTypeReferenceName
 		return false;
 	}
 
-	const nextVisitedTypeReferenceNames = new Set(visitedTypeReferenceNames);
-	nextVisitedTypeReferenceNames.add(name);
+	const range = context.sourceCode.getRange(node);
+	if (visitedTypeReferenceRanges.has(range)) {
+		return false;
+	}
+
+	const nextVisitedTypeReferenceRanges = new Set(visitedTypeReferenceRanges);
+	nextVisitedTypeReferenceRanges.add(range);
 	const states = new Set(definitions.map(definition => {
 		const definitionScope = context.sourceCode.getScope(definition.node);
 		const definitionTypeState = {
@@ -887,14 +900,14 @@ function isPromisedTypeReference(node, context, scope, {visitedTypeReferenceName
 
 		if (definition.node.type === 'TSTypeAliasDeclaration') {
 			return isPromisedTypeAnnotation(definition.node.typeAnnotation, context, definitionScope, {
-				visitedTypeReferenceNames: nextVisitedTypeReferenceNames,
+				visitedTypeReferenceRanges: nextVisitedTypeReferenceRanges,
 				typeState: definitionTypeState,
 			});
 		}
 
 		return definition.node.type === 'TSInterfaceDeclaration'
 			? getPromisedInterfaceState(definition.node, context, definitionScope, {
-				visitedTypeReferenceNames: nextVisitedTypeReferenceNames,
+				visitedTypeReferenceRanges: nextVisitedTypeReferenceRanges,
 				typeState: definitionTypeState,
 			})
 			: false;
@@ -903,7 +916,7 @@ function isPromisedTypeReference(node, context, scope, {visitedTypeReferenceName
 	return states.has(true) && !states.has(false);
 }
 
-function isPromisedTypeAnnotation(node, context, scope, {visitedTypeReferenceNames = new Set(), typeState = getTypeState()} = {}) {
+function isPromisedTypeAnnotation(node, context, scope, {visitedTypeReferenceRanges = new Set(), typeState = getTypeState()} = {}) {
 	if (hasMissingRequiredTypeArguments(node, scope)) {
 		return false;
 	}
@@ -911,7 +924,7 @@ function isPromisedTypeAnnotation(node, context, scope, {visitedTypeReferenceNam
 	const typeParameter = getTypeParameterResolution(node, context, typeState);
 	if (typeParameter) {
 		return isPromisedTypeAnnotation(typeParameter.type, context, scope, {
-			visitedTypeReferenceNames,
+			visitedTypeReferenceRanges,
 			typeState: typeParameter.typeState,
 		});
 	}
@@ -920,7 +933,7 @@ function isPromisedTypeAnnotation(node, context, scope, {visitedTypeReferenceNam
 		node?.type === 'TSTypeAnnotation'
 		|| node?.type === 'TSParenthesizedType'
 	) {
-		return isPromisedTypeAnnotation(node.typeAnnotation, context, scope, {visitedTypeReferenceNames, typeState});
+		return isPromisedTypeAnnotation(node.typeAnnotation, context, scope, {visitedTypeReferenceRanges, typeState});
 	}
 
 	if (node?.type === 'TSFunctionType') {
@@ -928,31 +941,31 @@ function isPromisedTypeAnnotation(node, context, scope, {visitedTypeReferenceNam
 			return false;
 		}
 
-		return isPromisedTypeAnnotation(node.returnType, context, scope, {visitedTypeReferenceNames, typeState});
+		return isPromisedTypeAnnotation(node.returnType, context, scope, {visitedTypeReferenceRanges, typeState});
 	}
 
 	if (node?.type === 'TSIntersectionType') {
 		const callableTypes = node.types.filter(type => isCallableTypeAnnotation(type, context, scope, {typeState}));
 		if (callableTypes.length > 0) {
-			return callableTypes.every(type => isPromisedTypeAnnotation(type, context, scope, {visitedTypeReferenceNames, typeState}));
+			return callableTypes.every(type => isPromisedTypeAnnotation(type, context, scope, {visitedTypeReferenceRanges, typeState}));
 		}
 
-		return node.types.some(type => isPromisedTypeAnnotation(type, context, scope, {visitedTypeReferenceNames, typeState}));
+		return node.types.some(type => isPromisedTypeAnnotation(type, context, scope, {visitedTypeReferenceRanges, typeState}));
 	}
 
 	if (node?.type === 'TSTypeLiteral') {
 		const callSignatures = node.members.filter(member => member.type === 'TSCallSignatureDeclaration');
 		return callSignatures.length > 0
-			&& callSignatures.every(member => isPromisedTypeAnnotation(member.returnType, context, scope, {visitedTypeReferenceNames, typeState}));
+			&& callSignatures.every(member => isPromisedTypeAnnotation(member.returnType, context, scope, {visitedTypeReferenceRanges, typeState}));
 	}
 
 	if (node?.type === 'TSUnionType') {
 		const types = node.types.filter(type => !nullishTypeAnnotationTypes.has(type.type));
-		return types.length > 0 && types.every(type => isPromisedTypeAnnotation(type, context, scope, {visitedTypeReferenceNames, typeState}));
+		return types.length > 0 && types.every(type => isPromisedTypeAnnotation(type, context, scope, {visitedTypeReferenceRanges, typeState}));
 	}
 
 	return node?.type === 'TSTypeReference'
-		&& isPromisedTypeReference(node, context, scope, {visitedTypeReferenceNames, typeState});
+		&& isPromisedTypeReference(node, context, scope, {visitedTypeReferenceRanges, typeState});
 }
 
 function isCallableTypeAnnotation(node, context, scope, {visitedTypeReferenceNodes = new Set(), typeState = getTypeState()} = {}) {
@@ -1023,7 +1036,6 @@ function isCallableTypeAnnotation(node, context, scope, {visitedTypeReferenceNod
 			return getInterfaceCallSignatureBooleanStates(definition.node, context, definitionScope, {
 				typeState: definitionTypeState,
 				getReturnTypeBooleanState: () => unknown,
-				visitedInterfaceNames: new Set([name]),
 			}).length > 0;
 		}
 
@@ -1363,7 +1375,13 @@ function getTypeMembersBooleanState(members, context, scope, typeState) {
 	return members.length > 0 ? nonBoolean : unknown;
 }
 
-function getInterfaceCallSignatureBooleanStates(interfaceNode, context, scope, {typeState, getReturnTypeBooleanState, visitedInterfaceNames = new Set()}) {
+function getInterfaceCallSignatureBooleanStates(interfaceNode, context, scope, {typeState, getReturnTypeBooleanState, visitedInterfaces = new Set()}) {
+	if (visitedInterfaces.has(interfaceNode)) {
+		return [];
+	}
+
+	visitedInterfaces = new Set(visitedInterfaces);
+	visitedInterfaces.add(interfaceNode);
 	const normalizedTypeState = getTypeState(typeState);
 	let callSignatureStates = [];
 	if (normalizedTypeState.functionTypesAreBoolean) {
@@ -1376,12 +1394,10 @@ function getInterfaceCallSignatureBooleanStates(interfaceNode, context, scope, {
 
 	for (const heritage of interfaceNode.extends) {
 		const name = getTypeReferenceName(heritage.expression);
-		if (!name || visitedInterfaceNames.has(name)) {
+		if (!name) {
 			continue;
 		}
 
-		const nextVisitedInterfaceNames = new Set(visitedInterfaceNames);
-		nextVisitedInterfaceNames.add(name);
 		for (const definition of getTypeDefinitions(name, scope)) {
 			const definitionScope = context.sourceCode.getScope(definition.node);
 			const definitionTypeState = {
@@ -1392,7 +1408,7 @@ function getInterfaceCallSignatureBooleanStates(interfaceNode, context, scope, {
 				callSignatureStates.push(...getInterfaceCallSignatureBooleanStates(definition.node, context, definitionScope, {
 					typeState: definitionTypeState,
 					getReturnTypeBooleanState,
-					visitedInterfaceNames: nextVisitedInterfaceNames,
+					visitedInterfaces,
 				}));
 			} else if (definition.node.type === 'TSTypeAliasDeclaration') {
 				callSignatureStates.push(...getCallSignatureReturnTypes(definition.node.typeAnnotation, context, definitionScope, {typeState: definitionTypeState}).map(returnType =>
@@ -1434,7 +1450,6 @@ function getTypeReferenceBooleanState(node, context, scope, typeState) {
 				typeState: definitionTypeState,
 				getReturnTypeBooleanState: (returnType, context, scope, typeState) =>
 					getTypeAnnotationBooleanState(returnType, context, scope, {...typeState, functionTypesAreBoolean: false}),
-				visitedInterfaceNames: new Set([name]),
 			});
 		});
 		result = callSignatureStates.length > 0
@@ -1602,7 +1617,6 @@ function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 				typeState: definitionTypeState,
 				getReturnTypeBooleanState: (returnType, context, scope, typeState) =>
 					getPromisedTypeAnnotationBooleanState(returnType, context, scope, {...typeState, functionTypesAreBoolean: false}),
-				visitedInterfaceNames: new Set([name]),
 			});
 		});
 		result = callSignatureStates.length > 0

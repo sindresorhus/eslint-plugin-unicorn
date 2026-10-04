@@ -240,3 +240,22 @@ map.get(key) !== undefined;`,
 		'foo\nnull !== (new URLSearchParams()).get(key)',
 	],
 });
+
+test({
+	valid: [
+		typeAnnotated('type Lookup = unknown; type Alias = Lookup; { type Lookup = Map<string, number>; function f(map: Alias) { return map.get(key) !== undefined; } }'),
+		typeAnnotated('type Value = undefined; type Alias = Value; { type Value = number; function f(map: Map<string, Alias>) { return map.get(key) !== undefined; } }'),
+	],
+	invalid: [
+		{
+			...typeAnnotated('type Lookup = Map<string, number>; type Alias = Lookup; { type Lookup = Alias; function f(map: Lookup) { return map.get(key) !== undefined; } }'),
+			errors: 1,
+			output: 'type Lookup = Map<string, number>; type Alias = Lookup; { type Lookup = Alias; function f(map: Lookup) { return map.has(key); } }',
+		},
+		{
+			...typeAnnotated('type Value = number; type Alias = Value; { type Value = Alias; function f(map: Map<string, Value>) { return map.get(key) !== undefined; } }'),
+			errors: 1,
+			output: 'type Value = number; type Alias = Value; { type Value = Alias; function f(map: Map<string, Value>) { return map.has(key); } }',
+		},
+	],
+});

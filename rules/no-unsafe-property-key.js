@@ -290,14 +290,14 @@ function getTypeName(typeName) {
 	}
 }
 
-function isUnsafeInterfaceTypeAnnotation(node, scope, sourceCode, visitedTypeNames) {
+function isUnsafeInterfaceTypeAnnotation(node, scope, sourceCode, visitedTypeVariables) {
 	return node.body.body.length > 0
-		|| node.extends.some(node => isUnsafePropertyKeyTypeAnnotationWithScope({type: 'TSTypeReference', typeName: node.expression}, scope, sourceCode, visitedTypeNames));
+		|| node.extends.some(node => isUnsafePropertyKeyTypeAnnotationWithScope({type: 'TSTypeReference', typeName: node.expression}, scope, sourceCode, visitedTypeVariables));
 }
 
-function isUnsafePropertyKeyTypeReferenceWithScope(node, scope, sourceCode, visitedTypeNames) {
+function isUnsafePropertyKeyTypeReferenceWithScope(node, scope, sourceCode, visitedTypeVariables) {
 	const typeReferenceName = getTypeName(node.typeName);
-	if (!typeReferenceName || visitedTypeNames.has(typeReferenceName)) {
+	if (!typeReferenceName) {
 		return false;
 	}
 
@@ -305,10 +305,13 @@ function isUnsafePropertyKeyTypeReferenceWithScope(node, scope, sourceCode, visi
 		return true;
 	}
 
-	visitedTypeNames.add(typeReferenceName);
-
 	const typeVariable = getVariableByName(typeReferenceName, scope);
-	const [definition] = typeVariable?.defs ?? [];
+	if (!typeVariable || visitedTypeVariables.has(typeVariable)) {
+		return false;
+	}
+
+	visitedTypeVariables.add(typeVariable);
+	const [definition] = typeVariable.defs;
 	let isUnsafe = false;
 	const definitionScope = definition ? sourceCode.getScope(definition.name) : scope;
 
@@ -316,31 +319,31 @@ function isUnsafePropertyKeyTypeReferenceWithScope(node, scope, sourceCode, visi
 		definition?.type === 'Type'
 		&& definition.node.type === 'TSTypeAliasDeclaration'
 	) {
-		isUnsafe = isUnsafePropertyKeyTypeAnnotationWithScope(definition.node.typeAnnotation, definitionScope, sourceCode, visitedTypeNames);
+		isUnsafe = isUnsafePropertyKeyTypeAnnotationWithScope(definition.node.typeAnnotation, definitionScope, sourceCode, visitedTypeVariables);
 	} else if (
 		definition?.type === 'Type'
 		&& definition.node.type === 'TSInterfaceDeclaration'
 	) {
-		isUnsafe = isUnsafeInterfaceTypeAnnotation(definition.node, definitionScope, sourceCode, visitedTypeNames);
+		isUnsafe = isUnsafeInterfaceTypeAnnotation(definition.node, definitionScope, sourceCode, visitedTypeVariables);
 	} else if (definition?.type === 'ClassName') {
 		isUnsafe = true;
 	}
 
-	visitedTypeNames.delete(typeReferenceName);
+	visitedTypeVariables.delete(typeVariable);
 
 	return isUnsafe;
 }
 
-function isUnsafePropertyKeyTypeAnnotationWithScope(node, scope, sourceCode, visitedTypeNames = new Set()) {
+function isUnsafePropertyKeyTypeAnnotationWithScope(node, scope, sourceCode, visitedTypeVariables = new Set()) {
 	switch (node?.type) {
 		case 'TSTypeAnnotation':
 		case 'TSParenthesizedType': {
-			return isUnsafePropertyKeyTypeAnnotationWithScope(node.typeAnnotation, scope, sourceCode, visitedTypeNames);
+			return isUnsafePropertyKeyTypeAnnotationWithScope(node.typeAnnotation, scope, sourceCode, visitedTypeVariables);
 		}
 
 		case 'TSTypeOperator': {
 			return node.operator === 'readonly'
-				&& isUnsafePropertyKeyTypeAnnotationWithScope(node.typeAnnotation, scope, sourceCode, visitedTypeNames);
+				&& isUnsafePropertyKeyTypeAnnotationWithScope(node.typeAnnotation, scope, sourceCode, visitedTypeVariables);
 		}
 
 		case 'TSTypeLiteral': {
@@ -348,15 +351,15 @@ function isUnsafePropertyKeyTypeAnnotationWithScope(node, scope, sourceCode, vis
 		}
 
 		case 'TSTypeReference': {
-			return isUnsafePropertyKeyTypeReferenceWithScope(node, scope, sourceCode, visitedTypeNames);
+			return isUnsafePropertyKeyTypeReferenceWithScope(node, scope, sourceCode, visitedTypeVariables);
 		}
 
 		case 'TSUnionType': {
-			return node.types.some(node => isUnsafePropertyKeyTypeAnnotationWithScope(node, scope, sourceCode, visitedTypeNames));
+			return node.types.some(node => isUnsafePropertyKeyTypeAnnotationWithScope(node, scope, sourceCode, visitedTypeVariables));
 		}
 
 		case 'TSIntersectionType': {
-			return node.types.every(node => isUnsafePropertyKeyTypeAnnotationWithScope(node, scope, sourceCode, visitedTypeNames));
+			return node.types.every(node => isUnsafePropertyKeyTypeAnnotationWithScope(node, scope, sourceCode, visitedTypeVariables));
 		}
 
 		default: {

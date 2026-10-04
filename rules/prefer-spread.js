@@ -464,8 +464,7 @@ function isKnownBufferReference(node, context) {
 	);
 }
 
-function getTypeReferenceDefinitionState(typeName, scope, visitedTypeNames) {
-	const variable = getVariableByName(typeName, scope);
+function getTypeReferenceDefinitionState(typeName, variable, visitedTypeVariables) {
 	const [definition] = variable?.defs ?? [];
 
 	if (!definition) {
@@ -489,12 +488,12 @@ function getTypeReferenceDefinitionState(typeName, scope, visitedTypeNames) {
 	}
 
 	if (definition.node.type === 'TSTypeAliasDeclaration') {
-		return getTypeAnnotationArrayState(definition.node.typeAnnotation, scope, visitedTypeNames);
+		return getTypeAnnotationArrayState(definition.node.typeAnnotation, variable.scope, visitedTypeVariables);
 	}
 
 	if (definition.node.type === 'TSTypeParameter') {
 		return definition.node.constraint
-			? getTypeAnnotationArrayState(definition.node.constraint, scope, visitedTypeNames)
+			? getTypeAnnotationArrayState(definition.node.constraint, variable.scope, visitedTypeVariables)
 			: undefined;
 	}
 
@@ -527,7 +526,7 @@ function getTypeNameNamespaceIdentifierName(node) {
 		: node.name;
 }
 
-function getTypeReferenceArrayState(node, scope, visitedTypeNames) {
+function getTypeReferenceArrayState(node, scope, visitedTypeVariables) {
 	if (node.typeName.type === 'TSQualifiedName') {
 		if (
 			knownNonArrayTypeNames.has(getTypeNameIdentifierName(node.typeName))
@@ -549,24 +548,25 @@ function getTypeReferenceArrayState(node, scope, visitedTypeNames) {
 		return true;
 	}
 
-	if (visitedTypeNames.has(name)) {
+	const variable = getVariableByName(name, scope);
+	if (visitedTypeVariables.has(variable)) {
 		return;
 	}
 
-	visitedTypeNames.add(name);
-	const state = getTypeReferenceDefinitionState(name, scope, visitedTypeNames);
-	visitedTypeNames.delete(name);
+	visitedTypeVariables.add(variable);
+	const state = getTypeReferenceDefinitionState(name, variable, visitedTypeVariables);
+	visitedTypeVariables.delete(variable);
 
 	return state;
 }
 
-function getTypeAnnotationArrayState(node, scope, visitedTypeNames = new Set()) {
+function getTypeAnnotationArrayState(node, scope, visitedTypeVariables = new Set()) {
 	if (!node || unknownTypeAnnotationTypes.has(node.type)) {
 		return;
 	}
 
 	if (transparentTypeAnnotationTypes.has(node.type)) {
-		return getTypeAnnotationArrayState(node.typeAnnotation, scope, visitedTypeNames);
+		return getTypeAnnotationArrayState(node.typeAnnotation, scope, visitedTypeVariables);
 	}
 
 	if (arrayTypeAnnotationTypes.has(node.type)) {
@@ -575,12 +575,12 @@ function getTypeAnnotationArrayState(node, scope, visitedTypeNames = new Set()) 
 
 	if (node.type === 'TSTypeOperator') {
 		return node.operator === 'readonly'
-			? getTypeAnnotationArrayState(node.typeAnnotation, scope, visitedTypeNames)
+			? getTypeAnnotationArrayState(node.typeAnnotation, scope, visitedTypeVariables)
 			: false;
 	}
 
 	if (node.type === 'TSTypeReference') {
-		return getTypeReferenceArrayState(node, scope, visitedTypeNames);
+		return getTypeReferenceArrayState(node, scope, visitedTypeVariables);
 	}
 
 	if (
@@ -592,11 +592,11 @@ function getTypeAnnotationArrayState(node, scope, visitedTypeNames = new Set()) 
 	}
 
 	if (node.type === 'TSUnionType') {
-		return getUnionArrayState(node.types.map(type => getTypeAnnotationArrayState(type, scope, visitedTypeNames)));
+		return getUnionArrayState(node.types.map(type => getTypeAnnotationArrayState(type, scope, visitedTypeVariables)));
 	}
 
 	if (node.type === 'TSIntersectionType') {
-		return getIntersectionArrayState(node.types.map(type => getTypeAnnotationArrayState(type, scope, visitedTypeNames)));
+		return getIntersectionArrayState(node.types.map(type => getTypeAnnotationArrayState(type, scope, visitedTypeVariables)));
 	}
 
 	if (nonArrayTypeAnnotationTypes.has(node.type)) {
@@ -608,7 +608,7 @@ function getIdentifierAnnotationArrayState(node, context) {
 	const variable = findVariable(context.sourceCode.getScope(node), node);
 
 	for (const definition of variable?.defs ?? []) {
-		const state = getTypeAnnotationArrayState(definition.name?.typeAnnotation, context.sourceCode.getScope(node));
+		const state = getTypeAnnotationArrayState(definition.name?.typeAnnotation, context.sourceCode.getScope(definition.name));
 
 		if (state !== undefined) {
 			return state;

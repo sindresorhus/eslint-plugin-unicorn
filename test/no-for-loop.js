@@ -1905,3 +1905,19 @@ test({
 		typeAware(typeAwareLoop('function foo<T extends {items: string[]}>(items: T[\'items\']) {') + '\n}', typeAwareLoopFixed('function foo<T extends {items: string[]}>(items: T[\'items\']) {') + '\n}'),
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'type List = HTMLCollection; type Alias = List; { type List = Alias; function f(list: List) { for (let i = 0; i < list.length; i++) { console.log(i, list[i]); } } }',
+			languageOptions: {parser: typescriptEslintParser},
+			errors: 1,
+		},
+		{
+			code: 'type List = HTMLCollection; type Alias = List; { type List = string[]; function f(list: Alias) { for (let i = 0; i < list.length; i++) { console.log(i, list[i]); } } }',
+			languageOptions: {parser: typescriptEslintParser},
+			errors: 1,
+		},
+	],
+});

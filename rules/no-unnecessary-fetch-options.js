@@ -333,6 +333,7 @@ function getInputTypeState(type, checker, program, seen = new Set()) {
 		return unknown;
 	}
 
+	seen = new Set(seen);
 	seen.add(type);
 
 	if (type.isUnion()) {

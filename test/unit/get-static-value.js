@@ -155,11 +155,25 @@ test('returns static regular expressions only for safe expressions', t => {
 });
 
 test('does not recurse forever through cyclic constant aliases', t => {
-	const result = evaluate(
+	for (const code of [
+		'const value = value; const result = value;',
+		'const first = second; const second = first; const result = first;',
+		'const first = {value: second}; const second = {value: first}; const result = first;',
 		'const first = Object.freeze(second); const second = Object.freeze(first); const result = first;',
-		getStaticValueIfNoSideEffects,
-	);
-	t.assert.strictEqual(result, undefined);
+	]) {
+		t.assert.strictEqual(evaluate(code, getStaticValueIfNoSideEffects), undefined, code);
+		t.assert.strictEqual(evaluate(code, getStaticValueForControlFlow), undefined, code);
+		t.assert.strictEqual(evaluate(code, hasPotentiallyMutableMemberAccess), true, code);
+	}
+
+	for (const [code, expected] of [
+		['const value = true; const alias = value; const result = [alias, alias];', [true, true]],
+		['const value = true; const alias = Object.freeze(value); const result = Object.freeze([alias, alias]);', [true, true]],
+	]) {
+		t.assert.deepStrictEqual(evaluate(code, getStaticValueIfNoSideEffects)?.value, expected, code);
+		t.assert.deepStrictEqual(evaluate(code, getStaticValueForControlFlow)?.value, expected, code);
+		t.assert.strictEqual(evaluate(code, hasPotentiallyMutableMemberAccess), false, code);
+	}
 });
 
 test('rejects side-effectful calls before static evaluation', t => {

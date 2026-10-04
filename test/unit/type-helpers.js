@@ -121,3 +121,24 @@ test('type information uses the base constraint of an indexed access type', t =>
 test('type information without a symbol is unknown', t => {
 	t.assert.deepStrictEqual(getTypes('declare const object: {x: \'a\'; y: [number]}; check(object.x); check(object.y);', {}, {typeAware: true}), [unknown, unknown]);
 });
+
+test('class aliases resolve in their declaration scope', t => {
+	const options = {checkClassSyntax: true};
+	t.assert.deepStrictEqual(getTypes('class Base extends Foo {} const Alias = Base; { class Base extends Alias {} check(new Base()); }', options), [target]);
+	t.assert.deepStrictEqual(getTypes('class Base extends Foo {} const Alias = class extends Base {}; { class Base {} check(new Alias()); }', options), [target]);
+	t.assert.deepStrictEqual(getTypes('class Base {} const Alias = class extends Base {}; { class Base extends Foo {} check(new Alias()); }', options), [nonTarget]);
+});
+
+test('terminates recursive aliases and inheritance without suppressing repeated concrete types', t => {
+	t.assert.deepStrictEqual(getTypes('type Cycle = Cycle; type First = Second; type Second = First; function f(a: Cycle, b: First) { check(a); check(b); }', {}), [unknown, unknown]);
+	t.assert.deepStrictEqual(getTypes('interface First extends Second {} interface Second extends First {} function f(a: First) { check(a); }', {}), [unknown]);
+	t.assert.deepStrictEqual(getTypes('function f<T extends U, U extends T>(a: T) { check(a); }', {}), [unknown]);
+	t.assert.deepStrictEqual(getTypes('type Alias = Foo; type Union = Alias | Alias; interface First extends Foo {} interface Second extends First, Foo {} function f(a: Union, b: Second) { check(a); check(b); }', {}), [target, target]);
+	t.assert.deepStrictEqual(getTypes('const first = second; const second = first; check(first); check(second); const value: Foo = source; const alias = value; check(condition ? alias : alias);', {}), [unknown, unknown, target]);
+	t.assert.deepStrictEqual(getTypes('class First extends Second {} class Second extends First {} const Alias = First; check(new Alias());', {checkClassSyntax: true}), [unknown]);
+});
+
+test('type information handles cyclic constraints and concrete inheritance', t => {
+	t.assert.deepStrictEqual(getTypes('function f<T extends U, U extends T>(a: {value: T}) { check(a.value); }', {}, {typeAware: true}), [unknown]);
+	t.assert.deepStrictEqual(getTypes('class Foo { foo = 1; } class First extends Foo {} class Second extends First {} declare const object: {value: Second}; check(object.value);', {}, {typeAware: true}), [target]);
+});

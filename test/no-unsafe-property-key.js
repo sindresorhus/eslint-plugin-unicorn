@@ -390,3 +390,15 @@ test({
 		errors: 1,
 	})),
 });
+
+test({
+	valid: [{
+		code: 'type First = Second; type Second = First; function f(key: First) { return object[key]; }',
+		languageOptions: {parser: typescriptEslintParser},
+	}],
+	invalid: [{
+		code: 'type Key = {x: number}; type Alias = Key; { type Key = Alias; function f(key: Key) { return object[key]; } }',
+		languageOptions: {parser: typescriptEslintParser},
+		errors: 1,
+	}],
+});
