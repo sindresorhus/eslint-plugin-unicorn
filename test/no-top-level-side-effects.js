@@ -288,6 +288,7 @@ test({
 			'import React from "react"; export default React.useMemo(createComponent, []);',
 			'import React from "react"; export default React(Link);',
 			'import * as React from "react"; export default React(Link);',
+			'import * as React from "react"; export default (class React extends React.memo(Link) {});',
 			'import {memo as React} from "react"; export default React.memo(Link);',
 			'export default React.memo(Link);',
 			'function memo(value) { return value; } export default memo(Link);',
@@ -547,6 +548,11 @@ test({
 			code: 'import {defineConfig} from "@company/config"; export default defineConfig({});\ninit();',
 			options: allowOptions,
 			errors: [{messageId: 'no-top-level-side-effects', line: 2}],
+		},
+		{
+			code: 'import {defineConfig as configure} from "@company/config"; export default configure({});',
+			options: [{allow: {'@company/config': ['configure']}}],
+			errors: [{messageId: 'no-top-level-side-effects'}],
 		},
 	],
 });
