@@ -6,7 +6,7 @@ const messages = {
 	[MESSAGE_ID]: 'Do not use top-level side effects in exported modules.',
 };
 
-const knownPureMethods = new Map([
+const knownPureExports = new Map([
 	['react', new Set([
 		'memo',
 		'forwardRef',
@@ -65,7 +65,7 @@ const isInScriptSetup = (node, scriptSetupRange, sourceCode) => {
 	return scriptSetupRange[0] <= nodeRange[0] && nodeRange[1] <= scriptSetupRange[1];
 };
 
-const isKnownPureCall = (node, sourceCode, pureMethods) => {
+const isKnownPureCall = (node, sourceCode, pureExports) => {
 	if (node.type !== 'CallExpression' || node.optional) {
 		return false;
 	}
@@ -91,40 +91,40 @@ const isKnownPureCall = (node, sourceCode, pureMethods) => {
 			return false;
 		}
 
-		const methods = pureMethods.get(definition.parent.source.value);
-		if (!methods) {
+		const exportNames = pureExports.get(definition.parent.source.value);
+		if (!exportNames) {
 			return false;
 		}
 
 		const specifier = definition.node;
 		if (isMember) {
-			return methods.has(callee.property.name) && (specifier.type === 'ImportDefaultSpecifier' || specifier.type === 'ImportNamespaceSpecifier');
+			return exportNames.has(callee.property.name) && (specifier.type === 'ImportDefaultSpecifier' || specifier.type === 'ImportNamespaceSpecifier');
 		}
 
-		return (specifier.type === 'ImportDefaultSpecifier' && methods.has('default'))
-			|| (specifier.type === 'ImportSpecifier' && methods.has(specifier.imported.name ?? specifier.imported.value));
+		return (specifier.type === 'ImportDefaultSpecifier' && exportNames.has('default'))
+			|| (specifier.type === 'ImportSpecifier' && exportNames.has(specifier.imported.name ?? specifier.imported.value));
 	}) ?? false;
 };
 
-const hasExpressionSideEffect = (node, sourceCode, pureMethods) => {
+const hasExpressionSideEffect = (node, sourceCode, pureExports) => {
 	node = unwrapTypeScriptExpression(node);
 
-	if (isKnownPureCall(node, sourceCode, pureMethods)) {
-		return node.arguments.some(argument => hasExpressionSideEffect(argument, sourceCode, pureMethods));
+	if (isKnownPureCall(node, sourceCode, pureExports)) {
+		return node.arguments.some(argument => hasExpressionSideEffect(argument, sourceCode, pureExports));
 	}
 
 	return node.type === 'TaggedTemplateExpression'
 		|| hasSideEffect(node, sourceCode);
 };
 
-const hasTopLevelSideEffect = (node, sourceCode, pureMethods) => {
+const hasTopLevelSideEffect = (node, sourceCode, pureExports) => {
 	node = unwrapTypeScriptExpression(node);
 
 	if (node.type === 'ClassExpression') {
-		return node.superClass ? hasTopLevelSideEffect(node.superClass, sourceCode, pureMethods) : false;
+		return node.superClass ? hasTopLevelSideEffect(node.superClass, sourceCode, pureExports) : false;
 	}
 
-	return hasExpressionSideEffect(node, sourceCode, pureMethods);
+	return hasExpressionSideEffect(node, sourceCode, pureExports);
 };
 
 /**
@@ -133,9 +133,9 @@ const hasTopLevelSideEffect = (node, sourceCode, pureMethods) => {
 const create = context => {
 	const {sourceCode} = context;
 	const {allow} = context.options[0];
-	const pureMethods = new Map(knownPureMethods);
-	for (const [source, methods] of Object.entries(allow)) {
-		pureMethods.set(source, new Set([...pureMethods.get(source) ?? [], ...methods]));
+	const pureExports = new Map(knownPureExports);
+	for (const [source, exportNames] of Object.entries(allow)) {
+		pureExports.set(source, new Set([...pureExports.get(source) ?? [], ...exportNames]));
 	}
 
 	const scriptSetupRange = getScriptSetupRange(sourceCode);
@@ -152,7 +152,7 @@ const create = context => {
 			|| node.parent.type !== 'Program'
 			|| isInScriptSetup(node, scriptSetupRange, sourceCode)
 			|| isAllowedAssignment(node.expression)
-			|| !hasTopLevelSideEffect(node.expression, sourceCode, pureMethods)
+			|| !hasTopLevelSideEffect(node.expression, sourceCode, pureExports)
 		) {
 			return;
 		}
@@ -171,7 +171,7 @@ const create = context => {
 			|| (declaration.type === 'FunctionDeclaration' || declaration.type === 'ClassDeclaration')
 			|| isInScriptSetup(node, scriptSetupRange, sourceCode)
 			|| isAllowedAssignment(declaration)
-			|| !hasTopLevelSideEffect(declaration, sourceCode, pureMethods)
+			|| !hasTopLevelSideEffect(declaration, sourceCode, pureExports)
 		) {
 			return;
 		}
@@ -199,7 +199,7 @@ const config = {
 			properties: {
 				allow: {
 					type: 'object',
-					description: 'Additional pure helper names by import source.',
+					description: 'Additional pure export names by import source.',
 					additionalProperties: {
 						type: 'array',
 						items: {
