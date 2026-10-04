@@ -38,7 +38,7 @@ class Foo {
 
 ### Bound methods
 
-For a single, standalone constructor binding, the rule suggests a private arrow-function field and removes the `.bind(this)` assignment. Review initialization order: the field is initialized at its declaration, before the constructor body. Generators, generic or decorated signatures, and methods using `arguments`, `new.target`, or `eval` require manual changes.
+The rule suggests replacing a single standalone constructor `.bind(this)` assignment with a private arrow-function field. Review initialization order: fields initialize at their declaration, before the constructor body. Generators, generic or decorated signatures, and methods using `arguments`, `new.target`, or `eval` need manual conversion.
 
 ```js
 class Foo {
