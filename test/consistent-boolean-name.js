@@ -107,6 +107,18 @@ test({
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
+			name: 'concrete generic rebinding preserves parameter references when suggesting a rename',
+			code: 'type Id<A> = A; type Inner<A, B> = A; type Outer<B> = Inner<() => Id<B>, B>; function f(completed: Outer<boolean>) { return completed(); }',
+			options: [onlyIsPrefixOptions],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					output: 'type Id<A> = A; type Inner<A, B> = A; type Outer<B> = Inner<() => Id<B>, B>; function f(isCompleted: Outer<boolean>) { return isCompleted(); }',
+				}],
+			}],
+		}),
+		typescript({
 			code: 'type Id<A> = A; type Inner<A, B> = A; type Outer<B> = Inner<{(): Promise<Id<B>>}, B>; function f(completed: Outer<boolean>, isReady: Outer<string>) {}',
 			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
 		}),
