@@ -579,7 +579,7 @@ const isAbortSignalTypeReferenceAnnotation = (typeAnnotation, context, visitedTy
 	}
 
 	visitedTypeVariables.add(variable);
-	const definition = variable?.defs[0];
+	const definition = variable.defs[0];
 	const isAbortSignal = definition?.type === 'Type'
 		&& definition.node.type === 'TSTypeAliasDeclaration'
 		&& isAbortSignalTypeAnnotation(definition.node.typeAnnotation, context, visitedTypeVariables);
@@ -617,7 +617,7 @@ const getAbortSignalArrayTypeReferenceAnnotationState = (typeAnnotation, context
 	}
 
 	visitedTypeVariables.add(variable);
-	const definition = variable?.defs[0];
+	const definition = variable.defs[0];
 	let typeAnnotationState;
 	if (
 		definition?.type === 'Type'
@@ -678,9 +678,7 @@ const isReadonlyArrayTypeAnnotation = (typeAnnotation, context, visitedTypeVaria
 		return true;
 	}
 
-	if (
-		typeAnnotation.typeName.type !== 'Identifier'
-	) {
+	if (typeAnnotation.typeName.type !== 'Identifier') {
 		return false;
 	}
 
@@ -690,7 +688,7 @@ const isReadonlyArrayTypeAnnotation = (typeAnnotation, context, visitedTypeVaria
 	}
 
 	visitedTypeVariables.add(variable);
-	const definition = variable?.defs[0];
+	const definition = variable.defs[0];
 	return definition?.type === 'Type'
 		&& definition.node.type === 'TSTypeAliasDeclaration'
 		&& isReadonlyArrayTypeAnnotation(definition.node.typeAnnotation, context, visitedTypeVariables);

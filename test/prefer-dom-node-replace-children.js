@@ -167,6 +167,11 @@ document.createElement(options.tagName).innerHTML = '';`,
 			output: 'element.replaceChildren("first", "second");',
 		},
 		{
+			code: 'const node = element; node.replaceChildren(); node.append("text");',
+			errors: [replaceAndAddError],
+			output: 'const node = element; node.replaceChildren("text");',
+		},
+		{
 			code: 'this.replaceChildren();\nthis.append("text");',
 			errors: [replaceAndAddError],
 			output: 'this.replaceChildren("text");',
@@ -294,6 +299,16 @@ document.createElement(options.tagName).innerHTML = '';`,
 				suggestions: [{
 					...replaceAndAddSuggestion,
 					output: 'document.replaceChildren("text");',
+				}],
+			}],
+		},
+		{
+			code: 'const node = document; node.replaceChildren(); node.append("text");',
+			errors: [{
+				...replaceAndAddError,
+				suggestions: [{
+					...replaceAndAddSuggestion,
+					output: 'const node = document; node.replaceChildren("text");',
 				}],
 			}],
 		},

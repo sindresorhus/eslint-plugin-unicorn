@@ -1130,3 +1130,16 @@ test({
 		errors: 1,
 	})),
 });
+
+// Receiver annotations resolve at their declaration, even when used in another scope.
+test({
+	valid: [{
+		code: 'type Context = string; declare const drawing: Context; { type Context = CanvasRenderingContext2D; for (const item of items) { drawing.moveTo(0, 0); drawing.lineTo(1, 1); drawing.stroke(); } }',
+		languageOptions: {parser: parsers.typescript},
+	}],
+	invalid: [{
+		code: 'type Context = CanvasRenderingContext2D; declare const drawing: Context; { type Context = string; for (const item of items) { drawing.moveTo(0, 0); drawing.lineTo(1, 1); drawing.stroke(); } }',
+		languageOptions: {parser: parsers.typescript},
+		errors: 1,
+	}],
+});

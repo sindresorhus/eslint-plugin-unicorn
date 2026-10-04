@@ -82,6 +82,16 @@ test({
 		typeAware('type Id<T> = T; type Fn<A, B> = () => B; function f<A, B>(g: Fn<Id<B>, Id<A>>) {}'),
 	],
 	invalid: [
+		typeAware({
+			name: 'type-aware finite nested generic aliases resolve concrete values',
+			code: 'type Id<T> = T; type Value<T> = Id<T>; function f(completed: Value<Value<boolean>>, isReady: Value<Value<string>>) {}',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			name: 'type-aware finite nested generic aliases resolve repeated identity wrappers',
+			code: 'type Id<T> = T; type Value<T> = Id<Id<T>>; function f(completed: Value<Value<boolean>>, isReady: Value<Value<string>>) {}',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+		}),
 		typescript({
 			name: 'sibling type arguments sharing a concrete type resolve independently',
 			code: [

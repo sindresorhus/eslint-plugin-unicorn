@@ -57,6 +57,8 @@ This rule intentionally does not check destructuring bindings, imports, class na
 
 TypeScript type annotation checks resolve local type aliases and callable interfaces, including generic type parameters, but not qualified or namespaced type references.
 
+Without TypeScript type information, nested generic alias resolution is best effort. Some finite nested instantiations may be treated as unknown.
+
 This rule is only automatically fixable when a non-global, non-exported, non-ambient variable binding can be safely renamed to the first enabled prefix without adding a collision suffix. Other safe rename candidates are still provided as editor suggestions.
 
 ## Examples

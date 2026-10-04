@@ -300,8 +300,7 @@ const isMutableVariableWithWrite = (definition, variable) =>
 	&& hasWriteAfterInitialization(variable);
 
 const getTypeFromVariable = (node, context, visitedVariables) => {
-	const scope = context.sourceCode.getScope(node);
-	const variable = findVariable(scope, node);
+	const variable = findVariable(context.sourceCode.getScope(node), node);
 
 	if (
 		!variable
@@ -315,7 +314,7 @@ const getTypeFromVariable = (node, context, visitedVariables) => {
 
 	const [definition] = variable.defs;
 	const hasTypeAnnotation = Boolean(definition.name?.typeAnnotation);
-	const typeFromAnnotation = getTypeAnnotationType(definition.name?.typeAnnotation, scope);
+	const typeFromAnnotation = getTypeAnnotationType(definition.name?.typeAnnotation, context.sourceCode.getScope(definition.name));
 	let type = unknown;
 
 	if (hasTypeAnnotation) {

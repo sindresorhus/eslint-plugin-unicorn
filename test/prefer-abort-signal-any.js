@@ -1057,12 +1057,18 @@ test.snapshot({
 	],
 });
 
-// A typed array binding can reach suggestion generation even when its initializer is cyclic.
+// A type-annotated array binding can reach suggestion generation even when its initializer is cyclic.
 test({
 	valid: [syntaxTypeScript('const signals: AbortSignal[] = other; const other: AbortSignal[] = signals; const abortController = new AbortController(); for (const signal of signals) { signal.addEventListener("abort", () => abortController.abort()); } fetch(url, {signal: abortController.signal});')],
 	invalid: [{
 		...syntaxTypeScript('const signals: AbortSignal[] = signals; const abortController = new AbortController(); for (const signal of signals) { signal.addEventListener("abort", () => abortController.abort()); } fetch(url, {signal: abortController.signal});'),
-		errors: 1,
+		errors: [{
+			messageId: 'prefer-abort-signal-any',
+			suggestions: [{
+				messageId: 'prefer-abort-signal-any/suggestion',
+				output: 'const signals: AbortSignal[] = signals; const abortSignal = AbortSignal.any(signals);  fetch(url, {signal: abortSignal});',
+			}],
+		}],
 	}],
 });
 
@@ -1072,11 +1078,23 @@ test({
 	invalid: [
 		{
 			...syntaxTypeScript('type Signal = AbortSignal; type Alias = Signal; { type Signal = Alias; const signals: Signal[] = source; const abortController = new AbortController(); for (const signal of signals) { signal.addEventListener("abort", () => abortController.abort()); } fetch(url, {signal: abortController.signal}); }'),
-			errors: 1,
+			errors: [{
+				messageId: 'prefer-abort-signal-any',
+				suggestions: [{
+					messageId: 'prefer-abort-signal-any/suggestion',
+					output: 'type Signal = AbortSignal; type Alias = Signal; { type Signal = Alias; const signals: Signal[] = source; const abortSignal = AbortSignal.any(signals);  fetch(url, {signal: abortSignal}); }',
+				}],
+			}],
 		},
 		{
 			...syntaxTypeScript('type Signals = AbortSignal[]; type Alias = Signals; { type Signals = Alias; const signals: Signals = source; const abortController = new AbortController(); for (const signal of signals) { signal.addEventListener("abort", () => abortController.abort()); } fetch(url, {signal: abortController.signal}); }'),
-			errors: 1,
+			errors: [{
+				messageId: 'prefer-abort-signal-any',
+				suggestions: [{
+					messageId: 'prefer-abort-signal-any/suggestion',
+					output: 'type Signals = AbortSignal[]; type Alias = Signals; { type Signals = Alias; const signals: Signals = source; const abortSignal = AbortSignal.any(signals);  fetch(url, {signal: abortSignal}); }',
+				}],
+			}],
 		},
 		{
 			...syntaxTypeScript('type Signals = readonly AbortSignal[]; type Alias = Signals; { type Signals = Alias; const signals = source as Signals; const abortController = new AbortController(); for (const signal of signals) { signal.addEventListener("abort", () => abortController.abort()); } fetch(url, {signal: abortController.signal}); }'),

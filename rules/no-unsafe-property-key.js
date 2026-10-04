@@ -311,7 +311,7 @@ function isUnsafePropertyKeyTypeReferenceWithScope(node, scope, sourceCode, visi
 	}
 
 	visitedTypeVariables.add(typeVariable);
-	const [definition] = typeVariable?.defs ?? [];
+	const [definition] = typeVariable.defs;
 	let isUnsafe = false;
 	const definitionScope = definition ? sourceCode.getScope(definition.name) : scope;
 
