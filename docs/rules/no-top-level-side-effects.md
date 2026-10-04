@@ -117,11 +117,14 @@ Extend the built-ins by mapping exact import sources to pure exported function n
 export default [
 	{
 		rules: {
-			'unicorn/no-top-level-side-effects': ['error', {
-				allow: {
-					'@company/config': ['defineConfig'],
+			'unicorn/no-top-level-side-effects': [
+				'error',
+				{
+					allow: {
+						'@company/config': ['defineConfig'],
+					},
 				},
-			}],
+			],
 		},
 	},
 ];
