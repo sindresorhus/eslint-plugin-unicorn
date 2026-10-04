@@ -101,7 +101,7 @@ export default React.memo<Props>(Link);
 Type: `object`\
 Default: `{}`
 
-Extend the built-ins by mapping exact import sources to pure export names. Arguments remain checked; default-imported functions are unsupported.
+Extend the built-ins by mapping exact import sources to pure export names. Use `'default'` for default imports. Arguments remain checked.
 
 ```js
 'unicorn/no-top-level-side-effects': [
@@ -109,6 +109,7 @@ Extend the built-ins by mapping exact import sources to pure export names. Argum
 	{
 		allow: {
 			'@company/config': ['defineConfig'],
+			'@company/wrapper': ['default'],
 		},
 	},
 ]

@@ -97,9 +97,12 @@ const isKnownPureCall = (node, sourceCode, pureMethods) => {
 		}
 
 		const specifier = definition.node;
-		return isMember
-			? methods.has(callee.property.name) && (specifier.type === 'ImportDefaultSpecifier' || specifier.type === 'ImportNamespaceSpecifier')
-			: specifier.type === 'ImportSpecifier' && methods.has(specifier.imported.name ?? specifier.imported.value);
+		if (isMember) {
+			return methods.has(callee.property.name) && (specifier.type === 'ImportDefaultSpecifier' || specifier.type === 'ImportNamespaceSpecifier');
+		}
+
+		return (specifier.type === 'ImportDefaultSpecifier' && methods.has('default'))
+			|| (specifier.type === 'ImportSpecifier' && methods.has(specifier.imported.name ?? specifier.imported.value));
 	}) ?? false;
 };
 

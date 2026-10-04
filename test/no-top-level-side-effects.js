@@ -462,6 +462,34 @@ test({
 	].map(code => ({code, errors: [{messageId: 'no-top-level-side-effects'}]})),
 });
 
+const defaultAllowOptions = [{allow: {'@company/wrapper': ['default']}}];
+
+test({
+	valid: [
+		'import wrap from "@company/wrapper"; export default wrap(Component);',
+		'import configure from "@company/wrapper"; export {}; configure({});',
+		'import {default as wrap} from "@company/wrapper"; export default wrap(Component);',
+		'import * as helpers from "@company/wrapper"; export default helpers.default(Component);',
+		'import wrap from "@company/wrapper"; export default wrap(wrap(Component));',
+		typescriptCode('import wrap from "@company/wrapper"; export default wrap<Props>(Component) satisfies Component;'),
+	].map(testCase => ({...(typeof testCase === 'string' ? {code: testCase} : testCase), options: defaultAllowOptions})),
+	invalid: [
+		...[
+			'import wrap from "@company/wrapper"; export default wrap(initialize());',
+			'import wrap from "@company/wrapper"; export {}; wrap({value: initialize()});',
+			'import wrap from "@company/other"; export default wrap(Component);',
+			'import {wrap} from "@company/wrapper"; export default wrap(Component);',
+			'import wrap from "@company/wrapper"; export default wrap?.(Component);',
+			'import * as helpers from "@company/wrapper"; export default helpers(Component);',
+		].map(code => ({code, options: defaultAllowOptions, errors: [{messageId: 'no-top-level-side-effects'}]})),
+		{
+			...typescriptCode('import type wrap from "@company/wrapper"; export default wrap(Component);'),
+			options: defaultAllowOptions,
+			errors: [{messageId: 'no-top-level-side-effects'}],
+		},
+	],
+});
+
 const allowOptions = [{allow: {'@company/config': ['defineConfig', 'wrap'], react: ['custom']}}];
 
 nodeTest('validates the allow option schema', t => {
@@ -534,6 +562,7 @@ test({
 	],
 	invalid: [
 		'import {defineConfig} from "@company/config"; export default defineConfig({});',
+		'import wrap from "@company/wrapper"; export default wrap(Component);',
 		'import {custom} from "react"; export default custom(Component);',
 	].map(code => ({code, errors: [{messageId: 'no-top-level-side-effects'}]})),
 });
