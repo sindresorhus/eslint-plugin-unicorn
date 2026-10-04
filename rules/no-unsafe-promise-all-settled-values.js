@@ -1,6 +1,13 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
-import {isMethodCall} from './ast/index.js';
-import {isBranchExit, isProcessExitBranch, trackBranchExits} from './utils/index.js';
+import {isFunction, isMethodCall} from './ast/index.js';
+import {
+	getFunctionReturnExpression,
+	isBranchExit,
+	isProcessExitBranch,
+	trackBranchExits,
+	unwrapChainAndTypeScriptExpression,
+	withTypeInformation,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unsafe-promise-all-settled-values';
 
@@ -17,30 +24,8 @@ const promiseFulfilledResultTypeNames = new Set([
 	'PromiseFulfilledResult',
 ]);
 
-const transparentExpressionTypes = new Set([
-	'ChainExpression',
-	'ParenthesizedExpression',
-	'TSAsExpression',
-	'TSSatisfiesExpression',
-	'TSNonNullExpression',
-	'TSTypeAssertion',
-]);
-
-const isFunction = node =>
-	node?.type === 'ArrowFunctionExpression'
-	|| node?.type === 'FunctionExpression'
-	|| node?.type === 'FunctionDeclaration';
-
-const unwrapExpression = node => {
-	while (node && transparentExpressionTypes.has(node.type)) {
-		node = node.expression;
-	}
-
-	return node;
-};
-
 const isPromiseAllSettledCall = node =>
-	isMethodCall(unwrapExpression(node), {
+	isMethodCall(unwrapChainAndTypeScriptExpression(node), {
 		object: 'Promise',
 		method: 'allSettled',
 		argumentsLength: 1,
@@ -49,7 +34,7 @@ const isPromiseAllSettledCall = node =>
 	});
 
 const isAwaitedPromiseAllSettledCall = node => {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 	return node?.type === 'AwaitExpression' && isPromiseAllSettledCall(node.argument);
 };
 
@@ -58,7 +43,7 @@ const isReturnValue = node =>
 	&& node.parent.argument === node;
 
 const isFilterCall = node =>
-	isMethodCall(unwrapExpression(node), {
+	isMethodCall(unwrapChainAndTypeScriptExpression(node), {
 		method: 'filter',
 		minimumArguments: 1,
 		maximumArguments: 2,
@@ -158,52 +143,22 @@ function getArrayElementType(type, checker) {
 	return checker.getTypeArguments(type)[0];
 }
 
-function getTypeInformation(node, context) {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return;
-	}
-
-	try {
-		return {
-			checker: parserServices.program.getTypeChecker(),
-			type: parserServices.getTypeAtLocation(node),
-		};
-		// TypeScript can throw while resolving incomplete projects, which can not be reproduced in a test.
-		/* node:coverage ignore next */
-	} catch {}
-}
-
 function isPromiseSettledResultArrayFromTypeInformation(node, context) {
-	const typeInformation = getTypeInformation(node, context);
-	if (!typeInformation) {
-		return false;
-	}
-
-	const {type, checker} = typeInformation;
-	const elementType = getArrayElementType(type, checker);
-	return Boolean(elementType && isUnsafePromiseSettledResultType(elementType));
+	return withTypeInformation(node, context, ({type, checker}) => {
+		const elementType = getArrayElementType(type, checker);
+		return Boolean(elementType && isUnsafePromiseSettledResultType(elementType));
+	}) ?? false;
 }
 
 function isPromiseFulfilledResultFromTypeInformation(node, context) {
-	const typeInformation = getTypeInformation(node, context);
-	if (!typeInformation) {
-		return false;
-	}
-
-	const {type} = typeInformation;
-	return isPromiseFulfilledResultType(type);
+	return withTypeInformation(node, context, ({type}) => isPromiseFulfilledResultType(type)) ?? false;
 }
 
 function isPromiseFulfilledResultArrayFromTypeInformation(node, context) {
-	const typeInformation = getTypeInformation(node, context);
-	if (!typeInformation) {
-		return false;
-	}
-
-	const {type, checker} = typeInformation;
-	const elementType = getArrayElementType(type, checker);
-	return Boolean(elementType && isPromiseFulfilledResultType(elementType));
+	return withTypeInformation(node, context, ({type, checker}) => {
+		const elementType = getArrayElementType(type, checker);
+		return Boolean(elementType && isPromiseFulfilledResultType(elementType));
+	}) ?? false;
 }
 
 const isTypeAssertion = node =>
@@ -277,7 +232,7 @@ function isPromiseSettledResultArray(node, context, visitedVariables = new Set()
 		return true;
 	}
 
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	if (isAwaitedPromiseAllSettledCall(node)) {
 		return true;
@@ -299,14 +254,14 @@ function isPromiseSettledResultArray(node, context, visitedVariables = new Set()
 }
 
 const getIdentifierName = node => {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 	return node?.type === 'Identifier' ? node.name : undefined;
 };
 
 const getParameterStatusName = parameter => getParameterStatusIdentifier(parameter)?.name;
 
 const getParameterStatusIdentifier = parameter => {
-	parameter = unwrapExpression(parameter);
+	parameter = unwrapChainAndTypeScriptExpression(parameter);
 
 	if (parameter?.type !== 'ObjectPattern') {
 		return;
@@ -331,7 +286,7 @@ const getStatusLiteral = node => {
 };
 
 function isStatusReference(node, statusContext) {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	if (
 		statusContext.statusVariable
@@ -368,7 +323,7 @@ function isStatusReference(node, statusContext) {
 }
 
 function getStatusCheckKind(node, statusContext) {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	if (
 		node?.type !== 'BinaryExpression'
@@ -406,7 +361,7 @@ const isStatusUnfulfilledCheck = (node, statusContext) =>
 	getStatusCheckKind(node, statusContext) === 'unfulfilled';
 
 function hasFulfilledStatusCheckInConjunction(node, statusContext) {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	if (isStatusFulfilledCheck(node, statusContext)) {
 		return true;
@@ -421,7 +376,7 @@ function hasFulfilledStatusCheckInConjunction(node, statusContext) {
 }
 
 function hasUnfulfilledStatusCheckInDisjunction(node, statusContext) {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	if (isStatusUnfulfilledCheck(node, statusContext)) {
 		return true;
@@ -474,7 +429,7 @@ const isIfStatementFulfilledGuard = (node, child, statusContext) =>
 	);
 
 const isReturnOrThrowStatement = node => {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 	return node?.type === 'ReturnStatement' || node?.type === 'ThrowStatement';
 };
 
@@ -509,17 +464,8 @@ const isFulfilledFilterCallback = callback => {
 		entryName,
 		statusName,
 	};
-	const body = unwrapExpression(callback.body);
 
-	if (body?.type === 'BlockStatement') {
-		const [statement] = body.body;
-		return body.body.length === 1
-			&& statement.type === 'ReturnStatement'
-			&& statement.argument
-			&& hasFulfilledStatusCheckInConjunction(statement.argument, statusContext);
-	}
-
-	return hasFulfilledStatusCheckInConjunction(body, statusContext);
+	return hasFulfilledStatusCheckInConjunction(getFunctionReturnExpression(callback), statusContext);
 };
 
 function isKnownFulfilledResultArray(node, context, visitedVariables = new Set()) {
@@ -527,7 +473,7 @@ function isKnownFulfilledResultArray(node, context, visitedVariables = new Set()
 		return true;
 	}
 
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	if (isPromiseFulfilledResultArrayFromTypeInformation(node, context)) {
 		return true;
@@ -570,7 +516,7 @@ function isGuardedByFulfilledCheck(node, readContext) {
 }
 
 function isUnsafeValueRead(node, readContext) {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	return (
 		node?.type === 'MemberExpression'
@@ -600,7 +546,7 @@ function getUnsafeValueReadFromChildren(nodes, readContext) {
 }
 
 function getValueProperty(parameter) {
-	parameter = unwrapExpression(parameter);
+	parameter = unwrapChainAndTypeScriptExpression(parameter);
 
 	if (parameter?.type !== 'ObjectPattern') {
 		return;
@@ -629,7 +575,7 @@ const shouldSkipChildNode = (node, key) =>
 	);
 
 function getUnsafeValueRead(node, readContext) {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	if (
 		isUnsafeValueRead(node, readContext)
@@ -656,7 +602,7 @@ function getUnsafeValueRead(node, readContext) {
 }
 
 function isSameVariableReference(node, variable, context) {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	return node?.type === 'Identifier'
 		&& variable
@@ -664,7 +610,7 @@ function isSameVariableReference(node, variable, context) {
 }
 
 function isDerivedFromVariableThroughFilters(node, variable, context) {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	if (isSameVariableReference(node, variable, context)) {
 		return true;
@@ -675,14 +621,14 @@ function isDerivedFromVariableThroughFilters(node, variable, context) {
 }
 
 function hasFulfilledFilterInChain(node) {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	while (isFilterCall(node)) {
 		if (isFulfilledFilterCallback(node.arguments[0])) {
 			return true;
 		}
 
-		node = unwrapExpression(node.callee.object);
+		node = unwrapChainAndTypeScriptExpression(node.callee.object);
 	}
 
 	return false;
@@ -747,7 +693,7 @@ function getMapCallbackProblem(callExpression, context, {knownPromiseSettledResu
 }
 
 function getThenMapCallbackProblem(node, resultsVariable, context, branchAlwaysExits) {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	if (!node?.type || isFunction(node) || node.type === 'ClassExpression' || node.type === 'ClassDeclaration') {
 		return;

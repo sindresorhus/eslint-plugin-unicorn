@@ -1,13 +1,16 @@
 import {
 	checkVueTemplate,
 	getCommentSafeProblem,
+	getFunctionReturnExpression,
+	getNegatedExpressionText,
+	getParenthesizedRange,
 	getTokenStore,
+	hasTypeArguments,
 	isEslintDisableOrEnableDirective,
 	isKnownNonIndexedCollection,
 	isOnSameLine,
 	isParenthesized,
 	needsSemicolon,
-	shouldAddParenthesesToUnaryExpressionArgument,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {
@@ -47,35 +50,22 @@ function getReturnedExpression(callback) {
 		return;
 	}
 
-	if (callback.type === 'ArrowFunctionExpression' && callback.body.type !== 'BlockStatement') {
-		return callback.body;
-	}
-
-	if (
-		callback.body.type === 'BlockStatement'
-		&& callback.body.body.length === 1
-		&& callback.body.body[0].type === 'ReturnStatement'
-	) {
-		return callback.body.body[0].argument;
-	}
+	return getFunctionReturnExpression(callback);
 }
 
-function getReplacementPredicateText(node, context) {
+function getReplacementPredicate(node, context) {
 	if (isNegatedExpression(node)) {
 		const text = context.sourceCode.getText(node.argument);
 
 		return {
-			node,
+			replacedRange: context.sourceCode.getRange(node),
 			text: needsParenthesesInConciseArrowBody(node, text) ? `(${text})` : text,
 		};
 	}
 
-	const text = context.sourceCode.getText(node);
-	const needsParentheses = shouldAddParenthesesToUnaryExpressionArgument(node, '!');
-
 	return {
-		node,
-		text: needsParentheses ? `!(${text})` : `!${text}`,
+		replacedRange: getParenthesizedRange(node, context),
+		text: getNegatedExpressionText(node, context),
 	};
 }
 
@@ -110,7 +100,7 @@ const create = context => {
 			return;
 		}
 
-		if (callExpression.typeArguments || callExpression.typeParameters) {
+		if (hasTypeArguments(callExpression)) {
 			return;
 		}
 
@@ -142,7 +132,7 @@ const create = context => {
 		const methodNode = callExpression.callee.property;
 		const method = methodNode.name;
 		const replacement = replacementMethod.get(method);
-		const {node: replacementPredicateNode, text: replacementPredicateText} = getReplacementPredicateText(returnedExpression, context);
+		const {replacedRange: replacementPredicateRange, text: replacementPredicateText} = getReplacementPredicate(returnedExpression, context);
 
 		const problem = {
 			node: methodNode,
@@ -161,7 +151,7 @@ const create = context => {
 
 				yield fixer.remove(bangToken);
 				yield fixer.replaceText(methodNode, replacement);
-				yield fixer.replaceText(replacementPredicateNode, replacementPredicateText);
+				yield fixer.replaceTextRange(replacementPredicateRange, replacementPredicateText);
 
 				if (
 					tokenStore === sourceCode

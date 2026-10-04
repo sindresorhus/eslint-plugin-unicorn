@@ -17,7 +17,7 @@ const isDocumentQuery = node =>
 	node.callee.object.type === 'Identifier'
 	&& node.callee.object.name === 'document';
 
-// `:scope` cannot match a `ShadowRoot` or `DocumentFragment` root, so prefixing the selector would make a working query match nothing. Matching is already limited to that subtree. A `contentDocument` is a document, like `document`.
+// `:scope` cannot match a `ShadowRoot` or `DocumentFragment` root, so prefixing the selector would make a working query match nothing. Matching is already limited to that subtree. A `contentDocument`, an `ownerDocument`, and the result of `parseFromString()` are documents, like `document`, and `getRootNode()` returns a document or shadow root for a connected element.
 const isNonElementScopeQuery = node => {
 	const object = unwrapTypeScriptExpression(node.callee.object);
 
@@ -25,11 +25,20 @@ const isNonElementScopeQuery = node => {
 		(object.type === 'MemberExpression'
 			&& !object.computed
 			&& object.property.type === 'Identifier'
-			&& ['shadowRoot', 'contentDocument'].includes(object.property.name))
+			&& ['shadowRoot', 'contentDocument', 'ownerDocument'].includes(object.property.name))
 		|| (
 			object.type === 'CallExpression'
 			&& isMethodCall(object, {
-				names: ['createDocumentFragment', 'createShadowRoot'],
+				methods: [
+					'attachShadow',
+					'cloneContents',
+					'createContextualFragment',
+					'createDocumentFragment',
+					'createShadowRoot',
+					'extractContents',
+					'getRootNode',
+					'parseFromString',
+				],
 				optionalCall: false,
 				optionalMember: false,
 			})

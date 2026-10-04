@@ -123,7 +123,8 @@ export default function needsSemicolon(tokenBefore, context, code) {
 
 	if (
 		lastBlockNode.type === 'ObjectExpression'
-		|| lastBlockNode.type === 'TSNonNullExpression'
+		// The trailing `!`, not the opening parenthesis of `(foo)!`
+		|| (lastBlockNode.type === 'TSNonNullExpression' && value === '!')
 		|| (lastBlockNode.type === 'TSTypeParameterInstantiation' && lastBlockNode.parent.type === 'TSInstantiationExpression')
 	) {
 		return true;

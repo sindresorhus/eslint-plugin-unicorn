@@ -274,6 +274,23 @@ test.snapshot({
 			`,
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: outdent`
+				const abortController = new AbortController();
+				setTimeout(() => abortController.abort(), delay);
+				console.log((abortController.signal as AbortSignal).reason);
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				const abortController = new AbortController();
+				setTimeout(() => abortController.abort(), delay);
+				(abortController.signal as AbortSignal) = value;
+				fetch(url, {signal: abortController.signal});
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 		outdent`
 			const abortController = new AbortController();
 			setTimeout(() => abortController.abort(), delay);
@@ -422,6 +439,16 @@ test.snapshot({
 		{
 			code: outdent`
 				const abortController: AbortController = new AbortController();
+				setTimeout(() => abortController.abort(), delay);
+				fetch(url, {signal: abortController.signal});
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		// A type-only `AbortSignal` does not shadow the global value
+		{
+			code: outdent`
+				import type {AbortSignal} from './types.js';
+				const abortController = new AbortController();
 				setTimeout(() => abortController.abort(), delay);
 				fetch(url, {signal: abortController.signal});
 			`,

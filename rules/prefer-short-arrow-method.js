@@ -1,4 +1,10 @@
-import {getCommentSafeProblem, hasNonDirectiveComment, hasUnsafeArrowConversionReference} from './utils/index.js';
+import {
+	getCommentSafeProblem,
+	getConciseArrowBodyText,
+	getFunctionReturnExpression,
+	hasNonDirectiveComment,
+	hasUnsafeArrowConversionReference,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-short-arrow-method';
 const MODE_ALWAYS = 'always';
@@ -8,27 +14,12 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer an arrow function property over a method with a single return.',
 };
 
-const returnArgumentTypesRequiringParentheses = new Set([
-	'ObjectExpression',
-	'SequenceExpression',
-]);
-
 const isPrototypeProperty = property =>
 	!property.computed
 	&& (
 		(property.key.type === 'Identifier' && property.key.name === '__proto__')
 		|| (property.key.type === 'Literal' && property.key.value === '__proto__')
 	);
-
-const getReturnStatement = property => {
-	const {body} = property.value.body;
-
-	if (body.length !== 1 || body[0].type !== 'ReturnStatement' || !body[0].argument) {
-		return;
-	}
-
-	return body[0];
-};
 
 const getKeyText = (property, sourceCode) =>
 	property.computed
@@ -51,39 +42,29 @@ const getReturnTypeText = (functionNode, sourceCode) =>
 		? sourceCode.getText(functionNode.returnType)
 		: '';
 
-const getReturnArgumentText = (node, sourceCode) => {
-	const text = sourceCode.getText(node);
-
-	if (returnArgumentTypesRequiringParentheses.has(node.type) || text.trimStart().startsWith('{')) {
-		return `(${text})`;
-	}
-
-	return text;
-};
-
-const getReplacementText = (property, returnStatement, sourceCode) => {
+const getReplacementText = (property, returnExpression, context) => {
+	const {sourceCode} = context;
 	const functionNode = property.value;
 	const keyText = getKeyText(property, sourceCode);
 	const asyncText = functionNode.async ? 'async ' : '';
 	const parametersText = getParametersText(functionNode, sourceCode);
 	const returnTypeText = getReturnTypeText(functionNode, sourceCode);
-	const returnArgumentText = getReturnArgumentText(returnStatement.argument, sourceCode);
+	const returnArgumentText = getConciseArrowBodyText(returnExpression, context);
 
 	return `${keyText}: ${asyncText}(${parametersText})${returnTypeText} => ${returnArgumentText}`;
 };
 
-const getFix = (property, returnStatement, context) => {
-	const {sourceCode} = context;
+const getFix = (property, returnExpression, context) => {
 	const functionNode = property.value;
 
 	if (functionNode.typeParameters) {
 		return;
 	}
 
-	return fixer => fixer.replaceText(property, getReplacementText(property, returnStatement, sourceCode));
+	return fixer => fixer.replaceText(property, getReplacementText(property, returnExpression, context));
 };
 
-const getConvertibleReturnStatement = (property, sourceCode) => {
+const getConvertibleReturnExpression = (property, sourceCode) => {
 	if (
 		!isShorthandInitMethod(property)
 		|| property.value.generator
@@ -94,7 +75,7 @@ const getConvertibleReturnStatement = (property, sourceCode) => {
 		return;
 	}
 
-	return getReturnStatement(property);
+	return getFunctionReturnExpression(property.value);
 };
 
 /**
@@ -106,10 +87,10 @@ const create = context => {
 	const objectCanBeReportedCache = new WeakMap();
 
 	const canReportProperty = property => {
-		const returnStatement = getConvertibleReturnStatement(property, sourceCode);
-		return Boolean(returnStatement
+		const returnExpression = getConvertibleReturnExpression(property, sourceCode);
+		return Boolean(returnExpression
 			&& !hasNonDirectiveComment(context, property)
-			&& getFix(property, returnStatement, context));
+			&& getFix(property, returnExpression, context));
 	};
 
 	const canReportAllShorthandInitMethods = objectExpression => {
@@ -129,8 +110,8 @@ const create = context => {
 	};
 
 	context.on('Property', property => {
-		const returnStatement = getConvertibleReturnStatement(property, sourceCode);
-		if (!returnStatement) {
+		const returnExpression = getConvertibleReturnExpression(property, sourceCode);
+		if (!returnExpression) {
 			return;
 		}
 
@@ -144,7 +125,7 @@ const create = context => {
 		let problem = {
 			node: property,
 			messageId: MESSAGE_ID,
-			fix: getFix(property, returnStatement, context),
+			fix: getFix(property, returnExpression, context),
 		};
 		const affectedProperties = mode === MODE_CONSISTENT_AS_NEEDED
 			? property.parent.properties.filter(property => isShorthandInitMethod(property))

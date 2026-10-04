@@ -1,24 +1,21 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
-import {getStaticValueIfNoSideEffects} from './utils/index.js';
+import {
+	getLogicalExpressionOperands,
+	getStaticValueIfNoSideEffects,
+	isOutermostLogicalExpression,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 import {isUndefined} from './ast/index.js';
 import {
 	containsOptionalChain,
 	isReference,
 	isSame,
-	unwrapExpression,
 } from './utils/comparison.js';
 
 const MESSAGE_ID = 'prefer-includes-over-repeated-comparisons';
 const messages = {
 	[MESSAGE_ID]: 'Use `.includes()` instead of repeated equality checks.',
 };
-
-function getLogicalOrOperands(node) {
-	return [node.left, node.right].flatMap(child =>
-		child.type === 'LogicalExpression' && child.operator === '||'
-			? getLogicalOrOperands(child)
-			: [child]);
-}
 
 const isStrictEqualityComparison = node =>
 	node.type === 'BinaryExpression' && node.operator === '===';
@@ -28,7 +25,7 @@ function getSharedReference(comparisons) {
 	// `undefined` is an identifier, so it qualifies as a reference. Exclude it
 	// so comparing distinct expressions against `undefined` is not treated as a
 	// shared membership check (e.g. `a === undefined || b === undefined`).
-	let candidates = [left, right].filter(node => isReference(node) && !isUndefined(unwrapExpression(node)));
+	let candidates = [left, right].filter(node => isReference(node) && !isUndefined(unwrapTypeScriptExpression(node)));
 
 	for (const comparison of comparisons.slice(1)) {
 		candidates = candidates.filter(candidate =>
@@ -55,7 +52,7 @@ const getComparedValue = (comparison, sharedReference) => {
 };
 
 const isNaNValue = (node, context) => {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 	const staticValue = getStaticValueIfNoSideEffects(node, context);
 
 	return Number.isNaN(staticValue?.value);
@@ -71,12 +68,12 @@ const create = context => {
 	context.on('LogicalExpression', node => {
 		if (
 			node.operator !== '||'
-			|| (node.parent.type === 'LogicalExpression' && node.parent.operator === '||')
+			|| !isOutermostLogicalExpression(node)
 		) {
 			return;
 		}
 
-		const comparisons = getLogicalOrOperands(node);
+		const comparisons = getLogicalExpressionOperands(node, '||');
 		if (
 			comparisons.some(comparison => !isStrictEqualityComparison(comparison))
 			|| comparisons.length < minimumComparisons

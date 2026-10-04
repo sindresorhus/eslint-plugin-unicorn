@@ -1,8 +1,10 @@
+import {isRegexLiteral} from './ast/index.js';
 import {
-	isRegexLiteral,
-	isStringLiteral,
-} from './ast/index.js';
-import {isGlobalIdentifier} from './utils/index.js';
+	getOutermostChainAndTypeScriptExpression,
+	getStaticPropertyName,
+	isGlobalIdentifier,
+	unwrapChainAndTypeScriptExpression,
+} from './utils/index.js';
 
 const MESSAGE_ID_NONSTANDARD = 'no-nonstandard-builtin-properties/nonstandard';
 const MESSAGE_ID_NONCALLABLE = 'no-nonstandard-builtin-properties/noncallable';
@@ -13,15 +15,6 @@ const messages = {
 	[MESSAGE_ID_NONCALLABLE]: '`{{property}}` is not a callable property of `{{receiver}}`.',
 	[MESSAGE_ID_NONCONSTRUCTIBLE]: '`{{property}}` is not a constructible property of `{{receiver}}`.',
 };
-
-const expressionWrapperTypes = new Set([
-	'ChainExpression',
-	'TSAsExpression',
-	'TSInstantiationExpression',
-	'TSNonNullExpression',
-	'TSSatisfiesExpression',
-	'TSTypeAssertion',
-]);
 
 const globalObjectNames = new Set([
 	'globalThis',
@@ -1024,44 +1017,6 @@ const nativeObjects = new Map(Object.entries({
 	},
 }));
 
-const unwrapExpression = node => {
-	while (expressionWrapperTypes.has(node.type)) {
-		node = node.expression;
-	}
-
-	return node;
-};
-
-const getOutermostExpression = node => {
-	while (
-		expressionWrapperTypes.has(node.parent.type)
-		&& node.parent.expression === node
-	) {
-		node = node.parent;
-	}
-
-	return node;
-};
-
-const getStaticPropertyName = node => {
-	const {property} = node;
-
-	if (!node.computed) {
-		return property.type === 'Identifier' ? property.name : undefined;
-	}
-
-	if (isStringLiteral(property)) {
-		return property.value;
-	}
-
-	if (
-		property.type === 'TemplateLiteral'
-		&& property.expressions.length === 0
-	) {
-		return property.quasis[0].value.cooked;
-	}
-};
-
 const maximumArrayIndex = (2 ** 32) - 2;
 
 const isArrayIndexString = string => /^(?:0|[1-9]\d*)$/.test(string) && Number(string) <= maximumArrayIndex;
@@ -1085,7 +1040,7 @@ const isIndexedAccess = ({typeName, usage}, propertyName) => {
 };
 
 const isGlobalObjectReference = (node, context) => {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	return node.type === 'Identifier'
 		&& globalObjectNames.has(node.name)
@@ -1093,7 +1048,7 @@ const isGlobalObjectReference = (node, context) => {
 };
 
 const getNativeTypeNameFromReference = (node, context) => {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	if (
 		node.type === 'Identifier'
@@ -1107,7 +1062,7 @@ const getNativeTypeNameFromReference = (node, context) => {
 		return;
 	}
 
-	const propertyName = getStaticPropertyName(node);
+	const propertyName = getStaticPropertyName(node, context);
 	if (!nativeObjects.has(propertyName)) {
 		return;
 	}
@@ -1174,7 +1129,7 @@ const resolveUnaryExpressionReference = node => {
 		return;
 	}
 
-	const argument = unwrapExpression(node.argument);
+	const argument = unwrapChainAndTypeScriptExpression(node.argument);
 	if (argument.type !== 'Literal') {
 		return;
 	}
@@ -1189,7 +1144,7 @@ const resolveUnaryExpressionReference = node => {
 };
 
 const resolvePrototypeReference = (node, context) => {
-	if (getStaticPropertyName(node) !== 'prototype') {
+	if (getStaticPropertyName(node, context) !== 'prototype') {
 		return;
 	}
 
@@ -1217,7 +1172,7 @@ const resolveNewExpressionReference = (node, context) => {
 };
 
 function resolveNativeObjectReference(node, context) {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	if (node.type === 'MemberExpression') {
 		return resolvePrototypeReference(node, context)
@@ -1260,7 +1215,7 @@ function resolveNativeObjectReference(node, context) {
 }
 
 const getCallKind = node => {
-	node = getOutermostExpression(node);
+	node = getOutermostChainAndTypeScriptExpression(node);
 
 	if (
 		node.parent.type === 'CallExpression'
@@ -1320,7 +1275,7 @@ const getProblem = (node, nativeObjectReference, propertyName, messageId) => ({
 */
 const create = context => {
 	context.on('MemberExpression', node => {
-		const propertyName = getStaticPropertyName(node);
+		const propertyName = getStaticPropertyName(node, context);
 		if (propertyName === undefined) {
 			return;
 		}

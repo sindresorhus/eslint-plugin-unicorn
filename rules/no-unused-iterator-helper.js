@@ -1,5 +1,5 @@
 import {isLazyIteratorHelperCall} from './shared/iterator-helpers.js';
-import {isTypeScriptExpressionWrapper} from './utils/index.js';
+import {hasTypeArguments, isTypeScriptExpressionWrapper} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unused-iterator-helper';
 const MESSAGE_ID_SUGGESTION = 'no-unused-iterator-helper/suggestion';
@@ -33,8 +33,7 @@ const canSuggestForEach = (node, discardedExpression) => {
 		node.callee.property.name !== 'map'
 		|| node.arguments.length !== 1
 		|| node.arguments[0].type === 'SpreadElement'
-		|| node.typeArguments
-		|| node.typeParameters
+		|| hasTypeArguments(node)
 	) {
 		return false;
 	}

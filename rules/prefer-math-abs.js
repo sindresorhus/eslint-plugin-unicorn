@@ -6,7 +6,11 @@ import {
 	isNegativeOne,
 } from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {getParenthesizedText, isSameReference} from './utils/index.js';
+import {
+	getParenthesizedText,
+	isSameReference,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-math-abs';
 const MESSAGE_ID_SUGGESTION = 'prefer-math-abs/suggestion';
@@ -48,21 +52,6 @@ function isBigIntTypeAnnotation(typeAnnotation) {
 			typeAnnotation.type === 'TSIntersectionType'
 			&& typeAnnotation.types.some(type => isBigIntTypeAnnotation(type))
 		);
-}
-
-function unwrapTypeScriptExpression(node) {
-	if (
-		[
-			'TSAsExpression',
-			'TSSatisfiesExpression',
-			'TSTypeAssertion',
-			'TSNonNullExpression',
-		].includes(node.type)
-	) {
-		return unwrapTypeScriptExpression(node.expression);
-	}
-
-	return node;
 }
 
 function getTypeAnnotation(node) {

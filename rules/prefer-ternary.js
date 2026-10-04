@@ -3,9 +3,9 @@ import {isBooleanLiteral, isFunction} from './ast/index.js';
 import {
 	needsSemicolon,
 	isSameReference,
+	getConditionalExpressionChildText,
 	getParenthesizedText,
 	getParenthesizedRange,
-	shouldAddParenthesesToConditionalExpressionChild,
 	isParenthesized,
 	getPreviousNode,
 	getNextNode,
@@ -91,18 +91,14 @@ const create = context => {
 	const {sourceCode} = context;
 
 	const getText = node => {
-		let text = getParenthesizedText(node, context);
-		if (
-			!isParenthesized(node, sourceCode)
-			&& (
-				shouldAddParenthesesToConditionalExpressionChild(node)
-				|| (node.type === 'ArrowFunctionExpression' && node.parent.type === 'IfStatement')
-			)
-		) {
-			text = `(${text})`;
-		}
-
-		return text;
+		const text = getConditionalExpressionChildText(node, context);
+		return (
+			node.type === 'ArrowFunctionExpression'
+			&& node.parent.type === 'IfStatement'
+			&& !isParenthesized(node, context)
+		)
+			? `(${text})`
+			: text;
 	};
 
 	function merge(options, {returnFalseIfNotMergeable = false} = {}) {

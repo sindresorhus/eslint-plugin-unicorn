@@ -1,6 +1,10 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isLiteral, isMethodCall} from './ast/index.js';
-import isSameReference from './utils/is-same-reference.js';
+import {
+	getCallArgumentText,
+	isSameReference,
+	wouldRemoveComments,
+} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-number-is-safe-integer/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-number-is-safe-integer/suggestion';
@@ -15,20 +19,6 @@ const messages = {
 
 const lodashObjects = ['_', 'lodash', 'underscore'];
 const mathIntegerCheckMethods = ['floor', 'trunc'];
-
-const getExpressionText = (node, sourceCode) => {
-	const text = sourceCode.getText(node);
-	return node.type === 'SequenceExpression' ? `(${text})` : text;
-};
-
-const hasCommentsOutsideNode = (node, nodeToKeep, sourceCode) => {
-	const keepRange = sourceCode.getRange(nodeToKeep);
-
-	return sourceCode.getCommentsInside(node).some(comment => {
-		const commentRange = sourceCode.getRange(comment);
-		return commentRange[0] < keepRange[0] || commentRange[1] > keepRange[1];
-	});
-};
 
 const isGlobalNumberAvailable = (node, sourceCode) => {
 	const variable = findVariable(sourceCode.getScope(node), 'Number');
@@ -122,11 +112,11 @@ const create = context => {
 			messageId: MESSAGE_ID_INTEGER_CHECK_ERROR,
 		};
 
-		if (!hasCommentsOutsideNode(node, argument, sourceCode)) {
+		if (!wouldRemoveComments(context, node, [argument])) {
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_INTEGER_CHECK_SUGGESTION,
-					fix: fixer => fixer.replaceText(node, `Number.isSafeInteger(${getExpressionText(argument, sourceCode)})`),
+					fix: fixer => fixer.replaceText(node, `Number.isSafeInteger(${getCallArgumentText(argument, context)})`),
 				},
 			];
 		}

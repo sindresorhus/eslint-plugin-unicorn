@@ -847,6 +847,7 @@ ruleTest.snapshot({
 		`expect(foo)[toMatchInlineSnapshot](${INVALID_SNAPSHOT})`,
 		`expect(foo).toMatchInlineSnapshot?.(${INVALID_SNAPSHOT})`,
 		`expect(foo)?.toMatchInlineSnapshot(${INVALID_SNAPSHOT})`,
+		`expect?.(foo).toMatchInlineSnapshot(${INVALID_SNAPSHOT})`,
 		`expect(foo).toMatchInlineSnapshot(${INVALID_SNAPSHOT}, extraArgument)`,
 		`expect(foo).toMatchInlineSnapshot(extraArgument, ${INVALID_SNAPSHOT})`,
 		'expect(foo).toMatchInlineSnapshot()',

@@ -3878,6 +3878,60 @@ Output:
 
 `;
 
+exports[`prefer-early-return > invalid(66): function foo() {\n\tif ((eval as any)('typeof value === \"undefined\"')) {\n\t\tconst value = getValue();\n\t\tdoSomething(value);\n\t}\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	if ((eval as any)('typeof value === "undefined"')) {
+  3 | 		const value = getValue();
+  4 | 		doSomething(value);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-early-return > invalid(66): function foo() {\n\tif ((eval as any)('typeof value === \"undefined\"')) {\n\t\tconst value = getValue();\n\t\tdoSomething(value);\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	if ((eval as any)('typeof value === "undefined"')) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		const value = getValue();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		doSomething(value);
+    | ^^^^^^^^^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early return over wrapping the remainder of the function body in an \`if\` statement.
+  6 | }
+
+`;
+
+exports[`prefer-early-return > invalid(67): function foo() {\n\tif (eval!('typeof value === \"undefined\"')) {\n\t\tconst value = getValue();\n\t\tdoSomething(value);\n\t}\n} 1`] = `
+
+  1 | function foo() {
+  2 | 	if (eval!('typeof value === "undefined"')) {
+  3 | 		const value = getValue();
+  4 | 		doSomething(value);
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-early-return > invalid(67): function foo() {\n\tif (eval!('typeof value === \"undefined\"')) {\n\t\tconst value = getValue();\n\t\tdoSomething(value);\n\t}\n} 2`] = `
+
+Message:
+  1 | function foo() {
+> 2 | 	if (eval!('typeof value === "undefined"')) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		const value = getValue();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		doSomething(value);
+    | ^^^^^^^^^^^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early return over wrapping the remainder of the function body in an \`if\` statement.
+  6 | }
+
+`;
+
 exports[`prefer-early-return > invalid(7): function foo() { before(); if (condition) { first(); } } 1`] = `
 
 Options:

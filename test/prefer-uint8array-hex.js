@@ -95,6 +95,21 @@ testRule({
 			errors: [error],
 		},
 		{
+			code: 'import * as buffer from \'node:buffer\'; buffer.Buffer.from(bytes).toString(\'hex\')',
+			output: 'import * as buffer from \'node:buffer\'; buffer.Buffer.from(bytes).toHex()',
+			errors: [error],
+		},
+		{
+			code: 'import buffer from \'buffer\'; buffer.Buffer.from(text, \'hex\')',
+			errors: [{...error, suggestions: [{...suggestion, output: 'import buffer from \'buffer\'; Uint8Array.fromHex(text)'}]}],
+		},
+		{
+			code: 'import * as buffer from \'node:buffer\'; function hex(bytes: buffer.Buffer) { return bytes.toString(\'hex\'); }',
+			languageOptions: {parser: parsers.typescript},
+			output: 'import * as buffer from \'node:buffer\'; function hex(bytes: buffer.Buffer) { return bytes.toHex(); }',
+			errors: [error],
+		},
+		{
 			code: 'Buffer.from(buffer, offset, length).toString(\'hex\')',
 			output: 'Buffer.from(buffer, offset, length).toHex()',
 			errors: [error],

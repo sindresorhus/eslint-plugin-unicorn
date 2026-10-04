@@ -1,7 +1,9 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {isFunction, isMethodCall} from './ast/index.js';
 import {
+	getCallArgumentText,
 	getConstVariableInitializer,
+	getParenthesizedRange,
 	getStaticValueIfNoSideEffects,
 	isBigInt,
 	isGlobalIdentifier,
@@ -137,14 +139,12 @@ function getProblem(node, type, context) {
 		messageId,
 		data: {type},
 		fix(fixer) {
-			const text = context.sourceCode.getText(node);
-			const argument = node.type === 'SequenceExpression' ? `(${text})` : text;
-			let replacement = `${conversion}(${argument})`;
+			let replacement = `${conversion}(${getCallArgumentText(node, context)})`;
 			if (node.parent.type === 'Property' && node.parent.shorthand) {
-				replacement = `${text}: ${replacement}`;
+				replacement = `${context.sourceCode.getText(node)}: ${replacement}`;
 			}
 
-			return fixer.replaceText(node, replacement);
+			return fixer.replaceTextRange(getParenthesizedRange(node, context), replacement);
 		},
 	}));
 	return problem;

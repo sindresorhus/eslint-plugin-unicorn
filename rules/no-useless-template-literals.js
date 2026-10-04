@@ -1,10 +1,16 @@
 import {
 	isBigIntLiteral,
-	isFunction,
+	isInDirectivePrologue,
 	isRegexLiteral,
 	isTaggedTemplateLiteral,
 } from './ast/index.js';
-import {escapeString, isTypeScriptFile} from './utils/index.js';
+import {
+	escapeString,
+	getCallArgumentText,
+	hasCommentInRange,
+	isEscapedCharacter,
+	isTypeScriptFile,
+} from './utils/index.js';
 import escapeTemplateElementRaw from './utils/escape-template-element-raw.js';
 
 const MESSAGE_ID = 'no-useless-template-literals';
@@ -45,31 +51,9 @@ function getStaticUnaryStringValue(node) {
 	};
 }
 
-function endsWithUnescapedDollarSign(string) {
-	if (!string.endsWith('$')) {
-		return false;
-	}
+const endsWithUnescapedDollarSign = string => string.endsWith('$') && !isEscapedCharacter(string, string.length - 1);
 
-	let backslashCount = 0;
-	for (let index = string.length - 2; index >= 0 && string[index] === '\\'; index--) {
-		backslashCount++;
-	}
-
-	return backslashCount % 2 === 0;
-}
-
-function endsWithNulEscape(string) {
-	if (!string.endsWith('0')) {
-		return false;
-	}
-
-	let backslashCount = 0;
-	for (let index = string.length - 2; index >= 0 && string[index] === '\\'; index--) {
-		backslashCount++;
-	}
-
-	return backslashCount % 2 === 1;
-}
+const endsWithNulEscape = string => string.endsWith('0') && isEscapedCharacter(string, string.length - 1);
 
 function appendTemplateRaw(raw, addition) {
 	if (
@@ -130,32 +114,15 @@ function getStaticInterpolationValue(node, sourceCode) {
 	}
 }
 
-function hasCommentsInsideInterpolation(node, sourceCode, index) {
+// The range of the `${…}` interpolation at `index`
+function getInterpolationRange(node, sourceCode, index) {
 	const [, quasiEnd] = sourceCode.getRange(node.quasis[index]);
 	const [nextQuasiStart] = sourceCode.getRange(node.quasis[index + 1]);
-	const start = quasiEnd - 2;
-	const end = nextQuasiStart + 1;
-
-	return sourceCode.getCommentsInside(node).some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-		return commentStart >= start && commentEnd <= end;
-	});
+	return [quasiEnd - 2, nextQuasiStart + 1];
 }
 
 function getInterpolationText(node, sourceCode, index) {
-	const [, quasiEnd] = sourceCode.getRange(node.quasis[index]);
-	const [nextQuasiStart] = sourceCode.getRange(node.quasis[index + 1]);
-	return sourceCode.getText().slice(quasiEnd - 2, nextQuasiStart + 1);
-}
-
-function getStringCallExpressionText(node, sourceCode) {
-	let expression = sourceCode.getText(node);
-
-	if (node.type === 'SequenceExpression') {
-		expression = `(${expression})`;
-	}
-
-	return `String(${expression})`;
+	return sourceCode.getText().slice(...getInterpolationRange(node, sourceCode, index));
 }
 
 function isExpressionOnlyTemplate(node) {
@@ -181,31 +148,8 @@ function isWrappedInConstAssertion(node) {
 	);
 }
 
-function isDirectiveProloguePosition(node) {
-	const {parent} = node;
-
-	if (parent.type !== 'ExpressionStatement' || parent.expression !== node) {
-		return false;
-	}
-
-	const bodyNode = parent.parent;
-	const grandparent = bodyNode.parent;
-	if (
-		bodyNode.type !== 'Program'
-		&& !(
-			bodyNode.type === 'BlockStatement'
-			&& isFunction(grandparent)
-		)
-	) {
-		return false;
-	}
-
-	const statementIndex = bodyNode.body.indexOf(parent);
-	return bodyNode.body.slice(0, statementIndex).every(statement => typeof statement.directive === 'string');
-}
-
-function getStaticInterpolationProblem(node, sourceCode, index) {
-	const staticInterpolationValue = getStaticInterpolationValue(node.expressions[index], sourceCode);
+function getStaticInterpolationProblem(node, context, index) {
+	const staticInterpolationValue = getStaticInterpolationValue(node.expressions[index], context.sourceCode);
 
 	if (!staticInterpolationValue) {
 		return;
@@ -213,7 +157,7 @@ function getStaticInterpolationProblem(node, sourceCode, index) {
 
 	return {
 		...staticInterpolationValue,
-		fixable: !hasCommentsInsideInterpolation(node, sourceCode, index),
+		fixable: !hasCommentInRange(context, getInterpolationRange(node, context.sourceCode, index)),
 	};
 }
 
@@ -303,10 +247,10 @@ const create = context => {
 
 		if (isExpressionOnlyTemplate(node)) {
 			const [expression] = node.expressions;
-			const problem = getStaticInterpolationProblem(node, sourceCode, 0);
+			const problem = getStaticInterpolationProblem(node, context, 0);
 
 			if (problem) {
-				const isDirectivePrologue = isDirectiveProloguePosition(node);
+				const isDirectivePrologue = isInDirectivePrologue(node);
 
 				return {
 					node,
@@ -325,8 +269,8 @@ const create = context => {
 				return;
 			}
 
-			const hasComments = hasCommentsInsideInterpolation(node, sourceCode, 0);
-			const replacement = getStringCallExpressionText(expression, sourceCode);
+			const hasComments = hasCommentInRange(context, getInterpolationRange(node, sourceCode, 0));
+			const replacement = `String(${getCallArgumentText(expression, context)})`;
 
 			return {
 				node,
@@ -345,7 +289,7 @@ const create = context => {
 			};
 		}
 
-		const problems = node.expressions.map((_, index) => getStaticInterpolationProblem(node, sourceCode, index));
+		const problems = node.expressions.map((_, index) => getStaticInterpolationProblem(node, context, index));
 
 		if (problems.every(problem => problem === undefined)) {
 			return;
@@ -364,7 +308,7 @@ const create = context => {
 				if (
 					replacement === undefined
 					|| (
-						isDirectiveProloguePosition(node)
+						isInDirectivePrologue(node)
 						&& !replacement.startsWith('`')
 					)
 				) {

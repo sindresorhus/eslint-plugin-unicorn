@@ -243,5 +243,14 @@ test.snapshot({
 			`,
 			languageOptions: {parser: parsers.typescript},
 		},
+		// Empty statements are ignored
+		outdent`
+			if (foo) {
+				bar();
+				;
+			} else {
+				bar();
+			}
+		`,
 	],
 });

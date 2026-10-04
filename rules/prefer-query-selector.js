@@ -1,5 +1,6 @@
 import {
 	getParenthesizedRange,
+	hasCommentInRange,
 	isLeftHandSide,
 	isNodeValueNotDomNode,
 	unwrapTypeScriptExpression,
@@ -220,32 +221,20 @@ const hasValue = node => {
 
 const isZeroLiteral = node => node.type === 'Literal' && node.value === 0;
 
-const isWriteTarget = node =>
-	isLeftHandSide(node)
-	|| (
-		(node.parent.type === 'ForInStatement' || node.parent.type === 'ForOfStatement')
-		&& node.parent.left === node
-	);
+const hasCommentsInAccess = (node, callExpression, context) => hasCommentInRange(context, [
+	getParenthesizedRange(callExpression, context)[1],
+	context.sourceCode.getRange(node)[1],
+]);
 
-const hasCommentsInAccess = (node, callExpression, sourceCode, context) => {
-	const [, start] = getParenthesizedRange(callExpression, context);
-	const [, end] = sourceCode.getRange(node);
-
-	return sourceCode.getAllComments().some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-		return commentStart >= start && commentEnd <= end;
-	});
-};
-
-const getFirstElementAccess = (node, sourceCode, context) => {
+const getFirstElementAccess = (node, context) => {
 	if (
 		node.parent.type === 'MemberExpression'
 		&& node.parent.object === node
 		&& node.parent.computed
 		&& !node.parent.optional
 		&& isZeroLiteral(node.parent.property)
-		&& !isWriteTarget(node.parent)
-		&& !hasCommentsInAccess(node.parent, node, sourceCode, context)
+		&& !isLeftHandSide(node.parent)
+		&& !hasCommentsInAccess(node.parent, node, context)
 	) {
 		return node.parent;
 	}
@@ -260,8 +249,8 @@ const getFirstElementAccess = (node, sourceCode, context) => {
 			optionalMember: false,
 		})
 		&& isZeroLiteral(node.parent.parent.arguments[0])
-		&& !isWriteTarget(node.parent.parent)
-		&& !hasCommentsInAccess(node.parent.parent, node, sourceCode, context)
+		&& !isLeftHandSide(node.parent.parent)
+		&& !hasCommentsInAccess(node.parent.parent, node, context)
 	) {
 		return node.parent.parent;
 	}
@@ -330,7 +319,7 @@ const create = context => {
 
 		let preferredSelector = disallowedIdentifierNames.get(method);
 		const firstElementAccess = preferredSelector === 'querySelectorAll'
-			&& getFirstElementAccess(node, context.sourceCode, context);
+			&& getFirstElementAccess(node, context);
 		if (firstElementAccess) {
 			preferredSelector = 'querySelector';
 		}

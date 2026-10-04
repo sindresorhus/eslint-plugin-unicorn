@@ -1,9 +1,7 @@
 import {
-	getParenthesizedText,
-	isParenthesized,
+	getConditionalExpressionChildText,
+	getLogicalExpressionChildText,
 	needsSemicolon,
-	shouldAddParenthesesToConditionalExpressionChild,
-	shouldAddParenthesesToLogicalExpressionChild,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-unnecessary-nested-ternary';
@@ -13,30 +11,6 @@ const messages = {
 
 function isSameNode(left, right, sourceCode) {
 	return sourceCode.getText(left) === sourceCode.getText(right);
-}
-
-function getLogicalExpressionChildText(node, context, operator, property) {
-	let text = getParenthesizedText(node, context);
-	if (
-		!isParenthesized(node, context)
-		&& shouldAddParenthesesToLogicalExpressionChild(node, {operator, property})
-	) {
-		text = `(${text})`;
-	}
-
-	return text;
-}
-
-function getConditionalExpressionChildText(node, context) {
-	let text = getParenthesizedText(node, context);
-	if (
-		!isParenthesized(node, context)
-		&& shouldAddParenthesesToConditionalExpressionChild(node)
-	) {
-		text = `(${text})`;
-	}
-
-	return text;
 }
 
 function getReplacementText({
@@ -50,8 +24,8 @@ function getReplacementText({
 }) {
 	const {sourceCode} = context;
 	const testText = [
-		getLogicalExpressionChildText(left, context, operator, 'left'),
-		getLogicalExpressionChildText(right, context, operator, 'right'),
+		getLogicalExpressionChildText(left, context, {operator, property: 'left'}),
+		getLogicalExpressionChildText(right, context, {operator, property: 'right'}),
 	].join(` ${operator} `);
 	let text = `${testText} ? ${getConditionalExpressionChildText(consequent, context)} : ${getConditionalExpressionChildText(alternate, context)}`;
 

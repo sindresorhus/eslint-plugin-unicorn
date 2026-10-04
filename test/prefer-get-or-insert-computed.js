@@ -1,4 +1,4 @@
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -63,5 +63,13 @@ test.snapshot({
 		// Computed keys of non-static fields run when the class expression is created.
 		'map.getOrInsert(key, class { [call()] = value; })',
 		'map.getOrInsert(key, delete object.value)',
+		{
+			code: 'map.getOrInsert(key, (eval as any)(key))',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'map.getOrInsert(key, eval!(key))',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

@@ -29,6 +29,48 @@ Message:
 
 `;
 
+exports[`prefer-array-from-map > invalid(1): const result = []; for (const item of items) { result.push(async () => await item); } 1`] = `
+
+  1 | const result = []; for (const item of items) { result.push(async () => await item); }
+
+`;
+
+exports[`prefer-array-from-map > invalid(1): const result = []; for (const item of items) { result.push(async () => await item); } 2`] = `
+
+Message:
+> 1 | const result = []; for (const item of items) { result.push(async () => await item); }
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Output:
+  1 | const result = Array.from(items, item => async () => await item);
+
+`;
+
+exports[`prefer-array-from-map > invalid(1): const result = [];\nfor (const item of items) {\n\tresult.push({a: item}.a);\n} 1`] = `
+
+  1 | const result = [];
+  2 | for (const item of items) {
+  3 | 	result.push({a: item}.a);
+  4 | }
+
+`;
+
+exports[`prefer-array-from-map > invalid(1): const result = [];\nfor (const item of items) {\n\tresult.push({a: item}.a);\n} 2`] = `
+
+Message:
+  1 | const result = [];
+> 2 | for (const item of items) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	result.push({a: item}.a);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | }
+    | ^ Pass the mapping function to \`Array.from()\` directly.
+
+Output:
+  1 | const result = Array.from(items, item => ({a: item}.a));
+
+`;
+
 exports[`prefer-array-from-map > invalid(1): export const result = []; for (const element of iterable) { result.push(element * 2); } 1`] = `
 
   1 | export const result = []; for (const element of iterable) { result.push(element * 2); }
@@ -43,6 +85,34 @@ Message:
 
 Output:
   1 | export const result = Array.from(iterable, element => element * 2);
+
+`;
+
+exports[`prefer-array-from-map > invalid(1): import type {Array} from './types.js';\nconst result = [];\nfor (const item of items) {\n\tresult.push(transform(item));\n} 1`] = `
+
+  1 | import type {Array} from './types.js';
+  2 | const result = [];
+  3 | for (const item of items) {
+  4 | 	result.push(transform(item));
+  5 | }
+
+`;
+
+exports[`prefer-array-from-map > invalid(1): import type {Array} from './types.js';\nconst result = [];\nfor (const item of items) {\n\tresult.push(transform(item));\n} 2`] = `
+
+Message:
+  1 | import type {Array} from './types.js';
+  2 | const result = [];
+> 3 | for (const item of items) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 	result.push(transform(item));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Pass the mapping function to \`Array.from()\` directly.
+
+Output:
+  1 | import type {Array} from './types.js';
+  2 | const result = Array.from(items, item => transform(item));
 
 `;
 
@@ -278,6 +348,23 @@ exports[`prefer-array-from-map > invalid(2): const foo = ((Array.from(bar)).map)
 Message:
 > 1 | const foo = ((Array.from(bar)).map)(element => element.id);
     |                                ^^^ Pass the mapping function to \`Array.from()\` directly.
+
+`;
+
+exports[`prefer-array-from-map > invalid(2): const result = []; for (const item of items) { result.push({} + item); } 1`] = `
+
+  1 | const result = []; for (const item of items) { result.push({} + item); }
+
+`;
+
+exports[`prefer-array-from-map > invalid(2): const result = []; for (const item of items) { result.push({} + item); } 2`] = `
+
+Message:
+> 1 | const result = []; for (const item of items) { result.push({} + item); }
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Output:
+  1 | const result = Array.from(items, item => ({} + item));
 
 `;
 
@@ -521,6 +608,23 @@ Message:
 
 Suggestion 1/1: Use the \`Array.from()\` mapping function argument.:
   1 | Array.from(iterable, element => element).filter(Boolean);
+
+`;
+
+exports[`prefer-array-from-map > invalid(3): const result = []; for (const item of items) { result.push((foo(), item)); } 1`] = `
+
+  1 | const result = []; for (const item of items) { result.push((foo(), item)); }
+
+`;
+
+exports[`prefer-array-from-map > invalid(3): const result = []; for (const item of items) { result.push((foo(), item)); } 2`] = `
+
+Message:
+> 1 | const result = []; for (const item of items) { result.push((foo(), item)); }
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Output:
+  1 | const result = Array.from(items, item => (foo(), item));
 
 `;
 

@@ -2,7 +2,7 @@ import {
 	getMemberAccessOperatorRange,
 	hasCommentInRange,
 	isSameReference,
-	unwrapTypeScriptExpression,
+	unwrapChainAndTypeScriptExpression,
 } from './utils/index.js';
 
 const MESSAGE_ID_REMOVE_OPTIONAL = 'consistent-optional-chaining/remove-optional';
@@ -22,33 +22,18 @@ const supportedBaseTypes = new Set([
 	'Super',
 ]);
 
-function unwrapExpression(node) {
-	let previousNode;
-
-	while (node !== previousNode) {
-		previousNode = node;
-		node = unwrapTypeScriptExpression(node);
-
-		if (node.type === 'ChainExpression') {
-			node = node.expression;
-		}
-	}
-
-	return node;
-}
-
 function getMemberExpression(node) {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	return node.type === 'MemberExpression' ? node : undefined;
 }
 
 function getMemberBase(memberExpression) {
-	return unwrapExpression(memberExpression.object);
+	return unwrapChainAndTypeScriptExpression(memberExpression.object);
 }
 
 function isSupportedMemberBase(node) {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	if (supportedBaseTypes.has(node.type)) {
 		return true;

@@ -2,7 +2,6 @@ import {isRegExp} from 'node:util/types';
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {renameVariable} from './fix/index.js';
 import {combineBooleanStates, getTypeBooleanState} from './utils/get-type-boolean-state.js';
-import resolveVariableName from './utils/resolve-variable-name.js';
 import {getBooleanWrapperVariableState} from './utils/get-boolean-wrapper-variable-state.js';
 import {
 	getAvailableVariableName,
@@ -11,9 +10,11 @@ import {
 	getVariableIdentifiers,
 	getStaticValueIfNoSideEffects,
 	getChildNodes,
+	getFunctionReturnExpression,
 	isReactHookName,
 	lowerFirst,
 	upperFirst,
+	withTypeInformation,
 } from './utils/index.js';
 import {
 	isBooleanExpression,
@@ -564,14 +565,7 @@ function combineVariableBooleanStates(states) {
 }
 
 function getTypeInformationBooleanState(node, context, functionTypesAreBoolean = true, allowNullish = true) {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return unknown;
-	}
-
-	try {
-		const checker = parserServices.program.getTypeChecker();
-		const type = parserServices.getTypeAtLocation(node);
+	return withTypeInformation(node, context, ({type, checker}) => {
 		const nonNullableType = checker.getNonNullableType(type);
 		if (!allowNullish && nonNullableType !== type) {
 			return unknown;
@@ -587,11 +581,7 @@ function getTypeInformationBooleanState(node, context, functionTypesAreBoolean =
 			new Set(),
 			functionTypesAreBoolean,
 		);
-		// The type checker is not expected to throw, but a crash here would break linting.
-		/* node:coverage ignore next 3 */
-	} catch {
-		return unknown;
-	}
+	}) ?? unknown;
 }
 
 function hasNullableType(node, context) {
@@ -606,13 +596,7 @@ function hasNullableType(node, context) {
 		return true;
 	}
 
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return false;
-	}
-
-	try {
-		const checker = parserServices.program.getTypeChecker();
+	return withTypeInformation(node, context, ({type, checker}) => {
 		const hasNullishType = (type, visitedTypes = new Set()) => {
 			if (!type || visitedTypes.has(type)) {
 				return false;
@@ -635,19 +619,12 @@ function hasNullableType(node, context) {
 			return type.getCallSignatures().some(signature => hasNullishType(signature.getReturnType(), visitedTypes));
 		};
 
-		return hasNullishType(parserServices.getTypeAtLocation(node));
-		// The type checker is not expected to throw, but a crash here would break linting.
-		/* node:coverage ignore next 3 */
-	} catch {
-		return false;
-	}
+		return hasNullishType(type);
+	}) ?? false;
 }
 
 function getPromisedTypeInformationBooleanState(node, context, allowNullish = true) {
-	const {parserServices} = context.sourceCode;
-	try {
-		const checker = parserServices.program.getTypeChecker();
-		const type = parserServices.getTypeAtLocation(node);
+	return withTypeInformation(node, context, ({type, checker}) => {
 		const nonNullableType = checker.getNonNullableType(type);
 		if (!allowNullish && nonNullableType !== type) {
 			return unknown;
@@ -658,11 +635,7 @@ function getPromisedTypeInformationBooleanState(node, context, allowNullish = tr
 		}
 
 		return getPossiblyPromisedTypeBooleanState(nonNullableType, checker, allowNullish);
-		// The type checker is not expected to throw, but a crash here would break linting.
-		/* node:coverage ignore next 3 */
-	} catch {
-		return unknown;
-	}
+	}) ?? unknown;
 }
 
 function getPossiblyPromisedTypeBooleanState(type, checker, allowNullish) {
@@ -691,7 +664,7 @@ function getTypeReferenceName(typeName) {
 }
 
 const getTypeDefinitions = (name, scope) =>
-	(resolveVariableName(name, scope)?.defs ?? []).filter(definition => definition.type === 'Type');
+	(findVariable(scope, name)?.defs ?? []).filter(definition => definition.type === 'Type');
 const getInterfaceDefinitions = (name, scope) =>
 	getTypeDefinitions(name, scope).filter(definition => definition.node.type === 'TSInterfaceDeclaration');
 
@@ -1000,18 +973,7 @@ function isCallableTypeAnnotation(node, context, scope, {visitedTypeReferenceNod
 	}
 
 	if (node.typeName.type === 'TSQualifiedName') {
-		const {parserServices} = context.sourceCode;
-		if (!parserServices?.program) {
-			return false;
-		}
-
-		try {
-			return parserServices.getTypeAtLocation(node).getCallSignatures().length > 0;
-			// The type checker is not expected to throw, but a crash here would break linting.
-			/* node:coverage ignore next 3 */
-		} catch {
-			return false;
-		}
+		return withTypeInformation(node, context, ({type}) => type.getCallSignatures().length > 0) ?? false;
 	}
 
 	const name = getTypeReferenceName(node.typeName);
@@ -1837,23 +1799,15 @@ function getFunctionBooleanState(node, context, visitedVariables = new Set(), is
 		return unknown;
 	}
 
-	if (node.body.type === 'BlockStatement') {
-		if (node.body.body.length === 0) {
-			return nonBoolean;
-		}
-
-		if (
-			node.body.body.length === 1
-			&& node.body.body[0].type === 'ReturnStatement'
-		) {
-			return node.body.body[0].argument
-				? getExpressionBooleanState(node.body.body[0].argument, context, visitedVariables, false)
-				: nonBoolean;
-		}
+	const returnExpression = getFunctionReturnExpression(node);
+	if (returnExpression) {
+		return getExpressionBooleanState(returnExpression, context, visitedVariables, false);
 	}
 
-	return node.type === 'ArrowFunctionExpression' && node.body.type !== 'BlockStatement'
-		? getExpressionBooleanState(node.body, context, visitedVariables, false)
+	// The body is a block here. An empty body or a bare `return;` returns `undefined`.
+	const statements = node.body.body;
+	return statements.length === 0 || (statements.length === 1 && statements[0].type === 'ReturnStatement')
+		? nonBoolean
 		: unknown;
 }
 
@@ -2286,7 +2240,7 @@ function getMemberReportIdentity(node, sourceCode) {
 			const namespaceIdentity = namespaceIdentityParts.join('/');
 			let owner = isExternalModule || isGlobal
 				? namespaceIdentity
-				: resolveVariableName(ownerName, sourceCode.getScope(node));
+				: findVariable(sourceCode.getScope(node), ownerName);
 			if (!owner && namespaceNames.length > 0) {
 				owner = namespaceIdentity;
 			}

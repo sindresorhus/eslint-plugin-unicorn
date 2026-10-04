@@ -70,14 +70,8 @@ const isSearchStringSafe = (method, searchString) => method === 'startsWith'
 	? searchString === searchString.trimEnd()
 	: searchString === searchString.trimStart();
 
-const getStaticValueResult = (node, context) => {
-	node = unwrapTypeScriptExpression(node);
-
-	return getStaticValueIfNoSideEffects(node, context);
-};
-
 const getStaticSearchString = (node, context) => {
-	const result = getStaticValueResult(node, context);
+	const result = getStaticValueIfNoSideEffects(node, context);
 	if (!result) {
 		return;
 	}
@@ -96,7 +90,7 @@ const isStaticNonString = (node, context) => {
 		return true;
 	}
 
-	const result = getStaticValueResult(node, context);
+	const result = getStaticValueIfNoSideEffects(node, context);
 	return result ? typeof result.value !== 'string' : false;
 };
 

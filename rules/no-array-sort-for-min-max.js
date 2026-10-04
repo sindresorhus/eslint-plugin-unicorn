@@ -5,6 +5,7 @@ import {
 	isNumericLiteral,
 } from './ast/index.js';
 import {
+	getFunctionReturnExpression,
 	hasOptionalChainElement,
 	isKnownBigIntTypedArray,
 	isKnownNonIndexedCollection,
@@ -30,21 +31,6 @@ const isLoopLeftHandSide = node =>
 	)
 	&& node.parent.left === node;
 
-const getFunctionBodyExpression = node => {
-	if (node.body.type !== 'BlockStatement') {
-		return node.body;
-	}
-
-	if (node.body.body.length !== 1) {
-		return;
-	}
-
-	const [statement] = node.body.body;
-	if (statement.type === 'ReturnStatement') {
-		return statement.argument;
-	}
-};
-
 const getSortDirection = comparator => {
 	if (
 		!isFunction(comparator)
@@ -56,7 +42,7 @@ const getSortDirection = comparator => {
 		return;
 	}
 
-	const body = unwrapTypeScriptExpression(getFunctionBodyExpression(comparator));
+	const body = unwrapTypeScriptExpression(getFunctionReturnExpression(comparator));
 	if (body?.type !== 'BinaryExpression' || body.operator !== '-') {
 		return;
 	}

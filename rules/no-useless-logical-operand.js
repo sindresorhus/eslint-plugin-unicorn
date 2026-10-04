@@ -1,13 +1,13 @@
-import {isBooleanLiteral, isFunction, isStringLiteral} from './ast/index.js';
+import {isBooleanLiteral, isInDirectivePrologue, isStringLiteral} from './ast/index.js';
 import replaceNodeWithExpression from './fix/replace-node-with-expression.js';
 import {
-	getParenthesizedText,
+	getLogicalExpressionChildText,
+	getLogicalExpressionOperands,
 	isBoolean,
-	isBooleanExpression,
-	isControlFlowTest,
+	isBooleanContext,
+	isOutermostLogicalExpression,
 	isParenthesized,
 	needsSemicolon,
-	shouldAddParenthesesToLogicalExpressionChild,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -37,31 +37,8 @@ const leadingOperandTypesNeedingParentheses = new Set([
 	'ObjectExpression',
 ]);
 
-function isOutermostLogicalExpression(node) {
-	return node.parent.type !== 'LogicalExpression'
-		|| node.parent.operator !== node.operator;
-}
-
-function getLogicalOperands(node, operator) {
-	if (
-		node.type === 'LogicalExpression'
-		&& node.operator === operator
-	) {
-		return [
-			...getLogicalOperands(node.left, operator),
-			...getLogicalOperands(node.right, operator),
-		];
-	}
-
-	return [node];
-}
-
 function areKnownBooleanOperands(operands, context) {
 	return operands.every(operand => isBoolean(operand, context));
-}
-
-function isBooleanContext(node, context) {
-	return isBooleanExpression(node, context) || isControlFlowTest(node);
 }
 
 function isRemovableIdentityOperand(operands, index, context) {
@@ -70,7 +47,8 @@ function isRemovableIdentityOperand(operands, index, context) {
 	}
 
 	const remainingOperands = operands.slice(0, -1);
-	return isBooleanContext(operands[index].parent, context) || areKnownBooleanOperands(remainingOperands, context);
+	const {parent} = operands[index];
+	return isBooleanContext(parent, context) || areKnownBooleanOperands(remainingOperands, context);
 }
 
 function getLeadingAbsorbingOperand(operands, operator) {
@@ -98,50 +76,20 @@ function isStringLiteralExpression(node) {
 }
 
 function getOperandText(operand, operator, index, context) {
-	const operandIsParenthesized = isParenthesized(operand, context);
-	let text = getParenthesizedText(operand, context);
-
-	if (
-		!operandIsParenthesized
-		&& shouldAddParenthesesToLogicalExpressionChild(operand, {
-			operator,
-			property: index === 0 ? 'left' : 'right',
-		})
-	) {
-		text = `(${text})`;
-	}
+	const text = getLogicalExpressionChildText(operand, context, {
+		operator,
+		property: index === 0 ? 'left' : 'right',
+	});
 
 	if (
 		index === 0
-		&& !operandIsParenthesized
+		&& !isParenthesized(operand, context)
 		&& needsLeadingOperandParentheses(operand)
 	) {
-		text = `(${text})`;
+		return `(${text})`;
 	}
 
 	return text;
-}
-
-function isDirectiveProloguePosition(node) {
-	const {parent} = node;
-	if (parent.type !== 'ExpressionStatement' || parent.expression !== node) {
-		return false;
-	}
-
-	const bodyNode = parent.parent;
-	const grandparent = bodyNode.parent;
-	if (
-		bodyNode.type !== 'Program'
-		&& !(
-			bodyNode.type === 'BlockStatement'
-			&& isFunction(grandparent)
-		)
-	) {
-		return false;
-	}
-
-	const statementIndex = bodyNode.body.indexOf(parent);
-	return bodyNode.body.slice(0, statementIndex).every(statement => typeof statement.directive === 'string');
 }
 
 function getReplacementText(node, replacementOperands, operator, context) {
@@ -156,7 +104,7 @@ function getReplacementText(node, replacementOperands, operator, context) {
 
 function getProblem(node, context) {
 	const {operator} = node;
-	const operands = getLogicalOperands(node, operator);
+	const operands = getLogicalExpressionOperands(node, operator);
 	const leadingAbsorbingOperand = getLeadingAbsorbingOperand(operands, operator);
 
 	if (leadingAbsorbingOperand) {
@@ -200,7 +148,7 @@ const create = context => {
 		if (
 			replacementOperands.length === 1
 			&& isStringLiteralExpression(replacementOperands[0])
-			&& isDirectiveProloguePosition(node)
+			&& isInDirectivePrologue(node)
 		) {
 			return;
 		}

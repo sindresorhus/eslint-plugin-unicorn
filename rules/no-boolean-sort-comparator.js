@@ -1,6 +1,7 @@
 import {getPropertyName} from '@eslint-community/eslint-utils';
 import {isCallExpression, isFunction} from './ast/index.js';
 import {
+	getFunctionReturnExpression,
 	isBooleanFunction,
 	isBooleanFunctionReference,
 	isBooleanFunctionTypeAnnotation,
@@ -20,21 +21,6 @@ const messages = {
 
 const sortMethodNames = new Set(['sort', 'toSorted']);
 const orderingOperators = new Set(['>', '>=', '<', '<=']);
-
-const getFunctionReturnExpression = node => {
-	if (node.body.type !== 'BlockStatement') {
-		return node.body;
-	}
-
-	if (node.body.body.length !== 1) {
-		return;
-	}
-
-	const [statement] = node.body.body;
-	if (statement.type === 'ReturnStatement') {
-		return statement.argument;
-	}
-};
 
 const isParameterMirror = (left, right, firstParameter, secondParameter) => {
 	left = unwrapTypeScriptExpression(left);

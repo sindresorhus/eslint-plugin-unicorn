@@ -62,7 +62,7 @@ Message:
     |     ^^^^^^^^^^^^^^^ Do not use a dynamic object property existence check.
 
 Suggestion 1/1: Use \`Object.hasOwn()\`.:
-  1 | if (Object.hasOwn((object), (key))) {}
+  1 | if (Object.hasOwn(object, key)) {}
 
 `;
 
@@ -229,7 +229,7 @@ Message:
     |     ^^^^^^^^^^^^^^^^^ Do not use a dynamic object property existence check.
 
 Suggestion 1/1: Use \`Object.hasOwn()\`.:
-  1 | if (Object.hasOwn((object), (key))) {}
+  1 | if (Object.hasOwn(object, key)) {}
 
 `;
 

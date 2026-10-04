@@ -1,6 +1,6 @@
 import {getFunctionHeadLocation, getFunctionNameWithKind} from '@eslint-community/eslint-utils';
 import {functionTypes} from './ast/index.js';
-import {unwrapTypeScriptExpression} from './utils/index.js';
+import {getFunctionReturnExpression, unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-native-coercion-functions';
 const MESSAGE_ID_SUGGESTION = 'prefer-native-coercion-functions/suggestion';
@@ -21,18 +21,7 @@ const isNativeCoercionFunctionCall = (node, firstArgumentName) =>
 	&& node.arguments[0].name === firstArgumentName;
 
 // `v => value` or `function (v) {return value;}`, with TypeScript expression wrappers around the value removed
-function getReturnedExpression(node) {
-	if (node.body.type !== 'BlockStatement') {
-		return unwrapTypeScriptExpression(node.body);
-	}
-
-	if (
-		node.body.body.length === 1
-		&& node.body.body[0].type === 'ReturnStatement'
-	) {
-		return unwrapTypeScriptExpression(node.body.body[0].argument);
-	}
-}
+const getReturnedExpression = node => unwrapTypeScriptExpression(getFunctionReturnExpression(node));
 
 // `v => v`
 const isIdentityFunction = node => {

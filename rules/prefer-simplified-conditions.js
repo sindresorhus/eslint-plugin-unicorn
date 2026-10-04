@@ -5,16 +5,16 @@ import {
 	fixSpaceAroundKeyword,
 } from './fix/index.js';
 import {
+	getNegatedExpressionText,
 	getParenthesizedText,
 	isBoolean,
-	isBooleanExpression,
+	isBooleanContext,
 	isControlFlowTest,
 	isOnSameLine,
 	isParenthesized,
 	isTypeScriptExpressionWrapper,
 	needsSemicolon,
 	shouldAddParenthesesToLogicalExpressionChild,
-	shouldAddParenthesesToUnaryExpressionArgument,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {
@@ -181,7 +181,7 @@ const canDropAbsorptionOperand = (node, replacement, removable, context) =>
 	);
 
 // The returned text never needs parentheses as an operand of `&&`/`||`: a source operand of `!` that binds looser than `!` is always parenthesized in the source, and every generated text is a unary or equality expression.
-function getNegatedExpressionText(node, context, canUseTruthiness) {
+function getNegatedOperandText(node, context, canUseTruthiness) {
 	if (isNegation(node)) {
 		if (canUseTruthiness || isBoolean(node.argument, context)) {
 			return getParenthesizedText(node.argument, context);
@@ -198,10 +198,7 @@ function getNegatedExpressionText(node, context, canUseTruthiness) {
 		);
 	}
 
-	const text = getParenthesizedText(node, context);
-	return shouldAddParenthesesToUnaryExpressionArgument(node, '!') && !isParenthesized(node, context)
-		? `!(${text})`
-		: `!${text}`;
+	return getNegatedExpressionText(node, context);
 }
 
 function shouldAddParenthesesToLogicalReplacement(node, operator, context) {
@@ -246,9 +243,9 @@ function getDeMorganReplacementText(node, context) {
 	const operator = negatedLogicalOperators.get(argument.operator);
 	const canUseTruthiness = isControlFlowTest(node);
 	const replacement = [
-		getNegatedExpressionText(argument.left, context, canUseTruthiness),
+		getNegatedOperandText(argument.left, context, canUseTruthiness),
 		operator,
-		getNegatedExpressionText(argument.right, context, canUseTruthiness),
+		getNegatedOperandText(argument.right, context, canUseTruthiness),
 	].join(' ');
 
 	return getLogicalReplacementText(node, operator, replacement, context);
@@ -340,9 +337,6 @@ function isSafeFactoringOperand(node, context) {
 	return isSimpleRepeatableExpression(node)
 		|| isSafeRepeatableBooleanStaticCall(node, context);
 }
-
-const isBooleanContext = (node, context) =>
-	isBooleanExpression(node, context) || isControlFlowTest(node);
 
 function canFactor(node, operands, context) {
 	return operands.every(operand => isSafeFactoringOperand(operand, context))

@@ -1,20 +1,10 @@
-import {findVariable} from '@eslint-community/eslint-utils';
 import {isFunction} from './ast/index.js';
-import {isGlobalIdentifier} from './utils/index.js';
+import {getFunctionFromIdentifier, isGlobalIdentifier, unwrapChainAndTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-invalid-argument-count';
 const messages = {
 	[MESSAGE_ID]: 'Expected {{expected}}, but got {{actual}}.',
 };
-
-const expressionWrapperTypes = new Set([
-	'ChainExpression',
-	'TSAsExpression',
-	'TSTypeAssertion',
-	'TSNonNullExpression',
-	'TSSatisfiesExpression',
-	'TSInstantiationExpression',
-]);
 
 const globalObjectNames = new Set([
 	'globalThis',
@@ -929,14 +919,6 @@ const defaultArgumentCounts = {
 
 const formatArgumentCount = count => `${count} ${count === 1 ? 'argument' : 'arguments'}`;
 
-const unwrapExpression = node => {
-	while (expressionWrapperTypes.has(node.type)) {
-		node = node.expression;
-	}
-
-	return node;
-};
-
 const isThisParameter = parameter =>
 	parameter?.type === 'Identifier'
 	&& parameter.name === 'this';
@@ -971,55 +953,14 @@ const getArity = functionNode => {
 	};
 };
 
-const hasWriteReference = variable => variable.references.some(reference =>
-	!reference.init
-	&& reference.isWrite());
-
-const getFunctionNodeFromVariable = variable => {
-	if (!variable || variable.defs.length !== 1) {
-		return;
-	}
-
-	const [definition] = variable.defs;
-
-	if (definition.type === 'FunctionName') {
-		if (hasWriteReference(variable)) {
-			return;
-		}
-
-		return definition.node.body ? definition.node : undefined;
-	}
-
-	if (definition.type !== 'Variable') {
-		return;
-	}
-
-	const {node} = definition;
-	const init = node.init && unwrapExpression(node.init);
-	if (
-		node.parent.kind !== 'const'
-		|| !init
-		|| !isFunction(init)
-	) {
-		return;
-	}
-
-	return init;
-};
-
-const getFunctionNode = (callExpression, sourceCode) => {
-	const callee = unwrapExpression(callExpression.callee);
+const getFunctionNode = (callExpression, context) => {
+	const callee = unwrapChainAndTypeScriptExpression(callExpression.callee);
 
 	if (isFunction(callee)) {
 		return callee;
 	}
 
-	if (callee.type !== 'Identifier') {
-		return;
-	}
-
-	const variable = findVariable(sourceCode.getScope(callee), callee);
-	return getFunctionNodeFromVariable(variable);
+	return getFunctionFromIdentifier(callee, context);
 };
 
 // Only too-many-arguments is reported for user-defined functions, so this only ever describes an upper bound.
@@ -1113,7 +1054,7 @@ const isConfiguredArgumentCountInvalid = (expectedArgumentCount, callArguments) 
 
 // Collects the dotted callee path and its root node without resolving any scope.
 const getCalleeRawPath = node => {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	const parts = [];
 	while (node.type === 'MemberExpression' && !node.computed) {
@@ -1122,7 +1063,7 @@ const getCalleeRawPath = node => {
 		}
 
 		parts.unshift(node.property.name);
-		node = unwrapExpression(node.object);
+		node = unwrapChainAndTypeScriptExpression(node.object);
 	}
 
 	if (node.type === 'Identifier') {
@@ -1284,7 +1225,6 @@ const getConfiguredArgumentCountProblem = (expression, lookup, context) => {
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	const {sourceCode} = context;
 	const lookup = buildLookup(createConfiguredArgumentCountEntries(context.options[0]));
 
 	context.on('CallExpression', callExpression => {
@@ -1297,7 +1237,7 @@ const create = context => {
 			return;
 		}
 
-		const functionNode = getFunctionNode(callExpression, sourceCode);
+		const functionNode = getFunctionNode(callExpression, context);
 		if (!functionNode) {
 			return;
 		}

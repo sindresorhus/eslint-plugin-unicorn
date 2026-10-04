@@ -1,13 +1,14 @@
 import {
 	getAvailableVariableName,
-	getScopes,
 	isShorthandPropertyValue,
 	lowerFirst,
 	upperFirst,
 	isIdentifierName,
 } from './utils/index.js';
 import {
-	isClassVariable,
+	createFixerNameTracker,
+	getAllVariables,
+	isTSParameterPropertyName,
 	shouldCheckDefaultOrNamespaceImportName,
 	shouldCheckShorthandImportName,
 	shouldRenameVariable,
@@ -238,42 +239,7 @@ const create = context => {
 		return;
 	}
 
-	const identifierToOuterClassVariable = new WeakMap();
-	const scopeToNamesGeneratedByFixer = new WeakMap();
-	const isSafeName = (name, scopes) => scopes.every(scope => {
-		const generatedNames = scopeToNamesGeneratedByFixer.get(scope);
-		return !generatedNames || !generatedNames.has(name);
-	});
-
-	const reportVariableWithClassReferences = variable => {
-		if (isClassVariable(variable)) {
-			if (variable.scope.type === 'class') {
-				const [definition] = variable.defs;
-				const outerClassVariable = identifierToOuterClassVariable.get(definition.name);
-
-				if (!outerClassVariable) {
-					return reportVariable(variable);
-				}
-
-				const combinedReferencesVariable = {
-					name: variable.name,
-					scope: variable.scope,
-					defs: variable.defs,
-					identifiers: variable.identifiers,
-					references: [...variable.references, ...outerClassVariable.references],
-				};
-
-				return reportVariable(combinedReferencesVariable);
-			}
-
-			const [definition] = variable.defs;
-			identifierToOuterClassVariable.set(definition.name, variable);
-
-			return;
-		}
-
-		return reportVariable(variable);
-	};
+	const {isSafeName, addName} = createFixerNameTracker();
 
 	const reportVariable = variable => {
 		if (variable.defs.length === 0) {
@@ -318,14 +284,7 @@ const create = context => {
 			&& shouldRenameVariable(variable)
 			&& variable.references.every(reference => !reference.vueUsedInTemplate)
 		) {
-			for (const scope of scopes) {
-				if (!scopeToNamesGeneratedByFixer.has(scope)) {
-					scopeToNamesGeneratedByFixer.set(scope, new Set());
-				}
-
-				const generatedNames = scopeToNamesGeneratedByFixer.get(scope);
-				generatedNames.add(safeReplacement);
-			}
+			addName(safeReplacement, scopes);
 
 			problem.suggest = [
 				{
@@ -337,36 +296,6 @@ const create = context => {
 		}
 
 		context.report(problem);
-	};
-
-	const reportVariables = scope => {
-		for (const variable of scope.variables) {
-			reportVariableWithClassReferences(variable);
-		}
-	};
-
-	const reportScopeVariables = scope => {
-		const scopes = getScopes(scope);
-		for (const scope of scopes) {
-			reportVariables(scope);
-		}
-	};
-
-	const isTSParameterPropertyName = node => {
-		if (options.checkVariables) {
-			return false;
-		}
-
-		if (node.parent.type === 'TSParameterProperty') {
-			return node.parent.parameter === node;
-		}
-
-		return (
-			node.parent.type === 'AssignmentPattern'
-			&& node.parent.left === node
-			&& node.parent.parent.type === 'TSParameterProperty'
-			&& node.parent.parent.parameter === node.parent
-		);
 	};
 
 	const reportProperty = node => {
@@ -387,10 +316,10 @@ const create = context => {
 			return;
 		}
 
-		if (
-			!isTSParameterPropertyName(node)
-			&& !shouldReportIdentifierAsProperty(node)
-		) {
+		// When variables are checked, a TypeScript parameter property is reported as a variable instead
+		const isProperty = (!options.checkVariables && isTSParameterPropertyName(node))
+			|| shouldReportIdentifierAsProperty(node);
+		if (!isProperty) {
 			return;
 		}
 
@@ -409,7 +338,9 @@ const create = context => {
 			return;
 		}
 
-		reportScopeVariables(context.sourceCode.getScope(program));
+		for (const variable of getAllVariables(context.sourceCode.getScope(program))) {
+			reportVariable(variable);
+		}
 	});
 };
 

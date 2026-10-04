@@ -1,12 +1,18 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
-import {getParenthesizedRange, getStaticValueIfNoSideEffects} from './utils/index.js';
+import {
+	getLogicalExpressionOperands,
+	getParenthesizedRange,
+	getStaticValueIfNoSideEffects,
+	hasCommentInRange,
+	isOutermostLogicalExpression,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 import {
 	comparisonOperators,
 	containsOptionalChain,
 	flipOperator,
 	isReference,
 	isSame,
-	unwrapExpression,
 } from './utils/comparison.js';
 
 const MESSAGE_ID = 'no-redundant-comparison';
@@ -17,13 +23,6 @@ const messages = {
 };
 
 const ORDERING_OPERATORS = new Set(['>', '>=', '<', '<=']);
-
-function flatAndChain(node) {
-	return [node.left, node.right].flatMap(child =>
-		child.type === 'LogicalExpression' && child.operator === '&&'
-			? flatAndChain(child)
-			: [child]);
-}
 
 // Whether `p` (a `{operator, value}` predicate) being true guarantees `q` is true, for two numeric bounds on the same value.
 function impliesNumeric(pOperator, pValue, qOperator, qValue) {
@@ -69,7 +68,7 @@ function entails(a, b, context) {
 	}
 
 	const getStaticValueForComparison = node => {
-		node = unwrapExpression(node);
+		node = unwrapTypeScriptExpression(node);
 		return getStaticValueIfNoSideEffects(node, context)?.value;
 	};
 
@@ -145,7 +144,7 @@ function classifyOperands(operands) {
 	const comparisons = [];
 
 	for (const operand of operands) {
-		const expression = unwrapExpression(operand);
+		const expression = unwrapTypeScriptExpression(operand);
 		if (
 			expression.type !== 'BinaryExpression'
 			|| !comparisonOperators.has(expression.operator)
@@ -226,12 +225,12 @@ const create = context => {
 	context.on('LogicalExpression', node => {
 		if (
 			node.operator !== '&&'
-			|| (node.parent.type === 'LogicalExpression' && node.parent.operator === '&&')
+			|| !isOutermostLogicalExpression(node)
 		) {
 			return;
 		}
 
-		const {equalities, disequalities, comparisons} = classifyOperands(flatAndChain(node));
+		const {equalities, disequalities, comparisons} = classifyOperands(getLogicalExpressionOperands(node, '&&'));
 
 		if (comparisons.length === 0 || (equalities.length === 0 && disequalities.length === 0)) {
 			return;
@@ -257,11 +256,7 @@ const create = context => {
 		};
 
 		// Removing the comparison would drop a comment in the removed span.
-		const hasComment = sourceCode.getAllComments().some(comment => {
-			const [start, end] = sourceCode.getRange(comment);
-			return start >= range[0] && end <= range[1];
-		});
-		if (hasComment) {
+		if (hasCommentInRange(context, range)) {
 			return problem;
 		}
 

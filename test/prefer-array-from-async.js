@@ -510,3 +510,11 @@ test.snapshot({
 	],
 	invalid: [],
 });
+
+// A mapper body that starts with `{` needs parentheses, otherwise the arrow function body is parsed as a block
+test.snapshot({
+	valid: [],
+	invalid: [
+		'async function foo() { const result = []; for await (const item of items) { result.push(await {a: item}.a); } }',
+	],
+});

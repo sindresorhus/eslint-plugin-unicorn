@@ -600,6 +600,17 @@ test('ignores Markdown fenced code block content', t => {
 	t.assert.deepStrictEqual(messages, []);
 });
 
+test('ignores Markdown HTML comments inside inline code and indented code blocks', t => {
+	const config = createLanguageConfig('markdown/commonmark');
+	const linter = new Linter({configType: 'flat'});
+	const code = 'Use `<!-- nodejs -->` here.\n\n    <!-- github -->\n\n<!-- json -->';
+	const messages = linter.verify(code, config, {filename: 'fixture.md'});
+	const result = linter.verifyAndFix(code, config, {filename: 'fixture.md'});
+
+	t.assert.deepStrictEqual(messages.map(({message}) => message), ['Prefer `JSON` over `json`.']);
+	t.assert.strictEqual(result.output, 'Use `<!-- nodejs -->` here.\n\n    <!-- github -->\n\n<!-- JSON -->');
+});
+
 test('does not repeatedly rescan Markdown fences for HTML comments', t => {
 	const config = createLanguageConfig('markdown/gfm');
 	const linter = new Linter({configType: 'flat'});
@@ -1686,12 +1697,19 @@ test('a quote closed on a later line still masks the lines in between', t => {
 test('checks unterminated Markdown HTML comments to the end of the file', t => {
 	const config = createLanguageConfig('markdown/gfm');
 	const linter = new Linter({configType: 'flat'});
-	const code = 'Text <!-- github';
+	const code = 'Text\n\n<!-- github';
 	const messages = linter.verify(code, config, {filename: 'fixture.md'});
 	const result = linter.verifyAndFix(code, config, {filename: 'fixture.md'});
 
 	t.assert.deepStrictEqual(messages.map(({message}) => message), ['Prefer `GitHub` over `github`.']);
-	t.assert.strictEqual(result.output, 'Text <!-- GitHub');
+	t.assert.strictEqual(result.output, 'Text\n\n<!-- GitHub');
+});
+
+test('ignores an unterminated inline Markdown HTML comment, which is plain text', t => {
+	const config = createLanguageConfig('markdown/gfm');
+	const linter = new Linter({configType: 'flat'});
+
+	t.assert.deepStrictEqual(linter.verify('Text <!-- github', config, {filename: 'fixture.md'}), []);
 });
 
 test('fixes prose next to ignored syntax', t => {

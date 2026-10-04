@@ -73,6 +73,7 @@ testRule.snapshot({
 	invalid: [
 		'function format(value) { return value; } format(1); format(1);',
 		'const format = value => value; format(1); format(1);',
+		'const format = value => value; eval?.(source); format(1); format(1);',
 		'const format = (value) => value; format(1); format(1);',
 		'const format = function (value) { return value; }; format(1); format(1);',
 		'const format = function inner(value) { return value; }; format(1); format(1);',

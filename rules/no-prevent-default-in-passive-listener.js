@@ -1,7 +1,7 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {isBooleanLiteral, isCallExpression} from './ast/index.js';
-import {createLateEventHandlerTracker, getEnclosingFunction} from './shared/late-event-handler.js';
-import {isTypeScriptExpressionWrapper, unwrapTypeScriptExpression} from './utils/index.js';
+import {createLateEventHandlerTracker} from './shared/late-event-handler.js';
+import {getEnclosingFunction, getOutermostTypeScriptExpression, unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-prevent-default-in-passive-listener/error';
 const MESSAGE_ID_SUGGESTION = 'no-prevent-default-in-passive-listener/suggestion';
@@ -11,11 +11,7 @@ const messages = {
 };
 
 const getPassiveLiteral = listener => {
-	let listenerExpression = listener;
-	while (isTypeScriptExpressionWrapper(listenerExpression.parent)) {
-		listenerExpression = listenerExpression.parent;
-	}
-
+	const listenerExpression = getOutermostTypeScriptExpression(listener);
 	const registration = listenerExpression.parent;
 	if (
 		!isCallExpression(registration, {argumentsLength: 3})

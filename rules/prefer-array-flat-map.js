@@ -2,6 +2,7 @@ import {
 	getCommentSafeProblem,
 	getParenthesizedText,
 	hasNonDirectiveComment,
+	hasTypeArguments,
 	hasOptionalChainElement,
 	isKnownNonIndexedCollection,
 	isNodeMatches,
@@ -39,8 +40,6 @@ const conditionalTestExpressionTypesRequiringParentheses = new Set([
 	'TSTypeAssertion',
 	'YieldExpression',
 ]);
-
-const hasTypeArguments = node => node.typeArguments || node.typeParameters;
 
 const isSimpleUntypedSingleParameterArrowCallback = node =>
 	node.type === 'ArrowFunctionExpression'

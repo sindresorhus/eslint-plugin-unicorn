@@ -1,25 +1,24 @@
-import {findVariable} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
-import {isKnownNonArray, unwrapTypeScriptExpression as unwrapExpression} from './utils/index.js';
+import {
+	getConstVariableInitializer,
+	isGlobalIdentifier,
+	isKnownNonArray,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'no-array-fill-with-reference-type';
 const messages = {
 	[MESSAGE_ID]: 'Do not use a reference value as the fill value.',
 };
 
-function isGlobalIdentifier(node, name, context) {
-	return node.type === 'Identifier'
-		&& node.name === name
-		&& context.sourceCode.isGlobalReference(node);
-}
-
 function isRegExpConstruction(node, context) {
 	return node.type === 'NewExpression'
-		&& isGlobalIdentifier(node.callee, 'RegExp', context);
+		&& node.callee.name === 'RegExp'
+		&& isGlobalIdentifier(node.callee, context);
 }
 
 function isReferenceExpression(node, context) {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
 	if (!node) {
 		return false;
@@ -39,39 +38,12 @@ function isReferenceExpression(node, context) {
 		&& !isRegExpConstruction(node, context);
 }
 
-function getConstVariableInitializer(node, context) {
-	node = unwrapExpression(node);
-
-	if (node.type !== 'Identifier') {
-		return;
-	}
-
-	const variable = findVariable(context.sourceCode.getScope(node), node);
-	if (!variable || variable.defs.length !== 1) {
-		return;
-	}
-
-	const [definition] = variable.defs;
-	if (
-		definition.type !== 'Variable'
-		|| definition.node.type !== 'VariableDeclarator'
-		|| definition.node.id.type !== 'Identifier'
-		|| definition.node.id.name !== node.name
-		|| definition.parent.type !== 'VariableDeclaration'
-		|| definition.parent.kind !== 'const'
-	) {
-		return;
-	}
-
-	return unwrapExpression(definition.node.init);
-}
-
 function isReferenceFillValue(node, context) {
 	if (isReferenceExpression(node, context)) {
 		return true;
 	}
 
-	const initializer = getConstVariableInitializer(node, context);
+	const initializer = getConstVariableInitializer(unwrapTypeScriptExpression(node), context);
 	return isReferenceExpression(initializer, context);
 }
 

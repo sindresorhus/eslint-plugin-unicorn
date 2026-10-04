@@ -251,6 +251,9 @@ test.snapshot({
 		'import callback from "callback"; [...map.values()].some(callback);',
 		'function foo(callback) { return [...map.values()].some(callback); }',
 		'[...map.values()].some(foo.callback);',
+		// A reassigned callback can read the argument
+		'let callback = value => value; callback = (value, index, array) => array.length; [...map.values()].find(callback);',
+		'const {callback} = function (value, index, array) {}; [...map.values()].find(callback);',
 	],
 	invalid: [
 		'function callback(value, index) { return value === index; } [...map.values()].some(callback);',

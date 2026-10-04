@@ -4,10 +4,10 @@ import {
 	isMemberExpression,
 	isMethodCall,
 } from './ast/index.js';
-import {unwrapExpression} from './utils/comparison.js';
 import {
 	getConstVariableInitializer,
 	isKnownNonString,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-unsafe-string-replacement';
@@ -39,12 +39,12 @@ const isSafeStringRepeat = node => {
 	}
 
 	// Only the repeated string can introduce replacement patterns. Do not inspect or evaluate the repeat arguments.
-	const stringValue = getStaticStringValue(unwrapExpression(node.callee.object));
+	const stringValue = getStaticStringValue(unwrapTypeScriptExpression(node.callee.object));
 	return stringValue !== undefined && !stringValue.includes('$');
 };
 
 const isAllowedReplacement = (node, sourceCode) => {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
 	return getStaticStringValue(node) !== undefined
 		|| isStaticStringRawTaggedTemplate(node, sourceCode)
@@ -59,8 +59,8 @@ const objectCoercionPropertyNames = new Set([
 ]);
 
 const isPlainObjectReplacement = (node, context) => {
-	node = unwrapExpression(node);
-	const replacement = unwrapExpression(getConstVariableInitializer(node, context) ?? node);
+	node = unwrapTypeScriptExpression(node);
+	const replacement = unwrapTypeScriptExpression(getConstVariableInitializer(node, context) ?? node);
 
 	return replacement.type === 'ObjectExpression'
 		&& replacement.properties.every(property =>

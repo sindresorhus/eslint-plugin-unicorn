@@ -9,9 +9,9 @@ import {
 	getTypeSymbol,
 	isNullishType,
 	isUnknownType,
+	withTypeInformation,
 } from './types.js';
 import {getStaticValueForControlFlow} from './get-static-value.js';
-import {getVariableByName} from './scope.js';
 
 const target = 'target';
 const nonTarget = 'non-target';
@@ -93,6 +93,13 @@ const combineIntersectionTypes = types => {
 	return types.includes(target) ? target : nonTarget;
 };
 
+/**
+Find the nearest type-like definition (class, import, enum, or type alias/interface) of a type reference name, walking up from `scope`.
+
+@param {string} typeReferenceName
+@param {import('eslint').Scope.Scope} scope
+@returns {{definition: import('eslint').Scope.Definition, scope: import('eslint').Scope.Scope} | undefined} The definition and the scope that declares it.
+*/
 const getTypeReferenceDefinition = (typeReferenceName, scope) => {
 	while (scope) {
 		const definition = scope.set
@@ -398,26 +405,8 @@ function getTypeScriptType(type, checker, program, options) {
 		: nonTarget;
 }
 
-const getTypeFromTypeInformation = (node, context, options) => {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return unknown;
-	}
-
-	try {
-		const {program} = parserServices;
-		return getTypeScriptType(
-			parserServices.getTypeAtLocation(node),
-			program.getTypeChecker(),
-			program,
-			options,
-		);
-		// Defensive: the TypeScript checker can throw on unusual nodes or types, and no known input does. Fall back to an unknown type.
-		/* node:coverage ignore next 3 */
-	} catch {
-		return unknown;
-	}
-};
+const getTypeFromTypeInformation = (node, context, options) =>
+	withTypeInformation(node, context, ({type, checker, program}) => getTypeScriptType(type, checker, program, options)) ?? unknown;
 
 const getTypeFromStaticValue = (node, context, options) => {
 	const result = getStaticValueForControlFlow(node, context);
@@ -527,7 +516,7 @@ function getClassReferenceTypeFromScope(node, scope, options, visitedTypeReferen
 			return getKnownTypeReferenceType(typeReferenceName, options);
 		}
 
-		const variable = getVariableByName(typeReferenceName, scope);
+		const variable = findVariable(scope, typeReferenceName);
 		const [definition] = variable?.defs ?? [];
 		if (!definition) {
 			return getKnownTypeReferenceType(typeReferenceName, options);
@@ -786,6 +775,7 @@ const createBuiltinTypeCheckers = ({
 export {
 	createBuiltinTypeCheckers,
 	createTypeCheckers,
+	getTypeReferenceDefinition,
 	nonTarget,
 	nullish,
 	target,

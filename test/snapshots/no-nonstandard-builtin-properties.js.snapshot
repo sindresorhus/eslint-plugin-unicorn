@@ -726,45 +726,45 @@ Message:
 
 `;
 
-exports[`no-nonstandard-builtin-properties > invalid(57): BigInt.foo 1`] = `
+exports[`no-nonstandard-builtin-properties > invalid(57): Object[\"enti\" + \"res\"](value) 1`] = `
 
-  1 | BigInt.foo
+  1 | Object["enti" + "res"](value)
 
 `;
 
-exports[`no-nonstandard-builtin-properties > invalid(57): BigInt.foo 2`] = `
+exports[`no-nonstandard-builtin-properties > invalid(57): Object[\"enti\" + \"res\"](value) 2`] = `
 
 Message:
-> 1 | BigInt.foo
-    | ^^^^^^^^^^ \`foo\` is not a standard property of \`BigInt\`.
+> 1 | Object["enti" + "res"](value)
+    | ^^^^^^^^^^^^^^^^^^^^^^ \`entires\` is not a standard property of \`Object\`.
 
 `;
 
-exports[`no-nonstandard-builtin-properties > invalid(58): Symbol.foo 1`] = `
+exports[`no-nonstandard-builtin-properties > invalid(58): Math[0] 1`] = `
 
-  1 | Symbol.foo
+  1 | Math[0]
 
 `;
 
-exports[`no-nonstandard-builtin-properties > invalid(58): Symbol.foo 2`] = `
+exports[`no-nonstandard-builtin-properties > invalid(58): Math[0] 2`] = `
 
 Message:
-> 1 | Symbol.foo
-    | ^^^^^^^^^^ \`foo\` is not a standard property of \`Symbol\`.
+> 1 | Math[0]
+    | ^^^^^^^ \`0\` is not a standard property of \`Math\`.
 
 `;
 
-exports[`no-nonstandard-builtin-properties > invalid(59): WeakMap.foo 1`] = `
+exports[`no-nonstandard-builtin-properties > invalid(59): [][-1] 1`] = `
 
-  1 | WeakMap.foo
+  1 | [][-1]
 
 `;
 
-exports[`no-nonstandard-builtin-properties > invalid(59): WeakMap.foo 2`] = `
+exports[`no-nonstandard-builtin-properties > invalid(59): [][-1] 2`] = `
 
 Message:
-> 1 | WeakMap.foo
-    | ^^^^^^^^^^^ \`foo\` is not a standard property of \`WeakMap\`.
+> 1 | [][-1]
+    | ^^^^^^ \`-1\` is not a standard property of \`Array instances\`.
 
 `;
 
@@ -782,13 +782,55 @@ Message:
 
 `;
 
-exports[`no-nonstandard-builtin-properties > invalid(60): new WeakSet().foo 1`] = `
+exports[`no-nonstandard-builtin-properties > invalid(60): BigInt.foo 1`] = `
+
+  1 | BigInt.foo
+
+`;
+
+exports[`no-nonstandard-builtin-properties > invalid(60): BigInt.foo 2`] = `
+
+Message:
+> 1 | BigInt.foo
+    | ^^^^^^^^^^ \`foo\` is not a standard property of \`BigInt\`.
+
+`;
+
+exports[`no-nonstandard-builtin-properties > invalid(61): Symbol.foo 1`] = `
+
+  1 | Symbol.foo
+
+`;
+
+exports[`no-nonstandard-builtin-properties > invalid(61): Symbol.foo 2`] = `
+
+Message:
+> 1 | Symbol.foo
+    | ^^^^^^^^^^ \`foo\` is not a standard property of \`Symbol\`.
+
+`;
+
+exports[`no-nonstandard-builtin-properties > invalid(62): WeakMap.foo 1`] = `
+
+  1 | WeakMap.foo
+
+`;
+
+exports[`no-nonstandard-builtin-properties > invalid(62): WeakMap.foo 2`] = `
+
+Message:
+> 1 | WeakMap.foo
+    | ^^^^^^^^^^^ \`foo\` is not a standard property of \`WeakMap\`.
+
+`;
+
+exports[`no-nonstandard-builtin-properties > invalid(63): new WeakSet().foo 1`] = `
 
   1 | new WeakSet().foo
 
 `;
 
-exports[`no-nonstandard-builtin-properties > invalid(60): new WeakSet().foo 2`] = `
+exports[`no-nonstandard-builtin-properties > invalid(63): new WeakSet().foo 2`] = `
 
 Message:
 > 1 | new WeakSet().foo
@@ -796,13 +838,13 @@ Message:
 
 `;
 
-exports[`no-nonstandard-builtin-properties > invalid(61): Date.toTemporalInstant() 1`] = `
+exports[`no-nonstandard-builtin-properties > invalid(64): Date.toTemporalInstant() 1`] = `
 
   1 | Date.toTemporalInstant()
 
 `;
 
-exports[`no-nonstandard-builtin-properties > invalid(61): Date.toTemporalInstant() 2`] = `
+exports[`no-nonstandard-builtin-properties > invalid(64): Date.toTemporalInstant() 2`] = `
 
 Message:
 > 1 | Date.toTemporalInstant()
@@ -810,13 +852,13 @@ Message:
 
 `;
 
-exports[`no-nonstandard-builtin-properties > invalid(62): Iterator.prototype.zip() 1`] = `
+exports[`no-nonstandard-builtin-properties > invalid(65): Iterator.prototype.zip() 1`] = `
 
   1 | Iterator.prototype.zip()
 
 `;
 
-exports[`no-nonstandard-builtin-properties > invalid(62): Iterator.prototype.zip() 2`] = `
+exports[`no-nonstandard-builtin-properties > invalid(65): Iterator.prototype.zip() 2`] = `
 
 Message:
 > 1 | Iterator.prototype.zip()
@@ -824,13 +866,13 @@ Message:
 
 `;
 
-exports[`no-nonstandard-builtin-properties > invalid(63): new Uint8Array()[\"01\"] 1`] = `
+exports[`no-nonstandard-builtin-properties > invalid(66): new Uint8Array()[\"01\"] 1`] = `
 
   1 | new Uint8Array()["01"]
 
 `;
 
-exports[`no-nonstandard-builtin-properties > invalid(63): new Uint8Array()[\"01\"] 2`] = `
+exports[`no-nonstandard-builtin-properties > invalid(66): new Uint8Array()[\"01\"] 2`] = `
 
 Message:
 > 1 | new Uint8Array()["01"]
@@ -838,13 +880,13 @@ Message:
 
 `;
 
-exports[`no-nonstandard-builtin-properties > invalid(64): (Object as typeof Object).entires(value) 1`] = `
+exports[`no-nonstandard-builtin-properties > invalid(67): (Object as typeof Object).entires(value) 1`] = `
 
   1 | (Object as typeof Object).entires(value)
 
 `;
 
-exports[`no-nonstandard-builtin-properties > invalid(64): (Object as typeof Object).entires(value) 2`] = `
+exports[`no-nonstandard-builtin-properties > invalid(67): (Object as typeof Object).entires(value) 2`] = `
 
 Message:
 > 1 | (Object as typeof Object).entires(value)
@@ -852,13 +894,13 @@ Message:
 
 `;
 
-exports[`no-nonstandard-builtin-properties > invalid(65): type Disposable = {[Symbol.nonstandard](): void} 1`] = `
+exports[`no-nonstandard-builtin-properties > invalid(68): type Disposable = {[Symbol.nonstandard](): void} 1`] = `
 
   1 | type Disposable = {[Symbol.nonstandard](): void}
 
 `;
 
-exports[`no-nonstandard-builtin-properties > invalid(65): type Disposable = {[Symbol.nonstandard](): void} 2`] = `
+exports[`no-nonstandard-builtin-properties > invalid(68): type Disposable = {[Symbol.nonstandard](): void} 2`] = `
 
 Message:
 > 1 | type Disposable = {[Symbol.nonstandard](): void}
@@ -866,31 +908,17 @@ Message:
 
 `;
 
-exports[`no-nonstandard-builtin-properties > invalid(66): \`x\`.foo 1`] = `
+exports[`no-nonstandard-builtin-properties > invalid(69): \`x\`.foo 1`] = `
 
   1 | \`x\`.foo
 
 `;
 
-exports[`no-nonstandard-builtin-properties > invalid(66): \`x\`.foo 2`] = `
+exports[`no-nonstandard-builtin-properties > invalid(69): \`x\`.foo 2`] = `
 
 Message:
 > 1 | \`x\`.foo
     | ^^^^^^^ \`foo\` is not a standard property of \`String instances\`.
-
-`;
-
-exports[`no-nonstandard-builtin-properties > invalid(67): Math.PI!() 1`] = `
-
-  1 | Math.PI!()
-
-`;
-
-exports[`no-nonstandard-builtin-properties > invalid(67): Math.PI!() 2`] = `
-
-Message:
-> 1 | Math.PI!()
-    | ^^^^^^^ \`PI\` is not a callable property of \`Math\`.
 
 `;
 
@@ -905,6 +933,20 @@ exports[`no-nonstandard-builtin-properties > invalid(7): Array.prototype.foo 2`]
 Message:
 > 1 | Array.prototype.foo
     | ^^^^^^^^^^^^^^^^^^^ \`foo\` is not a standard property of \`Array.prototype\`.
+
+`;
+
+exports[`no-nonstandard-builtin-properties > invalid(70): Math.PI!() 1`] = `
+
+  1 | Math.PI!()
+
+`;
+
+exports[`no-nonstandard-builtin-properties > invalid(70): Math.PI!() 2`] = `
+
+Message:
+> 1 | Math.PI!()
+    | ^^^^^^^ \`PI\` is not a callable property of \`Math\`.
 
 `;
 

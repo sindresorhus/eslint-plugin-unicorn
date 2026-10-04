@@ -264,6 +264,23 @@ Output:
 
 `;
 
+exports[`no-unnecessary-global-this > invalid(24): globalThis[\"Ar\" + \"ray\"].from(items) 1`] = `
+
+  1 | globalThis["Ar" + "ray"].from(items)
+
+`;
+
+exports[`no-unnecessary-global-this > invalid(24): globalThis[\"Ar\" + \"ray\"].from(items) 2`] = `
+
+Message:
+> 1 | globalThis["Ar" + "ray"].from(items)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Array\` directly instead of \`globalThis.Array\`.
+
+Output:
+  1 | Array.from(items)
+
+`;
+
 exports[`no-unnecessary-global-this > invalid(3): new globalThis.RegExp(pattern) 1`] = `
 
   1 | new globalThis.RegExp(pattern)

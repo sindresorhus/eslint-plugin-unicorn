@@ -697,6 +697,40 @@ Suggestion 1/1: Replace \`null\` with \`undefined\`.:
 
 `;
 
+exports[`no-null > invalid(43): useRef?.(null) 1`] = `
+
+  1 | useRef?.(null)
+
+`;
+
+exports[`no-null > invalid(43): useRef?.(null) 2`] = `
+
+Message:
+> 1 | useRef?.(null)
+    |          ^^^^ Use \`undefined\` instead of \`null\`.
+
+Suggestion 1/1: Replace \`null\` with \`undefined\`.:
+  1 | useRef?.(undefined)
+
+`;
+
+exports[`no-null > invalid(44): React.useRef?.(null) 1`] = `
+
+  1 | React.useRef?.(null)
+
+`;
+
+exports[`no-null > invalid(44): React.useRef?.(null) 2`] = `
+
+Message:
+> 1 | React.useRef?.(null)
+    |                ^^^^ Use \`undefined\` instead of \`null\`.
+
+Suggestion 1/1: Replace \`null\` with \`undefined\`.:
+  1 | React.useRef?.(undefined)
+
+`;
+
 exports[`no-null > invalid(5): if (null == foo) {} 1`] = `
 
   1 | if (null == foo) {}

@@ -1,6 +1,6 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
-import {getStaticValueForControlFlow, isTypeScriptExpressionWrapper, unwrapTypeScriptExpression} from './utils/index.js';
+import {getOutermostTypeScriptExpression, getStaticValueForControlFlow, unwrapTypeScriptExpression} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -59,14 +59,6 @@ function getDescriptorArgument(node, context) {
 	return {node: node.arguments[argumentIndex], isMap};
 }
 
-function getOuterExpression(node) {
-	while (isTypeScriptExpressionWrapper(node.parent) && node.parent.expression === node) {
-		node = node.parent;
-	}
-
-	return node;
-}
-
 function getObjectVariable(node, context) {
 	if (node.type !== 'Identifier') {
 		return;
@@ -88,7 +80,7 @@ function getObjectVariable(node, context) {
 }
 
 function isSafeMapObject(node, context) {
-	node = getOuterExpression(node);
+	node = getOutermostTypeScriptExpression(node);
 	const argument = getDescriptorArgument(node.parent, context);
 	if (argument?.isMap && argument.node === node) {
 		return true;
@@ -104,7 +96,7 @@ function isSafeMapObject(node, context) {
 }
 
 function isSafeObjectUse(node, isMap, context) {
-	node = getOuterExpression(node);
+	node = getOutermostTypeScriptExpression(node);
 	const argument = getDescriptorArgument(node.parent, context);
 	if (argument?.isMap === isMap && argument.node === node) {
 		return true;

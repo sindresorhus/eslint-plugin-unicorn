@@ -155,11 +155,6 @@ test.snapshot({
 		`,
 		outdent`
 			const object = {};
-			for (const [key, value] of pairs)
-				object[key] = value;
-		`,
-		outdent`
-			const object = {};
 			for (var [key, value] of pairs) {
 				object[key] = value;
 			}
@@ -458,5 +453,17 @@ test({
 			output: 'const object = Object.fromEntries(pairs.map((element, index, array) => [key, value]));',
 			errors: 1,
 		},
+	],
+});
+
+// A loop body without braces
+test.snapshot({
+	valid: [],
+	invalid: [
+		outdent`
+			const object = {};
+			for (const [key, value] of pairs)
+				object[key] = value;
+		`,
 	],
 });

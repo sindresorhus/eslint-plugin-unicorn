@@ -7,6 +7,7 @@ import {
 import {isMethodCall} from './ast/index.js';
 import {
 	getConstVariableInitializer,
+	getOnlyExpression,
 	hasCommentInRange,
 	getStaticValueIfNoSideEffects,
 	hasPotentiallyMutableMemberAccess,
@@ -104,18 +105,6 @@ const isKnownConstCollection = (node, context) => {
 	const unwrappedInitializer = unwrapTypeScriptExpression(initializer);
 	return unwrappedInitializer.type === 'NewExpression'
 		&& isCollectionConstructor(unwrappedInitializer.callee, context);
-};
-
-const getSingleExpression = node => {
-	if (node.type === 'BlockStatement') {
-		if (node.body.length !== 1) {
-			return;
-		}
-
-		node = node.body[0];
-	}
-
-	return node.type === 'ExpressionStatement' ? node.expression : undefined;
 };
 
 const getStaticPropertyKey = (node, context) => {
@@ -271,7 +260,7 @@ function getProblem(ifStatement, context) {
 		return;
 	}
 
-	const expression = getSingleExpression(ifStatement.consequent);
+	const expression = getOnlyExpression(ifStatement.consequent);
 
 	if (!expression) {
 		return;

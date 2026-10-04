@@ -347,3 +347,12 @@ test.snapshot({
 		typeAware('declare const condition: boolean; const output = [0].flatMap(() => condition ? [1] : []); output.push(2);'),
 	],
 });
+
+// An element that starts with `{` needs parentheses as a concise arrow function body
+test.snapshot({
+	valid: [],
+	invalid: [
+		'foo.flatMap(x => x ? [{a: x}.a] : []);',
+		'foo.filter(Boolean).flatMap(x => [{a: x}.a]);',
+	],
+});

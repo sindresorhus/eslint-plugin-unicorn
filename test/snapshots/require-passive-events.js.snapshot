@@ -347,6 +347,23 @@ Output:
 
 `;
 
+exports[`require-passive-events > invalid(27): window.addEventListener(\"wheel\", event => { console.log(event[\`target\`]); }) 1`] = `
+
+  1 | window.addEventListener("wheel", event => { console.log(event[\`target\`]); })
+
+`;
+
+exports[`require-passive-events > invalid(27): window.addEventListener(\"wheel\", event => { console.log(event[\`target\`]); }) 2`] = `
+
+Message:
+> 1 | window.addEventListener("wheel", event => { console.log(event[\`target\`]); })
+    |                         ^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener("wheel", event => { console.log(event[\`target\`]); }, {passive: true})
+
+`;
+
 exports[`require-passive-events > invalid(3): window.addEventListener(\"wheel\", ((function () {}))) 1`] = `
 
   1 | window.addEventListener("wheel", ((function () {})))

@@ -1,4 +1,4 @@
-import {findVariable, hasSideEffect} from '@eslint-community/eslint-utils';
+import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {isNewExpression, isMethodCall, isMemberExpression} from './ast/index.js';
 import {
 	getBaseTypes,
@@ -9,7 +9,9 @@ import {
 	isSameReference,
 	isUnknownType,
 	shouldAddParenthesesToMemberExpressionObject,
+	withTypeInformation,
 } from './utils/index.js';
+import {isBufferReference} from './shared/buffer-reference.js';
 
 const MESSAGE_ID = 'no-unsafe-buffer-conversion/error';
 const SUGGESTION_ID = 'no-unsafe-buffer-conversion/suggestion';
@@ -17,9 +19,6 @@ const messages = {
 	[MESSAGE_ID]: 'Preserve `byteOffset` and `byteLength` when converting an ArrayBuffer view through `.buffer`.',
 	[SUGGESTION_ID]: 'Preserve `byteOffset` and `byteLength`.',
 };
-
-const bufferImportSources = new Set(['buffer', 'node:buffer']);
-const globalObjectNames = new Set(['globalThis', 'window', 'self', 'global']);
 
 const bytesPerElementByTypedArrayConstructor = new Map([
 	['Int8Array', 1],
@@ -159,47 +158,7 @@ function getArrayBufferViewTypeInfo(type, checker, program) {
 }
 
 function getBufferViewTypeInfo(view, context) {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return typeInfo(true);
-	}
-
-	try {
-		const {program} = parserServices;
-		return getArrayBufferViewTypeInfo(
-			parserServices.getTypeAtLocation(view),
-			program.getTypeChecker(),
-			program,
-		);
-		// Tests cannot make TypeScript throw here.
-		/* node:coverage ignore next 3 */
-	} catch {
-		return typeInfo(true);
-	}
-}
-
-function isImportedBuffer(identifier, context) {
-	const variable = findVariable(context.sourceCode.getScope(identifier), identifier);
-
-	// `import Buffer = require('node:buffer')` binds the module object, not `Buffer`, and has no `ImportDeclaration` source
-	return variable?.defs.some(definition =>
-		definition.type === 'ImportBinding'
-		&& definition.node.type === 'ImportSpecifier'
-		&& definition.node.imported.name === 'Buffer'
-		&& bufferImportSources.has(definition.parent.source.value)) ?? false;
-}
-
-function isBufferReference(node, context) {
-	if (isMemberExpression(node, {property: 'Buffer', computed: false})) {
-		return globalObjectNames.has(node.object.name) && isGlobalIdentifier(node.object, context);
-	}
-
-	if (node.type !== 'Identifier') {
-		return false;
-	}
-
-	return (node.name === 'Buffer' && isGlobalIdentifier(node, context))
-		|| isImportedBuffer(node, context);
+	return withTypeInformation(view, context, ({type, checker, program}) => getArrayBufferViewTypeInfo(type, checker, program)) ?? typeInfo(true);
 }
 
 const isByteOffsetMemberExpression = (node, view) =>

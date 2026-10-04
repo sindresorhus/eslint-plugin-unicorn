@@ -29,6 +29,23 @@ Message:
 
 `;
 
+exports[`no-unnecessary-array-flat-map > invalid(1): foo.flatMap(x => x ? [{a: x}.a] : []); 1`] = `
+
+  1 | foo.flatMap(x => x ? [{a: x}.a] : []);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(1): foo.flatMap(x => x ? [{a: x}.a] : []); 2`] = `
+
+Message:
+> 1 | foo.flatMap(x => x ? [{a: x}.a] : []);
+    |     ^^^^^^^ Prefer \`.filter().map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Suggestion 1/1: Replace \`.flatMap(…)\` with \`.filter(…).map(…)\`.:
+  1 | foo.filter(x => x).map(x => ({a: x}.a));
+
+`;
+
 exports[`no-unnecessary-array-flat-map > invalid(10): array.flatMap(() => [1n]); 1`] = `
 
   1 | array.flatMap(() => [1n]);
@@ -257,7 +274,7 @@ Message:
     |       ^^^^^^^ Prefer \`.filter().map(…)\` over \`.flatMap(…)\` for this single-item array callback.
 
 Suggestion 1/1: Replace \`.flatMap(…)\` with \`.filter(…).map(…)\`.:
-  1 | array.filter(value => (value.active)).map(value => value.id);
+  1 | array.filter(value => value.active).map(value => value.id);
 
 `;
 
@@ -402,6 +419,23 @@ Message:
 
 `;
 
+exports[`no-unnecessary-array-flat-map > invalid(2): foo.filter(Boolean).flatMap(x => [{a: x}.a]); 1`] = `
+
+  1 | foo.filter(Boolean).flatMap(x => [{a: x}.a]);
+
+`;
+
+exports[`no-unnecessary-array-flat-map > invalid(2): foo.filter(Boolean).flatMap(x => [{a: x}.a]); 2`] = `
+
+Message:
+> 1 | foo.filter(Boolean).flatMap(x => [{a: x}.a]);
+    |                     ^^^^^^^ Prefer \`.map(…)\` over \`.flatMap(…)\` for this single-item array callback.
+
+Output:
+  1 | foo.filter(Boolean).map(x => ({a: x}.a));
+
+`;
+
 exports[`no-unnecessary-array-flat-map > invalid(20): array.flatMap(() => [class {}]); 1`] = `
 
   1 | array.flatMap(() => [class {}]);
@@ -531,7 +565,7 @@ Message:
     |                     ^^^^^ Wrapping this value in an array is unnecessary.
 
 Output:
-  1 | array.flatMap(() => (1));
+  1 | array.flatMap(() => 1);
 
 `;
 

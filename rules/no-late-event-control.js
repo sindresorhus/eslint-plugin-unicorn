@@ -2,9 +2,9 @@ import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {
 	createLateEventHandlerTracker,
 	eventParameterNamePattern,
-	getEnclosingFunction,
 } from './shared/late-event-handler.js';
 import {
+	getEnclosingFunction,
 	isEvent,
 	isKnownNonEvent,
 	unwrapTypeScriptExpression,

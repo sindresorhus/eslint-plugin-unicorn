@@ -70,3 +70,8 @@ test('a class field ending with an object, non-null assertion, or instantiation 
 		t.assert.strictEqual(getResult(code, '[qux]', typescriptLanguageOptions), true);
 	}
 });
+
+test('the opening parenthesis of a non-null assertion does not need a semicolon', t => {
+	t.assert.strictEqual(getResult('const value = ((marker) || foo)!;', '(bar)', typescriptLanguageOptions), false);
+	t.assert.strictEqual(getResult('if ((marker || foo)!) {}', '(bar)', typescriptLanguageOptions), false);
+});

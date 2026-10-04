@@ -2,6 +2,7 @@ import {
 	getBaseTypes,
 	getTypeSymbol,
 	isUnknownType,
+	withTypeInformation,
 } from './types.js';
 import {createTypeCheckers} from './type-helpers.js';
 import isGlobalIdentifier from './is-global-identifier.js';
@@ -150,14 +151,7 @@ const shouldReportReplaceChildrenReceiverFromSyntax = (context, node, options = 
 
 const shouldReportReplaceChildrenReceiver = (context, node, options) => {
 	const shouldReportFromSyntax = shouldReportReplaceChildrenReceiverFromSyntax(context, node, options);
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return shouldReportFromSyntax;
-	}
-
-	try {
-		const checker = parserServices.program.getTypeChecker();
-		const type = parserServices.getTypeAtLocation(node);
+	return withTypeInformation(node, context, ({type, checker}) => {
 		if (
 			!shouldReportFromSyntax
 			&& isUnknownOrAllUnknownTypes(type, checker)
@@ -166,11 +160,7 @@ const shouldReportReplaceChildrenReceiver = (context, node, options) => {
 		}
 
 		return shouldReportReplaceChildrenReceiverType(type, checker, options);
-		// Defensive: the TypeScript checker can throw on unusual nodes or types, and no known input does. Fall back to the syntax check.
-		/* node:coverage ignore next 3 */
-	} catch {
-		return shouldReportReplaceChildrenReceiverFromSyntax(context, node, options);
-	}
+	}) ?? shouldReportFromSyntax;
 };
 
 // Like `isUnknownOrAllUnknownTypes()`, this must not unwrap with `checker.getNonNullableType()`. A nullish union member is never a template element anyway.
@@ -201,21 +191,7 @@ const mayBeHtmlTemplateElement = (context, node) => {
 		return true;
 	}
 
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return false;
-	}
-
-	try {
-		return mayBeHtmlTemplateElementType(
-			parserServices.getTypeAtLocation(node),
-			parserServices.program.getTypeChecker(),
-		);
-		// Defensive: the TypeScript checker can throw on unusual nodes or types, and no known input does. Fall back to the syntax check.
-		/* node:coverage ignore next 3 */
-	} catch {
-		return isHtmlTemplateElementFromSyntax(node, context, htmlTemplateElementSyntaxOptions);
-	}
+	return withTypeInformation(node, context, ({type, checker}) => mayBeHtmlTemplateElementType(type, checker)) ?? false;
 };
 
 export {

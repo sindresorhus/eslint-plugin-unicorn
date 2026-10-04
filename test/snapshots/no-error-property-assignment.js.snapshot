@@ -28,14 +28,28 @@ Message:
 
 `;
 
-exports[`no-error-property-assignment > invalid(10): const error = new Error();\nObject.assign(error, {name}); 1`] = `
+exports[`no-error-property-assignment > invalid(10): Object.assign(new Error(), {name() {}}) 1`] = `
+
+  1 | Object.assign(new Error(), {name() {}})
+
+`;
+
+exports[`no-error-property-assignment > invalid(10): Object.assign(new Error(), {name() {}}) 2`] = `
+
+Message:
+> 1 | Object.assign(new Error(), {name() {}})
+    |                             ^^^^ Do not assign to \`name\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(11): const error = new Error();\nObject.assign(error, {name}); 1`] = `
 
   1 | const error = new Error();
   2 | Object.assign(error, {name});
 
 `;
 
-exports[`no-error-property-assignment > invalid(10): const error = new Error();\nObject.assign(error, {name}); 2`] = `
+exports[`no-error-property-assignment > invalid(11): const error = new Error();\nObject.assign(error, {name}); 2`] = `
 
 Message:
   1 | const error = new Error();
@@ -44,7 +58,7 @@ Message:
 
 `;
 
-exports[`no-error-property-assignment > invalid(11): let error;\nerror = new TypeError();\nObject.assign(error, {'stack': stack}); 1`] = `
+exports[`no-error-property-assignment > invalid(12): let error;\nerror = new TypeError();\nObject.assign(error, {'stack': stack}); 1`] = `
 
   1 | let error;
   2 | error = new TypeError();
@@ -52,7 +66,7 @@ exports[`no-error-property-assignment > invalid(11): let error;\nerror = new Typ
 
 `;
 
-exports[`no-error-property-assignment > invalid(11): let error;\nerror = new TypeError();\nObject.assign(error, {'stack': stack}); 2`] = `
+exports[`no-error-property-assignment > invalid(12): let error;\nerror = new TypeError();\nObject.assign(error, {'stack': stack}); 2`] = `
 
 Message:
   1 | let error;
@@ -62,14 +76,14 @@ Message:
 
 `;
 
-exports[`no-error-property-assignment > invalid(12): const error = new Error();\nerror.name = 'Custom'; 1`] = `
+exports[`no-error-property-assignment > invalid(13): const error = new Error();\nerror.name = 'Custom'; 1`] = `
 
   1 | const error = new Error();
   2 | error.name = 'Custom';
 
 `;
 
-exports[`no-error-property-assignment > invalid(12): const error = new Error();\nerror.name = 'Custom'; 2`] = `
+exports[`no-error-property-assignment > invalid(13): const error = new Error();\nerror.name = 'Custom'; 2`] = `
 
 Message:
   1 | const error = new Error();
@@ -78,7 +92,7 @@ Message:
 
 `;
 
-exports[`no-error-property-assignment > invalid(13): let error;\nerror = new TypeError();\nerror.stack = stack; 1`] = `
+exports[`no-error-property-assignment > invalid(14): let error;\nerror = new TypeError();\nerror.stack = stack; 1`] = `
 
   1 | let error;
   2 | error = new TypeError();
@@ -86,7 +100,7 @@ exports[`no-error-property-assignment > invalid(13): let error;\nerror = new Typ
 
 `;
 
-exports[`no-error-property-assignment > invalid(13): let error;\nerror = new TypeError();\nerror.stack = stack; 2`] = `
+exports[`no-error-property-assignment > invalid(14): let error;\nerror = new TypeError();\nerror.stack = stack; 2`] = `
 
 Message:
   1 | let error;
@@ -96,14 +110,14 @@ Message:
 
 `;
 
-exports[`no-error-property-assignment > invalid(14): const error = new Error();\nerror['name'] = name; 1`] = `
+exports[`no-error-property-assignment > invalid(15): const error = new Error();\nerror['name'] = name; 1`] = `
 
   1 | const error = new Error();
   2 | error['name'] = name;
 
 `;
 
-exports[`no-error-property-assignment > invalid(14): const error = new Error();\nerror['name'] = name; 2`] = `
+exports[`no-error-property-assignment > invalid(15): const error = new Error();\nerror['name'] = name; 2`] = `
 
 Message:
   1 | const error = new Error();
@@ -112,7 +126,7 @@ Message:
 
 `;
 
-exports[`no-error-property-assignment > invalid(15): if (condition) {\n\tconst error = new Error();\n\terror.name = name;\n} 1`] = `
+exports[`no-error-property-assignment > invalid(16): if (condition) {\n\tconst error = new Error();\n\terror.name = name;\n} 1`] = `
 
   1 | if (condition) {
   2 | 	const error = new Error();
@@ -121,7 +135,7 @@ exports[`no-error-property-assignment > invalid(15): if (condition) {\n\tconst e
 
 `;
 
-exports[`no-error-property-assignment > invalid(15): if (condition) {\n\tconst error = new Error();\n\terror.name = name;\n} 2`] = `
+exports[`no-error-property-assignment > invalid(16): if (condition) {\n\tconst error = new Error();\n\terror.name = name;\n} 2`] = `
 
 Message:
   1 | if (condition) {
@@ -132,7 +146,7 @@ Message:
 
 `;
 
-exports[`no-error-property-assignment > invalid(16): let error;\nif (condition) {\n\terror = new Error();\n\terror.name = name;\n} 1`] = `
+exports[`no-error-property-assignment > invalid(17): let error;\nif (condition) {\n\terror = new Error();\n\terror.name = name;\n} 1`] = `
 
   1 | let error;
   2 | if (condition) {
@@ -142,7 +156,7 @@ exports[`no-error-property-assignment > invalid(16): let error;\nif (condition) 
 
 `;
 
-exports[`no-error-property-assignment > invalid(16): let error;\nif (condition) {\n\terror = new Error();\n\terror.name = name;\n} 2`] = `
+exports[`no-error-property-assignment > invalid(17): let error;\nif (condition) {\n\terror = new Error();\n\terror.name = name;\n} 2`] = `
 
 Message:
   1 | let error;
@@ -154,7 +168,7 @@ Message:
 
 `;
 
-exports[`no-error-property-assignment > invalid(17): let error;\nif (condition) {\n\t{\n\t\terror = new Error();\n\t}\n\terror.name = name;\n} 1`] = `
+exports[`no-error-property-assignment > invalid(18): let error;\nif (condition) {\n\t{\n\t\terror = new Error();\n\t}\n\terror.name = name;\n} 1`] = `
 
   1 | let error;
   2 | if (condition) {
@@ -166,7 +180,7 @@ exports[`no-error-property-assignment > invalid(17): let error;\nif (condition) 
 
 `;
 
-exports[`no-error-property-assignment > invalid(17): let error;\nif (condition) {\n\t{\n\t\terror = new Error();\n\t}\n\terror.name = name;\n} 2`] = `
+exports[`no-error-property-assignment > invalid(18): let error;\nif (condition) {\n\t{\n\t\terror = new Error();\n\t}\n\terror.name = name;\n} 2`] = `
 
 Message:
   1 | let error;
@@ -180,7 +194,7 @@ Message:
 
 `;
 
-exports[`no-error-property-assignment > invalid(18): let error;\nfunction setup() {\n\terror = new Error();\n\terror.name = name;\n} 1`] = `
+exports[`no-error-property-assignment > invalid(19): let error;\nfunction setup() {\n\terror = new Error();\n\terror.name = name;\n} 1`] = `
 
   1 | let error;
   2 | function setup() {
@@ -190,7 +204,7 @@ exports[`no-error-property-assignment > invalid(18): let error;\nfunction setup(
 
 `;
 
-exports[`no-error-property-assignment > invalid(18): let error;\nfunction setup() {\n\terror = new Error();\n\terror.name = name;\n} 2`] = `
+exports[`no-error-property-assignment > invalid(19): let error;\nfunction setup() {\n\terror = new Error();\n\terror.name = name;\n} 2`] = `
 
 Message:
   1 | let error;
@@ -199,26 +213,6 @@ Message:
 > 4 | 	error.name = name;
     | 	      ^^^^ Do not assign to \`name\` on a built-in error.
   5 | }
-
-`;
-
-exports[`no-error-property-assignment > invalid(19): if (condition) {\n\tvar error = new Error();\n\terror.name = name;\n} 1`] = `
-
-  1 | if (condition) {
-  2 | 	var error = new Error();
-  3 | 	error.name = name;
-  4 | }
-
-`;
-
-exports[`no-error-property-assignment > invalid(19): if (condition) {\n\tvar error = new Error();\n\terror.name = name;\n} 2`] = `
-
-Message:
-  1 | if (condition) {
-  2 | 	var error = new Error();
-> 3 | 	error.name = name;
-    | 	      ^^^^ Do not assign to \`name\` on a built-in error.
-  4 | }
 
 `;
 
@@ -250,7 +244,27 @@ Message:
 
 `;
 
-exports[`no-error-property-assignment > invalid(20): if (condition) {\n\t{\n\t\tvar error = new Error();\n\t}\n\terror.name = name;\n} 1`] = `
+exports[`no-error-property-assignment > invalid(20): if (condition) {\n\tvar error = new Error();\n\terror.name = name;\n} 1`] = `
+
+  1 | if (condition) {
+  2 | 	var error = new Error();
+  3 | 	error.name = name;
+  4 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(20): if (condition) {\n\tvar error = new Error();\n\terror.name = name;\n} 2`] = `
+
+Message:
+  1 | if (condition) {
+  2 | 	var error = new Error();
+> 3 | 	error.name = name;
+    | 	      ^^^^ Do not assign to \`name\` on a built-in error.
+  4 | }
+
+`;
+
+exports[`no-error-property-assignment > invalid(21): if (condition) {\n\t{\n\t\tvar error = new Error();\n\t}\n\terror.name = name;\n} 1`] = `
 
   1 | if (condition) {
   2 | 	{
@@ -261,7 +275,7 @@ exports[`no-error-property-assignment > invalid(20): if (condition) {\n\t{\n\t\t
 
 `;
 
-exports[`no-error-property-assignment > invalid(20): if (condition) {\n\t{\n\t\tvar error = new Error();\n\t}\n\terror.name = name;\n} 2`] = `
+exports[`no-error-property-assignment > invalid(21): if (condition) {\n\t{\n\t\tvar error = new Error();\n\t}\n\terror.name = name;\n} 2`] = `
 
 Message:
   1 | if (condition) {
@@ -274,7 +288,7 @@ Message:
 
 `;
 
-exports[`no-error-property-assignment > invalid(21): {\n\tvar error = new Error();\n}\nerror.name = name; 1`] = `
+exports[`no-error-property-assignment > invalid(22): {\n\tvar error = new Error();\n}\nerror.name = name; 1`] = `
 
   1 | {
   2 | 	var error = new Error();
@@ -283,7 +297,7 @@ exports[`no-error-property-assignment > invalid(21): {\n\tvar error = new Error(
 
 `;
 
-exports[`no-error-property-assignment > invalid(21): {\n\tvar error = new Error();\n}\nerror.name = name; 2`] = `
+exports[`no-error-property-assignment > invalid(22): {\n\tvar error = new Error();\n}\nerror.name = name; 2`] = `
 
 Message:
   1 | {
@@ -294,7 +308,7 @@ Message:
 
 `;
 
-exports[`no-error-property-assignment > invalid(22): let error;\n{\n\terror = new Error();\n}\nerror.name = name; 1`] = `
+exports[`no-error-property-assignment > invalid(23): let error;\n{\n\terror = new Error();\n}\nerror.name = name; 1`] = `
 
   1 | let error;
   2 | {
@@ -304,7 +318,7 @@ exports[`no-error-property-assignment > invalid(22): let error;\n{\n\terror = ne
 
 `;
 
-exports[`no-error-property-assignment > invalid(22): let error;\n{\n\terror = new Error();\n}\nerror.name = name; 2`] = `
+exports[`no-error-property-assignment > invalid(23): let error;\n{\n\terror = new Error();\n}\nerror.name = name; 2`] = `
 
 Message:
   1 | let error;
@@ -316,7 +330,7 @@ Message:
 
 `;
 
-exports[`no-error-property-assignment > invalid(23): switch (kind) {\n\tcase 'error':\n\t\tconst error = new Error();\n\t\terror.name = name;\n} 1`] = `
+exports[`no-error-property-assignment > invalid(24): switch (kind) {\n\tcase 'error':\n\t\tconst error = new Error();\n\t\terror.name = name;\n} 1`] = `
 
   1 | switch (kind) {
   2 | 	case 'error':
@@ -326,7 +340,7 @@ exports[`no-error-property-assignment > invalid(23): switch (kind) {\n\tcase 'er
 
 `;
 
-exports[`no-error-property-assignment > invalid(23): switch (kind) {\n\tcase 'error':\n\t\tconst error = new Error();\n\t\terror.name = name;\n} 2`] = `
+exports[`no-error-property-assignment > invalid(24): switch (kind) {\n\tcase 'error':\n\t\tconst error = new Error();\n\t\terror.name = name;\n} 2`] = `
 
 Message:
   1 | switch (kind) {
@@ -338,7 +352,7 @@ Message:
 
 `;
 
-exports[`no-error-property-assignment > invalid(24): let error;\nswitch (kind) {\n\tcase 'error':\n\t\t{\n\t\t\terror = new Error();\n\t\t}\n\t\terror.name = name;\n} 1`] = `
+exports[`no-error-property-assignment > invalid(25): let error;\nswitch (kind) {\n\tcase 'error':\n\t\t{\n\t\t\terror = new Error();\n\t\t}\n\t\terror.name = name;\n} 1`] = `
 
   1 | let error;
   2 | switch (kind) {
@@ -351,7 +365,7 @@ exports[`no-error-property-assignment > invalid(24): let error;\nswitch (kind) {
 
 `;
 
-exports[`no-error-property-assignment > invalid(24): let error;\nswitch (kind) {\n\tcase 'error':\n\t\t{\n\t\t\terror = new Error();\n\t\t}\n\t\terror.name = name;\n} 2`] = `
+exports[`no-error-property-assignment > invalid(25): let error;\nswitch (kind) {\n\tcase 'error':\n\t\t{\n\t\t\terror = new Error();\n\t\t}\n\t\terror.name = name;\n} 2`] = `
 
 Message:
   1 | let error;
@@ -366,7 +380,7 @@ Message:
 
 `;
 
-exports[`no-error-property-assignment > invalid(25): for (const error = new Error(); condition;) {\n\terror.name = name;\n} 1`] = `
+exports[`no-error-property-assignment > invalid(26): for (const error = new Error(); condition;) {\n\terror.name = name;\n} 1`] = `
 
   1 | for (const error = new Error(); condition;) {
   2 | 	error.name = name;
@@ -374,7 +388,7 @@ exports[`no-error-property-assignment > invalid(25): for (const error = new Erro
 
 `;
 
-exports[`no-error-property-assignment > invalid(25): for (const error = new Error(); condition;) {\n\terror.name = name;\n} 2`] = `
+exports[`no-error-property-assignment > invalid(26): for (const error = new Error(); condition;) {\n\terror.name = name;\n} 2`] = `
 
 Message:
   1 | for (const error = new Error(); condition;) {
@@ -384,7 +398,7 @@ Message:
 
 `;
 
-exports[`no-error-property-assignment > invalid(26): for (const error = new AggregateError([]); condition;) {\n\terror.errors = errors;\n} 1`] = `
+exports[`no-error-property-assignment > invalid(27): for (const error = new AggregateError([]); condition;) {\n\terror.errors = errors;\n} 1`] = `
 
   1 | for (const error = new AggregateError([]); condition;) {
   2 | 	error.errors = errors;
@@ -392,7 +406,7 @@ exports[`no-error-property-assignment > invalid(26): for (const error = new Aggr
 
 `;
 
-exports[`no-error-property-assignment > invalid(26): for (const error = new AggregateError([]); condition;) {\n\terror.errors = errors;\n} 2`] = `
+exports[`no-error-property-assignment > invalid(27): for (const error = new AggregateError([]); condition;) {\n\terror.errors = errors;\n} 2`] = `
 
 Message:
   1 | for (const error = new AggregateError([]); condition;) {
@@ -402,7 +416,7 @@ Message:
 
 `;
 
-exports[`no-error-property-assignment > invalid(27): let error;\nfor (error = new Error(); condition;) {\n\terror.name = name;\n} 1`] = `
+exports[`no-error-property-assignment > invalid(28): let error;\nfor (error = new Error(); condition;) {\n\terror.name = name;\n} 1`] = `
 
   1 | let error;
   2 | for (error = new Error(); condition;) {
@@ -411,7 +425,7 @@ exports[`no-error-property-assignment > invalid(27): let error;\nfor (error = ne
 
 `;
 
-exports[`no-error-property-assignment > invalid(27): let error;\nfor (error = new Error(); condition;) {\n\terror.name = name;\n} 2`] = `
+exports[`no-error-property-assignment > invalid(28): let error;\nfor (error = new Error(); condition;) {\n\terror.name = name;\n} 2`] = `
 
 Message:
   1 | let error;
@@ -422,7 +436,7 @@ Message:
 
 `;
 
-exports[`no-error-property-assignment > invalid(28): let error = new Error();\n{\n\terror = new AggregateError([]);\n}\nerror.errors = errors; 1`] = `
+exports[`no-error-property-assignment > invalid(29): let error = new Error();\n{\n\terror = new AggregateError([]);\n}\nerror.errors = errors; 1`] = `
 
   1 | let error = new Error();
   2 | {
@@ -432,7 +446,7 @@ exports[`no-error-property-assignment > invalid(28): let error = new Error();\n{
 
 `;
 
-exports[`no-error-property-assignment > invalid(28): let error = new Error();\n{\n\terror = new AggregateError([]);\n}\nerror.errors = errors; 2`] = `
+exports[`no-error-property-assignment > invalid(29): let error = new Error();\n{\n\terror = new AggregateError([]);\n}\nerror.errors = errors; 2`] = `
 
 Message:
   1 | let error = new Error();
@@ -441,28 +455,6 @@ Message:
   4 | }
 > 5 | error.errors = errors;
     |       ^^^^^^ Do not assign to \`errors\` on a built-in error.
-
-`;
-
-exports[`no-error-property-assignment > invalid(29): let error = new Error();\n{\n\terror = new AggregateError([]);\n}\nObject.assign(error, {errors}); 1`] = `
-
-  1 | let error = new Error();
-  2 | {
-  3 | 	error = new AggregateError([]);
-  4 | }
-  5 | Object.assign(error, {errors});
-
-`;
-
-exports[`no-error-property-assignment > invalid(29): let error = new Error();\n{\n\terror = new AggregateError([]);\n}\nObject.assign(error, {errors}); 2`] = `
-
-Message:
-  1 | let error = new Error();
-  2 | {
-  3 | 	error = new AggregateError([]);
-  4 | }
-> 5 | Object.assign(error, {errors});
-    |                       ^^^^^^ Do not assign to \`errors\` on a built-in error.
 
 `;
 
@@ -494,13 +486,35 @@ Message:
 
 `;
 
-exports[`no-error-property-assignment > invalid(30): new Error().stack = stack 1`] = `
+exports[`no-error-property-assignment > invalid(30): let error = new Error();\n{\n\terror = new AggregateError([]);\n}\nObject.assign(error, {errors}); 1`] = `
+
+  1 | let error = new Error();
+  2 | {
+  3 | 	error = new AggregateError([]);
+  4 | }
+  5 | Object.assign(error, {errors});
+
+`;
+
+exports[`no-error-property-assignment > invalid(30): let error = new Error();\n{\n\terror = new AggregateError([]);\n}\nObject.assign(error, {errors}); 2`] = `
+
+Message:
+  1 | let error = new Error();
+  2 | {
+  3 | 	error = new AggregateError([]);
+  4 | }
+> 5 | Object.assign(error, {errors});
+    |                       ^^^^^^ Do not assign to \`errors\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(31): new Error().stack = stack 1`] = `
 
   1 | new Error().stack = stack
 
 `;
 
-exports[`no-error-property-assignment > invalid(30): new Error().stack = stack 2`] = `
+exports[`no-error-property-assignment > invalid(31): new Error().stack = stack 2`] = `
 
 Message:
 > 1 | new Error().stack = stack
@@ -508,13 +522,13 @@ Message:
 
 `;
 
-exports[`no-error-property-assignment > invalid(31): Error().cause = cause 1`] = `
+exports[`no-error-property-assignment > invalid(32): Error().cause = cause 1`] = `
 
   1 | Error().cause = cause
 
 `;
 
-exports[`no-error-property-assignment > invalid(31): Error().cause = cause 2`] = `
+exports[`no-error-property-assignment > invalid(32): Error().cause = cause 2`] = `
 
 Message:
 > 1 | Error().cause = cause
@@ -522,13 +536,13 @@ Message:
 
 `;
 
-exports[`no-error-property-assignment > invalid(32): new AggregateError([], \"message\").errors = errors 1`] = `
+exports[`no-error-property-assignment > invalid(33): new AggregateError([], \"message\").errors = errors 1`] = `
 
   1 | new AggregateError([], "message").errors = errors
 
 `;
 
-exports[`no-error-property-assignment > invalid(32): new AggregateError([], \"message\").errors = errors 2`] = `
+exports[`no-error-property-assignment > invalid(33): new AggregateError([], \"message\").errors = errors 2`] = `
 
 Message:
 > 1 | new AggregateError([], "message").errors = errors
@@ -536,7 +550,21 @@ Message:
 
 `;
 
-exports[`no-error-property-assignment > invalid(33): function setup() {\n\tconst error = new Error();\n\terror.name = name;\n} 1`] = `
+exports[`no-error-property-assignment > invalid(34): new Error()[\`stack\`] = stack 1`] = `
+
+  1 | new Error()[\`stack\`] = stack
+
+`;
+
+exports[`no-error-property-assignment > invalid(34): new Error()[\`stack\`] = stack 2`] = `
+
+Message:
+> 1 | new Error()[\`stack\`] = stack
+    |             ^^^^^^^ Do not assign to \`stack\` on a built-in error.
+
+`;
+
+exports[`no-error-property-assignment > invalid(35): function setup() {\n\tconst error = new Error();\n\terror.name = name;\n} 1`] = `
 
   1 | function setup() {
   2 | 	const error = new Error();
@@ -545,7 +573,7 @@ exports[`no-error-property-assignment > invalid(33): function setup() {\n\tconst
 
 `;
 
-exports[`no-error-property-assignment > invalid(33): function setup() {\n\tconst error = new Error();\n\terror.name = name;\n} 2`] = `
+exports[`no-error-property-assignment > invalid(35): function setup() {\n\tconst error = new Error();\n\terror.name = name;\n} 2`] = `
 
 Message:
   1 | function setup() {
@@ -706,16 +734,16 @@ Message:
 
 `;
 
-exports[`no-error-property-assignment > invalid(9): Object.assign(new Error(), {name() {}}) 1`] = `
+exports[`no-error-property-assignment > invalid(9): Object.assign(new Error(), {[\`cause\`]: cause}) 1`] = `
 
-  1 | Object.assign(new Error(), {name() {}})
+  1 | Object.assign(new Error(), {[\`cause\`]: cause})
 
 `;
 
-exports[`no-error-property-assignment > invalid(9): Object.assign(new Error(), {name() {}}) 2`] = `
+exports[`no-error-property-assignment > invalid(9): Object.assign(new Error(), {[\`cause\`]: cause}) 2`] = `
 
 Message:
-> 1 | Object.assign(new Error(), {name() {}})
-    |                             ^^^^ Do not assign to \`name\` on a built-in error.
+> 1 | Object.assign(new Error(), {[\`cause\`]: cause})
+    |                              ^^^^^^^ Do not assign to \`cause\` on a built-in error.
 
 `;

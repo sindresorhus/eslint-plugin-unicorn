@@ -395,6 +395,23 @@ Message:
 
 `;
 
+exports[`prefer-promise-try > invalid(33): new Promise(resolve => resolve({foo}.foo())); 1`] = `
+
+  1 | new Promise(resolve => resolve({foo}.foo()));
+
+`;
+
+exports[`prefer-promise-try > invalid(33): new Promise(resolve => resolve({foo}.foo())); 2`] = `
+
+Message:
+> 1 | new Promise(resolve => resolve({foo}.foo()));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Promise.try()\` over promise-wrapping boilerplate.
+
+Output:
+  1 | Promise.try(() => ({foo}.foo()));
+
+`;
+
 exports[`prefer-promise-try > invalid(4): new Promise(resolve => resolve(object.method())); 1`] = `
 
   1 | new Promise(resolve => resolve(object.method()));

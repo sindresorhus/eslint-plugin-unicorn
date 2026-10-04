@@ -5,6 +5,7 @@ import {
 	isSameReference,
 	isNodeMatches,
 	getPreviousNode,
+	hasCommentInRange,
 	hasOptionalChainElement,
 	needsSemicolon,
 	shouldSkipKnownNonArrayReceiver,
@@ -60,14 +61,6 @@ function shouldUseSuggestionForMerge(firstCall, secondCall, checkArrayReceiver, 
 	return checkArrayReceiver
 		? [...firstCall.arguments, ...secondCall.arguments].some(argument => getStaticValueIfNoSideEffects(argument, context) === undefined)
 		: secondCall.arguments.some(argument => hasSideEffect(argument, context.sourceCode));
-}
-
-function hasCommentsInRange(sourceCode, range) {
-	return sourceCode.getAllComments().some(comment => {
-		const [start, end] = sourceCode.getRange(comment);
-
-		return start >= range[0] && end <= range[1];
-	});
 }
 
 const cases = [
@@ -240,7 +233,7 @@ function create(context) {
 				yield fixer.replaceTextRange(removalRange, shouldKeepSemicolon || shouldAddSemicolon ? ';' : '');
 			};
 
-			if (!hasCommentsInRange(sourceCode, removalRange)) {
+			if (!hasCommentInRange(context, removalRange)) {
 				if (
 					(checkArrayReceiver && !isArray(secondCall.callee.object, context))
 					|| shouldUseSuggestionForMerge(firstCall, secondCall, checkArrayReceiver, context)

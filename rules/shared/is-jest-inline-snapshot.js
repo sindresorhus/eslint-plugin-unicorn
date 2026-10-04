@@ -11,8 +11,7 @@ const isJestInlineSnapshot = node =>
 	&& isCallExpression(node.parent.callee.object, {
 		name: 'expect',
 		argumentsLength: 1,
-		optionalCall: false,
-		optionalMember: false,
+		optional: false,
 	});
 
 export default isJestInlineSnapshot;

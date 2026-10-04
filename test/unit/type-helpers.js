@@ -2,6 +2,7 @@ import test from 'node:test';
 import {Linter} from 'eslint';
 import {
 	createTypeCheckers,
+	getTypeReferenceDefinition,
 	nonTarget,
 	target,
 	unknown,
@@ -141,4 +142,50 @@ test('terminates recursive aliases and inheritance without suppressing repeated 
 test('type information handles cyclic constraints and concrete inheritance', t => {
 	t.assert.deepStrictEqual(getTypes('function f<T extends U, U extends T>(a: {value: T}) { check(a.value); }', {}, {typeAware: true}), [unknown]);
 	t.assert.deepStrictEqual(getTypes('class Foo { foo = 1; } class First extends Foo {} class Second extends First {} declare const object: {value: Second}; check(object.value);', {}, {typeAware: true}), [target]);
+});
+
+/*
+Return the definition type and the declaring scope type of `getTypeReferenceDefinition()` for each `Foo` type reference.
+*/
+const getTypeReferenceDefinitions = code => {
+	const results = [];
+	linter.verify(code, {
+		files: ['**'],
+		languageOptions: {
+			parser: parsers.typescript.implementation,
+			parserOptions: parsers.typescript.mergeParserOptions(),
+		},
+		plugins: {
+			test: {
+				rules: {
+					capture: {
+						create: context => ({
+							'TSTypeReference[typeName.name="Foo"]'(node) {
+								const result = getTypeReferenceDefinition('Foo', context.sourceCode.getScope(node));
+								results.push(result && [result.definition.type, result.scope.type]);
+							},
+						}),
+					},
+				},
+			},
+		},
+		rules: {'test/capture': 'error'},
+	}, {filename: 'file.ts'});
+
+	return results;
+};
+
+test('`getTypeReferenceDefinition` finds the nearest type-like definition and its scope', t => {
+	t.assert.deepStrictEqual(getTypeReferenceDefinitions('class Foo {} let a: Foo;'), [['ClassName', 'module']]);
+	t.assert.deepStrictEqual(getTypeReferenceDefinitions('import Foo from \'foo\'; let a: Foo;'), [['ImportBinding', 'module']]);
+	t.assert.deepStrictEqual(getTypeReferenceDefinitions('enum Foo {} let a: Foo;'), [['TSEnumName', 'module']]);
+	t.assert.deepStrictEqual(getTypeReferenceDefinitions('type Foo = string; let a: Foo;'), [['Type', 'module']]);
+	t.assert.deepStrictEqual(getTypeReferenceDefinitions('interface Foo {} let a: Foo;'), [['Type', 'module']]);
+	t.assert.deepStrictEqual(getTypeReferenceDefinitions('type Foo = string; function f() { type Foo = number; let a: Foo; }'), [['Type', 'function']]);
+});
+
+test('`getTypeReferenceDefinition` skips non-type definitions', t => {
+	t.assert.deepStrictEqual(getTypeReferenceDefinitions('const Foo = 1; let a: Foo;'), [undefined]);
+	t.assert.deepStrictEqual(getTypeReferenceDefinitions('let a: Foo;'), [undefined]);
+	t.assert.deepStrictEqual(getTypeReferenceDefinitions('class Foo {} function f(Foo) { let a: Foo; }'), [['ClassName', 'module']]);
 });

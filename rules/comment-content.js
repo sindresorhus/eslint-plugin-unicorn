@@ -1,5 +1,6 @@
 import {
 	getComments,
+	getMarkdownHtmlComments,
 	isEslintDisableOrEnableDirective,
 	maskJSDocumentSyntax,
 	normalizeComment,
@@ -257,84 +258,11 @@ function isEslintDirective(context, comment) {
 			|| (comment.type === 'Block' && eslintDirectivePattern.test(comment.value)));
 }
 
-function shouldUseRawCommentFallback(context) {
-	const filename = context.physicalFilename.toLowerCase();
-
-	return filename.endsWith('.md')
-		|| filename.endsWith('.markdown');
-}
-
-function getMarkdownHtmlComments(sourceCode) {
-	const comments = [];
-	const {text} = sourceCode;
-	let activeFence;
-	let lineStart = 0;
-
-	while (lineStart < text.length) {
-		const lineEnd = getLineEndIndex(text, lineStart);
-		const line = text.slice(lineStart, lineEnd);
-		const fence = /^ {0,3}(?<fence>`{3,}|~{3,})/v.exec(line)?.groups.fence;
-
-		if (fence) {
-			if (!activeFence) {
-				activeFence = {
-					character: fence[0],
-					size: fence.length,
-				};
-			} else if (fence[0] === activeFence.character && fence.length >= activeFence.size) {
-				activeFence = undefined;
-			}
-
-			lineStart = lineEnd + 1;
-			continue;
-		}
-
-		if (activeFence) {
-			lineStart = lineEnd + 1;
-			continue;
-		}
-
-		let nextLineStart = lineEnd + 1;
-		let searchStart = lineStart;
-		while (searchStart <= lineEnd) {
-			const index = text.indexOf('<!--', searchStart);
-			if (index === -1 || index > lineEnd) {
-				break;
-			}
-
-			const end = text.indexOf('-->', index + 4);
-			const valueEnd = end === -1 ? text.length : end;
-			const range = [index, end === -1 ? text.length : end + 3];
-			comments.push({
-				type: 'Block',
-				value: text.slice(index + 4, valueEnd),
-				range,
-			});
-
-			if (end === -1) {
-				return comments;
-			}
-
-			if (range[1] > lineEnd) {
-				nextLineStart = getLineEndIndex(text, range[1]) + 1;
-				break;
-			}
-
-			searchStart = range[1];
-		}
-
-		lineStart = nextLineStart;
-	}
-
-	return comments;
-}
-
 function getRuleComments(context) {
-	const commentsFromHelper = getComments(context);
-	const comments = (commentsFromHelper.length > 0 ? commentsFromHelper : context.sourceCode.comments ?? [])
-		.map(comment => normalizeComment(comment, context));
-
-	return comments.length > 0 || !shouldUseRawCommentFallback(context) ? comments : getMarkdownHtmlComments(context.sourceCode);
+	return [
+		...getComments(context).map(comment => normalizeComment(comment, context)),
+		...getMarkdownHtmlComments(context),
+	];
 }
 
 function getCommentValueStart(comment, sourceCode) {

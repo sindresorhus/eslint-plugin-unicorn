@@ -1,8 +1,9 @@
 import {
 	getParenthesizedRange,
 	hasCommentInRange,
+	unwrapTypeScriptExpression,
 } from '../utils/index.js';
-import {isLengthOf, unwrapExpression} from '../utils/comparison.js';
+import {isLengthOf} from '../utils/comparison.js';
 import {isNumericLiteral} from '../ast/index.js';
 
 /**
@@ -21,7 +22,7 @@ export function getNegativeIndexLengthNode(node, objectNode) {
 		return;
 	}
 
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
 	const {type, operator, left, right} = node;
 
@@ -29,7 +30,7 @@ export function getNegativeIndexLengthNode(node, objectNode) {
 		return;
 	}
 
-	const rightExpression = unwrapExpression(right);
+	const rightExpression = unwrapTypeScriptExpression(right);
 
 	if (!isLiteralPositiveNumber(rightExpression)) {
 		return;

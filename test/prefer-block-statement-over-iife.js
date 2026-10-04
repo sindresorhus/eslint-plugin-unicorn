@@ -19,6 +19,19 @@ test.snapshot({
 		'(() => { if (condition) { var value = 1; } })();',
 		'(() => { eval(code); })();',
 		'(() => { if (condition) { eval(code); } })();',
+		'(() => { (eval)(code); })();',
+		{
+			code: '(() => { (eval as any)(\'var x = 1\'); })();',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: '(() => { eval!(\'var x = 1\'); })();',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
 		'(function () { this.run(); })();',
 		'(function () { arguments[0](); })();',
 		'(function () { console.log(new.target); })();',
@@ -70,6 +83,7 @@ test.snapshot({
 		},
 	],
 	invalid: [
+		'(() => { eval?.(code); })();',
 		outdent`
 			(() => {
 				const value = getValue();

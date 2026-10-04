@@ -1,11 +1,12 @@
-import {findVariable} from '@eslint-community/eslint-utils';
 import {
+	getCallArgumentText,
 	getLastTrailingCommentOnSameLine,
+	getNegatedExpressionText,
 	getNextNode,
 	getParenthesizedText,
 	getPreviousNode,
 	isGlobalBooleanCall,
-	shouldAddParenthesesToUnaryExpressionArgument,
+	isGlobalNameAvailable,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -103,26 +104,16 @@ function isRuntimeBooleanExpression(node, context) {
 const create = context => {
 	const {sourceCode} = context;
 
-	function canUseGlobalBoolean(node) {
-		const variable = findVariable(sourceCode.getScope(node), 'Boolean');
-		return !variable || variable.defs.length === 0;
-	}
-
 	function getBooleanReturnText(node, shouldNegateTest) {
-		const text = getParenthesizedText(node, context);
-
 		if (shouldNegateTest) {
-			return shouldAddParenthesesToUnaryExpressionArgument(node, '!')
-				? `!(${text})`
-				: `!${text}`;
+			return getNegatedExpressionText(node, context);
 		}
 
 		if (isRuntimeBooleanExpression(node, context)) {
-			return text;
+			return getParenthesizedText(node, context);
 		}
 
-		const booleanArgumentText = node.type === 'SequenceExpression' ? `(${text})` : text;
-		return `Boolean(${booleanArgumentText})`;
+		return `Boolean(${getCallArgumentText(node, context)})`;
 	}
 
 	function getProblem(node, consequent, alternate, replacementRange = sourceCode.getRange(node)) {
@@ -151,7 +142,7 @@ const create = context => {
 			|| getLastTrailingCommentOnSameLine(context, alternate);
 		const isNeedsGlobalBoolean = !shouldNegateTest
 			&& !isRuntimeBooleanExpression(node.test, context)
-			&& !canUseGlobalBoolean(node);
+			&& !isGlobalNameAvailable('Boolean', node, context);
 
 		if (hasComments || isNeedsGlobalBoolean) {
 			return problem;
@@ -205,9 +196,7 @@ const create = context => {
 			return problem;
 		}
 
-		const hasCommentsBetween = sourceCode.getTokensBetween(node, alternate, {includeComments: true})
-			.some(token => token.type === 'Block' || token.type === 'Line');
-		return hasCommentsBetween
+		return sourceCode.commentsExistBetween(node, alternate)
 			? {node, messageId: MESSAGE_ID}
 			: problem;
 	}

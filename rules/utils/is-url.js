@@ -4,8 +4,9 @@ import {
 	isGlobalIdentifier,
 	isDefaultLibrarySymbol,
 	isDefinitionBeforeReference,
-	isTypeImportSpecifier,
+	isTypeOnlyDefinition,
 	isUnknownType,
+	withTypeInformation,
 } from './index.js';
 
 const url = 'url';
@@ -47,17 +48,6 @@ const isUrlImport = definition => {
 		&& node.imported.name === 'URL';
 };
 
-const isTypeOnlyImport = definition =>
-	definition.type === 'ImportBinding'
-	&& (
-		definition.parent.importKind === 'type'
-		|| isTypeImportSpecifier(definition.node)
-	);
-
-const isTypeOnlyDefinition = definition =>
-	definition.type === 'Type'
-	|| isTypeOnlyImport(definition);
-
 const hasVisibleValueDefinition = (name, scope, referenceNode, context) => {
 	while (scope) {
 		const variable = scope.set.get(name);
@@ -77,7 +67,7 @@ const hasVisibleValueDefinition = (name, scope, referenceNode, context) => {
 
 const isValueUrlImport = definition =>
 	isUrlImport(definition)
-	&& !isTypeOnlyImport(definition);
+	&& !isTypeOnlyDefinition(definition);
 
 const isGlobalUrlConstructor = (node, context) => {
 	if (
@@ -237,25 +227,8 @@ const getTypeScriptUrlType = (type, state) => {
 	return nonUrl;
 };
 
-const getTypeFromTypeInformation = (node, context) => {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return unknown;
-	}
-
-	try {
-		const {program} = parserServices;
-		return getTypeScriptUrlType(
-			parserServices.getTypeAtLocation(node),
-			{
-				checker: program.getTypeChecker(),
-				program,
-			},
-		);
-	} catch {
-		return unknown;
-	}
-};
+const getTypeFromTypeInformation = (node, context) =>
+	withTypeInformation(node, context, ({type, checker, program}) => getTypeScriptUrlType(type, {checker, program})) ?? unknown;
 
 const getTypeFromVariable = (node, context, visitedVariables) => {
 	const variable = findVariable(context.sourceCode.getScope(node), node);

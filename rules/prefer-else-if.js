@@ -5,11 +5,12 @@ import {
 	isBranchExit,
 	trackBranchExits,
 	getVisitorChildNodes,
+	getLogicalExpressionOperands,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {
 	containsOptionalChain,
 	isSame,
-	unwrapExpression,
 } from './utils/comparison.js';
 
 /**
@@ -96,7 +97,7 @@ const isStaticMemberProperty = node => (
 @returns {boolean}
 */
 function isStaticReference(node) {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
 	if (staticReferenceRootTypes.has(node.type)) {
 		return true;
@@ -112,25 +113,8 @@ function isStaticReference(node) {
 @returns {ESTree.BinaryExpression[]}
 */
 function getEqualityComparisons(node) {
-	const nodes = [node];
-	const comparisons = [];
-
-	while (nodes.length > 0) {
-		node = nodes.pop();
-
-		if (node.type === 'LogicalExpression' && node.operator === '||') {
-			nodes.push(node.right, node.left);
-			continue;
-		}
-
-		if (node.type !== 'BinaryExpression' || node.operator !== '===') {
-			return [];
-		}
-
-		comparisons.push(node);
-	}
-
-	return comparisons;
+	const comparisons = getLogicalExpressionOperands(node, '||');
+	return comparisons.every(comparison => comparison.type === 'BinaryExpression' && comparison.operator === '===') ? comparisons : [];
 }
 
 /**
@@ -146,7 +130,7 @@ function getEqualityComparisons(node) {
 @returns {ComparisonInfo | undefined}
 */
 function getBooleanComparisonInfo(node, context) {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 	let isValue = true;
 
 	while (
@@ -154,7 +138,7 @@ function getBooleanComparisonInfo(node, context) {
 		&& node.operator === '!'
 	) {
 		isValue = !isValue;
-		node = unwrapExpression(node.argument);
+		node = unwrapTypeScriptExpression(node.argument);
 	}
 
 	if (
@@ -164,7 +148,7 @@ function getBooleanComparisonInfo(node, context) {
 		&& node.arguments.length === 1
 		&& context.sourceCode.isGlobalReference(node.callee)
 	) {
-		node = unwrapExpression(node.arguments[0]);
+		node = unwrapTypeScriptExpression(node.arguments[0]);
 	}
 
 	if (
@@ -293,11 +277,11 @@ function getChainComparisonInfo(chain, context) {
 @returns {ESTree.Expression[]}
 */
 function getReferencePrefixes(node) {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 	const prefixes = [node];
 
 	while (node.type === 'MemberExpression') {
-		node = unwrapExpression(node.object);
+		node = unwrapTypeScriptExpression(node.object);
 		prefixes.push(node);
 	}
 
@@ -309,7 +293,7 @@ function getReferencePrefixes(node) {
 @returns {Generator<ESTree.Node>}
 */
 function * getAssignmentTargets(node) {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
 	switch (node.type) {
 		case 'Identifier':
@@ -453,7 +437,7 @@ const fix = ifStatement => fixer => fixer.insertTextBefore(ifStatement, 'else ')
 @returns {boolean}
 */
 const canAutofix = (previous, previousChain, chain, context) => {
-	const discriminant = unwrapExpression(previous.discriminant);
+	const discriminant = unwrapTypeScriptExpression(previous.discriminant);
 	const hasSideEffectOptions = {
 		considerGetters: true,
 		considerImplicitTypeConversion: true,

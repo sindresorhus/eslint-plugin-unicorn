@@ -9,6 +9,7 @@ import {
 import {
 	getTypeSymbol,
 	isDefaultLibrarySymbol,
+	withTypeInformation,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-direct-iteration';
@@ -123,25 +124,8 @@ const getTypesFromType = (type, checker, program) => {
 	return builtinType && getTypeSet(builtinType);
 };
 
-const getTypesFromTypeInformation = (node, context) => {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return;
-	}
-
-	try {
-		const {program} = parserServices;
-		return getTypesFromType(
-			parserServices.getTypeAtLocation(node),
-			program.getTypeChecker(),
-			program,
-		);
-		// Tests cannot make TypeScript throw here.
-		/* node:coverage ignore next 3 */
-	} catch {
-		// TypeScript can throw while resolving incomplete projects; keep this fallback best-effort.
-	}
-};
+const getTypesFromTypeInformation = (node, context) =>
+	withTypeInformation(node, context, ({type, checker, program}) => getTypesFromType(type, checker, program));
 
 const getTypesFromTypeAnnotation = node => {
 	switch (node?.type) {

@@ -2,6 +2,7 @@ import identifierRegex from 'identifier-regex';
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isFunction, isMethodCall, isUndefined} from './ast/index.js';
 import {
+	getConstVariableInitializer,
 	isNodeMatches,
 	isNodeValueNotFunction,
 	isParenthesized,
@@ -180,40 +181,7 @@ const definitelyNotFunctionValueNodeTypes = new Set([
 	'UpdateExpression',
 ]);
 
-function getConstVariableInitializer(node, context, visitedVariables) {
-	node = unwrapTypeScriptExpression(node);
-
-	if (node?.type !== 'Identifier') {
-		return;
-	}
-
-	const variable = findVariable(context.sourceCode.getScope(node), node);
-	if (
-		!variable
-		|| visitedVariables.has(variable)
-		|| variable.defs.length !== 1
-	) {
-		return;
-	}
-
-	const [definition] = variable.defs;
-	if (
-		definition.type !== 'Variable'
-		|| definition.node.type !== 'VariableDeclarator'
-		|| definition.node.id.type !== 'Identifier'
-		|| definition.node.id.name !== node.name
-		|| !definition.node.init
-		|| definition.parent.type !== 'VariableDeclaration'
-		|| definition.parent.kind !== 'const'
-	) {
-		return;
-	}
-
-	visitedVariables.add(variable);
-	return unwrapTypeScriptExpression(definition.node.init);
-}
-
-function isDefinitelyNotFunctionValue(node, context, visitedVariables = new Set()) {
+function isDefinitelyNotFunctionValue(node, context, visitedInitializers = new Set()) {
 	node = unwrapTypeScriptExpression(node);
 
 	if (
@@ -223,10 +191,13 @@ function isDefinitelyNotFunctionValue(node, context, visitedVariables = new Set(
 		return true;
 	}
 
-	const initializer = getConstVariableInitializer(node, context, visitedVariables);
-	return initializer
-		? isDefinitelyNotFunctionValue(initializer, context, visitedVariables)
-		: false;
+	const initializer = getConstVariableInitializer(node, context);
+	if (!initializer || visitedInitializers.has(initializer)) {
+		return false;
+	}
+
+	visitedInitializers.add(initializer);
+	return isDefinitelyNotFunctionValue(initializer, context, visitedInitializers);
 }
 
 const identifierNameRegex = identifierRegex();
@@ -279,7 +250,7 @@ function getDeclaration(callback, context) {
 	}
 
 	// `object.method`, where `object` is bound to an object literal in the same scope
-	const objectExpression = getConstVariableInitializer(callback.object, context, new Set());
+	const objectExpression = unwrapTypeScriptExpression(getConstVariableInitializer(unwrapTypeScriptExpression(callback.object), context));
 	if (objectExpression?.type !== 'ObjectExpression') {
 		return;
 	}

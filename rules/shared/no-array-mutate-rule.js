@@ -3,6 +3,7 @@ import {
 	isNodeValueNotFunction,
 	getMemberExpressionObjectText,
 	shouldSkipKnownNonArrayReceiver,
+	wouldRemoveComments,
 } from '../utils/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
@@ -47,16 +48,6 @@ const schema = [
 		},
 	},
 ];
-
-// Unwrapping `[...argument]` replaces the whole array literal, so any comment in the brackets that is not inside the argument itself would be lost.
-const hasCommentOutsideArgument = (array, context) => {
-	const {sourceCode} = context;
-	const [argumentStart, argumentEnd] = sourceCode.getRange(array.elements[0].argument);
-	return sourceCode.getCommentsInside(array).some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-		return commentStart < argumentStart || commentEnd > argumentEnd;
-	});
-};
 
 export default function noArrayMutateRule(methodName) {
 	const {
@@ -111,8 +102,13 @@ export default function noArrayMutateRule(methodName) {
 			/*
 			For `[...array].reverse()`, provide two suggestions, let user choose if the object can be unwrapped,
 			otherwise only change `.reverse()` to `.toReversed()`
+
+			Unwrapping `[...argument]` replaces the whole array literal, so any comment in the brackets that is not inside the argument itself would be lost.
 			*/
-			if (isSpreadAndMutate && !hasCommentOutsideArgument(array, context)) {
+			if (
+				isSpreadAndMutate
+				&& !wouldRemoveComments(context, array, [array.elements[0].argument])
+			) {
 				suggestions.push({
 					messageId: MESSAGE_ID_SUGGESTION_SPREADING_ARRAY,
 					* fix(fixer) {

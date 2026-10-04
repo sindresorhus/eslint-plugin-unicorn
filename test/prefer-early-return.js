@@ -732,6 +732,33 @@ test.snapshot({
 				}
 			}
 		`,
+		// Direct `eval` behind TypeScript wrappers
+		{
+			code: outdent`
+				function foo() {
+					if ((eval as any)('typeof value === "undefined"')) {
+						const value = getValue();
+						doSomething(value);
+					}
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		{
+			code: outdent`
+				function foo() {
+					if (eval!('typeof value === "undefined"')) {
+						const value = getValue();
+						doSomething(value);
+					}
+				}
+			`,
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
 	],
 });
 

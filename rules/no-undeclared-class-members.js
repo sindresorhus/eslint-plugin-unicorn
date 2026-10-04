@@ -5,6 +5,14 @@ import {
 	getLineIndent,
 	getVisitorChildNodes,
 } from './utils/index.js';
+import {
+	getContainingClassElement,
+	getStaticName,
+	getThisOwnerClassBody,
+	isInClassElementDefinition,
+	isInStaticContext,
+	isThisExpression,
+} from './shared/class-this.js';
 
 const MESSAGE_ID = 'no-undeclared-class-members';
 const MESSAGE_ID_SUGGESTION = 'no-undeclared-class-members/suggestion';
@@ -22,49 +30,9 @@ const classMemberTypes = new Set([
 	'TSAbstractPropertyDefinition',
 ]);
 
-const transparentExpressionWrapperTypes = new Set([
-	'ChainExpression',
-	'TSAsExpression',
-	'TSInstantiationExpression',
-	'TSNonNullExpression',
-	'TSSatisfiesExpression',
-	'TSTypeAssertion',
-]);
-
 const isNonArrowFunction = node =>
 	node.type === 'FunctionDeclaration'
 	|| node.type === 'FunctionExpression';
-
-const getStaticName = (key, computed) => {
-	if (!computed && key?.type === 'Identifier') {
-		return key.name;
-	}
-
-	if (
-		key?.type === 'Literal'
-		&& typeof key.value === 'string'
-	) {
-		return key.value;
-	}
-
-	if (
-		computed
-		&& key?.type === 'TemplateLiteral'
-		&& key.expressions.length === 0
-	) {
-		return key.quasis[0].value.cooked;
-	}
-};
-
-const removeTransparentWrapper = node => {
-	while (node && transparentExpressionWrapperTypes.has(node.type)) {
-		node = node.expression;
-	}
-
-	return node;
-};
-
-const isThisExpression = node => removeTransparentWrapper(node)?.type === 'ThisExpression';
 
 const getThisMemberName = memberExpression => {
 	if (
@@ -78,61 +46,9 @@ const getThisMemberName = memberExpression => {
 	return getStaticName(memberExpression.property, memberExpression.computed);
 };
 
-const isClassMethodFunction = node =>
-	node.parent.type === 'MethodDefinition'
-	&& node.parent.value === node;
-
-const getThisOwnerClassBody = node => {
-	for (let current = node.parent; current; current = current.parent) {
-		if (current.type === 'ClassBody') {
-			return current;
-		}
-
-		if (isNonArrowFunction(current) && !isClassMethodFunction(current)) {
-			return;
-		}
-	}
-};
-
-const getContainingClassElement = (node, classBody) => {
-	let current = node;
-	while (current.parent !== classBody) {
-		current = current.parent;
-	}
-
-	return current;
-};
-
-const isInStaticContext = (node, classBody) => {
-	const classElement = getContainingClassElement(node, classBody);
-	return classElement.type === 'StaticBlock' || classElement.static === true;
-};
-
-const isInConstructor = (node, classBody) => {
-	const classElement = getContainingClassElement(node, classBody);
+const isInConstructor = node => {
+	const classElement = getContainingClassElement(node);
 	return classElement.type === 'MethodDefinition' && classElement.kind === 'constructor';
-};
-
-const isClassElementDefinition = (node, classBody) => {
-	const classElement = getContainingClassElement(node, classBody);
-
-	if (classElement.key) {
-		for (let current = node; current !== classElement; current = current.parent) {
-			if (current === classElement.key) {
-				return true;
-			}
-		}
-	}
-
-	return classElement.decorators?.some(decorator => {
-		for (let current = node; current !== classElement; current = current.parent) {
-			if (current === decorator) {
-				return true;
-			}
-		}
-
-		return false;
-	}) === true;
 };
 
 const isSimpleAssignmentTarget = memberExpression => {
@@ -251,8 +167,8 @@ const getInsertClassFieldSuggestion = (classBody, name, context) => {
 
 const shouldReportMemberAccess = (node, name, classBody, declaredNames) =>
 	getThisOwnerClassBody(node) === classBody
-	&& !isInStaticContext(node, classBody)
-	&& !isClassElementDefinition(node, classBody)
+	&& !isInStaticContext(node)
+	&& !isInClassElementDefinition(node)
 	&& !declaredNames.has(name);
 
 const getProblemsForClassBody = function * (classBody, memberAccesses, context) {
@@ -272,7 +188,7 @@ const getProblemsForClassBody = function * (classBody, memberAccesses, context) 
 
 		if (
 			isSimpleAssignmentTarget(node)
-			&& !isInConstructor(node, classBody)
+			&& !isInConstructor(node)
 			&& !suggestedNames.has(name)
 		) {
 			const suggestion = getInsertClassFieldSuggestion(classBody, name, context);

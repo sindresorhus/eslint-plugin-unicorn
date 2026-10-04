@@ -1,8 +1,11 @@
 import {
+	getLogicalExpressionOperands,
 	getParenthesizedText,
 	getCommentSafeProblem,
 	hasNonDirectiveComment,
+	hasTypeArguments,
 	isKnownNonIndexedCollection,
+	isOutermostLogicalExpression,
 	isParenthesized,
 	isSameReference,
 } from './utils/index.js';
@@ -89,7 +92,7 @@ function getPredicateCall(node, method, context) {
 		return;
 	}
 
-	if (node.typeArguments || node.typeParameters) {
+	if (hasTypeArguments(node)) {
 		return;
 	}
 
@@ -113,24 +116,6 @@ function getPredicateCall(node, method, context) {
 		},
 	};
 }
-
-function getLogicalOperands(node, operator) {
-	if (
-		node.type !== 'LogicalExpression'
-		|| node.operator !== operator
-	) {
-		return [node];
-	}
-
-	return [
-		...getLogicalOperands(node.left, operator),
-		...getLogicalOperands(node.right, operator),
-	];
-}
-
-const isOutermostLogicalExpression = node =>
-	node.parent.type !== 'LogicalExpression'
-	|| node.parent.operator !== node.operator;
 
 const areCompatiblePredicateCalls = (left, right) =>
 	isSameReference(left.object, right.object)
@@ -165,7 +150,7 @@ const create = context => {
 			return;
 		}
 
-		const calls = getLogicalOperands(logicalExpression, logicalExpression.operator)
+		const calls = getLogicalExpressionOperands(logicalExpression, logicalExpression.operator)
 			.map(node => getPredicateCall(node, method, context));
 
 		if (

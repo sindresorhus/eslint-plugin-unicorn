@@ -1,6 +1,7 @@
 import {hasSideEffect, findVariable, getStaticValue} from '@eslint-community/eslint-utils';
-import {isMethodCall} from '../ast/index.js';
+import {isIdentifierNamed, isMethodCall} from '../ast/index.js';
 import {
+	getFunctionReturnExpression,
 	isSameIdentifier,
 	isFunctionSelfUsedInside,
 	isParenthesized,
@@ -9,60 +10,37 @@ import {
 
 const booleanLiteralTypeNames = new Set(['false', 'true']);
 
-// `argument` is `null` for a bare `return;`
 const isSimpleCompare = (node, compareNode) =>
-	node?.type === 'BinaryExpression'
+	node.type === 'BinaryExpression'
 	&& node.operator === '==='
 	&& (
 		isSameIdentifier(node.left, compareNode)
 		|| isSameIdentifier(node.right, compareNode)
 	);
-const isSimpleCompareCallbackFunction = node =>
-	// Matches `foo.findIndex(bar => bar === baz)`
-	(
-		node.type === 'ArrowFunctionExpression'
-		&& !node.async
-		&& node.params.length === 1
-		&& isSimpleCompare(node.body, node.params[0])
-	)
-	// Matches `foo.findIndex(bar => {return bar === baz})`
-	// Matches `foo.findIndex(function (bar) {return bar === baz})`
-	|| (
-		(node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression')
-		&& !node.async
-		&& !node.generator
-		&& node.params.length === 1
-		&& node.body.type === 'BlockStatement'
-		&& node.body.body.length === 1
-		&& node.body.body[0].type === 'ReturnStatement'
-		&& isSimpleCompare(node.body.body[0].argument, node.params[0])
-	);
-const isIdentifierNamed = ({type, name}, expectName) => type === 'Identifier' && name === expectName;
-// `NaN`, `Number.NaN`, `0 / 0`, but not a binding that happens to be named `NaN`
-const isNaNValue = (node, context) => Number.isNaN(getStaticValue(node, context.sourceCode.getScope(node))?.value);
 
+// Matches `bar => …`, `bar => {return …}`, and `function (bar) {return …}`
 function getSingleReturnExpression(node) {
 	if (
-		node.type === 'ArrowFunctionExpression'
-		&& !node.async
-		&& node.params.length === 1
-		&& node.body.type !== 'BlockStatement'
-	) {
-		return node.body;
-	}
-
-	if (
 		(node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression')
 		&& !node.async
 		&& !node.generator
 		&& node.params.length === 1
-		&& node.body.type === 'BlockStatement'
-		&& node.body.body.length === 1
-		&& node.body.body[0].type === 'ReturnStatement'
 	) {
-		return node.body.body[0].argument;
+		return getFunctionReturnExpression(node);
 	}
 }
+
+// Matches `foo.findIndex(bar => bar === baz)`
+// Matches `foo.findIndex(bar => {return bar === baz})`
+// Matches `foo.findIndex(function (bar) {return bar === baz})`
+const isSimpleCompareCallbackFunction = node => {
+	const returnExpression = getSingleReturnExpression(node);
+	// `returnExpression` is `undefined` for a non-function callback or a bare `return;`
+	return Boolean(returnExpression) && isSimpleCompare(returnExpression, node.params[0]);
+};
+
+// `NaN`, `Number.NaN`, `0 / 0`, but not a binding that happens to be named `NaN`
+const isNaNValue = (node, context) => Number.isNaN(getStaticValue(node, context.sourceCode.getScope(node))?.value);
 
 function getBooleanPredicateReference(callback, parameter) {
 	const returnExpression = getSingleReturnExpression(callback);

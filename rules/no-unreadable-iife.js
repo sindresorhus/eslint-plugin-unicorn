@@ -1,4 +1,9 @@
-import {isParenthesized, getParenthesizedRange, toLocation} from './utils/index.js';
+import {
+	isParenthesized,
+	getParenthesizedRange,
+	toLocation,
+	wouldRemoveComments,
+} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-unreadable-iife';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -6,19 +11,6 @@ const messages = {
 	[MESSAGE_ID_ERROR]: 'IIFE with parenthesized arrow function body is considered unreadable.',
 	[MESSAGE_ID_SUGGESTION]: 'Use a block statement body.',
 };
-
-function hasCommentsAroundBodyInParentheses(node, context) {
-	const {sourceCode} = context;
-	const [start, end] = getParenthesizedRange(node, context);
-	const [bodyStart, bodyEnd] = sourceCode.getRange(node);
-
-	return sourceCode.getCommentsInside(node.parent).some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-		return commentStart >= start
-			&& commentEnd <= end
-			&& (commentStart < bodyStart || commentEnd > bodyEnd);
-	});
-}
 
 /**
 @param {import('eslint').Rule.RuleContext} context
@@ -34,18 +26,20 @@ const create = context => {
 		}
 
 		const {body} = callExpression.callee;
+		const bodyRange = getParenthesizedRange(body, context);
 		const problem = {
 			node: callExpression,
-			loc: toLocation(getParenthesizedRange(body, context), context),
+			loc: toLocation(bodyRange, context),
 			messageId: MESSAGE_ID_ERROR,
 		};
 
-		if (!hasCommentsAroundBodyInParentheses(body, context)) {
+		// Comments inside the parentheses but outside the body would be removed
+		if (!wouldRemoveComments(context, bodyRange, [body])) {
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION,
 					fix: fixer => fixer.replaceTextRange(
-						getParenthesizedRange(body, context),
+						bodyRange,
 						`{ return ${context.sourceCode.getText(body)}; }`,
 					),
 				},

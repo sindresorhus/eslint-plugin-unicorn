@@ -6,6 +6,8 @@ import {
 	isUnknownType,
 	getTypeSymbol,
 	isDefaultLibrarySymbol,
+	isTypeImportSpecifier,
+	withTypeInformation,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-non-function-verb-prefix';
@@ -196,18 +198,8 @@ function getProblem(identifier, context, options, typeNode = identifier) {
 		return;
 	}
 
-	const {parserServices} = context.sourceCode;
-	let type;
-	try {
-		type = parserServices.getTypeAtLocation(typeNode);
-		// Defensive: `getTypeAtLocation()` throws for a node that the TypeScript program does not map, which the supported parsers do not produce.
-		/* node:coverage ignore next 3 */
-	} catch {
-		return;
-	}
-
-	const checker = parserServices.program.getTypeChecker();
-	if (getTypeCallability(type, checker, parserServices.program) !== nonCallable) {
+	const callability = withTypeInformation(typeNode, context, ({type, checker, program}) => getTypeCallability(type, checker, program));
+	if (callability !== nonCallable) {
 		return;
 	}
 
@@ -221,7 +213,6 @@ function getProblem(identifier, context, options, typeNode = identifier) {
 	};
 }
 
-const isTypeOnlyImport = node => node.importKind === 'type' || node.parent.importKind === 'type';
 const isTypeOnlyClassField = node =>
 	node.type === 'TSAbstractPropertyDefinition'
 	|| node.type === 'TSAbstractAccessorProperty'
@@ -252,7 +243,7 @@ const create = context => {
 	});
 
 	context.on(['ImportDefaultSpecifier', 'ImportNamespaceSpecifier', 'ImportSpecifier'], node => {
-		if (isTypeOnlyImport(node)) {
+		if (isTypeImportSpecifier(node)) {
 			return;
 		}
 

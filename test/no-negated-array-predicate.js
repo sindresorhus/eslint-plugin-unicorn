@@ -145,6 +145,11 @@ test.snapshot({
 			code: 'function f(array: Int8Array) { return !array.some(element => test(element)); }',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'!array.some(element => !{foo: element}.foo);',
+		{
+			code: '<template><div v-if="!array.some(element => (test(element)))"></div></template>',
+			languageOptions: {parser: parsers.vue},
+		},
 	],
 });
 

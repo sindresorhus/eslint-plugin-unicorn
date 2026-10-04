@@ -2,9 +2,10 @@ import {
 	isParenthesized,
 	checkVueTemplate,
 	isLogicalExpression,
-	isBooleanExpression,
-	isControlFlowTest,
+	isBooleanContext,
 	getBooleanAncestor,
+	getLogicalExpressionOperands,
+	getLogicalExpressionRoot,
 	isSameReference,
 	isTypeScriptExpressionWrapper,
 	unwrapTypeScriptExpression,
@@ -63,24 +64,6 @@ function getLengthCheckParent(node, allowTypeScriptExpression) {
 	}
 
 	return node;
-}
-
-function getLogicalExpressionRoot(node) {
-	while (
-		isLogicalExpression(node.parent)
-		&& node.parent.operator === '&&'
-	) {
-		node = node.parent;
-	}
-
-	return node;
-}
-
-function getLogicalExpressionOperands(node) {
-	return [node.left, node.right].flatMap(child =>
-		child.type === 'LogicalExpression' && child.operator === node.operator
-			? getLogicalExpressionOperands(child)
-			: [child]);
 }
 
 function getLengthCheckMemberExpression(node) {
@@ -178,7 +161,7 @@ function isSameLengthNonZeroCheck(node, lengthNode, context) {
 }
 
 function isLengthGuardedByNonZeroCheck(lengthNode, context) {
-	const root = getLogicalExpressionRoot(lengthNode);
+	const root = getLogicalExpressionRoot(lengthNode, '&&');
 	if (
 		root.type !== 'LogicalExpression'
 		|| root.operator !== '&&'
@@ -186,7 +169,7 @@ function isLengthGuardedByNonZeroCheck(lengthNode, context) {
 		return false;
 	}
 
-	return getLogicalExpressionOperands(root).some(operand =>
+	return getLogicalExpressionOperands(root, '&&').some(operand =>
 		operand !== lengthNode
 		&& isSameLengthNonZeroCheck(operand, lengthNode, context));
 }
@@ -305,7 +288,7 @@ function create(context) {
 			}
 		} else {
 			const {isNegative, node: ancestor} = getBooleanAncestor(lengthNode, context);
-			if (isBooleanExpression(ancestor, context) || isControlFlowTest(ancestor)) {
+			if (isBooleanContext(ancestor, context)) {
 				isZeroLengthCheck = isNegative;
 				node = ancestor;
 			} else if (isLogicalExpression(lengthNode.parent) && lengthNode.parent.operator === '&&') {

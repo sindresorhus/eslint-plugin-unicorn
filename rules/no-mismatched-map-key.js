@@ -1,11 +1,13 @@
-import {findVariable} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
-import {isReference, isSame, unwrapExpression} from './utils/comparison.js';
+import {isReference, isSame} from './utils/comparison.js';
 import {
 	getStaticValueIfNoSideEffects,
 	isComparableStaticValue,
 	isKnownNonMap,
 	getVisitorChildNodes,
+	getSingleStatement,
+	isSameBinding,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 /**
@@ -36,7 +38,7 @@ const isSameValueZero = (left, right) =>
 	);
 
 const isMapHasCall = node =>
-	isMethodCall(unwrapExpression(node), {
+	isMethodCall(unwrapTypeScriptExpression(node), {
 		method: 'has',
 		argumentsLength: 1,
 		computed: false,
@@ -46,7 +48,7 @@ const isMapHasCall = node =>
 	});
 
 const isMapAccessCall = node =>
-	isMethodCall(unwrapExpression(node), {
+	isMethodCall(unwrapTypeScriptExpression(node), {
 		methods: ['get', 'set'],
 		minimumArguments: 1,
 		computed: false,
@@ -56,7 +58,7 @@ const isMapAccessCall = node =>
 	});
 
 function getMapHasCall(node) {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
 	if (isMapHasCall(node)) {
 		return node;
@@ -68,12 +70,12 @@ function getMapHasCall(node) {
 		&& node.prefix
 		&& isMapHasCall(node.argument)
 	) {
-		return unwrapExpression(node.argument);
+		return unwrapTypeScriptExpression(node.argument);
 	}
 }
 
 function getComparableStaticValue(node, context) {
-	const result = getStaticValueIfNoSideEffects(unwrapExpression(node), context);
+	const result = getStaticValueIfNoSideEffects(unwrapTypeScriptExpression(node), context);
 
 	if (
 		result
@@ -84,7 +86,7 @@ function getComparableStaticValue(node, context) {
 }
 
 function getRootIdentifier(node) {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
 	if (node.type === 'Identifier') {
 		return node;
@@ -132,7 +134,7 @@ function hasCallExpression(node, context) {
 	let isResult = false;
 
 	function visit(node) {
-		node = unwrapExpression(node);
+		node = unwrapTypeScriptExpression(node);
 
 		if (
 			isResult
@@ -184,18 +186,6 @@ function areDifferentKeys(left, right, context) {
 	return false;
 }
 
-function getSingleStatement(node) {
-	if (!node) {
-		return;
-	}
-
-	if (node.type === 'BlockStatement') {
-		return node.body.length === 1 ? node.body[0] : undefined;
-	}
-
-	return node;
-}
-
 // In `if (condition && map.has(key))` the guard is the last `&&` operand, an earlier `has` guards nothing in the body. With `||` a truthy `map.has(key)` is not what admits the body, `condition` alone can, so that is not a guard.
 function getGuardTest({test}) {
 	while (test.type === 'LogicalExpression' && test.operator === '&&') {
@@ -236,13 +226,13 @@ function getMapAccessProblem(node, mapHasCall, context, reportedAccessKeys) {
 		return;
 	}
 
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
 	if (node.arguments.some(argument => argument.type === 'SpreadElement')) {
 		return;
 	}
 
-	const mapHasObject = unwrapExpression(mapHasCall).callee.object;
+	const mapHasObject = unwrapTypeScriptExpression(mapHasCall).callee.object;
 	const mapAccessObject = node.callee.object;
 
 	if (!isSameMapReceiver(mapHasObject, mapAccessObject, context)) {
@@ -286,15 +276,8 @@ function isSameReferenceBinding(left, right, context) {
 	return isSameBinding(leftRoot, rightRoot, context);
 }
 
-function isSameBinding(left, right, context) {
-	const leftVariable = findVariable(context.sourceCode.getScope(left), left);
-	const rightVariable = findVariable(context.sourceCode.getScope(right), right);
-
-	return leftVariable || rightVariable ? leftVariable === rightVariable : left.name === right.name;
-}
-
 function isMapReceiverWrite(node, mapHasCall, context) {
-	const mapHasObject = unwrapExpression(mapHasCall).callee.object;
+	const mapHasObject = unwrapTypeScriptExpression(mapHasCall).callee.object;
 	const mapHasRoot = getRootIdentifier(mapHasObject);
 
 	// A `this.x` receiver has no root identifier, only the direct receiver comparison can match it
@@ -305,12 +288,12 @@ function isMapReceiverWrite(node, mapHasCall, context) {
 	}
 
 	if (node.type === 'AssignmentExpression') {
-		const left = unwrapExpression(node.left);
+		const left = unwrapTypeScriptExpression(node.left);
 		return isSameMapReceiver(mapHasObject, left, context) || isRootRewrite(left);
 	}
 
 	if (node.type === 'UpdateExpression') {
-		const argument = unwrapExpression(node.argument);
+		const argument = unwrapTypeScriptExpression(node.argument);
 		return isSameMapReceiver(mapHasObject, argument, context) || isRootRewrite(argument);
 	}
 
@@ -318,7 +301,7 @@ function isMapReceiverWrite(node, mapHasCall, context) {
 		(node.type === 'ForInStatement' || node.type === 'ForOfStatement')
 		&& node.left.type !== 'VariableDeclaration'
 	) {
-		const left = unwrapExpression(node.left);
+		const left = unwrapTypeScriptExpression(node.left);
 		return isSameMapReceiver(mapHasObject, left, context) || isRootRewrite(left);
 	}
 
@@ -352,7 +335,7 @@ function hasSameMapHasCall(node, mapHasCall, context) {
 
 		if (
 			nestedMapHasCall
-			&& isSameMapReceiver(unwrapExpression(mapHasCall).callee.object, unwrapExpression(nestedMapHasCall).callee.object, context)
+			&& isSameMapReceiver(unwrapTypeScriptExpression(mapHasCall).callee.object, unwrapTypeScriptExpression(nestedMapHasCall).callee.object, context)
 		) {
 			isResult = true;
 			return;

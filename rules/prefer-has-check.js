@@ -11,14 +11,18 @@ import {
 	hasNonDirectiveComment,
 	getTypeSymbol,
 	needsSemicolon,
-	isBooleanExpression,
-	isControlFlowTest,
+	isBooleanContext,
 	isDefaultLibrarySymbol,
+	isGlobalIdentifier,
 	isNullishType,
 	isUnknownType,
 	getMemberExpressionObjectText,
 	getStaticValueIfNoSideEffects,
+	getOutermostTypeScriptExpression,
+	unwrapTypeScriptExpression,
+	withTypeInformation,
 } from './utils/index.js';
+import {getTypeReferenceDefinition} from './utils/type-helpers.js';
 
 const MESSAGE_ID = 'prefer-has-check';
 const messages = {
@@ -48,13 +52,6 @@ const definitelyTruthyBuiltinTypeNames = new Set([
 ]);
 
 const constructibleCollectionTypeNames = mapConstructorTypeNames.union(nullSentinelTypeNames);
-
-const typeReferenceDefinitionTypes = new Set([
-	'ClassName',
-	'ImportBinding',
-	'TSEnumName',
-	'Type',
-]);
 
 const unsupportedBooleanTypeNames = new Set([
 	'any',
@@ -102,30 +99,6 @@ const definitelySafeExpressionTypes = new Set([
 	'ObjectExpression',
 ]);
 
-const transparentExpressionTypes = new Set([
-	'ParenthesizedExpression',
-	'TSAsExpression',
-	'TSSatisfiesExpression',
-	'TSTypeAssertion',
-	'TSNonNullExpression',
-]);
-
-const unwrapExpression = node => {
-	while (transparentExpressionTypes.has(node.type)) {
-		node = node.expression;
-	}
-
-	return node;
-};
-
-const getTransparentExpressionAncestor = node => {
-	while (transparentExpressionTypes.has(node.parent.type)) {
-		node = node.parent;
-	}
-
-	return node;
-};
-
 // Keep the parentheses, a sequence expression is only one argument while it has them
 const getSingleArgumentText = (callExpression, context) => getParenthesizedText(callExpression.arguments[0], context);
 
@@ -134,21 +107,6 @@ const getTypeReferenceName = typeName => typeName.type === 'Identifier' ? typeNa
 
 const getTypeReferenceArguments = node =>
 	node.typeArguments?.params ?? node.typeParameters?.params ?? [];
-
-const getTypeReferenceDefinition = (typeReferenceName, scope) => {
-	while (scope) {
-		const definition = scope.set
-			.get(typeReferenceName)
-			?.defs
-			.find(definition => typeReferenceDefinitionTypes.has(definition.type));
-
-		if (definition) {
-			return definition;
-		}
-
-		scope = scope.upper;
-	}
-};
 
 const getNonGenericTypeAliasAnnotation = definition => {
 	if (
@@ -160,17 +118,8 @@ const getNonGenericTypeAliasAnnotation = definition => {
 	}
 };
 
-const isUnshadowedGlobalIdentifier = (node, context) => {
-	if (context.sourceCode.isGlobalReference(node)) {
-		return true;
-	}
-
-	const variable = findVariable(context.sourceCode.getScope(node), node);
-	return !variable || variable.defs.length === 0;
-};
-
 const isGlobalUndefined = (node, context) =>
-	isUndefined(node) && isUnshadowedGlobalIdentifier(node, context);
+	isUndefined(node) && isGlobalIdentifier(node, context);
 
 const isVoidZero = node =>
 	node.type === 'UnaryExpression'
@@ -182,7 +131,7 @@ const isUndefinedSentinel = (node, context) =>
 	isGlobalUndefined(node, context) || isVoidZero(node);
 
 const getKnownTypeReferenceDefinitionTypeAnnotation = (typeReferenceName, scope, visitedTypeDefinitions) => {
-	const definition = getTypeReferenceDefinition(typeReferenceName, scope);
+	const definition = getTypeReferenceDefinition(typeReferenceName, scope)?.definition;
 	if (visitedTypeDefinitions.has(definition)) {
 		return;
 	}
@@ -250,13 +199,13 @@ const getCollectionInfoFromSyntax = (node, context, visitedVariables = new Set()
 		return collectionInfo;
 	}
 
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
 	if (
 		isNewExpression(node)
 		&& node.callee.type === 'Identifier'
 		&& constructibleCollectionTypeNames.has(node.callee.name)
-		&& isUnshadowedGlobalIdentifier(node.callee, context)
+		&& isGlobalIdentifier(node.callee, context)
 	) {
 		return getCollectionInfoFromTypeName(node.callee.name);
 	}
@@ -358,25 +307,8 @@ const getCollectionInfoFromType = (type, checker, program) => {
 	);
 };
 
-const getCollectionInfoFromTypeInformation = (node, context) => {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return;
-	}
-
-	try {
-		const {program} = parserServices;
-		return getCollectionInfoFromType(
-			parserServices.getTypeAtLocation(node),
-			program.getTypeChecker(),
-			program,
-		);
-		// Tests cannot make TypeScript throw here.
-		/* node:coverage ignore next 3 */
-	} catch {
-		// TypeScript can throw while resolving incomplete projects; keep this rule best-effort.
-	}
-};
+const getCollectionInfoFromTypeInformation = (node, context) =>
+	withTypeInformation(node, context, ({type, checker, program}) => getCollectionInfoFromType(type, checker, program));
 
 const getCollectionInfo = (node, context) =>
 	getCollectionInfoFromTypeInformation(node, context)
@@ -440,7 +372,7 @@ const isSafeTypeReferenceAnnotation = (node, context, kind, visitedTypeDefinitio
 		return false;
 	}
 
-	const typeDefinition = getTypeReferenceDefinition(typeReferenceName, context.sourceCode.getScope(node.typeName));
+	const typeDefinition = getTypeReferenceDefinition(typeReferenceName, context.sourceCode.getScope(node.typeName))?.definition;
 	if (!typeDefinition || visitedTypeDefinitions.has(typeDefinition)) {
 		return false;
 	}
@@ -604,7 +536,7 @@ const getMapConstructorValueSafety = (node, context, kind) => {
 		!isNewExpression(node)
 		|| node.callee.type !== 'Identifier'
 		|| !mapConstructorTypeNames.has(node.callee.name)
-		|| !isUnshadowedGlobalIdentifier(node.callee, context)
+		|| !isGlobalIdentifier(node.callee, context)
 	) {
 		return;
 	}
@@ -635,7 +567,7 @@ const getMapNewExpressionValueSafety = (node, context, kind) => {
 		!isNewExpression(node)
 		|| node.callee.type !== 'Identifier'
 		|| !mapConstructorTypeNames.has(node.callee.name)
-		|| !isUnshadowedGlobalIdentifier(node.callee, context)
+		|| !isGlobalIdentifier(node.callee, context)
 	) {
 		return;
 	}
@@ -693,7 +625,7 @@ function hasSafeMapValueTypeFromSyntax(node, context, kind, visitedVariables = n
 			: false;
 	}
 
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
 	const mapNewExpressionValueSafety = getMapNewExpressionValueSafety(node, context, kind);
 	if (mapNewExpressionValueSafety !== undefined) {
@@ -715,7 +647,7 @@ function hasSafeMapValueTypeFromSyntax(node, context, kind, visitedVariables = n
 }
 
 const hasSafeMapValueType = (node, context, kind) => {
-	const constructorValueSafety = getMapConstructorValueSafety(unwrapExpression(node), context, kind);
+	const constructorValueSafety = getMapConstructorValueSafety(unwrapTypeScriptExpression(node), context, kind);
 	if (constructorValueSafety !== undefined) {
 		return constructorValueSafety;
 	}
@@ -781,7 +713,7 @@ const getCallKind = (callExpression, comparison, context) => {
 };
 
 const getComparison = callExpression => {
-	const comparisonTarget = getTransparentExpressionAncestor(callExpression);
+	const comparisonTarget = getOutermostTypeScriptExpression(callExpression);
 	const {parent} = comparisonTarget;
 	if (
 		parent?.type !== 'BinaryExpression'
@@ -859,7 +791,7 @@ const getProblem = (callExpression, context) => {
 	}
 
 	if (
-		(isBooleanExpression(callExpression, context) || isControlFlowTest(callExpression))
+		isBooleanContext(callExpression, context)
 		&& isSafeBooleanMapCall(callExpression, context)
 	) {
 		if (hasNonDirectiveComment(context, callExpression)) {

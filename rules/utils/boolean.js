@@ -80,6 +80,18 @@ export function isControlFlowTest(node) {
 }
 
 /**
+Check if the value of `node` is only used for its truthiness, either as a boolean expression (`!node`, `Boolean(node)`) or as a control-flow test (`if (node)`).
+
+TypeScript expression wrappers around `node` are not looked through, because a fix that changes the type of `node` would conflict with the wrapper (`if (foo.length as number)`).
+
+@param {Node} node
+@param {RuleContext} context
+@returns {boolean}
+*/
+export const isBooleanContext = (node, context) =>
+	isBooleanExpression(node, context) || isControlFlowTest(node);
+
+/**
 Get the boolean type-casting ancestor.
 
 @typedef {{ node: Node, isNegative: boolean }} Result

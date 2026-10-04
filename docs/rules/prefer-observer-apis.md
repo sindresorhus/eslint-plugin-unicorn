@@ -50,4 +50,4 @@ window.addEventListener('scroll', () => {
 
 ## Limitations
 
-Only inline listener functions, local function declarations, and local `const` function listeners are checked. Function declaration reassignments are not tracked. Dynamic event names are ignored unless TypeScript type information proves the value is exactly `'resize'` or `'scroll'`. Direct type assertions on wider dynamic names are ignored. Opaque listener references are ignored to avoid false positives.
+Only inline listener functions, local function declarations, and local variables initialized with a function are checked. Listeners that are reassigned are ignored. Dynamic event names are ignored unless TypeScript type information proves the value is exactly `'resize'` or `'scroll'`. Direct type assertions on wider dynamic names are ignored. Opaque listener references are ignored to avoid false positives.

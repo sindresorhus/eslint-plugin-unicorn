@@ -1,5 +1,5 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
-import {isRuntimeImportSpecifier, isTypeScriptExpressionWrapper} from './utils/index.js';
+import {isRuntimeImportSpecifier, unwrapChainAndTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unsafe-sqlite-interpolation';
 const messages = {
@@ -10,14 +10,6 @@ const databaseMethods = new Set([
 	'exec',
 	'prepare',
 ]);
-
-const unwrapExpression = node => {
-	while (node && (node.type === 'ChainExpression' || node.type === 'TSInstantiationExpression' || isTypeScriptExpressionWrapper(node))) {
-		node = node.expression;
-	}
-
-	return node;
-};
 
 const getNonTypeDefinitions = variable => variable.defs.filter(definition => definition.type !== 'Type');
 
@@ -108,7 +100,7 @@ const isSqliteNamespaceImport = (node, context) => {
 };
 
 const isDatabaseSyncConstructor = (node, context, seenVariables = new Set()) => {
-	const callee = unwrapExpression(node);
+	const callee = unwrapChainAndTypeScriptExpression(node);
 	if (!callee) {
 		return false;
 	}
@@ -135,7 +127,7 @@ const isDatabaseSyncConstructor = (node, context, seenVariables = new Set()) => 
 };
 
 const isSqliteNamespace = (node, context, seenVariables = new Set()) => {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 	if (node?.type !== 'Identifier') {
 		return false;
 	}
@@ -157,7 +149,7 @@ const createDatabaseInstanceChecker = context => {
 	const cache = new WeakMap();
 
 	const isDatabaseInstance = (node, seenVariables = new Set()) => {
-		node = unwrapExpression(node);
+		node = unwrapChainAndTypeScriptExpression(node);
 		if (!node) {
 			return false;
 		}
@@ -198,7 +190,7 @@ const createUnsafeSqlArgumentChecker = context => {
 	const cache = new WeakMap();
 
 	const isUnsafeSqlArgument = (node, seenVariables = new Set()) => {
-		node = unwrapExpression(node);
+		node = unwrapChainAndTypeScriptExpression(node);
 		if (!node) {
 			return false;
 		}
@@ -240,7 +232,7 @@ const createUnsafeSqlArgumentChecker = context => {
 };
 
 const getProblem = (callExpression, context, isDatabaseInstance, isUnsafeSqlArgument) => {
-	const callee = unwrapExpression(callExpression.callee);
+	const callee = unwrapChainAndTypeScriptExpression(callExpression.callee);
 	if (callee?.type !== 'MemberExpression') {
 		return;
 	}

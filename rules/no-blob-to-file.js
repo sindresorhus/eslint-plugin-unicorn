@@ -2,9 +2,11 @@ import {findVariable} from '@eslint-community/eslint-utils';
 import {getStaticStringValue, isMethodCall, isNewExpression} from './ast/index.js';
 import {
 	getCommentSafeProblem,
+	getConstVariableInitializer,
 	hasNonDirectiveComment,
 	getLastTrailingCommentOnSameLine,
 	getVariableIdentifiers,
+	isGlobalIdentifier,
 } from './utils/index.js';
 import {removeStatement} from './fix/index.js';
 
@@ -24,11 +26,6 @@ const isStandaloneConstDeclaration = node =>
 		|| node.parent.parent.type === 'BlockStatement'
 	);
 
-function isGlobalIdentifier(node, context) {
-	const variable = findVariable(context.sourceCode.getScope(node), node);
-	return !variable || variable.defs.length === 0;
-}
-
 function isSameBindingAtUse(identifier, reference, context) {
 	const {sourceCode} = context;
 	return findVariable(sourceCode.getScope(identifier), identifier) === findVariable(sourceCode.getScope(reference), identifier);
@@ -41,41 +38,21 @@ const isGlobalFormDataConstructor = (node, context) =>
 	})
 	&& isGlobalIdentifier(node.callee, context);
 
-function getConstIdentifierDeclaration(node, context) {
-	if (node?.type !== 'Identifier') {
-		return;
-	}
-
-	const variable = findVariable(context.sourceCode.getScope(node), node);
-	const definition = variable?.defs[0];
-	const declaration = definition?.node;
-
-	if (
-		definition?.type === 'Variable'
-		// `definition.kind` is undefined under `@typescript-eslint/parser`, but `definition.parent` is the `VariableDeclaration` under both parsers
-		&& definition.parent.kind === 'const'
-		&& declaration?.type === 'VariableDeclarator'
-	) {
-		return declaration;
-	}
-}
-
 function getFileNameNode(newFileExpression) {
 	const [, fileNameNode] = newFileExpression.arguments;
 	return fileNameNode;
 }
 
 function isBlobIdentifier(node, beforeNode, context) {
-	const declaration = getConstIdentifierDeclaration(node, context);
+	const initializer = node && getConstVariableInitializer(node, context);
 
 	if (
-		!declaration
-		|| context.sourceCode.getRange(declaration)[0] > context.sourceCode.getRange(beforeNode)[0]
+		!initializer
+		|| context.sourceCode.getRange(initializer)[0] > context.sourceCode.getRange(beforeNode)[0]
 	) {
 		return false;
 	}
 
-	const initializer = declaration.init;
 	return (
 		isNewExpression(initializer, {
 			name: 'Blob',
@@ -160,7 +137,7 @@ function getSupportedCall(identifier, context) {
 			optionalMember: false,
 		})
 		&& parent.arguments[1] === identifier
-		&& isGlobalFormDataConstructor(getConstIdentifierDeclaration(parent.callee.object, context)?.init, context)
+		&& isGlobalFormDataConstructor(getConstVariableInitializer(parent.callee.object, context), context)
 	)) {
 		return;
 	}

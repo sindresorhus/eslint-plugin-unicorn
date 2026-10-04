@@ -4,6 +4,7 @@ import {
 	isValueNotUsable,
 	shouldSkipKnownNonArrayReceiver,
 	unwrapTypeScriptExpression,
+	withTypeInformation,
 } from './utils/index.js';
 import {getUnnecessarySpliceReplacement} from './shared/splice-replacements.js';
 
@@ -141,21 +142,7 @@ function hasTypeParameterOrTuple(type, checker) {
 }
 
 function isTypeParameterOrTuple(node, context) {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return false;
-	}
-
-	try {
-		const type = parserServices.getTypeAtLocation(node);
-		const checker = parserServices.program.getTypeChecker();
-
-		return hasTypeParameterOrTuple(type, checker);
-		// Tests cannot make TypeScript throw here.
-		/* node:coverage ignore next 3 */
-	} catch {
-		return false;
-	}
+	return withTypeInformation(node, context, ({type, checker}) => hasTypeParameterOrTuple(type, checker)) ?? false;
 }
 
 function shouldSkipReceiver(node, variable, context) {

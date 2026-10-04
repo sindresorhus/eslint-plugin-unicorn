@@ -1,5 +1,7 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
+import {isElseIfStatement} from './ast/index.js';
 import {
+	containsNode,
 	getIndentString,
 	hasCommentInRange,
 	hasDirectBlockScopedDeclaration,
@@ -7,7 +9,7 @@ import {
 	needsSemicolon,
 	reindentText,
 	getLinebreak,
-	getVisitorChildNodes,
+	isSameStatement,
 } from './utils/index.js';
 
 /**
@@ -29,44 +31,12 @@ const resourceDeclarationKinds = new Set([
 	'using',
 ]);
 
-const isElseIfStatement = node =>
-	node.parent.type === 'IfStatement'
-	&& node.parent.alternate === node;
+const isTaggedTemplate = node => node.type === 'TaggedTemplateExpression';
 
 // `hasSideEffect` does not treat a tagged template as a call, so check for one separately.
-function containsTaggedTemplate(node, sourceCode) {
-	if (node.type === 'TaggedTemplateExpression') {
-		return true;
-	}
-
-	return getVisitorChildNodes(node, sourceCode.visitorKeys).some(child => containsTaggedTemplate(child, sourceCode));
-}
-
-const hasSideEffectOrTaggedTemplate = (node, sourceCode) =>
-	hasSideEffect(node, sourceCode)
-	|| containsTaggedTemplate(node, sourceCode);
-
-// Tokens of a statement, ignoring a trailing semicolon so ASI differences don't matter.
-const getStatementTokens = (node, sourceCode) => {
-	const tokens = sourceCode.getTokens(node);
-	const lastToken = tokens.at(-1);
-
-	return lastToken?.type === 'Punctuator' && lastToken.value === ';' ? tokens.slice(0, -1) : tokens;
-};
-
-const isSameStatement = (left, right, sourceCode) => {
-	const leftTokens = getStatementTokens(left, sourceCode);
-	const rightTokens = getStatementTokens(right, sourceCode);
-
-	if (leftTokens.length === 0 || leftTokens.length !== rightTokens.length) {
-		return false;
-	}
-
-	return leftTokens.every((token, index) =>
-		token.type === rightTokens[index].type
-		&& token.value === rightTokens[index].value,
-	);
-};
+const hasSideEffectOrTaggedTemplate = (node, context) =>
+	hasSideEffect(node, context.sourceCode)
+	|| containsNode(node, context, isTaggedTemplate);
 
 /**
 Collect every branch body of a complete `if`/`else if`/`else` chain.
@@ -91,9 +61,9 @@ function getBranchBlocks(ifStatement) {
 	return blocks;
 }
 
-function canMoveBeforeConditions(ifStatement, sourceCode) {
+function canMoveBeforeConditions(ifStatement, context) {
 	for (let node = ifStatement; node?.type === 'IfStatement'; node = node.alternate) {
-		if (hasSideEffectOrTaggedTemplate(node.test, sourceCode)) {
+		if (hasSideEffectOrTaggedTemplate(node.test, context)) {
 			return false;
 		}
 	}
@@ -101,10 +71,10 @@ function canMoveBeforeConditions(ifStatement, sourceCode) {
 	return true;
 }
 
-const canAutofixLeadingStatement = (statement, sourceCode) =>
+const canAutofixLeadingStatement = (statement, context) =>
 	statement.type === 'ExpressionStatement'
 	// We intentionally do not special-case inline `"use strict"` directives; branch-local directives are too rare to justify more fixer state.
-	&& !hasSideEffectOrTaggedTemplate(statement, sourceCode);
+	&& !hasSideEffectOrTaggedTemplate(statement, context);
 
 function isInStatementList(ifStatement) {
 	const {parent} = ifStatement;
@@ -113,13 +83,13 @@ function isInStatementList(ifStatement) {
 }
 
 // Count of consecutive identical statements shared by all branches, at the start and at the end.
-function getSharedCounts(bodies, sourceCode) {
+function getSharedCounts(bodies, context) {
 	const minLength = Math.min(...bodies.map(body => body.length));
 
 	let leading = 0;
 	while (
 		leading < minLength
-		&& bodies.every(body => isSameStatement(body[leading], bodies[0][leading], sourceCode))
+		&& bodies.every(body => isSameStatement(body[leading], bodies[0][leading], context))
 	) {
 		leading++;
 	}
@@ -127,7 +97,7 @@ function getSharedCounts(bodies, sourceCode) {
 	let trailing = 0;
 	while (
 		leading + trailing < minLength
-		&& bodies.every(body => isSameStatement(body.at(-1 - trailing), bodies[0].at(-1 - trailing), sourceCode))
+		&& bodies.every(body => isSameStatement(body.at(-1 - trailing), bodies[0].at(-1 - trailing), context))
 	) {
 		trailing++;
 	}
@@ -298,8 +268,8 @@ function getDirectionProblem({ifStatement, blocks, leading, trailing, isStart}, 
 		if (
 			!isStart
 			|| (
-				canMoveBeforeConditions(ifStatement, sourceCode)
-				&& reportedStatements.every(statement => canAutofixLeadingStatement(statement, sourceCode))
+				canMoveBeforeConditions(ifStatement, context)
+				&& reportedStatements.every(statement => canAutofixLeadingStatement(statement, context))
 			)
 		) {
 			problem.fix = fix;
@@ -329,7 +299,7 @@ function * getProblems(ifStatement, context) {
 
 	const {sourceCode} = context;
 	const bodies = blocks.map(block => block.body);
-	const {leading, trailing, minLength} = getSharedCounts(bodies, sourceCode);
+	const {leading, trailing, minLength} = getSharedCounts(bodies, context);
 
 	if (leading === 0 && trailing === 0) {
 		return;

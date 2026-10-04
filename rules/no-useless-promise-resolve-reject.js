@@ -1,4 +1,9 @@
-import {getParenthesizedRange, shouldAddParenthesesToAwaitExpressionArgument, wouldRemoveComments} from './utils/index.js';
+import {
+	getCallArgumentText,
+	getParenthesizedRange,
+	shouldAddParenthesesToAwaitExpressionArgument,
+	wouldRemoveComments,
+} from './utils/index.js';
 import {isFunction, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID_RESOLVE = 'resolve';
@@ -97,17 +102,14 @@ function createProblem(callExpression, fix) {
 	};
 }
 
-function getArgumentText(node, context) {
-	const text = node ? context.sourceCode.getText(node) : '';
-	return node?.type === 'SequenceExpression' ? `(${text})` : text;
-}
-
 function getAwaitedResolveArgumentText(node, context) {
-	const text = getArgumentText(node, context) || 'undefined';
+	if (!node) {
+		return 'undefined';
+	}
 
+	const text = getCallArgumentText(node, context);
 	if (
-		node
-		&& node.type !== 'SequenceExpression'
+		node.type !== 'SequenceExpression'
 		&& shouldAddParenthesesToAwaitExpressionArgument(node)
 	) {
 		return `(${text})`;
@@ -179,7 +181,7 @@ function fix(callExpression, isInTryStatement, context) {
 	return function (fixer) {
 		const isArrowFunctionBody = parent.type === 'ArrowFunctionExpression';
 
-		let text = getArgumentText(errorOrValue, context);
+		let text = errorOrValue ? getCallArgumentText(errorOrValue, context) : '';
 
 		if (isReject) {
 			// `return Promise.reject()` -> `throw undefined`

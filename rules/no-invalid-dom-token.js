@@ -1,9 +1,11 @@
-import {getStaticStringValue, isMemberExpression} from './ast/index.js';
+import {getStaticStringValue} from './ast/index.js';
 import {
 	escapeString,
 	getParenthesizedRange,
+	getStaticPropertyName,
 	getStaticValueForControlFlow,
 	isNodeValueNotDomNode,
+	unwrapChainAndTypeScriptExpression,
 	unwrapTypeScriptExpression,
 	wouldRemoveComments,
 } from './utils/index.js';
@@ -34,19 +36,6 @@ const {isTarget: isDomTokenList} = createTypeCheckers({
 	allowNullishInMixedUnion: true,
 });
 
-const unwrapExpression = node => {
-	node = unwrapTypeScriptExpression(node);
-	return node.type === 'ChainExpression' ? unwrapTypeScriptExpression(node.expression) : node;
-};
-
-const getMemberName = node => {
-	if (!isMemberExpression(node) || node.property.type === 'PrivateIdentifier') {
-		return;
-	}
-
-	return node.computed ? getStaticStringValue(unwrapTypeScriptExpression(node.property)) : node.property.name;
-};
-
 const getSplitSuggestion = (argument, context) => {
 	const value = getStaticStringValue(unwrapTypeScriptExpression(argument));
 	if (typeof value !== 'string') {
@@ -70,15 +59,15 @@ const getSplitSuggestion = (argument, context) => {
 */
 const create = context => {
 	context.on('CallExpression', function * (node) {
-		const callee = unwrapExpression(node.callee);
-		const maximumArguments = tokenArgumentCounts.get(getMemberName(callee));
+		const callee = unwrapChainAndTypeScriptExpression(node.callee);
+		const maximumArguments = tokenArgumentCounts.get(getStaticPropertyName(callee, context));
 		if (maximumArguments === undefined) {
 			return;
 		}
 
-		const receiver = unwrapExpression(callee.object);
-		const isTokenListProperty = tokenListProperties.has(getMemberName(receiver))
-			&& !isNodeValueNotDomNode(unwrapExpression(receiver.object));
+		const receiver = unwrapChainAndTypeScriptExpression(callee.object);
+		const isTokenListProperty = tokenListProperties.has(getStaticPropertyName(receiver, context))
+			&& !isNodeValueNotDomNode(unwrapChainAndTypeScriptExpression(receiver.object));
 		if (
 			!isTokenListProperty
 			&& !(context.sourceCode.parserServices?.program && isDomTokenList(callee.object, context))

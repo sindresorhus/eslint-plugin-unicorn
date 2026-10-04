@@ -1,6 +1,6 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {isFunction, isMemberExpression} from '../ast/index.js';
-import isLogicalExpression from './is-logical-expression.js';
+import {getLogicalExpressionOperands, getLogicalExpressionRoot} from './is-logical-expression.js';
 import isLeftHandSide from './is-left-hand-side.js';
 import isSameReference from './is-same-reference.js';
 import getStaticValueIfNoSideEffects, {getStaticValueForControlFlow} from './get-static-value.js';
@@ -23,24 +23,6 @@ export function isLengthOrSizeMemberExpression(node) {
 		properties: ['length', 'size'],
 		optional: false,
 	});
-}
-
-function getLogicalExpressionRoot(node) {
-	while (
-		isLogicalExpression(node.parent)
-		&& node.parent.operator === '&&'
-	) {
-		node = node.parent;
-	}
-
-	return node;
-}
-
-function getLogicalExpressionOperands(node) {
-	return [node.left, node.right].flatMap(child =>
-		child.type === 'LogicalExpression' && child.operator === node.operator
-			? getLogicalExpressionOperands(child)
-			: [child]);
 }
 
 const isAccessorDescriptor = (node, context) =>
@@ -352,7 +334,7 @@ const isPropertyRead = (reference, propertyName, context) => {
 };
 
 export function hasSameObjectShapePropertyCheck({node, lengthOrSizeNode}) {
-	const root = getLogicalExpressionRoot(node);
+	const root = getLogicalExpressionRoot(node, '&&');
 	if (
 		root.type !== 'LogicalExpression'
 		|| root.operator !== '&&'
@@ -360,7 +342,7 @@ export function hasSameObjectShapePropertyCheck({node, lengthOrSizeNode}) {
 		return false;
 	}
 
-	return getLogicalExpressionOperands(root).some(operand =>
+	return getLogicalExpressionOperands(root, '&&').some(operand =>
 		operand !== node
 		&& isMemberExpression(operand, {computed: false, optional: false})
 		&& operand.property.type === 'Identifier'

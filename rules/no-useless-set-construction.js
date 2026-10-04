@@ -4,12 +4,14 @@ import {
 	getBuiltinCollectionType,
 	getParenthesizedRange,
 	getParenthesizedText,
+	hasTypeArguments,
 	isBuiltinSet,
 	isGlobalIdentifier,
 	isParenthesized,
 	isTypeScriptExpressionWrapper,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-useless-set-construction';
@@ -89,11 +91,7 @@ function getReplacement(node, context) {
 
 function createFix(node, replacement, context) {
 	const {sourceCode} = context;
-	const [start, end] = getParenthesizedRange(replacement, context);
-	if (sourceCode.getCommentsInside(node).some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-		return commentStart < start || commentEnd > end;
-	})) {
+	if (wouldRemoveComments(context, node, [getParenthesizedRange(replacement, context)])) {
 		return;
 	}
 
@@ -143,8 +141,7 @@ const create = context => {
 		if (
 			!isNewExpression(node, {name: 'Set', argumentsLength: 1})
 			|| !isGlobalIdentifier(node.callee, context)
-			|| node.typeArguments
-			|| node.typeParameters
+			|| hasTypeArguments(node)
 		) {
 			return;
 		}

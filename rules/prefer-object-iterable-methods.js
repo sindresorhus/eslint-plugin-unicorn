@@ -4,9 +4,13 @@ import {
 	getAvailableVariableName,
 	getScopes,
 	isLeftHandSide,
+	isSameBinding,
 	isSameReference,
+	isTypeScriptExpressionWrapper,
 	getVisitorChildNodes,
+	unwrapChainAndTypeScriptExpression,
 } from './utils/index.js';
+import {getForOfDeclarationPattern} from './shared/for-of-collection-loop.js';
 
 const MESSAGE_ID = 'prefer-object-iterable-methods';
 const messages = {
@@ -40,13 +44,6 @@ const abruptCompletionTypes = new Set([
 
 const callbackUnsafeCompletionTypes = new Set([
 	'ThrowStatement',
-]);
-
-const typeCastTypes = new Set([
-	'TSAsExpression',
-	'TSSatisfiesExpression',
-	'TSTypeAssertion',
-	'TSNonNullExpression',
 ]);
 
 const ordinaryCallbackMethodInfo = {bindingParameterIndex: 0, minimumArguments: 1, maximumArguments: 2};
@@ -87,16 +84,6 @@ const isSupportedCallback = (node, bindingParameterIndex, {allowIndexParameter})
 		node.params.length === bindingParameterIndex + 1
 		|| node.params.at(-1).type === 'Identifier'
 	);
-
-const getForOfPattern = node => {
-	if (
-		node.type === 'VariableDeclaration'
-		&& (node.kind === 'const' || node.kind === 'let')
-		&& node.declarations.length === 1
-	) {
-		return node.declarations[0].id;
-	}
-};
 
 const isInsideNode = (node, parentNode, sourceCode) => {
 	const [start, end] = sourceCode.getRange(node);
@@ -165,17 +152,12 @@ const isMutationTarget = node => {
 	);
 };
 
-const unwrapReference = node =>
-	node.type === 'ChainExpression' || typeCastTypes.has(node.type)
-		? unwrapReference(node.expression)
-		: node;
-
 const isSameScopedReference = (left, right, context) => {
-	left = unwrapReference(left);
-	right = unwrapReference(right);
+	left = unwrapChainAndTypeScriptExpression(left);
+	right = unwrapChainAndTypeScriptExpression(right);
 
 	if (left.type === 'Identifier' && right.type === 'Identifier') {
-		return left.name === right.name && getVariable(left, context) === getVariable(right, context);
+		return isSameBinding(left, right, context);
 	}
 
 	if (left.type === 'MemberExpression' && right.type === 'MemberExpression') {
@@ -197,8 +179,8 @@ const isSameVariableIdentifier = (node, variable, context) =>
 	&& getVariable(node, context) === variable;
 
 const hasObjectWrite = ({targetNode, objectNode, context}) => {
-	const objectVariable = unwrapReference(objectNode).type === 'Identifier'
-		? getVariable(unwrapReference(objectNode), context)
+	const objectVariable = unwrapChainAndTypeScriptExpression(objectNode).type === 'Identifier'
+		? getVariable(unwrapChainAndTypeScriptExpression(objectNode), context)
 		: undefined;
 
 	if (
@@ -411,7 +393,7 @@ const getObjectKeysProblem = ({methodCall, binding, targetNode, context, canFix 
 	// When a value access carries a TypeScript cast on the object (e.g. `(object as Record<string, unknown>)[key]`),
 	// the cast is moved onto the iterable-method argument so the inferred element type is preserved.
 	let objectReplacement;
-	if (valueMembers.some(node => typeCastTypes.has(node.object.type))) {
+	if (valueMembers.some(node => isTypeScriptExpressionWrapper(node.object))) {
 		const objectTexts = new Set(valueMembers.map(node => context.sourceCode.getText(node.object)));
 
 		// Different casts across accesses can't be unified into a single argument.
@@ -560,7 +542,7 @@ const create = context => {
 			return;
 		}
 
-		const binding = getForOfPattern(node.left);
+		const binding = getForOfDeclarationPattern(node.left);
 		if (!binding) {
 			return;
 		}

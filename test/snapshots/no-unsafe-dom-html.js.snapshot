@@ -650,6 +650,20 @@ Message:
 
 `;
 
+exports[`no-unsafe-dom-html > invalid(51): element[\"inner\" + \"HTML\"] = html; 1`] = `
+
+  1 | element["inner" + "HTML"] = html;
+
+`;
+
+exports[`no-unsafe-dom-html > invalid(51): element[\"inner\" + \"HTML\"] = html; 2`] = `
+
+Message:
+> 1 | element["inner" + "HTML"] = html;
+    |         ^^^^^^^^^^^^^^^^ Do not use unsafe DOM HTML APIs.
+
+`;
+
 exports[`no-unsafe-dom-html > invalid(6): element.outerHTML = html; 1`] = `
 
   1 | element.outerHTML = html;

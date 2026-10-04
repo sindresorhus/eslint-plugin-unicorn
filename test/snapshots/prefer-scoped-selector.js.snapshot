@@ -405,6 +405,23 @@ Suggestion 1/1: Prefix the selector with \`:scope\`.:
 
 `;
 
+exports[`prefer-scoped-selector > invalid(32): foo.getElement().querySelector(\"div > span\"); 1`] = `
+
+  1 | foo.getElement().querySelector("div > span");
+
+`;
+
+exports[`prefer-scoped-selector > invalid(32): foo.getElement().querySelector(\"div > span\"); 2`] = `
+
+Message:
+> 1 | foo.getElement().querySelector("div > span");
+    |                  ^^^^^^^^^^^^^ Use \`:scope\` in element selector queries.
+
+Suggestion 1/1: Prefix the selector with \`:scope\`.:
+  1 | foo.getElement().querySelector(":scope div > span");
+
+`;
+
 exports[`prefer-scoped-selector > invalid(4): element?.querySelector(\".outer .inner\"); 1`] = `
 
   1 | element?.querySelector(".outer .inner");

@@ -1,4 +1,4 @@
-import {isStringLiteral, isDirective, isMemberExpression} from './ast/index.js';
+import {isStringLiteral, isMemberExpression} from './ast/index.js';
 import {
 	addParenthesesToReturnOrThrowExpression,
 	fixSpaceAroundKeyword,
@@ -6,7 +6,7 @@ import {
 	replaceTemplateElement,
 } from './fix/index.js';
 import isJestInlineSnapshot from './shared/is-jest-inline-snapshot.js';
-import {isOnSameLine, isParenthesized} from './utils/index.js';
+import {isOnSameLine, isParenthesized, isStringLiteralRequired} from './utils/index.js';
 import needsSemicolon from './utils/needs-semicolon.js';
 
 const MESSAGE_ID = 'prefer-string-raw';
@@ -22,67 +22,6 @@ function unescapeBackslash(text, quote = '') {
 	return text.replaceAll(new RegExp(String.raw`\\(?<escapedCharacter>[\\${quote}])`, 'g'), '$<escapedCharacter>');
 }
 
-/**
-Check if a string literal is restricted to replace with a `String.raw`
-*/
-// eslint-disable-next-line complexity
-function isStringRawRestricted(node) {
-	const {parent} = node;
-	const {type} = parent;
-	return (
-		// Directive
-		isDirective(parent)
-		// Property, method, or accessor key (only non-computed)
-		|| (
-			[
-				'Property',
-				'PropertyDefinition',
-				'MethodDefinition',
-				'AccessorProperty',
-			].includes(type)
-			&& !parent.computed && parent.key === node
-		)
-		// Property, method, or accessor key (always)
-		|| (
-			[
-				'TSAbstractPropertyDefinition',
-				'TSAbstractMethodDefinition',
-				'TSAbstractAccessorProperty',
-				'TSPropertySignature',
-				'TSMethodSignature',
-			].includes(type)
-			&& parent.key === node
-		)
-		// Module source
-		|| (
-			[
-				'ImportDeclaration',
-				'ExportNamedDeclaration',
-				'ExportAllDeclaration',
-			].includes(type)
-			&& parent.source === node
-		)
-		// Import attribute key and value
-		|| (type === 'ImportAttribute' && (parent.key === node || parent.value === node))
-		// Module specifier
-		|| (type === 'ImportSpecifier' && parent.imported === node)
-		|| (type === 'ExportSpecifier' && (parent.local === node || parent.exported === node))
-		|| (type === 'ExportAllDeclaration' && parent.exported === node)
-		// JSX attribute value
-		|| (type === 'JSXAttribute' && parent.value === node)
-		// (TypeScript) Enum member key and value
-		|| (type === 'TSEnumMember' && (parent.initializer === node || parent.id === node))
-		// (TypeScript) Module declaration
-		|| (type === 'TSModuleDeclaration' && parent.id === node)
-		// (TypeScript) CommonJS module reference
-		|| (type === 'TSExternalModuleReference' && parent.expression === node)
-		// (TypeScript) Literal type
-		|| (type === 'TSLiteralType' && parent.literal === node)
-		// (TypeScript) Import type
-		|| (type === 'TSImportType' && parent.source === node)
-	);
-}
-
 function shouldParenthesizeYieldArgument(parent, node, tokenBefore, context) {
 	return parent.type === 'YieldExpression'
 		&& !parent.delegate
@@ -96,7 +35,7 @@ function shouldParenthesizeYieldArgument(parent, node, tokenBefore, context) {
 */
 const create = context => {
 	context.on('Literal', node => {
-		if (!isStringLiteral(node) || isStringRawRestricted(node) || isJestInlineSnapshot(node)) {
+		if (!isStringLiteral(node) || isStringLiteralRequired(node) || isJestInlineSnapshot(node)) {
 			return;
 		}
 

@@ -121,6 +121,8 @@ test.snapshot({
 		'self.Buffer.from(data.buffer)',
 		'import {Buffer} from \'node:buffer\'; Buffer.from(data.buffer)',
 		'import {Buffer as B} from \'buffer\'; B.from(data.buffer, data.byteOffset)',
+		'import * as buffer from \'node:buffer\'; buffer.Buffer.from(data.buffer)',
+		'import buffer from \'buffer\'; buffer.Buffer.from(data.buffer)',
 		'Buffer.from((data).buffer)',
 
 		'data.buffer.slice()',

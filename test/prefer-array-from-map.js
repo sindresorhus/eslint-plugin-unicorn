@@ -288,3 +288,39 @@ test.snapshot({
 	],
 	invalid: [],
 });
+
+// A mapper body that starts with `{` or is a sequence needs parentheses, otherwise the arrow function body is parsed as a block
+test.snapshot({
+	valid: [],
+	invalid: [
+		outdent`
+			const result = [];
+			for (const item of items) {
+				result.push({a: item}.a);
+			}
+		`,
+		'const result = []; for (const item of items) { result.push({} + item); }',
+		'const result = []; for (const item of items) { result.push((foo(), item)); }',
+	],
+});
+
+// `await` and `yield` inside a nested function do not suspend the loop
+test.snapshot({
+	valid: [],
+	invalid: [
+		'const result = []; for (const item of items) { result.push(async () => await item); }',
+	],
+});
+
+// A type-only `Array` binding does not shadow the global `Array` value
+test.snapshot({
+	valid: [],
+	invalid: [
+		{
+			code: 'import type {Array} from \'./types.js\';\nconst result = [];\nfor (const item of items) {\n\tresult.push(transform(item));\n}',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+	],
+});

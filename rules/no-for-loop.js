@@ -1,9 +1,8 @@
-import {getStaticValue, isClosingParenToken} from '@eslint-community/eslint-utils';
+import {findVariable, getStaticValue, isClosingParenToken} from '@eslint-community/eslint-utils';
 import {
 	getAvailableVariableName,
 	getConstVariableInitializer,
 	getScopes,
-	getVariableByName,
 	singular,
 	toLocation,
 	getReferences,
@@ -16,9 +15,11 @@ import {
 	hasPotentiallyMutableMemberAccess,
 	hasCommentInRange,
 	getParenthesizedRange,
+	withTypeInformation,
 } from './utils/index.js';
 import {
 	isCallExpression,
+	isIdentifierNamed,
 	isLiteral,
 } from './ast/index.js';
 
@@ -61,8 +62,6 @@ const noEntriesTypeAnnotationTypes = new Set([
 ]);
 const isLiteralZero = node => isLiteral(node, 0);
 const isLiteralOne = node => isLiteral(node, 1);
-
-const isIdentifierWithName = (node, name) => node?.type === 'Identifier' && node.name === name;
 
 const getArrayIdentifierFromLengthMemberExpression = node => {
 	if (
@@ -110,7 +109,7 @@ const getTypeReferenceEntriesSupport = (node, scope, visitedTypeVariables) => {
 		return entriesUnsupported;
 	}
 
-	const typeVariable = scope && getVariableByName(typeReferenceName, scope);
+	const typeVariable = scope && findVariable(scope, typeReferenceName);
 	if (visitedTypeVariables.has(typeVariable)) {
 		return entriesUnknown;
 	}
@@ -257,23 +256,8 @@ const getTypeEntriesSupport = (type, checker) => {
 	return getCallableEntriesSupport(entries, checker);
 };
 
-const getEntriesSupportFromTypeInformation = (node, context) => {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return entriesUnknown;
-	}
-
-	try {
-		return getTypeEntriesSupport(
-			parserServices.getTypeAtLocation(node),
-			parserServices.program.getTypeChecker(),
-		);
-		// Defensive: the TypeScript type checker can throw on unusual types, the rule then falls back to syntax
-		/* node:coverage ignore next 3 */
-	} catch {
-		return entriesUnknown;
-	}
-};
+const getEntriesSupportFromTypeInformation = (node, context) =>
+	withTypeInformation(node, context, ({type, checker}) => getTypeEntriesSupport(type, checker)) ?? entriesUnknown;
 
 const isNoEntriesDomCollection = (node, context) =>
 	isCallExpression(node, {
@@ -288,7 +272,7 @@ const isNoEntriesDomCollection = (node, context) =>
 	&& noEntriesDomCollectionMethods.has(node.callee.property.name);
 
 const getEntriesSupportFromVariable = (node, context, visitedVariables) => {
-	const variable = getVariableByName(node.name, context.sourceCode.getScope(node));
+	const variable = findVariable(context.sourceCode.getScope(node), node.name);
 
 	if (
 		!variable
@@ -427,7 +411,7 @@ const getArrayIdentifierFromBinaryExpression = (binaryExpression, indexIdentifie
 
 	const {lesser, greater} = operands;
 
-	if (!isIdentifierWithName(lesser, indexIdentifierName)) {
+	if (!isIdentifierNamed(lesser, indexIdentifierName)) {
 		return;
 	}
 
@@ -468,8 +452,8 @@ const getLoopInfoFromCachedLengthDeclarator = forStatement => {
 
 	if (
 		!operands
-		|| !isIdentifierWithName(operands.lesser, indexIdentifier.name)
-		|| !isIdentifierWithName(operands.greater, cachedLengthIdentifier.name)
+		|| !isIdentifierNamed(operands.lesser, indexIdentifier.name)
+		|| !isIdentifierNamed(operands.greater, cachedLengthIdentifier.name)
 	) {
 		return;
 	}
@@ -487,8 +471,8 @@ const getLoopInfo = forStatement =>
 
 const isLiteralOnePlusIdentifierWithName = (node, identifierName) => {
 	if (node?.type === 'BinaryExpression' && node.operator === '+') {
-		return (isIdentifierWithName(node.left, identifierName) && isLiteralOne(node.right))
-			|| (isIdentifierWithName(node.right, identifierName) && isLiteralOne(node.left));
+		return (isIdentifierNamed(node.left, identifierName) && isLiteralOne(node.right))
+			|| (isIdentifierNamed(node.right, identifierName) && isLiteralOne(node.left));
 	}
 
 	return false;
@@ -502,12 +486,12 @@ const isUpdateExpressionIncrementingIndex = (forStatement, indexIdentifierName) 
 	}
 
 	if (update.type === 'UpdateExpression') {
-		return update.operator === '++' && isIdentifierWithName(update.argument, indexIdentifierName);
+		return update.operator === '++' && isIdentifierNamed(update.argument, indexIdentifierName);
 	}
 
 	if (
 		update.type === 'AssignmentExpression'
-		&& isIdentifierWithName(update.left, indexIdentifierName)
+		&& isIdentifierNamed(update.left, indexIdentifierName)
 	) {
 		if (update.operator === '+=') {
 			return isLiteralOne(update.right);
@@ -533,10 +517,10 @@ const isSequenceUpdateExpressionIncrementingIndexAndReadingCachedLength = (updat
 
 	return (
 		isUpdateExpressionIncrementingIndex({update: firstExpression}, indexIdentifierName)
-		&& isIdentifierWithName(secondExpression, cachedLengthIdentifierName)
+		&& isIdentifierNamed(secondExpression, cachedLengthIdentifierName)
 	) || (
 		isUpdateExpressionIncrementingIndex({update: secondExpression}, indexIdentifierName)
-		&& isIdentifierWithName(firstExpression, cachedLengthIdentifierName)
+		&& isIdentifierNamed(firstExpression, cachedLengthIdentifierName)
 	);
 };
 
@@ -598,13 +582,13 @@ const isOnlyArrayOfIndexVariableRead = (arrayReferences, arrayVariable, indexVar
 		return false;
 	}
 
-	const referencedArrayVariable = getVariableByName(reference.identifier.name, reference.from);
+	const referencedArrayVariable = findVariable(reference.from, reference.identifier.name);
 
 	if (
 		referencedArrayVariable !== arrayVariable
 		|| !node.computed
 		|| node.property.type !== 'Identifier'
-		|| getVariableByName(node.property.name, reference.from) !== indexVariable
+		|| findVariable(reference.from, node.property.name) !== indexVariable
 	) {
 		return false;
 	}
@@ -820,7 +804,7 @@ const create = context => {
 		}
 
 		const scope = sourceCode.getScope(node);
-		const arrayVariable = getVariableByName(arrayIdentifier.name, scope);
+		const arrayVariable = findVariable(scope, arrayIdentifier.name);
 		const {
 			isStandardUpdateExpression,
 			isReportableUpdateExpression,
@@ -837,7 +821,7 @@ const create = context => {
 		}
 
 		const arrayIdentifierName = arrayIdentifier.name;
-		const indexVariable = getVariableByName(indexIdentifierName, bodyScope);
+		const indexVariable = findVariable(bodyScope, indexIdentifierName);
 
 		if (!indexVariable || isIndexVariableAssignedToInTheLoopBody(indexVariable, bodyScope)) {
 			return;
@@ -854,8 +838,8 @@ const create = context => {
 
 		const forScope = scopeManager.acquire(node);
 		const cachedLengthVariable = cachedLengthIdentifier && (
-			getVariableByName(cachedLengthIdentifier.name, forScope)
-			?? getVariableByName(cachedLengthIdentifier.name, scope)
+			findVariable(forScope, cachedLengthIdentifier.name)
+			?? findVariable(scope, cachedLengthIdentifier.name)
 		);
 
 		if (
@@ -881,12 +865,12 @@ const create = context => {
 		});
 		const elementNode = elementReference?.identifier.parent.parent;
 		const elementIdentifierName = elementNode?.id.name;
-		const elementVariable = elementIdentifierName && getVariableByName(elementIdentifierName, bodyScope);
+		const elementVariable = elementIdentifierName && findVariable(bodyScope, elementIdentifierName);
 
 		// A nested block can already declare the element name, and the loop head would shadow it, or a rewritten `array[index]` would resolve to it (`{ const element = array[index]; }` in two blocks would become `const element = element`)
 		const isElementNameShadowed = Boolean(elementIdentifierName)
 			&& getScopes(bodyScope)
-				.some(scope => scope !== bodyScope && getVariableByName(elementIdentifierName, scope) !== elementVariable);
+				.some(scope => scope !== bodyScope && findVariable(scope, elementIdentifierName) !== elementVariable);
 
 		const shouldGenerateIndex = isIndexVariableUsedElsewhereInTheLoopBody(indexVariable, bodyScope, arrayIdentifierName);
 		const entriesSupport = shouldGenerateIndex ? getEntriesSupport(arrayIdentifier, context) : entriesUnknown;

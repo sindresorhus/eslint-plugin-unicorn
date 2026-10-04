@@ -1,16 +1,5 @@
 import getShortBodyProblem from './shared/short-body-conditional.js';
-import {
-	getIndentUnit,
-	getLineIndent,
-	getLinebreak,
-	getParenthesizedText,
-	getUnwrappedBranchText,
-	hasMultilineToken,
-	isBlockScopedDeclaration,
-	shouldAddParenthesesToUnaryExpressionArgument,
-	getVisitorChildNodes,
-} from './utils/index.js';
-import {isCallExpression} from './ast/index.js';
+import {canRewriteToEarlyExit, getConsequentStatementCount, getEarlyExitReplacementText} from './shared/early-exit.js';
 
 const MESSAGE_ID = 'prefer-early-return';
 const SUGGESTION_MESSAGE_ID = 'prefer-early-return/suggestion';
@@ -20,15 +9,6 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer an early return over wrapping the remainder of the function body in an `if` statement.',
 	[SUGGESTION_MESSAGE_ID]: 'Rewrite to an early return.',
 };
-
-const typeScriptConditionExpressionTypesRequiringParentheses = new Set([
-	'TSAsExpression',
-	'TSNonNullExpression',
-	'TSSatisfiesExpression',
-	'TSTypeAssertion',
-]);
-
-const lexicalDeclarationKinds = new Set(['const', 'let']);
 
 const schema = [
 	{
@@ -48,231 +28,29 @@ const schema = [
 	},
 ];
 
-const getConsequentStatementCount = node => {
-	if (node.consequent.type === 'EmptyStatement') {
-		return 0;
-	}
-
-	return node.consequent.type === 'BlockStatement'
-		? node.consequent.body.filter(({type}) => type !== 'EmptyStatement').length
-		: 1;
-};
-
-const isNodeInsideRange = (node, [start, end], sourceCode) => {
-	const [nodeStart, nodeEnd] = sourceCode.getRange(node);
-	return nodeStart >= start && nodeEnd <= end;
-};
-
-const isUnsupportedBlockScopedDeclaration = node =>
-	isBlockScopedDeclaration(node)
-	&& !(
-		node.type === 'VariableDeclaration'
-		&& lexicalDeclarationKinds.has(node.kind)
-	);
-
-const hasDirectUnsupportedBlockScopedDeclaration = node =>
-	isUnsupportedBlockScopedDeclaration(node)
-	|| (
-		node.type === 'BlockStatement'
-		&& node.body.some(node => isUnsupportedBlockScopedDeclaration(node))
-	);
-
-const shouldAddParenthesesWhenNegated = node =>
-	shouldAddParenthesesToUnaryExpressionArgument(node, '!')
-	|| typeScriptConditionExpressionTypesRequiringParentheses.has(node.type);
-
-const getNegatedConditionText = (node, context) => {
-	const {sourceCode} = context;
-
+const getFix = (ifStatement, context) => {
 	if (
-		node.type === 'UnaryExpression'
-		&& node.operator === '!'
-		&& node.prefix
+		!canRewriteToEarlyExit(ifStatement, context)
+		|| context.sourceCode.getCommentsAfter(ifStatement).length > 0
 	) {
-		const operatorToken = sourceCode.getFirstToken(node);
-		const operatorRange = sourceCode.getRange(operatorToken);
-		const nodeRange = sourceCode.getRange(node);
-		const argumentRange = sourceCode.getRange(node.argument);
-		const hasCommentBetweenOperatorAndArgument = sourceCode.getCommentsInside(node).some(comment =>
-			sourceCode.getRange(comment)[0] >= operatorRange[1]
-			&& sourceCode.getRange(comment)[1] <= argumentRange[0],
-		);
-
-		return hasCommentBetweenOperatorAndArgument
-			? sourceCode.text.slice(operatorRange[1], nodeRange[1]).trim()
-			: getParenthesizedText(node.argument, context);
-	}
-
-	const conditionText = sourceCode.getText(node);
-	return shouldAddParenthesesWhenNegated(node) ? `!(${conditionText})` : `!${conditionText}`;
-};
-
-const getConditionRange = (ifStatement, sourceCode) => {
-	const openingParenthesisToken = sourceCode.getTokenAfter(sourceCode.getFirstToken(ifStatement));
-	const closingParenthesisToken = sourceCode.getTokenBefore(ifStatement.consequent);
-	return [
-		sourceCode.getRange(openingParenthesisToken)[1],
-		sourceCode.getRange(closingParenthesisToken)[0],
-	];
-};
-
-const hasConditionParenthesesComment = (ifStatement, sourceCode) => {
-	const conditionRange = getConditionRange(ifStatement, sourceCode);
-	const testRange = sourceCode.getRange(ifStatement.test);
-	return sourceCode.getCommentsInside(ifStatement).some(comment =>
-		isNodeInsideRange(comment, conditionRange, sourceCode)
-		&& !isNodeInsideRange(comment, testRange, sourceCode),
-	);
-};
-
-const getNegatedIfConditionText = (ifStatement, context) => {
-	const {sourceCode} = context;
-
-	if (hasConditionParenthesesComment(ifStatement, sourceCode)) {
-		const conditionText = sourceCode.text.slice(...getConditionRange(ifStatement, sourceCode)).trimStart();
-		return `!(${conditionText})`;
-	}
-
-	return getNegatedConditionText(ifStatement.test, context);
-};
-
-const getReplacementText = (ifStatement, context) => {
-	const {sourceCode} = context;
-	const ifIndent = getLineIndent(ifStatement, context);
-	const conditionText = getNegatedIfConditionText(ifStatement, context);
-	const consequentText = getUnwrappedBranchText(ifStatement.consequent, context);
-	const linebreak = getLinebreak(context);
-
-	return `if (${conditionText}) {${linebreak}${ifIndent}${getIndentUnit(context)}return;${linebreak}${ifIndent}}${linebreak}${linebreak}${consequentText}`;
-};
-
-const getDirectLexicalDeclarationVariables = (node, sourceCode) => {
-	if (node.type !== 'BlockStatement') {
-		return [];
-	}
-
-	return node.body.flatMap(node => {
-		if (
-			node.type === 'VariableDeclaration'
-			&& lexicalDeclarationKinds.has(node.kind)
-		) {
-			return sourceCode.getDeclaredVariables(node);
-		}
-
-		return [];
-	});
-};
-
-const hasReferenceToVariableName = (node, sourceCode, names) => {
-	const [start, end] = sourceCode.getRange(node);
-	const hasDefinitionInsideNode = variable => variable.identifiers.some(identifier => isNodeInsideRange(identifier, [start, end], sourceCode));
-	const hasReference = scope => scope.references.some(reference => {
-		const [referenceStart, referenceEnd] = sourceCode.getRange(reference.identifier);
-		return referenceStart >= start
-			&& referenceEnd <= end
-			&& names.has(reference.identifier.name)
-			&& !(
-				reference.resolved
-				&& hasDefinitionInsideNode(reference.resolved)
-			);
-	}) || scope.childScopes.some(scope => hasReference(scope));
-
-	return hasReference(sourceCode.getScope(node));
-};
-
-const hasDirectEvalCall = (node, sourceCode) => {
-	if (isCallExpression(node, {name: 'eval', optional: false})) {
-		return true;
-	}
-
-	return getVisitorChildNodes(node, sourceCode.visitorKeys).some(child => hasDirectEvalCall(child, sourceCode));
-};
-
-const hasFunctionScopeVariable = (functionNode, sourceCode, names) =>
-	sourceCode.scopeManager.acquire(functionNode, true).variables.some(variable => names.has(variable.name));
-
-const canSafelyMoveLexicalDeclarations = (ifStatement, functionNode, sourceCode) => {
-	const variables = getDirectLexicalDeclarationVariables(ifStatement.consequent, sourceCode);
-	if (variables.length === 0) {
-		return true;
-	}
-
-	if (ifStatement.parent.body.length > 1) {
-		return false;
-	}
-
-	const names = new Set(variables.map(variable => variable.name));
-
-	return !hasDirectEvalCall(ifStatement.test, sourceCode)
-		&& !hasFunctionScopeVariable(functionNode, sourceCode, names)
-		&& !hasReferenceToVariableName(ifStatement.test, sourceCode, names);
-};
-
-const canSafelyMoveConsequent = (ifStatement, functionNode, context) => {
-	const {sourceCode} = context;
-	const {consequent} = ifStatement;
-
-	return !hasDirectUnsupportedBlockScopedDeclaration(consequent)
-		&& canSafelyMoveLexicalDeclarations(ifStatement, functionNode, sourceCode)
-		&& !hasMultilineToken(consequent, context);
-};
-
-const hasCommentsInsideWrapperOutsideConditionOrConsequent = (ifStatement, sourceCode) => {
-	const conditionRange = getConditionRange(ifStatement, sourceCode);
-	const consequentRange = sourceCode.getRange(ifStatement.consequent);
-	return sourceCode.getCommentsInside(ifStatement).some(comment =>
-		!isNodeInsideRange(comment, conditionRange, sourceCode)
-		&& !isNodeInsideRange(comment, consequentRange, sourceCode),
-	);
-};
-
-const hasMultilineUnbracedConsequent = (ifStatement, sourceCode) =>
-	ifStatement.consequent.type !== 'BlockStatement'
-	&& sourceCode.getText(ifStatement.consequent).includes('\n');
-
-// The replacement ends with the body of a braced branch. When that body ends with a line comment, a token after the `if` statement on the same line (like the closing brace of the function in `}}`) would be swallowed by it.
-const hasLineCommentBeforeSameLineToken = (ifStatement, sourceCode) => {
-	const {consequent} = ifStatement;
-	// Only a braced body moves its closing brace away, an unbraced one keeps the source layout
-	if (consequent.type !== 'BlockStatement') {
-		return false;
-	}
-
-	const closingBrace = sourceCode.getLastToken(consequent);
-	return sourceCode.getTokenBefore(closingBrace, {includeComments: true}).type === 'Line'
-		&& sourceCode.getLoc(sourceCode.getTokenAfter(closingBrace, {includeComments: true})).start.line === sourceCode.getLoc(closingBrace).end.line;
-};
-
-const canSuggestRewrite = (ifStatement, functionNode, context) => {
-	const {sourceCode} = context;
-	return canSafelyMoveConsequent(ifStatement, functionNode, context)
-		&& !hasCommentsInsideWrapperOutsideConditionOrConsequent(ifStatement, sourceCode)
-		&& !hasMultilineUnbracedConsequent(ifStatement, sourceCode)
-		&& !hasLineCommentBeforeSameLineToken(ifStatement, sourceCode);
-};
-
-const getFix = (ifStatement, functionNode, context) => {
-	const {sourceCode} = context;
-
-	if (!canSuggestRewrite(ifStatement, functionNode, context) || sourceCode.getCommentsAfter(ifStatement).length > 0) {
 		return;
 	}
 
 	return fixer => fixer.replaceText(
 		ifStatement,
-		getReplacementText(ifStatement, context),
+		getEarlyExitReplacementText(ifStatement, 'return', context),
 	);
 };
 
-const getSuggestion = (ifStatement, functionNode, context) => {
-	if (!canSuggestRewrite(ifStatement, functionNode, context)) {
+const getSuggestion = (ifStatement, context) => {
+	if (!canRewriteToEarlyExit(ifStatement, context)) {
 		return;
 	}
 
 	return [
 		{
 			messageId: SUGGESTION_MESSAGE_ID,
-			fix: fixer => fixer.replaceText(ifStatement, getReplacementText(ifStatement, context)),
+			fix: fixer => fixer.replaceText(ifStatement, getEarlyExitReplacementText(ifStatement, 'return', context)),
 		},
 	];
 };
@@ -300,8 +78,8 @@ const create = context => {
 			return shortBodyProblem && {...shortBodyProblem, messageId: SHORT_BODY_MESSAGE_ID};
 		}
 
-		const fix = getFix(statement, node, context);
-		const suggest = fix ? undefined : getSuggestion(statement, node, context);
+		const fix = getFix(statement, context);
+		const suggest = fix ? undefined : getSuggestion(statement, context);
 
 		return {
 			node: statement,

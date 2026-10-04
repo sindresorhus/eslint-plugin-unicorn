@@ -10,8 +10,9 @@ import {appendArgument} from './fix/index.js';
 import {
 	getLinebreak,
 	getLineIndent,
+	getSingleStatement,
 	getStaticValueForControlFlow,
-	unwrapTypeScriptExpression,
+	unwrapChainAndTypeScriptExpression,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'require-text-decoder-streaming/error';
@@ -22,18 +23,13 @@ const messages = {
 };
 const loopTypes = new Set(['ForOfStatement', 'ForStatement', 'WhileStatement', 'DoWhileStatement']);
 
-function unwrapExpression(node) {
-	node = unwrapTypeScriptExpression(node);
-	return node?.type === 'ChainExpression' ? unwrapExpression(node.expression) : node;
-}
-
 function unwrapCallee(node) {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 	if (node?.type !== 'CallExpression' && node?.type !== 'NewExpression') {
 		return node;
 	}
 
-	const callee = unwrapExpression(node.callee);
+	const callee = unwrapChainAndTypeScriptExpression(node.callee);
 	return callee === node.callee ? node : {...node, callee};
 }
 
@@ -83,7 +79,7 @@ function getConstBinding(node, context) {
 // Resolve only local constant aliases. Destructuring and loop bindings are handled at the chunk boundary below.
 // An alias must be declared before its use in the same function, so the resolution cannot loop.
 function resolveExpression(node, context) {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 	if (node?.type !== 'Identifier') {
 		return node;
 	}
@@ -125,7 +121,7 @@ function isFetchBody(node, context) {
 		return false;
 	}
 
-	const object = unwrapExpression(call.callee.object);
+	const object = unwrapChainAndTypeScriptExpression(call.callee.object);
 	return object.type === 'Identifier' && object.name === 'globalThis';
 }
 
@@ -177,7 +173,7 @@ function isNonStreamingOptions(node, context) {
 		return true;
 	}
 
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 	if (node.type !== 'ObjectExpression') {
 		const result = getStaticValueForControlFlow(node, context);
 		return result !== undefined && (result.value === undefined || result.value === null);
@@ -224,11 +220,10 @@ function isDoneBreak(statement, declaration, context) {
 
 	const done = declaration.id.properties.find(property => property.type === 'Property' && getPropertyName(property) === 'done');
 	const binding = getConstBinding(statement.test, context);
-	const {consequent} = statement;
-	const exit = consequent.type === 'BlockStatement' && consequent.body.length === 1 ? consequent.body[0] : consequent;
+	const exit = getSingleStatement(statement.consequent);
 	return done?.value.type === 'Identifier'
 		&& binding?.definition.name === done.value
-		&& exit.type === 'BreakStatement'
+		&& exit?.type === 'BreakStatement'
 		&& !exit.label;
 }
 

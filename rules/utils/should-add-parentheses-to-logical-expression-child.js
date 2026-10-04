@@ -1,3 +1,5 @@
+import {getParenthesizedText, isParenthesized} from './parentheses/parentheses.js';
+
 /**
 Check if parentheses should be added to a `node` when it's used as child of `LogicalExpression`.
 @param {Node} node - The AST node to check.
@@ -37,4 +39,19 @@ export default function shouldAddParenthesesToLogicalExpressionChild(node, {oper
 		'YieldExpression',
 		'SequenceExpression',
 	].includes(node.type);
+}
+
+/**
+Get the text of `node` so it can be used as a child of `LogicalExpression`, adding parentheses when needed.
+
+Existing parentheses around `node` are kept.
+
+@param {import('estree').Node} node
+@param {import('eslint').Rule.RuleContext} context
+@param {{operator: string, property: string}} options
+@returns {string}
+*/
+export function getLogicalExpressionChildText(node, context, {operator, property}) {
+	const text = getParenthesizedText(node, context);
+	return !isParenthesized(node, context) && shouldAddParenthesesToLogicalExpressionChild(node, {operator, property}) ? `(${text})` : text;
 }

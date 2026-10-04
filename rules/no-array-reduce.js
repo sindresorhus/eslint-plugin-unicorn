@@ -1,14 +1,16 @@
 import {findVariable, hasSideEffect} from '@eslint-community/eslint-utils';
-import {isMethodCall} from './ast/index.js';
+import {isDirectEvalCall, isMethodCall} from './ast/index.js';
 import {
-	getChildNodes,
+	containsNode,
 	getConstVariableInitializer,
+	getFunctionReturnExpression,
 	getAvailableVariableName,
 	getIndentUnit,
 	getLastTrailingCommentOnSameLine,
 	getLineIndent,
 	getLinebreak,
 	getParenthesizedText,
+	hasTypeArguments,
 	isKnownBigIntTypedArray,
 	isFunctionSelfUsedInside,
 	isKnownNonNumber,
@@ -40,25 +42,6 @@ const isSingleDeclaratorVariableInitializer = callExpression =>
 		|| callExpression.parent.parent.parent.type === 'BlockStatement'
 	);
 
-const getCallbackReturnExpression = callback => {
-	if (
-		callback.type === 'ArrowFunctionExpression'
-		&& callback.body.type !== 'BlockStatement'
-	) {
-		return callback.body;
-	}
-
-	if (
-		(callback.type === 'ArrowFunctionExpression' || callback.type === 'FunctionExpression')
-		&& callback.body.type === 'BlockStatement'
-		&& callback.body.body.length === 1
-		&& callback.body.body[0].type === 'ReturnStatement'
-		&& callback.body.body[0].argument
-	) {
-		return callback.body.body[0].argument;
-	}
-};
-
 // Whether `callback` is `(accumulator, element) => accumulator + element` (block-bodied and reversed-operand forms included).
 const isSumReduceCallback = callback => {
 	if (callback.type !== 'ArrowFunctionExpression' && callback.type !== 'FunctionExpression') {
@@ -73,7 +56,7 @@ const isSumReduceCallback = callback => {
 		return false;
 	}
 
-	const expression = getCallbackReturnExpression(callback);
+	const expression = getFunctionReturnExpression(callback);
 	if (
 		!expression
 		|| expression.type !== 'BinaryExpression'
@@ -158,19 +141,9 @@ const hasParameterWrite = (sourceCode, callback) =>
 		.some(variable =>
 			variable.references.some(reference => !reference.init && reference.isWrite()));
 
-function isNodeMatchedInside(node, predicate) {
-	return predicate(node)
-		|| [...getChildNodes(node)].some(node => isNodeMatchedInside(node, predicate));
-}
-
-const hasNestedMethod = node => isNodeMatchedInside(node, node =>
+const hasNestedMethod = (node, context) => containsNode(node, context, node =>
 	node.type === 'Property'
 	&& node.method);
-
-const hasDirectEval = node => isNodeMatchedInside(node, node =>
-	node.type === 'CallExpression'
-	&& node.callee.type === 'Identifier'
-	&& node.callee.name === 'eval');
 
 const isShorthandPropertyReference = identifier =>
 	identifier.parent.type === 'Property'
@@ -233,8 +206,7 @@ const hasParameterMemberAccessOrCallArgument = (sourceCode, callbackScope, param
 
 const hasUnsupportedTypeScriptSyntax = callExpression =>
 	callExpression.parent.id.typeAnnotation
-	|| callExpression.typeArguments
-	|| callExpression.typeParameters;
+	|| hasTypeArguments(callExpression);
 
 const hasUnsupportedCallbackTypeScriptSyntax = callback =>
 	callback.returnType
@@ -262,16 +234,12 @@ const isArrayReference = (sourceCode, initialValue, arrayNode) => {
 		return true;
 	}
 
-	const variable = findVariable(sourceCode.getScope(initialValue), initialValue);
-	return initialValue.type === 'Identifier'
-		&& variable?.defs[0]?.type === 'Variable'
-		&& variable.defs[0].parent.kind === 'const'
-		&& variable.defs[0].node.init
-		&& isSameReference(variable.defs[0].node.init, arrayNode);
+	const initializer = getConstVariableInitializer(initialValue, {sourceCode});
+	return Boolean(initializer) && isSameReference(initializer, arrayNode);
 };
 
 const hasEscapedAccumulatorWithArrayInitialValue = (callExpression, callback, initialValue, sourceCode) => {
-	const callbackReturnExpression = getCallbackReturnExpression(callback);
+	const callbackReturnExpression = isInlineCallback(callback) && getFunctionReturnExpression(callback);
 	return callbackReturnExpression
 		&& isArrayReference(sourceCode, initialValue, callExpression.callee.object)
 		&& hasParameterMemberAccessOrCallArgument(sourceCode, sourceCode.getScope(callback), callback.params[0], callbackReturnExpression);
@@ -356,12 +324,12 @@ function getInlineCallbackExpressionText(callback, replacementNames, context) {
 		return;
 	}
 
-	const expression = getCallbackReturnExpression(callback);
+	const expression = getFunctionReturnExpression(callback);
 	if (
 		!expression
 		|| expression.type === 'SequenceExpression'
-		|| hasNestedMethod(expression)
-		|| hasDirectEval(expression)
+		|| hasNestedMethod(expression, context)
+		|| containsNode(expression, context, isDirectEvalCall)
 	) {
 		return;
 	}
@@ -421,7 +389,7 @@ function isSafeCallbackIdentifier(callback, replacementNames, context, options) 
 		return false;
 	}
 
-	const callbackReturnExpression = getCallbackReturnExpression(callbackFunction);
+	const callbackReturnExpression = getFunctionReturnExpression(callbackFunction);
 	if (
 		callbackReturnExpression
 		&& callbackFunction.params[3]
@@ -575,24 +543,13 @@ const cases = [
 		isSimpleOperation(callExpression) {
 			const [callback] = callExpression.arguments;
 
-			return (
-				callback
-				&& (
-					// `array.reduce((accumulator, element) => accumulator + element)`
-					(callback.type === 'ArrowFunctionExpression' && callback.body.type === 'BinaryExpression')
-					// `array.reduce((accumulator, element) => {return accumulator + element;})`
-					// `array.reduce(function (accumulator, element){return accumulator + element;})`
-					|| (
-						(callback.type === 'ArrowFunctionExpression' || callback.type === 'FunctionExpression')
-						&& callback.body.type === 'BlockStatement'
-						&& callback.body.body.length === 1
-						&& callback.body.body[0].type === 'ReturnStatement'
-						// A bare `return;` has no `argument`
-						&& callback.body.body[0].argument
-						&& callback.body.body[0].argument.type === 'BinaryExpression'
-					)
-				)
-			);
+			// `array.reduce((accumulator, element) => accumulator + element)`
+			// `array.reduce((accumulator, element) => {return accumulator + element;})`
+			// `array.reduce(function (accumulator, element){return accumulator + element;})`
+			// A bare `return;` has no return expression
+			return Boolean(callback)
+				&& isInlineCallback(callback)
+				&& getFunctionReturnExpression(callback)?.type === 'BinaryExpression';
 		},
 		getFix(callExpression, context) {
 			const variableDeclaration = callExpression.parent.parent;

@@ -7,10 +7,11 @@ import {
 } from './ast/index.js';
 import {
 	getIndentString,
+	getLinebreak,
 	getParenthesizedRange,
 	getScopes,
+	getStaticPropertyName,
 	isLeftHandSide,
-	getLinebreak,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'require-passive-events';
@@ -32,33 +33,10 @@ const isFunction = node =>
 	node.type === 'ArrowFunctionExpression'
 	|| node.type === 'FunctionExpression';
 
-const getPropertyName = property => {
-	if (property.key.type === 'Identifier') {
-		return property.key.name;
-	}
-
-	if (isStringLiteral(property.key)) {
-		return property.key.value;
-	}
-};
-
-const getMemberPropertyName = memberExpression => {
-	if (
-		!memberExpression.computed
-		&& memberExpression.property.type === 'Identifier'
-	) {
-		return memberExpression.property.name;
-	}
-
-	if (isStringLiteral(memberExpression.property)) {
-		return memberExpression.property.value;
-	}
-};
-
-const getPassiveProperty = optionsNode =>
+const getPassiveProperty = (optionsNode, context) =>
 	optionsNode.properties.findLast(property =>
 		property.type === 'Property'
-		&& getPropertyName(property) === 'passive');
+		&& getStaticPropertyName(property, context) === 'passive');
 
 // `passive` is inserted after the last property, and an empty object is rebuilt, so a comment there would be moved or lost
 const hasCommentsBeforeClosingBrace = (optionsNode, sourceCode) => {
@@ -103,7 +81,7 @@ const usesArguments = (listener, sourceCode) =>
 		isListenerArgumentsScope(scope, listener)
 		&& scope.references.some(({identifier}) => identifier.name === 'arguments'));
 
-const isSafeEventPropertyReference = identifier => {
+const isSafeEventPropertyReference = (identifier, context) => {
 	if (
 		identifier.parent.type !== 'MemberExpression'
 		|| identifier.parent.object !== identifier
@@ -111,7 +89,7 @@ const isSafeEventPropertyReference = identifier => {
 		return false;
 	}
 
-	const propertyName = getMemberPropertyName(identifier.parent);
+	const propertyName = getStaticPropertyName(identifier.parent, context);
 	return propertyName && propertyName !== 'preventDefault' && isReadOnlyMemberExpression(identifier.parent);
 };
 
@@ -134,7 +112,7 @@ const isEventParameterSafe = (listener, context) => {
 		variable.defs[0]?.name === eventParameter);
 
 	for (const {identifier} of eventVariable.references) {
-		if (!isSafeEventPropertyReference(identifier)) {
+		if (!isSafeEventPropertyReference(identifier, context)) {
 			return false;
 		}
 	}
@@ -197,7 +175,7 @@ const getOptionsProblem = (context, callExpression, optionsNode) => {
 		return;
 	}
 
-	const passiveProperty = getPassiveProperty(optionsNode);
+	const passiveProperty = getPassiveProperty(optionsNode, context);
 	if (!passiveProperty) {
 		return {
 			fix: hasCommentsBeforeClosingBrace(optionsNode, context.sourceCode) ? undefined : fixObjectOptionsWithoutPassive(optionsNode, context),

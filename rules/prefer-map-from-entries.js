@@ -1,9 +1,14 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	escapeString,
+	getCallArgumentText,
 	getCommentSafeProblem,
 	getParenthesizedText,
+	getStaticPropertyName,
 	hasNonDirectiveComment,
+	hasTypeArguments,
+	isFirstTokenOfExpressionStatement,
+	isGlobalNameAvailable,
 	isTypeScriptExpressionWrapper,
 	needsSemicolon,
 } from './utils/index.js';
@@ -39,11 +44,6 @@ const inheritedObjectPropertyNames = new Set([
 	'valueOf',
 ]);
 
-function isGlobalNameAvailable(name, node, context) {
-	const variable = findVariable(context.sourceCode.getScope(node), name);
-	return !variable || variable.defs.length === 0;
-}
-
 function isObjectFromEntriesCall(node, context) {
 	return isMethodCall(node, {
 		object: 'Object',
@@ -52,8 +52,7 @@ function isObjectFromEntriesCall(node, context) {
 		optionalCall: false,
 		optionalMember: false,
 	})
-	&& !node.typeArguments
-	&& !node.typeParameters
+	&& !hasTypeArguments(node)
 	&& !hasNonDirectiveComment(context, node.callee)
 	&& isGlobalNameAvailable('Object', node, context)
 	&& isGlobalNameAvailable('Map', node, context)
@@ -103,32 +102,9 @@ function isKnownStringKeyEntries(node, context) {
 		|| isStringKeyEntriesArray(node);
 }
 
-function getStaticPropertyName(memberExpression) {
-	if (!memberExpression.computed) {
-		return memberExpression.property.type === 'Identifier' ? memberExpression.property.name : undefined;
-	}
-
-	const propertyName = getStaticStringValue(memberExpression.property);
-	return propertyName !== undefined && !isArrayIndexPropertyName(propertyName) ? propertyName : undefined;
-}
-
 function isStandaloneExpression(node) {
 	return node.parent.type === 'ExpressionStatement'
 		&& node.parent.expression === node;
-}
-
-function isFirstTokenOfExpressionStatement(node, context) {
-	let currentNode = node;
-	const {sourceCode} = context;
-	while (currentNode.parent) {
-		if (currentNode.parent.type === 'ExpressionStatement') {
-			return sourceCode.getRange(sourceCode.getFirstToken(currentNode.parent.expression))[0] === sourceCode.getRange(sourceCode.getFirstToken(node))[0];
-		}
-
-		currentNode = currentNode.parent;
-	}
-
-	return false;
 }
 
 function isCallLikeTarget(node) {
@@ -168,7 +144,7 @@ function isUpdateTarget(node) {
 
 function isWithinNewExpressionCallee(node) {
 	while (
-		isUnsupportedTypeScriptExpressionWrapper(node.parent)
+		isTypeScriptExpressionWrapper(node.parent)
 		|| (
 			node.parent.type === 'MemberExpression'
 			&& node.parent.object === node
@@ -206,16 +182,6 @@ function isWithinChainExpression(node) {
 	}
 
 	return false;
-}
-
-function getCallArgumentText(node, context) {
-	const text = context.sourceCode.getText(node);
-	return node.type === 'SequenceExpression' ? `(${text})` : text;
-}
-
-function isUnsupportedTypeScriptExpressionWrapper(node) {
-	return isTypeScriptExpressionWrapper(node)
-		|| node?.type === 'TSInstantiationExpression';
 }
 
 function getObjectMethodCall(identifier, context) {
@@ -319,7 +285,7 @@ function getMemberExpressionOperation(identifier, context) {
 	if (
 		parent.type !== 'MemberExpression'
 		|| parent.object !== identifier
-		|| isUnsupportedTypeScriptExpressionWrapper(parent.parent)
+		|| isTypeScriptExpressionWrapper(parent.parent)
 		|| isInDestructuringPattern(parent)
 		|| isWithinNewExpressionCallee(parent)
 		|| containsOptionalChain(parent)
@@ -329,9 +295,10 @@ function getMemberExpressionOperation(identifier, context) {
 		return;
 	}
 
-	const propertyName = getStaticPropertyName(parent);
+	const propertyName = getStaticPropertyName(parent, context);
 	if (
 		propertyName === undefined
+		|| isArrayIndexPropertyName(propertyName)
 		|| inheritedObjectPropertyNames.has(propertyName)
 	) {
 		return;

@@ -189,7 +189,7 @@ function getDuration(node, context, visited = new Set()) {
 	if (node.type === 'Identifier') {
 		const initializer = getConstVariableInitializer(node, context);
 		// Object bindings may have been mutated. Only follow immutable durations and primitive strings.
-		if (!initializer || initializer.parent.id.type !== 'Identifier' || unwrapTypeScriptExpression(initializer).type === 'ObjectExpression') {
+		if (!initializer || unwrapTypeScriptExpression(initializer).type === 'ObjectExpression') {
 			return;
 		}
 

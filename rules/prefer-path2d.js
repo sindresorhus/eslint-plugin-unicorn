@@ -3,10 +3,11 @@ import {functionTypes, getStaticStringValue} from './ast/index.js';
 import {
 	getBaseTypes,
 	getTypeSymbol,
-	getVariableByName,
 	isDefaultLibrarySymbol,
+	isGlobalIdentifier,
 	isSameReference,
 	isUnknownType,
+	withTypeInformation,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-path2d';
@@ -140,7 +141,7 @@ const getTypeReferenceType = (node, scope, visitedTypeVariables) => {
 	const typeReferenceName = node.typeName.name;
 
 	const typeVariable = node.typeName.type === 'Identifier'
-		? getVariableByName(typeReferenceName, scope)
+		? findVariable(scope, typeReferenceName)
 		: undefined;
 	const [definition] = typeVariable?.defs ?? [];
 
@@ -262,24 +263,8 @@ const getTypeScriptType = (type, checker, program, visitedTypes = new Set()) => 
 	return nonCanvasContext;
 };
 
-const getTypeFromTypeInformation = (node, context) => {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return unknown;
-	}
-
-	try {
-		return getTypeScriptType(
-			parserServices.getTypeAtLocation(node),
-			parserServices.program.getTypeChecker(),
-			parserServices.program,
-		);
-		// Defensive: `getTypeAtLocation()` throws for a node that the TypeScript program does not map, which the supported parsers do not produce.
-		/* node:coverage ignore next 3 */
-	} catch {
-		return unknown;
-	}
-};
+const getTypeFromTypeInformation = (node, context) =>
+	withTypeInformation(node, context, ({type, checker, program}) => getTypeScriptType(type, checker, program)) ?? unknown;
 
 const hasWriteAfterInitialization = variable => variable.references.some(reference => reference.isWrite() && !reference.init);
 
@@ -544,17 +529,11 @@ const getFunctionVariables = (node, context) => {
 };
 
 const isRepeatedSchedulerCall = (node, context) => {
-	const isGlobalIdentifierReference = node => {
-		const variable = findVariable(context.sourceCode.getScope(node), node);
-
-		return !variable || variable.defs.length === 0;
-	};
-
 	if (
 		node.callee.type === 'Identifier'
 		&& repeatedCallbackMethods.has(node.callee.name)
 	) {
-		return isGlobalIdentifierReference(node.callee);
+		return isGlobalIdentifier(node.callee, context);
 	}
 
 	if (
@@ -566,7 +545,7 @@ const isRepeatedSchedulerCall = (node, context) => {
 		&& node.callee.property.type === 'Identifier'
 		&& repeatedCallbackMethods.has(node.callee.property.name)
 	) {
-		return isGlobalIdentifierReference(node.callee.object);
+		return isGlobalIdentifier(node.callee.object, context);
 	}
 
 	return false;
@@ -582,24 +561,6 @@ const getCallExpressionVariable = (node, context) =>
 		? findVariable(context.sourceCode.getScope(node.callee), node.callee)
 		: undefined;
 
-const unwrapReceiverReference = node => {
-	switch (node.type) {
-		case 'TSSatisfiesExpression':
-		case 'ParenthesizedExpression': {
-			return unwrapReceiverReference(node.expression);
-		}
-
-		default: {
-			return node;
-		}
-	}
-};
-
-const isSameReceiverReference = (left, right) => isSameReference(
-	unwrapReceiverReference(left),
-	unwrapReceiverReference(right),
-);
-
 const isSameReceiver = (group, call) => {
 	if (
 		group.receiverVariable
@@ -607,11 +568,11 @@ const isSameReceiver = (group, call) => {
 	) {
 		return group.receiverVariable === call.receiverVariable
 			&& group.repeatedRegionId === call.repeatedRegionId
-			&& isSameReceiverReference(group.receiver, call.receiver);
+			&& isSameReference(group.receiver, call.receiver);
 	}
 
 	return group.repeatedRegionId === call.repeatedRegionId
-		&& isSameReceiverReference(group.receiver, call.receiver);
+		&& isSameReference(group.receiver, call.receiver);
 };
 
 const addGroupCall = (groups, call) => {

@@ -1,6 +1,11 @@
-import {isCallExpression, isFunction, isMethodCall} from './ast/index.js';
+import {
+	isCallExpression,
+	isDirectEvalCall,
+	isFunction,
+	isMethodCall,
+} from './ast/index.js';
 import {replaceArgument} from './fix/index.js';
-import {getParenthesizedRange, getVisitorChildNodes} from './utils/index.js';
+import {containsNode, getParenthesizedRange, hasCommentInRange} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-get-or-insert-computed';
 const messages = {
@@ -17,21 +22,15 @@ const shouldUseDirectCallback = (key, value) =>
 	&& value.arguments[0].type === 'Identifier'
 	&& value.arguments[0].name === key.name;
 
-const containsNodeMatching = (node, sourceCode, predicate) => {
-	if (isFunction(node)) {
-		return false;
-	}
+const isInstanceField = node => node.type === 'PropertyDefinition' && !node.static;
 
-	if (node.type === 'PropertyDefinition' && !node.static) {
-		return node.computed && containsNodeMatching(node.key, sourceCode, predicate);
-	}
-
-	if (predicate(node)) {
-		return true;
-	}
-
-	return getVisitorChildNodes(node, sourceCode.visitorKeys).some(child => containsNodeMatching(child, sourceCode, predicate));
-};
+// Nested functions and the values of non-static class fields are not evaluated when the default value is created, but computed keys of non-static fields are.
+const containsNodeMatching = (node, context, predicate) => containsNode(
+	node,
+	context,
+	node => predicate(node) || (isInstanceField(node) && node.computed && containsNodeMatching(node.key, context, predicate)),
+	node => isFunction(node) || isInstanceField(node),
+);
 
 const shouldWrapArrowBody = node =>
 	node.type === 'ObjectExpression'
@@ -58,23 +57,14 @@ const isSideEffectNode = node =>
 	sideEffectNodeTypes.has(node.type)
 	|| (node.type === 'UnaryExpression' && node.operator === 'delete');
 
-const hasDefaultValueSideEffect = (node, sourceCode) =>
-	containsNodeMatching(node, sourceCode, isSideEffectNode);
+const hasDefaultValueSideEffect = (node, context) =>
+	containsNodeMatching(node, context, isSideEffectNode);
 
-const containsNodeUnsafeToWrap = (node, sourceCode) =>
-	containsNodeMatching(node, sourceCode, node =>
+const containsNodeUnsafeToWrap = (node, context) =>
+	containsNodeMatching(node, context, node =>
 		node.type === 'AwaitExpression'
 		|| node.type === 'YieldExpression'
-		|| isCallExpression(node, {name: 'eval'}));
-
-const hasCommentsInDefaultValue = (node, context) => {
-	const {sourceCode} = context;
-	const range = getParenthesizedRange(node, context);
-	return sourceCode.getAllComments().some(comment => {
-		const commentRange = sourceCode.getRange(comment);
-		return commentRange[0] >= range[0] && commentRange[1] <= range[1];
-	});
-};
+		|| isDirectEvalCall(node));
 
 const getCallbackText = (key, value, sourceCode) => {
 	if (shouldUseDirectCallback(key, value)) {
@@ -101,7 +91,7 @@ const create = context => {
 		}
 
 		const [key, value] = callExpression.arguments;
-		if (!hasDefaultValueSideEffect(value, sourceCode)) {
+		if (!hasDefaultValueSideEffect(value, context)) {
 			return;
 		}
 
@@ -111,8 +101,8 @@ const create = context => {
 		};
 
 		if (
-			containsNodeUnsafeToWrap(value, sourceCode)
-			|| hasCommentsInDefaultValue(value, context)
+			containsNodeUnsafeToWrap(value, context)
+			|| hasCommentInRange(context, getParenthesizedRange(value, context))
 		) {
 			return problem;
 		}

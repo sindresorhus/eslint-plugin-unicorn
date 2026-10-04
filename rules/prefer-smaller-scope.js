@@ -1,9 +1,9 @@
 import {isCommentToken} from '@eslint-community/eslint-utils';
 import {removeStatement} from './fix/index.js';
+import {isDirectEvalCall} from './ast/index.js';
 import {
 	getParenthesizedRange,
 	getParenthesizedText,
-	unwrapTypeScriptExpression,
 	getVisitorChildNodes,
 } from './utils/index.js';
 
@@ -52,21 +52,7 @@ function isDescendantWithoutScopeBoundary(node, ancestor) {
 }
 
 function hasDynamicScope(node, visitorKeys) {
-	if (node.type === 'WithStatement') {
-		return true;
-	}
-
-	let callee = node.type === 'CallExpression'
-		? unwrapTypeScriptExpression(node.callee)
-		: undefined;
-	while (callee?.type === 'TSInstantiationExpression') {
-		callee = unwrapTypeScriptExpression(callee.expression);
-	}
-
-	if (
-		callee?.type === 'Identifier'
-		&& callee.name === 'eval'
-	) {
+	if (node.type === 'WithStatement' || isDirectEvalCall(node)) {
 		return true;
 	}
 

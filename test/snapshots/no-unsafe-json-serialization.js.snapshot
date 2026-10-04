@@ -28,7 +28,7 @@ Message:
     |                 ^^^^^^^^^^^^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
 
 Suggestion 1/1: Convert the Set to an array.:
-  1 | JSON.stringify((Array.from((sideEffect(), new Set()))))
+  1 | JSON.stringify(Array.from((sideEffect(), new Set())))
 
 `;
 
@@ -113,7 +113,7 @@ Message:
     |                 ^^^^^^^^^^^^^^^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
 
 Suggestion 1/1: Convert the Set to an array.:
-  1 | JSON.stringify((Array.from(new Set(/* keep */ [1]))))
+  1 | JSON.stringify(Array.from(new Set(/* keep */ [1])))
 
 `;
 
@@ -130,7 +130,7 @@ Message:
     |                            ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Set values.
 
 Suggestion 1/1: Convert the Set to an array.:
-  1 | JSON.stringify((/* keep */ Array.from(new Set())))
+  1 | JSON.stringify(Array.from((/* keep */ new Set())))
 
 `;
 
@@ -147,10 +147,10 @@ Message:
     |                 ^^^^^^^^^ \`JSON.stringify()\` cannot faithfully serialize Map values.
 
 Suggestion 1/2: Convert the Map to an array.:
-  1 | JSON.stringify((Array.from(new Map()) /* keep */))
+  1 | JSON.stringify(Array.from((new Map() /* keep */)))
 
 Suggestion 2/2: Convert the Map to an object (requires string keys).:
-  1 | JSON.stringify((Object.fromEntries(new Map()) /* keep */))
+  1 | JSON.stringify(Object.fromEntries((new Map() /* keep */)))
 
 `;
 

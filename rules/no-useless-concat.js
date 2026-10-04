@@ -1,8 +1,9 @@
-import {isFunction, isStringLiteral} from './ast/index.js';
+import {isInDirectivePrologue, isStringLiteral} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	escapeString,
 	getParenthesizedRange,
+	hasCommentInRange,
 	isParenthesized,
 	needsSemicolon,
 } from './utils/index.js';
@@ -40,27 +41,7 @@ const meaningfulDirectivePattern = /^use\s/iu;
 /*
 A `BinaryExpression` is never a directive, so folding `'use ' + 'strict'` into one string literal puts a meaningful directive where there was none, which turns the enclosing function or script strict. In a module, tools read directives like `'use client'`. A prologue entry that is not a `use …` directive is ignored, so only the meaningful ones matter.
 */
-const isMeaningfulDirectivePrologue = (node, value) => {
-	if (!meaningfulDirectivePattern.test(value)) {
-		return false;
-	}
-
-	const {parent} = node;
-	if (parent.type !== 'ExpressionStatement') {
-		return false;
-	}
-
-	const body = parent.parent;
-	const isPrologue = body.type === 'Program' || (body.type === 'BlockStatement' && isFunction(body.parent));
-	if (!isPrologue) {
-		return false;
-	}
-
-	// It is in the prologue when only directives come before it
-	return body.body
-		.slice(0, body.body.indexOf(parent))
-		.every(statement => statement.type === 'ExpressionStatement' && typeof statement.directive === 'string');
-};
+const isMeaningfulDirectivePrologue = (node, value) => meaningfulDirectivePattern.test(value) && isInDirectivePrologue(node);
 
 // The raw inner content of a literal as it would appear inside a template literal.
 function toTemplateElementRaw(node, sourceCode) {
@@ -140,10 +121,7 @@ const create = context => {
 				const range = [getParenthesizedRange(left, context)[0], getParenthesizedRange(right, context)[1]];
 
 				// Don't drop comments inside the replaced range.
-				if (sourceCode.getCommentsInside(node).some(comment => {
-					const [start, end] = sourceCode.getRange(comment);
-					return start >= range[0] && end <= range[1];
-				})) {
+				if (hasCommentInRange(context, range)) {
 					return abort();
 				}
 

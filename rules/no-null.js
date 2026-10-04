@@ -63,8 +63,7 @@ const create = context => {
 				isCallExpression(node.parent, {
 					name: 'useRef',
 					argumentsLength: 1,
-					optionalCall: false,
-					optionalMember: false,
+					optional: false,
 				})
 				&& node.parent.arguments[0] === node
 			)

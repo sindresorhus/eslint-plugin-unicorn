@@ -9,12 +9,14 @@ import {
 	getIndentString,
 	getIndentUnit,
 	getLinebreak,
+	getSingleStatement,
 	hasMultilineToken,
 	isSameReference,
 	isTypeScriptExpressionWrapper,
 	reindentText,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
-import {containsOptionalChain, isReference, unwrapExpression} from './utils/comparison.js';
+import {containsOptionalChain, isReference} from './utils/comparison.js';
 
 const MESSAGE_ID_GUARD = 'preferGuard';
 const MESSAGE_ID_FALLBACK = 'preferFallback';
@@ -33,7 +35,7 @@ const getObjectMethodCall = node => {
 		return;
 	}
 
-	const right = unwrapExpression(node.right);
+	const right = unwrapTypeScriptExpression(node.right);
 
 	if (!isMethodCall(right, {
 		object: 'Object',
@@ -52,13 +54,13 @@ const getObjectMethodCall = node => {
 const getLoopSourceNode = node =>
 	getObjectMethodCall(node)?.arguments[0] ?? node.right;
 
-const getLoopSource = node => unwrapExpression(getLoopSourceNode(node));
+const getLoopSource = node => unwrapTypeScriptExpression(getLoopSourceNode(node));
 
 const isObjectIteration = node =>
 	node.type === 'ForInStatement' || Boolean(getObjectMethodCall(node));
 
 const getFallbackInfo = (node, isFallback) => {
-	const logicalExpression = unwrapExpression(node);
+	const logicalExpression = unwrapTypeScriptExpression(node);
 
 	if (
 		logicalExpression.type !== 'LogicalExpression'
@@ -67,7 +69,7 @@ const getFallbackInfo = (node, isFallback) => {
 		return;
 	}
 
-	const fallback = unwrapExpression(logicalExpression.right);
+	const fallback = unwrapTypeScriptExpression(logicalExpression.right);
 	if (!isFallback(fallback)) {
 		return;
 	}
@@ -91,16 +93,7 @@ const getGuardedLoop = node => {
 		return;
 	}
 
-	const {consequent} = node;
-	if (consequent.type === 'BlockStatement') {
-		if (consequent.body.length !== 1) {
-			return;
-		}
-
-		return consequent.body[0];
-	}
-
-	return consequent;
+	return getSingleStatement(node.consequent);
 };
 
 const getGuardInfo = node => {
@@ -109,7 +102,7 @@ const getGuardInfo = node => {
 		return;
 	}
 
-	let test = unwrapExpression(node.test);
+	let test = unwrapTypeScriptExpression(node.test);
 	let operator = '||';
 
 	if (!isReference(test)) {

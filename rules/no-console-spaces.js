@@ -1,4 +1,5 @@
 import toLocation from './utils/to-location.js';
+import {isEscapedCharacter} from './utils/index.js';
 import {isStringLiteral, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID = 'no-console-spaces';
@@ -11,18 +12,7 @@ const hasLeadingSpace = value => value.length > 1 && value.charAt(0) === ' ' && 
 
 // Find exactly one trailing space, allow exactly one space
 // A space escaped by a backslash belongs to an escape sequence, removing it would break the literal
-const hasTrailingSpace = value => {
-	if (!(value.length > 1 && value.at(-1) === ' ' && value.at(-2) !== ' ')) {
-		return false;
-	}
-
-	let backslashCount = 0;
-	for (let index = value.length - 2; value[index] === '\\'; index--) {
-		backslashCount++;
-	}
-
-	return backslashCount % 2 === 0;
-};
+const hasTrailingSpace = value => value.length > 1 && value.at(-1) === ' ' && value.at(-2) !== ' ' && !isEscapedCharacter(value, value.length - 1);
 
 /**
 @param {import('eslint').Rule.RuleContext} context

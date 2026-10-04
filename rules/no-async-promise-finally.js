@@ -4,6 +4,7 @@ import {
 	getConstVariableInitializer,
 	isPromiseType,
 	unwrapTypeScriptExpression,
+	withTypeInformation,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-async-promise-finally';
@@ -17,21 +18,7 @@ const isAsyncNonGeneratorFunction = node =>
 	&& !node.generator;
 
 function isPromiseObject(node, context) {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return;
-	}
-
-	try {
-		return isPromiseType(
-			parserServices.getTypeAtLocation(node),
-			parserServices.program.getTypeChecker(),
-		);
-		// Tests cannot make TypeScript throw here.
-		/* node:coverage ignore next 3 */
-	} catch {
-		// TypeScript can throw while resolving incomplete projects; keep this rule best-effort.
-	}
+	return withTypeInformation(node, context, ({type, checker}) => isPromiseType(type, checker));
 }
 
 function isAsyncFunctionDeclarationReference(node, context) {

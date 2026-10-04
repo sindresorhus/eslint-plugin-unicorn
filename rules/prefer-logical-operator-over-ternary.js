@@ -2,24 +2,22 @@ import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	isBooleanLiteral,
 	isMemberExpression,
-	isNullLiteral,
 	isUndefined,
 } from './ast/index.js';
 import {
-	isParenthesized,
 	getCommentSafeProblem,
-	getParenthesizedText,
+	getLogicalExpressionChildText,
+	getNegatedExpressionText,
 	getMemberAccessOperatorRange,
 	hasNonDirectiveComment,
 	isSameReference,
 	isBoolean,
-	shouldAddParenthesesToLogicalExpressionChild,
-	shouldAddParenthesesToUnaryExpressionArgument,
 	needsSemicolon,
 	isTypeScriptFile,
-	isTypeScriptExpressionWrapper,
+	getOutermostTypeScriptExpression,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
+import {getNullishTest, isSameNode} from './shared/nullish-check.js';
 
 const MESSAGE_ID_ERROR = 'prefer-logical-operator-over-ternary/error';
 const MESSAGE_ID_OPTIONAL_CHAIN_ERROR = 'prefer-logical-operator-over-ternary/optional-chain-error';
@@ -31,48 +29,6 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Switch to `{{operator}}` operator.',
 	[MESSAGE_ID_OPTIONAL_CHAIN_SUGGESTION]: 'Switch to optional chaining.',
 };
-const nullishOperators = new Set(['==', '===']);
-const nonNullishOperators = new Set(['!=', '!==']);
-
-function isSameNode(left, right, sourceCode) {
-	if (isSameReference(left, right)) {
-		return true;
-	}
-
-	if (left.type !== right.type) {
-		return false;
-	}
-
-	switch (left.type) {
-		case 'AwaitExpression': {
-			return isSameNode(left.argument, right.argument, sourceCode);
-		}
-
-		case 'LogicalExpression': {
-			return (
-				left.operator === right.operator
-				&& isSameNode(left.left, right.left, sourceCode)
-				&& isSameNode(left.right, right.right, sourceCode)
-			);
-		}
-
-		case 'UnaryExpression': {
-			return (
-				left.operator === right.operator
-				&& left.prefix === right.prefix
-				&& isSameNode(left.argument, right.argument, sourceCode)
-			);
-		}
-
-		case 'UpdateExpression': {
-			return false;
-		}
-
-		// No default
-	}
-
-	return sourceCode.getText(left) === sourceCode.getText(right);
-}
 
 function fix({
 	fixer,
@@ -85,20 +41,11 @@ function fix({
 }) {
 	const {sourceCode} = context;
 	let text = [left, right].map((node, index) => {
-		const isNodeParenthesized = isParenthesized(node, context);
-		let text = isNodeParenthesized ? getParenthesizedText(node, context) : sourceCode.getText(node);
-		const negate = index === 0 && negateLeft;
-
-		if (
-			!isNodeParenthesized
-			&& (negate
-				? shouldAddParenthesesToUnaryExpressionArgument(node, '!')
-				: shouldAddParenthesesToLogicalExpressionChild(node, {operator, property: index === 0 ? 'left' : 'right'}))
-		) {
-			text = `(${text})`;
+		if (index === 0 && negateLeft) {
+			return getNegatedExpressionText(node, context);
 		}
 
-		return negate ? `!${text}` : text;
+		return getLogicalExpressionChildText(node, context, {operator, property: index === 0 ? 'left' : 'right'});
 	}).join(` ${operator} `);
 
 	// According to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#table
@@ -321,104 +268,9 @@ function getProblem({
 	};
 }
 
-function getNullishKind(node) {
-	if (isNullLiteral(node)) {
-		return 'null';
-	}
-
-	if (isUndefined(node)) {
-		return 'undefined';
-	}
-}
-
-function getNullishBinaryCheck(node) {
-	if (
-		node.type !== 'BinaryExpression'
-		|| (!nullishOperators.has(node.operator) && !nonNullishOperators.has(node.operator))
-	) {
-		return;
-	}
-
-	const leftKind = getNullishKind(node.left);
-	const rightKind = getNullishKind(node.right);
-
-	if (Boolean(leftKind) === Boolean(rightKind)) {
-		return;
-	}
-
-	const isTrueWhenNullish = nullishOperators.has(node.operator);
-	const reference = leftKind ? node.right : node.left;
-	const kind = node.operator.length === 2 ? 'nullish' : (leftKind ?? rightKind);
-
-	return {
-		reference,
-		kind,
-		isTrueWhenNullish,
-	};
-}
-
-const checksNullAndUndefined = (left, right) =>
-	(left.kind === 'null' && right.kind === 'undefined')
-	|| (left.kind === 'undefined' && right.kind === 'null');
-
-function getNullishTest(node, sourceCode) {
-	const binaryCheck = getNullishBinaryCheck(node);
-
-	if (binaryCheck?.kind === 'nullish') {
-		return binaryCheck;
-	}
-
-	if (node.type !== 'LogicalExpression') {
-		return;
-	}
-
-	const left = getNullishBinaryCheck(node.left);
-	const right = getNullishBinaryCheck(node.right);
-
-	if (
-		!left
-		|| !right
-		|| !isSameNode(left.reference, right.reference, sourceCode)
-	) {
-		return;
-	}
-
-	if (
-		node.operator === '||'
-		&& left.isTrueWhenNullish
-		&& right.isTrueWhenNullish
-		&& checksNullAndUndefined(left, right)
-	) {
-		return {
-			reference: left.reference,
-			isTrueWhenNullish: true,
-		};
-	}
-
-	if (
-		node.operator === '&&'
-		&& !left.isTrueWhenNullish
-		&& !right.isTrueWhenNullish
-		&& checksNullAndUndefined(left, right)
-	) {
-		return {
-			reference: left.reference,
-			isTrueWhenNullish: false,
-		};
-	}
-}
-
 function isUnsafeOptionalChainReplacementContext(conditionalExpression) {
-	let node = conditionalExpression;
-	let {parent} = node;
-
-	while (
-		isTypeScriptExpressionWrapper(parent)
-		&& parent.expression === node
-	) {
-		node = parent;
-		parent = node.parent;
-	}
+	const node = getOutermostTypeScriptExpression(conditionalExpression);
+	const {parent} = node;
 
 	return (
 		(
@@ -439,7 +291,7 @@ function isUnsafeOptionalChainReplacementContext(conditionalExpression) {
 
 function getNullishTernaryProblem(conditionalExpression, context) {
 	const {test, consequent, alternate} = conditionalExpression;
-	const nullishTest = getNullishTest(test, context.sourceCode);
+	const nullishTest = getNullishTest(test, context);
 
 	if (
 		!nullishTest
@@ -453,7 +305,7 @@ function getNullishTernaryProblem(conditionalExpression, context) {
 	// The test and the branch can spell the same reference differently, for example `b?.c == null ? undefined : b.c`. The test's spelling is the safe one to keep.
 	if (
 		nullishTest.isTrueWhenNullish
-		&& isSameNode(reference, alternate, context.sourceCode)
+		&& isSameNode(reference, alternate, context)
 	) {
 		return getProblem({
 			context,
@@ -466,7 +318,7 @@ function getNullishTernaryProblem(conditionalExpression, context) {
 
 	if (
 		!nullishTest.isTrueWhenNullish
-		&& isSameNode(reference, consequent, context.sourceCode)
+		&& isSameNode(reference, consequent, context)
 	) {
 		return getProblem({
 			context,
@@ -545,7 +397,7 @@ const create = context => {
 		}
 
 		// `foo ? foo : bar`
-		if (isSameNode(test, consequent, sourceCode)) {
+		if (isSameNode(test, consequent, context)) {
 			return getProblem({
 				context,
 				conditionalExpression,
@@ -559,7 +411,7 @@ const create = context => {
 			test.type === 'UnaryExpression'
 			&& test.operator === '!'
 			&& test.prefix
-			&& isSameNode(test.argument, alternate, sourceCode)
+			&& isSameNode(test.argument, alternate, context)
 		) {
 			return getProblem({
 				context,

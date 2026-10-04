@@ -4,14 +4,12 @@ import {
 	isUndefined,
 } from './ast/index.js';
 import {
-	getParenthesizedText,
+	getConditionalExpressionChildText,
+	getLogicalExpressionChildText,
+	getNegatedExpressionText,
 	isGlobalBooleanCall,
-	isParenthesized,
-	isSameReference,
-	shouldAddParenthesesToConditionalExpressionChild,
-	shouldAddParenthesesToLogicalExpressionChild,
-	shouldAddParenthesesToUnaryExpressionArgument,
 } from './utils/index.js';
+import {getNullishTest, isSameNode} from './shared/nullish-check.js';
 
 const STYLE_LOGICAL = 'logical';
 const STYLE_TERNARY = 'ternary';
@@ -22,8 +20,6 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer {{expectedStyle}} conditional object spreads.',
 	[MESSAGE_ID_BOOLEAN_CAST]: 'Unnecessary boolean cast. A falsy value spreads nothing.',
 };
-const nullishOperators = new Set(['==', '===']);
-const nonNullishOperators = new Set(['!=', '!==']);
 
 // `{...{}}`, `{...undefined}`, and `{...null}` all spread nothing.
 const isEmptySpreadBranch = node =>
@@ -38,142 +34,8 @@ const isObjectSpreadArgument = node => (
 	&& node.parent.parent.properties.includes(node.parent)
 );
 
-function isSameNode(left, right, sourceCode) {
-	if (isSameReference(left, right)) {
-		return true;
-	}
-
-	if (left.type !== right.type) {
-		return false;
-	}
-
-	switch (left.type) {
-		case 'AwaitExpression': {
-			return isSameNode(left.argument, right.argument, sourceCode);
-		}
-
-		case 'LogicalExpression': {
-			return (
-				left.operator === right.operator
-				&& isSameNode(left.left, right.left, sourceCode)
-				&& isSameNode(left.right, right.right, sourceCode)
-			);
-		}
-
-		case 'UnaryExpression': {
-			return (
-				left.operator === right.operator
-				&& left.prefix === right.prefix
-				&& isSameNode(left.argument, right.argument, sourceCode)
-			);
-		}
-
-		case 'UpdateExpression': {
-			return false;
-		}
-
-		// No default
-	}
-
-	return sourceCode.getText(left) === sourceCode.getText(right);
-}
-
-function getNullishKind(node) {
-	if (isNullLiteral(node)) {
-		return 'null';
-	}
-
-	if (isUndefined(node)) {
-		return 'undefined';
-	}
-}
-
-function getNullishBinaryCheck(node) {
-	if (
-		node.type !== 'BinaryExpression'
-		|| (!nullishOperators.has(node.operator) && !nonNullishOperators.has(node.operator))
-	) {
-		return;
-	}
-
-	const leftKind = getNullishKind(node.left);
-	const rightKind = getNullishKind(node.right);
-
-	if (Boolean(leftKind) === Boolean(rightKind)) {
-		return;
-	}
-
-	return {
-		reference: leftKind ? node.right : node.left,
-		kind: node.operator.length === 2 ? 'nullish' : (leftKind ?? rightKind),
-		isTrueWhenNullish: nullishOperators.has(node.operator),
-	};
-}
-
-const checksNullAndUndefined = (left, right) =>
-	(left.kind === 'null' && right.kind === 'undefined')
-	|| (left.kind === 'undefined' && right.kind === 'null');
-
-function getNullishTest(node, sourceCode) {
-	const binaryCheck = getNullishBinaryCheck(node);
-
-	if (binaryCheck?.kind === 'nullish') {
-		return binaryCheck;
-	}
-
-	if (node.type !== 'LogicalExpression') {
-		return;
-	}
-
-	const left = getNullishBinaryCheck(node.left);
-	const right = getNullishBinaryCheck(node.right);
-
-	if (
-		!left
-		|| !right
-		|| !isSameNode(left.reference, right.reference, sourceCode)
-	) {
-		return;
-	}
-
-	if (
-		node.operator === '||'
-		&& left.isTrueWhenNullish
-		&& right.isTrueWhenNullish
-		&& checksNullAndUndefined(left, right)
-	) {
-		return {
-			reference: left.reference,
-			isTrueWhenNullish: true,
-		};
-	}
-
-	if (
-		node.operator === '&&'
-		&& !left.isTrueWhenNullish
-		&& !right.isTrueWhenNullish
-		&& checksNullAndUndefined(left, right)
-	) {
-		return {
-			reference: left.reference,
-			isTrueWhenNullish: false,
-		};
-	}
-}
-
 // Render `node` as an operand of a `&&` expression, adding parentheses when precedence requires it.
-function getLogicalOperandText(node, property, context) {
-	let text = getParenthesizedText(node, context);
-
-	if (
-		!isParenthesized(node, context)
-		&& shouldAddParenthesesToLogicalExpressionChild(node, {operator: '&&', property})
-	) {
-		text = `(${text})`;
-	}
-
-	return text;
-}
+const getLogicalOperandText = (node, property, context) => getLogicalExpressionChildText(node, context, {operator: '&&', property});
 
 // Render `!test` as the left operand of a `&&` expression, stripping a leading `!` when present.
 function getNegatedTestText(test, context) {
@@ -185,29 +47,7 @@ function getNegatedTestText(test, context) {
 		return getLogicalOperandText(test.argument, 'left', context);
 	}
 
-	let text = getParenthesizedText(test, context);
-
-	if (
-		!isParenthesized(test, context)
-		&& shouldAddParenthesesToUnaryExpressionArgument(test, '!')
-	) {
-		text = `(${text})`;
-	}
-
-	return `!${text}`;
-}
-
-function getConditionalExpressionChildText(node, context) {
-	let text = getParenthesizedText(node, context);
-
-	if (
-		!isParenthesized(node, context)
-		&& shouldAddParenthesesToConditionalExpressionChild(node)
-	) {
-		text = `(${text})`;
-	}
-
-	return text;
+	return getNegatedExpressionText(test, context);
 }
 
 function getConditionalExpressionProblem(conditionalExpression, context) {
@@ -220,25 +60,25 @@ function getConditionalExpressionProblem(conditionalExpression, context) {
 	}
 
 	const keptBranch = isAlternateEmpty ? consequent : alternate;
-	const nullishTest = getNullishTest(test, context.sourceCode);
+	const nullishTest = getNullishTest(test, context);
 	const hasCommentsInside = context.sourceCode.getCommentsInside(conditionalExpression).length > 0;
 
 	if (
 		(
 			isAlternateEmpty
-				? isSameNode(test, keptBranch, context.sourceCode)
+				? isSameNode(test, keptBranch, context)
 				: (
 					test.type === 'UnaryExpression'
 					&& test.operator === '!'
 					&& test.prefix
-					&& isSameNode(test.argument, keptBranch, context.sourceCode)
+					&& isSameNode(test.argument, keptBranch, context)
 				)
 		)
 		|| (
 			nullishTest
 			&& !hasCommentsInside
 			&& (nullishTest.isTrueWhenNullish ? !isAlternateEmpty : isAlternateEmpty)
-			&& isSameNode(nullishTest.reference, keptBranch, context.sourceCode)
+			&& isSameNode(nullishTest.reference, keptBranch, context)
 		)
 	) {
 		return;
@@ -276,16 +116,16 @@ function getLogicalExpressionProblem(logicalExpression, context) {
 		return;
 	}
 
-	if (isSameNode(logicalExpression.left, logicalExpression.right, context.sourceCode)) {
+	if (isSameNode(logicalExpression.left, logicalExpression.right, context)) {
 		return;
 	}
 
-	const nullishTest = getNullishTest(logicalExpression.left, context.sourceCode);
+	const nullishTest = getNullishTest(logicalExpression.left, context);
 
 	if (
 		nullishTest
 		&& !nullishTest.isTrueWhenNullish
-		&& isSameNode(nullishTest.reference, logicalExpression.right, context.sourceCode)
+		&& isSameNode(nullishTest.reference, logicalExpression.right, context)
 	) {
 		return;
 	}

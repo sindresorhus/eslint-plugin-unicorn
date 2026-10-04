@@ -1,5 +1,5 @@
 import {combineBooleanStates, getPromisedTypeBooleanState, getTypeBooleanState} from './get-type-boolean-state.js';
-import {getBaseTypes, isTypeParameterType} from './types.js';
+import {getBaseTypes, isTypeParameterType, withTypeInformation} from './types.js';
 
 const boolean = 'boolean';
 const nonBoolean = 'non-boolean';
@@ -120,22 +120,7 @@ function getBooleanWrapperVariableState({variable, definition, context, wrappers
 		return unknown;
 	}
 
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return unknown;
-	}
-
-	try {
-		return getBooleanWrapperTypeState(
-			parserServices.getTypeAtLocation(definition.name),
-			parserServices.program.getTypeChecker(),
-			wrappers,
-		);
-		// Defensive: the TypeScript checker can throw on unusual nodes or types, and no known input does. Fall back to an unknown state.
-		/* node:coverage ignore next 3 */
-	} catch {
-		return unknown;
-	}
+	return withTypeInformation(definition.name, context, ({type, checker}) => getBooleanWrapperTypeState(type, checker, wrappers)) ?? unknown;
 }
 
 export {getBooleanWrapperVariableState};

@@ -23,6 +23,8 @@ test.snapshot({
 		'window.addEventListener("wheel", event => { event.preventDefault(); })',
 		'window.addEventListener("wheel", event => event.preventDefault())',
 		'window.addEventListener("wheel", event => { event["preventDefault"](); })',
+		'window.addEventListener("wheel", event => { event[`preventDefault`](); })',
+		'window.addEventListener("wheel", event => { event["prevent" + "Default"](); })',
 		'window.addEventListener("wheel", event => { handleEvent(event); })',
 		'window.addEventListener("wheel", event => { return event; })',
 		'window.addEventListener("wheel", event => { const anotherEvent = event; })',
@@ -93,6 +95,7 @@ test.snapshot({
 			code: 'window.addEventListener("wheel", function (this: Window, event) { console.log(event.target); })',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'window.addEventListener("wheel", event => { console.log(event[`target`]); })',
 	],
 });
 

@@ -1,12 +1,15 @@
 import {isFunction, isMethodCall} from './ast/index.js';
 import {
 	getCommentSafeProblem,
+	getConciseArrowBodyText,
+	getFunctionReturnExpression,
 	hasNonDirectiveComment,
 	hasOptionalChainElement,
 	isGlobalBooleanCall,
 	isNullishType,
 	isSameIdentifier,
 	unwrapTypeScriptExpression,
+	withTypeInformation,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-useless-boolean-cast';
@@ -19,20 +22,10 @@ const isNullishOrVoidType = type =>
 
 // When type information is available, the `Boolean()` cast is meaningful if the argument's type includes `null`/`undefined`/`void`, since removing it would widen the predicate's return type. Returns `false` when type information is unavailable, so it only ever keeps more casts than the syntactic check alone, never fewer.
 function hasNullishOrVoidType(node, context) {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return false;
-	}
-
-	try {
-		const type = parserServices.getTypeAtLocation(node);
+	return withTypeInformation(node, context, ({type}) => {
 		const types = type.isUnion() ? type.types : [type];
 		return types.some(type => isNullishOrVoidType(type));
-		// Defensive: `getTypeAtLocation()` throws for a node that the TypeScript program does not map, which the supported parsers do not produce.
-		/* node:coverage ignore next 3 */
-	} catch {
-		return false;
-	}
+	}) ?? false;
 }
 
 function isOptionalChainResult(node) {
@@ -69,10 +62,6 @@ const predicateMethods = [
 	'some',
 ];
 
-const needsParenthesesInConciseArrowBody = (node, text) =>
-	node.type === 'SequenceExpression'
-	|| text.trimStart().startsWith('{');
-
 function getReturnedExpression(callback) {
 	if (
 		callback.async
@@ -82,17 +71,7 @@ function getReturnedExpression(callback) {
 		return;
 	}
 
-	if (callback.type === 'ArrowFunctionExpression' && callback.body.type !== 'BlockStatement') {
-		return callback.body;
-	}
-
-	if (
-		callback.body.type === 'BlockStatement'
-		&& callback.body.body.length === 1
-		&& callback.body.body[0].type === 'ReturnStatement'
-	) {
-		return callback.body.body[0].argument;
-	}
+	return getFunctionReturnExpression(callback);
 }
 
 const isBooleanFirstParameterCallback = (callback, argument) =>
@@ -146,19 +125,12 @@ const create = context => {
 			node: booleanCall,
 			messageId: MESSAGE_ID,
 			data: {method: node.callee.property.name},
-			fix(fixer) {
-				let replacement = sourceCode.getText(argument);
-
-				if (
-					callback.type === 'ArrowFunctionExpression'
-					&& callback.body === booleanCall
-					&& needsParenthesesInConciseArrowBody(argument, replacement)
-				) {
-					replacement = `(${replacement})`;
-				}
-
-				return fixer.replaceText(booleanCall, replacement);
-			},
+			fix: fixer => fixer.replaceText(
+				booleanCall,
+				callback.body === booleanCall
+					? getConciseArrowBodyText(argument, context)
+					: sourceCode.getText(argument),
+			),
 		});
 	});
 };

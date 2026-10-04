@@ -1,14 +1,15 @@
 import {
-	getParenthesizedText,
+	getCallArgumentText,
+	getOutermostChainAndTypeScriptExpression,
 	hasOptionalChainElement,
 	isBoolean,
-	isBooleanExpression,
-	isControlFlowTest,
+	isBooleanContext,
 	isMap,
 	isSet,
 	isString,
 	isWeakMap,
 	isWeakSet,
+	unwrapChainAndTypeScriptExpression,
 	wouldRemoveComments,
 } from './utils/index.js';
 
@@ -23,37 +24,8 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Use `Object.hasOwn()`.',
 };
 
-const transparentExpressionTypes = new Set([
-	'ChainExpression',
-	'TSAsExpression',
-	'TSSatisfiesExpression',
-	'TSTypeAssertion',
-	'TSNonNullExpression',
-]);
-
-function unwrapTransparentExpression(node) {
-	while (
-		transparentExpressionTypes.has(node.type)
-	) {
-		node = node.expression;
-	}
-
-	return node;
-}
-
-function getTransparentExpressionAncestor(node) {
-	while (
-		transparentExpressionTypes.has(node.parent?.type)
-		&& node.parent.expression === node
-	) {
-		node = node.parent;
-	}
-
-	return node;
-}
-
 function isStaticPropertyKey(node) {
-	node = unwrapTransparentExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	return node.type === 'Literal'
 		|| node.type === 'PrivateIdentifier'
@@ -70,21 +42,15 @@ function isStaticPropertyKey(node) {
 }
 
 function isUsedAsExistenceCheck(node, context) {
-	node = getTransparentExpressionAncestor(node);
-	return isBooleanExpression(node, context) || isControlFlowTest(node);
+	return isBooleanContext(getOutermostChainAndTypeScriptExpression(node), context);
 }
 
 function isSimpleInSuggestionOperand(node) {
 	return node.type === 'Identifier' || node.type === 'ThisExpression';
 }
 
-function getExpressionText(node, context) {
-	const text = getParenthesizedText(node, context);
-	return node.type === 'SequenceExpression' ? `(${text})` : text;
-}
-
 function getObjectHasOwnText(object, property, context) {
-	return `Object.hasOwn(${getExpressionText(object, context)}, ${getExpressionText(property, context)})`;
+	return `Object.hasOwn(${getCallArgumentText(object, context)}, ${getCallArgumentText(property, context)})`;
 }
 
 function hasLeadingComments(node, context) {
@@ -96,7 +62,7 @@ function getSuggestion(node, object, property, context) {
 		object.type === 'Super'
 		|| object.type === 'ChainExpression'
 		|| property.type === 'ChainExpression'
-		|| getTransparentExpressionAncestor(node) !== node
+		|| getOutermostChainAndTypeScriptExpression(node) !== node
 		|| hasOptionalChainElement(node)
 		|| hasOptionalChainElement(object)
 		|| hasOptionalChainElement(property)

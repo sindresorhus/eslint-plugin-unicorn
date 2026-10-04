@@ -554,6 +554,20 @@ Message:
 
 `;
 
+exports[`no-using-resource-escape > invalid(27): function f() { using resource = acquire(); const read = <T>() => resource.read(); return read<Resource>; } 1`] = `
+
+  1 | function f() { using resource = acquire(); const read = <T>() => resource.read(); return read<Resource>; }
+
+`;
+
+exports[`no-using-resource-escape > invalid(27): function f() { using resource = acquire(); const read = <T>() => resource.read(); return read<Resource>; } 2`] = `
+
+Message:
+> 1 | function f() { using resource = acquire(); const read = <T>() => resource.read(); return read<Resource>; }
+    |                                                                                   ^^^^^^^^^^^^^^^^^^^^^^ Do not return resource \`resource\` or a value that contains or captures it. The resource is disposed when its owning scope exits.
+
+`;
+
 exports[`no-using-resource-escape > invalid(27): function f() { using resource = acquire(); return () => { const value = resource.read(); return resource.read() + value; }; } 1`] = `
 
   1 | function f() { using resource = acquire(); return () => { const value = resource.read(); return resource.read() + value; }; }

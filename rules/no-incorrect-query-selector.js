@@ -1,8 +1,8 @@
-import {findVariable} from '@eslint-community/eslint-utils';
 import {removeMemberExpressionProperty, removeMethodCall} from './fix/index.js';
 import {
 	controlFlowStatementTypes,
 	getCommentSafeProblem,
+	getConstVariableInitializer,
 	hasNonDirectiveComment,
 	getBooleanAncestor,
 	getParenthesizedRange,
@@ -76,13 +76,6 @@ const isFirstQuerySelectorAllItemCall = node => isFirstItemCall(node, isQuerySel
 
 const isFirstQuerySelectorAllElementAccess = node => isQuerySelectorAllZeroIndexAccess(node) || isFirstQuerySelectorAllItemCall(node);
 
-const isWriteTarget = node =>
-	isLeftHandSide(node)
-	|| (
-		(node.parent.type === 'ForInStatement' || node.parent.type === 'ForOfStatement')
-		&& node.parent.left === node
-	);
-
 const isQuerySelectorAllCallPartOfFirstElementAccess = node =>
 	isFirstQuerySelectorAllElementAccess(node.parent)
 	|| (
@@ -101,31 +94,13 @@ const getAccessRange = (node, querySelectorAllCall, context) => {
 
 const isSimpleIdSelector = selector => /^#[\-A-Z_a-z][\w\-]*$/v.test(selector);
 
-const getCallFromIdentifier = (node, sourceCode, isCall) => {
-	if (node.type !== 'Identifier') {
-		return;
-	}
-
-	const variable = findVariable(sourceCode.getScope(node), node);
-	if (!variable || variable.defs.length !== 1) {
-		return;
-	}
-
-	const [definition] = variable.defs;
-	if (
-		definition.type !== 'Variable'
-		|| definition.parent.kind !== 'const'
-		|| definition.node.id !== definition.name
-		|| !isCall(definition.node.init)
-	) {
-		return;
-	}
-
-	return definition.node.init;
+const getCallFromIdentifier = (node, context, isCall) => {
+	const initializer = getConstVariableInitializer(node, context);
+	return isCall(initializer) ? initializer : undefined;
 };
 
-const getQuerySelectorAllCallForLengthCheck = (node, sourceCode) =>
-	isQuerySelectorAllCall(node) ? node : getCallFromIdentifier(node, sourceCode, isQuerySelectorAllCall);
+const getQuerySelectorAllCallForLengthCheck = (node, context) =>
+	isQuerySelectorAllCall(node) ? node : getCallFromIdentifier(node, context, isQuerySelectorAllCall);
 
 // Parent types from which `getBooleanAncestor` can climb or `isControlFlowTest` can be true. Any other parent means the identifier is not a control-flow test.
 const controlFlowTestParentTypes = new Set([
@@ -151,7 +126,7 @@ const getLengthCheckProblem = (node, context) => {
 		return;
 	}
 
-	const querySelectorAllCall = getQuerySelectorAllCallForLengthCheck(node, sourceCode);
+	const querySelectorAllCall = getQuerySelectorAllCallForLengthCheck(node, context);
 	if (!querySelectorAllCall) {
 		return;
 	}
@@ -188,7 +163,7 @@ const isNullishNode = (node, sourceCode) =>
 		&& sourceCode.isGlobalReference(node)
 	);
 
-const getQuerySelectorComparison = (node, isCall, sourceCode) => {
+const getQuerySelectorComparison = (node, isCall, context) => {
 	const {left, operator, right} = node;
 
 	if (!['==', '===', '!=', '!=='].includes(operator)) {
@@ -197,24 +172,23 @@ const getQuerySelectorComparison = (node, isCall, sourceCode) => {
 
 	const leftCall = isCall(left)
 		? left
-		: getCallFromIdentifier(left, sourceCode, isCall);
+		: getCallFromIdentifier(left, context, isCall);
 
-	if (leftCall && isNullishNode(right, sourceCode)) {
+	if (leftCall && isNullishNode(right, context.sourceCode)) {
 		return {node: left, value: right};
 	}
 
 	const rightCall = isCall(right)
 		? right
-		: getCallFromIdentifier(right, sourceCode, isCall);
+		: getCallFromIdentifier(right, context, isCall);
 
-	if (rightCall && isNullishNode(left, sourceCode)) {
+	if (rightCall && isNullishNode(left, context.sourceCode)) {
 		return {node: right, value: left};
 	}
 };
 
 const getQuerySelectorAllNullishComparisonProblem = (node, context) => {
-	const {sourceCode} = context;
-	const comparison = getQuerySelectorComparison(node, isQuerySelectorAllCall, sourceCode);
+	const comparison = getQuerySelectorComparison(node, isQuerySelectorAllCall, context);
 	if (!comparison) {
 		return;
 	}
@@ -225,8 +199,8 @@ const getQuerySelectorAllNullishComparisonProblem = (node, context) => {
 	};
 };
 
-const getQuerySelectorUndefinedComparisonProblem = (node, sourceCode) => {
-	const comparison = getQuerySelectorComparison(node, isQuerySelectorCall, sourceCode);
+const getQuerySelectorUndefinedComparisonProblem = (node, context) => {
+	const comparison = getQuerySelectorComparison(node, isQuerySelectorCall, context);
 	if (
 		!comparison
 		|| (node.operator !== '===' && node.operator !== '!==')
@@ -245,12 +219,10 @@ const getQuerySelectorUndefinedComparisonProblem = (node, sourceCode) => {
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	const {sourceCode} = context;
-
 	context.on('MemberExpression', node => {
 		if (
 			!isQuerySelectorAllZeroIndexAccess(node)
-			|| isWriteTarget(node)
+			|| isLeftHandSide(node)
 		) {
 			return;
 		}
@@ -266,7 +238,7 @@ const create = context => {
 
 	context.on('CallExpression', node => {
 		if (isFirstQuerySelectorAllItemCall(node)) {
-			if (isWriteTarget(node)) {
+			if (isLeftHandSide(node)) {
 				return;
 			}
 
@@ -302,7 +274,7 @@ const create = context => {
 
 	context.on('BinaryExpression', node =>
 		getQuerySelectorAllNullishComparisonProblem(node, context)
-		?? getQuerySelectorUndefinedComparisonProblem(node, sourceCode));
+		?? getQuerySelectorUndefinedComparisonProblem(node, context));
 
 	context.on('Identifier', node => getLengthCheckProblem(node, context));
 };

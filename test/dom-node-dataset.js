@@ -235,6 +235,8 @@ test.snapshot({
 		'element.dataset["foo-bar"];',
 		'element.dataset["foo-bar"] = "baz";',
 		'delete element.dataset["foo-bar"];',
+		'element.dataset[`foo-bar`];',
+		'element.dataset[`${foo}`];', // eslint-disable-line no-template-curly-in-string
 		'"foo-bar" in element.dataset',
 		'Object.hasOwn(element.dataset, "foo-bar")',
 		'element.dataset.hasOwnProperty("foo-bar")',
@@ -278,6 +280,8 @@ test.snapshot({
 		'element.dataset.hasOwnProperty("foo bar")',
 		'const {" foo": x} = element.dataset;',
 		{code: 'interface Item {dataset: Record<string, string>} declare const item: Item; const {foo} = item.dataset;', languageOptions: {parser: parsers.typescript}},
+		// A computed key with side effects is not treated as a static key, since the fix would drop them
+		'element.dataset[(sideEffect(), "fooBar")] = 1;',
 	].map(code => ({options: [{preferAttributes: true}], ...(typeof code === 'string' ? {code} : code)})),
 	invalid: [
 		'element.dataset.unicorn;',
@@ -349,7 +353,7 @@ test.snapshot({
 		'const data = element.dataset; foo(data.foo());',
 		'const data = element.dataset; foo(data.foo`tagged`);',
 		'const data = element.dataset; foo(data["foo-bar"]);',
-		'const data = element.dataset; foo(data[`fooBar`]);',
+		'const data = element.dataset; foo(data[`${key}`]);', // eslint-disable-line no-template-curly-in-string
 		'const data = element.dataset; foo(data[variable]);',
 		'const data = element.dataset; foo(data.toString);',
 		'const data = element.dataset; foo(data?.foo);',
@@ -384,6 +388,13 @@ test.snapshot({
 		// A type-asserted element is not a plain identifier, so report without fix
 		{code: 'const data = (element as HTMLElement).dataset; foo(data.fooBar);', languageOptions: {parser: parsers.typescript}},
 		{code: 'element!.dataset.unicorn;', languageOptions: {parser: parsers.typescript}},
+		// Static non-literal keys
+		'element.dataset[`unicorn`];',
+		'element.dataset[`unicorn`] = "🦄";',
+		'delete element.dataset[`unicorn`];',
+		'element.dataset["foo" + "Bar"];',
+		'element.dataset[0];',
+		'const data = element.dataset; foo(data[`fooBar`]);',
 	].map(code => ({options: [{preferAttributes: true}], ...(typeof code === 'string' ? {code} : code)})),
 });
 

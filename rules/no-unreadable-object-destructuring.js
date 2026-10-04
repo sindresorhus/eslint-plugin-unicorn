@@ -4,7 +4,7 @@ import {
 	hasSideEffectfulConstInitializer,
 	hasPotentiallyMutableMemberAccess,
 	isGlobalIdentifier,
-	isTypeScriptExpressionWrapper,
+	getParentPattern,
 } from './utils/index.js';
 
 const MESSAGE_ID_COMPUTED_KEY = 'computed-key';
@@ -38,46 +38,6 @@ const isKnownStaticGlobalExpression = (node, context) => {
 
 	return staticGlobalProperties.get(property.object.name)?.has(property.property.name) ?? false;
 };
-
-function getParentPattern(node) {
-	const {parent} = node;
-
-	if (
-		isTypeScriptExpressionWrapper(parent)
-		&& parent.expression === node
-	) {
-		return getParentPattern(parent);
-	}
-
-	if (
-		parent.type === 'AssignmentPattern'
-		&& parent.left === node
-	) {
-		return getParentPattern(parent);
-	}
-
-	if (
-		parent.type === 'RestElement'
-		&& parent.argument === node
-	) {
-		return getParentPattern(parent);
-	}
-
-	if (
-		parent.type === 'Property'
-		&& parent.value === node
-		&& parent.parent.type === 'ObjectPattern'
-	) {
-		return parent.parent;
-	}
-
-	if (
-		parent.type === 'ObjectPattern'
-		|| parent.type === 'ArrayPattern'
-	) {
-		return parent;
-	}
-}
 
 function getObjectPatternDepth(node) {
 	let depth = 0;

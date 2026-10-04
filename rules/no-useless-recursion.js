@@ -1,19 +1,11 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {isFunction} from './ast/index.js';
+import {getEnclosingFunction} from './utils/index.js';
 
 const MESSAGE_ID = 'no-useless-recursion';
 const messages = {
 	[MESSAGE_ID]: 'Use a loop instead of this recursive function call.',
 };
 const usingDeclarationKinds = new Set(['using', 'await using']);
-
-const getFunctionNode = node => {
-	for (; node; node = node.parent) {
-		if (isFunction(node)) {
-			return node;
-		}
-	}
-};
 
 const isSelfReference = (identifier, functionNode, sourceCode) => {
 	const variable = findVariable(sourceCode.getScope(identifier), identifier);
@@ -72,7 +64,7 @@ const isUselessRecursion = (returnStatement, sourceCode) => {
 		return false;
 	}
 
-	const functionNode = getFunctionNode(returnStatement);
+	const functionNode = getEnclosingFunction(returnStatement);
 	return Boolean(
 		functionNode?.id
 		&& !functionNode.generator

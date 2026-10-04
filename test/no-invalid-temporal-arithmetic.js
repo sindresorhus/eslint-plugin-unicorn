@@ -56,6 +56,7 @@ ruleTest.snapshot({
 		'let value = Temporal.Now.instant(); value = unknown; value.add({days: 1})',
 		'const value = Temporal.Now.instant().add({hours: 1}); value.add({days: 1})',
 		'const constructor = Temporal.Instant; new constructor().add({days: 1})',
+		`const {value} = "P1D"; ${instant}.add(value)`,
 		...['P', 'P1DT', 'p1d', 'PT1.5H', 'P9007199254740992D'].map(value => `${instant}.add("${value}")`),
 		'Temporal.Duration.from({days: 1}).total("hours")',
 		'Temporal.Duration.from({months: 1}).total({unit: "day", relativeTo: "2024-01-01"})',

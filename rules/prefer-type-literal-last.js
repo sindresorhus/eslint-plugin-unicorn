@@ -1,4 +1,4 @@
-import {getParenthesizedRange, getParenthesizedText} from './utils/index.js';
+import {getParenthesizedRange, getParenthesizedText, wouldRemoveComments} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-type-literal-last';
 const messages = {
@@ -41,15 +41,7 @@ const hasUnsafeComment = (node, context) => {
 	const regionEnd = tokenAfter ? sourceCode.getRange(tokenAfter)[0] : sourceCode.text.length;
 	const typeRanges = node.types.map(type => getParenthesizedRange(type, context));
 
-	return sourceCode.getAllComments().some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-
-		if (commentStart < regionStart || commentEnd > regionEnd) {
-			return false;
-		}
-
-		return typeRanges.every(([typeStart, typeEnd]) => commentStart < typeStart || commentEnd > typeEnd);
-	});
+	return wouldRemoveComments(context, [regionStart, regionEnd], typeRanges);
 };
 
 /**

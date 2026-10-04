@@ -1,14 +1,13 @@
 import {
+	containsNode,
 	getCommentSafeProblem,
-	getParenthesizedText,
+	getLogicalExpressionChildText,
 	getPreviousNode,
 	hasNonDirectiveComment,
 	isParenthesized,
 	isProcessExitCall,
 	isTypeScriptExpressionWrapper,
-	shouldAddParenthesesToLogicalExpressionChild,
 	unwrapTypeScriptExpression,
-	getVisitorChildNodes,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-combined-guards';
@@ -84,15 +83,9 @@ const getExitText = (node, sourceCode) => {
 	return value ? sourceCode.getText(value) : '';
 };
 
-function containsTaggedTemplate(node, visitorKeys) {
-	if (node.type === 'TaggedTemplateExpression') {
-		return true;
-	}
+const containsTaggedTemplate = (node, context) => containsNode(node, context, childNode => childNode.type === 'TaggedTemplateExpression');
 
-	return getVisitorChildNodes(node, visitorKeys).some(childNode => containsTaggedTemplate(childNode, visitorKeys));
-}
-
-const isExitUnsafeToCombine = (node, sourceCode) => {
+const isExitUnsafeToCombine = (node, context) => {
 	const expression = node.type === 'ExpressionStatement'
 		? node.expression.arguments[0]
 		: node.argument;
@@ -101,19 +94,19 @@ const isExitUnsafeToCombine = (node, sourceCode) => {
 		expression
 		&& (
 			(
-				sourceCode.parserServices?.esTreeNodeToTSNodeMap
+				context.sourceCode.parserServices?.esTreeNodeToTSNodeMap
 				&& expression.type !== 'Literal'
 			)
-			|| containsTaggedTemplate(expression, sourceCode.visitorKeys)
+			|| containsTaggedTemplate(expression, context)
 		),
 	);
 };
 
-const canCombineBodies = (previousStatements, statements, sourceCode) =>
+const canCombineBodies = (previousStatements, statements, context) =>
 	previousStatements.length === statements.length
 	&& statements.slice(0, -1).every((statement, index) =>
-		sourceCode.getText(statement) === sourceCode.getText(previousStatements[index])
-		&& !containsTaggedTemplate(statement, sourceCode.visitorKeys));
+		context.sourceCode.getText(statement) === context.sourceCode.getText(previousStatements[index])
+		&& !containsTaggedTemplate(statement, context));
 
 // Node types that TypeScript can narrow.
 const referenceTypes = new Set([
@@ -161,15 +154,14 @@ function isNarrowingPreserved(previousStatements, statements, sourceCode) {
 }
 
 function getConditionText(node, property, context) {
-	if (isParenthesized(node, context)) {
-		return getParenthesizedText(node, context);
+	if (
+		isTypeScriptExpressionWrapper(node)
+		&& !isParenthesized(node, context)
+	) {
+		return `(${context.sourceCode.getText(node)})`;
 	}
 
-	const text = context.sourceCode.getText(node);
-	return isTypeScriptExpressionWrapper(node)
-		|| shouldAddParenthesesToLogicalExpressionChild(node, {operator: '||', property})
-		? `(${text})`
-		: text;
+	return getLogicalExpressionChildText(node, context, {operator: '||', property});
 }
 
 /**
@@ -197,8 +189,8 @@ const create = context => {
 			previousExit.type !== exit.type
 			// Preserve significant whitespace, including ASI inside returned functions.
 			|| getExitText(previousExit, sourceCode) !== getExitText(exit, sourceCode)
-			|| isExitUnsafeToCombine(exit, sourceCode)
-			|| !canCombineBodies(previousStatements, statements, sourceCode)
+			|| isExitUnsafeToCombine(exit, context)
+			|| !canCombineBodies(previousStatements, statements, context)
 			|| (!checkCompoundConditions && (!isSimpleCondition(previousNode.test) || !isSimpleCondition(node.test)))
 		) {
 			return;

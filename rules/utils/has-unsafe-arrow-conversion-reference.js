@@ -1,3 +1,4 @@
+import isDirectEvalCall from '../ast/is-direct-eval-call.js';
 import getVisitorChildNodes from './get-visitor-child-nodes.js';
 
 const isNewTarget = node =>
@@ -8,11 +9,6 @@ const isNewTarget = node =>
 const isArgumentsIdentifier = node =>
 	node.type === 'Identifier'
 	&& node.name === 'arguments';
-
-const isDirectEvalCall = node =>
-	node.type === 'CallExpression'
-	&& node.callee.type === 'Identifier'
-	&& node.callee.name === 'eval';
 
 const isUnsafeArrowConversionNode = node =>
 	node.type === 'ThisExpression'

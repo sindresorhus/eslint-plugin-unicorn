@@ -1,9 +1,9 @@
 import {checkVueTemplate} from './utils/rule.js';
 import {
-	isBooleanExpression,
-	isControlFlowTest,
+	isBooleanContext,
 	getParenthesizedRange,
 	hasCommentInRange,
+	hasTypeArguments,
 	isArray,
 	isKnownNonIndexedCollection,
 	isNodeValueNotFunction,
@@ -86,7 +86,7 @@ function isFindResultVariableUsedOnlyAsBoolean(callExpression, context) {
 	return references.every(reference => {
 		const {identifier} = reference;
 
-		return reference.isRead() && (isBooleanExpression(identifier, context) || isControlFlowTest(identifier));
+		return reference.isRead() && isBooleanContext(identifier, context);
 	});
 }
 
@@ -107,7 +107,7 @@ const create = context => {
 			return;
 		}
 
-		if (callExpression.typeArguments || callExpression.typeParameters) {
+		if (hasTypeArguments(callExpression)) {
 			return;
 		}
 
@@ -119,8 +119,7 @@ const create = context => {
 		if (
 			!isCompare
 			&& !(
-				isBooleanExpression(callExpression, context)
-				|| isControlFlowTest(callExpression)
+				isBooleanContext(callExpression, context)
 				|| isFindResultVariableUsedOnlyAsBoolean(callExpression, context)
 			)
 		) {

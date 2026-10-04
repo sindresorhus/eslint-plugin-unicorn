@@ -1,15 +1,11 @@
-import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
+import {getPropertyName} from '@eslint-community/eslint-utils';
 import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
 import {
-	isCallExpression,
 	isStringLiteral,
 	isRegexLiteral,
 	isMethodCall,
-	isMemberExpression,
-	isNewExpression,
 } from './ast/index.js';
 import {
-	isGlobalIdentifier,
 	isString,
 	isTypeScriptExpressionWrapper,
 	unwrapTypeScriptExpression,
@@ -21,7 +17,7 @@ import {
 	target,
 } from './utils/type-helpers.js';
 import {removeArgument, removeMethodCall} from './fix/index.js';
-import typedArrayTypes from './shared/typed-array.js';
+import {bufferTypeCheckerOptions, isBufferReference} from './shared/buffer-reference.js';
 
 const MESSAGE_ID_OPTIONS = 'prefer-uint8array-base64/options';
 const MESSAGE_ID_ERROR = 'prefer-uint8array-base64/error';
@@ -33,25 +29,7 @@ const messages = {
 };
 
 const base64Encodings = new Set(['base64', 'base64url']);
-const bufferImportSources = new Set(['buffer', 'node:buffer']);
-const globalObjectNames = new Set(['globalThis', 'window', 'self', 'global']);
 const transparentExpressionTypes = new Set(['AwaitExpression', 'ChainExpression', 'ParenthesizedExpression']);
-const arrayBufferTypes = ['ArrayBuffer', 'SharedArrayBuffer', 'DataView'];
-const nonBufferExpressionTypes = new Set([
-	'ArrayExpression',
-	'ArrowFunctionExpression',
-	'BinaryExpression',
-	'ClassExpression',
-	'FunctionExpression',
-	'Literal',
-	'NewExpression',
-	'ObjectExpression',
-	'TemplateLiteral',
-	'UnaryExpression',
-	'UpdateExpression',
-]);
-const constructorNames = ['Array', ...arrayBufferTypes, ...typedArrayTypes];
-const bufferTypeImports = new Map([...bufferImportSources].map(source => [source, new Set(['Buffer'])]));
 
 const getBase64Encoding = node => {
 	if (!isStringLiteral(node)) {
@@ -61,29 +39,6 @@ const getBase64Encoding = node => {
 	const encoding = node.value.toLowerCase();
 	return base64Encodings.has(encoding) ? encoding : undefined;
 };
-
-function getBufferImportSpecifier(identifier, context) {
-	if (identifier.type !== 'Identifier') {
-		return;
-	}
-
-	const variable = findVariable(context.sourceCode.getScope(identifier), identifier);
-	const [definition] = variable?.defs ?? [];
-	if (
-		variable?.defs.length !== 1
-		|| definition.type !== 'ImportBinding'
-		|| definition.parent.type !== 'ImportDeclaration'
-		|| !bufferImportSources.has(definition.parent.source.value)
-	) {
-		return;
-	}
-
-	return definition.node;
-}
-
-const isBufferModuleObjectImport = specifier =>
-	specifier?.type === 'ImportNamespaceSpecifier'
-	|| specifier?.type === 'ImportDefaultSpecifier';
 
 function unwrapTransparentExpression(node) {
 	node = unwrapTypeScriptExpression(node);
@@ -198,70 +153,17 @@ function isChainedExpression(node) {
 	return expression.parent.type === 'MemberExpression' && expression.parent.object === expression;
 }
 
-// Whether `node` refers to the `Buffer` constructor, as a global, `globalThis.Buffer`, or an import.
-function isBufferReference(node, context) {
-	const reference = unwrapTypeScriptExpression(node);
-	if (isMemberExpression(reference, {property: 'Buffer', computed: false})) {
-		const object = unwrapTypeScriptExpression(reference.object);
-		const specifier = getBufferImportSpecifier(object, context);
-		return (globalObjectNames.has(object.name) && isGlobalIdentifier(object, context))
-			|| isBufferModuleObjectImport(specifier);
-	}
-
-	if (reference.type !== 'Identifier') {
-		return false;
-	}
-
-	const specifier = getBufferImportSpecifier(reference, context);
-	return (reference.name === 'Buffer' && isGlobalIdentifier(reference, context))
-		|| (specifier?.type === 'ImportSpecifier' && specifier.imported.name === 'Buffer');
-}
-
-const isConstructorReference = (node, context) => isBufferReference(node, context)
-	|| (node.type === 'Identifier' && constructorNames.includes(node.name))
-	|| (
-		isMemberExpression(node, {properties: constructorNames, computed: false, optional: false})
-		&& globalObjectNames.has(node.object.name)
-		&& isGlobalIdentifier(node.object, context)
-	);
-
-const isBufferFactory = (node, context) =>
-	isMethodCall(node, {
-		methods: ['from', 'of', 'alloc', 'allocUnsafe', 'allocUnsafeSlow', 'concat', 'copyBytesFrom'],
-		computed: false,
-		optionalCall: false,
-		optionalMember: false,
-	})
-	&& isBufferReference(node.callee.object, context);
-
-const isBufferExpression = (node, context) => isBufferFactory(node, context)
-	|| (
-		(isNewExpression(node) || isCallExpression(node, {optional: false}))
-		&& isBufferReference(node.callee, context)
-	);
-
-const bufferTypeCheckerOptions = {
-	allowNullishInMixedUnion: true,
-	checkClassHeritage: false,
-	getStaticType: value => value === null || value === undefined ? nullish : nonTarget,
-	preferTypeReferenceDefinitions: false,
-	treatMixedUnionAsNonTarget: true,
-	targetTypeNames: new Set(['Buffer']),
-	targetTypeImports: bufferTypeImports,
-	targetTypeNamespaceImports: bufferTypeImports,
-	nonTargetTypeNames: new Set(['Array', 'ReadonlyArray', ...arrayBufferTypes, ...typedArrayTypes]),
-	isTargetNode: isBufferExpression,
-	isNonTargetNode: (node, context) => nonBufferExpressionTypes.has(node.type)
-		|| isConstructorReference(node, context)
-		|| isCallExpression(node, {name: 'Array'})
-		|| isMethodCall(node, {objects: ['Array', ...typedArrayTypes], methods: ['from', 'of']})
-		|| isMethodCall(node, {object: 'Uint8Array', methods: ['fromHex', 'fromBase64']}),
-};
 const bufferInputTypeCheckerOverrides = {
 	isNonTargetNode: (node, context) => !(node.type === 'BinaryExpression' && node.operator === '+')
 		&& bufferTypeCheckerOptions.isNonTargetNode(node, context),
 };
-const {getType: getBufferType} = createTypeCheckers(bufferTypeCheckerOptions);
+const {getType: getBufferType} = createTypeCheckers({
+	...bufferTypeCheckerOptions,
+	allowNullishInMixedUnion: true,
+	getStaticType: value => value === null || value === undefined ? nullish : nonTarget,
+	preferTypeReferenceDefinitions: false,
+	treatMixedUnionAsNonTarget: true,
+});
 
 function getBase64Transformation(node) {
 	if (!isMethodCall(node, {

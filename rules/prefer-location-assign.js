@@ -1,6 +1,11 @@
-import {findVariable} from '@eslint-community/eslint-utils';
-import {getStaticStringValue, isMemberExpression} from './ast/index.js';
-import {getParenthesizedText, isValueNotUsable} from './utils/index.js';
+import {isIdentifierNamed, isMemberExpression} from './ast/index.js';
+import {
+	getConstVariableInitializer,
+	getParenthesizedText,
+	getStaticPropertyName,
+	isGlobalIdentifier,
+	isValueNotUsable,
+} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -14,27 +19,10 @@ const messages = {
 const hasComments = (node, sourceCode) =>
 	sourceCode.getCommentsInside(node).length > 0;
 
-const getStaticPropertyName = memberExpression => {
-	const {property} = memberExpression;
-
-	return !memberExpression.computed && property.type === 'Identifier' ? property.name : getStaticStringValue(property);
-};
-
-const isIdentifierNamed = (node, name) =>
-	node.type === 'Identifier' && node.name === name;
-
-const getVariable = (identifier, sourceCode) =>
-	findVariable(sourceCode.getScope(identifier), identifier);
-
-const isUnshadowedGlobalIdentifier = (identifier, sourceCode) => {
-	const variable = getVariable(identifier, sourceCode);
-	return !variable || (variable.scope.type === 'global' && variable.defs.length === 0);
-};
-
-const isDirectLocationObject = (node, sourceCode) =>
+const isDirectLocationObject = (node, context) =>
 	(
 		isIdentifierNamed(node, 'location')
-		&& isUnshadowedGlobalIdentifier(node, sourceCode)
+		&& isGlobalIdentifier(node, context)
 	)
 	|| (
 		isMemberExpression(node, {
@@ -45,38 +33,22 @@ const isDirectLocationObject = (node, sourceCode) =>
 			property: 'location',
 			computed: false,
 		})
-		&& isUnshadowedGlobalIdentifier(node.object, sourceCode)
+		&& isGlobalIdentifier(node.object, context)
 	);
 
-const getConstantInitializer = (node, sourceCode) => {
-	if (node.type !== 'Identifier') {
-		return;
-	}
-
-	const definition = getVariable(node, sourceCode)?.defs[0];
-	if (
-		definition?.type !== 'Variable'
-		|| definition.parent.kind !== 'const'
-	) {
-		return;
-	}
-
-	return definition.node.init;
+const isConstantLocationAlias = (node, context) => {
+	const initializer = getConstVariableInitializer(node, context);
+	return initializer && isDirectLocationObject(initializer, context);
 };
 
-const isConstantLocationAlias = (node, sourceCode) => {
-	const initializer = getConstantInitializer(node, sourceCode);
-	return initializer && isDirectLocationObject(initializer, sourceCode);
-};
+const isLocationObject = (node, context) =>
+	isDirectLocationObject(node, context)
+	|| isConstantLocationAlias(node, context);
 
-const isLocationObject = (node, sourceCode) =>
-	isDirectLocationObject(node, sourceCode)
-	|| isConstantLocationAlias(node, sourceCode);
-
-const isLocationHref = (node, sourceCode) =>
+const isLocationHref = (node, context) =>
 	node.type === 'MemberExpression'
-	&& getStaticPropertyName(node) === 'href'
-	&& isLocationObject(node.object, sourceCode);
+	&& getStaticPropertyName(node, context) === 'href'
+	&& isLocationObject(node.object, context);
 
 const getProblem = (node, context) => {
 	const {sourceCode} = context;
@@ -92,7 +64,7 @@ const getProblem = (node, context) => {
 	if (
 		assignmentExpression.operator !== '='
 		|| !isValueNotUsable(assignmentExpression)
-		|| !isDirectLocationObject(node.object, sourceCode)
+		|| !isDirectLocationObject(node.object, context)
 		|| hasComments(commentsNode, sourceCode)
 	) {
 		return problem;
@@ -113,7 +85,7 @@ const create = context => {
 	context.on('AssignmentExpression', assignmentExpression => {
 		if (
 			assignmentExpression.left.type !== 'MemberExpression'
-			|| !isLocationHref(assignmentExpression.left, context.sourceCode)
+			|| !isLocationHref(assignmentExpression.left, context)
 		) {
 			return;
 		}
