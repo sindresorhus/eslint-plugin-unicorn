@@ -23,7 +23,7 @@ Message:
 > 5 |  * @returns {number} The sum of the two numbers.
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 > 6 |  */
-    | ^^^ Remove the asterisk prefix from this comment.
+    | ^^^ Remove asterisk prefixes and shared indentation from this comment.
 
 Output:
   1 | /**
@@ -57,7 +57,7 @@ Message:
 > 4 |  * Hide "+ 123 contributors" link
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 > 5 |  */
-    | ^^^ Remove the asterisk prefix from this comment.
+    | ^^^ Remove asterisk prefixes and shared indentation from this comment.
 
 Output:
   1 | /*
@@ -88,7 +88,7 @@ Message:
 > 3 | 	 * JSONC description.
     | ^^^^^^^^^^^^^^^^^^^^^^
 > 4 | 	 */
-    | ^^^^ Remove the asterisk prefix from this comment.
+    | ^^^^ Remove asterisk prefixes and shared indentation from this comment.
   5 | 	"value": true
   6 | }
 
@@ -122,7 +122,7 @@ Message:
 > 3 | 	 * Description.
     | ^^^^^^^^^^^^^^^^
 > 4 | 	 */
-    | ^^^^ Remove the asterisk prefix from this comment.
+    | ^^^^ Remove asterisk prefixes and shared indentation from this comment.
   5 | 	color: red;
   6 | }
 
@@ -161,7 +161,7 @@ Message:
 > 5 | 	 * @returns {boolean} Whether it passed.
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 > 6 | 	 */
-    | ^^^^ Remove the asterisk prefix from this comment.
+    | ^^^^ Remove asterisk prefixes and shared indentation from this comment.
   7 | }
 
 Output:
@@ -195,7 +195,7 @@ Message:
 > 3 | 	 * JSON5 description.
     | ^^^^^^^^^^^^^^^^^^^^^^
 > 4 | 	 */
-    | ^^^^ Remove the asterisk prefix from this comment.
+    | ^^^^ Remove asterisk prefixes and shared indentation from this comment.
   5 | 	value: true
   6 | }
 
@@ -225,7 +225,7 @@ Message:
 > 2 |  *
     | ^^
 > 3 |  */
-    | ^^^ Remove the asterisk prefix from this comment.
+    | ^^^ Remove asterisk prefixes and shared indentation from this comment.
 
 Output:
   1 | /**
@@ -250,7 +250,7 @@ Message:
 > 2 |  * @param {string} value
     | ^^^^^^^^^^^^^^^^^^^^^^^^
 > 3 |  */
-    | ^^^ Remove the asterisk prefix from this comment.
+    | ^^^ Remove asterisk prefixes and shared indentation from this comment.
 
 Output:
   1 | /**
@@ -275,7 +275,7 @@ Message:
 > 2 |  * *important*
     | ^^^^^^^^^^^^^^
 > 3 |  */
-    | ^^^ Remove the asterisk prefix from this comment.
+    | ^^^ Remove asterisk prefixes and shared indentation from this comment.
 
 Output:
   1 | /**
@@ -300,7 +300,7 @@ Message:
 > 2 | 	* Description.
     | ^^^^^^^^^^^^^^^
 > 3 | 	*/
-    | ^^^ Remove the asterisk prefix from this comment.
+    | ^^^ Remove asterisk prefixes and shared indentation from this comment.
 
 Output:
   1 | /**
