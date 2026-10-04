@@ -589,6 +589,23 @@ Message:
 
 `;
 
+exports[`prefer-private-class-fields > invalid(18): class Foo { _method() {} configure() { (this._method as Function).option = true; } } 1`] = `
+
+  1 | class Foo { _method() {} configure() { (this._method as Function).option = true; } }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(18): class Foo { _method() {} configure() { (this._method as Function).option = true; } } 2`] = `
+
+Message:
+> 1 | class Foo { _method() {} configure() { (this._method as Function).option = true; } }
+    |             ^^^^^^^ Prefer the private class field \`#method\` over the underscore-prefixed \`_method\`.
+
+Output:
+  1 | class Foo { #method() {} configure() { (this.#method as Function).option = true; } }
+
+`;
+
 exports[`prefer-private-class-fields > invalid(18): class Foo {\n\t_bar = 1;\n\tbaz() {\n\t\tlet rest;\n\t\t({...rest} = this);\n\t\treturn rest;\n\t}\n} 1`] = `
 
   1 | class Foo {
@@ -2660,6 +2677,57 @@ Output:
   13 | 		return this.#method();
   14 | 	}
   15 | }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(73): class Foo { _method() {} bound = this._method.bind(this); } 1`] = `
+
+  1 | class Foo { _method() {} bound = this._method.bind(this); }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(73): class Foo { _method() {} bound = this._method.bind(this); } 2`] = `
+
+Message:
+> 1 | class Foo { _method() {} bound = this._method.bind(this); }
+    |             ^^^^^^^ Prefer the private class field \`#method\` over the underscore-prefixed \`_method\`.
+
+Output:
+  1 | class Foo { #method() {} bound = this.#method.bind(this); }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(74): class Foo { _method() {} read(source) { const [value = this._method] = source; } } 1`] = `
+
+  1 | class Foo { _method() {} read(source) { const [value = this._method] = source; } }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(74): class Foo { _method() {} read(source) { const [value = this._method] = source; } } 2`] = `
+
+Message:
+> 1 | class Foo { _method() {} read(source) { const [value = this._method] = source; } }
+    |             ^^^^^^^ Prefer the private class field \`#method\` over the underscore-prefixed \`_method\`.
+
+Output:
+  1 | class Foo { #method() {} read(source) { const [value = this.#method] = source; } }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(75): class Foo { _method() {} read(source) { ({[this._method]: value} = source); } } 1`] = `
+
+  1 | class Foo { _method() {} read(source) { ({[this._method]: value} = source); } }
+
+`;
+
+exports[`prefer-private-class-fields > invalid(75): class Foo { _method() {} read(source) { ({[this._method]: value} = source); } } 2`] = `
+
+Message:
+> 1 | class Foo { _method() {} read(source) { ({[this._method]: value} = source); } }
+    |             ^^^^^^^ Prefer the private class field \`#method\` over the underscore-prefixed \`_method\`.
+
+Output:
+  1 | class Foo { #method() {} read(source) { ({[this.#method]: value} = source); } }
 
 `;
 

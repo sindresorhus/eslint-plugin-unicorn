@@ -45,6 +45,7 @@ test.typescript({
 	invalid: [
 		'this._method! = replacement;',
 		'(this._method as Function) = replacement;',
+		'(this._method! as Function) = replacement;',
 		'(<Function>this._method) = replacement;',
 		'(this._method satisfies Function) = replacement;',
 		'(this as Foo)._method = replacement;',
@@ -840,6 +841,13 @@ test.snapshot({
 				}
 			}
 		`,
+
+		// Binding a method without reassigning it remains fixable
+		'class Foo { _method() {} bound = this._method.bind(this); }',
+
+		// Destructuring defaults and computed keys read the method
+		'class Foo { _method() {} read(source) { const [value = this._method] = source; } }',
+		'class Foo { _method() {} read(source) { ({[this._method]: value} = source); } }',
 	],
 });
 
@@ -1026,5 +1034,8 @@ test.snapshot({
 				}
 			}
 		`,
+
+		// A TypeScript wrapper does not turn a method-property write into a method write
+		'class Foo { _method() {} configure() { (this._method as Function).option = true; } }',
 	],
 });
