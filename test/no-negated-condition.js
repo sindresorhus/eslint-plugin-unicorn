@@ -14,6 +14,7 @@ test({
 		'!a || b ? x : y',
 		'!a && (!b || !c) ? x : y',
 		'!a || (!b && !c) ? x : y',
+		'!a && !b || !c ? x : y',
 		'!a ?? !b ? x : y',
 		'if (!a && !b) {x();}',
 		'if (!a || !b) {x();} else if (c) {y();}',
@@ -53,6 +54,7 @@ test({
 		'(!a as boolean) && !b ? x : y',
 		'(!a && !b) satisfies boolean ? x : y',
 		'(!a)! || !b ? x : y',
+		'!a && (<boolean>!b) ? x : y',
 	].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
 	invalid: [
 		'!{} ? x : y',
@@ -158,6 +160,12 @@ test({
 		{
 			code: '!(a as boolean) && !b! ? x : y',
 			output: '(a as boolean) || b! ? y : x',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'no-negated-condition'}],
+		},
+		{
+			code: 'foo()\n!<boolean>a && !b ? x : y',
+			output: 'foo()\n;<boolean>a || b ? y : x',
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: 'no-negated-condition'}],
 		},
