@@ -1,8 +1,9 @@
 import {findVariable, isCommaToken} from '@eslint-community/eslint-utils';
 import reservedIdentifiers from 'reserved-identifiers';
-import {isDirectEvalCall, isFunction, isInTypeQuery} from './ast/index.js';
+import {isInTypeQuery} from './ast/index.js';
 import {getArgumentRemovalRange, removeObjectProperty, replaceReferenceIdentifier} from './fix/index.js';
 import {
+	trackLocalFunctionCalls,
 	getIndentUnit,
 	getLinebreak,
 	getLineIndent,
@@ -116,13 +117,7 @@ const isSameValue = (first, second) => first?.kind === second?.kind && (
 	first.kind === 'binding' ? first.variable === second.variable : Object.is(first.value, second.value)
 );
 
-function getCall(node) {
-	node = getOutermostTypeScriptExpression(node);
-	const {parent} = node;
-	if ((parent.type === 'CallExpression' || parent.type === 'NewExpression') && parent.callee === node) {
-		return parent;
-	}
-}
+
 
 function getPropertyName(property) {
 	if (property.type !== 'Property') {
@@ -505,162 +500,20 @@ function getFix(parameter, result, target, context) {
 	};
 }
 
-function getFunctionFromDefinition(definition) {
-	if (definition.type === 'FunctionName') {
-		return definition.node;
-	}
-
-	if (definition.type === 'Variable' && definition.node.id.type === 'Identifier') {
-		const initializer = unwrapTypeScriptExpression(definition.node.init);
-		if (initializer && isFunction(initializer)) {
-			return initializer;
-		}
-
-		if (initializer?.type === 'ClassExpression' && !initializer.decorators?.length) {
-			return initializer.body.body.find(member => member.type === 'MethodDefinition' && member.kind === 'constructor')?.value;
-		}
-	}
-
-	if (definition.type === 'ClassName') {
-		return definition.node.body.body.find(member => member.type === 'MethodDefinition' && member.kind === 'constructor')?.value;
-	}
-}
-
-function isExportedDefinition(definition) {
-	let {node} = definition;
-	if (node.type === 'VariableDeclarator') {
-		node = node.parent;
-	}
-
-	return node.parent?.type === 'ExportNamedDeclaration' || node.parent?.type === 'ExportDefaultDeclaration';
-}
-
-function getPrivateMethodFunction(member) {
-	for (let ancestor = member.parent; ancestor; ancestor = ancestor.parent) {
-		if (ancestor.type !== 'ClassBody') {
-			continue;
-		}
-
-		const definition = ancestor.body.find(element => element.key?.type === 'PrivateIdentifier' && element.key.name === member.property.name);
-		if (definition) {
-			return definition.type === 'MethodDefinition' && definition.kind === 'method' ? definition.value : undefined;
-		}
-	}
-}
-
-function getTarget(targets, node) {
-	if (!targets.has(node)) {
-		targets.set(node, {
-			node,
-			calls: new Set(),
-			excluded: false,
-		});
-	}
-
-	return targets.get(node);
-}
-
-function addVariableTarget(variable, scope, targets) {
-	if (variable.defs.length !== 1) {
-		return;
-	}
-
-	const [definition] = variable.defs;
-	const node = getFunctionFromDefinition(definition);
-	if (!node?.body) {
-		return;
-	}
-
-	const target = getTarget(targets, node);
-	if (scope.type === 'global' || hasWrites(variable) || isExportedDefinition(definition) || definition.node.decorators?.length || node.parent.decorators?.length) {
-		target.excluded = true;
-	}
-
-	for (const reference of variable.references) {
-		if (reference.init) {
-			continue;
-		}
-
-		if (!isRuntimeReference(reference)) {
-			continue;
-		}
-
-		const call = getCall(reference.identifier);
-		if (!call || (definition.type === 'ClassName' && call.type !== 'NewExpression')) {
-			target.excluded = true;
-		} else {
-			target.calls.add(call);
-		}
-	}
-}
-
-function getTargets(privateMembers, context) {
-	const targets = new Map();
-	for (const scope of context.sourceCode.scopeManager.scopes) {
-		for (const variable of scope.variables) {
-			addVariableTarget(variable, scope, targets);
-		}
-	}
-
-	for (const member of privateMembers) {
-		const node = getPrivateMethodFunction(member);
-		if (!node?.body) {
-			continue;
-		}
-
-		const target = getTarget(targets, node);
-		const call = getCall(member);
-		if (!call || node.parent.decorators?.length) {
-			target.excluded = true;
-		} else {
-			target.calls.add(call);
-		}
-	}
-
-	return targets;
-}
-
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
 	const {sourceCode} = context;
-	const privateMembers = [];
-	let hasDynamicScope = false;
-
-	context.on('WithStatement', () => {
-		hasDynamicScope = true;
-	});
-	context.on('FunctionDeclaration', node => {
-		const scope = sourceCode.getScope(node.parent);
-		// Non-strict block declarations can have outer aliases missing from scope references.
-		if (!scope.isStrict && scope !== scope.variableScope) {
-			hasDynamicScope = true;
-		}
-	});
-	context.on('CallExpression', node => {
-		if (isDirectEvalCall(node)) {
-			hasDynamicScope = true;
-		}
-	});
-	context.on('MemberExpression', node => {
-		if (node.property.type === 'PrivateIdentifier') {
-			privateMembers.push(node);
-		}
-	});
+	const getTargets = trackLocalFunctionCalls(context);
 
 	context.onExit('Program', function * () {
-		if (hasDynamicScope) {
-			return;
-		}
-
-		for (const target of getTargets(privateMembers, context).values()) {
+		for (const target of getTargets()) {
 			const {node} = target;
 			const scope = sourceCode.scopeManager.acquire(node, true);
 			const argumentsVariable = scope?.set.get('arguments');
 			if (
-				target.excluded
-				|| node.params.some(parameter => parameter.decorators?.length > 0)
+				node.params.some(parameter => parameter.decorators?.length > 0)
 				|| argumentsVariable?.references.length > 0
 				|| [...target.calls].filter(call => !isInside(call, node, context)).length < context.options[0].minimumCallCount
 			) {

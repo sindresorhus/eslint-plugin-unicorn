@@ -1,0 +1,475 @@
+exports[`no-repeated-call-wrappers > invalid(1): const getWords = (text: string) => text.split(\" \"); new Set<string>(getWords(first)); new Set<string>(getWords(second)); 1`] = `
+
+  1 | const getWords = (text: string) => text.split(" "); new Set<string>(getWords(first)); new Set<string>(getWords(second));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(1): const getWords = (text: string) => text.split(\" \"); new Set<string>(getWords(first)); new Set<string>(getWords(second)); 2`] = `
+
+Message:
+> 1 | const getWords = (text: string) => text.split(" "); new Set<string>(getWords(first)); new Set<string>(getWords(second));
+    |       ^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(1): const getWords = text => text.split(\" \"); new Set(getWords(first)); new Set(getWords(second)); 1`] = `
+
+  1 | const getWords = text => text.split(" "); new Set(getWords(first)); new Set(getWords(second));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(1): const getWords = text => text.split(\" \"); new Set(getWords(first)); new Set(getWords(second)); 2`] = `
+
+Message:
+> 1 | const getWords = text => text.split(" "); new Set(getWords(first)); new Set(getWords(second));
+    |       ^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(10): class Wrapper {} const getWords = text => text.split(\" \"); new Wrapper(getWords(first)); new Wrapper(getWords(second)); 1`] = `
+
+  1 | class Wrapper {} const getWords = text => text.split(" "); new Wrapper(getWords(first)); new Wrapper(getWords(second));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(10): class Wrapper {} const getWords = text => text.split(\" \"); new Wrapper(getWords(first)); new Wrapper(getWords(second)); 2`] = `
+
+Message:
+> 1 | class Wrapper {} const getWords = text => text.split(" "); new Wrapper(getWords(first)); new Wrapper(getWords(second));
+    |                        ^^^^^^^^ Every call wraps the result of this function in \`new Wrapper()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(11): const getWords = text => text.split(\" \"); { new Set(getWords(first)); } { new Set(getWords(second)); } 1`] = `
+
+  1 | const getWords = text => text.split(" "); { new Set(getWords(first)); } { new Set(getWords(second)); }
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(11): const getWords = text => text.split(\" \"); { new Set(getWords(first)); } { new Set(getWords(second)); } 2`] = `
+
+Message:
+> 1 | const getWords = text => text.split(" "); { new Set(getWords(first)); } { new Set(getWords(second)); }
+    |       ^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(12): function outer() { const getWords = text => text.split(\" \"); new Set(getWords(first)); new Set(getWords(second)); } 1`] = `
+
+  1 | function outer() { const getWords = text => text.split(" "); new Set(getWords(first)); new Set(getWords(second)); }
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(12): function outer() { const getWords = text => text.split(\" \"); new Set(getWords(first)); new Set(getWords(second)); } 2`] = `
+
+Message:
+> 1 | function outer() { const getWords = text => text.split(" "); new Set(getWords(first)); new Set(getWords(second)); }
+    |                          ^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(13): class Words { #getWords(text) { return text; } get() { new Set(this.#getWords(first)); new Set(this.#getWords(second)); } } 1`] = `
+
+  1 | class Words { #getWords(text) { return text; } get() { new Set(this.#getWords(first)); new Set(this.#getWords(second)); } }
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(13): class Words { #getWords(text) { return text; } get() { new Set(this.#getWords(first)); new Set(this.#getWords(second)); } } 2`] = `
+
+Message:
+> 1 | class Words { #getWords(text) { return text; } get() { new Set(this.#getWords(first)); new Set(this.#getWords(second)); } }
+    |               ^^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(14): class Words { static #getWords(text) { return text; } static get() { new Set(Words.#getWords(first)); new Set(Words.#getWords(second)); } } 1`] = `
+
+  1 | class Words { static #getWords(text) { return text; } static get() { new Set(Words.#getWords(first)); new Set(Words.#getWords(second)); } }
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(14): class Words { static #getWords(text) { return text; } static get() { new Set(Words.#getWords(first)); new Set(Words.#getWords(second)); } } 2`] = `
+
+Message:
+> 1 | class Words { static #getWords(text) { return text; } static get() { new Set(Words.#getWords(first)); new Set(Words.#getWords(second)); } }
+    |                      ^^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(15): class Words { #getWords(text) { return text; } get(other) { new Set(this.#getWords(first)); new Set(other.#getWords(second)); } } 1`] = `
+
+  1 | class Words { #getWords(text) { return text; } get(other) { new Set(this.#getWords(first)); new Set(other.#getWords(second)); } }
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(15): class Words { #getWords(text) { return text; } get(other) { new Set(this.#getWords(first)); new Set(other.#getWords(second)); } } 2`] = `
+
+Message:
+> 1 | class Words { #getWords(text) { return text; } get(other) { new Set(this.#getWords(first)); new Set(other.#getWords(second)); } }
+    |               ^^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(16): class Words { #find(text) { return text; } get() { Boolean(this.#find(first)); Boolean(this.#find(second)); } } 1`] = `
+
+  1 | class Words { #find(text) { return text; } get() { Boolean(this.#find(first)); Boolean(this.#find(second)); } }
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(16): class Words { #find(text) { return text; } get() { Boolean(this.#find(first)); Boolean(this.#find(second)); } } 2`] = `
+
+Message:
+> 1 | class Words { #find(text) { return text; } get() { Boolean(this.#find(first)); Boolean(this.#find(second)); } }
+    |               ^^^^^ Every call wraps the result of this function in \`Boolean()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(17): const readCount = object => object.count; Number(readCount(first)); Number(readCount(second)); 1`] = `
+
+  1 | const readCount = object => object.count; Number(readCount(first)); Number(readCount(second));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(17): const readCount = object => object.count; Number(readCount(first)); Number(readCount(second)); 2`] = `
+
+Message:
+> 1 | const readCount = object => object.count; Number(readCount(first)); Number(readCount(second));
+    |       ^^^^^^^^^ Every call wraps the result of this function in \`Number()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(18): const readName = object => object.name; String(readName(first)); String(readName(second)); 1`] = `
+
+  1 | const readName = object => object.name; String(readName(first)); String(readName(second));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(18): const readName = object => object.name; String(readName(first)); String(readName(second)); 2`] = `
+
+Message:
+> 1 | const readName = object => object.name; String(readName(first)); String(readName(second));
+    |       ^^^^^^^^ Every call wraps the result of this function in \`String()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(19): const findItem = items => items.find(item => item.enabled); Boolean(findItem(first)); Boolean(findItem(second)); 1`] = `
+
+  1 | const findItem = items => items.find(item => item.enabled); Boolean(findItem(first)); Boolean(findItem(second));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(19): const findItem = items => items.find(item => item.enabled); Boolean(findItem(first)); Boolean(findItem(second)); 2`] = `
+
+Message:
+> 1 | const findItem = items => items.find(item => item.enabled); Boolean(findItem(first)); Boolean(findItem(second));
+    |       ^^^^^^^^ Every call wraps the result of this function in \`Boolean()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(2): const getWords = (text: string) => text.split(\" \"); type Getter = typeof getWords; new Set(getWords(first)); new Set(getWords(second)); 1`] = `
+
+  1 | const getWords = (text: string) => text.split(" "); type Getter = typeof getWords; new Set(getWords(first)); new Set(getWords(second));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(2): const getWords = (text: string) => text.split(\" \"); type Getter = typeof getWords; new Set(getWords(first)); new Set(getWords(second)); 2`] = `
+
+Message:
+> 1 | const getWords = (text: string) => text.split(" "); type Getter = typeof getWords; new Set(getWords(first)); new Set(getWords(second));
+    |       ^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(2): function getEntries(object) { return Object.entries(object); } new Map(getEntries(first)); new Map(getEntries(second)); 1`] = `
+
+  1 | function getEntries(object) { return Object.entries(object); } new Map(getEntries(first)); new Map(getEntries(second));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(2): function getEntries(object) { return Object.entries(object); } new Map(getEntries(first)); new Map(getEntries(second)); 2`] = `
+
+Message:
+> 1 | function getEntries(object) { return Object.entries(object); } new Map(getEntries(first)); new Map(getEntries(second));
+    |          ^^^^^^^^^^ Every call wraps the result of this function in \`new Map()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(20): const readCount = object => object.count; BigInt(readCount(first)); BigInt(readCount(second)); 1`] = `
+
+  1 | const readCount = object => object.count; BigInt(readCount(first)); BigInt(readCount(second));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(20): const readCount = object => object.count; BigInt(readCount(first)); BigInt(readCount(second)); 2`] = `
+
+Message:
+> 1 | const readCount = object => object.count; BigInt(readCount(first)); BigInt(readCount(second));
+    |       ^^^^^^^^^ Every call wraps the result of this function in \`BigInt()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(21): const readCount = object => object.count; Number((readCount)(first)); Number(((readCount(second)))); 1`] = `
+
+  1 | const readCount = object => object.count; Number((readCount)(first)); Number(((readCount(second))));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(21): const readCount = object => object.count; Number((readCount)(first)); Number(((readCount(second)))); 2`] = `
+
+Message:
+> 1 | const readCount = object => object.count; Number((readCount)(first)); Number(((readCount(second))));
+    |       ^^^^^^^^^ Every call wraps the result of this function in \`Number()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(22): const readCount = object => object.count; Number(readCount(/* keep */ first)); Number(/* keep */ readCount(second)); 1`] = `
+
+  1 | const readCount = object => object.count; Number(readCount(/* keep */ first)); Number(/* keep */ readCount(second));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(22): const readCount = object => object.count; Number(readCount(/* keep */ first)); Number(/* keep */ readCount(second)); 2`] = `
+
+Message:
+> 1 | const readCount = object => object.count; Number(readCount(/* keep */ first)); Number(/* keep */ readCount(second));
+    |       ^^^^^^^^^ Every call wraps the result of this function in \`Number()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(23): const getWords = text => text; const words = <>{new Set(getWords(first))}{new Set(getWords(second))}</>; 1`] = `
+
+  1 | const getWords = text => text; const words = <>{new Set(getWords(first))}{new Set(getWords(second))}</>;
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(23): const getWords = text => text; const words = <>{new Set(getWords(first))}{new Set(getWords(second))}</>; 2`] = `
+
+Message:
+> 1 | const getWords = text => text; const words = <>{new Set(getWords(first))}{new Set(getWords(second))}</>;
+    |       ^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(24): const getWords = (text: string): string[] => text.split(\" \"); new Set(getWords(first)); new Set(getWords(second)); 1`] = `
+
+  1 | const getWords = (text: string): string[] => text.split(" "); new Set(getWords(first)); new Set(getWords(second));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(24): const getWords = (text: string): string[] => text.split(\" \"); new Set(getWords(first)); new Set(getWords(second)); 2`] = `
+
+Message:
+> 1 | const getWords = (text: string): string[] => text.split(" "); new Set(getWords(first)); new Set(getWords(second));
+    |       ^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(25): const getWords = <T>(value: T): T[] => [value]; new Set(getWords<string>(first)); new Set(getWords<number>(second)); 1`] = `
+
+  1 | const getWords = <T>(value: T): T[] => [value]; new Set(getWords<string>(first)); new Set(getWords<number>(second));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(25): const getWords = <T>(value: T): T[] => [value]; new Set(getWords<string>(first)); new Set(getWords<number>(second)); 2`] = `
+
+Message:
+> 1 | const getWords = <T>(value: T): T[] => [value]; new Set(getWords<string>(first)); new Set(getWords<number>(second));
+    |       ^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(3): const getWords = (text: string) => text.split(\" \"); new Set(getWords!(first)); new Set(getWords(second)); 1`] = `
+
+  1 | const getWords = (text: string) => text.split(" "); new Set(getWords!(first)); new Set(getWords(second));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(3): const getWords = (text: string) => text.split(\" \"); new Set(getWords!(first)); new Set(getWords(second)); 2`] = `
+
+Message:
+> 1 | const getWords = (text: string) => text.split(" "); new Set(getWords!(first)); new Set(getWords(second));
+    |       ^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(3): const getWords = function (text) { return text.split(\" \"); }; new Set(getWords(first)); new Set(getWords(second)); 1`] = `
+
+  1 | const getWords = function (text) { return text.split(" "); }; new Set(getWords(first)); new Set(getWords(second));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(3): const getWords = function (text) { return text.split(\" \"); }; new Set(getWords(first)); new Set(getWords(second)); 2`] = `
+
+Message:
+> 1 | const getWords = function (text) { return text.split(" "); }; new Set(getWords(first)); new Set(getWords(second));
+    |       ^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(4): const getWords = (text: string) => text.split(\" \"); new Set((getWords as Getter)(first)); new Set((getWords as Getter)(second)); 1`] = `
+
+  1 | const getWords = (text: string) => text.split(" "); new Set((getWords as Getter)(first)); new Set((getWords as Getter)(second));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(4): const getWords = (text: string) => text.split(\" \"); new Set((getWords as Getter)(first)); new Set((getWords as Getter)(second)); 2`] = `
+
+Message:
+> 1 | const getWords = (text: string) => text.split(" "); new Set((getWords as Getter)(first)); new Set((getWords as Getter)(second));
+    |       ^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(4): const getWords = function inner(text) { return text.split(\" \"); }; new Set(getWords(first)); new Set(getWords(second)); 1`] = `
+
+  1 | const getWords = function inner(text) { return text.split(" "); }; new Set(getWords(first)); new Set(getWords(second));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(4): const getWords = function inner(text) { return text.split(\" \"); }; new Set(getWords(first)); new Set(getWords(second)); 2`] = `
+
+Message:
+> 1 | const getWords = function inner(text) { return text.split(" "); }; new Set(getWords(first)); new Set(getWords(second));
+    |                           ^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(5): const getWords = (text: string) => text.split(\" \"); new Set((getWords satisfies Getter)(first)); new Set((getWords satisfies Getter)(second)); 1`] = `
+
+  1 | const getWords = (text: string) => text.split(" "); new Set((getWords satisfies Getter)(first)); new Set((getWords satisfies Getter)(second));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(5): const getWords = (text: string) => text.split(\" \"); new Set((getWords satisfies Getter)(first)); new Set((getWords satisfies Getter)(second)); 2`] = `
+
+Message:
+> 1 | const getWords = (text: string) => text.split(" "); new Set((getWords satisfies Getter)(first)); new Set((getWords satisfies Getter)(second));
+    |       ^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(5): const getWords = text => text.split(\" \"); new Set((getWords)(first)); new Set(((getWords(second)))); 1`] = `
+
+  1 | const getWords = text => text.split(" "); new Set((getWords)(first)); new Set(((getWords(second))));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(5): const getWords = text => text.split(\" \"); new Set((getWords)(first)); new Set(((getWords(second)))); 2`] = `
+
+Message:
+> 1 | const getWords = text => text.split(" "); new Set((getWords)(first)); new Set(((getWords(second))));
+    |       ^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(6): const getWords = (text: string) => text.split(\" \"); new Set((<Getter>getWords)(first)); new Set((<Getter>getWords)(second)); 1`] = `
+
+  1 | const getWords = (text: string) => text.split(" "); new Set((<Getter>getWords)(first)); new Set((<Getter>getWords)(second));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(6): const getWords = (text: string) => text.split(\" \"); new Set((<Getter>getWords)(first)); new Set((<Getter>getWords)(second)); 2`] = `
+
+Message:
+> 1 | const getWords = (text: string) => text.split(" "); new Set((<Getter>getWords)(first)); new Set((<Getter>getWords)(second));
+    |       ^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(6): const getWords = text => text.split(\" \"); new Set(getWords(first)); new Set(getWords(second)); new Set(getWords(third)); 1`] = `
+
+  1 | const getWords = text => text.split(" "); new Set(getWords(first)); new Set(getWords(second)); new Set(getWords(third));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(6): const getWords = text => text.split(\" \"); new Set(getWords(first)); new Set(getWords(second)); new Set(getWords(third)); 2`] = `
+
+Message:
+> 1 | const getWords = text => text.split(" "); new Set(getWords(first)); new Set(getWords(second)); new Set(getWords(third));
+    |       ^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(7): const getWords = <T>(value: T) => [value]; new Set((getWords<string>)(first)); new Set((getWords<string>)(second)); 1`] = `
+
+  1 | const getWords = <T>(value: T) => [value]; new Set((getWords<string>)(first)); new Set((getWords<string>)(second));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(7): const getWords = <T>(value: T) => [value]; new Set((getWords<string>)(first)); new Set((getWords<string>)(second)); 2`] = `
+
+Message:
+> 1 | const getWords = <T>(value: T) => [value]; new Set((getWords<string>)(first)); new Set((getWords<string>)(second));
+    |       ^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(7): const getWords = text => text.split(\" \"); new Set(getWords(/* keep */ first)); new Set(/* keep */ getWords(second)); 1`] = `
+
+  1 | const getWords = text => text.split(" "); new Set(getWords(/* keep */ first)); new Set(/* keep */ getWords(second));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(7): const getWords = text => text.split(\" \"); new Set(getWords(/* keep */ first)); new Set(/* keep */ getWords(second)); 2`] = `
+
+Message:
+> 1 | const getWords = text => text.split(" "); new Set(getWords(/* keep */ first)); new Set(/* keep */ getWords(second));
+    |       ^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(8): const getWords = text => text.split(\" \"); consume(new Set(getWords(first))); consume(new Set(getWords(second))); 1`] = `
+
+  1 | const getWords = text => text.split(" "); consume(new Set(getWords(first))); consume(new Set(getWords(second)));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(8): const getWords = text => text.split(\" \"); consume(new Set(getWords(first))); consume(new Set(getWords(second))); 2`] = `
+
+Message:
+> 1 | const getWords = text => text.split(" "); consume(new Set(getWords(first))); consume(new Set(getWords(second)));
+    |       ^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(8): const readCount = (object: Data) => object.count; Number(readCount!(first)); Number((readCount as Reader)(second)); 1`] = `
+
+  1 | const readCount = (object: Data) => object.count; Number(readCount!(first)); Number((readCount as Reader)(second));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(8): const readCount = (object: Data) => object.count; Number(readCount!(first)); Number((readCount as Reader)(second)); 2`] = `
+
+Message:
+> 1 | const readCount = (object: Data) => object.count; Number(readCount!(first)); Number((readCount as Reader)(second));
+    |       ^^^^^^^^^ Every call wraps the result of this function in \`Number()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(9): class Words { #getWords(text: string) { return text; } get() { new Set(this.#getWords!(first)); new Set((this.#getWords as Getter)(second)); } } 1`] = `
+
+  1 | class Words { #getWords(text: string) { return text; } get() { new Set(this.#getWords!(first)); new Set((this.#getWords as Getter)(second)); } }
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(9): class Words { #getWords(text: string) { return text; } get() { new Set(this.#getWords!(first)); new Set((this.#getWords as Getter)(second)); } } 2`] = `
+
+Message:
+> 1 | class Words { #getWords(text: string) { return text; } get() { new Set(this.#getWords!(first)); new Set((this.#getWords as Getter)(second)); } }
+    |               ^^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(9): const getWords = text => text.split(\" \"); new Set(getWords(...first)); new Set(getWords(...second)); 1`] = `
+
+  1 | const getWords = text => text.split(" "); new Set(getWords(...first)); new Set(getWords(...second));
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(9): const getWords = text => text.split(\" \"); new Set(getWords(...first)); new Set(getWords(...second)); 2`] = `
+
+Message:
+> 1 | const getWords = text => text.split(" "); new Set(getWords(...first)); new Set(getWords(...second));
+    |       ^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;

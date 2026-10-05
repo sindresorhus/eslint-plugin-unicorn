@@ -224,3 +224,4 @@ export {default as containsNode} from './contains-node.js';
 export * from './string-cases.js';
 export * from './numeric.js';
 export {default as getBuiltinRule} from './get-builtin-rule.js';
+export {default as trackLocalFunctionCalls} from './track-local-function-calls.js';
