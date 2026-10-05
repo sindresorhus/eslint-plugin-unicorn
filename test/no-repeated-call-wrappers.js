@@ -1,3 +1,4 @@
+import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
@@ -14,6 +15,7 @@ test.snapshot({
 		'function getWords(text) { return text.split(" "); } export default getWords; new Set(getWords(first)); new Set(getWords(second));',
 		'import {getWords} from "words"; new Set(getWords(first)); new Set(getWords(second));',
 		'const getWords = text => text.split(" "); consume(getWords); new Set(getWords(first)); new Set(getWords(second));',
+		'const getWords = function inner(text) { consume(inner); return text; }; new Set(getWords(first)); new Set(getWords(second));',
 		'const getWords = text => text.split(" "); const alias = getWords; new Set(getWords(first)); new Set(getWords(second));',
 		'const getWords = text => text.split(" "); consume(getWords.name); new Set(getWords(first)); new Set(getWords(second));',
 		'let getWords = text => text.split(" "); new Set(getWords(first)); new Set(getWords(second)); getWords = other;',
@@ -35,6 +37,24 @@ test.snapshot({
 		'class Words { async #getWords(text) { return text; } get() { new Set(this.#getWords(first)); new Set(this.#getWords(second)); } }',
 		'class Words { * #getWords(text) { yield text; } get() { new Set(this.#getWords(first)); new Set(this.#getWords(second)); } }',
 		'class Words { #getWords(Set) { return []; } get() { new Set(this.#getWords(first)); new Set(this.#getWords(second)); } }',
+		'class Words { #getWords(text) { return text; } get(Wrapper) { new Wrapper(this.#getWords(first)); new Wrapper(this.#getWords(second)); } }',
+		'class Words { #getWords = text => text; get() { new Set(this.#getWords(first)); new Set(this.#getWords(second)); } }',
+		outdent`
+			class Words {
+				#getWords(text) {
+					return text;
+				}
+				get() {
+					class Reader {
+						read(words) {
+							return words.#getWords(first);
+						}
+					}
+					new Set(this.#getWords(first));
+					new Set(this.#getWords(second));
+				}
+			}
+		`,
 		'const getWords = text => text.split(" "); Set(getWords(first)); Set(getWords(second));',
 		'const readCount = object => object.count; Number(readCount(first)); new Number(readCount(second));',
 		'const readCount = object => object.count; Number(readCount(first)); String(readCount(second));',
@@ -85,6 +105,27 @@ test.snapshot({
 		{code: 'const getWords = text => text; const words = <>{new Set(getWords(first))}{new Set(getWords(second))}</>;', languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}}},
 		{code: 'const getWords = (text: string): string[] => text.split(" "); new Set(getWords(first)); new Set(getWords(second));', languageOptions: {parser: parsers.typescript}},
 		{code: 'const getWords = <T>(value: T): T[] => [value]; new Set(getWords<string>(first)); new Set(getWords<number>(second));', languageOptions: {parser: parsers.typescript}},
+		'export class Words { #getWords(text) { return text; } get() { new Set(this.#getWords(first)); new Set(this.#getWords(second)); } }',
+		outdent`
+			class Words {
+				#getWords(text) {
+					return text;
+				}
+				get() {
+					class Reader {
+						#getWords(text) {
+							return text;
+						}
+						read() {
+							this.#getWords(first);
+							this.#getWords(second);
+						}
+					}
+					new Set(this.#getWords(first));
+					new Set(this.#getWords(second));
+				}
+			}
+		`,
 	],
 });
 
@@ -98,6 +139,7 @@ test.snapshot({
 		'const getWords = (text: string) => text.split(" "); new Set<string>(getWords(first)); new Set<number>(getWords(second));',
 		'const getWords = (text: string) => text.split(" "); new Set(getWords!?.(first)); new Set(getWords!?.(second));',
 		'const getWords = (text: string) => text.split(" "); consume(getWords!); new Set(getWords!(first)); new Set(getWords!(second));',
+		'class Words { private getWords(text: string) { return text; } get() { new Set(this.getWords(first)); new Set(this.getWords(second)); } }',
 	],
 	invalid: [
 		'const getWords = (text: string) => text.split(" "); new Set<string>(getWords(first)); new Set<string>(getWords(second));',
@@ -109,5 +151,6 @@ test.snapshot({
 		'const getWords = <T>(value: T) => [value]; new Set((getWords<string>)(first)); new Set((getWords<string>)(second));',
 		'const readCount = (object: Data) => object.count; Number(readCount!(first)); Number((readCount as Reader)(second));',
 		'class Words { #getWords(text: string) { return text; } get() { new Set(this.#getWords!(first)); new Set((this.#getWords as Getter)(second)); } }',
+		'const getWords = ((text: string) => text.split(" ")) as Getter; new Set(getWords(first)); new Set(getWords(second));',
 	],
 });

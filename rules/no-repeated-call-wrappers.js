@@ -38,21 +38,23 @@ const create = context => {
 				continue;
 			}
 
-			const wrappers = [...calls].map(call => getWrapper(call));
-			if (wrappers.some(wrapper => !wrapper) || [...calls].some(call => sourceCode.getAncestors(call).includes(node))) {
+			const callNodes = [...calls];
+			const wrappers = callNodes.map(call => getWrapper(call));
+			if (wrappers.some(wrapper => !wrapper) || callNodes.some(call => sourceCode.getAncestors(call).includes(node))) {
 				continue;
 			}
 
 			const [first] = wrappers;
 			const wrapperName = first.callee.name;
 			const wrapperVariable = findVariable(sourceCode.getScope(first), wrapperName);
+			const typeArgumentsText = getTypeArgumentsText(first, context);
 			if (
 				findVariable(sourceCode.getScope(node.body), wrapperName) !== wrapperVariable
 				|| wrappers.some(wrapper =>
 					wrapper.type !== first.type
 					|| wrapper.callee.name !== wrapperName
 					|| findVariable(sourceCode.getScope(wrapper), wrapperName) !== wrapperVariable
-					|| getTypeArgumentsText(wrapper, context) !== getTypeArgumentsText(first, context))
+					|| getTypeArgumentsText(wrapper, context) !== typeArgumentsText)
 			) {
 				continue;
 			}

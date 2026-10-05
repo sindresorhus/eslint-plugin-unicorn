@@ -9,7 +9,7 @@
 
 When every caller converts a function's result in the same way, consider making that conversion part of the function. This can remove repetition and make the function's return value match what its callers need.
 
-This rule reports a local function or private method when every call is immediately wrapped in the same single-argument constructor, such as `new Set(getWords(text))`, or the same primitive conversion, such as `Number(readCount(object))`. It reports once on the function or method, rather than at each call site.
+This rule reports a local function or native private method (`#method`) when every call is immediately wrapped in the same single-argument constructor, such as `new Set(getWords(text))`, or the same primitive conversion, such as `Number(readCount(object))`. It reports once on the function or method, rather than at each call site.
 
 ## Examples
 
@@ -84,9 +84,9 @@ const words = getWords(second);
 
 ## Scope and limitations
 
-- Local function declarations, function expressions, arrow functions, and private methods are checked. At least two distinct call sites are required. A call inside a loop still counts as one call site.
-- Exported functions, imported functions, public methods, reassigned functions, and functions with unknown callers are ignored. Passing a function or private method as a callback, creating an alias, or accessing its properties counts as an unknown caller.
-- Async functions, generators, recursive calls, and optional calls are ignored.
+- Local function declarations, function expressions, arrow functions, and native private methods (`#method`) are checked. At least two distinct call sites are required. A call inside a loop still counts as one call site.
+- Exported functions, imported functions, public methods, TypeScript methods declared with the `private` keyword, function-valued private fields, reassigned functions, and functions with unknown callers are ignored. Passing a function or private method as a callback, creating an alias, or accessing its properties counts as an unknown caller.
+- Async functions, generators, optional calls, and functions called from within their own definition are ignored. Indirect recursion is not analyzed.
 - Wrappers must be direct `new Constructor(call())` expressions or calls to `String`, `Number`, `Boolean`, or `BigInt`, with one argument and an identifier callee. The wrapper must refer to the same binding at every call site and be accessible inside the function or private method. Calls and constructors are distinct: `Number(call())` and `new Number(call())` do not match. Explicit wrapper type arguments must match.
 - TypeScript assertions around the called function are supported, including `getWords!(text)` and `(getWords as Getter)(text)`.
 - Wrappers around arguments, arbitrary function-call wrappers, wrapper member access, intermediate expressions, and TypeScript assertions around call results are ignored.
