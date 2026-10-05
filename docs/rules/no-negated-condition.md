@@ -11,9 +11,9 @@
 
 Negated conditions are more difficult to understand. Code can be made more readable by inverting the condition.
 
-The rule checks ternary expressions and `if` statements with an `else` branch, excluding `else if` branches.
+The rule checks ternary expressions and `if` statements whose alternate is an `else` branch rather than another `if` statement. This includes the last `else if` in a chain when it has an `else` branch.
 
-The rule also checks `&&` and `||` chains where every operand is negated with `!`, `!=`, or `!==`. Parenthesized groups using the same operator are supported. Chains with a non-negated operand or a nested logical group using a different operator are not reported.
+The rule also checks `&&` and `||` chains where every operand is negated with `!`, `!=`, or `!==`. Parenthesized groups using the same operator are supported. Chains with a non-negated operand or a mix of `&&` and `||` between negated operands are not reported.
 
 TypeScript assertions around negated operands or the entire condition are not unwrapped, because inverting the condition could invalidate the asserted type. Assertions inside a negation, such as `!(value as boolean)`, are supported.
 
@@ -24,6 +24,8 @@ This is an improved version of the [`no-negated-condition`](https://eslint.org/d
 Comments directly before branches move with them during autofixing. Comments directly after branch expressions or bodies prevent autofixing because their association is ambiguous.
 
 Autofixing is also skipped when removing the first negation would expose an unparenthesized object literal, function expression, or class expression, which can be parsed differently in some contexts. Parenthesizing the negated argument makes the fix available, for example `!({})`.
+
+For non-delegating `yield` expressions, autofixing is skipped when removing the first negation would leave a line break between `yield` and its unparenthesized argument.
 
 ## Replacement for ESLint `no-negated-condition`
 

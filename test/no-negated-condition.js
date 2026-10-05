@@ -31,11 +31,16 @@ test({
 		['(!a || !b) || !c ? x : y', '(a && b) && c ? y : x'],
 		['if (!a || !b) {x();} else {y();}', 'if (a && b) {y();} else {x();}'],
 		['if (!a && !b) x(); else y();', 'if (a || b) {y();} else {x();}'],
+		['if (a) {x();} else if (!b && !c) {y();} else {z();}', 'if (a) {x();} else if (b || c) {z();} else {y();}'],
 		['!(a || b) && !c ? x : y', '(a || b) || c ? y : x'],
 		['! /* first */ a && /* operator */ !b ? /* then */ x : /* else */ y', ' /* first */ a || /* operator */ b ? /* else */ y : /* then */ x'],
 		['function f() {return!a && !b ? x : y;}', 'function f() {return a || b ? y : x;}'],
 		['function f() {return !\n a && !b ? x : y;}', 'function f() {return ( \n a || b ? y : x);}'],
 		['function f() {throw !\n a || !b ? x : y;}', 'function f() {throw ( \n a && b ? y : x);}'],
+		['function* f() {yield!a && !b ? x : y;}', 'function* f() {yield a || b ? y : x;}'],
+		['function* f() {yield (!\n a && !b ? x : y);}', 'function* f() {yield (\n a || b ? y : x);}'],
+		['function* f() {yield (!\n a) && !b ? x : y;}', 'function* f() {yield (\n a) || b ? y : x;}'],
+		['function* f() {yield* !\n a && !b ? x : y;}', 'function* f() {yield* \n a || b ? y : x;}'],
 		['foo()\n![] && !b ? x : y', 'foo()\n;[] || b ? y : x'],
 		['foo()\n!(a) || !b ? x : y', 'foo()\n;(a) && b ? y : x'],
 		['if (!(a || b) && !c) {x();} else {y();}', 'if ((a || b) || c) {y();} else {x();}'],
@@ -60,6 +65,9 @@ test({
 		'(!{} && !b) ? x : y',
 		'const f = () => !{} ? x : y',
 		'const f = () => !{} && !b ? x : y',
+		'function* f() {yield !\n a ? x : y;}',
+		'function* f() {yield !\n a && !b ? x : y;}',
+		'function* f() {yield ! /* first\n operand */ a || !b ? x : y;}',
 	].map(code => ({code, errors: [{messageId: 'no-negated-condition'}]})),
 });
 
@@ -114,6 +122,7 @@ nodeTest('chain fixes preserve branch results and evaluation order', t => {
 		for (const code of [
 			`${condition} ? "then" : "else";`,
 			`let result; if (${condition}) { result = "then"; } else { result = "else"; } result;`,
+			`function* f() {yield ${condition} ? "then" : "else";} f().next().value;`,
 		]) {
 			const {output, fixed, messages} = linter.verifyAndFix(code, config);
 			t.assert.strictEqual(fixed, true);

@@ -147,12 +147,20 @@ const create = context => {
 				}
 
 				if (
-					(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
+					(
+						parent.type === 'ReturnStatement'
+						|| parent.type === 'ThrowStatement'
+						|| (parent.type === 'YieldExpression' && !parent.delegate)
+					)
 					&& parent.argument === node
 					&& !isOnSameLine(firstToken, secondToken, context)
 					&& !isParenthesized(node, context)
 					&& !isParenthesized(test, context)
 				) {
+					if (parent.type === 'YieldExpression') {
+						abort();
+					}
+
 					yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
 					return;
 				}
