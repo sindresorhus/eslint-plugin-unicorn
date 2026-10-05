@@ -124,6 +124,20 @@ Message:
 
 `;
 
+exports[`no-repeated-call-wrappers > invalid(13): class Wrapper {} const makeHandler = () => (Wrapper: unknown) => Wrapper; new Wrapper(makeHandler()); new Wrapper(makeHandler()); 1`] = `
+
+  1 | class Wrapper {} const makeHandler = () => (Wrapper: unknown) => Wrapper; new Wrapper(makeHandler()); new Wrapper(makeHandler());
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(13): class Wrapper {} const makeHandler = () => (Wrapper: unknown) => Wrapper; new Wrapper(makeHandler()); new Wrapper(makeHandler()); 2`] = `
+
+Message:
+> 1 | class Wrapper {} const makeHandler = () => (Wrapper: unknown) => Wrapper; new Wrapper(makeHandler()); new Wrapper(makeHandler());
+    |                        ^^^^^^^^^^^ Every call wraps the result of this function in \`new Wrapper()\`. Consider returning the wrapped value directly.
+
+`;
+
 exports[`no-repeated-call-wrappers > invalid(14): class Words { static #getWords(text) { return text; } static get() { new Set(Words.#getWords(first)); new Set(Words.#getWords(second)); } } 1`] = `
 
   1 | class Words { static #getWords(text) { return text; } static get() { new Set(Words.#getWords(first)); new Set(Words.#getWords(second)); } }
@@ -135,6 +149,20 @@ exports[`no-repeated-call-wrappers > invalid(14): class Words { static #getWords
 Message:
 > 1 | class Words { static #getWords(text) { return text; } static get() { new Set(Words.#getWords(first)); new Set(Words.#getWords(second)); } }
     |                      ^^^^^^^^^ Every call wraps the result of this function in \`new Set()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(14): class Wrapper {} const makeClass = () => class Wrapper { value!: string; }; new Wrapper(makeClass()); new Wrapper(makeClass()); 1`] = `
+
+  1 | class Wrapper {} const makeClass = () => class Wrapper { value!: string; }; new Wrapper(makeClass()); new Wrapper(makeClass());
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(14): class Wrapper {} const makeClass = () => class Wrapper { value!: string; }; new Wrapper(makeClass()); new Wrapper(makeClass()); 2`] = `
+
+Message:
+> 1 | class Wrapper {} const makeClass = () => class Wrapper { value!: string; }; new Wrapper(makeClass()); new Wrapper(makeClass());
+    |                        ^^^^^^^^^ Every call wraps the result of this function in \`new Wrapper()\`. Consider returning the wrapped value directly.
 
 `;
 
@@ -379,6 +407,34 @@ Message:
   16 | 		new Set(this.#getWords(second));
   17 | 	}
   18 | }
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(28): class Wrapper {} const makeHandler = () => Wrapper => Wrapper; new Wrapper(makeHandler()); new Wrapper(makeHandler()); 1`] = `
+
+  1 | class Wrapper {} const makeHandler = () => Wrapper => Wrapper; new Wrapper(makeHandler()); new Wrapper(makeHandler());
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(28): class Wrapper {} const makeHandler = () => Wrapper => Wrapper; new Wrapper(makeHandler()); new Wrapper(makeHandler()); 2`] = `
+
+Message:
+> 1 | class Wrapper {} const makeHandler = () => Wrapper => Wrapper; new Wrapper(makeHandler()); new Wrapper(makeHandler());
+    |                        ^^^^^^^^^^^ Every call wraps the result of this function in \`new Wrapper()\`. Consider returning the wrapped value directly.
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(29): class Wrapper {} const makeClass = () => class Wrapper {}; new Wrapper(makeClass()); new Wrapper(makeClass()); 1`] = `
+
+  1 | class Wrapper {} const makeClass = () => class Wrapper {}; new Wrapper(makeClass()); new Wrapper(makeClass());
+
+`;
+
+exports[`no-repeated-call-wrappers > invalid(29): class Wrapper {} const makeClass = () => class Wrapper {}; new Wrapper(makeClass()); new Wrapper(makeClass()); 2`] = `
+
+Message:
+> 1 | class Wrapper {} const makeClass = () => class Wrapper {}; new Wrapper(makeClass()); new Wrapper(makeClass());
+    |                        ^^^^^^^^^ Every call wraps the result of this function in \`new Wrapper()\`. Consider returning the wrapped value directly.
 
 `;
 

@@ -73,6 +73,7 @@ test.snapshot({
 		'const getWords = text => text.split(" "); new Set(getWords(first)); { class Set {} new Set(getWords(second)); }',
 		'const getWords = text => text.split(" "); { class Wrapper {} new Wrapper(getWords(first)); new Wrapper(getWords(second)); }',
 		'const getWords = Set => []; new Set(getWords(first)); new Set(getWords(second));',
+		'class Wrapper {} function makeHandler(value = 0) { const Wrapper = other; return value => value; } new Wrapper(makeHandler()); new Wrapper(makeHandler());',
 		'const getWords = text => text.split(" "); eval(source); new Set(getWords(first)); new Set(getWords(second));',
 		'const sumTotals = orders => orders.length; sumTotals(customer.orders); sumTotals(supplier.orders);',
 		{code: 'function getWords(text) { return text.split(" "); } new Set(getWords(first)); new Set(getWords(second));', languageOptions: {sourceType: 'script'}},
@@ -126,6 +127,8 @@ test.snapshot({
 				}
 			}
 		`,
+		'class Wrapper {} const makeHandler = () => Wrapper => Wrapper; new Wrapper(makeHandler()); new Wrapper(makeHandler());',
+		'class Wrapper {} const makeClass = () => class Wrapper {}; new Wrapper(makeClass()); new Wrapper(makeClass());',
 	],
 });
 
@@ -155,5 +158,7 @@ test.snapshot({
 		'const getWords = ((text: string) => text.split(" ")) as Getter; new Set(getWords(first)); new Set(getWords(second));',
 		'const getWords = (text: string) => text.split(" "); export type {getWords}; new Set(getWords(first)); new Set(getWords(second));',
 		'const getWords = ((function (text: string) { return text.split(" "); }) as Getter)!; new Set(getWords(first)); new Set(getWords(second));',
+		'class Wrapper {} const makeHandler = () => (Wrapper: unknown) => Wrapper; new Wrapper(makeHandler()); new Wrapper(makeHandler());',
+		'class Wrapper {} const makeClass = () => class Wrapper { value!: string; }; new Wrapper(makeClass()); new Wrapper(makeClass());',
 	],
 });

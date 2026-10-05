@@ -54,7 +54,7 @@ const create = context => {
 			const wrapperVariable = findVariable(sourceCode.getScope(first), wrapperName);
 			const typeArgumentsText = getTypeArgumentsText(first, context);
 			if (
-				findVariable(sourceCode.getScope(node.body), wrapperName) !== wrapperVariable
+				findVariable(sourceCode.getScope(node), wrapperName) !== wrapperVariable
 				|| wrappers.some(wrapper =>
 					wrapper.type !== first.type
 					|| wrapper.callee.name !== wrapperName
