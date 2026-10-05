@@ -790,7 +790,7 @@ function getBracketContinuationOpeningDepth(line) {
 	line = cleanCommentLine(line);
 	line = removeMarkdownInlineLinks(line);
 
-	return !bareCallLinePattern.test(line) && !memberCallLinePattern.test(line) ? 0 : Math.max(0, getBracketDepthDelta(line));
+	return bareCallLinePattern.test(line) || memberCallLinePattern.test(line) ? Math.max(0, getBracketDepthDelta(line)) : 0;
 }
 
 // Advance the running bracket depth for one line. A line counts as code if depth is already open (a continuation line) or it looks like code on its own; otherwise depth resets to zero.
