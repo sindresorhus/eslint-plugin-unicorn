@@ -25,6 +25,8 @@ Comments directly before branches move with them during autofixing. Comments dir
 
 Autofixing is also skipped when removing the first negation would expose an unparenthesized object literal, function expression, or class expression, which can be parsed differently in some contexts. Parenthesizing the negated argument makes the fix available, for example `!({})`.
 
+Sloppy scripts that use `let` as an identifier are unsupported.
+
 For non-delegating `yield` expressions, autofixing is skipped when removing the first negation would leave a line break between `yield` and its unparenthesized argument.
 
 ## Replacement for ESLint `no-negated-condition`
