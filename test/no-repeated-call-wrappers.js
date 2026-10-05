@@ -140,6 +140,7 @@ test.snapshot({
 		'const getWords = (text: string) => text.split(" "); new Set(getWords!?.(first)); new Set(getWords!?.(second));',
 		'const getWords = (text: string) => text.split(" "); consume(getWords!); new Set(getWords!(first)); new Set(getWords!(second));',
 		'class Words { private getWords(text: string) { return text; } get() { new Set(this.getWords(first)); new Set(this.getWords(second)); } }',
+		'const getWords = (text: string) => text.split(" "); export = getWords; new Set(getWords(first)); new Set(getWords(second));',
 	],
 	invalid: [
 		'const getWords = (text: string) => text.split(" "); new Set<string>(getWords(first)); new Set<string>(getWords(second));',
@@ -152,5 +153,7 @@ test.snapshot({
 		'const readCount = (object: Data) => object.count; Number(readCount!(first)); Number((readCount as Reader)(second));',
 		'class Words { #getWords(text: string) { return text; } get() { new Set(this.#getWords!(first)); new Set((this.#getWords as Getter)(second)); } }',
 		'const getWords = ((text: string) => text.split(" ")) as Getter; new Set(getWords(first)); new Set(getWords(second));',
+		'const getWords = (text: string) => text.split(" "); export type {getWords}; new Set(getWords(first)); new Set(getWords(second));',
+		'const getWords = ((function (text: string) { return text.split(" "); }) as Getter)!; new Set(getWords(first)); new Set(getWords(second));',
 	],
 });
