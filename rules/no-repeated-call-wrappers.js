@@ -1,5 +1,10 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {getTypeArgumentsText, isTypeScriptExpressionWrapper, trackLocalFunctionCalls, unwrapTypeScriptExpression} from './utils/index.js';
+import {
+	getTypeArgumentsText,
+	isTypeScriptExpressionWrapper,
+	trackLocalFunctionCalls,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'no-repeated-call-wrappers';
 const messages = {
@@ -59,7 +64,7 @@ const create = context => {
 				continue;
 			}
 
-			let parent = node.parent;
+			let {parent} = node;
 			while (isTypeScriptExpressionWrapper(parent)) {
 				parent = parent.parent;
 			}
