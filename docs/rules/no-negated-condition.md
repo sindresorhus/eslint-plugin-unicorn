@@ -11,15 +11,57 @@
 
 Negated conditions are more difficult to understand. Code can be made more readable by inverting the condition.
 
+The rule checks ternary expressions and `if` statements with an `else` branch, excluding `else if` branches.
+
+The rule also checks `&&` and `||` chains where every operand is negated with `!`, `!=`, or `!==`. Parenthesized groups using the same operator are supported. Chains with a non-negated operand or a nested logical group using a different operator are not reported.
+
+TypeScript assertions around negated operands or the entire condition are not unwrapped, because inverting the condition could invalidate the asserted type. Assertions inside a negation, such as `!(value as boolean)`, are supported.
+
+Use [`no-unnecessary-boolean-comparison`](./no-unnecessary-boolean-comparison.md) to simplify comparisons such as `value === false` before this rule inverts the condition. That rule can use TypeScript type information to recognize boolean values.
+
 This is an improved version of the [`no-negated-condition`](https://eslint.org/docs/latest/rules/no-negated-condition) ESLint rule that makes it automatically fixable. [ESLint did not want to make it fixable.](https://github.com/eslint/eslint/issues/14792)
 
 Comments directly before branches move with them during autofixing. Comments directly after branch expressions or bodies prevent autofixing because their association is ambiguous.
+
+Autofixing is also skipped when removing the first negation would expose an unparenthesized object literal, function expression, or class expression, which can be parsed differently in some contexts. Parenthesizing the negated argument makes the fix available, for example `!({})`.
 
 ## Replacement for ESLint `no-negated-condition`
 
 This rule replaces ESLint's built-in `no-negated-condition` rule, which Unicorn presets disable when this rule is enabled.
 
 ## Examples
+
+```js
+// ❌
+const foo = !a && !b ? x : y;
+
+// ✅
+const foo = a || b ? y : x;
+```
+
+```js
+// ❌
+const foo = a != null && b != null ? x : y;
+
+// ✅
+const foo = a == null || b == null ? y : x;
+```
+
+```js
+// ❌
+if (!a || !b) {
+	x();
+} else {
+	y();
+}
+
+// ✅
+if (a && b) {
+	y();
+} else {
+	x();
+}
+```
 
 ```js
 // ❌
@@ -75,6 +117,11 @@ if (a == b) {
 } else {
 	doSomethingC();
 }
+```
+
+```js
+// ✅
+const foo = !a && b ? x : y;
 ```
 
 ```js

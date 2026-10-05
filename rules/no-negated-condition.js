@@ -12,6 +12,9 @@ import {
 	isParenthesized,
 	isOnSameLine,
 	needsSemicolon,
+	isLogicalExpression,
+	getLogicalExpressionOperands,
+	shouldAddParenthesesToExpressionStatementExpression,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-negated-condition';
@@ -19,15 +22,18 @@ const messages = {
 	[MESSAGE_ID]: 'Unexpected negated condition.',
 };
 
-function * convertNegatedCondition(fixer, node, context) {
+function * convertNegatedCondition(fixer, test, context) {
 	const {sourceCode} = context;
-	const {test} = node;
+	if (isLogicalExpression(test)) {
+		const token = sourceCode.getTokenAfter(test.left, token => token.value === test.operator);
+		yield fixer.replaceText(token, test.operator === '&&' ? '||' : '&&');
+		yield convertNegatedCondition(fixer, test.left, context);
+		yield convertNegatedCondition(fixer, test.right, context);
+		return;
+	}
+
 	if (test.type === 'UnaryExpression') {
 		const token = sourceCode.getFirstToken(test);
-
-		if (node.type === 'IfStatement') {
-			yield removeParentheses(test.argument, fixer, context);
-		}
 
 		yield fixer.remove(token);
 		return;
@@ -94,10 +100,11 @@ const create = context => {
 		}
 
 		const {test} = node;
+		const operands = isLogicalExpression(test) ? getLogicalExpressionOperands(test, test.operator) : [test];
 
-		if (!(
-			(test.type === 'UnaryExpression' && test.operator === '!')
-			|| (test.type === 'BinaryExpression' && (test.operator === '!=' || test.operator === '!=='))
+		if (operands.some(operand =>
+			!((operand.type === 'UnaryExpression' && operand.operator === '!')
+				|| (operand.type === 'BinaryExpression' && (operand.operator === '!=' || operand.operator === '!=='))),
 		)) {
 			return;
 		}
@@ -109,12 +116,23 @@ const create = context => {
 			@param {import('eslint').Rule.RuleFixer} fixer
 			*/
 			* fix(fixer, {abort}) {
-				yield convertNegatedCondition(fixer, node, context);
+				if (
+					operands[0].type === 'UnaryExpression'
+					&& shouldAddParenthesesToExpressionStatementExpression(operands[0].argument, context)
+				) {
+					abort();
+				}
+
+				if (node.type === 'IfStatement' && test.type === 'UnaryExpression') {
+					yield removeParentheses(test.argument, fixer, context);
+				}
+
+				yield convertNegatedCondition(fixer, test, context);
 				yield swapConsequentAndAlternate(fixer, node, context, abort);
 
 				if (
 					node.type !== 'ConditionalExpression'
-					|| test.type !== 'UnaryExpression'
+					|| operands[0].type !== 'UnaryExpression'
 				) {
 					return;
 				}
@@ -124,6 +142,10 @@ const create = context => {
 				const {sourceCode} = context;
 				const {parent} = node;
 				const [firstToken, secondToken] = sourceCode.getFirstTokens(test, 2);
+				if (firstToken.value !== '!') {
+					return;
+				}
+
 				if (
 					(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
 					&& parent.argument === node
