@@ -21,6 +21,7 @@ const messages = {
 	'same-value': 'Parameter `{{name}}` receives the same value at every call.',
 	'always-default': 'Parameter `{{name}}` always receives its default value.',
 	'always-undefined': 'Parameter `{{name}}` is always `undefined`.',
+	'remove-parameter': 'Remove parameter `{{name}}` and its arguments (requires type review).',
 };
 
 const reserved = reservedIdentifiers();
@@ -430,12 +431,8 @@ function hasJavaScriptTypeAnnotations(context) {
 function getFix(parameter, result, target, context) {
 	const {sourceCode} = context;
 	const {value, messageId, arguments_} = result;
-	// Changing signatures or inferred values can introduce type checking errors without changing runtime behavior.
 	if (
-		isTypeScriptFile(context.filename)
-		|| sourceCode.parserServices.esTreeNodeToTSNodeMap
-		|| hasJavaScriptTypeAnnotations(context)
-		|| parameter.variable.defs.length !== 1
+		parameter.variable.defs.length !== 1
 		|| parameter.variable.references.some(reference => !isRuntimeReference(reference))
 	) {
 		return;
@@ -522,6 +519,10 @@ function getFix(parameter, result, target, context) {
 const create = context => {
 	const {sourceCode} = context;
 	const getTargets = trackLocalFunctionCalls(context);
+	// Changing signatures or inferred values can introduce type checking errors without changing runtime behavior, so these fixes require type review.
+	const needsTypeReview = isTypeScriptFile(context.filename)
+		|| Boolean(sourceCode.parserServices.esTreeNodeToTSNodeMap)
+		|| hasJavaScriptTypeAnnotations(context);
 
 	context.onExit('Program', function * () {
 		for (const target of getTargets()) {
@@ -549,9 +550,15 @@ const create = context => {
 				}
 
 				const fix = hasFix ? undefined : getFix(parameter, result, target, context);
-				hasFix ||= Boolean(fix);
+				hasFix ||= Boolean(fix) && !needsTypeReview;
 				yield {
-					node: parameter.identifier, messageId: result.messageId, data: {name: parameter.identifier.name}, fix,
+					node: parameter.identifier,
+					messageId: result.messageId,
+					data: {name: parameter.identifier.name},
+					fix: needsTypeReview ? undefined : fix,
+					suggest: needsTypeReview && fix
+						? [{messageId: 'remove-parameter', data: {name: parameter.identifier.name}, fix}]
+						: undefined,
 				};
 			}
 		}
@@ -570,6 +577,7 @@ const config = {
 			recommended: true,
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema: [{
 			type: 'object',
 			properties: {

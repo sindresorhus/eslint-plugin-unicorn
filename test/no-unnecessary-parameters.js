@@ -232,6 +232,50 @@ const config = {
 
 const linter = new Linter();
 
+function applySuggestion(t, code, message) {
+	t.assert.strictEqual(message.suggestions?.length, 1);
+	const {range, text} = message.suggestions[0].fix;
+	return code.slice(0, range[0]) + text + code.slice(range[1]);
+}
+
+test('suggests removing each typed parameter independently', t => {
+	const code = 'function format(value: number, unit: string) { return [value, unit]; } [format(1, "px"), format(1, "px")];';
+	const typescriptConfig = {...config, languageOptions: {parser: parsers.typescript.implementation}};
+	const result = linter.verifyAndFix(code, typescriptConfig);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.strictEqual(result.messages.length, 2);
+	for (const [index, message] of result.messages.entries()) {
+		const output = applySuggestion(t, code, message);
+		t.assert.strictEqual(output, [
+			'function format(unit: string) { return [1, unit]; } [format("px"), format("px")];',
+			'function format(value: number) { return [value, "px"]; } [format(1), format(1)];',
+		][index]);
+		t.assert.ok(linter.verify(output, typescriptConfig).every(message => !message.fatal));
+		const javascript = stripTypeScriptTypes(output);
+		const originalJavascript = stripTypeScriptTypes(code);
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(javascript)), JSON.stringify(vm.runInNewContext(originalJavascript)));
+	}
+});
+
+test('does not suggest changes blocked by runtime, syntax, or comment safety checks', t => {
+	const typescriptConfig = {...config, languageOptions: {parser: parsers.typescript.implementation}};
+	for (const code of [
+		'function format(value: number /* keep */) { return value; } format(1); format(1);',
+		'function format(value: number) { return value; } format(/* keep */ 1); format(1);',
+		'function format(value: number) { value++; return value; } format(1); format(1);',
+		'function format(value: number) { type Value = typeof value; return value; } format(1); format(1);',
+		'function format(value = {}) { return value; } format(); format();',
+		'const saved = {}; function format(value = saved) { return value; } format(); format();',
+	]) {
+		const result = linter.verifyAndFix(code, typescriptConfig);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(result.messages[0].suggestions, undefined);
+	}
+});
+
 for (const {parser, openingTag, template} of [
 	{parser: parsers.vue, openingTag: '<script setup>', template: '<template>{{ format(2) }}</template>'},
 	{parser: parsers.svelte, openingTag: '<script>', template: '{format(2)}'},
@@ -272,20 +316,24 @@ for (const {parser, openingTag, template} of [
 		t.assert.deepStrictEqual(structuredClone(vm.runInNewContext(script)), ['text', 'text']);
 	});
 
-	test(`reports unnecessary parameters in ${parser.name} TypeScript scripts without fixing`, t => {
+	test(`suggests removing unnecessary parameters in ${parser.name} TypeScript scripts`, t => {
 		const component = code.replace('<script', '<script lang="ts"').replace('format(value)', 'format(value: number)');
-		const result = linter.verifyAndFix(component, {
+		const typescriptConfig = {
 			...componentConfig,
 			languageOptions: {
 				parser: parser.implementation,
 				parserOptions: {parser: parsers.typescript.implementation},
 			},
-		}, {filename});
+		};
+		const result = linter.verifyAndFix(component, typescriptConfig, {filename});
 		t.assert.strictEqual(result.fixed, false);
 		t.assert.strictEqual(result.output, component);
 		t.assert.strictEqual(result.messages.length, 1);
 		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
 		t.assert.strictEqual(result.messages[0].messageId, 'same-value');
+		const output = applySuggestion(t, component, result.messages[0]);
+		t.assert.strictEqual(output, code.replace('<script', '<script lang="ts"').replace('format(value) { return value; } format(1); format(1);', 'format() { return 1; } format(); format();'));
+		t.assert.deepStrictEqual(linter.verify(output, typescriptConfig, {filename}), []);
 	});
 }
 
@@ -315,6 +363,8 @@ test('reports JavaScript parameters with a TypeScript program without fixing', t
 	t.assert.strictEqual(result.messages.length, 1);
 	t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
 	t.assert.strictEqual(result.messages[0].messageId, 'same-value');
+	const output = applySuggestion(t, code, result.messages[0]);
+	t.assert.strictEqual(output, 'function format() { return 1; } [format(), format()];');
 });
 
 function getJavaScriptTypeErrors(code) {
@@ -351,7 +401,11 @@ test('preserves JavaScript type annotations when reporting unnecessary parameter
 		t.assert.strictEqual(result.output, code);
 		t.assert.strictEqual(result.messages.length, 1);
 		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
-		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
+		const output = applySuggestion(t, code, result.messages[0]);
+		t.assert.match(result.messages[0].suggestions[0].desc, /type/);
+		t.assert.ok(getJavaScriptTypeErrors(output).length > 0);
+		t.assert.ok(linter.verify(output, config).every(message => !message.fatal));
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(output)), JSON.stringify(vm.runInNewContext(code)));
 	}
 });
 
@@ -399,7 +453,7 @@ test('preserves separated JSDoc parameter annotations', t => {
 	}
 });
 
-test('requires manual fixes throughout files containing JSDoc type annotations', t => {
+test('offers suggestions throughout files containing JSDoc type annotations', t => {
 	const code = 'function format(value) { return value; } /** @param {string} text */ function describe(text) { return text; } describe("example"); [format(1), format(1)];';
 	const result = linter.verifyAndFix(code, config);
 	t.assert.strictEqual(result.fixed, false);
@@ -407,6 +461,7 @@ test('requires manual fixes throughout files containing JSDoc type annotations',
 	t.assert.strictEqual(result.messages.length, 1);
 	t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
 	t.assert.strictEqual(result.messages[0].messageId, 'same-value');
+	t.assert.strictEqual(result.messages[0].suggestions?.length, 1);
 	t.assert.deepStrictEqual(structuredClone(vm.runInNewContext(result.output)), [1, 1]);
 });
 
@@ -423,7 +478,9 @@ test('preserves constructor signatures and inferred property types', t => {
 		t.assert.strictEqual(result.messages.length, 1);
 		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
 		t.assert.strictEqual(result.messages[0].messageId, 'same-value');
-		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
+		const output = applySuggestion(t, code, result.messages[0]);
+		t.assert.ok(linter.verify(output, config).every(message => !message.fatal));
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(output)), JSON.stringify(vm.runInNewContext(code)));
 	}
 });
 
@@ -440,7 +497,9 @@ for (const [tag, code] of [
 		t.assert.strictEqual(result.messages.length, 1);
 		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
 		t.assert.strictEqual(result.messages[0].messageId, 'same-value');
-		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
+		const output = applySuggestion(t, code, result.messages[0]);
+		t.assert.ok(linter.verify(output, config).every(message => !message.fatal));
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(output)), JSON.stringify(vm.runInNewContext(code)));
 	});
 }
 
@@ -998,7 +1057,9 @@ test('does not introduce a strict directive after stripping TypeScript wrappers'
 		t.assert.strictEqual(result.output, code);
 		t.assert.strictEqual(result.messages.length, 1);
 		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
-		const javascript = stripTypeScriptTypes(result.output);
+		const output = applySuggestion(t, code, result.messages[0]);
+		t.assert.ok(linter.verify(output, typescriptConfig).every(message => !message.fatal));
+		const javascript = stripTypeScriptTypes(output);
 		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(javascript)), '[false,false]');
 	}
 });
@@ -1050,6 +1111,7 @@ test('keeps delete operations on TypeScript-wrapped parameter references', t => 
 		t.assert.strictEqual(result.fixed, false);
 		t.assert.strictEqual(result.output, code);
 		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(result.messages[0].suggestions, undefined);
 		const javascript = stripTypeScriptTypes(result.output);
 		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(javascript)), '[false,false]');
 	}
@@ -1276,7 +1338,7 @@ test('keeps argument reads before body effects in catch binding initializers', t
 	t.assert.strictEqual(vm.runInNewContext(result.output), 0);
 });
 
-test('reports TypeScript earlier-parameter defaults without changing assertions', t => {
+test('suggests moving TypeScript earlier-parameter defaults while preserving assertions', t => {
 	const typescriptConfig = {...config, languageOptions: {parser: parsers.typescript.implementation}};
 	const code = 'function format(first = 1 as string | number, second = first as number) { return second.toFixed(); } [format(1), format(2)];';
 	const result = linter.verifyAndFix(code, typescriptConfig);
@@ -1284,7 +1346,10 @@ test('reports TypeScript earlier-parameter defaults without changing assertions'
 	t.assert.strictEqual(result.output, code);
 	t.assert.strictEqual(result.messages.length, 1);
 	t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
-	const javascript = stripTypeScriptTypes(result.output);
+	const output = applySuggestion(t, code, result.messages[0]);
+	t.assert.match(output, /const second = first as number;/);
+	t.assert.ok(linter.verify(output, typescriptConfig).every(message => !message.fatal));
+	const javascript = stripTypeScriptTypes(output);
 	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(javascript)), '["1","2"]');
 });
 
@@ -1393,7 +1458,7 @@ test('resolves private calls in class heritage using the enclosing class', t => 
 	}
 });
 
-test('reports TypeScript parameters without changing inferred or asserted types', t => {
+test('suggests removing TypeScript parameters with inferred or asserted types', t => {
 	const typescriptConfig = {...config, languageOptions: {parser: parsers.typescript.implementation}};
 	for (const code of [
 		'function format(value = 1 as string | number) { return typeof value === "number" ? value.toFixed() : value.toUpperCase(); } [format(1), format(1)];',
@@ -1412,13 +1477,15 @@ test('reports TypeScript parameters without changing inferred or asserted types'
 		t.assert.strictEqual(result.output, code);
 		t.assert.strictEqual(result.messages.length, 1);
 		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
-		const javascript = stripTypeScriptTypes(result.output);
+		const output = applySuggestion(t, code, result.messages[0]);
+		t.assert.ok(linter.verify(output, typescriptConfig).every(message => !message.fatal));
+		const javascript = stripTypeScriptTypes(output);
 		const originalJavascript = stripTypeScriptTypes(code);
 		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(javascript)), JSON.stringify(vm.runInNewContext(originalJavascript)));
 	}
 });
 
-test('requires manual fixes for TypeScript filenames without parser services', t => {
+test('offers suggestions for TypeScript filenames without parser services', t => {
 	const code = 'function format(value) { return value; } [format(1), format(1)];';
 	for (const extension of ['ts', 'mts', 'cts', 'tsx', 'js']) {
 		const result = linter.verifyAndFix(code, {...config, files: ['**/*.{js,ts,mts,cts,tsx}']}, {filename: `input.${extension}`});
@@ -1430,6 +1497,8 @@ test('requires manual fixes for TypeScript filenames without parser services', t
 			t.assert.strictEqual(result.output, code);
 			t.assert.strictEqual(result.messages.length, 1);
 			t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+			const output = applySuggestion(t, code, result.messages[0]);
+			t.assert.strictEqual(output, 'function format() { return 1; } [format(), format()];');
 		}
 
 		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[1,1]');
