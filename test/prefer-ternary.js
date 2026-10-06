@@ -37,8 +37,6 @@ test({
 			}
 		`,
 		'function unicorn() { if (test) { return value; } else { return; } }',
-		'function unicorn() { if (/* explanation */ test) { return a; } else { return b; } }',
-		'function unicorn() { if (test) { return a; } else { /* explanation */ return b; } }',
 		// Test is Ternary
 		outdent`
 			function unicorn() {
@@ -283,6 +281,14 @@ test({
 			errors,
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'function unicorn() { if (/* explanation */ test) { return a; } else { return b; } }',
+			errors,
+		},
+		{
+			code: 'function unicorn() { if (test) { return a; } else { /* explanation */ return b; } }',
+			errors,
+		},
 	],
 });
 
@@ -324,25 +330,6 @@ test({
 		},
 		'function unicorn() { if (test) return; return; }',
 		'function unicorn() { if (test) return; return value; }',
-		'function unicorn() { if (test) { return /* comment */ a; } return b; }',
-		'function unicorn() { if (test) { return a; } return /* comment */ b; }',
-		outdent`
-			function unicorn() {
-				if (test) {
-					return a;
-				}
-				// comment
-				return b;
-			}
-		`,
-		outdent`
-			function unicorn() {
-				if (test) {
-					return a;
-				}
-				return b; // comment
-			}
-		`,
 	],
 	invalid: [
 		{
@@ -401,6 +388,37 @@ test({
 				}
 			`,
 			options: onlySingleLineOptions,
+			errors,
+		},
+		{
+			code: 'function unicorn() { if (test) { return /* comment */ a; } return b; }',
+			errors,
+		},
+		{
+			code: 'function unicorn() { if (test) { return a; } return /* comment */ b; }',
+			errors,
+		},
+		{
+			code: outdent`
+				function unicorn() {
+					if (test) {
+						return a;
+					}
+					// comment
+					return b;
+				}
+			`,
+			errors,
+		},
+		{
+			code: outdent`
+				function unicorn() {
+					if (test) {
+						return a;
+					}
+					return b; // comment
+				}
+			`,
 			errors,
 		},
 	],
@@ -902,7 +920,6 @@ test({
 				}
 			}
 		`,
-		'if (test) {foo = /* comment */1;} else {foo = 2;}',
 	],
 	invalid: [
 		// Empty block should not matter
@@ -1050,13 +1067,16 @@ test({
 			`,
 			errors,
 		},
+		{
+			code: 'if (test) {foo = /* comment */1;} else {foo = 2;}',
+			errors,
+		},
 	],
 });
 
 // Variable declaration with no else clause
 test({
 	valid: [
-		'let x = a; if (/* explanation */ test) { x = b; }',
 		// `var` instead of `let`
 		outdent`
 			var x = a;
@@ -1245,43 +1265,6 @@ test({
 			`,
 			options: onlySingleLineOptions,
 		},
-		// Comments in if body (preserved without reporting)
-		outdent`
-			let x = a;
-			if (test) {
-				x = /* comment */ b;
-			}
-		`,
-		// Comments between declaration and if (preserved without reporting)
-		outdent`
-			let x = a;
-			// comment
-			if (test) {
-				x = b;
-			}
-		`,
-		// Comments inside declaration (preserved without reporting)
-		outdent`
-			let x = /* comment */ a;
-			if (test) {
-				x = b;
-			}
-		`,
-		// Trailing comment on declaration (preserved without reporting)
-		outdent`
-			let x = a; // default value
-			if (test) {
-				x = b;
-			}
-		`,
-		// Block comment between declaration and if (preserved without reporting)
-		outdent`
-			let x = a;
-			/* block comment */
-			if (test) {
-				x = b;
-			}
-		`,
 	],
 	invalid: [
 		{
@@ -1489,6 +1472,62 @@ test({
 				const x: string = test ? b : a;
 			`),
 			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'let x = a; if (/* explanation */ test) { x = b; }',
+			errors,
+		},
+		// Comments in if body (reported without edits)
+		{
+			code: outdent`
+				let x = a;
+				if (test) {
+					x = /* comment */ b;
+				}
+			`,
+			errors,
+		},
+		// Comments between declaration and if (reported without edits)
+		{
+			code: outdent`
+				let x = a;
+				// comment
+				if (test) {
+					x = b;
+				}
+			`,
+			errors,
+		},
+		// Comments inside declaration (reported without edits)
+		{
+			code: outdent`
+				let x = /* comment */ a;
+				if (test) {
+					x = b;
+				}
+			`,
+			errors,
+		},
+		// Trailing comment on declaration (reported without edits)
+		{
+			code: outdent`
+				let x = a; // default value
+				if (test) {
+					x = b;
+				}
+			`,
+			errors,
+		},
+		// Block comment between declaration and if (reported without edits)
+		{
+			code: outdent`
+				let x = a;
+				/* block comment */
+				if (test) {
+					x = b;
+				}
+			`,
+			errors,
 		},
 	],
 });

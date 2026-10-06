@@ -457,27 +457,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(34): const object = {...(foo == null ? /* keep */ {} : foo)} 1`] = `
-
-  1 | const object = {...(foo == null ? /* keep */ {} : foo)}
-
-`;
-
-exports[`consistent-conditional-object-spread > invalid(34): const object = {...(foo == null ? /* keep */ {} : foo)} 2`] = `
-
-Message:
-> 1 | const object = {...(foo == null ? /* keep */ {} : foo)}
-    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer logical conditional object spreads.
-
-`;
-
-exports[`consistent-conditional-object-spread > invalid(35): const object = {...(foo ? {a: 1} : /* keep */ {})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(34): const object = {...(foo ? {a: 1} : /* keep */ {})} 1`] = `
 
   1 | const object = {...(foo ? {a: 1} : /* keep */ {})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(35): const object = {...(foo ? {a: 1} : /* keep */ {})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(34): const object = {...(foo ? {a: 1} : /* keep */ {})} 2`] = `
 
 Message:
 > 1 | const object = {...(foo ? {a: 1} : /* keep */ {})}
@@ -485,13 +471,13 @@ Message:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(36): const object = {...(foo ? {a: 1} : /* keep */ undefined)} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(35): const object = {...(foo ? {a: 1} : /* keep */ undefined)} 1`] = `
 
   1 | const object = {...(foo ? {a: 1} : /* keep */ undefined)}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(36): const object = {...(foo ? {a: 1} : /* keep */ undefined)} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(35): const object = {...(foo ? {a: 1} : /* keep */ undefined)} 2`] = `
 
 Message:
 > 1 | const object = {...(foo ? {a: 1} : /* keep */ undefined)}
@@ -499,13 +485,13 @@ Message:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(37): const object = {...(foo ? {a: 1} : /* keep */ null)} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(36): const object = {...(foo ? {a: 1} : /* keep */ null)} 1`] = `
 
   1 | const object = {...(foo ? {a: 1} : /* keep */ null)}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(37): const object = {...(foo ? {a: 1} : /* keep */ null)} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(36): const object = {...(foo ? {a: 1} : /* keep */ null)} 2`] = `
 
 Message:
 > 1 | const object = {...(foo ? {a: 1} : /* keep */ null)}
@@ -513,13 +499,13 @@ Message:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(38): const object = {...(/* keep */ foo ? {a: 1} : {})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(37): const object = {...(/* keep */ foo ? {a: 1} : {})} 1`] = `
 
   1 | const object = {...(/* keep */ foo ? {a: 1} : {})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(38): const object = {...(/* keep */ foo ? {a: 1} : {})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(37): const object = {...(/* keep */ foo ? {a: 1} : {})} 2`] = `
 
 Message:
 > 1 | const object = {...(/* keep */ foo ? {a: 1} : {})}
@@ -530,7 +516,7 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(39): const object = {...(foo && {bar: true})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(38): const object = {...(foo && {bar: true})} 1`] = `
 
 Options:
 - 'ternary'
@@ -540,7 +526,7 @@ Code:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(39): const object = {...(foo && {bar: true})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(38): const object = {...(foo && {bar: true})} 2`] = `
 
 Message:
 > 1 | const object = {...(foo && {bar: true})}
@@ -548,6 +534,27 @@ Message:
 
 Output:
   1 | const object = {...(foo ? {bar: true} : {})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(39): const object = {...(!foo && {bar: true})} 1`] = `
+
+Options:
+- 'ternary'
+
+Code:
+  1 | const object = {...(!foo && {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(39): const object = {...(!foo && {bar: true})} 2`] = `
+
+Message:
+> 1 | const object = {...(!foo && {bar: true})}
+    |                     ^^^^^^^^^^^^^^^^^^^ Prefer ternary conditional object spreads.
+
+Output:
+  1 | const object = {...(!foo ? {bar: true} : {})}
 
 `;
 
@@ -568,28 +575,7 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(40): const object = {...(!foo && {bar: true})} 1`] = `
-
-Options:
-- 'ternary'
-
-Code:
-  1 | const object = {...(!foo && {bar: true})}
-
-`;
-
-exports[`consistent-conditional-object-spread > invalid(40): const object = {...(!foo && {bar: true})} 2`] = `
-
-Message:
-> 1 | const object = {...(!foo && {bar: true})}
-    |                     ^^^^^^^^^^^^^^^^^^^ Prefer ternary conditional object spreads.
-
-Output:
-  1 | const object = {...(!foo ? {bar: true} : {})}
-
-`;
-
-exports[`consistent-conditional-object-spread > invalid(41): const object = {...(foo && bar)} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(40): const object = {...(foo && bar)} 1`] = `
 
 Options:
 - 'ternary'
@@ -599,7 +585,7 @@ Code:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(41): const object = {...(foo && bar)} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(40): const object = {...(foo && bar)} 2`] = `
 
 Message:
 > 1 | const object = {...(foo && bar)}
@@ -610,7 +596,7 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(42): const object = {...((a || b) && {x: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(41): const object = {...((a || b) && {x: 1})} 1`] = `
 
 Options:
 - 'ternary'
@@ -620,7 +606,7 @@ Code:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(42): const object = {...((a || b) && {x: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(41): const object = {...((a || b) && {x: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...((a || b) && {x: 1})}
@@ -631,7 +617,7 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(43): const object = {...((a, b) && {x: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(42): const object = {...((a, b) && {x: 1})} 1`] = `
 
 Options:
 - 'ternary'
@@ -641,7 +627,7 @@ Code:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(43): const object = {...((a, b) && {x: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(42): const object = {...((a, b) && {x: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...((a, b) && {x: 1})}
@@ -652,7 +638,7 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(44): async () => ({...(await foo && {a: 1})}) 1`] = `
+exports[`consistent-conditional-object-spread > invalid(43): async () => ({...(await foo && {a: 1})}) 1`] = `
 
 Options:
 - 'ternary'
@@ -662,7 +648,7 @@ Code:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(44): async () => ({...(await foo && {a: 1})}) 2`] = `
+exports[`consistent-conditional-object-spread > invalid(43): async () => ({...(await foo && {a: 1})}) 2`] = `
 
 Message:
 > 1 | async () => ({...(await foo && {a: 1})})
@@ -673,7 +659,7 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(45): const object = {...(foo && (() => x))} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(44): const object = {...(foo && (() => x))} 1`] = `
 
 Options:
 - 'ternary'
@@ -683,7 +669,7 @@ Code:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(45): const object = {...(foo && (() => x))} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(44): const object = {...(foo && (() => x))} 2`] = `
 
 Message:
 > 1 | const object = {...(foo && (() => x))}
@@ -694,7 +680,7 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(46): const object = {...(foo && (a = b))} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(45): const object = {...(foo && (a = b))} 1`] = `
 
 Options:
 - 'ternary'
@@ -704,7 +690,7 @@ Code:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(46): const object = {...(foo && (a = b))} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(45): const object = {...(foo && (a = b))} 2`] = `
 
 Message:
 > 1 | const object = {...(foo && (a = b))}
@@ -715,7 +701,7 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(47): const object = {...(foo && (a, b))} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(46): const object = {...(foo && (a, b))} 1`] = `
 
 Options:
 - 'ternary'
@@ -725,7 +711,7 @@ Code:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(47): const object = {...(foo && (a, b))} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(46): const object = {...(foo && (a, b))} 2`] = `
 
 Message:
 > 1 | const object = {...(foo && (a, b))}
@@ -736,7 +722,7 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(48): const object = {...(foo && bar!)} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(47): const object = {...(foo && bar!)} 1`] = `
 
 Options:
 - 'ternary'
@@ -746,7 +732,7 @@ Code:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(48): const object = {...(foo && bar!)} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(47): const object = {...(foo && bar!)} 2`] = `
 
 Message:
 > 1 | const object = {...(foo && bar!)}
@@ -757,7 +743,7 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(49): const object = {...(foo /* keep */ && {bar: true})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(48): const object = {...(foo /* keep */ && {bar: true})} 1`] = `
 
 Options:
 - 'ternary'
@@ -767,11 +753,28 @@ Code:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(49): const object = {...(foo /* keep */ && {bar: true})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(48): const object = {...(foo /* keep */ && {bar: true})} 2`] = `
 
 Message:
 > 1 | const object = {...(foo /* keep */ && {bar: true})}
     |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer ternary conditional object spreads.
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(49): const object = {...(!!foo && {bar: true})} 1`] = `
+
+  1 | const object = {...(!!foo && {bar: true})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(49): const object = {...(!!foo && {bar: true})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!foo && {bar: true})}
+    |                     ^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(foo && {bar: true})}
 
 `;
 
@@ -792,30 +795,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(50): const object = {...(!!foo && {bar: true})} 1`] = `
-
-  1 | const object = {...(!!foo && {bar: true})}
-
-`;
-
-exports[`consistent-conditional-object-spread > invalid(50): const object = {...(!!foo && {bar: true})} 2`] = `
-
-Message:
-> 1 | const object = {...(!!foo && {bar: true})}
-    |                     ^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
-
-Output:
-  1 | const object = {...(foo && {bar: true})}
-
-`;
-
-exports[`consistent-conditional-object-spread > invalid(51): const object = {...!!foo && {bar: true}} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(50): const object = {...!!foo && {bar: true}} 1`] = `
 
   1 | const object = {...!!foo && {bar: true}}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(51): const object = {...!!foo && {bar: true}} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(50): const object = {...!!foo && {bar: true}} 2`] = `
 
 Message:
 > 1 | const object = {...!!foo && {bar: true}}
@@ -826,13 +812,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(52): const object = {...(Boolean(foo) && {bar: true})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(51): const object = {...(Boolean(foo) && {bar: true})} 1`] = `
 
   1 | const object = {...(Boolean(foo) && {bar: true})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(52): const object = {...(Boolean(foo) && {bar: true})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(51): const object = {...(Boolean(foo) && {bar: true})} 2`] = `
 
 Message:
 > 1 | const object = {...(Boolean(foo) && {bar: true})}
@@ -843,13 +829,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(53): const object = {...(!!foo && bar)} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(52): const object = {...(!!foo && bar)} 1`] = `
 
   1 | const object = {...(!!foo && bar)}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(53): const object = {...(!!foo && bar)} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(52): const object = {...(!!foo && bar)} 2`] = `
 
 Message:
 > 1 | const object = {...(!!foo && bar)}
@@ -860,13 +846,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(54): const object = {...(!!foo.bar && {a: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(53): const object = {...(!!foo.bar && {a: 1})} 1`] = `
 
   1 | const object = {...(!!foo.bar && {a: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(54): const object = {...(!!foo.bar && {a: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(53): const object = {...(!!foo.bar && {a: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(!!foo.bar && {a: 1})}
@@ -877,13 +863,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(55): const object = {...(!!foo() && {a: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(54): const object = {...(!!foo() && {a: 1})} 1`] = `
 
   1 | const object = {...(!!foo() && {a: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(55): const object = {...(!!foo() && {a: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(54): const object = {...(!!foo() && {a: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(!!foo() && {a: 1})}
@@ -894,13 +880,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(56): const object = {...(!!(foo) && {a: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(55): const object = {...(!!(foo) && {a: 1})} 1`] = `
 
   1 | const object = {...(!!(foo) && {a: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(56): const object = {...(!!(foo) && {a: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(55): const object = {...(!!(foo) && {a: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(!!(foo) && {a: 1})}
@@ -911,13 +897,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(57): const object = {...((!!foo) && {a: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(56): const object = {...((!!foo) && {a: 1})} 1`] = `
 
   1 | const object = {...((!!foo) && {a: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(57): const object = {...((!!foo) && {a: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(56): const object = {...((!!foo) && {a: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...((!!foo) && {a: 1})}
@@ -928,13 +914,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(58): const object = {...(!(!foo) && {a: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(57): const object = {...(!(!foo) && {a: 1})} 1`] = `
 
   1 | const object = {...(!(!foo) && {a: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(58): const object = {...(!(!foo) && {a: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(57): const object = {...(!(!foo) && {a: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(!(!foo) && {a: 1})}
@@ -945,13 +931,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(59): const object = {...(!!!foo && {a: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(58): const object = {...(!!!foo && {a: 1})} 1`] = `
 
   1 | const object = {...(!!!foo && {a: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(59): const object = {...(!!!foo && {a: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(58): const object = {...(!!!foo && {a: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(!!!foo && {a: 1})}
@@ -959,6 +945,23 @@ Message:
 
 Output:
   1 | const object = {...(!foo && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(59): const object = {...(Boolean(!!foo) && {a: 1})} 1`] = `
+
+  1 | const object = {...(Boolean(!!foo) && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(59): const object = {...(Boolean(!!foo) && {a: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(Boolean(!!foo) && {a: 1})}
+    |                     ^^^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(!!foo && {a: 1})}
 
 `;
 
@@ -979,30 +982,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(60): const object = {...(Boolean(!!foo) && {a: 1})} 1`] = `
-
-  1 | const object = {...(Boolean(!!foo) && {a: 1})}
-
-`;
-
-exports[`consistent-conditional-object-spread > invalid(60): const object = {...(Boolean(!!foo) && {a: 1})} 2`] = `
-
-Message:
-> 1 | const object = {...(Boolean(!!foo) && {a: 1})}
-    |                     ^^^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
-
-Output:
-  1 | const object = {...(!!foo && {a: 1})}
-
-`;
-
-exports[`consistent-conditional-object-spread > invalid(61): const object = {...(!!(a || b) && {x: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(60): const object = {...(!!(a || b) && {x: 1})} 1`] = `
 
   1 | const object = {...(!!(a || b) && {x: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(61): const object = {...(!!(a || b) && {x: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(60): const object = {...(!!(a || b) && {x: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(!!(a || b) && {x: 1})}
@@ -1013,13 +999,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(62): const object = {...(Boolean(a || b) && {x: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(61): const object = {...(Boolean(a || b) && {x: 1})} 1`] = `
 
   1 | const object = {...(Boolean(a || b) && {x: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(62): const object = {...(Boolean(a || b) && {x: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(61): const object = {...(Boolean(a || b) && {x: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(Boolean(a || b) && {x: 1})}
@@ -1030,13 +1016,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(63): const object = {...(!!(a ?? b) && {x: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(62): const object = {...(!!(a ?? b) && {x: 1})} 1`] = `
 
   1 | const object = {...(!!(a ?? b) && {x: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(63): const object = {...(!!(a ?? b) && {x: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(62): const object = {...(!!(a ?? b) && {x: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(!!(a ?? b) && {x: 1})}
@@ -1047,13 +1033,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(64): const object = {...(Boolean(a ?? b) && {x: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(63): const object = {...(Boolean(a ?? b) && {x: 1})} 1`] = `
 
   1 | const object = {...(Boolean(a ?? b) && {x: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(64): const object = {...(Boolean(a ?? b) && {x: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(63): const object = {...(Boolean(a ?? b) && {x: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(Boolean(a ?? b) && {x: 1})}
@@ -1064,13 +1050,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(65): const object = {...(!!(a && b) && {x: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(64): const object = {...(!!(a && b) && {x: 1})} 1`] = `
 
   1 | const object = {...(!!(a && b) && {x: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(65): const object = {...(!!(a && b) && {x: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(64): const object = {...(!!(a && b) && {x: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(!!(a && b) && {x: 1})}
@@ -1081,13 +1067,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(66): const object = {...(Boolean(a && b) && {x: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(65): const object = {...(Boolean(a && b) && {x: 1})} 1`] = `
 
   1 | const object = {...(Boolean(a && b) && {x: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(66): const object = {...(Boolean(a && b) && {x: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(65): const object = {...(Boolean(a && b) && {x: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(Boolean(a && b) && {x: 1})}
@@ -1098,13 +1084,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(67): const object = {...(Boolean((a, b)) && {x: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(66): const object = {...(Boolean((a, b)) && {x: 1})} 1`] = `
 
   1 | const object = {...(Boolean((a, b)) && {x: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(67): const object = {...(Boolean((a, b)) && {x: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(66): const object = {...(Boolean((a, b)) && {x: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(Boolean((a, b)) && {x: 1})}
@@ -1115,13 +1101,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(68): const object = {...(Boolean(a = b) && {x: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(67): const object = {...(Boolean(a = b) && {x: 1})} 1`] = `
 
   1 | const object = {...(Boolean(a = b) && {x: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(68): const object = {...(Boolean(a = b) && {x: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(67): const object = {...(Boolean(a = b) && {x: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(Boolean(a = b) && {x: 1})}
@@ -1132,13 +1118,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(69): const object = {...(Boolean(a ? b : c) && {x: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(68): const object = {...(Boolean(a ? b : c) && {x: 1})} 1`] = `
 
   1 | const object = {...(Boolean(a ? b : c) && {x: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(69): const object = {...(Boolean(a ? b : c) && {x: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(68): const object = {...(Boolean(a ? b : c) && {x: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(Boolean(a ? b : c) && {x: 1})}
@@ -1146,6 +1132,23 @@ Message:
 
 Output:
   1 | const object = {...((a ? b : c) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(69): const object = {...((!!(a || b)) && {x: 1})} 1`] = `
+
+  1 | const object = {...((!!(a || b)) && {x: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(69): const object = {...((!!(a || b)) && {x: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...((!!(a || b)) && {x: 1})}
+    |                      ^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(((a || b)) && {x: 1})}
 
 `;
 
@@ -1166,30 +1169,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(70): const object = {...((!!(a || b)) && {x: 1})} 1`] = `
-
-  1 | const object = {...((!!(a || b)) && {x: 1})}
-
-`;
-
-exports[`consistent-conditional-object-spread > invalid(70): const object = {...((!!(a || b)) && {x: 1})} 2`] = `
-
-Message:
-> 1 | const object = {...((!!(a || b)) && {x: 1})}
-    |                      ^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
-
-Output:
-  1 | const object = {...(((a || b)) && {x: 1})}
-
-`;
-
-exports[`consistent-conditional-object-spread > invalid(71): async () => ({...(!!await foo && {a: 1})}) 1`] = `
+exports[`consistent-conditional-object-spread > invalid(70): async () => ({...(!!await foo && {a: 1})}) 1`] = `
 
   1 | async () => ({...(!!await foo && {a: 1})})
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(71): async () => ({...(!!await foo && {a: 1})}) 2`] = `
+exports[`consistent-conditional-object-spread > invalid(70): async () => ({...(!!await foo && {a: 1})}) 2`] = `
 
 Message:
 > 1 | async () => ({...(!!await foo && {a: 1})})
@@ -1200,13 +1186,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(72): const object = {...(!!foo && {a: 1}), ...(Boolean(bar) && {b: 2})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(71): const object = {...(!!foo && {a: 1}), ...(Boolean(bar) && {b: 2})} 1`] = `
 
   1 | const object = {...(!!foo && {a: 1}), ...(Boolean(bar) && {b: 2})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(72): const object = {...(!!foo && {a: 1}), ...(Boolean(bar) && {b: 2})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(71): const object = {...(!!foo && {a: 1}), ...(Boolean(bar) && {b: 2})} 2`] = `
 
 Message:
 > 1 | const object = {...(!!foo && {a: 1}), ...(Boolean(bar) && {b: 2})}
@@ -1217,7 +1203,7 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(72): const object = {...(!!foo && {a: 1}), ...(Boolean(bar) && {b: 2})} 3`] = `
+exports[`consistent-conditional-object-spread > invalid(71): const object = {...(!!foo && {a: 1}), ...(Boolean(bar) && {b: 2})} 3`] = `
 
 Message:
 > 1 | const object = {...(!!foo && {a: 1}), ...(Boolean(bar) && {b: 2})}
@@ -1228,13 +1214,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(73): const object = {...(!! /* keep */ foo && {a: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(72): const object = {...(!! /* keep */ foo && {a: 1})} 1`] = `
 
   1 | const object = {...(!! /* keep */ foo && {a: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(73): const object = {...(!! /* keep */ foo && {a: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(72): const object = {...(!! /* keep */ foo && {a: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(!! /* keep */ foo && {a: 1})}
@@ -1242,13 +1228,13 @@ Message:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(74): const object = {...(Boolean(foo /* keep */) && {a: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(73): const object = {...(Boolean(foo /* keep */) && {a: 1})} 1`] = `
 
   1 | const object = {...(Boolean(foo /* keep */) && {a: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(74): const object = {...(Boolean(foo /* keep */) && {a: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(73): const object = {...(Boolean(foo /* keep */) && {a: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(Boolean(foo /* keep */) && {a: 1})}
@@ -1256,13 +1242,13 @@ Message:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(75): const object = {...(!!(/* keep */ foo) && {a: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(74): const object = {...(!!(/* keep */ foo) && {a: 1})} 1`] = `
 
   1 | const object = {...(!!(/* keep */ foo) && {a: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(75): const object = {...(!!(/* keep */ foo) && {a: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(74): const object = {...(!!(/* keep */ foo) && {a: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(!!(/* keep */ foo) && {a: 1})}
@@ -1270,13 +1256,13 @@ Message:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(76): const object = {...(!!foo ? {a: 1} : {})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(75): const object = {...(!!foo ? {a: 1} : {})} 1`] = `
 
   1 | const object = {...(!!foo ? {a: 1} : {})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(76): const object = {...(!!foo ? {a: 1} : {})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(75): const object = {...(!!foo ? {a: 1} : {})} 2`] = `
 
 Message:
 > 1 | const object = {...(!!foo ? {a: 1} : {})}
@@ -1287,13 +1273,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(77): const object = {...(!!foo! && {a: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(76): const object = {...(!!foo! && {a: 1})} 1`] = `
 
   1 | const object = {...(!!foo! && {a: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(77): const object = {...(!!foo! && {a: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(76): const object = {...(!!foo! && {a: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(!!foo! && {a: 1})}
@@ -1304,13 +1290,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(78): const object = {...(Boolean(foo as string) && {a: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(77): const object = {...(Boolean(foo as string) && {a: 1})} 1`] = `
 
   1 | const object = {...(Boolean(foo as string) && {a: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(78): const object = {...(Boolean(foo as string) && {a: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(77): const object = {...(Boolean(foo as string) && {a: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(Boolean(foo as string) && {a: 1})}
@@ -1321,13 +1307,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(79): const object = {...(Boolean(foo satisfies string) && {a: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(78): const object = {...(Boolean(foo satisfies string) && {a: 1})} 1`] = `
 
   1 | const object = {...(Boolean(foo satisfies string) && {a: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(79): const object = {...(Boolean(foo satisfies string) && {a: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(78): const object = {...(Boolean(foo satisfies string) && {a: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(Boolean(foo satisfies string) && {a: 1})}
@@ -1335,6 +1321,23 @@ Message:
 
 Output:
   1 | const object = {...(foo satisfies string && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(79): const object = {...(!!<string>foo && {a: 1})} 1`] = `
+
+  1 | const object = {...(!!<string>foo && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(79): const object = {...(!!<string>foo && {a: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!<string>foo && {a: 1})}
+    |                     ^^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(<string>foo && {a: 1})}
 
 `;
 
@@ -1355,24 +1358,7 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(80): const object = {...(!!<string>foo && {a: 1})} 1`] = `
-
-  1 | const object = {...(!!<string>foo && {a: 1})}
-
-`;
-
-exports[`consistent-conditional-object-spread > invalid(80): const object = {...(!!<string>foo && {a: 1})} 2`] = `
-
-Message:
-> 1 | const object = {...(!!<string>foo && {a: 1})}
-    |                     ^^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
-
-Output:
-  1 | const object = {...(<string>foo && {a: 1})}
-
-`;
-
-exports[`consistent-conditional-object-spread > invalid(81): const object = {...(!!foo && {a: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(80): const object = {...(!!foo && {a: 1})} 1`] = `
 
 Options:
 - 'ternary'
@@ -1382,7 +1368,7 @@ Code:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(81): const object = {...(!!foo && {a: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(80): const object = {...(!!foo && {a: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(!!foo && {a: 1})}
@@ -1393,13 +1379,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(82): const object = {...(!!foo?.bar && {a: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(81): const object = {...(!!foo?.bar && {a: 1})} 1`] = `
 
   1 | const object = {...(!!foo?.bar && {a: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(82): const object = {...(!!foo?.bar && {a: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(81): const object = {...(!!foo?.bar && {a: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(!!foo?.bar && {a: 1})}
@@ -1410,13 +1396,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(83): const object = {...(!!foo && bar && {a: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(82): const object = {...(!!foo && bar && {a: 1})} 1`] = `
 
   1 | const object = {...(!!foo && bar && {a: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(83): const object = {...(!!foo && bar && {a: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(82): const object = {...(!!foo && bar && {a: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(!!foo && bar && {a: 1})}
@@ -1427,13 +1413,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(84): const object = {...(foo && !!bar && {a: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(83): const object = {...(foo && !!bar && {a: 1})} 1`] = `
 
   1 | const object = {...(foo && !!bar && {a: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(84): const object = {...(foo && !!bar && {a: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(83): const object = {...(foo && !!bar && {a: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(foo && !!bar && {a: 1})}
@@ -1444,13 +1430,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(85): const object = {...(!!a && Boolean(b) && !!c && {x: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(84): const object = {...(!!a && Boolean(b) && !!c && {x: 1})} 1`] = `
 
   1 | const object = {...(!!a && Boolean(b) && !!c && {x: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(85): const object = {...(!!a && Boolean(b) && !!c && {x: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(84): const object = {...(!!a && Boolean(b) && !!c && {x: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(!!a && Boolean(b) && !!c && {x: 1})}
@@ -1461,7 +1447,7 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(85): const object = {...(!!a && Boolean(b) && !!c && {x: 1})} 3`] = `
+exports[`consistent-conditional-object-spread > invalid(84): const object = {...(!!a && Boolean(b) && !!c && {x: 1})} 3`] = `
 
 Message:
 > 1 | const object = {...(!!a && Boolean(b) && !!c && {x: 1})}
@@ -1472,7 +1458,7 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(85): const object = {...(!!a && Boolean(b) && !!c && {x: 1})} 4`] = `
+exports[`consistent-conditional-object-spread > invalid(84): const object = {...(!!a && Boolean(b) && !!c && {x: 1})} 4`] = `
 
 Message:
 > 1 | const object = {...(!!a && Boolean(b) && !!c && {x: 1})}
@@ -1483,13 +1469,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(86): const object = {...(a && !!(b || c) && {x: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(85): const object = {...(a && !!(b || c) && {x: 1})} 1`] = `
 
   1 | const object = {...(a && !!(b || c) && {x: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(86): const object = {...(a && !!(b || c) && {x: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(85): const object = {...(a && !!(b || c) && {x: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(a && !!(b || c) && {x: 1})}
@@ -1500,13 +1486,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(87): const object = {...(a && Boolean(b ?? c) && {x: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(86): const object = {...(a && Boolean(b ?? c) && {x: 1})} 1`] = `
 
   1 | const object = {...(a && Boolean(b ?? c) && {x: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(87): const object = {...(a && Boolean(b ?? c) && {x: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(86): const object = {...(a && Boolean(b ?? c) && {x: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(a && Boolean(b ?? c) && {x: 1})}
@@ -1517,13 +1503,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(88): const object = {...(a && Boolean(b && c) && {x: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(87): const object = {...(a && Boolean(b && c) && {x: 1})} 1`] = `
 
   1 | const object = {...(a && Boolean(b && c) && {x: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(88): const object = {...(a && Boolean(b && c) && {x: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(87): const object = {...(a && Boolean(b && c) && {x: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(a && Boolean(b && c) && {x: 1})}
@@ -1534,13 +1520,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(89): const object = {...(!!a && !! /* keep */ b && {x: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(88): const object = {...(!!a && !! /* keep */ b && {x: 1})} 1`] = `
 
   1 | const object = {...(!!a && !! /* keep */ b && {x: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(89): const object = {...(!!a && !! /* keep */ b && {x: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(88): const object = {...(!!a && !! /* keep */ b && {x: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(!!a && !! /* keep */ b && {x: 1})}
@@ -1551,11 +1537,28 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(89): const object = {...(!!a && !! /* keep */ b && {x: 1})} 3`] = `
+exports[`consistent-conditional-object-spread > invalid(88): const object = {...(!!a && !! /* keep */ b && {x: 1})} 3`] = `
 
 Message:
 > 1 | const object = {...(!!a && !! /* keep */ b && {x: 1})}
     |                            ^^^^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(89): const object = {...(!!foo /* keep */ && {a: 1})} 1`] = `
+
+  1 | const object = {...(!!foo /* keep */ && {a: 1})}
+
+`;
+
+exports[`consistent-conditional-object-spread > invalid(89): const object = {...(!!foo /* keep */ && {a: 1})} 2`] = `
+
+Message:
+> 1 | const object = {...(!!foo /* keep */ && {a: 1})}
+    |                     ^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
+
+Output:
+  1 | const object = {...(foo /* keep */ && {a: 1})}
 
 `;
 
@@ -1576,30 +1579,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(90): const object = {...(!!foo /* keep */ && {a: 1})} 1`] = `
-
-  1 | const object = {...(!!foo /* keep */ && {a: 1})}
-
-`;
-
-exports[`consistent-conditional-object-spread > invalid(90): const object = {...(!!foo /* keep */ && {a: 1})} 2`] = `
-
-Message:
-> 1 | const object = {...(!!foo /* keep */ && {a: 1})}
-    |                     ^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
-
-Output:
-  1 | const object = {...(foo /* keep */ && {a: 1})}
-
-`;
-
-exports[`consistent-conditional-object-spread > invalid(91): const object = {...(!!foo && {})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(90): const object = {...(!!foo && {})} 1`] = `
 
   1 | const object = {...(!!foo && {})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(91): const object = {...(!!foo && {})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(90): const object = {...(!!foo && {})} 2`] = `
 
 Message:
 > 1 | const object = {...(!!foo && {})}
@@ -1610,13 +1596,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(92): const element = <div style={{...(!!foo && {color: 'red'})}} /> 1`] = `
+exports[`consistent-conditional-object-spread > invalid(91): const element = <div style={{...(!!foo && {color: 'red'})}} /> 1`] = `
 
   1 | const element = <div style={{...(!!foo && {color: 'red'})}} />
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(92): const element = <div style={{...(!!foo && {color: 'red'})}} /> 2`] = `
+exports[`consistent-conditional-object-spread > invalid(91): const element = <div style={{...(!!foo && {color: 'red'})}} /> 2`] = `
 
 Message:
 > 1 | const element = <div style={{...(!!foo && {color: 'red'})}} />
@@ -1627,7 +1613,7 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(93): function * generator() {\n\treturn {...(Boolean(yield foo) && {a: 1})};\n} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(92): function * generator() {\n\treturn {...(Boolean(yield foo) && {a: 1})};\n} 1`] = `
 
   1 | function * generator() {
   2 | 	return {...(Boolean(yield foo) && {a: 1})};
@@ -1635,7 +1621,7 @@ exports[`consistent-conditional-object-spread > invalid(93): function * generato
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(93): function * generator() {\n\treturn {...(Boolean(yield foo) && {a: 1})};\n} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(92): function * generator() {\n\treturn {...(Boolean(yield foo) && {a: 1})};\n} 2`] = `
 
 Message:
   1 | function * generator() {
@@ -1650,13 +1636,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(94): const object = {...(Boolean(foo) ? {} : {a: 1})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(93): const object = {...(Boolean(foo) ? {} : {a: 1})} 1`] = `
 
   1 | const object = {...(Boolean(foo) ? {} : {a: 1})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(94): const object = {...(Boolean(foo) ? {} : {a: 1})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(93): const object = {...(Boolean(foo) ? {} : {a: 1})} 2`] = `
 
 Message:
 > 1 | const object = {...(Boolean(foo) ? {} : {a: 1})}
@@ -1667,13 +1653,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(95): const object = {...(foo++ ? foo++ : {})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(94): const object = {...(foo++ ? foo++ : {})} 1`] = `
 
   1 | const object = {...(foo++ ? foo++ : {})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(95): const object = {...(foo++ ? foo++ : {})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(94): const object = {...(foo++ ? foo++ : {})} 2`] = `
 
 Message:
 > 1 | const object = {...(foo++ ? foo++ : {})}
@@ -1684,13 +1670,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(96): const object = {...(foo || bar ? foo && bar : {})} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(95): const object = {...(foo || bar ? foo && bar : {})} 1`] = `
 
   1 | const object = {...(foo || bar ? foo && bar : {})}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(96): const object = {...(foo || bar ? foo && bar : {})} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(95): const object = {...(foo || bar ? foo && bar : {})} 2`] = `
 
 Message:
 > 1 | const object = {...(foo || bar ? foo && bar : {})}
@@ -1701,13 +1687,13 @@ Output:
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(97): const object = {...(foo === bar ? {} : foo)} 1`] = `
+exports[`consistent-conditional-object-spread > invalid(96): const object = {...(foo === bar ? {} : foo)} 1`] = `
 
   1 | const object = {...(foo === bar ? {} : foo)}
 
 `;
 
-exports[`consistent-conditional-object-spread > invalid(97): const object = {...(foo === bar ? {} : foo)} 2`] = `
+exports[`consistent-conditional-object-spread > invalid(96): const object = {...(foo === bar ? {} : foo)} 2`] = `
 
 Message:
 > 1 | const object = {...(foo === bar ? {} : foo)}

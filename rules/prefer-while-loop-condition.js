@@ -9,7 +9,6 @@ import {
 	getLastTrailingCommentOnSameLine,
 	getNegatedExpressionText,
 	getReferences,
-	hasNonDirectiveComment,
 	getVisitorChildNodes,
 } from './utils/index.js';
 
@@ -174,9 +173,6 @@ const create = context => {
 			sourceCode.getRange(firstStatementTrailingComment ?? firstStatement)[1],
 			sourceCode.getRange(node.body)[1],
 		];
-		if (hasNonDirectiveComment(context, commentRange, [preservedBodyRange])) {
-			return;
-		}
 
 		return getCommentSafeProblem(context, {
 			node: firstStatement,

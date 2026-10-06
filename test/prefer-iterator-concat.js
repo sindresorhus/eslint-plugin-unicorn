@@ -23,6 +23,7 @@ test.snapshot({
 		'const a = new Set(); const b = new Set(); new Set([...a, ...b])',
 		'const a = new Set(); const b = new Set(); new Set([...(condition ? a : a), ...b])',
 		'const a = new Set(); new Set([...a, ...new Set((a.clear(), []))])',
+		'const a = new Set(); const b = new Set(); new Set([/* comment */ ...a, ...b])',
 		'[...[...foo, ...bar]]',
 		'call(...[...foo, ...bar])',
 		'call(value, ...[...foo, ...bar])',
@@ -105,7 +106,6 @@ test.snapshot({
 
 		// Comments are reported without a fix.
 		'new Set([/* comment */ ...foo, ...bar])',
-		'const a = new Set(); const b = new Set(); new Set([/* comment */ ...a, ...b])',
 		'Promise.all([/* comment */ ...foo, ...bar])',
 
 		// A spread that is not a string is still reported

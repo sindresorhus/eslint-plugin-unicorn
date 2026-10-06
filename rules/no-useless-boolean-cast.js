@@ -3,7 +3,6 @@ import {
 	getCommentSafeProblem,
 	getConciseArrowBodyText,
 	getFunctionReturnExpression,
-	hasNonDirectiveComment,
 	hasOptionalChainElement,
 	isGlobalBooleanCall,
 	isNullishType,
@@ -101,10 +100,7 @@ const create = context => {
 		}
 
 		const booleanCall = getReturnedExpression(callback);
-		if (
-			!isGlobalBooleanCall(booleanCall, context)
-			|| hasNonDirectiveComment(context, booleanCall)
-		) {
+		if (!isGlobalBooleanCall(booleanCall, context)) {
 			return;
 		}
 

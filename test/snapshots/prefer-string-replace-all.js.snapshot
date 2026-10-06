@@ -15,6 +15,30 @@ Output:
 
 `;
 
+exports[`prefer-string-replace-all > invalid(1): foo\n\t.split(\n\t\t/* comment */\n\t\t\"a\"\n\t)\n\t.join(\"b\") 1`] = `
+
+  1 | foo
+  2 | 	.split(
+  3 | 		/* comment */
+  4 | 		"a"
+  5 | 	)
+  6 | 	.join("b")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(1): foo\n\t.split(\n\t\t/* comment */\n\t\t\"a\"\n\t)\n\t.join(\"b\") 2`] = `
+
+Message:
+  1 | foo
+  2 | 	.split(
+  3 | 		/* comment */
+  4 | 		"a"
+  5 | 	)
+> 6 | 	.join("b")
+    | 	 ^^^^ Prefer \`String#replaceAll()\` over \`String#split().join()\`.
+
+`;
+
 exports[`prefer-string-replace-all > invalid(10): foo.replace(/a/ug, bar) 1`] = `
 
   1 | foo.replace(/a/ug, bar)
@@ -199,6 +223,30 @@ Message:
 
 Output:
   1 | foo?.replaceAll('a', bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(2): foo\n\t.split(\"a\")\n\t.join(\n\t\t/* comment */\n\t\t\"b\"\n\t) 1`] = `
+
+  1 | foo
+  2 | 	.split("a")
+  3 | 	.join(
+  4 | 		/* comment */
+  5 | 		"b"
+  6 | 	)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(2): foo\n\t.split(\"a\")\n\t.join(\n\t\t/* comment */\n\t\t\"b\"\n\t) 2`] = `
+
+Message:
+  1 | foo
+  2 | 	.split("a")
+> 3 | 	.join(
+    | 	 ^^^^ Prefer \`String#replaceAll()\` over \`String#split().join()\`.
+  4 | 		/* comment */
+  5 | 		"b"
+  6 | 	)
 
 `;
 

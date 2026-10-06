@@ -11,7 +11,6 @@ import {
 	getCommentSafeProblem,
 	getStaticRegExp,
 	getStaticValueIfNoSideEffects,
-	hasNonDirectiveComment,
 } from './utils/index.js';
 
 const {parse: parseRegExp} = regjsparser;
@@ -313,9 +312,6 @@ const create = context => {
 		];
 
 		const replacementRange = [declarationRange[0], headerRange[1]];
-		if (hasNonDirectiveComment(context, replacementRange)) {
-			return;
-		}
 
 		const regexpText = sourceCode.getText(regexpNode);
 		const stringText = sourceCode.getText(stringNode);

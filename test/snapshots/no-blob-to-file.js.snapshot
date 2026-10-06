@@ -45,6 +45,58 @@ Suggestion 1/1: Replace the \`File\` with the original \`Blob\`.:
 
 `;
 
+exports[`no-blob-to-file > invalid(11): const blob = new Blob();\nconst file = new File([blob], \"image.jpg\"); // Keep comment\nURL.createObjectURL(file); 1`] = `
+
+  1 | const blob = new Blob();
+  2 | const file = new File([blob], "image.jpg"); // Keep comment
+  3 | URL.createObjectURL(file);
+
+`;
+
+exports[`no-blob-to-file > invalid(11): const blob = new Blob();\nconst file = new File([blob], \"image.jpg\"); // Keep comment\nURL.createObjectURL(file); 2`] = `
+
+Message:
+  1 | const blob = new Blob();
+> 2 | const file = new File([blob], "image.jpg"); // Keep comment
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use the original \`Blob\` instead of converting it to a \`File\`.
+  3 | URL.createObjectURL(file);
+
+`;
+
+exports[`no-blob-to-file > invalid(12): const blob = new Blob();\nconst file = new File([/* Keep comment */ blob], \"image.jpg\");\nURL.createObjectURL(file); 1`] = `
+
+  1 | const blob = new Blob();
+  2 | const file = new File([/* Keep comment */ blob], "image.jpg");
+  3 | URL.createObjectURL(file);
+
+`;
+
+exports[`no-blob-to-file > invalid(12): const blob = new Blob();\nconst file = new File([/* Keep comment */ blob], \"image.jpg\");\nURL.createObjectURL(file); 2`] = `
+
+Message:
+  1 | const blob = new Blob();
+> 2 | const file = new File([/* Keep comment */ blob], "image.jpg");
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use the original \`Blob\` instead of converting it to a \`File\`.
+  3 | URL.createObjectURL(file);
+
+`;
+
+exports[`no-blob-to-file > invalid(13): const blob = new Blob(); /* Keep comment */ const file = new File([blob], \"image.jpg\");\nURL.createObjectURL(file); 1`] = `
+
+  1 | const blob = new Blob(); /* Keep comment */ const file = new File([blob], "image.jpg");
+  2 | URL.createObjectURL(file);
+
+`;
+
+exports[`no-blob-to-file > invalid(13): const blob = new Blob(); /* Keep comment */ const file = new File([blob], \"image.jpg\");\nURL.createObjectURL(file); 2`] = `
+
+Message:
+> 1 | const blob = new Blob(); /* Keep comment */ const file = new File([blob], "image.jpg");
+    |                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use the original \`Blob\` instead of converting it to a \`File\`.
+  2 | URL.createObjectURL(file);
+
+`;
+
 exports[`no-blob-to-file > invalid(2): const imageBlob = new Blob();\nconst file = new File([imageBlob], \"image.jpg\");\nURL.createObjectURL(file); 1`] = `
 
   1 | const imageBlob = new Blob();

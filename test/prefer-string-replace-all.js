@@ -99,22 +99,6 @@ test.snapshot({
 		},
 		'foo[split]("a").join("b")',
 		'foo.split("a")[join]("b")',
-		outdent`
-			foo
-				.split(
-					/* comment */
-					"a"
-				)
-				.join("b")
-		`,
-		outdent`
-			foo
-				.split("a")
-				.join(
-					/* comment */
-					"b"
-				)
-		`,
 	],
 	invalid: [
 		'foo.replace(/a/g, bar)',
@@ -245,5 +229,27 @@ test.snapshot({
 		String.raw`foo.replace(/\p{RGI_Emoji}/gv, "b")`,
 		// A property escape with the `v` flag
 		String.raw`foo.split(/\p{L}/gv).join("b")`,
+	],
+});
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		outdent`
+			foo
+				.split(
+					/* comment */
+					"a"
+				)
+				.join("b")
+		`,
+		outdent`
+			foo
+				.split("a")
+				.join(
+					/* comment */
+					"b"
+				)
+		`,
 	],
 });

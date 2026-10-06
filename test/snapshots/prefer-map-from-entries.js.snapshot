@@ -1,3 +1,17 @@
+exports[`prefer-map-from-entries > invalid(1): const object = Object.fromEntries(Object.entries(source)); Object.keys(/* comment */ object); 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source)); Object.keys(/* comment */ object);
+
+`;
+
+exports[`prefer-map-from-entries > invalid(1): const object = Object.fromEntries(Object.entries(source)); Object.keys(/* comment */ object); 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source)); Object.keys(/* comment */ object);
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+`;
+
 exports[`prefer-map-from-entries > invalid(1): const object = Object.fromEntries([[\"foo\", value]]); object.foo; 1`] = `
 
   1 | const object = Object.fromEntries([["foo", value]]); object.foo;
@@ -182,6 +196,20 @@ Message:
 
 Output:
   1 | const object = new Map(Object.entries(source)); [...object.entries()];
+
+`;
+
+exports[`prefer-map-from-entries > invalid(2): const object = Object.fromEntries(Object.entries(source)); object /* comment */ .foo; 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source)); object /* comment */ .foo;
+
+`;
+
+exports[`prefer-map-from-entries > invalid(2): const object = Object.fromEntries(Object.entries(source)); object /* comment */ .foo; 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source)); object /* comment */ .foo;
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
 
 `;
 
@@ -449,6 +477,20 @@ Output:
 
 `;
 
+exports[`prefer-map-from-entries > invalid(3): const object = Object /* comment */ .fromEntries(Object.entries(source)); object.foo; 1`] = `
+
+  1 | const object = Object /* comment */ .fromEntries(Object.entries(source)); object.foo;
+
+`;
+
+exports[`prefer-map-from-entries > invalid(3): const object = Object /* comment */ .fromEntries(Object.entries(source)); object.foo; 2`] = `
+
+Message:
+> 1 | const object = Object /* comment */ .fromEntries(Object.entries(source)); object.foo;
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+`;
+
 exports[`prefer-map-from-entries > invalid(3): const object = Object.fromEntries([[\"4294967295\", value]]); object[\"4294967295\"]; 1`] = `
 
   1 | const object = Object.fromEntries([["4294967295", value]]); object["4294967295"];
@@ -543,6 +585,34 @@ Message:
 
 Output:
   1 | const object = new Map((Object.entries(source))); object.get('foo');
+
+`;
+
+exports[`prefer-map-from-entries > invalid(4): const object = Object.fromEntries(Object.entries(source)); object.foo /* comment */ = value; 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source)); object.foo /* comment */ = value;
+
+`;
+
+exports[`prefer-map-from-entries > invalid(4): const object = Object.fromEntries(Object.entries(source)); object.foo /* comment */ = value; 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source)); object.foo /* comment */ = value;
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+`;
+
+exports[`prefer-map-from-entries > invalid(5): const object = Object.fromEntries(Object.entries(source)); delete /* comment */ object.foo; 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source)); delete /* comment */ object.foo;
+
+`;
+
+exports[`prefer-map-from-entries > invalid(5): const object = Object.fromEntries(Object.entries(source)); delete /* comment */ object.foo; 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source)); delete /* comment */ object.foo;
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
 
 `;
 

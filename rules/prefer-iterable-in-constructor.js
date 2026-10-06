@@ -4,7 +4,6 @@ import {
 	getCommentSafeProblem,
 	getNextNode,
 	getOnlyExpression,
-	hasNonDirectiveComment,
 	getParenthesizedText,
 	isSameIdentifier,
 	needsSemicolon,
@@ -248,9 +247,6 @@ const getLoopProblem = (declaration, context) => {
 	}
 
 	const range = [context.sourceCode.getRange(declaration)[0], context.sourceCode.getRange(loop)[1]];
-	if (hasNonDirectiveComment(context, range)) {
-		return;
-	}
 
 	return getCommentSafeProblem(context, {
 		node: loop,
@@ -287,10 +283,7 @@ const create = context => {
 
 		const objectEntriesCall = newExpression.arguments[0];
 		const [sourceNode] = objectEntriesCall.arguments;
-		if (
-			hasNonDirectiveComment(context, objectEntriesCall)
-			|| isDirectlyUnsafeSource('URLSearchParams', sourceNode)
-		) {
+		if (isDirectlyUnsafeSource('URLSearchParams', sourceNode)) {
 			return;
 		}
 

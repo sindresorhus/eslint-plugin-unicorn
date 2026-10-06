@@ -32,9 +32,6 @@ test.snapshot({
 		'const Error = CustomError; Object.prototype.toString.call(error) === "[object Error]"',
 		'function check(Error) { return Object.prototype.toString.call(error) === "[object Error]"; }',
 		'function check(Object) { return Object.prototype.toString.call(error) === "[object Error]"; }',
-		'error instanceof /* comment */ Error',
-		'Object.prototype.toString.call(/* comment */ error) === "[object Error]"',
-		'Object.prototype.toString.call(error) === /* comment */ "[object Error]"',
 		typescript('const Error: unknown = CustomError; error instanceof Error'),
 		typescript('import {Error} from "error"; error instanceof Error'),
 		typescript('import {Error} from "error"; Object.prototype.toString.call(error) === "[object Error]"'),
@@ -69,5 +66,14 @@ test.snapshot({
 		typescript('import type {Object} from "object"; Object.prototype.toString.call(error) === "[object Error]"'),
 		typescript('Object.prototype.toString.call(error as unknown) === "[object Error]"'),
 		typescript('Object.prototype.toString.call(error!) === "[object Error]"'),
+	],
+});
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		'error instanceof /* comment */ Error',
+		'Object.prototype.toString.call(/* comment */ error) === "[object Error]"',
+		'Object.prototype.toString.call(error) === /* comment */ "[object Error]"',
 	],
 });

@@ -79,13 +79,13 @@ for (const [name, code] of [
 }
 
 testRule({
-	valid: [
+	valid: [],
+	invalid: [
 		'let value = a;\n/* eslint-enable no-alert */\n// explanation\nif (test) { value = b; }',
 		'if (test) {\n/* eslint-enable no-alert */\nvalue = /* explanation */ a;\n} else { value = b; }',
 		'function foo() {\nif (test) { return a; }\n/* eslint-enable no-alert */\n// explanation\nreturn b;\n}',
 		'function foo() {\nif (test) { return a; }\nreturn b; /* explanation */ /* eslint-enable no-alert */\n}',
-	],
-	invalid: [],
+	].map(code => ({code, errors: [{messageId, suggestions: []}], output: null})),
 });
 
 // Embedded ternaries should not become nested when merging expressions.

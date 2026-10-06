@@ -1,7 +1,6 @@
 import {
 	getCommentSafeProblem,
 	getParenthesizedText,
-	hasNonDirectiveComment,
 	hasTypeArguments,
 	hasOptionalChainElement,
 	isKnownNonIndexedCollection,
@@ -169,10 +168,6 @@ const create = context => {
 		}
 
 		const {sourceCode} = context;
-		if (hasNonDirectiveComment(context, flatMapCallExpression)) {
-			return;
-		}
-
 		const [filterCallback] = filterCallExpression.arguments;
 		const [flatMapCallback] = flatMapCallExpression.arguments;
 		if (

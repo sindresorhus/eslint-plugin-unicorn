@@ -109,7 +109,6 @@ const isKnownSetUnionCase = (arrayExpression, context) => {
 		})
 		&& parent.arguments[0] === arrayExpression
 		&& isGlobalIdentifier(parent.callee, context)
-		&& context.sourceCode.getCommentsInside(parent).length === 0
 		&& arrayExpression.elements.every(element => isBuiltinSet(element.argument, context))
 	);
 };

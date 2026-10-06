@@ -154,8 +154,9 @@ testRule.snapshot({
 	],
 });
 
-testRule({
-	valid: [
+testRule.snapshot({
+	valid: [],
+	invalid: [
 		'function foo() { /* First reason. */ if (a) { return; } if (b) { return; } }',
 		'function foo() { // First reason.\nif (a) { return; } if (b) { return; } }',
 		'function foo() { if (a) { /* First guard. */ return; } if (b) { return; } }',
@@ -169,7 +170,6 @@ testRule({
 		{code},
 		{code, options: checkCompoundConditionsOptions},
 	]),
-	invalid: [],
 });
 
 const nonSimpleConditions = [
@@ -280,8 +280,6 @@ testRule.snapshot({
 		'function foo() { if (a) { log(value + 1); return; } if (b) { log(value+1); return; } }',
 		'function foo() { if (a) { log(); return; } if (b) { log()\nreturn; } }',
 		'function foo() { if (a) { log(tag`value`); return; } if (b) { log(tag`value`); return; } }',
-		'function foo() { if (a) { log(); /* Log. */ return; } if (b) { log(); return; } }',
-		'function foo() { if (a) { log(); return; } if (b) { // Log.\nlog(); return; } }',
 		'function foo() { if (a && c) { log(); return; } if (b) { log(); return; } }',
 		'function foo() { if (a) { first(); second(); return; } if (b) { second(); first(); return; } }',
 		'function foo() { if (a) { log((a)); return; } if (b) { log(a); return; } }',
@@ -296,9 +294,6 @@ testRule.snapshot({
 		'function foo() { if (a) { log(); return; } { if (b) { log(); return; } } }',
 		'function foo() { if (a) { first(); return; } if (b) { second(); return; } if (c) { first(); return; } }',
 		'function foo() { if (a) { const handler = () => tag`value`; register(handler); return; } if (b) { const handler = () => tag`value`; register(handler); return; } }',
-		'function foo() { if (a) { log(); return; } if (b /* Condition. */) { log(); return; } }',
-		// Comments still prevent reporting.
-		'function foo() { /* Reason. */ if (a) { log(); return; } if (b) { log(); return; } }',
 		// Statements before the exit may depend on each guard's TypeScript narrowing.
 		{
 			code: outdent`
@@ -698,7 +693,7 @@ test('repeated fixes combine all consecutive guards', t => {
 	t.assert.deepStrictEqual(messages, []);
 });
 
-test('repeated fixes preserve compound and documented guard boundaries', t => {
+test('repeated fixes preserve compound conditions and comments', t => {
 	const linter = new Linter();
 	const code = outdent`
 		function foo() {
@@ -713,7 +708,12 @@ test('repeated fixes preserve compound and documented guard boundaries', t => {
 	`;
 	const {output, messages} = linter.verifyAndFix(code, config);
 	t.assert.strictEqual(output, code.replace('if (a) { return; }\n\tif (b || c)', 'if (a || b || c)'));
-	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(messages.length, 2);
+	for (const message of messages) {
+		t.assert.strictEqual(message.ruleId, 'unicorn/prefer-combined-guards');
+		t.assert.strictEqual(message.fix, undefined);
+	}
+
 	t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
 });
 
@@ -830,4 +830,27 @@ test('directives between guards do not prevent reporting', t => {
 		t.assert.strictEqual(result.fixed, false);
 		t.assert.strictEqual(result.output, code);
 	}
+});
+
+testRule.snapshot({
+	valid: [],
+	invalid: [
+		{
+			code: 'function foo() { if (a) { log(); /* Log. */ return; } if (b) { log(); return; } }',
+			options: [{checkMultiStatementBodies: true}],
+		},
+		{
+			code: 'function foo() { if (a) { log(); return; } if (b) { // Log.\nlog(); return; } }',
+			options: [{checkMultiStatementBodies: true}],
+		},
+		{
+			code: 'function foo() { if (a) { log(); return; } if (b /* Condition. */) { log(); return; } }',
+			options: [{checkMultiStatementBodies: true}],
+		},
+		// Comments withhold fixes, while reports remain available.
+		{
+			code: 'function foo() { /* Reason. */ if (a) { log(); return; } if (b) { log(); return; } }',
+			options: [{checkMultiStatementBodies: true}],
+		},
+	],
 });

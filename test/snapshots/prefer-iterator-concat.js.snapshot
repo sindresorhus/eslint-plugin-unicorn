@@ -350,31 +350,34 @@ Message:
 
 `;
 
-exports[`prefer-iterator-concat > invalid(28): const a = new Set(); const b = new Set(); new Set([/* comment */ ...a, ...b]) 1`] = `
-
-  1 | const a = new Set(); const b = new Set(); new Set([/* comment */ ...a, ...b])
-
-`;
-
-exports[`prefer-iterator-concat > invalid(28): const a = new Set(); const b = new Set(); new Set([/* comment */ ...a, ...b]) 2`] = `
-
-Message:
-> 1 | const a = new Set(); const b = new Set(); new Set([/* comment */ ...a, ...b])
-    |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
-
-`;
-
-exports[`prefer-iterator-concat > invalid(29): Promise.all([/* comment */ ...foo, ...bar]) 1`] = `
+exports[`prefer-iterator-concat > invalid(28): Promise.all([/* comment */ ...foo, ...bar]) 1`] = `
 
   1 | Promise.all([/* comment */ ...foo, ...bar])
 
 `;
 
-exports[`prefer-iterator-concat > invalid(29): Promise.all([/* comment */ ...foo, ...bar]) 2`] = `
+exports[`prefer-iterator-concat > invalid(28): Promise.all([/* comment */ ...foo, ...bar]) 2`] = `
 
 Message:
 > 1 | Promise.all([/* comment */ ...foo, ...bar])
     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
+
+`;
+
+exports[`prefer-iterator-concat > invalid(29): const a = [1], b = [2]; new Set([...a, ...b]); 1`] = `
+
+  1 | const a = [1], b = [2]; new Set([...a, ...b]);
+
+`;
+
+exports[`prefer-iterator-concat > invalid(29): const a = [1], b = [2]; new Set([...a, ...b]); 2`] = `
+
+Message:
+> 1 | const a = [1], b = [2]; new Set([...a, ...b]);
+    |                                 ^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
+
+Output:
+  1 | const a = [1], b = [2]; new Set(Iterator.concat(a, b));
 
 `;
 
@@ -395,30 +398,13 @@ Output:
 
 `;
 
-exports[`prefer-iterator-concat > invalid(30): const a = [1], b = [2]; new Set([...a, ...b]); 1`] = `
-
-  1 | const a = [1], b = [2]; new Set([...a, ...b]);
-
-`;
-
-exports[`prefer-iterator-concat > invalid(30): const a = [1], b = [2]; new Set([...a, ...b]); 2`] = `
-
-Message:
-> 1 | const a = [1], b = [2]; new Set([...a, ...b]);
-    |                                 ^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
-
-Output:
-  1 | const a = [1], b = [2]; new Set(Iterator.concat(a, b));
-
-`;
-
-exports[`prefer-iterator-concat > invalid(31): Array.from([...[1], ...[2]]); 1`] = `
+exports[`prefer-iterator-concat > invalid(30): Array.from([...[1], ...[2]]); 1`] = `
 
   1 | Array.from([...[1], ...[2]]);
 
 `;
 
-exports[`prefer-iterator-concat > invalid(31): Array.from([...[1], ...[2]]); 2`] = `
+exports[`prefer-iterator-concat > invalid(30): Array.from([...[1], ...[2]]); 2`] = `
 
 Message:
 > 1 | Array.from([...[1], ...[2]]);

@@ -3,7 +3,6 @@ import {getStaticStringValue, isMethodCall, isNewExpression} from './ast/index.j
 import {
 	getCommentSafeProblem,
 	getConstVariableInitializer,
-	hasNonDirectiveComment,
 	getLastTrailingCommentOnSameLine,
 	getVariableIdentifiers,
 	isGlobalIdentifier,
@@ -183,7 +182,6 @@ function getProblem(node, context) {
 
 	if (
 		!isSameBindingAtUse(blobIdentifier, reference, context)
-		|| hasNonDirectiveComment(context, commentCheckRange)
 		|| (
 			supportedCall.kind === 'formData'
 			&& supportedCall.call.arguments.length === 2

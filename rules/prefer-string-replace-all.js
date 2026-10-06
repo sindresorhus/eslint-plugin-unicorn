@@ -10,7 +10,6 @@ import {
 	getCommentSafeProblem,
 	getParenthesizedText,
 	getStaticRegExp,
-	hasNonDirectiveComment,
 	isKnownNonString,
 } from './utils/index.js';
 
@@ -263,7 +262,6 @@ const getSplitJoinReplacement = (node, context) => {
 			optionalCall: false,
 			optionalMember: false,
 		})
-		|| hasNonDirectiveComment(context, node)
 	) {
 		return;
 	}

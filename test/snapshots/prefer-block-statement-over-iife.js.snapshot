@@ -44,6 +44,66 @@ Output:
 
 `;
 
+exports[`prefer-block-statement-over-iife > invalid(11): (/* comment */ () => {\n\trun();\n})(); 1`] = `
+
+  1 | (/* comment */ () => {
+  2 | 	run();
+  3 | })();
+
+`;
+
+exports[`prefer-block-statement-over-iife > invalid(11): (/* comment */ () => {\n\trun();\n})(); 2`] = `
+
+Message:
+> 1 | (/* comment */ () => {
+    | ^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 	run();
+    | ^^^^^^^
+> 3 | })();
+    | ^^^^ Prefer a block statement over an IIFE used only for scoping.
+
+`;
+
+exports[`prefer-block-statement-over-iife > invalid(12): (() => {\n\trun();\n} /* comment */)(); 1`] = `
+
+  1 | (() => {
+  2 | 	run();
+  3 | } /* comment */)();
+
+`;
+
+exports[`prefer-block-statement-over-iife > invalid(12): (() => {\n\trun();\n} /* comment */)(); 2`] = `
+
+Message:
+> 1 | (() => {
+    | ^^^^^^^^
+> 2 | 	run();
+    | ^^^^^^^
+> 3 | } /* comment */)();
+    | ^^^^^^^^^^^^^^^^^^ Prefer a block statement over an IIFE used only for scoping.
+
+`;
+
+exports[`prefer-block-statement-over-iife > invalid(13): (() => {\n\trun();\n})() /* comment */; 1`] = `
+
+  1 | (() => {
+  2 | 	run();
+  3 | })() /* comment */;
+
+`;
+
+exports[`prefer-block-statement-over-iife > invalid(13): (() => {\n\trun();\n})() /* comment */; 2`] = `
+
+Message:
+> 1 | (() => {
+    | ^^^^^^^^
+> 2 | 	run();
+    | ^^^^^^^
+> 3 | })() /* comment */;
+    | ^^^^ Prefer a block statement over an IIFE used only for scoping.
+
+`;
+
 exports[`prefer-block-statement-over-iife > invalid(2): (() => {\n\tconst value = getValue();\n\trun(value);\n})(); 1`] = `
 
   1 | (() => {

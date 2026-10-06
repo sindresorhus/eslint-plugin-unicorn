@@ -1,3 +1,17 @@
+exports[`prefer-single-array-predicate > invalid(1): array.some(element => element.foo) /* comment */ || array.some(element => element.bar); 1`] = `
+
+  1 | array.some(element => element.foo) /* comment */ || array.some(element => element.bar);
+
+`;
+
+exports[`prefer-single-array-predicate > invalid(1): array.some(element => element.foo) /* comment */ || array.some(element => element.bar); 2`] = `
+
+Message:
+> 1 | array.some(element => element.foo) /* comment */ || array.some(element => element.bar);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a single \`Array#some()\` with a combined predicate.
+
+`;
+
 exports[`prefer-single-array-predicate > invalid(1): if (\n\tarray.some(element => element.foo === 1)\n\t|| array.some(element => element.bar === 2)\n) {} 1`] = `
 
   1 | if (

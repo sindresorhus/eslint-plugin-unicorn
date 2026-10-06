@@ -1,3 +1,17 @@
+exports[`prefer-has-check > invalid(1): new URLSearchParams().get(/* comment */ key) !== null 1`] = `
+
+  1 | new URLSearchParams().get(/* comment */ key) !== null
+
+`;
+
+exports[`prefer-has-check > invalid(1): new URLSearchParams().get(/* comment */ key) !== null 2`] = `
+
+Message:
+> 1 | new URLSearchParams().get(/* comment */ key) !== null
+    |                       ^^^ Prefer \`.has(…)\` when checking existence.
+
+`;
+
 exports[`prefer-has-check > invalid(1): new URLSearchParams().get(key) !== null 1`] = `
 
   1 | new URLSearchParams().get(key) !== null
@@ -191,6 +205,22 @@ Message:
 
 Output:
   1 | declare const map: Map<string, object>; map.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(2): declare const map: Map<string, object>; map.get(/* comment */ key) !== undefined 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, object>; map.get(/* comment */ key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(2): declare const map: Map<string, object>; map.get(/* comment */ key) !== undefined 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, object>; map.get(/* comment */ key) !== undefined
+    |                                             ^^^ Prefer \`.has(…)\` when checking existence.
 
 `;
 
@@ -398,6 +428,22 @@ Message:
 
 Output:
   1 | declare const map: Map<string, object> & {brand: true}; map.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(3): declare const map: Map<string, object>; if (map.get(/* comment */ key)) {} 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, object>; if (map.get(/* comment */ key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(3): declare const map: Map<string, object>; if (map.get(/* comment */ key)) {} 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, object>; if (map.get(/* comment */ key)) {}
+    |                                                 ^^^ Prefer \`.has(…)\` when checking existence.
 
 `;
 

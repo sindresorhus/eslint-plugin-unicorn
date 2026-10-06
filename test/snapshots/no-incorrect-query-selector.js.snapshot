@@ -483,6 +483,34 @@ Output:
 
 `;
 
+exports[`no-incorrect-query-selector > invalid(38): document.querySelectorAll(\"form\") /* keep */ [0]; 1`] = `
+
+  1 | document.querySelectorAll("form") /* keep */ [0];
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(38): document.querySelectorAll(\"form\") /* keep */ [0]; 2`] = `
+
+Message:
+> 1 | document.querySelectorAll("form") /* keep */ [0];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelector()\` when only the first match is used.
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(39): document.querySelectorAll(\"form\").at(/* keep */ 0); 1`] = `
+
+  1 | document.querySelectorAll("form").at(/* keep */ 0);
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(39): document.querySelectorAll(\"form\").at(/* keep */ 0); 2`] = `
+
+Message:
+> 1 | document.querySelectorAll("form").at(/* keep */ 0);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelector()\` when only the first match is used.
+
+`;
+
 exports[`no-incorrect-query-selector > invalid(4): document.querySelectorAll(\"#foo\").at(0); 1`] = `
 
   1 | document.querySelectorAll("#foo").at(0);
@@ -497,6 +525,20 @@ Message:
 
 Output:
   1 | document.querySelector("#foo");
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(40): document.querySelectorAll(\"form\").item(/* keep */ 0); 1`] = `
+
+  1 | document.querySelectorAll("form").item(/* keep */ 0);
+
+`;
+
+exports[`no-incorrect-query-selector > invalid(40): document.querySelectorAll(\"form\").item(/* keep */ 0); 2`] = `
+
+Message:
+> 1 | document.querySelectorAll("form").item(/* keep */ 0);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.querySelector()\` when only the first match is used.
 
 `;
 

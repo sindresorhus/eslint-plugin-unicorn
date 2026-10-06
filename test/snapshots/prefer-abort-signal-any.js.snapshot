@@ -1262,6 +1262,26 @@ Suggestion 1/1: Replace with \`AbortSignal.any()\`.:
 
 `;
 
+exports[`prefer-abort-signal-any > invalid(49): const abortController = new AbortController();\nfirstSignal.addEventListener('abort', () => abortController.abort()); // Keep.\nsecondSignal.addEventListener('abort', () => abortController.abort());\nfetch(url, {signal: abortController.signal}); 1`] = `
+
+  1 | const abortController = new AbortController();
+  2 | firstSignal.addEventListener('abort', () => abortController.abort()); // Keep.
+  3 | secondSignal.addEventListener('abort', () => abortController.abort());
+  4 | fetch(url, {signal: abortController.signal});
+
+`;
+
+exports[`prefer-abort-signal-any > invalid(49): const abortController = new AbortController();\nfirstSignal.addEventListener('abort', () => abortController.abort()); // Keep.\nsecondSignal.addEventListener('abort', () => abortController.abort());\nfetch(url, {signal: abortController.signal}); 2`] = `
+
+Message:
+> 1 | const abortController = new AbortController();
+    |       ^^^^^^^^^^^^^^^ Prefer \`AbortSignal.any()\` over manually forwarding abort events between signals.
+  2 | firstSignal.addEventListener('abort', () => abortController.abort()); // Keep.
+  3 | secondSignal.addEventListener('abort', () => abortController.abort());
+  4 | fetch(url, {signal: abortController.signal});
+
+`;
+
 exports[`prefer-abort-signal-any > invalid(5): const controller = new AbortController();\nfirstSignal.addEventListener('abort', () => controller.abort());\nsecondSignal.addEventListener('abort', () => controller.abort(), true);\nfetch(url, {signal: controller.signal}); 1`] = `
 
   1 | const controller = new AbortController();
@@ -1283,6 +1303,72 @@ Message:
 Suggestion 1/1: Replace with \`AbortSignal.any()\`.:
   1 | const signal = AbortSignal.any([firstSignal, secondSignal]);
   2 | fetch(url, {signal: signal});
+
+`;
+
+exports[`prefer-abort-signal-any > invalid(50): const abortController = new AbortController();\n// Keep.\nfirstSignal.addEventListener('abort', () => abortController.abort());\nsecondSignal.addEventListener('abort', () => abortController.abort());\nfetch(url, {signal: abortController.signal}); 1`] = `
+
+  1 | const abortController = new AbortController();
+  2 | // Keep.
+  3 | firstSignal.addEventListener('abort', () => abortController.abort());
+  4 | secondSignal.addEventListener('abort', () => abortController.abort());
+  5 | fetch(url, {signal: abortController.signal});
+
+`;
+
+exports[`prefer-abort-signal-any > invalid(50): const abortController = new AbortController();\n// Keep.\nfirstSignal.addEventListener('abort', () => abortController.abort());\nsecondSignal.addEventListener('abort', () => abortController.abort());\nfetch(url, {signal: abortController.signal}); 2`] = `
+
+Message:
+> 1 | const abortController = new AbortController();
+    |       ^^^^^^^^^^^^^^^ Prefer \`AbortSignal.any()\` over manually forwarding abort events between signals.
+  2 | // Keep.
+  3 | firstSignal.addEventListener('abort', () => abortController.abort());
+  4 | secondSignal.addEventListener('abort', () => abortController.abort());
+  5 | fetch(url, {signal: abortController.signal});
+
+`;
+
+exports[`prefer-abort-signal-any > invalid(51): const abortController = new /* keep */ AbortController();\nfirstSignal.addEventListener('abort', () => abortController.abort());\nsecondSignal.addEventListener('abort', () => abortController.abort());\nfetch(url, {signal: abortController.signal}); 1`] = `
+
+  1 | const abortController = new /* keep */ AbortController();
+  2 | firstSignal.addEventListener('abort', () => abortController.abort());
+  3 | secondSignal.addEventListener('abort', () => abortController.abort());
+  4 | fetch(url, {signal: abortController.signal});
+
+`;
+
+exports[`prefer-abort-signal-any > invalid(51): const abortController = new /* keep */ AbortController();\nfirstSignal.addEventListener('abort', () => abortController.abort());\nsecondSignal.addEventListener('abort', () => abortController.abort());\nfetch(url, {signal: abortController.signal}); 2`] = `
+
+Message:
+> 1 | const abortController = new /* keep */ AbortController();
+    |       ^^^^^^^^^^^^^^^ Prefer \`AbortSignal.any()\` over manually forwarding abort events between signals.
+  2 | firstSignal.addEventListener('abort', () => abortController.abort());
+  3 | secondSignal.addEventListener('abort', () => abortController.abort());
+  4 | fetch(url, {signal: abortController.signal});
+
+`;
+
+exports[`prefer-abort-signal-any > invalid(52): const abortController = new AbortController();\nfor (const signal of [firstSignal, secondSignal]) {\n\t// Keep.\n\tsignal.addEventListener('abort', () => abortController.abort());\n}\nfetch(url, {signal: abortController.signal}); 1`] = `
+
+  1 | const abortController = new AbortController();
+  2 | for (const signal of [firstSignal, secondSignal]) {
+  3 | 	// Keep.
+  4 | 	signal.addEventListener('abort', () => abortController.abort());
+  5 | }
+  6 | fetch(url, {signal: abortController.signal});
+
+`;
+
+exports[`prefer-abort-signal-any > invalid(52): const abortController = new AbortController();\nfor (const signal of [firstSignal, secondSignal]) {\n\t// Keep.\n\tsignal.addEventListener('abort', () => abortController.abort());\n}\nfetch(url, {signal: abortController.signal}); 2`] = `
+
+Message:
+> 1 | const abortController = new AbortController();
+    |       ^^^^^^^^^^^^^^^ Prefer \`AbortSignal.any()\` over manually forwarding abort events between signals.
+  2 | for (const signal of [firstSignal, secondSignal]) {
+  3 | 	// Keep.
+  4 | 	signal.addEventListener('abort', () => abortController.abort());
+  5 | }
+  6 | fetch(url, {signal: abortController.signal});
 
 `;
 

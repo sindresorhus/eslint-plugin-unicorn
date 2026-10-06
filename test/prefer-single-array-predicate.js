@@ -17,7 +17,6 @@ test.snapshot({
 		'array?.some(element => element.foo) || array?.some(element => element.bar);',
 		'array.some?.(element => element.foo) || array.some?.(element => element.bar);',
 		'const collection = {}; collection.some(element => element.foo) || collection.some(element => element.bar);',
-		'array.some(element => element.foo) /* comment */ || array.some(element => element.bar);',
 		{
 			code: 'function foo(array: string[]) { array.some(element => element.length > 1) && array.some(element => element.length < 10); }',
 			languageOptions: {parser: parsers.typescript},
@@ -71,5 +70,12 @@ test.snapshot({
 			code: 'function f(array: Int8Array) { if (array.some(element => element === 1) || array.some(element => element === 2)) {} }',
 			languageOptions: {parser: parsers.typescript},
 		},
+	],
+});
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		'array.some(element => element.foo) /* comment */ || array.some(element => element.bar);',
 	],
 });

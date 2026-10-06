@@ -17,11 +17,9 @@ test.snapshot({
 		'const set = new Set();\ndoSomething();\nfor (const item of items) {\n\tset.add(item);\n}',
 		'const set = new Set(existingItems);\nfor (const item of items) {\n\tset.add(item);\n}',
 		'const set = new Set();\nfor (const item of items) {\n\tdoSomething(item);\n\tset.add(item);\n}',
-		'const set = new Set();\nfor (const item of items) {\n\tset.add(item);\n\t// Keep this.\n}',
 		'const set = new Set();\nfor (const item of items) {\n\tset?.add(item);\n}',
 		'const set = new Set();\nfor (const item of items) {\n\tset[\'add\'](item);\n}',
 		'const set = new Set();\nfor (const item of items) {\n\tset.add(otherItem);\n}',
-		'const set = new Set();\n// Keep this with the fill loop.\nfor (const item of items) {\n\tset.add(item);\n}',
 		'const map = new Map();\nfor (const entry of entries) {\n\tmap.set(entry[0], entry[1]);\n}',
 		'const map = new Map();\nfor (const [key, value, extra] of entries) {\n\tmap.set(key, value);\n}',
 		'const searchParameters = new URLSearchParams();\nfor (const [key, value] of entries) {\n\tsearchParameters.set(key, value);\n}',
@@ -41,7 +39,6 @@ test.snapshot({
 		'const searchParameters = new URLSearchParams();\nfor (const [key, value] of Object.entries(undefined)) {\n\tsearchParameters.set(key, value);\n}',
 		'new URLSearchParams(entries);',
 		'new URLSearchParams(Object.keys(record));',
-		'new URLSearchParams(Object.entries(/* Keep this. */ record));',
 		'new URLSearchParams(Object.entries({a: 1, *[Symbol.iterator]() {}}));',
 		'new URLSearchParams(Object.entries({a: 1, [symbol]: 2}));',
 		'new URLSearchParams(Object.entries(["a", "b"]));',
@@ -83,5 +80,14 @@ test.snapshot({
 		'const set = new Set()\nfor (const item of items) {\n\tset.add(item);\n}\n(bar)',
 		'const set = new Set()\nfor (const item of items) {\n\tset.add(item);\n}\n[bar]',
 		'const set = new Set()\nfor (const item of items) {\n\tset.add(item);\n}\nbar()',
+	],
+});
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		'const set = new Set();\nfor (const item of items) {\n\tset.add(item);\n\t// Keep this.\n}',
+		'const set = new Set();\n// Keep this with the fill loop.\nfor (const item of items) {\n\tset.add(item);\n}',
+		'new URLSearchParams(Object.entries(/* Keep this. */ record));',
 	],
 });

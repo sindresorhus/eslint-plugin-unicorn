@@ -38,7 +38,6 @@ test.snapshot({
 		'new URLSearchParams()[get](key) !== null',
 		'new URLSearchParams().get(...key) !== null',
 		'new URLSearchParams().get(key, value) !== null',
-		'new URLSearchParams().get(/* comment */ key) !== null',
 		'const URLSearchParams = class {get() {} has() {}}; new URLSearchParams().get(key) !== null',
 		'const parameters = createParameters(); parameters.get(key) !== null',
 		typeAware('declare const map: Map<string, boolean>; if (map.get(key)) {}'),
@@ -76,9 +75,6 @@ test.snapshot({
 		typeAware('declare const map: Map<string, object>; map[get](key) !== undefined'),
 		typeAware('declare const map: Map<string, object>; map.get(...key) !== undefined'),
 		typeAware('declare const map: Map<string, object>; map.get(key, value) !== undefined'),
-		typeAware('declare const map: Map<string, object>; map.get(/* comment */ key) !== undefined'),
-		// Boolean context with a comment inside the call: the comment guard skips it (distinct from the comparison path above)
-		typeAware('declare const map: Map<string, object>; if (map.get(/* comment */ key)) {}'),
 		// A `satisfies` expression is not recognized as an `undefined` sentinel
 		typeAware('declare const map: Map<string, object>; map.get(key) !== (undefined satisfies undefined)'),
 		typeAware('declare const cache: {get(key: string): object | undefined; has(key: string): boolean}; cache.get(key) !== undefined'),
@@ -257,5 +253,15 @@ test({
 			errors: 1,
 			output: 'type Value = number; type Alias = Value; { type Value = Alias; function f(map: Map<string, Value>) { return map.has(key); } }',
 		},
+	],
+});
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		'new URLSearchParams().get(/* comment */ key) !== null',
+		// Boolean contexts and comparisons report independently of comments.
+		typeAware('declare const map: Map<string, object>; map.get(/* comment */ key) !== undefined'),
+		typeAware('declare const map: Map<string, object>; if (map.get(/* comment */ key)) {}'),
 	],
 });

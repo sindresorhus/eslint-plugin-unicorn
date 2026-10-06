@@ -93,11 +93,6 @@ test.snapshot({
 		`,
 		outdent`
 			function foo() {}
-			// Comment between declaration and export.
-			export default foo;
-		`,
-		outdent`
-			function foo() {}
 			export default foo;
 			foo = bar;
 		`,
@@ -416,6 +411,11 @@ test.snapshot({
 			code: 'export default /* Comment. */ class Foo {}',
 			options: separateClassOptions,
 		},
+		outdent`
+			function foo() {}
+			// Comment between declaration and export.
+			export default foo;
+		`,
 	],
 });
 

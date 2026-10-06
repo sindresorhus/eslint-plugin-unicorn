@@ -10,7 +10,6 @@ import {
 	getLogicalExpressionChildText,
 	getNegatedExpressionText,
 	getMemberAccessOperatorRange,
-	hasNonDirectiveComment,
 	isSameReference,
 	isBoolean,
 	needsSemicolon,
@@ -307,10 +306,7 @@ function getNullishTernaryProblem(conditionalExpression, context) {
 	const {test, consequent, alternate} = conditionalExpression;
 	const nullishTest = getNullishTest(test, context);
 
-	if (
-		!nullishTest
-		|| hasNonDirectiveComment(context, conditionalExpression)
-	) {
+	if (!nullishTest) {
 		return;
 	}
 

@@ -102,13 +102,6 @@ test.snapshot({
 			}
 		`,
 		outdent`
-			const result = [];
-			// Keep this comment.
-			for (const element of iterable) {
-				result.push(transform(element));
-			}
-		`,
-		outdent`
 			function foo(Array) {
 				const result = [];
 				for (const element of iterable) {
@@ -260,6 +253,13 @@ test.snapshot({
 			},
 		},
 		'const result = []; for (let element of iterable) { result.push(transform(element)); }',
+		outdent`
+			const result = [];
+			// Keep this comment.
+			for (const element of iterable) {
+				result.push(transform(element));
+			}
+		`,
 	],
 });
 

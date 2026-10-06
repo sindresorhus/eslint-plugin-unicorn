@@ -2,7 +2,6 @@ import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	getComments,
 	getCommentSafeProblem,
-	hasNonDirectiveComment,
 	getParenthesizedText,
 	hasUnsafeArrowConversionReference,
 	getLinebreak,
@@ -63,13 +62,6 @@ const getKind = node => {
 };
 
 const getOptionKey = kind => kind === KIND_CLASS ? 'classes' : 'functions';
-
-const hasNonDirectiveCommentBetween = (context, left, right) => {
-	const [, start] = context.sourceCode.getRange(left);
-	const [end] = context.sourceCode.getRange(right);
-
-	return hasNonDirectiveComment(context, [start, end]);
-};
 
 const hasTrailingComment = (context, node) => {
 	const [, end] = context.sourceCode.getRange(node);
@@ -300,7 +292,6 @@ const reportSeparateDeclaration = ({
 }) => {
 	if (
 		expectedStyle === STYLE_IGNORE
-		|| hasNonDirectiveCommentBetween(context, declaration, exportDeclaration)
 		|| isBindingReassigned(scope, exportDeclaration.declaration)
 	) {
 		return;

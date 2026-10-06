@@ -8,7 +8,6 @@ import {
 import {
 	getCommentSafeProblem,
 	getParenthesizedText,
-	hasNonDirectiveComment,
 	getTypeSymbol,
 	needsSemicolon,
 	isBooleanContext,
@@ -774,10 +773,6 @@ const getProblem = (callExpression, context) => {
 
 	const comparison = getComparison(callExpression);
 	if (comparison) {
-		if (hasNonDirectiveComment(context, callExpression)) {
-			return;
-		}
-
 		const callKind = getCallKind(callExpression, comparison, context);
 		if (!callKind || !isMatchingMissingValue(comparison.value, callKind.missingType, context)) {
 			return;
@@ -794,10 +789,6 @@ const getProblem = (callExpression, context) => {
 		isBooleanContext(callExpression, context)
 		&& isSafeBooleanMapCall(callExpression, context)
 	) {
-		if (hasNonDirectiveComment(context, callExpression)) {
-			return;
-		}
-
 		return getCommentSafeProblem(context, {
 			node: callExpression.callee.property,
 			messageId: MESSAGE_ID,

@@ -6,7 +6,6 @@ import {
 	getParenthesizedRange,
 	getTokenStore,
 	hasTypeArguments,
-	isEslintDisableOrEnableDirective,
 	isKnownNonIndexedCollection,
 	isOnSameLine,
 	isParenthesized,
@@ -82,13 +81,6 @@ const create = context => {
 
 		// `!foo.every(…)!` puts the `!` inside the non-null assertion
 		const callExpression = unwrapTypeScriptExpression(unaryExpression.argument);
-		const tokenStore = getTokenStore(context, unaryExpression);
-		const bangToken = tokenStore.getFirstToken(unaryExpression);
-		const tokenAfterBang = tokenStore.getTokenAfter(bangToken);
-		const afterBangRange = [sourceCode.getRange(bangToken)[1], sourceCode.getRange(tokenAfterBang)[0]];
-		if (tokenStore.getTokensBetween(bangToken, tokenAfterBang, {includeComments: true}).some(comment => !isEslintDisableOrEnableDirective(context, comment))) {
-			return;
-		}
 
 		if (!isMethodCall(callExpression, {
 			methods,
@@ -112,13 +104,15 @@ const create = context => {
 		const returnedExpression = getReturnedExpression(callback);
 		if (
 			!returnedExpression
-			|| tokenStore.getCommentsInside(returnedExpression).some(comment => !isEslintDisableOrEnableDirective(context, comment))
 			// Resolving the receiver type is expensive, so it runs last
 			|| isKnownNonIndexedCollection(callExpression.callee.object, context)
 		) {
 			return;
 		}
 
+		const tokenStore = getTokenStore(context, unaryExpression);
+		const bangToken = tokenStore.getFirstToken(unaryExpression);
+		const tokenAfterBang = tokenStore.getTokenAfter(bangToken);
 		const {parent} = unaryExpression;
 		if (
 			parent.type === 'YieldExpression'
@@ -141,7 +135,14 @@ const create = context => {
 				method,
 				replacement,
 			},
-			* fix(fixer) {
+			* fix(fixer, {abort}) {
+				if (
+					tokenStore.getTokensBetween(bangToken, tokenAfterBang, {includeComments: true}).length > 0
+					|| tokenStore.getCommentsInside(returnedExpression).length > 0
+				) {
+					return abort();
+				}
+
 				const isNeedsReturnOrThrowParentheses = (
 					(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
 					&& parent.argument === unaryExpression
@@ -174,6 +175,7 @@ const create = context => {
 			},
 		};
 
+		const afterBangRange = [sourceCode.getRange(bangToken)[1], sourceCode.getRange(tokenAfterBang)[0]];
 		return getCommentSafeProblem(context, getCommentSafeProblem(context, problem, returnedExpression), afterBangRange);
 	});
 };

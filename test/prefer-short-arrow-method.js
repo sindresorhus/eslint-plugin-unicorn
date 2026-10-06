@@ -94,10 +94,6 @@ test.snapshot({
 			code: 'const object = {foo() {return foo;}, __proto__() {return bar;}};',
 			options: ['consistent-as-needed'],
 		},
-		{
-			code: 'const object = {foo() {return foo;}, bar() {/* comment */ return bar;}};',
-			options: ['consistent-as-needed'],
-		},
 	],
 	invalid: [
 		{
@@ -142,6 +138,16 @@ test.snapshot({
 	invalid: [
 		{
 			code: 'const object = {tsMode(value: string): string {return value;}};',
+			options: ['consistent-as-needed'],
+		},
+	],
+});
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		{
+			code: 'const object = {foo() {return foo;}, bar() {/* comment */ return bar;}};',
 			options: ['consistent-as-needed'],
 		},
 	],

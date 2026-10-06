@@ -311,6 +311,76 @@ Output:
 
 `;
 
+exports[`prefer-url-can-parse > invalid(25): function isValidUrl() { try { /* comment */ new URL(value); return true; } catch { return false; } } 1`] = `
+
+  1 | function isValidUrl() { try { /* comment */ new URL(value); return true; } catch { return false; } }
+
+`;
+
+exports[`prefer-url-can-parse > invalid(25): function isValidUrl() { try { /* comment */ new URL(value); return true; } catch { return false; } } 2`] = `
+
+Message:
+> 1 | function isValidUrl() { try { /* comment */ new URL(value); return true; } catch { return false; } }
+    |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URL.canParse()\` over constructing a \`URL\` in a try/catch for validation.
+
+`;
+
+exports[`prefer-url-can-parse > invalid(26): function isValidUrl() { try { new URL(value); /* comment */ return true; } catch { return false; } } 1`] = `
+
+  1 | function isValidUrl() { try { new URL(value); /* comment */ return true; } catch { return false; } }
+
+`;
+
+exports[`prefer-url-can-parse > invalid(26): function isValidUrl() { try { new URL(value); /* comment */ return true; } catch { return false; } } 2`] = `
+
+Message:
+> 1 | function isValidUrl() { try { new URL(value); /* comment */ return true; } catch { return false; } }
+    |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URL.canParse()\` over constructing a \`URL\` in a try/catch for validation.
+
+`;
+
+exports[`prefer-url-can-parse > invalid(27): function isValidUrl() { try { new URL(value); return true; } catch { /* comment */ return false; } } 1`] = `
+
+  1 | function isValidUrl() { try { new URL(value); return true; } catch { /* comment */ return false; } }
+
+`;
+
+exports[`prefer-url-can-parse > invalid(27): function isValidUrl() { try { new URL(value); return true; } catch { /* comment */ return false; } } 2`] = `
+
+Message:
+> 1 | function isValidUrl() { try { new URL(value); return true; } catch { /* comment */ return false; } }
+    |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URL.canParse()\` over constructing a \`URL\` in a try/catch for validation.
+
+`;
+
+exports[`prefer-url-can-parse > invalid(28): try { new URL(value); /* comment */ valid = true; } catch { valid = false; } 1`] = `
+
+  1 | try { new URL(value); /* comment */ valid = true; } catch { valid = false; }
+
+`;
+
+exports[`prefer-url-can-parse > invalid(28): try { new URL(value); /* comment */ valid = true; } catch { valid = false; } 2`] = `
+
+Message:
+> 1 | try { new URL(value); /* comment */ valid = true; } catch { valid = false; }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URL.canParse()\` over constructing a \`URL\` in a try/catch for validation.
+
+`;
+
+exports[`prefer-url-can-parse > invalid(29): try { new URL(value); valid = true; } catch { /* comment */ valid = false; } 1`] = `
+
+  1 | try { new URL(value); valid = true; } catch { /* comment */ valid = false; }
+
+`;
+
+exports[`prefer-url-can-parse > invalid(29): try { new URL(value); valid = true; } catch { /* comment */ valid = false; } 2`] = `
+
+Message:
+> 1 | try { new URL(value); valid = true; } catch { /* comment */ valid = false; }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`URL.canParse()\` over constructing a \`URL\` in a try/catch for validation.
+
+`;
+
 exports[`prefer-url-can-parse > invalid(3): function isValidUrl() { try { new URL(value); return false; } catch { return true; } } 1`] = `
 
   1 | function isValidUrl() { try { new URL(value); return false; } catch { return true; } }

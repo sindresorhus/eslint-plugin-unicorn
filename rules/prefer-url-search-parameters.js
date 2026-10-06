@@ -17,7 +17,6 @@ import {
 	isSameIdentifier,
 	isTypeOnlyDefinition,
 	unwrapTypeScriptExpression,
-	hasNonDirectiveComment,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-url-search-parameters/error';
@@ -182,11 +181,8 @@ const getPreservedWrapperRanges = (node, argument, context) => {
 	];
 };
 
-const getSuggestion = ({node, replacement, preservedNodes}, context) => {
-	if (
-		!isUrlSearchParametersAvailable(node, context)
-		|| hasNonDirectiveComment(context, node, preservedNodes)
-	) {
+const getSuggestion = ({node, replacement}, context) => {
+	if (!isUrlSearchParametersAvailable(node, context)) {
 		return;
 	}
 
@@ -203,7 +199,6 @@ const createProblem = ({node, query, replacement, preservedNodes = [query]}, con
 	const suggest = getSuggestion({
 		node,
 		replacement,
-		preservedNodes,
 	}, context);
 	if (!suggest) {
 		return;

@@ -39,9 +39,6 @@ test.snapshot({
 		'const file = new File([blob], "image.jpg");\nconst blob = new Blob();\nURL.createObjectURL(file);',
 		'const {blob} = new Blob();\nconst file = new File([blob], "image.jpg");\nURL.createObjectURL(file);',
 		'const {formData} = new FormData();\nconst blob = new Blob();\nconst file = new File([blob], "image.jpg");\nformData.append("file", file);',
-		'const blob = new Blob();\nconst file = new File([blob], "image.jpg"); // Keep comment\nURL.createObjectURL(file);',
-		'const blob = new Blob();\nconst file = new File([/* Keep comment */ blob], "image.jpg");\nURL.createObjectURL(file);',
-		'const blob = new Blob(); /* Keep comment */ const file = new File([blob], "image.jpg");\nURL.createObjectURL(file);',
 		'const file = new File([blob], "image.jpg");\n{\n\tconst blob = "not a blob";\n\tURL.createObjectURL(file);\n}',
 		'const name = "image.jpg";\nconst formData = new FormData();\nconst file = new File([blob], name);\n{\n\tconst name = "other.jpg";\n\tformData.append("file", file);\n}',
 		'let name = "a.jpg";\nconst formData = new FormData();\nconst file = new File([blob], name);\nname = "b.jpg";\nformData.append("file", file);',
@@ -106,6 +103,9 @@ test.snapshot({
 			const file = new File([blob], "image.jpg");
 			formData.append("file", file, name);
 		`,
+		'const blob = new Blob();\nconst file = new File([blob], "image.jpg"); // Keep comment\nURL.createObjectURL(file);',
+		'const blob = new Blob();\nconst file = new File([/* Keep comment */ blob], "image.jpg");\nURL.createObjectURL(file);',
+		'const blob = new Blob(); /* Keep comment */ const file = new File([blob], "image.jpg");\nURL.createObjectURL(file);',
 	],
 });
 

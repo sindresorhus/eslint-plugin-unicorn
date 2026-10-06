@@ -13,7 +13,7 @@ Prefer one object destructuring declaration when consecutive declarations read f
 
 When merging destructurings, this rule only reports adjacent declarations with the same declaration kind and the same identifier source. The source identifier must resolve to a local `const` binding, so mutable or unresolved sources are ignored. More complex patterns are ignored by design.
 
-The rule also inlines a local `const` used only by the next `const` or `let` destructuring when its initializer is an identifier, property access, call, constructor call, tagged template, or `await` expression. Inlining skips ordinary comments and type annotations.
+The rule also inlines a local `const` used only by the next `const` or `let` destructuring when its initializer is an identifier, property access, call, constructor call, tagged template, or `await` expression. Type annotations prevent inlining. Comments in the affected declarations or between them withhold the autofix while retaining the report.
 
 ## Examples
 

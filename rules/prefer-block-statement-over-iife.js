@@ -1,5 +1,5 @@
 import {isDirectEvalCall, isDirective, isFunction} from './ast/index.js';
-import {containsNode, getCommentSafeProblem, hasNonDirectiveComment} from './utils/index.js';
+import {containsNode, getCommentSafeProblem} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -38,9 +38,6 @@ const hasScriptFunctionDeclaration = (body, context) =>
 	context.sourceCode.ast.sourceType === 'script'
 	&& containsNode(body, context, node => node.type === 'FunctionDeclaration', isFunction);
 
-const hasWrapperComment = (expressionStatement, body, context) =>
-	hasNonDirectiveComment(context, context.sourceCode.getRange(expressionStatement), [body]);
-
 const getFix = (expressionStatement, body, context) => fixer =>
 	fixer.replaceText(expressionStatement, context.sourceCode.getText(body));
 
@@ -75,7 +72,6 @@ const create = context => {
 			|| callee.body.body.some(statement => isDirective(statement))
 			|| hasFunctionOnlyBehavior(callee.body, context)
 			|| hasScriptFunctionDeclaration(callee.body, context)
-			|| hasWrapperComment(expressionStatement, callee.body, context)
 			|| (
 				callee.type === 'FunctionExpression'
 				&& hasFunctionContextReference(callee.body, context)

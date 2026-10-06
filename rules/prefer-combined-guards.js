@@ -3,7 +3,6 @@ import {
 	getCommentSafeProblem,
 	getLogicalExpressionChildText,
 	getPreviousNode,
-	hasNonDirectiveComment,
 	isParenthesized,
 	isProcessExitCall,
 	isTypeScriptExpressionWrapper,
@@ -197,12 +196,9 @@ const create = context => {
 		}
 
 		const range = [sourceCode.getRange(previousNode)[0], sourceCode.getRange(node)[1]];
-		// Comments can describe distinct exit reasons that combining guards would obscure.
+		// Withhold fixes for comments that describe distinct exit reasons.
 		const firstLeadingComment = sourceCode.getCommentsBefore(previousNode)[0];
 		const commentRange = [firstLeadingComment ? sourceCode.getRange(firstLeadingComment)[0] : range[0], range[1]];
-		if (hasNonDirectiveComment(context, commentRange)) {
-			return;
-		}
 
 		if (!isNarrowingPreserved(previousStatements, statements, sourceCode)) {
 			return;

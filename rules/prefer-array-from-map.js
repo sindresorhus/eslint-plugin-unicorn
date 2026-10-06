@@ -6,7 +6,6 @@ import {
 	getConciseArrowBodyText,
 	getNextStatement,
 	getOnlyExpression,
-	hasNonDirectiveComment,
 	hasTypeArguments,
 	getParenthesizedRange,
 	getParenthesizedText,
@@ -222,10 +221,6 @@ const getLoopProblem = (declaration, context) => {
 		sourceCode.getRange(declaration)[0],
 		sourceCode.getRange(loop)[1],
 	];
-	if (hasNonDirectiveComment(context, replaceRange)) {
-		return;
-	}
-
 	return getCommentSafeProblem(context, {
 		node: loop,
 		messageId: MESSAGE_ID_ERROR,

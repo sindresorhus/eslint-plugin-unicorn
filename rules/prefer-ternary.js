@@ -10,7 +10,6 @@ import {
 	getPreviousNode,
 	getNextNode,
 	getLastTrailingCommentOnSameLine,
-	hasNonDirectiveComment,
 	getCommentSafeProblem,
 	getVisitorChildNodes,
 } from './utils/index.js';
@@ -197,14 +196,10 @@ const create = context => {
 			return;
 		}
 
-		// Preserve ordinary commented decisions as statements, without reporting.
+		// Report commented decisions without offering edits that would remove comments.
 		// Inspect comments entirely within the affected statement range.
 		const commentRange = [sourceCode.getRange(previousNode)[0], sourceCode.getRange(node)[1]];
-		if (hasNonDirectiveComment(context, commentRange)) {
-			return;
-		}
-
-		// Report directives so ESLint can suppress the violation, without changing comments.
+		// Preserve comments and allow ESLint directives to suppress the report.
 		const hasOtherWrites = variable.references.some(reference => !reference.init && reference.isWrite() && !isReferenceInsideNode(reference, node));
 
 		return getCommentSafeProblem(context, {
@@ -273,12 +268,8 @@ const create = context => {
 			? [replacementRange[0], sourceCode.getRange(trailingComment)[1]]
 			: replacementRange;
 
-		// Preserve ordinary commented decisions as statements, without reporting.
-		if (hasNonDirectiveComment(context, commentRange)) {
-			return;
-		}
-
-		// Report directives so ESLint can suppress the violation, without changing comments.
+		// Report commented decisions without offering edits that would remove comments.
+		// Preserve comments and allow ESLint directives to suppress the report.
 		return getCommentSafeProblem(context, {
 			node,
 			messageId,

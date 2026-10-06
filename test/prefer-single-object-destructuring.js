@@ -223,9 +223,6 @@ testRule.snapshot({
 		'const foo = getFoo(); const {bar: {baz}} = foo;',
 		'const foo = getFoo(); const {bar = 1} = foo;',
 		'const foo = getFoo(); const {[key]: bar} = foo;',
-		'const foo = /* comment */ getFoo(); const {bar} = foo;',
-		'const foo = getFoo(); /* comment */ const {bar} = foo;',
-		'const foo = getFoo(); const {/* comment */ bar} = foo;',
 		'const foo = () => {}; const {name} = foo;',
 		'const foo = (function () {}); const {name} = foo;',
 		'const foo = class {}; const {name} = foo;',
@@ -368,4 +365,16 @@ test('inlining evaluates the initializer once and preserves mutable bindings', t
 	t.assert.deepStrictEqual(result.messages, []);
 	t.assert.strictEqual(value, 2);
 	t.assert.strictEqual(calls, 1);
+});
+
+testRule.snapshot({
+	valid: [],
+	invalid: [
+		'const foo = /* comment */ getFoo(); const {bar} = foo;',
+		'const foo = getFoo(); /* comment */ const {bar} = foo;',
+		'const foo = getFoo(); const {/* comment */ bar} = foo;',
+		'const foo = getFoo(); const {/* comment */ bar} = foo; const {baz} = foo;',
+		'const foo = getFoo(); const {bar} = foo; /* comment */ const {baz} = foo;',
+		'const foo = getFoo(); const {bar} = foo; const {/* comment */ baz} = foo;',
+	],
 });

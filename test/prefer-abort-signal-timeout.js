@@ -135,14 +135,6 @@ test.snapshot({
 			setTimeout(() => abortController.abort(), delay);
 			fetch(url, {signal: abortController.signal});
 		`),
-		{
-			code: outdent`
-				const abortController: /* keep */ AbortController = new AbortController();
-				setTimeout(() => abortController.abort(), delay);
-				fetch(url, {signal: abortController.signal});
-			`,
-			languageOptions: {parser: parsers.typescript},
-		},
 		outdent`
 			const abortController = new AbortController();
 			setTimeout(() => abortController.abort(), getDelay(abortController.signal));
@@ -163,36 +155,8 @@ test.snapshot({
 		`,
 		outdent`
 			const abortController = new AbortController();
-			setTimeout(() => abortController.abort(), /* delay */ delay);
-			fetch(url, {signal: abortController.signal});
-		`,
-		outdent`
-			const abortController = new AbortController();
 			setTimeout(() => abortController.abort(), delay);
 			delete abortController.signal;
-		`,
-		outdent`
-			const abortController = new /* keep */ AbortController();
-			setTimeout(() => abortController.abort(), delay);
-			fetch(url, {signal: abortController.signal});
-		`,
-		outdent`
-			const abortController = new AbortController();
-			setTimeout(() => {
-				/* keep */
-				abortController.abort();
-			}, delay);
-			fetch(url, {signal: abortController.signal});
-		`,
-		outdent`
-			const abortController = new AbortController();
-			setTimeout(() => abortController.abort(), delay); // Keep.
-			fetch(url, {signal: abortController.signal});
-		`,
-		outdent`
-			const abortController = new AbortController();
-			setTimeout(() => abortController.abort(), delay);
-			fetch(url, {signal: abortController /* keep */ .signal});
 		`,
 		outdent`
 			const abortController = new AbortController();
@@ -298,12 +262,6 @@ test.snapshot({
 			if (signal.reason) {
 				handleAbort();
 			}
-		`,
-		outdent`
-			const abortController = new AbortController();
-			// Keep.
-			setTimeout(() => abortController.abort(), delay);
-			fetch(url, {signal: abortController.signal});
 		`,
 		outdent`
 			const abortController = new AbortController();
@@ -517,6 +475,48 @@ test.snapshot({
 					fetch(url, {signal: abortController.signal});
 					break;
 			}
+		`,
+		{
+			code: outdent`
+				const abortController: /* keep */ AbortController = new AbortController();
+				setTimeout(() => abortController.abort(), delay);
+				fetch(url, {signal: abortController.signal});
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		outdent`
+			const abortController = new AbortController();
+			setTimeout(() => abortController.abort(), /* delay */ delay);
+			fetch(url, {signal: abortController.signal});
+		`,
+		outdent`
+			const abortController = new /* keep */ AbortController();
+			setTimeout(() => abortController.abort(), delay);
+			fetch(url, {signal: abortController.signal});
+		`,
+		outdent`
+			const abortController = new AbortController();
+			setTimeout(() => {
+				/* keep */
+				abortController.abort();
+			}, delay);
+			fetch(url, {signal: abortController.signal});
+		`,
+		outdent`
+			const abortController = new AbortController();
+			setTimeout(() => abortController.abort(), delay); // Keep.
+			fetch(url, {signal: abortController.signal});
+		`,
+		outdent`
+			const abortController = new AbortController();
+			setTimeout(() => abortController.abort(), delay);
+			fetch(url, {signal: abortController /* keep */ .signal});
+		`,
+		outdent`
+			const abortController = new AbortController();
+			// Keep.
+			setTimeout(() => abortController.abort(), delay);
+			fetch(url, {signal: abortController.signal});
 		`,
 	],
 });
