@@ -77,13 +77,25 @@ array[array.length - 1] = foo;
 
 ```js
 // ✅
+// This rule intentionally ignores `arguments`, which is array-like but does not have `Array#at()`.
+function foo() {
+	return arguments[arguments.length - 1];
+}
+```
+
+### DOM collections
+
+```js
+// ✅
 // Common DOM collection patterns like `.children`, `.childNodes`, and `querySelectorAll()` are ignored because they are not guaranteed to support `.at()`.
 const foo = element.children[element.children.length - 1];
 ```
 
 This means non-DOM objects with those exact property or method names are also ignored.
 
-The exclusion also applies to `const` aliases of these expressions and collections identified by TypeScript annotations or type information as `NodeList`, `NodeListOf`, `HTMLCollection`, or `HTMLCollectionOf`. Nullish union members are ignored when recognizing these types. The same exclusion applies to `.slice()` patterns and last-element functions.
+Without type information, the exclusion also follows `const` aliases of these expressions and recognizes TypeScript annotations for `NodeList`, `NodeListOf`, `HTMLCollection`, and `HTMLCollectionOf`. Untyped mutable bindings and destructuring are not resolved.
+
+With type information, other expressions with these collection types are also recognized, including mutable bindings, destructuring, and function returns. The same exclusion applies to `.slice()` patterns and last-element functions.
 
 ```js
 // ✅
@@ -91,14 +103,17 @@ const elements = document.querySelectorAll('div');
 const lastElement = elements[elements.length - 1];
 ```
 
-Unknown types and unions containing both DOM collections and arrays do not trigger the exclusion on their own, but a recognized DOM expression or `const` initializer still does. Without type information, untyped mutable bindings and destructuring are not resolved. Converting a DOM collection to an array with `Array.from()` or spread keeps it checked.
+> [!NOTE]
+> Nullish union members are ignored when recognizing DOM collection types. Unknown types and mixed DOM/array unions do not trigger the exclusion on their own, but a recognized DOM expression or `const` initializer still does.
+
+Converting a DOM collection to an array with `Array.from()` or spread keeps it checked:
 
 ```js
+// ❌
+const lastElement = Array.from(elements).slice(-1)[0];
+
 // ✅
-// This rule intentionally ignores `arguments`, which is array-like but does not have `Array#at()`.
-function foo() {
-	return arguments[arguments.length - 1];
-}
+const lastElement = Array.from(elements).at(-1);
 ```
 
 ## Options

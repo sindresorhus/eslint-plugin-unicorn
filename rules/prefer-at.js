@@ -180,6 +180,7 @@ const isDomCollectionExpression = node => {
 };
 
 const {isTarget: isDomCollectionType} = createTypeCheckers({
+	// Specialized DOM collection types like HTMLFormControlsCollection, HTMLOptionsCollection, and RadioNodeList are too niche to list explicitly.
 	targetTypeNames: new Set(['NodeList', 'NodeListOf', 'HTMLCollection', 'HTMLCollectionOf']),
 	allowNullishInMixedUnion: true,
 	isTargetNode: (node, _context, isTarget) =>

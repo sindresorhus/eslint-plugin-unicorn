@@ -651,5 +651,7 @@ test.snapshot({
 		typeAware('function foo(nodes: NodeList | string[]) { if (nodes instanceof NodeList) { return nodes[nodes.length - 1]; } return nodes[nodes.length - 1]; }'),
 		...[...uncertainReceiverTypes, 'string[]'].map(type => typescript(`declare function getNodes(): ${type}; const nodes = getNodes?.(); _.last(nodes);`)),
 		typescript('declare function getNodes(): NodeList; const nodes = getNodes?.() as string[]; _.last(nodes);'),
+		typeAware('function foo(slot: HTMLSlotElement) { const nodes = slot.assignedElements(); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); }'),
+		typeAware('function foo(form: HTMLFormElement) { const nodes = Array.from(form.elements); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); }'),
 	],
 });

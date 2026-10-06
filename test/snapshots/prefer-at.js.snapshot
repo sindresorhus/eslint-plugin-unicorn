@@ -2631,6 +2631,88 @@ Output:
 
 `;
 
+exports[`prefer-at > invalid(51): function foo(slot: HTMLSlotElement) { const nodes = slot.assignedElements(); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(slot: HTMLSlotElement) { const nodes = slot.assignedElements(); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); }
+
+`;
+
+exports[`prefer-at > invalid(51): function foo(slot: HTMLSlotElement) { const nodes = slot.assignedElements(); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); } 2`] = `
+
+Message:
+> 1 | function foo(slot: HTMLSlotElement) { const nodes = slot.assignedElements(); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); }
+    |                                                                                    ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | function foo(slot: HTMLSlotElement) { const nodes = slot.assignedElements(); nodes.at(-1); nodes.slice(-1)[0]; _.last(nodes); }
+
+`;
+
+exports[`prefer-at > invalid(51): function foo(slot: HTMLSlotElement) { const nodes = slot.assignedElements(); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); } 3`] = `
+
+Message:
+> 1 | function foo(slot: HTMLSlotElement) { const nodes = slot.assignedElements(); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); }
+    |                                                                                                             ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | function foo(slot: HTMLSlotElement) { const nodes = slot.assignedElements(); nodes[nodes.length - 1]; nodes.at(-1); _.last(nodes); }
+
+`;
+
+exports[`prefer-at > invalid(51): function foo(slot: HTMLSlotElement) { const nodes = slot.assignedElements(); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); } 4`] = `
+
+Message:
+> 1 | function foo(slot: HTMLSlotElement) { const nodes = slot.assignedElements(); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); }
+    |                                                                                                                           ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | function foo(slot: HTMLSlotElement) { const nodes = slot.assignedElements(); nodes[nodes.length - 1]; nodes.slice(-1)[0]; nodes.at(-1); }
+
+`;
+
+exports[`prefer-at > invalid(52): function foo(form: HTMLFormElement) { const nodes = Array.from(form.elements); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(form: HTMLFormElement) { const nodes = Array.from(form.elements); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); }
+
+`;
+
+exports[`prefer-at > invalid(52): function foo(form: HTMLFormElement) { const nodes = Array.from(form.elements); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); } 2`] = `
+
+Message:
+> 1 | function foo(form: HTMLFormElement) { const nodes = Array.from(form.elements); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); }
+    |                                                                                      ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | function foo(form: HTMLFormElement) { const nodes = Array.from(form.elements); nodes.at(-1); nodes.slice(-1)[0]; _.last(nodes); }
+
+`;
+
+exports[`prefer-at > invalid(52): function foo(form: HTMLFormElement) { const nodes = Array.from(form.elements); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); } 3`] = `
+
+Message:
+> 1 | function foo(form: HTMLFormElement) { const nodes = Array.from(form.elements); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); }
+    |                                                                                                               ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | function foo(form: HTMLFormElement) { const nodes = Array.from(form.elements); nodes[nodes.length - 1]; nodes.at(-1); _.last(nodes); }
+
+`;
+
+exports[`prefer-at > invalid(52): function foo(form: HTMLFormElement) { const nodes = Array.from(form.elements); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); } 4`] = `
+
+Message:
+> 1 | function foo(form: HTMLFormElement) { const nodes = Array.from(form.elements); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); }
+    |                                                                                                                             ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | function foo(form: HTMLFormElement) { const nodes = Array.from(form.elements); nodes[nodes.length - 1]; nodes.slice(-1)[0]; nodes.at(-1); }
+
+`;
+
 exports[`prefer-at > invalid(6): (( array.slice(-9, -8).shift ))() 1`] = `
 
   1 | (( array.slice(-9, -8).shift ))()
