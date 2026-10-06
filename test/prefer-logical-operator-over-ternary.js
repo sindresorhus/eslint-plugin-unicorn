@@ -1,4 +1,8 @@
+import nodeTest from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
+import plugin from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
@@ -16,6 +20,43 @@ const typeAware = code => ({
 const createBooleanAliasChain = initialValue => Array.from({length: 20_001}, (_, index) => `const value${index} = ${index === 0 ? initialValue : `value${index - 1}`};`).join('\n');
 const booleanAliasChain = createBooleanAliasChain('true');
 const booleanConditionAliasChain = createBooleanAliasChain('a === b');
+
+test({
+	valid: [
+		{
+			code: 'declare const yes: true; condition ? yes : Boolean(value);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'const yes = unknown; condition ? yes : Boolean(value);',
+		typeAware('declare function yes(): true; condition ? yes() : Boolean(value);'),
+		typeAware('declare function no(): false; condition ? Boolean(value) : no();'),
+		typeAware('declare const object: {yes: true}; condition ? object.yes : Boolean(value);'),
+		typeAware('declare const yes: true; declare const value: string; condition ? yes : value;'),
+		typeAware('declare const yes: true; declare const no: false; condition ? yes : no;'),
+		typeAware('declare const yes: boolean | undefined; condition ? yes : Boolean(value);'),
+		typeAware('declare const yes: true; condition ? (yes as boolean) : Boolean(value);'),
+	],
+	invalid: [
+		'declare const yes: true; condition ? yes : Boolean(value);',
+		'declare const no: false; condition ? no : Boolean(value);',
+		'declare const no: false; condition ? Boolean(value) : no;',
+		'declare const yes: true; condition ? Boolean(value) : yes;',
+		'declare function getYes(): true; const yes = getYes(); condition ? yes : Boolean(value);',
+		'import {yes} from \'./test/fixtures/prefer-logical-operator-over-ternary/booleans.js\'; condition ? yes : Boolean(value);',
+		'import {no} from \'./test/fixtures/prefer-logical-operator-over-ternary/booleans.js\'; condition ? Boolean(value) : no;',
+		'function f<T extends boolean>(condition: T, other: T) { return condition ? true : other; } const result: true = f(true, true);',
+		outdent`
+			declare function condition(): true;
+			declare function fallback(): false;
+			declare function pick(value: true): "literal";
+			declare function pick(value: boolean): "boolean";
+			const result: "boolean" = pick(condition() ? true : fallback());
+		`,
+	].map(code => ({
+		...typeAware(code),
+		errors: [{messageId: 'prefer-logical-operator-over-ternary/error', suggestions: []}],
+	})),
+});
 
 test.snapshot({
 	valid: [
@@ -49,8 +90,6 @@ test.snapshot({
 		'(value ? false : object.tag)`template`',
 		'value ? fallback ?? other : true',
 		'first || second ? false : fallback()',
-		'value ? true : Boolean(fallback())',
-		'value ? Boolean(fallback()) : false',
 		typeAware('function f(condition: boolean, value: string | null) { return condition ? false : value; }'),
 		typeAware('function f(condition: boolean, value: number) { return condition ? value : true; }'),
 		typeAware('function f(condition: boolean, value: boolean | undefined) { return condition ? false : value; }'),
@@ -61,15 +100,6 @@ test.snapshot({
 
 test({
 	valid: [
-		{
-			name: 'deep TypeScript condition alias chains do not overflow the call stack',
-			code: `${booleanAliasChain}\nfunction f() { return value20000 ? true : Boolean(fallback()); }`,
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			name: 'deep aliases nested in boolean conditions do not overflow the call stack',
-			code: `${booleanAliasChain}\n(value20000 && true) ? true : Boolean(fallback());`,
-		},
 		{
 			name: 'deep aliases in the other boolean branch do not overflow the call stack',
 			code: `${booleanConditionAliasChain}\na === b ? true : value20000;`,
@@ -90,6 +120,42 @@ test({
 		'function isSubPath(pathA, pathB) { return pathA === "/" || pathA === pathB ? true : pathA.startsWith(pathB) && pathA[pathB.length] === "/"; }',
 	],
 	invalid: [
+		['value ? true : Boolean(fallback())', 'Boolean(value) || Boolean(fallback())'],
+		['value ? Boolean(fallback()) : false', 'Boolean(value) && Boolean(fallback())'],
+		['condition() ? true : Boolean(fallback())', 'Boolean(condition()) || Boolean(fallback())'],
+		['condition() ? Boolean(fallback()) : false', 'Boolean(condition()) && Boolean(fallback())'],
+		['0 ? true : Boolean(fallback())', 'Boolean(0) || Boolean(fallback())'],
+		['0 ? Boolean(fallback()) : false', 'Boolean(0) && Boolean(fallback())'],
+		['"" ? true : Boolean(fallback())', 'Boolean("") || Boolean(fallback())'],
+		['"" ? Boolean(fallback()) : false', 'Boolean("") && Boolean(fallback())'],
+		['const condition = 0; condition ? true : Boolean(fallback())', 'const condition = 0; Boolean(condition) || Boolean(fallback())'],
+		['const yes = true; value ? yes : Boolean(fallback())', 'const yes = true; Boolean(value) || Boolean(fallback())'],
+		['const no = false; value ? Boolean(fallback()) : no', 'const no = false; Boolean(value) && Boolean(fallback())'],
+		['let value = false; value = 0; const alias = value; alias ? true : Boolean(other)', 'let value = false; value = 0; const alias = value; Boolean(alias) || Boolean(other)'],
+		['const condition = a === b; condition ? true : Boolean(fallback())', 'const condition = a === b; condition || Boolean(fallback())'],
+		['const condition = a === b; condition ? Boolean(fallback()) : false', 'const condition = a === b; condition && Boolean(fallback())'],
+		['(first(), value) ? true : Boolean(fallback())', 'Boolean((first(), value)) || Boolean(fallback())'],
+		['(first(), value) ? Boolean(fallback()) : false', 'Boolean((first(), value)) && Boolean(fallback())'],
+		['(condition = value) ? true : Boolean(fallback())', 'Boolean(condition = value) || Boolean(fallback())'],
+		['(first || second) ? Boolean(fallback()) : false', 'Boolean(first || second) && Boolean(fallback())'],
+		['value ? true : (a === b && c === d)', 'Boolean(value) || (a === b && c === d)'],
+		['value ? (a === b || c === d) : false', 'Boolean(value) && (a === b || c === d)'],
+		['value ? true : (a === b ?? c === d)', 'Boolean(value) || (a === b ?? c === d)'],
+		['(condition ? first : second) ? Boolean(fallback()) : false', 'Boolean(condition ? first : second) && Boolean(fallback())'],
+		['async function f() { return await value ? true : Boolean(fallback()); }', 'async function f() { return Boolean(await value) || Boolean(fallback()); }'],
+		['async function f() { return await value ? Boolean(fallback()) : false; }', 'async function f() { return Boolean(await value) && Boolean(fallback()); }'],
+		['function * f() { return (yield value) ? true : Boolean(fallback()); }', 'function * f() { return Boolean(yield value) || Boolean(fallback()); }'],
+		['function * f() { return (yield value) ? Boolean(fallback()) : false; }', 'function * f() { return Boolean(yield value) && Boolean(fallback()); }'],
+		['function * f() { return (yield true) ? true : Boolean(fallback()); }', 'function * f() { return Boolean(yield true) || Boolean(fallback()); }'],
+		['function * f() { return (yield true) ? Boolean(fallback()) : false; }', 'function * f() { return Boolean(yield true) && Boolean(fallback()); }'],
+		['function f(value) { return(value) ? true : Boolean(other); }', 'function f(value) { return Boolean(value) || Boolean(other); }'],
+		['function f(value) { return(value) ? Boolean(other) : false; }', 'function f(value) { return Boolean(value) && Boolean(other); }'],
+		['function f() { return{} ? true : Boolean(other); }', 'function f() { return Boolean({}) || Boolean(other); }'],
+		['throw(value) ? Boolean(other) : false;', 'throw Boolean(value) && Boolean(other);'],
+		['function * f(value) { yield(value) ? true : Boolean(other); }', 'function * f(value) { yield Boolean(value) || Boolean(other); }'],
+		['export default[] ? true : Boolean(other);', 'export default Boolean([]) || Boolean(other);'],
+		['for (const item of[] ? true : Boolean(other)) {}', 'for (const item of Boolean([]) || Boolean(other)) {}'],
+		['for (const key in{} ? Boolean(other) : false) {}', 'for (const key in Boolean({}) && Boolean(other)) {}'],
 		['a === b ? true : c === d', '(a === b) || (c === d)'],
 		['a === b ? false : c === d', '!(a === b) && (c === d)'],
 		['a === b ? c === d : false', '(a === b) && (c === d)'],
@@ -115,6 +181,18 @@ test({
 test({
 	valid: [],
 	invalid: [
+		{
+			name: 'deep TypeScript condition alias chains do not overflow the call stack',
+			code: `${booleanAliasChain}\nfunction f() { return value20000 ? true : Boolean(fallback()); }`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-logical-operator-over-ternary/error'}],
+		},
+		{
+			name: 'deep aliases nested in boolean conditions do not overflow the call stack',
+			code: `${booleanAliasChain}\n(value20000 && true) ? true : Boolean(fallback());`,
+			output: `${booleanAliasChain}\nBoolean(value20000 && true) || Boolean(fallback());`,
+			errors: [{messageId: 'prefer-logical-operator-over-ternary/error'}],
+		},
 		{
 			name: 'deep constant alias chains do not overflow the call stack',
 			code: `${booleanAliasChain}\na === b ? value20000 : Boolean(fallback());`,
@@ -249,8 +327,6 @@ test.snapshot({
 		'a === b ? false : true',
 		'a === b ? true : true',
 		'a === b ? false : false',
-		'condition ? true : a === b',
-		'"text" ? true : a === b',
 		'condition ? fallback() : false',
 		'"text" ? fallback() : false',
 		'const {valueOf: condition} = true; condition ? true : fallback()',
@@ -263,6 +339,10 @@ test.snapshot({
 		'function * condition() { return true; } condition() ? true : fallback();',
 		{
 			code: 'with (object) { true ? true : false; }',
+			languageOptions: {sourceType: 'script'},
+		},
+		{
+			code: 'with (object) { value ? true : a === b; value ? a === b : false; }',
 			languageOptions: {sourceType: 'script'},
 		},
 		{
@@ -285,8 +365,6 @@ test.snapshot({
 			code: '\'use strict\'; function outer() { function condition() { return true; } condition = () => 1; return condition() ? true : 0; }',
 			languageOptions: {sourceType: 'script'},
 		},
-		{code: 'function f(condition: string, value: boolean) { return condition ? true : value; }', languageOptions: {parser: parsers.typescript}},
-		typeAware('function f(object: {condition: boolean | undefined, value: boolean}) { return object.condition ? true : object.value; }'),
 		{code: 'function f(value: string, fallback: number) { return value ? false : fallback; }', languageOptions: {parser: parsers.typescript}},
 		{code: 'function f(value: string, fallback: number) { return value ? fallback : true; }', languageOptions: {parser: parsers.typescript}},
 		{code: '(value as string) ? false : fallback()', languageOptions: {parser: parsers.typescript}},
@@ -324,8 +402,138 @@ test.snapshot({
 		{code: 'function f(condition: boolean, value: boolean) { return (condition satisfies boolean) ? false : value; }', languageOptions: {parser: parsers.typescript}},
 		{code: 'function f(condition: boolean, value: boolean) { return condition! ? value! : false; }', languageOptions: {parser: parsers.typescript}},
 		typeAware('function f(object: {condition: boolean, value: boolean}) { return object.condition ? true : object.value; }'),
+		'condition ? true : a === b',
+		'"text" ? true : a === b',
+		'value /* keep */ ? true : Boolean(fallback())',
+		'value ? /* keep */ true : Boolean(fallback())',
+		'value ? Boolean(/* keep */ fallback()) : false',
+		{code: 'const element = <div>{value ? true : Boolean(fallback())}</div>', languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}}},
+		{code: 'function f(condition: string, value: boolean) { return condition ? true : value; }', languageOptions: {parser: parsers.typescript}},
+		typeAware('function f(object: {condition: boolean | undefined, value: boolean}) { return object.condition ? true : object.value; }'),
+		{code: 'function f(constraint: object | undefined, visit: (value: object) => boolean) { return constraint ? visit(constraint) : false; }', languageOptions: {parser: parsers.typescript}},
+		{code: '(condition as string) ? true : Boolean(fallback())', languageOptions: {parser: parsers.typescript}},
+		{code: '(<string>condition) ? Boolean(fallback()) : false', languageOptions: {parser: parsers.typescript}},
+		{code: 'condition! ? true : Boolean(fallback())', languageOptions: {parser: parsers.typescript}},
+		{code: '(condition satisfies string) ? Boolean(fallback()) : false', languageOptions: {parser: parsers.typescript}},
+		...['ts', 'mts', 'cts', 'tsx'].map(extension => ({
+			code: 'value ? true : Boolean(fallback())',
+			filename: `file.${extension}`,
+		})),
+		{code: 'value ? Boolean(fallback()) : false', filename: 'file.js', languageOptions: {parser: parsers.typescript}},
 	],
 });
+
+test.vue({
+	valid: [
+		// Vue.js template expressions require framework-specific visitors.
+		'<template><div>{{ value ? true : Boolean(other) }}</div></template>',
+	],
+	invalid: [
+		{
+			code: '<script>const result = value ? true : Boolean(other);</script>',
+			output: '<script>const result = Boolean(value) || Boolean(other);</script>',
+			filename: 'file.vue',
+			errors: [{messageId: 'prefer-logical-operator-over-ternary/error'}],
+		},
+		{
+			code: '<script lang="ts">const value: string = ""; const result = value ? true : Boolean(other);</script>',
+			filename: 'file.vue',
+			languageOptions: {
+				parserOptions: {parser: parsers.typescript.implementation},
+			},
+			errors: [{messageId: 'prefer-logical-operator-over-ternary/error'}],
+		},
+	],
+});
+
+test.svelte({
+	valid: [],
+	invalid: [
+		{
+			code: '<script>const result = value ? true : Boolean(other);</script><div>{value ? Boolean(other) : false}</div>',
+			output: '<script>const result = Boolean(value) || Boolean(other);</script><div>{Boolean(value) && Boolean(other)}</div>',
+			filename: 'file.svelte',
+			errors: [
+				{messageId: 'prefer-logical-operator-over-ternary/error'},
+				{messageId: 'prefer-logical-operator-over-ternary/error'},
+			],
+		},
+		{
+			code: '<script lang="ts">const value: string = ""; const result = value ? true : Boolean(other);</script><div>{value ? Boolean(other) : false}</div>',
+			filename: 'file.svelte',
+			languageOptions: {
+				parserOptions: {parser: parsers.typescript.implementation},
+			},
+			errors: [
+				{messageId: 'prefer-logical-operator-over-ternary/error'},
+				{messageId: 'prefer-logical-operator-over-ternary/error'},
+			],
+		},
+	],
+});
+
+for (const expression of ['(yield true) ? true : Boolean(fallback())', '(yield true) ? Boolean(fallback()) : false']) {
+	nodeTest(`boolean ternary autofixes preserve generator resume values: ${expression}`, t => {
+		const code = `function * f() { return ${expression}; } f();`;
+		const linter = new Linter();
+		const fixed = linter.verifyAndFix(code, {
+			plugins: {unicorn: plugin},
+			rules: {'unicorn/prefer-logical-operator-over-ternary': 'error'},
+		});
+		t.assert.strictEqual(fixed.fixed, true);
+		t.assert.deepStrictEqual(fixed.messages, []);
+
+		for (const resumedValue of [0, undefined, 'value']) {
+			for (const fallbackValue of [false, true]) {
+				const evaluate = source => {
+					const events = [];
+					const iterator = runInNewContext(source, {
+						fallback() {
+							events.push('fallback');
+							return fallbackValue;
+						},
+					});
+					return {first: {...iterator.next()}, second: {...iterator.next(resumedValue)}, events};
+				};
+
+				t.assert.deepStrictEqual(evaluate(fixed.output), evaluate(code));
+			}
+		}
+	});
+}
+
+for (const code of ['condition() ? true : Boolean(fallback())', 'condition() ? Boolean(fallback()) : false']) {
+	nodeTest(`boolean ternary autofixes preserve results and evaluation order: ${code}`, t => {
+		const linter = new Linter();
+		const fixed = linter.verifyAndFix(code, {
+			plugins: {unicorn: plugin},
+			rules: {'unicorn/prefer-logical-operator-over-ternary': 'error'},
+		});
+		t.assert.strictEqual(fixed.fixed, true);
+		t.assert.deepStrictEqual(fixed.messages, []);
+
+		for (const conditionValue of [undefined, JSON.parse('null'), false, true, 0, -0, NaN, '', 'value', 0n, 1n, Symbol('value'), {}, []]) {
+			for (const fallbackValue of [false, true]) {
+				const evaluate = source => {
+					const events = [];
+					const value = runInNewContext(source, {
+						condition() {
+							events.push('condition');
+							return conditionValue;
+						},
+						fallback() {
+							events.push('fallback');
+							return fallbackValue;
+						},
+					});
+					return {value, events};
+				};
+
+				t.assert.deepStrictEqual(evaluate(fixed.output), evaluate(code));
+			}
+		}
+	});
+}
 
 test.snapshot({
 	valid: [

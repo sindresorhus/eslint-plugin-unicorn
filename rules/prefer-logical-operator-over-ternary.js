@@ -5,6 +5,7 @@ import {
 	isUndefined,
 } from './ast/index.js';
 import {
+	getCallArgumentText,
 	getCommentSafeProblem,
 	getLogicalExpressionChildText,
 	getNegatedExpressionText,
@@ -16,8 +17,10 @@ import {
 	isTypeScriptFile,
 	getOutermostTypeScriptExpression,
 	unwrapTypeScriptExpression,
+	withTypeInformation,
 } from './utils/index.js';
 import {getNullishTest, isSameNode} from './shared/nullish-check.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-logical-operator-over-ternary/error';
 const MESSAGE_ID_OPTIONAL_CHAIN_ERROR = 'prefer-logical-operator-over-ternary/optional-chain-error';
@@ -30,7 +33,7 @@ const messages = {
 	[MESSAGE_ID_OPTIONAL_CHAIN_SUGGESTION]: 'Switch to optional chaining.',
 };
 
-function fix({
+function * fix({
 	fixer,
 	context,
 	conditionalExpression,
@@ -38,11 +41,16 @@ function fix({
 	right,
 	operator,
 	negateLeft = false,
+	coerceLeft = false,
 }) {
 	const {sourceCode} = context;
 	let text = [left, right].map((node, index) => {
 		if (index === 0 && negateLeft) {
 			return getNegatedExpressionText(node, context);
+		}
+
+		if (index === 0 && coerceLeft) {
+			return `Boolean(${getCallArgumentText(node, context)})`;
 		}
 
 		return getLogicalExpressionChildText(node, context, {operator, property: index === 0 ? 'left' : 'right'});
@@ -56,7 +64,8 @@ function fix({
 		text = `;${text}`;
 	}
 
-	return fixer.replaceText(conditionalExpression, text);
+	yield fixSpaceAroundKeyword(fixer, conditionalExpression, context);
+	yield fixer.replaceText(conditionalExpression, text);
 }
 
 function getBooleanLiteralTypeValue(node) {
@@ -136,6 +145,16 @@ function getBooleanConstantValue(node, context) {
 			return;
 		}
 
+		const typeValue = withTypeInformation(node, context, ({type, checker}) => {
+			const typeName = checker.typeToString(type);
+			if (typeName === 'true' || typeName === 'false') {
+				return typeName === 'true';
+			}
+		});
+		if (typeValue !== undefined) {
+			return literalTypeAnnotations.every(typeAnnotation => getBooleanLiteralTypeValue(typeAnnotation) === typeValue) ? typeValue : undefined;
+		}
+
 		const definition = getConstantVariableDefinition(node, context);
 		if (!definition) {
 			return;
@@ -194,13 +213,6 @@ function getBooleanTernaryProblem(conditionalExpression, context) {
 	const negateLeft = consequentValue === false || alternateValue === true;
 	const canFix = canFixBooleanTernary(context);
 
-	if (!negateLeft) {
-		const booleanTest = canFix ? unwrapConstantAliases(test, context) : test;
-		if (!isBooleanTernaryExpression(booleanTest, context)) {
-			return;
-		}
-	}
-
 	const problem = {
 		node: conditionalExpression,
 		messageId: MESSAGE_ID_ERROR,
@@ -210,6 +222,7 @@ function getBooleanTernaryProblem(conditionalExpression, context) {
 		sourceCode.getCommentsInside(conditionalExpression).length === 0
 		&& canFix
 	) {
+		const coerceLeft = !negateLeft && !isBooleanTernaryExpression(unwrapConstantAliases(test, context), context);
 		problem.fix = fixer => fix({
 			fixer,
 			context,
@@ -218,6 +231,7 @@ function getBooleanTernaryProblem(conditionalExpression, context) {
 			right,
 			operator: booleanValue ? '||' : '&&',
 			negateLeft,
+			coerceLeft,
 		});
 	}
 

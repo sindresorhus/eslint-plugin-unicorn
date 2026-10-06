@@ -451,6 +451,23 @@ Suggestion 1/1: Switch to \`??\` operator.:
 
 `;
 
+exports[`prefer-logical-operator-over-ternary > invalid(21): condition ? true : a === b 1`] = `
+
+  1 | condition ? true : a === b
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(21): condition ? true : a === b 2`] = `
+
+Message:
+> 1 | condition ? true : a === b
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using a logical operator over a ternary.
+
+Output:
+  1 | Boolean(condition) || (a === b)
+
+`;
+
 exports[`prefer-logical-operator-over-ternary > invalid(21): foo !== null && foo !== undefined ? foo : bar; 1`] = `
 
   1 | foo !== null && foo !== undefined ? foo : bar;
@@ -465,6 +482,23 @@ Message:
 
 Suggestion 1/1: Switch to \`??\` operator.:
   1 | foo ?? bar;
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(22): \"text\" ? true : a === b 1`] = `
+
+  1 | "text" ? true : a === b
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(22): \"text\" ? true : a === b 2`] = `
+
+Message:
+> 1 | "text" ? true : a === b
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Prefer using a logical operator over a ternary.
+
+Output:
+  1 | Boolean("text") || (a === b)
 
 `;
 
@@ -502,6 +536,20 @@ Suggestion 1/1: Switch to \`??\` operator.:
 
 `;
 
+exports[`prefer-logical-operator-over-ternary > invalid(23): value /* keep */ ? true : Boolean(fallback()) 1`] = `
+
+  1 | value /* keep */ ? true : Boolean(fallback())
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(23): value /* keep */ ? true : Boolean(fallback()) 2`] = `
+
+Message:
+> 1 | value /* keep */ ? true : Boolean(fallback())
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using a logical operator over a ternary.
+
+`;
+
 exports[`prefer-logical-operator-over-ternary > invalid(24): null !== foo && undefined !== foo ? foo : bar; 1`] = `
 
   1 | null !== foo && undefined !== foo ? foo : bar;
@@ -519,6 +567,20 @@ Suggestion 1/1: Switch to \`??\` operator.:
 
 `;
 
+exports[`prefer-logical-operator-over-ternary > invalid(24): value ? /* keep */ true : Boolean(fallback()) 1`] = `
+
+  1 | value ? /* keep */ true : Boolean(fallback())
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(24): value ? /* keep */ true : Boolean(fallback()) 2`] = `
+
+Message:
+> 1 | value ? /* keep */ true : Boolean(fallback())
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using a logical operator over a ternary.
+
+`;
+
 exports[`prefer-logical-operator-over-ternary > invalid(25): foo == null ? undefined : foo.bar; 1`] = `
 
   1 | foo == null ? undefined : foo.bar;
@@ -533,6 +595,37 @@ Message:
 
 Suggestion 1/1: Switch to optional chaining.:
   1 | foo?.bar;
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(25): value ? Boolean(/* keep */ fallback()) : false 1`] = `
+
+  1 | value ? Boolean(/* keep */ fallback()) : false
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(25): value ? Boolean(/* keep */ fallback()) : false 2`] = `
+
+Message:
+> 1 | value ? Boolean(/* keep */ fallback()) : false
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using a logical operator over a ternary.
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(26): const element = <div>{value ? true : Boolean(fallback())}</div> 1`] = `
+
+  1 | const element = <div>{value ? true : Boolean(fallback())}</div>
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(26): const element = <div>{value ? true : Boolean(fallback())}</div> 2`] = `
+
+Message:
+> 1 | const element = <div>{value ? true : Boolean(fallback())}</div>
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using a logical operator over a ternary.
+
+Output:
+  1 | const element = <div>{Boolean(value) || Boolean(fallback())}</div>
 
 `;
 
@@ -570,6 +663,20 @@ Suggestion 1/1: Switch to optional chaining.:
 
 `;
 
+exports[`prefer-logical-operator-over-ternary > invalid(27): function f(condition: string, value: boolean) { return condition ? true : value; } 1`] = `
+
+  1 | function f(condition: string, value: boolean) { return condition ? true : value; }
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(27): function f(condition: string, value: boolean) { return condition ? true : value; } 2`] = `
+
+Message:
+> 1 | function f(condition: string, value: boolean) { return condition ? true : value; }
+    |                                                        ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using a logical operator over a ternary.
+
+`;
+
 exports[`prefer-logical-operator-over-ternary > invalid(28): foo != null ? foo[bar] : undefined; 1`] = `
 
   1 | foo != null ? foo[bar] : undefined;
@@ -584,6 +691,36 @@ Message:
 
 Suggestion 1/1: Switch to optional chaining.:
   1 | foo?.[bar];
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(28): function f(object: {condition: boolean | undefined, value: boolean}) { return object.condition ? true : object.value; } 1`] = `
+
+Filename: file.ts
+
+  1 | function f(object: {condition: boolean | undefined, value: boolean}) { return object.condition ? true : object.value; }
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(28): function f(object: {condition: boolean | undefined, value: boolean}) { return object.condition ? true : object.value; } 2`] = `
+
+Message:
+> 1 | function f(object: {condition: boolean | undefined, value: boolean}) { return object.condition ? true : object.value; }
+    |                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using a logical operator over a ternary.
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(29): function f(constraint: object | undefined, visit: (value: object) => boolean) { return constraint ? visit(constraint) : false; } 1`] = `
+
+  1 | function f(constraint: object | undefined, visit: (value: object) => boolean) { return constraint ? visit(constraint) : false; }
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(29): function f(constraint: object | undefined, visit: (value: object) => boolean) { return constraint ? visit(constraint) : false; } 2`] = `
+
+Message:
+> 1 | function f(constraint: object | undefined, visit: (value: object) => boolean) { return constraint ? visit(constraint) : false; }
+    |                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using a logical operator over a ternary.
 
 `;
 
@@ -632,6 +769,20 @@ Message:
 
 `;
 
+exports[`prefer-logical-operator-over-ternary > invalid(30): (condition as string) ? true : Boolean(fallback()) 1`] = `
+
+  1 | (condition as string) ? true : Boolean(fallback())
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(30): (condition as string) ? true : Boolean(fallback()) 2`] = `
+
+Message:
+> 1 | (condition as string) ? true : Boolean(fallback())
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using a logical operator over a ternary.
+
+`;
+
 exports[`prefer-logical-operator-over-ternary > invalid(30): foo !== null && foo !== undefined ? foo.bar : undefined; 1`] = `
 
   1 | foo !== null && foo !== undefined ? foo.bar : undefined;
@@ -646,6 +797,20 @@ Message:
 
 Suggestion 1/1: Switch to optional chaining.:
   1 | foo?.bar;
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(31): (<string>condition) ? Boolean(fallback()) : false 1`] = `
+
+  1 | (<string>condition) ? Boolean(fallback()) : false
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(31): (<string>condition) ? Boolean(fallback()) : false 2`] = `
+
+Message:
+> 1 | (<string>condition) ? Boolean(fallback()) : false
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using a logical operator over a ternary.
 
 `;
 
@@ -666,6 +831,20 @@ Suggestion 1/1: Switch to optional chaining.:
 
 `;
 
+exports[`prefer-logical-operator-over-ternary > invalid(32): condition! ? true : Boolean(fallback()) 1`] = `
+
+  1 | condition! ? true : Boolean(fallback())
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(32): condition! ? true : Boolean(fallback()) 2`] = `
+
+Message:
+> 1 | condition! ? true : Boolean(fallback())
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using a logical operator over a ternary.
+
+`;
+
 exports[`prefer-logical-operator-over-ternary > invalid(32): foo === null || foo === undefined ? undefined : foo.bar; 1`] = `
 
   1 | foo === null || foo === undefined ? undefined : foo.bar;
@@ -680,6 +859,20 @@ Message:
 
 Suggestion 1/1: Switch to optional chaining.:
   1 | foo?.bar;
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(33): (condition satisfies string) ? Boolean(fallback()) : false 1`] = `
+
+  1 | (condition satisfies string) ? Boolean(fallback()) : false
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(33): (condition satisfies string) ? Boolean(fallback()) : false 2`] = `
+
+Message:
+> 1 | (condition satisfies string) ? Boolean(fallback()) : false
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using a logical operator over a ternary.
 
 `;
 
@@ -717,6 +910,22 @@ Suggestion 1/1: Switch to optional chaining.:
 
 `;
 
+exports[`prefer-logical-operator-over-ternary > invalid(34): value ? true : Boolean(fallback()) 1`] = `
+
+Filename: file.ts
+
+  1 | value ? true : Boolean(fallback())
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(34): value ? true : Boolean(fallback()) 2`] = `
+
+Message:
+> 1 | value ? true : Boolean(fallback())
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using a logical operator over a ternary.
+
+`;
+
 exports[`prefer-logical-operator-over-ternary > invalid(35): foo == null ? undefined : (foo)[bar]; 1`] = `
 
   1 | foo == null ? undefined : (foo)[bar];
@@ -731,6 +940,22 @@ Message:
 
 Suggestion 1/1: Switch to optional chaining.:
   1 | (foo)?.[bar];
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(35): value ? true : Boolean(fallback()) 1`] = `
+
+Filename: file.mts
+
+  1 | value ? true : Boolean(fallback())
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(35): value ? true : Boolean(fallback()) 2`] = `
+
+Message:
+> 1 | value ? true : Boolean(fallback())
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using a logical operator over a ternary.
 
 `;
 
@@ -751,6 +976,22 @@ Suggestion 1/1: Switch to optional chaining.:
 
 `;
 
+exports[`prefer-logical-operator-over-ternary > invalid(36): value ? true : Boolean(fallback()) 1`] = `
+
+Filename: file.cts
+
+  1 | value ? true : Boolean(fallback())
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(36): value ? true : Boolean(fallback()) 2`] = `
+
+Message:
+> 1 | value ? true : Boolean(fallback())
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using a logical operator over a ternary.
+
+`;
+
 exports[`prefer-logical-operator-over-ternary > invalid(37): undefined == foo ? undefined : foo.bar; 1`] = `
 
   1 | undefined == foo ? undefined : foo.bar;
@@ -765,6 +1006,22 @@ Message:
 
 Suggestion 1/1: Switch to optional chaining.:
   1 | foo?.bar;
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(37): value ? true : Boolean(fallback()) 1`] = `
+
+Filename: file.tsx
+
+  1 | value ? true : Boolean(fallback())
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(37): value ? true : Boolean(fallback()) 2`] = `
+
+Message:
+> 1 | value ? true : Boolean(fallback())
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using a logical operator over a ternary.
 
 `;
 
@@ -785,6 +1042,22 @@ Suggestion 1/2: Switch to \`??\` operator.:
 
 Suggestion 2/2: Switch to \`||\` operator.:
   1 | foo() || bar
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(38): value ? Boolean(fallback()) : false 1`] = `
+
+Filename: file.js
+
+  1 | value ? Boolean(fallback()) : false
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(38): value ? Boolean(fallback()) : false 2`] = `
+
+Message:
+> 1 | value ? Boolean(fallback()) : false
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using a logical operator over a ternary.
 
 `;
 

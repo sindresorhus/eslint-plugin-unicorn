@@ -179,6 +179,10 @@ On rebase, `rules/index.js` and the `readme.md` rules table almost always confli
 
 ## Documentation
 
+Keep rule documentation succinct, especially sections about limitations and caveats. Focus on practical information users need to understand and use the rule.
+
+Do not use Markdown tables in rule documentation. Use prose, lists, or code examples instead.
+
 Use JavaScript syntax for configuration examples, not JSON-style quoted keys and strings, unless the example is specifically JSON.
 
 For rule documentation examples, prefer one failing (`// ❌`) example followed by one corresponding passing (`// ✅`) example in each code block whenever possible. Use separate blocks for distinct cases instead of grouping all failing and passing examples together.
