@@ -221,11 +221,13 @@ test({
 		['const fn = a => [a ?? "foo", a ?? `foo`];', 'const fn = (a = "foo") => [a, a];'],
 		['const fn = a => [a ?? `foo`, a ?? `\\u0066oo`];', 'const fn = (a = `foo`) => [a, a];'],
 		['const fn = a => [a ?? `\\u0066oo`, a ?? "foo"];', 'const fn = (a = `\\u0066oo`) => [a, a];'],
+		['const fn = a => [a ?? `\\${foo}`, a ?? "${foo}"];', 'const fn = (a = `\\${foo}`) => [a, a];'], // eslint-disable-line no-template-curly-in-string
 		['const fn = a => a ?? ``;', 'const fn = (a = ``) => a;'],
 		['const fn = a => [a || ``, a || ""];', 'const fn = (a = ``) => [a, a];'],
 		['const fn = (a) => (a) ?? (`foo`);', 'const fn = (a = `foo`) => a;'],
 		['const fn = a => a ?? `foo\n  bar`;', 'const fn = (a = `foo\n  bar`) => a;'],
 		['function fn(a) {\r\n  return a ?? `foo\r\nbar`;\r\n}', 'function fn(a = `foo\r\nbar`) {\r\n  return a;\r\n}'],
+		['const fn = a => [a ?? `foo\r\nbar`, a ?? "foo\\nbar"];', 'const fn = (a = `foo\r\nbar`) => [a, a];'],
 	].map(([code, output, messageId = 'preferDefaultParameterOverFallback']) => ({
 		code,
 		errors: [{
@@ -297,8 +299,10 @@ test({
 		['function fn(a) { const b = a || `foo`; }', 'function fn(b = `foo`) { }'],
 		['const fn = a => { a ??= ``; };', 'const fn = (a = ``) => { };'],
 		['function fn(a) { a ||= `\\u0066oo`; }', 'function fn(a = `\\u0066oo`) { }'],
+		['function fn(a) { a ??= `foo\\`bar`; }', 'function fn(a = `foo\\`bar`) { }'],
 		['function fn(a) {\n  a ??= `foo\nbar`;\n}', 'function fn(a = `foo\nbar`) {\n  \n}'],
 		['function fn(a) {\n  a ??= `foo\nx`;return a;\n}', 'function fn(a = `foo\nx`) {\n  return a;\n}'],
+		['function fn(a) {\r\n  a ??= `foo\r\nx`;return a;\r\n}', 'function fn(a = `foo\r\nx`) {\r\n  return a;\r\n}'],
 		['function fn(a) {\n  a ??= `foo\nx`; return a;\n}', 'function fn(a = `foo\nx`) {\n  return a;\n}'],
 		['function fn(a) {\n    a ??= `foo\n`;/* Keep comment. */\n}', 'function fn(a = `foo\n`) {\n    /* Keep comment. */\n}'],
 	].map(([code, output]) => invalidTestCase({code, suggestions: [output]})),
@@ -313,6 +317,14 @@ test({
 			errors: [{
 				messageId: 'preferDefaultParameters',
 				suggestions: [{messageId: 'preferDefaultParametersSuggest', output: 'function fn(a: string = `foo`) { }'}],
+			}],
+		},
+		{
+			code: 'function fn(a?: string) { const b: string = a ?? `foo`; return b; }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'preferDefaultParameters',
+				suggestions: [{messageId: 'preferDefaultParametersSuggest', output: 'function fn(b: string = `foo`) { return b; }'}],
 			}],
 		},
 		{

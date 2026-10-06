@@ -107,8 +107,7 @@ const fixDefaultExpression = (fixer, sourceCode, node) => {
 	}
 
 	const [start, end] = sourceCode.getRange(node);
-	const isEndsWithWhitespace = sourceCode.text[end] === ' ';
-	if (isEndsWithWhitespace) {
+	if (sourceCode.text[end] === ' ') {
 		return fixer.removeRange([start, end + 1]);
 	}
 
