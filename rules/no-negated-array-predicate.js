@@ -135,7 +135,7 @@ const create = context => {
 				replacement,
 			},
 			* fix(fixer, {abort}) {
-				// Vue template comments are unavailable to the source-text helpers, including comments inside surrounding parentheses.
+				// Vue.js template comments are unavailable to the source-text helpers, including comments inside surrounding parentheses.
 				const predicateNode = tokenStore === sourceCode ? returnedExpression : callback;
 				const [predicateStart, predicateEnd] = replacementPredicateRange;
 				if (
