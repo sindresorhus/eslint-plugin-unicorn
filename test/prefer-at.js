@@ -58,6 +58,13 @@ test({
 		{...typescript('function foo(nodes: HTMLCollection | null) { return nodes?.[0]; }'), options: [{checkAllIndexAccess: true}]},
 		{...typescript('function foo(nodes: NodeList) { return nodes[0]; }'), options: [{checkAllIndexAccess: true}]},
 		typeAware('declare function getNodes(): NodeListOf<Element>; const nodes = getNodes(); nodes[nodes.length - 1];'),
+		typescript('declare function getNodes(): NodeListOf<Element>; const nodes = getNodes(); _.last(nodes);'),
+		typeAware('function getNodes() { return document.querySelectorAll("li"); } const nodes = getNodes(); nodes[nodes.length - 1];'),
+		typeAware('let nodes = document.querySelectorAll("li"); _.last(nodes);'),
+		typeAware('const {children: nodes} = document.body; _.last(nodes);'),
+		typeAware('function foo(value: unknown) { if (value instanceof NodeList) { return value[value.length - 1]; } }'),
+		typescript('const nodes: unknown = element.children; _.last(nodes);'),
+		typescript('const nodes: NodeList | string[] = element.children; _.last(nodes);'),
 		typeAware('declare const source: {nodes: HTMLCollection}; _.last(source.nodes);'),
 		typeAware('type Nodes = ReturnType<() => NodeListOf<Element>>; declare const nodes: Nodes; _.last(nodes);'),
 		typeAware('function foo(nodes: NodeList | undefined) { return nodes?.[nodes.length - 1]; }'),
@@ -607,7 +614,8 @@ test({
 });
 
 // Unknown receivers and arrays converted from DOM collections must still be reported.
-const reportedReceiverTypes = ['any', 'unknown', 'NodeList | string[]', 'string[]', 'readonly number[]', 'string', 'Uint8Array'];
+const uncertainReceiverTypes = ['any', 'unknown', 'NodeList | string[]'];
+const reportedReceiverTypes = [...uncertainReceiverTypes, 'string[]', 'readonly number[]', 'string', 'Uint8Array'];
 test.snapshot({
 	valid: [],
 	invalid: [
@@ -628,5 +636,10 @@ test.snapshot({
 		...reportedReceiverTypes.flatMap(type => [typescript, typeAware].map(parser => parser(`function foo(value: ${type}) { return value[value.length - 1]; }`))),
 		{code: 'const nodes = Array.from(element.children); nodes[0];', options: [{checkAllIndexAccess: true}]},
 		{...typeAware('function foo(value: any) { return value[0]; }'), options: [{checkAllIndexAccess: true}]},
+		typeAware('const nodes = Array.from(document.querySelectorAll("li")); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);'),
+		'const nodes = condition ? element.children : []; nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);',
+		typescript('const nodes = element.children; _.last(nodes as string[]);'),
+		typescript('function foo(value: unknown) { if (value instanceof NodeList) { return value[value.length - 1]; } }'),
+		...uncertainReceiverTypes.flatMap(type => [typescript, typeAware].map(parser => parser(`function foo(value: ${type}) { value.slice(-1)[0]; _.last(value); }`))),
 	],
 });

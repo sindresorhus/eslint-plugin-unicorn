@@ -91,7 +91,7 @@ const elements = document.querySelectorAll('div');
 const lastElement = elements[elements.length - 1];
 ```
 
-Other receivers, including unknown types and unions containing both DOM collections and arrays, remain checked. Without type information, untyped mutable bindings and destructuring are not resolved. Converting a DOM collection to an array with `Array.from()` or spread keeps it checked.
+Unknown types and unions containing both DOM collections and arrays do not trigger the exclusion on their own, but a recognized DOM expression or `const` initializer still does. Without type information, untyped mutable bindings and destructuring are not resolved. Converting a DOM collection to an array with `Array.from()` or spread keeps it checked.
 
 ```js
 // ✅

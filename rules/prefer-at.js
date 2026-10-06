@@ -201,11 +201,7 @@ function create(context) {
 
 	// Index access
 	context.on('MemberExpression', node => {
-		if (
-			!node.computed
-			|| isLeftHandSide(node)
-			|| isDomCollectionReceiver(node.object, context)
-		) {
+		if (!node.computed || isLeftHandSide(node)) {
 			return;
 		}
 
@@ -229,7 +225,7 @@ function create(context) {
 			}
 		}
 
-		if (isArguments(node.object)) {
+		if (isArguments(node.object) || isDomCollectionReceiver(node.object, context)) {
 			return;
 		}
 
@@ -361,20 +357,17 @@ function create(context) {
 
 	// `.slice()`
 	context.on('CallExpression', sliceCall => {
-		if (
-			!isMethodCall(sliceCall, {
-				method: 'slice',
-				minimumArguments: 1,
-				maximumArguments: 2,
-				optionalCall: false,
-			})
-			|| isDomCollectionReceiver(sliceCall.callee.object, context)
-		) {
+		if (!isMethodCall(sliceCall, {
+			method: 'slice',
+			minimumArguments: 1,
+			maximumArguments: 2,
+			optionalCall: false,
+		})) {
 			return;
 		}
 
 		const firstElementGetMethod = getSliceCallResult(sliceCall);
-		if (!firstElementGetMethod) {
+		if (!firstElementGetMethod || isDomCollectionReceiver(sliceCall.callee.object, context)) {
 			return;
 		}
 

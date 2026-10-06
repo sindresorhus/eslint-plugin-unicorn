@@ -1799,6 +1799,264 @@ Output:
 
 `;
 
+exports[`prefer-at > invalid(31): const nodes = Array.from(document.querySelectorAll(\"li\")); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); 1`] = `
+
+Filename: file.ts
+
+  1 | const nodes = Array.from(document.querySelectorAll("li")); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);
+
+`;
+
+exports[`prefer-at > invalid(31): const nodes = Array.from(document.querySelectorAll(\"li\")); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); 2`] = `
+
+Message:
+> 1 | const nodes = Array.from(document.querySelectorAll("li")); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);
+    |                                                                  ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | const nodes = Array.from(document.querySelectorAll("li")); nodes.at(-1); nodes.slice(-1)[0]; _.last(nodes);
+
+`;
+
+exports[`prefer-at > invalid(31): const nodes = Array.from(document.querySelectorAll(\"li\")); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); 3`] = `
+
+Message:
+> 1 | const nodes = Array.from(document.querySelectorAll("li")); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);
+    |                                                                                           ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | const nodes = Array.from(document.querySelectorAll("li")); nodes[nodes.length - 1]; nodes.at(-1); _.last(nodes);
+
+`;
+
+exports[`prefer-at > invalid(31): const nodes = Array.from(document.querySelectorAll(\"li\")); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); 4`] = `
+
+Message:
+> 1 | const nodes = Array.from(document.querySelectorAll("li")); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);
+    |                                                                                                         ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | const nodes = Array.from(document.querySelectorAll("li")); nodes[nodes.length - 1]; nodes.slice(-1)[0]; nodes.at(-1);
+
+`;
+
+exports[`prefer-at > invalid(32): const nodes = condition ? element.children : []; nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); 1`] = `
+
+  1 | const nodes = condition ? element.children : []; nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);
+
+`;
+
+exports[`prefer-at > invalid(32): const nodes = condition ? element.children : []; nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); 2`] = `
+
+Message:
+> 1 | const nodes = condition ? element.children : []; nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);
+    |                                                        ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | const nodes = condition ? element.children : []; nodes.at(-1); nodes.slice(-1)[0]; _.last(nodes);
+
+`;
+
+exports[`prefer-at > invalid(32): const nodes = condition ? element.children : []; nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); 3`] = `
+
+Message:
+> 1 | const nodes = condition ? element.children : []; nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);
+    |                                                                                 ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | const nodes = condition ? element.children : []; nodes[nodes.length - 1]; nodes.at(-1); _.last(nodes);
+
+`;
+
+exports[`prefer-at > invalid(32): const nodes = condition ? element.children : []; nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); 4`] = `
+
+Message:
+> 1 | const nodes = condition ? element.children : []; nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);
+    |                                                                                               ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | const nodes = condition ? element.children : []; nodes[nodes.length - 1]; nodes.slice(-1)[0]; nodes.at(-1);
+
+`;
+
+exports[`prefer-at > invalid(33): const nodes = element.children; _.last(nodes as string[]); 1`] = `
+
+  1 | const nodes = element.children; _.last(nodes as string[]);
+
+`;
+
+exports[`prefer-at > invalid(33): const nodes = element.children; _.last(nodes as string[]); 2`] = `
+
+Message:
+> 1 | const nodes = element.children; _.last(nodes as string[]);
+    |                                 ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | const nodes = element.children; (nodes as string[]).at(-1);
+
+`;
+
+exports[`prefer-at > invalid(34): function foo(value: unknown) { if (value instanceof NodeList) { return value[value.length - 1]; } } 1`] = `
+
+  1 | function foo(value: unknown) { if (value instanceof NodeList) { return value[value.length - 1]; } }
+
+`;
+
+exports[`prefer-at > invalid(34): function foo(value: unknown) { if (value instanceof NodeList) { return value[value.length - 1]; } } 2`] = `
+
+Message:
+> 1 | function foo(value: unknown) { if (value instanceof NodeList) { return value[value.length - 1]; } }
+    |                                                                              ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | function foo(value: unknown) { if (value instanceof NodeList) { return value.at(-1); } }
+
+`;
+
+exports[`prefer-at > invalid(35): function foo(value: any) { value.slice(-1)[0]; _.last(value); } 1`] = `
+
+  1 | function foo(value: any) { value.slice(-1)[0]; _.last(value); }
+
+`;
+
+exports[`prefer-at > invalid(35): function foo(value: any) { value.slice(-1)[0]; _.last(value); } 2`] = `
+
+Message:
+> 1 | function foo(value: any) { value.slice(-1)[0]; _.last(value); }
+    |                                  ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | function foo(value: any) { value.at(-1); _.last(value); }
+
+`;
+
+exports[`prefer-at > invalid(35): function foo(value: any) { value.slice(-1)[0]; _.last(value); } 3`] = `
+
+Message:
+> 1 | function foo(value: any) { value.slice(-1)[0]; _.last(value); }
+    |                                                ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | function foo(value: any) { value.slice(-1)[0]; value.at(-1); }
+
+`;
+
+exports[`prefer-at > invalid(36): function foo(value: any) { value.slice(-1)[0]; _.last(value); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(value: any) { value.slice(-1)[0]; _.last(value); }
+
+`;
+
+exports[`prefer-at > invalid(36): function foo(value: any) { value.slice(-1)[0]; _.last(value); } 2`] = `
+
+Message:
+> 1 | function foo(value: any) { value.slice(-1)[0]; _.last(value); }
+    |                                  ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | function foo(value: any) { value.at(-1); _.last(value); }
+
+`;
+
+exports[`prefer-at > invalid(36): function foo(value: any) { value.slice(-1)[0]; _.last(value); } 3`] = `
+
+Message:
+> 1 | function foo(value: any) { value.slice(-1)[0]; _.last(value); }
+    |                                                ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | function foo(value: any) { value.slice(-1)[0]; value.at(-1); }
+
+`;
+
+exports[`prefer-at > invalid(37): function foo(value: unknown) { value.slice(-1)[0]; _.last(value); } 1`] = `
+
+  1 | function foo(value: unknown) { value.slice(-1)[0]; _.last(value); }
+
+`;
+
+exports[`prefer-at > invalid(37): function foo(value: unknown) { value.slice(-1)[0]; _.last(value); } 2`] = `
+
+Message:
+> 1 | function foo(value: unknown) { value.slice(-1)[0]; _.last(value); }
+    |                                      ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | function foo(value: unknown) { value.at(-1); _.last(value); }
+
+`;
+
+exports[`prefer-at > invalid(37): function foo(value: unknown) { value.slice(-1)[0]; _.last(value); } 3`] = `
+
+Message:
+> 1 | function foo(value: unknown) { value.slice(-1)[0]; _.last(value); }
+    |                                                    ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | function foo(value: unknown) { value.slice(-1)[0]; value.at(-1); }
+
+`;
+
+exports[`prefer-at > invalid(38): function foo(value: unknown) { value.slice(-1)[0]; _.last(value); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(value: unknown) { value.slice(-1)[0]; _.last(value); }
+
+`;
+
+exports[`prefer-at > invalid(38): function foo(value: unknown) { value.slice(-1)[0]; _.last(value); } 2`] = `
+
+Message:
+> 1 | function foo(value: unknown) { value.slice(-1)[0]; _.last(value); }
+    |                                      ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | function foo(value: unknown) { value.at(-1); _.last(value); }
+
+`;
+
+exports[`prefer-at > invalid(38): function foo(value: unknown) { value.slice(-1)[0]; _.last(value); } 3`] = `
+
+Message:
+> 1 | function foo(value: unknown) { value.slice(-1)[0]; _.last(value); }
+    |                                                    ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | function foo(value: unknown) { value.slice(-1)[0]; value.at(-1); }
+
+`;
+
+exports[`prefer-at > invalid(39): function foo(value: NodeList | string[]) { value.slice(-1)[0]; _.last(value); } 1`] = `
+
+  1 | function foo(value: NodeList | string[]) { value.slice(-1)[0]; _.last(value); }
+
+`;
+
+exports[`prefer-at > invalid(39): function foo(value: NodeList | string[]) { value.slice(-1)[0]; _.last(value); } 2`] = `
+
+Message:
+> 1 | function foo(value: NodeList | string[]) { value.slice(-1)[0]; _.last(value); }
+    |                                                  ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | function foo(value: NodeList | string[]) { value.at(-1); _.last(value); }
+
+`;
+
+exports[`prefer-at > invalid(39): function foo(value: NodeList | string[]) { value.slice(-1)[0]; _.last(value); } 3`] = `
+
+Message:
+> 1 | function foo(value: NodeList | string[]) { value.slice(-1)[0]; _.last(value); }
+    |                                                                ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | function foo(value: NodeList | string[]) { value.slice(-1)[0]; value.at(-1); }
+
+`;
+
 exports[`prefer-at > invalid(4): _.last(foo.bar) 1`] = `
 
   1 | _.last(foo.bar)
@@ -1936,6 +2194,36 @@ Message:
 
 Suggestion 1/1: Use \`.at(…)\`.:
   1 | string.at(index)
+
+`;
+
+exports[`prefer-at > invalid(40): function foo(value: NodeList | string[]) { value.slice(-1)[0]; _.last(value); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(value: NodeList | string[]) { value.slice(-1)[0]; _.last(value); }
+
+`;
+
+exports[`prefer-at > invalid(40): function foo(value: NodeList | string[]) { value.slice(-1)[0]; _.last(value); } 2`] = `
+
+Message:
+> 1 | function foo(value: NodeList | string[]) { value.slice(-1)[0]; _.last(value); }
+    |                                                  ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | function foo(value: NodeList | string[]) { value.at(-1); _.last(value); }
+
+`;
+
+exports[`prefer-at > invalid(40): function foo(value: NodeList | string[]) { value.slice(-1)[0]; _.last(value); } 3`] = `
+
+Message:
+> 1 | function foo(value: NodeList | string[]) { value.slice(-1)[0]; _.last(value); }
+    |                                                                ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | function foo(value: NodeList | string[]) { value.slice(-1)[0]; value.at(-1); }
 
 `;
 
