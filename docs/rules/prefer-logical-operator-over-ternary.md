@@ -17,12 +17,10 @@ For explicit nullish-check ternaries, this rule only suggests `??` when the sour
 
 The rule also handles ternaries with exactly one constant boolean branch, including simple `const` aliases. With TypeScript type information, it also recognizes identifiers whose types are exactly `true` or `false`, including declared and imported identifiers.
 
-| Ternary | Logical alternative |
-| --- | --- |
-| `condition ? true : expression` | `Boolean(condition) \|\| expression` |
-| `condition ? false : expression` | `!condition && expression` |
-| `condition ? expression : false` | `Boolean(condition) && expression` |
-| `condition ? expression : true` | `!condition \|\| expression` |
+- `condition ? true : expression` becomes `Boolean(condition) || expression`.
+- `condition ? false : expression` becomes `!condition && expression`.
+- `condition ? expression : false` becomes `Boolean(condition) && expression`.
+- `condition ? expression : true` becomes `!condition || expression`.
 
 `Boolean()` is omitted when the condition is known boolean. The other branch must be known boolean.
 
