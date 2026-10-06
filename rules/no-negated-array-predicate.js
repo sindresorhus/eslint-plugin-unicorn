@@ -1,6 +1,5 @@
 import {
 	checkVueTemplate,
-	getCommentSafeProblem,
 	getFunctionReturnExpression,
 	getNegatedExpressionText,
 	getParenthesizedRange,
@@ -128,7 +127,7 @@ const create = context => {
 		const replacement = replacementMethod.get(method);
 		const {replacedRange: replacementPredicateRange, text: replacementPredicateText} = getReplacementPredicate(returnedExpression, context);
 
-		const problem = {
+		return {
 			node: methodNode,
 			messageId: MESSAGE_ID,
 			data: {
@@ -136,9 +135,15 @@ const create = context => {
 				replacement,
 			},
 			* fix(fixer, {abort}) {
+				// Vue template comments are unavailable to the source-text helpers, including comments inside surrounding parentheses.
+				const predicateNode = tokenStore === sourceCode ? returnedExpression : callback;
+				const [predicateStart, predicateEnd] = replacementPredicateRange;
 				if (
 					tokenStore.getTokensBetween(bangToken, tokenAfterBang, {includeComments: true}).length > 0
-					|| tokenStore.getCommentsInside(returnedExpression).length > 0
+					|| tokenStore.getCommentsInside(predicateNode).some(comment => {
+						const [commentStart, commentEnd] = sourceCode.getRange(comment);
+						return commentStart >= predicateStart && commentEnd <= predicateEnd;
+					})
 				) {
 					return abort();
 				}
@@ -174,9 +179,6 @@ const create = context => {
 				}
 			},
 		};
-
-		const afterBangRange = [sourceCode.getRange(bangToken)[1], sourceCode.getRange(tokenAfterBang)[0]];
-		return getCommentSafeProblem(context, getCommentSafeProblem(context, problem, returnedExpression), afterBangRange);
 	});
 };
 

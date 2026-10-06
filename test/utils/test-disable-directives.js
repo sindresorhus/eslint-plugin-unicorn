@@ -69,7 +69,7 @@ export function testDisableDirectives(ruleName, template, {options = [], expecte
 	});
 
 	for (const comment of ['/* Explanation. */', `/* eslint-enable ${ruleId} */ /* Explanation. */`]) {
-		test(`${ruleName} reports without edits with ordinary comments (${comment}): ${template}`, t => {
+		test(`${ruleName} handles ordinary comments without edits (${comment}): ${template}`, t => {
 			const linter = new Linter();
 			const code = template.replace('@', () => comment);
 			const result = linter.verifyAndFix(code, {...config, linterOptions: {reportUnusedDisableDirectives: 'off'}});
@@ -84,4 +84,14 @@ export function testDisableDirectives(ruleName, template, {options = [], expecte
 			t.assert.strictEqual(result.output, code);
 		});
 	}
+
+	test(`${ruleName} honors directives with ordinary comments: ${template}`, t => {
+		const linter = new Linter();
+		const code = `/* eslint-disable ${ruleId} */\n` + template.replace('@', '/* Explanation. */');
+		const result = linter.verifyAndFix(code, {...config, linterOptions: {reportUnusedDisableDirectives: 'off'}});
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(linter.getSuppressedMessages().length, expectedCommentReports);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+	});
 }

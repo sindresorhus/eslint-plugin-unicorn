@@ -246,5 +246,11 @@ test.snapshot({
 		'const object = Object /* comment */ .fromEntries(Object.entries(source)); object.foo;',
 		'const object = Object.fromEntries(Object.entries(source)); object.foo /* comment */ = value;',
 		'const object = Object.fromEntries(Object.entries(source)); delete /* comment */ object.foo;',
+		outdent`
+			const object = Object.fromEntries(Object.entries(source));
+			object.foo;
+			object /* keep */ .bar;
+			Object.keys(object);
+		`,
 	],
 });

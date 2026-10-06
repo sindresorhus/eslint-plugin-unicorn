@@ -47,8 +47,7 @@ bar';`,
 });
 
 ruleTest({
-	valid: [
-	],
+	valid: [],
 	invalid: [{
 		code: 'const value = () => {\n\t\treturn {foo: bar}.foo;\n\t};',
 		output: 'const value = () => ({foo: bar}.foo);',

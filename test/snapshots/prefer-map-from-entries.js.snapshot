@@ -650,6 +650,26 @@ Output:
 
 `;
 
+exports[`prefer-map-from-entries > invalid(6): const object = Object.fromEntries(Object.entries(source));\nobject.foo;\nobject /* keep */ .bar;\nObject.keys(object); 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source));
+  2 | object.foo;
+  3 | object /* keep */ .bar;
+  4 | Object.keys(object);
+
+`;
+
+exports[`prefer-map-from-entries > invalid(6): const object = Object.fromEntries(Object.entries(source));\nobject.foo;\nobject /* keep */ .bar;\nObject.keys(object); 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source));
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+  2 | object.foo;
+  3 | object /* keep */ .bar;
+  4 | Object.keys(object);
+
+`;
+
 exports[`prefer-map-from-entries > invalid(7): const object = Object.fromEntries(Object.entries(source)); if (object.foo) {} 1`] = `
 
   1 | const object = Object.fromEntries(Object.entries(source)); if (object.foo) {}

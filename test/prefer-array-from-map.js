@@ -260,6 +260,9 @@ test.snapshot({
 				result.push(transform(element));
 			}
 		`,
+		'const result = [/* Keep this comment. */]; for (const element of iterable) { result.push(transform(element)); }',
+		'const result = []; for (const element /* Keep this comment. */ of iterable) { result.push(transform(element)); }',
+		'const result = []; for (const element of iterable) { result.push(transform(/* Keep this comment. */ element)); }',
 	],
 });
 

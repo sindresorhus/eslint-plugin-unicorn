@@ -744,10 +744,6 @@ const isMatchingMissingValue = (value, missingType, context) =>
 	missingType === 'undefined' ? isUndefinedSentinel(value, context) : isNullLiteral(value);
 
 const getComparisonFix = (callExpression, comparison, context) => {
-	if (context.sourceCode.getCommentsInside(comparison.node).length > context.sourceCode.getCommentsInside(callExpression).length) {
-		return;
-	}
-
 	const replacement = `${isPositiveComparison(comparison) ? '' : '!'}${getMemberExpressionObjectText(callExpression.callee.object, context)}.has(${getSingleArgumentText(callExpression, context)})`;
 	const semicolon = needsSemicolon(context.sourceCode.getTokenBefore(comparison.node), context, replacement) ? ';' : '';
 	return fixer => fixer.replaceText(comparison.node, semicolon + replacement);
@@ -782,7 +778,7 @@ const getProblem = (callExpression, context) => {
 			node: callExpression.callee.property,
 			messageId: MESSAGE_ID,
 			fix: getComparisonFix(callExpression, comparison, context),
-		}, callExpression);
+		}, comparison.node);
 	}
 
 	if (

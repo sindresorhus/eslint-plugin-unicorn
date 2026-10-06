@@ -150,6 +150,19 @@ test.snapshot({
 			code: '<template>{{ !array.every(element => test(/* comment */ element)) }}</template>',
 			languageOptions: {parser: parsers.vue},
 		},
+		{
+			code: '<template>{{ !array.every(element => (/* keep */ element)) }}</template>',
+			languageOptions: {parser: parsers.vue},
+		},
+		{
+			code: '<template>{{ !array.some(element => (((element /* keep */)))) }}</template>',
+			languageOptions: {parser: parsers.vue},
+		},
+		'!array.every(element => ((/* before */ element /* after */)));',
+		{
+			code: '<template>{{ !array.every(element => /* before */ (element) /* after */) }}</template>',
+			languageOptions: {parser: parsers.vue},
+		},
 	],
 });
 

@@ -615,6 +615,24 @@ Message:
 
 `;
 
+exports[`default-export-style > invalid(39): const foo = () => {};\n// Comment between declaration and export.\nexport default foo; 1`] = `
+
+  1 | const foo = () => {};
+  2 | // Comment between declaration and export.
+  3 | export default foo;
+
+`;
+
+exports[`default-export-style > invalid(39): const foo = () => {};\n// Comment between declaration and export.\nexport default foo; 2`] = `
+
+Message:
+  1 | const foo = () => {};
+  2 | // Comment between declaration and export.
+> 3 | export default foo;
+    | ^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function inline.
+
+`;
+
 exports[`default-export-style > invalid(4): class Foo {}\nexport default Foo; 1`] = `
 
   1 | class Foo {}
@@ -631,6 +649,28 @@ Message:
 
 Output:
   1 | export default class Foo {}
+
+`;
+
+exports[`default-export-style > invalid(40): function foo() {}\n// Comment between declaration and export.\nexport default foo; 1`] = `
+
+Options:
+- functions: 'separate'
+
+Code:
+  1 | function foo() {}
+  2 | // Comment between declaration and export.
+  3 | export default foo;
+
+`;
+
+exports[`default-export-style > invalid(40): function foo() {}\n// Comment between declaration and export.\nexport default foo; 2`] = `
+
+Message:
+  1 | function foo() {}
+  2 | // Comment between declaration and export.
+> 3 | export default foo;
+    | ^^^^^^^^^^^^^^^^^^^ Prefer declaring this default-exported function as a separate const arrow function.
 
 `;
 

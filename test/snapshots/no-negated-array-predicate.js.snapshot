@@ -665,6 +665,68 @@ Message:
 
 `;
 
+exports[`no-negated-array-predicate > invalid(44): <template>{{ !array.every(element => (/* keep */ element)) }}</template> 1`] = `
+
+  1 | <template>{{ !array.every(element => (/* keep */ element)) }}</template>
+
+`;
+
+exports[`no-negated-array-predicate > invalid(44): <template>{{ !array.every(element => (/* keep */ element)) }}</template> 2`] = `
+
+Message:
+> 1 | <template>{{ !array.every(element => (/* keep */ element)) }}</template>
+    |                     ^^^^^ Prefer \`Array#some()\` with a negated predicate over negating \`Array#every()\`.
+
+`;
+
+exports[`no-negated-array-predicate > invalid(45): <template>{{ !array.some(element => (((element /* keep */)))) }}</template> 1`] = `
+
+  1 | <template>{{ !array.some(element => (((element /* keep */)))) }}</template>
+
+`;
+
+exports[`no-negated-array-predicate > invalid(45): <template>{{ !array.some(element => (((element /* keep */)))) }}</template> 2`] = `
+
+Message:
+> 1 | <template>{{ !array.some(element => (((element /* keep */)))) }}</template>
+    |                     ^^^^ Prefer \`Array#every()\` with a negated predicate over negating \`Array#some()\`.
+
+`;
+
+exports[`no-negated-array-predicate > invalid(46): !array.every(element => ((/* before */ element /* after */))); 1`] = `
+
+  1 | !array.every(element => ((/* before */ element /* after */)));
+
+`;
+
+exports[`no-negated-array-predicate > invalid(46): !array.every(element => ((/* before */ element /* after */))); 2`] = `
+
+Message:
+> 1 | !array.every(element => ((/* before */ element /* after */)));
+    |        ^^^^^ Prefer \`Array#some()\` with a negated predicate over negating \`Array#every()\`.
+
+Output:
+  1 | array.some(element => !((/* before */ element /* after */)));
+
+`;
+
+exports[`no-negated-array-predicate > invalid(47): <template>{{ !array.every(element => /* before */ (element) /* after */) }}</template> 1`] = `
+
+  1 | <template>{{ !array.every(element => /* before */ (element) /* after */) }}</template>
+
+`;
+
+exports[`no-negated-array-predicate > invalid(47): <template>{{ !array.every(element => /* before */ (element) /* after */) }}</template> 2`] = `
+
+Message:
+> 1 | <template>{{ !array.every(element => /* before */ (element) /* after */) }}</template>
+    |                     ^^^^^ Prefer \`Array#some()\` with a negated predicate over negating \`Array#every()\`.
+
+Output:
+  1 | <template>{{ array.some(element => /* before */ !element /* after */) }}</template>
+
+`;
+
 exports[`no-negated-array-predicate > invalid(5): !array.some(element => !({})); 1`] = `
 
   1 | !array.some(element => !({}));

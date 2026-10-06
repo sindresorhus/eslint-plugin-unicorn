@@ -257,6 +257,7 @@ const suggestFunctionToSeparateArrow = ({
 }) => {
 	if (
 		context.sourceCode.getCommentsInside(exportDeclaration).length > context.sourceCode.getCommentsInside(declaration).length
+		|| hasTrailingComment(context, exportDeclaration)
 		|| hasOtherReferences(
 			scope,
 			declaration.id,
@@ -436,6 +437,7 @@ const reportInlineDeclaration = ({
 	if (
 		context.sourceCode.getCommentsInside(exportDeclaration).length
 		> context.sourceCode.getCommentsInside(declaration).length
+		|| hasTrailingComment(context, exportDeclaration)
 	) {
 		return {
 			node: exportDeclaration,

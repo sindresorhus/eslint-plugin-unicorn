@@ -652,6 +652,48 @@ Message:
 
 `;
 
+exports[`prefer-array-from-map > invalid(31): const result = [/* Keep this comment. */]; for (const element of iterable) { result.push(transform(element)); } 1`] = `
+
+  1 | const result = [/* Keep this comment. */]; for (const element of iterable) { result.push(transform(element)); }
+
+`;
+
+exports[`prefer-array-from-map > invalid(31): const result = [/* Keep this comment. */]; for (const element of iterable) { result.push(transform(element)); } 2`] = `
+
+Message:
+> 1 | const result = [/* Keep this comment. */]; for (const element of iterable) { result.push(transform(element)); }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Pass the mapping function to \`Array.from()\` directly.
+
+`;
+
+exports[`prefer-array-from-map > invalid(32): const result = []; for (const element /* Keep this comment. */ of iterable) { result.push(transform(element)); } 1`] = `
+
+  1 | const result = []; for (const element /* Keep this comment. */ of iterable) { result.push(transform(element)); }
+
+`;
+
+exports[`prefer-array-from-map > invalid(32): const result = []; for (const element /* Keep this comment. */ of iterable) { result.push(transform(element)); } 2`] = `
+
+Message:
+> 1 | const result = []; for (const element /* Keep this comment. */ of iterable) { result.push(transform(element)); }
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Pass the mapping function to \`Array.from()\` directly.
+
+`;
+
+exports[`prefer-array-from-map > invalid(33): const result = []; for (const element of iterable) { result.push(transform(/* Keep this comment. */ element)); } 1`] = `
+
+  1 | const result = []; for (const element of iterable) { result.push(transform(/* Keep this comment. */ element)); }
+
+`;
+
+exports[`prefer-array-from-map > invalid(33): const result = []; for (const element of iterable) { result.push(transform(/* Keep this comment. */ element)); } 2`] = `
+
+Message:
+> 1 | const result = []; for (const element of iterable) { result.push(transform(/* Keep this comment. */ element)); }
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Pass the mapping function to \`Array.from()\` directly.
+
+`;
+
 exports[`prefer-array-from-map > invalid(4): Array.from(iterable,).map(element => element); 1`] = `
 
   1 | Array.from(iterable,).map(element => element);
