@@ -49,8 +49,6 @@ test.snapshot({
 		'(value ? false : object.tag)`template`',
 		'value ? fallback ?? other : true',
 		'first || second ? false : fallback()',
-		'value ? true : Boolean(fallback())',
-		'value ? Boolean(fallback()) : false',
 		typeAware('function f(condition: boolean, value: string | null) { return condition ? false : value; }'),
 		typeAware('function f(condition: boolean, value: number) { return condition ? value : true; }'),
 		typeAware('function f(condition: boolean, value: boolean | undefined) { return condition ? false : value; }'),
@@ -61,15 +59,6 @@ test.snapshot({
 
 test({
 	valid: [
-		{
-			name: 'deep TypeScript condition alias chains do not overflow the call stack',
-			code: `${booleanAliasChain}\nfunction f() { return value20000 ? true : Boolean(fallback()); }`,
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			name: 'deep aliases nested in boolean conditions do not overflow the call stack',
-			code: `${booleanAliasChain}\n(value20000 && true) ? true : Boolean(fallback());`,
-		},
 		{
 			name: 'deep aliases in the other boolean branch do not overflow the call stack',
 			code: `${booleanConditionAliasChain}\na === b ? true : value20000;`,
@@ -90,6 +79,25 @@ test({
 		'function isSubPath(pathA, pathB) { return pathA === "/" || pathA === pathB ? true : pathA.startsWith(pathB) && pathA[pathB.length] === "/"; }',
 	],
 	invalid: [
+		['value ? true : Boolean(fallback())', 'Boolean(value) || Boolean(fallback())'],
+		['value ? Boolean(fallback()) : false', 'Boolean(value) && Boolean(fallback())'],
+		['condition() ? true : Boolean(fallback())', 'Boolean(condition()) || Boolean(fallback())'],
+		['condition() ? Boolean(fallback()) : false', 'Boolean(condition()) && Boolean(fallback())'],
+		['0 ? true : Boolean(fallback())', 'Boolean(0) || Boolean(fallback())'],
+		['0 ? Boolean(fallback()) : false', 'Boolean(0) && Boolean(fallback())'],
+		['"" ? true : Boolean(fallback())', 'Boolean("") || Boolean(fallback())'],
+		['"" ? Boolean(fallback()) : false', 'Boolean("") && Boolean(fallback())'],
+		['const condition = 0; condition ? true : Boolean(fallback())', 'const condition = 0; Boolean(condition) || Boolean(fallback())'],
+		['const condition = a === b; condition ? true : Boolean(fallback())', 'const condition = a === b; condition || Boolean(fallback())'],
+		['const condition = a === b; condition ? Boolean(fallback()) : false', 'const condition = a === b; condition && Boolean(fallback())'],
+		['(first(), value) ? true : Boolean(fallback())', 'Boolean((first(), value)) || Boolean(fallback())'],
+		['(first(), value) ? Boolean(fallback()) : false', 'Boolean((first(), value)) && Boolean(fallback())'],
+		['(condition = value) ? true : Boolean(fallback())', 'Boolean(condition = value) || Boolean(fallback())'],
+		['(first || second) ? Boolean(fallback()) : false', 'Boolean(first || second) && Boolean(fallback())'],
+		['value ? true : (a === b && c === d)', 'Boolean(value) || (a === b && c === d)'],
+		['value ? (a === b || c === d) : false', 'Boolean(value) && (a === b || c === d)'],
+		['value ? true : (a === b ?? c === d)', 'Boolean(value) || (a === b ?? c === d)'],
+		['(condition ? first : second) ? Boolean(fallback()) : false', 'Boolean(condition ? first : second) && Boolean(fallback())'],
 		['a === b ? true : c === d', '(a === b) || (c === d)'],
 		['a === b ? false : c === d', '!(a === b) && (c === d)'],
 		['a === b ? c === d : false', '(a === b) && (c === d)'],
@@ -115,6 +123,18 @@ test({
 test({
 	valid: [],
 	invalid: [
+		{
+			name: 'deep TypeScript condition alias chains do not overflow the call stack',
+			code: `${booleanAliasChain}\nfunction f() { return value20000 ? true : Boolean(fallback()); }`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-logical-operator-over-ternary/error'}],
+		},
+		{
+			name: 'deep aliases nested in boolean conditions do not overflow the call stack',
+			code: `${booleanAliasChain}\n(value20000 && true) ? true : Boolean(fallback());`,
+			output: `${booleanAliasChain}\nBoolean(value20000 && true) || Boolean(fallback());`,
+			errors: [{messageId: 'prefer-logical-operator-over-ternary/error'}],
+		},
 		{
 			name: 'deep constant alias chains do not overflow the call stack',
 			code: `${booleanAliasChain}\na === b ? value20000 : Boolean(fallback());`,
@@ -249,8 +269,6 @@ test.snapshot({
 		'a === b ? false : true',
 		'a === b ? true : true',
 		'a === b ? false : false',
-		'condition ? true : a === b',
-		'"text" ? true : a === b',
 		'condition ? fallback() : false',
 		'"text" ? fallback() : false',
 		'const {valueOf: condition} = true; condition ? true : fallback()',
@@ -285,8 +303,6 @@ test.snapshot({
 			code: '\'use strict\'; function outer() { function condition() { return true; } condition = () => 1; return condition() ? true : 0; }',
 			languageOptions: {sourceType: 'script'},
 		},
-		{code: 'function f(condition: string, value: boolean) { return condition ? true : value; }', languageOptions: {parser: parsers.typescript}},
-		typeAware('function f(object: {condition: boolean | undefined, value: boolean}) { return object.condition ? true : object.value; }'),
 		{code: 'function f(value: string, fallback: number) { return value ? false : fallback; }', languageOptions: {parser: parsers.typescript}},
 		{code: 'function f(value: string, fallback: number) { return value ? fallback : true; }', languageOptions: {parser: parsers.typescript}},
 		{code: '(value as string) ? false : fallback()', languageOptions: {parser: parsers.typescript}},
@@ -324,6 +340,24 @@ test.snapshot({
 		{code: 'function f(condition: boolean, value: boolean) { return (condition satisfies boolean) ? false : value; }', languageOptions: {parser: parsers.typescript}},
 		{code: 'function f(condition: boolean, value: boolean) { return condition! ? value! : false; }', languageOptions: {parser: parsers.typescript}},
 		typeAware('function f(object: {condition: boolean, value: boolean}) { return object.condition ? true : object.value; }'),
+		'condition ? true : a === b',
+		'"text" ? true : a === b',
+		'value /* keep */ ? true : Boolean(fallback())',
+		'value ? /* keep */ true : Boolean(fallback())',
+		'value ? Boolean(/* keep */ fallback()) : false',
+		{code: 'const element = <div>{value ? true : Boolean(fallback())}</div>', languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}}},
+		{code: 'function f(condition: string, value: boolean) { return condition ? true : value; }', languageOptions: {parser: parsers.typescript}},
+		typeAware('function f(object: {condition: boolean | undefined, value: boolean}) { return object.condition ? true : object.value; }'),
+		{code: 'function f(constraint: object | undefined, visit: (value: object) => boolean) { return constraint ? visit(constraint) : false; }', languageOptions: {parser: parsers.typescript}},
+		{code: '(condition as string) ? true : Boolean(fallback())', languageOptions: {parser: parsers.typescript}},
+		{code: '(<string>condition) ? Boolean(fallback()) : false', languageOptions: {parser: parsers.typescript}},
+		{code: 'condition! ? true : Boolean(fallback())', languageOptions: {parser: parsers.typescript}},
+		{code: '(condition satisfies string) ? Boolean(fallback()) : false', languageOptions: {parser: parsers.typescript}},
+		...['ts', 'mts', 'cts', 'tsx'].map(extension => ({
+			code: 'value ? true : Boolean(fallback())',
+			filename: `file.${extension}`,
+		})),
+		{code: 'value ? Boolean(fallback()) : false', filename: 'file.js', languageOptions: {parser: parsers.typescript}},
 	],
 });
 

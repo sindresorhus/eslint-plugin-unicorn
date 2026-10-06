@@ -5,6 +5,7 @@ import {
 	isUndefined,
 } from './ast/index.js';
 import {
+	getCallArgumentText,
 	getCommentSafeProblem,
 	getLogicalExpressionChildText,
 	getNegatedExpressionText,
@@ -38,11 +39,16 @@ function fix({
 	right,
 	operator,
 	negateLeft = false,
+	coerceLeft = false,
 }) {
 	const {sourceCode} = context;
 	let text = [left, right].map((node, index) => {
 		if (index === 0 && negateLeft) {
 			return getNegatedExpressionText(node, context);
+		}
+
+		if (index === 0 && coerceLeft) {
+			return `Boolean(${getCallArgumentText(node, context)})`;
 		}
 
 		return getLogicalExpressionChildText(node, context, {operator, property: index === 0 ? 'left' : 'right'});
@@ -194,13 +200,6 @@ function getBooleanTernaryProblem(conditionalExpression, context) {
 	const negateLeft = consequentValue === false || alternateValue === true;
 	const canFix = canFixBooleanTernary(context);
 
-	if (!negateLeft) {
-		const booleanTest = canFix ? unwrapConstantAliases(test, context) : test;
-		if (!isBooleanTernaryExpression(booleanTest, context)) {
-			return;
-		}
-	}
-
 	const problem = {
 		node: conditionalExpression,
 		messageId: MESSAGE_ID_ERROR,
@@ -210,6 +209,7 @@ function getBooleanTernaryProblem(conditionalExpression, context) {
 		sourceCode.getCommentsInside(conditionalExpression).length === 0
 		&& canFix
 	) {
+		const coerceLeft = !negateLeft && !isBooleanTernaryExpression(unwrapConstantAliases(test, context), context);
 		problem.fix = fixer => fix({
 			fixer,
 			context,
@@ -218,6 +218,7 @@ function getBooleanTernaryProblem(conditionalExpression, context) {
 			right,
 			operator: booleanValue ? '||' : '&&',
 			negateLeft,
+			coerceLeft,
 		});
 	}
 

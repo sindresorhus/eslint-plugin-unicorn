@@ -17,9 +17,38 @@ For explicit nullish-check ternaries, this rule only suggests `??` when the sour
 
 The rule also handles ternaries with exactly one constant boolean branch, including simple `const` aliases: `condition ? true : expression` becomes `condition || expression`; `condition ? false : expression` becomes `!condition && expression`; `condition ? expression : false` becomes `condition && expression`; and `condition ? expression : true` becomes `!condition || expression`.
 
-These constant-boolean rewrites require the other branch to be known boolean. The condition must also be boolean for the first and third forms. These cases are reported without a fix in TypeScript, in JavaScript parsed with TypeScript services, or when they contain comments. This check is skipped inside `with` statements. Ternaries with two constant boolean branches are also skipped; use ESLint's [`no-unneeded-ternary`](https://eslint.org/docs/latest/rules/no-unneeded-ternary) for two boolean literals.
+These constant-boolean rewrites require the other branch to be known boolean. When the condition is not known boolean, the first and third forms wrap it in `Boolean()` to preserve the boolean result. These cases are reported without a fix in TypeScript, in JavaScript parsed with TypeScript services, or when they contain comments. This check is skipped inside `with` statements. Ternaries with two constant boolean branches are also skipped; use ESLint's [`no-unneeded-ternary`](https://eslint.org/docs/latest/rules/no-unneeded-ternary) for two boolean literals.
 
 ## Examples
+
+```js
+// ❌
+value ? true : Boolean(fallback());
+
+// ✅
+Boolean(value) || Boolean(fallback());
+```
+
+```js
+// ❌
+value ? Boolean(fallback()) : false;
+
+// ✅
+Boolean(value) && Boolean(fallback());
+```
+
+In TypeScript, use `!!` when the other branch relies on truthiness narrowing. `Boolean()` does not preserve that narrowing.
+
+```ts
+declare const constraint: object | undefined;
+declare function visit(value: object): boolean;
+
+// ❌
+constraint ? visit(constraint) : false;
+
+// ✅
+!!constraint && visit(constraint);
+```
 
 ```js
 // ❌
