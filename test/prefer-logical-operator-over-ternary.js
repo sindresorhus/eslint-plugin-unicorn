@@ -1,4 +1,8 @@
+import nodeTest from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
+import plugin from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
@@ -88,6 +92,9 @@ test({
 		['"" ? true : Boolean(fallback())', 'Boolean("") || Boolean(fallback())'],
 		['"" ? Boolean(fallback()) : false', 'Boolean("") && Boolean(fallback())'],
 		['const condition = 0; condition ? true : Boolean(fallback())', 'const condition = 0; Boolean(condition) || Boolean(fallback())'],
+		['const yes = true; value ? yes : Boolean(fallback())', 'const yes = true; Boolean(value) || Boolean(fallback())'],
+		['const no = false; value ? Boolean(fallback()) : no', 'const no = false; Boolean(value) && Boolean(fallback())'],
+		['let value = false; value = 0; const condition = value; condition ? true : Boolean(fallback())', 'let value = false; value = 0; const condition = value; Boolean(condition) || Boolean(fallback())'],
 		['const condition = a === b; condition ? true : Boolean(fallback())', 'const condition = a === b; condition || Boolean(fallback())'],
 		['const condition = a === b; condition ? Boolean(fallback()) : false', 'const condition = a === b; condition && Boolean(fallback())'],
 		['(first(), value) ? true : Boolean(fallback())', 'Boolean((first(), value)) || Boolean(fallback())'],
@@ -98,6 +105,18 @@ test({
 		['value ? (a === b || c === d) : false', 'Boolean(value) && (a === b || c === d)'],
 		['value ? true : (a === b ?? c === d)', 'Boolean(value) || (a === b ?? c === d)'],
 		['(condition ? first : second) ? Boolean(fallback()) : false', 'Boolean(condition ? first : second) && Boolean(fallback())'],
+		['async function f() { return await value ? true : Boolean(fallback()); }', 'async function f() { return Boolean(await value) || Boolean(fallback()); }'],
+		['async function f() { return await value ? Boolean(fallback()) : false; }', 'async function f() { return Boolean(await value) && Boolean(fallback()); }'],
+		['function * f() { return (yield value) ? true : Boolean(fallback()); }', 'function * f() { return Boolean(yield value) || Boolean(fallback()); }'],
+		['function * f() { return (yield value) ? Boolean(fallback()) : false; }', 'function * f() { return Boolean(yield value) && Boolean(fallback()); }'],
+		['function f(value) { return(value) ? true : Boolean(other); }', 'function f(value) { return Boolean(value) || Boolean(other); }'],
+		['function f(value) { return(value) ? Boolean(other) : false; }', 'function f(value) { return Boolean(value) && Boolean(other); }'],
+		['function f() { return{} ? true : Boolean(other); }', 'function f() { return Boolean({}) || Boolean(other); }'],
+		['throw(value) ? Boolean(other) : false;', 'throw Boolean(value) && Boolean(other);'],
+		['function * f(value) { yield(value) ? true : Boolean(other); }', 'function * f(value) { yield Boolean(value) || Boolean(other); }'],
+		['export default[] ? true : Boolean(other);', 'export default Boolean([]) || Boolean(other);'],
+		['for (const item of[] ? true : Boolean(other)) {}', 'for (const item of Boolean([]) || Boolean(other)) {}'],
+		['for (const key in{} ? Boolean(other) : false) {}', 'for (const key in Boolean({}) && Boolean(other)) {}'],
 		['a === b ? true : c === d', '(a === b) || (c === d)'],
 		['a === b ? false : c === d', '!(a === b) && (c === d)'],
 		['a === b ? c === d : false', '(a === b) && (c === d)'],
@@ -284,6 +303,10 @@ test.snapshot({
 			languageOptions: {sourceType: 'script'},
 		},
 		{
+			code: 'with (object) { value ? true : a === b; value ? a === b : false; }',
+			languageOptions: {sourceType: 'script'},
+		},
+		{
 			code: 'const condition = true; const no = false; with (object) { condition ? true : fallback(); condition ? no : fallback(); }',
 			languageOptions: {sourceType: 'script'},
 		},
@@ -360,6 +383,39 @@ test.snapshot({
 		{code: 'value ? Boolean(fallback()) : false', filename: 'file.js', languageOptions: {parser: parsers.typescript}},
 	],
 });
+
+for (const code of ['condition() ? true : Boolean(fallback())', 'condition() ? Boolean(fallback()) : false']) {
+	nodeTest(`boolean ternary autofixes preserve results and evaluation order: ${code}`, t => {
+		const linter = new Linter();
+		const fixed = linter.verifyAndFix(code, {
+			plugins: {unicorn: plugin},
+			rules: {'unicorn/prefer-logical-operator-over-ternary': 'error'},
+		});
+		t.assert.strictEqual(fixed.fixed, true);
+		t.assert.deepStrictEqual(fixed.messages, []);
+
+		for (const conditionValue of [undefined, false, true, 0, -0, Number.NaN, '', 'value', 0n, 1n, Symbol('value'), {}, []]) {
+			for (const fallbackValue of [false, true]) {
+				const evaluate = source => {
+					const events = [];
+					const value = runInNewContext(source, {
+						condition() {
+							events.push('condition');
+							return conditionValue;
+						},
+						fallback() {
+							events.push('fallback');
+							return fallbackValue;
+						},
+					});
+					return {value, events};
+				};
+
+				t.assert.deepStrictEqual(evaluate(fixed.output), evaluate(code));
+			}
+		}
+	});
+}
 
 test.snapshot({
 	valid: [

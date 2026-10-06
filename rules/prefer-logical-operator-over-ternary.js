@@ -19,6 +19,7 @@ import {
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {getNullishTest, isSameNode} from './shared/nullish-check.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-logical-operator-over-ternary/error';
 const MESSAGE_ID_OPTIONAL_CHAIN_ERROR = 'prefer-logical-operator-over-ternary/optional-chain-error';
@@ -31,7 +32,7 @@ const messages = {
 	[MESSAGE_ID_OPTIONAL_CHAIN_SUGGESTION]: 'Switch to optional chaining.',
 };
 
-function fix({
+function * fix({
 	fixer,
 	context,
 	conditionalExpression,
@@ -62,7 +63,8 @@ function fix({
 		text = `;${text}`;
 	}
 
-	return fixer.replaceText(conditionalExpression, text);
+	yield fixSpaceAroundKeyword(fixer, conditionalExpression, context);
+	yield fixer.replaceText(conditionalExpression, text);
 }
 
 function getBooleanLiteralTypeValue(node) {
