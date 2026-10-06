@@ -1,7 +1,6 @@
 import path from 'node:path';
 import {isRegExp} from 'node:util/types';
 import {
-	getAttachedComment,
 	getAvailableVariableName,
 	cartesianProductSamples,
 	matchesAnyRegExp,
@@ -245,6 +244,25 @@ const getSuggestions = (replacements, fix) => {
 	}));
 };
 
+const isComment = token => token?.type === 'Block' || token?.type === 'Line';
+
+const commentAttachmentParentTypes = new Set([
+	'AssignmentExpression',
+	'ExportDefaultDeclaration',
+	'ExportNamedDeclaration',
+	'ExpressionStatement',
+	'MethodDefinition',
+	'Property',
+	'PropertyDefinition',
+	'TSAbstractMethodDefinition',
+	'TSAbstractPropertyDefinition',
+	'TSPropertySignature',
+	'TSTypeAliasDeclaration',
+	'TSTypeAnnotation',
+	'VariableDeclaration',
+	'VariableDeclarator',
+]);
+
 const functionLikeTypesWithReturnType = new Set([
 	...functionTypes,
 	'TSCallSignatureDeclaration',
@@ -256,8 +274,37 @@ const functionLikeTypesWithReturnType = new Set([
 	'TSMethodSignature',
 ]);
 
-const hasAttachedJSDocumentParameterComment = (node, context) => {
-	const comment = getAttachedComment(node, context);
+/**
+Get the adjacent comment attached to a node or its enclosing declaration.
+*/
+const findAttachedComment = (node, sourceCode) => {
+	let previousToken = sourceCode.getTokenBefore(node, {includeComments: true});
+	let commentableNode = node;
+
+	while (
+		!isComment(previousToken)
+		&& commentAttachmentParentTypes.has(commentableNode.parent.type)
+	) {
+		commentableNode = commentableNode.parent;
+		previousToken = sourceCode.getTokenBefore(commentableNode, {includeComments: true});
+	}
+
+	if (!isComment(previousToken)) {
+		return;
+	}
+
+	const commentEnd = sourceCode.getLoc(previousToken).end;
+	const nodeStart = sourceCode.getLoc(commentableNode).start;
+
+	if (commentEnd.line < nodeStart.line - 1) {
+		return;
+	}
+
+	return previousToken;
+};
+
+const hasAttachedJSDocumentParameterComment = (node, sourceCode) => {
+	const comment = findAttachedComment(node, sourceCode);
 
 	return Boolean(
 		comment?.type === 'Block'
@@ -289,7 +336,7 @@ const shouldFixParameter = (definition, context) => {
 
 	const functionNode = getParentFunctionLikeNode(definition.name);
 
-	return !functionNode || !hasAttachedJSDocumentParameterComment(functionNode, context);
+	return !functionNode || !hasAttachedJSDocumentParameterComment(functionNode, context.sourceCode);
 };
 
 const shouldAutofix = (variable, context) =>

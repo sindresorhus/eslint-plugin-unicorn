@@ -431,7 +431,7 @@ function hasJavaScriptTypeAnnotations(context) {
 	const firstTokenStart = sourceCode.getRange(sourceCode.getFirstToken(sourceCode.ast))[0];
 	return sourceCode.getAllComments().some(comment =>
 		sourceCode.getRange(comment)[1] <= firstTokenStart
-		&& /^\s*(?:\*\s*)?@ts-check\b/u.test(comment.value));
+		&& /^\s*(?:[*/]\s*)?@ts-check\b/iu.test(comment.value));
 }
 
 function getFix(parameter, result, target, context) {

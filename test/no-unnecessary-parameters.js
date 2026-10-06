@@ -343,6 +343,23 @@ test('preserves JavaScript type annotations when reporting unnecessary parameter
 	}
 });
 
+test('preserves TypeScript checking pragma spellings', t => {
+	for (const directive of ['/// @ts-check', '// @TS-CHECK']) {
+		const code = `${directive}\nfunction format(value) { let result = value; result = "text"; return result; } [format(1), format(1)];`;
+		const sourceFile = ts.createSourceFile('input.js', code, ts.ScriptTarget.ESNext, true, ts.ScriptKind.JS);
+		t.assert.strictEqual(sourceFile.checkJsDirective?.enabled, true);
+		t.assert.deepStrictEqual(getJavaScriptTypeErrors(code), []);
+		const result = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+		t.assert.strictEqual(result.messages[0].messageId, 'same-value');
+		t.assert.deepStrictEqual(getJavaScriptTypeErrors(result.output), []);
+		t.assert.deepStrictEqual(structuredClone(vm.runInNewContext(result.output)), ['text', 'text']);
+	}
+});
+
 test('preserves inline JSDoc casts when reporting unnecessary parameters', t => {
 	for (const declaration of ['value => value', 'function (value) { return value; }']) {
 		const code = `const format = /** @type {(value: number) => number} */ (${declaration}); [format(1), format(1)];`;
@@ -419,7 +436,7 @@ test('reports constructor parameters without fixing even without annotations', t
 	}
 });
 
-test('keeps parameters documented with JSDoc aliases and attached declaration types', t => {
+test('reports parameters with JSDoc aliases and declaration annotations without fixing', t => {
 	for (const code of [
 		'/** @arg {number} value */ function format(value) { return value; } format(1); format(1);',
 		'/** @argument {number} value */ function format(value) { return value; } format(1); format(1);',
@@ -430,6 +447,8 @@ test('keeps parameters documented with JSDoc aliases and attached declaration ty
 		t.assert.strictEqual(result.fixed, false);
 		t.assert.strictEqual(result.output, code);
 		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+		t.assert.strictEqual(result.messages[0].messageId, 'same-value');
 	}
 });
 
