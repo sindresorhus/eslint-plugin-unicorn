@@ -394,7 +394,7 @@ for (const code of ['condition() ? true : Boolean(fallback())', 'condition() ? B
 		t.assert.strictEqual(fixed.fixed, true);
 		t.assert.deepStrictEqual(fixed.messages, []);
 
-		for (const conditionValue of [undefined, false, true, 0, -0, NaN, '', 'value', 0n, 1n, Symbol('value'), {}, []]) {
+		for (const conditionValue of [undefined, null, false, true, 0, -0, NaN, '', 'value', 0n, 1n, Symbol('value'), {}, []]) {
 			for (const fallbackValue of [false, true]) {
 				const evaluate = source => {
 					const events = [];
