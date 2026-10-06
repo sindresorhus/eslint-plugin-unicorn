@@ -8,7 +8,16 @@ const MESSAGE_ID_PARAMETER_FALLBACK = 'preferDefaultParameterOverFallback';
 const MESSAGE_ID_DESTRUCTURING_FALLBACK = 'preferDestructuringDefaultOverFallback';
 const MESSAGE_ID_SUGGEST_DECLARATION = 'moveDefaultToDeclaration';
 
-const isStaticDefaultValue = node => node.type === 'Literal' || getStaticStringValue(node) !== undefined;
+const isStaticDefaultValue = node => node.type === 'Literal'
+	|| getStaticStringValue(node) !== undefined
+	|| (
+		node.type === 'UnaryExpression'
+		&& node.operator === '-'
+		&& node.argument.type === 'Literal'
+		&& (typeof node.argument.value === 'number' || typeof node.argument.value === 'bigint')
+	);
+
+const getStaticDefaultValue = node => node.type === 'UnaryExpression' ? -node.argument.value : getStaticStringValue(node) ?? node.value;
 
 const getDefaultAssignment = (left, right, operator = '=') => {
 	if (!left || !right || left.type !== 'Identifier') {
@@ -122,7 +131,7 @@ const create = context => {
 	const functionStack = [];
 	const reportedVariables = new Set();
 
-	const isDefaultValueAssignable = (binding, defaultValue) => withTypeInformation(
+	const isDefaultValueCompatible = (binding, defaultValue, expression) => withTypeInformation(
 		binding.typeAnnotation?.typeAnnotation ?? binding,
 		context,
 		({type, checker}) => {
@@ -130,9 +139,15 @@ const create = context => {
 				? findVariable(sourceCode.getScope(defaultValue), defaultValue).defs[0].name
 				: defaultValue;
 			const defaultValueType = sourceCode.parserServices.getTypeAtLocation(defaultValueDeclaration);
+			const bindingType = sourceCode.parserServices.getTypeAtLocation(binding);
+			const bindingTypes = bindingType.isUnion() ? bindingType.types : [bindingType];
+			const expressionType = sourceCode.parserServices.getTypeAtLocation(expression);
 			// A declaration default cannot rely on type narrowing at a fallback read.
 			return checker.isTypeAssignableTo(defaultValueType, type)
-				&& checker.isTypeAssignableTo(defaultValueType, sourceCode.parserServices.getTypeAtLocation(defaultValue));
+				&& checker.isTypeAssignableTo(defaultValueType, sourceCode.parserServices.getTypeAtLocation(defaultValue))
+				&& checker.isTypeAssignableTo(defaultValueType, expressionType)
+				// Defaults replace undefined, but retain other values narrowed away by the fallback.
+				&& bindingTypes.every(member => member.intrinsicName === 'undefined' || checker.isTypeAssignableTo(member, expressionType));
 		},
 	) !== false;
 
@@ -194,7 +209,7 @@ const create = context => {
 			|| ((expression.right.type === 'Identifier') !== (firstExpression.right.type === 'Identifier'))
 			|| (expression.right.type === 'Identifier'
 				? expression.right.name !== firstExpression.right.name
-				: !Object.is(getStaticStringValue(expression.right) ?? expression.right.value, getStaticStringValue(firstExpression.right) ?? firstExpression.right.value)),
+				: !Object.is(getStaticDefaultValue(expression.right), getStaticDefaultValue(firstExpression.right))),
 		)) {
 			return;
 		}
@@ -209,7 +224,7 @@ const create = context => {
 						sourceCode.getCommentsInside(binding).length > 0
 						|| expressions.some(expression => sourceCode.getCommentsInside(expression).length > 0)
 						|| (!isDestructuring && isTypeScriptParser && node.parent.kind === 'set')
-						|| expressions.some(expression => !isDefaultValueAssignable(binding, expression.right))
+						|| expressions.some(expression => !isDefaultValueCompatible(binding, expression.right, expression))
 					) {
 						return abort();
 					}
@@ -325,7 +340,7 @@ const create = context => {
 						sourceCode.getCommentsInside(node).length > 0
 						|| sourceCode.getCommentsInside(parameter).length > 0
 						|| (isTypeScriptParser && currentFunction.parent.kind === 'set')
-						|| !isDefaultValueAssignable(parameter, defaultValue)
+						|| !isDefaultValueCompatible(parameter, defaultValue, node.expression ?? right)
 					) {
 						return abort();
 					}

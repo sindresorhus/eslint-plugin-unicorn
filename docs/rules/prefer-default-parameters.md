@@ -39,13 +39,15 @@ console.log(install([{name: 'eslint', versionRange: ''}]));
 For fallback expressions:
 
 - Every read must use the same operator (`??` or `||`) and fallback, and the defaulted binding must never be reassigned.
-- The fallback must be a literal (excluding regular expressions), an untagged template literal without expressions, or an earlier binding from the same parameter list or destructuring variable declarator. Fallback bindings must never be reassigned. Quoted strings and template literals without expressions are considered the same fallback when their decoded string values are equal.
+- The fallback must be a literal (excluding regular expressions), a negative number or BigInt literal, an untagged template literal without expressions, or an earlier binding from the same parameter list or destructuring variable declarator. Fallback bindings must never be reassigned. Quoted strings and template literals without expressions are considered the same fallback when their decoded string values are equal.
 - Binding order is preserved. Fallbacks referring to later bindings are not reported.
 - Plain parameters must be last. Local destructuring declarations must use `const` or `let` and must not be exported.
 
 When the last parameter is only used to initialize a local variable with a fallback, the rule can replace a `const` declaration by renaming that parameter. For `let` and `var`, the rule keeps the local declaration and adds a default to the original parameter instead. TypeScript local declarations and parameter names are retained to preserve their types.
 
-TypeScript annotations are preserved. When full type information is available, suggestions are omitted if the default value is incompatible or depends on type narrowing at a read. Without it, review the default value's type before applying a suggestion. TypeScript setter parameters cannot have initializers, so suggestions only add defaults inside their destructuring patterns.
+TypeScript annotations are preserved. When type information is available, including JavaScript with JSDoc, suggestions are omitted if the default or replacement would have an incompatible type, or if the default depends on type narrowing at a read. Without it, review the types before applying a suggestion. TypeScript setter parameters cannot have initializers, so suggestions only add defaults inside their destructuring patterns.
+
+Code that relies on the [connection between parameters and `arguments` in non-strict functions](https://eslint.org/docs/latest/rules/no-param-reassign) is unsupported. Adding a parameter default removes that connection.
 
 ## Options
 
@@ -99,6 +101,14 @@ const fn = a => a ?? `foo`;
 
 // ✅
 const fn = (a = `foo`) => a;
+```
+
+```js
+// ❌
+const fn = index => index ?? -1;
+
+// ✅
+const fn = (index = -1) => index;
 ```
 
 ```js

@@ -7,13 +7,90 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule, ruleId} = getTester(import.meta);
 
-const typeAware = code => ({
+const typeAware = (code, filename = 'file.ts') => ({
 	code,
-	filename: 'file.ts',
+	filename,
 	languageOptions: {
 		parser: typescriptEslintParser,
-		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+		parserOptions: {projectService: {allowDefaultProject: ['file.ts', 'file.js']}},
 	},
+});
+
+const incompatibleResultCases = [
+	{code: 'function fn(name: string, repo?: string | null): string { return repo ?? name; }', messageId: 'preferDefaultParameterOverFallback'},
+	{code: 'function fn(repo?: string | null): string { return repo ?? "default"; }', messageId: 'preferDefaultParameterOverFallback'},
+	{code: 'function fn(name: true, repo?: boolean): true { return repo || name; }', messageId: 'preferDefaultParameterOverFallback'},
+	{code: 'function fn(repo?: boolean): true { return repo || true; }', messageId: 'preferDefaultParameterOverFallback'},
+	{code: 'const fn: (name: string, repo?: string | null) => string = (name, repo) => repo ?? name;', messageId: 'preferDefaultParameterOverFallback'},
+	{code: 'function fn({name, repo}: {name: string; repo?: string | null}): string { return repo ?? name; }', messageId: 'preferDestructuringDefaultOverFallback'},
+	{code: 'function fn(name: string, repo?: string | null): string { repo ??= name; return repo; }', messageId: 'preferDefaultParameters'},
+	{code: 'function fn(name: true, repo?: boolean): true { repo ||= name; return repo; }', messageId: 'preferDefaultParameters'},
+	{code: 'function fn(name: string, repo?: string | null): string { repo = repo ?? name; return repo; }', messageId: 'preferDefaultParameters'},
+];
+
+test({
+	valid: [],
+	invalid: incompatibleResultCases.map(({code, messageId}) => ({
+		...typeAware(code),
+		errors: [{messageId, suggestions: []}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			...typeAware('/** @param {string} name\n * @param {number} [repo] */\nfunction fn(name, repo) { return repo ?? name; }', 'file.js'),
+			errors: [{messageId: 'preferDefaultParameterOverFallback', suggestions: []}],
+		},
+		{
+			...typeAware('/** @param {string} name\n * @param {string} [repo] */\nfunction fn(name, repo) { const result = repo ?? name; return result; }', 'file.js'),
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: '/** @param {string} name\n * @param {string} [repo] */\nfunction fn(name, repo = name) { const result = repo; return result; }'}],
+			}],
+		},
+	],
+});
+
+test({
+	valid: [
+		'const fn = (name, repo) => { [name] = ["changed"]; return repo ?? name; };',
+		'const fn = (name, repo) => { for (name of []) {} return repo ?? name; };',
+		'const fn = (name, repo) => { function reset() { ({name} = {name: "changed"}); } return repo ?? name; };',
+		'const fn = repo => [repo ?? -0, repo ?? 0];',
+		'const fn = repo => [repo ?? -1, repo ?? -2];',
+		'const fn = repo => [repo ?? -1, repo ?? -1n];',
+		'const fn = repo => repo ?? -"1";',
+		'const fn = repo => repo ?? -(1 + 2);',
+		'const fn = repo => repo ?? --other;',
+	],
+	invalid: [
+		{code: 'const fn = repo => [repo ?? -1, repo ?? -0x1];', output: 'const fn = (repo = -1) => [repo, repo];'},
+		{code: 'const fn = repo => [repo || -1n, repo || -0x1n];', output: 'const fn = (repo = -1n) => [repo, repo];'},
+		{code: 'const fn = repo => [repo ?? -0n, repo ?? 0n];', output: 'const fn = (repo = -0n) => [repo, repo];'},
+		{code: 'const {repo} = options; console.log(repo ?? -1);', output: 'const {repo = -1} = options; console.log(repo);'},
+		{code: 'const fn = repo => repo ?? -/* Keep comment. */ 1;', output: undefined},
+	].map(({code, output}) => ({
+		code,
+		errors: [{
+			messageId: code.startsWith('const {') ? 'preferDestructuringDefaultOverFallback' : 'preferDefaultParameterOverFallback',
+			suggestions: output ? [{messageId: 'moveDefaultToDeclaration', output}] : [],
+		}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{code: 'function fn(repo) { repo ??= -1; return repo; }', output: 'function fn(repo = -1) { return repo; }'},
+		{code: 'function fn(repo) { repo ||= -1n; return repo; }', output: 'function fn(repo = -1n) { return repo; }'},
+		{code: 'function fn(repo) { repo = repo || -0; return repo; }', output: 'function fn(repo = -0) { return repo; }'},
+		{code: 'function fn(repo) { const result = repo ?? -1; return result; }', output: 'function fn(result = -1) { return result; }'},
+	].map(({code, output}) => ({
+		code,
+		errors: [{messageId: 'preferDefaultParameters', suggestions: [{messageId: 'preferDefaultParametersSuggest', output}]}],
+	})),
 });
 
 test({
@@ -53,6 +130,27 @@ test({
 			errors: [{
 				messageId: 'preferDefaultParameterOverFallback',
 				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'function fn(repo: number = 3) { return repo; }'}],
+			}],
+		},
+		{
+			...typeAware('function fn(repo?: number) { return repo ?? -1; }'),
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'function fn(repo: number = -1) { return repo; }'}],
+			}],
+		},
+		{
+			...typeAware('function fn(name: number | undefined, repo: number | undefined) { return repo ?? name; }'),
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'function fn(name: number | undefined, repo: number | undefined = name) { return repo; }'}],
+			}],
+		},
+		{
+			...typeAware('function fn(name: string | null, repo?: string | null): string | null { return repo ?? name; }'),
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'function fn(name: string | null, repo: string | null = name): string | null { return repo; }'}],
 			}],
 		},
 		{
@@ -170,11 +268,12 @@ const getTypeScriptDiagnostics = code => {
 	return typescript.getPreEmitDiagnostics(program).map(diagnostic => typescript.flattenDiagnosticMessageText(diagnostic.messageText, '\n'));
 };
 
-nodeTest('suggestions do not discard narrowing of the fallback', t => {
+nodeTest('suggestions do not discard narrowing or change the result type', t => {
 	const linter = new Linter();
 	const codes = [
 		'function fn(name: number | undefined, repo: number | undefined): number { if (typeof name === "number") { return repo ?? name; } return 0; }',
 		'const fn: (name?: number, repo?: number) => number = (name, repo) => typeof name === "number" ? repo ?? name : 0;',
+		...incompatibleResultCases.map(({code}) => code),
 	];
 	for (const code of codes) {
 		t.assert.deepStrictEqual(getTypeScriptDiagnostics(code), []);
@@ -193,6 +292,9 @@ nodeTest('suggestions do not discard narrowing of the fallback', t => {
 nodeTest('suggestions preserve TypeScript validity and the annotated call signature', t => {
 	const linter = new Linter();
 	const codes = [
+		'function fn(repo?: number) { return repo ?? -1; }',
+		'function fn(name: number | undefined, repo: number | undefined) { return repo ?? name; }',
+		'function fn(name: string | null, repo?: string | null): string | null { return repo ?? name; }',
 		'function fn(name: string, repo?: string) { return repo ?? name; }',
 		'const fn: (name: string, repo?: string) => string = (name, repo) => repo ?? name;',
 		'function fn<Value>(name: Value, repo?: Value) { return repo ?? name; }',
@@ -231,7 +333,6 @@ test.snapshot({
 		'const fn = a => a ?? DEFAULT;',
 		'const fn = a => a ?? {};',
 		'const fn = a => a ?? /pattern/;',
-		'const fn = a => a ?? -3;',
 		'const fn = a => 3;',
 		'const fn = (a = 1) => a ?? 3;',
 		'const fn = ({a = 1}) => a ?? 3;',
