@@ -232,6 +232,78 @@ const config = {
 
 const linter = new Linter();
 
+for (const {parser, openingTag, template} of [
+	{parser: parsers.vue, openingTag: '<script setup>', template: '<template>{{ format(2) }}</template>'},
+	{parser: parsers.svelte, openingTag: '<script>', template: '{format(2)}'},
+]) {
+	const filename = `input.${parser.name}`;
+	const componentConfig = {
+		...config,
+		files: [`**/*.${parser.name}`],
+		languageOptions: {parser: parser.implementation},
+	};
+	const code = `${openingTag}function format(value) { return value; } format(1); format(1);</script>`;
+
+	test(`fixes unnecessary parameters in ${parser.name} JavaScript scripts`, t => {
+		const result = linter.verifyAndFix(code, componentConfig, {filename});
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(result.output, `${openingTag}function format() { return 1; } format(); format();</script>`);
+	});
+
+	test(`keeps parameters of functions used in ${parser.name} templates`, t => {
+		const component = code + template;
+		const result = linter.verifyAndFix(component, componentConfig, {filename});
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, component);
+		t.assert.deepStrictEqual(result.messages, []);
+	});
+
+	test(`reports unnecessary parameters in ${parser.name} TypeScript scripts without fixing`, t => {
+		const component = code.replace('<script', '<script lang="ts"').replace('format(value)', 'format(value: number)');
+		const result = linter.verifyAndFix(component, {
+			...componentConfig,
+			languageOptions: {
+				parser: parser.implementation,
+				parserOptions: {parser: parsers.typescript.implementation},
+			},
+		}, {filename});
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, component);
+		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+		t.assert.strictEqual(result.messages[0].messageId, 'same-value');
+	});
+}
+
+test('reports JavaScript parameters with a TypeScript program without fixing', t => {
+	const code = 'function format(value) { return value; } [format(1), format(1)];';
+	const filename = path.join(import.meta.dirname, 'no-unnecessary-parameters.type-aware.js');
+	const parser = {
+		...parsers.typescript.implementation,
+		parseForESLint(...arguments_) {
+			const result = parsers.typescript.implementation.parseForESLint(...arguments_);
+			t.assert.ok(result.services.program);
+			return result;
+		},
+	};
+	const result = linter.verifyAndFix(code, {
+		...config,
+		languageOptions: {
+			parser,
+			parserOptions: {
+				projectService: {allowDefaultProject: ['no-unnecessary-parameters.type-aware.js']},
+				tsconfigRootDir: import.meta.dirname,
+			},
+		},
+	}, {filename});
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+	t.assert.strictEqual(result.messages[0].messageId, 'same-value');
+});
+
 function getJavaScriptTypeErrors(code) {
 	const filename = path.join(import.meta.dirname, 'no-unnecessary-parameters.fixture.js');
 	const options = {
