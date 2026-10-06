@@ -1,25 +1,25 @@
 import {getPropertyName, hasSideEffect} from '@eslint-community/eslint-utils';
+import {isFunction} from './ast/index.js';
 import {
+	checkVueTemplate,
+	containsNode,
+	getAncestor,
 	getParenthesizedText,
-	getTypeArgumentsText,
+	getTokenStore,
 	hasOptionalChainElement,
+	hasSameTypeArguments,
 	isConstEnumReference,
 	isParenthesized,
+	isSameTokens,
 	needsSemicolon,
 	unwrapTypeScriptExpression,
+	withTypeInformation,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-minimal-ternary';
 const messages = {
 	[MESSAGE_ID]: 'Move the ternary into the varying part of the expression.',
 };
-
-const ignoredExpressionTypes = new Set([
-	'ChainExpression',
-	'LogicalExpression',
-	'SequenceExpression',
-	'TaggedTemplateExpression',
-]);
 
 const safeSharedExpressionTypes = new Set([
 	'Identifier',
@@ -28,16 +28,38 @@ const safeSharedExpressionTypes = new Set([
 	'ThisExpression',
 ]);
 
-function isIgnoredExpression(node) {
-	return ignoredExpressionTypes.has(node.type);
+function getExpressionTokens(node, tokenStore) {
+	const tokens = tokenStore.getTokens(node);
+	if (node.type === 'ObjectExpression' && tokens.at(-2)?.value === ',') {
+		return [...tokens.slice(0, -2), tokens.at(-1)];
+	}
+
+	return tokens;
 }
 
-function isSameSourceText(left, right, sourceCode) {
-	return sourceCode.getText(left) === sourceCode.getText(right);
+function isSameExpression(left, right, context) {
+	const {sourceCode} = context;
+	if (sourceCode.getText(left) === sourceCode.getText(right)) {
+		return true;
+	}
+
+	const tokenStore = getTokenStore(context, left);
+	const isFunctionOrClass = node => isFunction(node) || node.type === 'ClassExpression';
+	// Line breaks can change behavior inside statement bodies through automatic semicolon insertion.
+	return isSameTokens(getExpressionTokens(left, tokenStore), getExpressionTokens(right, tokenStore))
+		&& !containsNode(left, context, isFunctionOrClass)
+		&& !containsNode(right, context, isFunctionOrClass);
 }
 
 function isSafeSharedExpression(node) {
 	return safeSharedExpressionTypes.has(node.type);
+}
+
+function isSafeSharedCallee(node) {
+	return isSafeSharedExpression(node)
+		|| (node.type === 'MemberExpression'
+			&& isSafeSharedExpression(node.object)
+			&& (!node.computed || node.property.type === 'Literal'));
 }
 
 function getStaticPropertyName(node, context) {
@@ -53,15 +75,13 @@ function isDifferentIdentifier(left, right) {
 }
 
 function hasSameObjectWithDifferentStaticProperty(left, right, context) {
-	const {sourceCode} = context;
-
 	if (
 		left.type !== 'MemberExpression'
 		|| right.type !== 'MemberExpression'
 		|| hasOptionalChainElement(left)
 		|| hasOptionalChainElement(right)
 		|| !isSafeSharedExpression(left.object)
-		|| !isSameSourceText(left.object, right.object, sourceCode)
+		|| !isSameExpression(left.object, right.object, context)
 		// Computed access to a `const enum` member requires a string literal (TS2476).
 		|| isConstEnumReference(left.object, context)
 	) {
@@ -77,8 +97,6 @@ function hasSameObjectWithDifferentStaticProperty(left, right, context) {
 }
 
 function hasSameStaticPropertyWithDifferentObject(left, right, context) {
-	const {sourceCode} = context;
-
 	if (
 		left.type !== 'MemberExpression'
 		|| right.type !== 'MemberExpression'
@@ -98,7 +116,7 @@ function hasSameStaticPropertyWithDifferentObject(left, right, context) {
 
 	return leftPropertyName !== undefined
 		&& leftPropertyName === rightPropertyName
-		&& !isSameSourceText(left.object, right.object, sourceCode);
+		&& !isSameExpression(left.object, right.object, context);
 }
 
 function hasMinimalCalleeDifference(left, right, context, {checkVaryingBase, checkComputedMemberAccess}) {
@@ -108,44 +126,45 @@ function hasMinimalCalleeDifference(left, right, context, {checkVaryingBase, che
 		|| (checkVaryingBase && hasSameStaticPropertyWithDifferentObject(left, right, context));
 }
 
-function hasOneMinimalItemDifference(leftItems, rightItems, sourceCode) {
+function getMinimalDifferentItemIndex(leftItems, rightItems, context) {
 	if (leftItems.length !== rightItems.length) {
-		return false;
+		return;
 	}
 
-	let differentItems = 0;
+	let differentIndex;
 
 	for (const [index, leftItem] of leftItems.entries()) {
 		const rightItem = rightItems[index];
 
-		if (isSameSourceText(leftItem, rightItem, sourceCode)) {
+		if (isSameExpression(leftItem, rightItem, context)) {
 			continue;
 		}
 
-		if (leftItem.type === 'ConditionalExpression' || rightItem.type === 'ConditionalExpression') {
-			return false;
+		if (
+			differentIndex !== undefined
+			|| leftItem.type === 'ConditionalExpression'
+			|| rightItem.type === 'ConditionalExpression'
+		) {
+			return;
 		}
 
-		differentItems++;
+		differentIndex = index;
 	}
 
-	return differentItems === 1;
+	return differentIndex;
 }
 
-function hasSameItems(leftItems, rightItems, sourceCode) {
+function hasSameItems(leftItems, rightItems, context) {
 	return leftItems.length === rightItems.length
-		&& leftItems.every((leftItem, index) => isSameSourceText(leftItem, rightItems[index], sourceCode));
+		&& leftItems.every((leftItem, index) => isSameExpression(leftItem, rightItems[index], context));
 }
 
-function hasOneMinimalValueDifference(leftItems, rightItems, sourceCode) {
-	if (!hasOneMinimalItemDifference(leftItems, rightItems, sourceCode)) {
-		return false;
-	}
-
-	const differentIndex = leftItems.findIndex((leftItem, index) => !isSameSourceText(leftItem, rightItems[index], sourceCode));
+function hasOneMinimalValueDifference(leftItems, rightItems, context) {
+	const differentIndex = getMinimalDifferentItemIndex(leftItems, rightItems, context);
 
 	// Only shared values before the varying value move ahead of the condition.
-	return leftItems.slice(0, differentIndex).every(item => isSafeSharedExpression(item));
+	return differentIndex !== undefined
+		&& leftItems.slice(0, differentIndex).every(item => isSafeSharedExpression(item));
 }
 
 function isMinimalObjectExpression(left, right, context) {
@@ -166,7 +185,7 @@ function isMinimalObjectExpression(left, right, context) {
 		&& hasOneMinimalValueDifference(
 			left.properties.map(property => property.value),
 			right.properties.map(property => property.value),
-			context.sourceCode,
+			context,
 		);
 }
 
@@ -175,7 +194,7 @@ function isMinimalArrayExpression(left, right, context) {
 		&& right.type === 'ArrayExpression'
 		&& left.elements.every(element => element && element.type !== 'SpreadElement')
 		&& right.elements.every(element => element && element.type !== 'SpreadElement')
-		&& hasOneMinimalValueDifference(left.elements, right.elements, context.sourceCode);
+		&& hasOneMinimalValueDifference(left.elements, right.elements, context);
 }
 
 function isMinimalNewExpression(left, right, context) {
@@ -191,15 +210,11 @@ function isMinimalNewExpression(left, right, context) {
 		return false;
 	}
 
-	const {sourceCode} = context;
-
-	return getTypeArgumentsText(left, context) === getTypeArgumentsText(right, context)
-		&& hasOneMinimalValueDifference(left.arguments, right.arguments, sourceCode);
+	return hasSameTypeArguments(left, right, context)
+		&& hasOneMinimalValueDifference(left.arguments, right.arguments, context);
 }
 
 function isMinimalCallExpression(left, right, context, options) {
-	const {sourceCode} = context;
-
 	if (
 		left.type !== 'CallExpression'
 		|| right.type !== 'CallExpression'
@@ -212,14 +227,14 @@ function isMinimalCallExpression(left, right, context, options) {
 	}
 
 	if (
-		isSameSourceText(left.callee, right.callee, sourceCode)
-		&& isSafeSharedExpression(left.callee)
-		&& hasOneMinimalItemDifference(left.arguments, right.arguments, sourceCode)
+		isSameExpression(left.callee, right.callee, context)
+		&& isSafeSharedCallee(left.callee)
+		&& getMinimalDifferentItemIndex(left.arguments, right.arguments, context) !== undefined
 	) {
 		return true;
 	}
 
-	return hasSameItems(left.arguments, right.arguments, sourceCode)
+	return hasSameItems(left.arguments, right.arguments, context)
 		&& hasMinimalCalleeDifference(left.callee, right.callee, context, options);
 }
 
@@ -238,19 +253,17 @@ function isMinimalBinaryExpression(left, right, context) {
 		return false;
 	}
 
-	const isLeftSidesAreSame = isSameSourceText(left.left, right.left, context.sourceCode);
-	const isRightSidesAreSame = isSameSourceText(left.right, right.right, context.sourceCode);
+	const isLeftSame = isSameExpression(left.left, right.left, context);
+	const isRightSame = isSameExpression(left.right, right.right, context);
 
-	if (isLeftSidesAreSame === isRightSidesAreSame) {
+	if (isLeftSame === isRightSame) {
 		return false;
 	}
 
-	return isRightSidesAreSame || isSafeSharedExpression(left.left);
+	return isRightSame || isSafeSharedExpression(left.left);
 }
 
 function hasSameObjectWithDifferentDynamicKey(left, right, context) {
-	const {sourceCode} = context;
-
 	if (
 		left.type !== 'MemberExpression'
 		|| right.type !== 'MemberExpression'
@@ -260,7 +273,7 @@ function hasSameObjectWithDifferentDynamicKey(left, right, context) {
 		|| hasOptionalChainElement(left)
 		|| hasOptionalChainElement(right)
 		|| !isSafeSharedExpression(left.object)
-		|| !isSameSourceText(left.object, right.object, sourceCode)
+		|| !isSameExpression(left.object, right.object, context)
 	) {
 		return false;
 	}
@@ -268,7 +281,7 @@ function hasSameObjectWithDifferentDynamicKey(left, right, context) {
 	// A statically known key (`obj[0]`, `obj['a']`) is treated as a static property, not a dynamic key.
 	return getStaticPropertyName(left, context) === undefined
 		&& getStaticPropertyName(right, context) === undefined
-		&& !isSameSourceText(left.property, right.property, sourceCode);
+		&& !isSameExpression(left.property, right.property, context);
 }
 
 function isMinimalMemberExpression(left, right, context, {checkVaryingBase, checkComputedMemberAccess}) {
@@ -279,11 +292,7 @@ function isMinimalMemberExpression(left, right, context, {checkVaryingBase, chec
 }
 
 function isMinimalTernary(consequent, alternate, context, options) {
-	if (
-		consequent.type !== alternate.type
-		|| isIgnoredExpression(consequent)
-		|| isIgnoredExpression(alternate)
-	) {
+	if (consequent.type !== alternate.type) {
 		return false;
 	}
 
@@ -348,6 +357,72 @@ function getExpressionItems(node) {
 	return node.type === 'ObjectExpression' ? node.properties.map(property => property.value) : node.elements ?? node.arguments;
 }
 
+function isTypeSafeToMinimize(node, context) {
+	const {consequent, alternate} = node;
+	return withTypeInformation(consequent, context, ({type, checker}) => {
+		const {parserServices} = context.sourceCode;
+		const areTypesCompatible = (left, right) => checker.isTypeAssignableTo(left, right)
+			&& checker.isTypeAssignableTo(right, left);
+		if (consequent.type === 'BinaryExpression') {
+			return ['left', 'right'].every(key => {
+				const consequentOperandType = checker.getBaseTypeOfLiteralType(parserServices.getTypeAtLocation(consequent[key]));
+				const alternateOperandType = checker.getBaseTypeOfLiteralType(parserServices.getTypeAtLocation(alternate[key]));
+				return areTypesCompatible(consequentOperandType, alternateOperandType);
+			});
+		}
+
+		const hasCompatibleMemberReceivers = (left, right) => left.type !== 'MemberExpression'
+			|| right.type !== 'MemberExpression'
+			|| !isSameExpression(left.object, right.object, context)
+			|| areTypesCompatible(parserServices.getTypeAtLocation(left.object), parserServices.getTypeAtLocation(right.object));
+
+		if (consequent.type === 'MemberExpression') {
+			return hasCompatibleMemberReceivers(consequent, alternate);
+		}
+
+		if (consequent.type === 'CallExpression' && !hasCompatibleMemberReceivers(consequent.callee, alternate.callee)) {
+			return false;
+		}
+
+		const alternateType = parserServices.getTypeAtLocation(alternate);
+		// Combining distinct branch types can lose discriminant correlations and generic or tuple inference.
+		if (!areTypesCompatible(type, alternateType)) {
+			return false;
+		}
+
+		if (consequent.type === 'CallExpression' || consequent.type === 'NewExpression') {
+			if (!isSameExpression(consequent.callee, alternate.callee, context)) {
+				const consequentCalleeType = parserServices.getTypeAtLocation(consequent.callee);
+				const alternateCalleeType = parserServices.getTypeAtLocation(alternate.callee);
+				return areTypesCompatible(consequentCalleeType, alternateCalleeType);
+			}
+
+			// Separate overloads or generic instantiations can accept each branch while rejecting their combined arguments.
+			const consequentNode = parserServices.esTreeNodeToTSNodeMap.get(consequent);
+			const alternateNode = parserServices.esTreeNodeToTSNodeMap.get(alternate);
+			const consequentSignature = checker.getResolvedSignature(consequentNode);
+			const alternateSignature = checker.getResolvedSignature(alternateNode);
+			if (
+				!consequentSignature?.declaration
+				|| consequentSignature.declaration !== alternateSignature?.declaration
+				|| consequentSignature.parameters.length !== alternateSignature.parameters.length
+				// Rest parameters can correlate argument types that lose their relationship when combined.
+				|| consequentSignature.declaration.parameters.some(parameter => parameter.dotDotDotToken)
+			) {
+				return false;
+			}
+
+			return consequentSignature.parameters.every((parameter, index) => {
+				const consequentParameterType = checker.getTypeOfSymbolAtLocation(parameter, consequentNode);
+				const alternateParameterType = checker.getTypeOfSymbolAtLocation(alternateSignature.parameters[index], alternateNode);
+				return areTypesCompatible(consequentParameterType, alternateParameterType);
+			});
+		}
+
+		return true;
+	}) ?? true;
+}
+
 function getMinimalExpressionText(left, right, {condition, context, abort}) {
 	const {sourceCode} = context;
 	const getText = node => {
@@ -383,17 +458,12 @@ function getMinimalExpressionText(left, right, {condition, context, abort}) {
 	};
 
 	if (left.type === 'MemberExpression') {
-		if (!isSameSourceText(left.object, right.object, sourceCode)) {
+		if (!isSameExpression(left.object, right.object, context)) {
 			if ([left, right].some(member => member.computed && member.property.type !== 'Literal')) {
 				abort();
 			}
 
 			return replace(left.object, `(${getConditionalText(left.object, right.object)})`);
-		}
-
-		// A statement starting with `let[…]` is parsed as a declaration in scripts.
-		if (left.object.type === 'Identifier' && left.object.name === 'let') {
-			abort();
 		}
 
 		requireSafeExpressions([left.object]);
@@ -402,7 +472,7 @@ function getMinimalExpressionText(left, right, {condition, context, abort}) {
 	}
 
 	if (left.type === 'BinaryExpression') {
-		const isLeftSame = isSameSourceText(left.left, right.left, sourceCode);
+		const isLeftSame = isSameExpression(left.left, right.left, context);
 		if (isLeftSame) {
 			requireSafeExpressions([left.left]);
 		}
@@ -412,11 +482,11 @@ function getMinimalExpressionText(left, right, {condition, context, abort}) {
 	}
 
 	if (left.type === 'CallExpression' || left.type === 'NewExpression') {
-		if (getTypeArgumentsText(left, context) !== getTypeArgumentsText(right, context)) {
+		if (!hasSameTypeArguments(left, right, context)) {
 			abort();
 		}
 
-		if (!isSameSourceText(left.callee, right.callee, sourceCode)) {
+		if (!isSameExpression(left.callee, right.callee, context)) {
 			return replace(left.callee, getMinimalExpressionText(left.callee, right.callee, {condition, context, abort}));
 		}
 
@@ -425,7 +495,7 @@ function getMinimalExpressionText(left, right, {condition, context, abort}) {
 
 	const leftItems = getExpressionItems(left);
 	const rightItems = getExpressionItems(right);
-	const differentIndex = leftItems.findIndex((item, index) => !isSameSourceText(item, rightItems[index], sourceCode));
+	const differentIndex = getMinimalDifferentItemIndex(leftItems, rightItems, context);
 	requireSafeExpressions(leftItems.slice(0, differentIndex));
 	if (
 		left.type === 'ObjectExpression'
@@ -449,8 +519,14 @@ function getMinimalExpressionText(left, right, {condition, context, abort}) {
 
 function fixMinimalTernary(node, context, fixer, abort) {
 	const {sourceCode} = context;
+	const tokenStore = getTokenStore(context, node);
 	if (
-		sourceCode.getCommentsInside(node).length > 0
+		// Vue.js attributes require quote escaping and may contain statements, so only report there.
+		getAncestor(node, 'VAttribute')
+		// Template fixes support expressions, not statement bodies that require ASI handling.
+		|| (tokenStore !== sourceCode && getAncestor(node, 'BlockStatement'))
+		|| tokenStore.getCommentsInside(node).length > 0
+		|| !isTypeSafeToMinimize(node, context)
 		// A conditional produces a value, while member access produces a reference.
 		|| (node.consequent.type === 'MemberExpression' && (
 			node.parent.type.startsWith('TS')
@@ -463,14 +539,19 @@ function fixMinimalTernary(node, context, fixer, abort) {
 	}
 
 	let text = getMinimalExpressionText(node.consequent, node.alternate, {condition: node.test, context, abort});
+	// A statement starting with `let[…]` is parsed as a declaration in scripts.
+	if (/^let\s*\[/u.test(text)) {
+		abort();
+	}
+
 	if (
 		node.consequent.type === 'ObjectExpression'
-		|| (node.consequent.type === 'BinaryExpression' && node.consequent.operator === 'in')
+		|| node.consequent.operator === 'in'
 	) {
 		text = `(${text})`;
 	}
 
-	if (!isParenthesized(node, context) && needsSemicolon(sourceCode.getTokenBefore(node), context, text)) {
+	if (tokenStore === sourceCode && !isParenthesized(node, context) && needsSemicolon(tokenStore.getTokenBefore(node), context, text)) {
 		text = `;${text}`;
 	}
 
@@ -502,7 +583,7 @@ const create = context => {
 @type {import('eslint').Rule.RuleModule}
 */
 const config = {
-	create,
+	create: checkVueTemplate(create),
 	meta: {
 		type: 'suggestion',
 		docs: {

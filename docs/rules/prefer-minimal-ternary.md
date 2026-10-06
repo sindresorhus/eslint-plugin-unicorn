@@ -21,6 +21,16 @@ const foo = test ? call(a) : call(b);
 const foo = call(test ? a : b);
 ```
 
+Direct method calls are also supported when the receiver is an identifier, literal, `this`, or `super`, and the method uses dot access or a literal computed key. Optional chaining, dynamic method keys, and chained receivers are ignored.
+
+```js
+// ❌
+const foo = test ? object.method(a) : object.method(b);
+
+// ✅
+const foo = object.method(test ? a : b);
+```
+
 ```js
 // ❌
 const foo = test ? a + 1 : b + 1;
@@ -29,7 +39,7 @@ const foo = test ? a + 1 : b + 1;
 const foo = (test ? a : b) + 1;
 ```
 
-Member access ternaries are not reported by default when only a static property name varies (`object.a : object.b`), since minimizing them needs computed member access in place of clearer property access (opt in with [`checkComputedMemberAccess`](#checkcomputedmemberaccess)). When only the object varies (`a.foo : b.foo`), minimizing moves the ternary into the base (`(test ? a : b).foo`), wrapping the receiver in a conditional and breaking TypeScript `const enum` access, so it is off by default (opt in with [`checkVaryingBase`](#checkvaryingbase)). But a dynamic computed key is already computed, so it is reported:
+Member access with a varying static property name or receiver is opt-in through [`checkComputedMemberAccess`](#checkcomputedmemberaccess) or [`checkVaryingBase`](#checkvaryingbase). Dynamic computed keys are reported by default:
 
 ```js
 // ❌
@@ -59,7 +69,28 @@ const date = new Date(test ? a : b);
 
 For these cases, shared values before the varying value must be simple expressions such as identifiers or literals.
 
-Only shallow cases are reported; nested expressions are not recursively minimized. Autofixes preserve evaluation order or only reorder safe expressions. Cases with comments or unsafe reordering require manual review.
+Only shallow cases are reported; nested expressions are not recursively minimized. JavaScript and TypeScript expressions are supported, including Vue and Svelte templates.
+
+Shared expressions and explicit TypeScript type arguments are compared without comments or whitespace between tokens. A trailing comma in a directly shared object literal is also ignored. String, template, regular expression, and JSX text contents and other punctuation remain significant. Shared expressions containing functions or classes require identical source text, since line breaks inside them can change behavior.
+
+## Autofix limitations
+
+Autofixes preserve evaluation order or only reorder safe expressions. Cases with comments or unsafe reordering are reported without a fix.
+
+Vue directive attributes and statement bodies inside interpolations are reported without a fix, since their quoting and statement syntax need separate handling. Expression-only interpolations and script expressions can be autofixed.
+
+With [type information](https://typescript-eslint.io/getting-started/typed-linting/), the rule also withholds fixes that could lose branch narrowing or change overload resolution, generic inference, or correlated object and tuple types. These checks are conservative and do not prove that every transformation preserves TypeScript types. Without type information, review fixes that depend on narrowing or overloads.
+
+Shared-callee calls and constructors with rest parameters are reported without a fix when type information is available. Rest tuple types can describe relationships between arguments that combining the branches would lose.
+
+For example, this is reported without an autofix when type information is available. Moving `value` outside the branches loses its narrowing and makes the addition invalid:
+
+```ts
+declare const value: string | number;
+const result = typeof value === 'string' ? value + 'a' : value + 1;
+```
+
+TypeScript `const enum` receivers are not reported when type information is available: conditional receivers and conditional member keys cannot be used with a `const enum`. Without types, these receivers cannot be distinguished from ordinary objects.
 
 ## Design boundaries
 
@@ -78,7 +109,7 @@ These transformations are intentionally excluded:
 Type: `boolean`\
 Default: `false`
 
-Also report ternaries that share everything but the base of a call or member access. Minimizing these moves the ternary into the base (`(test ? a : b)()`, `(test ? a : b).foo`), which hides the call site, breaks plain-text searches, and breaks TypeScript `const enum` access, so it is opt-in.
+Also report ternaries that share everything but the base of a call or member access. Minimizing these moves the ternary into the base (`(test ? a : b)()`, `(test ? a : b).foo`), which hides the call site and makes it harder to find with text searches, so it is opt-in.
 
 Varying-base member accesses are autofixed only with dot access or literal keys.
 
@@ -112,8 +143,6 @@ const foo = test ? a.value : b.value;
 const foo = (test ? a : b).value;
 ```
 
-When [type information](https://typescript-eslint.io/getting-started/typed-linting/) is available, objects that are a TypeScript `const enum` are never reported, since a `const enum` may appear only in a direct property or index access, so `(test ? a : b).value` would not compile. Without type information, they are indistinguishable from normal objects and are still reported.
-
 ### `checkComputedMemberAccess`
 
 Type: `boolean`\
@@ -140,5 +169,3 @@ await (delayRejection ? Promise.allSettled(promises) : Promise.all(promises));
 // ✅
 await Promise[delayRejection ? 'allSettled' : 'all'](promises);
 ```
-
-When [type information](https://typescript-eslint.io/getting-started/typed-linting/) is available, TypeScript `const enum` receivers are not reported, since computed access to a `const enum` member requires a string literal and a conditional key would not compile. Without type information, they are indistinguishable from normal objects and are still reported.

@@ -574,7 +574,7 @@ Message:
     |                             ^^^^ Prefer \`Array#every()\` with a negated predicate over negating \`Array#some()\`.
 
 Output:
-  1 | <template><div v-if="array.every(element => (!test(element)))"></div></template>
+  1 | <template><div v-if="array.every(element => !test(element))"></div></template>
 
 `;
 

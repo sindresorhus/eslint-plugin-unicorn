@@ -1,3 +1,5 @@
+import isSameTokens from './is-same-tokens.js';
+
 // Tokens of a statement, ignoring a trailing semicolon so ASI differences do not matter.
 const getStatementTokens = (node, context) => {
 	const tokens = context.sourceCode.getTokens(node);
@@ -18,11 +20,5 @@ export default function isSameStatement(left, right, context) {
 	const leftTokens = getStatementTokens(left, context);
 	const rightTokens = getStatementTokens(right, context);
 
-	if (leftTokens.length === 0 || leftTokens.length !== rightTokens.length) {
-		return false;
-	}
-
-	return leftTokens.every((token, index) =>
-		token.type === rightTokens[index].type
-		&& token.value === rightTokens[index].value);
+	return leftTokens.length > 0 && isSameTokens(leftTokens, rightTokens);
 }
