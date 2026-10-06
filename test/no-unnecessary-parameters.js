@@ -343,6 +343,47 @@ test('preserves JavaScript type annotations when reporting unnecessary parameter
 	}
 });
 
+test('preserves inline JSDoc casts when reporting unnecessary parameters', t => {
+	for (const declaration of ['value => value', 'function (value) { return value; }']) {
+		const code = `const format = /** @type {(value: number) => number} */ (${declaration}); [format(1), format(1)];`;
+		t.assert.deepStrictEqual(getJavaScriptTypeErrors(code), []);
+		const result = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+		t.assert.strictEqual(result.messages[0].messageId, 'same-value');
+		t.assert.deepStrictEqual(getJavaScriptTypeErrors(result.output), []);
+		t.assert.deepStrictEqual(structuredClone(vm.runInNewContext(result.output)), [1, 1]);
+	}
+});
+
+test('preserves separated JSDoc parameter annotations', t => {
+	for (const gap of ['\n\n', '\n// Format a value.\n']) {
+		const code = `/** @param {number} value */${gap}function format(value) { return value; } [format(1), format(1)];`;
+		t.assert.deepStrictEqual(getJavaScriptTypeErrors(code), []);
+		const result = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+		t.assert.strictEqual(result.messages[0].messageId, 'same-value');
+		t.assert.deepStrictEqual(getJavaScriptTypeErrors(result.output), []);
+		t.assert.deepStrictEqual(structuredClone(vm.runInNewContext(result.output)), [1, 1]);
+	}
+});
+
+test('requires manual fixes throughout files containing JSDoc signature annotations', t => {
+	const code = 'function format(value) { return value; } /** @param {string} text */ function describe(text) { return text; } describe("example"); [format(1), format(1)];';
+	const result = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+	t.assert.strictEqual(result.messages[0].messageId, 'same-value');
+	t.assert.deepStrictEqual(structuredClone(vm.runInNewContext(result.output)), [1, 1]);
+});
+
 test('preserves constructor signatures and inferred property types', t => {
 	for (const code of [
 		'/** @type {new (value: number) => {value: number}} */ const Point = class { constructor(value) { this.value = value; } }; [new Point(1).value, new Point(1).value];',
@@ -393,7 +434,15 @@ test('keeps parameters documented with JSDoc aliases and attached declaration ty
 });
 
 test('fixes parameters beside ordinary comments and descriptive JSDoc', t => {
-	for (const comment of ['// Format a value.', '/* Format a value. */', '/** Format a value. */', '// This example mentions @ts-check.']) {
+	for (const comment of [
+		'// Format a value.',
+		'/* Format a value. */',
+		'/** Format a value. */',
+		'/** @deprecated Use another formatter. */',
+		'// @param value',
+		'/* @param value */',
+		'// This example mentions @ts-check.',
+	]) {
 		const code = `${comment}\nfunction format(value) { return value; } [format(1), format(1)];`;
 		const result = linter.verifyAndFix(code, config);
 		t.assert.strictEqual(result.fixed, true);

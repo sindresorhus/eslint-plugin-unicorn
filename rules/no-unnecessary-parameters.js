@@ -3,7 +3,6 @@ import reservedIdentifiers from 'reserved-identifiers';
 import {isInTypeQuery} from './ast/index.js';
 import {getArgumentRemovalRange, removeObjectProperty, replaceReferenceIdentifier} from './fix/index.js';
 import {
-	getAttachedComment,
 	getIndentUnit,
 	getLinebreak,
 	getLineIndent,
@@ -418,16 +417,14 @@ function canInlineValue(parameter, result, context) {
 }
 
 /**
-Check for attached JSDoc signature annotations or a leading TypeScript checking pragma.
+Check for JSDoc signature annotations anywhere in the file or a leading TypeScript checking pragma.
 */
-function hasJavaScriptTypeAnnotations(node, context) {
+function hasJavaScriptTypeAnnotations(context) {
 	const {sourceCode} = context;
-	const comment = getAttachedComment(node, context);
-	if (
-		comment?.type === 'Block'
+	if (sourceCode.getAllComments().some(comment =>
+		comment.type === 'Block'
 		&& comment.value.trimStart().startsWith('*')
-		&& /@(?:param|arg|argument|type|returns?|template|this|overload|satisfies)\b/u.test(comment.value)
-	) {
+		&& /@(?:param|arg|argument|type|returns?|template|this|overload|satisfies)\b/u.test(comment.value))) {
 		return true;
 	}
 
@@ -445,7 +442,7 @@ function getFix(parameter, result, target, context) {
 		isTypeScriptFile(context.filename)
 		|| sourceCode.parserServices.esTreeNodeToTSNodeMap
 		|| [...target.calls].some(call => call.type === 'NewExpression')
-		|| hasJavaScriptTypeAnnotations(target.node, context)
+		|| hasJavaScriptTypeAnnotations(context)
 		|| parameter.variable.defs.length !== 1
 		|| parameter.variable.references.some(reference => !isRuntimeReference(reference))
 	) {
