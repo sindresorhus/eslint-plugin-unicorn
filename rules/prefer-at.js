@@ -182,7 +182,9 @@ const isDomCollectionExpression = node => {
 const {isTarget: isDomCollectionType} = createTypeCheckers({
 	targetTypeNames: new Set(['NodeList', 'NodeListOf', 'HTMLCollection', 'HTMLCollectionOf']),
 	allowNullishInMixedUnion: true,
-	isTargetNode: isDomCollectionExpression,
+	isTargetNode: (node, _context, isTarget) =>
+		isDomCollectionExpression(node)
+		|| (node.type === 'ChainExpression' && isTarget(node.expression)),
 });
 
 const isDomCollectionReceiver = (node, context) =>

@@ -2406,6 +2406,74 @@ Output:
 
 `;
 
+exports[`prefer-at > invalid(46): declare function getNodes(): any; const nodes = getNodes?.(); _.last(nodes); 1`] = `
+
+  1 | declare function getNodes(): any; const nodes = getNodes?.(); _.last(nodes);
+
+`;
+
+exports[`prefer-at > invalid(46): declare function getNodes(): any; const nodes = getNodes?.(); _.last(nodes); 2`] = `
+
+Message:
+> 1 | declare function getNodes(): any; const nodes = getNodes?.(); _.last(nodes);
+    |                                                               ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | declare function getNodes(): any; const nodes = getNodes?.(); nodes.at(-1);
+
+`;
+
+exports[`prefer-at > invalid(47): declare function getNodes(): unknown; const nodes = getNodes?.(); _.last(nodes); 1`] = `
+
+  1 | declare function getNodes(): unknown; const nodes = getNodes?.(); _.last(nodes);
+
+`;
+
+exports[`prefer-at > invalid(47): declare function getNodes(): unknown; const nodes = getNodes?.(); _.last(nodes); 2`] = `
+
+Message:
+> 1 | declare function getNodes(): unknown; const nodes = getNodes?.(); _.last(nodes);
+    |                                                                   ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | declare function getNodes(): unknown; const nodes = getNodes?.(); nodes.at(-1);
+
+`;
+
+exports[`prefer-at > invalid(48): declare function getNodes(): NodeList | string[]; const nodes = getNodes?.(); _.last(nodes); 1`] = `
+
+  1 | declare function getNodes(): NodeList | string[]; const nodes = getNodes?.(); _.last(nodes);
+
+`;
+
+exports[`prefer-at > invalid(48): declare function getNodes(): NodeList | string[]; const nodes = getNodes?.(); _.last(nodes); 2`] = `
+
+Message:
+> 1 | declare function getNodes(): NodeList | string[]; const nodes = getNodes?.(); _.last(nodes);
+    |                                                                               ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | declare function getNodes(): NodeList | string[]; const nodes = getNodes?.(); nodes.at(-1);
+
+`;
+
+exports[`prefer-at > invalid(49): declare function getNodes(): string[]; const nodes = getNodes?.(); _.last(nodes); 1`] = `
+
+  1 | declare function getNodes(): string[]; const nodes = getNodes?.(); _.last(nodes);
+
+`;
+
+exports[`prefer-at > invalid(49): declare function getNodes(): string[]; const nodes = getNodes?.(); _.last(nodes); 2`] = `
+
+Message:
+> 1 | declare function getNodes(): string[]; const nodes = getNodes?.(); _.last(nodes);
+    |                                                                    ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | declare function getNodes(): string[]; const nodes = getNodes?.(); nodes.at(-1);
+
+`;
+
 exports[`prefer-at > invalid(5): _.last(Array.from(element.children)); 1`] = `
 
   1 | _.last(Array.from(element.children));
@@ -2543,6 +2611,23 @@ Message:
 
 Suggestion 1/1: Use \`.at(…)\`.:
   1 | string.at(index)
+
+`;
+
+exports[`prefer-at > invalid(50): declare function getNodes(): NodeList; const nodes = getNodes?.() as string[]; _.last(nodes); 1`] = `
+
+  1 | declare function getNodes(): NodeList; const nodes = getNodes?.() as string[]; _.last(nodes);
+
+`;
+
+exports[`prefer-at > invalid(50): declare function getNodes(): NodeList; const nodes = getNodes?.() as string[]; _.last(nodes); 2`] = `
+
+Message:
+> 1 | declare function getNodes(): NodeList; const nodes = getNodes?.() as string[]; _.last(nodes);
+    |                                                                                ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | declare function getNodes(): NodeList; const nodes = getNodes?.() as string[]; nodes.at(-1);
 
 `;
 

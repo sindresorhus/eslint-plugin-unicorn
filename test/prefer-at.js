@@ -60,6 +60,8 @@ test({
 		{...typescript('function foo(nodes: NodeList) { return nodes[0]; }'), options: [{checkAllIndexAccess: true}]},
 		typeAware('declare function getNodes(): NodeListOf<Element>; const nodes = getNodes(); nodes[nodes.length - 1];'),
 		typescript('declare function getNodes(): NodeListOf<Element>; const nodes = getNodes(); _.last(nodes);'),
+		...[typescript, typeAware].map(parser => parser('declare function getNodes(): NodeList; const nodes = getNodes?.(); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);')),
+		typescript('declare function getNodes(): HTMLCollection; _.last(getNodes?.());'),
 		typeAware('function getNodes() { return document.querySelectorAll("li"); } const nodes = getNodes(); nodes[nodes.length - 1];'),
 		typeAware('let nodes = document.querySelectorAll("li"); _.last(nodes);'),
 		typeAware('const {children: nodes} = document.body; _.last(nodes);'),
@@ -647,5 +649,7 @@ test.snapshot({
 			'function foo(nodes: NodeList | string[] | undefined) { nodes?.[nodes.length - 1]; nodes?.slice(-1)[0]; _.last(nodes); }',
 		].flatMap(code => [typescript, typeAware].map(parser => parser(code))),
 		typeAware('function foo(nodes: NodeList | string[]) { if (nodes instanceof NodeList) { return nodes[nodes.length - 1]; } return nodes[nodes.length - 1]; }'),
+		...[...uncertainReceiverTypes, 'string[]'].map(type => typescript(`declare function getNodes(): ${type}; const nodes = getNodes?.(); _.last(nodes);`)),
+		typescript('declare function getNodes(): NodeList; const nodes = getNodes?.() as string[]; _.last(nodes);'),
 	],
 });
