@@ -104,6 +104,45 @@ Output:
 
 `;
 
+exports[`prefer-at > invalid(1): const nodes = getNodes(); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); 1`] = `
+
+  1 | const nodes = getNodes(); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);
+
+`;
+
+exports[`prefer-at > invalid(1): const nodes = getNodes(); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); 2`] = `
+
+Message:
+> 1 | const nodes = getNodes(); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);
+    |                                 ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | const nodes = getNodes(); nodes.at(-1); nodes.slice(-1)[0]; _.last(nodes);
+
+`;
+
+exports[`prefer-at > invalid(1): const nodes = getNodes(); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); 3`] = `
+
+Message:
+> 1 | const nodes = getNodes(); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);
+    |                                                          ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | const nodes = getNodes(); nodes[nodes.length - 1]; nodes.at(-1); _.last(nodes);
+
+`;
+
+exports[`prefer-at > invalid(1): const nodes = getNodes(); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); 4`] = `
+
+Message:
+> 1 | const nodes = getNodes(); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);
+    |                                                                        ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | const nodes = getNodes(); nodes[nodes.length - 1]; nodes.slice(-1)[0]; nodes.at(-1);
+
+`;
+
 exports[`prefer-at > invalid(1): string.charAt(string.length - 1); 1`] = `
 
   1 | string.charAt(string.length - 1);
@@ -255,6 +294,23 @@ Output:
 
 `;
 
+exports[`prefer-at > invalid(10): const nodes = alias; const alias = nodes; _.last(nodes); 1`] = `
+
+  1 | const nodes = alias; const alias = nodes; _.last(nodes);
+
+`;
+
+exports[`prefer-at > invalid(10): const nodes = alias; const alias = nodes; _.last(nodes); 2`] = `
+
+Message:
+> 1 | const nodes = alias; const alias = nodes; _.last(nodes);
+    |                                           ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | const nodes = alias; const alias = nodes; nodes.at(-1);
+
+`;
+
 exports[`prefer-at > invalid(10): string.substring(index, index + /* comment */ 1) 1`] = `
 
   1 | string.substring(index, index + /* comment */ 1)
@@ -317,6 +373,23 @@ Message:
 
 Output:
   1 | array.at((( -1 )));
+
+`;
+
+exports[`prefer-at > invalid(11): let nodes = element.children; nodes = []; _.last(nodes); 1`] = `
+
+  1 | let nodes = element.children; nodes = []; _.last(nodes);
+
+`;
+
+exports[`prefer-at > invalid(11): let nodes = element.children; nodes = []; _.last(nodes); 2`] = `
+
+Message:
+> 1 | let nodes = element.children; nodes = []; _.last(nodes);
+    |                                           ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | let nodes = element.children; nodes = []; nodes.at(-1);
 
 `;
 
@@ -406,6 +479,23 @@ Suggestion 1/1: Use \`.at(…)\`.:
 
 `;
 
+exports[`prefer-at > invalid(12): const {children: nodes} = element; _.last(nodes); 1`] = `
+
+  1 | const {children: nodes} = element; _.last(nodes);
+
+`;
+
+exports[`prefer-at > invalid(12): const {children: nodes} = element; _.last(nodes); 2`] = `
+
+Message:
+> 1 | const {children: nodes} = element; _.last(nodes);
+    |                                    ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | const {children: nodes} = element; nodes.at(-1);
+
+`;
+
 exports[`prefer-at > invalid(12): string.charAt(5 + 9) 1`] = `
 
 Options:
@@ -478,6 +568,23 @@ Output:
 
 `;
 
+exports[`prefer-at > invalid(13): const nodes = element.children; function foo(nodes) { return _.last(nodes); } 1`] = `
+
+  1 | const nodes = element.children; function foo(nodes) { return _.last(nodes); }
+
+`;
+
+exports[`prefer-at > invalid(13): const nodes = element.children; function foo(nodes) { return _.last(nodes); } 2`] = `
+
+Message:
+> 1 | const nodes = element.children; function foo(nodes) { return _.last(nodes); }
+    |                                                              ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | const nodes = element.children; function foo(nodes) { return nodes.at(-1); }
+
+`;
+
 exports[`prefer-at > invalid(13): const offset = 5;string.charAt(offset + 9) 1`] = `
 
 Options:
@@ -547,6 +654,23 @@ Message:
 
 Suggestion 1/1: Use \`.at(…)\`.:
   1 | (( string )).at(index)
+
+`;
+
+exports[`prefer-at > invalid(14): _.last(document[\"querySelectorAll\"](\"li\")); 1`] = `
+
+  1 | _.last(document["querySelectorAll"]("li"));
+
+`;
+
+exports[`prefer-at > invalid(14): _.last(document[\"querySelectorAll\"](\"li\")); 2`] = `
+
+Message:
+> 1 | _.last(document["querySelectorAll"]("li"));
+    | ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | document["querySelectorAll"]("li").at(-1);
 
 `;
 
@@ -653,6 +777,23 @@ Output:
 
 `;
 
+exports[`prefer-at > invalid(15): function foo(value: any) { return value[value.length - 1]; } 1`] = `
+
+  1 | function foo(value: any) { return value[value.length - 1]; }
+
+`;
+
+exports[`prefer-at > invalid(15): function foo(value: any) { return value[value.length - 1]; } 2`] = `
+
+Message:
+> 1 | function foo(value: any) { return value[value.length - 1]; }
+    |                                         ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | function foo(value: any) { return value.at(-1); }
+
+`;
+
 exports[`prefer-at > invalid(15): string.charAt(1.5) 1`] = `
 
 Options:
@@ -722,6 +863,25 @@ Message:
 
 Output:
   1 | const a = array.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(16): function foo(value: any) { return value[value.length - 1]; } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(value: any) { return value[value.length - 1]; }
+
+`;
+
+exports[`prefer-at > invalid(16): function foo(value: any) { return value[value.length - 1]; } 2`] = `
+
+Message:
+> 1 | function foo(value: any) { return value[value.length - 1]; }
+    |                                         ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | function foo(value: any) { return value.at(-1); }
 
 `;
 
@@ -797,6 +957,23 @@ Output:
 
 `;
 
+exports[`prefer-at > invalid(17): function foo(value: unknown) { return value[value.length - 1]; } 1`] = `
+
+  1 | function foo(value: unknown) { return value[value.length - 1]; }
+
+`;
+
+exports[`prefer-at > invalid(17): function foo(value: unknown) { return value[value.length - 1]; } 2`] = `
+
+Message:
+> 1 | function foo(value: unknown) { return value[value.length - 1]; }
+    |                                             ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | function foo(value: unknown) { return value.at(-1); }
+
+`;
+
 exports[`prefer-at > invalid(17): string.charAt(string.length - 1) 1`] = `
 
 Options:
@@ -856,6 +1033,25 @@ Suggestion 1/1: Use \`.at(…)\`.:
 
 `;
 
+exports[`prefer-at > invalid(18): function foo(value: unknown) { return value[value.length - 1]; } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(value: unknown) { return value[value.length - 1]; }
+
+`;
+
+exports[`prefer-at > invalid(18): function foo(value: unknown) { return value[value.length - 1]; } 2`] = `
+
+Message:
+> 1 | function foo(value: unknown) { return value[value.length - 1]; }
+    |                                             ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | function foo(value: unknown) { return value.at(-1); }
+
+`;
+
 exports[`prefer-at > invalid(18): typeof array[array.length - 1] 1`] = `
 
   1 | typeof array[array.length - 1]
@@ -904,6 +1100,40 @@ Message:
 
 Output:
   1 | class Foo {bar; baz() {return this.bar.at(-1)}}
+
+`;
+
+exports[`prefer-at > invalid(19): function foo(value: NodeList | string[]) { return value[value.length - 1]; } 1`] = `
+
+  1 | function foo(value: NodeList | string[]) { return value[value.length - 1]; }
+
+`;
+
+exports[`prefer-at > invalid(19): function foo(value: NodeList | string[]) { return value[value.length - 1]; } 2`] = `
+
+Message:
+> 1 | function foo(value: NodeList | string[]) { return value[value.length - 1]; }
+    |                                                         ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | function foo(value: NodeList | string[]) { return value.at(-1); }
+
+`;
+
+exports[`prefer-at > invalid(2): _.last(getNodes()); 1`] = `
+
+  1 | _.last(getNodes());
+
+`;
+
+exports[`prefer-at > invalid(2): _.last(getNodes()); 2`] = `
+
+Message:
+> 1 | _.last(getNodes());
+    | ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | getNodes().at(-1);
 
 `;
 
@@ -1081,6 +1311,25 @@ Output:
 
 `;
 
+exports[`prefer-at > invalid(20): function foo(value: NodeList | string[]) { return value[value.length - 1]; } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(value: NodeList | string[]) { return value[value.length - 1]; }
+
+`;
+
+exports[`prefer-at > invalid(20): function foo(value: NodeList | string[]) { return value[value.length - 1]; } 2`] = `
+
+Message:
+> 1 | function foo(value: NodeList | string[]) { return value[value.length - 1]; }
+    |                                                         ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | function foo(value: NodeList | string[]) { return value.at(-1); }
+
+`;
+
 exports[`prefer-at > invalid(21): (array as Foo[])[array.length - 1] 1`] = `
 
   1 | (array as Foo[])[array.length - 1]
@@ -1115,6 +1364,23 @@ Output:
 
 `;
 
+exports[`prefer-at > invalid(21): function foo(value: string[]) { return value[value.length - 1]; } 1`] = `
+
+  1 | function foo(value: string[]) { return value[value.length - 1]; }
+
+`;
+
+exports[`prefer-at > invalid(21): function foo(value: string[]) { return value[value.length - 1]; } 2`] = `
+
+Message:
+> 1 | function foo(value: string[]) { return value[value.length - 1]; }
+    |                                              ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | function foo(value: string[]) { return value.at(-1); }
+
+`;
+
 exports[`prefer-at > invalid(22): (array as Foo[])[(array as Foo[]).length - 1] 1`] = `
 
   1 | (array as Foo[])[(array as Foo[]).length - 1]
@@ -1129,6 +1395,25 @@ Message:
 
 Output:
   1 | (array as Foo[]).at(-1)
+
+`;
+
+exports[`prefer-at > invalid(22): function foo(value: string[]) { return value[value.length - 1]; } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(value: string[]) { return value[value.length - 1]; }
+
+`;
+
+exports[`prefer-at > invalid(22): function foo(value: string[]) { return value[value.length - 1]; } 2`] = `
+
+Message:
+> 1 | function foo(value: string[]) { return value[value.length - 1]; }
+    |                                              ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | function foo(value: string[]) { return value.at(-1); }
 
 `;
 
@@ -1149,6 +1434,23 @@ Output:
 
 `;
 
+exports[`prefer-at > invalid(23): function foo(value: readonly number[]) { return value[value.length - 1]; } 1`] = `
+
+  1 | function foo(value: readonly number[]) { return value[value.length - 1]; }
+
+`;
+
+exports[`prefer-at > invalid(23): function foo(value: readonly number[]) { return value[value.length - 1]; } 2`] = `
+
+Message:
+> 1 | function foo(value: readonly number[]) { return value[value.length - 1]; }
+    |                                                       ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | function foo(value: readonly number[]) { return value.at(-1); }
+
+`;
+
 exports[`prefer-at > invalid(24): <Foo[]>array[(<Foo[]>array).length - 1] 1`] = `
 
   1 | <Foo[]>array[(<Foo[]>array).length - 1]
@@ -1163,6 +1465,25 @@ Message:
 
 Output:
   1 | <Foo[]>array.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(24): function foo(value: readonly number[]) { return value[value.length - 1]; } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(value: readonly number[]) { return value[value.length - 1]; }
+
+`;
+
+exports[`prefer-at > invalid(24): function foo(value: readonly number[]) { return value[value.length - 1]; } 2`] = `
+
+Message:
+> 1 | function foo(value: readonly number[]) { return value[value.length - 1]; }
+    |                                                       ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | function foo(value: readonly number[]) { return value.at(-1); }
 
 `;
 
@@ -1183,6 +1504,23 @@ Output:
 
 `;
 
+exports[`prefer-at > invalid(25): function foo(value: string) { return value[value.length - 1]; } 1`] = `
+
+  1 | function foo(value: string) { return value[value.length - 1]; }
+
+`;
+
+exports[`prefer-at > invalid(25): function foo(value: string) { return value[value.length - 1]; } 2`] = `
+
+Message:
+> 1 | function foo(value: string) { return value[value.length - 1]; }
+    |                                            ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | function foo(value: string) { return value.at(-1); }
+
+`;
+
 exports[`prefer-at > invalid(26): array![array!.length - 1] 1`] = `
 
   1 | array![array!.length - 1]
@@ -1197,6 +1535,82 @@ Message:
 
 Output:
   1 | array!.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(26): function foo(value: string) { return value[value.length - 1]; } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(value: string) { return value[value.length - 1]; }
+
+`;
+
+exports[`prefer-at > invalid(26): function foo(value: string) { return value[value.length - 1]; } 2`] = `
+
+Message:
+> 1 | function foo(value: string) { return value[value.length - 1]; }
+    |                                            ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | function foo(value: string) { return value.at(-1); }
+
+`;
+
+exports[`prefer-at > invalid(27): function foo(value: Uint8Array) { return value[value.length - 1]; } 1`] = `
+
+  1 | function foo(value: Uint8Array) { return value[value.length - 1]; }
+
+`;
+
+exports[`prefer-at > invalid(27): function foo(value: Uint8Array) { return value[value.length - 1]; } 2`] = `
+
+Message:
+> 1 | function foo(value: Uint8Array) { return value[value.length - 1]; }
+    |                                                ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | function foo(value: Uint8Array) { return value.at(-1); }
+
+`;
+
+exports[`prefer-at > invalid(28): function foo(value: Uint8Array) { return value[value.length - 1]; } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(value: Uint8Array) { return value[value.length - 1]; }
+
+`;
+
+exports[`prefer-at > invalid(28): function foo(value: Uint8Array) { return value[value.length - 1]; } 2`] = `
+
+Message:
+> 1 | function foo(value: Uint8Array) { return value[value.length - 1]; }
+    |                                                ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | function foo(value: Uint8Array) { return value.at(-1); }
+
+`;
+
+exports[`prefer-at > invalid(29): const nodes = Array.from(element.children); nodes[0]; 1`] = `
+
+Options:
+- checkAllIndexAccess: true
+
+Code:
+  1 | const nodes = Array.from(element.children); nodes[0];
+
+`;
+
+exports[`prefer-at > invalid(29): const nodes = Array.from(element.children); nodes[0]; 2`] = `
+
+Message:
+> 1 | const nodes = Array.from(element.children); nodes[0];
+    |                                                   ^ Prefer \`.at(…)\` over index access.
+
+Output:
+  1 | const nodes = Array.from(element.children); nodes.at(0);
 
 `;
 
@@ -1272,6 +1686,45 @@ Output:
 
 `;
 
+exports[`prefer-at > invalid(3): const nodes = Array.from(document.querySelectorAll(\"li\")); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); 1`] = `
+
+  1 | const nodes = Array.from(document.querySelectorAll("li")); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);
+
+`;
+
+exports[`prefer-at > invalid(3): const nodes = Array.from(document.querySelectorAll(\"li\")); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); 2`] = `
+
+Message:
+> 1 | const nodes = Array.from(document.querySelectorAll("li")); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);
+    |                                                                  ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | const nodes = Array.from(document.querySelectorAll("li")); nodes.at(-1); nodes.slice(-1)[0]; _.last(nodes);
+
+`;
+
+exports[`prefer-at > invalid(3): const nodes = Array.from(document.querySelectorAll(\"li\")); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); 3`] = `
+
+Message:
+> 1 | const nodes = Array.from(document.querySelectorAll("li")); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);
+    |                                                                                           ^^^^^ Prefer \`.at(…)\` over the first element from \`.slice(…)\`.
+
+Output:
+  1 | const nodes = Array.from(document.querySelectorAll("li")); nodes[nodes.length - 1]; nodes.at(-1); _.last(nodes);
+
+`;
+
+exports[`prefer-at > invalid(3): const nodes = Array.from(document.querySelectorAll(\"li\")); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); 4`] = `
+
+Message:
+> 1 | const nodes = Array.from(document.querySelectorAll("li")); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);
+    |                                                                                                         ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | const nodes = Array.from(document.querySelectorAll("li")); nodes[nodes.length - 1]; nodes.slice(-1)[0]; nodes.at(-1);
+
+`;
+
 exports[`prefer-at > invalid(3): string.charAt(string.length - 0o11); 1`] = `
 
   1 | string.charAt(string.length - 0o11);
@@ -1320,6 +1773,29 @@ Message:
 
 Output:
   1 | array.at(-1)
+
+`;
+
+exports[`prefer-at > invalid(30): function foo(value: any) { return value[0]; } 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkAllIndexAccess: true
+
+Code:
+  1 | function foo(value: any) { return value[0]; }
+
+`;
+
+exports[`prefer-at > invalid(30): function foo(value: any) { return value[0]; } 2`] = `
+
+Message:
+> 1 | function foo(value: any) { return value[0]; }
+    |                                         ^ Prefer \`.at(…)\` over index access.
+
+Output:
+  1 | function foo(value: any) { return value.at(0); }
 
 `;
 
@@ -1391,6 +1867,23 @@ Output:
 
 `;
 
+exports[`prefer-at > invalid(4): const nodes = [...element.children]; nodes[nodes.length - 1]; 1`] = `
+
+  1 | const nodes = [...element.children]; nodes[nodes.length - 1];
+
+`;
+
+exports[`prefer-at > invalid(4): const nodes = [...element.children]; nodes[nodes.length - 1]; 2`] = `
+
+Message:
+> 1 | const nodes = [...element.children]; nodes[nodes.length - 1];
+    |                                            ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | const nodes = [...element.children]; nodes.at(-1);
+
+`;
+
 exports[`prefer-at > invalid(4): const offset = 5;array[offset + 9] 1`] = `
 
 Options:
@@ -1443,6 +1936,23 @@ Message:
 
 Suggestion 1/1: Use \`.at(…)\`.:
   1 | string.at(index)
+
+`;
+
+exports[`prefer-at > invalid(5): _.last(Array.from(element.children)); 1`] = `
+
+  1 | _.last(Array.from(element.children));
+
+`;
+
+exports[`prefer-at > invalid(5): _.last(Array.from(element.children)); 2`] = `
+
+Message:
+> 1 | _.last(Array.from(element.children));
+    | ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | Array.from(element.children).at(-1);
 
 `;
 
@@ -1604,6 +2114,23 @@ Message:
 
 Output:
   1 | "string".at(1)
+
+`;
+
+exports[`prefer-at > invalid(6): _.last([...element.childNodes]); 1`] = `
+
+  1 | _.last([...element.childNodes]);
+
+`;
+
+exports[`prefer-at > invalid(6): _.last([...element.childNodes]); 2`] = `
+
+Message:
+> 1 | _.last([...element.childNodes]);
+    | ^^^^^^ Prefer \`.at(-1)\` over \`_.last(…)\` to get the last element.
+
+Output:
+  1 | [...element.childNodes].at(-1);
 
 `;
 
@@ -1770,6 +2297,23 @@ Output:
 
 `;
 
+exports[`prefer-at > invalid(7): const nodes = [1, 2]; nodes[nodes.length - 1]; 1`] = `
+
+  1 | const nodes = [1, 2]; nodes[nodes.length - 1];
+
+`;
+
+exports[`prefer-at > invalid(7): const nodes = [1, 2]; nodes[nodes.length - 1]; 2`] = `
+
+Message:
+> 1 | const nodes = [1, 2]; nodes[nodes.length - 1];
+    |                             ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | const nodes = [1, 2]; nodes.at(-1);
+
+`;
+
 exports[`prefer-at > invalid(7): string.charAt((( string.length - 1 ))); 1`] = `
 
   1 | string.charAt((( string.length - 1 )));
@@ -1875,6 +2419,23 @@ Output:
 
 `;
 
+exports[`prefer-at > invalid(8): const string = \"abc\"; string[string.length - 1]; 1`] = `
+
+  1 | const string = "abc"; string[string.length - 1];
+
+`;
+
+exports[`prefer-at > invalid(8): const string = \"abc\"; string[string.length - 1]; 2`] = `
+
+Message:
+> 1 | const string = "abc"; string[string.length - 1];
+    |                              ^^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | const string = "abc"; string.at(-1);
+
+`;
+
 exports[`prefer-at > invalid(8): const string = \"string\"; string[1] 1`] = `
 
 Options:
@@ -1961,6 +2522,23 @@ Message:
 
 Output:
   1 | array.at(-1);
+
+`;
+
+exports[`prefer-at > invalid(9): const bytes = new Uint8Array([1, 2]); bytes[bytes.length - 1]; 1`] = `
+
+  1 | const bytes = new Uint8Array([1, 2]); bytes[bytes.length - 1];
+
+`;
+
+exports[`prefer-at > invalid(9): const bytes = new Uint8Array([1, 2]); bytes[bytes.length - 1]; 2`] = `
+
+Message:
+> 1 | const bytes = new Uint8Array([1, 2]); bytes[bytes.length - 1];
+    |                                             ^^^^^^^^^^^^^^^^ Prefer \`.at(…)\` over \`[….length - index]\`.
+
+Output:
+  1 | const bytes = new Uint8Array([1, 2]); bytes.at(-1);
 
 `;
 

@@ -83,6 +83,16 @@ const foo = element.children[element.children.length - 1];
 
 This means non-DOM objects with those exact property or method names are also ignored.
 
+The exclusion also applies to `const` aliases of these expressions and collections identified by TypeScript annotations or type information as `NodeList`, `NodeListOf`, `HTMLCollection`, or `HTMLCollectionOf`. Nullish union members are ignored when recognizing these types. The same exclusion applies to `.slice()` patterns and last-element functions.
+
+```js
+// ✅
+const elements = document.querySelectorAll('div');
+const lastElement = elements[elements.length - 1];
+```
+
+Other receivers, including unknown types and unions containing both DOM collections and arrays, remain checked. Without type information, untyped mutable bindings and destructuring are not resolved. Converting a DOM collection to an array with `Array.from()` or spread keeps it checked.
+
 ```js
 // ✅
 // This rule intentionally ignores `arguments`, which is array-like but does not have `Array#at()`.

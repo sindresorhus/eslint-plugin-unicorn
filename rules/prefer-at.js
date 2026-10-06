@@ -12,8 +12,10 @@ import {
 	isLeftHandSide,
 	getStaticValueIfNoSideEffects,
 	hasCommentInRange,
+	unwrapChainAndTypeScriptExpression,
 	unwrapTypeScriptExpression as unwrapExpression,
 } from './utils/index.js';
+import {createTypeCheckers} from './utils/type-helpers.js';
 import {
 	getNegativeIndexLengthNode,
 	removeLengthNode,
@@ -170,12 +172,21 @@ const domCollectionMethods = [
 	'querySelectorAll',
 ];
 
-const isDomCollectionReceiver = node => {
-	node = unwrapExpression(node);
+const isDomCollectionExpression = node => {
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	return isMemberExpression(node, {properties: domCollectionProperties})
 		|| isMethodCall(node, {methods: domCollectionMethods});
 };
+
+const {isTarget: isDomCollectionType} = createTypeCheckers({
+	targetTypeNames: new Set(['NodeList', 'NodeListOf', 'HTMLCollection', 'HTMLCollectionOf']),
+	allowNullishInMixedUnion: true,
+	isTargetNode: isDomCollectionExpression,
+});
+
+const isDomCollectionReceiver = (node, context) =>
+	isDomCollectionExpression(node) || isDomCollectionType(node, context);
 
 /**
 @param {import('eslint').Rule.RuleContext} context
@@ -193,7 +204,7 @@ function create(context) {
 		if (
 			!node.computed
 			|| isLeftHandSide(node)
-			|| isDomCollectionReceiver(node.object)
+			|| isDomCollectionReceiver(node.object, context)
 		) {
 			return;
 		}
@@ -350,12 +361,15 @@ function create(context) {
 
 	// `.slice()`
 	context.on('CallExpression', sliceCall => {
-		if (!isMethodCall(sliceCall, {
-			method: 'slice',
-			minimumArguments: 1,
-			maximumArguments: 2,
-			optionalCall: false,
-		})) {
+		if (
+			!isMethodCall(sliceCall, {
+				method: 'slice',
+				minimumArguments: 1,
+				maximumArguments: 2,
+				optionalCall: false,
+			})
+			|| isDomCollectionReceiver(sliceCall.callee.object, context)
+		) {
 			return;
 		}
 
@@ -418,7 +432,7 @@ function create(context) {
 
 		const [array] = node.arguments;
 
-		if (isArguments(array)) {
+		if (isArguments(array) || isDomCollectionReceiver(array, context)) {
 			return;
 		}
 
