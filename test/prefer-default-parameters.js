@@ -169,6 +169,13 @@ test({
 			}],
 		},
 		{
+			...typeAware('function fn<Value>([name, repo]: [Value, Value?]): Value { return repo ?? name; }'),
+			errors: [{
+				messageId: 'preferDestructuringDefaultOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'function fn<Value>([name, repo = name]: [Value, Value?]): Value { return repo; }'}],
+			}],
+		},
+		{
 			...typeAware('function fn(name: string, repo?: string) { repo ||= name; return repo; }'),
 			errors: [{
 				messageId: 'preferDefaultParameters',
@@ -277,6 +284,7 @@ nodeTest('suggestions preserve TypeScript validity and the annotated call signat
 		'function fn(name: string, repo?: string) { return repo ?? name; }',
 		'const fn: (name: string, repo?: string) => string = (name, repo) => repo ?? name;',
 		'function fn<Value>(name: Value, repo?: Value) { return repo ?? name; }',
+		'function fn<Value>([name, repo]: [Value, Value?]): Value { return repo ?? name; }',
 		'class Foo { set value({name, repo}: {name: string; repo?: string}) { console.log(repo ?? name); } }',
 		'function fn(name: boolean, repo?: string | boolean) { const result = repo ?? name; return result; } fn(true, "text");',
 		'const fn: (name: boolean, repo?: string | boolean) => string | boolean = (name, repo) => { const result = repo ?? name; return result; }; fn(true, "text");',

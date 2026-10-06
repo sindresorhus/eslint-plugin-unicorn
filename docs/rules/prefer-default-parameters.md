@@ -43,11 +43,11 @@ For fallback expressions:
 - Binding order is preserved. Fallbacks referring to later bindings are not reported.
 - Plain parameters must be last. Local destructuring declarations must use `const` or `let` and must not be exported.
 
-Local variable declarations and parameter names are retained. The rule moves the default to the parameter and replaces fallback expressions with reads of that parameter.
+Local variable declarations and binding names are retained. The rule moves the default to the binding's declaration and replaces fallback expressions with reads of that binding.
 
 TypeScript annotations are preserved. When type information is available, including JavaScript with JSDoc, patterns are not reported if the default or replacement would have an incompatible type, or if the default depends on type narrowing at a read. These checks are conservative and may skip transformations that would widen inferred types. Without type information, review the types before applying a suggestion. Plain TypeScript setter parameters are not reported because they cannot have initializers; defaults inside their destructuring patterns remain supported.
 
-Code that relies on the [connection between parameters and `arguments` in non-strict functions](https://eslint.org/docs/latest/rules/no-param-reassign) is unsupported. Adding a parameter default removes that connection.
+Code that relies on the [connection between parameters and `arguments` in non-strict functions](https://eslint.org/docs/latest/rules/no-param-reassign) is unsupported. Adding a parameter default removes that connection. Adding a default to a plain parameter can also reduce `function.length`.
 
 ## Options
 
