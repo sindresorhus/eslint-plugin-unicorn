@@ -191,6 +191,80 @@ test({
 	],
 });
 
+test({
+	valid: [
+		/* eslint-disable no-template-curly-in-string */
+		'const fn = a => a ?? `foo${bar}`;',
+		'const fn = a => a ?? `foo${"bar"}`;',
+		'const fn = a => a ?? tag`foo`;',
+		'const fn = a => [a ?? `foo`, a ?? `bar`];',
+		'const fn = a => [a ?? ``, a ?? `foo`];',
+		'const fn = a => [a ?? `foo`, a ?? "bar"];',
+		'const fn = a => [a ?? `foo`, a || `foo`];',
+		'const fn = a => [a ?? `3`, a ?? 3];',
+		'const fn = a => [a ?? `foo`, a ?? /foo/];',
+		'function fn(a) { a = a ?? `foo${bar}`; }',
+		'function fn(a) { a ||= `foo${bar}`; }',
+		'function fn(a) { a ??= tag`foo`; }',
+		'function fn(a) { const b = a || `foo${bar}`; }',
+		/* eslint-enable no-template-curly-in-string */
+	],
+	invalid: [
+		['const fn = a => a ?? `foo`;', 'const fn = (a = `foo`) => a;'],
+		['const fn = a => a || `foo`;', 'const fn = (a = `foo`) => a;'],
+		['const fn = ({a}) => a || `foo`;', 'const fn = ({a = `foo`}) => a;', 'preferDestructuringDefaultOverFallback'],
+		['const fn = ([a]) => a ?? `foo`;', 'const fn = ([a = `foo`]) => a;', 'preferDestructuringDefaultOverFallback'],
+		['const [a] = array; console.log(a ?? `foo`);', 'const [a = `foo`] = array; console.log(a);', 'preferDestructuringDefaultOverFallback'],
+		['const {a} = object; console.log(a || `foo`);', 'const {a = `foo`} = object; console.log(a);', 'preferDestructuringDefaultOverFallback'],
+		['const fn = a => [a ?? `foo`, a ?? `foo`];', 'const fn = (a = `foo`) => [a, a];'],
+		['const fn = a => [a ?? `foo`, a ?? "foo"];', 'const fn = (a = `foo`) => [a, a];'],
+		['const fn = a => [a ?? "foo", a ?? `foo`];', 'const fn = (a = "foo") => [a, a];'],
+		['const fn = a => [a ?? `foo`, a ?? `\\u0066oo`];', 'const fn = (a = `foo`) => [a, a];'],
+		['const fn = a => [a ?? `\\u0066oo`, a ?? "foo"];', 'const fn = (a = `\\u0066oo`) => [a, a];'],
+		['const fn = a => a ?? ``;', 'const fn = (a = ``) => a;'],
+		['const fn = a => [a || ``, a || ""];', 'const fn = (a = ``) => [a, a];'],
+		['const fn = (a) => (a) ?? (`foo`);', 'const fn = (a = `foo`) => a;'],
+		['const fn = a => a ?? `foo\n  bar`;', 'const fn = (a = `foo\n  bar`) => a;'],
+		['function fn(a) {\r\n  return a ?? `foo\r\nbar`;\r\n}', 'function fn(a = `foo\r\nbar`) {\r\n  return a;\r\n}'],
+	].map(([code, output, messageId = 'preferDefaultParameterOverFallback']) => ({
+		code,
+		errors: [{
+			messageId,
+			suggestions: [{messageId: 'moveDefaultToDeclaration', output}],
+		}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const fn = (a?: string) => a ?? `foo`;',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const fn = (a: string = `foo`) => a;'}],
+			}],
+		},
+		{
+			code: 'const fn = ({a}: {a?: string}) => a ?? `foo`;',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'preferDestructuringDefaultOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const fn = ({a = `foo`}: {a?: string}) => a;'}],
+			}],
+		},
+		{
+			code: 'const fn = a => a ?? /* Keep comment. */ `foo`;',
+			errors: [{messageId: 'preferDefaultParameterOverFallback', suggestions: []}],
+		},
+		{
+			code: 'const fn = a => [a ?? `foo`, a ?? /* Keep comment. */ `foo`];',
+			errors: [{messageId: 'preferDefaultParameterOverFallback', suggestions: []}],
+		},
+	],
+});
+
 const invalidTestCase = ({code, suggestions}) => {
 	if (!suggestions) {
 		return {
@@ -212,6 +286,41 @@ const invalidTestCase = ({code, suggestions}) => {
 		})),
 	};
 };
+
+test({
+	valid: [],
+	invalid: [
+		['function fn(a) { a = a || `foo`; }', 'function fn(a = `foo`) { }'],
+		['function fn(a) { a = a ?? `foo`; }', 'function fn(a = `foo`) { }'],
+		['function fn(a) { a ||= `foo`; }', 'function fn(a = `foo`) { }'],
+		['function fn(a) { a ??= `foo`; }', 'function fn(a = `foo`) { }'],
+		['function fn(a) { const b = a || `foo`; }', 'function fn(b = `foo`) { }'],
+		['const fn = a => { a ??= ``; };', 'const fn = (a = ``) => { };'],
+		['function fn(a) { a ||= `\\u0066oo`; }', 'function fn(a = `\\u0066oo`) { }'],
+		['function fn(a) {\n  a ??= `foo\nbar`;\n}', 'function fn(a = `foo\nbar`) {\n  \n}'],
+		['function fn(a) {\n  a ??= `foo\nx`;return a;\n}', 'function fn(a = `foo\nx`) {\n  return a;\n}'],
+		['function fn(a) {\n  a ??= `foo\nx`; return a;\n}', 'function fn(a = `foo\nx`) {\n  return a;\n}'],
+		['function fn(a) {\n    a ??= `foo\n`;/* Keep comment. */\n}', 'function fn(a = `foo\n`) {\n    /* Keep comment. */\n}'],
+	].map(([code, output]) => invalidTestCase({code, suggestions: [output]})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function fn(a?: string) { a ??= `foo`; }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'preferDefaultParameters',
+				suggestions: [{messageId: 'preferDefaultParametersSuggest', output: 'function fn(a: string = `foo`) { }'}],
+			}],
+		},
+		{
+			code: 'function fn(a) { a ||= /* Keep comment. */ `foo`; }',
+			errors: [{messageId: 'preferDefaultParameters', suggestions: []}],
+		},
+	],
+});
 
 test({
 	valid: [
