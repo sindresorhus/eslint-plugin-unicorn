@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {functionTypes, getStaticStringValue} from './ast/index.js';
-import {getVisitorChildNodes} from './utils/index.js';
+import {getVisitorChildNodes, withTypeInformation} from './utils/index.js';
 
 const MESSAGE_ID = 'preferDefaultParameters';
 const MESSAGE_ID_SUGGEST = 'preferDefaultParametersSuggest';
@@ -118,8 +118,23 @@ const fixDefaultExpression = (fixer, sourceCode, node) => {
 */
 const create = context => {
 	const {sourceCode} = context;
+	const isTypeScriptParser = Boolean(sourceCode.parserServices?.esTreeNodeToTSNodeMap);
 	const functionStack = [];
 	const reportedVariables = new Set();
+
+	const isDefaultValueAssignable = (binding, defaultValue) => withTypeInformation(
+		binding.typeAnnotation?.typeAnnotation ?? binding,
+		context,
+		({type, checker}) => {
+			const defaultValueDeclaration = defaultValue.type === 'Identifier'
+				? findVariable(sourceCode.getScope(defaultValue), defaultValue).defs[0].name
+				: defaultValue;
+			const defaultValueType = sourceCode.parserServices.getTypeAtLocation(defaultValueDeclaration);
+			// A declaration default cannot rely on type narrowing at a fallback read.
+			return checker.isTypeAssignableTo(defaultValueType, type)
+				&& checker.isTypeAssignableTo(defaultValueType, sourceCode.parserServices.getTypeAtLocation(defaultValue));
+		},
+	) !== false;
 
 	const isEarlierBinding = (fallback, variable) => {
 		if (fallback.type !== 'Identifier' || variable.defs.length !== 1) {
@@ -193,6 +208,8 @@ const create = context => {
 					if (
 						sourceCode.getCommentsInside(binding).length > 0
 						|| expressions.some(expression => sourceCode.getCommentsInside(expression).length > 0)
+						|| (!isDestructuring && isTypeScriptParser && node.parent.kind === 'set')
+						|| expressions.some(expression => !isDefaultValueAssignable(binding, expression.right))
 					) {
 						return abort();
 					}
@@ -267,6 +284,7 @@ const create = context => {
 			parameter?.type !== 'Identifier'
 			|| parameter.name !== parameterName
 			|| (!isStaticDefaultValue(defaultValue) && !isEarlierBinding(defaultValue, variable))
+			|| (!isAssignment && isTypeScriptParser)
 		) {
 			return;
 		}
@@ -306,6 +324,8 @@ const create = context => {
 					if (
 						sourceCode.getCommentsInside(node).length > 0
 						|| sourceCode.getCommentsInside(parameter).length > 0
+						|| (isTypeScriptParser && currentFunction.parent.kind === 'set')
+						|| !isDefaultValueAssignable(parameter, defaultValue)
 					) {
 						return abort();
 					}

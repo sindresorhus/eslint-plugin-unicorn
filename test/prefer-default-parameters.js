@@ -1,7 +1,222 @@
+import nodeTest from 'node:test';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
+import typescript from 'typescript';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule, ruleId} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
+
+test({
+	valid: [],
+	invalid: [
+		'function fn(name: string, repo?: number) { return repo ?? name; }',
+		'function fn(repo?: number) { return repo ?? "default"; }',
+		'const fn: (name: string, repo?: number) => string | number = (name, repo) => repo ?? name;',
+		'function fn<Value>(name: string, repo?: Value) { return repo ?? name; }',
+		'function fn(name: string | number, repo?: number) { if (typeof name === "number") { return repo ?? name; } return 0; }',
+		'function fn(name?: number, repo?: number) { return repo ?? name; }',
+		'function fn(name: number | undefined, repo: number | undefined): number { if (typeof name === "number") { return repo ?? name; } return 0; }',
+		'const fn: (name?: number, repo?: number) => number = (name, repo) => typeof name === "number" ? repo ?? name : 0;',
+		'function fn(name: number | undefined, repo: number | undefined): number { console.log(repo ?? name); if (typeof name === "number") { return repo ?? name; } return 0; }',
+	].map(code => ({
+		...typeAware(code),
+		errors: [{
+			messageId: 'preferDefaultParameterOverFallback',
+			suggestions: [],
+		}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [{
+		...typeAware('const fn = ({name, repo}: {name: string; repo?: number}) => repo ?? name;'),
+		errors: [{messageId: 'preferDestructuringDefaultOverFallback', suggestions: []}],
+	}],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			...typeAware('function fn(repo?: number) { return repo ?? 3; }'),
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'function fn(repo: number = 3) { return repo; }'}],
+			}],
+		},
+		{
+			...typeAware('function fn(name: string, repo?: string) { return repo ?? name; }'),
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'function fn(name: string, repo: string = name) { return repo; }'}],
+			}],
+		},
+		{
+			...typeAware('const fn: (name: string, repo?: string) => string = (name, repo) => repo ?? name;'),
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const fn: (name: string, repo?: string) => string = (name, repo = name) => repo;'}],
+			}],
+		},
+		{
+			...typeAware('const fn = ({name, repo}: {name: string; repo?: string}) => repo ?? name;'),
+			errors: [{
+				messageId: 'preferDestructuringDefaultOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const fn = ({name, repo = name}: {name: string; repo?: string}) => repo;'}],
+			}],
+		},
+		{
+			...typeAware('function fn<Value>(name: Value, repo?: Value) { return repo ?? name; }'),
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'function fn<Value>(name: Value, repo: Value = name) { return repo; }'}],
+			}],
+		},
+		{
+			...typeAware('function fn(name: string, repo?: string) { repo ||= name; return repo; }'),
+			errors: [{
+				messageId: 'preferDefaultParameters',
+				suggestions: [{messageId: 'preferDefaultParametersSuggest', output: 'function fn(name: string, repo: string = name) { return repo; }'}],
+			}],
+		},
+		{
+			...typeAware('function fn(name: boolean, repo?: string | boolean) { const result = repo ?? name; return result; }'),
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'function fn(name: boolean, repo: string | boolean = name) { const result = repo; return result; }'}],
+			}],
+		},
+	],
+});
+
+test.typescript({
+	valid: [],
+	invalid: [
+		{
+			code: 'function fn(name, repo) { const result: string = repo ?? name; return result; }',
+			filename: 'file.ts',
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'function fn(name, repo = name) { const result: string = repo; return result; }'}],
+			}],
+		},
+		{
+			code: 'class Foo { set value(repo: number) { repo ||= 3; } }',
+			filename: 'file.ts',
+			errors: [{messageId: 'preferDefaultParameters', suggestions: []}],
+		},
+		{
+			code: 'class Foo { set value(repo: number | undefined) { console.log(repo ?? 3); } }',
+			filename: 'file.ts',
+			errors: [{messageId: 'preferDefaultParameterOverFallback', suggestions: []}],
+		},
+		{
+			code: 'class Foo { set value({name, repo}: {name: string; repo?: string}) { console.log(repo ?? name); } }',
+			filename: 'file.ts',
+			errors: [{
+				messageId: 'preferDestructuringDefaultOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'class Foo { set value({name, repo = name}: {name: string; repo?: string}) { console.log(repo); } }'}],
+			}],
+		},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: 'class Foo { set value(repo) { repo ||= 3; } }',
+		errors: [{
+			messageId: 'preferDefaultParameters',
+			suggestions: [{messageId: 'preferDefaultParametersSuggest', output: 'class Foo { set value(repo = 3) { } }'}],
+		}],
+	}],
+});
+
+for (const parser of ['vue', 'svelte']) {
+	test[parser]({
+		valid: [],
+		invalid: [{
+			code: '<script>const fn = (name, repo) => repo ?? name;</script>',
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: '<script>const fn = (name, repo = name) => repo;</script>'}],
+			}],
+		}],
+	});
+}
+
+const getTypeScriptDiagnostics = code => {
+	const filename = '/prefer-default-parameters.ts';
+	const options = {
+		strict: true, noEmit: true, types: [], skipLibCheck: true, target: typescript.ScriptTarget.ESNext,
+	};
+	const host = typescript.createCompilerHost(options);
+	const {getSourceFile} = host;
+	host.getSourceFile = (name, ...arguments_) => name === filename
+		? typescript.createSourceFile(name, code, options.target, true)
+		: getSourceFile(name, ...arguments_);
+	const program = typescript.createProgram([filename], options, host);
+	return typescript.getPreEmitDiagnostics(program).map(diagnostic => typescript.flattenDiagnosticMessageText(diagnostic.messageText, '\n'));
+};
+
+nodeTest('suggestions do not discard narrowing of the fallback', t => {
+	const linter = new Linter();
+	const codes = [
+		'function fn(name: number | undefined, repo: number | undefined): number { if (typeof name === "number") { return repo ?? name; } return 0; }',
+		'const fn: (name?: number, repo?: number) => number = (name, repo) => typeof name === "number" ? repo ?? name : 0;',
+	];
+	for (const code of codes) {
+		t.assert.deepStrictEqual(getTypeScriptDiagnostics(code), []);
+		const {languageOptions, filename} = typeAware(code);
+		const messages = linter.verify(code, {
+			files: ['**/*.ts'],
+			languageOptions,
+			plugins: {unicorn: {rules: {[ruleId]: rule}}},
+			rules: {[`unicorn/${ruleId}`]: 'error'},
+		}, {filename});
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].suggestions, undefined);
+	}
+});
+
+nodeTest('suggestions preserve TypeScript validity and the annotated call signature', t => {
+	const linter = new Linter();
+	const codes = [
+		'function fn(name: string, repo?: string) { return repo ?? name; }',
+		'const fn: (name: string, repo?: string) => string = (name, repo) => repo ?? name;',
+		'function fn<Value>(name: Value, repo?: Value) { return repo ?? name; }',
+		'class Foo { set value({name, repo}: {name: string; repo?: string}) { console.log(repo ?? name); } }',
+		'function fn(name: boolean, repo?: string | boolean) { const result = repo ?? name; return result; } fn(true, "text");',
+		'const fn: (name: boolean, repo?: string | boolean) => string | boolean = (name, repo) => { const result = repo ?? name; return result; }; fn(true, "text");',
+	];
+	for (const code of codes) {
+		t.assert.deepStrictEqual(getTypeScriptDiagnostics(code), []);
+		const {languageOptions, filename} = typeAware(code);
+		const messages = linter.verify(code, {
+			files: ['**/*.ts'],
+			languageOptions,
+			plugins: {unicorn: {rules: {[ruleId]: rule}}},
+			rules: {[`unicorn/${ruleId}`]: 'error'},
+		}, {filename});
+		t.assert.strictEqual(messages.length, 1);
+		const [suggestion] = messages[0].suggestions ?? [];
+		t.assert.ok(suggestion);
+		const {fix} = suggestion;
+		const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		t.assert.deepStrictEqual(getTypeScriptDiagnostics(output), []);
+	}
+});
 
 test.snapshot({
 	valid: [
@@ -1060,11 +1275,12 @@ test({
 			`,
 			languageOptions: {parser: parsers.typescript},
 			errors: [{
-				messageId: 'preferDefaultParameters',
+				messageId: 'preferDefaultParameterOverFallback',
 				suggestions: [{
-					messageId: 'preferDefaultParametersSuggest',
+					messageId: 'moveDefaultToDeclaration',
 					output: outdent`
-						function abc(bar: string = 'bar') {
+						function abc(foo: string | undefined = 'bar') {
+							const bar: string = foo;
 							consumeString(bar);
 						}
 					`,
