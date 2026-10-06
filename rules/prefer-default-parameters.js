@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {functionTypes, getStaticStringValue} from './ast/index.js';
-import {getVisitorChildNodes, isSameBinding} from './utils/index.js';
+import {getVisitorChildNodes} from './utils/index.js';
 
 const MESSAGE_ID = 'preferDefaultParameters';
 const MESSAGE_ID_SUGGEST = 'preferDefaultParametersSuggest';
@@ -178,7 +178,7 @@ const create = context => {
 			|| expression.operator !== firstExpression.operator
 			|| ((expression.right.type === 'Identifier') !== (firstExpression.right.type === 'Identifier'))
 			|| (expression.right.type === 'Identifier'
-				? !isSameBinding(expression.right, firstExpression.right, context)
+				? expression.right.name !== firstExpression.right.name
 				: !Object.is(getStaticStringValue(expression.right) ?? expression.right.value, getStaticStringValue(firstExpression.right) ?? firstExpression.right.value)),
 		)) {
 			return;
@@ -275,11 +275,14 @@ const create = context => {
 		const hasParameterNameCollision = assignedVariable.defs.some(definition =>
 			definition.type === 'Parameter'
 			&& definition.name !== parameter);
+		// Parameter defaults may refer to an outer variable with the new parameter name.
+		const hasParameterNameCapture = !isAssignment && assignedVariable.scope.through.some(reference => reference.identifier.name === assignedName);
 
 		if (
 			hasSideEffects(sourceCode, currentFunction, node)
 			|| hasExtraReferences(isAssignment, references, left)
 			|| hasParameterNameCollision
+			|| hasParameterNameCapture
 		) {
 			return;
 		}

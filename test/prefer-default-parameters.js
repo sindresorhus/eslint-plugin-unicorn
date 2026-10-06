@@ -347,6 +347,41 @@ test({
 			}],
 		},
 		{
+			code: 'const result = "outer"; function fn(name = result, repo) { const result = repo ?? name; return result; }',
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const result = "outer"; function fn(name = result, repo = name) { const result = repo; return result; }'}],
+			}],
+		},
+		{
+			code: 'const result = "outer"; function fn(name = () => result, repo) { const result = repo ?? name; return result(); }',
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const result = "outer"; function fn(name = () => result, repo = name) { const result = repo; return result(); }'}],
+			}],
+		},
+		{
+			code: 'const result = "outer"; function fn({name = result}, repo) { const result = repo ?? name; return result; }',
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const result = "outer"; function fn({name = result}, repo = name) { const result = repo; return result; }'}],
+			}],
+		},
+		{
+			code: 'const result = "outer"; function fn(name = () => result, repo) { const result = repo ?? "literal"; return [name(), result]; }',
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const result = "outer"; function fn(name = () => result, repo = "literal") { const result = repo; return [name(), result]; }'}],
+			}],
+		},
+		{
+			code: 'function fn(name = {result: "outer"}, repo) { const result = repo ?? name; return result; }',
+			errors: [{
+				messageId: 'preferDefaultParameters',
+				suggestions: [{messageId: 'preferDefaultParametersSuggest', output: 'function fn(name = {result: "outer"}, result = name) { return result; }'}],
+			}],
+		},
+		{
 			code: 'const fn = a => a ?? 3;',
 			errors: [{
 				messageId: 'preferDefaultParameterOverFallback',
