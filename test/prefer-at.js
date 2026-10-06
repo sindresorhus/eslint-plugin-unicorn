@@ -49,6 +49,7 @@ test({
 			options: [{getLastElementFunctions: ['utils.lastElement']}],
 		},
 		...domCollectionTypes.flatMap(type => [typescript, typeAware].map(parser => parser(`function foo(nodes: ${type}) { nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); }`))),
+		...[typescript, typeAware].map(parser => parser('function foo<T extends NodeList>(nodes: T) { nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); }')),
 		typescript('const nodes = document.querySelectorAll("li") as NodeListOf<Element>; (nodes as NodeListOf<Element>)[nodes.length - 1];'),
 		typescript('const nodes = <NodeList>element.childNodes; _.last(<NodeList>nodes);'),
 		typescript('const nodes = element.children satisfies HTMLCollection; nodes![nodes!.length - 1];'),
@@ -641,5 +642,10 @@ test.snapshot({
 		typescript('const nodes = element.children; _.last(nodes as string[]);'),
 		typescript('function foo(value: unknown) { if (value instanceof NodeList) { return value[value.length - 1]; } }'),
 		...uncertainReceiverTypes.flatMap(type => [typescript, typeAware].map(parser => parser(`function foo(value: ${type}) { value.slice(-1)[0]; _.last(value); }`))),
+		...[
+			'function foo<T extends NodeList | string[]>(nodes: T) { nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); }',
+			'function foo(nodes: NodeList | string[] | undefined) { nodes?.[nodes.length - 1]; nodes?.slice(-1)[0]; _.last(nodes); }',
+		].flatMap(code => [typescript, typeAware].map(parser => parser(code))),
+		typeAware('function foo(nodes: NodeList | string[]) { if (nodes instanceof NodeList) { return nodes[nodes.length - 1]; } return nodes[nodes.length - 1]; }'),
 	],
 });
