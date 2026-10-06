@@ -1,4 +1,5 @@
 import {isOpeningParenToken as isOpeningParenthesisToken} from '@eslint-community/eslint-utils';
+import getTokenStore from '../get-token-store.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
@@ -17,12 +18,13 @@ E.g., `if (a) {}` then the `(`.
 */
 export default function getParentSyntaxOpeningParenthesis(node, context) {
 	const {parent} = node;
+	const tokenStore = getTokenStore(context, node);
 
 	switch (parent.type) {
 		case 'CallExpression':
 		case 'NewExpression': {
 			if (parent.arguments.length === 1 && parent.arguments[0] === node) {
-				return context.sourceCode.getTokenAfter(
+				return tokenStore.getTokenAfter(
 					parent.typeArguments ?? parent.callee,
 					isOpeningParenthesisToken,
 				);
@@ -33,7 +35,7 @@ export default function getParentSyntaxOpeningParenthesis(node, context) {
 
 		case 'DoWhileStatement': {
 			if (parent.test === node) {
-				return context.sourceCode.getTokenAfter(
+				return tokenStore.getTokenAfter(
 					parent.body,
 					isOpeningParenthesisToken,
 				);
@@ -45,7 +47,7 @@ export default function getParentSyntaxOpeningParenthesis(node, context) {
 		case 'IfStatement':
 		case 'WhileStatement': {
 			if (parent.test === node) {
-				return context.sourceCode.getFirstToken(parent, 1);
+				return tokenStore.getFirstToken(parent, 1);
 			}
 
 			return;
@@ -53,7 +55,7 @@ export default function getParentSyntaxOpeningParenthesis(node, context) {
 
 		case 'ImportExpression': {
 			if (parent.source === node) {
-				return context.sourceCode.getFirstToken(parent, 1);
+				return tokenStore.getFirstToken(parent, 1);
 			}
 
 			return;
@@ -62,7 +64,7 @@ export default function getParentSyntaxOpeningParenthesis(node, context) {
 		// `switch (node) {}` and `with (node) {}`. Their other children, `SwitchCase` and the body statement, never directly follow an opening parenthesis.
 		case 'SwitchStatement':
 		case 'WithStatement': {
-			return context.sourceCode.getFirstToken(parent, 1);
+			return tokenStore.getFirstToken(parent, 1);
 		}
 
 		// No default

@@ -10,7 +10,7 @@ export default function getTokenStore(context, node) {
 	const {sourceCode} = context;
 
 	if (
-		sourceCode.parserServices.getTemplateBodyTokenStore
+		sourceCode.parserServices?.getTemplateBodyTokenStore
 		&& sourceCode.ast.templateBody
 		&& sourceCode.getRange(sourceCode.ast.templateBody)[0] <= sourceCode.getRange(node)[0]
 		&& sourceCode.getRange(node)[1] <= sourceCode.getRange(sourceCode.ast.templateBody)[1]

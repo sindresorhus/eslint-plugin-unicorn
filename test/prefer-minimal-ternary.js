@@ -5,6 +5,233 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 test({
+	valid: [
+		'test ? object?.method(a) : object?.method(b);',
+		'test ? object.method?.(a) : object.method?.(b);',
+		'test ? object[key](a) : object[key](b);',
+		'test ? getObject().method(a) : getObject().method(b);',
+		'test ? object.nested.method(a) : object.nested.method(b);',
+		'test ? (object).method(a) : object.method(b);',
+	],
+	invalid: [
+		{
+			code: 'var let = {method(value) {}}; test ? let["method"](a) : let["method"](b);',
+			languageOptions: {sourceType: 'script'},
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		...[
+			['test ? object.method(a) : object.method(b);', 'object.method(test ? a : b);'],
+			['test ? object["method"](a) : object["method"](b);', 'object["method"](test ? a : b);'],
+			['test ? (object).method((a)) : (object) . method(b);', '(object).method((test ? (a) : b));'],
+			['test ? this.method(a) : this.method(b);', 'this.method(test ? a : b);'],
+			['test ? 16 .toString(a) : 16 .toString(b);', '16 .toString(test ? a : b);'],
+			['test ? object.method(a(), later()) : object.method(b(), later());', 'object.method(test ? a() : b(), later());'],
+		].map(([code, output]) => ({code, output, errors: [{messageId: 'prefer-minimal-ternary'}]})),
+		{
+			code: 'class Foo extends Bar { method() { return test ? super.method(a) : super.method(b); } }',
+			output: 'class Foo extends Bar { method() { return super.method(test ? a : b); } }',
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		{
+			code: 'class Foo { #method(value) {} method() { return test ? this.#method(a) : this.#method(b); } }',
+			output: 'class Foo { #method(value) {} method() { return this.#method(test ? a : b); } }',
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		...[
+			'change() ? object.method(a) : object.method(b);',
+			'test ? object.method(shared(), a) : object.method(shared(), b);',
+			'test ? object./* keep */method(a) : object.method(b);',
+			'test ? object.method(a) : object.method(/* keep */ b);',
+		].map(code => ({code, errors: [{messageId: 'prefer-minimal-ternary'}]})),
+		{
+			code: 'test ? object.method<Result < string >>(a) : object.method<Result<string>>(b);',
+			output: 'object.method<Result < string >>(test ? a : b);',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		{
+			code: 'test ? object.method<A>(a) : object.method<B>(b);',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+	],
+});
+
+test({
+	valid: [
+		'test ? call(a, `name suffix`) : call(b, `name  suffix`);',
+		'test ? call(a, /name suffix/) : call(b, /name  suffix/);',
+		{
+			code: 'test ? call(a, <div>name suffix</div>) : call(b, <div>name  suffix</div>);',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		{
+			code: 'test ? call(a, <p>foo&#10;bar</p>) : call(b, <p>foo\nbar</p>);',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+	],
+	invalid: [
+		{
+			code: 'test ? call(a, <p className="shared">foo&#10;bar</p>) : call(b, <p className = "shared">foo&#10;bar</p>);',
+			output: 'call(test ? a : b, <p className="shared">foo&#10;bar</p>);',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		{
+			code: 'test ? call(a, other?first:second) : call(b, other ? first : second);',
+			output: 'call(test ? a : b, other?first:second);',
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		{
+			code: 'function run() {\r\n  return test\r\n    ? [first, {value: 1,\r\n      enabled: true}]\r\n    : [second, {value: 1, enabled: true}];\r\n}',
+			output: 'function run() {\r\n  return [test ? first : second, {value: 1,\r\n      enabled: true}];\r\n}',
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		...[
+			['test ? call<Result < string >>(a) : call<Result<string>>(b);', 'call<Result < string >>(test ? a : b);'],
+			['test ? new Box<Result < string >>(a) : new Box<Result<string>>(b);', 'new Box<Result < string >>(test ? a : b);'],
+		].map(([code, output]) => ({
+			code, output, errors: [{messageId: 'prefer-minimal-ternary'}], languageOptions: {parser: parsers.typescript},
+		})),
+		...[
+			'test ? call<Result /* keep */>(a) : call<Result>(b);',
+			'test ? new Box<Result>(a) : new Box<Result /* keep */>(b);',
+		].map(code => ({code, errors: [{messageId: 'prefer-minimal-ternary'}], languageOptions: {parser: parsers.typescript}})),
+	],
+});
+
+test.vue({
+	valid: [
+		'<template>{{ test ? call(a, first+second) : call(b, first-second) }}</template>',
+	],
+	invalid: [
+		{
+			code: '<script setup lang="ts"></script><template>{{ test ? object.method<Result < string >>(a) : object.method<Result<string>>(b) }}</template>',
+			output: '<script setup lang="ts"></script><template>{{ object.method<Result < string >>(test ? a : b) }}</template>',
+			languageOptions: {parserOptions: {parser: typescriptEslintParser}},
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		{
+			code: '<template>{{ test ? object.first : object.second }}</template>',
+			output: '<template>{{ object[test ? "first" : "second"] }}</template>',
+			options: [{checkComputedMemberAccess: true}],
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		...[
+			['<template>{{ test ? object.method(a) : object.method(b) }}</template>', '<template>{{ object.method(test ? a : b) }}</template>'],
+			['<template>{{ test ? call(a, first+second) : call(b, first + second) }}</template>', '<template>{{ call(test ? a : b, first+second) }}</template>'],
+			['<template>{{ test ? call(a, {value: 1,}) : call(b, {value: 1}) }}</template>', '<template>{{ call(test ? a : b, {value: 1,}) }}</template>'],
+			['<template>{{ test ? [((a))] : [(b)] }}</template>', '<template>{{ [((test ? ((a)) : (b)))] }}</template>'],
+			['<template>{{ test ? {value: a} : {value: b} }}</template>', '<template>{{ ({value: test ? a : b}) }}</template>'],
+			['<script>test ? call(a) : call(b);</script><template>{{ test ? call(c) : call(d) }}</template>', '<script>call(test ? a : b);</script><template>{{ call(test ? c : d) }}</template>'],
+		].map(([code, output]) => ({code, output, errors: code.startsWith('<script>') ? 2 : 1})),
+		...[
+			'<template><div :value="test ? call((a, b)) : call(c)" /></template>',
+			'<template><button @click="previous()\ntest ? [a] : [b];"></button></template>',
+			'<template><button @click="previous()\ntest ? a + 1 : b + 1;"></button></template>',
+			'<template>{{ (() => { previous()\ntest ? [a] : [b]; })() }}</template>',
+			'<template>{{ (() => { previous()\ntest ? a + 1 : b + 1; })() }}</template>',
+		].map(code => ({code, errors: [{messageId: 'prefer-minimal-ternary'}]})),
+		...[
+			'<template>{{ test ? call(a, first + /* keep */ second) : call(b, first + second) }}</template>',
+			'<template>{{ test ? call(a, first + second) : call(b, first + /* keep */ second) }}</template>',
+		].map(code => ({code, errors: [{messageId: 'prefer-minimal-ternary'}]})),
+		...[
+			'<template><div :value="test ? object.first : object.second" /></template>',
+			'<template><div :value="test ? object.first() : object.second()" /></template>',
+		].map(code => ({code, options: [{checkComputedMemberAccess: true}], errors: [{messageId: 'prefer-minimal-ternary'}]})),
+	],
+});
+
+test.svelte({
+	valid: [],
+	invalid: [{
+		code: '<script>test ? call(a) : call(b);</script>{test ? call(c, first+second) : call(d, first + second)}',
+		output: '<script>call(test ? a : b);</script>{call(test ? c : d, first+second)}',
+		errors: 2,
+	}],
+});
+
+test({
+	valid: [
+		'test ? call(a, name + suffix) : call(b, name - suffix);',
+		'test ? call(a, "name suffix") : call(b, "name  suffix");',
+		'test ? call(a, {retry: true, delay: 1000}) : call(b, {retry: true, delay: 2000,});',
+		'test ? call(a, [1,,]) : call(b, [1,]);',
+		'test ? call(a, {value: [1,,],}) : call(b, {value: [1,]});',
+		'test ? call(name+suffix) : call(name + suffix);',
+		'test ? object[first+second] : object[first + second];',
+		// Shared functions and classes require identical source text because line breaks can change statement behavior.
+		'test ? call(a, () => { return value; }) : call(b, () => { return\nvalue; });',
+		'test ? call(a, function() { value\n++other; }) : call(b, function() { value++\nother; });',
+		'test ? call(a, {method() { return value; }}) : call(b, {method() { return\nvalue; }});',
+		'test ? call(a, class { method() { return value; } }) : call(b, class { method() { return\nvalue; } });',
+		'test ? call(a, () => value) : call(b, () =>  value);',
+	],
+	invalid: [
+		{
+			code: outdent`
+				const result = isUrgent
+					? notifyRecipients("urgent", {
+						retry: true,
+						delay: 1000,
+					})
+					: notifyRecipients("normal", {retry: true, delay: 1000});
+			`,
+			output: outdent`
+				const result = notifyRecipients(isUrgent ? "urgent" : "normal", {
+						retry: true,
+						delay: 1000,
+					});
+			`,
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		...[
+			'test ? call(a, {retry: true, /* keep */}) : call(b, {retry: true});',
+			'test ? call(a, {retry: true}) : call(b, {retry: true, /* keep */});',
+			'test ? call(name+suffix, a) : call(name + suffix, b);',
+			'test ? call(a, name + /* keep */ suffix) : call(b, name + suffix);',
+			'test ? call(a, name + suffix) : call(b, name + /* keep */ suffix);',
+			'test ? call(a, name + /* keep */ suffix) : call(b, name + /* keep */ suffix);',
+			'test ? call(a, name + // keep\n suffix) : call(b, name + suffix);',
+			'test ? [a, name + /* keep */ suffix] : [b, name + suffix];',
+			'test ? {value: a, shared: name + /* keep */ suffix} : {value: b, shared: name + suffix};',
+			'test ? new Foo(a, name + /* keep */ suffix) : new Foo(b, name + suffix);',
+			'test ? a + object./* keep */ value : b + object.value;',
+		].map(code => ({code, errors: [{messageId: 'prefer-minimal-ternary'}]})),
+		...[
+			['test ? call(a, {retry: true, delay: 1000,}) : call(b, {retry: true, delay: 1000});', 'call(test ? a : b, {retry: true, delay: 1000,});'],
+			['test ? call(a, {retry: true, delay: 1000}) : call(b, {retry: true, delay: 1000,});', 'call(test ? a : b, {retry: true, delay: 1000});'],
+			['test ? [a, {value: 1,}] : [b, {value: 1}];', '[test ? a : b, {value: 1,}];'],
+			['test ? call(a, name+suffix) : call(b, name + suffix);', 'call(test ? a : b, name+suffix);'],
+			['test ? call(name===suffix, a) : call(name === suffix, b);', 'call(name===suffix, test ? a : b);'],
+			['test ? call(a, {retry: true,\n delay: 1000}) : call(b, {retry: true, delay: 1000});', 'call(test ? a : b, {retry: true,\n delay: 1000});'],
+			['test ? [a, name+suffix] : [b, name + suffix];', '[test ? a : b, name+suffix];'],
+			['test ? {value: a, shared: name+suffix} : {value: b, shared: name + suffix};', '({value: test ? a : b, shared: name+suffix});'],
+			['test ? new Foo(a, name+suffix) : new Foo(b, name + suffix);', 'new Foo(test ? a : b, name+suffix);'],
+			['test ? a + object . value : b + object.value;', '(test ? a : b) + object . value;'],
+		].map(([code, output]) => ({code, output, errors: [{messageId: 'prefer-minimal-ternary'}]})),
+		{
+			code: 'test ? first.method(name+suffix) : second.method(name + suffix);',
+			output: '(test ? first : second).method(name+suffix);',
+			options: [{checkVaryingBase: true}],
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		{
+			code: 'test ? object.first(name + /* keep */ suffix) : object.second(name + suffix);',
+			options: [{checkComputedMemberAccess: true}],
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		{
+			code: 'test ? call(a, value as Result < string >) : call(b, value as Result<string>);',
+			output: 'call(test ? a : b, value as Result < string >);',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+	],
+});
+
+test({
 	valid: [],
 	invalid: [
 		{
@@ -296,7 +523,6 @@ test.snapshot({
 			code: 'test ? object.a?.() : object.b?.();',
 			options: [{checkComputedMemberAccess: true}],
 		},
-		'test ? object.call(a) : object.call(b);',
 		'test ? call(...a) : call(...b);',
 		'test ? getFunction()(a) : getFunction()(b);',
 		'test ? tag`a` : tag`b`;',
@@ -365,7 +591,7 @@ test.snapshot({
 		'test ? a() : b();',
 		'test ? a(value) : b(value);',
 		'test ? first.method(value) : second.method(value);',
-		// Method-call ternaries are off by default.
+		// Method-name swaps are off by default.
 		'test ? Promise.allSettled(values) : Promise.all(values);',
 		'test ? Math.min(a, 100) : Math.max(a, 100);',
 		// Zero-argument method-call swaps are off by default.

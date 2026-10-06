@@ -4,6 +4,7 @@ import {
 	isOpeningParenToken as isOpeningParenthesisToken,
 	isClosingParenToken as isClosingParenthesisToken,
 } from '@eslint-community/eslint-utils';
+import getTokenStore from '../get-token-store.js';
 import getParentSyntaxOpeningParenthesis from './get-parent-syntax-opening-parenthesis.js';
 
 /**
@@ -27,13 +28,14 @@ Get surrounding parenthesis of the tokens or nodes.
 @returns [ParenthesisTokenPair | void]
 */
 function getSurroundingParentheses([head, tail], context) {
-	const tokenBefore = context.sourceCode.getTokenBefore(head);
+	const tokenStore = getTokenStore(context, head);
+	const tokenBefore = tokenStore.getTokenBefore(head);
 
 	if (!tokenBefore || !isOpeningParenthesisToken(tokenBefore)) {
 		return;
 	}
 
-	const tokenAfter = context.sourceCode.getTokenAfter(tail);
+	const tokenAfter = tokenStore.getTokenAfter(tail);
 
 	if (!tokenAfter || !isClosingParenthesisToken(tokenAfter)) {
 		return;
