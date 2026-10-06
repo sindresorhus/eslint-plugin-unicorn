@@ -55,6 +55,8 @@ testRule.snapshot({
 		'function walk(node, saved = create()) { return node.next ? walk(node.next, saved) : saved; } walk(first); walk(second);',
 		'const walk = function inner(node, saved = new Set()) { return node.next ? inner(node.next, saved) : saved; }; walk(first); walk(second);',
 		'const walk = (node, saved = node) => node.next ? walk(node.next, saved) : saved; walk(first); walk(second);',
+		'const node = {}; function walk(node, saved = node) { return node.next ? walk(node.next, saved) : saved; } walk(first); walk(second);',
+		'class Walker { #walk(node, seen = new Set()) { return node.next ? this.#walk(node.next, seen) : seen; } run() { this.#walk(first); this.#walk(second); } }',
 		'function format(...values) { return values; } format(1); format(1);',
 		'function format({value}) { return value; } format({value: 1}); format({value: 2});',
 		'function format({value}) { return value; } format(options); format(options);',
@@ -248,6 +250,25 @@ test('ignores fresh defaults forwarded through recursive calls', t => {
 	t.assert.deepStrictEqual(result.messages, []);
 });
 
+test('keeps fresh defaults shared within recursion and separate between calls', t => {
+	const code = outdent`
+		function walk(node, seen = new Set()) {
+			seen.add(node.value);
+			return node.next ? walk(node.next, seen) : seen;
+		}
+		const sets = [
+			walk({value: 1, next: {value: 2}}),
+			walk({value: 3, next: {value: 4}}, undefined),
+		];
+		[sets.map(set => [...set]), sets[0] === sets[1]];
+	`;
+	const result = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.deepStrictEqual(structuredClone(vm.runInNewContext(result.output)), [[[1, 2], [3, 4]], false]);
+});
+
 test('fixes multiple parameters across successive passes', t => {
 	const code = 'function format(first, second, third) { return [first, second, third]; } format(1, 2, 3); format(1, 2, 3);';
 	const result = linter.verifyAndFix(code, config);
@@ -432,8 +453,17 @@ test('preserves results when fixing primitive defaults and undefined across recu
 		const result = linter.verifyAndFix(code, config);
 		t.assert.strictEqual(result.fixed, true);
 		t.assert.deepStrictEqual(result.messages, []);
-		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
+		t.assert.deepStrictEqual(structuredClone(vm.runInNewContext(result.output)), structuredClone(vm.runInNewContext(code)));
 	}
+});
+
+test('still reports primitive defaults forwarded through TypeScript wrappers', t => {
+	const code = 'function walk(node, unit = "px" as string) { return node.next ? walk(node.next, (unit as string)!) : [node.value, unit]; } walk(first); walk(second);';
+	const result = linter.verifyAndFix(code, {...config, languageOptions: {parser: parsers.typescript.implementation}});
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(result.messages[0].messageId, 'always-default');
 });
 
 test('fixes a parameter with the same name as a stable outer binding', t => {

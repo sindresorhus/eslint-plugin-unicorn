@@ -38,6 +38,7 @@ const isRuntimeReference = reference =>
 	&& !isInTypeQuery(reference.identifier);
 
 const getVariable = (node, context) => findVariable(context.sourceCode.getScope(node), node);
+const isOuterBinding = (variable, parameter, context) => findVariable(context.sourceCode.getScope(parameter.identifier).upper, variable.name) === variable;
 const undefinedValue = {kind: 'primitive', value: undefined};
 
 function getPrimitiveValue(node) {
@@ -251,7 +252,7 @@ function getParameterValue(parameter, arguments_, context) {
 	const defaultValue = parameter.defaultNode ? getValue(parameter.defaultNode, context) : undefinedValue;
 	if (incoming.every(argument => isUndefined(argument.value))) {
 		if (arguments_.some(argument => argument.forwarding)
-			&& (!defaultValue || (defaultValue.kind === 'binding' && findVariable(context.sourceCode.getScope(parameter.identifier).upper, defaultValue.variable.name) !== defaultValue.variable))) {
+			&& (!defaultValue || (defaultValue.kind === 'binding' && !isOuterBinding(defaultValue.variable, parameter, context)))) {
 			return;
 		}
 
@@ -264,7 +265,7 @@ function getParameterValue(parameter, arguments_, context) {
 		return;
 	}
 
-	if (value.kind === 'binding' && findVariable(context.sourceCode.getScope(parameter.identifier).upper, value.variable.name) !== value.variable) {
+	if (value.kind === 'binding' && !isOuterBinding(value.variable, parameter, context)) {
 		return;
 	}
 
