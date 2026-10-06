@@ -163,6 +163,14 @@ test.snapshot({
 			code: '<template>{{ !array.every(element => /* before */ (element) /* after */) }}</template>',
 			languageOptions: {parser: parsers.vue},
 		},
+		{
+			code: '<template>{{ !array.some(element => { /* keep */ return test(element); }) }}</template>',
+			languageOptions: {parser: parsers.vue},
+		},
+		{
+			code: '<template>{{ !array.some(element => { return test(/* keep */ element); }) }}</template>',
+			languageOptions: {parser: parsers.vue},
+		},
 	],
 });
 

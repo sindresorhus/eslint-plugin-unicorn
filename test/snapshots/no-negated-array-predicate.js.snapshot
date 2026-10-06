@@ -727,6 +727,37 @@ Output:
 
 `;
 
+exports[`no-negated-array-predicate > invalid(48): <template>{{ !array.some(element => { /* keep */ return test(element); }) }}</template> 1`] = `
+
+  1 | <template>{{ !array.some(element => { /* keep */ return test(element); }) }}</template>
+
+`;
+
+exports[`no-negated-array-predicate > invalid(48): <template>{{ !array.some(element => { /* keep */ return test(element); }) }}</template> 2`] = `
+
+Message:
+> 1 | <template>{{ !array.some(element => { /* keep */ return test(element); }) }}</template>
+    |                     ^^^^ Prefer \`Array#every()\` with a negated predicate over negating \`Array#some()\`.
+
+Output:
+  1 | <template>{{ array.every(element => { /* keep */ return !test(element); }) }}</template>
+
+`;
+
+exports[`no-negated-array-predicate > invalid(49): <template>{{ !array.some(element => { return test(/* keep */ element); }) }}</template> 1`] = `
+
+  1 | <template>{{ !array.some(element => { return test(/* keep */ element); }) }}</template>
+
+`;
+
+exports[`no-negated-array-predicate > invalid(49): <template>{{ !array.some(element => { return test(/* keep */ element); }) }}</template> 2`] = `
+
+Message:
+> 1 | <template>{{ !array.some(element => { return test(/* keep */ element); }) }}</template>
+    |                     ^^^^ Prefer \`Array#every()\` with a negated predicate over negating \`Array#some()\`.
+
+`;
+
 exports[`no-negated-array-predicate > invalid(5): !array.some(element => !({})); 1`] = `
 
   1 | !array.some(element => !({}));

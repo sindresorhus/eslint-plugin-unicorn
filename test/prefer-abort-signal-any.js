@@ -1061,6 +1061,12 @@ test.snapshot({
 			fetch(url, {signal: abortController.signal});
 			fetch(otherUrl, {signal: abortController /* keep */ .signal});
 		`,
+		outdent`
+			const abortController = new AbortController();
+			firstSignal.addEventListener('abort', () => abortController.abort());
+			secondSignal.addEventListener('abort', () => abortController.abort()); // Keep the last listener comment.
+			fetch(url, {signal: abortController.signal});
+		`,
 	],
 });
 

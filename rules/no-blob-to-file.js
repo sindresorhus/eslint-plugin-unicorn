@@ -37,11 +37,6 @@ const isGlobalFormDataConstructor = (node, context) =>
 	})
 	&& isGlobalIdentifier(node.callee, context);
 
-function getFileNameNode(newFileExpression) {
-	const [, fileNameNode] = newFileExpression.arguments;
-	return fileNameNode;
-}
-
 function isBlobIdentifier(node, beforeNode, context) {
 	const initializer = node && getConstVariableInitializer(node, context);
 
@@ -88,8 +83,7 @@ function getBlobIdentifier(newFileExpression, context) {
 		return;
 	}
 
-	const [fileBits] = newFileExpression.arguments;
-	const [, fileName] = newFileExpression.arguments;
+	const [fileBits, fileName] = newFileExpression.arguments;
 
 	if (
 		fileBits.type !== 'ArrayExpression'
@@ -177,19 +171,12 @@ function getProblem(node, context) {
 		return;
 	}
 
-	const fileNameNode = getFileNameNode(init);
-	const commentCheckRange = getCommentCheckRange(node.parent, context);
-
-	if (
-		!isSameBindingAtUse(blobIdentifier, reference, context)
-		|| (
-			supportedCall.kind === 'formData'
-			&& supportedCall.call.arguments.length === 2
-			&& !fileNameNode
-		)
-	) {
+	if (!isSameBindingAtUse(blobIdentifier, reference, context)) {
 		return;
 	}
+
+	const [, fileNameNode] = init.arguments;
+	const commentCheckRange = getCommentCheckRange(node.parent, context);
 
 	return getCommentSafeProblem(context, {
 		node: init,

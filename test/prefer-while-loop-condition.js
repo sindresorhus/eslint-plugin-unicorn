@@ -486,5 +486,17 @@ test.snapshot({
 				processNext();
 			}
 		`,
+		// Comments in the retained body do not prevent autofixing.
+		outdent`
+			while (true) {
+				if (!hasMore()) {
+					break;
+				}
+
+				// Process the remaining work.
+				processNext();
+			}
+		`,
+		'do {\r\n  if (done) {\r\n    break;\r\n  }\r\n  processNext(/* Keep this argument comment. */ value);\r\n} while (true);',
 	],
 });

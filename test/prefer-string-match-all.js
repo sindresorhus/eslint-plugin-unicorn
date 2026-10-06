@@ -306,8 +306,6 @@ test.snapshot({
 			const match = string.match(/foo/g);
 		`,
 
-		// Comments in replaced ranges
-
 		// Not a matching condition
 		outdent`
 			const regexp = /foo/g;
@@ -479,6 +477,7 @@ test.typescript({
 	],
 });
 
+// Comments in replaced ranges
 test.snapshot({
 	valid: [],
 	invalid: [

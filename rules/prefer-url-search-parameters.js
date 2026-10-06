@@ -181,33 +181,21 @@ const getPreservedWrapperRanges = (node, argument, context) => {
 	];
 };
 
-const getSuggestion = ({node, replacement}, context) => {
-	if (!isUrlSearchParametersAvailable(node, context)) {
-		return;
-	}
-
-	return [
-		{
-			messageId: MESSAGE_ID_SUGGESTION,
-			data: {replacement},
-			fix: fixer => fixer.replaceText(node, replacement),
-		},
-	];
-};
-
 const createProblem = ({node, query, replacement, preservedNodes = [query]}, context) => {
-	const suggest = getSuggestion({
-		node,
-		replacement,
-	}, context);
-	if (!suggest) {
+	if (!isUrlSearchParametersAvailable(node, context)) {
 		return;
 	}
 
 	return getCommentSafeProblem(context, {
 		node,
 		messageId: MESSAGE_ID_ERROR,
-		suggest,
+		suggest: [
+			{
+				messageId: MESSAGE_ID_SUGGESTION,
+				data: {replacement},
+				fix: fixer => fixer.replaceText(node, replacement),
+			},
+		],
 	}, node, preservedNodes);
 };
 
