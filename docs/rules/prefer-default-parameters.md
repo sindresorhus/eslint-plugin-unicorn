@@ -14,12 +14,12 @@ Instead of reassigning a function parameter, default parameters should be used. 
 The rule also prefers defaults for parameters and destructured variables when every read uses the same operator (`??` or `||`) and literal fallback (excluding regular expressions), and the variable is never reassigned. Quoted strings and template literals without expressions are considered the same fallback when their decoded string values are equal. Plain parameters must be last. Local declarations must use `const` or `let` and must not be exported.
 
 > [!NOTE]
-> Applying a suggestion can change runtime behavior. `||` uses the fallback for all falsy values, including an empty string, `0`, `false`, `NaN`, `null`, and `undefined`. `??` uses the fallback for `null` and `undefined`. Default parameters and destructuring defaults use the fallback only for `undefined`.
+> Suggestions can change runtime behavior: `||` falls back for all falsy values, `??` for `null` or `undefined`, and parameter and destructuring defaults only for `undefined`.
 
-For example, applying the suggestion changes the result when `versionRange` is an empty string:
+For an empty `versionRange`, the suggestion changes the output:
 
 ```js
-// Before applying the suggestion.
+// Before.
 function install(packages) {
 	return packages.map(({name, versionRange}) => `${name}@${versionRange || 'latest'}`);
 }
@@ -29,7 +29,7 @@ console.log(install([{name: 'eslint', versionRange: ''}]));
 ```
 
 ```js
-// After applying the suggestion.
+// After.
 function install(packages) {
 	return packages.map(({name, versionRange = 'latest'}) => `${name}@${versionRange}`);
 }
@@ -49,7 +49,7 @@ Applying a suggestion can change behavior: `??` and `??=` also replace `null`, w
 Type: `boolean`\
 Default: `true`
 
-When `false`, the rule allows inline `||` and `??` fallback reads in parameters and destructured variables. Parameter reassignments and moving a parameter's fallback initializer from a local variable to the parameter declaration are still checked. Those suggestions can also change runtime behavior.
+Set to `false` to allow `||` and `??` fallback reads of parameters and destructured variables. Reassignments and moving local fallback initializers to parameters remain checked; their suggestions can also change runtime behavior.
 
 ```js
 export default {
