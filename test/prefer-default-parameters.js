@@ -161,6 +161,14 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		'const fn = ({[key]: a}) => a ?? 3;',
+		outdent`
+			function install(packages) {
+				return packages.map(({name, versionRange}) => \`\${name}@\${versionRange || 'latest'}\`);
+			}
+
+			console.log(install([{name: 'eslint', versionRange: ''}]));
+		`,
+		'function abc(foo) { foo = foo || \'bar\'; }',
 	],
 });
 

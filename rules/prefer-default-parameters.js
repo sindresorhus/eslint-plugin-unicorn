@@ -328,10 +328,10 @@ const config = {
 		hasSuggestions: true,
 		messages: {
 			[MESSAGE_ID]: 'Prefer default parameters over reassignment.',
-			[MESSAGE_ID_SUGGEST]: 'Replace reassignment with default parameter.',
+			[MESSAGE_ID_SUGGEST]: 'Replace reassignment with a default parameter. This changes fallback behavior to apply only to undefined.',
 			[MESSAGE_ID_PARAMETER_FALLBACK]: 'Prefer a default parameter over fallback expressions.',
 			[MESSAGE_ID_DESTRUCTURING_FALLBACK]: 'Prefer a destructuring default over fallback expressions.',
-			[MESSAGE_ID_SUGGEST_DECLARATION]: 'Move the default value to the declaration.',
+			[MESSAGE_ID_SUGGEST_DECLARATION]: 'Move the default value to the declaration. This changes fallback behavior to apply only to undefined.',
 		},
 		languages: [
 			'js/js',
