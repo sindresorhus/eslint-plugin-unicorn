@@ -1,5 +1,5 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {functionTypes} from './ast/index.js';
+import {functionTypes, getStaticStringValue} from './ast/index.js';
 import {getVisitorChildNodes} from './utils/index.js';
 
 const MESSAGE_ID = 'preferDefaultParameters';
@@ -7,6 +7,8 @@ const MESSAGE_ID_SUGGEST = 'preferDefaultParametersSuggest';
 const MESSAGE_ID_PARAMETER_FALLBACK = 'preferDefaultParameterOverFallback';
 const MESSAGE_ID_DESTRUCTURING_FALLBACK = 'preferDestructuringDefaultOverFallback';
 const MESSAGE_ID_SUGGEST_DECLARATION = 'moveDefaultToDeclaration';
+
+const isStaticDefaultValue = node => node.type === 'Literal' || getStaticStringValue(node) !== undefined;
 
 const getDefaultAssignment = (left, right, operator = '=') => {
 	if (!left || !right || left.type !== 'Identifier') {
@@ -18,7 +20,7 @@ const getDefaultAssignment = (left, right, operator = '=') => {
 		&& right.type === 'LogicalExpression'
 		&& (right.operator === '||' || right.operator === '??')
 		&& right.left.type === 'Identifier'
-		&& right.right.type === 'Literal'
+		&& isStaticDefaultValue(right.right)
 	) {
 		return {
 			assignedIdentifier: left,
@@ -27,7 +29,7 @@ const getDefaultAssignment = (left, right, operator = '=') => {
 		};
 	}
 
-	if ((operator === '||=' || operator === '??=') && right.type === 'Literal') {
+	if ((operator === '||=' || operator === '??=') && isStaticDefaultValue(right)) {
 		return {
 			assignedIdentifier: left,
 			parameterIdentifier: left,
@@ -93,7 +95,6 @@ const needsParentheses = (sourceCode, function_) => {
 */
 const fixDefaultExpression = (fixer, sourceCode, node) => {
 	const {line} = sourceCode.getLoc(node).start;
-	const {column} = sourceCode.getLoc(node).end;
 	const nodeText = sourceCode.getText(node);
 	const lineText = sourceCode.lines[line - 1];
 	const isOnlyNodeOnLine = lineText.trim() === nodeText;
@@ -105,9 +106,8 @@ const fixDefaultExpression = (fixer, sourceCode, node) => {
 		]);
 	}
 
-	const isEndsWithWhitespace = lineText[column] === ' ';
-	if (isEndsWithWhitespace) {
-		const [start, end] = sourceCode.getRange(node);
+	const [start, end] = sourceCode.getRange(node);
+	if (sourceCode.text[end] === ' ') {
 		return fixer.removeRange([start, end + 1]);
 	}
 
@@ -160,10 +160,10 @@ const create = context => {
 			expression.type !== 'LogicalExpression'
 			|| (expression.operator !== '??' && expression.operator !== '||')
 			|| expression.left !== references[index].identifier
-			|| expression.right.type !== 'Literal'
+			|| !isStaticDefaultValue(expression.right)
 			|| expression.right.regex
 			|| expression.operator !== firstExpression.operator
-			|| !Object.is(expression.right.value, firstExpression.right.value),
+			|| !Object.is(getStaticStringValue(expression.right) ?? expression.right.value, getStaticStringValue(firstExpression.right) ?? firstExpression.right.value),
 		)) {
 			return;
 		}
@@ -218,8 +218,9 @@ const create = context => {
 		const {
 			assignedIdentifier,
 			parameterIdentifier: {name: parameterName},
-			defaultValue: {raw: defaultValueText},
+			defaultValue,
 		} = defaultAssignment;
+		const defaultValueText = sourceCode.getText(defaultValue);
 		const {name: assignedName} = assignedIdentifier;
 		const isAssignment = node.type === 'ExpressionStatement';
 
