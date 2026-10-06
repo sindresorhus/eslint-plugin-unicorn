@@ -93,9 +93,7 @@ const foo = element.children[element.children.length - 1];
 
 This means non-DOM objects with those exact property or method names are also ignored.
 
-Without type information, the exclusion also follows `const` aliases of these expressions and recognizes TypeScript annotations for `NodeList`, `NodeListOf`, `HTMLCollection`, and `HTMLCollectionOf`. Untyped mutable bindings and destructuring are not resolved.
-
-With type information, other expressions with these collection types are also recognized, including mutable bindings, destructuring, and function returns. The same exclusion applies to `.slice()` patterns and last-element functions.
+The exclusion also covers `const` aliases, `.slice()` patterns, and last-element functions. TypeScript annotations or type information recognize `NodeList`, `NodeListOf`, `HTMLCollection`, and `HTMLCollectionOf`; untyped mutable bindings and destructuring require type information.
 
 ```js
 // ✅
@@ -104,9 +102,9 @@ const lastElement = elements[elements.length - 1];
 ```
 
 > [!NOTE]
-> Nullish union members are ignored when recognizing DOM collection types. Unknown types and mixed DOM/array unions do not trigger the exclusion on their own, but a recognized DOM expression or `const` initializer still does.
+> DOM unions may include `null` or `undefined`. Unknown and mixed DOM/array types alone do not trigger the exclusion, but recognized DOM expressions and `const` initializers still do.
 
-Converting a DOM collection to an array with `Array.from()` or spread keeps it checked:
+Arrays created with `Array.from()` or spread are still checked:
 
 ```js
 // ❌
