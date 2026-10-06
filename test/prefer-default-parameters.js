@@ -161,6 +161,49 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		'const fn = ({[key]: a}) => a ?? 3;',
+		outdent`
+			function install(packages) {
+				return packages.map(({name, versionRange}) => \`\${name}@\${versionRange || 'latest'}\`);
+			}
+
+			console.log(install([{name: 'eslint', versionRange: ''}]));
+		`,
+		'function abc(foo) { foo = foo || \'bar\'; }',
+	],
+});
+
+test.snapshot({
+	valid: [
+		...[
+			'const fn = a => a || 3;',
+			'const fn = a => a ?? 3;',
+			'const fn = ({a}) => a || 3;',
+			'const fn = ([a]) => a ?? 3;',
+			'const {a} = options; console.log(a || 3);',
+			'let [a] = arr; console.log(a ?? 3);',
+		].map(code => ({code, options: [{checkFallbackExpressions: false}]})),
+		{
+			code: outdent`
+				function install(packages) {
+					return packages.map(({name, versionRange}) => \`\${name}@\${versionRange || 'latest'}\`);
+				}
+
+				console.log(install([{name: 'eslint', versionRange: ''}]));
+			`,
+			options: [{checkFallbackExpressions: false}],
+		},
+	],
+	invalid: [
+		{code: 'const fn = a => a || 3;', options: [{checkFallbackExpressions: true}]},
+		{code: 'const fn = ({a}) => a ?? 3;', options: [{}]},
+		...[
+			'function fn(a) { a = a || 3; }',
+			'function fn(a) { a = a ?? 3; }',
+			'function fn(a) { a ||= 3; }',
+			'function fn(a) { a ??= 3; }',
+			'function fn(a) { const b = a || 3; console.log(b); }',
+			'function outer(a) { function inner(b) { b ??= 3; } return a || 3; }',
+		].map(code => ({code, options: [{checkFallbackExpressions: false}]})),
 	],
 });
 
@@ -171,7 +214,10 @@ test({
 			code: 'const fn = a => a ?? 3;',
 			errors: [{
 				messageId: 'preferDefaultParameterOverFallback',
-				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const fn = (a = 3) => a;'}],
+				suggestions: [{
+					desc: 'Move the default value to the declaration. This changes fallback behavior to apply only to undefined.',
+					output: 'const fn = (a = 3) => a;',
+				}],
 			}],
 		},
 		{
@@ -790,7 +836,7 @@ test({
 			errors: [{
 				messageId: 'preferDefaultParameters',
 				suggestions: [{
-					messageId: 'preferDefaultParametersSuggest',
+					desc: 'Replace reassignment with a default parameter. This changes fallback behavior to apply only to undefined.',
 					output: outdent`
 						function abc(foo: string = 'bar') {
 						}

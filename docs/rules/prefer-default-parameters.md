@@ -13,9 +13,68 @@ Instead of reassigning a function parameter, default parameters should be used. 
 
 The rule also prefers defaults for parameters and destructured variables when every read uses the same operator (`??` or `||`) and literal fallback (excluding regular expressions), and the variable is never reassigned. Quoted strings and template literals without expressions are considered the same fallback when their decoded string values are equal. Plain parameters must be last. Local declarations must use `const` or `let` and must not be exported.
 
+> [!NOTE]
+> Suggestions can change runtime behavior: `||` and `||=` fall back for all falsy values, `??` and `??=` for `null` or `undefined`, and parameter and destructuring defaults only for `undefined`.
+
+For an empty `versionRange`, the suggestion changes the output:
+
+```js
+// Before.
+function install(packages) {
+	return packages.map(({name, versionRange}) => `${name}@${versionRange || 'latest'}`);
+}
+
+console.log(install([{name: 'eslint', versionRange: ''}]));
+// ['eslint@latest']
+```
+
+```js
+// After.
+function install(packages) {
+	return packages.map(({name, versionRange = 'latest'}) => `${name}@${versionRange}`);
+}
+
+console.log(install([{name: 'eslint', versionRange: ''}]));
+// ['eslint@']
+```
+
 You should disable this rule if you want your functions to deal with `null` and other falsy values the same way as `undefined`. Default parameters are exclusively applied [when `undefined` is received](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Default_parameters#passing_undefined_vs._other_falsy_values). Destructuring defaults behave the same way, so the rule offers suggestions instead of autofixes. However, we recommend [moving away from `null`](https://github.com/sindresorhus/meta/discussions/7).
 
-Applying a suggestion can change behavior: `??` and `??=` also replace `null`, while `||` and `||=` additionally replace `''`, `false`, `0`, `0n`, and `NaN`. Default parameters and destructuring defaults preserve all of those values.
+## Options
+
+### checkFallbackExpressions
+
+Type: `boolean`\
+Default: `true`
+
+Set to `false` to allow `||` and `??` fallback reads of parameters and destructured variables. Reassignments and moving local fallback initializers to parameters remain checked; their suggestions can also change runtime behavior.
+
+```js
+export default {
+	rules: {
+		'unicorn/prefer-default-parameters': [
+			'error',
+			{
+				checkFallbackExpressions: false,
+			},
+		],
+	},
+};
+```
+
+With `checkFallbackExpressions: false`:
+
+```js
+// ✅
+const fn = a => a || 3;
+
+// ✅
+const fn = ({a}) => a ?? 3;
+
+// ✅
+const [a] = arr;
+console.log(a || 3);
+```
 
 ## Examples
 

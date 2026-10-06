@@ -197,6 +197,10 @@ const create = context => {
 	};
 
 	function * getDefaultReadProblems(node) {
+		if (!context.options[0].checkFallbackExpressions) {
+			return;
+		}
+
 		for (const variable of sourceCode.getDeclaredVariables(node)) {
 			yield getDefaultReadProblem(variable, node);
 		}
@@ -326,12 +330,23 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		hasSuggestions: true,
+		schema: [{
+			type: 'object',
+			properties: {
+				checkFallbackExpressions: {
+					type: 'boolean',
+					description: 'Check fallback reads in parameters and destructured variables.',
+				},
+			},
+			additionalProperties: false,
+		}],
+		defaultOptions: [{checkFallbackExpressions: true}],
 		messages: {
 			[MESSAGE_ID]: 'Prefer default parameters over reassignment.',
-			[MESSAGE_ID_SUGGEST]: 'Replace reassignment with default parameter.',
+			[MESSAGE_ID_SUGGEST]: 'Replace reassignment with a default parameter. This changes fallback behavior to apply only to undefined.',
 			[MESSAGE_ID_PARAMETER_FALLBACK]: 'Prefer a default parameter over fallback expressions.',
 			[MESSAGE_ID_DESTRUCTURING_FALLBACK]: 'Prefer a destructuring default over fallback expressions.',
-			[MESSAGE_ID_SUGGEST_DECLARATION]: 'Move the default value to the declaration.',
+			[MESSAGE_ID_SUGGEST_DECLARATION]: 'Move the default value to the declaration. This changes fallback behavior to apply only to undefined.',
 		},
 		languages: [
 			'js/js',

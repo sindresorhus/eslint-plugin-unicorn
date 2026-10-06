@@ -10,8 +10,29 @@ Message:
 > 1 | const fn = a => [a ?? 3, a ?? 3];
     |            ^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = (a = 3) => [a, a];
+
+`;
+
+exports[`prefer-default-parameters > invalid(1): const fn = a => a || 3; 1`] = `
+
+Options:
+- checkFallbackExpressions: true
+
+Code:
+  1 | const fn = a => a || 3;
+
+`;
+
+exports[`prefer-default-parameters > invalid(1): const fn = a => a || 3; 2`] = `
+
+Message:
+> 1 | const fn = a => a || 3;
+    |            ^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | const fn = (a = 3) => a;
 
 `;
 
@@ -27,7 +48,7 @@ Message:
 > 1 | const fn = (a) => (a) ?? (3);
     |             ^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = (a = 3) => a;
 
 `;
@@ -44,7 +65,7 @@ Message:
 > 1 | const fn = a => ((a ?? 3));
     |            ^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = (a = 3) => ((a));
 
 `;
@@ -61,7 +82,7 @@ Message:
 > 1 | const fn = a => ({[a ?? 3]: a ?? 3});
     |            ^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = (a = 3) => ({[a]: a});
 
 `;
@@ -78,7 +99,7 @@ Message:
 > 1 | const fn = a => { function read() { return a ?? 3; } return a ?? 3; };
     |            ^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = (a = 3) => { function read() { return a; } return a; };
 
 `;
@@ -95,7 +116,7 @@ Message:
 > 1 | const fn = a => { { const a = 1; console.log(a ?? 4); } return a ?? 3; };
     |            ^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = (a = 3) => { { const a = 1; console.log(a ?? 4); } return a; };
 
 `;
@@ -112,7 +133,7 @@ Message:
 > 1 | const fn = a => b => a ?? 3;
     |            ^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = (a = 3) => b => a;
 
 `;
@@ -129,7 +150,7 @@ Message:
 > 1 | const fn = function(a) { return a ?? 3; };
     |                     ^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = function(a = 3) { return a; };
 
 `;
@@ -146,7 +167,7 @@ Message:
 > 1 | async function fn(a) { return a ?? 3; }
     |                   ^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | async function fn(a = 3) { return a; }
 
 `;
@@ -163,7 +184,7 @@ Message:
 > 1 | function * fn(a) { yield a ?? 3; }
     |               ^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | function * fn(a = 3) { yield a; }
 
 `;
@@ -180,8 +201,29 @@ Message:
 > 1 | const object = { fn(a) { return a ?? 3; } };
     |                     ^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const object = { fn(a = 3) { return a; } };
+
+`;
+
+exports[`prefer-default-parameters > invalid(2): const fn = ({a}) => a ?? 3; 1`] = `
+
+Options:
+- {}
+
+Code:
+  1 | const fn = ({a}) => a ?? 3;
+
+`;
+
+exports[`prefer-default-parameters > invalid(2): const fn = ({a}) => a ?? 3; 2`] = `
+
+Message:
+> 1 | const fn = ({a}) => a ?? 3;
+    |              ^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | const fn = ({a = 3}) => a;
 
 `;
 
@@ -197,7 +239,7 @@ Message:
 > 1 | const fn = a => [a || 3, a || 3];
     |            ^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = (a = 3) => [a, a];
 
 `;
@@ -214,7 +256,7 @@ Message:
 > 1 | class Class { fn(a) { return a ?? 3; } }
     |                  ^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | class Class { fn(a = 3) { return a; } }
 
 `;
@@ -231,7 +273,7 @@ Message:
 > 1 | const fn = ({a}, b) => a ?? 3;
     |              ^ Prefer a destructuring default over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = ({a = 3}, b) => a;
 
 `;
@@ -248,7 +290,7 @@ Message:
 > 1 | const fn = ([a]) => a ?? 3;
     |              ^ Prefer a destructuring default over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = ([a = 3]) => a;
 
 `;
@@ -265,7 +307,7 @@ Message:
 > 1 | const fn = ({property: a}) => a ?? 3;
     |                        ^ Prefer a destructuring default over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = ({property: a = 3}) => a;
 
 `;
@@ -282,7 +324,7 @@ Message:
 > 1 | const fn = ({nested: {a}}) => a ?? 3;
     |                       ^ Prefer a destructuring default over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = ({nested: {a = 3}}) => a;
 
 `;
@@ -299,7 +341,7 @@ Message:
 > 1 | const fn = ([[a]]) => a ?? 3;
     |               ^ Prefer a destructuring default over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = ([[a = 3]]) => a;
 
 `;
@@ -316,7 +358,7 @@ Message:
 > 1 | const fn = ({a} = {}) => a ?? 3;
     |              ^ Prefer a destructuring default over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = ({a = 3} = {}) => a;
 
 `;
@@ -333,7 +375,7 @@ Message:
 > 1 | const fn = ({a, b = a ?? 3}) => b;
     |              ^ Prefer a destructuring default over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = ({a = 3, b = a}) => b;
 
 `;
@@ -350,7 +392,7 @@ Message:
 > 1 | const fn = ({a, b}) => [a ?? 3, b || 4];
     |              ^ Prefer a destructuring default over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = ({a = 3, b}) => [a, b || 4];
 
 `;
@@ -361,7 +403,7 @@ Message:
 > 1 | const fn = ({a, b}) => [a ?? 3, b || 4];
     |                 ^ Prefer a destructuring default over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = ({a, b = 4}) => [a ?? 3, b];
 
 `;
@@ -378,7 +420,7 @@ Message:
 > 1 | const {property: a} = options; console.log(a ?? 3);
     |                  ^ Prefer a destructuring default over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const {property: a = 3} = options; console.log(a);
 
 `;
@@ -395,8 +437,29 @@ Message:
 > 1 | const fn = a => [a ?? 3, a ?? 0x3];
     |            ^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = (a = 3) => [a, a];
+
+`;
+
+exports[`prefer-default-parameters > invalid(3): function fn(a) { a = a || 3; } 1`] = `
+
+Options:
+- checkFallbackExpressions: false
+
+Code:
+  1 | function fn(a) { a = a || 3; }
+
+`;
+
+exports[`prefer-default-parameters > invalid(3): function fn(a) { a = a || 3; } 2`] = `
+
+Message:
+> 1 | function fn(a) { a = a || 3; }
+    |                  ^^^^^^^^^^^ Prefer default parameters over reassignment.
+
+Suggestion 1/1: Replace reassignment with a default parameter. This changes fallback behavior to apply only to undefined.:
+  1 | function fn(a = 3) { }
 
 `;
 
@@ -412,7 +475,7 @@ Message:
 > 1 | const {nested: [a]} = options; console.log(a ?? 3);
     |                 ^ Prefer a destructuring default over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const {nested: [a = 3]} = options; console.log(a);
 
 `;
@@ -429,7 +492,7 @@ Message:
 > 1 | const [a] = arr; console.log(a ?? 3, a ?? 3);
     |        ^ Prefer a destructuring default over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const [a = 3] = arr; console.log(a, a);
 
 `;
@@ -446,7 +509,7 @@ Message:
 > 1 | let {a} = options; console.log(a ?? 3);
     |      ^ Prefer a destructuring default over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | let {a = 3} = options; console.log(a);
 
 `;
@@ -463,7 +526,7 @@ Message:
 > 1 | for (const [a] of arrays) { console.log(a ?? 3); }
     |             ^ Prefer a destructuring default over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | for (const [a = 3] of arrays) { console.log(a); }
 
 `;
@@ -480,7 +543,7 @@ Message:
 > 1 | const {a} = options; const fn = () => a ?? 3;
     |        ^ Prefer a destructuring default over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const {a = 3} = options; const fn = () => a;
 
 `;
@@ -497,7 +560,7 @@ Message:
 > 1 | const {a} = options, [b] = arr; console.log(a ?? 3, b ?? 4);
     |        ^ Prefer a destructuring default over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const {a = 3} = options, [b] = arr; console.log(a, b ?? 4);
 
 `;
@@ -508,7 +571,7 @@ Message:
 > 1 | const {a} = options, [b] = arr; console.log(a ?? 3, b ?? 4);
     |                       ^ Prefer a destructuring default over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const {a} = options, [b = 4] = arr; console.log(a ?? 3, b);
 
 `;
@@ -525,7 +588,7 @@ Message:
 > 1 | const fn = (a /* Keep comment. */) => (/* Keep comment. */ a ?? 3);
     |             ^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = (a = 3 /* Keep comment. */) => (/* Keep comment. */ a);
 
 `;
@@ -542,7 +605,7 @@ Message:
 > 1 | const fn = ({a /* Keep comment. */}) => a ?? 3;
     |              ^ Prefer a destructuring default over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = ({a = 3 /* Keep comment. */}) => a;
 
 `;
@@ -587,8 +650,29 @@ Message:
 > 1 | const fn = a => [a ?? 3n, a ?? 0x3n];
     |            ^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = (a = 3n) => [a, a];
+
+`;
+
+exports[`prefer-default-parameters > invalid(4): function fn(a) { a = a ?? 3; } 1`] = `
+
+Options:
+- checkFallbackExpressions: false
+
+Code:
+  1 | function fn(a) { a = a ?? 3; }
+
+`;
+
+exports[`prefer-default-parameters > invalid(4): function fn(a) { a = a ?? 3; } 2`] = `
+
+Message:
+> 1 | function fn(a) { a = a ?? 3; }
+    |                  ^^^^^^^^^^^ Prefer default parameters over reassignment.
+
+Suggestion 1/1: Replace reassignment with a default parameter. This changes fallback behavior to apply only to undefined.:
+  1 | function fn(a = 3) { }
 
 `;
 
@@ -638,7 +722,7 @@ Message:
   2 |   return a ?? 3;
   3 | }
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | function fn(a = 3) {
   2 |   return a;
   3 | }
@@ -661,7 +745,7 @@ Message:
   2 | 	const {bar} = foo || 123;
   3 | }
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | function abc(foo = 123) {
   2 | 	const {bar} = foo;
   3 | }
@@ -684,7 +768,7 @@ Message:
   2 | 	const bar = foo || 'bar', keep = sideEffect();
   3 | }
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | function abc(foo = 'bar') {
   2 | 	const bar = foo, keep = sideEffect();
   3 | }
@@ -707,7 +791,7 @@ Message:
   2 | 	var bar = foo || 'bar';
   3 | }
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | function abc(bar, foo = 'bar') {
   2 | 	var bar = foo;
   3 | }
@@ -730,7 +814,7 @@ Message:
   2 | 	var bar = foo || 'bar';
   3 | }
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | function abc({bar}, foo = 'bar') {
   2 | 	var bar = foo;
   3 | }
@@ -749,7 +833,7 @@ Message:
 > 1 | const fn = (a?: number) => a ?? 3;
     |             ^^^^^^^^^^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = (a: number = 3) => a;
 
 `;
@@ -766,7 +850,7 @@ Message:
 > 1 | const fn = (a?: number,) => a ?? 3;
     |             ^^^^^^^^^^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = (a: number = 3,) => a;
 
 `;
@@ -783,7 +867,7 @@ Message:
 > 1 | const fn = (a: number | undefined) => a ?? 3;
     |             ^^^^^^^^^^^^^^^^^^^^^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = (a: number | undefined = 3) => a;
 
 `;
@@ -800,8 +884,29 @@ Message:
 > 1 | const fn = a => [a ?? "default", a ?? "\\u0064efault"];
     |            ^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = (a = "default") => [a, a];
+
+`;
+
+exports[`prefer-default-parameters > invalid(5): function fn(a) { a ||= 3; } 1`] = `
+
+Options:
+- checkFallbackExpressions: false
+
+Code:
+  1 | function fn(a) { a ||= 3; }
+
+`;
+
+exports[`prefer-default-parameters > invalid(5): function fn(a) { a ||= 3; } 2`] = `
+
+Message:
+> 1 | function fn(a) { a ||= 3; }
+    |                  ^^^^^^^^ Prefer default parameters over reassignment.
+
+Suggestion 1/1: Replace reassignment with a default parameter. This changes fallback behavior to apply only to undefined.:
+  1 | function fn(a = 3) { }
 
 `;
 
@@ -817,7 +922,7 @@ Message:
 > 1 | const fn = ({a}: {a?: number}) => a ?? 3;
     |              ^ Prefer a destructuring default over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = ({a = 3}: {a?: number}) => a;
 
 `;
@@ -834,7 +939,7 @@ Message:
 > 1 | const [a]: [number?] = arr; console.log(a ?? 3);
     |        ^ Prefer a destructuring default over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const [a = 3]: [number?] = arr; console.log(a);
 
 `;
@@ -865,7 +970,7 @@ Message:
 > 1 | const fn = <Value,>(a: number | undefined) => <span>{a ?? 3}</span>;
     |                     ^^^^^^^^^^^^^^^^^^^^^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = <Value,>(a: number | undefined = 3) => <span>{a}</span>;
 
 `;
@@ -896,7 +1001,7 @@ Message:
 > 1 | const fn = async a => a ?? 3;
     |                  ^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = async (a = 3) => a;
 
 `;
@@ -913,7 +1018,7 @@ Message:
 > 1 | const fn = (a: bigint | undefined) => [a ?? 3n, a ?? 0x3n];
     |             ^^^^^^^^^^^^^^^^^^^^^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = (a: bigint | undefined = 3n) => [a, a];
 
 `;
@@ -930,8 +1035,54 @@ Message:
 > 1 | const fn = ({[key]: a}) => a ?? 3;
     |                     ^ Prefer a destructuring default over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = ({[key]: a = 3}) => a;
+
+`;
+
+exports[`prefer-default-parameters > invalid(58): function install(packages) {\n\treturn packages.map(({name, versionRange}) => \`\${name}@\${versionRange || 'latest'}\`);\n}\n\nconsole.log(install([{name: 'eslint', versionRange: ''}])); 1`] = `
+
+  1 | function install(packages) {
+  2 | 	return packages.map(({name, versionRange}) => \`\${name}@\${versionRange || 'latest'}\`);
+  3 | }
+  4 |
+  5 | console.log(install([{name: 'eslint', versionRange: ''}]));
+
+`;
+
+exports[`prefer-default-parameters > invalid(58): function install(packages) {\n\treturn packages.map(({name, versionRange}) => \`\${name}@\${versionRange || 'latest'}\`);\n}\n\nconsole.log(install([{name: 'eslint', versionRange: ''}])); 2`] = `
+
+Message:
+  1 | function install(packages) {
+> 2 | 	return packages.map(({name, versionRange}) => \`\${name}@\${versionRange || 'latest'}\`);
+    | 	                            ^^^^^^^^^^^^ Prefer a destructuring default over fallback expressions.
+  3 | }
+  4 |
+  5 | console.log(install([{name: 'eslint', versionRange: ''}]));
+
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | function install(packages) {
+  2 | 	return packages.map(({name, versionRange = 'latest'}) => \`\${name}@\${versionRange}\`);
+  3 | }
+  4 |
+  5 | console.log(install([{name: 'eslint', versionRange: ''}]));
+
+`;
+
+exports[`prefer-default-parameters > invalid(59): function abc(foo) { foo = foo || 'bar'; } 1`] = `
+
+  1 | function abc(foo) { foo = foo || 'bar'; }
+
+`;
+
+exports[`prefer-default-parameters > invalid(59): function abc(foo) { foo = foo || 'bar'; } 2`] = `
+
+Message:
+> 1 | function abc(foo) { foo = foo || 'bar'; }
+    |                     ^^^^^^^^^^^^^^^^^^^ Prefer default parameters over reassignment.
+
+Suggestion 1/1: Replace reassignment with a default parameter. This changes fallback behavior to apply only to undefined.:
+  1 | function abc(foo = 'bar') { }
 
 `;
 
@@ -947,8 +1098,29 @@ Message:
 > 1 | const fn = a => a || false;
     |            ^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = (a = false) => a;
+
+`;
+
+exports[`prefer-default-parameters > invalid(6): function fn(a) { a ??= 3; } 1`] = `
+
+Options:
+- checkFallbackExpressions: false
+
+Code:
+  1 | function fn(a) { a ??= 3; }
+
+`;
+
+exports[`prefer-default-parameters > invalid(6): function fn(a) { a ??= 3; } 2`] = `
+
+Message:
+> 1 | function fn(a) { a ??= 3; }
+    |                  ^^^^^^^^ Prefer default parameters over reassignment.
+
+Suggestion 1/1: Replace reassignment with a default parameter. This changes fallback behavior to apply only to undefined.:
+  1 | function fn(a = 3) { }
 
 `;
 
@@ -964,8 +1136,29 @@ Message:
 > 1 | const fn = a => a ?? null;
     |            ^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = (a = null) => a;
+
+`;
+
+exports[`prefer-default-parameters > invalid(7): function fn(a) { const b = a || 3; console.log(b); } 1`] = `
+
+Options:
+- checkFallbackExpressions: false
+
+Code:
+  1 | function fn(a) { const b = a || 3; console.log(b); }
+
+`;
+
+exports[`prefer-default-parameters > invalid(7): function fn(a) { const b = a || 3; console.log(b); } 2`] = `
+
+Message:
+> 1 | function fn(a) { const b = a || 3; console.log(b); }
+    |                  ^^^^^^^^^^^^^^^^^ Prefer default parameters over reassignment.
+
+Suggestion 1/1: Replace reassignment with a default parameter. This changes fallback behavior to apply only to undefined.:
+  1 | function fn(b = 3) { console.log(b); }
 
 `;
 
@@ -981,8 +1174,29 @@ Message:
 > 1 | const fn = (b, a) => a ?? 3;
     |                ^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = (b, a = 3) => a;
+
+`;
+
+exports[`prefer-default-parameters > invalid(8): function outer(a) { function inner(b) { b ??= 3; } return a || 3; } 1`] = `
+
+Options:
+- checkFallbackExpressions: false
+
+Code:
+  1 | function outer(a) { function inner(b) { b ??= 3; } return a || 3; }
+
+`;
+
+exports[`prefer-default-parameters > invalid(8): function outer(a) { function inner(b) { b ??= 3; } return a || 3; } 2`] = `
+
+Message:
+> 1 | function outer(a) { function inner(b) { b ??= 3; } return a || 3; }
+    |                                         ^^^^^^^^ Prefer default parameters over reassignment.
+
+Suggestion 1/1: Replace reassignment with a default parameter. This changes fallback behavior to apply only to undefined.:
+  1 | function outer(a) { function inner(b = 3) { } return a || 3; }
 
 `;
 
@@ -998,7 +1212,7 @@ Message:
 > 1 | const fn = (a,) => a ?? 3;
     |             ^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Move the default value to the declaration.:
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
   1 | const fn = (a = 3,) => a;
 
 `;
