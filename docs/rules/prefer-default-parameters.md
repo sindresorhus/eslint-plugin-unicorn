@@ -54,9 +54,12 @@ Set to `false` to allow `||` and `??` fallback reads of parameters and destructu
 ```js
 export default {
 	rules: {
-		'unicorn/prefer-default-parameters': ['error', {
-			checkFallbackExpressions: false,
-		}],
+		'unicorn/prefer-default-parameters': [
+			'error',
+			{
+				checkFallbackExpressions: false,
+			},
+		],
 	},
 };
 ```
