@@ -259,6 +259,19 @@ for (const {parser, openingTag, template} of [
 		t.assert.deepStrictEqual(result.messages, []);
 	});
 
+	test(`preserves type checking pragmas in ${parser.name} JavaScript scripts`, t => {
+		const script = '// @ts-check\nfunction format(value) { let result = value; result = "text"; return result; } [format(1), format(1)];';
+		const component = `${openingTag}${script}</script>`;
+		t.assert.deepStrictEqual(getJavaScriptTypeErrors(script), []);
+		const result = linter.verifyAndFix(component, componentConfig, {filename});
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, component);
+		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+		t.assert.strictEqual(result.messages[0].messageId, 'same-value');
+		t.assert.deepStrictEqual(structuredClone(vm.runInNewContext(script)), ['text', 'text']);
+	});
+
 	test(`reports unnecessary parameters in ${parser.name} TypeScript scripts without fixing`, t => {
 		const component = code.replace('<script', '<script lang="ts"').replace('format(value)', 'format(value: number)');
 		const result = linter.verifyAndFix(component, {
@@ -471,14 +484,17 @@ test('fixes parameters beside ordinary comments and descriptive JSDoc', t => {
 	}
 });
 
-test('ignores checking pragmas after code has started', t => {
+test('requires manual fixes when checking pragmas appear after code has started', t => {
 	for (const code of [
 		'const marker = 0;\n// @ts-check\nfunction format(value) { return value; } [format(1), format(1)];',
 		'function format(value) { /* @ts-check */ return value; } [format(1), format(1)];',
 	]) {
 		const result = linter.verifyAndFix(code, config);
-		t.assert.strictEqual(result.fixed, true);
-		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+		t.assert.strictEqual(result.messages[0].messageId, 'same-value');
 		t.assert.deepStrictEqual(structuredClone(vm.runInNewContext(result.output)), [1, 1]);
 	}
 });

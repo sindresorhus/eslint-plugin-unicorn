@@ -417,21 +417,14 @@ function canInlineValue(parameter, result, context) {
 }
 
 /**
-Check for JSDoc signature annotations anywhere in the file or a leading TypeScript checking pragma.
+Check for JSDoc signature annotations or TypeScript checking pragmas anywhere in the file.
 */
 function hasJavaScriptTypeAnnotations(context) {
-	const {sourceCode} = context;
-	if (sourceCode.getAllComments().some(comment =>
-		comment.type === 'Block'
-		&& comment.value.trimStart().startsWith('*')
-		&& /@(?:param|arg|argument|type|returns?|template|this|overload|satisfies)\b/u.test(comment.value))) {
-		return true;
-	}
-
-	const firstTokenStart = sourceCode.getRange(sourceCode.getFirstToken(sourceCode.ast))[0];
-	return sourceCode.getAllComments().some(comment =>
-		sourceCode.getRange(comment)[1] <= firstTokenStart
-		&& /^\s*(?:[*/]\s*)?@ts-check\b/iu.test(comment.value));
+	return context.sourceCode.getAllComments().some(comment =>
+		/^\s*(?:[*/]\s*)?@ts-check\b/iu.test(comment.value)
+		|| (comment.type === 'Block'
+			&& comment.value.trimStart().startsWith('*')
+			&& /@(?:param|arg|argument|type|returns?|template|this|overload|satisfies)\b/u.test(comment.value)));
 }
 
 function getFix(parameter, result, target, context) {

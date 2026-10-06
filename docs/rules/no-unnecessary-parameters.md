@@ -206,6 +206,6 @@ When external calls always use a default that recursive calls forward unchanged,
 
 Autofixes update declarations and callers together. Any function called with `new`, including class constructors, requires manual changes. Global bindings, complex defaults, and fixes that could change scope, evaluation timing, syntax, or comments also require manual changes.
 
-Files with a TypeScript extension or parser, a leading `@ts-check` comment, or JSDoc signature annotations such as `@param` or `@type` require manual changes. Signature annotations disable autofixes throughout the file, including for unannotated functions. Descriptive JSDoc without signature annotations does not prevent autofixes.
+Files with a TypeScript extension or parser, a `@ts-check` comment, or JSDoc signature annotations such as `@param` or `@type` require manual changes. `@ts-check` comments and signature annotations disable autofixes throughout the file, including for unannotated functions. Descriptive JSDoc without signature annotations does not prevent autofixes.
 
 JavaScript type checking enabled only through an external `checkJs` setting is not detected when using a parser without TypeScript services, such as Espree. Reflection through instance constructors or function source text is unsupported.
