@@ -50,6 +50,11 @@ testRule.snapshot({
 		'function condition(value, allowOr = true) { return value && condition(value.next, false); } condition(first); condition(second);',
 		'function walk(value, callback) { callback = other; return value ? walk(value.next, callback) : value; } walk(first, print); walk(second, print);',
 		'function walk(value, callback) { return value ? walk(value.next, callback) : callback(value); } walk(first, print);',
+		'function walk(node, saved = {}) { return node.next ? walk(node.next, saved) : saved; } walk(first); walk(second);',
+		'function walk(node, saved = []) { return node.next ? walk(node.next, saved) : saved; } walk(first); walk(second, undefined);',
+		'function walk(node, saved = create()) { return node.next ? walk(node.next, saved) : saved; } walk(first); walk(second);',
+		'const walk = function inner(node, saved = new Set()) { return node.next ? inner(node.next, saved) : saved; }; walk(first); walk(second);',
+		'const walk = (node, saved = node) => node.next ? walk(node.next, saved) : saved; walk(first); walk(second);',
 		'function format(...values) { return values; } format(1); format(1);',
 		'function format({value}) { return value; } format({value: 1}); format({value: 2});',
 		'function format({value}) { return value; } format(options); format(options);',
@@ -193,6 +198,8 @@ testRule.snapshot({
 		'function format(value) { return value; } format(1); format(1); eval!("format(2)");',
 		'class Point { constructor(@decorate value) { this.value = value; } } new Point(1); new Point(1);',
 		'function format(value: number) { return value; } format(1); format(2);',
+		'function walk(node, saved = new Set()) { return node.next ? walk(node.next, saved as Set<string>) : saved; } walk(first); walk(second);',
+		'function walk(node, saved = node) { return node.next ? walk(node.next, saved!) : saved; } walk(first); walk(second);',
 	],
 	invalid: [
 		'function format(value: number) { return value; } format(1); format(1);',
@@ -218,6 +225,28 @@ const config = {
 };
 
 const linter = new Linter();
+
+test('ignores fresh defaults forwarded through recursive calls', t => {
+	const code = outdent`
+		const graph = {a: 'b', b: 'a'};
+
+		function walk(node, seen = new Set()) {
+			if (seen.has(node)) {
+				return node;
+			}
+
+			seen.add(node);
+			return walk(graph[node], seen);
+		}
+
+		walk('a');
+		walk('b');
+	`;
+	const result = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.deepStrictEqual(result.messages, []);
+});
 
 test('fixes multiple parameters across successive passes', t => {
 	const code = 'function format(first, second, third) { return [first, second, third]; } format(1, 2, 3); format(1, 2, 3);';
@@ -381,8 +410,30 @@ test('keeps the original earlier-parameter snapshot across recursive forwarding'
 	const code = 'function walk(node, saved = node) { return node.next ? walk(node.next, saved) : saved.value; } [walk({value: 1, next: {value: 2}}), walk({value: 3, next: {value: 4}})];';
 	const result = linter.verifyAndFix(code, config);
 	t.assert.strictEqual(result.fixed, false);
-	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.deepStrictEqual(result.messages, []);
 	t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), '[1,3]');
+});
+
+test('still reports recursive defaults referring to stable outer bindings', t => {
+	const code = 'const saved = {}; function walk(node, state = saved) { return node.next ? walk(node.next, state) : state; } walk(first); walk(second, undefined);';
+	const result = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(result.messages[0].messageId, 'always-default');
+});
+
+test('preserves results when fixing primitive defaults and undefined across recursive forwarding', t => {
+	for (const parameter of ['unit = "px"', 'unit']) {
+		const code = `function walk(node, ${parameter}) { return node.next ? walk(node.next, unit) : [node.value, unit]; } [walk({next: {value: 1}}), walk({value: 2})];`;
+		const messages = linter.verify(code, config);
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].messageId, parameter.includes('=') ? 'always-default' : 'always-undefined');
+		const result = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
+	}
 });
 
 test('fixes a parameter with the same name as a stable outer binding', t => {

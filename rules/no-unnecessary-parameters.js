@@ -250,6 +250,11 @@ function getParameterValue(parameter, arguments_, context) {
 
 	const defaultValue = parameter.defaultNode ? getValue(parameter.defaultNode, context) : undefinedValue;
 	if (incoming.every(argument => isUndefined(argument.value))) {
+		if (arguments_.some(argument => argument.forwarding)
+			&& (!defaultValue || (defaultValue.kind === 'binding' && findVariable(context.sourceCode.getScope(parameter.identifier).upper, defaultValue.variable.name) !== defaultValue.variable))) {
+			return;
+		}
+
 		return {messageId: parameter.defaultNode ? 'always-default' : 'always-undefined', value: defaultValue, arguments_};
 	}
 

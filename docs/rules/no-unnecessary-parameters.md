@@ -185,4 +185,6 @@ Set this to `1` to check functions called only once.
 
 Functions with unknown callers, public methods, and functions using their own `arguments` are ignored. Ambiguous arguments and nested destructuring are skipped. Files with direct `eval`, `with`, or non-strict block function declarations are skipped.
 
+When recursive calls forward a parameter whose external calls always use its default, the default must be a supported primitive or a stable binding accessible from the function's outer scope. Complex defaults such as `new Set()`, function calls, and object literals, and defaults referring to the function's other parameters are skipped because forwarding can preserve a value across recursive calls.
+
 Autofixes update declarations and callers together. Files with a TypeScript extension or parser require manual changes, as do global bindings, complex defaults, and fixes that could change scope, evaluation timing, syntax, or comments. Reflection through instance constructors or function source text is unsupported.
