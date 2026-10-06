@@ -77,5 +77,6 @@ test.snapshot({
 	valid: [],
 	invalid: [
 		'array.some(element => element.foo) /* comment */ || array.some(element => element.bar);',
+		'array.every(element => /* comment */ element.foo) && array.every(element => element.bar);',
 	],
 });

@@ -55,6 +55,20 @@ Suggestion 1/1: Merge predicates into one \`Array#some()\` call.:
 
 `;
 
+exports[`prefer-single-array-predicate > invalid(2): array.every(element => /* comment */ element.foo) && array.every(element => element.bar); 1`] = `
+
+  1 | array.every(element => /* comment */ element.foo) && array.every(element => element.bar);
+
+`;
+
+exports[`prefer-single-array-predicate > invalid(2): array.every(element => /* comment */ element.foo) && array.every(element => element.bar); 2`] = `
+
+Message:
+> 1 | array.every(element => /* comment */ element.foo) && array.every(element => element.bar);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a single \`Array#every()\` with a combined predicate.
+
+`;
+
 exports[`prefer-single-array-predicate > invalid(2): if (\n\tarray.every(element => element.foo === 1)\n\t&& array.every(element => element.bar === 2)\n) {} 1`] = `
 
   1 | if (
