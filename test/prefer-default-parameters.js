@@ -62,6 +62,40 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		'let {a, b = (a = 4)} = options; console.log(a ?? 3);',
+		'const fn = (repo, name) => repo ?? name;',
+		'const fn = ({repo, name}) => repo ?? name;',
+		'const [second, first] = array; console.log(second ?? first);',
+		'const fn = (name, repo) => repo ?? repo;',
+		'function fn(name, repo) { repo ||= repo; }',
+		'const name = "default"; const fn = repo => repo ?? name;',
+		'const {name} = options; const {repo} = options; console.log(repo ?? name);',
+		'const {name} = options, {repo} = options; console.log(repo ?? name);',
+		'const fn = (name, repo) => { name = "changed"; return repo ?? name; };',
+		'const fn = (name, repo) => { const result = repo ?? name; name = "changed"; return result; };',
+		'const fn = (name, repo) => { function reset() { name = "changed"; } return repo ?? name; };',
+		'const fn = (name, repo) => { name++; return repo ?? name; };',
+		'let [name, repo] = array; name = "changed"; console.log(repo ?? name);',
+		'let {name, repo, other = (name = "changed")} = options; console.log(repo ?? name);',
+		'const fn = (name, repo) => { var name; return repo ?? name; };',
+		'const fn = (name, repo) => { { const name = "shadow"; return repo ?? name; } };',
+		'const fn = (name, repo) => { function read(name) { return repo ?? name; } return repo ?? name; };',
+		'const fn = (name, other, repo) => [repo ?? name, repo ?? other];',
+		'const fn = (name, repo) => [repo ?? name, repo || name];',
+		'const fn = (name, repo) => [repo ?? name, repo ?? undefined];',
+		'const fn = (name, repo) => [repo ?? name, repo ?? "default"];',
+		'const fn = (name, repo) => repo ?? name();',
+		'const fn = (name, repo) => repo ?? name.value;',
+		'function fn(name, repo) { name = "changed"; repo ||= name; }',
+		'function fn(name, repo) { repo ??= name; name = "changed"; }',
+		'function fn(name, repo) { function reset() { name = "changed"; } repo = repo || name; }',
+		'function fn(name, repo) { sideEffect(); repo ||= name; }',
+		'function fn(repo, name) { repo ||= name; }',
+		'const fn = (name, repo, other) => repo ?? name;',
+		'function fn(name, repo) { "use strict"; repo ??= name; }',
+		'function fallback(repo) { return repo ?? fallback; }',
+		'const fn = function fallback(repo) { return repo ?? fallback; };',
+		'function fallback(repo) { repo ||= fallback; }',
+		'function fallback(repo) { const result = repo ?? fallback; console.log(result); }',
 	],
 	invalid: [
 		'const fn = a => [a ?? 3, a ?? 3];',
@@ -161,6 +195,43 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		'const fn = ({[key]: a}) => a ?? 3;',
+		'const fn = (name, repo) => repo || name;',
+		'const fn = (name, repo) => [repo ?? name, repo ?? name];',
+		'const fn = (name, repo) => [repo || name, repo || name];',
+		'const fn = (name, repo) => { function read() { return repo ?? name; } return repo ?? name; };',
+		'const fn = ({name, property: repo}) => repo ?? name;',
+		'const fn = ({nested: {name, repo}}) => repo ?? name;',
+		'const fn = ({nested: {name}, repo}) => repo ?? name;',
+		'const fn = ([[name, repo]]) => repo ?? name;',
+		'const fn = ({name, repo} = {}) => repo ?? name;',
+		'const fn = (name = "default", repo) => repo ?? name;',
+		'const fn = ({name = "default", repo}) => repo ?? name;',
+		'const fn = ({name}, repo) => repo ?? name;',
+		'const {name, repo} = options; console.log(repo || name);',
+		'let [name, repo] = array; console.log(repo ?? name);',
+		'const {name, nested: {repo}} = options; console.log(repo ?? name);',
+		'for (const [name, repo] of arrays) { console.log(repo ?? name); }',
+		'const fn = (name, repo) => (repo) ?? (name);',
+		'const fn = (name, repo) => repo ?? /* Keep comment. */ name;',
+		'const fn = ({name, repo /* Keep comment. */}) => repo ?? name;',
+		'function fn(name, repo) { repo ||= /* Keep comment. */ name; }',
+		'function fn(name, repo) {\r\n  repo ??= name;\r\n}',
+		{
+			code: 'const fn = (name: string, repo?: string) => repo ?? name;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const fn = ({name, repo}: {name: string; repo?: string}) => repo ?? name;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function fn(name: string, repo?: string) { repo ??= name; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function fn(name: string, repo?: string) { const result: string = repo ?? name; console.log(result); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		outdent`
 			function install(packages) {
 				return packages.map(({name, versionRange}) => \`\${name}@\${versionRange || 'latest'}\`);
@@ -210,6 +281,55 @@ test.snapshot({
 test({
 	valid: [],
 	invalid: [
+		{
+			code: 'const fn = (name, repo) => repo ?? name;',
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const fn = (name, repo = name) => repo;'}],
+			}],
+		},
+		{
+			code: 'const fn = ({name, repo}) => repo ?? name;',
+			errors: [{
+				messageId: 'preferDestructuringDefaultOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const fn = ({name, repo = name}) => repo;'}],
+			}],
+		},
+		{
+			code: 'const [first, second] = array; console.log(second ?? first);',
+			errors: [{
+				messageId: 'preferDestructuringDefaultOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const [first, second = first] = array; console.log(second);'}],
+			}],
+		},
+		{
+			code: 'function abc(foo, bar) { bar = bar || foo; }',
+			errors: [{
+				messageId: 'preferDefaultParameters',
+				suggestions: [{messageId: 'preferDefaultParametersSuggest', output: 'function abc(foo, bar = foo) { }'}],
+			}],
+		},
+		{
+			code: 'function fn(name, repo) { repo ||= name; }',
+			errors: [{
+				messageId: 'preferDefaultParameters',
+				suggestions: [{messageId: 'preferDefaultParametersSuggest', output: 'function fn(name, repo = name) { }'}],
+			}],
+		},
+		{
+			code: 'function fn(name, repo) { repo ??= name; }',
+			errors: [{
+				messageId: 'preferDefaultParameters',
+				suggestions: [{messageId: 'preferDefaultParametersSuggest', output: 'function fn(name, repo = name) { }'}],
+			}],
+		},
+		{
+			code: 'function fn(name, repo) { const result = repo ?? name; console.log(result); }',
+			errors: [{
+				messageId: 'preferDefaultParameters',
+				suggestions: [{messageId: 'preferDefaultParametersSuggest', output: 'function fn(name, result = name) { console.log(result); }'}],
+			}],
+		},
 		{
 			code: 'const fn = a => a ?? 3;',
 			errors: [{

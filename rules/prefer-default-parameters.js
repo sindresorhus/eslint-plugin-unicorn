@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {functionTypes, getStaticStringValue} from './ast/index.js';
-import {getVisitorChildNodes} from './utils/index.js';
+import {getVisitorChildNodes, isSameBinding} from './utils/index.js';
 
 const MESSAGE_ID = 'preferDefaultParameters';
 const MESSAGE_ID_SUGGEST = 'preferDefaultParametersSuggest';
@@ -20,7 +20,6 @@ const getDefaultAssignment = (left, right, operator = '=') => {
 		&& right.type === 'LogicalExpression'
 		&& (right.operator === '||' || right.operator === '??')
 		&& right.left.type === 'Identifier'
-		&& isStaticDefaultValue(right.right)
 	) {
 		return {
 			assignedIdentifier: left,
@@ -29,7 +28,7 @@ const getDefaultAssignment = (left, right, operator = '=') => {
 		};
 	}
 
-	if ((operator === '||=' || operator === '??=') && isStaticDefaultValue(right)) {
+	if (operator === '||=' || operator === '??=') {
 		return {
 			assignedIdentifier: left,
 			parameterIdentifier: left,
@@ -122,6 +121,20 @@ const create = context => {
 	const functionStack = [];
 	const reportedVariables = new Set();
 
+	const isEarlierBinding = (fallback, variable) => {
+		if (fallback.type !== 'Identifier' || variable.defs.length !== 1) {
+			return false;
+		}
+
+		const fallbackVariable = findVariable(sourceCode.getScope(fallback), fallback);
+		const [definition] = fallbackVariable?.defs ?? [];
+		return fallbackVariable?.defs.length === 1
+			&& definition.type === variable.defs[0].type
+			&& definition.node === variable.defs[0].node
+			&& sourceCode.getRange(definition.name)[0] < sourceCode.getRange(variable.defs[0].name)[0]
+			&& fallbackVariable.references.every(reference => !reference.isWrite() || reference.init);
+	};
+
 	const getDefaultReadProblem = (variable, node) => {
 		const [definition] = variable.defs;
 		if (
@@ -160,10 +173,13 @@ const create = context => {
 			expression.type !== 'LogicalExpression'
 			|| (expression.operator !== '??' && expression.operator !== '||')
 			|| expression.left !== references[index].identifier
-			|| !isStaticDefaultValue(expression.right)
+			|| (!isStaticDefaultValue(expression.right) && !isEarlierBinding(expression.right, variable))
 			|| expression.right.regex
 			|| expression.operator !== firstExpression.operator
-			|| !Object.is(getStaticStringValue(expression.right) ?? expression.right.value, getStaticStringValue(firstExpression.right) ?? firstExpression.right.value),
+			|| ((expression.right.type === 'Identifier') !== (firstExpression.right.type === 'Identifier'))
+			|| (expression.right.type === 'Identifier'
+				? !isSameBinding(expression.right, firstExpression.right, context)
+				: !Object.is(getStaticStringValue(expression.right) ?? expression.right.value, getStaticStringValue(firstExpression.right) ?? firstExpression.right.value)),
 		)) {
 			return;
 		}
@@ -224,7 +240,6 @@ const create = context => {
 			parameterIdentifier: {name: parameterName},
 			defaultValue,
 		} = defaultAssignment;
-		const defaultValueText = sourceCode.getText(defaultValue);
 		const {name: assignedName} = assignedIdentifier;
 		const isAssignment = node.type === 'ExpressionStatement';
 
@@ -248,7 +263,11 @@ const create = context => {
 		const parameter = params.at(-1);
 
 		// See 'default-param-last' rule
-		if (parameter?.type !== 'Identifier' || parameter.name !== parameterName) {
+		if (
+			parameter?.type !== 'Identifier'
+			|| parameter.name !== parameterName
+			|| (!isStaticDefaultValue(defaultValue) && !isEarlierBinding(defaultValue, variable))
+		) {
 			return;
 		}
 
@@ -269,6 +288,7 @@ const create = context => {
 		const parameterText = typeAnnotation
 			? `${assignedName}${sourceCode.getText(typeAnnotation)}`
 			: assignedName;
+		const defaultValueText = sourceCode.getText(defaultValue);
 		const replacement = needsParentheses(sourceCode, currentFunction)
 			? `(${parameterText} = ${defaultValueText})`
 			: `${parameterText} = ${defaultValueText}`;

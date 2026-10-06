@@ -9,9 +9,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Instead of reassigning a function parameter, default parameters should be used. This includes the `||=` and `??=` logical assignment operators. The `foo = foo || 123` statement evaluates to `123` when `foo` is falsy, possibly leading to confusing behavior, whereas default parameters only apply when passed an `undefined` value. This rule only reports reassignments to literal values, including untagged template literals without expressions.
+Instead of reassigning a function parameter, default parameters should be used. This includes the `||=` and `??=` logical assignment operators. The `foo = foo || 123` statement evaluates to `123` when `foo` is falsy, possibly leading to confusing behavior, whereas default parameters only apply when passed an `undefined` value. This rule reports reassignments to literal values or earlier bindings from the same parameter list. Untagged template literals without expressions are also supported.
 
-The rule also prefers defaults for parameters and destructured variables when every read uses the same operator (`??` or `||`) and literal fallback (excluding regular expressions), and the variable is never reassigned. Quoted strings and template literals without expressions are considered the same fallback when their decoded string values are equal. Plain parameters must be last. Local declarations must use `const` or `let` and must not be exported.
+The rule also prefers defaults for parameters and destructured variables when every read uses the same operator (`??` or `||`) and fallback, and the variable is never reassigned. The fallback must be a literal (excluding regular expressions), an untagged template literal without expressions, or an earlier binding from the same parameter list or destructuring declaration. Quoted strings and template literals without expressions are considered the same fallback when their decoded string values are equal. Fallback bindings must never be reassigned. Binding order is preserved, so later bindings are not reported. Plain parameters must be last. Local declarations must use `const` or `let` and must not be exported.
 
 > [!NOTE]
 > Suggestions can change runtime behavior: `||` and `||=` fall back for all falsy values, `??` and `??=` for `null` or `undefined`, and parameter and destructuring defaults only for `undefined`.
@@ -137,4 +137,40 @@ function abc(bar = 'bar') {}
 function abc(foo) {
 	foo = foo || bar();
 }
+```
+
+```js
+// ❌
+const fn = (name, repo) => repo ?? name;
+
+// ✅
+const fn = (name, repo = name) => repo;
+```
+
+```js
+// ❌
+const fn = ({name, repo}) => repo ?? name;
+
+// ✅
+const fn = ({name, repo = name}) => repo;
+```
+
+```js
+// ❌
+const [first, second] = array;
+console.log(second ?? first);
+
+// ✅
+const [first, second = first] = array;
+console.log(second);
+```
+
+```js
+// ❌
+function abc(foo, bar) {
+	bar = bar || foo;
+}
+
+// ✅
+function abc(foo, bar = foo) {}
 ```
