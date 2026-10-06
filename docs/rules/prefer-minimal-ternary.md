@@ -21,7 +21,7 @@ const foo = test ? call(a) : call(b);
 const foo = call(test ? a : b);
 ```
 
-Direct method calls are also supported when the receiver is an identifier, literal, `this`, or `super`, and the method uses dot access or a literal computed key. Optional chaining, dynamic method keys, and chained receivers are ignored.
+Direct method calls support identifier, literal, `this`, and `super` receivers with dot access or literal keys. Optional chaining, dynamic keys, and chained receivers are ignored.
 
 ```js
 // ❌
@@ -71,26 +71,15 @@ For these cases, shared values before the varying value must be simple expressio
 
 Only shallow cases are reported; nested expressions are not recursively minimized. JavaScript and TypeScript expressions are supported, including Vue and Svelte templates.
 
-Shared expressions and explicit TypeScript type arguments are compared without comments or whitespace between tokens. A trailing comma in a directly shared object literal is also ignored. String, template, regular expression, and JSX text contents and other punctuation remain significant. Shared expressions containing functions or classes require identical source text, since line breaks inside them can change behavior.
+Matching ignores comments and whitespace between tokens, including in TypeScript type arguments, and trailing commas in directly shared object literals. String, template, regex, and JSX text contents and other punctuation remain significant. Shared expressions containing functions or classes require identical source text.
 
 ## Autofix limitations
 
-Autofixes preserve evaluation order or only reorder safe expressions. Cases with comments or unsafe reordering are reported without a fix.
+Comments, unsafe evaluation reordering, Vue directive attributes, and statement bodies inside Vue interpolations prevent autofixes.
 
-Vue directive attributes and statement bodies inside interpolations are reported without a fix, since their quoting and statement syntax need separate handling. Expression-only interpolations and script expressions can be autofixed.
+With [type information](https://typescript-eslint.io/getting-started/typed-linting/), fixes that could change narrowing, overload resolution, generic inference, or correlated types are withheld, as are fixes for shared-callee calls and constructors with rest parameters. These checks are best-effort; review type-sensitive fixes.
 
-With [type information](https://typescript-eslint.io/getting-started/typed-linting/), the rule also withholds fixes that could lose branch narrowing or change overload resolution, generic inference, or correlated object and tuple types. These checks are conservative and do not prove that every transformation preserves TypeScript types. Without type information, review fixes that depend on narrowing or overloads.
-
-Shared-callee calls and constructors with rest parameters are reported without a fix when type information is available. Rest tuple types can describe relationships between arguments that combining the branches would lose.
-
-For example, this is reported without an autofix when type information is available. Moving `value` outside the branches loses its narrowing and makes the addition invalid:
-
-```ts
-declare const value: string | number;
-const result = typeof value === 'string' ? value + 'a' : value + 1;
-```
-
-TypeScript `const enum` receivers are not reported when type information is available: conditional receivers and conditional member keys cannot be used with a `const enum`. Without types, these receivers cannot be distinguished from ordinary objects.
+TypeScript `const enum` receivers are ignored when type information is available, since conditional receivers and keys would not compile.
 
 ## Design boundaries
 
