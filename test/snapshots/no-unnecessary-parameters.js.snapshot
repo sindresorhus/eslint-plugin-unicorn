@@ -834,6 +834,9 @@ Message:
 > 1 | class Point { constructor(x, y, z) { this.point = [x, y, z]; } } new Point(1, 2, 0); new Point(3, 4, 0);
     |                                 ^ Parameter \`z\` receives the same value at every call.
 
+Output:
+  1 | class Point { constructor(x, y) { this.point = [x, y, 0]; } } new Point(1, 2); new Point(3, 4);
+
 `;
 
 exports[`no-unnecessary-parameters > invalid(49): function Point(x, y, z) { this.point = [x, y, z]; } new Point(1, 2, 0); new Point(3, 4, 0); 1`] = `
@@ -847,6 +850,9 @@ exports[`no-unnecessary-parameters > invalid(49): function Point(x, y, z) { this
 Message:
 > 1 | function Point(x, y, z) { this.point = [x, y, z]; } new Point(1, 2, 0); new Point(3, 4, 0);
     |                      ^ Parameter \`z\` receives the same value at every call.
+
+Output:
+  1 | function Point(x, y) { this.point = [x, y, 0]; } new Point(1, 2); new Point(3, 4);
 
 `;
 
@@ -892,6 +898,9 @@ exports[`no-unnecessary-parameters > invalid(50): const Point = class { construc
 Message:
 > 1 | const Point = class { constructor(value) { this.value = value; } }; new Point(1); new Point(1);
     |                                   ^^^^^ Parameter \`value\` receives the same value at every call.
+
+Output:
+  1 | const Point = class { constructor() { this.value = 1; } }; new Point(); new Point();
 
 `;
 

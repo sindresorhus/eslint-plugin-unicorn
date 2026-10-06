@@ -118,7 +118,7 @@ pair(1);
 pair(2);
 ```
 
-Recursive calls may need to share a default value while separate external calls need fresh values. This parameter is necessary:
+Recursive calls can share a default value that must be fresh for each external call:
 
 ```js
 // ✅
@@ -202,10 +202,10 @@ Set this to `1` to check functions called only once.
 
 Functions with unknown callers, public methods, and functions using their own `arguments` are ignored. Ambiguous arguments and nested destructuring are skipped. Files with direct `eval`, `with`, or non-strict block function declarations are skipped.
 
-When external calls always use a default that recursive calls forward unchanged, the rule requires a supported primitive or stable outer binding. Other defaults are skipped because evaluating them again can change the value or lose shared state. A stable binding can still refer to a mutable object.
+When external calls use a default forwarded by recursion, only primitives and stable outer bindings are checked. Other defaults are skipped to preserve shared state.
 
-Autofixes update declarations and callers together. Any function called with `new`, including class constructors, requires manual changes. Global bindings, complex defaults, and fixes that could change scope, evaluation timing, syntax, or comments also require manual changes.
+Autofixes update declarations and callers together. Global bindings, complex defaults, and changes affecting scope, timing, syntax, or comments require manual fixes.
 
-Files with a TypeScript extension or parser, a `@ts-check` comment, or JSDoc signature annotations such as `@param` or `@type` require manual changes. `@ts-check` comments and signature annotations disable autofixes throughout the file, including for unannotated functions. Descriptive JSDoc without signature annotations does not prevent autofixes.
+Autofixes are disabled throughout files using a TypeScript extension or parser, `@ts-check`, or JSDoc signature annotations like `@param`, `@type`, `@constructor`, and `@class`. Descriptive JSDoc is unaffected.
 
-JavaScript type checking enabled only through an external `checkJs` setting is not detected when using a parser without TypeScript services, such as Espree. Reflection through instance constructors or function source text is unsupported.
+External `checkJs` settings are not detected without TypeScript parser services. Reflection through instance constructors or function source text is unsupported.

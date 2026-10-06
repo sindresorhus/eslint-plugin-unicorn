@@ -424,7 +424,7 @@ function hasJavaScriptTypeAnnotations(context) {
 		/^\s*(?:[*/]\s*)?@ts-check\b/iu.test(comment.value)
 		|| (comment.type === 'Block'
 			&& comment.value.trimStart().startsWith('*')
-			&& /@(?:param|arg|argument|type|returns?|template|this|overload|satisfies)\b/u.test(comment.value)));
+			&& /@(?:param|arg|argument|type|returns?|template|this|overload|satisfies|constructor|class)\b/u.test(comment.value)));
 }
 
 function getFix(parameter, result, target, context) {
@@ -434,7 +434,6 @@ function getFix(parameter, result, target, context) {
 	if (
 		isTypeScriptFile(context.filename)
 		|| sourceCode.parserServices.esTreeNodeToTSNodeMap
-		|| [...target.calls].some(call => call.type === 'NewExpression')
 		|| hasJavaScriptTypeAnnotations(context)
 		|| parameter.variable.defs.length !== 1
 		|| parameter.variable.references.some(reference => !isRuntimeReference(reference))
