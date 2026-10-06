@@ -1,7 +1,7 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {
+	getOutermostTypeScriptExpression,
 	getTypeArgumentsText,
-	isTypeScriptExpressionWrapper,
 	trackLocalFunctionCalls,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
@@ -64,10 +64,7 @@ const create = context => {
 				continue;
 			}
 
-			let {parent} = node;
-			while (isTypeScriptExpressionWrapper(parent)) {
-				parent = parent.parent;
-			}
+			const {parent} = getOutermostTypeScriptExpression(node);
 
 			yield {
 				node: node.id ?? parent.id ?? parent.key ?? node,

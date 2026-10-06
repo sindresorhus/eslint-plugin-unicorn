@@ -117,8 +117,6 @@ const isSameValue = (first, second) => first?.kind === second?.kind && (
 	first.kind === 'binding' ? first.variable === second.variable : Object.is(first.value, second.value)
 );
 
-
-
 function getPropertyName(property) {
 	if (property.type !== 'Property') {
 		return;

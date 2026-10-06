@@ -1,21 +1,13 @@
-import {isFunction, isInTypeQuery} from '../ast/index.js';
-import unwrapTypeScriptExpression, {isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
+import {isDirectEvalCall, isFunction, isInTypeQuery} from '../ast/index.js';
+import unwrapTypeScriptExpression, {getOutermostTypeScriptExpression} from './unwrap-typescript-expression.js';
 
 const hasWrites = variable => variable.references.some(reference => !reference.init && reference.isWrite());
 const isRuntimeReference = reference =>
 	reference.isValueReference !== false
 	&& !isInTypeQuery(reference.identifier);
 
-function getOuterExpression(node) {
-	while (isTypeScriptExpressionWrapper(node.parent)) {
-		node = node.parent;
-	}
-
-	return node;
-}
-
 function getCall(node) {
-	node = getOuterExpression(node);
+	node = getOutermostTypeScriptExpression(node);
 	const {parent} = node;
 	if ((parent.type === 'CallExpression' || parent.type === 'NewExpression') && parent.callee === node) {
 		return parent;
@@ -159,8 +151,7 @@ export default function trackLocalFunctionCalls(context) {
 		}
 	});
 	context.on('CallExpression', node => {
-		const callee = unwrapTypeScriptExpression(node.callee);
-		if (callee.type === 'Identifier' && callee.name === 'eval') {
+		if (isDirectEvalCall(node)) {
 			hasDynamicScope = true;
 		}
 	});

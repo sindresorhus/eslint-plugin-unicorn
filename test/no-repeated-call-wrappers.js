@@ -129,6 +129,7 @@ test.snapshot({
 		`,
 		'class Wrapper {} const makeHandler = () => Wrapper => Wrapper; new Wrapper(makeHandler()); new Wrapper(makeHandler());',
 		'class Wrapper {} const makeClass = () => class Wrapper {}; new Wrapper(makeClass()); new Wrapper(makeClass());',
+		'const getWords = text => text.split(" "); eval?.(source); new Set(getWords(first)); new Set(getWords(second));',
 	],
 });
 

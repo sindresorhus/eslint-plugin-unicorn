@@ -11,6 +11,8 @@ When every caller converts a function's result in the same way, consider making 
 
 This rule reports a local function or native private method (`#method`) when every call is immediately wrapped in the same single-argument constructor, such as `new Set(getWords(text))`, or the same primitive conversion, such as `Number(readCount(object))`. It reports once on the function or method, rather than at each call site.
 
+This rule is excluded from the recommended preset because keeping conversions in callers can be an intentional design choice.
+
 ## Examples
 
 ```js
@@ -84,12 +86,10 @@ const words = getWords(second);
 
 ## Scope and limitations
 
-- Local function declarations, function expressions, arrow functions, and native private methods (`#method`) are checked. At least two distinct call sites are required. A call inside a loop still counts as one call site.
-- Exported functions, imported functions, public methods, TypeScript methods declared with the `private` keyword, function-valued private fields, reassigned functions, and functions with unknown callers are ignored. Passing a function or private method as a callback, creating an alias, or accessing its properties counts as an unknown caller.
-- Async functions, generators, optional calls, and functions called from within their own definition are ignored. Indirect recursion is not analyzed.
-- Wrappers must be direct `new Constructor(call())` expressions or calls to `String`, `Number`, `Boolean`, or `BigInt`, with one argument and an identifier callee. The wrapper must refer to the same binding at every call site and be accessible inside the function or private method. Calls and constructors are distinct: `Number(call())` and `new Number(call())` do not match. Explicit wrapper type arguments must match.
-- TypeScript assertions around the called function are supported, including `getWords!(text)` and `(getWords as Getter)(text)`.
-- Wrappers around arguments, arbitrary function-call wrappers, wrapper member access, intermediate expressions, and TypeScript assertions around call results are ignored.
-- Files with direct `eval`, `with`, or non-strict block function declarations are ignored.
+- Checks local functions and native private methods (`#method`) with at least two distinct call sites. Public methods, TypeScript `private` methods, and private function fields are excluded.
+- Ignores exported, imported, reassigned, or escaped functions. Callbacks, aliases, and property access count as unknown callers.
+- Requires direct, single-argument `new Constructor(call())` expressions or `String`, `Number`, `Boolean`, or `BigInt` conversions. Wrappers must use an identifier, the same binding accessible inside the function, the same call or constructor form, and matching explicit type arguments.
+- Supports TypeScript assertions around the called function, but not its result. Async functions, generators, optional calls, and functions called within their own definition are ignored. Indirect recursion is not analyzed.
+- Ignores files with direct `eval`, `with`, or non-strict block function declarations.
 
-This rule does not provide automatic fixes or editor suggestions. Moving a wrapper changes the return contract and may require renaming the function or updating its types. Review evaluation timing, exception handling, and whether the conversion belongs in the function before making the change. Keeping conversions in callers can be an intentional design choice; disable this rule for those functions.
+Moving a wrapper can change return types, evaluation timing, and exception handling, so this rule provides no fixes or editor suggestions. Disable it when conversions intentionally belong in callers.
