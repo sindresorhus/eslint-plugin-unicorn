@@ -28,6 +28,28 @@ const incompatibleResultCases = [
 	'function fn(name: string, repo?: string | null): string { repo = repo ?? name; return repo; }',
 ];
 
+const anyTypeCases = [
+	'function fn(repo) { return repo ?? 3; } fn("text");',
+	'function fn(repo) { repo ??= 3; return repo; } fn("text");',
+	'function fn(repo) { repo = repo || 3; return repo; } fn("text");',
+	'function fn(name: any, repo?: string) { return repo ?? name; } const value: number = fn(3);',
+	'function fn(name: any, repo?: string) { return repo || name; } const value: number = fn(3);',
+	'function fn(name: any, repo?: string) { repo ||= name; return repo; }',
+	'function fn(repo: any) { return repo ?? 3; }',
+	'const fn: (repo: any) => any = repo => repo ?? 3;',
+	'function fn({name, repo}: {name: any; repo?: string}) { return repo ?? name; }',
+	'declare const options: any; const {repo} = options; console.log(repo ?? 3);',
+];
+
+test({
+	valid: [
+		...anyTypeCases.map(code => typeAware(code)),
+		typeAware('function fn(repo) { return repo ?? 3; } fn("text");', 'file.js'),
+		typeAware('/** @param {*} [repo] */\nfunction fn(repo) { return repo ?? 3; }', 'file.js'),
+	],
+	invalid: [],
+});
+
 test({
 	valid: incompatibleResultCases.map(code => typeAware(code)),
 	invalid: [],
@@ -199,6 +221,13 @@ test.typescript({
 	],
 	invalid: [
 		{
+			code: 'function fn(repo: any) { return repo ?? 3; }',
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'function fn(repo: any = 3) { return repo; }'}],
+			}],
+		},
+		{
 			code: 'function fn(name, repo) { const result: string = repo ?? name; return result; }',
 			filename: 'file.ts',
 			errors: [{
@@ -241,10 +270,10 @@ for (const parser of ['vue', 'svelte']) {
 	});
 }
 
-const getTypeScriptDiagnostics = code => {
-	const filename = '/prefer-default-parameters.ts';
+const getTypeScriptDiagnostics = (code, {filename = '/prefer-default-parameters.ts', ...compilerOptions} = {}) => {
 	const options = {
 		strict: true, noEmit: true, types: [], skipLibCheck: true, target: typescript.ScriptTarget.ESNext,
+		...compilerOptions,
 	};
 	const host = typescript.createCompilerHost(options);
 	const {getSourceFile} = host;
@@ -273,6 +302,26 @@ nodeTest('incompatible transformations are not reported', t => {
 		}, {filename});
 		t.assert.deepStrictEqual(messages, []);
 	}
+});
+
+nodeTest('any types cannot change inferred call signatures or return types', t => {
+	const linter = new Linter();
+	for (const code of anyTypeCases) {
+		t.assert.deepStrictEqual(getTypeScriptDiagnostics(code, {noImplicitAny: false}), []);
+		const {languageOptions, filename} = typeAware(code);
+		const messages = linter.verify(code, {
+			files: ['**/*.ts'],
+			languageOptions,
+			plugins: {unicorn: {rules: {[ruleId]: rule}}},
+			rules: {[`unicorn/${ruleId}`]: 'error'},
+		}, {filename});
+		t.assert.deepStrictEqual(messages, []);
+	}
+
+	const code = 'function fn(repo) { return repo ?? 3; } fn("text");';
+	t.assert.deepStrictEqual(getTypeScriptDiagnostics(code, {
+		filename: '/prefer-default-parameters.js', allowJs: true, checkJs: true, noImplicitAny: false,
+	}), []);
 });
 
 nodeTest('suggestions preserve TypeScript validity and the annotated call signature', t => {

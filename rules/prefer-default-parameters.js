@@ -126,6 +126,11 @@ const create = context => {
 				: defaultValue;
 			const defaultValueType = sourceCode.parserServices.getTypeAtLocation(defaultValueDeclaration);
 			const bindingType = sourceCode.parserServices.getTypeAtLocation(binding);
+			// Defaults can narrow inferred signatures when a binding or fallback has type any.
+			if (bindingType.intrinsicName === 'any' || defaultValueType.intrinsicName === 'any') {
+				return false;
+			}
+
 			const bindingTypes = bindingType.isUnion() ? bindingType.types : [bindingType];
 			const expressionType = sourceCode.parserServices.getTypeAtLocation(expression);
 			// A declaration default cannot rely on type narrowing at a fallback read.
