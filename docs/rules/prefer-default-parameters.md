@@ -42,6 +42,39 @@ You should disable this rule if you want your functions to deal with `null` and 
 
 Applying a suggestion can change behavior: `??` and `??=` also replace `null`, while `||` and `||=` additionally replace `''`, `false`, `0`, `0n`, and `NaN`. Default parameters and destructuring defaults preserve all of those values.
 
+## Options
+
+### checkFallbackExpressions
+
+Type: `boolean`\
+Default: `true`
+
+When `false`, the rule allows inline `||` and `??` fallback reads in parameters and destructured variables. Parameter reassignments and moving a parameter's fallback initializer from a local variable to the parameter declaration are still checked. Those suggestions can also change runtime behavior.
+
+```js
+export default {
+	rules: {
+		'unicorn/prefer-default-parameters': ['error', {
+			checkFallbackExpressions: false,
+		}],
+	},
+};
+```
+
+With `checkFallbackExpressions: false`:
+
+```js
+// ✅
+const fn = a => a || 3;
+
+// ✅
+const fn = ({a}) => a ?? 3;
+
+// ✅
+const [a] = arr;
+console.log(a || 3);
+```
+
 ## Examples
 
 ```js

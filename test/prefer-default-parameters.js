@@ -172,6 +172,41 @@ test.snapshot({
 	],
 });
 
+test.snapshot({
+	valid: [
+		...[
+			'const fn = a => a || 3;',
+			'const fn = a => a ?? 3;',
+			'const fn = ({a}) => a || 3;',
+			'const fn = ([a]) => a ?? 3;',
+			'const {a} = options; console.log(a || 3);',
+			'let [a] = arr; console.log(a ?? 3);',
+		].map(code => ({code, options: [{checkFallbackExpressions: false}]})),
+		{
+			code: outdent`
+				function install(packages) {
+					return packages.map(({name, versionRange}) => \`\${name}@\${versionRange || 'latest'}\`);
+				}
+
+				console.log(install([{name: 'eslint', versionRange: ''}]));
+			`,
+			options: [{checkFallbackExpressions: false}],
+		},
+	],
+	invalid: [
+		{code: 'const fn = a => a || 3;', options: [{checkFallbackExpressions: true}]},
+		{code: 'const fn = ({a}) => a ?? 3;', options: [{}]},
+		...[
+			'function fn(a) { a = a || 3; }',
+			'function fn(a) { a = a ?? 3; }',
+			'function fn(a) { a ||= 3; }',
+			'function fn(a) { a ??= 3; }',
+			'function fn(a) { const b = a || 3; console.log(b); }',
+			'function outer(a) { function inner(b) { b ??= 3; } return a || 3; }',
+		].map(code => ({code, options: [{checkFallbackExpressions: false}]})),
+	],
+});
+
 test({
 	valid: [],
 	invalid: [
