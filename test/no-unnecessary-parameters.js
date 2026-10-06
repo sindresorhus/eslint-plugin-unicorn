@@ -1,8 +1,10 @@
 import vm from 'node:vm';
+import path from 'node:path';
 import {stripTypeScriptTypes} from 'node:module';
 import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
+import ts from 'typescript';
 import plugin from '../index.js';
 import {getTester, parsers} from './utils/test.js';
 
@@ -230,6 +232,82 @@ const config = {
 
 const linter = new Linter();
 
+function getJavaScriptTypeErrors(code) {
+	const filename = path.join(import.meta.dirname, 'no-unnecessary-parameters.fixture.js');
+	const options = {
+		allowJs: true,
+		checkJs: true,
+		noEmit: true,
+		noImplicitAny: false,
+		target: ts.ScriptTarget.ESNext,
+		module: ts.ModuleKind.ESNext,
+		lib: ['lib.esnext.d.ts'],
+		types: [],
+		skipLibCheck: true,
+	};
+	const host = ts.createCompilerHost(options);
+	const originalReadFile = host.readFile.bind(host);
+	host.readFile = path => path === filename ? code : originalReadFile(path);
+	const program = ts.createProgram([filename], options, host);
+	return ts.getPreEmitDiagnostics(program).map(diagnostic => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'));
+}
+
+test('preserves JavaScript type annotations when reporting unnecessary parameters', t => {
+	for (const code of [
+		'/** @param {number} value */ function format(value) { return value.toFixed(); } [format(1), format(1)];',
+		'/** Format a value. @param {number} value */ function format(value) { return value.toFixed(); } [format(1), format(1)];',
+		'/** @type {(value: number) => string} */ const format = value => value.toFixed(); [format(1), format(1)];',
+		'// @ts-check\nfunction format(value) { let result = value; result = "text"; return result; } [format(1), format(1)];',
+		'#!/usr/bin/env node\n/* @ts-check */\nfunction format(value) { let result = value; result = "text"; return result; } [format(1), format(1)];',
+	]) {
+		t.assert.deepStrictEqual(getJavaScriptTypeErrors(code), []);
+		const result = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+		t.assert.deepStrictEqual(getJavaScriptTypeErrors(result.output), []);
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
+	}
+});
+
+test('keeps parameters documented with JSDoc aliases and attached declaration types', t => {
+	for (const code of [
+		'/** @arg {number} value */ function format(value) { return value; } format(1); format(1);',
+		'/** @argument {number} value */ function format(value) { return value; } format(1); format(1);',
+		'/** @param {number} value */ const format = function (value) { return value; }; format(1); format(1);',
+		'class Formatter { /** @param {number} value */ #format(value) { return value; } run() { this.#format(1); this.#format(1); } }',
+	]) {
+		const result = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.strictEqual(result.messages.length, 1);
+	}
+});
+
+test('fixes parameters beside ordinary comments and descriptive JSDoc', t => {
+	for (const comment of ['// Format a value.', '/* Format a value. */', '/** Format a value. */', '// This example mentions @ts-check.']) {
+		const code = `${comment}\nfunction format(value) { return value; } [format(1), format(1)];`;
+		const result = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.ok(result.output.startsWith(comment));
+		t.assert.deepStrictEqual(structuredClone(vm.runInNewContext(result.output)), [1, 1]);
+	}
+});
+
+test('ignores checking pragmas after code has started', t => {
+	for (const code of [
+		'const marker = 0;\n// @ts-check\nfunction format(value) { return value; } [format(1), format(1)];',
+		'function format(value) { /* @ts-check */ return value; } [format(1), format(1)];',
+	]) {
+		const result = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.deepStrictEqual(structuredClone(vm.runInNewContext(result.output)), [1, 1]);
+	}
+});
+
 test('ignores fresh defaults forwarded through recursive calls', t => {
 	const code = outdent`
 		const graph = {a: 'b', b: 'a'};
@@ -444,6 +522,22 @@ test('still reports recursive defaults referring to stable outer bindings', t =>
 	t.assert.strictEqual(result.output, code);
 	t.assert.strictEqual(result.messages.length, 1);
 	t.assert.strictEqual(result.messages[0].messageId, 'always-default');
+});
+
+test('checks explicit recursive arguments independently of complex defaults', t => {
+	const declaration = 'function walk(node, saved = new Set()) { return node.next ? walk(node.next, saved) : saved; }';
+	const code = `${declaration} [walk({next: {}}, 1), walk({}, 1)];`;
+	const result = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.deepStrictEqual(structuredClone(vm.runInNewContext(result.output)), [1, 1]);
+
+	const mixedCode = `${declaration} const results = [walk({next: {}}), walk({}, 1)]; [results[0] instanceof Set, results[1]];`;
+	const mixedResult = linter.verifyAndFix(mixedCode, config);
+	t.assert.strictEqual(mixedResult.fixed, false);
+	t.assert.strictEqual(mixedResult.output, mixedCode);
+	t.assert.deepStrictEqual(mixedResult.messages, []);
+	t.assert.deepStrictEqual(structuredClone(vm.runInNewContext(mixedResult.output)), [true, 1]);
 });
 
 test('preserves mutable outer binding snapshots across recursive forwarding', t => {

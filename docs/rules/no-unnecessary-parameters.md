@@ -118,6 +118,23 @@ pair(1);
 pair(2);
 ```
 
+Recursive calls may need to share a default value while separate external calls need fresh values. This parameter is necessary:
+
+```js
+// ✅
+function walk(node, seen = new Set()) {
+	if (seen.has(node)) {
+		return seen;
+	}
+
+	seen.add(node);
+	return node.next ? walk(node.next, seen) : seen;
+}
+
+walk({next: {}});
+walk({});
+```
+
 Shallow object-destructured properties are checked independently.
 
 ```js
@@ -185,6 +202,8 @@ Set this to `1` to check functions called only once.
 
 Functions with unknown callers, public methods, and functions using their own `arguments` are ignored. Ambiguous arguments and nested destructuring are skipped. Files with direct `eval`, `with`, or non-strict block function declarations are skipped.
 
-When recursive calls forward a parameter whose external calls always use its default, the default must be a supported primitive or a stable binding accessible from the function's outer scope. Complex defaults such as `new Set()`, function calls, and object literals, and defaults referring to the function's other parameters are skipped because forwarding can preserve a value across recursive calls.
+When external calls always use a default that recursive calls forward unchanged, the rule requires a supported primitive or stable outer binding. Other defaults are skipped because evaluating them again can change the value or lose shared state. A stable binding can still refer to a mutable object.
 
-Autofixes update declarations and callers together. Files with a TypeScript extension or parser require manual changes, as do global bindings, complex defaults, and fixes that could change scope, evaluation timing, syntax, or comments. Reflection through instance constructors or function source text is unsupported.
+Autofixes update declarations and callers together. Files with a TypeScript extension or parser, files with a leading `@ts-check` comment, and functions with adjacent JSDoc signature annotations require manual changes. Global bindings, complex defaults, and fixes that could change scope, evaluation timing, syntax, or comments also require manual changes.
+
+JSDoc detection uses only the nearest comment and requires no blank line before the declaration. JavaScript type checking enabled only through an external `checkJs` setting is not detected when using a parser without TypeScript services, such as Espree. Reflection through instance constructors or function source text is unsupported.

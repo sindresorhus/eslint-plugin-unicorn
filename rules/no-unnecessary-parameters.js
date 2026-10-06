@@ -3,7 +3,7 @@ import reservedIdentifiers from 'reserved-identifiers';
 import {isInTypeQuery} from './ast/index.js';
 import {getArgumentRemovalRange, removeObjectProperty, replaceReferenceIdentifier} from './fix/index.js';
 import {
-	trackLocalFunctionCalls,
+	getAttachedComment,
 	getIndentUnit,
 	getLinebreak,
 	getLineIndent,
@@ -14,6 +14,7 @@ import {
 	isTypeScriptFile,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
+	trackLocalFunctionCalls,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -416,13 +417,34 @@ function canInlineValue(parameter, result, context) {
 	return true;
 }
 
+/**
+Check for attached JSDoc signature annotations or a leading TypeScript checking pragma.
+*/
+function hasJavaScriptTypeAnnotations(node, context) {
+	const {sourceCode} = context;
+	const comment = getAttachedComment(node, context);
+	if (
+		comment?.type === 'Block'
+		&& comment.value.trimStart().startsWith('*')
+		&& /@(?:param|arg|argument|type|returns?|template|this|overload|satisfies)\b/u.test(comment.value)
+	) {
+		return true;
+	}
+
+	const firstTokenStart = sourceCode.getRange(sourceCode.getFirstToken(sourceCode.ast))[0];
+	return sourceCode.getAllComments().some(comment =>
+		sourceCode.getRange(comment)[1] <= firstTokenStart
+		&& /^\s*(?:\*\s*)?@ts-check\b/u.test(comment.value));
+}
+
 function getFix(parameter, result, target, context) {
 	const {sourceCode} = context;
 	const {value, messageId, arguments_} = result;
-	// Changing signatures or inferred values can introduce TypeScript errors without changing runtime behavior.
+	// Changing signatures or inferred values can introduce type checking errors without changing runtime behavior.
 	if (
 		isTypeScriptFile(context.filename)
 		|| sourceCode.parserServices.esTreeNodeToTSNodeMap
+		|| hasJavaScriptTypeAnnotations(target.node, context)
 		|| parameter.variable.defs.length !== 1
 		|| parameter.variable.references.some(reference => !isRuntimeReference(reference))
 	) {

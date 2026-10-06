@@ -31,6 +31,7 @@ export {default as escapeTemplateElementRaw} from './escape-template-element-raw
 export {default as escapeString} from './escape-string.js';
 export {default as isEscapedCharacter} from './is-escaped-character.js';
 export {default as getClassHeadLocation} from './get-class-head-location.js';
+export {default as getAttachedComment} from './get-attached-comment.js';
 export {default as getAvailableVariableName} from './get-available-variable-name.js';
 export {default as getCallArgumentText} from './get-call-argument-text.js';
 export {default as getCallExpressionArgumentsText} from './get-call-expression-arguments-text.js';
