@@ -279,7 +279,9 @@ test.snapshot({
 });
 
 test({
-	valid: [],
+	valid: [
+		'const fn = ({repo}, name) => repo ?? name;',
+	],
 	invalid: [
 		{
 			code: 'const fn = (name, repo) => repo ?? name;',
@@ -293,6 +295,20 @@ test({
 			errors: [{
 				messageId: 'preferDestructuringDefaultOverFallback',
 				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const fn = ({name, repo = name}) => repo;'}],
+			}],
+		},
+		{
+			code: 'const fn = (name, {repo}) => repo ?? name;',
+			errors: [{
+				messageId: 'preferDestructuringDefaultOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const fn = (name, {repo = name}) => repo;'}],
+			}],
+		},
+		{
+			code: 'const fn = ({name: fallback}, repo) => repo ?? fallback;',
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const fn = ({name: fallback}, repo = fallback) => repo;'}],
 			}],
 		},
 		{
