@@ -446,9 +446,9 @@ const getStaticValueIfNoSideEffectsInternal = (node, context, visitedVariables =
 // `getStaticValue` is not flow-sensitive, so reject mutable bindings and constant references before their declarations complete on any path that can be evaluated.
 export const getStaticValueForControlFlow = (node, context) => {
 	const staticValue = getStaticValueIfNoSideEffectsInternal(node, context);
-	return staticValue !== undefined && !hasUnsafeBindingInEvaluatedPath(node, context)
-		? staticValue
-		: undefined;
+	return staticValue === undefined || hasUnsafeBindingInEvaluatedPath(node, context)
+		? undefined
+		: staticValue;
 };
 
 /**

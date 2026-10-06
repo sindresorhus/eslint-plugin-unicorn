@@ -647,9 +647,9 @@ function getPossiblyPromisedTypeBooleanState(type, checker, allowNullish) {
 	}
 
 	const nonNullableType = checker.getNonNullableType(awaitedType);
-	return !allowNullish && nonNullableType !== awaitedType
-		? unknown
-		: getTypeBooleanState(nonNullableType, checker, new Set(), false);
+	return allowNullish || nonNullableType === awaitedType
+		? getTypeBooleanState(nonNullableType, checker, new Set(), false)
+		: unknown;
 }
 
 function getTypeReferenceName(typeName) {

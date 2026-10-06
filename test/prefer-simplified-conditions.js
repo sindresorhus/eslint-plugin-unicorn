@@ -435,8 +435,9 @@ test('expanded conditions settle with related rules enabled', t => {
 	};
 
 	for (const [code, expectedOutput] of [
-		['if (!(a === b && c === d)) { foo(); } else { bar(); }', 'if ((a !== b || c !== d)) { foo(); } else { bar(); }'],
-		['const result = !(a && b) ? c : d;', 'const result = !a || !b ? c : d;'],
+		['if (!(a === b && c === d)) { foo(); } else { bar(); }', 'if ((a === b && c === d)) { bar(); } else { foo(); }'],
+		['const result = !(a && b) ? c : d;', 'const result = a && b ? d : c;'],
+		['const result = !(a || b) ? c : d;', 'const result = a || b ? d : c;'],
 		['function foo() { if (a && b) { bar(); baz(); qux(); } }', 'function foo() { if (!a || !b) {\n\treturn;\n}\n\nbar(); baz(); qux(); }'],
 	]) {
 		const {output, fixed, messages} = linter.verifyAndFix(code, config);
