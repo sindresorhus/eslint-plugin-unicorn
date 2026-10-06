@@ -428,7 +428,7 @@ test('preserves constructor signatures and inferred property types', t => {
 });
 
 for (const [tag, code] of [
-	['implements', '/** @typedef {{value: string}} Shape */ /** @implements {Shape} */ class Point { constructor(value) { this.value = value; } } const first = new Point("text"); const second = new Point("text"); first.value = 0; [first.value, second.value];'],
+	['implements', '/** @typedef {{name: string}} Shape */ /** @implements {Shape} */ class User { constructor(name) { this.name = name; } } const user = new User(""); new User(""); user.name = 0;'],
 	['extends', '/** @extends {Array<string>} */ class Items extends Array { constructor(value) { super(); this.push(value); } } [new Items(1)[0], new Items(1)[0]];'],
 	['augments', '/** @augments {Array<string>} */ class Items extends Array { constructor(value) { super(); this.push(value); } } [new Items(1)[0], new Items(1)[0]];'],
 ]) {
