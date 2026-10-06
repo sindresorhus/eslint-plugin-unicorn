@@ -12,7 +12,7 @@
 This rule prefers default parameters and destructuring defaults over fallback expressions and parameter reassignments, including `||=` and `??=`.
 
 > [!IMPORTANT]
-> Defaults only handle `undefined`. The `??` operator also handles `null`, and `||` handles all falsy values. The rule offers suggestions instead of autofixes because this can change behavior. Disable the rule if you need to retain that behavior. We recommend [moving away from `null`](https://github.com/sindresorhus/meta/discussions/7).
+> Defaults only handle `undefined`; `??` also handles `null`, and `||` handles all falsy values. Suggestions can therefore change behavior. Disable the rule if these distinctions matter. We recommend [moving away from `null`](https://github.com/sindresorhus/meta/discussions/7).
 
 For an empty `versionRange`, the suggestion changes the output:
 
@@ -36,18 +36,13 @@ console.log(install([{name: 'eslint', versionRange: ''}]));
 // ['eslint@']
 ```
 
-For fallback expressions:
+Fallbacks may be literals, negative number or BigInt literals, untagged template literals without expressions, or earlier bindings in the same parameter list or destructuring pattern. For fallback reads, regular expressions are excluded, every read must use the same operator (`??` or `||`) and fallback, and neither binding may be reassigned. Quoted and template strings are compared by decoded value.
 
-- Every read must use the same operator (`??` or `||`) and fallback, and the defaulted binding must never be reassigned.
-- The fallback must be a literal (excluding regular expressions), a negative number or BigInt literal, an untagged template literal without expressions, or an earlier binding from the same parameter list or destructuring variable declarator. Fallback bindings must never be reassigned. Quoted strings and template literals without expressions are considered the same fallback when their decoded string values are equal.
-- Binding order is preserved. Fallbacks referring to later bindings are not reported.
-- Plain parameters must be last. Local destructuring declarations must use `const` or `let` and must not be exported.
+Plain parameters must be last. Local destructuring declarations must use `const` or `let` and must not be exported. Suggestions preserve binding order, names, and local declarations.
 
-Local variable declarations and binding names are retained. The rule moves the default to the binding's declaration and replaces fallback expressions with reads of that binding.
+TypeScript annotations are preserved. With type information, including JavaScript with JSDoc, the rule skips incompatible type changes, narrowing-dependent defaults, and `any` bindings or fallbacks. Without it, review types before applying suggestions. TypeScript setter parameters are skipped, except destructured bindings.
 
-TypeScript annotations are preserved. When type information is available, including JavaScript with JSDoc, patterns are not reported if the default or replacement would have an incompatible type, or if the default depends on type narrowing at a read. These checks are conservative and skip bindings or fallbacks with type `any`, as well as some transformations that would widen inferred types. Without type information, review the types before applying a suggestion. Plain TypeScript setter parameters are not reported because they cannot have initializers; defaults inside their destructuring patterns remain supported.
-
-Code that relies on the [connection between parameters and `arguments` in non-strict functions](https://eslint.org/docs/latest/rules/no-param-reassign) is unsupported. Adding a parameter default removes that connection. Adding a default to a plain parameter can also reduce `function.length`.
+Code relying on [non-strict `arguments` aliasing](https://eslint.org/docs/latest/rules/no-param-reassign) is unsupported. Parameter defaults break that connection and can change `function.length`.
 
 ## Options
 
@@ -105,14 +100,6 @@ const fn = (a = `foo`) => a;
 
 ```js
 // ❌
-const fn = index => index ?? -1;
-
-// ✅
-const fn = (index = -1) => index;
-```
-
-```js
-// ❌
 const fn = ({a}) => a ?? 3;
 
 // ✅
@@ -152,18 +139,6 @@ function abc(foo = 'bar') {
 ```
 
 ```js
-// ❌
-function abc(foo) {
-	let bar = foo || 'bar';
-}
-
-// ✅
-function abc(foo = 'bar') {
-	let bar = foo;
-}
-```
-
-```js
 // ✅
 function abc(foo) {
 	foo = foo || bar();
@@ -184,11 +159,6 @@ const fn = ({name, repo}) => repo ?? name;
 
 // ✅
 const fn = ({name, repo = name}) => repo;
-```
-
-```js
-// ✅ Fallback bindings must appear earlier in the pattern.
-const fn = ({repo, name}) => repo ?? name;
 ```
 
 ```js
