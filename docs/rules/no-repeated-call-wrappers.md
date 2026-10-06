@@ -86,10 +86,8 @@ const words = getWords(second);
 
 ## Scope and limitations
 
-- Checks local functions and native private methods (`#method`) with at least two distinct call sites. Public methods, TypeScript `private` methods, and private function fields are excluded.
-- Ignores exported, imported, reassigned, or escaped functions. Callbacks, aliases, and property access count as unknown callers.
-- Requires direct, single-argument `new Constructor(call())` expressions or `String`, `Number`, `Boolean`, or `BigInt` conversions. Wrappers must use an identifier, the same binding accessible inside the function, the same call or constructor form, and matching explicit type arguments.
-- Supports TypeScript assertions around the called function, but not its result. Async functions, generators, optional calls, and functions called within their own definition are ignored. Indirect recursion is not analyzed.
-- Ignores files with direct `eval`, `with`, or non-strict block function declarations.
+- Requires at least two distinct call sites and the same wrapper binding, accessible inside the function.
+- Ignores exported, reassigned, or escaped functions, async functions, generators, optional calls, and direct recursion.
+- Public methods, TypeScript `private` methods, and private function fields are excluded.
 
-Moving a wrapper can change return types, evaluation timing, and exception handling, so this rule provides no fixes or editor suggestions. Disable it when conversions intentionally belong in callers.
+No fixes or suggestions are provided because moving wrappers can change return types, evaluation timing, and exception handling.
