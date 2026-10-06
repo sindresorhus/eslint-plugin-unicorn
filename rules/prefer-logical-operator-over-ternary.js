@@ -17,6 +17,7 @@ import {
 	isTypeScriptFile,
 	getOutermostTypeScriptExpression,
 	unwrapTypeScriptExpression,
+	withTypeInformation,
 } from './utils/index.js';
 import {getNullishTest, isSameNode} from './shared/nullish-check.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
@@ -142,6 +143,16 @@ function getBooleanConstantValue(node, context) {
 
 		if (node.type !== 'Identifier') {
 			return;
+		}
+
+		const typeValue = withTypeInformation(node, context, ({type, checker}) => {
+			const typeName = checker.typeToString(type);
+			if (typeName === 'true' || typeName === 'false') {
+				return typeName === 'true';
+			}
+		});
+		if (typeValue !== undefined) {
+			return literalTypeAnnotations.every(typeAnnotation => getBooleanLiteralTypeValue(typeAnnotation) === typeValue) ? typeValue : undefined;
 		}
 
 		const definition = getConstantVariableDefinition(node, context);

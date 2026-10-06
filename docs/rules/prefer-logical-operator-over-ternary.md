@@ -15,9 +15,18 @@ For patterns such as `foo ? foo : bar`, the rule provides suggestions instead of
 
 For explicit nullish-check ternaries, this rule only suggests `??` when the source code itself proves nullish intent. It does not report arbitrary `foo || bar` expressions. TypeScript users who want type-aware `||` checks should use [`@typescript-eslint/prefer-nullish-coalescing`](https://typescript-eslint.io/rules/prefer-nullish-coalescing/).
 
-The rule also handles ternaries with exactly one constant boolean branch, including simple `const` aliases: `condition ? true : expression` becomes `condition || expression`; `condition ? false : expression` becomes `!condition && expression`; `condition ? expression : false` becomes `condition && expression`; and `condition ? expression : true` becomes `!condition || expression`.
+The rule also handles ternaries with exactly one constant boolean branch, including simple `const` aliases. With TypeScript type information, it also recognizes identifiers whose types are exactly `true` or `false`, including declared and imported identifiers.
 
-These constant-boolean rewrites require the other branch to be known boolean. When the condition is not known boolean, the first and third forms wrap it in `Boolean()` to preserve the boolean result. These cases are reported without a fix in TypeScript, in JavaScript parsed with TypeScript services, or when they contain comments. This check is skipped inside `with` statements. Ternaries with two constant boolean branches are also skipped; use ESLint's [`no-unneeded-ternary`](https://eslint.org/docs/latest/rules/no-unneeded-ternary) for two boolean literals.
+| Ternary | Logical alternative |
+| --- | --- |
+| `condition ? true : expression` | `Boolean(condition) \|\| expression` |
+| `condition ? false : expression` | `!condition && expression` |
+| `condition ? expression : false` | `Boolean(condition) && expression` |
+| `condition ? expression : true` | `!condition \|\| expression` |
+
+`Boolean()` is omitted when the condition is known boolean. The other branch must be known boolean.
+
+These cases are reported without a fix in TypeScript, in JavaScript parsed with TypeScript services, or when they contain comments. TypeScript rewrites can change narrowing, inferred types, or overload selection, even when using `!!` instead of `Boolean()`. This check is skipped inside `with` statements. Ternaries with two constant boolean branches are also skipped; use ESLint's [`no-unneeded-ternary`](https://eslint.org/docs/latest/rules/no-unneeded-ternary) for two boolean literals.
 
 ## Examples
 

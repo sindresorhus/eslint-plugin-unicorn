@@ -21,6 +21,43 @@ const createBooleanAliasChain = initialValue => Array.from({length: 20_001}, (_,
 const booleanAliasChain = createBooleanAliasChain('true');
 const booleanConditionAliasChain = createBooleanAliasChain('a === b');
 
+test({
+	valid: [
+		{
+			code: 'declare const yes: true; condition ? yes : Boolean(value);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'const yes = unknown; condition ? yes : Boolean(value);',
+		typeAware('declare function yes(): true; condition ? yes() : Boolean(value);'),
+		typeAware('declare function no(): false; condition ? Boolean(value) : no();'),
+		typeAware('declare const object: {yes: true}; condition ? object.yes : Boolean(value);'),
+		typeAware('declare const yes: true; declare const value: string; condition ? yes : value;'),
+		typeAware('declare const yes: true; declare const no: false; condition ? yes : no;'),
+		typeAware('declare const yes: boolean | undefined; condition ? yes : Boolean(value);'),
+		typeAware('declare const yes: true; condition ? (yes as boolean) : Boolean(value);'),
+	],
+	invalid: [
+		'declare const yes: true; condition ? yes : Boolean(value);',
+		'declare const no: false; condition ? no : Boolean(value);',
+		'declare const no: false; condition ? Boolean(value) : no;',
+		'declare const yes: true; condition ? Boolean(value) : yes;',
+		'declare function getYes(): true; const yes = getYes(); condition ? yes : Boolean(value);',
+		'import {yes} from \'./test/fixtures/prefer-logical-operator-over-ternary/booleans.js\'; condition ? yes : Boolean(value);',
+		'import {no} from \'./test/fixtures/prefer-logical-operator-over-ternary/booleans.js\'; condition ? Boolean(value) : no;',
+		'function f<T extends boolean>(condition: T, other: T) { return condition ? true : other; } const result: true = f(true, true);',
+		outdent`
+			declare function condition(): true;
+			declare function fallback(): false;
+			declare function pick(value: true): "literal";
+			declare function pick(value: boolean): "boolean";
+			const result: "boolean" = pick(condition() ? true : fallback());
+		`,
+	].map(code => ({
+		...typeAware(code),
+		errors: [{messageId: 'prefer-logical-operator-over-ternary/error', suggestions: []}],
+	})),
+});
+
 test.snapshot({
 	valid: [
 		'a === b ? false : null',
@@ -109,6 +146,8 @@ test({
 		['async function f() { return await value ? Boolean(fallback()) : false; }', 'async function f() { return Boolean(await value) && Boolean(fallback()); }'],
 		['function * f() { return (yield value) ? true : Boolean(fallback()); }', 'function * f() { return Boolean(yield value) || Boolean(fallback()); }'],
 		['function * f() { return (yield value) ? Boolean(fallback()) : false; }', 'function * f() { return Boolean(yield value) && Boolean(fallback()); }'],
+		['function * f() { return (yield true) ? true : Boolean(fallback()); }', 'function * f() { return Boolean(yield true) || Boolean(fallback()); }'],
+		['function * f() { return (yield true) ? Boolean(fallback()) : false; }', 'function * f() { return Boolean(yield true) && Boolean(fallback()); }'],
 		['function f(value) { return(value) ? true : Boolean(other); }', 'function f(value) { return Boolean(value) || Boolean(other); }'],
 		['function f(value) { return(value) ? Boolean(other) : false; }', 'function f(value) { return Boolean(value) && Boolean(other); }'],
 		['function f() { return{} ? true : Boolean(other); }', 'function f() { return Boolean({}) || Boolean(other); }'],
@@ -383,6 +422,85 @@ test.snapshot({
 		{code: 'value ? Boolean(fallback()) : false', filename: 'file.js', languageOptions: {parser: parsers.typescript}},
 	],
 });
+
+test.vue({
+	valid: [
+		// Vue.js template expressions require framework-specific visitors.
+		'<template><div>{{ value ? true : Boolean(other) }}</div></template>',
+	],
+	invalid: [
+		{
+			code: '<script>const result = value ? true : Boolean(other);</script>',
+			output: '<script>const result = Boolean(value) || Boolean(other);</script>',
+			filename: 'file.vue',
+			errors: [{messageId: 'prefer-logical-operator-over-ternary/error'}],
+		},
+		{
+			code: '<script lang="ts">const value: string = ""; const result = value ? true : Boolean(other);</script>',
+			filename: 'file.vue',
+			languageOptions: {
+				parserOptions: {parser: parsers.typescript.implementation},
+			},
+			errors: [{messageId: 'prefer-logical-operator-over-ternary/error'}],
+		},
+	],
+});
+
+test.svelte({
+	valid: [],
+	invalid: [
+		{
+			code: '<script>const result = value ? true : Boolean(other);</script><div>{value ? Boolean(other) : false}</div>',
+			output: '<script>const result = Boolean(value) || Boolean(other);</script><div>{Boolean(value) && Boolean(other)}</div>',
+			filename: 'file.svelte',
+			errors: [
+				{messageId: 'prefer-logical-operator-over-ternary/error'},
+				{messageId: 'prefer-logical-operator-over-ternary/error'},
+			],
+		},
+		{
+			code: '<script lang="ts">const value: string = ""; const result = value ? true : Boolean(other);</script><div>{value ? Boolean(other) : false}</div>',
+			filename: 'file.svelte',
+			languageOptions: {
+				parserOptions: {parser: parsers.typescript.implementation},
+			},
+			errors: [
+				{messageId: 'prefer-logical-operator-over-ternary/error'},
+				{messageId: 'prefer-logical-operator-over-ternary/error'},
+			],
+		},
+	],
+});
+
+for (const expression of ['(yield true) ? true : Boolean(fallback())', '(yield true) ? Boolean(fallback()) : false']) {
+	nodeTest(`boolean ternary autofixes preserve generator resume values: ${expression}`, t => {
+		const code = `function * f() { return ${expression}; } f();`;
+		const linter = new Linter();
+		const fixed = linter.verifyAndFix(code, {
+			plugins: {unicorn: plugin},
+			rules: {'unicorn/prefer-logical-operator-over-ternary': 'error'},
+		});
+		t.assert.strictEqual(fixed.fixed, true);
+		t.assert.deepStrictEqual(fixed.messages, []);
+
+		for (const resumedValue of [0, undefined, 'value']) {
+			for (const fallbackValue of [false, true]) {
+				const evaluate = source => {
+					const events = [];
+					const iterator = runInNewContext(source, {
+						fallback() {
+							events.push('fallback');
+							return fallbackValue;
+						},
+					});
+					return {first: {...iterator.next()}, second: {...iterator.next(resumedValue)}, events};
+				};
+
+				t.assert.deepStrictEqual(evaluate(fixed.output), evaluate(code));
+			}
+		}
+	});
+}
 
 for (const code of ['condition() ? true : Boolean(fallback())', 'condition() ? Boolean(fallback()) : false']) {
 	nodeTest(`boolean ternary autofixes preserve results and evaluation order: ${code}`, t => {
