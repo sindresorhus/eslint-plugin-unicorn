@@ -8,31 +8,33 @@ import plugin from '../../index.js';
 import {typescriptEslintParser} from '../../scripts/parsers.js';
 
 const filename = path.resolve('file.ts');
-const compilerOptions = {strict: true, noEmit: true, target: ts.ScriptTarget.ESNext};
+const compilerOptions = {
+	strict: true, noEmit: true, allowJs: true, checkJs: true, target: ts.ScriptTarget.ESNext,
+};
 
-function getProgram(code) {
+function getProgram(code, sourceFilename = filename) {
 	const host = ts.createCompilerHost(compilerOptions);
 	const getSourceFile = host.getSourceFile.bind(host);
-	host.getSourceFile = (file, languageVersion, onError) => file === filename
+	host.getSourceFile = (file, languageVersion, onError) => file === sourceFilename
 		? ts.createSourceFile(file, code, languageVersion, true)
 		: getSourceFile(file, languageVersion, onError);
-	return ts.createProgram([filename], compilerOptions, host);
+	return ts.createProgram([sourceFilename], compilerOptions, host);
 }
 
 function getDiagnostics(program) {
 	return ts.getPreEmitDiagnostics(program)
-		.filter(diagnostic => diagnostic.file?.fileName === filename)
+		.filter(diagnostic => diagnostic.file?.fileName === program.getRootFileNames()[0])
 		.map(diagnostic => diagnostic.code);
 }
 
 function getMessages(code, program, options = {}) {
 	const linter = new Linter();
 	return linter.verify(code, {
-		files: ['**/*.ts'],
+		files: ['**/*.{js,ts}'],
 		languageOptions: {parser: typescriptEslintParser, parserOptions: program ? {programs: [program]} : {}},
 		plugins: {unicorn: plugin},
 		rules: {'unicorn/prefer-minimal-ternary': ['error', options]},
-	}, {filename});
+	}, {filename: program?.getRootFileNames()[0] ?? filename});
 }
 
 const cases = [
@@ -279,6 +281,48 @@ test('withholds shared-callee fixes with rest parameters', t => {
 	const code = 'declare function consume(...values: string[]): void; declare const condition: boolean; condition ? consume("a") : consume("b");';
 	const program = getProgram(code);
 	t.assert.deepStrictEqual(getDiagnostics(program), []);
+	const messages = getMessages(code, program);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].messageId, 'prefer-minimal-ternary');
+	t.assert.strictEqual(messages[0].fix, undefined);
+});
+
+test('fixes typed JavaScript calls with JSDoc parameters', t => {
+	const sourceFilename = path.resolve('file.js');
+	const code = outdent`
+		/** @param {string | number} value */
+		function read(value) {
+			return String(value);
+		}
+		const condition = Boolean(1);
+		const result = condition ? read("a") : read(1);
+	`;
+	const program = getProgram(code, sourceFilename);
+	t.assert.deepStrictEqual(getDiagnostics(program), []);
+	const messages = getMessages(code, program);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].messageId, 'prefer-minimal-ternary');
+	const {fix} = messages[0];
+	t.assert.ok(fix);
+	t.assert.strictEqual(fix.text, 'read(condition ? "a" : 1)');
+	const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	t.assert.deepStrictEqual(getDiagnostics(getProgram(output, sourceFilename)), []);
+});
+
+test('withholds typed JavaScript fixes with JSDoc rest parameters', t => {
+	const code = outdent`
+		/** @param {...string} values */
+		function read(...values) {
+			return values.length;
+		}
+		const condition = Boolean(1);
+		const result = condition ? read("a") : read("b");
+	`;
+	const program = getProgram(code, path.resolve('file.js'));
+	t.assert.deepStrictEqual(getDiagnostics(program), []);
+	const syntaxMessages = getMessages(code);
+	t.assert.strictEqual(syntaxMessages.length, 1);
+	t.assert.ok(syntaxMessages[0].fix);
 	const messages = getMessages(code, program);
 	t.assert.strictEqual(messages.length, 1);
 	t.assert.strictEqual(messages[0].messageId, 'prefer-minimal-ternary');

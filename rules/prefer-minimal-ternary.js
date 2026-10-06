@@ -28,8 +28,11 @@ const safeSharedExpressionTypes = new Set([
 	'ThisExpression',
 ]);
 
-function getExpressionTokens(node, tokenStore) {
-	const tokens = tokenStore.getTokens(node);
+function getExpressionTokens(node, context) {
+	// JSX text entities and literal whitespace can produce different rendered text even when their decoded token values match.
+	const tokens = getTokenStore(context, node).getTokens(node).map(token => token.type === 'JSXText'
+		? {...token, value: context.sourceCode.getText(token)}
+		: token);
 	if (node.type === 'ObjectExpression' && tokens.at(-2)?.value === ',') {
 		return [...tokens.slice(0, -2), tokens.at(-1)];
 	}
@@ -43,10 +46,9 @@ function isSameExpression(left, right, context) {
 		return true;
 	}
 
-	const tokenStore = getTokenStore(context, left);
 	const isFunctionOrClass = node => isFunction(node) || node.type === 'ClassExpression';
 	// Line breaks can change behavior inside statement bodies through automatic semicolon insertion.
-	return isSameTokens(getExpressionTokens(left, tokenStore), getExpressionTokens(right, tokenStore))
+	return isSameTokens(getExpressionTokens(left, context), getExpressionTokens(right, context))
 		&& !containsNode(left, context, isFunctionOrClass)
 		&& !containsNode(right, context, isFunctionOrClass);
 }

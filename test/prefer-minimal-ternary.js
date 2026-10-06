@@ -65,8 +65,18 @@ test({
 			code: 'test ? call(a, <div>name suffix</div>) : call(b, <div>name  suffix</div>);',
 			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
 		},
+		{
+			code: 'test ? call(a, <p>foo&#10;bar</p>) : call(b, <p>foo\nbar</p>);',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
 	],
 	invalid: [
+		{
+			code: 'test ? call(a, <p className="shared">foo&#10;bar</p>) : call(b, <p className = "shared">foo&#10;bar</p>);',
+			output: 'call(test ? a : b, <p className="shared">foo&#10;bar</p>);',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
 		{
 			code: 'test ? call(a, other?first:second) : call(b, other ? first : second);',
 			output: 'call(test ? a : b, other?first:second);',
