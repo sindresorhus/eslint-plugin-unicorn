@@ -53,6 +53,12 @@ test({
 		typescript('const nodes = document.querySelectorAll("li") as NodeListOf<Element>; (nodes as NodeListOf<Element>)[nodes.length - 1];'),
 		typescript('const nodes = <NodeList>element.childNodes; _.last(<NodeList>nodes);'),
 		typescript('const nodes = element.children satisfies HTMLCollection; nodes![nodes!.length - 1];'),
+		// Direct DOM expressions keep the existing exclusion even when asserted as arrays.
+		typescript(outdent`
+			(element.children as string[])[element.children.length - 1];
+			(element.children as string[]).slice(-1)[0];
+			_.last(element.children as string[]);
+		`),
 		typescript('type Nodes = NodeListOf<Element>; function foo(nodes: Nodes) { _.last(nodes); }'),
 		typescript('function foo(nodes: NodeList | HTMLCollection) { _.last(nodes); }'),
 		typescript('function foo(nodes: NodeList | undefined) { return nodes?.[nodes.length - 1]; }'),
