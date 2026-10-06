@@ -57,10 +57,10 @@ function getCallExpressionArgumentsRange(callExpression, context) {
 	const {
 		openingParenthesisToken,
 		closingParenthesisToken,
-		trailingCommaToken,
+		trailingCommaToken = closingParenthesisToken,
 	} = getCallExpressionTokens(callExpression, context);
 	const [, start] = sourceCode.getRange(openingParenthesisToken);
-	const [end] = sourceCode.getRange(trailingCommaToken ?? closingParenthesisToken);
+	const [end] = sourceCode.getRange(trailingCommaToken);
 	return [start, end];
 }
 

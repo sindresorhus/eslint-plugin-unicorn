@@ -22,13 +22,13 @@ export default function getCallExpressionArgumentsText(
 	const {
 		openingParenthesisToken,
 		closingParenthesisToken,
-		trailingCommaToken,
+		trailingCommaToken = closingParenthesisToken,
 	} = getCallExpressionTokens(callExpression, context);
 
 	const [, start] = sourceCode.getRange(openingParenthesisToken);
 	const [end] = sourceCode.getRange(includeTrailingComma
 		? closingParenthesisToken
-		: (trailingCommaToken ?? closingParenthesisToken));
+		: trailingCommaToken);
 
 	return sourceCode.text.slice(start, end);
 }

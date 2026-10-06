@@ -31,9 +31,9 @@ const isClassList = node => isMemberExpression(node, {
 	computed: false,
 });
 
-const getProblem = (valueNode, fix, reportNode) => {
+const getProblem = (valueNode, fix, reportNode = valueNode) => {
 	const problem = {
-		node: reportNode ?? valueNode,
+		node: reportNode,
 		messageId: MESSAGE_ID_ERROR,
 	};
 
