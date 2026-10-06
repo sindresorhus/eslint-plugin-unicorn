@@ -94,7 +94,7 @@ test({
 		['const condition = 0; condition ? true : Boolean(fallback())', 'const condition = 0; Boolean(condition) || Boolean(fallback())'],
 		['const yes = true; value ? yes : Boolean(fallback())', 'const yes = true; Boolean(value) || Boolean(fallback())'],
 		['const no = false; value ? Boolean(fallback()) : no', 'const no = false; Boolean(value) && Boolean(fallback())'],
-		['let value = false; value = 0; const condition = value; condition ? true : Boolean(fallback())', 'let value = false; value = 0; const condition = value; Boolean(condition) || Boolean(fallback())'],
+		['let value = false; value = 0; const alias = value; alias ? true : Boolean(other)', 'let value = false; value = 0; const alias = value; Boolean(alias) || Boolean(other)'],
 		['const condition = a === b; condition ? true : Boolean(fallback())', 'const condition = a === b; condition || Boolean(fallback())'],
 		['const condition = a === b; condition ? Boolean(fallback()) : false', 'const condition = a === b; condition && Boolean(fallback())'],
 		['(first(), value) ? true : Boolean(fallback())', 'Boolean((first(), value)) || Boolean(fallback())'],
@@ -394,7 +394,7 @@ for (const code of ['condition() ? true : Boolean(fallback())', 'condition() ? B
 		t.assert.strictEqual(fixed.fixed, true);
 		t.assert.deepStrictEqual(fixed.messages, []);
 
-		for (const conditionValue of [undefined, false, true, 0, -0, Number.NaN, '', 'value', 0n, 1n, Symbol('value'), {}, []]) {
+		for (const conditionValue of [undefined, false, true, 0, -0, NaN, '', 'value', 0n, 1n, Symbol('value'), {}, []]) {
 			for (const fallbackValue of [false, true]) {
 				const evaluate = source => {
 					const events = [];
