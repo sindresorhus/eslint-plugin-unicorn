@@ -180,15 +180,13 @@ const create = context => {
 			/**
 			@param {ESLint.Rule.RuleFixer} fixer
 			*/
-			fix(fixer) {
-				return fixLoop(fixer, {
-					loop: node,
-					firstStatement,
-					condition: getLoopConditionText(firstStatement.test, context),
-					sourceCode,
-					context,
-				});
-			},
+			fix: fixer => fixLoop(fixer, {
+				loop: node,
+				firstStatement,
+				condition: getLoopConditionText(firstStatement.test, context),
+				sourceCode,
+				context,
+			}),
 		}, commentRange, [preservedBodyRange]);
 	});
 };
