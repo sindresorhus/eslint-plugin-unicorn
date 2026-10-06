@@ -179,7 +179,10 @@ test({
 			code: 'const fn = a => a ?? 3;',
 			errors: [{
 				messageId: 'preferDefaultParameterOverFallback',
-				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const fn = (a = 3) => a;'}],
+				suggestions: [{
+					desc: 'Move the default value to the declaration. This changes fallback behavior to apply only to undefined.',
+					output: 'const fn = (a = 3) => a;',
+				}],
 			}],
 		},
 		{
@@ -798,7 +801,7 @@ test({
 			errors: [{
 				messageId: 'preferDefaultParameters',
 				suggestions: [{
-					messageId: 'preferDefaultParametersSuggest',
+					desc: 'Replace reassignment with a default parameter. This changes fallback behavior to apply only to undefined.',
 					output: outdent`
 						function abc(foo: string = 'bar') {
 						}
