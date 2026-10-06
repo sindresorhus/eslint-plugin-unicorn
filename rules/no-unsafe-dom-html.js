@@ -1,5 +1,6 @@
 import {getStaticStringValue, isMemberExpression} from './ast/index.js';
 import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
+import {getStaticPropertyName} from './utils/index.js';
 
 const MESSAGE_ID = 'no-unsafe-dom-html';
 const messages = {
@@ -18,46 +19,33 @@ const htmlMethods = new Set([
 	'setHTMLUnsafe',
 ]);
 
-const getStaticPropertyName = memberExpression => {
-	const {property} = memberExpression;
-
-	if (
-		!memberExpression.computed
-		&& property.type === 'Identifier'
-	) {
-		return property.name;
-	}
-
-	return getStaticStringValue(property);
-};
-
 const unwrapChainExpression = node =>
 	node.type === 'ChainExpression'
 		? node.expression
 		: node;
 
-const getHtmlAssignmentProperty = memberExpression => {
-	const property = getStaticPropertyName(memberExpression);
+const getHtmlAssignmentProperty = (memberExpression, context) => {
+	const property = getStaticPropertyName(memberExpression, context);
 	return htmlAssignmentProperties.has(property) ? property : undefined;
 };
 
-const getHtmlMethod = node => {
+const getHtmlMethod = (node, context) => {
 	node = unwrapChainExpression(node);
 
 	if (!isMemberExpression(node)) {
 		return;
 	}
 
-	const method = getStaticPropertyName(node);
+	const method = getStaticPropertyName(node, context);
 
 	return htmlMethods.has(method) ? method : undefined;
 };
 
-const isSrcdocSetAttributeCall = callExpression => {
+const isSrcdocSetAttributeCall = (callExpression, context) => {
 	const callee = unwrapChainExpression(callExpression.callee);
 
 	return isMemberExpression(callee)
-		&& getStaticPropertyName(callee) === 'setAttribute'
+		&& getStaticPropertyName(callee, context) === 'setAttribute'
 		&& callExpression.arguments.length >= 2
 		&& getStaticStringValue(callExpression.arguments[0])?.toLowerCase() === 'srcdoc';
 };
@@ -120,7 +108,7 @@ const create = context => {
 	}
 
 	context.on('MemberExpression', node => {
-		const property = getHtmlAssignmentProperty(node);
+		const property = getHtmlAssignmentProperty(node, context);
 		if (
 			!property
 			|| !isHtmlSetter(node)
@@ -135,10 +123,10 @@ const create = context => {
 	});
 
 	context.on('CallExpression', node => {
-		const method = getHtmlMethod(node.callee);
+		const method = getHtmlMethod(node.callee, context);
 		if (
 			!method
-			&& !isSrcdocSetAttributeCall(node)
+			&& !isSrcdocSetAttributeCall(node, context)
 		) {
 			return;
 		}

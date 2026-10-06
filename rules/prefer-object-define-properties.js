@@ -6,6 +6,7 @@ import {
 	getNextNode,
 	getPreviousNode,
 	getStaticValueIfNoSideEffects,
+	hasCommentInRange,
 	hasPotentiallyMutableMemberAccess,
 	isSameReference,
 	isIdentifierName,
@@ -96,15 +97,7 @@ function hasDuplicatePropertyKeys(calls, sourceCode) {
 	return false;
 }
 
-function hasCommentsInRange(sourceCode, range) {
-	return sourceCode.getAllComments().some(comment => {
-		const [start, end] = sourceCode.getRange(comment);
-
-		return start >= range[0] && end <= range[1];
-	});
-}
-
-// Reindenting a line inside a template literal or a line-continued string literal would change the value, so such a descriptor has to be copied verbatim. Comments never reach here, `hasCommentsInRange()` already skips the fix.
+// Reindenting a line inside a template literal or a line-continued string literal would change the value, so such a descriptor has to be copied verbatim. Comments never reach here, `hasCommentInRange()` already skips the fix.
 const multilineSensitiveTokenTypes = new Set(['String', 'Template']);
 const hasMultilineToken = (node, sourceCode) => sourceCode.getTokens(node).some(token =>
 	multilineSensitiveTokenTypes.has(token.type)
@@ -225,7 +218,7 @@ const create = context => {
 
 		if (
 			!hasDuplicatePropertyKeys(calls, sourceCode)
-			&& !hasCommentsInRange(sourceCode, range)
+			&& !hasCommentInRange(context, range)
 			&& calls.every(call => !hasMultilineToken(call.arguments[2], sourceCode))
 			&& !hasReorderedKeys(calls, sourceCode)
 		) {

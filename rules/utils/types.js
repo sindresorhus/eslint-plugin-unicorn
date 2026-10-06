@@ -46,6 +46,33 @@ function getBaseTypes(type, checker) {
 	}
 }
 
+/**
+Call `callback` with the TypeScript type information of `node`: `{type, checker, program}`.
+
+Returns what `callback` returns, or `undefined` when the file has no full type information (no `parserServices.program`) or TypeScript throws. `callback` runs inside the `try`, so it can use the checker without its own error handling.
+
+@param {import('estree').Node} node
+@param {import('eslint').Rule.RuleContext} context
+@param {(typeInformation: {type: any, checker: any, program: any}) => any} callback
+*/
+function withTypeInformation(node, context, callback) {
+	const {parserServices} = context.sourceCode;
+	if (!parserServices?.program) {
+		return;
+	}
+
+	try {
+		const {program} = parserServices;
+		return callback({
+			type: parserServices.getTypeAtLocation(node),
+			checker: program.getTypeChecker(),
+			program,
+		});
+	} catch {
+		// `getTypeAtLocation()` throws for a node that the TypeScript program does not map, and the checker can throw while resolving incomplete projects. Type information is best-effort, so callers fall back to their syntax-based result.
+	}
+}
+
 export {
 	getBaseTypes,
 	getTypeSymbol,
@@ -58,4 +85,5 @@ export {
 	isTypeParameterType,
 	isUniqueSymbolType,
 	isUnknownType,
+	withTypeInformation,
 };

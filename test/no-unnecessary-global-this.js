@@ -65,6 +65,8 @@ test.snapshot({
 		'null != globalThis.navigation',
 		'if (globalThis.navigation === undefined) {}',
 		{code: '(globalThis.navigation as any) === undefined', languageOptions: {parser: parsers.typescript}},
+		// Private names are not globals
+		'class Foo { #Array; method() { return globalThis.#Array; } }',
 	],
 	invalid: [
 		'globalThis.Array.from(items)',
@@ -97,5 +99,6 @@ test.snapshot({
 				console.log(value);
 			}
 		`,
+		'globalThis["Ar" + "ray"].from(items)',
 	],
 });

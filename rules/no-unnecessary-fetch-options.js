@@ -27,6 +27,8 @@ import {
 	isGlobalIdentifier,
 	unwrapTypeScriptExpression,
 	getVisitorChildNodes,
+	hasCommentInRange,
+	withTypeInformation,
 } from './utils/index.js';
 
 const MESSAGE_ID_EMPTY_OPTIONS = 'empty-options';
@@ -139,15 +141,6 @@ const isUnsafeToRemoveProperty = (property, context) =>
 		&& hasReferenceDeclaredAfter(property.key, context)
 	);
 
-const hasCommentsInRange = (range, context) => {
-	const {sourceCode} = context;
-
-	return sourceCode.getAllComments().some(comment => {
-		const commentRange = sourceCode.getRange(comment);
-		return commentRange[0] >= range[0] && commentRange[1] <= range[1];
-	});
-};
-
 function getFinalArgumentRemovalRange(node, context) {
 	const {sourceCode} = context;
 	const range = getArgumentRemovalRange(node, context);
@@ -168,7 +161,7 @@ function hasCommentAfterTrailingComma(node, context) {
 }
 
 const canRemoveFinalArgumentWithoutComments = (node, context) =>
-	!hasCommentsInRange(getFinalArgumentRemovalRange(node, context), context)
+	!hasCommentInRange(context, getFinalArgumentRemovalRange(node, context))
 	&& !isCommentToken(context.sourceCode.getTokenAfter(node, {includeComments: true}))
 	&& !hasCommentAfterTrailingComma(node, context);
 
@@ -395,22 +388,7 @@ function getInputState(node, context) {
 		return request;
 	}
 
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return unknown;
-	}
-
-	try {
-		return getInputTypeState(
-			parserServices.getTypeAtLocation(node),
-			parserServices.program.getTypeChecker(),
-			parserServices.program,
-		);
-		// Tests cannot make TypeScript throw here.
-		/* node:coverage ignore next 3 */
-	} catch {
-		return unknown;
-	}
+	return withTypeInformation(node, context, ({type, checker, program}) => getInputTypeState(type, checker, program)) ?? unknown;
 }
 
 const isDefaultValue = (propertyName, value, context) => {

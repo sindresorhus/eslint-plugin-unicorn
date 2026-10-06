@@ -35,7 +35,7 @@ element.querySelector('.a, b');
 document.querySelectorAll('.outer .inner');
 ```
 
-A query on a shadow root or document fragment is also left alone, because `:scope` cannot match a non-element root and would make the query match nothing.
+A query on a shadow root, document fragment, or document is also left alone, because `:scope` cannot match a non-element root and would make the query match nothing. The rule recognizes the `shadowRoot`, `contentDocument`, and `ownerDocument` properties and the results of `attachShadow()`, `createShadowRoot()`, `createDocumentFragment()`, `createContextualFragment()`, `extractContents()`, `cloneContents()`, `parseFromString()`, and `getRootNode()`.
 
 ```js
 // ✅
@@ -45,5 +45,7 @@ element.shadowRoot.querySelectorAll('.outer .inner');
 ## Limitations
 
 The rule only checks selectors written as a string literal or a template literal without expressions. Dynamic selectors are ignored.
+
+Other non-element roots are not recognized, so queries on them are reported. This includes a shadow root or fragment stored in a variable (`const root = element.attachShadow(…)`), a `<template>` element's `content`, and the results of `cloneNode()` and `document.importNode()`, which can also be elements.
 
 It does not look inside functional pseudo-classes like `:is()`, `:where()`, `:not()`, and `:has()`, so a branch counts as scoped as long as it contains `:scope` somewhere. For example, `:scope div:is(.a, div b)` is accepted even though `div b` is not scoped.

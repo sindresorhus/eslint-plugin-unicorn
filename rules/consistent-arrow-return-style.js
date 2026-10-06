@@ -1,12 +1,13 @@
 import {
 	getCommentSafeProblem,
+	getConciseArrowBodyText,
+	getFunctionReturnExpression,
 	hasNonDirectiveComment,
 	getIndentUnit,
 	getLineIndent,
 	getLinebreak,
 	getParenthesizedRange,
 	getParenthesizedText,
-	isParenthesized,
 	reindentText,
 } from './utils/index.js';
 
@@ -17,16 +18,6 @@ const messages = {
 	[MESSAGE_ID_EXPLICIT]: 'Use an explicit return for a multiline arrow function body.',
 	[MESSAGE_ID_IMPLICIT]: 'Use an implicit return for a single-line return expression.',
 };
-
-const returnArgumentTypesRequiringParentheses = new Set([
-	'SequenceExpression',
-]);
-
-const typeScriptExpressionWrappers = new Set([
-	'TSAsExpression',
-	'TSSatisfiesExpression',
-	'TSNonNullExpression',
-]);
 
 const tokensWithSignificantWhitespace = new Set([
 	'String',
@@ -54,62 +45,9 @@ const hasPotentiallyUnsafeNextToken = token =>
 const linebreakPattern = /\r\n|[\n\r\u2028\u2029]/;
 const isMultiline = text => linebreakPattern.test(text);
 
-const getReturnStatement = node => {
-	if (node.body.body.length !== 1 || node.body.body[0].type !== 'ReturnStatement') {
-		return;
-	}
-
-	const returnStatement = node.body.body[0];
-	if (!returnStatement.argument) {
-		return;
-	}
-
-	return returnStatement;
-};
-
 const getArrowToken = (node, context) => {
 	const bodyRange = getParenthesizedRange(node.body, context);
 	return context.sourceCode.getTokenBefore({range: bodyRange});
-};
-
-const getUnderlyingExpression = node => {
-	while (typeScriptExpressionWrappers.has(node.type)) {
-		const {expression} = node;
-		node = expression;
-	}
-
-	return node;
-};
-
-const isInsideForStatementInitializer = node => {
-	let current = node;
-	while (current.parent) {
-		const {parent} = current;
-		if (parent.type === 'ForStatement' && parent.init === current) {
-			return true;
-		}
-
-		current = parent;
-	}
-
-	return false;
-};
-
-const getReturnArgumentText = (returnArgument, context) => {
-	const text = getParenthesizedText(returnArgument, context);
-	const underlyingExpression = getUnderlyingExpression(returnArgument);
-	const needsParentheses = text.trimStart().startsWith('{')
-		|| returnArgumentTypesRequiringParentheses.has(underlyingExpression.type)
-		|| (
-			isInsideForStatementInitializer(returnArgument)
-			&& context.sourceCode.getTokens(returnArgument).some(token => token.type === 'Keyword' && token.value === 'in')
-		);
-
-	if (isParenthesized(returnArgument, context) || !needsParentheses) {
-		return text;
-	}
-
-	return `(${text})`;
 };
 
 const hasMultilineSignificantWhitespace = (node, sourceCode) =>
@@ -141,9 +79,9 @@ const getExplicitReturnFix = (node, context) => {
 	return fixer => fixer.replaceTextRange([arrowEnd, bodyRange[1]], ` ${replacement}`);
 };
 
-const getImplicitReturnFix = (node, returnStatement, context) => {
+const getImplicitReturnFix = (node, returnExpression, context) => {
 	const {sourceCode} = context;
-	const returnArgumentText = getReturnArgumentText(returnStatement.argument, context);
+	const returnArgumentText = getConciseArrowBodyText(returnExpression, context);
 	const nextToken = sourceCode.getTokenAfter(node.body);
 
 	if (nextToken && hasPotentiallyUnsafeNextToken(nextToken)) {
@@ -163,12 +101,12 @@ const create = context => {
 		}
 
 		if (node.body.type === 'BlockStatement') {
-			const returnStatement = getReturnStatement(node);
-			if (!returnStatement || isMultiline(getParenthesizedText(returnStatement.argument, context))) {
+			const returnExpression = getFunctionReturnExpression(node);
+			if (!returnExpression || isMultiline(getParenthesizedText(returnExpression, context))) {
 				return;
 			}
 
-			const fix = getImplicitReturnFix(node, returnStatement, context);
+			const fix = getImplicitReturnFix(node, returnExpression, context);
 			return getCommentSafeProblem(context, {
 				node,
 				messageId: MESSAGE_ID_IMPLICIT,

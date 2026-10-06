@@ -68,3 +68,66 @@ test('removes an indented statement on the first line', t => {
 	t.assert.strictEqual(fix('\tfoo();\nbar();'), 'bar();');
 	t.assert.strictEqual(fix('  foo();\r\nbar();'), 'bar();');
 });
+
+const removeStatementGroupRule = {
+	meta: {
+		fixable: 'code',
+	},
+	create: context => ({
+		'Program, BlockStatement'(node) {
+			const statements = node.body.filter(statement => statement.expression?.callee?.name === 'foo');
+			if (statements.length === 0) {
+				return;
+			}
+
+			context.report({
+				node,
+				message: 'Remove statements.',
+				fix: fixer => removeStatement(statements, context, fixer),
+			});
+		},
+	}),
+};
+
+const fixGroup = code => {
+	const linter = new Linter();
+	return linter.verifyAndFix(code, {
+		files: ['**'],
+		languageOptions: DEFAULT_LANGUAGE_OPTIONS,
+		plugins: {
+			test: {
+				rules: {
+					'remove-statement-group': removeStatementGroupRule,
+				},
+			},
+		},
+		rules: {
+			'test/remove-statement-group': 'error',
+		},
+	}).output;
+};
+
+test('removes consecutive statements and their lines', t => {
+	t.assert.strictEqual(fixGroup('bar();\nfoo(1);\nfoo(2);\nbaz();'), 'bar();\nbaz();');
+	t.assert.strictEqual(fixGroup('if (a) {\n\tbar();\n\tfoo(1);\n\tfoo(2);\n}'), 'if (a) {\n\tbar();\n}');
+	t.assert.strictEqual(fixGroup('bar();\r\n\tfoo(1);\r\n\tfoo(2);\r\nbaz();'), 'bar();\r\nbaz();');
+	t.assert.strictEqual(fixGroup('foo(1);\nfoo(2);\nbar();'), 'bar();');
+	t.assert.strictEqual(fixGroup('foo(1);\nfoo(2);'), '');
+});
+
+test('removes consecutive statements that share a line with other code', t => {
+	t.assert.strictEqual(fixGroup('bar(); foo(1);\nfoo(2);\nbaz();'), 'bar(); \nbaz();');
+	t.assert.strictEqual(fixGroup('bar();\nfoo(1); foo(2); baz();'), 'bar();\n baz();');
+});
+
+test('removes a single statement in an array like the statement itself', t => {
+	for (const code of [
+		'foo();\nbar();',
+		'bar();\r\n\tfoo();\r\nbaz();',
+		'\tfoo();\nbar();',
+		'bar(); foo();',
+		'foo();',
+	]) {
+		t.assert.strictEqual(fixGroup(code), fix(code), code);
+	}
+});

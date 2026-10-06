@@ -1,6 +1,7 @@
 import {
 	getParenthesizedRange,
 	getParenthesizedText,
+	wouldRemoveComments,
 } from './utils/index.js';
 import typedArray from './shared/typed-array.js';
 import {
@@ -122,22 +123,11 @@ const isIterableAcceptingParent = node => {
 	);
 };
 
-const hasCommentsOutsideArgument = (arrayExpression, spreadElement, context) => {
-	const {sourceCode} = context;
-	const [argumentStart, argumentEnd] = getParenthesizedRange(spreadElement.argument, context);
-
-	return sourceCode.getCommentsInside(arrayExpression).some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-
-		return commentStart < argumentStart || commentEnd > argumentEnd;
-	});
-};
-
 const getReplacementText = (spreadElement, context) =>
 	`${getParenthesizedText(spreadElement.argument, context)}.toArray()`;
 
 const getFix = (arrayExpression, spreadElement, context) => {
-	if (hasCommentsOutsideArgument(arrayExpression, spreadElement, context)) {
+	if (wouldRemoveComments(context, arrayExpression, [getParenthesizedRange(spreadElement.argument, context)])) {
 		return;
 	}
 

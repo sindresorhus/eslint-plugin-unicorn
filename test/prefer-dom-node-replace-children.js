@@ -149,6 +149,8 @@ document.createElement(options.tagName).innerHTML = '';`,
 		'(parent?.node).child.innerHTML = "";',
 		// A generic intersection must not recurse forever through `getNonNullableType()`
 		typeAware('function foo<T>(node: T & HTMLTemplateElement) { node.innerHTML = ""; }'),
+		// A computed key with side effects is not treated as `innerHTML`, since the fix would drop them
+		'element[(sideEffect(), "innerHTML")] = "";',
 	],
 	invalid: [
 		{
@@ -452,6 +454,12 @@ document.createElement(options.tagName).innerHTML = '';`,
 			code: 'const document = element; document.innerHTML = "";',
 			errors: [error],
 			output: 'const document = element; document.replaceChildren();',
+		},
+		// Circular `const` references must not loop forever
+		{
+			code: 'const first = second; const second = first; first.innerHTML = "";',
+			errors: [error],
+			output: 'const first = second; const second = first; first.replaceChildren();',
 		},
 		{
 			code: 'const element = document.createElement("div"); element.innerHTML = "";',

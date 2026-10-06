@@ -1,8 +1,7 @@
-import {getParenthesizedRange, getParenthesizedText} from './utils/index.js';
+import {getParenthesizedRange, getParenthesizedText, unwrapTypeScriptExpression} from './utils/index.js';
 import {
 	containsOptionalChain,
 	isSame,
-	unwrapExpression,
 } from './utils/comparison.js';
 
 /**
@@ -20,13 +19,13 @@ const simpleComputedPropertyTypes = new Set(['Identifier', 'ThisExpression', 'Li
 const safelyAutofixableReferenceTypes = new Set(['Identifier', 'ThisExpression']);
 
 const isSimpleComputedProperty = node => {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
 	return simpleComputedPropertyTypes.has(node.type);
 };
 
 const isSimpleReference = node => {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
 	if (containsOptionalChain(node)) {
 		return false;

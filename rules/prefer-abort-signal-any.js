@@ -1,38 +1,36 @@
-import {
-	findVariable,
-	getPropertyName,
-	hasSideEffect,
-} from '@eslint-community/eslint-utils';
+import {findVariable, hasSideEffect} from '@eslint-community/eslint-utils';
 import {
 	getStaticStringValue,
 	isCallExpression,
 	isMemberExpression,
 	isNewExpression,
 } from './ast/index.js';
-import {removeStatement} from './fix/index.js';
 import {
 	getBaseTypes,
-	getCommentSafeProblem,
-	getLastTrailingCommentOnSameLine,
+	getConstVariableInitializer,
+	getSingleStatement,
 	getTypeSymbol,
-	hasNonDirectiveComment,
 	isArray,
 	isDefaultLibrarySymbol,
 	isGlobalIdentifier,
-	isLeftHandSide,
 	isNullishType,
 	isSameReference,
-	isTypeScriptExpressionWrapper,
 	isUnknownType,
 	unwrapTypeScriptExpression,
+	withTypeInformation,
 } from './utils/index.js';
+import {
+	getAbortControllerProblem,
+	getAbortReference,
+	getNextStatement,
+	getSignalMembers,
+	hasCommentBetween,
+	isAbortControllerDeclarator,
+	isStatementCommentFree,
+} from './shared/abort-controller.js';
 
 const MESSAGE_ID = 'prefer-abort-signal-any';
 const SUGGESTION_ID = 'prefer-abort-signal-any/suggestion';
-const reasonSensitiveProperties = new Set([
-	'reason',
-	'throwIfAborted',
-]);
 const listenerOptionNames = new Set([
 	'capture',
 	'once',
@@ -47,123 +45,6 @@ const typeScriptArrayTypeExpressionWrappers = new Set([
 const messages = {
 	[MESSAGE_ID]: 'Prefer `AbortSignal.any()` over manually forwarding abort events between signals.',
 	[SUGGESTION_ID]: 'Replace with `AbortSignal.any()`.',
-};
-
-const getStatementList = statement => {
-	if (Array.isArray(statement.parent.body)) {
-		return statement.parent.body;
-	}
-
-	if (Array.isArray(statement.parent.consequent)) {
-		return statement.parent.consequent;
-	}
-};
-
-const getNextStatement = statement => {
-	const statements = getStatementList(statement);
-	if (!statements) {
-		return;
-	}
-
-	return statements[statements.indexOf(statement) + 1];
-};
-
-const isGlobalNameAvailable = (name, node, context) => {
-	const variable = findVariable(context.sourceCode.getScope(node), name);
-	return !variable || variable.defs.length === 0;
-};
-
-const isGlobalAbortControllerConstructor = (node, context) =>
-	isNewExpression(node, {
-		name: 'AbortController',
-		argumentsLength: 0,
-	})
-	&& isGlobalIdentifier(node.callee, context);
-
-const hasCommentBetween = (context, leftNode, rightNode) => {
-	const {sourceCode} = context;
-	const [, leftEnd] = sourceCode.getRange(leftNode);
-	const [rightStart] = sourceCode.getRange(rightNode);
-
-	return hasNonDirectiveComment(context, [leftEnd, rightStart]);
-};
-
-const getExpressionParentIgnoringTypeScriptWrappers = node => {
-	let expression = node;
-	let {parent} = node;
-
-	while (isTypeScriptExpressionWrapper(parent)) {
-		expression = parent;
-		parent = parent.parent;
-	}
-
-	return {expression, parent};
-};
-
-// An alias like `const signal = controller.signal`, or a write through a TypeScript wrapper like `(controller.signal as AbortSignal) = value`
-const isSignalAliasOrWrite = node => {
-	const {parent} = getExpressionParentIgnoringTypeScriptWrappers(node);
-	return parent.type === 'VariableDeclarator' || parent.type === 'AssignmentExpression';
-};
-
-const isReasonSensitiveProperty = (node, context) =>
-	reasonSensitiveProperties.has(getPropertyName(node, context.sourceCode.getScope(node)));
-
-const isReasonSensitiveRead = (node, context) => {
-	const {expression, parent} = getExpressionParentIgnoringTypeScriptWrappers(node);
-
-	return isMemberExpression(parent)
-		&& parent.object === expression
-		&& isReasonSensitiveProperty(parent, context);
-};
-
-const getSignalMember = (identifier, context) => {
-	const {parent} = identifier;
-
-	if (
-		!isMemberExpression(parent, {
-			property: 'signal',
-			computed: false,
-			optional: false,
-		})
-		|| parent.object !== identifier
-		|| isLeftHandSide(parent)
-		|| isReasonSensitiveRead(parent, context)
-		|| isSignalAliasOrWrite(parent)
-		|| hasNonDirectiveComment(context, parent)
-	) {
-		return;
-	}
-
-	return parent;
-};
-
-const getSignalMembers = (variable, abortReferences, context) => {
-	const signalMembers = [];
-
-	for (const reference of variable.references) {
-		const {identifier} = reference;
-
-		if (
-			abortReferences.has(identifier)
-			|| reference.init
-		) {
-			continue;
-		}
-
-		if (reference.isWrite()) {
-			return;
-		}
-
-		const signalMember = getSignalMember(identifier, context);
-		if (!signalMember) {
-			return;
-		}
-
-		signalMembers.push(signalMember);
-	}
-
-	return signalMembers.length > 0 ? signalMembers : undefined;
 };
 
 const isAbortSignalType = (type, checker, program) => {
@@ -219,23 +100,8 @@ const isAbortSignalType = (type, checker, program) => {
 	return baseTypes.length > 0 && baseTypes.every(state => state === false) ? false : undefined;
 };
 
-const getAbortSignalTypeState = (node, context) => {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return;
-	}
-
-	try {
-		const {program} = parserServices;
-		return isAbortSignalType(
-			parserServices.getTypeAtLocation(node),
-			program.getTypeChecker(),
-			program,
-		);
-		// Defensive: `getTypeAtLocation()` throws for a node that the TypeScript program does not map, which the supported parsers do not produce.
-		/* node:coverage ignore next */
-	} catch {}
-};
+const getAbortSignalTypeState = (node, context) =>
+	withTypeInformation(node, context, ({type, checker, program}) => isAbortSignalType(type, checker, program));
 
 const hasFullTypeInformation = context => Boolean(context.sourceCode.parserServices?.program);
 
@@ -268,26 +134,7 @@ const isControllerSignal = (node, controllerName) => {
 	&& node.object.name === controllerName;
 };
 
-const getConstantInitializer = (node, context) => {
-	node = unwrapTypeScriptExpression(node);
-
-	if (node.type !== 'Identifier') {
-		return;
-	}
-
-	const variable = findVariable(context.sourceCode.getScope(node), node);
-	const definition = variable?.defs[0];
-	if (
-		!variable
-		|| variable.defs.length !== 1
-		|| definition.type !== 'Variable'
-		|| definition.parent.kind !== 'const'
-	) {
-		return;
-	}
-
-	return definition.node.init;
-};
+const getConstantInitializer = (node, context) => getConstVariableInitializer(unwrapTypeScriptExpression(node), context);
 
 const isPossiblyMutatedConstantArray = (node, context) => {
 	node = unwrapTypeScriptExpression(node);
@@ -736,25 +583,8 @@ const isReadonlyArrayType = (type, checker, program, seen = new Set()) => {
 	return getBaseTypes(type, checker).some(type => isReadonlyArrayType(type, checker, program, seen));
 };
 
-const isReadonlyArrayTypeFromTypeInformation = (node, context) => {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return false;
-	}
-
-	try {
-		const {program} = parserServices;
-		return isReadonlyArrayType(
-			parserServices.getTypeAtLocation(node),
-			program.getTypeChecker(),
-			program,
-		);
-		// Defensive: `getTypeAtLocation()` throws for a node that the TypeScript program does not map, which the supported parsers do not produce.
-		/* node:coverage ignore next 3 */
-	} catch {
-		return false;
-	}
-};
+const isReadonlyArrayTypeFromTypeInformation = (node, context) =>
+	withTypeInformation(node, context, ({type, checker, program}) => isReadonlyArrayType(type, checker, program)) ?? false;
 
 const needsArrayCopyForAbortSignalAny = (node, context, seen = new Set()) => {
 	if (seen.has(node)) {
@@ -874,88 +704,6 @@ const isAllowedListenerOptions = node => {
 	});
 };
 
-const getCallbackExpression = callback => {
-	if (
-		!callback
-		|| (
-			callback.type !== 'ArrowFunctionExpression'
-			&& callback.type !== 'FunctionExpression'
-		)
-		|| callback.async
-		|| callback.generator
-		|| callback.params.length > 0
-	) {
-		return;
-	}
-
-	if (callback.body.type !== 'BlockStatement') {
-		return callback.body;
-	}
-
-	if (
-		callback.body.body.length !== 1
-		|| callback.body.body[0].type !== 'ExpressionStatement'
-	) {
-		return;
-	}
-
-	return callback.body.body[0].expression;
-};
-
-const isSameIdentifierReference = (leftNode, rightNode, context) => {
-	leftNode = unwrapTypeScriptExpression(leftNode);
-	rightNode = unwrapTypeScriptExpression(rightNode);
-
-	if (
-		leftNode.type !== 'Identifier'
-		|| rightNode.type !== 'Identifier'
-		|| leftNode.name !== rightNode.name
-	) {
-		return false;
-	}
-
-	const leftVariable = findVariable(context.sourceCode.getScope(leftNode), leftNode);
-	const rightVariable = findVariable(context.sourceCode.getScope(rightNode), rightNode);
-
-	return leftVariable === rightVariable;
-};
-
-const isSourceReason = (node, sourceSignal, context) =>
-	isMemberExpression(node, {
-		property: 'reason',
-		computed: false,
-		optional: false,
-	})
-	&& isSameIdentifierReference(node.object, sourceSignal, context);
-
-const getAbortReference = (callback, controllerName, sourceSignal, context) => {
-	const expression = getCallbackExpression(callback);
-
-	if (
-		!isCallExpression(expression, {
-			optional: false,
-		})
-		|| !isMemberExpression(expression.callee, {
-			property: 'abort',
-			computed: false,
-			optional: false,
-		})
-		|| expression.callee.object.type !== 'Identifier'
-		|| expression.callee.object.name !== controllerName
-		|| !(
-			expression.arguments.length === 0
-			|| (
-				expression.arguments.length === 1
-				&& isSourceReason(expression.arguments[0], sourceSignal, context)
-			)
-		)
-	) {
-		return;
-	}
-
-	return expression.callee.object;
-};
-
 const getAbortEventListenerCall = statement => {
 	if (statement?.type !== 'ExpressionStatement') {
 		return;
@@ -984,10 +732,6 @@ const getAbortEventListenerCall = statement => {
 		sourceSignal: expression.callee.object,
 	};
 };
-
-const isStatementCommentFree = (statement, context) =>
-	!hasNonDirectiveComment(context, statement)
-	&& !getLastTrailingCommentOnSameLine(context, statement, {ignoreDirectives: true});
 
 const getDirectBridge = (declaration, controllerName, context) => {
 	const bridgeStatements = [];
@@ -1031,20 +775,6 @@ const getDirectBridge = (declaration, controllerName, context) => {
 	};
 };
 
-const getForOfBodyStatement = body => {
-	if (body.type === 'ExpressionStatement') {
-		return body;
-	}
-
-	if (
-		body.type === 'BlockStatement'
-		&& body.body.length === 1
-		&& body.body[0].type === 'ExpressionStatement'
-	) {
-		return body.body[0];
-	}
-};
-
 const getForOfVariable = left => {
 	if (
 		left.type !== 'VariableDeclaration'
@@ -1085,8 +815,7 @@ const getForOfBridge = (declaration, controllerName, context) => {
 		return;
 	}
 
-	const bodyStatement = getForOfBodyStatement(statement.body);
-	const listener = getAbortEventListenerCall(bodyStatement);
+	const listener = getAbortEventListenerCall(getSingleStatement(statement.body));
 	if (
 		!listener
 		|| !isSameReference(unwrapTypeScriptExpression(listener.sourceSignal), signal)
@@ -1106,145 +835,31 @@ const getForOfBridge = (declaration, controllerName, context) => {
 	};
 };
 
-const hasNameConflict = (name, variable, node, context) => {
-	const existingVariable = findVariable(context.sourceCode.getScope(node), name);
-	return existingVariable && existingVariable !== variable;
-};
-
-const getReplacementName = (name, variable, signalMembers, context) => {
-	let replacementName = name;
-
-	if (name === 'abortController') {
-		replacementName = 'abortSignal';
-	} else if (name === 'controller') {
-		replacementName = 'signal';
-	}
-
-	if (replacementName === name) {
-		return name;
-	}
-
-	if (
-		hasNameConflict(replacementName, variable, variable.identifiers[0], context)
-		|| signalMembers.some(signalMember => hasNameConflict(replacementName, variable, signalMember, context))
-	) {
-		return name;
-	}
-
-	return replacementName;
-};
-
-const isWhitespaceOnly = text => /^\s*$/.test(text);
-
-const removeStatementGroup = (statements, context, fixer) => {
-	if (statements.length === 1) {
-		return removeStatement(statements[0], context, fixer);
-	}
-
-	const {sourceCode} = context;
-	const {lines} = sourceCode;
-	const firstStatement = statements[0];
-	const lastStatement = statements.at(-1);
-	const startLocation = sourceCode.getLoc(firstStatement).start;
-	const endLocation = sourceCode.getLoc(lastStatement).end;
-	const textBefore = lines[startLocation.line - 1].slice(0, startLocation.column);
-	const textAfter = lines[endLocation.line - 1].slice(endLocation.column);
-	const {text} = sourceCode;
-	let [start] = sourceCode.getRange(firstStatement);
-	let [, end] = sourceCode.getRange(lastStatement);
-
-	// The statements follow the controller declaration, so they never start the file
-	if (isWhitespaceOnly(textBefore) && isWhitespaceOnly(textAfter)) {
-		end += textAfter.length;
-		start -= textBefore.length;
-
-		if (text[start - 2] === '\r' && text[start - 1] === '\n') {
-			start -= 2;
-		} else if (text[start - 1] === '\n' || text[start - 1] === '\r') {
-			start--;
-		}
-	}
-
-	return fixer.removeRange([start, end]);
-};
-
 const createProblem = (declarator, context) => {
-	const {sourceCode} = context;
-	const declaration = declarator.parent;
-	const {id, init} = declarator;
-
-	if (
-		declaration.type !== 'VariableDeclaration'
-		|| declaration.kind !== 'const'
-		|| declaration.declarations.length !== 1
-		|| id.type !== 'Identifier'
-		|| !isGlobalAbortControllerConstructor(init, context)
-		|| !isGlobalNameAvailable('AbortSignal', id, context)
-		|| hasNonDirectiveComment(context, init)
-		|| (
-			id.typeAnnotation
-			&& hasNonDirectiveComment(context, id.typeAnnotation)
-		)
-	) {
+	if (!isAbortControllerDeclarator(declarator, context)) {
 		return;
 	}
 
-	const bridge = getForOfBridge(declaration, id.name, context) ?? getDirectBridge(declaration, id.name, context);
+	const declaration = declarator.parent;
+	const controllerName = declarator.id.name;
+	const bridge = getForOfBridge(declaration, controllerName, context) ?? getDirectBridge(declaration, controllerName, context);
 	if (!bridge) {
 		return;
 	}
 
-	const variable = findVariable(sourceCode.getScope(id), id);
-
-	for (const abortReference of bridge.abortReferences) {
-		if (findVariable(sourceCode.getScope(abortReference), abortReference) !== variable) {
-			return;
-		}
-	}
-
-	const signalMembers = getSignalMembers(variable, bridge.abortReferences, context);
+	const signalMembers = getSignalMembers(declarator, bridge.abortReferences, context);
 	if (!signalMembers) {
 		return;
 	}
 
-	const replacementName = getReplacementName(id.name, variable, signalMembers, context);
-
-	const lastStatement = bridge.statements.at(-1);
-	const lastTrailingComment = getLastTrailingCommentOnSameLine(context, lastStatement);
-	const range = [sourceCode.getRange(declaration)[1], sourceCode.getRange(lastStatement)[1]];
-	let problem = getCommentSafeProblem(context, {
-		node: id,
+	return getAbortControllerProblem({
+		declarator,
+		statements: bridge.statements,
+		replacement: bridge.replacement,
+		signalMembers,
 		messageId: MESSAGE_ID,
-		suggest: [
-			{
-				messageId: SUGGESTION_ID,
-				* fix(fixer) {
-					yield fixer.replaceText(init, bridge.replacement);
-
-					if (id.typeAnnotation) {
-						yield fixer.replaceText(id.typeAnnotation, ': AbortSignal');
-					}
-
-					if (replacementName !== id.name) {
-						const [idStart] = sourceCode.getRange(id);
-						yield fixer.replaceTextRange([idStart, idStart + id.name.length], replacementName);
-					}
-
-					for (const signalMember of signalMembers) {
-						yield fixer.replaceText(signalMember, replacementName);
-					}
-
-					yield removeStatementGroup(bridge.statements, context, fixer);
-				},
-			},
-		],
-	}, range);
-	const affectedNodes = [init, id.typeAnnotation, lastTrailingComment, ...signalMembers].filter(Boolean);
-	for (const affectedNode of affectedNodes) {
-		problem = getCommentSafeProblem(context, problem, affectedNode);
-	}
-
-	return problem;
+		suggestion: {messageId: SUGGESTION_ID},
+	}, context);
 };
 
 /**

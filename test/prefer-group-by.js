@@ -297,7 +297,7 @@ test({
 				const groups = {};
 				for (const item of items) {(groups[(item[(sideEffect(), "type")] as string)] ??= []).push(item);}
 			`,
-			output: 'const groups = Object.groupBy(items, item => (item[(sideEffect(), "type")] as string));',
+			output: 'const groups = Object.groupBy(items, item => item[(sideEffect(), "type")] as string);',
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: 'prefer-group-by-loop'}],
 		},
@@ -378,5 +378,14 @@ test({
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: 'prefer-group-by'}],
 		},
+	],
+});
+
+// A key that starts with `{` or is a sequence needs parentheses as a concise arrow function body
+test.snapshot({
+	valid: [],
+	invalid: [
+		'const groups = {}; for (const item of items) {const key = {a: item}.a; (groups[key] ??= []).push(item);}',
+		'const groups = {}; for (const item of items) {const key = (item.a, item.b); (groups[key] ??= []).push(item);}',
 	],
 });

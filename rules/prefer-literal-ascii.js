@@ -7,7 +7,7 @@ import {
 } from '@eslint/css-tree';
 import {replaceTemplateElement} from './fix/index.js';
 import {isDirective, isStringLiteral, isTaggedTemplateLiteral} from './ast/index.js';
-import {escapeTemplateElementRaw, getTemplateElementRaw} from './utils/index.js';
+import {escapeTemplateElementRaw, getTemplateElementRaw, isEscapedCharacter} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-literal-ascii';
 const messages = {
@@ -20,16 +20,6 @@ const MAXIMUM_PRINTABLE_ASCII = 0x7E;
 const numericEscapePattern = /\\x(?<hex>[\dA-Fa-f]{2})|\\u(?<unicode>[\dA-Fa-f]{4})|\\u\{(?<codePoint>[\dA-Fa-f]+)\}/vy;
 const cssNumericEscapePattern = /\\(?<digits>[\da-f]{1,6})(?:\r\n|[\t\n\f\r ])?/iy;
 const cssIdentifierTokenTypes = new Set([tokenTypes.Ident, tokenTypes.Hash, tokenTypes.AtKeyword, tokenTypes.Function, tokenTypes.Dimension]);
-
-function isEscapedCharacter(text, index) {
-	let backslashCount = 0;
-
-	for (let previousIndex = index - 1; previousIndex >= 0 && text[previousIndex] === BACKSLASH; previousIndex--) {
-		backslashCount++;
-	}
-
-	return backslashCount % 2 === 1;
-}
 
 function getNumericEscape(text, index) {
 	numericEscapePattern.lastIndex = index;

@@ -723,6 +723,23 @@ Output:
 
 `;
 
+exports[`prefer-smaller-scope > invalid(30): const value = 1; if (condition) { consume(value); } eval?.(\"consume(value)\"); 1`] = `
+
+  1 | const value = 1; if (condition) { consume(value); } eval?.("consume(value)");
+
+`;
+
+exports[`prefer-smaller-scope > invalid(30): const value = 1; if (condition) { consume(value); } eval?.(\"consume(value)\"); 2`] = `
+
+Message:
+> 1 | const value = 1; if (condition) { consume(value); } eval?.("consume(value)");
+    |       ^^^^^ Move \`value\` into the block where it is used.
+
+Output:
+  1 | if (condition) { const value = 1; consume(value); } eval?.("consume(value)");
+
+`;
+
 exports[`prefer-smaller-scope > invalid(4): const value = false; if (condition) { consume(value); } 1`] = `
 
   1 | const value = false; if (condition) { consume(value); }

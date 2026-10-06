@@ -1,6 +1,11 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isReferenceIdentifier} from './ast/index.js';
-import {isParenthesized} from './utils/index.js';
+import {
+	getOutermostTypeScriptExpression,
+	isParenthesized,
+	isSameBinding,
+	isTypeScriptExpressionWrapper,
+} from './utils/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
@@ -20,14 +25,6 @@ const STATIC_METHOD_BOUNDARY_TYPES = new Set([
 	'AccessorProperty',
 	'StaticBlock',
 	'ClassBody',
-]);
-
-const TYPESCRIPT_EXPRESSION_WRAPPER_TYPES = new Set([
-	'TSAsExpression',
-	'TSInstantiationExpression',
-	'TSNonNullExpression',
-	'TSSatisfiesExpression',
-	'TSTypeAssertion',
 ]);
 
 const messages = {
@@ -88,10 +85,6 @@ const getClassReferenceNode = classNode => {
 	}
 };
 
-const isSameVariable = (sourceCode, reference, binding) =>
-	findVariable(sourceCode.getScope(reference), reference)
-	=== findVariable(sourceCode.getScope(binding), binding);
-
 // Whether the class/superclass name resolves to the class binding at `node`'s location.
 // If it's shadowed by a local variable, the name can't be used to reference the class.
 const isReferenceNameAvailable = (sourceCode, node, referenceNode) =>
@@ -120,12 +113,6 @@ const isAssignmentTargetRoot = (parent, node) =>
 		&& parent.left === node
 	);
 
-const isTypeScriptExpressionWrapper = (parent, node) =>
-	TYPESCRIPT_EXPRESSION_WRAPPER_TYPES.has(parent.type)
-	&& parent.expression === node;
-
-const getTypeScriptExpressionWrapper = node => isTypeScriptExpressionWrapper(node.parent, node) ? node.parent : undefined;
-
 const getAssignmentTargetAncestor = node => {
 	const {parent} = node;
 
@@ -137,9 +124,8 @@ const getAssignmentTargetAncestor = node => {
 		return parent;
 	}
 
-	const typeScriptExpressionWrapper = getTypeScriptExpressionWrapper(node);
-	if (typeScriptExpressionWrapper) {
-		return typeScriptExpressionWrapper;
+	if (isTypeScriptExpressionWrapper(parent) && parent.expression === node) {
+		return parent;
 	}
 
 	if (
@@ -190,18 +176,8 @@ const isSimpleMemberAccess = node =>
 	&& !node.parent.optional
 	&& !isAssignmentTarget(node.parent);
 
-const getNodeWithTypeScriptExpressionWrappers = node => {
-	let current = node;
-
-	while (isTypeScriptExpressionWrapper(current.parent, current)) {
-		current = current.parent;
-	}
-
-	return current;
-};
-
 const isDirectCallee = node => {
-	const current = getNodeWithTypeScriptExpressionWrappers(node);
+	const current = getOutermostTypeScriptExpression(node);
 
 	return (
 		current.parent.type === 'CallExpression'
@@ -218,14 +194,14 @@ const isDirectCallee = node => {
 };
 
 const isPrivateMemberAccess = node => {
-	const current = getNodeWithTypeScriptExpressionWrappers(node);
+	const current = getOutermostTypeScriptExpression(node);
 
 	return isMemberExpressionObject(current)
 		&& current.parent.property.type === 'PrivateIdentifier';
 };
 
 const isPrivateBrandCheck = node => {
-	const current = getNodeWithTypeScriptExpressionWrappers(node);
+	const current = getOutermostTypeScriptExpression(node);
 
 	return current.parent.type === 'BinaryExpression'
 		&& current.parent.operator === 'in'
@@ -404,7 +380,7 @@ const create = context => {
 			if (
 				classReferenceNode
 				&& node.name === classReferenceNode.name
-				&& isSameVariable(sourceCode, node, classReferenceNode)
+				&& isSameBinding(node, classReferenceNode, context)
 			) {
 				return problemWithSuggestion({
 					node,
@@ -428,7 +404,7 @@ const create = context => {
 		if (
 			superClassReferenceNode
 			&& node.name === superClassReferenceNode.name
-			&& isSameVariable(sourceCode, node, superClassReferenceNode)
+			&& isSameBinding(node, superClassReferenceNode, context)
 		) {
 			return problemWithSuggestion({
 				node,

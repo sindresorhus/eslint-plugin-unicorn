@@ -1,3 +1,6 @@
+import {isElseIfStatement} from './ast/index.js';
+import {isSameStatement} from './utils/index.js';
+
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
 @import * as ESLint from 'eslint';
@@ -8,55 +11,15 @@ const messages = {
 	[MESSAGE_ID]: 'This branch has the same body as the branch on line {{line}}.',
 };
 
-const isElseIfStatement = node =>
-	node.parent.type === 'IfStatement'
-	&& node.parent.alternate === node;
+// Empty statements do nothing, so they are ignored when comparing branches
+const getBranchStatements = node =>
+	(node.type === 'BlockStatement' ? node.body : [node])
+		.filter(statement => statement.type !== 'EmptyStatement');
 
-const getBranchStatements = node => node.type === 'BlockStatement' ? node.body : [node];
-
-const getStatementTokens = (node, sourceCode) => {
-	const tokens = sourceCode.getTokens(node);
-	const lastToken = tokens.at(-1);
-
-	if (lastToken?.type === 'Punctuator' && lastToken.value === ';') {
-		return tokens.slice(0, -1);
-	}
-
-	return tokens;
-};
-
-const areSameTokens = (left, right) =>
-	left.type === right.type
-	&& left.value === right.value;
-
-const areSameBranchBodies = (leftStatements, rightStatements, sourceCode) => {
-	if (leftStatements.length !== rightStatements.length) {
-		return false;
-	}
-
-	let hasTokens = false;
-
-	for (const [statementIndex, leftStatement] of leftStatements.entries()) {
-		const leftTokens = getStatementTokens(leftStatement, sourceCode);
-		const rightTokens = getStatementTokens(rightStatements[statementIndex], sourceCode);
-
-		if (leftTokens.length > 0) {
-			hasTokens = true;
-		}
-
-		if (leftTokens.length !== rightTokens.length) {
-			return false;
-		}
-
-		for (const [tokenIndex, leftToken] of leftTokens.entries()) {
-			if (!areSameTokens(leftToken, rightTokens[tokenIndex])) {
-				return false;
-			}
-		}
-	}
-
-	return hasTokens;
-};
+const areSameBranchBodies = (leftStatements, rightStatements, context) =>
+	leftStatements.length > 0
+	&& leftStatements.length === rightStatements.length
+	&& leftStatements.every((statement, index) => isSameStatement(statement, rightStatements[index], context));
 
 /**
 @param {ESTree.IfStatement} ifStatement
@@ -106,7 +69,7 @@ function * getProblems(ifStatement, context) {
 		const branch = branches[index];
 		const previousBranch = branches[index - 1];
 
-		if (areSameBranchBodies(branch.statements, previousBranch.statements, sourceCode)) {
+		if (areSameBranchBodies(branch.statements, previousBranch.statements, context)) {
 			yield {
 				node: branch.body,
 				messageId: MESSAGE_ID,

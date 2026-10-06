@@ -1,6 +1,6 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {isFunction} from './ast/index.js';
-import {getConstVariableInitializer, isPromiseType} from './utils/index.js';
+import {getConstVariableInitializer, isPromiseType, withTypeInformation} from './utils/index.js';
 import {isIteratorExpression, unwrapExpression} from './shared/iterator-helpers.js';
 
 const MESSAGE_ID = 'no-async-iterator-callback';
@@ -8,11 +8,6 @@ const messages = {
 	[MESSAGE_ID]: 'Do not pass an asynchronous callback to `Iterator#{{method}}()`; returned promises are not awaited.',
 };
 const methods = new Set(['filter', 'forEach', 'some', 'every', 'find', 'flatMap']);
-
-function getDirectConstInitializer(node, context) {
-	const initializer = getConstVariableInitializer(node, context);
-	return initializer?.parent.id.type === 'Identifier' ? unwrapExpression(initializer) : undefined;
-}
 
 const isAsyncNonGeneratorFunction = node => isFunction(node) && node.async && !node.generator;
 
@@ -22,8 +17,8 @@ function isAsyncCallback(node, context) {
 		return true;
 	}
 
-	const initializer = getDirectConstInitializer(node, context);
-	if (initializer && isAsyncNonGeneratorFunction(initializer)) {
+	const initializer = getConstVariableInitializer(node, context);
+	if (initializer && isAsyncNonGeneratorFunction(unwrapExpression(initializer))) {
 		return true;
 	}
 
@@ -44,27 +39,14 @@ function isAsyncCallback(node, context) {
 	return functionImplementations.length === 1 && isAsyncNonGeneratorFunction(functionImplementations[0].node);
 }
 
+// Type information can be unavailable in incomplete projects; retain syntax-based detection.
 function hasPromiseReturnType(node, context) {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return false;
-	}
-
-	try {
-		const checker = parserServices.program.getTypeChecker();
-		const type = parserServices.getTypeAtLocation(node);
-		return type.getCallSignatures().some(signature => {
-			const signatureReturnType = checker.getReturnTypeOfSignature(signature);
-			const returnType = checker.getBaseConstraintOfType(signatureReturnType) ?? signatureReturnType;
-			const types = returnType.isUnion() ? returnType.types : [returnType];
-			return types.some(type => isPromiseType(type, checker) === true);
-		});
-		// Tests cannot make TypeScript throw here.
-		/* node:coverage ignore next 4 */
-	} catch {
-		// Type information can be unavailable in incomplete projects; retain syntax-based detection.
-		return false;
-	}
+	return withTypeInformation(node, context, ({type, checker}) => type.getCallSignatures().some(signature => {
+		const signatureReturnType = checker.getReturnTypeOfSignature(signature);
+		const returnType = checker.getBaseConstraintOfType(signatureReturnType) ?? signatureReturnType;
+		const types = returnType.isUnion() ? returnType.types : [returnType];
+		return types.some(type => isPromiseType(type, checker) === true);
+	})) ?? false;
 }
 
 /**

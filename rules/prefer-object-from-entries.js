@@ -3,16 +3,22 @@ import {isMethodCall, isEmptyObjectExpression} from './ast/index.js';
 import {removeStatement, removeParentheses} from './fix/index.js';
 import {
 	getNextNode,
+	getOnlyExpression,
 	getParentheses,
 	getParenthesizedRange,
 	getParenthesizedText,
 	hasCommentInRange,
-	getVariableIdentifiers,
+	hasTypeArguments,
 	isNodeMatchesNameOrPath,
 	isSameIdentifier,
 	needsSemicolon,
 } from './utils/index.js';
 import {isCallExpression} from './ast/call-or-new-expression.js';
+import {
+	getForOfDeclarationPattern,
+	isPairPattern,
+	referencesVariable,
+} from './shared/for-of-collection-loop.js';
 
 const MESSAGE_ID_REDUCE = 'reduce';
 const MESSAGE_ID_FUNCTION = 'function';
@@ -38,60 +44,28 @@ const isProperty = node =>
 const isPrototypeProperty = node =>
 	isProperty(node) && !node.computed && (node.key.name ?? node.key.value) === '__proto__';
 
-const isBlockWithOneExpressionStatement = node =>
-	node.type === 'BlockStatement'
-	&& node.body.length === 1
-	&& node.body[0].type === 'ExpressionStatement';
-
 const getOnlyLoopAssignmentExpression = loop => {
-	if (!isBlockWithOneExpressionStatement(loop.body)) {
-		return;
-	}
+	const expression = getOnlyExpression(loop.body);
 
-	const [{expression}] = loop.body.body;
-
-	if (expression.type === 'AssignmentExpression') {
+	if (expression?.type === 'AssignmentExpression') {
 		return expression;
 	}
 };
 
-const isPairPattern = node =>
-	node.type === 'ArrayPattern'
-	&& node.elements.length === 2
-	&& node.elements.every(element => element?.type === 'Identifier');
-
 const getForOfPairPattern = node => {
-	if (
-		node.type === 'VariableDeclaration'
-		&& (node.kind === 'const' || node.kind === 'let')
-		&& node.declarations.length === 1
-		&& isPairPattern(node.declarations[0].id)
-	) {
-		return node.declarations[0].id;
+	const pattern = getForOfDeclarationPattern(node);
+	if (pattern && isPairPattern(pattern)) {
+		return pattern;
 	}
 };
 
-const referencesVariable = (variable, node, context) => {
-	const range = context.sourceCode.getRange(node);
-
-	return getVariableIdentifiers(variable).some(identifier => {
-		const [start, end] = context.sourceCode.getRange(identifier);
-
-		return start >= range[0] && end <= range[1];
-	});
-};
-
-const hasNoCommentsInLoopFixRange = (declaration, loop, context) => {
+const hasCommentInLoopFixRange = (declaration, loop, context) => {
 	const {sourceCode} = context;
 	const [start] = sourceCode.getRange(declaration);
 	const nextToken = sourceCode.getTokenAfter(loop);
 	const end = nextToken ? sourceCode.getRange(nextToken)[0] : sourceCode.text.length;
 
-	return !sourceCode.getAllComments().some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-
-		return commentStart >= start && commentEnd <= end;
-	});
+	return hasCommentInRange(context, [start, end]);
 };
 
 // - `pairs.reduce(…, {})`
@@ -291,7 +265,7 @@ const getForOfLoopProblem = (declaration, context) => {
 		node: loop,
 		messageId: MESSAGE_ID_LOOP,
 		* fix(fixer, {abort}) {
-			if (!hasNoCommentsInLoopFixRange(declaration, loop, context)) {
+			if (hasCommentInLoopFixRange(declaration, loop, context)) {
 				return abort();
 			}
 
@@ -339,7 +313,7 @@ function create(context) {
 				messageId: MESSAGE_ID_REDUCE,
 			};
 
-			if (!callExpression.typeArguments) {
+			if (!hasTypeArguments(callExpression)) {
 				problem.fix = fixReduceAssignOrSpread({
 					context,
 					callExpression,

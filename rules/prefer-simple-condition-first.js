@@ -1,12 +1,10 @@
 import {isCommentToken} from '@eslint-community/eslint-utils';
 import {isLiteral, isNullLiteral} from './ast/index.js';
 import {
-	isParenthesized,
-	getParenthesizedText,
+	getLogicalExpressionChildText,
+	getOutermostTypeScriptExpression,
 	getParenthesizedRange,
-	shouldAddParenthesesToLogicalExpressionChild,
-	isBooleanExpression,
-	isControlFlowTest,
+	isBooleanContext,
 	isTypeScriptExpressionWrapper,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
@@ -90,36 +88,6 @@ function isSimple(node) {
 	return false;
 }
 
-function getOperandText(node, context, {operator, property}) {
-	const isNodeParenthesized = isParenthesized(node, context);
-	let text = isNodeParenthesized
-		? getParenthesizedText(node, context)
-		: context.sourceCode.getText(node);
-
-	if (
-		!isNodeParenthesized
-		&& shouldAddParenthesesToLogicalExpressionChild(node, {operator, property})
-	) {
-		text = `(${text})`;
-	}
-
-	return text;
-}
-
-/**
-Check if a LogicalExpression is used in a boolean context where the produced value is only tested for truthiness, not consumed as a value.
-*/
-function isBooleanContext(node, context) {
-	if (isBooleanExpression(node, context) || isControlFlowTest(node)) {
-		return true;
-	}
-
-	const {parent} = node;
-	return isTypeScriptExpressionWrapper(parent)
-		&& parent.expression === node
-		&& isBooleanContext(parent, context);
-}
-
 function getLogicalOperands(node, operator, operands = []) {
 	const unwrappedNode = unwrapTypeScriptExpression(node);
 	if (unwrappedNode.type !== 'LogicalExpression' || unwrappedNode.operator !== operator) {
@@ -173,17 +141,8 @@ function isSafeToMove(node) {
 }
 
 function hasSameOperatorLogicalParent(node) {
-	const {operator} = node;
-	let {parent} = node;
-	while (
-		isTypeScriptExpressionWrapper(parent)
-		&& parent.expression === node
-	) {
-		node = parent;
-		parent = node.parent;
-	}
-
-	return parent?.type === 'LogicalExpression' && parent.operator === operator;
+	const {parent} = getOutermostTypeScriptExpression(node);
+	return parent?.type === 'LogicalExpression' && parent.operator === node.operator;
 }
 
 function hasTypeScriptWrappedLogicalExpression(node, operator) {
@@ -227,7 +186,8 @@ const create = context => {
 			return;
 		}
 
-		if (!isBooleanContext(node, context)) {
+		// The rule only reorders operands, so TypeScript wrappers around a boolean context keep their type
+		if (!isBooleanContext(getOutermostTypeScriptExpression(node), context)) {
 			return;
 		}
 
@@ -261,7 +221,7 @@ const create = context => {
 			? fixer => fixer.replaceTextRange(
 				sourceCode.getRange(node),
 				reorderedOperands
-					.map((operand, index) => getOperandText(operand, context, {
+					.map((operand, index) => getLogicalExpressionChildText(operand, context, {
 						operator: node.operator,
 						property: index === 0 ? 'left' : 'right',
 					}))

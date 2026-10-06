@@ -1,10 +1,10 @@
 import {findVariable, getFunctionHeadLocation} from '@eslint-community/eslint-utils';
 import {isFunction, isMemberExpression, isMethodCall} from './ast/index.js';
 import {
+	getOutermostChainAndTypeScriptExpression,
 	isCallExpressionValueDiscardedWithVoid,
 	isLogicalExpression,
 	isParenthesized,
-	isTypeScriptExpressionWrapper,
 } from './utils/index.js';
 
 const ERROR_PROMISE = 'promise';
@@ -19,17 +19,6 @@ const messages = {
 };
 
 const promisePrototypeMethods = ['then', 'catch', 'finally'];
-const getOutermostTransparentExpression = node => {
-	while (
-		node.parent.type === 'ChainExpression'
-		|| isTypeScriptExpressionWrapper(node.parent)
-	) {
-		node = node.parent;
-	}
-
-	return node;
-};
-
 const isTopLevelCallExpression = node => {
 	for (let ancestor = node.parent; ancestor; ancestor = ancestor.parent) {
 		if (
@@ -45,7 +34,7 @@ const isTopLevelCallExpression = node => {
 };
 
 const isPromiseMethodCalleeObject = node => {
-	node = getOutermostTransparentExpression(node);
+	node = getOutermostChainAndTypeScriptExpression(node);
 	return node.parent.type === 'MemberExpression'
 		&& node.parent.object === node
 		&& !node.parent.computed
@@ -150,17 +139,17 @@ const isSchemaCatchObject = node => {
 };
 
 const isAwaitExpressionArgument = node => {
-	node = getOutermostTransparentExpression(node);
+	node = getOutermostChainAndTypeScriptExpression(node);
 	return node.parent.type === 'AwaitExpression' && node.parent.argument === node;
 };
 
 const isVariableDeclaratorInitializer = node => {
-	node = getOutermostTransparentExpression(node);
+	node = getOutermostChainAndTypeScriptExpression(node);
 	return node.parent.type === 'VariableDeclarator' && node.parent.init === node;
 };
 
 const isPromiseAssignmentValue = node => {
-	node = getOutermostTransparentExpression(node);
+	node = getOutermostChainAndTypeScriptExpression(node);
 	return node.parent.type === 'AssignmentExpression'
 		&& node.parent.right === node
 		&& ['=', '??=', '||=', '&&='].includes(node.parent.operator);
@@ -315,7 +304,7 @@ function create(context) {
 		}
 
 		// `foo()!` and `foo?.()` are still the left operand of `**`
-		const expression = getOutermostTransparentExpression(node);
+		const expression = getOutermostChainAndTypeScriptExpression(node);
 		const problem = {
 			node,
 			messageId: ERROR_IDENTIFIER,

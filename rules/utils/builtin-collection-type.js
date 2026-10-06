@@ -1,9 +1,11 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isNewExpression} from '../ast/index.js';
 import isGlobalIdentifier from './is-global-identifier.js';
+import {getTypeReferenceDefinition} from './type-helpers.js';
 import {
 	getTypeSymbol,
 	isUnknownType,
+	withTypeInformation,
 } from './types.js';
 
 const mapTypes = new Set([
@@ -22,31 +24,8 @@ const getTypeSet = type => new Set([type]);
 
 const getTypeFromTypeReferenceName = name => collectionTypes.has(name) ? name : undefined;
 
-const typeReferenceDefinitionTypes = new Set([
-	'ClassName',
-	'ImportBinding',
-	'TSEnumName',
-	'Type',
-]);
-
-const hasUserDefinedTypeName = (name, node, context) => {
-	let scope = context.sourceCode.getScope(node);
-
-	while (scope) {
-		const definition = scope.set
-			.get(name)
-			?.defs
-			.find(definition => typeReferenceDefinitionTypes.has(definition.type));
-
-		if (definition) {
-			return true;
-		}
-
-		scope = scope.upper;
-	}
-
-	return false;
-};
+const hasUserDefinedTypeName = (name, node, context) =>
+	Boolean(getTypeReferenceDefinition(name, context.sourceCode.getScope(node)));
 
 const mergeTypeSets = typeSets => {
 	const types = new Set();
@@ -97,28 +76,13 @@ const hasUserDefinedCollectionType = (types, node, context) => {
 	return false;
 };
 
-const getTypesFromTypeInformation = (node, context) => {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return;
-	}
-
-	try {
-		const {program} = parserServices;
-		const types = getTypesFromType(
-			parserServices.getTypeAtLocation(node),
-			program,
-		);
-
+const getTypesFromTypeInformation = (node, context) =>
+	withTypeInformation(node, context, ({type, program}) => {
+		const types = getTypesFromType(type, program);
 		if (types && !hasUserDefinedCollectionType(types, node, context)) {
 			return types;
 		}
-		// Tests cannot make TypeScript throw here.
-		/* node:coverage ignore next 3 */
-	} catch {
-		// TypeScript can throw while resolving incomplete projects; keep this fallback best-effort.
-	}
-};
+	});
 
 const getTypesFromTypeAnnotation = (node, context) => {
 	switch (node?.type) {

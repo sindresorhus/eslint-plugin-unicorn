@@ -169,6 +169,7 @@ test.snapshot({
 		'Object.assign(new Error(), {code}, {name})',
 		'Object.assign(new Error(), {"stack": stack})',
 		'Object.assign(new Error(), {["cause"]: cause})',
+		'Object.assign(new Error(), {[`cause`]: cause})',
 		'Object.assign(new Error(), {name() {}})',
 		outdent`
 			const error = new Error();
@@ -298,6 +299,7 @@ test.snapshot({
 		'new Error().stack = stack',
 		'Error().cause = cause',
 		'new AggregateError([], "message").errors = errors',
+		'new Error()[`stack`] = stack',
 		outdent`
 			function setup() {
 				const error = new Error();

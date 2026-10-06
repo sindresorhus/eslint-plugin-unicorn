@@ -1,10 +1,9 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isMemberExpression} from './ast/index.js';
-import {isKnownNonEvent} from './utils/index.js';
+import {getEnclosingFunction, isKnownNonEvent} from './utils/index.js';
 import {
 	createLateEventHandlerTracker,
 	eventParameterNamePattern,
-	getEnclosingFunction,
 } from './shared/late-event-handler.js';
 
 const MESSAGE_ID_AFTER_SUSPENSION = 'after-suspension';

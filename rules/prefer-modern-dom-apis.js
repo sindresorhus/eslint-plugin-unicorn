@@ -1,5 +1,5 @@
 import {
-	getChildNodes,
+	getOnlyExpression,
 	isNodeValueNotDomNode,
 	isSameReference,
 	isValueNotUsable,
@@ -8,6 +8,7 @@ import {
 	shouldReportReplaceChildrenReceiver,
 	wouldRemoveComments,
 } from './utils/index.js';
+import {containsOptionalChain} from './utils/comparison.js';
 import {isMemberExpression, isMethodCall} from './ast/index.js';
 
 const messages = {
@@ -100,43 +101,19 @@ const getInsertAdjacentTextOrInsertAdjacentElementProblem = (context, node) => {
 	};
 };
 
-const getOnlyBodyStatement = node => {
-	if (node.body.type !== 'BlockStatement') {
-		return node.body;
-	}
-
-	return node.body.body.length === 1
-		? node.body.body[0]
-		: undefined;
-};
-
-const getChildNodeMemberExpression = node => {
-	if (
-		isMemberExpression(node, {
-			properties: ['firstChild', 'lastChild'],
-			optional: false,
-		})
-	) {
-		return node;
-	}
-};
-
-const containsChainExpression = node =>
-	node.type === 'ChainExpression'
-	|| [...getChildNodes(node)].some(child => containsChainExpression(child));
+const isChildNodeMemberExpression = node =>
+	isMemberExpression(node, {
+		properties: ['firstChild', 'lastChild'],
+		optional: false,
+	});
 
 const getReplaceChildrenProblem = (context, node) => {
-	const childNode = getChildNodeMemberExpression(node.test);
-	if (!childNode) {
+	const childNode = node.test;
+	if (!isChildNodeMemberExpression(childNode)) {
 		return;
 	}
 
-	const bodyStatement = getOnlyBodyStatement(node);
-	if (bodyStatement?.type !== 'ExpressionStatement') {
-		return;
-	}
-
-	const {expression} = bodyStatement;
+	const expression = getOnlyExpression(node.body);
 	if (
 		!isMethodCall(expression, {
 			method: 'remove',
@@ -153,7 +130,7 @@ const getReplaceChildrenProblem = (context, node) => {
 	const parentNode = childNode.object;
 	if (
 		isNodeValueNotDomNode(parentNode)
-		|| containsChainExpression(parentNode)
+		|| containsOptionalChain(parentNode)
 		|| !shouldReportReplaceChildrenReceiver(context, parentNode)
 	) {
 		return;

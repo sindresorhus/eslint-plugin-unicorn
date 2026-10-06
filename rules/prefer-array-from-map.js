@@ -1,23 +1,26 @@
+import {isCommaToken} from '@eslint-community/eslint-utils';
+import {isIdentifierNamed, isMethodCall} from './ast/index.js';
 import {
-	findVariable,
-	isCommaToken,
-} from '@eslint-community/eslint-utils';
-import {
-	isEmptyArrayExpression,
-	isMethodCall,
-} from './ast/index.js';
-import {
+	containsSuspensionPoint,
 	getCommentSafeProblem,
+	getConciseArrowBodyText,
 	getNextStatement,
+	getOnlyExpression,
 	hasNonDirectiveComment,
+	hasTypeArguments,
 	getParenthesizedRange,
 	getParenthesizedText,
-	getVariableIdentifiers,
 	isArray,
+	isGlobalNameAvailable,
 	isParenthesized,
 	wouldRemoveComments,
-	getVisitorChildNodes,
 } from './utils/index.js';
+import {
+	getEmptyArrayDeclarator,
+	getForOfBinding,
+	getVariableTargetText,
+	referencesVariable,
+} from './shared/for-of-collection-loop.js';
 
 const MESSAGE_ID_ERROR = 'prefer-array-from-map/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-array-from-map/suggestion';
@@ -26,27 +29,11 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Use the `Array.from()` mapping function argument.',
 };
 
-const arrowBodyParenthesizedExpressionTypes = new Set([
-	'ObjectExpression',
-	'SequenceExpression',
-	'TSAsExpression',
-	'TSNonNullExpression',
-	'TSSatisfiesExpression',
-	'TSTypeAssertion',
-]);
-
-const suspendingExpressionTypes = new Set([
-	'AwaitExpression',
-	'YieldExpression',
-]);
-
 const isArrowFunctionWithSupportedParameters = node => (
 	node.type === 'ArrowFunctionExpression'
 	&& node.params.length <= 2
 	&& node.params.every(parameter => parameter.type !== 'RestElement')
 );
-
-const hasTypeArguments = node => node.typeArguments || node.typeParameters;
 
 const isFlatCallWithDefaultDepth = node => (
 	isMethodCall(node, {
@@ -72,118 +59,12 @@ const isFollowedByDefaultFlatCall = node => (
 	&& isFlatCallWithDefaultDepth(node.parent.parent)
 );
 
-const isIdentifierNamed = (node, name) => node.type === 'Identifier' && node.name === name;
-
-const getEmptyArrayDeclarator = node => {
-	if (
-		node.declarations.length !== 1
-		|| (node.kind !== 'const' && node.kind !== 'let')
-	) {
-		return;
-	}
-
-	const [declarator] = node.declarations;
-	if (
-		declarator.id.type !== 'Identifier'
-		|| !declarator.init
-		|| !isEmptyArrayExpression(declarator.init)
-	) {
-		return;
-	}
-
-	return declarator;
-};
-
-const getOnlyExpression = node => {
-	if (node.type === 'ExpressionStatement') {
-		return node.expression;
-	}
-
-	if (
-		node.type === 'BlockStatement'
-		&& node.body.length === 1
-		&& node.body[0].type === 'ExpressionStatement'
-	) {
-		return node.body[0].expression;
-	}
-};
-
-const getSingleForOfBinding = node => {
-	if (
-		node.left.type !== 'VariableDeclaration'
-		|| node.left.declarations.length !== 1
-		|| (node.left.kind !== 'const' && node.left.kind !== 'let')
-	) {
-		return;
-	}
-
-	// A `for…of` declaration can not have an initializer.
-	const [{id}] = node.left.declarations;
-	if (id.type === 'Identifier') {
-		return {element: id};
-	}
-
-	if (!(
-		id.type === 'ArrayPattern'
-		&& id.elements.length === 2
-		&& id.elements.every(element => element?.type === 'Identifier')
-	)) {
-		return;
-	}
-
-	const [index, element] = id.elements;
-
-	return {
-		index,
-		element,
-	};
-};
-
-const getArrowBodyText = (node, context) => {
-	const text = context.sourceCode.getText(node);
-
-	return arrowBodyParenthesizedExpressionTypes.has(node.type) ? `(${text})` : text;
-};
-
-const getVariableTargetText = (declarator, context) => {
-	const {sourceCode} = context;
-	const equalsToken = sourceCode.getTokenBefore(declarator.init, token => token.value === '=');
-	const [start] = sourceCode.getRange(declarator.id);
-	const [end] = sourceCode.getRange(equalsToken);
-
-	return sourceCode.text.slice(start, end).trimEnd();
-};
-
-const referencesVariable = (variable, node, context) => {
-	const range = context.sourceCode.getRange(node);
-
-	return getVariableIdentifiers(variable).some(identifier => {
-		const [start, end] = context.sourceCode.getRange(identifier);
-
-		return start >= range[0] && end <= range[1];
-	});
-};
-
-const hasSuspendingExpression = (node, visitorKeys) => {
-	if (suspendingExpressionTypes.has(node.type)) {
-		return true;
-	}
-
-	return getVisitorChildNodes(node, visitorKeys).some(child => hasSuspendingExpression(child, visitorKeys));
-};
-
-const isGlobalArrayAvailable = (node, context) => {
-	const variable = findVariable(context.sourceCode.getScope(node), 'Array');
-
-	return !variable || variable.defs.length === 0;
-};
-
 const getArrayFromText = ({
 	iterable,
 	parameters,
 	body,
 	context,
-}) => `Array.from(${getParenthesizedText(iterable, context)}, ${parameters} => ${getArrowBodyText(body, context)})`;
+}) => `Array.from(${getParenthesizedText(iterable, context)}, ${parameters} => ${getConciseArrowBodyText(body, context)})`;
 
 const getPushReplacement = ({
 	expression,
@@ -203,7 +84,7 @@ const getPushReplacement = ({
 		})
 		|| !isIdentifierNamed(expression.callee.object, arrayName)
 		|| referencesVariable(variable, expression.arguments[0], context)
-		|| hasSuspendingExpression(expression.arguments[0], sourceCode.visitorKeys)
+		|| containsSuspensionPoint(expression.arguments[0], sourceCode.visitorKeys)
 	) {
 		return;
 	}
@@ -271,7 +152,7 @@ const getAssignmentReplacement = ({
 		|| !isIdentifierNamed(expression.left.object, arrayName)
 		|| !isIdentifierNamed(expression.left.property, binding.index.name)
 		|| referencesVariable(variable, expression.right, context)
-		|| hasSuspendingExpression(expression.right, context.sourceCode.visitorKeys)
+		|| containsSuspensionPoint(expression.right, context.sourceCode.visitorKeys)
 	) {
 		return;
 	}
@@ -287,7 +168,7 @@ const getAssignmentReplacement = ({
 
 const getLoopProblem = (declaration, context) => {
 	const declarator = getEmptyArrayDeclarator(declaration);
-	if (!declarator || !isGlobalArrayAvailable(declaration, context)) {
+	if (!declarator || !isGlobalNameAvailable('Array', declaration, context)) {
 		return;
 	}
 
@@ -301,7 +182,7 @@ const getLoopProblem = (declaration, context) => {
 		return;
 	}
 
-	const binding = getSingleForOfBinding(loop);
+	const binding = getForOfBinding(loop);
 	if (!binding) {
 		return;
 	}

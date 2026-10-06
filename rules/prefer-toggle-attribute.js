@@ -6,14 +6,15 @@ import {
 } from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
+	getNegatedExpressionText,
 	getParenthesizedText,
+	getSingleStatement,
 	isKnownNonDomNode,
 	isNodeValueNotDomNode,
 	isParenthesized,
 	isSameReference,
 	needsSemicolon,
 	getMemberExpressionObjectText,
-	shouldAddParenthesesToUnaryExpressionArgument,
 	wouldRemoveComments,
 	hasOptionalChainElement,
 } from './utils/index.js';
@@ -26,8 +27,6 @@ const messages = {
 };
 
 const getConditionText = (node, context, isNegative) => {
-	let text = getParenthesizedText(node, context);
-
 	if (isNegative) {
 		if (
 			node.type === 'UnaryExpression'
@@ -38,15 +37,10 @@ const getConditionText = (node, context, isNegative) => {
 			return getConditionText(node.argument, context, false);
 		}
 
-		if (
-			!isParenthesized(node, context.sourceCode)
-			&& shouldAddParenthesesToUnaryExpressionArgument(node, '!')
-		) {
-			text = `(${text})`;
-		}
-
-		return `!${text}`;
+		return getNegatedExpressionText(node, context);
 	}
+
+	const text = getParenthesizedText(node, context);
 
 	if (
 		!isParenthesized(node, context.sourceCode)
@@ -100,19 +94,9 @@ function getAttributeCall(node) {
 }
 
 function getClauseCall(node) {
-	if (!node) {
-		return;
-	}
-
-	if (node.type === 'BlockStatement') {
-		if (node.body.length !== 1) {
-			return;
-		}
-
-		node = node.body[0];
-	}
-
-	if (node.type === 'ExpressionStatement') {
+	// An `if` branch is a statement, a conditional expression branch is an expression
+	node = getSingleStatement(node);
+	if (node?.type === 'ExpressionStatement') {
 		node = node.expression;
 	}
 

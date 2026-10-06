@@ -1,19 +1,20 @@
 import {
 	findVariable,
 	isCommaToken,
-	isCommentToken,
 	hasSideEffect,
 } from '@eslint-community/eslint-utils';
 import {
 	getConstVariableInitializer,
 	getParentheses,
 	getParenthesizedRange,
+	getOnlyExpression,
 	getParenthesizedText,
 	getPreviousNode,
-	getVariableByName,
 	needsSemicolon,
+	isGlobalIdentifier,
 	isNodeMatches,
 	isMethodNamed,
+	isSameBinding,
 	isSameReference,
 	isTypeParameterType,
 	hasUnparenthesizedOptionalChainElement,
@@ -22,16 +23,25 @@ import {
 	getStaticValueIfNoSideEffects,
 	hasPotentiallyMutableMemberAccess,
 	getVisitorChildNodes,
+	unwrapChainAndTypeScriptExpression,
+	wouldRemoveComments,
+	withTypeInformation,
 } from './utils/index.js';
 import {removeMethodCall} from './fix/index.js';
 import {
 	isEmptyArrayExpression,
 	isFunction,
+	isIdentifierNamed,
 	isLiteral,
 	isMethodCall,
 } from './ast/index.js';
 import {isArrayConcatInLoopCall} from './shared/array-concat-in-loop.js';
 import {getArrayRangeLength} from './shared/array-range.js';
+import {isBufferReference} from './shared/buffer-reference.js';
+import {
+	getEmptyArrayDeclarator,
+	getForOfBinding,
+} from './shared/for-of-collection-loop.js';
 import typedArrayTypes from './shared/typed-array.js';
 
 const ERROR_ARRAY_FROM = 'array-from';
@@ -174,11 +184,7 @@ const isArrayLiteralOuterCommentsPreservable = (node, context) => {
 	}
 
 	const {sourceCode} = context;
-	const hasCommentBetween = (a, b) =>
-		sourceCode.getTokensBetween(a, b, {includeComments: true})
-			.some(token => isCommentToken(token));
-
-	return hasCommentBetween(parentheses[0], node) || hasCommentBetween(node, parentheses.at(-1));
+	return sourceCode.commentsExistBetween(parentheses[0], node) || sourceCode.commentsExistBetween(node, parentheses.at(-1));
 };
 
 function fixConcat(node, context, fixableArguments) {
@@ -391,15 +397,14 @@ function isClassName(node) {
 	return /^[A-Z]./v.test(name) && name.toUpperCase() !== name;
 }
 
-const isGlobalIdentifier = (node, name, context) =>
-	node.type === 'Identifier'
-	&& node.name === name
-	&& context.sourceCode.isGlobalReference(node);
+const isGlobalIdentifierNamed = (node, name, context) =>
+	node.name === name
+	&& isGlobalIdentifier(node, context);
 
 function isGlobalMemberExpression(node, objectName, propertyName, context) {
 	if (
 		node.type !== 'MemberExpression'
-		|| !isGlobalIdentifier(node.object, objectName, context)
+		|| !isGlobalIdentifierNamed(node.object, objectName, context)
 	) {
 		return false;
 	}
@@ -410,58 +415,6 @@ function isGlobalMemberExpression(node, objectName, propertyName, context) {
 
 	const staticValue = getStaticValueIfNoSideEffects(node.property, context);
 	return staticValue?.value === propertyName;
-}
-
-function isBufferModuleImport(definition) {
-	return (
-		definition?.type === 'ImportBinding'
-		&& (
-			definition.parent?.source?.value === 'node:buffer'
-			|| definition.parent?.source?.value === 'buffer'
-		)
-	);
-}
-
-function getIdentifierDefinition(node, context) {
-	if (node.type !== 'Identifier') {
-		return;
-	}
-
-	const variable = findVariable(context.sourceCode.getScope(node), node);
-	const [definition] = variable?.defs ?? [];
-	return definition;
-}
-
-function isKnownBufferReference(node, context) {
-	if (node.name === 'Buffer' && context.sourceCode.isGlobalReference(node)) {
-		return true;
-	}
-
-	if (
-		node.type === 'MemberExpression'
-		&& !node.computed
-		&& node.property.type === 'Identifier'
-		&& node.property.name === 'Buffer'
-	) {
-		if (
-			isGlobalIdentifier(node.object, 'global', context)
-			|| isGlobalIdentifier(node.object, 'globalThis', context)
-		) {
-			return true;
-		}
-
-		const definition = getIdentifierDefinition(node.object, context);
-		return isBufferModuleImport(definition) && definition.node.type === 'ImportNamespaceSpecifier';
-	}
-
-	const definition = getIdentifierDefinition(node, context);
-
-	return (
-		isBufferModuleImport(definition)
-		&& definition.node.type === 'ImportSpecifier'
-		&& definition.node.imported.type === 'Identifier'
-		&& definition.node.imported.name === 'Buffer'
-	);
 }
 
 function getTypeReferenceDefinitionState(typeName, variable, visitedTypeVariables) {
@@ -531,7 +484,7 @@ function getTypeReferenceArrayState(node, scope, visitedTypeVariables) {
 		if (
 			knownNonArrayTypeNames.has(getTypeNameIdentifierName(node.typeName))
 		) {
-			const namespace = getVariableByName(getTypeNameNamespaceIdentifierName(node.typeName), scope);
+			const namespace = findVariable(scope, getTypeNameNamespaceIdentifierName(node.typeName));
 			const [definition] = namespace?.defs ?? [];
 
 			return definition?.type === 'ImportBinding' && definition.node.type === 'ImportNamespaceSpecifier'
@@ -548,7 +501,7 @@ function getTypeReferenceArrayState(node, scope, visitedTypeVariables) {
 		return true;
 	}
 
-	const variable = getVariableByName(name, scope);
+	const variable = findVariable(scope, name);
 	if (visitedTypeVariables.has(variable)) {
 		return;
 	}
@@ -692,24 +645,7 @@ function getTypeArrayState(type, checker, program) {
 }
 
 function getTypeInformationArrayState(node, context) {
-	const {parserServices} = context.sourceCode;
-
-	if (!parserServices?.program) {
-		return;
-	}
-
-	try {
-		const {program} = parserServices;
-		return getTypeArrayState(
-			parserServices.getTypeAtLocation(node),
-			program.getTypeChecker(),
-			program,
-		);
-		// Tests cannot make TypeScript throw here.
-		/* node:coverage ignore next 3 */
-	} catch {
-		// TypeScript can throw while resolving incomplete projects; keep this fallback best-effort.
-	}
+	return withTypeInformation(node, context, ({type, checker, program}) => getTypeArrayState(type, checker, program));
 }
 
 function isKnownNonArrayCall(node, context) {
@@ -719,7 +655,7 @@ function isKnownNonArrayCall(node, context) {
 			optionalCall: false,
 			optionalMember: false,
 		})
-		&& isKnownBufferReference(node.callee.object, context)
+		&& isBufferReference(node.callee.object, context)
 	) {
 		return true;
 	}
@@ -746,19 +682,19 @@ function isKnownNonArrayConstruction(node, context) {
 		return false;
 	}
 
-	return !isGlobalIdentifier(node.callee, 'Array', context);
+	return !isGlobalIdentifierNamed(node.callee, 'Array', context);
 }
 
 function isGlobalArrayReference(node, context) {
 	return (
-		isGlobalIdentifier(node, 'Array', context)
+		isGlobalIdentifierNamed(node, 'Array', context)
 		|| isGlobalMemberExpression(node, 'global', 'Array', context)
 		|| isGlobalMemberExpression(node, 'globalThis', 'Array', context)
 	);
 }
 
 function isArrayConstructorCall(node, context) {
-	node = unwrapReceiverReference(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	return (
 		(
@@ -770,7 +706,7 @@ function isArrayConstructorCall(node, context) {
 }
 
 function isArrayConstructorWithOneArgument(node, context) {
-	node = unwrapReceiverReference(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	return (
 		(
@@ -782,28 +718,16 @@ function isArrayConstructorWithOneArgument(node, context) {
 	);
 }
 
-function unwrapReceiverReference(node) {
-	while (
-		node.type === 'ChainExpression'
-		|| node.type === 'ParenthesizedExpression'
-		|| isTypeScriptExpressionWrapper(node)
-	) {
-		node = node.expression;
-	}
-
-	return node;
-}
-
 function isSameReceiverReference(left, right, context) {
-	left = unwrapReceiverReference(left);
-	right = unwrapReceiverReference(right);
+	left = unwrapChainAndTypeScriptExpression(left);
+	right = unwrapChainAndTypeScriptExpression(right);
 
 	if (!isSameReference(left, right)) {
 		return false;
 	}
 
 	if (left.type === 'Identifier' && right.type === 'Identifier') {
-		return findVariable(context.sourceCode.getScope(left), left) === findVariable(context.sourceCode.getScope(right), right);
+		return isSameBinding(left, right, context);
 	}
 
 	if (left.type === 'MemberExpression' && right.type === 'MemberExpression') {
@@ -883,7 +807,7 @@ const isArrayIsArrayCallWithArgument = (node, argument, context) =>
 		optionalCall: false,
 		optionalMember: false,
 	})
-	&& isGlobalIdentifier(node.callee.object, 'Array', context)
+	&& isGlobalIdentifierNamed(node.callee.object, 'Array', context)
 	&& isSameReceiverReference(node.arguments[0], argument, context);
 
 function getArrayIsArrayTestState(node, argument, context) {
@@ -986,47 +910,8 @@ function getConcatReceiverArrayState(node, context) {
 	}
 
 	const annotationState = getReceiverAnnotationArrayState(node, context);
-	return annotationState === undefined ? getSyntacticReceiverArrayState(unwrapReceiverReference(node), context) : annotationState;
+	return annotationState === undefined ? getSyntacticReceiverArrayState(unwrapChainAndTypeScriptExpression(node), context) : annotationState;
 }
-
-const getEmptyArrayDeclaration = node => {
-	if (
-		!node
-		|| node.type !== 'VariableDeclaration'
-		|| (node.kind !== 'const' && node.kind !== 'let')
-		|| node.declarations.length !== 1
-	) {
-		return;
-	}
-
-	const [declarator] = node.declarations;
-
-	if (
-		declarator.id.type !== 'Identifier'
-		|| !declarator.init
-		|| !isEmptyArrayExpression(declarator.init)
-	) {
-		return;
-	}
-
-	return declarator;
-};
-
-const getOnlyExpression = node => {
-	if (node.type === 'ExpressionStatement') {
-		return node.expression;
-	}
-
-	if (
-		node.type === 'BlockStatement'
-		&& node.body.length === 1
-		&& node.body[0].type === 'ExpressionStatement'
-	) {
-		return node.body[0].expression;
-	}
-};
-
-const isIdentifierNamed = (node, name) => node.type === 'Identifier' && node.name === name;
 
 const hasIdentifierName = (node, name, visitorKeys) => {
 	if (node.type === 'Identifier' && node.name === name) {
@@ -1036,41 +921,6 @@ const hasIdentifierName = (node, name, visitorKeys) => {
 	return getVisitorChildNodes(node, visitorKeys).some(child => hasIdentifierName(child, name, visitorKeys));
 };
 
-const getSingleForOfBinding = node => {
-	if (
-		node.left.type !== 'VariableDeclaration'
-		|| node.left.declarations.length !== 1
-		|| (node.left.kind !== 'const' && node.left.kind !== 'let')
-	) {
-		return;
-	}
-
-	// A `for…of` declaration cannot have an initializer
-	const [{id}] = node.left.declarations;
-
-	if (id.type === 'Identifier') {
-		return {id};
-	}
-
-	if (
-		id.type === 'ArrayPattern'
-		&& id.elements.length === 2
-		&& id.elements.every(element => element?.type === 'Identifier')
-	) {
-		const [index, element] = id.elements;
-
-		return {
-			index,
-			element,
-		};
-	}
-};
-
-const isBindingShadowingArray = (binding, arrayName) =>
-	binding?.id?.name === arrayName
-	|| binding?.index?.name === arrayName
-	|| binding?.element?.name === arrayName;
-
 const getForOfIterableNode = (node, arrayName, context) => {
 	const expression = getOnlyExpression(node.body);
 
@@ -1078,14 +928,18 @@ const getForOfIterableNode = (node, arrayName, context) => {
 		return;
 	}
 
-	const binding = getSingleForOfBinding(node);
+	const binding = getForOfBinding(node);
 
-	if (isBindingShadowingArray(binding, arrayName)) {
+	if (
+		!binding
+		|| binding.element.name === arrayName
+		|| binding.index?.name === arrayName
+	) {
 		return;
 	}
 
 	if (
-		binding?.id
+		!binding.index
 		&& isMethodCall(expression, {
 			method: 'push',
 			argumentsLength: 1,
@@ -1093,13 +947,13 @@ const getForOfIterableNode = (node, arrayName, context) => {
 			optionalMember: false,
 		})
 		&& isIdentifierNamed(expression.callee.object, arrayName)
-		&& isIdentifierNamed(expression.arguments[0], binding.id.name)
+		&& isIdentifierNamed(expression.arguments[0], binding.element.name)
 	) {
 		return node.right;
 	}
 
 	if (
-		!binding?.index
+		!binding.index
 		|| !isMethodCall(node.right, {
 			method: 'entries',
 			argumentsLength: 0,
@@ -1129,26 +983,17 @@ const getForOfCopyFix = ({
 }) => {
 	const {sourceCode} = context;
 	const iterableRange = getParenthesizedRange(iterableNode, context);
-	const hasUnpreservedLoopComment = sourceCode.getCommentsInside(node).some(comment => {
-		const [start, end] = sourceCode.getRange(comment);
-		const [iterableStart, iterableEnd] = iterableRange;
+	const replaceRange = [
+		sourceCode.getRange(declaration)[0],
+		sourceCode.getRange(node)[1],
+	];
 
-		return start < iterableStart || end > iterableEnd;
-	});
-
-	if (
-		sourceCode.getCommentsInside(declaration).length > 0
-		|| sourceCode.getTokensBetween(declaration, node, {includeComments: true}).some(token => isCommentToken(token))
-		|| hasUnpreservedLoopComment
-	) {
+	if (wouldRemoveComments(context, replaceRange, [iterableRange])) {
 		return;
 	}
 
 	return fixer => fixer.replaceTextRange(
-		[
-			sourceCode.getRange(declaration)[0],
-			sourceCode.getRange(node)[1],
-		],
+		replaceRange,
 		`${declaration.kind} ${sourceCode.getText(declaration.declarations[0].id)} = [...${sourceCode.text.slice(...iterableRange)}];`,
 	);
 };
@@ -1160,17 +1005,12 @@ const create = context => {
 	const {sourceCode} = context;
 
 	// Any inner comment outside preserved ranges means the autofix would relocate or drop comments.
-	const hasCommentsOutsideRanges = (node, preservedRanges) => sourceCode.getCommentsInside(node).some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-		return preservedRanges.every(([start, end]) => !(commentStart >= start && commentEnd <= end));
-	});
-
 	const hasExtraComments = (node, preservedNodeOrRange) => {
 		const preservedRange = Array.isArray(preservedNodeOrRange)
 			? preservedNodeOrRange
 			: getParenthesizedRange(preservedNodeOrRange, context);
 
-		return hasCommentsOutsideRanges(node, [preservedRange]);
+		return wouldRemoveComments(context, node, [preservedRange]);
 	};
 
 	context.on('ForOfStatement', node => {
@@ -1179,7 +1019,7 @@ const create = context => {
 		}
 
 		const declaration = getPreviousNode(node, context);
-		const declarator = getEmptyArrayDeclaration(declaration);
+		const declarator = getEmptyArrayDeclarator(declaration);
 
 		if (!declarator) {
 			return;
@@ -1335,7 +1175,7 @@ const create = context => {
 		if (fixableArguments.length > 0 || node.arguments.length === 0) {
 			if (
 				isReceiverSafeToSpread
-				&& !hasCommentsOutsideRanges(node, getConcatPreservedRanges(node, fixableArguments.length))
+				&& !wouldRemoveComments(context, node, getConcatPreservedRanges(node, fixableArguments.length))
 			) {
 				problem.fix = fixConcat(node, context, fixableArguments);
 			}

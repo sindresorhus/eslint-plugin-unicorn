@@ -5,13 +5,17 @@ import {
 	getStaticStringValue,
 } from './ast/index.js';
 import {
+	getCallArgumentText,
 	getParenthesizedRange,
 	getCommentSafeProblem,
+	getOutermostTypeScriptExpression,
+	getFunctionReturnExpression,
 	getStaticValueIfNoSideEffects,
+	hasTypeArguments,
+	isGlobalNameAvailable,
 	isKnownNonString,
 	isSameIdentifier,
-	isTypeImportSpecifier,
-	isTypeScriptExpressionWrapper,
+	isTypeOnlyDefinition,
 	unwrapTypeScriptExpression,
 	hasNonDirectiveComment,
 } from './utils/index.js';
@@ -28,14 +32,6 @@ const urlImportSources = new Set([
 	'url',
 ]);
 
-const isTypeOnlyImport = definition =>
-	definition.type === 'ImportBinding'
-	&& isTypeImportSpecifier(definition.node);
-
-const isErasedDefinition = definition =>
-	definition.type === 'Type'
-	|| isTypeOnlyImport(definition);
-
 const isUrlSearchParametersImport = definition => {
 	if (definition.type !== 'ImportBinding') {
 		return false;
@@ -50,15 +46,10 @@ const isUrlSearchParametersImport = definition => {
 		&& node.imported.name === 'URLSearchParams';
 };
 
-const isGlobalNameAvailable = (name, node, context) => {
-	const variable = findVariable(context.sourceCode.getScope(node), name);
-	return !variable || variable.defs.every(definition => isErasedDefinition(definition));
-};
-
 const isUrlSearchParametersAvailable = (node, context) => {
 	const variable = findVariable(context.sourceCode.getScope(node), 'URLSearchParams');
 	return !variable
-		|| variable.defs.every(definition => isErasedDefinition(definition))
+		|| variable.defs.every(definition => isTypeOnlyDefinition(definition))
 		|| variable.defs.some(definition => isUrlSearchParametersImport(definition));
 };
 
@@ -71,11 +62,6 @@ const isStaticString = (node, value) =>
 const isStaticNonString = (node, context) => {
 	const staticValue = getStaticValueIfNoSideEffects(node, context);
 	return Boolean(staticValue) && typeof staticValue.value !== 'string';
-};
-
-const getArgumentText = (node, context) => {
-	const text = context.sourceCode.getText(node);
-	return node.type === 'SequenceExpression' ? `(${text})` : text;
 };
 
 const getAmpersandSplitCall = (node, context) => {
@@ -137,25 +123,7 @@ const getCallbackReturnExpression = callback => {
 		return;
 	}
 
-	if (callback.body.type !== 'BlockStatement') {
-		return {
-			parameter: callback.params[0],
-			returnExpression: callback.body,
-		};
-	}
-
-	if (
-		callback.body.body.length !== 1
-		|| callback.body.body[0].type !== 'ReturnStatement'
-		|| !callback.body.body[0].argument
-	) {
-		return;
-	}
-
-	return {
-		parameter: callback.params[0],
-		returnExpression: callback.body.body[0].argument,
-	};
+	return getFunctionReturnExpression(callback);
 };
 
 const getManualSearchParametersPipeline = (node, context) => {
@@ -169,8 +137,7 @@ const getManualSearchParametersPipeline = (node, context) => {
 			optionalCall: false,
 			optionalMember: false,
 		})
-		|| node.typeArguments
-		|| node.typeParameters
+		|| hasTypeArguments(node)
 	) {
 		return;
 	}
@@ -181,8 +148,8 @@ const getManualSearchParametersPipeline = (node, context) => {
 	}
 
 	const [callback] = node.arguments;
-	const result = getCallbackReturnExpression(callback);
-	if (!result || !isEqualsSplitCall(result.returnExpression, result.parameter, context)) {
+	const returnExpression = getCallbackReturnExpression(callback);
+	if (!returnExpression || !isEqualsSplitCall(returnExpression, callback.params[0], context)) {
 		return;
 	}
 
@@ -193,7 +160,7 @@ const getManualSearchParametersPipeline = (node, context) => {
 };
 
 const getUrlSearchParametersText = (query, context) =>
-	`new URLSearchParams(${getArgumentText(query, context)})`;
+	`new URLSearchParams(${getCallArgumentText(query, context)})`;
 
 const getReplacementWithArgument = (node, argument, replacementArgument, context) => {
 	const {sourceCode} = context;
@@ -297,16 +264,8 @@ const isPotentialWrapper = node =>
 	});
 
 const getFirstArgumentParent = node => {
-	let expression = node;
-	let {parent} = node;
-	while (
-		isTypeScriptExpressionWrapper(parent)
-		&& parent.expression === expression
-	) {
-		expression = parent;
-		parent = parent.parent;
-	}
-
+	const expression = getOutermostTypeScriptExpression(node);
+	const {parent} = expression;
 	return parent?.arguments?.[0] === expression ? parent : undefined;
 };
 
@@ -350,7 +309,7 @@ const getNewExpressionProblem = (node, context) => {
 		return;
 	}
 
-	const queryText = getArgumentText(pipeline.query, context);
+	const queryText = getCallArgumentText(pipeline.query, context);
 	const urlSearchParametersText = getUrlSearchParametersText(pipeline.query, context);
 	const replacementArgument = isMap ? urlSearchParametersText : queryText;
 	const replacement = getReplacementWithArgument(node, argument, replacementArgument, context);

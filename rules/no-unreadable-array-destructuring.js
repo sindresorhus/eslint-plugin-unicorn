@@ -3,7 +3,7 @@ import {
 	isKnownNonArray,
 	isKnownNonIndexedCollection,
 	isParenthesized,
-	isTypeScriptExpressionWrapper,
+	getParentPattern,
 } from './utils/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 
@@ -42,46 +42,6 @@ function getMaximumConsecutiveIgnoredElements(elements) {
 	}
 
 	return maximumConsecutiveIgnoredElements;
-}
-
-function getParentPattern(node) {
-	const {parent} = node;
-
-	if (
-		isTypeScriptExpressionWrapper(parent)
-		&& parent.expression === node
-	) {
-		return getParentPattern(parent);
-	}
-
-	if (
-		parent.type === 'AssignmentPattern'
-		&& parent.left === node
-	) {
-		return getParentPattern(parent);
-	}
-
-	if (
-		parent.type === 'RestElement'
-		&& parent.argument === node
-	) {
-		return getParentPattern(parent);
-	}
-
-	if (
-		parent.type === 'Property'
-		&& parent.value === node
-		&& parent.parent.type === 'ObjectPattern'
-	) {
-		return parent.parent;
-	}
-
-	if (
-		parent.type === 'ObjectPattern'
-		|| parent.type === 'ArrayPattern'
-	) {
-		return parent;
-	}
 }
 
 /**

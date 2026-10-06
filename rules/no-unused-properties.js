@@ -1,4 +1,4 @@
-import {isTypeScriptExpressionWrapper, unwrapTypeScriptExpression} from './utils/index.js';
+import {getOutermostTypeScriptExpression, unwrapTypeScriptExpression} from './utils/index.js';
 import getScopes from './utils/get-scopes.js';
 
 const MESSAGE_ID = 'no-unused-properties';
@@ -63,17 +63,6 @@ const isMemberExpressionAssignment = memberExpression =>
 const isMemberExpressionComputedBeyondPrediction = memberExpression =>
 	memberExpression.computed
 	&& memberExpression.property.type !== 'Literal';
-
-const getReferenceParent = referenceNode => {
-	while (
-		isTypeScriptExpressionWrapper(referenceNode.parent)
-		&& referenceNode.parent.expression === referenceNode
-	) {
-		referenceNode = referenceNode.parent;
-	}
-
-	return referenceNode.parent;
-};
 
 const specialProtoPropertyKey = {
 	type: 'Identifier',
@@ -155,7 +144,7 @@ const create = context => {
 
 			const nextReferences = references
 				.map(reference => {
-					const parent = getReferenceParent(reference.identifier);
+					const {parent} = getOutermostTypeScriptExpression(reference.identifier);
 
 					if (reference.init) {
 						if (

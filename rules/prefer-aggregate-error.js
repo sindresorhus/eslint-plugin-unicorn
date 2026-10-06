@@ -1,10 +1,14 @@
+import {findVariable} from '@eslint-community/eslint-utils';
 import {isNewExpression, isMemberExpression, isLiteral} from './ast/index.js';
 import builtinErrors from './shared/builtin-errors.js';
 import {
-	getVariableByName,
+	getLogicalExpressionOperands,
+	getSingleStatement,
 	isArray,
 	isGlobalIdentifier,
+	isGlobalNameAvailable,
 	unwrapTypeScriptExpression,
+	withTypeInformation,
 } from './utils/index.js';
 import {
 	getBaseTypes,
@@ -21,11 +25,6 @@ const errorCollectionNamePattern = /[Ee]rrors$|[Ee]rror(?:List|Array|Collection)
 const errorConstructorNames = new Set(builtinErrors);
 
 const isErrorCollectionName = name => errorCollectionNamePattern.test(name);
-
-const isAvailableGlobalName = (name, node, context) => {
-	const variable = getVariableByName(name, context.sourceCode.getScope(node));
-	return !variable || variable.defs.length === 0;
-};
 
 const isLocallyDefined = variable =>
 	(variable?.defs.length ?? 0) > 0;
@@ -55,7 +54,7 @@ function isErrorTypeAnnotation(node, scope, context, visitedTypeVariables = new 
 	switch (node?.type) {
 		case 'TSTypeReference': {
 			const typeName = getTypeName(node.typeName);
-			const variable = getVariableByName(typeName, scope);
+			const variable = findVariable(scope, typeName);
 			if (
 				errorConstructorNames.has(typeName)
 				&& !isLocallyDefined(variable)
@@ -106,7 +105,7 @@ function isErrorArrayTypeReferenceAnnotation(node, scope, context, visitedTypeVa
 		return isErrorTypeAnnotation(typeArguments[0], scope, context, visitedTypeVariables);
 	}
 
-	const variable = getVariableByName(typeName, scope);
+	const variable = findVariable(scope, typeName);
 	if (visitedTypeVariables.has(variable)) {
 		return false;
 	}
@@ -223,47 +222,17 @@ function isErrorArrayType(type, checker, program, visitedTypes = new Set()) {
 }
 
 function isErrorArrayTypeFromTypeInformation(node, context) {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return false;
-	}
-
-	try {
-		const {program} = parserServices;
-		return isErrorArrayType(
-			parserServices.getTypeAtLocation(node),
-			program.getTypeChecker(),
-			program,
-		);
-		// Defensive: the TypeScript checker can throw on unusual nodes or types, and no known input does
-		/* node:coverage ignore next 3 */
-	} catch {
-		return false;
-	}
+	return withTypeInformation(node, context, ({type, checker, program}) => isErrorArrayType(type, checker, program)) ?? false;
 }
 
 function hasErrorCollectionEvidence(node, context) {
-	const variable = getVariableByName(node.name, context.sourceCode.getScope(node));
+	const variable = findVariable(context.sourceCode.getScope(node), node.name);
 	const [definition] = variable?.defs ?? [];
 	const definitionScope = definition ? context.sourceCode.getScope(definition.name) : context.sourceCode.getScope(node);
 
 	return isErrorArrayTypeAnnotation(definition?.name?.typeAnnotation, definitionScope, context)
 		|| isErrorArrayTypeFromTypeInformation(node, context);
 }
-
-const getLoneThrowStatement = node => {
-	if (node.type === 'ThrowStatement') {
-		return node;
-	}
-
-	if (
-		node.type === 'BlockStatement'
-		&& node.body.length === 1
-		&& node.body[0].type === 'ThrowStatement'
-	) {
-		return node.body[0];
-	}
-};
 
 function getLengthObject(node, context) {
 	node = unwrapTypeScriptExpression(node);
@@ -357,24 +326,8 @@ function getPositiveLengthCheckObject(node, context) {
 	}
 }
 
-const getAndOperands = node => {
-	node = unwrapTypeScriptExpression(node);
-
-	if (
-		node.type !== 'LogicalExpression'
-		|| node.operator !== '&&'
-	) {
-		return [node];
-	}
-
-	return [
-		...getAndOperands(node.left),
-		...getAndOperands(node.right),
-	];
-};
-
 function getGuardedErrorCollection(node, context) {
-	const errorCollections = getAndOperands(node.test)
+	const errorCollections = getLogicalExpressionOperands(unwrapTypeScriptExpression(node.test), '&&')
 		.map(operand => getPositiveLengthCheckObject(operand, context))
 		.filter(Boolean);
 
@@ -409,8 +362,8 @@ const hasCommentsInside = (node, context) =>
 */
 const create = context => {
 	context.on('IfStatement', node => {
-		const throwStatement = getLoneThrowStatement(node.consequent);
-		if (!throwStatement) {
+		const throwStatement = getSingleStatement(node.consequent);
+		if (throwStatement?.type !== 'ThrowStatement') {
 			return;
 		}
 
@@ -422,7 +375,7 @@ const create = context => {
 		const errorCollection = getGuardedErrorCollection(node, context);
 		if (
 			!errorCollection
-			|| !isAvailableGlobalName('AggregateError', errorExpression, context)
+			|| !isGlobalNameAvailable('AggregateError', errorExpression, context)
 		) {
 			return;
 		}

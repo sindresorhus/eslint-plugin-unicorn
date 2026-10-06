@@ -7,9 +7,9 @@ import {removeStatement} from './fix/index.js';
 import {
 	getCommentSafeProblem,
 	getLastTrailingCommentOnSameLine,
+	getNegatedExpressionText,
 	getReferences,
 	hasNonDirectiveComment,
-	shouldAddParenthesesToUnaryExpressionArgument,
 	getVisitorChildNodes,
 } from './utils/index.js';
 
@@ -88,18 +88,15 @@ const isInfiniteLoop = node => {
 	return isBooleanLiteral(node.test, true);
 };
 
-const getLoopConditionText = (test, sourceCode) => {
+const getLoopConditionText = (test, context) => {
 	if (
 		test.type === 'UnaryExpression'
 		&& test.operator === '!'
 	) {
-		return sourceCode.getText(test.argument);
+		return context.sourceCode.getText(test.argument);
 	}
 
-	const text = sourceCode.getText(test);
-	return shouldAddParenthesesToUnaryExpressionArgument(test, '!')
-		? `!(${text})`
-		: `!${text}`;
+	return getNegatedExpressionText(test, context);
 };
 
 const getLoopHeadRange = (node, sourceCode) => [
@@ -191,7 +188,7 @@ const create = context => {
 				const fixes = fixLoop(fixer, {
 					loop: node,
 					firstStatement,
-					condition: getLoopConditionText(firstStatement.test, sourceCode),
+					condition: getLoopConditionText(firstStatement.test, context),
 					sourceCode,
 					context,
 				});

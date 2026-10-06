@@ -1277,3 +1277,19 @@ test({
 		},
 	],
 });
+
+// The moved body ends with a line comment. No fix when the next token is on the same line, because the comment would swallow it.
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'for (const item of items) {\n\tif (condition) {\n\t\tdoSomething();\n\t\tdoSomethingElse(); // Trailing comment.\n\t}}',
+			errors: [{messageId: 'prefer-continue'}],
+		},
+		{
+			code: 'for (const item of items) {\n\tif (condition) {\n\t\tdoSomething();\n\t\tdoSomethingElse(); // Trailing comment.\n\t}\n}',
+			output: 'for (const item of items) {\n\tif (!condition) {\n\t\tcontinue;\n\t}\n\n\tdoSomething();\n\tdoSomethingElse(); // Trailing comment.\n}',
+			errors: [{messageId: 'prefer-continue'}],
+		},
+	],
+});

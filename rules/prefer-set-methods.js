@@ -9,14 +9,17 @@ import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getParenthesizedText,
 	getCommentSafeProblem,
+	getOutermostTypeScriptExpression,
 	hasNonDirectiveComment,
 	isBuiltinSet,
+	isFirstTokenOfExpressionStatement,
 	isGlobalIdentifier,
 	isParenthesized,
 	isSameReference,
 	isTypeScriptExpressionWrapper,
 	needsSemicolon,
 	getMemberExpressionObjectText,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 const MESSAGE_ID_UNION = 'prefer-set-methods/union';
@@ -55,56 +58,16 @@ const isGlobalSetConstructor = (node, context) =>
 	})
 	&& isGlobalIdentifier(node.callee, context);
 
-const isFirstTokenOfExpressionStatement = (node, context) => {
-	let currentNode = node;
-
-	while (currentNode.parent) {
-		if (currentNode.parent.type === 'ExpressionStatement') {
-			return context.sourceCode.getRange(context.sourceCode.getFirstToken(currentNode.parent.expression))[0] === context.sourceCode.getRange(context.sourceCode.getFirstToken(node))[0];
-		}
-
-		currentNode = currentNode.parent;
-	}
-
-	return false;
-};
-
 const addSemicolonIfNeeded = (node, text, context) =>
 	isFirstTokenOfExpressionStatement(node, context) && needsSemicolon(context.sourceCode.getTokenBefore(node), context, text) ? `;${text}` : text;
 
-const isTransparentWrapperOf = (parent, node) =>
-	(
-		parent.type === 'ParenthesizedExpression'
-		|| isTypeScriptExpressionWrapper(parent)
-	)
-	&& parent.expression === node;
-
-const unwrapTransparentExpression = node => {
-	while (
-		node?.type === 'ParenthesizedExpression'
-		|| isTypeScriptExpressionWrapper(node)
-	) {
-		node = node.expression;
-	}
-
-	return node;
-};
-
-const getNodeAfterTransparentWrappers = node => {
-	while (node.parent && isTransparentWrapperOf(node.parent, node)) {
-		node = node.parent;
-	}
-
-	return node;
-};
-
 const isMemberObjectAfterTransparentWrappers = node => {
-	node = getNodeAfterTransparentWrappers(node);
+	node = getOutermostTypeScriptExpression(node);
 	return node.parent?.type === 'MemberExpression' && node.parent.object === node;
 };
 
 const isCallOrNewExpressionPartAfterTransparentWrappers = node => {
-	node = getNodeAfterTransparentWrappers(node);
+	node = getOutermostTypeScriptExpression(node);
 	const {parent} = node;
 
 	if (
@@ -420,7 +383,7 @@ const create = context => {
 		}
 
 		const [argument] = node.arguments;
-		return getSetOperationProblem(unwrapTransparentExpression(argument), node, context);
+		return getSetOperationProblem(unwrapTypeScriptExpression(argument), node, context);
 	});
 
 	context.on('CallExpression', node => {

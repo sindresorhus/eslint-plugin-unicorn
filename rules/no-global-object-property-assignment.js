@@ -1,8 +1,8 @@
 import {getPropertyName} from '@eslint-community/eslint-utils';
 import {
+	getOutermostTypeScriptExpression,
 	isGlobalIdentifier,
 	isLeftHandSide,
-	isTypeScriptExpressionWrapper,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -18,17 +18,6 @@ const globalObjectNames = new Set([
 	'window',
 ]);
 
-const getEffectiveAssignmentTarget = node => {
-	while (
-		isTypeScriptExpressionWrapper(node.parent)
-		&& node.parent.expression === node
-	) {
-		node = node.parent;
-	}
-
-	return node;
-};
-
 const isDeleteExpressionArgument = node =>
 	node.parent.type === 'UnaryExpression'
 	&& node.parent.operator === 'delete'
@@ -40,7 +29,7 @@ const isDeleteExpressionArgument = node =>
 const create = context => {
 	context.on('MemberExpression', node => {
 		const object = unwrapTypeScriptExpression(node.object);
-		const assignmentTarget = getEffectiveAssignmentTarget(node);
+		const assignmentTarget = getOutermostTypeScriptExpression(node);
 
 		if (
 			object.type !== 'Identifier'

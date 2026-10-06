@@ -1,21 +1,25 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {isCallExpression, isMethodCall, isNewExpression} from './ast/index.js';
-import {getParenthesizedRange, isGlobalIdentifier, unwrapTypeScriptExpression} from './utils/index.js';
+import {
+	isCallExpression,
+	isIdentifierNamed,
+	isMethodCall,
+	isNewExpression,
+} from './ast/index.js';
+import {
+	getConciseArrowBodyText,
+	getFunctionOnlyExpression,
+	getParenthesizedRange,
+	getTypeArgumentsText,
+	hasCommentInRange,
+	isGlobalIdentifier,
+	unwrapChainAndTypeScriptExpression,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-promise-try';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `Promise.try()` over promise-wrapping boilerplate.',
 };
-
-const getTypeArgumentsText = (node, sourceCode) => {
-	const typeArguments = node.typeArguments ?? node.typeParameters;
-	return typeArguments ? sourceCode.getText(typeArguments) : '';
-};
-
-const hasCommentsInsideRange = (sourceCode, range) => sourceCode.getAllComments().some(comment => {
-	const commentRange = sourceCode.getRange(comment);
-	return commentRange[0] >= range[0] && commentRange[1] <= range[1];
-});
 
 const isSupportedExecutor = node => (
 	node.type === 'ArrowFunctionExpression'
@@ -25,38 +29,15 @@ const isSupportedExecutor = node => (
 	&& node.params[0].type === 'Identifier'
 );
 
-const getOnlyExpression = node => {
-	if (node.body.type !== 'BlockStatement') {
-		return node.body;
-	}
-
-	if (
-		node.body.body.length !== 1
-		|| node.body.body[0].type !== 'ExpressionStatement'
-	) {
-		return;
-	}
-
-	return node.body.body[0].expression;
-};
-
-const isIdentifierReference = (node, name) => (
-	node.type === 'Identifier'
-	&& node.name === name
-);
-
 const isResolveCall = (node, resolveName) => (
 	isCallExpression(node, {
 		argumentsLength: 1,
 		optional: false,
 	})
-	&& isIdentifierReference(node.callee, resolveName)
+	&& isIdentifierNamed(node.callee, resolveName)
 );
 
-const unwrapChainExpression = node => node.type === 'ChainExpression' ? node.expression : node;
-const unwrapCallExpression = node => unwrapChainExpression(unwrapTypeScriptExpression(node));
-
-const getPromiseTryArgumentText = (resolvedExpression, sourceCode) => `() => ${sourceCode.getText(resolvedExpression)}`;
+const getPromiseTryArgumentText = (resolvedExpression, context) => `() => ${getConciseArrowBodyText(resolvedExpression, context)}`;
 
 const hasExecutorTypeSyntax = executor => Boolean(
 	executor.params[0].typeAnnotation
@@ -83,7 +64,6 @@ const isPartOfNewExpressionCallee = node => {
 };
 
 function getFix(newExpression, resolvedExpression, context) {
-	const {sourceCode} = context;
 	const [executor] = newExpression.arguments;
 	if (
 		hasExecutorTypeSyntax(executor)
@@ -93,13 +73,13 @@ function getFix(newExpression, resolvedExpression, context) {
 	}
 
 	const replaceRange = getParenthesizedRange(newExpression, context);
-	if (hasCommentsInsideRange(sourceCode, replaceRange)) {
+	if (hasCommentInRange(context, replaceRange)) {
 		return;
 	}
 
 	return fixer => fixer.replaceTextRange(
 		replaceRange,
-		`Promise.try${getTypeArgumentsText(newExpression, sourceCode)}(${getPromiseTryArgumentText(resolvedExpression, sourceCode)})`,
+		`Promise.try${getTypeArgumentsText(newExpression, context)}(${getPromiseTryArgumentText(resolvedExpression, context)})`,
 	);
 }
 
@@ -121,13 +101,13 @@ function getResolvedCallExpression(newExpression, context) {
 		return;
 	}
 
-	const expression = getOnlyExpression(executor);
+	const expression = getFunctionOnlyExpression(executor);
 	if (!expression || !isResolveCall(expression, executor.params[0].name)) {
 		return;
 	}
 
 	const resolvedValue = expression.arguments[0];
-	if (!isCallExpression(unwrapCallExpression(resolvedValue))) {
+	if (!isCallExpression(unwrapChainAndTypeScriptExpression(resolvedValue))) {
 		return;
 	}
 

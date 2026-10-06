@@ -544,6 +544,40 @@ Output:
 
 `;
 
+exports[`no-negated-array-predicate > invalid(37): !array.some(element => !{foo: element}.foo); 1`] = `
+
+  1 | !array.some(element => !{foo: element}.foo);
+
+`;
+
+exports[`no-negated-array-predicate > invalid(37): !array.some(element => !{foo: element}.foo); 2`] = `
+
+Message:
+> 1 | !array.some(element => !{foo: element}.foo);
+    |        ^^^^ Prefer \`Array#every()\` with a negated predicate over negating \`Array#some()\`.
+
+Output:
+  1 | array.every(element => ({foo: element}.foo));
+
+`;
+
+exports[`no-negated-array-predicate > invalid(38): <template><div v-if=\"!array.some(element => (test(element)))\"></div></template> 1`] = `
+
+  1 | <template><div v-if="!array.some(element => (test(element)))"></div></template>
+
+`;
+
+exports[`no-negated-array-predicate > invalid(38): <template><div v-if=\"!array.some(element => (test(element)))\"></div></template> 2`] = `
+
+Message:
+> 1 | <template><div v-if="!array.some(element => (test(element)))"></div></template>
+    |                             ^^^^ Prefer \`Array#every()\` with a negated predicate over negating \`Array#some()\`.
+
+Output:
+  1 | <template><div v-if="array.every(element => (!test(element)))"></div></template>
+
+`;
+
 exports[`no-negated-array-predicate > invalid(4): !array.every(element => !test(element)); 1`] = `
 
   1 | !array.every(element => !test(element));
@@ -608,7 +642,7 @@ Message:
     |        ^^^^ Prefer \`Array#every()\` with a negated predicate over negating \`Array#some()\`.
 
 Output:
-  1 | array.every((element) => (!test(element)));
+  1 | array.every((element) => !test(element));
 
 `;
 
@@ -625,7 +659,7 @@ Message:
     |        ^^^^ Prefer \`Array#every()\` with a negated predicate over negating \`Array#some()\`.
 
 Output:
-  1 | array.every(element => (!{}));
+  1 | array.every(element => !{});
 
 `;
 

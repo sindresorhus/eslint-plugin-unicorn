@@ -96,6 +96,8 @@ test.snapshot({
 			}
 		`),
 		typescript('const errors: Error[] = [new Error("One failed.")]; if (errors.length > 0) { throw new Error(/* message */ message); }'),
+		// A type named `AggregateError` does not shadow the global
+		typescript('type AggregateError = Custom; function foo(errors: Error[]) { if (errors.length > 0) { throw new Error("Failed."); } }'),
 		{
 			code: 'function foo(errors: Error[]) { if (errors.length > 0) { throw new Error("Failed."); } }',
 			languageOptions: {parser: parsers.typescript},

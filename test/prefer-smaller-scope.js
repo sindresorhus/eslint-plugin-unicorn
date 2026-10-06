@@ -168,6 +168,8 @@ testRule.snapshot({
 		},
 		// No whitespace after the opening brace
 		'const value = 1; if (condition) {consume(value);}',
+		// Optional `eval` calls are indirect, so they cannot read `value` in a module
+		'const value = 1; if (condition) { consume(value); } eval?.("consume(value)");',
 	],
 });
 

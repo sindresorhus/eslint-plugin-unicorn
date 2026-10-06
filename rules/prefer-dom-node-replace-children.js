@@ -1,4 +1,4 @@
-import {findVariable, hasSideEffect} from '@eslint-community/eslint-utils';
+import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {
 	getStaticStringValue,
 	isCallExpression,
@@ -7,22 +7,25 @@ import {
 } from './ast/index.js';
 import {removeStatement} from './fix/index.js';
 import {
+	getConstVariableInitializer,
 	getNextNode,
-	isKnownNonDomNode,
+	getOnlyExpression,
+	getStaticPropertyName,
+	getStaticValueIfNoSideEffects,
+	hasPotentiallyMutableMemberAccess,
 	isGlobalIdentifier,
+	isKnownNonDomNode,
 	isNodeValueNotDomNode,
 	isSameReference,
 	isValueNotUsable,
-	hasPotentiallyMutableMemberAccess,
 	mayBeHtmlTemplateElement,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
 	shouldReportReplaceChildrenReceiver,
 	unwrapTypeScriptExpression,
 	wouldRemoveComments,
-	getStaticValueIfNoSideEffects,
-	getVisitorChildNodes,
 } from './utils/index.js';
+import {containsOptionalChain} from './utils/comparison.js';
 import {createTypeCheckers} from './utils/type-helpers.js';
 
 const MESSAGE_ID = 'prefer-dom-node-replace-children';
@@ -67,66 +70,27 @@ const getStaticStringValueFromScope = (node, context) => {
 	return typeof result?.value === 'string' ? result.value : undefined;
 };
 
-const getConstIdentifierInitializer = (node, context, visitedVariables) => {
-	if (node.type !== 'Identifier') {
-		return;
-	}
-
-	const variable = findVariable(context.sourceCode.getScope(node), node);
-	if (
-		!variable
-		|| visitedVariables.has(variable)
-		|| variable.defs.length !== 1
-	) {
-		return;
-	}
-
-	const [definition] = variable.defs;
-	if (
-		definition.type !== 'Variable'
-		|| definition.parent.kind !== 'const'
-		|| definition.node.id !== definition.name
-	) {
-		return;
-	}
-
-	visitedVariables.add(variable);
-	return definition.node.init;
-};
-
-const getStaticPropertyName = memberExpression => {
-	const {property} = memberExpression;
-
-	if (
-		!memberExpression.computed
-		&& property.type === 'Identifier'
-	) {
-		return property.name;
-	}
-
-	return getStaticString(property);
-};
-
-const isInnerHTMLMemberExpression = node =>
+const isInnerHTMLMemberExpression = (node, context) =>
 	isMemberExpression(node)
-	&& getStaticPropertyName(node) === 'innerHTML';
+	&& getStaticPropertyName(node, context) === 'innerHTML';
 
 const isEmptyString = node => getStaticString(node) === '';
 
-const isStaticMethodCall = (node, method, options) =>
+const isStaticMethodCall = (node, method, options, context) =>
 	isCallExpression(node, {
 		...options,
 		optional: false,
 	})
 	&& isMemberExpression(node.callee, {optional: false})
-	&& getStaticPropertyName(node.callee) === method;
+	&& getStaticPropertyName(node.callee, context) === method;
 
-const isGlobalDocument = (node, context, visitedVariables = new Set()) => {
+const isGlobalDocument = (node, context, visitedInitializers = new Set()) => {
 	node = unwrapTypeScriptExpression(node);
 
-	const initializer = getConstIdentifierInitializer(node, context, visitedVariables);
-	if (initializer) {
-		return isGlobalDocument(initializer, context, visitedVariables);
+	const initializer = getConstVariableInitializer(node, context);
+	if (initializer && !visitedInitializers.has(initializer)) {
+		visitedInitializers.add(initializer);
+		return isGlobalDocument(initializer, context, visitedInitializers);
 	}
 
 	if (
@@ -137,7 +101,7 @@ const isGlobalDocument = (node, context, visitedVariables = new Set()) => {
 	}
 
 	return isMemberExpression(node, {optional: false})
-		&& getStaticPropertyName(node) === 'document'
+		&& getStaticPropertyName(node, context) === 'document'
 		&& node.object.type === 'Identifier'
 		&& globalObjectNames.has(node.object.name)
 		&& isGlobalIdentifier(node.object, context);
@@ -166,19 +130,20 @@ const isUnknownOrHtmlNamespace = (node, context) => {
 	return !result || result.value === HTML_NAMESPACE;
 };
 
-const mayCreateHtmlTemplateElement = (node, context, visitedVariables = new Set()) => {
+const mayCreateHtmlTemplateElement = (node, context, visitedInitializers = new Set()) => {
 	node = unwrapTypeScriptExpression(node);
 
-	const initializer = getConstIdentifierInitializer(node, context, visitedVariables);
-	if (initializer) {
-		return mayCreateHtmlTemplateElement(initializer, context, visitedVariables);
+	const initializer = getConstVariableInitializer(node, context);
+	if (initializer && !visitedInitializers.has(initializer)) {
+		visitedInitializers.add(initializer);
+		return mayCreateHtmlTemplateElement(initializer, context, visitedInitializers);
 	}
 
 	if (
 		isStaticMethodCall(node, 'createElement', {
 			minimumArguments: 1,
 			maximumArguments: 2,
-		})
+		}, context)
 	) {
 		const tagName = getStaticStringValueFromScope(node.arguments[0], context);
 		return tagName?.toLowerCase() === 'template'
@@ -189,7 +154,7 @@ const mayCreateHtmlTemplateElement = (node, context, visitedVariables = new Set(
 		!isStaticMethodCall(node, 'createElementNS', {
 			minimumArguments: 2,
 			maximumArguments: 3,
-		})
+		}, context)
 		|| getStaticStringValueFromScope(node.arguments[1], context)?.toLowerCase() !== 'template'
 	) {
 		return false;
@@ -198,34 +163,11 @@ const mayCreateHtmlTemplateElement = (node, context, visitedVariables = new Set(
 	return isUnknownOrHtmlNamespace(node.arguments[0], context);
 };
 
-const getOnlyBodyStatement = node => {
-	if (node.body.type !== 'BlockStatement') {
-		return node.body;
-	}
-
-	return node.body.body.length === 1
-		? node.body.body[0]
-		: undefined;
-};
-
-const getChildNodeMemberExpression = node => {
-	if (
-		isMemberExpression(node, {
-			properties: ['firstChild', 'lastChild'],
-			optional: false,
-		})
-	) {
-		return node;
-	}
-};
-
-const containsChainExpression = (node, sourceCode) => {
-	if (node.type === 'ChainExpression') {
-		return true;
-	}
-
-	return getVisitorChildNodes(node, sourceCode.visitorKeys).some(child => containsChainExpression(child, sourceCode));
-};
+const isChildNodeMemberExpression = node =>
+	isMemberExpression(node, {
+		properties: ['firstChild', 'lastChild'],
+		optional: false,
+	});
 
 const getParentNodeText = (parentNode, context) => {
 	const {sourceCode} = context;
@@ -243,17 +185,14 @@ const getReplaceChildrenStatement = (node, parentNode, context) => {
 	return `${needsSemicolon(context.sourceCode.getTokenBefore(node), context, parentNodeText) ? ';' : ''}${parentNodeText}.replaceChildren();`;
 };
 
-const shouldSkipParentNode = (parentNode, context, options) => {
-	const {sourceCode} = context;
-
-	return isNodeValueNotDomNode(parentNode)
-		|| isKnownNonDomNode(parentNode, context, {
-			allowNullishInMixedUnion: true,
-			treatMixedUnionAsNonTarget: true,
-		})
-		|| containsChainExpression(parentNode, sourceCode)
-		|| !shouldReportReplaceChildrenReceiver(context, parentNode, options);
-};
+const shouldSkipParentNode = (parentNode, context, options) =>
+	isNodeValueNotDomNode(parentNode)
+	|| isKnownNonDomNode(parentNode, context, {
+		allowNullishInMixedUnion: true,
+		treatMixedUnionAsNonTarget: true,
+	})
+	|| containsOptionalChain(parentNode)
+	|| !shouldReportReplaceChildrenReceiver(context, parentNode, options);
 
 const shouldSkipInnerHTMLParentNode = (parentNode, context) =>
 	shouldSkipParentNode(parentNode, context, {checkInnerHTML: true});
@@ -261,7 +200,7 @@ const shouldSkipInnerHTMLParentNode = (parentNode, context) =>
 const getInnerHTMLProblem = (context, node) => {
 	if (
 		node.operator !== '='
-		|| !isInnerHTMLMemberExpression(node.left)
+		|| !isInnerHTMLMemberExpression(node.left, context)
 		|| !isEmptyString(node.right)
 	) {
 		return;
@@ -297,17 +236,12 @@ const getInnerHTMLProblem = (context, node) => {
 };
 
 const getRemoveChildLoopProblem = (context, node) => {
-	const childNode = getChildNodeMemberExpression(node.test);
-	if (!childNode) {
+	const childNode = node.test;
+	if (!isChildNodeMemberExpression(childNode)) {
 		return;
 	}
 
-	const bodyStatement = getOnlyBodyStatement(node);
-	if (bodyStatement?.type !== 'ExpressionStatement') {
-		return;
-	}
-
-	const {expression} = bodyStatement;
+	const expression = getOnlyExpression(node.body);
 	if (
 		!isMethodCall(expression, {
 			method: 'removeChild',

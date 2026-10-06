@@ -8,10 +8,14 @@ import {
 } from './ast/index.js';
 import {removeStatement} from './fix/index.js';
 import {
-	getChildNodes,
+	containsNode,
 	getAncestor,
+	getConciseArrowBodyText,
 	getNextNode,
+	getOnlyExpression,
 	getParenthesizedText,
+	hasCommentInRange,
+	hasTypeArguments,
 	isKnownNonIndexedCollection,
 	isSameIdentifier,
 	isSameReference,
@@ -69,18 +73,13 @@ const isGroupingCallback = node =>
 	&& isSupportedOptionalParameter(node.params[3])
 	&& hasUniqueParameterNames(node.params);
 
-function isNodeMatchedInside(node, predicate) {
-	return predicate(node)
-		|| [...getChildNodes(node)].some(node => isNodeMatchedInside(node, predicate));
-}
-
-const referencesIdentifier = (node, identifier) =>
+const referencesIdentifier = (node, identifier, context) =>
 	identifier
-	&& isNodeMatchedInside(node, node =>
+	&& containsNode(node, context, node =>
 		isReferenceIdentifier(node, identifier.name));
 
-const hasFunctionSpecificReference = (node, functionIdentifier) =>
-	isNodeMatchedInside(node, node =>
+const hasFunctionSpecificReference = (node, functionIdentifier, context) =>
+	containsNode(node, context, node =>
 		node.type === 'ThisExpression'
 		|| (node.type === 'MetaProperty' && node.meta.name === 'new' && node.property.name === 'target')
 		|| isReferenceIdentifier(node, 'arguments')
@@ -117,10 +116,10 @@ const getLocalIdentifiers = (statements, context) => statements
 	.flatMap(statement => context.sourceCode.getDeclaredVariables(statement))
 	.flatMap(variable => variable.identifiers);
 
-const referencesLocalIdentifier = (node, localIdentifiers) =>
-	localIdentifiers.some(identifier => referencesIdentifier(node, identifier));
+const referencesLocalIdentifier = (node, localIdentifiers, context) =>
+	localIdentifiers.some(identifier => referencesIdentifier(node, identifier, context));
 
-function getKeyBinding(statements, callbackParts) {
+function getKeyBinding(statements, callbackParts, context) {
 	const declaration = getSingleDeclaration(statements[0]);
 	if (!declaration) {
 		return {statements, keyExpression: undefined, keyIdentifier: undefined};
@@ -128,9 +127,9 @@ function getKeyBinding(statements, callbackParts) {
 
 	const {accumulator, index, array} = callbackParts;
 	if (
-		referencesIdentifier(declaration.init, accumulator)
-		|| referencesIdentifier(declaration.init, index)
-		|| referencesIdentifier(declaration.init, array)
+		referencesIdentifier(declaration.init, accumulator, context)
+		|| referencesIdentifier(declaration.init, index, context)
+		|| referencesIdentifier(declaration.init, array, context)
 	) {
 		return;
 	}
@@ -152,12 +151,12 @@ const isExpectedKey = (key, expectedKey, keyIdentifier) => {
 		&& isSameReference(key, expectedKey);
 };
 
-function isValidKeyExpression(key, callbackParts) {
+function isValidKeyExpression(key, callbackParts, context) {
 	const {accumulator, index, array} = callbackParts;
 	return !containsOptionalChain(key)
-		&& !referencesIdentifier(key, accumulator)
-		&& !referencesIdentifier(key, index)
-		&& !referencesIdentifier(key, array);
+		&& !referencesIdentifier(key, accumulator, context)
+		&& !referencesIdentifier(key, index, context)
+		&& !referencesIdentifier(key, array, context);
 }
 
 function getObjectGroupMember(node, accumulator) {
@@ -217,8 +216,8 @@ function getObjectPushKey(expression, callbackParts, {requireInitializer = false
 	return getObjectGroupMember(object, callbackParts.accumulator);
 }
 
-function getObjectGroupByKey(statements, callbackParts) {
-	const keyBinding = getKeyBinding(statements, callbackParts);
+function getObjectGroupByKey(statements, callbackParts, context) {
+	const keyBinding = getKeyBinding(statements, callbackParts, context);
 	if (!keyBinding) {
 		return;
 	}
@@ -233,7 +232,7 @@ function getObjectGroupByKey(statements, callbackParts) {
 		}
 
 		const key = keyExpression ?? pushKey;
-		return isExpectedKey(pushKey, key, keyIdentifier) && isValidKeyExpression(key, callbackParts) ? key : undefined;
+		return isExpectedKey(pushKey, key, keyIdentifier) && isValidKeyExpression(key, callbackParts, context) ? key : undefined;
 	}
 
 	if (statements.length !== 2) {
@@ -248,7 +247,7 @@ function getObjectGroupByKey(statements, callbackParts) {
 		&& pushKey
 		&& isExpectedKey(initializerKey, key, keyIdentifier)
 		&& isExpectedKey(pushKey, key, keyIdentifier)
-		&& isValidKeyExpression(key, callbackParts)
+		&& isValidKeyExpression(key, callbackParts, context)
 		? key
 		: undefined;
 }
@@ -322,19 +321,15 @@ function isMapSetArrayExpression(expression, callbackParts, key, keyIdentifier) 
 		&& isSameIdentifier(setValue.elements[0], callbackParts.element);
 }
 
-const getOnlyExpression = statement =>
-	statement?.type === 'ExpressionStatement' ? statement.expression : undefined;
-
 function isBlockWithSingleExpression(block, predicate) {
-	const expression = block?.type === 'BlockStatement' && block.body.length === 1
-		? getOnlyExpression(block.body[0])
-		: undefined;
+	const expression = getOnlyExpression(block);
 	return Boolean(expression && predicate(expression));
 }
 
 function getMapIfElseGroupByKey(statement, callbackParts, keyExpression, keyIdentifier) {
 	if (
 		statement?.type !== 'IfStatement'
+		|| statement.consequent.type !== 'BlockStatement'
 		|| statement.alternate?.type !== 'BlockStatement'
 	) {
 		return;
@@ -406,8 +401,8 @@ function getMapGetSetGroupByKey(statements, callbackParts, keyExpression, keyIde
 	return key;
 }
 
-function getMapGroupByKey(statements, callbackParts) {
-	const keyBinding = getKeyBinding(statements, callbackParts);
+function getMapGroupByKey(statements, callbackParts, context) {
+	const keyBinding = getKeyBinding(statements, callbackParts, context);
 	const {keyExpression, keyIdentifier} = keyBinding ?? {};
 	statements = keyBinding?.statements ?? statements;
 
@@ -415,7 +410,7 @@ function getMapGroupByKey(statements, callbackParts) {
 		? getMapIfElseGroupByKey(statements[0], callbackParts, keyExpression, keyIdentifier)
 		: getMapGetSetGroupByKey(statements, callbackParts, keyExpression, keyIdentifier);
 
-	return key && isValidKeyExpression(key, callbackParts) ? key : undefined;
+	return key && isValidKeyExpression(key, callbackParts, context) ? key : undefined;
 }
 
 const isSparseArrayExpression = node =>
@@ -480,21 +475,9 @@ function getGroupByMethodForBinding(initialValue, declaration, context) {
 	return method && !hasGroupByBindingConflict(method, declaration, context) ? method : undefined;
 }
 
-const hasTypeArguments = node => Boolean(node.typeArguments || node.typeParameters);
-
 function getArrowParameterText(node, context) {
 	const text = context.sourceCode.getText(node);
 	return node.typeAnnotation || node.optional ? `(${text})` : text;
-}
-
-function getArrowBodyText(node, context) {
-	let text = getParenthesizedText(node, context);
-
-	if (text.trimStart().startsWith('{')) {
-		text = `(${text})`;
-	}
-
-	return text;
 }
 
 function hasRepeatedSideEffectfulKey(statements, key, context) {
@@ -504,7 +487,7 @@ function hasRepeatedSideEffectfulKey(statements, key, context) {
 	}
 
 	const [keyStart, keyEnd] = sourceCode.getRange(key);
-	return statements.some(statement => isNodeMatchedInside(statement, node => {
+	return statements.some(statement => containsNode(statement, context, node => {
 		const [nodeStart, nodeEnd] = sourceCode.getRange(node);
 		return (nodeEnd <= keyStart || nodeStart >= keyEnd) && isSameReference(node, key);
 	}));
@@ -524,7 +507,7 @@ function shouldSkipReduceFix(options, context) {
 		)
 		|| (
 			callback.type === 'FunctionExpression'
-			&& hasFunctionSpecificReference(key, callback.id)
+			&& hasFunctionSpecificReference(key, callback.id, context)
 		)
 		|| hasSideEffect(key, context.sourceCode)
 		|| context.sourceCode.getCommentsInside(callExpression).length > 0;
@@ -560,10 +543,10 @@ function getGroupByProblem(callExpression, context) {
 
 	const statements = callback.body.body.slice(0, -1);
 	const key = method === 'Object.groupBy'
-		? getObjectGroupByKey(statements, callbackParts)
-		: getMapGroupByKey(statements, callbackParts);
+		? getObjectGroupByKey(statements, callbackParts, context)
+		: getMapGroupByKey(statements, callbackParts, context);
 
-	if (!key || referencesLocalIdentifier(key, getLocalIdentifiers(statements, context))) {
+	if (!key || referencesLocalIdentifier(key, getLocalIdentifiers(statements, context), context)) {
 		return;
 	}
 
@@ -587,7 +570,7 @@ function getGroupByProblem(callExpression, context) {
 	problem.fix = fixer => {
 		const arrayText = getParenthesizedText(callExpression.callee.object, context);
 		const elementText = getArrowParameterText(callbackParts.element, context);
-		const keyText = getArrowBodyText(key, context);
+		const keyText = getConciseArrowBodyText(key, context);
 		return fixer.replaceText(callExpression, `${method}(${arrayText}, ${elementText} => ${keyText})`);
 	};
 
@@ -650,7 +633,7 @@ function getLoopGroupByProblem(declaration, context) {
 	const localIdentifiers = getLocalIdentifiers(statements, context);
 	if (
 		isSameIdentifier(accumulator, element)
-		|| referencesIdentifier(loop.right, accumulator)
+		|| referencesIdentifier(loop.right, accumulator, context)
 		|| localIdentifiers.some(identifier =>
 			isSameIdentifier(identifier, accumulator) || isSameIdentifier(identifier, element))
 	) {
@@ -659,9 +642,9 @@ function getLoopGroupByProblem(declaration, context) {
 
 	const callbackParts = {accumulator, element};
 	const key = method === 'Object.groupBy'
-		? getObjectGroupByKey(statements, callbackParts)
-		: getMapGroupByKey(statements, callbackParts);
-	if (!key || referencesLocalIdentifier(key, localIdentifiers)) {
+		? getObjectGroupByKey(statements, callbackParts, context)
+		: getMapGroupByKey(statements, callbackParts, context);
+	if (!key || referencesLocalIdentifier(key, localIdentifiers, context)) {
 		return;
 	}
 
@@ -675,22 +658,18 @@ function getLoopGroupByProblem(declaration, context) {
 			const nextToken = sourceCode.getTokenAfter(loop);
 			const end = nextToken ? sourceCode.getRange(nextToken)[0] : sourceCode.text.length;
 			if (
-				sourceCode.getAllComments().some(comment => {
-					const [commentStart, commentEnd] = sourceCode.getRange(comment);
-					return commentStart >= start && commentEnd <= end;
-				})
+				hasCommentInRange(context, [start, end])
 				|| accumulator.typeAnnotation
-				|| init.typeArguments
-				|| init.typeParameters
+				|| hasTypeArguments(init)
 				|| hasRepeatedSideEffectfulKey(statements, key, context)
-				|| isNodeMatchedInside(key, node => node.type === 'AwaitExpression' || node.type === 'YieldExpression')
+				|| containsNode(key, context, node => node.type === 'AwaitExpression' || node.type === 'YieldExpression')
 			) {
 				return abort();
 			}
 
 			const iterableText = getParenthesizedText(loop.right, context);
 			const elementText = getArrowParameterText(element, context);
-			const keyText = getArrowBodyText(key, context);
+			const keyText = getConciseArrowBodyText(key, context);
 			yield fixer.replaceText(init, `${method}(${iterableText}, ${elementText} => ${keyText})`);
 			// Removing the loop exposes the declaration to the following statement.
 			if (nextToken && needsSemicolon(sourceCode.getLastToken(declaration), context, nextToken.value)) {

@@ -9,6 +9,7 @@ import {
 	isDefaultLibrarySymbol,
 	isUnknownType,
 	unwrapTypeScriptExpression,
+	withTypeInformation,
 	wouldRemoveComments,
 } from './utils/index.js';
 
@@ -41,32 +42,21 @@ function hasCallableCatch(type, checker, location) {
 	return Boolean(catchMethod && checker.getTypeOfSymbolAtLocation(catchMethod, location).getCallSignatures().length > 0);
 }
 
-function canThenResultCatch(callExpression, context) {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return true;
-	}
-
-	try {
-		const checker = parserServices.program.getTypeChecker();
-		const receiverType = checker.getNonNullableType(parserServices.getTypeAtLocation(callExpression.callee.object));
+// Without type information (or when TypeScript throws), assume the result has a callable `.catch()`.
+const canThenResultCatch = (callExpression, context) =>
+	withTypeInformation(callExpression.callee.object, context, ({type, checker, program}) => {
+		const receiverType = checker.getNonNullableType(type);
 		if (isUnknownType(receiverType)) {
 			return true;
 		}
 
-		if (!isNativePromiseType(receiverType, parserServices.program)) {
+		if (!isNativePromiseType(receiverType, program)) {
 			return false;
 		}
 
-		const resultType = parserServices.getTypeAtLocation(callExpression);
+		const resultType = context.sourceCode.parserServices.getTypeAtLocation(callExpression);
 		return hasCallableCatch(resultType, checker, callExpression);
-		// Defensive: no known input throws here
-		/* node:coverage ignore next 4 */
-	} catch {
-		// TypeScript can throw while resolving incomplete projects; keep this rule best-effort.
-		return true;
-	}
-}
+	}) ?? true;
 
 function getRejectionHandlerRemovalRange(node, context) {
 	const range = getArgumentRemovalRange(node, context);

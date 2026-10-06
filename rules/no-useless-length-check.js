@@ -2,6 +2,7 @@ import {isMethodCall, isMemberExpression} from './ast/index.js';
 import {
 	getParenthesizedRange,
 	getIndentString,
+	getSingleStatement,
 	hasCommentInRange,
 	hasMultilineToken,
 	isSameReference,
@@ -29,17 +30,9 @@ const getGuardedForOfStatement = node => {
 		return;
 	}
 
-	let {consequent} = node;
-	if (consequent.type === 'BlockStatement') {
-		if (consequent.body.length !== 1) {
-			return;
-		}
-
-		[consequent] = consequent.body;
-	}
-
-	if (consequent.type === 'ForOfStatement' && !consequent.await) {
-		return consequent;
+	const statement = getSingleStatement(node.consequent);
+	if (statement?.type === 'ForOfStatement' && !statement.await) {
+		return statement;
 	}
 };
 

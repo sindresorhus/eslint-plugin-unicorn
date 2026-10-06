@@ -1,6 +1,12 @@
 import test from 'node:test';
 import {Linter} from 'eslint';
-import {isBooleanExpression, isControlFlowTest, getBooleanAncestor} from '../../rules/utils/boolean.js';
+import {
+	isBooleanExpression,
+	isBooleanContext,
+	isControlFlowTest,
+	getBooleanAncestor,
+} from '../../rules/utils/boolean.js';
+import {typescriptEslintParser} from '../../scripts/parsers.js';
 
 const linter = new Linter();
 const testConfig = {
@@ -117,4 +123,45 @@ test('`getBooleanAncestor` returns the boolean coercion ancestor', t => {
 	const shadowedResult = getBooleanAncestor(shadowedNode, shadowedContext);
 	t.assert.strictEqual(shadowedResult.node, shadowedNode);
 	t.assert.strictEqual(shadowedResult.isNegative, false);
+});
+
+test('`isBooleanContext` returns whether the value is only used for its truthiness', t => {
+	const getResult = code => {
+		let result;
+		linter.verify(code, {
+			files: ['**/*.ts'],
+			languageOptions: {parser: typescriptEslintParser},
+			plugins: {
+				test: {
+					rules: {
+						inspect: {
+							create: context => ({
+								'Identifier[name="target"]'(node) {
+									result = isBooleanContext(node, context);
+								},
+							}),
+						},
+					},
+				},
+			},
+			rules: {'test/inspect': 'error'},
+		}, 'file.ts');
+		return result;
+	};
+
+	for (const [code, expected] of [
+		['if (target) {}', true],
+		['const value = !target;', true],
+		['const value = Boolean(target);', true],
+		['while (target && other) {}', true],
+		['if (target as boolean) {}', false],
+		['if ((target satisfies unknown)!) {}', false],
+		['const value = !(target as boolean);', false],
+		['const value = target;', false],
+		['const value = target as boolean;', false],
+		['const value = target || other;', false],
+		['foo(target);', false],
+	]) {
+		t.assert.strictEqual(getResult(code), expected, code);
+	}
 });

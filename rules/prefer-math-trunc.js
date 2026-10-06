@@ -1,7 +1,12 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {isCallExpression, isLiteral, isMethodCall} from './ast/index.js';
-import {getCallExpressionArgumentsText, getCallExpressionTokens} from './utils/index.js';
+import {
+	getCallArgumentText,
+	getCallExpressionArgumentsText,
+	getCallExpressionTokens,
+	wouldRemoveComments,
+} from './utils/index.js';
 
 const ERROR_BITWISE = 'error-bitwise';
 const ERROR_BITWISE_NOT = 'error-bitwise-not';
@@ -70,10 +75,7 @@ const hasCommentsOutsideStringArgument = (node, stringCall, context) => {
 		sourceCode.getRange(closingParenthesisToken)[0],
 	];
 
-	return sourceCode.getCommentsInside(node).some(comment => {
-		const commentRange = sourceCode.getRange(comment);
-		return commentRange[0] < stringArgumentRange[0] || commentRange[1] > stringArgumentRange[1];
-	});
+	return wouldRemoveComments(context, node, [stringArgumentRange]);
 };
 
 /**
@@ -82,11 +84,7 @@ const hasCommentsOutsideStringArgument = (node, stringCall, context) => {
 const create = context => {
 	const {sourceCode} = context;
 
-	const mathTruncFunctionCall = node => {
-		const text = sourceCode.getText(node);
-		const parenthesized = node.type === 'SequenceExpression' ? `(${text})` : text;
-		return `Math.trunc(${parenthesized})`;
-	};
+	const mathTruncFunctionCall = node => `Math.trunc(${getCallArgumentText(node, context)})`;
 
 	const mathTruncFunctionCallFromStringArgument = node => {
 		const argumentsText = getCallExpressionArgumentsText(context, node);

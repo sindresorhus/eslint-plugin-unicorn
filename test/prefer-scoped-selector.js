@@ -8,9 +8,16 @@ test.snapshot({
 		// `:scope` cannot match a `ShadowRoot` or `DocumentFragment` root
 		'element.shadowRoot.querySelectorAll(".a .b");',
 		'element.shadowRoot.querySelector(".a .b");',
+		'element.ownerDocument.querySelector(".a .b");',
 		'iframe.contentDocument.querySelector(".a .b");',
 		'document.createDocumentFragment().querySelector(".a .b");',
 		'element.createShadowRoot().querySelector(".a .b");',
+		'element.attachShadow({mode: "open"}).querySelector(".a .b");',
+		'document.createRange().createContextualFragment(html).querySelector(".a .b");',
+		'range.extractContents().querySelector(".a .b");',
+		'range.cloneContents().querySelector(".a .b");',
+		'new DOMParser().parseFromString(html, "text/html").querySelector(".a .b");',
+		'element.getRootNode().querySelector(".a .b");',
 		{code: 'this.shadowRoot!.querySelector(".a .b");', languageOptions: {parser: parsers.typescript}},
 		{code: '(element.shadowRoot as ShadowRoot).querySelector(".a .b");', languageOptions: {parser: parsers.typescript}},
 		'element?.shadowRoot?.querySelector(".a .b");',
@@ -160,5 +167,7 @@ test.snapshot({
 		{code: 'element.querySelector(".outer .inner")!;', languageOptions: {parser: parsers.typescript}},
 		// An escaped quote does not end an attribute-value string, so the `:scope` after it is still inside the string
 		String.raw`element.querySelector("[data-foo='a\\' :scope'] .x");`,
+		// Only calls that return a non-element root are skipped
+		'foo.getElement().querySelector("div > span");',
 	],
 });

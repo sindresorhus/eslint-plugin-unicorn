@@ -1,3 +1,20 @@
+exports[`prefer-group-by > invalid(1): const groups = {}; for (const item of items) {const key = {a: item}.a; (groups[key] ??= []).push(item);} 1`] = `
+
+  1 | const groups = {}; for (const item of items) {const key = {a: item}.a; (groups[key] ??= []).push(item);}
+
+`;
+
+exports[`prefer-group-by > invalid(1): const groups = {}; for (const item of items) {const key = {a: item}.a; (groups[key] ??= []).push(item);} 2`] = `
+
+Message:
+> 1 | const groups = {}; for (const item of items) {const key = {a: item}.a; (groups[key] ??= []).push(item);}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
+
+Output:
+  1 | const groups = Object.groupBy(items, item => ({a: item}.a)); 
+
+`;
+
 exports[`prefer-group-by > invalid(1): const groups = {}; for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);} 1`] = `
 
   1 | const groups = {}; for (const item of items) {groups[item.type] ??= []; groups[item.type].push(item);}
@@ -372,6 +389,23 @@ Output:
 
 `;
 
+exports[`prefer-group-by > invalid(2): const groups = {}; for (const item of items) {const key = (item.a, item.b); (groups[key] ??= []).push(item);} 1`] = `
+
+  1 | const groups = {}; for (const item of items) {const key = (item.a, item.b); (groups[key] ??= []).push(item);}
+
+`;
+
+exports[`prefer-group-by > invalid(2): const groups = {}; for (const item of items) {const key = (item.a, item.b); (groups[key] ??= []).push(item);} 2`] = `
+
+Message:
+> 1 | const groups = {}; for (const item of items) {const key = (item.a, item.b); (groups[key] ??= []).push(item);}
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
+
+Output:
+  1 | const groups = Object.groupBy(items, item => (item.a, item.b)); 
+
+`;
+
 exports[`prefer-group-by > invalid(2): items.reduce((groups, item) => {groups[item.type] = groups[item.type] || []; groups[item.type].push(item); return groups;}, {}); 1`] = `
 
   1 | items.reduce((groups, item) => {groups[item.type] = groups[item.type] || []; groups[item.type].push(item); return groups;}, {});
@@ -477,7 +511,7 @@ Message:
     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
 
 Output:
-  1 | const groups = Object.groupBy(items as Item[], item => (item.type as string)); 
+  1 | const groups = Object.groupBy(items as Item[], item => item.type as string); 
 
 `;
 
@@ -528,7 +562,7 @@ Message:
     |                                    ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
 
 Output:
-  1 | function foo(items: Item[]) {Object.groupBy(items, item => (item.type as string));}
+  1 | function foo(items: Item[]) {Object.groupBy(items, item => item.type as string);}
 
 `;
 
@@ -559,7 +593,7 @@ Message:
     |                                    ^^^^^^ Prefer \`Object.groupBy()\` over \`Array#reduce()\`.
 
 Output:
-  1 | function foo(items: Item[]) {Object.groupBy(items, item => (item.type satisfies string));}
+  1 | function foo(items: Item[]) {Object.groupBy(items, item => item.type satisfies string);}
 
 `;
 
@@ -989,7 +1023,7 @@ Message:
     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Object.groupBy()\` over a \`for-of\` loop.
 
 Output:
-  1 | const groups = Object.groupBy(items, item => (item.type)); 
+  1 | const groups = Object.groupBy(items, item => item.type); 
 
 `;
 

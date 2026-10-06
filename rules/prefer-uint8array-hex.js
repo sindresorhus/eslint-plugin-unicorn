@@ -1,25 +1,23 @@
-import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	isCallExpression,
 	isEmptyArrayExpression,
-	isMemberExpression,
 	isMethodCall,
 	isNewExpression,
 	isStringLiteral,
 } from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
+	getFunctionReturnExpression,
+	getOutermostTypeScriptExpression,
 	getParenthesizedText,
 	isArrayPrototypeProperty,
-	isGlobalIdentifier,
 	isString,
-	isTypeScriptExpressionWrapper,
 	needsSemicolon,
 	getMemberExpressionObjectText,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {createTypeCheckers, nonTarget, target} from './utils/type-helpers.js';
-import typedArrayTypes from './shared/typed-array.js';
+import {bufferTypeCheckerOptions, isBufferExpression, isBufferReference} from './shared/buffer-reference.js';
 
 const MESSAGE_ID_ERROR = 'prefer-uint8array-hex/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-uint8array-hex/suggestion';
@@ -28,24 +26,7 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Replace with `{{replacement}}`.',
 };
 
-const bufferImportSources = new Set(['buffer', 'node:buffer']);
-const globalObjectNames = new Set(['globalThis', 'window', 'self', 'global']);
 const hexPairPatterns = new Set(['..', '.{2}', '.{1,2}', '[0-9a-f]{2}', String.raw`[\da-f]{2}`]);
-const arrayBufferTypes = ['ArrayBuffer', 'SharedArrayBuffer', 'DataView'];
-const nonByteExpressionTypes = new Set([
-	'ArrayExpression',
-	'ArrowFunctionExpression',
-	'BinaryExpression',
-	'ClassExpression',
-	'FunctionExpression',
-	'Literal',
-	'NewExpression',
-	'ObjectExpression',
-	'TemplateLiteral',
-	'UnaryExpression',
-	'UpdateExpression',
-]);
-const constructorNames = ['Array', ...arrayBufferTypes, ...typedArrayTypes];
 
 // All matched operations are ordinary, non-computed calls with exact argument counts.
 const isPlainMethodCall = (node, method, argumentsLength) => isMethodCall(node, {
@@ -59,62 +40,9 @@ const isPlainMethodCall = (node, method, argumentsLength) => isMethodCall(node, 
 const isLiteralValue = (node, value) => node?.type === 'Literal' && node.value === value;
 const isHexEncoding = node => isStringLiteral(node) && node.value.toLowerCase() === 'hex';
 
-function isBufferReference(node, context) {
-	if (isMemberExpression(node, {property: 'Buffer', computed: false, optional: false})) {
-		return globalObjectNames.has(node.object.name) && isGlobalIdentifier(node.object, context);
-	}
-
-	if (node.type !== 'Identifier') {
-		return false;
-	}
-
-	if (node.name === 'Buffer' && isGlobalIdentifier(node, context)) {
-		return true;
-	}
-
-	const variable = findVariable(context.sourceCode.getScope(node), node);
-	return variable?.defs.some(definition =>
-		definition.type === 'ImportBinding'
-		&& bufferImportSources.has(definition.parent.source.value)
-		&& definition.node.type === 'ImportSpecifier'
-		&& definition.node.imported.name === 'Buffer') ?? false;
-}
-
-const isConstructorReference = (node, context) => isBufferReference(node, context)
-	|| (node.type === 'Identifier' && constructorNames.includes(node.name))
-	|| (
-		isMemberExpression(node, {properties: constructorNames, computed: false, optional: false})
-		&& globalObjectNames.has(node.object.name)
-		&& isGlobalIdentifier(node.object, context)
-	);
-
-const isBufferFactory = (node, context) =>
-	isMethodCall(node, {
-		methods: ['from', 'of', 'alloc', 'allocUnsafe', 'allocUnsafeSlow', 'concat', 'copyBytesFrom'],
-		computed: false,
-		optionalCall: false,
-		optionalMember: false,
-	})
-	&& isBufferReference(node.callee.object, context);
-
-const isBufferExpression = (node, context) => isBufferFactory(node, context)
-	|| (
-		(isNewExpression(node) || isCallExpression(node, {optional: false}))
-		&& isBufferReference(node.callee, context)
-	);
-
 const typeCheckerOptions = {
-	checkClassHeritage: false,
+	...bufferTypeCheckerOptions,
 	preferTypeReferenceDefinitions: true,
-	targetTypeNames: new Set(['Buffer']),
-	targetTypeImports: new Map([...bufferImportSources].map(source => [source, new Set(['Buffer'])])),
-	nonTargetTypeNames: new Set(['Array', 'ReadonlyArray', ...arrayBufferTypes, ...typedArrayTypes]),
-	isTargetNode: isBufferExpression,
-	isNonTargetNode: (node, context) => nonByteExpressionTypes.has(node.type)
-		|| isConstructorReference(node, context)
-		|| isCallExpression(node, {name: 'Array'})
-		|| isMethodCall(node, {objects: ['Array', ...typedArrayTypes], methods: ['from', 'of']})
-		|| isMethodCall(node, {object: 'Uint8Array', methods: ['fromHex', 'fromBase64']}),
 };
 const decodingTypeCheckerOverrides = {
 	getStaticType: () => nonTarget,
@@ -153,13 +81,9 @@ function getCallback(node) {
 		return;
 	}
 
-	let expression = node.body;
-	if (expression.type === 'BlockStatement') {
-		if (expression.body.length !== 1 || expression.body[0].type !== 'ReturnStatement' || !expression.body[0].argument) {
-			return;
-		}
-
-		expression = expression.body[0].argument;
+	const expression = getFunctionReturnExpression(node);
+	if (!expression) {
+		return;
 	}
 
 	return {parameter: node.params[0], expression: unwrapTypeScriptExpression(expression)};
@@ -308,10 +232,7 @@ function getDecodingInput(node) {
 }
 
 function isImmediatelyAccessed(node) {
-	while (isTypeScriptExpressionWrapper(node.parent)) {
-		node = node.parent;
-	}
-
+	node = getOutermostTypeScriptExpression(node);
 	return node.parent.type === 'MemberExpression' && node.parent.object === node;
 }
 

@@ -6,7 +6,7 @@ import {
 	isMethodCall,
 } from './ast/index.js';
 import builtinErrors from './shared/builtin-errors.js';
-import {unwrapTypeScriptExpression as unwrapExpression} from './utils/index.js';
+import {getStaticPropertyName, unwrapTypeScriptExpression as unwrapExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-error-property-assignment';
 const messages = {
@@ -28,37 +28,6 @@ const getDisallowedProperties = constructorName =>
 	constructorName === 'AggregateError'
 		? aggregateErrorProperties
 		: errorProperties;
-
-const getStaticPropertyName = memberExpression => {
-	const {property} = memberExpression;
-
-	if (!memberExpression.computed && property.type === 'Identifier') {
-		return property.name;
-	}
-
-	if (
-		memberExpression.computed
-		&& property.type === 'Literal'
-		&& typeof property.value === 'string'
-	) {
-		return property.value;
-	}
-};
-
-const getStaticPropertyNameFromProperty = property => {
-	const {key} = property;
-
-	if (!property.computed && key.type === 'Identifier') {
-		return key.name;
-	}
-
-	if (
-		key.type === 'Literal'
-		&& typeof key.value === 'string'
-	) {
-		return key.value;
-	}
-};
 
 const getVariable = (node, context) =>
 	findVariable(context.sourceCode.getScope(node), node);
@@ -284,7 +253,7 @@ function * getObjectAssignProblems(callExpression, context, knownErrorVariables)
 				continue;
 			}
 
-			const propertyName = getStaticPropertyNameFromProperty(property);
+			const propertyName = getStaticPropertyName(property, context);
 			if (disallowedProperties.has(propertyName)) {
 				yield getPropertyProblem(property.key, propertyName);
 			}
@@ -308,7 +277,7 @@ const getDirectAssignmentProblem = (assignmentExpression, context, knownErrorVar
 		return;
 	}
 
-	const propertyName = getStaticPropertyName(memberExpression);
+	const propertyName = getStaticPropertyName(memberExpression, context);
 	if (getDisallowedProperties(constructorName).has(propertyName)) {
 		return getPropertyProblem(memberExpression.property, propertyName);
 	}

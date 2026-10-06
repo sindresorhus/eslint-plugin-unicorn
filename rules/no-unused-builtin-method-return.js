@@ -3,6 +3,7 @@ import {isCallExpression, isMemberExpression, isMethodCall} from './ast/index.js
 import {isLazyIteratorHelperCall} from './shared/iterator-helpers.js';
 import {
 	isArray,
+	isGlobalIdentifier,
 	isSet,
 	isTypeScriptExpressionWrapper,
 	isValueNotUsable,
@@ -113,18 +114,14 @@ const isPascalCaseIdentifier = node =>
 	node.type === 'Identifier'
 	&& pascalCaseNamePattern.test(node.name);
 
-const isGlobalIdentifier = (node, name, context) =>
-	node.type === 'Identifier'
-	&& node.name === name
-	&& context.sourceCode.isGlobalReference(node);
-
 const isUndefined = (node, context) =>
-	isGlobalIdentifier(node, 'undefined', context);
+	node.name === 'undefined'
+	&& isGlobalIdentifier(node, context);
 
 // Treat every construction as non-array unless it uses the global `Array` identifier.
 const isKnownNonArrayConstruction = (node, context) =>
 	node.type === 'NewExpression'
-	&& !isGlobalIdentifier(node.callee, 'Array', context);
+	&& !(node.callee.name === 'Array' && isGlobalIdentifier(node.callee, context));
 
 const isKnownNonArrayFactoryCall = (node, context) =>
 	isCallExpression(node, nonArrayFactoryFunctionNames)

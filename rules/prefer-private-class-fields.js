@@ -1,11 +1,20 @@
-import {getStaticStringValue, isMemberExpression, isMethodCall} from './ast/index.js';
+import {isMemberExpression, isMethodCall} from './ast/index.js';
 import {removeStatement} from './fix/index.js';
 import {
+	getOutermostChainAndTypeScriptExpression,
 	getVisitorChildNodes,
 	isIdentifierName,
 	isLeftHandSide,
 	needsSemicolon,
 } from './utils/index.js';
+import {
+	getContainingClassElement,
+	getStaticName,
+	getThisOwnerClassBody,
+	isInClassElementDefinition,
+	isInStaticContext,
+	isThisExpression,
+} from './shared/class-this.js';
 
 const MESSAGE_ID = 'prefer-private-class-fields';
 const MESSAGE_ID_BOUND_METHOD = 'prefer-private-class-fields/bound-method';
@@ -69,19 +78,6 @@ const hasPrivateMember = (classBody, name) =>
 	classBody.body.some(member =>
 		member.key?.type === 'PrivateIdentifier' && member.key.name === name);
 
-const getStaticName = (key, computed) => {
-	if (!computed && key?.type === 'Identifier') {
-		return key.name;
-	}
-
-	if (
-		computed
-		|| key?.type === 'Literal'
-	) {
-		return getStaticStringValue(key);
-	}
-};
-
 const getMemberName = member => getStaticName(member.key, member.computed);
 
 const getMemberExpressionPropertyName = member => getStaticName(member.property, member.computed);
@@ -97,71 +93,9 @@ const hasMemberNamed = (classBody, name) =>
 const hasOtherMemberNamed = (classBody, name, members) =>
 	classBody.body.some(member => !members.includes(member) && mayHaveMemberNamed(member, name));
 
-/**
-Find the class whose instance `this` refers to, or `undefined` when `this` is rebound by a nested non-arrow function or is outside any class.
-
-@param {import('eslint').Rule.Node} node
-*/
-const getThisOwnerClassBody = node => {
-	for (let current = node.parent; current; current = current.parent) {
-		const {type} = current;
-
-		if (type === 'ClassBody') {
-			return current;
-		}
-
-		// A non-arrow function rebinds `this`, except when it is a class method's body
-		if (type === 'FunctionExpression' || type === 'FunctionDeclaration') {
-			const {parent} = current;
-			const isMethodBody = parent.type === 'MethodDefinition' && parent.value === current;
-			if (!isMethodBody) {
-				return;
-			}
-		}
-	}
-};
-
-const transparentExpressionWrapperTypes = new Set([
-	'ChainExpression',
-	'TSAsExpression',
-	'TSInstantiationExpression',
-	'TSNonNullExpression',
-	'TSSatisfiesExpression',
-	'TSTypeAssertion',
-]);
-
-const getTransparentExpression = node => {
-	let current = node;
-	while (transparentExpressionWrapperTypes.has(current.parent.type)) {
-		current = current.parent;
-	}
-
-	return current;
-};
-
-// Unwrap transparent wrappers (`this as Foo`, `this!`, …) down to the expression they wrap
-const removeTransparentWrapper = node => {
-	while (node && transparentExpressionWrapperTypes.has(node.type)) {
-		node = node.expression;
-	}
-
-	return node;
-};
-
-const isThisExpression = node => removeTransparentWrapper(node)?.type === 'ThisExpression';
-
 const isDeleteExpression = node => {
-	const {parent} = getTransparentExpression(node);
+	const {parent} = getOutermostChainAndTypeScriptExpression(node);
 	return parent.type === 'UnaryExpression' && parent.operator === 'delete';
-};
-
-const isInStaticContext = (node, classBody) => {
-	let current = node;
-	while (current.parent !== classBody) {
-		current = current.parent;
-	}
-
-	return current.type === 'StaticBlock' || current.static;
 };
 
 const isInFieldInitializerBeforeOrAtMember = (node, member, classBody) => {
@@ -169,41 +103,11 @@ const isInFieldInitializerBeforeOrAtMember = (node, member, classBody) => {
 		return false;
 	}
 
-	let current = node;
-	while (current.parent !== classBody) {
-		current = current.parent;
-	}
-
+	const classElement = getContainingClassElement(node);
 	return (
-		current.type === 'PropertyDefinition'
-		&& !current.static
-		&& classBody.body.indexOf(current) <= classBody.body.indexOf(member)
-	);
-};
-
-const isInside = (node, ancestor) => {
-	for (let current = node; current; current = current.parent) {
-		if (current === ancestor) {
-			return true;
-		}
-	}
-
-	return false;
-};
-
-const isInClassElementDefinition = node => {
-	let current = node;
-	while (current.parent && current.parent.type !== 'ClassBody') {
-		current = current.parent;
-	}
-
-	if (!current.parent) {
-		return false;
-	}
-
-	return (
-		(current.key && isInside(node, current.key))
-		|| current.decorators?.some(decorator => isInside(node, decorator))
+		classElement.type === 'PropertyDefinition'
+		&& !classElement.static
+		&& classBody.body.indexOf(classElement) <= classBody.body.indexOf(member)
 	);
 };
 
@@ -305,7 +209,7 @@ const getMemberAccessState = ({access, name, member, classBody, candidatesByClas
 
 	if (
 		member.static
-		|| isInStaticContext(access, classBody)
+		|| isInStaticContext(access)
 		|| (member.type === 'PropertyDefinition' && isInFieldInitializerBeforeOrAtMember(access, member, classBody))
 	) {
 		return memberAccessState.blocked;
@@ -314,12 +218,22 @@ const getMemberAccessState = ({access, name, member, classBody, candidatesByClas
 	if (
 		member.type === 'MethodDefinition'
 		&& member.kind === 'method'
-		&& isLeftHandSide(getTransparentExpression(access))
+		&& isLeftHandSide(getOutermostChainAndTypeScriptExpression(access))
 	) {
 		return memberAccessState.written;
 	}
 
 	return memberAccessState.convertible;
+};
+
+const isInside = (node, ancestor) => {
+	for (let current = node; current; current = current.parent) {
+		if (current === ancestor) {
+			return true;
+		}
+	}
+
+	return false;
 };
 
 const getConstructorBindingStatement = (access, name) => {
@@ -437,7 +351,7 @@ const create = context => {
 	});
 
 	context.on('ThisExpression', node => {
-		const expression = getTransparentExpression(node);
+		const expression = getOutermostChainAndTypeScriptExpression(node);
 		const {parent} = expression;
 		if (!isObjectObservationExpression(expression, parent)) {
 			return;

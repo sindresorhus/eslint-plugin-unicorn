@@ -1,18 +1,21 @@
 import {findVariable, isClosingParenToken} from '@eslint-community/eslint-utils';
 import {
 	isFunction,
+	isIdentifierNamed,
 	isLiteral,
 	isMemberExpression,
 	isMethodCall,
 } from './ast/index.js';
 import {
 	getAvailableVariableName,
+	getLogicalExpressionOperands,
+	getOutermostTypeScriptExpression,
 	getPreviousNode,
 	getReferences,
 	getScopes,
+	hasCommentInRange,
 	isKnownNonIndexedCollection,
 	isLeftHandSide,
-	isTypeScriptExpressionWrapper,
 	singular,
 	toLocation,
 } from './utils/index.js';
@@ -24,20 +27,18 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Use `Iterator.zip(…)`.',
 };
 
-const isIdentifier = (node, name) => node?.type === 'Identifier' && node.name === name;
-
 function isIncrement(update, name) {
 	if (
 		update?.type === 'UpdateExpression'
 		&& update.operator === '++'
-		&& isIdentifier(update.argument, name)
+		&& isIdentifierNamed(update.argument, name)
 	) {
 		return true;
 	}
 
 	if (
 		update?.type !== 'AssignmentExpression'
-		|| !isIdentifier(update.left, name)
+		|| !isIdentifierNamed(update.left, name)
 	) {
 		return false;
 	}
@@ -49,7 +50,7 @@ function isIncrement(update, name) {
 		update.operator === '='
 		&& update.right.type === 'BinaryExpression'
 		&& update.right.operator === '+'
-		&& isIdentifier(update.right.left, name)
+		&& isIdentifierNamed(update.right.left, name)
 		&& isLiteral(update.right.right, 1)
 	);
 }
@@ -59,11 +60,11 @@ function getUpperBound(node, indexName) {
 		return;
 	}
 
-	if (node.operator === '<' && isIdentifier(node.left, indexName)) {
+	if (node.operator === '<' && isIdentifierNamed(node.left, indexName)) {
 		return node.right;
 	}
 
-	if (node.operator === '>' && isIdentifier(node.right, indexName)) {
+	if (node.operator === '>' && isIdentifierNamed(node.right, indexName)) {
 		return node.left;
 	}
 }
@@ -75,12 +76,6 @@ function getLengthInput(node) {
 	) {
 		return node.object;
 	}
-}
-
-function getConjunctionOperands(node) {
-	return node?.type === 'LogicalExpression' && node.operator === '&&'
-		? [...getConjunctionOperands(node.left), ...getConjunctionOperands(node.right)]
-		: [node];
 }
 
 function getDistinctInputs(inputs) {
@@ -114,7 +109,7 @@ function getTestInputs(test, indexName) {
 		return inputs;
 	}
 
-	const operands = getConjunctionOperands(test);
+	const operands = getLogicalExpressionOperands(test, '&&');
 	if (operands.length < 2) {
 		return;
 	}
@@ -211,23 +206,13 @@ function isCapturedReference(identifier, body) {
 }
 
 function isElementRead(node) {
-	while (isTypeScriptExpressionWrapper(node.parent) || node.parent.type === 'TSInstantiationExpression') {
-		node = node.parent;
-	}
+	node = getOutermostTypeScriptExpression(node);
 
 	const {parent} = node;
 	return !isLeftHandSide(node)
 		&& !((parent.type === 'ForOfStatement' || parent.type === 'ForInStatement') && parent.left === node)
 		&& !(parent.type === 'CallExpression' && parent.callee === node)
 		&& !(parent.type === 'TaggedTemplateExpression' && parent.tag === node);
-}
-
-function hasCommentInRanges(context, ranges) {
-	const {sourceCode} = context;
-	return sourceCode.getAllComments().some(comment => {
-		const [start, end] = sourceCode.getRange(comment);
-		return ranges.some(([rangeStart, rangeEnd]) => start >= rangeStart && end <= rangeEnd);
-	});
 }
 
 /**
@@ -289,7 +274,7 @@ const create = context => {
 			...reads.values().flatMap(nodes => nodes.values().map(node => sourceCode.getRange(node))),
 			...(declarationRemovalRange ? [declarationRemovalRange] : []),
 		];
-		if (hasCommentInRanges(context, replacementRanges)) {
+		if (replacementRanges.some(range => hasCommentInRange(context, range))) {
 			return problem;
 		}
 

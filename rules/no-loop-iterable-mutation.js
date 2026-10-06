@@ -1,9 +1,8 @@
-import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
+import {getPropertyName} from '@eslint-community/eslint-utils';
 import {
 	containsOptionalChain,
 	isReference,
 	isSame,
-	unwrapExpression,
 } from './utils/comparison.js';
 import {
 	isArray,
@@ -11,6 +10,8 @@ import {
 	isSet,
 	trackBranchExits,
 	getVisitorChildNodes,
+	isSameBinding,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 /**
@@ -100,12 +101,12 @@ function isConstantLoopBinding(loop) {
 }
 
 function getIdentifierFromPattern(node) {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 	return node.type === 'Identifier' ? node : undefined;
 }
 
 function getFirstElementIdentifier(node) {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
 	if (node.type !== 'ArrayPattern') {
 		return;
@@ -116,7 +117,7 @@ function getFirstElementIdentifier(node) {
 }
 
 function getLiveIterable(node, context) {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
 	if (containsOptionalChain(node)) {
 		return;
@@ -235,7 +236,7 @@ function getLoopInformation(loop, iterable) {
 }
 
 function * getReferenceIdentifiers(node) {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
 	if (node.type === 'Identifier') {
 		yield node;
@@ -249,17 +250,6 @@ function * getReferenceIdentifiers(node) {
 			yield * getReferenceIdentifiers(node.property);
 		}
 	}
-}
-
-function isSameBinding(left, right, context) {
-	const leftVariable = findVariable(context.sourceCode.getScope(left), left);
-	const rightVariable = findVariable(context.sourceCode.getScope(right), right);
-
-	if (leftVariable || rightVariable) {
-		return leftVariable === rightVariable;
-	}
-
-	return left.name === right.name;
 }
 
 function isSameReferenceBinding(left, right, context) {
@@ -319,7 +309,7 @@ function getSimpleCallStatement(statement) {
 		return;
 	}
 
-	const expression = unwrapExpression(statement.expression);
+	const expression = unwrapTypeScriptExpression(statement.expression);
 	return expression.type === 'CallExpression' ? expression : undefined;
 }
 

@@ -2,7 +2,7 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isBigIntLiteral, isCallExpression, isNewExpression} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {getChildNodes, isBigInt} from './utils/index.js';
+import {getCallArgumentText, getChildNodes, isBigInt} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-math-min-max';
 const messages = {
@@ -273,12 +273,10 @@ const create = context => {
 			@param {import('eslint').Rule.RuleFixer} fixer
 			*/
 			problem.fix = function * (fixer) {
-				const {sourceCode} = context;
-
 				yield fixSpaceAroundKeyword(fixer, conditionalExpression, context);
 
 				const argumentsText = [left, right]
-					.map(node => node.type === 'SequenceExpression' ? `(${sourceCode.getText(node)})` : sourceCode.getText(node))
+					.map(node => getCallArgumentText(node, context))
 					.join(', ');
 
 				yield fixer.replaceText(conditionalExpression, `Math.${method}(${argumentsText})`);

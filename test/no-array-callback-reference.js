@@ -798,6 +798,8 @@ test.snapshot({
 				foo.map(new Function(''));
 			}
 		`,
+		// Circular `const` references must not loop forever
+		'const first = second; const second = first; collection.map(first)',
 	],
 });
 

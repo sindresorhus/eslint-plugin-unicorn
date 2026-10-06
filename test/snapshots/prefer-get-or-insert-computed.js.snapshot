@@ -239,6 +239,9 @@ Message:
 > 1 | map.getOrInsert(key, eval?.(key))
     |                      ^^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
 
+Output:
+  1 | map.getOrInsertComputed(key, () => eval?.(key))
+
 `;
 
 exports[`prefer-get-or-insert-computed > invalid(23): map.getOrInsert(key, call(eval(key))) 1`] = `
@@ -359,6 +362,34 @@ Message:
 
 Output:
   1 | map.getOrInsertComputed(key, () => new Value())
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(30): map.getOrInsert(key, (eval as any)(key)) 1`] = `
+
+  1 | map.getOrInsert(key, (eval as any)(key))
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(30): map.getOrInsert(key, (eval as any)(key)) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, (eval as any)(key))
+    |                      ^^^^^^^^^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(31): map.getOrInsert(key, eval!(key)) 1`] = `
+
+  1 | map.getOrInsert(key, eval!(key))
+
+`;
+
+exports[`prefer-get-or-insert-computed > invalid(31): map.getOrInsert(key, eval!(key)) 2`] = `
+
+Message:
+> 1 | map.getOrInsert(key, eval!(key))
+    |                      ^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
 
 `;
 

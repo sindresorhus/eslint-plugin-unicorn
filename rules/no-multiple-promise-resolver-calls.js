@@ -12,6 +12,8 @@ import {
 	isProcessExitExpressionAtStart,
 	isTypeScriptExpressionWrapper,
 	getStaticValueForControlFlow,
+	getOutermostTypeScriptExpression,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 /**
@@ -28,7 +30,6 @@ const isSupportedExecutor = node => (
 	&& !node.generator
 );
 
-const isTransparentTypeScriptExpressionWrapper = node => isTypeScriptExpressionWrapper(node) || node?.type === 'TSInstantiationExpression';
 const isReturnOrThrowStatement = node => node.type === 'ReturnStatement' || node.type === 'ThrowStatement';
 
 function isNonThrowingReturnBranch(node) {
@@ -39,25 +40,6 @@ function isNonThrowingReturnBranch(node) {
 	return node.type === 'BlockStatement'
 		&& node.body.length === 1
 		&& isNonThrowingReturnBranch(node.body[0]);
-}
-
-function getOutermostTypeScriptExpression(node) {
-	while (
-		isTransparentTypeScriptExpressionWrapper(node.parent)
-		&& node.parent.expression === node
-	) {
-		node = node.parent;
-	}
-
-	return node;
-}
-
-function unwrapTypeScriptExpression(node) {
-	while (isTransparentTypeScriptExpressionWrapper(node)) {
-		node = node.expression;
-	}
-
-	return node;
 }
 
 const isPromiseExecutor = (node, context) => {
@@ -553,7 +535,7 @@ const isAlwaysEvaluatedExpression = (node, child, context) => (
 	|| (node.type === 'BinaryExpression' && (node.left === child || node.right === child))
 	|| (node.type === 'UnaryExpression' && node.argument === child)
 	|| (node.type === 'ConditionalExpression' && isBranchExit(node, context, isReturnOrThrowStatement))
-	|| (isTransparentTypeScriptExpressionWrapper(node) && node.expression === child)
+	|| (isTypeScriptExpressionWrapper(node) && node.expression === child)
 	|| isAlwaysEvaluatedCall(node, child)
 	|| isAlwaysEvaluatedNewExpression(node, child)
 	|| isAlwaysEvaluatedMember(node, child)

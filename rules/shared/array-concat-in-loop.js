@@ -6,7 +6,7 @@ import {
 	isMethodCall,
 } from '../ast/index.js';
 import {
-	isTypeScriptExpressionWrapper,
+	getOutermostTypeScriptExpression,
 	unwrapTypeScriptExpression,
 } from '../utils/index.js';
 
@@ -106,14 +106,8 @@ export function getArrayConcatInLoop(assignmentExpression, context) {
 }
 
 function getParentAssignmentExpression(node) {
-	let child = node;
-	let {parent} = child;
-
-	while (isTypeScriptExpressionWrapper(parent)) {
-		child = parent;
-		parent = child.parent;
-	}
-
+	const child = getOutermostTypeScriptExpression(node);
+	const {parent} = child;
 	return parent?.type === 'AssignmentExpression' && parent.right === child ? parent : undefined;
 }
 

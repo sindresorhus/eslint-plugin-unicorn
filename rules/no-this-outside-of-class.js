@@ -1,3 +1,5 @@
+import {isInTypeQuery} from './ast/index.js';
+
 const MESSAGE_ID = 'no-this-outside-of-class';
 const messages = {
 	[MESSAGE_ID]: 'Do not use `this` outside of classes.',
@@ -20,16 +22,6 @@ const isClassFieldValue = (node, child) =>
 		|| node.type === 'PropertyDefinition'
 	)
 	&& node.value === child;
-
-// `typeof this` and `typeof this.foo` are a `TSTypeQuery`, the `ThisExpression` is nested in the queried name, so the whole chain is a type position.
-const isInTypeQuery = node => {
-	let current = node;
-	while (current.parent.type === 'TSQualifiedName') {
-		current = current.parent;
-	}
-
-	return current.parent.type === 'TSTypeQuery';
-};
 
 /**
 @param {import('estree').ThisExpression} node
@@ -61,6 +53,7 @@ const isAllowedThisBinding = node => {
 const create = context => {
 	context.on('ThisExpression', node => {
 		// A type query has no `this` value at runtime
+		// `typeof this` and `typeof this.foo` are a `TSTypeQuery`, the `ThisExpression` is nested in the queried name, so the whole chain is a type position.
 		if (isInTypeQuery(node)) {
 			return;
 		}

@@ -147,6 +147,9 @@ test.snapshot({
 		// Not in right position
 		'foo.insertBefore(null, bar)',
 		'Object.create(bar, null)',
+		// Optional call
+		'useRef?.(null)',
+		'React.useRef?.(null)',
 	],
 });
 

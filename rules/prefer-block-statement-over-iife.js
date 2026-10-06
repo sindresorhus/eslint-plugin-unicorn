@@ -1,5 +1,5 @@
-import {isDirective, isFunction} from './ast/index.js';
-import {getCommentSafeProblem, hasNonDirectiveComment, getVisitorChildNodes} from './utils/index.js';
+import {isDirectEvalCall, isDirective, isFunction} from './ast/index.js';
+import {containsNode, getCommentSafeProblem, hasNonDirectiveComment} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -10,11 +10,6 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer a block statement over an IIFE used only for scoping.',
 };
 
-const isDirectEvalCall = node =>
-	node.type === 'CallExpression'
-	&& node.callee.type === 'Identifier'
-	&& node.callee.name === 'eval';
-
 const isFunctionContextReference = node =>
 	node.type === 'ThisExpression'
 	|| (
@@ -24,43 +19,24 @@ const isFunctionContextReference = node =>
 	)
 	|| (node.type === 'Identifier' && node.name === 'arguments');
 
-const isNestedFunction = (node, root) =>
-	node !== root && isFunction(node);
-
-const isNestedNonArrowFunction = (node, root) =>
-	isNestedFunction(node, root)
+const isNonArrowFunction = node =>
+	isFunction(node)
 	&& node.type !== 'ArrowFunctionExpression';
 
-function containsNodeMatching(node, visitorKeys, predicate, shouldSkip = isNestedFunction) {
-	const root = node;
-
-	function containsMatch(node) {
-		if (predicate(node)) {
-			return true;
-		}
-
-		if (shouldSkip(node, root)) {
-			return false;
-		}
-
-		return getVisitorChildNodes(node, visitorKeys).some(childNode => containsMatch(childNode));
-	}
-
-	return containsMatch(node);
-}
-
-const hasFunctionOnlyBehavior = (body, visitorKeys) => containsNodeMatching(body, visitorKeys, node =>
+const isFunctionOnlyBehavior = node =>
 	node.type === 'ReturnStatement'
 	|| (node.type === 'VariableDeclaration' && node.kind === 'var')
-	|| isDirectEvalCall(node),
-);
+	|| isDirectEvalCall(node);
 
-const hasFunctionContextReference = (body, visitorKeys) =>
-	containsNodeMatching(body, visitorKeys, isFunctionContextReference, isNestedNonArrowFunction);
+const hasFunctionOnlyBehavior = (body, context) =>
+	containsNode(body, context, isFunctionOnlyBehavior, isFunction);
 
-const hasScriptFunctionDeclaration = (body, sourceCode) =>
-	sourceCode.ast.sourceType === 'script'
-	&& containsNodeMatching(body, sourceCode.visitorKeys, node => node.type === 'FunctionDeclaration');
+const hasFunctionContextReference = (body, context) =>
+	containsNode(body, context, isFunctionContextReference, isNonArrowFunction);
+
+const hasScriptFunctionDeclaration = (body, context) =>
+	context.sourceCode.ast.sourceType === 'script'
+	&& containsNode(body, context, node => node.type === 'FunctionDeclaration', isFunction);
 
 const hasWrapperComment = (expressionStatement, body, context) =>
 	hasNonDirectiveComment(context, context.sourceCode.getRange(expressionStatement), [body]);
@@ -73,7 +49,6 @@ const getFix = (expressionStatement, body, context) => fixer =>
 */
 const create = context => {
 	const {sourceCode} = context;
-	const {visitorKeys} = sourceCode;
 
 	context.on('ExpressionStatement', expressionStatement => {
 		const {expression} = expressionStatement;
@@ -98,12 +73,12 @@ const create = context => {
 			|| callee.params.length > 0
 			|| callee.body.type !== 'BlockStatement'
 			|| callee.body.body.some(statement => isDirective(statement))
-			|| hasFunctionOnlyBehavior(callee.body, visitorKeys)
-			|| hasScriptFunctionDeclaration(callee.body, sourceCode)
+			|| hasFunctionOnlyBehavior(callee.body, context)
+			|| hasScriptFunctionDeclaration(callee.body, context)
 			|| hasWrapperComment(expressionStatement, callee.body, context)
 			|| (
 				callee.type === 'FunctionExpression'
-				&& hasFunctionContextReference(callee.body, visitorKeys)
+				&& hasFunctionContextReference(callee.body, context)
 			)
 		) {
 			return;

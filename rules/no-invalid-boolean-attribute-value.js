@@ -6,6 +6,7 @@ import {
 	getStaticValueForControlFlow,
 	isGlobalIdentifier,
 	wouldRemoveComments,
+	withTypeInformation,
 } from './utils/index.js';
 import {
 	getTypeSymbol,
@@ -278,20 +279,9 @@ function getNativeTypes(type, program) {
 	return new Set([symbol.getName()]);
 }
 
-const getTypesFromTypeInformation = (node, context) => {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return;
-	}
-
-	try {
-		return getNativeTypes(parserServices.getTypeAtLocation(node), parserServices.program);
-		// Defensive: `getTypeAtLocation()` throws for a node that the TypeScript program does not map, which the supported parsers do not produce.
-		/* node:coverage ignore next 3 */
-	} catch {
-		// Type information is optional, including when a project cannot be resolved.
-	}
-};
+// Type information is optional, including when a project cannot be resolved.
+const getTypesFromTypeInformation = (node, context) =>
+	withTypeInformation(node, context, ({type, program}) => getNativeTypes(type, program));
 
 function getReceiverTypes(node, context, visitedVariables = new Set()) {
 	if (['ChainExpression', 'TSNonNullExpression', 'TSSatisfiesExpression', 'ParenthesizedExpression'].includes(node.type)) {

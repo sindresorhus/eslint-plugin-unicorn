@@ -151,6 +151,32 @@ Message:
 
 `;
 
+exports[`no-duplicate-if-branches > invalid(14): if (foo) {\n\tbar();\n\t;\n} else {\n\tbar();\n} 1`] = `
+
+  1 | if (foo) {
+  2 | 	bar();
+  3 | 	;
+  4 | } else {
+  5 | 	bar();
+  6 | }
+
+`;
+
+exports[`no-duplicate-if-branches > invalid(14): if (foo) {\n\tbar();\n\t;\n} else {\n\tbar();\n} 2`] = `
+
+Message:
+  1 | if (foo) {
+  2 | 	bar();
+  3 | 	;
+> 4 | } else {
+    |        ^
+> 5 | 	bar();
+    | ^^^^^^^
+> 6 | }
+    | ^ This branch has the same body as the branch on line 1.
+
+`;
+
 exports[`no-duplicate-if-branches > invalid(2): if (foo) {\n\tbar();\n} else if (baz) {\n\tbar();\n} 1`] = `
 
   1 | if (foo) {

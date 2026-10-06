@@ -1,10 +1,13 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {
+	getConstVariableInitializer,
 	getDuplicateArrayElements,
+	getOutermostTypeScriptExpression,
 	getVariableIdentifiers,
 	isComparableStaticValue,
 	isLeftHandSide,
 	getStaticValueIfNoSideEffects,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {getStaticStringValue, isCallOrNewExpression, isMethodCall} from './ast/index.js';
 
@@ -49,20 +52,15 @@ const methodsReturnsArrayAndString = [
 	'concat',
 ];
 
-const isIdentifierInitializedWithArray = (node, scope, visitedVariables = new Set()) => {
-	const variable = findVariable(scope, node);
-	if (!variable || visitedVariables.has(variable) || variable.defs.length !== 1) {
+const isIdentifierInitializedWithArray = (node, context, visitedInitializers = new Set()) => {
+	const initializer = getConstVariableInitializer(node, context);
+	if (!initializer || visitedInitializers.has(initializer)) {
 		return false;
 	}
 
-	visitedVariables.add(variable);
+	visitedInitializers.add(initializer);
 
-	const [definition] = variable.defs;
-
-	return definition.type === 'Variable'
-		&& definition.kind === 'const'
-		&& Boolean(definition.node.init)
-		&& isArrayMethodCall(definition.node.init, scope, visitedVariables);
+	return isArrayMethodCall(initializer, context, visitedInitializers);
 };
 
 const isIncludesCall = node =>
@@ -102,7 +100,7 @@ const isMultipleCall = (identifier, node) => {
 	return false;
 };
 
-const isArrayMethodCall = (node, scope, visitedVariables = new Set()) =>
+const isArrayMethodCall = (node, context, visitedInitializers = new Set()) =>
 	// `[]`
 	node.type === 'ArrayExpression'
 	// `Array()` and `new Array()`
@@ -132,7 +130,7 @@ const isArrayMethodCall = (node, scope, visitedVariables = new Set()) =>
 		&& getStaticStringValue(node.callee.object) === undefined
 		&& (
 			node.callee.object.type !== 'Identifier'
-			|| isIdentifierInitializedWithArray(node.callee.object, scope, visitedVariables)
+			|| isIdentifierInitializedWithArray(node.callee.object, context, visitedInitializers)
 		)
 	);
 
@@ -282,20 +280,11 @@ const getKnownArraySize = (node, context) => {
 	}
 };
 
-const isNodeInside = (sourceCode, node, parent) => {
-	const nodeRange = sourceCode.getRange(node);
-	const parentRange = sourceCode.getRange(parent);
+const getSetTypeAnnotationText = (typeAnnotation, context) => {
+	const {sourceCode} = context;
 
-	return nodeRange[0] >= parentRange[0]
-		&& nodeRange[1] <= parentRange[1];
-};
-
-const hasCommentsOutsideNode = (sourceCode, node, child) =>
-	sourceCode.getCommentsInside(node).some(comment => !isNodeInside(sourceCode, comment, child));
-
-const getSetTypeAnnotationText = (typeAnnotation, sourceCode) => {
 	if (typeAnnotation.type === 'TSArrayType') {
-		if (hasCommentsOutsideNode(sourceCode, typeAnnotation, typeAnnotation.elementType)) {
+		if (wouldRemoveComments(context, typeAnnotation, [typeAnnotation.elementType])) {
 			return;
 		}
 
@@ -307,7 +296,7 @@ const getSetTypeAnnotationText = (typeAnnotation, sourceCode) => {
 		&& typeAnnotation.operator === 'readonly'
 		&& typeAnnotation.typeAnnotation.type === 'TSArrayType'
 	) {
-		if (hasCommentsOutsideNode(sourceCode, typeAnnotation, typeAnnotation.typeAnnotation.elementType)) {
+		if (wouldRemoveComments(context, typeAnnotation, [typeAnnotation.typeAnnotation.elementType])) {
 			return;
 		}
 
@@ -326,7 +315,7 @@ const getSetTypeAnnotationText = (typeAnnotation, sourceCode) => {
 		return;
 	}
 
-	if (hasCommentsOutsideNode(sourceCode, typeAnnotation, typeArguments)) {
+	if (wouldRemoveComments(context, typeAnnotation, [typeArguments])) {
 		return;
 	}
 
@@ -344,24 +333,6 @@ const isOneParameterArrowFunction = node =>
 	&& node.params.length === 1
 	&& node.params[0].type !== 'RestElement';
 
-const isTypeScriptExpressionWrapper = (parent, child) =>
-	(
-		parent?.type === 'TSAsExpression'
-		|| parent?.type === 'TSTypeAssertion'
-		|| parent?.type === 'TSNonNullExpression'
-	)
-	&& parent.expression === child;
-
-const isAssignmentTarget = node => {
-	let target = node;
-
-	while (isTypeScriptExpressionWrapper(target.parent, target)) {
-		target = target.parent;
-	}
-
-	return isLeftHandSide(target);
-};
-
 const isLengthRead = identifier => {
 	const {parent} = identifier;
 
@@ -376,7 +347,7 @@ const isLengthRead = identifier => {
 		return false;
 	}
 
-	if (isAssignmentTarget(parent)) {
+	if (isLeftHandSide(getOutermostTypeScriptExpression(parent))) {
 		return false;
 	}
 
@@ -454,7 +425,7 @@ const getReferenceGroups = identifiers => {
 	};
 };
 
-const isArrayVariableDeclaratorIdentifier = (node, sourceCode) => {
+const isArrayVariableDeclaratorIdentifier = (node, context) => {
 	const {parent} = node;
 
 	return parent.type === 'VariableDeclarator'
@@ -466,7 +437,7 @@ const isArrayVariableDeclaratorIdentifier = (node, sourceCode) => {
 			parent.parent.parent.type === 'ExportNamedDeclaration'
 			&& parent.parent.parent.declaration === parent.parent
 		)
-		&& isArrayMethodCall(parent.init, sourceCode.getScope(parent.init));
+		&& isArrayMethodCall(parent.init, context);
 };
 
 /**
@@ -479,7 +450,7 @@ const create = context => {
 	context.on('Identifier', node => {
 		const {parent} = node;
 
-		if (!isArrayVariableDeclaratorIdentifier(node, sourceCode)) {
+		if (!isArrayVariableDeclaratorIdentifier(node, context)) {
 			return;
 		}
 
@@ -532,7 +503,7 @@ const create = context => {
 			},
 		};
 
-		const setTypeAnnotationText = node.typeAnnotation && getSetTypeAnnotationText(node.typeAnnotation.typeAnnotation, sourceCode);
+		const setTypeAnnotationText = node.typeAnnotation && getSetTypeAnnotationText(node.typeAnnotation.typeAnnotation, context);
 
 		const fix = function * (fixer) {
 			if (setTypeAnnotationText) {

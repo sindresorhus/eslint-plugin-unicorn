@@ -331,11 +331,7 @@ function create(context) {
 			getParenthesizedRange(firstArgument, context)[0],
 			getParenthesizedRange(secondArgument, context)[1],
 		];
-		const hasCommentsInsideReplacementRange = sourceCode.getAllComments().some(comment => {
-			const commentRange = sourceCode.getRange(comment);
-			return commentRange[0] >= replacementRange[0] && commentRange[1] <= replacementRange[1];
-		});
-		if (hasCommentsInsideReplacementRange) {
+		if (hasCommentInRange(context, replacementRange)) {
 			return problem;
 		}
 

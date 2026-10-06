@@ -1,11 +1,12 @@
 import {findVariable, isCommaToken} from '@eslint-community/eslint-utils';
 import reservedIdentifiers from 'reserved-identifiers';
-import {isFunction} from './ast/index.js';
+import {isDirectEvalCall, isFunction, isInTypeQuery} from './ast/index.js';
 import {getArgumentRemovalRange, removeObjectProperty, replaceReferenceIdentifier} from './fix/index.js';
 import {
 	getIndentUnit,
 	getLinebreak,
 	getLineIndent,
+	getOutermostTypeScriptExpression,
 	getParenthesizedRange,
 	hasCommentInRange,
 	isShorthandPropertyValue,
@@ -13,7 +14,6 @@ import {
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
 	unwrapTypeScriptExpression,
-	isTypeScriptExpressionWrapper,
 } from './utils/index.js';
 
 const messages = {
@@ -32,14 +32,9 @@ const isInside = (node, parent, context) => {
 };
 
 const hasWrites = variable => variable.references.some(reference => !reference.init && reference.isWrite());
-const isRuntimeReference = reference => {
-	let node = reference.identifier;
-	while (node.parent.type === 'TSQualifiedName') {
-		node = node.parent;
-	}
-
-	return reference.isValueReference !== false && node.parent.type !== 'TSTypeQuery';
-};
+const isRuntimeReference = reference =>
+	reference.isValueReference !== false
+	&& !isInTypeQuery(reference.identifier);
 
 const getVariable = (node, context) => findVariable(context.sourceCode.getScope(node), node);
 const undefinedValue = {kind: 'primitive', value: undefined};
@@ -121,16 +116,8 @@ const isSameValue = (first, second) => first?.kind === second?.kind && (
 	first.kind === 'binding' ? first.variable === second.variable : Object.is(first.value, second.value)
 );
 
-function getOuterExpression(node) {
-	while (isTypeScriptExpressionWrapper(node.parent) || node.parent.type === 'TSInstantiationExpression') {
-		node = node.parent;
-	}
-
-	return node;
-}
-
 function getCall(node) {
-	node = getOuterExpression(node);
+	node = getOutermostTypeScriptExpression(node);
 	const {parent} = node;
 	if ((parent.type === 'CallExpression' || parent.type === 'NewExpression') && parent.callee === node) {
 		return parent;
@@ -345,7 +332,7 @@ function getLocalDefault(parameter, target, arguments_, context) {
 }
 
 function getReplacementText(identifier, value, context) {
-	const expression = getOuterExpression(identifier);
+	const expression = getOutermostTypeScriptExpression(identifier);
 
 	let text;
 	if (isUndefined(value)) {
@@ -469,7 +456,7 @@ function getFix(parameter, result, target, context) {
 	}
 
 	if (!localDefault && parameter.variable.references.some(reference => {
-		const {parent} = getOuterExpression(reference.identifier);
+		const {parent} = getOutermostTypeScriptExpression(reference.identifier);
 		return parent.type === 'UnaryExpression' && parent.operator === 'delete';
 	})) {
 		return;
@@ -652,8 +639,7 @@ const create = context => {
 		}
 	});
 	context.on('CallExpression', node => {
-		const callee = unwrapTypeScriptExpression(node.callee);
-		if (callee.type === 'Identifier' && callee.name === 'eval') {
+		if (isDirectEvalCall(node)) {
 			hasDynamicScope = true;
 		}
 	});

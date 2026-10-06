@@ -7,7 +7,7 @@ import {
 	needsSemicolon,
 	isParenthesized,
 	isOnSameLine,
-	isTypeScriptExpressionWrapper,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-typeof-undefined/error';
@@ -20,14 +20,6 @@ const messages = {
 const isAmbientVariableDefinition = definition =>
 	definition.type === 'Variable'
 	&& definition.parent.declare === true;
-
-function unwrapTypeofArgument(node) {
-	while (isTypeScriptExpressionWrapper(node) || node.type === 'TSInstantiationExpression') {
-		node = node.expression;
-	}
-
-	return node;
-}
 
 const getIdentifierReference = (identifier, scope) => {
 	while (scope) {
@@ -77,7 +69,7 @@ const create = context => {
 
 		const {left: typeofNode, right: undefinedString, operator} = binaryExpression;
 		const {sourceCode} = context;
-		const valueNode = unwrapTypeofArgument(typeofNode.argument);
+		const valueNode = unwrapTypeScriptExpression(typeofNode.argument);
 		let isGlobalVariable = false;
 
 		if (valueNode.type === 'Identifier') {

@@ -10,8 +10,7 @@ import {
 	isMemberExpression,
 } from './ast/index.js';
 import {
-	isBooleanExpression,
-	isControlFlowTest,
+	isBooleanContext,
 	getBaseTypes,
 	getTypeSymbol,
 	getParenthesizedRange,
@@ -22,8 +21,10 @@ import {
 	needsSemicolon,
 	getStaticRegExp,
 	getStaticValueIfNoSideEffects,
+	hasCommentInRange,
 	hasPotentiallyMutableMemberAccess,
 	shouldAddParenthesesToMemberExpressionObject,
+	withTypeInformation,
 } from './utils/index.js';
 
 const REGEXP_EXEC = 'regexp-exec';
@@ -266,24 +267,8 @@ const getTypeFromTypeAnnotation = node => {
 	}
 };
 
-const getTypeFromTypeInformation = (node, context) => {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return UNKNOWN;
-	}
-
-	try {
-		const {program} = parserServices;
-		return getTypeFromTypeScriptType(
-			parserServices.getTypeAtLocation(node),
-			program.getTypeChecker(),
-		);
-		// Defensive: `getTypeAtLocation()` throws for a node that the TypeScript program does not map, which the supported parsers do not produce.
-		/* node:coverage ignore next 3 */
-	} catch {
-		return UNKNOWN;
-	}
-};
+const getTypeFromTypeInformation = (node, context) =>
+	withTypeInformation(node, context, ({type, checker}) => getTypeFromTypeScriptType(type, checker)) ?? UNKNOWN;
 
 const getTypeFromTypeScriptType = (type, checker) => {
 	if (isUnknownType(type)) {
@@ -438,12 +423,6 @@ const getBooleanExpressionAncestor = (node, context) => {
 
 const isNegatedBooleanValue = (node, context) => isNegated(getBooleanExpressionAncestor(node, context));
 
-const hasCommentsInRange = (sourceCode, [start, end]) =>
-	sourceCode.getAllComments().some(comment => {
-		const [commentStart, commentEnd] = sourceCode.getRange(comment);
-		return commentStart >= start && commentEnd <= end;
-	});
-
 const getLengthWrapperRemovalRanges = (lengthCheck, context) => {
 	const {sourceCode} = context;
 	const ranges = [[
@@ -463,7 +442,7 @@ const getLengthWrapperRemovalRanges = (lengthCheck, context) => {
 
 const canSuggestLengthCheck = (lengthCheck, context) =>
 	getLengthWrapperRemovalRanges(lengthCheck, context)
-		.every(range => !hasCommentsInRange(context.sourceCode, range));
+		.every(range => !hasCommentInRange(context, range));
 
 const getSearchCheck = node => {
 	const {parent} = node;
@@ -496,10 +475,7 @@ const getSearchCheckRemovalRange = (searchCheck, callExpression, context) => [
 ];
 
 const canFixSearchCheck = (searchCheck, callExpression, context) =>
-	!hasCommentsInRange(
-		context.sourceCode,
-		getSearchCheckRemovalRange(searchCheck, callExpression, context),
-	);
+	!hasCommentInRange(context, getSearchCheckRemovalRange(searchCheck, callExpression, context));
 
 const getSuggestion = fixFunction => [
 	{
@@ -573,7 +549,7 @@ const getLengthCheck = (node, context) => {
 		return;
 	}
 
-	if (isBooleanExpression(lengthCheckNode, context) || isControlFlowTest(lengthCheckNode)) {
+	if (isBooleanContext(lengthCheckNode, context)) {
 		return {lengthNode, node: lengthCheckNode};
 	}
 
@@ -584,7 +560,7 @@ const getLengthCheck = (node, context) => {
 		&& parent.operator === '>'
 		&& isLiteral(parent.right, 0)
 		&& !isNegatedBooleanValue(parent, context)
-		&& (isBooleanExpression(parent, context) || isControlFlowTest(parent))
+		&& isBooleanContext(parent, context)
 	) {
 		return {lengthNode, node: parent, comparisonLeftNode: lengthCheckNode};
 	}
@@ -597,7 +573,7 @@ const create = context => {
 	context.on('CallExpression', function * (node) {
 		const lengthCheck = getLengthCheck(node, context);
 		const searchCheck = getSearchCheck(node);
-		if (!lengthCheck && !searchCheck && !(isBooleanExpression(node, context) || isControlFlowTest(node))) {
+		if (!lengthCheck && !searchCheck && !isBooleanContext(node, context)) {
 			return;
 		}
 

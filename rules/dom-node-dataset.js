@@ -2,17 +2,18 @@ import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	escapeString,
 	getIndentString,
+	getLinebreak,
+	getMemberExpressionObjectText,
 	getParenthesizedText,
+	getStaticPropertyName,
 	hasOptionalChainElement,
 	isGlobalIdentifier,
+	isIdentifierName,
 	isKnownNonDomNode,
 	isLeftHandSide,
 	isValueNotUsable,
 	needsSemicolon,
-	getMemberExpressionObjectText,
 	wouldRemoveComments,
-	isIdentifierName,
-	getLinebreak,
 } from './utils/index.js';
 import {removeStatement} from './fix/index.js';
 import {
@@ -42,18 +43,8 @@ const isSimpleDatasetProperty = property =>
 	&& property.key.type === 'Identifier'
 	&& property.value.type === 'Identifier';
 
-/*
-The statically-known property key of `node.key` / `node['key']`, or `undefined` for computed non-string keys we can't analyze.
-*/
-const getStaticMemberKey = memberExpression => {
-	if (!memberExpression.computed && memberExpression.property.type === 'Identifier') {
-		return memberExpression.property.name;
-	}
-
-	if (memberExpression.computed && isStringLiteral(memberExpression.property)) {
-		return memberExpression.property.value;
-	}
-};
+// Keep the quote style of a string literal key (`dataset["foo"]`), and use the default quote for other keys.
+const getKeyQuote = memberExpression => isStringLiteral(memberExpression.property) ? memberExpression.property.raw.charAt(0) : undefined;
 
 // Names inherited from `Object.prototype` — never a real `data-*` attribute.
 const DATASET_INHERITED_MEMBERS = new Set([
@@ -85,7 +76,7 @@ const isUnsafeDatasetKey = key =>
 /*
 For `const data = el.dataset`, collect the member expressions (`data.fooBar`) that read a `data-*` attribute through the variable. Returns `undefined` if any reference is something we can't safely rewrite to `getAttribute(…)` (write, `delete`, call, unsafe key, bare use like `foo(data)`, …).
 */
-function getDatasetVariableReadMembers(variable) {
+function getDatasetVariableReadMembers(variable, context) {
 	const members = [];
 	for (const reference of variable.references) {
 		// The initializer write (`= el.dataset`) is the declaration itself.
@@ -100,7 +91,7 @@ function getDatasetVariableReadMembers(variable) {
 			return;
 		}
 
-		const key = getStaticMemberKey(member);
+		const key = getStaticPropertyName(member, context);
 		if (key === undefined || isUnsafeDatasetKey(key)) {
 			return;
 		}
@@ -147,7 +138,7 @@ function getDatasetVariableInlineFix(declarator, context) {
 	const declaration = declarator.parent;
 
 	const [variable] = sourceCode.getDeclaredVariables(declarator);
-	const usageMembers = getDatasetVariableReadMembers(variable);
+	const usageMembers = getDatasetVariableReadMembers(variable, context);
 	if (!(
 		usageMembers
 		&& usageMembers.length > 0
@@ -167,8 +158,7 @@ function getDatasetVariableInlineFix(declarator, context) {
 	return function * (fixer) {
 		yield removeStatement(declaration, context, fixer);
 		for (const member of usageMembers) {
-			const quote = member.computed ? member.property.raw.charAt(0) : undefined;
-			const attributeName = escapeString(camelCaseToDash(getStaticMemberKey(member)), quote);
+			const attributeName = escapeString(camelCaseToDash(getStaticPropertyName(member, context)), getKeyQuote(member));
 			yield fixer.replaceText(member, `${objectText}.getAttribute(${attributeName})`);
 		}
 	};
@@ -431,7 +421,7 @@ const create = context => {
 				return;
 			}
 
-			const keyName = getStaticMemberKey(memberExpression);
+			const keyName = getStaticPropertyName(memberExpression, context);
 			if (keyName === undefined || isUnsafeDatasetKey(keyName)) {
 				return;
 			}
@@ -479,8 +469,7 @@ const create = context => {
 
 			const objectText = getMemberExpressionObjectText(object.object, context);
 			const chain = object.optional ? '?.' : '.';
-			const quote = memberExpression.computed ? memberExpression.property.raw.charAt(0) : undefined;
-			const attributeName = escapeString(camelCaseToDash(keyName), quote);
+			const attributeName = escapeString(camelCaseToDash(keyName), getKeyQuote(memberExpression));
 
 			let fix;
 			if (

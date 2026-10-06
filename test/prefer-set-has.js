@@ -790,6 +790,12 @@ test.snapshot({
 			const foo = items.slice();
 			foo.includes('ab') || foo.includes('bc');
 		`,
+		// A destructured binding is not the initializer
+		outdent`
+			const [text] = ['abc'];
+			const foo = text.slice();
+			foo.includes('ab') || foo.includes('bc');
+		`,
 		// `Iterator.concat()`
 		outdent`
 			const foo = Iterator.concat(bar);

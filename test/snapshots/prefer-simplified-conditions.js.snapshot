@@ -1523,6 +1523,40 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(50): if ((a || (a && b))!) {} 1`] = `
+
+  1 | if ((a || (a && b))!) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(50): if ((a || (a && b))!) {} 2`] = `
+
+Message:
+> 1 | if ((a || (a && b))!) {}
+    |      ^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | if ((a)!) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(51): if (((a) || (a && b))!) {} 1`] = `
+
+  1 | if (((a) || (a && b))!) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(51): if (((a) || (a && b))!) {} 2`] = `
+
+Message:
+> 1 | if (((a) || (a && b))!) {}
+    |      ^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | if (((a))!) {}
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(6): !(a && (b || c)) 1`] = `
 
 Options:

@@ -3,8 +3,8 @@ import {replaceTemplateElement} from './fix/index.js';
 import {
 	escapeString,
 	escapeTemplateElementRaw,
-	getComments,
 	getTemplateElementRaw,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 const defaultMessage = 'Prefer `{{suggest}}` over `{{match}}`.';
@@ -111,16 +111,11 @@ const create = context => {
 			},
 		};
 
-		const fixed = string.replace(regex, () => suggest);
-		if (type === 'Url') {
-			const [start, end] = context.sourceCode.getRange(node);
-			if (getComments(context).some(comment => {
-				const [commentStart, commentEnd] = context.sourceCode.getRange(comment);
-				return commentStart >= start && commentEnd <= end;
-			})) {
-				return problem;
-			}
+		if (type === 'Url' && wouldRemoveComments(context, node)) {
+			return problem;
 		}
+
+		const fixed = string.replace(regex, () => suggest);
 
 		if (((type === 'TOMLValue' || type === 'YAMLScalar' || isCss) && !fixed.isWellFormed()) || (isCss && fixed.includes('\0'))) {
 			return problem;

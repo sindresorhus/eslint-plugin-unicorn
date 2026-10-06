@@ -13,8 +13,9 @@ import {
 	isSameReference,
 	isParenthesized,
 	getParenthesizedRange,
+	getNegatedExpressionText,
 	getParenthesizedText,
-	shouldAddParenthesesToUnaryExpressionArgument,
+	getSingleStatement,
 	needsSemicolon,
 } from './utils/index.js';
 
@@ -54,26 +55,17 @@ const getProblem = (valueNode, fix, reportNode) => {
 };
 
 const getConditionText = (node, context, isNegative) => {
-	const {sourceCode} = context;
-	let text = getParenthesizedText(node, context);
-
 	if (isNegative) {
-		if (
-			!isParenthesized(node, sourceCode)
-			&& shouldAddParenthesesToUnaryExpressionArgument(node, '!')
-		) {
-			text = `(${text})`;
-		}
-
-		text = `!${text}`;
-		return text;
+		return getNegatedExpressionText(node, context);
 	}
 
+	const text = getParenthesizedText(node, context);
+
 	if (
-		!isParenthesized(node, sourceCode)
+		!isParenthesized(node, context.sourceCode)
 		&& node.type === 'SequenceExpression'
 	) {
-		text = `(${text})`;
+		return `(${text})`;
 	}
 
 	return text;
@@ -137,19 +129,13 @@ const create = context => {
 	context.on(['IfStatement', 'ConditionalExpression'], node => {
 		const clauses = [node.consequent, node.alternate]
 			.map(node => {
-				if (!node) {
-					return;
-				}
+				node = getSingleStatement(node);
 
-				if (node.type === 'BlockStatement' && node.body.length === 1) {
-					node = node.body[0];
-				}
-
-				if (node.type === 'ExpressionStatement') {
+				if (node?.type === 'ExpressionStatement') {
 					node = node.expression;
 				}
 
-				if (node.type === 'ChainExpression') {
+				if (node?.type === 'ChainExpression') {
 					node = node.expression;
 				}
 

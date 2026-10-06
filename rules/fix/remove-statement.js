@@ -2,27 +2,36 @@ import {isSemicolonToken} from '@eslint-community/eslint-utils';
 
 const isWhitespaceOnly = text => /^\s*$/.test(text);
 
-// Removes a statement node along with its surrounding whitespace, while preserving comments.
-export default function removeStatement(statement, context, fixer, preserveSemiColon = false) {
+/**
+Remove a statement, or an array of consecutive statements (first to last), along with the surrounding whitespace, while preserving comments.
+
+@param {import('estree').Statement | import('estree').Statement[]} statements - A statement, or an array of consecutive statements. Everything from the first to the last statement is removed, including comments between them.
+@param {import('eslint').Rule.RuleContext} context
+@param {import('eslint').Rule.RuleFixer} fixer
+@param {boolean} [preserveSemiColon] - Keep the semicolon of the last statement.
+@returns {import('eslint').Rule.Fix}
+*/
+export default function removeStatement(statements, context, fixer, preserveSemiColon = false) {
 	const {sourceCode} = context;
 	const {lines} = sourceCode;
-	let endToken = statement;
+	const [firstStatement, lastStatement] = Array.isArray(statements) ? [statements[0], statements.at(-1)] : [statements, statements];
+	let endToken = lastStatement;
 
 	if (preserveSemiColon) {
-		const [penultimateToken, lastToken] = sourceCode.getLastTokens(statement, 2);
+		const [penultimateToken, lastToken] = sourceCode.getLastTokens(lastStatement, 2);
 
 		if (isSemicolonToken(lastToken)) {
 			endToken = penultimateToken;
 		}
 	}
 
-	const startLocation = sourceCode.getLoc(statement).start;
+	const startLocation = sourceCode.getLoc(firstStatement).start;
 	const endLocation = sourceCode.getLoc(endToken).end;
 
 	const textBefore = lines[startLocation.line - 1].slice(0, startLocation.column);
 	const textAfter = lines[endLocation.line - 1].slice(endLocation.column);
 
-	let [start] = sourceCode.getRange(statement);
+	let [start] = sourceCode.getRange(firstStatement);
 	let [, end] = sourceCode.getRange(endToken);
 
 	if (isWhitespaceOnly(textBefore) && isWhitespaceOnly(textAfter)) {

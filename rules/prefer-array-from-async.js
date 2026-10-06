@@ -1,100 +1,34 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {
-	isEmptyArrayExpression,
-	isMethodCall,
-} from './ast/index.js';
+import {isIdentifierNamed, isMethodCall} from './ast/index.js';
 import {
 	containsSuspensionPoint,
 	getCommentSafeProblem,
+	getConciseArrowBodyText,
+	getConstVariableInitializer,
 	getNextStatement,
+	getOnlyExpression,
 	hasNonDirectiveComment,
 	getParenthesizedText,
 	getStaticValueForControlFlow,
-	getVariableIdentifiers,
+	isGlobalNameAvailable,
 	isStringMappingType,
 	isTemplateLiteralType,
 	isUniqueSymbolType,
 	unwrapTypeScriptExpression,
+	withTypeInformation,
 } from './utils/index.js';
+import {
+	getEmptyArrayDeclarator,
+	getForOfDeclarationPattern,
+	getVariableTargetText,
+	referencesVariable,
+} from './shared/for-of-collection-loop.js';
 
 const MESSAGE_ID = 'prefer-array-from-async';
 const MESSAGE_ID_SUGGESTION = 'prefer-array-from-async/suggestion';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `Array.fromAsync()` over array accumulation loops.',
 	[MESSAGE_ID_SUGGESTION]: 'Replace the loop with `Array.fromAsync()`.',
-};
-
-const arrowBodyParenthesizedExpressionTypes = new Set([
-	'AssignmentExpression',
-	'ObjectExpression',
-	'SequenceExpression',
-	'TSAsExpression',
-	'TSNonNullExpression',
-	'TSSatisfiesExpression',
-	'TSTypeAssertion',
-]);
-
-const isIdentifierNamed = (node, name) => node.type === 'Identifier' && node.name === name;
-
-const getEmptyArrayDeclarator = node => {
-	if (
-		node.declarations.length !== 1
-		|| (node.kind !== 'const' && node.kind !== 'let')
-	) {
-		return;
-	}
-
-	const [declarator] = node.declarations;
-	if (
-		declarator.id.type !== 'Identifier'
-		|| !declarator.init
-		|| !isEmptyArrayExpression(declarator.init)
-	) {
-		return;
-	}
-
-	return declarator;
-};
-
-const getOnlyExpression = node => {
-	if (node.type === 'ExpressionStatement') {
-		return node.expression;
-	}
-
-	if (
-		node.type === 'BlockStatement'
-		&& node.body.length === 1
-		&& node.body[0].type === 'ExpressionStatement'
-	) {
-		return node.body[0].expression;
-	}
-};
-
-const getSingleForOfBinding = node => {
-	if (
-		node.left.type !== 'VariableDeclaration'
-		|| node.left.declarations.length !== 1
-		|| (node.left.kind !== 'const' && node.left.kind !== 'let')
-	) {
-		return;
-	}
-
-	const [{id, init}] = node.left.declarations;
-	if (init || id.type !== 'Identifier') {
-		return;
-	}
-
-	return id;
-};
-
-const referencesVariable = (variable, node, context) => {
-	const range = context.sourceCode.getRange(node);
-
-	return getVariableIdentifiers(variable).some(identifier => {
-		const [start, end] = context.sourceCode.getRange(identifier);
-
-		return start >= range[0] && end <= range[1];
-	});
 };
 
 const isReferenceInsideNode = (reference, node, context) => {
@@ -111,27 +45,6 @@ const hasWriteReferenceInsideNode = (variable, node, context) =>
 		&& isReferenceInsideNode(reference, node, context),
 	);
 
-const isGlobalArrayAvailable = (node, context) => {
-	const variable = findVariable(context.sourceCode.getScope(node), 'Array');
-
-	return !variable || variable.defs.length === 0;
-};
-
-const getArrowBodyText = (node, context) => {
-	const text = context.sourceCode.getText(node);
-
-	return arrowBodyParenthesizedExpressionTypes.has(node.type) ? `(${text})` : text;
-};
-
-const getVariableTargetText = (declarator, context) => {
-	const {sourceCode} = context;
-	const equalsToken = sourceCode.getTokenBefore(declarator.init, token => token.value === '=');
-	const [start] = sourceCode.getRange(declarator.id);
-	const [end] = sourceCode.getRange(equalsToken);
-
-	return sourceCode.text.slice(start, end).trimEnd();
-};
-
 const getArrayFromAsyncText = ({
 	iterable,
 	binding,
@@ -141,7 +54,7 @@ const getArrayFromAsyncText = ({
 	let text = `Array.fromAsync(${getParenthesizedText(iterable, context)}`;
 
 	if (body) {
-		text += `, ${context.sourceCode.getText(binding)} => ${getArrowBodyText(body, context)}`;
+		text += `, ${context.sourceCode.getText(binding)} => ${getConciseArrowBodyText(body, context)}`;
 	}
 
 	return `${text})`;
@@ -153,12 +66,21 @@ const isDirectElementPush = (pushArgument, binding) =>
 const getMapperBody = ({
 	pushArgument,
 	variable,
+	loop,
 	context,
 }) => {
 	if (
 		pushArgument.type !== 'AwaitExpression'
 		|| referencesVariable(variable, pushArgument.argument, context)
 		|| containsSuspensionPoint(pushArgument.argument, context.sourceCode.visitorKeys)
+	) {
+		return;
+	}
+
+	const [bindingVariable] = context.sourceCode.getDeclaredVariables(loop.left);
+	if (
+		loop.left.kind === 'const'
+		&& hasWriteReferenceInsideNode(bindingVariable, pushArgument.argument, context)
 	) {
 		return;
 	}
@@ -242,30 +164,21 @@ const getVariableDeclarationVariable = (node, context) => {
 };
 
 const isKnownPrimitiveIterable = (node, context) => {
-	const {sourceCode} = context;
 	const typeNode = node;
 	node = unwrapTypeScriptExpression(node);
 	const variable = getVariableDeclarationVariable(node, context);
-	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
-	const initializer = definition?.parent.kind === 'const' && definition.node.id.type === 'Identifier' && definition.node.init ? unwrapTypeScriptExpression(definition.node.init) : undefined;
+	const initializer = getConstVariableInitializer(node, context);
 	const hasOtherReferences = Boolean(variable?.references.some(reference => !reference.init && reference.identifier !== node));
 	if (typeof getStaticValueForControlFlow(node, context)?.value === 'string') {
 		return true;
 	}
 
-	const {parserServices} = sourceCode;
-	if (parserServices?.program) {
-		try {
-			const checker = parserServices.program.getTypeChecker();
-			const type = parserServices.getTypeAtLocation(typeNode);
-			// Local array bindings require static const analysis below; primitive-valued bindings are safe.
-			if (
-				isPrimitiveIterableType(type, checker)
-				&& (!variable || isPrimitiveType(type, checker))
-			) {
-				return true;
-			}
-		} catch {}
+	// Local array bindings require static const analysis below; primitive-valued bindings are safe.
+	const isKnownPrimitiveIterableType = withTypeInformation(typeNode, context, ({type, checker}) =>
+		isPrimitiveIterableType(type, checker)
+		&& (!variable || isPrimitiveType(type, checker)));
+	if (isKnownPrimitiveIterableType) {
+		return true;
 	}
 
 	if (node.type === 'Identifier') {
@@ -274,7 +187,7 @@ const isKnownPrimitiveIterable = (node, context) => {
 		}
 
 		// Limit static arrays to constants used only by this loop; other references could mutate or expose them.
-		node = initializer;
+		node = unwrapTypeScriptExpression(initializer);
 	}
 
 	return node.type === 'ArrayExpression' && node.elements.every(element => {
@@ -293,7 +206,7 @@ const isKnownPrimitiveIterable = (node, context) => {
 
 const getLoopProblem = (declaration, context) => {
 	const declarator = getEmptyArrayDeclarator(declaration);
-	if (!declarator || !isGlobalArrayAvailable(declaration, context)) {
+	if (!declarator || !isGlobalNameAvailable('Array', declaration, context)) {
 		return;
 	}
 
@@ -307,15 +220,14 @@ const getLoopProblem = (declaration, context) => {
 		return;
 	}
 
-	const binding = getSingleForOfBinding(loop);
-	if (!binding) {
+	const binding = getForOfDeclarationPattern(loop.left);
+	if (binding?.type !== 'Identifier') {
 		return;
 	}
 
 	const {sourceCode} = context;
 	const arrayName = declarator.id.name;
 	const variable = sourceCode.getDeclaredVariables(declarator)[0];
-	const [bindingVariable] = sourceCode.getDeclaredVariables(loop.left);
 	if (
 		binding.name === arrayName
 		|| referencesVariable(variable, loop.right, context)
@@ -339,15 +251,10 @@ const getLoopProblem = (declaration, context) => {
 		body = getMapperBody({
 			pushArgument,
 			variable,
+			loop,
 			context,
 		});
-		if (
-			!body
-			|| (
-				loop.left.kind === 'const'
-				&& hasWriteReferenceInsideNode(bindingVariable, body, context)
-			)
-		) {
+		if (!body) {
 			return;
 		}
 	}

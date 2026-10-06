@@ -7,6 +7,7 @@ import {
 	getParenthesizedRange,
 	getParenthesizedText,
 	getReferences,
+	containsNode,
 	containsSuspensionPoint,
 	hasOptionalChainElement,
 	isCallExpressionValueDiscardedWithVoid,
@@ -15,7 +16,7 @@ import {
 	reindentText,
 	unwrapTypeScriptExpression,
 	wouldRemoveComments,
-	getVisitorChildNodes,
+	withTypeInformation,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-await';
@@ -29,22 +30,7 @@ const promiseMethods = new Set(['then', 'catch', 'finally']);
 const whitespaceSensitiveNodeTypes = new Set(['JSXText', 'Literal', 'TemplateElement']);
 
 function isKnownNonPromiseObject(node, context) {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return false;
-	}
-
-	try {
-		return isPromiseType(
-			parserServices.getTypeAtLocation(node),
-			parserServices.program.getTypeChecker(),
-		) === false;
-		// The TypeScript failure can not be reproduced in a test.
-		/* node:coverage ignore next 4 */
-	} catch {
-		// TypeScript can throw while resolving incomplete projects; keep this rule best-effort.
-		return false;
-	}
+	return withTypeInformation(node, context, ({type, checker}) => isPromiseType(type, checker) === false) ?? false;
 }
 
 function hasPromiseMethodCallInChain(node, context) {
@@ -92,21 +78,13 @@ function isAtStartOfLine(node, context) {
 	return getLineIndentAtIndex(start, context.sourceCode) !== undefined;
 }
 
-function containsNodeMatching(node, visitorKeys, predicate) {
-	if (predicate(node)) {
-		return true;
-	}
-
-	return getVisitorChildNodes(node, visitorKeys).some(child => containsNodeMatching(child, visitorKeys, predicate));
-}
-
 function containsNonModuleAwaitIdentifier(node, context) {
 	// `await` can only be an ordinary identifier outside a JavaScript module, or anywhere the TypeScript parser is used, because there it is not a reserved word.
 	const canBeIdentifier = context.sourceCode.ast.sourceType !== 'module'
 		|| isTypeScriptFile(context.filename);
 
 	return canBeIdentifier
-		&& containsNodeMatching(node, context.sourceCode.visitorKeys, node => node.type === 'Identifier' && node.name === 'await');
+		&& containsNode(node, context, node => node.type === 'Identifier' && node.name === 'await');
 }
 
 function getLineIndentAtIndex(index, sourceCode) {
@@ -117,9 +95,9 @@ function getLineIndentAtIndex(index, sourceCode) {
 
 function hasMultilineWhitespaceSensitiveContent(node, context) {
 	const {sourceCode} = context;
-	return containsNodeMatching(
+	return containsNode(
 		node,
-		sourceCode.visitorKeys,
+		context,
 		node => whitespaceSensitiveNodeTypes.has(node.type) && sourceCode.getLoc(node).start.line !== sourceCode.getLoc(node).end.line,
 	)
 	|| sourceCode.getCommentsInside(node).some(comment => sourceCode.getLoc(comment).start.line !== sourceCode.getLoc(comment).end.line);

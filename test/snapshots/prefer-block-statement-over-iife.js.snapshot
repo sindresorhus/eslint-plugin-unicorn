@@ -1,4 +1,50 @@
-exports[`prefer-block-statement-over-iife > invalid(1): (() => {\n\tconst value = getValue();\n\trun(value);\n})(); 1`] = `
+exports[`prefer-block-statement-over-iife > invalid(1): (() => { eval?.(code); })(); 1`] = `
+
+  1 | (() => { eval?.(code); })();
+
+`;
+
+exports[`prefer-block-statement-over-iife > invalid(1): (() => { eval?.(code); })(); 2`] = `
+
+Message:
+> 1 | (() => { eval?.(code); })();
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a block statement over an IIFE used only for scoping.
+
+Output:
+  1 | { eval?.(code); }
+
+`;
+
+exports[`prefer-block-statement-over-iife > invalid(10): (() => {\n\tfunction foo() {}\n\tfoo();\n})(); 1`] = `
+
+  1 | (() => {
+  2 | 	function foo() {}
+  3 | 	foo();
+  4 | })();
+
+`;
+
+exports[`prefer-block-statement-over-iife > invalid(10): (() => {\n\tfunction foo() {}\n\tfoo();\n})(); 2`] = `
+
+Message:
+> 1 | (() => {
+    | ^^^^^^^^
+> 2 | 	function foo() {}
+    | ^^^^^^^^^^^^^^^^^^
+> 3 | 	foo();
+    | ^^^^^^^
+> 4 | })();
+    | ^^^^ Prefer a block statement over an IIFE used only for scoping.
+
+Output:
+  1 | {
+  2 | 	function foo() {}
+  3 | 	foo();
+  4 | }
+
+`;
+
+exports[`prefer-block-statement-over-iife > invalid(2): (() => {\n\tconst value = getValue();\n\trun(value);\n})(); 1`] = `
 
   1 | (() => {
   2 | 	const value = getValue();
@@ -7,7 +53,7 @@ exports[`prefer-block-statement-over-iife > invalid(1): (() => {\n\tconst value 
 
 `;
 
-exports[`prefer-block-statement-over-iife > invalid(1): (() => {\n\tconst value = getValue();\n\trun(value);\n})(); 2`] = `
+exports[`prefer-block-statement-over-iife > invalid(2): (() => {\n\tconst value = getValue();\n\trun(value);\n})(); 2`] = `
 
 Message:
 > 1 | (() => {
@@ -27,7 +73,7 @@ Output:
 
 `;
 
-exports[`prefer-block-statement-over-iife > invalid(2): (function () {\n\tconst value = getValue();\n\trun(value);\n})(); 1`] = `
+exports[`prefer-block-statement-over-iife > invalid(3): (function () {\n\tconst value = getValue();\n\trun(value);\n})(); 1`] = `
 
   1 | (function () {
   2 | 	const value = getValue();
@@ -36,7 +82,7 @@ exports[`prefer-block-statement-over-iife > invalid(2): (function () {\n\tconst 
 
 `;
 
-exports[`prefer-block-statement-over-iife > invalid(2): (function () {\n\tconst value = getValue();\n\trun(value);\n})(); 2`] = `
+exports[`prefer-block-statement-over-iife > invalid(3): (function () {\n\tconst value = getValue();\n\trun(value);\n})(); 2`] = `
 
 Message:
 > 1 | (function () {
@@ -56,7 +102,7 @@ Output:
 
 `;
 
-exports[`prefer-block-statement-over-iife > invalid(3): if (condition) {\n\t(() => {\n\t\tconst value = getValue();\n\t\trun(value);\n\t})();\n} 1`] = `
+exports[`prefer-block-statement-over-iife > invalid(4): if (condition) {\n\t(() => {\n\t\tconst value = getValue();\n\t\trun(value);\n\t})();\n} 1`] = `
 
   1 | if (condition) {
   2 | 	(() => {
@@ -67,7 +113,7 @@ exports[`prefer-block-statement-over-iife > invalid(3): if (condition) {\n\t(() 
 
 `;
 
-exports[`prefer-block-statement-over-iife > invalid(3): if (condition) {\n\t(() => {\n\t\tconst value = getValue();\n\t\trun(value);\n\t})();\n} 2`] = `
+exports[`prefer-block-statement-over-iife > invalid(4): if (condition) {\n\t(() => {\n\t\tconst value = getValue();\n\t\trun(value);\n\t})();\n} 2`] = `
 
 Message:
   1 | if (condition) {
@@ -91,7 +137,7 @@ Output:
 
 `;
 
-exports[`prefer-block-statement-over-iife > invalid(4): (() => {\n\t// Keep this comment.\n\trun();\n})(); 1`] = `
+exports[`prefer-block-statement-over-iife > invalid(5): (() => {\n\t// Keep this comment.\n\trun();\n})(); 1`] = `
 
   1 | (() => {
   2 | 	// Keep this comment.
@@ -100,7 +146,7 @@ exports[`prefer-block-statement-over-iife > invalid(4): (() => {\n\t// Keep this
 
 `;
 
-exports[`prefer-block-statement-over-iife > invalid(4): (() => {\n\t// Keep this comment.\n\trun();\n})(); 2`] = `
+exports[`prefer-block-statement-over-iife > invalid(5): (() => {\n\t// Keep this comment.\n\trun();\n})(); 2`] = `
 
 Message:
 > 1 | (() => {
@@ -120,7 +166,7 @@ Output:
 
 `;
 
-exports[`prefer-block-statement-over-iife > invalid(5): (() => {\n\tthis.run();\n})(); 1`] = `
+exports[`prefer-block-statement-over-iife > invalid(6): (() => {\n\tthis.run();\n})(); 1`] = `
 
   1 | (() => {
   2 | 	this.run();
@@ -128,7 +174,7 @@ exports[`prefer-block-statement-over-iife > invalid(5): (() => {\n\tthis.run();\
 
 `;
 
-exports[`prefer-block-statement-over-iife > invalid(5): (() => {\n\tthis.run();\n})(); 2`] = `
+exports[`prefer-block-statement-over-iife > invalid(6): (() => {\n\tthis.run();\n})(); 2`] = `
 
 Message:
 > 1 | (() => {
@@ -145,7 +191,7 @@ Output:
 
 `;
 
-exports[`prefer-block-statement-over-iife > invalid(6): (() => {\n\tfunction nested() {\n\t\treturn value;\n\t}\n\n\trun(nested);\n})(); 1`] = `
+exports[`prefer-block-statement-over-iife > invalid(7): (() => {\n\tfunction nested() {\n\t\treturn value;\n\t}\n\n\trun(nested);\n})(); 1`] = `
 
   1 | (() => {
   2 | 	function nested() {
@@ -157,7 +203,7 @@ exports[`prefer-block-statement-over-iife > invalid(6): (() => {\n\tfunction nes
 
 `;
 
-exports[`prefer-block-statement-over-iife > invalid(6): (() => {\n\tfunction nested() {\n\t\treturn value;\n\t}\n\n\trun(nested);\n})(); 2`] = `
+exports[`prefer-block-statement-over-iife > invalid(7): (() => {\n\tfunction nested() {\n\t\treturn value;\n\t}\n\n\trun(nested);\n})(); 2`] = `
 
 Message:
 > 1 | (() => {
@@ -186,7 +232,7 @@ Output:
 
 `;
 
-exports[`prefer-block-statement-over-iife > invalid(7): (() => {\n\tfunction nested() {\n\t\tthis.run();\n\t}\n\n\trun(nested);\n})(); 1`] = `
+exports[`prefer-block-statement-over-iife > invalid(8): (() => {\n\tfunction nested() {\n\t\tthis.run();\n\t}\n\n\trun(nested);\n})(); 1`] = `
 
   1 | (() => {
   2 | 	function nested() {
@@ -198,7 +244,7 @@ exports[`prefer-block-statement-over-iife > invalid(7): (() => {\n\tfunction nes
 
 `;
 
-exports[`prefer-block-statement-over-iife > invalid(7): (() => {\n\tfunction nested() {\n\t\tthis.run();\n\t}\n\n\trun(nested);\n})(); 2`] = `
+exports[`prefer-block-statement-over-iife > invalid(8): (() => {\n\tfunction nested() {\n\t\tthis.run();\n\t}\n\n\trun(nested);\n})(); 2`] = `
 
 Message:
 > 1 | (() => {
@@ -227,7 +273,7 @@ Output:
 
 `;
 
-exports[`prefer-block-statement-over-iife > invalid(8): (() => {\n\tconst value = getValue() satisfies number;\n\trun(value);\n})(); 1`] = `
+exports[`prefer-block-statement-over-iife > invalid(9): (() => {\n\tconst value = getValue() satisfies number;\n\trun(value);\n})(); 1`] = `
 
   1 | (() => {
   2 | 	const value = getValue() satisfies number;
@@ -236,7 +282,7 @@ exports[`prefer-block-statement-over-iife > invalid(8): (() => {\n\tconst value 
 
 `;
 
-exports[`prefer-block-statement-over-iife > invalid(8): (() => {\n\tconst value = getValue() satisfies number;\n\trun(value);\n})(); 2`] = `
+exports[`prefer-block-statement-over-iife > invalid(9): (() => {\n\tconst value = getValue() satisfies number;\n\trun(value);\n})(); 2`] = `
 
 Message:
 > 1 | (() => {
@@ -252,35 +298,6 @@ Output:
   1 | {
   2 | 	const value = getValue() satisfies number;
   3 | 	run(value);
-  4 | }
-
-`;
-
-exports[`prefer-block-statement-over-iife > invalid(9): (() => {\n\tfunction foo() {}\n\tfoo();\n})(); 1`] = `
-
-  1 | (() => {
-  2 | 	function foo() {}
-  3 | 	foo();
-  4 | })();
-
-`;
-
-exports[`prefer-block-statement-over-iife > invalid(9): (() => {\n\tfunction foo() {}\n\tfoo();\n})(); 2`] = `
-
-Message:
-> 1 | (() => {
-    | ^^^^^^^^
-> 2 | 	function foo() {}
-    | ^^^^^^^^^^^^^^^^^^
-> 3 | 	foo();
-    | ^^^^^^^
-> 4 | })();
-    | ^^^^ Prefer a block statement over an IIFE used only for scoping.
-
-Output:
-  1 | {
-  2 | 	function foo() {}
-  3 | 	foo();
   4 | }
 
 `;

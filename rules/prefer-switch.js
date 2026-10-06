@@ -1,7 +1,12 @@
 import {getStaticValue, hasSideEffect} from '@eslint-community/eslint-utils';
 import {isUndefined} from './ast/index.js';
 import isSameReference from './utils/is-same-reference.js';
-import {getIndentString, getLinebreak, wouldRemoveComments} from './utils/index.js';
+import {
+	getIndentString,
+	getLinebreak,
+	getLogicalExpressionOperands,
+	wouldRemoveComments,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-switch';
 const messages = {
@@ -14,24 +19,8 @@ const isConstant = node => node.type === 'Literal' || isUndefined(node);
 const getDiscriminantCandidates = ({left, right}) => [left, right].filter(node => !isConstant(node));
 
 function getEqualityComparisons(node) {
-	const nodes = [node];
-	const compareExpressions = [];
-	while (nodes.length > 0) {
-		node = nodes.pop();
-
-		if (node.type === 'LogicalExpression' && node.operator === '||') {
-			nodes.push(node.right, node.left);
-			continue;
-		}
-
-		if (node.type !== 'BinaryExpression' || node.operator !== '===') {
-			return [];
-		}
-
-		compareExpressions.push(node);
-	}
-
-	return compareExpressions;
+	const comparisons = getLogicalExpressionOperands(node, '||');
+	return comparisons.every(comparison => comparison.type === 'BinaryExpression' && comparison.operator === '===') ? comparisons : [];
 }
 
 function getCommonReferences(expressions, candidates) {

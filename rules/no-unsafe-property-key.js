@@ -6,10 +6,10 @@ import {
 	unknown,
 } from './utils/type-helpers.js';
 import {
-	getVariableByName,
 	getStaticValueIfNoSideEffects,
 	isArray,
 	isGlobalIdentifier,
+	withTypeInformation,
 } from './utils/index.js';
 import {
 	disallowNew as disallowNewBuiltins,
@@ -217,30 +217,15 @@ function isPossiblyUnsafePropertyKeyType(type, checker, program) {
 }
 
 function getTypeInformationPropertyKeyType(node, context) {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return unknown;
-	}
-
-	try {
-		const {program} = parserServices;
-		const type = parserServices.getTypeAtLocation(node);
+	return withTypeInformation(node, context, ({type, checker, program}) => {
 		if (isUnknownType(type)) {
 			return unknown;
 		}
 
-		return isPossiblyUnsafePropertyKeyType(
-			type,
-			program.getTypeChecker(),
-			program,
-		)
+		return isPossiblyUnsafePropertyKeyType(type, checker, program)
 			? target
 			: nonTarget;
-		// Defensive: `getTypeAtLocation()` throws for a node that the TypeScript program does not map, which the supported parsers do not produce.
-		/* node:coverage ignore next 3 */
-	} catch {
-		return unknown;
-	}
+	}) ?? unknown;
 }
 
 const {
@@ -305,7 +290,7 @@ function isUnsafePropertyKeyTypeReferenceWithScope(node, scope, sourceCode, visi
 		return true;
 	}
 
-	const typeVariable = getVariableByName(typeReferenceName, scope);
+	const typeVariable = findVariable(scope, typeReferenceName);
 	if (!typeVariable || visitedTypeVariables.has(typeVariable)) {
 		return false;
 	}

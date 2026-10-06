@@ -11,13 +11,13 @@ import {
 	hasCommentInRange,
 	isTypeScriptFile,
 	needsSemicolon,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {
 	containsOptionalChain,
 	isLengthMinusOneOf,
 	isLengthOf,
 	isSame,
-	unwrapExpression,
 } from './utils/comparison.js';
 
 const messageId = 'no-useless-undefined';
@@ -190,7 +190,7 @@ const comparisonOperators = new Set([
 ]);
 
 function getIndexAccess(node) {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
 	if (node.type === 'BinaryExpression' && node.operator === '-') {
 		const offset = getStaticNumberValue(node.right);
@@ -275,7 +275,7 @@ function getUpperBoundTestValidity(test, access) {
 }
 
 function getIndexedAccess(node, sourceCode) {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
 	if (
 		!isMemberExpression(node, {
@@ -296,7 +296,7 @@ function getIndexedAccess(node, sourceCode) {
 }
 
 function getIndexedAccessTestValidity(test, access) {
-	test = unwrapExpression(test);
+	test = unwrapTypeScriptExpression(test);
 
 	if (
 		test.type !== 'BinaryExpression'

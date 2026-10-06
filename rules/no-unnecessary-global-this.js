@@ -1,45 +1,19 @@
 import reservedIdentifiers from 'reserved-identifiers';
 import {findVariable} from '@eslint-community/eslint-utils';
-import {isStringLiteral} from './ast/index.js';
 import {
+	getOutermostTypeScriptExpression,
+	getStaticPropertyName,
 	hasOptionalChainElement,
+	isBooleanContext,
 	isGlobalIdentifier,
-	isLeftHandSide,
-	isControlFlowTest,
-	isBooleanExpression,
 	isIdentifierName,
+	isLeftHandSide,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-unnecessary-global-this';
 const messages = {
 	[MESSAGE_ID]: 'Use `{{name}}` directly instead of `globalThis.{{name}}`.',
-};
-
-const typeScriptExpressionWrapperTypes = new Set([
-	'TSAsExpression',
-	'TSInstantiationExpression',
-	'TSNonNullExpression',
-	'TSSatisfiesExpression',
-	'TSTypeAssertion',
-]);
-
-function unwrapTypeScriptExpression(node) {
-	while (typeScriptExpressionWrapperTypes.has(node.type)) {
-		node = node.expression;
-	}
-
-	return node;
-}
-
-const getOuterTypeScriptExpression = node => {
-	while (
-		typeScriptExpressionWrapperTypes.has(node.parent.type)
-		&& node.parent.expression === node
-	) {
-		node = node.parent;
-	}
-
-	return node;
 };
 
 function isActiveGlobal(name, node, context) {
@@ -56,32 +30,15 @@ function canUseBareIdentifier(name) {
 		&& (!reserved.has(name) || name === 'eval' || name === 'arguments');
 }
 
-function getStaticPropertyName(node) {
-	if (!node.computed) {
-		return node.property.name;
-	}
-
-	if (isStringLiteral(node.property)) {
-		return node.property.value;
-	}
-
-	if (
-		node.property.type === 'TemplateLiteral'
-		&& node.property.expressions.length === 0
-	) {
-		return node.property.quasis[0].value.cooked;
-	}
-}
-
 function isCallExpressionCallee(node) {
-	node = getOuterTypeScriptExpression(node);
+	node = getOutermostTypeScriptExpression(node);
 
 	return node.parent.type === 'CallExpression'
 		&& node.parent.callee === node;
 }
 
 function isTaggedTemplateCallee(node) {
-	node = getOuterTypeScriptExpression(node);
+	node = getOutermostTypeScriptExpression(node);
 
 	return node.parent.type === 'TaggedTemplateExpression'
 		&& node.parent.tag === node;
@@ -107,12 +64,11 @@ function isNullishComparison(node) {
 
 // `globalThis.foo` in an existence check (`if (globalThis.foo)`, `globalThis.foo ?? x`, `!globalThis.foo`, `globalThis.foo === undefined`, …) safely yields `undefined` when the global is absent, whereas bare `foo` throws a `ReferenceError`. This is deliberate feature detection, so the `globalThis` receiver must be kept.
 function isExistenceCheck(node, context) {
-	node = getOuterTypeScriptExpression(node);
+	node = getOutermostTypeScriptExpression(node);
 
 	return node.parent.type === 'LogicalExpression'
 		|| isNullishComparison(node)
-		|| isControlFlowTest(node)
-		|| isBooleanExpression(node, context);
+		|| isBooleanContext(node, context);
 }
 
 function isOptionalChainUsage(node) {
@@ -120,7 +76,7 @@ function isOptionalChainUsage(node) {
 		return true;
 	}
 
-	node = getOuterTypeScriptExpression(node);
+	node = getOutermostTypeScriptExpression(node);
 
 	return (
 		node.parent.type === 'MemberExpression'
@@ -136,7 +92,7 @@ function isOptionalChainUsage(node) {
 const create = context => {
 	context.on('MemberExpression', node => {
 		const object = unwrapTypeScriptExpression(node.object);
-		const writableTarget = getOuterTypeScriptExpression(node);
+		const writableTarget = getOutermostTypeScriptExpression(node);
 
 		if (
 			object.type !== 'Identifier'
@@ -149,9 +105,9 @@ const create = context => {
 			return;
 		}
 
-		const name = getStaticPropertyName(node);
+		const name = getStaticPropertyName(node, context);
 		if (
-			typeof name !== 'string'
+			name === undefined
 			|| !canUseBareIdentifier(name)
 			|| (name === 'eval' && isCallExpressionCallee(node))
 			|| !isActiveGlobal(name, node, context)

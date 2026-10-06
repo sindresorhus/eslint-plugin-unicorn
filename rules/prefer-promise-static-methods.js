@@ -1,20 +1,15 @@
 import {isCallExpression, isNewExpression} from './ast/index.js';
-import {isGlobalIdentifier, wouldRemoveComments} from './utils/index.js';
+import {
+	getFunctionOnlyExpression,
+	getTypeArgumentsText,
+	hasTypeArguments,
+	isGlobalIdentifier,
+	wouldRemoveComments,
+} from './utils/index.js';
 
 const messages = {
 	resolve: 'Prefer `Promise.resolve()` over a trivial `new Promise()`.',
 	reject: 'Prefer `Promise.reject()` over a trivial `new Promise()`.',
-};
-
-const getOnlyExpression = executor => {
-	if (executor.body.type !== 'BlockStatement') {
-		return executor.body;
-	}
-
-	const [statement] = executor.body.body;
-	return executor.body.body.length === 1 && statement.type === 'ExpressionStatement'
-		? statement.expression
-		: undefined;
 };
 
 const isSimpleValue = node => node.type === 'Identifier'
@@ -53,19 +48,18 @@ const getFix = (newExpression, callExpression, method, context) => {
 	const {sourceCode} = context;
 	const [executor] = newExpression.arguments;
 	const [value] = callExpression.arguments;
-	const typeArguments = newExpression.typeArguments ?? newExpression.typeParameters;
 
 	if (
 		executor.params.some(parameter => parameter.typeAnnotation)
 		|| executor.returnType
 		|| executor.typeParameters
-		|| (typeArguments && method === 'resolve')
+		|| (method === 'resolve' && hasTypeArguments(newExpression))
 		|| wouldRemoveComments(context, newExpression, value ? [value] : [])
 	) {
 		return;
 	}
 
-	const typeArgumentsText = typeArguments ? sourceCode.getText(typeArguments) : '';
+	const typeArgumentsText = getTypeArgumentsText(newExpression, context);
 	const valueText = value ? sourceCode.getText(value) : '';
 	return fixer => fixer.replaceText(newExpression, `Promise.${method}${typeArgumentsText}(${valueText})`);
 };
@@ -87,7 +81,7 @@ const create = context => {
 			return;
 		}
 
-		const callExpression = getOnlyExpression(executor);
+		const callExpression = getFunctionOnlyExpression(executor);
 		const method = callExpression && getMethod(callExpression, executor.params);
 		if (!method) {
 			return;

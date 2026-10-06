@@ -1,6 +1,6 @@
 import {
-	isTypeImportSpecifier,
-	unwrapTypeScriptExpression,
+	isTypeOnlyDefinition,
+	unwrapChainAndTypeScriptExpression,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-optional-chaining-on-undeclared-variable';
@@ -8,37 +8,11 @@ const messages = {
 	[MESSAGE_ID]: 'Optional chaining on undeclared variable `{{name}}` throws a ReferenceError.',
 };
 
-const isTypeOnlyImportDefinition = definition =>
-	definition.type === 'ImportBinding'
-	&& isTypeImportSpecifier(definition.node);
-
-const isTypeOnlyDefinition = definition =>
-	definition.type === 'Type'
-	|| isTypeOnlyImportDefinition(definition);
-
-function unwrapExpression(node) {
-	let previousNode;
-
-	while (node !== previousNode) {
-		previousNode = node;
-		node = unwrapTypeScriptExpression(node);
-
-		if (
-			node.type === 'ChainExpression'
-			|| node.type === 'TSInstantiationExpression'
-		) {
-			node = node.expression;
-		}
-	}
-
-	return node;
-}
-
 function getLeftmostMemberBase(node) {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	while (node.type === 'MemberExpression') {
-		node = unwrapExpression(node.object);
+		node = unwrapChainAndTypeScriptExpression(node.object);
 	}
 
 	return node.type === 'Identifier' ? node : undefined;
@@ -66,7 +40,7 @@ function isUnresolvedRuntimeVariable(node, context) {
 }
 
 function getOptionalOperationBase(node) {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	if (node.type === 'MemberExpression') {
 		return getOptionalOperationBase(node.object) ?? (node.optional ? node.object : undefined);

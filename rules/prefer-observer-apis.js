@@ -7,10 +7,13 @@ import {
 	isReferenceIdentifier,
 } from './ast/index.js';
 import {
+	getFunctionFromIdentifier,
+	getStaticPropertyName,
+	getVisitorChildNodes,
 	isGlobalIdentifier,
 	isLeftHandSide,
 	unwrapTypeScriptExpression,
-	getVisitorChildNodes,
+	withTypeInformation,
 } from './utils/index.js';
 import {
 	getBaseTypes,
@@ -119,48 +122,11 @@ const isKnownDefaultLibraryType = (type, checker, program, typeNames) => {
 	return getBaseTypes(type, checker).some(type => isKnownDefaultLibraryType(type, checker, program, typeNames));
 };
 
-const isKnownDefaultLibraryNode = (node, context, typeNames) => {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return false;
-	}
+const isKnownDefaultLibraryNode = (node, context, typeNames) =>
+	withTypeInformation(node, context, ({type, checker, program}) => isKnownDefaultLibraryType(type, checker, program, typeNames)) ?? false;
 
-	try {
-		const {program} = parserServices;
-		const checker = program.getTypeChecker();
-		return isKnownDefaultLibraryType(
-			parserServices.getTypeAtLocation(node),
-			checker,
-			program,
-			typeNames,
-		);
-		// Tests cannot make TypeScript throw here.
-		/* node:coverage ignore next 3 */
-	} catch {
-		return false;
-	}
-};
-
-const isKnownNonDomNode = (node, context) => {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return false;
-	}
-
-	try {
-		const {program} = parserServices;
-		const checker = program.getTypeChecker();
-		return isKnownNonDomType(
-			parserServices.getTypeAtLocation(node),
-			checker,
-			program,
-		);
-		// Tests cannot make TypeScript throw here.
-		/* node:coverage ignore next 3 */
-	} catch {
-		return false;
-	}
-};
+const isKnownNonDomNode = (node, context) =>
+	withTypeInformation(node, context, ({type, checker, program}) => isKnownNonDomType(type, checker, program)) ?? false;
 
 const getEventNameFromType = type => {
 	if (type.isStringLiteral?.()) {
@@ -168,52 +134,16 @@ const getEventNameFromType = type => {
 	}
 };
 
-const getEventNameFromTypeInformation = (node, context) => {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return;
-	}
-
-	try {
-		return getEventNameFromType(parserServices.getTypeAtLocation(node));
-		// Tests cannot make TypeScript throw here.
-		/* node:coverage ignore next */
-	} catch {}
-};
+const getEventNameFromTypeInformation = (node, context) =>
+	withTypeInformation(node, context, ({type}) => getEventNameFromType(type));
 
 const getEventName = (node, context) => {
 	const expression = unwrapTypeScriptExpression(node);
 	return getStaticStringValue(expression) ?? getEventNameFromTypeInformation(expression, context);
 };
 
-const getPropertyName = memberExpression => {
-	if (
-		!memberExpression.computed
-		&& memberExpression.property.type === 'Identifier'
-	) {
-		return memberExpression.property.name;
-	}
-
-	return getStaticStringValue(unwrapTypeScriptExpression(memberExpression.property));
-};
-
-const getPatternPropertyName = property => {
-	if (property.type !== 'Property') {
-		return;
-	}
-
-	if (
-		!property.computed
-		&& property.key.type === 'Identifier'
-	) {
-		return property.key.name;
-	}
-
-	return getStaticStringValue(unwrapTypeScriptExpression(property.key));
-};
-
-const hasObjectPatternProperty = (objectPattern, propertyNames) =>
-	objectPattern.properties.some(property => propertyNames.has(getPatternPropertyName(property)));
+const hasObjectPatternProperty = (objectPattern, propertyNames, context) =>
+	objectPattern.properties.some(property => propertyNames.has(getStaticPropertyName(property, context)));
 
 const isGlobalObject = (node, context) =>
 	node.type === 'Identifier'
@@ -235,7 +165,7 @@ const isGlobalDocument = (node, context) => {
 
 	return (
 		node.type === 'MemberExpression'
-		&& getPropertyName(node) === 'document'
+		&& getStaticPropertyName(node, context) === 'document'
 		&& isGlobalObject(unwrapTypeScriptExpression(node.object), context)
 	);
 };
@@ -249,13 +179,13 @@ const isGlobalVisualViewport = (node, context) => {
 
 	return (
 		node.type === 'MemberExpression'
-		&& getPropertyName(node) === 'visualViewport'
+		&& getStaticPropertyName(node, context) === 'visualViewport'
 		&& isGlobalObject(unwrapTypeScriptExpression(node.object), context)
 	);
 };
 
 const isViewportPropertyRead = (memberExpression, context) => {
-	const propertyName = getPropertyName(memberExpression);
+	const propertyName = getStaticPropertyName(memberExpression, context);
 	const object = unwrapTypeScriptExpression(memberExpression.object);
 
 	return (
@@ -305,7 +235,7 @@ const isConstNonDomObject = (node, context) => {
 };
 
 const isElementLayoutPropertyRead = (memberExpression, context) =>
-	elementLayoutPropertyNames.has(getPropertyName(memberExpression))
+	elementLayoutPropertyNames.has(getStaticPropertyName(memberExpression, context))
 	&& !isNonElementLayoutObject(memberExpression.object, context)
 	&& !isKnownNonDomNode(memberExpression.object, context);
 
@@ -329,21 +259,21 @@ const isLayoutPropertyRead = (node, context) =>
 const isLayoutDestructuringRead = (pattern, source, context) => {
 	const initializer = unwrapTypeScriptExpression(source);
 	return (
-		hasObjectPatternProperty(pattern, viewportPropertyNames)
+		hasObjectPatternProperty(pattern, viewportPropertyNames, context)
 		&& (
 			isGlobalObject(initializer, context)
 			|| isKnownDefaultLibraryNode(source, context, windowTypeNames)
 		)
 	)
 	|| (
-		hasObjectPatternProperty(pattern, visualViewportPropertyNames)
+		hasObjectPatternProperty(pattern, visualViewportPropertyNames, context)
 		&& (
 			isGlobalVisualViewport(initializer, context)
 			|| isKnownDefaultLibraryNode(source, context, visualViewportTypeNames)
 		)
 	)
 	|| (
-		hasObjectPatternProperty(pattern, elementLayoutPropertyNames)
+		hasObjectPatternProperty(pattern, elementLayoutPropertyNames, context)
 		&& !isNonElementLayoutObject(initializer, context)
 		&& !isKnownNonDomNode(source, context)
 	);
@@ -371,7 +301,7 @@ const isLayoutDestructuringNode = (node, context) => {
 const isLayoutMethodCall = (node, context) =>
 	isCallExpression(node)
 	&& node.callee.type === 'MemberExpression'
-	&& layoutMethodNames.has(getPropertyName(node.callee))
+	&& layoutMethodNames.has(getStaticPropertyName(node.callee, context))
 	&& !isNonElementLayoutObject(node.callee.object, context)
 	&& !isKnownNonDomNode(node.callee.object, context);
 
@@ -398,29 +328,7 @@ const getListenerFunction = (node, context) => {
 		return node;
 	}
 
-	if (node.type !== 'Identifier') {
-		return;
-	}
-
-	const variable = findVariable(context.sourceCode.getScope(node), node);
-	if (!variable || variable.defs.length !== 1) {
-		return;
-	}
-
-	const [definition] = variable.defs;
-	if (definition.type === 'FunctionName') {
-		return definition.node;
-	}
-
-	const initializer = definition.node.init && unwrapTypeScriptExpression(definition.node.init);
-	if (
-		definition.type === 'Variable'
-		&& definition.parent.kind === 'const'
-		&& initializer
-		&& isFunction(initializer)
-	) {
-		return initializer;
-	}
+	return getFunctionFromIdentifier(node, context);
 };
 
 const isAddEventListenerCall = (node, context) => {

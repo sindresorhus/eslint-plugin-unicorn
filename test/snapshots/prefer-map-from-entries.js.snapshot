@@ -495,6 +495,40 @@ Output:
 
 `;
 
+exports[`prefer-map-from-entries > invalid(31): const object = Object.fromEntries(Object.entries(source)); object[\"f\" + \"oo\"]; 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source)); object["f" + "oo"];
+
+`;
+
+exports[`prefer-map-from-entries > invalid(31): const object = Object.fromEntries(Object.entries(source)); object[\"f\" + \"oo\"]; 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source)); object["f" + "oo"];
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+Output:
+  1 | const object = new Map(Object.entries(source)); object.get('foo');
+
+`;
+
+exports[`prefer-map-from-entries > invalid(32): const object = Object.fromEntries(Object.entries(source)); object[\"foo\" as const]; 1`] = `
+
+  1 | const object = Object.fromEntries(Object.entries(source)); object["foo" as const];
+
+`;
+
+exports[`prefer-map-from-entries > invalid(32): const object = Object.fromEntries(Object.entries(source)); object[\"foo\" as const]; 2`] = `
+
+Message:
+> 1 | const object = Object.fromEntries(Object.entries(source)); object["foo" as const];
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`new Map()\` over \`Object.fromEntries()\` when using the result as a map.
+
+Output:
+  1 | const object = new Map(Object.entries(source)); object.get('foo');
+
+`;
+
 exports[`prefer-map-from-entries > invalid(4): const object = Object.fromEntries((Object.entries(source))); object.foo; 1`] = `
 
   1 | const object = Object.fromEntries((Object.entries(source))); object.foo;

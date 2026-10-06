@@ -62,14 +62,6 @@ export const flipOperator = {
 };
 
 /**
-Unwrap TypeScript type-only expression wrappers (`as`, `satisfies`, `<Type>`, and `!`), which have no runtime effect.
-
-@param {import('estree').Node} node The node to unwrap.
-@returns {import('estree').Node} The unwrapped node.
-*/
-export const unwrapExpression = unwrapTypeScriptExpression;
-
-/**
 Get the punctuator token for a binary expression operator.
 */
 export const getPunctuatorBinaryExpressionOperatorToken = (node, context) => context.sourceCode.getTokenAfter(
@@ -95,7 +87,7 @@ export const getBinaryExpressionWithReplacedOperatorText = (node, context, repla
 };
 
 const normalizeReference = node => {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
 	if (node.type === 'MemberExpression') {
 		return {
@@ -123,7 +115,7 @@ Check if a node is a reference (identifier, member access, `this`, or `super`), 
 
 @returns {boolean} `true` if the node is a reference.
 */
-export const isReference = node => referenceNodeTypes.has(unwrapExpression(node).type);
+export const isReference = node => referenceNodeTypes.has(unwrapTypeScriptExpression(node).type);
 
 /**
 Check if a node is the `.length` of the given object, for example `array.length` where `object` is `array`.
@@ -135,7 +127,7 @@ Optional and computed accesses are excluded, since `array?.length` and `array[le
 @returns {boolean} `true` if `node` is `object.length`.
 */
 export const isLengthOf = (node, object) => {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
 	return isMemberExpression(node, {
 		property: 'length',
@@ -153,7 +145,7 @@ Check if a node is the `.length` of the given object minus one, for example `arr
 @returns {boolean} `true` if `node` is `object.length - 1`.
 */
 export const isLengthMinusOneOf = (node, object) => {
-	node = unwrapExpression(node);
+	node = unwrapTypeScriptExpression(node);
 
 	return node.type === 'BinaryExpression'
 		&& node.operator === '-'

@@ -164,6 +164,13 @@ ruleTester.snapshot({
 		// Only parameters, function names, and `var` variables are safe to drop
 		'function foo(a) { if ((arguments && a) || a) {} }',
 		'import b from "b"; function foo(a) { if ((b && a) || a) {} }',
+		// TypeScript wrappers around a control flow test are not looked through
+		{
+			code: 'if (((a && b) || (a && c)) as boolean) {}',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
 	],
 	invalid: [
 		'if (!(!a && !b)) {}',
@@ -226,6 +233,20 @@ ruleTester.snapshot({
 		'foo[!(a !== b && c !== d)];',
 		{
 			code: 'const value = !(a !== b && c !== d) as boolean;',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		// Absorption keeps the value, so it does not need a boolean context
+		{
+			code: 'if ((a || (a && b))!) {}',
+			languageOptions: {
+				parser: parsers.typescript,
+			},
+		},
+		// The opening parenthesis of a non-null assertion does not need a semicolon before the replacement
+		{
+			code: 'if (((a) || (a && b))!) {}',
 			languageOptions: {
 				parser: parsers.typescript,
 			},

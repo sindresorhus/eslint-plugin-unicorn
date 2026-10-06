@@ -119,6 +119,8 @@ ruleTest.snapshot({
 		'let foo = (a, b) => {};\nfoo(1);',
 		'var foo = function (a, b) {};\nfoo(1);',
 		'function foo(a, b) {}\nfoo = value => value;\nfoo(1);',
+		'let foo = (a, b) => {};\nfoo = (...values) => values;\nfoo(1, 2, 3);',
+		'const {length} = function (a) {};\nlength(1, 2);',
 		outdent`
 			const foo = condition
 				? (a, b) => {}
@@ -850,6 +852,8 @@ ruleTest.snapshot({
 		'const foo = function (a, b) {};\nfoo(1, 2, 3);',
 		'const foo = (a, b) => {};\nfoo(1, 2, 3);',
 		'const foo = (a, b) => {};\nfoo?.(1, 2, 3);',
+		'let foo = (a, b) => {};\nfoo(1, 2, 3);',
+		'var foo = function (a, b) {};\nfoo(1, 2, 3);',
 		'(function (a, b) {})(1, 2, 3);',
 		'((a, b) => {})(1, 2, 3);',
 		'(function (a, b) {})?.(1, 2, 3);',

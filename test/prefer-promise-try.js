@@ -124,5 +124,6 @@ test.snapshot({
 			code: 'Promise.resolve().then(<Callback>fn);',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'new Promise(resolve => resolve({foo}.foo()));',
 	],
 });

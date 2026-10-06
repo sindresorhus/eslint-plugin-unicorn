@@ -7,7 +7,7 @@ import {
 } from '../ast/index.js';
 import isGlobalIdentifier from './is-global-identifier.js';
 import {getStaticValueForControlFlow, isSafeStaticPassThroughCall} from './get-static-value.js';
-import {isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
+import unwrapTypeScriptExpression, {isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
 import getVisitorChildNodes from './get-visitor-child-nodes.js';
 
 /**
@@ -15,17 +15,8 @@ import getVisitorChildNodes from './get-visitor-child-nodes.js';
 @import * as ESTree from 'estree';
 */
 
-const isTransparentTypeScriptExpressionWrapper = node => isTypeScriptExpressionWrapper(node) || node?.type === 'TSInstantiationExpression';
-const unwrapTransparentTypeScriptExpression = node => {
-	while (isTransparentTypeScriptExpressionWrapper(node)) {
-		node = node.expression;
-	}
-
-	return node;
-};
-
 export const isProcessExitCall = (node, context) => {
-	const callee = unwrapTransparentTypeScriptExpression(node?.callee);
+	const callee = unwrapTypeScriptExpression(node?.callee);
 	return node?.type === 'CallExpression'
 		&& callee?.type === 'MemberExpression'
 		&& !node.optional
@@ -206,7 +197,7 @@ export const isDefinitelyNotThrowingExpression = (node, context) =>
 		: isDefinitelyNotThrowing(node, context);
 
 export const isDefinitelyNotThrowingReference = (node, context) => {
-	node = unwrapTransparentTypeScriptExpression(node);
+	node = unwrapTypeScriptExpression(node);
 	if (node?.type === 'Identifier') {
 		return isDefinitelyDefinedReference(node, context);
 	}
@@ -495,7 +486,7 @@ function isProcessExitExpression(node, context) {
 		return true;
 	}
 
-	if (isTransparentTypeScriptExpressionWrapper(node)) {
+	if (isTypeScriptExpressionWrapper(node)) {
 		return isProcessExitExpression(node.expression, context);
 	}
 
@@ -750,7 +741,7 @@ export function isProcessExitExpressionAtStart(node, context) {
 		return true;
 	}
 
-	if (isTransparentTypeScriptExpressionWrapper(node)) {
+	if (isTypeScriptExpressionWrapper(node)) {
 		return isProcessExitExpressionAtStart(node.expression, context);
 	}
 

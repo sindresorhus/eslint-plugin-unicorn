@@ -1,6 +1,6 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
-import {getStaticValueForControlFlow} from './utils/index.js';
+import {getCallArgumentText, getStaticValueForControlFlow} from './utils/index.js';
 
 const MESSAGE_ID_PARSE_FLOAT = 'parse-float';
 const MESSAGE_ID_PARSE_INT = 'parse-int';
@@ -37,15 +37,6 @@ function getStaticNumberValue(node, context) {
 }
 
 const isDecimalRadix = (node, context) => getStaticNumberValue(node, context) === 10;
-
-function getMathTruncText(node, sourceCode) {
-	let text = sourceCode.getText(node);
-	if (node.type === 'SequenceExpression') {
-		text = `(${text})`;
-	}
-
-	return `Math.trunc(Number(${text}))`;
-}
 
 function getParseFloatProblem(callExpression, method, context) {
 	if (callExpression.arguments.length === 0) {
@@ -103,7 +94,7 @@ function getParseIntProblem(callExpression, method, context) {
 		{
 			messageId: MESSAGE_ID_SUGGESTION_TRUNC,
 			data: {method},
-			fix: fixer => fixer.replaceText(callExpression, getMathTruncText(firstArgument, context.sourceCode)),
+			fix: fixer => fixer.replaceText(callExpression, `Math.trunc(Number(${getCallArgumentText(firstArgument, context)}))`),
 		},
 	];
 

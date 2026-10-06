@@ -352,3 +352,26 @@ Suggestion 3/3: Replace function with \`… => …(element, index, array)\`.:
   12 | }
 
 `;
+
+exports[`no-array-callback-reference > invalid(4): const first = second; const second = first; collection.map(first) 1`] = `
+
+  1 | const first = second; const second = first; collection.map(first)
+
+`;
+
+exports[`no-array-callback-reference > invalid(4): const first = second; const second = first; collection.map(first) 2`] = `
+
+Message:
+> 1 | const first = second; const second = first; collection.map(first)
+    |                                                            ^^^^^ Do not pass function \`first\` directly to \`.map(…)\`.
+
+Suggestion 1/3: Replace function \`first\` with \`… => first(element)\`.:
+  1 | const first = second; const second = first; collection.map((element) => first(element))
+
+Suggestion 2/3: Replace function \`first\` with \`… => first(element, index)\`.:
+  1 | const first = second; const second = first; collection.map((element, index) => first(element, index))
+
+Suggestion 3/3: Replace function \`first\` with \`… => first(element, index, array)\`.:
+  1 | const first = second; const second = first; collection.map((element, index, array) => first(element, index, array))
+
+`;

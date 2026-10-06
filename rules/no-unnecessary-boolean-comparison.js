@@ -1,10 +1,8 @@
 import {isBooleanLiteral, isFunction} from './ast/index.js';
 import {replaceNodeWithExpression} from './fix/index.js';
 import {
-	getParenthesizedText,
+	getNegatedExpressionText,
 	isBoolean,
-	isParenthesized,
-	shouldAddParenthesesToUnaryExpressionArgument,
 	getVisitorChildNodes,
 } from './utils/index.js';
 
@@ -50,19 +48,6 @@ function containsYieldExpression(node, visitorKeys) {
 const isSafeKnownBooleanExpression = (node, context) =>
 	!containsYieldExpression(node, context.sourceCode.visitorKeys)
 	&& isBoolean(node, context);
-
-function getNegatedExpressionText(node, context) {
-	let text = getParenthesizedText(node, context);
-
-	if (
-		shouldAddParenthesesToUnaryExpressionArgument(node, '!')
-		&& !isParenthesized(node, context)
-	) {
-		text = `(${text})`;
-	}
-
-	return `!${text}`;
-}
 
 /**
 @param {import('eslint').Rule.RuleContext} context

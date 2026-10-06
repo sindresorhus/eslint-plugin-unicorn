@@ -66,3 +66,22 @@ test.snapshot({
 		'new URLSearchParams(Object.entries((record)));',
 	],
 });
+
+// A loop body without braces
+test.snapshot({
+	valid: [],
+	invalid: [
+		'const set = new Set();\nfor (const item of items)\n\tset.add(item);',
+		'const set = new Set();\nfor (const item of items) set.add(item);\nfoo();',
+	],
+});
+
+// Removing the loop exposes the declaration to the following statement
+test.snapshot({
+	valid: [],
+	invalid: [
+		'const set = new Set()\nfor (const item of items) {\n\tset.add(item);\n}\n(bar)',
+		'const set = new Set()\nfor (const item of items) {\n\tset.add(item);\n}\n[bar]',
+		'const set = new Set()\nfor (const item of items) {\n\tset.add(item);\n}\nbar()',
+	],
+});

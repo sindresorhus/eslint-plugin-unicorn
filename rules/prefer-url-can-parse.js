@@ -5,12 +5,13 @@ import {
 	isBooleanLiteral,
 } from './ast/index.js';
 import {
+	containsNode,
 	getCommentSafeProblem,
 	hasNonDirectiveComment,
 	isGlobalIdentifier,
 	isSameIdentifier,
-	unwrapTypeScriptExpression,
-	getVisitorChildNodes,
+	isTypeOnlyDefinition,
+	unwrapChainAndTypeScriptExpression,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-url-can-parse';
@@ -23,20 +24,12 @@ const urlImportSources = new Set([
 	'url',
 ]);
 
-const isTypeOnlyImport = definition =>
-	definition.type === 'ImportBinding'
-	&& (
-		definition.parent.importKind === 'type'
-		|| definition.node.importKind === 'type'
-	);
-
 const isAmbientDeclaration = definition =>
 	definition.type === 'Variable'
 	&& definition.parent?.declare === true;
 
 const isErasedDefinition = definition =>
-	definition.type === 'Type'
-	|| isTypeOnlyImport(definition)
+	isTypeOnlyDefinition(definition)
 	|| isAmbientDeclaration(definition);
 
 const isGlobalOrErasedIdentifier = (node, context, name) => {
@@ -83,13 +76,8 @@ const isUrlConstructor = (node, context) => {
 	return variable?.defs.some(definition => isUrlImport(definition)) ?? false;
 };
 
-const unwrapExpression = node => {
-	node = unwrapTypeScriptExpression(node);
-	return node.type === 'ChainExpression' ? node.expression : node;
-};
-
 const isGlobalSymbolCall = (node, context) => {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	return isCallExpression(node, {
 		name: 'Symbol',
@@ -98,13 +86,13 @@ const isGlobalSymbolCall = (node, context) => {
 };
 
 const isGlobalSymbolMemberExpression = (node, context) => {
-	node = unwrapExpression(node);
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	if (node.type !== 'MemberExpression') {
 		return false;
 	}
 
-	const object = unwrapExpression(node.object);
+	const object = unwrapChainAndTypeScriptExpression(node.object);
 	return isGlobalOrErasedIdentifier(object, context, 'Symbol');
 };
 
@@ -119,17 +107,9 @@ const isUnsafeUrlArgumentNode = (node, context) =>
 	|| node.type === 'TaggedTemplateExpression'
 	|| (node.type === 'TemplateLiteral' && node.expressions.length > 0);
 
-const containsNodeMatching = (node, visitorKeys, predicate) => {
-	if (predicate(node)) {
-		return true;
-	}
-
-	return getVisitorChildNodes(node, visitorKeys).some(child => containsNodeMatching(child, visitorKeys, predicate));
-};
-
 const hasUnsafeUrlArgument = (newUrlExpression, context) =>
 	newUrlExpression.arguments.some(argument =>
-		containsNodeMatching(argument, context.sourceCode.visitorKeys, node => isUnsafeUrlArgumentNode(node, context))
+		containsNode(argument, context, node => isUnsafeUrlArgumentNode(node, context))
 		|| hasSideEffect(argument, context.sourceCode, {considerImplicitTypeConversion: true}),
 	);
 

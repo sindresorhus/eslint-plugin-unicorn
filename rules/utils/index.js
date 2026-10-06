@@ -20,6 +20,7 @@ export {
 	getBooleanAncestor,
 	isGlobalBooleanCall,
 	controlFlowStatementTypes,
+	isBooleanContext,
 } from './boolean.js';
 
 export {default as assertToken} from './assert-token.js';
@@ -28,8 +29,10 @@ export {default as cartesianProductSamples} from './cartesian-product-samples.js
 export {default as containsSuspensionPoint} from './contains-suspension-point.js';
 export {default as escapeTemplateElementRaw} from './escape-template-element-raw.js';
 export {default as escapeString} from './escape-string.js';
+export {default as isEscapedCharacter} from './is-escaped-character.js';
 export {default as getClassHeadLocation} from './get-class-head-location.js';
 export {default as getAvailableVariableName} from './get-available-variable-name.js';
+export {default as getCallArgumentText} from './get-call-argument-text.js';
 export {default as getCallExpressionArgumentsText} from './get-call-expression-arguments-text.js';
 export {getCallExpressionTokens, getNewExpressionTokens} from './get-call-or-new-expression-tokens.js';
 export {default as getDuplicateArrayElements, isComparableStaticValue} from './get-duplicate-array-elements.js';
@@ -38,10 +41,16 @@ export {default as getIndentUnit} from './get-indent-unit.js';
 export {default as getLinebreak} from './get-linebreak.js';
 export {default as getLineIndent} from './get-line-indent.js';
 export {default as getUnwrappedBranchText} from './get-unwrapped-branch-text.js';
+export {default as getConciseArrowBodyText} from './get-concise-arrow-body-text.js';
+export {default as getEnclosingFunction} from './get-enclosing-function.js';
+export {default as getParentPattern} from './get-parent-pattern.js';
+export {getFunctionOnlyExpression, getFunctionReturnExpression} from './function-body.js';
+export {getOnlyExpression, getSingleStatement} from './single-statement.js';
+export {getTypeArgumentsText, hasTypeArguments} from './type-arguments.js';
 export {default as reindentText} from './reindent-text.js';
 export {default as isCallExpressionValueDiscardedWithVoid} from './is-call-expression-value-discarded-with-void.js';
 export {default as isIdentifierName} from './is-identifier-name.js';
-export {default as getComments} from './get-comments.js';
+export {default as getComments, getMarkdownHtmlComments} from './get-comments.js';
 export {
 	getLastTrailingCommentOnSameLine,
 	getCommentSafeProblem,
@@ -55,6 +64,7 @@ export {
 	isBlockScopedDeclaration,
 } from './block-scope.js';
 export {default as getConstVariableInitializer} from './get-const-variable-initializer.js';
+export {default as getFunctionFromIdentifier} from './get-function-from-identifier.js';
 export {
 	default as getStaticValueIfNoSideEffects,
 	getStaticValueForControlFlow,
@@ -64,7 +74,7 @@ export {
 	hasPotentiallyMutableMemberAccess,
 	hasSideEffectfulConstInitializer,
 } from './get-static-value.js';
-export {getMemberAccessOperatorRange} from './member-expression.js';
+export {getMemberAccessOperatorRange, getStaticPropertyName} from './member-expression.js';
 export {
 	hasSameObjectShapePropertyCheck,
 	isKnownNonCollectionLengthOrSize,
@@ -102,7 +112,12 @@ export {isWeakSet, isKnownNonWeakSet} from './is-weak-set.js';
 export {isKnownNonDomNode, isKnownNonKeyboardEvent} from './is-dom-node.js';
 export {default as isHtmlRcdataNode} from './is-html-rcdata-node.js';
 export {default as isLeftHandSide} from './is-left-hand-side.js';
-export {default as isLogicalExpression} from './is-logical-expression.js';
+export {
+	default as isLogicalExpression,
+	getLogicalExpressionOperands,
+	getLogicalExpressionRoot,
+	isOutermostLogicalExpression,
+} from './is-logical-expression.js';
 export {default as isMethodNamed} from './is-method-named.js';
 export {default as isNewExpressionWithParentheses} from './is-new-expression-with-parentheses.js';
 export {default as isNumber, isKnownNonNumber} from './is-number.js';
@@ -125,9 +140,12 @@ export {default as isOnSameLine} from './is-on-same-line.js';
 export {default as isPromiseType} from './is-promise-type.js';
 export {default as isReactHookName} from './is-react-hook-name.js';
 export {default as isSameIdentifier} from './is-same-identifier.js';
+export {default as isSameBinding} from './is-same-binding.js';
+export {default as isSameStatement} from './is-same-statement.js';
+export {default as isFirstTokenOfExpressionStatement} from './is-first-token-of-expression-statement.js';
 export {default as isSameReference} from './is-same-reference.js';
 export {default as isUnresolvedVariable} from './is-unresolved-variable.js';
-export {default as isGlobalIdentifier} from './is-global-identifier.js';
+export {default as isGlobalIdentifier, isGlobalNameAvailable} from './is-global-identifier.js';
 export {
 	default as isBranchExit,
 	hasOptionalChainInCurrentChain,
@@ -142,12 +160,19 @@ export {
 } from './is-branch-exit.js';
 export {default as isShorthandImportLocal} from './is-shorthand-import-local.js';
 export {default as isStrongPrecedenceNode} from './is-strong-precedence-node.js';
+export {default as isStringLiteralRequired} from './is-string-literal-required.js';
 export {default as isShorthandPropertyValue} from './is-shorthand-property-value.js';
 export {default as isValueNotUsable} from './is-value-not-usable.js';
 export {default as needsSemicolon} from './needs-semicolon.js';
 export {default as normalizeComment} from './normalize-comment.js';
 export {default as maskJSDocumentSyntax} from './jsdoc.js';
-export {default as unwrapTypeScriptExpression, isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
+export {
+	default as unwrapTypeScriptExpression,
+	isTypeScriptExpressionWrapper,
+	unwrapChainAndTypeScriptExpression,
+	getOutermostTypeScriptExpression,
+	getOutermostChainAndTypeScriptExpression,
+} from './unwrap-typescript-expression.js';
 export {
 	getEslintDisableDirectives,
 	isEslintDisableOrEnableDirective,
@@ -155,9 +180,9 @@ export {
 export {
 	isRuntimeImportSpecifier,
 	isTypeImportSpecifier,
+	isTypeOnlyDefinition,
 } from './imports.js';
 export {
-	getVariableByName,
 	isDefinitionBeforeReference,
 } from './scope.js';
 export {
@@ -170,6 +195,7 @@ export {
 	isTypeParameterType,
 	isUniqueSymbolType,
 	isUnknownType,
+	withTypeInformation,
 } from './types.js';
 export {
 	getBuiltinCollectionType,
@@ -179,12 +205,13 @@ export {checkVueTemplate} from './rule.js';
 export {default as getPrecedence, PRECEDENCE_ADDITION} from './get-precedence.js';
 export {default as shouldAddParenthesesToAwaitExpressionArgument} from './should-add-parentheses-to-await-expression-argument.js';
 export {default as shouldAddParenthesesToCallExpressionCallee} from './should-add-parentheses-to-call-expression-callee.js';
-export {default as shouldAddParenthesesToConditionalExpressionChild} from './should-add-parentheses-to-conditional-expression-child.js';
+export {default as shouldAddParenthesesToConditionalExpressionChild, getConditionalExpressionChildText} from './should-add-parentheses-to-conditional-expression-child.js';
 export {default as shouldAddParenthesesToMemberExpressionObject, getMemberExpressionObjectText} from './should-add-parentheses-to-member-expression-object.js';
 export {default as shouldAddParenthesesToUnaryExpressionArgument} from './should-add-parentheses-to-unary-expression.js';
+export {default as getNegatedExpressionText} from './get-negated-expression-text.js';
 export {default as shouldAddParenthesesToNewExpressionCallee} from './should-add-parentheses-to-new-expression-callee.js';
 export {default as shouldAddParenthesesToExpressionStatementExpression} from './should-add-parentheses-to-expression-statement-expression.js';
-export {default as shouldAddParenthesesToLogicalExpressionChild} from './should-add-parentheses-to-logical-expression-child.js';
+export {default as shouldAddParenthesesToLogicalExpressionChild, getLogicalExpressionChildText} from './should-add-parentheses-to-logical-expression-child.js';
 export {default as shouldReportReplaceChildrenReceiver, mayBeHtmlTemplateElement} from './should-report-replace-children-receiver.js';
 export {default as singular} from './singular.js';
 export {default as toLocation} from './to-location.js';
@@ -193,6 +220,7 @@ export {default as getAncestor} from './get-ancestor.js';
 export {getPreviousNode, getNextNode, getNextStatement} from './get-sibling-node.js';
 export {default as getChildNodes} from './get-child-nodes.js';
 export {default as getVisitorChildNodes} from './get-visitor-child-nodes.js';
+export {default as containsNode} from './contains-node.js';
 export * from './string-cases.js';
 export * from './numeric.js';
 export {default as getBuiltinRule} from './get-builtin-rule.js';

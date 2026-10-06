@@ -48,6 +48,7 @@ test.snapshot({
 		'function render(document) { document.write(html); }',
 		'const document = {write() {}}; document.write(html);',
 		'const {foo = element.innerHTML} = object;',
+		'class Foo { #innerHTML; bar() { this.#innerHTML = html; } }',
 	],
 	invalid: [
 		'element.innerHTML = html;',
@@ -108,5 +109,6 @@ test.snapshot({
 			);
 		`,
 		'(element?.insertAdjacentHTML)("beforeend", html);',
+		'element["inner" + "HTML"] = html;',
 	],
 });

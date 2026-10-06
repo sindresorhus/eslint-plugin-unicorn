@@ -68,22 +68,22 @@ ruleTest({
 		errors: [{messageId: 'useImplicitReturn'}],
 	}, {
 		code: 'const value = (): Foo => {\n\t\treturn (foo, bar) as Foo;\n\t};',
-		output: 'const value = (): Foo => ((foo, bar) as Foo);',
+		output: 'const value = (): Foo => (foo, bar) as Foo;',
 		languageOptions: {parser: parsers.typescript},
 		errors: [{messageId: 'useImplicitReturn'}],
 	}, {
 		code: 'const value = (): Foo => {\n\t\treturn (foo, bar) satisfies Foo;\n\t};',
-		output: 'const value = (): Foo => ((foo, bar) satisfies Foo);',
+		output: 'const value = (): Foo => (foo, bar) satisfies Foo;',
 		languageOptions: {parser: parsers.typescript},
 		errors: [{messageId: 'useImplicitReturn'}],
 	}, {
 		code: 'const value = (): Foo => {\n\t\treturn (foo, bar)!;\n\t};',
-		output: 'const value = (): Foo => ((foo, bar)!);',
+		output: 'const value = (): Foo => (foo, bar)!;',
 		languageOptions: {parser: parsers.typescript},
 		errors: [{messageId: 'useImplicitReturn'}],
 	}, {
 		code: 'const value = (): Foo => {\n\t\treturn ((foo, bar) as Foo)!;\n\t};',
-		output: 'const value = (): Foo => (((foo, bar) as Foo)!);',
+		output: 'const value = (): Foo => ((foo, bar) as Foo)!;',
 		languageOptions: {parser: parsers.typescript},
 		errors: [{messageId: 'useImplicitReturn'}],
 	}, {

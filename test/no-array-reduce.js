@@ -292,6 +292,17 @@ test({
 			languageOptions: {parser: parsers.typescript},
 			errors: errorsReduce,
 		},
+		// Direct `eval` behind TypeScript wrappers can read the callback parameters
+		{
+			code: 'const array = []; const result = array.reduce((total, item) => (eval as any)("total + item"), initialValue);',
+			languageOptions: {parser: parsers.typescript},
+			errors: errorsReduce,
+		},
+		{
+			code: 'const array = []; const result = array.reduce((total, item) => eval!("total + item"), initialValue);',
+			languageOptions: {parser: parsers.typescript},
+			errors: errorsReduce,
+		},
 		{
 			// A `declare const` has no initializer
 			code: 'declare const reducer: (total: Result, item: Item) => Result; const result = array.reduce(reducer, initialValue);',
@@ -426,6 +437,22 @@ test({
 					}
 
 					result = array ? transform(result, item, index) : result;
+				}
+			`,
+			errors: errorsReduce,
+		},
+		// A destructured binding is not an alias of the array
+		{
+			code: 'const array = []; const [initialValue] = array; const result = array.reduce((total, item) => append(total, item), initialValue);',
+			output: outdent`
+				const array = []; const [initialValue] = array; let result = initialValue;
+
+				for (const [index, item] of array.entries()) {
+					if (!(index in array)) {
+						continue;
+					}
+
+					result = append(result, item);
 				}
 			`,
 			errors: errorsReduce,

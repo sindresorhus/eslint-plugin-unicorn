@@ -47,6 +47,8 @@ test({
 		invalidCase('function unicorn() { if (items.length) { return false; } return true; }', 'function unicorn() { return !items.length; }'),
 		invalidCase('function unicorn() { if (object?.property) { return true; } return false; }', 'function unicorn() { return Boolean(object?.property); }'),
 		invalidCase('function unicorn() { if (a, b) { return true; } return false; }', 'function unicorn() { return Boolean((a, b)); }'),
+		invalidCase('function unicorn() { if ((a, b)) { return true; } return false; }', 'function unicorn() { return Boolean((a, b)); }'),
+		invalidCase('function unicorn() { if ((test)) { return true; } return false; }', 'function unicorn() { return Boolean(test); }'),
 		invalidCase('function unicorn() { if (value as boolean) { return true; } return false; }', 'function unicorn() { return Boolean(value as boolean); }', typescript),
 		invalidCase('function unicorn(value: boolean) { if (value) { return true; } return false; }', 'function unicorn(value: boolean) { return Boolean(value); }', typescript),
 		invalidCase('function unicorn() { if (value satisfies boolean) { return true; } return false; }', 'function unicorn() { return Boolean(value satisfies boolean); }', typescript),
@@ -100,6 +102,9 @@ test({
 		invalidCase('function unicorn() { if (delete object.key) { return true; } return false; }', 'function unicorn() { return delete object.key; }'),
 		invalidCase('function unicorn() { if (typeof value) { return true; } return false; }', 'function unicorn() { return Boolean(typeof value); }'),
 		invalidCase('function unicorn() { if (a === b || false) { return true; } return false; }', 'function unicorn() { return a === b || false; }'),
+		invalidCase('function unicorn() { if ((value > 0)) { return false; } return true; }', 'function unicorn() { return !(value > 0); }'),
+		// A type cannot shadow the global `Boolean`
+		invalidCase('type Boolean = string; function unicorn() { if (test) { return true; } return false; }', 'type Boolean = string; function unicorn() { return Boolean(test); }', typescript),
 	],
 });
 

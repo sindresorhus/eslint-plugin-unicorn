@@ -1,6 +1,7 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
-import resolveVariableName from './resolve-variable-name.js';
 import getStaticValueIfNoSideEffects from './get-static-value.js';
+import {getFunctionReturnExpression} from './function-body.js';
+import {withTypeInformation} from './types.js';
 
 const booleanBinaryOperators = new Set([
 	'>',
@@ -63,19 +64,7 @@ function isBooleanTypeScriptType(type, checker) {
 }
 
 function isBooleanTypeInformation(node, context) {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return false;
-	}
-
-	try {
-		return isBooleanTypeScriptType(
-			parserServices.getTypeAtLocation(node),
-			parserServices.program.getTypeChecker(),
-		);
-	} catch {
-		return false;
-	}
+	return withTypeInformation(node, context, ({type, checker}) => isBooleanTypeScriptType(type, checker)) ?? false;
 }
 
 function getTypeReferenceName(typeName) {
@@ -106,7 +95,7 @@ function isTypeReference({
 		return false;
 	}
 
-	const variable = resolveVariableName(name, scope);
+	const variable = findVariable(scope, name);
 	if (!variable || visitedTypeReferences.has(variable)) {
 		return false;
 	}
@@ -279,17 +268,7 @@ function isBooleanFunction(node, context, visitedVariables = new Set()) {
 		return false;
 	}
 
-	if (
-		node.body.type === 'BlockStatement'
-		&& node.body.body.length === 1
-		&& node.body.body[0].type === 'ReturnStatement'
-	) {
-		return isBooleanExpression(node.body.body[0].argument, context, visitedVariables);
-	}
-
-	return node.type === 'ArrowFunctionExpression'
-		&& node.body.type !== 'BlockStatement'
-		&& isBooleanExpression(node.body, context, visitedVariables);
+	return isBooleanExpression(getFunctionReturnExpression(node), context, visitedVariables);
 }
 
 const isSimpleConstVariableDefinition = definition => definition.type === 'Variable'

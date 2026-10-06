@@ -1,6 +1,6 @@
 import assertToken from './utils/assert-token.js';
-import {getCallExpressionTokens} from './utils/index.js';
-import {isStaticRequire, isFunction} from './ast/index.js';
+import {getCallExpressionTokens, getEnclosingFunction} from './utils/index.js';
+import {isStaticRequire} from './ast/index.js';
 import {removeParentheses, replaceReferenceIdentifier, removeSpacesAfter} from './fix/index.js';
 
 const ERROR_USE_STRICT_DIRECTIVE = 'error/use-strict-directive';
@@ -201,15 +201,6 @@ const isModuleExports = node =>
 	&& node.parent.object === node
 	&& node.parent.property.type === 'Identifier'
 	&& node.parent.property.name === 'exports';
-const isTopLevelReturnStatement = node => {
-	for (let ancestor = node.parent; ancestor; ancestor = ancestor.parent) {
-		if (isFunction(ancestor)) {
-			return false;
-		}
-	}
-
-	return true;
-};
 
 function fixDefaultExport(node, context) {
 	return function * (fixer) {
@@ -291,7 +282,7 @@ function create(context) {
 	});
 
 	context.on('ReturnStatement', node => {
-		if (isTopLevelReturnStatement(node)) {
+		if (!getEnclosingFunction(node)) {
 			return {
 				node: sourceCode.getFirstToken(node),
 				messageId: ERROR_GLOBAL_RETURN,

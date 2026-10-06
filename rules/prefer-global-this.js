@@ -1,4 +1,4 @@
-import {getStaticStringValue} from './ast/index.js';
+import {getStaticStringValue, isInTypeQuery} from './ast/index.js';
 import {replaceReferenceIdentifier} from './fix/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-global-this/error';
@@ -155,12 +155,7 @@ function isTypeofOperand(identifier) {
 	}
 
 	// In a TypeScript type query the identifier is the leftmost part of an optional `a.b.c` chain (`TSQualifiedName`), e.g. `window` in `typeof window.foo`.
-	let node = identifier;
-	while (node.parent.type === 'TSQualifiedName') {
-		node = node.parent;
-	}
-
-	return node.parent.type === 'TSTypeQuery';
+	return isInTypeQuery(identifier);
 }
 
 /**

@@ -4,6 +4,7 @@ import {
 	getParenthesizedRange,
 	getPrecedence,
 	getStaticValueIfNoSideEffects,
+	hasCommentInRange,
 	isKnownNonString,
 	isParenthesized,
 	isSameReference,
@@ -71,17 +72,9 @@ const isSafeNegativeIndexReceiver = node => (
 	|| isStringLiteral(node)
 );
 
-const hasCommentsInsideRange = (sourceCode, range) => sourceCode.getAllComments().some(comment => {
-	const commentRange = sourceCode.getRange(comment);
-	return commentRange[0] >= range[0] && commentRange[1] <= range[1];
-});
-
-const hasCommentInsideParentheses = (node, context) =>
-	hasCommentsInsideRange(context.sourceCode, getParenthesizedRange(node, context));
-
 // `replaceArgument()` also replaces the parentheses around the argument, so a comment inside them would be dropped.
 const getArgumentReplacement = (fixer, node, text, context, abort) => {
-	if (hasCommentInsideParentheses(node, context)) {
+	if (hasCommentInRange(context, getParenthesizedRange(node, context))) {
 		abort();
 	}
 
@@ -96,8 +89,6 @@ const getArgumentRangeWithLeadingComments = (node, context) => {
 };
 
 const getNegativeIndex = (node, receiver, context) => {
-	const {sourceCode} = context;
-
 	if (
 		node.type !== 'BinaryExpression'
 		|| node.operator !== '-'
@@ -105,7 +96,7 @@ const getNegativeIndex = (node, receiver, context) => {
 		|| !isLengthProperty(node.left)
 		|| !isSafeNegativeIndexReceiver(receiver)
 		|| !isSameReference(node.left.object, receiver)
-		|| hasCommentsInsideRange(sourceCode, getArgumentRangeWithLeadingComments(node, context))
+		|| hasCommentInRange(context, getArgumentRangeWithLeadingComments(node, context))
 	) {
 		return;
 	}

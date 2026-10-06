@@ -1,3 +1,20 @@
+exports[`prefer-array-from-async > invalid(1): async function foo() { const result = []; for await (const item of items) { result.push(await {a: item}.a); } } 1`] = `
+
+  1 | async function foo() { const result = []; for await (const item of items) { result.push(await {a: item}.a); } }
+
+`;
+
+exports[`prefer-array-from-async > invalid(1): async function foo() { const result = []; for await (const item of items) { result.push(await {a: item}.a); } } 2`] = `
+
+Message:
+> 1 | async function foo() { const result = []; for await (const item of items) { result.push(await {a: item}.a); } }
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.fromAsync()\` over array accumulation loops.
+
+Output:
+  1 | async function foo() { const result = await Array.fromAsync(items, item => ({a: item}.a)); }
+
+`;
+
 exports[`prefer-array-from-async > invalid(1): const result = []; for (const path of [\"a\", \"b\"]) { result.push(await readFile(path)); } 1`] = `
 
   1 | const result = []; for (const path of ["a", "b"]) { result.push(await readFile(path)); }
@@ -185,7 +202,7 @@ Message:
 
 Output:
   1 | async function foo() {
-  2 | 	const result = await Array.fromAsync(iterable, element => (element as string));
+  2 | 	const result = await Array.fromAsync(iterable, element => element as string);
   3 | }
 
 `;
@@ -945,7 +962,7 @@ Message:
     |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.fromAsync()\` over array accumulation loops.
 
 Suggestion 1/1: Replace the loop with \`Array.fromAsync()\`.:
-  1 | async function foo() { const result: string[] = await Array.fromAsync((["a"] as const), path => (readFile(path) as string)); }
+  1 | async function foo() { const result: string[] = await Array.fromAsync((["a"] as const), path => readFile(path) as string); }
 
 `;
 

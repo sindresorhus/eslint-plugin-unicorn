@@ -1,6 +1,6 @@
 import {getPropertyName} from '@eslint-community/eslint-utils';
 import {replaceNodeOrTokenAndSpacesBefore} from './fix/index.js';
-import {isPromiseType} from './utils/index.js';
+import {isPromiseType, withTypeInformation} from './utils/index.js';
 
 const MESSAGE_ID = 'no-useless-override';
 const messages = {
@@ -12,36 +12,13 @@ const isVoidOrUndefinedType = type =>
 		? type.types.every(type => isVoidOrUndefinedType(type))
 		: type.intrinsicName === 'void' || type.intrinsicName === 'undefined';
 
-// The TypeScript type of `node` with its checker, or `undefined` when type information is unavailable.
-const getTypeInformation = (node, context) => {
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
-		return;
-	}
-
-	try {
-		return {
-			type: parserServices.getTypeAtLocation(node),
-			checker: parserServices.program.getTypeChecker(),
-		};
-		// Tests cannot make TypeScript throw here.
-		/* node:coverage ignore next 3 */
-	} catch {
-		// TypeScript can throw while resolving incomplete projects; keep this best-effort.
-	}
-};
-
 // Whether the `super.method(…)` call is statically known to return a promise.
-const isPromiseReturningCall = (node, context) => {
-	const typeInformation = getTypeInformation(node, context);
-	return typeInformation !== undefined && isPromiseType(typeInformation.type, typeInformation.checker) === true;
-};
+const isPromiseReturningCall = (node, context) =>
+	withTypeInformation(node, context, ({type, checker}) => isPromiseType(type, checker) === true) ?? false;
 
 // Whether the `super.method(…)` call is statically known to return nothing (`void`/`undefined`).
-const isVoidReturningCall = (node, context) => {
-	const typeInformation = getTypeInformation(node, context);
-	return typeInformation !== undefined && isVoidOrUndefinedType(typeInformation.type);
-};
+const isVoidReturningCall = (node, context) =>
+	withTypeInformation(node, context, ({type}) => isVoidOrUndefinedType(type)) ?? false;
 
 // Whether the `super.method(…)` arguments forward `method`'s parameters unchanged.
 const argumentsForwardParameters = (callArguments, parameters) =>

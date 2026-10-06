@@ -9,6 +9,7 @@ import {
 	isDefaultLibrarySymbol,
 	isNullishType,
 	unwrapTypeScriptExpression,
+	withTypeInformation,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-transition-all';
@@ -63,22 +64,15 @@ const isDomStyleDeclarationType = (type, program) => {
 	return domStyleTypeNames.has(symbol?.getName()) && isDefaultLibrarySymbol(symbol, program);
 };
 
-const isDomStyleDeclaration = (node, parserServices) => {
-	try {
-		return isDomStyleDeclarationType(parserServices.getTypeAtLocation(node), parserServices.program);
-		// Tests cannot make TypeScript throw here.
-		/* node:coverage ignore next 3 */
-	} catch {
-		return false;
-	}
-};
+const isDomStyleDeclaration = (node, context) =>
+	withTypeInformation(node, context, ({type, program}) => isDomStyleDeclarationType(type, program)) ?? false;
 
-const getDomStyleProblem = (receiver, value, parserServices) => {
+const getDomStyleProblem = (receiver, value, context) => {
 	const staticValue = getStaticString(value);
 	if (
 		staticValue === undefined
 		|| !hasTransitionAll(staticValue)
-		|| !isDomStyleDeclaration(receiver, parserServices)
+		|| !isDomStyleDeclaration(receiver, context)
 	) {
 		return;
 	}
@@ -110,8 +104,7 @@ const create = context => {
 			}));
 	});
 
-	const {parserServices} = context.sourceCode;
-	if (!parserServices?.program) {
+	if (!context.sourceCode.parserServices?.program) {
 		return;
 	}
 
@@ -123,7 +116,7 @@ const create = context => {
 			return;
 		}
 
-		return getDomStyleProblem(assignment.left.object, assignment.right, parserServices);
+		return getDomStyleProblem(assignment.left.object, assignment.right, context);
 	});
 
 	context.on('CallExpression', callExpression => {
@@ -147,7 +140,7 @@ const create = context => {
 			transitionProperties.has(getStaticString(property)?.toLowerCase())
 			&& isValidPriority(priority)
 		) {
-			return getDomStyleProblem(callExpression.callee.object, value, parserServices);
+			return getDomStyleProblem(callExpression.callee.object, value, context);
 		}
 	});
 };

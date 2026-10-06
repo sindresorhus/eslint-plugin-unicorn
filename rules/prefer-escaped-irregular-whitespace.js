@@ -1,6 +1,6 @@
 import {replaceTemplateElement} from './fix/index.js';
 import {isRegexLiteral, isStringLiteral, isTaggedTemplateLiteral} from './ast/index.js';
-import {getTemplateElementRaw} from './utils/index.js';
+import {getTemplateElementRaw, isEscapedCharacter} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-escaped-irregular-whitespace';
 const messages = {
@@ -12,16 +12,6 @@ const LINE_TERMINATORS = new Set(['\u2028', '\u2029']);
 
 const getCodePointEscape = character => String.raw`\u{${character.codePointAt(0).toString(16).toUpperCase()}}`;
 const getFourDigitEscape = character => String.raw`\u${character.codePointAt(0).toString(16).toUpperCase().padStart(4, '0')}`;
-
-function isEscapedCharacter(text, index) {
-	let backslashCount = 0;
-
-	for (let previousIndex = index - 1; previousIndex >= 0 && text[previousIndex] === '\\'; previousIndex--) {
-		backslashCount++;
-	}
-
-	return backslashCount % 2 === 1;
-}
 
 function getProblem(node, raw, {fix, shouldFix = true, escapeCharacter = getCodePointEscape} = {}) {
 	let fixed = '';

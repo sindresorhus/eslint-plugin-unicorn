@@ -1,15 +1,6 @@
-import {isFunction} from '../ast/index.js';
-import {containsSuspensionPoint} from '../utils/index.js';
+import {containsSuspensionPoint, getEnclosingFunction} from '../utils/index.js';
 
 const eventParameterNamePattern = /^(?:e|event|evt|[a-z][\dA-Za-z]*Event)$/u;
-
-const getEnclosingFunction = node => {
-	for (let current = node.parent; current; current = current.parent) {
-		if (isFunction(current)) {
-			return current;
-		}
-	}
-};
 
 const isRepeatedLoopPart = (loop, child) => {
 	switch (loop.type) {
@@ -78,5 +69,4 @@ const createLateEventHandlerTracker = context => {
 export {
 	createLateEventHandlerTracker,
 	eventParameterNamePattern,
-	getEnclosingFunction,
 };

@@ -2,13 +2,13 @@ import {
 	getParenthesizedRange,
 	getParenthesizedText,
 	getStaticValueForControlFlow,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {
 	comparisonOperators,
 	containsOptionalChain,
 	flipOperator,
 	isSame,
-	unwrapExpression,
 } from './utils/comparison.js';
 
 const MESSAGE_ID = 'no-double-comparison';
@@ -60,8 +60,8 @@ const create = context => {
 			return;
 		}
 
-		const left = unwrapExpression(node.left);
-		const right = unwrapExpression(node.right);
+		const left = unwrapTypeScriptExpression(node.left);
+		const right = unwrapTypeScriptExpression(node.right);
 
 		if (!isComparison(left) || !isComparison(right)) {
 			return;

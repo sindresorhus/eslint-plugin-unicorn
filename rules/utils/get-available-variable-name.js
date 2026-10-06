@@ -1,5 +1,5 @@
 import identifierRegex from 'identifier-regex';
-import resolveVariableName from './resolve-variable-name.js';
+import {findVariable} from '@eslint-community/eslint-utils';
 
 // https://github.com/microsoft/TypeScript/issues/2536#issuecomment-87194347
 const typescriptReservedWords = new Set([
@@ -94,7 +94,7 @@ const isUnresolvedName = (name, scope) =>
 	scope.through.some(({identifier, resolved}) => identifier?.name === name && !resolved);
 
 const isSafeName = (name, scopes) =>
-	scopes.every(scope => !(resolveVariableName(name, scope) || isUnresolvedName(name, scope)));
+	scopes.every(scope => !(findVariable(scope, name) || isUnresolvedName(name, scope)));
 
 const alwaysTrue = () => true;
 

@@ -9,6 +9,8 @@ const {test: ruleTest} = getTester(import.meta);
 ruleTest.snapshot({
 	valid: [
 		'location.href;',
+		// A computed key with side effects is not treated as `href`, since the fix would drop them
+		'location[(sideEffect(), "href")] = url;',
 		'const url = location.href;',
 		'const url = window.location.href;',
 		'const url = globalThis.location.href;',
@@ -38,6 +40,8 @@ ruleTest.snapshot({
 		'let location = globalThis.location; location = new URL("https://example.com"); location.href = url;',
 		'const window = {}; const target = window.location; target.href = url;',
 		'const globalThis = {}; const target = globalThis.location; target.href = url;',
+		'const {foo} = location; foo.href = url;',
+		'const [foo] = window.location; foo.href = url;',
 	],
 	invalid: [
 		'location.href = url;',

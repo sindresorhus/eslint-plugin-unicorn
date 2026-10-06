@@ -1,18 +1,15 @@
 import {isMemberExpression, isMethodCall} from './ast/index.js';
-import {getCommentSafeProblem, hasNonDirectiveComment, isTypeImportSpecifier} from './utils/index.js';
+import {
+	getCallArgumentText,
+	getCommentSafeProblem,
+	hasNonDirectiveComment,
+	isTypeOnlyDefinition,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-error-is-error';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `Error.isError(…)`.',
 };
-
-const isTypeImport = definition =>
-	definition.type === 'ImportBinding'
-	&& isTypeImportSpecifier(definition.node);
-
-const isTypeOnlyDefinition = definition =>
-	definition.type === 'Type'
-	|| isTypeImport(definition);
 
 function isValueShadowed(node, name, context) {
 	let scope = context.sourceCode.getScope(node);
@@ -97,15 +94,10 @@ const getErrorTagComparison = (node, context) => {
 	}
 };
 
-const getArgumentText = (node, sourceCode) => {
-	const text = sourceCode.getText(node);
-	return node.type === 'SequenceExpression' ? `(${text})` : text;
-};
-
 const createFix = ({node, argument, negate}, context) =>
 	fixer => fixer.replaceText(
 		node,
-		`${negate ? '!' : ''}Error.isError(${getArgumentText(argument, context.sourceCode)})`,
+		`${negate ? '!' : ''}Error.isError(${getCallArgumentText(argument, context)})`,
 	);
 
 /**

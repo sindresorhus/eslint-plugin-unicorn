@@ -6,6 +6,7 @@ import {
 	isReactHookName,
 	trackBranchExits,
 } from './utils/index.js';
+import {isInTypeQuery} from './ast/index.js';
 
 const MESSAGE_ID = 'no-declarations-before-early-exit';
 const messages = {
@@ -56,10 +57,6 @@ const isSimpleInitializer = node =>
 		&& node.expressions.length === 0
 	);
 
-const hasCommentsBetween = (sourceCode, firstNode, secondNode) =>
-	sourceCode.getTokensBetween(firstNode, secondNode, {includeComments: true})
-		.some(token => isCommentToken(token));
-
 const hasCommentNextTo = (sourceCode, node, direction) => {
 	const token = direction === 'before'
 		? sourceCode.getTokenBefore(node, {includeComments: true})
@@ -86,15 +83,6 @@ const hasCommonReferencedVariable = (sourceCode, nodeA, nodeB) => {
 		.some(name => variableNames.has(name));
 };
 
-function isTypeScriptTypeQueryReference(identifier) {
-	let node = identifier;
-	while (node.parent.type === 'TSQualifiedName') {
-		node = node.parent;
-	}
-
-	return node.parent.type === 'TSTypeQuery';
-}
-
 const shouldFix = ({
 	sourceCode,
 	declaration,
@@ -108,7 +96,7 @@ const shouldFix = ({
 	&& sourceCode.getCommentsInside(declaration).length === 0
 	&& !hasCommentNextTo(sourceCode, declaration, 'before')
 	&& !hasCommentNextTo(sourceCode, guardStatement, 'after')
-	&& !hasCommentsBetween(sourceCode, declaration, guardStatement);
+	&& !sourceCode.commentsExistBetween(declaration, guardStatement);
 
 function getFix(sourceCode, declaration, guardStatement) {
 	const declarationText = sourceCode.getText(declaration);
@@ -167,7 +155,7 @@ function getProblem({
 	const [variable] = sourceCode.getDeclaredVariables(declarator);
 	const references = variable.references.filter(reference =>
 		!reference.init
-		&& !isTypeScriptTypeQueryReference(reference.identifier),
+		&& !isInTypeQuery(reference.identifier),
 	);
 
 	if (references.length === 0) {

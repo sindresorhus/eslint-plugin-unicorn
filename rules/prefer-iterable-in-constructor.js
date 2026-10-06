@@ -3,11 +3,17 @@ import {removeStatement} from './fix/index.js';
 import {
 	getCommentSafeProblem,
 	getNextNode,
+	getOnlyExpression,
 	hasNonDirectiveComment,
 	getParenthesizedText,
-	getVariableIdentifiers,
 	isSameIdentifier,
+	needsSemicolon,
 } from './utils/index.js';
+import {
+	getForOfDeclarationPattern,
+	isPairPattern,
+	referencesVariable,
+} from './shared/for-of-collection-loop.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
@@ -46,41 +52,17 @@ const isEmptySupportedConstructor = node => isNewExpression(node, {
 	argumentsLength: 0,
 });
 
-const isBlockWithOneExpressionStatement = node =>
-	node.type === 'BlockStatement'
-	&& node.body.length === 1
-	&& node.body[0].type === 'ExpressionStatement';
-
 const getOnlyLoopCallExpression = loop => {
-	if (!isBlockWithOneExpressionStatement(loop.body)) {
-		return;
-	}
+	const expression = getOnlyExpression(loop.body);
 
-	const [{expression}] = loop.body.body;
-
-	if (expression.type === 'CallExpression') {
+	if (expression?.type === 'CallExpression') {
 		return expression;
-	}
-};
-
-const getForOfLeftPattern = node => {
-	if (
-		node.type === 'VariableDeclaration'
-		&& (node.kind === 'const' || node.kind === 'let')
-		&& node.declarations.length === 1
-	) {
-		return node.declarations[0].id;
 	}
 };
 
 const isIdentifierFromPattern = (pattern, argument) =>
 	pattern.type === 'Identifier'
 	&& isSameIdentifier(pattern, argument);
-
-const isPairPattern = node =>
-	node.type === 'ArrayPattern'
-	&& node.elements.length === 2
-	&& node.elements.every(element => element?.type === 'Identifier');
 
 const isObjectEntriesCall = node => isMethodCall(node, {
 	object: 'Object',
@@ -136,16 +118,6 @@ const isDirectlyUnsafeSource = (constructorName, sourceNode) =>
 const declaresVariableNamed = (node, name, context) =>
 	context.sourceCode.getDeclaredVariables(node).some(variable => variable.name === name);
 
-const referencesVariable = (variable, node, context) => {
-	const range = context.sourceCode.getRange(node);
-
-	return getVariableIdentifiers(variable).some(identifier => {
-		const [start, end] = context.sourceCode.getRange(identifier);
-
-		return start >= range[0] && end <= range[1];
-	});
-};
-
 const matchesSetLoop = (constructorName, id, loopLeft, callExpression) =>
 	setConstructorNames.has(constructorName)
 	&& isMethodCall(callExpression, {
@@ -195,13 +167,25 @@ const getConstructorReplacementText = (newExpression, sourceNode, context) => {
 
 const getFix = (problem, context) => {
 	const {
+		declaration,
 		loop,
 		newExpression,
 		sourceNode,
 	} = problem;
 
 	return function * (fixer) {
+		const {sourceCode} = context;
 		yield fixer.replaceText(newExpression, getConstructorReplacementText(newExpression, sourceNode, context));
+
+		// Removing the loop exposes the declaration to the following statement.
+		const tokenAfter = sourceCode.getTokenAfter(loop);
+		if (
+			tokenAfter
+			&& needsSemicolon(sourceCode.getLastToken(declaration), context, tokenAfter.value)
+		) {
+			yield fixer.insertTextAfter(declaration, ';');
+		}
+
 		yield removeStatement(loop, context, fixer);
 	};
 };
@@ -234,7 +218,7 @@ const getLoopProblem = (declaration, context) => {
 		return;
 	}
 
-	const loopLeft = getForOfLeftPattern(loop.left);
+	const loopLeft = getForOfDeclarationPattern(loop.left);
 	if (!loopLeft) {
 		return;
 	}
@@ -276,6 +260,7 @@ const getLoopProblem = (declaration, context) => {
 			source: context.sourceCode.getText(sourceNode),
 		},
 		fix: getFix({
+			declaration,
 			loop,
 			newExpression,
 			sourceNode,

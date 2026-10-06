@@ -3,6 +3,7 @@ import {
 	getCallExpressionTokens,
 	getParenthesizedText,
 	isParenthesized,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {isKnownNonIterator} from './shared/iterator-helpers.js';
 import {isMethodCall} from './ast/index.js';
@@ -71,11 +72,7 @@ const getFix = (toArrayCall, methodCall, context) => {
 	const [, methodNameEnd] = sourceCode.getRange(methodCall.callee.property);
 	const [argumentsEnd] = sourceCode.getRange(closingParenthesisToken);
 
-	if (sourceCode.getCommentsInside(methodCall).some(comment => {
-		const [start, end] = sourceCode.getRange(comment);
-
-		return start < methodNameEnd || end > argumentsEnd;
-	})) {
+	if (wouldRemoveComments(context, methodCall, [[methodNameEnd, argumentsEnd]])) {
 		return;
 	}
 

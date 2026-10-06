@@ -16,6 +16,7 @@ import {
 } from './fix/index.js';
 import {
 	getNextNode,
+	getOnlyExpression,
 	getCallExpressionArgumentsText,
 	getCallExpressionTokens,
 	getParenthesizedRange,
@@ -25,6 +26,7 @@ import {
 	isNewExpressionWithParentheses,
 	isTypeScriptFile,
 	needsSemicolon,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 /**
@@ -49,15 +51,6 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION_CONDITIONAL]: 'Move the conditional mutation to the {{assignType}}.',
 };
 
-// The fix removes the mutation statement and only copies the given ranges into the literal, a comment inside the statement but outside those ranges would be lost.
-function hasCommentOutsideRanges(sourceCode, statement, ranges) {
-	return sourceCode.getCommentsInside(statement)
-		.some(comment => {
-			const [start, end] = sourceCode.getRange(comment);
-			return ranges.every(([rangeStart, rangeEnd]) => start < rangeStart || end > rangeEnd);
-		});
-}
-
 // The range of the arguments text that `getCallExpressionArgumentsText()` copies, without the trailing comma
 function getCallExpressionArgumentsRange(callExpression, context) {
 	const {sourceCode} = context;
@@ -71,8 +64,9 @@ function getCallExpressionArgumentsRange(callExpression, context) {
 	return [start, end];
 }
 
+// The fix removes the mutation statement and only copies the arguments into the literal, a comment inside the statement but outside the arguments would be lost.
 const hasCommentOutsideArguments = (callExpression, statement, context) =>
-	hasCommentOutsideRanges(context.sourceCode, statement, [getCallExpressionArgumentsRange(callExpression, context)]);
+	wouldRemoveComments(context, statement, [getCallExpressionArgumentsRange(callExpression, context)]);
 
 const hasVariableInNodes = (variable, nodes, context) => {
 	const {sourceCode} = context;
@@ -376,8 +370,8 @@ const objectWithAssignmentExpressionSettings = {
 			data: {objectType: 'object'},
 		};
 		// Only the property and the value text is moved into the literal, a comment anywhere else in the removed statement would be lost
-		if (hasCommentOutsideRanges(
-			sourceCode,
+		if (wouldRemoveComments(
+			context,
 			information.nextStatement,
 			[property, value].map(node => getParenthesizedRange(node, context)),
 		)) {
@@ -523,7 +517,7 @@ const objectWithObjectAssignSettings = {
 				? getObjectExpressionPropertiesRange(firstValue, context)
 				: getParenthesizedRange(firstValue, context),
 		];
-		if (hasCommentOutsideRanges(sourceCode, information.nextStatement, copiedRanges)) {
+		if (wouldRemoveComments(context, information.nextStatement, copiedRanges)) {
 			return problem;
 		}
 
@@ -767,20 +761,10 @@ const cases = [
 	mapMutationSettings,
 ];
 
-function getBranchExpression(statement) {
-	if (statement.type === 'BlockStatement' && statement.body.length === 1) {
-		[statement] = statement.body;
-	}
-
-	if (statement.type === 'ExpressionStatement') {
-		return statement.expression;
-	}
-}
-
 function getConditionalMutation(statement) {
 	if (statement.type === 'IfStatement') {
-		const consequent = getBranchExpression(statement.consequent);
-		const alternate = statement.alternate && getBranchExpression(statement.alternate);
+		const consequent = getOnlyExpression(statement.consequent);
+		const alternate = getOnlyExpression(statement.alternate);
 		if (consequent && (!statement.alternate || alternate)) {
 			return {test: statement.test, consequent, alternate};
 		}

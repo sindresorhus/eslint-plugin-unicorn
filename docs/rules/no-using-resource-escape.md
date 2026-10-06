@@ -56,7 +56,7 @@ A nested helper may return an outer resource when the result remains inside the 
 
 The rule does not track aliases, destructured or mutable bindings, assignments to outer state, classes, or property-derived resources. It ignores calls, awaited expressions, spreads, computed object keys, `yield`, re-exports, and type-only exports and references.
 
-It also ignores callbacks passed to timers, event listeners, promises, and other functions because their lifetime is unknown. TypeScript function instantiation expressions such as `return read<Resource>` and overloaded function references are unsupported.
+It also ignores callbacks passed to timers, event listeners, promises, and other functions because their lifetime is unknown. TypeScript overloaded function references are unsupported.
 
 To require awaiting returned promises before resources are disposed, use [`@typescript-eslint/return-await`](https://typescript-eslint.io/rules/return-await/). Adding `await` does not repair returning an ordinary disposed resource or a closure capturing it.
 

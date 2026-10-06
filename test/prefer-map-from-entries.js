@@ -234,5 +234,11 @@ test.snapshot({
 				Object.hasOwn((object), 'foo') && bar();
 			}
 		`,
+		// Constant computed keys
+		'const object = Object.fromEntries(Object.entries(source)); object["f" + "oo"];',
+		{
+			code: 'const object = Object.fromEntries(Object.entries(source)); object["foo" as const];',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

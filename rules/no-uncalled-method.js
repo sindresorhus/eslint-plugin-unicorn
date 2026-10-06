@@ -1,10 +1,10 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
-import {isMethodCall} from './ast/index.js';
+import {isIdentifierNamed, isMethodCall} from './ast/index.js';
 import {
+	getOutermostChainAndTypeScriptExpression,
 	isArray,
 	isLeftHandSide,
 	isString,
-	isTypeScriptExpressionWrapper,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -112,27 +112,6 @@ const callableReferenceMethods = new Set([
 	'call',
 ]);
 
-const isIdentifierNamed = (node, name) =>
-	node.type === 'Identifier'
-	&& node.name === name;
-
-const isTransparentExpressionWrapper = node =>
-	node.type === 'ChainExpression'
-	|| node.type === 'ParenthesizedExpression'
-	|| node.type === 'TSInstantiationExpression'
-	|| isTypeScriptExpressionWrapper(node);
-
-const getOutermostExpression = node => {
-	while (
-		isTransparentExpressionWrapper(node.parent)
-		&& node.parent.expression === node
-	) {
-		node = node.parent;
-	}
-
-	return node;
-};
-
 function isNamedOrConstAlias(node, name, context, visitedVariables = new Set()) {
 	node = unwrapTypeScriptExpression(node);
 
@@ -188,7 +167,7 @@ const isPrototypeMethod = (node, context) => {
 };
 
 const isCallee = node => {
-	node = getOutermostExpression(node);
+	node = getOutermostChainAndTypeScriptExpression(node);
 
 	// A tagged template invokes the tag too
 	return (
@@ -198,7 +177,7 @@ const isCallee = node => {
 };
 
 const isCallableReference = (node, context) => {
-	node = getOutermostExpression(node);
+	node = getOutermostChainAndTypeScriptExpression(node);
 
 	if (node.parent.type !== 'MemberExpression' || node.parent.object !== node) {
 		return false;
@@ -209,7 +188,7 @@ const isCallableReference = (node, context) => {
 };
 
 const isReflectApplyArgument = node => {
-	const argument = getOutermostExpression(node);
+	const argument = getOutermostChainAndTypeScriptExpression(node);
 	return argument.parent.type === 'CallExpression'
 		&& argument.parent.arguments[0] === argument
 		&& isMethodCall(argument.parent, {
@@ -219,7 +198,7 @@ const isReflectApplyArgument = node => {
 };
 
 const isTypeofArgument = node => {
-	node = getOutermostExpression(node);
+	node = getOutermostChainAndTypeScriptExpression(node);
 
 	return (
 		node.parent.type === 'UnaryExpression'
@@ -232,7 +211,7 @@ const shouldSkip = (node, context) =>
 	|| isCallableReference(node, context)
 	|| isReflectApplyArgument(node)
 	|| isTypeofArgument(node)
-	|| isLeftHandSide(getOutermostExpression(node))
+	|| isLeftHandSide(getOutermostChainAndTypeScriptExpression(node))
 	|| isPrototypeMethod(node, context);
 
 function shouldReport({receiver, method, context}) {

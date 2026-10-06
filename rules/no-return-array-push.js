@@ -1,5 +1,10 @@
 import {isMethodCall} from './ast/index.js';
-import {isArray, isKnownNonIndexedCollection, needsSemicolon} from './utils/index.js';
+import {
+	getOutermostChainAndTypeScriptExpression,
+	isArray,
+	isKnownNonIndexedCollection,
+	needsSemicolon,
+} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-return-array-push/error';
 const MESSAGE_ID_SUGGESTION = 'no-return-array-push/suggestion';
@@ -19,14 +24,6 @@ const ignoredCallees = [
 	'process.stdout.push',
 	'process.stderr.push',
 ];
-
-const transparentExpressionTypes = new Set([
-	'ChainExpression',
-	'TSAsExpression',
-	'TSSatisfiesExpression',
-	'TSNonNullExpression',
-	'TSTypeAssertion',
-]);
 
 function isStaticMemberPath(node, path) {
 	const [objectName, ...propertyNames] = path.split('.');
@@ -54,19 +51,6 @@ const isIgnoredPushCallee = (callExpression, context) =>
 	isIgnoredCallee(callExpression.callee)
 	&& !isArray(callExpression.callee.object, context);
 
-function getCallExpressionResultNode(callExpression) {
-	let node = callExpression;
-
-	while (
-		transparentExpressionTypes.has(node.parent.type)
-		&& node.parent.expression === node
-	) {
-		node = node.parent;
-	}
-
-	return node;
-}
-
 function getDirectReturnStatement(callExpression) {
 	const {parent} = callExpression;
 
@@ -79,7 +63,7 @@ function getDirectReturnStatement(callExpression) {
 }
 
 function isReturnValueDiscarded(callExpression) {
-	const {parent} = getCallExpressionResultNode(callExpression);
+	const {parent} = getOutermostChainAndTypeScriptExpression(callExpression);
 	return (
 		parent.type === 'ExpressionStatement'
 		// The `void` operator explicitly discards the return value.
@@ -90,7 +74,7 @@ function isReturnValueDiscarded(callExpression) {
 // Treat chained result member access as a pragmatic signal for custom APIs like router.push().catch(...).
 // Do not flag realistic code only to catch theoretical Number method chains from Array#push().
 function isResultMemberAccessed(callExpression) {
-	const node = getCallExpressionResultNode(callExpression);
+	const node = getOutermostChainAndTypeScriptExpression(callExpression);
 	const {parent} = node;
 	return parent.type === 'MemberExpression' && parent.object === node;
 }

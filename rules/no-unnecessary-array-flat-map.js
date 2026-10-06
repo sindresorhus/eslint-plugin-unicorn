@@ -1,12 +1,13 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {isEmptyArrayExpression, isFunction, isMethodCall} from './ast/index.js';
 import {
+	getConciseArrowBodyText,
 	getParenthesizedRange,
 	getParenthesizedText,
+	hasTypeArguments,
 	isKnownNonIndexedCollection,
 	isParenthesized,
 	isSameIdentifier,
-	isTypeScriptExpressionWrapper,
 	isTypeScriptFile,
 	getMemberExpressionObjectText,
 	wouldRemoveComments,
@@ -60,13 +61,6 @@ const {isTarget: isNonArrayValue} = createTypeCheckers({
 	getStaticType: value => value === null || typeof value !== 'object' ? target : unknown,
 });
 
-const arrowBodyNeedsParenthesesTypes = new Set([
-	'ObjectExpression',
-	'SequenceExpression',
-]);
-
-const hasTypeArguments = node => Boolean(node.typeArguments || node.typeParameters);
-
 const isFilterCallExpression = node => isMethodCall(node, {
 	method: 'filter',
 	argumentsLength: 1,
@@ -111,18 +105,6 @@ const getSingleArrayElement = node => {
 	return node.elements[0];
 };
 
-function shouldParenthesizeArrowBody(node, context) {
-	if (isParenthesized(node, context)) {
-		return false;
-	}
-
-	if (arrowBodyNeedsParenthesesTypes.has(node.type)) {
-		return true;
-	}
-
-	return isTypeScriptExpressionWrapper(node) && shouldParenthesizeArrowBody(node.expression, context);
-}
-
 function getCallbackResult(callback) {
 	const directElement = getSingleArrayElement(callback.body);
 	if (directElement) {
@@ -151,17 +133,6 @@ function getCallbackResult(callback) {
 	};
 }
 
-function getArrowBodyText(node, context) {
-	if (isParenthesized(node, context)) {
-		return getParenthesizedText(node, context);
-	}
-
-	const text = context.sourceCode.getText(node);
-	return shouldParenthesizeArrowBody(node, context)
-		? `(${text})`
-		: text;
-}
-
 function getArrowParameterText(callback, context) {
 	const parameterText = context.sourceCode.getText(callback.params[0]);
 	return callback.params[0].typeAnnotation ? `(${parameterText})` : parameterText;
@@ -184,8 +155,8 @@ function getFilterMapSuggestion(flatMapCallExpression, callback, callbackResult,
 
 	const arrayText = getMemberExpressionObjectText(flatMapCallExpression.callee.object, context);
 	const parameterText = getArrowParameterText(callback, context);
-	const testText = getArrowBodyText(callbackResult.test, context);
-	const elementText = getArrowBodyText(callbackResult.element, context);
+	const testText = getConciseArrowBodyText(callbackResult.test, context);
+	const elementText = getConciseArrowBodyText(callbackResult.element, context);
 
 	return {
 		messageId: SUGGESTION_ID_FILTER_MAP,
@@ -221,7 +192,7 @@ function getProblemForFilterFlatMap(flatMapCallExpression, callbackResult, conte
 		...problem,
 		* fix(fixer) {
 			yield fixer.replaceText(flatMapCallExpression.callee.property, 'map');
-			yield fixer.replaceText(callbackResult.arrayExpression, getArrowBodyText(callbackResult.element, context));
+			yield fixer.replaceText(callbackResult.arrayExpression, getConciseArrowBodyText(callbackResult.element, context));
 		},
 	};
 }
@@ -249,7 +220,7 @@ function getProblemForConditionalFlatMap(flatMapCallExpression, callback, callba
 
 		const arrayText = getMemberExpressionObjectText(flatMapCallExpression.callee.object, context);
 		const parameterText = getArrowParameterText(callback, context);
-		const testText = getArrowBodyText(callbackResult.test, context);
+		const testText = getConciseArrowBodyText(callbackResult.test, context);
 
 		return {
 			...problem,
@@ -357,7 +328,7 @@ function getArrayWrapperProblem(node, context, isTypeScript) {
 		}
 
 		let replacement = node.parent.type === 'ArrowFunctionExpression' && !isParenthesized(node, context)
-			? getArrowBodyText(element, context)
+			? getConciseArrowBodyText(element, context)
 			: getParenthesizedText(element, context);
 		const previousToken = sourceCode.getTokenBefore(node);
 		if (previousToken?.value === 'return' && sourceCode.getRange(previousToken)[1] === sourceCode.getRange(node)[0]) {

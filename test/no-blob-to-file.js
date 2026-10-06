@@ -37,6 +37,8 @@ test.snapshot({
 		'const blob = new Blob(["x"], {type: "text/plain"});\nconst file = new File([blob], "text.txt");\nURL.createObjectURL(file);',
 		'const sourceFile = new File([blob], "source.jpg", {type: "text/plain"});\nconst file = new File([sourceFile], "image.jpg");\nURL.createObjectURL(file);',
 		'const file = new File([blob], "image.jpg");\nconst blob = new Blob();\nURL.createObjectURL(file);',
+		'const {blob} = new Blob();\nconst file = new File([blob], "image.jpg");\nURL.createObjectURL(file);',
+		'const {formData} = new FormData();\nconst blob = new Blob();\nconst file = new File([blob], "image.jpg");\nformData.append("file", file);',
 		'const blob = new Blob();\nconst file = new File([blob], "image.jpg"); // Keep comment\nURL.createObjectURL(file);',
 		'const blob = new Blob();\nconst file = new File([/* Keep comment */ blob], "image.jpg");\nURL.createObjectURL(file);',
 		'const blob = new Blob(); /* Keep comment */ const file = new File([blob], "image.jpg");\nURL.createObjectURL(file);',

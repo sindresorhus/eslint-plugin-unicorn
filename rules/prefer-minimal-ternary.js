@@ -1,6 +1,7 @@
 import {getPropertyName, hasSideEffect} from '@eslint-community/eslint-utils';
 import {
 	getParenthesizedText,
+	getTypeArgumentsText,
 	hasOptionalChainElement,
 	isConstEnumReference,
 	isParenthesized,
@@ -192,7 +193,7 @@ function isMinimalNewExpression(left, right, context) {
 
 	const {sourceCode} = context;
 
-	return getTypeArgumentsText(left, sourceCode) === getTypeArgumentsText(right, sourceCode)
+	return getTypeArgumentsText(left, context) === getTypeArgumentsText(right, context)
 		&& hasOneMinimalValueDifference(left.arguments, right.arguments, sourceCode);
 }
 
@@ -347,11 +348,6 @@ function getExpressionItems(node) {
 	return node.type === 'ObjectExpression' ? node.properties.map(property => property.value) : node.elements ?? node.arguments;
 }
 
-function getTypeArgumentsText(node, sourceCode) {
-	const typeArguments = node.typeArguments ?? node.typeParameters;
-	return typeArguments ? sourceCode.getText(typeArguments) : '';
-}
-
 function getMinimalExpressionText(left, right, {condition, context, abort}) {
 	const {sourceCode} = context;
 	const getText = node => {
@@ -416,7 +412,7 @@ function getMinimalExpressionText(left, right, {condition, context, abort}) {
 	}
 
 	if (left.type === 'CallExpression' || left.type === 'NewExpression') {
-		if (getTypeArgumentsText(left, sourceCode) !== getTypeArgumentsText(right, sourceCode)) {
+		if (getTypeArgumentsText(left, context) !== getTypeArgumentsText(right, context)) {
 			abort();
 		}
 

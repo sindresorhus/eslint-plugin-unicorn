@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isNewExpression} from './ast/index.js';
-import {isGlobalIdentifier} from './utils/index.js';
+import {getTypeArgumentsText, hasCommentInRange, isGlobalIdentifier} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-promise-with-resolvers';
 const messages = {
@@ -12,17 +12,7 @@ const resolverProperties = [
 	'reject',
 ];
 
-const getTypeArgumentsText = (node, sourceCode) => {
-	const typeArguments = node.typeArguments ?? node.typeParameters;
-	return typeArguments ? sourceCode.getText(typeArguments) : '';
-};
-
 const hasTypeAnnotation = node => Boolean(node.typeAnnotation);
-
-const hasCommentsInsideRange = (sourceCode, range) => sourceCode.getAllComments().some(comment => {
-	const commentRange = sourceCode.getRange(comment);
-	return commentRange[0] >= range[0] && commentRange[1] <= range[1];
-});
 
 const isSupportedExecutor = node => (
 	(node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression')
@@ -179,7 +169,7 @@ function getFix(newExpression, extractions, context) {
 		sourceCode.getRange(resolverDeclarations[0])[0],
 		sourceCode.getRange(promiseDeclaration)[1],
 	];
-	if (hasCommentsInsideRange(sourceCode, replaceRange)) {
+	if (hasCommentInRange(context, replaceRange)) {
 		return;
 	}
 
@@ -189,7 +179,7 @@ function getFix(newExpression, extractions, context) {
 		...orderedExtractions.map(({property, target}) => getBindingText(property, target.name)),
 	].join(', ');
 
-	const typeArgumentsText = getTypeArgumentsText(newExpression, sourceCode);
+	const typeArgumentsText = getTypeArgumentsText(newExpression, context);
 
 	return fixer => fixer.replaceTextRange(
 		replaceRange,

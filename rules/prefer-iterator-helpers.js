@@ -1,12 +1,14 @@
-import {findVariable} from '@eslint-community/eslint-utils';
 import {
+	getFunctionFromIdentifier,
 	getParenthesizedRange,
 	getParenthesizedText,
 	getStaticValueForControlFlow,
+	hasTypeArguments,
 	hasUnparenthesizedOptionalChainElement,
 	isParenthesized,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {functionTypes, isMethodCall} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
@@ -54,25 +56,13 @@ const isTargetTerminalMethodCall = node => (
 	})
 );
 
-// The function a named callback is declared as, when its declaration is in the same file
-const getNamedCallbackFunction = (identifier, context) => {
-	const [definition] = findVariable(context.sourceCode.getScope(identifier), identifier)?.defs ?? [];
-
-	if (definition?.type === 'FunctionName') {
-		return definition.node;
-	}
-
-	if (definition?.type === 'Variable' && definition.node.init) {
-		return unwrapExpression(definition.node.init);
-	}
-};
-
 // `Iterator` callbacks take fewer arguments than the array ones, so a callback that reads the array argument works on the array but not on the iterator
 const canObserveArrayArgument = (callback, arrayParameterIndex, context) => {
 	callback = unwrapExpression(callback);
 
 	if (callback.type === 'Identifier') {
-		callback = getNamedCallbackFunction(callback, context);
+		// The function a named callback is declared as, when its declaration is in the same file
+		callback = getFunctionFromIdentifier(callback, context);
 	}
 
 	// A callback that is not a function declared here is opaque
@@ -86,16 +76,6 @@ const canObserveArrayArgument = (callback, arrayParameterIndex, context) => {
 			callback.type !== 'ArrowFunctionExpression'
 			&& context.sourceCode.getTokens(callback).some(token => token.type === 'Identifier' && token.value === 'arguments')
 		);
-};
-
-const hasCommentsOutsideIterator = (node, iterator, context) => {
-	const [iteratorStart, iteratorEnd] = getParenthesizedRange(iterator, context);
-
-	return context.sourceCode.getCommentsInside(node).some(comment => {
-		const [commentStart, commentEnd] = context.sourceCode.getRange(comment);
-
-		return commentStart < iteratorStart || commentEnd > iteratorEnd;
-	});
 };
 
 const getIteratorFromSpreadArray = (node, context) => {
@@ -113,8 +93,7 @@ const getIteratorFromSpreadArray = (node, context) => {
 
 const getIteratorFromArrayFrom = (node, context) => {
 	if (
-		node.typeArguments
-		|| node.typeParameters
+		hasTypeArguments(node)
 		|| !isMethodCall(node, {
 			object: 'Array',
 			method: 'from',
@@ -138,8 +117,7 @@ const getIteratorFromArrayFrom = (node, context) => {
 const getIteratorFromToArray = (node, context) => {
 	if (
 		node.type !== 'CallExpression'
-		|| node.typeArguments
-		|| node.typeParameters
+		|| hasTypeArguments(node)
 		|| !isMethodCall(node, {
 			method: 'toArray',
 			argumentsLength: 0,
@@ -184,7 +162,7 @@ const getIteratorText = (iterator, context) => {
 };
 
 const getSuggestion = (node, iterator, {suffix = '', messageId, data}, context) => {
-	if (hasCommentsOutsideIterator(node, iterator, context)) {
+	if (wouldRemoveComments(context, node, [getParenthesizedRange(iterator, context)])) {
 		return;
 	}
 
@@ -265,8 +243,7 @@ const getSliceProblem = (node, context) => {
 			optionalMember: false,
 			computed: false,
 		})
-		|| node.typeArguments
-		|| node.typeParameters
+		|| hasTypeArguments(node)
 	) {
 		return;
 	}
