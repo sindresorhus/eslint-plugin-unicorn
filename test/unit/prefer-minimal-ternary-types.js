@@ -13,6 +13,7 @@ const compilerOptions = {
 };
 
 function getProgram(code, sourceFilename = filename) {
+	sourceFilename = sourceFilename.replaceAll('\\', '/');
 	const host = ts.createCompilerHost(compilerOptions);
 	const getSourceFile = host.getSourceFile.bind(host);
 	host.getSourceFile = (file, languageVersion, onError) => file === sourceFilename
@@ -36,6 +37,12 @@ function getMessages(code, program, options = {}) {
 		rules: {'unicorn/prefer-minimal-ternary': ['error', options]},
 	}, {filename: program?.getRootFileNames()[0] ?? filename});
 }
+
+test('loads virtual source files with Windows path separators', t => {
+	const program = getProgram('const value: string = 1;', filename.replaceAll('/', '\\'));
+	t.assert.ok(program.getSourceFile(program.getRootFileNames()[0]));
+	t.assert.deepStrictEqual(getDiagnostics(program), [2322]);
+});
 
 const cases = [
 	{
