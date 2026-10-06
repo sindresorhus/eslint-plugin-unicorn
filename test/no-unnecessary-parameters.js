@@ -399,7 +399,7 @@ test('preserves separated JSDoc parameter annotations', t => {
 	}
 });
 
-test('requires manual fixes throughout files containing JSDoc signature annotations', t => {
+test('requires manual fixes throughout files containing JSDoc type annotations', t => {
 	const code = 'function format(value) { return value; } /** @param {string} text */ function describe(text) { return text; } describe("example"); [format(1), format(1)];';
 	const result = linter.verifyAndFix(code, config);
 	t.assert.strictEqual(result.fixed, false);
@@ -426,6 +426,23 @@ test('preserves constructor signatures and inferred property types', t => {
 		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
 	}
 });
+
+for (const [tag, code] of [
+	['implements', '/** @typedef {{value: string}} Shape */ /** @implements {Shape} */ class Point { constructor(value) { this.value = value; } } const first = new Point("text"); const second = new Point("text"); first.value = 0; [first.value, second.value];'],
+	['extends', '/** @extends {Array<string>} */ class Items extends Array { constructor(value) { super(); this.push(value); } } [new Items(1)[0], new Items(1)[0]];'],
+	['augments', '/** @augments {Array<string>} */ class Items extends Array { constructor(value) { super(); this.push(value); } } [new Items(1)[0], new Items(1)[0]];'],
+]) {
+	test(`preserves JSDoc @${tag} class type annotations`, t => {
+		t.assert.deepStrictEqual(getJavaScriptTypeErrors(code), []);
+		const result = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(result.messages[0].ruleId, 'unicorn/no-unnecessary-parameters');
+		t.assert.strictEqual(result.messages[0].messageId, 'same-value');
+		t.assert.strictEqual(JSON.stringify(vm.runInNewContext(result.output)), JSON.stringify(vm.runInNewContext(code)));
+	});
+}
 
 test('fixes constructor parameters without type annotations', t => {
 	for (const code of [

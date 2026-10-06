@@ -206,6 +206,6 @@ When external calls use a default forwarded by recursion, only primitives and st
 
 Autofixes update declarations and callers together. Global bindings, complex defaults, and changes affecting scope, timing, syntax, or comments require manual fixes.
 
-Autofixes are disabled throughout files using a TypeScript extension or parser, `@ts-check`, or JSDoc signature annotations like `@param`, `@type`, `@constructor`, and `@class`. Descriptive JSDoc is unaffected.
+Autofixes are disabled throughout files using a TypeScript extension or parser, `@ts-check`, or JSDoc type annotations like `@param`, `@type`, `@constructor`, and `@class`. Descriptive JSDoc is unaffected.
 
 External `checkJs` settings are not detected without TypeScript parser services. Reflection through instance constructors or function source text is unsupported.

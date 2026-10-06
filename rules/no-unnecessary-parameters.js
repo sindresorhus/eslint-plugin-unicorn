@@ -417,14 +417,14 @@ function canInlineValue(parameter, result, context) {
 }
 
 /**
-Check for JSDoc signature annotations or TypeScript checking pragmas anywhere in the file.
+Check for JSDoc type annotations or TypeScript checking pragmas anywhere in the file.
 */
 function hasJavaScriptTypeAnnotations(context) {
 	return context.sourceCode.getAllComments().some(comment =>
 		/^\s*(?:[*/]\s*)?@ts-check\b/iu.test(comment.value)
 		|| (comment.type === 'Block'
 			&& comment.value.trimStart().startsWith('*')
-			&& /@(?:param|arg|argument|type|returns?|template|this|overload|satisfies|constructor|class)\b/u.test(comment.value)));
+			&& /@(?:param|arg|argument|type|returns?|template|this|overload|satisfies|constructor|class|implements|extends|augments)\b/u.test(comment.value)));
 }
 
 function getFix(parameter, result, target, context) {
