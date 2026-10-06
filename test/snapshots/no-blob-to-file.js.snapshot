@@ -97,6 +97,31 @@ Message:
 
 `;
 
+exports[`no-blob-to-file > invalid(14): const blob = new Blob();\nconst formData = new FormData();\nconst file = new File([blob], \"\");\nformData.append(\"file\", file); 1`] = `
+
+  1 | const blob = new Blob();
+  2 | const formData = new FormData();
+  3 | const file = new File([blob], "");
+  4 | formData.append("file", file);
+
+`;
+
+exports[`no-blob-to-file > invalid(14): const blob = new Blob();\nconst formData = new FormData();\nconst file = new File([blob], \"\");\nformData.append(\"file\", file); 2`] = `
+
+Message:
+  1 | const blob = new Blob();
+  2 | const formData = new FormData();
+> 3 | const file = new File([blob], "");
+    |              ^^^^^^^^^^^^^^^^^^^^ Use the original \`Blob\` instead of converting it to a \`File\`.
+  4 | formData.append("file", file);
+
+Suggestion 1/1: Replace the \`File\` with the original \`Blob\`.:
+  1 | const blob = new Blob();
+  2 | const formData = new FormData();
+  3 | formData.append("file", blob, "");
+
+`;
+
 exports[`no-blob-to-file > invalid(2): const imageBlob = new Blob();\nconst file = new File([imageBlob], \"image.jpg\");\nURL.createObjectURL(file); 1`] = `
 
   1 | const imageBlob = new Blob();

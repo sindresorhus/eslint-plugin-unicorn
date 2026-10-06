@@ -7,7 +7,7 @@ import {
 	getVariableIdentifiers,
 	isGlobalIdentifier,
 } from './utils/index.js';
-import {removeStatement} from './fix/index.js';
+import {appendArgument, removeStatement} from './fix/index.js';
 
 const MESSAGE_ID = 'no-blob-to-file';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -192,7 +192,7 @@ function getProblem(node, context) {
 						supportedCall.kind === 'formData'
 						&& supportedCall.call.arguments.length === 2
 					) {
-						yield fixer.insertTextAfter(reference, `, ${sourceCode.getText(fileNameNode)}`);
+						yield appendArgument(fixer, supportedCall.call, sourceCode.getText(fileNameNode), context);
 					}
 				},
 			},
