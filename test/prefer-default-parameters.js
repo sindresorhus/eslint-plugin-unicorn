@@ -368,10 +368,10 @@ test({
 			}],
 		},
 		{
-			code: 'const result = "outer"; function fn(name = () => result, repo) { const result = repo ?? "literal"; return [name(), result]; }',
+			code: 'const result = "outer"; function fn(name = () => result, repo) { const result = repo ?? 3; return [name(), result]; }',
 			errors: [{
 				messageId: 'preferDefaultParameterOverFallback',
-				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const result = "outer"; function fn(name = () => result, repo = "literal") { const result = repo; return [name(), result]; }'}],
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const result = "outer"; function fn(name = () => result, repo = 3) { const result = repo; return [name(), result]; }'}],
 			}],
 		},
 		{
