@@ -57,6 +57,8 @@ testRule.snapshot({
 		'const walk = (node, saved = node) => node.next ? walk(node.next, saved) : saved; walk(first); walk(second);',
 		'const node = {}; function walk(node, saved = node) { return node.next ? walk(node.next, saved) : saved; } walk(first); walk(second);',
 		'class Walker { #walk(node, seen = new Set()) { return node.next ? this.#walk(node.next, seen) : seen; } run() { this.#walk(first); this.#walk(second); } }',
+		'class Walker { constructor(node, seen = new Set()) { this.seen = node.next ? new Walker(node.next, seen).seen : seen; } } new Walker(first); new Walker(second);',
+		'function walk(node, saved = {}) { return node.next ? walk(node.next, saved) : node.reset ? walk(node.reset) : saved; } walk(first); walk(second, undefined);',
 		'function format(...values) { return values; } format(1); format(1);',
 		'function format({value}) { return value; } format({value: 1}); format({value: 2});',
 		'function format({value}) { return value; } format(options); format(options);',
@@ -442,6 +444,22 @@ test('still reports recursive defaults referring to stable outer bindings', t =>
 	t.assert.strictEqual(result.output, code);
 	t.assert.strictEqual(result.messages.length, 1);
 	t.assert.strictEqual(result.messages[0].messageId, 'always-default');
+});
+
+test('preserves mutable outer binding snapshots across recursive forwarding', t => {
+	const code = outdent`
+		let current = 0;
+		function walk(node, saved = current) {
+			current++;
+			return node.next ? walk(node.next, saved) : saved;
+		}
+		[walk({next: {}}), walk({})];
+	`;
+	const result = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.deepStrictEqual(structuredClone(vm.runInNewContext(result.output)), [0, 2]);
 });
 
 test('preserves results when fixing primitive defaults and undefined across recursive forwarding', t => {
