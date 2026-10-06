@@ -19,8 +19,8 @@ const isStaticDefaultValue = node => node.type === 'Literal'
 
 const getStaticDefaultValue = node => node.type === 'UnaryExpression' ? -node.argument.value : getStaticStringValue(node) ?? node.value;
 
-const getDefaultAssignment = (left, right, operator = '=') => {
-	if (!left || !right || left.type !== 'Identifier') {
+const getDefaultValue = ({left, right, operator}) => {
+	if (left.type !== 'Identifier') {
 		return;
 	}
 
@@ -30,19 +30,16 @@ const getDefaultAssignment = (left, right, operator = '=') => {
 		&& (right.operator === '||' || right.operator === '??')
 		&& right.left.type === 'Identifier'
 	) {
-		return {
-			assignedIdentifier: left,
-			parameterIdentifier: right.left,
-			defaultValue: right.right,
-		};
+		// Parameter is reassigned to a different identifier
+		if (left.name !== right.left.name) {
+			return;
+		}
+
+		return right.right;
 	}
 
 	if (operator === '||=' || operator === '??=') {
-		return {
-			assignedIdentifier: left,
-			parameterIdentifier: left,
-			defaultValue: right,
-		};
+		return right;
 	}
 };
 
@@ -75,16 +72,6 @@ const hasSideEffects = (sourceCode, function_, node) => {
 	}
 
 	return false;
-};
-
-const hasExtraReferences = (isAssignment, references, left) => {
-	// Parameter is referenced prior to default-assignment
-	if (isAssignment && references[0].identifier !== left) {
-		return true;
-	}
-
-	// Old parameter is still referenced somewhere else
-	return !isAssignment && references.length > 1;
 };
 
 const needsParentheses = (sourceCode, function_) => {
@@ -129,7 +116,6 @@ const create = context => {
 	const {sourceCode} = context;
 	const isTypeScriptParser = Boolean(sourceCode.parserServices?.esTreeNodeToTSNodeMap);
 	const functionStack = [];
-	const reportedVariables = new Set();
 
 	const isDefaultValueCompatible = (binding, defaultValue, expression) => withTypeInformation(
 		binding.typeAnnotation?.typeAnnotation ?? binding,
@@ -172,7 +158,6 @@ const create = context => {
 			|| definition.node !== node
 			|| (definition.type !== 'Parameter' && definition.type !== 'Variable')
 			|| (definition.type === 'Variable' && (node.parent.kind === 'var' || node.parent.parent.type === 'ExportNamedDeclaration'))
-			|| reportedVariables.has(variable)
 		) {
 			return;
 		}
@@ -187,6 +172,7 @@ const create = context => {
 				definition.type !== 'Parameter'
 				|| node.params.at(-1) !== binding
 				|| (node.body.type === 'BlockStatement' && node.body.body.some(statement => statement.directive === 'use strict'))
+				|| (isTypeScriptParser && node.parent.kind === 'set')
 			)
 		) {
 			return;
@@ -197,6 +183,8 @@ const create = context => {
 			return;
 		}
 
+		// Keep local declarations and parameter names so defaults cannot capture outer variables.
+		// The binding must only be referenced through fallback expressions.
 		const expressions = references.map(reference => reference.identifier.parent);
 		const [firstExpression] = expressions;
 		if (expressions.some((expression, index) =>
@@ -209,7 +197,8 @@ const create = context => {
 			|| ((expression.right.type === 'Identifier') !== (firstExpression.right.type === 'Identifier'))
 			|| (expression.right.type === 'Identifier'
 				? expression.right.name !== firstExpression.right.name
-				: !Object.is(getStaticDefaultValue(expression.right), getStaticDefaultValue(firstExpression.right))),
+				: !Object.is(getStaticDefaultValue(expression.right), getStaticDefaultValue(firstExpression.right)))
+			|| !isDefaultValueCompatible(binding, expression.right, expression),
 		)) {
 			return;
 		}
@@ -223,8 +212,6 @@ const create = context => {
 					if (
 						sourceCode.getCommentsInside(binding).length > 0
 						|| expressions.some(expression => sourceCode.getCommentsInside(expression).length > 0)
-						|| (!isDestructuring && isTypeScriptParser && node.parent.kind === 'set')
-						|| expressions.some(expression => !isDefaultValueCompatible(binding, expression.right, expression))
 					) {
 						return abort();
 					}
@@ -254,32 +241,21 @@ const create = context => {
 		}
 	}
 
-	const getDefaultParameterProblem = (node, left, right, operator) => {
+	const getDefaultParameterProblem = node => {
 		const currentFunction = functionStack.at(-1);
-		const defaultAssignment = getDefaultAssignment(left, right, operator);
+		const defaultValue = getDefaultValue(node.expression);
 
 		if (
 			!currentFunction
-			|| !defaultAssignment
+			|| !defaultValue
 			|| node.parent !== currentFunction.body
 			|| currentFunction.body.body.some(statement => statement.directive === 'use strict')
 		) {
 			return;
 		}
 
-		const {
-			assignedIdentifier,
-			parameterIdentifier: {name: parameterName},
-			defaultValue,
-		} = defaultAssignment;
-		const {name: assignedName} = assignedIdentifier;
-		const isAssignment = node.type === 'ExpressionStatement';
-
-		// Parameter is reassigned to a different identifier
-		if (isAssignment && assignedName !== parameterName) {
-			return;
-		}
-
+		const {left} = node.expression;
+		const {name: parameterName} = left;
 		const scope = sourceCode.getScope(node);
 		const variable = findVariable(scope, parameterName);
 
@@ -298,37 +274,31 @@ const create = context => {
 		if (
 			parameter?.type !== 'Identifier'
 			|| parameter.name !== parameterName
+			|| variable.defs.length !== 1
+			|| variable.defs[0].name !== parameter
 			|| (!isStaticDefaultValue(defaultValue) && !isEarlierBinding(defaultValue, variable))
-			|| (!isAssignment && isTypeScriptParser)
+			|| (isTypeScriptParser && currentFunction.parent.kind === 'set')
+			|| !isDefaultValueCompatible(parameter, defaultValue, node.expression)
 		) {
 			return;
 		}
 
-		const assignedVariable = assignedName === parameterName ? variable : findVariable(scope, assignedName);
-		const hasParameterNameCollision = assignedVariable.defs.some(definition =>
-			definition.type === 'Parameter'
-			&& definition.name !== parameter);
-		// Parameter defaults may refer to an outer variable with the new parameter name.
-		const hasParameterNameCapture = !isAssignment && assignedVariable.scope.through.some(reference => reference.identifier.name === assignedName);
-
+		// Parameter is referenced prior to default-assignment
 		if (
 			hasSideEffects(sourceCode, currentFunction, node)
-			|| hasExtraReferences(isAssignment, references, left)
-			|| hasParameterNameCollision
-			|| hasParameterNameCapture
+			|| references[0].identifier !== left
 		) {
 			return;
 		}
 
-		const typeAnnotation = isAssignment ? parameter.typeAnnotation : assignedIdentifier.typeAnnotation;
+		const {typeAnnotation} = parameter;
 		const parameterText = typeAnnotation
-			? `${assignedName}${sourceCode.getText(typeAnnotation)}`
-			: assignedName;
+			? `${parameterName}${sourceCode.getText(typeAnnotation)}`
+			: parameterName;
 		const defaultValueText = sourceCode.getText(defaultValue);
 		const replacement = needsParentheses(sourceCode, currentFunction)
 			? `(${parameterText} = ${defaultValueText})`
 			: `${parameterText} = ${defaultValueText}`;
-		reportedVariables.add(variable);
 
 		return {
 			node,
@@ -339,8 +309,6 @@ const create = context => {
 					if (
 						sourceCode.getCommentsInside(node).length > 0
 						|| sourceCode.getCommentsInside(parameter).length > 0
-						|| (isTypeScriptParser && currentFunction.parent.kind === 'set')
-						|| !isDefaultValueCompatible(parameter, defaultValue, node.expression ?? right)
 					) {
 						return abort();
 					}
@@ -365,13 +333,7 @@ const create = context => {
 
 	context.on('AssignmentExpression', node => {
 		if (node.parent.type === 'ExpressionStatement' && node.parent.expression === node) {
-			return getDefaultParameterProblem(node.parent, node.left, node.right, node.operator);
-		}
-	});
-
-	context.on('VariableDeclarator', node => {
-		if (node.parent.type === 'VariableDeclaration' && node.parent.kind === 'const' && node.parent.declarations.length === 1) {
-			return getDefaultParameterProblem(node.parent, node.id, node.init);
+			return getDefaultParameterProblem(node.parent);
 		}
 	});
 };

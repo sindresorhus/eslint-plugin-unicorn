@@ -43,9 +43,9 @@ For fallback expressions:
 - Binding order is preserved. Fallbacks referring to later bindings are not reported.
 - Plain parameters must be last. Local destructuring declarations must use `const` or `let` and must not be exported.
 
-When the last parameter is only used to initialize a local variable with a fallback, the rule can replace a `const` declaration by renaming that parameter. For `let` and `var`, the rule keeps the local declaration and adds a default to the original parameter instead. TypeScript local declarations and parameter names are retained to preserve their types.
+Local variable declarations and parameter names are retained. The rule moves the default to the parameter and replaces fallback expressions with reads of that parameter.
 
-TypeScript annotations are preserved. When type information is available, including JavaScript with JSDoc, suggestions are omitted if the default or replacement would have an incompatible type, or if the default depends on type narrowing at a read. Without it, review the types before applying a suggestion. TypeScript setter parameters cannot have initializers, so suggestions only add defaults inside their destructuring patterns.
+TypeScript annotations are preserved. When type information is available, including JavaScript with JSDoc, patterns are not reported if the default or replacement would have an incompatible type, or if the default depends on type narrowing at a read. These checks are conservative and may skip transformations that would widen inferred types. Without type information, review the types before applying a suggestion. Plain TypeScript setter parameters are not reported because they cannot have initializers; defaults inside their destructuring patterns remain supported.
 
 Code that relies on the [connection between parameters and `arguments` in non-strict functions](https://eslint.org/docs/latest/rules/no-param-reassign) is unsupported. Adding a parameter default removes that connection.
 
@@ -56,7 +56,7 @@ Code that relies on the [connection between parameters and `arguments` in non-st
 Type: `boolean`\
 Default: `true`
 
-Set to `false` to allow `||` and `??` fallback reads of parameters and destructured variables. Reassignments and moving local fallback initializers to parameters remain checked; their suggestions can also change runtime behavior.
+Set to `false` to allow `||` and `??` fallback reads of parameters and destructured variables. Reassignments remain checked; their suggestions can also change runtime behavior.
 
 ```js
 export default {
@@ -146,7 +146,9 @@ function abc(foo) {
 }
 
 // ✅
-function abc(bar = 'bar') {}
+function abc(foo = 'bar') {
+	const bar = foo;
+}
 ```
 
 ```js
