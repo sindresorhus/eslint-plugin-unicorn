@@ -204,8 +204,4 @@ Functions with unknown callers, public methods, and functions using their own `a
 
 When external calls use a default forwarded by recursion, only primitives and stable outer bindings are checked. Other defaults are skipped to preserve shared state.
 
-Autofixes update declarations and callers together. Global bindings, complex defaults, and changes affecting scope, timing, syntax, or comments require manual fixes.
-
-Otherwise safe fixes are offered as suggestions in files using a TypeScript extension or parser, `@ts-check`, or JSDoc type annotations. Review annotations and inferred types after applying them. Descriptive JSDoc is unaffected.
-
-External `checkJs` settings are not detected without TypeScript parser services. Reflection through instance constructors or function source text is unsupported.
+Fixes update declarations and callers together; global bindings, complex defaults, and changes affecting scope, timing, syntax, or comments require manual edits. Otherwise safe fixes become suggestions in files using a TypeScript extension or parser, `@ts-check`, or JSDoc type annotations; review types after applying them. Descriptive JSDoc is unaffected.
