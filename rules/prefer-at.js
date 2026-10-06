@@ -12,8 +12,10 @@ import {
 	isLeftHandSide,
 	getStaticValueIfNoSideEffects,
 	hasCommentInRange,
+	unwrapChainAndTypeScriptExpression,
 	unwrapTypeScriptExpression as unwrapExpression,
 } from './utils/index.js';
+import {createTypeCheckers} from './utils/type-helpers.js';
 import {
 	getNegativeIndexLengthNode,
 	removeLengthNode,
@@ -170,12 +172,24 @@ const domCollectionMethods = [
 	'querySelectorAll',
 ];
 
-const isDomCollectionReceiver = node => {
-	node = unwrapExpression(node);
+const isDomCollectionExpression = node => {
+	node = unwrapChainAndTypeScriptExpression(node);
 
 	return isMemberExpression(node, {properties: domCollectionProperties})
 		|| isMethodCall(node, {methods: domCollectionMethods});
 };
+
+const {isTarget: isDomCollectionType} = createTypeCheckers({
+	// Specialized DOM collection types like HTMLFormControlsCollection, HTMLOptionsCollection, and RadioNodeList are too niche to list explicitly.
+	targetTypeNames: new Set(['NodeList', 'NodeListOf', 'HTMLCollection', 'HTMLCollectionOf']),
+	allowNullishInMixedUnion: true,
+	isTargetNode: (node, _context, isTarget) =>
+		isDomCollectionExpression(node)
+		|| (node.type === 'ChainExpression' && isTarget(node.expression)),
+});
+
+const isDomCollectionReceiver = (node, context) =>
+	isDomCollectionExpression(node) || isDomCollectionType(node, context);
 
 /**
 @param {import('eslint').Rule.RuleContext} context
@@ -190,11 +204,7 @@ function create(context) {
 
 	// Index access
 	context.on('MemberExpression', node => {
-		if (
-			!node.computed
-			|| isLeftHandSide(node)
-			|| isDomCollectionReceiver(node.object)
-		) {
+		if (!node.computed || isLeftHandSide(node)) {
 			return;
 		}
 
@@ -218,7 +228,7 @@ function create(context) {
 			}
 		}
 
-		if (isArguments(node.object)) {
+		if (isArguments(node.object) || isDomCollectionReceiver(node.object, context)) {
 			return;
 		}
 
@@ -360,7 +370,7 @@ function create(context) {
 		}
 
 		const firstElementGetMethod = getSliceCallResult(sliceCall);
-		if (!firstElementGetMethod) {
+		if (!firstElementGetMethod || isDomCollectionReceiver(sliceCall.callee.object, context)) {
 			return;
 		}
 
@@ -418,7 +428,7 @@ function create(context) {
 
 		const [array] = node.arguments;
 
-		if (isArguments(array)) {
+		if (isArguments(array) || isDomCollectionReceiver(array, context)) {
 			return;
 		}
 

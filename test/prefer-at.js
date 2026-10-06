@@ -13,6 +13,74 @@ const typeAware = code => ({
 	},
 });
 
+// DOM collections do not support `.at()`, including when referenced through a variable.
+const domCollectionInitializers = [
+	'element.children',
+	'parent.childNodes',
+	'document.querySelectorAll("li")',
+	'document.getElementsByClassName("item")',
+	'document.getElementsByName("item")',
+	'document.getElementsByTagName("li")',
+	'document.getElementsByTagNameNS(namespace, "li")',
+];
+const domCollectionTypes = ['NodeList', 'NodeListOf<Element>', 'HTMLCollection', 'HTMLCollectionOf<Element>'];
+const typescript = code => ({code, languageOptions: {parser: parsers.typescript}});
+
+test({
+	valid: [
+		...domCollectionInitializers.flatMap(initializer => [
+			`const nodes = ${initializer}; nodes[nodes.length - 1];`,
+			`const nodes = ${initializer}; nodes.slice(-1)[0];`,
+			`const nodes = ${initializer}; _.last(nodes);`,
+			`_.last(${initializer});`,
+			{code: `const nodes = ${initializer}; nodes[0];`, options: [{checkAllIndexAccess: true}]},
+		]),
+		'const nodes = document.querySelectorAll("li"); const alias = nodes; alias[alias.length - 1];',
+		'const nodes = parent?.childNodes; nodes?.[nodes.length - 1];',
+		'const nodes = document?.querySelectorAll?.("li"); _.last(nodes);',
+		'const nodes = element.children; nodes.slice(-1).pop();',
+		'const nodes = element.children; nodes.slice(-1).shift();',
+		'const nodes = element.children; nodes.slice(-2, -1)[0];',
+		'element.children.slice(-1)[0];',
+		'lodash.last(element.children);',
+		'underscore.last(element.childNodes);',
+		{
+			code: 'const nodes = document.querySelectorAll("li"); utils.lastElement(nodes);',
+			options: [{getLastElementFunctions: ['utils.lastElement']}],
+		},
+		...domCollectionTypes.flatMap(type => [typescript, typeAware].map(parser => parser(`function foo(nodes: ${type}) { nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); }`))),
+		...[typescript, typeAware].map(parser => parser('function foo<T extends NodeList>(nodes: T) { nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); }')),
+		typescript('const nodes = document.querySelectorAll("li") as NodeListOf<Element>; (nodes as NodeListOf<Element>)[nodes.length - 1];'),
+		typescript('const nodes = <NodeList>element.childNodes; _.last(<NodeList>nodes);'),
+		typescript('const nodes = element.children satisfies HTMLCollection; nodes![nodes!.length - 1];'),
+		// Direct DOM expressions keep the existing exclusion even when asserted as arrays.
+		typescript(outdent`
+			(element.children as string[])[element.children.length - 1];
+			(element.children as string[]).slice(-1)[0];
+			_.last(element.children as string[]);
+		`),
+		typescript('type Nodes = NodeListOf<Element>; function foo(nodes: Nodes) { _.last(nodes); }'),
+		typescript('function foo(nodes: NodeList | HTMLCollection) { _.last(nodes); }'),
+		typescript('function foo(nodes: NodeList | undefined) { return nodes?.[nodes.length - 1]; }'),
+		{...typescript('function foo(nodes: HTMLCollection | null) { return nodes?.[0]; }'), options: [{checkAllIndexAccess: true}]},
+		{...typescript('function foo(nodes: NodeList) { return nodes[0]; }'), options: [{checkAllIndexAccess: true}]},
+		typeAware('declare function getNodes(): NodeListOf<Element>; const nodes = getNodes(); nodes[nodes.length - 1];'),
+		typescript('declare function getNodes(): NodeListOf<Element>; const nodes = getNodes(); _.last(nodes);'),
+		...[typescript, typeAware].map(parser => parser('declare function getNodes(): NodeList; const nodes = getNodes?.(); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);')),
+		typescript('declare function getNodes(): HTMLCollection; _.last(getNodes?.());'),
+		typeAware('function getNodes() { return document.querySelectorAll("li"); } const nodes = getNodes(); nodes[nodes.length - 1];'),
+		typeAware('let nodes = document.querySelectorAll("li"); _.last(nodes);'),
+		typeAware('const {children: nodes} = document.body; _.last(nodes);'),
+		typeAware('function foo(value: unknown) { if (value instanceof NodeList) { return value[value.length - 1]; } }'),
+		typescript('const nodes: unknown = element.children; _.last(nodes);'),
+		typescript('const nodes: NodeList | string[] = element.children; _.last(nodes);'),
+		typeAware('declare const source: {nodes: HTMLCollection}; _.last(source.nodes);'),
+		typeAware('type Nodes = ReturnType<() => NodeListOf<Element>>; declare const nodes: Nodes; _.last(nodes);'),
+		typeAware('function foo(nodes: NodeList | undefined) { return nodes?.[nodes.length - 1]; }'),
+	],
+	invalid: [],
+});
+
 // Index access
 test.snapshot({
 	valid: [
@@ -551,5 +619,45 @@ test({
 			output: 'foo(array.at(-1), /* keep */ bar)',
 			errors: 1,
 		},
+	],
+});
+
+// Unknown receivers and arrays converted from DOM collections must still be reported.
+const uncertainReceiverTypes = ['any', 'unknown', 'NodeList | string[]'];
+const reportedReceiverTypes = [...uncertainReceiverTypes, 'string[]', 'readonly number[]', 'string', 'Uint8Array'];
+test.snapshot({
+	valid: [],
+	invalid: [
+		'const nodes = getNodes(); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);',
+		'_.last(getNodes());',
+		'const nodes = Array.from(document.querySelectorAll("li")); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);',
+		'const nodes = [...element.children]; nodes[nodes.length - 1];',
+		'_.last(Array.from(element.children));',
+		'_.last([...element.childNodes]);',
+		'const nodes = [1, 2]; nodes[nodes.length - 1];',
+		'const string = "abc"; string[string.length - 1];',
+		'const bytes = new Uint8Array([1, 2]); bytes[bytes.length - 1];',
+		'const nodes = alias; const alias = nodes; _.last(nodes);',
+		'let nodes = element.children; nodes = []; _.last(nodes);',
+		'const {children: nodes} = element; _.last(nodes);',
+		'const nodes = element.children; function foo(nodes) { return _.last(nodes); }',
+		'_.last(document["querySelectorAll"]("li"));',
+		...reportedReceiverTypes.flatMap(type => [typescript, typeAware].map(parser => parser(`function foo(value: ${type}) { return value[value.length - 1]; }`))),
+		{code: 'const nodes = Array.from(element.children); nodes[0];', options: [{checkAllIndexAccess: true}]},
+		{...typeAware('function foo(value: any) { return value[0]; }'), options: [{checkAllIndexAccess: true}]},
+		typeAware('const nodes = Array.from(document.querySelectorAll("li")); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);'),
+		'const nodes = condition ? element.children : []; nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes);',
+		typescript('const nodes = element.children; _.last(nodes as string[]);'),
+		typescript('function foo(value: unknown) { if (value instanceof NodeList) { return value[value.length - 1]; } }'),
+		...uncertainReceiverTypes.flatMap(type => [typescript, typeAware].map(parser => parser(`function foo(value: ${type}) { value.slice(-1)[0]; _.last(value); }`))),
+		...[
+			'function foo<T extends NodeList | string[]>(nodes: T) { nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); }',
+			'function foo(nodes: NodeList | string[] | undefined) { nodes?.[nodes.length - 1]; nodes?.slice(-1)[0]; _.last(nodes); }',
+		].flatMap(code => [typescript, typeAware].map(parser => parser(code))),
+		typeAware('function foo(nodes: NodeList | string[]) { if (nodes instanceof NodeList) { return nodes[nodes.length - 1]; } return nodes[nodes.length - 1]; }'),
+		...[...uncertainReceiverTypes, 'string[]'].map(type => typescript(`declare function getNodes(): ${type}; const nodes = getNodes?.(); _.last(nodes);`)),
+		typescript('declare function getNodes(): NodeList; const nodes = getNodes?.() as string[]; _.last(nodes);'),
+		typeAware('function foo(slot: HTMLSlotElement) { const nodes = slot.assignedElements(); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); }'),
+		typeAware('function foo(form: HTMLFormElement) { const nodes = Array.from(form.elements); nodes[nodes.length - 1]; nodes.slice(-1)[0]; _.last(nodes); }'),
 	],
 });
