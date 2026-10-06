@@ -444,6 +444,7 @@ function getFix(parameter, result, target, context) {
 	if (
 		isTypeScriptFile(context.filename)
 		|| sourceCode.parserServices.esTreeNodeToTSNodeMap
+		|| [...target.calls].some(call => call.type === 'NewExpression')
 		|| hasJavaScriptTypeAnnotations(target.node, context)
 		|| parameter.variable.defs.length !== 1
 		|| parameter.variable.references.some(reference => !isRuntimeReference(reference))
