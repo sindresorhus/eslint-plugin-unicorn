@@ -101,9 +101,6 @@ const elements = document.querySelectorAll('div');
 const lastElement = elements[elements.length - 1];
 ```
 
-> [!NOTE]
-> DOM unions may include `null` or `undefined`. Unknown and mixed DOM/array types alone do not trigger the exclusion, but recognized DOM expressions and `const` initializers still do.
-
 Arrays created with `Array.from()` or spread are still checked:
 
 ```js
