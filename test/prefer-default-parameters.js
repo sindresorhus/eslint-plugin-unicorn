@@ -198,6 +198,16 @@ test({
 			}],
 		},
 		{
+			...typeAware('const options: {fallback: string; repo?: string} = {fallback: "name"}; const {fallback, repo} = options; const output: string = repo ?? fallback;'),
+			errors: [{
+				messageId: 'preferDestructuringDefaultOverFallback',
+				suggestions: [{
+					messageId: 'moveDefaultToDeclaration',
+					output: 'const options: {fallback: string; repo?: string} = {fallback: "name"}; const {fallback, repo = fallback} = options; const output: string = repo;',
+				}],
+			}],
+		},
+		{
 			...typeAware('function fn(name: string, repo?: string) { repo ||= name; return repo; }'),
 			errors: [{
 				messageId: 'preferDefaultParameters',
@@ -334,6 +344,7 @@ nodeTest('suggestions preserve TypeScript validity and the annotated call signat
 		'const fn: (name: string, repo?: string) => string = (name, repo) => repo ?? name;',
 		'function fn<Value>(name: Value, repo?: Value) { return repo ?? name; }',
 		'function fn<Value>([name, repo]: [Value, Value?]): Value { return repo ?? name; }',
+		'const options: {fallback: string; repo?: string} = {fallback: "name"}; const {fallback, repo} = options; const output: string = repo ?? fallback;',
 		'class Foo { set value({name, repo}: {name: string; repo?: string}) { console.log(repo ?? name); } }',
 		'function fn(name: boolean, repo?: string | boolean) { const result = repo ?? name; return result; } fn(true, "text");',
 		'const fn: (name: boolean, repo?: string | boolean) => string | boolean = (name, repo) => { const result = repo ?? name; return result; }; fn(true, "text");',
@@ -692,6 +703,20 @@ test({
 			errors: [{
 				messageId: 'preferDefaultParameters',
 				suggestions: [{messageId: 'preferDefaultParametersSuggest', output: 'function fn(name, repo = name) { }'}],
+			}],
+		},
+		{
+			code: 'function fn(name, repo) { function reset(name) { name = "changed"; } return repo ?? name; }',
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'function fn(name, repo = name) { function reset(name) { name = "changed"; } return repo; }'}],
+			}],
+		},
+		{
+			code: 'function fn(name, repo) { repo ??= name; function reset(name) { name = "changed"; } return repo; }',
+			errors: [{
+				messageId: 'preferDefaultParameters',
+				suggestions: [{messageId: 'preferDefaultParametersSuggest', output: 'function fn(name, repo = name) { function reset(name) { name = "changed"; } return repo; }'}],
 			}],
 		},
 		{
