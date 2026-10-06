@@ -76,6 +76,7 @@ test.snapshot({
 		'const fn = (name, repo) => { name++; return repo ?? name; };',
 		'let [name, repo] = array; name = "changed"; console.log(repo ?? name);',
 		'let {name, repo, other = (name = "changed")} = options; console.log(repo ?? name);',
+		'const fn = (name, {repo}, other = (name = "changed")) => repo ?? name;',
 		'const fn = (name, repo) => { var name; return repo ?? name; };',
 		'const fn = (name, repo) => { { const name = "shadow"; return repo ?? name; } };',
 		'const fn = (name, repo) => { function read(name) { return repo ?? name; } return repo ?? name; };',
@@ -344,6 +345,34 @@ test({
 			errors: [{
 				messageId: 'preferDefaultParameters',
 				suggestions: [{messageId: 'preferDefaultParametersSuggest', output: 'function fn(name, result = name) { console.log(result); }'}],
+			}],
+		},
+		{
+			code: 'function fn(name, repo) { var result = "initial"; var result = repo ?? name; return result; }',
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'function fn(name, repo = name) { var result = "initial"; var result = repo; return result; }'}],
+			}],
+		},
+		{
+			code: 'function fn(name, repo) { if (true) { var result = "initial"; } var result = repo || name; return result; }',
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'function fn(name, repo = name) { if (true) { var result = "initial"; } var result = repo; return result; }'}],
+			}],
+		},
+		{
+			code: 'function fn(name, repo) { result = "initial"; var result = repo ?? name; return result; }',
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'function fn(name, repo = name) { result = "initial"; var result = repo; return result; }'}],
+			}],
+		},
+		{
+			code: 'function fn(repo) { var result = "initial"; var result = repo ?? 3; return result; }',
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'function fn(repo = 3) { var result = "initial"; var result = repo; return result; }'}],
 			}],
 		},
 		{
@@ -881,17 +910,24 @@ test({
 				}
 			`],
 		}),
-		invalidTestCase({
+		{
 			code: outdent`
 				function abc(foo) {
 					let bar = foo || 'bar';
 				}
 			`,
-			suggestions: [outdent`
-				function abc(bar = 'bar') {
-				}
-			`],
-		}),
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{
+					messageId: 'moveDefaultToDeclaration',
+					output: outdent`
+						function abc(foo = 'bar') {
+							let bar = foo;
+						}
+					`,
+				}],
+			}],
+		},
 		invalidTestCase({
 			code: outdent`
 				function abc({baz}, foo) {

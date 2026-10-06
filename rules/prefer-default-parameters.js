@@ -335,7 +335,7 @@ const create = context => {
 	});
 
 	context.on('VariableDeclarator', node => {
-		if (node.parent.type === 'VariableDeclaration' && node.parent.declarations.length === 1) {
+		if (node.parent.type === 'VariableDeclaration' && node.parent.kind === 'const' && node.parent.declarations.length === 1) {
 			return getDefaultParameterProblem(node.parent, node.id, node.init);
 		}
 	});
