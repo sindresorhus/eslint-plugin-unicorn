@@ -84,6 +84,7 @@ const config = [
 			'rules/consistent-boolean-name.js',
 			'rules/no-loop-iterable-mutation.js',
 			'rules/prefer-math-constants.js',
+			'test/catch-error-name.js',
 		],
 		rules: {
 			// Internal fallback expressions intentionally handle null and other falsy values.

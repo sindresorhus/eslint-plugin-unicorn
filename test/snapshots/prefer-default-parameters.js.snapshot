@@ -1040,49 +1040,37 @@ Suggestion 1/1: Move the default value to the declaration. This changes fallback
 
 `;
 
-exports[`prefer-default-parameters > invalid(58): function install(packages) {\n\treturn packages.map(({name, versionRange}) => \`\${name}@\${versionRange || 'latest'}\`);\n}\n\nconsole.log(install([{name: 'eslint', versionRange: ''}])); 1`] = `
+exports[`prefer-default-parameters > invalid(58): const fn = (name, repo) => repo || name; 1`] = `
 
-  1 | function install(packages) {
-  2 | 	return packages.map(({name, versionRange}) => \`\${name}@\${versionRange || 'latest'}\`);
-  3 | }
-  4 |
-  5 | console.log(install([{name: 'eslint', versionRange: ''}]));
+  1 | const fn = (name, repo) => repo || name;
 
 `;
 
-exports[`prefer-default-parameters > invalid(58): function install(packages) {\n\treturn packages.map(({name, versionRange}) => \`\${name}@\${versionRange || 'latest'}\`);\n}\n\nconsole.log(install([{name: 'eslint', versionRange: ''}])); 2`] = `
+exports[`prefer-default-parameters > invalid(58): const fn = (name, repo) => repo || name; 2`] = `
 
 Message:
-  1 | function install(packages) {
-> 2 | 	return packages.map(({name, versionRange}) => \`\${name}@\${versionRange || 'latest'}\`);
-    | 	                            ^^^^^^^^^^^^ Prefer a destructuring default over fallback expressions.
-  3 | }
-  4 |
-  5 | console.log(install([{name: 'eslint', versionRange: ''}]));
+> 1 | const fn = (name, repo) => repo || name;
+    |                   ^^^^ Prefer a default parameter over fallback expressions.
 
 Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
-  1 | function install(packages) {
-  2 | 	return packages.map(({name, versionRange = 'latest'}) => \`\${name}@\${versionRange}\`);
-  3 | }
-  4 |
-  5 | console.log(install([{name: 'eslint', versionRange: ''}]));
+  1 | const fn = (name, repo = name) => repo;
 
 `;
 
-exports[`prefer-default-parameters > invalid(59): function abc(foo) { foo = foo || 'bar'; } 1`] = `
+exports[`prefer-default-parameters > invalid(59): const fn = (name, repo) => [repo ?? name, repo ?? name]; 1`] = `
 
-  1 | function abc(foo) { foo = foo || 'bar'; }
+  1 | const fn = (name, repo) => [repo ?? name, repo ?? name];
 
 `;
 
-exports[`prefer-default-parameters > invalid(59): function abc(foo) { foo = foo || 'bar'; } 2`] = `
+exports[`prefer-default-parameters > invalid(59): const fn = (name, repo) => [repo ?? name, repo ?? name]; 2`] = `
 
 Message:
-> 1 | function abc(foo) { foo = foo || 'bar'; }
-    |                     ^^^^^^^^^^^^^^^^^^^ Prefer default parameters over reassignment.
+> 1 | const fn = (name, repo) => [repo ?? name, repo ?? name];
+    |                   ^^^^ Prefer a default parameter over fallback expressions.
 
-Suggestion 1/1: Replace reassignment with a default parameter. This changes fallback behavior to apply only to undefined.:
-  1 | function abc(foo = 'bar') { }
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | const fn = (name, repo = name) => [repo, repo];
 
 `;
 
@@ -1124,6 +1112,176 @@ Suggestion 1/1: Replace reassignment with a default parameter. This changes fall
 
 `;
 
+exports[`prefer-default-parameters > invalid(60): const fn = (name, repo) => [repo || name, repo || name]; 1`] = `
+
+  1 | const fn = (name, repo) => [repo || name, repo || name];
+
+`;
+
+exports[`prefer-default-parameters > invalid(60): const fn = (name, repo) => [repo || name, repo || name]; 2`] = `
+
+Message:
+> 1 | const fn = (name, repo) => [repo || name, repo || name];
+    |                   ^^^^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | const fn = (name, repo = name) => [repo, repo];
+
+`;
+
+exports[`prefer-default-parameters > invalid(61): const fn = (name, repo) => { function read() { return repo ?? name; } return repo ?? name; }; 1`] = `
+
+  1 | const fn = (name, repo) => { function read() { return repo ?? name; } return repo ?? name; };
+
+`;
+
+exports[`prefer-default-parameters > invalid(61): const fn = (name, repo) => { function read() { return repo ?? name; } return repo ?? name; }; 2`] = `
+
+Message:
+> 1 | const fn = (name, repo) => { function read() { return repo ?? name; } return repo ?? name; };
+    |                   ^^^^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | const fn = (name, repo = name) => { function read() { return repo; } return repo; };
+
+`;
+
+exports[`prefer-default-parameters > invalid(62): const fn = ({name, property: repo}) => repo ?? name; 1`] = `
+
+  1 | const fn = ({name, property: repo}) => repo ?? name;
+
+`;
+
+exports[`prefer-default-parameters > invalid(62): const fn = ({name, property: repo}) => repo ?? name; 2`] = `
+
+Message:
+> 1 | const fn = ({name, property: repo}) => repo ?? name;
+    |                              ^^^^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | const fn = ({name, property: repo = name}) => repo;
+
+`;
+
+exports[`prefer-default-parameters > invalid(63): const fn = ({nested: {name, repo}}) => repo ?? name; 1`] = `
+
+  1 | const fn = ({nested: {name, repo}}) => repo ?? name;
+
+`;
+
+exports[`prefer-default-parameters > invalid(63): const fn = ({nested: {name, repo}}) => repo ?? name; 2`] = `
+
+Message:
+> 1 | const fn = ({nested: {name, repo}}) => repo ?? name;
+    |                             ^^^^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | const fn = ({nested: {name, repo = name}}) => repo;
+
+`;
+
+exports[`prefer-default-parameters > invalid(64): const fn = ({nested: {name}, repo}) => repo ?? name; 1`] = `
+
+  1 | const fn = ({nested: {name}, repo}) => repo ?? name;
+
+`;
+
+exports[`prefer-default-parameters > invalid(64): const fn = ({nested: {name}, repo}) => repo ?? name; 2`] = `
+
+Message:
+> 1 | const fn = ({nested: {name}, repo}) => repo ?? name;
+    |                              ^^^^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | const fn = ({nested: {name}, repo = name}) => repo;
+
+`;
+
+exports[`prefer-default-parameters > invalid(65): const fn = ([[name, repo]]) => repo ?? name; 1`] = `
+
+  1 | const fn = ([[name, repo]]) => repo ?? name;
+
+`;
+
+exports[`prefer-default-parameters > invalid(65): const fn = ([[name, repo]]) => repo ?? name; 2`] = `
+
+Message:
+> 1 | const fn = ([[name, repo]]) => repo ?? name;
+    |                     ^^^^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | const fn = ([[name, repo = name]]) => repo;
+
+`;
+
+exports[`prefer-default-parameters > invalid(66): const fn = ({name, repo} = {}) => repo ?? name; 1`] = `
+
+  1 | const fn = ({name, repo} = {}) => repo ?? name;
+
+`;
+
+exports[`prefer-default-parameters > invalid(66): const fn = ({name, repo} = {}) => repo ?? name; 2`] = `
+
+Message:
+> 1 | const fn = ({name, repo} = {}) => repo ?? name;
+    |                    ^^^^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | const fn = ({name, repo = name} = {}) => repo;
+
+`;
+
+exports[`prefer-default-parameters > invalid(67): const fn = (name = \"default\", repo) => repo ?? name; 1`] = `
+
+  1 | const fn = (name = "default", repo) => repo ?? name;
+
+`;
+
+exports[`prefer-default-parameters > invalid(67): const fn = (name = \"default\", repo) => repo ?? name; 2`] = `
+
+Message:
+> 1 | const fn = (name = "default", repo) => repo ?? name;
+    |                               ^^^^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | const fn = (name = "default", repo = name) => repo;
+
+`;
+
+exports[`prefer-default-parameters > invalid(68): const fn = ({name = \"default\", repo}) => repo ?? name; 1`] = `
+
+  1 | const fn = ({name = "default", repo}) => repo ?? name;
+
+`;
+
+exports[`prefer-default-parameters > invalid(68): const fn = ({name = \"default\", repo}) => repo ?? name; 2`] = `
+
+Message:
+> 1 | const fn = ({name = "default", repo}) => repo ?? name;
+    |                                ^^^^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | const fn = ({name = "default", repo = name}) => repo;
+
+`;
+
+exports[`prefer-default-parameters > invalid(69): const fn = ({name}, repo) => repo ?? name; 1`] = `
+
+  1 | const fn = ({name}, repo) => repo ?? name;
+
+`;
+
+exports[`prefer-default-parameters > invalid(69): const fn = ({name}, repo) => repo ?? name; 2`] = `
+
+Message:
+> 1 | const fn = ({name}, repo) => repo ?? name;
+    |                     ^^^^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | const fn = ({name}, repo = name) => repo;
+
+`;
+
 exports[`prefer-default-parameters > invalid(7): const fn = a => a ?? null; 1`] = `
 
   1 | const fn = a => a ?? null;
@@ -1141,24 +1299,193 @@ Suggestion 1/1: Move the default value to the declaration. This changes fallback
 
 `;
 
-exports[`prefer-default-parameters > invalid(7): function fn(a) { const b = a || 3; console.log(b); } 1`] = `
+exports[`prefer-default-parameters > invalid(7): function fn(name, repo) { repo ??= name; } 1`] = `
 
 Options:
 - checkFallbackExpressions: false
 
 Code:
-  1 | function fn(a) { const b = a || 3; console.log(b); }
+  1 | function fn(name, repo) { repo ??= name; }
 
 `;
 
-exports[`prefer-default-parameters > invalid(7): function fn(a) { const b = a || 3; console.log(b); } 2`] = `
+exports[`prefer-default-parameters > invalid(7): function fn(name, repo) { repo ??= name; } 2`] = `
 
 Message:
-> 1 | function fn(a) { const b = a || 3; console.log(b); }
-    |                  ^^^^^^^^^^^^^^^^^ Prefer default parameters over reassignment.
+> 1 | function fn(name, repo) { repo ??= name; }
+    |                           ^^^^^^^^^^^^^^ Prefer default parameters over reassignment.
 
 Suggestion 1/1: Replace reassignment with a default parameter. This changes fallback behavior to apply only to undefined.:
-  1 | function fn(b = 3) { console.log(b); }
+  1 | function fn(name, repo = name) { }
+
+`;
+
+exports[`prefer-default-parameters > invalid(70): const {name, repo} = options; console.log(repo || name); 1`] = `
+
+  1 | const {name, repo} = options; console.log(repo || name);
+
+`;
+
+exports[`prefer-default-parameters > invalid(70): const {name, repo} = options; console.log(repo || name); 2`] = `
+
+Message:
+> 1 | const {name, repo} = options; console.log(repo || name);
+    |              ^^^^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | const {name, repo = name} = options; console.log(repo);
+
+`;
+
+exports[`prefer-default-parameters > invalid(71): let [name, repo] = array; console.log(repo ?? name); 1`] = `
+
+  1 | let [name, repo] = array; console.log(repo ?? name);
+
+`;
+
+exports[`prefer-default-parameters > invalid(71): let [name, repo] = array; console.log(repo ?? name); 2`] = `
+
+Message:
+> 1 | let [name, repo] = array; console.log(repo ?? name);
+    |            ^^^^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | let [name, repo = name] = array; console.log(repo);
+
+`;
+
+exports[`prefer-default-parameters > invalid(72): const {name, nested: {repo}} = options; console.log(repo ?? name); 1`] = `
+
+  1 | const {name, nested: {repo}} = options; console.log(repo ?? name);
+
+`;
+
+exports[`prefer-default-parameters > invalid(72): const {name, nested: {repo}} = options; console.log(repo ?? name); 2`] = `
+
+Message:
+> 1 | const {name, nested: {repo}} = options; console.log(repo ?? name);
+    |                       ^^^^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | const {name, nested: {repo = name}} = options; console.log(repo);
+
+`;
+
+exports[`prefer-default-parameters > invalid(73): for (const [name, repo] of arrays) { console.log(repo ?? name); } 1`] = `
+
+  1 | for (const [name, repo] of arrays) { console.log(repo ?? name); }
+
+`;
+
+exports[`prefer-default-parameters > invalid(73): for (const [name, repo] of arrays) { console.log(repo ?? name); } 2`] = `
+
+Message:
+> 1 | for (const [name, repo] of arrays) { console.log(repo ?? name); }
+    |                   ^^^^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | for (const [name, repo = name] of arrays) { console.log(repo); }
+
+`;
+
+exports[`prefer-default-parameters > invalid(74): const fn = (name, repo) => (repo) ?? (name); 1`] = `
+
+  1 | const fn = (name, repo) => (repo) ?? (name);
+
+`;
+
+exports[`prefer-default-parameters > invalid(74): const fn = (name, repo) => (repo) ?? (name); 2`] = `
+
+Message:
+> 1 | const fn = (name, repo) => (repo) ?? (name);
+    |                   ^^^^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | const fn = (name, repo = name) => repo;
+
+`;
+
+exports[`prefer-default-parameters > invalid(75): const fn = (name, repo) => repo ?? /* Keep comment. */ name; 1`] = `
+
+  1 | const fn = (name, repo) => repo ?? /* Keep comment. */ name;
+
+`;
+
+exports[`prefer-default-parameters > invalid(75): const fn = (name, repo) => repo ?? /* Keep comment. */ name; 2`] = `
+
+Message:
+> 1 | const fn = (name, repo) => repo ?? /* Keep comment. */ name;
+    |                   ^^^^ Prefer a default parameter over fallback expressions.
+
+`;
+
+exports[`prefer-default-parameters > invalid(76): const fn = ({name, repo /* Keep comment. */}) => repo ?? name; 1`] = `
+
+  1 | const fn = ({name, repo /* Keep comment. */}) => repo ?? name;
+
+`;
+
+exports[`prefer-default-parameters > invalid(76): const fn = ({name, repo /* Keep comment. */}) => repo ?? name; 2`] = `
+
+Message:
+> 1 | const fn = ({name, repo /* Keep comment. */}) => repo ?? name;
+    |                    ^^^^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | const fn = ({name, repo = name /* Keep comment. */}) => repo;
+
+`;
+
+exports[`prefer-default-parameters > invalid(77): function fn(name, repo) { repo ||= /* Keep comment. */ name; } 1`] = `
+
+  1 | function fn(name, repo) { repo ||= /* Keep comment. */ name; }
+
+`;
+
+exports[`prefer-default-parameters > invalid(77): function fn(name, repo) { repo ||= /* Keep comment. */ name; } 2`] = `
+
+Message:
+> 1 | function fn(name, repo) { repo ||= /* Keep comment. */ name; }
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer default parameters over reassignment.
+
+`;
+
+exports[`prefer-default-parameters > invalid(78): function fn(name, repo) {\r\n  repo ??= name;\r\n} 1`] = `
+
+  1 | function fn(name, repo) {
+  2 |   repo ??= name;
+  3 | }
+
+`;
+
+exports[`prefer-default-parameters > invalid(78): function fn(name, repo) {\r\n  repo ??= name;\r\n} 2`] = `
+
+Message:
+  1 | function fn(name, repo) {
+> 2 |   repo ??= name;
+    |   ^^^^^^^^^^^^^^ Prefer default parameters over reassignment.
+  3 | }
+
+Suggestion 1/1: Replace reassignment with a default parameter. This changes fallback behavior to apply only to undefined.:
+  1 | function fn(name, repo = name) {
+  2 | }
+
+`;
+
+exports[`prefer-default-parameters > invalid(79): const fn = (name: string, repo?: string) => repo ?? name; 1`] = `
+
+  1 | const fn = (name: string, repo?: string) => repo ?? name;
+
+`;
+
+exports[`prefer-default-parameters > invalid(79): const fn = (name: string, repo?: string) => repo ?? name; 2`] = `
+
+Message:
+> 1 | const fn = (name: string, repo?: string) => repo ?? name;
+    |                           ^^^^^^^^^^^^^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | const fn = (name: string, repo: string = name) => repo;
 
 `;
 
@@ -1197,6 +1524,103 @@ Message:
 
 Suggestion 1/1: Replace reassignment with a default parameter. This changes fallback behavior to apply only to undefined.:
   1 | function outer(a) { function inner(b = 3) { } return a || 3; }
+
+`;
+
+exports[`prefer-default-parameters > invalid(80): const fn = ({name, repo}: {name: string; repo?: string}) => repo ?? name; 1`] = `
+
+  1 | const fn = ({name, repo}: {name: string; repo?: string}) => repo ?? name;
+
+`;
+
+exports[`prefer-default-parameters > invalid(80): const fn = ({name, repo}: {name: string; repo?: string}) => repo ?? name; 2`] = `
+
+Message:
+> 1 | const fn = ({name, repo}: {name: string; repo?: string}) => repo ?? name;
+    |                    ^^^^ Prefer a destructuring default over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | const fn = ({name, repo = name}: {name: string; repo?: string}) => repo;
+
+`;
+
+exports[`prefer-default-parameters > invalid(81): function fn(name: string, repo?: string) { repo ??= name; } 1`] = `
+
+  1 | function fn(name: string, repo?: string) { repo ??= name; }
+
+`;
+
+exports[`prefer-default-parameters > invalid(81): function fn(name: string, repo?: string) { repo ??= name; } 2`] = `
+
+Message:
+> 1 | function fn(name: string, repo?: string) { repo ??= name; }
+    |                                            ^^^^^^^^^^^^^^ Prefer default parameters over reassignment.
+
+Suggestion 1/1: Replace reassignment with a default parameter. This changes fallback behavior to apply only to undefined.:
+  1 | function fn(name: string, repo: string = name) { }
+
+`;
+
+exports[`prefer-default-parameters > invalid(82): function fn(name: string, repo?: string) { const result: string = repo ?? name; console.log(result); } 1`] = `
+
+  1 | function fn(name: string, repo?: string) { const result: string = repo ?? name; console.log(result); }
+
+`;
+
+exports[`prefer-default-parameters > invalid(82): function fn(name: string, repo?: string) { const result: string = repo ?? name; console.log(result); } 2`] = `
+
+Message:
+> 1 | function fn(name: string, repo?: string) { const result: string = repo ?? name; console.log(result); }
+    |                           ^^^^^^^^^^^^^ Prefer a default parameter over fallback expressions.
+
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | function fn(name: string, repo: string = name) { const result: string = repo; console.log(result); }
+
+`;
+
+exports[`prefer-default-parameters > invalid(83): function install(packages) {\n\treturn packages.map(({name, versionRange}) => \`\${name}@\${versionRange || 'latest'}\`);\n}\n\nconsole.log(install([{name: 'eslint', versionRange: ''}])); 1`] = `
+
+  1 | function install(packages) {
+  2 | 	return packages.map(({name, versionRange}) => \`\${name}@\${versionRange || 'latest'}\`);
+  3 | }
+  4 |
+  5 | console.log(install([{name: 'eslint', versionRange: ''}]));
+
+`;
+
+exports[`prefer-default-parameters > invalid(83): function install(packages) {\n\treturn packages.map(({name, versionRange}) => \`\${name}@\${versionRange || 'latest'}\`);\n}\n\nconsole.log(install([{name: 'eslint', versionRange: ''}])); 2`] = `
+
+Message:
+  1 | function install(packages) {
+> 2 | 	return packages.map(({name, versionRange}) => \`\${name}@\${versionRange || 'latest'}\`);
+    | 	                            ^^^^^^^^^^^^ Prefer a destructuring default over fallback expressions.
+  3 | }
+  4 |
+  5 | console.log(install([{name: 'eslint', versionRange: ''}]));
+
+Suggestion 1/1: Move the default value to the declaration. This changes fallback behavior to apply only to undefined.:
+  1 | function install(packages) {
+  2 | 	return packages.map(({name, versionRange = 'latest'}) => \`\${name}@\${versionRange}\`);
+  3 | }
+  4 |
+  5 | console.log(install([{name: 'eslint', versionRange: ''}]));
+
+`;
+
+exports[`prefer-default-parameters > invalid(84): function abc(foo) { foo = foo || 'bar'; } 1`] = `
+
+  1 | function abc(foo) { foo = foo || 'bar'; }
+
+`;
+
+exports[`prefer-default-parameters > invalid(84): function abc(foo) { foo = foo || 'bar'; } 2`] = `
+
+Message:
+> 1 | function abc(foo) { foo = foo || 'bar'; }
+    |                     ^^^^^^^^^^^^^^^^^^^ Prefer default parameters over reassignment.
+
+Suggestion 1/1: Replace reassignment with a default parameter. This changes fallback behavior to apply only to undefined.:
+  1 | function abc(foo = 'bar') { }
 
 `;
 

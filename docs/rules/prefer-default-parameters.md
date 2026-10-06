@@ -9,12 +9,10 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Instead of reassigning a function parameter, default parameters should be used. This includes the `||=` and `??=` logical assignment operators. The `foo = foo || 123` statement evaluates to `123` when `foo` is falsy, possibly leading to confusing behavior, whereas default parameters only apply when passed an `undefined` value. This rule only reports reassignments to literal values, including untagged template literals without expressions.
+This rule prefers default parameters and destructuring defaults over fallback expressions and parameter reassignments, including `||=` and `??=`.
 
-The rule also prefers defaults for parameters and destructured variables when every read uses the same operator (`??` or `||`) and literal fallback (excluding regular expressions), and the variable is never reassigned. Quoted strings and template literals without expressions are considered the same fallback when their decoded string values are equal. Plain parameters must be last. Local declarations must use `const` or `let` and must not be exported.
-
-> [!NOTE]
-> Suggestions can change runtime behavior: `||` and `||=` fall back for all falsy values, `??` and `??=` for `null` or `undefined`, and parameter and destructuring defaults only for `undefined`.
+> [!IMPORTANT]
+> Defaults only handle `undefined`; `??` also handles `null`, and `||` handles all falsy values. Suggestions can therefore change behavior. Disable the rule if these distinctions matter. We recommend [moving away from `null`](https://github.com/sindresorhus/meta/discussions/7).
 
 For an empty `versionRange`, the suggestion changes the output:
 
@@ -38,7 +36,13 @@ console.log(install([{name: 'eslint', versionRange: ''}]));
 // ['eslint@']
 ```
 
-You should disable this rule if you want your functions to deal with `null` and other falsy values the same way as `undefined`. Default parameters are exclusively applied [when `undefined` is received](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Default_parameters#passing_undefined_vs._other_falsy_values). Destructuring defaults behave the same way, so the rule offers suggestions instead of autofixes. However, we recommend [moving away from `null`](https://github.com/sindresorhus/meta/discussions/7).
+Fallbacks may be literals, negative number or BigInt literals, untagged template literals without expressions, or earlier bindings in the same parameter list or destructuring pattern. For fallback reads, regular expressions are excluded, every read must use the same operator (`??` or `||`) and fallback, and neither binding may be reassigned. Quoted and template strings are compared by decoded value.
+
+Plain parameters must be last. Local destructuring declarations must use `const` or `let` and must not be exported. Suggestions preserve binding order, names, and local declarations.
+
+TypeScript annotations are preserved. With type information, including JavaScript with JSDoc, the rule skips incompatible type changes, narrowing-dependent defaults, and `any` bindings or fallbacks. Without it, review types before applying suggestions. TypeScript setter parameters are skipped, except destructured bindings.
+
+Code relying on [non-strict `arguments` aliasing](https://eslint.org/docs/latest/rules/no-param-reassign) is unsupported. Parameter defaults break that connection and can change `function.length`.
 
 ## Options
 
@@ -47,7 +51,7 @@ You should disable this rule if you want your functions to deal with `null` and 
 Type: `boolean`\
 Default: `true`
 
-Set to `false` to allow `||` and `??` fallback reads of parameters and destructured variables. Reassignments and moving local fallback initializers to parameters remain checked; their suggestions can also change runtime behavior.
+Set to `false` to allow `||` and `??` fallback reads of parameters and destructured variables. Reassignments remain checked; their suggestions can also change runtime behavior.
 
 ```js
 export default {
@@ -129,7 +133,9 @@ function abc(foo) {
 }
 
 // ✅
-function abc(bar = 'bar') {}
+function abc(foo = 'bar') {
+	const bar = foo;
+}
 ```
 
 ```js
@@ -137,4 +143,40 @@ function abc(bar = 'bar') {}
 function abc(foo) {
 	foo = foo || bar();
 }
+```
+
+```js
+// ❌
+const fn = (name, repo) => repo ?? name;
+
+// ✅
+const fn = (name, repo = name) => repo;
+```
+
+```js
+// ❌
+const fn = ({name, repo}) => repo ?? name;
+
+// ✅
+const fn = ({name, repo = name}) => repo;
+```
+
+```js
+// ❌
+const [first, second] = array;
+console.log(second ?? first);
+
+// ✅
+const [first, second = first] = array;
+console.log(second);
+```
+
+```js
+// ❌
+function abc(foo, bar) {
+	bar = bar || foo;
+}
+
+// ✅
+function abc(foo, bar = foo) {}
 ```
