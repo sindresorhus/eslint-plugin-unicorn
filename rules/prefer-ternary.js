@@ -3,6 +3,7 @@ import {isBooleanLiteral, isFunction} from './ast/index.js';
 import {
 	needsSemicolon,
 	isSameReference,
+	isSameTokens,
 	getConditionalExpressionChildText,
 	getParenthesizedText,
 	getParenthesizedRange,
@@ -74,13 +75,20 @@ const isMergeableReturnStatement = (consequent, alternate, visitorKeys) =>
 	&& !hasTernary(alternate.argument, visitorKeys)
 	&& !(isBooleanLiteral(consequent.argument) && isBooleanLiteral(alternate.argument));
 
-const isMergeableAssignmentExpression = (consequent, alternate, visitorKeys) =>
+const isMergeableAssignmentExpression = (consequent, alternate, sourceCode) =>
 	consequent.type === 'AssignmentExpression'
 	&& alternate.type === 'AssignmentExpression'
 	&& consequent.operator === alternate.operator
-	&& !hasTernary(consequent.right, visitorKeys)
-	&& !hasTernary(alternate.right, visitorKeys)
-	&& isSameReference(consequent.left, alternate.left);
+	&& !hasTernary(consequent.right, sourceCode.visitorKeys)
+	&& !hasTernary(alternate.right, sourceCode.visitorKeys)
+	&& (
+		isSameReference(consequent.left, alternate.left)
+		|| (
+			consequent.left.type === alternate.left.type
+			&& (consequent.left.type === 'ArrayPattern' || consequent.left.type === 'ObjectPattern')
+			&& isSameTokens(sourceCode.getTokens(consequent.left), sourceCode.getTokens(alternate.left))
+		)
+	);
 
 /**
 @param {import('eslint').Rule.RuleContext} context
@@ -121,7 +129,7 @@ const create = context => {
 			});
 		}
 
-		if (isMergeableAssignmentExpression(consequent, alternate, sourceCode.visitorKeys)) {
+		if (isMergeableAssignmentExpression(consequent, alternate, sourceCode)) {
 			const {left, right, operator} = consequent;
 
 			return merge({
@@ -280,7 +288,12 @@ const create = context => {
 
 				const {before} = result;
 
-				let fixed = `${before}${testText} ? ${consequentText} : ${alternateText};`;
+				let fixed = `${before}${testText} ? ${consequentText} : ${alternateText}`;
+				if (consequent.type === 'AssignmentExpression' && consequent.left.type === 'ObjectPattern') {
+					fixed = `(${fixed})`;
+				}
+
+				fixed += ';';
 				const tokenBefore = sourceCode.getTokenBefore(node);
 				const shouldAddSemicolonBefore = needsSemicolon(tokenBefore, context, fixed);
 				if (shouldAddSemicolonBefore) {

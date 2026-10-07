@@ -11,6 +11,8 @@
 
 This rule enforces the use of ternary expressions over simple `if` statements that return or assign a value. It handles `if`/`else` statements with one mergeable statement in each branch. For returns, it also handles the equivalent flat form where another `return` immediately follows an `if` without an `else`.
 
+Array and object destructuring assignments are supported when both branches use the same pattern, ignoring whitespace.
+
 It intentionally ignores standalone `await`, `yield`, and `throw` branches because ternaries there usually reduce readability without assigning or returning a value.
 
 It also detects `let` declarations immediately followed by an `if` that reassigns the variable, which can be replaced with a single declaration using a ternary. The declaration is `const` when the variable has no later writes, and remains `let` when later writes require mutability.
@@ -91,6 +93,30 @@ if (test) {
 // ✅
 let foo;
 foo = test ? 1 : 2;
+```
+
+```js
+// ❌
+if (test) {
+	[a, b] = first;
+} else {
+	[a, b] = second;
+}
+
+// ✅
+[a, b] = test ? first : second;
+```
+
+```js
+// ❌
+if (test) {
+	({a, b} = first);
+} else {
+	({a, b} = second);
+}
+
+// ✅
+({a, b} = test ? first : second);
 ```
 
 ```js
