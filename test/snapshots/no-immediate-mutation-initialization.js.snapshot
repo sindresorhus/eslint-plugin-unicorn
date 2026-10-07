@@ -50,7 +50,7 @@ Message:
 > 2 | foo = other?.value;
     | ^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
 
-Output:
+Suggestion 1/1: Combine the initialization and declaration.:
   1 | let foo = other?.value;
 
 `;
@@ -88,7 +88,7 @@ Message:
 > 2 | foo = <Component />;
     | ^^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
 
-Output:
+Suggestion 1/1: Combine the initialization and declaration.:
   1 | let foo = <Component />;
 
 `;
@@ -335,7 +335,7 @@ Message:
 > 2 | foo = value as number;
     | ^^^^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
 
-Output:
+Suggestion 1/1: Combine the initialization and declaration.:
   1 | let foo: number = value as number;
 
 `;
@@ -354,7 +354,7 @@ Message:
 > 2 | foo = value!;
     | ^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
 
-Output:
+Suggestion 1/1: Combine the initialization and declaration.:
   1 | let other: string;
   2 | let foo: number = value!;
 
@@ -519,7 +519,7 @@ Message:
 > 2 | ((foo = (first, second)));
     |   ^^^^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
 
-Output:
+Suggestion 1/1: Combine the initialization and declaration.:
   1 | let foo = (first, second);
 
 `;

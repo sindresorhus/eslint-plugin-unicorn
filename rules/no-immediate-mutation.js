@@ -1013,6 +1013,29 @@ function getInitializationTargetNames(node) {
 	return names;
 }
 
+function isSimpleInitializationValue(node) {
+	switch (node.type) {
+		case 'Identifier':
+		case 'Literal':
+		case 'FunctionExpression':
+		case 'ArrowFunctionExpression': {
+			return true;
+		}
+
+		case 'ArrayExpression': {
+			return node.elements.every(element => !element || isSimpleInitializationValue(element));
+		}
+
+		case 'ObjectExpression': {
+			return node.properties.every(property => property.type === 'Property' && !property.computed && isSimpleInitializationValue(property.value));
+		}
+
+		default: {
+			return false;
+		}
+	}
+}
+
 function getInitializationProblem(declaration, context) {
 	if (
 		!['let', 'var'].includes(declaration.kind)
@@ -1072,9 +1095,10 @@ function getInitializationProblem(declaration, context) {
 
 	// Initializing an unannotated TypeScript variable narrows its inferred type instead of retaining an evolving `any`.
 	// Destructuring calls iterator methods, which can observe targets before they are initialized.
+	// Other initializers can invoke user code through implicit operations that `hasSideEffect()` does not detect.
 	if (
 		left.type === 'ArrayPattern'
-		|| hasSideEffect(right, sourceCode)
+		|| !isSimpleInitializationValue(right)
 		|| (
 			(isTypeScriptFile(context.physicalFilename) || sourceCode.parserServices.esTreeNodeToTSNodeMap)
 			&& declarators.some(declarator => !declarator.id.typeAnnotation)

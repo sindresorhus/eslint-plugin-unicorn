@@ -55,6 +55,23 @@ ruleTest({
 			errors: [{messageId: 'initialization', suggestions: []}],
 		},
 		{
+			code: 'let foo;\nfoo = {values: [bar, , () => 1]};',
+			output: 'let foo = {values: [bar, , () => 1]};',
+			errors: [{messageId: 'initialization', suggestions: []}],
+		},
+		{
+			code: 'let foo;\nfoo = {method() { return value; }, get value() { return other; }};',
+			output: 'let foo = {method() { return value; }, get value() { return other; }};',
+			errors: [{messageId: 'initialization', suggestions: []}],
+		},
+		{
+			code: 'let foo;\nfoo = {...source};',
+			errors: [{
+				messageId: 'initialization',
+				suggestions: [{messageId: 'suggestion/initialization', output: 'let foo = {...source};'}],
+			}],
+		},
+		{
 			code: 'let foo;\n[foo] = [1];',
 			errors: [{
 				messageId: 'initialization',
@@ -245,4 +262,61 @@ test('does not autofix destructuring whose iterator reads an initialization targ
 	t.assert.strictEqual(result.messages.length, 1);
 	t.assert.strictEqual(result.messages[0].messageId, 'initialization');
 	t.assert.strictEqual(result.messages[0].suggestions.length, 1);
+});
+
+test('does not autofix initialization whose implicit calls read an initialization target', t => {
+	const linter = new Linter();
+	for (const {setup, initializer, read = 'foo', expected} of [
+		{
+			setup: 'const value = { valueOf() { return foo === undefined ? 2 : 3; } };',
+			initializer: '+value',
+			expected: 2,
+		},
+		{
+			setup: 'const value = { valueOf() { return foo === undefined ? 2 : 3; } };',
+			initializer: 'value ** 2',
+			expected: 4,
+		},
+		{
+			setup: 'function tag() { return foo; }',
+			initializer: 'tag`text`',
+			expected: undefined,
+		},
+		{
+			setup: 'const value = { toString() { return foo === undefined ? "key" : "other"; } };',
+			initializer: '`${value}`', // eslint-disable-line no-template-curly-in-string
+			expected: 'key',
+		},
+		{
+			setup: 'const value = { toString() { return foo === undefined ? "key" : "other"; } };',
+			initializer: '{[value]: 1}',
+			read: 'foo.key',
+			expected: 1,
+		},
+		{
+			setup: 'const values = { *[Symbol.iterator]() { yield foo; } };',
+			initializer: '{values: [...values]}',
+			read: 'foo.values.length',
+			expected: 1,
+		},
+		{
+			setup: 'const Constructor = { [Symbol.hasInstance]() { return foo === undefined; } };',
+			initializer: '{} instanceof Constructor',
+			expected: true,
+		},
+	]) {
+		const code = `${setup}\nlet foo;\nfoo = ${initializer};\n${read};`;
+		const result = linter.verifyAndFix(code, {
+			plugins: {unicorn: plugin},
+			rules: {'unicorn/no-immediate-mutation': 'error'},
+		});
+
+		t.assert.strictEqual(runInNewContext(code), expected, initializer);
+		t.assert.strictEqual(runInNewContext(result.output), expected, initializer);
+		t.assert.strictEqual(result.fixed, false, initializer);
+		t.assert.strictEqual(result.output, code, initializer);
+		t.assert.strictEqual(result.messages.length, 1, initializer);
+		t.assert.strictEqual(result.messages[0].messageId, 'initialization', initializer);
+		t.assert.strictEqual(result.messages[0].suggestions.length, 1, initializer);
+	}
 });
