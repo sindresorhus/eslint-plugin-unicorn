@@ -178,6 +178,8 @@ test('preserves early returns after minimizing a ternary', t => {
 // Preserve statement bodies and multiline containers, not ordinary line wrapping.
 testRule({
 	valid: [
+		// Member assignment targets are not factored out of their branches.
+		'if (ready) { object[`first\nsecond`] = a; } else { object[`first\nsecond`] = b; }',
 		...[
 			'items.map(item => { return normalize(item); })',
 			'function () { return a ? b : c; }',
@@ -246,12 +248,6 @@ testRule({
 				errors,
 			},
 		]),
-		{
-			// The shared assignment target is outside the resulting ternary.
-			code: 'if (ready) { object[`first\nsecond`] = a; } else { object[`first\nsecond`] = b; }',
-			output: 'object[`first\nsecond`] = ready ? a : b;',
-			errors,
-		},
 		{
 			code: 'function foo() { if (ready) { return <span />; } return other; }',
 			output: 'function foo() { return ready ? <span /> : other; }',

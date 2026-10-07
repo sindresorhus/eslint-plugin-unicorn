@@ -14,6 +14,7 @@ import {
 	getCommentSafeProblem,
 	getVisitorChildNodes,
 	withTypeInformation,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 const messageId = 'prefer-ternary';
@@ -93,7 +94,10 @@ function hasSameAssignmentTargetTypes(consequent, alternate, context) {
 const isMergeableAssignmentExpression = (consequent, alternate, context) =>
 	consequent.type === 'AssignmentExpression'
 	&& alternate.type === 'AssignmentExpression'
-	&& consequent.operator === alternate.operator
+	// Keep member target evaluation and compound/logical reads after the condition.
+	&& consequent.operator === '='
+	&& alternate.operator === '='
+	&& ['Identifier', 'ArrayPattern', 'ObjectPattern'].includes(unwrapTypeScriptExpression(consequent.left).type)
 	&& !hasTernary(consequent.right, context.sourceCode.visitorKeys)
 	&& !hasTernary(alternate.right, context.sourceCode.visitorKeys)
 	&& (

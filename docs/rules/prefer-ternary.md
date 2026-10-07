@@ -11,6 +11,8 @@
 
 This rule enforces the use of ternary expressions over simple `if` statements that return or assign a value. It handles `if`/`else` statements with one mergeable statement in each branch. For returns, it also handles the equivalent flat form where another `return` immediately follows an `if` without an `else`.
 
+For assignments, only plain `=` assignments to identifiers or matching destructuring patterns are combined. Standalone property, compound, and logical assignments are ignored to preserve evaluation order. When nested inside returns or supported assignments, they remain in the ternary branches.
+
 Array and object destructuring assignments are supported when both branches use the same pattern, ignoring whitespace. The pattern itself may span multiple lines in `always` mode. Patterns containing statement blocks, class bodies, or multiline array/object literals, JSX elements/fragments, or template literals are ignored.
 
 With full TypeScript type information, the rule also requires identical target tokens and skips assignments whose target expressions have different resolved types in the branches, preserving narrowed contextual types. Without type information, targets are matched by syntax.

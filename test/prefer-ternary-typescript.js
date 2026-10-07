@@ -39,7 +39,6 @@ function getMessages(program) {
 }
 
 for (const [pattern, first, second] of [
-	['object.handler', 'value => value.toFixed()', 'value => value.toUpperCase()'],
 	['[object.handler]', '[value => value.toFixed()]', '[value => value.toUpperCase()]'],
 	['{handler: object.handler}', '{handler: value => value.toFixed()}', '{handler: value => value.toUpperCase()}'],
 ]) {
@@ -76,14 +75,14 @@ for (const [pattern, first, second] of [
 }
 
 for (const [pattern, first, second] of [
-	['object.handler', 'value => value.toFixed()', 'value => value.toExponential()'],
+	['callback', 'value => value.toFixed()', 'value => value.toExponential()'],
 	['[object.handler]', '[value => value.toFixed()]', '[value => value.toExponential()]'],
 	['{handler: object.handler}', '{handler: value => value.toFixed()}', '{handler: value => value.toExponential()}'],
 ]) {
 	test(`still combines compatible callback types in ${pattern}`, t => {
 		const code = outdent`
 			type Handler = (value: number) => string;
-			function update(object: {kind: "first" | "second"; handler: Handler}) {
+			function update(object: {kind: "first" | "second"; handler: Handler}, callback: Handler) {
 				if (object.kind === "first") {
 					(${pattern} = ${first});
 				} else {
@@ -118,29 +117,6 @@ for (const [name, target, firstType, secondType, firstCallback] of [
 					[${target}] = [${firstCallback}];
 				} else {
 					[${target}] = [value => value.toFixed()];
-				}
-			}
-		`;
-		const program = createProgram(code);
-		t.assert.deepStrictEqual(getDiagnostics(program), []);
-		t.assert.deepStrictEqual(getMessages(program), []);
-	});
-}
-
-for (const [consequent, alternate] of [
-	['object.handler', 'object["handler"]'],
-	['object.handler', '(object as Holder).handler'],
-	['(object as Holder<number>).handler', '(object as Holder).handler'],
-	['(object as Holder).handler', '(object as Holder<number>).handler'],
-]) {
-	test(`leaves differing typed targets unchanged: ${consequent} / ${alternate}`, t => {
-		const code = outdent`
-			type Holder<Value = number> = {handler: (value: Value) => string};
-			function update(object: Holder, condition: boolean) {
-				if (condition) {
-					${consequent} = value => value.toFixed();
-				} else {
-					${alternate} = value => value.toExponential();
 				}
 			}
 		`;
