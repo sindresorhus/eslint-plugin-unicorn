@@ -11,6 +11,7 @@ import {
 	isConstEnumReference,
 	isParenthesized,
 	isSameTokens,
+	isTypeScriptFile,
 	needsSemicolon,
 	unwrapTypeScriptExpression,
 	withTypeInformation,
@@ -361,7 +362,7 @@ function getExpressionItems(node) {
 
 function isTypeSafeToMinimize(node, context) {
 	const {consequent, alternate} = node;
-	return withTypeInformation(consequent, context, ({type, checker}) => {
+	const typeSafe = withTypeInformation(consequent, context, ({type, checker}) => {
 		const {parserServices} = context.sourceCode;
 		const areTypesCompatible = (left, right) => checker.isTypeAssignableTo(left, right)
 			&& checker.isTypeAssignableTo(right, left);
@@ -422,7 +423,22 @@ function isTypeSafeToMinimize(node, context) {
 		}
 
 		return true;
-	}) ?? true;
+	});
+	if (typeSafe !== undefined) {
+		return typeSafe;
+	}
+
+	if (
+		consequent.type !== 'ObjectExpression'
+		|| (!context.sourceCode.parserServices?.esTreeNodeToTSNodeMap && !isTypeScriptFile(context.physicalFilename))
+	) {
+		return true;
+	}
+
+	const consequentItems = getExpressionItems(consequent);
+	const differentIndex = getMinimalDifferentItemIndex(consequentItems, getExpressionItems(alternate), context);
+	// Shared non-literal values can lose branch narrowing when moved outside the ternary.
+	return consequentItems.every((item, index) => index === differentIndex || item.type === 'Literal');
 }
 
 function getMinimalExpressionText(left, right, {condition, context, abort}) {
@@ -528,7 +544,6 @@ function fixMinimalTernary(node, context, fixer, abort) {
 		// Template fixes support expressions, not statement bodies that require ASI handling.
 		|| (tokenStore !== sourceCode && getAncestor(node, 'BlockStatement'))
 		|| tokenStore.getCommentsInside(node).length > 0
-		|| !isTypeSafeToMinimize(node, context)
 		// A conditional produces a value, while member access produces a reference.
 		|| (node.consequent.type === 'MemberExpression' && (
 			node.parent.type.startsWith('TS')
@@ -571,13 +586,21 @@ const create = context => {
 			return;
 		}
 
-		return {
+		const problem = {
 			node,
 			messageId: MESSAGE_ID,
-			* fix(fixer, {abort}) {
-				yield fixMinimalTernary(node, context, fixer, abort);
-			},
 		};
+		const fix = function * (fixer, {abort}) {
+			yield fixMinimalTernary(node, context, fixer, abort);
+		};
+
+		if (isTypeSafeToMinimize(node, context)) {
+			problem.fix = fix;
+		} else if (node.consequent.type === 'ObjectExpression') {
+			problem.suggest = [{messageId: MESSAGE_ID, fix}];
+		}
+
+		return problem;
 	});
 };
 
@@ -593,6 +616,7 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema: [
 			{
 				type: 'object',
