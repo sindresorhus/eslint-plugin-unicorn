@@ -79,8 +79,6 @@ export default defineConfig([
 
 ## Rules
 
-Fixes and suggestions may be withheld to preserve comments. Use [ESLint disable comments](https://eslint.org/docs/latest/use/configure/rules#disable-rules) to suppress reports.
-
 <!-- Do not manually modify this list. Run: `npm run fix:eslint-docs` -->
 <!-- begin auto-generated rules list -->
 
