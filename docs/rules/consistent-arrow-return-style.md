@@ -11,7 +11,7 @@
 
 Use concise bodies when the expression fits on one line and an explicit `return` when it spans multiple lines. A line break between `=>` and a single-line expression is ignored.
 
-Only blocks with a single `return` and a single-line argument are converted. Blocks with other statements, bare returns, or multiline return expressions are ignored. Comments do not prevent reporting, but fixes are omitted when the affected function contains comments.
+Only blocks with a single `return` and a single-line argument are converted. Blocks with other statements, bare returns, or multiline return expressions are ignored. Commented functions are reported without fixes.
 
 Fixes are omitted when reindenting could change string, template literal, or JSX text, or when removing the block could change how the following token is parsed.
 
@@ -54,7 +54,7 @@ const getObject = () => {
 	};
 };
 
-// ❌ Reported without a fix because it contains a comment.
+// ❌ No fix: contains a comment.
 const getValue = () => /* Keep this comment. */
 	getValueFromServer(
 		url,

@@ -17,7 +17,7 @@ Exit values, labels, and calls are compared by source text, ignoring surrounding
 
 To preserve TypeScript control-flow narrowing, the rule ignores non-literal `return` and `throw` values and non-literal `process.exit()` arguments in TypeScript. It also ignores exits containing tagged templates because each source location has its own cached template object.
 
-Guards with comments before either guard, inside them, or between them are reported without an autofix. Comments can describe distinct exit reasons, and combining the guards would obscure that separation.
+Guards with comments before, inside, or between them are reported without fixes.
 
 ## Examples
 
@@ -105,7 +105,7 @@ if (secondCondition) {
 Type: `boolean`\
 Default: `false`
 
-Also check compound conditions, such as `&&`, `??`, ternaries, and negated groups. Comments still prevent autofixing.
+Also check compound conditions, such as `&&`, `??`, ternaries, and negated groups.
 
 ```js
 // With {checkCompoundConditions: true}:

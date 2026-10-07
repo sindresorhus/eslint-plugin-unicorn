@@ -143,4 +143,4 @@ export default Foo;
 
 This rule intentionally ignores named exports, re-exports, CommonJS, anonymous defaults, non-adjacent declaration/export pairs, imported identifiers, values, objects, arrays, function expressions, `let`/`var` functions, multiple variable declarators, generators, later reassigned bindings, and TypeScript-specific syntax.
 
-Comments do not prevent reporting, but fixes and suggestions are omitted when they could remove or move comments.
+Fixes and suggestions are withheld to preserve comments.

@@ -20,7 +20,7 @@ It also reports the same pipeline when it is passed to `Object.fromEntries()`, `
 
 The rule intentionally only provides suggestions because replacing manual splitting can change behavior. `URLSearchParams` decodes percent-encoded values, treats `+` as a space when parsing strings, preserves duplicate names, and treats `foo` and `foo=` the same.
 
-The rule still reports patterns containing comments, but does not offer a suggestion if replacing the expression would remove or move them.
+Suggestions are withheld when they would remove or move comments.
 
 ## Examples
 

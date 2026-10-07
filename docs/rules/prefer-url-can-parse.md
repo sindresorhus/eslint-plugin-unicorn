@@ -12,7 +12,7 @@ Prefer `URL.canParse()` over constructing a `URL` in a `try`/`catch` block for v
 
 `URL.canParse()` returns whether a string or stringifiable input can be parsed as a URL without constructing a `URL` object.
 
-This rule intentionally only reports simple boolean validation patterns. It assumes the URL input is a normal string or stringifiable value and does not rewrite arbitrary `try`/`catch` control flow. It skips obviously unsafe argument expressions, such as expressions with side effects or inline values whose stringification/conversion could throw. Patterns with comments in the `try`/`catch` are reported without an autofix.
+This rule intentionally only reports simple boolean validation patterns. It assumes the URL input is a normal string or stringifiable value and does not rewrite arbitrary `try`/`catch` control flow. It skips obviously unsafe argument expressions, such as expressions with side effects or inline values whose stringification/conversion could throw. Commented `try`/`catch` blocks are reported without fixes.
 
 ## Examples
 

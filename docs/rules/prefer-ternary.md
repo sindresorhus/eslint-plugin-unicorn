@@ -31,7 +31,7 @@ The rule skips:
 
 These checks include nested expressions, such as call arguments and TypeScript wrappers, and apply in both modes. Wrapped calls, logical expressions, inline literals, and concise callbacks remain eligible unless excluded above. [`only-single-line`](#options) additionally excludes all multiline conditions and values.
 
-Comments within or between merged statements, including trailing comments on a following `return`, prevent autofixes and suggestions but do not prevent reporting. ESLint disable/enable directives can suppress these reports. Comments outside the affected range are allowed.
+Comments within or between merged statements, including trailing comments on a following `return`, prevent fixes and suggestions. Reports can be suppressed with ESLint disable comments.
 
 ## Examples
 
