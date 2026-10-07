@@ -139,7 +139,7 @@ let [r, g, b] = RGB.map(c => c / 255);
 
 Automatic fixes are limited to direct identifier assignments with a literal, identifier, function expression, arrow function, or plain nested array/object literals containing those values. Array/object spreads and computed keys are excluded. Other initializers and array destructuring produce suggestions, because implicit operations can observe targets before they are initialized in a combined declaration.
 
-Unannotated TypeScript targets also produce suggestions, because combining the statements can narrow the inferred type. No edit is offered when comments would move or disappear, when a target has a TypeScript definite assignment assertion, or when a destructuring target has a TypeScript type annotation.
+Parenthesized assignment targets and unannotated TypeScript targets also produce suggestions, because combining the statements can change anonymous function names or narrow inferred types. No edit is offered when comments would move or disappear, when a target has a TypeScript definite assignment assertion, or when a destructuring target has a TypeScript type annotation.
 
 Declarations containing initialized variables, exported declarations, redeclared targets, object patterns, nested patterns, defaults, rest elements, and initializers referencing their own targets are ignored. Assignments separated from the declaration by another statement are also ignored. The `checkConditionals` option does not extend this check to conditional assignments.
 

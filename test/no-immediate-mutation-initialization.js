@@ -264,6 +264,34 @@ test('does not autofix destructuring whose iterator reads an initialization targ
 	t.assert.strictEqual(result.messages[0].suggestions.length, 1);
 });
 
+test('preserves anonymous function names when combining initialization', t => {
+	const linter = new Linter();
+	for (const initializer of ['(function () {})', '(() => 1)', '(async () => 1)', '(function* () {})']) {
+		for (const target of ['foo', '((foo))']) {
+			const code = `let foo;\n${target} = ${initializer};\nfoo.name;`;
+			const result = linter.verifyAndFix(code, {
+				plugins: {unicorn: plugin},
+				rules: {'unicorn/no-immediate-mutation': 'error'},
+			});
+			const isPlainTarget = target === 'foo';
+			const expectedName = isPlainTarget ? 'foo' : '';
+
+			t.assert.strictEqual(runInNewContext(code), expectedName, code);
+			t.assert.strictEqual(runInNewContext(result.output), expectedName, code);
+			t.assert.strictEqual(result.fixed, isPlainTarget, code);
+			if (isPlainTarget) {
+				t.assert.strictEqual(result.output, `let foo = ${initializer};\nfoo.name;`, code);
+				t.assert.deepStrictEqual(result.messages, [], code);
+			} else {
+				t.assert.strictEqual(result.output, code);
+				t.assert.strictEqual(result.messages.length, 1);
+				t.assert.strictEqual(result.messages[0].messageId, 'initialization');
+				t.assert.strictEqual(result.messages[0].suggestions.length, 1);
+			}
+		}
+	}
+});
+
 test('does not autofix initialization whose implicit calls read an initialization target', t => {
 	const linter = new Linter();
 	for (const {setup, initializer, read = 'foo', expected} of [

@@ -500,7 +500,7 @@ Message:
 > 2 | ((foo)) = ((1));
     | ^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
 
-Output:
+Suggestion 1/1: Combine the initialization and declaration.:
   1 | let foo = ((1));
 
 `;

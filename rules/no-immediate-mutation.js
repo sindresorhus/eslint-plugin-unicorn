@@ -24,6 +24,7 @@ import {
 	getVariableIdentifiers,
 	getNewExpressionTokens,
 	isNewExpressionWithParentheses,
+	isParenthesized,
 	isTypeScriptFile,
 	needsSemicolon,
 	wouldRemoveComments,
@@ -1046,10 +1047,13 @@ function getInitializationProblem(declaration, context) {
 	}
 
 	const nextStatement = getNextNode(declaration, context);
-	const assignment = nextStatement?.expression;
+	if (nextStatement?.type !== 'ExpressionStatement') {
+		return;
+	}
+
+	const assignment = nextStatement.expression;
 	if (
-		nextStatement?.type !== 'ExpressionStatement'
-		|| assignment.type !== 'AssignmentExpression'
+		assignment.type !== 'AssignmentExpression'
 		|| assignment.operator !== '='
 	) {
 		return;
@@ -1096,8 +1100,10 @@ function getInitializationProblem(declaration, context) {
 	// Initializing an unannotated TypeScript variable narrows its inferred type instead of retaining an evolving `any`.
 	// Destructuring calls iterator methods, which can observe targets before they are initialized.
 	// Other initializers can invoke user code through implicit operations that `hasSideEffect()` does not detect.
+	// Parenthesized assignment targets do not infer anonymous function names, while declarations do.
 	if (
 		left.type === 'ArrayPattern'
+		|| isParenthesized(left, context)
 		|| !isSimpleInitializationValue(right)
 		|| (
 			(isTypeScriptFile(context.physicalFilename) || sourceCode.parserServices.esTreeNodeToTSNodeMap)
