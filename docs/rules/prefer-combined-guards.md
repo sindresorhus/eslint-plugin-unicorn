@@ -17,7 +17,7 @@ Exit values, labels, and calls are compared by source text, ignoring surrounding
 
 To preserve TypeScript control-flow narrowing, the rule ignores non-literal `return` and `throw` values and non-literal `process.exit()` arguments in TypeScript. It also ignores exits containing tagged templates because each source location has its own cached template object.
 
-Guards with comments before, inside, or between them are reported without fixes.
+Comments before, inside, or between guards prevent fixes.
 
 ## Examples
 

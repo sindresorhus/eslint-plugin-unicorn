@@ -250,7 +250,7 @@ Do not block reports, suggestions, or autofixes only to preserve sparse array ho
 
 When writing fix functions:
 
-1. **Comments** - Comments must not prevent reporting unless they are meaningful to the rule itself. Let ESLint handle disable directives. Withhold fixes and suggestions that would remove or relocate comments, using `getCommentSafeProblem()` or `abort()`. Safe token edits that preserve comments should remain available.
+1. **Comments** - Keep reporting unless comments affect rule semantics; let ESLint handle disable directives. Withhold edits that remove or move comments using `getCommentSafeProblem()` or `abort()`. Preserve safe token edits.
 2. **Parentheses** - Replacing `foo` in `foo.bar()` with a complex expression may need wrapping: `(a + b).bar()`. Use helpers from `rules/utils/` like `shouldAddParenthesesToMemberExpressionObject`.
 3. **Semicolons** - If a fix makes a statement start with `[` or `(`, check `needsSemicolon()` and prepend `;` if needed.
 4. **Spacing** - Replacing `{foo}` with an identifier may merge tokens: `const{foo}` becomes `constfoo`. Add spaces when a symbol-boundary becomes a letter-boundary.

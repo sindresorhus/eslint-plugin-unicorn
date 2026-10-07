@@ -15,7 +15,7 @@ Object destructuring defaults are shorter and make each default visible next to 
 
 This rule uses suggestions because the two forms are not fully equivalent. For example, `{foo: defaultValue, ...options}` preserves an explicit `options.foo` value of `undefined`, while `{foo = defaultValue} = {...options}` applies the default in that case.
 
-This rule intentionally reports only simple variable declarations. It does not report `Object.assign()`, destructuring assignment expressions, computed properties, or rest properties. Commented declarations are reported without suggestions.
+This rule intentionally reports only simple variable declarations. It does not report `Object.assign()`, destructuring assignment expressions, computed properties, or rest properties.
 
 ## Examples
 

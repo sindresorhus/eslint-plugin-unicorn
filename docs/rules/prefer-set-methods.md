@@ -70,6 +70,6 @@ Strict inequality (`!== 0`), reversed comparisons (`0 === set.intersection(other
 
 Negated membership checks are also supported: `[...set].every(value => !otherSet.has(value))` becomes `set.isDisjointFrom(otherSet)`, while `[...set].some(value => !otherSet.has(value))` becomes `!set.isSubsetOf(otherSet)`.
 
-Callbacks must be synchronous arrow functions with one identifier parameter and a direct `otherSet.has(value)` or `!otherSet.has(value)` expression body. Patterns with optional chaining or computed method access are ignored. Commented patterns are reported without fixes or suggestions. These autofixes assume ordinary built-in Set behavior.
+Callbacks must be synchronous arrow functions with one identifier parameter and a direct `otherSet.has(value)` or `!otherSet.has(value)` expression body. Patterns with optional chaining or computed method access are ignored. These autofixes assume ordinary built-in Set behavior.
 
 For both filter and predicate callbacks, evaluating the Set used for membership checks must not have side effects or depend on the callback parameter.
