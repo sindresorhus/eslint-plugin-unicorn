@@ -114,7 +114,7 @@ No fix or suggestion is offered when a comment would be lost, when the object li
 
 ## Consecutive initialization
 
-The rule also checks uninitialized `let` and `var` declarations immediately followed by an assignment. Combine the two statements instead:
+Combine uninitialized `let` and `var` declarations with an immediately following assignment:
 
 ```js
 // ❌
@@ -125,7 +125,7 @@ foo = 1;
 let foo = 1;
 ```
 
-Flat array destructuring is supported when every target is declared in the preceding statement. Unrelated variables remain in a separate declaration:
+Flat array destructuring also works for variables in the preceding declaration:
 
 ```js
 // ❌
@@ -137,13 +137,9 @@ let foo;
 let [r, g, b] = RGB.map(c => c / 255);
 ```
 
-Automatic fixes are limited to direct identifier assignments with literals (including negative numeric literals and untagged template literals without substitutions), identifiers, function expressions, arrow functions, and nested array or object literals containing those values. Array and object spreads and computed keys are excluded. Other initializers and array destructuring produce suggestions, because implicit operations can observe targets before they are initialized in a combined declaration.
+Direct assignments with simple initializers can be autofixed; other cases may offer suggestions. Edits preserve comments and TypeScript annotations.
 
-Parenthesized direct assignment targets and unannotated TypeScript targets also produce suggestions, because combining the statements can change anonymous function names or narrow inferred types. No edit is offered when comments would move or disappear, when a target has a TypeScript definite assignment assertion, or when a destructuring target has a TypeScript type annotation.
-
-TypeScript expression wrappers such as `as`, `satisfies`, and `!` do not prevent automatic fixes for otherwise safe initializers with explicitly annotated targets. JavaScript files parsed without the TypeScript parser do not receive the TypeScript inference safeguard, so automatic fixes can change inferred types under `checkJs`.
-
-Declarations containing initialized variables, exported declarations, redeclared targets, object patterns, nested patterns, parenthesized array targets, defaults, rest elements, and initializers referencing their own targets are ignored. Assignments separated from the declaration by another statement are also ignored. The `checkConditionals` option does not extend this check to conditional assignments.
+Exports, partly initialized declarations, redeclarations, self-references, and complex patterns are ignored. `checkConditionals` does not affect this check. Without the TypeScript parser, autofixes can change `checkJs` inference.
 
 ## Options
 
