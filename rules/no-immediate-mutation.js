@@ -9,6 +9,8 @@ import {
 	isMethodCall,
 	isMemberExpression,
 	isNewExpression,
+	isNumericLiteral,
+	isBigIntLiteral,
 } from './ast/index.js';
 import {
 	removeStatement,
@@ -27,6 +29,7 @@ import {
 	isParenthesized,
 	isTypeScriptFile,
 	needsSemicolon,
+	unwrapTypeScriptExpression,
 	wouldRemoveComments,
 } from './utils/index.js';
 
@@ -1015,12 +1018,20 @@ function getInitializationTargetNames(node) {
 }
 
 function isSimpleInitializationValue(node) {
+	node = unwrapTypeScriptExpression(node);
+
 	switch (node.type) {
 		case 'Identifier':
 		case 'Literal':
 		case 'FunctionExpression':
 		case 'ArrowFunctionExpression': {
 			return true;
+		}
+
+		case 'UnaryExpression': {
+			const argument = unwrapTypeScriptExpression(node.argument);
+			return node.operator === '-'
+				&& (isNumericLiteral(argument) || isBigIntLiteral(argument));
 		}
 
 		case 'ArrayExpression': {

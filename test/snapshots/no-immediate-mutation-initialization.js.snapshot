@@ -335,7 +335,7 @@ Message:
 > 2 | foo = value as number;
     | ^^^^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
 
-Suggestion 1/1: Combine the initialization and declaration.:
+Output:
   1 | let foo: number = value as number;
 
 `;
@@ -354,7 +354,7 @@ Message:
 > 2 | foo = value!;
     | ^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
 
-Suggestion 1/1: Combine the initialization and declaration.:
+Output:
   1 | let other: string;
   2 | let foo: number = value!;
 

@@ -1,7 +1,9 @@
 import test from 'node:test';
 import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
+import typescript from 'typescript';
 import plugin from '../index.js';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta, 'no-immediate-mutation');
@@ -49,6 +51,52 @@ ruleTest({
 		{code: 'declare let foo; foo = 1;', languageOptions: {parser: parsers.typescript}},
 	],
 	invalid: [
+		...['-1', '-1n', '{values: [-1, -0, -1n]}'].map(initializer => ({
+			code: `let foo;\nfoo = ${initializer};`,
+			output: `let foo = ${initializer};`,
+			errors: [{messageId: 'initialization', suggestions: []}],
+		})),
+		...['-value', '-/pattern/'].map(initializer => ({
+			code: `let foo;\nfoo = ${initializer};`,
+			errors: [{
+				messageId: 'initialization',
+				suggestions: [{messageId: 'suggestion/initialization', output: `let foo = ${initializer};`}],
+			}],
+		})),
+		...['(value as number)!', 'value satisfies number', '<number>value', '-(1 as number)'].map(initializer => ({
+			code: `let foo: number;\nfoo = ${initializer};`,
+			languageOptions: {parser: parsers.typescript},
+			output: `let foo: number = ${initializer};`,
+			errors: [{messageId: 'initialization', suggestions: []}],
+		})),
+		{
+			code: 'let foo: number;\nfoo = getValue() as number;',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'initialization',
+				suggestions: [{messageId: 'suggestion/initialization', output: 'let foo: number = getValue() as number;'}],
+			}],
+		},
+		{
+			code: 'let foo;\nfoo = value as number;',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'initialization',
+				suggestions: [{messageId: 'suggestion/initialization', output: 'let foo = value as number;'}],
+			}],
+		},
+		{
+			code: 'let foo: number[];\nfoo = [(-1 as number)];',
+			languageOptions: {parser: parsers.typescript},
+			output: 'let foo: number[] = [(-1 as number)];',
+			errors: [{messageId: 'initialization', suggestions: []}],
+		},
+		{
+			code: 'let foo: (value: number) => number;\nfoo = identity<number>;',
+			languageOptions: {parser: parsers.typescript},
+			output: 'let foo: (value: number) => number = identity<number>;',
+			errors: [{messageId: 'initialization', suggestions: []}],
+		},
 		{
 			code: 'let foo;\nfoo = 1;',
 			output: 'let foo = 1;',
@@ -289,6 +337,62 @@ test('preserves anonymous function names when combining initialization', t => {
 				t.assert.strictEqual(result.messages[0].suggestions.length, 1);
 			}
 		}
+	}
+});
+
+test('preserves anonymous function names with parentheses around the assignment', t => {
+	const linter = new Linter();
+	const code = 'let foo;\n((foo = (() => 1)));\nfoo.name;';
+	const result = linter.verifyAndFix(code, {
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/no-immediate-mutation': 'error'},
+	});
+
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(runInNewContext(code), 'foo');
+	t.assert.strictEqual(runInNewContext(result.output), 'foo');
+});
+
+test('preserves negative zero when combining initialization', t => {
+	const linter = new Linter();
+	const code = 'let foo;\nfoo = -0;\nfoo;';
+	const result = linter.verifyAndFix(code, {
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/no-immediate-mutation': 'error'},
+	});
+
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(Object.is(runInNewContext(code), -0), true);
+	t.assert.strictEqual(Object.is(runInNewContext(result.output), -0), true);
+});
+
+test('preserves contextual callback typing when combining initialization', t => {
+	const linter = new Linter();
+	const code = 'let callback: (value: number) => number;\ncallback = value => value * 2;';
+	const result = linter.verifyAndFix(code, {
+		languageOptions: {parser: typescriptEslintParser},
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/no-immediate-mutation': 'error'},
+	});
+
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, 'let callback: (value: number) => number = value => value * 2;');
+	t.assert.deepStrictEqual(result.messages, []);
+	for (const source of [code, result.output]) {
+		const filename = 'file.ts';
+		const options = {
+			strict: true,
+			noEmit: true,
+			noLib: true,
+			types: [],
+		};
+		const host = typescript.createCompilerHost(options);
+		host.getSourceFile = name => name === filename ? typescript.createSourceFile(name, source, typescript.ScriptTarget.Latest) : undefined;
+		const program = typescript.createProgram([filename], options, host);
+
+		t.assert.deepStrictEqual(program.getSemanticDiagnostics(), []);
 	}
 });
 
