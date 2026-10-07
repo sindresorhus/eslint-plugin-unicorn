@@ -179,7 +179,7 @@ On rebase, `rules/index.js` and the `readme.md` rules table almost always confli
 
 ## Documentation
 
-Keep rule documentation succinct, especially sections about limitations and caveats. Focus on practical information users need to understand and use the rule.
+Keep rule documentation succinct, especially limitations and caveats. Add only practical information users need. Prefer one precise sentence per caveat. Document shared policies once in the README; keep rule docs focused on rule-specific behavior.
 
 Do not use Markdown tables in rule documentation. Use prose, lists, or code examples instead.
 
