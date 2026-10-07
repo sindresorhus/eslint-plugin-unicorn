@@ -39,6 +39,7 @@ The default prefixes are:
 - `should`
 - `was`
 - `were`
+- `does`
 - `did`
 - `will`
 - `requires`
@@ -262,6 +263,7 @@ Default:
 	should: true,
 	was: true,
 	were: true,
+	does: true,
 	did: true,
 	will: true,
 	requires: true,

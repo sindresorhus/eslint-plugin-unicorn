@@ -45,6 +45,7 @@ const defaultPrefixes = {
 	should: true,
 	was: true,
 	were: true,
+	does: true,
 	did: true,
 	will: true,
 	// `requireLogin()` reads like an action or assertion, not a boolean.
