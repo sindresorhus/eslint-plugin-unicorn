@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
 import plugin from '../index.js';
 import {getTester, parsers} from './utils/test.js';
@@ -52,6 +53,13 @@ ruleTest({
 			code: 'let foo;\nfoo = 1;',
 			output: 'let foo = 1;',
 			errors: [{messageId: 'initialization', suggestions: []}],
+		},
+		{
+			code: 'let foo;\n[foo] = [1];',
+			errors: [{
+				messageId: 'initialization',
+				suggestions: [{messageId: 'suggestion/initialization', output: 'let [foo] = [1];'}],
+			}],
 		},
 		{
 			code: 'let foo;\n[foo] = string.split(\',\', 1);',
@@ -220,4 +228,21 @@ test('combines consecutive initialization and mutation across autofix passes', t
 		t.assert.strictEqual(result.output, output);
 		t.assert.deepStrictEqual(result.messages, []);
 	}
+});
+
+test('does not autofix destructuring whose iterator reads an initialization target', t => {
+	const linter = new Linter();
+	const code = 'const values = { *[Symbol.iterator]() { yield foo; } };\nlet foo;\n[foo] = values;\nfoo;';
+	const result = linter.verifyAndFix(code, {
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/no-immediate-mutation': 'error'},
+	});
+
+	t.assert.strictEqual(runInNewContext(code), undefined);
+	t.assert.strictEqual(runInNewContext(result.output), undefined);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(result.messages[0].messageId, 'initialization');
+	t.assert.strictEqual(result.messages[0].suggestions.length, 1);
 });

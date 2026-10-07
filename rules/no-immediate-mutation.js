@@ -999,13 +999,18 @@ function getCaseProblem(
 	return getProblem(problematicNode, information);
 }
 
-function getInitializationTargets(node) {
+function getInitializationTargetNames(node) {
 	const targets = node.type === 'ArrayPattern' ? node.elements.filter(Boolean) : [node];
 	if (targets.length === 0 || targets.some(target => target.type !== 'Identifier')) {
 		return;
 	}
 
-	return targets;
+	const names = new Set(targets.map(target => target.name));
+	if (names.size !== targets.length) {
+		return;
+	}
+
+	return names;
 }
 
 function getInitializationProblem(declaration, context) {
@@ -1028,14 +1033,13 @@ function getInitializationProblem(declaration, context) {
 	}
 
 	const {left, right} = assignment;
-	const targets = getInitializationTargets(left);
-	if (!targets) {
+	const targetNames = getInitializationTargetNames(left);
+	if (!targetNames) {
 		return;
 	}
 
-	const targetNames = new Set(targets.map(target => target.name));
 	const declarators = declaration.declarations.filter(declarator => targetNames.has(declarator.id.name));
-	if (targetNames.size !== targets.length || declarators.length !== targets.length) {
+	if (declarators.length !== targetNames.size) {
 		return;
 	}
 
@@ -1067,8 +1071,10 @@ function getInitializationProblem(declaration, context) {
 	};
 
 	// Initializing an unannotated TypeScript variable narrows its inferred type instead of retaining an evolving `any`.
+	// Destructuring calls iterator methods, which can observe targets before they are initialized.
 	if (
-		hasSideEffect(right, sourceCode)
+		left.type === 'ArrayPattern'
+		|| hasSideEffect(right, sourceCode)
 		|| (
 			(isTypeScriptFile(context.physicalFilename) || sourceCode.parserServices.esTreeNodeToTSNodeMap)
 			&& declarators.some(declarator => !declarator.id.typeAnnotation)
