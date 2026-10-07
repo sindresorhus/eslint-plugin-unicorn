@@ -39,8 +39,6 @@ test({
 			'[value = [\nfirst,\nsecond\n]]',
 			'{value = {\nkey: first\n}}',
 		].map(pattern => `if (test) { (${pattern} = first); } else { (${pattern} = second); }`),
-		'if (test) { [a /* comment */] = first; } else { [a] = second; }',
-		'if (test) { ({a} = first); } else { ({a /* comment */} = second); }',
 		'if (test) { [a] = first ? second : third; } else { [a] = other; }',
 		'if (test ? first : second) { [a] = first; } else { [a] = second; }',
 		'if (test) { [a] = first; } else { [a] = format({\nvalue: second,\n}); }',
@@ -147,6 +145,14 @@ test({
 			output: null,
 			errors,
 		},
+		...[
+			'if (test) { [a /* comment */] = first; } else { [a] = second; }',
+			'if (test) { ({a} = first); } else { ({a /* comment */} = second); }',
+		].map(code => ({
+			code,
+			output: null,
+			errors: [{messageId: 'prefer-ternary', suggestions: []}],
+		})),
 		...[
 			['[value!]', '[value!] = test ? (first as number[]) : second;'],
 			['[(object as Value).value]', '[(object as Value).value] = test ? (first as number[]) : second;'],
