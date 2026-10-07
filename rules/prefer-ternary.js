@@ -217,18 +217,19 @@ const create = context => {
 			declarator.id.type !== 'Identifier'
 			|| declarator.id.name !== left.name
 			|| !declarator.init
-			|| isArrowFunction(declarator.init)
-			|| isArrowFunction(right)
+			// Inferred declaration types can lose contextual typing after introducing a ternary.
+			|| (sourceCode.parserServices?.program && !declarator.id.typeAnnotation)
+			|| [declarator.init, right].some(expression => isArrowFunction(expression))
 		) {
 			return;
 		}
 
 		const expressions = [node.test, right, declarator.init];
 
-		if (
-			expressions.some(expression => hasTernary(expression, sourceCode.visitorKeys) || hasComplexStructure(expression, sourceCode))
-			|| (isOnlySingleLine && expressions.some(expression => !isSingleLineNode(expression, context)))
-		) {
+		if (expressions.some(expression =>
+			hasTernary(expression, sourceCode.visitorKeys)
+			|| hasComplexStructure(expression, sourceCode)
+			|| (isOnlySingleLine && !isSingleLineNode(expression, context)))) {
 			return;
 		}
 

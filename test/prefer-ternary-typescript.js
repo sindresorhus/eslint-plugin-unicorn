@@ -28,11 +28,11 @@ function getDiagnostics(program) {
 	return program.getSemanticDiagnostics(program.getSourceFile(filename)).map(diagnostic => typescript.flattenDiagnosticMessageText(diagnostic.messageText, '\n'));
 }
 
-function getMessages(program) {
+function getMessages(program, {typeAware = true} = {}) {
 	const linter = new Linter();
 	return linter.verify(program.getSourceFile(filename).text, {
 		files: ['**/*.ts'],
-		languageOptions: {parser: typescriptEslintParser, parserOptions: {programs: [program]}},
+		languageOptions: {parser: typescriptEslintParser, parserOptions: {programs: typeAware ? [program] : undefined}},
 		plugins: {unicorn},
 		rules: {'unicorn/prefer-ternary': 'error'},
 	}, {filename});
@@ -159,3 +159,49 @@ for (const pattern of ['[value = object.values[object.kind]]', '{[object.values[
 		t.assert.deepStrictEqual(getMessages(program), []);
 	});
 }
+
+for (const [name, annotation, initial, replacement] of [
+	['callback array', 'Array<(value: number) => string>', '[(value: number) => value.toFixed()]', '[value => value.toExponential()]'],
+	['callback object', '{callback: (value: number) => string}', '{callback: (value: number) => value.toFixed()}', '{callback: value => value.toExponential()}'],
+	['primitive', 'number', '1', '2'],
+]) {
+	test(`skips inferred ${name} declarations with type information`, t => {
+		const code = `function update(selected: boolean) { let value = ${initial}; if (selected) { value = ${replacement}; } return value; }`;
+		const program = createProgram(code);
+		t.assert.deepStrictEqual(getDiagnostics(program), []);
+
+		const messages = getMessages(program);
+		const fix = messages[0]?.suggestions?.[0]?.fix;
+		if (fix) {
+			const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+			t.assert.deepStrictEqual(getDiagnostics(createProgram(output)), []);
+		}
+
+		t.assert.deepStrictEqual(messages, []);
+	});
+
+	test(`still suggests annotated ${name} declarations with type information`, t => {
+		const code = `function update(selected: boolean) { let value: ${annotation} = ${initial}; if (selected) { value = ${replacement}; } return value; }`;
+		const program = createProgram(code);
+		t.assert.deepStrictEqual(getDiagnostics(program), []);
+
+		const messages = getMessages(program);
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].fix, undefined);
+		t.assert.strictEqual(messages[0].suggestions.length, 1);
+		const {fix} = messages[0].suggestions[0];
+		const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		t.assert.strictEqual(output, `function update(selected: boolean) { const value: ${annotation} = selected ? ${replacement} : ${initial}; return value; }`);
+		t.assert.deepStrictEqual(getDiagnostics(createProgram(output)), []);
+	});
+}
+
+test('retains inferred declaration suggestions without type information', t => {
+	const code = 'function update(selected: boolean) { let value = 1; if (selected) { value = 2; } return value; }';
+	const messages = getMessages(createProgram(code), {typeAware: false});
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].suggestions.length, 1);
+	const {fix} = messages[0].suggestions[0];
+	const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	t.assert.strictEqual(output, 'function update(selected: boolean) { const value = selected ? 2 : 1; return value; }');
+});

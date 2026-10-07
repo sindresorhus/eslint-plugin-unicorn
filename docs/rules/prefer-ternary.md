@@ -23,6 +23,8 @@ It intentionally ignores standalone `await`, `yield`, and `throw` branches becau
 
 It also detects `let` declarations immediately followed by an `if` that reassigns the variable, which can be replaced with a single declaration using a ternary. The declaration is `const` when the variable has no later writes, and remains `let` when later writes require mutability.
 
+With full type information, declaration suggestions require an explicit variable type annotation. Inferred declarations, including JavaScript declarations checked through TypeScript, are skipped to preserve contextual typing.
+
 ## Readability boundaries
 
 The rule skips:
