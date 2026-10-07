@@ -1003,9 +1003,13 @@ function getCaseProblem(
 	return getProblem(problematicNode, information);
 }
 
-function getInitializationTargetNames(node) {
+function getInitializationTargetNames(node, context) {
 	const targets = node.type === 'ArrayPattern' ? node.elements.filter(Boolean) : [node];
-	if (targets.length === 0 || targets.some(target => target.type !== 'Identifier')) {
+	if (
+		targets.length === 0
+		|| targets.some(target => target.type !== 'Identifier')
+		|| (node.type === 'ArrayPattern' && targets.some(target => isParenthesized(target, context)))
+	) {
 		return;
 	}
 
@@ -1075,7 +1079,7 @@ function getInitializationProblem(declaration, context) {
 	}
 
 	const {left, right} = assignment;
-	const targetNames = getInitializationTargetNames(left);
+	const targetNames = getInitializationTargetNames(left, context);
 	if (!targetNames) {
 		return;
 	}

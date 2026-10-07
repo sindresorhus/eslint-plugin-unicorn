@@ -13,6 +13,7 @@ const checkConditionalsOptions = [{checkConditionals: true}];
 // Consecutive declaration and initialization
 ruleTest({
 	valid: [
+		...['[(foo)]', '[foo, ((bar))]', '[, (bar), foo]'].map(target => `let foo, bar;\n${target} = values;`),
 		'let foo = 1;',
 		'let [foo] = string.split(\',\', 1);',
 		'let [r, g, b] = RGB.map((c) => (c > 0 ? c / 255 : 0));',
