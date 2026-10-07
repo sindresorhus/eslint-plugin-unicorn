@@ -160,6 +160,33 @@ test.vue({
 	],
 	invalid: [
 		{
+			code: '<script lang="ts">test ? {shared, value: 1} : {shared, value: 2};</script>',
+			languageOptions: {parserOptions: {parser: typescriptEslintParser}},
+			errors: [{
+				messageId: 'prefer-minimal-ternary',
+				suggestions: [{
+					messageId: 'prefer-minimal-ternary',
+					output: '<script lang="ts">({shared, value: test ? 1 : 2});</script>',
+				}],
+			}],
+		},
+		{
+			code: '<script>test ? {value: 1} : {value: 2};</script>',
+			output: '<script>({value: test ? 1 : 2});</script>',
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		{
+			code: '<script lang="ts">previous()\ntest ? {shared, value: 1} : {shared, value: 2};</script>',
+			languageOptions: {parserOptions: {parser: typescriptEslintParser}},
+			errors: [{
+				messageId: 'prefer-minimal-ternary',
+				suggestions: [{
+					messageId: 'prefer-minimal-ternary',
+					output: '<script lang="ts">previous()\n;({shared, value: test ? 1 : 2});</script>',
+				}],
+			}],
+		},
+		{
 			code: '<script setup lang="ts"></script><template>{{ test ? {shared, value: 1} : {shared, value: 2} }}</template>',
 			languageOptions: {parserOptions: {parser: typescriptEslintParser}},
 			errors: [{

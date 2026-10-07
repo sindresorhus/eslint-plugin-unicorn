@@ -75,3 +75,7 @@ test('the opening parenthesis of a non-null assertion does not need a semicolon'
 	t.assert.strictEqual(getResult('const value = ((marker) || foo)!;', '(bar)', typescriptLanguageOptions), false);
 	t.assert.strictEqual(getResult('if ((marker || foo)!) {}', '(bar)', typescriptLanguageOptions), false);
 });
+
+test('a Vue script opening token does not need a semicolon', t => {
+	t.assert.strictEqual(getResult('<script>marker;</script>', '(value)', {parser: parsers.vue.implementation}), false);
+});
