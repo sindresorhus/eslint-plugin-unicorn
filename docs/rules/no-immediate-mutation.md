@@ -1,6 +1,6 @@
 # no-immediate-mutation
 
-📝 Disallow immediate mutation after variable assignment.
+📝 Disallow immediate mutation after assignment and initialization immediately after declaration.
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
@@ -111,6 +111,35 @@ const weakMap = new WeakMap([
 ```
 
 No fix or suggestion is offered when a comment would be lost, when the object literal or the `Object.assign()` source has a getter or setter, or for a `__proto__` key, since an object literal handles these differently from an assignment or `Object.assign()`.
+
+## Consecutive initialization
+
+The rule also checks uninitialized `let` and `var` declarations immediately followed by an assignment. Combine the two statements instead:
+
+```js
+// ❌
+let foo;
+foo = 1;
+
+// ✅
+let foo = 1;
+```
+
+Flat array destructuring is supported when every target is declared in the preceding statement. Unrelated variables remain in a separate declaration:
+
+```js
+// ❌
+let r, g, b, foo;
+[r, g, b] = RGB.map(c => c / 255);
+
+// ✅
+let foo;
+let [r, g, b] = RGB.map(c => c / 255);
+```
+
+Initializers with possible side effects produce suggestions instead of automatic fixes. Unannotated TypeScript targets also produce suggestions, because combining the statements can narrow the inferred type. No edit is offered when comments would move or disappear, or when a destructuring target has a TypeScript type annotation.
+
+Declarations containing initialized variables, exported declarations, redeclarations, object patterns, nested patterns, defaults, rest elements, and initializers referencing their own targets are ignored. Intervening statements are allowed, and `checkConditionals` does not extend this check to conditional assignments.
 
 ## Options
 

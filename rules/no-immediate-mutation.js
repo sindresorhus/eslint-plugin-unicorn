@@ -41,8 +41,12 @@ const MESSAGE_ID_SUGGESTION_OBJECT_ASSIGN = 'suggestion/object-assign';
 const MESSAGE_ID_SUGGESTION_SET = 'suggestion/set';
 const MESSAGE_ID_SUGGESTION_MAP = 'suggestion/map';
 const MESSAGE_ID_SUGGESTION_CONDITIONAL = 'suggestion/conditional';
+const MESSAGE_ID_INITIALIZATION = 'initialization';
+const MESSAGE_ID_SUGGESTION_INITIALIZATION = 'suggestion/initialization';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Immediate mutation on {{objectType}} is not allowed.',
+	[MESSAGE_ID_INITIALIZATION]: 'Combine this initialization with the preceding declaration.',
+	[MESSAGE_ID_SUGGESTION_INITIALIZATION]: 'Combine the initialization and declaration.',
 	[MESSAGE_ID_SUGGESTION_ARRAY]: '{{operation}} the elements to the {{assignType}}.',
 	[MESSAGE_ID_SUGGESTION_OBJECT]: 'Move this property to the {{assignType}}.',
 	[MESSAGE_ID_SUGGESTION_OBJECT_ASSIGN]: '{{description}} the {{assignType}}.',
@@ -995,10 +999,95 @@ function getCaseProblem(
 	return getProblem(problematicNode, information);
 }
 
+function getInitializationTargets(node) {
+	const targets = node.type === 'ArrayPattern' ? node.elements.filter(Boolean) : [node];
+	if (targets.length === 0 || targets.some(target => target.type !== 'Identifier')) {
+		return;
+	}
+
+	return targets;
+}
+
+function getInitializationProblem(declaration, context) {
+	if (
+		!['let', 'var'].includes(declaration.kind)
+		|| declaration.declare
+		|| declaration.declarations.some(declarator => declarator.init || declarator.id.type !== 'Identifier')
+	) {
+		return;
+	}
+
+	const nextStatement = getNextNode(declaration, context);
+	const assignment = nextStatement?.expression;
+	if (
+		nextStatement?.type !== 'ExpressionStatement'
+		|| assignment.type !== 'AssignmentExpression'
+		|| assignment.operator !== '='
+	) {
+		return;
+	}
+
+	const {left, right} = assignment;
+	const targets = getInitializationTargets(left);
+	if (!targets) {
+		return;
+	}
+
+	const targetNames = new Set(targets.map(target => target.name));
+	const declarators = declaration.declarations.filter(declarator => targetNames.has(declarator.id.name));
+	if (targetNames.size !== targets.length || declarators.length !== targets.length) {
+		return;
+	}
+
+	const variables = declarators.map(declarator => getVariable(declarator, context));
+	if (variables.some(variable => !variable || hasVariableInNodes(variable, [right], context))) {
+		return;
+	}
+
+	const {sourceCode} = context;
+	const problem = {node: assignment, messageId: MESSAGE_ID_INITIALIZATION};
+	if (
+		hasCommentsThatWouldBeRelocated(declaration, sourceCode)
+		|| hasCommentsThatWouldBeRelocated(nextStatement, sourceCode)
+		|| declarators.some(declarator => declarator.definite || (left.type === 'ArrayPattern' && declarator.id.typeAnnotation))
+	) {
+		return problem;
+	}
+
+	const fix = function * (fixer) {
+		const remainingDeclarators = declaration.declarations.filter(declarator => !targetNames.has(declarator.id.name));
+		if (remainingDeclarators.length > 0) {
+			yield fixer.replaceText(declaration, `${declaration.kind} ${remainingDeclarators.map(declarator => sourceCode.getText(declarator)).join(', ')};`);
+		} else {
+			yield removeStatement(declaration, context, fixer);
+		}
+
+		const targetText = sourceCode.getText(left.type === 'Identifier' ? declarators[0].id : left);
+		yield fixer.replaceText(nextStatement, `${declaration.kind} ${targetText} = ${getParenthesizedText(right, context)};`);
+	};
+
+	// Initializing an unannotated TypeScript variable narrows its inferred type instead of retaining an evolving `any`.
+	if (
+		hasSideEffect(right, sourceCode)
+		|| (
+			(isTypeScriptFile(context.physicalFilename) || sourceCode.parserServices.esTreeNodeToTSNodeMap)
+			&& declarators.some(declarator => !declarator.id.typeAnnotation)
+		)
+	) {
+		problem.suggest = [{messageId: MESSAGE_ID_SUGGESTION_INITIALIZATION, fix}];
+	} else {
+		problem.fix = fix;
+	}
+
+	return problem;
+}
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
+	context.on('VariableDeclaration', declaration => getInitializationProblem(declaration, context));
+
 	for (const caseSettings of cases) {
 		context.on(
 			[
@@ -1018,7 +1107,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Disallow immediate mutation after variable assignment.',
+			description: 'Disallow immediate mutation after assignment and initialization immediately after declaration.',
 			recommended: true,
 		},
 		fixable: 'code',

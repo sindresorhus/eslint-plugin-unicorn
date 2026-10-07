@@ -1,0 +1,608 @@
+exports[`no-immediate-mutation > invalid(1): var foo;\nfoo = 1; 1`] = `
+
+  1 | var foo;
+  2 | foo = 1;
+
+`;
+
+exports[`no-immediate-mutation > invalid(1): var foo;\nfoo = 1; 2`] = `
+
+Message:
+  1 | var foo;
+> 2 | foo = 1;
+    | ^^^^^^^ Combine this initialization with the preceding declaration.
+
+Output:
+  1 | var foo = 1;
+
+`;
+
+exports[`no-immediate-mutation > invalid(10): let foo;\nfoo = () => 1; 1`] = `
+
+  1 | let foo;
+  2 | foo = () => 1;
+
+`;
+
+exports[`no-immediate-mutation > invalid(10): let foo;\nfoo = () => 1; 2`] = `
+
+Message:
+  1 | let foo;
+> 2 | foo = () => 1;
+    | ^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
+
+Output:
+  1 | let foo = () => 1;
+
+`;
+
+exports[`no-immediate-mutation > invalid(11): let foo;\nfoo = other?.value; 1`] = `
+
+  1 | let foo;
+  2 | foo = other?.value;
+
+`;
+
+exports[`no-immediate-mutation > invalid(11): let foo;\nfoo = other?.value; 2`] = `
+
+Message:
+  1 | let foo;
+> 2 | foo = other?.value;
+    | ^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
+
+Output:
+  1 | let foo = other?.value;
+
+`;
+
+exports[`no-immediate-mutation > invalid(12): let foo;\nfoo = other?.getValue(); 1`] = `
+
+  1 | let foo;
+  2 | foo = other?.getValue();
+
+`;
+
+exports[`no-immediate-mutation > invalid(12): let foo;\nfoo = other?.getValue(); 2`] = `
+
+Message:
+  1 | let foo;
+> 2 | foo = other?.getValue();
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
+
+Suggestion 1/1: Combine the initialization and declaration.:
+  1 | let foo = other?.getValue();
+
+`;
+
+exports[`no-immediate-mutation > invalid(13): let foo;\nfoo = <Component />; 1`] = `
+
+  1 | let foo;
+  2 | foo = <Component />;
+
+`;
+
+exports[`no-immediate-mutation > invalid(13): let foo;\nfoo = <Component />; 2`] = `
+
+Message:
+  1 | let foo;
+> 2 | foo = <Component />;
+    | ^^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
+
+Output:
+  1 | let foo = <Component />;
+
+`;
+
+exports[`no-immediate-mutation > invalid(14): let foo;\nfoo = 1;\nfoo = 2; 1`] = `
+
+  1 | let foo;
+  2 | foo = 1;
+  3 | foo = 2;
+
+`;
+
+exports[`no-immediate-mutation > invalid(14): let foo;\nfoo = 1;\nfoo = 2; 2`] = `
+
+Message:
+  1 | let foo;
+> 2 | foo = 1;
+    | ^^^^^^^ Combine this initialization with the preceding declaration.
+  3 | foo = 2;
+
+Output:
+  1 | let foo = 1;
+  2 | foo = 2;
+
+`;
+
+exports[`no-immediate-mutation > invalid(15): let foo\nfoo = 1\n;[1].map(callback) 1`] = `
+
+  1 | let foo
+  2 | foo = 1
+  3 | ;[1].map(callback)
+
+`;
+
+exports[`no-immediate-mutation > invalid(15): let foo\nfoo = 1\n;[1].map(callback) 2`] = `
+
+Message:
+  1 | let foo
+> 2 | foo = 1
+    | ^^^^^^^ Combine this initialization with the preceding declaration.
+  3 | ;[1].map(callback)
+
+Output:
+  1 | let foo = 1;[1].map(callback)
+
+`;
+
+exports[`no-immediate-mutation > invalid(16): let foo;\nfoo = 1;\n[1].map(callback); 1`] = `
+
+  1 | let foo;
+  2 | foo = 1;
+  3 | [1].map(callback);
+
+`;
+
+exports[`no-immediate-mutation > invalid(16): let foo;\nfoo = 1;\n[1].map(callback); 2`] = `
+
+Message:
+  1 | let foo;
+> 2 | foo = 1;
+    | ^^^^^^^ Combine this initialization with the preceding declaration.
+  3 | [1].map(callback);
+
+Output:
+  1 | let foo = 1;
+  2 | [1].map(callback);
+
+`;
+
+exports[`no-immediate-mutation > invalid(17): function run() {\n\tlet foo;\n\tfoo = 1;\n} 1`] = `
+
+  1 | function run() {
+  2 | 	let foo;
+  3 | 	foo = 1;
+  4 | }
+
+`;
+
+exports[`no-immediate-mutation > invalid(17): function run() {\n\tlet foo;\n\tfoo = 1;\n} 2`] = `
+
+Message:
+  1 | function run() {
+  2 | 	let foo;
+> 3 | 	foo = 1;
+    | 	^^^^^^^ Combine this initialization with the preceding declaration.
+  4 | }
+
+Output:
+  1 | function run() {
+  2 | 	let foo = 1;
+  3 | }
+
+`;
+
+exports[`no-immediate-mutation > invalid(18): function run() {\r\n  let foo, other;\r\n  foo = 1;\r\n} 1`] = `
+
+  1 | function run() {
+  2 |   let foo, other;
+  3 |   foo = 1;
+  4 | }
+
+`;
+
+exports[`no-immediate-mutation > invalid(18): function run() {\r\n  let foo, other;\r\n  foo = 1;\r\n} 2`] = `
+
+Message:
+  1 | function run() {
+  2 |   let foo, other;
+> 3 |   foo = 1;
+    |   ^^^^^^^ Combine this initialization with the preceding declaration.
+  4 | }
+
+Output:
+  1 | function run() {
+  2 |   let other;
+  3 |   let foo = 1;
+  4 | }
+
+`;
+
+exports[`no-immediate-mutation > invalid(19): let foo;\nfoo = 1; // Keep this comment. 1`] = `
+
+  1 | let foo;
+  2 | foo = 1; // Keep this comment.
+
+`;
+
+exports[`no-immediate-mutation > invalid(19): let foo;\nfoo = 1; // Keep this comment. 2`] = `
+
+Message:
+  1 | let foo;
+> 2 | foo = 1; // Keep this comment.
+    | ^^^^^^^ Combine this initialization with the preceding declaration.
+
+`;
+
+exports[`no-immediate-mutation > invalid(2): var r, g, b;\n[b, r, g] = values; 1`] = `
+
+  1 | var r, g, b;
+  2 | [b, r, g] = values;
+
+`;
+
+exports[`no-immediate-mutation > invalid(2): var r, g, b;\n[b, r, g] = values; 2`] = `
+
+Message:
+  1 | var r, g, b;
+> 2 | [b, r, g] = values;
+    | ^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
+
+Output:
+  1 | var [b, r, g] = values;
+
+`;
+
+exports[`no-immediate-mutation > invalid(20): let foo; // Keep this comment.\nfoo = 1; 1`] = `
+
+  1 | let foo; // Keep this comment.
+  2 | foo = 1;
+
+`;
+
+exports[`no-immediate-mutation > invalid(20): let foo; // Keep this comment.\nfoo = 1; 2`] = `
+
+Message:
+  1 | let foo; // Keep this comment.
+> 2 | foo = 1;
+    | ^^^^^^^ Combine this initialization with the preceding declaration.
+
+`;
+
+exports[`no-immediate-mutation > invalid(21): let /* Keep this comment. */ foo;\nfoo = 1; 1`] = `
+
+  1 | let /* Keep this comment. */ foo;
+  2 | foo = 1;
+
+`;
+
+exports[`no-immediate-mutation > invalid(21): let /* Keep this comment. */ foo;\nfoo = 1; 2`] = `
+
+Message:
+  1 | let /* Keep this comment. */ foo;
+> 2 | foo = 1;
+    | ^^^^^^^ Combine this initialization with the preceding declaration.
+
+`;
+
+exports[`no-immediate-mutation > invalid(22): let foo;\n/* Keep this comment. */ foo = 1; 1`] = `
+
+  1 | let foo;
+  2 | /* Keep this comment. */ foo = 1;
+
+`;
+
+exports[`no-immediate-mutation > invalid(22): let foo;\n/* Keep this comment. */ foo = 1; 2`] = `
+
+Message:
+  1 | let foo;
+> 2 | /* Keep this comment. */ foo = 1;
+    |                          ^^^^^^^ Combine this initialization with the preceding declaration.
+
+`;
+
+exports[`no-immediate-mutation > invalid(23): let foo;\nfoo = /* Keep this comment. */ 1; 1`] = `
+
+  1 | let foo;
+  2 | foo = /* Keep this comment. */ 1;
+
+`;
+
+exports[`no-immediate-mutation > invalid(23): let foo;\nfoo = /* Keep this comment. */ 1; 2`] = `
+
+Message:
+  1 | let foo;
+> 2 | foo = /* Keep this comment. */ 1;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
+
+`;
+
+exports[`no-immediate-mutation > invalid(24): let foo;\nfoo = getValue(/* Keep this comment. */); 1`] = `
+
+  1 | let foo;
+  2 | foo = getValue(/* Keep this comment. */);
+
+`;
+
+exports[`no-immediate-mutation > invalid(24): let foo;\nfoo = getValue(/* Keep this comment. */); 2`] = `
+
+Message:
+  1 | let foo;
+> 2 | foo = getValue(/* Keep this comment. */);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
+
+`;
+
+exports[`no-immediate-mutation > invalid(25): let foo;\nfoo = 1; 1`] = `
+
+Options:
+- checkConditionals: true
+
+Code:
+  1 | let foo;
+  2 | foo = 1;
+
+`;
+
+exports[`no-immediate-mutation > invalid(25): let foo;\nfoo = 1; 2`] = `
+
+Message:
+  1 | let foo;
+> 2 | foo = 1;
+    | ^^^^^^^ Combine this initialization with the preceding declaration.
+
+Output:
+  1 | let foo = 1;
+
+`;
+
+exports[`no-immediate-mutation > invalid(26): let foo: number;\nfoo = value as number; 1`] = `
+
+  1 | let foo: number;
+  2 | foo = value as number;
+
+`;
+
+exports[`no-immediate-mutation > invalid(26): let foo: number;\nfoo = value as number; 2`] = `
+
+Message:
+  1 | let foo: number;
+> 2 | foo = value as number;
+    | ^^^^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
+
+Output:
+  1 | let foo: number = value as number;
+
+`;
+
+exports[`no-immediate-mutation > invalid(27): let foo: number, other: string;\nfoo = value!; 1`] = `
+
+  1 | let foo: number, other: string;
+  2 | foo = value!;
+
+`;
+
+exports[`no-immediate-mutation > invalid(27): let foo: number, other: string;\nfoo = value!; 2`] = `
+
+Message:
+  1 | let foo: number, other: string;
+> 2 | foo = value!;
+    | ^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
+
+Output:
+  1 | let other: string;
+  2 | let foo: number = value!;
+
+`;
+
+exports[`no-immediate-mutation > invalid(28): let foo;\nfoo = value satisfies number; 1`] = `
+
+  1 | let foo;
+  2 | foo = value satisfies number;
+
+`;
+
+exports[`no-immediate-mutation > invalid(28): let foo;\nfoo = value satisfies number; 2`] = `
+
+Message:
+  1 | let foo;
+> 2 | foo = value satisfies number;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
+
+Suggestion 1/1: Combine the initialization and declaration.:
+  1 | let foo = value satisfies number;
+
+`;
+
+exports[`no-immediate-mutation > invalid(29): let foo: number, bar: string;\n[foo, bar] = values; 1`] = `
+
+  1 | let foo: number, bar: string;
+  2 | [foo, bar] = values;
+
+`;
+
+exports[`no-immediate-mutation > invalid(29): let foo: number, bar: string;\n[foo, bar] = values; 2`] = `
+
+Message:
+  1 | let foo: number, bar: string;
+> 2 | [foo, bar] = values;
+    | ^^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
+
+`;
+
+exports[`no-immediate-mutation > invalid(3): let first, foo, last;\nfoo = 1; 1`] = `
+
+  1 | let first, foo, last;
+  2 | foo = 1;
+
+`;
+
+exports[`no-immediate-mutation > invalid(3): let first, foo, last;\nfoo = 1; 2`] = `
+
+Message:
+  1 | let first, foo, last;
+> 2 | foo = 1;
+    | ^^^^^^^ Combine this initialization with the preceding declaration.
+
+Output:
+  1 | let first, last;
+  2 | let foo = 1;
+
+`;
+
+exports[`no-immediate-mutation > invalid(30): let foo: number;\n[foo] = getValues(); 1`] = `
+
+  1 | let foo: number;
+  2 | [foo] = getValues();
+
+`;
+
+exports[`no-immediate-mutation > invalid(30): let foo: number;\n[foo] = getValues(); 2`] = `
+
+Message:
+  1 | let foo: number;
+> 2 | [foo] = getValues();
+    | ^^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
+
+`;
+
+exports[`no-immediate-mutation > invalid(31): let foo;\n[foo] = values as number[]; 1`] = `
+
+  1 | let foo;
+  2 | [foo] = values as number[];
+
+`;
+
+exports[`no-immediate-mutation > invalid(31): let foo;\n[foo] = values as number[]; 2`] = `
+
+Message:
+  1 | let foo;
+> 2 | [foo] = values as number[];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
+
+Suggestion 1/1: Combine the initialization and declaration.:
+  1 | let [foo] = values as number[];
+
+`;
+
+exports[`no-immediate-mutation > invalid(32): let foo!: number;\nfoo = 1; 1`] = `
+
+  1 | let foo!: number;
+  2 | foo = 1;
+
+`;
+
+exports[`no-immediate-mutation > invalid(32): let foo!: number;\nfoo = 1; 2`] = `
+
+Message:
+  1 | let foo!: number;
+> 2 | foo = 1;
+    | ^^^^^^^ Combine this initialization with the preceding declaration.
+
+`;
+
+exports[`no-immediate-mutation > invalid(4): let r, keep, g, b;\n[g, , b, r] = values; 1`] = `
+
+  1 | let r, keep, g, b;
+  2 | [g, , b, r] = values;
+
+`;
+
+exports[`no-immediate-mutation > invalid(4): let r, keep, g, b;\n[g, , b, r] = values; 2`] = `
+
+Message:
+  1 | let r, keep, g, b;
+> 2 | [g, , b, r] = values;
+    | ^^^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
+
+Output:
+  1 | let keep;
+  2 | let [g, , b, r] = values;
+
+`;
+
+exports[`no-immediate-mutation > invalid(5): let foo;\n((foo)) = ((1)); 1`] = `
+
+  1 | let foo;
+  2 | ((foo)) = ((1));
+
+`;
+
+exports[`no-immediate-mutation > invalid(5): let foo;\n((foo)) = ((1)); 2`] = `
+
+Message:
+  1 | let foo;
+> 2 | ((foo)) = ((1));
+    | ^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
+
+Output:
+  1 | let foo = ((1));
+
+`;
+
+exports[`no-immediate-mutation > invalid(6): let foo;\n((foo = (first, second))); 1`] = `
+
+  1 | let foo;
+  2 | ((foo = (first, second)));
+
+`;
+
+exports[`no-immediate-mutation > invalid(6): let foo;\n((foo = (first, second))); 2`] = `
+
+Message:
+  1 | let foo;
+> 2 | ((foo = (first, second)));
+    |   ^^^^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
+
+Output:
+  1 | let foo = (first, second);
+
+`;
+
+exports[`no-immediate-mutation > invalid(7): let foo;\n[foo] = ((values)); 1`] = `
+
+  1 | let foo;
+  2 | [foo] = ((values));
+
+`;
+
+exports[`no-immediate-mutation > invalid(7): let foo;\n[foo] = ((values)); 2`] = `
+
+Message:
+  1 | let foo;
+> 2 | [foo] = ((values));
+    | ^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
+
+Output:
+  1 | let [foo] = ((values));
+
+`;
+
+exports[`no-immediate-mutation > invalid(8): let foo;\nfoo = (other => other)(1); 1`] = `
+
+  1 | let foo;
+  2 | foo = (other => other)(1);
+
+`;
+
+exports[`no-immediate-mutation > invalid(8): let foo;\nfoo = (other => other)(1); 2`] = `
+
+Message:
+  1 | let foo;
+> 2 | foo = (other => other)(1);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
+
+Suggestion 1/1: Combine the initialization and declaration.:
+  1 | let foo = (other => other)(1);
+
+`;
+
+exports[`no-immediate-mutation > invalid(9): let foo;\nfoo = (foo => foo)(1); 1`] = `
+
+  1 | let foo;
+  2 | foo = (foo => foo)(1);
+
+`;
+
+exports[`no-immediate-mutation > invalid(9): let foo;\nfoo = (foo => foo)(1); 2`] = `
+
+Message:
+  1 | let foo;
+> 2 | foo = (foo => foo)(1);
+    | ^^^^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
+
+Suggestion 1/1: Combine the initialization and declaration.:
+  1 | let foo = (foo => foo)(1);
+
+`;
