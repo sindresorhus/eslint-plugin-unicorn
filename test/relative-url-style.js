@@ -243,8 +243,35 @@ const markdownLanguages = [languages.markdown, {...languages.markdown, language:
 
 for (const language of markdownLanguages) {
 	test({
-		valid: [],
+		valid: [
+			{
+				code: '![$`](./wrong.md "title$](./right.md")',
+				languageOptions: {math: true},
+			},
+			{
+				code: '![$`](wrong.md "title$](right.md")',
+				options: ['always'],
+				languageOptions: {math: true},
+			},
+		].map(testCase => ({...testCase, language: language.language, plugins: language.plugins})),
 		invalid: [
+			{
+				code: '![`API`](./diagram.png)',
+				output: '![`API`](diagram.png)',
+				languageOptions: {math: true},
+				errors: [{messageId: 'never'}],
+			},
+			{
+				code: '![$`](./wrong.md "title$](./right.md")',
+				output: '![$`](wrong.md "title$](./right.md")',
+				errors: [{messageId: 'never'}],
+			},
+			{
+				code: '[$`](./wrong.md "title$](./right.md")',
+				output: '[$`](./wrong.md "title$](right.md")',
+				languageOptions: {math: true},
+				errors: [{messageId: 'never'}],
+			},
 			{
 				code: '- [`prefer-nesting`](./prefer-nesting.md)',
 				output: '- [`prefer-nesting`](prefer-nesting.md)',
@@ -261,15 +288,15 @@ for (const language of markdownLanguages) {
 				errors: [{messageId: 'never'}],
 			},
 			{
-				code: '<img src="./diagram.png">',
-				output: '<img src="diagram.png">',
-				errors: [{messageId: 'never'}],
+				code: '[![`API`](./diagram.png)](./page.md) <img src="./other.png" srcset="./small.png 1x, ./large.png 2x">',
+				output: '[![`API`](diagram.png)](page.md) <img src="other.png" srcset="small.png 1x, large.png 2x">',
+				errors: 5,
 			},
 			{
-				code: '![`API`](diagram.png) <img src="diagram.png">',
-				output: '![`API`](./diagram.png) <img src="./diagram.png">',
+				code: '[![`API`](diagram.png)](page.md) <img src="other.png" srcset="small.png 1x, large.png 2x">',
+				output: '[![`API`](./diagram.png)](./page.md) <img src="./other.png" srcset="./small.png 1x, ./large.png 2x">',
 				options: ['always'],
-				errors: [{messageId: 'always'}, {messageId: 'always'}],
+				errors: 5,
 			},
 			{
 				code: '<div>\n<a href="./fake\n\nmasked markdown\n\n<!-- " --><img src="./real">',
@@ -299,6 +326,8 @@ for (const language of markdownLanguages) {
 			'<img data-src="./image.png">',
 			'<img src="&period;/image.png">',
 			'<img src="&#32;./image.png">',
+			'<a href="./&quest;query">link</a>',
+			'<a href="./http&colon;foo">link</a>',
 			'<img srcset="./one.png?a=1&amp;b=2 1x">',
 			'<img srcset="./,one.png 1x">',
 			'<svg><image xlink:href="./image.svg" /></svg>',

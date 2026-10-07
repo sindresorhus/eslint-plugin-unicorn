@@ -230,7 +230,13 @@ const create = context => {
 	});
 
 	context.on('image', node => {
-		const offset = getMarkdownImageDestinationOffset(sourceCode.getText(node));
+		const text = sourceCode.getText(node);
+		// Math syntax can change image label boundaries.
+		if (context.languageOptions.math === true && text.includes('$')) {
+			return;
+		}
+
+		const offset = getMarkdownImageDestinationOffset(text);
 		if (offset !== undefined) {
 			return getMarkupProblem(node, node.url, sourceCode.getRange(node)[0] + offset);
 		}
