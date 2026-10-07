@@ -1,6 +1,6 @@
 /* eslint-disable no-template-curly-in-string */
 import outdent from 'outdent';
-import {getTester, languages} from './utils/test.js';
+import {getTester, languages, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -93,6 +93,121 @@ test.snapshot({
 		'new URL(\'foo\', base)',
 		'new URL("", "https://example.com/a/b/")',
 	].map(code => ({code, options: alwaysAddDotSlashOptions})),
+});
+
+test({
+	valid: [
+		'new URL(`./?query`, "https://example.com/a/b.html")',
+		'new URL(`./#section`, "https://example.com/a/b.html")',
+		'new URL(`./`, "https://example.com/a/b.html")',
+		'new URL(`./http\\u003Afoo`, base)',
+		'new URL(`\\u002E/foo`, base)',
+		...['.', '..', './file', '../file', '.?query', '..#section', String.raw`.\\file`, String.raw`..\\file`, '?query', '#section'].map(url => ({
+			code: `new URL("${url}", base)`,
+			options: ['always'],
+		})),
+		{code: 'new URL(`\\u003Fquery`, base)', options: ['always']},
+		{code: 'new URL(`https\\u003Afoo`, base)', options: ['always']},
+		{code: 'new URL(``, "https://example.com/a/b.html")', options: ['always']},
+	],
+	invalid: [
+		...[
+			{code: 'new URL(`./file`, base)', output: 'new URL(`file`, base)'},
+			{code: 'new URL(`./f\\u006Fo`, base)', output: 'new URL(`f\\u006Fo`, base)'},
+			{code: String.raw`new URL("./f\u006Fo", base)`, output: String.raw`new URL("f\u006Fo", base)`},
+			{code: 'new URL(`./?query`, "https://example.com/a/b/")', output: 'new URL(`?query`, "https://example.com/a/b/")'},
+			{code: 'new URL(`./#section`, "https://example.com/a/b/")', output: 'new URL(`#section`, "https://example.com/a/b/")'},
+			{code: 'new URL(`./`, "https://example.com/a/b/")', output: 'new URL(``, "https://example.com/a/b/")'},
+		].map(testCase => ({...testCase, errors: [{messageId: 'never'}]})),
+		...[
+			{code: 'new URL(`file`, base)', output: 'new URL(`./file`, base)'},
+			{code: 'new URL(`f\\u006Fo`, base)', output: 'new URL(`./f\\u006Fo`, base)'},
+			{code: 'new URL(`\\u002Eenv`, base)', output: 'new URL(`./\\u002Eenv`, base)'},
+			{code: 'new URL(``, "https://example.com/a/b/")', output: 'new URL(`./`, "https://example.com/a/b/")'},
+			...['.env', '.github/workflow.yml', '..hidden/file'].map(url => ({
+				code: `new URL("${url}", base)`,
+				output: `new URL("./${url}", base)`,
+			})),
+		].map(testCase => ({...testCase, options: ['always'], errors: [{messageId: 'always'}]})),
+	],
+});
+
+for (const style of ['never', 'always']) {
+	const prefix = style === 'never' ? './' : '';
+	const replacementPrefix = style === 'never' ? '' : './';
+	const languageOptions = {parser: parsers.typescript};
+	test({
+		valid: [
+			`new URL("${prefix}file" satisfies string, base)`,
+			`new URL(("${prefix}file" satisfies string) as string, base)`,
+			`new URL(("${prefix}file" satisfies string)!, base)`,
+			`new URL(("${prefix}file" as string) satisfies string, base)`,
+			`new URL(\`${prefix}file\` satisfies string, base)`,
+			'new URL("./?query" as string, "https://example.com/a/b.html" as const)',
+		].map(code => ({code, options: [style], languageOptions})),
+		invalid: [
+			...['as string', '!', 'as const'].map(wrapper => ({
+				code: `new URL("${prefix}file" ${wrapper}, base)`,
+				output: `new URL("${replacementPrefix}file" ${wrapper}, base)`,
+			})),
+			{code: `new URL(<string>"${prefix}file", base)`, output: `new URL(<string>"${replacementPrefix}file", base)`},
+			{code: `new URL(("${prefix}file" as string)!, base)`, output: `new URL(("${replacementPrefix}file" as string)!, base)`},
+			{code: `new URL("${prefix}file" /* keep */ as string, base)`, output: `new URL("${replacementPrefix}file" /* keep */ as string, base)`},
+			{code: `new URL(\`${prefix}file\` as string, base)`, output: `new URL(\`${replacementPrefix}file\` as string, base)`},
+			{code: `new URL("${prefix}file" as string, "https://example.com/a/b/" as const)`, output: `new URL("${replacementPrefix}file" as string, "https://example.com/a/b/" as const)`},
+		].map(testCase => ({
+			...testCase, options: [style], languageOptions, errors: [{messageId: style}],
+		})),
+	});
+}
+
+test({
+	valid: [
+		{code: 'new URL((`./${name}` satisfies string) as string, base)', languageOptions: {parser: parsers.typescript}},
+	],
+	invalid: [
+		{
+			code: 'new URL(`./${name}` as string, base)',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'never', suggestions: [{messageId: 'remove', output: 'new URL(`${name}` as string, base)'}]}],
+		},
+	],
+});
+
+const hiddenPathMarkupCases = [
+	{
+		language: languages.css,
+		plain: '@import ".github/style.css"; a { background: url(".env.png"); mask-image: image-set("..hidden.png" 1x); }',
+		prefixed: '@import "./.github/style.css"; a { background: url("./.env.png"); mask-image: image-set("./..hidden.png" 1x); }',
+	},
+	{
+		language: languages.html,
+		plain: '<a href=".env">link</a><img srcset=".github/small.png 1x, ..hidden.png 2x">',
+		prefixed: '<a href="./.env">link</a><img srcset="./.github/small.png 1x, ./..hidden.png 2x">',
+	},
+	...[languages.markdown, {...languages.markdown, language: 'markdown/gfm'}].map(language => ({
+		language,
+		plain: '[link](.env)\n![image](.github/diagram.png)\n\n[reference]: ..hidden.md',
+		prefixed: '[link](./.env)\n![image](./.github/diagram.png)\n\n[reference]: ./..hidden.md',
+	})),
+];
+
+test({
+	valid: [
+		{code: '@import "../style.css"; a { background: url(".?query"); }', language: languages.css},
+		{code: '<a href="..#section">link</a><img srcset="./small.png 1x, ../large.png 2x">', language: languages.html},
+		{code: '[link](.?query)\n![image](../diagram.png)\n\n[reference]: ..#section', language: languages.markdown},
+	].map(({code, language}) => ({
+		code, language: language.language, plugins: language.plugins, options: ['always'],
+	})),
+	invalid: hiddenPathMarkupCases.flatMap(({language, plain, prefixed}) => ['never', 'always'].map(style => ({
+		code: style === 'never' ? prefixed : plain,
+		output: style === 'never' ? plain : prefixed,
+		language: language.language,
+		plugins: language.plugins,
+		options: [style],
+		errors: 3,
+	}))),
 });
 
 const nonRelativeUrls = ['https://example.com/image.png', '//example.com/image.png', '/image.png', '#section', '?query', 'data:image/png;base64,abc', '../image.png', './', './?query', './#section', './https://example.com/image.png'];
@@ -263,6 +378,30 @@ for (const language of markdownLanguages) {
 		].map(testCase => ({...testCase, language: language.language, plugins: language.plugins})),
 		invalid: [
 			{
+				code: '<svg><image href="./visible.svg" xlink:href="./hidden.svg" /></svg>',
+				output: '<svg><image href="visible.svg" xlink:href="./hidden.svg" /></svg>',
+				errors: [{messageId: 'never'}],
+			},
+			{
+				code: '<svg><image href="visible.svg" xlink:href="hidden.svg" /></svg>',
+				output: '<svg><image href="./visible.svg" xlink:href="hidden.svg" /></svg>',
+				options: ['always'],
+				errors: [{messageId: 'always'}],
+			},
+			{
+				code: '---\nimage: \'<img src="./metadata.png">\'\n---\n\n$<img src="./math.png">$ <img src="./real.png">',
+				output: '---\nimage: \'<img src="./metadata.png">\'\n---\n\n$<img src="./math.png">$ <img src="real.png">',
+				languageOptions: {frontmatter: 'yaml', math: true},
+				errors: [{messageId: 'never'}],
+			},
+			{
+				code: '---\nimage: \'<img src="metadata.png">\'\n---\n\n$<img src="math.png">$ <img src="real.png">',
+				output: '---\nimage: \'<img src="metadata.png">\'\n---\n\n$<img src="math.png">$ <img src="./real.png">',
+				options: ['always'],
+				languageOptions: {frontmatter: 'yaml', math: true},
+				errors: [{messageId: 'always'}],
+			},
+			{
 				code: '🦄\r\n\r\n<div>\r\n<img\r\n src="./image.png"\r\n srcset="./small.png 1x, ./large.png 2x">\r\n</div>',
 				output: '🦄\r\n\r\n<div>\r\n<img\r\n src="image.png"\r\n srcset="small.png 1x, large.png 2x">\r\n</div>',
 				errors: 3,
@@ -342,7 +481,6 @@ for (const language of markdownLanguages) {
 			'<a href="./http&colon;foo">link</a>',
 			'<img srcset="./one.png?a=1&amp;b=2 1x">',
 			'<img srcset="./,one.png 1x">',
-			'<svg><image xlink:href="./image.svg" /></svg>',
 			'<img\r\n src="./image.png">',
 		].map(code => ({code, language})),
 		invalid: [
@@ -384,3 +522,165 @@ test.snapshot({
 		'Footnote[^note]\n\n[^note]: ![`API`](./diagram.png) <img src="./other.png">',
 	].map(code => ({code, language: {...languages.markdown, language: 'markdown/gfm'}})),
 });
+
+for (const language of [languages.html, ...markdownLanguages]) {
+	test({
+		valid: [
+			'<form action=""><button formaction="">Submit</button></form>',
+			'<blockquote cite=""></blockquote>',
+			'<form action="https://example.com/submit"><button formaction="/alternate">Submit</button></form>',
+			'<blockquote cite="./?query"></blockquote>',
+			'<blockquote cite="&#32;./source"></blockquote>',
+			'<object data="./manual.pdf"></object><a ping="./ping" srcdoc="./document">link</a>',
+			{code: '<form action="/submit"><button formaction="#alternate">Submit</button></form>', options: ['always']},
+		].map(testCase => ({...(typeof testCase === 'string' ? {code: testCase} : testCase), language: language.language, plugins: language.plugins})),
+		invalid: [
+			{
+				code: '<form ACTION="  ./submit?a=1&amp;b=2  "><button formaction=./alternate>Submit</button></form><blockquote cite="./source">Quote</blockquote>',
+				output: '<form ACTION="  submit?a=1&amp;b=2  "><button formaction=alternate>Submit</button></form><blockquote cite="source">Quote</blockquote>',
+				errors: 3,
+			},
+			{
+				code: '<form action="submit"><button formaction="alternate">Submit</button></form><q cite="source">Quote</q><ins cite="edit">Added</ins><del cite="edit">Removed</del>',
+				output: '<form action="./submit"><button formaction="./alternate">Submit</button></form><q cite="./source">Quote</q><ins cite="./edit">Added</ins><del cite="./edit">Removed</del>',
+				options: ['always'],
+				errors: 5,
+			},
+			{
+				code: '🦄\r\n<form action=" \t./submit?a=1&amp;b=2 \t">\r\n<button formaction=./alternate>Submit</button>\r\n<blockquote cite="./source">Quote</blockquote>\r\n</form>',
+				output: '🦄\r\n<form action=" \tsubmit?a=1&amp;b=2 \t">\r\n<button formaction=alternate>Submit</button>\r\n<blockquote cite="source">Quote</blockquote>\r\n</form>',
+				errors: [
+					{
+						messageId: 'never', line: 2, column: 17, endLine: 2, endColumn: 37,
+					},
+					{
+						messageId: 'never', line: 3, column: 20, endLine: 3, endColumn: 31,
+					},
+					{
+						messageId: 'never', line: 4, column: 19, endLine: 4, endColumn: 27,
+					},
+				],
+			},
+			{
+				code: '<div>\r\n<img\r\n srcset=" ./small.png 1x, ./large.png 2x " />\r\n</div>',
+				output: '<div>\r\n<img\r\n srcset=" small.png 1x, large.png 2x " />\r\n</div>',
+				errors: [
+					{
+						messageId: 'never', line: 3, column: 11, endLine: 3, endColumn: 22,
+					},
+					{
+						messageId: 'never', line: 3, column: 27, endLine: 3, endColumn: 38,
+					},
+				],
+			},
+			{
+				code: '🦄 <a href="./page.html">link</a>',
+				output: '🦄 <a href="page.html">link</a>',
+				errors: [{
+					messageId: 'never', line: 1, column: 13, endLine: 1, endColumn: 24,
+				}],
+			},
+		].map(testCase => ({...testCase, language: language.language, plugins: language.plugins})),
+	});
+}
+
+test({
+	valid: [
+		{code: '<form action="./{{ target }}"><button formaction="./{{ target }}">Submit</button></form><blockquote cite="./{{ target }}"></blockquote>'},
+		{code: '<form action="{{ target }}"><button formaction="{{ target }}">Submit</button></form><blockquote cite="{{ target }}"></blockquote>', options: ['always']},
+	].map(testCase => ({
+		...testCase, language: languages.html.language, plugins: languages.html.plugins, languageOptions: {templateEngineSyntax: {'{{': '}}'}},
+	})),
+	invalid: [],
+});
+
+for (const parser of [undefined, parsers.typescript]) {
+	const nativeElementCode = [
+		'<><a href="page.html" />',
+		'<img src="image.png" srcSet="small.png 1x, large.png 2x" />',
+		'<link imageSrcSet="preload.png 1x" /><video poster="poster.png" />',
+		'<form action="submit"><button formAction="alternate" /></form><q cite="source" /></>;',
+	].join('');
+	const prefixedNativeElementCode = [
+		'<><a href="./page.html" />',
+		'<img src="./image.png" srcSet="./small.png 1x, ./large.png 2x" />',
+		'<link imageSrcSet="./preload.png 1x" /><video poster="./poster.png" />',
+		'<form action="./submit"><button formAction="./alternate" /></form><q cite="./source" /></>;',
+	].join('');
+	const jsxOptions = {
+		...(parser && {filename: 'test.tsx'}),
+		languageOptions: {
+			...(parser && {parser}),
+			parserOptions: {ecmaFeatures: {jsx: true}},
+		},
+	};
+	test({
+		valid: [
+			'<Component src="./image.png" href="./page.html" />;',
+			'<components.Image src="./image.png" />;',
+			'<custom-image src="./image.png" />;',
+			'<svg:image src="./image.png" />;',
+			'<img xlink:href="./image.svg" SRC="./image.png" srcset="./small.png 1x" imagesrcset="./small.png 1x" />;',
+			'<button formaction="./submit" />;',
+			'<img src={"./image.png"} srcSet={`./${image} 1x`} />;',
+			'<img src={image} srcSet={images} />;',
+			'<img src />;',
+			'<img src="./&#63;query" />;',
+			'<img src="./&quest;query" />;',
+			'<img src="./&#63query" />;',
+			'<img src="./&#128;.png" />;',
+			'<img srcSet="./one.png?a=1&amp;b=2 1x" />;',
+			'<object data="./manual.pdf" />;',
+			{code: '<img src="https://example.com/image.png" srcSet="/small.png 1x" />;', options: ['always']},
+			{code: '<Component src="image.png" />;', options: ['always']},
+			{code: '<form action=""><button formAction="" /></form>;', options: ['always']},
+		].map(testCase => ({...jsxOptions, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+		invalid: [
+			{
+				code: prefixedNativeElementCode,
+				output: nativeElementCode,
+				errors: 9,
+			},
+			{
+				code: nativeElementCode,
+				output: prefixedNativeElementCode,
+				options: ['always'],
+				errors: 9,
+			},
+			{
+				code: '<img src="  ./image.png?a=1&amp;b=2  " />;',
+				output: '<img src="  image.png?a=1&amp;b=2  " />;',
+				errors: [{
+					messageId: 'never', line: 1, column: 13, endLine: 1, endColumn: 36,
+				}],
+			},
+			{
+				code: '<img\r\n srcSet=" ./small.png 1x, ./large.png 2x " />;',
+				output: '<img\r\n srcSet=" small.png 1x, large.png 2x " />;',
+				errors: [
+					{
+						messageId: 'never', line: 2, column: 11, endLine: 2, endColumn: 22,
+					},
+					{
+						messageId: 'never', line: 2, column: 27, endLine: 2, endColumn: 38,
+					},
+				],
+			},
+			{
+				code: '<img src="./&#63;query" />; new URL("./&#63;query", base);',
+				output: '<img src="./&#63;query" />; new URL("&#63;query", base);',
+				errors: 1,
+			},
+			{
+				code: String.raw`<img src="./dir\nfile.png" />;`,
+				output: String.raw`<img src="dir\nfile.png" />;`,
+				errors: 1,
+			},
+			{
+				code: '<img src="./&#102;ile.png" />;',
+				output: '<img src="&#102;ile.png" />;',
+				errors: 1,
+			},
+		].map(testCase => ({...jsxOptions, ...testCase})),
+	});
+}
