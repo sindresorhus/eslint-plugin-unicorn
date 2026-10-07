@@ -237,11 +237,30 @@ test.vue({
 
 test.svelte({
 	valid: [],
-	invalid: [{
-		code: '<script>test ? call(a) : call(b);</script>{test ? call(c, first+second) : call(d, first + second)}',
-		output: '<script>call(test ? a : b);</script>{call(test ? c : d, first+second)}',
-		errors: 2,
-	}],
+	invalid: [
+		{
+			code: '<script>test ? call(a) : call(b);</script>{test ? call(c, first+second) : call(d, first + second)}',
+			output: '<script>call(test ? a : b);</script>{call(test ? c : d, first+second)}',
+			errors: 2,
+		},
+		{
+			code: '<script>test ? {shared, value: 1} : {shared, value: 2};</script>{test ? {shared, value: 1} : {shared, value: 2}}',
+			output: '<script>({shared, value: test ? 1 : 2});</script>{({shared, value: test ? 1 : 2})}',
+			errors: 2,
+		},
+		...[
+			['<script lang="ts">test ? {shared, value: 1} : {shared, value: 2};</script>', '<script lang="ts">({shared, value: test ? 1 : 2});</script>'],
+			['<script lang="ts"></script>{test ? {shared, value: 1} : {shared, value: 2}}', '<script lang="ts"></script>{({shared, value: test ? 1 : 2})}'],
+		].map(([code, output]) => ({
+			code,
+			filename: 'file.svelte',
+			languageOptions: {parserOptions: {parser: typescriptEslintParser}},
+			errors: [{
+				messageId: 'prefer-minimal-ternary',
+				suggestions: [{messageId: 'prefer-minimal-ternary', output}],
+			}],
+		})),
+	],
 });
 
 test({
