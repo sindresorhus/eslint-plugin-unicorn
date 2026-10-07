@@ -68,7 +68,7 @@ export function testDisableDirectives(ruleName, template, {options = [], expecte
 		t.assert.strictEqual(result.output, code);
 	});
 
-	for (const comment of ['/* Explanation. */', `/* eslint-enable ${ruleId} */ /* Explanation. */`]) {
+	for (const comment of ['/* Explanation. */', '// Explanation.\n', `/* eslint-enable ${ruleId} */ /* Explanation. */`]) {
 		test(`${ruleName} handles ordinary comments without edits (${comment}): ${template}`, t => {
 			const linter = new Linter();
 			const code = template.replace('@', () => comment);
