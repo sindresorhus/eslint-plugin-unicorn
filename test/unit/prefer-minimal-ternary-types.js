@@ -236,10 +236,10 @@ for (const {name, declarations, expression, unsafeExpression, resultType, diagno
 		t.assert.strictEqual(messages.length, 1);
 		t.assert.strictEqual(messages[0].messageId, 'prefer-minimal-ternary');
 		t.assert.strictEqual(messages[0].fix, undefined);
-		if (!syntaxFix) {
-			t.assert.strictEqual(messages[0].suggestions?.[0].fix.text, unsafeExpression);
-		} else {
+		if (syntaxFix) {
 			t.assert.strictEqual(messages[0].suggestions, undefined);
+		} else {
+			t.assert.strictEqual(messages[0].suggestions?.[0].fix.text, unsafeExpression);
 		}
 	});
 }
