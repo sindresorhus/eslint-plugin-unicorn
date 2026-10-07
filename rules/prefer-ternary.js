@@ -78,10 +78,6 @@ const isMergeableReturnStatement = (consequent, alternate, visitorKeys) =>
 
 function hasSameAssignmentTargetTypes(consequent, alternate, context) {
 	const {sourceCode} = context;
-	if (!sourceCode.parserServices?.program) {
-		return true;
-	}
-
 	// Pattern containers have synthesized types; compare their expressions instead.
 	if (
 		!['ArrayPattern', 'ObjectPattern', 'RestElement', 'Property', 'AssignmentPattern'].includes(consequent.type)
@@ -109,7 +105,13 @@ const isMergeableAssignmentExpression = (consequent, alternate, context) =>
 			&& !hasComplexStructure(consequent.left, context.sourceCode)
 			&& !hasComplexStructure(alternate.left, context.sourceCode)
 			&& isSameTokens(context.sourceCode.getTokens(consequent.left), context.sourceCode.getTokens(alternate.left))
-			// Moving the pattern outside the branches can lose narrowed contextual types.
+		)
+	)
+	// Moving the target outside the branches can lose narrowed contextual types.
+	&& (
+		!context.sourceCode.parserServices?.program
+		|| (
+			isSameTokens(context.sourceCode.getTokens(consequent.left), context.sourceCode.getTokens(alternate.left))
 			&& hasSameAssignmentTargetTypes(consequent.left, alternate.left, context)
 		)
 	);

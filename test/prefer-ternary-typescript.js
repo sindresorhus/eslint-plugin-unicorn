@@ -38,11 +38,13 @@ function getMessages(program) {
 	}, {filename});
 }
 
-for (const pattern of ['[object.handler]', '{handler: object.handler}']) {
+for (const [pattern, first, second] of [
+	['object.handler', 'value => value.toFixed()', 'value => value.toUpperCase()'],
+	['[object.handler]', '[value => value.toFixed()]', '[value => value.toUpperCase()]'],
+	['{handler: object.handler}', '{handler: value => value.toFixed()}', '{handler: value => value.toUpperCase()}'],
+]) {
 	for (const prefix of ['', 'return ', 'result = ']) {
 		test(`preserves narrowed callback types in ${prefix || 'standalone '}${pattern}`, t => {
-			const first = pattern.startsWith('[') ? '[value => value.toFixed()]' : '{handler: value => value.toFixed()}';
-			const second = pattern.startsWith('[') ? '[value => value.toUpperCase()]' : '{handler: value => value.toUpperCase()}';
 			const code = outdent`
 				function update(object: {kind: "number"; handler: (value: number) => string} | {kind: "string"; handler: (value: string) => string}) {
 					let result;
@@ -73,10 +75,12 @@ for (const pattern of ['[object.handler]', '{handler: object.handler}']) {
 	}
 }
 
-for (const pattern of ['[object.handler]', '{handler: object.handler}']) {
+for (const [pattern, first, second] of [
+	['object.handler', 'value => value.toFixed()', 'value => value.toExponential()'],
+	['[object.handler]', '[value => value.toFixed()]', '[value => value.toExponential()]'],
+	['{handler: object.handler}', '{handler: value => value.toFixed()}', '{handler: value => value.toExponential()}'],
+]) {
 	test(`still combines compatible callback types in ${pattern}`, t => {
-		const first = pattern.startsWith('[') ? '[value => value.toFixed()]' : '{handler: value => value.toFixed()}';
-		const second = pattern.startsWith('[') ? '[value => value.toExponential()]' : '{handler: value => value.toExponential()}';
 		const code = outdent`
 			type Handler = (value: number) => string;
 			function update(object: {kind: "first" | "second"; handler: Handler}) {
@@ -95,7 +99,7 @@ for (const pattern of ['[object.handler]', '{handler: object.handler}']) {
 		const {fix} = messages[0];
 		t.assert.ok(fix);
 		const assignment = `${pattern} = object.kind === "first" ? ${first} : ${second}`;
-		t.assert.strictEqual(fix.text, pattern.startsWith('[') ? `${assignment};` : `(${assignment});`);
+		t.assert.strictEqual(fix.text, pattern.startsWith('{') ? `(${assignment});` : `${assignment};`);
 		const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
 		t.assert.deepStrictEqual(getDiagnostics(createProgram(output)), []);
 	});
@@ -114,6 +118,29 @@ for (const [name, target, firstType, secondType, firstCallback] of [
 					[${target}] = [${firstCallback}];
 				} else {
 					[${target}] = [value => value.toFixed()];
+				}
+			}
+		`;
+		const program = createProgram(code);
+		t.assert.deepStrictEqual(getDiagnostics(program), []);
+		t.assert.deepStrictEqual(getMessages(program), []);
+	});
+}
+
+for (const [consequent, alternate] of [
+	['object.handler', 'object["handler"]'],
+	['object.handler', '(object as Holder).handler'],
+	['(object as Holder<number>).handler', '(object as Holder).handler'],
+	['(object as Holder).handler', '(object as Holder<number>).handler'],
+]) {
+	test(`leaves differing typed targets unchanged: ${consequent} / ${alternate}`, t => {
+		const code = outdent`
+			type Holder<Value = number> = {handler: (value: Value) => string};
+			function update(object: Holder, condition: boolean) {
+				if (condition) {
+					${consequent} = value => value.toFixed();
+				} else {
+					${alternate} = value => value.toExponential();
 				}
 			}
 		`;

@@ -13,7 +13,7 @@ This rule enforces the use of ternary expressions over simple `if` statements th
 
 Array and object destructuring assignments are supported when both branches use the same pattern, ignoring whitespace. The pattern itself may span multiple lines in `always` mode. Patterns containing statement blocks, class bodies, or multiline array/object literals, JSX elements/fragments, or template literals are ignored.
 
-When full TypeScript type information is available, destructuring assignments are only combined when expressions within their patterns have the same resolved types in both branches, preserving narrowed contextual types.
+With full TypeScript type information, the rule also requires identical target tokens and skips assignments whose target expressions have different resolved types in the branches, preserving narrowed contextual types. Without type information, targets are matched by syntax.
 
 It intentionally ignores standalone `await`, `yield`, and `throw` branches because ternaries there usually reduce readability without assigning or returning a value.
 
@@ -195,7 +195,7 @@ let bar;
 if (test) {
 	foo = 1;
 } else {
-	baz = 2;
+	bar = 2;
 }
 ```
 
