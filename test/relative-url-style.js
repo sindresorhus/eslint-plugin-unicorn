@@ -520,7 +520,7 @@ for (const language of markdownLanguages) {
 	test({
 		valid: [
 			...['> [link](\n> page.md)', '> [reference]:\n> page.md', '> [link](\n> <page.md>)', '> [reference]:\n> <page.md>'].map(code => ({code, options: ['always']})),
-			...['./<file>', './<file', './\\<file>', './&lt;file&gt;'].flatMap(destination => [
+			...['./<file>', './<file', String.raw`./\<file>`, './&lt;file&gt;'].flatMap(destination => [
 				{code: `[link](${destination})`},
 				{code: `![image](${destination})`},
 				{code: `[reference]: ${destination}\n\n[link][reference]`},
