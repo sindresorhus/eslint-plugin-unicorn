@@ -110,33 +110,6 @@ test.snapshot({
 		`,
 		outdent`
 			const abortController = new AbortController();
-			firstSignal.addEventListener('abort', () => abortController.abort()); // Keep.
-			secondSignal.addEventListener('abort', () => abortController.abort());
-			fetch(url, {signal: abortController.signal});
-		`,
-		outdent`
-			const abortController = new AbortController();
-			// Keep.
-			firstSignal.addEventListener('abort', () => abortController.abort());
-			secondSignal.addEventListener('abort', () => abortController.abort());
-			fetch(url, {signal: abortController.signal});
-		`,
-		outdent`
-			const abortController = new /* keep */ AbortController();
-			firstSignal.addEventListener('abort', () => abortController.abort());
-			secondSignal.addEventListener('abort', () => abortController.abort());
-			fetch(url, {signal: abortController.signal});
-		`,
-		outdent`
-			const abortController = new AbortController();
-			for (const signal of [firstSignal, secondSignal]) {
-				// Keep.
-				signal.addEventListener('abort', () => abortController.abort());
-			}
-			fetch(url, {signal: abortController.signal});
-		`,
-		outdent`
-			const abortController = new AbortController();
 			firstSignal.addEventListener('abort', () => abortController.abort(), getOptions());
 			secondSignal.addEventListener('abort', () => abortController.abort());
 			fetch(url, {signal: abortController.signal});
@@ -1052,6 +1025,46 @@ test.snapshot({
 			for (const signal of [firstSignal, , secondSignal]) {
 				signal.addEventListener('abort', () => abortController.abort());
 			}
+			fetch(url, {signal: abortController.signal});
+		`,
+		outdent`
+			const abortController = new AbortController();
+			firstSignal.addEventListener('abort', () => abortController.abort()); // Keep.
+			secondSignal.addEventListener('abort', () => abortController.abort());
+			fetch(url, {signal: abortController.signal});
+		`,
+		outdent`
+			const abortController = new AbortController();
+			// Keep.
+			firstSignal.addEventListener('abort', () => abortController.abort());
+			secondSignal.addEventListener('abort', () => abortController.abort());
+			fetch(url, {signal: abortController.signal});
+		`,
+		outdent`
+			const abortController = new /* keep */ AbortController();
+			firstSignal.addEventListener('abort', () => abortController.abort());
+			secondSignal.addEventListener('abort', () => abortController.abort());
+			fetch(url, {signal: abortController.signal});
+		`,
+		outdent`
+			const abortController = new AbortController();
+			for (const signal of [firstSignal, secondSignal]) {
+				// Keep.
+				signal.addEventListener('abort', () => abortController.abort());
+			}
+			fetch(url, {signal: abortController.signal});
+		`,
+		outdent`
+			const abortController = new AbortController();
+			firstSignal.addEventListener('abort', () => abortController.abort());
+			secondSignal.addEventListener('abort', () => abortController.abort());
+			fetch(url, {signal: abortController.signal});
+			fetch(otherUrl, {signal: abortController /* keep */ .signal});
+		`,
+		outdent`
+			const abortController = new AbortController();
+			firstSignal.addEventListener('abort', () => abortController.abort());
+			secondSignal.addEventListener('abort', () => abortController.abort()); // Keep the last listener comment.
 			fetch(url, {signal: abortController.signal});
 		`,
 	],

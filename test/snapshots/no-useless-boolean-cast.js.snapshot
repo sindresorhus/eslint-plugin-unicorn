@@ -233,6 +233,34 @@ Output:
 
 `;
 
+exports[`no-useless-boolean-cast > invalid(21): array.some(value => Boolean(/* comment */ value.active)); 1`] = `
+
+  1 | array.some(value => Boolean(/* comment */ value.active));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(21): array.some(value => Boolean(/* comment */ value.active)); 2`] = `
+
+Message:
+> 1 | array.some(value => Boolean(/* comment */ value.active));
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#some()\` callbacks.
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(22): array.some(value => Boolean(value.active /* comment */)); 1`] = `
+
+  1 | array.some(value => Boolean(value.active /* comment */));
+
+`;
+
+exports[`no-useless-boolean-cast > invalid(22): array.some(value => Boolean(value.active /* comment */)); 2`] = `
+
+Message:
+> 1 | array.some(value => Boolean(value.active /* comment */));
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`Boolean()\` is unnecessary in \`Array#some()\` callbacks.
+
+`;
+
 exports[`no-useless-boolean-cast > invalid(3): const example = records.some(record => Boolean(record.fieldname)); 1`] = `
 
   1 | const example = records.some(record => Boolean(record.fieldname));

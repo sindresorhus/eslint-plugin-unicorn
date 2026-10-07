@@ -25,13 +25,6 @@ test.snapshot({
 			}
 		`,
 		outdent`
-			while (/* keep */ true) {
-				if (!hasMore()) {
-					break;
-				}
-			}
-		`,
-		outdent`
 			for (; false;) {
 				if (!hasMore()) {
 					break;
@@ -106,51 +99,6 @@ test.snapshot({
 				function done() {}
 				work();
 			}
-		`,
-		outdent`
-			for (;;) {
-				if (
-					// Check before processing.
-					!hasMore()
-				) {
-					break;
-				}
-			}
-		`,
-		outdent`
-			for /* keep */ (;;) {
-				if (!hasMore()) {
-					break;
-				}
-			}
-		`,
-		outdent`
-			for (; /* keep */ true;) {
-				if (!hasMore()) {
-					break;
-				}
-			}
-		`,
-		outdent`
-			do {
-				if (!hasMore()) {
-					break;
-				}
-			} /* keep */ while (true);
-		`,
-		outdent`
-			do /* keep */ {
-				if (!hasMore()) {
-					break;
-				}
-			} while (true);
-		`,
-		outdent`
-			do {
-				if (!hasMore()) {
-					break;
-				}
-			} while (true); // Preserve this comment.
 		`,
 		outdent`
 			loop: for (;;) {
@@ -238,48 +186,6 @@ test.snapshot({
 						break;
 					}
 				}
-			}
-		`,
-		outdent`
-			while (true) {
-				if (
-					// Check before processing.
-					!hasMore()
-				) {
-					break;
-				}
-			}
-		`,
-		outdent`
-			while (true) {
-				if (!hasMore()) {
-					// Preserve this comment.
-					break;
-				}
-			}
-		`,
-		outdent`
-			while (true) {
-				// Preserve this comment.
-				if (!hasMore()) {
-					break;
-				}
-
-				processNext();
-			}
-		`,
-		outdent`
-			while (true) {
-				if (!hasMore()) break; // Preserve this comment.
-				processNext();
-			}
-		`,
-		outdent`
-			while (true) {
-				if (!hasMore()) {
-					break;
-				} // Preserve this comment.
-				processNext();
 			}
 		`,
 	],
@@ -486,5 +392,111 @@ test.snapshot({
 				parser: parsers.typescript,
 			},
 		},
+		outdent`
+			while (/* keep */ true) {
+				if (!hasMore()) {
+					break;
+				}
+			}
+		`,
+		outdent`
+			for (;;) {
+				if (
+					// Check before processing.
+					!hasMore()
+				) {
+					break;
+				}
+			}
+		`,
+		outdent`
+			for /* keep */ (;;) {
+				if (!hasMore()) {
+					break;
+				}
+			}
+		`,
+		outdent`
+			for (; /* keep */ true;) {
+				if (!hasMore()) {
+					break;
+				}
+			}
+		`,
+		outdent`
+			do {
+				if (!hasMore()) {
+					break;
+				}
+			} /* keep */ while (true);
+		`,
+		outdent`
+			do /* keep */ {
+				if (!hasMore()) {
+					break;
+				}
+			} while (true);
+		`,
+		outdent`
+			do {
+				if (!hasMore()) {
+					break;
+				}
+			} while (true); // Preserve this comment.
+		`,
+		outdent`
+			while (true) {
+				if (
+					// Check before processing.
+					!hasMore()
+				) {
+					break;
+				}
+			}
+		`,
+		outdent`
+			while (true) {
+				if (!hasMore()) {
+					// Preserve this comment.
+					break;
+				}
+			}
+		`,
+		outdent`
+			while (true) {
+				// Preserve this comment.
+				if (!hasMore()) {
+					break;
+				}
+
+				processNext();
+			}
+		`,
+		outdent`
+			while (true) {
+				if (!hasMore()) break; // Preserve this comment.
+				processNext();
+			}
+		`,
+		outdent`
+			while (true) {
+				if (!hasMore()) {
+					break;
+				} // Preserve this comment.
+				processNext();
+			}
+		`,
+		// Comments in the retained body do not prevent autofixing.
+		outdent`
+			while (true) {
+				if (!hasMore()) {
+					break;
+				}
+
+				// Process the remaining work.
+				processNext();
+			}
+		`,
+		'do {\r\n  if (done) {\r\n    break;\r\n  }\r\n  processNext(/* Keep this argument comment. */ value);\r\n} while (true);',
 	],
 });

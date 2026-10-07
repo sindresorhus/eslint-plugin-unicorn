@@ -10,9 +10,7 @@ import {
 	getAbortReference,
 	getNextStatement,
 	getSignalMembers,
-	hasCommentBetween,
 	isAbortControllerDeclarator,
-	isStatementCommentFree,
 } from './shared/abort-controller.js';
 
 const MESSAGE_ID = 'prefer-abort-signal-timeout';
@@ -80,11 +78,7 @@ const createProblem = (declarator, context) => {
 	const declaration = declarator.parent;
 	const timeoutStatement = getNextStatement(declaration);
 	const timeoutCall = getTimeoutCall(timeoutStatement, context);
-	if (
-		!timeoutCall
-		|| hasCommentBetween(context, declaration, timeoutStatement)
-		|| !isStatementCommentFree(timeoutStatement, context)
-	) {
+	if (!timeoutCall) {
 		return;
 	}
 

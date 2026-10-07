@@ -10,7 +10,6 @@ import {
 	getParenthesizedText,
 	getCommentSafeProblem,
 	getOutermostTypeScriptExpression,
-	hasNonDirectiveComment,
 	isBuiltinSet,
 	isFirstTokenOfExpressionStatement,
 	isGlobalIdentifier,
@@ -112,10 +111,7 @@ const getUnionReplacement = (arrayExpression, context) => {
 };
 
 const getUnionProblem = (node, context) => {
-	if (
-		!isGlobalSetConstructor(node, context)
-		|| hasNonDirectiveComment(context, node)
-	) {
+	if (!isGlobalSetConstructor(node, context)) {
 		return;
 	}
 
@@ -235,8 +231,7 @@ const getSetOperationReplacement = (filterCall, context) => {
 
 const getSetOperationProblem = (node, replacementNode, context) => {
 	if (
-		hasNonDirectiveComment(context, replacementNode)
-		|| isMemberObjectAfterTransparentWrappers(node)
+		isMemberObjectAfterTransparentWrappers(node)
 		|| (node === replacementNode && isTypeScriptExpressionWrapper(node.parent))
 	) {
 		return;
@@ -263,10 +258,6 @@ const getSetOperationProblem = (node, replacementNode, context) => {
 };
 
 const getSetPredicateProblem = (node, {set, otherSet, method, negated}, context) => {
-	if (hasNonDirectiveComment(context, node)) {
-		return;
-	}
-
 	let replacement = `${getMemberExpressionObjectText(set, context)}.${method}(${getParenthesizedText(otherSet, context)})`;
 	if (negated) {
 		replacement = `!${replacement}`;

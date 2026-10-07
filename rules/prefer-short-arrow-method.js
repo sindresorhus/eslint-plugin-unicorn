@@ -2,7 +2,6 @@ import {
 	getCommentSafeProblem,
 	getConciseArrowBodyText,
 	getFunctionReturnExpression,
-	hasNonDirectiveComment,
 	hasUnsafeArrowConversionReference,
 } from './utils/index.js';
 
@@ -89,7 +88,6 @@ const create = context => {
 	const canReportProperty = property => {
 		const returnExpression = getConvertibleReturnExpression(property, sourceCode);
 		return Boolean(returnExpression
-			&& !hasNonDirectiveComment(context, property)
 			&& getFix(property, returnExpression, context));
 	};
 

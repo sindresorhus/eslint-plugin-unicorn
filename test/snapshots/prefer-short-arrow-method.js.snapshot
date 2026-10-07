@@ -36,6 +36,32 @@ Output:
 
 `;
 
+exports[`prefer-short-arrow-method > invalid(1): const object = {foo() {return foo;}, bar() {/* comment */ return bar;}}; 1`] = `
+
+Options:
+- 'consistent-as-needed'
+
+Code:
+  1 | const object = {foo() {return foo;}, bar() {/* comment */ return bar;}};
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(1): const object = {foo() {return foo;}, bar() {/* comment */ return bar;}}; 2`] = `
+
+Message:
+> 1 | const object = {foo() {return foo;}, bar() {/* comment */ return bar;}};
+    |                 ^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+`;
+
+exports[`prefer-short-arrow-method > invalid(1): const object = {foo() {return foo;}, bar() {/* comment */ return bar;}}; 3`] = `
+
+Message:
+> 1 | const object = {foo() {return foo;}, bar() {/* comment */ return bar;}};
+    |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an arrow function property over a method with a single return.
+
+`;
+
 exports[`prefer-short-arrow-method > invalid(1): const object = {foo() {return foo;}}; 1`] = `
 
 Options:

@@ -34,14 +34,13 @@ test.snapshot({
 		'const file = new File([blob], "image.jpg", {type: "image/jpeg"});\nformData.append("file", file);',
 		'const file = new File([blob], {name: "image.jpg"});\nformData.append("file", file);',
 		'const blob = new Blob();\nconst file = new File([blob], getName());\nURL.createObjectURL(file);',
+		'const blob = new Blob();\nconst formData = new FormData();\nconst file = new File([blob]);\nformData.append("file", file);',
+		'const blob = new Blob();\nconst formData = new FormData();\nconst file = new File([blob], ...names);\nformData.append("file", file);',
 		'const blob = new Blob(["x"], {type: "text/plain"});\nconst file = new File([blob], "text.txt");\nURL.createObjectURL(file);',
 		'const sourceFile = new File([blob], "source.jpg", {type: "text/plain"});\nconst file = new File([sourceFile], "image.jpg");\nURL.createObjectURL(file);',
 		'const file = new File([blob], "image.jpg");\nconst blob = new Blob();\nURL.createObjectURL(file);',
 		'const {blob} = new Blob();\nconst file = new File([blob], "image.jpg");\nURL.createObjectURL(file);',
 		'const {formData} = new FormData();\nconst blob = new Blob();\nconst file = new File([blob], "image.jpg");\nformData.append("file", file);',
-		'const blob = new Blob();\nconst file = new File([blob], "image.jpg"); // Keep comment\nURL.createObjectURL(file);',
-		'const blob = new Blob();\nconst file = new File([/* Keep comment */ blob], "image.jpg");\nURL.createObjectURL(file);',
-		'const blob = new Blob(); /* Keep comment */ const file = new File([blob], "image.jpg");\nURL.createObjectURL(file);',
 		'const file = new File([blob], "image.jpg");\n{\n\tconst blob = "not a blob";\n\tURL.createObjectURL(file);\n}',
 		'const name = "image.jpg";\nconst formData = new FormData();\nconst file = new File([blob], name);\n{\n\tconst name = "other.jpg";\n\tformData.append("file", file);\n}',
 		'let name = "a.jpg";\nconst formData = new FormData();\nconst file = new File([blob], name);\nname = "b.jpg";\nformData.append("file", file);',
@@ -106,6 +105,10 @@ test.snapshot({
 			const file = new File([blob], "image.jpg");
 			formData.append("file", file, name);
 		`,
+		'const blob = new Blob();\nconst file = new File([blob], "image.jpg"); // Keep comment\nURL.createObjectURL(file);',
+		'const blob = new Blob();\nconst file = new File([/* Keep comment */ blob], "image.jpg");\nURL.createObjectURL(file);',
+		'const blob = new Blob(); /* Keep comment */ const file = new File([blob], "image.jpg");\nURL.createObjectURL(file);',
+		'const blob = new Blob();\nconst formData = new FormData();\nconst file = new File([blob], "");\nformData.append("file", file);',
 	],
 });
 
@@ -160,4 +163,26 @@ test({
 		code: 'const blob = new Blob();\n// eslint-disable-next-line no-restricted-syntax\nconst file = new File([blob], "image.jpg");\nURL.createObjectURL(file);',
 		errors: [{messageId: 'no-blob-to-file', suggestions: []}],
 	}],
+});
+
+// Forward the filename as a separate argument without moving comments onto it.
+test({
+	valid: [],
+	invalid: ['append', 'set'].flatMap(method => [
+		['(file)', '(blob), "image.jpg"'],
+		['((file))', '((blob)), "image.jpg"'],
+		['(file),', '(blob), "image.jpg",'],
+		['file /* upload */', 'blob /* upload */, "image.jpg"'],
+		['file // upload\n', 'blob // upload\n, "image.jpg"'],
+		['file /* upload */, "different.jpg"', 'blob /* upload */, "different.jpg"'],
+	].map(([callArguments, replacementArguments]) => ({
+		code: `const blob = new Blob();\nconst formData = new FormData();\nconst file = new File([blob], "image.jpg");\nformData.${method}("file", ${callArguments});`,
+		errors: [{
+			messageId: 'no-blob-to-file',
+			suggestions: [{
+				messageId: 'suggestion',
+				output: `const blob = new Blob();\nconst formData = new FormData();\nformData.${method}("file", ${replacementArguments});`,
+			}],
+		}],
+	}))),
 });

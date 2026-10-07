@@ -47,12 +47,7 @@ test.snapshot({
 		'const object = Object.fromEntries(Object.entries(source)); Object.hasOwn(object, object.foo);',
 		'const object = Object.fromEntries(Object.entries(source)); object.foo = object.bar;',
 		'const object = Object.fromEntries(Object.entries(source)); const deleted = delete object.foo;',
-		'const object = Object.fromEntries(Object.entries(source)); Object.keys(/* comment */ object);',
-		'const object = Object.fromEntries(Object.entries(source)); object /* comment */ .foo;',
-		'const object = Object /* comment */ .fromEntries(Object.entries(source)); object.foo;',
 		'const object = Object.fromEntries(Object.entries(source)); Object.hasOwn(object, key);',
-		'const object = Object.fromEntries(Object.entries(source)); object.foo /* comment */ = value;',
-		'const object = Object.fromEntries(Object.entries(source)); delete /* comment */ object.foo;',
 		'const object = Object.fromEntries(...entries); object.foo;',
 		'const object = Object.fromEntries(entries, extra); object.foo;',
 		'const object = Object.fromEntries?.(entries); object.foo;',
@@ -240,5 +235,22 @@ test.snapshot({
 			code: 'const object = Object.fromEntries(Object.entries(source)); object["foo" as const];',
 			languageOptions: {parser: parsers.typescript},
 		},
+	],
+});
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		'const object = Object.fromEntries(Object.entries(source)); Object.keys(/* comment */ object);',
+		'const object = Object.fromEntries(Object.entries(source)); object /* comment */ .foo;',
+		'const object = Object /* comment */ .fromEntries(Object.entries(source)); object.foo;',
+		'const object = Object.fromEntries(Object.entries(source)); object.foo /* comment */ = value;',
+		'const object = Object.fromEntries(Object.entries(source)); delete /* comment */ object.foo;',
+		outdent`
+			const object = Object.fromEntries(Object.entries(source));
+			object.foo;
+			object /* keep */ .bar;
+			Object.keys(object);
+		`,
 	],
 });

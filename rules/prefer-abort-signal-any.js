@@ -24,9 +24,7 @@ import {
 	getAbortReference,
 	getNextStatement,
 	getSignalMembers,
-	hasCommentBetween,
 	isAbortControllerDeclarator,
-	isStatementCommentFree,
 } from './shared/abort-controller.js';
 
 const MESSAGE_ID = 'prefer-abort-signal-any';
@@ -737,15 +735,12 @@ const getDirectBridge = (declaration, controllerName, context) => {
 	const bridgeStatements = [];
 	const sourceSignals = [];
 	const abortReferences = new Set();
-	let previousStatement = declaration;
 	let statement = getNextStatement(declaration);
 
 	while (statement) {
 		const listener = getAbortEventListenerCall(statement);
 		if (
 			!listener
-			|| !isStatementCommentFree(statement, context)
-			|| hasCommentBetween(context, previousStatement, statement)
 			|| hasUnsupportedSignalSource(listener.sourceSignal, controllerName, context)
 			|| !isDirectBridgeSource(listener.sourceSignal, context)
 		) {
@@ -760,7 +755,6 @@ const getDirectBridge = (declaration, controllerName, context) => {
 		bridgeStatements.push(statement);
 		sourceSignals.push(listener.sourceSignal);
 		abortReferences.add(abortReference);
-		previousStatement = statement;
 		statement = getNextStatement(statement);
 	}
 
@@ -796,8 +790,6 @@ const getForOfBridge = (declaration, controllerName, context) => {
 	if (
 		statement?.type !== 'ForOfStatement'
 		|| statement.await
-		|| !isStatementCommentFree(statement, context)
-		|| hasCommentBetween(context, declaration, statement)
 		|| !isAllowedForOfArraySource(statement.right, context)
 		|| isPossiblyMutatedConstantArray(statement.right, context)
 		|| hasUnsupportedSignalSource(statement.right, controllerName, context)

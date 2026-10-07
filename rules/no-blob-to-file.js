@@ -3,12 +3,11 @@ import {getStaticStringValue, isMethodCall, isNewExpression} from './ast/index.j
 import {
 	getCommentSafeProblem,
 	getConstVariableInitializer,
-	hasNonDirectiveComment,
 	getLastTrailingCommentOnSameLine,
 	getVariableIdentifiers,
 	isGlobalIdentifier,
 } from './utils/index.js';
-import {removeStatement} from './fix/index.js';
+import {appendArgument, removeStatement} from './fix/index.js';
 
 const MESSAGE_ID = 'no-blob-to-file';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -37,11 +36,6 @@ const isGlobalFormDataConstructor = (node, context) =>
 		argumentsLength: 0,
 	})
 	&& isGlobalIdentifier(node.callee, context);
-
-function getFileNameNode(newFileExpression) {
-	const [, fileNameNode] = newFileExpression.arguments;
-	return fileNameNode;
-}
 
 function isBlobIdentifier(node, beforeNode, context) {
 	const initializer = node && getConstVariableInitializer(node, context);
@@ -89,8 +83,7 @@ function getBlobIdentifier(newFileExpression, context) {
 		return;
 	}
 
-	const [fileBits] = newFileExpression.arguments;
-	const [, fileName] = newFileExpression.arguments;
+	const [fileBits, fileName] = newFileExpression.arguments;
 
 	if (
 		fileBits.type !== 'ArrayExpression'
@@ -178,20 +171,12 @@ function getProblem(node, context) {
 		return;
 	}
 
-	const fileNameNode = getFileNameNode(init);
-	const commentCheckRange = getCommentCheckRange(node.parent, context);
-
-	if (
-		!isSameBindingAtUse(blobIdentifier, reference, context)
-		|| hasNonDirectiveComment(context, commentCheckRange)
-		|| (
-			supportedCall.kind === 'formData'
-			&& supportedCall.call.arguments.length === 2
-			&& !fileNameNode
-		)
-	) {
+	if (!isSameBindingAtUse(blobIdentifier, reference, context)) {
 		return;
 	}
+
+	const [, fileNameNode] = init.arguments;
+	const commentCheckRange = getCommentCheckRange(node.parent, context);
 
 	return getCommentSafeProblem(context, {
 		node: init,
@@ -207,7 +192,7 @@ function getProblem(node, context) {
 						supportedCall.kind === 'formData'
 						&& supportedCall.call.arguments.length === 2
 					) {
-						yield fixer.insertTextAfter(reference, `, ${sourceCode.getText(fileNameNode)}`);
+						yield appendArgument(fixer, supportedCall.call, sourceCode.getText(fileNameNode), context);
 					}
 				},
 			},

@@ -17,7 +17,6 @@ import {
 	isSameIdentifier,
 	isTypeOnlyDefinition,
 	unwrapTypeScriptExpression,
-	hasNonDirectiveComment,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-url-search-parameters/error';
@@ -182,37 +181,21 @@ const getPreservedWrapperRanges = (node, argument, context) => {
 	];
 };
 
-const getSuggestion = ({node, replacement, preservedNodes}, context) => {
-	if (
-		!isUrlSearchParametersAvailable(node, context)
-		|| hasNonDirectiveComment(context, node, preservedNodes)
-	) {
-		return;
-	}
-
-	return [
-		{
-			messageId: MESSAGE_ID_SUGGESTION,
-			data: {replacement},
-			fix: fixer => fixer.replaceText(node, replacement),
-		},
-	];
-};
-
 const createProblem = ({node, query, replacement, preservedNodes = [query]}, context) => {
-	const suggest = getSuggestion({
-		node,
-		replacement,
-		preservedNodes,
-	}, context);
-	if (!suggest) {
+	if (!isUrlSearchParametersAvailable(node, context)) {
 		return;
 	}
 
 	return getCommentSafeProblem(context, {
 		node,
 		messageId: MESSAGE_ID_ERROR,
-		suggest,
+		suggest: [
+			{
+				messageId: MESSAGE_ID_SUGGESTION,
+				data: {replacement},
+				fix: fixer => fixer.replaceText(node, replacement),
+			},
+		],
 	}, node, preservedNodes);
 };
 

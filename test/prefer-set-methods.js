@@ -34,12 +34,10 @@ test.snapshot({
 		'const a = new Set(); const b = new Set(); new Set([...a, item, ...b]);',
 		'const Set = class {}; const a = new Set(); const b = new Set(); new Set([...a, ...b]);',
 		'new Foo([...a, ...b]);',
-		'const a = new Set(); const b = new Set(); new Set([/* keep */ ...a, ...b]);',
 		'const a = new Set(); const b = new Set(); Array.from(a).filter(value => b.has(value));',
 		'const a = new Set(); const b = new Set(); foo([...a].filter(value => b.has(value)));',
 		'const a = new Set(); const b = new Set(); new Foo([...a].filter(value => b.has(value)));',
 		'const a = new Set(); const b = new Set(); [...a].filter(value => b.has(value)).map(fn);',
-		'const a = new Set(); const b = new Set(); new Set(/* keep */ [...a].filter(value => b.has(value)));',
 		'const a = new Set(); const b = new Set(); [...a].filter(async value => b.has(value));',
 		'const a = new Set(); const b = new Set(); [...a].filter(value => b.has(value) && value);',
 		'const a = new Set(); const b = new Set(); [...a].filter(value => { return b.has(value); });',
@@ -47,7 +45,6 @@ test.snapshot({
 		'const a = new Set(); const b = new Set(); [...a].filter((...value) => b.has(value));',
 		'const a = new Set(); const b = new Set(); [...a].filter(value => b?.has(value));',
 		'const a = new Set(); const b = new Set(); [...a].filter(value => b["has"](value));',
-		'const a = new Set(); const b = new Set(); [...a].filter(value => b.has(/* keep */ value));',
 		'const a = new Set(); const b = new Set(); [...a].filter(value => other.has(value));',
 		'const a = new Set(); const b = new Set(); Array.from(a).filter(value => !b.has(value));',
 		'const a = new Set(); const b = new Set(); foo([...a].filter(value => !b.has(value)));',
@@ -56,7 +53,6 @@ test.snapshot({
 		'const a = new Set(); const b = new Set(); [...a].filter(value => !(b.has(value)) && other);',
 		'const a = new Set(); const b = new Set(); [...a].filter(value => !b?.has(value));',
 		'const a = new Set(); const b = new Set(); [...a].filter(value => !b["has"](value));',
-		'const a = new Set(); const b = new Set(); [...a].filter(value => !b.has(/* keep */ value));',
 		'const a = new Set(); const b = []; [...a].filter(value => !b.has(value));',
 		'const a = []; const b = new Set(); [...a].filter(value => !b.has(value));',
 		typescript('function foo(a: Set<string>, b: string[]) { new Set([...a, ...b]); }'),
@@ -131,6 +127,10 @@ test.snapshot({
 			const intersection = [...a]
 				.filter(value => b.has(value));
 		`,
+		'const a = new Set(); const b = new Set(); new Set([/* keep */ ...a, ...b]);',
+		'const a = new Set(); const b = new Set(); new Set(/* keep */ [...a].filter(value => b.has(value)));',
+		'const a = new Set(); const b = new Set(); [...a].filter(value => b.has(/* keep */ value));',
+		'const a = new Set(); const b = new Set(); [...a].filter(value => !b.has(/* keep */ value));',
 	],
 });
 
@@ -158,7 +158,6 @@ for (const method of ['every', 'some']) {
 				`[...a].${method}(value => b.has?.(value))`,
 				`[...a].${method}(value => b['has'](value))`,
 				`[...a].${method}(value => b.has(value, other))`,
-				`[...a].${method}(value => b.has(/* keep */ value))`,
 				`[...a].${method}(value => (value ? b : a).has(value))`,
 			].map(code => `const a = new Set(); const b = new Set(); ${code};`),
 			typescript(`function foo(a: Set<Set<string>>) { return [...a].${method}((value: Set<string>) => value.has(value)); }`),
@@ -185,6 +184,7 @@ for (const method of ['every', 'some']) {
 			typescript(`function foo(a: Set<string>, b: Set<string>) { return [...(a as Set<string>)].${method}(value => (b satisfies Set<string>).has(value)); }`),
 			typescript(`function foo(a: Set<string>, b: Set<string>) { return [...a!].${method}(value => b!.has(value))!; }`),
 			typeAware(`type Items = Set<string>; declare const a: Items; declare const b: Set<string>; [...a].${method}(value => b.has(value));`),
+			`const a = new Set(); const b = new Set(); [...a].${method}(value => b.has(/* keep */ value));`,
 		],
 	});
 }
@@ -212,7 +212,6 @@ for (const method of ['intersection', 'difference']) {
 				`a.${method}(b)?.size === 0`,
 				`a.${method}(b, other).size === 0`,
 				`a.${method}(...b).size === 0`,
-				`a.${method}(b).size /* keep */ === 0`,
 			].map(code => `const a = new Set(); const b = new Set(); ${code};`),
 		],
 		invalid: [
@@ -236,6 +235,7 @@ for (const method of ['intersection', 'difference']) {
 				foo
 				0 === (condition ? a : b).${method}(b).size;
 			`,
+			`const a = new Set(); const b = new Set(); a.${method}(b).size /* keep */ === 0;`,
 		],
 	});
 }

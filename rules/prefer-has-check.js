@@ -8,7 +8,6 @@ import {
 import {
 	getCommentSafeProblem,
 	getParenthesizedText,
-	hasNonDirectiveComment,
 	getTypeSymbol,
 	needsSemicolon,
 	isBooleanContext,
@@ -745,10 +744,6 @@ const isMatchingMissingValue = (value, missingType, context) =>
 	missingType === 'undefined' ? isUndefinedSentinel(value, context) : isNullLiteral(value);
 
 const getComparisonFix = (callExpression, comparison, context) => {
-	if (context.sourceCode.getCommentsInside(comparison.node).length > context.sourceCode.getCommentsInside(callExpression).length) {
-		return;
-	}
-
 	const replacement = `${isPositiveComparison(comparison) ? '' : '!'}${getMemberExpressionObjectText(callExpression.callee.object, context)}.has(${getSingleArgumentText(callExpression, context)})`;
 	const semicolon = needsSemicolon(context.sourceCode.getTokenBefore(comparison.node), context, replacement) ? ';' : '';
 	return fixer => fixer.replaceText(comparison.node, semicolon + replacement);
@@ -774,10 +769,6 @@ const getProblem = (callExpression, context) => {
 
 	const comparison = getComparison(callExpression);
 	if (comparison) {
-		if (hasNonDirectiveComment(context, callExpression)) {
-			return;
-		}
-
 		const callKind = getCallKind(callExpression, comparison, context);
 		if (!callKind || !isMatchingMissingValue(comparison.value, callKind.missingType, context)) {
 			return;
@@ -787,22 +778,18 @@ const getProblem = (callExpression, context) => {
 			node: callExpression.callee.property,
 			messageId: MESSAGE_ID,
 			fix: getComparisonFix(callExpression, comparison, context),
-		}, callExpression);
+		}, comparison.node);
 	}
 
 	if (
 		isBooleanContext(callExpression, context)
 		&& isSafeBooleanMapCall(callExpression, context)
 	) {
-		if (hasNonDirectiveComment(context, callExpression)) {
-			return;
-		}
-
-		return getCommentSafeProblem(context, {
+		return {
 			node: callExpression.callee.property,
 			messageId: MESSAGE_ID,
 			fix: getBooleanFix(callExpression),
-		}, callExpression);
+		};
 	}
 };
 

@@ -517,6 +517,48 @@ Suggestion 1/1: Replace \`.filter(…).flatMap(…)\` with a single \`.flatMap(�
 
 `;
 
+exports[`prefer-array-flat-map > invalid(35): array.filter(value => /* comment */ value.active).flatMap(value => [value.id, value.name]); 1`] = `
+
+  1 | array.filter(value => /* comment */ value.active).flatMap(value => [value.id, value.name]);
+
+`;
+
+exports[`prefer-array-flat-map > invalid(35): array.filter(value => /* comment */ value.active).flatMap(value => [value.id, value.name]); 2`] = `
+
+Message:
+> 1 | array.filter(value => /* comment */ value.active).flatMap(value => [value.id, value.name]);
+    |                                                   ^^^^^^^ Prefer a single \`.flatMap(…)\` over \`.filter(…).flatMap(…)\`.
+
+`;
+
+exports[`prefer-array-flat-map > invalid(36): array.filter(value => value.active).flatMap(value => /* comment */ [value.id, value.name]); 1`] = `
+
+  1 | array.filter(value => value.active).flatMap(value => /* comment */ [value.id, value.name]);
+
+`;
+
+exports[`prefer-array-flat-map > invalid(36): array.filter(value => value.active).flatMap(value => /* comment */ [value.id, value.name]); 2`] = `
+
+Message:
+> 1 | array.filter(value => value.active).flatMap(value => /* comment */ [value.id, value.name]);
+    |                                     ^^^^^^^ Prefer a single \`.flatMap(…)\` over \`.filter(…).flatMap(…)\`.
+
+`;
+
+exports[`prefer-array-flat-map > invalid(37): array.filter(value => value.active) /* comment */ .flatMap(value => [value.id, value.name]); 1`] = `
+
+  1 | array.filter(value => value.active) /* comment */ .flatMap(value => [value.id, value.name]);
+
+`;
+
+exports[`prefer-array-flat-map > invalid(37): array.filter(value => value.active) /* comment */ .flatMap(value => [value.id, value.name]); 2`] = `
+
+Message:
+> 1 | array.filter(value => value.active) /* comment */ .flatMap(value => [value.id, value.name]);
+    |                                                    ^^^^^^^ Prefer a single \`.flatMap(…)\` over \`.filter(…).flatMap(…)\`.
+
+`;
+
 exports[`prefer-array-flat-map > invalid(4): const bar = [1,2,3].map((i) => [i]).flat() 1`] = `
 
   1 | const bar = [1,2,3].map((i) => [i]).flat()

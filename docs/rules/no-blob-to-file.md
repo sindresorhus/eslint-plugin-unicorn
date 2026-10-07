@@ -11,7 +11,7 @@
 
 `File` objects implement the `Blob` interface. Converting a `Blob` to a `File` just to pass it to APIs that already accept a `Blob` is unnecessary.
 
-This rule currently checks a narrow pattern: a standalone `const` without ordinary comments, initialized with `new File([blob], 'filename')` and used once in `URL.createObjectURL()`, `FormData#append()`, or `FormData#set()`. The `blob` value must be an earlier `const` initialized with `new Blob()`, `new Blob(parts)`, or `new File(parts, name)` without type options. For `FormData`, the receiver must be a `const` initialized with `new FormData()`.
+This rule currently checks a narrow pattern: a standalone `const`, initialized with `new File([blob], 'filename')` and used once in `URL.createObjectURL()`, `FormData#append()`, or `FormData#set()`. The `blob` value must be an earlier `const` initialized with `new Blob()`, `new Blob(parts)`, or `new File(parts, name)` without type options, since the File wrapper clears the MIME type. For `FormData`, the receiver must be a `const` initialized with `new FormData()`.
 
 ## Examples
 

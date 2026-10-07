@@ -515,6 +515,34 @@ Suggestion 1/1: Use \`Set#intersection()\`.:
 
 `;
 
+exports[`prefer-set-methods > invalid(14): const a = new Set(); const b = new Set(); a.difference(b).size /* keep */ === 0; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); a.difference(b).size /* keep */ === 0;
+
+`;
+
+exports[`prefer-set-methods > invalid(14): const a = new Set(); const b = new Set(); a.difference(b).size /* keep */ === 0; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); a.difference(b).size /* keep */ === 0;
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+`;
+
+exports[`prefer-set-methods > invalid(14): const a = new Set(); const b = new Set(); a.intersection(b).size /* keep */ === 0; 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); a.intersection(b).size /* keep */ === 0;
+
+`;
+
+exports[`prefer-set-methods > invalid(14): const a = new Set(); const b = new Set(); a.intersection(b).size /* keep */ === 0; 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); a.intersection(b).size /* keep */ === 0;
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
+
+`;
+
 exports[`prefer-set-methods > invalid(14): function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].every(value => !b.has(value)); } 1`] = `
 
   1 | function foo(a: ReadonlySet<string>, b: ReadonlySet<string>) { return [...a].every(value => !b.has(value)); }
@@ -720,6 +748,34 @@ Message:
 
 Output:
   1 | type Items = Set<string>; declare const a: Items; declare const b: Set<string>; !a.isDisjointFrom(b);
+
+`;
+
+exports[`prefer-set-methods > invalid(18): const a = new Set(); const b = new Set(); [...a].every(value => b.has(/* keep */ value)); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); [...a].every(value => b.has(/* keep */ value));
+
+`;
+
+exports[`prefer-set-methods > invalid(18): const a = new Set(); const b = new Set(); [...a].every(value => b.has(/* keep */ value)); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); [...a].every(value => b.has(/* keep */ value));
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isSubsetOf()\` to check whether a Set is a subset of another Set.
+
+`;
+
+exports[`prefer-set-methods > invalid(18): const a = new Set(); const b = new Set(); [...a].some(value => b.has(/* keep */ value)); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); [...a].some(value => b.has(/* keep */ value));
+
+`;
+
+exports[`prefer-set-methods > invalid(18): const a = new Set(); const b = new Set(); [...a].some(value => b.has(/* keep */ value)); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); [...a].some(value => b.has(/* keep */ value));
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
 
 `;
 
@@ -1100,6 +1156,20 @@ Suggestion 1/1: Use \`Set#intersection()\`.:
 
 `;
 
+exports[`prefer-set-methods > invalid(29): const a = new Set(); const b = new Set(); new Set([/* keep */ ...a, ...b]); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); new Set([/* keep */ ...a, ...b]);
+
+`;
+
+exports[`prefer-set-methods > invalid(29): const a = new Set(); const b = new Set(); new Set([/* keep */ ...a, ...b]); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); new Set([/* keep */ ...a, ...b]);
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#union()\` instead of spreading Sets into a new Set.
+
+`;
+
 exports[`prefer-set-methods > invalid(3): const a = new Set(); const b = new Set(); a.difference(b).size !== 0; 1`] = `
 
   1 | const a = new Set(); const b = new Set(); a.difference(b).size !== 0;
@@ -1233,6 +1303,48 @@ Message:
 
 Output:
   1 | const a = new Set(); const b = new Set(); foo(!a.isDisjointFrom(b));
+
+`;
+
+exports[`prefer-set-methods > invalid(30): const a = new Set(); const b = new Set(); new Set(/* keep */ [...a].filter(value => b.has(value))); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); new Set(/* keep */ [...a].filter(value => b.has(value)));
+
+`;
+
+exports[`prefer-set-methods > invalid(30): const a = new Set(); const b = new Set(); new Set(/* keep */ [...a].filter(value => b.has(value))); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); new Set(/* keep */ [...a].filter(value => b.has(value)));
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#intersection()\` instead of filtering by \`Set#has()\`.
+
+`;
+
+exports[`prefer-set-methods > invalid(31): const a = new Set(); const b = new Set(); [...a].filter(value => b.has(/* keep */ value)); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); [...a].filter(value => b.has(/* keep */ value));
+
+`;
+
+exports[`prefer-set-methods > invalid(31): const a = new Set(); const b = new Set(); [...a].filter(value => b.has(/* keep */ value)); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); [...a].filter(value => b.has(/* keep */ value));
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#intersection()\` instead of filtering by \`Set#has()\`.
+
+`;
+
+exports[`prefer-set-methods > invalid(32): const a = new Set(); const b = new Set(); [...a].filter(value => !b.has(/* keep */ value)); 1`] = `
+
+  1 | const a = new Set(); const b = new Set(); [...a].filter(value => !b.has(/* keep */ value));
+
+`;
+
+exports[`prefer-set-methods > invalid(32): const a = new Set(); const b = new Set(); [...a].filter(value => !b.has(/* keep */ value)); 2`] = `
+
+Message:
+> 1 | const a = new Set(); const b = new Set(); [...a].filter(value => !b.has(/* keep */ value));
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#difference()\` instead of filtering by \`Set#has()\`.
 
 `;
 

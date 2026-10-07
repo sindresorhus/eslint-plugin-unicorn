@@ -15,6 +15,76 @@ Output:
 
 `;
 
+exports[`operator-assignment > invalid(10): foo = \`\${foo /* keep */} baz\`; 1`] = `
+
+  1 | foo = \`\${foo /* keep */} baz\`;
+
+`;
+
+exports[`operator-assignment > invalid(10): foo = \`\${foo /* keep */} baz\`; 2`] = `
+
+Message:
+> 1 | foo = \`\${foo /* keep */} baz\`;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assignment (=) can be replaced with operator assignment (+=).
+
+`;
+
+exports[`operator-assignment > invalid(11): foo /* keep */ = \`\${foo} baz\`; 1`] = `
+
+  1 | foo /* keep */ = \`\${foo} baz\`;
+
+`;
+
+exports[`operator-assignment > invalid(11): foo /* keep */ = \`\${foo} baz\`; 2`] = `
+
+Message:
+> 1 | foo /* keep */ = \`\${foo} baz\`;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assignment (=) can be replaced with operator assignment (+=).
+
+`;
+
+exports[`operator-assignment > invalid(12): foo = /* keep */ \`\${foo} baz\`; 1`] = `
+
+  1 | foo = /* keep */ \`\${foo} baz\`;
+
+`;
+
+exports[`operator-assignment > invalid(12): foo = /* keep */ \`\${foo} baz\`; 2`] = `
+
+Message:
+> 1 | foo = /* keep */ \`\${foo} baz\`;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assignment (=) can be replaced with operator assignment (+=).
+
+`;
+
+exports[`operator-assignment > invalid(13): (/* keep */ foo) = \`\${foo} baz\`; 1`] = `
+
+  1 | (/* keep */ foo) = \`\${foo} baz\`;
+
+`;
+
+exports[`operator-assignment > invalid(13): (/* keep */ foo) = \`\${foo} baz\`; 2`] = `
+
+Message:
+> 1 | (/* keep */ foo) = \`\${foo} baz\`;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assignment (=) can be replaced with operator assignment (+=).
+
+`;
+
+exports[`operator-assignment > invalid(14): foo = (\`\${foo} baz\` /* keep */); 1`] = `
+
+  1 | foo = (\`\${foo} baz\` /* keep */);
+
+`;
+
+exports[`operator-assignment > invalid(14): foo = (\`\${foo} baz\` /* keep */); 2`] = `
+
+Message:
+> 1 | foo = (\`\${foo} baz\` /* keep */);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assignment (=) can be replaced with operator assignment (+=).
+
+`;
+
 exports[`operator-assignment > invalid(2): foo += bar; 1`] = `
 
 Options:
@@ -138,5 +208,19 @@ Message:
 
 Suggestion 1/1: Use \`+=\` assignment.:
   1 | foo += \` bar \${baz}\`;
+
+`;
+
+exports[`operator-assignment > invalid(9): foo = \`\${/* keep */ foo} baz\`; 1`] = `
+
+  1 | foo = \`\${/* keep */ foo} baz\`;
+
+`;
+
+exports[`operator-assignment > invalid(9): foo = \`\${/* keep */ foo} baz\`; 2`] = `
+
+Message:
+> 1 | foo = \`\${/* keep */ foo} baz\`;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Assignment (=) can be replaced with operator assignment (+=).
 
 `;

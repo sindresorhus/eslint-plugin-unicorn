@@ -3,7 +3,6 @@ import {
 	getCommentSafeProblem,
 	getParenthesizedText,
 	getReferences,
-	hasNonDirectiveComment,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-object-destructuring-defaults';
@@ -121,7 +120,6 @@ const create = context => {
 		if (!(
 			id.type === 'ObjectPattern'
 			&& init?.type === 'ObjectExpression'
-			&& !hasNonDirectiveComment(context, node)
 		)) {
 			return;
 		}

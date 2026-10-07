@@ -10,7 +10,6 @@ import {
 	getFunctionOnlyExpression,
 	getLastTrailingCommentOnSameLine,
 	getOutermostTypeScriptExpression,
-	hasNonDirectiveComment,
 	isGlobalIdentifier,
 	isGlobalNameAvailable,
 	isLeftHandSide,
@@ -53,7 +52,7 @@ export const getNextStatement = statement => {
 };
 
 /**
-Check if the declarator is `const controller = new AbortController()`, alone in its declaration, without comments that a fix would remove, and in a scope where the global `AbortSignal` is available.
+Check if the declarator is `const controller = new AbortController()`, alone in its declaration and in a scope where the global `AbortSignal` is available.
 
 @param {import('estree').VariableDeclarator} declarator
 @param {import('eslint').Rule.RuleContext} context
@@ -72,40 +71,8 @@ export const isAbortControllerDeclarator = (declarator, context) => {
 			argumentsLength: 0,
 		})
 		&& isGlobalIdentifier(init.callee, context)
-		&& isGlobalNameAvailable('AbortSignal', id, context)
-		&& !hasNonDirectiveComment(context, init)
-		&& !(
-			id.typeAnnotation
-			&& hasNonDirectiveComment(context, id.typeAnnotation)
-		);
+		&& isGlobalNameAvailable('AbortSignal', id, context);
 };
-
-/**
-Check if there is a comment between two nodes.
-
-@param {import('eslint').Rule.RuleContext} context
-@param {import('estree').Node} leftNode
-@param {import('estree').Node} rightNode
-@returns {boolean}
-*/
-export const hasCommentBetween = (context, leftNode, rightNode) => {
-	const {sourceCode} = context;
-	const [, leftEnd] = sourceCode.getRange(leftNode);
-	const [rightStart] = sourceCode.getRange(rightNode);
-
-	return hasNonDirectiveComment(context, [leftEnd, rightStart]);
-};
-
-/**
-Check if a statement has no comment inside it or trailing it on the same line.
-
-@param {import('estree').Statement} statement
-@param {import('eslint').Rule.RuleContext} context
-@returns {boolean}
-*/
-export const isStatementCommentFree = (statement, context) =>
-	!hasNonDirectiveComment(context, statement)
-	&& !getLastTrailingCommentOnSameLine(context, statement, {ignoreDirectives: true});
 
 const getCallbackExpression = callback => {
 	if (
@@ -207,7 +174,6 @@ const getSignalMember = (identifier, context) => {
 		|| isLeftHandSide(parent)
 		|| isReasonSensitiveRead(parent, context)
 		|| isSignalAliasOrWrite(parent)
-		|| hasNonDirectiveComment(context, parent)
 	) {
 		return;
 	}
@@ -309,7 +275,9 @@ export const getAbortControllerProblem = ({declarator, statements, replacement, 
 	const replacementName = getReplacementName(id.name, variable, signalMembers, context);
 
 	const lastStatement = statements.at(-1);
+	// Withhold suggestions for comments trailing the last removed statement.
 	const lastTrailingComment = getLastTrailingCommentOnSameLine(context, lastStatement);
+	// Withhold suggestions for comments inside or between removed statements.
 	const range = [sourceCode.getRange(declaration)[1], sourceCode.getRange(lastStatement)[1]];
 	let problem = getCommentSafeProblem(context, {
 		node: id,

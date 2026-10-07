@@ -43,9 +43,6 @@ test.snapshot({
 		'delete document.querySelectorAll("form").item(0);',
 		'for (document.querySelectorAll("form")[0] in object) {}',
 		'for (document.querySelectorAll("form")[0] of iterable) {}',
-		'document.querySelectorAll("form") /* keep */ [0];',
-		'document.querySelectorAll("form").at(/* keep */ 0);',
-		'document.querySelectorAll("form").item(/* keep */ 0);',
 		'document.querySelectorAll("#foo .bar");',
 		'document.querySelectorAll("#foo, #bar");',
 		'document.querySelectorAll("#foo:checked");',
@@ -136,6 +133,9 @@ test.snapshot({
 		'const elements = document.querySelectorAll(".item"); elements !== undefined;',
 		'const element = document.querySelector(".item"); element === undefined;',
 		'for (const key in document.querySelectorAll("form")[0]) {}',
+		'document.querySelectorAll("form") /* keep */ [0];',
+		'document.querySelectorAll("form").at(/* keep */ 0);',
+		'document.querySelectorAll("form").item(/* keep */ 0);',
 	],
 });
 

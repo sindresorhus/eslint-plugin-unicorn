@@ -7,7 +7,6 @@ import {
 import {
 	containsNode,
 	getCommentSafeProblem,
-	hasNonDirectiveComment,
 	isGlobalIdentifier,
 	isSameIdentifier,
 	isTypeOnlyDefinition,
@@ -183,11 +182,6 @@ const createReturnProblem = (tryStatement, newUrlExpression, context) => {
 		return;
 	}
 
-	const tryStatementRange = context.sourceCode.getRange(tryStatement);
-	if (hasNonDirectiveComment(context, tryStatementRange)) {
-		return;
-	}
-
 	const replacement = `return ${getUrlCanParseText(newUrlExpression, !tryValue, context)};`;
 	return getCommentSafeProblem(context, {
 		node: tryStatement,
@@ -213,10 +207,6 @@ const createAssignmentProblem = (tryStatement, newUrlExpression, context) => {
 
 	const canParseText = getUrlCanParseText(newUrlExpression, !tryAssignment.right.value, context);
 	const replacementRange = context.sourceCode.getRange(tryStatement);
-
-	if (hasNonDirectiveComment(context, replacementRange)) {
-		return;
-	}
 
 	const replacement = `${tryAssignment.left.name} = ${canParseText};`;
 

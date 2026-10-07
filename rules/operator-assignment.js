@@ -1,4 +1,4 @@
-import {getBuiltinRule, getCommentSafeProblem, hasNonDirectiveComment} from './utils/index.js';
+import {getBuiltinRule, getCommentSafeProblem} from './utils/index.js';
 
 const baseRule = getBuiltinRule('operator-assignment');
 
@@ -41,10 +41,6 @@ function getTemplateLiteralProblem(node, context) {
 	}
 
 	const templateLiteralTailRange = getTemplateLiteralTailRange(right, sourceCode);
-	if (hasNonDirectiveComment(context, node, [templateLiteralTailRange])) {
-		return;
-	}
-
 	const templateLiteralTailText = getTemplateLiteralTailText(sourceCode, templateLiteralTailRange);
 	if (templateLiteralTailText === '``') {
 		return;

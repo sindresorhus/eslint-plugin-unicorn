@@ -2,7 +2,6 @@ import {
 	getCommentSafeProblem,
 	getConciseArrowBodyText,
 	getFunctionReturnExpression,
-	hasNonDirectiveComment,
 	getIndentUnit,
 	getLineIndent,
 	getLinebreak,
@@ -96,10 +95,6 @@ const getImplicitReturnFix = (node, returnExpression, context) => {
 */
 const create = context => {
 	context.on('ArrowFunctionExpression', node => {
-		if (hasNonDirectiveComment(context, node)) {
-			return;
-		}
-
 		if (node.body.type === 'BlockStatement') {
 			const returnExpression = getFunctionReturnExpression(node);
 			if (!returnExpression || isMultiline(getParenthesizedText(returnExpression, context))) {

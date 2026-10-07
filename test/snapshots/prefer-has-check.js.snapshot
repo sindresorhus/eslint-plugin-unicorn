@@ -1,3 +1,17 @@
+exports[`prefer-has-check > invalid(1): new URLSearchParams().get(/* comment */ key) !== null 1`] = `
+
+  1 | new URLSearchParams().get(/* comment */ key) !== null
+
+`;
+
+exports[`prefer-has-check > invalid(1): new URLSearchParams().get(/* comment */ key) !== null 2`] = `
+
+Message:
+> 1 | new URLSearchParams().get(/* comment */ key) !== null
+    |                       ^^^ Prefer \`.has(…)\` when checking existence.
+
+`;
+
 exports[`prefer-has-check > invalid(1): new URLSearchParams().get(key) !== null 1`] = `
 
   1 | new URLSearchParams().get(key) !== null
@@ -191,6 +205,22 @@ Message:
 
 Output:
   1 | declare const map: Map<string, object>; map.has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(2): declare const map: Map<string, object>; map.get(/* comment */ key) !== undefined 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, object>; map.get(/* comment */ key) !== undefined
+
+`;
+
+exports[`prefer-has-check > invalid(2): declare const map: Map<string, object>; map.get(/* comment */ key) !== undefined 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, object>; map.get(/* comment */ key) !== undefined
+    |                                             ^^^ Prefer \`.has(…)\` when checking existence.
 
 `;
 
@@ -401,6 +431,25 @@ Output:
 
 `;
 
+exports[`prefer-has-check > invalid(3): declare const map: Map<string, object>; if (map.get(/* comment */ key)) {} 1`] = `
+
+Filename: file.ts
+
+  1 | declare const map: Map<string, object>; if (map.get(/* comment */ key)) {}
+
+`;
+
+exports[`prefer-has-check > invalid(3): declare const map: Map<string, object>; if (map.get(/* comment */ key)) {} 2`] = `
+
+Message:
+> 1 | declare const map: Map<string, object>; if (map.get(/* comment */ key)) {}
+    |                                                 ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | declare const map: Map<string, object>; if (map.has(/* comment */ key)) {}
+
+`;
+
 exports[`prefer-has-check > invalid(3): new URLSearchParams().get(key) != null 1`] = `
 
   1 | new URLSearchParams().get(key) != null
@@ -608,6 +657,23 @@ Output:
 
 `;
 
+exports[`prefer-has-check > invalid(4): if (new Map([[\"key\", {}]]).get(/* lookup key */ \"key\")) {} 1`] = `
+
+  1 | if (new Map([["key", {}]]).get(/* lookup key */ "key")) {}
+
+`;
+
+exports[`prefer-has-check > invalid(4): if (new Map([[\"key\", {}]]).get(/* lookup key */ \"key\")) {} 2`] = `
+
+Message:
+> 1 | if (new Map([["key", {}]]).get(/* lookup key */ "key")) {}
+    |                            ^^^ Prefer \`.has(…)\` when checking existence.
+
+Output:
+  1 | if (new Map([["key", {}]]).has(/* lookup key */ "key")) {}
+
+`;
+
 exports[`prefer-has-check > invalid(4): new URLSearchParams().get(key) == null 1`] = `
 
   1 | new URLSearchParams().get(key) == null
@@ -804,6 +870,26 @@ Message:
 
 Output:
   1 | new Map([[key, null]]).has(key)
+
+`;
+
+exports[`prefer-has-check > invalid(5): if (new Map([[\"key\", {}]]).get(// lookup key\n\"key\")) {} 1`] = `
+
+  1 | if (new Map([["key", {}]]).get(// lookup key
+  2 | "key")) {}
+
+`;
+
+exports[`prefer-has-check > invalid(5): if (new Map([[\"key\", {}]]).get(// lookup key\n\"key\")) {} 2`] = `
+
+Message:
+> 1 | if (new Map([["key", {}]]).get(// lookup key
+    |                            ^^^ Prefer \`.has(…)\` when checking existence.
+  2 | "key")) {}
+
+Output:
+  1 | if (new Map([["key", {}]]).has(// lookup key
+  2 | "key")) {}
 
 `;
 

@@ -306,20 +306,6 @@ test.snapshot({
 			const match = string.match(/foo/g);
 		`,
 
-		// Comments in replaced ranges
-		outdent`
-			const regexp = /foo/g;
-			const string = 'foofoo';
-			let match; // Keep this
-			while ((match = regexp.exec(string)) !== null) {}
-		`,
-		outdent`
-			const regexp = /foo/g;
-			const string = 'foofoo';
-			let match;
-			while ((match = regexp.exec(string)) !== /* keep */ null) {}
-		`,
-
 		// Not a matching condition
 		outdent`
 			const regexp = /foo/g;
@@ -488,5 +474,33 @@ test.typescript({
 				},
 			],
 		},
+	],
+});
+
+// Comments in replaced ranges
+test.snapshot({
+	valid: [],
+	invalid: [
+		outdent`
+			const regexp = /foo/g;
+			const string = 'foofoo';
+			let match; // Keep this
+			while ((match = regexp.exec(string)) !== null) {}
+		`,
+		outdent`
+			const regexp = /foo/g;
+			const string = 'foofoo';
+			let match;
+			while ((match = regexp.exec(string)) !== /* keep */ null) {}
+		`,
+		outdent`
+			const regexp = /foo/g;
+			const string = 'foofoo';
+			let match;
+			while ((match = regexp.exec(string)) !== null) {
+				// Keep this body comment.
+				console.log(match);
+			}
+		`,
 	],
 });

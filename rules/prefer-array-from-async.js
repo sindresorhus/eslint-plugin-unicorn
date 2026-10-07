@@ -7,7 +7,6 @@ import {
 	getConstVariableInitializer,
 	getNextStatement,
 	getOnlyExpression,
-	hasNonDirectiveComment,
 	getParenthesizedText,
 	getStaticValueForControlFlow,
 	isGlobalNameAvailable,
@@ -267,10 +266,6 @@ const getLoopProblem = (declaration, context) => {
 		sourceCode.getRange(declaration)[0],
 		sourceCode.getRange(loop)[1],
 	];
-	if (hasNonDirectiveComment(context, replaceRange)) {
-		return;
-	}
-
 	const fix = fixer => fixer.replaceTextRange(
 		replaceRange,
 		`${declaration.kind} ${getVariableTargetText(declarator, context)} = await ${getArrayFromAsyncText({

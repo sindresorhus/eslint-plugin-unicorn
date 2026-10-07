@@ -245,6 +245,30 @@ Suggestion 1/1: Replace the loop with \`Array.fromAsync()\`.:
 
 `;
 
+exports[`prefer-array-from-async > invalid(13): const result = [];\n// Keep this comment.\nfor await (const element of iterable) {\n\tresult.push(element);\n} 1`] = `
+
+  1 | const result = [];
+  2 | // Keep this comment.
+  3 | for await (const element of iterable) {
+  4 | 	result.push(element);
+  5 | }
+
+`;
+
+exports[`prefer-array-from-async > invalid(13): const result = [];\n// Keep this comment.\nfor await (const element of iterable) {\n\tresult.push(element);\n} 2`] = `
+
+Message:
+  1 | const result = [];
+  2 | // Keep this comment.
+> 3 | for await (const element of iterable) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 	result.push(element);
+    | ^^^^^^^^^^^^^^^^^^^^^^
+> 5 | }
+    | ^ Prefer \`Array.fromAsync()\` over array accumulation loops.
+
+`;
+
 exports[`prefer-array-from-async > invalid(14): async function foo(paths: ReadonlyArray<string>) { const result = []; for (const path of paths) { result.push(await readFile(path)); } } 1`] = `
 
 Filename: file.ts
@@ -261,6 +285,37 @@ Message:
 
 Suggestion 1/1: Replace the loop with \`Array.fromAsync()\`.:
   1 | async function foo(paths: ReadonlyArray<string>) { const result = await Array.fromAsync(paths, path => readFile(path)); }
+
+`;
+
+exports[`prefer-array-from-async > invalid(14): const result = [];\nfor await (const element of iterable) {\n\tresult.push(\n\t\t// Keep this comment.\n\t\telement,\n\t);\n} 1`] = `
+
+  1 | const result = [];
+  2 | for await (const element of iterable) {
+  3 | 	result.push(
+  4 | 		// Keep this comment.
+  5 | 		element,
+  6 | 	);
+  7 | }
+
+`;
+
+exports[`prefer-array-from-async > invalid(14): const result = [];\nfor await (const element of iterable) {\n\tresult.push(\n\t\t// Keep this comment.\n\t\telement,\n\t);\n} 2`] = `
+
+Message:
+  1 | const result = [];
+> 2 | for await (const element of iterable) {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 	result.push(
+    | ^^^^^^^^^^^^^
+> 4 | 		// Keep this comment.
+    | ^^^^^^^^^^^^^^^^^^^^^^^
+> 5 | 		element,
+    | ^^^^^^^^^^
+> 6 | 	);
+    | ^^^
+> 7 | }
+    | ^ Prefer \`Array.fromAsync()\` over array accumulation loops.
 
 `;
 
@@ -736,6 +791,34 @@ Message:
 
 Suggestion 1/1: Replace the loop with \`Array.fromAsync()\`.:
   1 | const result = await Array.fromAsync([, "a"], path => readFile(path));
+
+`;
+
+exports[`prefer-array-from-async > invalid(35): const result = []; for (const path of [\"a\"]) { result.push(await readFile(/* keep */ path)); } 1`] = `
+
+  1 | const result = []; for (const path of ["a"]) { result.push(await readFile(/* keep */ path)); }
+
+`;
+
+exports[`prefer-array-from-async > invalid(35): const result = []; for (const path of [\"a\"]) { result.push(await readFile(/* keep */ path)); } 2`] = `
+
+Message:
+> 1 | const result = []; for (const path of ["a"]) { result.push(await readFile(/* keep */ path)); }
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.fromAsync()\` over array accumulation loops.
+
+`;
+
+exports[`prefer-array-from-async > invalid(36): const result = []; /* keep */ for (const path of [\"a\"]) { result.push(await readFile(path)); } 1`] = `
+
+  1 | const result = []; /* keep */ for (const path of ["a"]) { result.push(await readFile(path)); }
+
+`;
+
+exports[`prefer-array-from-async > invalid(36): const result = []; /* keep */ for (const path of [\"a\"]) { result.push(await readFile(path)); } 2`] = `
+
+Message:
+> 1 | const result = []; /* keep */ for (const path of ["a"]) { result.push(await readFile(path)); }
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Array.fromAsync()\` over array accumulation loops.
 
 `;
 

@@ -31,20 +31,6 @@ test.snapshot({
 		'const {foo} = {foo: defaultValue, ...(defaultValue = true, {})};',
 		'const {foo, bar} = Object.assign({foo: false, bar: 1}, options);',
 		'({foo, bar} = {foo: false, bar: 1, ...options});',
-		'const {foo, /* keep */ bar} = {foo: false, bar: 1, ...options};',
-		'const {foo, bar} /* keep */ = {foo: false, bar: 1, ...options};',
-		'const {foo, bar} = /* keep */ {foo: false, bar: 1, ...options};',
-		outdent`
-			const {
-				foo,
-				bar,
-			} = {
-				foo: false,
-				// Keep this comment.
-				bar: 1,
-				...options,
-			};
-		`,
 		{
 			code: 'const {foo, bar}: Options = {foo: false, bar: 1, ...options};',
 			languageOptions: {parser: parsers.typescript},
@@ -73,5 +59,25 @@ test.snapshot({
 		'const {foo, bar} = {foo: false, bar: 1, ...(options, defaults)};',
 		'let {foo, bar} = {foo: false, bar: 1, ...options};',
 		'var {foo, bar} = {foo: false, bar: 1, ...options};',
+	],
+});
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		'const {foo, /* keep */ bar} = {foo: false, bar: 1, ...options};',
+		'const {foo, bar} /* keep */ = {foo: false, bar: 1, ...options};',
+		'const {foo, bar} = /* keep */ {foo: false, bar: 1, ...options};',
+		outdent`
+			const {
+				foo,
+				bar,
+			} = {
+				foo: false,
+				// Keep this comment.
+				bar: 1,
+				...options,
+			};
+		`,
 	],
 });

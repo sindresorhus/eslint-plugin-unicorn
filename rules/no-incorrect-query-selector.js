@@ -3,7 +3,6 @@ import {
 	controlFlowStatementTypes,
 	getCommentSafeProblem,
 	getConstVariableInitializer,
-	hasNonDirectiveComment,
 	getBooleanAncestor,
 	getParenthesizedRange,
 	isControlFlowTest,
@@ -229,10 +228,6 @@ const create = context => {
 
 		const querySelectorAllCall = node.object;
 		const accessRange = getAccessRange(node, querySelectorAllCall, context);
-		if (hasNonDirectiveComment(context, accessRange)) {
-			return;
-		}
-
 		return getCommentSafeProblem(context, getFirstElementAccessProblem(node, querySelectorAllCall, context), accessRange);
 	});
 
@@ -244,10 +239,6 @@ const create = context => {
 
 			const querySelectorAllCall = node.callee.object;
 			const accessRange = getAccessRange(node, querySelectorAllCall, context);
-			if (hasNonDirectiveComment(context, accessRange)) {
-				return;
-			}
-
 			return getCommentSafeProblem(context, getFirstElementAccessProblem(node, querySelectorAllCall, context), accessRange);
 		}
 

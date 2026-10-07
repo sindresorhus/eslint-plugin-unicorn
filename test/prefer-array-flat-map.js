@@ -183,5 +183,8 @@ test.snapshot({
 			code: 'array!.filter(value => value.active).flatMap(value => [value.id, value.name]);',
 			languageOptions: {parser: parsers.typescript},
 		},
+		'array.filter(value => /* comment */ value.active).flatMap(value => [value.id, value.name]);',
+		'array.filter(value => value.active).flatMap(value => /* comment */ [value.id, value.name]);',
+		'array.filter(value => value.active) /* comment */ .flatMap(value => [value.id, value.name]);',
 	],
 });

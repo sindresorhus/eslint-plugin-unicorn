@@ -1,3 +1,17 @@
+exports[`prefer-single-object-destructuring > invalid(1): const foo = /* comment */ getFoo(); const {bar} = foo; 1`] = `
+
+  1 | const foo = /* comment */ getFoo(); const {bar} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(1): const foo = /* comment */ getFoo(); const {bar} = foo; 2`] = `
+
+Message:
+> 1 | const foo = /* comment */ getFoo(); const {bar} = foo;
+    |       ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+
+`;
+
 exports[`prefer-single-object-destructuring > invalid(1): const foo = getFoo();\nconst {bar, baz} = foo; 1`] = `
 
   1 | const foo = getFoo();
@@ -223,6 +237,20 @@ Output:
 
 `;
 
+exports[`prefer-single-object-destructuring > invalid(2): const foo = getFoo(); /* comment */ const {bar} = foo; 1`] = `
+
+  1 | const foo = getFoo(); /* comment */ const {bar} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(2): const foo = getFoo(); /* comment */ const {bar} = foo; 2`] = `
+
+Message:
+> 1 | const foo = getFoo(); /* comment */ const {bar} = foo;
+    |       ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+
+`;
+
 exports[`prefer-single-object-destructuring > invalid(2): const foo = getFoo();\nconst {bar} = foo;\nconst {baz} = foo; 1`] = `
 
   1 | const foo = getFoo();
@@ -318,6 +346,20 @@ Output:
 
 `;
 
+exports[`prefer-single-object-destructuring > invalid(3): const foo = getFoo(); const {/* comment */ bar} = foo; 1`] = `
+
+  1 | const foo = getFoo(); const {/* comment */ bar} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(3): const foo = getFoo(); const {/* comment */ bar} = foo; 2`] = `
+
+Message:
+> 1 | const foo = getFoo(); const {/* comment */ bar} = foo;
+    |       ^^^ Prefer destructuring directly from the initializer of \`foo\`.
+
+`;
+
 exports[`prefer-single-object-destructuring > invalid(3): const foo = getFoo(); const {bar: renamed} = foo; 1`] = `
 
   1 | const foo = getFoo(); const {bar: renamed} = foo;
@@ -354,6 +396,20 @@ Message:
 Output:
   1 | const foo = {};
   2 | const {bar: renamed, baz} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(4): const foo = getFoo(); const {/* comment */ bar} = foo; const {baz} = foo; 1`] = `
+
+  1 | const foo = getFoo(); const {/* comment */ bar} = foo; const {baz} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(4): const foo = getFoo(); const {/* comment */ bar} = foo; const {baz} = foo; 2`] = `
+
+Message:
+> 1 | const foo = getFoo(); const {/* comment */ bar} = foo; const {baz} = foo;
+    |                                                        ^^^^^^^^^^^^^^^^^^ Prefer a single object destructuring declaration from \`foo\`.
 
 `;
 
@@ -413,6 +469,20 @@ Output:
 
 `;
 
+exports[`prefer-single-object-destructuring > invalid(5): const foo = getFoo(); const {bar} = foo; /* comment */ const {baz} = foo; 1`] = `
+
+  1 | const foo = getFoo(); const {bar} = foo; /* comment */ const {baz} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(5): const foo = getFoo(); const {bar} = foo; /* comment */ const {baz} = foo; 2`] = `
+
+Message:
+> 1 | const foo = getFoo(); const {bar} = foo; /* comment */ const {baz} = foo;
+    |                                                        ^^^^^^^^^^^^^^^^^^ Prefer a single object destructuring declaration from \`foo\`.
+
+`;
+
 exports[`prefer-single-object-destructuring > invalid(5): for (const foo of foos) {\n\tconst {bar} = foo;\n\tconst {baz} = foo;\n} 1`] = `
 
   1 | for (const foo of foos) {
@@ -435,6 +505,20 @@ Output:
   1 | for (const foo of foos) {
   2 | 	const {bar, baz} = foo;
   3 | }
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(6): const foo = getFoo(); const {bar} = foo; const {/* comment */ baz} = foo; 1`] = `
+
+  1 | const foo = getFoo(); const {bar} = foo; const {/* comment */ baz} = foo;
+
+`;
+
+exports[`prefer-single-object-destructuring > invalid(6): const foo = getFoo(); const {bar} = foo; const {/* comment */ baz} = foo; 2`] = `
+
+Message:
+> 1 | const foo = getFoo(); const {bar} = foo; const {/* comment */ baz} = foo;
+    |                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a single object destructuring declaration from \`foo\`.
 
 `;
 

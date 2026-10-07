@@ -1718,6 +1718,34 @@ Suggestion 1/1: Switch to optional chaining.:
 
 `;
 
+exports[`prefer-logical-operator-over-ternary > invalid(68): foo == null ? /* keep */ bar : foo; 1`] = `
+
+  1 | foo == null ? /* keep */ bar : foo;
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(68): foo == null ? /* keep */ bar : foo; 2`] = `
+
+Message:
+> 1 | foo == null ? /* keep */ bar : foo;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using a logical operator over a ternary.
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(69): foo == null ? /* keep */ undefined : foo.bar; 1`] = `
+
+  1 | foo == null ? /* keep */ undefined : foo.bar;
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(69): foo == null ? /* keep */ undefined : foo.bar; 2`] = `
+
+Message:
+> 1 | foo == null ? /* keep */ undefined : foo.bar;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using optional chaining over a ternary.
+
+`;
+
 exports[`prefer-logical-operator-over-ternary > invalid(7): !bar ? foo : bar; 1`] = `
 
   1 | !bar ? foo : bar;
@@ -1752,6 +1780,34 @@ Message:
 
 Output:
   1 | ((a === b) && (c === d)).toString()
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(70): foo == null ? undefined : foo /* comment */ .bar; 1`] = `
+
+  1 | foo == null ? undefined : foo /* comment */ .bar;
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(70): foo == null ? undefined : foo /* comment */ .bar; 2`] = `
+
+Message:
+> 1 | foo == null ? undefined : foo /* comment */ .bar;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using optional chaining over a ternary.
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(71): foo == null ? undefined : foo /* comment */ [bar]; 1`] = `
+
+  1 | foo == null ? undefined : foo /* comment */ [bar];
+
+`;
+
+exports[`prefer-logical-operator-over-ternary > invalid(71): foo == null ? undefined : foo /* comment */ [bar]; 2`] = `
+
+Message:
+> 1 | foo == null ? undefined : foo /* comment */ [bar];
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using optional chaining over a ternary.
 
 `;
 

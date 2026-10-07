@@ -93,11 +93,6 @@ test.snapshot({
 		`,
 		outdent`
 			function foo() {}
-			// Comment between declaration and export.
-			export default foo;
-		`,
-		outdent`
-			function foo() {}
 			export default foo;
 			foo = bar;
 		`,
@@ -416,6 +411,53 @@ test.snapshot({
 			code: 'export default /* Comment. */ class Foo {}',
 			options: separateClassOptions,
 		},
+		outdent`
+			function foo() {}
+			// Comment between declaration and export.
+			export default foo;
+		`,
+		outdent`
+			const foo = () => {};
+			// Comment between declaration and export.
+			export default foo;
+		`,
+		{
+			code: outdent`
+				function foo() {}
+				// Comment between declaration and export.
+				export default foo;
+			`,
+			options: separateFunctionOptions,
+		},
+	],
+});
+
+// Splitting an inline export must not move its trailing comment onto the new export statement.
+test({
+	valid: [],
+	invalid: [
+		...['// Keep this comment.', '/* Keep this comment. */'].flatMap(comment => [
+			{
+				code: `export default class Foo {} ${comment}`,
+				options: separateClassOptions,
+				errors: [{messageId: 'default-export-style/separate'}],
+			},
+			{
+				code: `export default function foo() {} ${comment}`,
+				options: separateFunctionOptions,
+				errors: [{messageId: 'default-export-style/separate', suggestions: []}],
+			},
+			{
+				code: `export default class Foo {}; ${comment}`,
+				options: separateClassOptions,
+				errors: [{messageId: 'default-export-style/separate'}],
+			},
+			{
+				code: `export default function foo() {}; ${comment}`,
+				options: separateFunctionOptions,
+				errors: [{messageId: 'default-export-style/separate', suggestions: []}],
+			},
+		]),
 	],
 });
 

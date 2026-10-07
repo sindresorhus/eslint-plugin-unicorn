@@ -2,7 +2,7 @@ import test from 'node:test';
 import {Linter} from 'eslint';
 import unicorn from '../../index.js';
 
-export function testDisableDirectives(ruleName, template, {options = [], expectedReports = 1, languageOptions} = {}) {
+export function testDisableDirectives(ruleName, template, {options = [], expectedReports = 1, expectedCommentReports = expectedReports, languageOptions} = {}) {
 	const ruleId = `unicorn/${ruleName}`;
 	const config = {
 		plugins: {unicorn},
@@ -68,11 +68,30 @@ export function testDisableDirectives(ruleName, template, {options = [], expecte
 		t.assert.strictEqual(result.output, code);
 	});
 
-	for (const comment of ['/* Explanation. */', `/* eslint-enable ${ruleId} */ /* Explanation. */`]) {
-		test(`${ruleName} still skips ordinary comments (${comment}): ${template}`, t => {
+	for (const comment of ['/* Explanation. */', '// Explanation.\n', `/* eslint-enable ${ruleId} */ /* Explanation. */`]) {
+		test(`${ruleName} handles ordinary comments without edits (${comment}): ${template}`, t => {
 			const linter = new Linter();
 			const code = template.replace('@', () => comment);
-			t.assert.deepStrictEqual(linter.verify(code, {...config, linterOptions: {reportUnusedDisableDirectives: 'off'}}), []);
+			const result = linter.verifyAndFix(code, {...config, linterOptions: {reportUnusedDisableDirectives: 'off'}});
+			t.assert.strictEqual(result.messages.length, expectedCommentReports);
+			for (const message of result.messages) {
+				t.assert.strictEqual(message.ruleId, ruleId);
+				t.assert.strictEqual(message.fix, undefined);
+				t.assert.strictEqual(message.suggestions, undefined);
+			}
+
+			t.assert.strictEqual(result.fixed, false);
+			t.assert.strictEqual(result.output, code);
 		});
 	}
+
+	test(`${ruleName} honors directives with ordinary comments: ${template}`, t => {
+		const linter = new Linter();
+		const code = `/* eslint-disable ${ruleId} */\n` + template.replace('@', '/* Explanation. */');
+		const result = linter.verifyAndFix(code, {...config, linterOptions: {reportUnusedDisableDirectives: 'off'}});
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(linter.getSuppressedMessages().length, expectedCommentReports);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+	});
 }

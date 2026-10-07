@@ -24,13 +24,14 @@ Additionally, branching statements can require a variable to use `let` or `var` 
 The rule skips:
 
 - Bare `return;` in either branch. Explicit `return undefined;` remains eligible.
-- Ordinary comments within or between merged statements, including trailing comments on a following `return`. ESLint disable/enable directives do not prevent reporting, so ESLint can apply suppression, but no autofix or suggestion is offered when this range contains directives. Comments outside this range are allowed.
 - Conditions or merged values containing:
   - Ternaries, except inside expression-bodied callbacks.
   - Statement blocks or class bodies, even on one line.
   - Multiline objects, arrays, JSX elements/fragments, or template literals.
 
 These checks include nested expressions, such as call arguments and TypeScript wrappers, and apply in both modes. Wrapped calls, logical expressions, inline literals, and concise callbacks remain eligible unless excluded above. [`only-single-line`](#options) additionally excludes all multiline conditions and values.
+
+Comments in or between merged statements, or trailing a following `return`, prevent edits.
 
 ## Examples
 

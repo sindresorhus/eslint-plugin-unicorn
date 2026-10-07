@@ -2,7 +2,6 @@ import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {
 	getCommentSafeProblem,
 	getParenthesizedText,
-	hasNonDirectiveComment,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -106,14 +105,9 @@ const getInlineProblem = (context, firstNode, secondNode) => {
 	}
 
 	const variable = findVariable(sourceCode.getScope(second.declarator.init), second.declarator.init);
-	const replacementRange = [
-		sourceCode.getRange(firstNode)[0],
-		sourceCode.getRange(secondNode)[1],
-	];
 	if (
 		variable.defs[0].node !== declarator
 		|| variable.references.some(reference => !reference.init && reference.identifier !== second.declarator.init)
-		|| hasNonDirectiveComment(context, replacementRange)
 	) {
 		return;
 	}
@@ -124,6 +118,10 @@ const getInlineProblem = (context, firstNode, secondNode) => {
 		return;
 	}
 
+	const replacementRange = [
+		sourceCode.getRange(firstNode)[0],
+		sourceCode.getRange(secondNode)[1],
+	];
 	const replacement = `${secondNode.kind} ${sourceCode.getText(second.declarator.id)} = ${getParenthesizedText(declarator.init, context)};`;
 
 	return getCommentSafeProblem(context, {
@@ -150,10 +148,7 @@ const getMergeProblem = (context, firstNode, secondNode) => {
 		sourceCode.getRange(first.node)[0],
 		sourceCode.getRange(second.node)[1],
 	];
-	if (
-		hasDuplicateKey(first.declarator.id, second.declarator.id)
-		|| hasNonDirectiveComment(context, replacementRange)
-	) {
+	if (hasDuplicateKey(first.declarator.id, second.declarator.id)) {
 		return;
 	}
 

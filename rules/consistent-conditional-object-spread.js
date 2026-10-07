@@ -76,7 +76,6 @@ function getConditionalExpressionProblem(conditionalExpression, context) {
 		)
 		|| (
 			nullishTest
-			&& !hasCommentsInside
 			&& (nullishTest.isTrueWhenNullish ? !isAlternateEmpty : isAlternateEmpty)
 			&& isSameNode(nullishTest.reference, keptBranch, context)
 		)

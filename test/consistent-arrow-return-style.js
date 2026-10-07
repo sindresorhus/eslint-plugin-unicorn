@@ -9,10 +9,7 @@ ruleTest.snapshot({
 		'const value = () => foo;',
 		'const value = () =>\n\t\tfoo;',
 		'const value = () => {\n\t\tfoo();\n\t\treturn bar;\n\t};',
-		'const value = () => { /* Keep this block. */ return foo; };',
 		'const value = () => { return; };',
-		'const value = () => /* Keep this comment. */\n\t\tfoo(\n\t\t\tbar,\n\t\t);',
-		'const value = () => foo(\n\t\t/* Keep this comment. */\n\t\tbar,\n\t);',
 		'export const value = () => foo;',
 		'const value = () => {\n\t\treturn {\n\t\t\tfoo: bar,\n\t\t};\n\t};',
 		'const value = () => {\n\t\treturn (\n\t\t\tfoo\n\t\t);\n\t};',
@@ -42,13 +39,15 @@ ruleTest.snapshot({
 		'const value = () => {\n\t\treturn foo;\n\t}\n`bar`;',
 		String.raw`const value = () => 'foo\
 bar';`,
+		'const value = () => { return (foo /* Keep this comment. */); };',
+		'const value = () => { /* Keep this block. */ return foo; };',
+		'const value = () => /* Keep this comment. */\n\t\tfoo(\n\t\t\tbar,\n\t\t);',
+		'const value = () => foo(\n\t\t/* Keep this comment. */\n\t\tbar,\n\t);',
 	],
 });
 
 ruleTest({
-	valid: [
-		'const value = () => { return (foo /* Keep this comment. */); };',
-	],
+	valid: [],
 	invalid: [{
 		code: 'const value = () => {\n\t\treturn {foo: bar}.foo;\n\t};',
 		output: 'const value = () => ({foo: bar}.foo);',

@@ -5,7 +5,6 @@ import {
 	getCommentSafeProblem,
 	getParenthesizedText,
 	getStaticPropertyName,
-	hasNonDirectiveComment,
 	hasTypeArguments,
 	isFirstTokenOfExpressionStatement,
 	isGlobalNameAvailable,
@@ -53,7 +52,6 @@ function isObjectFromEntriesCall(node, context) {
 		optionalMember: false,
 	})
 	&& !hasTypeArguments(node)
-	&& !hasNonDirectiveComment(context, node.callee)
 	&& isGlobalNameAvailable('Object', node, context)
 	&& isGlobalNameAvailable('Map', node, context)
 	&& isKnownStringKeyEntries(node.arguments[0], context);
@@ -196,7 +194,6 @@ function getObjectMethodCall(identifier, context) {
 			optionalMember: false,
 		})
 		|| !isGlobalNameAvailable('Object', parent, context)
-		|| hasNonDirectiveComment(context, parent)
 	) {
 		return;
 	}
@@ -247,7 +244,6 @@ function getAssignmentOperation(memberExpression, identifier, key, context) {
 	if (
 		assignmentExpression.operator !== '='
 		|| !isStandaloneExpression(assignmentExpression)
-		|| hasNonDirectiveComment(context, assignmentExpression)
 	) {
 		return;
 	}
@@ -261,10 +257,7 @@ function getAssignmentOperation(memberExpression, identifier, key, context) {
 
 function getDeleteOperation(memberExpression, identifier, key, context) {
 	const unaryExpression = memberExpression.parent;
-	if (
-		!isStandaloneExpression(unaryExpression)
-		|| hasNonDirectiveComment(context, unaryExpression)
-	) {
+	if (!isStandaloneExpression(unaryExpression)) {
 		return;
 	}
 
@@ -290,7 +283,6 @@ function getMemberExpressionOperation(identifier, context) {
 		|| isWithinNewExpressionCallee(parent)
 		|| containsOptionalChain(parent)
 		|| isWithinChainExpression(parent)
-		|| hasNonDirectiveComment(context, parent)
 	) {
 		return;
 	}

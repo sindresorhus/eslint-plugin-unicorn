@@ -45,8 +45,6 @@ test.snapshot({
 		'array.some(value => { const Boolean = value => value; return Boolean(value.active); });',
 		'array.some(async value => Boolean(value.active));',
 		'array.some(function * (value) {return Boolean(value.active);});',
-		'array.some(value => Boolean(/* comment */ value.active));',
-		'array.some(value => Boolean(value.active /* comment */));',
 		// `Boolean()` normalizes a possibly-`undefined` value from optional chaining, so it is not useless.
 		'array.some(value => Boolean(value?.active));',
 		'array.some(value => Boolean((value?.active)));',
@@ -116,5 +114,7 @@ test.snapshot({
 		},
 		// Type-aware: a non-nullish argument type is still reported, so type information only suppresses nullish cases.
 		typeAware('[{active: true}].some((value: {active: boolean}) => Boolean(value.active));'),
+		'array.some(value => Boolean(/* comment */ value.active));',
+		'array.some(value => Boolean(value.active /* comment */));',
 	],
 });

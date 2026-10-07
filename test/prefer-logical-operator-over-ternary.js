@@ -556,10 +556,6 @@ test.snapshot({
 		'foo === null && foo === undefined ? bar : foo;',
 		'foo !== null || foo !== undefined ? foo : bar;',
 		'foo === null || foo === null ? bar : foo;',
-		'foo == null ? /* keep */ bar : foo;',
-		'foo == null ? /* keep */ undefined : foo.bar;',
-		'foo == null ? undefined : foo /* comment */ .bar;',
-		'foo == null ? undefined : foo /* comment */ [bar];',
 		'delete (foo == null ? undefined : foo.bar);',
 		'(foo == null ? undefined : foo.bar)();',
 		'(foo == null ? undefined : foo.bar)`tagged`;',
@@ -699,5 +695,9 @@ test.snapshot({
 			foo
 			bar == null ? undefined : (bar).baz
 		`,
+		'foo == null ? /* keep */ bar : foo;',
+		'foo == null ? /* keep */ undefined : foo.bar;',
+		'foo == null ? undefined : foo /* comment */ .bar;',
+		'foo == null ? undefined : foo /* comment */ [bar];',
 	],
 });

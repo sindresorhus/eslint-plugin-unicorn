@@ -2,7 +2,6 @@ import {isMemberExpression, isMethodCall} from './ast/index.js';
 import {
 	getCallArgumentText,
 	getCommentSafeProblem,
-	hasNonDirectiveComment,
 	isTypeOnlyDefinition,
 } from './utils/index.js';
 
@@ -115,7 +114,6 @@ const create = context => {
 		if (
 			!argument
 			|| isValueShadowed(node, 'Error', context)
-			|| hasNonDirectiveComment(context, node)
 		) {
 			return;
 		}

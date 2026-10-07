@@ -131,6 +131,7 @@ const config = [
 		files: [
 			'test/prefer-continue.js',
 			'test/prefer-early-return.js',
+			'test/prefer-ternary-readability.js',
 			'test/prefer-ternary.js',
 		],
 		rules: {

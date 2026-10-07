@@ -2,7 +2,6 @@ import {
 	getLogicalExpressionOperands,
 	getParenthesizedText,
 	getCommentSafeProblem,
-	hasNonDirectiveComment,
 	hasTypeArguments,
 	isKnownNonIndexedCollection,
 	isOutermostLogicalExpression,
@@ -143,10 +142,6 @@ const create = context => {
 
 		const method = methodByOperator.get(logicalExpression.operator);
 		if (!method) {
-			return;
-		}
-
-		if (hasNonDirectiveComment(context, logicalExpression)) {
 			return;
 		}
 

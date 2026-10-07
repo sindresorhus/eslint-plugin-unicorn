@@ -489,6 +489,216 @@ Output:
 
 `;
 
+exports[`prefer-while-loop-condition > invalid(22): while (/* keep */ true) {\n\tif (!hasMore()) {\n\t\tbreak;\n\t}\n} 1`] = `
+
+  1 | while (/* keep */ true) {
+  2 | 	if (!hasMore()) {
+  3 | 		break;
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(22): while (/* keep */ true) {\n\tif (!hasMore()) {\n\t\tbreak;\n\t}\n} 2`] = `
+
+Message:
+  1 | while (/* keep */ true) {
+> 2 | 	if (!hasMore()) {
+    | 	^^^^^^^^^^^^^^^^^
+> 3 | 		break;
+    | ^^^^^^^^
+> 4 | 	}
+    | ^^ Prefer putting the condition in the \`while\` statement.
+  5 | }
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(23): for (;;) {\n\tif (\n\t\t// Check before processing.\n\t\t!hasMore()\n\t) {\n\t\tbreak;\n\t}\n} 1`] = `
+
+  1 | for (;;) {
+  2 | 	if (
+  3 | 		// Check before processing.
+  4 | 		!hasMore()
+  5 | 	) {
+  6 | 		break;
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(23): for (;;) {\n\tif (\n\t\t// Check before processing.\n\t\t!hasMore()\n\t) {\n\t\tbreak;\n\t}\n} 2`] = `
+
+Message:
+  1 | for (;;) {
+> 2 | 	if (
+    | 	^^^^
+> 3 | 		// Check before processing.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		!hasMore()
+    | ^^^^^^^^^^^^
+> 5 | 	) {
+    | ^^^^
+> 6 | 		break;
+    | ^^^^^^^^
+> 7 | 	}
+    | ^^ Prefer putting the condition in the \`while\` statement.
+  8 | }
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(24): for /* keep */ (;;) {\n\tif (!hasMore()) {\n\t\tbreak;\n\t}\n} 1`] = `
+
+  1 | for /* keep */ (;;) {
+  2 | 	if (!hasMore()) {
+  3 | 		break;
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(24): for /* keep */ (;;) {\n\tif (!hasMore()) {\n\t\tbreak;\n\t}\n} 2`] = `
+
+Message:
+  1 | for /* keep */ (;;) {
+> 2 | 	if (!hasMore()) {
+    | 	^^^^^^^^^^^^^^^^^
+> 3 | 		break;
+    | ^^^^^^^^
+> 4 | 	}
+    | ^^ Prefer putting the condition in the \`while\` statement.
+  5 | }
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(25): for (; /* keep */ true;) {\n\tif (!hasMore()) {\n\t\tbreak;\n\t}\n} 1`] = `
+
+  1 | for (; /* keep */ true;) {
+  2 | 	if (!hasMore()) {
+  3 | 		break;
+  4 | 	}
+  5 | }
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(25): for (; /* keep */ true;) {\n\tif (!hasMore()) {\n\t\tbreak;\n\t}\n} 2`] = `
+
+Message:
+  1 | for (; /* keep */ true;) {
+> 2 | 	if (!hasMore()) {
+    | 	^^^^^^^^^^^^^^^^^
+> 3 | 		break;
+    | ^^^^^^^^
+> 4 | 	}
+    | ^^ Prefer putting the condition in the \`while\` statement.
+  5 | }
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(26): do {\n\tif (!hasMore()) {\n\t\tbreak;\n\t}\n} /* keep */ while (true); 1`] = `
+
+  1 | do {
+  2 | 	if (!hasMore()) {
+  3 | 		break;
+  4 | 	}
+  5 | } /* keep */ while (true);
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(26): do {\n\tif (!hasMore()) {\n\t\tbreak;\n\t}\n} /* keep */ while (true); 2`] = `
+
+Message:
+  1 | do {
+> 2 | 	if (!hasMore()) {
+    | 	^^^^^^^^^^^^^^^^^
+> 3 | 		break;
+    | ^^^^^^^^
+> 4 | 	}
+    | ^^ Prefer putting the condition in the \`while\` statement.
+  5 | } /* keep */ while (true);
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(27): do /* keep */ {\n\tif (!hasMore()) {\n\t\tbreak;\n\t}\n} while (true); 1`] = `
+
+  1 | do /* keep */ {
+  2 | 	if (!hasMore()) {
+  3 | 		break;
+  4 | 	}
+  5 | } while (true);
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(27): do /* keep */ {\n\tif (!hasMore()) {\n\t\tbreak;\n\t}\n} while (true); 2`] = `
+
+Message:
+  1 | do /* keep */ {
+> 2 | 	if (!hasMore()) {
+    | 	^^^^^^^^^^^^^^^^^
+> 3 | 		break;
+    | ^^^^^^^^
+> 4 | 	}
+    | ^^ Prefer putting the condition in the \`while\` statement.
+  5 | } while (true);
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(28): do {\n\tif (!hasMore()) {\n\t\tbreak;\n\t}\n} while (true); // Preserve this comment. 1`] = `
+
+  1 | do {
+  2 | 	if (!hasMore()) {
+  3 | 		break;
+  4 | 	}
+  5 | } while (true); // Preserve this comment.
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(28): do {\n\tif (!hasMore()) {\n\t\tbreak;\n\t}\n} while (true); // Preserve this comment. 2`] = `
+
+Message:
+  1 | do {
+> 2 | 	if (!hasMore()) {
+    | 	^^^^^^^^^^^^^^^^^
+> 3 | 		break;
+    | ^^^^^^^^
+> 4 | 	}
+    | ^^ Prefer putting the condition in the \`while\` statement.
+  5 | } while (true); // Preserve this comment.
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(29): while (true) {\n\tif (\n\t\t// Check before processing.\n\t\t!hasMore()\n\t) {\n\t\tbreak;\n\t}\n} 1`] = `
+
+  1 | while (true) {
+  2 | 	if (
+  3 | 		// Check before processing.
+  4 | 		!hasMore()
+  5 | 	) {
+  6 | 		break;
+  7 | 	}
+  8 | }
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(29): while (true) {\n\tif (\n\t\t// Check before processing.\n\t\t!hasMore()\n\t) {\n\t\tbreak;\n\t}\n} 2`] = `
+
+Message:
+  1 | while (true) {
+> 2 | 	if (
+    | 	^^^^
+> 3 | 		// Check before processing.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		!hasMore()
+    | ^^^^^^^^^^^^
+> 5 | 	) {
+    | ^^^^
+> 6 | 		break;
+    | ^^^^^^^^
+> 7 | 	}
+    | ^^ Prefer putting the condition in the \`while\` statement.
+  8 | }
+
+`;
+
 exports[`prefer-while-loop-condition > invalid(3): while (true) {\n\tif (!hasMore()) {\n\t\tbreak;\n\t}\n\n\tfunction stop() {\n\t\twhile (done) {\n\t\t\tbreak;\n\t\t}\n\t}\n} 1`] = `
 
    1 | while (true) {
@@ -532,6 +742,177 @@ Output:
   6 | 		}
   7 | 	}
   8 | }
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(30): while (true) {\n\tif (!hasMore()) {\n\t\t// Preserve this comment.\n\t\tbreak;\n\t}\n} 1`] = `
+
+  1 | while (true) {
+  2 | 	if (!hasMore()) {
+  3 | 		// Preserve this comment.
+  4 | 		break;
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(30): while (true) {\n\tif (!hasMore()) {\n\t\t// Preserve this comment.\n\t\tbreak;\n\t}\n} 2`] = `
+
+Message:
+  1 | while (true) {
+> 2 | 	if (!hasMore()) {
+    | 	^^^^^^^^^^^^^^^^^
+> 3 | 		// Preserve this comment.
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 4 | 		break;
+    | ^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer putting the condition in the \`while\` statement.
+  6 | }
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(31): while (true) {\n\t// Preserve this comment.\n\tif (!hasMore()) {\n\t\tbreak;\n\t}\n\n\tprocessNext();\n} 1`] = `
+
+  1 | while (true) {
+  2 | 	// Preserve this comment.
+  3 | 	if (!hasMore()) {
+  4 | 		break;
+  5 | 	}
+  6 |
+  7 | 	processNext();
+  8 | }
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(31): while (true) {\n\t// Preserve this comment.\n\tif (!hasMore()) {\n\t\tbreak;\n\t}\n\n\tprocessNext();\n} 2`] = `
+
+Message:
+  1 | while (true) {
+  2 | 	// Preserve this comment.
+> 3 | 	if (!hasMore()) {
+    | 	^^^^^^^^^^^^^^^^^
+> 4 | 		break;
+    | ^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer putting the condition in the \`while\` statement.
+  6 |
+  7 | 	processNext();
+  8 | }
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(32): while (true) {\n\tif (!hasMore()) break; // Preserve this comment.\n\tprocessNext();\n} 1`] = `
+
+  1 | while (true) {
+  2 | 	if (!hasMore()) break; // Preserve this comment.
+  3 | 	processNext();
+  4 | }
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(32): while (true) {\n\tif (!hasMore()) break; // Preserve this comment.\n\tprocessNext();\n} 2`] = `
+
+Message:
+  1 | while (true) {
+> 2 | 	if (!hasMore()) break; // Preserve this comment.
+    | 	^^^^^^^^^^^^^^^^^^^^^^ Prefer putting the condition in the \`while\` statement.
+  3 | 	processNext();
+  4 | }
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(33): while (true) {\n\tif (!hasMore()) {\n\t\tbreak;\n\t} // Preserve this comment.\n\tprocessNext();\n} 1`] = `
+
+  1 | while (true) {
+  2 | 	if (!hasMore()) {
+  3 | 		break;
+  4 | 	} // Preserve this comment.
+  5 | 	processNext();
+  6 | }
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(33): while (true) {\n\tif (!hasMore()) {\n\t\tbreak;\n\t} // Preserve this comment.\n\tprocessNext();\n} 2`] = `
+
+Message:
+  1 | while (true) {
+> 2 | 	if (!hasMore()) {
+    | 	^^^^^^^^^^^^^^^^^
+> 3 | 		break;
+    | ^^^^^^^^
+> 4 | 	} // Preserve this comment.
+    | ^^ Prefer putting the condition in the \`while\` statement.
+  5 | 	processNext();
+  6 | }
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(34): while (true) {\n\tif (!hasMore()) {\n\t\tbreak;\n\t}\n\n\t// Process the remaining work.\n\tprocessNext();\n} 1`] = `
+
+  1 | while (true) {
+  2 | 	if (!hasMore()) {
+  3 | 		break;
+  4 | 	}
+  5 |
+  6 | 	// Process the remaining work.
+  7 | 	processNext();
+  8 | }
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(34): while (true) {\n\tif (!hasMore()) {\n\t\tbreak;\n\t}\n\n\t// Process the remaining work.\n\tprocessNext();\n} 2`] = `
+
+Message:
+  1 | while (true) {
+> 2 | 	if (!hasMore()) {
+    | 	^^^^^^^^^^^^^^^^^
+> 3 | 		break;
+    | ^^^^^^^^
+> 4 | 	}
+    | ^^ Prefer putting the condition in the \`while\` statement.
+  5 |
+  6 | 	// Process the remaining work.
+  7 | 	processNext();
+  8 | }
+
+Output:
+  1 | while (hasMore()) {
+  2 |
+  3 | 	// Process the remaining work.
+  4 | 	processNext();
+  5 | }
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(35): do {\r\n  if (done) {\r\n    break;\r\n  }\r\n  processNext(/* Keep this argument comment. */ value);\r\n} while (true); 1`] = `
+
+  1 | do {
+  2 |   if (done) {
+  3 |     break;
+  4 |   }
+  5 |   processNext(/* Keep this argument comment. */ value);
+  6 | } while (true);
+
+`;
+
+exports[`prefer-while-loop-condition > invalid(35): do {\r\n  if (done) {\r\n    break;\r\n  }\r\n  processNext(/* Keep this argument comment. */ value);\r\n} while (true); 2`] = `
+
+Message:
+  1 | do {
+> 2 |   if (done) {
+    |   ^^^^^^^^^^^
+> 3 |     break;
+    | ^^^^^^^^^^
+> 4 |   }
+    | ^^^ Prefer putting the condition in the \`while\` statement.
+  5 |   processNext(/* Keep this argument comment. */ value);
+  6 | } while (true);
+
+Output:
+  1 | while (!done) {
+  2 |   processNext(/* Keep this argument comment. */ value);
+  3 | }
 
 `;
 

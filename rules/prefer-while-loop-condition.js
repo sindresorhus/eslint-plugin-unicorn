@@ -9,7 +9,6 @@ import {
 	getLastTrailingCommentOnSameLine,
 	getNegatedExpressionText,
 	getReferences,
-	hasNonDirectiveComment,
 	getVisitorChildNodes,
 } from './utils/index.js';
 
@@ -174,9 +173,6 @@ const create = context => {
 			sourceCode.getRange(firstStatementTrailingComment ?? firstStatement)[1],
 			sourceCode.getRange(node.body)[1],
 		];
-		if (hasNonDirectiveComment(context, commentRange, [preservedBodyRange])) {
-			return;
-		}
 
 		return getCommentSafeProblem(context, {
 			node: firstStatement,
@@ -184,19 +180,13 @@ const create = context => {
 			/**
 			@param {ESLint.Rule.RuleFixer} fixer
 			*/
-			* fix(fixer) {
-				const fixes = fixLoop(fixer, {
-					loop: node,
-					firstStatement,
-					condition: getLoopConditionText(firstStatement.test, context),
-					sourceCode,
-					context,
-				});
-
-				for (const fix of fixes) {
-					yield fix;
-				}
-			},
+			fix: fixer => fixLoop(fixer, {
+				loop: node,
+				firstStatement,
+				condition: getLoopConditionText(firstStatement.test, context),
+				sourceCode,
+				context,
+			}),
 		}, commentRange, [preservedBodyRange]);
 	});
 };

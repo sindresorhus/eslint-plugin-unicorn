@@ -20,7 +20,6 @@ const cases = [
 	['prefer-array-flat-map', 'array.filter(x => x).flatMap(x => [@ x, x]);'],
 	['prefer-logical-operator-over-ternary', 'x == null @ ? fallback : x;'],
 	['prefer-has-check', 'new URLSearchParams().get(@ key) !== null;'],
-	['prefer-has-check', 'if (new Map().get(@ key)) {}'],
 	['prefer-array-from-map', 'const result = []; for (const item of items) { @ result.push(transform(item)); }'],
 	['prefer-array-from-async', 'const result = []; for await (const item of items) { @ result.push(item); }'],
 	['prefer-iterable-in-constructor', 'const set = new Set(); for (const item of items) { @ set.add(item); }'],
@@ -50,10 +49,74 @@ const cases = [
 	['prefer-url-can-parse', 'let valid; try { @ new URL(input); valid = true; } catch { valid = false; }'],
 	['prefer-url-search-parameters', 'query.split("&").map(@ part => part.split("="));'],
 	['prefer-while-loop-condition', 'while (true) { @ if (done) { break; } work(); }'],
+	['prefer-ternary', 'function role(admin) { if (admin) { @ return "admin"; } return "member"; }'],
+	['prefer-ternary', 'let role; if (admin) { @ role = "admin"; } else { role = "member"; }'],
 ];
 
 for (const [ruleName, template, options] of cases) {
-	testDisableDirectives(ruleName, template, {options});
+	testDisableDirectives(ruleName, template, {options, expectedCommentReports: ruleName === 'no-magic-array-flat-depth' ? 0 : undefined});
+}
+
+test('prefer-has-check preserves comments in token edits and respects disable directives', t => {
+	const linter = new Linter();
+	const ruleId = 'unicorn/prefer-has-check';
+	const config = {
+		plugins: {unicorn},
+		rules: {[ruleId]: 'error'},
+		linterOptions: {reportUnusedDisableDirectives: 'error'},
+	};
+	const code = 'if (new Map().get(/* lookup key */ key)) {}';
+	const messages = linter.verify(code, config);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].ruleId, ruleId);
+	const result = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, 'if (new Map().has(/* lookup key */ key)) {}');
+	t.assert.deepStrictEqual(result.messages, []);
+
+	for (const disabledCode of [
+		`/* eslint-disable ${ruleId} -- Explanation. */\n${code}`,
+		`if (new Map().get(/* eslint-disable-line ${ruleId} -- Explanation. */ key)) {}`,
+	]) {
+		const result = linter.verifyAndFix(disabledCode, config);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, disabledCode);
+		const suppressedMessages = linter.getSuppressedMessages();
+		t.assert.strictEqual(suppressedMessages.length, 1);
+		t.assert.strictEqual(suppressedMessages[0].ruleId, ruleId);
+	}
+});
+
+for (const [primaryRule, secondaryRule, template] of [
+	['prefer-logical-operator-over-ternary', 'consistent-conditional-object-spread', 'const options = {...(theme == null ? {} : @ theme)};'],
+	['prefer-set-methods', 'prefer-iterator-concat', 'const a = new Set(); const b = new Set(); const merged = new Set([...a, @ ...b]);'],
+]) {
+	for (const comment of ['', '/* Explanation. */', '/* eslint-enable no-alert */']) {
+		test(`${primaryRule} takes precedence over ${secondaryRule} with ${comment || 'no comment'}`, t => {
+			const linter = new Linter();
+			const ruleId = `unicorn/${primaryRule}`;
+			const config = {
+				plugins: {unicorn},
+				rules: {[ruleId]: 'error', [`unicorn/${secondaryRule}`]: 'error', 'no-alert': 'error'},
+				linterOptions: {reportUnusedDisableDirectives: 'error'},
+			};
+			const prefix = comment.includes('eslint-enable') ? '/* eslint-disable no-alert */\nalert(0);\n' : '';
+			const code = prefix + template.replace('@', () => comment);
+			const messages = linter.verify(code, config);
+			t.assert.deepStrictEqual(messages.map(message => message.ruleId), [ruleId]);
+			if (comment) {
+				t.assert.strictEqual(messages[0].fix, undefined);
+				t.assert.strictEqual(messages[0].suggestions, undefined);
+				const result = linter.verifyAndFix(code, config);
+				t.assert.strictEqual(result.fixed, false);
+				t.assert.strictEqual(result.output, code);
+			}
+
+			t.assert.deepStrictEqual(linter.verify(`/* eslint-disable ${ruleId} */\n${code}`, config), []);
+			t.assert.strictEqual(linter.getSuppressedMessages().filter(message => message.ruleId === ruleId).length, 1);
+		});
+	}
 }
 
 test('no-empty-file does not count disable directives as allowed comments', t => {

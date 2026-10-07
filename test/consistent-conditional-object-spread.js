@@ -112,6 +112,7 @@ test.snapshot({
 		'const object = {...(!foo ? !foo : {})}',
 		'const object = {...(null == foo ? {} : foo)}',
 		'const object = {...(undefined === foo || null === foo ? {} : foo)}',
+		'const object = {...(foo == null ? /* keep */ {} : foo)}',
 	],
 	invalid: [
 		'const object = {...(foo ? {bar: true} : {})}',
@@ -163,7 +164,6 @@ test.snapshot({
 		// The nullish guard does not apply when its reference differs from the kept branch.
 		'const object = {...(foo == null ? undefined : bar)}',
 		'const object = {...(foo != null ? bar : undefined)}',
-		'const object = {...(foo == null ? /* keep */ {} : foo)}',
 		'const object = {...(foo ? {a: 1} : /* keep */ {})}',
 		'const object = {...(foo ? {a: 1} : /* keep */ undefined)}',
 		'const object = {...(foo ? {a: 1} : /* keep */ null)}',

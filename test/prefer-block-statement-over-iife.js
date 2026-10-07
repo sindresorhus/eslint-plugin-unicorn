@@ -42,21 +42,6 @@ test.snapshot({
 		'(() => { \'use strict\'; run(); })();',
 		'(function () { run(); }).call(this);',
 		'(() => { run(); })?.();',
-		outdent`
-			(/* comment */ () => {
-				run();
-			})();
-		`,
-		outdent`
-			(() => {
-				run();
-			} /* comment */)();
-		`,
-		outdent`
-			(() => {
-				run();
-			})() /* comment */;
-		`,
 		{
 			code: outdent`
 				(() => {
@@ -155,5 +140,20 @@ test.snapshot({
 				sourceType: 'module',
 			},
 		},
+		outdent`
+			(/* comment */ () => {
+				run();
+			})();
+		`,
+		outdent`
+			(() => {
+				run();
+			} /* comment */)();
+		`,
+		outdent`
+			(() => {
+				run();
+			})() /* comment */;
+		`,
 	],
 });

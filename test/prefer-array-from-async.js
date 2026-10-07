@@ -21,13 +21,6 @@ test.snapshot({
 			}
 		`,
 		outdent`
-			const result = [];
-			// Keep this comment.
-			for await (const element of iterable) {
-				result.push(element);
-			}
-		`,
-		outdent`
 			const result = [existing];
 			for await (const element of iterable) {
 				result.push(element);
@@ -69,15 +62,6 @@ test.snapshot({
 			const result = [];
 			for await (const result of iterable) {
 				result.push(result);
-			}
-		`,
-		outdent`
-			const result = [];
-			for await (const element of iterable) {
-				result.push(
-					// Keep this comment.
-					element,
-				);
 			}
 		`,
 		outdent`
@@ -258,6 +242,22 @@ test.snapshot({
 				parser: parsers.typescript,
 			},
 		},
+		outdent`
+			const result = [];
+			// Keep this comment.
+			for await (const element of iterable) {
+				result.push(element);
+			}
+		`,
+		outdent`
+			const result = [];
+			for await (const element of iterable) {
+				result.push(
+					// Keep this comment.
+					element,
+				);
+			}
+		`,
 	],
 });
 
@@ -286,8 +286,6 @@ test.snapshot({
 		'const result = []; for (const path of ["a"]) { result.push(await readFile(await normalize(path))); }',
 		'const result = []; for (const path of ["a"]) { result.push(await readFile(path, result)); }',
 		'const result = []; for (const path of ["a"]) { result.push(await readFile(path)); log(path); }',
-		'const result = []; for (const path of ["a"]) { result.push(await readFile(/* keep */ path)); }',
-		'const result = []; /* keep */ for (const path of ["a"]) { result.push(await readFile(path)); }',
 		'const result = await Promise.all(paths.map(path => readFile(path)));',
 		'const paths = ["a"]; const result = []; for (const path of [...paths]) { result.push(await readFile(path)); }',
 		'const result = []; for (const value of [{}]) { result.push(await transform(value)); }',
@@ -446,6 +444,8 @@ test.snapshot({
 		typeAware('async function foo(paths: string[] | undefined) { const result = []; for (const path of paths!) { result.push(await readFile(path)); } }'),
 		typeAware('async function foo(paths: string[]) { const result = []; for (const path of (paths satisfies readonly string[])) { result.push(await readFile(path)); } }'),
 		'const result = []; for (const path of [, "a"]) { result.push(await readFile(path)); }',
+		'const result = []; for (const path of ["a"]) { result.push(await readFile(/* keep */ path)); }',
+		'const result = []; /* keep */ for (const path of ["a"]) { result.push(await readFile(path)); }',
 	],
 });
 
