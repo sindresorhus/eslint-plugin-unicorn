@@ -44,6 +44,68 @@ test('loads virtual source files with Windows path separators', t => {
 	t.assert.deepStrictEqual(getDiagnostics(program), [2322]);
 });
 
+test('withholds object fixes that break discriminated union return types', t => {
+	const code = outdent`
+		type Thing =
+			| {type: 'a'; property: number}
+			| {type: 'b'; property: string};
+
+		function createThing(type: Thing['type']): Thing {
+			return type === 'a'
+				? {type, property: 0}
+				: {type, property: ''};
+		}
+	`;
+	const program = getProgram(code);
+	t.assert.deepStrictEqual(getDiagnostics(program), []);
+	for (const typeInformation of [undefined, program]) {
+		const messages = getMessages(code, typeInformation);
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].messageId, 'prefer-minimal-ternary');
+		t.assert.strictEqual(messages[0].fix, undefined);
+		const suggestion = messages[0].suggestions?.[0];
+		t.assert.ok(suggestion);
+		const {fix} = suggestion;
+		t.assert.strictEqual(fix.text, '({type, property: type === \'a\' ? 0 : \'\'})');
+		const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		t.assert.deepStrictEqual(getDiagnostics(getProgram(output)), [2322]);
+	}
+});
+
+test('suggests object minimization when type information throws', t => {
+	const code = 'declare const test: boolean, shared: string; test ? {shared, value: 1} : {shared, value: 2};';
+	const program = getProgram(code);
+	t.assert.deepStrictEqual(getDiagnostics(program), []);
+	const typeLookup = t.mock.method(program.getTypeChecker(), 'getTypeAtLocation', () => {
+		throw new Error('Type information unavailable');
+	});
+	const messages = getMessages(code, program);
+	t.assert.ok(typeLookup.mock.callCount() > 0);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].messageId, 'prefer-minimal-ternary');
+	t.assert.strictEqual(messages[0].fix, undefined);
+	t.assert.strictEqual(messages[0].suggestions?.[0].fix.text, '({shared, value: test ? 1 : 2})');
+});
+
+test('fixes shared literal object values when type information throws', t => {
+	const code = 'declare const test: boolean; test ? {label: "fixed", value: 1, enabled: true} : {label: "fixed", value: 2, enabled: true};';
+	const program = getProgram(code);
+	t.assert.deepStrictEqual(getDiagnostics(program), []);
+	const typeLookup = t.mock.method(program.getTypeChecker(), 'getTypeAtLocation', () => {
+		throw new Error('Type information unavailable');
+	});
+	const messages = getMessages(code, program);
+	t.assert.ok(typeLookup.mock.callCount() > 0);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].messageId, 'prefer-minimal-ternary');
+	const {fix} = messages[0];
+	t.assert.ok(fix);
+	t.assert.strictEqual(fix.text, '({label: "fixed", value: test ? 1 : 2, enabled: true})');
+	t.assert.strictEqual(messages[0].suggestions, undefined);
+	const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	t.assert.deepStrictEqual(getDiagnostics(getProgram(output)), []);
+});
+
 const cases = [
 	{
 		name: 'correlated rest tuple arguments',
@@ -124,6 +186,16 @@ const cases = [
 		expression: 'typeof value === "string" ? {kind: "a", value} : {kind: "b", value}',
 		unsafeExpression: '({kind: typeof value === "string" ? "a" : "b", value})',
 		diagnostic: 2322,
+		syntaxFix: false,
+	},
+	{
+		name: 'discriminated object properties with an aliased condition',
+		declarations: 'type Thing = {type: "a"; property: number} | {type: "b"; property: string}; declare const type: Thing["type"]; const isA = type === "a";',
+		resultType: 'Thing',
+		expression: 'isA ? {type, property: 0} : {type, property: ""}',
+		unsafeExpression: '({type, property: isA ? 0 : ""})',
+		diagnostic: 2322,
+		syntaxFix: false,
 	},
 	{
 		name: 'generic tuple inference',
@@ -166,7 +238,7 @@ const cases = [
 	},
 ];
 
-for (const {name, declarations, expression, unsafeExpression, resultType, diagnostic, options} of cases) {
+for (const {name, declarations, expression, unsafeExpression, resultType, diagnostic, options, syntaxFix = true} of cases) {
 	test(`withholds fixes that break ${name}`, t => {
 		const declaration = `${declarations} const result${resultType ? `: ${resultType}` : ''} = `;
 		const code = `${declaration}${expression};`;
@@ -175,11 +247,20 @@ for (const {name, declarations, expression, unsafeExpression, resultType, diagno
 		t.assert.ok(getDiagnostics(getProgram(`${declaration}${unsafeExpression};`)).includes(diagnostic));
 		const syntaxMessages = getMessages(code, undefined, options);
 		t.assert.strictEqual(syntaxMessages.length, 1);
-		t.assert.strictEqual(syntaxMessages[0].fix?.text, unsafeExpression);
+		t.assert.strictEqual(syntaxMessages[0].fix?.text, syntaxFix ? unsafeExpression : undefined);
+		if (!syntaxFix) {
+			t.assert.strictEqual(syntaxMessages[0].suggestions?.[0].fix.text, unsafeExpression);
+		}
+
 		const messages = getMessages(code, program, options);
 		t.assert.strictEqual(messages.length, 1);
 		t.assert.strictEqual(messages[0].messageId, 'prefer-minimal-ternary');
 		t.assert.strictEqual(messages[0].fix, undefined);
+		if (syntaxFix) {
+			t.assert.strictEqual(messages[0].suggestions, undefined);
+		} else {
+			t.assert.strictEqual(messages[0].suggestions?.[0].fix.text, unsafeExpression);
+		}
 	});
 }
 
@@ -248,6 +329,19 @@ const safeCases = [
 		fixedExpression: '({value: test ? 1 : 2})',
 	},
 	{
+		name: 'object properties with shared literal values',
+		declarations: 'declare const test: boolean;',
+		expression: 'test ? {kind: "fixed", value: 1, enabled: true} : {kind: "fixed", value: 2, enabled: true}',
+		fixedExpression: '({kind: "fixed", value: test ? 1 : 2, enabled: true})',
+	},
+	{
+		name: 'object properties with a shared identifier',
+		declarations: 'declare const test: boolean, label: string;',
+		expression: 'test ? {label, value: 1} : {label, value: 2}',
+		fixedExpression: '({label, value: test ? 1 : 2})',
+		syntaxFix: false,
+	},
+	{
 		name: 'ordinary array elements',
 		declarations: 'declare const test: boolean;',
 		expression: 'test ? [1] : [2]',
@@ -268,11 +362,18 @@ const safeCases = [
 	},
 ];
 
-for (const {name, declarations, expression, fixedExpression, options} of safeCases) {
+for (const {name, declarations, expression, fixedExpression, options, syntaxFix = true} of safeCases) {
 	test(`fixes ${name} with type information`, t => {
 		const code = `${declarations} const result = ${expression};`;
 		const program = getProgram(code);
 		t.assert.deepStrictEqual(getDiagnostics(program), []);
+		const syntaxMessages = getMessages(code, undefined, options);
+		t.assert.strictEqual(syntaxMessages.length, 1);
+		t.assert.strictEqual(syntaxMessages[0].fix?.text, syntaxFix ? fixedExpression : undefined);
+		if (!syntaxFix) {
+			t.assert.strictEqual(syntaxMessages[0].suggestions?.[0].fix.text, fixedExpression);
+		}
+
 		const messages = getMessages(code, program, options);
 		t.assert.strictEqual(messages.length, 1);
 		t.assert.strictEqual(messages[0].messageId, 'prefer-minimal-ternary');

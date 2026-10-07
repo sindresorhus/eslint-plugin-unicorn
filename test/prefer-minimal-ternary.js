@@ -5,6 +5,60 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 test({
+	valid: [],
+	invalid: [
+		...['file.ts', 'file.mts', 'file.cts', 'file.tsx'].map(filename => ({
+			filename,
+			code: 'test ? {shared, value: 1} : {shared, value: 2};',
+			errors: [{
+				messageId: 'prefer-minimal-ternary',
+				suggestions: [{
+					messageId: 'prefer-minimal-ternary',
+					output: '({shared, value: test ? 1 : 2});',
+				}],
+			}],
+		})),
+		{
+			filename: 'file.js',
+			code: 'test ? {shared, value: 1} : {shared, value: 2};',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'prefer-minimal-ternary',
+				suggestions: [{
+					messageId: 'prefer-minimal-ternary',
+					output: '({shared, value: test ? 1 : 2});',
+				}],
+			}],
+		},
+		...[
+			['previous()\ntest ? {shared, value: 1} : {shared, value: 2};', 'previous()\n;({shared, value: test ? 1 : 2});'],
+			['check() ? {value: 1, shared} : {value: 2, shared};', '({value: check() ? 1 : 2, shared});'],
+		].map(([code, output]) => ({
+			code,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'prefer-minimal-ternary',
+				suggestions: [{messageId: 'prefer-minimal-ternary', output}],
+			}],
+		})),
+		...[
+			'test ? {shared, value: /* keep */ 1} : {shared, value: 2};',
+			'check() ? {shared, value: 1} : {shared, value: 2};',
+			'test ? {shared, method: () => 1} : {shared, method: () => 2};',
+		].map(code => ({
+			code,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-minimal-ternary', suggestions: []}],
+		})),
+		{
+			code: 'test ? {shared, value: 1} : {shared, value: 2};',
+			output: '({shared, value: test ? 1 : 2});',
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+	],
+});
+
+test({
 	valid: [
 		'test ? object?.method(a) : object?.method(b);',
 		'test ? object.method?.(a) : object.method?.(b);',
@@ -106,6 +160,44 @@ test.vue({
 	],
 	invalid: [
 		{
+			code: '<script lang="ts">test ? {shared, value: 1} : {shared, value: 2};</script>',
+			languageOptions: {parserOptions: {parser: typescriptEslintParser}},
+			errors: [{
+				messageId: 'prefer-minimal-ternary',
+				suggestions: [{
+					messageId: 'prefer-minimal-ternary',
+					output: '<script lang="ts">({shared, value: test ? 1 : 2});</script>',
+				}],
+			}],
+		},
+		{
+			code: '<script>test ? {value: 1} : {value: 2};</script>',
+			output: '<script>({value: test ? 1 : 2});</script>',
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		{
+			code: '<script lang="ts">previous()\ntest ? {shared, value: 1} : {shared, value: 2};</script>',
+			languageOptions: {parserOptions: {parser: typescriptEslintParser}},
+			errors: [{
+				messageId: 'prefer-minimal-ternary',
+				suggestions: [{
+					messageId: 'prefer-minimal-ternary',
+					output: '<script lang="ts">previous()\n;({shared, value: test ? 1 : 2});</script>',
+				}],
+			}],
+		},
+		{
+			code: '<script setup lang="ts"></script><template>{{ test ? {shared, value: 1} : {shared, value: 2} }}</template>',
+			languageOptions: {parserOptions: {parser: typescriptEslintParser}},
+			errors: [{
+				messageId: 'prefer-minimal-ternary',
+				suggestions: [{
+					messageId: 'prefer-minimal-ternary',
+					output: '<script setup lang="ts"></script><template>{{ ({shared, value: test ? 1 : 2}) }}</template>',
+				}],
+			}],
+		},
+		{
 			code: '<script setup lang="ts"></script><template>{{ test ? object.method<Result < string >>(a) : object.method<Result<string>>(b) }}</template>',
 			output: '<script setup lang="ts"></script><template>{{ object.method<Result < string >>(test ? a : b) }}</template>',
 			languageOptions: {parserOptions: {parser: typescriptEslintParser}},
@@ -145,11 +237,30 @@ test.vue({
 
 test.svelte({
 	valid: [],
-	invalid: [{
-		code: '<script>test ? call(a) : call(b);</script>{test ? call(c, first+second) : call(d, first + second)}',
-		output: '<script>call(test ? a : b);</script>{call(test ? c : d, first+second)}',
-		errors: 2,
-	}],
+	invalid: [
+		{
+			code: '<script>test ? call(a) : call(b);</script>{test ? call(c, first+second) : call(d, first + second)}',
+			output: '<script>call(test ? a : b);</script>{call(test ? c : d, first+second)}',
+			errors: 2,
+		},
+		{
+			code: '<script>test ? {shared, value: 1} : {shared, value: 2};</script>{test ? {shared, value: 1} : {shared, value: 2}}',
+			output: '<script>({shared, value: test ? 1 : 2});</script>{({shared, value: test ? 1 : 2})}',
+			errors: 2,
+		},
+		...[
+			['<script lang="ts">test ? {shared, value: 1} : {shared, value: 2};</script>', '<script lang="ts">({shared, value: test ? 1 : 2});</script>'],
+			['<script lang="ts"></script>{test ? {shared, value: 1} : {shared, value: 2}}', '<script lang="ts"></script>{({shared, value: test ? 1 : 2})}'],
+		].map(([code, output]) => ({
+			code,
+			filename: 'file.svelte',
+			languageOptions: {parserOptions: {parser: typescriptEslintParser}},
+			errors: [{
+				messageId: 'prefer-minimal-ternary',
+				suggestions: [{messageId: 'prefer-minimal-ternary', output}],
+			}],
+		})),
+	],
 });
 
 test({
