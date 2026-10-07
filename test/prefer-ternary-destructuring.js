@@ -151,7 +151,8 @@ test({
 
 nodeTest('preserves destructuring evaluation order', t => {
 	const code = 'let value; if (condition()) { ({[getKey()]: value = getDefault()} = getValue("first")); } else { ({[getKey()]: value = getDefault()} = getValue("second")); } value;';
-	const result = new Linter().verifyAndFix(code, {
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, {
 		plugins: {unicorn},
 		rules: {'unicorn/prefer-ternary': 'error'},
 	});
