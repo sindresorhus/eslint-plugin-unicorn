@@ -234,7 +234,13 @@ const create = context => {
 			return;
 		}
 
-		return getUrlProblem(node, node.url, prefixStart + prefix.length);
+		const destinationStart = prefixStart + prefix.length;
+		// Blockquote markers in multiline destinations are not part of the URL.
+		if (sourceCode.text[destinationStart] === '>' && /[\n\r]/u.test(prefix)) {
+			return;
+		}
+
+		return getUrlProblem(node, node.url, destinationStart);
 	});
 
 	context.on('image', node => {

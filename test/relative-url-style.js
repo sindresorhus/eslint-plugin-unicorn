@@ -519,6 +519,7 @@ const markdownLanguages = [languages.markdown, {...languages.markdown, language:
 for (const language of markdownLanguages) {
 	test({
 		valid: [
+			...['> [link](\n> page.md)', '> [reference]:\n> page.md', '> [link](\n> <page.md>)', '> [reference]:\n> <page.md>'].map(code => ({code, options: ['always']})),
 			{
 				code: '![[^`note]](./right.md "`]](./wrong.md")\n\n[^`note]: footnote',
 			},
@@ -537,6 +538,12 @@ for (const language of markdownLanguages) {
 			},
 		].map(testCase => ({...testCase, language: language.language, plugins: language.plugins})),
 		invalid: [
+			...['[link](\n  page.md)', '- [link](\n  page.md)', '[reference]:\n  page.md', '[link](>page.md)', '[reference]: >page.md'].map(code => ({
+				code,
+				output: code.replace(/>?page\.md/u, './$&'),
+				options: ['always'],
+				errors: [{messageId: 'always'}],
+			})),
 			{
 				code: '<svg><image href="./visible.svg" xlink:href="./hidden.svg" /></svg>',
 				output: '<svg><image href="visible.svg" xlink:href="./hidden.svg" /></svg>',
