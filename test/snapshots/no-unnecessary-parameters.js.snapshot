@@ -27,6 +27,9 @@ Message:
 > 1 | function format(value: number) { return value; } format(1); format(1);
     |                 ^^^^^^^^^^^^^ Parameter \`value\` receives the same value at every call.
 
+Suggestion 1/1: Remove parameter \`value\` and its arguments (requires type review).:
+  1 | function format() { return 1; } format(); format();
+
 `;
 
 exports[`no-unnecessary-parameters > invalid(10): function format(value) { return value; } format(-1); format(-0x1); 1`] = `
@@ -58,6 +61,9 @@ Message:
 > 1 | function format(value) { return value; } type Signature = typeof format; format(1); format(1);
     |                 ^^^^^ Parameter \`value\` receives the same value at every call.
 
+Suggestion 1/1: Remove parameter \`value\` and its arguments (requires type review).:
+  1 | function format() { return 1; } type Signature = typeof format; format(); format();
+
 `;
 
 exports[`no-unnecessary-parameters > invalid(11): function format(value) { <string>value; return value; } format(\"use strict\"); format(\"use strict\"); 1`] = `
@@ -71,6 +77,9 @@ exports[`no-unnecessary-parameters > invalid(11): function format(value) { <stri
 Message:
 > 1 | function format(value) { <string>value; return value; } format("use strict"); format("use strict");
     |                 ^^^^^ Parameter \`value\` receives the same value at every call.
+
+Suggestion 1/1: Remove parameter \`value\` and its arguments (requires type review).:
+  1 | function format() { <string>("use strict"); return "use strict"; } format(); format();
 
 `;
 
@@ -150,6 +159,9 @@ exports[`no-unnecessary-parameters > invalid(13): function format(value) { retur
 Message:
 > 1 | function format(value) { return value; } type Length = typeof format.length; format(1); format(1);
     |                 ^^^^^ Parameter \`value\` receives the same value at every call.
+
+Suggestion 1/1: Remove parameter \`value\` and its arguments (requires type review).:
+  1 | function format() { return 1; } type Length = typeof format.length; format(); format();
 
 `;
 
@@ -283,6 +295,9 @@ exports[`no-unnecessary-parameters > invalid(2): const format: (value: number) =
 Message:
 > 1 | const format: (value: number) => number = value => value; format(1); format(1);
     |                                           ^^^^^ Parameter \`value\` receives the same value at every call.
+
+Suggestion 1/1: Remove parameter \`value\` and its arguments (requires type review).:
+  1 | const format: (value: number) => number = () => 1; format(); format();
 
 `;
 
@@ -496,6 +511,9 @@ Message:
 > 1 | function format<T>(value: T) { return value; } format<number>(1); format<number>(1);
     |                    ^^^^^^^^ Parameter \`value\` receives the same value at every call.
 
+Suggestion 1/1: Remove parameter \`value\` and its arguments (requires type review).:
+  1 | function format<T>() { return 1; } format<number>(); format<number>();
+
 `;
 
 exports[`no-unnecessary-parameters > invalid(30): async function format(first, second = first) { return first + second; } format(1); format(2); 1`] = `
@@ -681,6 +699,9 @@ exports[`no-unnecessary-parameters > invalid(4): function format(value: number) 
 Message:
 > 1 | function format(value: number) { return value; } format(1 as number); format(1 satisfies number);
     |                 ^^^^^^^^^^^^^ Parameter \`value\` receives the same value at every call.
+
+Suggestion 1/1: Remove parameter \`value\` and its arguments (requires type review).:
+  1 | function format() { return 1; } format(); format();
 
 `;
 
@@ -884,6 +905,9 @@ exports[`no-unnecessary-parameters > invalid(5): const limit = 1; function forma
 Message:
 > 1 | const limit = 1; function format(value: number) { return value; } format(limit!); format(limit as number);
     |                                  ^^^^^^^^^^^^^ Parameter \`value\` receives the same value at every call.
+
+Suggestion 1/1: Remove parameter \`value\` and its arguments (requires type review).:
+  1 | const limit = 1; function format() { return limit; } format(); format();
 
 `;
 
@@ -1110,6 +1134,9 @@ Message:
 > 1 | function format(this: void, value: number) { return value; } format(1); format(1);
     |                             ^^^^^^^^^^^^^ Parameter \`value\` receives the same value at every call.
 
+Suggestion 1/1: Remove parameter \`value\` and its arguments (requires type review).:
+  1 | function format(this: void) { return 1; } format(); format();
+
 `;
 
 exports[`no-unnecessary-parameters > invalid(60): function walk(value, unit) { return value ? walk(value.next, \"px\") : unit; } walk(first, \"px\"); walk(second, \"px\"); 1`] = `
@@ -1299,6 +1326,9 @@ Message:
 > 1 | class Point { constructor(public x: number, value: number) { this.value = value; } } new Point(1, 0); new Point(2, 0);
     |                                             ^^^^^^^^^^^^^ Parameter \`value\` receives the same value at every call.
 
+Suggestion 1/1: Remove parameter \`value\` and its arguments (requires type review).:
+  1 | class Point { constructor(public x: number) { this.value = 0; } } new Point(1); new Point(2);
+
 `;
 
 exports[`no-unnecessary-parameters > invalid(7): function format(first, unit, last) { return first + unit + last; } format(1, \"px\", 2); format(3, \"px\", 4); 1`] = `
@@ -1484,6 +1514,9 @@ exports[`no-unnecessary-parameters > invalid(8): class Formatter { #format(value
 Message:
 > 1 | class Formatter { #format(value: number, unit: string) { return value + unit; } run() { this.#format(1, "px"); this.#format(2, "px"); } }
     |                                          ^^^^^^^^^^^^ Parameter \`unit\` receives the same value at every call.
+
+Suggestion 1/1: Remove parameter \`unit\` and its arguments (requires type review).:
+  1 | class Formatter { #format(value: number) { return value + "px"; } run() { this.#format(1); this.#format(2); } }
 
 `;
 
@@ -1710,6 +1743,9 @@ exports[`no-unnecessary-parameters > invalid(9): class Point { constructor(value
 Message:
 > 1 | class Point { constructor(value: number) { this.value = value; } } let point: Point; new Point(1); new Point(1);
     |                           ^^^^^^^^^^^^^ Parameter \`value\` receives the same value at every call.
+
+Suggestion 1/1: Remove parameter \`value\` and its arguments (requires type review).:
+  1 | class Point { constructor() { this.value = 1; } } let point: Point; new Point(); new Point();
 
 `;
 

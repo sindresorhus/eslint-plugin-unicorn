@@ -274,6 +274,9 @@ const functionLikeTypesWithReturnType = new Set([
 	'TSMethodSignature',
 ]);
 
+/**
+Get the adjacent comment attached to a node or its enclosing declaration.
+*/
 const findAttachedComment = (node, sourceCode) => {
 	let previousToken = sourceCode.getTokenBefore(node, {includeComments: true});
 	let commentableNode = node;

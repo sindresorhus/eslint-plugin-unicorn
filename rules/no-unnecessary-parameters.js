@@ -3,7 +3,6 @@ import reservedIdentifiers from 'reserved-identifiers';
 import {isInTypeQuery} from './ast/index.js';
 import {getArgumentRemovalRange, removeObjectProperty, replaceReferenceIdentifier} from './fix/index.js';
 import {
-	trackLocalFunctionCalls,
 	getIndentUnit,
 	getLinebreak,
 	getLineIndent,
@@ -14,6 +13,7 @@ import {
 	isTypeScriptFile,
 	needsSemicolon,
 	shouldAddParenthesesToMemberExpressionObject,
+	trackLocalFunctionCalls,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -21,6 +21,7 @@ const messages = {
 	'same-value': 'Parameter `{{name}}` receives the same value at every call.',
 	'always-default': 'Parameter `{{name}}` always receives its default value.',
 	'always-undefined': 'Parameter `{{name}}` is always `undefined`.',
+	'remove-parameter': 'Remove parameter `{{name}}` and its arguments (requires type review).',
 };
 
 const reserved = reservedIdentifiers();
@@ -38,6 +39,7 @@ const isRuntimeReference = reference =>
 	&& !isInTypeQuery(reference.identifier);
 
 const getVariable = (node, context) => findVariable(context.sourceCode.getScope(node), node);
+const isOuterBinding = (variable, parameter, context) => findVariable(context.sourceCode.getScope(parameter.identifier).upper, variable.name) === variable;
 const undefinedValue = {kind: 'primitive', value: undefined};
 
 function getPrimitiveValue(node) {
@@ -250,6 +252,11 @@ function getParameterValue(parameter, arguments_, context) {
 
 	const defaultValue = parameter.defaultNode ? getValue(parameter.defaultNode, context) : undefinedValue;
 	if (incoming.every(argument => isUndefined(argument.value))) {
+		if (arguments_.some(argument => argument.forwarding)
+			&& (!defaultValue || (defaultValue.kind === 'binding' && !isOuterBinding(defaultValue.variable, parameter, context)))) {
+			return;
+		}
+
 		return {messageId: parameter.defaultNode ? 'always-default' : 'always-undefined', value: defaultValue, arguments_};
 	}
 
@@ -259,7 +266,7 @@ function getParameterValue(parameter, arguments_, context) {
 		return;
 	}
 
-	if (value.kind === 'binding' && findVariable(context.sourceCode.getScope(parameter.identifier).upper, value.variable.name) !== value.variable) {
+	if (value.kind === 'binding' && !isOuterBinding(value.variable, parameter, context)) {
 		return;
 	}
 
@@ -410,14 +417,22 @@ function canInlineValue(parameter, result, context) {
 	return true;
 }
 
+/**
+Check for JSDoc type annotations or TypeScript checking pragmas anywhere in the file.
+*/
+function hasJavaScriptTypeAnnotations(context) {
+	return context.sourceCode.getAllComments().some(comment =>
+		/^\s*(?:[*/]\s*)?@ts-check\b/iu.test(comment.value)
+		|| (comment.type === 'Block'
+			&& comment.value.trimStart().startsWith('*')
+			&& /@(?:param|arg|argument|type|returns?|template|this|overload|satisfies|constructor|class|implements|extends|augments)\b/u.test(comment.value)));
+}
+
 function getFix(parameter, result, target, context) {
 	const {sourceCode} = context;
 	const {value, messageId, arguments_} = result;
-	// Changing signatures or inferred values can introduce TypeScript errors without changing runtime behavior.
 	if (
-		isTypeScriptFile(context.filename)
-		|| sourceCode.parserServices.esTreeNodeToTSNodeMap
-		|| parameter.variable.defs.length !== 1
+		parameter.variable.defs.length !== 1
 		|| parameter.variable.references.some(reference => !isRuntimeReference(reference))
 	) {
 		return;
@@ -504,6 +519,10 @@ function getFix(parameter, result, target, context) {
 const create = context => {
 	const {sourceCode} = context;
 	const getTargets = trackLocalFunctionCalls(context);
+	// Changing signatures or inferred values can introduce type checking errors without changing runtime behavior, so these fixes require type review.
+	const needsTypeReview = isTypeScriptFile(context.filename)
+		|| Boolean(sourceCode.parserServices.esTreeNodeToTSNodeMap)
+		|| hasJavaScriptTypeAnnotations(context);
 
 	context.onExit('Program', function * () {
 		for (const target of getTargets()) {
@@ -531,9 +550,15 @@ const create = context => {
 				}
 
 				const fix = hasFix ? undefined : getFix(parameter, result, target, context);
-				hasFix ||= Boolean(fix);
+				hasFix ||= Boolean(fix) && !needsTypeReview;
 				yield {
-					node: parameter.identifier, messageId: result.messageId, data: {name: parameter.identifier.name}, fix,
+					node: parameter.identifier,
+					messageId: result.messageId,
+					data: {name: parameter.identifier.name},
+					fix: needsTypeReview ? undefined : fix,
+					suggest: needsTypeReview && fix
+						? [{messageId: 'remove-parameter', data: {name: parameter.identifier.name}, fix}]
+						: undefined,
 				};
 			}
 		}
@@ -552,6 +577,7 @@ const config = {
 			recommended: true,
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema: [{
 			type: 'object',
 			properties: {
