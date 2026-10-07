@@ -785,11 +785,11 @@ const getProblem = (callExpression, context) => {
 		isBooleanContext(callExpression, context)
 		&& isSafeBooleanMapCall(callExpression, context)
 	) {
-		return getCommentSafeProblem(context, {
+		return {
 			node: callExpression.callee.property,
 			messageId: MESSAGE_ID,
 			fix: getBooleanFix(callExpression),
-		}, callExpression);
+		};
 	}
 };
 

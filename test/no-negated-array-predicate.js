@@ -177,6 +177,11 @@ test.snapshot({
 test({
 	valid: [],
 	invalid: [
+		{
+			code: 'previous()\n![].some(item => // keep\ncheck(item));',
+			output: 'previous()\n;[].every(item => // keep\n!check(item));',
+			errors: [{messageId: 'no-negated-array-predicate'}],
+		},
 		// TypeScript: the `!` is inside the non-null assertion
 		{
 			code: 'const a = !foo.every(x => x.b)!;',

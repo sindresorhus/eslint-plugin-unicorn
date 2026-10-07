@@ -415,6 +415,23 @@ Output:
 
 `;
 
+exports[`prefer-iterator-concat > invalid(31): function collect(text: String, values: string[]) { return Array.from([...text, ...values]); } 1`] = `
+
+  1 | function collect(text: String, values: string[]) { return Array.from([...text, ...values]); }
+
+`;
+
+exports[`prefer-iterator-concat > invalid(31): function collect(text: String, values: string[]) { return Array.from([...text, ...values]); } 2`] = `
+
+Message:
+> 1 | function collect(text: String, values: string[]) { return Array.from([...text, ...values]); }
+    |                                                                      ^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
+
+Output:
+  1 | function collect(text: String, values: string[]) { return Array.from(Iterator.concat(text, values)); }
+
+`;
+
 exports[`prefer-iterator-concat > invalid(4): new WeakMap([...foo, ...bar]) 1`] = `
 
   1 | new WeakMap([...foo, ...bar])

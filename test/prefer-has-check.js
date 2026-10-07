@@ -263,5 +263,7 @@ test.snapshot({
 		// Boolean contexts and comparisons report independently of comments.
 		typeAware('declare const map: Map<string, object>; map.get(/* comment */ key) !== undefined'),
 		typeAware('declare const map: Map<string, object>; if (map.get(/* comment */ key)) {}'),
+		'if (new Map([["key", {}]]).get(/* lookup key */ "key")) {}',
+		'if (new Map([["key", {}]]).get(// lookup key\n"key")) {}',
 	],
 });

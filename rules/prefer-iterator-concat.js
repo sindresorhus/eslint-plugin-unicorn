@@ -1,9 +1,9 @@
 import typedArray from './shared/typed-array.js';
 import {
 	getParenthesizedText,
-	getStaticValueIfNoSideEffects,
 	isBuiltinSet,
 	isGlobalIdentifier,
+	isString,
 } from './utils/index.js';
 import {
 	isMethodCall,
@@ -29,11 +29,6 @@ const isSpreadArray = node =>
 	node.type === 'ArrayExpression'
 	&& node.elements.length >= 2
 	&& node.elements.every(element => element?.type === 'SpreadElement');
-
-// `Iterator.concat()` requires every argument to be an object, so spreading a string primitive works while passing the string itself throws `TypeError: Iterator.concat called on non-object`. A number or a boolean cannot be spread at all, so a string is the only value where the two differ.
-const isStringSpread = (element, context) =>
-	element.argument.type === 'TemplateLiteral'
-	|| typeof getStaticValueIfNoSideEffects(element.argument, context)?.value === 'string';
 
 const isPromiseMethodCall = node => isMethodCall(node, {
 	object: 'Promise',
@@ -145,7 +140,8 @@ const create = context => {
 			!isSpreadArray(node)
 			|| !isInIterableAcceptingParent(node)
 			|| hasToArraySpreadElement(node)
-			|| node.elements.some(element => isStringSpread(element, context))
+			// `Iterator.concat()` requires every argument to be an object, so spreading a string primitive works while passing the string itself throws `TypeError: Iterator.concat called on non-object`. A number or a boolean cannot be spread at all, so a string is the only value where the two differ.
+			|| node.elements.some(element => isString(element.argument, context))
 			|| isKnownSetUnionCase(node, context)
 		) {
 			return;

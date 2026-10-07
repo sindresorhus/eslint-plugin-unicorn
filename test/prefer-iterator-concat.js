@@ -1,7 +1,17 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {typescriptEslintParser} from '../scripts/parsers.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 test.snapshot({
 	valid: [
@@ -55,6 +65,16 @@ test.snapshot({
 		'Array.from([...a, ...b]); const a = "ae", b = "xy";',
 		// One string among the spreads is enough
 		'new Set([...a, ...b]); const a = "ae", b = [1];',
+		'Array.from([...String(value), ...values]);',
+		{
+			code: 'function collect(text: string, values: string[]) { return Array.from([...text, ...values]); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware(outdent`
+			declare function getText(): ReturnType<() => string>;
+			const text = getText();
+			Array.from([...text, ...values]);
+		`),
 	],
 	invalid: [
 		// Constructors that accept iterables.
@@ -111,5 +131,9 @@ test.snapshot({
 		// A spread that is not a string is still reported
 		'const a = [1], b = [2]; new Set([...a, ...b]);',
 		'Array.from([...[1], ...[2]]);',
+		{
+			code: 'function collect(text: String, values: string[]) { return Array.from([...text, ...values]); }',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

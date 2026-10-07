@@ -39,7 +39,7 @@ const hasMissingValue = values.some(value => value === null || value === undefin
 ```
 
 ```js
-// ✅ - Different predicates or different methods don't trigger this rule
+// ✅ - Different methods or unrelated conditions don't trigger this rule
 array.some(x => x > 5) && array.every(x => x < 100); // OK - different methods
-array.some(x => x > 5) || someOtherCondition; // OK - different receiver
+array.some(x => x > 5) || someOtherCondition; // OK - unrelated condition
 ```
