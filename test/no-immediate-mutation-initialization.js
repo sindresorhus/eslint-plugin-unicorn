@@ -51,6 +51,11 @@ ruleTest({
 		{code: 'declare let foo; foo = 1;', languageOptions: {parser: parsers.typescript}},
 	],
 	invalid: [
+		...['``', '{values: [`text`]}'].map(initializer => ({
+			code: `let foo;\nfoo = ${initializer};`,
+			output: `let foo = ${initializer};`,
+			errors: [{messageId: 'initialization', suggestions: []}],
+		})),
 		...['-1', '-1n', '{values: [-1, -0, -1n]}'].map(initializer => ({
 			code: `let foo;\nfoo = ${initializer};`,
 			output: `let foo = ${initializer};`,
@@ -366,6 +371,21 @@ test('preserves negative zero when combining initialization', t => {
 	t.assert.deepStrictEqual(result.messages, []);
 	t.assert.strictEqual(Object.is(runInNewContext(code), -0), true);
 	t.assert.strictEqual(Object.is(runInNewContext(result.output), -0), true);
+});
+
+test('preserves multiline template text and line endings when combining initialization', t => {
+	const linter = new Linter();
+	const code = 'let foo;\r\nfoo = `first\r\nsecond`;\r\nfoo;';
+	const result = linter.verifyAndFix(code, {
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/no-immediate-mutation': 'error'},
+	});
+
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, 'let foo = `first\r\nsecond`;\r\nfoo;');
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(runInNewContext(code), 'first\nsecond');
+	t.assert.strictEqual(runInNewContext(result.output), 'first\nsecond');
 });
 
 test('preserves contextual callback typing when combining initialization', t => {

@@ -1028,6 +1028,10 @@ function isSimpleInitializationValue(node) {
 			return true;
 		}
 
+		case 'TemplateLiteral': {
+			return node.expressions.length === 0;
+		}
+
 		case 'UnaryExpression': {
 			const argument = unwrapTypeScriptExpression(node.argument);
 			return node.operator === '-'
