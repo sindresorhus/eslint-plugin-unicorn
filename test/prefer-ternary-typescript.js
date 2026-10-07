@@ -75,14 +75,14 @@ for (const [pattern, first, second] of [
 }
 
 for (const [pattern, first, second] of [
-	['callback', 'value => value.toFixed()', 'value => value.toExponential()'],
+	['callback', 'firstCallback', 'secondCallback'],
 	['[object.handler]', '[value => value.toFixed()]', '[value => value.toExponential()]'],
 	['{handler: object.handler}', '{handler: value => value.toFixed()}', '{handler: value => value.toExponential()}'],
 ]) {
 	test(`still combines compatible callback types in ${pattern}`, t => {
 		const code = outdent`
 			type Handler = (value: number) => string;
-			function update(object: {kind: "first" | "second"; handler: Handler}, callback: Handler) {
+			function update(object: {kind: "first" | "second"; handler: Handler}, callback: Handler, firstCallback: Handler, secondCallback: Handler) {
 				if (object.kind === "first") {
 					(${pattern} = ${first});
 				} else {
@@ -103,6 +103,21 @@ for (const [pattern, first, second] of [
 		t.assert.deepStrictEqual(getDiagnostics(createProgram(output)), []);
 	});
 }
+
+test('preserves inferred arrow names even with compatible contextual types', t => {
+	const code = outdent`
+		function update(selected: boolean, callback: (value: number) => string) {
+			if (selected) {
+				callback = value => value.toFixed();
+			} else {
+				callback = value => value.toExponential();
+			}
+		}
+	`;
+	const program = createProgram(code);
+	t.assert.deepStrictEqual(getDiagnostics(program), []);
+	t.assert.deepStrictEqual(getMessages(program), []);
+});
 
 for (const [name, target, firstType, secondType, firstCallback] of [
 	['any parameter', 'object.handler', 'handler: (value: any) => string', 'handler: (value: number) => string', 'value => String(value)'],

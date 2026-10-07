@@ -13,6 +13,8 @@ This rule enforces the use of ternary expressions over simple `if` statements th
 
 For assignments, only plain `=` assignments to identifiers or matching destructuring patterns are combined. Standalone property, compound, and logical assignments are ignored to preserve evaluation order. When nested inside returns or supported assignments, they remain in the ternary branches.
 
+Direct arrow values in identifier assignments or declaration initializers are kept in place to preserve their inferred function names.
+
 Array and object destructuring assignments are supported when both branches use the same pattern, ignoring whitespace. The pattern itself may span multiple lines in `always` mode. Patterns containing statement blocks, class bodies, or multiline array/object literals, JSX elements/fragments, or template literals are ignored.
 
 With full TypeScript type information, the rule also requires identical target tokens and skips assignments whose target expressions have different resolved types in the branches, preserving narrowed contextual types. Without type information, targets are matched by syntax.

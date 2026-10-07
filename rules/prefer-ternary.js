@@ -67,6 +67,8 @@ function getNodeBody(node) {
 const isSingleLineNode = (node, context) =>
 	context.sourceCode.getLoc(node).start.line === context.sourceCode.getLoc(node).end.line;
 
+const isArrowFunction = node => unwrapTypeScriptExpression(node).type === 'ArrowFunctionExpression';
+
 // Keep bare returns as explicit exits rather than introducing an undefined value branch.
 const isMergeableReturnStatement = (consequent, alternate, visitorKeys) =>
 	consequent.type === 'ReturnStatement'
@@ -97,11 +99,16 @@ const isMergeableAssignmentExpression = (consequent, alternate, context) =>
 	// Keep member target evaluation and compound/logical reads after the condition.
 	&& consequent.operator === '='
 	&& alternate.operator === '='
-	&& ['Identifier', 'ArrayPattern', 'ObjectPattern'].includes(unwrapTypeScriptExpression(consequent.left).type)
 	&& !hasTernary(consequent.right, context.sourceCode.visitorKeys)
 	&& !hasTernary(alternate.right, context.sourceCode.visitorKeys)
 	&& (
-		isSameReference(consequent.left, alternate.left)
+		(
+			// Direct arrow assignments infer their names from the identifier target.
+			unwrapTypeScriptExpression(consequent.left).type === 'Identifier'
+			&& !isArrowFunction(consequent.right)
+			&& !isArrowFunction(alternate.right)
+			&& isSameReference(consequent.left, alternate.left)
+		)
 		|| (
 			consequent.left.type === alternate.left.type
 			&& (consequent.left.type === 'ArrayPattern' || consequent.left.type === 'ObjectPattern')
@@ -210,6 +217,8 @@ const create = context => {
 			declarator.id.type !== 'Identifier'
 			|| declarator.id.name !== left.name
 			|| !declarator.init
+			|| isArrowFunction(declarator.init)
+			|| isArrowFunction(right)
 		) {
 			return;
 		}

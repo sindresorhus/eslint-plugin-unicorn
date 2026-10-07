@@ -115,6 +115,7 @@ testRule({
 		'let result = [a ? b : c]; if (test) { result = other; }',
 		'let result = other; if (Boolean(a ? b : c)) { result = value; }',
 		'let result = other; if (test) { result = String(a ? b : c); }',
+		'let result = () => a ? b : c; if (test) { result = other; }',
 		{
 			code: 'function foo() { if (test) { return a; } return String(b ? c : d); }',
 			options: onlySingleLineOptions,
@@ -139,10 +140,6 @@ testRule({
 			output: `function foo() { return test ? ${expression} : other; }`,
 			errors,
 		})),
-		{
-			code: 'let result = () => a ? b : c; if (test) { result = other; }',
-			errors: errorsWithSuggestion('const result = test ? other : () => a ? b : c;'),
-		},
 	],
 });
 
