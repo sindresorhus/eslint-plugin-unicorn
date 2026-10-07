@@ -49,11 +49,42 @@ const onlyIsPrefixOptions = {
 		should: false,
 		was: false,
 		were: false,
+		does: false,
 		did: false,
 		will: false,
 		requires: false,
 	},
 };
+
+test({
+	valid: [
+		'const doesPassCheck = true;',
+		'const does_pass_check = false;',
+		'const DOES_PASS_CHECK = true;',
+		'const _doesPassCheck = true;',
+		'function doesPassCheck() { return true; }',
+		'function check(doesPassCheck = false) {}',
+		typescript('const doesPassCheck: boolean = true;'),
+		{
+			code: 'const check = {doesPassCheck: true, doesMatch() { return true; }};',
+			options: [{checkFields: 'always', checkMethods: 'always'}],
+		},
+		{
+			code: 'const doesPassCheck = "yes";',
+			options: [{prefixes: {does: false}}],
+		},
+	],
+	invalid: [
+		{
+			code: 'const doesPassCheck = 1;',
+			errors: [{messageId: 'non-boolean-prefix', data: {name: 'doesPassCheck', prefix: 'does'}}],
+		},
+		{
+			code: 'function doesPassCheck() { return "yes"; }',
+			errors: [{messageId: 'non-boolean-prefix', data: {name: 'doesPassCheck', prefix: 'does'}}],
+		},
+	],
+});
 
 test({
 	valid: [
@@ -85,12 +116,12 @@ test({
 		typeAware({
 			name: 'type-aware finite nested generic aliases resolve concrete values',
 			code: 'type Id<T> = T; type Value<T> = Id<T>; function f(completed: Value<Value<boolean>>, isReady: Value<Value<string>>) {}',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typeAware({
 			name: 'type-aware finite nested generic aliases resolve repeated identity wrappers',
 			code: 'type Id<T> = T; type Value<T> = Id<Id<T>>; function f(completed: Value<Value<boolean>>, isReady: Value<Value<string>>) {}',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			name: 'sibling type arguments sharing a concrete type resolve independently',
@@ -100,11 +131,11 @@ test({
 				'type Both<T> = Fn<T, T>;',
 				'function f(completed: Both<boolean>, isReady: Both<string>) {}',
 			].join(' '),
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			code: 'type Id<A> = A; type Inner<A, B> = A; type Outer<B> = Inner<() => Id<B>, B>; function f(completed: Outer<boolean>, isReady: Outer<string>) {}',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			name: 'concrete generic rebinding preserves parameter references when suggesting a rename',
@@ -120,19 +151,19 @@ test({
 		}),
 		typescript({
 			code: 'type Id<A> = A; type Inner<A, B> = A; type Outer<B> = Inner<{(): Promise<Id<B>>}, B>; function f(completed: Outer<boolean>, isReady: Outer<string>) {}',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			code: 'interface Fn<A, B> {(): Promise<B>} function f<A, B>(g: Fn<B, A>, isReady: Fn<B, A>, concrete: Fn<string, boolean>, isText: Fn<boolean, string>) {}',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			code: 'type Fn<A, B> = () => B; type Swapped<A, B> = Fn<B, A>; function f(g: Swapped<boolean, string>, isReady: Swapped<string, boolean>) {}',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			code: 'type Id<T> = T; type Fn<A, B> = () => B; function f(g: Fn<Id<string>, Id<Id<boolean>>>, isReady: Fn<Id<boolean>, Id<Id<string>>>) {}',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 	],
 });
@@ -246,7 +277,7 @@ test({
 		}),
 		typeAware({
 			code: 'interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Readonly<Ref<T>>; const getDepartment = async () => true; const hasDepartment = computed(getDepartment);',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typeAware({
 			code: 'interface Ref<T> {value: T} declare function computed<T>(getter: () => T): Readonly<Ref<T>>; const hasDepartment = computed(true);',
@@ -724,6 +755,7 @@ test.snapshot({
 		'function foo([isReady = "yes"] = []) {}',
 		'import completed from "completed";',
 		'function completed() {}',
+		'function doWork() {}',
 		'class completed {}',
 		'try {} catch (completed) {}',
 		'/* global isReady:writable */ isReady = "yes";',
@@ -753,6 +785,7 @@ test.snapshot({
 					should: false,
 					was: false,
 					were: false,
+					does: false,
 					did: false,
 					will: false,
 					requires: false,
@@ -951,6 +984,7 @@ const completed = object.value;`,
 		'const getCompleted = function () { return progress === 100; }; const completed = getCompleted();',
 		'const getCompleted = () => progress === 100; const completed = getCompleted();',
 		'const island = true;',
+		'const doesntMatch = true;',
 		'const candy = true;',
 		'const willow = true;',
 		'const haste = true;',
@@ -989,6 +1023,10 @@ const completed = object.value;`,
 			'\treturn completed;',
 			'}',
 		].join('\n'),
+		{
+			code: 'const doesPassCheck = true;',
+			options: [{prefixes: {does: false}}],
+		},
 		{
 			code: 'const didUpdate = true;',
 			options: [{prefixes: {did: false}}],
@@ -1859,37 +1897,37 @@ test({
 		typescript({
 			name: 'async functions returning booleans require prefixes',
 			code: 'async function completed(): Promise<boolean> {}',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'possibly async boolean callbacks require prefixes',
 			code: 'function run(check: () => boolean | Promise<boolean>) {}',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'possibly async PromiseLike boolean callbacks require prefixes',
 			code: 'function run(check: () => boolean | PromiseLike<boolean>) {}',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'generic possibly async boolean callbacks require prefixes',
 			code: 'type MaybePromise<T> = T | Promise<T>; function run(check: () => MaybePromise<boolean>) {}',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'possibly async callable interface overloads require prefixes',
 			code: 'interface Predicate { (): boolean; (value: string): Promise<boolean>; } declare const check: Predicate;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typeAware({
 			name: 'type-aware conditional possibly async aliases require prefixes',
 			code: 'type Result<T> = T extends boolean ? T | Promise<T> : never; declare const check: () => Result<boolean>;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typeAware({
 			name: 'type-aware conditional possibly async PromiseLike aliases require prefixes',
 			code: 'type Result<T> = T extends boolean ? T | PromiseLike<T> : never; declare const check: () => Result<boolean>;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'possibly async callbacks reject function-valued returns',
@@ -1919,7 +1957,7 @@ test({
 		typescript({
 			name: 'async arrow functions resolve Promise aliases',
 			code: 'type Result = Promise<boolean>; const completed = async (): Result => true;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'async functions resolve non-boolean Promise aliases',
@@ -1947,17 +1985,17 @@ test({
 				'	return true;',
 				'}',
 			].join('\n'),
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'async function references returning booleans require prefixes',
 			code: 'async function isReady(): Promise<boolean> {} const completed = isReady;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'async function variable references returning booleans require prefixes',
 			code: 'const isReady = async (): Promise<boolean> => true; const completed = isReady;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'async function type annotations reject non-booleans',
@@ -1967,7 +2005,7 @@ test({
 		typescript({
 			name: 'generic async Promise aliases require prefixes',
 			code: 'type Result<T> = Promise<T>; async function completed(): Result<boolean> {}',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'generic async Promise aliases reject misleading prefixes',
@@ -1977,32 +2015,32 @@ test({
 		typescript({
 			name: 'generic async PromiseLike aliases require prefixes',
 			code: 'type Result<T> = PromiseLike<T>; async function completed(): Result<boolean> {}',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'nested generic async Promise aliases require prefixes',
 			code: 'type Result<T> = Promise<T>; type Outer<T> = Result<T>; async function completed(): Outer<boolean> {}',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'nested generic callable aliases require prefixes',
 			code: 'interface Inner<T> { (): Promise<T>; } type Outer<T> = Inner<T>; const completed: Outer<boolean> = getReady;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'generic async function aliases require prefixes',
 			code: 'type Predicate<T> = () => Promise<T>; const completed: Predicate<boolean> = getReady;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'generic async callable interfaces require prefixes',
 			code: 'interface Predicate<T> { (): Promise<T>; } const completed: Predicate<boolean> = getReady;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'generic callable type alias heritage requires prefixes',
 			code: 'type Base<T> = {(): Promise<T>}; interface Predicate<T> extends Base<T> {} const completed: Predicate<boolean> = getReady; const isReady: Predicate<string> = getReady;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			name: 'nested generic callable type alias heritage resolves prefixes',
@@ -2012,7 +2050,7 @@ test({
 				'interface Predicate<T> extends Base<T> {}',
 				'const completed: Predicate<boolean> = getReady; const isReady: Predicate<string> = getReady;',
 			].join(' '),
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			name: 'callable interface type alias heritage resolves prefixes',
@@ -2020,7 +2058,7 @@ test({
 				'interface Parent<T> { (): Promise<T>; } type Base<T> = Parent<T>; interface Predicate<T> extends Base<T> {}',
 				'const completed: Predicate<boolean> = getReady; const isReady: Predicate<string> = getReady;',
 			].join(' '),
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			name: 'callable interface aliases preserve inherited signatures',
@@ -2029,12 +2067,12 @@ test({
 				'type Base<T> = Child<T>; interface Predicate<T> extends Base<T> {}',
 				'const completed: Predicate<boolean> = getReady; const isReady: Predicate<string> = getReady;',
 			].join(' '),
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			name: 'generic PromiseLike callable type literals require prefixes',
 			code: 'type Predicate<T> = {(): PromiseLike<T>}; const completed: Predicate<boolean> = getReady;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'generic PromiseLike callable type literals reject misleading prefixes',
@@ -2044,27 +2082,27 @@ test({
 		typescript({
 			name: 'generic callable intersections require prefixes',
 			code: 'type Predicate<T> = (() => Promise<T>) & {description: string}; const completed: Predicate<boolean> = getReady;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'generic synchronous callable intersections classify boolean results',
 			code: 'type Predicate<T> = (() => T) & {description: string}; const completed: Predicate<boolean> = getReady; const isReady: Predicate<string> = getReady;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			name: 'generic PromiseLike callable intersections classify boolean results',
 			code: 'type Predicate<T> = (() => PromiseLike<T>) & {description: string}; const completed: Predicate<boolean> = getReady; const isReady: Predicate<string> = getReady;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			name: 'generic type parameters in callable intersections require prefixes',
 			code: 'type Wrapper<T> = T & {description: string}; type Predicate = Wrapper<() => Promise<boolean>>; declare const completed: Predicate;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'callable intersections with boolean overloads require prefixes',
 			code: 'type Predicate = (() => Promise<boolean>) & ((value: string) => Promise<boolean>); declare const completed: Predicate;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'callable intersections combine return types',
@@ -2079,12 +2117,12 @@ test({
 				'declare const completed: Predicate<boolean>;',
 				'declare const isReady: Predicate<string>;',
 			].join(' '),
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typeAware({
 			name: 'type-aware qualified callable interfaces require prefixes',
 			code: 'namespace Api { export interface Predicate<T> { (): Promise<T>; } } declare const completed: Api.Predicate<boolean>; declare const isReady: Api.Predicate<string>;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typeAware({
 			name: 'type-aware generic async callable interfaces resolve conditional aliases',
@@ -2094,7 +2132,7 @@ test({
 				'declare const completed: Predicate<boolean>;',
 				'declare const isReady: Predicate<string>;',
 			].join(' '),
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typeAware({
 			name: 'type-aware generic callable interface overloads combine return types',
@@ -2123,7 +2161,7 @@ test({
 				'declare const completed: Predicate<boolean>;',
 				'declare const isReady: Predicate<string>;',
 			].join(' '),
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typeAware({
 			name: 'type-aware generic callable interfaces keep nullable PromiseLike booleans unknown and reject non-booleans',
@@ -2138,22 +2176,22 @@ test({
 		typescript({
 			name: 'generic synchronous function aliases require prefixes',
 			code: 'type Predicate<T> = () => T; const completed: Predicate<boolean> = getReady;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'generic synchronous callable interfaces require prefixes',
 			code: 'interface Predicate<T> { (): T; } const completed: Predicate<boolean> = getReady;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'inherited generic callable interfaces require prefixes',
 			code: 'interface Base<T> { (): T; } interface Predicate<T> extends Base<T> {} const completed: Predicate<boolean> = getReady;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'inherited generic async callable interfaces require prefixes',
 			code: 'interface Base<T> { (): Promise<T>; } interface Predicate<T> extends Base<T> {} const completed: Predicate<boolean> = getReady;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'inherited generic async callable interfaces reject misleading prefixes',
@@ -2163,7 +2201,7 @@ test({
 		typescript({
 			name: 'nested generic inherited callable interfaces require prefixes',
 			code: 'type Box<T> = T; interface Base<T> { (): T; } interface Predicate<T> extends Base<Box<T>> {} declare const completed: Predicate<boolean>;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'nested generic inherited callable interfaces reject misleading prefixes',
@@ -2178,12 +2216,12 @@ test({
 				'interface Predicate<T> extends Base<Box<T> | false> {}',
 				'declare const completed: Predicate<boolean>; declare const isReady: Predicate<string>;',
 			].join(' '),
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			name: 'nested generic inherited async callable interfaces require prefixes',
 			code: 'type Box<T> = T; interface Base<T> { (): Promise<T>; } interface Predicate<T> extends Base<Box<T>> {} declare const completed: Predicate<boolean>;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'nested generic inherited async callable interfaces reject misleading prefixes',
@@ -2193,7 +2231,7 @@ test({
 		typescript({
 			name: 'deeply nested generic aliases require prefixes',
 			code: 'type Identity<T> = T; type Compose<T> = Identity<T>; type Outer<T> = Compose<Identity<T>>; declare const completed: Outer<boolean>; declare const isReady: Outer<string>;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			name: 'deeply nested generic async aliases require prefixes',
@@ -2203,7 +2241,7 @@ test({
 				'async function completed(): Result<boolean> {}',
 				'async function isReady(): Result<string> {}',
 			].join(' '),
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			name: 'nested generic defaults use inner type arguments',
@@ -2213,17 +2251,17 @@ test({
 		typescript({
 			name: 'generic value aliases require prefixes',
 			code: 'type Value<T> = T; declare const completed: Value<boolean>;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typeAware({
 			name: 'type-aware generic value aliases require prefixes',
 			code: 'type Value<T> = T; declare const completed: Value<boolean>;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'default generic value aliases require prefixes',
 			code: 'type Value<T = boolean> = T; declare const completed: Value;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'generic value aliases reject misleading prefixes',
@@ -2235,8 +2273,8 @@ test({
 			code: 'type Result<T> = T extends string ? string : boolean; declare const value: Result<boolean>; const completed = value;',
 			output: 'type Result<T> = T extends string ? string : boolean; declare const value: Result<boolean>; const isCompleted = value;',
 			errors: [
-				{messageId: 'consistent-boolean-name', suggestions: 11},
-				{messageId: 'consistent-boolean-name', suggestions: 11},
+				{messageId: 'consistent-boolean-name', suggestions: 12},
+				{messageId: 'consistent-boolean-name', suggestions: 12},
 			],
 		}),
 		typeAware({
@@ -2247,12 +2285,12 @@ test({
 		typeAware({
 			name: 'type-aware conditional generic aliases require direct variable prefixes',
 			code: 'type Result<T> = T extends string ? string : boolean; declare const completed: Result<boolean>;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typeAware({
 			name: 'type-aware nested conditional generic aliases require prefixes',
 			code: 'type Result<T> = T extends string ? string : boolean; type Outer<T> = Result<T>; declare const completed: Outer<boolean>;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typeAware({
 			name: 'type-aware conditional generic aliases require field prefixes',
@@ -2286,12 +2324,12 @@ test({
 		typescript({
 			name: 'generic aliases inside unions require prefixes',
 			code: 'type Value<T> = T; declare const completed: Value<boolean> | false;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'non-generic aliases wrapping generic aliases require prefixes',
 			code: 'type Value<T> = T; type BooleanValue = Value<boolean>; declare const completed: BooleanValue;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'generic fields require prefixes',
@@ -2332,27 +2370,27 @@ test({
 		typescript({
 			name: 'generic function return types require prefixes',
 			code: 'type Value<T> = T; function completed(): Value<boolean> { return true; }',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'async function type references returning booleans require prefixes',
 			code: 'declare const isReady: () => Promise<boolean>; const completed = isReady;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'async aliased function type references returning booleans require prefixes',
 			code: 'type Predicate = () => Promise<boolean>; declare const isReady: Predicate; const completed = isReady;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'async callable interface references returning booleans require prefixes',
 			code: 'interface Predicate { (): Promise<boolean>; } declare const isReady: Predicate; const completed = isReady;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'async function type annotations returning booleans require prefixes',
 			code: 'const completed: () => Promise<boolean> = getReady;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'async field function type annotations returning booleans require prefixes',
@@ -2369,12 +2407,12 @@ test({
 		typescript({
 			name: 'PromiseLike function type references returning booleans require prefixes',
 			code: 'declare const isReady: () => PromiseLike<boolean>; const completed = isReady;',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			name: 'async overloads returning booleans require prefixes',
 			code: 'function completed(): Promise<boolean>; async function completed() {}',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		{
 			name: 'unspecified options keep their defaults',
@@ -2904,15 +2942,15 @@ test({
 	invalid: [
 		typescript({
 			code: 'type Id<T> = T; type Value<T> = Id<Id<T>>; function f(completed: Value<boolean>, isReady: Value<string>) {}',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			code: 'interface First<T> extends Second<T> {} interface Second<T> extends First<T> {(): T} function f(completed: First<boolean>, isReady: First<string>) {}',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 		typescript({
 			code: 'interface First<T> extends Second<T> {} interface Second<T> extends First<T> {(): Promise<T>} function f(completed: First<boolean>, isReady: First<string>) {}',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}, {messageId: 'non-boolean-prefix'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'non-boolean-prefix'}],
 		}),
 	],
 });
@@ -2922,7 +2960,7 @@ test({
 	invalid: [
 		typescript({
 			code: 'interface Predicate {(): boolean} interface Alias extends Predicate {} { interface Predicate extends Alias {} function f(completed: Predicate) {} }',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			code: 'interface Predicate {(): string} interface Alias extends Predicate {} { interface Predicate extends Alias {} function f(isReady: Predicate) {} }',
@@ -2930,7 +2968,7 @@ test({
 		}),
 		typescript({
 			code: 'interface Predicate {(): Promise<boolean>} interface Alias extends Predicate {} { interface Predicate extends Alias {} function f(completed: Predicate) {} }',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 	],
 });
@@ -2940,7 +2978,7 @@ test({
 	invalid: [
 		typescript({
 			code: 'type Predicate = () => boolean; type Alias = Predicate; { type Predicate = Alias; type Derived = Predicate; interface Callable extends Derived {} function f(completed: Callable) {} }',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			code: 'type Predicate = () => string; type Alias = Predicate; { type Predicate = Alias; type Derived = Predicate; interface Callable extends Derived {} function f(isReady: Callable) {} }',
@@ -2948,7 +2986,7 @@ test({
 		}),
 		typescript({
 			code: 'type Predicate = () => Promise<boolean>; type Alias = Predicate; { type Predicate = Alias; type Derived = Predicate; interface Callable extends Derived {} function f(completed: Callable) {} }',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 	],
 });
@@ -2961,23 +2999,23 @@ test({
 	invalid: [
 		typescript({
 			code: 'interface Base {(): boolean} interface First extends Base {} interface Second extends Base {} interface Predicate extends First, Second {} function f(completed: Predicate) {}',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			code: 'type Value = Promise<boolean>; function f(completed: {(): Value & {}; (value: string): Value & {}}) {}',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			code: 'type Value = Promise<boolean>; type Alias = Value; { type Value = Alias; async function completed(): Value & {} { throw new Error(); } }',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			code: 'type Value = Promise<boolean>; type Alias = Value; { type Value = Alias; function f(completed: () => Value & {}) {} }',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			code: 'type Value = Promise<boolean>; type Alias = Value; { type Value = Alias; function f(completed: {(): Value & {}}) {} }',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 	],
 });
@@ -2987,11 +3025,11 @@ test({
 	invalid: [
 		typescript({
 			code: 'type Id<T> = T; async function completed(): Id<Id<Promise<boolean>>> & {} { throw new Error(); }',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 		typescript({
 			code: 'type Id<T> = T; function f(completed: () => Id<Id<Promise<boolean>>> & {}) {}',
-			errors: [{messageId: 'consistent-boolean-name', suggestions: 11}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
 		}),
 	],
 });
