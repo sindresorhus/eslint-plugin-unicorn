@@ -6,12 +6,12 @@ import {Linter} from 'eslint';
 import unicorn from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 
-const filename = path.resolve('prefer-ternary-typescript.ts');
-
-function createProgram(code) {
+function createProgram(code, filename = path.resolve('prefer-ternary-typescript.ts')) {
 	const options = {
 		strict: true,
 		noEmit: true,
+		allowJs: true,
+		checkJs: true,
 		target: typescript.ScriptTarget.ESNext,
 		module: typescript.ModuleKind.NodeNext,
 	};
@@ -25,13 +25,15 @@ function createProgram(code) {
 }
 
 function getDiagnostics(program) {
+	const [filename] = program.getRootFileNames();
 	return program.getSemanticDiagnostics(program.getSourceFile(filename)).map(diagnostic => typescript.flattenDiagnosticMessageText(diagnostic.messageText, '\n'));
 }
 
 function getMessages(program, {typeAware = true} = {}) {
+	const [filename] = program.getRootFileNames();
 	const linter = new Linter();
 	return linter.verify(program.getSourceFile(filename).text, {
-		files: ['**/*.ts'],
+		files: ['**/*.{js,ts}'],
 		languageOptions: {parser: typescriptEslintParser, parserOptions: {programs: typeAware ? [program] : undefined}},
 		plugins: {unicorn},
 		rules: {'unicorn/prefer-ternary': 'error'},
@@ -204,4 +206,21 @@ test('retains inferred declaration suggestions without type information', t => {
 	const {fix} = messages[0].suggestions[0];
 	const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
 	t.assert.strictEqual(output, 'function update(selected: boolean) { const value = selected ? 2 : 1; return value; }');
+});
+
+test('skips checked JavaScript declaration suggestions only with type information', t => {
+	const filename = path.resolve('prefer-ternary-javascript.js');
+	const code = 'const selected = Math.random() > 0.5; let value = 1; if (selected) { value = 2; } value;';
+	const program = createProgram(code, filename);
+	t.assert.deepStrictEqual(getDiagnostics(program), []);
+	t.assert.deepStrictEqual(getMessages(program), []);
+
+	const messages = getMessages(program, {typeAware: false});
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].fix, undefined);
+	t.assert.strictEqual(messages[0].suggestions.length, 1);
+	const {fix} = messages[0].suggestions[0];
+	const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	t.assert.strictEqual(output, 'const selected = Math.random() > 0.5; const value = selected ? 2 : 1; value;');
+	t.assert.deepStrictEqual(getDiagnostics(createProgram(output, filename)), []);
 });
