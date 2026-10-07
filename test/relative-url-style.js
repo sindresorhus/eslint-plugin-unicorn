@@ -271,6 +271,17 @@ for (const language of markdownLanguages) {
 				options: ['always'],
 				errors: [{messageId: 'always'}, {messageId: 'always'}],
 			},
+			{
+				code: '<div>\n<a href="./fake\n\nmasked markdown\n\n<!-- " --><img src="./real">',
+				output: '<div>\n<a href="./fake\n\nmasked markdown\n\n<!-- " --><img src="real">',
+				errors: [{messageId: 'never'}],
+			},
+			{
+				code: '<div>\n<a href="fake\n\nmasked markdown\n\n<!-- " --><img src="real">',
+				output: '<div>\n<a href="fake\n\nmasked markdown\n\n<!-- " --><img src="./real">',
+				options: ['always'],
+				errors: [{messageId: 'always'}],
+			},
 		].map(testCase => ({...testCase, language: language.language, plugins: language.plugins})),
 	});
 
@@ -316,8 +327,8 @@ for (const language of markdownLanguages) {
 			{code: '<link imagesrcset="./small.png 320w, ./large.png 640w">'},
 			{code: '<img srcset="data:image/png;base64,abc 1x, ./large.png 2x">'},
 			{code: '<img srcset="./,one.png 1x, ./two.png 2x">'},
-			{code: '<script>\n\n<img src="./fake.png">\n\n</script>\n<img src="./real.png">'},
-			{code: '<textarea>\n\n<img src="./fake.png">\n\n</textarea>\n<img src="./real.png">'},
+			{code: '<div><script>\n\n<img src="./fake.png">\n\n</script>\n<img src="./real.png">\n</div>'},
+			{code: '<div><textarea>\n\n<img src="./fake.png">\n\n</textarea>\n<img src="./real.png">\n</div>'},
 			{code: '<template><img src="./image.png"></template>'},
 			{code: '<img src="./first.png" src="./second.png">'},
 			{code: '🦄 <img src="./image.png">'},

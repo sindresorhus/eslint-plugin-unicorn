@@ -1225,131 +1225,151 @@ Output:
 
 `;
 
-exports[`relative-url-style > invalid(23): <script>\n\n<img src=\"./fake.png\">\n\n</script>\n<img src=\"./real.png\"> 1`] = `
+exports[`relative-url-style > invalid(23): <div><script>\n\n<img src=\"./fake.png\">\n\n</script>\n<img src=\"./real.png\">\n</div> 1`] = `
 
-  1 | <script>
+  1 | <div><script>
   2 |
   3 | <img src="./fake.png">
   4 |
   5 | </script>
   6 | <img src="./real.png">
+  7 | </div>
 
 `;
 
-exports[`relative-url-style > invalid(23): <script>\n\n<img src=\"./fake.png\">\n\n</script>\n<img src=\"./real.png\"> 2`] = `
+exports[`relative-url-style > invalid(23): <div><script>\n\n<img src=\"./fake.png\">\n\n</script>\n<img src=\"./real.png\">\n</div> 2`] = `
 
 Message:
-  1 | <script>
+  1 | <div><script>
   2 |
   3 | <img src="./fake.png">
   4 |
-  5 | </script>
+> 5 | </script>
+    | ^^^^^^^^^
 > 6 | <img src="./real.png">
-    | ^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+    | ^^^^^^^^^^^^^^^^^^^^^^
+> 7 | </div>
+    | ^^^^^^ Remove the \`./\` prefix from the relative URL.
 
 Output:
-  1 | <script>
+  1 | <div><script>
   2 |
   3 | <img src="./fake.png">
   4 |
   5 | </script>
   6 | <img src="real.png">
+  7 | </div>
 
 `;
 
-exports[`relative-url-style > invalid(23): <script>\n\n<img src=\"./fake.png\">\n\n</script>\n<img src=\"./real.png\"> 3`] = `
+exports[`relative-url-style > invalid(23): <div><script>\n\n<img src=\"./fake.png\">\n\n</script>\n<img src=\"./real.png\">\n</div> 3`] = `
 
-  1 | <script>
+  1 | <div><script>
   2 |
   3 | <img src="./fake.png">
   4 |
   5 | </script>
   6 | <img src="./real.png">
+  7 | </div>
 
 `;
 
-exports[`relative-url-style > invalid(23): <script>\n\n<img src=\"./fake.png\">\n\n</script>\n<img src=\"./real.png\"> 4`] = `
+exports[`relative-url-style > invalid(23): <div><script>\n\n<img src=\"./fake.png\">\n\n</script>\n<img src=\"./real.png\">\n</div> 4`] = `
 
 Message:
-  1 | <script>
+  1 | <div><script>
   2 |
   3 | <img src="./fake.png">
   4 |
-  5 | </script>
+> 5 | </script>
+    | ^^^^^^^^^
 > 6 | <img src="./real.png">
-    | ^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+    | ^^^^^^^^^^^^^^^^^^^^^^
+> 7 | </div>
+    | ^^^^^^ Remove the \`./\` prefix from the relative URL.
 
 Output:
-  1 | <script>
+  1 | <div><script>
   2 |
   3 | <img src="./fake.png">
   4 |
   5 | </script>
   6 | <img src="real.png">
+  7 | </div>
 
 `;
 
-exports[`relative-url-style > invalid(24): <textarea>\n\n<img src=\"./fake.png\">\n\n</textarea>\n<img src=\"./real.png\"> 1`] = `
+exports[`relative-url-style > invalid(24): <div><textarea>\n\n<img src=\"./fake.png\">\n\n</textarea>\n<img src=\"./real.png\">\n</div> 1`] = `
 
-  1 | <textarea>
+  1 | <div><textarea>
   2 |
   3 | <img src="./fake.png">
   4 |
   5 | </textarea>
   6 | <img src="./real.png">
+  7 | </div>
 
 `;
 
-exports[`relative-url-style > invalid(24): <textarea>\n\n<img src=\"./fake.png\">\n\n</textarea>\n<img src=\"./real.png\"> 2`] = `
+exports[`relative-url-style > invalid(24): <div><textarea>\n\n<img src=\"./fake.png\">\n\n</textarea>\n<img src=\"./real.png\">\n</div> 2`] = `
 
 Message:
-  1 | <textarea>
+  1 | <div><textarea>
   2 |
   3 | <img src="./fake.png">
   4 |
-  5 | </textarea>
+> 5 | </textarea>
+    | ^^^^^^^^^^^
 > 6 | <img src="./real.png">
-    | ^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+    | ^^^^^^^^^^^^^^^^^^^^^^
+> 7 | </div>
+    | ^^^^^^ Remove the \`./\` prefix from the relative URL.
 
 Output:
-  1 | <textarea>
+  1 | <div><textarea>
   2 |
   3 | <img src="./fake.png">
   4 |
   5 | </textarea>
   6 | <img src="real.png">
+  7 | </div>
 
 `;
 
-exports[`relative-url-style > invalid(24): <textarea>\n\n<img src=\"./fake.png\">\n\n</textarea>\n<img src=\"./real.png\"> 3`] = `
+exports[`relative-url-style > invalid(24): <div><textarea>\n\n<img src=\"./fake.png\">\n\n</textarea>\n<img src=\"./real.png\">\n</div> 3`] = `
 
-  1 | <textarea>
+  1 | <div><textarea>
   2 |
   3 | <img src="./fake.png">
   4 |
   5 | </textarea>
   6 | <img src="./real.png">
+  7 | </div>
 
 `;
 
-exports[`relative-url-style > invalid(24): <textarea>\n\n<img src=\"./fake.png\">\n\n</textarea>\n<img src=\"./real.png\"> 4`] = `
+exports[`relative-url-style > invalid(24): <div><textarea>\n\n<img src=\"./fake.png\">\n\n</textarea>\n<img src=\"./real.png\">\n</div> 4`] = `
 
 Message:
-  1 | <textarea>
+  1 | <div><textarea>
   2 |
   3 | <img src="./fake.png">
   4 |
-  5 | </textarea>
+> 5 | </textarea>
+    | ^^^^^^^^^^^
 > 6 | <img src="./real.png">
-    | ^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+    | ^^^^^^^^^^^^^^^^^^^^^^
+> 7 | </div>
+    | ^^^^^^ Remove the \`./\` prefix from the relative URL.
 
 Output:
-  1 | <textarea>
+  1 | <div><textarea>
   2 |
   3 | <img src="./fake.png">
   4 |
   5 | </textarea>
   6 | <img src="real.png">
+  7 | </div>
 
 `;
 
