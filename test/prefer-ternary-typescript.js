@@ -7,6 +7,7 @@ import unicorn from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 
 function createProgram(code, filename = path.resolve('prefer-ternary-typescript.ts')) {
+	filename = filename.replaceAll('\\', '/');
 	const options = {
 		strict: true,
 		noEmit: true,
@@ -39,6 +40,14 @@ function getMessages(program, {typeAware = true} = {}) {
 		rules: {'unicorn/prefer-ternary': 'error'},
 	}, {filename});
 }
+
+test('loads virtual source files with Windows path separators', t => {
+	const filename = path.win32.resolve('C:/prefer-ternary-typescript.ts');
+	const code = 'const value: number = "invalid";';
+	const program = createProgram(code, filename);
+	t.assert.strictEqual(program.getSourceFile(filename)?.text, code);
+	t.assert.deepStrictEqual(getDiagnostics(program), ['Type \'string\' is not assignable to type \'number\'.']);
+});
 
 for (const [pattern, first, second] of [
 	['[object.handler]', '[value => value.toFixed()]', '[value => value.toUpperCase()]'],
