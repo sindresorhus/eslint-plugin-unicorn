@@ -2,7 +2,7 @@ import {ident} from '@eslint/css-tree';
 import {decodeHTMLAttribute} from 'entities';
 import {parse, preprocess, postprocess} from 'micromark';
 import {parseFragment} from 'parse5';
-import {isNewExpression, isStringLiteral} from './ast/index.js';
+import {isMethodCall, isNewExpression, isStringLiteral} from './ast/index.js';
 import {getStaticValueIfNoSideEffects, isTypeScriptExpressionWrapper} from './utils/index.js';
 import getSrcsetCandidates from './shared/get-srcset-candidates.js';
 
@@ -310,8 +310,18 @@ const create = context => {
 		return problems;
 	});
 
-	context.on('NewExpression', node => {
-		if (!isNewExpression(node, {name: 'URL', argumentsLength: 2})) {
+	context.on(['NewExpression', 'CallExpression'], node => {
+		if (
+			!isNewExpression(node, {name: 'URL', argumentsLength: 2})
+			&& !isMethodCall(node, {
+				object: 'URL',
+				methods: ['canParse', 'parse'],
+				argumentsLength: 2,
+				computed: false,
+				optionalCall: false,
+				optionalMember: false,
+			})
+		) {
 			return;
 		}
 

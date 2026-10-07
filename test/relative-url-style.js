@@ -1,5 +1,8 @@
 /* eslint-disable no-template-curly-in-string */
+import nodeTest from 'node:test';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
+import unicorn from '../index.js';
 import {getTester, languages, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
@@ -222,6 +225,119 @@ test({
 });
 
 const nonRelativeUrls = ['https://example.com/image.png', '//example.com/image.png', '/image.png', '#section', '?query', 'data:image/png;base64,abc', '../image.png', './', './?query', './#section', './https://example.com/image.png'];
+
+for (const method of ['canParse', 'parse']) {
+	for (const style of ['never', 'always']) {
+		const prefix = style === 'never' ? './' : '';
+		const replacementPrefix = style === 'never' ? '' : './';
+		test({
+			valid: [
+				`URL.${method}("${prefix}image.png")`,
+				`URL.${method}("${prefix}image.png", base, extra)`,
+				`URL.${method}(...["${prefix}image.png"], base)`,
+				`URL.${method}("${prefix}image.png", ...[base])`,
+				`URL["${method}"]("${prefix}image.png", base)`,
+				`URL?.${method}("${prefix}image.png", base)`,
+				`URL.${method}?.("${prefix}image.png", base)`,
+				`Other.${method}("${prefix}image.png", base)`,
+				`globalThis.URL.${method}("${prefix}image.png", base)`,
+				`new URL.${method}("${prefix}image.png", base)`,
+				`URL.${method}(image, base)`,
+				`URL.${method}(42, base)`,
+				`URL.${method}("${prefix}C|/image.png", import.meta.url)`,
+				`URL.${method}("${prefix}C|/image.png", "file:///a/b.html")`,
+				`URL.${method}("${prefix}?query", base)`,
+				...(style === 'always' ? [`URL.${method}(\`\${image}\`, base)`] : []),
+				{
+					code: `URL.${method}("${prefix}image.png" satisfies string, base)`,
+					languageOptions: {parser: parsers.typescript},
+				},
+			].map(testCase => ({...(typeof testCase === 'string' ? {code: testCase} : testCase), options: [style]})),
+			invalid: [
+				{
+					code: `URL.${method}("${prefix}image.png", base)`,
+					output: `URL.${method}("${replacementPrefix}image.png", base)`,
+				},
+				{
+					code: `URL.${method}(\`${prefix}image.png\`, base)`,
+					output: `URL.${method}(\`${replacementPrefix}image.png\`, base)`,
+				},
+				{
+					code: String.raw`URL.${method}("${prefix}f\u006Fo.png", base)`,
+					output: String.raw`URL.${method}("${replacementPrefix}f\u006Fo.png", base)`,
+				},
+				{
+					code: `URL.${method}("${prefix}?query", "https://example.com/a/b/")`,
+					output: `URL.${method}("${replacementPrefix}?query", "https://example.com/a/b/")`,
+				},
+				{
+					code: `URL.${method}("${prefix}C|/image.png", "https://example.com/a/b.html")`,
+					output: `URL.${method}("${replacementPrefix}C|/image.png", "https://example.com/a/b.html")`,
+				},
+				{
+					code: `URL.${method}(("${prefix}image.png" /* keep */ as string)!, base)`,
+					output: `URL.${method}(("${replacementPrefix}image.png" /* keep */ as string)!, base)`,
+					languageOptions: {parser: parsers.typescript},
+				},
+			].map(testCase => ({...testCase, options: [style], errors: [{messageId: style}]})),
+		});
+	}
+
+	test({
+		valid: [],
+		invalid: [{
+			code: `URL.${method}(\`./\${image}\`, base)`,
+			errors: [{messageId: 'never', suggestions: [{messageId: 'remove', output: `URL.${method}(\`\${image}\`, base)`}]}],
+		}],
+	});
+}
+
+for (const style of ['never', 'always']) {
+	nodeTest(`normalizes URLs after prefer-url-can-parse fixes: ${style}`, t => {
+		const prefix = style === 'never' ? './' : '';
+		const replacementPrefix = style === 'never' ? '' : './';
+		const code = `function validate(base) { try { new URL("${prefix}image.png", base); return true; } catch { return false; } }`;
+		const output = `function validate(base) { return URL.canParse("${replacementPrefix}image.png", base); }`;
+		const rules = [
+			['unicorn/relative-url-style', ['error', style]],
+			['unicorn/prefer-url-can-parse', 'error'],
+		];
+		const linter = new Linter();
+		for (const entries of [rules, rules.toReversed()]) {
+			const config = {plugins: {unicorn}, languageOptions: {globals: {URL: 'readonly'}}, rules: Object.fromEntries(entries)};
+			const result = linter.verifyAndFix(code, config);
+			t.assert.strictEqual(result.output, output);
+			t.assert.deepStrictEqual(result.messages, []);
+			t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
+		}
+	});
+}
+
+for (const style of ['never', 'always']) {
+	const prefix = style === 'never' ? './' : '';
+	test({
+		valid: [
+			{
+				code: String.raw`@import "${prefix}http\3A example.com"; a { background: url("${prefix}\3F query"); mask-image: image-set("${prefix}\23 fragment" 1x); }`,
+				language: languages.css.language,
+				plugins: languages.css.plugins,
+			},
+			...[languages.markdown, {...languages.markdown, language: 'markdown/gfm'}].map(language => ({
+				code: [
+					`[entity](${prefix}http&colon;example.com)`,
+					`![entity](${prefix}&#63;query)`,
+					String.raw`[escaped](${prefix}http\:example.com)`,
+					String.raw`![escaped](${prefix}\#fragment)`,
+					'',
+					`[reference]: ${prefix}http&colon;example.com`,
+				].join('\n'),
+				language: language.language,
+				plugins: language.plugins,
+			})),
+		].map(testCase => ({...testCase, options: [style]})),
+		invalid: [],
+	});
+}
 
 for (const style of ['never', 'always']) {
 	const prefix = style === 'never' ? './' : '';

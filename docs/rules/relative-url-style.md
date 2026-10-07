@@ -9,9 +9,9 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Use a consistent `./` prefix for relative URLs in [`new URL()`](https://developer.mozilla.org/en-US/docs/Web/API/URL/URL), CSS `url()`, `image-set()`, and `@import`, HTML URL attributes (`href`, `src`, `poster`, `srcset`, `imagesrcset`, `action`, `formaction`, `cite`), and Markdown links, images, and definitions, including HTML embedded in Markdown. The rule changes a prefix only when both forms resolve to the same URL.
+Use a consistent `./` prefix for relative URLs in [`new URL()`](https://developer.mozilla.org/en-US/docs/Web/API/URL/URL), `URL.canParse()`, `URL.parse()`, CSS `url()`, `image-set()`, and `@import`, HTML URL attributes (`href`, `src`, `poster`, `srcset`, `imagesrcset`, `action`, `formaction`, `cite`), and Markdown links, images, and definitions, including HTML embedded in Markdown. Autofixes change a prefix only when both forms resolve to the same URL.
 
-`new URL()` supports string literals and template literals without substitutions, including TypeScript type assertions and non-null assertions. Expressions using `satisfies` are left unchanged. Under `'never'`, templates with substitutions and a literal `./` prefix receive an editor suggestion instead of an autofix, since removing the prefix can change URL resolution.
+JavaScript URL calls are checked only when they have two arguments. String literals and template literals without substitutions are supported, including TypeScript type assertions and non-null assertions. Expressions using `satisfies` are left unchanged. Under `'never'`, templates with substitutions and a literal `./` prefix receive an editor suggestion instead of an autofix, since removing the prefix can change URL resolution.
 
 Native JSX/TSX elements support quoted URL attributes, using the JSX names `srcSet`, `imageSrcSet`, and `formAction`. Scalar attributes also support direct string literals and templates without substitutions inside braces. Other expressions, including TypeScript wrappers and expression-valued `srcSet`/`imageSrcSet`, and custom components are left unchanged.
 
@@ -34,6 +34,14 @@ const url = new URL('./foo', base);
 
 // ✅
 const url = new URL('foo', base);
+```
+
+```js
+// ❌
+const isValid = URL.canParse('./foo', base);
+
+// ✅
+const isValid = URL.canParse('foo', base);
 ```
 
 ```markdown
@@ -76,9 +84,9 @@ Type: `string`\
 Default: `'never'`
 
 - `'never'` (default)
-  - Never use a `./` prefix.
+  - Remove a `./` prefix when URL resolution is unchanged.
 - `'always'`
-  - Always add a `./` prefix to the relative URL when possible.
+  - Add a `./` prefix when URL resolution is unchanged.
 
 The `'always'` style also checks hidden paths such as `.env` and `.well-known/security.txt`, while leaving current-directory and parent-directory references unchanged.
 
