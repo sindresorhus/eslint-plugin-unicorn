@@ -174,6 +174,17 @@ test({
 	],
 });
 
+test({
+	valid: [],
+	invalid: ['https://example.com/image.png', '?query'].map(value => ({
+		code: `new URL(\`./\${"${value}"}\`, base)`,
+		errors: [{
+			messageId: 'never',
+			suggestions: [{messageId: 'remove', output: `new URL(\`\${"${value}"}\`, base)`}],
+		}],
+	})),
+});
+
 const hiddenPathMarkupCases = [
 	{
 		language: languages.css,
@@ -211,6 +222,39 @@ test({
 });
 
 const nonRelativeUrls = ['https://example.com/image.png', '//example.com/image.png', '/image.png', '#section', '?query', 'data:image/png;base64,abc', '../image.png', './', './?query', './#section', './https://example.com/image.png'];
+
+for (const style of ['never', 'always']) {
+	const prefix = style === 'never' ? './' : '';
+	const replacementPrefix = style === 'never' ? '' : './';
+	test({
+		valid: [
+			...['base', 'import.meta.url', '"file:///D:/project/index.js"'].flatMap(base => [
+				{code: `new URL("${prefix}C|/asset", ${base})`},
+				{code: `new URL(\`${prefix}C|/asset\`, ${base})`},
+			]),
+			{code: `a { background: url("${prefix}C|/asset") }`, language: languages.css},
+			{code: `<img src="${prefix}C|/asset" srcset="${prefix}C|/small.png 1x">`, language: languages.html},
+			...[languages.markdown, {...languages.markdown, language: 'markdown/gfm'}].map(language => ({
+				code: `[link](${prefix}C|/asset)\n![image](${prefix}C|/image.png)\n\n<img src="${prefix}C|/asset">`,
+				language,
+			})),
+		].map(({language, ...testCase}) => ({
+			...testCase,
+			...(language && {language: language.language, plugins: language.plugins}),
+			options: [style],
+		})),
+		invalid: [
+			{
+				code: `new URL("${prefix}C|/asset", "https://example.com/a/b.html")`,
+				output: `new URL("${replacementPrefix}C|/asset", "https://example.com/a/b.html")`,
+			},
+			{
+				code: `new URL("${prefix}image.png", "file:///D:/project/index.js")`,
+				output: `new URL("${replacementPrefix}image.png", "file:///D:/project/index.js")`,
+			},
+		].map(testCase => ({...testCase, options: [style], errors: [{messageId: style}]})),
+	});
+}
 
 test.snapshot({
 	valid: [
@@ -622,7 +666,7 @@ for (const parser of [undefined, parsers.typescript]) {
 			'<svg:image src="./image.png" />;',
 			'<img xlink:href="./image.svg" SRC="./image.png" srcset="./small.png 1x" imagesrcset="./small.png 1x" />;',
 			'<button formaction="./submit" />;',
-			'<img src={"./image.png"} srcSet={`./${image} 1x`} />;',
+			'<img srcSet={"./small.png 1x"} imageSrcSet={`./large.png 2x`} />;',
 			'<img src={image} srcSet={images} />;',
 			'<img src />;',
 			'<img src="./&#63;query" />;',
@@ -683,4 +727,78 @@ for (const parser of [undefined, parsers.typescript]) {
 			},
 		].map(testCase => ({...jsxOptions, ...testCase})),
 	});
+
+	for (const style of ['never', 'always']) {
+		const prefix = style === 'never' ? './' : '';
+		const replacementPrefix = style === 'never' ? '' : './';
+		test({
+			valid: [
+				`<img src="${prefix}C|/asset" />;`,
+				`<img src={"${prefix}C|/asset"} />;`,
+				`<img src={\`${prefix}C|/asset\`} />;`,
+				`<Component src={"${prefix}image.png"} />;`,
+				`<components.Image src={"${prefix}image.png"} />;`,
+				`<custom-image src={"${prefix}image.png"} />;`,
+				`<svg:image src={"${prefix}image.png"} />;`,
+				`<img srcSet={"${prefix}small.png 1x"} imageSrcSet={\`${prefix}large.png 2x\`} />;`,
+				`<img src={\`${prefix}\${image}\`} />;`,
+				`<img src={String.raw\`${prefix}image.png\`} />;`,
+				'<img src={image} />;',
+				'<img src={42} />;',
+				'<img src={null} />;',
+				...['https://example.com/image.png', '/image.png', '../image.png', '?query', '#section', ''].map(url => `<img src={"${url}"} />;`),
+				...(parser
+					? [
+						`<img src={"${prefix}image.png" as string} />;`,
+						`<img src={"${prefix}image.png"!} />;`,
+						`<img src={"${prefix}image.png" satisfies string} />;`,
+					]
+					: []),
+				...(style === 'never'
+					? [
+						String.raw`<img src={"./\u003Fquery"} />;`,
+						String.raw`<img src={"\u002E/image.png"} />;`,
+						'<img src={"./?query"} />;',
+						'<img src={"./#section"} />;',
+						'<img src={"./"} />;',
+					]
+					: [String.raw`<img src={"\u003Fquery"} />;`]),
+			].map(code => ({...jsxOptions, code, options: [style]})),
+			invalid: [
+				...[
+					{tag: 'a', name: 'href'},
+					{tag: 'img', name: 'src'},
+					{tag: 'video', name: 'poster'},
+					{tag: 'form', name: 'action'},
+					{tag: 'button', name: 'formAction'},
+					{tag: 'q', name: 'cite'},
+				].map(({tag, name}) => ({
+					code: `<${tag} ${name}={"${prefix}image.png"} />;`,
+					output: `<${tag} ${name}={"${replacementPrefix}image.png"} />;`,
+				})),
+				{
+					code: `<img src={\`${prefix}image.png\`} />;`,
+					output: `<img src={\`${replacementPrefix}image.png\`} />;`,
+				},
+				{
+					code: `<img src={/* keep */ ("${prefix}image.png") /* also keep */} />;`,
+					output: `<img src={/* keep */ ("${replacementPrefix}image.png") /* also keep */} />;`,
+				},
+				{
+					code: `<img src={"${prefix}&quest;query"} />;`,
+					output: `<img src={"${replacementPrefix}&quest;query"} />;`,
+				},
+				{
+					code: String.raw`<img src={"${prefix}f\u006Fo.png"} />;`,
+					output: String.raw`<img src={"${replacementPrefix}f\u006Fo.png"} />;`,
+				},
+				{
+					code: `<>🦄\r\n<img src={"${prefix}image.png"} />\r\n</>;`,
+					output: `<>🦄\r\n<img src={"${replacementPrefix}image.png"} />\r\n</>;`,
+				},
+			].map(testCase => ({
+				...jsxOptions, ...testCase, options: [style], errors: [{messageId: style}],
+			})),
+		});
+	}
 }

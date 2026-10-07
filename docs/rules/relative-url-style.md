@@ -11,9 +11,9 @@
 
 Use a consistent `./` prefix for relative URLs in [`new URL()`](https://developer.mozilla.org/en-US/docs/Web/API/URL/URL), CSS `url()`, `image-set()`, and `@import`, HTML URL attributes (`href`, `src`, `poster`, `srcset`, `imagesrcset`, `action`, `formaction`, `cite`), and Markdown links, images, and definitions, including HTML embedded in Markdown. The rule changes a prefix only when both forms resolve to the same URL.
 
-`new URL()` supports string literals and template literals without substitutions, including TypeScript type assertions and non-null assertions. Expressions using `satisfies` are left unchanged.
+`new URL()` supports string literals and template literals without substitutions, including TypeScript type assertions and non-null assertions. Expressions using `satisfies` are left unchanged. Under `'never'`, templates with substitutions and a literal `./` prefix receive an editor suggestion instead of an autofix, since removing the prefix can change URL resolution.
 
-Quoted URL attributes on native JSX/TSX elements are also checked, using the JSX names `srcSet`, `imageSrcSet`, and `formAction`. Custom components and dynamic attribute values are left unchanged.
+Native JSX/TSX elements support quoted URL attributes, using the JSX names `srcSet`, `imageSrcSet`, and `formAction`. Scalar attributes also support direct string literals and templates without substitutions inside braces. Other expressions, including TypeScript wrappers and expression-valued `srcSet`/`imageSrcSet`, and custom components are left unchanged.
 
 In CSS at-rule preludes, only `@import` targets are checked. Fixes preserve `srcset` descriptors and separators; a prefix before a comma is retained to avoid changing candidate boundaries.
 
@@ -60,6 +60,14 @@ const url = new URL('foo', base);
 
 // ✅
 <form action="submit"><button formAction="preview">Preview</button></form>;
+```
+
+```jsx
+// ❌
+<img src={'./image.png'} />;
+
+// ✅
+<img src={'image.png'} />;
 ```
 
 ## Options

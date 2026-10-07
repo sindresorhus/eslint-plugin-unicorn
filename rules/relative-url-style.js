@@ -20,6 +20,7 @@ const imageSetFunctions = new Set(['image-set', '-webkit-image-set']);
 const TEST_URL_BASES = [
 	'https://example.com/a/b/',
 	'https://example.com/a/b.html',
+	'file:///a/b.html',
 ];
 const isSafeToAddDotSlashToUrl = (url, base) => {
 	try {
@@ -191,8 +192,24 @@ const create = context => {
 			|| !/^[a-z][\dA-Za-z]*$/u.test(tag.name)
 			|| node.name.type !== 'JSXIdentifier'
 			|| !['href', 'src', 'poster', 'srcSet', 'imageSrcSet', 'action', 'formAction', 'cite'].includes(node.name.name)
-			|| !isStringLiteral(node.value)
 		) {
+			return;
+		}
+
+		if (node.value?.type === 'JSXExpressionContainer') {
+			const {expression} = node.value;
+			if (
+				['srcSet', 'imageSrcSet'].includes(node.name.name)
+				|| (!isStringLiteral(expression) && !(expression.type === 'TemplateLiteral' && expression.expressions.length === 0))
+			) {
+				return;
+			}
+
+			const url = expression.type === 'TemplateLiteral' ? expression.quasis[0].value.cooked : expression.value;
+			return getUrlProblem(expression, url, sourceCode.getRange(expression)[0] + 1);
+		}
+
+		if (!isStringLiteral(node.value)) {
 			return;
 		}
 
