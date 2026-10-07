@@ -31,7 +31,8 @@ for (const [first, second] of [
 				run();
 				handler.name;
 			`;
-			const fixed = new Linter().verifyAndFix(code, config);
+			const linter = new Linter();
+			const fixed = linter.verifyAndFix(code, config);
 			t.assert.deepStrictEqual(fixed.messages, []);
 
 			for (const selected of [true, false]) {
@@ -50,7 +51,8 @@ for (const [first, second] of [
 
 	test(`preserves inferred names in declarations initialized with ${first} and reassigned to ${second}`, t => {
 		const code = `const other = () => 3; let handler = (${first}); if (selected) { handler = (${second}); } handler.name;`;
-		const messages = new Linter().verify(code, config);
+		const linter = new Linter();
+		const messages = linter.verify(code, config);
 		const fix = messages[0]?.suggestions?.[0]?.fix;
 		const output = fix ? code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]) : code;
 
@@ -72,7 +74,8 @@ for (const [name, code, expected] of [
 	['object destructuring defaults', 'let handler; if (selected) { ({handler = () => 1} = {}); } else { ({handler = () => 1} = {handler: undefined}); } handler.name;', 'handler'],
 ]) {
 	test(`still combines ${name} while preserving function names`, t => {
-		const fixed = new Linter().verifyAndFix(code, config);
+		const linter = new Linter();
+		const fixed = linter.verifyAndFix(code, config);
 		t.assert.deepStrictEqual(fixed.messages, []);
 		t.assert.strictEqual(fixed.fixed, true);
 		for (const selected of [true, false]) {
