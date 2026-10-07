@@ -9,22 +9,26 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Use a consistent `./` prefix for relative URLs in [`new URL()`](https://developer.mozilla.org/en-US/docs/Web/API/URL/URL), `URL.canParse()`, `URL.parse()`, CSS `url()`, `image-set()`, and `@import`, HTML URL attributes (`href`, `src`, `poster`, `srcset`, `imagesrcset`, `action`, `formaction`, `cite`), and Markdown links, images, and definitions, including HTML embedded in Markdown. Autofixes change a prefix only when both forms resolve to the same URL.
+Enforce whether relative URLs use a `./` prefix in:
 
-JavaScript URL calls are checked only when they have two arguments. String literals and template literals without substitutions are supported, including TypeScript type assertions and non-null assertions. Expressions using `satisfies` are left unchanged. Under `'never'`, templates with substitutions and a literal `./` prefix receive an editor suggestion instead of an autofix, since removing the prefix can change URL resolution.
+- JavaScript: `new URL()`, `URL.canParse()`, and `URL.parse()` with two arguments.
+- CSS: `url()`, `image-set()`, and `@import` targets.
+- HTML and native JSX/TSX elements: `href`, `src`, `poster`, `srcset`, `imagesrcset`, `action`, `formaction`, and `cite` attributes. JSX uses `srcSet`, `imageSrcSet`, and `formAction`.
+- Markdown: Links, images, reference definitions, and embedded HTML.
 
-Native JSX/TSX elements support quoted URL attributes, using the JSX names `srcSet`, `imageSrcSet`, and `formAction`. Scalar attributes also support direct string literals and templates without substitutions inside braces. Other expressions, including TypeScript wrappers and expression-valued `srcSet`/`imageSrcSet`, and custom components are left unchanged.
+Autofixes preserve URL resolution. Under `'never'`, JavaScript templates with substitutions and a literal `./` prefix receive an editor suggestion, which can change URL resolution.
 
-In CSS at-rule preludes, only `@import` targets are checked. Fixes preserve `srcset` descriptors and separators; a prefix before a comma is retained to avoid changing candidate boundaries.
+JavaScript supports string literals and templates without substitutions, including type assertions and non-null assertions, but skips `satisfies`. JSX supports quoted attributes and direct strings or templates without substitutions inside braces, except for `srcSet` and `imageSrcSet` expressions. Custom components and other expressions are skipped.
 
-Markdown images support formatted descriptions; destinations inside those descriptions are left unchanged.
+Markdown image descriptions can contain formatting. URLs inside descriptions are left unchanged.
 
-Some constructs are left unchanged:
+The rule skips ambiguous syntax:
 
-- Escaped `./` prefixes, templated HTML/CSS URLs, entity-containing `srcset` values, and JSX strings whose entity decoding differs from HTML.
+- Escaped `./` prefixes, templated HTML/CSS URLs, and JSX strings whose entity decoding differs from HTML.
+- `srcset` values containing entities and candidates starting with `./,`.
 - Complex Markdown reference-definition labels.
-- Markdown images that cannot be parsed independently, contain footnote-reference syntax (`[^`), or contain `$` with Markdown's `math` option enabled.
-- Embedded HTML in documents where Markdown container processing changes any HTML fragment's source.
+- Markdown images containing footnote syntax, math delimiters with math enabled, or syntax requiring surrounding Markdown to parse.
+- Embedded HTML when Markdown container processing changes an HTML fragment's source.
 
 ## Examples
 
@@ -34,14 +38,6 @@ const url = new URL('./foo', base);
 
 // ✅
 const url = new URL('foo', base);
-```
-
-```js
-// ❌
-const isValid = URL.canParse('./foo', base);
-
-// ✅
-const isValid = URL.canParse('foo', base);
 ```
 
 ```markdown
@@ -64,14 +60,6 @@ const isValid = URL.canParse('foo', base);
 
 ```jsx
 // ❌
-<form action="./submit"><button formAction="./preview">Preview</button></form>;
-
-// ✅
-<form action="submit"><button formAction="preview">Preview</button></form>;
-```
-
-```jsx
-// ❌
 <img src={'./image.png'} />;
 
 // ✅
@@ -83,12 +71,10 @@ const isValid = URL.canParse('foo', base);
 Type: `string`\
 Default: `'never'`
 
-- `'never'` (default)
-  - Remove a `./` prefix when URL resolution is unchanged.
-- `'always'`
-  - Add a `./` prefix when URL resolution is unchanged.
+- `'never'` (default): Remove a `./` prefix when URL resolution is unchanged.
+- `'always'`: Add a `./` prefix when URL resolution is unchanged.
 
-The `'always'` style also checks hidden paths such as `.env` and `.well-known/security.txt`, while leaving current-directory and parent-directory references unchanged.
+The `'always'` style includes hidden paths such as `.env` and `.well-known/security.txt`, but leaves current-directory and parent-directory references unchanged.
 
 ```js
 /* eslint unicorn/relative-url-style: ["error", "always"] */
