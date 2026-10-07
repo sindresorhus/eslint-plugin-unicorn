@@ -259,17 +259,6 @@ ruleTest.snapshot({
 			array.push(3, 4);
 		`,
 		outdent`
-			let foo;
-			foo = [1, 2];
-			bar.push(3, 4);
-		`,
-		// Not supported yet
-		outdent`
-			let foo, bar;
-			foo = bar = [1, 2];
-			bar.push(3, 4);
-		`,
-		outdent`
 			const foo = new Foo();
 			foo.bar = [1, 2];
 			foo.bar.push(3, 4);
@@ -412,6 +401,17 @@ ruleTest.snapshot({
 			array.push(3, 4)
 			;[0].map()
 		`,
+		outdent`
+			let foo;
+			foo = [1, 2];
+			bar.push(3, 4);
+		`,
+		// Chained mutations are not supported yet; the initialization is reported.
+		outdent`
+			let foo, bar;
+			foo = bar = [1, 2];
+			bar.push(3, 4);
+		`,
 	],
 });
 
@@ -462,17 +462,6 @@ ruleTest.snapshot({
 			let object;
 			object ??= {foo: 1};
 			object.bar = 2;
-		`,
-		outdent`
-			let foo;
-			foo = {foo: 1};
-			bar.bar = 2;
-		`,
-		// Not supported yet
-		outdent`
-			let foo, bar;
-			foo = bar = {foo: 1};
-			bar.bar = 2;
 		`,
 		outdent`
 			const foo = new Foo();
@@ -563,6 +552,17 @@ ruleTest.snapshot({
 			object.bar = 2
 			;[0].map()
 		`,
+		outdent`
+			let foo;
+			foo = {foo: 1};
+			bar.bar = 2;
+		`,
+		// Chained mutations are not supported yet; the initialization is reported.
+		outdent`
+			let foo, bar;
+			foo = bar = {foo: 1};
+			bar.bar = 2;
+		`,
 	],
 });
 
@@ -637,17 +637,6 @@ ruleTest.snapshot({
 			let object;
 			object ??= {foo: 1};
 			Object.assign(object, bar);
-		`,
-		outdent`
-			let foo;
-			foo = {foo: 1};
-			bar.assign(object, baz);
-		`,
-		// Not supported yet
-		outdent`
-			let foo, bar;
-			foo = bar = {foo: 1};
-			Object.assign(bar, baz);
 		`,
 		outdent`
 			const foo = new Foo();
@@ -765,6 +754,17 @@ ruleTest.snapshot({
 			const object = {foo: 1};
 			Object.assign(object, {bar: bar()});
 		`,
+		outdent`
+			let foo;
+			foo = {foo: 1};
+			bar.assign(object, baz);
+		`,
+		// Chained mutations are not supported yet; the initialization is reported.
+		outdent`
+			let foo, bar;
+			foo = bar = {foo: 1};
+			Object.assign(bar, baz);
+		`,
 	],
 });
 
@@ -845,12 +845,6 @@ ruleTest.snapshot({
 		outdent`
 			let foo;
 			foo ??= new Set([1, 2]);
-			bar.add(3);
-		`,
-		// Not supported yet
-		outdent`
-			let foo, bar;
-			foo = bar = new Set([1, 2]);
 			bar.add(3);
 		`,
 		outdent`
@@ -966,6 +960,12 @@ ruleTest.snapshot({
 			set.add(3)
 			;[0].map()
 		`,
+		// Chained mutations are not supported yet; the initialization is reported.
+		outdent`
+			let foo, bar;
+			foo = bar = new Set([1, 2]);
+			bar.add(3);
+		`,
 	],
 });
 
@@ -1055,17 +1055,6 @@ ruleTest.snapshot({
 			let map;
 			map ??= new Map([["foo", 1]]);
 			map.set("bar", 2);
-		`,
-		outdent`
-			let foo;
-			foo = new Map([["foo", 1]]);
-			bar.set("bar", 2);
-		`,
-		// Not supported yet
-		outdent`
-			let foo, bar;
-			foo = bar = new Map([["foo", 1]]);
-			bar.set("bar", 2);
 		`,
 		outdent`
 			const foo = new Foo();
@@ -1185,6 +1174,17 @@ ruleTest.snapshot({
 			map.set("bar", 2)
 			;[0].map()
 		`,
+		outdent`
+			let foo;
+			foo = new Map([["foo", 1]]);
+			bar.set("bar", 2);
+		`,
+		// Chained mutations are not supported yet; the initialization is reported.
+		outdent`
+			let foo, bar;
+			foo = bar = new Map([["foo", 1]]);
+			bar.set("bar", 2);
+		`,
 	],
 });
 
@@ -1226,7 +1226,6 @@ ruleTest.snapshot({
 		'const set = new WeakSet(); enabled && set.add(value);',
 		'const map = new Map(); enabled ? map.set(key, first) : map.set(key, second);',
 		'const map = new WeakMap(); if (enabled) { map.set(key, value); }',
-		'let array; array = []; if (enabled) { array.push(1); }',
 		{
 			code: 'const array: number[] = []; if (enabled!) { array.push(value satisfies number); }',
 			languageOptions: {parser: parsers.typescript},
@@ -1241,6 +1240,7 @@ ruleTest.snapshot({
 			code: 'if (enabled) { const array = []; array.push(1); }',
 			options: [{checkConditionals: false}],
 		},
+		'let array; array = []; if (enabled) { array.push(1); }',
 	],
 });
 

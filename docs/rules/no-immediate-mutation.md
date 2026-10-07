@@ -1,6 +1,6 @@
 # no-immediate-mutation
 
-📝 Disallow immediate mutation after variable assignment.
+📝 Disallow immediate mutation after assignment and initialization immediately after declaration.
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
@@ -111,6 +111,35 @@ const weakMap = new WeakMap([
 ```
 
 No fix or suggestion is offered when a comment would be lost, when the object literal or the `Object.assign()` source has a getter or setter, or for a `__proto__` key, since an object literal handles these differently from an assignment or `Object.assign()`.
+
+## Consecutive initialization
+
+Combine uninitialized `let` and `var` declarations with an immediately following assignment:
+
+```js
+// ❌
+let foo;
+foo = 1;
+
+// ✅
+let foo = 1;
+```
+
+Flat array destructuring also works for variables in the preceding declaration:
+
+```js
+// ❌
+let r, g, b, foo;
+[r, g, b] = RGB.map(c => c / 255);
+
+// ✅
+let foo;
+let [r, g, b] = RGB.map(c => c / 255);
+```
+
+Direct assignments with simple initializers can be autofixed; other cases may offer suggestions. Edits preserve comments and TypeScript annotations.
+
+Exports, partly initialized declarations, redeclarations, self-references, and complex patterns are ignored. `checkConditionals` does not affect this check. Without the TypeScript parser, autofixes can change `checkJs` inference.
 
 ## Options
 
