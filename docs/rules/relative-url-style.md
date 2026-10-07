@@ -9,9 +9,11 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Use a consistent `./` prefix for relative URLs in [`new URL()`](https://developer.mozilla.org/en-US/docs/Web/API/URL/URL), CSS `url()`, `image-set()`, and `@import`, HTML URL attributes (`href`, `src`, `poster`, `srcset`, `imagesrcset`), and Markdown links, images, and definitions. The rule changes a prefix only when both forms resolve to the same URL.
+Use a consistent `./` prefix for relative URLs in [`new URL()`](https://developer.mozilla.org/en-US/docs/Web/API/URL/URL), CSS `url()`, `image-set()`, and `@import`, HTML URL attributes (`href`, `src`, `poster`, `srcset`, `imagesrcset`), and Markdown links, images, and definitions, including HTML embedded in Markdown. The rule changes a prefix only when both forms resolve to the same URL.
 
-In CSS at-rule preludes, only `@import` targets are checked. Fixes preserve `srcset` descriptors and separators; a prefix before a comma is retained to avoid changing candidate boundaries. Templated HTML/CSS URLs, entity-containing `srcset` values, complex Markdown labels, and escaped `./` prefixes are left unchanged.
+In CSS at-rule preludes, only `@import` targets are checked. Fixes preserve `srcset` descriptors and separators; a prefix before a comma is retained to avoid changing candidate boundaries. Templated HTML/CSS URLs, entity-containing `srcset` values, complex reference-definition labels, and escaped `./` prefixes are left unchanged.
+
+Markdown images support formatted descriptions, but destinations inside those descriptions are left unchanged. Images that cannot be parsed independently, such as multiline destinations containing blockquote prefixes, are skipped. Embedded HTML is skipped for the entire document if Markdown container processing changes any HTML fragment's source.
 
 ## Examples
 
@@ -21,6 +23,24 @@ const url = new URL('./foo', base);
 
 // ✅
 const url = new URL('foo', base);
+```
+
+```markdown
+<!-- ❌ -->
+- [`prefer-nesting`](./prefer-nesting.md)
+
+<!-- ✅ -->
+- [`prefer-nesting`](prefer-nesting.md)
+```
+
+```markdown
+<!-- ❌ -->
+![`API`](./diagram.png)
+<img src="./diagram.png">
+
+<!-- ✅ -->
+![`API`](diagram.png)
+<img src="diagram.png">
 ```
 
 ## Options

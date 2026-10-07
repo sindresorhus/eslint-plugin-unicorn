@@ -77,20 +77,37 @@ Output:
 
 `;
 
-exports[`relative-url-style > invalid(1): [label \\]](./page.md) 1`] = `
+exports[`relative-url-style > invalid(1): [**bold** and *emphasis*](./page.md \"title\") 1`] = `
 
-  1 | [label \\]](./page.md)
+  1 | [**bold** and *emphasis*](./page.md "title")
 
 `;
 
-exports[`relative-url-style > invalid(1): [label \\]](./page.md) 2`] = `
+exports[`relative-url-style > invalid(1): [**bold** and *emphasis*](./page.md \"title\") 2`] = `
 
 Message:
-> 1 | [label \\]](./page.md)
-    | ^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+> 1 | [**bold** and *emphasis*](./page.md "title")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
 
 Output:
-  1 | [label \\]](page.md)
+  1 | [**bold** and *emphasis*](page.md "title")
+
+`;
+
+exports[`relative-url-style > invalid(1): [**bold** and *emphasis*](./page.md \"title\") 3`] = `
+
+  1 | [**bold** and *emphasis*](./page.md "title")
+
+`;
+
+exports[`relative-url-style > invalid(1): [**bold** and *emphasis*](./page.md \"title\") 4`] = `
+
+Message:
+> 1 | [**bold** and *emphasis*](./page.md "title")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | [**bold** and *emphasis*](page.md "title")
 
 `;
 
@@ -108,6 +125,23 @@ Message:
 
 Output:
   1 | [link](page.md)
+
+`;
+
+exports[`relative-url-style > invalid(1): [nested [label]](./page.md) 1`] = `
+
+  1 | [nested [label]](./page.md)
+
+`;
+
+exports[`relative-url-style > invalid(1): [nested [label]](./page.md) 2`] = `
+
+Message:
+> 1 | [nested [label]](./page.md)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | [nested [label]](page.md)
 
 `;
 
@@ -166,6 +200,44 @@ Output:
 
 `;
 
+exports[`relative-url-style > invalid(1): | Image |\n| --- |\n| ![\`API\`](./diagram.png) <img src=\"./other.png\"> | 1`] = `
+
+  1 | | Image |
+  2 | | --- |
+  3 | | ![\`API\`](./diagram.png) <img src="./other.png"> |
+
+`;
+
+exports[`relative-url-style > invalid(1): | Image |\n| --- |\n| ![\`API\`](./diagram.png) <img src=\"./other.png\"> | 2`] = `
+
+Message:
+  1 | | Image |
+  2 | | --- |
+> 3 | | ![\`API\`](./diagram.png) <img src="./other.png"> |
+    |   ^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | | Image |
+  2 | | --- |
+  3 | | ![\`API\`](diagram.png) <img src="./other.png"> |
+
+`;
+
+exports[`relative-url-style > invalid(1): | Image |\n| --- |\n| ![\`API\`](./diagram.png) <img src=\"./other.png\"> | 3`] = `
+
+Message:
+  1 | | Image |
+  2 | | --- |
+> 3 | | ![\`API\`](./diagram.png) <img src="./other.png"> |
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | | Image |
+  2 | | --- |
+  3 | | ![\`API\`](./diagram.png) <img src="other.png"> |
+
+`;
+
 exports[`relative-url-style > invalid(10): <img srcset=\"image,one.png 1x, image,two.png 2x\"> 1`] = `
 
 Options:
@@ -198,6 +270,82 @@ Output:
 
 `;
 
+exports[`relative-url-style > invalid(10): > ![\`API\`](./diagram.png) 1`] = `
+
+  1 | > ![\`API\`](./diagram.png)
+
+`;
+
+exports[`relative-url-style > invalid(10): > ![\`API\`](./diagram.png) 2`] = `
+
+Message:
+> 1 | > ![\`API\`](./diagram.png)
+    |   ^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | > ![\`API\`](diagram.png)
+
+`;
+
+exports[`relative-url-style > invalid(10): > ![\`API\`](./diagram.png) 3`] = `
+
+  1 | > ![\`API\`](./diagram.png)
+
+`;
+
+exports[`relative-url-style > invalid(10): > ![\`API\`](./diagram.png) 4`] = `
+
+Message:
+> 1 | > ![\`API\`](./diagram.png)
+    |   ^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | > ![\`API\`](diagram.png)
+
+`;
+
+exports[`relative-url-style > invalid(11): - ![\`API\`](\n  ./diagram.png) 1`] = `
+
+  1 | - ![\`API\`](
+  2 |   ./diagram.png)
+
+`;
+
+exports[`relative-url-style > invalid(11): - ![\`API\`](\n  ./diagram.png) 2`] = `
+
+Message:
+> 1 | - ![\`API\`](
+    |   ^^^^^^^^^
+> 2 |   ./diagram.png)
+    | ^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | - ![\`API\`](
+  2 |   diagram.png)
+
+`;
+
+exports[`relative-url-style > invalid(11): - ![\`API\`](\n  ./diagram.png) 3`] = `
+
+  1 | - ![\`API\`](
+  2 |   ./diagram.png)
+
+`;
+
+exports[`relative-url-style > invalid(11): - ![\`API\`](\n  ./diagram.png) 4`] = `
+
+Message:
+> 1 | - ![\`API\`](
+    |   ^^^^^^^^^
+> 2 |   ./diagram.png)
+    | ^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | - ![\`API\`](
+  2 |   diagram.png)
+
+`;
+
 exports[`relative-url-style > invalid(11): <img srcset=./%2Cimage.png> 1`] = `
 
   1 | <img srcset=./%2Cimage.png>
@@ -212,6 +360,40 @@ Message:
 
 Output:
   1 | <img srcset=%2Cimage.png>
+
+`;
+
+exports[`relative-url-style > invalid(12): ![](./diagram.png) 1`] = `
+
+  1 | ![](./diagram.png)
+
+`;
+
+exports[`relative-url-style > invalid(12): ![](./diagram.png) 2`] = `
+
+Message:
+> 1 | ![](./diagram.png)
+    | ^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | ![](diagram.png)
+
+`;
+
+exports[`relative-url-style > invalid(12): ![](./diagram.png) 3`] = `
+
+  1 | ![](./diagram.png)
+
+`;
+
+exports[`relative-url-style > invalid(12): ![](./diagram.png) 4`] = `
+
+Message:
+> 1 | ![](./diagram.png)
+    | ^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | ![](diagram.png)
 
 `;
 
@@ -249,6 +431,116 @@ Output:
 
 `;
 
+exports[`relative-url-style > invalid(13): [](./page.md)\n\n[reference]: ./reference.md 1`] = `
+
+  1 | [](./page.md)
+  2 |
+  3 | [reference]: ./reference.md
+
+`;
+
+exports[`relative-url-style > invalid(13): [](./page.md)\n\n[reference]: ./reference.md 2`] = `
+
+Message:
+> 1 | [](./page.md)
+    | ^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+  2 |
+  3 | [reference]: ./reference.md
+
+Output:
+  1 | [](page.md)
+  2 |
+  3 | [reference]: ./reference.md
+
+`;
+
+exports[`relative-url-style > invalid(13): [](./page.md)\n\n[reference]: ./reference.md 3`] = `
+
+Message:
+  1 | [](./page.md)
+  2 |
+> 3 | [reference]: ./reference.md
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | [](./page.md)
+  2 |
+  3 | [reference]: reference.md
+
+`;
+
+exports[`relative-url-style > invalid(13): [](./page.md)\n\n[reference]: ./reference.md 4`] = `
+
+  1 | [](./page.md)
+  2 |
+  3 | [reference]: ./reference.md
+
+`;
+
+exports[`relative-url-style > invalid(13): [](./page.md)\n\n[reference]: ./reference.md 5`] = `
+
+Message:
+> 1 | [](./page.md)
+    | ^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+  2 |
+  3 | [reference]: ./reference.md
+
+Output:
+  1 | [](page.md)
+  2 |
+  3 | [reference]: ./reference.md
+
+`;
+
+exports[`relative-url-style > invalid(13): [](./page.md)\n\n[reference]: ./reference.md 6`] = `
+
+Message:
+  1 | [](./page.md)
+  2 |
+> 3 | [reference]: ./reference.md
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | [](./page.md)
+  2 |
+  3 | [reference]: reference.md
+
+`;
+
+exports[`relative-url-style > invalid(14): <a HREF=\"./page.html?a=1&amp;b=2\">link</a> 1`] = `
+
+  1 | <a HREF="./page.html?a=1&amp;b=2">link</a>
+
+`;
+
+exports[`relative-url-style > invalid(14): <a HREF=\"./page.html?a=1&amp;b=2\">link</a> 2`] = `
+
+Message:
+> 1 | <a HREF="./page.html?a=1&amp;b=2">link</a>
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <a HREF="page.html?a=1&amp;b=2">link</a>
+
+`;
+
+exports[`relative-url-style > invalid(14): <a HREF=\"./page.html?a=1&amp;b=2\">link</a> 3`] = `
+
+  1 | <a HREF="./page.html?a=1&amp;b=2">link</a>
+
+`;
+
+exports[`relative-url-style > invalid(14): <a HREF=\"./page.html?a=1&amp;b=2\">link</a> 4`] = `
+
+Message:
+> 1 | <a HREF="./page.html?a=1&amp;b=2">link</a>
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <a HREF="page.html?a=1&amp;b=2">link</a>
+
+`;
+
 exports[`relative-url-style > invalid(14): <img srcset=,image.png> 1`] = `
 
 Options:
@@ -267,6 +559,56 @@ Message:
 
 Output:
   1 | <img srcset=,./image.png>
+
+`;
+
+exports[`relative-url-style > invalid(15): <div>\n<img src=./image.png>\n</div> 1`] = `
+
+  1 | <div>
+  2 | <img src=./image.png>
+  3 | </div>
+
+`;
+
+exports[`relative-url-style > invalid(15): <div>\n<img src=./image.png>\n</div> 2`] = `
+
+Message:
+> 1 | <div>
+    | ^^^^^
+> 2 | <img src=./image.png>
+    | ^^^^^^^^^^^^^^^^^^^^^
+> 3 | </div>
+    | ^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <div>
+  2 | <img src=image.png>
+  3 | </div>
+
+`;
+
+exports[`relative-url-style > invalid(15): <div>\n<img src=./image.png>\n</div> 3`] = `
+
+  1 | <div>
+  2 | <img src=./image.png>
+  3 | </div>
+
+`;
+
+exports[`relative-url-style > invalid(15): <div>\n<img src=./image.png>\n</div> 4`] = `
+
+Message:
+> 1 | <div>
+    | ^^^^^
+> 2 | <img src=./image.png>
+    | ^^^^^^^^^^^^^^^^^^^^^
+> 3 | </div>
+    | ^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <div>
+  2 | <img src=image.png>
+  3 | </div>
 
 `;
 
@@ -299,6 +641,202 @@ Message:
 
 Output:
   1 | <img srcset=" ,	image.png 1x, , ./large.png 2x">
+
+`;
+
+exports[`relative-url-style > invalid(16): <video poster='./poster.png'></video> 1`] = `
+
+  1 | <video poster='./poster.png'></video>
+
+`;
+
+exports[`relative-url-style > invalid(16): <video poster='./poster.png'></video> 2`] = `
+
+Message:
+> 1 | <video poster='./poster.png'></video>
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <video poster='poster.png'></video>
+
+`;
+
+exports[`relative-url-style > invalid(16): <video poster='./poster.png'></video> 3`] = `
+
+  1 | <video poster='./poster.png'></video>
+
+`;
+
+exports[`relative-url-style > invalid(16): <video poster='./poster.png'></video> 4`] = `
+
+Message:
+> 1 | <video poster='./poster.png'></video>
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <video poster='poster.png'></video>
+
+`;
+
+exports[`relative-url-style > invalid(17): <a href=\"  ./page.html  \">link</a> 1`] = `
+
+  1 | <a href="  ./page.html  ">link</a>
+
+`;
+
+exports[`relative-url-style > invalid(17): <a href=\"  ./page.html  \">link</a> 2`] = `
+
+Message:
+> 1 | <a href="  ./page.html  ">link</a>
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <a href="  page.html  ">link</a>
+
+`;
+
+exports[`relative-url-style > invalid(17): <a href=\"  ./page.html  \">link</a> 3`] = `
+
+  1 | <a href="  ./page.html  ">link</a>
+
+`;
+
+exports[`relative-url-style > invalid(17): <a href=\"  ./page.html  \">link</a> 4`] = `
+
+Message:
+> 1 | <a href="  ./page.html  ">link</a>
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <a href="  page.html  ">link</a>
+
+`;
+
+exports[`relative-url-style > invalid(18): <img src=\"image.png\" srcset=\"small.png 1x, large.png 2x\"> 1`] = `
+
+Options:
+- 'always'
+
+Code:
+  1 | <img src="image.png" srcset="small.png 1x, large.png 2x">
+
+`;
+
+exports[`relative-url-style > invalid(18): <img src=\"image.png\" srcset=\"small.png 1x, large.png 2x\"> 2`] = `
+
+Message:
+> 1 | <img src="image.png" srcset="small.png 1x, large.png 2x">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Add a \`./\` prefix to the relative URL.
+
+Output:
+  1 | <img src="./image.png" srcset="small.png 1x, large.png 2x">
+
+`;
+
+exports[`relative-url-style > invalid(18): <img src=\"image.png\" srcset=\"small.png 1x, large.png 2x\"> 3`] = `
+
+Message:
+> 1 | <img src="image.png" srcset="small.png 1x, large.png 2x">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Add a \`./\` prefix to the relative URL.
+
+Output:
+  1 | <img src="image.png" srcset="./small.png 1x, large.png 2x">
+
+`;
+
+exports[`relative-url-style > invalid(18): <img src=\"image.png\" srcset=\"small.png 1x, large.png 2x\"> 4`] = `
+
+Message:
+> 1 | <img src="image.png" srcset="small.png 1x, large.png 2x">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Add a \`./\` prefix to the relative URL.
+
+Output:
+  1 | <img src="image.png" srcset="small.png 1x, ./large.png 2x">
+
+`;
+
+exports[`relative-url-style > invalid(18): <img src=\"image.png\" srcset=\"small.png 1x, large.png 2x\"> 5`] = `
+
+Options:
+- 'always'
+
+Code:
+  1 | <img src="image.png" srcset="small.png 1x, large.png 2x">
+
+`;
+
+exports[`relative-url-style > invalid(18): <img src=\"image.png\" srcset=\"small.png 1x, large.png 2x\"> 6`] = `
+
+Message:
+> 1 | <img src="image.png" srcset="small.png 1x, large.png 2x">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Add a \`./\` prefix to the relative URL.
+
+Output:
+  1 | <img src="./image.png" srcset="small.png 1x, large.png 2x">
+
+`;
+
+exports[`relative-url-style > invalid(18): <img src=\"image.png\" srcset=\"small.png 1x, large.png 2x\"> 7`] = `
+
+Message:
+> 1 | <img src="image.png" srcset="small.png 1x, large.png 2x">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Add a \`./\` prefix to the relative URL.
+
+Output:
+  1 | <img src="image.png" srcset="./small.png 1x, large.png 2x">
+
+`;
+
+exports[`relative-url-style > invalid(18): <img src=\"image.png\" srcset=\"small.png 1x, large.png 2x\"> 8`] = `
+
+Message:
+> 1 | <img src="image.png" srcset="small.png 1x, large.png 2x">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Add a \`./\` prefix to the relative URL.
+
+Output:
+  1 | <img src="image.png" srcset="small.png 1x, ./large.png 2x">
+
+`;
+
+exports[`relative-url-style > invalid(19): <a href=page.html>link</a> 1`] = `
+
+Options:
+- 'always'
+
+Code:
+  1 | <a href=page.html>link</a>
+
+`;
+
+exports[`relative-url-style > invalid(19): <a href=page.html>link</a> 2`] = `
+
+Message:
+> 1 | <a href=page.html>link</a>
+    | ^^^^^^^^^^^^^^^^^^ Add a \`./\` prefix to the relative URL.
+
+Output:
+  1 | <a href=./page.html>link</a>
+
+`;
+
+exports[`relative-url-style > invalid(19): <a href=page.html>link</a> 3`] = `
+
+Options:
+- 'always'
+
+Code:
+  1 | <a href=page.html>link</a>
+
+`;
+
+exports[`relative-url-style > invalid(19): <a href=page.html>link</a> 4`] = `
+
+Message:
+> 1 | <a href=page.html>link</a>
+    | ^^^^^^^^^^^^^^^^^^ Add a \`./\` prefix to the relative URL.
+
+Output:
+  1 | <a href=./page.html>link</a>
 
 `;
 
@@ -402,20 +940,92 @@ Output:
 
 `;
 
-exports[`relative-url-style > invalid(2): [link](./page.md) 1`] = `
+exports[`relative-url-style > invalid(2): Footnote[^note]\n\n[^note]: ![\`API\`](./diagram.png) <img src=\"./other.png\"> 1`] = `
 
-  1 | [link](./page.md)
+  1 | Footnote[^note]
+  2 |
+  3 | [^note]: ![\`API\`](./diagram.png) <img src="./other.png">
 
 `;
 
-exports[`relative-url-style > invalid(2): [link](./page.md) 2`] = `
+exports[`relative-url-style > invalid(2): Footnote[^note]\n\n[^note]: ![\`API\`](./diagram.png) <img src=\"./other.png\"> 2`] = `
 
 Message:
-> 1 | [link](./page.md)
-    | ^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+  1 | Footnote[^note]
+  2 |
+> 3 | [^note]: ![\`API\`](./diagram.png) <img src="./other.png">
+    |          ^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
 
 Output:
-  1 | [link](page.md)
+  1 | Footnote[^note]
+  2 |
+  3 | [^note]: ![\`API\`](diagram.png) <img src="./other.png">
+
+`;
+
+exports[`relative-url-style > invalid(2): Footnote[^note]\n\n[^note]: ![\`API\`](./diagram.png) <img src=\"./other.png\"> 3`] = `
+
+Message:
+  1 | Footnote[^note]
+  2 |
+> 3 | [^note]: ![\`API\`](./diagram.png) <img src="./other.png">
+    |                                  ^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | Footnote[^note]
+  2 |
+  3 | [^note]: ![\`API\`](./diagram.png) <img src="other.png">
+
+`;
+
+exports[`relative-url-style > invalid(2): [<span>label</span>](./page.md) 1`] = `
+
+  1 | [<span>label</span>](./page.md)
+
+`;
+
+exports[`relative-url-style > invalid(2): [<span>label</span>](./page.md) 2`] = `
+
+Message:
+> 1 | [<span>label</span>](./page.md)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | [<span>label</span>](page.md)
+
+`;
+
+exports[`relative-url-style > invalid(2): [<span>label</span>](./page.md) 3`] = `
+
+  1 | [<span>label</span>](./page.md)
+
+`;
+
+exports[`relative-url-style > invalid(2): [<span>label</span>](./page.md) 4`] = `
+
+Message:
+> 1 | [<span>label</span>](./page.md)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | [<span>label</span>](page.md)
+
+`;
+
+exports[`relative-url-style > invalid(2): [label \`](./page.md)\`](./page.md) 1`] = `
+
+  1 | [label \`](./page.md)\`](./page.md)
+
+`;
+
+exports[`relative-url-style > invalid(2): [label \`](./page.md)\`](./page.md) 2`] = `
+
+Message:
+> 1 | [label \`](./page.md)\`](./page.md)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | [label \`](./page.md)\`](page.md)
 
 `;
 
@@ -491,6 +1101,546 @@ Output:
 
 `;
 
+exports[`relative-url-style > invalid(20): <link imagesrcset=\"./small.png 320w, ./large.png 640w\"> 1`] = `
+
+  1 | <link imagesrcset="./small.png 320w, ./large.png 640w">
+
+`;
+
+exports[`relative-url-style > invalid(20): <link imagesrcset=\"./small.png 320w, ./large.png 640w\"> 2`] = `
+
+Message:
+> 1 | <link imagesrcset="./small.png 320w, ./large.png 640w">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <link imagesrcset="small.png 320w, ./large.png 640w">
+
+`;
+
+exports[`relative-url-style > invalid(20): <link imagesrcset=\"./small.png 320w, ./large.png 640w\"> 3`] = `
+
+Message:
+> 1 | <link imagesrcset="./small.png 320w, ./large.png 640w">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <link imagesrcset="./small.png 320w, large.png 640w">
+
+`;
+
+exports[`relative-url-style > invalid(20): <link imagesrcset=\"./small.png 320w, ./large.png 640w\"> 4`] = `
+
+  1 | <link imagesrcset="./small.png 320w, ./large.png 640w">
+
+`;
+
+exports[`relative-url-style > invalid(20): <link imagesrcset=\"./small.png 320w, ./large.png 640w\"> 5`] = `
+
+Message:
+> 1 | <link imagesrcset="./small.png 320w, ./large.png 640w">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <link imagesrcset="small.png 320w, ./large.png 640w">
+
+`;
+
+exports[`relative-url-style > invalid(20): <link imagesrcset=\"./small.png 320w, ./large.png 640w\"> 6`] = `
+
+Message:
+> 1 | <link imagesrcset="./small.png 320w, ./large.png 640w">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <link imagesrcset="./small.png 320w, large.png 640w">
+
+`;
+
+exports[`relative-url-style > invalid(21): <img srcset=\"data:image/png;base64,abc 1x, ./large.png 2x\"> 1`] = `
+
+  1 | <img srcset="data:image/png;base64,abc 1x, ./large.png 2x">
+
+`;
+
+exports[`relative-url-style > invalid(21): <img srcset=\"data:image/png;base64,abc 1x, ./large.png 2x\"> 2`] = `
+
+Message:
+> 1 | <img srcset="data:image/png;base64,abc 1x, ./large.png 2x">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <img srcset="data:image/png;base64,abc 1x, large.png 2x">
+
+`;
+
+exports[`relative-url-style > invalid(21): <img srcset=\"data:image/png;base64,abc 1x, ./large.png 2x\"> 3`] = `
+
+  1 | <img srcset="data:image/png;base64,abc 1x, ./large.png 2x">
+
+`;
+
+exports[`relative-url-style > invalid(21): <img srcset=\"data:image/png;base64,abc 1x, ./large.png 2x\"> 4`] = `
+
+Message:
+> 1 | <img srcset="data:image/png;base64,abc 1x, ./large.png 2x">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <img srcset="data:image/png;base64,abc 1x, large.png 2x">
+
+`;
+
+exports[`relative-url-style > invalid(22): <img srcset=\"./,one.png 1x, ./two.png 2x\"> 1`] = `
+
+  1 | <img srcset="./,one.png 1x, ./two.png 2x">
+
+`;
+
+exports[`relative-url-style > invalid(22): <img srcset=\"./,one.png 1x, ./two.png 2x\"> 2`] = `
+
+Message:
+> 1 | <img srcset="./,one.png 1x, ./two.png 2x">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <img srcset="./,one.png 1x, two.png 2x">
+
+`;
+
+exports[`relative-url-style > invalid(22): <img srcset=\"./,one.png 1x, ./two.png 2x\"> 3`] = `
+
+  1 | <img srcset="./,one.png 1x, ./two.png 2x">
+
+`;
+
+exports[`relative-url-style > invalid(22): <img srcset=\"./,one.png 1x, ./two.png 2x\"> 4`] = `
+
+Message:
+> 1 | <img srcset="./,one.png 1x, ./two.png 2x">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <img srcset="./,one.png 1x, two.png 2x">
+
+`;
+
+exports[`relative-url-style > invalid(23): <script>\n\n<img src=\"./fake.png\">\n\n</script>\n<img src=\"./real.png\"> 1`] = `
+
+  1 | <script>
+  2 |
+  3 | <img src="./fake.png">
+  4 |
+  5 | </script>
+  6 | <img src="./real.png">
+
+`;
+
+exports[`relative-url-style > invalid(23): <script>\n\n<img src=\"./fake.png\">\n\n</script>\n<img src=\"./real.png\"> 2`] = `
+
+Message:
+  1 | <script>
+  2 |
+  3 | <img src="./fake.png">
+  4 |
+  5 | </script>
+> 6 | <img src="./real.png">
+    | ^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <script>
+  2 |
+  3 | <img src="./fake.png">
+  4 |
+  5 | </script>
+  6 | <img src="real.png">
+
+`;
+
+exports[`relative-url-style > invalid(23): <script>\n\n<img src=\"./fake.png\">\n\n</script>\n<img src=\"./real.png\"> 3`] = `
+
+  1 | <script>
+  2 |
+  3 | <img src="./fake.png">
+  4 |
+  5 | </script>
+  6 | <img src="./real.png">
+
+`;
+
+exports[`relative-url-style > invalid(23): <script>\n\n<img src=\"./fake.png\">\n\n</script>\n<img src=\"./real.png\"> 4`] = `
+
+Message:
+  1 | <script>
+  2 |
+  3 | <img src="./fake.png">
+  4 |
+  5 | </script>
+> 6 | <img src="./real.png">
+    | ^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <script>
+  2 |
+  3 | <img src="./fake.png">
+  4 |
+  5 | </script>
+  6 | <img src="real.png">
+
+`;
+
+exports[`relative-url-style > invalid(24): <textarea>\n\n<img src=\"./fake.png\">\n\n</textarea>\n<img src=\"./real.png\"> 1`] = `
+
+  1 | <textarea>
+  2 |
+  3 | <img src="./fake.png">
+  4 |
+  5 | </textarea>
+  6 | <img src="./real.png">
+
+`;
+
+exports[`relative-url-style > invalid(24): <textarea>\n\n<img src=\"./fake.png\">\n\n</textarea>\n<img src=\"./real.png\"> 2`] = `
+
+Message:
+  1 | <textarea>
+  2 |
+  3 | <img src="./fake.png">
+  4 |
+  5 | </textarea>
+> 6 | <img src="./real.png">
+    | ^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <textarea>
+  2 |
+  3 | <img src="./fake.png">
+  4 |
+  5 | </textarea>
+  6 | <img src="real.png">
+
+`;
+
+exports[`relative-url-style > invalid(24): <textarea>\n\n<img src=\"./fake.png\">\n\n</textarea>\n<img src=\"./real.png\"> 3`] = `
+
+  1 | <textarea>
+  2 |
+  3 | <img src="./fake.png">
+  4 |
+  5 | </textarea>
+  6 | <img src="./real.png">
+
+`;
+
+exports[`relative-url-style > invalid(24): <textarea>\n\n<img src=\"./fake.png\">\n\n</textarea>\n<img src=\"./real.png\"> 4`] = `
+
+Message:
+  1 | <textarea>
+  2 |
+  3 | <img src="./fake.png">
+  4 |
+  5 | </textarea>
+> 6 | <img src="./real.png">
+    | ^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <textarea>
+  2 |
+  3 | <img src="./fake.png">
+  4 |
+  5 | </textarea>
+  6 | <img src="real.png">
+
+`;
+
+exports[`relative-url-style > invalid(25): <template><img src=\"./image.png\"></template> 1`] = `
+
+  1 | <template><img src="./image.png"></template>
+
+`;
+
+exports[`relative-url-style > invalid(25): <template><img src=\"./image.png\"></template> 2`] = `
+
+Message:
+> 1 | <template><img src="./image.png"></template>
+    |           ^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <template><img src="image.png"></template>
+
+`;
+
+exports[`relative-url-style > invalid(25): <template><img src=\"./image.png\"></template> 3`] = `
+
+  1 | <template><img src="./image.png"></template>
+
+`;
+
+exports[`relative-url-style > invalid(25): <template><img src=\"./image.png\"></template> 4`] = `
+
+Message:
+> 1 | <template><img src="./image.png"></template>
+    |           ^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <template><img src="image.png"></template>
+
+`;
+
+exports[`relative-url-style > invalid(26): <img src=\"./first.png\" src=\"./second.png\"> 1`] = `
+
+  1 | <img src="./first.png" src="./second.png">
+
+`;
+
+exports[`relative-url-style > invalid(26): <img src=\"./first.png\" src=\"./second.png\"> 2`] = `
+
+Message:
+> 1 | <img src="./first.png" src="./second.png">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <img src="first.png" src="./second.png">
+
+`;
+
+exports[`relative-url-style > invalid(26): <img src=\"./first.png\" src=\"./second.png\"> 3`] = `
+
+  1 | <img src="./first.png" src="./second.png">
+
+`;
+
+exports[`relative-url-style > invalid(26): <img src=\"./first.png\" src=\"./second.png\"> 4`] = `
+
+Message:
+> 1 | <img src="./first.png" src="./second.png">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | <img src="first.png" src="./second.png">
+
+`;
+
+exports[`relative-url-style > invalid(27): 🦄 <img src=\"./image.png\"> 1`] = `
+
+  1 | 🦄 <img src="./image.png">
+
+`;
+
+exports[`relative-url-style > invalid(27): 🦄 <img src=\"./image.png\"> 2`] = `
+
+Message:
+> 1 | 🦄 <img src="./image.png">
+    |    ^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | 🦄 <img src="image.png">
+
+`;
+
+exports[`relative-url-style > invalid(27): 🦄 <img src=\"./image.png\"> 3`] = `
+
+  1 | 🦄 <img src="./image.png">
+
+`;
+
+exports[`relative-url-style > invalid(27): 🦄 <img src=\"./image.png\"> 4`] = `
+
+Message:
+> 1 | 🦄 <img src="./image.png">
+    |    ^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | 🦄 <img src="image.png">
+
+`;
+
+exports[`relative-url-style > invalid(28): 🦄\r\n\r\n<div>\r\n<img\r\n src=\"./image.png\"\r\n srcset=\"./small.png 1x, ./large.png 2x\">\r\n</div> 1`] = `
+
+  1 | 🦄
+  2 |
+  3 | <div>
+  4 | <img
+  5 |  src="./image.png"
+  6 |  srcset="./small.png 1x, ./large.png 2x">
+  7 | </div>
+
+`;
+
+exports[`relative-url-style > invalid(28): 🦄\r\n\r\n<div>\r\n<img\r\n src=\"./image.png\"\r\n srcset=\"./small.png 1x, ./large.png 2x\">\r\n</div> 2`] = `
+
+Message:
+  1 | 🦄
+  2 |
+> 3 | <div>
+    | ^^^^^
+> 4 | <img
+    | ^^^^
+> 5 |  src="./image.png"
+    | ^^^^^^^^^^^^^^^^^^
+> 6 |  srcset="./small.png 1x, ./large.png 2x">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 7 | </div>
+    | ^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | 🦄
+  2 |
+  3 | <div>
+  4 | <img
+  5 |  src="image.png"
+  6 |  srcset="./small.png 1x, ./large.png 2x">
+  7 | </div>
+
+`;
+
+exports[`relative-url-style > invalid(28): 🦄\r\n\r\n<div>\r\n<img\r\n src=\"./image.png\"\r\n srcset=\"./small.png 1x, ./large.png 2x\">\r\n</div> 3`] = `
+
+Message:
+  1 | 🦄
+  2 |
+> 3 | <div>
+    | ^^^^^
+> 4 | <img
+    | ^^^^
+> 5 |  src="./image.png"
+    | ^^^^^^^^^^^^^^^^^^
+> 6 |  srcset="./small.png 1x, ./large.png 2x">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 7 | </div>
+    | ^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | 🦄
+  2 |
+  3 | <div>
+  4 | <img
+  5 |  src="./image.png"
+  6 |  srcset="small.png 1x, ./large.png 2x">
+  7 | </div>
+
+`;
+
+exports[`relative-url-style > invalid(28): 🦄\r\n\r\n<div>\r\n<img\r\n src=\"./image.png\"\r\n srcset=\"./small.png 1x, ./large.png 2x\">\r\n</div> 4`] = `
+
+Message:
+  1 | 🦄
+  2 |
+> 3 | <div>
+    | ^^^^^
+> 4 | <img
+    | ^^^^
+> 5 |  src="./image.png"
+    | ^^^^^^^^^^^^^^^^^^
+> 6 |  srcset="./small.png 1x, ./large.png 2x">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 7 | </div>
+    | ^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | 🦄
+  2 |
+  3 | <div>
+  4 | <img
+  5 |  src="./image.png"
+  6 |  srcset="./small.png 1x, large.png 2x">
+  7 | </div>
+
+`;
+
+exports[`relative-url-style > invalid(28): 🦄\r\n\r\n<div>\r\n<img\r\n src=\"./image.png\"\r\n srcset=\"./small.png 1x, ./large.png 2x\">\r\n</div> 5`] = `
+
+  1 | 🦄
+  2 |
+  3 | <div>
+  4 | <img
+  5 |  src="./image.png"
+  6 |  srcset="./small.png 1x, ./large.png 2x">
+  7 | </div>
+
+`;
+
+exports[`relative-url-style > invalid(28): 🦄\r\n\r\n<div>\r\n<img\r\n src=\"./image.png\"\r\n srcset=\"./small.png 1x, ./large.png 2x\">\r\n</div> 6`] = `
+
+Message:
+  1 | 🦄
+  2 |
+> 3 | <div>
+    | ^^^^^
+> 4 | <img
+    | ^^^^
+> 5 |  src="./image.png"
+    | ^^^^^^^^^^^^^^^^^^
+> 6 |  srcset="./small.png 1x, ./large.png 2x">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 7 | </div>
+    | ^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | 🦄
+  2 |
+  3 | <div>
+  4 | <img
+  5 |  src="image.png"
+  6 |  srcset="./small.png 1x, ./large.png 2x">
+  7 | </div>
+
+`;
+
+exports[`relative-url-style > invalid(28): 🦄\r\n\r\n<div>\r\n<img\r\n src=\"./image.png\"\r\n srcset=\"./small.png 1x, ./large.png 2x\">\r\n</div> 7`] = `
+
+Message:
+  1 | 🦄
+  2 |
+> 3 | <div>
+    | ^^^^^
+> 4 | <img
+    | ^^^^
+> 5 |  src="./image.png"
+    | ^^^^^^^^^^^^^^^^^^
+> 6 |  srcset="./small.png 1x, ./large.png 2x">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 7 | </div>
+    | ^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | 🦄
+  2 |
+  3 | <div>
+  4 | <img
+  5 |  src="./image.png"
+  6 |  srcset="small.png 1x, ./large.png 2x">
+  7 | </div>
+
+`;
+
+exports[`relative-url-style > invalid(28): 🦄\r\n\r\n<div>\r\n<img\r\n src=\"./image.png\"\r\n srcset=\"./small.png 1x, ./large.png 2x\">\r\n</div> 8`] = `
+
+Message:
+  1 | 🦄
+  2 |
+> 3 | <div>
+    | ^^^^^
+> 4 | <img
+    | ^^^^
+> 5 |  src="./image.png"
+    | ^^^^^^^^^^^^^^^^^^
+> 6 |  srcset="./small.png 1x, ./large.png 2x">
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 7 | </div>
+    | ^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | 🦄
+  2 |
+  3 | <div>
+  4 | <img
+  5 |  src="./image.png"
+  6 |  srcset="./small.png 1x, large.png 2x">
+  7 | </div>
+
+`;
+
 exports[`relative-url-style > invalid(3): <link rel=\"preload\" as=\"image\" imagesrcset=\"small.png 1x, large.png 2x\"> 1`] = `
 
 Options:
@@ -557,20 +1707,62 @@ Output:
 
 `;
 
-exports[`relative-url-style > invalid(3): [![image](./image.png)](./page.md) 1`] = `
+exports[`relative-url-style > invalid(3): [\`code\`](page.md) 1`] = `
 
-  1 | [![image](./image.png)](./page.md)
+Options:
+- 'always'
+
+Code:
+  1 | [\`code\`](page.md)
 
 `;
 
-exports[`relative-url-style > invalid(3): [![image](./image.png)](./page.md) 2`] = `
+exports[`relative-url-style > invalid(3): [\`code\`](page.md) 2`] = `
 
 Message:
-> 1 | [![image](./image.png)](./page.md)
-    |  ^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+> 1 | [\`code\`](page.md)
+    | ^^^^^^^^^^^^^^^^^ Add a \`./\` prefix to the relative URL.
 
 Output:
-  1 | [![image](image.png)](./page.md)
+  1 | [\`code\`](./page.md)
+
+`;
+
+exports[`relative-url-style > invalid(3): [\`code\`](page.md) 3`] = `
+
+Options:
+- 'always'
+
+Code:
+  1 | [\`code\`](page.md)
+
+`;
+
+exports[`relative-url-style > invalid(3): [\`code\`](page.md) 4`] = `
+
+Message:
+> 1 | [\`code\`](page.md)
+    | ^^^^^^^^^^^^^^^^^ Add a \`./\` prefix to the relative URL.
+
+Output:
+  1 | [\`code\`](./page.md)
+
+`;
+
+exports[`relative-url-style > invalid(3): [label \\]](./page.md) 1`] = `
+
+  1 | [label \\]](./page.md)
+
+`;
+
+exports[`relative-url-style > invalid(3): [label \\]](./page.md) 2`] = `
+
+Message:
+> 1 | [label \\]](./page.md)
+    | ^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | [label \\]](page.md)
 
 `;
 
@@ -719,6 +1911,79 @@ Output:
 
 `;
 
+exports[`relative-url-style > invalid(4): [![\`API\`](./diagram.png)](./page.md) 1`] = `
+
+  1 | [![\`API\`](./diagram.png)](./page.md)
+
+`;
+
+exports[`relative-url-style > invalid(4): [![\`API\`](./diagram.png)](./page.md) 2`] = `
+
+Message:
+> 1 | [![\`API\`](./diagram.png)](./page.md)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | [![\`API\`](./diagram.png)](page.md)
+
+`;
+
+exports[`relative-url-style > invalid(4): [![\`API\`](./diagram.png)](./page.md) 3`] = `
+
+Message:
+> 1 | [![\`API\`](./diagram.png)](./page.md)
+    |  ^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | [![\`API\`](diagram.png)](./page.md)
+
+`;
+
+exports[`relative-url-style > invalid(4): [![\`API\`](./diagram.png)](./page.md) 4`] = `
+
+  1 | [![\`API\`](./diagram.png)](./page.md)
+
+`;
+
+exports[`relative-url-style > invalid(4): [![\`API\`](./diagram.png)](./page.md) 5`] = `
+
+Message:
+> 1 | [![\`API\`](./diagram.png)](./page.md)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | [![\`API\`](./diagram.png)](page.md)
+
+`;
+
+exports[`relative-url-style > invalid(4): [![\`API\`](./diagram.png)](./page.md) 6`] = `
+
+Message:
+> 1 | [![\`API\`](./diagram.png)](./page.md)
+    |  ^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | [![\`API\`](diagram.png)](./page.md)
+
+`;
+
+exports[`relative-url-style > invalid(4): [link](./page.md) 1`] = `
+
+  1 | [link](./page.md)
+
+`;
+
+exports[`relative-url-style > invalid(4): [link](./page.md) 2`] = `
+
+Message:
+> 1 | [link](./page.md)
+    | ^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | [link](page.md)
+
+`;
+
 exports[`relative-url-style > invalid(4): [link](./page\\(1\\).md) 1`] = `
 
   1 | [link](./page\\(1\\).md)
@@ -774,6 +2039,40 @@ Output:
 
 `;
 
+exports[`relative-url-style > invalid(5): ![nested [brackets] and \`](./wrong.png)\`](./right.png) 1`] = `
+
+  1 | ![nested [brackets] and \`](./wrong.png)\`](./right.png)
+
+`;
+
+exports[`relative-url-style > invalid(5): ![nested [brackets] and \`](./wrong.png)\`](./right.png) 2`] = `
+
+Message:
+> 1 | ![nested [brackets] and \`](./wrong.png)\`](./right.png)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | ![nested [brackets] and \`](./wrong.png)\`](right.png)
+
+`;
+
+exports[`relative-url-style > invalid(5): ![nested [brackets] and \`](./wrong.png)\`](./right.png) 3`] = `
+
+  1 | ![nested [brackets] and \`](./wrong.png)\`](./right.png)
+
+`;
+
+exports[`relative-url-style > invalid(5): ![nested [brackets] and \`](./wrong.png)\`](./right.png) 4`] = `
+
+Message:
+> 1 | ![nested [brackets] and \`](./wrong.png)\`](./right.png)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | ![nested [brackets] and \`](./wrong.png)\`](right.png)
+
+`;
+
 exports[`relative-url-style > invalid(5): <a href=\"  ./page.html  \">link</a> 1`] = `
 
   1 | <a href="  ./page.html  ">link</a>
@@ -822,6 +2121,34 @@ Message:
 
 Output:
   1 | @import "my\\20 style.css" supports(display: grid);
+
+`;
+
+exports[`relative-url-style > invalid(5): [![image](./image.png)](./page.md) 1`] = `
+
+  1 | [![image](./image.png)](./page.md)
+
+`;
+
+exports[`relative-url-style > invalid(5): [![image](./image.png)](./page.md) 2`] = `
+
+Message:
+> 1 | [![image](./image.png)](./page.md)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | [![image](./image.png)](page.md)
+
+`;
+
+exports[`relative-url-style > invalid(5): [![image](./image.png)](./page.md) 3`] = `
+
+Message:
+> 1 | [![image](./image.png)](./page.md)
+    |  ^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | [![image](image.png)](./page.md)
 
 `;
 
@@ -879,6 +2206,40 @@ Message:
 
 Suggestion 1/1: Remove leading \`./\`.:
   1 | new URL(\`\${foo}\`, base)
+
+`;
+
+exports[`relative-url-style > invalid(6): ![<span>API</span>](./diagram.png \"title\") 1`] = `
+
+  1 | ![<span>API</span>](./diagram.png "title")
+
+`;
+
+exports[`relative-url-style > invalid(6): ![<span>API</span>](./diagram.png \"title\") 2`] = `
+
+Message:
+> 1 | ![<span>API</span>](./diagram.png "title")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | ![<span>API</span>](diagram.png "title")
+
+`;
+
+exports[`relative-url-style > invalid(6): ![<span>API</span>](./diagram.png \"title\") 3`] = `
+
+  1 | ![<span>API</span>](./diagram.png "title")
+
+`;
+
+exports[`relative-url-style > invalid(6): ![<span>API</span>](./diagram.png \"title\") 4`] = `
+
+Message:
+> 1 | ![<span>API</span>](./diagram.png "title")
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | ![<span>API</span>](diagram.png "title")
 
 `;
 
@@ -1007,6 +2368,40 @@ Output:
 
 `;
 
+exports[`relative-url-style > invalid(7): ![\`API\`](<./diagram with spaces.png>) 1`] = `
+
+  1 | ![\`API\`](<./diagram with spaces.png>)
+
+`;
+
+exports[`relative-url-style > invalid(7): ![\`API\`](<./diagram with spaces.png>) 2`] = `
+
+Message:
+> 1 | ![\`API\`](<./diagram with spaces.png>)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | ![\`API\`](<diagram with spaces.png>)
+
+`;
+
+exports[`relative-url-style > invalid(7): ![\`API\`](<./diagram with spaces.png>) 3`] = `
+
+  1 | ![\`API\`](<./diagram with spaces.png>)
+
+`;
+
+exports[`relative-url-style > invalid(7): ![\`API\`](<./diagram with spaces.png>) 4`] = `
+
+Message:
+> 1 | ![\`API\`](<./diagram with spaces.png>)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | ![\`API\`](<diagram with spaces.png>)
+
+`;
+
 exports[`relative-url-style > invalid(7): ![image](image.png) 1`] = `
 
 Options:
@@ -1108,6 +2503,40 @@ Output:
 
 `;
 
+exports[`relative-url-style > invalid(8): ![\`API\`](./diagram\\(1\\).png) 1`] = `
+
+  1 | ![\`API\`](./diagram\\(1\\).png)
+
+`;
+
+exports[`relative-url-style > invalid(8): ![\`API\`](./diagram\\(1\\).png) 2`] = `
+
+Message:
+> 1 | ![\`API\`](./diagram\\(1\\).png)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | ![\`API\`](diagram\\(1\\).png)
+
+`;
+
+exports[`relative-url-style > invalid(8): ![\`API\`](./diagram\\(1\\).png) 3`] = `
+
+  1 | ![\`API\`](./diagram\\(1\\).png)
+
+`;
+
+exports[`relative-url-style > invalid(8): ![\`API\`](./diagram\\(1\\).png) 4`] = `
+
+Message:
+> 1 | ![\`API\`](./diagram\\(1\\).png)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+
+Output:
+  1 | ![\`API\`](diagram\\(1\\).png)
+
+`;
+
 exports[`relative-url-style > invalid(8): <img srcset=\"small.png 320w, large.png 640w\"> 1`] = `
 
 Options:
@@ -1179,6 +2608,48 @@ Message:
 
 Output:
   1 | a { background: url("./a\\20 b.png") }
+
+`;
+
+exports[`relative-url-style > invalid(9): ![![moon](inner.png)](outer.png) 1`] = `
+
+Options:
+- 'always'
+
+Code:
+  1 | ![![moon](inner.png)](outer.png)
+
+`;
+
+exports[`relative-url-style > invalid(9): ![![moon](inner.png)](outer.png) 2`] = `
+
+Message:
+> 1 | ![![moon](inner.png)](outer.png)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Add a \`./\` prefix to the relative URL.
+
+Output:
+  1 | ![![moon](inner.png)](./outer.png)
+
+`;
+
+exports[`relative-url-style > invalid(9): ![![moon](inner.png)](outer.png) 3`] = `
+
+Options:
+- 'always'
+
+Code:
+  1 | ![![moon](inner.png)](outer.png)
+
+`;
+
+exports[`relative-url-style > invalid(9): ![![moon](inner.png)](outer.png) 4`] = `
+
+Message:
+> 1 | ![![moon](inner.png)](outer.png)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Add a \`./\` prefix to the relative URL.
+
+Output:
+  1 | ![![moon](inner.png)](./outer.png)
 
 `;
 

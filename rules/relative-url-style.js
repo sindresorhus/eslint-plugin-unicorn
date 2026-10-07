@@ -1,5 +1,7 @@
 import {ident} from '@eslint/css-tree';
 import {decodeHTMLAttribute} from 'entities';
+import {parse, preprocess, postprocess} from 'micromark';
+import {parseFragment} from 'parse5';
 import {isNewExpression, isStringLiteral} from './ast/index.js';
 import {getStaticValueIfNoSideEffects} from './utils/index.js';
 import getSrcsetCandidates from './shared/get-srcset-candidates.js';
@@ -82,6 +84,33 @@ function removeDotSlash(node, sourceCode) {
 	return fixer => fixer.removeRange([start, start + 2]);
 }
 
+function getMarkdownImageDestinationOffset(text) {
+	const events = postprocess(parse().document().write(preprocess()(text, 'utf8', true)));
+	const owners = [];
+
+	for (const [event, token] of events) {
+		if (token.type === 'image' || token.type === 'link') {
+			if (event === 'enter') {
+				owners.push(token);
+			} else {
+				owners.pop();
+			}
+		}
+
+		const owner = owners.at(-1);
+		if (
+			event === 'enter'
+			&& token.type === 'resourceDestinationString'
+			&& owners.length === 1
+			&& owner.type === 'image'
+			&& owner.start.offset === 0
+			&& owner.end.offset === text.length
+		) {
+			return token.start.offset;
+		}
+	}
+}
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
@@ -145,21 +174,12 @@ const create = context => {
 		return getMarkupProblem(node, node.value, sourceCode.getRange(node)[0] + 1);
 	});
 
-	context.on('Attribute', node => {
-		const name = node.key.value.toLowerCase();
+	const getHtmlAttributeProblems = (node, name, raw, start) => {
 		if (
 			!['href', 'src', 'poster', 'srcset', 'imagesrcset'].includes(name)
-			|| node.key.parts.length > 0
-			|| !node.value
-			|| node.value.parts.length > 0
+			|| !raw
+			|| templateDelimiters.some(delimiter => raw.includes(delimiter))
 		) {
-			return;
-		}
-
-		const [start] = sourceCode.getRange(node.value);
-		// The HTML parser can stop an unquoted value at a slash.
-		const raw = node.startWrapper ? sourceCode.getText(node.value) : sourceCode.text.slice(start).match(/^[^\t\n\f\r "'<>`]+/u)?.[0];
-		if (!raw || templateDelimiters.some(delimiter => raw.includes(delimiter))) {
 			return;
 		}
 
@@ -180,17 +200,100 @@ const create = context => {
 			return;
 		}
 
-		return getMarkupProblem(node, url, start + raw.indexOf(value));
+		return [getMarkupProblem(node, url, start + raw.indexOf(value))];
+	};
+
+	context.on('Attribute', node => {
+		if (node.key.parts.length > 0 || !node.value || node.value.parts.length > 0) {
+			return;
+		}
+
+		const [start] = sourceCode.getRange(node.value);
+		// The HTML parser can stop an unquoted value at a slash.
+		const raw = node.startWrapper ? sourceCode.getText(node.value) : sourceCode.text.slice(start).match(/^[^\t\n\f\r "'<>`]+/u)?.[0];
+		return getHtmlAttributeProblems(node, node.key.value.toLowerCase(), raw, start);
 	});
 
-	context.on(['link', 'image', 'definition'], node => {
-		// Complex labels are left unchanged when their destination cannot be located unambiguously.
-		const prefix = sourceCode.getText(node).match(/^!?\[(?:\\.|[^<[\\\]`])*\](?:\(|:)[\t\n\r ]*<?/u)?.[0];
+	context.on(['link', 'definition'], node => {
+		// Complex definition labels are left unchanged when their destination cannot be located unambiguously.
+		const [start, end] = sourceCode.getRange(node);
+		const lastChild = node.children?.at(-1);
+		const prefixStart = lastChild ? sourceCode.getRange(lastChild)[1] : start;
+		const prefix = sourceCode.text.slice(prefixStart, end).match(lastChild
+			? /^\]\([\t\n\r ]*<?/u
+			: /^\[(?:\\.|[^<[\\\]`])*\](?:\(|:)[\t\n\r ]*<?/u)?.[0];
 		if (!prefix) {
 			return;
 		}
 
-		return getMarkupProblem(node, node.url, sourceCode.getRange(node)[0] + prefix.length);
+		return getMarkupProblem(node, node.url, prefixStart + prefix.length);
+	});
+
+	context.on('image', node => {
+		const offset = getMarkdownImageDestinationOffset(sourceCode.getText(node));
+		if (offset !== undefined) {
+			return getMarkupProblem(node, node.url, sourceCode.getRange(node)[0] + offset);
+		}
+	});
+
+	const markdownHtmlNodes = [];
+	context.on('html', node => {
+		markdownHtmlNodes.push(node);
+	});
+	context.onExit('root', () => {
+		// Container processing can change HTML content, so only use unchanged fragments.
+		if (markdownHtmlNodes.length === 0 || markdownHtmlNodes.some(node => sourceCode.getText(node) !== node.value)) {
+			return;
+		}
+
+		// Mask Markdown while preserving offsets and HTML context across separate fragments.
+		const parts = [];
+		let previousEnd = 0;
+		for (const node of markdownHtmlNodes) {
+			const [start, end] = sourceCode.getRange(node);
+			parts.push(sourceCode.text.slice(previousEnd, start).replaceAll(/[^\n\r]/g, ' '), sourceCode.text.slice(start, end));
+			previousEnd = end;
+		}
+
+		parts.push(sourceCode.text.slice(previousEnd).replaceAll(/[^\n\r]/g, ' '));
+		const fragment = parseFragment(parts.join(''), {sourceCodeLocationInfo: true});
+		const problems = [];
+		const collectProblems = element => {
+			for (const attribute of element.attrs ?? []) {
+				const location = element.sourceCodeLocation?.attrs?.[attribute.name];
+				if (attribute.prefix || !location) {
+					continue;
+				}
+
+				const node = markdownHtmlNodes.find(node => {
+					const [start, end] = sourceCode.getRange(node);
+					return location.startOffset >= start && location.endOffset <= end;
+				});
+				if (!node) {
+					continue;
+				}
+
+				const text = sourceCode.text.slice(location.startOffset, location.endOffset);
+				const prefix = text.match(/^[^=]*=[\t\n\f\r ]*(["']?)/u);
+				if (!prefix) {
+					continue;
+				}
+
+				const raw = text.slice(prefix[0].length, prefix[1] ? -1 : undefined);
+				problems.push(...getHtmlAttributeProblems(node, attribute.name, raw, location.startOffset + prefix[0].length) ?? []);
+			}
+
+			for (const child of element.childNodes ?? []) {
+				collectProblems(child);
+			}
+
+			if (element.content) {
+				collectProblems(element.content);
+			}
+		};
+
+		collectProblems(fragment);
+		return problems;
 	});
 
 	// Template literals are not always safe to remove `./` from, but report those starting with `./`.

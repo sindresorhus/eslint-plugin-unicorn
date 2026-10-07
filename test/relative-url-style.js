@@ -228,13 +228,108 @@ test.snapshot({
 		{code: '<a href="&#32;./page.html">link</a>', language: languages.html},
 		{code: '<img src="./{{ assetPath }}">', language: languages.html, languageOptions: {templateEngineSyntax: {'{{': '}}'}}},
 		{code: '[![image](./image.png)](./page.md)', language: languages.markdown, options: ['always']},
-		{code: '[nested [label]](./page.md)', language: languages.markdown},
-		{code: '[label `](./page.md)`](./page.md)', language: languages.markdown},
 		{code: '[link](&period;/page.md)', language: languages.markdown},
 	],
 	invalid: [
+		{code: '[nested [label]](./page.md)', language: languages.markdown},
+		{code: '[label `](./page.md)`](./page.md)', language: languages.markdown},
 		{code: String.raw`[label \]](./page.md)`, language: languages.markdown},
 		{code: '[link](./page.md)', language: {...languages.markdown, language: 'markdown/gfm'}},
 		{code: '[![image](./image.png)](./page.md)', language: languages.markdown},
 	],
+});
+
+const markdownLanguages = [languages.markdown, {...languages.markdown, language: 'markdown/gfm'}];
+
+for (const language of markdownLanguages) {
+	test({
+		valid: [],
+		invalid: [
+			{
+				code: '- [`prefer-nesting`](./prefer-nesting.md)',
+				output: '- [`prefer-nesting`](prefer-nesting.md)',
+				errors: [{messageId: 'never'}],
+			},
+			{
+				code: '![`API`](./diagram.png)',
+				output: '![`API`](diagram.png)',
+				errors: [{messageId: 'never'}],
+			},
+			{
+				code: '![![moon](./inner.png)](./outer.png)',
+				output: '![![moon](./inner.png)](outer.png)',
+				errors: [{messageId: 'never'}],
+			},
+			{
+				code: '<img src="./diagram.png">',
+				output: '<img src="diagram.png">',
+				errors: [{messageId: 'never'}],
+			},
+			{
+				code: '![`API`](diagram.png) <img src="diagram.png">',
+				output: '![`API`](./diagram.png) <img src="./diagram.png">',
+				options: ['always'],
+				errors: [{messageId: 'always'}, {messageId: 'always'}],
+			},
+		].map(testCase => ({...testCase, language: language.language, plugins: language.plugins})),
+	});
+
+	test.snapshot({
+		valid: [
+			'![`API`](https://example.com/diagram.png)',
+			'`![image](./image.png) <img src="./image.png">`',
+			'```markdown\n![image](./image.png)\n<img src="./image.png">\n```',
+			'    ![image](./image.png) <img src="./image.png">',
+			'> ![image](\n> ./image.png)',
+			'> <div>\n> <script>\n>\n> <a href="./fake">\n>\n> </script>\n> </div>\n\n<img src="./real">',
+			'<!-- <img src="./image.png"> -->',
+			'<script>\n\n<img src="./fake.png">\n\n</script>',
+			'<textarea>\n\n<img src="./fake.png">\n\n</textarea>',
+			'<img data-src="./image.png">',
+			'<img src="&period;/image.png">',
+			'<img src="&#32;./image.png">',
+			'<img srcset="./one.png?a=1&amp;b=2 1x">',
+			'<img srcset="./,one.png 1x">',
+			'<svg><image xlink:href="./image.svg" /></svg>',
+			'<img\r\n src="./image.png">',
+		].map(code => ({code, language})),
+		invalid: [
+			{code: '[**bold** and *emphasis*](./page.md "title")'},
+			{code: '[<span>label</span>](./page.md)'},
+			{code: '[`code`](page.md)', options: ['always']},
+			{code: '[![`API`](./diagram.png)](./page.md)'},
+			{code: '![nested [brackets] and `](./wrong.png)`](./right.png)'},
+			{code: '![<span>API</span>](./diagram.png "title")'},
+			{code: '![`API`](<./diagram with spaces.png>)'},
+			{code: '![`API`](./diagram\\(1\\).png)'},
+			{code: '![![moon](inner.png)](outer.png)', options: ['always']},
+			{code: '> ![`API`](./diagram.png)'},
+			{code: '- ![`API`](\n  ./diagram.png)'},
+			{code: '![](./diagram.png)'},
+			{code: '[](./page.md)\n\n[reference]: ./reference.md'},
+			{code: '<a HREF="./page.html?a=1&amp;b=2">link</a>'},
+			{code: '<div>\n<img src=./image.png>\n</div>'},
+			{code: '<video poster=\'./poster.png\'></video>'},
+			{code: '<a href="  ./page.html  ">link</a>'},
+			{code: '<img src="image.png" srcset="small.png 1x, large.png 2x">', options: ['always']},
+			{code: '<a href=page.html>link</a>', options: ['always']},
+			{code: '<link imagesrcset="./small.png 320w, ./large.png 640w">'},
+			{code: '<img srcset="data:image/png;base64,abc 1x, ./large.png 2x">'},
+			{code: '<img srcset="./,one.png 1x, ./two.png 2x">'},
+			{code: '<script>\n\n<img src="./fake.png">\n\n</script>\n<img src="./real.png">'},
+			{code: '<textarea>\n\n<img src="./fake.png">\n\n</textarea>\n<img src="./real.png">'},
+			{code: '<template><img src="./image.png"></template>'},
+			{code: '<img src="./first.png" src="./second.png">'},
+			{code: '🦄 <img src="./image.png">'},
+			{code: '🦄\r\n\r\n<div>\r\n<img\r\n src="./image.png"\r\n srcset="./small.png 1x, ./large.png 2x">\r\n</div>'},
+		].map(testCase => ({...testCase, language})),
+	});
+}
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		'| Image |\n| --- |\n| ![`API`](./diagram.png) <img src="./other.png"> |',
+		'Footnote[^note]\n\n[^note]: ![`API`](./diagram.png) <img src="./other.png">',
+	].map(code => ({code, language: {...languages.markdown, language: 'markdown/gfm'}})),
 });
