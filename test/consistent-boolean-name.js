@@ -83,6 +83,28 @@ test({
 			code: 'function doesPassCheck() { return "yes"; }',
 			errors: [{messageId: 'non-boolean-prefix', data: {name: 'doesPassCheck', prefix: 'does'}}],
 		},
+		{
+			code: 'const check = {doesPassCheck: 1, doesMatch() { return "yes"; }};',
+			options: [{checkFields: 'always', checkMethods: 'always'}],
+			errors: [
+				{messageId: 'non-boolean-prefix', data: {name: 'doesPassCheck', prefix: 'does'}},
+				{messageId: 'non-boolean-prefix', data: {name: 'doesMatch', prefix: 'does'}},
+			],
+		},
+		{
+			code: 'const passCheck = true; console.log(passCheck);',
+			output: 'const doesPassCheck = true; console.log(doesPassCheck);',
+			options: [{prefixes: {...onlyIsPrefixOptions.prefixes, is: false, does: true}}],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				data: {name: 'passCheck', prefixes: '`does`'},
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'doesPassCheck'},
+					output: 'const doesPassCheck = true; console.log(doesPassCheck);',
+				}],
+			}],
+		},
 	],
 });
 
@@ -762,7 +784,7 @@ test.snapshot({
 		'class isReady {} isReady = "yes";',
 		'try {} catch (isReady) { isReady = "yes"; }',
 		{
-			code: 'const needsUpdate = true; const didUpdate = true;',
+			code: 'const needsUpdate = true; const didUpdate = true; const doesPassCheck = true;',
 			options: [{prefixes: {needs: true}}],
 		},
 		{
