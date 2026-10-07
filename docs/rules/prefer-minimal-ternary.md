@@ -79,7 +79,7 @@ Comments, unsafe evaluation reordering, Vue directive attributes, and statement 
 
 With [type information](https://typescript-eslint.io/getting-started/typed-linting/), fixes that could change narrowing, overload resolution, generic inference, or correlated types are withheld, as are fixes for shared-callee calls and constructors with rest parameters. These checks are best-effort; review type-sensitive fixes.
 
-Without type information, TypeScript object ternaries are autofixed only when every shared property value is a literal. Shared identifiers require type information, even when they are safe. When type safety prevents an object autofix, the rule offers a suggestion instead, subject to the same comment and evaluation-order safeguards. Suggestions may still break TypeScript narrowing and should be reviewed before applying.
+TypeScript object autofixes require type information for shared non-literal values, even safe identifiers. When type safety blocks an object autofix, the rule offers a suggestion subject to runtime and comment safeguards; review it for lost narrowing.
 
 TypeScript `const enum` receivers are ignored when type information is available, since conditional receivers and keys would not compile.
 
