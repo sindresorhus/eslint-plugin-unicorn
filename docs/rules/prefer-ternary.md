@@ -11,19 +11,17 @@
 
 This rule enforces the use of ternary expressions over simple `if` statements that return or assign a value. It handles `if`/`else` statements with one mergeable statement in each branch. For returns, it also handles the equivalent flat form where another `return` immediately follows an `if` without an `else`.
 
-For assignments, only plain `=` assignments to identifiers or matching destructuring patterns are combined. Standalone property, compound, and logical assignments are ignored to preserve evaluation order. When nested inside returns or supported assignments, they remain in the ternary branches.
+Only plain `=` assignments to identifiers or identical array/object patterns (ignoring whitespace) are combined. Property, compound, and logical assignments remain inside ternary branches when nested in returns or supported assignments; standalone forms are ignored.
 
-Direct arrow values in identifier assignments or declaration initializers are kept in place to preserve their inferred function names.
+Direct arrow values stay in their identifier assignments or declaration initializers to preserve function names.
 
-Array and object destructuring assignments are supported when both branches use the same pattern, ignoring whitespace. The pattern itself may span multiple lines in `always` mode. Patterns containing statement blocks, class bodies, or multiline array/object literals, JSX elements/fragments, or template literals are ignored.
-
-With full TypeScript type information, the rule also requires identical target tokens and skips assignments whose target expressions have different resolved types in the branches, preserving narrowed contextual types. Without type information, targets are matched by syntax.
+Patterns may span lines in `always` mode, but cannot contain statement blocks, class bodies, or multiline array/object literals, JSX, or templates.
 
 It intentionally ignores standalone `await`, `yield`, and `throw` branches because ternaries there usually reduce readability without assigning or returning a value.
 
 It also detects `let` declarations immediately followed by an `if` that reassigns the variable, which can be replaced with a single declaration using a ternary. The declaration is `const` when the variable has no later writes, and remains `let` when later writes require mutability.
 
-With full type information, declaration suggestions require an explicit variable type annotation. Inferred declarations, including JavaScript declarations checked through TypeScript, are skipped to preserve contextual typing.
+With full type information, target tokens and expression types must match across branches. Declaration suggestions require an explicit type annotation; inferred TypeScript and checked JavaScript declarations are skipped.
 
 ## Readability boundaries
 
