@@ -11,15 +11,13 @@
 
 This rule enforces the use of ternary expressions over simple `if` statements that return or assign a value. It handles `if`/`else` statements with one mergeable statement in each branch. For returns, it also handles the equivalent flat form where another `return` immediately follows an `if` without an `else`.
 
-Array and object destructuring assignments are supported when both branches use the same pattern, ignoring whitespace. Patterns containing statement blocks, class bodies, or multiline containers are ignored.
+Array and object destructuring assignments are supported when both branches use the same pattern, ignoring whitespace. The pattern itself may span multiple lines in `always` mode. Patterns containing statement blocks, class bodies, or multiline array/object literals, JSX elements/fragments, or template literals are ignored.
+
+When full TypeScript type information is available, destructuring assignments are only combined when expressions within their patterns have the same resolved types in both branches, preserving narrowed contextual types.
 
 It intentionally ignores standalone `await`, `yield`, and `throw` branches because ternaries there usually reduce readability without assigning or returning a value.
 
 It also detects `let` declarations immediately followed by an `if` that reassigns the variable, which can be replaced with a single declaration using a ternary. The declaration is `const` when the variable has no later writes, and remains `let` when later writes require mutability.
-
-Using branching statements typically results in more lines of code than a single ternary expression, which leads to an unnecessarily large codebase that is more difficult to maintain.
-
-Additionally, branching statements can require a variable to use `let` or `var` solely so it can be reassigned. This adds unnecessary mutability and prevents `prefer-const` from flagging the variable.
 
 ## Readability boundaries
 

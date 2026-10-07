@@ -13,6 +13,7 @@ import {
 	getLastTrailingCommentOnSameLine,
 	getCommentSafeProblem,
 	getVisitorChildNodes,
+	withTypeInformation,
 } from './utils/index.js';
 
 const messageId = 'prefer-ternary';
@@ -75,21 +76,41 @@ const isMergeableReturnStatement = (consequent, alternate, visitorKeys) =>
 	&& !hasTernary(alternate.argument, visitorKeys)
 	&& !(isBooleanLiteral(consequent.argument) && isBooleanLiteral(alternate.argument));
 
-const isMergeableAssignmentExpression = (consequent, alternate, sourceCode) =>
+function hasSameAssignmentTargetTypes(consequent, alternate, context) {
+	const {sourceCode} = context;
+	if (!sourceCode.parserServices?.program) {
+		return true;
+	}
+
+	// Pattern containers have synthesized types; compare their expressions instead.
+	if (
+		!['ArrayPattern', 'ObjectPattern', 'RestElement', 'Property', 'AssignmentPattern'].includes(consequent.type)
+		&& withTypeInformation(consequent, context, ({type}) => type !== sourceCode.parserServices.getTypeAtLocation(alternate))
+	) {
+		return false;
+	}
+
+	const alternateChildren = [...getVisitorChildNodes(alternate, sourceCode.visitorKeys)];
+	return getVisitorChildNodes(consequent, sourceCode.visitorKeys).every((childNode, index) => hasSameAssignmentTargetTypes(childNode, alternateChildren[index], context));
+}
+
+const isMergeableAssignmentExpression = (consequent, alternate, context) =>
 	consequent.type === 'AssignmentExpression'
 	&& alternate.type === 'AssignmentExpression'
 	&& consequent.operator === alternate.operator
-	&& !hasTernary(consequent.right, sourceCode.visitorKeys)
-	&& !hasTernary(alternate.right, sourceCode.visitorKeys)
+	&& !hasTernary(consequent.right, context.sourceCode.visitorKeys)
+	&& !hasTernary(alternate.right, context.sourceCode.visitorKeys)
 	&& (
 		isSameReference(consequent.left, alternate.left)
 		|| (
 			consequent.left.type === alternate.left.type
 			&& (consequent.left.type === 'ArrayPattern' || consequent.left.type === 'ObjectPattern')
 			// Token matching ignores line breaks, which can change statement semantics.
-			&& !hasComplexStructure(consequent.left, sourceCode)
-			&& !hasComplexStructure(alternate.left, sourceCode)
-			&& isSameTokens(sourceCode.getTokens(consequent.left), sourceCode.getTokens(alternate.left))
+			&& !hasComplexStructure(consequent.left, context.sourceCode)
+			&& !hasComplexStructure(alternate.left, context.sourceCode)
+			&& isSameTokens(context.sourceCode.getTokens(consequent.left), context.sourceCode.getTokens(alternate.left))
+			// Moving the pattern outside the branches can lose narrowed contextual types.
+			&& hasSameAssignmentTargetTypes(consequent.left, alternate.left, context)
 		)
 	);
 
@@ -132,7 +153,7 @@ const create = context => {
 			});
 		}
 
-		if (isMergeableAssignmentExpression(consequent, alternate, sourceCode)) {
+		if (isMergeableAssignmentExpression(consequent, alternate, context)) {
 			const {left, right, operator} = consequent;
 
 			const result = {

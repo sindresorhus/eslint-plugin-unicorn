@@ -72,6 +72,7 @@ test({
 			'[a, b]',
 			'[a, {b}]',
 			'[a = fallback(), ...rest]',
+			'[a = () => fallback()]',
 			'[object.value, object[key]]',
 			'[a, , b]',
 			'[]',
@@ -156,7 +157,55 @@ test({
 			languageOptions: {parser: parsers.typescript},
 			errors,
 		})),
+		...[parsers.vue, parsers.svelte].map(parser => ({
+			code: '<script>if (test) { ({a} = first); } else { ({a} = second); }</script>',
+			output: '<script>({a} = test ? first : second);</script>',
+			languageOptions: {parser},
+			errors,
+		})),
 	],
+});
+
+nodeTest('closes the iterator when a destructuring default throws', t => {
+	const code = 'let value; if (condition()) { [value = getDefault()] = getValue("first"); } else { [value = getDefault()] = getValue("second"); }';
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, {
+		plugins: {unicorn},
+		rules: {'unicorn/prefer-ternary': 'error'},
+	});
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+
+	for (const condition of [true, false]) {
+		for (const source of [code, result.output]) {
+			const calls = [];
+			const error = new Error('default failed');
+			t.assert.throws(() => vm.runInNewContext(source, {
+				condition() {
+					calls.push('condition');
+					return condition;
+				},
+				getValue(branch) {
+					calls.push(branch);
+					return {
+						* [Symbol.iterator]() {
+							try {
+								calls.push('next');
+								yield;
+							} finally {
+								calls.push('close');
+							}
+						},
+					};
+				},
+				getDefault() {
+					calls.push('default');
+					throw error;
+				},
+			}), thrown => thrown === error);
+			t.assert.deepStrictEqual(calls, ['condition', condition ? 'first' : 'second', 'next', 'default', 'close']);
+		}
+	}
 });
 
 nodeTest('preserves destructuring evaluation order', t => {
