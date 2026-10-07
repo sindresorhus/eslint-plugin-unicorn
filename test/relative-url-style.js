@@ -245,6 +245,13 @@ for (const language of markdownLanguages) {
 	test({
 		valid: [
 			{
+				code: '![[^`note]](./right.md "`]](./wrong.md")\n\n[^`note]: footnote',
+			},
+			{
+				code: '![[^`note]](right.md "`]](wrong.md")\n\n[^`note]: footnote',
+				options: ['always'],
+			},
+			{
 				code: '![$`](./wrong.md "title$](./right.md")',
 				languageOptions: {math: true},
 			},
@@ -255,6 +262,11 @@ for (const language of markdownLanguages) {
 			},
 		].map(testCase => ({...testCase, language: language.language, plugins: language.plugins})),
 		invalid: [
+			{
+				code: '🦄\r\n\r\n<div>\r\n<img\r\n src="./image.png"\r\n srcset="./small.png 1x, ./large.png 2x">\r\n</div>',
+				output: '🦄\r\n\r\n<div>\r\n<img\r\n src="image.png"\r\n srcset="small.png 1x, large.png 2x">\r\n</div>',
+				errors: 3,
+			},
 			{
 				code: '![`API`](./diagram.png)',
 				output: '![`API`](diagram.png)',
@@ -361,7 +373,6 @@ for (const language of markdownLanguages) {
 			{code: '<template><img src="./image.png"></template>'},
 			{code: '<img src="./first.png" src="./second.png">'},
 			{code: '🦄 <img src="./image.png">'},
-			{code: '🦄\r\n\r\n<div>\r\n<img\r\n src="./image.png"\r\n srcset="./small.png 1x, ./large.png 2x">\r\n</div>'},
 		].map(testCase => ({...testCase, language})),
 	});
 }

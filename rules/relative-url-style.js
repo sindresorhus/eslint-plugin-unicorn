@@ -231,8 +231,8 @@ const create = context => {
 
 	context.on('image', node => {
 		const text = sourceCode.getText(node);
-		// Math syntax can change image label boundaries.
-		if (context.languageOptions.math === true && text.includes('$')) {
+		// Markdown extensions can change image label boundaries.
+		if (text.includes('[^') || (context.languageOptions.math === true && text.includes('$'))) {
 			return;
 		}
 

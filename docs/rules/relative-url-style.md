@@ -13,7 +13,7 @@ Use a consistent `./` prefix for relative URLs in [`new URL()`](https://develope
 
 In CSS at-rule preludes, only `@import` targets are checked. Fixes preserve `srcset` descriptors and separators; a prefix before a comma is retained to avoid changing candidate boundaries. Templated HTML/CSS URLs, entity-containing `srcset` values, complex reference-definition labels, and escaped `./` prefixes are left unchanged.
 
-Markdown images support formatted descriptions, but destinations inside those descriptions are left unchanged. Images that cannot be parsed independently, such as multiline destinations containing blockquote prefixes, are skipped. Images containing `$` are also skipped when Markdown's `math` option is enabled. Embedded HTML is skipped for the entire document if Markdown container processing changes any HTML fragment's source.
+Markdown images support formatted descriptions, but destinations inside those descriptions are left unchanged. Images that cannot be parsed independently, such as multiline destinations containing blockquote prefixes, are skipped. Images containing footnote-reference syntax (`[^`) are skipped, as are images containing `$` when Markdown's `math` option is enabled. Embedded HTML is skipped for the entire document if Markdown container processing changes any HTML fragment's source.
 
 ## Examples
 
