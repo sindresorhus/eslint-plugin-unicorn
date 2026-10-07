@@ -187,3 +187,58 @@ nodeTest('preserves destructuring evaluation order', t => {
 		}
 	}
 });
+
+nodeTest('preserves array destructuring evaluation order and iterator closing', t => {
+	const code = 'if (condition()) { [getTarget()[getKey()] = getDefault()] = getValue("first"); } else { [getTarget()[getKey()] = getDefault()] = getValue("second"); } target.value;';
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, {
+		plugins: {unicorn},
+		rules: {'unicorn/prefer-ternary': 'error'},
+	});
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+
+	for (const condition of [true, false]) {
+		for (const value of [undefined, 1]) {
+			for (const source of [code, result.output]) {
+				const calls = [];
+				const target = {};
+				const output = vm.runInNewContext(source, {
+					target,
+					condition() {
+						calls.push('condition');
+						return condition;
+					},
+					getValue(branch) {
+						calls.push(branch);
+						return {
+							* [Symbol.iterator]() {
+								try {
+									calls.push('next');
+									yield value;
+									calls.push('exhausted');
+								} finally {
+									calls.push('close');
+								}
+							},
+						};
+					},
+					getTarget() {
+						calls.push('target');
+						return target;
+					},
+					getKey() {
+						calls.push('key');
+						return 'value';
+					},
+					getDefault() {
+						calls.push('default');
+						return 2;
+					},
+				});
+				t.assert.strictEqual(output, value ?? 2);
+				t.assert.deepStrictEqual(calls, ['condition', condition ? 'first' : 'second', 'target', 'key', 'next', ...(value === undefined ? ['default'] : []), 'close']);
+			}
+		}
+	}
+});
