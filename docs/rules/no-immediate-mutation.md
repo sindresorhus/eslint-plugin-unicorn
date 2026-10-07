@@ -137,9 +137,9 @@ let foo;
 let [r, g, b] = RGB.map(c => c / 255);
 ```
 
-Initializers with possible side effects produce suggestions instead of automatic fixes. Unannotated TypeScript targets also produce suggestions, because combining the statements can narrow the inferred type. No edit is offered when comments would move or disappear, or when a destructuring target has a TypeScript type annotation.
+Initializers with possible side effects produce suggestions instead of automatic fixes. Unannotated TypeScript targets also produce suggestions, because combining the statements can narrow the inferred type. No edit is offered when comments would move or disappear, when a target has a TypeScript definite assignment assertion, or when a destructuring target has a TypeScript type annotation.
 
-Declarations containing initialized variables, exported declarations, redeclarations, object patterns, nested patterns, defaults, rest elements, and initializers referencing their own targets are ignored. Intervening statements are allowed, and `checkConditionals` does not extend this check to conditional assignments.
+Declarations containing initialized variables, exported declarations, redeclared targets, object patterns, nested patterns, defaults, rest elements, and initializers referencing their own targets are ignored. Assignments separated from the declaration by another statement are also ignored. The `checkConditionals` option does not extend this check to conditional assignments.
 
 ## Options
 

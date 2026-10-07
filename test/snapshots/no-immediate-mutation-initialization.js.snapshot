@@ -183,44 +183,34 @@ Output:
 
 `;
 
-exports[`no-immediate-mutation > invalid(18): function run() {\r\n  let foo, other;\r\n  foo = 1;\r\n} 1`] = `
-
-  1 | function run() {
-  2 |   let foo, other;
-  3 |   foo = 1;
-  4 | }
-
-`;
-
-exports[`no-immediate-mutation > invalid(18): function run() {\r\n  let foo, other;\r\n  foo = 1;\r\n} 2`] = `
-
-Message:
-  1 | function run() {
-  2 |   let foo, other;
-> 3 |   foo = 1;
-    |   ^^^^^^^ Combine this initialization with the preceding declaration.
-  4 | }
-
-Output:
-  1 | function run() {
-  2 |   let other;
-  3 |   let foo = 1;
-  4 | }
-
-`;
-
-exports[`no-immediate-mutation > invalid(19): let foo;\nfoo = 1; // Keep this comment. 1`] = `
+exports[`no-immediate-mutation > invalid(18): let foo;\nfoo = 1; // Keep this comment. 1`] = `
 
   1 | let foo;
   2 | foo = 1; // Keep this comment.
 
 `;
 
-exports[`no-immediate-mutation > invalid(19): let foo;\nfoo = 1; // Keep this comment. 2`] = `
+exports[`no-immediate-mutation > invalid(18): let foo;\nfoo = 1; // Keep this comment. 2`] = `
 
 Message:
   1 | let foo;
 > 2 | foo = 1; // Keep this comment.
+    | ^^^^^^^ Combine this initialization with the preceding declaration.
+
+`;
+
+exports[`no-immediate-mutation > invalid(19): let foo; // Keep this comment.\nfoo = 1; 1`] = `
+
+  1 | let foo; // Keep this comment.
+  2 | foo = 1;
+
+`;
+
+exports[`no-immediate-mutation > invalid(19): let foo; // Keep this comment.\nfoo = 1; 2`] = `
+
+Message:
+  1 | let foo; // Keep this comment.
+> 2 | foo = 1;
     | ^^^^^^^ Combine this initialization with the preceding declaration.
 
 `;
@@ -244,30 +234,14 @@ Output:
 
 `;
 
-exports[`no-immediate-mutation > invalid(20): let foo; // Keep this comment.\nfoo = 1; 1`] = `
-
-  1 | let foo; // Keep this comment.
-  2 | foo = 1;
-
-`;
-
-exports[`no-immediate-mutation > invalid(20): let foo; // Keep this comment.\nfoo = 1; 2`] = `
-
-Message:
-  1 | let foo; // Keep this comment.
-> 2 | foo = 1;
-    | ^^^^^^^ Combine this initialization with the preceding declaration.
-
-`;
-
-exports[`no-immediate-mutation > invalid(21): let /* Keep this comment. */ foo;\nfoo = 1; 1`] = `
+exports[`no-immediate-mutation > invalid(20): let /* Keep this comment. */ foo;\nfoo = 1; 1`] = `
 
   1 | let /* Keep this comment. */ foo;
   2 | foo = 1;
 
 `;
 
-exports[`no-immediate-mutation > invalid(21): let /* Keep this comment. */ foo;\nfoo = 1; 2`] = `
+exports[`no-immediate-mutation > invalid(20): let /* Keep this comment. */ foo;\nfoo = 1; 2`] = `
 
 Message:
   1 | let /* Keep this comment. */ foo;
@@ -276,14 +250,14 @@ Message:
 
 `;
 
-exports[`no-immediate-mutation > invalid(22): let foo;\n/* Keep this comment. */ foo = 1; 1`] = `
+exports[`no-immediate-mutation > invalid(21): let foo;\n/* Keep this comment. */ foo = 1; 1`] = `
 
   1 | let foo;
   2 | /* Keep this comment. */ foo = 1;
 
 `;
 
-exports[`no-immediate-mutation > invalid(22): let foo;\n/* Keep this comment. */ foo = 1; 2`] = `
+exports[`no-immediate-mutation > invalid(21): let foo;\n/* Keep this comment. */ foo = 1; 2`] = `
 
 Message:
   1 | let foo;
@@ -292,14 +266,14 @@ Message:
 
 `;
 
-exports[`no-immediate-mutation > invalid(23): let foo;\nfoo = /* Keep this comment. */ 1; 1`] = `
+exports[`no-immediate-mutation > invalid(22): let foo;\nfoo = /* Keep this comment. */ 1; 1`] = `
 
   1 | let foo;
   2 | foo = /* Keep this comment. */ 1;
 
 `;
 
-exports[`no-immediate-mutation > invalid(23): let foo;\nfoo = /* Keep this comment. */ 1; 2`] = `
+exports[`no-immediate-mutation > invalid(22): let foo;\nfoo = /* Keep this comment. */ 1; 2`] = `
 
 Message:
   1 | let foo;
@@ -308,14 +282,14 @@ Message:
 
 `;
 
-exports[`no-immediate-mutation > invalid(24): let foo;\nfoo = getValue(/* Keep this comment. */); 1`] = `
+exports[`no-immediate-mutation > invalid(23): let foo;\nfoo = getValue(/* Keep this comment. */); 1`] = `
 
   1 | let foo;
   2 | foo = getValue(/* Keep this comment. */);
 
 `;
 
-exports[`no-immediate-mutation > invalid(24): let foo;\nfoo = getValue(/* Keep this comment. */); 2`] = `
+exports[`no-immediate-mutation > invalid(23): let foo;\nfoo = getValue(/* Keep this comment. */); 2`] = `
 
 Message:
   1 | let foo;
@@ -324,7 +298,7 @@ Message:
 
 `;
 
-exports[`no-immediate-mutation > invalid(25): let foo;\nfoo = 1; 1`] = `
+exports[`no-immediate-mutation > invalid(24): let foo;\nfoo = 1; 1`] = `
 
 Options:
 - checkConditionals: true
@@ -335,7 +309,7 @@ Code:
 
 `;
 
-exports[`no-immediate-mutation > invalid(25): let foo;\nfoo = 1; 2`] = `
+exports[`no-immediate-mutation > invalid(24): let foo;\nfoo = 1; 2`] = `
 
 Message:
   1 | let foo;
@@ -347,14 +321,14 @@ Output:
 
 `;
 
-exports[`no-immediate-mutation > invalid(26): let foo: number;\nfoo = value as number; 1`] = `
+exports[`no-immediate-mutation > invalid(25): let foo: number;\nfoo = value as number; 1`] = `
 
   1 | let foo: number;
   2 | foo = value as number;
 
 `;
 
-exports[`no-immediate-mutation > invalid(26): let foo: number;\nfoo = value as number; 2`] = `
+exports[`no-immediate-mutation > invalid(25): let foo: number;\nfoo = value as number; 2`] = `
 
 Message:
   1 | let foo: number;
@@ -366,14 +340,14 @@ Output:
 
 `;
 
-exports[`no-immediate-mutation > invalid(27): let foo: number, other: string;\nfoo = value!; 1`] = `
+exports[`no-immediate-mutation > invalid(26): let foo: number, other: string;\nfoo = value!; 1`] = `
 
   1 | let foo: number, other: string;
   2 | foo = value!;
 
 `;
 
-exports[`no-immediate-mutation > invalid(27): let foo: number, other: string;\nfoo = value!; 2`] = `
+exports[`no-immediate-mutation > invalid(26): let foo: number, other: string;\nfoo = value!; 2`] = `
 
 Message:
   1 | let foo: number, other: string;
@@ -386,14 +360,14 @@ Output:
 
 `;
 
-exports[`no-immediate-mutation > invalid(28): let foo;\nfoo = value satisfies number; 1`] = `
+exports[`no-immediate-mutation > invalid(27): let foo;\nfoo = value satisfies number; 1`] = `
 
   1 | let foo;
   2 | foo = value satisfies number;
 
 `;
 
-exports[`no-immediate-mutation > invalid(28): let foo;\nfoo = value satisfies number; 2`] = `
+exports[`no-immediate-mutation > invalid(27): let foo;\nfoo = value satisfies number; 2`] = `
 
 Message:
   1 | let foo;
@@ -405,18 +379,34 @@ Suggestion 1/1: Combine the initialization and declaration.:
 
 `;
 
-exports[`no-immediate-mutation > invalid(29): let foo: number, bar: string;\n[foo, bar] = values; 1`] = `
+exports[`no-immediate-mutation > invalid(28): let foo: number, bar: string;\n[foo, bar] = values; 1`] = `
 
   1 | let foo: number, bar: string;
   2 | [foo, bar] = values;
 
 `;
 
-exports[`no-immediate-mutation > invalid(29): let foo: number, bar: string;\n[foo, bar] = values; 2`] = `
+exports[`no-immediate-mutation > invalid(28): let foo: number, bar: string;\n[foo, bar] = values; 2`] = `
 
 Message:
   1 | let foo: number, bar: string;
 > 2 | [foo, bar] = values;
+    | ^^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
+
+`;
+
+exports[`no-immediate-mutation > invalid(29): let foo: number;\n[foo] = getValues(); 1`] = `
+
+  1 | let foo: number;
+  2 | [foo] = getValues();
+
+`;
+
+exports[`no-immediate-mutation > invalid(29): let foo: number;\n[foo] = getValues(); 2`] = `
+
+Message:
+  1 | let foo: number;
+> 2 | [foo] = getValues();
     | ^^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
 
 `;
@@ -441,30 +431,14 @@ Output:
 
 `;
 
-exports[`no-immediate-mutation > invalid(30): let foo: number;\n[foo] = getValues(); 1`] = `
-
-  1 | let foo: number;
-  2 | [foo] = getValues();
-
-`;
-
-exports[`no-immediate-mutation > invalid(30): let foo: number;\n[foo] = getValues(); 2`] = `
-
-Message:
-  1 | let foo: number;
-> 2 | [foo] = getValues();
-    | ^^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
-
-`;
-
-exports[`no-immediate-mutation > invalid(31): let foo;\n[foo] = values as number[]; 1`] = `
+exports[`no-immediate-mutation > invalid(30): let foo;\n[foo] = values as number[]; 1`] = `
 
   1 | let foo;
   2 | [foo] = values as number[];
 
 `;
 
-exports[`no-immediate-mutation > invalid(31): let foo;\n[foo] = values as number[]; 2`] = `
+exports[`no-immediate-mutation > invalid(30): let foo;\n[foo] = values as number[]; 2`] = `
 
 Message:
   1 | let foo;
@@ -476,14 +450,14 @@ Suggestion 1/1: Combine the initialization and declaration.:
 
 `;
 
-exports[`no-immediate-mutation > invalid(32): let foo!: number;\nfoo = 1; 1`] = `
+exports[`no-immediate-mutation > invalid(31): let foo!: number;\nfoo = 1; 1`] = `
 
   1 | let foo!: number;
   2 | foo = 1;
 
 `;
 
-exports[`no-immediate-mutation > invalid(32): let foo!: number;\nfoo = 1; 2`] = `
+exports[`no-immediate-mutation > invalid(31): let foo!: number;\nfoo = 1; 2`] = `
 
 Message:
   1 | let foo!: number;

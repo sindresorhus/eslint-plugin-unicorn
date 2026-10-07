@@ -41,6 +41,7 @@ ruleTest({
 		'let foo, bar; [foo, bar] = [bar, foo];',
 		'let foo, bar = 1; foo = 2;',
 		'var foo; var foo; foo = 1;',
+		'var foo; foo = 1; var foo;',
 		'function run(foo) { var foo; foo = 1; }',
 		'export let foo; foo = 1;',
 		'for (let foo; enabled;) { foo = 1; }',
@@ -81,8 +82,42 @@ ruleTest({
 			}],
 		},
 		{
+			code: 'async function run() {\n\tlet foo;\n\tfoo = await value;\n}',
+			errors: [{
+				messageId: 'initialization',
+				suggestions: [{messageId: 'suggestion/initialization', output: 'async function run() {\n\tlet foo = await value;\n}'}],
+			}],
+		},
+		{
+			code: 'function* run() {\n\tlet foo;\n\tfoo = yield value;\n}',
+			errors: [{
+				messageId: 'initialization',
+				suggestions: [{messageId: 'suggestion/initialization', output: 'function* run() {\n\tlet foo = yield value;\n}'}],
+			}],
+		},
+		{
 			code: 'let first, foo, last;\nfoo = last;',
 			output: 'let first, last;\nlet foo = last;',
+			errors: [{messageId: 'initialization', suggestions: []}],
+		},
+		{
+			code: 'var foo, other, other;\nfoo = 1;',
+			output: 'var other, other;\nvar foo = 1;',
+			errors: [{messageId: 'initialization', suggestions: []}],
+		},
+		{
+			code: 'let foo;\nfoo = 1;\n// Keep this comment.\nconsume(foo);',
+			output: 'let foo = 1;\n// Keep this comment.\nconsume(foo);',
+			errors: [{messageId: 'initialization', suggestions: []}],
+		},
+		{
+			code: 'function run() {\r\n  let foo, other;\r\n  foo = 1;\r\n}',
+			output: 'function run() {\r\n  let other;\r\n  let foo = 1;\r\n}',
+			errors: [{messageId: 'initialization', suggestions: []}],
+		},
+		{
+			code: 'function run() {\r\n  let foo\r\n  foo = 1\r\n  consume(foo)\r\n}',
+			output: 'function run() {\r\n  let foo = 1;\r\n  consume(foo)\r\n}',
 			errors: [{messageId: 'initialization', suggestions: []}],
 		},
 		{
@@ -152,7 +187,6 @@ ruleTest.snapshot({
 		'let foo\nfoo = 1\n;[1].map(callback)',
 		'let foo;\nfoo = 1;\n[1].map(callback);',
 		'function run() {\n\tlet foo;\n\tfoo = 1;\n}',
-		'function run() {\r\n  let foo, other;\r\n  foo = 1;\r\n}',
 		'let foo;\nfoo = 1; // Keep this comment.',
 		'let foo; // Keep this comment.\nfoo = 1;',
 		'let /* Keep this comment. */ foo;\nfoo = 1;',
