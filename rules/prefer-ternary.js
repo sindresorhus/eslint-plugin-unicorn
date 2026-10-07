@@ -135,11 +135,18 @@ const create = context => {
 		if (isMergeableAssignmentExpression(consequent, alternate, sourceCode)) {
 			const {left, right, operator} = consequent;
 
-			return merge({
+			const result = {
 				before: `${before}${getParenthesizedText(left, context)} ${operator} `,
 				consequent: right,
 				alternate: alternate.right,
-			});
+			};
+
+			// Destructuring evaluates its RHS before its targets; keep nested assignments after the condition.
+			if (left.type === 'ArrayPattern' || left.type === 'ObjectPattern') {
+				return result;
+			}
+
+			return merge(result);
 		}
 
 		return !returnFalseIfNotMergeable && options;

@@ -132,6 +132,16 @@ test({
 			errors,
 		},
 		{
+			code: 'if (test) { [a] = object[key] = first; } else { [a] = object[key] = second; }',
+			output: '[a] = test ? (object[key] = first) : (object[key] = second);',
+			errors,
+		},
+		{
+			code: 'if (test) { ({a} = object[key] = first); } else { ({a} = object[key] = second); }',
+			output: '({a} = test ? (object[key] = first) : (object[key] = second));',
+			errors,
+		},
+		{
 			code: 'if (test) { [a] = first; /* eslint-disable no-alert */ } else { [a] = second; }',
 			output: null,
 			errors,
@@ -238,6 +248,41 @@ nodeTest('preserves array destructuring evaluation order and iterator closing', 
 				});
 				t.assert.strictEqual(output, value ?? 2);
 				t.assert.deepStrictEqual(calls, ['condition', condition ? 'first' : 'second', 'target', 'key', 'next', ...(value === undefined ? ['default'] : []), 'close']);
+			}
+		}
+	}
+});
+
+nodeTest('preserves nested assignment targets after evaluating the condition', t => {
+	for (const pattern of ['[value]', '{value}']) {
+		const code = outdent`
+			let key = "before", value;
+			const target = {};
+			function condition() {
+				key = "after";
+				return test;
+			}
+			if (condition()) {
+				(${pattern} = target[key] = first);
+			} else {
+				(${pattern} = target[key] = second);
+			}
+			JSON.stringify([value, target]);
+		`;
+		const linter = new Linter();
+		const result = linter.verifyAndFix(code, {
+			plugins: {unicorn},
+			rules: {'unicorn/prefer-ternary': 'error'},
+		});
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.deepStrictEqual(result.messages, []);
+
+		for (const condition of [true, false]) {
+			const first = pattern.startsWith('[') ? [1] : {value: 1};
+			const second = pattern.startsWith('[') ? [2] : {value: 2};
+			for (const source of [code, result.output]) {
+				const output = vm.runInNewContext(source, {test: condition, first, second});
+				t.assert.strictEqual(output, JSON.stringify([condition ? 1 : 2, {after: condition ? first : second}]));
 			}
 		}
 	}
