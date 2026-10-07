@@ -86,6 +86,9 @@ const isMergeableAssignmentExpression = (consequent, alternate, sourceCode) =>
 		|| (
 			consequent.left.type === alternate.left.type
 			&& (consequent.left.type === 'ArrayPattern' || consequent.left.type === 'ObjectPattern')
+			// Token matching ignores line breaks, which can change statement semantics.
+			&& !hasComplexStructure(consequent.left, sourceCode)
+			&& !hasComplexStructure(alternate.left, sourceCode)
 			&& isSameTokens(sourceCode.getTokens(consequent.left), sourceCode.getTokens(alternate.left))
 		)
 	);

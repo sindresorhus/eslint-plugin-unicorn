@@ -1,4 +1,8 @@
+import nodeTest from 'node:test';
+import vm from 'node:vm';
 import outdent from 'outdent';
+import {Linter} from 'eslint';
+import unicorn from '../index.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta, 'prefer-ternary');
@@ -20,6 +24,21 @@ test({
 			['{a = 1}', '{a = 2}'],
 			['{[key]: a}', '{[other]: a}'],
 		].map(([consequent, alternate]) => `if (test) { (${consequent} = first); } else { (${alternate} = second); }`),
+		// Identical tokens do not imply identical behavior inside statement bodies.
+		...[
+			['[value = () => { return\n1; }]', '[value = () => { return 1; }]'],
+			['{value = function () { return\n1; }}', '{value = function () { return 1; }}'],
+			['{nested: [value = () => { return\n1; }]}', '{nested: [value = () => { return 1; }]}'],
+			['{[(() => { return\n1; })()]: value}', '{[(() => { return 1; })()]: value}'],
+		].flatMap(([first, second]) => [
+			`if (test) { (${first} = a); } else { (${second} = b); }`,
+			`if (test) { (${second} = a); } else { (${first} = b); }`,
+		]),
+		...[
+			'[value = class {}]',
+			'[value = [\nfirst,\nsecond\n]]',
+			'{value = {\nkey: first\n}}',
+		].map(pattern => `if (test) { (${pattern} = first); } else { (${pattern} = second); }`),
 		'if (test) { [a /* comment */] = first; } else { [a] = second; }',
 		'if (test) { ({a} = first); } else { ({a /* comment */} = second); }',
 		'if (test) { [a] = first ? second : third; } else { [a] = other; }',
@@ -103,6 +122,16 @@ test({
 			errors,
 		},
 		{
+			code: 'function foo() { if (test) { return ({a} = first); } return ({a} = second); }',
+			output: 'function foo() { return {a} = test ? first : second; }',
+			errors,
+		},
+		{
+			code: 'if (test) { result = ({a} = first); } else { result = ({a} = second); }',
+			output: 'result = {a} = test ? first : second;',
+			errors,
+		},
+		{
 			code: 'if (test) { [a] = first; /* eslint-disable no-alert */ } else { [a] = second; }',
 			output: null,
 			errors,
@@ -118,4 +147,42 @@ test({
 			errors,
 		})),
 	],
+});
+
+nodeTest('preserves destructuring evaluation order', t => {
+	const code = 'let value; if (condition()) { ({[getKey()]: value = getDefault()} = getValue("first")); } else { ({[getKey()]: value = getDefault()} = getValue("second")); } value;';
+	const result = new Linter().verifyAndFix(code, {
+		plugins: {unicorn},
+		rules: {'unicorn/prefer-ternary': 'error'},
+	});
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+
+	for (const condition of [true, false]) {
+		for (const value of [undefined, 1]) {
+			for (const source of [code, result.output]) {
+				const calls = [];
+				const output = vm.runInNewContext(source, {
+					condition() {
+						calls.push('condition');
+						return condition;
+					},
+					getValue(branch) {
+						calls.push(branch);
+						return {value};
+					},
+					getKey() {
+						calls.push('key');
+						return 'value';
+					},
+					getDefault() {
+						calls.push('default');
+						return 2;
+					},
+				});
+				t.assert.strictEqual(output, value ?? 2);
+				t.assert.deepStrictEqual(calls, ['condition', condition ? 'first' : 'second', 'key', ...(value === undefined ? ['default'] : [])]);
+			}
+		}
+	}
 });
