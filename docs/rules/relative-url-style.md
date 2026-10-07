@@ -26,7 +26,7 @@ The rule skips ambiguous syntax:
 
 - Escaped `./` prefixes, templated HTML/CSS URLs, and JSX strings whose entity decoding differs from HTML.
 - `srcset` values containing entities and candidates starting with `./,`.
-- Complex Markdown reference-definition labels and multiline destinations containing blockquote markers.
+- Markdown URLs containing `<`, complex reference-definition labels, and multiline destinations containing blockquote markers.
 - Markdown images containing footnote syntax, math delimiters with math enabled, or syntax requiring surrounding Markdown to parse.
 - Embedded HTML when Markdown container processing changes an HTML fragment's source.
 

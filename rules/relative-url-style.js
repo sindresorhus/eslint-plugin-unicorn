@@ -222,6 +222,15 @@ const create = context => {
 		return getHtmlAttributeProblems(node, node.name.name.toLowerCase(), raw, sourceCode.getRange(node.value)[0] + 1);
 	});
 
+	const getMarkdownUrlProblem = (node, start) => {
+		// Removing the prefix can turn a literal opening angle bracket into a destination delimiter.
+		if (node.url.includes('<')) {
+			return;
+		}
+
+		return getUrlProblem(node, node.url, start);
+	};
+
 	context.on(['link', 'definition'], node => {
 		// Complex definition labels are left unchanged when their destination cannot be located unambiguously.
 		const [start, end] = sourceCode.getRange(node);
@@ -240,7 +249,7 @@ const create = context => {
 			return;
 		}
 
-		return getUrlProblem(node, node.url, destinationStart);
+		return getMarkdownUrlProblem(node, destinationStart);
 	});
 
 	context.on('image', node => {
@@ -252,7 +261,7 @@ const create = context => {
 
 		const offset = getMarkdownImageDestinationOffset(text);
 		if (offset !== undefined) {
-			return getUrlProblem(node, node.url, sourceCode.getRange(node)[0] + offset);
+			return getMarkdownUrlProblem(node, sourceCode.getRange(node)[0] + offset);
 		}
 	});
 

@@ -520,6 +520,12 @@ for (const language of markdownLanguages) {
 	test({
 		valid: [
 			...['> [link](\n> page.md)', '> [reference]:\n> page.md', '> [link](\n> <page.md>)', '> [reference]:\n> <page.md>'].map(code => ({code, options: ['always']})),
+			...['./<file>', './<file', './\\<file>', './&lt;file&gt;'].flatMap(destination => [
+				{code: `[link](${destination})`},
+				{code: `![image](${destination})`},
+				{code: `[reference]: ${destination}\n\n[link][reference]`},
+			]),
+			{code: '[link](&lt;file&gt;)\n![image](\\<file>)\n\n[reference]: &lt;file&gt;', options: ['always']},
 			{
 				code: '![[^`note]](./right.md "`]](./wrong.md")\n\n[^`note]: footnote',
 			},
@@ -538,6 +544,11 @@ for (const language of markdownLanguages) {
 			},
 		].map(testCase => ({...testCase, language: language.language, plugins: language.plugins})),
 		invalid: [
+			{
+				code: '[link](./%3Cfile%3E)\n![image](./%3Cfile%3E)\n\n[reference]: ./%3Cfile%3E',
+				output: '[link](%3Cfile%3E)\n![image](%3Cfile%3E)\n\n[reference]: %3Cfile%3E',
+				errors: 3,
+			},
 			...['[link](\n  page.md)', '- [link](\n  page.md)', '[reference]:\n  page.md', '[link](>page.md)', '[reference]: >page.md'].map(code => ({
 				code,
 				output: code.replace(/>?page\.md/u, './$&'),
