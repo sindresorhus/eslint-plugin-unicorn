@@ -15,6 +15,22 @@ Output:
 
 `;
 
+exports[`no-negated-array-predicate > invalid(1): {!array.some(element => test(/* keep */ element))} 1`] = `
+
+Filename: file.svelte
+
+  1 | {!array.some(element => test(/* keep */ element))}
+
+`;
+
+exports[`no-negated-array-predicate > invalid(1): {!array.some(element => test(/* keep */ element))} 2`] = `
+
+Message:
+> 1 | {!array.some(element => test(/* keep */ element))}
+    |         ^^^^ Prefer \`Array#every()\` with a negated predicate over negating \`Array#some()\`.
+
+`;
+
 exports[`no-negated-array-predicate > invalid(10): !array.some(element => element.foo ? element.bar : element.baz); 1`] = `
 
   1 | !array.some(element => element.foo ? element.bar : element.baz);
@@ -199,6 +215,25 @@ Message:
 
 Output:
   1 | array.some(element => !test(element));
+
+`;
+
+exports[`no-negated-array-predicate > invalid(2): <!-- keep -->{!array.some(element => test(element))} 1`] = `
+
+Filename: file.svelte
+
+  1 | <!-- keep -->{!array.some(element => test(element))}
+
+`;
+
+exports[`no-negated-array-predicate > invalid(2): <!-- keep -->{!array.some(element => test(element))} 2`] = `
+
+Message:
+> 1 | <!-- keep -->{!array.some(element => test(element))}
+    |                      ^^^^ Prefer \`Array#every()\` with a negated predicate over negating \`Array#some()\`.
+
+Output:
+  1 | <!-- keep -->{array.every(element => !test(element))}
 
 `;
 

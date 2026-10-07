@@ -12,6 +12,24 @@ Message:
 
 `;
 
+exports[`prefer-single-array-predicate > invalid(1): declare function getValues(): ReturnType<() => {every(predicate: (value: number) => boolean): boolean}>;\nconst values = getValues();\nvalues.every(value => value > 0 /* keep */) && values.every(value => value < 10); 1`] = `
+
+  1 | declare function getValues(): ReturnType<() => {every(predicate: (value: number) => boolean): boolean}>;
+  2 | const values = getValues();
+  3 | values.every(value => value > 0 /* keep */) && values.every(value => value < 10);
+
+`;
+
+exports[`prefer-single-array-predicate > invalid(1): declare function getValues(): ReturnType<() => {every(predicate: (value: number) => boolean): boolean}>;\nconst values = getValues();\nvalues.every(value => value > 0 /* keep */) && values.every(value => value < 10); 2`] = `
+
+Message:
+  1 | declare function getValues(): ReturnType<() => {every(predicate: (value: number) => boolean): boolean}>;
+  2 | const values = getValues();
+> 3 | values.every(value => value > 0 /* keep */) && values.every(value => value < 10);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a single \`Array#every()\` with a combined predicate.
+
+`;
+
 exports[`prefer-single-array-predicate > invalid(1): if (\n\tarray.some(element => element.foo === 1)\n\t|| array.some(element => element.bar === 2)\n) {} 1`] = `
 
   1 | if (
@@ -66,6 +84,26 @@ exports[`prefer-single-array-predicate > invalid(2): array.every(element => /* c
 Message:
 > 1 | array.every(element => /* comment */ element.foo) && array.every(element => element.bar);
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a single \`Array#every()\` with a combined predicate.
+
+`;
+
+exports[`prefer-single-array-predicate > invalid(2): declare function getValues(): ReturnType<() => number[]>;\nconst values = getValues();\nvalues.every(value => value > 0 /* keep */) && values.every(value => value < 10); 1`] = `
+
+Filename: file.ts
+
+  1 | declare function getValues(): ReturnType<() => number[]>;
+  2 | const values = getValues();
+  3 | values.every(value => value > 0 /* keep */) && values.every(value => value < 10);
+
+`;
+
+exports[`prefer-single-array-predicate > invalid(2): declare function getValues(): ReturnType<() => number[]>;\nconst values = getValues();\nvalues.every(value => value > 0 /* keep */) && values.every(value => value < 10); 2`] = `
+
+Message:
+  1 | declare function getValues(): ReturnType<() => number[]>;
+  2 | const values = getValues();
+> 3 | values.every(value => value > 0 /* keep */) && values.every(value => value < 10);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a single \`Array#every()\` with a combined predicate.
 
 `;
 

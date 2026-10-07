@@ -1,7 +1,17 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 test.snapshot({
 	valid: [
@@ -78,5 +88,25 @@ test.snapshot({
 	invalid: [
 		'array.some(element => element.foo) /* comment */ || array.some(element => element.bar);',
 		'array.every(element => /* comment */ element.foo) && array.every(element => element.bar);',
+	],
+});
+
+const customCollectionCode = outdent`
+	declare function getValues(): ReturnType<() => {every(predicate: (value: number) => boolean): boolean}>;
+	const values = getValues();
+	values.every(value => value > 0 /* keep */) && values.every(value => value < 10);
+`;
+
+test.snapshot({
+	valid: [
+		typeAware(customCollectionCode),
+	],
+	invalid: [
+		{code: customCollectionCode, languageOptions: {parser: parsers.typescript}},
+		typeAware(outdent`
+			declare function getValues(): ReturnType<() => number[]>;
+			const values = getValues();
+			values.every(value => value > 0 /* keep */) && values.every(value => value < 10);
+		`),
 	],
 });

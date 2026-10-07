@@ -32,10 +32,10 @@ const allValid = items.every(item => item.valid && item.complete);
 
 ```js
 // ❌ - Multiple same-method calls
-const hasAnyValue = values.some(v => v !== null) || values.some(v => v !== undefined);
+const hasMissingValue = values.some(value => value === null) || values.some(value => value === undefined);
 
 // ✅ - Combine into one check
-const hasAnyValue = values.some(v => v !== null && v !== undefined);
+const hasMissingValue = values.some(value => value === null || value === undefined);
 ```
 
 ```js

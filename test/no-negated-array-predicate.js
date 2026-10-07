@@ -196,5 +196,31 @@ test({
 			languageOptions: {parser: parsers.typescript},
 			errors: 1,
 		},
+		{
+			code: '<script>const value = ![].some(element => test(element));</script><template>{{ !array.every(element => test(/* keep */ element)) }}</template>',
+			output: '<script>const value = [].every(element => !test(element));</script><template>{{ !array.every(element => test(/* keep */ element)) }}</template>',
+			filename: 'file.vue',
+			languageOptions: {parser: parsers.vue},
+			errors: [
+				{messageId: 'no-negated-array-predicate'},
+				{messageId: 'no-negated-array-predicate'},
+			],
+		},
+	],
+});
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		{
+			code: '{!array.some(element => test(/* keep */ element))}',
+			filename: 'file.svelte',
+			languageOptions: {parser: parsers.svelte},
+		},
+		{
+			code: '<!-- keep -->{!array.some(element => test(element))}',
+			filename: 'file.svelte',
+			languageOptions: {parser: parsers.svelte},
+		},
 	],
 });
