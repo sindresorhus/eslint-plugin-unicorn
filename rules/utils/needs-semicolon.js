@@ -63,7 +63,7 @@ export default function needsSemicolon(tokenBefore, context, code) {
 
 	const range = sourceCode.getRange(tokenBefore);
 	const lastBlockNode = sourceCode.getNodeByRangeIndex(range[0]);
-	// Parser wrapper tokens, such as Vue's `<script>`, have no JavaScript AST node.
+	// Parser wrapper tokens, such as Vue.js's `<script>`, have no JavaScript AST node.
 	if (!lastBlockNode) {
 		return false;
 	}
