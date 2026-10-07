@@ -76,14 +76,34 @@ test('suggests object minimization when type information throws', t => {
 	const code = 'declare const test: boolean, shared: string; test ? {shared, value: 1} : {shared, value: 2};';
 	const program = getProgram(code);
 	t.assert.deepStrictEqual(getDiagnostics(program), []);
-	t.mock.method(program.getTypeChecker(), 'getTypeAtLocation', () => {
+	const typeLookup = t.mock.method(program.getTypeChecker(), 'getTypeAtLocation', () => {
 		throw new Error('Type information unavailable');
 	});
 	const messages = getMessages(code, program);
+	t.assert.ok(typeLookup.mock.callCount() > 0);
 	t.assert.strictEqual(messages.length, 1);
 	t.assert.strictEqual(messages[0].messageId, 'prefer-minimal-ternary');
 	t.assert.strictEqual(messages[0].fix, undefined);
 	t.assert.strictEqual(messages[0].suggestions?.[0].fix.text, '({shared, value: test ? 1 : 2})');
+});
+
+test('fixes shared literal object values when type information throws', t => {
+	const code = 'declare const test: boolean; test ? {label: "fixed", value: 1, enabled: true} : {label: "fixed", value: 2, enabled: true};';
+	const program = getProgram(code);
+	t.assert.deepStrictEqual(getDiagnostics(program), []);
+	const typeLookup = t.mock.method(program.getTypeChecker(), 'getTypeAtLocation', () => {
+		throw new Error('Type information unavailable');
+	});
+	const messages = getMessages(code, program);
+	t.assert.ok(typeLookup.mock.callCount() > 0);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].messageId, 'prefer-minimal-ternary');
+	const {fix} = messages[0];
+	t.assert.ok(fix);
+	t.assert.strictEqual(fix.text, '({label: "fixed", value: test ? 1 : 2, enabled: true})');
+	t.assert.strictEqual(messages[0].suggestions, undefined);
+	const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	t.assert.deepStrictEqual(getDiagnostics(getProgram(output)), []);
 });
 
 const cases = [
