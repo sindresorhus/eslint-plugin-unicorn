@@ -575,6 +575,49 @@ test({
 				}
 			}
 		`,
+		// Member and compound assignments stay inside their branches.
+		outdent`
+			function unicorn() {
+				if(test){
+					foo *= a;
+				} else{
+					foo *= b;
+				}
+			}
+		`,
+		// Same `left`, but member targets remain in their branches.
+		outdent`
+			function unicorn() {
+				if (test) {
+					foo.bar = a;
+				} else{
+					foo.bar = b;
+				}
+			}
+		`,
+		outdent`
+			function unicorn() {
+				a()
+				if (test) {
+					(foo)['b' + 'ar'] = a
+				} else{
+					foo.bar = b
+				}
+			}
+		`,
+		outdent`
+			if(test){
+				$0 |= $1 ^= $2 &= $3 >>>= $4 >>= $5 <<= $6 %= $7 /= $8 *= $9 **= $10 -= $11 += $12 =
+				_STOP_ =
+				$0 |= $1 ^= $2 &= $3 >>>= $4 >>= $5 <<= $6 %= $7 /= $8 *= $9 **= $10 -= $11 += $12 =
+				1;
+			} else{
+				$0 |= $1 ^= $2 &= $3 >>>= $4 >>= $5 <<= $6 %= $7 /= $8 *= $9 **= $10 -= $11 += $12 =
+				_STOP_2_ =
+				$0 |= $1 ^= $2 &= $3 >>>= $4 >>= $5 <<= $6 %= $7 /= $8 *= $9 **= $10 -= $11 += $12 =
+				2;
+			}
+		`,
 	],
 	invalid: [
 		{
@@ -590,23 +633,6 @@ test({
 			output: outdent`
 				function unicorn() {
 					foo = test ? a : b;
-				}
-			`,
-			errors,
-		},
-		{
-			code: outdent`
-				function unicorn() {
-					if(test){
-						foo *= a;
-					} else{
-						foo *= b;
-					}
-				}
-			`,
-			output: outdent`
-				function unicorn() {
-					foo *= test ? a : b;
 				}
 			`,
 			errors,
@@ -645,43 +671,6 @@ test({
 			`,
 			errors,
 		},
-		// Same `left`
-		{
-			code: outdent`
-				function unicorn() {
-					if (test) {
-						foo.bar = a;
-					} else{
-						foo.bar = b;
-					}
-				}
-			`,
-			output: outdent`
-				function unicorn() {
-					foo.bar = test ? a : b;
-				}
-			`,
-			errors,
-		},
-		{
-			code: outdent`
-				function unicorn() {
-					a()
-					if (test) {
-						(foo)['b' + 'ar'] = a
-					} else{
-						foo.bar = b
-					}
-				}
-			`,
-			output: outdent`
-				function unicorn() {
-					a()
-					;(foo)['b' + 'ar'] = test ? a : b;
-				}
-			`,
-			errors,
-		},
 		// Crazy nested
 		{
 			code: outdent`
@@ -702,40 +691,23 @@ test({
 		},
 		{
 			code: outdent`
-				if(test){
-					$0 |= $1 ^= $2 &= $3 >>>= $4 >>= $5 <<= $6 %= $7 /= $8 *= $9 **= $10 -= $11 += $12 =
-					_STOP_ =
-					$0 |= $1 ^= $2 &= $3 >>>= $4 >>= $5 <<= $6 %= $7 /= $8 *= $9 **= $10 -= $11 += $12 =
-					1;
-				} else{
-					$0 |= $1 ^= $2 &= $3 >>>= $4 >>= $5 <<= $6 %= $7 /= $8 *= $9 **= $10 -= $11 += $12 =
-					_STOP_2_ =
-					$0 |= $1 ^= $2 &= $3 >>>= $4 >>= $5 <<= $6 %= $7 /= $8 *= $9 **= $10 -= $11 += $12 =
-					2;
-				}
-			`,
-			output: outdent`
-				$0 |= $1 ^= $2 &= $3 >>>= $4 >>= $5 <<= $6 %= $7 /= $8 *= $9 **= $10 -= $11 += $12 = test ? (_STOP_ =
-					$0 |= $1 ^= $2 &= $3 >>>= $4 >>= $5 <<= $6 %= $7 /= $8 *= $9 **= $10 -= $11 += $12 =
-					1) : (_STOP_2_ =
-					$0 |= $1 ^= $2 &= $3 >>>= $4 >>= $5 <<= $6 %= $7 /= $8 *= $9 **= $10 -= $11 += $12 =
-					2);
-			`,
-			errors,
-		},
-		{
-			code: outdent`
 				unrelatedStatement()
 				if (foo) {
-					;(bar.baz as any) = 'string'
+					;(bar as any) = 'string'
 				} else {
-					bar.baz = 2
+					bar = 2
 				}
 			`,
 			output: outdent`
 				unrelatedStatement()
-				;(bar.baz as any) = foo ? 'string' : 2;
+				;(bar as any) = foo ? 'string' : 2;
 			`,
+			errors,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'if (test) { value! = first; } else { value! = second; }',
+			output: 'value! = test ? first : second;',
 			errors,
 			languageOptions: {parser: parsers.typescript},
 		},

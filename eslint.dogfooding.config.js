@@ -133,6 +133,7 @@ const config = [
 			'test/prefer-early-return.js',
 			'test/prefer-ternary-readability.js',
 			'test/prefer-ternary.js',
+			'test/prefer-ternary-destructuring.js',
 		],
 		rules: {
 			// RuleTester uses `null` to assert that a problem is not autofixable.

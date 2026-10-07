@@ -3,6 +3,7 @@ import {isBooleanLiteral, isFunction} from './ast/index.js';
 import {
 	needsSemicolon,
 	isSameReference,
+	isSameTokens,
 	getConditionalExpressionChildText,
 	getParenthesizedText,
 	getParenthesizedRange,
@@ -12,6 +13,8 @@ import {
 	getLastTrailingCommentOnSameLine,
 	getCommentSafeProblem,
 	getVisitorChildNodes,
+	withTypeInformation,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 const messageId = 'prefer-ternary';
@@ -64,6 +67,8 @@ function getNodeBody(node) {
 const isSingleLineNode = (node, context) =>
 	context.sourceCode.getLoc(node).start.line === context.sourceCode.getLoc(node).end.line;
 
+const isArrowFunction = node => unwrapTypeScriptExpression(node).type === 'ArrowFunctionExpression';
+
 // Keep bare returns as explicit exits rather than introducing an undefined value branch.
 const isMergeableReturnStatement = (consequent, alternate, visitorKeys) =>
 	consequent.type === 'ReturnStatement'
@@ -74,13 +79,53 @@ const isMergeableReturnStatement = (consequent, alternate, visitorKeys) =>
 	&& !hasTernary(alternate.argument, visitorKeys)
 	&& !(isBooleanLiteral(consequent.argument) && isBooleanLiteral(alternate.argument));
 
-const isMergeableAssignmentExpression = (consequent, alternate, visitorKeys) =>
+function hasSameAssignmentTargetTypes(consequent, alternate, context) {
+	const {sourceCode} = context;
+	// Pattern containers have synthesized types; compare their expressions instead.
+	if (
+		!['ArrayPattern', 'ObjectPattern', 'RestElement', 'Property', 'AssignmentPattern'].includes(consequent.type)
+		&& withTypeInformation(consequent, context, ({type}) => type !== sourceCode.parserServices.getTypeAtLocation(alternate))
+	) {
+		return false;
+	}
+
+	const alternateChildren = [...getVisitorChildNodes(alternate, sourceCode.visitorKeys)];
+	return getVisitorChildNodes(consequent, sourceCode.visitorKeys).every((childNode, index) => hasSameAssignmentTargetTypes(childNode, alternateChildren[index], context));
+}
+
+const isMergeableAssignmentExpression = (consequent, alternate, context) =>
 	consequent.type === 'AssignmentExpression'
 	&& alternate.type === 'AssignmentExpression'
-	&& consequent.operator === alternate.operator
-	&& !hasTernary(consequent.right, visitorKeys)
-	&& !hasTernary(alternate.right, visitorKeys)
-	&& isSameReference(consequent.left, alternate.left);
+	// Keep member target evaluation and compound/logical reads after the condition.
+	&& consequent.operator === '='
+	&& alternate.operator === '='
+	&& !hasTernary(consequent.right, context.sourceCode.visitorKeys)
+	&& !hasTernary(alternate.right, context.sourceCode.visitorKeys)
+	&& (
+		(
+			// Direct arrow assignments infer their names from the identifier target.
+			unwrapTypeScriptExpression(consequent.left).type === 'Identifier'
+			&& !isArrowFunction(consequent.right)
+			&& !isArrowFunction(alternate.right)
+			&& isSameReference(consequent.left, alternate.left)
+		)
+		|| (
+			consequent.left.type === alternate.left.type
+			&& (consequent.left.type === 'ArrayPattern' || consequent.left.type === 'ObjectPattern')
+			// Token matching ignores line breaks, which can change statement semantics.
+			&& !hasComplexStructure(consequent.left, context.sourceCode)
+			&& !hasComplexStructure(alternate.left, context.sourceCode)
+			&& isSameTokens(context.sourceCode.getTokens(consequent.left), context.sourceCode.getTokens(alternate.left))
+		)
+	)
+	// Moving the target outside the branches can lose narrowed contextual types.
+	&& (
+		!context.sourceCode.parserServices?.program
+		|| (
+			isSameTokens(context.sourceCode.getTokens(consequent.left), context.sourceCode.getTokens(alternate.left))
+			&& hasSameAssignmentTargetTypes(consequent.left, alternate.left, context)
+		)
+	);
 
 /**
 @param {import('eslint').Rule.RuleContext} context
@@ -121,14 +166,21 @@ const create = context => {
 			});
 		}
 
-		if (isMergeableAssignmentExpression(consequent, alternate, sourceCode.visitorKeys)) {
+		if (isMergeableAssignmentExpression(consequent, alternate, context)) {
 			const {left, right, operator} = consequent;
 
-			return merge({
+			const result = {
 				before: `${before}${getParenthesizedText(left, context)} ${operator} `,
 				consequent: right,
 				alternate: alternate.right,
-			});
+			};
+
+			// Destructuring evaluates its RHS before its targets; keep nested assignments after the condition.
+			if (left.type === 'ArrayPattern' || left.type === 'ObjectPattern') {
+				return result;
+			}
+
+			return merge(result);
 		}
 
 		return !returnFalseIfNotMergeable && options;
@@ -165,16 +217,19 @@ const create = context => {
 			declarator.id.type !== 'Identifier'
 			|| declarator.id.name !== left.name
 			|| !declarator.init
+			// Inferred declaration types can lose contextual typing after introducing a ternary.
+			|| (sourceCode.parserServices?.program && !declarator.id.typeAnnotation)
+			|| [declarator.init, right].some(expression => isArrowFunction(expression))
 		) {
 			return;
 		}
 
 		const expressions = [node.test, right, declarator.init];
 
-		if (
-			expressions.some(expression => hasTernary(expression, sourceCode.visitorKeys) || hasComplexStructure(expression, sourceCode))
-			|| (isOnlySingleLine && expressions.some(expression => !isSingleLineNode(expression, context)))
-		) {
+		if (expressions.some(expression =>
+			hasTernary(expression, sourceCode.visitorKeys)
+			|| hasComplexStructure(expression, sourceCode)
+			|| (isOnlySingleLine && !isSingleLineNode(expression, context)))) {
 			return;
 		}
 
@@ -280,7 +335,12 @@ const create = context => {
 
 				const {before} = result;
 
-				let fixed = `${before}${testText} ? ${consequentText} : ${alternateText};`;
+				let fixed = `${before}${testText} ? ${consequentText} : ${alternateText}`;
+				if (consequent.type === 'AssignmentExpression' && consequent.left.type === 'ObjectPattern') {
+					fixed = `(${fixed})`;
+				}
+
+				fixed += ';';
 				const tokenBefore = sourceCode.getTokenBefore(node);
 				const shouldAddSemicolonBefore = needsSemicolon(tokenBefore, context, fixed);
 				if (shouldAddSemicolonBefore) {

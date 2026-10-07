@@ -115,6 +115,7 @@ testRule({
 		'let result = [a ? b : c]; if (test) { result = other; }',
 		'let result = other; if (Boolean(a ? b : c)) { result = value; }',
 		'let result = other; if (test) { result = String(a ? b : c); }',
+		'let result = () => a ? b : c; if (test) { result = other; }',
 		{
 			code: 'function foo() { if (test) { return a; } return String(b ? c : d); }',
 			options: onlySingleLineOptions,
@@ -139,10 +140,6 @@ testRule({
 			output: `function foo() { return test ? ${expression} : other; }`,
 			errors,
 		})),
-		{
-			code: 'let result = () => a ? b : c; if (test) { result = other; }',
-			errors: errorsWithSuggestion('const result = test ? other : () => a ? b : c;'),
-		},
 	],
 });
 
@@ -178,6 +175,8 @@ test('preserves early returns after minimizing a ternary', t => {
 // Preserve statement bodies and multiline containers, not ordinary line wrapping.
 testRule({
 	valid: [
+		// Member assignment targets are not factored out of their branches.
+		'if (ready) { object[`first\nsecond`] = a; } else { object[`first\nsecond`] = b; }',
 		...[
 			'items.map(item => { return normalize(item); })',
 			'function () { return a ? b : c; }',
@@ -246,12 +245,6 @@ testRule({
 				errors,
 			},
 		]),
-		{
-			// The shared assignment target is outside the resulting ternary.
-			code: 'if (ready) { object[`first\nsecond`] = a; } else { object[`first\nsecond`] = b; }',
-			output: 'object[`first\nsecond`] = ready ? a : b;',
-			errors,
-		},
 		{
 			code: 'function foo() { if (ready) { return <span />; } return other; }',
 			output: 'function foo() { return ready ? <span /> : other; }',

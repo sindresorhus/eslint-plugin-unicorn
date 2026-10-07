@@ -11,13 +11,15 @@
 
 This rule enforces the use of ternary expressions over simple `if` statements that return or assign a value. It handles `if`/`else` statements with one mergeable statement in each branch. For returns, it also handles the equivalent flat form where another `return` immediately follows an `if` without an `else`.
 
+Only plain `=` assignments to matching identifiers or array/object patterns (ignoring whitespace) are combined.
+
+Direct arrows remain in identifier assignments and initializers to preserve function names.
+
 It intentionally ignores standalone `await`, `yield`, and `throw` branches because ternaries there usually reduce readability without assigning or returning a value.
 
 It also detects `let` declarations immediately followed by an `if` that reassigns the variable, which can be replaced with a single declaration using a ternary. The declaration is `const` when the variable has no later writes, and remains `let` when later writes require mutability.
 
-Using branching statements typically results in more lines of code than a single ternary expression, which leads to an unnecessarily large codebase that is more difficult to maintain.
-
-Additionally, branching statements can require a variable to use `let` or `var` solely so it can be reassigned. This adds unnecessary mutability and prevents `prefer-const` from flagging the variable.
+With full type information, assignment targets must have matching tokens and types. Declaration suggestions require an explicit type annotation.
 
 ## Readability boundaries
 
@@ -30,6 +32,8 @@ The rule skips:
   - Multiline objects, arrays, JSX elements/fragments, or template literals.
 
 These checks include nested expressions, such as call arguments and TypeScript wrappers, and apply in both modes. Wrapped calls, logical expressions, inline literals, and concise callbacks remain eligible unless excluded above. [`only-single-line`](#options) additionally excludes all multiline conditions and values.
+
+The block, class body, and multiline restrictions also apply inside patterns, which may span lines in `always` mode.
 
 Comments in or between merged statements, or trailing a following `return`, prevent edits.
 
@@ -91,6 +95,30 @@ if (test) {
 // ✅
 let foo;
 foo = test ? 1 : 2;
+```
+
+```js
+// ❌
+if (test) {
+	[a, b] = first;
+} else {
+	[a, b] = second;
+}
+
+// ✅
+[a, b] = test ? first : second;
+```
+
+```js
+// ❌
+if (test) {
+	({a, b} = first);
+} else {
+	({a, b} = second);
+}
+
+// ✅
+({a, b} = test ? first : second);
 ```
 
 ```js
@@ -171,7 +199,7 @@ let bar;
 if (test) {
 	foo = 1;
 } else {
-	baz = 2;
+	bar = 2;
 }
 ```
 
