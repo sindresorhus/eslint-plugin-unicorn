@@ -367,8 +367,8 @@ test('reports JavaScript parameters with a TypeScript program without fixing', t
 	t.assert.strictEqual(output, 'function format() { return 1; } [format(), format()];');
 });
 
-function getJavaScriptTypeErrors(code) {
-	const filename = path.join(import.meta.dirname, 'no-unnecessary-parameters.fixture.js');
+function getJavaScriptTypeErrors(code, filename = path.join(import.meta.dirname, 'no-unnecessary-parameters.fixture.js')) {
+	filename = filename.replaceAll('\\', '/');
 	const options = {
 		allowJs: true,
 		checkJs: true,
@@ -386,6 +386,12 @@ function getJavaScriptTypeErrors(code) {
 	const program = ts.createProgram([filename], options, host);
 	return ts.getPreEmitDiagnostics(program).map(diagnostic => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'));
 }
+
+test('checks virtual JavaScript fixtures with Windows paths', t => {
+	const filename = path.win32.join(String.raw`C:\project`, 'input.js');
+	t.assert.deepStrictEqual(getJavaScriptTypeErrors('/** @type {number} */ const value = 1;', filename), []);
+	t.assert.deepStrictEqual(getJavaScriptTypeErrors('/** @type {number} */ const value = "text";', filename), ['Type \'string\' is not assignable to type \'number\'.']);
+});
 
 test('preserves JavaScript type annotations when reporting unnecessary parameters', t => {
 	for (const code of [
