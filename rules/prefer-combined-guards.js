@@ -116,13 +116,16 @@ const canCombineBodies = (previousStatements, statements, context) =>
 const referenceTypes = new Set([
 	'MemberExpression',
 	'ThisExpression',
-	'JSXIdentifier',
 	'JSXMemberExpression',
 ]);
 
 function hasSameReferenceTypes(previousNode, node, parserServices, visitorKeys) {
 	if (
-		(isReferenceIdentifier(node) || referenceTypes.has(node.type))
+		(
+			isReferenceIdentifier(node)
+			|| referenceTypes.has(node.type)
+			|| (node.type === 'JSXIdentifier' && node.parent.type !== 'JSXAttribute')
+		)
 		&& parserServices.getTypeAtLocation(previousNode) !== parserServices.getTypeAtLocation(node)
 	) {
 		return false;

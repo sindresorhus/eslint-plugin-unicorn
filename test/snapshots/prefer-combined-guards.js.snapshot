@@ -3790,6 +3790,66 @@ Output:
 
 `;
 
+exports[`prefer-combined-guards > invalid(7): function run(value: number, first: boolean, second: boolean) {\n\tif (first) { process.exit(1, value); }\n\tif (second) { process.exit(1, value); }\n} 1`] = `
+
+Filename: file.ts
+
+  1 | function run(value: number, first: boolean, second: boolean) {
+  2 | 	if (first) { process.exit(1, value); }
+  3 | 	if (second) { process.exit(1, value); }
+  4 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(7): function run(value: number, first: boolean, second: boolean) {\n\tif (first) { process.exit(1, value); }\n\tif (second) { process.exit(1, value); }\n} 2`] = `
+
+Message:
+  1 | function run(value: number, first: boolean, second: boolean) {
+  2 | 	if (first) { process.exit(1, value); }
+> 3 | 	if (second) { process.exit(1, value); }
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+  4 | }
+
+Output:
+  1 | function run(value: number, first: boolean, second: boolean) {
+  2 | 	if (first || second) { process.exit(1, value); }
+  3 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(8): declare namespace JSX { interface Element {} }\ndeclare function Component(properties: {handler: () => number}): JSX.Element;\nfunction run(first: boolean, second: boolean) {\n\tif (first) { return <Component handler={() => 1} />; }\n\tif (second) { return <Component handler={() => 1} />; }\n} 1`] = `
+
+Filename: file.tsx
+
+  1 | declare namespace JSX { interface Element {} }
+  2 | declare function Component(properties: {handler: () => number}): JSX.Element;
+  3 | function run(first: boolean, second: boolean) {
+  4 | 	if (first) { return <Component handler={() => 1} />; }
+  5 | 	if (second) { return <Component handler={() => 1} />; }
+  6 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(8): declare namespace JSX { interface Element {} }\ndeclare function Component(properties: {handler: () => number}): JSX.Element;\nfunction run(first: boolean, second: boolean) {\n\tif (first) { return <Component handler={() => 1} />; }\n\tif (second) { return <Component handler={() => 1} />; }\n} 2`] = `
+
+Message:
+  1 | declare namespace JSX { interface Element {} }
+  2 | declare function Component(properties: {handler: () => number}): JSX.Element;
+  3 | function run(first: boolean, second: boolean) {
+  4 | 	if (first) { return <Component handler={() => 1} />; }
+> 5 | 	if (second) { return <Component handler={() => 1} />; }
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+  6 | }
+
+Output:
+  1 | declare namespace JSX { interface Element {} }
+  2 | declare function Component(properties: {handler: () => number}): JSX.Element;
+  3 | function run(first: boolean, second: boolean) {
+  4 | 	if (first || second) { return <Component handler={() => 1} />; }
+  5 | }
+
+`;
+
 exports[`prefer-combined-guards > invalid(8): function foo() { if (a) { log(); return } if (b) { log(); return }\n[1].forEach(log) } 1`] = `
 
 Options:
@@ -3886,6 +3946,46 @@ Message:
 
 Output:
   1 | function run(first: boolean, second: boolean) { if (first || second) { return [1, {value: \`x\`}]; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(9): declare namespace JSX { interface Element {} }\ndeclare function Component(properties: {value: {nested: number}}): JSX.Element;\ndeclare function render(element: JSX.Element): void;\nfunction run(first: boolean, second: boolean) {\n\tif (first) { render(<Component value={{nested: 1}} />); return; }\n\tif (second) { render(<Component value={{nested: 1}} />); return; }\n} 1`] = `
+
+Filename: file.tsx
+
+Options:
+- checkMultiStatementBodies: true
+
+Code:
+  1 | declare namespace JSX { interface Element {} }
+  2 | declare function Component(properties: {value: {nested: number}}): JSX.Element;
+  3 | declare function render(element: JSX.Element): void;
+  4 | function run(first: boolean, second: boolean) {
+  5 | 	if (first) { render(<Component value={{nested: 1}} />); return; }
+  6 | 	if (second) { render(<Component value={{nested: 1}} />); return; }
+  7 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(9): declare namespace JSX { interface Element {} }\ndeclare function Component(properties: {value: {nested: number}}): JSX.Element;\ndeclare function render(element: JSX.Element): void;\nfunction run(first: boolean, second: boolean) {\n\tif (first) { render(<Component value={{nested: 1}} />); return; }\n\tif (second) { render(<Component value={{nested: 1}} />); return; }\n} 2`] = `
+
+Message:
+  1 | declare namespace JSX { interface Element {} }
+  2 | declare function Component(properties: {value: {nested: number}}): JSX.Element;
+  3 | declare function render(element: JSX.Element): void;
+  4 | function run(first: boolean, second: boolean) {
+  5 | 	if (first) { render(<Component value={{nested: 1}} />); return; }
+> 6 | 	if (second) { render(<Component value={{nested: 1}} />); return; }
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+  7 | }
+
+Output:
+  1 | declare namespace JSX { interface Element {} }
+  2 | declare function Component(properties: {value: {nested: number}}): JSX.Element;
+  3 | declare function render(element: JSX.Element): void;
+  4 | function run(first: boolean, second: boolean) {
+  5 | 	if (first || second) { render(<Component value={{nested: 1}} />); return; }
+  6 | }
 
 `;
 

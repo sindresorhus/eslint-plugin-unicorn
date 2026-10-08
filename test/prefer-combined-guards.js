@@ -601,7 +601,7 @@ testRule.snapshot({
 				}
 			}
 		`),
-		// Declarations inside the bodies get a new type in each body.
+		// References to separately declared objects can have distinct types.
 		typeAware(outdent`
 			declare function log(value: unknown): void;
 			function run(first: boolean, second: boolean) {
@@ -861,6 +861,37 @@ test('syntax-only constant exits ignore static type names', t => {
 	t.assert.deepStrictEqual(messages, []);
 });
 
+test('typed JSX exits ignore static attribute names', t => {
+	const code = outdent`
+		declare namespace JSX { interface Element {} }
+		declare function Component(properties: {value: {nested: number}}): JSX.Element;
+		function run(first: boolean, second: boolean) {
+			if (first) {
+				return <Component value={{nested: 1}} />;
+			}
+			if (second) {
+				return <Component value={{nested: 1}} />;
+			}
+		}
+	`;
+	const linter = new Linter();
+	const ruleConfig = {...config, files: ['**/*.tsx'], languageOptions: typeAware(code, 'file.tsx').languageOptions};
+	const {output, messages, fixed} = linter.verifyAndFix(code, ruleConfig, {filename: 'file.tsx'});
+
+	t.assert.strictEqual(fixed, true);
+	t.assert.strictEqual(output, outdent`
+		declare namespace JSX { interface Element {} }
+		declare function Component(properties: {value: {nested: number}}): JSX.Element;
+		function run(first: boolean, second: boolean) {
+			if (first || second) {
+				return <Component value={{nested: 1}} />;
+			}
+		}
+	`);
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(linter.verifyAndFix(output, ruleConfig, {filename: 'file.tsx'}).fixed, false);
+});
+
 test('repeated typed fixes preserve narrowing boundaries', t => {
 	const code = outdent`
 		function run(value: string | number, first: boolean, second: boolean) {
@@ -911,6 +942,26 @@ testRule.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		typeAware(outdent`
+			function run(value: string | number) {
+				if (typeof value === 'string') { process.exit(1, value); }
+				if (typeof value === 'number') { process.exit(1, value); }
+			}
+		`),
+		typeAware(outdent`
+			function run(object: {value: string | number} | undefined) {
+				if (typeof object?.value === 'string') { return object?.value; }
+				if (typeof object?.value === 'number') { return object?.value; }
+			}
+		`),
+		typeAware(outdent`
+			declare namespace JSX { interface Element {} }
+			declare function Component(properties: {value: string | number}): JSX.Element;
+			function run(value: string | number) {
+				if (typeof value === 'string') { return <Component value={value} />; }
+				if (typeof value === 'number') { return <Component value={value} />; }
+			}
+		`, 'file.tsx'),
+		typeAware(outdent`
 			declare namespace JSX { interface Element {} }
 			declare function First(properties: {value: string}): JSX.Element;
 			declare function Second(properties: {value: number}): JSX.Element;
@@ -932,6 +983,32 @@ testRule.snapshot({
 		{
 			code: 'if (first) { process.exit(1, ...[1]); } if (second) { process.exit(1, ...[1]); }',
 			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware(outdent`
+			function run(value: number, first: boolean, second: boolean) {
+				if (first) { process.exit(1, value); }
+				if (second) { process.exit(1, value); }
+			}
+		`),
+		typeAware(outdent`
+			declare namespace JSX { interface Element {} }
+			declare function Component(properties: {handler: () => number}): JSX.Element;
+			function run(first: boolean, second: boolean) {
+				if (first) { return <Component handler={() => 1} />; }
+				if (second) { return <Component handler={() => 1} />; }
+			}
+		`, 'file.tsx'),
+		{
+			...typeAware(outdent`
+				declare namespace JSX { interface Element {} }
+				declare function Component(properties: {value: {nested: number}}): JSX.Element;
+				declare function render(element: JSX.Element): void;
+				function run(first: boolean, second: boolean) {
+					if (first) { render(<Component value={{nested: 1}} />); return; }
+					if (second) { render(<Component value={{nested: 1}} />); return; }
+				}
+			`, 'file.tsx'),
+			options: [{checkMultiStatementBodies: true}],
 		},
 	],
 });
