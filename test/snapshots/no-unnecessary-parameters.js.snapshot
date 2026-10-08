@@ -32,6 +32,25 @@ Suggestion 1/1: Remove parameter \`value\` and its arguments (requires type revi
 
 `;
 
+exports[`no-unnecessary-parameters > invalid(1): function isString(value: unknown): boolean { return typeof value === \"string\"; } isString(0); isString(0); 1`] = `
+
+Filename: test/no-unnecessary-parameters.predicate.ts
+
+  1 | function isString(value: unknown): boolean { return typeof value === "string"; } isString(0); isString(0);
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(1): function isString(value: unknown): boolean { return typeof value === \"string\"; } isString(0); isString(0); 2`] = `
+
+Message:
+> 1 | function isString(value: unknown): boolean { return typeof value === "string"; } isString(0); isString(0);
+    |                   ^^^^^^^^^^^^^^ Parameter \`value\` receives the same value at every call.
+
+Suggestion 1/1: Remove parameter \`value\` and its arguments (requires type review).:
+  1 | function isString(): boolean { return typeof 0 === "string"; } isString(); isString();
+
+`;
+
 exports[`no-unnecessary-parameters > invalid(10): function format(value) { return value; } format(-1); format(-0x1); 1`] = `
 
   1 | function format(value) { return value; } format(-1); format(-0x1);
@@ -165,6 +184,23 @@ Suggestion 1/1: Remove parameter \`value\` and its arguments (requires type revi
 
 `;
 
+exports[`no-unnecessary-parameters > invalid(14): function f(a: unknown, extra: number): a is string { return extra > 0; } f(0, 1); f(0, 1); 1`] = `
+
+  1 | function f(a: unknown, extra: number): a is string { return extra > 0; } f(0, 1); f(0, 1);
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(14): function f(a: unknown, extra: number): a is string { return extra > 0; } f(0, 1); f(0, 1); 2`] = `
+
+Message:
+> 1 | function f(a: unknown, extra: number): a is string { return extra > 0; } f(0, 1); f(0, 1);
+    |                        ^^^^^^^^^^^^^ Parameter \`extra\` receives the same value at every call.
+
+Suggestion 1/1: Remove parameter \`extra\` and its arguments (requires type review).:
+  1 | function f(a: unknown): a is string { return 1 > 0; } f(0); f(0);
+
+`;
+
 exports[`no-unnecessary-parameters > invalid(14): function format(value) { return value; } format(-1n); format(-1n); 1`] = `
 
   1 | function format(value) { return value; } format(-1n); format(-1n);
@@ -179,6 +215,23 @@ Message:
 
 Output:
   1 | function format() { return (-1n); } format(); format();
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(15): function f(extra: number, a: unknown): asserts a is string { console.log(extra); } f(1, 0); f(1, 0); 1`] = `
+
+  1 | function f(extra: number, a: unknown): asserts a is string { console.log(extra); } f(1, 0); f(1, 0);
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(15): function f(extra: number, a: unknown): asserts a is string { console.log(extra); } f(1, 0); f(1, 0); 2`] = `
+
+Message:
+> 1 | function f(extra: number, a: unknown): asserts a is string { console.log(extra); } f(1, 0); f(1, 0);
+    |            ^^^^^^^^^^^^^ Parameter \`extra\` receives the same value at every call.
+
+Suggestion 1/1: Remove parameter \`extra\` and its arguments (requires type review).:
+  1 | function f(a: unknown): asserts a is string { console.log(1); } f(0); f(0);
 
 `;
 
@@ -199,6 +252,23 @@ Output:
 
 `;
 
+exports[`no-unnecessary-parameters > invalid(16): function f(a: unknown, extra: number): asserts a { console.log(extra); } f(0, 1); f(0, 1); 1`] = `
+
+  1 | function f(a: unknown, extra: number): asserts a { console.log(extra); } f(0, 1); f(0, 1);
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(16): function f(a: unknown, extra: number): asserts a { console.log(extra); } f(0, 1); f(0, 1); 2`] = `
+
+Message:
+> 1 | function f(a: unknown, extra: number): asserts a { console.log(extra); } f(0, 1); f(0, 1);
+    |                        ^^^^^^^^^^^^^ Parameter \`extra\` receives the same value at every call.
+
+Suggestion 1/1: Remove parameter \`extra\` and its arguments (requires type review).:
+  1 | function f(a: unknown): asserts a { console.log(1); } f(0); f(0);
+
+`;
+
 exports[`no-unnecessary-parameters > invalid(16): function format(value) { return value; } format(false); format(false); 1`] = `
 
   1 | function format(value) { return value; } format(false); format(false);
@@ -213,6 +283,23 @@ Message:
 
 Output:
   1 | function format() { return false; } format(); format();
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(17): function f(this: unknown, a: number): this is string { return a > 0; } f(0); f(0); 1`] = `
+
+  1 | function f(this: unknown, a: number): this is string { return a > 0; } f(0); f(0);
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(17): function f(this: unknown, a: number): this is string { return a > 0; } f(0); f(0); 2`] = `
+
+Message:
+> 1 | function f(this: unknown, a: number): this is string { return a > 0; } f(0); f(0);
+    |                           ^^^^^^^^^ Parameter \`a\` receives the same value at every call.
+
+Suggestion 1/1: Remove parameter \`a\` and its arguments (requires type review).:
+  1 | function f(this: unknown): this is string { return 0 > 0; } f(); f();
 
 `;
 
@@ -233,6 +320,23 @@ Output:
 
 `;
 
+exports[`no-unnecessary-parameters > invalid(18): function f(this: void, a: unknown = 0, extra: number = 1): asserts a is string { console.log(extra); } f(); f(undefined, 1); 1`] = `
+
+  1 | function f(this: void, a: unknown = 0, extra: number = 1): asserts a is string { console.log(extra); } f(); f(undefined, 1);
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(18): function f(this: void, a: unknown = 0, extra: number = 1): asserts a is string { console.log(extra); } f(); f(undefined, 1); 2`] = `
+
+Message:
+> 1 | function f(this: void, a: unknown = 0, extra: number = 1): asserts a is string { console.log(extra); } f(); f(undefined, 1);
+    |                                        ^^^^^^^^^^^^^ Parameter \`extra\` always receives its default value.
+
+Suggestion 1/1: Remove parameter \`extra\` and its arguments (requires type review).:
+  1 | function f(this: void, a: unknown = 0): asserts a is string { console.log(1); } f(); f(undefined);
+
+`;
+
 exports[`no-unnecessary-parameters > invalid(18): function format(value) { return value; } format(\`text\`); format(\"text\"); 1`] = `
 
   1 | function format(value) { return value; } format(\`text\`); format("text");
@@ -247,6 +351,23 @@ Message:
 
 Output:
   1 | function format() { return \`text\`; } format(); format();
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(19): const isString = (value: unknown) => typeof value === \"string\"; isString(0); isString(0); 1`] = `
+
+  1 | const isString = (value: unknown) => typeof value === "string"; isString(0); isString(0);
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(19): const isString = (value: unknown) => typeof value === \"string\"; isString(0); isString(0); 2`] = `
+
+Message:
+> 1 | const isString = (value: unknown) => typeof value === "string"; isString(0); isString(0);
+    |                   ^^^^^^^^^^^^^^ Parameter \`value\` receives the same value at every call.
+
+Suggestion 1/1: Remove parameter \`value\` and its arguments (requires type review).:
+  1 | const isString = () => typeof 0 === "string"; isString(); isString();
 
 `;
 
@@ -298,6 +419,25 @@ Message:
 
 Suggestion 1/1: Remove parameter \`value\` and its arguments (requires type review).:
   1 | const format: (value: number) => number = () => 1; format(); format();
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(2): function isString(this: void, extra: number, value: unknown) { extra.toFixed(); return typeof value === \"string\"; } isString(1, 0); isString(1, 0); 1`] = `
+
+Filename: test/no-unnecessary-parameters.predicate.ts
+
+  1 | function isString(this: void, extra: number, value: unknown) { extra.toFixed(); return typeof value === "string"; } isString(1, 0); isString(1, 0);
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(2): function isString(this: void, extra: number, value: unknown) { extra.toFixed(); return typeof value === \"string\"; } isString(1, 0); isString(1, 0); 2`] = `
+
+Message:
+> 1 | function isString(this: void, extra: number, value: unknown) { extra.toFixed(); return typeof value === "string"; } isString(1, 0); isString(1, 0);
+    |                               ^^^^^^^^^^^^^ Parameter \`extra\` receives the same value at every call.
+
+Suggestion 1/1: Remove parameter \`extra\` and its arguments (requires type review).:
+  1 | function isString(this: void, value: unknown) { (1).toFixed(); return typeof value === "string"; } isString(0); isString(0);
 
 `;
 
@@ -479,6 +619,25 @@ Output:
   2 | 	const second = first;
   3 | 	return first + second;
   4 | }; format(1); format(2);
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(3): const assert: (input: unknown, extra: number) => asserts input = (value, extra) => { extra.toFixed(); }; assert(0, 1); assert(0, 1); 1`] = `
+
+Filename: test/no-unnecessary-parameters.predicate.ts
+
+  1 | const assert: (input: unknown, extra: number) => asserts input = (value, extra) => { extra.toFixed(); }; assert(0, 1); assert(0, 1);
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(3): const assert: (input: unknown, extra: number) => asserts input = (value, extra) => { extra.toFixed(); }; assert(0, 1); assert(0, 1); 2`] = `
+
+Message:
+> 1 | const assert: (input: unknown, extra: number) => asserts input = (value, extra) => { extra.toFixed(); }; assert(0, 1); assert(0, 1);
+    |                                                                          ^^^^^ Parameter \`extra\` receives the same value at every call.
+
+Suggestion 1/1: Remove parameter \`extra\` and its arguments (requires type review).:
+  1 | const assert: (input: unknown, extra: number) => asserts input = (value) => { (1).toFixed(); }; assert(0); assert(0);
 
 `;
 
@@ -668,6 +827,25 @@ Message:
 
 Output:
   1 | function format() { return 1; } format?.(); format?.();
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(4): const assert: (this: void, size: number, input: unknown) => asserts input is string = function (this: void, size, value) { size.toFixed(); }; assert(1, 0); assert(1, 0); 1`] = `
+
+Filename: test/no-unnecessary-parameters.predicate.ts
+
+  1 | const assert: (this: void, size: number, input: unknown) => asserts input is string = function (this: void, size, value) { size.toFixed(); }; assert(1, 0); assert(1, 0);
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(4): const assert: (this: void, size: number, input: unknown) => asserts input is string = function (this: void, size, value) { size.toFixed(); }; assert(1, 0); assert(1, 0); 2`] = `
+
+Message:
+> 1 | const assert: (this: void, size: number, input: unknown) => asserts input is string = function (this: void, size, value) { size.toFixed(); }; assert(1, 0); assert(1, 0);
+    |                                                                                                             ^^^^ Parameter \`size\` receives the same value at every call.
+
+Suggestion 1/1: Remove parameter \`size\` and its arguments (requires type review).:
+  1 | const assert: (this: void, size: number, input: unknown) => asserts input is string = function (this: void, value) { (1).toFixed(); }; assert(0); assert(0);
 
 `;
 
@@ -874,6 +1052,25 @@ Message:
 
 Output:
   1 | function Point(x, y) { this.point = [x, y, 0]; } new Point(1, 2); new Point(3, 4);
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(5): const assert: (this: unknown, input: number) => asserts this is string = function (this: unknown, value) { value.toFixed(); }; assert(0); assert(0); 1`] = `
+
+Filename: test/no-unnecessary-parameters.predicate.ts
+
+  1 | const assert: (this: unknown, input: number) => asserts this is string = function (this: unknown, value) { value.toFixed(); }; assert(0); assert(0);
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(5): const assert: (this: unknown, input: number) => asserts this is string = function (this: unknown, value) { value.toFixed(); }; assert(0); assert(0); 2`] = `
+
+Message:
+> 1 | const assert: (this: unknown, input: number) => asserts this is string = function (this: unknown, value) { value.toFixed(); }; assert(0); assert(0);
+    |                                                                                                   ^^^^^ Parameter \`value\` receives the same value at every call.
+
+Suggestion 1/1: Remove parameter \`value\` and its arguments (requires type review).:
+  1 | const assert: (this: unknown, input: number) => asserts this is string = function (this: unknown) { (0).toFixed(); }; assert(); assert();
 
 `;
 
@@ -1136,6 +1333,25 @@ Message:
 
 Suggestion 1/1: Remove parameter \`value\` and its arguments (requires type review).:
   1 | function format(this: void) { return 1; } format(); format();
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(6): function isString(this: void, value: unknown, extra: number) { extra.toFixed(); return typeof value === \"string\"; } isString(0, 1); isString(0, 1); 1`] = `
+
+Filename: test/no-unnecessary-parameters.predicate.ts
+
+  1 | function isString(this: void, value: unknown, extra: number) { extra.toFixed(); return typeof value === "string"; } isString(0, 1); isString(0, 1);
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(6): function isString(this: void, value: unknown, extra: number) { extra.toFixed(); return typeof value === \"string\"; } isString(0, 1); isString(0, 1); 2`] = `
+
+Message:
+> 1 | function isString(this: void, value: unknown, extra: number) { extra.toFixed(); return typeof value === "string"; } isString(0, 1); isString(0, 1);
+    |                                               ^^^^^^^^^^^^^ Parameter \`extra\` receives the same value at every call.
+
+Suggestion 1/1: Remove parameter \`extra\` and its arguments (requires type review).:
+  1 | function isString(this: void, value: unknown) { (1).toFixed(); return typeof value === "string"; } isString(0); isString(0);
 
 `;
 

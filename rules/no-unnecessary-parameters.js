@@ -15,6 +15,7 @@ import {
 	shouldAddParenthesesToMemberExpressionObject,
 	trackLocalFunctionCalls,
 	unwrapTypeScriptExpression,
+	withTypeInformation,
 } from './utils/index.js';
 
 const messages = {
@@ -151,7 +152,48 @@ function getProperties(node) {
 	return properties;
 }
 
+function getPredicateParameterNames(functionNode, context) {
+	const names = new Set();
+	const returnType = functionNode.returnType?.typeAnnotation;
+	if (returnType?.type === 'TSTypePredicate') {
+		names.add(returnType.parameterName.name);
+	}
+
+	withTypeInformation(functionNode, context, ({type, checker}) => {
+		const typeScriptNode = context.sourceCode.parserServices.esTreeNodeToTSNodeMap.get(functionNode);
+		const signature = checker.getSignatureFromDeclaration(typeScriptNode);
+		if (signature) {
+			// TypeScript can count `this` in inferred predicate indexes and escape predicate names, so match declaration predicates by both names.
+			const parameterName = checker.getTypePredicateOfSignature(signature)?.parameterName;
+			names.add(parameterName);
+			names.add(signature.parameters.find(parameter => parameter.escapedName === parameterName)?.name);
+		}
+
+		const signatures = [...type.getCallSignatures()];
+		if (functionNode.type === 'ArrowFunctionExpression'
+			|| (functionNode.type === 'FunctionExpression' && functionNode.parent.type !== 'MethodDefinition' && !functionNode.parent.method)) {
+			signatures.push(...checker.getContextualType(typeScriptNode)?.getCallSignatures() ?? []);
+		}
+
+		const parameters = functionNode.params.filter(parameter => parameter.type !== 'Identifier' || parameter.name !== 'this');
+		for (const callableSignature of signatures) {
+			if (callableSignature.declaration === typeScriptNode) {
+				continue;
+			}
+
+			const predicate = checker.getTypePredicateOfSignature(callableSignature);
+			const parameter = parameters[predicate?.parameterIndex];
+			const pattern = parameter?.type === 'AssignmentPattern' ? parameter.left : parameter;
+			if (pattern?.type === 'Identifier') {
+				names.add(pattern.name);
+			}
+		}
+	});
+	return names;
+}
+
 function * getParameters(functionNode, context) {
+	const predicateParameterNames = getPredicateParameterNames(functionNode, context);
 	let index = 0;
 	for (const parameter of functionNode.params) {
 		if (parameter.type === 'Identifier' && parameter.name === 'this') {
@@ -162,6 +204,10 @@ function * getParameters(functionNode, context) {
 		const pattern = parameter.type === 'AssignmentPattern' ? parameter.left : parameter;
 		const defaultNode = parameter.type === 'AssignmentPattern' ? parameter.right : undefined;
 		if (pattern.type === 'Identifier') {
+			if (predicateParameterNames.has(pattern.name)) {
+				continue;
+			}
+
 			yield {
 				node: parameter, identifier: pattern, variable: getVariable(pattern, context), index: position, defaultNode,
 			};
