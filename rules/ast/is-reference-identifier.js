@@ -37,7 +37,9 @@ function isNotReference(node) {
 		// `class Foo {Identifier = 1}`
 		// `class Foo {Identifier() {}}`
 		case 'PropertyDefinition':
-		case 'MethodDefinition': {
+		case 'MethodDefinition':
+		case 'TSPropertySignature':
+		case 'TSMethodSignature': {
 			return !parent.computed && parent.key === node;
 		}
 
@@ -133,10 +135,6 @@ function isNotReference(node) {
 		// `type Identifier = Foo`
 		case 'TSTypeAliasDeclaration': {
 			return parent.id === node;
-		}
-
-		case 'TSPropertySignature': {
-			return !parent.computed && parent.key === node;
 		}
 
 		// No default

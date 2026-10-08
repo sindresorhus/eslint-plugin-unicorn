@@ -861,6 +861,35 @@ test('syntax-only constant exits ignore static type names', t => {
 	t.assert.deepStrictEqual(messages, []);
 });
 
+test('static TypeScript method names are not references', t => {
+	const code = outdent`
+		function run(first: boolean, second: boolean) {
+			if (first) {
+				return {} as {method(): number};
+			}
+			if (second) {
+				return {} as {method(): number};
+			}
+		}
+	`;
+	const linter = new Linter();
+	for (const languageOptions of [{parser: typescriptEslintParser}, typeAware(code).languageOptions]) {
+		const ruleConfig = {...config, files: ['**/*.ts'], languageOptions};
+		const {output, messages, fixed} = linter.verifyAndFix(code, ruleConfig, {filename: 'file.ts'});
+
+		t.assert.strictEqual(fixed, true);
+		t.assert.strictEqual(output, outdent`
+			function run(first: boolean, second: boolean) {
+				if (first || second) {
+					return {} as {method(): number};
+				}
+			}
+		`);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(linter.verifyAndFix(output, ruleConfig, {filename: 'file.ts'}).fixed, false);
+	}
+});
+
 test('computed TypeScript property keys preserve narrowing', t => {
 	const code = outdent`
 		function run(key: 'a' | 'b') {
@@ -882,6 +911,25 @@ test('computed TypeScript property keys preserve narrowing', t => {
 		t.assert.strictEqual(output, code);
 		t.assert.deepStrictEqual(messages, []);
 	}
+});
+
+test('syntax-only computed TypeScript method keys are references', t => {
+	const code = outdent`
+		function run(key: 'a' | 'b') {
+			if (key === 'a') { return {} as {[key](): number}; }
+			if (key === 'b') { return {} as {[key](): number}; }
+		}
+	`;
+	const linter = new Linter();
+	const {output, messages, fixed} = linter.verifyAndFix(code, {
+		...config,
+		files: ['**/*.ts'],
+		languageOptions: {parser: typescriptEslintParser},
+	}, {filename: 'file.ts'});
+
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(output, code);
+	t.assert.deepStrictEqual(messages, []);
 });
 
 test('typed JSX exits ignore static attribute names', t => {
