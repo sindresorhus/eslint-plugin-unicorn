@@ -1,3 +1,4 @@
+import {isReferenceIdentifier} from './ast/index.js';
 import {
 	containsNode,
 	getCommentSafeProblem,
@@ -84,19 +85,26 @@ const getExitText = (node, sourceCode) => {
 
 const containsTaggedTemplate = (node, context) => containsNode(node, context, childNode => childNode.type === 'TaggedTemplateExpression');
 
-const isExitUnsafeToCombine = (node, context) => {
-	const expression = node.type === 'ExpressionStatement'
-		? node.expression.arguments[0]
-		: node.argument;
+// Autofix passes can expose isolated parser programs without reliable reference types.
+const hasFullTypeInformation = parserServices => Boolean(parserServices?.program && !parserServices.program.getCompilerOptions().noResolve);
 
-	return Boolean(
-		expression
-		&& (
-			(
-				context.sourceCode.parserServices?.esTreeNodeToTSNodeMap
-				&& expression.type !== 'Literal'
-			)
-			|| containsTaggedTemplate(expression, context)
+const isExitUnsafeToCombine = (node, context) => {
+	const expressions = node.type === 'ExpressionStatement'
+		? node.expression.arguments
+		: [node.argument].filter(Boolean);
+	const {parserServices} = context.sourceCode;
+
+	return expressions.some(expression =>
+		containsTaggedTemplate(expression, context)
+		|| (
+			parserServices?.esTreeNodeToTSNodeMap
+			&& !hasFullTypeInformation(parserServices)
+			&& containsNode(expression, context, childNode =>
+				(isReferenceIdentifier(childNode) && childNode.parent.type !== 'TSTypeReference')
+				|| childNode.type === 'ThisExpression'
+				|| childNode.type === 'Super'
+				|| childNode.type === 'JSXIdentifier'
+				|| childNode.type === 'JSXMemberExpression')
 		),
 	);
 };
@@ -107,18 +115,20 @@ const canCombineBodies = (previousStatements, statements, context) =>
 		context.sourceCode.getText(statement) === context.sourceCode.getText(previousStatements[index])
 		&& !containsTaggedTemplate(statement, context));
 
-// Node types that TypeScript can narrow.
+// Non-identifier node types that TypeScript can narrow.
 const referenceTypes = new Set([
-	'Identifier',
 	'MemberExpression',
 	'ThisExpression',
-	'JSXIdentifier',
 	'JSXMemberExpression',
 ]);
 
 function hasSameReferenceTypes(previousNode, node, parserServices, visitorKeys) {
 	if (
-		referenceTypes.has(node.type)
+		(
+			isReferenceIdentifier(node)
+			|| referenceTypes.has(node.type)
+			|| (node.type === 'JSXIdentifier' && node.parent.type !== 'JSXAttribute')
+		)
 		&& parserServices.getTypeAtLocation(previousNode) !== parserServices.getTypeAtLocation(node)
 	) {
 		return false;
@@ -140,16 +150,19 @@ function hasSameReferenceTypes(previousNode, node, parserServices, visitorKeys) 
 }
 
 /*
-Statements before the exit may depend on each guard's TypeScript narrowing. The combined body sees the union of both narrowed types, so with full type information, combine them only when every reference has the same type in both bodies.
+Statements, including the exit, may depend on each guard's TypeScript narrowing. The combined body sees the union of both narrowed types, so with full type information, combine them only when every reference has the same type in both bodies. Without type information, only single-statement bodies with reference-free exits are allowed.
 */
 function isNarrowingPreserved(previousStatements, statements, sourceCode) {
 	const {parserServices, visitorKeys} = sourceCode;
-	if (statements.length === 1 || !parserServices?.esTreeNodeToTSNodeMap) {
+	if (!parserServices?.esTreeNodeToTSNodeMap) {
 		return true;
 	}
 
-	return Boolean(parserServices.program)
-		&& statements.slice(0, -1).every((statement, index) => hasSameReferenceTypes(previousStatements[index], statement, parserServices, visitorKeys));
+	if (!hasFullTypeInformation(parserServices)) {
+		return statements.length === 1;
+	}
+
+	return statements.every((statement, index) => hasSameReferenceTypes(previousStatements[index], statement, parserServices, visitorKeys));
 }
 
 function getConditionText(node, property, context) {

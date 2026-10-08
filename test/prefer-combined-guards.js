@@ -1,4 +1,6 @@
 import {runInNewContext} from 'node:vm';
+import {execFileSync} from 'node:child_process';
+import process from 'node:process';
 import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
@@ -258,8 +260,185 @@ const typeAware = (code, filename = 'file.ts') => ({
 	filename,
 	languageOptions: {
 		parser: typescriptEslintParser,
-		parserOptions: {projectService: {allowDefaultProject: ['*.ts', '*.tsx']}},
+		parserOptions: {projectService: {allowDefaultProject: ['*.js', '*.ts', '*.tsx']}},
 	},
+});
+
+// eslint-disable-next-line no-template-curly-in-string
+const constantExitExpressions = ['[]', '{}', '{value: 1}', '[1, {value: `x`}]', '`x`', '`value: ${1}`', '-1', '([] as number[])', '([] satisfies number[])', '([]!)', '<number[]>[]'];
+// eslint-disable-next-line no-template-curly-in-string
+const referenceExitExpressions = ['value', '[value]', '{value}', '{[value]: 1}', '`value: ${value}`', 'this.value', '(() => value)()', 'new Error(\'Invalid value\')', 'tag`value`'];
+
+testRule.snapshot({
+	valid: [
+		typeAware(outdent`
+			/** @param {string | number} value */
+			function run(value) {
+				if (typeof value === 'string') { return value; }
+				if (typeof value === 'number') { return value; }
+			}
+		`, 'file.js'),
+		{
+			...typeAware(outdent`
+				function run(first: boolean, second: boolean) {
+					if (first) { const result = {value: 1}; return result; }
+					if (second) { const result = {value: 1}; return result; }
+				}
+			`),
+			options: [{checkMultiStatementBodies: true}],
+		},
+		{
+			code: 'function run(value: number, first: boolean, second: boolean) { if (first) { return <>{value}</>; } if (second) { return <>{value}</>; } }',
+			filename: 'file.tsx',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [
+		typeAware(outdent`
+			/** @param {number} value */
+			function run(value, first, second) {
+				if (first) { return value; }
+				if (second) { return value; }
+			}
+		`, 'file.js'),
+		{
+			...typeAware(outdent`
+				type Result = {value: number};
+				function run(first: boolean, second: boolean) {
+					if (first) { const result: Result = {value: 1}; return result; }
+					if (second) { const result: Result = {value: 1}; return result; }
+				}
+			`),
+			options: [{checkMultiStatementBodies: true}],
+		},
+		{
+			code: 'function run(first: boolean, second: boolean) { if (first) { return <>{1}</>; } if (second) { return <>{1}</>; } }',
+			filename: 'file.tsx',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+});
+
+testRule.snapshot({
+	valid: [
+		...referenceExitExpressions.map(expression => ({
+			code: `function run(first: boolean, second: boolean, value: number) { if (first) { return ${expression}; } if (second) { return ${expression}; } }`,
+			languageOptions: {parser: parsers.typescript},
+		})),
+		{
+			code: 'function run(first: boolean, second: boolean) { if (first) { log(); return []; } if (second) { log(); return []; } }',
+			languageOptions: {parser: parsers.typescript},
+			options: [{checkMultiStatementBodies: true}],
+		},
+		{
+			code: 'if (first) { process.exit(1, value); } if (second) { process.exit(1, value); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'if (first) { process.exit(1, tag`value`); } if (second) { process.exit(1, tag`value`); }',
+		{
+			code: 'class Base { value = 1; } class Runner extends Base { run(first: boolean, second: boolean) { if (first) { return super.value; } if (second) { return super.value; } } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function run(first: boolean, second: boolean) { if (first) { return <Component />; } if (second) { return <Component />; } }',
+			filename: 'file.tsx',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('function run(value: string | number | boolean) { if (typeof value === \'string\') { return value; } if (typeof value === \'number\') { return value; } }'),
+		typeAware('function run(value: string | undefined, other: boolean) { if (value) { return value; } if (other) { return value; } }'),
+		typeAware(outdent`
+			function run(object: {value: string | number}) {
+				if (typeof object.value === 'string') { return object.value; }
+				if (typeof object.value === 'number') { return object.value; }
+			}
+		`),
+		typeAware(outdent`
+			declare function length(value: string): number;
+			declare function length(value: number): number;
+			function run(value: string | number) {
+				if (typeof value === 'string') { return length(value); }
+				if (typeof value === 'number') { return length(value); }
+			}
+		`),
+		{
+			...typeAware(outdent`
+				type A = {type: 'a'; method(value: string): number};
+				type B = {type: 'b'; method(value: number): number};
+				function run(subject: A | B, argument: string | number) {
+					if (subject.type === 'a' && typeof argument === 'string') { return subject.method(argument); }
+					if (subject.type === 'b' && typeof argument === 'number') { return subject.method(argument); }
+				}
+			`),
+			options: checkCompoundConditionsOptions,
+		},
+		{
+			...typeAware(outdent`
+				type A = {type: 'a'; exitCode(value: string): number};
+				type B = {type: 'b'; exitCode(value: number): number};
+				function run(subject: A | B, argument: string | number) {
+					if (subject.type === 'a' && typeof argument === 'string') { process.exit(subject.exitCode(argument)); }
+					if (subject.type === 'b' && typeof argument === 'number') { process.exit(subject.exitCode(argument)); }
+				}
+			`),
+			options: checkCompoundConditionsOptions,
+		},
+		typeAware(outdent`
+			class Base {
+				isSpecial(): this is Special { return false; }
+				run(other: boolean) {
+					if (this.isSpecial()) { return this; }
+					if (other) { return this; }
+				}
+			}
+			class Special extends Base { special = true; }
+		`),
+		typeAware(outdent`
+			declare const tag: (strings: TemplateStringsArray) => string;
+			function run(first: boolean, second: boolean) {
+				if (first) { return tag\`value\`; }
+				if (second) { return tag\`value\`; }
+			}
+		`),
+		{
+			...typeAware(outdent`
+				declare function log(): void;
+				function run(value: string | number) {
+					if (typeof value === 'string') { log(); return value; }
+					if (typeof value === 'number') { log(); return value; }
+				}
+			`),
+			options: [{checkMultiStatementBodies: true}],
+		},
+	],
+	invalid: [
+		...constantExitExpressions.flatMap(expression => {
+			const code = `function run(first: boolean, second: boolean) { if (first) { return ${expression}; } if (second) { return ${expression}; } }`;
+			return [{code, languageOptions: {parser: parsers.typescript}}, typeAware(code)];
+		}),
+		{
+			code: 'function run(first: boolean, second: boolean) { if (first) { throw {value: 1}; } if (second) { throw {value: 1}; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('function run(first: boolean, second: boolean) { if (first) { throw {value: 1}; } if (second) { throw {value: 1}; } }'),
+		typeAware('function run(value: number, first: boolean, second: boolean) { if (first) { return value; } if (second) { return value; } }'),
+		typeAware('function run(value: number) { if (value < 0) { throw new RangeError(\'Invalid value\'); } if (!Number.isFinite(value)) { throw new RangeError(\'Invalid value\'); } }'),
+		typeAware('function run(value: {result: number}, first: boolean, second: boolean) { if (first) { return value.result; } if (second) { return value.result; } }'),
+		typeAware('class Runner { run(first: boolean, second: boolean) { if (first) { return this; } if (second) { return this; } } }'),
+		...['-1', '(1 as number)', '1 + 1'].map(expression => ({
+			code: `if (first) { process.exit(${expression}); } if (second) { process.exit(${expression}); }`,
+			languageOptions: {parser: parsers.typescript},
+		})),
+		typeAware('function run(code: number, first: boolean, second: boolean) { if (first) { process.exit(code); } if (second) { process.exit(code); } }'),
+		{
+			...typeAware('declare function log(): void; function run(first: boolean, second: boolean) { if (first) { log(); return []; } if (second) { log(); return []; } }'),
+			options: [{checkMultiStatementBodies: true}],
+		},
+		{
+			code: 'function run(first: boolean, second: boolean) { if (first) { return /* Keep comment. */ []; } if (second) { return /* Keep comment. */ []; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'function run(first, second) { if (first) { return {value: 1}; } if (second) { return {value: 1}; } }',
+	],
 });
 
 testRule.snapshot({
@@ -474,7 +653,7 @@ testRule.snapshot({
 				}
 			}
 		`),
-		// Declarations inside the bodies get a new type in each body.
+		// References to separately declared objects can have distinct types.
 		typeAware(outdent`
 			declare function log(value: unknown): void;
 			function run(first: boolean, second: boolean) {
@@ -686,11 +865,399 @@ const config = {
 	rules: {'unicorn/prefer-combined-guards': 'error'},
 };
 
+test('single-run autofixes retain syntax-only guard safety', t => {
+	const results = JSON.parse(execFileSync(process.execPath, ['--input-type=module', '--eval', outdent`
+		import {Linter} from 'eslint';
+		import plugin from './index.js';
+		import {typescriptEslintParser} from './scripts/parsers.js';
+		const linter = new Linter();
+		const config = {
+			files: ['**/*.ts'],
+			plugins: {unicorn: plugin},
+			languageOptions: {parser: typescriptEslintParser, parserOptions: {project: []}},
+			rules: {'unicorn/prefer-combined-guards': ['error', {checkMultiStatementBodies: true}]},
+		};
+		const codes = [
+			"import {Value} from './value'; function run(a: boolean, b: boolean) { if (a) { return Value.create(); } if (b) { return Value.create(); } }",
+			'function run(a: boolean, b: boolean) { if (a) { return []; } if (b) { return []; } }',
+			'function run(a: boolean, b: boolean) { if (a) { log(); return; } if (b) { log(); return; } }',
+		];
+		const results = codes.map((code, index) => {
+			const filename = 'single-run-' + index + '.ts';
+			linter.verify(code, config, {filename});
+			return {code, ...linter.verifyAndFix(code, config, {filename})};
+		});
+		console.log(JSON.stringify(results));
+	`], {
+		cwd: new URL('..', import.meta.url),
+		env: {...process.env, TSESTREE_SINGLE_RUN: 'true'},
+		encoding: 'utf8',
+	}));
+
+	for (const [index, {code, output, messages, fixed}] of results.entries()) {
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(fixed, index === 1);
+		t.assert.strictEqual(output, index === 1 ? code.replace('if (a) { return []; } if (b)', 'if (a || b)') : code);
+	}
+});
+
+test('typed assignments can restore matching reference types', t => {
+	const code = outdent`
+		function run(value: string | number) {
+			if (typeof value === 'string') {
+				value = 0;
+				return value;
+			}
+			if (typeof value === 'number') {
+				value = 0;
+				return value;
+			}
+		}
+	`;
+	const linter = new Linter();
+	const ruleConfig = {
+		...config,
+		files: ['**/*.ts'],
+		languageOptions: typeAware(code).languageOptions,
+		rules: {'unicorn/prefer-combined-guards': ['error', {checkMultiStatementBodies: true}]},
+	};
+	const {output, messages, fixed} = linter.verifyAndFix(code, ruleConfig, {filename: 'file.ts'});
+
+	t.assert.strictEqual(fixed, true);
+	t.assert.strictEqual(output, outdent`
+		function run(value: string | number) {
+			if ((typeof value === 'string') || (typeof value === 'number')) {
+				value = 0;
+				return value;
+			}
+		}
+	`);
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(linter.verifyAndFix(output, ruleConfig, {filename: 'file.ts'}).fixed, false);
+});
+
+test('typed compound assignments preserve narrowing', t => {
+	const code = outdent`
+		function run(value: string | number) {
+			if (typeof value === 'string') {
+				value += 1;
+				return;
+			}
+			if (typeof value === 'number') {
+				value += 1;
+				return;
+			}
+		}
+	`;
+	const linter = new Linter();
+	const {output, messages, fixed} = linter.verifyAndFix(code, {
+		...config,
+		files: ['**/*.ts'],
+		languageOptions: typeAware(code).languageOptions,
+		rules: {'unicorn/prefer-combined-guards': ['error', {checkMultiStatementBodies: true}]},
+	}, {filename: 'file.ts'});
+
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(output, code);
+	t.assert.deepStrictEqual(messages, []);
+});
+
 test('repeated fixes combine all consecutive guards', t => {
 	const linter = new Linter();
 	const {output, messages} = linter.verifyAndFix('function foo() { if (a) { return; } if (b) { return; } if (c) { return; } }', config);
 	t.assert.strictEqual(output, 'function foo() { if (a || b || c) { return; } }');
 	t.assert.deepStrictEqual(messages, []);
+});
+
+test('repeated TypeScript fixes combine non-literal exits', t => {
+	const linter = new Linter();
+	const code = 'function run(first: boolean, second: boolean, third: boolean) { if (first) { return []; } if (second) { return []; } if (third) { return []; } }';
+	for (const languageOptions of [{parser: typescriptEslintParser}, typeAware(code).languageOptions]) {
+		const ruleConfig = {...config, files: ['**/*.ts'], languageOptions};
+		const {output, messages, fixed} = linter.verifyAndFix(code, ruleConfig, {filename: 'file.ts'});
+		t.assert.strictEqual(fixed, true);
+		t.assert.strictEqual(output, 'function run(first: boolean, second: boolean, third: boolean) { if (first || second || third) { return []; } }');
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(linter.verifyAndFix(output, ruleConfig, {filename: 'file.ts'}).fixed, false);
+	}
+});
+
+test('typed constant exits ignore static property names', t => {
+	const code = 'function run(first: boolean, second: boolean) { if (first) { return {value: {nested: 1}}; } if (second) { return {value: {nested: 1}}; } }';
+	const linter = new Linter();
+	const {output, messages, fixed} = linter.verifyAndFix(code, {
+		...config,
+		files: ['**/*.ts'],
+		languageOptions: typeAware(code).languageOptions,
+	}, {filename: 'file.ts'});
+
+	t.assert.strictEqual(fixed, true);
+	t.assert.strictEqual(output, 'function run(first: boolean, second: boolean) { if (first || second) { return {value: {nested: 1}}; } }');
+	t.assert.deepStrictEqual(messages, []);
+});
+
+test('syntax-only constant exits ignore static type names', t => {
+	const code = 'function run(first: boolean, second: boolean) { if (first) { return [] as const; } if (second) { return [] as const; } }';
+	const linter = new Linter();
+	const {output, messages, fixed} = linter.verifyAndFix(code, {
+		...config,
+		files: ['**/*.ts'],
+		languageOptions: {parser: typescriptEslintParser},
+	}, {filename: 'file.ts'});
+
+	t.assert.strictEqual(fixed, true);
+	t.assert.strictEqual(output, 'function run(first: boolean, second: boolean) { if (first || second) { return [] as const; } }');
+	t.assert.deepStrictEqual(messages, []);
+});
+
+test('static TypeScript method names are not references', t => {
+	const code = outdent`
+		function run(first: boolean, second: boolean) {
+			if (first) {
+				return {} as {method(): number};
+			}
+			if (second) {
+				return {} as {method(): number};
+			}
+		}
+	`;
+	const linter = new Linter();
+	for (const languageOptions of [{parser: typescriptEslintParser}, typeAware(code).languageOptions]) {
+		const ruleConfig = {...config, files: ['**/*.ts'], languageOptions};
+		const {output, messages, fixed} = linter.verifyAndFix(code, ruleConfig, {filename: 'file.ts'});
+
+		t.assert.strictEqual(fixed, true);
+		t.assert.strictEqual(output, outdent`
+			function run(first: boolean, second: boolean) {
+				if (first || second) {
+					return {} as {method(): number};
+				}
+			}
+		`);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(linter.verifyAndFix(output, ruleConfig, {filename: 'file.ts'}).fixed, false);
+	}
+});
+
+test('computed TypeScript property keys preserve narrowing', t => {
+	const code = outdent`
+		function run(key: 'a' | 'b') {
+			if (key === 'a') {
+				return {} as {[key]: number};
+			}
+			if (key === 'b') {
+				return {} as {[key]: number};
+			}
+		}
+		const narrow: (key: 'a' | 'b') => {a: number} | {b: number} | undefined = run;
+	`;
+	const linter = new Linter();
+	for (const languageOptions of [{parser: typescriptEslintParser}, typeAware(code).languageOptions]) {
+		const ruleConfig = {...config, files: ['**/*.ts'], languageOptions};
+		const {output, messages, fixed} = linter.verifyAndFix(code, ruleConfig, {filename: 'file.ts'});
+
+		t.assert.strictEqual(fixed, false);
+		t.assert.strictEqual(output, code);
+		t.assert.deepStrictEqual(messages, []);
+	}
+});
+
+test('syntax-only computed TypeScript method keys are references', t => {
+	const code = outdent`
+		function run(key: 'a' | 'b') {
+			if (key === 'a') { return {} as {[key](): number}; }
+			if (key === 'b') { return {} as {[key](): number}; }
+		}
+	`;
+	const linter = new Linter();
+	const {output, messages, fixed} = linter.verifyAndFix(code, {
+		...config,
+		files: ['**/*.ts'],
+		languageOptions: {parser: typescriptEslintParser},
+	}, {filename: 'file.ts'});
+
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(output, code);
+	t.assert.deepStrictEqual(messages, []);
+});
+
+test('typed JSX exits ignore static attribute names', t => {
+	const code = outdent`
+		declare namespace JSX { interface Element {} }
+		declare function Component(properties: {value: {nested: number}}): JSX.Element;
+		function run(first: boolean, second: boolean) {
+			if (first) {
+				return <Component value={{nested: 1}} />;
+			}
+			if (second) {
+				return <Component value={{nested: 1}} />;
+			}
+		}
+	`;
+	const linter = new Linter();
+	const ruleConfig = {...config, files: ['**/*.tsx'], languageOptions: typeAware(code, 'file.tsx').languageOptions};
+	const {output, messages, fixed} = linter.verifyAndFix(code, ruleConfig, {filename: 'file.tsx'});
+
+	t.assert.strictEqual(fixed, true);
+	t.assert.strictEqual(output, outdent`
+		declare namespace JSX { interface Element {} }
+		declare function Component(properties: {value: {nested: number}}): JSX.Element;
+		function run(first: boolean, second: boolean) {
+			if (first || second) {
+				return <Component value={{nested: 1}} />;
+			}
+		}
+	`);
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(linter.verifyAndFix(output, ruleConfig, {filename: 'file.tsx'}).fixed, false);
+});
+
+test('repeated typed fixes preserve narrowing boundaries', t => {
+	const code = outdent`
+		function run(value: string | number, first: boolean, second: boolean) {
+			if (first) {
+				return value;
+			}
+			if (second) {
+				return value;
+			}
+			if (typeof value === 'number') {
+				return value;
+			}
+		}
+	`;
+	const linter = new Linter();
+	const ruleConfig = {...config, files: ['**/*.ts'], languageOptions: typeAware(code).languageOptions};
+	const {output, messages, fixed} = linter.verifyAndFix(code, ruleConfig, {filename: 'file.ts'});
+
+	t.assert.strictEqual(fixed, true);
+	t.assert.strictEqual(output, outdent`
+		function run(value: string | number, first: boolean, second: boolean) {
+			if (first || second) {
+				return value;
+			}
+			if (typeof value === 'number') {
+				return value;
+			}
+		}
+	`);
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(linter.verifyAndFix(output, ruleConfig, {filename: 'file.ts'}).fixed, false);
+});
+
+testRule.snapshot({
+	valid: [
+		...['[value] as const', '[] as Array<typeof value>'].flatMap(expression => {
+			const code = `function run(value: string | number) { if (typeof value === 'string') { return ${expression}; } if (typeof value === 'number') { return ${expression}; } }`;
+			return [{code, languageOptions: {parser: parsers.typescript}}, typeAware(code)];
+		}),
+		...['{value}', '{[value]: 1}'].map(expression => typeAware(outdent`
+			function run(value: string | number) {
+				if (typeof value === 'string') { return ${expression}; }
+				if (typeof value === 'number') { return ${expression}; }
+			}
+		`)),
+		{
+			code: outdent`
+				function run(key: 'a', first: boolean, second: boolean) {
+					if (first) { return {} as {[key]: number}; }
+					if (second) { return {} as {[key]: number}; }
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware(outdent`
+			function run(value: {kind: 'a'; name: string} | {kind: 'b'; name: string}) {
+				if (value.kind === 'a') { return value!.name; }
+				if (value.kind === 'b') { return value!.name; }
+			}
+		`),
+		{
+			code: 'if (first) { process.exit(1, tag`value`); } if (second) { process.exit(1, tag`value`); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware(outdent`
+			function run(value: string | number) {
+				if (typeof value === 'string') { process.exit(1, value); }
+				if (typeof value === 'number') { process.exit(1, value); }
+			}
+		`),
+		typeAware(outdent`
+			function run(object: {value: string | number} | undefined) {
+				if (typeof object?.value === 'string') { return object?.value; }
+				if (typeof object?.value === 'number') { return object?.value; }
+			}
+		`),
+		typeAware(outdent`
+			declare namespace JSX { interface Element {} }
+			declare function Component(properties: {value: string | number}): JSX.Element;
+			function run(value: string | number) {
+				if (typeof value === 'string') { return <Component value={value} />; }
+				if (typeof value === 'number') { return <Component value={value} />; }
+			}
+		`, 'file.tsx'),
+		typeAware(outdent`
+			declare namespace JSX { interface Element {} }
+			declare function First(properties: {value: string}): JSX.Element;
+			declare function Second(properties: {value: number}): JSX.Element;
+			function run(options: {kind: 'first'; Component: typeof First} | {kind: 'second'; Component: typeof Second}, value: any) {
+				if (options.kind === 'first') { return <options.Component value={value} />; }
+				if (options.kind === 'second') { return <options.Component value={value} />; }
+			}
+		`, 'file.tsx'),
+	],
+	invalid: [
+		...['{value: () => 1}', '[] as Array<number>'].flatMap(expression => {
+			const code = `function run(first: boolean, second: boolean) { if (first) { return ${expression}; } if (second) { return ${expression}; } }`;
+			return [{code, languageOptions: {parser: parsers.typescript}}, typeAware(code)];
+		}),
+		{
+			code: 'type Item = {value: number}; function run(first: boolean, second: boolean) { if (first) { return [] satisfies Item[]; } if (second) { return [] satisfies Item[]; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'if (first) { process.exit(1, ...[1]); } if (second) { process.exit(1, ...[1]); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware(outdent`
+			function run(value: number, first: boolean, second: boolean) {
+				if (first) { process.exit(1, value); }
+				if (second) { process.exit(1, value); }
+			}
+		`),
+		typeAware(outdent`
+			declare namespace JSX { interface Element {} }
+			declare function Component(properties: {handler: () => number}): JSX.Element;
+			function run(first: boolean, second: boolean) {
+				if (first) { return <Component handler={() => 1} />; }
+				if (second) { return <Component handler={() => 1} />; }
+			}
+		`, 'file.tsx'),
+		{
+			...typeAware(outdent`
+				declare namespace JSX { interface Element {} }
+				declare function Component(properties: {value: {nested: number}}): JSX.Element;
+				declare function render(element: JSX.Element): void;
+				function run(first: boolean, second: boolean) {
+					if (first) { render(<Component value={{nested: 1}} />); return; }
+					if (second) { render(<Component value={{nested: 1}} />); return; }
+				}
+			`, 'file.tsx'),
+			options: [{checkMultiStatementBodies: true}],
+		},
+		...['{value}', '{[value]: 1}'].map(expression => typeAware(outdent`
+			function run(value: string, first: boolean, second: boolean) {
+				if (first) { return ${expression}; }
+				if (second) { return ${expression}; }
+			}
+		`)),
+		typeAware(outdent`
+			function run(key: 'a', first: boolean, second: boolean) {
+				if (first) { return {} as {[key]: number}; }
+				if (second) { return {} as {[key]: number}; }
+			}
+		`),
+	],
 });
 
 test('repeated fixes preserve compound conditions and comments', t => {
