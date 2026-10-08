@@ -863,6 +863,67 @@ const config = {
 	rules: {'unicorn/prefer-combined-guards': 'error'},
 };
 
+test('typed assignments can restore matching reference types', t => {
+	const code = outdent`
+		function run(value: string | number) {
+			if (typeof value === 'string') {
+				value = 0;
+				return value;
+			}
+			if (typeof value === 'number') {
+				value = 0;
+				return value;
+			}
+		}
+	`;
+	const linter = new Linter();
+	const ruleConfig = {
+		...config,
+		files: ['**/*.ts'],
+		languageOptions: typeAware(code).languageOptions,
+		rules: {'unicorn/prefer-combined-guards': ['error', {checkMultiStatementBodies: true}]},
+	};
+	const {output, messages, fixed} = linter.verifyAndFix(code, ruleConfig, {filename: 'file.ts'});
+
+	t.assert.strictEqual(fixed, true);
+	t.assert.strictEqual(output, outdent`
+		function run(value: string | number) {
+			if ((typeof value === 'string') || (typeof value === 'number')) {
+				value = 0;
+				return value;
+			}
+		}
+	`);
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(linter.verifyAndFix(output, ruleConfig, {filename: 'file.ts'}).fixed, false);
+});
+
+test('typed compound assignments preserve narrowing', t => {
+	const code = outdent`
+		function run(value: string | number) {
+			if (typeof value === 'string') {
+				value += 1;
+				return;
+			}
+			if (typeof value === 'number') {
+				value += 1;
+				return;
+			}
+		}
+	`;
+	const linter = new Linter();
+	const {output, messages, fixed} = linter.verifyAndFix(code, {
+		...config,
+		files: ['**/*.ts'],
+		languageOptions: typeAware(code).languageOptions,
+		rules: {'unicorn/prefer-combined-guards': ['error', {checkMultiStatementBodies: true}]},
+	}, {filename: 'file.ts'});
+
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(output, code);
+	t.assert.deepStrictEqual(messages, []);
+});
+
 test('repeated fixes combine all consecutive guards', t => {
 	const linter = new Linter();
 	const {output, messages} = linter.verifyAndFix('function foo() { if (a) { return; } if (b) { return; } if (c) { return; } }', config);
