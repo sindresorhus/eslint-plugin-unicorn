@@ -862,13 +862,34 @@ test('syntax-only constant exits ignore static type names', t => {
 });
 
 test('repeated typed fixes preserve narrowing boundaries', t => {
-	const code = 'function run(value: string | number, first: boolean, second: boolean) { if (first) { return value; } if (second) { return value; } if (typeof value === \'number\') { return value; } }';
+	const code = outdent`
+		function run(value: string | number, first: boolean, second: boolean) {
+			if (first) {
+				return value;
+			}
+			if (second) {
+				return value;
+			}
+			if (typeof value === 'number') {
+				return value;
+			}
+		}
+	`;
 	const linter = new Linter();
 	const ruleConfig = {...config, files: ['**/*.ts'], languageOptions: typeAware(code).languageOptions};
 	const {output, messages, fixed} = linter.verifyAndFix(code, ruleConfig, {filename: 'file.ts'});
 
 	t.assert.strictEqual(fixed, true);
-	t.assert.strictEqual(output, 'function run(value: string | number, first: boolean, second: boolean) { if (first || second) { return value; } if (typeof value === \'number\') { return value; } }');
+	t.assert.strictEqual(output, outdent`
+		function run(value: string | number, first: boolean, second: boolean) {
+			if (first || second) {
+				return value;
+			}
+			if (typeof value === 'number') {
+				return value;
+			}
+		}
+	`);
 	t.assert.deepStrictEqual(messages, []);
 	t.assert.strictEqual(linter.verifyAndFix(output, ruleConfig, {filename: 'file.ts'}).fixed, false);
 });
