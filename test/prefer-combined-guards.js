@@ -258,7 +258,7 @@ const typeAware = (code, filename = 'file.ts') => ({
 	filename,
 	languageOptions: {
 		parser: typescriptEslintParser,
-		parserOptions: {projectService: {allowDefaultProject: ['*.ts', '*.tsx']}},
+		parserOptions: {projectService: {allowDefaultProject: ['*.js', '*.ts', '*.tsx']}},
 	},
 });
 
@@ -266,6 +266,56 @@ const typeAware = (code, filename = 'file.ts') => ({
 const constantExitExpressions = ['[]', '{}', '{value: 1}', '[1, {value: `x`}]', '`x`', '`value: ${1}`', '-1', '([] as number[])', '([] satisfies number[])', '([]!)', '<number[]>[]'];
 // eslint-disable-next-line no-template-curly-in-string
 const referenceExitExpressions = ['value', '[value]', '{value}', '{[value]: 1}', '`value: ${value}`', 'this.value', '(() => value)()', 'new Error(\'Invalid value\')', 'tag`value`'];
+
+testRule.snapshot({
+	valid: [
+		typeAware(outdent`
+			/** @param {string | number} value */
+			function run(value) {
+				if (typeof value === 'string') { return value; }
+				if (typeof value === 'number') { return value; }
+			}
+		`, 'file.js'),
+		{
+			...typeAware(outdent`
+				function run(first: boolean, second: boolean) {
+					if (first) { const result = {value: 1}; return result; }
+					if (second) { const result = {value: 1}; return result; }
+				}
+			`),
+			options: [{checkMultiStatementBodies: true}],
+		},
+		{
+			code: 'function run(value: number, first: boolean, second: boolean) { if (first) { return <>{value}</>; } if (second) { return <>{value}</>; } }',
+			filename: 'file.tsx',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [
+		typeAware(outdent`
+			/** @param {number} value */
+			function run(value, first, second) {
+				if (first) { return value; }
+				if (second) { return value; }
+			}
+		`, 'file.js'),
+		{
+			...typeAware(outdent`
+				type Result = {value: number};
+				function run(first: boolean, second: boolean) {
+					if (first) { const result: Result = {value: 1}; return result; }
+					if (second) { const result: Result = {value: 1}; return result; }
+				}
+			`),
+			options: [{checkMultiStatementBodies: true}],
+		},
+		{
+			code: 'function run(first: boolean, second: boolean) { if (first) { return <>{1}</>; } if (second) { return <>{1}</>; } }',
+			filename: 'file.tsx',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+});
 
 testRule.snapshot({
 	valid: [

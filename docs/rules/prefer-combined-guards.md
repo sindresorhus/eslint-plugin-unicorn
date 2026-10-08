@@ -15,7 +15,9 @@ This rule checks adjacent `if` statements without `else`. By default, each body,
 
 Exit values, labels, and calls are compared by source text, ignoring surrounding parentheses where applicable. The rule does not normalize internal formatting or infer semantic equivalence. Braces, surrounding whitespace, and optional trailing semicolons may differ.
 
-In TypeScript, exits containing references are only combined with [type information](https://typescript-eslint.io/getting-started/typed-linting) and when every reference has the same type in both bodies, preserving control-flow narrowing. Without type information, exit expressions must contain no variable references, `this`, `super`, or JSX references. Arrays, objects with constant values, and constant untagged templates are allowed, including type assertions such as `[] as const`. Exits containing tagged templates are always ignored because each source location has its own cached template object.
+When using the TypeScript parser, [type information](https://typescript-eslint.io/getting-started/typed-linting) is optional but enables combining exits containing references, including in JavaScript with JSDoc types. Every reference must have the same type in both bodies to preserve control-flow narrowing. Enable typed linting with [`parserOptions.projectService: true`](https://typescript-eslint.io/packages/parser/#projectservice).
+
+Without type information, the TypeScript parser requires exit expressions to contain no variable references, `this`, `super`, or JSX references. Arrays, objects with constant values, and constant untagged templates are allowed, including type assertions such as `[] as const`. Exits containing tagged templates are always ignored because each source location has its own cached template object.
 
 Comments before, inside, or between guards prevent fixes.
 
@@ -85,6 +87,27 @@ for (const item of items) {
 }
 ```
 
+With type information, exits containing references can also be combined:
+
+```ts
+// ❌
+function check(value: number, finished: boolean, cancelled: boolean) {
+	if (finished) {
+		return value;
+	}
+	if (cancelled) {
+		return value;
+	}
+}
+
+// ✅
+function check(value: number, finished: boolean, cancelled: boolean) {
+	if (finished || cancelled) {
+		return value;
+	}
+}
+```
+
 Bodies with additional statements or nested control flow are ignored by default (see [`checkMultiStatementBodies`](#checkmultistatementbodies)). Arbitrary identical bodies cannot generally be combined: both original bodies could execute when both conditions are true.
 
 ```js
@@ -136,7 +159,7 @@ Default: `false`
 
 Also check guards whose bodies have identical statements, compared by source text, before the same exit. Only one body can run, so combining them does not change behavior. Statements containing tagged templates are never combined.
 
-In TypeScript, the statements could depend on each guard's narrowing, so they are only combined with [type information](https://typescript-eslint.io/getting-started/typed-linting) and when every reference has the same type in both bodies. References to objects or functions declared separately in each body can have distinct types, so those bodies may not be combined.
+With the TypeScript parser, multi-statement bodies require type information and matching reference types. Objects or functions declared separately in each body can have distinct types, so those bodies may not be combined even when their source text matches.
 
 ```js
 // With {checkMultiStatementBodies: true}:
