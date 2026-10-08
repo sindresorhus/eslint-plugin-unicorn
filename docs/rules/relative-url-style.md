@@ -16,19 +16,11 @@ Enforce whether relative URLs use a `./` prefix in:
 - HTML and native JSX/TSX elements: `href`, `src`, `poster`, `srcset`, `imagesrcset`, `action`, `formaction`, and `cite` attributes. JSX uses `srcSet`, `imageSrcSet`, and `formAction`.
 - Markdown: Links, images, reference definitions, and embedded HTML.
 
-Autofixes preserve URL resolution. Under `'never'`, JavaScript templates with substitutions and a literal `./` prefix receive an editor suggestion, which can change URL resolution.
+Autofixes preserve URL resolution. Under `'never'`, interpolated JavaScript templates starting with `./` receive suggestions that may change resolution.
 
-JavaScript supports string literals and templates without substitutions, including type assertions and non-null assertions, but skips `satisfies`. JSX supports quoted attributes and direct strings or templates without substitutions inside braces, except for `srcSet` and `imageSrcSet` expressions. Custom components and other expressions are skipped.
+JavaScript supports string literals and templates without substitutions. JSX also supports these literals inside braces, except for `srcSet`/`imageSrcSet`. Other expressions and custom components are skipped.
 
-Markdown image descriptions can contain formatting. URLs inside descriptions are left unchanged.
-
-The rule skips ambiguous syntax:
-
-- Escaped `./` prefixes, templated HTML/CSS URLs, and JSX strings whose entity decoding differs from HTML.
-- `srcset` values containing entities and candidates starting with `./,`.
-- Markdown URLs containing `<`, complex reference-definition labels, and multiline destinations containing blockquote markers.
-- Markdown images containing footnote syntax, math delimiters with math enabled, or syntax requiring surrounding Markdown to parse.
-- Embedded HTML when Markdown container processing changes an HTML fragment's source.
+Escaped `./` prefixes, templated HTML/CSS URLs, and some complex Markdown or `srcset` syntax are left unchanged.
 
 ## Examples
 
@@ -48,33 +40,15 @@ const url = new URL('foo', base);
 - [`prefer-nesting`](prefer-nesting.md)
 ```
 
-```markdown
-<!-- ❌ -->
-![`API`](./diagram.png)
-<img src="./diagram.png">
-
-<!-- ✅ -->
-![`API`](diagram.png)
-<img src="diagram.png">
-```
-
-```jsx
-// ❌
-<img src={'./image.png'} />;
-
-// ✅
-<img src={'image.png'} />;
-```
-
 ## Options
 
 Type: `string`\
 Default: `'never'`
 
-- `'never'` (default): Remove a `./` prefix when URL resolution is unchanged.
-- `'always'`: Add a `./` prefix when URL resolution is unchanged.
+- `'never'` (default): Remove a `./` prefix.
+- `'always'`: Add a `./` prefix.
 
-The `'always'` style includes hidden paths such as `.env` and `.well-known/security.txt`, but leaves current-directory and parent-directory references unchanged.
+`'always'` includes hidden paths such as `.env`. Current-directory and parent-directory references are unchanged.
 
 ```js
 /* eslint unicorn/relative-url-style: ["error", "always"] */

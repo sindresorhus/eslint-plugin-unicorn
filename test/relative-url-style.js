@@ -701,6 +701,37 @@ test.snapshot({
 	].map(code => ({code, language: {...languages.markdown, language: 'markdown/gfm'}})),
 });
 
+for (const style of ['never', 'always']) {
+	const prefix = style === 'never' ? './' : '';
+	const replacementPrefix = style === 'never' ? '' : './';
+	const path = `first${' '.repeat(20_000)}last.png`;
+	const boundaryWhitespace = '\t\n\f\r ';
+	test({
+		valid: [
+			...['\u00A0', '\uFEFF'].map(whitespace => ({code: `<img src="${prefix}image.png${whitespace}">`})),
+			{code: `<img src="${boundaryWhitespace}">`},
+		].map(testCase => ({
+			...testCase, language: languages.html.language, plugins: languages.html.plugins, options: [style],
+		})),
+		invalid: [
+			...[languages.html, ...markdownLanguages].map(language => {
+				const padding = language === languages.html ? boundaryWhitespace : ' ';
+				return {
+					code: `<img src="${padding}${prefix}${path}${padding}">`,
+					output: `<img src="${padding}${replacementPrefix}${path}${padding}">`,
+					language: language.language,
+					plugins: language.plugins,
+				};
+			}),
+			{
+				code: `<img src=" ${prefix}${path} " />;`,
+				output: `<img src=" ${replacementPrefix}${path} " />;`,
+				languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+			},
+		].map(testCase => ({...testCase, options: [style], errors: [{messageId: style}]})),
+	});
+}
+
 for (const language of [languages.html, ...markdownLanguages]) {
 	test({
 		valid: [

@@ -3,7 +3,7 @@ import {decodeHTMLAttribute} from 'entities';
 import {parse, preprocess, postprocess} from 'micromark';
 import {parseFragment} from 'parse5';
 import {isMethodCall, isNewExpression, isStringLiteral} from './ast/index.js';
-import {getStaticValueIfNoSideEffects, isTypeScriptExpressionWrapper} from './utils/index.js';
+import {getStaticValueIfNoSideEffects, isTypeScriptExpressionWrapper, toLocation} from './utils/index.js';
 import getSrcsetCandidates from './shared/get-srcset-candidates.js';
 
 const MESSAGE_ID_NEVER = 'never';
@@ -148,10 +148,7 @@ const create = context => {
 
 			return {
 				...problem,
-				loc: {
-					start: sourceCode.getLocFromIndex(start + offset),
-					end: sourceCode.getLocFromIndex(start + offset + length),
-				},
+				loc: toLocation([start + offset, start + offset + length], context),
 			};
 		};
 
@@ -166,13 +163,24 @@ const create = context => {
 				.map(candidate => getAttributeProblem(candidate.value, candidate.offsets[0], candidate.value.length));
 		}
 
-		const value = raw.replaceAll(/^[\t\n\f\r ]+|[\t\n\f\r ]+$/g, '');
+		const whitespacePattern = /^[\t\n\f\r ]$/u;
+		let valueStart = 0;
+		let valueEnd = raw.length;
+		while (valueStart < valueEnd && whitespacePattern.test(raw[valueStart])) {
+			valueStart++;
+		}
+
+		while (valueEnd > valueStart && whitespacePattern.test(raw[valueEnd - 1])) {
+			valueEnd--;
+		}
+
+		const value = raw.slice(valueStart, valueEnd);
 		const url = decodeHTMLAttribute(value);
 		if (url !== url.trim()) {
 			return;
 		}
 
-		return [getAttributeProblem(url, raw.indexOf(value), value.length)];
+		return [getAttributeProblem(url, valueStart, value.length)];
 	};
 
 	context.on('Attribute', node => {
