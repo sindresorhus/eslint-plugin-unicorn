@@ -264,9 +264,9 @@ function typeAwarePredicate(code, extension = 'ts') {
 
 testRule.snapshot({
 	valid: [
-		typeAwarePredicate('const isString = (value: unknown) => typeof value === "string"; isString(0); isString(0);'),
+		typeAwarePredicate('const isString = (__value: unknown) => typeof __value === "string"; isString(0); isString(0);'),
 		typeAwarePredicate('class Guard { #isString(value: unknown) { return typeof value === "string"; } run() { this.#isString(0); this.#isString(0); } }'),
-		typeAwarePredicate('/** @param {unknown} value @returns {value is string} */ function isString(value) { return true; } isString(0); isString(0);', 'js'),
+		typeAwarePredicate('/** @param {unknown} __value @returns {__value is string} */ function isString(__value) { return true; } isString(0); isString(0);', 'js'),
 		typeAwarePredicate('const assert: (input: unknown) => asserts input = value => {}; assert(0); assert(0);'),
 		typeAwarePredicate('type Assert = (input: unknown) => asserts input is string; const assert: Assert = (value = 0) => {}; assert(); assert(undefined);'),
 		typeAwarePredicate('const assert: (input: unknown, other: unknown) => asserts input = (value, other) => typeof other === "string"; assert(0, 1); assert(0, 1);'),

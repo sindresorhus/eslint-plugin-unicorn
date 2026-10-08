@@ -163,8 +163,10 @@ function getPredicateParameterNames(functionNode, context) {
 		const typeScriptNode = context.sourceCode.parserServices.esTreeNodeToTSNodeMap.get(functionNode);
 		const signature = checker.getSignatureFromDeclaration(typeScriptNode);
 		if (signature) {
-			// TypeScript can count `this` in inferred predicate indexes, so match declaration predicates by name.
-			names.add(checker.getTypePredicateOfSignature(signature)?.parameterName);
+			// TypeScript can count `this` in inferred predicate indexes and escape predicate names, so match declaration predicates by both names.
+			const parameterName = checker.getTypePredicateOfSignature(signature)?.parameterName;
+			names.add(parameterName);
+			names.add(signature.parameters.find(parameter => parameter.escapedName === parameterName)?.name);
 		}
 
 		const signatures = [...type.getCallSignatures()];
