@@ -1,3 +1,4 @@
+import {isReferenceIdentifier} from './ast/index.js';
 import {
 	containsNode,
 	getCommentSafeProblem,
@@ -85,18 +86,22 @@ const getExitText = (node, sourceCode) => {
 const containsTaggedTemplate = (node, context) => containsNode(node, context, childNode => childNode.type === 'TaggedTemplateExpression');
 
 const isExitUnsafeToCombine = (node, context) => {
-	const expression = node.type === 'ExpressionStatement'
-		? node.expression.arguments[0]
-		: node.argument;
+	const expressions = node.type === 'ExpressionStatement'
+		? node.expression.arguments
+		: [node.argument].filter(Boolean);
+	const {parserServices} = context.sourceCode;
 
-	return Boolean(
-		expression
-		&& (
-			(
-				context.sourceCode.parserServices?.esTreeNodeToTSNodeMap
-				&& expression.type !== 'Literal'
-			)
-			|| containsTaggedTemplate(expression, context)
+	return expressions.some(expression =>
+		containsTaggedTemplate(expression, context)
+		|| (
+			parserServices?.esTreeNodeToTSNodeMap
+			&& !parserServices.program
+			&& containsNode(expression, context, childNode =>
+				isReferenceIdentifier(childNode)
+				|| childNode.type === 'ThisExpression'
+				|| childNode.type === 'Super'
+				|| childNode.type === 'JSXIdentifier'
+				|| childNode.type === 'JSXMemberExpression')
 		),
 	);
 };
@@ -140,16 +145,19 @@ function hasSameReferenceTypes(previousNode, node, parserServices, visitorKeys) 
 }
 
 /*
-Statements before the exit may depend on each guard's TypeScript narrowing. The combined body sees the union of both narrowed types, so with full type information, combine them only when every reference has the same type in both bodies.
+Statements, including the exit, may depend on each guard's TypeScript narrowing. The combined body sees the union of both narrowed types, so with full type information, combine them only when every reference has the same type in both bodies. Without type information, only single-statement bodies with reference-free exits are allowed.
 */
 function isNarrowingPreserved(previousStatements, statements, sourceCode) {
 	const {parserServices, visitorKeys} = sourceCode;
-	if (statements.length === 1 || !parserServices?.esTreeNodeToTSNodeMap) {
+	if (!parserServices?.esTreeNodeToTSNodeMap) {
 		return true;
 	}
 
-	return Boolean(parserServices.program)
-		&& statements.slice(0, -1).every((statement, index) => hasSameReferenceTypes(previousStatements[index], statement, parserServices, visitorKeys));
+	if (!parserServices.program) {
+		return statements.length === 1;
+	}
+
+	return statements.every((statement, index) => hasSameReferenceTypes(previousStatements[index], statement, parserServices, visitorKeys));
 }
 
 function getConditionText(node, property, context) {

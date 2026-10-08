@@ -15,7 +15,7 @@ This rule checks adjacent `if` statements without `else`. By default, each body,
 
 Exit values, labels, and calls are compared by source text, ignoring surrounding parentheses where applicable. The rule does not normalize internal formatting or infer semantic equivalence. Braces, surrounding whitespace, and optional trailing semicolons may differ.
 
-To preserve TypeScript control-flow narrowing, the rule ignores non-literal `return` and `throw` values and non-literal `process.exit()` arguments in TypeScript. It also ignores exits containing tagged templates because each source location has its own cached template object.
+In TypeScript, exits containing references are only combined with [type information](https://typescript-eslint.io/getting-started/typed-linting) and when every reference has the same type in both bodies, preserving control-flow narrowing. Without type information, exit expressions must contain no variable references, `this`, `super`, or JSX references. Arrays, objects with constant values, and constant untagged templates are allowed. Exits containing tagged templates are always ignored because each source location has its own cached template object.
 
 Comments before, inside, or between guards prevent fixes.
 

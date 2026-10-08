@@ -262,6 +262,127 @@ const typeAware = (code, filename = 'file.ts') => ({
 	},
 });
 
+// eslint-disable-next-line no-template-curly-in-string
+const constantExitExpressions = ['[]', '{}', '{value: 1}', '[1, {value: `x`}]', '`x`', '`value: ${1}`', '-1', '([] as number[])', '([] satisfies number[])', '([]!)', '<number[]>[]'];
+// eslint-disable-next-line no-template-curly-in-string
+const referenceExitExpressions = ['value', '[value]', '{value}', '{[value]: 1}', '`value: ${value}`', 'this.value', '(() => value)()', 'new Error(\'Invalid value\')', 'tag`value`'];
+
+testRule.snapshot({
+	valid: [
+		...referenceExitExpressions.map(expression => ({
+			code: `function run(first: boolean, second: boolean, value: number) { if (first) { return ${expression}; } if (second) { return ${expression}; } }`,
+			languageOptions: {parser: parsers.typescript},
+		})),
+		{
+			code: 'function run(first: boolean, second: boolean) { if (first) { log(); return []; } if (second) { log(); return []; } }',
+			languageOptions: {parser: parsers.typescript},
+			options: [{checkMultiStatementBodies: true}],
+		},
+		{
+			code: 'if (first) { process.exit(1, value); } if (second) { process.exit(1, value); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'if (first) { process.exit(1, tag`value`); } if (second) { process.exit(1, tag`value`); }',
+		{
+			code: 'class Base { value = 1; } class Runner extends Base { run(first: boolean, second: boolean) { if (first) { return super.value; } if (second) { return super.value; } } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function run(first: boolean, second: boolean) { if (first) { return <Component />; } if (second) { return <Component />; } }',
+			filename: 'file.tsx',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('function run(value: string | number | boolean) { if (typeof value === \'string\') { return value; } if (typeof value === \'number\') { return value; } }'),
+		typeAware('function run(value: string | undefined, other: boolean) { if (value) { return value; } if (other) { return value; } }'),
+		typeAware(outdent`
+			function run(object: {value: string | number}) {
+				if (typeof object.value === 'string') { return object.value; }
+				if (typeof object.value === 'number') { return object.value; }
+			}
+		`),
+		typeAware(outdent`
+			declare function length(value: string): number;
+			declare function length(value: number): number;
+			function run(value: string | number) {
+				if (typeof value === 'string') { return length(value); }
+				if (typeof value === 'number') { return length(value); }
+			}
+		`),
+		typeAware(outdent`
+			type A = {type: 'a'; method(value: string): number};
+			type B = {type: 'b'; method(value: number): number};
+			function run(subject: A | B, argument: string | number) {
+				if (subject.type === 'a' && typeof argument === 'string') { return subject.method(argument); }
+				if (subject.type === 'b' && typeof argument === 'number') { return subject.method(argument); }
+			}
+		`),
+		typeAware(outdent`
+			type A = {type: 'a'; exitCode(value: string): number};
+			type B = {type: 'b'; exitCode(value: number): number};
+			function run(subject: A | B, argument: string | number) {
+				if (subject.type === 'a' && typeof argument === 'string') { process.exit(subject.exitCode(argument)); }
+				if (subject.type === 'b' && typeof argument === 'number') { process.exit(subject.exitCode(argument)); }
+			}
+		`),
+		typeAware(outdent`
+			class Base {
+				isSpecial(): this is Special { return false; }
+				run(other: boolean) {
+					if (this.isSpecial()) { return this; }
+					if (other) { return this; }
+				}
+			}
+			class Special extends Base { special = true; }
+		`),
+		typeAware(outdent`
+			declare const tag: (strings: TemplateStringsArray) => string;
+			function run(first: boolean, second: boolean) {
+				if (first) { return tag\`value\`; }
+				if (second) { return tag\`value\`; }
+			}
+		`),
+		{
+			...typeAware(outdent`
+				declare function log(): void;
+				function run(value: string | number) {
+					if (typeof value === 'string') { log(); return value; }
+					if (typeof value === 'number') { log(); return value; }
+				}
+			`),
+			options: [{checkMultiStatementBodies: true}],
+		},
+	].map(testCase => ({options: checkCompoundConditionsOptions, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+	invalid: [
+		...constantExitExpressions.flatMap(expression => {
+			const code = `function run(first: boolean, second: boolean) { if (first) { return ${expression}; } if (second) { return ${expression}; } }`;
+			return [{code, languageOptions: {parser: parsers.typescript}}, typeAware(code)];
+		}),
+		{
+			code: 'function run(first: boolean, second: boolean) { if (first) { throw {value: 1}; } if (second) { throw {value: 1}; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('function run(first: boolean, second: boolean) { if (first) { throw {value: 1}; } if (second) { throw {value: 1}; } }'),
+		typeAware('function run(value: number, first: boolean, second: boolean) { if (first) { return value; } if (second) { return value; } }'),
+		typeAware('function run(value: number) { if (value < 0) { throw new RangeError(\'Invalid value\'); } if (!Number.isFinite(value)) { throw new RangeError(\'Invalid value\'); } }'),
+		typeAware('function run(value: {result: number}, first: boolean, second: boolean) { if (first) { return value.result; } if (second) { return value.result; } }'),
+		typeAware('class Runner { run(first: boolean, second: boolean) { if (first) { return this; } if (second) { return this; } } }'),
+		...['-1', '(1 as number)', '1 + 1'].map(expression => ({
+			code: `if (first) { process.exit(${expression}); } if (second) { process.exit(${expression}); }`,
+			languageOptions: {parser: parsers.typescript},
+		})),
+		typeAware('function run(code: number, first: boolean, second: boolean) { if (first) { process.exit(code); } if (second) { process.exit(code); } }'),
+		{
+			...typeAware('declare function log(): void; function run(first: boolean, second: boolean) { if (first) { log(); return []; } if (second) { log(); return []; } }'),
+			options: [{checkMultiStatementBodies: true}],
+		},
+		{
+			code: 'function run(first: boolean, second: boolean) { if (first) { return /* Keep comment. */ []; } if (second) { return /* Keep comment. */ []; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'function run(first, second) { if (first) { return {value: 1}; } if (second) { return {value: 1}; } }',
+	],
+});
+
 testRule.snapshot({
 	valid: withCheckMultiStatementBodies([
 		{
@@ -691,6 +812,19 @@ test('repeated fixes combine all consecutive guards', t => {
 	const {output, messages} = linter.verifyAndFix('function foo() { if (a) { return; } if (b) { return; } if (c) { return; } }', config);
 	t.assert.strictEqual(output, 'function foo() { if (a || b || c) { return; } }');
 	t.assert.deepStrictEqual(messages, []);
+});
+
+test('repeated TypeScript fixes combine non-literal exits', t => {
+	const linter = new Linter();
+	const code = 'function run(first: boolean, second: boolean, third: boolean) { if (first) { return []; } if (second) { return []; } if (third) { return []; } }';
+	for (const languageOptions of [{parser: typescriptEslintParser}, typeAware(code).languageOptions]) {
+		const ruleConfig = {...config, files: ['**/*.ts'], languageOptions};
+		const {output, messages, fixed} = linter.verifyAndFix(code, ruleConfig, {filename: 'file.ts'});
+		t.assert.strictEqual(fixed, true);
+		t.assert.strictEqual(output, 'function run(first: boolean, second: boolean, third: boolean) { if (first || second || third) { return []; } }');
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(linter.verifyAndFix(output, ruleConfig, {filename: 'file.ts'}).fixed, false);
+	}
 });
 
 test('repeated fixes preserve compound conditions and comments', t => {
