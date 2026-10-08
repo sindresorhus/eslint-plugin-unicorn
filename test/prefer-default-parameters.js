@@ -28,6 +28,28 @@ const incompatibleResultCases = [
 	'function fn(name: string, repo?: string | null): string { repo = repo ?? name; return repo; }',
 ];
 
+const nullableFallbackCases = [
+	'const fn = (a: unknown, b: unknown) => b ?? a;',
+	'const fn = (a: unknown, b: unknown) => b || a;',
+	'function fn(name: string | null, repo?: string | null): string | null { return repo ?? name; }',
+	'function fn(name: string | null, repo?: string | null) { return repo || name; }',
+	'function fn(fallback: null | undefined, repo: string | null | undefined) { return repo ?? fallback; }',
+	'function fn(fallback: string | null, repo?: string | null) { if (fallback === null) { return repo ?? fallback; } return ""; }',
+	'const fn: (name: unknown, repo: unknown) => unknown = (name, repo) => repo ?? name;',
+	'const fn = ({name, repo}: {name: string | null; repo?: string | null}) => repo ?? name;',
+	'const fn = ([name, repo]: [unknown, unknown]) => repo || name;',
+	'declare const options: {fallback: string | null; repo?: string | null}; const {fallback, repo} = options; console.log(repo ?? fallback);',
+	'declare const options: [unknown, unknown]; const [fallback, repo] = options; console.log(repo || fallback);',
+	'function fn(name: unknown, repo: unknown) { repo ??= name; return repo; }',
+	'function fn(name: unknown, repo: unknown) { repo ||= name; return repo; }',
+	'function fn(name: string | null, repo?: string | null) { repo = repo ?? name; return repo; }',
+	'function fn(name: string | null, repo?: string | null) { repo = repo || name; return repo; }',
+	'function fn<Value extends string | null>(name: Value, repo?: Value) { return repo ?? name; }',
+	'function fn<Value extends object | null>({name, repo}: {name: Value; repo?: Value}) { return repo || name; }',
+	'function fn<Value extends string | null>(name: Value, repo?: Value) { repo ??= name; return repo; }',
+	'function fn<Value extends unknown>(name: Value | null, repo?: Value | null) { return repo ?? name; }',
+];
+
 const anyTypeCases = [
 	'function fn(repo) { return repo ?? 3; } fn("text");',
 	'function fn(repo) { repo ??= 3; return repo; } fn("text");',
@@ -53,6 +75,53 @@ test({
 test({
 	valid: incompatibleResultCases.map(code => typeAware(code)),
 	invalid: [],
+});
+
+test({
+	valid: [
+		...nullableFallbackCases.map(code => typeAware(code)),
+		typeAware('/** @param {unknown} name\n * @param {unknown} repo */\nfunction fn(name, repo) { return repo ?? name; }', 'file.js'),
+	],
+	invalid: [
+		{
+			...typeAware('function fn(repo?: string | null) { return repo ?? null; }'),
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'function fn(repo: string | null = null) { return repo; }'}],
+			}],
+		},
+		{
+			...typeAware('function fn(name: null, repo?: string | null) { return repo ?? name; }'),
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'function fn(name: null, repo: string | null = name) { return repo; }'}],
+			}],
+		},
+		{
+			...typeAware('const fn = ({repo}: {repo?: string | null}) => repo ?? null;'),
+			errors: [{
+				messageId: 'preferDestructuringDefaultOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const fn = ({repo = null}: {repo?: string | null}) => repo;'}],
+			}],
+		},
+		{
+			...typeAware('function fn(name: null, repo?: string | null) { repo ??= name; return repo; }'),
+			errors: [{
+				messageId: 'preferDefaultParameters',
+				suggestions: [{messageId: 'preferDefaultParametersSuggest', output: 'function fn(name: null, repo: string | null = name) { return repo; }'}],
+			}],
+		},
+		{
+			...typeAware('declare const options: {fallback: null; repo?: string | null}; const {fallback, repo} = options; console.log(repo || fallback);'),
+			errors: [{
+				messageId: 'preferDestructuringDefaultOverFallback',
+				suggestions: [{
+					messageId: 'moveDefaultToDeclaration',
+					output: 'declare const options: {fallback: null; repo?: string | null}; const {fallback, repo = fallback} = options; console.log(repo);',
+				}],
+			}],
+		},
+	],
 });
 
 test({
@@ -156,13 +225,6 @@ test({
 			}],
 		},
 		{
-			...typeAware('function fn(name: string | null, repo?: string | null): string | null { return repo ?? name; }'),
-			errors: [{
-				messageId: 'preferDefaultParameterOverFallback',
-				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'function fn(name: string | null, repo: string | null = name): string | null { return repo; }'}],
-			}],
-		},
-		{
 			...typeAware('function fn(name: string, repo?: string) { return repo ?? name; }'),
 			errors: [{
 				messageId: 'preferDefaultParameterOverFallback',
@@ -224,12 +286,30 @@ test({
 	],
 });
 
+test({
+	valid: [],
+	invalid: ['string', 'unknown', 'any'].map(constraint => ({
+		...typeAware(`function fn<Value extends ${constraint}>(name: Value, repo?: Value) { return repo ?? name; }`),
+		errors: [{
+			messageId: 'preferDefaultParameterOverFallback',
+			suggestions: [{messageId: 'moveDefaultToDeclaration', output: `function fn<Value extends ${constraint}>(name: Value, repo: Value = name) { return repo; }`}],
+		}],
+	})),
+});
+
 test.typescript({
 	valid: [
 		'class Foo { set value(repo: number) { repo ||= 3; } }',
 		'class Foo { set value(repo: number | undefined) { console.log(repo ?? 3); } }',
 	],
 	invalid: [
+		{
+			code: 'const fn = (a: unknown, b: unknown) => b ?? a;',
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const fn = (a: unknown, b: unknown = a) => b;'}],
+			}],
+		},
 		{
 			code: 'function fn(repo: any) { return repo ?? 3; }',
 			errors: [{
@@ -300,6 +380,7 @@ nodeTest('incompatible transformations are not reported', t => {
 		'function fn(name: number | undefined, repo: number | undefined): number { if (typeof name === "number") { return repo ?? name; } return 0; }',
 		'const fn: (name?: number, repo?: number) => number = (name, repo) => typeof name === "number" ? repo ?? name : 0;',
 		...incompatibleResultCases,
+		...nullableFallbackCases,
 	];
 	for (const code of codes) {
 		t.assert.deepStrictEqual(getTypeScriptDiagnostics(code), []);
@@ -339,10 +420,11 @@ nodeTest('suggestions preserve TypeScript validity and the annotated call signat
 	const codes = [
 		'function fn(repo?: number) { return repo ?? -1; }',
 		'function fn(name: number | undefined, repo: number | undefined) { return repo ?? name; }',
-		'function fn(name: string | null, repo?: string | null): string | null { return repo ?? name; }',
+		'declare const options: {fallback: null; repo?: string | null}; const {fallback, repo} = options; console.log(repo || fallback);',
 		'function fn(name: string, repo?: string) { return repo ?? name; }',
 		'const fn: (name: string, repo?: string) => string = (name, repo) => repo ?? name;',
 		'function fn<Value>(name: Value, repo?: Value) { return repo ?? name; }',
+		...['string', 'unknown', 'any'].map(constraint => `function fn<Value extends ${constraint}>(name: Value, repo?: Value) { return repo ?? name; }`),
 		'function fn<Value>([name, repo]: [Value, Value?]): Value { return repo ?? name; }',
 		'const options: {fallback: string; repo?: string} = {fallback: "name"}; const {fallback, repo} = options; const output: string = repo ?? fallback;',
 		'class Foo { set value({name, repo}: {name: string; repo?: string}) { console.log(repo ?? name); } }',
