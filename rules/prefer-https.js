@@ -1,5 +1,5 @@
 import {isRegExp} from 'node:util/types';
-import {matchesAnyRegExp, onRoot} from './utils/index.js';
+import {matchesAnyRegExp, onRoot, toLocation} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-https';
 const messages = {
@@ -158,10 +158,7 @@ const create = context => {
 
 			context.report({
 				node,
-				loc: {
-					start: sourceCode.getLocFromIndex(start),
-					end: sourceCode.getLocFromIndex(end),
-				},
+				loc: toLocation([start, end], context),
 				messageId: MESSAGE_ID,
 				fix: fixer => fixer.replaceTextRange([start, start + 4], 'https'),
 			});

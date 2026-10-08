@@ -9,9 +9,18 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Use a consistent `./` prefix for relative URLs in [`new URL()`](https://developer.mozilla.org/en-US/docs/Web/API/URL/URL), CSS `url()`, `image-set()`, and `@import`, HTML URL attributes (`href`, `src`, `poster`, `srcset`, `imagesrcset`), and Markdown links, images, and definitions. The rule changes a prefix only when both forms resolve to the same URL.
+Enforce whether relative URLs use a `./` prefix in:
 
-In CSS at-rule preludes, only `@import` targets are checked. Fixes preserve `srcset` descriptors and separators; a prefix before a comma is retained to avoid changing candidate boundaries. Templated HTML/CSS URLs, entity-containing `srcset` values, complex Markdown labels, and escaped `./` prefixes are left unchanged.
+- JavaScript: `new URL()`, `URL.canParse()`, and `URL.parse()` with two arguments.
+- CSS: `url()`, `image-set()`, and `@import` targets.
+- HTML and native JSX/TSX elements: `href`, `src`, `poster`, `srcset`, `imagesrcset`, `action`, `formaction`, and `cite` attributes. JSX uses `srcSet`, `imageSrcSet`, and `formAction`.
+- Markdown: Links, images, reference definitions, and embedded HTML.
+
+Autofixes preserve URL resolution. Under `'never'`, interpolated JavaScript templates starting with `./` receive suggestions that may change resolution.
+
+JavaScript supports string literals and templates without substitutions. JSX also supports these literals inside braces, except for `srcSet`/`imageSrcSet`. Other expressions and custom components are skipped.
+
+Escaped `./` prefixes, templated HTML/CSS URLs, and some complex Markdown or `srcset` syntax are left unchanged.
 
 ## Examples
 
@@ -23,15 +32,23 @@ const url = new URL('./foo', base);
 const url = new URL('foo', base);
 ```
 
+```markdown
+<!-- ❌ -->
+- [`prefer-nesting`](./prefer-nesting.md)
+
+<!-- ✅ -->
+- [`prefer-nesting`](prefer-nesting.md)
+```
+
 ## Options
 
 Type: `string`\
 Default: `'never'`
 
-- `'never'` (default)
-  - Never use a `./` prefix.
-- `'always'`
-  - Always add a `./` prefix to the relative URL when possible.
+- `'never'` (default): Remove a `./` prefix.
+- `'always'`: Add a `./` prefix.
+
+`'always'` includes hidden paths such as `.env`. Current-directory and parent-directory references are unchanged.
 
 ```js
 /* eslint unicorn/relative-url-style: ["error", "always"] */

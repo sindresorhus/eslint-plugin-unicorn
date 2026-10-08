@@ -1,7 +1,9 @@
 import {ident} from '@eslint/css-tree';
 import {decodeHTMLAttribute} from 'entities';
-import {isNewExpression, isStringLiteral} from './ast/index.js';
-import {getStaticValueIfNoSideEffects} from './utils/index.js';
+import {parse, preprocess, postprocess} from 'micromark';
+import {parseFragment} from 'parse5';
+import {isMethodCall, isNewExpression, isStringLiteral} from './ast/index.js';
+import {getStaticValueIfNoSideEffects, isTypeScriptExpressionWrapper, toLocation} from './utils/index.js';
 import getSrcsetCandidates from './shared/get-srcset-candidates.js';
 
 const MESSAGE_ID_NEVER = 'never';
@@ -18,6 +20,7 @@ const imageSetFunctions = new Set(['image-set', '-webkit-image-set']);
 const TEST_URL_BASES = [
 	'https://example.com/a/b/',
 	'https://example.com/a/b.html',
+	'file:///a/b.html',
 ];
 const isSafeToAddDotSlashToUrl = (url, base) => {
 	try {
@@ -32,54 +35,37 @@ const isSafeToAddDotSlashToUrl = (url, base) => {
 const isSafeToAddDotSlash = (url, bases = TEST_URL_BASES) => bases.every(base => isSafeToAddDotSlashToUrl(url, base));
 const isSafeToRemoveDotSlash = (url, bases = TEST_URL_BASES) => bases.every(base => isSafeToAddDotSlashToUrl(url.slice(DOT_SLASH.length), base));
 
-function canAddDotSlash(node, sourceCode) {
-	const url = node.value;
-	if (url.startsWith(DOT_SLASH) || url.startsWith('.') || url.startsWith('/')) {
-		return false;
+/**
+Get the destination's offset relative to one complete Markdown image's source.
+
+@param {string} text
+@returns {number | undefined}
+*/
+function getMarkdownImageDestinationOffset(text) {
+	const events = postprocess(parse().document().write(preprocess()(text, 'utf8', true)));
+	const owners = [];
+
+	for (const [event, token] of events) {
+		if (token.type === 'image' || token.type === 'link') {
+			if (event === 'enter') {
+				owners.push(token);
+			} else {
+				owners.pop();
+			}
+		}
+
+		const owner = owners.at(-1);
+		if (
+			event === 'enter'
+			&& token.type === 'resourceDestinationString'
+			&& owners.length === 1
+			&& owner.type === 'image'
+			&& owner.start.offset === 0
+			&& owner.end.offset === text.length
+		) {
+			return token.start.offset;
+		}
 	}
-
-	const baseNode = node.parent.arguments[1];
-	const staticValueResult = getStaticValueIfNoSideEffects(baseNode, {sourceCode});
-
-	if (typeof staticValueResult?.value === 'string') {
-		return isSafeToAddDotSlash(url, [staticValueResult.value]);
-	}
-
-	return isSafeToAddDotSlash(url);
-}
-
-function canRemoveDotSlash(node, sourceCode) {
-	const rawValue = node.raw.slice(1, -1);
-	if (!rawValue.startsWith(DOT_SLASH)) {
-		return false;
-	}
-
-	const baseNode = node.parent.arguments[1];
-	const staticValueResult = getStaticValueIfNoSideEffects(baseNode, {sourceCode});
-
-	if (typeof staticValueResult?.value === 'string') {
-		return isSafeToRemoveDotSlash(node.value, [staticValueResult.value]);
-	}
-
-	return isSafeToRemoveDotSlash(node.value);
-}
-
-function addDotSlash(node, sourceCode) {
-	if (!canAddDotSlash(node, sourceCode)) {
-		return;
-	}
-
-	const insertPosition = sourceCode.getRange(node)[0] + 1; // After quote
-	return fixer => fixer.insertTextAfterRange([insertPosition, insertPosition], DOT_SLASH);
-}
-
-function removeDotSlash(node, sourceCode) {
-	if (!canRemoveDotSlash(node, sourceCode)) {
-		return;
-	}
-
-	const start = sourceCode.getRange(node)[0] + 1; // After quote
-	return fixer => fixer.removeRange([start, start + 2]);
 }
 
 /**
@@ -94,16 +80,16 @@ const create = context => {
 		return !prelude || (ident.decode(sourceCode.getParent(prelude).name).toLowerCase() === 'import' && prelude.children.at(0) === node);
 	};
 
-	const getMarkupProblem = (node, url, start) => {
+	const getUrlProblem = (node, url, start, bases) => {
 		if (templateDelimiters.some(delimiter => url.includes(delimiter))) {
 			return;
 		}
 
 		if (style === 'never') {
-			if (!sourceCode.text.startsWith(DOT_SLASH, start) || !isSafeToRemoveDotSlash(url)) {
+			if (!sourceCode.text.startsWith(DOT_SLASH, start) || !isSafeToRemoveDotSlash(url, bases)) {
 				return;
 			}
-		} else if (url.startsWith('.') || url.startsWith('/') || !isSafeToAddDotSlash(url)) {
+		} else if (/^\.\.?(?:[#/?\\]|$)/u.test(url) || url.startsWith('/') || !isSafeToAddDotSlash(url, bases)) {
 			return;
 		}
 
@@ -123,7 +109,7 @@ const create = context => {
 
 		// The CSS tokenizer only creates `Url` nodes from a literal `url(` (no escapes), so this always matches.
 		const [prefix] = sourceCode.getText(node).match(/^url\([\t\n\f\r ]*["']?/i);
-		return getMarkupProblem(node, node.value, sourceCode.getRange(node)[0] + prefix.length);
+		return getUrlProblem(node, node.value, sourceCode.getRange(node)[0] + prefix.length);
 	});
 
 	context.on('Atrule', node => {
@@ -133,7 +119,7 @@ const create = context => {
 
 		const string = node.prelude?.children?.at(0);
 		if (string?.type === 'String') {
-			return getMarkupProblem(string, string.value, sourceCode.getRange(string)[0] + 1);
+			return getUrlProblem(string, string.value, sourceCode.getRange(string)[0] + 1);
 		}
 	});
 	context.on('String', node => {
@@ -142,26 +128,29 @@ const create = context => {
 			return;
 		}
 
-		return getMarkupProblem(node, node.value, sourceCode.getRange(node)[0] + 1);
+		return getUrlProblem(node, node.value, sourceCode.getRange(node)[0] + 1);
 	});
 
-	context.on('Attribute', node => {
-		const name = node.key.value.toLowerCase();
+	const getHtmlAttributeProblems = (node, name, raw, start) => {
 		if (
-			!['href', 'src', 'poster', 'srcset', 'imagesrcset'].includes(name)
-			|| node.key.parts.length > 0
-			|| !node.value
-			|| node.value.parts.length > 0
+			!['href', 'src', 'poster', 'srcset', 'imagesrcset', 'action', 'formaction', 'cite'].includes(name)
+			|| !raw
+			|| templateDelimiters.some(delimiter => raw.includes(delimiter))
 		) {
 			return;
 		}
 
-		const [start] = sourceCode.getRange(node.value);
-		// The HTML parser can stop an unquoted value at a slash.
-		const raw = node.startWrapper ? sourceCode.getText(node.value) : sourceCode.text.slice(start).match(/^[^\t\n\f\r "'<>`]+/u)?.[0];
-		if (!raw || templateDelimiters.some(delimiter => raw.includes(delimiter))) {
-			return;
-		}
+		const getAttributeProblem = (url, offset, length) => {
+			const problem = getUrlProblem(node, url, start + offset);
+			if (!problem) {
+				return;
+			}
+
+			return {
+				...problem,
+				loc: toLocation([start + offset, start + offset + length], context),
+			};
+		};
 
 		if (name === 'srcset' || name === 'imagesrcset') {
 			if (decodeHTMLAttribute(raw) !== raw) {
@@ -171,80 +160,233 @@ const create = context => {
 			// A leading comma would become a candidate separator if the prefix were removed.
 			return getSrcsetCandidates(raw)
 				.filter(candidate => !candidate.value.startsWith('./,'))
-				.map(candidate => getMarkupProblem(node, candidate.value, start + candidate.offsets[0]));
+				.map(candidate => getAttributeProblem(candidate.value, candidate.offsets[0], candidate.value.length));
 		}
 
-		const value = raw.replaceAll(/^[\t\n\f\r ]+|[\t\n\f\r ]+$/g, '');
+		const whitespacePattern = /^[\t\n\f\r ]$/u;
+		let valueStart = 0;
+		let valueEnd = raw.length;
+		while (valueStart < valueEnd && whitespacePattern.test(raw[valueStart])) {
+			valueStart++;
+		}
+
+		while (valueEnd > valueStart && whitespacePattern.test(raw[valueEnd - 1])) {
+			valueEnd--;
+		}
+
+		const value = raw.slice(valueStart, valueEnd);
 		const url = decodeHTMLAttribute(value);
 		if (url !== url.trim()) {
 			return;
 		}
 
-		return getMarkupProblem(node, url, start + raw.indexOf(value));
+		return [getAttributeProblem(url, valueStart, value.length)];
+	};
+
+	context.on('Attribute', node => {
+		if (node.key.parts.length > 0 || !node.value || node.value.parts.length > 0) {
+			return;
+		}
+
+		const [start] = sourceCode.getRange(node.value);
+		// The HTML parser can stop an unquoted value at a slash.
+		const raw = node.startWrapper ? sourceCode.getText(node.value) : sourceCode.text.slice(start).match(/^[^\t\n\f\r "'<>`]+/u)?.[0];
+		return getHtmlAttributeProblems(node, node.key.value.toLowerCase(), raw, start);
+	});
+	context.on('JSXAttribute', node => {
+		const tag = node.parent.name;
+		if (
+			tag.type !== 'JSXIdentifier'
+			|| !/^[a-z][\dA-Za-z]*$/u.test(tag.name)
+			|| node.name.type !== 'JSXIdentifier'
+			|| !['href', 'src', 'poster', 'srcSet', 'imageSrcSet', 'action', 'formAction', 'cite'].includes(node.name.name)
+		) {
+			return;
+		}
+
+		if (node.value?.type === 'JSXExpressionContainer') {
+			const {expression} = node.value;
+			if (
+				['srcSet', 'imageSrcSet'].includes(node.name.name)
+				|| (!isStringLiteral(expression) && !(expression.type === 'TemplateLiteral' && expression.expressions.length === 0))
+			) {
+				return;
+			}
+
+			const url = expression.type === 'TemplateLiteral' ? expression.quasis[0].value.cooked : expression.value;
+			return getUrlProblem(expression, url, sourceCode.getRange(expression)[0] + 1);
+		}
+
+		if (!isStringLiteral(node.value)) {
+			return;
+		}
+
+		const raw = sourceCode.getText(node.value).slice(1, -1);
+		// JSX parsers and HTML can decode character references differently.
+		if (decodeHTMLAttribute(raw) !== node.value.value) {
+			return;
+		}
+
+		return getHtmlAttributeProblems(node, node.name.name.toLowerCase(), raw, sourceCode.getRange(node.value)[0] + 1);
 	});
 
-	context.on(['link', 'image', 'definition'], node => {
-		// Complex labels are left unchanged when their destination cannot be located unambiguously.
-		const prefix = sourceCode.getText(node).match(/^!?\[(?:\\.|[^<[\\\]`])*\](?:\(|:)[\t\n\r ]*<?/u)?.[0];
+	const getMarkdownUrlProblem = (node, start) => {
+		// Removing the prefix can turn a literal opening angle bracket into a destination delimiter.
+		if (node.url.includes('<')) {
+			return;
+		}
+
+		return getUrlProblem(node, node.url, start);
+	};
+
+	context.on(['link', 'definition'], node => {
+		// Complex definition labels are left unchanged when their destination cannot be located unambiguously.
+		const [start, end] = sourceCode.getRange(node);
+		const lastChild = node.children?.at(-1);
+		const prefixStart = lastChild ? sourceCode.getRange(lastChild)[1] : start;
+		const prefix = sourceCode.text.slice(prefixStart, end).match(lastChild
+			? /^\]\([\t\n\r ]*<?/u
+			: /^\[(?:\\.|[^<[\\\]`])*\](?:\(|:)[\t\n\r ]*<?/u)?.[0];
 		if (!prefix) {
 			return;
 		}
 
-		return getMarkupProblem(node, node.url, sourceCode.getRange(node)[0] + prefix.length);
+		const destinationStart = prefixStart + prefix.length;
+		// Blockquote markers in multiline destinations are not part of the URL.
+		if (sourceCode.text[destinationStart] === '>' && /[\n\r]/u.test(prefix)) {
+			return;
+		}
+
+		return getMarkdownUrlProblem(node, destinationStart);
 	});
 
-	// Template literals are not always safe to remove `./` from, but report those starting with `./`.
-	if (style === 'never') {
-		context.on('TemplateLiteral', node => {
-			if (!(
-				isNewExpression(node.parent, {name: 'URL', argumentsLength: 2})
-				&& node.parent.arguments[0] === node
-			)) {
+	context.on('image', node => {
+		const text = sourceCode.getText(node);
+		// Markdown extensions can change image label boundaries.
+		if (text.includes('[^') || (context.languageOptions.math === true && text.includes('$'))) {
+			return;
+		}
+
+		const offset = getMarkdownImageDestinationOffset(text);
+		if (offset !== undefined) {
+			return getMarkdownUrlProblem(node, sourceCode.getRange(node)[0] + offset);
+		}
+	});
+
+	const markdownHtmlNodes = [];
+	context.on('html', node => {
+		markdownHtmlNodes.push(node);
+	});
+	context.onExit('root', () => {
+		// Container processing can change HTML content, so only use unchanged fragments.
+		if (markdownHtmlNodes.length === 0 || markdownHtmlNodes.some(node => sourceCode.getText(node) !== node.value)) {
+			return;
+		}
+
+		// Mask Markdown while preserving offsets and HTML context across separate fragments.
+		const parts = [];
+		let previousEnd = 0;
+		for (const node of markdownHtmlNodes) {
+			const [start, end] = sourceCode.getRange(node);
+			parts.push(sourceCode.text.slice(previousEnd, start).replaceAll(/[^\n\r]/g, ' '), sourceCode.text.slice(start, end));
+			previousEnd = end;
+		}
+
+		parts.push(sourceCode.text.slice(previousEnd).replaceAll(/[^\n\r]/g, ' '));
+		const fragment = parseFragment(parts.join(''), {sourceCodeLocationInfo: true});
+		const problems = [];
+		const collectProblems = element => {
+			for (const attribute of element.attrs ?? []) {
+				const location = element.sourceCodeLocation?.attrs?.[attribute.name];
+				if (attribute.prefix || !location) {
+					continue;
+				}
+
+				const node = markdownHtmlNodes.find(node => {
+					const [start, end] = sourceCode.getRange(node);
+					return location.startOffset >= start && location.endOffset <= end;
+				});
+				if (!node) {
+					continue;
+				}
+
+				const text = sourceCode.text.slice(location.startOffset, location.endOffset);
+				const prefix = text.match(/^[^=]*=[\t\n\f\r ]*(["']?)/u);
+				if (!prefix) {
+					continue;
+				}
+
+				const raw = text.slice(prefix[0].length, prefix[1] ? -1 : undefined);
+				problems.push(...getHtmlAttributeProblems(node, attribute.name, raw, location.startOffset + prefix[0].length) ?? []);
+			}
+
+			for (const child of element.childNodes ?? []) {
+				collectProblems(child);
+			}
+
+			if (element.content) {
+				collectProblems(element.content);
+			}
+		};
+
+		collectProblems(fragment);
+		return problems;
+	});
+
+	context.on(['NewExpression', 'CallExpression'], node => {
+		if (
+			!isNewExpression(node, {name: 'URL', argumentsLength: 2})
+			&& !isMethodCall(node, {
+				object: 'URL',
+				methods: ['canParse', 'parse'],
+				argumentsLength: 2,
+				computed: false,
+				optionalCall: false,
+				optionalMember: false,
+			})
+		) {
+			return;
+		}
+
+		let argument = node.arguments[0];
+		while (isTypeScriptExpressionWrapper(argument)) {
+			if (argument.type === 'TSSatisfiesExpression') {
 				return;
 			}
 
-			const firstPart = node.quasis[0];
-			if (!firstPart.value.raw.startsWith(DOT_SLASH)) {
+			argument = argument.expression;
+		}
+
+		if (!isStringLiteral(argument) && argument.type !== 'TemplateLiteral') {
+			return;
+		}
+
+		// Template literals are not always safe to remove `./` from, but report those starting with `./`.
+		if (argument.type === 'TemplateLiteral' && argument.expressions.length > 0) {
+			if (style !== 'never' || !argument.quasis[0].value.raw.startsWith(DOT_SLASH)) {
 				return;
 			}
 
 			return {
-				node,
+				node: argument,
 				messageId: style,
 				suggest: [
 					{
 						messageId: MESSAGE_ID_REMOVE,
 						fix(fixer) {
-							const start = context.sourceCode.getRange(firstPart)[0] + 1;
+							const start = sourceCode.getRange(argument)[0] + 1; // After quote
 							return fixer.removeRange([start, start + DOT_SLASH.length]);
 						},
 					},
 				],
 			};
-		});
-	}
-
-	context.on('Literal', node => {
-		if (!(
-			isStringLiteral(node)
-			&& isNewExpression(node.parent, {name: 'URL', argumentsLength: 2})
-			&& node.parent.arguments[0] === node
-		)) {
-			return;
 		}
 
-		const {sourceCode} = context;
-		const fix = (style === 'never' ? removeDotSlash : addDotSlash)(node, sourceCode);
-
-		if (!fix) {
-			return;
-		}
-
-		return {
-			node,
-			messageId: style,
-			fix,
-		};
+		const url = argument.type === 'TemplateLiteral' ? argument.quasis[0].value.cooked : argument.value;
+		const base = getStaticValueIfNoSideEffects(node.arguments[1], {sourceCode});
+		const bases = typeof base?.value === 'string' ? [base.value] : undefined;
+		const start = sourceCode.getRange(argument)[0] + 1; // After quote
+		return getUrlProblem(argument, url, start, bases);
 	});
 };
 
