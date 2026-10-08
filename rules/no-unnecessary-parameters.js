@@ -159,7 +159,7 @@ function getPredicateParameterNames(functionNode, context) {
 		names.add(returnType.parameterName.name);
 	}
 
-	withTypeInformation(functionNode, context, ({checker}) => {
+	withTypeInformation(functionNode, context, ({type, checker}) => {
 		const typeScriptNode = context.sourceCode.parserServices.esTreeNodeToTSNodeMap.get(functionNode);
 		const signature = checker.getSignatureFromDeclaration(typeScriptNode);
 		if (signature) {
@@ -167,16 +167,23 @@ function getPredicateParameterNames(functionNode, context) {
 			names.add(checker.getTypePredicateOfSignature(signature)?.parameterName);
 		}
 
+		const signatures = [...type.getCallSignatures()];
 		if (functionNode.type === 'ArrowFunctionExpression'
 			|| (functionNode.type === 'FunctionExpression' && functionNode.parent.type !== 'MethodDefinition' && !functionNode.parent.method)) {
-			const parameters = functionNode.params.filter(parameter => parameter.type !== 'Identifier' || parameter.name !== 'this');
-			for (const contextualSignature of checker.getContextualType(typeScriptNode)?.getCallSignatures() ?? []) {
-				const predicate = checker.getTypePredicateOfSignature(contextualSignature);
-				const parameter = parameters[predicate?.parameterIndex];
-				const pattern = parameter?.type === 'AssignmentPattern' ? parameter.left : parameter;
-				if (pattern?.type === 'Identifier') {
-					names.add(pattern.name);
-				}
+			signatures.push(...checker.getContextualType(typeScriptNode)?.getCallSignatures() ?? []);
+		}
+
+		const parameters = functionNode.params.filter(parameter => parameter.type !== 'Identifier' || parameter.name !== 'this');
+		for (const callableSignature of signatures) {
+			if (callableSignature.declaration === typeScriptNode) {
+				continue;
+			}
+
+			const predicate = checker.getTypePredicateOfSignature(callableSignature);
+			const parameter = parameters[predicate?.parameterIndex];
+			const pattern = parameter?.type === 'AssignmentPattern' ? parameter.left : parameter;
+			if (pattern?.type === 'Identifier') {
+				names.add(pattern.name);
 			}
 		}
 	});

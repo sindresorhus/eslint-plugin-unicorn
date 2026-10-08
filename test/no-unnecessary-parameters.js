@@ -278,6 +278,7 @@ testRule.snapshot({
 		typeAwarePredicate('const assert: (input: unknown, extra: number) => asserts input = (value, extra) => { extra.toFixed(); }; assert(0, 1); assert(0, 1);'),
 		typeAwarePredicate('const assert: (this: void, size: number, input: unknown) => asserts input is string = function (this: void, size, value) { size.toFixed(); }; assert(1, 0); assert(1, 0);'),
 		typeAwarePredicate('const assert: (this: unknown, input: number) => asserts this is string = function (this: unknown, value) { value.toFixed(); }; assert(0); assert(0);'),
+		typeAwarePredicate('function isString(this: void, value: unknown, extra: number) { extra.toFixed(); return typeof value === "string"; } isString(0, 1); isString(0, 1);'),
 	],
 });
 
@@ -318,6 +319,28 @@ test('preserves inferred predicate narrowing with type information', t => {
 	}, {filename});
 	t.assert.deepStrictEqual(messages, []);
 	t.assert.strictEqual(vm.runInNewContext(stripTypeScriptTypes(code)), 'TEXT');
+});
+
+test('preserves JSDoc overload predicate narrowing with type information', t => {
+	const code = outdent`
+		/** @overload @param {unknown} input @returns {input is string} */
+		/** @param {unknown} value @returns {boolean} */
+		function isString(value) {
+			return typeof value === "string";
+		}
+		const value = /** @type {unknown} */ ("text");
+		if (isString(value)) {
+			value.toUpperCase();
+		}
+		if (isString(value)) {
+			value.toUpperCase();
+		}
+	`;
+	const {filename, languageOptions} = typeAwarePredicate(code, 'js');
+	const {services: {program}} = languageOptions.parser.parseForESLint(code, {filePath: filename});
+	t.assert.deepStrictEqual(ts.getPreEmitDiagnostics(program), []);
+	t.assert.deepStrictEqual(linter.verify(code, {...config, languageOptions}, {filename}), []);
+	t.assert.strictEqual(vm.runInNewContext(code), 'TEXT');
 });
 
 test('preserves inferred predicates when suggesting removal of unrelated defaults', t => {

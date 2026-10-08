@@ -1336,6 +1336,25 @@ Suggestion 1/1: Remove parameter \`value\` and its arguments (requires type revi
 
 `;
 
+exports[`no-unnecessary-parameters > invalid(6): function isString(this: void, value: unknown, extra: number) { extra.toFixed(); return typeof value === \"string\"; } isString(0, 1); isString(0, 1); 1`] = `
+
+Filename: test/no-unnecessary-parameters.predicate.ts
+
+  1 | function isString(this: void, value: unknown, extra: number) { extra.toFixed(); return typeof value === "string"; } isString(0, 1); isString(0, 1);
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(6): function isString(this: void, value: unknown, extra: number) { extra.toFixed(); return typeof value === \"string\"; } isString(0, 1); isString(0, 1); 2`] = `
+
+Message:
+> 1 | function isString(this: void, value: unknown, extra: number) { extra.toFixed(); return typeof value === "string"; } isString(0, 1); isString(0, 1);
+    |                                               ^^^^^^^^^^^^^ Parameter \`extra\` receives the same value at every call.
+
+Suggestion 1/1: Remove parameter \`extra\` and its arguments (requires type review).:
+  1 | function isString(this: void, value: unknown) { (1).toFixed(); return typeof value === "string"; } isString(0); isString(0);
+
+`;
+
 exports[`no-unnecessary-parameters > invalid(60): function walk(value, unit) { return value ? walk(value.next, \"px\") : unit; } walk(first, \"px\"); walk(second, \"px\"); 1`] = `
 
   1 | function walk(value, unit) { return value ? walk(value.next, "px") : unit; } walk(first, "px"); walk(second, "px");
