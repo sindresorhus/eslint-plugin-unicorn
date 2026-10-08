@@ -132,6 +132,7 @@ const create = context => {
 			}
 
 			const bindingTypes = bindingType.isUnion() ? bindingType.types : [bindingType];
+			// A nullable fallback can keep null in the result type even though it replaces the binding's null.
 			if (
 				defaultValueType.intrinsicName !== 'null'
 				&& bindingTypes.some(member => member.intrinsicName === 'null' || member.intrinsicName === 'unknown')

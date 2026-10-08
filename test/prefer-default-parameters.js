@@ -33,6 +33,8 @@ const nullableFallbackCases = [
 	'const fn = (a: unknown, b: unknown) => b || a;',
 	'function fn(name: string | null, repo?: string | null): string | null { return repo ?? name; }',
 	'function fn(name: string | null, repo?: string | null) { return repo || name; }',
+	'function fn(fallback: null | undefined, repo: string | null | undefined) { return repo ?? fallback; }',
+	'function fn(fallback: string | null, repo?: string | null) { if (fallback === null) { return repo ?? fallback; } return ""; }',
 	'const fn: (name: unknown, repo: unknown) => unknown = (name, repo) => repo ?? name;',
 	'const fn = ({name, repo}: {name: string | null; repo?: string | null}) => repo ?? name;',
 	'const fn = ([name, repo]: [unknown, unknown]) => repo || name;',
@@ -103,6 +105,16 @@ test({
 			errors: [{
 				messageId: 'preferDefaultParameters',
 				suggestions: [{messageId: 'preferDefaultParametersSuggest', output: 'function fn(name: null, repo: string | null = name) { return repo; }'}],
+			}],
+		},
+		{
+			...typeAware('declare const options: {fallback: null; repo?: string | null}; const {fallback, repo} = options; console.log(repo || fallback);'),
+			errors: [{
+				messageId: 'preferDestructuringDefaultOverFallback',
+				suggestions: [{
+					messageId: 'moveDefaultToDeclaration',
+					output: 'declare const options: {fallback: null; repo?: string | null}; const {fallback, repo = fallback} = options; console.log(repo);',
+				}],
 			}],
 		},
 	],
@@ -386,6 +398,7 @@ nodeTest('suggestions preserve TypeScript validity and the annotated call signat
 	const codes = [
 		'function fn(repo?: number) { return repo ?? -1; }',
 		'function fn(name: number | undefined, repo: number | undefined) { return repo ?? name; }',
+		'declare const options: {fallback: null; repo?: string | null}; const {fallback, repo} = options; console.log(repo || fallback);',
 		'function fn(name: string, repo?: string) { return repo ?? name; }',
 		'const fn: (name: string, repo?: string) => string = (name, repo) => repo ?? name;',
 		'function fn<Value>(name: Value, repo?: Value) { return repo ?? name; }',
