@@ -132,6 +132,13 @@ const create = context => {
 			}
 
 			const bindingTypes = bindingType.isUnion() ? bindingType.types : [bindingType];
+			if (
+				defaultValueType.intrinsicName !== 'null'
+				&& bindingTypes.some(member => member.intrinsicName === 'null' || member.intrinsicName === 'unknown')
+			) {
+				return false;
+			}
+
 			const expressionType = sourceCode.parserServices.getTypeAtLocation(expression);
 			// A declaration default cannot rely on type narrowing at a fallback read.
 			return checker.isTypeAssignableTo(defaultValueType, type)

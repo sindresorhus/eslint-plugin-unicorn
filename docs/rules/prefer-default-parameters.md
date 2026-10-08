@@ -40,7 +40,7 @@ Fallbacks may be literals, negative number or BigInt literals, untagged template
 
 Plain parameters must be last. Local destructuring declarations must use `const` or `let` and must not be exported. Suggestions preserve binding order, names, and local declarations.
 
-TypeScript annotations are preserved. With type information, including JavaScript with JSDoc, the rule skips incompatible type changes, narrowing-dependent defaults, and `any` bindings or fallbacks. Without it, review types before applying suggestions. TypeScript setter parameters are skipped, except destructured bindings.
+TypeScript annotations are preserved. With type information, including JavaScript with JSDoc, the rule skips incompatible type changes, narrowing-dependent defaults, and `any` bindings or fallbacks. Bindings typed as `unknown` or including `null` are skipped unless the fallback's declaration type is exactly `null`. Without it, review types before applying suggestions. TypeScript setter parameters are skipped, except destructured bindings.
 
 Code relying on [non-strict `arguments` aliasing](https://eslint.org/docs/latest/rules/no-param-reassign) is unsupported. Parameter defaults break that connection and can change `function.length`.
 
