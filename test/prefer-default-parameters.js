@@ -44,6 +44,10 @@ const nullableFallbackCases = [
 	'function fn(name: unknown, repo: unknown) { repo ||= name; return repo; }',
 	'function fn(name: string | null, repo?: string | null) { repo = repo ?? name; return repo; }',
 	'function fn(name: string | null, repo?: string | null) { repo = repo || name; return repo; }',
+	'function fn<Value extends string | null>(name: Value, repo?: Value) { return repo ?? name; }',
+	'function fn<Value extends object | null>({name, repo}: {name: Value; repo?: Value}) { return repo || name; }',
+	'function fn<Value extends string | null>(name: Value, repo?: Value) { repo ??= name; return repo; }',
+	'function fn<Value extends unknown>(name: Value | null, repo?: Value | null) { return repo ?? name; }',
 ];
 
 const anyTypeCases = [
@@ -282,12 +286,30 @@ test({
 	],
 });
 
+test({
+	valid: [],
+	invalid: ['string', 'unknown', 'any'].map(constraint => ({
+		...typeAware(`function fn<Value extends ${constraint}>(name: Value, repo?: Value) { return repo ?? name; }`),
+		errors: [{
+			messageId: 'preferDefaultParameterOverFallback',
+			suggestions: [{messageId: 'moveDefaultToDeclaration', output: `function fn<Value extends ${constraint}>(name: Value, repo: Value = name) { return repo; }`}],
+		}],
+	})),
+});
+
 test.typescript({
 	valid: [
 		'class Foo { set value(repo: number) { repo ||= 3; } }',
 		'class Foo { set value(repo: number | undefined) { console.log(repo ?? 3); } }',
 	],
 	invalid: [
+		{
+			code: 'const fn = (a: unknown, b: unknown) => b ?? a;',
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: 'const fn = (a: unknown, b: unknown = a) => b;'}],
+			}],
+		},
 		{
 			code: 'function fn(repo: any) { return repo ?? 3; }',
 			errors: [{
@@ -402,6 +424,7 @@ nodeTest('suggestions preserve TypeScript validity and the annotated call signat
 		'function fn(name: string, repo?: string) { return repo ?? name; }',
 		'const fn: (name: string, repo?: string) => string = (name, repo) => repo ?? name;',
 		'function fn<Value>(name: Value, repo?: Value) { return repo ?? name; }',
+		...['string', 'unknown', 'any'].map(constraint => `function fn<Value extends ${constraint}>(name: Value, repo?: Value) { return repo ?? name; }`),
 		'function fn<Value>([name, repo]: [Value, Value?]): Value { return repo ?? name; }',
 		'const options: {fallback: string; repo?: string} = {fallback: "name"}; const {fallback, repo} = options; const output: string = repo ?? fallback;',
 		'class Foo { set value({name, repo}: {name: string; repo?: string}) { console.log(repo ?? name); } }',
