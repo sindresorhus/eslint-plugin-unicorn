@@ -301,6 +301,23 @@ Output:
 
 `;
 
+exports[`no-unnecessary-parameters > invalid(18): function f(this: void, a: unknown = 0, extra: number = 1): asserts a is string { console.log(extra); } f(); f(undefined, 1); 1`] = `
+
+  1 | function f(this: void, a: unknown = 0, extra: number = 1): asserts a is string { console.log(extra); } f(); f(undefined, 1);
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(18): function f(this: void, a: unknown = 0, extra: number = 1): asserts a is string { console.log(extra); } f(); f(undefined, 1); 2`] = `
+
+Message:
+> 1 | function f(this: void, a: unknown = 0, extra: number = 1): asserts a is string { console.log(extra); } f(); f(undefined, 1);
+    |                                        ^^^^^^^^^^^^^ Parameter \`extra\` always receives its default value.
+
+Suggestion 1/1: Remove parameter \`extra\` and its arguments (requires type review).:
+  1 | function f(this: void, a: unknown = 0): asserts a is string { console.log(1); } f(); f(undefined);
+
+`;
+
 exports[`no-unnecessary-parameters > invalid(18): function format(value) { return value; } format(\`text\`); format(\"text\"); 1`] = `
 
   1 | function format(value) { return value; } format(\`text\`); format("text");

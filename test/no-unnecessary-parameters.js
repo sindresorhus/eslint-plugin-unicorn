@@ -214,6 +214,7 @@ testRule.snapshot({
 		'class Guard { #isString(a: unknown): a is string { return true; } run() { this.#isString(0); this.#isString(0); } }',
 		'function f(a: unknown = 0): a is string { return true; } f(); f();',
 		'function f(a?: unknown): asserts a {} f(); f(undefined);',
+		'function f(a: unknown, extra: number): a is string { return extra > 0; } f(0, 1); f(0, 2);',
 	],
 	invalid: [
 		'function format(value: number) { return value; } format(1); format(1);',
@@ -233,6 +234,7 @@ testRule.snapshot({
 		'function f(extra: number, a: unknown): asserts a is string { console.log(extra); } f(1, 0); f(1, 0);',
 		'function f(a: unknown, extra: number): asserts a { console.log(extra); } f(0, 1); f(0, 1);',
 		'function f(this: unknown, a: number): this is string { return a > 0; } f(0); f(0);',
+		'function f(this: void, a: unknown = 0, extra: number = 1): asserts a is string { console.log(extra); } f(); f(undefined, 1);',
 	],
 });
 
