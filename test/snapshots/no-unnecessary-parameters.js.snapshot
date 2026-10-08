@@ -165,6 +165,23 @@ Suggestion 1/1: Remove parameter \`value\` and its arguments (requires type revi
 
 `;
 
+exports[`no-unnecessary-parameters > invalid(14): function f(a: unknown, extra: number): a is string { return extra > 0; } f(0, 1); f(0, 1); 1`] = `
+
+  1 | function f(a: unknown, extra: number): a is string { return extra > 0; } f(0, 1); f(0, 1);
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(14): function f(a: unknown, extra: number): a is string { return extra > 0; } f(0, 1); f(0, 1); 2`] = `
+
+Message:
+> 1 | function f(a: unknown, extra: number): a is string { return extra > 0; } f(0, 1); f(0, 1);
+    |                        ^^^^^^^^^^^^^ Parameter \`extra\` receives the same value at every call.
+
+Suggestion 1/1: Remove parameter \`extra\` and its arguments (requires type review).:
+  1 | function f(a: unknown): a is string { return 1 > 0; } f(0); f(0);
+
+`;
+
 exports[`no-unnecessary-parameters > invalid(14): function format(value) { return value; } format(-1n); format(-1n); 1`] = `
 
   1 | function format(value) { return value; } format(-1n); format(-1n);
@@ -179,6 +196,23 @@ Message:
 
 Output:
   1 | function format() { return (-1n); } format(); format();
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(15): function f(extra: number, a: unknown): asserts a is string { console.log(extra); } f(1, 0); f(1, 0); 1`] = `
+
+  1 | function f(extra: number, a: unknown): asserts a is string { console.log(extra); } f(1, 0); f(1, 0);
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(15): function f(extra: number, a: unknown): asserts a is string { console.log(extra); } f(1, 0); f(1, 0); 2`] = `
+
+Message:
+> 1 | function f(extra: number, a: unknown): asserts a is string { console.log(extra); } f(1, 0); f(1, 0);
+    |            ^^^^^^^^^^^^^ Parameter \`extra\` receives the same value at every call.
+
+Suggestion 1/1: Remove parameter \`extra\` and its arguments (requires type review).:
+  1 | function f(a: unknown): asserts a is string { console.log(1); } f(0); f(0);
 
 `;
 
@@ -199,6 +233,23 @@ Output:
 
 `;
 
+exports[`no-unnecessary-parameters > invalid(16): function f(a: unknown, extra: number): asserts a { console.log(extra); } f(0, 1); f(0, 1); 1`] = `
+
+  1 | function f(a: unknown, extra: number): asserts a { console.log(extra); } f(0, 1); f(0, 1);
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(16): function f(a: unknown, extra: number): asserts a { console.log(extra); } f(0, 1); f(0, 1); 2`] = `
+
+Message:
+> 1 | function f(a: unknown, extra: number): asserts a { console.log(extra); } f(0, 1); f(0, 1);
+    |                        ^^^^^^^^^^^^^ Parameter \`extra\` receives the same value at every call.
+
+Suggestion 1/1: Remove parameter \`extra\` and its arguments (requires type review).:
+  1 | function f(a: unknown): asserts a { console.log(1); } f(0); f(0);
+
+`;
+
 exports[`no-unnecessary-parameters > invalid(16): function format(value) { return value; } format(false); format(false); 1`] = `
 
   1 | function format(value) { return value; } format(false); format(false);
@@ -213,6 +264,23 @@ Message:
 
 Output:
   1 | function format() { return false; } format(); format();
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(17): function f(this: unknown, a: number): this is string { return a > 0; } f(0); f(0); 1`] = `
+
+  1 | function f(this: unknown, a: number): this is string { return a > 0; } f(0); f(0);
+
+`;
+
+exports[`no-unnecessary-parameters > invalid(17): function f(this: unknown, a: number): this is string { return a > 0; } f(0); f(0); 2`] = `
+
+Message:
+> 1 | function f(this: unknown, a: number): this is string { return a > 0; } f(0); f(0);
+    |                           ^^^^^^^^^ Parameter \`a\` receives the same value at every call.
+
+Suggestion 1/1: Remove parameter \`a\` and its arguments (requires type review).:
+  1 | function f(this: unknown): this is string { return 0 > 0; } f(); f();
 
 `;
 

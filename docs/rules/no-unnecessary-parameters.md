@@ -202,6 +202,8 @@ Set this to `1` to check functions called only once.
 
 Functions with unknown callers, public methods, and functions using their own `arguments` are ignored. Ambiguous arguments and nested destructuring are skipped. Files with direct `eval`, `with`, or non-strict block function declarations are skipped.
 
+Parameters named by TypeScript type predicates (`value is Type`, `asserts value is Type`, or `asserts value`) are ignored.
+
 When external calls use a default forwarded by recursion, only primitives and stable outer bindings are checked. Other defaults are skipped to preserve shared state.
 
 Fixes update declarations and callers together; global bindings, complex defaults, and changes affecting scope, timing, syntax, or comments require manual edits. Otherwise safe fixes become suggestions in files using a TypeScript extension or parser, `@ts-check`, or JSDoc type annotations; review types after applying them. Descriptive JSDoc is unaffected.

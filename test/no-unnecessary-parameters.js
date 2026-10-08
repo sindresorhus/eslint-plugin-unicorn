@@ -206,6 +206,14 @@ testRule.snapshot({
 		'function format(value: number) { return value; } format(1); format(2);',
 		'function walk(node, saved = new Set()) { return node.next ? walk(node.next, saved as Set<string>) : saved; } walk(first); walk(second);',
 		'function walk(node, saved = node) { return node.next ? walk(node.next, saved!) : saved; } walk(first); walk(second);',
+		'const f = (a: unknown): a is string => true; f(0); f(0);',
+		'function f(a: unknown): a is string { return typeof a === "string"; } f(0); f(0);',
+		'function f(a: unknown): asserts a {} f(0); f(0);',
+		'function f(a: unknown): asserts a is string {} f(0); f(0);',
+		'const f = function (a: unknown): a is string { return true; }; f(0); f(0);',
+		'class Guard { #isString(a: unknown): a is string { return true; } run() { this.#isString(0); this.#isString(0); } }',
+		'function f(a: unknown = 0): a is string { return true; } f(); f();',
+		'function f(a?: unknown): asserts a {} f(); f(undefined);',
 	],
 	invalid: [
 		'function format(value: number) { return value; } format(1); format(1);',
@@ -221,6 +229,10 @@ testRule.snapshot({
 		'function format(value) { <string>value; return value; } format("use strict"); format("use strict");',
 		{code: 'function outer() { function format(value) { return delete (<number>value); } format(1); format(1); } outer();', languageOptions: {sourceType: 'script'}},
 		'function format(value) { return value; } type Length = typeof format.length; format(1); format(1);',
+		'function f(a: unknown, extra: number): a is string { return extra > 0; } f(0, 1); f(0, 1);',
+		'function f(extra: number, a: unknown): asserts a is string { console.log(extra); } f(1, 0); f(1, 0);',
+		'function f(a: unknown, extra: number): asserts a { console.log(extra); } f(0, 1); f(0, 1);',
+		'function f(this: unknown, a: number): this is string { return a > 0; } f(0); f(0);',
 	],
 });
 

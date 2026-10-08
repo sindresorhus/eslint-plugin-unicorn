@@ -152,6 +152,7 @@ function getProperties(node) {
 }
 
 function * getParameters(functionNode, context) {
+	const returnType = functionNode.returnType?.typeAnnotation;
 	let index = 0;
 	for (const parameter of functionNode.params) {
 		if (parameter.type === 'Identifier' && parameter.name === 'this') {
@@ -162,6 +163,10 @@ function * getParameters(functionNode, context) {
 		const pattern = parameter.type === 'AssignmentPattern' ? parameter.left : parameter;
 		const defaultNode = parameter.type === 'AssignmentPattern' ? parameter.right : undefined;
 		if (pattern.type === 'Identifier') {
+			if (returnType?.type === 'TSTypePredicate' && returnType.parameterName.name === pattern.name) {
+				continue;
+			}
+
 			yield {
 				node: parameter, identifier: pattern, variable: getVariable(pattern, context), index: position, defaultNode,
 			};
