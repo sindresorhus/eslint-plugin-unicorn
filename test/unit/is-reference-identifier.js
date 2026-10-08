@@ -57,6 +57,7 @@ test('identifiers that are not references', t => {
 		'enum Foo { Identifier }',
 		'type Foo = {[Identifier: string]: string};',
 		'type Foo = {[Identifier in keyof string]: number};',
+		'type Foo = {Identifier: string};',
 	]) {
 		const verdicts = getVerdicts(code);
 
@@ -70,6 +71,7 @@ test('identifiers that are references', t => {
 		'foo(Identifier);',
 		'foo[Identifier];',
 		'const {[Identifier]: foo} = {};',
+		'type Foo = {[Identifier]: string};',
 	]) {
 		t.assert.deepStrictEqual(getVerdicts(code), [true], code);
 	}

@@ -136,7 +136,7 @@ function isNotReference(node) {
 		}
 
 		case 'TSPropertySignature': {
-			return parent.key === node;
+			return !parent.computed && parent.key === node;
 		}
 
 		// No default

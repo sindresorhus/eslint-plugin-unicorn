@@ -861,6 +861,29 @@ test('syntax-only constant exits ignore static type names', t => {
 	t.assert.deepStrictEqual(messages, []);
 });
 
+test('computed TypeScript property keys preserve narrowing', t => {
+	const code = outdent`
+		function run(key: 'a' | 'b') {
+			if (key === 'a') {
+				return {} as {[key]: number};
+			}
+			if (key === 'b') {
+				return {} as {[key]: number};
+			}
+		}
+		const narrow: (key: 'a' | 'b') => {a: number} | {b: number} | undefined = run;
+	`;
+	const linter = new Linter();
+	for (const languageOptions of [{parser: typescriptEslintParser}, typeAware(code).languageOptions]) {
+		const ruleConfig = {...config, files: ['**/*.ts'], languageOptions};
+		const {output, messages, fixed} = linter.verifyAndFix(code, ruleConfig, {filename: 'file.ts'});
+
+		t.assert.strictEqual(fixed, false);
+		t.assert.strictEqual(output, code);
+		t.assert.deepStrictEqual(messages, []);
+	}
+});
+
 test('typed JSX exits ignore static attribute names', t => {
 	const code = outdent`
 		declare namespace JSX { interface Element {} }
@@ -931,6 +954,21 @@ testRule.snapshot({
 			const code = `function run(value: string | number) { if (typeof value === 'string') { return ${expression}; } if (typeof value === 'number') { return ${expression}; } }`;
 			return [{code, languageOptions: {parser: parsers.typescript}}, typeAware(code)];
 		}),
+		...['{value}', '{[value]: 1}'].map(expression => typeAware(outdent`
+			function run(value: string | number) {
+				if (typeof value === 'string') { return ${expression}; }
+				if (typeof value === 'number') { return ${expression}; }
+			}
+		`)),
+		{
+			code: outdent`
+				function run(key: 'a', first: boolean, second: boolean) {
+					if (first) { return {} as {[key]: number}; }
+					if (second) { return {} as {[key]: number}; }
+				}
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
 		typeAware(outdent`
 			function run(value: {kind: 'a'; name: string} | {kind: 'b'; name: string}) {
 				if (value.kind === 'a') { return value!.name; }
@@ -1010,6 +1048,18 @@ testRule.snapshot({
 			`, 'file.tsx'),
 			options: [{checkMultiStatementBodies: true}],
 		},
+		...['{value}', '{[value]: 1}'].map(expression => typeAware(outdent`
+			function run(value: string, first: boolean, second: boolean) {
+				if (first) { return ${expression}; }
+				if (second) { return ${expression}; }
+			}
+		`)),
+		typeAware(outdent`
+			function run(key: 'a', first: boolean, second: boolean) {
+				if (first) { return {} as {[key]: number}; }
+				if (second) { return {} as {[key]: number}; }
+			}
+		`),
 	],
 });
 

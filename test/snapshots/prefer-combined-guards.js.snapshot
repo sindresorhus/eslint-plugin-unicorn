@@ -288,6 +288,33 @@ Output:
 
 `;
 
+exports[`prefer-combined-guards > invalid(10): function run(value: string, first: boolean, second: boolean) {\n\tif (first) { return {value}; }\n\tif (second) { return {value}; }\n} 1`] = `
+
+Filename: file.ts
+
+  1 | function run(value: string, first: boolean, second: boolean) {
+  2 | 	if (first) { return {value}; }
+  3 | 	if (second) { return {value}; }
+  4 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(10): function run(value: string, first: boolean, second: boolean) {\n\tif (first) { return {value}; }\n\tif (second) { return {value}; }\n} 2`] = `
+
+Message:
+  1 | function run(value: string, first: boolean, second: boolean) {
+  2 | 	if (first) { return {value}; }
+> 3 | 	if (second) { return {value}; }
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+  4 | }
+
+Output:
+  1 | function run(value: string, first: boolean, second: boolean) {
+  2 | 	if (first || second) { return {value}; }
+  3 | }
+
+`;
+
 exports[`prefer-combined-guards > invalid(11): function foo() { if (() => a) { return; } if (other) { return; } } 1`] = `
 
 Options:
@@ -390,6 +417,33 @@ Output:
 
 `;
 
+exports[`prefer-combined-guards > invalid(11): function run(value: string, first: boolean, second: boolean) {\n\tif (first) { return {[value]: 1}; }\n\tif (second) { return {[value]: 1}; }\n} 1`] = `
+
+Filename: file.ts
+
+  1 | function run(value: string, first: boolean, second: boolean) {
+  2 | 	if (first) { return {[value]: 1}; }
+  3 | 	if (second) { return {[value]: 1}; }
+  4 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(11): function run(value: string, first: boolean, second: boolean) {\n\tif (first) { return {[value]: 1}; }\n\tif (second) { return {[value]: 1}; }\n} 2`] = `
+
+Message:
+  1 | function run(value: string, first: boolean, second: boolean) {
+  2 | 	if (first) { return {[value]: 1}; }
+> 3 | 	if (second) { return {[value]: 1}; }
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+  4 | }
+
+Output:
+  1 | function run(value: string, first: boolean, second: boolean) {
+  2 | 	if (first || second) { return {[value]: 1}; }
+  3 | }
+
+`;
+
 exports[`prefer-combined-guards > invalid(12): for (;;) { if (a) { continue; } if (b) { continue; } } 1`] = `
 
   1 | for (;;) { if (a) { continue; } if (b) { continue; } }
@@ -483,6 +537,33 @@ Message:
 
 Output:
   1 | function run(first: boolean, second: boolean) { if (first || second) { return \`value: \${1}\`; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(12): function run(key: 'a', first: boolean, second: boolean) {\n\tif (first) { return {} as {[key]: number}; }\n\tif (second) { return {} as {[key]: number}; }\n} 1`] = `
+
+Filename: file.ts
+
+  1 | function run(key: 'a', first: boolean, second: boolean) {
+  2 | 	if (first) { return {} as {[key]: number}; }
+  3 | 	if (second) { return {} as {[key]: number}; }
+  4 | }
+
+`;
+
+exports[`prefer-combined-guards > invalid(12): function run(key: 'a', first: boolean, second: boolean) {\n\tif (first) { return {} as {[key]: number}; }\n\tif (second) { return {} as {[key]: number}; }\n} 2`] = `
+
+Message:
+  1 | function run(key: 'a', first: boolean, second: boolean) {
+  2 | 	if (first) { return {} as {[key]: number}; }
+> 3 | 	if (second) { return {} as {[key]: number}; }
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+  4 | }
+
+Output:
+  1 | function run(key: 'a', first: boolean, second: boolean) {
+  2 | 	if (first || second) { return {} as {[key]: number}; }
+  3 | }
 
 `;
 
