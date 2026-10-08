@@ -1,4 +1,6 @@
 import {runInNewContext} from 'node:vm';
+import {execFileSync} from 'node:child_process';
+import process from 'node:process';
 import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
@@ -862,6 +864,42 @@ const config = {
 	plugins: {unicorn: plugin},
 	rules: {'unicorn/prefer-combined-guards': 'error'},
 };
+
+test('single-run autofixes retain syntax-only guard safety', t => {
+	const results = JSON.parse(execFileSync(process.execPath, ['--input-type=module', '--eval', outdent`
+		import {Linter} from 'eslint';
+		import plugin from './index.js';
+		import {typescriptEslintParser} from './scripts/parsers.js';
+		const linter = new Linter();
+		const config = {
+			files: ['**/*.ts'],
+			plugins: {unicorn: plugin},
+			languageOptions: {parser: typescriptEslintParser, parserOptions: {project: []}},
+			rules: {'unicorn/prefer-combined-guards': ['error', {checkMultiStatementBodies: true}]},
+		};
+		const codes = [
+			"import {Value} from './value'; function run(a: boolean, b: boolean) { if (a) { return Value.create(); } if (b) { return Value.create(); } }",
+			'function run(a: boolean, b: boolean) { if (a) { return []; } if (b) { return []; } }',
+			'function run(a: boolean, b: boolean) { if (a) { log(); return; } if (b) { log(); return; } }',
+		];
+		const results = codes.map((code, index) => {
+			const filename = 'single-run-' + index + '.ts';
+			linter.verify(code, config, {filename});
+			return {code, ...linter.verifyAndFix(code, config, {filename})};
+		});
+		console.log(JSON.stringify(results));
+	`], {
+		cwd: new URL('..', import.meta.url),
+		env: {...process.env, TSESTREE_SINGLE_RUN: 'true'},
+		encoding: 'utf8',
+	}));
+
+	for (const [index, {code, output, messages, fixed}] of results.entries()) {
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(fixed, index === 1);
+		t.assert.strictEqual(output, index === 1 ? code.replace('if (a) { return []; } if (b)', 'if (a || b)') : code);
+	}
+});
 
 test('typed assignments can restore matching reference types', t => {
 	const code = outdent`

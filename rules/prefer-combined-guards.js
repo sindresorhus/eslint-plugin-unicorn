@@ -85,6 +85,9 @@ const getExitText = (node, sourceCode) => {
 
 const containsTaggedTemplate = (node, context) => containsNode(node, context, childNode => childNode.type === 'TaggedTemplateExpression');
 
+// Autofix passes can expose isolated parser programs without reliable reference types.
+const hasFullTypeInformation = parserServices => Boolean(parserServices?.program && !parserServices.program.getCompilerOptions().noResolve);
+
 const isExitUnsafeToCombine = (node, context) => {
 	const expressions = node.type === 'ExpressionStatement'
 		? node.expression.arguments
@@ -95,7 +98,7 @@ const isExitUnsafeToCombine = (node, context) => {
 		containsTaggedTemplate(expression, context)
 		|| (
 			parserServices?.esTreeNodeToTSNodeMap
-			&& !parserServices.program
+			&& !hasFullTypeInformation(parserServices)
 			&& containsNode(expression, context, childNode =>
 				(isReferenceIdentifier(childNode) && childNode.parent.type !== 'TSTypeReference')
 				|| childNode.type === 'ThisExpression'
@@ -155,7 +158,7 @@ function isNarrowingPreserved(previousStatements, statements, sourceCode) {
 		return true;
 	}
 
-	if (!parserServices.program) {
+	if (!hasFullTypeInformation(parserServices)) {
 		return statements.length === 1;
 	}
 
