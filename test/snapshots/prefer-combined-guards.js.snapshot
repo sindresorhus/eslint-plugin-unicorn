@@ -164,6 +164,23 @@ Output:
 
 `;
 
+exports[`prefer-combined-guards > invalid(1): function run(first: boolean, second: boolean) { if (first) { return {value: () => 1}; } if (second) { return {value: () => 1}; } } 1`] = `
+
+  1 | function run(first: boolean, second: boolean) { if (first) { return {value: () => 1}; } if (second) { return {value: () => 1}; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(1): function run(first: boolean, second: boolean) { if (first) { return {value: () => 1}; } if (second) { return {value: () => 1}; } } 2`] = `
+
+Message:
+> 1 | function run(first: boolean, second: boolean) { if (first) { return {value: () => 1}; } if (second) { return {value: () => 1}; } }
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function run(first: boolean, second: boolean) { if (first || second) { return {value: () => 1}; } }
+
+`;
+
 exports[`prefer-combined-guards > invalid(10): function foo() { if (a) return; if (b) { return; } } 1`] = `
 
 Options:
@@ -1241,6 +1258,25 @@ Output:
 
 `;
 
+exports[`prefer-combined-guards > invalid(2): function run(first: boolean, second: boolean) { if (first) { return {value: () => 1}; } if (second) { return {value: () => 1}; } } 1`] = `
+
+Filename: file.ts
+
+  1 | function run(first: boolean, second: boolean) { if (first) { return {value: () => 1}; } if (second) { return {value: () => 1}; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(2): function run(first: boolean, second: boolean) { if (first) { return {value: () => 1}; } if (second) { return {value: () => 1}; } } 2`] = `
+
+Message:
+> 1 | function run(first: boolean, second: boolean) { if (first) { return {value: () => 1}; } if (second) { return {value: () => 1}; } }
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function run(first: boolean, second: boolean) { if (first || second) { return {value: () => 1}; } }
+
+`;
+
 exports[`prefer-combined-guards > invalid(2): if (value < 0) { throw invalidValue; } if (!Number.isFinite(value)) { throw invalidValue; } 1`] = `
 
   1 | if (value < 0) { throw invalidValue; } if (!Number.isFinite(value)) { throw invalidValue; }
@@ -2129,6 +2165,23 @@ Output:
 
 `;
 
+exports[`prefer-combined-guards > invalid(3): function run(first: boolean, second: boolean) { if (first) { return [] as Array<number>; } if (second) { return [] as Array<number>; } } 1`] = `
+
+  1 | function run(first: boolean, second: boolean) { if (first) { return [] as Array<number>; } if (second) { return [] as Array<number>; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(3): function run(first: boolean, second: boolean) { if (first) { return [] as Array<number>; } if (second) { return [] as Array<number>; } } 2`] = `
+
+Message:
+> 1 | function run(first: boolean, second: boolean) { if (first) { return [] as Array<number>; } if (second) { return [] as Array<number>; } }
+    |                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function run(first: boolean, second: boolean) { if (first || second) { return [] as Array<number>; } }
+
+`;
+
 exports[`prefer-combined-guards > invalid(3): function run(first: boolean, second: boolean) { if (first) { return {}; } if (second) { return {}; } } 1`] = `
 
   1 | function run(first: boolean, second: boolean) { if (first) { return {}; } if (second) { return {}; } }
@@ -2895,6 +2948,25 @@ Output:
 
 `;
 
+exports[`prefer-combined-guards > invalid(4): function run(first: boolean, second: boolean) { if (first) { return [] as Array<number>; } if (second) { return [] as Array<number>; } } 1`] = `
+
+Filename: file.ts
+
+  1 | function run(first: boolean, second: boolean) { if (first) { return [] as Array<number>; } if (second) { return [] as Array<number>; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(4): function run(first: boolean, second: boolean) { if (first) { return [] as Array<number>; } if (second) { return [] as Array<number>; } } 2`] = `
+
+Message:
+> 1 | function run(first: boolean, second: boolean) { if (first) { return [] as Array<number>; } if (second) { return [] as Array<number>; } }
+    |                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | function run(first: boolean, second: boolean) { if (first || second) { return [] as Array<number>; } }
+
+`;
+
 exports[`prefer-combined-guards > invalid(4): function run(first: boolean, second: boolean) { if (first) { return {}; } if (second) { return {}; } } 1`] = `
 
 Filename: file.ts
@@ -3461,6 +3533,23 @@ Output:
 
 `;
 
+exports[`prefer-combined-guards > invalid(5): type Item = {value: number}; function run(first: boolean, second: boolean) { if (first) { return [] satisfies Item[]; } if (second) { return [] satisfies Item[]; } } 1`] = `
+
+  1 | type Item = {value: number}; function run(first: boolean, second: boolean) { if (first) { return [] satisfies Item[]; } if (second) { return [] satisfies Item[]; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(5): type Item = {value: number}; function run(first: boolean, second: boolean) { if (first) { return [] satisfies Item[]; } if (second) { return [] satisfies Item[]; } } 2`] = `
+
+Message:
+> 1 | type Item = {value: number}; function run(first: boolean, second: boolean) { if (first) { return [] satisfies Item[]; } if (second) { return [] satisfies Item[]; } }
+    |                                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | type Item = {value: number}; function run(first: boolean, second: boolean) { if (first || second) { return [] satisfies Item[]; } }
+
+`;
+
 exports[`prefer-combined-guards > invalid(6): function foo() { if (a) return; if (b) { return; } } 1`] = `
 
   1 | function foo() { if (a) return; if (b) { return; } }
@@ -3565,6 +3654,23 @@ Message:
 
 Output:
   1 | function run(first: boolean, second: boolean) { if (first || second) { return {value: 1}; } }
+
+`;
+
+exports[`prefer-combined-guards > invalid(6): if (first) { process.exit(1, ...[1]); } if (second) { process.exit(1, ...[1]); } 1`] = `
+
+  1 | if (first) { process.exit(1, ...[1]); } if (second) { process.exit(1, ...[1]); }
+
+`;
+
+exports[`prefer-combined-guards > invalid(6): if (first) { process.exit(1, ...[1]); } if (second) { process.exit(1, ...[1]); } 2`] = `
+
+Message:
+> 1 | if (first) { process.exit(1, ...[1]); } if (second) { process.exit(1, ...[1]); }
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this guard with the previous one using \`||\`.
+
+Output:
+  1 | if (first || second) { process.exit(1, ...[1]); }
 
 `;
 

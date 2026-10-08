@@ -15,7 +15,7 @@ This rule checks adjacent `if` statements without `else`. By default, each body,
 
 Exit values, labels, and calls are compared by source text, ignoring surrounding parentheses where applicable. The rule does not normalize internal formatting or infer semantic equivalence. Braces, surrounding whitespace, and optional trailing semicolons may differ.
 
-In TypeScript, exits containing references are only combined with [type information](https://typescript-eslint.io/getting-started/typed-linting) and when every reference has the same type in both bodies, preserving control-flow narrowing. Without type information, exit expressions must contain no variable references, `this`, `super`, or JSX references. Arrays, objects with constant values, and constant untagged templates are allowed. Exits containing tagged templates are always ignored because each source location has its own cached template object.
+In TypeScript, exits containing references are only combined with [type information](https://typescript-eslint.io/getting-started/typed-linting) and when every reference has the same type in both bodies, preserving control-flow narrowing. Without type information, exit expressions must contain no variable references, `this`, `super`, or JSX references. Arrays, objects with constant values, and constant untagged templates are allowed, including type assertions such as `[] as const`. Exits containing tagged templates are always ignored because each source location has its own cached template object.
 
 Comments before, inside, or between guards prevent fixes.
 
@@ -136,7 +136,7 @@ Default: `false`
 
 Also check guards whose bodies have identical statements, compared by source text, before the same exit. Only one body can run, so combining them does not change behavior. Statements containing tagged templates are never combined.
 
-In TypeScript, the statements could depend on each guard's narrowing, so they are only combined with [type information](https://typescript-eslint.io/getting-started/typed-linting) and when every reference has the same type in both bodies. Declarations inside the bodies, such as object literals and functions, get a new type in each body, so those bodies are not combined.
+In TypeScript, the statements could depend on each guard's narrowing, so they are only combined with [type information](https://typescript-eslint.io/getting-started/typed-linting) and when every reference has the same type in both bodies. References to objects or functions declared separately in each body can have distinct types, so those bodies may not be combined.
 
 ```js
 // With {checkMultiStatementBodies: true}:

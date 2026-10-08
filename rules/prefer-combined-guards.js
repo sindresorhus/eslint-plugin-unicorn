@@ -97,7 +97,7 @@ const isExitUnsafeToCombine = (node, context) => {
 			parserServices?.esTreeNodeToTSNodeMap
 			&& !parserServices.program
 			&& containsNode(expression, context, childNode =>
-				isReferenceIdentifier(childNode)
+				(isReferenceIdentifier(childNode) && childNode.parent.type !== 'TSTypeReference')
 				|| childNode.type === 'ThisExpression'
 				|| childNode.type === 'Super'
 				|| childNode.type === 'JSXIdentifier'
@@ -112,9 +112,8 @@ const canCombineBodies = (previousStatements, statements, context) =>
 		context.sourceCode.getText(statement) === context.sourceCode.getText(previousStatements[index])
 		&& !containsTaggedTemplate(statement, context));
 
-// Node types that TypeScript can narrow.
+// Non-identifier node types that TypeScript can narrow.
 const referenceTypes = new Set([
-	'Identifier',
 	'MemberExpression',
 	'ThisExpression',
 	'JSXIdentifier',
@@ -123,7 +122,7 @@ const referenceTypes = new Set([
 
 function hasSameReferenceTypes(previousNode, node, parserServices, visitorKeys) {
 	if (
-		referenceTypes.has(node.type)
+		(isReferenceIdentifier(node) || referenceTypes.has(node.type))
 		&& parserServices.getTypeAtLocation(previousNode) !== parserServices.getTypeAtLocation(node)
 	) {
 		return false;

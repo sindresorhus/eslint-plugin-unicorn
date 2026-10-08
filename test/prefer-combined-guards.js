@@ -308,22 +308,28 @@ testRule.snapshot({
 				if (typeof value === 'number') { return length(value); }
 			}
 		`),
-		typeAware(outdent`
-			type A = {type: 'a'; method(value: string): number};
-			type B = {type: 'b'; method(value: number): number};
-			function run(subject: A | B, argument: string | number) {
-				if (subject.type === 'a' && typeof argument === 'string') { return subject.method(argument); }
-				if (subject.type === 'b' && typeof argument === 'number') { return subject.method(argument); }
-			}
-		`),
-		typeAware(outdent`
-			type A = {type: 'a'; exitCode(value: string): number};
-			type B = {type: 'b'; exitCode(value: number): number};
-			function run(subject: A | B, argument: string | number) {
-				if (subject.type === 'a' && typeof argument === 'string') { process.exit(subject.exitCode(argument)); }
-				if (subject.type === 'b' && typeof argument === 'number') { process.exit(subject.exitCode(argument)); }
-			}
-		`),
+		{
+			...typeAware(outdent`
+				type A = {type: 'a'; method(value: string): number};
+				type B = {type: 'b'; method(value: number): number};
+				function run(subject: A | B, argument: string | number) {
+					if (subject.type === 'a' && typeof argument === 'string') { return subject.method(argument); }
+					if (subject.type === 'b' && typeof argument === 'number') { return subject.method(argument); }
+				}
+			`),
+			options: checkCompoundConditionsOptions,
+		},
+		{
+			...typeAware(outdent`
+				type A = {type: 'a'; exitCode(value: string): number};
+				type B = {type: 'b'; exitCode(value: number): number};
+				function run(subject: A | B, argument: string | number) {
+					if (subject.type === 'a' && typeof argument === 'string') { process.exit(subject.exitCode(argument)); }
+					if (subject.type === 'b' && typeof argument === 'number') { process.exit(subject.exitCode(argument)); }
+				}
+			`),
+			options: checkCompoundConditionsOptions,
+		},
 		typeAware(outdent`
 			class Base {
 				isSpecial(): this is Special { return false; }
@@ -351,7 +357,7 @@ testRule.snapshot({
 			`),
 			options: [{checkMultiStatementBodies: true}],
 		},
-	].map(testCase => ({options: checkCompoundConditionsOptions, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+	],
 	invalid: [
 		...constantExitExpressions.flatMap(expression => {
 			const code = `function run(first: boolean, second: boolean) { if (first) { return ${expression}; } if (second) { return ${expression}; } }`;
@@ -825,6 +831,88 @@ test('repeated TypeScript fixes combine non-literal exits', t => {
 		t.assert.deepStrictEqual(messages, []);
 		t.assert.strictEqual(linter.verifyAndFix(output, ruleConfig, {filename: 'file.ts'}).fixed, false);
 	}
+});
+
+test('typed constant exits ignore static property names', t => {
+	const code = 'function run(first: boolean, second: boolean) { if (first) { return {value: {nested: 1}}; } if (second) { return {value: {nested: 1}}; } }';
+	const linter = new Linter();
+	const {output, messages, fixed} = linter.verifyAndFix(code, {
+		...config,
+		files: ['**/*.ts'],
+		languageOptions: typeAware(code).languageOptions,
+	}, {filename: 'file.ts'});
+
+	t.assert.strictEqual(fixed, true);
+	t.assert.strictEqual(output, 'function run(first: boolean, second: boolean) { if (first || second) { return {value: {nested: 1}}; } }');
+	t.assert.deepStrictEqual(messages, []);
+});
+
+test('syntax-only constant exits ignore static type names', t => {
+	const code = 'function run(first: boolean, second: boolean) { if (first) { return [] as const; } if (second) { return [] as const; } }';
+	const linter = new Linter();
+	const {output, messages, fixed} = linter.verifyAndFix(code, {
+		...config,
+		files: ['**/*.ts'],
+		languageOptions: {parser: typescriptEslintParser},
+	}, {filename: 'file.ts'});
+
+	t.assert.strictEqual(fixed, true);
+	t.assert.strictEqual(output, 'function run(first: boolean, second: boolean) { if (first || second) { return [] as const; } }');
+	t.assert.deepStrictEqual(messages, []);
+});
+
+test('repeated typed fixes preserve narrowing boundaries', t => {
+	const code = 'function run(value: string | number, first: boolean, second: boolean) { if (first) { return value; } if (second) { return value; } if (typeof value === \'number\') { return value; } }';
+	const linter = new Linter();
+	const ruleConfig = {...config, files: ['**/*.ts'], languageOptions: typeAware(code).languageOptions};
+	const {output, messages, fixed} = linter.verifyAndFix(code, ruleConfig, {filename: 'file.ts'});
+
+	t.assert.strictEqual(fixed, true);
+	t.assert.strictEqual(output, 'function run(value: string | number, first: boolean, second: boolean) { if (first || second) { return value; } if (typeof value === \'number\') { return value; } }');
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(linter.verifyAndFix(output, ruleConfig, {filename: 'file.ts'}).fixed, false);
+});
+
+testRule.snapshot({
+	valid: [
+		...['[value] as const', '[] as Array<typeof value>'].flatMap(expression => {
+			const code = `function run(value: string | number) { if (typeof value === 'string') { return ${expression}; } if (typeof value === 'number') { return ${expression}; } }`;
+			return [{code, languageOptions: {parser: parsers.typescript}}, typeAware(code)];
+		}),
+		typeAware(outdent`
+			function run(value: {kind: 'a'; name: string} | {kind: 'b'; name: string}) {
+				if (value.kind === 'a') { return value!.name; }
+				if (value.kind === 'b') { return value!.name; }
+			}
+		`),
+		{
+			code: 'if (first) { process.exit(1, tag`value`); } if (second) { process.exit(1, tag`value`); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware(outdent`
+			declare namespace JSX { interface Element {} }
+			declare function First(properties: {value: string}): JSX.Element;
+			declare function Second(properties: {value: number}): JSX.Element;
+			function run(options: {kind: 'first'; Component: typeof First} | {kind: 'second'; Component: typeof Second}, value: any) {
+				if (options.kind === 'first') { return <options.Component value={value} />; }
+				if (options.kind === 'second') { return <options.Component value={value} />; }
+			}
+		`, 'file.tsx'),
+	],
+	invalid: [
+		...['{value: () => 1}', '[] as Array<number>'].flatMap(expression => {
+			const code = `function run(first: boolean, second: boolean) { if (first) { return ${expression}; } if (second) { return ${expression}; } }`;
+			return [{code, languageOptions: {parser: parsers.typescript}}, typeAware(code)];
+		}),
+		{
+			code: 'type Item = {value: number}; function run(first: boolean, second: boolean) { if (first) { return [] satisfies Item[]; } if (second) { return [] satisfies Item[]; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'if (first) { process.exit(1, ...[1]); } if (second) { process.exit(1, ...[1]); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
 });
 
 test('repeated fixes preserve compound conditions and comments', t => {
