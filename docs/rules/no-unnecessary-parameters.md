@@ -202,7 +202,7 @@ Set this to `1` to check functions called only once.
 
 Functions with unknown callers, public methods, and functions using their own `arguments` are ignored. Ambiguous arguments and nested destructuring are skipped. Files with direct `eval`, `with`, or non-strict block function declarations are skipped.
 
-Parameters named by TypeScript type predicates (`value is Type`, `asserts value is Type`, or `asserts value`) are ignored.
+Parameters named by explicit TypeScript predicate or assertion return annotations (`value is Type`, `asserts value is Type`, or `asserts value`) are ignored. With type information, inferred predicates, JSDoc predicates, and predicates in contextual function types are also recognized.
 
 When external calls use a default forwarded by recursion, only primitives and stable outer bindings are checked. Other defaults are skipped to preserve shared state.
 

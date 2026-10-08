@@ -235,6 +235,49 @@ testRule.snapshot({
 		'function f(a: unknown, extra: number): asserts a { console.log(extra); } f(0, 1); f(0, 1);',
 		'function f(this: unknown, a: number): this is string { return a > 0; } f(0); f(0);',
 		'function f(this: void, a: unknown = 0, extra: number = 1): asserts a is string { console.log(extra); } f(); f(undefined, 1);',
+		'const isString = (value: unknown) => typeof value === "string"; isString(0); isString(0);',
+	],
+});
+
+function typeAwarePredicate(code, extension = 'ts') {
+	const filename = path.join(import.meta.dirname, `no-unnecessary-parameters.predicate.${extension}`).replaceAll('\\', '/');
+	return {
+		code,
+		filename,
+		languageOptions: {
+			parser: {
+				...parsers.typescript.implementation,
+				parseForESLint(source, parserOptions) {
+					const options = {
+						allowJs: true, checkJs: true, strict: true, noEmit: true, target: ts.ScriptTarget.ESNext, types: [], skipLibCheck: true,
+					};
+					const host = ts.createCompilerHost(options);
+					const originalReadFile = host.readFile.bind(host);
+					host.readFile = path => path === filename ? source : originalReadFile(path);
+					const program = ts.createProgram([filename], options, host);
+					return parsers.typescript.implementation.parseForESLint(source, {...parserOptions, programs: [program]});
+				},
+			},
+		},
+	};
+}
+
+testRule.snapshot({
+	valid: [
+		typeAwarePredicate('const isString = (value: unknown) => typeof value === "string"; isString(0); isString(0);'),
+		typeAwarePredicate('class Guard { #isString(value: unknown) { return typeof value === "string"; } run() { this.#isString(0); this.#isString(0); } }'),
+		typeAwarePredicate('/** @param {unknown} value @returns {value is string} */ function isString(value) { return typeof value === "string"; } isString(0); isString(0);', 'js'),
+		typeAwarePredicate('const assert: (input: unknown) => asserts input = value => {}; assert(0); assert(0);'),
+		typeAwarePredicate('type Assert = (input: unknown) => asserts input is string; const assert: Assert = (value = 0) => {}; assert(); assert(undefined);'),
+		typeAwarePredicate('const assert: (input: unknown, other: unknown) => asserts input = (value, other) => typeof other === "string"; assert(0, 1); assert(0, 2);'),
+		typeAwarePredicate('const assert: (input: unknown, next: unknown) => asserts input = (value, next): next is string => typeof next === "string"; assert(0, 1); assert(0, 2);'),
+	],
+	invalid: [
+		typeAwarePredicate('function isString(value: unknown): boolean { return typeof value === "string"; } isString(0); isString(0);'),
+		typeAwarePredicate('function isString(this: void, extra: number, value: unknown) { extra.toFixed(); return typeof value === "string"; } isString(1, 0); isString(1, 0);'),
+		typeAwarePredicate('const assert: (input: unknown, extra: number) => asserts input = (value, extra) => { extra.toFixed(); }; assert(0, 1); assert(0, 1);'),
+		typeAwarePredicate('const assert: (this: void, size: number, input: unknown) => asserts input is string = function (this: void, size, value) { size.toFixed(); }; assert(1, 0); assert(1, 0);'),
+		typeAwarePredicate('const assert: (this: unknown, input: number) => asserts this is string = function (this: unknown, value) { value.toFixed(); }; assert(0); assert(0);'),
 	],
 });
 
@@ -251,6 +294,67 @@ function applySuggestion(t, code, message) {
 	const {range, text} = message.suggestions[0].fix;
 	return code.slice(0, range[0]) + text + code.slice(range[1]);
 }
+
+test('preserves inferred predicate narrowing with type information', t => {
+	const code = outdent`
+		const value: unknown = "text" as unknown;
+		function isString(value: unknown) {
+			return typeof value === "string";
+		}
+		if (isString(value)) {
+			value.toUpperCase();
+		}
+		if (isString(value)) {
+			value.toUpperCase();
+		}
+	`;
+	const {filename, languageOptions} = typeAwarePredicate(code);
+	const {services: {program}} = languageOptions.parser.parseForESLint(code, {filePath: filename});
+	t.assert.deepStrictEqual(ts.getPreEmitDiagnostics(program), []);
+	const messages = linter.verify(code, {
+		...config,
+		files: ['**/*.ts'],
+		languageOptions,
+	}, {filename});
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(vm.runInNewContext(stripTypeScriptTypes(code)), 'TEXT');
+});
+
+test('preserves inferred predicates when suggesting removal of unrelated defaults', t => {
+	const code = outdent`
+		const value: unknown = "text" as unknown;
+		function isString(value: unknown, extra = 1) {
+			extra.toFixed();
+			return typeof value === "string";
+		}
+		if (isString(value)) {
+			value.toUpperCase();
+		}
+		if (isString(value, undefined)) {
+			value.toUpperCase();
+		}
+	`;
+	const {filename, languageOptions} = typeAwarePredicate(code);
+	const typescriptConfig = {
+		...config,
+		files: ['**/*.ts'],
+		languageOptions,
+	};
+	const messages = linter.verify(code, typescriptConfig, {filename});
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].messageId, 'always-default');
+	t.assert.strictEqual(messages[0].message, 'Parameter `extra` always receives its default value.');
+	const output = applySuggestion(t, code, messages[0]);
+	t.assert.strictEqual(output, code.replace(', extra = 1', '').replace('extra.toFixed()', '(1).toFixed()').replace(', undefined', ''));
+	for (const source of [code, output]) {
+		const {services: {program}} = languageOptions.parser.parseForESLint(source, {filePath: filename});
+		t.assert.deepStrictEqual(ts.getPreEmitDiagnostics(program), []);
+	}
+
+	t.assert.deepStrictEqual(linter.verify(output, typescriptConfig, {filename}), []);
+	t.assert.strictEqual(vm.runInNewContext(stripTypeScriptTypes(code)), 'TEXT');
+	t.assert.strictEqual(vm.runInNewContext(stripTypeScriptTypes(output)), 'TEXT');
+});
 
 test('suggests removing each typed parameter independently', t => {
 	const code = 'function format(value: number, unit: string) { return [value, unit]; } [format(1, "px"), format(1, "px")];';
