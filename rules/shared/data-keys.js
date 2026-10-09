@@ -8,7 +8,7 @@ export default function onDataKey(context, listener) {
 		}
 	});
 
-	context.on('KeySegment', node => listener({node, name: node.value}));
+	context.on('Key', node => listener({node, name: node.value}));
 
 	context.on('YAMLPair', ({key: node}) => {
 		if (node?.type === 'YAMLScalar' && typeof node.value === 'string' && !(node.style === 'plain' && node.value === '<<')) {

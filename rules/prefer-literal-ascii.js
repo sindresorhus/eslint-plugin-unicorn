@@ -295,7 +295,7 @@ const create = context => {
 		return problems;
 	});
 
-	context.on(['String', 'KeySegment'], node => {
+	context.on(['String', 'Key'], node => {
 		if (context.sourceCode.ast.type === 'StyleSheet' || (node.style !== undefined && (node.style !== 'escaped' || node.block))) {
 			return;
 		}

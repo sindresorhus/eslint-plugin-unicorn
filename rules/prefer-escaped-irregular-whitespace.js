@@ -81,7 +81,7 @@ const create = context => {
 		}
 	});
 
-	context.on(['String', 'KeySegment'], node => {
+	context.on(['String', 'Key'], node => {
 		if (node.style !== undefined && node.style !== 'escaped') {
 			return;
 		}
