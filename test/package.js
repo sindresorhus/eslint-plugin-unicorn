@@ -608,3 +608,24 @@ for (const extension of ['soml', 'txt']) {
 		t.assert.strictEqual(linter.verifyAndFix(result.output, config, {filename}).fixed, false);
 	});
 }
+
+test('recommended-soml converges with the SOML recommended preset', t => {
+	const code = '/*\n * Description.\n */\ninteger: 10000\nfloat: 1.00\ninstant: 2026-10-09T10:00:00Z\nduration: 1h30m\nescaped: "\\u{41}\\u{a}"\nliteral: \'\\u{41}\'';
+	const config = defineConfig([
+		languages.soml.plugins.soml.configs.recommended,
+		{
+			files: ['**/*.soml'],
+			plugins: {...languages.soml.plugins, unicorn: eslintPluginUnicorn},
+			language: languages.soml.language,
+			extends: ['unicorn/recommended-soml'],
+		},
+	]);
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, config, {filename: 'file.soml'});
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(result.output, '/*\nDescription.\n*/\ninteger: 10_000\nfloat: 1.0\ninstant: 2026-10-09T10:00:00Z\nduration: 1h30m\nescaped: "A\\n"\nliteral: \'\\u{41}\'\n');
+	t.assert.strictEqual(result.fixed, true);
+	const secondResult = linter.verifyAndFix(result.output, config, {filename: 'file.soml'});
+	t.assert.deepStrictEqual(secondResult.messages, []);
+	t.assert.strictEqual(secondResult.fixed, false);
+});
