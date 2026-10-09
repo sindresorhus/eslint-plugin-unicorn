@@ -2,6 +2,7 @@ import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
+import rule from '../rules/string-content.js';
 import {getTester, parsers, languages} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
@@ -782,4 +783,41 @@ ruleTest.snapshot({
 		{code: 'value:\n\t""""\n\t\\nbad"""\\n\n\t""""', options: [{patterns: {bad: 'good'}}]},
 		{code: 'value: \'bad\'', options: [{patterns: {bad: {suggest: '\n"\\', fix: false}}}]},
 	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+});
+
+for (const type of ['Duration', 'Instant']) {
+	test(`ignores ${type} values when a selector matches non-string nodes`, t => {
+		let listener;
+		rule.create({
+			options: [{patterns: {bad: 'good'}, selectors: ['*']}],
+			sourceCode: {ast: {type: 'Document'}},
+			on(selector, registeredListener) {
+				t.assert.deepStrictEqual(selector, ['*']);
+				listener = registeredListener;
+			},
+		});
+
+		const node = {
+			type,
+			get value() {
+				throw new Error('Non-string values must not be read.');
+			},
+		};
+		t.assert.strictEqual(listener(node), undefined);
+	});
+}
+
+ruleTest({
+	testerOptions: {language: languages.soml.language, plugins: languages.soml.plugins},
+	valid: [
+		{code: 'duration: 1h\ninstant: 2026-10-09T10:00:00Z', options: [{patterns: {bad: 'good'}, selectors: ['*']}]},
+	],
+	invalid: [
+		{
+			code: 'direct: \'bad\'\narray: [\'bad\']',
+			output: 'direct: "good"\narray: [\'bad\']',
+			options: [{patterns: {bad: 'good'}, selectors: ['Member > String']}],
+			errors: createError('bad', 'good'),
+		},
+	],
 });

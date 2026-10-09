@@ -88,13 +88,14 @@ const create = context => {
 	const checked = new WeakSet();
 
 	const getProblem = node => {
-		const {type, value, raw} = node;
+		const {type} = node;
 
 		if (checked.has(node) || !targetNodeTypes.includes(type)) {
 			return;
 		}
 
 		checked.add(node);
+		const {value, raw} = node;
 
 		let string;
 		if (type !== 'TemplateElement') {
