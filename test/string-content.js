@@ -761,3 +761,23 @@ test('an empty `selectors` entry is rejected by the schema', t => {
 		);
 	}
 });
+
+ruleTest.snapshot({
+	valid: [
+		{code: '\'bad\': \'good\'', options: [{patterns: {bad: 'good'}}]},
+		{code: 'value: 1', options: [{patterns: {bad: 'good'}}]},
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+	invalid: [
+		{code: 'value: \'bad\' # keep', options: [{patterns: {bad: 'good'}}]},
+		{code: String.raw`value: "\u{62}ad"`, options: [{patterns: {bad: 'good'}}]},
+		{code: 'value:\n\t\'\'\'\n\tbad\n\t\'\'\'', options: [{patterns: {bad: 'good'}}]},
+		{code: 'value:\n\t"""\n\tbad\n\t"""', options: [{patterns: {bad: 'good'}}]},
+		{code: 'value: [\'bad\', {nested: \'bad\'}]', options: [{patterns: {bad: 'good'}}]},
+		{code: 'value: \'bad\'', options: [{patterns: {bad: {suggest: '"\\\n\t\b\f\u0000\u007f', message: 'Replace the string content.'}}}]},
+		{code: 'value: \'bad\'', options: [{patterns: {bad: String.raw`\u0001`}}]},
+		{code: 'value: \'bad\'', options: [{patterns: {bad: '\r'}}]},
+		{code: 'value: \'bad\'', options: [{patterns: {bad: {suggest: '\ud800', message: 'Replacement is not representable in SOML.'}}}]},
+		{code: 'value: \'bad\'', options: [{patterns: {bad: {suggest: 'good', fix: false}}}]},
+		{code: 'value: \'bad\'', options: [{patterns: {bad: {suggest: '\ud800', message: 'Replacement is not representable in SOML.', fix: false}}}]},
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+});

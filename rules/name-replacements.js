@@ -647,6 +647,7 @@ const config = {
 			'markdown/gfm',
 			'yml/yaml',
 			'toml/toml',
+			'soml/soml',
 		],
 	},
 };

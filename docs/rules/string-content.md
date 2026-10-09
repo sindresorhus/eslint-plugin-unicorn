@@ -25,6 +25,8 @@ A property access or call on one of these tags is ignored too, like ``styled.div
 
 **This rule has no effect by default. You need to set [`patterns`](#patterns) to check string content.**
 
+SOML string values, including literal and block strings, are supported; keys are left unchanged. Replacements use escaped strings. Fixes and suggestions are omitted when a replacement contains a carriage return or lone surrogate, which SOML cannot represent.
+
 ## Examples
 
 ```js

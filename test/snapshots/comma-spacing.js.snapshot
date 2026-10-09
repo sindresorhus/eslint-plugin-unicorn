@@ -15,6 +15,45 @@ Output:
 
 `;
 
+exports[`comma-spacing > invalid(1): value: [1 ,2,  3] 1`] = `
+
+  1 | value: [1 ,2,  3]
+
+`;
+
+exports[`comma-spacing > invalid(1): value: [1 ,2,  3] 2`] = `
+
+Message:
+> 1 | value: [1 ,2,  3]
+    |           ^ Do not add whitespace before commas.
+
+Output:
+  1 | value: [1,2,  3]
+
+`;
+
+exports[`comma-spacing > invalid(1): value: [1 ,2,  3] 3`] = `
+
+Message:
+> 1 | value: [1 ,2,  3]
+    |           ^ Expected exactly one space after commas.
+
+Output:
+  1 | value: [1 , 2,  3]
+
+`;
+
+exports[`comma-spacing > invalid(1): value: [1 ,2,  3] 4`] = `
+
+Message:
+> 1 | value: [1 ,2,  3]
+    |             ^ Expected exactly one space after commas.
+
+Output:
+  1 | value: [1 ,2, 3]
+
+`;
+
 exports[`comma-spacing > invalid(10): [1,2] 1`] = `
 
   1 | [1,2]
@@ -249,6 +288,23 @@ Message:
 
 Output:
   1 | [1, 2]
+
+`;
+
+exports[`comma-spacing > invalid(2): {first: 1,second: 2} 1`] = `
+
+  1 | {first: 1,second: 2}
+
+`;
+
+exports[`comma-spacing > invalid(2): {first: 1,second: 2} 2`] = `
+
+Message:
+> 1 | {first: 1,second: 2}
+    |          ^ Expected exactly one space after commas.
+
+Output:
+  1 | {first: 1, second: 2}
 
 `;
 
@@ -500,6 +556,23 @@ Output:
 
 `;
 
+exports[`comma-spacing > invalid(3): value: [1,/* keep */2] 1`] = `
+
+  1 | value: [1,/* keep */2]
+
+`;
+
+exports[`comma-spacing > invalid(3): value: [1,/* keep */2] 2`] = `
+
+Message:
+> 1 | value: [1,/* keep */2]
+    |          ^ Expected exactly one space after commas.
+
+Output:
+  1 | value: [1, /* keep */2]
+
+`;
+
 exports[`comma-spacing > invalid(30): [1,// comment\n2] 1`] = `
 
   1 | [1,// comment
@@ -736,6 +809,34 @@ Message:
 
 Output:
   1 | [1, 2]
+
+`;
+
+exports[`comma-spacing > invalid(4): value: [1 /* keep */ ,2] 1`] = `
+
+  1 | value: [1 /* keep */ ,2]
+
+`;
+
+exports[`comma-spacing > invalid(4): value: [1 /* keep */ ,2] 2`] = `
+
+Message:
+> 1 | value: [1 /* keep */ ,2]
+    |                      ^ Do not add whitespace before commas.
+
+Output:
+  1 | value: [1 /* keep */,2]
+
+`;
+
+exports[`comma-spacing > invalid(4): value: [1 /* keep */ ,2] 3`] = `
+
+Message:
+> 1 | value: [1 /* keep */ ,2]
+    |                      ^ Expected exactly one space after commas.
+
+Output:
+  1 | value: [1 /* keep */ , 2]
 
 `;
 
@@ -983,6 +1084,43 @@ Output:
 
 `;
 
+exports[`comma-spacing > invalid(5): value: [1,# keep\n2] 1`] = `
+
+  1 | value: [1,# keep
+  2 | 2]
+
+`;
+
+exports[`comma-spacing > invalid(5): value: [1,# keep\n2] 2`] = `
+
+Message:
+> 1 | value: [1,# keep
+    |          ^ Expected exactly one space after commas.
+  2 | 2]
+
+Output:
+  1 | value: [1, # keep
+  2 | 2]
+
+`;
+
+exports[`comma-spacing > invalid(6): value: [1 ,] 1`] = `
+
+  1 | value: [1 ,]
+
+`;
+
+exports[`comma-spacing > invalid(6): value: [1 ,] 2`] = `
+
+Message:
+> 1 | value: [1 ,]
+    |           ^ Do not add whitespace before commas.
+
+Output:
+  1 | value: [1,]
+
+`;
+
 exports[`comma-spacing > invalid(6): {\"a\": 1,\"b\": 2} 1`] = `
 
   1 | {"a": 1,"b": 2}
@@ -997,6 +1135,23 @@ Message:
 
 Output:
   1 | {"a": 1, "b": 2}
+
+`;
+
+exports[`comma-spacing > invalid(7): value: [1,\t2] 1`] = `
+
+  1 | value: [1,	2]
+
+`;
+
+exports[`comma-spacing > invalid(7): value: [1,\t2] 2`] = `
+
+Message:
+> 1 | value: [1,	2]
+    |          ^ Expected exactly one space after commas.
+
+Output:
+  1 | value: [1, 2]
 
 `;
 

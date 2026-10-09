@@ -295,8 +295,8 @@ const create = context => {
 		return problems;
 	});
 
-	context.on('String', node => {
-		if (context.sourceCode.ast.type === 'StyleSheet') {
+	context.on(['String', 'KeySegment'], node => {
+		if (context.sourceCode.ast.type === 'StyleSheet' || (node.style !== undefined && (node.style !== 'escaped' || node.block))) {
 			return;
 		}
 
@@ -348,6 +348,7 @@ const config = {
 			'json/json',
 			'json/jsonc',
 			'json/json5',
+			'soml/soml',
 		],
 	},
 };

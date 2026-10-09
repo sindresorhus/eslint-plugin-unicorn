@@ -287,6 +287,23 @@ Output:
 
 `;
 
+exports[`no-zero-fractions > invalid(1): value: 1.00 # keep 1`] = `
+
+  1 | value: 1.00 # keep
+
+`;
+
+exports[`no-zero-fractions > invalid(1): value: 1.00 # keep 2`] = `
+
+Message:
+> 1 | value: 1.00 # keep
+    |           ^ Don't use a zero fraction in the number.
+
+Output:
+  1 | value: 1.0 # keep
+
+`;
+
 exports[`no-zero-fractions > invalid(1): value: [.5, -.50, +.50, 1.00, -1.00, 1.50, 1.00e2, 1.] # preserve 1`] = `
 
   1 | value: [.5, -.50, +.50, 1.00, -1.00, 1.50, 1.00e2, 1.] # preserve
@@ -2009,6 +2026,23 @@ Output:
 
 `;
 
+exports[`no-zero-fractions > invalid(2): value: -0.00 1`] = `
+
+  1 | value: -0.00
+
+`;
+
+exports[`no-zero-fractions > invalid(2): value: -0.00 2`] = `
+
+Message:
+> 1 | value: -0.00
+    |            ^ Don't use a zero fraction in the number.
+
+Output:
+  1 | value: -0.0
+
+`;
+
 exports[`no-zero-fractions > invalid(20): +123_000.e1; 1`] = `
 
   1 | +123_000.e1;
@@ -2355,6 +2389,56 @@ Output:
 
 `;
 
+exports[`no-zero-fractions > invalid(3): value: [1.500, 123_456.000_000, 1.00e2, 0.00e2] 1`] = `
+
+  1 | value: [1.500, 123_456.000_000, 1.00e2, 0.00e2]
+
+`;
+
+exports[`no-zero-fractions > invalid(3): value: [1.500, 123_456.000_000, 1.00e2, 0.00e2] 2`] = `
+
+Message:
+> 1 | value: [1.500, 123_456.000_000, 1.00e2, 0.00e2]
+    |            ^^ Don't use a zero fraction in the number.
+
+Output:
+  1 | value: [1.5, 123_456.000_000, 1.00e2, 0.00e2]
+
+`;
+
+exports[`no-zero-fractions > invalid(3): value: [1.500, 123_456.000_000, 1.00e2, 0.00e2] 3`] = `
+
+Message:
+> 1 | value: [1.500, 123_456.000_000, 1.00e2, 0.00e2]
+    |                         ^^^^^^ Don't use a zero fraction in the number.
+
+Output:
+  1 | value: [1.500, 123_456.0, 1.00e2, 0.00e2]
+
+`;
+
+exports[`no-zero-fractions > invalid(3): value: [1.500, 123_456.000_000, 1.00e2, 0.00e2] 4`] = `
+
+Message:
+> 1 | value: [1.500, 123_456.000_000, 1.00e2, 0.00e2]
+    |                                  ^^^ Don't use a zero fraction in the number.
+
+Output:
+  1 | value: [1.500, 123_456.000_000, 1e2, 0.00e2]
+
+`;
+
+exports[`no-zero-fractions > invalid(3): value: [1.500, 123_456.000_000, 1.00e2, 0.00e2] 5`] = `
+
+Message:
+> 1 | value: [1.500, 123_456.000_000, 1.00e2, 0.00e2]
+    |                                          ^^^ Don't use a zero fraction in the number.
+
+Output:
+  1 | value: [1.500, 123_456.000_000, 1.00e2, 0e2]
+
+`;
+
 exports[`no-zero-fractions > invalid(30): +123_000.e-0; 1`] = `
 
   1 | +123_000.e-0;
@@ -2628,6 +2712,23 @@ Message:
 
 Output:
   1 | const foo = 1
+
+`;
+
+exports[`no-zero-fractions > invalid(4): value: {nested: 1.200_000} 1`] = `
+
+  1 | value: {nested: 1.200_000}
+
+`;
+
+exports[`no-zero-fractions > invalid(4): value: {nested: 1.200_000} 2`] = `
+
+Message:
+> 1 | value: {nested: 1.200_000}
+    |                    ^^^^^^ Don't use a zero fraction in the number.
+
+Output:
+  1 | value: {nested: 1.2}
 
 `;
 

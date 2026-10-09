@@ -22,6 +22,7 @@ const RULES_REPORTING_EMPTY_FILE = new Set([
 ]);
 
 const LANGUAGES_REJECTING_EMPTY_FILES = new Set([
+	'soml/soml',
 	'json/json',
 	'json/jsonc',
 	'json/json5',

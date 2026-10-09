@@ -15,6 +15,23 @@ Output:
 
 `;
 
+exports[`prefer-literal-ascii > invalid(1): value: \"\\u{41}\\u{20}\\u{7e}\" # keep 1`] = `
+
+  1 | value: "\\u{41}\\u{20}\\u{7e}" # keep
+
+`;
+
+exports[`prefer-literal-ascii > invalid(1): value: \"\\u{41}\\u{20}\\u{7e}\" # keep 2`] = `
+
+Message:
+> 1 | value: "\\u{41}\\u{20}\\u{7e}" # keep
+    |        ^^^^^^^^^^^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | value: "A ~" # keep
+
+`;
+
 exports[`prefer-literal-ascii > invalid(10): const value = '\\x6a\\u007e\\u{7a}'; 1`] = `
 
   1 | const value = '\\x6a\\u007e\\u{7a}';
@@ -182,6 +199,34 @@ Message:
 
 Output:
   1 | const value = \`ABC\`;
+
+`;
+
+exports[`prefer-literal-ascii > invalid(2): \"\\u{41}\": \"\\u{22}\\u{5c}\\u{27}\" 1`] = `
+
+  1 | "\\u{41}": "\\u{22}\\u{5c}\\u{27}"
+
+`;
+
+exports[`prefer-literal-ascii > invalid(2): \"\\u{41}\": \"\\u{22}\\u{5c}\\u{27}\" 2`] = `
+
+Message:
+> 1 | "\\u{41}": "\\u{22}\\u{5c}\\u{27}"
+    | ^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | "A": "\\u{22}\\u{5c}\\u{27}"
+
+`;
+
+exports[`prefer-literal-ascii > invalid(2): \"\\u{41}\": \"\\u{22}\\u{5c}\\u{27}\" 3`] = `
+
+Message:
+> 1 | "\\u{41}": "\\u{22}\\u{5c}\\u{27}"
+    |           ^^^^^^^^^^^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | "\\u{41}": "\\"\\\\'"
 
 `;
 
@@ -394,6 +439,23 @@ Message:
 
 Output:
   1 | const value = 'A';
+
+`;
+
+exports[`prefer-literal-ascii > invalid(3): value: \"\\\\\\u{41}\" 1`] = `
+
+  1 | value: "\\\\\\u{41}"
+
+`;
+
+exports[`prefer-literal-ascii > invalid(3): value: \"\\\\\\u{41}\" 2`] = `
+
+Message:
+> 1 | value: "\\\\\\u{41}"
+    |        ^^^^^^^^^^ Prefer literal printable ASCII characters over escape sequences.
+
+Output:
+  1 | value: "\\\\A"
 
 `;
 

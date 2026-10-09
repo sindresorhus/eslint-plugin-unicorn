@@ -143,3 +143,18 @@ test.snapshot({
 		'%YAML 1.1\n---\nvalue: [1.00e+2, 1.50, .50]',
 	].map(code => ({code, language: languages.yaml})),
 });
+
+test.snapshot({
+	valid: [
+		'value: [1.0, 1.5, 1e2, infinity, -infinity, 9007199254740993]',
+		'value: \'1.00\'',
+		'value: 1.5s',
+		'value: 2026-09-19T14:00:00Z',
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+	invalid: [
+		'value: 1.00 # keep',
+		'value: -0.00',
+		'value: [1.500, 123_456.000_000, 1.00e2, 0.00e2]',
+		'value: {nested: 1.200_000}',
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+});

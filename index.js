@@ -137,6 +137,7 @@ const nonJavaScriptLanguages = {
 	html: ['html/html'],
 	json: ['json/json', 'json/jsonc', 'json/json5'],
 	markdown: ['markdown/commonmark', 'markdown/gfm'],
+	soml: ['soml/soml'],
 	toml: ['toml/toml'],
 	yaml: ['yml/yaml'],
 };

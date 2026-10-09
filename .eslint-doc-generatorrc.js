@@ -9,6 +9,7 @@ const config = {
 		['recommended-html', '🌐'],
 		['recommended-json', '🧩'],
 		['recommended-markdown', '📚'],
+		['recommended-soml', '💎'],
 		['recommended-toml', '🛠️'],
 		['recommended-yaml', '📋'],
 	],

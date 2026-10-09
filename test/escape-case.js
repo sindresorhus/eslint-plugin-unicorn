@@ -6,6 +6,21 @@ const {test} = getTester(import.meta);
 const MESSAGE_ID_UPPERCASE = 'escape-uppercase';
 const MESSAGE_ID_LOWERCASE = 'escape-lowercase';
 
+for (const option of ['uppercase', 'lowercase']) {
+	test({
+		testerOptions: {language: languages.soml.language, plugins: languages.soml.plugins},
+		valid: [
+			String.raw`value: "\u{e9}\u{1f600}"`,
+			String.raw`"\u{e9}".key: "\u{a}"`,
+			String.raw`value: "\\u{AF}"`,
+			String.raw`value: '\u{AF}'`,
+			String.raw`'\u{AF}': 1`,
+			'value: """\n  \\u{e9}\n"""',
+		].map(code => ({code, options: [option]})),
+		invalid: [],
+	});
+}
+
 // 'uppercase'
 test({
 	valid: [

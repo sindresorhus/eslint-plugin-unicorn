@@ -2,7 +2,7 @@
 
 📝 Enforce proper case for numeric literals.
 
-💼🚫 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, 🎨 `recommended-css`, 🧩 `recommended-json`, 🛠️ `recommended-toml`, 📋 `recommended-yaml`. This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
+💼🚫 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, 🎨 `recommended-css`, 🧩 `recommended-json`, 💎 `recommended-soml`, 🛠️ `recommended-toml`, 📋 `recommended-yaml`. This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -16,6 +16,8 @@ Differentiating the casing of the identifier and value clearly separates them an
 - Lowercase `e` for exponential notation.
 
 This rule also supports JSON, JSONC, JSON5, and TOML numeric literals. In CSS, it lowercases the exponent marker in numbers, percentages, dimensions, and custom property values while preserving units.
+
+In SOML, `hexadecimalValue` is ignored because hexadecimal digits must be uppercase; radix prefixes and the exponent marker must be lowercase.
 
 ```toml
 # ❌

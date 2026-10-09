@@ -57,15 +57,15 @@ const create = context => {
 		return problems;
 	});
 
-	context.on('String', node => {
-		if (context.sourceCode.ast.type === 'StyleSheet') {
+	context.on(['String', 'KeySegment'], node => {
+		if (context.sourceCode.ast.type === 'StyleSheet' || (node.style !== undefined && node.style !== 'escaped')) {
 			return;
 		}
 
 		return getProblem({
 			node,
 			original: context.sourceCode.getText(node),
-			lowercase: isLowercase,
+			lowercase: node.style === 'escaped' || isLowercase,
 		});
 	});
 
@@ -160,6 +160,7 @@ const config = {
 			'json/json5',
 			'css/css',
 			'toml/toml',
+			'soml/soml',
 		],
 	},
 };

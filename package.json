@@ -102,6 +102,7 @@
 		"eslint-remote-tester": "^4.0.4",
 		"eslint-remote-tester-repositories": "^2.0.2",
 		"eslint-scope": "^9.1.2",
+		"eslint-soml": "^0.0.2",
 		"espree": "^11.2.0",
 		"listr2": "^11.1.0",
 		"markdownlint-cli": "^0.49.1",

@@ -2860,3 +2860,17 @@ test({
 		errors: [{message: 'The filename `err.md` should be named `error.md`. A more descriptive name will do too.'}],
 	})),
 });
+
+test.snapshot({
+	valid: [
+		'error: 1',
+		'err: 1',
+		'value: \'err\'',
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+	invalid: [
+		{code: 'err: 1', options: [{checkProperties: true}]},
+		{code: 'settings.cb: 1', options: [{checkProperties: true}]},
+		{code: '\'err\': {opts: 1}', options: [{checkProperties: true}]},
+		{code: 'value: 1', filename: 'err.soml'},
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+});

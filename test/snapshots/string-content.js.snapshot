@@ -32,6 +32,28 @@ Output:
 
 `;
 
+exports[`string-content > invalid(1): value: 'bad' # keep 1`] = `
+
+Options:
+- patterns:
+    bad: 'good'
+
+Code:
+  1 | value: 'bad' # keep
+
+`;
+
+exports[`string-content > invalid(1): value: 'bad' # keep 2`] = `
+
+Message:
+> 1 | value: 'bad' # keep
+    |        ^^^^^ Prefer \`good\` over \`bad\`.
+
+Output:
+  1 | value: "good" # keep
+
+`;
+
 exports[`string-content > invalid(1): {'\\u006eo': 'no'} 1`] = `
 
 Options:
@@ -63,6 +85,52 @@ Message:
 
 Output:
   1 | {'\\u006eo': "yes"}
+
+`;
+
+exports[`string-content > invalid(10): value: 'bad' 1`] = `
+
+Options:
+- patterns:
+    bad:
+      suggest: 'good'
+      fix: false
+
+Code:
+  1 | value: 'bad'
+
+`;
+
+exports[`string-content > invalid(10): value: 'bad' 2`] = `
+
+Message:
+> 1 | value: 'bad'
+    |        ^^^^^ Prefer \`good\` over \`bad\`.
+
+Suggestion 1/1: Replace \`bad\` with \`good\`.:
+  1 | value: "good"
+
+`;
+
+exports[`string-content > invalid(11): value: 'bad' 1`] = `
+
+Options:
+- patterns:
+    bad:
+      suggest: "\\ud800"
+      message: 'Replacement is not representable in SOML.'
+      fix: false
+
+Code:
+  1 | value: 'bad'
+
+`;
+
+exports[`string-content > invalid(11): value: 'bad' 2`] = `
+
+Message:
+> 1 | value: 'bad'
+    |        ^^^^^ Replacement is not representable in SOML.
 
 `;
 
@@ -100,6 +168,28 @@ Output:
 
 `;
 
+exports[`string-content > invalid(2): value: \"\\u{62}ad\" 1`] = `
+
+Options:
+- patterns:
+    bad: 'good'
+
+Code:
+  1 | value: "\\u{62}ad"
+
+`;
+
+exports[`string-content > invalid(2): value: \"\\u{62}ad\" 2`] = `
+
+Message:
+> 1 | value: "\\u{62}ad"
+    |        ^^^^^^^^^^ Prefer \`good\` over \`bad\`.
+
+Output:
+  1 | value: "good"
+
+`;
+
 exports[`string-content > invalid(3): a { content: \"\\6e o\"; background: url(\"\\6e o.png\"); } 1`] = `
 
 Options:
@@ -131,6 +221,37 @@ Message:
 
 Output:
   1 | a { content: "\\6e o"; background: url("yes.png"); }
+
+`;
+
+exports[`string-content > invalid(3): value:\n\t'''\n\tbad\n\t''' 1`] = `
+
+Options:
+- patterns:
+    bad: 'good'
+
+Code:
+  1 | value:
+  2 | 	'''
+  3 | 	bad
+  4 | 	'''
+
+`;
+
+exports[`string-content > invalid(3): value:\n\t'''\n\tbad\n\t''' 2`] = `
+
+Message:
+  1 | value:
+> 2 | 	'''
+    | 	^^^
+> 3 | 	bad
+    | ^^^^
+> 4 | 	'''
+    | ^^^^ Prefer \`good\` over \`bad\`.
+
+Output:
+  1 | value:
+  2 | 	"good"
 
 `;
 
@@ -168,6 +289,37 @@ Output:
 
 `;
 
+exports[`string-content > invalid(4): value:\n\t\"\"\"\n\tbad\n\t\"\"\" 1`] = `
+
+Options:
+- patterns:
+    bad: 'good'
+
+Code:
+  1 | value:
+  2 | 	"""
+  3 | 	bad
+  4 | 	"""
+
+`;
+
+exports[`string-content > invalid(4): value:\n\t\"\"\"\n\tbad\n\t\"\"\" 2`] = `
+
+Message:
+  1 | value:
+> 2 | 	"""
+    | 	^^^
+> 3 | 	bad
+    | ^^^^
+> 4 | 	"""
+    | ^^^^ Prefer \`good\` over \`bad\`.
+
+Output:
+  1 | value:
+  2 | 	"good"
+
+`;
+
 exports[`string-content > invalid(5): a { content: \"no\"; background: url(no); } 1`] = `
 
 Options:
@@ -200,6 +352,39 @@ Message:
 
 Output:
   1 | a { content: "no"; background: url("'\\"\\\\\\a\\d\\c\\9() a"); }
+
+`;
+
+exports[`string-content > invalid(5): value: ['bad', {nested: 'bad'}] 1`] = `
+
+Options:
+- patterns:
+    bad: 'good'
+
+Code:
+  1 | value: ['bad', {nested: 'bad'}]
+
+`;
+
+exports[`string-content > invalid(5): value: ['bad', {nested: 'bad'}] 2`] = `
+
+Message:
+> 1 | value: ['bad', {nested: 'bad'}]
+    |         ^^^^^ Prefer \`good\` over \`bad\`.
+
+Output:
+  1 | value: ["good", {nested: 'bad'}]
+
+`;
+
+exports[`string-content > invalid(5): value: ['bad', {nested: 'bad'}] 3`] = `
+
+Message:
+> 1 | value: ['bad', {nested: 'bad'}]
+    |                         ^^^^^ Prefer \`good\` over \`bad\`.
+
+Output:
+  1 | value: ['bad', {nested: "good"}]
 
 `;
 
@@ -239,6 +424,30 @@ Suggestion 1/1: Replace \`no\` with \`yes\`.:
 
 `;
 
+exports[`string-content > invalid(6): value: 'bad' 1`] = `
+
+Options:
+- patterns:
+    bad:
+      suggest: "\\"\\\\\\n\\t\\b\\f\\0"
+      message: 'Replace the string content.'
+
+Code:
+  1 | value: 'bad'
+
+`;
+
+exports[`string-content > invalid(6): value: 'bad' 2`] = `
+
+Message:
+> 1 | value: 'bad'
+    |        ^^^^^ Replace the string content.
+
+Output:
+  1 | value: "\\"\\\\\\n\\t\\u{8}\\u{c}\\u{0}\\u{7f}"
+
+`;
+
 exports[`string-content > invalid(7): a { content: \"no\"; background: url(no); } 1`] = `
 
 Options:
@@ -261,6 +470,47 @@ Message:
 
 Output:
   1 | a { content: "no"; background: url("yes"); }
+
+`;
+
+exports[`string-content > invalid(7): value: 'bad' 1`] = `
+
+Options:
+- patterns:
+    bad: '\\u0001'
+
+Code:
+  1 | value: 'bad'
+
+`;
+
+exports[`string-content > invalid(7): value: 'bad' 2`] = `
+
+Message:
+> 1 | value: 'bad'
+    |        ^^^^^ Prefer \`\\u0001\` over \`bad\`.
+
+Output:
+  1 | value: "\\\\u0001"
+
+`;
+
+exports[`string-content > invalid(8): value: 'bad' 1`] = `
+
+Options:
+- patterns:
+    bad: "\\r"
+
+Code:
+  1 | value: 'bad'
+
+`;
+
+exports[`string-content > invalid(8): value: 'bad' 2`] = `
+
+Message:
+> 1 | value: 'bad'
+    |        ^^^^^ Prefer \`␍\` over \`bad\`.
 
 `;
 
@@ -306,5 +556,26 @@ Message:
 
 Output:
   1 | {unquoted: "no", "no": "yes"}
+
+`;
+
+exports[`string-content > invalid(9): value: 'bad' 1`] = `
+
+Options:
+- patterns:
+    bad:
+      suggest: "\\ud800"
+      message: 'Replacement is not representable in SOML.'
+
+Code:
+  1 | value: 'bad'
+
+`;
+
+exports[`string-content > invalid(9): value: 'bad' 2`] = `
+
+Message:
+> 1 | value: 'bad'
+    |        ^^^^^ Replacement is not representable in SOML.
 
 `;

@@ -12,6 +12,20 @@ Message:
 
 `;
 
+exports[`no-loss-of-precision > invalid(1): value: 9007199254740993.0 1`] = `
+
+  1 | value: 9007199254740993.0
+
+`;
+
+exports[`no-loss-of-precision > invalid(1): value: 9007199254740993.0 2`] = `
+
+Message:
+> 1 | value: 9007199254740993.0
+    |        ^^^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
 exports[`no-loss-of-precision > invalid(10): {\"value\": 1.23456789012345678} 1`] = `
 
   1 | {"value": 1.23456789012345678}
@@ -166,6 +180,20 @@ Message:
 
 `;
 
+exports[`no-loss-of-precision > invalid(2): value: -9_007_199_254_740_993.0 1`] = `
+
+  1 | value: -9_007_199_254_740_993.0
+
+`;
+
+exports[`no-loss-of-precision > invalid(2): value: -9_007_199_254_740_993.0 2`] = `
+
+Message:
+> 1 | value: -9_007_199_254_740_993.0
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
 exports[`no-loss-of-precision > invalid(20): value = -1.000_000_000_000_000_1 1`] = `
 
   1 | value = -1.000_000_000_000_000_1
@@ -261,6 +289,28 @@ exports[`no-loss-of-precision > invalid(3): 99999999999999999 2`] = `
 Message:
 > 1 | 99999999999999999
     | ^^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(3): value: [1.00000000000000001, 9007199254740993e0] 1`] = `
+
+  1 | value: [1.00000000000000001, 9007199254740993e0]
+
+`;
+
+exports[`no-loss-of-precision > invalid(3): value: [1.00000000000000001, 9007199254740993e0] 2`] = `
+
+Message:
+> 1 | value: [1.00000000000000001, 9007199254740993e0]
+    |         ^^^^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
+
+`;
+
+exports[`no-loss-of-precision > invalid(3): value: [1.00000000000000001, 9007199254740993e0] 3`] = `
+
+Message:
+> 1 | value: [1.00000000000000001, 9007199254740993e0]
+    |                              ^^^^^^^^^^^^^^^^^^ This numeric literal loses precision when represented as an IEEE 754 binary64 value.
 
 `;
 

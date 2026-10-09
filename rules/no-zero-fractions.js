@@ -30,7 +30,7 @@ const create = context => {
 
 		const {sign, before, dotAndFractions, after} = match.groups;
 		let fixedDotAndFractions = dotAndFractions.replaceAll(/[.0_]+$/g, '');
-		if (!fixedDotAndFractions && (node.type === 'YAMLScalar' || (node.type === 'TOMLValue' && !after))) {
+		if (!fixedDotAndFractions && (node.type === 'YAMLScalar' || ((node.type === 'TOMLValue' || node.type === 'Float') && !after))) {
 			fixedDotAndFractions = '.0';
 		}
 
@@ -72,9 +72,10 @@ const create = context => {
 		};
 	};
 
-	context.on(['Literal', 'Number', 'TOMLValue', 'YAMLScalar'], node => {
+	context.on(['Literal', 'Number', 'Float', 'TOMLValue', 'YAMLScalar'], node => {
 		if (
 			isNumericLiteral(node)
+			|| node.type === 'Float'
 			|| (node.type === 'Number' && typeof node.value === 'number')
 			|| (node.type === 'YAMLScalar' && typeof node.value === 'number' && !node.parent.tag && !/^[+-]?\.(?:inf|nan)$/i.test(node.raw))
 			|| (node.type === 'TOMLValue' && node.kind === 'float')
@@ -122,6 +123,7 @@ const config = {
 			'json/jsonc',
 			'json/json5',
 			'css/css',
+			'soml/soml',
 		],
 	},
 };

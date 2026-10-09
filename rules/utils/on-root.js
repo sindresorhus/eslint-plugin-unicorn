@@ -3,7 +3,7 @@ The root node type produced by each ESLint language:
 
 - `Program` — JavaScript/TypeScript, HTML via `@html-eslint`, YAML via `eslint-plugin-yml`, and TOML via `eslint-plugin-toml`
 - `StyleSheet` — CSS via `@eslint/css`
-- `Document` — JSON via `@eslint/json`
+- `Document` — JSON via `@eslint/json` and SOML via `eslint-soml`
 - `root` — Markdown via `@eslint/markdown`
 */
 const rootNodeTypes = [

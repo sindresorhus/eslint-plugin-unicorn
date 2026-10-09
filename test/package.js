@@ -19,6 +19,7 @@ const nonJavaScriptConfigs = {
 	'recommended-html': [languages.html],
 	'recommended-json': [languages.json, languages.jsonc, languages.json5],
 	'recommended-markdown': [languages.markdown, {...languages.markdown, language: 'markdown/gfm'}],
+	'recommended-soml': [languages.soml],
 	'recommended-toml': [languages.toml],
 	'recommended-yaml': [languages.yaml],
 };
@@ -205,6 +206,7 @@ const nonJavaScriptCode = {
 	jsonc: '{"url": "http://example.com"}',
 	json5: '{url: "http://example.com"}',
 	markdown: '[Link](http://example.com)',
+	soml: 'url: "http://example.com"',
 	toml: 'url = "http://example.com"',
 	yaml: 'url: "http://example.com"',
 };
@@ -220,7 +222,7 @@ for (const [configName, supportedLanguages] of Object.entries(nonJavaScriptConfi
 			t.assert.strictEqual(Object.keys(preset.rules).every(ruleId => ruleId.startsWith('unicorn/')), true);
 			t.assert.strictEqual(preset.rules['unicorn/prefer-includes'], undefined);
 			t.assert.strictEqual(preset.rules['unicorn/comment-content'], 'off');
-			t.assert.strictEqual(preset.rules['unicorn/no-empty-file'], 'error');
+			t.assert.strictEqual(preset.rules['unicorn/no-empty-file'], name === 'soml' ? undefined : 'error');
 			for (const ruleName of deprecatedRules) {
 				t.assert.strictEqual(preset.rules[`unicorn/${ruleName}`], undefined);
 			}
@@ -582,3 +584,22 @@ test('rule.meta.docs.recommended should be synchronized with presets', t => {
 		}
 	}
 });
+
+for (const extension of ['soml', 'txt']) {
+	test(`recommended-soml uses SOML-safe fixes in .${extension} files`, t => {
+		const code = 'values: [1.00, 9007199254740993, "\\u{41}\\u{a}\\u{9}", \'\\u{41}\', { }]\n# Keep comment';
+		const filename = `file.${extension}`;
+		const config = {
+			...eslintPluginUnicorn.configs['recommended-soml'],
+			files: [filename],
+			language: languages.soml.language,
+			plugins: {...languages.soml.plugins, unicorn: eslintPluginUnicorn},
+		};
+		const linter = new Linter();
+		const result = linter.verifyAndFix(code, config, {filename});
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(result.output, 'values: [1.0, 9_007_199_254_740_993, "A\\n\\t", \'\\u{41}\', {}]\n# Keep comment');
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.strictEqual(linter.verifyAndFix(result.output, config, {filename}).fixed, false);
+	});
+}

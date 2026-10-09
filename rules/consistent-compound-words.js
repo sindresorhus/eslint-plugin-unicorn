@@ -463,6 +463,7 @@ const config = {
 			'html/html',
 			'yml/yaml',
 			'toml/toml',
+			'soml/soml',
 		],
 	},
 };

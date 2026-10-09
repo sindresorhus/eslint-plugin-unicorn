@@ -1,3 +1,4 @@
+/* eslint camelcase: ['error', {allow: ['snake_case']}] */
 import {getTester, languages} from './utils/test.js';
 
 const {test} = getTester(import.meta);
@@ -54,4 +55,21 @@ test.snapshot({
 		{code: '[[other_key]]\nvalue = {inner-key = 1}', language: languages.toml},
 		{code: '[nested."other.key"]\nvalue = 1', language: languages.toml},
 	],
+});
+
+test.snapshot({
+	valid: [
+		'camelCase: {nestedKey: 1}',
+		'parent.childKey: 1',
+		{code: '\'snake_case\': 1', options: [{snake_case: true}]},
+		{code: '\'ignored-key\': 1', options: [{ignore: ['^ignored']}]},
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+	invalid: [
+		'snake_case: 1',
+		'parent.bad_key: 1',
+		'\'bad-key\': {other_key: 2}',
+		String.raw`"\u{62}ad_key": 1`,
+		'value: [{bad_key: 1}]',
+		'\'\': 1',
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
 });

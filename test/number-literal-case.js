@@ -14,6 +14,19 @@ const error = {
 	messageId: MESSAGE_ID,
 };
 
+for (const hexadecimalValue of ['uppercase', 'lowercase']) {
+	test({
+		testerOptions: {language: languages.soml.language, plugins: languages.soml.plugins},
+		valid: [
+			'value: 0xDEAD_BEEF',
+			'value: [0b1010, 0o755, 1_000, -1.2e-3, 1e6]',
+			'value: [infinity, -infinity]',
+			'value: ["0xff 1E3", \'0xff 1E3\']',
+		].map(code => ({code, options: [{hexadecimalValue}]})),
+		invalid: [],
+	});
+}
+
 // Legacy octal literals
 test({
 	testerOptions: {

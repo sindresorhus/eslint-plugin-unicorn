@@ -1,0 +1,41 @@
+exports[`expiring-todo-comments > invalid(1): # TODO [2000-01-01]: expired\n{} 1`] = `
+
+Options:
+- checkDates: true
+  checkDatesOnPullRequests: true
+
+Code:
+  1 | # TODO [2000-01-01]: expired
+  2 | {}
+
+`;
+
+exports[`expiring-todo-comments > invalid(1): # TODO [2000-01-01]: expired\n{} 2`] = `
+
+Message:
+> 1 | # TODO [2000-01-01]: expired
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Past due date: 2000-01-01. expired
+  2 | {}
+
+`;
+
+exports[`expiring-todo-comments > invalid(2): /* TODO [2000-01-01]: expired */\n{} 1`] = `
+
+Options:
+- checkDates: true
+  checkDatesOnPullRequests: true
+
+Code:
+  1 | /* TODO [2000-01-01]: expired */
+  2 | {}
+
+`;
+
+exports[`expiring-todo-comments > invalid(2): /* TODO [2000-01-01]: expired */\n{} 2`] = `
+
+Message:
+> 1 | /* TODO [2000-01-01]: expired */
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Past due date: 2000-01-01. expired
+  2 | {}
+
+`;

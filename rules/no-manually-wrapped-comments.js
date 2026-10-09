@@ -49,7 +49,7 @@ const getLinePrefix = (sourceCode, comment) => {
 const isProseText = text => text.length > 0 && !isIgnoredCommentText(text);
 
 const isStandaloneLineComment = (sourceCode, comment) => (
-	(comment.type === 'Line' || getLineCommentPrefix(sourceCode) === '#')
+	(comment.type === 'Line' || sourceCode.getText(comment).startsWith('#'))
 	&& isProseText(getCommentText(comment))
 	&& getLinePrefix(sourceCode, comment).trim() === ''
 );
@@ -71,7 +71,7 @@ const isConsecutiveComment = (sourceCode, firstComment, secondComment) => {
 
 const isBlankLine = (sourceCode, line) => line < 1 || line > sourceCode.lines.length || sourceCode.lines[line - 1].trim() === '';
 
-const getLineCommentPrefix = sourceCode => sourceCode.parserServices?.isTOML || sourceCode.parserServices?.isYAML ? '#' : '//';
+const getLineCommentPrefix = sourceCode => sourceCode.parserServices?.isTOML || sourceCode.parserServices?.isYAML || (sourceCode.ast.type === 'Document' && sourceCode.ast.comments) ? '#' : '//';
 
 const getLineCommentText = (sourceCode, lineText) => {
 	const trimmedLineText = lineText.trim();
@@ -273,6 +273,7 @@ const config = {
 			'json/json5',
 			'toml/toml',
 			'yml/yaml',
+			'soml/soml',
 		],
 	},
 };

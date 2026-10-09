@@ -312,3 +312,15 @@ test.snapshot({
 		},
 	],
 });
+
+test.snapshot({
+	valid: [
+		'/**\nnote\n*/\n{}',
+		'# * note\n{}',
+		'/* ordinary */\n{}',
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+	invalid: [
+		'/**\n * note\n */\n{}',
+		'value: {\n\t/**\n\t * note\n\t */\n\tnested: 1\n}',
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+});

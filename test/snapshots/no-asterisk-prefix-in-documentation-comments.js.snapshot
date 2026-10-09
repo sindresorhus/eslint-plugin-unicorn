@@ -35,6 +35,34 @@ Output:
 
 `;
 
+exports[`no-asterisk-prefix-in-documentation-comments > invalid(1): /**\n * note\n */\n{} 1`] = `
+
+  1 | /**
+  2 |  * note
+  3 |  */
+  4 | {}
+
+`;
+
+exports[`no-asterisk-prefix-in-documentation-comments > invalid(1): /**\n * note\n */\n{} 2`] = `
+
+Message:
+> 1 | /**
+    | ^^^
+> 2 |  * note
+    | ^^^^^^^
+> 3 |  */
+    | ^^^ Remove asterisk prefixes and shared indentation from this comment.
+  4 | {}
+
+Output:
+  1 | /**
+  2 | note
+  3 | */
+  4 | {}
+
+`;
+
 exports[`no-asterisk-prefix-in-documentation-comments > invalid(1): /*\n * Hide \"+ 65 releases\" link\n * Hide \"Learn more about GitHub Sponsors\" link\n * Hide \"+ 123 contributors\" link\n */ 1`] = `
 
   1 | /*
@@ -172,6 +200,40 @@ Output:
   5 | 	@returns {boolean} Whether it passed.
   6 | 	*/
   7 | }
+
+`;
+
+exports[`no-asterisk-prefix-in-documentation-comments > invalid(2): value: {\n\t/**\n\t * note\n\t */\n\tnested: 1\n} 1`] = `
+
+  1 | value: {
+  2 | 	/**
+  3 | 	 * note
+  4 | 	 */
+  5 | 	nested: 1
+  6 | }
+
+`;
+
+exports[`no-asterisk-prefix-in-documentation-comments > invalid(2): value: {\n\t/**\n\t * note\n\t */\n\tnested: 1\n} 2`] = `
+
+Message:
+  1 | value: {
+> 2 | 	/**
+    | 	^^^
+> 3 | 	 * note
+    | ^^^^^^^^
+> 4 | 	 */
+    | ^^^^ Remove asterisk prefixes and shared indentation from this comment.
+  5 | 	nested: 1
+  6 | }
+
+Output:
+  1 | value: {
+  2 | 	/**
+  3 | 	note
+  4 | 	*/
+  5 | 	nested: 1
+  6 | }
 
 `;
 

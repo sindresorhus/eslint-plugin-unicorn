@@ -2,7 +2,7 @@
 
 📝 Prefer literal printable ASCII characters over escape sequences.
 
-💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, 🎨 `recommended-css`, 🧩 `recommended-json`, ☑️ `unopinionated`.
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, 🎨 `recommended-css`, 🧩 `recommended-json`, 💎 `recommended-soml`, ☑️ `unopinionated`.
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -16,6 +16,8 @@ In JSON, JSONC, and JSON5, `\/` becomes `/`. For `\/` in JavaScript, use ESLint'
 Autofix is omitted for directive prologues, digits that would extend a preceding `\0` or legacy octal escape, and TypeScript template literal types without substitutions when they contain a literal backslash. In HTML-embedded content, making `<` or `/` literal may affect HTML parsing.
 
 In CSS, this rule checks quoted strings and identifiers for one- to six-digit hexadecimal escapes. Escape-terminating whitespace is removed with the escape. Identifier escapes are reported and fixed only when the resulting tokens have the same values and types. Comments and `url()` values are ignored. An initial `@charset` statement is also ignored because its literal bytes can determine the stylesheet encoding.
+
+In SOML, this rule checks escaped single-line strings and quoted key segments. Literal strings and block strings are ignored.
 
 ## Examples
 

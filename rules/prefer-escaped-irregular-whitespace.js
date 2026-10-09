@@ -81,7 +81,15 @@ const create = context => {
 		}
 	});
 
-	context.on('String', node => getProblem(node, sourceCode.getText(node), {escapeCharacter: getFourDigitEscape}));
+	context.on(['String', 'KeySegment'], node => {
+		if (node.style !== undefined && node.style !== 'escaped') {
+			return;
+		}
+
+		return getProblem(node, sourceCode.getText(node), {
+			escapeCharacter: node.style === 'escaped' ? character => getCodePointEscape(character).toLowerCase() : getFourDigitEscape,
+		});
+	});
 
 	context.on(['TOMLValue', 'TOMLQuoted'], node => {
 		if (node.kind !== 'string' || node.style !== 'basic') {
@@ -122,6 +130,7 @@ const config = {
 			'json/jsonc',
 			'json/json5',
 			'toml/toml',
+			'soml/soml',
 		],
 	},
 };

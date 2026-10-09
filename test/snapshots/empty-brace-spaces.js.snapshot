@@ -78,6 +78,23 @@ Output:
 
 `;
 
+exports[`empty-brace-spaces > invalid(1): { } 1`] = `
+
+  1 | { }
+
+`;
+
+exports[`empty-brace-spaces > invalid(1): { } 2`] = `
+
+Message:
+> 1 | { }
+    |  ^ Do not add spaces between braces.
+
+Output:
+  1 | {}
+
+`;
+
 exports[`empty-brace-spaces > invalid(1): {\"object\": { }} 1`] = `
 
   1 | {"object": { }}
@@ -126,6 +143,26 @@ exports[`empty-brace-spaces > invalid(2): [ ] 2`] = `
 Message:
 > 1 | [ ]
     |  ^ Do not add spaces between braces.
+
+Output:
+  1 | []
+
+`;
+
+exports[`empty-brace-spaces > invalid(2): [\n\t] 1`] = `
+
+  1 | [
+  2 | 	]
+
+`;
+
+exports[`empty-brace-spaces > invalid(2): [\n\t] 2`] = `
+
+Message:
+> 1 | [
+    |  ^
+> 2 | 	]
+    | ^ Do not add spaces between braces.
 
 Output:
   1 | []
@@ -200,6 +237,34 @@ Message:
 
 Output:
   1 | value = {nested = []}
+
+`;
+
+exports[`empty-brace-spaces > invalid(3): value: [{ }, [ ]] # keep 1`] = `
+
+  1 | value: [{ }, [ ]] # keep
+
+`;
+
+exports[`empty-brace-spaces > invalid(3): value: [{ }, [ ]] # keep 2`] = `
+
+Message:
+> 1 | value: [{ }, [ ]] # keep
+    |          ^ Do not add spaces between braces.
+
+Output:
+  1 | value: [{}, [ ]] # keep
+
+`;
+
+exports[`empty-brace-spaces > invalid(3): value: [{ }, [ ]] # keep 3`] = `
+
+Message:
+> 1 | value: [{ }, [ ]] # keep
+    |               ^ Do not add spaces between braces.
+
+Output:
+  1 | value: [{ }, []] # keep
 
 `;
 

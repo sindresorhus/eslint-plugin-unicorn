@@ -80,6 +80,7 @@ const config = {
 			'css/css',
 			'toml/toml',
 			'yml/yaml',
+			'soml/soml',
 		],
 	},
 };

@@ -2,7 +2,7 @@
 
 📝 Enforce the style of numeric separators by correctly grouping digits.
 
-💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, 🛠️ `recommended-toml`, ☑️ `unopinionated`.
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, 💎 `recommended-soml`, 🛠️ `recommended-toml`, ☑️ `unopinionated`.
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -15,6 +15,8 @@ Long numbers can become really hard to read, so cutting it into groups of digits
 By default, this doesn't apply to numbers below `10_000`, but that can be customized.
 
 This rule also supports TOML files. All options apply to TOML numeric values, including signed numbers. Dates, times, `inf`, and `nan` are ignored.
+
+Also supports SOML integers and finite floats, preserving their numeric types and radix. Instants, durations, and infinities are ignored.
 
 ## Examples
 

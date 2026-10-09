@@ -640,3 +640,17 @@ ruleTest.snapshot({
 		{code: '/*\nComment.\n*/\n{}', options: ['single-line']},
 	].map(testCase => ({...testCase, code: language === languages.css ? testCase.code.replace('{}', 'a {}') : testCase.code, language}))),
 });
+
+ruleTest.snapshot({
+	valid: [
+		'/*\nnote\n*/\n{}',
+		'# note\n{}',
+		'value: 1 /* note */',
+		'/* eslint-disable rule-to-test/single-line-block-comment-style */\n{}',
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+	invalid: [
+		'/* note */\n{}',
+		'/* note\n*/\n{}',
+		{code: '/*\nnote\n*/\n{}', options: ['single-line']},
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+});

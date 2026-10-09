@@ -1,3 +1,20 @@
+exports[`prefer-short-escape-sequences > invalid(1): value: \"\\u{a}\\u{9}\" # keep 1`] = `
+
+  1 | value: "\\u{a}\\u{9}" # keep
+
+`;
+
+exports[`prefer-short-escape-sequences > invalid(1): value: \"\\u{a}\\u{9}\" # keep 2`] = `
+
+Message:
+> 1 | value: "\\u{a}\\u{9}" # keep
+    |        ^^^^^^^^^^^^ Prefer shorter alternatives to Unicode escape sequences.
+
+Output:
+  1 | value: "\\n\\t" # keep
+
+`;
+
 exports[`prefer-short-escape-sequences > invalid(1): {\"\\u0009\":\"\\u0008\\u0009\\u000a\\u000C\\u000d\\u0022\\u002f\\u005c\"} 1`] = `
 
 Filename: fixture.json
@@ -25,6 +42,34 @@ Message:
 
 Output:
   1 | {"\\u0009":"\\b\\t\\n\\f\\r\\u0022\\u002f\\u005c"}
+
+`;
+
+exports[`prefer-short-escape-sequences > invalid(2): \"\\u{a}\": \"\\u{9}\" 1`] = `
+
+  1 | "\\u{a}": "\\u{9}"
+
+`;
+
+exports[`prefer-short-escape-sequences > invalid(2): \"\\u{a}\": \"\\u{9}\" 2`] = `
+
+Message:
+> 1 | "\\u{a}": "\\u{9}"
+    | ^^^^^^^ Prefer shorter alternatives to Unicode escape sequences.
+
+Output:
+  1 | "\\n": "\\u{9}"
+
+`;
+
+exports[`prefer-short-escape-sequences > invalid(2): \"\\u{a}\": \"\\u{9}\" 3`] = `
+
+Message:
+> 1 | "\\u{a}": "\\u{9}"
+    |          ^^^^^^^ Prefer shorter alternatives to Unicode escape sequences.
+
+Output:
+  1 | "\\u{a}": "\\t"
 
 `;
 
@@ -70,6 +115,34 @@ Output:
   2 | 				// Keep the comment.
   3 | 				"\\u000A": "\\b\\t\\n\\f\\r\\u0022\\u002F\\u005C"
   4 | 			}
+
+`;
+
+exports[`prefer-short-escape-sequences > invalid(3): value:\n\t\"\"\"\n\t\\u{a}\\u{9}\n\t\"\"\" 1`] = `
+
+  1 | value:
+  2 | 	"""
+  3 | 	\\u{a}\\u{9}
+  4 | 	"""
+
+`;
+
+exports[`prefer-short-escape-sequences > invalid(3): value:\n\t\"\"\"\n\t\\u{a}\\u{9}\n\t\"\"\" 2`] = `
+
+Message:
+  1 | value:
+> 2 | 	"""
+    | 	^^^
+> 3 | 	\\u{a}\\u{9}
+    | ^^^^^^^^^^^
+> 4 | 	"""
+    | ^^^^ Prefer shorter alternatives to Unicode escape sequences.
+
+Output:
+  1 | value:
+  2 | 	"""
+  3 | 	\\n\\t
+  4 | 	"""
 
 `;
 
@@ -119,6 +192,23 @@ Message:
 
 Output:
   1 | "\\\\\\n"
+
+`;
+
+exports[`prefer-short-escape-sequences > invalid(4): value: \"\\\\\\u{a}\" 1`] = `
+
+  1 | value: "\\\\\\u{a}"
+
+`;
+
+exports[`prefer-short-escape-sequences > invalid(4): value: \"\\\\\\u{a}\" 2`] = `
+
+Message:
+> 1 | value: "\\\\\\u{a}"
+    |        ^^^^^^^^^ Prefer shorter alternatives to Unicode escape sequences.
+
+Output:
+  1 | value: "\\\\\\n"
 
 `;
 

@@ -293,3 +293,17 @@ test({
 		},
 	],
 });
+
+test.snapshot({
+	valid: [
+		String.raw`value: "\u{a0}"`,
+		'value: \'a\u00a0b\'',
+		'\'a\u00a0b\': 1',
+		'value: 42',
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+	invalid: [
+		'value: "a\u00a0b\u2028c" # keep',
+		'"a\u200bb": 1',
+		'value:\n\t"""\n\ta\u00a0b\n\t"""',
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+});

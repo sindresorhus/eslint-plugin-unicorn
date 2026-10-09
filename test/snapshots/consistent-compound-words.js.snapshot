@@ -65,6 +65,24 @@ Message:
 
 `;
 
+exports[`consistent-compound-words > invalid(1): backGround: 1 1`] = `
+
+Options:
+- checkProperties: true
+
+Code:
+  1 | backGround: 1
+
+`;
+
+exports[`consistent-compound-words > invalid(1): backGround: 1 2`] = `
+
+Message:
+> 1 | backGround: 1
+    | ^^^^^^^^^^ Prefer \`background\` over \`backGround\`.
+
+`;
+
 exports[`consistent-compound-words > invalid(1): backGround: 1\nnested: {data-base: 2}\n\"user\\u004Eame\": 3 1`] = `
 
 Options:
@@ -485,6 +503,24 @@ Message:
 
 `;
 
+exports[`consistent-compound-words > invalid(2): parent.back-ground: 1 1`] = `
+
+Options:
+- checkProperties: true
+
+Code:
+  1 | parent.back-ground: 1
+
+`;
+
+exports[`consistent-compound-words > invalid(2): parent.back-ground: 1 2`] = `
+
+Message:
+> 1 | parent.back-ground: 1
+    |        ^^^^^^^^^^^ Prefer \`background\` over \`back-ground\`.
+
+`;
+
 exports[`consistent-compound-words > invalid(2): {\"back-ground\": {\"data_base\": 1}} 1`] = `
 
 Options:
@@ -678,6 +714,32 @@ Message:
 
 Suggestion 1/1: Rename to \`subclass\`.:
   1 | const subclass = class extends Parent {};
+
+`;
+
+exports[`consistent-compound-words > invalid(3): 'data_base': {passWord: 1} 1`] = `
+
+Options:
+- checkProperties: true
+
+Code:
+  1 | 'data_base': {passWord: 1}
+
+`;
+
+exports[`consistent-compound-words > invalid(3): 'data_base': {passWord: 1} 2`] = `
+
+Message:
+> 1 | 'data_base': {passWord: 1}
+    | ^^^^^^^^^^^ Prefer \`database\` over \`data_base\`.
+
+`;
+
+exports[`consistent-compound-words > invalid(3): 'data_base': {passWord: 1} 3`] = `
+
+Message:
+> 1 | 'data_base': {passWord: 1}
+    |               ^^^^^^^^ Prefer \`password\` over \`passWord\`.
 
 `;
 
