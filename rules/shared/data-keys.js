@@ -1,5 +1,5 @@
 /**
-Visit decoded JSON object keys, YAML string scalar keys, and individual TOML and SOML key segments.
+Visit decoded JSON and SOML object keys, YAML string scalar keys, and individual TOML key segments.
 */
 export default function onDataKey(context, listener) {
 	context.on('Member', ({name: node}) => {

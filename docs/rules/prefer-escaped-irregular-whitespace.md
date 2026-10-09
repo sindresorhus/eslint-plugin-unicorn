@@ -15,7 +15,7 @@ Escape irregular whitespace in strings, regular expressions, and untagged templa
 
 Comments, JSX text and quoted attributes, tagged templates, and backslash-continued U+2028/U+2029 are ignored. TOML checks only basic strings, including double-quoted keys; literal strings cannot use escapes.
 
-Strings, untagged templates, and `u`/`v` regular expressions are autofixed. Other regular expressions are reported without a fix because adding `u` can change their meaning. JSON and TOML use four-digit escapes. SOML checks escaped strings and key segments and uses lowercase braced escapes; literal strings are ignored.
+Strings, untagged templates, and `u`/`v` regular expressions are autofixed. Other regular expressions are reported without a fix because adding `u` can change their meaning. JSON and TOML use four-digit escapes. SOML checks escaped strings and keys and uses lowercase braced escapes; literal strings and keys are ignored.
 
 ## Examples
 

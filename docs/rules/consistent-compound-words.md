@@ -49,7 +49,7 @@ It also intentionally excludes ambiguous or common API spellings such as `fileNa
 
 ## Data keys, CSS, and HTML
 
-With `checkProperties: true`, the rule checks JSON object keys, YAML string keys, TOML key segments (including table names), and SOML key segments. It skips YAML non-string, tagged, anchored, and alias keys, plus string values.
+With `checkProperties: true`, the rule checks JSON object keys, YAML string keys, TOML key segments (including table names), and SOML keys. It skips YAML non-string, tagged, anchored, and alias keys, plus string values.
 
 With `checkVariables` (enabled by default), it checks CSS class and ID selectors, custom properties, keyframes, animation names, layers, containers, and custom media, plus HTML `id` and individual `class` names. Built-in CSS property names and value keywords, and `animation` shorthand values are skipped. CSS escapes and HTML character references are decoded; templated HTML values are skipped.
 

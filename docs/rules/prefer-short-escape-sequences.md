@@ -15,7 +15,7 @@ Common replacements include `\u000A` → `\n` and `\u0009` → `\t`. JavaScript 
 
 JSON, JSONC, and JSON5 receive only shorter escapes valid in JSON, regardless of filename, because `@eslint/json` does not expose the active dialect. In particular, `\u0000` and `\u000B` remain unchanged in all three variants. TOML literal strings and keys are ignored because their backslashes are not escapes.
 
-In SOML escaped strings and key segments, `\u{a}` becomes `\n` and `\u{9}` becomes `\t`. Literal strings are ignored.
+In SOML escaped strings and keys, `\u{a}` becomes `\n` and `\u{9}` becomes `\t`. Literal strings and keys are ignored.
 
 ## Examples
 

@@ -10,7 +10,7 @@ Enforce a consistent case style for decoded keys in JSON, JSONC, JSON5, SOML, TO
 
 Renaming keys can break consumers in other files, so the rule has no fixes or suggestions.
 
-In SOML, each segment of a dotted key is checked separately, including quoted segments.
+In SOML, dots in quoted keys are treated as literal characters.
 
 ## Examples
 

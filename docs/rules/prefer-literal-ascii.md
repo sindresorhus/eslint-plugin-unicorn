@@ -17,7 +17,7 @@ Autofix is omitted for directive prologues, digits that would extend a preceding
 
 In CSS, this rule checks quoted strings and identifiers for one- to six-digit hexadecimal escapes. Escape-terminating whitespace is removed with the escape. Identifier escapes are reported and fixed only when the resulting tokens have the same values and types. Comments and `url()` values are ignored. An initial `@charset` statement is also ignored because its literal bytes can determine the stylesheet encoding.
 
-In SOML, this rule checks escaped single-line strings and quoted key segments. Literal strings and block strings are ignored.
+In SOML, this rule checks escaped single-line strings and quoted keys. Literal keys and literal or block strings are ignored.
 
 ## Examples
 

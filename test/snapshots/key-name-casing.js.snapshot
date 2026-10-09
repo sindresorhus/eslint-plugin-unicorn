@@ -124,17 +124,17 @@ Message:
 
 `;
 
-exports[`key-name-casing > invalid(2): parent.bad_key: 1 1`] = `
+exports[`key-name-casing > invalid(2): parent: {bad_key: 1} 1`] = `
 
-  1 | parent.bad_key: 1
+  1 | parent: {bad_key: 1}
 
 `;
 
-exports[`key-name-casing > invalid(2): parent.bad_key: 1 2`] = `
+exports[`key-name-casing > invalid(2): parent: {bad_key: 1} 2`] = `
 
 Message:
-> 1 | parent.bad_key: 1
-    |        ^^^^^^^ Key \`bad_key\` must be in \`camelCase\`.
+> 1 | parent: {bad_key: 1}
+    |          ^^^^^^^ Key \`bad_key\` must be in \`camelCase\`.
 
 `;
 

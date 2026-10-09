@@ -602,8 +602,8 @@ ruleTest.snapshot({
 	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
 	invalid: [
 		{code: 'backGround: 1', options: [{checkProperties: true}]},
-		{code: 'parent.back-ground: 1', options: [{checkProperties: true}]},
+		{code: 'parent: {back-ground: 1}', options: [{checkProperties: true}]},
 		{code: '\'data_base\': {passWord: 1}', options: [{checkProperties: true}]},
-		{code: String.raw`parent."back\u{47}round": 1`, options: [{checkProperties: true}]},
+		{code: String.raw`parent: {"back\u{47}round": 1}`, options: [{checkProperties: true}]},
 	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
 });

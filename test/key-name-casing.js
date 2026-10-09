@@ -60,13 +60,13 @@ test.snapshot({
 test.snapshot({
 	valid: [
 		'camelCase: {nestedKey: 1}',
-		'parent.childKey: 1',
 		{code: '\'snake_case\': 1', options: [{snake_case: true}]},
 		{code: '\'ignored-key\': 1', options: [{ignore: ['^ignored']}]},
+		{code: '\'parent.bad_key\': 1', options: [{ignore: ['^parent[.]bad_key$']}]},
 	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
 	invalid: [
 		'snake_case: 1',
-		'parent.bad_key: 1',
+		'parent: {bad_key: 1}',
 		'\'bad-key\': {other_key: 2}',
 		String.raw`"\u{62}ad_key": 1`,
 		'value: [{bad_key: 1}]',
