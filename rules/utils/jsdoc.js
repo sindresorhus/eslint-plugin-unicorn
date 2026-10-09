@@ -40,12 +40,18 @@ const jsdocClosingCharacters = {'{': '}', '[': ']', '(': ')'};
 const jsdocInlineTagPattern = /\{\s*(?<tag>@(?:link|linkcode|linkplain|tutorial|inheritdoc))(?=\s|\})/giv;
 const jsdocInlineTagStartPattern = /^\{\s*@(?:link|linkcode|linkplain|tutorial|inheritdoc)(?=\s|\})/iv;
 
+/**
+Get the index of the next line ending starting from `index`, or the text length if there is no line ending.
+*/
 function getLineEndIndex(text, index) {
 	const lineEnd = text.indexOf('\n', index);
 
 	return lineEnd === -1 ? text.length : lineEnd;
 }
 
+/**
+Replace the character range with the mask character, preserving line endings.
+*/
 function maskRange(characters, start, end) {
 	for (let index = start; index < end; index++) {
 		if (characters[index] !== '\n') {
@@ -375,3 +381,9 @@ export default function maskJSDocumentSyntax(characters, text) {
 	maskJSDocumentTagSyntax(characters, text);
 	maskJSDocumentInlineTagSyntax(characters, text);
 }
+
+export {
+	getLineEndIndex,
+	maskCharacter,
+	maskRange,
+};

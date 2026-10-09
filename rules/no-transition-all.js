@@ -1,4 +1,5 @@
-import {ident, parse} from '@eslint/css-tree';
+import {ident} from '@eslint/css-tree';
+import {parse} from './shared/css-parser.js';
 import {
 	getStaticStringValue,
 	isMemberExpression,

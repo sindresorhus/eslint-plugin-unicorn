@@ -1,8 +1,11 @@
 import {
 	getComments,
+	getLineEndIndex,
 	getMarkdownHtmlComments,
 	isEslintDisableOrEnableDirective,
+	maskCharacter,
 	maskJSDocumentSyntax,
+	maskRange,
 	normalizeComment,
 	onRoot,
 } from './utils/index.js';
@@ -368,7 +371,6 @@ const pathTerminatorCharacters = '"\'`<>';
 const packageSpecifierTerminatorCharacters = '"\'`()[]{}<>,';
 const domainLeadingPunctuation = '([{<';
 const domainTrailingPunctuation = '.,;:!?)]}>';
-const maskCharacter = '\u{FFFF}';
 const openBrackets = '([{';
 const closeBrackets = ')]}';
 const quoteCharacters = '"\'`';
@@ -429,12 +431,6 @@ function isAsciiLetter(character) {
 			|| (character >= 'A' && character <= 'Z'));
 }
 
-function getLineEndIndex(text, index) {
-	const lineEnd = text.indexOf('\n', index);
-
-	return lineEnd === -1 ? text.length : lineEnd;
-}
-
 function getCharacterIndexBefore(text, character, start, end) {
 	for (let index = start; index < end; index++) {
 		if (text[index] === character) {
@@ -448,14 +444,6 @@ function getCharacterIndexBefore(text, character, start, end) {
 function isMarkupTagStart(text, index) {
 	return isAsciiLetter(text[index + 1])
 		|| (text[index + 1] === '/' && isAsciiLetter(text[index + 2]));
-}
-
-function maskRange(characters, start, end) {
-	for (let index = start; index < end; index++) {
-		if (characters[index] !== '\n') {
-			characters[index] = maskCharacter;
-		}
-	}
 }
 
 function maskPattern(characters, text, pattern) {

@@ -5,6 +5,8 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		'a { animation-composition: add; animation: fade 1s; }',
+		'a { text-align-last: center; text-align: justify; }',
 		'a { padding: 20px; padding-left: 10px; }',
 		'a { padding-left: 10px; } b { padding: 20px; }',
 		'a { -webkit-transition-property: opacity; transition: opacity 1s linear; }',
@@ -165,6 +167,8 @@ const jsxLanguageOptions = {parserOptions: {ecmaFeatures: {jsx: true}}};
 test({
 	testerOptions: {languageOptions: jsxLanguageOptions},
 	valid: [
+		'<div style={{animationComposition: "add", animation: "fade 1s"}} />;',
+		'<div style={{textAlignLast: "center", textAlign: "justify"}} />;',
 		'<div style={{padding: 20, paddingLeft: 10}} />;',
 		'<><div style={{paddingLeft: 10}} /><div style={{padding: 20}} /></>;',
 		'const object = {paddingLeft: 10, padding: 20};',

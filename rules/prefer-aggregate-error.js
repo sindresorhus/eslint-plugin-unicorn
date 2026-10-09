@@ -15,6 +15,7 @@ import {
 	getTypeSymbol,
 	isDefaultLibrarySymbol,
 } from './utils/types.js';
+import {getTypeName} from './utils/type-helpers.js';
 
 const MESSAGE_ID = 'prefer-aggregate-error';
 const messages = {
@@ -28,11 +29,6 @@ const isErrorCollectionName = name => errorCollectionNamePattern.test(name);
 
 const isLocallyDefined = variable =>
 	(variable?.defs.length ?? 0) > 0;
-
-// `TSTypeReference#typeName` is an `Identifier` or a `TSQualifiedName`, `this.Foo` is a parse error
-const getTypeName = typeName => typeName.type === 'TSQualifiedName'
-	? `${getTypeName(typeName.left)}.${typeName.right.name}`
-	: typeName.name;
 
 function unwrapTypeAnnotation(node) {
 	node = node?.type === 'TSTypeAnnotation'

@@ -3,6 +3,7 @@ import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {renameVariable} from './fix/index.js';
 import {combineBooleanStates, getTypeBooleanState} from './utils/get-type-boolean-state.js';
 import {getBooleanWrapperVariableState} from './utils/get-boolean-wrapper-variable-state.js';
+import {getTypeName} from './utils/type-helpers.js';
 import {
 	getAvailableVariableName,
 	getScopes,
@@ -653,17 +654,6 @@ function getPossiblyPromisedTypeBooleanState(type, checker, allowNullish) {
 		: unknown;
 }
 
-function getTypeReferenceName(typeName) {
-	if (typeName?.type === 'Identifier') {
-		return typeName.name;
-	}
-
-	// A qualified type name is always made of identifiers, so the left side always has a name.
-	if (typeName?.type === 'TSQualifiedName') {
-		return `${getTypeReferenceName(typeName.left)}.${typeName.right.name}`;
-	}
-}
-
 const getTypeDefinitions = (name, scope) =>
 	(findVariable(scope, name)?.defs ?? []).filter(definition => definition.type === 'Type');
 const getInterfaceDefinitions = (name, scope) =>
@@ -683,7 +673,7 @@ function getPromisedInterfaceState(interfaceNode, context, scope, {visitedTypeRe
 	}
 
 	for (const heritage of interfaceNode.extends) {
-		const name = getTypeReferenceName(heritage.expression);
+		const name = getTypeName(heritage.expression);
 		if (!name) {
 			continue;
 		}
@@ -750,7 +740,7 @@ function hasMissingRequiredTypeArguments(node, scope) {
 		return false;
 	}
 
-	const name = getTypeReferenceName(node.typeName);
+	const name = getTypeName(node.typeName);
 	const typeArguments = getTypeArguments(node) ?? [];
 	return getTypeDefinitions(name, scope).some(definition =>
 		(definition.node.typeParameters?.params ?? []).some((parameter, index) => index >= typeArguments.length && !parameter.default),
@@ -803,7 +793,7 @@ function getCallSignatureReturnTypes(node, context, scope, {typeState = getTypeS
 			.map(member => resolveTypeParameterType(member.returnType, context, typeState));
 
 		for (const heritage of node.extends) {
-			const name = getTypeReferenceName(heritage.expression);
+			const name = getTypeName(heritage.expression);
 			if (!name) {
 				continue;
 			}
@@ -835,7 +825,7 @@ function getCallSignatureReturnTypes(node, context, scope, {typeState = getTypeS
 
 		const nextVisitedTypeReferenceRanges = new Set(visitedTypeReferenceRanges);
 		nextVisitedTypeReferenceRanges.add(range);
-		const name = getTypeReferenceName(node.typeName);
+		const name = getTypeName(node.typeName);
 		return getTypeDefinitions(name, scope).flatMap(definition => getCallSignatureReturnTypesFromDefinition(definition, context, {
 			typeArguments: getTypeArguments(node),
 			typeState,
@@ -847,7 +837,7 @@ function getCallSignatureReturnTypes(node, context, scope, {typeState = getTypeS
 }
 
 function isPromisedTypeReference(node, context, scope, {visitedTypeReferenceRanges, typeState}) {
-	const name = getTypeReferenceName(node.typeName);
+	const name = getTypeName(node.typeName);
 
 	if (isGlobalPromiseTypeReference(node, scope)) {
 		return true;
@@ -977,7 +967,7 @@ function isCallableTypeAnnotation(node, context, scope, {visitedTypeReferenceNod
 		return withTypeInformation(node, context, ({type}) => type.getCallSignatures().length > 0) ?? false;
 	}
 
-	const name = getTypeReferenceName(node.typeName);
+	const name = getTypeName(node.typeName);
 	if (!name || visitedTypeReferenceNodes.has(node)) {
 		return false;
 	}
@@ -1042,7 +1032,7 @@ function getTypeParameterResolution(node, context, typeState) {
 	let currentNode = node;
 	let currentTypeState = typeState;
 	for (;;) {
-		const name = getTypeReferenceName(currentNode?.typeName);
+		const name = getTypeName(currentNode?.typeName);
 		const typeParameterType = currentTypeState.typeParameterTypes.get(name);
 		if (!typeParameterType || currentTypeState.visitedTypeParameterRanges.has(context.sourceCode.getRange(typeParameterType))) {
 			return;
@@ -1054,7 +1044,7 @@ function getTypeParameterResolution(node, context, typeState) {
 			...currentTypeState,
 			visitedTypeParameterRanges,
 		};
-		const nextTypeParameterType = nextTypeState.typeParameterTypes.get(getTypeReferenceName(typeParameterType.typeName));
+		const nextTypeParameterType = nextTypeState.typeParameterTypes.get(getTypeName(typeParameterType.typeName));
 		// Stored type arguments can still reference outer type parameters. Track their range arrays, which are shared by cloned nodes, so rebinding the same parameter name does not look cyclic.
 		/* node:coverage disable */
 		if (
@@ -1080,7 +1070,7 @@ function hasTypeParameterReference(node, name) {
 		const currentNode = nodes.pop();
 		if (currentNode && typeof currentNode === 'object' && !visitedNodes.has(currentNode)) {
 			visitedNodes.add(currentNode);
-			if (currentNode.type === 'TSTypeReference' && getTypeReferenceName(currentNode.typeName) === name) {
+			if (currentNode.type === 'TSTypeReference' && getTypeName(currentNode.typeName) === name) {
 				return true;
 			}
 
@@ -1175,7 +1165,7 @@ function resolveTypeParameterType(node, context, typeState) {
 				nextVisitedNodes.add(node);
 				const typeParameter = getTypeParameterResolution(node, context, typeState);
 				if (typeParameter) {
-					const name = getTypeReferenceName(node.typeName);
+					const name = getTypeName(node.typeName);
 					// Guard against cyclic type parameters. No known input reaches it.
 					/* node:coverage ignore next 4 */
 					if (resolvedTypeParameterTypes.has(typeParameter.type) || resolvedTypeParameterNames.has(name)) {
@@ -1291,7 +1281,7 @@ function hasUnresolvedTypeParameterReference(node, context, typeState, scope, ch
 		}
 
 		visitedNodes.add(current.node);
-		const name = current.node.type === 'TSTypeReference' ? getTypeReferenceName(current.node.typeName) : undefined;
+		const name = current.node.type === 'TSTypeReference' ? getTypeName(current.node.typeName) : undefined;
 		if (
 			current.checkNode
 			&& name
@@ -1356,7 +1346,7 @@ function getInterfaceCallSignatureBooleanStates(interfaceNode, context, scope, {
 	}
 
 	for (const heritage of interfaceNode.extends) {
-		const name = getTypeReferenceName(heritage.expression);
+		const name = getTypeName(heritage.expression);
 		if (!name) {
 			continue;
 		}
@@ -1391,7 +1381,7 @@ function getTypeReferenceBooleanState(node, context, scope, typeState) {
 
 	const normalizedTypeState = getTypeState(typeState);
 	const {visitedTypeReferenceNodes} = normalizedTypeState;
-	const name = getTypeReferenceName(node.typeName);
+	const name = getTypeName(node.typeName);
 	if (visitedTypeReferenceNodes.has(node)) {
 		return unknown;
 	}
@@ -1546,7 +1536,7 @@ function getTypeAnnotationBooleanState(node, context, scope, typeState) {
 
 function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 	const normalizedTypeState = getTypeState(typeState);
-	const name = getTypeReferenceName(node.typeName);
+	const name = getTypeName(node.typeName);
 	const typeParameter = getTypeParameterResolution(node, context, normalizedTypeState);
 	if (typeParameter) {
 		return getPromisedTypeAnnotationBooleanState(typeParameter.type, context, scope, typeParameter.typeState);
@@ -1697,7 +1687,7 @@ function isGlobalPromiseTypeReference(node, scope) {
 		return false;
 	}
 
-	const typeName = getTypeReferenceName(node.typeName);
+	const typeName = getTypeName(node.typeName);
 	return promiseValueTypeNames.has(typeName)
 		&& getTypeArguments(node)?.length === 1
 		&& isGlobalTypeReferenceName(typeName, scope);

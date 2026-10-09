@@ -828,3 +828,4 @@ export default defineConfig([
 - [eslint-node-test](https://github.com/sindresorhus/eslint-node-test) — ESLint rules for the Node.js built-in test runner.
 - [eslint-package-json](https://github.com/sindresorhus/eslint-package-json) — Powerful ESLint rules for `package.json`.
 - [eslint-cssicorn](https://github.com/sindresorhus/eslint-cssicorn) — Powerful ESLint rules for CSS.
+- [eslint-soml](https://github.com/soml-lang/eslint-soml) — ESLint rules for SOML config files.

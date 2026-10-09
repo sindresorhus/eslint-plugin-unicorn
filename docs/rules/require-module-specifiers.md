@@ -13,6 +13,8 @@ Enforce non-empty specifier list in `import` and `export` statements. Use a [sid
 
 A single bare `export {}` is allowed when the file has no runtime import/export declarations. TypeScript uses it to distinguish modules from scripts. This exception ignores explicit type-only imports and exports.
 
+In a declaration file (`.d.ts`), a bare `export {}` is always allowed, because it stops TypeScript from exporting the declarations without `export`.
+
 ## Examples
 
 ```js

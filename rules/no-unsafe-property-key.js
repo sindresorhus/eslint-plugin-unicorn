@@ -1,6 +1,7 @@
 import {findVariable, getPropertyName, getStaticValue} from '@eslint-community/eslint-utils';
 import {
 	createTypeCheckers,
+	getTypeName,
 	nonTarget,
 	target,
 	unknown,
@@ -263,16 +264,6 @@ function isTypeScriptEnumMemberAccess(node, context) {
 	return node.type === 'MemberExpression'
 		&& node.object.type === 'Identifier'
 		&& findVariable(context.sourceCode.getScope(node.object), node.object)?.defs.some(definition => definition.type === 'TSEnumName');
-}
-
-function getTypeName(typeName) {
-	if (typeName.type === 'Identifier') {
-		return typeName.name;
-	}
-
-	if (typeName.type === 'TSQualifiedName') {
-		return `${getTypeName(typeName.left)}.${typeName.right.name}`;
-	}
 }
 
 function isUnsafeInterfaceTypeAnnotation(node, scope, sourceCode, visitedTypeVariables) {

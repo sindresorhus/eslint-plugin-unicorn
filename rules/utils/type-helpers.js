@@ -115,12 +115,18 @@ const getTypeReferenceDefinition = (typeReferenceName, scope) => {
 	}
 };
 
+/**
+Get the dotted name of a type name node, for example `Foo.Bar`. Its `typeName` is an `Identifier` or a `TSQualifiedName`; `this.Foo` is a parse error.
+
+@param {import('estree').Node} typeName
+@returns {string | undefined}
+*/
 const getTypeName = typeName => {
-	if (typeName.type === 'Identifier') {
+	if (typeName?.type === 'Identifier') {
 		return typeName.name;
 	}
 
-	if (typeName.type === 'TSQualifiedName') {
+	if (typeName?.type === 'TSQualifiedName') {
 		const left = getTypeName(typeName.left);
 		return left ? `${left}.${typeName.right.name}` : undefined;
 	}
@@ -775,6 +781,7 @@ const createBuiltinTypeCheckers = ({
 export {
 	createBuiltinTypeCheckers,
 	createTypeCheckers,
+	getTypeName,
 	getTypeReferenceDefinition,
 	nonTarget,
 	nullish,
