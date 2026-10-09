@@ -134,6 +134,65 @@ Message:
 
 `;
 
+exports[`string-content > invalid(12): value:\n\t\"\"\"\"\n\t\\nbad\"\"\"\\n\n\t\"\"\"\" 1`] = `
+
+Options:
+- patterns:
+    bad: 'good'
+
+Code:
+  1 | value:
+  2 | 	""""
+  3 | 	\\nbad"""\\n
+  4 | 	""""
+
+`;
+
+exports[`string-content > invalid(12): value:\n\t\"\"\"\"\n\t\\nbad\"\"\"\\n\n\t\"\"\"\" 2`] = `
+
+Message:
+  1 | value:
+> 2 | 	""""
+    | 	^^^^
+> 3 | 	\\nbad"""\\n
+    | ^^^^^^^^^^^
+> 4 | 	""""
+    | ^^^^^ Prefer \`good\` over \`bad\`.
+
+Output:
+  1 | value:
+  2 | 	"\\ngood\\"\\"\\"\\n"
+
+`;
+
+exports[`string-content > invalid(13): value: 'bad' 1`] = `
+
+Options:
+- patterns:
+    bad:
+      suggest: '
+
+        "\\'
+      fix: false
+
+Code:
+  1 | value: 'bad'
+
+`;
+
+exports[`string-content > invalid(13): value: 'bad' 2`] = `
+
+Message:
+> 1 | value: 'bad'
+    |        ^^^^^ Prefer \`
+"\\\` over \`bad\`.
+
+Suggestion 1/1: Replace \`bad\` with \`
+"\\\`.:
+  1 | value: "\\n\\"\\\\"
+
+`;
+
 exports[`string-content > invalid(2): a[data-name=\"no\"] { background: url(no.png); } 1`] = `
 
 Options:

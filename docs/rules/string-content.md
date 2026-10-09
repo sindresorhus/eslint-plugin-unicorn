@@ -133,7 +133,7 @@ Default: `[]`
 
 Only check string nodes matching one of these [ESLint selectors](https://eslint.org/docs/latest/extend/selectors). When empty, all supported string nodes are checked.
 
-The selector must match the string node itself: `Literal` for JavaScript string literals, `TemplateElement` for template literal content, `TOMLValue[kind="string"]` for TOML string values, `YAMLScalar` for YAML scalars, `String` for JSON or CSS strings, or `Url` for CSS URLs.
+The selector must match the string node itself: `Literal` for JavaScript string literals, `TemplateElement` for template literal content, `TOMLValue[kind="string"]` for TOML string values, `YAMLScalar` for YAML scalars, `String` for JSON, SOML, or CSS strings, or `Url` for CSS URLs.
 
 ```js
 'unicorn/string-content': [

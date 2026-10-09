@@ -6,7 +6,7 @@
 
 <!-- end auto-generated rule header -->
 
-Enforce a consistent case style for decoded keys in JSON, JSONC, JSON5, YAML, and TOML. This includes unquoted JSON5 keys, YAML string keys (except plain `<<` merge keys), and TOML key segments, including table names. Non-string YAML keys, tagged, anchored, and alias keys, and string values are skipped.
+Enforce a consistent case style for decoded keys in JSON, JSONC, JSON5, SOML, TOML, and YAML. This includes unquoted JSON5 keys, YAML string keys (except plain `<<` merge keys), and TOML key segments, including table names. Non-string YAML keys, tagged, anchored, and alias keys, and string values are skipped.
 
 Renaming keys can break consumers in other files, so the rule has no fixes or suggestions.
 

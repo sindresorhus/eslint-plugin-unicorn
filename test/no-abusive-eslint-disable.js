@@ -5,7 +5,7 @@ import markdown from '@eslint/markdown';
 import toml from 'eslint-plugin-toml';
 import outdent from 'outdent';
 import unicorn from '../index.js';
-import {getTester} from './utils/test.js';
+import {getTester, languages} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
 
@@ -118,6 +118,23 @@ ruleTest.snapshot({
 			eval();
 		`,
 	],
+});
+
+ruleTest.snapshot({
+	valid: [
+		'# eslint-disable rule-to-test/no-abusive-eslint-disable\nvalue: 1',
+		'/* eslint-disable rule-to-test/no-abusive-eslint-disable */\nvalue: 1',
+		'# eslint-disable-next-line rule-to-test/no-abusive-eslint-disable\nvalue: 1',
+		'value: 1 /* eslint-disable-line rule-to-test/no-abusive-eslint-disable */',
+		'value: "# eslint-disable"',
+		'value: "/* eslint-disable */"',
+	].map(code => ({code, language: languages.soml})),
+	invalid: [
+		'# eslint-disable\nvalue: 1',
+		'/* eslint-disable */\nvalue: 1',
+		'# eslint-disable-next-line -- reason\nvalue: 1',
+		'value: 1 /* eslint-disable-line */',
+	].map(code => ({code, language: languages.soml})),
 });
 
 test('reports abusive `eslint-disable` in non-JavaScript files', t => {

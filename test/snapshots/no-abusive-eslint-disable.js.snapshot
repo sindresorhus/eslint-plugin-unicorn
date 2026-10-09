@@ -1,3 +1,19 @@
+exports[`no-abusive-eslint-disable > invalid(1): # eslint-disable\nvalue: 1 1`] = `
+
+  1 | # eslint-disable
+  2 | value: 1
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(1): # eslint-disable\nvalue: 1 2`] = `
+
+Message:
+> 1 | # eslint-disable
+    | ^^^^^^^^^^^^^^^^ Specify the rules you want to disable.
+  2 | value: 1
+
+`;
+
 exports[`no-abusive-eslint-disable > invalid(1): eval(); // eslint-disable-line 1`] = `
 
   1 | eval(); // eslint-disable-line
@@ -9,6 +25,22 @@ exports[`no-abusive-eslint-disable > invalid(1): eval(); // eslint-disable-line 
 Message:
 > 1 | eval(); // eslint-disable-line
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Specify the rules you want to disable.
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(2): /* eslint-disable */\nvalue: 1 1`] = `
+
+  1 | /* eslint-disable */
+  2 | value: 1
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(2): /* eslint-disable */\nvalue: 1 2`] = `
+
+Message:
+> 1 | /* eslint-disable */
+    | ^^^^^^^^^^^^^^^^^^^^ Specify the rules you want to disable.
+  2 | value: 1
 
 `;
 
@@ -25,6 +57,22 @@ Message:
   1 | foo();
 > 2 | eval(); // eslint-disable-line
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Specify the rules you want to disable.
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(3): # eslint-disable-next-line -- reason\nvalue: 1 1`] = `
+
+  1 | # eslint-disable-next-line -- reason
+  2 | value: 1
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(3): # eslint-disable-next-line -- reason\nvalue: 1 2`] = `
+
+Message:
+> 1 | # eslint-disable-next-line -- reason
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Specify the rules you want to disable.
+  2 | value: 1
 
 `;
 
@@ -57,6 +105,20 @@ Message:
 > 2 | /* eslint-disable */
     | ^^^^^^^^^^^^^^^^^^^^ Specify the rules you want to disable.
   3 | eval();
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(4): value: 1 /* eslint-disable-line */ 1`] = `
+
+  1 | value: 1 /* eslint-disable-line */
+
+`;
+
+exports[`no-abusive-eslint-disable > invalid(4): value: 1 /* eslint-disable-line */ 2`] = `
+
+Message:
+> 1 | value: 1 /* eslint-disable-line */
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Specify the rules you want to disable.
 
 `;
 

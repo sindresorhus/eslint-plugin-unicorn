@@ -9,6 +9,27 @@ const asCss = code => ({code, language: languages.css});
 const jsonCrLfInput = '{\r\n\t/*\r\n\t * Description.\r\n\t */\r\n\t"value": true\r\n}';
 const jsonCrLfOutput = '{\r\n\t/*\r\n\tDescription.\r\n\t*/\r\n\t"value": true\r\n}';
 
+test({
+	testerOptions: {language: languages.soml.language, plugins: languages.soml.plugins},
+	valid: [
+		'/*\nnote\n*/\n{}',
+		'/*\n* This asterisk is content.\n*/\n{}',
+		'value: /*\n * Inline comment.\n */ 1',
+	],
+	invalid: [
+		{
+			code: '/*\n * Description.\n */\n{}',
+			output: '/*\nDescription.\n*/\n{}',
+			errors: [error],
+		},
+		{
+			code: 'value: {\n\t/*\n\t Description.\n\t   Indented example.\n\t */\n\tnested: 1\n}',
+			output: 'value: {\n\t/*\n\tDescription.\n\t  Indented example.\n\t*/\n\tnested: 1\n}',
+			errors: [error],
+		},
+	],
+});
+
 test.snapshot({
 	valid: [
 		outdent`

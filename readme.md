@@ -5,7 +5,7 @@
 
 > More than 300 powerful ESLint rules
 
-Most rules target JavaScript and TypeScript, but [some also lint CSS, HTML, JSON, Markdown, TOML, and YAML](#non-javascript-files) when used with the matching ESLint language plugin.
+Most rules target JavaScript and TypeScript, but [some also lint CSS, HTML, JSON, Markdown, SOML, TOML, and YAML](#non-javascript-files) when used with the matching ESLint language plugin.
 
 [**Propose a new rule ➡**](.github/contributing.md)
 

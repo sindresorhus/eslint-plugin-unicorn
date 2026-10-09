@@ -779,5 +779,7 @@ ruleTest.snapshot({
 		{code: 'value: \'bad\'', options: [{patterns: {bad: {suggest: '\ud800', message: 'Replacement is not representable in SOML.'}}}]},
 		{code: 'value: \'bad\'', options: [{patterns: {bad: {suggest: 'good', fix: false}}}]},
 		{code: 'value: \'bad\'', options: [{patterns: {bad: {suggest: '\ud800', message: 'Replacement is not representable in SOML.', fix: false}}}]},
+		{code: 'value:\n\t""""\n\t\\nbad"""\\n\n\t""""', options: [{patterns: {bad: 'good'}}]},
+		{code: 'value: \'bad\'', options: [{patterns: {bad: {suggest: '\n"\\', fix: false}}}]},
 	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
 });

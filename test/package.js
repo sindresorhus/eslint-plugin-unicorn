@@ -587,18 +587,23 @@ test('rule.meta.docs.recommended should be synchronized with presets', t => {
 
 for (const extension of ['soml', 'txt']) {
 	test(`recommended-soml uses SOML-safe fixes in .${extension} files`, t => {
-		const code = 'values: [1.00, 9007199254740993, "\\u{41}\\u{a}\\u{9}", \'\\u{41}\', { }]\n# Keep comment';
+		const code = 'values: [1.00, 9007199254740993, 0xAF, "\\u{41}\\u{a}\\u{9}\\u{e9}", \'\\u{41}\', { }]\n# Keep comment';
 		const filename = `file.${extension}`;
 		const config = {
 			...eslintPluginUnicorn.configs['recommended-soml'],
 			files: [filename],
 			language: languages.soml.language,
 			plugins: {...languages.soml.plugins, unicorn: eslintPluginUnicorn},
+			rules: {
+				...eslintPluginUnicorn.configs['recommended-soml'].rules,
+				'unicorn/escape-case': ['error', 'uppercase'],
+				'unicorn/number-literal-case': ['error', {hexadecimalValue: 'lowercase'}],
+			},
 		};
 		const linter = new Linter();
 		const result = linter.verifyAndFix(code, config, {filename});
 		t.assert.deepStrictEqual(result.messages, []);
-		t.assert.strictEqual(result.output, 'values: [1.0, 9_007_199_254_740_993, "A\\n\\t", \'\\u{41}\', {}]\n# Keep comment');
+		t.assert.strictEqual(result.output, 'values: [1.0, 9_007_199_254_740_993, 0xAF, "A\\n\\t\\u{e9}", \'\\u{41}\', {}]\n# Keep comment');
 		t.assert.strictEqual(result.fixed, true);
 		t.assert.strictEqual(linter.verifyAndFix(result.output, config, {filename}).fixed, false);
 	});
