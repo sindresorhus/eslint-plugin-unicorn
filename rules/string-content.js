@@ -88,6 +88,7 @@ const create = context => {
 	const checked = new WeakSet();
 
 	const getProblem = node => {
+		// TODO: Remove the deferred `value` read for SOML temporal values once we target Node.js 26.
 		const {type} = node;
 
 		if (checked.has(node) || !targetNodeTypes.includes(type)) {
