@@ -2872,6 +2872,6 @@ test.snapshot({
 		{code: 'settings.cb: 1', options: [{checkProperties: true}]},
 		{code: '\'err\': {opts: 1}', options: [{checkProperties: true}]},
 		{code: 'value: 1', filename: 'err.soml'},
-		{code: 'settings."\\u{65}rr": 1', options: [{checkProperties: true}]},
+		{code: String.raw`settings."\u{65}rr": 1`, options: [{checkProperties: true}]},
 	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
 });
