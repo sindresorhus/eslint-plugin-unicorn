@@ -79,8 +79,8 @@ const config = {
 			'json/json5',
 			'css/css',
 			'toml/toml',
-			'yml/yaml',
 			'soml/soml',
+			'yml/yaml',
 		],
 	},
 };

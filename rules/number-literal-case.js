@@ -104,13 +104,13 @@ const config = {
 		messages,
 		languages: [
 			'js/js',
+			'soml/soml',
 			'yml/yaml',
 			'toml/toml',
 			'json/json',
 			'json/jsonc',
 			'json/json5',
 			'css/css',
-			'soml/soml',
 		],
 	},
 };

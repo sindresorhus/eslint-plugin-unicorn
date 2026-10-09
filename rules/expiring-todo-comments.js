@@ -615,8 +615,8 @@ const config = {
 			'markdown/commonmark',
 			'markdown/gfm',
 			'toml/toml',
-			'yml/yaml',
 			'soml/soml',
+			'yml/yaml',
 		],
 	},
 };

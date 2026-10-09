@@ -461,9 +461,9 @@ const config = {
 			'json/json5',
 			'css/css',
 			'html/html',
+			'soml/soml',
 			'yml/yaml',
 			'toml/toml',
-			'soml/soml',
 		],
 	},
 };

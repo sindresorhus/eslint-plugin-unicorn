@@ -272,8 +272,8 @@ const config = {
 			'json/jsonc',
 			'json/json5',
 			'toml/toml',
-			'yml/yaml',
 			'soml/soml',
+			'yml/yaml',
 		],
 	},
 };

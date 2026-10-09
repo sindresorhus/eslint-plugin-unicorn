@@ -276,13 +276,13 @@ const config = {
 		messages,
 		languages: [
 			'js/js',
+			'soml/soml',
 			'yml/yaml',
 			'json/json',
 			'json/jsonc',
 			'json/json5',
 			'css/css',
 			'toml/toml',
-			'soml/soml',
 		],
 	},
 };
