@@ -13,6 +13,8 @@ Using `await` on promises passed as arguments to `Promise.all()`, `Promise.allSe
 
 This also applies to `await` nested inside an element, since it delays the evaluation of the elements after it.
 
+When an operation depends on an awaited value, wrap it in an async immediately invoked function expression (IIFE) to allow array construction to continue without waiting for that value.
+
 ## Examples
 
 ```js
@@ -61,4 +63,18 @@ Promise.all([condition ? await promise : fallbackPromise, anotherPromise]);
 
 // ✅
 Promise.all([condition ? promise : fallbackPromise, anotherPromise]);
+```
+
+```js
+// ❌
+Promise.all([
+	(await fetch(url)).json(),
+	...otherPromises,
+]);
+
+// ✅
+Promise.all([
+	(async () => (await fetch(url)).json())(),
+	...otherPromises,
+]);
 ```

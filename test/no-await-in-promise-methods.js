@@ -3,6 +3,40 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+for (const method of ['all', 'allSettled', 'any', 'race']) {
+	test({
+		valid: [
+			`Promise.${method}([(async () => (await fetch(url)).json())(), ...otherPromises])`,
+		],
+		invalid: [
+			{
+				code: `Promise.${method}([(await fetch(url)).json(), ...otherPromises])`,
+				errors: [
+					{
+						message: `Avoid \`await\` inside \`Promise.${method}()\` arguments to prevent delaying the call.`,
+						suggestions: [],
+					},
+				],
+			},
+			{
+				code: `Promise.${method}([(async () => (await fetch(url)).json())(), await anotherPromise])`,
+				errors: [
+					{
+						messageId: 'no-await-in-promise-methods/error',
+						data: {method},
+						suggestions: [
+							{
+								messageId: 'no-await-in-promise-methods/suggestion',
+								output: `Promise.${method}([(async () => (await fetch(url)).json())(), anotherPromise])`,
+							},
+						],
+					},
+				],
+			},
+		],
+	});
+}
+
 test.snapshot({
 	valid: [
 		'Promise.all([promise1, promise2, promise3, promise4])',

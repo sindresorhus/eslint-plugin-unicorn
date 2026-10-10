@@ -4,7 +4,7 @@ import {removeSpacesAfter} from './fix/index.js';
 const MESSAGE_ID_ERROR = 'no-await-in-promise-methods/error';
 const MESSAGE_ID_SUGGESTION = 'no-await-in-promise-methods/suggestion';
 const messages = {
-	[MESSAGE_ID_ERROR]: 'Promise in `Promise.{{method}}()` should not be awaited.',
+	[MESSAGE_ID_ERROR]: 'Avoid `await` inside `Promise.{{method}}()` arguments to prevent delaying the call.',
 	[MESSAGE_ID_SUGGESTION]: 'Remove `await`.',
 };
 const METHODS = ['all', 'allSettled', 'any', 'race'];
