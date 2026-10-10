@@ -18,6 +18,21 @@ for (const method of ['all', 'allSettled', 'any', 'race']) {
 					},
 				],
 			},
+			{
+				code: `Promise.${method}([(async () => (await fetch(url)).json())(), await anotherPromise])`,
+				errors: [
+					{
+						messageId: 'no-await-in-promise-methods/error',
+						data: {method},
+						suggestions: [
+							{
+								messageId: 'no-await-in-promise-methods/suggestion',
+								output: `Promise.${method}([(async () => (await fetch(url)).json())(), anotherPromise])`,
+							},
+						],
+					},
+				],
+			},
 		],
 	});
 }
