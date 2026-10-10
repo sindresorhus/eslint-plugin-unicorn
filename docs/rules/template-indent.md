@@ -13,6 +13,8 @@
 
 This rule will automatically fix the indentation of multiline string templates, to keep them in alignment with the code they are found in. A configurable whitelist is used to ensure no whitespace-sensitive strings are edited.
 
+Multiline templates with text or interpolations on the opening line are ignored to avoid changing their value. Start the content on the next line to enable indentation checks.
+
 ## Examples
 
 ```js

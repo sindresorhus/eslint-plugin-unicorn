@@ -78,7 +78,7 @@ const create = context => {
 			.join(delimiter);
 
 		const eolMatch = joined.match(/\r?\n/);
-		if (!eolMatch) {
+		if (!eolMatch || joined.slice(0, eolMatch.index).trim() !== '') {
 			return;
 		}
 

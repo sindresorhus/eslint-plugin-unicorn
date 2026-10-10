@@ -28,6 +28,20 @@ ruleTest({
 	*/
 	invalid: [
 		{
+			name: 'Whitespace-only opening lines remain fixable',
+			code: 'dedent`    \n    first line\n      second line\n`',
+			options: [{indent: 2}],
+			errors,
+			output: 'dedent`\n  first line\n    second line\n`',
+		},
+		{
+			name: 'Tab-only opening lines remain fixable with CRLF',
+			code: 'dedent`\t\t\r\n\t\tfirst line\r\n\t\t\tsecond line\r\n`',
+			options: [{indent: '\t'}],
+			errors,
+			output: 'dedent`\r\n\tfirst line\r\n\t\tsecond line\r\n`',
+		},
+		{
 			code: fixInput(`
 				foo = dedent\`
 				••••••••one
@@ -704,6 +718,43 @@ ruleTest({
 	*/
 	valid: [
 		'foo = dedent`one two three`',
+		fixInput(`
+			function foo() {
+			→→const query = sql\`SELECT *
+			→→→→FROM students
+			→→\`;
+			}
+		`),
+		fixInput(`
+			function foo() {
+			→→const text = dedent\`first line
+			→→→→second line
+			→→\`;
+			}
+		`),
+		'outdent`first line\n  second line\n`',
+		'dedent`  first line\n    second line\n`',
+		'dedent`\tfirst line\r\n\t\tsecond line\r\n`',
+		outdent`
+			dedent\`\${value}
+			  second line
+			\`
+		`,
+		outdent`
+			dedent\` \${
+			value
+			}
+			  second line
+			\`
+		`,
+		'dedent(`first line\n  second line\n`)',
+		'stripIndent(`first line\n  second line\n`)',
+		'/* HTML */ `<div>\n  </div>\n`',
+		{
+			code: '`first line\n  second line\n`',
+			options: [{selectors: ['TemplateLiteral']}],
+		},
+		'expect(foo).toMatchInlineSnapshot(`first line\n  second line\n`)',
 		fixInput(`
 			foo = outdent\`
 			→→foo
