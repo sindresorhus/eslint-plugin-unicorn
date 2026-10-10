@@ -11,7 +11,7 @@ import htmlEslintPlugin from '@html-eslint/eslint-plugin';
 import toml from 'eslint-plugin-toml';
 import yml from 'eslint-plugin-yml';
 import unicorn from '../index.js';
-import {getTester} from './utils/test.js';
+import {getTester, languages} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
 
@@ -1079,4 +1079,16 @@ test('supports ESLint disable directives in TOML', t => {
 	});
 
 	t.assert.deepStrictEqual(messages, []);
+});
+
+ruleTest.snapshot({
+	valid: [
+		'# TODO [2999-01-01]: later\n{}',
+		'/* TODO [2999-01-01]: later */\n{}',
+		'value: \'TODO [2000-01-01]: text\'',
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+	invalid: [
+		{code: '# TODO [2000-01-01]: expired\n{}', options: [{checkDates: true, checkDatesOnPullRequests: true}]},
+		{code: '/* TODO [2000-01-01]: expired */\n{}', options: [{checkDates: true, checkDatesOnPullRequests: true}]},
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
 });

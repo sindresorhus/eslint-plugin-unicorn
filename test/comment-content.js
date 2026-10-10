@@ -5,6 +5,7 @@ import json from '@eslint/json';
 import markdown from '@eslint/markdown';
 import html from '@html-eslint/eslint-plugin';
 import toml from 'eslint-plugin-toml';
+import soml from 'eslint-soml';
 import unicorn from '../index.js';
 import {getTester} from './utils/test.js';
 
@@ -17,6 +18,7 @@ const LANGUAGE_PLUGINS = {
 	html,
 	json,
 	markdown,
+	soml,
 	toml,
 };
 const JAVASCRIPT_CONFIG = {
@@ -564,6 +566,32 @@ for (const {name, code, output, language, filename, message} of languageCases) {
 		);
 	});
 }
+
+test('preserves SOML rule configuration directives', t => {
+	const config = createLanguageConfig('soml/soml');
+	const linter = new Linter();
+
+	for (const code of [
+		'# eslint "unicorn/no-abusive-eslint-disable": "off"\nvalue: 1',
+		'# eslint "unicorn/comment-content": "error" -- application\nvalue: 1',
+	]) {
+		const result = linter.verifyAndFix(code, config, {filename: 'fixture.soml'});
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+	}
+});
+
+test('checks SOML prose comments that start with eslint', t => {
+	const config = createLanguageConfig('soml/soml');
+	const linter = new Linter();
+	const code = '# eslint version to install -- application: example\nvalue: 1';
+	const result = linter.verifyAndFix(code, config, {filename: 'fixture.soml'});
+
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, '# ESLint version to install -- app: example\nvalue: 1');
+});
 
 test('ignores comment-like JSONC string content', t => {
 	const config = createLanguageConfig('json/jsonc');

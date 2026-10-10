@@ -1,3 +1,17 @@
+exports[`key-name-casing > invalid(1): snake_case: 1 1`] = `
+
+  1 | snake_case: 1
+
+`;
+
+exports[`key-name-casing > invalid(1): snake_case: 1 2`] = `
+
+Message:
+> 1 | snake_case: 1
+    | ^^^^^^^^^^ Key \`snake_case\` must be in \`camelCase\`.
+
+`;
+
 exports[`key-name-casing > invalid(1): {\"user-name\": \"user_name\", \"nested\": {\"OtherKey\": 1}} 1`] = `
 
   1 | {"user-name": "user_name", "nested": {"OtherKey": 1}}
@@ -110,6 +124,20 @@ Message:
 
 `;
 
+exports[`key-name-casing > invalid(2): parent: {bad_key: 1} 1`] = `
+
+  1 | parent: {bad_key: 1}
+
+`;
+
+exports[`key-name-casing > invalid(2): parent: {bad_key: 1} 2`] = `
+
+Message:
+> 1 | parent: {bad_key: 1}
+    |          ^^^^^^^ Key \`bad_key\` must be in \`camelCase\`.
+
+`;
+
 exports[`key-name-casing > invalid(2): {\"userName\":1} 1`] = `
 
 Options:
@@ -170,6 +198,28 @@ exports[`key-name-casing > invalid(2): {user\\u005fname: 1} 2`] = `
 Message:
 > 1 | {user\\u005fname: 1}
     |  ^^^^^^^^^^^^^^ Key \`user_name\` must be in \`camelCase\`.
+
+`;
+
+exports[`key-name-casing > invalid(3): 'bad-key': {other_key: 2} 1`] = `
+
+  1 | 'bad-key': {other_key: 2}
+
+`;
+
+exports[`key-name-casing > invalid(3): 'bad-key': {other_key: 2} 2`] = `
+
+Message:
+> 1 | 'bad-key': {other_key: 2}
+    | ^^^^^^^^^ Key \`bad-key\` must be in \`camelCase\`.
+
+`;
+
+exports[`key-name-casing > invalid(3): 'bad-key': {other_key: 2} 3`] = `
+
+Message:
+> 1 | 'bad-key': {other_key: 2}
+    |             ^^^^^^^^^ Key \`other_key\` must be in \`camelCase\`.
 
 `;
 
@@ -258,6 +308,20 @@ Message:
 
 `;
 
+exports[`key-name-casing > invalid(4): \"\\u{62}ad_key\": 1 1`] = `
+
+  1 | "\\u{62}ad_key": 1
+
+`;
+
+exports[`key-name-casing > invalid(4): \"\\u{62}ad_key\": 1 2`] = `
+
+Message:
+> 1 | "\\u{62}ad_key": 1
+    | ^^^^^^^^^^^^^^ Key \`bad_key\` must be in \`camelCase\`.
+
+`;
+
 exports[`key-name-casing > invalid(4): {\"User-Name\":1} 1`] = `
 
 Options:
@@ -339,6 +403,20 @@ Message:
 
 `;
 
+exports[`key-name-casing > invalid(5): value: [{bad_key: 1}] 1`] = `
+
+  1 | value: [{bad_key: 1}]
+
+`;
+
+exports[`key-name-casing > invalid(5): value: [{bad_key: 1}] 2`] = `
+
+Message:
+> 1 | value: [{bad_key: 1}]
+    |          ^^^^^^^ Key \`bad_key\` must be in \`camelCase\`.
+
+`;
+
 exports[`key-name-casing > invalid(5): {\"user-name\": \"user_name\", \"nested\": {\"OtherKey\": 1}} 1`] = `
 
   1 | {"user-name": "user_name", "nested": {"OtherKey": 1}}
@@ -377,6 +455,20 @@ exports[`key-name-casing > invalid(5): {\"user-name\":1} 2`] = `
 Message:
 > 1 | {"user-name":1}
     |  ^^^^^^^^^^^ Key \`user-name\` must be in \`snake_case\`.
+
+`;
+
+exports[`key-name-casing > invalid(6): '': 1 1`] = `
+
+  1 | '': 1
+
+`;
+
+exports[`key-name-casing > invalid(6): '': 1 2`] = `
+
+Message:
+> 1 | '': 1
+    | ^^ Key \`\` must be in \`camelCase\`.
 
 `;
 

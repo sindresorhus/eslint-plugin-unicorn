@@ -237,6 +237,8 @@ function getProblem(node, original, quote, fix) {
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
+	const isSoml = context.sourceCode.parserServices?.isSOML === true;
+
 	context.on('StyleSheet', node => {
 		const {sourceCode} = context;
 		const {text} = sourceCode;
@@ -295,8 +297,8 @@ const create = context => {
 		return problems;
 	});
 
-	context.on('String', node => {
-		if (context.sourceCode.ast.type === 'StyleSheet') {
+	context.on(['String', 'Key'], node => {
+		if (context.sourceCode.ast.type === 'StyleSheet' || (isSoml && (node.style !== 'escaped' || node.block))) {
 			return;
 		}
 
@@ -348,6 +350,7 @@ const config = {
 			'json/json',
 			'json/jsonc',
 			'json/json5',
+			'soml/soml',
 		],
 	},
 };

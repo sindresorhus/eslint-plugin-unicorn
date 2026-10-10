@@ -62,6 +62,7 @@ function getProblem(node, raw, {fix, shouldFix = true, escapeCharacter = getCode
 */
 const create = context => {
 	const {sourceCode} = context;
+	const isSoml = sourceCode.parserServices?.isSOML === true;
 
 	context.on('Literal', node => {
 		if (isStringLiteral(node)) {
@@ -81,7 +82,15 @@ const create = context => {
 		}
 	});
 
-	context.on('String', node => getProblem(node, sourceCode.getText(node), {escapeCharacter: getFourDigitEscape}));
+	context.on(['String', 'Key'], node => {
+		if (isSoml && node.style !== 'escaped') {
+			return;
+		}
+
+		return getProblem(node, sourceCode.getText(node), {
+			escapeCharacter: isSoml ? character => getCodePointEscape(character).toLowerCase() : getFourDigitEscape,
+		});
+	});
 
 	context.on(['TOMLValue', 'TOMLQuoted'], node => {
 		if (node.kind !== 'string' || node.style !== 'basic') {
@@ -122,6 +131,7 @@ const config = {
 			'json/jsonc',
 			'json/json5',
 			'toml/toml',
+			'soml/soml',
 		],
 	},
 };

@@ -11,6 +11,8 @@ Reports numeric literals that lose their written precision when converted to [IE
 
 Supports JSON, JSONC, JSON5, TOML floats, and parsed CSS numbers, dimensions, and percentages. TOML integers and raw CSS values, including custom properties, are ignored. For JavaScript and TypeScript, use ESLint's core [`no-loss-of-precision`](https://eslint.org/docs/latest/rules/no-loss-of-precision) rule.
 
+SOML support checks floats only; its integers are represented exactly as 64-bit integers.
+
 ## Examples
 
 ```jsonc

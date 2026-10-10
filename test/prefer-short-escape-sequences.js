@@ -299,3 +299,18 @@ ruleTest({
 		},
 	].map(item => ({errors: [{messageId: MESSAGE_ID}], ...item})),
 });
+
+ruleTest.snapshot({
+	valid: [
+		String.raw`value: "\n\t\u{8}\u{c}\u{0}"`,
+		String.raw`value: '\u{a}\u{9}'`,
+		String.raw`value: "\\u{a}\\u{9}"`,
+		'value: 1',
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+	invalid: [
+		String.raw`value: "\u{a}\u{9}" # keep`,
+		String.raw`"\u{a}": "\u{9}"`,
+		'value:\n\t"""\n\t\\u{a}\\u{9}\n\t"""',
+		String.raw`value: "\\\u{a}"`,
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+});

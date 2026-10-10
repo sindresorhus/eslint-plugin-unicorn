@@ -17,6 +17,10 @@ const commonReplacements = new Map([
 	['000C', String.raw`\f`],
 	['000D', String.raw`\r`],
 ]);
+const somlReplacements = new Map([
+	['0009', String.raw`\t`],
+	['000A', String.raw`\n`],
+]);
 const tomlReplacements = new Map([
 	['0022', String.raw`\"`],
 	['0027', '\''],
@@ -30,7 +34,13 @@ const javascriptReplacements = new Map([
 // Consume backslash runs even without a Unicode suffix to avoid quadratic backtracking.
 const unicodeEscapePattern = /(?<backslashes>\\+)(?:u(?<codePoint>[\dA-Fa-f]{4}))?/gv;
 
+const somlUnicodeEscapePattern = /(?<backslashes>\\+)(?:u\{(?<codePoint>[\dA-Fa-f]+)\})?/gv;
+
 function getReplacement(codePoint, {dialect, nextCharacter}) {
+	if (dialect === 'soml') {
+		return somlReplacements.get(codePoint);
+	}
+
 	if (dialect === 'toml') {
 		return tomlReplacements.get(codePoint) ?? commonReplacements.get(codePoint);
 	}
@@ -50,12 +60,13 @@ function getReplacement(codePoint, {dialect, nextCharacter}) {
 }
 
 function replaceUnicodeEscapeSequences(content, {dialect}) {
-	const fixed = content.replaceAll(unicodeEscapePattern, (match, backslashes, codePoint, offset) => {
+	const pattern = dialect === 'soml' ? somlUnicodeEscapePattern : unicodeEscapePattern;
+	const fixed = content.replaceAll(pattern, (match, backslashes, codePoint, offset) => {
 		if (codePoint === undefined || backslashes.length % 2 === 0) {
 			return match;
 		}
 
-		const replacement = getReplacement(codePoint.toUpperCase(), {
+		const replacement = getReplacement(codePoint.toUpperCase().padStart(4, '0'), {
 			dialect,
 			nextCharacter: content[offset + match.length],
 		});
@@ -87,9 +98,18 @@ function getProblem(node, content, options, fix) {
 */
 const create = context => {
 	const {sourceCode} = context;
+	const isSoml = sourceCode.parserServices?.isSOML === true;
 
-	context.on('String', node => {
+	context.on(['String', 'Key'], node => {
+		if (isSoml && node.style !== 'escaped') {
+			return;
+		}
+
 		const raw = sourceCode.getText(node);
+		if (isSoml) {
+			return getProblem(node, raw, {dialect: 'soml'}, (fixer, fixed) => fixer.replaceText(node, fixed));
+		}
+
 		return getProblem(node, raw.slice(1, -1), {dialect: 'json'}, (fixer, fixed) => replaceStringRaw(node, fixed, context, fixer));
 	});
 
@@ -147,6 +167,7 @@ const config = {
 			'json/jsonc',
 			'json/json5',
 			'toml/toml',
+			'soml/soml',
 		],
 	},
 };

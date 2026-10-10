@@ -15,6 +15,18 @@ const messages = {
 
 const yamlCharactersToEscape = /[\u{7f}-\u{9f}\u{2028}\u{2029}\u{fffe}\u{ffff}]/gu;
 
+// SOML only allows braced Unicode escapes and cannot represent carriage returns or lone surrogates.
+const getSomlString = value => {
+	if (!value.isWellFormed() || value.includes('\r')) {
+		return;
+	}
+
+	const escapes = new Map([['\\', '\\\\'], ['"', String.raw`\"`], ['\n', String.raw`\n`], ['\t', String.raw`\t`]]);
+	// eslint-disable-next-line no-control-regex
+	const content = value.replaceAll(/[\u{0}-\u{1F}"\\\u{7F}]/gu, character => escapes.get(character) ?? String.raw`\u{${character.codePointAt(0).toString(16)}}`);
+	return `"${content}"`;
+};
+
 const targetNodeTypes = ['Literal', 'TemplateElement', 'TOMLValue', 'String', 'Url', 'YAMLScalar'];
 
 const ignoredTags = new Set([
@@ -67,6 +79,7 @@ function getReplacements(patterns) {
 const create = context => {
 	const {patterns, selectors} = context.options[0];
 	const isCss = context.sourceCode.ast.type === 'StyleSheet';
+	const isSoml = context.sourceCode.parserServices?.isSOML === true;
 	const replacements = getReplacements(patterns);
 
 	if (replacements.length === 0) {
@@ -76,13 +89,15 @@ const create = context => {
 	const checked = new WeakSet();
 
 	const getProblem = node => {
-		const {type, value, raw} = node;
+		// TODO: Remove the deferred `value` read for SOML temporal values once we target Node.js 26.
+		const {type} = node;
 
 		if (checked.has(node) || !targetNodeTypes.includes(type)) {
 			return;
 		}
 
 		checked.add(node);
+		const {value, raw} = node;
 
 		let string;
 		if (type !== 'TemplateElement') {
@@ -116,12 +131,20 @@ const create = context => {
 		}
 
 		const fixed = string.replace(regex, () => suggest);
+		const somlString = isSoml ? getSomlString(fixed) : undefined;
+		if (isSoml && somlString === undefined) {
+			return problem;
+		}
 
 		if (((type === 'TOMLValue' || type === 'YAMLScalar' || isCss) && !fixed.isWellFormed()) || (isCss && fixed.includes('\0'))) {
 			return problem;
 		}
 
 		const fix = fixer => {
+			if (isSoml) {
+				return fixer.replaceText(node, somlString);
+			}
+
 			if (type === 'YAMLScalar') {
 				const replacementText = JSON.stringify(fixed).replaceAll(yamlCharactersToEscape, character => String.raw`\u${character.codePointAt(0).toString(16).padStart(4, '0')}`);
 				return fixer.replaceText(node, replacementText);
@@ -254,6 +277,7 @@ const config = {
 		messages,
 		languages: [
 			'js/js',
+			'soml/soml',
 			'yml/yaml',
 			'json/json',
 			'json/jsonc',

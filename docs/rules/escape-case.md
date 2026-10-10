@@ -2,7 +2,7 @@
 
 📝 Require escape sequences to use uppercase or lowercase values.
 
-💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, 🎨 `recommended-css`, 🧩 `recommended-json`, 🛠️ `recommended-toml`, 📋 `recommended-yaml`, ☑️ `unopinionated`.
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, 🎨 `recommended-css`, 🧩 `recommended-json`, 💎 `recommended-soml`, 🛠️ `recommended-toml`, 📋 `recommended-yaml`, ☑️ `unopinionated`.
 
 🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
 
@@ -12,6 +12,8 @@
 Enforces a consistent escaped value style by defining escape sequence values with uppercase or lowercase characters. The default style is uppercase, which promotes readability by making the escaped value more distinguishable from the identifier.
 
 Tagged template literals are ignored because tag functions can observe the raw escape sequences.
+
+In SOML, the configured case is ignored because Unicode escapes must use lowercase hexadecimal digits. Literal strings and keys are skipped.
 
 In TOML, it checks basic strings and quoted keys, including multiline strings. It preserves `\u` and `\U` prefixes and also normalizes parser-tolerated `\x` escapes, which TOML 1.0 does not define. Literal strings and keys are skipped.
 

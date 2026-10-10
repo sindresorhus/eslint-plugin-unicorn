@@ -66,3 +66,16 @@ test.snapshot({
 		{code: '.a { width: 99999999999999999%; }', language: languages.css},
 	],
 });
+
+test.snapshot({
+	valid: [
+		'value: [9007199254740993, 9223372036854775807, 0x7FFFFFFFFFFFFFFF]',
+		'value: [0.1, 1.0, 1_000.5, infinity, -infinity]',
+		'value: [123456789s, 2026-09-19T14:00:00Z, \'9007199254740993.0\']',
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+	invalid: [
+		'value: 9007199254740993.0',
+		'value: -9_007_199_254_740_993.0',
+		'value: [1.00000000000000001, 9007199254740993e0]',
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+});

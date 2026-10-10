@@ -22,18 +22,20 @@ const fix = (raw, {hexadecimalValue}) => {
 */
 const create = context => {
 	const options = context.options[0];
+	const isSoml = context.sourceCode.parserServices?.isSOML === true;
 
-	context.on(['Literal', 'TOMLValue', 'Number', 'YAMLScalar'], node => {
+	context.on(['Literal', 'TOMLValue', 'Number', 'YAMLScalar', 'Integer', 'Float'], node => {
 		const raw = context.sourceCode.getText(node);
 
 		let fixed = raw;
 		if (
 			isNumericLiteral(node)
+			|| isSoml
 			|| (node.type === 'Number' && typeof node.value === 'number' && !/^[+\-]?[IN]/v.test(raw))
 			|| (node.type === 'YAMLScalar' && typeof node.value === 'number' && !node.parent.tag && !/^[+-]?\.(?:inf|nan)$/i.test(raw))
 			|| (node.type === 'TOMLValue' && (node.kind === 'integer' || node.kind === 'float'))
 		) {
-			fixed = fix(raw, options);
+			fixed = fix(raw, isSoml ? {hexadecimalValue: 'uppercase'} : options);
 		} else if (isBigIntLiteral(node)) {
 			fixed = fix(raw.slice(0, -1), options) + 'n';
 		}
@@ -102,6 +104,7 @@ const config = {
 		messages,
 		languages: [
 			'js/js',
+			'soml/soml',
 			'yml/yaml',
 			'toml/toml',
 			'json/json',

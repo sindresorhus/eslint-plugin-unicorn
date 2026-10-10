@@ -11,7 +11,7 @@
 
 This rule reports separated consecutive line comments, and consecutive lines inside a block comment, that look like one manually wrapped unfinished sentence. End intentionally separate comments with sentence punctuation, `:`, or an emoji-like symbol, or separate paragraphs inside a block comment with a blank line.
 
-This rule also supports CSS comments when linting with [`@eslint/css`](https://github.com/eslint/css), JSONC and JSON5 comments when linting with [`@eslint/json`](https://github.com/eslint/json), YAML `#` comments when linting with [`eslint-plugin-yml`](https://github.com/ota-meshi/eslint-plugin-yml), and TOML `#` comments when linting with [`eslint-plugin-toml`](https://github.com/ota-meshi/eslint-plugin-toml).
+This rule also supports CSS comments when linting with [`@eslint/css`](https://github.com/eslint/css), JSONC and JSON5 comments when linting with [`@eslint/json`](https://github.com/eslint/json), SOML `#` and block comments when linting with [`eslint-soml`](https://github.com/soml-lang/eslint-soml), TOML `#` comments when linting with [`eslint-plugin-toml`](https://github.com/ota-meshi/eslint-plugin-toml), and YAML `#` comments when linting with [`eslint-plugin-yml`](https://github.com/ota-meshi/eslint-plugin-yml).
 
 Comments that are not prose are ignored and never merged:
 

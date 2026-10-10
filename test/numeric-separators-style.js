@@ -615,3 +615,19 @@ test.snapshot({
 		language: languages.toml,
 	})),
 });
+
+test.snapshot({
+	valid: [
+		'value: [1_000_000, 0xAB_CD, 0b1010_1010, 0o1234_5670]',
+		'value: [infinity, -infinity]',
+		'value: [\'1234567\', 2026-09-19T14:00:00Z, 12345s]',
+		{code: 'value: 1234567', options: [{onlyIfContainsSeparator: true}]},
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+	invalid: [
+		'value: 1000000 # keep',
+		'value: [-123456, 9223372036854775807]',
+		'value: [0xABCDEF, 0b10101010, 0o12345670]',
+		'value: 1_2_345.123_456e-12',
+		{code: 'value: -1234567.12345678', options: [{number: {groupLength: 4, fractionGroupLength: 3}}]},
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+});

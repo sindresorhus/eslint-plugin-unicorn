@@ -20,6 +20,28 @@ Output:
 
 `;
 
+exports[`single-line-block-comment-style > invalid(1): /* note */\n{} 1`] = `
+
+  1 | /* note */
+  2 | {}
+
+`;
+
+exports[`single-line-block-comment-style > invalid(1): /* note */\n{} 2`] = `
+
+Message:
+> 1 | /* note */
+    | ^^^^^^^^^^ Use a multiline block comment.
+  2 | {}
+
+Output:
+  1 | /*
+  2 | note
+  3 | */
+  4 | {}
+
+`;
+
 exports[`single-line-block-comment-style > invalid(1): /** Get the value. */ 1`] = `
 
   1 | /** Get the value. */
@@ -228,6 +250,31 @@ Output:
 
 `;
 
+exports[`single-line-block-comment-style > invalid(2): /* note\n*/\n{} 1`] = `
+
+  1 | /* note
+  2 | */
+  3 | {}
+
+`;
+
+exports[`single-line-block-comment-style > invalid(2): /* note\n*/\n{} 2`] = `
+
+Message:
+> 1 | /* note
+    | ^^^^^^^
+> 2 | */
+    | ^^ Use a multiline block comment.
+  3 | {}
+
+Output:
+  1 | /*
+  2 | note
+  3 | */
+  4 | {}
+
+`;
+
 exports[`single-line-block-comment-style > invalid(3): /*\nComment.\n*/\n{} 1`] = `
 
 Options:
@@ -254,6 +301,36 @@ Message:
 
 Output:
   1 | /* Comment. */
+  2 | {}
+
+`;
+
+exports[`single-line-block-comment-style > invalid(3): /*\nnote\n*/\n{} 1`] = `
+
+Options:
+- 'single-line'
+
+Code:
+  1 | /*
+  2 | note
+  3 | */
+  4 | {}
+
+`;
+
+exports[`single-line-block-comment-style > invalid(3): /*\nnote\n*/\n{} 2`] = `
+
+Message:
+> 1 | /*
+    | ^^
+> 2 | note
+    | ^^^^
+> 3 | */
+    | ^^ Use a single-line block comment.
+  4 | {}
+
+Output:
+  1 | /* note */
   2 | {}
 
 `;

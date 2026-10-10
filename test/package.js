@@ -19,6 +19,7 @@ const nonJavaScriptConfigs = {
 	'recommended-html': [languages.html],
 	'recommended-json': [languages.json, languages.jsonc, languages.json5],
 	'recommended-markdown': [languages.markdown, {...languages.markdown, language: 'markdown/gfm'}],
+	'recommended-soml': [languages.soml],
 	'recommended-toml': [languages.toml],
 	'recommended-yaml': [languages.yaml],
 };
@@ -205,6 +206,7 @@ const nonJavaScriptCode = {
 	jsonc: '{"url": "http://example.com"}',
 	json5: '{url: "http://example.com"}',
 	markdown: '[Link](http://example.com)',
+	soml: 'url: "http://example.com"',
 	toml: 'url = "http://example.com"',
 	yaml: 'url: "http://example.com"',
 };
@@ -220,7 +222,7 @@ for (const [configName, supportedLanguages] of Object.entries(nonJavaScriptConfi
 			t.assert.strictEqual(Object.keys(preset.rules).every(ruleId => ruleId.startsWith('unicorn/')), true);
 			t.assert.strictEqual(preset.rules['unicorn/prefer-includes'], undefined);
 			t.assert.strictEqual(preset.rules['unicorn/comment-content'], 'off');
-			t.assert.strictEqual(preset.rules['unicorn/no-empty-file'], 'error');
+			t.assert.strictEqual(preset.rules['unicorn/no-empty-file'], name === 'soml' ? undefined : 'error');
 			for (const ruleName of deprecatedRules) {
 				t.assert.strictEqual(preset.rules[`unicorn/${ruleName}`], undefined);
 			}
@@ -581,4 +583,49 @@ test('rule.meta.docs.recommended should be synchronized with presets', t => {
 			t.assert.strictEqual(unopinionatedSeverity, 'off', `'${name}' rule should set to 'off' in the unopinionated config.`);
 		}
 	}
+});
+
+for (const extension of ['soml', 'txt']) {
+	test(`recommended-soml uses SOML-safe fixes in .${extension} files`, t => {
+		const code = 'values: [1.00, 9007199254740993, 0xAF, "\\u{41}\\u{a}\\u{9}\\u{e9}", \'\\u{41}\', { }]\n# Keep comment';
+		const filename = `file.${extension}`;
+		const config = {
+			...eslintPluginUnicorn.configs['recommended-soml'],
+			files: [filename],
+			language: languages.soml.language,
+			plugins: {...languages.soml.plugins, unicorn: eslintPluginUnicorn},
+			rules: {
+				...eslintPluginUnicorn.configs['recommended-soml'].rules,
+				'unicorn/escape-case': ['error', 'uppercase'],
+				'unicorn/number-literal-case': ['error', {hexadecimalValue: 'lowercase'}],
+			},
+		};
+		const linter = new Linter();
+		const result = linter.verifyAndFix(code, config, {filename});
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(result.output, 'values: [1.0, 9_007_199_254_740_993, 0xAF, "A\\n\\t\\u{e9}", \'\\u{41}\', {}]\n# Keep comment');
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.strictEqual(linter.verifyAndFix(result.output, config, {filename}).fixed, false);
+	});
+}
+
+test('recommended-soml converges with the SOML recommended preset', t => {
+	const code = '/*\n * Description.\n */\ninteger: 10000\nfloat: 1.00\ninstant: 2026-10-09T10:00:00Z\nduration: 1h30m\nescaped: "\\u{41}\\u{a}"\nliteral: \'\\u{41}\'';
+	const config = defineConfig([
+		languages.soml.plugins.soml.configs.recommended,
+		{
+			files: ['**/*.soml'],
+			plugins: {...languages.soml.plugins, unicorn: eslintPluginUnicorn},
+			language: languages.soml.language,
+			extends: ['unicorn/recommended-soml'],
+		},
+	]);
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, config, {filename: 'file.soml'});
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(result.output, '/*\nDescription.\n*/\ninteger: 10_000\nfloat: 1.0\ninstant: 2026-10-09T10:00:00Z\nduration: 1h30m\nescaped: "A\\n"\nliteral: \'\\u{41}\'\n');
+	t.assert.strictEqual(result.fixed, true);
+	const secondResult = linter.verifyAndFix(result.output, config, {filename: 'file.soml'});
+	t.assert.deepStrictEqual(secondResult.messages, []);
+	t.assert.strictEqual(secondResult.fixed, false);
 });

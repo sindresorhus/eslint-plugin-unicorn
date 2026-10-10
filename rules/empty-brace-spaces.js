@@ -79,6 +79,7 @@ const config = {
 			'json/json5',
 			'css/css',
 			'toml/toml',
+			'soml/soml',
 			'yml/yaml',
 		],
 	},

@@ -2,7 +2,7 @@
 
 📝 Add expiration conditions to TODO comments.
 
-💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, 🎨 `recommended-css`, 🌐 `recommended-html`, 🧩 `recommended-json`, 📚 `recommended-markdown`, 🛠️ `recommended-toml`, 📋 `recommended-yaml`, ☑️ `unopinionated`.
+💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, 🎨 `recommended-css`, 🌐 `recommended-html`, 🧩 `recommended-json`, 📚 `recommended-markdown`, 💎 `recommended-soml`, 🛠️ `recommended-toml`, 📋 `recommended-yaml`, ☑️ `unopinionated`.
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -19,7 +19,7 @@ With this rule, a TODO can have a condition right from the beginning to define i
 
 This rule will ignore all TODOs without conditions. For more information, read the below [`eslint/no-warning-comments`](#disallow-warning-comments-no-warning-comments) section.
 
-This rule also supports CSS comments when linting CSS files with [`@eslint/css`](https://github.com/eslint/css), HTML comments when linting HTML files with [`@html-eslint/eslint-plugin`](https://github.com/yeonjuan/html-eslint), line comments in JSONC/JSON5 files when linting with [`@eslint/json`](https://github.com/eslint/json), HTML comments in Markdown files when linting with [`@eslint/markdown`](https://github.com/eslint/markdown), and comments in YAML files when linting with [`eslint-plugin-yml`](https://github.com/ota-meshi/eslint-plugin-yml).
+This rule also supports CSS comments when linting with [`@eslint/css`](https://github.com/eslint/css), HTML comments when linting with [`@html-eslint/eslint-plugin`](https://github.com/yeonjuan/html-eslint), JSONC/JSON5 comments when linting with [`@eslint/json`](https://github.com/eslint/json), HTML comments in Markdown when linting with [`@eslint/markdown`](https://github.com/eslint/markdown), SOML `#` and block comments when linting with [`eslint-soml`](https://github.com/soml-lang/eslint-soml), TOML `#` comments when linting with [`eslint-plugin-toml`](https://github.com/ota-meshi/eslint-plugin-toml), and YAML `#` comments when linting with [`eslint-plugin-yml`](https://github.com/ota-meshi/eslint-plugin-yml).
 
 Quick overview of conditions:
 
@@ -258,7 +258,7 @@ Imagine you maintain a `main` branch at a version such as 10 and always keep wor
 - TODOs may or may not have a colon before the message such as
   `TODO [...]: message` or `TODO [...] message`.
 - If no proper argument is found, you'll be notified that the TODO is useless (See [`eslint/no-warning-comments`](#disallow-warning-comments-no-warning-comments)).
-- CSS, HTML, JSONC, JSON5, Markdown, and YAML comments are supported when using [`@eslint/css`](https://github.com/eslint/css), [`@html-eslint/eslint-plugin`](https://github.com/yeonjuan/html-eslint), [`@eslint/json`](https://github.com/eslint/json), [`@eslint/markdown`](https://github.com/eslint/markdown), and [`eslint-plugin-yml`](https://github.com/ota-meshi/eslint-plugin-yml).
+- CSS, HTML, JSONC, JSON5, Markdown, SOML, TOML, and YAML comments are supported with their respective ESLint plugins.
 
 ## Examples
 

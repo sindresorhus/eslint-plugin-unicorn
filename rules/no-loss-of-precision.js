@@ -59,6 +59,8 @@ const getProblem = (node, raw, value) => {
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
+	context.on('Float', node => getProblem(node, context.sourceCode.getText(node).replaceAll('_', ''), node.value));
+
 	context.on('Number', node => getProblem(node, context.sourceCode.getText(node), Number(node.value)));
 
 	context.on(['Dimension', 'Percentage'], node => getProblem(node, node.value, Number(node.value)));
@@ -89,6 +91,7 @@ const config = {
 			'json/jsonc',
 			'json/json5',
 			'toml/toml',
+			'soml/soml',
 		],
 	},
 };

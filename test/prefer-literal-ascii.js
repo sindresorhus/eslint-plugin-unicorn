@@ -357,3 +357,17 @@ test('scans long backslash runs efficiently', t => {
 	t.assert.deepStrictEqual(messages, []);
 	t.assert.strictEqual(duration < 2000, true, `Expected linting to take less than 2 seconds, but it took ${duration} milliseconds.`);
 });
+
+ruleTest.snapshot({
+	valid: [
+		String.raw`value: '\u{41}'`,
+		String.raw`value: "\\u{41}"`,
+		String.raw`value: "\u{a}\u{e9}"`,
+		'value:\n\t"""\n\t\\u{22}\\u{22}\\u{22}\n\t"""',
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+	invalid: [
+		String.raw`value: "\u{41}\u{20}\u{7e}" # keep`,
+		String.raw`"\u{41}": "\u{22}\u{5c}\u{27}"`,
+		String.raw`value: "\\\u{41}"`,
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+});

@@ -116,6 +116,12 @@ const create = context => {
 		}
 	});
 
+	context.on(['Integer', 'Float'], node => {
+		if (typeof node.value === 'bigint' || Number.isFinite(node.value)) {
+			return getProblem(node, context.sourceCode.getText(node));
+		}
+	});
+
 	context.on('TOMLValue', node => {
 		if (node.kind !== 'integer' && node.kind !== 'float') {
 			return;
@@ -194,6 +200,7 @@ const config = {
 		languages: [
 			'js/js',
 			'toml/toml',
+			'soml/soml',
 		],
 	},
 };

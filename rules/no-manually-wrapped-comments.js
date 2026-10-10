@@ -49,7 +49,7 @@ const getLinePrefix = (sourceCode, comment) => {
 const isProseText = text => text.length > 0 && !isIgnoredCommentText(text);
 
 const isStandaloneLineComment = (sourceCode, comment) => (
-	(comment.type === 'Line' || getLineCommentPrefix(sourceCode) === '#')
+	(comment.type === 'Line' || sourceCode.getText(comment).startsWith('#'))
 	&& isProseText(getCommentText(comment))
 	&& getLinePrefix(sourceCode, comment).trim() === ''
 );
@@ -71,11 +71,11 @@ const isConsecutiveComment = (sourceCode, firstComment, secondComment) => {
 
 const isBlankLine = (sourceCode, line) => line < 1 || line > sourceCode.lines.length || sourceCode.lines[line - 1].trim() === '';
 
-const getLineCommentPrefix = sourceCode => sourceCode.parserServices?.isTOML || sourceCode.parserServices?.isYAML ? '#' : '//';
+const getLineCommentPrefix = (sourceCode, comment) => sourceCode.getText(comment).startsWith('#') ? '#' : '//';
 
-const getLineCommentText = (sourceCode, lineText) => {
+const getLineCommentText = (sourceCode, comment, lineText) => {
 	const trimmedLineText = lineText.trim();
-	const prefix = getLineCommentPrefix(sourceCode);
+	const prefix = getLineCommentPrefix(sourceCode, comment);
 	return trimmedLineText.startsWith(prefix) ? trimmedLineText.slice(prefix.length).trim() : undefined;
 };
 
@@ -86,7 +86,7 @@ const isSeparatedBeforeCommentGroup = (sourceCode, comment) => {
 		return true;
 	}
 
-	const previousLineCommentText = getLineCommentText(sourceCode, sourceCode.lines[line - 2]);
+	const previousLineCommentText = getLineCommentText(sourceCode, comment, sourceCode.lines[line - 2]);
 	return previousLineCommentText !== undefined && sentenceEndPattern.test(previousLineCommentText);
 };
 
@@ -95,7 +95,7 @@ const isSeparatedAfterCommentGroup = (sourceCode, comment) => {
 
 	return isBlankLine(sourceCode, line + 1)
 		|| (
-			getLineCommentText(sourceCode, sourceCode.lines[line]) !== undefined
+			getLineCommentText(sourceCode, comment, sourceCode.lines[line]) !== undefined
 			&& endsWithSentencePunctuation(comment)
 		);
 };
@@ -207,7 +207,7 @@ const fixCommentGroup = (context, comments) => fixer => {
 		sourceCode.getRange(lastComment)[1],
 	];
 
-	return fixer.replaceTextRange(range, `${getLineCommentPrefix(sourceCode)} ${text}`);
+	return fixer.replaceTextRange(range, `${getLineCommentPrefix(sourceCode, firstComment)} ${text}`);
 };
 
 /**
@@ -272,6 +272,7 @@ const config = {
 			'json/jsonc',
 			'json/json5',
 			'toml/toml',
+			'soml/soml',
 			'yml/yaml',
 		],
 	},

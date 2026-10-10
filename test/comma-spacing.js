@@ -173,3 +173,21 @@ test('works with indentation and empty delimiter spacing', t => {
 	t.assert.deepStrictEqual(result.messages, []);
 	t.assert.strictEqual(linter.verifyAndFix(result.output, config).fixed, false);
 });
+
+testRule.snapshot({
+	valid: [
+		'value: [1, 2,]',
+		'value: [1,\n2]',
+		'value: \'1 ,2\' # ,',
+		'value: [1, /* keep */2]',
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+	invalid: [
+		'value: [1 ,2,  3]',
+		'{first: 1,second: 2}',
+		'value: [1,/* keep */2]',
+		'value: [1 /* keep */ ,2]',
+		'value: [1,# keep\n2]',
+		'value: [1 ,]',
+		'value: [1,\t2]',
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+});

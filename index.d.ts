@@ -55,6 +55,18 @@ declare const eslintPluginUnicorn: ESLint.Plugin & {
 		'recommended-markdown': Linter.Config;
 
 		/**
+		Recommended rules for SOML. Compatible opt-in rules are disabled, and deprecated rules are excluded. Configure file matching, the language plugin, and `language` separately. This preset does not configure JavaScript globals or core-rule overrides.
+
+		@example
+		```js
+		{
+			extends: [unicorn.configs['recommended-soml']],
+		}
+		```
+		*/
+		'recommended-soml': Linter.Config;
+
+		/**
 		Recommended rules for TOML. Compatible opt-in rules are disabled, and deprecated rules are excluded. Configure file matching, the language plugin, and `language` separately. This preset does not configure JavaScript globals or core-rule overrides.
 
 		@example

@@ -150,3 +150,17 @@ test.snapshot({
 		'value = [{ }, [ ]]',
 	].map(code => ({code, language: languages.toml})),
 });
+
+test.snapshot({
+	valid: [
+		'{}',
+		'[]',
+		'value: { /* keep */ }',
+		'value: [ /* keep */ ]',
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+	invalid: [
+		'{ }',
+		'[\n\t]',
+		'value: [{ }, [ ]] # keep',
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+});

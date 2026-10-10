@@ -14,6 +14,7 @@ const languageLabels = {
 	html: 'HTML',
 	json: 'JSON',
 	markdown: 'Markdown',
+	soml: 'SOML',
 	toml: 'TOML',
 	yml: 'YAML',
 };

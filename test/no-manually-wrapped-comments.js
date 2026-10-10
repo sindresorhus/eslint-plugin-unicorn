@@ -673,3 +673,17 @@ test.snapshot({
 		'#A YAML sentence\r\n#   continued here\r\n\r\nkey: 1',
 	].map(code => ({code, language: languages.yaml})),
 });
+
+test.snapshot({
+	valid: [
+		'# Complete sentence.\n# Another sentence.\n\n{}',
+		'# eslint-disable-next-line rule-to-test/no-manually-wrapped-comments\n{}',
+		'value: \'text\' # first\n# second',
+		'# Heading:\n# note\n{}',
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+	invalid: [
+		'# This sentence continues\n# on another line.\n\n{}',
+		'/*\nThis sentence continues\non another line.\n*/\n{}',
+		'# Complete sentence.\n# This sentence continues\n# on another line.\n\n{}',
+	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
+});

@@ -234,6 +234,7 @@ const config = {
 			'json/jsonc',
 			'json/json5',
 			'css/css',
+			'soml/soml',
 		],
 	},
 };

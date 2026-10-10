@@ -50,7 +50,7 @@ const getProblem = (context, comment) => {
 	const {sourceCode} = context;
 	const range = getCommentRange(sourceCode, comment);
 	const text = sourceCode.text.slice(...range);
-	const isJavaScriptComment = comment.type === 'Block';
+	const isJavaScriptComment = comment.type === 'Block' && sourceCode.ast.type === 'Program';
 	const isJavaScriptDocumentationComment = text.startsWith('/**') && text[3] !== '*';
 
 	if (!text.startsWith('/*') || (isJavaScriptComment && !isJavaScriptDocumentationComment) || !LINE_ENDING_PATTERN.test(text)) {
@@ -111,6 +111,7 @@ const config = {
 			'json/json',
 			'json/jsonc',
 			'json/json5',
+			'soml/soml',
 		],
 	},
 };

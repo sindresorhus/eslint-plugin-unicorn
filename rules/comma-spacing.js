@@ -31,9 +31,10 @@ const create = context => {
 		};
 	};
 
-	context.on('Document', function * ({tokens}) {
+	context.on('Document', function * (node) {
+		const tokens = sourceCode.getTokens?.(node, {includeComments: true}) ?? node.tokens;
 		for (const [index, token] of tokens.entries()) {
-			if (token.type !== 'Comma') {
+			if (token.type !== 'Comma' && !(token.type === 'Punctuator' && token.value === ',')) {
 				continue;
 			}
 
@@ -41,7 +42,7 @@ const create = context => {
 			yield getProblem(token, [sourceCode.getRange(tokens[index - 1])[1], start], '', MESSAGE_ID_BEFORE);
 
 			const nextToken = tokens[index + 1];
-			if (nextToken.type === 'RBracket' || nextToken.type === 'RBrace') {
+			if (nextToken.type === 'RBracket' || nextToken.type === 'RBrace' || (nextToken.type === 'Punctuator' && (nextToken.value === ']' || nextToken.value === '}'))) {
 				continue;
 			}
 
@@ -58,7 +59,7 @@ const config = {
 	meta: {
 		type: 'layout',
 		docs: {
-			description: 'Enforce consistent spacing before and after commas in JSON.',
+			description: 'Enforce consistent spacing before and after commas in JSON and SOML.',
 			recommended: false,
 		},
 		fixable: 'whitespace',
@@ -68,6 +69,7 @@ const config = {
 			'json/json',
 			'json/jsonc',
 			'json/json5',
+			'soml/soml',
 		],
 	},
 };

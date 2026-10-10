@@ -95,6 +95,7 @@ const config = {
 			'json/json',
 			'json/jsonc',
 			'json/json5',
+			'soml/soml',
 			'yml/yaml',
 			'toml/toml',
 		],
