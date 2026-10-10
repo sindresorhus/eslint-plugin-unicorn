@@ -5,6 +5,7 @@ import {
 	getConditionalExpressionChildText,
 	getParenthesizedText,
 	getTokenStore,
+	getVisitorChildNodes,
 	hasOptionalChainElement,
 	hasSameTypeArguments,
 	isConstEnumReference,
@@ -364,6 +365,29 @@ export function isTypeSafeToMinimize(consequent, alternate, context) {
 		const {parserServices} = context.sourceCode;
 		const areTypesCompatible = (left, right) => checker.isTypeAssignableTo(left, right)
 			&& checker.isTypeAssignableTo(right, left);
+		const hasCompatibleExpressionTypes = (left, right) => {
+			if (!areTypesCompatible(parserServices.getTypeAtLocation(left), parserServices.getTypeAtLocation(right))) {
+				return false;
+			}
+
+			const rightChildren = [...getVisitorChildNodes(right, context.sourceCode.visitorKeys)];
+			return [...getVisitorChildNodes(left, context.sourceCode.visitorKeys)].every((child, index) => hasCompatibleExpressionTypes(child, rightChildren[index]));
+		};
+
+		const getExpressionParts = node => {
+			if (node.type === 'BinaryExpression') {
+				return [node.left, node.right];
+			}
+
+			return node.type === 'MemberExpression' ? [node.object] : getExpressionItems(node);
+		};
+
+		const alternateParts = getExpressionParts(alternate);
+		// Shared expressions leave the branches, including descendants that may require narrowing even when their result types match.
+		if (getExpressionParts(consequent).some((part, index) => isSameExpression(part, alternateParts[index], context) && !hasCompatibleExpressionTypes(part, alternateParts[index]))) {
+			return false;
+		}
+
 		if (consequent.type === 'BinaryExpression') {
 			return ['left', 'right'].every(key => {
 				const consequentOperandType = checker.getBaseTypeOfLiteralType(parserServices.getTypeAtLocation(consequent[key]));
@@ -372,14 +396,14 @@ export function isTypeSafeToMinimize(consequent, alternate, context) {
 			});
 		}
 
+		if (consequent.type === 'MemberExpression') {
+			return true;
+		}
+
 		const hasCompatibleMemberReceivers = (left, right) => left.type !== 'MemberExpression'
 			|| right.type !== 'MemberExpression'
 			|| !isSameExpression(left.object, right.object, context)
 			|| areTypesCompatible(parserServices.getTypeAtLocation(left.object), parserServices.getTypeAtLocation(right.object));
-
-		if (consequent.type === 'MemberExpression') {
-			return hasCompatibleMemberReceivers(consequent, alternate);
-		}
 
 		if (consequent.type === 'CallExpression' && !hasCompatibleMemberReceivers(consequent.callee, alternate.callee)) {
 			return false;
@@ -546,7 +570,7 @@ export const minimalTernaryOptionsSchema = {
 	properties: {
 		checkVaryingBase: {
 			type: 'boolean',
-			description: 'Also report ternaries that differ only by the base of a call or member access, whose minimization moves the ternary into the base (`(test ? a : b).foo`).',
+			description: 'Also report expressions that differ only by the base of a call or member access, whose minimization moves the ternary into the base (`(test ? a : b).foo`).',
 		},
 		checkComputedMemberAccess: {
 			type: 'boolean',

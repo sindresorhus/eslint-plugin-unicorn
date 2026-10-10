@@ -190,23 +190,50 @@ test({
 });
 
 for (const [name, code] of [
-	['condition and argument order', 'if ((events.push("test"), true)) { events.push("a"); } else { events.push("b"); }'],
-	['binary operand order', 'if ((events.push("test"), true)) { (events.push("a"), 1) + (events.push("tail"), 2); } else { (events.push("b"), 3) + (events.push("tail"), 2); }'],
-	['shared argument order', 'if (true) { events.push("a", (events.push("tail"), 2)); } else { events.push("b", (events.push("tail"), 2)); }'],
+	['condition and argument order', 'if ((events.push("test"), selected)) { events.push("a"); } else { events.push("b"); }'],
+	['binary operand order', 'if ((events.push("test"), selected)) { (events.push("a"), 1) + (events.push("tail"), 2); } else { (events.push("b"), 3) + (events.push("tail"), 2); }'],
+	['shared argument order', 'if (selected) { events.push("a", (events.push("tail"), 2)); } else { events.push("b", (events.push("tail"), 2)); }'],
 ]) {
-	nodeTest(`preserves ${name}`, t => {
+	for (const selected of [true, false]) {
+		nodeTest(`preserves ${name} when selected is ${selected}`, t => {
+			const result = new Linter().verifyAndFix(code, {
+				plugins: {unicorn},
+				rules: {'unicorn/prefer-ternary': 'error'},
+			});
+			const execute = source => {
+				const events = [];
+				vm.runInNewContext(source, {events, selected});
+				return events;
+			};
+
+			t.assert.deepStrictEqual(execute(result.output), execute(code));
+			t.assert.strictEqual(result.fixed, name !== 'condition and argument order');
+		});
+	}
+}
+
+for (const selected of [true, false]) {
+	nodeTest(`preserves delegated yields when selected is ${selected}`, t => {
+		const code = 'function* unicorn() { if (selected) { yield* [1, a]; } else { yield* [1, b]; } return "done"; }';
 		const result = new Linter().verifyAndFix(code, {
 			plugins: {unicorn},
 			rules: {'unicorn/prefer-ternary': 'error'},
 		});
 		const execute = source => {
-			const events = [];
-			vm.runInNewContext(source, {events});
-			return events;
+			const iterator = vm.runInNewContext(`${source}; unicorn()`, {selected, a: 2, b: 3});
+			const results = [];
+			let step;
+			do {
+				step = iterator.next();
+				results.push([step.value, step.done]);
+			} while (!step.done);
+
+			return results;
 		};
 
+		t.assert.strictEqual(result.fixed, true);
 		t.assert.deepStrictEqual(execute(result.output), execute(code));
-		t.assert.strictEqual(result.fixed, name !== 'condition and argument order');
+		t.assert.deepStrictEqual(execute(result.output), [[1, false], [selected ? 2 : 3, false], ['done', true]]);
 	});
 }
 

@@ -148,7 +148,7 @@ const items = data.length ? data : defaultData;
 
 ```js
 // ✅
-// Standalone yields
+// Different yielded values
 function* unicorn() {
 	if (test) {
 		yield a;
@@ -160,7 +160,7 @@ function* unicorn() {
 
 ```js
 // ✅
-// Standalone awaits
+// Different awaited operations
 async function unicorn() {
 	if (test) {
 		await a();
@@ -277,7 +277,7 @@ if (test) {
 An optional second options object accepts `checkVaryingBase` and `checkComputedMemberAccess`, both defaulting to `false`. They have the same meaning as the corresponding [`prefer-minimal-ternary` options](./prefer-minimal-ternary.md#options).
 
 ```js
-// eslint unicorn/prefer-ternary: ['error', 'always', {checkVaryingBase: true}]
+/* eslint unicorn/prefer-ternary: ['error', 'always', {checkVaryingBase: true}] */
 
 // ❌
 if (test) {
