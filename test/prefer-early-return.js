@@ -1394,6 +1394,17 @@ test({
 			errors: [{messageId: 'prefer-early-return'}],
 		},
 		{
+			code: 'function foo() {\r\n\tif (a < b) {\r\n\t\twork();\r\n\t\tfinish();\r\n\t}\r\n}\r\n',
+			output: 'function foo() {\r\n\tif (!(a < b)) {\r\n\t\treturn;\r\n\t}\r\n\r\n\twork();\r\n\tfinish();\r\n}\r\n',
+			errors: [{
+				messageId: 'prefer-early-return',
+				suggestions: [{
+					messageId: 'prefer-early-return/opposite-comparison',
+					output: 'function foo() {\r\n\tif (a >= b) {\r\n\t\treturn;\r\n\t}\r\n\r\n\twork();\r\n\tfinish();\r\n}\r\n',
+				}],
+			}],
+		},
+		{
 			code: 'function run(item) {\r\n\tif (!item.isActive) {\r\n\t\treturn;\r\n\t}\r\n\r\n\tprocess(item);\r\n}\r\n',
 			options: [{checkShortBodies: true}],
 			output: 'function run(item) {\r\n\tif (item.isActive) {\r\n\t\tprocess(item);\r\n\t}\r\n}\r\n',
@@ -1540,12 +1551,13 @@ test.snapshot({
 			'<boolean>(a < b)',
 			'((a < b) as boolean)!',
 			'(a as number) < b!',
+			'getValue<Value>() < limit',
+			'(getValue<Value>) < limit',
 		].map(condition => ({
 			code: `function foo() {\n\tif (${condition}) {\n\t\twork();\n\t\tfinish();\n\t}\n}`,
 			languageOptions: {parser: parsers.typescript},
 		})),
 		'function foo() {\n  if (a < b) {\n    work();\n    finish();\n  }\n}',
-		'function foo() {\r\n\tif (a < b) {\r\n\t\twork();\r\n\t\tfinish();\r\n\t}\r\n}\r\n',
 		// Existing trailing-comment behavior is unchanged.
 		'function foo() {\n\tif (a < b) {\n\t\twork();\n\t\tfinish();\n\t} // keep\n}',
 	],

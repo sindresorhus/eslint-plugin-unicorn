@@ -3,11 +3,27 @@ import vm from 'node:vm';
 import {Linter} from 'eslint';
 import plugin from '../../index.js';
 
+function evaluate(code, values, limit) {
+	const calls = [];
+	const output = vm.runInNewContext(code, {
+		values,
+		getValue(value) {
+			calls.push('value');
+			return value;
+		},
+		getLimit() {
+			calls.push('limit');
+			return limit;
+		},
+	});
+	return {output, calls};
+}
+
 for (const rule of ['prefer-early-return', 'prefer-continue']) {
 	const exitKeyword = rule === 'prefer-early-return' ? 'return' : 'continue';
 	for (const operator of ['<', '<=', '>', '>=']) {
 		test(`${rule}: ${operator} suggestion changes unordered comparisons while autofix preserves them`, t => {
-			const body = `if (value ${operator} 5) { result.push(value); result.push('matched'); }`;
+			const body = `if (getValue(value) ${operator} getLimit()) { result.push(value); result.push('matched'); }`;
 			const code = rule === 'prefer-early-return'
 				? `const result = []; function record(value) { ${body} } for (const value of values) { record(value); } JSON.stringify(result);`
 				: `const result = []; for (const value of values) { ${body} } JSON.stringify(result);`;
@@ -27,15 +43,19 @@ for (const rule of ['prefer-early-return', 'prefer-continue']) {
 			t.assert.deepStrictEqual(linter.verify(suggested, config), []);
 
 			const numbers = [2, 5, 10];
-			const expected = vm.runInNewContext(code, {values: numbers});
-			t.assert.strictEqual(vm.runInNewContext(fixed.output, {values: numbers}), expected);
-			t.assert.strictEqual(vm.runInNewContext(suggested, {values: numbers}), expected);
+			const expected = evaluate(code, numbers, 5);
+			t.assert.deepStrictEqual(expected.calls, ['value', 'limit', 'value', 'limit', 'value', 'limit']);
+			t.assert.deepStrictEqual(evaluate(fixed.output, numbers, 5), expected);
+			t.assert.deepStrictEqual(evaluate(suggested, numbers, 5), expected);
 
 			for (const value of [NaN, undefined, 'invalid']) {
-				const values = [...numbers, value];
-				const expected = vm.runInNewContext(code, {values});
-				t.assert.strictEqual(vm.runInNewContext(fixed.output, {values}), expected);
-				t.assert.notStrictEqual(vm.runInNewContext(suggested, {values}), expected);
+				for (const [values, limit] of [[[...numbers, value], 5], [numbers, value]]) {
+					const expected = evaluate(code, values, limit);
+					t.assert.deepStrictEqual(evaluate(fixed.output, values, limit), expected);
+					const alternative = evaluate(suggested, values, limit);
+					t.assert.deepStrictEqual(alternative.calls, expected.calls);
+					t.assert.notStrictEqual(alternative.output, expected.output);
+				}
 			}
 		});
 	}

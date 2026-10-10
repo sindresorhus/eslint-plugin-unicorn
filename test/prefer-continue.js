@@ -1231,6 +1231,17 @@ test({
 			errors: [{messageId: 'prefer-continue'}],
 		},
 		{
+			code: 'for (const item of items) {\r\n\tif (a < b) {\r\n\t\twork();\r\n\t\tfinish();\r\n\t}\r\n}\r\n',
+			output: 'for (const item of items) {\r\n\tif (!(a < b)) {\r\n\t\tcontinue;\r\n\t}\r\n\r\n\twork();\r\n\tfinish();\r\n}\r\n',
+			errors: [{
+				messageId: 'prefer-continue',
+				suggestions: [{
+					messageId: 'prefer-continue/opposite-comparison',
+					output: 'for (const item of items) {\r\n\tif (a >= b) {\r\n\t\tcontinue;\r\n\t}\r\n\r\n\twork();\r\n\tfinish();\r\n}\r\n',
+				}],
+			}],
+		},
+		{
 			code: 'for (const item of items) {\r\n\tif (!item.isActive) {\r\n\t\tcontinue;\r\n\t}\r\n\r\n\tprocess(item);\r\n}\r\n',
 			options: [{checkShortBodies: true}],
 			output: 'for (const item of items) {\r\n\tif (item.isActive) {\r\n\t\tprocess(item);\r\n\t}\r\n}\r\n',
@@ -1332,12 +1343,13 @@ test.snapshot({
 			'<boolean>(a < b)',
 			'((a < b) as boolean)!',
 			'(a as number) < b!',
+			'getValue<Value>() < limit',
+			'(getValue<Value>) < limit',
 		].map(condition => ({
 			code: `for (const item of items) {\n\tif (${condition}) {\n\t\twork();\n\t\tfinish();\n\t}\n}`,
 			languageOptions: {parser: parsers.typescript},
 		})),
 		'for (const item of items) {\n  if (a < b) {\n    work();\n    finish();\n  }\n}',
-		'for (const item of items) {\r\n\tif (a < b) {\r\n\t\twork();\r\n\t\tfinish();\r\n\t}\r\n}\r\n',
 		// Existing trailing-comment behavior is unchanged.
 		'for (const item of items) {\n\tif (a < b) {\n\t\twork();\n\t\tfinish();\n\t} // keep\n}',
 	],
