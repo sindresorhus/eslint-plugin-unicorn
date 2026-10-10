@@ -60,6 +60,26 @@ ruleTest({
 			`),
 		},
 		{
+			name: 'Ignored nested templates are preserved when the outer template is fixed',
+			code: fixInput(`
+				outdent\`
+				first \${outdent\`inner
+				••••unchanged
+				\`}
+				second
+				\`
+			`),
+			errors,
+			output: fixInput(`
+				outdent\`
+				••first \${outdent\`inner
+				••••unchanged
+				\`}
+				••second
+				\`
+			`),
+		},
+		{
 			code: fixInput(`
 				foo = dedent\`
 				••••••••one
