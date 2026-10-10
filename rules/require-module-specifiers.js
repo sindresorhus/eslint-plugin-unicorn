@@ -159,7 +159,9 @@ const create = context => {
 		}
 
 		const {source, exportKind} = exportDeclaration;
-		if (!source && exportKind !== 'type' && !hasConflictingModuleMarker(exportDeclaration)) {
+		// In a declaration file, a bare `export {}` is never useless: TypeScript exports every declaration in it without `export`, unless the file has an `export {}`.
+		const isDeclarationFile = /\.d\.[cm]?ts$/v.test(context.filename);
+		if (!source && exportKind !== 'type' && (isDeclarationFile || !hasConflictingModuleMarker(exportDeclaration))) {
 			return;
 		}
 

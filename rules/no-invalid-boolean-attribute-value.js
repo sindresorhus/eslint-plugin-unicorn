@@ -1,5 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {parse, ident} from '@eslint/css-tree';
+import {ident} from '@eslint/css-tree';
+import {parse} from './shared/css-parser.js';
 import {isCallExpression, isMemberExpression} from './ast/index.js';
 import {getArgumentRemovalRange, removeArgument} from './fix/index.js';
 import {

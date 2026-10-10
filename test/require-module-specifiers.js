@@ -88,6 +88,16 @@ test.snapshot({
 			const foo = 1;
 			export {}
 		`,
+		// In a declaration file, it stops TypeScript from exporting the declarations without `export`.
+		...['index.d.ts', 'index.d.mts', 'index.d.cts'].map(filename => ({
+			...typescriptCode(outdent`
+				import type {Foo} from "foo";
+				declare const helper: Foo;
+				export function foo(): Foo;
+				export {}
+			`),
+			filename,
+		})),
 	],
 	invalid: [
 		outdent`

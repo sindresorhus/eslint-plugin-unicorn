@@ -106,6 +106,35 @@ const getAffectedProperties = shorthand => {
 
 const shorthandToAffectedProperties = new Map(shorthandProperties.keys().map(shorthand => [shorthand, getAffectedProperties(shorthand)]));
 
+// Include affected properties even when combining their longhands is not supported by the shorthand serializers.
+const additionalAffectedPropertyEntries = [
+	// `animation` does not reset `animation-composition`: https://drafts.csswg.org/css-animations-2/#animation
+	['animation', 'animation-trigger'],
+	// Missing shorthand metadata: https://drafts.csswg.org/css-backgrounds-4/#propdef-background-repeat
+	['background', 'background-repeat-x background-repeat-y'],
+	['background-repeat', 'background-repeat-x background-repeat-y'],
+	// https://drafts.csswg.org/css-ui-4/#propdef-caret
+	['caret', 'caret-color caret-animation caret-shape'],
+	// https://drafts.csswg.org/css-anchor-position-1/#propdef-position-try
+	['position-try', 'position-try-order position-try-fallbacks'],
+	// Omit the unimplemented `text-align` shorthand: https://drafts.csswg.org/css-text-4/#propdef-text-align
+	// Missing from Webref shorthand metadata: https://drafts.csswg.org/css-inline-3/#propdef-text-box
+	['text-box', 'text-box-trim text-box-edge'],
+	// https://drafts.csswg.org/css-text-decor-4/#propdef-text-decoration-skip
+	['text-decoration-skip', 'text-decoration-skip-self text-decoration-skip-box text-decoration-skip-spaces text-decoration-skip-ink'],
+	// https://drafts.csswg.org/css-text-4/#propdef-text-wrap
+	['text-wrap', 'text-wrap-mode text-wrap-style'],
+	// https://drafts.csswg.org/css-text-4/#propdef-white-space
+	['white-space', 'white-space-collapse text-wrap-mode white-space-trim'],
+];
+
+for (const [shorthand, properties] of additionalAffectedPropertyEntries) {
+	shorthandToAffectedProperties.set(shorthand, new Set([
+		...shorthandToAffectedProperties.get(shorthand) ?? [],
+		...splitProperties(properties),
+	]));
+}
+
 const getVendorPrefix = property => property.match(/^-\w+-/u)?.[0] ?? '';
 
 export {

@@ -1,11 +1,11 @@
 import {
 	getComments,
+	getLinePrefix,
 	onRoot,
 	reindentText,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-asterisk-prefix-in-documentation-comments';
-const LINE_ENDINGS = ['\n', '\r', '\u2028', '\u2029'];
 const LINE_ENDING_PATTERN = /[\n\r\u{2028}\u{2029}]/v;
 const messages = {
 	[MESSAGE_ID]: 'Remove asterisk prefixes and shared indentation from this comment.',
@@ -15,11 +15,6 @@ const getCommentRange = (sourceCode, comment) => {
 	// `@eslint/json` comment ranges count CRLF as one character, so derive raw source indices from locations.
 	const {start, end} = sourceCode.getLoc(comment);
 	return [sourceCode.getIndexFromLoc(start), sourceCode.getIndexFromLoc(end)];
-};
-
-const getLinePrefix = (sourceCode, start) => {
-	const lineStart = Math.max(...LINE_ENDINGS.map(lineEnding => sourceCode.text.lastIndexOf(lineEnding, start - 1))) + 1;
-	return sourceCode.text.slice(lineStart, start);
 };
 
 const getFixedCommentText = (text, linePrefix) => {
@@ -62,7 +57,7 @@ const getProblem = (context, comment) => {
 		return;
 	}
 
-	const linePrefix = getLinePrefix(sourceCode, range[0]);
+	const linePrefix = getLinePrefix(context, range[0]);
 
 	if (!/^[\t ]*$/v.test(linePrefix)) {
 		return;

@@ -1,6 +1,7 @@
 import {isRegExp} from 'node:util/types';
 import {
 	getComments,
+	getLinePrefix,
 	isEslintDisableOrEnableDirective,
 	matchesAnyRegExp,
 	onRoot,
@@ -32,8 +33,6 @@ const messages = {
 	[MESSAGE_ID]: 'Use a {{style}} block comment.',
 };
 
-const getLineStart = (text, index) => Math.max(...LINE_ENDINGS.map(lineEnding => text.lastIndexOf(lineEnding, index - 1))) + 1;
-
 const getLineEnd = (text, index) => Math.min(
 	...LINE_ENDINGS.map(lineEnding => text.indexOf(lineEnding, index)).filter(index => index !== -1),
 	text.length,
@@ -61,13 +60,11 @@ const getLineEndingBefore = (text, index) => {
 	return getLineEndingAt(text, start);
 };
 
-const getLinePrefix = (sourceCode, start) => sourceCode.text.slice(getLineStart(sourceCode.text, start), start);
-
 const getLineSuffix = (sourceCode, end) => sourceCode.text.slice(end, getLineEnd(sourceCode.text, end));
 
-const isStandalone = (sourceCode, [start, end]) => (
-	getLinePrefix(sourceCode, start).trim() === ''
-	&& getLineSuffix(sourceCode, end).trim() === ''
+const isStandalone = (context, [start, end]) => (
+	getLinePrefix(context, start).trim() === ''
+	&& getLineSuffix(context.sourceCode, end).trim() === ''
 );
 
 const getLineEnding = (sourceCode, [start, end], content) =>
@@ -130,7 +127,7 @@ const getProblem = (context, comment, style, ignorePatterns) => {
 	const {sourceCode} = context;
 	const range = sourceCode.getRange(comment);
 
-	if (!isStandalone(sourceCode, range)) {
+	if (!isStandalone(context, range)) {
 		return;
 	}
 
@@ -152,7 +149,7 @@ const getProblem = (context, comment, style, ignorePatterns) => {
 			return;
 		}
 
-		const linePrefix = getLinePrefix(sourceCode, range[0]);
+		const linePrefix = getLinePrefix(context, range[0]);
 		const lineEnding = getLineEnding(sourceCode, range, content);
 		const fixedText = `${opening}${lineEnding}${linePrefix}${singleContentLine}${lineEnding}${linePrefix}*/`;
 

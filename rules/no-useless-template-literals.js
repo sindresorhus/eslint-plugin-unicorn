@@ -12,6 +12,7 @@ import {
 	isTypeScriptFile,
 } from './utils/index.js';
 import escapeTemplateElementRaw from './utils/escape-template-element-raw.js';
+import hasTemplateIncompatibleEscape from './utils/has-template-incompatible-escape.js';
 
 const MESSAGE_ID = 'no-useless-template-literals';
 const MESSAGE_ID_SUGGESTION = 'no-useless-template-literals/suggestion';
@@ -20,9 +21,6 @@ const messages = {
 	[MESSAGE_ID]: 'Do not use unnecessary template literal expressions.',
 	[MESSAGE_ID_SUGGESTION]: 'Use `{{replacement}}` instead.',
 };
-
-// Legacy octal (`\1`, `\012`) and `\8`/`\9` escapes are valid in sloppy-mode strings but are syntax errors inside template literals.
-const hasTemplateIncompatibleEscape = raw => /(?<=(?:^|[^\\])(?:\\\\)*)\\(?:[1-9]|0\d)/v.test(raw);
 
 function getStaticUnaryStringValue(node) {
 	if (

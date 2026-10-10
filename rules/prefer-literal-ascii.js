@@ -1,10 +1,10 @@
 import {
 	ident,
-	parse as parseCss,
 	string as cssString,
 	tokenize,
 	tokenTypes,
 } from '@eslint/css-tree';
+import {parse as parseCss} from './shared/css-parser.js';
 import {replaceTemplateElement} from './fix/index.js';
 import {isDirective, isStringLiteral, isTaggedTemplateLiteral} from './ast/index.js';
 import {escapeTemplateElementRaw, getTemplateElementRaw, isEscapedCharacter} from './utils/index.js';

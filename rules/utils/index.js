@@ -40,6 +40,7 @@ export {default as getIndentString} from './get-indent-string.js';
 export {default as getIndentUnit} from './get-indent-unit.js';
 export {default as getLinebreak} from './get-linebreak.js';
 export {default as getLineIndent} from './get-line-indent.js';
+export {default as getLineStart, getLinePrefix} from './get-line-start.js';
 export {default as getUnwrappedBranchText} from './get-unwrapped-branch-text.js';
 export {default as getConciseArrowBodyText} from './get-concise-arrow-body-text.js';
 export {default as getEnclosingFunction} from './get-enclosing-function.js';
@@ -167,6 +168,11 @@ export {default as isValueNotUsable} from './is-value-not-usable.js';
 export {default as needsSemicolon} from './needs-semicolon.js';
 export {default as normalizeComment} from './normalize-comment.js';
 export {default as maskJSDocumentSyntax} from './jsdoc.js';
+export {
+	getLineEndIndex,
+	maskCharacter,
+	maskRange,
+} from './jsdoc.js';
 export {
 	default as unwrapTypeScriptExpression,
 	isTypeScriptExpressionWrapper,

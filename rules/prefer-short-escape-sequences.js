@@ -1,7 +1,8 @@
 /**
 @import * as ESLint from 'eslint';
 */
-import {replaceTemplateElement} from './fix/index.js';
+import {replaceStringRaw, replaceTemplateElement} from './fix/index.js';
+import {getTemplateElementRaw} from './utils/index.js';
 import {isStringLiteral, isTaggedTemplateLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-short-escape-sequences';
@@ -89,8 +90,7 @@ const create = context => {
 
 	context.on('String', node => {
 		const raw = sourceCode.getText(node);
-		const [start, end] = sourceCode.getRange(node);
-		return getProblem(node, raw.slice(1, -1), {dialect: 'json'}, (fixer, fixed) => fixer.replaceTextRange([start + 1, end - 1], fixed));
+		return getProblem(node, raw.slice(1, -1), {dialect: 'json'}, (fixer, fixed) => replaceStringRaw(node, fixed, context, fixer));
 	});
 
 	context.on('Literal', node => {
@@ -99,8 +99,7 @@ const create = context => {
 		}
 
 		const {raw} = node;
-		const [start, end] = sourceCode.getRange(node);
-		return getProblem(node, raw.slice(1, -1), {dialect: 'javascript'}, (fixer, fixed) => fixer.replaceTextRange([start + 1, end - 1], fixed));
+		return getProblem(node, raw.slice(1, -1), {dialect: 'javascript'}, (fixer, fixed) => replaceStringRaw(node, fixed, context, fixer));
 	});
 
 	context.on('TemplateElement', node => {
@@ -108,8 +107,7 @@ const create = context => {
 			return;
 		}
 
-		const raw = sourceCode.getText(node);
-		return getProblem(node, raw.slice(1, node.tail ? -1 : -2), {dialect: 'javascript'}, (fixer, fixed) => replaceTemplateElement(node, fixed, context, fixer));
+		return getProblem(node, getTemplateElementRaw(node, context), {dialect: 'javascript'}, (fixer, fixed) => replaceTemplateElement(node, fixed, context, fixer));
 	});
 
 	context.on(['TOMLValue', 'TOMLQuoted'], node => {
