@@ -90,7 +90,7 @@ These transformations are intentionally excluded:
 - **Conditional spreads** (`test ? [1, 2] : [1]`): added spread syntax often hurts readability, including for multiple varying JSX attributes.
 - **Object key swaps** (`test ? {a: 1} : {b: 1}`): computed keys obscure the object shapes.
 - **String/template splitting** (`test ? 'cat' : 'car'`): shared text is not necessarily a meaningful unit.
-- **`if`/`else` conversion** (`if (test) { a(); } else { b(); }`): belongs to [`prefer-ternary`](./prefer-ternary.md), which targets returns and assignments.
+- **`if`/`else` conversion**: belongs to [`prefer-ternary`](./prefer-ternary.md), which shares this rule's expression matching and fixes directly to the minimal form when safe.
 - **TypeScript wrappers** (`test ? a! : b!`): factoring out `as`, `!`, or `satisfies` needs separate type-checking analysis.
 
 ## Options
@@ -105,7 +105,7 @@ Also report ternaries that share everything but the base of a call or member acc
 Varying-base member accesses are autofixed only with dot access or literal keys.
 
 ```js
-// eslint unicorn/prefer-minimal-ternary: ['error', {checkVaryingBase: true}]
+/* eslint unicorn/prefer-minimal-ternary: ['error', {checkVaryingBase: true}] */
 
 // ❌
 const foo = test ? a() : b();
@@ -115,7 +115,7 @@ const foo = (test ? a : b)();
 ```
 
 ```js
-// eslint unicorn/prefer-minimal-ternary: ['error', {checkVaryingBase: true}]
+/* eslint unicorn/prefer-minimal-ternary: ['error', {checkVaryingBase: true}] */
 
 // ❌
 const foo = test ? a.method(value) : b.method(value);
@@ -125,7 +125,7 @@ const foo = (test ? a : b).method(value);
 ```
 
 ```js
-// eslint unicorn/prefer-minimal-ternary: ['error', {checkVaryingBase: true}]
+/* eslint unicorn/prefer-minimal-ternary: ['error', {checkVaryingBase: true}] */
 
 // ❌
 const foo = test ? a.value : b.value;
@@ -142,7 +142,7 @@ Default: `false`
 Also report property-read and method-call ternaries that share the same simple receiver and differ only by the static property or method name. Method calls must also share the same arguments. Minimizing these requires computed member access, so it is opt-in. Statically known computed keys, such as `object['a']` and `object[0]`, are included. Receivers are limited to identifiers, literals, `this`, and `super`.
 
 ```js
-// eslint unicorn/prefer-minimal-ternary: ['error', {checkComputedMemberAccess: true}]
+/* eslint unicorn/prefer-minimal-ternary: ['error', {checkComputedMemberAccess: true}] */
 
 // ❌
 const value = test ? object.a : object.b;
@@ -152,7 +152,7 @@ const value = object[test ? 'a' : 'b'];
 ```
 
 ```js
-// eslint unicorn/prefer-minimal-ternary: ['error', {checkComputedMemberAccess: true}]
+/* eslint unicorn/prefer-minimal-ternary: ['error', {checkComputedMemberAccess: true}] */
 
 // ❌
 await (delayRejection ? Promise.allSettled(promises) : Promise.all(promises));

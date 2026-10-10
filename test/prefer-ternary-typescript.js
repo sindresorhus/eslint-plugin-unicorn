@@ -30,15 +30,86 @@ function getDiagnostics(program) {
 	return program.getSemanticDiagnostics(program.getSourceFile(filename)).map(diagnostic => typescript.flattenDiagnosticMessageText(diagnostic.messageText, '\n'));
 }
 
-function getMessages(program, {typeAware = true} = {}) {
+function getMessages(program, {typeAware = true, ruleName = 'prefer-ternary'} = {}) {
 	const [filename] = program.getRootFileNames();
 	const linter = new Linter();
 	return linter.verify(program.getSourceFile(filename).text, {
 		files: ['**/*.{js,ts}'],
 		languageOptions: {parser: typescriptEslintParser, parserOptions: {programs: typeAware ? [program] : undefined}},
 		plugins: {unicorn},
-		rules: {'unicorn/prefer-ternary': 'error'},
+		rules: {[`unicorn/${ruleName}`]: 'error'},
 	}, {filename});
+}
+
+for (const [name, first, second] of [
+	['call argument', 'call(1, object.values[object.kind])', 'call(2, object.values[object.kind])'],
+	['constructor argument', 'new Item(1, object.values[object.kind])', 'new Item(2, object.values[object.kind])'],
+	['array element', '[1, object.values[object.kind]]', '[2, object.values[object.kind]]'],
+	['object value', '{value: 1, shared: object.values[object.kind]}', '{value: 2, shared: object.values[object.kind]}'],
+	['binary operand', '1 + object.values[object.kind]', '2 + object.values[object.kind]'],
+]) {
+	for (const [ruleName, prefix] of [
+		['prefer-minimal-ternary', ''],
+		['prefer-ternary', ''],
+		['prefer-ternary', 'return '],
+		['prefer-ternary', 'result = '],
+	]) {
+		test(`${ruleName} preserves narrowing in a shared ${name} for ${prefix.trim() || 'expressions'}`, t => {
+			const condition = 'object.kind === "first"';
+			const statement = ruleName === 'prefer-minimal-ternary'
+				? `(${condition} ? ${first} : ${second});`
+				: `if (${condition}) { ${prefix}(${first}); } else { ${prefix}(${second}); }`;
+			const code = outdent`
+				declare function call(value: number, other: string): void;
+				declare class Item { constructor(value: number, other: string); }
+				function update(object: {kind: "first"; values: {first: string}} | {kind: "second"; values: {second: string}}) {
+					let result;
+					${statement}
+				}
+			`;
+			const program = createProgram(code);
+			t.assert.deepStrictEqual(getDiagnostics(program), []);
+			const messages = getMessages(program, {ruleName});
+			t.assert.strictEqual(messages.length, 1);
+			const {fix} = messages[0];
+			if (!prefix) {
+				t.assert.strictEqual(fix, undefined);
+				if (name === 'object value') {
+					t.assert.strictEqual(messages[0].suggestions.length, 1);
+				}
+
+				return;
+			}
+
+			t.assert.ok(fix);
+			t.assert.strictEqual(fix.text, `${prefix}${condition} ? (${first}) : (${second});`);
+			const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+			t.assert.deepStrictEqual(getDiagnostics(createProgram(output)), []);
+		});
+	}
+}
+
+for (const ruleName of ['prefer-ternary', 'prefer-minimal-ternary']) {
+	test(`${ruleName} still minimizes calls with stable shared argument types`, t => {
+		const statement = ruleName === 'prefer-minimal-ternary'
+			? 'selected ? call(1, object.value) : call(2, object.value);'
+			: 'if (selected) { call(1, object.value); } else { call(2, object.value); }';
+		const code = outdent`
+			declare function call(value: number, other: string): void;
+			function update(selected: boolean, object: {value: string}) {
+				${statement}
+			}
+		`;
+		const program = createProgram(code);
+		t.assert.deepStrictEqual(getDiagnostics(program), []);
+		const messages = getMessages(program, {ruleName});
+		t.assert.strictEqual(messages.length, 1);
+		const {fix} = messages[0];
+		t.assert.ok(fix);
+		t.assert.strictEqual(fix.text, `call(selected ? 1 : 2, object.value)${ruleName === 'prefer-ternary' ? ';' : ''}`);
+		const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		t.assert.deepStrictEqual(getDiagnostics(createProgram(output)), []);
+	});
 }
 
 test('loads virtual source files with Windows path separators', t => {
@@ -108,7 +179,10 @@ for (const [pattern, first, second] of [
 		t.assert.strictEqual(messages.length, 1);
 		const {fix} = messages[0];
 		t.assert.ok(fix);
-		const assignment = `${pattern} = object.kind === "first" ? ${first} : ${second}`;
+		const value = pattern.startsWith('[')
+			? `[object.kind === "first" ? ${first.slice(1, -1)} : ${second.slice(1, -1)}]`
+			: `object.kind === "first" ? ${first} : ${second}`;
+		const assignment = `${pattern} = ${value}`;
 		t.assert.strictEqual(fix.text, pattern.startsWith('{') ? `(${assignment});` : `${assignment};`);
 		const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
 		t.assert.deepStrictEqual(getDiagnostics(createProgram(output)), []);

@@ -1,6 +1,6 @@
 # prefer-ternary
 
-📝 Prefer ternary expressions over simple `if` statements that return or assign values.
+📝 Prefer ternary expressions over simple `if` statements.
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
@@ -9,13 +9,15 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-This rule enforces the use of ternary expressions over simple `if` statements that return or assign a value. It handles `if`/`else` statements with one mergeable statement in each branch. For returns, it also handles the equivalent flat form where another `return` immediately follows an `if` without an `else`.
+This rule prefers ternary expressions over simple `if`/`else` statements with one mergeable statement in each branch. It combines returns and assignments, and statements that share the same expression shape with one varying part. For returns, it also handles the equivalent flat form where another `return` immediately follows an `if` without an `else`.
 
 Only plain `=` assignments to matching identifiers or array/object patterns (ignoring whitespace) are combined.
 
 Direct arrows remain in identifier assignments and initializers to preserve function names.
 
-It intentionally ignores standalone `await`, `yield`, and `throw` branches because ternaries there usually reduce readability without assigning or returning a value.
+Calls, method calls, constructors, binary expressions, member access, objects, and arrays use the same shallow matching as [`prefer-minimal-ternary`](./prefer-minimal-ternary.md). Matching `await`, `yield`, `yield*`, and `throw` wrappers are preserved. Entirely different expressions remain untouched by default.
+
+Fixes move the ternary directly into the varying part when runtime and type safety allow it. Otherwise, returns and assignments retain the full ternary conversion; other statements may be reported without a fix. Type-sensitive object transformations can offer suggestions instead. See [`prefer-minimal-ternary`'s autofix limitations](./prefer-minimal-ternary.md#autofix-limitations).
 
 It also detects `let` declarations immediately followed by an `if` that reassigns the variable, which can be replaced with a single declaration using a ternary. The declaration is `const` when the variable has no later writes, and remains `let` when later writes require mutability.
 
@@ -38,6 +40,18 @@ The block, class body, and multiline restrictions also apply inside patterns, wh
 Comments in or between merged statements, or trailing a following `return`, prevent edits.
 
 ## Examples
+
+```js
+// ❌
+if (test) {
+	call(a);
+} else {
+	call(b);
+}
+
+// ✅
+call(test ? a : b);
+```
 
 ```js
 // ❌
@@ -134,7 +148,7 @@ const items = data.length ? data : defaultData;
 
 ```js
 // ✅
-// Standalone yields
+// Different yielded values
 function* unicorn() {
 	if (test) {
 		yield a;
@@ -146,7 +160,7 @@ function* unicorn() {
 
 ```js
 // ✅
-// Standalone awaits
+// Different awaited operations
 async function unicorn() {
 	if (test) {
 		await a();
@@ -157,12 +171,47 @@ async function unicorn() {
 ```
 
 ```js
-// ✅
-// Standalone throws
+// ❌
+// Standalone throws with the same constructor
 if (test) {
 	throw new Error('foo');
 } else {
 	throw new Error('bar');
+}
+
+// ✅
+throw new Error(test ? 'foo' : 'bar');
+```
+
+```js
+// ❌
+async function unicorn() {
+	if (test) {
+		await object.save(a);
+	} else {
+		await object.save(b);
+	}
+}
+
+// ✅
+async function unicorn() {
+	await object.save(test ? a : b);
+}
+```
+
+```js
+// ❌
+function* unicorn() {
+	if (test) {
+		yield a + 1;
+	} else {
+		yield b + 1;
+	}
+}
+
+// ✅
+function* unicorn() {
+	yield (test ? a : b) + 1;
 }
 ```
 
@@ -209,7 +258,7 @@ Type: `string`\
 Default: `'always'`
 
 - `'always'` (default)
-  - Always report supported `IfStatement` returns and assignments where a ternary expression can be used.
+  - Always report supported `IfStatement` branches where a ternary expression can be used.
 - `'only-single-line'`
   - Only report when the condition and merged expressions are single-line.
 
@@ -223,4 +272,20 @@ if (test) {
 } else {
 	foo = bar;
 }
+```
+
+An optional second options object accepts `checkVaryingBase` and `checkComputedMemberAccess`, both defaulting to `false`. They have the same meaning as the corresponding [`prefer-minimal-ternary` options](./prefer-minimal-ternary.md#options).
+
+```js
+/* eslint unicorn/prefer-ternary: ['error', 'always', {checkVaryingBase: true}] */
+
+// ❌
+if (test) {
+	a(value);
+} else {
+	b(value);
+}
+
+// ✅
+(test ? a : b)(value);
 ```

@@ -15,7 +15,15 @@ import {
 	getVisitorChildNodes,
 	withTypeInformation,
 	unwrapTypeScriptExpression,
+	shouldAddParenthesesToAwaitExpressionArgument,
 } from './utils/index.js';
+import {
+	isMinimalTernary,
+	isTypeSafeToMinimize,
+	getMinimalExpressionText,
+	minimalTernaryOptionsSchema,
+	minimalTernaryDefaultOptions,
+} from './shared/minimal-ternary.js';
 
 const messageId = 'prefer-ternary';
 const suggestionMessageId = 'prefer-ternary/suggestion';
@@ -132,6 +140,7 @@ const isMergeableAssignmentExpression = (consequent, alternate, context) =>
 */
 const create = context => {
 	const isOnlySingleLine = context.options[0] === 'only-single-line';
+	const minimalOptions = context.options[1];
 	const {sourceCode} = context;
 
 	const getText = node => {
@@ -184,6 +193,25 @@ const create = context => {
 		}
 
 		return !returnFalseIfNotMergeable && options;
+	}
+
+	function getMinimalBranches(consequent, alternate) {
+		const wrappers = [];
+		while (
+			consequent.type === alternate.type
+			&& ['ThrowStatement', 'AwaitExpression', 'YieldExpression'].includes(consequent.type)
+			&& consequent.argument
+			&& alternate.argument
+			&& consequent.delegate === alternate.delegate
+		) {
+			wrappers.push(consequent);
+			consequent = consequent.argument;
+			alternate = alternate.argument;
+		}
+
+		if (isMinimalTernary(consequent, alternate, context, minimalOptions)) {
+			return {consequent, alternate, wrappers};
+		}
 	}
 
 	// Convert an initialized `let` followed by one conditional reassignment.
@@ -308,8 +336,14 @@ const create = context => {
 		const result = merge({consequent, alternate}, {
 			returnFalseIfNotMergeable: true,
 		});
+		const branches = result || {consequent, alternate};
+		const minimal = getMinimalBranches(branches.consequent, branches.alternate);
 
-		if (!result || [node.test, result.consequent, result.alternate].some(expression => hasComplexStructure(expression, sourceCode))) {
+		if (
+			(!result && !minimal)
+			|| [node.test, branches.consequent, branches.alternate].some(expression => hasComplexStructure(expression, sourceCode))
+			|| (!result && [consequent, alternate].some(expression => hasTernary(expression, sourceCode.visitorKeys)))
+		) {
 			return;
 		}
 
@@ -325,31 +359,68 @@ const create = context => {
 
 		// Report commented decisions without offering edits that would remove comments.
 		// Preserve comments and allow ESLint directives to suppress the report.
-		return getCommentSafeProblem(context, {
-			node,
-			messageId,
-			* fix(fixer) {
+		const isTypeSafe = minimal && isTypeSafeToMinimize(minimal.consequent, minimal.alternate, context);
+		const fix = function * (fixer, {abort}) {
+			let fixed;
+			if (minimal && (!result || isTypeSafe)) {
+				fixed = getMinimalExpressionText(minimal.consequent, minimal.alternate, {condition: node.test, context});
+			}
+
+			if (fixed !== undefined && /^let\s*\[/u.test(fixed)) {
+				fixed = undefined;
+			}
+
+			if (fixed === undefined) {
+				if (!result) {
+					abort();
+				}
+
 				const testText = getText(node.test);
 				const consequentText = getText(result.consequent);
 				const alternateText = getText(result.alternate);
+				fixed = `${result.before}${testText} ? ${consequentText} : ${alternateText}`;
+			} else {
+				for (const wrapper of minimal.wrappers.toReversed()) {
+					if (wrapper.type === 'AwaitExpression') {
+						fixed = shouldAddParenthesesToAwaitExpressionArgument(wrapper.argument) ? `await (${fixed})` : `await ${fixed}`;
+					} else if (wrapper.type === 'YieldExpression') {
+						fixed = `yield${wrapper.delegate ? '*' : ''} ${fixed}`;
+					} else {
+						fixed = `throw ${fixed}`;
+					}
+				}
 
-				const {before} = result;
-
-				let fixed = `${before}${testText} ? ${consequentText} : ${alternateText}`;
-				if (consequent.type === 'AssignmentExpression' && consequent.left.type === 'ObjectPattern') {
+				if (!result && minimal.wrappers.length === 0 && minimal.consequent.type === 'ObjectExpression') {
 					fixed = `(${fixed})`;
 				}
 
-				fixed += ';';
-				const tokenBefore = sourceCode.getTokenBefore(node);
-				const shouldAddSemicolonBefore = needsSemicolon(tokenBefore, context, fixed);
-				if (shouldAddSemicolonBefore) {
-					fixed = `;${fixed}`;
-				}
+				fixed = `${result ? result.before : ''}${fixed}`;
+			}
 
-				yield fixer.replaceTextRange(replacementRange, fixed);
-			},
-		}, commentRange);
+			if (consequent.type === 'AssignmentExpression' && consequent.left.type === 'ObjectPattern') {
+				fixed = `(${fixed})`;
+			}
+
+			fixed += ';';
+			const tokenBefore = sourceCode.getTokenBefore(node);
+			if (needsSemicolon(tokenBefore, context, fixed)) {
+				fixed = `;${fixed}`;
+			}
+
+			yield fixer.replaceTextRange(replacementRange, fixed);
+		};
+
+		const problem = {
+			node,
+			messageId,
+		};
+		if (result || isTypeSafe) {
+			problem.fix = fix;
+		} else if (minimal.consequent.type === 'ObjectExpression') {
+			problem.suggest = [{messageId: suggestionMessageId, fix}];
+		}
+
+		return getCommentSafeProblem(context, problem, commentRange);
 	}
 
 	context.on('IfStatement', node => {
@@ -367,6 +438,7 @@ const schema = [
 		enum: ['always', 'only-single-line'],
 		description: 'Whether to always prefer ternary, or only for single-line expressions.',
 	},
+	minimalTernaryOptionsSchema,
 ];
 
 /**
@@ -377,13 +449,13 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer ternary expressions over simple `if` statements that return or assign values.',
+			description: 'Prefer ternary expressions over simple `if` statements.',
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
-		defaultOptions: ['always'],
+		defaultOptions: ['always', minimalTernaryDefaultOptions],
 		messages: {
 			[messageId]: 'This `if` statement can be replaced by a ternary expression.',
 			[suggestionMessageId]: 'Use a ternary expression.',
