@@ -1,13 +1,20 @@
 import getShortBodyProblem from './shared/short-body-conditional.js';
-import {canRewriteToEarlyExit, getConsequentStatementCount, getEarlyExitReplacementText} from './shared/early-exit.js';
+import {
+	canRewriteToEarlyExit,
+	getConsequentStatementCount,
+	getEarlyExitReplacementText,
+	getEarlyExitOppositeComparisonFix,
+} from './shared/early-exit.js';
 
 const MESSAGE_ID = 'prefer-early-return';
 const SUGGESTION_MESSAGE_ID = 'prefer-early-return/suggestion';
+const OPPOSITE_COMPARISON_MESSAGE_ID = 'prefer-early-return/opposite-comparison';
 const SHORT_BODY_MESSAGE_ID = 'prefer-early-return/short-body';
 const messages = {
 	[SHORT_BODY_MESSAGE_ID]: 'Prefer conditional wrapping over an early return for a short body.',
 	[MESSAGE_ID]: 'Prefer an early return over wrapping the remainder of the function body in an `if` statement.',
 	[SUGGESTION_MESSAGE_ID]: 'Rewrite to an early return.',
+	[OPPOSITE_COMPARISON_MESSAGE_ID]: 'Rewrite to an early return using the opposite comparison (changes behavior for NaN and values coerced to NaN).',
 };
 
 const schema = [
@@ -79,7 +86,11 @@ const create = context => {
 		}
 
 		const fix = getFix(statement, context);
-		const suggest = fix ? undefined : getSuggestion(statement, context);
+		const oppositeComparisonFix = fix && getEarlyExitOppositeComparisonFix(statement, 'return', context);
+		let suggest = fix ? undefined : getSuggestion(statement, context);
+		if (oppositeComparisonFix) {
+			suggest = [{messageId: OPPOSITE_COMPARISON_MESSAGE_ID, fix: oppositeComparisonFix}];
+		}
 
 		return {
 			node: statement,

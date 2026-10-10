@@ -1501,3 +1501,73 @@ test({
 		].map(code => ({code, errors: [{messageId: 'prefer-early-return', suggestions: []}]})),
 	],
 });
+
+// Relational conditions retain their safe autofix and offer an explicit opposite-comparison suggestion.
+for (const [operator, oppositeOperator] of [['<', '>='], ['<=', '>'], ['>', '<='], ['>=', '<']]) {
+	test({
+		valid: [],
+		invalid: [{
+			code: `function foo() {\n\tif (a ${operator} b) {\n\t\twork();\n\t\tfinish();\n\t}\n}`,
+			output: `function foo() {\n\tif (!(a ${operator} b)) {\n\t\treturn;\n\t}\n\n\twork();\n\tfinish();\n}`,
+			errors: [{
+				messageId: 'prefer-early-return',
+				suggestions: [{
+					messageId: 'prefer-early-return/opposite-comparison',
+					output: `function foo() {\n\tif (a ${oppositeOperator} b) {\n\t\treturn;\n\t}\n\n\twork();\n\tfinish();\n}`,
+				}],
+			}],
+		}],
+	});
+}
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		...[
+			'((a < b))',
+			'(a + b) < (c ?? d)',
+			'a?.value < b',
+			'getValue() < getLimit()',
+			'/* before */ a < b /* after */',
+			'(/* before */ a < b /* after */)',
+			'a /* left */ < /* right */ b',
+			'a < b // keep\n\t',
+		].map(condition => `function foo() {\n\tif (${condition}) {\n\t\twork();\n\t\tfinish();\n\t}\n}`),
+		...[
+			'(a < b) as boolean',
+			'(a < b) satisfies boolean',
+			'(a < b)!',
+			'<boolean>(a < b)',
+			'((a < b) as boolean)!',
+			'(a as number) < b!',
+		].map(condition => ({
+			code: `function foo() {\n\tif (${condition}) {\n\t\twork();\n\t\tfinish();\n\t}\n}`,
+			languageOptions: {parser: parsers.typescript},
+		})),
+		'function foo() {\n  if (a < b) {\n    work();\n    finish();\n  }\n}',
+		'function foo() {\r\n\tif (a < b) {\r\n\t\twork();\r\n\t\tfinish();\r\n\t}\r\n}\r\n',
+		// Existing trailing-comment behavior is unchanged.
+		'function foo() {\n\tif (a < b) {\n\t\twork();\n\t\tfinish();\n\t} // keep\n}',
+	],
+});
+
+// No new suggestion for compound conditions, already-negated comparisons, or unsafe body moves.
+for (const [condition, negatedCondition] of [['a < b && ready', '!(a < b && ready)'], ['a < b || ready', '!(a < b || ready)'], ['!(a < b)', '(a < b)'], ['a === b', '!(a === b)']]) {
+	test({
+		valid: [],
+		invalid: [{
+			code: `function foo() { if (${condition}) { work(); finish(); } }`,
+			output: `function foo() { if (${negatedCondition}) {\n\treturn;\n}\n\nwork(); finish(); }`,
+			errors: [{messageId: 'prefer-early-return', suggestions: []}],
+		}],
+	});
+}
+
+test({
+	valid: [],
+	invalid: [
+		'function foo() { before(); if (a < b) { const value = work(); finish(value); } }',
+		'function foo() { if (a < b) /* keep */ { work(); finish(); } }',
+		'function foo() { if (a < b) { class Value {} finish(); } }',
+	].map(code => ({code, errors: [{messageId: 'prefer-early-return', suggestions: []}]})),
+});
