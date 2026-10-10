@@ -42,6 +42,24 @@ ruleTest({
 			output: 'dedent`\r\n\tfirst line\r\n\t\tsecond line\r\n`',
 		},
 		{
+			name: 'Nested templates are checked when the outer template is ignored',
+			code: fixInput(`
+				outdent\`first \${outdent\`
+				inner
+				\`}
+				••second
+				\`
+			`),
+			errors,
+			output: fixInput(`
+				outdent\`first \${outdent\`
+				••inner
+				\`}
+				••second
+				\`
+			`),
+		},
+		{
 			code: fixInput(`
 				foo = dedent\`
 				••••••••one
