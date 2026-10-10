@@ -98,14 +98,15 @@ function getProblem(node, content, options, fix) {
 */
 const create = context => {
 	const {sourceCode} = context;
+	const isSoml = sourceCode.parserServices?.isSOML === true;
 
 	context.on(['String', 'Key'], node => {
-		if (node.style !== undefined && node.style !== 'escaped') {
+		if (isSoml && node.style !== 'escaped') {
 			return;
 		}
 
 		const raw = sourceCode.getText(node);
-		if (node.style === 'escaped') {
+		if (isSoml) {
 			return getProblem(node, raw, {dialect: 'soml'}, (fixer, fixed) => fixer.replaceText(node, fixed));
 		}
 

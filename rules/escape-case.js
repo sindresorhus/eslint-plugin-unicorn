@@ -31,6 +31,7 @@ const getProblem = ({node, original, regex = escapeCase, lowercase, fix}) => {
 */
 const create = context => {
 	const isLowercase = context.options[0] === 'lowercase';
+	const isSoml = context.sourceCode.parserServices?.isSOML === true;
 
 	context.on('StyleSheet', node => {
 		const {sourceCode} = context;
@@ -58,14 +59,14 @@ const create = context => {
 	});
 
 	context.on(['String', 'Key'], node => {
-		if (context.sourceCode.ast.type === 'StyleSheet' || (node.style !== undefined && node.style !== 'escaped')) {
+		if (context.sourceCode.ast.type === 'StyleSheet' || (isSoml && node.style !== 'escaped')) {
 			return;
 		}
 
 		return getProblem({
 			node,
 			original: context.sourceCode.getText(node),
-			lowercase: node.style === 'escaped' || isLowercase,
+			lowercase: isSoml || isLowercase,
 		});
 	});
 

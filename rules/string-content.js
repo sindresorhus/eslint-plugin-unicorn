@@ -79,6 +79,7 @@ function getReplacements(patterns) {
 const create = context => {
 	const {patterns, selectors} = context.options[0];
 	const isCss = context.sourceCode.ast.type === 'StyleSheet';
+	const isSoml = context.sourceCode.parserServices?.isSOML === true;
 	const replacements = getReplacements(patterns);
 
 	if (replacements.length === 0) {
@@ -130,9 +131,8 @@ const create = context => {
 		}
 
 		const fixed = string.replace(regex, () => suggest);
-		const isSomlString = type === 'String' && node.style !== undefined;
-		const somlString = isSomlString ? getSomlString(fixed) : undefined;
-		if (isSomlString && somlString === undefined) {
+		const somlString = isSoml ? getSomlString(fixed) : undefined;
+		if (isSoml && somlString === undefined) {
 			return problem;
 		}
 
@@ -141,7 +141,7 @@ const create = context => {
 		}
 
 		const fix = fixer => {
-			if (isSomlString) {
+			if (isSoml) {
 				return fixer.replaceText(node, somlString);
 			}
 

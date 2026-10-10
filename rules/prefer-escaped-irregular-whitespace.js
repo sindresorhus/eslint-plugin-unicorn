@@ -62,6 +62,7 @@ function getProblem(node, raw, {fix, shouldFix = true, escapeCharacter = getCode
 */
 const create = context => {
 	const {sourceCode} = context;
+	const isSoml = sourceCode.parserServices?.isSOML === true;
 
 	context.on('Literal', node => {
 		if (isStringLiteral(node)) {
@@ -82,12 +83,12 @@ const create = context => {
 	});
 
 	context.on(['String', 'Key'], node => {
-		if (node.style !== undefined && node.style !== 'escaped') {
+		if (isSoml && node.style !== 'escaped') {
 			return;
 		}
 
 		return getProblem(node, sourceCode.getText(node), {
-			escapeCharacter: node.style === 'escaped' ? character => getCodePointEscape(character).toLowerCase() : getFourDigitEscape,
+			escapeCharacter: isSoml ? character => getCodePointEscape(character).toLowerCase() : getFourDigitEscape,
 		});
 	});
 

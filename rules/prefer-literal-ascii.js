@@ -237,6 +237,8 @@ function getProblem(node, original, quote, fix) {
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
+	const isSoml = context.sourceCode.parserServices?.isSOML === true;
+
 	context.on('StyleSheet', node => {
 		const {sourceCode} = context;
 		const {text} = sourceCode;
@@ -296,7 +298,7 @@ const create = context => {
 	});
 
 	context.on(['String', 'Key'], node => {
-		if (context.sourceCode.ast.type === 'StyleSheet' || (node.style !== undefined && (node.style !== 'escaped' || node.block))) {
+		if (context.sourceCode.ast.type === 'StyleSheet' || (isSoml && (node.style !== 'escaped' || node.block))) {
 			return;
 		}
 

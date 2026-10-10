@@ -257,7 +257,8 @@ function prepareReplacements({extendDefaultReplacements = true, replacements = {
 
 function isEslintDirective(context, comment) {
 	return context.sourceCode.getDisableDirectives
-		&& (isEslintDisableOrEnableDirective(context, comment)
+		&& (context.sourceCode.getInlineConfigNodes?.().includes(comment)
+			|| isEslintDisableOrEnableDirective(context, comment)
 			|| (comment.type === 'Block' && eslintDirectivePattern.test(comment.value)));
 }
 
