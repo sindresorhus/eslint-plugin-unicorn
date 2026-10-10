@@ -8,7 +8,7 @@ exports[`no-await-in-promise-methods > invalid(1): Promise.all([await promise]) 
 
 Message:
 > 1 | Promise.all([await promise])
-    |              ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |              ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.all([promise])
@@ -25,7 +25,7 @@ exports[`no-await-in-promise-methods > invalid(10): Promise.all([await await pro
 
 Message:
 > 1 | Promise.all([await await promise])
-    |              ^^^^^^^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |              ^^^^^^^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.all([await promise])
@@ -42,7 +42,7 @@ exports[`no-await-in-promise-methods > invalid(11): Promise.all([...foo, await p
 
 Message:
 > 1 | Promise.all([...foo, await promise1, await promise2])
-    |                      ^^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                      ^^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.all([...foo, promise1, await promise2])
@@ -53,7 +53,7 @@ exports[`no-await-in-promise-methods > invalid(11): Promise.all([...foo, await p
 
 Message:
 > 1 | Promise.all([...foo, await promise1, await promise2])
-    |                                      ^^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                                      ^^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.all([...foo, await promise1, promise2])
@@ -70,7 +70,7 @@ exports[`no-await-in-promise-methods > invalid(12): Promise.all([await promise1,
 
 Message:
 > 1 | Promise.all([await promise1, await promise2])
-    |              ^^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |              ^^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.all([promise1, await promise2])
@@ -81,7 +81,7 @@ exports[`no-await-in-promise-methods > invalid(12): Promise.all([await promise1,
 
 Message:
 > 1 | Promise.all([await promise1, await promise2])
-    |                              ^^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                              ^^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.all([await promise1, promise2])
@@ -98,7 +98,7 @@ exports[`no-await-in-promise-methods > invalid(13): Promise.any([await a, await 
 
 Message:
 > 1 | Promise.any([await a, await b, await c])
-    |              ^^^^^^^ Promise in \`Promise.any()\` should not be awaited.
+    |              ^^^^^^^ Avoid \`await\` inside \`Promise.any()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.any([a, await b, await c])
@@ -109,7 +109,7 @@ exports[`no-await-in-promise-methods > invalid(13): Promise.any([await a, await 
 
 Message:
 > 1 | Promise.any([await a, await b, await c])
-    |                       ^^^^^^^ Promise in \`Promise.any()\` should not be awaited.
+    |                       ^^^^^^^ Avoid \`await\` inside \`Promise.any()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.any([await a, b, await c])
@@ -120,7 +120,7 @@ exports[`no-await-in-promise-methods > invalid(13): Promise.any([await a, await 
 
 Message:
 > 1 | Promise.any([await a, await b, await c])
-    |                                ^^^^^^^ Promise in \`Promise.any()\` should not be awaited.
+    |                                ^^^^^^^ Avoid \`await\` inside \`Promise.any()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.any([await a, await b, c])
@@ -137,7 +137,7 @@ exports[`no-await-in-promise-methods > invalid(14): Promise.all([await /* commen
 
 Message:
 > 1 | Promise.all([await /* comment*/ promise])
-    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.all([/* comment*/ promise])
@@ -154,7 +154,7 @@ exports[`no-await-in-promise-methods > invalid(15): Promise.all([(await promise,
 
 Message:
 > 1 | Promise.all([(await promise, 0)])
-    |               ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |               ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -168,7 +168,7 @@ exports[`no-await-in-promise-methods > invalid(16): Promise.all([(await promise)
 
 Message:
 > 1 | Promise.all([(await promise).foo, anotherPromise])
-    |               ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |               ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -182,7 +182,7 @@ exports[`no-await-in-promise-methods > invalid(17): Promise.all([foo ? await pro
 
 Message:
 > 1 | Promise.all([foo ? await promise : anotherPromise, anotherPromise])
-    |                    ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                    ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -196,7 +196,7 @@ exports[`no-await-in-promise-methods > invalid(18): Promise.all([foo && await pr
 
 Message:
 > 1 | Promise.all([foo && await promise, anotherPromise])
-    |                     ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                     ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -210,7 +210,7 @@ exports[`no-await-in-promise-methods > invalid(19): Promise.all([fetch(await get
 
 Message:
 > 1 | Promise.all([fetch(await getUrl()), anotherPromise])
-    |                    ^^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                    ^^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -224,7 +224,7 @@ exports[`no-await-in-promise-methods > invalid(2): Promise.allSettled([await pro
 
 Message:
 > 1 | Promise.allSettled([await promise])
-    |                     ^^^^^^^^^^^^^ Promise in \`Promise.allSettled()\` should not be awaited.
+    |                     ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.allSettled()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.allSettled([promise])
@@ -241,7 +241,7 @@ exports[`no-await-in-promise-methods > invalid(20): Promise.all([...await promis
 
 Message:
 > 1 | Promise.all([...await promises, anotherPromise])
-    |                 ^^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                 ^^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -255,7 +255,7 @@ exports[`no-await-in-promise-methods > invalid(21): Promise.all([{foo: await pro
 
 Message:
 > 1 | Promise.all([{foo: await promise}])
-    |                    ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                    ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -269,7 +269,7 @@ exports[`no-await-in-promise-methods > invalid(22): Promise.all([[await promise]
 
 Message:
 > 1 | Promise.all([[await promise]])
-    |               ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |               ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -283,7 +283,7 @@ exports[`no-await-in-promise-methods > invalid(23): Promise.all([(await promise1
 
 Message:
 > 1 | Promise.all([(await promise1) + (await promise2)])
-    |               ^^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |               ^^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -291,7 +291,7 @@ exports[`no-await-in-promise-methods > invalid(23): Promise.all([(await promise1
 
 Message:
 > 1 | Promise.all([(await promise1) + (await promise2)])
-    |                                  ^^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                                  ^^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -305,7 +305,7 @@ exports[`no-await-in-promise-methods > invalid(24): Promise.all([await (await pr
 
 Message:
 > 1 | Promise.all([await (await promise).foo])
-    |              ^^^^^^^^^^^^^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.all([(await promise).foo])
@@ -322,7 +322,7 @@ exports[`no-await-in-promise-methods > invalid(25): Promise.all([Promise.all([aw
 
 Message:
 > 1 | Promise.all([Promise.all([await promise]), anotherPromise])
-    |                           ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                           ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.all([Promise.all([promise]), anotherPromise])
@@ -339,7 +339,7 @@ exports[`no-await-in-promise-methods > invalid(26): Promise.all([async () => {},
 
 Message:
 > 1 | Promise.all([async () => {}, (await promise).foo])
-    |                               ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                               ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -353,7 +353,7 @@ exports[`no-await-in-promise-methods > invalid(27): Promise.all([(await promise 
 
 Message:
 > 1 | Promise.all([(await promise as Foo).bar])
-    |               ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |               ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -367,7 +367,7 @@ exports[`no-await-in-promise-methods > invalid(28): Promise.all([(await promise)
 
 Message:
 > 1 | Promise.all([(await promise)!])
-    |               ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |               ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -381,7 +381,7 @@ exports[`no-await-in-promise-methods > invalid(29): Promise.all([(await promise)
 
 Message:
 > 1 | Promise.all([(await promise)?.foo, anotherPromise])
-    |               ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |               ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -395,7 +395,7 @@ exports[`no-await-in-promise-methods > invalid(3): Promise.any([await promise]) 
 
 Message:
 > 1 | Promise.any([await promise])
-    |              ^^^^^^^^^^^^^ Promise in \`Promise.any()\` should not be awaited.
+    |              ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.any()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.any([promise])
@@ -412,7 +412,7 @@ exports[`no-await-in-promise-methods > invalid(30): Promise.all([tag\`\${await p
 
 Message:
 > 1 | Promise.all([tag\`\${await promise}\`, anotherPromise])
-    |                    ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                    ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -426,7 +426,7 @@ exports[`no-await-in-promise-methods > invalid(31): Promise.all([<div>{await pro
 
 Message:
 > 1 | Promise.all([<div>{await promise}</div>, anotherPromise])
-    |                    ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                    ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -440,7 +440,7 @@ exports[`no-await-in-promise-methods > invalid(32): Promise.all([await foo(await
 
 Message:
 > 1 | Promise.all([await foo(await promise)])
-    |              ^^^^^^^^^^^^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.all([foo(await promise)])
@@ -457,7 +457,7 @@ exports[`no-await-in-promise-methods > invalid(33): Promise.allSettled([(await p
 
 Message:
 > 1 | Promise.allSettled([(await promise).foo, anotherPromise])
-    |                      ^^^^^^^^^^^^^ Promise in \`Promise.allSettled()\` should not be awaited.
+    |                      ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.allSettled()\` arguments to prevent delaying the call.
 
 `;
 
@@ -471,7 +471,7 @@ exports[`no-await-in-promise-methods > invalid(34): Promise.any([(await promise)
 
 Message:
 > 1 | Promise.any([(await promise).foo, anotherPromise])
-    |               ^^^^^^^^^^^^^ Promise in \`Promise.any()\` should not be awaited.
+    |               ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.any()\` arguments to prevent delaying the call.
 
 `;
 
@@ -485,7 +485,7 @@ exports[`no-await-in-promise-methods > invalid(35): Promise.race([(await promise
 
 Message:
 > 1 | Promise.race([(await promise).foo, anotherPromise])
-    |                ^^^^^^^^^^^^^ Promise in \`Promise.race()\` should not be awaited.
+    |                ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.race()\` arguments to prevent delaying the call.
 
 `;
 
@@ -499,7 +499,7 @@ exports[`no-await-in-promise-methods > invalid(36): Promise.all([await promise1,
 
 Message:
 > 1 | Promise.all([await promise1, (await promise2).foo])
-    |              ^^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |              ^^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.all([promise1, (await promise2).foo])
@@ -510,7 +510,7 @@ exports[`no-await-in-promise-methods > invalid(36): Promise.all([await promise1,
 
 Message:
 > 1 | Promise.all([await promise1, (await promise2).foo])
-    |                               ^^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                               ^^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -524,7 +524,7 @@ exports[`no-await-in-promise-methods > invalid(37): Promise.all([(await promise)
 
 Message:
 > 1 | Promise.all([(await promise)])
-    |               ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |               ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.all([(promise)])
@@ -541,7 +541,7 @@ exports[`no-await-in-promise-methods > invalid(38): Promise.all([((await promise
 
 Message:
 > 1 | Promise.all([((await promise)).foo])
-    |                ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -555,7 +555,7 @@ exports[`no-await-in-promise-methods > invalid(39): Promise.all([new Foo(await b
 
 Message:
 > 1 | Promise.all([new Foo(await bar)])
-    |                      ^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                      ^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -569,7 +569,7 @@ exports[`no-await-in-promise-methods > invalid(4): Promise.race([await promise])
 
 Message:
 > 1 | Promise.race([await promise])
-    |               ^^^^^^^^^^^^^ Promise in \`Promise.race()\` should not be awaited.
+    |               ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.race()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.race([promise])
@@ -586,7 +586,7 @@ exports[`no-await-in-promise-methods > invalid(40): Promise.all([foo[await bar]]
 
 Message:
 > 1 | Promise.all([foo[await bar]])
-    |                  ^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                  ^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -600,7 +600,7 @@ exports[`no-await-in-promise-methods > invalid(41): Promise.all([foo?.[await bar
 
 Message:
 > 1 | Promise.all([foo?.[await bar]])
-    |                    ^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                    ^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -614,7 +614,7 @@ exports[`no-await-in-promise-methods > invalid(42): Promise.all([(await promise)
 
 Message:
 > 1 | Promise.all([(await promise)()])
-    |               ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |               ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -628,7 +628,7 @@ exports[`no-await-in-promise-methods > invalid(43): Promise.all([(await tag)\`fo
 
 Message:
 > 1 | Promise.all([(await tag)\`foo\`])
-    |               ^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |               ^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -642,7 +642,7 @@ exports[`no-await-in-promise-methods > invalid(44): Promise.all([\`\${await prom
 
 Message:
 > 1 | Promise.all([\`\${await promise}\`, anotherPromise])
-    |                 ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                 ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -656,7 +656,7 @@ exports[`no-await-in-promise-methods > invalid(45): Promise.all([foo ?? await ba
 
 Message:
 > 1 | Promise.all([foo ?? await bar])
-    |                     ^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                     ^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -670,7 +670,7 @@ exports[`no-await-in-promise-methods > invalid(46): Promise.all([!await foo, ano
 
 Message:
 > 1 | Promise.all([!await foo, anotherPromise])
-    |               ^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |               ^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -684,7 +684,7 @@ exports[`no-await-in-promise-methods > invalid(47): Promise.all([(foo = await ba
 
 Message:
 > 1 | Promise.all([(foo = await bar)])
-    |                     ^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                     ^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -698,7 +698,7 @@ exports[`no-await-in-promise-methods > invalid(48): Promise.all([({foo} = await 
 
 Message:
 > 1 | Promise.all([({foo} = await bar)])
-    |                       ^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                       ^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -712,7 +712,7 @@ exports[`no-await-in-promise-methods > invalid(49): Promise.all([(foo, await bar
 
 Message:
 > 1 | Promise.all([(foo, await bar)])
-    |                    ^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                    ^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -726,7 +726,7 @@ exports[`no-await-in-promise-methods > invalid(5): Promise.all([, await promise]
 
 Message:
 > 1 | Promise.all([, await promise])
-    |                ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.all([, promise])
@@ -743,7 +743,7 @@ exports[`no-await-in-promise-methods > invalid(50): Promise.all([...(await promi
 
 Message:
 > 1 | Promise.all([...(await promise).items, anotherPromise])
-    |                  ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                  ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -757,7 +757,7 @@ exports[`no-await-in-promise-methods > invalid(51): Promise.all([import(await ge
 
 Message:
 > 1 | Promise.all([import(await getPath()), anotherPromise])
-    |                     ^^^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                     ^^^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -771,7 +771,7 @@ exports[`no-await-in-promise-methods > invalid(52): Promise.all([await promise.t
 
 Message:
 > 1 | Promise.all([await promise.then(foo)])
-    |              ^^^^^^^^^^^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |              ^^^^^^^^^^^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.all([promise.then(foo)])
@@ -788,7 +788,7 @@ exports[`no-await-in-promise-methods > invalid(53): Promise.all([{[await key]: v
 
 Message:
 > 1 | Promise.all([{[await key]: value}])
-    |                ^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                ^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -802,7 +802,7 @@ exports[`no-await-in-promise-methods > invalid(54): Promise.all([{async [await k
 
 Message:
 > 1 | Promise.all([{async [await key]() {}}])
-    |                      ^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                      ^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -816,7 +816,7 @@ exports[`no-await-in-promise-methods > invalid(55): Promise.all([class { [await 
 
 Message:
 > 1 | Promise.all([class { [await key]() {} }])
-    |                       ^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                       ^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -830,7 +830,7 @@ exports[`no-await-in-promise-methods > invalid(56): Promise.all([class extends (
 
 Message:
 > 1 | Promise.all([class extends (await Base) {}])
-    |                             ^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                             ^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -844,7 +844,7 @@ exports[`no-await-in-promise-methods > invalid(57): Promise.all([foo([await prom
 
 Message:
 > 1 | Promise.all([foo([await promise])])
-    |                   ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                   ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -858,7 +858,7 @@ exports[`no-await-in-promise-methods > invalid(58): Promise.all([Promise.all(awa
 
 Message:
 > 1 | Promise.all([Promise.all(await promises), anotherPromise])
-    |                          ^^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                          ^^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -872,7 +872,7 @@ exports[`no-await-in-promise-methods > invalid(59): Promise.all([await Promise.a
 
 Message:
 > 1 | Promise.all([await Promise.all([await promise])])
-    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.all([Promise.all([await promise])])
@@ -883,7 +883,7 @@ exports[`no-await-in-promise-methods > invalid(59): Promise.all([await Promise.a
 
 Message:
 > 1 | Promise.all([await Promise.all([await promise])])
-    |                                 ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                                 ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.all([await Promise.all([promise])])
@@ -900,7 +900,7 @@ exports[`no-await-in-promise-methods > invalid(6): Promise.all([await promise,])
 
 Message:
 > 1 | Promise.all([await promise,])
-    |              ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |              ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.all([promise,])
@@ -917,7 +917,7 @@ exports[`no-await-in-promise-methods > invalid(60): async function foo() { retur
 
 Message:
 > 1 | async function foo() { return Promise.all([(await promise).foo, anotherPromise]); }
-    |                                             ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                                             ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -938,7 +938,7 @@ Message:
 > 2 | 	await
     | 	^^^^^
 > 3 | 		promise,
-    | ^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    | ^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
   4 | 	anotherPromise,
   5 | ]);
 
@@ -960,7 +960,7 @@ exports[`no-await-in-promise-methods > invalid(62): Promise.all([await promise a
 
 Message:
 > 1 | Promise.all([await promise as Foo])
-    |              ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |              ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -974,7 +974,7 @@ exports[`no-await-in-promise-methods > invalid(63): Promise.all([await promise s
 
 Message:
 > 1 | Promise.all([await promise satisfies Foo])
-    |              ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |              ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -988,7 +988,7 @@ exports[`no-await-in-promise-methods > invalid(64): Promise.all([<Foo>await prom
 
 Message:
 > 1 | Promise.all([<Foo>await promise])
-    |                   ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                   ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -1002,7 +1002,7 @@ exports[`no-await-in-promise-methods > invalid(65): Promise.all([await promise!]
 
 Message:
 > 1 | Promise.all([await promise!])
-    |              ^^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |              ^^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.all([promise!])
@@ -1019,7 +1019,7 @@ exports[`no-await-in-promise-methods > invalid(66): Promise.all([(await promise)
 
 Message:
 > 1 | Promise.all([(await promise)<Foo>()])
-    |               ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |               ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -1033,7 +1033,7 @@ exports[`no-await-in-promise-methods > invalid(67): Promise.all([<Foo bar={await
 
 Message:
 > 1 | Promise.all([<Foo bar={await promise} />, anotherPromise])
-    |                        ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |                        ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 `;
 
@@ -1047,7 +1047,7 @@ exports[`no-await-in-promise-methods > invalid(7): Promise.all([await promise],)
 
 Message:
 > 1 | Promise.all([await promise],)
-    |              ^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |              ^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.all([promise],)
@@ -1064,7 +1064,7 @@ exports[`no-await-in-promise-methods > invalid(8): Promise.all([await (0, promis
 
 Message:
 > 1 | Promise.all([await (0, promise)],)
-    |              ^^^^^^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |              ^^^^^^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.all([(0, promise)],)
@@ -1081,7 +1081,7 @@ exports[`no-await-in-promise-methods > invalid(9): Promise.all([await (( promise
 
 Message:
 > 1 | Promise.all([await (( promise ))])
-    |              ^^^^^^^^^^^^^^^^^^^ Promise in \`Promise.all()\` should not be awaited.
+    |              ^^^^^^^^^^^^^^^^^^^ Avoid \`await\` inside \`Promise.all()\` arguments to prevent delaying the call.
 
 Suggestion 1/1: Remove \`await\`.:
   1 | Promise.all([(( promise ))])
