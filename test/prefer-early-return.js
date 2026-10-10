@@ -1513,6 +1513,22 @@ test({
 	],
 });
 
+test({
+	valid: ['function foo() {\n\tif (a < b) work();\n}'],
+	invalid: [{
+		code: 'function foo() {\n\tif (a < b) work();\n}',
+		options: [{maximumStatements: 0, checkShortBodies: true}],
+		output: 'function foo() {\n\tif (!(a < b)) {\n\t\treturn;\n\t}\n\n\twork();\n}',
+		errors: [{
+			messageId: 'prefer-early-return',
+			suggestions: [{
+				messageId: 'prefer-early-return/opposite-comparison',
+				output: 'function foo() {\n\tif (a >= b) {\n\t\treturn;\n\t}\n\n\twork();\n}',
+			}],
+		}],
+	}],
+});
+
 // Relational conditions retain their safe autofix and offer an explicit opposite-comparison suggestion.
 for (const [operator, oppositeOperator] of [['<', '>='], ['<=', '>'], ['>', '<='], ['>=', '<']]) {
 	test({

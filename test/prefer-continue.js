@@ -1305,6 +1305,22 @@ test({
 	],
 });
 
+test({
+	valid: ['for (const item of items) {\n\tif (a < b) work();\n}'],
+	invalid: [{
+		code: 'for (const item of items) {\n\tif (a < b) work();\n}',
+		options: [{maximumStatements: 0, checkShortBodies: true}],
+		output: 'for (const item of items) {\n\tif (!(a < b)) {\n\t\tcontinue;\n\t}\n\n\twork();\n}',
+		errors: [{
+			messageId: 'prefer-continue',
+			suggestions: [{
+				messageId: 'prefer-continue/opposite-comparison',
+				output: 'for (const item of items) {\n\tif (a >= b) {\n\t\tcontinue;\n\t}\n\n\twork();\n}',
+			}],
+		}],
+	}],
+});
+
 // Relational conditions retain their safe autofix and offer an explicit opposite-comparison suggestion.
 for (const [operator, oppositeOperator] of [['<', '>='], ['<=', '>'], ['>', '<='], ['>=', '<']]) {
 	test({
