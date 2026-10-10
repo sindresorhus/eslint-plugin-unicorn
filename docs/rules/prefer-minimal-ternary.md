@@ -90,7 +90,7 @@ These transformations are intentionally excluded:
 - **Conditional spreads** (`test ? [1, 2] : [1]`): added spread syntax often hurts readability, including for multiple varying JSX attributes.
 - **Object key swaps** (`test ? {a: 1} : {b: 1}`): computed keys obscure the object shapes.
 - **String/template splitting** (`test ? 'cat' : 'car'`): shared text is not necessarily a meaningful unit.
-- **`if`/`else` conversion** (`if (test) { a(); } else { b(); }`): belongs to [`prefer-ternary`](./prefer-ternary.md), which targets returns and assignments.
+- **`if`/`else` conversion**: belongs to [`prefer-ternary`](./prefer-ternary.md), which shares this rule's expression matching and fixes directly to the minimal form when safe.
 - **TypeScript wrappers** (`test ? a! : b!`): factoring out `as`, `!`, or `satisfies` needs separate type-checking analysis.
 
 ## Options

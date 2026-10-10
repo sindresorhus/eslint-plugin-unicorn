@@ -108,7 +108,10 @@ for (const [pattern, first, second] of [
 		t.assert.strictEqual(messages.length, 1);
 		const {fix} = messages[0];
 		t.assert.ok(fix);
-		const assignment = `${pattern} = object.kind === "first" ? ${first} : ${second}`;
+		const value = pattern.startsWith('[')
+			? `[object.kind === "first" ? ${first.slice(1, -1)} : ${second.slice(1, -1)}]`
+			: `object.kind === "first" ? ${first} : ${second}`;
+		const assignment = `${pattern} = ${value}`;
 		t.assert.strictEqual(fix.text, pattern.startsWith('{') ? `(${assignment});` : `${assignment};`);
 		const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
 		t.assert.deepStrictEqual(getDiagnostics(createProgram(output)), []);
