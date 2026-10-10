@@ -196,7 +196,8 @@ for (const [name, code] of [
 ]) {
 	for (const selected of [true, false]) {
 		nodeTest(`preserves ${name} when selected is ${selected}`, t => {
-			const result = new Linter().verifyAndFix(code, {
+			const linter = new Linter();
+			const result = linter.verifyAndFix(code, {
 				plugins: {unicorn},
 				rules: {'unicorn/prefer-ternary': 'error'},
 			});
@@ -215,7 +216,8 @@ for (const [name, code] of [
 for (const selected of [true, false]) {
 	nodeTest(`preserves delegated yields when selected is ${selected}`, t => {
 		const code = 'function* unicorn() { if (selected) { yield* [1, a]; } else { yield* [1, b]; } return "done"; }';
-		const result = new Linter().verifyAndFix(code, {
+		const linter = new Linter();
+		const result = linter.verifyAndFix(code, {
 			plugins: {unicorn},
 			rules: {'unicorn/prefer-ternary': 'error'},
 		});
