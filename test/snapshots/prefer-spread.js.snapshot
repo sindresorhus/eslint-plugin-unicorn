@@ -516,7 +516,7 @@ Message:
 > 1 | const copy = Array.from(([] as never[]));
     |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer the spread operator over \`Array.from(…)\`.
 
-Output:
+Suggestion 1/1: Use the spread operator.:
   1 | const copy = [...([] as never[])];
 
 `;

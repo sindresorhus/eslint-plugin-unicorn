@@ -394,9 +394,9 @@ function shouldSuggestSpread(node, context, array) {
 	}
 
 	const {parent} = node;
+	// Removing the outer call can change contextual typing of an inline source expression.
 	if (
-		!array
-		|| isArrayLiteral(array)
+		array?.type !== 'Identifier'
 		|| parent.type !== 'VariableDeclarator'
 		|| parent.init !== node
 		|| parent.id.type !== 'Identifier'

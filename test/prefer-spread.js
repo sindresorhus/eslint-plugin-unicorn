@@ -1070,6 +1070,16 @@ ruleTest({
 			}],
 		},
 		{
+			...typeAware('declare function getArray<Type>(): Type[]; const copy = Array.from<string>(getArray()); copy[0].toUpperCase();'),
+			errors: [{
+				messageId: 'array-from',
+				suggestions: [{
+					messageId: 'spread',
+					output: 'declare function getArray<Type>(): Type[]; const copy = [...getArray()]; copy[0].toUpperCase();',
+				}],
+			}],
+		},
+		{
 			...typeAware('declare const array: string[]; const copy = array.slice(/* keep */);'),
 			errors: [{messageId: 'array-slice'}],
 		},
@@ -1090,6 +1100,9 @@ test('preserves compiling TypeScript copies and their inferred types', t => {
 		const copyConcat = words.concat();
 		const copyWide = Array.from<string>(words);
 		copyWide.push('c');
+		declare function getArray<Type>(): Type[];
+		const copyInferred = Array.from<string>(getArray());
+		copyInferred[0].toUpperCase();
 	`;
 	const {filename, languageOptions} = typeAware(code);
 	const options = {
@@ -1122,9 +1135,11 @@ test('preserves compiling TypeScript copies and their inferred types', t => {
 		.replace('words.slice(0)', '[...words]')
 		.replace('Array.from(words)', '[...words]')
 		.replace('words.concat()', '[...words]'));
-	t.assert.strictEqual(result.messages.length, 1);
-	t.assert.strictEqual(result.messages[0].messageId, 'array-from');
-	t.assert.strictEqual(result.messages[0].fix, undefined);
+	t.assert.strictEqual(result.messages.length, 2);
+	for (const message of result.messages) {
+		t.assert.strictEqual(message.messageId, 'array-from');
+		t.assert.strictEqual(message.fix, undefined);
+	}
 
 	const copyTypes = [];
 	for (const source of [code, result.output]) {
@@ -1139,13 +1154,15 @@ test('preserves compiling TypeScript copies and their inferred types', t => {
 			.map(declaration => checker.typeToString(checker.getTypeAtLocation(declaration))));
 	}
 
-	t.assert.strictEqual(copyTypes[0].length, 5);
+	t.assert.strictEqual(copyTypes[0].length, 6);
 	t.assert.deepStrictEqual(copyTypes[1], copyTypes[0]);
-	const [suggestion] = result.messages[0].suggestions;
-	const {range, text} = suggestion.fix;
-	const [start, end] = range;
-	const suggestedOutput = result.output.slice(0, start) + text + result.output.slice(end);
-	t.assert.deepStrictEqual(typescriptCompiler.getPreEmitDiagnostics(getProgram(suggestedOutput)).map(diagnostic => diagnostic.code), [2345]);
+	for (const [index, diagnosticCode] of [2345, 2571].entries()) {
+		const [suggestion] = result.messages[index].suggestions;
+		const {range, text} = suggestion.fix;
+		const [start, end] = range;
+		const suggestedOutput = result.output.slice(0, start) + text + result.output.slice(end);
+		t.assert.deepStrictEqual(typescriptCompiler.getPreEmitDiagnostics(getProgram(suggestedOutput)).map(diagnostic => diagnostic.code), [diagnosticCode]);
+	}
 });
 
 ruleTest.snapshot({
