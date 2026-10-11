@@ -8297,58 +8297,58 @@ Suggestion 12/12: Rename to \`requiresCompleted\`.:
 
 `;
 
-exports[`consistent-boolean-name > invalid(78): function run<T extends boolean>(value: T) { const completed = value; return completed; } 1`] = `
+exports[`consistent-boolean-name > invalid(78): function isRun<T extends boolean>(value: T) { const completed = value; return completed; } 1`] = `
 
 Filename: file.ts
 
-  1 | function run<T extends boolean>(value: T) { const completed = value; return completed; }
+  1 | function isRun<T extends boolean>(value: T) { const completed = value; return completed; }
 
 `;
 
-exports[`consistent-boolean-name > invalid(78): function run<T extends boolean>(value: T) { const completed = value; return completed; } 2`] = `
+exports[`consistent-boolean-name > invalid(78): function isRun<T extends boolean>(value: T) { const completed = value; return completed; } 2`] = `
 
 Message:
-> 1 | function run<T extends boolean>(value: T) { const completed = value; return completed; }
-    |                                                   ^^^^^^^^^ Boolean name \`completed\` should start with \`is\`, \`are\`, \`has\`, \`have\`, \`can\`, \`should\`, \`was\`, \`were\`, \`does\`, \`did\`, \`will\`, \`requires\`.
+> 1 | function isRun<T extends boolean>(value: T) { const completed = value; return completed; }
+    |                                                     ^^^^^^^^^ Boolean name \`completed\` should start with \`is\`, \`are\`, \`has\`, \`have\`, \`can\`, \`should\`, \`was\`, \`were\`, \`does\`, \`did\`, \`will\`, \`requires\`.
 
 Output:
-  1 | function run<T extends boolean>(value: T) { const isCompleted = value; return isCompleted; }
+  1 | function isRun<T extends boolean>(value: T) { const isCompleted = value; return isCompleted; }
 
 Suggestion 1/12: Rename to \`isCompleted\`.:
-  1 | function run<T extends boolean>(value: T) { const isCompleted = value; return isCompleted; }
+  1 | function isRun<T extends boolean>(value: T) { const isCompleted = value; return isCompleted; }
 
 Suggestion 2/12: Rename to \`areCompleted\`.:
-  1 | function run<T extends boolean>(value: T) { const areCompleted = value; return areCompleted; }
+  1 | function isRun<T extends boolean>(value: T) { const areCompleted = value; return areCompleted; }
 
 Suggestion 3/12: Rename to \`hasCompleted\`.:
-  1 | function run<T extends boolean>(value: T) { const hasCompleted = value; return hasCompleted; }
+  1 | function isRun<T extends boolean>(value: T) { const hasCompleted = value; return hasCompleted; }
 
 Suggestion 4/12: Rename to \`haveCompleted\`.:
-  1 | function run<T extends boolean>(value: T) { const haveCompleted = value; return haveCompleted; }
+  1 | function isRun<T extends boolean>(value: T) { const haveCompleted = value; return haveCompleted; }
 
 Suggestion 5/12: Rename to \`canCompleted\`.:
-  1 | function run<T extends boolean>(value: T) { const canCompleted = value; return canCompleted; }
+  1 | function isRun<T extends boolean>(value: T) { const canCompleted = value; return canCompleted; }
 
 Suggestion 6/12: Rename to \`shouldCompleted\`.:
-  1 | function run<T extends boolean>(value: T) { const shouldCompleted = value; return shouldCompleted; }
+  1 | function isRun<T extends boolean>(value: T) { const shouldCompleted = value; return shouldCompleted; }
 
 Suggestion 7/12: Rename to \`wasCompleted\`.:
-  1 | function run<T extends boolean>(value: T) { const wasCompleted = value; return wasCompleted; }
+  1 | function isRun<T extends boolean>(value: T) { const wasCompleted = value; return wasCompleted; }
 
 Suggestion 8/12: Rename to \`wereCompleted\`.:
-  1 | function run<T extends boolean>(value: T) { const wereCompleted = value; return wereCompleted; }
+  1 | function isRun<T extends boolean>(value: T) { const wereCompleted = value; return wereCompleted; }
 
 Suggestion 9/12: Rename to \`doesCompleted\`.:
-  1 | function run<T extends boolean>(value: T) { const doesCompleted = value; return doesCompleted; }
+  1 | function isRun<T extends boolean>(value: T) { const doesCompleted = value; return doesCompleted; }
 
 Suggestion 10/12: Rename to \`didCompleted\`.:
-  1 | function run<T extends boolean>(value: T) { const didCompleted = value; return didCompleted; }
+  1 | function isRun<T extends boolean>(value: T) { const didCompleted = value; return didCompleted; }
 
 Suggestion 11/12: Rename to \`willCompleted\`.:
-  1 | function run<T extends boolean>(value: T) { const willCompleted = value; return willCompleted; }
+  1 | function isRun<T extends boolean>(value: T) { const willCompleted = value; return willCompleted; }
 
 Suggestion 12/12: Rename to \`requiresCompleted\`.:
-  1 | function run<T extends boolean>(value: T) { const requiresCompleted = value; return requiresCompleted; }
+  1 | function isRun<T extends boolean>(value: T) { const requiresCompleted = value; return requiresCompleted; }
 
 `;
 

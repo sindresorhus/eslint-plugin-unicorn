@@ -1748,9 +1748,7 @@ function getFunctionReturnTypeInformationBooleanState(node, context, allowNullis
 			}
 
 			if (checker.getAwaitedType(nonNullableReturnType) === nonNullableReturnType) {
-				return isFunction(node) && node.returnType && !node.async
-					? getTypeBooleanState(nonNullableReturnType, checker, new Set(), false)
-					: unknown;
+				return getTypeBooleanState(nonNullableReturnType, checker, new Set(), false);
 			}
 
 			return hasUnresolvedTypeParameterReference(node.returnType, context, getTypeState(), context.sourceCode.getScope(node), false)

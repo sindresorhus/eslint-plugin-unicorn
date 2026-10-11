@@ -1101,7 +1101,7 @@ test.snapshot({
 		typeAware('function run<T>(value: T) { const isReady = value; return isReady; }'),
 		typeAware('function run<T extends unknown>(value: T) { const isReady = value; return isReady; }'),
 		typeAware('function run<T extends any>(value: T) { const isReady = value; return isReady; }'),
-		typeAware('function run<T extends boolean>(value: T) { const isReady = value; return isReady; }'),
+		typeAware('function isRun<T extends boolean>(value: T) { const isReady = value; return isReady; }'),
 		typeAware('function run<T extends boolean | undefined>(value: T) { const isReady = value; return isReady; }'),
 		typeAware([
 			'const isInsideSale = async (salesRep: string | null) => {',
@@ -1284,7 +1284,7 @@ test.snapshot({
 		typeAware('declare const value: Promise<boolean>; const isReady = value;'),
 		typeAware('declare const getReady: () => () => boolean; const isReady = getReady;'),
 		typeAware('function run<T extends string>(value: T) { const isReady = value; return isReady; }'),
-		typeAware('function run<T extends boolean>(value: T) { const completed = value; return completed; }'),
+		typeAware('function isRun<T extends boolean>(value: T) { const completed = value; return completed; }'),
 		typeAware('declare const options: {enabled: string}; const isCompleted = options.enabled;'),
 		typeAware('const isReady = true as string;'),
 		typeAware('function hasTitle(): string | false {}'),
@@ -3354,6 +3354,36 @@ test({
 		options: [{checkMethods: 'always'}],
 		errors: [{messageId: 'non-boolean-prefix'}, {messageId: 'non-boolean-prefix'}],
 	})],
+});
+
+test({
+	valid: [
+		typeAware('declare const task: {ready(value: string): boolean; ready(value: number): Promise<boolean>}; const isReady = task.ready;'),
+		typeAware('const isReady = (() => Promise.resolve(true)) as (() => boolean) & (() => Promise<boolean>);'),
+		typeAware('declare function create(): () => boolean; const isReady = create();'),
+	],
+	invalid: [
+		typeAware({
+			code: 'declare const task: {ready(value: string): boolean; ready(value: number): Promise<boolean>}; const ready = task.ready;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
+		}),
+		typeAware({
+			code: 'const ready = (() => Promise.resolve(true)) as (() => boolean) & (() => Promise<boolean>);',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
+		}),
+		typeAware({
+			code: 'declare const task: {ready(value: string): string; ready(value: number): Promise<boolean>}; const isReady = task.ready;',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'declare function create(): () => boolean; const ready = create();',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
+		}),
+		typeAware({
+			code: 'function ready<T extends boolean>(value: T) { const isResult = value; return isResult; }',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
+		}),
+	],
 });
 
 for (const parserCase of [typescript, typeAware]) {
