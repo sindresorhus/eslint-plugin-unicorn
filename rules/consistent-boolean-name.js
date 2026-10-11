@@ -1615,7 +1615,7 @@ function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 		&& context.sourceCode.parserServices?.program
 		&& canUseTypeInformationFallback(node, context, normalizedTypeState, scope, definitions)
 	) {
-		result = interfaceDefinitions.length > 0
+		result = isCallableTypeAnnotation(node, context, scope, {typeState: normalizedTypeState})
 			? getFunctionReturnTypeInformationBooleanState(node, context, normalizedTypeState.allowNullish)
 			: getPromisedTypeInformationBooleanState(node, context, normalizedTypeState.allowNullish);
 	}
@@ -2349,7 +2349,11 @@ function getGetterBooleanState(node, context) {
 		return stateFromReturnType;
 	}
 
-	const stateFromTypeInformation = getTypeInformationBooleanState(node, context);
+	const stateFromTypeInformation = withTypeInformation(node, context, ({checker}) => {
+		const typeScriptNode = context.sourceCode.parserServices.esTreeNodeToTSNodeMap.get(node);
+		const signature = checker.getSignatureFromDeclaration(typeScriptNode);
+		return signature ? getTypeBooleanState(checker.getReturnTypeOfSignature(signature), checker, new Set(), false) : unknown;
+	}) ?? unknown;
 	if (stateFromTypeInformation !== unknown) {
 		return stateFromTypeInformation;
 	}
@@ -2442,6 +2446,7 @@ function getExplicitPropertyBooleanState(node, context) {
 
 	return stateFromPromisedReturnType === unknown
 		&& !hasUnresolvedReturnType
+		&& getPromisedTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false}) !== boolean
 		&& !isPromisedTypeAnnotation(node.returnType, context, scope)
 		? getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false, allowNullish: false})
 		: stateFromPromisedReturnType;

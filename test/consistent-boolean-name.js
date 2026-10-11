@@ -3309,3 +3309,49 @@ test.snapshot({
 	valid: [],
 	invalid: [typeAware('const isValid = (() => Promise.resolve(true)) as () => Promise<boolean>; const available = isValid; available();')],
 });
+
+test({
+	valid: [
+		typeAware({
+			code: 'interface Pending extends PromiseLike<boolean> {} interface Task { isReady(): Pending; }',
+			options: [{checkMethods: 'always'}],
+		}),
+		typeAware({
+			code: 'interface Pending extends PromiseLike<boolean> {} type Task = {isReady(): Pending};',
+			options: [{checkMethods: 'always'}],
+		}),
+		typeAware({
+			code: 'interface Pending extends PromiseLike<boolean> {} interface Task { ready(): Pending | undefined; isReady(): Pending | undefined; }',
+			options: [{checkMethods: 'always'}],
+		}),
+	],
+	invalid: [
+		typeAware({
+			code: 'interface Pending extends PromiseLike<boolean> {} interface Task { ready(): Pending; }',
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'consistent-boolean-name'}],
+		}),
+		typeAware({
+			code: 'interface Pending extends PromiseLike<boolean> {} type Task = {ready(): Pending};',
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'consistent-boolean-name'}],
+		}),
+		typeAware({
+			code: 'interface Pending extends PromiseLike<string> {} interface Task { isReady(): Pending; }',
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+	],
+});
+
+test({
+	valid: [typeAware({
+		code: 'const task = {get ready() { return () => true; }}; class Task { get ready() { return () => true; } }',
+		options: [{checkMethods: 'always'}],
+	})],
+	invalid: [typeAware({
+		code: 'const task = {get isReady() { return () => true; }}; class Task { get isReady() { return () => true; } }',
+		options: [{checkMethods: 'always'}],
+		errors: [{messageId: 'non-boolean-prefix'}, {messageId: 'non-boolean-prefix'}],
+	})],
+});
