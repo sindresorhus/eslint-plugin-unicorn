@@ -572,11 +572,10 @@ function isBooleanVueReferenceVariable(variable, context) {
 	const getter = unwrapVueComputedGetter(argument);
 	return callExpression.callee.name === 'computed'
 		&& (
-			isFunction(getter)
-				? !getter.async && !getter.generator && getGetterBooleanState(getter, context) === boolean
-				: isBooleanFunctionReference(getter, context)
+			(isFunction(getter) && !getter.async && !getter.generator)
+			|| isBooleanFunctionReference(getter, context)
 		)
-		&& getTypeInformationBooleanState(argument, context) !== nonBoolean
+		&& getGetterBooleanState(getter, context) === boolean
 		&& getExpressionBooleanState(argument, context) === boolean;
 }
 
@@ -2336,6 +2335,14 @@ function getParameterPropertyNameNode(node) {
 
 function getGetterBooleanState(node, context) {
 	const scope = context.sourceCode.getScope(node);
+	if (node.type === 'Identifier') {
+		const variable = findVariable(scope, node);
+		const definitions = getFunctionDefinitions(variable) ?? variable.defs;
+		return combineBooleanStates(definitions.map(definition => definition.name.typeAnnotation
+			? getTypeAnnotationBooleanState(definition.name.typeAnnotation, context, context.sourceCode.getScope(definition.name))
+			: getGetterBooleanState(definition.node.init ?? definition.node, context)));
+	}
+
 	if (node.type === 'TSMethodSignature') {
 		return getDirectTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false, allowNullish: false});
 	}
