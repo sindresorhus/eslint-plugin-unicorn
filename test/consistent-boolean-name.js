@@ -3259,3 +3259,53 @@ test.snapshot({
 		typeAware('const isValid = () => Promise.resolve(true); const available = isValid; available();'),
 	],
 });
+
+test({
+	valid: [
+		typeAware('const isValid = () => Promise.resolve(true); const isAvailable = isValid; const isReady = isAvailable;'),
+		typeAware('const isValid = (() => Promise.resolve(true)) as () => Promise<boolean>; const isAvailable = isValid;'),
+		typeAware('const isValid = (() => Promise.resolve(true)) satisfies () => Promise<boolean>; const isAvailable = isValid;'),
+		typeAware('const isValid = ((): Promise<boolean> => Promise.resolve(true))!; const isAvailable = isValid;'),
+		typeAware('const predicate = (() => Promise.resolve(true)) as () => Promise<boolean | undefined>; const isAvailable = predicate;'),
+		typeAware('declare const task: {predicate: () => Promise<boolean>}; const isValid = task.predicate; const isAvailable = isValid;'),
+		typeAware('declare function create(): () => Promise<boolean>; const isValid = create(); const isAvailable = isValid;'),
+		typeAware('function predicate<T extends boolean>(value: T): Promise<T> { return Promise.resolve(value); } const available = predicate;'),
+		typeAware('function run(value: boolean | string) { if (typeof value === "boolean") { const isAvailable = value; } }'),
+		typeAware('declare function load(): boolean | string; const value = load(); if (typeof value === "boolean") { const isAvailable = value; }'),
+	],
+	invalid: [
+		typeAware({
+			code: 'const valid = (() => Promise.resolve(true)) as () => Promise<boolean>;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
+		}),
+		typeAware({
+			code: 'const valid = (() => Promise.resolve(true)) satisfies () => Promise<boolean>;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
+		}),
+		typeAware({
+			code: 'const valid = ((): Promise<boolean> => Promise.resolve(true))!;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
+		}),
+		typeAware({
+			code: 'const isValid = (() => Promise.resolve(true)) as () => Promise<boolean>; const available = isValid;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
+		}),
+		typeAware({
+			code: 'const predicate: (() => Promise<boolean>) | string = () => Promise.resolve(true); const available = predicate; const isReady = available;',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'const isValid = () => Promise.resolve(true); const isAvailable = isValid; const ready = isAvailable;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
+		}),
+		typeAware({
+			code: 'let predicate = () => Promise.resolve(true); predicate = () => Promise.resolve("yes"); const isReady = predicate;',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+	],
+});
+
+test.snapshot({
+	valid: [],
+	invalid: [typeAware('const isValid = (() => Promise.resolve(true)) as () => Promise<boolean>; const available = isValid; available();')],
+});

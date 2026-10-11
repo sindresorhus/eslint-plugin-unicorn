@@ -396,6 +396,10 @@ const isBooleanValue = (node, context) => isFunction(node)
 	? isBooleanFunctionValue(node, context)
 	: isBooleanFunctionReference(node, context)
 		|| isBooleanReturningFunctionReference(node, context)
+		|| (
+			getFunctionReturnTypeInformationBooleanState(node, context, false) === boolean
+			&& getExpressionBooleanState(node, context) === boolean
+		)
 		|| isBooleanExpression(node, context);
 
 function getSupportedVariableDefinition(variable) {
@@ -1936,14 +1940,20 @@ function getExpressionBooleanState(node, context, visitedVariables = new Set(), 
 			: nonBoolean;
 	}
 
-	if (functionValuesAreBoolean && isBooleanReturningFunctionReference(node, context)) {
-		return boolean;
+	if (
+		node.type === 'Identifier'
+		&& withTypeInformation(node, context, ({type}) => type.getCallSignatures().length > 0)
+	) {
+		const variable = findVariable(context.sourceCode.getScope(node), node);
+		if (variable && (getSupportedVariableDefinition(variable) || getFunctionDefinitions(variable))) {
+			return getVariableBooleanState(variable, context, visitedVariables, functionValuesAreBoolean);
+		}
 	}
 
 	const scope = context.sourceCode.getScope(node);
 	const typeState = getTypeState();
 	if (!hasUnresolvedTypeParameterReference(node.typeAnnotation, context, typeState, scope, false)) {
-		// Identifier references use their declared callable contracts above, since TypeScript may narrow them to a more specific function type.
+		// Callable identifier bindings use their declaration analysis above, since TypeScript may narrow references to a more specific function type.
 		if (functionValuesAreBoolean && node.type !== 'Identifier') {
 			const stateFromReturnType = getFunctionReturnTypeInformationBooleanState(node, context, false);
 			if (stateFromReturnType !== unknown) {
@@ -2487,7 +2497,8 @@ function isAutofixableVariable(variable, context) {
 
 	return !isBooleanFunctionLikeTypeAnnotation(definition.name.typeAnnotation, context, scope)
 		&& !isBooleanFunctionReference(definition.node.init, context)
-		&& !isBooleanReturningFunctionReference(definition.node.init, context);
+		&& !isBooleanReturningFunctionReference(definition.node.init, context)
+		&& getFunctionReturnTypeInformationBooleanState(definition.node.init, context, false) !== boolean;
 }
 
 function isInDeclareContext(node) {
