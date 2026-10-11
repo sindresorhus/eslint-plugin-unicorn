@@ -392,13 +392,13 @@ const isBooleanReturningFunctionReference = (node, context) => {
 		&& hasBooleanReturnType(definition.node.init, context);
 };
 
-const isBooleanValue = (node, context) => isFunction(node)
+const isBooleanValue = (node, context, visitedVariables) => isFunction(node)
 	? isBooleanFunctionValue(node, context)
 	: isBooleanFunctionReference(node, context)
 		|| isBooleanReturningFunctionReference(node, context)
 		|| (
 			getFunctionReturnTypeInformationBooleanState(node, context, false) === boolean
-			&& getExpressionBooleanState(node, context) === boolean
+			&& getExpressionBooleanState(node, context, visitedVariables) === boolean
 		)
 		|| isBooleanExpression(node, context);
 
@@ -477,6 +477,7 @@ function isReactHookFunctionBinding(variable, context) {
 		&& (
 			isFunction(definition.node.init)
 			|| isCallableTypeAnnotation(definition.name.typeAnnotation, context, context.sourceCode.getScope(definition.name))
+			|| (withTypeInformation(definition.name, context, ({type}) => type.getCallSignatures().length > 0) ?? false)
 		);
 }
 
@@ -1589,9 +1590,7 @@ function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 					getPromisedTypeAnnotationBooleanState(returnType, context, scope, {...typeState, functionTypesAreBoolean: false}),
 			});
 		});
-		result = callSignatureStates.length > 0
-			? combineBooleanStates(callSignatureStates)
-			: unknown;
+		result = combineBooleanStates(callSignatureStates);
 	} else {
 		const [definition] = definitions;
 		if (definition?.node.type === 'TSTypeAliasDeclaration') {
@@ -1952,8 +1951,8 @@ function getExpressionBooleanState(node, context, visitedVariables = new Set(), 
 	const scope = context.sourceCode.getScope(node);
 	const typeState = getTypeState();
 	if (!hasUnresolvedTypeParameterReference(node.typeAnnotation, context, typeState, scope, false)) {
-		// Callable identifier bindings use their declaration analysis above, since TypeScript may narrow references to a more specific function type.
-		if (functionValuesAreBoolean && node.type !== 'Identifier') {
+		// Supported callable identifier bindings use their declaration analysis above, since TypeScript may narrow references to a more specific function type.
+		if (functionValuesAreBoolean) {
 			const stateFromReturnType = getFunctionReturnTypeInformationBooleanState(node, context, false);
 			if (stateFromReturnType !== unknown) {
 				return stateFromReturnType;
@@ -1995,7 +1994,7 @@ function getExpressionBooleanState(node, context, visitedVariables = new Set(), 
 	return getDerivedExpressionBooleanState(node, context, visitedVariables, functionValuesAreBoolean);
 }
 
-const isBooleanVariable = (variable, context) => {
+const isBooleanVariable = (variable, context, visitedVariables) => {
 	const {sourceCode} = context;
 
 	const functionDefinitions = getFunctionDefinitions(variable);
@@ -2036,7 +2035,7 @@ const isBooleanVariable = (variable, context) => {
 			return false;
 		}
 
-		return isBooleanValue(definition.node.init, context);
+		return isBooleanValue(definition.node.init, context, visitedVariables);
 	}
 
 	return definition.type === 'FunctionName' && isBooleanFunctionDefinition(definition, context);
@@ -2178,7 +2177,7 @@ function getVariableBooleanState(variable, context, visitedVariables = new Set()
 	if (
 		result === unknown
 		&& functionValuesAreBoolean
-		&& isBooleanVariable(variable, context)
+		&& isBooleanVariable(variable, context, visitedVariables)
 	) {
 		result = boolean;
 	}

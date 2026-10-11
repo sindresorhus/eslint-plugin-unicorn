@@ -3397,3 +3397,59 @@ test({
 		}),
 	],
 });
+
+test({
+	valid: [
+		typeAware('let isReady = () => Promise.resolve(true); let isLater = isReady; isReady = isLater;'),
+		typeAware('function isReady() { return Promise.resolve(true); } const isLater = isReady; isReady = isLater;'),
+	],
+	invalid: [
+		'let ready = () => Promise.resolve(true); let later = ready; ready = later;',
+		'function ready() { return Promise.resolve(true); } const later = ready; ready = later;',
+	].map(code => typeAware({
+		code,
+		errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'consistent-boolean-name', suggestions: 12}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [invalidBooleanPrefix([
+		'let predicate = () => Promise.resolve(true);',
+		'let alternate = predicate;',
+		'predicate = alternate;',
+		'alternate = () => Promise.resolve("yes");',
+		'const isReady = predicate;',
+	].join(' '))],
+});
+
+test({
+	valid: [typeAware('declare const task: {isReady: () => Promise<boolean>}; const {isReady: predicate} = task; const isReady = predicate;')],
+	invalid: [
+		typeAware({
+			code: 'declare const task: {isReady: () => Promise<boolean>}; const {isReady: predicate} = task; const ready = predicate;',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
+		}),
+		typeAware({
+			code: 'declare const task: {isReady: () => Promise<string>}; const {isReady: predicate} = task; const isReady = predicate;',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+	],
+});
+
+test({
+	valid: [
+		typeAware('const useIsReady = (() => Promise.resolve(true)) as () => Promise<boolean>;'),
+		typeAware('const useIsReady = (() => Promise.resolve(true)) satisfies () => Promise<boolean>;'),
+		typeAware('declare function createHook(): () => Promise<boolean>; const useIsReady = createHook(); const useIsAvailable = useIsReady;'),
+	],
+	invalid: [typeAware({
+		code: 'const useIsReady = (() => Promise.resolve("yes")) as () => Promise<string>;',
+		errors: [{messageId: 'non-boolean-prefix', data: {name: 'isReady', prefix: 'is'}}],
+	})],
+});
+
+test.snapshot({
+	valid: [],
+	invalid: [typeAware('const useReady = (() => Promise.resolve(true)) as () => Promise<boolean>; useReady();')],
+});
