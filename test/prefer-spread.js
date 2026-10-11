@@ -1,6 +1,7 @@
 import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
+import typescriptCompiler from 'typescript';
 import plugin from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
@@ -11,7 +12,7 @@ const {test: ruleTest, rule} = getTester(import.meta);
 const typescript = code => ({
 	code,
 	filename: 'file.ts',
-	languageOptions: {parser: typescriptEslintParser},
+	languageOptions: {parser: parsers.typescript},
 });
 
 const typeAware = code => ({
@@ -532,113 +533,29 @@ ruleTest.snapshot({
 		// `Iterator.concat()`
 		'Iterator.concat(2)',
 		'Iterator.concat([2, 3])',
-		{
-			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(link: ApolloLink) { link.concat(next); }',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'import type {ApolloLink} from "apollo-link"; function foo(link: ApolloLink) { link.concat(next); }',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'import type {ApolloLink as Link} from "apollo-link"; function foo(link: Link) { link.concat(next); }',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'import type * as Apollo from "apollo-link"; function foo(link: Apollo.ApolloLink) { link.concat(next); }',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'import type * as Apollo from "apollo-link"; function foo(link: Apollo.Types.ApolloLink) { link.concat(next); }',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'type Link = import("apollo-link").ApolloLink; declare const link: Link; link.concat(next);',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'type Link = import("apollo-link").Apollo.ApolloLink; declare const link: Link; link.concat(next);',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } const link: ApolloLink = getLink(); link.concat(next);',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } (link as ApolloLink).concat(next);',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } (<ApolloLink>link).concat(next);',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } (link satisfies ApolloLink).concat(next);',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(link: ApolloLink) { link!.concat(next); }',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } type Link = ApolloLink; function foo(link: Link) { link.concat(next); }',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo<Link extends ApolloLink>(link: Link) { link.concat(next); }',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function foo(value: string | number) { value.concat(next); }',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function foo(value: string) { value.concat(other); }',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescript('interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(link: ApolloLink) { link.concat(next); }'),
+		typescript('import type {ApolloLink} from "apollo-link"; function foo(link: ApolloLink) { link.concat(next); }'),
+		typescript('import type {ApolloLink as Link} from "apollo-link"; function foo(link: Link) { link.concat(next); }'),
+		typescript('import type * as Apollo from "apollo-link"; function foo(link: Apollo.ApolloLink) { link.concat(next); }'),
+		typescript('import type * as Apollo from "apollo-link"; function foo(link: Apollo.Types.ApolloLink) { link.concat(next); }'),
+		typescript('type Link = import("apollo-link").ApolloLink; declare const link: Link; link.concat(next);'),
+		typescript('type Link = import("apollo-link").Apollo.ApolloLink; declare const link: Link; link.concat(next);'),
+		typescript('interface ApolloLink { concat(next: ApolloLink): ApolloLink; } const link: ApolloLink = getLink(); link.concat(next);'),
+		typescript('interface ApolloLink { concat(next: ApolloLink): ApolloLink; } (link as ApolloLink).concat(next);'),
+		typescript('interface ApolloLink { concat(next: ApolloLink): ApolloLink; } (<ApolloLink>link).concat(next);'),
+		typescript('interface ApolloLink { concat(next: ApolloLink): ApolloLink; } (link satisfies ApolloLink).concat(next);'),
+		typescript('interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(link: ApolloLink) { link!.concat(next); }'),
+		typescript('interface ApolloLink { concat(next: ApolloLink): ApolloLink; } type Link = ApolloLink; function foo(link: Link) { link.concat(next); }'),
+		typescript('interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo<Link extends ApolloLink>(link: Link) { link.concat(next); }'),
+		typescript('function foo(value: string | number) { value.concat(next); }'),
+		typescript('function foo(value: string) { value.concat(other); }'),
 		'({value: "🦄"}).value.slice();',
 		'({value: "x"}).value.concat(1);',
-		{
-			code: 'function foo(value: Buffer) { value.concat(next); }',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function foo(value: {concat(next: unknown): unknown}) { value.concat(next); }',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: '({concat() {}} as any).concat(value);',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: '(String(value) as any).concat(other);',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: '(new Chainable() as any).concat(value);',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescript('function foo(value: Buffer) { value.concat(next); }'),
+		typescript('function foo(value: {concat(next: unknown): unknown}) { value.concat(next); }'),
+		typescript('({concat() {}} as any).concat(value);'),
+		typescript('(String(value) as any).concat(other);'),
+		typescript('(new Chainable() as any).concat(value);'),
 		typeAware('class Chainable { concat(next: Chainable) { return next; } } declare function getLink(): Chainable; const link = getLink(); link.concat(next);'),
 		typeAware('interface Link { concat(next: Link): Link; } declare const link: Link; link.concat(next);'),
 	],
@@ -829,67 +746,23 @@ ruleTest.snapshot({
 		typescript('function foo(array: string[]) { array.concat(item); }'),
 		typescript('function foo(array: string[]) { array.concat("item"); }'),
 		typescript('(Array(1) as number[]).concat(2);'),
-		{
-			code: '(Array(1)!).concat(foo);',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescript('(Array(1)!).concat(foo);'),
 		typescript('(<number[]>Array(1)).concat(2);'),
-		{
-			code: '(Array(1) satisfies number[]).concat(2);',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescript('(Array(1) satisfies number[]).concat(2);'),
 		typescript('declare const Items: string[]; Items.concat(item);'),
 		typescript('function foo(array: readonly string[]) { array.concat(item); }'),
-		{
-			code: 'function foo(array: [string, string]) { array.concat(item); }',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function foo(array: Array<string>) { array.concat(item); }',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function foo(array: ReadonlyArray<string>) { array.concat(item); }',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescript('function foo(array: [string, string]) { array.concat(item); }'),
+		typescript('function foo(array: Array<string>) { array.concat(item); }'),
+		typescript('function foo(array: ReadonlyArray<string>) { array.concat(item); }'),
 		typescript('type Strings = string[]; function foo(array: Strings) { array.concat(item); }'),
 		typescript('function foo<ArrayType extends string[]>(array: ArrayType) { array.concat(item); }'),
 		typescript('interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(value: string[] | ApolloLink) { value.concat(item); }'),
-		{
-			code: 'import type {Strings} from "./types"; declare const array: Strings; array.concat(item);',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function foo<T>(value: T) { value.concat(item); }',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'type ApolloLink = unknown; declare const link: ApolloLink; link.concat(next);',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function foo<ApolloLink>(link: ApolloLink) { link.concat(next); }',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'namespace Apollo { export type ApolloLink = unknown; } declare const link: Apollo.ApolloLink; link.concat(next);',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'namespace Apollo { export namespace Types { export type ApolloLink = unknown; } } declare const link: Apollo.Types.ApolloLink; link.concat(next);',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescript('import type {Strings} from "./types"; declare const array: Strings; array.concat(item);'),
+		typescript('function foo<T>(value: T) { value.concat(item); }'),
+		typescript('type ApolloLink = unknown; declare const link: ApolloLink; link.concat(next);'),
+		typescript('function foo<ApolloLink>(link: ApolloLink) { link.concat(next); }'),
+		typescript('namespace Apollo { export type ApolloLink = unknown; } declare const link: Apollo.ApolloLink; link.concat(next);'),
+		typescript('namespace Apollo { export namespace Types { export type ApolloLink = unknown; } } declare const link: Apollo.Types.ApolloLink; link.concat(next);'),
 		typeAware('function foo<T>(value: T) { value.concat(item); }'),
 		typeAware('type Strings = ReturnType<() => string[]>; declare const array: Strings; array.concat(item);'),
 		typeAware('declare function getArray(): string[]; const array = getArray(); array.concat(item);'),
@@ -1159,7 +1032,7 @@ ruleTest.snapshot({
 	],
 });
 
-// Type information can prove an unannotated variable retains its array element type.
+// Typed unannotated initializers retain autofixes when their array element types match.
 ruleTest({
 	valid: [],
 	invalid: [
@@ -1176,6 +1049,98 @@ ruleTest({
 		output: `${declaration} const copy = [...array];`,
 		errors: [{messageId}],
 	}))),
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			...typeAware('declare const array: \'a\'[]; const copy = Array.from<string>(array); copy.push(\'b\');'),
+			errors: [{
+				messageId: 'array-from',
+				suggestions: [{
+					messageId: 'spread',
+					output: 'declare const array: \'a\'[]; const copy = [...array]; copy.push(\'b\');',
+				}],
+			}],
+		},
+		{
+			...typeAware('declare const array: string[]; const copy = array.slice(/* keep */);'),
+			errors: [{messageId: 'array-slice'}],
+		},
+		{
+			...typeAware('declare const array: string[]; const copy = (/* keep */ array).slice();'),
+			output: 'declare const array: string[]; const copy = [...(/* keep */ array)];',
+			errors: [{messageId: 'array-slice'}],
+		},
+	],
+});
+
+test('preserves compiling TypeScript copies and their inferred types', t => {
+	const code = outdent`
+		const words = ['a', 'b'] as const;
+		const copySlice = words.slice();
+		const copySliceZero = words.slice(0);
+		const copyFrom = Array.from(words);
+		const copyConcat = words.concat();
+		const copyWide = Array.from<string>(words);
+		copyWide.push('c');
+	`;
+	const {filename, languageOptions} = typeAware(code);
+	const options = {
+		strict: true,
+		noEmit: true,
+		types: [],
+		skipLibCheck: true,
+		target: typescriptCompiler.ScriptTarget.ESNext,
+	};
+	const getProgram = source => {
+		const host = typescriptCompiler.createCompilerHost(options);
+		const {getSourceFile} = host;
+		host.getSourceFile = (name, ...arguments_) => name === filename
+			? typescriptCompiler.createSourceFile(name, source, options.target, true)
+			: getSourceFile(name, ...arguments_);
+		return typescriptCompiler.createProgram([filename], options, host);
+	};
+
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, {
+		files: ['**/*.ts'],
+		languageOptions,
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/prefer-spread': 'error'},
+	}, {filename});
+
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, code
+		.replace('words.slice()', '[...words]')
+		.replace('words.slice(0)', '[...words]')
+		.replace('Array.from(words)', '[...words]')
+		.replace('words.concat()', '[...words]'));
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(result.messages[0].messageId, 'array-from');
+	t.assert.strictEqual(result.messages[0].fix, undefined);
+
+	const copyTypes = [];
+	for (const source of [code, result.output]) {
+		const program = getProgram(source);
+		t.assert.deepStrictEqual(typescriptCompiler.getPreEmitDiagnostics(program), []);
+		const checker = program.getTypeChecker();
+		const declarations = program.getSourceFile(filename).statements
+			.filter(statement => typescriptCompiler.isVariableStatement(statement))
+			.flatMap(statement => statement.declarationList.declarations);
+		copyTypes.push(declarations
+			.filter(declaration => declaration.name.getText().startsWith('copy'))
+			.map(declaration => checker.typeToString(checker.getTypeAtLocation(declaration))));
+	}
+
+	t.assert.strictEqual(copyTypes[0].length, 5);
+	t.assert.deepStrictEqual(copyTypes[1], copyTypes[0]);
+	const [suggestion] = result.messages[0].suggestions;
+	const {range, text} = suggestion.fix;
+	const [start, end] = range;
+	const suggestedOutput = result.output.slice(0, start) + text + result.output.slice(end);
+	t.assert.deepStrictEqual(typescriptCompiler.getPreEmitDiagnostics(getProgram(suggestedOutput)).map(diagnostic => diagnostic.code), [2345]);
 });
 
 ruleTest.snapshot({
@@ -1283,11 +1248,7 @@ ruleTest.snapshot({
 		'const {length} = "🦄".split("")',
 		'"string".split(/* comment */ "")',
 		'unknown.split(/* comment */ "")',
-		{
-			code: 'const text: string = value; text.split("")',
-			filename: 'file.ts',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescript('const text: string = value; text.split("")'),
 	],
 	invalid: [],
 });

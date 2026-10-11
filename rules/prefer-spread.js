@@ -1191,7 +1191,6 @@ const create = context => {
 		}
 
 		const {object} = node.callee;
-		const scope = sourceCode.getScope(object);
 		const receiverArrayState = getConcatReceiverArrayState(object, context);
 
 		if (receiverArrayState === false) {
@@ -1257,7 +1256,7 @@ const create = context => {
 			fix: fixConcat(
 				node,
 				context,
-				// When apply suggestion, we also merge fixable arguments after the first one
+				// When applying a suggestion, we also merge fixable arguments after the first one
 				[
 					{
 						node: firstArgument,
