@@ -3453,3 +3453,48 @@ test.snapshot({
 	valid: [],
 	invalid: [typeAware('const useReady = (() => Promise.resolve(true)) as () => Promise<boolean>; useReady();')],
 });
+
+test({
+	valid: [
+		typeAware('function run({predicate}: {predicate: () => Promise<boolean>}) { const isReady = predicate; }'),
+		typeAware('function run({ready, isReady}: {ready: () => Promise<boolean>; isReady: () => Promise<string>}) {}'),
+	],
+	invalid: [
+		typeAware({
+			code: 'function run({predicate}: {predicate: () => Promise<boolean>}) { const ready = predicate; }',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
+		}),
+		typeAware({
+			code: 'function run([predicate]: [() => Promise<boolean>]) { const ready = predicate; }',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
+		}),
+		typeAware({
+			code: 'function run({predicate}: {predicate: () => Promise<string>}) { const isReady = predicate; }',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'function run([predicate]: [() => Promise<string>]) { const isReady = predicate; }',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+	],
+});
+
+test({
+	valid: [
+		typescript('const isReady = (): Promise<boolean> => Promise.resolve(true); const useIsReady = isReady;'),
+		typescript('function isReady(): PromiseLike<boolean> { return Promise.resolve(true); } const useIsReady = isReady;'),
+	],
+	invalid: [typescript({
+		code: 'const isReady = (): Promise<boolean> => Promise.resolve(true); const useReady = isReady; useReady();',
+		options: [onlyIsPrefixOptions],
+		errors: [{
+			messageId: 'consistent-boolean-name',
+			data: {name: 'ready', prefixes: '`is`'},
+			suggestions: [{
+				messageId: 'rename',
+				data: {replacement: 'useIsReady'},
+				output: 'const isReady = (): Promise<boolean> => Promise.resolve(true); const useIsReady = isReady; useIsReady();',
+			}],
+		}],
+	})],
+});

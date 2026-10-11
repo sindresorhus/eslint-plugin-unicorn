@@ -413,7 +413,7 @@ function getSupportedVariableDefinition(variable) {
 	if (
 		name?.type !== 'Identifier'
 		|| !['Variable', 'Parameter', 'FunctionName'].includes(definition.type)
-		|| (definition.type === 'Variable' && definition.node.id.type !== 'Identifier')
+		|| isDestructuredDefinition(definition)
 		|| (definition.type === 'Parameter' && isSetter(definition.node))
 	) {
 		return;
@@ -476,6 +476,7 @@ function isReactHookFunctionBinding(variable, context) {
 	return definition?.type === 'Variable'
 		&& (
 			isFunction(definition.node.init)
+			|| isBooleanReturningFunctionReference(definition.node.init, context)
 			|| isCallableTypeAnnotation(definition.name.typeAnnotation, context, context.sourceCode.getScope(definition.name))
 			|| (withTypeInformation(definition.name, context, ({type}) => type.getCallSignatures().length > 0) ?? false)
 		);
