@@ -394,13 +394,15 @@ const isBooleanReturningFunctionReference = (node, context) => {
 
 const isBooleanValue = (node, context, visitedVariables) => isFunction(node)
 	? isBooleanFunctionValue(node, context)
-	: isBooleanFunctionReference(node, context)
-		|| isBooleanReturningFunctionReference(node, context)
-		|| (
-			getFunctionReturnTypeInformationBooleanState(node, context, false) === boolean
-			&& getExpressionBooleanState(node, context, visitedVariables) === boolean
+	: (
+		(
+			isBooleanFunctionReference(node, context)
+			|| isBooleanReturningFunctionReference(node, context)
+			|| getFunctionReturnTypeInformationBooleanState(node, context, false) === boolean
 		)
-		|| isBooleanExpression(node, context);
+		&& getExpressionBooleanState(node, context, visitedVariables) === boolean
+	)
+	|| isBooleanExpression(node, context);
 
 function getSupportedVariableDefinition(variable) {
 	if (variable.defs.length !== 1) {
@@ -574,6 +576,7 @@ function isBooleanVueReferenceVariable(variable, context) {
 				? !getter.async && !getter.generator && getGetterBooleanState(getter, context) === boolean
 				: isBooleanFunctionReference(getter, context)
 		)
+		&& getTypeInformationBooleanState(argument, context) !== nonBoolean
 		&& getExpressionBooleanState(argument, context) === boolean;
 }
 

@@ -3356,6 +3356,33 @@ test({
 	})],
 });
 
+for (const parserCase of [typescript, typeAware]) {
+	test({
+		valid: [
+			'function isReady(): boolean | Promise<boolean> | undefined { return true; } const ready = isReady;',
+			'const isReady = (): boolean | Promise<boolean> | undefined => true; const ready = isReady;',
+		].map(code => parserCase(code)),
+		invalid: [
+			'function isReady(): boolean | Promise<boolean> { return true; } const ready = isReady;',
+			'const isReady = (): boolean | Promise<boolean> => true; const ready = isReady;',
+		].map(code => parserCase({code, errors: [{messageId: 'consistent-boolean-name', suggestions: 12}]})),
+	});
+}
+
+test({
+	valid: [
+		'function isGetValue(): boolean { return true; }',
+		'const isGetValue = (): boolean => true;',
+	].map(code => typeAware(`declare function computed<T>(getter: () => T): {value: T}; ${code} const isReady = computed(isGetValue);`)),
+	invalid: [
+		'function isGetValue(): boolean | Promise<boolean> { return true; }',
+		'const isGetValue = (): boolean | Promise<boolean> => true;',
+	].map(code => typeAware({
+		code: `declare function computed<T>(getter: () => T): {value: T}; ${code} const isReady = computed(isGetValue);`,
+		errors: [{messageId: 'non-boolean-prefix', data: {name: 'isReady', prefix: 'is'}}],
+	})),
+});
+
 test({
 	valid: [
 		typeAware('declare const task: {ready(value: string): boolean; ready(value: number): Promise<boolean>}; const isReady = task.ready;'),
