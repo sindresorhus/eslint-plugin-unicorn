@@ -10,12 +10,21 @@ import {
 	hasCommentInRange,
 	hasMultilineToken,
 	isBlockScopedDeclaration,
+	unwrapTypeScriptExpression,
 	wouldRemoveComments,
 } from '../utils/index.js';
+import {getPunctuatorBinaryExpressionOperatorToken} from '../utils/comparison.js';
 
 // Shared logic for `prefer-continue` and `prefer-early-return`, which rewrite an `if` statement wrapping the remainder of a body into an early exit guard.
 
 const lexicalDeclarationKinds = new Set(['const', 'let']);
+
+const oppositeRelationalOperators = new Map([
+	['<', '>='],
+	['<=', '>'],
+	['>', '<='],
+	['>=', '<'],
+]);
 
 /**
 Get the number of non-empty statements in the consequent of an `if` statement.
@@ -100,15 +109,40 @@ Get the replacement for an `if` statement wrapping the remainder of a body: a ne
 @param {import('estree').IfStatement} ifStatement
 @param {'continue' | 'return'} exitKeyword
 @param {import('eslint').Rule.RuleContext} context
+@param {string} [conditionText] Override the negated condition for an editor suggestion.
 @returns {string}
 */
-export const getEarlyExitReplacementText = (ifStatement, exitKeyword, context) => {
+export const getEarlyExitReplacementText = (ifStatement, exitKeyword, context, conditionText = getNegatedIfConditionText(ifStatement, context)) => {
 	const ifIndent = getLineIndent(ifStatement, context);
-	const conditionText = getNegatedIfConditionText(ifStatement, context);
 	const consequentText = getUnwrappedBranchText(ifStatement.consequent, context);
 	const linebreak = getLinebreak(context);
 
 	return `if (${conditionText}) {${linebreak}${ifIndent}${getIndentUnit(context)}${exitKeyword};${linebreak}${ifIndent}}${linebreak}${linebreak}${consequentText}`;
+};
+
+/**
+Get an early-exit editor fix using the opposite relational operator. Call only when the automatic rewrite is available. Unlike logical negation, this changes behavior for `NaN` and values coerced to `NaN`.
+
+@param {import('estree').IfStatement} ifStatement
+@param {'continue' | 'return'} exitKeyword
+@param {import('eslint').Rule.RuleContext} context
+@returns {Function | undefined}
+*/
+export const getEarlyExitOppositeComparisonFix = (ifStatement, exitKeyword, context) => {
+	const comparison = unwrapTypeScriptExpression(ifStatement.test);
+	if (comparison.type !== 'BinaryExpression' || !oppositeRelationalOperators.has(comparison.operator)) {
+		return;
+	}
+
+	const {sourceCode} = context;
+	const [conditionStart, conditionEnd] = getConditionRange(ifStatement, context);
+	const operatorToken = getPunctuatorBinaryExpressionOperatorToken(comparison, context);
+	const [operatorStart, operatorEnd] = sourceCode.getRange(operatorToken);
+	const conditionText = sourceCode.text.slice(conditionStart, operatorStart).trimStart()
+		+ oppositeRelationalOperators.get(comparison.operator)
+		+ sourceCode.text.slice(operatorEnd, conditionEnd);
+
+	return fixer => fixer.replaceText(ifStatement, getEarlyExitReplacementText(ifStatement, exitKeyword, context, conditionText));
 };
 
 const getDirectLexicalDeclarationVariables = (node, context) => {

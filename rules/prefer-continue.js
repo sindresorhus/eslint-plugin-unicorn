@@ -1,5 +1,10 @@
 import getShortBodyProblem from './shared/short-body-conditional.js';
-import {canRewriteToEarlyExit, getConsequentStatementCount, getEarlyExitReplacementText} from './shared/early-exit.js';
+import {
+	canRewriteToEarlyExit,
+	getConsequentStatementCount,
+	getEarlyExitReplacementText,
+	getEarlyExitOppositeComparisonFix,
+} from './shared/early-exit.js';
 import {loopTypes} from './ast/index.js';
 
 /**
@@ -7,10 +12,12 @@ import {loopTypes} from './ast/index.js';
 */
 
 const MESSAGE_ID = 'prefer-continue';
+const OPPOSITE_COMPARISON_MESSAGE_ID = 'prefer-continue/opposite-comparison';
 const SHORT_BODY_MESSAGE_ID = 'prefer-continue/short-body';
 const messages = {
 	[SHORT_BODY_MESSAGE_ID]: 'Prefer conditional wrapping over an early continue for a short body.',
 	[MESSAGE_ID]: 'Prefer an early continue over wrapping the remainder of the loop body in an `if` statement.',
+	[OPPOSITE_COMPARISON_MESSAGE_ID]: 'Rewrite to an early continue using the opposite comparison (changes behavior for NaN and values coerced to NaN).',
 };
 
 const schema = [
@@ -86,11 +93,13 @@ const create = context => {
 		}
 
 		const fix = getFix(statement, context);
+		const oppositeComparisonFix = fix && getEarlyExitOppositeComparisonFix(statement, 'continue', context);
 
 		return {
 			node: statement,
 			messageId: MESSAGE_ID,
 			...(fix && {fix}),
+			...(oppositeComparisonFix && {suggest: [{messageId: OPPOSITE_COMPARISON_MESSAGE_ID, fix: oppositeComparisonFix}]}),
 		};
 	});
 };
@@ -107,6 +116,7 @@ const config = {
 			recommended: true,
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema,
 		defaultOptions: [{maximumStatements: 1, checkShortBodies: false}],
 		messages,

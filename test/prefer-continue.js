@@ -1231,6 +1231,17 @@ test({
 			errors: [{messageId: 'prefer-continue'}],
 		},
 		{
+			code: 'for (const item of items) {\r\n\tif (a < b) {\r\n\t\twork();\r\n\t\tfinish();\r\n\t}\r\n}\r\n',
+			output: 'for (const item of items) {\r\n\tif (!(a < b)) {\r\n\t\tcontinue;\r\n\t}\r\n\r\n\twork();\r\n\tfinish();\r\n}\r\n',
+			errors: [{
+				messageId: 'prefer-continue',
+				suggestions: [{
+					messageId: 'prefer-continue/opposite-comparison',
+					output: 'for (const item of items) {\r\n\tif (a >= b) {\r\n\t\tcontinue;\r\n\t}\r\n\r\n\twork();\r\n\tfinish();\r\n}\r\n',
+				}],
+			}],
+		},
+		{
 			code: 'for (const item of items) {\r\n\tif (!item.isActive) {\r\n\t\tcontinue;\r\n\t}\r\n\r\n\tprocess(item);\r\n}\r\n',
 			options: [{checkShortBodies: true}],
 			output: 'for (const item of items) {\r\n\tif (item.isActive) {\r\n\t\tprocess(item);\r\n\t}\r\n}\r\n',
@@ -1292,4 +1303,91 @@ test({
 			errors: [{messageId: 'prefer-continue'}],
 		},
 	],
+});
+
+test({
+	valid: ['for (const item of items) {\n\tif (a < b) work();\n}'],
+	invalid: [{
+		code: 'for (const item of items) {\n\tif (a < b) work();\n}',
+		options: [{maximumStatements: 0, checkShortBodies: true}],
+		output: 'for (const item of items) {\n\tif (!(a < b)) {\n\t\tcontinue;\n\t}\n\n\twork();\n}',
+		errors: [{
+			messageId: 'prefer-continue',
+			suggestions: [{
+				messageId: 'prefer-continue/opposite-comparison',
+				output: 'for (const item of items) {\n\tif (a >= b) {\n\t\tcontinue;\n\t}\n\n\twork();\n}',
+			}],
+		}],
+	}],
+});
+
+// Relational conditions retain their safe autofix and offer an explicit opposite-comparison suggestion.
+for (const [operator, oppositeOperator] of [['<', '>='], ['<=', '>'], ['>', '<='], ['>=', '<']]) {
+	test({
+		valid: [],
+		invalid: [{
+			code: `for (const item of items) {\n\tif (a ${operator} b) {\n\t\twork();\n\t\tfinish();\n\t}\n}`,
+			output: `for (const item of items) {\n\tif (!(a ${operator} b)) {\n\t\tcontinue;\n\t}\n\n\twork();\n\tfinish();\n}`,
+			errors: [{
+				messageId: 'prefer-continue',
+				suggestions: [{
+					messageId: 'prefer-continue/opposite-comparison',
+					output: `for (const item of items) {\n\tif (a ${oppositeOperator} b) {\n\t\tcontinue;\n\t}\n\n\twork();\n\tfinish();\n}`,
+				}],
+			}],
+		}],
+	});
+}
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		...[
+			'((a < b))',
+			'(a + b) < (c ?? d)',
+			'a?.value < b',
+			'getValue() < getLimit()',
+			'/* before */ a < b /* after */',
+			'(/* before */ a < b /* after */)',
+			'a /* left */ < /* right */ b',
+			'a < b // keep\n\t',
+		].map(condition => `for (const item of items) {\n\tif (${condition}) {\n\t\twork();\n\t\tfinish();\n\t}\n}`),
+		...[
+			'(a < b) as boolean',
+			'(a < b) satisfies boolean',
+			'(a < b)!',
+			'<boolean>(a < b)',
+			'((a < b) as boolean)!',
+			'(a as number) < b!',
+			'getValue<Value>() < limit',
+			'(getValue<Value>) < limit',
+		].map(condition => ({
+			code: `for (const item of items) {\n\tif (${condition}) {\n\t\twork();\n\t\tfinish();\n\t}\n}`,
+			languageOptions: {parser: parsers.typescript},
+		})),
+		'for (const item of items) {\n  if (a < b) {\n    work();\n    finish();\n  }\n}',
+		// Existing trailing-comment behavior is unchanged.
+		'for (const item of items) {\n\tif (a < b) {\n\t\twork();\n\t\tfinish();\n\t} // keep\n}',
+	],
+});
+
+// No new suggestion for compound conditions, already-negated comparisons, or unsafe body moves.
+for (const [condition, negatedCondition] of [['a < b && ready', '!(a < b && ready)'], ['a < b || ready', '!(a < b || ready)'], ['!(a < b)', '(a < b)'], ['a === b', '!(a === b)']]) {
+	test({
+		valid: [],
+		invalid: [{
+			code: `for (const item of items) { if (${condition}) { work(); finish(); } }`,
+			output: `for (const item of items) { if (${negatedCondition}) {\n\tcontinue;\n}\n\nwork(); finish(); }`,
+			errors: [{messageId: 'prefer-continue', suggestions: []}],
+		}],
+	});
+}
+
+test({
+	valid: [],
+	invalid: [
+		'for (const item of items) { before(); if (a < b) { const value = work(); finish(value); } }',
+		'for (const item of items) { if (a < b) /* keep */ { work(); finish(); } }',
+		'for (const item of items) { if (a < b) { class Value {} finish(); } }',
+	].map(code => ({code, errors: [{messageId: 'prefer-continue', suggestions: []}]})),
 });

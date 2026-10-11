@@ -4,7 +4,7 @@
 
 💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
-🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -14,6 +14,8 @@ Avoid wrapping the rest of a loop body in a conditional. A `continue` guard ofte
 By default, this rule reports when the last statement of a block-bodied loop is an `if` statement without `else`, even when other statements precede it. With the default `maximumStatements` option, it does not report nested `if` statements, loops that continue after the `if`, or non-block loop bodies.
 
 It also does not report when the `if` body unconditionally exits the iteration (its last statement is `return`, `break`, `continue`, or `throw`), since an early `continue` would not flatten anything.
+
+Autofix negates relational comparisons (`!(a < b)`) to preserve behavior. Before applying it, you can choose an editor suggestion using the opposite operator (`a >= b`), which changes behavior for `NaN` and values coerced to `NaN`.
 
 ## Examples
 

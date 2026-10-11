@@ -60,6 +60,53 @@ Output:
 
 `;
 
+exports[`prefer-continue > invalid(1): for (const item of items) {\n\tif (((a < b))) {\n\t\twork();\n\t\tfinish();\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (((a < b))) {
+  3 | 		work();
+  4 | 		finish();
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(1): for (const item of items) {\n\tif (((a < b))) {\n\t\twork();\n\t\tfinish();\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (((a < b))) {
+    | 	^^^^^^^^^^^^^^^^
+> 3 | 		work();
+    | ^^^^^^^^^
+> 4 | 		finish();
+    | ^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!(a < b)) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+Suggestion 1/1: Rewrite to an early continue using the opposite comparison (changes behavior for NaN and values coerced to NaN).:
+  1 | for (const item of items) {
+  2 | 	if (((a >= b))) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+`;
+
 exports[`prefer-continue > invalid(1): for (const key in items) { before(); if (condition) { first(); second(); } } 1`] = `
 
   1 | for (const key in items) { before(); if (condition) { first(); second(); } }
@@ -230,6 +277,53 @@ Output:
 
 `;
 
+exports[`prefer-continue > invalid(10): for (const item of items) {\n\tif ((a < b) satisfies boolean) {\n\t\twork();\n\t\tfinish();\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if ((a < b) satisfies boolean) {
+  3 | 		work();
+  4 | 		finish();
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(10): for (const item of items) {\n\tif ((a < b) satisfies boolean) {\n\t\twork();\n\t\tfinish();\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if ((a < b) satisfies boolean) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		work();
+    | ^^^^^^^^^
+> 4 | 		finish();
+    | ^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!((a < b) satisfies boolean)) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+Suggestion 1/1: Rewrite to an early continue using the opposite comparison (changes behavior for NaN and values coerced to NaN).:
+  1 | for (const item of items) {
+  2 | 	if ((a >= b) satisfies boolean) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+`;
+
 exports[`prefer-continue > invalid(10): for (const item of items) {\n\tif (item.isActive || item.isPending) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 1`] = `
 
   1 | for (const item of items) {
@@ -315,6 +409,53 @@ Output:
 
 `;
 
+exports[`prefer-continue > invalid(11): for (const item of items) {\n\tif ((a < b)!) {\n\t\twork();\n\t\tfinish();\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if ((a < b)!) {
+  3 | 		work();
+  4 | 		finish();
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(11): for (const item of items) {\n\tif ((a < b)!) {\n\t\twork();\n\t\tfinish();\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if ((a < b)!) {
+    | 	^^^^^^^^^^^^^^^
+> 3 | 		work();
+    | ^^^^^^^^^
+> 4 | 		finish();
+    | ^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!((a < b)!)) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+Suggestion 1/1: Rewrite to an early continue using the opposite comparison (changes behavior for NaN and values coerced to NaN).:
+  1 | for (const item of items) {
+  2 | 	if ((a >= b)!) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+`;
+
 exports[`prefer-continue > invalid(11): for (const item of items) {\n\tif (item.isActive)\n\t\tprocess(item);\n} 1`] = `
 
 Options:
@@ -392,6 +533,53 @@ Output:
   1 | for (const item of items) { if (!value?.active) {
   2 | 	work?.();
   3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(12): for (const item of items) {\n\tif (<boolean>(a < b)) {\n\t\twork();\n\t\tfinish();\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (<boolean>(a < b)) {
+  3 | 		work();
+  4 | 		finish();
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(12): for (const item of items) {\n\tif (<boolean>(a < b)) {\n\t\twork();\n\t\tfinish();\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (<boolean>(a < b)) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		work();
+    | ^^^^^^^^^
+> 4 | 		finish();
+    | ^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!(<boolean>(a < b))) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+Suggestion 1/1: Rewrite to an early continue using the opposite comparison (changes behavior for NaN and values coerced to NaN).:
+  1 | for (const item of items) {
+  2 | 	if (<boolean>(a >= b)) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
 
 `;
 
@@ -478,6 +666,53 @@ Message:
 
 `;
 
+exports[`prefer-continue > invalid(13): for (const item of items) {\n\tif (((a < b) as boolean)!) {\n\t\twork();\n\t\tfinish();\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (((a < b) as boolean)!) {
+  3 | 		work();
+  4 | 		finish();
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(13): for (const item of items) {\n\tif (((a < b) as boolean)!) {\n\t\twork();\n\t\tfinish();\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (((a < b) as boolean)!) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		work();
+    | ^^^^^^^^^
+> 4 | 		finish();
+    | ^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!(((a < b) as boolean)!)) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+Suggestion 1/1: Rewrite to an early continue using the opposite comparison (changes behavior for NaN and values coerced to NaN).:
+  1 | for (const item of items) {
+  2 | 	if (((a >= b) as boolean)!) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+`;
+
 exports[`prefer-continue > invalid(13): for (const item of items) {\n\tif (item as ActiveItem) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 1`] = `
 
   1 | for (const item of items) {
@@ -530,6 +765,53 @@ exports[`prefer-continue > invalid(14): for (const item of items) { if (!conditi
 Message:
 > 1 | for (const item of items) { if (!condition) { continue; } function work() {} }
     |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+`;
+
+exports[`prefer-continue > invalid(14): for (const item of items) {\n\tif ((a as number) < b!) {\n\t\twork();\n\t\tfinish();\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if ((a as number) < b!) {
+  3 | 		work();
+  4 | 		finish();
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(14): for (const item of items) {\n\tif ((a as number) < b!) {\n\t\twork();\n\t\tfinish();\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if ((a as number) < b!) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		work();
+    | ^^^^^^^^^
+> 4 | 		finish();
+    | ^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!((a as number) < b!)) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+Suggestion 1/1: Rewrite to an early continue using the opposite comparison (changes behavior for NaN and values coerced to NaN).:
+  1 | for (const item of items) {
+  2 | 	if ((a as number) >= b!) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
 
 `;
 
@@ -712,6 +994,53 @@ Output:
 
 `;
 
+exports[`prefer-continue > invalid(15): for (const item of items) {\n\tif (getValue<Value>() < limit) {\n\t\twork();\n\t\tfinish();\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (getValue<Value>() < limit) {
+  3 | 		work();
+  4 | 		finish();
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(15): for (const item of items) {\n\tif (getValue<Value>() < limit) {\n\t\twork();\n\t\tfinish();\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (getValue<Value>() < limit) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		work();
+    | ^^^^^^^^^
+> 4 | 		finish();
+    | ^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!(getValue<Value>() < limit)) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+Suggestion 1/1: Rewrite to an early continue using the opposite comparison (changes behavior for NaN and values coerced to NaN).:
+  1 | for (const item of items) {
+  2 | 	if (getValue<Value>() >= limit) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+`;
+
 exports[`prefer-continue > invalid(16): for (const item of items) { if (!condition) { /* keep */ continue; } work(); } 1`] = `
 
 Options:
@@ -727,6 +1056,53 @@ exports[`prefer-continue > invalid(16): for (const item of items) { if (!conditi
 Message:
 > 1 | for (const item of items) { if (!condition) { /* keep */ continue; } work(); }
     |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer conditional wrapping over an early continue for a short body.
+
+`;
+
+exports[`prefer-continue > invalid(16): for (const item of items) {\n\tif ((getValue<Value>) < limit) {\n\t\twork();\n\t\tfinish();\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if ((getValue<Value>) < limit) {
+  3 | 		work();
+  4 | 		finish();
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(16): for (const item of items) {\n\tif ((getValue<Value>) < limit) {\n\t\twork();\n\t\tfinish();\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if ((getValue<Value>) < limit) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		work();
+    | ^^^^^^^^^
+> 4 | 		finish();
+    | ^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!((getValue<Value>) < limit)) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+Suggestion 1/1: Rewrite to an early continue using the opposite comparison (changes behavior for NaN and values coerced to NaN).:
+  1 | for (const item of items) {
+  2 | 	if ((getValue<Value>) >= limit) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
 
 `;
 
@@ -882,6 +1258,53 @@ Message:
 
 `;
 
+exports[`prefer-continue > invalid(17): for (const item of items) {\n  if (a < b) {\n    work();\n    finish();\n  }\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 |   if (a < b) {
+  3 |     work();
+  4 |     finish();
+  5 |   }
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(17): for (const item of items) {\n  if (a < b) {\n    work();\n    finish();\n  }\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 |   if (a < b) {
+    |   ^^^^^^^^^^^^
+> 3 |     work();
+    | ^^^^^^^^^^^
+> 4 |     finish();
+    | ^^^^^^^^^^^^^
+> 5 |   }
+    | ^^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 |   if (!(a < b)) {
+  3 |     continue;
+  4 |   }
+  5 |
+  6 |   work();
+  7 |   finish();
+  8 | }
+
+Suggestion 1/1: Rewrite to an early continue using the opposite comparison (changes behavior for NaN and values coerced to NaN).:
+  1 | for (const item of items) {
+  2 |   if (a >= b) {
+  3 |     continue;
+  4 |   }
+  5 |
+  6 |   work();
+  7 |   finish();
+  8 | }
+
+`;
+
 exports[`prefer-continue > invalid(17): for (const item of items) {\n\tif (! /* Keep this comment with the condition. */ item.isActive) {\n\t\tprocess(item);\n\t\tsave(item);\n\t}\n} 1`] = `
 
   1 | for (const item of items) {
@@ -982,6 +1405,33 @@ Output:
    8 | 	process(item);
    9 | 	save(item);
   10 | }
+
+`;
+
+exports[`prefer-continue > invalid(18): for (const item of items) {\n\tif (a < b) {\n\t\twork();\n\t\tfinish();\n\t} // keep\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (a < b) {
+  3 | 		work();
+  4 | 		finish();
+  5 | 	} // keep
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(18): for (const item of items) {\n\tif (a < b) {\n\t\twork();\n\t\tfinish();\n\t} // keep\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (a < b) {
+    | 	^^^^^^^^^^^^
+> 3 | 		work();
+    | ^^^^^^^^^
+> 4 | 		finish();
+    | ^^^^^^^^^^^
+> 5 | 	} // keep
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
 
 `;
 
@@ -1157,6 +1607,53 @@ Output:
   1 | for (const item of items) { if (!condition) {
   2 | 	work();
   3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(2): for (const item of items) {\n\tif ((a + b) < (c ?? d)) {\n\t\twork();\n\t\tfinish();\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if ((a + b) < (c ?? d)) {
+  3 | 		work();
+  4 | 		finish();
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(2): for (const item of items) {\n\tif ((a + b) < (c ?? d)) {\n\t\twork();\n\t\tfinish();\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if ((a + b) < (c ?? d)) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		work();
+    | ^^^^^^^^^
+> 4 | 		finish();
+    | ^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!((a + b) < (c ?? d))) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+Suggestion 1/1: Rewrite to an early continue using the opposite comparison (changes behavior for NaN and values coerced to NaN).:
+  1 | for (const item of items) {
+  2 | 	if ((a + b) >= (c ?? d)) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
 
 `;
 
@@ -1850,6 +2347,53 @@ Output:
 
 `;
 
+exports[`prefer-continue > invalid(3): for (const item of items) {\n\tif (a?.value < b) {\n\t\twork();\n\t\tfinish();\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (a?.value < b) {
+  3 | 		work();
+  4 | 		finish();
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(3): for (const item of items) {\n\tif (a?.value < b) {\n\t\twork();\n\t\tfinish();\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (a?.value < b) {
+    | 	^^^^^^^^^^^^^^^^^^^
+> 3 | 		work();
+    | ^^^^^^^^^
+> 4 | 		finish();
+    | ^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!(a?.value < b)) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+Suggestion 1/1: Rewrite to an early continue using the opposite comparison (changes behavior for NaN and values coerced to NaN).:
+  1 | for (const item of items) {
+  2 | 	if (a?.value >= b) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+`;
+
 exports[`prefer-continue > invalid(3): for (const item of items) {\n\tif (condition) { continue; }\n\tperformWork(); // keep here\n} 1`] = `
 
 Options:
@@ -2515,6 +3059,53 @@ Message:
 
 `;
 
+exports[`prefer-continue > invalid(4): for (const item of items) {\n\tif (getValue() < getLimit()) {\n\t\twork();\n\t\tfinish();\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (getValue() < getLimit()) {
+  3 | 		work();
+  4 | 		finish();
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(4): for (const item of items) {\n\tif (getValue() < getLimit()) {\n\t\twork();\n\t\tfinish();\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (getValue() < getLimit()) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		work();
+    | ^^^^^^^^^
+> 4 | 		finish();
+    | ^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!(getValue() < getLimit())) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+Suggestion 1/1: Rewrite to an early continue using the opposite comparison (changes behavior for NaN and values coerced to NaN).:
+  1 | for (const item of items) {
+  2 | 	if (getValue() >= getLimit()) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+`;
+
 exports[`prefer-continue > invalid(4): for (let index = 0; index < items.length; index++) {\n\tif (items[index].isActive) {\n\t\tprocess(items[index]);\n\t\tsave(items[index]);\n\t}\n} 1`] = `
 
   1 | for (let index = 0; index < items.length; index++) {
@@ -2860,6 +3451,53 @@ Message:
 
 `;
 
+exports[`prefer-continue > invalid(5): for (const item of items) {\n\tif (/* before */ a < b /* after */) {\n\t\twork();\n\t\tfinish();\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (/* before */ a < b /* after */) {
+  3 | 		work();
+  4 | 		finish();
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(5): for (const item of items) {\n\tif (/* before */ a < b /* after */) {\n\t\twork();\n\t\tfinish();\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (/* before */ a < b /* after */) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		work();
+    | ^^^^^^^^^
+> 4 | 		finish();
+    | ^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!(/* before */ a < b /* after */)) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+Suggestion 1/1: Rewrite to an early continue using the opposite comparison (changes behavior for NaN and values coerced to NaN).:
+  1 | for (const item of items) {
+  2 | 	if (/* before */ a >= b /* after */) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+`;
+
 exports[`prefer-continue > invalid(5): for (const key in items) {\n\tif (items[key].isActive) {\n\t\tprocess(items[key]);\n\t\tsave(items[key]);\n\t}\n} 1`] = `
 
   1 | for (const key in items) {
@@ -2961,6 +3599,53 @@ Output:
   1 | for (const item of items) { if (condition) {
   2 | 	work(); finish();
   3 | } }
+
+`;
+
+exports[`prefer-continue > invalid(6): for (const item of items) {\n\tif ((/* before */ a < b /* after */)) {\n\t\twork();\n\t\tfinish();\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if ((/* before */ a < b /* after */)) {
+  3 | 		work();
+  4 | 		finish();
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(6): for (const item of items) {\n\tif ((/* before */ a < b /* after */)) {\n\t\twork();\n\t\tfinish();\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if ((/* before */ a < b /* after */)) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		work();
+    | ^^^^^^^^^
+> 4 | 		finish();
+    | ^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!((/* before */ a < b /* after */))) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+Suggestion 1/1: Rewrite to an early continue using the opposite comparison (changes behavior for NaN and values coerced to NaN).:
+  1 | for (const item of items) {
+  2 | 	if ((/* before */ a >= b /* after */)) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
 
 `;
 
@@ -3103,6 +3788,53 @@ Output:
 
 `;
 
+exports[`prefer-continue > invalid(7): for (const item of items) {\n\tif (a /* left */ < /* right */ b) {\n\t\twork();\n\t\tfinish();\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (a /* left */ < /* right */ b) {
+  3 | 		work();
+  4 | 		finish();
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(7): for (const item of items) {\n\tif (a /* left */ < /* right */ b) {\n\t\twork();\n\t\tfinish();\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (a /* left */ < /* right */ b) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		work();
+    | ^^^^^^^^^
+> 4 | 		finish();
+    | ^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!(a /* left */ < /* right */ b)) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+Suggestion 1/1: Rewrite to an early continue using the opposite comparison (changes behavior for NaN and values coerced to NaN).:
+  1 | for (const item of items) {
+  2 | 	if (a /* left */ >= /* right */ b) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+`;
+
 exports[`prefer-continue > invalid(8): async function run() {\n\tfor await (const item of items) {\n\t\tif (item.isActive) {\n\t\t\tprocess(item);\n\t\t\tsave(item);\n\t\t}\n\t}\n} 1`] = `
 
   1 | async function run() {
@@ -3217,6 +3949,58 @@ Output:
 
 `;
 
+exports[`prefer-continue > invalid(8): for (const item of items) {\n\tif (a < b // keep\n\t) {\n\t\twork();\n\t\tfinish();\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if (a < b // keep
+  3 | 	) {
+  4 | 		work();
+  5 | 		finish();
+  6 | 	}
+  7 | }
+
+`;
+
+exports[`prefer-continue > invalid(8): for (const item of items) {\n\tif (a < b // keep\n\t) {\n\t\twork();\n\t\tfinish();\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if (a < b // keep
+    | 	^^^^^^^^^^^^^^^^^
+> 3 | 	) {
+    | ^^^^
+> 4 | 		work();
+    | ^^^^^^^^^
+> 5 | 		finish();
+    | ^^^^^^^^^^^
+> 6 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  7 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!(a < b // keep
+  3 | 	)) {
+  4 | 		continue;
+  5 | 	}
+  6 |
+  7 | 	work();
+  8 | 	finish();
+  9 | }
+
+Suggestion 1/1: Rewrite to an early continue using the opposite comparison (changes behavior for NaN and values coerced to NaN).:
+  1 | for (const item of items) {
+  2 | 	if (a >= b // keep
+  3 | 	) {
+  4 | 		continue;
+  5 | 	}
+  6 |
+  7 | 	work();
+  8 | 	finish();
+  9 | }
+
+`;
+
 exports[`prefer-continue > invalid(9): for (const item of items) { before(); if (condition as boolean) { first(); second(); } } 1`] = `
 
   1 | for (const item of items) { before(); if (condition as boolean) { first(); second(); } }
@@ -3319,6 +4103,53 @@ Output:
   5 |
   6 | 	process(item);
   7 | 	save(item);
+  8 | }
+
+`;
+
+exports[`prefer-continue > invalid(9): for (const item of items) {\n\tif ((a < b) as boolean) {\n\t\twork();\n\t\tfinish();\n\t}\n} 1`] = `
+
+  1 | for (const item of items) {
+  2 | 	if ((a < b) as boolean) {
+  3 | 		work();
+  4 | 		finish();
+  5 | 	}
+  6 | }
+
+`;
+
+exports[`prefer-continue > invalid(9): for (const item of items) {\n\tif ((a < b) as boolean) {\n\t\twork();\n\t\tfinish();\n\t}\n} 2`] = `
+
+Message:
+  1 | for (const item of items) {
+> 2 | 	if ((a < b) as boolean) {
+    | 	^^^^^^^^^^^^^^^^^^^^^^^^^
+> 3 | 		work();
+    | ^^^^^^^^^
+> 4 | 		finish();
+    | ^^^^^^^^^^^
+> 5 | 	}
+    | ^^ Prefer an early continue over wrapping the remainder of the loop body in an \`if\` statement.
+  6 | }
+
+Output:
+  1 | for (const item of items) {
+  2 | 	if (!((a < b) as boolean)) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
+  8 | }
+
+Suggestion 1/1: Rewrite to an early continue using the opposite comparison (changes behavior for NaN and values coerced to NaN).:
+  1 | for (const item of items) {
+  2 | 	if ((a >= b) as boolean) {
+  3 | 		continue;
+  4 | 	}
+  5 |
+  6 | 	work();
+  7 | 	finish();
   8 | }
 
 `;

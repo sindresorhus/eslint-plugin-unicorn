@@ -13,6 +13,8 @@ Avoid wrapping the rest of a function body in a conditional. A guard clause ofte
 
 By default, this rule reports when the last statement of a block-bodied function is an `if` statement without `else`, even when other statements precede it. It does not report nested `if` statements, loops, or functions that continue after the `if`.
 
+Autofix negates relational comparisons (`!(a < b)`) to preserve behavior. Before applying it, you can choose an editor suggestion using the opposite operator (`a >= b`), which changes behavior for `NaN` and values coerced to `NaN`.
+
 ## Examples
 
 ```js
