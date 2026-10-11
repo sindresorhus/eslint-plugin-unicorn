@@ -23,6 +23,8 @@ Names that start with a boolean prefix should also refer to booleans or boolean-
 
 Functions and callable type annotations returning `boolean`, `Promise<boolean>`, `PromiseLike<boolean>`, or unions of these are considered boolean-returning, whether or not the function is `async`.
 
+Getters returning promises are treated as non-boolean values.
+
 When type information is unavailable, unannotated async functions are not considered boolean-returning when requiring a prefix.
 
 Configured wrapper bindings may use boolean prefixes when a configured property or method provides a boolean-like value. This applies only to variables and parameters that are not reassigned.

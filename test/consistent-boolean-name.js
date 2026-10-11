@@ -3058,6 +3058,26 @@ test({
 
 for (const parserCase of [typescript, typeAware]) {
 	test({
+		valid: [parserCase({
+			code: [
+				'class Task { get valid(): Promise<boolean> { return Promise.resolve(true); } }',
+				'const task = {get valid(): PromiseLike<boolean> { return Promise.resolve(true); }};',
+				'interface TaskView { get valid(): Promise<boolean>; get available(): boolean | undefined; }',
+			].join(' '),
+			options: [{checkMethods: 'always'}],
+		})],
+		invalid: [parserCase({
+			code: [
+				'class Task { get isValid(): Promise<boolean> { return Promise.resolve(true); } }',
+				'const task = {get isValid(): PromiseLike<boolean> { return Promise.resolve(true); }};',
+				'interface TaskView { get isValid(): Promise<boolean>; }',
+			].join(' '),
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'non-boolean-prefix'}, {messageId: 'non-boolean-prefix'}, {messageId: 'non-boolean-prefix'}],
+		})],
+	});
+
+	test({
 		valid: [
 			'function isValid(): Promise<boolean> {}',
 			'const isValid = (): boolean | Promise<boolean> => {}',
@@ -3168,6 +3188,18 @@ test({
 		typeAware('function isValid() { return Math.random() > 0.5 ? Promise.resolve(true) : false; }'),
 	],
 	invalid: [
+		typeAware({code: 'function valid<T extends boolean>(value: T): T { return value; }', errors: [{messageId: 'consistent-boolean-name', suggestions: 12}]}),
+		typeAware({code: 'function isValid<T extends string>(value: T): T { return value; }', errors: [{messageId: 'non-boolean-prefix'}]}),
+		typeAware({code: 'function valid<T extends boolean>(value: T): T | false { return value; }', errors: [{messageId: 'consistent-boolean-name', suggestions: 12}]}),
+		typeAware({code: 'function isValid<T extends string>(value: T): T | boolean { return value; }', errors: [{messageId: 'non-boolean-prefix'}]}),
+		typeAware({code: 'function valid<T extends boolean>(value: T): T | undefined { return value; }', errors: [{messageId: 'consistent-boolean-name', suggestions: 12}]}),
+		typeAware({code: 'function isValid<T extends string>(value: T): T | undefined { return value; }', errors: [{messageId: 'non-boolean-prefix'}]}),
+		typeAware({code: 'namespace Flags { export type Ready = false; } function valid(): Flags.Ready { throw new Error(); }', errors: [{messageId: 'consistent-boolean-name', suggestions: 12}]}),
+		typeAware({
+			code: 'class Task { get isValid() { return Promise.resolve(true); } }',
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
 		typeAware({code: 'function valid() { return Promise.resolve(true); }', errors: [{messageId: 'consistent-boolean-name', suggestions: 12}]}),
 		typeAware({code: 'const valid = () => Promise.resolve(true);', errors: [{messageId: 'consistent-boolean-name', suggestions: 12}]}),
 		typeAware({code: 'function valid() { return Math.random() > 0.5 ? Promise.resolve(true) : false; }', errors: [{messageId: 'consistent-boolean-name', suggestions: 12}]}),

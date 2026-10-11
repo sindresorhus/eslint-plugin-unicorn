@@ -334,7 +334,11 @@ const isBooleanFunctionValue = (node, context) => {
 	}
 
 	const scope = context.sourceCode.getScope(node);
-	if (node.returnType && getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false}) !== boolean) {
+	if (
+		node.returnType
+		&& getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false}) !== boolean
+		&& getTypeInformationBooleanState(node, context) !== boolean
+	) {
 		return false;
 	}
 
@@ -1743,7 +1747,15 @@ function getFunctionReturnTypeInformationBooleanState(node, context, allowNullis
 				return unknown;
 			}
 
-			return getPossiblyPromisedTypeBooleanState(nonNullableReturnType, checker, allowNullish);
+			if (checker.getAwaitedType(nonNullableReturnType) === nonNullableReturnType) {
+				return isFunction(node) && node.returnType && !node.async
+					? getTypeBooleanState(nonNullableReturnType, checker, new Set(), false)
+					: unknown;
+			}
+
+			return hasUnresolvedTypeParameterReference(node.returnType, context, getTypeState(), context.sourceCode.getScope(node), false)
+				? unknown
+				: getPossiblyPromisedTypeBooleanState(nonNullableReturnType, checker, allowNullish);
 		}));
 		// The type checker is not expected to throw, but a crash here would break linting.
 		/* node:coverage ignore next 3 */
@@ -1765,7 +1777,7 @@ function getFunctionBooleanState(node, context, visitedVariables = new Set()) {
 	}
 
 	if (hasUnresolvedTypeParameterReference(node.returnType, context, getTypeState(), scope, false)) {
-		return unknown;
+		return getFunctionReturnTypeInformationBooleanState(node, context);
 	}
 
 	const stateFromDirectReturnType = node.async ? unknown : getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false});
@@ -1804,6 +1816,10 @@ function getFunctionBooleanState(node, context, visitedVariables = new Set()) {
 		return stateFromTypeInformation;
 	}
 
+	return getFunctionBodyBooleanState(node, context, visitedVariables);
+}
+
+function getFunctionBodyBooleanState(node, context, visitedVariables = new Set()) {
 	if (!node.body) {
 		return unknown;
 	}
@@ -2295,11 +2311,34 @@ function getParameterPropertyNameNode(node) {
 	return parameter.type === 'AssignmentPattern' ? parameter.left : parameter;
 }
 
+function getGetterBooleanState(node, context) {
+	const scope = context.sourceCode.getScope(node);
+	if (node.type === 'TSMethodSignature') {
+		return getDirectTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false, allowNullish: false});
+	}
+
+	const stateFromReturnType = getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false});
+	if (stateFromReturnType !== unknown) {
+		return stateFromReturnType;
+	}
+
+	const stateFromTypeInformation = getTypeInformationBooleanState(node, context);
+	if (stateFromTypeInformation !== unknown) {
+		return stateFromTypeInformation;
+	}
+
+	return getFunctionBodyBooleanState(node, context);
+}
+
 function isBooleanProperty(node, context) {
 	const {sourceCode} = context;
 
 	if (node.type === 'TSParameterProperty') {
 		return isBooleanVariable(findVariable(sourceCode.getScope(node), getParameterPropertyNameNode(node)), context);
+	}
+
+	if (node.kind === 'get') {
+		return getGetterBooleanState(node.value ?? node, context) === boolean;
 	}
 
 	// Setters are skipped by `checkProperty()`.
@@ -2332,6 +2371,10 @@ function getExplicitPropertyBooleanState(node, context) {
 
 	if (node.type === 'TSParameterProperty') {
 		return getVariableBooleanState(findVariable(sourceCode.getScope(node), getParameterPropertyNameNode(node)), context);
+	}
+
+	if (node.kind === 'get') {
+		return getGetterBooleanState(node.value ?? node, context);
 	}
 
 	// Setters are skipped by `checkProperty()`.
