@@ -2377,8 +2377,9 @@ function isBooleanProperty(node, context) {
 	}
 
 	if (propertyDefinitionTypes.has(node.type)) {
-		return isBooleanTypeAnnotatedValue(node, context)
-			|| isBooleanValue(node.value, context);
+		return node.typeAnnotation
+			? isBooleanTypeAnnotatedValue(node, context)
+			: isBooleanValue(node.value, context);
 	}
 
 	if (node.type === 'TSPropertySignature') {
@@ -2422,12 +2423,9 @@ function getExplicitPropertyBooleanState(node, context) {
 
 	if (propertyDefinitionTypes.has(node.type)) {
 		const scope = sourceCode.getScope(node);
-		const stateFromTypeAnnotation = getDirectTypeAnnotationBooleanState(node.typeAnnotation, context, scope);
-		if (stateFromTypeAnnotation !== unknown) {
-			return stateFromTypeAnnotation;
-		}
-
-		return getExpressionBooleanState(node.value, context);
+		return node.typeAnnotation
+			? getDirectTypeAnnotationBooleanState(node.typeAnnotation, context, scope)
+			: getExpressionBooleanState(node.value, context);
 	}
 
 	if (node.type === 'TSPropertySignature') {

@@ -3356,6 +3356,30 @@ test({
 	})],
 });
 
+for (const parserCase of [typescript, typeAware]) {
+	test({
+		valid: [
+			'class Task { ready: (() => Promise<boolean>) | undefined = (): Promise<boolean> => Promise.resolve(true); }',
+			'class Task { ready: () => Promise<boolean | undefined> = (): Promise<boolean> => Promise.resolve(true); }',
+			'class Task { isReady: () => Promise<boolean | undefined> = (): Promise<boolean> => Promise.resolve(true); }',
+			'class Task { ready: unknown = (): Promise<boolean> => Promise.resolve(true); }',
+			'class Task { isReady: unknown = (): Promise<string> => Promise.resolve("yes"); }',
+		].map(code => parserCase({code, options: [{checkFields: 'always'}]})),
+		invalid: [
+			parserCase({
+				code: 'class Task { ready: () => Promise<boolean> = (): Promise<boolean> => Promise.resolve(true); }',
+				options: [{checkFields: 'always'}],
+				errors: [{messageId: 'consistent-boolean-name'}],
+			}),
+			parserCase({
+				code: 'class Task { isReady: () => Promise<boolean | string> = (): Promise<boolean> => Promise.resolve(true); }',
+				options: [{checkFields: 'always'}],
+				errors: [{messageId: 'non-boolean-prefix'}],
+			}),
+		],
+	});
+}
+
 test({
 	valid: [
 		typeAware({

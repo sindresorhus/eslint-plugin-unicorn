@@ -25,7 +25,7 @@ Functions and callable type annotations returning `boolean`, `Promise<boolean>`,
 
 Getters returning promises are treated as non-boolean values.
 
-When type information is unavailable, unannotated async functions are not considered boolean-returning when requiring a prefix.
+When type information is unavailable, a type annotation is needed to require prefixes for promise-returning functions.
 
 Configured wrapper bindings may use boolean prefixes when a configured property or method provides a boolean-like value. This applies only to variables and parameters that are not reassigned.
 
