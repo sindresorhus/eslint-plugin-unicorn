@@ -1055,6 +1055,11 @@ ruleTest({
 	valid: [],
 	invalid: [
 		{
+			...typeAware('declare const array: string[]; const copy = Array.from<string>(array);'),
+			output: 'declare const array: string[]; const copy = [...array];',
+			errors: [{messageId: 'array-from'}],
+		},
+		{
 			...typeAware('declare const array: \'a\'[]; const copy = Array.from<string>(array); copy.push(\'b\');'),
 			errors: [{
 				messageId: 'array-from',
