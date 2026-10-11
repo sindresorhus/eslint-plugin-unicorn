@@ -1591,12 +1591,7 @@ function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 		});
 		result = callSignatureStates.length > 0
 			? combineBooleanStates(callSignatureStates)
-			: getPromisedTypeMembersBooleanState(
-				interfaceDefinitions.flatMap(definition => definition.node.body.body),
-				context,
-				context.sourceCode.getScope(interfaceDefinitions[0].node),
-				normalizedTypeState,
-			);
+			: unknown;
 	} else {
 		const [definition] = definitions;
 		if (definition?.node.type === 'TSTypeAliasDeclaration') {

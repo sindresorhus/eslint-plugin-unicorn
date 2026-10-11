@@ -3355,3 +3355,45 @@ test({
 		errors: [{messageId: 'non-boolean-prefix'}, {messageId: 'non-boolean-prefix'}],
 	})],
 });
+
+test({
+	valid: [
+		typeAware({
+			code: [
+				'interface Pending extends PromiseLike<boolean> {metadata: string}',
+				'function isReady(): Pending { throw new Error(); }',
+				'interface Task { isReady(): Pending; }',
+			].join(' '),
+			options: [{checkMethods: 'always'}],
+		}),
+		typeAware({
+			code: [
+				'interface Pending extends PromiseLike<boolean | undefined> {metadata: string}',
+				'function ready(): Pending { throw new Error(); }',
+				'function isReady(): Pending { throw new Error(); }',
+				'interface Task { ready(): Pending; isReady(): Pending; }',
+			].join(' '),
+			options: [{checkMethods: 'always'}],
+		}),
+	],
+	invalid: [
+		typeAware({
+			code: [
+				'interface Pending extends PromiseLike<boolean> {metadata: string}',
+				'function ready(): Pending { throw new Error(); }',
+				'interface Task { ready(): Pending; }',
+			].join(' '),
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}, {messageId: 'consistent-boolean-name'}],
+		}),
+		typeAware({
+			code: [
+				'interface Pending extends PromiseLike<string> {metadata: string}',
+				'function isReady(): Pending { throw new Error(); }',
+				'interface Task { isReady(): Pending; }',
+			].join(' '),
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'non-boolean-prefix'}, {messageId: 'non-boolean-prefix'}],
+		}),
+	],
+});
