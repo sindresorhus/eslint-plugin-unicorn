@@ -3389,6 +3389,7 @@ test({
 		...[
 			'function isGetValue(): boolean { return true; }',
 			'const isGetValue = (): boolean => true;',
+			'const isGetValue: () => boolean = () => true;',
 			'function isGetValue(value?: string): boolean; function isGetValue(value: number): boolean; function isGetValue(value?: string | number): boolean | string { return true; }',
 		].flatMap(code => {
 			const computedCode = `declare function computed<T>(getter: () => T): {value: T}; ${code} const isReady: {value: boolean} = computed(isGetValue);`;
@@ -3396,12 +3397,19 @@ test({
 		}),
 	],
 	invalid: [
-		'function isGetValue(): boolean | Promise<boolean> { return true; }',
-		'const isGetValue = (): boolean | Promise<boolean> => true;',
-	].map(code => typescript({
-		code: `declare function computed<T>(getter: () => T): {value: T}; ${code} const isReady: {value: boolean | Promise<boolean>} = computed(isGetValue);`,
-		errors: [{messageId: 'non-boolean-prefix', data: {name: 'isReady', prefix: 'is'}}],
-	})),
+		...[
+			'function isGetValue(): boolean | Promise<boolean> { return true; }',
+			'const isGetValue = (): boolean | Promise<boolean> => true;',
+			'const isGetValue: () => boolean | Promise<boolean> = () => true;',
+		].map(code => typescript({
+			code: `declare function computed<T>(getter: () => T): {value: T}; ${code} const isReady: {value: boolean | Promise<boolean>} = computed(isGetValue);`,
+			errors: [{messageId: 'non-boolean-prefix', data: {name: 'isReady', prefix: 'is'}}],
+		})),
+		typeAware({
+			code: 'declare function computed<T>(getter: () => T): {value: T}; const isGetValue: () => boolean | Promise<boolean> = () => true; const isReady: {value: boolean | Promise<boolean>} = computed(isGetValue);',
+			errors: [{messageId: 'non-boolean-prefix', data: {name: 'isReady', prefix: 'is'}}],
+		}),
+	],
 });
 
 test({
