@@ -21,9 +21,11 @@ Boolean names should start with a prefix that makes the boolean meaning clear.
 
 Names that start with a boolean prefix should also refer to booleans or boolean-returning functions. Unknown values are ignored.
 
-Callable type annotations returning `boolean`, `Promise<boolean>`, `PromiseLike<boolean>`, or unions of these are considered boolean-returning.
+Functions and callable type annotations returning `boolean`, `Promise<boolean>`, `PromiseLike<boolean>`, or unions of these are considered boolean-returning, whether or not the function is `async`.
 
-When type information is unavailable, unannotated async functions are not considered boolean-returning when requiring a prefix.
+Getters returning promises are treated as non-boolean values.
+
+When type information is unavailable, a type annotation is needed to require prefixes for promise-returning functions.
 
 Configured wrapper bindings may use boolean prefixes when a configured property or method provides a boolean-like value. This applies only to variables and parameters that are not reassigned.
 
@@ -52,7 +54,7 @@ React hook function bindings are checked after the required `use` prefix. For ex
 
 React refs initialized with a boolean-like value may use boolean prefixes when the binding name ends in `Ref` or `Reference`, such as `isMountedRef`, `hasConsentRef`, or `hasConsentReference`. The suffix identifies the binding as a ref object. The binding must not be reassigned after initialization.
 
-Direct Vue `ref()` calls with boolean-like values and `computed()` calls with boolean-returning functions may use boolean prefixes, such as `isBranch` or `hasDepartment`. The binding must not be reassigned after initialization. For refs returned by other calls, such as composables returning `ShallowRef<boolean>`, use type-aware [`wrappers`](#wrappers) with `{Ref: 'value'}`, which also covers `ComputedRef`.
+Direct Vue `ref()` calls with boolean-like values and `computed()` calls with synchronous getters returning booleans may use boolean prefixes, such as `isBranch` or `hasDepartment`. The binding must not be reassigned after initialization. For refs returned by other calls, such as composables returning `ShallowRef<boolean>`, use type-aware [`wrappers`](#wrappers) with `{Ref: 'value'}`, which also covers `ComputedRef`.
 
 This rule intentionally does not check destructuring bindings, imports, class names, or catch parameters.
 

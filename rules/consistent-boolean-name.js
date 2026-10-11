@@ -283,11 +283,11 @@ function isParameterPropertyDefinition(definition) {
 const hasWriteAfterInitialization = variable =>
 	variable.references.some(reference => !reference.init && reference.isWrite());
 
-const isBooleanAsyncFunction = (node, context) =>
-	getPromisedTypeAnnotationBooleanState(node.returnType, context, context.sourceCode.getScope(node), {allowNullish: false}) === boolean
-	|| getAsyncFunctionTypeInformationBooleanState(node, context, false) === boolean;
+const hasBooleanReturnType = (node, context) =>
+	getPromisedReturnTypeBooleanState(node.returnType, context, context.sourceCode.getScope(node)) === boolean
+	|| getFunctionReturnTypeInformationBooleanState(node, context, false) === boolean;
 
-function getAsyncFunctionTypeAnnotationBooleanState(node, context, scope, typeState) {
+function getFunctionTypeAnnotationBooleanState(node, context, scope, typeState) {
 	const normalizedTypeState = getTypeState(typeState);
 	if (!normalizedTypeState.functionTypesAreBoolean || !isCallableTypeAnnotation(node, context, scope)) {
 		return unknown;
@@ -306,38 +306,52 @@ function getAsyncFunctionTypeAnnotationBooleanState(node, context, scope, typeSt
 		return state;
 	}
 
-	return getAsyncFunctionTypeInformationBooleanState(node, context, false);
+	return getFunctionReturnTypeInformationBooleanState(node, context, false);
 }
 
-const isBooleanAsyncFunctionTypeAnnotation = (node, context, scope) =>
-	getAsyncFunctionTypeAnnotationBooleanState(node, context, scope) === boolean;
+const isBooleanReturningFunctionTypeAnnotation = (node, context, scope) =>
+	getFunctionTypeAnnotationBooleanState(node, context, scope) === boolean;
 
 const isBooleanFunctionLikeTypeAnnotation = (node, context, scope) =>
 	isBooleanFunctionTypeAnnotation(node, context, scope)
-	|| isBooleanAsyncFunctionTypeAnnotation(node, context, scope)
+	|| isBooleanReturningFunctionTypeAnnotation(node, context, scope)
 	|| (
 		isCallableTypeAnnotation(node, context, scope)
 		&& getDirectTypeAnnotationBooleanState(node, context, scope, {allowNullish: false}) === boolean
 	);
 
 const isBooleanFunctionValue = (node, context) => {
+	if (node.generator) {
+		return false;
+	}
+
+	if (hasBooleanReturnType(node, context)) {
+		return true;
+	}
+
 	if (node.async) {
-		return isBooleanAsyncFunction(node, context);
+		return false;
 	}
 
 	const scope = context.sourceCode.getScope(node);
+	if (
+		node.returnType
+		&& getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false}) !== boolean
+		&& getTypeInformationBooleanState(node, context) !== boolean
+	) {
+		return false;
+	}
+
 	return getDirectTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false, allowNullish: false}) === boolean
 		|| isBooleanFunction(node, context);
 };
 
-const isBooleanFunctionDefinition = (definition, context, isAsync = definition.node.async) =>
+const isBooleanFunctionDefinition = (definition, context) =>
 	definition.type === 'FunctionName'
 	&& isFunction(definition.node)
-	&& (isAsync
-		? isBooleanAsyncFunction(definition.node, context)
-		: isBooleanFunctionValue(definition.node, context));
+	&& isBooleanFunctionValue(definition.node, context);
 
-const isBooleanAsyncFunctionReference = (node, context) => {
+const isBooleanReturningFunctionReference = (node, context) => {
 	if (node?.type !== 'Identifier') {
 		return false;
 	}
@@ -352,8 +366,8 @@ const isBooleanAsyncFunctionReference = (node, context) => {
 
 	const functionDefinitions = getFunctionDefinitions(variable);
 	if (functionDefinitions) {
-		return hasAsyncFunctionImplementation(variable.defs)
-			&& functionDefinitions.every(definition => isBooleanFunctionDefinition(definition, context, true));
+		return !hasGeneratorFunctionImplementation(variable.defs)
+			&& functionDefinitions.every(definition => hasBooleanReturnType(definition.node, context));
 	}
 
 	if (variable.defs.length !== 1) {
@@ -362,25 +376,33 @@ const isBooleanAsyncFunctionReference = (node, context) => {
 
 	const [definition] = variable.defs;
 	const scope = context.sourceCode.getScope(definition.name);
-	if (isBooleanAsyncFunctionTypeAnnotation(definition.name?.typeAnnotation, context, scope)) {
-		return true;
+	if (definition.name?.typeAnnotation) {
+		return isBooleanReturningFunctionTypeAnnotation(definition.name.typeAnnotation, context, scope);
 	}
 
 	if (definition.type === 'FunctionName') {
-		return isBooleanFunctionDefinition(definition, context);
+		return !definition.node.generator
+			&& hasBooleanReturnType(definition.node, context);
 	}
 
 	return definition.type === 'Variable'
 		&& definition.parent.kind === 'const'
-		&& definition.node.init?.async
-		&& isBooleanAsyncFunction(definition.node.init, context);
+		&& isFunction(definition.node.init)
+		&& !definition.node.init.generator
+		&& hasBooleanReturnType(definition.node.init, context);
 };
 
-const isBooleanValue = (node, context) => isFunction(node)
+const isBooleanValue = (node, context, visitedVariables) => isFunction(node)
 	? isBooleanFunctionValue(node, context)
-	: isBooleanFunctionReference(node, context)
-		|| isBooleanAsyncFunctionReference(node, context)
-		|| isBooleanExpression(node, context);
+	: (
+		(
+			isBooleanFunctionReference(node, context)
+			|| isBooleanReturningFunctionReference(node, context)
+			|| getFunctionReturnTypeInformationBooleanState(node, context, false) === boolean
+		)
+		&& getExpressionBooleanState(node, context, visitedVariables) === boolean
+	)
+	|| isBooleanExpression(node, context);
 
 function getSupportedVariableDefinition(variable) {
 	if (variable.defs.length !== 1) {
@@ -393,7 +415,7 @@ function getSupportedVariableDefinition(variable) {
 	if (
 		name?.type !== 'Identifier'
 		|| !['Variable', 'Parameter', 'FunctionName'].includes(definition.type)
-		|| (definition.type === 'Variable' && definition.node.id.type !== 'Identifier')
+		|| isDestructuredDefinition(definition)
 		|| (definition.type === 'Parameter' && isSetter(definition.node))
 	) {
 		return;
@@ -431,10 +453,6 @@ function getFunctionDefinitions(variable) {
 	return overloadDefinitions.length > 0 ? overloadDefinitions : variable.defs;
 }
 
-function hasAsyncFunctionImplementation(definitions) {
-	return definitions.some(definition => isFunction(definition.node) && definition.node.async);
-}
-
 function hasGeneratorFunctionImplementation(definitions) {
 	return definitions.some(definition => isFunction(definition.node) && definition.node.generator);
 }
@@ -460,7 +478,9 @@ function isReactHookFunctionBinding(variable, context) {
 	return definition?.type === 'Variable'
 		&& (
 			isFunction(definition.node.init)
+			|| isBooleanReturningFunctionReference(definition.node.init, context)
 			|| isCallableTypeAnnotation(definition.name.typeAnnotation, context, context.sourceCode.getScope(definition.name))
+			|| (withTypeInformation(definition.name, context, ({type}) => type.getCallSignatures().length > 0) ?? false)
 		);
 }
 
@@ -555,6 +575,7 @@ function isBooleanVueReferenceVariable(variable, context) {
 			(isFunction(getter) && !getter.async && !getter.generator)
 			|| isBooleanFunctionReference(getter, context)
 		)
+		&& getGetterBooleanState(getter, context) === boolean
 		&& getExpressionBooleanState(argument, context) === boolean;
 }
 
@@ -1572,14 +1593,7 @@ function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 					getPromisedTypeAnnotationBooleanState(returnType, context, scope, {...typeState, functionTypesAreBoolean: false}),
 			});
 		});
-		result = callSignatureStates.length > 0
-			? combineBooleanStates(callSignatureStates)
-			: getPromisedTypeMembersBooleanState(
-				interfaceDefinitions.flatMap(definition => definition.node.body.body),
-				context,
-				context.sourceCode.getScope(interfaceDefinitions[0].node),
-				normalizedTypeState,
-			);
+		result = combineBooleanStates(callSignatureStates);
 	} else {
 		const [definition] = definitions;
 		if (definition?.node.type === 'TSTypeAliasDeclaration') {
@@ -1598,8 +1612,8 @@ function getPromisedTypeReferenceBooleanState(node, context, scope, typeState) {
 		&& context.sourceCode.parserServices?.program
 		&& canUseTypeInformationFallback(node, context, normalizedTypeState, scope, definitions)
 	) {
-		result = interfaceDefinitions.length > 0
-			? getAsyncFunctionTypeInformationBooleanState(node, context, normalizedTypeState.allowNullish)
+		result = isCallableTypeAnnotation(node, context, scope, {typeState: normalizedTypeState})
+			? getFunctionReturnTypeInformationBooleanState(node, context, normalizedTypeState.allowNullish)
 			: getPromisedTypeInformationBooleanState(node, context, normalizedTypeState.allowNullish);
 	}
 
@@ -1709,7 +1723,7 @@ function isGlobalPromiseTypeAnnotation(node, scope) {
 	return isGlobalPromiseTypeReference(node, scope);
 }
 
-function getAsyncFunctionTypeInformationBooleanState(node, context, allowNullish = true) {
+function getFunctionReturnTypeInformationBooleanState(node, context, allowNullish = true) {
 	const {parserServices} = context.sourceCode;
 	if (!parserServices?.program) {
 		return unknown;
@@ -1735,7 +1749,13 @@ function getAsyncFunctionTypeInformationBooleanState(node, context, allowNullish
 				return unknown;
 			}
 
-			return getPossiblyPromisedTypeBooleanState(nonNullableReturnType, checker, allowNullish);
+			if (checker.getAwaitedType(nonNullableReturnType) === nonNullableReturnType) {
+				return getTypeBooleanState(nonNullableReturnType, checker, new Set(), false);
+			}
+
+			return hasUnresolvedTypeParameterReference(node.returnType, context, getTypeState(), context.sourceCode.getScope(node), false)
+				? unknown
+				: getPossiblyPromisedTypeBooleanState(nonNullableReturnType, checker, allowNullish);
 		}));
 		// The type checker is not expected to throw, but a crash here would break linting.
 		/* node:coverage ignore next 3 */
@@ -1744,48 +1764,62 @@ function getAsyncFunctionTypeInformationBooleanState(node, context, allowNullish
 	}
 }
 
-function getFunctionBooleanState(node, context, visitedVariables = new Set(), isAsync = node.async) {
+function getFunctionBooleanState(node, context, visitedVariables = new Set()) {
 	if (node.generator) {
 		return nonBoolean;
 	}
 
 	const scope = context.sourceCode.getScope(node);
-	const hasUnresolvedReturnType = isAsync
-		&& hasUnresolvedTypeParameterReference(node.returnType, context, getTypeState(), scope, false);
-	// Only actual async function implementations and their overload signatures get `Promise<T>` unwrapped in function-body analysis. Promise-valued variables are not predicates; type-only callable signatures are handled separately by direct annotation analysis.
-	const stateFromPromisedReturnType = isAsync && !hasUnresolvedReturnType
-		? getPromisedReturnTypeBooleanState(node.returnType, context, scope)
-		: unknown;
-	if (stateFromPromisedReturnType !== unknown) {
-		return stateFromPromisedReturnType;
-	}
-
-	const stateFromReturnType = isAsync ? unknown : getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false});
+	// Functions can return promises without being async. Promise-valued variables are not predicates; only function return contracts get `Promise<T>` unwrapped here.
+	const stateFromReturnType = getPromisedReturnTypeBooleanState(node.returnType, context, scope);
 	if (stateFromReturnType !== unknown) {
 		return stateFromReturnType;
 	}
 
-	const stateFromTypeInformation = isAsync
-		? (hasUnresolvedReturnType
-			? unknown
-			: getAsyncFunctionTypeInformationBooleanState(node, context, false))
-		: getTypeInformationBooleanState(node, context);
+	if (hasUnresolvedTypeParameterReference(node.returnType, context, getTypeState(), scope, false)) {
+		return getFunctionReturnTypeInformationBooleanState(node, context);
+	}
+
+	const stateFromDirectReturnType = node.async ? unknown : getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false});
+	if (stateFromDirectReturnType === boolean) {
+		return boolean;
+	}
+
+	if (getPromisedTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false}) === boolean) {
+		return unknown;
+	}
+
+	const stateFromTypeInformation = node.async ? unknown : getTypeInformationBooleanState(node, context);
+	if (stateFromTypeInformation === boolean) {
+		return boolean;
+	}
+
+	const stateFromReturnTypeInformation = getFunctionReturnTypeInformationBooleanState(node, context, false);
+	if (stateFromReturnTypeInformation !== unknown) {
+		return stateFromReturnTypeInformation;
+	}
+
+	const stateFromNullableReturnTypeInformation = getFunctionReturnTypeInformationBooleanState(node, context);
+	if (stateFromNullableReturnTypeInformation !== unknown) {
+		return stateFromNullableReturnTypeInformation === nonBoolean ? nonBoolean : unknown;
+	}
+
+	if (stateFromDirectReturnType !== unknown) {
+		return stateFromDirectReturnType;
+	}
+
+	if (node.async && hasNullableType(node, context)) {
+		return unknown;
+	}
+
 	if (stateFromTypeInformation !== unknown) {
 		return stateFromTypeInformation;
 	}
 
-	if (
-		isAsync
-		&& !hasUnresolvedReturnType
-		&& getAsyncFunctionTypeInformationBooleanState(node, context) === nonBoolean
-	) {
-		return nonBoolean;
-	}
+	return getFunctionBodyBooleanState(node, context, visitedVariables);
+}
 
-	if (isAsync && (hasUnresolvedReturnType || hasNullableType(node, context))) {
-		return unknown;
-	}
-
+function getFunctionBodyBooleanState(node, context, visitedVariables = new Set()) {
 	if (!node.body) {
 		return unknown;
 	}
@@ -1804,7 +1838,11 @@ function getFunctionBooleanState(node, context, visitedVariables = new Set(), is
 
 function getKnownIdentifierBooleanState(node, context, visitedVariables, functionValuesAreBoolean) {
 	const variable = findVariable(context.sourceCode.getScope(node), node);
-	return variable ? getVariableBooleanState(variable, context, visitedVariables, functionValuesAreBoolean) : unknown;
+	if (!variable || (!getSupportedVariableDefinition(variable) && !getFunctionDefinitions(variable))) {
+		return;
+	}
+
+	return getVariableBooleanState(variable, context, visitedVariables, functionValuesAreBoolean);
 }
 
 function getStaticExpressionBooleanState(node, context) {
@@ -1864,7 +1902,7 @@ function getWrappedExpression(node) {
 
 function getDerivedExpressionBooleanState(node, context, visitedVariables, functionValuesAreBoolean) {
 	if (node.type === 'Identifier') {
-		return getKnownIdentifierBooleanState(node, context, visitedVariables, functionValuesAreBoolean);
+		return getKnownIdentifierBooleanState(node, context, visitedVariables, functionValuesAreBoolean) ?? unknown;
 	}
 
 	const wrappedExpression = getWrappedExpression(node);
@@ -1901,13 +1939,35 @@ function getExpressionBooleanState(node, context, visitedVariables = new Set(), 
 			: nonBoolean;
 	}
 
+	if (
+		node.type === 'Identifier'
+		&& withTypeInformation(node, context, ({type}) => type.getCallSignatures().length > 0)
+	) {
+		const state = getKnownIdentifierBooleanState(node, context, visitedVariables, functionValuesAreBoolean);
+		if (state !== undefined) {
+			return state;
+		}
+	}
+
 	const scope = context.sourceCode.getScope(node);
 	const typeState = getTypeState();
-	const stateFromTypeInformation = hasUnresolvedTypeParameterReference(node.typeAnnotation, context, typeState, scope, false)
-		? unknown
-		: getTypeInformationBooleanState(node, context, functionValuesAreBoolean);
-	if (stateFromTypeInformation !== unknown) {
-		return stateFromTypeInformation;
+	if (!hasUnresolvedTypeParameterReference(node.typeAnnotation, context, typeState, scope, false)) {
+		// Supported callable identifier bindings use their declaration analysis above, since TypeScript may narrow references to a more specific function type.
+		if (functionValuesAreBoolean) {
+			const stateFromReturnType = getFunctionReturnTypeInformationBooleanState(node, context, false);
+			if (stateFromReturnType !== unknown) {
+				return stateFromReturnType;
+			}
+
+			if (getFunctionReturnTypeInformationBooleanState(node, context) === boolean) {
+				return unknown;
+			}
+		}
+
+		const stateFromTypeInformation = getTypeInformationBooleanState(node, context, functionValuesAreBoolean);
+		if (stateFromTypeInformation !== unknown) {
+			return stateFromTypeInformation;
+		}
 	}
 
 	const stateFromTypeAnnotation = getDirectTypeAnnotationBooleanState(node.typeAnnotation, context, scope, {functionTypesAreBoolean: functionValuesAreBoolean});
@@ -1935,13 +1995,13 @@ function getExpressionBooleanState(node, context, visitedVariables = new Set(), 
 	return getDerivedExpressionBooleanState(node, context, visitedVariables, functionValuesAreBoolean);
 }
 
-const isBooleanVariable = (variable, context) => {
+const isBooleanVariable = (variable, context, visitedVariables) => {
 	const {sourceCode} = context;
 
 	const functionDefinitions = getFunctionDefinitions(variable);
 	if (functionDefinitions) {
-		const hasAsyncImplementation = hasAsyncFunctionImplementation(variable.defs);
-		return functionDefinitions.every(definition => isBooleanFunctionDefinition(definition, context, hasAsyncImplementation));
+		return !hasGeneratorFunctionImplementation(variable.defs)
+			&& functionDefinitions.every(definition => isBooleanFunctionDefinition(definition, context));
 	}
 
 	const definition = getSupportedVariableDefinition(variable);
@@ -1976,7 +2036,7 @@ const isBooleanVariable = (variable, context) => {
 			return false;
 		}
 
-		return isBooleanValue(definition.node.init, context);
+		return isBooleanValue(definition.node.init, context, visitedVariables);
 	}
 
 	return definition.type === 'FunctionName' && isBooleanFunctionDefinition(definition, context);
@@ -2004,9 +2064,9 @@ function getDirectTypeAnnotationBooleanState(node, context, scope, typeState) {
 	}
 
 	const normalizedTypeState = getTypeState(typeState);
-	const stateFromAsyncFunctionType = getAsyncFunctionTypeAnnotationBooleanState(node, context, scope, normalizedTypeState);
-	if (stateFromAsyncFunctionType !== unknown) {
-		return stateFromAsyncFunctionType;
+	const stateFromFunctionTypeAnnotation = getFunctionTypeAnnotationBooleanState(node, context, scope, normalizedTypeState);
+	if (stateFromFunctionTypeAnnotation !== unknown) {
+		return stateFromFunctionTypeAnnotation;
 	}
 
 	const isCallable = isCallableTypeAnnotation(node, context, scope);
@@ -2097,9 +2157,8 @@ function getVariableBooleanState(variable, context, visitedVariables = new Set()
 		if (hasGeneratorFunctionImplementation(variable.defs)) {
 			result = nonBoolean;
 		} else {
-			const hasAsyncImplementation = hasAsyncFunctionImplementation(variable.defs);
 			result = combineBooleanStates(functionDefinitions.map(definition =>
-				getFunctionBooleanState(definition.node, context, visitedVariables, hasAsyncImplementation || definition.node.async),
+				getFunctionBooleanState(definition.node, context, visitedVariables),
 			));
 		}
 	} else {
@@ -2119,7 +2178,7 @@ function getVariableBooleanState(variable, context, visitedVariables = new Set()
 	if (
 		result === unknown
 		&& functionValuesAreBoolean
-		&& isBooleanVariable(variable, context)
+		&& isBooleanVariable(variable, context, visitedVariables)
 	) {
 		result = boolean;
 	}
@@ -2255,6 +2314,10 @@ function getPromisedReturnTypeBooleanState(node, context, scope) {
 		return unknown;
 	}
 
+	if (isCallableTypeAnnotation(node, context, scope)) {
+		return nonBoolean;
+	}
+
 	const state = getPromisedTypeAnnotationBooleanState(node, context, scope, {functionTypesAreBoolean: false, allowNullish: false});
 	if (state !== unknown) {
 		return state;
@@ -2270,11 +2333,46 @@ function getParameterPropertyNameNode(node) {
 	return parameter.type === 'AssignmentPattern' ? parameter.left : parameter;
 }
 
+function getGetterBooleanState(node, context) {
+	const scope = context.sourceCode.getScope(node);
+	if (node.type === 'Identifier') {
+		const variable = findVariable(scope, node);
+		const definitions = getFunctionDefinitions(variable) ?? variable.defs;
+		return combineBooleanStates(definitions.map(definition => definition.name.typeAnnotation
+			? getTypeAnnotationBooleanState(definition.name.typeAnnotation, context, context.sourceCode.getScope(definition.name))
+			: getGetterBooleanState(definition.node.init ?? definition.node, context)));
+	}
+
+	if (node.type === 'TSMethodSignature') {
+		return getDirectTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false, allowNullish: false});
+	}
+
+	const stateFromReturnType = getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false});
+	if (stateFromReturnType !== unknown) {
+		return stateFromReturnType;
+	}
+
+	const stateFromTypeInformation = withTypeInformation(node, context, ({checker}) => {
+		const typeScriptNode = context.sourceCode.parserServices.esTreeNodeToTSNodeMap.get(node);
+		const signature = checker.getSignatureFromDeclaration(typeScriptNode);
+		return signature ? getTypeBooleanState(checker.getReturnTypeOfSignature(signature), checker, new Set(), false) : unknown;
+	}) ?? unknown;
+	if (stateFromTypeInformation !== unknown) {
+		return stateFromTypeInformation;
+	}
+
+	return getFunctionBodyBooleanState(node, context);
+}
+
 function isBooleanProperty(node, context) {
 	const {sourceCode} = context;
 
 	if (node.type === 'TSParameterProperty') {
 		return isBooleanVariable(findVariable(sourceCode.getScope(node), getParameterPropertyNameNode(node)), context);
+	}
+
+	if (node.kind === 'get') {
+		return getGetterBooleanState(node.value ?? node, context) === boolean;
 	}
 
 	// Setters are skipped by `checkProperty()`.
@@ -2287,8 +2385,9 @@ function isBooleanProperty(node, context) {
 	}
 
 	if (propertyDefinitionTypes.has(node.type)) {
-		return isBooleanTypeAnnotatedValue(node, context)
-			|| isBooleanValue(node.value, context);
+		return node.typeAnnotation
+			? isBooleanTypeAnnotatedValue(node, context)
+			: isBooleanValue(node.value, context);
 	}
 
 	if (node.type === 'TSPropertySignature') {
@@ -2307,6 +2406,10 @@ function getExplicitPropertyBooleanState(node, context) {
 
 	if (node.type === 'TSParameterProperty') {
 		return getVariableBooleanState(findVariable(sourceCode.getScope(node), getParameterPropertyNameNode(node)), context);
+	}
+
+	if (node.kind === 'get') {
+		return getGetterBooleanState(node.value ?? node, context);
 	}
 
 	// Setters are skipped by `checkProperty()`.
@@ -2328,12 +2431,9 @@ function getExplicitPropertyBooleanState(node, context) {
 
 	if (propertyDefinitionTypes.has(node.type)) {
 		const scope = sourceCode.getScope(node);
-		const stateFromTypeAnnotation = getDirectTypeAnnotationBooleanState(node.typeAnnotation, context, scope);
-		if (stateFromTypeAnnotation !== unknown) {
-			return stateFromTypeAnnotation;
-		}
-
-		return getExpressionBooleanState(node.value, context);
+		return node.typeAnnotation
+			? getDirectTypeAnnotationBooleanState(node.typeAnnotation, context, scope)
+			: getExpressionBooleanState(node.value, context);
 	}
 
 	if (node.type === 'TSPropertySignature') {
@@ -2347,6 +2447,7 @@ function getExplicitPropertyBooleanState(node, context) {
 
 	return stateFromPromisedReturnType === unknown
 		&& !hasUnresolvedReturnType
+		&& getPromisedTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false}) !== boolean
 		&& !isPromisedTypeAnnotation(node.returnType, context, scope)
 		? getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false, allowNullish: false})
 		: stateFromPromisedReturnType;
@@ -2406,7 +2507,8 @@ function isAutofixableVariable(variable, context) {
 
 	return !isBooleanFunctionLikeTypeAnnotation(definition.name.typeAnnotation, context, scope)
 		&& !isBooleanFunctionReference(definition.node.init, context)
-		&& !isBooleanAsyncFunctionReference(definition.node.init, context);
+		&& !isBooleanReturningFunctionReference(definition.node.init, context)
+		&& getFunctionReturnTypeInformationBooleanState(definition.node.init, context, false) !== boolean;
 }
 
 function isInDeclareContext(node) {
