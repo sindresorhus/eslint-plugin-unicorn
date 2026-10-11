@@ -1843,7 +1843,11 @@ function getFunctionBodyBooleanState(node, context, visitedVariables = new Set()
 
 function getKnownIdentifierBooleanState(node, context, visitedVariables, functionValuesAreBoolean) {
 	const variable = findVariable(context.sourceCode.getScope(node), node);
-	return variable ? getVariableBooleanState(variable, context, visitedVariables, functionValuesAreBoolean) : unknown;
+	if (!variable || (!getSupportedVariableDefinition(variable) && !getFunctionDefinitions(variable))) {
+		return;
+	}
+
+	return getVariableBooleanState(variable, context, visitedVariables, functionValuesAreBoolean);
 }
 
 function getStaticExpressionBooleanState(node, context) {
@@ -1903,7 +1907,7 @@ function getWrappedExpression(node) {
 
 function getDerivedExpressionBooleanState(node, context, visitedVariables, functionValuesAreBoolean) {
 	if (node.type === 'Identifier') {
-		return getKnownIdentifierBooleanState(node, context, visitedVariables, functionValuesAreBoolean);
+		return getKnownIdentifierBooleanState(node, context, visitedVariables, functionValuesAreBoolean) ?? unknown;
 	}
 
 	const wrappedExpression = getWrappedExpression(node);
@@ -1944,9 +1948,9 @@ function getExpressionBooleanState(node, context, visitedVariables = new Set(), 
 		node.type === 'Identifier'
 		&& withTypeInformation(node, context, ({type}) => type.getCallSignatures().length > 0)
 	) {
-		const variable = findVariable(context.sourceCode.getScope(node), node);
-		if (variable && (getSupportedVariableDefinition(variable) || getFunctionDefinitions(variable))) {
-			return getVariableBooleanState(variable, context, visitedVariables, functionValuesAreBoolean);
+		const state = getKnownIdentifierBooleanState(node, context, visitedVariables, functionValuesAreBoolean);
+		if (state !== undefined) {
+			return state;
 		}
 	}
 
