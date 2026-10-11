@@ -173,6 +173,56 @@ Suggestion 12/12: Rename to \`requiresCheck\`.:
 
 `;
 
+exports[`consistent-boolean-name > invalid(1): function valid(): Promise<boolean> { return Promise.resolve(true); } valid(); 1`] = `
+
+  1 | function valid(): Promise<boolean> { return Promise.resolve(true); } valid();
+
+`;
+
+exports[`consistent-boolean-name > invalid(1): function valid(): Promise<boolean> { return Promise.resolve(true); } valid(); 2`] = `
+
+Message:
+> 1 | function valid(): Promise<boolean> { return Promise.resolve(true); } valid();
+    |          ^^^^^ Boolean name \`valid\` should start with \`is\`, \`are\`, \`has\`, \`have\`, \`can\`, \`should\`, \`was\`, \`were\`, \`does\`, \`did\`, \`will\`, \`requires\`.
+
+Suggestion 1/12: Rename to \`isValid\`.:
+  1 | function isValid(): Promise<boolean> { return Promise.resolve(true); } isValid();
+
+Suggestion 2/12: Rename to \`areValid\`.:
+  1 | function areValid(): Promise<boolean> { return Promise.resolve(true); } areValid();
+
+Suggestion 3/12: Rename to \`hasValid\`.:
+  1 | function hasValid(): Promise<boolean> { return Promise.resolve(true); } hasValid();
+
+Suggestion 4/12: Rename to \`haveValid\`.:
+  1 | function haveValid(): Promise<boolean> { return Promise.resolve(true); } haveValid();
+
+Suggestion 5/12: Rename to \`canValid\`.:
+  1 | function canValid(): Promise<boolean> { return Promise.resolve(true); } canValid();
+
+Suggestion 6/12: Rename to \`shouldValid\`.:
+  1 | function shouldValid(): Promise<boolean> { return Promise.resolve(true); } shouldValid();
+
+Suggestion 7/12: Rename to \`wasValid\`.:
+  1 | function wasValid(): Promise<boolean> { return Promise.resolve(true); } wasValid();
+
+Suggestion 8/12: Rename to \`wereValid\`.:
+  1 | function wereValid(): Promise<boolean> { return Promise.resolve(true); } wereValid();
+
+Suggestion 9/12: Rename to \`doesValid\`.:
+  1 | function doesValid(): Promise<boolean> { return Promise.resolve(true); } doesValid();
+
+Suggestion 10/12: Rename to \`didValid\`.:
+  1 | function didValid(): Promise<boolean> { return Promise.resolve(true); } didValid();
+
+Suggestion 11/12: Rename to \`willValid\`.:
+  1 | function willValid(): Promise<boolean> { return Promise.resolve(true); } willValid();
+
+Suggestion 12/12: Rename to \`requiresValid\`.:
+  1 | function requiresValid(): Promise<boolean> { return Promise.resolve(true); } requiresValid();
+
+`;
+
 exports[`consistent-boolean-name > invalid(10): class Task { isReady() { return () => true; } } 1`] = `
 
 Options:
@@ -2208,6 +2258,56 @@ Message:
 
 `;
 
+exports[`consistent-boolean-name > invalid(2): const valid = (): boolean | Promise<boolean> => Promise.resolve(true); valid(); 1`] = `
+
+  1 | const valid = (): boolean | Promise<boolean> => Promise.resolve(true); valid();
+
+`;
+
+exports[`consistent-boolean-name > invalid(2): const valid = (): boolean | Promise<boolean> => Promise.resolve(true); valid(); 2`] = `
+
+Message:
+> 1 | const valid = (): boolean | Promise<boolean> => Promise.resolve(true); valid();
+    |       ^^^^^ Boolean name \`valid\` should start with \`is\`, \`are\`, \`has\`, \`have\`, \`can\`, \`should\`, \`was\`, \`were\`, \`does\`, \`did\`, \`will\`, \`requires\`.
+
+Suggestion 1/12: Rename to \`isValid\`.:
+  1 | const isValid = (): boolean | Promise<boolean> => Promise.resolve(true); isValid();
+
+Suggestion 2/12: Rename to \`areValid\`.:
+  1 | const areValid = (): boolean | Promise<boolean> => Promise.resolve(true); areValid();
+
+Suggestion 3/12: Rename to \`hasValid\`.:
+  1 | const hasValid = (): boolean | Promise<boolean> => Promise.resolve(true); hasValid();
+
+Suggestion 4/12: Rename to \`haveValid\`.:
+  1 | const haveValid = (): boolean | Promise<boolean> => Promise.resolve(true); haveValid();
+
+Suggestion 5/12: Rename to \`canValid\`.:
+  1 | const canValid = (): boolean | Promise<boolean> => Promise.resolve(true); canValid();
+
+Suggestion 6/12: Rename to \`shouldValid\`.:
+  1 | const shouldValid = (): boolean | Promise<boolean> => Promise.resolve(true); shouldValid();
+
+Suggestion 7/12: Rename to \`wasValid\`.:
+  1 | const wasValid = (): boolean | Promise<boolean> => Promise.resolve(true); wasValid();
+
+Suggestion 8/12: Rename to \`wereValid\`.:
+  1 | const wereValid = (): boolean | Promise<boolean> => Promise.resolve(true); wereValid();
+
+Suggestion 9/12: Rename to \`doesValid\`.:
+  1 | const doesValid = (): boolean | Promise<boolean> => Promise.resolve(true); doesValid();
+
+Suggestion 10/12: Rename to \`didValid\`.:
+  1 | const didValid = (): boolean | Promise<boolean> => Promise.resolve(true); didValid();
+
+Suggestion 11/12: Rename to \`willValid\`.:
+  1 | const willValid = (): boolean | Promise<boolean> => Promise.resolve(true); willValid();
+
+Suggestion 12/12: Rename to \`requiresValid\`.:
+  1 | const requiresValid = (): boolean | Promise<boolean> => Promise.resolve(true); requiresValid();
+
+`;
+
 exports[`consistent-boolean-name > invalid(2): declare const completed: boolean; 1`] = `
 
   1 | declare const completed: boolean;
@@ -3314,6 +3414,56 @@ Suggestion 11/12: Rename to \`willArea\`.:
 
 Suggestion 12/12: Rename to \`requiresArea\`.:
   1 | const requiresArea = true;
+
+`;
+
+exports[`consistent-boolean-name > invalid(3): const isValid = (): Promise<boolean> => Promise.resolve(true); const available = isValid; available(); 1`] = `
+
+  1 | const isValid = (): Promise<boolean> => Promise.resolve(true); const available = isValid; available();
+
+`;
+
+exports[`consistent-boolean-name > invalid(3): const isValid = (): Promise<boolean> => Promise.resolve(true); const available = isValid; available(); 2`] = `
+
+Message:
+> 1 | const isValid = (): Promise<boolean> => Promise.resolve(true); const available = isValid; available();
+    |                                                                      ^^^^^^^^^ Boolean name \`available\` should start with \`is\`, \`are\`, \`has\`, \`have\`, \`can\`, \`should\`, \`was\`, \`were\`, \`does\`, \`did\`, \`will\`, \`requires\`.
+
+Suggestion 1/12: Rename to \`isAvailable\`.:
+  1 | const isValid = (): Promise<boolean> => Promise.resolve(true); const isAvailable = isValid; isAvailable();
+
+Suggestion 2/12: Rename to \`areAvailable\`.:
+  1 | const isValid = (): Promise<boolean> => Promise.resolve(true); const areAvailable = isValid; areAvailable();
+
+Suggestion 3/12: Rename to \`hasAvailable\`.:
+  1 | const isValid = (): Promise<boolean> => Promise.resolve(true); const hasAvailable = isValid; hasAvailable();
+
+Suggestion 4/12: Rename to \`haveAvailable\`.:
+  1 | const isValid = (): Promise<boolean> => Promise.resolve(true); const haveAvailable = isValid; haveAvailable();
+
+Suggestion 5/12: Rename to \`canAvailable\`.:
+  1 | const isValid = (): Promise<boolean> => Promise.resolve(true); const canAvailable = isValid; canAvailable();
+
+Suggestion 6/12: Rename to \`shouldAvailable\`.:
+  1 | const isValid = (): Promise<boolean> => Promise.resolve(true); const shouldAvailable = isValid; shouldAvailable();
+
+Suggestion 7/12: Rename to \`wasAvailable\`.:
+  1 | const isValid = (): Promise<boolean> => Promise.resolve(true); const wasAvailable = isValid; wasAvailable();
+
+Suggestion 8/12: Rename to \`wereAvailable\`.:
+  1 | const isValid = (): Promise<boolean> => Promise.resolve(true); const wereAvailable = isValid; wereAvailable();
+
+Suggestion 9/12: Rename to \`doesAvailable\`.:
+  1 | const isValid = (): Promise<boolean> => Promise.resolve(true); const doesAvailable = isValid; doesAvailable();
+
+Suggestion 10/12: Rename to \`didAvailable\`.:
+  1 | const isValid = (): Promise<boolean> => Promise.resolve(true); const didAvailable = isValid; didAvailable();
+
+Suggestion 11/12: Rename to \`willAvailable\`.:
+  1 | const isValid = (): Promise<boolean> => Promise.resolve(true); const willAvailable = isValid; willAvailable();
+
+Suggestion 12/12: Rename to \`requiresAvailable\`.:
+  1 | const isValid = (): Promise<boolean> => Promise.resolve(true); const requiresAvailable = isValid; requiresAvailable();
 
 `;
 

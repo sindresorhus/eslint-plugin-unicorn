@@ -21,7 +21,7 @@ Boolean names should start with a prefix that makes the boolean meaning clear.
 
 Names that start with a boolean prefix should also refer to booleans or boolean-returning functions. Unknown values are ignored.
 
-Callable type annotations returning `boolean`, `Promise<boolean>`, `PromiseLike<boolean>`, or unions of these are considered boolean-returning.
+Functions and callable type annotations returning `boolean`, `Promise<boolean>`, `PromiseLike<boolean>`, or unions of these are considered boolean-returning, whether or not the function is `async`.
 
 When type information is unavailable, unannotated async functions are not considered boolean-returning when requiring a prefix.
 

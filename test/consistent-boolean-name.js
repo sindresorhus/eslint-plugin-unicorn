@@ -3055,3 +3055,111 @@ test({
 		}),
 	],
 });
+
+for (const parserCase of [typescript, typeAware]) {
+	test({
+		valid: [
+			'function isValid(): Promise<boolean> {}',
+			'const isValid = (): boolean | Promise<boolean> => {}',
+			'function isValid(): Promise<boolean> { return Promise.resolve(true); }',
+			'const isValid = (): boolean | Promise<boolean> => Promise.resolve(true);',
+			'const isValid = function (): PromiseLike<boolean> { return Promise.resolve(true); };',
+			'type MaybePromise<T> = T | Promise<T>; function isValid(): MaybePromise<boolean> { return true; }',
+			'declare function isValid(): Promise<boolean>;',
+			'function isValid(value: string): boolean; function isValid(value: number): Promise<boolean>; function isValid(value: unknown): boolean | Promise<boolean> { return true; }',
+			'function isValid(): Promise<boolean> { return Promise.resolve(true); } const isAvailable = isValid;',
+			'const isValid = (): Promise<boolean> => Promise.resolve(true); const isAvailable = isValid;',
+			'function isValid(): Promise<boolean | undefined> { return Promise.resolve(undefined); }',
+			'function valid(): Promise<boolean | undefined> { return Promise.resolve(undefined); }',
+			'function isValid(): Promise<boolean> | undefined { return undefined; }',
+			'function valid(): Promise<boolean> | undefined { return undefined; }',
+			'function isValid(): boolean | undefined { return true; }',
+			'type Result<T> = T extends string ? Promise<string> : Promise<boolean>; function isValid<T>(): Result<T> { throw new Error(); }',
+			'type Result<T> = T extends string ? Promise<string> : Promise<boolean>; function valid<T>(): Result<T> { throw new Error(); }',
+			{
+				code: 'class Task { isValid(): Promise<boolean> { return Promise.resolve(true); } } const task = {isValid(): boolean | Promise<boolean> { return true; }};',
+				options: [{checkMethods: 'always'}],
+			},
+			{
+				code: 'class Task { isValid = (): Promise<boolean> => Promise.resolve(true); } const task = {isValid: (): PromiseLike<boolean> => Promise.resolve(true)};',
+				options: [{checkFields: 'always'}],
+			},
+		].map(testCase => parserCase(testCase)),
+		invalid: [
+			'function valid(): Promise<boolean> { return Promise.resolve(true); }',
+			'const valid = (): boolean | Promise<boolean> => Promise.resolve(true);',
+			'const valid = function (): PromiseLike<boolean> { return Promise.resolve(true); };',
+			'type MaybePromise<T> = T | Promise<T>; function valid(): MaybePromise<boolean> { return true; }',
+			'declare function valid(): Promise<boolean>;',
+			'function valid(value: string): boolean; function valid(value: number): Promise<boolean>; function valid(value: unknown): boolean | Promise<boolean> { return true; }',
+			'function isValid(): Promise<boolean> { return Promise.resolve(true); } const available = isValid;',
+			'const isValid = (): Promise<boolean> => Promise.resolve(true); const available = isValid;',
+			'function valid(): boolean | undefined { return true; }',
+		].map(code => parserCase({code, errors: [{messageId: 'consistent-boolean-name', suggestions: 12}]})),
+	});
+
+	test({
+		valid: [],
+		invalid: [
+			'function isValid(): Promise<string> { return Promise.resolve("yes"); }',
+			'const isValid = (): boolean | Promise<string> => true;',
+			'function isValid(): string | Promise<boolean> { return "yes"; }',
+			'function isValid(): Promise<() => boolean> { return Promise.resolve(() => true); }',
+			'function isValid(): () => boolean | Promise<boolean> { return () => true; }',
+			'function valid(): boolean | string { return true; } const isValid = valid;',
+			'function* isValid(): Generator<boolean> { yield true; }',
+			'const isValid: Promise<boolean> = Promise.resolve(true);',
+		].map(code => parserCase({code, errors: [{messageId: 'non-boolean-prefix'}]})),
+	});
+
+	test({
+		valid: [],
+		invalid: [
+			{
+				code: 'class Task { valid(): Promise<boolean> { return Promise.resolve(true); } } const task = {valid(): boolean | Promise<boolean> { return true; }};',
+				options: [{checkMethods: 'always'}],
+			},
+			{
+				code: 'class Task { valid = (): Promise<boolean> => Promise.resolve(true); } const task = {valid: (): PromiseLike<boolean> => Promise.resolve(true)};',
+				options: [{checkFields: 'always'}],
+			},
+		].map(testCase => parserCase({...testCase, errors: [{messageId: 'consistent-boolean-name'}, {messageId: 'consistent-boolean-name'}]})),
+	});
+
+	test({
+		valid: [parserCase({
+			code: 'class Task { isValid(): Promise<boolean>; isValid(value: string): boolean; isValid(value?: string): boolean | Promise<boolean> { return true; } }',
+			options: [{checkMethods: 'always'}],
+		})],
+		invalid: [parserCase({
+			code: 'class Task { valid(): Promise<boolean>; valid(value: string): boolean; valid(value?: string): boolean | Promise<boolean> { return true; } }',
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'consistent-boolean-name'}],
+		})],
+	});
+}
+
+test({
+	valid: [
+		typescript('function valid() { return Promise.resolve(true); }'),
+		typeAware('function isValid() { return Promise.resolve(true); }'),
+		typeAware('const isValid = () => Promise.resolve(true);'),
+		typeAware('function isValid() { return Math.random() > 0.5 ? Promise.resolve(true) : undefined; }'),
+		typeAware('function valid() { return Math.random() > 0.5 ? Promise.resolve(true) : undefined; }'),
+		typeAware('function isValid() { return Math.random() > 0.5 ? Promise.resolve(true) : false; }'),
+	],
+	invalid: [
+		typeAware({code: 'function valid() { return Promise.resolve(true); }', errors: [{messageId: 'consistent-boolean-name', suggestions: 12}]}),
+		typeAware({code: 'const valid = () => Promise.resolve(true);', errors: [{messageId: 'consistent-boolean-name', suggestions: 12}]}),
+		typeAware({code: 'function valid() { return Math.random() > 0.5 ? Promise.resolve(true) : false; }', errors: [{messageId: 'consistent-boolean-name', suggestions: 12}]}),
+	],
+});
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		typescript('function valid(): Promise<boolean> { return Promise.resolve(true); } valid();'),
+		typescript('const valid = (): boolean | Promise<boolean> => Promise.resolve(true); valid();'),
+		typescript('const isValid = (): Promise<boolean> => Promise.resolve(true); const available = isValid; available();'),
+	],
+});
