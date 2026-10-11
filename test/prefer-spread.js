@@ -1098,6 +1098,9 @@ test('preserves compiling TypeScript copies and their inferred types', t => {
 		const copySliceZero = words.slice(0);
 		const copyFrom = Array.from(words);
 		const copyConcat = words.concat();
+		declare const optionalTuple: [first?: string];
+		const copyOptionalTuple = optionalTuple.slice();
+		copyOptionalTuple.push(undefined);
 		const copyWide = Array.from<string>(words);
 		copyWide.push('c');
 		declare function getArray<Type>(): Type[];
@@ -1134,7 +1137,8 @@ test('preserves compiling TypeScript copies and their inferred types', t => {
 		.replace('words.slice()', '[...words]')
 		.replace('words.slice(0)', '[...words]')
 		.replace('Array.from(words)', '[...words]')
-		.replace('words.concat()', '[...words]'));
+		.replace('words.concat()', '[...words]')
+		.replace('optionalTuple.slice()', '[...optionalTuple]'));
 	t.assert.strictEqual(result.messages.length, 2);
 	for (const message of result.messages) {
 		t.assert.strictEqual(message.messageId, 'array-from');
@@ -1154,7 +1158,7 @@ test('preserves compiling TypeScript copies and their inferred types', t => {
 			.map(declaration => checker.typeToString(checker.getTypeAtLocation(declaration))));
 	}
 
-	t.assert.strictEqual(copyTypes[0].length, 6);
+	t.assert.strictEqual(copyTypes[0].length, 7);
 	t.assert.deepStrictEqual(copyTypes[1], copyTypes[0]);
 	for (const [index, diagnosticCode] of [2345, 2571].entries()) {
 		const [suggestion] = result.messages[index].suggestions;
