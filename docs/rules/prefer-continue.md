@@ -15,7 +15,7 @@ By default, this rule reports when the last statement of a block-bodied loop is 
 
 It also does not report when the `if` body unconditionally exits the iteration (its last statement is `return`, `break`, `continue`, or `throw`), since an early `continue` would not flatten anything.
 
-For relational conditions, autofix preserves behavior by negating the comparison, for example, `a < b` becomes `!(a < b)`. When autofix is available, an editor suggestion can instead use the opposite operator, such as `a >= b`. This changes behavior for `NaN` and values coerced to `NaN`, including `undefined` and nonnumeric strings. The suggestion is available on the original violation; after autofix resolves it, the suggestion disappears.
+Autofix negates relational comparisons (`!(a < b)`) to preserve behavior. Before applying it, you can choose an editor suggestion using the opposite operator (`a >= b`), which changes behavior for `NaN` and values coerced to `NaN`.
 
 ## Examples
 
