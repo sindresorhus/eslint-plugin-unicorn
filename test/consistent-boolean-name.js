@@ -3206,11 +3206,56 @@ test({
 	],
 });
 
+test({
+	valid: [
+		typeAware('interface Pending extends PromiseLike<boolean> {} function isValid(): Pending { throw new Error(); }'),
+		typeAware('interface Pending<T> extends PromiseLike<T> {} function isValid(): Pending<boolean> { throw new Error(); }'),
+		typeAware('interface Pending extends PromiseLike<boolean> {} function valid(): Pending | undefined { return undefined; }'),
+		typeAware('const isValid = (() => Promise.resolve(true)) as () => Promise<boolean>;'),
+		typeAware('const isValid = (() => Promise.resolve(true)) satisfies () => Promise<boolean>;'),
+		typeAware('const isValid = (() => Promise.resolve(true)) satisfies () => Promise<boolean | string>;'),
+		typeAware('const isValid = ((): Promise<boolean> => Promise.resolve(true))!;'),
+		typeAware('const isValid = ((): Promise<boolean | undefined> => Promise.resolve(undefined))!;'),
+	],
+	invalid: [
+		typeAware({
+			code: 'interface Pending extends PromiseLike<boolean> {} function valid(): Pending { throw new Error(); }',
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
+		}),
+		typeAware({
+			code: 'interface Pending extends PromiseLike<boolean> {} class Task { valid(): Pending { throw new Error(); } }',
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'consistent-boolean-name'}],
+		}),
+		typeAware({
+			code: 'interface Pending extends PromiseLike<string> {} function isValid(): Pending { throw new Error(); }',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'const isValid = (() => Promise.resolve(true)) as () => Promise<boolean | string>;',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'function isValid(): Promise<boolean> { return Promise.resolve(true); } const isResult = isValid();',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'declare function computed<T>(getter: () => T): {value: T}; const isReady = computed((): Promise<boolean> => Promise.resolve(true));',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+		typeAware({
+			code: 'declare function computed<T>(getter: () => T): {value: T}; const isReady = computed(() => Promise.resolve(true));',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		}),
+	],
+});
+
 test.snapshot({
 	valid: [],
 	invalid: [
 		typescript('function valid(): Promise<boolean> { return Promise.resolve(true); } valid();'),
 		typescript('const valid = (): boolean | Promise<boolean> => Promise.resolve(true); valid();'),
 		typescript('const isValid = (): Promise<boolean> => Promise.resolve(true); const available = isValid; available();'),
+		typeAware('const isValid = () => Promise.resolve(true); const available = isValid; available();'),
 	],
 });

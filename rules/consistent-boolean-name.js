@@ -287,7 +287,7 @@ const hasBooleanReturnType = (node, context) =>
 	getPromisedReturnTypeBooleanState(node.returnType, context, context.sourceCode.getScope(node)) === boolean
 	|| getFunctionReturnTypeInformationBooleanState(node, context, false) === boolean;
 
-function getAsyncFunctionTypeAnnotationBooleanState(node, context, scope, typeState) {
+function getFunctionTypeAnnotationBooleanState(node, context, scope, typeState) {
 	const normalizedTypeState = getTypeState(typeState);
 	if (!normalizedTypeState.functionTypesAreBoolean || !isCallableTypeAnnotation(node, context, scope)) {
 		return unknown;
@@ -309,12 +309,12 @@ function getAsyncFunctionTypeAnnotationBooleanState(node, context, scope, typeSt
 	return getFunctionReturnTypeInformationBooleanState(node, context, false);
 }
 
-const isBooleanAsyncFunctionTypeAnnotation = (node, context, scope) =>
-	getAsyncFunctionTypeAnnotationBooleanState(node, context, scope) === boolean;
+const isBooleanReturningFunctionTypeAnnotation = (node, context, scope) =>
+	getFunctionTypeAnnotationBooleanState(node, context, scope) === boolean;
 
 const isBooleanFunctionLikeTypeAnnotation = (node, context, scope) =>
 	isBooleanFunctionTypeAnnotation(node, context, scope)
-	|| isBooleanAsyncFunctionTypeAnnotation(node, context, scope)
+	|| isBooleanReturningFunctionTypeAnnotation(node, context, scope)
 	|| (
 		isCallableTypeAnnotation(node, context, scope)
 		&& getDirectTypeAnnotationBooleanState(node, context, scope, {allowNullish: false}) === boolean
@@ -377,7 +377,7 @@ const isBooleanReturningFunctionReference = (node, context) => {
 	const [definition] = variable.defs;
 	const scope = context.sourceCode.getScope(definition.name);
 	if (definition.name?.typeAnnotation) {
-		return isBooleanAsyncFunctionTypeAnnotation(definition.name.typeAnnotation, context, scope);
+		return isBooleanReturningFunctionTypeAnnotation(definition.name.typeAnnotation, context, scope);
 	}
 
 	if (definition.type === 'FunctionName') {
@@ -564,8 +564,9 @@ function isBooleanVueReferenceVariable(variable, context) {
 	const getter = unwrapVueComputedGetter(argument);
 	return callExpression.callee.name === 'computed'
 		&& (
-			(isFunction(getter) && !getter.async && !getter.generator)
-			|| isBooleanFunctionReference(getter, context)
+			isFunction(getter)
+				? !getter.async && !getter.generator && getGetterBooleanState(getter, context) === boolean
+				: isBooleanFunctionReference(getter, context)
 		)
 		&& getExpressionBooleanState(argument, context) === boolean;
 }
@@ -1789,23 +1790,23 @@ function getFunctionBooleanState(node, context, visitedVariables = new Set()) {
 		return unknown;
 	}
 
-	if (stateFromDirectReturnType !== unknown) {
-		return stateFromDirectReturnType;
-	}
-
 	const stateFromTypeInformation = node.async ? unknown : getTypeInformationBooleanState(node, context);
 	if (stateFromTypeInformation === boolean) {
 		return boolean;
 	}
 
-	const stateFromPromisedTypeInformation = getFunctionReturnTypeInformationBooleanState(node, context, false);
-	if (stateFromPromisedTypeInformation !== unknown) {
-		return stateFromPromisedTypeInformation;
+	const stateFromReturnTypeInformation = getFunctionReturnTypeInformationBooleanState(node, context, false);
+	if (stateFromReturnTypeInformation !== unknown) {
+		return stateFromReturnTypeInformation;
 	}
 
-	const promisedState = getFunctionReturnTypeInformationBooleanState(node, context);
-	if (promisedState !== unknown) {
-		return promisedState === nonBoolean ? nonBoolean : unknown;
+	const stateFromNullableReturnTypeInformation = getFunctionReturnTypeInformationBooleanState(node, context);
+	if (stateFromNullableReturnTypeInformation !== unknown) {
+		return stateFromNullableReturnTypeInformation === nonBoolean ? nonBoolean : unknown;
+	}
+
+	if (stateFromDirectReturnType !== unknown) {
+		return stateFromDirectReturnType;
 	}
 
 	if (node.async && hasNullableType(node, context)) {
@@ -1941,11 +1942,23 @@ function getExpressionBooleanState(node, context, visitedVariables = new Set(), 
 
 	const scope = context.sourceCode.getScope(node);
 	const typeState = getTypeState();
-	const stateFromTypeInformation = hasUnresolvedTypeParameterReference(node.typeAnnotation, context, typeState, scope, false)
-		? unknown
-		: getTypeInformationBooleanState(node, context, functionValuesAreBoolean);
-	if (stateFromTypeInformation !== unknown) {
-		return stateFromTypeInformation;
+	if (!hasUnresolvedTypeParameterReference(node.typeAnnotation, context, typeState, scope, false)) {
+		// Identifier references use their declared callable contracts above, since TypeScript may narrow them to a more specific function type.
+		if (functionValuesAreBoolean && node.type !== 'Identifier') {
+			const stateFromReturnType = getFunctionReturnTypeInformationBooleanState(node, context, false);
+			if (stateFromReturnType !== unknown) {
+				return stateFromReturnType;
+			}
+
+			if (getFunctionReturnTypeInformationBooleanState(node, context) === boolean) {
+				return unknown;
+			}
+		}
+
+		const stateFromTypeInformation = getTypeInformationBooleanState(node, context, functionValuesAreBoolean);
+		if (stateFromTypeInformation !== unknown) {
+			return stateFromTypeInformation;
+		}
 	}
 
 	const stateFromTypeAnnotation = getDirectTypeAnnotationBooleanState(node.typeAnnotation, context, scope, {functionTypesAreBoolean: functionValuesAreBoolean});
@@ -2042,9 +2055,9 @@ function getDirectTypeAnnotationBooleanState(node, context, scope, typeState) {
 	}
 
 	const normalizedTypeState = getTypeState(typeState);
-	const stateFromAsyncFunctionType = getAsyncFunctionTypeAnnotationBooleanState(node, context, scope, normalizedTypeState);
-	if (stateFromAsyncFunctionType !== unknown) {
-		return stateFromAsyncFunctionType;
+	const stateFromFunctionTypeAnnotation = getFunctionTypeAnnotationBooleanState(node, context, scope, normalizedTypeState);
+	if (stateFromFunctionTypeAnnotation !== unknown) {
+		return stateFromFunctionTypeAnnotation;
 	}
 
 	const isCallable = isCallableTypeAnnotation(node, context, scope);

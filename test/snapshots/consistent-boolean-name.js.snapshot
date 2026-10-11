@@ -4722,6 +4722,58 @@ Suggestion 12/12: Rename to \`requiresHaven\`.:
 
 `;
 
+exports[`consistent-boolean-name > invalid(4): const isValid = () => Promise.resolve(true); const available = isValid; available(); 1`] = `
+
+Filename: file.ts
+
+  1 | const isValid = () => Promise.resolve(true); const available = isValid; available();
+
+`;
+
+exports[`consistent-boolean-name > invalid(4): const isValid = () => Promise.resolve(true); const available = isValid; available(); 2`] = `
+
+Message:
+> 1 | const isValid = () => Promise.resolve(true); const available = isValid; available();
+    |                                                    ^^^^^^^^^ Boolean name \`available\` should start with \`is\`, \`are\`, \`has\`, \`have\`, \`can\`, \`should\`, \`was\`, \`were\`, \`does\`, \`did\`, \`will\`, \`requires\`.
+
+Suggestion 1/12: Rename to \`isAvailable\`.:
+  1 | const isValid = () => Promise.resolve(true); const isAvailable = isValid; isAvailable();
+
+Suggestion 2/12: Rename to \`areAvailable\`.:
+  1 | const isValid = () => Promise.resolve(true); const areAvailable = isValid; areAvailable();
+
+Suggestion 3/12: Rename to \`hasAvailable\`.:
+  1 | const isValid = () => Promise.resolve(true); const hasAvailable = isValid; hasAvailable();
+
+Suggestion 4/12: Rename to \`haveAvailable\`.:
+  1 | const isValid = () => Promise.resolve(true); const haveAvailable = isValid; haveAvailable();
+
+Suggestion 5/12: Rename to \`canAvailable\`.:
+  1 | const isValid = () => Promise.resolve(true); const canAvailable = isValid; canAvailable();
+
+Suggestion 6/12: Rename to \`shouldAvailable\`.:
+  1 | const isValid = () => Promise.resolve(true); const shouldAvailable = isValid; shouldAvailable();
+
+Suggestion 7/12: Rename to \`wasAvailable\`.:
+  1 | const isValid = () => Promise.resolve(true); const wasAvailable = isValid; wasAvailable();
+
+Suggestion 8/12: Rename to \`wereAvailable\`.:
+  1 | const isValid = () => Promise.resolve(true); const wereAvailable = isValid; wereAvailable();
+
+Suggestion 9/12: Rename to \`doesAvailable\`.:
+  1 | const isValid = () => Promise.resolve(true); const doesAvailable = isValid; doesAvailable();
+
+Suggestion 10/12: Rename to \`didAvailable\`.:
+  1 | const isValid = () => Promise.resolve(true); const didAvailable = isValid; didAvailable();
+
+Suggestion 11/12: Rename to \`willAvailable\`.:
+  1 | const isValid = () => Promise.resolve(true); const willAvailable = isValid; willAvailable();
+
+Suggestion 12/12: Rename to \`requiresAvailable\`.:
+  1 | const isValid = () => Promise.resolve(true); const requiresAvailable = isValid; requiresAvailable();
+
+`;
+
 exports[`consistent-boolean-name > invalid(4): type Base = () => Promise<boolean>; interface Loader extends Base {} declare const value: Loader; 1`] = `
 
   1 | type Base = () => Promise<boolean>; interface Loader extends Base {} declare const value: Loader;
