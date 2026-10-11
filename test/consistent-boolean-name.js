@@ -3073,7 +3073,13 @@ for (const parserCase of [typescript, typeAware]) {
 			'function valid(): Promise<boolean | undefined> { return Promise.resolve(undefined); }',
 			'function isValid(): Promise<boolean> | undefined { return undefined; }',
 			'function valid(): Promise<boolean> | undefined { return undefined; }',
+			'function valid(): boolean | Promise<boolean> | undefined { return true; }',
+			'function isValid(): boolean | Promise<boolean> | undefined { return true; }',
+			'const predicate: () => Promise<boolean> | string = (): Promise<boolean> => Promise.resolve(true); const available = predicate;',
+			'const predicate: (() => Promise<boolean>) | string = (): Promise<boolean> => Promise.resolve(true); const available = predicate;',
+			'const predicate: () => Promise<boolean> | undefined = (): Promise<boolean> => Promise.resolve(true); const available = predicate;',
 			'function isValid(): boolean | undefined { return true; }',
+			'function valid(): boolean | undefined { return undefined; }',
 			'type Result<T> = T extends string ? Promise<string> : Promise<boolean>; function isValid<T>(): Result<T> { throw new Error(); }',
 			'type Result<T> = T extends string ? Promise<string> : Promise<boolean>; function valid<T>(): Result<T> { throw new Error(); }',
 			{
@@ -3083,6 +3089,15 @@ for (const parserCase of [typescript, typeAware]) {
 			{
 				code: 'class Task { isValid = (): Promise<boolean> => Promise.resolve(true); } const task = {isValid: (): PromiseLike<boolean> => Promise.resolve(true)};',
 				options: [{checkFields: 'always'}],
+			},
+			{
+				code: [
+					'class Task {',
+					'valid(): boolean | Promise<boolean> | undefined { return true; }',
+					'available = (): boolean | Promise<boolean> | undefined => true;',
+					'}',
+				].join(' '),
+				options: [{checkMethods: 'always', checkFields: 'always'}],
 			},
 		].map(testCase => parserCase(testCase)),
 		invalid: [
@@ -3107,6 +3122,10 @@ for (const parserCase of [typescript, typeAware]) {
 			'function isValid(): Promise<() => boolean> { return Promise.resolve(() => true); }',
 			'function isValid(): () => boolean | Promise<boolean> { return () => true; }',
 			'function valid(): boolean | string { return true; } const isValid = valid;',
+			'const predicate: () => Promise<boolean> | string = (): Promise<boolean> => Promise.resolve(true); const isValid = predicate;',
+			'const predicate: () => Promise<boolean> | string = async (): Promise<boolean> => true; const isValid = predicate;',
+			'const predicate: (() => Promise<boolean>) | string = (): Promise<boolean> => Promise.resolve(true); const isValid = predicate;',
+			'type Predicate = () => Promise<boolean>; interface Callback extends Predicate {} function isValid(): Callback { return () => Promise.resolve(true); }',
 			'function* isValid(): Generator<boolean> { yield true; }',
 			'const isValid: Promise<boolean> = Promise.resolve(true);',
 		].map(code => parserCase({code, errors: [{messageId: 'non-boolean-prefix'}]})),

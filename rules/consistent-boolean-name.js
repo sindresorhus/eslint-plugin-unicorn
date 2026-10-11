@@ -334,6 +334,10 @@ const isBooleanFunctionValue = (node, context) => {
 	}
 
 	const scope = context.sourceCode.getScope(node);
+	if (node.returnType && getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false}) !== boolean) {
+		return false;
+	}
+
 	return getDirectTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false, allowNullish: false}) === boolean
 		|| isBooleanFunction(node, context);
 };
@@ -368,8 +372,8 @@ const isBooleanReturningFunctionReference = (node, context) => {
 
 	const [definition] = variable.defs;
 	const scope = context.sourceCode.getScope(definition.name);
-	if (isBooleanAsyncFunctionTypeAnnotation(definition.name?.typeAnnotation, context, scope)) {
-		return true;
+	if (definition.name?.typeAnnotation) {
+		return isBooleanAsyncFunctionTypeAnnotation(definition.name.typeAnnotation, context, scope);
 	}
 
 	if (definition.type === 'FunctionName') {
