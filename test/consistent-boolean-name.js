@@ -3406,7 +3406,11 @@ test({
 			errors: [{messageId: 'non-boolean-prefix', data: {name: 'isReady', prefix: 'is'}}],
 		})),
 		typeAware({
-			code: 'declare function computed<T>(getter: () => T): {value: T}; const isGetValue: () => boolean | Promise<boolean> = () => true; const isReady: {value: boolean | Promise<boolean>} = computed(isGetValue);',
+			code: [
+				'declare function computed<T>(getter: () => T): {value: T};',
+				'const isGetValue: () => boolean | Promise<boolean> = () => true;',
+				'const isReady: {value: boolean | Promise<boolean>} = computed(isGetValue);',
+			].join(' '),
 			errors: [{messageId: 'non-boolean-prefix', data: {name: 'isReady', prefix: 'is'}}],
 		}),
 	],
