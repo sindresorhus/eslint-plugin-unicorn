@@ -222,13 +222,18 @@ function getImportedParameters(callee, context, typescript, cache) {
 
 		cache.set(declaration, undefined);
 		let functionNode;
+		let expression;
 		if (typescript.isFunctionDeclaration(declaration)) {
 			functionNode = declaration;
 		} else if (typescript.isVariableDeclaration(declaration) && declaration.parent.getFirstToken().kind === typescript.SyntaxKind.ConstKeyword) {
-			const initializer = unwrapTypeScriptNode(declaration.initializer, typescript);
-			if (initializer && (typescript.isArrowFunction(initializer) || typescript.isFunctionExpression(initializer))) {
-				functionNode = initializer;
-			}
+			expression = declaration.initializer;
+		} else if (typescript.isExportAssignment(declaration) && !declaration.isExportEquals) {
+			expression = declaration.expression;
+		}
+
+		const initializer = unwrapTypeScriptNode(expression, typescript);
+		if (initializer && (typescript.isArrowFunction(initializer) || typescript.isFunctionExpression(initializer))) {
+			functionNode = initializer;
 		}
 
 		if (!functionNode?.body || functionNode.typeParameters?.length > 0 || hasArgumentsOrEval(functionNode, typescript)) {

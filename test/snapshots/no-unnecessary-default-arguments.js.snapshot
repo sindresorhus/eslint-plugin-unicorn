@@ -49,6 +49,25 @@ Suggestion 1/1: Remove these arguments (requires type review).:
 
 `;
 
+exports[`no-unnecessary-default-arguments > invalid(1): import run from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | import run from "./no-unnecessary-default-arguments.callee.js"; run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(1): import run from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 2`] = `
+
+Message:
+> 1 | import run from "./no-unnecessary-default-arguments.callee.js"; run(true);
+    |                                                                     ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | import run from "./no-unnecessary-default-arguments.callee.js"; run();
+
+`;
+
 exports[`no-unnecessary-default-arguments > invalid(1): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 1`] = `
 
 Filename: test/no-unnecessary-default-arguments.input.ts
@@ -501,6 +520,25 @@ Suggestion 1/1: Remove these arguments (requires type review).:
 
 `;
 
+exports[`no-unnecessary-default-arguments > invalid(2): import run from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | import run from "./no-unnecessary-default-arguments.callee.js"; run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(2): import run from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 2`] = `
+
+Message:
+> 1 | import run from "./no-unnecessary-default-arguments.callee.js"; run(true);
+    |                                                                     ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | import run from "./no-unnecessary-default-arguments.callee.js"; run();
+
+`;
+
 exports[`no-unnecessary-default-arguments > invalid(2): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 1`] = `
 
 Filename: test/no-unnecessary-default-arguments.input.ts
@@ -833,6 +871,25 @@ Message:
 
 Suggestion 1/1: Remove these arguments (requires type review).:
   1 | const run: (value: boolean) => void = (value = true) => {}; run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(3): import run from \"./no-unnecessary-default-arguments.callee.js\"; run({value: true}); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | import run from "./no-unnecessary-default-arguments.callee.js"; run({value: true});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(3): import run from \"./no-unnecessary-default-arguments.callee.js\"; run({value: true}); 2`] = `
+
+Message:
+> 1 | import run from "./no-unnecessary-default-arguments.callee.js"; run({value: true});
+    |                                                                      ^^^^^^^^^^^ Property \`value\` matches its destructuring default.
+
+Suggestion 1/1: Remove this property (requires type review).:
+  1 | import run from "./no-unnecessary-default-arguments.callee.js"; run({ });
 
 `;
 

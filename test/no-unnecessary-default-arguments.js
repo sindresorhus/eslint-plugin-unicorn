@@ -213,6 +213,7 @@ function typeAware(code, declarations = 'export function run(value = true) {}', 
 }
 
 const importedCall = 'import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true);';
+const defaultImportedCall = 'import run from "./no-unnecessary-default-arguments.callee.js"; run(true);';
 const contextualImplementation = 'function target(value = true) {} export const run: typeof target = (value = false) => {};';
 
 testRule.snapshot({
@@ -292,6 +293,42 @@ const config = {
 	plugins: {unicorn: plugin},
 	rules: {'unicorn/no-unnecessary-default-arguments': 'error'},
 };
+
+testRule({
+	valid: [],
+	invalid: [{
+		...typeAware(defaultImportedCall, 'export default (value = true) => value;'),
+		errors: [{
+			messageId: 'arguments',
+			suggestions: [{
+				messageId: 'remove-arguments',
+				output: 'import run from "./no-unnecessary-default-arguments.callee.js"; run();',
+			}],
+		}],
+	}],
+});
+
+testRule.snapshot({
+	valid: [
+		typeAware(defaultImportedCall, 'export default wrap((value = true) => value);'),
+		typeAware(defaultImportedCall, 'function target(value = true) {} function other(value = false) {} const run: typeof target = other; export default run;'),
+		typeAware(defaultImportedCall, 'export default (function (value = true) { return arguments.length; });'),
+		typeAware(defaultImportedCall, 'export = (value = true) => value;'),
+	],
+	invalid: [
+		typeAware(defaultImportedCall, 'export default (function (value = true) { return value; });'),
+		typeAware(defaultImportedCall, 'export default ((value = true) => value) satisfies (value: boolean) => boolean;'),
+		typeAware('import run from "./no-unnecessary-default-arguments.callee.js"; run({value: true});', 'export default ({value = true}: {value: boolean}) => value;'),
+	],
+});
+
+test('autofixes preserve named function expression self-calls', t => {
+	const code = 'const run = function inner(value = true) { if (!value) { return inner(true); } return value; }; run(false);';
+	const result = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(result.output, 'const run = function inner(value = true) { if (!value) { return inner(); } return value; }; run(false);');
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(vm.runInNewContext(result.output), vm.runInNewContext(code));
+});
 
 test('autofixes preserve values and rest arguments', t => {
 	const code = 'function run(value = true, {unit = "px", ...rest} = {}, last = 0) { return [value, unit, rest, last]; } JSON.stringify(run(true, {unit: "px", other: 2}, 0));';
