@@ -118,6 +118,12 @@
 		"vue-eslint-parser": "^10.4.1"
 	},
 	"peerDependencies": {
-		"eslint": ">=10.4"
+		"eslint": ">=10.4",
+		"typescript": "*"
+	},
+	"peerDependenciesMeta": {
+		"typescript": {
+			"optional": true
+		}
 	}
 }

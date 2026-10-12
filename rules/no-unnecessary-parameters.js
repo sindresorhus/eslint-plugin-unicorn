@@ -8,7 +8,9 @@ import {
 	getLineIndent,
 	getOutermostTypeScriptExpression,
 	getParenthesizedRange,
+	getPrimitiveLiteralValue,
 	hasCommentInRange,
+	hasJavaScriptTypeAnnotations,
 	isShorthandPropertyValue,
 	isTypeScriptFile,
 	needsSemicolon,
@@ -44,28 +46,15 @@ const isOuterBinding = (variable, parameter, context) => findVariable(context.so
 const undefinedValue = {kind: 'primitive', value: undefined};
 
 function getPrimitiveValue(node) {
-	if (node.type === 'Literal' && !node.regex) {
-		return {kind: 'primitive', value: node.value, node};
-	}
-
-	if (node.type === 'TemplateLiteral' && node.expressions.length === 0) {
-		return {kind: 'primitive', value: node.quasis[0].value.cooked, node};
+	const value = getPrimitiveLiteralValue(node);
+	if (value !== undefined) {
+		return {kind: 'primitive', value, node};
 	}
 
 	if (node.type === 'UnaryExpression') {
 		const argument = unwrapTypeScriptExpression(node.argument);
-		if (argument.type === 'Literal') {
-			if (node.operator === 'void' && argument.value === 0) {
-				return {...undefinedValue, node};
-			}
-
-			if (typeof argument.value === 'number' && (node.operator === '-' || node.operator === '+')) {
-				return {kind: 'primitive', value: node.operator === '-' ? -argument.value : argument.value, node};
-			}
-
-			if (typeof argument.value === 'bigint' && node.operator === '-') {
-				return {kind: 'primitive', value: -argument.value, node};
-			}
+		if (argument.type === 'Literal' && node.operator === 'void' && argument.value === 0) {
+			return {...undefinedValue, node};
 		}
 	}
 }
@@ -461,17 +450,6 @@ function canInlineValue(parameter, result, context) {
 	}
 
 	return true;
-}
-
-/**
-Check for JSDoc type annotations or TypeScript checking pragmas anywhere in the file.
-*/
-function hasJavaScriptTypeAnnotations(context) {
-	return context.sourceCode.getAllComments().some(comment =>
-		/^\s*(?:[*/]\s*)?@ts-check\b/iu.test(comment.value)
-		|| (comment.type === 'Block'
-			&& comment.value.trimStart().startsWith('*')
-			&& /@(?:param|arg|argument|type|returns?|template|this|overload|satisfies|constructor|class|implements|extends|augments)\b/u.test(comment.value)));
 }
 
 function getFix(parameter, result, target, context) {
