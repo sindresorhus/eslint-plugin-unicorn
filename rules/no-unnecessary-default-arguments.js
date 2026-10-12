@@ -352,7 +352,13 @@ const create = context => {
 		}
 
 		const callee = unwrapTypeScriptExpression(node.callee);
-		if (callee.type === 'Identifier' && node.arguments.length > 0) {
+		if (
+			callee.type === 'Identifier'
+			&& (
+				getPrimitiveLiteralValue(node.arguments.at(-1)) !== undefined
+				|| node.arguments.some(argument => unwrapTypeScriptExpression(argument).type === 'ObjectExpression')
+			)
+		) {
 			calls.push(node);
 		}
 	});

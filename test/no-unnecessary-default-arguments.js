@@ -10,10 +10,13 @@ import {getTester, parsers} from './utils/test.js';
 const {test: testRule} = getTester(import.meta);
 
 testRule({
-	valid: [{
-		code: '"use strict"; function run(value = true) {} run(true);',
-		languageOptions: {sourceType: 'script'},
-	}],
+	valid: [
+		{
+			code: '"use strict"; function run(value = true) {} run(true);',
+			languageOptions: {sourceType: 'script'},
+		},
+		'function run(value = true) {} run(true); eval(source);',
+	],
 	invalid: [
 		{
 			code: 'function run(flag = true) {} run(true);',
@@ -293,6 +296,15 @@ const config = {
 	plugins: {unicorn: plugin},
 	rules: {'unicorn/no-unnecessary-default-arguments': 'error'},
 };
+
+test('commented matching properties do not prevent safe sibling removals', t => {
+	const code = 'function run({one = true, two = true, three = true}) {} run({one: /* keep */ true, two: true, three: true});';
+	const result = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(result.output, 'function run({one = true, two = true, three = true}) {} run({one: /* keep */ true    });');
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(result.messages[0].messageId, 'property');
+	t.assert.strictEqual(result.messages[0].fix, undefined);
+});
 
 testRule({
 	valid: [],
