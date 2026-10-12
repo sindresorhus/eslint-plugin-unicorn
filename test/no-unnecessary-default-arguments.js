@@ -10,7 +10,10 @@ import {getTester, parsers} from './utils/test.js';
 const {test: testRule} = getTester(import.meta);
 
 testRule({
-	valid: [],
+	valid: [{
+		code: '"use strict"; function run(value = true) {} run(true);',
+		languageOptions: {sourceType: 'script'},
+	}],
 	invalid: [
 		{
 			code: 'function run(flag = true) {} run(true);',
@@ -20,6 +23,24 @@ testRule({
 		{
 			code: 'function run(value = true) {\r\n  return value;\r\n}\r\nrun(\r\n  true,\r\n);',
 			output: 'function run(value = true) {\r\n  return value;\r\n}\r\nrun(\r\n  \r\n);',
+			errors: [{messageId: 'arguments'}],
+		},
+		{
+			code: 'const run = (value = true) => value; globalThis.run = value => value; run(true);',
+			output: 'const run = (value = true) => value; globalThis.run = value => value; run();',
+			languageOptions: {sourceType: 'script'},
+			errors: [{messageId: 'arguments'}],
+		},
+		{
+			code: '(function () { function run(value = true) {} run(true); })();',
+			output: '(function () { function run(value = true) {} run(); })();',
+			languageOptions: {sourceType: 'script'},
+			errors: [{messageId: 'arguments'}],
+		},
+		{
+			code: 'function run(value = true) {} run(true);',
+			output: 'function run(value = true) {} run();',
+			languageOptions: {sourceType: 'commonjs'},
 			errors: [{messageId: 'arguments'}],
 		},
 	],
@@ -151,19 +172,20 @@ testRule.snapshot({
 		'function run(value = +1) {} run((+1) as number);',
 		'function run({value = true}: {value: boolean}) {} run({value: true});',
 		'function run({value = true}: {value?: boolean}) {} run(({value: true}) as {value: boolean});',
+		'function run({value = true}: {value: boolean}) {} run({value: /* keep */ true});',
 	],
 });
 
-function typeAware(code, declarations = 'export function run(value = true) {}') {
-	const filename = path.join(import.meta.dirname, 'no-unnecessary-default-arguments.input.ts');
+function typeAware(code, declarations = 'export function run(value = true) {}', extension = 'ts') {
+	const filename = path.join(import.meta.dirname, `no-unnecessary-default-arguments.input.${extension}`);
 	const sources = new Map([
 		[filename, code],
-		[path.join(import.meta.dirname, 'no-unnecessary-default-arguments.callee.ts'), declarations],
-		[path.join(import.meta.dirname, 'no-unnecessary-default-arguments.reexport.ts'), 'export {run} from "./no-unnecessary-default-arguments.callee.js";'],
+		[path.join(import.meta.dirname, `no-unnecessary-default-arguments.callee.${extension}`), declarations],
+		[path.join(import.meta.dirname, `no-unnecessary-default-arguments.reexport.${extension}`), 'export {run} from "./no-unnecessary-default-arguments.callee.js";'],
 		[path.join(import.meta.dirname, 'no-unnecessary-default-arguments.declaration.d.ts'), 'export declare function run(value?: boolean): void;'],
 	]);
 	const options = {
-		noLib: true, types: [], strict: true, target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.ESNext, moduleResolution: ts.ModuleResolutionKind.Bundler,
+		allowJs: true, noLib: true, types: [], strict: true, target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.ESNext, moduleResolution: ts.ModuleResolutionKind.Bundler,
 	};
 	const host = ts.createCompilerHost(options);
 	const readFile = host.readFile.bind(host);
@@ -182,6 +204,7 @@ function typeAware(code, declarations = 'export function run(value = true) {}') 
 }
 
 const importedCall = 'import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true);';
+const contextualImplementation = 'function target(value = true) {} export const run: typeof target = (value = false) => {};';
 
 testRule.snapshot({
 	valid: [
@@ -209,6 +232,8 @@ testRule.snapshot({
 		typeAware('import {run} from "./no-unnecessary-default-arguments.callee.js"; run({constructor: true});', 'export function run({constructor = true}) {}'),
 		typeAware('import {run} from "./no-unnecessary-default-arguments.callee.js"; run({"__proto__": true});', 'export function run({__proto__: value = true}) {}'),
 		typeAware('import {run} from "./no-unnecessary-default-arguments.callee.js"; run(0);', 'export function run(value = -0) {}'),
+		typeAware('import {run} from "./no-unnecessary-default-arguments.callee.js"; function outer(run: (value: boolean) => void) { run(true); }'),
+		typeAware(importedCall, contextualImplementation),
 	],
 	invalid: [
 		typeAware(importedCall),
@@ -228,6 +253,11 @@ testRule.snapshot({
 		typeAware('import {run} from "./no-unnecessary-default-arguments.callee.js"; run({value: true});', 'export function run({value = true}: {value: boolean}) {}'),
 		typeAware('import {run} from "./no-unnecessary-default-arguments.callee.js"; run({unit: "px", other: 2});', 'export function run({unit: renamed = "px", ...rest} = {unit: "other"}) {}'),
 		typeAware('import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true /* keep */);'),
+		typeAware('import run from "./no-unnecessary-default-arguments.callee.js"; run(true);', 'export default function (value = true) {}'),
+		typeAware('import {run} from "./no-unnecessary-default-arguments.callee.js"; run(false);', contextualImplementation),
+		typeAware('import {run} from "./no-unnecessary-default-arguments.callee.js"; run?.(false, true);', 'export function run(first = true, next = true) {}'),
+		typeAware(importedCall, 'export function run(value = true) {}', 'js'),
+		typeAware('import {run} from "./no-unnecessary-default-arguments.callee.js"; run({value: true});', '/** @param {{value: boolean}} options */ export function run({value = true}) {}', 'js'),
 	],
 });
 
@@ -266,4 +296,12 @@ test('autofixes preserve later parameter defaults', t => {
 	t.assert.strictEqual(result.output, 'function run(value = true, {unit = "px"} = {}, next = [value, unit]) { return next; } JSON.stringify([run(), run(true, { })]);');
 	t.assert.deepStrictEqual(result.messages, []);
 	t.assert.strictEqual(vm.runInNewContext(result.output), vm.runInNewContext(code));
+});
+
+test('script function declarations stay unchanged after global object reassignment', t => {
+	const code = 'function run(value = true) { return value; } globalThis.run = value => value; run(true);';
+	const result = linter.verifyAndFix(code, {...config, languageOptions: {sourceType: 'script'}});
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(vm.runInNewContext(result.output), true);
 });

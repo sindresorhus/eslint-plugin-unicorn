@@ -253,6 +253,11 @@ function getParameters(callee, context, typescript, cache) {
 	}
 
 	const [definition] = variable.defs;
+	// Script function declarations can be reassigned through the global object without identifier writes.
+	if (definition.type === 'FunctionName' && variable.scope.type === 'global') {
+		return;
+	}
+
 	if (definition.type === 'ImportBinding') {
 		return typescript ? getImportedParameters(callee, context, typescript, cache) : undefined;
 	}
