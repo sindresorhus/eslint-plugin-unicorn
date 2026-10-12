@@ -243,6 +243,8 @@ test.snapshot({
 		typeAware('declare const promise: Promise<string> | undefined; promise?.catch(() => {});'),
 		typeAware('declare const object: Promise<string> | {catch(handler: () => void): void}; object.catch(() => {});'),
 		typeAware('declare const object: {catch(): Promise<void>}; object.catch().catch(() => {});'),
+		typeAware('declare const thenable: {then(onFulfilled: (value: string) => unknown): unknown}; thenable.then(value => value);'),
+		typeAware('declare const promise: Promise<string> & {extra: string}; promise.catch(() => {});'),
 	],
 });
 

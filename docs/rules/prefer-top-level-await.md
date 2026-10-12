@@ -13,6 +13,8 @@
 
 Calls explicitly discarded with the `void` operator are ignored as intentional fire-and-forget work.
 
+Calls to `Effect.catch()` are ignored because this function does not handle promises.
+
 When full TypeScript type information is available, calls on known non-promise receivers are ignored.
 
 ## Examples
