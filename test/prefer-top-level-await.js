@@ -1,7 +1,6 @@
 import outdent from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
-import {getTester} from './utils/test.js';
-import parsers from './utils/parsers.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -230,6 +229,8 @@ test.snapshot({
 		typeAware('declare const object: {catch(handler: () => void): void}; object.catch(() => {});'),
 		typeAware('declare const object: {finally(handler: () => void): void}; object.finally(() => {});'),
 		typeAware('declare const object: {catch(handler: () => void): void} | undefined; object?.catch(() => {});'),
+		typeAware('declare const object: {catch(): void} | {catch(): number}; object.catch();'),
+		typeAware('declare const object: {catch(): {catch(): void}}; object.catch().catch();'),
 	],
 	invalid: [
 		typeAware('declare const promise: Promise<string>; promise.then(value => value);'),
@@ -239,6 +240,9 @@ test.snapshot({
 		typeAware('declare const object: any; object.catch(() => {});'),
 		typeAware('declare const object: unknown; object.catch(() => {});'),
 		typeAware('declare const object: Missing; object.catch(() => {});'),
+		typeAware('declare const promise: Promise<string> | undefined; promise?.catch(() => {});'),
+		typeAware('declare const object: Promise<string> | {catch(handler: () => void): void}; object.catch(() => {});'),
+		typeAware('declare const object: {catch(): Promise<void>}; object.catch().catch(() => {});'),
 	],
 });
 

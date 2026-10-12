@@ -178,6 +178,22 @@ Suggestion 1/1: Insert \`await\`.:
 
 `;
 
+exports[`prefer-top-level-await > invalid(10): declare const object: {catch(): Promise<void>}; object.catch().catch(() => {}); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const object: {catch(): Promise<void>}; object.catch().catch(() => {});
+
+`;
+
+exports[`prefer-top-level-await > invalid(10): declare const object: {catch(): Promise<void>}; object.catch().catch(() => {}); 2`] = `
+
+Message:
+> 1 | declare const object: {catch(): Promise<void>}; object.catch().catch(() => {});
+    |                                                                ^^^^^ Prefer top-level await over using a promise chain.
+
+`;
+
 exports[`prefer-top-level-await > invalid(11): ((async () => {})() satisfies Promise<void>); 1`] = `
 
   1 | ((async () => {})() satisfies Promise<void>);
@@ -1398,6 +1414,22 @@ Suggestion 1/1: Insert \`await\`.:
 
 `;
 
+exports[`prefer-top-level-await > invalid(8): declare const promise: Promise<string> | undefined; promise?.catch(() => {}); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const promise: Promise<string> | undefined; promise?.catch(() => {});
+
+`;
+
+exports[`prefer-top-level-await > invalid(8): declare const promise: Promise<string> | undefined; promise?.catch(() => {}); 2`] = `
+
+Message:
+> 1 | declare const promise: Promise<string> | undefined; promise?.catch(() => {});
+    |                                                              ^^^^^ Prefer top-level await over using a promise chain.
+
+`;
+
 exports[`prefer-top-level-await > invalid(8): {\n\t(async () => {})();\n} 1`] = `
 
   1 | {
@@ -1475,5 +1507,21 @@ Message:
 
 Suggestion 1/1: Insert \`await\`.:
   1 | const foo = async () => {}; (await foo() as Promise<void>);
+
+`;
+
+exports[`prefer-top-level-await > invalid(9): declare const object: Promise<string> | {catch(handler: () => void): void}; object.catch(() => {}); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const object: Promise<string> | {catch(handler: () => void): void}; object.catch(() => {});
+
+`;
+
+exports[`prefer-top-level-await > invalid(9): declare const object: Promise<string> | {catch(handler: () => void): void}; object.catch(() => {}); 2`] = `
+
+Message:
+> 1 | declare const object: Promise<string> | {catch(handler: () => void): void}; object.catch(() => {});
+    |                                                                                    ^^^^^ Prefer top-level await over using a promise chain.
 
 `;

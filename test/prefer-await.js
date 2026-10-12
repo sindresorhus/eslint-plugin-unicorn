@@ -237,6 +237,7 @@ test.snapshot({
 				}
 			}
 		`,
+		typeAware('function foo(value: unknown) { value.catch(() => {}); }'),
 	],
 });
 
