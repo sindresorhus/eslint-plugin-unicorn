@@ -46,6 +46,8 @@ The default prefixes are:
 - `will`
 - `requires`
 
+The `do` prefix is excluded because it also starts action names like `doWork()`, which would then be reserved for boolean-like values. Use `doesChecksPass` instead of `doChecksPass`, or `didChecksPass` for a past result; identifiers need not follow English grammar. To allow `do`, set `prefixes: {do: true}`.
+
 The plural prefixes (`are`, `have`, `were`) allow names for boolean collections, like `areFilesValid`.
 
 The prefix must be a distinct word part. `isReady`, `is_ready`, and `IS_READY` are allowed, but `island` is not considered to have the `is` prefix.
