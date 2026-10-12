@@ -188,14 +188,14 @@ testRule.snapshot({
 });
 
 function typeAware(code, declarations = 'export function run(value = true) {}', extension = 'ts') {
-	const filename = path.join(import.meta.dirname, `no-unnecessary-default-arguments.input.${extension}`);
+	const filename = path.join(import.meta.dirname, `no-unnecessary-default-arguments.input.${extension}`).replaceAll('\\', '/');
 	const sources = new Map([
 		[filename, code],
 		[path.join(import.meta.dirname, `no-unnecessary-default-arguments.callee.${extension}`), declarations],
 		[path.join(import.meta.dirname, `no-unnecessary-default-arguments.reexport.${extension}`), 'export {run} from "./no-unnecessary-default-arguments.callee.js";'],
 		[path.join(import.meta.dirname, `no-unnecessary-default-arguments.star.${extension}`), 'export * from "./no-unnecessary-default-arguments.callee.js";'],
 		[path.join(import.meta.dirname, 'no-unnecessary-default-arguments.declaration.d.ts'), 'export declare function run(value?: boolean): void;'],
-	]);
+	].map(([filename, source]) => [filename.replaceAll('\\', '/'), source]));
 	const options = {
 		allowJs: true, noLib: true, types: [], strict: true, target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.ESNext, moduleResolution: ts.ModuleResolutionKind.Bundler,
 	};
@@ -296,6 +296,23 @@ const config = {
 	plugins: {unicorn: plugin},
 	rules: {'unicorn/no-unnecessary-default-arguments': 'error'},
 };
+
+test('loads checker-backed fixtures with Windows path separators', t => {
+	const joinPath = path.join;
+	const joinMock = t.mock.method(path, 'join', (...parts) => joinPath(...parts).replaceAll('/', '\\'));
+	const fixture = typeAware(importedCall);
+	joinMock.mock.restore();
+	const [program] = fixture.languageOptions.parserOptions.programs;
+	t.assert.strictEqual(program.getSourceFile(fixture.filename)?.text, importedCall);
+	const messages = linter.verify(fixture.code, {
+		...config,
+		files: ['**'],
+		languageOptions: fixture.languageOptions,
+	}, {filename: fixture.filename});
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].messageId, 'arguments');
+	t.assert.strictEqual(messages[0].suggestions.length, 1);
+});
 
 test('commented matching properties do not prevent safe sibling removals', t => {
 	const code = 'function run({one = true, two = true, three = true}) {} run({one: /* keep */ true, two: true, three: true});';
