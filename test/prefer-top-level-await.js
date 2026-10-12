@@ -1,8 +1,18 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester} from './utils/test.js';
 import parsers from './utils/parsers.js';
 
 const {test} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 // Async IIFE
 test.snapshot({
@@ -180,6 +190,55 @@ test.snapshot({
 			code: '(foo.then(bar) as Promise<void>).catch(handleError);',
 			languageOptions: {parser: parsers.typescript},
 		},
+	],
+});
+
+// Effect.catch is a non-promise function.
+test.snapshot({
+	valid: [
+		outdent`
+			import {Effect} from 'effect';
+			const program = Effect.fail('boom').pipe(
+				Effect.catch(() => Effect.void),
+			);
+		`,
+		{
+			code: outdent`
+				import {Effect} from 'effect';
+				const program = Effect.fail('boom').pipe(
+					Effect.catch(() => Effect.void),
+				);
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		'Effect.catch(handleError)',
+		'Effect?.catch?.(handleError)',
+	],
+	invalid: [
+		'Effect.then(handleResult)',
+		'Effect.finally(cleanup)',
+		'Effect.runPromise(program).catch(handleError)',
+		'Effect.catch(handleError).then(handleResult)',
+		'consume(promise.catch(handleError))',
+	],
+});
+
+// Full TypeScript type information
+test.snapshot({
+	valid: [
+		typeAware('declare const object: {then(): void}; object.then();'),
+		typeAware('declare const object: {catch(handler: () => void): void}; object.catch(() => {});'),
+		typeAware('declare const object: {finally(handler: () => void): void}; object.finally(() => {});'),
+		typeAware('declare const object: {catch(handler: () => void): void} | undefined; object?.catch(() => {});'),
+	],
+	invalid: [
+		typeAware('declare const promise: Promise<string>; promise.then(value => value);'),
+		typeAware('declare const promise: Promise<string>; promise.catch(() => {});'),
+		typeAware('declare const promise: Promise<string>; promise.finally(() => {});'),
+		typeAware('declare const promise: PromiseLike<string>; promise.then(value => value);'),
+		typeAware('declare const object: any; object.catch(() => {});'),
+		typeAware('declare const object: unknown; object.catch(() => {});'),
+		typeAware('declare const object: Missing; object.catch(() => {});'),
 	],
 });
 

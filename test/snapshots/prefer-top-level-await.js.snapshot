@@ -12,6 +12,20 @@ Message:
 
 `;
 
+exports[`prefer-top-level-await > invalid(1): Effect.then(handleResult) 1`] = `
+
+  1 | Effect.then(handleResult)
+
+`;
+
+exports[`prefer-top-level-await > invalid(1): Effect.then(handleResult) 2`] = `
+
+Message:
+> 1 | Effect.then(handleResult)
+    |        ^^^^ Prefer top-level await over using a promise chain.
+
+`;
+
 exports[`prefer-top-level-await > invalid(1): cache.promise += (async () => {})(); 1`] = `
 
   1 | cache.promise += (async () => {})();
@@ -66,6 +80,22 @@ Suggestion 1/1: Insert \`await\`.:
   1 | const runAsync = async () => {};
   2 | const value = true;
   3 | await Promise.all([await runAsync() && value]);
+
+`;
+
+exports[`prefer-top-level-await > invalid(1): declare const promise: Promise<string>; promise.then(value => value); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const promise: Promise<string>; promise.then(value => value);
+
+`;
+
+exports[`prefer-top-level-await > invalid(1): declare const promise: Promise<string>; promise.then(value => value); 2`] = `
+
+Message:
+> 1 | declare const promise: Promise<string>; promise.then(value => value);
+    |                                                 ^^^^ Prefer top-level await over using a promise chain.
 
 `;
 
@@ -488,6 +518,20 @@ Message:
 
 `;
 
+exports[`prefer-top-level-await > invalid(2): Effect.finally(cleanup) 1`] = `
+
+  1 | Effect.finally(cleanup)
+
+`;
+
+exports[`prefer-top-level-await > invalid(2): Effect.finally(cleanup) 2`] = `
+
+Message:
+> 1 | Effect.finally(cleanup)
+    |        ^^^^^^^ Prefer top-level await over using a promise chain.
+
+`;
+
 exports[`prefer-top-level-await > invalid(2): cache.promise *= promise.then(onFulfilled); 1`] = `
 
   1 | cache.promise *= promise.then(onFulfilled);
@@ -519,6 +563,22 @@ Message:
 Suggestion 1/1: Insert \`await\`.:
   1 | const foo = async () => {};
   2 | await foo?.();
+
+`;
+
+exports[`prefer-top-level-await > invalid(2): declare const promise: Promise<string>; promise.catch(() => {}); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const promise: Promise<string>; promise.catch(() => {});
+
+`;
+
+exports[`prefer-top-level-await > invalid(2): declare const promise: Promise<string>; promise.catch(() => {}); 2`] = `
+
+Message:
+> 1 | declare const promise: Promise<string>; promise.catch(() => {});
+    |                                                 ^^^^^ Prefer top-level await over using a promise chain.
 
 `;
 
@@ -704,6 +764,20 @@ Message:
 
 `;
 
+exports[`prefer-top-level-await > invalid(3): Effect.runPromise(program).catch(handleError) 1`] = `
+
+  1 | Effect.runPromise(program).catch(handleError)
+
+`;
+
+exports[`prefer-top-level-await > invalid(3): Effect.runPromise(program).catch(handleError) 2`] = `
+
+Message:
+> 1 | Effect.runPromise(program).catch(handleError)
+    |                            ^^^^^ Prefer top-level await over using a promise chain.
+
+`;
+
 exports[`prefer-top-level-await > invalid(3): async function run() {} cache.promise -= run(); 1`] = `
 
   1 | async function run() {} cache.promise -= run();
@@ -738,6 +812,22 @@ Message:
 Suggestion 1/1: Insert \`await\`.:
   1 | const foo = async () => {};
   2 | const x = condition ? await foo() : null;
+
+`;
+
+exports[`prefer-top-level-await > invalid(3): declare const promise: Promise<string>; promise.finally(() => {}); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const promise: Promise<string>; promise.finally(() => {});
+
+`;
+
+exports[`prefer-top-level-await > invalid(3): declare const promise: Promise<string>; promise.finally(() => {}); 2`] = `
+
+Message:
+> 1 | declare const promise: Promise<string>; promise.finally(() => {});
+    |                                                 ^^^^^^^ Prefer top-level await over using a promise chain.
 
 `;
 
@@ -909,6 +999,20 @@ Message:
 
 `;
 
+exports[`prefer-top-level-await > invalid(4): Effect.catch(handleError).then(handleResult) 1`] = `
+
+  1 | Effect.catch(handleError).then(handleResult)
+
+`;
+
+exports[`prefer-top-level-await > invalid(4): Effect.catch(handleError).then(handleResult) 2`] = `
+
+Message:
+> 1 | Effect.catch(handleError).then(handleResult)
+    |                           ^^^^ Prefer top-level await over using a promise chain.
+
+`;
+
 exports[`prefer-top-level-await > invalid(4): cache[(async () => {})()] = value; 1`] = `
 
   1 | cache[(async () => {})()] = value;
@@ -936,6 +1040,22 @@ Message:
   1 | const foo = async () => {};
 > 2 | foo().then(foo);
     |       ^^^^ Prefer top-level await over using a promise chain.
+
+`;
+
+exports[`prefer-top-level-await > invalid(4): declare const promise: PromiseLike<string>; promise.then(value => value); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const promise: PromiseLike<string>; promise.then(value => value);
+
+`;
+
+exports[`prefer-top-level-await > invalid(4): declare const promise: PromiseLike<string>; promise.then(value => value); 2`] = `
+
+Message:
+> 1 | declare const promise: PromiseLike<string>; promise.then(value => value);
+    |                                                     ^^^^ Prefer top-level await over using a promise chain.
 
 `;
 
@@ -1015,6 +1135,36 @@ Suggestion 1/1: Insert \`await\`.:
 
 `;
 
+exports[`prefer-top-level-await > invalid(5): consume(promise.catch(handleError)) 1`] = `
+
+  1 | consume(promise.catch(handleError))
+
+`;
+
+exports[`prefer-top-level-await > invalid(5): consume(promise.catch(handleError)) 2`] = `
+
+Message:
+> 1 | consume(promise.catch(handleError))
+    |                 ^^^^^ Prefer top-level await over using a promise chain.
+
+`;
+
+exports[`prefer-top-level-await > invalid(5): declare const object: any; object.catch(() => {}); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const object: any; object.catch(() => {});
+
+`;
+
+exports[`prefer-top-level-await > invalid(5): declare const object: any; object.catch(() => {}); 2`] = `
+
+Message:
+> 1 | declare const object: any; object.catch(() => {});
+    |                                   ^^^^^ Prefer top-level await over using a promise chain.
+
+`;
+
 exports[`prefer-top-level-await > invalid(5): foo.finally(bar) 1`] = `
 
   1 | foo.finally(bar)
@@ -1057,6 +1207,22 @@ Message:
 
 Suggestion 1/1: Insert \`await\`.:
   1 | async function run() {} cache[await run()] ||= value;
+
+`;
+
+exports[`prefer-top-level-await > invalid(6): declare const object: unknown; object.catch(() => {}); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const object: unknown; object.catch(() => {});
+
+`;
+
+exports[`prefer-top-level-await > invalid(6): declare const object: unknown; object.catch(() => {}); 2`] = `
+
+Message:
+> 1 | declare const object: unknown; object.catch(() => {});
+    |                                       ^^^^^ Prefer top-level await over using a promise chain.
 
 `;
 
@@ -1137,6 +1303,22 @@ Suggestion 1/1: Insert \`await\`.:
   4 | } else {
   5 | 	await foo();
   6 | }
+
+`;
+
+exports[`prefer-top-level-await > invalid(7): declare const object: Missing; object.catch(() => {}); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const object: Missing; object.catch(() => {});
+
+`;
+
+exports[`prefer-top-level-await > invalid(7): declare const object: Missing; object.catch(() => {}); 2`] = `
+
+Message:
+> 1 | declare const object: Missing; object.catch(() => {});
+    |                                       ^^^^^ Prefer top-level await over using a promise chain.
 
 `;
 

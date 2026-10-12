@@ -46,3 +46,9 @@ test('checks every member of a union type', t => {
 		t.assert.deepStrictEqual(getResult(`declare const marker: ${type};`), [expected], type);
 	}
 });
+
+test('leaves unknown types indeterminate', t => {
+	for (const type of ['any', 'unknown', 'Missing']) {
+		t.assert.deepStrictEqual(getResult(`declare const marker: ${type};`), [undefined], type);
+	}
+});
