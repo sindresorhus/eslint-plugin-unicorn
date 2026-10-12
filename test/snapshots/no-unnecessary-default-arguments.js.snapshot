@@ -1,0 +1,1310 @@
+exports[`no-unnecessary-default-arguments > invalid(1): function run(flag = true) {} run(false); run(true); 1`] = `
+
+  1 | function run(flag = true) {} run(false); run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(1): function run(flag = true) {} run(false); run(true); 2`] = `
+
+Message:
+> 1 | function run(flag = true) {} run(false); run(true);
+    |                                              ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(flag = true) {} run(false); run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(1): function run(value: boolean = true) {} run(true); 1`] = `
+
+  1 | function run(value: boolean = true) {} run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(1): function run(value: boolean = true) {} run(true); 2`] = `
+
+Message:
+> 1 | function run(value: boolean = true) {} run(true);
+    |                                            ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | function run(value: boolean = true) {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(1): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(1): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 2`] = `
+
+Message:
+> 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true);
+    |                                                                       ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(10): function run(value = true) {} (run)?.((true)); 1`] = `
+
+  1 | function run(value = true) {} (run)?.((true));
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(10): function run(value = true) {} (run)?.((true)); 2`] = `
+
+Message:
+> 1 | function run(value = true) {} (run)?.((true));
+    |                                        ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(value = true) {} (run)?.();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(10): import {run} from \"./no-unnecessary-default-arguments.reexport.js\"; run(true); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | import {run} from "./no-unnecessary-default-arguments.reexport.js"; run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(10): import {run} from \"./no-unnecessary-default-arguments.reexport.js\"; run(true); 2`] = `
+
+Message:
+> 1 | import {run} from "./no-unnecessary-default-arguments.reexport.js"; run(true);
+    |                                                                         ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | import {run} from "./no-unnecessary-default-arguments.reexport.js"; run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(11): function run(value = true) {} run((true),); 1`] = `
+
+  1 | function run(value = true) {} run((true),);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(11): function run(value = true) {} run((true),); 2`] = `
+
+Message:
+> 1 | function run(value = true) {} run((true),);
+    |                                    ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(value = true) {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(11): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(\"px\", -0, -1_000n); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run("px", -0, -1_000n);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(11): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(\"px\", -0, -1_000n); 2`] = `
+
+Message:
+> 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run("px", -0, -1_000n);
+    |                                                                       ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(12): function run(first = true, second = false) {} run((true), (false),); 1`] = `
+
+  1 | function run(first = true, second = false) {} run((true), (false),);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(12): function run(first = true, second = false) {} run((true), (false),); 2`] = `
+
+Message:
+> 1 | function run(first = true, second = false) {} run((true), (false),);
+    |                                                    ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(first = true, second = false) {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(12): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(null, false, 16); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(null, false, 16);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(12): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(null, false, 16); 2`] = `
+
+Message:
+> 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(null, false, 16);
+    |                                                                       ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(13): function run(first, second = true, third = false) {} run(value, true, false,); 1`] = `
+
+  1 | function run(first, second = true, third = false) {} run(value, true, false,);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(13): function run(first, second = true, third = false) {} run(value, true, false,); 2`] = `
+
+Message:
+> 1 | function run(first, second = true, third = false) {} run(value, true, false,);
+    |                                                                 ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(first, second = true, third = false) {} run(value);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(13): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(\"px\", \"line\\n\", 2); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run("px", "line\\n", 2);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(13): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(\"px\", \"line\\n\", 2); 2`] = `
+
+Message:
+> 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run("px", "line\\n", 2);
+    |                                                                       ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(14): function run(value = true) {} run(/* keep */ true); 1`] = `
+
+  1 | function run(value = true) {} run(/* keep */ true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(14): function run(value = true) {} run(/* keep */ true); 2`] = `
+
+Message:
+> 1 | function run(value = true) {} run(/* keep */ true);
+    |                                              ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(value = true) {} run(/* keep */ );
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(14): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run({1: true}); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run({1: true});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(14): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run({1: true}); 2`] = `
+
+Message:
+> 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run({1: true});
+    |                                                                        ^^^^^^^ Property \`1\` matches its destructuring default.
+
+Suggestion 1/1: Remove this property (requires type review).:
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run({ });
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(15): function run(value = true) {} run(true /* keep */,); 1`] = `
+
+  1 | function run(value = true) {} run(true /* keep */,);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(15): function run(value = true) {} run(true /* keep */,); 2`] = `
+
+Message:
+> 1 | function run(value = true) {} run(true /* keep */,);
+    |                                   ^^^^ Omit trailing arguments that match their parameter defaults.
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(15): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run({value: true}); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run({value: true});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(15): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run({value: true}); 2`] = `
+
+Message:
+> 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run({value: true});
+    |                                                                        ^^^^^^^^^^^ Property \`value\` matches its destructuring default.
+
+Suggestion 1/1: Remove this property (requires type review).:
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run({ });
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(16): function run(value = true) {} run((/* keep */ true)); 1`] = `
+
+  1 | function run(value = true) {} run((/* keep */ true));
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(16): function run(value = true) {} run((/* keep */ true)); 2`] = `
+
+Message:
+> 1 | function run(value = true) {} run((/* keep */ true));
+    |                                               ^^^^ Omit trailing arguments that match their parameter defaults.
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(16): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run({unit: \"px\", other: 2}); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run({unit: "px", other: 2});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(16): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run({unit: \"px\", other: 2}); 2`] = `
+
+Message:
+> 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run({unit: "px", other: 2});
+    |                                                                        ^^^^^^^^^^ Property \`unit\` matches its destructuring default.
+
+Suggestion 1/1: Remove this property (requires type review).:
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run({  other: 2});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(17): function run(first = true, second = false) {} run(true, /* keep */ false); 1`] = `
+
+  1 | function run(first = true, second = false) {} run(true, /* keep */ false);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(17): function run(first = true, second = false) {} run(true, /* keep */ false); 2`] = `
+
+Message:
+> 1 | function run(first = true, second = false) {} run(true, /* keep */ false);
+    |                                                   ^^^^ Omit trailing arguments that match their parameter defaults.
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(17): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(true /* keep */); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true /* keep */);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(17): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(true /* keep */); 2`] = `
+
+Message:
+> 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true /* keep */);
+    |                                                                       ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run( /* keep */);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(18): function run(first, second = true) {} run(value /* keep */, true); 1`] = `
+
+  1 | function run(first, second = true) {} run(value /* keep */, true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(18): function run(first, second = true) {} run(value /* keep */, true); 2`] = `
+
+Message:
+> 1 | function run(first, second = true) {} run(value /* keep */, true);
+    |                                                             ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(first, second = true) {} run(value /* keep */);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(19): function run(value = \"px\") {} run(\`px\`); 1`] = `
+
+  1 | function run(value = "px") {} run(\`px\`);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(19): function run(value = \"px\") {} run(\`px\`); 2`] = `
+
+Message:
+> 1 | function run(value = "px") {} run(\`px\`);
+    |                                   ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(value = "px") {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(2): export function run(flag = true) {} run(true); 1`] = `
+
+  1 | export function run(flag = true) {} run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(2): export function run(flag = true) {} run(true); 2`] = `
+
+Message:
+> 1 | export function run(flag = true) {} run(true);
+    |                                         ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | export function run(flag = true) {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(2): function run(this: void, value = true) {} run(true); 1`] = `
+
+  1 | function run(this: void, value = true) {} run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(2): function run(this: void, value = true) {} run(true); 2`] = `
+
+Message:
+> 1 | function run(this: void, value = true) {} run(true);
+    |                                               ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | function run(this: void, value = true) {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(2): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(2): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 2`] = `
+
+Message:
+> 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true);
+    |                                                                       ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(20): function run(value = \`px\`) {} run(\"px\"); 1`] = `
+
+  1 | function run(value = \`px\`) {} run("px");
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(20): function run(value = \`px\`) {} run(\"px\"); 2`] = `
+
+Message:
+> 1 | function run(value = \`px\`) {} run("px");
+    |                                   ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(value = \`px\`) {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(21): function run(value = \"\\u0070x\") {} run(\"px\"); 1`] = `
+
+  1 | function run(value = "\\u0070x") {} run("px");
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(21): function run(value = \"\\u0070x\") {} run(\"px\"); 2`] = `
+
+Message:
+> 1 | function run(value = "\\u0070x") {} run("px");
+    |                                        ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(value = "\\u0070x") {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(22): function run(value = \"\") {} run(\"\"); 1`] = `
+
+  1 | function run(value = "") {} run("");
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(22): function run(value = \"\") {} run(\"\"); 2`] = `
+
+Message:
+> 1 | function run(value = "") {} run("");
+    |                                 ^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(value = "") {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(23): function run(value = false) {} run(false); 1`] = `
+
+  1 | function run(value = false) {} run(false);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(23): function run(value = false) {} run(false); 2`] = `
+
+Message:
+> 1 | function run(value = false) {} run(false);
+    |                                    ^^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(value = false) {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(24): function run(value = null) {} run(null); 1`] = `
+
+  1 | function run(value = null) {} run(null);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(24): function run(value = null) {} run(null); 2`] = `
+
+Message:
+> 1 | function run(value = null) {} run(null);
+    |                                   ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(value = null) {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(25): function run(value = 0) {} run(+0); 1`] = `
+
+  1 | function run(value = 0) {} run(+0);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(25): function run(value = 0) {} run(+0); 2`] = `
+
+Message:
+> 1 | function run(value = 0) {} run(+0);
+    |                                ^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(value = 0) {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(26): function run(value = -0) {} run(-0); 1`] = `
+
+  1 | function run(value = -0) {} run(-0);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(26): function run(value = -0) {} run(-0); 2`] = `
+
+Message:
+> 1 | function run(value = -0) {} run(-0);
+    |                                 ^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(value = -0) {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(27): function run(value = 0x10) {} run(16); 1`] = `
+
+  1 | function run(value = 0x10) {} run(16);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(27): function run(value = 0x10) {} run(16); 2`] = `
+
+Message:
+> 1 | function run(value = 0x10) {} run(16);
+    |                                   ^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(value = 0x10) {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(28): function run(value = -2) {} run(-2); 1`] = `
+
+  1 | function run(value = -2) {} run(-2);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(28): function run(value = -2) {} run(-2); 2`] = `
+
+Message:
+> 1 | function run(value = -2) {} run(-2);
+    |                                 ^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(value = -2) {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(29): function run(value = +2) {} run(2); 1`] = `
+
+  1 | function run(value = +2) {} run(2);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(29): function run(value = +2) {} run(2); 2`] = `
+
+Message:
+> 1 | function run(value = +2) {} run(2);
+    |                                 ^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(value = +2) {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(3): const run = (flag = true) => {}; run(true); 1`] = `
+
+  1 | const run = (flag = true) => {}; run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(3): const run = (flag = true) => {}; run(true); 2`] = `
+
+Message:
+> 1 | const run = (flag = true) => {}; run(true);
+    |                                      ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | const run = (flag = true) => {}; run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(3): const run: (value: boolean) => void = (value = true) => {}; run(true); 1`] = `
+
+  1 | const run: (value: boolean) => void = (value = true) => {}; run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(3): const run: (value: boolean) => void = (value = true) => {}; run(true); 2`] = `
+
+Message:
+> 1 | const run: (value: boolean) => void = (value = true) => {}; run(true);
+    |                                                                 ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | const run: (value: boolean) => void = (value = true) => {}; run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(3): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(3): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 2`] = `
+
+Message:
+> 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true);
+    |                                                                       ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(30): function run(value = 1_000n) {} run(1000n); 1`] = `
+
+  1 | function run(value = 1_000n) {} run(1000n);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(30): function run(value = 1_000n) {} run(1000n); 2`] = `
+
+Message:
+> 1 | function run(value = 1_000n) {} run(1000n);
+    |                                     ^^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(value = 1_000n) {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(31): function run(value = -1n) {} run(-1n); 1`] = `
+
+  1 | function run(value = -1n) {} run(-1n);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(31): function run(value = -1n) {} run(-1n); 2`] = `
+
+Message:
+> 1 | function run(value = -1n) {} run(-1n);
+    |                                  ^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(value = -1n) {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(32): function run({value = true}) {} run({value: true}); 1`] = `
+
+  1 | function run({value = true}) {} run({value: true});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(32): function run({value = true}) {} run({value: true}); 2`] = `
+
+Message:
+> 1 | function run({value = true}) {} run({value: true});
+    |                                      ^^^^^^^^^^^ Property \`value\` matches its destructuring default.
+
+Output:
+  1 | function run({value = true}) {} run({ });
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(33): function run({value: renamed = true}) {} run({value: true}); 1`] = `
+
+  1 | function run({value: renamed = true}) {} run({value: true});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(33): function run({value: renamed = true}) {} run({value: true}); 2`] = `
+
+Message:
+> 1 | function run({value: renamed = true}) {} run({value: true});
+    |                                               ^^^^^^^^^^^ Property \`value\` matches its destructuring default.
+
+Output:
+  1 | function run({value: renamed = true}) {} run({ });
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(34): function run({\"value\": renamed = true}) {} run({\"value\": true}); 1`] = `
+
+  1 | function run({"value": renamed = true}) {} run({"value": true});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(34): function run({\"value\": renamed = true}) {} run({\"value\": true}); 2`] = `
+
+Message:
+> 1 | function run({"value": renamed = true}) {} run({"value": true});
+    |                                                 ^^^^^^^^^^^^^ Property \`value\` matches its destructuring default.
+
+Output:
+  1 | function run({"value": renamed = true}) {} run({ });
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(35): function run({1: value = true}) {} run({1: true}); 1`] = `
+
+  1 | function run({1: value = true}) {} run({1: true});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(35): function run({1: value = true}) {} run({1: true}); 2`] = `
+
+Message:
+> 1 | function run({1: value = true}) {} run({1: true});
+    |                                         ^^^^^^^ Property \`1\` matches its destructuring default.
+
+Output:
+  1 | function run({1: value = true}) {} run({ });
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(36): function run({value = true, ...rest}) {} run({value: true, other: 1}); 1`] = `
+
+  1 | function run({value = true, ...rest}) {} run({value: true, other: 1});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(36): function run({value = true, ...rest}) {} run({value: true, other: 1}); 2`] = `
+
+Message:
+> 1 | function run({value = true, ...rest}) {} run({value: true, other: 1});
+    |                                               ^^^^^^^^^^^ Property \`value\` matches its destructuring default.
+
+Output:
+  1 | function run({value = true, ...rest}) {} run({  other: 1});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(37): function run(first, {unit = \"px\", digits = 0} = {}, last) {} run(width, {unit: \"px\", digits: 2}, last); 1`] = `
+
+  1 | function run(first, {unit = "px", digits = 0} = {}, last) {} run(width, {unit: "px", digits: 2}, last);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(37): function run(first, {unit = \"px\", digits = 0} = {}, last) {} run(width, {unit: \"px\", digits: 2}, last); 2`] = `
+
+Message:
+> 1 | function run(first, {unit = "px", digits = 0} = {}, last) {} run(width, {unit: "px", digits: 2}, last);
+    |                                                                          ^^^^^^^^^^ Property \`unit\` matches its destructuring default.
+
+Output:
+  1 | function run(first, {unit = "px", digits = 0} = {}, last) {} run(width, {  digits: 2}, last);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(38): function run({value = true} = {value: false}) {} run({value: true}); 1`] = `
+
+  1 | function run({value = true} = {value: false}) {} run({value: true});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(38): function run({value = true} = {value: false}) {} run({value: true}); 2`] = `
+
+Message:
+> 1 | function run({value = true} = {value: false}) {} run({value: true});
+    |                                                       ^^^^^^^^^^^ Property \`value\` matches its destructuring default.
+
+Output:
+  1 | function run({value = true} = {value: false}) {} run({ });
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(39): function run({first = true, second = false}) {} run({first: true, second: false}); 1`] = `
+
+  1 | function run({first = true, second = false}) {} run({first: true, second: false});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(39): function run({first = true, second = false}) {} run({first: true, second: false}); 2`] = `
+
+Message:
+> 1 | function run({first = true, second = false}) {} run({first: true, second: false});
+    |                                                      ^^^^^^^^^^^ Property \`first\` matches its destructuring default.
+
+Output:
+  1 | function run({first = true, second = false}) {} run({  second: false});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(39): function run({first = true, second = false}) {} run({first: true, second: false}); 3`] = `
+
+Message:
+> 1 | function run({first = true, second = false}) {} run({first: true, second: false});
+    |                                                                   ^^^^^^^^^^^^^ Property \`second\` matches its destructuring default.
+
+Output:
+  1 | function run({first = true, second = false}) {} run({first: true  });
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(4): const run = ((value = true) => {}) satisfies Function; run(true); 1`] = `
+
+  1 | const run = ((value = true) => {}) satisfies Function; run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(4): const run = ((value = true) => {}) satisfies Function; run(true); 2`] = `
+
+Message:
+> 1 | const run = ((value = true) => {}) satisfies Function; run(true);
+    |                                                            ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | const run = ((value = true) => {}) satisfies Function; run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(4): const run = function (flag = true) {}; run(true); 1`] = `
+
+  1 | const run = function (flag = true) {}; run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(4): const run = function (flag = true) {}; run(true); 2`] = `
+
+Message:
+> 1 | const run = function (flag = true) {}; run(true);
+    |                                            ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | const run = function (flag = true) {}; run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(4): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(4): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 2`] = `
+
+Message:
+> 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true);
+    |                                                                       ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(40): function run({value = true}) {} run({value: true,}); 1`] = `
+
+  1 | function run({value = true}) {} run({value: true,});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(40): function run({value = true}) {} run({value: true,}); 2`] = `
+
+Message:
+> 1 | function run({value = true}) {} run({value: true,});
+    |                                      ^^^^^^^^^^^ Property \`value\` matches its destructuring default.
+
+Output:
+  1 | function run({value = true}) {} run({ });
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(41): function run({value = true}) {} run(({value: true})); 1`] = `
+
+  1 | function run({value = true}) {} run(({value: true}));
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(41): function run({value = true}) {} run(({value: true})); 2`] = `
+
+Message:
+> 1 | function run({value = true}) {} run(({value: true}));
+    |                                       ^^^^^^^^^^^ Property \`value\` matches its destructuring default.
+
+Output:
+  1 | function run({value = true}) {} run(({ }));
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(42): function run({value = true}) {} run({value: /* keep */ true}); 1`] = `
+
+  1 | function run({value = true}) {} run({value: /* keep */ true});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(42): function run({value = true}) {} run({value: /* keep */ true}); 2`] = `
+
+Message:
+> 1 | function run({value = true}) {} run({value: /* keep */ true});
+    |                                      ^^^^^^^^^^^^^^^^^^^^^^ Property \`value\` matches its destructuring default.
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(43): function run({value = true}) {} run({/* keep */ value: true}); 1`] = `
+
+  1 | function run({value = true}) {} run({/* keep */ value: true});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(43): function run({value = true}) {} run({/* keep */ value: true}); 2`] = `
+
+Message:
+> 1 | function run({value = true}) {} run({/* keep */ value: true});
+    |                                                 ^^^^^^^^^^^ Property \`value\` matches its destructuring default.
+
+Output:
+  1 | function run({value = true}) {} run({/* keep */  });
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(44): function run({value = true}) {} run({value: true /* keep */, other: 1}); 1`] = `
+
+  1 | function run({value = true}) {} run({value: true /* keep */, other: 1});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(44): function run({value = true}) {} run({value: true /* keep */, other: 1}); 2`] = `
+
+Message:
+> 1 | function run({value = true}) {} run({value: true /* keep */, other: 1});
+    |                                      ^^^^^^^^^^^ Property \`value\` matches its destructuring default.
+
+Output:
+  1 | function run({value = true}) {} run({  /* keep */ other: 1});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(45): function run(value = true) { function other() { return arguments.length; } } run(true); 1`] = `
+
+  1 | function run(value = true) { function other() { return arguments.length; } } run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(45): function run(value = true) { function other() { return arguments.length; } } run(true); 2`] = `
+
+Message:
+> 1 | function run(value = true) { function other() { return arguments.length; } } run(true);
+    |                                                                                  ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(value = true) { function other() { return arguments.length; } } run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(46): function run(value = true, next = (function () { return arguments.length; })()) {} run(true); 1`] = `
+
+  1 | function run(value = true, next = (function () { return arguments.length; })()) {} run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(46): function run(value = true, next = (function () { return arguments.length; })()) {} run(true); 2`] = `
+
+Message:
+> 1 | function run(value = true, next = (function () { return arguments.length; })()) {} run(true);
+    |                                                                                        ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(value = true, next = (function () { return arguments.length; })()) {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(47): /** A descriptive comment. */ function run(value = true) {} run(true); 1`] = `
+
+  1 | /** A descriptive comment. */ function run(value = true) {} run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(47): /** A descriptive comment. */ function run(value = true) {} run(true); 2`] = `
+
+Message:
+> 1 | /** A descriptive comment. */ function run(value = true) {} run(true);
+    |                                                                 ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | /** A descriptive comment. */ function run(value = true) {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(48): // @ts-check\nfunction run(value = true) {} run(true); 1`] = `
+
+  1 | // @ts-check
+  2 | function run(value = true) {} run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(48): // @ts-check\nfunction run(value = true) {} run(true); 2`] = `
+
+Message:
+  1 | // @ts-check
+> 2 | function run(value = true) {} run(true);
+    |                                   ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | // @ts-check
+  2 | function run(value = true) {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(49): /** @param {boolean} value */ function run(value = true) {} run(true); 1`] = `
+
+  1 | /** @param {boolean} value */ function run(value = true) {} run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(49): /** @param {boolean} value */ function run(value = true) {} run(true); 2`] = `
+
+Message:
+> 1 | /** @param {boolean} value */ function run(value = true) {} run(true);
+    |                                                                 ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | /** @param {boolean} value */ function run(value = true) {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(5): function run(value = true as boolean) {} (run as Function)(true as boolean); 1`] = `
+
+  1 | function run(value = true as boolean) {} (run as Function)(true as boolean);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(5): function run(value = true as boolean) {} (run as Function)(true as boolean); 2`] = `
+
+Message:
+> 1 | function run(value = true as boolean) {} (run as Function)(true as boolean);
+    |                                                            ^^^^^^^^^^^^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | function run(value = true as boolean) {} (run as Function)();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(5): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(5): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 2`] = `
+
+Message:
+> 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true);
+    |                                                                       ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(5): run(true); function run(flag = true) {} 1`] = `
+
+  1 | run(true); function run(flag = true) {}
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(5): run(true); function run(flag = true) {} 2`] = `
+
+Message:
+> 1 | run(true); function run(flag = true) {}
+    |     ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | run(); function run(flag = true) {}
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(6): function run(first = true, second = false) {} run(true, false); 1`] = `
+
+  1 | function run(first = true, second = false) {} run(true, false);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(6): function run(first = true, second = false) {} run(true, false); 2`] = `
+
+Message:
+> 1 | function run(first = true, second = false) {} run(true, false);
+    |                                                   ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(first = true, second = false) {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(6): function run(value = true) {} run!(true!); 1`] = `
+
+  1 | function run(value = true) {} run!(true!);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(6): function run(value = true) {} run!(true!); 2`] = `
+
+Message:
+> 1 | function run(value = true) {} run!(true!);
+    |                                    ^^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | function run(value = true) {} run!();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(6): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(6): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 2`] = `
+
+Message:
+> 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true);
+    |                                                                       ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(7): function run(first, second = true, third = false) {} run(value, true, false); 1`] = `
+
+  1 | function run(first, second = true, third = false) {} run(value, true, false);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(7): function run(first, second = true, third = false) {} run(value, true, false); 2`] = `
+
+Message:
+> 1 | function run(first, second = true, third = false) {} run(value, true, false);
+    |                                                                 ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(first, second = true, third = false) {} run(value);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(7): function run(value = +1) {} run((+1) as number); 1`] = `
+
+  1 | function run(value = +1) {} run((+1) as number);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(7): function run(value = +1) {} run((+1) as number); 2`] = `
+
+Message:
+> 1 | function run(value = +1) {} run((+1) as number);
+    |                                 ^^^^^^^^^^^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | function run(value = +1) {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(7): import run from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | import run from "./no-unnecessary-default-arguments.callee.js"; run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(7): import run from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 2`] = `
+
+Message:
+> 1 | import run from "./no-unnecessary-default-arguments.callee.js"; run(true);
+    |                                                                     ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | import run from "./no-unnecessary-default-arguments.callee.js"; run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(8): function run(first = true, second = false) {} run(false, false); 1`] = `
+
+  1 | function run(first = true, second = false) {} run(false, false);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(8): function run(first = true, second = false) {} run(false, false); 2`] = `
+
+Message:
+> 1 | function run(first = true, second = false) {} run(false, false);
+    |                                                          ^^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(first = true, second = false) {} run(false);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(8): function run({value = true}: {value: boolean}) {} run({value: true}); 1`] = `
+
+  1 | function run({value = true}: {value: boolean}) {} run({value: true});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(8): function run({value = true}: {value: boolean}) {} run({value: true}); 2`] = `
+
+Message:
+> 1 | function run({value = true}: {value: boolean}) {} run({value: true});
+    |                                                        ^^^^^^^^^^^ Property \`value\` matches its destructuring default.
+
+Suggestion 1/1: Remove this property (requires type review).:
+  1 | function run({value = true}: {value: boolean}) {} run({ });
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(8): import run from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | import run from "./no-unnecessary-default-arguments.callee.js"; run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(8): import run from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 2`] = `
+
+Message:
+> 1 | import run from "./no-unnecessary-default-arguments.callee.js"; run(true);
+    |                                                                     ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | import run from "./no-unnecessary-default-arguments.callee.js"; run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(9): function run(value = true, ...rest) {} run(true); 1`] = `
+
+  1 | function run(value = true, ...rest) {} run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(9): function run(value = true, ...rest) {} run(true); 2`] = `
+
+Message:
+> 1 | function run(value = true, ...rest) {} run(true);
+    |                                            ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
+  1 | function run(value = true, ...rest) {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(9): function run({value = true}: {value?: boolean}) {} run(({value: true}) as {value: boolean}); 1`] = `
+
+  1 | function run({value = true}: {value?: boolean}) {} run(({value: true}) as {value: boolean});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(9): function run({value = true}: {value?: boolean}) {} run(({value: true}) as {value: boolean}); 2`] = `
+
+Message:
+> 1 | function run({value = true}: {value?: boolean}) {} run(({value: true}) as {value: boolean});
+    |                                                          ^^^^^^^^^^^ Property \`value\` matches its destructuring default.
+
+Suggestion 1/1: Remove this property (requires type review).:
+  1 | function run({value = true}: {value?: boolean}) {} run(({ }) as {value: boolean});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(9): import {run as execute} from \"./no-unnecessary-default-arguments.callee.js\"; execute(true); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | import {run as execute} from "./no-unnecessary-default-arguments.callee.js"; execute(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(9): import {run as execute} from \"./no-unnecessary-default-arguments.callee.js\"; execute(true); 2`] = `
+
+Message:
+> 1 | import {run as execute} from "./no-unnecessary-default-arguments.callee.js"; execute(true);
+    |                                                                                      ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | import {run as execute} from "./no-unnecessary-default-arguments.callee.js"; execute();
+
+`;

@@ -66,6 +66,8 @@ export {
 } from './block-scope.js';
 export {default as getConstVariableInitializer} from './get-const-variable-initializer.js';
 export {default as getFunctionFromIdentifier} from './get-function-from-identifier.js';
+export {default as getPrimitiveLiteralValue} from './get-primitive-literal-value.js';
+export {default as hasJavaScriptTypeAnnotations} from './has-javascript-type-annotations.js';
 export {
 	default as getStaticValueIfNoSideEffects,
 	getStaticValueForControlFlow,
@@ -195,6 +197,7 @@ export {
 export {
 	getBaseTypes,
 	getTypeSymbol,
+	isAliasSymbol,
 	isDefaultLibrarySymbol,
 	isNullishType,
 	isStringMappingType,

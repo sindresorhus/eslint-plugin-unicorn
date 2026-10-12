@@ -74,6 +74,7 @@ const config = [
 			'unicorn/consistent-arrow-return-style': 'off',
 			// Internal helpers intentionally retain explicit dependencies and recursive default parameters.
 			'unicorn/no-unnecessary-parameters': 'off',
+			'unicorn/no-unnecessary-default-arguments': 'off',
 			// TODO: Enable when targeting Node.js 26.
 			'unicorn/prefer-iterator-concat': 'off',
 			'unicorn/prefer-temporal': 'off',
@@ -129,6 +130,8 @@ const config = [
 	},
 	{
 		files: [
+			'rules/no-unnecessary-default-arguments.js',
+			'test/unit/get-primitive-literal-value.js',
 			'test/prefer-continue.js',
 			'test/prefer-early-return.js',
 			'test/prefer-ternary-readability.js',
@@ -136,7 +139,7 @@ const config = [
 			'test/prefer-ternary-destructuring.js',
 		],
 		rules: {
-			// RuleTester uses `null` to assert that a problem is not autofixable.
+			// Literal readers test JavaScript's `null` value, and RuleTester uses it to assert that a problem is not autofixable.
 			'unicorn/no-null': 'off',
 		},
 	},
