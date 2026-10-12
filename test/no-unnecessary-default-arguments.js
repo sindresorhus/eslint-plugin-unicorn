@@ -96,7 +96,9 @@ testRule.snapshot({
 		'function run({constructor = true}) {} run({constructor: true});',
 		'function run({__proto__: value = true}) {} run({"__proto__": true});',
 		'function run({value = true}) {} run(options);',
-		'function run({value = true}) {} run({value: true}, ...other);',
+		'function run(first, {value = true}) {} run(...other, {value: true});',
+		'function run(first, second, {value = true}) {} run(1, ...other, {value: true});',
+		'function run({value = true}, last = false) {} run({value: false}, ...other, false);',
 		'function run(value = true) {} eval("run = other"); run(true);',
 		{code: 'function run(value = true) {} with (object) { run(true); }', languageOptions: {sourceType: 'script'}},
 		{code: 'if (enabled) { function run(value = true) {} run(true); }', languageOptions: {sourceType: 'script'}},
@@ -152,6 +154,10 @@ testRule.snapshot({
 		'/** A descriptive comment. */ function run(value = true) {} run(true);',
 		'// @ts-check\nfunction run(value = true) {} run(true);',
 		'/** @param {boolean} value */ function run(value = true) {} run(true);',
+		'function run({value = true}, ...rest) {} run({value: true}, ...other);',
+		'function run({value = true}, next, {value: last = false}) {} run({value: true}, ...other, {value: false});',
+		'function run({value = true}, last = false) {} run({value: true}, ...other, false);',
+		'function run({value = true}, ...rest) {} run({value: /* keep */ true}, ...other);',
 	],
 });
 
@@ -161,6 +167,7 @@ testRule.snapshot({
 		'function run<T>(value = true) {} run(true);',
 		'declare function run(value?: boolean): void; run(true);',
 		'function run(value: boolean): void; function run(value = true) {} run(true);',
+		'function run(value = true) {} const value = false as true; run(value);',
 	],
 	invalid: [
 		'function run(value: boolean = true) {} run(true);',
@@ -173,6 +180,7 @@ testRule.snapshot({
 		'function run({value = true}: {value: boolean}) {} run({value: true});',
 		'function run({value = true}: {value?: boolean}) {} run(({value: true}) as {value: boolean});',
 		'function run({value = true}: {value: boolean}) {} run({value: /* keep */ true});',
+		'function run({value = true}: {value: boolean}, ...rest: unknown[]) {} run({value: true}, ...other);',
 	],
 });
 
@@ -182,6 +190,7 @@ function typeAware(code, declarations = 'export function run(value = true) {}', 
 		[filename, code],
 		[path.join(import.meta.dirname, `no-unnecessary-default-arguments.callee.${extension}`), declarations],
 		[path.join(import.meta.dirname, `no-unnecessary-default-arguments.reexport.${extension}`), 'export {run} from "./no-unnecessary-default-arguments.callee.js";'],
+		[path.join(import.meta.dirname, `no-unnecessary-default-arguments.star.${extension}`), 'export * from "./no-unnecessary-default-arguments.callee.js";'],
 		[path.join(import.meta.dirname, 'no-unnecessary-default-arguments.declaration.d.ts'), 'export declare function run(value?: boolean): void;'],
 	]);
 	const options = {
@@ -234,6 +243,7 @@ testRule.snapshot({
 		typeAware('import {run} from "./no-unnecessary-default-arguments.callee.js"; run(0);', 'export function run(value = -0) {}'),
 		typeAware('import {run} from "./no-unnecessary-default-arguments.callee.js"; function outer(run: (value: boolean) => void) { run(true); }'),
 		typeAware(importedCall, contextualImplementation),
+		typeAware('import {run} from "./no-unnecessary-default-arguments.callee.js"; const value = false as true; run(value);'),
 	],
 	invalid: [
 		typeAware(importedCall),
@@ -258,7 +268,23 @@ testRule.snapshot({
 		typeAware('import {run} from "./no-unnecessary-default-arguments.callee.js"; run?.(false, true);', 'export function run(first = true, next = true) {}'),
 		typeAware(importedCall, 'export function run(value = true) {}', 'js'),
 		typeAware('import {run} from "./no-unnecessary-default-arguments.callee.js"; run({value: true});', '/** @param {{value: boolean}} options */ export function run({value = true}) {}', 'js'),
+		typeAware('import {run} from "./no-unnecessary-default-arguments.star.js"; run(false); run(true); run(false);'),
+		typeAware('import {run} from "./no-unnecessary-default-arguments.callee.js"; run({value: true}, ...other);', 'export function run({value = true}: {value: boolean}, ...rest: unknown[]) {}'),
 	],
+});
+
+testRule.snapshot({
+	valid: [],
+	invalid: [parsers.vue, parsers.svelte].flatMap(parser => [
+		{
+			code: '<script>function run(value = true) {} run(true);</script>',
+			languageOptions: {parser},
+		},
+		{
+			code: '<script lang="ts">function run(value: boolean = true) {} run(true);</script>',
+			languageOptions: {parser, parserOptions: {parser: parsers.typescript.implementation}},
+		},
+	]),
 });
 
 const linter = new Linter();
@@ -271,6 +297,14 @@ test('autofixes preserve values and rest arguments', t => {
 	const code = 'function run(value = true, {unit = "px", ...rest} = {}, last = 0) { return [value, unit, rest, last]; } JSON.stringify(run(true, {unit: "px", other: 2}, 0));';
 	const result = linter.verifyAndFix(code, config);
 	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(vm.runInNewContext(result.output), vm.runInNewContext(code));
+});
+
+test('object arguments before spreads preserve values and rest arguments', t => {
+	const code = 'function run(flag = true, {unit = "px", ...options}, ...rest) { return JSON.stringify([flag, unit, options, rest]); } run(true, {unit: "px", other: 1}, ...[2, 3]);';
+	const result = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(result.output, 'function run(flag = true, {unit = "px", ...options}, ...rest) { return JSON.stringify([flag, unit, options, rest]); } run(true, {  other: 1}, ...[2, 3]);');
 	t.assert.deepStrictEqual(result.messages, []);
 	t.assert.strictEqual(vm.runInNewContext(result.output), vm.runInNewContext(code));
 });

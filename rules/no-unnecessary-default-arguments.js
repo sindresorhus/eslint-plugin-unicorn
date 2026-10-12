@@ -347,7 +347,7 @@ const create = context => {
 		}
 
 		const callee = unwrapTypeScriptExpression(node.callee);
-		if (callee.type === 'Identifier' && node.arguments.length > 0 && node.arguments.every(argument => argument.type !== 'SpreadElement')) {
+		if (callee.type === 'Identifier' && node.arguments.length > 0) {
 			calls.push(node);
 		}
 	});
@@ -363,12 +363,14 @@ const create = context => {
 				continue;
 			}
 
-			const trailingProblem = getTrailingArgumentsProblem(call, parameters, context);
+			const spreadIndex = call.arguments.findIndex(argument => argument.type === 'SpreadElement');
+			const trailingProblem = spreadIndex === -1 ? getTrailingArgumentsProblem(call, parameters, context) : undefined;
 			if (trailingProblem) {
 				yield getProblem(trailingProblem, 'remove-arguments');
 			}
 
-			for (const [index, argument] of call.arguments.entries()) {
+			const argumentsBeforeSpread = spreadIndex === -1 ? call.arguments : call.arguments.slice(0, spreadIndex);
+			for (const [index, argument] of argumentsBeforeSpread.entries()) {
 				const defaults = parameters[index]?.properties;
 				const object = unwrapTypeScriptExpression(argument);
 				if (!defaults || object.type !== 'ObjectExpression') {

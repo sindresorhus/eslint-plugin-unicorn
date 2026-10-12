@@ -46,7 +46,7 @@ run({});
 
 ## Type information
 
-Local functions need no type information. Imported functions require TypeScript (an optional peer dependency), a parser-provided program (for example, `parserOptions.projectService: true`), and source implementations. Declaration files alone are insufficient.
+Local functions need no type information. Imported functions require TypeScript (an optional peer dependency), [typed linting](https://typescript-eslint.io/getting-started/typed-linting/) (for example, `parserOptions.projectService: true`), and source implementations. Include JavaScript files through `allowJs` or `checkJs`. Declaration files alone are insufficient.
 
 TypeScript, files using the TypeScript parser, and JavaScript with JSDoc types or `@ts-check` receive suggestions instead of autofixes. Review types before applying: defaults do not make explicitly typed properties optional, and removing arguments can affect inference.
 
@@ -54,4 +54,4 @@ TypeScript, files using the TypeScript parser, and JavaScript with JSDoc types o
 
 The rule checks stable function declarations and `const` function/arrow initializers. Global script function declarations are skipped because writes through the global object cannot be tracked. Values must be primitive literals, including expression-free templates and signed numbers/bigints. `0` differs from `-0`; `undefined` belongs to `no-useless-undefined`.
 
-Spreads, computed/duplicate keys, accessors, methods, `__proto__`, and `Object.prototype` keys are skipped. Functions using `arguments`, generic/overloaded functions, and dynamic scope are skipped. Member calls, constructors, aliases, wrappers, JSX props, and legacy `Function#arguments`/`caller` reflection are unsupported. Imported function declarations are assumed not to be reassigned. Comments that would be discarded prevent edits, but still allow reports.
+Calls containing spreads retain positional arguments; object arguments before the first spread can still lose matching properties. Object spreads, computed/duplicate keys, accessors, methods, `__proto__`, and `Object.prototype` keys are skipped. Functions using `arguments`, generic/overloaded functions, and dynamic scope are skipped. Member calls, constructors, aliases, `wrap(fn)` initializers, JSX props, and legacy `Function#arguments`/`caller` reflection are unsupported. Imported function declarations are assumed not to be reassigned. Comments that would be discarded prevent edits, but still allow reports.
