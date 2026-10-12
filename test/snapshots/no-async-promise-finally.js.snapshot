@@ -126,6 +126,22 @@ Message:
 
 `;
 
+exports[`no-async-promise-finally > invalid(18): function foo(promise: unknown) { promise.finally(async () => {}); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(promise: unknown) { promise.finally(async () => {}); }
+
+`;
+
+exports[`no-async-promise-finally > invalid(18): function foo(promise: unknown) { promise.finally(async () => {}); } 2`] = `
+
+Message:
+> 1 | function foo(promise: unknown) { promise.finally(async () => {}); }
+    |                                                  ^^^^^^^^^^^^^^ Do not pass an async function to \`Promise#finally()\`.
+
+`;
+
 exports[`no-async-promise-finally > invalid(2): promise.finally(async () => cleanup()) 1`] = `
 
   1 | promise.finally(async () => cleanup())

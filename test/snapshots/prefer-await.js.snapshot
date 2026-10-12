@@ -1392,6 +1392,22 @@ Message:
 
 `;
 
+exports[`prefer-await > invalid(83): function foo(value: unknown) { value.catch(() => {}); } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(value: unknown) { value.catch(() => {}); }
+
+`;
+
+exports[`prefer-await > invalid(83): function foo(value: unknown) { value.catch(() => {}); } 2`] = `
+
+Message:
+> 1 | function foo(value: unknown) { value.catch(() => {}); }
+    |                                      ^^^^^ Prefer \`await\` over promise chaining with \`.catch()\`.
+
+`;
+
 exports[`prefer-await > invalid(9): promise.then(value => (\n  transform(\n    value,\n  )\n)); 1`] = `
 
   1 | promise.then(value => (

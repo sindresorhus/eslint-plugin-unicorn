@@ -138,7 +138,7 @@ export {default as isNodeValueNotDomNode} from './is-node-value-not-dom-node.js'
 export {default as isNodeValueNotFunction} from './is-node-value-not-function.js';
 export {default as isNodeContainsLexicalThis} from './is-node-contains-lexical-this.js';
 export {default as isOnSameLine} from './is-on-same-line.js';
-export {default as isPromiseType} from './is-promise-type.js';
+export {default as isPromiseType, isKnownNonPromise} from './is-promise-type.js';
 export {default as isReactHookName} from './is-react-hook-name.js';
 export {default as isSameIdentifier} from './is-same-identifier.js';
 export {default as isSameBinding} from './is-same-binding.js';

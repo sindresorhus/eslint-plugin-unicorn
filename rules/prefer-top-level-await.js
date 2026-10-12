@@ -3,6 +3,7 @@ import {isFunction, isMemberExpression, isMethodCall} from './ast/index.js';
 import {
 	getOutermostChainAndTypeScriptExpression,
 	isCallExpressionValueDiscardedWithVoid,
+	isKnownNonPromise,
 	isLogicalExpression,
 	isParenthesized,
 } from './utils/index.js';
@@ -138,6 +139,10 @@ const isSchemaCatchObject = node => {
 		&& uncalledMemberNames.every(propertyName => zodNamespaceProperties.has(propertyName));
 };
 
+const isNonPromiseCatchObject = node =>
+	(node.type === 'Identifier' && node.name === 'Effect')
+	|| isSchemaCatchObject(node);
+
 const isAwaitExpressionArgument = node => {
 	node = getOutermostChainAndTypeScriptExpression(node);
 	return node.parent.type === 'AwaitExpression' && node.parent.argument === node;
@@ -251,9 +256,13 @@ function create(context) {
 			properties: promisePrototypeMethods,
 			computed: false,
 		})) {
+			if (isKnownNonPromise(node.callee.object, context)) {
+				return;
+			}
+
 			if (
 				node.callee.property.name === 'catch'
-				&& isSchemaCatchObject(node.callee.object)
+				&& isNonPromiseCatchObject(node.callee.object)
 			) {
 				return;
 			}

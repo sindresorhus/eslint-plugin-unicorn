@@ -11,12 +11,11 @@ import {
 	containsSuspensionPoint,
 	hasOptionalChainElement,
 	isCallExpressionValueDiscardedWithVoid,
-	isPromiseType,
+	isKnownNonPromise,
 	isTypeScriptFile,
 	reindentText,
 	unwrapTypeScriptExpression,
 	wouldRemoveComments,
-	withTypeInformation,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-await';
@@ -28,10 +27,6 @@ const messages = {
 
 const promiseMethods = new Set(['then', 'catch', 'finally']);
 const whitespaceSensitiveNodeTypes = new Set(['JSXText', 'Literal', 'TemplateElement']);
-
-function isKnownNonPromiseObject(node, context) {
-	return withTypeInformation(node, context, ({type, checker}) => isPromiseType(type, checker) === false) ?? false;
-}
 
 function hasPromiseMethodCallInChain(node, context) {
 	while (true) {
@@ -269,7 +264,7 @@ const create = context => {
 			return;
 		}
 
-		if (isKnownNonPromiseObject(callee.object, context)) {
+		if (isKnownNonPromise(callee.object, context)) {
 			return;
 		}
 
