@@ -1,5 +1,5 @@
 import {
-	getChildNodes,
+	containsNode,
 	isParenthesized,
 	isNodeValueNotFunction,
 	isSameReference,
@@ -49,29 +49,13 @@ const shouldFixBeforeUnload = (assignedExpression, nodeReturnsSomething) => {
 	return assignedExpression.body.type === 'BlockStatement' && !nodeReturnsSomething.get(assignedExpression);
 };
 
-// Whether the subtree contains another assignment of the same `on*` attribute, at any nesting depth. The handler being assigned is searched too, it runs on every event and can reassign the attribute just as effectively as a sibling statement can.
-function containsOtherAssignment(node, memberExpression, assignment) {
-	if (
-		node.type === 'AssignmentExpression'
-		&& node !== assignment
-		&& isSameReference(node.left, memberExpression)
-	) {
-		return true;
-	}
-
-	for (const child of getChildNodes(node)) {
-		if (containsOtherAssignment(child, memberExpression, assignment)) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
 // Assigning an `on*` IDL attribute replaces the previous handler, so the rewrite is only safe when nothing else assigns the same receiver and property. Otherwise a later `on* = null` no longer removes the listener the fix added.
 const isAssignedMoreThanOnce = (node, memberExpression, context) =>
-	// The whole program is scanned, a nested block or function assigns the attribute just as effectively as a sibling statement does
-	context.sourceCode.ast.body.some(statement => containsOtherAssignment(statement, memberExpression, node));
+	// The whole program is scanned, at any nesting depth, since a nested block or function assigns the attribute just as effectively as a sibling statement does. The handler being assigned is searched too, since it runs on every event and can reassign the attribute.
+	containsNode(context.sourceCode.ast, context, descendant =>
+		descendant.type === 'AssignmentExpression'
+		&& descendant !== node
+		&& isSameReference(descendant.left, memberExpression));
 
 // `as`, `satisfies` and `!` are erased at compile time, `null as never` still clears the handler
 const isClearing = node => {

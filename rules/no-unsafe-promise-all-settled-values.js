@@ -1,6 +1,7 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {isFunction, isMethodCall} from './ast/index.js';
 import {
+	getEvaluatedChildNodes,
 	getFunctionReturnExpression,
 	isBranchExit,
 	isProcessExitBranch,
@@ -528,23 +529,6 @@ function isUnsafeValueRead(node, readContext) {
 	);
 }
 
-function getUnsafeValueReadFromChildren(nodes, readContext) {
-	for (const child of nodes) {
-		if (!child?.type) {
-			continue;
-		}
-
-		if (isFunction(child) || child.type === 'ClassExpression' || child.type === 'ClassDeclaration') {
-			continue;
-		}
-
-		const unsafeValueRead = getUnsafeValueRead(child, readContext);
-		if (unsafeValueRead) {
-			return unsafeValueRead;
-		}
-	}
-}
-
 function getValueProperty(parameter) {
 	parameter = unwrapChainAndTypeScriptExpression(parameter);
 
@@ -563,17 +547,6 @@ function getValueProperty(parameter) {
 	}
 }
 
-const shouldSkipChildNode = (node, key) =>
-	(
-		node.type === 'MemberExpression'
-		&& key === 'property'
-		&& !node.computed
-	) || (
-		['Property', 'PropertyDefinition', 'MethodDefinition'].includes(node.type)
-		&& key === 'key'
-		&& !node.computed
-	);
-
 function getUnsafeValueRead(node, readContext) {
 	node = unwrapChainAndTypeScriptExpression(node);
 
@@ -584,17 +557,12 @@ function getUnsafeValueRead(node, readContext) {
 		return node;
 	}
 
-	for (const [key, value] of Object.entries(node)) {
-		if (key === 'parent' || shouldSkipChildNode(node, key)) {
+	for (const child of getEvaluatedChildNodes(node, readContext.context.sourceCode.visitorKeys)) {
+		if (isFunction(child) || child.type === 'ClassExpression' || child.type === 'ClassDeclaration') {
 			continue;
 		}
 
-		if (!value || typeof value !== 'object') {
-			continue;
-		}
-
-		const nodes = Array.isArray(value) ? value : [value];
-		const unsafeValueRead = getUnsafeValueReadFromChildren(nodes, readContext);
+		const unsafeValueRead = getUnsafeValueRead(child, readContext);
 		if (unsafeValueRead) {
 			return unsafeValueRead;
 		}
@@ -716,17 +684,10 @@ function getThenMapCallbackProblem(node, resultsVariable, context, branchAlwaysE
 		}
 	}
 
-	for (const [key, value] of Object.entries(node)) {
-		if (key === 'parent' || shouldSkipChildNode(node, key) || !value || typeof value !== 'object') {
-			continue;
-		}
-
-		const nodes = Array.isArray(value) ? value : [value];
-		for (const child of nodes) {
-			const problem = getThenMapCallbackProblem(child, resultsVariable, context, branchAlwaysExits);
-			if (problem) {
-				return problem;
-			}
+	for (const child of getEvaluatedChildNodes(node, context.sourceCode.visitorKeys)) {
+		const problem = getThenMapCallbackProblem(child, resultsVariable, context, branchAlwaysExits);
+		if (problem) {
+			return problem;
 		}
 	}
 }

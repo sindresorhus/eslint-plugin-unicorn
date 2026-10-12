@@ -4,6 +4,7 @@ import {
 	hasSideEffect,
 } from '@eslint-community/eslint-utils';
 import isGlobalIdentifier from './is-global-identifier.js';
+import {getEvaluatedChildNodes} from './get-visitor-child-nodes.js';
 import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
 
 const unevaluatedExpressionTypes = new Set([
@@ -154,15 +155,6 @@ export const getStaticRegExp = (node, context) => {
 	return result && isRegExpValue(result.value) ? result.value : undefined;
 };
 
-const getChildNodes = node => Object.entries(node)
-	.filter(([key]) =>
-		!['parent', 'loc', 'range'].includes(key)
-		&& !(node.type === 'Property' && key === 'key' && !node.computed)
-		&& !(node.type === 'MemberExpression' && key === 'property' && !node.computed),
-	)
-	.flatMap(([, value]) => Array.isArray(value) ? value : [value])
-	.filter(value => value?.type);
-
 const hasSideEffectfulConstReference = (node, context, visitedVariables) => {
 	if (node.type === 'Identifier') {
 		return hasSideEffectfulConstInitializer(node, context, visitedVariables);
@@ -172,7 +164,7 @@ const hasSideEffectfulConstReference = (node, context, visitedVariables) => {
 		return false;
 	}
 
-	return getChildNodes(node).some(child => hasSideEffectfulConstReference(child, context, visitedVariables));
+	return getEvaluatedChildNodes(node, context.sourceCode.visitorKeys).some(child => hasSideEffectfulConstReference(child, context, visitedVariables));
 };
 
 export const hasSideEffectfulConstInitializer = (node, context, visitedVariables = new Set()) => {
@@ -334,7 +326,7 @@ export const hasPotentiallyMutableMemberAccess = (node, context, visitedVariable
 			&& !isSafeStaticMember(node, context, visitedVariables);
 	}
 
-	return getChildNodes(node).some(child => hasPotentiallyMutableMemberAccess(child, context, visitedVariables));
+	return getEvaluatedChildNodes(node, context.sourceCode.visitorKeys).some(child => hasPotentiallyMutableMemberAccess(child, context, visitedVariables));
 };
 
 const hasUnsafeBindingInEvaluatedPath = (node, context, visitedVariables = new Set()) => {
@@ -414,7 +406,7 @@ const hasUnsafeBindingInEvaluatedPath = (node, context, visitedVariables = new S
 		return false;
 	}
 
-	return getChildNodes(node).some(child => hasUnsafeBindingInEvaluatedPath(child, context, visitedVariables));
+	return getEvaluatedChildNodes(node, context.sourceCode.visitorKeys).some(child => hasUnsafeBindingInEvaluatedPath(child, context, visitedVariables));
 };
 
 const getStaticValueIfNoSideEffectsInternal = (node, context, visitedVariables = new Set()) => {

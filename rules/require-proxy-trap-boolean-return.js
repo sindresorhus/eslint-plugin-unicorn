@@ -1,8 +1,8 @@
 import {getPropertyName, getStaticValue} from '@eslint-community/eslint-utils';
 import {isMethodCall, isNewExpression} from './ast/index.js';
 import {
-	getChildNodes,
 	getStaticValueIfNoSideEffects,
+	getVisitorChildNodes,
 	hasPotentiallyMutableMemberAccess,
 	hasSideEffectfulConstInitializer,
 	isBranchExit,
@@ -35,7 +35,7 @@ const isReturnOrThrowStatement = node =>
 	node.type === 'ReturnStatement' || node.type === 'ThrowStatement';
 
 // The `return` statements of the function body, not of the functions nested in it
-function * getReturnStatements(node) {
+function * getReturnStatements(node, visitorKeys) {
 	if (node.type === 'ReturnStatement') {
 		yield node;
 		return;
@@ -45,8 +45,8 @@ function * getReturnStatements(node) {
 		return;
 	}
 
-	for (const child of getChildNodes(node)) {
-		yield * getReturnStatements(child);
+	for (const child of getVisitorChildNodes(node, visitorKeys)) {
+		yield * getReturnStatements(child, visitorKeys);
 	}
 }
 
@@ -236,7 +236,7 @@ const getTrapFunctionProblem = ({functionNode, name}, sourceCode, functionBodyAl
 		return getProblem(functionNode.body, name, sourceCode);
 	}
 
-	const returnStatements = [...getReturnStatements(functionNode.body)];
+	const returnStatements = [...getReturnStatements(functionNode.body, sourceCode.visitorKeys)];
 	// Always set, the trap function body was analyzed before this `onExit` listener runs
 	const doesAlwaysExit = functionBodyAlwaysExits.get(functionNode);
 	if (returnStatements.length === 0) {

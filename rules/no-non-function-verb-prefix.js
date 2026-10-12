@@ -8,6 +8,7 @@ import {
 	isDefaultLibrarySymbol,
 	isTypeImportSpecifier,
 	withTypeInformation,
+	memoizeByOptions,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-non-function-verb-prefix';
@@ -42,6 +43,9 @@ const prepareOptions = ({
 	verbs: verbs.toSorted((first, second) => second.length - first.length),
 	ignore: ignore.map(pattern => isRegExp(pattern) ? pattern : new RegExp(pattern, 'u')),
 });
+
+// Preparing the options sorts the verbs and compiles regexes, and `create` runs once per linted file.
+const getPreparedOptions = memoizeByOptions(prepareOptions);
 
 function getVerbPrefix(name, verbs) {
 	for (const verb of verbs) {
@@ -230,7 +234,7 @@ const create = context => {
 		return;
 	}
 
-	const options = prepareOptions(context.options[0]);
+	const options = getPreparedOptions(context.options[0]);
 
 	context.on('VariableDeclarator', function * (node) {
 		if (node.parent.declare) {

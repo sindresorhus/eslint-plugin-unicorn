@@ -1,8 +1,5 @@
 import {getParenthesizedRange, getParenthesizedText, unwrapTypeScriptExpression} from './utils/index.js';
-import {
-	containsOptionalChain,
-	isSame,
-} from './utils/comparison.js';
+import {isSame} from './utils/comparison.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -27,10 +24,7 @@ const isSimpleComputedProperty = node => {
 const isSimpleReference = node => {
 	node = unwrapTypeScriptExpression(node);
 
-	if (containsOptionalChain(node)) {
-		return false;
-	}
-
+	// Optional chaining is checked per member instead of with a whole-subtree walk, since only member chains can be simple references.
 	switch (node.type) {
 		case 'Identifier':
 		case 'Super':
@@ -39,7 +33,8 @@ const isSimpleReference = node => {
 		}
 
 		case 'MemberExpression': {
-			return isSimpleReference(node.object)
+			return !node.optional
+				&& isSimpleReference(node.object)
 				&& (!node.computed || isSimpleComputedProperty(node.property));
 		}
 

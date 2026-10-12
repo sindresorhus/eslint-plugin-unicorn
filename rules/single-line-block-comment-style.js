@@ -2,6 +2,7 @@ import {isRegExp} from 'node:util/types';
 import {
 	getComments,
 	getLinePrefix,
+	getLineStart,
 	isEslintDisableOrEnableDirective,
 	matchesAnyRegExp,
 	onRoot,
@@ -10,7 +11,7 @@ import {
 const MESSAGE_ID = 'single-line-block-comment-style';
 const MULTILINE = 'multiline';
 const SINGLE_LINE = 'single-line';
-const LINE_ENDINGS = ['\n', '\r', '\u2028', '\u2029'];
+const LINE_ENDINGS = new Set(['\n', '\r', '\u2028', '\u2029']);
 const LINE_ENDING_PATTERN = /\r\n|[\n\r\u{2028}\u{2029}]/v;
 const DIRECTIVE_PATTERNS = [
 	/^\s*[#@]\s*source(?:Mapping)?URL=/v,
@@ -33,21 +34,26 @@ const messages = {
 	[MESSAGE_ID]: 'Use a {{style}} block comment.',
 };
 
-const getLineEnd = (text, index) => Math.min(
-	...LINE_ENDINGS.map(lineEnding => text.indexOf(lineEnding, index)).filter(index => index !== -1),
-	text.length,
-);
+// Scan to the next line ending instead of searching for each kind, since a search for a rare one like `\u2028` scans to the end of the text on every call.
+const getLineEnd = (text, index) => {
+	let lineEnd = index;
+	while (lineEnd < text.length && !LINE_ENDINGS.has(text[lineEnd])) {
+		lineEnd++;
+	}
+
+	return lineEnd;
+};
 
 const getLineEndingAt = (text, index) => {
 	if (text.startsWith('\r\n', index)) {
 		return '\r\n';
 	}
 
-	return LINE_ENDINGS.includes(text[index]) ? text[index] : undefined;
+	return LINE_ENDINGS.has(text[index]) ? text[index] : undefined;
 };
 
 const getLineEndingBefore = (text, index) => {
-	const lineEndingIndex = Math.max(...LINE_ENDINGS.map(lineEnding => text.lastIndexOf(lineEnding, index - 1)));
+	const lineEndingIndex = getLineStart(text, index) - 1;
 
 	if (lineEndingIndex === -1) {
 		return;

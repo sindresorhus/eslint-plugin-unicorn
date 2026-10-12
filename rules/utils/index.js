@@ -87,7 +87,7 @@ export {
 	isKnownNonCollectionLengthOrSize,
 	isLengthOrSizeMemberExpression,
 } from './length-or-size.js';
-export {default as getReferences} from './get-references.js';
+export {default as getReferences, getReferencesInside} from './get-references.js';
 export {default as isTypeScriptFile} from './is-typescript-file.js';
 export {default as isVirtualFilename} from './is-virtual-filename.js';
 export {default as onRoot} from './on-root.js';
@@ -232,9 +232,9 @@ export {default as toLocation} from './to-location.js';
 export {default as trackBranchExits} from './track-branch-exits.js';
 export {default as getAncestor} from './get-ancestor.js';
 export {getPreviousNode, getNextNode, getNextStatement} from './get-sibling-node.js';
-export {default as getChildNodes} from './get-child-nodes.js';
-export {default as getVisitorChildNodes} from './get-visitor-child-nodes.js';
+export {default as getVisitorChildNodes, getEvaluatedChildNodes} from './get-visitor-child-nodes.js';
 export {default as containsNode} from './contains-node.js';
+export {default as memoizeByOptions} from './memoize-by-options.js';
 export * from './string-cases.js';
 export * from './numeric.js';
 export {default as getBuiltinRule} from './get-builtin-rule.js';
