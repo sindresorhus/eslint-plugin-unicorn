@@ -9,7 +9,7 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-In TypeScript, replacing a method call with an array literal can change inferred types. These rewrites are offered as suggestions, so you can check the resulting type. With type information, a copy of an existing array variable can be autofixed when it is assigned directly to an unannotated variable and preserves the element type.
+In TypeScript, spread can change inferred types, so method rewrites use suggestions. With type information, safe copies into unannotated variables can be autofixed.
 
 Enforces the use of [the spread operator (`...`)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax) over outdated patterns. This also helps keep consistency by using a single flexible operator instead of:
 
