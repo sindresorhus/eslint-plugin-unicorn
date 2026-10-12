@@ -60,5 +60,6 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		typeAware('function foo(promise: Promise<string>) { promise.finally(async () => {}); }'),
+		typeAware('function foo(promise: unknown) { promise.finally(async () => {}); }'),
 	],
 });
