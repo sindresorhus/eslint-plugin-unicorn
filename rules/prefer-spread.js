@@ -19,6 +19,7 @@ import {
 	isTypeParameterType,
 	hasUnparenthesizedOptionalChainElement,
 	isTypeScriptExpressionWrapper,
+	isTypeScriptFile,
 	isDefaultLibrarySymbol,
 	getStaticValueIfNoSideEffects,
 	hasPotentiallyMutableMemberAccess,
@@ -49,6 +50,7 @@ const ERROR_ARRAY_CONCAT = 'array-concat';
 const ERROR_ARRAY_SLICE = 'array-slice';
 const ERROR_ARRAY_TO_SPLICED = 'array-to-spliced';
 const ERROR_FOR_OF = 'for-of';
+const SUGGESTION_SPREAD = 'spread';
 const SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE = 'argument-is-spreadable';
 const SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE = 'argument-is-not-spreadable';
 const SUGGESTION_CONCAT_TEST_ARGUMENT = 'test-argument';
@@ -59,6 +61,7 @@ const messages = {
 	[ERROR_ARRAY_SLICE]: 'Prefer the spread operator over `Array#slice()`.',
 	[ERROR_ARRAY_TO_SPLICED]: 'Prefer the spread operator over `Array#toSpliced()`.',
 	[ERROR_FOR_OF]: 'Prefer the spread operator over this `for…of` loop.',
+	[SUGGESTION_SPREAD]: 'Use the spread operator.',
 	[SUGGESTION_CONCAT_ARGUMENT_IS_SPREADABLE]: 'First argument is an `array`.',
 	[SUGGESTION_CONCAT_ARGUMENT_IS_NOT_SPREADABLE]: 'First argument is not an `array`.',
 	[SUGGESTION_CONCAT_TEST_ARGUMENT]: 'Test first argument with `Array.isArray(…)`.',
@@ -381,6 +384,46 @@ function methodCallToSpread(node, context) {
 
 		yield removeMethodCall(fixer, node, context);
 	};
+}
+
+function shouldSuggestSpread(node, context, array) {
+	const scriptKind = context.sourceCode.parserServices?.esTreeNodeToTSNodeMap?.get(node)?.getSourceFile().scriptKind;
+	// TypeScript's public `ScriptKind.TS` and `ScriptKind.TSX` values.
+	if (!isTypeScriptFile(context.physicalFilename) && scriptKind !== 3 && scriptKind !== 4) {
+		return false;
+	}
+
+	const {parent} = node;
+	// Removing the outer call can change contextual typing of an inline source expression.
+	if (
+		array?.type !== 'Identifier'
+		|| parent.type !== 'VariableDeclarator'
+		|| parent.init !== node
+		|| parent.id.type !== 'Identifier'
+		|| parent.id.typeAnnotation
+	) {
+		return true;
+	}
+
+	// Array literals can infer different types through contextual typing or const assertions, unlike the original array-producing call.
+	const isSafe = withTypeInformation(node, context, ({type, checker, program}) => {
+		const sourceType = context.sourceCode.parserServices.getTypeAtLocation(array);
+		const symbol = type.getSymbol();
+
+		return checker.isArrayType(type)
+			&& symbol?.getName() === 'Array'
+			&& isDefaultLibrarySymbol(symbol, program)
+			&& (checker.isArrayType(sourceType) || checker.isTupleType(sourceType))
+			&& type.getNumberIndexType() === sourceType.getNumberIndexType();
+	});
+
+	return isSafe !== true;
+}
+
+function getSpreadFix(node, context, fix, array) {
+	return shouldSuggestSpread(node, context, array)
+		? {suggest: [{messageId: SUGGESTION_SPREAD, fix}]}
+		: {fix};
 }
 
 function isClassName(node) {
@@ -1133,7 +1176,7 @@ const create = context => {
 		return {
 			node,
 			messageId: ERROR_ARRAY_FROM,
-			...(!hasExtraComments(node, preservedRange) && {fix: fixArrayFrom(node, context)}),
+			...(!hasExtraComments(node, preservedRange) && getSpreadFix(node, context, fixArrayFrom(node, context), firstArgument)),
 		};
 	});
 
@@ -1148,7 +1191,6 @@ const create = context => {
 		}
 
 		const {object} = node.callee;
-		const scope = sourceCode.getScope(object);
 		const receiverArrayState = getConcatReceiverArrayState(object, context);
 
 		if (receiverArrayState === false) {
@@ -1177,7 +1219,8 @@ const create = context => {
 				isReceiverSafeToSpread
 				&& !wouldRemoveComments(context, node, getConcatPreservedRanges(node, fixableArguments.length))
 			) {
-				problem.fix = fixConcat(node, context, fixableArguments);
+				const fix = fixConcat(node, context, fixableArguments);
+				Object.assign(problem, getSpreadFix(node, context, fix, node.arguments.length === 0 ? object : undefined));
 			}
 
 			return problem;
@@ -1213,7 +1256,7 @@ const create = context => {
 			fix: fixConcat(
 				node,
 				context,
-				// When apply suggestion, we also merge fixable arguments after the first one
+				// When applying a suggestion, we also merge fixable arguments after the first one
 				[
 					{
 						node: firstArgument,
@@ -1278,7 +1321,7 @@ const create = context => {
 		return {
 			node: node.callee.property,
 			messageId: ERROR_ARRAY_SLICE,
-			...(!hasExtraComments(node, node.callee.object) && {fix: methodCallToSpread(node, context)}),
+			...(!hasExtraComments(node, node.callee.object) && getSpreadFix(node, context, methodCallToSpread(node, context), node.callee.object)),
 		};
 	});
 
@@ -1303,7 +1346,7 @@ const create = context => {
 		return {
 			node: node.callee.property,
 			messageId: ERROR_ARRAY_TO_SPLICED,
-			...(!hasExtraComments(node, node.callee.object) && {fix: methodCallToSpread(node, context)}),
+			...(!hasExtraComments(node, node.callee.object) && getSpreadFix(node, context, methodCallToSpread(node, context), node.callee.object)),
 		};
 	});
 };

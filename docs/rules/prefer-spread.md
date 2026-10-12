@@ -9,6 +9,8 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
+In TypeScript, spread can change inferred types, so method rewrites use suggestions. With type information, safe copies into unannotated variables can be autofixed.
+
 Enforces the use of [the spread operator (`...`)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax) over outdated patterns. This also helps keep consistency by using a single flexible operator instead of:
 
 - `Array.from(…)`

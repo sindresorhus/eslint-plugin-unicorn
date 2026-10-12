@@ -1,6 +1,7 @@
 import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
+import typescriptCompiler from 'typescript';
 import plugin from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
@@ -10,7 +11,8 @@ const {test: ruleTest, rule} = getTester(import.meta);
 
 const typescript = code => ({
 	code,
-	languageOptions: {parser: typescriptEslintParser},
+	filename: 'file.ts',
+	languageOptions: {parser: parsers.typescript},
 });
 
 const typeAware = code => ({
@@ -531,92 +533,29 @@ ruleTest.snapshot({
 		// `Iterator.concat()`
 		'Iterator.concat(2)',
 		'Iterator.concat([2, 3])',
-		{
-			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(link: ApolloLink) { link.concat(next); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'import type {ApolloLink} from "apollo-link"; function foo(link: ApolloLink) { link.concat(next); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'import type {ApolloLink as Link} from "apollo-link"; function foo(link: Link) { link.concat(next); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'import type * as Apollo from "apollo-link"; function foo(link: Apollo.ApolloLink) { link.concat(next); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'import type * as Apollo from "apollo-link"; function foo(link: Apollo.Types.ApolloLink) { link.concat(next); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'type Link = import("apollo-link").ApolloLink; declare const link: Link; link.concat(next);',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'type Link = import("apollo-link").Apollo.ApolloLink; declare const link: Link; link.concat(next);',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } const link: ApolloLink = getLink(); link.concat(next);',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } (link as ApolloLink).concat(next);',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } (<ApolloLink>link).concat(next);',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } (link satisfies ApolloLink).concat(next);',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(link: ApolloLink) { link!.concat(next); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } type Link = ApolloLink; function foo(link: Link) { link.concat(next); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo<Link extends ApolloLink>(link: Link) { link.concat(next); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function foo(value: string | number) { value.concat(next); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function foo(value: string) { value.concat(other); }',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescript('interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(link: ApolloLink) { link.concat(next); }'),
+		typescript('import type {ApolloLink} from "apollo-link"; function foo(link: ApolloLink) { link.concat(next); }'),
+		typescript('import type {ApolloLink as Link} from "apollo-link"; function foo(link: Link) { link.concat(next); }'),
+		typescript('import type * as Apollo from "apollo-link"; function foo(link: Apollo.ApolloLink) { link.concat(next); }'),
+		typescript('import type * as Apollo from "apollo-link"; function foo(link: Apollo.Types.ApolloLink) { link.concat(next); }'),
+		typescript('type Link = import("apollo-link").ApolloLink; declare const link: Link; link.concat(next);'),
+		typescript('type Link = import("apollo-link").Apollo.ApolloLink; declare const link: Link; link.concat(next);'),
+		typescript('interface ApolloLink { concat(next: ApolloLink): ApolloLink; } const link: ApolloLink = getLink(); link.concat(next);'),
+		typescript('interface ApolloLink { concat(next: ApolloLink): ApolloLink; } (link as ApolloLink).concat(next);'),
+		typescript('interface ApolloLink { concat(next: ApolloLink): ApolloLink; } (<ApolloLink>link).concat(next);'),
+		typescript('interface ApolloLink { concat(next: ApolloLink): ApolloLink; } (link satisfies ApolloLink).concat(next);'),
+		typescript('interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(link: ApolloLink) { link!.concat(next); }'),
+		typescript('interface ApolloLink { concat(next: ApolloLink): ApolloLink; } type Link = ApolloLink; function foo(link: Link) { link.concat(next); }'),
+		typescript('interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo<Link extends ApolloLink>(link: Link) { link.concat(next); }'),
+		typescript('function foo(value: string | number) { value.concat(next); }'),
+		typescript('function foo(value: string) { value.concat(other); }'),
 		'({value: "🦄"}).value.slice();',
 		'({value: "x"}).value.concat(1);',
-		{
-			code: 'function foo(value: Buffer) { value.concat(next); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function foo(value: {concat(next: unknown): unknown}) { value.concat(next); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: '({concat() {}} as any).concat(value);',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: '(String(value) as any).concat(other);',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: '(new Chainable() as any).concat(value);',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescript('function foo(value: Buffer) { value.concat(next); }'),
+		typescript('function foo(value: {concat(next: unknown): unknown}) { value.concat(next); }'),
+		typescript('({concat() {}} as any).concat(value);'),
+		typescript('(String(value) as any).concat(other);'),
+		typescript('(new Chainable() as any).concat(value);'),
 		typeAware('class Chainable { concat(next: Chainable) { return next; } } declare function getLink(): Chainable; const link = getLink(); link.concat(next);'),
 		typeAware('interface Link { concat(next: Link): Link; } declare const link: Link; link.concat(next);'),
 	],
@@ -807,56 +746,23 @@ ruleTest.snapshot({
 		typescript('function foo(array: string[]) { array.concat(item); }'),
 		typescript('function foo(array: string[]) { array.concat("item"); }'),
 		typescript('(Array(1) as number[]).concat(2);'),
-		{
-			code: '(Array(1)!).concat(foo);',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescript('(Array(1)!).concat(foo);'),
 		typescript('(<number[]>Array(1)).concat(2);'),
-		{
-			code: '(Array(1) satisfies number[]).concat(2);',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescript('(Array(1) satisfies number[]).concat(2);'),
 		typescript('declare const Items: string[]; Items.concat(item);'),
 		typescript('function foo(array: readonly string[]) { array.concat(item); }'),
-		{
-			code: 'function foo(array: [string, string]) { array.concat(item); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function foo(array: Array<string>) { array.concat(item); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function foo(array: ReadonlyArray<string>) { array.concat(item); }',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescript('function foo(array: [string, string]) { array.concat(item); }'),
+		typescript('function foo(array: Array<string>) { array.concat(item); }'),
+		typescript('function foo(array: ReadonlyArray<string>) { array.concat(item); }'),
 		typescript('type Strings = string[]; function foo(array: Strings) { array.concat(item); }'),
 		typescript('function foo<ArrayType extends string[]>(array: ArrayType) { array.concat(item); }'),
 		typescript('interface ApolloLink { concat(next: ApolloLink): ApolloLink; } function foo(value: string[] | ApolloLink) { value.concat(item); }'),
-		{
-			code: 'import type {Strings} from "./types"; declare const array: Strings; array.concat(item);',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function foo<T>(value: T) { value.concat(item); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'type ApolloLink = unknown; declare const link: ApolloLink; link.concat(next);',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'function foo<ApolloLink>(link: ApolloLink) { link.concat(next); }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'namespace Apollo { export type ApolloLink = unknown; } declare const link: Apollo.ApolloLink; link.concat(next);',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: 'namespace Apollo { export namespace Types { export type ApolloLink = unknown; } } declare const link: Apollo.Types.ApolloLink; link.concat(next);',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescript('import type {Strings} from "./types"; declare const array: Strings; array.concat(item);'),
+		typescript('function foo<T>(value: T) { value.concat(item); }'),
+		typescript('type ApolloLink = unknown; declare const link: ApolloLink; link.concat(next);'),
+		typescript('function foo<ApolloLink>(link: ApolloLink) { link.concat(next); }'),
+		typescript('namespace Apollo { export type ApolloLink = unknown; } declare const link: Apollo.ApolloLink; link.concat(next);'),
+		typescript('namespace Apollo { export namespace Types { export type ApolloLink = unknown; } } declare const link: Apollo.Types.ApolloLink; link.concat(next);'),
 		typeAware('function foo<T>(value: T) { value.concat(item); }'),
 		typeAware('type Strings = ReturnType<() => string[]>; declare const array: Strings; array.concat(item);'),
 		typeAware('declare function getArray(): string[]; const array = getArray(); array.concat(item);'),
@@ -983,6 +889,307 @@ ruleTest.snapshot({
 	],
 });
 
+const constTypeParameterCode = outdent`
+	const WORDS = ['a', 'b'] as const;
+
+	declare const withDefaults: <const T>(defaults: T) => T;
+
+	withDefaults({words: WORDS.slice()}).words.push('a');
+`;
+
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			...typescript('use(array.slice());'),
+			filename: 'file.js',
+			output: 'use([...array]);',
+			errors: [{messageId: 'array-slice'}],
+		},
+		{
+			code: '<script setup>use(array.slice());</script>',
+			filename: 'file.vue',
+			languageOptions: {parser: parsers.vue},
+			output: '<script setup>use([...array]);</script>',
+			errors: [{messageId: 'array-slice'}],
+		},
+	],
+});
+
+ruleTest({
+	valid: [],
+	invalid: [typescript, typeAware].map(createTestCase => ({
+		...createTestCase(constTypeParameterCode),
+		errors: [
+			{
+				messageId: 'array-slice',
+				suggestions: [
+					{
+						messageId: 'spread',
+						output: constTypeParameterCode.replace('WORDS.slice()', '[...WORDS]'),
+					},
+				],
+			},
+		],
+	})),
+});
+
+ruleTest({
+	valid: [],
+	invalid: [{
+		code: `<script setup lang="ts">\n${constTypeParameterCode}\n</script>`,
+		filename: 'file.vue',
+		languageOptions: {parser: parsers.vue, parserOptions: {parser: typescriptEslintParser}},
+		errors: [{
+			messageId: 'array-slice',
+			suggestions: [{
+				messageId: 'spread',
+				output: `<script setup lang="ts">\n${constTypeParameterCode.replace('WORDS.slice()', '[...WORDS]')}\n</script>`,
+			}],
+		}],
+	}],
+});
+
+ruleTest({
+	valid: [],
+	invalid: [typescript, typeAware].flatMap(createTestCase => [
+		'const WORDS = [\'a\', \'b\'] as const; const defaults = {words: WORDS.slice()} as const; defaults.words.push(\'a\');',
+		outdent`
+			const WORDS = ['a', 'b'] as const;
+			declare function copy(words: ['a', 'b']): readonly ['a', 'b'];
+			declare function copy(words: ('a' | 'b')[]): ('a' | 'b')[];
+			copy(WORDS.slice()).push('a');
+		`,
+	].map(code => ({
+		...createTestCase(code),
+		errors: [{
+			messageId: 'array-slice',
+			suggestions: [{messageId: 'spread', output: code.replace('WORDS.slice()', '[...WORDS]')}],
+		}],
+	}))),
+});
+
+// Array literals can receive different inference through contextual typing or const assertions.
+ruleTest.snapshot({
+	valid: [],
+	invalid: [
+		...[
+			'use(array.slice())',
+			'use(array.slice(0))',
+			'use(array.toSpliced())',
+			'use(Array.from(array))',
+			'use(array.concat())',
+			'use(array.concat([item]))',
+			'new Box({words: array.slice()})',
+			'use({nested: [{words: (array.slice())}]})',
+			'use({...array.slice()})',
+			'use([...array.slice()])',
+			'use(condition ? array.slice() : [])',
+			'use(condition && array.slice())',
+			'use(array.slice() as string[])',
+			'use(array.slice() satisfies string[])',
+			'use(array.slice()!)',
+			'use((object?.array as string[]).slice())',
+			'use((/* keep */ array).slice())',
+			'use(array.slice(/* keep */))',
+			'use(array.concat([item], unknown))',
+			'const copy = array.slice()',
+			'use(() => array.slice())',
+			'use(function () { return array.slice(); })',
+			'use({method() { return array.slice(); }})',
+			'use(array.slice().length)',
+		].map(code => typescript(code)),
+		'use({words: array.slice()})',
+		{
+			code: 'use(array.slice())',
+			filename: 'file.ts',
+		},
+		...[
+			'array.slice(0)',
+			'array.toSpliced()',
+			'Array.from(array)',
+			'array.concat()',
+		].map(expression => typeAware(`declare const array: string[]; declare function use<const Type>(value: Type): Type; use({words: ${expression}});`)),
+		typeAware('declare const array: string[]; declare function use(value: {words: string[]}): void; use({words: array.slice()});'),
+		typeAware('declare const array: string[]; declare function use<Type>(value: Type): Type; use({words: array.slice()});'),
+		typeAware('declare const array: string[]; declare function use<const Type>(value: Type): Type; use<string[]>(array.slice());'),
+		typeAware('declare const array: string[]; declare function use<const Type extends readonly string[]>(value: Type): Type; use(array.slice());'),
+		typeAware('declare const array: string[]; declare function use(value: string[]): void; declare function use<const Type>(value: Type): Type; use(array.slice());'),
+		typeAware('declare const array: string[]; declare class Box<const Type> { constructor(value: Type); } new Box({words: array.slice()});'),
+		typeAware('declare const array: string[]; declare class Box { constructor(value: string[]); } new Box(array.slice());'),
+		typeAware('declare const array: string[]; declare const use: any; use(array.slice());'),
+		typeAware('declare const array: string[]; missing(array.slice());'),
+		typeAware(outdent`
+			import {withDefaults} from './test/fixtures/prefer-spread/const-type-parameter.js';
+			const WORDS = ['a', 'b'] as const;
+			withDefaults({words: WORDS.slice()}).words.push('a');
+		`),
+		typeAware(outdent`
+			import {identity} from './test/fixtures/prefer-spread/const-type-parameter.js';
+			const words = ['a', 'b'] as const;
+			identity({words: words.slice()}).words.push('a');
+		`),
+	],
+});
+
+// Typed unannotated initializers retain autofixes when their array element types match.
+ruleTest({
+	valid: [],
+	invalid: [
+		['array.slice()', 'array-slice'],
+		['array.slice(0)', 'array-slice'],
+		['array.toSpliced()', 'array-to-spliced'],
+		['Array.from(array)', 'array-from'],
+		['array.concat()', 'array-concat'],
+	].flatMap(([expression, messageId]) => [
+		'declare const array: string[];',
+		'const array = [\'a\', \'b\'] as const;',
+	].map(declaration => ({
+		...typeAware(`${declaration} const copy = ${expression};`),
+		output: `${declaration} const copy = [...array];`,
+		errors: [{messageId}],
+	}))),
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			...typeAware('declare const array: string[]; const copy = Array.from<string>(array);'),
+			output: 'declare const array: string[]; const copy = [...array];',
+			errors: [{messageId: 'array-from'}],
+		},
+		{
+			...typeAware('declare const array: \'a\'[]; const copy = Array.from<string>(array); copy.push(\'b\');'),
+			errors: [{
+				messageId: 'array-from',
+				suggestions: [{
+					messageId: 'spread',
+					output: 'declare const array: \'a\'[]; const copy = [...array]; copy.push(\'b\');',
+				}],
+			}],
+		},
+		{
+			...typeAware('declare function getArray<Type>(): Type[]; const copy = Array.from<string>(getArray()); copy[0].toUpperCase();'),
+			errors: [{
+				messageId: 'array-from',
+				suggestions: [{
+					messageId: 'spread',
+					output: 'declare function getArray<Type>(): Type[]; const copy = [...getArray()]; copy[0].toUpperCase();',
+				}],
+			}],
+		},
+		{
+			...typeAware('declare const array: string[]; const copy = array.slice(/* keep */);'),
+			errors: [{messageId: 'array-slice'}],
+		},
+		{
+			...typeAware('declare const array: string[]; const copy = (/* keep */ array).slice();'),
+			output: 'declare const array: string[]; const copy = [...(/* keep */ array)];',
+			errors: [{messageId: 'array-slice'}],
+		},
+	],
+});
+
+test('preserves compiling TypeScript copies and their inferred types', t => {
+	const code = outdent`
+		const words = ['a', 'b'] as const;
+		const copySlice = words.slice();
+		const copySliceZero = words.slice(0);
+		const copyFrom = Array.from(words);
+		const copyConcat = words.concat();
+		declare const optionalTuple: [first?: string];
+		const copyOptionalTuple = optionalTuple.slice();
+		copyOptionalTuple.push(undefined);
+		const copyWide = Array.from<string>(words);
+		copyWide.push('c');
+		declare function getArray<Type>(): Type[];
+		const copyInferred = Array.from<string>(getArray());
+		copyInferred[0].toUpperCase();
+	`;
+	const {filename, languageOptions} = typeAware(code);
+	const options = {
+		strict: true,
+		noEmit: true,
+		types: [],
+		skipLibCheck: true,
+		target: typescriptCompiler.ScriptTarget.ESNext,
+	};
+	const getProgram = source => {
+		const host = typescriptCompiler.createCompilerHost(options);
+		const {getSourceFile} = host;
+		host.getSourceFile = (name, ...arguments_) => name === filename
+			? typescriptCompiler.createSourceFile(name, source, options.target, true)
+			: getSourceFile(name, ...arguments_);
+		return typescriptCompiler.createProgram([filename], options, host);
+	};
+
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, {
+		files: ['**/*.ts'],
+		languageOptions,
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/prefer-spread': 'error'},
+	}, {filename});
+
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, code
+		.replace('words.slice()', '[...words]')
+		.replace('words.slice(0)', '[...words]')
+		.replace('Array.from(words)', '[...words]')
+		.replace('words.concat()', '[...words]')
+		.replace('optionalTuple.slice()', '[...optionalTuple]'));
+	t.assert.strictEqual(result.messages.length, 2);
+	for (const message of result.messages) {
+		t.assert.strictEqual(message.messageId, 'array-from');
+		t.assert.strictEqual(message.fix, undefined);
+	}
+
+	const copyTypes = [];
+	for (const source of [code, result.output]) {
+		const program = getProgram(source);
+		t.assert.deepStrictEqual(typescriptCompiler.getPreEmitDiagnostics(program), []);
+		const checker = program.getTypeChecker();
+		const declarations = program.getSourceFile(filename).statements
+			.filter(statement => typescriptCompiler.isVariableStatement(statement))
+			.flatMap(statement => statement.declarationList.declarations);
+		copyTypes.push(declarations
+			.filter(declaration => declaration.name.getText().startsWith('copy'))
+			.map(declaration => checker.typeToString(checker.getTypeAtLocation(declaration))));
+	}
+
+	t.assert.strictEqual(copyTypes[0].length, 7);
+	t.assert.deepStrictEqual(copyTypes[1], copyTypes[0]);
+	for (const [index, diagnosticCode] of [2345, 2571].entries()) {
+		const [suggestion] = result.messages[index].suggestions;
+		const {range, text} = suggestion.fix;
+		const [start, end] = range;
+		const suggestedOutput = result.output.slice(0, start) + text + result.output.slice(end);
+		t.assert.deepStrictEqual(typescriptCompiler.getPreEmitDiagnostics(getProgram(suggestedOutput)).map(diagnostic => diagnostic.code), [diagnosticCode]);
+	}
+});
+
+ruleTest.snapshot({
+	valid: [],
+	invalid: [
+		typeAware('function copy<Type>(array: Type[]) { const result = array.slice(); return result; }'),
+		typeAware('declare const array: readonly string[]; let copy = ((array).slice());'),
+		typeAware('const array = [] as const; const copy = array.slice();'),
+		typeAware('declare const array: string[]; const copy: readonly string[] = array.slice();'),
+		typeAware('declare const array: string[]; const [copy] = array.slice();'),
+		typeAware('declare const array: string[] | number[]; const copy = array.slice();'),
+		typeAware('declare const array: any; const copy = array.slice();'),
+		typeAware('declare const array: (\'a\' | \'b\')[]; const copy = array.concat(\'a\');'),
+		typeAware('declare const array: (\'a\' | \'b\')[]; const copy = array.concat(\'a\', unknown);'),
+		typeAware('const copy = Array.from([]);'),
+		typeAware('const copy = Array.from(([] as never[]));'),
+		typeAware('const copy = [1, 2].concat();'),
+		typeAware('declare const arrayLike: ArrayLike<string>; const copy = Array.from(arrayLike);'),
+		typeAware('declare const array: string[]; const copy = array.slice() as const;'),
+		typescript('declare const array: string[]; const copy = array.slice();'),
+	],
+});
+
 // `Array#toSpliced`
 ruleTest.snapshot({
 	valid: [
@@ -1067,10 +1274,7 @@ ruleTest.snapshot({
 		'const {length} = "🦄".split("")',
 		'"string".split(/* comment */ "")',
 		'unknown.split(/* comment */ "")',
-		{
-			code: 'const text: string = value; text.split("")',
-			languageOptions: {parser: parsers.typescript},
-		},
+		typescript('const text: string = value; text.split("")'),
 	],
 	invalid: [],
 });
@@ -1194,8 +1398,10 @@ ruleTest({
 	],
 	invalid: [{
 		...typescript('type Value = number[]; type Alias = Value; { type Value = Alias; function f(value: Value) { return value.concat("x"); } }'),
-		errors: 1,
-		output: 'type Value = number[]; type Alias = Value; { type Value = Alias; function f(value: Value) { return [...value, "x"]; } }',
+		errors: [{
+			messageId: 'array-concat',
+			suggestions: [{messageId: 'spread', output: 'type Value = number[]; type Alias = Value; { type Value = Alias; function f(value: Value) { return [...value, "x"]; } }'}],
+		}],
 	}],
 });
 
@@ -1205,7 +1411,9 @@ ruleTest({
 	],
 	invalid: [{
 		...typescript('type Value = number[]; const value: Value = source; { type Value = string; value.concat("x"); }'),
-		errors: 1,
-		output: 'type Value = number[]; const value: Value = source; { type Value = string; [...value, "x"]; }',
+		errors: [{
+			messageId: 'array-concat',
+			suggestions: [{messageId: 'spread', output: 'type Value = number[]; const value: Value = source; { type Value = string; [...value, "x"]; }'}],
+		}],
 	}],
 });
