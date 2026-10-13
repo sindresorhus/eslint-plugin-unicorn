@@ -4,6 +4,31 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 test.snapshot({
+	valid: [],
+	invalid: [
+		'new WeakMap((iterator.toArray()))',
+		'new WeakSet(iterator.toArray(/* keep */))',
+		'Object.fromEntries(iterator.toArray(/* keep */))',
+		{
+			code: 'new Map((iterator as IteratorObject<[string, number]>).toArray())',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'Object.fromEntries(iterator!.toArray())',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'new WeakSet((iterator satisfies IteratorObject<object>).toArray())',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'Uint8Array.from((iterator as IteratorObject<number>).toArray())',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+});
+
+test.snapshot({
 	valid: [
 		// Not `.toArray()`
 		'new Set(iterator)',

@@ -32,6 +32,23 @@ Output:
 
 `;
 
+exports[`no-useless-iterator-to-array > invalid(1): new WeakMap((iterator.toArray())) 1`] = `
+
+  1 | new WeakMap((iterator.toArray()))
+
+`;
+
+exports[`no-useless-iterator-to-array > invalid(1): new WeakMap((iterator.toArray())) 2`] = `
+
+Message:
+> 1 | new WeakMap((iterator.toArray()))
+    |                       ^^^^^^^ \`new WeakMap(…)\` accepts an iterable, \`.toArray()\` is unnecessary.
+
+Output:
+  1 | new WeakMap((iterator))
+
+`;
+
 exports[`no-useless-iterator-to-array > invalid(10): Promise.allSettled(iterator.toArray()) 1`] = `
 
   1 | Promise.allSettled(iterator.toArray())
@@ -236,6 +253,20 @@ Output:
 
 `;
 
+exports[`no-useless-iterator-to-array > invalid(2): new WeakSet(iterator.toArray(/* keep */)) 1`] = `
+
+  1 | new WeakSet(iterator.toArray(/* keep */))
+
+`;
+
+exports[`no-useless-iterator-to-array > invalid(2): new WeakSet(iterator.toArray(/* keep */)) 2`] = `
+
+Message:
+> 1 | new WeakSet(iterator.toArray(/* keep */))
+    |                      ^^^^^^^ \`new WeakSet(…)\` accepts an iterable, \`.toArray()\` is unnecessary.
+
+`;
+
 exports[`no-useless-iterator-to-array > invalid(20): for (const x of foo.bar().toArray()); 1`] = `
 
   1 | for (const x of foo.bar().toArray());
@@ -417,6 +448,20 @@ Message:
 
 Output:
   1 | call(a, ...iterator)
+
+`;
+
+exports[`no-useless-iterator-to-array > invalid(3): Object.fromEntries(iterator.toArray(/* keep */)) 1`] = `
+
+  1 | Object.fromEntries(iterator.toArray(/* keep */))
+
+`;
+
+exports[`no-useless-iterator-to-array > invalid(3): Object.fromEntries(iterator.toArray(/* keep */)) 2`] = `
+
+Message:
+> 1 | Object.fromEntries(iterator.toArray(/* keep */))
+    |                             ^^^^^^^ \`Object.fromEntries(…)\` accepts an iterable, \`.toArray()\` is unnecessary.
 
 `;
 
@@ -604,6 +649,23 @@ Output:
 
 `;
 
+exports[`no-useless-iterator-to-array > invalid(4): new Map((iterator as IteratorObject<[string, number]>).toArray()) 1`] = `
+
+  1 | new Map((iterator as IteratorObject<[string, number]>).toArray())
+
+`;
+
+exports[`no-useless-iterator-to-array > invalid(4): new Map((iterator as IteratorObject<[string, number]>).toArray()) 2`] = `
+
+Message:
+> 1 | new Map((iterator as IteratorObject<[string, number]>).toArray())
+    |                                                        ^^^^^^^ \`new Map(…)\` accepts an iterable, \`.toArray()\` is unnecessary.
+
+Output:
+  1 | new Map((iterator as IteratorObject<[string, number]>))
+
+`;
+
 exports[`no-useless-iterator-to-array > invalid(4): new WeakMap(iterator.toArray()) 1`] = `
 
   1 | new WeakMap(iterator.toArray())
@@ -669,6 +731,23 @@ Suggestion 1/1: Remove \`.toArray()\` and use \`Iterator#forEach()\`.:
 
 `;
 
+exports[`no-useless-iterator-to-array > invalid(5): Object.fromEntries(iterator!.toArray()) 1`] = `
+
+  1 | Object.fromEntries(iterator!.toArray())
+
+`;
+
+exports[`no-useless-iterator-to-array > invalid(5): Object.fromEntries(iterator!.toArray()) 2`] = `
+
+Message:
+> 1 | Object.fromEntries(iterator!.toArray())
+    |                              ^^^^^^^ \`Object.fromEntries(…)\` accepts an iterable, \`.toArray()\` is unnecessary.
+
+Output:
+  1 | Object.fromEntries(iterator!)
+
+`;
+
 exports[`no-useless-iterator-to-array > invalid(5): new Int8Array(iterator.toArray()) 1`] = `
 
   1 | new Int8Array(iterator.toArray())
@@ -700,6 +779,40 @@ Message:
 
 Output:
   1 | new Uint8Array(iterator)
+
+`;
+
+exports[`no-useless-iterator-to-array > invalid(6): new WeakSet((iterator satisfies IteratorObject<object>).toArray()) 1`] = `
+
+  1 | new WeakSet((iterator satisfies IteratorObject<object>).toArray())
+
+`;
+
+exports[`no-useless-iterator-to-array > invalid(6): new WeakSet((iterator satisfies IteratorObject<object>).toArray()) 2`] = `
+
+Message:
+> 1 | new WeakSet((iterator satisfies IteratorObject<object>).toArray())
+    |                                                         ^^^^^^^ \`new WeakSet(…)\` accepts an iterable, \`.toArray()\` is unnecessary.
+
+Output:
+  1 | new WeakSet((iterator satisfies IteratorObject<object>))
+
+`;
+
+exports[`no-useless-iterator-to-array > invalid(7): Uint8Array.from((iterator as IteratorObject<number>).toArray()) 1`] = `
+
+  1 | Uint8Array.from((iterator as IteratorObject<number>).toArray())
+
+`;
+
+exports[`no-useless-iterator-to-array > invalid(7): Uint8Array.from((iterator as IteratorObject<number>).toArray()) 2`] = `
+
+Message:
+> 1 | Uint8Array.from((iterator as IteratorObject<number>).toArray())
+    |                                                      ^^^^^^^ \`Uint8Array.from(…)\` accepts an iterable, \`.toArray()\` is unnecessary.
+
+Output:
+  1 | Uint8Array.from((iterator as IteratorObject<number>))
 
 `;
 
