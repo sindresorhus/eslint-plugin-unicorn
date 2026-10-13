@@ -1,10 +1,10 @@
-import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {
 	getParenthesizedText,
 	getParenthesizedRange,
 	getPrecedence,
 	getStaticValueIfNoSideEffects,
 	hasCommentInRange,
+	hasPossibleSideEffect,
 	isKnownNonString,
 	isParenthesized,
 	isSameReference,
@@ -18,7 +18,7 @@ import {getSubstringSingleCharacterIndex} from './shared/substring.js';
 `substring()`/`substr()` read a missing or `undefined` end as "the whole string" and a `null` end as `0`, and `Math.max(0, undefined)` is `NaN`, so the replacement has to turn only `undefined` into `Infinity`. `??` cannot be used, it coalesces `null` as well and would turn `""` into the whole string. The end is read twice, so this returns `undefined` for an end that has a side effect and the caller withholds the fix.
 */
 const getCoalescedEndText = (node, context) => {
-	if (hasSideEffect(node, context.sourceCode)) {
+	if (hasPossibleSideEffect(node, context)) {
 		return;
 	}
 

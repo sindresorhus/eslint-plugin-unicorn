@@ -572,6 +572,9 @@ test('an end with a side effect is not rewritten', t => {
 		'foo.substring(0, end());',
 		'foo.substring(0, a++);',
 		'foo.substr(0, getEnd());',
+		'foo.substr(0, tag`end`);',
+		'foo.substring(0, tag`end`);',
+		'foo.substr(0, [...ends][0]);',
 	]) {
 		const problem = linter.verify(code, config).find(problem => !problem.fatal);
 

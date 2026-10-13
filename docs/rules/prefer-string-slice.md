@@ -13,6 +13,8 @@
 
 This rule intentionally leaves supported one-character `substring()` patterns to [`unicorn/prefer-at`](./prefer-at.md), so enable both rules to catch both general string slicing and single-character access patterns.
 
+Fixes assume that `.length` properties are not negative.
+
 ## Examples
 
 ```js
