@@ -429,6 +429,29 @@ const hasOverlappingValues = (left, right) => {
 */
 const fix = ifStatement => fixer => fixer.insertTextBefore(ifStatement, 'else ');
 
+// Statements that end with their `body` statement. `do…while` is not included, since it ends with `while (…)`.
+const statementsEndingWithBody = new Set([
+	'ForStatement',
+	'ForInStatement',
+	'ForOfStatement',
+	'WhileStatement',
+	'LabeledStatement',
+	'WithStatement',
+]);
+
+// An `if` without an `else` at the end of a statement takes any `else` that follows it, even one meant for an outer `if`.
+const endsWithDanglingIf = node => {
+	if (node.type === 'IfStatement') {
+		return !node.alternate || endsWithDanglingIf(node.alternate);
+	}
+
+	if (statementsEndingWithBody.has(node.type)) {
+		return endsWithDanglingIf(node.body);
+	}
+
+	return false;
+};
+
 /**
 @param {ComparisonInfo} previous
 @param {ESTree.IfStatement[]} previousChain
@@ -488,6 +511,12 @@ function getProblem(previousIfStatement, ifStatement, context, branchAlwaysExits
 		node: ifStatement,
 		messageId: MESSAGE_ID,
 	};
+
+	// Only the last branch can end with a dangling `if`, since an earlier one is followed by `else`
+	if (endsWithDanglingIf(previousChain.at(-1).consequent)) {
+		return problem;
+	}
+
 	const fixFunction = fix(ifStatement);
 
 	if (canAutofix(previous, previousChain, chain, context)) {

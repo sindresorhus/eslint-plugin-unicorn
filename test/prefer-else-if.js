@@ -718,3 +718,45 @@ test.snapshot({
 		`,
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		// An `else` after an unbraced `if` binds to that inner `if`, so there is no fix or suggestion
+		{
+			code: 'let x = 2, y = false;\nif (x === 1) if (y) 0;\nif (x === 2) console.log(\'two\');',
+			errors: [{messageId: 'prefer-else-if', suggestions: []}],
+		},
+		{
+			code: 'let x = 2, y = false;\nif (x === 1) while (y) if (y) 0;\nif (x === 2) console.log(\'two\');',
+			errors: [{messageId: 'prefer-else-if', suggestions: []}],
+		},
+		{
+			code: 'let x = 2, y = false;\nif (x === 1) foo: if (y) 0;\nif (x === 2) console.log(\'two\');',
+			errors: [{messageId: 'prefer-else-if', suggestions: []}],
+		},
+		// The last branch of an earlier `else if` chain ends in a dangling `if`
+		{
+			code: 'let x = 2, y = false;\nif (x === 1) 1; else if (x === 3) if (y) 0;\nif (x === 2) console.log(\'two\');',
+			errors: [{messageId: 'prefer-else-if', suggestions: []}],
+		},
+		// The inner `if` already has its `else`, so a new `else` binds to the outer `if`
+		{
+			code: 'let x = 2, y = false;\nif (x === 1) if (y) 0; else 1;\nif (x === 2) console.log(\'two\');',
+			output: 'let x = 2, y = false;\nif (x === 1) if (y) 0; else 1;\nelse if (x === 2) console.log(\'two\');',
+			errors: [{messageId: 'prefer-else-if'}],
+		},
+		// A `do…while` ends with `while (…)`, so a new `else` binds to the outer `if`
+		{
+			code: 'let x = 2, y = false;\nif (x === 1) do if (y) 0; while (y);\nif (x === 2) console.log(\'two\');',
+			output: 'let x = 2, y = false;\nif (x === 1) do if (y) 0; while (y);\nelse if (x === 2) console.log(\'two\');',
+			errors: [{messageId: 'prefer-else-if'}],
+		},
+		// A braced consequent keeps the `else` outside the inner `if`
+		{
+			code: 'let x = 2, y = false;\nif (x === 1) { if (y) 0; }\nif (x === 2) console.log(\'two\');',
+			output: 'let x = 2, y = false;\nif (x === 1) { if (y) 0; }\nelse if (x === 2) console.log(\'two\');',
+			errors: [{messageId: 'prefer-else-if'}],
+		},
+	],
+});
