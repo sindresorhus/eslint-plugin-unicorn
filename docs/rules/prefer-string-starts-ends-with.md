@@ -15,6 +15,8 @@ This rule also detects `String#indexOf() === 0` when the receiver is provably a 
 
 This rule also detects string slice comparisons like `string.slice(0, prefix.length) === prefix` and `string.slice(-5) === 'value'` when the receiver and compared value are provably strings. Dynamic suffix length checks are only reported when the suffix value is statically known to be non-empty, because `string.slice(-suffix.length) === suffix` is not equivalent to `string.endsWith(suffix)` when `suffix` is an empty string.
 
+Comparisons with the slice call on the right are suggestions when the receiver has a side effect, because the replacement evaluates the receiver before the search value.
+
 Some reports are not autofixable when the replacement could change behavior or remove comments.
 
 ## Examples

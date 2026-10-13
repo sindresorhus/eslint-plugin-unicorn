@@ -1,7 +1,247 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
+import {transpileModule, ScriptTarget} from 'typescript';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+const keywordConfig = {
+	plugins: {unicorn: {rules: {'prefer-string-starts-ends-with': rule}}},
+	rules: {'unicorn/prefer-string-starts-ends-with': 'error'},
+};
+
+const getSliceSuggestion = (t, code, languageOptions) => {
+	const {output, fixed, messages} = new Linter().verifyAndFix(code, {...keywordConfig, ...(languageOptions && {languageOptions})});
+	t.assert.strictEqual(output, code);
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].fix, undefined);
+	t.assert.strictEqual(messages[0].suggestions.length, 1);
+	const [{fix}] = messages[0].suggestions;
+	const suggestion = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	t.assert.deepStrictEqual(new Linter().verify(suggestion, {...keywordConfig, ...(languageOptions && {languageOptions})}), []);
+	return suggestion;
+};
+
+const getKeywordOutput = (t, code, languageOptions) => {
+	const {output, fixed, messages} = new Linter().verifyAndFix(code, {...keywordConfig, ...(languageOptions && {languageOptions})});
+	t.assert.strictEqual(fixed, true);
+	t.assert.deepStrictEqual(messages, []);
+	return output;
+};
+
+const sliceCase = (code, output, options) => ({
+	code,
+	...options,
+	output,
+	errors: [{messageId: output.includes('.endsWith(') ? 'prefer-ends-with-slice' : 'prefer-starts-with-slice'}],
+});
+
+for (const operator of ['===', '!==', '==', '!=']) {
+	nodeTest(`reversed slice suggestions expose the changed value capture for ${operator}`, t => {
+		const code = outdent`
+			const events = [];
+			let needle: string = "a";
+			function value() { events.push("receiver"); needle = "ab"; return "ab"; }
+			const result = needle ${operator} String(value()).slice(0, needle.length);
+			JSON.stringify({result, events});
+		`;
+		const suggestion = getSliceSuggestion(t, code, {parser: parsers.typescript.implementation});
+		const negate = operator.includes('!');
+		const expected = outdent`
+			const events = [];
+			let needle: string = "a";
+			function value() { events.push("receiver"); needle = "ab"; return "ab"; }
+			const result = ${negate ? '!' : ''}String(value()).startsWith(needle);
+			JSON.stringify({result, events});
+		`;
+		t.assert.strictEqual(suggestion, expected);
+		const execute = source => runInNewContext(transpileModule(source, {compilerOptions: {target: ScriptTarget.ESNext}}).outputText);
+		t.assert.strictEqual(execute(code), JSON.stringify({result: negate, events: ['receiver']}));
+		t.assert.strictEqual(execute(suggestion), JSON.stringify({result: !negate, events: ['receiver']}));
+	});
+}
+
+nodeTest('left-side slice calls retain their autofixes and evaluation order', t => {
+	for (const operator of ['===', '!==', '==', '!=']) {
+		const code = 'let needle: string = "a"; function value() { needle = "ab"; return "ab"; } '
+			+ `String(value()).slice(0, needle.length) ${operator} needle;`;
+		const {output, fixed, messages} = new Linter().verifyAndFix(code, {...keywordConfig, languageOptions: {parser: parsers.typescript.implementation}});
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		const execute = source => runInNewContext(transpileModule(source, {compilerOptions: {target: ScriptTarget.ESNext}}).outputText);
+		t.assert.strictEqual(execute(output), execute(code));
+	}
+});
+
+const keywordBodies = [
+	['return', expression => `return${expression};`],
+	['throw', expression => `try { throw${expression}; } catch (value) { return value; }`],
+	['yield', expression => `function* values() { yield${expression}; } return values().next().value;`],
+	['case', expression => `switch (true) { case${expression}: return true; default: return false; }`],
+	['of', expression => `for (const value of${expression} ? [true] : [false]) { return value; }`],
+];
+
+test({
+	valid: [],
+	invalid: [
+		sliceCase(
+			'const text = "abc"; const element = <div>{"a" === text.slice(0, 1)}</div>;',
+			'const text = "abc"; const element = <div>{text.startsWith("a")}</div>;',
+			{languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}}},
+		),
+		sliceCase('const text = "abc";\r\n("c") === (text).slice(-1);', 'const text = "abc";\r\n(text).endsWith(("c"));'),
+		...[
+			['const text: string = "abc"; "a" === (text as string).slice(0, 1);', 'const text: string = "abc"; (text as string).startsWith("a");'],
+			['const text: string = "abc"; "c" !== text!.slice(-1);', 'const text: string = "abc"; !text!.endsWith("c");'],
+			['const text: string = "abc"; "a" === (text satisfies string).slice(0, 1);', 'const text: string = "abc"; (text satisfies string).startsWith("a");'],
+		].map(([code, output]) => sliceCase(code, output, {languageOptions: {parser: parsers.typescript}})),
+		{
+			code: 'let needle: string = "a"; function value() { needle = "ab"; return "ab"; } needle === String(value()).slice(0, needle.length);',
+			filename: 'file.ts',
+			languageOptions: {parser: parsers.typescript.implementation, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+			output: null,
+			errors: [{
+				messageId: 'prefer-starts-with-slice',
+				suggestions: [{
+					messageId: 'prefer-string-starts-ends-with/slice-suggestion',
+					output: 'let needle: string = "a"; function value() { needle = "ab"; return "ab"; } String(value()).startsWith(needle);',
+				}],
+			}],
+		},
+	],
+});
+
+for (const expression of ['/^a/.test(text)', '/c$/.test(text)', '(0) === text.indexOf("a")', '("a") === text.slice(0, 1)', '("c") === text.slice(-1)']) {
+	for (const [keyword, createBody] of keywordBodies) {
+		nodeTest(`string boundary keyword edits preserve ${keyword}: ${expression}`, t => {
+			const code = `const text = "abc"; function run() { ${createBody(expression)} } run();`;
+			const output = getKeywordOutput(t, code);
+			t.assert.strictEqual(runInNewContext(code), true);
+			t.assert.strictEqual(runInNewContext(output), true, output);
+		});
+	}
+}
+
+for (const [keyword, createBody] of keywordBodies) {
+	for (const suggestionIndex of [0, 1, 2]) {
+		nodeTest(`string boundary keyword suggestions preserve ${keyword}: suggestion ${suggestionIndex + 1}`, t => {
+			const code = `function run(text) { ${createBody('/^a/.test(text)')} } run("abc");`;
+			const messages = new Linter().verify(code, keywordConfig);
+			t.assert.strictEqual(messages.length, 1);
+			t.assert.strictEqual(messages[0].suggestions.length, 3);
+			const {fix} = messages[0].suggestions[suggestionIndex];
+			const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+			t.assert.strictEqual(runInNewContext(code), true);
+			t.assert.strictEqual(runInNewContext(output), true, output);
+			t.assert.deepStrictEqual(new Linter().verify(output, keywordConfig), []);
+		});
+	}
+}
+
+nodeTest('string boundary autofixes preserve typeof, void, and in grouping', t => {
+	for (const expression of ['/^a/.test(text)', '(0) === text.indexOf("a")', '("a") === text.slice(0, 1)']) {
+		for (const [body, expected] of [
+			[`return typeof(${expression});`, 'boolean'],
+			[`return void(${expression});`, undefined],
+			[`const result = []; for (const key in${expression} ? {matched: 1} : {}) { result.push(key); } return JSON.stringify(result);`, '["matched"]'],
+			[`return (${expression})in{true: 1};`, true],
+		]) {
+			const code = `const text = "abc"; function run() { ${body} } run();`;
+			const output = getKeywordOutput(t, code);
+			t.assert.strictEqual(runInNewContext(code), expected);
+			t.assert.strictEqual(runInNewContext(output), expected, output);
+		}
+	}
+});
+
+nodeTest('regex boundary autofixes preserve direct typeof and void keyword spacing', t => {
+	for (const [keyword, expected] of [['typeof', 'boolean'], ['void', undefined]]) {
+		const code = `const text = "abc"; ${keyword}/^a/.test(text);`;
+		const output = getKeywordOutput(t, code);
+		t.assert.strictEqual(output, `const text = "abc"; ${keyword} text.startsWith('a');`);
+		t.assert.strictEqual(runInNewContext(code), expected);
+		t.assert.strictEqual(runInNewContext(output), expected);
+	}
+});
+
+nodeTest('string boundary autofixes preserve awaited expressions', async t => {
+	await Promise.all(['/^a/.test(text)', '((0) === text.indexOf("a"))', '(("a") === text.slice(0, 1))'].map(async expression => {
+		const code = `const text = "abc"; async function run() { return await${expression}; } run();`;
+		const output = getKeywordOutput(t, code);
+		t.assert.strictEqual(await runInNewContext(code), true);
+		t.assert.strictEqual(await runInNewContext(output), true, output);
+	}));
+});
+
+nodeTest('string boundary autofixes preserve single evaluation of sequence receivers', t => {
+	for (const expression of ['/^a/.test((calls++, "abc"))', '(0) === (calls++, "abc").indexOf("a")', '("a") === (calls++, "abc").slice(0, 1)']) {
+		const code = `let calls = 0; function run() { return${expression}; } const found = run(); JSON.stringify({calls, found});`;
+		const output = expression.includes('.slice(') ? getSliceSuggestion(t, code) : getKeywordOutput(t, code);
+		t.assert.strictEqual(runInNewContext(code), '{"calls":1,"found":true}');
+		t.assert.strictEqual(runInNewContext(output), '{"calls":1,"found":true}', output);
+	}
+});
+
+nodeTest('TypeScript string boundary keyword edits preserve assertions and CRLF', t => {
+	for (const expression of ['/^a/.test(text!)', '(0) === (text as string).indexOf("a")', '("a") === (text satisfies string).slice(0, 1)', '("c") === (<string>text).slice(-1)']) {
+		const code = `const text: string = "abc";\r\nfunction run() {\r\n  return${expression};\r\n}\r\nrun();`;
+		const output = getKeywordOutput(t, code, {parser: parsers.typescript.implementation});
+		const execute = source => runInNewContext(transpileModule(source, {compilerOptions: {target: ScriptTarget.ESNext}}).outputText);
+		t.assert.strictEqual(execute(code), true);
+		t.assert.strictEqual(execute(output), true);
+		t.assert.strictEqual(output.split('\r\n').length, code.split('\r\n').length);
+	}
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const text = "abc"; function run() { return/* keep *//^a/.test(text); }',
+			output: 'const text = "abc"; function run() { return/* keep */text.startsWith(\'a\'); }',
+			errors: 1,
+		},
+		{
+			code: 'const text = "abc"; function run() { return(/^a/).test(text); }',
+			output: 'const text = "abc"; function run() { return (text).startsWith(\'a\'); }',
+			errors: 1,
+		},
+		{
+			code: 'const text = "abc"; function run() { return!/^a/.test(text); }',
+			output: 'const text = "abc"; function run() { return!text.startsWith(\'a\'); }',
+			errors: 1,
+		},
+		{
+			code: 'const text = "abc"; function run() { return(0) !== text.indexOf("a"); }',
+			output: 'const text = "abc"; function run() { return !text.startsWith("a"); }',
+			errors: 1,
+		},
+		sliceCase('const text = "abc"; function run() { return("c") !== text.slice(-1); }', 'const text = "abc"; function run() { return !text.endsWith(("c")); }'),
+		...[
+			['const text = "abc"; function run() { return /c$/.test(text); }', 'const text = "abc"; function run() { return text.endsWith(\'c\'); }'],
+			['const text = "abc"; function run() { return\t(0) === text.indexOf("a"); }', 'const text = "abc"; function run() { return\ttext.startsWith("a"); }'],
+			['const text = "abc"; function run() { return/* keep */("a") === text.slice(0, 1); }', 'const text = "abc"; function run() { return/* keep */text.startsWith(("a")); }'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+		{
+			code: 'const text = "abc"; const element = <div>{(0) === text.indexOf("a")}</div>;',
+			output: 'const text = "abc"; const element = <div>{text.startsWith("a")}</div>;',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+			errors: 1,
+		},
+		{
+			code: 'const text = "abc"; function run() { return(0) /* keep */ === text.indexOf("a"); }',
+			output: null,
+			errors: 1,
+		},
+		{
+			code: 'const text = "abc"; function run() { return("a") /* keep */ === text.slice(0, 1); }',
+			output: null,
+			errors: 1,
+		},
+	],
+});
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
@@ -26,6 +266,8 @@ const validRegex = [
 	/^foo/im,
 	/^A|B/,
 	/A|B$/,
+	/foo$/y,
+	/foo$/gy,
 ];
 
 const invalidRegex = [
@@ -35,7 +277,35 @@ const invalidRegex = [
 	/!$/,
 	/^ /,
 	/ $/,
+	/^foo/y,
+	/foo$/g,
 ];
+
+nodeTest('regex flag conversions preserve matching results', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-string-starts-ends-with': rule}}},
+		rules: {'unicorn/prefer-string-starts-ends-with': 'error'},
+	};
+
+	for (const pattern of ['^foo', 'foo$']) {
+		for (const flags of ['', 'g', 'd', 's', 'u', 'v', 'y', 'gy', 'dsy', 'uy', 'vy']) {
+			const code = `/${pattern}/${flags}.test(value)`;
+			const {fixed, output, messages} = linter.verifyAndFix(code, config);
+			const isStickySuffix = pattern.endsWith('$') && flags.includes('y');
+
+			t.assert.strictEqual(fixed, !isStickySuffix, code);
+			t.assert.deepStrictEqual(messages, [], code);
+			if (isStickySuffix) {
+				t.assert.strictEqual(output, code);
+			}
+
+			for (const value of ['', 'foo', 'xfoo', 'foox', 'foofoo', 'foo\n', '\nfoo', '😀foo']) {
+				t.assert.strictEqual(runInNewContext(output, {value}), runInNewContext(code, {value}), `${code}: ${JSON.stringify(value)}`);
+			}
+		}
+	}
+});
 
 test({
 	valid: [
@@ -517,17 +787,9 @@ test({
 			errors: [{messageId: MESSAGE_SLICE_ENDS_WITH}],
 		},
 		// Reversed comparison
-		{
-			code: '"shark" === "shark".slice(0, 5)',
-			output: '"shark".startsWith("shark")',
-			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
-		},
+		sliceCase('"shark" === "shark".slice(0, 5)', '"shark".startsWith("shark")'),
 		// Reversed negated
-		{
-			code: '"shark" !== "shark".slice(-5)',
-			output: '!"shark".endsWith("shark")',
-			errors: [{messageId: MESSAGE_SLICE_ENDS_WITH}],
-		},
+		sliceCase('"shark" !== "shark".slice(-5)', '!"shark".endsWith("shark")'),
 		// Loose equality
 		{
 			code: '"shark".slice(0, 5) == "shark"',
@@ -602,17 +864,8 @@ test({
 			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
 		},
 		// ASI protection for a parenthesized receiver
-		{
-			code: 'foo\n"x" === (value as string).slice(0, 1)',
-			output: 'foo\n;(value as string).startsWith("x")',
-			languageOptions: {parser: parsers.typescript},
-			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],
-		},
-		{
-			code: 'foo\n"a" !== ("a" + value).slice(-1)',
-			output: 'foo\n!("a" + value).endsWith("a")',
-			errors: [{messageId: MESSAGE_SLICE_ENDS_WITH}],
-		},
+		sliceCase('foo\n"x" === (value as string).slice(0, 1)', 'foo\n;(value as string).startsWith("x")', {languageOptions: {parser: parsers.typescript}}),
+		sliceCase('foo\n"a" !== ("a" + value).slice(-1)', 'foo\n!("a" + value).endsWith("a")'),
 	],
 });
 

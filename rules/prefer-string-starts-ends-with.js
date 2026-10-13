@@ -11,6 +11,7 @@ import {
 	isSameReference,
 	getStaticValueIfNoSideEffects,
 	needsSemicolon,
+	hasPossibleSideEffect,
 } from './utils/index.js';
 import {
 	isMemberExpression,
@@ -19,12 +20,14 @@ import {
 	isLiteral,
 	isNumericLiteral,
 } from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 
 const MESSAGE_STARTS_WITH = 'prefer-starts-with';
 const MESSAGE_ENDS_WITH = 'prefer-ends-with';
 const MESSAGE_INDEX_OF_STARTS_WITH = 'prefer-starts-with-indexOf';
 const MESSAGE_SLICE_STARTS_WITH = 'prefer-starts-with-slice';
 const MESSAGE_SLICE_ENDS_WITH = 'prefer-ends-with-slice';
+const MESSAGE_SLICE_SUGGESTION = 'prefer-string-starts-ends-with/slice-suggestion';
 const FIX_TYPE_STRING_CASTING = 'useStringCasting';
 const FIX_TYPE_OPTIONAL_CHAINING = 'useOptionalChaining';
 const FIX_TYPE_NULLISH_COALESCING = 'useNullishCoalescing';
@@ -34,6 +37,7 @@ const messages = {
 	[MESSAGE_INDEX_OF_STARTS_WITH]: 'Prefer `String#startsWith()` over `String#indexOf() === 0`.',
 	[MESSAGE_SLICE_STARTS_WITH]: 'Prefer `String#startsWith()` over comparing a string slice.',
 	[MESSAGE_SLICE_ENDS_WITH]: 'Prefer `String#endsWith()` over comparing a string slice.',
+	[MESSAGE_SLICE_SUGGESTION]: 'Replace with `String#{{method}}()`.',
 	[FIX_TYPE_STRING_CASTING]: 'Convert to string `String(…).{{method}}()`.',
 	[FIX_TYPE_OPTIONAL_CHAINING]: 'Use optional chaining `…?.{{method}}()`.',
 	[FIX_TYPE_NULLISH_COALESCING]: 'Use nullish coalescing `(… ?? \'\').{{method}}()`.',
@@ -133,7 +137,8 @@ const getRegexProblem = ({pattern, flags}) => {
 		}
 	}
 
-	if (!pattern.endsWith('$')) {
+	// A fresh sticky regex only matches at index zero, unlike `endsWith()`.
+	if (!pattern.endsWith('$') || flags.includes('y')) {
 		return;
 	}
 
@@ -256,6 +261,7 @@ const create = context => {
 
 			// Replace regex with string
 			yield fixer.replaceText(regexNode, targetText);
+			yield fixSpaceAroundKeyword(fixer, regexNode, context);
 
 			// `.test` => `.startsWith` / `.endsWith`
 			yield fixer.replaceText(node.callee.property, method);
@@ -342,6 +348,7 @@ const create = context => {
 				}
 
 				yield fixer.replaceText(node, replacement);
+				yield fixSpaceAroundKeyword(fixer, node, context);
 			},
 		};
 	});
@@ -390,7 +397,7 @@ const create = context => {
 			return;
 		}
 
-		return {
+		const problem = {
 			node,
 			messageId: comparison.messageId,
 			* fix(fixer, {abort}) {
@@ -406,8 +413,17 @@ const create = context => {
 				}
 
 				yield fixer.replaceText(node, replacement);
+				yield fixSpaceAroundKeyword(fixer, node, context);
 			},
 		};
+
+		// The replacement evaluates the receiver before the search value, which only matters when the receiver has a side effect.
+		if (sliceCall === right && hasPossibleSideEffect(target, context)) {
+			const {fix, ...report} = problem;
+			return {...report, suggest: [{messageId: MESSAGE_SLICE_SUGGESTION, data: {method: comparison.method}, fix}]};
+		}
+
+		return problem;
 	});
 };
 
