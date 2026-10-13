@@ -5,8 +5,10 @@ import {fixSpaceAroundKeyword} from './fix/index.js';
 import {getCallArgumentText, getChildNodes, isBigInt} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-math-min-max';
+const SUGGESTION_ID = 'replace-with-math-min-max';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `Math.{{method}}()` to simplify ternary expressions.',
+	[SUGGESTION_ID]: 'Replace with `Math.{{method}}()`.',
 };
 
 const isNumberTypeAnnotation = typeAnnotation =>
@@ -263,24 +265,29 @@ const create = context => {
 
 		/*
 		The replacement is rebuilt from both operands, so a comment between them would be lost. The same operand is written on both sides of the comparison, so the source evaluates it twice and `Math.min()`/`Math.max()` only once. That is only the same when reading the operand has no effect.
+		Even number operands differ for `NaN` and signed zero, so only offer a suggestion.
 		*/
 		if (
 			context.sourceCode.getCommentsInside(conditionalExpression).length === 0
 			&& isEffectFreeOperand(left)
 			&& isEffectFreeOperand(right)
 		) {
-			/**
-			@param {import('eslint').Rule.RuleFixer} fixer
-			*/
-			problem.fix = function * (fixer) {
-				yield fixSpaceAroundKeyword(fixer, conditionalExpression, context);
+			problem.suggest = [{
+				messageId: SUGGESTION_ID,
+				data: {method},
+				/**
+				@param {import('eslint').Rule.RuleFixer} fixer
+				*/
+				* fix(fixer) {
+					yield fixSpaceAroundKeyword(fixer, conditionalExpression, context);
 
-				const argumentsText = [left, right]
-					.map(node => getCallArgumentText(node, context))
-					.join(', ');
+					const argumentsText = [left, right]
+						.map(node => getCallArgumentText(node, context))
+						.join(', ');
 
-				yield fixer.replaceText(conditionalExpression, `Math.${method}(${argumentsText})`);
-			};
+					yield fixer.replaceText(conditionalExpression, `Math.${method}(${argumentsText})`);
+				},
+			}];
 		}
 
 		return problem;
@@ -298,7 +305,7 @@ const config = {
 			description: 'Prefer `Math.min()` and `Math.max()` over ternaries for simple comparisons.',
 			recommended: 'unopinionated',
 		},
-		fixable: 'code',
+		hasSuggestions: true,
 		messages,
 		languages: [
 			'js/js',

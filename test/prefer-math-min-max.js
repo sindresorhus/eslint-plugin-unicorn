@@ -2,6 +2,23 @@ import {outdent} from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+const MESSAGE_ID = 'prefer-math-min-max';
+const SUGGESTION_ID = 'replace-with-math-min-max';
+
+// `NaN` and signed zero give a different result, so these are only suggested
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const value = NaN; value > 0 ? value : 0;',
+			errors: [{messageId: MESSAGE_ID, suggestions: [{messageId: SUGGESTION_ID, data: {method: 'max'}, output: 'const value = NaN; Math.max(value, 0);'}]}],
+		},
+		{
+			code: 'const value = -0; value < 0 ? value : 0;',
+			errors: [{messageId: MESSAGE_ID, suggestions: [{messageId: SUGGESTION_ID, data: {method: 'min'}, output: 'const value = -0; Math.min(value, 0);'}]}],
+		},
+	],
+});
 
 test.snapshot({
 	valid: [
@@ -137,28 +154,27 @@ test({
 	invalid: [
 		{
 			code: 'const value = height > // keep\n\t50 ? 50 : height;',
-			errors: 1,
+			errors: [{messageId: MESSAGE_ID, suggestions: []}],
 		},
 		{
 			code: 'const value = height > /* keep */ 50 ? 50 : height;',
-			errors: 1,
+			errors: [{messageId: MESSAGE_ID, suggestions: []}],
 		},
 		{
 			code: 'const value = height > 50 /* keep */ ? 50 : height;',
-			errors: 1,
+			errors: [{messageId: MESSAGE_ID, suggestions: []}],
 		},
 		{
 			code: 'const value = height > 50 ? 50 /* keep */ : height;',
-			errors: 1,
+			errors: [{messageId: MESSAGE_ID, suggestions: []}],
 		},
 		{
 			code: 'const value = height > 50 ? /* keep */ 50 : height;',
-			errors: 1,
+			errors: [{messageId: MESSAGE_ID, suggestions: []}],
 		},
 		{
 			code: 'const value = height > 50 ? 50 : height;',
-			output: 'const value = Math.min(height, 50);',
-			errors: 1,
+			errors: [{messageId: MESSAGE_ID, suggestions: [{messageId: SUGGESTION_ID, data: {method: 'min'}, output: 'const value = Math.min(height, 50);'}]}],
 		},
 	],
 });
@@ -313,35 +329,31 @@ test({
 			'const a = (x ? f() : g()) > 0 ? 0 : (x ? f() : g());',
 			'const a = [f()] > 0 ? 0 : [f()];',
 			'const a = ({a: f()}) > 0 ? 0 : ({a: f()});',
-		].map(code => ({code, errors: 1})),
-		// A wrapper without an effect still evaluates the same way
+		].map(code => ({code, errors: [{messageId: MESSAGE_ID, suggestions: []}]})),
+		// A wrapper without an effect can be suggested
 		{
 			code: 'const a = (x, y) > 0 ? 0 : (x, y);',
-			output: 'const a = Math.min((x, y), 0);',
-			errors: 1,
+			errors: [{messageId: MESSAGE_ID, suggestions: [{messageId: SUGGESTION_ID, data: {method: 'min'}, output: 'const a = Math.min((x, y), 0);'}]}],
 		},
 		// A template literal with an expression can run `toString()`
 		{
 			// eslint-disable-next-line no-template-curly-in-string
 			code: 'const a = `${x}` > 0 ? 0 : `${x}`;',
-			errors: 1,
+			errors: [{messageId: MESSAGE_ID, suggestions: []}],
 		},
 		{
 			code: 'const a = `1` > 0 ? 0 : `1`;',
-			output: 'const a = Math.min(`1`, 0);',
-			errors: 1,
+			errors: [{messageId: MESSAGE_ID, suggestions: [{messageId: SUGGESTION_ID, data: {method: 'min'}, output: 'const a = Math.min(`1`, 0);'}]}],
 		},
 		// A function body does not run where it is written
 		{
 			code: 'const a = [() => f()] > 0 ? 0 : [() => f()];',
-			output: 'const a = Math.min([() => f()], 0);',
-			errors: 1,
+			errors: [{messageId: MESSAGE_ID, suggestions: [{messageId: SUGGESTION_ID, data: {method: 'min'}, output: 'const a = Math.min([() => f()], 0);'}]}],
 		},
 		// An import binding has no initializer to check
 		{
 			code: 'import foo from "foo"; const a = foo > 0 ? 0 : foo;',
-			output: 'import foo from "foo"; const a = Math.min(foo, 0);',
-			errors: 1,
+			errors: [{messageId: MESSAGE_ID, suggestions: [{messageId: SUGGESTION_ID, data: {method: 'min'}, output: 'import foo from "foo"; const a = Math.min(foo, 0);'}]}],
 		},
 	],
 });

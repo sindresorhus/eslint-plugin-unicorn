@@ -14,7 +14,7 @@ Message:
     | 	       ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.max()\` to simplify ternary expressions.
   3 | }
 
-Output:
+Suggestion 1/1: Replace with \`Math.max()\`.:
   1 | function foo(a, b) {
   2 | 	return Math.max(a as number, b);
   3 | }
@@ -33,7 +33,7 @@ Message:
 > 1 | height > 50 ? 50 : height
     | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
 
-Output:
+Suggestion 1/1: Replace with \`Math.min()\`.:
   1 | Math.min(height, 50)
 
 `;
@@ -54,7 +54,7 @@ Message:
     | 	       ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.max()\` to simplify ternary expressions.
   3 | }
 
-Output:
+Suggestion 1/1: Replace with \`Math.max()\`.:
   1 | function foo(a, b) {
   2 | 	return Math.max(a as Number, b);
   3 | }
@@ -73,7 +73,7 @@ Message:
 > 1 | height >= 50 ? height : 50
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.max()\` to simplify ternary expressions.
 
-Output:
+Suggestion 1/1: Replace with \`Math.max()\`.:
   1 | Math.max(height, 50)
 
 `;
@@ -90,7 +90,7 @@ Message:
 > 1 | height < 50 ? 50 : height
     | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.max()\` to simplify ternary expressions.
 
-Output:
+Suggestion 1/1: Replace with \`Math.max()\`.:
   1 | Math.max(height, 50)
 
 `;
@@ -107,7 +107,7 @@ Message:
 > 1 | height <= 50 ? 50 : height
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.max()\` to simplify ternary expressions.
 
-Output:
+Suggestion 1/1: Replace with \`Math.max()\`.:
   1 | Math.max(height, 50)
 
 `;
@@ -124,7 +124,7 @@ Message:
 > 1 | height > maxHeight ? height : maxHeight
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.max()\` to simplify ternary expressions.
 
-Output:
+Suggestion 1/1: Replace with \`Math.max()\`.:
   1 | Math.max(height, maxHeight)
 
 `;
@@ -141,7 +141,7 @@ Message:
 > 1 | height < maxHeight ? maxHeight : height
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.max()\` to simplify ternary expressions.
 
-Output:
+Suggestion 1/1: Replace with \`Math.max()\`.:
   1 | Math.max(height, maxHeight)
 
 `;
@@ -162,7 +162,7 @@ Message:
     | 	       ^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
   3 | }
 
-Output:
+Suggestion 1/1: Replace with \`Math.min()\`.:
   1 | function a() {
   2 | 	return Math.min(+foo, 10)
   3 | }
@@ -185,7 +185,7 @@ Message:
     | 	      ^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
   3 | }
 
-Output:
+Suggestion 1/1: Replace with \`Math.min()\`.:
   1 | function a() {
   2 | 	return Math.min(+foo, 10)
   3 | }
@@ -204,7 +204,7 @@ Message:
 > 1 | (0,foo) > 10 ? 10 : (0,foo)
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
 
-Output:
+Suggestion 1/1: Replace with \`Math.min()\`.:
   1 | Math.min((0,foo), 10)
 
 `;
@@ -221,7 +221,7 @@ Message:
 > 1 | foo > (0,bar) ? foo : (0,bar)
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.max()\` to simplify ternary expressions.
 
-Output:
+Suggestion 1/1: Replace with \`Math.max()\`.:
   1 | Math.max(foo, (0,bar))
 
 `;
@@ -256,7 +256,7 @@ Message:
     | 	       ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.max()\` to simplify ternary expressions.
   3 | }
 
-Output:
+Suggestion 1/1: Replace with \`Math.max()\`.:
   1 | function foo(a, b) {
   2 | 	return Math.max(a as number, b);
   3 | }
@@ -275,7 +275,7 @@ Message:
 > 1 | height >= 50 ? 50 : height
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
 
-Output:
+Suggestion 1/1: Replace with \`Math.min()\`.:
   1 | Math.min(height, 50)
 
 `;
@@ -328,7 +328,7 @@ Message:
     | 	      ^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
   3 | }
 
-Output:
+Suggestion 1/1: Replace with \`Math.min()\`.:
   1 | async function foo() {
   2 | 	await (Math.min(+foo, 10))
   3 | }
@@ -369,7 +369,7 @@ Message:
     | 	     ^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
   3 | }
 
-Output:
+Suggestion 1/1: Replace with \`Math.min()\`.:
   1 | function* foo() {
   2 | 	yield Math.min(+foo, 10)
   3 | }
@@ -388,7 +388,7 @@ Message:
 > 1 | export default+foo > 10 ? 10 : +foo
     |               ^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
 
-Output:
+Suggestion 1/1: Replace with \`Math.min()\`.:
   1 | export default Math.min(+foo, 10)
 
 `;
@@ -405,7 +405,7 @@ Message:
 > 1 | foo.length > bar.length ? bar.length : foo.length
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
 
-Output:
+Suggestion 1/1: Replace with \`Math.min()\`.:
   1 | Math.min(foo.length, bar.length)
 
 `;
@@ -426,7 +426,7 @@ Message:
     | 	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.max()\` to simplify ternary expressions.
   3 | }
 
-Output:
+Suggestion 1/1: Replace with \`Math.max()\`.:
   1 | function foo(a, b) {
   2 | 	return Math.max(a as unknown as number, b);
   3 | }
@@ -445,7 +445,7 @@ Message:
 > 1 | height < 50 ? height : 50
     | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
 
-Output:
+Suggestion 1/1: Replace with \`Math.min()\`.:
   1 | Math.min(height, 50)
 
 `;
@@ -462,7 +462,7 @@ Message:
 > 1 | height <= 50 ? height : 50
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
 
-Output:
+Suggestion 1/1: Replace with \`Math.min()\`.:
   1 | Math.min(height, 50)
 
 `;
@@ -483,7 +483,7 @@ Message:
 > 3 | var value = foo > bar ? bar : foo;
     |             ^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
 
-Output:
+Suggestion 1/1: Replace with \`Math.min()\`.:
   1 | var foo = 10;
   2 |
   3 | var value = Math.min(foo, bar);
@@ -502,7 +502,7 @@ Message:
 > 1 | height > maxHeight ? maxHeight : height
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
 
-Output:
+Suggestion 1/1: Replace with \`Math.min()\`.:
   1 | Math.min(height, maxHeight)
 
 `;
@@ -525,7 +525,7 @@ Message:
 > 4 | var value = foo > bar ? bar : foo;
     |             ^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
 
-Output:
+Suggestion 1/1: Replace with \`Math.min()\`.:
   1 | var foo = 10;
   2 | var bar = 20;
   3 |
@@ -545,7 +545,7 @@ Message:
 > 1 | height < maxHeight ? height : maxHeight
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
 
-Output:
+Suggestion 1/1: Replace with \`Math.min()\`.:
   1 | Math.min(height, maxHeight)
 
 `;
@@ -568,7 +568,7 @@ Message:
 > 4 | var value = foo > bar ? bar : foo;
     |             ^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
 
-Output:
+Suggestion 1/1: Replace with \`Math.min()\`.:
   1 | var foo: number;
   2 | var bar: number;
   3 |
@@ -592,7 +592,7 @@ Message:
     | 	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.max()\` to simplify ternary expressions.
   3 | }
 
-Output:
+Suggestion 1/1: Replace with \`Math.max()\`.:
   1 | function foo(a, b) {
   2 | 	return Math.max(a as number, b);
   3 | }
@@ -611,7 +611,7 @@ Message:
 > 1 | window.height > 50 ? 50 : window.height
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
 
-Output:
+Suggestion 1/1: Replace with \`Math.min()\`.:
   1 | Math.min(window.height, 50)
 
 `;
@@ -632,7 +632,7 @@ Message:
     | 	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.max()\` to simplify ternary expressions.
   3 | }
 
-Output:
+Suggestion 1/1: Replace with \`Math.max()\`.:
   1 | function foo(a, b) {
   2 | 	return Math.max(<number>a, b);
   3 | }
@@ -651,7 +651,7 @@ Message:
 > 1 | window.height < 50 ? window.height : 50
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
 
-Output:
+Suggestion 1/1: Replace with \`Math.min()\`.:
   1 | Math.min(window.height, 50)
 
 `;
@@ -672,7 +672,7 @@ Message:
     | 	       ^^^^^^^^^^^^^^^ Prefer \`Math.max()\` to simplify ternary expressions.
   3 | }
 
-Output:
+Suggestion 1/1: Replace with \`Math.max()\`.:
   1 | function foo(a, b) {
   2 | 	return Math.max(a!, b);
   3 | }
@@ -691,7 +691,7 @@ Message:
 > 1 | height > 50 ? height : 50
     | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.max()\` to simplify ternary expressions.
 
-Output:
+Suggestion 1/1: Replace with \`Math.max()\`.:
   1 | Math.max(height, 50)
 
 `;
