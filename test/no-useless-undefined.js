@@ -18,12 +18,35 @@ const errorsWithoutSuggestion = [{
 const optionsIgnoreArguments = [{checkArguments: false}];
 const optionsIgnoreArrowFunctionBody = [{checkArrowFunctionBody: false}];
 
+// Indexed access suggestions keep the space after a keyword
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function value(index, array) { return(index) >= 0 ? array[index] : undefined; }',
+			errors: errorsWithSuggestion('function value(index, array) { return array[index]; }'),
+		},
+		{
+			code: 'for (const value of(index >= 0 ? array[index] : undefined));',
+			errors: errorsWithSuggestion('for (const value of (array[index]));'),
+		},
+		{
+			code: 'function value(index: number, array: number[]) { return(index) >= 0 ? (array[index] as number) : undefined; }',
+			languageOptions: {parser: parsers.typescript},
+			errors: errorsWithSuggestion('function value(index: number, array: number[]) { return array[index] as number; }'),
+		},
+	],
+});
+
 test({
 	valid: [
 		'function foo() {return;}',
 		'const foo = () => {};',
 		'let foo;',
 		'var foo;',
+		// A `var` initializer can reset an existing binding, including on each loop iteration
+		'var a = undefined;',
+		'for (const item of items) { var value = undefined; }',
 		'const foo = undefined;',
 		'foo();',
 		'foo(bar,);',
@@ -158,16 +181,6 @@ test({
 		{
 			code: 'let a = undefined, b = 2;',
 			output: 'let a, b = 2;',
-			errors,
-		},
-		{
-			code: 'var a = undefined;',
-			output: 'var a;',
-			errors,
-		},
-		{
-			code: 'var a = undefined, b = 2;',
-			output: 'var a, b = 2;',
 			errors,
 		},
 		{
@@ -936,7 +949,6 @@ test({
 	invalid: [
 		...[
 			['let foo = (undefined);', 'let foo;'],
-			['var foo = (undefined);', 'var foo;'],
 			['function foo(bar = (undefined)) {}', 'function foo(bar) {}'],
 			['const {bar = (undefined)} = object;', 'const {bar} = object;'],
 		].map(([code, output]) => ({code, output, errors: 1})),

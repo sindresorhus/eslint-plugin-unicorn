@@ -1,5 +1,10 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
-import {getArgumentRemovalRange, removeArgument, replaceNodeOrTokenAndSpacesBefore} from './fix/index.js';
+import {
+	fixSpaceAroundKeyword,
+	getArgumentRemovalRange,
+	removeArgument,
+	replaceNodeOrTokenAndSpacesBefore,
+} from './fix/index.js';
 import {
 	isUndefined,
 	isFunction,
@@ -384,12 +389,12 @@ const create = context => {
 			);
 		}
 
-		// `let foo = undefined` / `var foo = undefined`
+		// `let foo = undefined`; a `var` initializer can reset an existing binding, including on each loop iteration.
 		if (
 			parent.type === 'VariableDeclarator'
 			&& parent.init === node
-			// `const`, `using`, and `await using` declarations require an initializer
-			&& (parent.parent.kind === 'let' || parent.parent.kind === 'var')
+			// Only `let` initializes a fresh binding without an initializer; `const`, `using`, and `await using` require one.
+			&& parent.parent.kind === 'let'
 			// A binding pattern requires an initializer, `let {foo} = undefined;` cannot become `let {foo};`
 			&& parent.id.type === 'Identifier'
 		) {
@@ -477,12 +482,13 @@ const create = context => {
 		if (sourceCode.getCommentsInside(node).length === 0) {
 			problem.suggest = [{
 				messageId: suggestionMessageId,
-				fix(fixer) {
+				* fix(fixer) {
 					// Use the original branch text so a TypeScript type assertion (`array[index] as string`)
 					// isn't dropped — `indexedAccess.node` is the unwrapped member expression.
 					const replacement = sourceCode.getText(indexedAccessNode);
 					const semicolon = needsSemicolon(sourceCode.getTokenBefore(node), context, replacement) ? ';' : '';
-					return fixer.replaceText(node, semicolon + replacement);
+					yield fixer.replaceText(node, semicolon + replacement);
+					yield fixSpaceAroundKeyword(fixer, node, context);
 				},
 			}];
 		}

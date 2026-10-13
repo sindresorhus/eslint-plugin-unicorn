@@ -11,6 +11,8 @@
 
 `undefined` is the default value for new variables, parameters, return statements, etc… so specifying it doesn't make any difference.
 
+`var` initializers are ignored because they can reset an existing binding, including on each loop iteration.
+
 This rule does not check function call arguments in TypeScript files because TypeScript can require an explicit `undefined` argument when the parameter type includes `undefined`.
 
 Using `undefined` as arrow function body sometimes makes the purpose more explicit. You can use the `checkArrowFunctionBody: false` option to allow this.
