@@ -37,11 +37,7 @@ This rule only reports temporary arrays made entirely from spreads. Mixed arrays
 new Set([first, ...rest]);
 ```
 
-`Array.from(…)` and typed array `.from(…)` cases with mapper functions are reported as suggestions instead of autofixes because replacing the array literal can change when the mapper function runs.
-
-`for…of` and `yield*` cases are reported as suggestions instead of autofixes because replacing the array literal can change when later iterables are consumed.
-
-`Promise.{all,allSettled,any,race}(…)` cases are also reported as suggestions instead of autofixes because replacing the array literal can change a synchronous throw during array creation into an asynchronous rejection.
+`Iterator.concat()` evaluates all its arguments first and then consumes the iterables lazily. The conversion is autofixed when the array is passed to `new Map(…)`, `new WeakMap(…)`, `new Set(…)`, `new WeakSet(…)`, a `TypedArray` constructor, `Object.fromEntries(…)`, `Array.from(…)`, or `TypedArray.from(…)` without a mapper function, since these only store the values, and no argument after the first has a side effect. Otherwise, it is offered as a suggestion, because replacing the spread array can change argument evaluation, mutation, callback timing, and error handling.
 
 A spread of a string is ignored. Spreading a string works, but `Iterator.concat()` throws for a string primitive.
 

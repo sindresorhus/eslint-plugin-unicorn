@@ -1,6 +1,7 @@
 import typedArray from './shared/typed-array.js';
 import {
 	getParenthesizedText,
+	hasPossibleSideEffect,
 	isBuiltinSet,
 	isGlobalIdentifier,
 	isString,
@@ -9,6 +10,7 @@ import {
 	isMethodCall,
 	isNewExpression,
 } from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 
 const MESSAGE_ID = 'prefer-iterator-concat';
 const MESSAGE_ID_SUGGESTION = 'prefer-iterator-concat/suggestion';
@@ -34,14 +36,6 @@ const isPromiseMethodCall = node => isMethodCall(node, {
 	object: 'Promise',
 	methods: promiseMethods,
 	argumentsLength: 1,
-	optionalCall: false,
-	optionalMember: false,
-});
-
-const isFromCallWithMapper = node => isMethodCall(node, {
-	objects: ['Array', ...typedArray],
-	method: 'from',
-	minimumArguments: 2,
 	optionalCall: false,
 	optionalMember: false,
 });
@@ -108,12 +102,28 @@ const isKnownSetUnionCase = (arrayExpression, context) => {
 	);
 };
 
-const isSuggestionOnlyParent = parent =>
-	(parent.type === 'ForOfStatement' || (parent.type === 'YieldExpression' && parent.delegate))
-	|| (
-		parent.type === 'CallExpression'
-		&& (isPromiseMethodCall(parent) || isFromCallWithMapper(parent))
-	);
+// These only store the values, so they cannot observe that `Iterator.concat()` consumes the iterables lazily
+const isValueStoringParent = parent =>
+	isNewExpression(parent, {names: ['Map', 'WeakMap', 'Set', 'WeakSet', ...typedArray], argumentsLength: 1})
+	|| isMethodCall(parent, {
+		objects: ['Array', ...typedArray],
+		method: 'from',
+		argumentsLength: 1,
+		optionalCall: false,
+		optionalMember: false,
+	})
+	|| isMethodCall(parent, {
+		object: 'Object',
+		method: 'fromEntries',
+		argumentsLength: 1,
+		optionalCall: false,
+		optionalMember: false,
+	});
+
+// `Iterator.concat()` evaluates every argument before consuming any iterable, so a later argument with a side effect can change an earlier iterable before it is read
+const canAutofix = (arrayExpression, context) =>
+	isValueStoringParent(arrayExpression.parent)
+	&& arrayExpression.elements.slice(1).every(element => !hasPossibleSideEffect(element.argument, context));
 
 const getReplacementText = (arrayExpression, context) => {
 	const argumentsText = arrayExpression.elements
@@ -128,7 +138,10 @@ const getFix = (arrayExpression, context) => {
 		return;
 	}
 
-	return fixer => fixer.replaceText(arrayExpression, getReplacementText(arrayExpression, context));
+	return function * (fixer) {
+		yield fixer.replaceText(arrayExpression, getReplacementText(arrayExpression, context));
+		yield fixSpaceAroundKeyword(fixer, arrayExpression, context);
+	};
 };
 
 /**
@@ -153,29 +166,17 @@ const create = context => {
 		};
 		const fix = getFix(node, context);
 
-		if (isSuggestionOnlyParent(node.parent)) {
-			if (!fix) {
-				return problem;
-			}
-
-			return {
-				...problem,
-				suggest: [
-					{
-						messageId: MESSAGE_ID_SUGGESTION,
-						fix,
-					},
-				],
-			};
-		}
-
 		if (!fix) {
 			return problem;
 		}
 
+		if (canAutofix(node, context)) {
+			return {...problem, fix};
+		}
+
 		return {
 			...problem,
-			fix,
+			suggest: [{messageId: MESSAGE_ID_SUGGESTION, fix}],
 		};
 	});
 };

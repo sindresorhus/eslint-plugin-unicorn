@@ -1,8 +1,52 @@
+import nodeTest from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+// `Iterator.concat()` evaluates every argument before consuming any iterable, so a later argument can change an earlier iterable before it is read. That is why conversions with a later argument that has a side effect are suggestions.
+nodeTest('iterator concatenation changes when later arguments are evaluated', t => {
+	const code = 'const first = [1]; function second() { first[0] = 2; return []; } JSON.stringify(Array.from([...first, ...second()]));';
+	const [problem] = new Linter().verify(code, {
+		plugins: {unicorn: {rules: {'prefer-iterator-concat': rule}}},
+		rules: {'unicorn/prefer-iterator-concat': 'error'},
+	});
+	const {fix} = problem.suggestions[0];
+	const suggestion = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	// Minimal lazy `Iterator.concat()` for Node.js versions without it
+	const Iterator = {
+		* concat(...iterables) {
+			for (const iterable of iterables) {
+				yield * iterable;
+			}
+		},
+	};
+	t.assert.strictEqual(runInNewContext(code), '[1]');
+	t.assert.strictEqual(runInNewContext(suggestion, {Iterator}), '[2]');
+});
+
+nodeTest('iterator concatenation is autofixed when the consumer only stores the values', t => {
+	for (const consumer of ['[...new Set(VALUES)]', 'Array.from(VALUES)', '[...Uint8Array.from(VALUES)]', '[...new Uint8Array(VALUES)]']) {
+		const code = outdent`
+			const calls = [];
+			const second = new Set([3, 4]);
+			function* first() { calls.push("first1"); yield 1; calls.push("first2"); yield 2; }
+			const result = ${consumer.replace('VALUES', '[...first(), ...second]')};
+			JSON.stringify({calls, result});
+		`;
+		const {output, fixed, messages} = new Linter().verifyAndFix(code, {
+			plugins: {unicorn: {rules: {'prefer-iterator-concat': rule}}},
+			rules: {'unicorn/prefer-iterator-concat': 'error'},
+		});
+		t.assert.strictEqual(fixed, true, code);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(output, code.replace('[...first(), ...second]', 'Iterator.concat(first(), second)'));
+		t.assert.strictEqual(runInNewContext(output), runInNewContext(code), code);
+	}
+});
 
 const typeAware = code => ({
 	code,
@@ -56,6 +100,7 @@ test.snapshot({
 
 		// Not direct iterable accepting usage.
 		'const values = [...foo, ...bar]',
+		'for (const key in [...foo, ...bar]);',
 		'function foo() { return [...foo, ...bar] }',
 
 		// `Iterator.concat()` requires every argument to be an object. Spreading a string primitive works, passing the string itself throws.
@@ -105,6 +150,7 @@ test.snapshot({
 
 		// For-of.
 		'for (const value of [...foo, ...bar]);',
+		'for (const value of[...foo, ...bar]);',
 		'async () => { for await (const value of [...foo, ...bar]); }',
 
 		// Yield star.
@@ -124,7 +170,30 @@ test.snapshot({
 			])
 		`,
 
-		// Comments are reported without a fix.
+		'Array.from([...(first, foo), ...(second, bar)])',
+		{
+			code: 'const result = <div>{Array.from([...foo, ...bar])}</div>;',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		'for(const value of([...foo, ...bar])) {}',
+		'function * collect() { yield*([...foo, ...bar]); }',
+		{
+			code: 'Array.from([...(foo as number[]), ...(bar satisfies number[])]);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'new Set([...foo!, ...(<number[]>bar)]);',
+			languageOptions: {parser: parsers.typescript},
+		},
+
+		// A later argument with a side effect runs before earlier iterables are consumed, so it is a suggestion
+		'new Set([...foo, ...bar()])',
+		'Array.from([...foo, ...(bar = baz)])',
+		'new Map([...foo, ...tag`bar`])',
+		// The first argument runs first either way
+		'new Set([...foo(), ...bar])',
+
+		// Comments are reported without a suggestion.
 		'new Set([/* comment */ ...foo, ...bar])',
 		'Promise.all([/* comment */ ...foo, ...bar])',
 

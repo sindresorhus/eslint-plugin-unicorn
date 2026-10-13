@@ -236,13 +236,30 @@ Suggestion 1/1: Use \`Iterator.concat(…)\`.:
 
 `;
 
-exports[`prefer-iterator-concat > invalid(22): async () => { for await (const value of [...foo, ...bar]); } 1`] = `
+exports[`prefer-iterator-concat > invalid(22): for (const value of[...foo, ...bar]); 1`] = `
+
+  1 | for (const value of[...foo, ...bar]);
+
+`;
+
+exports[`prefer-iterator-concat > invalid(22): for (const value of[...foo, ...bar]); 2`] = `
+
+Message:
+> 1 | for (const value of[...foo, ...bar]);
+    |                    ^^^^^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
+
+Suggestion 1/1: Use \`Iterator.concat(…)\`.:
+  1 | for (const value of Iterator.concat(foo, bar));
+
+`;
+
+exports[`prefer-iterator-concat > invalid(23): async () => { for await (const value of [...foo, ...bar]); } 1`] = `
 
   1 | async () => { for await (const value of [...foo, ...bar]); }
 
 `;
 
-exports[`prefer-iterator-concat > invalid(22): async () => { for await (const value of [...foo, ...bar]); } 2`] = `
+exports[`prefer-iterator-concat > invalid(23): async () => { for await (const value of [...foo, ...bar]); } 2`] = `
 
 Message:
 > 1 | async () => { for await (const value of [...foo, ...bar]); }
@@ -253,7 +270,7 @@ Suggestion 1/1: Use \`Iterator.concat(…)\`.:
 
 `;
 
-exports[`prefer-iterator-concat > invalid(23): function * foo() {\n\tyield * [...bar, ...baz];\n} 1`] = `
+exports[`prefer-iterator-concat > invalid(24): function * foo() {\n\tyield * [...bar, ...baz];\n} 1`] = `
 
   1 | function * foo() {
   2 | 	yield * [...bar, ...baz];
@@ -261,7 +278,7 @@ exports[`prefer-iterator-concat > invalid(23): function * foo() {\n\tyield * [..
 
 `;
 
-exports[`prefer-iterator-concat > invalid(23): function * foo() {\n\tyield * [...bar, ...baz];\n} 2`] = `
+exports[`prefer-iterator-concat > invalid(24): function * foo() {\n\tyield * [...bar, ...baz];\n} 2`] = `
 
 Message:
   1 | function * foo() {
@@ -276,13 +293,13 @@ Suggestion 1/1: Use \`Iterator.concat(…)\`.:
 
 `;
 
-exports[`prefer-iterator-concat > invalid(24): new Set([...(foo ? bar : baz), ...(qux)]) 1`] = `
+exports[`prefer-iterator-concat > invalid(25): new Set([...(foo ? bar : baz), ...(qux)]) 1`] = `
 
   1 | new Set([...(foo ? bar : baz), ...(qux)])
 
 `;
 
-exports[`prefer-iterator-concat > invalid(24): new Set([...(foo ? bar : baz), ...(qux)]) 2`] = `
+exports[`prefer-iterator-concat > invalid(25): new Set([...(foo ? bar : baz), ...(qux)]) 2`] = `
 
 Message:
 > 1 | new Set([...(foo ? bar : baz), ...(qux)])
@@ -293,13 +310,13 @@ Output:
 
 `;
 
-exports[`prefer-iterator-concat > invalid(25): new Set((([...foo, ...bar]))) 1`] = `
+exports[`prefer-iterator-concat > invalid(26): new Set((([...foo, ...bar]))) 1`] = `
 
   1 | new Set((([...foo, ...bar])))
 
 `;
 
-exports[`prefer-iterator-concat > invalid(25): new Set((([...foo, ...bar]))) 2`] = `
+exports[`prefer-iterator-concat > invalid(26): new Set((([...foo, ...bar]))) 2`] = `
 
 Message:
 > 1 | new Set((([...foo, ...bar])))
@@ -310,7 +327,7 @@ Output:
 
 `;
 
-exports[`prefer-iterator-concat > invalid(26): new Set([\n\t...foo,\n\t...bar,\n]) 1`] = `
+exports[`prefer-iterator-concat > invalid(27): new Set([\n\t...foo,\n\t...bar,\n]) 1`] = `
 
   1 | new Set([
   2 | 	...foo,
@@ -319,7 +336,7 @@ exports[`prefer-iterator-concat > invalid(26): new Set([\n\t...foo,\n\t...bar,\n
 
 `;
 
-exports[`prefer-iterator-concat > invalid(26): new Set([\n\t...foo,\n\t...bar,\n]) 2`] = `
+exports[`prefer-iterator-concat > invalid(27): new Set([\n\t...foo,\n\t...bar,\n]) 2`] = `
 
 Message:
 > 1 | new Set([
@@ -336,48 +353,37 @@ Output:
 
 `;
 
-exports[`prefer-iterator-concat > invalid(27): new Set([/* comment */ ...foo, ...bar]) 1`] = `
+exports[`prefer-iterator-concat > invalid(28): Array.from([...(first, foo), ...(second, bar)]) 1`] = `
 
-  1 | new Set([/* comment */ ...foo, ...bar])
+  1 | Array.from([...(first, foo), ...(second, bar)])
 
 `;
 
-exports[`prefer-iterator-concat > invalid(27): new Set([/* comment */ ...foo, ...bar]) 2`] = `
+exports[`prefer-iterator-concat > invalid(28): Array.from([...(first, foo), ...(second, bar)]) 2`] = `
 
 Message:
-> 1 | new Set([/* comment */ ...foo, ...bar])
-    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
-
-`;
-
-exports[`prefer-iterator-concat > invalid(28): Promise.all([/* comment */ ...foo, ...bar]) 1`] = `
-
-  1 | Promise.all([/* comment */ ...foo, ...bar])
-
-`;
-
-exports[`prefer-iterator-concat > invalid(28): Promise.all([/* comment */ ...foo, ...bar]) 2`] = `
-
-Message:
-> 1 | Promise.all([/* comment */ ...foo, ...bar])
-    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
-
-`;
-
-exports[`prefer-iterator-concat > invalid(29): const a = [1], b = [2]; new Set([...a, ...b]); 1`] = `
-
-  1 | const a = [1], b = [2]; new Set([...a, ...b]);
-
-`;
-
-exports[`prefer-iterator-concat > invalid(29): const a = [1], b = [2]; new Set([...a, ...b]); 2`] = `
-
-Message:
-> 1 | const a = [1], b = [2]; new Set([...a, ...b]);
-    |                                 ^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
+> 1 | Array.from([...(first, foo), ...(second, bar)])
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
 
 Output:
-  1 | const a = [1], b = [2]; new Set(Iterator.concat(a, b));
+  1 | Array.from(Iterator.concat((first, foo), (second, bar)))
+
+`;
+
+exports[`prefer-iterator-concat > invalid(29): const result = <div>{Array.from([...foo, ...bar])}</div>; 1`] = `
+
+  1 | const result = <div>{Array.from([...foo, ...bar])}</div>;
+
+`;
+
+exports[`prefer-iterator-concat > invalid(29): const result = <div>{Array.from([...foo, ...bar])}</div>; 2`] = `
+
+Message:
+> 1 | const result = <div>{Array.from([...foo, ...bar])}</div>;
+    |                                 ^^^^^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
+
+Output:
+  1 | const result = <div>{Array.from(Iterator.concat(foo, bar))}</div>;
 
 `;
 
@@ -398,37 +404,167 @@ Output:
 
 `;
 
-exports[`prefer-iterator-concat > invalid(30): Array.from([...[1], ...[2]]); 1`] = `
+exports[`prefer-iterator-concat > invalid(30): for(const value of([...foo, ...bar])) {} 1`] = `
 
-  1 | Array.from([...[1], ...[2]]);
+  1 | for(const value of([...foo, ...bar])) {}
 
 `;
 
-exports[`prefer-iterator-concat > invalid(30): Array.from([...[1], ...[2]]); 2`] = `
+exports[`prefer-iterator-concat > invalid(30): for(const value of([...foo, ...bar])) {} 2`] = `
 
 Message:
-> 1 | Array.from([...[1], ...[2]]);
-    |            ^^^^^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
+> 1 | for(const value of([...foo, ...bar])) {}
+    |                    ^^^^^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
 
-Output:
-  1 | Array.from(Iterator.concat([1], [2]));
-
-`;
-
-exports[`prefer-iterator-concat > invalid(31): function collect(text: String, values: string[]) { return Array.from([...text, ...values]); } 1`] = `
-
-  1 | function collect(text: String, values: string[]) { return Array.from([...text, ...values]); }
+Suggestion 1/1: Use \`Iterator.concat(…)\`.:
+  1 | for(const value of (Iterator.concat(foo, bar))) {}
 
 `;
 
-exports[`prefer-iterator-concat > invalid(31): function collect(text: String, values: string[]) { return Array.from([...text, ...values]); } 2`] = `
+exports[`prefer-iterator-concat > invalid(31): function * collect() { yield*([...foo, ...bar]); } 1`] = `
+
+  1 | function * collect() { yield*([...foo, ...bar]); }
+
+`;
+
+exports[`prefer-iterator-concat > invalid(31): function * collect() { yield*([...foo, ...bar]); } 2`] = `
 
 Message:
-> 1 | function collect(text: String, values: string[]) { return Array.from([...text, ...values]); }
-    |                                                                      ^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
+> 1 | function * collect() { yield*([...foo, ...bar]); }
+    |                               ^^^^^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
+
+Suggestion 1/1: Use \`Iterator.concat(…)\`.:
+  1 | function * collect() { yield*(Iterator.concat(foo, bar)); }
+
+`;
+
+exports[`prefer-iterator-concat > invalid(32): Array.from([...(foo as number[]), ...(bar satisfies number[])]); 1`] = `
+
+  1 | Array.from([...(foo as number[]), ...(bar satisfies number[])]);
+
+`;
+
+exports[`prefer-iterator-concat > invalid(32): Array.from([...(foo as number[]), ...(bar satisfies number[])]); 2`] = `
+
+Message:
+> 1 | Array.from([...(foo as number[]), ...(bar satisfies number[])]);
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
 
 Output:
-  1 | function collect(text: String, values: string[]) { return Array.from(Iterator.concat(text, values)); }
+  1 | Array.from(Iterator.concat((foo as number[]), (bar satisfies number[])));
+
+`;
+
+exports[`prefer-iterator-concat > invalid(33): new Set([...foo!, ...(<number[]>bar)]); 1`] = `
+
+  1 | new Set([...foo!, ...(<number[]>bar)]);
+
+`;
+
+exports[`prefer-iterator-concat > invalid(33): new Set([...foo!, ...(<number[]>bar)]); 2`] = `
+
+Message:
+> 1 | new Set([...foo!, ...(<number[]>bar)]);
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
+
+Output:
+  1 | new Set(Iterator.concat(foo!, (<number[]>bar)));
+
+`;
+
+exports[`prefer-iterator-concat > invalid(34): new Set([...foo, ...bar()]) 1`] = `
+
+  1 | new Set([...foo, ...bar()])
+
+`;
+
+exports[`prefer-iterator-concat > invalid(34): new Set([...foo, ...bar()]) 2`] = `
+
+Message:
+> 1 | new Set([...foo, ...bar()])
+    |         ^^^^^^^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
+
+Suggestion 1/1: Use \`Iterator.concat(…)\`.:
+  1 | new Set(Iterator.concat(foo, bar()))
+
+`;
+
+exports[`prefer-iterator-concat > invalid(35): Array.from([...foo, ...(bar = baz)]) 1`] = `
+
+  1 | Array.from([...foo, ...(bar = baz)])
+
+`;
+
+exports[`prefer-iterator-concat > invalid(35): Array.from([...foo, ...(bar = baz)]) 2`] = `
+
+Message:
+> 1 | Array.from([...foo, ...(bar = baz)])
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
+
+Suggestion 1/1: Use \`Iterator.concat(…)\`.:
+  1 | Array.from(Iterator.concat(foo, (bar = baz)))
+
+`;
+
+exports[`prefer-iterator-concat > invalid(36): new Map([...foo, ...tag\`bar\`]) 1`] = `
+
+  1 | new Map([...foo, ...tag\`bar\`])
+
+`;
+
+exports[`prefer-iterator-concat > invalid(36): new Map([...foo, ...tag\`bar\`]) 2`] = `
+
+Message:
+> 1 | new Map([...foo, ...tag\`bar\`])
+    |         ^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
+
+Suggestion 1/1: Use \`Iterator.concat(…)\`.:
+  1 | new Map(Iterator.concat(foo, tag\`bar\`))
+
+`;
+
+exports[`prefer-iterator-concat > invalid(37): new Set([...foo(), ...bar]) 1`] = `
+
+  1 | new Set([...foo(), ...bar])
+
+`;
+
+exports[`prefer-iterator-concat > invalid(37): new Set([...foo(), ...bar]) 2`] = `
+
+Message:
+> 1 | new Set([...foo(), ...bar])
+    |         ^^^^^^^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
+
+Output:
+  1 | new Set(Iterator.concat(foo(), bar))
+
+`;
+
+exports[`prefer-iterator-concat > invalid(38): new Set([/* comment */ ...foo, ...bar]) 1`] = `
+
+  1 | new Set([/* comment */ ...foo, ...bar])
+
+`;
+
+exports[`prefer-iterator-concat > invalid(38): new Set([/* comment */ ...foo, ...bar]) 2`] = `
+
+Message:
+> 1 | new Set([/* comment */ ...foo, ...bar])
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
+
+`;
+
+exports[`prefer-iterator-concat > invalid(39): Promise.all([/* comment */ ...foo, ...bar]) 1`] = `
+
+  1 | Promise.all([/* comment */ ...foo, ...bar])
+
+`;
+
+exports[`prefer-iterator-concat > invalid(39): Promise.all([/* comment */ ...foo, ...bar]) 2`] = `
+
+Message:
+> 1 | Promise.all([/* comment */ ...foo, ...bar])
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
 
 `;
 
@@ -446,6 +582,57 @@ Message:
 
 Output:
   1 | new WeakMap(Iterator.concat(foo, bar))
+
+`;
+
+exports[`prefer-iterator-concat > invalid(40): const a = [1], b = [2]; new Set([...a, ...b]); 1`] = `
+
+  1 | const a = [1], b = [2]; new Set([...a, ...b]);
+
+`;
+
+exports[`prefer-iterator-concat > invalid(40): const a = [1], b = [2]; new Set([...a, ...b]); 2`] = `
+
+Message:
+> 1 | const a = [1], b = [2]; new Set([...a, ...b]);
+    |                                 ^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
+
+Output:
+  1 | const a = [1], b = [2]; new Set(Iterator.concat(a, b));
+
+`;
+
+exports[`prefer-iterator-concat > invalid(41): Array.from([...[1], ...[2]]); 1`] = `
+
+  1 | Array.from([...[1], ...[2]]);
+
+`;
+
+exports[`prefer-iterator-concat > invalid(41): Array.from([...[1], ...[2]]); 2`] = `
+
+Message:
+> 1 | Array.from([...[1], ...[2]]);
+    |            ^^^^^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
+
+Output:
+  1 | Array.from(Iterator.concat([1], [2]));
+
+`;
+
+exports[`prefer-iterator-concat > invalid(42): function collect(text: String, values: string[]) { return Array.from([...text, ...values]); } 1`] = `
+
+  1 | function collect(text: String, values: string[]) { return Array.from([...text, ...values]); }
+
+`;
+
+exports[`prefer-iterator-concat > invalid(42): function collect(text: String, values: string[]) { return Array.from([...text, ...values]); } 2`] = `
+
+Message:
+> 1 | function collect(text: String, values: string[]) { return Array.from([...text, ...values]); }
+    |                                                                      ^^^^^^^^^^^^^^^^^^^^ Use \`Iterator.concat(…)\` instead of creating a temporary array from spreads.
+
+Output:
+  1 | function collect(text: String, values: string[]) { return Array.from(Iterator.concat(text, values)); }
 
 `;
 
