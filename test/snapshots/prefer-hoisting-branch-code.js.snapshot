@@ -1,3 +1,25 @@
+exports[`prefer-hoisting-branch-code > invalid(1): if (a) { foo(); callback = () => { return (\n42); }; } else { bar(); callback = () => { return (42); }; } 1`] = `
+
+  1 | if (a) { foo(); callback = () => { return (
+  2 | 42); }; } else { bar(); callback = () => { return (42); }; }
+
+`;
+
+exports[`prefer-hoisting-branch-code > invalid(1): if (a) { foo(); callback = () => { return (\n42); }; } else { bar(); callback = () => { return (42); }; } 2`] = `
+
+Message:
+> 1 | if (a) { foo(); callback = () => { return (
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 2 | 42); }; } else { bar(); callback = () => { return (42); }; }
+    | ^^^^^^^ These branches end with the same code. Move it after the \`if\` statement.
+
+Output:
+  1 | if (a) { foo(); } else { bar(); }
+  2 | callback = () => { return (
+  3 | 42); };
+
+`;
+
 exports[`prefer-hoisting-branch-code > invalid(1): if (a) { foo(); cleanup(); } else { bar(); cleanup(); } 1`] = `
 
   1 | if (a) { foo(); cleanup(); } else { bar(); cleanup(); }

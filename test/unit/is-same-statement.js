@@ -40,6 +40,32 @@ test('statements with different tokens are not the same', t => {
 	t.assert.strictEqual(getBranchComparison('if (a) { foo(); } else foo();'), false);
 });
 
+test('identical tokens with different automatic semicolon insertion are not the same', t => {
+	for (const code of [
+		'if (a) callback = () => { return\n42; }; else callback = () => { return 42; };',
+		'if (a) callback = function () { return\n42; }; else callback = function () { return 42; };',
+		'if (a) callback = function* () { yield\n42; }; else callback = function* () { yield 42; };',
+		'if (a) callback = () => { left\n++right; }; else callback = () => { left++\nright; };',
+		'if (a) callback = () => { return /*\n*/ 42; }; else callback = () => { return /* */ 42; };',
+		'if (a) callback = () => { return\r\n42; }; else callback = () => { return 42; };',
+		'if (a) callback = () => { return\u2028 42; }; else callback = () => { return 42; };',
+	]) {
+		t.assert.strictEqual(getBranchComparison(code), false, code);
+	}
+});
+
+test('formatting that preserves the AST remains equivalent inside callbacks', t => {
+	for (const code of [
+		'if (a) callback = () => { return (\n42); }; else callback = () => { return (42); };',
+		'if (a) callback = function* () { yield (\n42); }; else callback = function* () { yield (42); };',
+		'if (a) callback = () => { left++\n; }; else callback = () => { left++; };',
+		'if (a) callback = () => { return /* safe */ 42; }; else callback = () => { return 42; };',
+		'if (a) callback = () => { "use strict"; return 42; }; else callback = () => { "use strict"; return 42; };',
+	]) {
+		t.assert.strictEqual(getBranchComparison(code), true, code);
+	}
+});
+
 test('empty statements are never the same', t => {
 	t.assert.strictEqual(getBranchComparison('if (a) ; else ;'), false);
 });

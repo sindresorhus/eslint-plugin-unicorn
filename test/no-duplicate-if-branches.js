@@ -3,6 +3,13 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [
+		'if (a) { callback = () => { return\n42; }; } else { callback = () => { return 42; }; }',
+	],
+	invalid: [],
+});
+
 test.snapshot({
 	valid: [
 		outdent`

@@ -10,7 +10,7 @@
 
 When every branch of an `if`/`else if`/`else` chain begins or ends with the same code, that code does not depend on the condition and only adds duplication. Moving it out of the branches keeps each branch focused on what is actually different.
 
-This rule compares branch statements by token, so it ignores comments, formatting, and optional trailing semicolons. It only reports a complete chain (one with a final `else`), and only when every branch keeps at least one distinct statement, so it never empties a branch. Fully identical branches are left to [`unicorn/no-duplicate-if-branches`](./no-duplicate-if-branches.md).
+This rule compares branch statements by token and AST structure, so it ignores comments, formatting, and optional trailing semicolons unless they change how the code is parsed. It only reports a complete chain (one with a final `else`), and only when every branch keeps at least one distinct statement, so it never empties a branch. Fully identical branches are left to [`unicorn/no-duplicate-if-branches`](./no-duplicate-if-branches.md).
 
 Shared trailing code is auto-fixed, since it already runs after each branch's own code. Shared leading code is only offered as a suggestion when it has side effects, because moving it before the `if` runs it before the conditions are evaluated, which can change behavior:
 

@@ -3,6 +3,18 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+// Automatic semicolon insertion makes the same tokens parse differently
+test.snapshot({
+	valid: [
+		'if (a) { foo(); callback = () => { return\n42; }; } else { bar(); callback = () => { return 42; }; }',
+		'if (a) { callback = () => { return\n42; }; foo(); } else { callback = () => { return 42; }; bar(); }',
+	],
+	invalid: [
+		// Formatting that keeps the same parse is still shared
+		'if (a) { foo(); callback = () => { return (\n42); }; } else { bar(); callback = () => { return (42); }; }',
+	],
+});
+
 test.snapshot({
 	valid: [
 		// No shared statements
