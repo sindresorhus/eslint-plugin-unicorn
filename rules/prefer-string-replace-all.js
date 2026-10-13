@@ -128,6 +128,10 @@ function getBodyReplacement(body) {
 	return parts.join('');
 }
 
+const hasSurrogateCharacter = node =>
+	(node.type === 'value' && node.codePoint >= 0xD8_00 && node.codePoint <= 0xDF_FF)
+	|| (Array.isArray(node.body) && node.body.some(child => hasSurrogateCharacter(child)));
+
 function getPatternReplacement(node) {
 	if (!isRegexLiteral(node)) {
 		return;
@@ -142,7 +146,11 @@ function getPatternReplacement(node) {
 
 	// The caller already checked that it has the `g` flag
 	const {flags} = node.regex;
-	if (!hasSafeStringReplacementFlags(flags)) {
+	if (
+		!hasSafeStringReplacementFlags(flags)
+		// Unicode regexes match whole code points, while string searches can match half a surrogate pair.
+		|| ((flags.includes('u') || flags.includes('v')) && hasSurrogateCharacter(tree))
+	) {
 		return;
 	}
 

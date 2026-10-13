@@ -1,3 +1,20 @@
+exports[`prefer-string-replace-all > invalid(1): foo.replace(/\\uD83D/g, \"X\") 1`] = `
+
+  1 | foo.replace(/\\uD83D/g, "X")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(1): foo.replace(/\\uD83D/g, \"X\") 2`] = `
+
+Message:
+> 1 | foo.replace(/\\uD83D/g, "X")
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\uD83D', "X")
+
+`;
+
 exports[`prefer-string-replace-all > invalid(1): foo.replace(/a/g, bar) 1`] = `
 
   1 | foo.replace(/a/g, bar)
@@ -206,6 +223,23 @@ Message:
 
 Output:
   1 | foo.replaceAll(/\\W/g, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(2): foo.replace(/\\uD83D\\uDE00/gu, \"X\") 1`] = `
+
+  1 | foo.replace(/\\uD83D\\uDE00/gu, "X")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(2): foo.replace(/\\uD83D\\uDE00/gu, \"X\") 2`] = `
+
+Message:
+> 1 | foo.replace(/\\uD83D\\uDE00/gu, "X")
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll('\\uD83D\\uDE00', "X")
 
 `;
 
@@ -420,6 +454,23 @@ Output:
 
 `;
 
+exports[`prefer-string-replace-all > invalid(3): foo.split(/\\uD83D/u).join(\"X\") 1`] = `
+
+  1 | foo.split(/\\uD83D/u).join("X")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(3): foo.split(/\\uD83D/u).join(\"X\") 2`] = `
+
+Message:
+> 1 | foo.split(/\\uD83D/u).join("X")
+    |                      ^^^^ Prefer \`String#replaceAll()\` over \`String#split().join()\`.
+
+Output:
+  1 | foo.replaceAll(/\\uD83D/gu, 'X')
+
+`;
+
 exports[`prefer-string-replace-all > invalid(3): foo?.replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&'); 1`] = `
 
   1 | foo?.replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&');
@@ -604,6 +655,23 @@ Message:
 
 Output:
   1 | foo.replaceAll(/a/vig, bar)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(4): foo.replace(/[\\uD83D]/gu, \"X\") 1`] = `
+
+  1 | foo.replace(/[\\uD83D]/gu, "X")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(4): foo.replace(/[\\uD83D]/gu, \"X\") 2`] = `
+
+Message:
+> 1 | foo.replace(/[\\uD83D]/gu, "X")
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/[\\uD83D]/gu, "X")
 
 `;
 
@@ -829,6 +897,23 @@ Output:
 
 `;
 
+exports[`prefer-string-replace-all > invalid(5): foo.replace(/a\\uD83D/gv, \"X\") 1`] = `
+
+  1 | foo.replace(/a\\uD83D/gv, "X")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(5): foo.replace(/a\\uD83D/gv, \"X\") 2`] = `
+
+Message:
+> 1 | foo.replace(/a\\uD83D/gv, "X")
+    |     ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | foo.replaceAll(/a\\uD83D/gv, "X")
+
+`;
+
 exports[`prefer-string-replace-all > invalid(50): foo.replace(/(?:[a])/g, _) 1`] = `
 
   1 | foo.replace(/(?:[a])/g, _)
@@ -996,6 +1081,23 @@ Message:
 
 Output:
   1 | foo.replaceAll('\\u{1A}', _)
+
+`;
+
+exports[`prefer-string-replace-all > invalid(6): (foo as string).replace(/\\uD83D/gv, \"X\") 1`] = `
+
+  1 | (foo as string).replace(/\\uD83D/gv, "X")
+
+`;
+
+exports[`prefer-string-replace-all > invalid(6): (foo as string).replace(/\\uD83D/gv, \"X\") 2`] = `
+
+Message:
+> 1 | (foo as string).replace(/\\uD83D/gv, "X")
+    |                 ^^^^^^^ Prefer \`String#replaceAll()\` over \`String#replace()\`.
+
+Output:
+  1 | (foo as string).replaceAll(/\\uD83D/gv, "X")
 
 `;
 

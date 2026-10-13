@@ -4,6 +4,26 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 const dollarSign = '$';
 
+// Unicode regexes do not match half of a surrogate pair, while string searches do
+test.snapshot({
+	valid: [
+		String.raw`foo.replaceAll(/\uD83D/gu, "X")`,
+		String.raw`foo.replaceAll(/\uDE00/gv, "X")`,
+		String.raw`foo.replaceAll(/(?:\uD83D){1}/gu, "X")`,
+	],
+	invalid: [
+		String.raw`foo.replace(/\uD83D/g, "X")`,
+		String.raw`foo.replace(/\uD83D\uDE00/gu, "X")`,
+		String.raw`foo.split(/\uD83D/u).join("X")`,
+		String.raw`foo.replace(/[\uD83D]/gu, "X")`,
+		String.raw`foo.replace(/a\uD83D/gv, "X")`,
+		{
+			code: String.raw`(foo as string).replace(/\uD83D/gv, "X")`,
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+});
+
 test.snapshot({
 	valid: [
 		// No global flag
