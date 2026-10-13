@@ -8,6 +8,7 @@ import {
 import {
 	getIndentString,
 	getLinebreak,
+	getOutermostChainAndTypeScriptExpression,
 	getParenthesizedRange,
 	getScopes,
 	getStaticPropertyName,
@@ -46,22 +47,6 @@ const hasCommentsBeforeClosingBrace = (optionsNode, sourceCode) => {
 		.some(token => token.type === 'Block' || token.type === 'Line');
 };
 
-const getOutermostMemberExpression = memberExpression => {
-	while (
-		memberExpression.parent.type === 'MemberExpression'
-		&& memberExpression.parent.object === memberExpression
-	) {
-		memberExpression = memberExpression.parent;
-	}
-
-	return memberExpression;
-};
-
-const isReadOnlyMemberExpression = memberExpression => {
-	const outermostMemberExpression = getOutermostMemberExpression(memberExpression);
-	return !isLeftHandSide(outermostMemberExpression);
-};
-
 const isListenerArgumentsScope = (scope, listener) => {
 	let node = scope.block;
 	while (node && node !== listener) {
@@ -81,16 +66,34 @@ const usesArguments = (listener, sourceCode) =>
 		isListenerArgumentsScope(scope, listener)
 		&& scope.references.some(({identifier}) => identifier.name === 'arguments'));
 
+const isMemberExpressionObject = node =>
+	node.parent.type === 'MemberExpression'
+	&& node.parent.object === node;
+
+// Check every link of the access chain, because `event.nativeEvent.preventDefault()` calls a method of a nested object. TypeScript wrappers and optional chains do not end the chain.
 const isSafeEventPropertyReference = (identifier, context) => {
-	if (
-		identifier.parent.type !== 'MemberExpression'
-		|| identifier.parent.object !== identifier
-	) {
+	let node = getOutermostChainAndTypeScriptExpression(identifier);
+	if (!isMemberExpressionObject(node)) {
 		return false;
 	}
 
-	const propertyName = getStaticPropertyName(identifier.parent, context);
-	return propertyName && propertyName !== 'preventDefault' && isReadOnlyMemberExpression(identifier.parent);
+	let hasDynamicProperty = false;
+	do {
+		const propertyName = getStaticPropertyName(node.parent, context);
+		if (propertyName === 'preventDefault') {
+			return false;
+		}
+
+		hasDynamicProperty ||= propertyName === undefined;
+		node = getOutermostChainAndTypeScriptExpression(node.parent);
+	} while (isMemberExpressionObject(node));
+
+	// A dynamic property could be `preventDefault`, also when called through `.call()` or `.apply()`
+	const isDynamicMethodCall = hasDynamicProperty
+		&& node.parent.type === 'CallExpression'
+		&& node.parent.callee === node;
+
+	return !isDynamicMethodCall && !isLeftHandSide(node);
 };
 
 const isEventParameterSafe = (listener, context) => {

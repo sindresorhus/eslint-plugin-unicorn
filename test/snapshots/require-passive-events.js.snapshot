@@ -364,6 +364,40 @@ Output:
 
 `;
 
+exports[`require-passive-events > invalid(28): el.addEventListener(\"touchstart\", event => { console.log(event.touches[i].clientX); }) 1`] = `
+
+  1 | el.addEventListener("touchstart", event => { console.log(event.touches[i].clientX); })
+
+`;
+
+exports[`require-passive-events > invalid(28): el.addEventListener(\"touchstart\", event => { console.log(event.touches[i].clientX); }) 2`] = `
+
+Message:
+> 1 | el.addEventListener("touchstart", event => { console.log(event.touches[i].clientX); })
+    |                     ^^^^^^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | el.addEventListener("touchstart", event => { console.log(event.touches[i].clientX); }, {passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(29): el.addEventListener(\"touchstart\", event => { const touch = event.changedTouches[index]; }) 1`] = `
+
+  1 | el.addEventListener("touchstart", event => { const touch = event.changedTouches[index]; })
+
+`;
+
+exports[`require-passive-events > invalid(29): el.addEventListener(\"touchstart\", event => { const touch = event.changedTouches[index]; }) 2`] = `
+
+Message:
+> 1 | el.addEventListener("touchstart", event => { const touch = event.changedTouches[index]; })
+    |                     ^^^^^^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | el.addEventListener("touchstart", event => { const touch = event.changedTouches[index]; }, {passive: true})
+
+`;
+
 exports[`require-passive-events > invalid(3): window.addEventListener(\"wheel\", ((function () {}))) 1`] = `
 
   1 | window.addEventListener("wheel", ((function () {})))
@@ -378,6 +412,40 @@ Message:
 
 Output:
   1 | window.addEventListener("wheel", ((function () {})), {passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(30): el.addEventListener(\"touchstart\", event => { console.log(event.touches[0].clientX, event?.target.id); }) 1`] = `
+
+  1 | el.addEventListener("touchstart", event => { console.log(event.touches[0].clientX, event?.target.id); })
+
+`;
+
+exports[`require-passive-events > invalid(30): el.addEventListener(\"touchstart\", event => { console.log(event.touches[0].clientX, event?.target.id); }) 2`] = `
+
+Message:
+> 1 | el.addEventListener("touchstart", event => { console.log(event.touches[0].clientX, event?.target.id); })
+    |                     ^^^^^^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | el.addEventListener("touchstart", event => { console.log(event.touches[0].clientX, event?.target.id); }, {passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(31): el.addEventListener(\"touchstart\", event => { console.log((event as TouchEvent).touches[0]!.clientX); }) 1`] = `
+
+  1 | el.addEventListener("touchstart", event => { console.log((event as TouchEvent).touches[0]!.clientX); })
+
+`;
+
+exports[`require-passive-events > invalid(31): el.addEventListener(\"touchstart\", event => { console.log((event as TouchEvent).touches[0]!.clientX); }) 2`] = `
+
+Message:
+> 1 | el.addEventListener("touchstart", event => { console.log((event as TouchEvent).touches[0]!.clientX); })
+    |                     ^^^^^^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | el.addEventListener("touchstart", event => { console.log((event as TouchEvent).touches[0]!.clientX); }, {passive: true})
 
 `;
 

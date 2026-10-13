@@ -39,6 +39,33 @@ test.snapshot({
 		'window.addEventListener("wheel", event => { (event?.preventDefault)(); })',
 		'window.addEventListener("wheel", event => { event.preventDefault?.(); })',
 		'window.addEventListener("wheel", event => { const {preventDefault} = event; })',
+		// The method is called on an object nested in the event, which is not a static read of `event`
+		'el.addEventListener("touchstart", event => { event.nativeEvent.preventDefault(); })',
+		'el.addEventListener("touchstart", event => { event.nativeEvent.preventDefault?.(); })',
+		'el.addEventListener("touchstart", event => { event.target[key]?.(); })',
+		'el.addEventListener("touchstart", event => { event.target[key](); })',
+		'el.addEventListener("touchstart", event => { event.nativeEvent[key].call(nativeEvent); })',
+		'el.addEventListener("touchstart", event => { event.nativeEvent?.preventDefault(); })',
+		'el.addEventListener("touchstart", event => { (event?.nativeEvent).preventDefault(); })',
+		'el.addEventListener("touchstart", event => { event.nativeEvent.preventDefault.call(event.nativeEvent); })',
+		'el.addEventListener("touchstart", event => { event.touches[i].clientX = 0; })',
+		// TypeScript wrappers do not end the access chain
+		{
+			code: 'el.addEventListener("touchstart", event => { (event.nativeEvent as Event).preventDefault(); })',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'el.addEventListener("touchstart", event => { event.nativeEvent!.preventDefault(); })',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'el.addEventListener("touchstart", event => { (event as TouchEvent).preventDefault(); })',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'el.addEventListener("touchstart", event => { (<any>event.nativeEvent).preventDefault(); })',
+			languageOptions: {parser: parsers.typescript},
+		},
 		{
 			code: 'window.addEventListener("wheel", function (this: Window, event) { event.preventDefault(); })',
 			languageOptions: {parser: parsers.typescript},
@@ -96,6 +123,14 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		'window.addEventListener("wheel", event => { console.log(event[`target`]); })',
+		// A dynamic link is only a problem when it is called
+		'el.addEventListener("touchstart", event => { console.log(event.touches[i].clientX); })',
+		'el.addEventListener("touchstart", event => { const touch = event.changedTouches[index]; })',
+		'el.addEventListener("touchstart", event => { console.log(event.touches[0].clientX, event?.target.id); })',
+		{
+			code: 'el.addEventListener("touchstart", event => { console.log((event as TouchEvent).touches[0]!.clientX); })',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 
