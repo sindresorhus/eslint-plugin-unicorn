@@ -89,6 +89,34 @@ Suggestion 1/1: Use \`switch\` instead of multiple \`else-if\`.:
 
 `;
 
+exports[`prefer-switch > invalid(1): let a = 1; const f = () => { a = 2; return 5; }; if (a === f()) { x(); } else if (a === 2) { y(); } else if (a === 3) { z(); } 1`] = `
+
+  1 | let a = 1; const f = () => { a = 2; return 5; }; if (a === f()) { x(); } else if (a === 2) { y(); } else if (a === 3) { z(); }
+
+`;
+
+exports[`prefer-switch > invalid(1): let a = 1; const f = () => { a = 2; return 5; }; if (a === f()) { x(); } else if (a === 2) { y(); } else if (a === 3) { z(); } 2`] = `
+
+Message:
+> 1 | let a = 1; const f = () => { a = 2; return 5; }; if (a === f()) { x(); } else if (a === 2) { y(); } else if (a === 3) { z(); }
+    |                                                  ^^^^^^^^^^^^^^^ Use \`switch\` instead of multiple \`else-if\`.
+
+Suggestion 1/1: Use \`switch\` instead of multiple \`else-if\`.:
+   1 | let a = 1; const f = () => { a = 2; return 5; }; switch (a) {
+   2 |  case f(): { x(); 
+   3 |  break;
+   4 |  }
+   5 |  case 2: { y(); 
+   6 |  break;
+   7 |  }
+   8 |  case 3: { z(); 
+   9 |  break;
+  10 |  }
+  11 |  // No default
+  12 |  }
+
+`;
+
 exports[`prefer-switch > invalid(10): if (foo === ((0, 1))) {}\nelse if (foo === (bar + 2)) {}\nelse if (foo === (baz = 2)) {} 1`] = `
 
   1 | if (foo === ((0, 1))) {}
@@ -105,7 +133,7 @@ Message:
   2 | else if (foo === (bar + 2)) {}
   3 | else if (foo === (baz = 2)) {}
 
-Output:
+Suggestion 1/1: Use \`switch\` instead of multiple \`else-if\`.:
    1 | switch (foo) {
    2 | case 0, 1: {
    3 | break;
@@ -814,6 +842,34 @@ Message:
   5 | 	} else if (foo === 3) {
   6 | 	}
   7 | }
+
+`;
+
+exports[`prefer-switch > invalid(2): if (a === 1) { x(); } else if (a === 2) { y(); } else if (f() === a) { z(); } 1`] = `
+
+  1 | if (a === 1) { x(); } else if (a === 2) { y(); } else if (f() === a) { z(); }
+
+`;
+
+exports[`prefer-switch > invalid(2): if (a === 1) { x(); } else if (a === 2) { y(); } else if (f() === a) { z(); } 2`] = `
+
+Message:
+> 1 | if (a === 1) { x(); } else if (a === 2) { y(); } else if (f() === a) { z(); }
+    | ^^^^^^^^^^^^^ Use \`switch\` instead of multiple \`else-if\`.
+
+Suggestion 1/1: Use \`switch\` instead of multiple \`else-if\`.:
+   1 | switch (a) {
+   2 | case 1: { x(); 
+   3 | break;
+   4 | }
+   5 | case 2: { y(); 
+   6 | break;
+   7 | }
+   8 | case f(): { z(); 
+   9 | break;
+  10 | }
+  11 | // No default
+  12 | }
 
 `;
 
@@ -1582,6 +1638,35 @@ Output:
 
 `;
 
+exports[`prefer-switch > invalid(3): if (a === 1 || a === index++) { x(); } else if (a === 2) { y(); } else if (a === 3) { z(); } 1`] = `
+
+  1 | if (a === 1 || a === index++) { x(); } else if (a === 2) { y(); } else if (a === 3) { z(); }
+
+`;
+
+exports[`prefer-switch > invalid(3): if (a === 1 || a === index++) { x(); } else if (a === 2) { y(); } else if (a === 3) { z(); } 2`] = `
+
+Message:
+> 1 | if (a === 1 || a === index++) { x(); } else if (a === 2) { y(); } else if (a === 3) { z(); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`switch\` instead of multiple \`else-if\`.
+
+Suggestion 1/1: Use \`switch\` instead of multiple \`else-if\`.:
+   1 | switch (a) {
+   2 | case 1: 
+   3 | case index++: { x(); 
+   4 | break;
+   5 | }
+   6 | case 2: { y(); 
+   7 | break;
+   8 | }
+   9 | case 3: { z(); 
+  10 | break;
+  11 | }
+  12 | // No default
+  13 | }
+
+`;
+
 exports[`prefer-switch > invalid(3): if (foo === 1) (notBlock())\nelse if (foo === 2) (notBlock())\nelse if (foo === 3) (notBlock())\nelse (notBlock()) 1`] = `
 
   1 | if (foo === 1) (notBlock())
@@ -1659,6 +1744,34 @@ Output:
   13 | 	// Do nothing
   14 | 	}
   15 | }
+
+`;
+
+exports[`prefer-switch > invalid(4): if (a === b.c) { x(); } else if (a === CONSTANT) { y(); } else if (a === -1) { z(); } 1`] = `
+
+  1 | if (a === b.c) { x(); } else if (a === CONSTANT) { y(); } else if (a === -1) { z(); }
+
+`;
+
+exports[`prefer-switch > invalid(4): if (a === b.c) { x(); } else if (a === CONSTANT) { y(); } else if (a === -1) { z(); } 2`] = `
+
+Message:
+> 1 | if (a === b.c) { x(); } else if (a === CONSTANT) { y(); } else if (a === -1) { z(); }
+    | ^^^^^^^^^^^^^^^ Use \`switch\` instead of multiple \`else-if\`.
+
+Output:
+   1 | switch (a) {
+   2 | case b.c: { x(); 
+   3 | break;
+   4 | }
+   5 | case CONSTANT: { y(); 
+   6 | break;
+   7 | }
+   8 | case -1: { z(); 
+   9 | break;
+  10 | }
+  11 | // No default
+  12 | }
 
 `;
 

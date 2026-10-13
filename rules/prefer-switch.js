@@ -328,8 +328,11 @@ const create = context => {
 			) {
 				const switchFix = fix({discriminant, ifStatements}, context, options);
 
-				// A `switch` reads the discriminant once, the `else-if` chain reads it once per branch. A getter can return a different value each time, which changes not only how often it is read but which branch runs, so that is offered as a suggestion.
-				if (hasSideEffect(discriminant, sourceCode, {considerGetters: true})) {
+				// A `switch` reads the discriminant once, the `else-if` chain reads it once per branch. A getter can return a different value each time, which changes not only how often it is read but which branch runs, so that is offered as a suggestion. A case value with side effects can change the discriminant before a later branch reads it, so it is suggested too.
+				if (
+					hasSideEffect(discriminant, sourceCode, {considerGetters: true})
+					|| ifStatements.some(({statement}) => hasSideEffect(statement.test, sourceCode))
+				) {
 					problem.suggest = [
 						{
 							messageId: MESSAGE_ID,

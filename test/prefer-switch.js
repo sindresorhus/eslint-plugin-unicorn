@@ -744,3 +744,17 @@ test.snapshot({
 		'if (o["v"] === 1) { a(); } else if (o["v"] === 2) { b(); } else if (o["v"] === 3) { c(); }',
 	],
 });
+
+// A case value with side effects can change the discriminant before a later branch reads it, so the chain and the `switch` differ.
+test.snapshot({
+	valid: [],
+	invalid: [
+		'let a = 1; const f = () => { a = 2; return 5; }; if (a === f()) { x(); } else if (a === 2) { y(); } else if (a === 3) { z(); }',
+		// The case value is on the left, and in a later branch
+		'if (a === 1) { x(); } else if (a === 2) { y(); } else if (f() === a) { z(); }',
+		// The case value is in an `||` group
+		'if (a === 1 || a === index++) { x(); } else if (a === 2) { y(); } else if (a === 3) { z(); }',
+		// A side-effect-free case value is still fixed
+		'if (a === b.c) { x(); } else if (a === CONSTANT) { y(); } else if (a === -1) { z(); }',
+	],
+});

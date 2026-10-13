@@ -11,7 +11,7 @@
 
 A switch statement is easier to read than multiple if statements with simple equality comparisons.
 
-When the compared value is a member access, like `foo.bar`, the rule offers a suggestion instead of an autofix. A `switch` reads the value once, while the `else-if` chain reads it once per branch, and a getter could return a different value each time.
+When the compared value is a member access, like `foo.bar`, the rule offers a suggestion instead of an autofix. A `switch` reads the value once, while the `else-if` chain reads it once per branch, and a getter could return a different value each time. The same applies when a case value has side effects, like `foo === bar()`, since it could change the compared value before a later branch reads it.
 
 ## Examples
 
