@@ -46,6 +46,7 @@ export {default as getUnwrappedBranchText} from './get-unwrapped-branch-text.js'
 export {default as getConciseArrowBodyText} from './get-concise-arrow-body-text.js';
 export {default as getEnclosingFunction} from './get-enclosing-function.js';
 export {default as getParentPattern} from './get-parent-pattern.js';
+export {default as getAssignmentTargets} from './get-assignment-targets.js';
 export {getFunctionOnlyExpression, getFunctionReturnExpression} from './function-body.js';
 export {getOnlyExpression, getSingleStatement} from './single-statement.js';
 export {getTypeArgumentsText, hasSameTypeArguments, hasTypeArguments} from './type-arguments.js';

@@ -5,6 +5,7 @@ import {
 	isBranchExit,
 	trackBranchExits,
 	getVisitorChildNodes,
+	getAssignmentTargets,
 	getLogicalExpressionOperands,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
@@ -286,48 +287,6 @@ function getReferencePrefixes(node) {
 	}
 
 	return prefixes;
-}
-
-/**
-@param {ESTree.Node} node
-@returns {Generator<ESTree.Node>}
-*/
-function * getAssignmentTargets(node) {
-	node = unwrapTypeScriptExpression(node);
-
-	switch (node.type) {
-		case 'Identifier':
-		case 'MemberExpression': {
-			yield node;
-			break;
-		}
-
-		case 'AssignmentPattern':
-		case 'RestElement': {
-			yield * getAssignmentTargets(node.type === 'AssignmentPattern' ? node.left : node.argument);
-			break;
-		}
-
-		case 'ArrayPattern': {
-			for (const element of node.elements) {
-				if (element) {
-					yield * getAssignmentTargets(element);
-				}
-			}
-
-			break;
-		}
-
-		case 'ObjectPattern': {
-			for (const property of node.properties) {
-				yield * getAssignmentTargets(property.type === 'Property' ? property.value : property.argument);
-			}
-
-			break;
-		}
-
-		// No default
-	}
 }
 
 /**

@@ -6,7 +6,7 @@ import {
 	isMethodCall,
 } from './ast/index.js';
 import builtinErrors from './shared/builtin-errors.js';
-import {getStaticPropertyName, unwrapTypeScriptExpression as unwrapExpression} from './utils/index.js';
+import {getAssignmentTargets, getStaticPropertyName, unwrapTypeScriptExpression as unwrapExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'no-error-property-assignment';
 const messages = {
@@ -283,9 +283,24 @@ const getDirectAssignmentProblem = (assignmentExpression, context, knownErrorVar
 	}
 };
 
+// Destructuring and loop targets write several bindings at once, and each one may now hold a plain value.
+const clearWrittenVariables = (target, context, knownErrorVariables) => {
+	for (const assignmentTarget of getAssignmentTargets(target)) {
+		if (assignmentTarget.type !== 'Identifier') {
+			continue;
+		}
+
+		const variable = getVariable(assignmentTarget, context);
+		if (variable) {
+			setKnownErrorVariableFromAssignment(knownErrorVariables, variable, undefined);
+		}
+	}
+};
+
 const updateKnownErrorVariable = (assignmentExpression, context, knownErrorVariables) => {
-	const {left} = assignmentExpression;
+	const left = unwrapExpression(assignmentExpression.left);
 	if (left.type !== 'Identifier') {
+		clearWrittenVariables(left, context, knownErrorVariables);
 		return;
 	}
 
@@ -344,11 +359,22 @@ const create = context => {
 		setKnownErrorVariableFromDeclaration(knownErrorVariables, variable, constructorName ?? undefined);
 	});
 
+	// Loop bindings are written after the right-hand expression is evaluated. A `var` loop binding can redeclare a known error, so declarations are cleared too. A `let` or `const` binding is a new variable that is never known.
+	context.onExit(['ForInStatement > .right', 'ForOfStatement > .right'], node => {
+		const {parent: loop} = node;
+		const target = loop.left.type === 'VariableDeclaration'
+			? loop.left.declarations[0].id
+			: loop.left;
+		clearWrittenVariables(target, context, knownErrorVariables);
+	});
+
 	context.on(['AssignmentExpression', 'UpdateExpression'], node => {
 		const problem = getDirectAssignmentProblem(node, context, knownErrorVariables);
 
 		if (node.type === 'AssignmentExpression') {
 			updateKnownErrorVariable(node, context, knownErrorVariables);
+		} else {
+			clearWrittenVariables(node.argument, context, knownErrorVariables);
 		}
 
 		return problem;

@@ -350,3 +350,105 @@ test({
 		].map(code => ({code, errors: 1})),
 	],
 });
+
+test({
+	valid: [
+		// Destructuring, `for-of`, and `++` writes can replace the error with a plain object
+		'let e = new Error(\'m\'); [e] = [{}]; e.name = \'x\';',
+		'let e = new Error(); ({e} = {e: {}}); e.name = \'x\';',
+		'let e = new Error(); for (e of [{}]) {} e.name = \'x\';',
+		'let e = new Error(); e++; e.name = \'x\';',
+		'let e = new Error(); for (e in {a: 1}) {} e.name = \'x\';',
+		// Rest elements, defaults, and nested patterns write the variable too
+		'let e = new Error(); [...e] = [{}]; e.name = \'x\';',
+		'let e = new Error(); ({...e} = {}); e.name = \'x\';',
+		'let e = new Error(); [e = 1] = [{}]; e.name = \'x\';',
+		'let e = new Error(); ({e = 1} = {}); e.name = \'x\';',
+		'let e = new Error(); [, [e]] = [1, [{}]]; e.name = \'x\';',
+		'let e = new Error(); ({a: {b: e}} = {a: {b: {}}}); e.name = \'x\';',
+		// A write that may run makes the value unknown
+		'let e = new Error(); if (condition) { [e] = [{}]; } e.name = \'x\';',
+		'let e = new Error(); function setup() { [e] = [{}]; } e.name = \'x\';',
+		'let e = new Error(); { for (e of [{}]) {} } e.name = \'x\';',
+		// A `var` loop binding redeclares the same variable
+		'var e = new Error(); for (var e of [{}]) { e.name = \'x\'; }',
+		'var e = new Error(); for (var [e] in {a: 1}) {} e.name = \'x\';',
+	],
+	invalid: [
+		// A destructuring that does not write the error keeps it known
+		...[
+			'let e = new Error(); let other; [other] = [{}]; e.name = \'x\';',
+			'let e = new Error(); [object.property] = [{}]; e.name = \'x\';',
+			'let e = new Error(); for (const e of [{}]) {} e.name = \'x\';',
+			// A later plain assignment makes it known again
+			'let e; [e] = [{}]; e = new Error(); e.name = \'x\';',
+		].map(code => ({code, errors: 1})),
+	],
+});
+
+// A loop target is written after the iterable expression runs, so the error is still known there
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'let error = new Error(); for (error of (error.name = "Rhs", [{}])) { error.name = "Body"; } error.name = "After";',
+			errors: 1,
+		},
+		{
+			code: 'var error = new Error(); for (var error in (Object.assign(error, {name: "Rhs"}), {key: 1})) { error.name = "Body"; }',
+			errors: 1,
+		},
+		{
+			code: 'let error = new Error(); for ([error] of (error.name++, [[{}]])) { error.name = "Body"; }',
+			errors: 1,
+		},
+		// Another loop target keeps the error known in the body
+		{
+			code: 'let error = new Error(); let other; for (other of (error.name = "Rhs", [{}])) { error.name = "Body"; }',
+			errors: 2,
+		},
+		{
+			code: 'let error = new Error(); for (error! of ((<Error>error).name = "Rhs", [{}])) { error.name = "Body"; }',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+	],
+});
+
+test({
+	valid: [
+		// TypeScript assertions around the written variable still write it
+		{
+			code: 'let e = new Error(); e!++; e.name = \'x\';',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'let e = new Error(); (e as any) = {}; e.name = \'x\';',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// Assertions inside a destructuring pattern still write the variable
+		{
+			code: 'let e = new Error(); [e!] = [{}]; e.name = \'x\';',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'let e = new Error(); ({a: e as any} = {a: {}}); e.name = \'x\';',
+			languageOptions: {parser: parsers.typescript},
+		},
+		...[
+			'let e = new Error(); [...(e as any)] = [{}]; e.name = \'x\';',
+			'let e = new Error(); [(e satisfies any) = 1] = [{}]; e.name = \'x\';',
+			'let e = new Error(); for (e! of [{}]) {} e.name = \'x\';',
+			'let e = new Error(); (<any>e)++; e.name = \'x\';',
+			'let e = new Error(); (e as any) += 1; e.name = \'x\';',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
+	],
+	invalid: [
+		// An assertion around the target does not hide a reassignment to another built-in error
+		{
+			code: 'let e = new Error(); (e as any) = new TypeError(); e.name = \'x\';',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+	],
+});
