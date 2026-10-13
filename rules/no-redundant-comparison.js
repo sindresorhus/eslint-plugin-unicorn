@@ -1,5 +1,6 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {
+	containsNode,
 	getLogicalExpressionOperands,
 	getParenthesizedRange,
 	getStaticValueIfNoSideEffects,
@@ -137,13 +138,15 @@ function buildEqualityClasses(equalities) {
 	return classes;
 }
 
-// Split the operands of an `&&` chain into equality links, disequality links, and other comparisons.
+// Split the operands of an `&&` chain into equality links, disequality links, and other comparisons, and return the operands from the first to the last classified one.
 function classifyOperands(operands) {
 	const equalities = [];
 	const disequalities = [];
 	const comparisons = [];
+	let firstIndex = -1;
+	let lastIndex = -1;
 
-	for (const operand of operands) {
+	for (const [index, operand] of operands.entries()) {
 		const expression = unwrapTypeScriptExpression(operand);
 		if (
 			expression.type !== 'BinaryExpression'
@@ -158,17 +161,32 @@ function classifyOperands(operands) {
 		const isRightReference = isReference(right);
 
 		if (isLeftReference && isRightReference && (operator === '===' || operator === '!==')) {
-			if (!isSame(left, right)) {
-				(operator === '===' ? equalities : disequalities).push({left, right});
+			if (isSame(left, right)) {
+				continue;
 			}
+
+			(operator === '===' ? equalities : disequalities).push({left, right});
 		} else if (isLeftReference || isRightReference) {
 			comparisons.push({
 				operator, left, right, node: operand,
 			});
+		} else {
+			continue;
 		}
+
+		if (firstIndex === -1) {
+			firstIndex = index;
+		}
+
+		lastIndex = index;
 	}
 
-	return {equalities, disequalities, comparisons};
+	return {
+		equalities,
+		disequalities,
+		comparisons,
+		analyzedOperands: operands.slice(firstIndex, lastIndex + 1),
+	};
 }
 
 function findRedundantComparison({equalities, disequalities, comparisons, context}) {
@@ -230,9 +248,21 @@ const create = context => {
 			return;
 		}
 
-		const {equalities, disequalities, comparisons} = classifyOperands(getLogicalExpressionOperands(node, '&&'));
+		const {
+			equalities,
+			disequalities,
+			comparisons,
+			analyzedOperands,
+		} = classifyOperands(getLogicalExpressionOperands(node, '&&'));
 
-		if (comparisons.length === 0 || (equalities.length === 0 && disequalities.length === 0)) {
+		if (
+			comparisons.length === 0
+			|| (equalities.length === 0 && disequalities.length === 0)
+			// Explicit side effects can invalidate equality assumptions between operands. Operands before the first or after the last analyzed comparison cannot.
+			|| analyzedOperands.some(operand =>
+				hasSideEffect(operand, sourceCode)
+				|| containsNode(operand, context, childNode => childNode.type === 'TaggedTemplateExpression'))
+		) {
 			return;
 		}
 

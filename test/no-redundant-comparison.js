@@ -1,7 +1,115 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+const linterConfig = {
+	plugins: {unicorn: {rules: {'no-redundant-comparison': rule}}},
+	rules: {'unicorn/no-redundant-comparison': 'error'},
+};
+
+nodeTest('explicit side effects invalidate equality, disequality, and bound implications', t => {
+	for (const code of [
+		'let first = 1; let second = 1; first === second && first === 1 && (second = 2) === 2 && second === 1;',
+		'let first = 1; let second = 1; first === second && first === 1 && second++ === 1 && second === 1;',
+		'let first = 1; let second = 1; function change() { second = 2; return true; } first === second && first === 1 && change() && second === 1;',
+		'let first = 1; let second = 1; function change() { second = 2; return true; } first === second && first === 1 && change`value` && second === 1;',
+		'let first = 1; let second = 2; first === 1 && (first = 2) === 2 && second === 1 && first === second;',
+		'let first = 1; let second = 2; first === 1 && first !== second && (second = 1) === 1 && second !== 1;',
+		'let first = 1; let second = 1; first === second && first > 0 && (second = 0) === 0 && second > 0;',
+		'let first = 1; let second = 1; let third = 1; first === second && second === third && first === 1 && (third = 2) === 2 && third === 1;',
+	]) {
+		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		t.assert.strictEqual(runInNewContext(code), false);
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(runInNewContext(output), false);
+		t.assert.strictEqual(fixed, false);
+		t.assert.deepStrictEqual(messages, []);
+	}
+});
+
+nodeTest('pure strict comparisons retain autofixes', t => {
+	for (const [code, expected] of [
+		['const first = 1; const second = 1; first === second && first === 1 && second === 1;', 'const first = 1; const second = 1; first === second && first === 1;'],
+		['const first = 1; const second = 2; first === 1 && first !== second && second !== 1;', 'const first = 1; const second = 2; first === 1 && first !== second;'],
+		[
+			'const first = 1; const second = 1; const third = 1; first === second && second === third && first === 1 && third === 1;',
+			'const first = 1; const second = 1; const third = 1; first === second && second === third && first === 1;',
+		],
+	]) {
+		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		t.assert.strictEqual(output, expected);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
+	}
+});
+
+nodeTest('implicit ordering coercion retains the existing suggestion', t => {
+	const code = 'const first = 1; const second = 1; first === second && first > 0 && second > 0;';
+	const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+	t.assert.strictEqual(output, code);
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].fix, undefined);
+	t.assert.strictEqual(messages[0].suggestions.length, 1);
+	const {range, text} = messages[0].suggestions[0].fix;
+	const suggestedCode = code.slice(0, range[0]) + text + code.slice(range[1]);
+	t.assert.strictEqual(suggestedCode, 'const first = 1; const second = 1; first === second && first > 0;');
+	t.assert.strictEqual(runInNewContext(suggestedCode), runInNewContext(code));
+});
+
+test({
+	valid: [
+		'first === second && first === 1 && /* keep */ change() && second === 1;',
+		'((first === second) && (first === 1) && ((second = 2) === 2) && (second === 1));',
+		'first === second && first === 1 && (condition ? change() : true) && second === 1;',
+		'first === second && first === 1 && (second = third, true) && second === 1;',
+		'first === second && first === 1 && delete object.value && second === 1;',
+		'first === second && first === 1 && new SomeClass() && second === 1;',
+		'first === second && first === 1 && (change`value` === true) && second === 1;',
+		'first === second && first === 1 && (condition ? change`value` : true) && second === 1;',
+		'first === second && first === 1 && (change`value`, true) && second === 1;',
+		'first === second && first === 1 && /* keep */ ((change`value`)) && second === 1;',
+		{
+			code: 'let first = 1; let second = 1; (first as number) === second && first === 1 && ((second = 2) as number) === 2 && second === 1;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'first! === second && first === 1 && (change() satisfies boolean) && second === 1;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'first! === second && first === 1 && (change`value` satisfies boolean) && second === 1;',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [
+		{
+			code: 'first === second && first === 1 && /* keep */ second === 1;',
+			errors: [{messageId: 'no-redundant-comparison'}],
+		},
+		{
+			code: '(first === second) && (first === 1) && (second === 1);',
+			output: '(first === second) && (first === 1);',
+			errors: [{messageId: 'no-redundant-comparison'}],
+		},
+		{
+			code: 'first === second && first === "value" && `value` && second === "value";',
+			output: 'first === second && first === "value" && `value`;',
+			errors: [{messageId: 'no-redundant-comparison'}],
+		},
+		{
+			code: '((first as number) === second) && (first === 1) && (second! === 1);',
+			output: '((first as number) === second) && (first === 1);',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'no-redundant-comparison'}],
+		},
+	],
+});
 
 test.snapshot({
 	valid: [
@@ -48,6 +156,9 @@ test.snapshot({
 		// Call bounds may differ between evaluations
 		'a > foo() && b > foo() && a === b',
 
+		// Side effect between the analyzed comparisons
+		'if (a === b && a !== \'x\' && isEnabled() && b !== \'x\') {}',
+
 		// Opposite bounds do not imply each other
 		'a > 0 && b < 10 && a === b',
 
@@ -88,6 +199,11 @@ test.snapshot({
 
 		// Extra unrelated operand
 		'a > 0 && b > 0 && a === b && c > 0',
+
+		// Side effects before the first or after the last analyzed comparison
+		'if (a === b && a !== \'x\' && b !== \'x\' && isEnabled()) {}',
+		'if (isEnabled() && a === b && a !== \'x\' && b !== \'x\') {}',
+		'if (a === b && a !== \'x\' && b !== \'x\' && list.includes(a)) {}',
 
 		// Transitive equality
 		'a > 0 && c > 0 && a === b && b === c',

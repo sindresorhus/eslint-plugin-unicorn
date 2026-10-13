@@ -49,4 +49,6 @@ if (a === 'test' && a !== b) {}
 
 This rule only applies to `&&` chains. In a `||` chain the operands are not all true at once, so the equality check cannot be used to imply another operand.
 
+Chains with explicit side effects, such as calls (including tagged templates), assignments, or updates, between the first and the last comparison are skipped because they can change the values between comparisons. Side effects before the first or after the last comparison do not prevent the check.
+
 Removing a comparison drops its evaluation. When that evaluation could run user code — a getter, or a `valueOf`/`toString` coercion from an ordering check (`>`, `>=`, `<`, `<=`) — the rule offers a suggestion instead of an autofix to avoid changing behavior. A plain `===`/`!==` check is side-effect free and is autofixed.
