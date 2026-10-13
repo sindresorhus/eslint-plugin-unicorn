@@ -60,6 +60,18 @@ ruleTest({
 	},
 	valid: [
 		'const foo = "";',
+		// Escape sequences in `TemplateElement` are not text
+		{code: 'const foo = `a\\nb`', options: [{patterns: {n: {suggest: 'N'}}}]},
+		{code: 'const foo = `\\x41`', options: [{patterns: {4: {suggest: '5'}}}]},
+		{code: 'const foo = `\\u0041`', options: [{patterns: {0: {suggest: '1'}}}]},
+		// Patterns are regexes over the whole text, so `^` does not match after an escape sequence, the same as in a string literal
+		{code: 'const foo = `\\nbad`', options: [{patterns: {'^bad': {suggest: 'good'}}}]},
+		{code: String.raw`const foo = "\nbad"`, options: [{patterns: {'^bad': {suggest: 'good'}}}]},
+		// A line continuation with CRLF is one escape sequence, so its line feed is not text
+		{code: 'const foo = `a\\\r\nb`', options: [{patterns: {'\n': {suggest: 'X'}}}]},
+		{code: 'const foo = `\\u{1F984}`', options: [{patterns: {F: {suggest: 'f'}}}]},
+		// A match that overlaps an escape sequence is ignored, and the search continues after that match, so a match starting inside it is missed
+		{code: 'const foo = `\\nnn`', options: [{patterns: {nn: {suggest: 'X'}}}]},
 		...[
 			// `Literal` string
 			'const foo = \'🦄\';',
@@ -505,6 +517,40 @@ ruleTest({
 			options: [{patterns: {no: {suggest: 'yes', caseSensitive: false}}}],
 			errors: createError('no', 'yes'),
 		},
+		// Text after an escaped backslash is still text, and only text is replaced
+		{
+			code: 'const foo = `\\\\n\\nn`',
+			output: 'const foo = `\\\\N\\nN`',
+			options: [{patterns: {n: {suggest: 'N'}}}],
+			errors: createError('n', 'N'),
+		},
+		// A lone surrogate can't be written raw in a template, and only a `Literal` can escape it
+		{
+			code: 'const foo = `no`',
+			options: [{patterns: {no: {suggest: '\uD800'}}}],
+			errors: createError('no', '\uD800'),
+		},
+		// The `^` anchor still matches at the start of the template text
+		{
+			code: 'const foo = `bad\\nx`',
+			output: 'const foo = `good\\nx`',
+			options: [{patterns: {'^bad': {suggest: 'good'}}}],
+			errors: createError('^bad', 'good'),
+		},
+		// A backslash in the replacement is text, so it is escaped and can't escape the closing backtick
+		{
+			code: 'const foo = `no`',
+			output: 'const foo = `a\\\\n\\\\`',
+			options: [{patterns: {no: {suggest: 'a\\n\\'}}}],
+			errors: createError('no', 'a\\n\\'),
+		},
+		// A raw carriage return in a template is read as `\n`, so it is escaped
+		{
+			code: 'const foo = `no`',
+			output: 'const foo = `a\\r\nb`',
+			options: [{patterns: {no: {suggest: 'a\r\nb'}}}],
+			errors: createError('no', 'a\r\nb'),
+		},
 	],
 });
 
@@ -690,12 +736,21 @@ ruleTest({
 	valid: [
 		{code: 'a { --message: "no"; --image: url(no); }', options: [{patterns: noToYesPattern}]},
 	],
-	invalid: [true, false].map(fix => ({
-		name: `CSS URL comment preservation, fix: ${fix}`,
-		code: 'a { background: url("no"/* keep */); }',
-		options: [{patterns: {no: {suggest: 'yes', fix}}}],
-		errors: createError('no', 'yes'),
-	})),
+	invalid: [
+		...[true, false].map(fix => ({
+			name: `CSS URL comment preservation, fix: ${fix}`,
+			code: 'a { background: url("no"/* keep */); }',
+			options: [{patterns: {no: {suggest: 'yes', fix}}}],
+			errors: createError('no', 'yes'),
+		})),
+		// A report without a fix must not leave `lastIndex` state on the global regex for the next string
+		{
+			code: 'a { background: url("no"/* keep */); content: "no"; }',
+			output: 'a { background: url("no"/* keep */); content: "yes"; }',
+			options: [{patterns: noToYesPattern}],
+			errors: [...createError('no', 'yes'), ...createError('no', 'yes')],
+		},
+	],
 });
 
 ruleTest({

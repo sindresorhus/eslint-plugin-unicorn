@@ -27,6 +27,46 @@ const getSomlString = value => {
 	return `"${content}"`;
 };
 
+// Escape sequences in `TemplateElement` raw text are syntax, not text, so patterns must not match inside them.
+const templateEscapeSequencePattern = /\\(?:u\{[\da-f]+\}|u[\da-f]{4}|x[\da-f]{2}|\r\n|[\s\S])/gi;
+
+// Matches run against the whole raw text, so anchors and lookarounds behave as they do in a string literal. A match that overlaps an escape sequence is ignored.
+const getTemplateMatches = (raw, regex) => {
+	const escapeRanges = raw.matchAll(templateEscapeSequencePattern)
+		.map(match => [match.index, match.index + match[0].length])
+		.toArray();
+
+	return raw.matchAll(regex).filter(match => {
+		const end = match.index + match[0].length;
+		return escapeRanges.every(([start, escapeEnd]) => match.index >= escapeEnd || end <= start);
+	}).toArray();
+};
+
+// A copy keeps `test()` from reading or leaving `lastIndex` state on the global replacement regex.
+const hasReplacementMatch = (type, string, regex) => type === 'TemplateElement'
+	? getTemplateMatches(string, regex).length > 0
+	: new RegExp(regex).test(string);
+
+const replaceMatches = (type, string, regex, suggest) => {
+	if (type !== 'TemplateElement') {
+		return string.replace(regex, () => suggest);
+	}
+
+	// The replacement goes into raw text, so a backslash in it must be escaped to stay text, and a carriage return must be escaped because raw line endings are normalized to `\n`.
+	const rawSuggest = suggest.replaceAll('\\', '\\\\').replaceAll('\r', String.raw`\r`);
+	let result = '';
+	let position = 0;
+	for (const match of getTemplateMatches(string, regex)) {
+		result += string.slice(position, match.index) + rawSuggest;
+		position = match.index + match[0].length;
+	}
+
+	return result + string.slice(position);
+};
+
+// Raw text can't contain lone surrogates, so these types only get a fix when the replacement is well-formed.
+const rawTextTypes = new Set(['TOMLValue', 'YAMLScalar', 'TemplateElement']);
+
 const targetNodeTypes = ['Literal', 'TemplateElement', 'TOMLValue', 'String', 'Url', 'YAMLScalar'];
 
 const ignoredTags = new Set([
@@ -110,7 +150,7 @@ const create = context => {
 			return;
 		}
 
-		const replacement = replacements.find(({regex}) => regex.test(string));
+		const replacement = replacements.find(({regex}) => hasReplacementMatch(type, string, regex));
 
 		if (!replacement) {
 			return;
@@ -130,13 +170,13 @@ const create = context => {
 			return problem;
 		}
 
-		const fixed = string.replace(regex, () => suggest);
+		const fixed = replaceMatches(type, string, regex, suggest);
 		const somlString = isSoml ? getSomlString(fixed) : undefined;
 		if (isSoml && somlString === undefined) {
 			return problem;
 		}
 
-		if (((type === 'TOMLValue' || type === 'YAMLScalar' || isCss) && !fixed.isWellFormed()) || (isCss && fixed.includes('\0'))) {
+		if (((rawTextTypes.has(type) || isCss) && !fixed.isWellFormed()) || (isCss && fixed.includes('\0'))) {
 			return problem;
 		}
 

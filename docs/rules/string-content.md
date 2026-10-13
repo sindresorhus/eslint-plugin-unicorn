@@ -23,6 +23,8 @@ This rule ignores the following tagged template literals as they're known to con
 
 A property access or call on one of these tags is ignored too, like ``styled.div`…` ``, ``styled(Button)`…` ``, and ``styled.div.attrs({})`…` ``.
 
+In template literals, patterns match the raw text, and a match that overlaps an escape sequence, such as `\n`, is ignored.
+
 **This rule has no effect by default. You need to set [`patterns`](#patterns) to check string content.**
 
 SOML string values, including literal and block strings, are supported; keys are left unchanged. Replacements use escaped strings. Fixes and suggestions are omitted when a replacement contains a carriage return or lone surrogate, which SOML cannot represent.
