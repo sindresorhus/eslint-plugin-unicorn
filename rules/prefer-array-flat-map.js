@@ -7,6 +7,7 @@ import {
 	isNodeMatches,
 	isParenthesized,
 	isSameIdentifier,
+	isSideEffectFreeFunction,
 	getMemberExpressionObjectText,
 	shouldSkipKnownNonArrayReceiver,
 	wouldRemoveComments,
@@ -15,10 +16,12 @@ import {isMethodCall} from './ast/index.js';
 import {removeMethodCall} from './fix/index.js';
 
 const MESSAGE_ID = 'prefer-array-flat-map';
+const SUGGESTION_ID = 'prefer-array-flat-map/suggestion';
 const MESSAGE_ID_FILTER_FLAT_MAP = 'prefer-array-flat-map/filter-flat-map';
 const SUGGESTION_ID_FILTER_FLAT_MAP = 'prefer-array-flat-map/filter-flat-map-suggestion';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `.flatMap(…)` over `.map(…).flat()`.',
+	[SUGGESTION_ID]: 'Replace `.map(…).flat()` with `.flatMap(…)`.',
 	[MESSAGE_ID_FILTER_FLAT_MAP]: 'Prefer a single `.flatMap(…)` over `.filter(…).flatMap(…)`.',
 	[SUGGESTION_ID_FILTER_FLAT_MAP]: 'Replace `.filter(…).flatMap(…)` with a single `.flatMap(…)`.',
 };
@@ -50,6 +53,11 @@ const isSimpleUntypedSingleParameterArrowCallback = node =>
 	&& !node.params[0].optional
 	&& !node.params[0].typeAnnotation
 	&& node.body.type !== 'BlockStatement';
+
+// A fresh array literal result cannot be changed by a later callback, and an expression body without side effects cannot change an earlier result
+const isSafeMapCallback = (node, context) =>
+	(node?.type === 'ArrowFunctionExpression' && node.body.type === 'ArrayExpression')
+	|| isSideEffectFreeFunction(node, context);
 
 const canArrayExpressionReturnMultipleItems = node =>
 	node.type === 'ArrayExpression'
@@ -133,7 +141,10 @@ const create = context => {
 				end: sourceCode.getLoc(flatCallExpression).end,
 			},
 			messageId: MESSAGE_ID,
-			fix,
+			// `flatMap()` flattens each result immediately, while `.map().flat()` waits until all callbacks finish, so a callback with side effects can change an earlier result before it is flattened.
+			...(isSafeMapCallback(mapCallExpression.arguments[0], context)
+				? {fix}
+				: {suggest: fix ? [{messageId: SUGGESTION_ID, fix}] : undefined}),
 		};
 	});
 

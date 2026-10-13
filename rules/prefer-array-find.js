@@ -14,6 +14,7 @@ import {
 	getVariableIdentifiers,
 	hasCommentInRange,
 	isKnownNonIndexedCollection,
+	isSideEffectFreeFunction,
 } from './utils/index.js';
 import {isMethodCall} from './ast/index.js';
 
@@ -26,6 +27,7 @@ const ERROR_SLICE_MINUS_ONE = 'error-slice-minus-one';
 const ERROR_DESTRUCTURING_DECLARATION = 'error-destructuring-declaration';
 const ERROR_DESTRUCTURING_ASSIGNMENT = 'error-destructuring-assignment';
 const ERROR_DECLARATION = 'error-variable';
+const SUGGESTION_ID = 'prefer-array-find/suggestion';
 const messages = {
 	[ERROR_DECLARATION]: 'Prefer `.find(…)` over `.filter(…)`.',
 	[ERROR_ZERO_INDEX]: 'Prefer `.find(…)` over `.filter(…)[0]`.',
@@ -37,6 +39,21 @@ const messages = {
 	[ERROR_DESTRUCTURING_DECLARATION]: 'Prefer `.find(…)` over destructuring `.filter(…)`.',
 	// Same message as `ERROR_DESTRUCTURING_DECLARATION`, but different case
 	[ERROR_DESTRUCTURING_ASSIGNMENT]: 'Prefer `.find(…)` over destructuring `.filter(…)`.',
+	[SUGGESTION_ID]: 'Use `.{{method}}(…)`.',
+};
+
+// An inline callback without side effects can be called fewer times or in another order without changing the result
+// `.filter()` evaluates every callback in ascending order; `.find()` and `.findLast()` stop at a match, so only a side-effect-free inline callback is autofixed.
+const getProblem = ({fix, ...problem}, filterCall, context, method = 'find') => {
+	if (!fix) {
+		return problem;
+	}
+
+	if (isSideEffectFreeFunction(filterCall.arguments[0], context)) {
+		return {...problem, fix};
+	}
+
+	return {...problem, suggest: [{messageId: SUGGESTION_ID, data: {method}, fix}]};
 };
 
 // `array.filter(…)`, ignoring receivers known to be neither an array nor a typed array
@@ -114,7 +131,7 @@ const getTrailingCallProblem = (node, messageId, replacementMethod, context) => 
 		];
 	}
 
-	return problem;
+	return getProblem(problem, filterCall, context, replacementMethod);
 };
 
 function * fixDestructuring(node, fixer, context, {abort}) {
@@ -212,7 +229,7 @@ const create = context => {
 			];
 		}
 
-		return problem;
+		return getProblem(problem, node.object, context);
 	});
 
 	// `array.filter().shift()`
@@ -245,11 +262,11 @@ const create = context => {
 			return;
 		}
 
-		return {
+		return getProblem({
 			node: node.init.callee.property,
 			messageId: ERROR_DESTRUCTURING_DECLARATION,
 			...fixDestructuringAndReplaceFilter(node, context),
-		};
+		}, node.init, context);
 	});
 
 	// `[foo] = array.filter()`
@@ -264,11 +281,11 @@ const create = context => {
 			return;
 		}
 
-		return {
+		return getProblem({
 			node: node.right.callee.property,
 			messageId: ERROR_DESTRUCTURING_ASSIGNMENT,
 			...fixDestructuringAndReplaceFilter(node, context),
-		};
+		}, node.right, context);
 	});
 
 	// `const foo = array.filter(); foo[0]; [bar] = foo`
@@ -344,7 +361,7 @@ const create = context => {
 			};
 		}
 
-		return problem;
+		return getProblem(problem, node.init, context);
 	});
 
 	// `array.filter().at(0)`
@@ -424,7 +441,7 @@ const create = context => {
 
 		const filterCall = node.object.callee.object;
 
-		return {
+		return getProblem({
 			node: filterCall.callee.property,
 			messageId: ERROR_SLICE_MINUS_ONE,
 			* fix(fixer, {abort}) {
@@ -438,7 +455,7 @@ const create = context => {
 				// Remove `[0]`
 				yield removeMemberExpressionProperty(fixer, node, context);
 			},
-		};
+		}, filterCall, context, 'findLast');
 	});
 
 	// `array.filter().slice(-1).pop()`
@@ -459,7 +476,7 @@ const create = context => {
 
 		const filterCall = node.callee.object.callee.object;
 
-		return {
+		return getProblem({
 			node: filterCall.callee.property,
 			messageId: ERROR_SLICE_MINUS_ONE,
 			* fix(fixer, {abort}) {
@@ -473,7 +490,7 @@ const create = context => {
 				// Remove `.pop()` / `.shift()`
 				yield removeMethodCall(fixer, node, context);
 			},
-		};
+		}, filterCall, context, 'findLast');
 	});
 };
 
@@ -502,6 +519,7 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema,
 		defaultOptions: [{checkFromLast: true}],
 		messages,

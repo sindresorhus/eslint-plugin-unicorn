@@ -1,3 +1,4 @@
+import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {isMethodCall, isMemberExpression} from './ast/index.js';
 import {
 	getParenthesizedRange,
@@ -7,7 +8,9 @@ import {
 	hasMultilineToken,
 	isSameReference,
 	isLogicalExpression,
+	isOutermostLogicalExpression,
 	isKnownNonIndexedCollection,
+	isSideEffectFreeFunction,
 	reindentText,
 	wouldRemoveComments,
 } from './utils/index.js';
@@ -16,6 +19,7 @@ const messages = {
 	'for-of': 'The non-empty check is useless as `for…of` does not iterate over an empty array.',
 	'non-zero': 'The non-empty check is useless as `Array#some()` returns `false` for an empty array.',
 	zero: 'The empty check is useless as `Array#every()` returns `true` for an empty array.',
+	'remove-length-check': 'Remove the length check.',
 };
 
 // We assume the user already follows `unicorn/explicit-length-check`. These are allowed in that rule.
@@ -77,32 +81,73 @@ const create = context => {
 		// Ignore receivers known to be neither an array nor a typed array
 		&& !isKnownNonIndexedCollection(condition.callee.object, context);
 
-	function isUselessLengthCheckNode({node, operator, siblings}) {
-		return (
-			(
-				operator === '||'
-				&& zeroLengthChecks.has(node)
-				&& siblings.some(condition => isMatchingCall(condition, 'every', node))
-			)
-			|| (
-				operator === '&&'
-				&& nonZeroLengthChecks.has(node)
-				&& siblings.some(condition => isMatchingCall(condition, 'some', node))
-			)
-		);
+	function getMatchingMethod(node, operator) {
+		if (operator === '||' && zeroLengthChecks.has(node)) {
+			return 'every';
+		}
+
+		if (operator === '&&' && nonZeroLengthChecks.has(node)) {
+			return 'some';
+		}
 	}
 
-	function getUselessLengthCheckNode(logicalExpression) {
+	/**
+	@param {import('eslint').Rule.RuleFixer} fixer
+	*/
+	function removeLengthCheck(fixer, node) {
+		const {left, right} = node.parent;
+		const leftRange = getParenthesizedRange(left, context);
+		const rightRange = getParenthesizedRange(right, context);
+		const range = [];
+		if (left === node) {
+			range[0] = leftRange[0];
+			range[1] = rightRange[0];
+		} else {
+			range[0] = leftRange[1];
+			range[1] = rightRange[1];
+		}
+
+		// The removed range holds the length check and the operator, so a comment there would be lost
+		if (hasCommentInRange(context, range)) {
+			return;
+		}
+
+		return fixer.removeRange(range);
+	}
+
+	function * getUselessLengthCheckProblems(logicalExpression) {
 		const {operator} = logicalExpression;
-		return flatLogicalExpression(logicalExpression)
-			.filter((node, index, conditions) => isUselessLengthCheckNode({
-				node,
-				operator,
-				siblings: [
-					conditions[index - 1],
-					conditions[index + 1],
-				].filter(Boolean),
-			}));
+		const conditions = flatLogicalExpression(logicalExpression);
+
+		for (const [index, node] of conditions.entries()) {
+			const method = getMatchingMethod(node, operator);
+			if (!method) {
+				continue;
+			}
+
+			const previous = conditions[index - 1];
+			const next = conditions[index + 1];
+			const isLeadingCheck = Boolean(next) && isMatchingCall(next, method, node);
+			if (!isLeadingCheck && !(previous && isMatchingCall(previous, method, node))) {
+				continue;
+			}
+
+			const fix = fixer => removeLengthCheck(fixer, node);
+			// Removing a leading check evaluates the call arguments for an empty array, and removing a trailing check ignores callbacks that change the array's length
+			const isSafeToFix = isLeadingCheck
+				? next.arguments.every(argument => !hasSideEffect(argument, sourceCode))
+				// An inline callback without side effects cannot change the array's length
+				: isSideEffectFreeFunction(previous.arguments[0], context);
+
+			yield {
+				loc: {
+					start: sourceCode.getLoc(node.left.property).start,
+					end: sourceCode.getLoc(node).end,
+				},
+				messageId: zeroLengthChecks.has(node) ? 'zero' : 'non-zero',
+				...(isSafeToFix ? {fix} : {suggest: [{messageId: 'remove-length-check', fix}]}),
+			};
+		}
 	}
 
 	context.on('BinaryExpression', node => {
@@ -154,46 +199,14 @@ const create = context => {
 	});
 
 	context.on('LogicalExpression', node => {
-		if (isLogicalExpression(node)) {
+		if (isLogicalExpression(node) && isOutermostLogicalExpression(node)) {
 			logicalExpressions.push(node);
 		}
 	});
 
 	context.on('Program:exit', function * () {
-		const nodes = new Set(logicalExpressions.flatMap(logicalExpression =>
-			getUselessLengthCheckNode(logicalExpression)));
-
-		for (const node of nodes) {
-			yield {
-				loc: {
-					start: sourceCode.getLoc(node.left.property).start,
-					end: sourceCode.getLoc(node).end,
-				},
-				messageId: zeroLengthChecks.has(node) ? 'zero' : 'non-zero',
-				/**
-				@param {import('eslint').Rule.RuleFixer} fixer
-				*/
-				fix(fixer) {
-					const {left, right} = node.parent;
-					const leftRange = getParenthesizedRange(left, context);
-					const rightRange = getParenthesizedRange(right, context);
-					const range = [];
-					if (left === node) {
-						range[0] = leftRange[0];
-						range[1] = rightRange[0];
-					} else {
-						range[0] = leftRange[1];
-						range[1] = rightRange[1];
-					}
-
-					// The removed range holds the length check and the operator, so a comment there would be lost
-					if (hasCommentInRange(context, range)) {
-						return;
-					}
-
-					return fixer.removeRange(range);
-				},
-			};
+		for (const logicalExpression of logicalExpressions) {
+			yield getUselessLengthCheckProblems(logicalExpression);
 		}
 	});
 };
@@ -210,6 +223,7 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		messages,
 		languages: [
 			'js/js',

@@ -3,6 +3,64 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+// Leading checks are autofixed when the call arguments have no side effects, and trailing checks when the callback is a pure inline arrow function
+test({
+	valid: [],
+	invalid: [
+		// Removing the check evaluates the argument for an empty array
+		{
+			code: 'array.length > 0 && array.some(createPredicate())',
+			errors: [{messageId: 'non-zero', suggestions: [{messageId: 'remove-length-check', output: 'array.some(createPredicate())'}]}],
+		},
+		// The most common forms are still autofixed
+		{
+			code: 'array.length > 0 && array.some(predicate)',
+			output: 'array.some(predicate)',
+			errors: [{messageId: 'non-zero'}],
+		},
+		{
+			code: 'array.length === 0 || array.every(value => value > 0)',
+			output: 'array.every(value => value > 0)',
+			errors: [{messageId: 'zero'}],
+		},
+		// A pure inline callback cannot empty the array before a trailing check
+		{
+			code: 'array.some(value => value > 0) && array.length > 0',
+			output: 'array.some(value => value > 0)',
+			errors: [{messageId: 'non-zero'}],
+		},
+		{
+			code: 'array.every(value => value.isValid) || array.length === 0',
+			output: 'array.every(value => value.isValid)',
+			errors: [{messageId: 'zero'}],
+		},
+		// A callback with side effects can empty the array before a trailing check
+		{
+			code: 'array.some(value => array.pop()) && array.length > 0',
+			errors: [{messageId: 'non-zero', suggestions: [{messageId: 'remove-length-check', output: 'array.some(value => array.pop())'}]}],
+		},
+		{
+			code: 'array.some(value => { return value > 0; }) && array.length > 0',
+			output: 'array.some(value => { return value > 0; })',
+			errors: [{messageId: 'non-zero'}],
+		},
+		{
+			code: 'array.some(predicate) && array.length > 0',
+			errors: [{messageId: 'non-zero', suggestions: [{messageId: 'remove-length-check', output: 'array.some(predicate)'}]}],
+		},
+		{
+			code: 'array.every(predicate) || array.length === 0',
+			errors: [{messageId: 'zero', suggestions: [{messageId: 'remove-length-check', output: 'array.every(predicate)'}]}],
+		},
+		// A check between two calls is leading for the following call
+		{
+			code: 'array.some(predicate) && array.length > 0 && array.some(predicate)',
+			output: 'array.some(predicate) && array.some(predicate)',
+			errors: [{messageId: 'non-zero'}],
+		},
+	],
+});
+
 const multilineTemplate = [
 	'if (array.length > 0) {',
 	'\tfor (const element of array) {',
@@ -469,7 +527,7 @@ test({
 		// The length check on the right side
 		{
 			code: 'if (array.some(Boolean) /* keep */ && array.length !== 0) {}',
-			errors: [{messageId: 'non-zero'}],
+			errors: [{messageId: 'non-zero', suggestions: []}],
 		},
 		// A comment outside the removed range is kept
 		{
@@ -477,5 +535,24 @@ test({
 			output: 'if (/* keep */ array.some(Boolean)) {}',
 			errors: [{messageId: 'non-zero'}],
 		},
+	],
+});
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		{
+			code: '(array satisfies number[]).length > 0 && (array satisfies number[]).some(value => value > 0)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(<number[]>array).every(value => value > 0) || (<number[]>array).length === 0',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const element = <div>{array.length > 0 && array.some(value => value > 0)}</div>;',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		'array.length === 0 || array.every(/* keep */ Boolean)',
 	],
 });

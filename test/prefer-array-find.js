@@ -1,7 +1,15 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+const linterConfig = {
+	plugins: {unicorn: {rules: {'prefer-array-find': rule}}},
+	rules: {'unicorn/prefer-array-find': 'error'},
+};
 
 const ERROR_ZERO_INDEX = 'error-zero-index';
 const ERROR_SHIFT = 'error-shift';
@@ -12,6 +20,126 @@ const ERROR_SLICE_MINUS_ONE = 'error-slice-minus-one';
 const ERROR_DESTRUCTURING_DECLARATION = 'error-destructuring-declaration';
 const ERROR_DESTRUCTURING_ASSIGNMENT = 'error-destructuring-assignment';
 const ERROR_DECLARATION = 'error-variable';
+const SUGGESTION_ID = 'prefer-array-find/suggestion';
+
+const getSuggestionError = (messageId, output, method = 'find') => ({
+	messageId,
+	suggestions: [{messageId: SUGGESTION_ID, data: {method}, output}],
+});
+
+nodeTest('side-effect-free inline callbacks are autofixed', t => {
+	for (const callback of ['value => value.id > 1', 'function (value) { return value.id > 1; }', '({id}) => id > 1', '(value, index) => index > 0 && value.id > 1']) {
+		for (const values of ['[]', '[{id: 0}, {id: 1}]', '[{id: 2}, {id: 0}, {id: 3}]']) {
+			for (const [code, output] of [
+				[`${values}.filter(${callback})[0];`, `${values}.find(${callback});`],
+				[`${values}.filter(${callback}).shift();`, `${values}.find(${callback});`],
+				[`${values}.filter(${callback}).at(0);`, `${values}.find(${callback});`],
+				[`const [item] = ${values}.filter(${callback}); item;`, `const item = ${values}.find(${callback}); item;`],
+				[`let item; [item] = ${values}.filter(${callback}); item;`, `let item; item = ${values}.find(${callback}); item;`],
+				[`const items = ${values}.filter(${callback}); items[0];`, `const item = ${values}.find(${callback}); item;`],
+				[`${values}.filter(${callback}).pop();`, `${values}.findLast(${callback});`],
+				[`${values}.filter(${callback}).at(-1);`, `${values}.findLast(${callback});`],
+				[`${values}.filter(${callback}).slice(-1)[0];`, `${values}.findLast(${callback});`],
+				[`${values}.filter(${callback}).slice(-1).pop();`, `${values}.findLast(${callback});`],
+			]) {
+				const result = new Linter().verifyAndFix(code, linterConfig);
+				t.assert.strictEqual(result.output, output);
+				t.assert.strictEqual(result.fixed, true);
+				t.assert.deepStrictEqual(result.messages, []);
+				t.assert.strictEqual(JSON.stringify(runInNewContext(output)), JSON.stringify(runInNewContext(code)));
+			}
+		}
+	}
+});
+
+nodeTest('callbacks with side effects or unknown callbacks stay suggestions', t => {
+	for (const [code, original, suggested] of [
+		[
+			'const calls = []; const item = [1, 2].filter(value => calls.push(value))[0]; JSON.stringify({item, calls});',
+			'{"item":1,"calls":[1,2]}',
+			'{"item":1,"calls":[1]}',
+		],
+		[
+			'let count = 0; const item = [1, 2].filter(value => (count++, value > 0)).at(-1); JSON.stringify({item, count});',
+			'{"item":2,"count":2}',
+			'{"item":2,"count":1}',
+		],
+		[
+			'const calls = []; const isPositive = value => calls.push(value); const item = [1, 2].filter(isPositive).shift(); JSON.stringify({item, calls});',
+			'{"item":1,"calls":[1,2]}',
+			'{"item":1,"calls":[1]}',
+		],
+		[
+			'const calls = []; const item = [1, 2].filter(value => calls.push(value)).pop(); JSON.stringify({item, calls});',
+			'{"item":2,"calls":[1,2]}',
+			'{"item":2,"calls":[2]}',
+		],
+	]) {
+		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(fixed, false);
+		t.assert.strictEqual(runInNewContext(code), original);
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].fix, undefined);
+		t.assert.strictEqual(messages[0].suggestions.length, 1);
+		const {range, text} = messages[0].suggestions[0].fix;
+		const suggestedCode = code.slice(0, range[0]) + text + code.slice(range[1]);
+		t.assert.strictEqual(runInNewContext(suggestedCode), suggested);
+	}
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const item = values.filter(value => log(value))[0];',
+			errors: [getSuggestionError(ERROR_ZERO_INDEX, 'const item = values.find(value => log(value));')],
+		},
+		{
+			code: 'const item = values.filter(function (value) { seen.add(value); return value > 0; }).pop();',
+			errors: [getSuggestionError(ERROR_POP, 'const item = values.findLast(function (value) { seen.add(value); return value > 0; });', 'findLast')],
+		},
+		{
+			code: 'const [item] = values.filter((value = getDefault()) => value > 0);',
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_DECLARATION, 'const item = values.find((value = getDefault()) => value > 0);')],
+		},
+		{
+			code: 'const item = values.filter(async value => await check(value)).at(0);',
+			errors: [getSuggestionError(ERROR_AT_ZERO, 'const item = values.find(async value => await check(value));')],
+		},
+		{
+			code: 'const item = values.filter(value => value.id === id, context)[0];',
+			output: 'const item = values.find(value => value.id === id, context);',
+			errors: [{messageId: ERROR_ZERO_INDEX}],
+		},
+		{
+			code: 'const item = values.filter(function (value) { return value.id === id; }).slice(-1).pop();',
+			output: 'const item = values.findLast(function (value) { return value.id === id; });',
+			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+		},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const view = <div>{values.filter(predicate)[0]}</div>;',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+			errors: [getSuggestionError(ERROR_ZERO_INDEX, 'const view = <div>{values.find(predicate)}</div>;')],
+		},
+		{
+			code: 'const selected = ((values as number[]).filter(predicate)).at(-1);',
+			languageOptions: {parser: parsers.typescript},
+			errors: [getSuggestionError(ERROR_AT_MINUS_ONE, 'const selected = ((values as number[]).findLast(predicate));', 'findLast')],
+		},
+		{
+			code: 'values!.filter(predicate).at(0);',
+			languageOptions: {parser: parsers.typescript},
+			errors: [getSuggestionError(ERROR_AT_ZERO, 'values!.find(predicate);')],
+		},
+	],
+});
 
 // `[0]`
 test({
@@ -65,29 +193,24 @@ test({
 		// A typed array shares `Array#filter()` and `Array#find()`
 		{
 			code: 'function f(array: Int8Array) { return array.filter(foo)[0]; }',
-			output: 'function f(array: Int8Array) { return array.find(foo); }',
-			errors: [{messageId: ERROR_ZERO_INDEX}],
+			errors: [getSuggestionError(ERROR_ZERO_INDEX, 'function f(array: Int8Array) { return array.find(foo); }')],
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
 			code: 'array.filter(foo)[0]',
-			output: 'array.find(foo)',
-			errors: [{messageId: ERROR_ZERO_INDEX}],
+			errors: [getSuggestionError(ERROR_ZERO_INDEX, 'array.find(foo)')],
 		},
 		{
 			code: 'array?.filter(foo)[0]',
-			output: 'array?.find(foo)',
-			errors: [{messageId: ERROR_ZERO_INDEX}],
+			errors: [getSuggestionError(ERROR_ZERO_INDEX, 'array?.find(foo)')],
 		},
 		{
 			code: 'array.filter(foo, thisArgument)[0]',
-			output: 'array.find(foo, thisArgument)',
-			errors: [{messageId: ERROR_ZERO_INDEX}],
+			errors: [getSuggestionError(ERROR_ZERO_INDEX, 'array.find(foo, thisArgument)')],
 		},
 		{
 			code: 'array?.filter(foo, thisArgument)[0]',
-			output: 'array?.find(foo, thisArgument)',
-			errors: [{messageId: ERROR_ZERO_INDEX}],
+			errors: [getSuggestionError(ERROR_ZERO_INDEX, 'array?.find(foo, thisArgument)')],
 		},
 	],
 });
@@ -129,23 +252,19 @@ test({
 	invalid: [
 		{
 			code: 'array.filter(foo).shift()',
-			output: 'array.find(foo)',
-			errors: [{messageId: ERROR_SHIFT}],
+			errors: [getSuggestionError(ERROR_SHIFT, 'array.find(foo)')],
 		},
 		{
 			code: 'array?.filter(foo).shift()',
-			output: 'array?.find(foo)',
-			errors: [{messageId: ERROR_SHIFT}],
+			errors: [getSuggestionError(ERROR_SHIFT, 'array?.find(foo)')],
 		},
 		{
 			code: 'array.filter(foo, thisArgument).shift()',
-			output: 'array.find(foo, thisArgument)',
-			errors: [{messageId: ERROR_SHIFT}],
+			errors: [getSuggestionError(ERROR_SHIFT, 'array.find(foo, thisArgument)')],
 		},
 		{
 			code: 'array?.filter(foo, thisArgument).shift()',
-			output: 'array?.find(foo, thisArgument)',
-			errors: [{messageId: ERROR_SHIFT}],
+			errors: [getSuggestionError(ERROR_SHIFT, 'array?.find(foo, thisArgument)')],
 		},
 		{
 			code: outdent`
@@ -202,75 +321,61 @@ test({
 	invalid: [
 		{
 			code: 'const [foo] = array.filter(bar)',
-			output: 'const foo = array.find(bar)',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_DECLARATION, 'const foo = array.find(bar)')],
 		},
 		{
 			// Plural variable name.
 			code: 'const [items] = array.filter(bar)',
-			output: 'const items = array.find(bar)',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_DECLARATION, 'const items = array.find(bar)')],
 		},
 		{
 			// Array-pattern export is still flagged (unlike the identifier-pattern export)
 			code: 'export const [foo] = array.filter(bar)',
-			output: 'export const foo = array.find(bar)',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_DECLARATION, 'export const foo = array.find(bar)')],
 		},
 		{
 			code: 'const [foo] = array.filter(bar, thisArgument)',
-			output: 'const foo = array.find(bar, thisArgument)',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_DECLARATION, 'const foo = array.find(bar, thisArgument)')],
 		},
 		{
 			code: 'const [{foo}] = array.filter(fn);',
-			output: 'const {foo} = array.find(fn);',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_DECLARATION, 'const {foo} = array.find(fn);')],
 		},
 		{
 			code: 'const [{foo = bar}] = array.filter(fn);',
-			output: 'const {foo = bar} = array.find(fn);',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_DECLARATION, 'const {foo = bar} = array.find(fn);')],
 		},
 		{
 			code: 'const [[foo]] = array.filter(fn);',
-			output: 'const [foo] = array.find(fn);',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_DECLARATION, 'const [foo] = array.find(fn);')],
 		},
 		{
 			code: 'const [[foo = bar]] = array.filter(fn);',
-			output: 'const [foo = bar] = array.find(fn);',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_DECLARATION, 'const [foo = bar] = array.find(fn);')],
 		},
 		{
 			code: 'const [foo, ] = array.filter(bar)',
-			output: 'const foo = array.find(bar)',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_DECLARATION, 'const foo = array.find(bar)')],
 		},
 		{
 			code: 'var [foo, ] = array.filter(bar)',
-			output: 'var foo = array.find(bar)',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_DECLARATION, 'var foo = array.find(bar)')],
 		},
 		{
 			code: 'let [foo, ] = array.filter(bar)',
-			output: 'let foo = array.find(bar)',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_DECLARATION, 'let foo = array.find(bar)')],
 		},
 		{
 			code: 'let a = 1, [foo, ] = array.filter(bar)',
-			output: 'let a = 1, foo = array.find(bar)',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_DECLARATION, 'let a = 1, foo = array.find(bar)')],
 		},
 		{
 			code: 'let a = 1, [{foo}] = array.filter(bar)',
-			output: 'let a = 1, {foo} = array.find(bar)',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_DECLARATION, 'let a = 1, {foo} = array.find(bar)')],
 		},
 		{
 			code: 'for (let [i] = array.filter(bar); i< 10; i++) {}',
-			output: 'for (let i = array.find(bar); i< 10; i++) {}',
-			errors: [{messageId: ERROR_DESTRUCTURING_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_DECLARATION, 'for (let i = array.find(bar); i< 10; i++) {}')],
 		},
 		{
 			code: outdent`
@@ -356,43 +461,35 @@ test({
 	invalid: [
 		{
 			code: '[foo] = array.filter(bar)',
-			output: 'foo = array.find(bar)',
-			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_ASSIGNMENT, 'foo = array.find(bar)')],
 		},
 		{
 			code: '[foo] = array.filter(bar, thisArgument)',
-			output: 'foo = array.find(bar, thisArgument)',
-			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_ASSIGNMENT, 'foo = array.find(bar, thisArgument)')],
 		},
 		{
 			code: '[foo.bar().baz] = array.filter(fn)',
-			output: 'foo.bar().baz = array.find(fn)',
-			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_ASSIGNMENT, 'foo.bar().baz = array.find(fn)')],
 		},
 		{
 			code: '[{foo}] = array.filter(fn);',
-			output: '({foo} = array.find(fn));',
-			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_ASSIGNMENT, '({foo} = array.find(fn));')],
 		},
 		{
 			code: '[[foo]] = array.filter(fn);',
-			output: '[foo] = array.find(fn);',
-			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_ASSIGNMENT, '[foo] = array.find(fn);')],
 		},
 		{
 			code: '[{foo = baz}] = array.filter(fn);',
-			output: '({foo = baz} = array.find(fn));',
-			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_ASSIGNMENT, '({foo = baz} = array.find(fn));')],
 		},
 		{
 			code: '[foo, ] = array.filter(bar)',
-			output: 'foo = array.find(bar)',
-			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_ASSIGNMENT, 'foo = array.find(bar)')],
 		},
 		{
 			code: 'for ([i] = array.filter(bar); i< 10; i++) {}',
-			output: 'for (i = array.find(bar); i< 10; i++) {}',
-			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_ASSIGNMENT, 'for (i = array.find(bar); i< 10; i++) {}')],
 		},
 		// `no-semi` style
 		{
@@ -401,12 +498,11 @@ test({
 				const bar = []
 				;[foo] = array.filter(bar)
 			`,
-			output: outdent`
+			errors: [getSuggestionError(ERROR_DESTRUCTURING_ASSIGNMENT, outdent`
 				let foo
 				const bar = []
 				;foo = array.find(bar)
-			`,
-			errors: [{messageId: ERROR_DESTRUCTURING_ASSIGNMENT}],
+			`)],
 		},
 		// Suggestions
 		{
@@ -512,43 +608,35 @@ test({
 	invalid: [
 		{
 			code: 'const foo = array.filter(bar); const first = foo[0];',
-			output: 'const foo = array.find(bar); const first = foo;',
-			errors: [{messageId: ERROR_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DECLARATION, 'const foo = array.find(bar); const first = foo;')],
 		},
 		{
 			code: 'const foo = array.filter(bar), first = foo[0];',
-			output: 'const foo = array.find(bar), first = foo;',
-			errors: [{messageId: ERROR_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DECLARATION, 'const foo = array.find(bar), first = foo;')],
 		},
 		{
 			code: 'var foo = array.filter(bar), first = foo[0];',
-			output: 'var foo = array.find(bar), first = foo;',
-			errors: [{messageId: ERROR_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DECLARATION, 'var foo = array.find(bar), first = foo;')],
 		},
 		{
 			code: 'let foo = array.filter(bar), first = foo[0];',
-			output: 'let foo = array.find(bar), first = foo;',
-			errors: [{messageId: ERROR_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DECLARATION, 'let foo = array.find(bar), first = foo;')],
 		},
 		{
 			code: 'const foo = array.filter(bar); const [first] = foo;',
-			output: 'const foo = array.find(bar); const first = foo;',
-			errors: [{messageId: ERROR_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DECLARATION, 'const foo = array.find(bar); const first = foo;')],
 		},
 		{
 			code: 'const foo = array.filter(bar); [first] = foo;',
-			output: 'const foo = array.find(bar); first = foo;',
-			errors: [{messageId: ERROR_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DECLARATION, 'const foo = array.find(bar); first = foo;')],
 		},
 		{
 			code: 'const foo = array.filter(bar); const [{propOfFirst = unicorn}] = foo;',
-			output: 'const foo = array.find(bar); const {propOfFirst = unicorn} = foo;',
-			errors: [{messageId: ERROR_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DECLARATION, 'const foo = array.find(bar); const {propOfFirst = unicorn} = foo;')],
 		},
 		{
 			code: 'const foo = array.filter(bar); [{propOfFirst = unicorn}] = foo;',
-			output: 'const foo = array.find(bar); ({propOfFirst = unicorn} = foo);',
-			errors: [{messageId: ERROR_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DECLARATION, 'const foo = array.find(bar); ({propOfFirst = unicorn} = foo);')],
 		},
 
 		// Singularization
@@ -560,25 +648,22 @@ test({
 				console.log(items[0]);
 				function foo() { return items[0]; }
 			`,
-			output: outdent`
+			errors: [getSuggestionError(ERROR_DECLARATION, outdent`
 				const item = array.find(bar);
 				const first = item;
 				console.log(item);
 				function foo() { return item; }
-			`,
-			errors: [{messageId: ERROR_DECLARATION}],
+			`)],
 		},
 		{
 			// Variable name collision.
 			code: 'const item = {}; const items = array.filter(bar); console.log(items[0]);',
-			output: 'const item = {}; const item_ = array.find(bar); console.log(item_);',
-			errors: [{messageId: ERROR_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DECLARATION, 'const item = {}; const item_ = array.find(bar); console.log(item_);')],
 		},
 		{
 			// Variable defined with `let`.
 			code: 'let items = array.filter(bar); console.log(items[0]);',
-			output: 'let item = array.find(bar); console.log(item);',
-			errors: [{messageId: ERROR_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DECLARATION, 'let item = array.find(bar); console.log(item);')],
 		},
 		{
 			code: outdent`
@@ -588,14 +673,13 @@ test({
 					console.log(items[0]);
 				}
 			`,
-			output: outdent`
+			errors: [getSuggestionError(ERROR_DECLARATION, outdent`
 				const item = 1;
 				function f() {
 					const item_ = array.find(bar);
 					console.log(item_);
 				}
-			`,
-			errors: [{messageId: ERROR_DECLARATION}],
+			`)],
 		},
 		{
 			code: outdent`
@@ -606,15 +690,14 @@ test({
 					console.log(items[0]);
 				}
 			`,
-			output: outdent`
+			errors: [getSuggestionError(ERROR_DECLARATION, outdent`
 				const item__ = array.find(bar);
 				function f() {
 					const item = 1;
 					const item_ = 2;
 					console.log(item__);
 				}
-			`,
-			errors: [{messageId: ERROR_DECLARATION}],
+			`)],
 		},
 		{
 			code: outdent`
@@ -623,13 +706,12 @@ test({
 					console.log(items[0], item);
 				}
 			`,
-			output: outdent`
+			errors: [getSuggestionError(ERROR_DECLARATION, outdent`
 				const item_ = array.find(bar);
 				function f() {
 					console.log(item_, item);
 				}
-			`,
-			errors: [{messageId: ERROR_DECLARATION}],
+			`)],
 		},
 		{
 			code: outdent`
@@ -639,14 +721,13 @@ test({
 					return item;
 				}
 			`,
-			output: outdent`
+			errors: [getSuggestionError(ERROR_DECLARATION, outdent`
 				const item_ = array.find(bar);
 				console.log(item_);
 				function f(item) {
 					return item;
 				}
-			`,
-			errors: [{messageId: ERROR_DECLARATION}],
+			`)],
 		},
 		{
 			code: outdent`
@@ -658,7 +739,7 @@ test({
 					return item;
 				}
 			`,
-			output: outdent`
+			errors: [getSuggestionError(ERROR_DECLARATION, outdent`
 				function f() {
 					const item = array.find(bar);
 					console.log(item);
@@ -666,30 +747,27 @@ test({
 				function f2(item) {
 					return item;
 				}
-			`,
-			errors: [{messageId: ERROR_DECLARATION}],
+			`)],
 		},
 		{
 			code: outdent`
 				const packages = array.filter(bar);
 				console.log(packages[0]);
 			`,
-			output: outdent`
+			errors: [getSuggestionError(ERROR_DECLARATION, outdent`
 				const package_ = array.find(bar);
 				console.log(package_);
-			`,
-			errors: [{messageId: ERROR_DECLARATION}],
+			`)],
 		},
 		{
 			code: outdent`
 				const symbols = array.filter(bar);
 				console.log(symbols[0]);
 			`,
-			output: outdent`
+			errors: [getSuggestionError(ERROR_DECLARATION, outdent`
 				const symbol_ = array.find(bar);
 				console.log(symbol_);
-			`,
-			errors: [{messageId: ERROR_DECLARATION}],
+			`)],
 		},
 
 		// Not fixable
@@ -704,8 +782,7 @@ test({
 		// Many
 		{
 			code: 'let foo = array.filter(bar);foo[0](foo[0])[foo[0]];',
-			output: 'let foo = array.find(bar);foo(foo)[foo];',
-			errors: [{messageId: ERROR_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DECLARATION, 'let foo = array.find(bar);foo(foo)[foo];')],
 		},
 		{
 			code: outdent`
@@ -720,7 +797,7 @@ test({
 					return foo[0][property];
 				}
 			`,
-			output: outdent`
+			errors: [getSuggestionError(ERROR_DECLARATION, outdent`
 				let baz;
 				const foo = array.find(bar);
 				const bar = foo;
@@ -731,8 +808,7 @@ test({
 				function getPropertyOfFirst(property) {
 					return foo[property];
 				}
-			`,
-			errors: [{messageId: ERROR_DECLARATION}],
+			`)],
 		},
 	],
 });
@@ -751,28 +827,59 @@ test({
 					array.filter(fn).shift()
 				);
 			`,
-			// ESLint can't fix all of them,
-			// But run test on this again will fix to correct code,
+			// Suggestions may overlap.
+			// Apply them one at a time.
 			// See next test
-			output: outdent`
-				const quz = array.find(fn);
-				const [foo] = array.filter(quz);
-				({bar: baz} = foo[
-					array.filter(fn)[0]
-				].find(
-					array.filter(fn).shift()
-				));
-			`,
 			errors: [
-				{messageId: ERROR_DECLARATION},
-				{messageId: ERROR_DESTRUCTURING_DECLARATION},
-				{messageId: ERROR_ZERO_INDEX},
-				{messageId: ERROR_DESTRUCTURING_ASSIGNMENT},
-				{messageId: ERROR_SHIFT},
+				getSuggestionError(ERROR_DECLARATION, outdent`
+					const quz = array.find(fn);
+					const [foo] = array.filter(quz);
+					[{bar: baz}] = foo[
+						array.filter(fn)[0]
+					].filter(
+						array.filter(fn).shift()
+					);
+				`),
+				getSuggestionError(ERROR_DESTRUCTURING_DECLARATION, outdent`
+					const quz = array.filter(fn);
+					const foo = array.find(quz[0]);
+					[{bar: baz}] = foo[
+						array.filter(fn)[0]
+					].filter(
+						array.filter(fn).shift()
+					);
+				`),
+				getSuggestionError(ERROR_ZERO_INDEX, outdent`
+					const quz = array.filter(fn);
+					const [foo] = array.filter(quz[0]);
+					[{bar: baz}] = foo[
+						array.find(fn)
+					].filter(
+						array.filter(fn).shift()
+					);
+				`),
+				getSuggestionError(ERROR_DESTRUCTURING_ASSIGNMENT, outdent`
+					const quz = array.filter(fn);
+					const [foo] = array.filter(quz[0]);
+					({bar: baz} = foo[
+						array.filter(fn)[0]
+					].find(
+						array.filter(fn).shift()
+					));
+				`),
+				getSuggestionError(ERROR_SHIFT, outdent`
+					const quz = array.filter(fn);
+					const [foo] = array.filter(quz[0]);
+					[{bar: baz}] = foo[
+						array.filter(fn)[0]
+					].filter(
+						array.find(fn)
+					);
+				`),
 			],
 		},
 		{
-			// This code from previous output
+			// Some rewrites are already applied here.
 			code: outdent`
 				const quz = array.find(fn);
 				const [foo] = array.filter(quz);
@@ -782,19 +889,34 @@ test({
 					array.filter(fn).shift()
 				));
 			`,
-			output: outdent`
-				const quz = array.find(fn);
-				const foo = array.find(quz);
-				({bar: baz} = foo[
-					array.find(fn)
-				].find(
-					array.find(fn)
-				));
-			`,
 			errors: [
-				{messageId: ERROR_DESTRUCTURING_DECLARATION},
-				{messageId: ERROR_ZERO_INDEX},
-				{messageId: ERROR_SHIFT},
+				getSuggestionError(ERROR_DESTRUCTURING_DECLARATION, outdent`
+					const quz = array.find(fn);
+					const foo = array.find(quz);
+					({bar: baz} = foo[
+						array.filter(fn)[0]
+					].find(
+						array.filter(fn).shift()
+					));
+				`),
+				getSuggestionError(ERROR_ZERO_INDEX, outdent`
+					const quz = array.find(fn);
+					const [foo] = array.filter(quz);
+					({bar: baz} = foo[
+						array.find(fn)
+					].find(
+						array.filter(fn).shift()
+					));
+				`),
+				getSuggestionError(ERROR_SHIFT, outdent`
+					const quz = array.find(fn);
+					const [foo] = array.filter(quz);
+					({bar: baz} = foo[
+						array.filter(fn)[0]
+					].find(
+						array.find(fn)
+					));
+				`),
 			],
 		},
 	],
@@ -849,13 +971,11 @@ test({
 	invalid: [
 		{
 			code: 'array.filter(foo).pop()',
-			output: 'array.findLast(foo)',
-			errors: [{messageId: ERROR_POP}],
+			errors: [getSuggestionError(ERROR_POP, 'array.findLast(foo)', 'findLast')],
 		},
 		{
 			code: 'array.filter(foo, thisArgument).pop()',
-			output: 'array.findLast(foo, thisArgument)',
-			errors: [{messageId: ERROR_POP}],
+			errors: [getSuggestionError(ERROR_POP, 'array.findLast(foo, thisArgument)', 'findLast')],
 		},
 		{
 			code: outdent`
@@ -929,13 +1049,11 @@ test({
 	invalid: [
 		{
 			code: 'array.filter(foo).at(-1)',
-			output: 'array.findLast(foo)',
-			errors: [{messageId: ERROR_AT_MINUS_ONE}],
+			errors: [getSuggestionError(ERROR_AT_MINUS_ONE, 'array.findLast(foo)', 'findLast')],
 		},
 		{
 			code: 'array.filter(foo, thisArgument).at(-1)',
-			output: 'array.findLast(foo, thisArgument)',
-			errors: [{messageId: ERROR_AT_MINUS_ONE}],
+			errors: [getSuggestionError(ERROR_AT_MINUS_ONE, 'array.findLast(foo, thisArgument)', 'findLast')],
 		},
 		{
 			code: outdent`
@@ -1031,68 +1149,56 @@ test({
 	invalid: [
 		{
 			code: 'array.filter(foo).slice(-1)[0]',
-			output: 'array.findLast(foo)',
-			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+			errors: [getSuggestionError(ERROR_SLICE_MINUS_ONE, 'array.findLast(foo)', 'findLast')],
 		},
 		{
 			code: 'array.filter(foo).slice(-1).pop()',
-			output: 'array.findLast(foo)',
-			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+			errors: [getSuggestionError(ERROR_SLICE_MINUS_ONE, 'array.findLast(foo)', 'findLast')],
 		},
 		{
 			code: 'array.filter(foo).slice(-1).shift()',
-			output: 'array.findLast(foo)',
-			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+			errors: [getSuggestionError(ERROR_SLICE_MINUS_ONE, 'array.findLast(foo)', 'findLast')],
 		},
 		{
 			code: 'array?.filter(foo).slice(-1)[0]',
-			output: 'array?.findLast(foo)',
-			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+			errors: [getSuggestionError(ERROR_SLICE_MINUS_ONE, 'array?.findLast(foo)', 'findLast')],
 		},
 		{
 			code: 'array?.filter(foo).slice(-1).pop()',
-			output: 'array?.findLast(foo)',
-			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+			errors: [getSuggestionError(ERROR_SLICE_MINUS_ONE, 'array?.findLast(foo)', 'findLast')],
 		},
 		{
 			code: 'array?.filter(foo).slice(-1).shift()',
-			output: 'array?.findLast(foo)',
-			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+			errors: [getSuggestionError(ERROR_SLICE_MINUS_ONE, 'array?.findLast(foo)', 'findLast')],
 		},
 		{
 			code: 'array.filter(foo, thisArgument).slice(-1)[0]',
-			output: 'array.findLast(foo, thisArgument)',
-			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+			errors: [getSuggestionError(ERROR_SLICE_MINUS_ONE, 'array.findLast(foo, thisArgument)', 'findLast')],
 		},
 		{
 			code: 'array.filter(foo, thisArgument).slice(-1).pop()',
-			output: 'array.findLast(foo, thisArgument)',
-			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+			errors: [getSuggestionError(ERROR_SLICE_MINUS_ONE, 'array.findLast(foo, thisArgument)', 'findLast')],
 		},
 		// Result used in a declaration
 		{
 			code: 'const item = array.filter(foo).slice(-1)[0];',
-			output: 'const item = array.findLast(foo);',
-			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+			errors: [getSuggestionError(ERROR_SLICE_MINUS_ONE, 'const item = array.findLast(foo);', 'findLast')],
 		},
 		// Result used as an argument
 		{
 			code: 'foo(array.filter(bar).slice(-1)[0])',
-			output: 'foo(array.findLast(bar))',
-			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+			errors: [getSuggestionError(ERROR_SLICE_MINUS_ONE, 'foo(array.findLast(bar))', 'findLast')],
 		},
 		// Parenthesized `.filter()` call
 		{
 			code: '(array.filter(foo)).slice(-1)[0]',
-			output: '(array.findLast(foo))',
-			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+			errors: [getSuggestionError(ERROR_SLICE_MINUS_ONE, '(array.findLast(foo))', 'findLast')],
 		},
 		// TypeScript non-null assertion on the result
 		{
 			code: 'array.filter(foo).slice(-1)[0]!',
-			output: 'array.findLast(foo)!',
 			languageOptions: {parser: parsers.typescript},
-			errors: [{messageId: ERROR_SLICE_MINUS_ONE}],
+			errors: [getSuggestionError(ERROR_SLICE_MINUS_ONE, 'array.findLast(foo)!', 'findLast')],
 		},
 		// Don't drop comments in the removed slice/accessor part.
 		{
@@ -1198,23 +1304,19 @@ test({
 	invalid: [
 		{
 			code: 'array.filter(foo).at(0)',
-			output: 'array.find(foo)',
-			errors: [{messageId: ERROR_AT_ZERO}],
+			errors: [getSuggestionError(ERROR_AT_ZERO, 'array.find(foo)')],
 		},
 		{
 			code: 'array?.filter(foo).at(0)',
-			output: 'array?.find(foo)',
-			errors: [{messageId: ERROR_AT_ZERO}],
+			errors: [getSuggestionError(ERROR_AT_ZERO, 'array?.find(foo)')],
 		},
 		{
 			code: 'array.filter(foo, thisArgument).at(0)',
-			output: 'array.find(foo, thisArgument)',
-			errors: [{messageId: ERROR_AT_ZERO}],
+			errors: [getSuggestionError(ERROR_AT_ZERO, 'array.find(foo, thisArgument)')],
 		},
 		{
 			code: 'array?.filter(foo, thisArgument).at(0)',
-			output: 'array?.find(foo, thisArgument)',
-			errors: [{messageId: ERROR_AT_ZERO}],
+			errors: [getSuggestionError(ERROR_AT_ZERO, 'array?.find(foo, thisArgument)')],
 		},
 		{
 			code: outdent`
@@ -1308,14 +1410,12 @@ test({
 	invalid: [
 		{
 			code: 'const items = list.filter(fn); console.log(items[0]);',
-			output: 'const item = list.find(fn); console.log(item);',
-			errors: [{messageId: ERROR_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DECLARATION, 'const item = list.find(fn); console.log(item);')],
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
 			code: 'const items = list.filter(fn); const [first] = items;',
-			output: 'const item = list.find(fn); const first = item;',
-			errors: [{messageId: ERROR_DECLARATION}],
+			errors: [getSuggestionError(ERROR_DECLARATION, 'const item = list.find(fn); const first = item;')],
 			languageOptions: {parser: parsers.typescript},
 		},
 	],
@@ -1352,13 +1452,11 @@ test({
 		},
 		{
 			code: 'const a = b./* keep */filter(c)[0];',
-			output: 'const a = b./* keep */find(c);',
-			errors: [{messageId: ERROR_ZERO_INDEX}],
+			errors: [getSuggestionError(ERROR_ZERO_INDEX, 'const a = b./* keep */find(c);')],
 		},
 		{
 			code: 'const a = (b.filter(c) /* keep */)[0];',
-			output: 'const a = (b.find(c) /* keep */);',
-			errors: [{messageId: ERROR_ZERO_INDEX}],
+			errors: [getSuggestionError(ERROR_ZERO_INDEX, 'const a = (b.find(c) /* keep */);')],
 		},
 	],
 });

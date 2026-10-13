@@ -1,11 +1,20 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+const linterConfig = {
+	plugins: {unicorn: {rules: {'prefer-array-some': rule}}},
+	rules: {'unicorn/prefer-array-some': 'error'},
+};
 
 const ERROR_ID_ARRAY_SOME = 'some';
 const SUGGESTION_ID_ARRAY_SOME = 'some-suggestion';
+
 const typeAware = code => ({
 	code,
 	filename: 'file.ts',
@@ -28,6 +37,143 @@ const invalidCase = ({code, suggestionOutput, method, ...testCase}) => ({
 					output: suggestionOutput,
 				},
 			],
+		},
+	],
+});
+
+nodeTest('side-effect-free inline callbacks are autofixed', t => {
+	for (const callback of ['value => value.id > 1', 'function (value) { return value.id > 1; }', '({id}) => id > 1', '(value, index) => index > 0 && value.id > 1']) {
+		for (const values of ['[]', '[{id: 0}, {id: 1}]', '[{id: 2}, {id: 0}, {id: 3}]']) {
+			for (const [code, output] of [
+				[`${values}.filter(${callback}).length > 0;`, `${values}.some(${callback});`],
+				[`${values}.filter(${callback}).length !== 0;`, `${values}.some(${callback});`],
+				[`${values}.findLastIndex(${callback}) !== -1;`, `${values}.some(${callback});`],
+				[`${values}.findLastIndex(${callback}) === -1;`, `!${values}.some(${callback});`],
+			]) {
+				const result = new Linter().verifyAndFix(code, linterConfig);
+				t.assert.strictEqual(result.output, output);
+				t.assert.strictEqual(result.fixed, true);
+				t.assert.deepStrictEqual(result.messages, []);
+				t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
+			}
+		}
+	}
+});
+
+nodeTest('callbacks with side effects or unknown callbacks stay suggestions', t => {
+	for (const [code, original, suggested] of [
+		[
+			'const calls = []; const found = [1, 2].filter(value => calls.push(value)).length > 0; JSON.stringify({found, calls});',
+			'{"found":true,"calls":[1,2]}',
+			'{"found":true,"calls":[1]}',
+		],
+		[
+			'let count = 0; const found = [1, 2].filter(value => (count++, value > 0)).length > 0; JSON.stringify({found, count});',
+			'{"found":true,"count":2}',
+			'{"found":true,"count":1}',
+		],
+		[
+			'const calls = []; const isPositive = value => calls.push(value); const found = [1, 2].filter(isPositive).length > 0; JSON.stringify({found, calls});',
+			'{"found":true,"calls":[1,2]}',
+			'{"found":true,"calls":[1]}',
+		],
+		[
+			'const calls = []; const found = [1, 2].findLastIndex(value => calls.push(value)) !== -1; JSON.stringify({found, calls});',
+			'{"found":true,"calls":[2]}',
+			'{"found":true,"calls":[1]}',
+		],
+		[
+			'const calls = []; const values = [1, 2].map(() => {}); const found = values.filter((value = calls.push("default")) => value > 0).length > 0; JSON.stringify({found, calls});',
+			'{"found":true,"calls":["default","default"]}',
+			'{"found":true,"calls":["default"]}',
+		],
+	]) {
+		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(fixed, false);
+		t.assert.strictEqual(runInNewContext(code), original);
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].fix, undefined);
+		t.assert.strictEqual(messages[0].suggestions.length, 1);
+		const {range, text} = messages[0].suggestions[0].fix;
+		const suggestedCode = code.slice(0, range[0]) + text + code.slice(range[1]);
+		t.assert.strictEqual(runInNewContext(suggestedCode), suggested);
+	}
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['(values.findLastIndex(predicate)) === -1;', '!(values.some(predicate));'],
+			['values.findLastIndex(/* keep */ predicate) /* keep */ !== -1;', 'values.some(/* keep */ predicate) /* keep */;'],
+			['values.findLastIndex(value => log(value)) !== -1;', 'values.some(value => log(value));'],
+		].map(([code, suggestionOutput]) => invalidCase({
+			code,
+			suggestionOutput,
+			method: 'findLastIndex',
+		})),
+		{
+			code: 'const found = <div>{values.findLastIndex(value => value > 0) !== -1}</div>;',
+			output: 'const found = <div>{values.some(value => value > 0)}</div>;',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+			errors: 1,
+		},
+		{
+			code: 'const values: number[] = [1, 2]; (values as number[]).findLastIndex((value: number) => value > 0) >= 0;',
+			output: 'const values: number[] = [1, 2]; (values as number[]).some((value: number) => value > 0);',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'values.findLastIndex(predicate) !== /* keep */ -1;',
+			errors: [{messageId: ERROR_ID_ARRAY_SOME, suggestions: 0}],
+		},
+		{
+			code: 'values.findLastIndex(value => value > 0) !== /* keep */ -1;',
+			errors: [{messageId: ERROR_ID_ARRAY_SOME, suggestions: []}],
+		},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['const found = ((values.filter(predicate)).length > 0);', 'const found = ((values.some(predicate)));'],
+			['values.filter(/* keep */ predicate, receiver).length !== 0;', 'values.some(/* keep */ predicate, receiver);'],
+			['values.filter(value => log(value)).length > 0;', 'values.some(value => log(value));'],
+			['values.filter(value => (count++, value > 0)).length > 0;', 'values.some(value => (count++, value > 0));'],
+			['values.filter(function (value) { seen.add(value); return value > 0; }).length > 0;', 'values.some(function (value) { seen.add(value); return value > 0; });'],
+			['values.filter(async value => await check(value)).length > 0;', 'values.some(async value => await check(value));'],
+		].map(([code, output]) => ({
+			code,
+			errors: [{messageId: 'filter', suggestions: [{messageId: SUGGESTION_ID_ARRAY_SOME, data: {method: 'filter'}, output}]}],
+		})),
+		{
+			code: 'const found = <div>{values.filter(value => value > 0).length > 0}</div>;',
+			output: 'const found = <div>{values.some(value => value > 0)}</div>;',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+			errors: 1,
+		},
+		{
+			code: 'const found = values.filter(function (value) { return value.id === id; }).length !== 0;',
+			output: 'const found = values.some(function (value) { return value.id === id; });',
+			errors: 1,
+		},
+		{
+			code: 'const values: number[] = [1, 2]; (values as number[]).filter((value: number) => value > 0).length > 0;',
+			output: 'const values: number[] = [1, 2]; (values as number[]).some((value: number) => value > 0);',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'values.filter(predicate).length /* keep */ > 0;',
+			errors: [{messageId: 'filter', suggestions: 0}],
+		},
+		{
+			code: 'values.filter(value => value > 0).length /* keep */ > 0;',
+			errors: [{messageId: 'filter', suggestions: []}],
 		},
 	],
 });
@@ -476,28 +622,25 @@ test.vue({
 		}),
 		{
 			code: '<template><div v-if="foo.filter(fn).length > 0"></div></template>',
-			output: '<template><div v-if="foo.some(fn)"></div></template>',
-			errors: 1,
+			errors: [{messageId: 'filter', suggestions: [{messageId: SUGGESTION_ID_ARRAY_SOME, data: {method: 'filter'}, output: '<template><div v-if="foo.some(fn)"></div></template>'}]}],
 		},
 		{
 			code: '<template><div v-if="foo.filter(fn).length !== 0"></div></template>',
-			output: '<template><div v-if="foo.some(fn)"></div></template>',
-			errors: 1,
+			errors: [{messageId: 'filter', suggestions: [{messageId: SUGGESTION_ID_ARRAY_SOME, data: {method: 'filter'}, output: '<template><div v-if="foo.some(fn)"></div></template>'}]}],
 		},
 		{
 			code: '<script>foo.findIndex(fn) !== -1;</script>',
 			output: '<script>foo.some(fn);</script>',
 			errors: 1,
 		},
-		{
+		invalidCase({
 			code: '<script>foo.findLastIndex(fn) !== -1;</script>',
-			output: '<script>foo.some(fn);</script>',
-			errors: 1,
-		},
+			suggestionOutput: '<script>foo.some(fn);</script>',
+			method: 'findLastIndex',
+		}),
 		{
 			code: '<script>if (foo.filter(fn).length > 0);</script>',
-			output: '<script>if (foo.some(fn));</script>',
-			errors: 1,
+			errors: [{messageId: 'filter', suggestions: [{messageId: SUGGESTION_ID_ARRAY_SOME, data: {method: 'filter'}, output: '<script>if (foo.some(fn));</script>'}]}],
 		},
 	],
 });
@@ -534,10 +677,14 @@ test({
 	invalid: [
 		...[
 			['foo.findIndex(fn) !== -1;', 'foo.some(fn);'],
-			['foo.findLastIndex(fn) !== -1;', 'foo.some(fn);'],
 			['foo.findIndex(fn) === -1;', '!foo.some(fn);'],
 			['const a = foo.findIndex(fn) !== -1;', 'const a = foo.some(fn);'],
 		].map(([code, output]) => ({code, output, errors: 1})),
+		invalidCase({
+			code: 'foo.findLastIndex(fn) !== -1;',
+			suggestionOutput: 'foo.some(fn);',
+			method: 'findLastIndex',
+		}),
 	],
 });
 

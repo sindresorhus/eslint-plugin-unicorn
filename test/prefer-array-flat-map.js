@@ -3,6 +3,34 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+// A callback with side effects can mutate an earlier returned array before `.flat()` runs, so only callbacks without side effects are autofixed
+test.snapshot({
+	valid: [],
+	invalid: [
+		'const shared = []; [1, 2].map(value => { shared.push(value); return shared; }).flat()',
+		'array.map(value => value.children).flat()',
+		'array.map(value => [value, value * 2]).flat()',
+		'array.map(value => [getChild(value)]).flat()',
+		'array.map(value => getChildren(value)).flat()',
+		'array.map(getChildren).flat()',
+		'((array.map(value => [value]))).flat()',
+		'array.map(value => [/* keep */ value]).flat()',
+		'array.map(value => [value]).flat(/* keep */)',
+		{
+			code: '(array as number[]).map((value: number) => [value]).flat()',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'array!.map(value => [value]).flat(1)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(array satisfies number[]).map(value => [value]).flat()',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+});
+
 test.snapshot({
 	valid: [
 		'const bar = [1,2,3].map()',

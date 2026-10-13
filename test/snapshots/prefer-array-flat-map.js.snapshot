@@ -15,6 +15,40 @@ Output:
 
 `;
 
+exports[`prefer-array-flat-map > invalid(1): const shared = []; [1, 2].map(value => { shared.push(value); return shared; }).flat() 1`] = `
+
+  1 | const shared = []; [1, 2].map(value => { shared.push(value); return shared; }).flat()
+
+`;
+
+exports[`prefer-array-flat-map > invalid(1): const shared = []; [1, 2].map(value => { shared.push(value); return shared; }).flat() 2`] = `
+
+Message:
+> 1 | const shared = []; [1, 2].map(value => { shared.push(value); return shared; }).flat()
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Suggestion 1/1: Replace \`.map(…).flat()\` with \`.flatMap(…)\`.:
+  1 | const shared = []; [1, 2].flatMap(value => { shared.push(value); return shared; })
+
+`;
+
+exports[`prefer-array-flat-map > invalid(10): (array as number[]).map((value: number) => [value]).flat() 1`] = `
+
+  1 | (array as number[]).map((value: number) => [value]).flat()
+
+`;
+
+exports[`prefer-array-flat-map > invalid(10): (array as number[]).map((value: number) => [value]).flat() 2`] = `
+
+Message:
+> 1 | (array as number[]).map((value: number) => [value]).flat()
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | (array as number[]).flatMap((value: number) => [value])
+
+`;
+
 exports[`prefer-array-flat-map > invalid(10): const bar = [1,2,3].map(i => [i]).flat<number>() 1`] = `
 
   1 | const bar = [1,2,3].map(i => [i]).flat<number>()
@@ -29,6 +63,23 @@ Message:
 
 `;
 
+exports[`prefer-array-flat-map > invalid(11): array!.map(value => [value]).flat(1) 1`] = `
+
+  1 | array!.map(value => [value]).flat(1)
+
+`;
+
+exports[`prefer-array-flat-map > invalid(11): array!.map(value => [value]).flat(1) 2`] = `
+
+Message:
+> 1 | array!.map(value => [value]).flat(1)
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | array!.flatMap(value => [value])
+
+`;
+
 exports[`prefer-array-flat-map > invalid(11): const bar = [1,2,3].map<number[]>(i => [i]).flat() 1`] = `
 
   1 | const bar = [1,2,3].map<number[]>(i => [i]).flat()
@@ -40,6 +91,23 @@ exports[`prefer-array-flat-map > invalid(11): const bar = [1,2,3].map<number[]>(
 Message:
 > 1 | const bar = [1,2,3].map<number[]>(i => [i]).flat()
     |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+`;
+
+exports[`prefer-array-flat-map > invalid(12): (array satisfies number[]).map(value => [value]).flat() 1`] = `
+
+  1 | (array satisfies number[]).map(value => [value]).flat()
+
+`;
+
+exports[`prefer-array-flat-map > invalid(12): (array satisfies number[]).map(value => [value]).flat() 2`] = `
+
+Message:
+> 1 | (array satisfies number[]).map(value => [value]).flat()
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | (array satisfies number[]).flatMap(value => [value])
 
 `;
 
@@ -210,6 +278,23 @@ Message:
 
 `;
 
+exports[`prefer-array-flat-map > invalid(2): array.map(value => value.children).flat() 1`] = `
+
+  1 | array.map(value => value.children).flat()
+
+`;
+
+exports[`prefer-array-flat-map > invalid(2): array.map(value => value.children).flat() 2`] = `
+
+Message:
+> 1 | array.map(value => value.children).flat()
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | array.flatMap(value => value.children)
+
+`;
+
 exports[`prefer-array-flat-map > invalid(2): const bar = [[1],[2],[3]].map(i => [i]).flat(1,) 1`] = `
 
   1 | const bar = [[1],[2],[3]].map(i => [i]).flat(1,)
@@ -323,7 +408,7 @@ Message:
 > 4 | 	.flat();
     | ^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
 
-Output:
+Suggestion 1/1: Replace \`.map(…).flat()\` with \`.flatMap(…)\`.:
   1 | const foo = bars
   2 | 	.filter(foo => !!foo.zaz)
   3 | 	.flatMap(foo => doFoo(foo));
@@ -412,6 +497,23 @@ Message:
 
 Suggestion 1/1: Replace \`.filter(…).flatMap(…)\` with a single \`.flatMap(…)\`.:
   1 | array.flatMap(value => (value.active = true) ? [value.id, value.slug] : []);
+
+`;
+
+exports[`prefer-array-flat-map > invalid(3): array.map(value => [value, value * 2]).flat() 1`] = `
+
+  1 | array.map(value => [value, value * 2]).flat()
+
+`;
+
+exports[`prefer-array-flat-map > invalid(3): array.map(value => [value, value * 2]).flat() 2`] = `
+
+Message:
+> 1 | array.map(value => [value, value * 2]).flat()
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | array.flatMap(value => [value, value * 2])
 
 `;
 
@@ -559,6 +661,23 @@ Message:
 
 `;
 
+exports[`prefer-array-flat-map > invalid(4): array.map(value => [getChild(value)]).flat() 1`] = `
+
+  1 | array.map(value => [getChild(value)]).flat()
+
+`;
+
+exports[`prefer-array-flat-map > invalid(4): array.map(value => [getChild(value)]).flat() 2`] = `
+
+Message:
+> 1 | array.map(value => [getChild(value)]).flat()
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | array.flatMap(value => [getChild(value)])
+
+`;
+
 exports[`prefer-array-flat-map > invalid(4): const bar = [1,2,3].map((i) => [i]).flat() 1`] = `
 
   1 | const bar = [1,2,3].map((i) => [i]).flat()
@@ -573,6 +692,23 @@ Message:
 
 Output:
   1 | const bar = [1,2,3].flatMap((i) => [i])
+
+`;
+
+exports[`prefer-array-flat-map > invalid(5): array.map(value => getChildren(value)).flat() 1`] = `
+
+  1 | array.map(value => getChildren(value)).flat()
+
+`;
+
+exports[`prefer-array-flat-map > invalid(5): array.map(value => getChildren(value)).flat() 2`] = `
+
+Message:
+> 1 | array.map(value => getChildren(value)).flat()
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Suggestion 1/1: Replace \`.map(…).flat()\` with \`.flatMap(…)\`.:
+  1 | array.flatMap(value => getChildren(value))
 
 `;
 
@@ -593,6 +729,23 @@ Output:
 
 `;
 
+exports[`prefer-array-flat-map > invalid(6): array.map(getChildren).flat() 1`] = `
+
+  1 | array.map(getChildren).flat()
+
+`;
+
+exports[`prefer-array-flat-map > invalid(6): array.map(getChildren).flat() 2`] = `
+
+Message:
+> 1 | array.map(getChildren).flat()
+    |       ^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Suggestion 1/1: Replace \`.map(…).flat()\` with \`.flatMap(…)\`.:
+  1 | array.flatMap(getChildren)
+
+`;
+
 exports[`prefer-array-flat-map > invalid(6): const bar = [1,2,3].map(foo).flat() 1`] = `
 
   1 | const bar = [1,2,3].map(foo).flat()
@@ -605,8 +758,25 @@ Message:
 > 1 | const bar = [1,2,3].map(foo).flat()
     |                     ^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
 
-Output:
+Suggestion 1/1: Replace \`.map(…).flat()\` with \`.flatMap(…)\`.:
   1 | const bar = [1,2,3].flatMap(foo)
+
+`;
+
+exports[`prefer-array-flat-map > invalid(7): ((array.map(value => [value]))).flat() 1`] = `
+
+  1 | ((array.map(value => [value]))).flat()
+
+`;
+
+exports[`prefer-array-flat-map > invalid(7): ((array.map(value => [value]))).flat() 2`] = `
+
+Message:
+> 1 | ((array.map(value => [value]))).flat()
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | ((array.flatMap(value => [value])))
 
 `;
 
@@ -627,6 +797,23 @@ Output:
 
 `;
 
+exports[`prefer-array-flat-map > invalid(8): array.map(value => [/* keep */ value]).flat() 1`] = `
+
+  1 | array.map(value => [/* keep */ value]).flat()
+
+`;
+
+exports[`prefer-array-flat-map > invalid(8): array.map(value => [/* keep */ value]).flat() 2`] = `
+
+Message:
+> 1 | array.map(value => [/* keep */ value]).flat()
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
+
+Output:
+  1 | array.flatMap(value => [/* keep */ value])
+
+`;
+
 exports[`prefer-array-flat-map > invalid(8): const bar = foo?.map(i => [i]).flat() 1`] = `
 
   1 | const bar = foo?.map(i => [i]).flat()
@@ -641,6 +828,20 @@ Message:
 
 Output:
   1 | const bar = foo?.flatMap(i => [i])
+
+`;
+
+exports[`prefer-array-flat-map > invalid(9): array.map(value => [value]).flat(/* keep */) 1`] = `
+
+  1 | array.map(value => [value]).flat(/* keep */)
+
+`;
+
+exports[`prefer-array-flat-map > invalid(9): array.map(value => [value]).flat(/* keep */) 2`] = `
+
+Message:
+> 1 | array.map(value => [value]).flat(/* keep */)
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`.flatMap(…)\` over \`.map(…).flat()\`.
 
 `;
 

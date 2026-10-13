@@ -7,6 +7,7 @@ import {
 	isArray,
 	isKnownNonIndexedCollection,
 	isNodeValueNotFunction,
+	isSideEffectFreeFunction,
 } from './utils/index.js';
 import {removeMemberExpressionProperty} from './fix/index.js';
 import {
@@ -50,6 +51,7 @@ const isCheckingUndefined = node =>
 			&& isNullLiteral(node.parent.right)
 		)
 	);
+
 const isNegativeOne = node => node.type === 'UnaryExpression' && node.operator === '-' && node.argument && node.argument.type === 'Literal' && node.argument.value === 1;
 const isLiteralZero = node => isLiteral(node, 0);
 
@@ -200,33 +202,38 @@ const create = context => {
 		}
 
 		const methodNode = left.callee.property;
+		function * fix(fixer, {abort}) {
+			const {sourceCode} = context;
+			const operatorToken = sourceCode.getTokenAfter(
+				left,
+				token => token.type === 'Punctuator' && token.value === operator,
+			);
+			// Start right after the token or comment before the operator, so the space before the operator is not left dangling
+			const [, start] = sourceCode.getRange(sourceCode.getTokenBefore(operatorToken, {includeComments: true}));
+			const [, end] = sourceCode.getRange(binaryExpression);
+
+			// Removing the comparison would drop comments in the removed range.
+			if (hasCommentInRange(context, [start, end])) {
+				return abort();
+			}
+
+			if (['===', '==', '<'].includes(operator)) {
+				yield fixer.insertTextBefore(binaryExpression, '!');
+			}
+
+			yield fixer.replaceText(methodNode, 'some');
+
+			yield fixer.removeRange([start, end]);
+		}
+
 		return {
 			node: methodNode,
 			messageId: ERROR_ID_ARRAY_SOME,
 			data: {method: methodNode.name},
-			* fix(fixer, {abort}) {
-				const {sourceCode} = context;
-				const operatorToken = sourceCode.getTokenAfter(
-					left,
-					token => token.type === 'Punctuator' && token.value === operator,
-				);
-				// Start right after the token or comment before the operator, so the space before the operator is not left dangling
-				const [, start] = sourceCode.getRange(sourceCode.getTokenBefore(operatorToken, {includeComments: true}));
-				const [, end] = sourceCode.getRange(binaryExpression);
-
-				// Removing the comparison would drop comments in the removed range.
-				if (hasCommentInRange(context, [start, end])) {
-					return abort();
-				}
-
-				if (['===', '==', '<'].includes(operator)) {
-					yield fixer.insertTextBefore(binaryExpression, '!');
-				}
-
-				yield fixer.replaceText(methodNode, 'some');
-
-				yield fixer.removeRange([start, end]);
-			},
+			// `.findLastIndex()` visits elements in reverse order, while `.some()` visits them forwards, so only a side-effect-free inline callback is autofixed.
+			...(methodNode.name === 'findLastIndex' && !isSideEffectFreeFunction(left.arguments[0], context)
+				? {suggest: [{messageId: SUGGESTION_ID_ARRAY_SOME, fix}]}
+				: {fix}),
 		};
 	});
 
@@ -266,43 +273,48 @@ const create = context => {
 		}
 
 		const filterProperty = filterCall.callee.property;
+		function * fix(fixer, {abort}) {
+			const {sourceCode} = context;
+			const lengthNode = binaryExpression.left;
+
+			// Removing `.length > 0` would drop comments in the removed range.
+			if (hasCommentInRange(context, [
+				getParenthesizedRange(filterCall, context)[1],
+				sourceCode.getRange(binaryExpression)[1],
+			])) {
+				return abort();
+			}
+
+			// `.filter` to `.some`
+			yield fixer.replaceText(filterProperty, 'some');
+
+			/*
+				Remove `.length`
+				`(( (( array.filter() )).length )) > (( 0 ))`
+				------------------------^^^^^^^
+			*/
+			yield removeMemberExpressionProperty(fixer, lengthNode, context);
+
+			/*
+				Remove `> 0`
+				`(( (( array.filter() )).length )) > (( 0 ))`
+				----------------------------------^^^^^^^^^^
+			*/
+			yield fixer.removeRange([
+				getParenthesizedRange(lengthNode, context)[1],
+				sourceCode.getRange(binaryExpression)[1],
+			]);
+
+			// The `BinaryExpression` always ends with a number or `)`, no need check for ASI
+		}
+
 		return {
 			node: filterProperty,
 			messageId: ERROR_ID_ARRAY_FILTER,
-			* fix(fixer, {abort}) {
-				const {sourceCode} = context;
-				const lengthNode = binaryExpression.left;
-
-				// Removing `.length > 0` would drop comments in the removed range.
-				if (hasCommentInRange(context, [
-					getParenthesizedRange(filterCall, context)[1],
-					sourceCode.getRange(binaryExpression)[1],
-				])) {
-					return abort();
-				}
-
-				// `.filter` to `.some`
-				yield fixer.replaceText(filterProperty, 'some');
-
-				/*
-					Remove `.length`
-					`(( (( array.filter() )).length )) > (( 0 ))`
-					------------------------^^^^^^^
-				*/
-				yield removeMemberExpressionProperty(fixer, lengthNode, context);
-
-				/*
-					Remove `> 0`
-					`(( (( array.filter() )).length )) > (( 0 ))`
-					----------------------------------^^^^^^^^^^
-				*/
-				yield fixer.removeRange([
-					getParenthesizedRange(lengthNode, context)[1],
-					sourceCode.getRange(binaryExpression)[1],
-				]);
-
-				// The `BinaryExpression` always ends with a number or `)`, no need check for ASI
-			},
+			// `.filter()` visits every element, while `.some()` stops at the first match, so only a side-effect-free inline callback is autofixed.
+			...(isSideEffectFreeFunction(firstArgument, context)
+				? {fix}
+				: {suggest: [{messageId: SUGGESTION_ID_ARRAY_SOME, data: {method: 'filter'}, fix}]}),
 		};
 	});
 };

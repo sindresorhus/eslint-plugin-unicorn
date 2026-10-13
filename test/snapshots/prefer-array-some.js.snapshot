@@ -10,7 +10,7 @@ Message:
 > 1 | array.filter(fn).length > 0
     |       ^^^^^^ Prefer \`.some(…)\` over non-zero length check from \`.filter(…)\`.
 
-Output:
+Suggestion 1/1: Replace \`.filter(…)\` with \`.some(…)\`.:
   1 | array.some(fn)
 
 `;
@@ -78,7 +78,7 @@ Message:
 > 1 | foo.findLastIndex(bar) == - 1
     |     ^^^^^^^^^^^^^ Prefer \`.some(…)\` over \`.findLastIndex(…)\`.
 
-Output:
+Suggestion 1/1: Replace \`.findLastIndex(…)\` with \`.some(…)\`.:
   1 | !foo.some(bar)
 
 `;
@@ -112,7 +112,7 @@ Message:
 > 1 | foo.findLastIndex(bar) >= 0
     |     ^^^^^^^^^^^^^ Prefer \`.some(…)\` over \`.findLastIndex(…)\`.
 
-Output:
+Suggestion 1/1: Replace \`.findLastIndex(…)\` with \`.some(…)\`.:
   1 | foo.some(bar)
 
 `;
@@ -146,7 +146,7 @@ Message:
 > 1 | foo.findLastIndex(bar) < 0
     |     ^^^^^^^^^^^^^ Prefer \`.some(…)\` over \`.findLastIndex(…)\`.
 
-Output:
+Suggestion 1/1: Replace \`.findLastIndex(…)\` with \`.some(…)\`.:
   1 | !foo.some(bar)
 
 `;
@@ -245,7 +245,7 @@ Message:
 > 1 | array.filter(fn).length !== 0
     |       ^^^^^^ Prefer \`.some(…)\` over non-zero length check from \`.filter(…)\`.
 
-Output:
+Suggestion 1/1: Replace \`.filter(…)\` with \`.some(…)\`.:
   1 | array.some(fn)
 
 `;
@@ -296,7 +296,7 @@ Message:
 > 1 | foo.findLastIndex(bar) !== -1
     |     ^^^^^^^^^^^^^ Prefer \`.some(…)\` over \`.findLastIndex(…)\`.
 
-Output:
+Suggestion 1/1: Replace \`.findLastIndex(…)\` with \`.some(…)\`.:
   1 | foo.some(bar)
 
 `;
@@ -349,7 +349,7 @@ Message:
 > 1 | foo.findLastIndex(bar, thisArgument) !== -1;
     |     ^^^^^^^^^^^^^ Prefer \`.some(…)\` over \`.findLastIndex(…)\`.
 
-Output:
+Suggestion 1/1: Replace \`.findLastIndex(…)\` with \`.some(…)\`.:
   1 | foo.some(bar, thisArgument);
 
 `;
@@ -469,7 +469,7 @@ Message:
 > 1 | foo.findLastIndex(bar) != -1
     |     ^^^^^^^^^^^^^ Prefer \`.some(…)\` over \`.findLastIndex(…)\`.
 
-Output:
+Suggestion 1/1: Replace \`.findLastIndex(…)\` with \`.some(…)\`.:
   1 | foo.some(bar)
 
 `;
@@ -486,7 +486,7 @@ Message:
 > 1 | module$.filter(fn).length > 0
     |         ^^^^^^ Prefer \`.some(…)\` over non-zero length check from \`.filter(…)\`.
 
-Output:
+Suggestion 1/1: Replace \`.filter(…)\` with \`.some(…)\`.:
   1 | module$.some(fn)
 
 `;
@@ -537,7 +537,7 @@ Message:
 > 1 | type Collection = {filter(predicate: Function): {length: number}}; ([] satisfies Collection).filter(fn).length > 0
     |                                                                                              ^^^^^^ Prefer \`.some(…)\` over non-zero length check from \`.filter(…)\`.
 
-Output:
+Suggestion 1/1: Replace \`.filter(…)\` with \`.some(…)\`.:
   1 | type Collection = {filter(predicate: Function): {length: number}}; ([] satisfies Collection).some(fn)
 
 `;
@@ -571,7 +571,7 @@ Message:
 > 1 | foo.findLastIndex(bar) > - 1
     |     ^^^^^^^^^^^^^ Prefer \`.some(…)\` over \`.findLastIndex(…)\`.
 
-Output:
+Suggestion 1/1: Replace \`.findLastIndex(…)\` with \`.some(…)\`.:
   1 | foo.some(bar)
 
 `;
@@ -588,7 +588,7 @@ Message:
 > 1 | type Items = string[] | {filter(predicate: Function): {length: number}}; function foo(items: Items) { items.filter(fn).length > 0; }
     |                                                                                                             ^^^^^^ Prefer \`.some(…)\` over non-zero length check from \`.filter(…)\`.
 
-Output:
+Suggestion 1/1: Replace \`.filter(…)\` with \`.some(…)\`.:
   1 | type Items = string[] | {filter(predicate: Function): {length: number}}; function foo(items: Items) { items.some(fn); }
 
 `;
@@ -624,7 +624,7 @@ Message:
 > 1 | declare function getItems(): string[]; getItems().filter(fn).length > 0;
     |                                                   ^^^^^^ Prefer \`.some(…)\` over non-zero length check from \`.filter(…)\`.
 
-Output:
+Suggestion 1/1: Replace \`.filter(…)\` with \`.some(…)\`.:
   1 | declare function getItems(): string[]; getItems().some(fn);
 
 `;
@@ -672,7 +672,7 @@ Message:
 > 1 | foo.findLastIndex(bar) === -1
     |     ^^^^^^^^^^^^^ Prefer \`.some(…)\` over \`.findLastIndex(…)\`.
 
-Output:
+Suggestion 1/1: Replace \`.findLastIndex(…)\` with \`.some(…)\`.:
   1 | !foo.some(bar)
 
 `;
@@ -717,7 +717,7 @@ Message:
   14 | 	))
   15 | );
 
-Output:
+Suggestion 1/1: Replace \`.filter(…)\` with \`.some(…)\`.:
    1 | if (
    2 | 	((
    3 | 		((
@@ -779,7 +779,7 @@ Message:
 > 1 | function f(array: Int8Array) { return array.filter(fn).length > 0; }
     |                                             ^^^^^^ Prefer \`.some(…)\` over non-zero length check from \`.filter(…)\`.
 
-Output:
+Suggestion 1/1: Replace \`.filter(…)\` with \`.some(…)\`.:
   1 | function f(array: Int8Array) { return array.some(fn); }
 
 `;
