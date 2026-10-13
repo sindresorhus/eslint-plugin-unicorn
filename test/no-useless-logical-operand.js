@@ -73,6 +73,18 @@ test.snapshot({
 		'switch (foo || false) {}',
 		'switch (foo && bar) {}',
 		'switch (foo && true) { case true: break; }',
+
+		// `(true && obj.method)()` calls with `this` undefined, but `(obj.method)()` would pass `obj`, and `delete` needs a reference, so the operand is not a plain value there
+		'(true && obj.method)();',
+		'(false || obj.method)();',
+		'(true && obj.method)`tag`;',
+		'delete (true && obj.property);',
+		'delete (true && variable);',
+		'(true && obj.method)?.();',
+		{code: '(true && obj.method)!();', languageOptions: {parser: parsers.typescript}},
+		{code: '((true && obj.method) as Function)();', languageOptions: {parser: parsers.typescript}},
+		{code: '(<any>(true && obj.method))`tag`;', languageOptions: {parser: parsers.typescript}},
+		{code: 'delete (true && obj.property)!;', languageOptions: {parser: parsers.typescript}},
 	],
 	invalid: [
 		// Leading identity operands.
@@ -128,6 +140,10 @@ test.snapshot({
 		'const value = true && input();',
 		'new (true && Constructor)();',
 		'new (false || Constructor)();',
+		// Only the callee position is skipped, an argument or a member object is a plain value
+		'foo(true && obj.method);',
+		'(true && obj).method();',
+		'typeof (true && obj.property);',
 
 		// Mixed operators and grouped operands preserve needed parentheses.
 		'const value = true && (input || other);',

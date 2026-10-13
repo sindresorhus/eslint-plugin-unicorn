@@ -3,6 +3,7 @@ import replaceNodeWithExpression from './fix/replace-node-with-expression.js';
 import {
 	getLogicalExpressionChildText,
 	getLogicalExpressionOperands,
+	getOutermostTypeScriptExpression,
 	isBoolean,
 	isBooleanContext,
 	isOutermostLogicalExpression,
@@ -127,6 +128,16 @@ function getProblem(node, context) {
 	};
 }
 
+// `(true && obj.method)()` calls the method with `this` undefined, but `(obj.method)()` would pass `obj` as `this`. `delete` also needs a reference, so the result is not a plain value in these positions.
+// TypeScript wrappers like `(true && obj.method)!()` are removed at runtime, so check the position of the outermost one.
+const isReferenceContext = node => {
+	const expression = getOutermostTypeScriptExpression(node);
+	const {parent} = expression;
+	return (parent.type === 'CallExpression' && parent.callee === expression)
+		|| (parent.type === 'TaggedTemplateExpression' && parent.tag === expression)
+		|| (parent.type === 'UnaryExpression' && parent.operator === 'delete');
+};
+
 /**
 @param {ESLint.Rule.RuleContext} context
 */
@@ -135,6 +146,7 @@ const create = context => {
 		if (
 			!identityByOperator.has(node.operator)
 			|| !isOutermostLogicalExpression(node)
+			|| isReferenceContext(node)
 		) {
 			return;
 		}
