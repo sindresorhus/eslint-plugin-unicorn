@@ -71,6 +71,8 @@ foo instanceof Function;
 typeof foo === 'function';
 ```
 
+The following two examples are only reported with [`strategy: 'strict'`](#strategy). The default `'loose'` strategy does not report `Object` or `Map`.
+
 ```js
 // ❌
 foo instanceof Object;
