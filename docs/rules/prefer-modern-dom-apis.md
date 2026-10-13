@@ -4,7 +4,7 @@
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
-🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -25,6 +25,8 @@ There are some advantages of using the newer DOM APIs, like:
 - Appending multiple nodes at once.
 - Removing all child nodes without manual iteration.
 - Both [`DOMString`](https://developer.mozilla.org/en-US/docs/Web/API/DOMString) and [DOM node objects](https://developer.mozilla.org/en-US/docs/Web/API/Element) can be manipulated.
+
+`.insertBefore()` only gets a suggestion, because `parentNode.insertBefore(newNode, null)` appends `newNode`, while `null.before(newNode)` throws. `.replaceChild()` throws when the child is not in `parentNode`, while `.replaceWith()` uses the child's current parent, so the fix can remove that error.
 
 The autofix assumes the code does not depend on per-child [`MutationObserver`](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver) records from repeated removals.
 

@@ -14,6 +14,7 @@ import {isMemberExpression, isMethodCall} from './ast/index.js';
 const messages = {
 	replaceChildOrInsertBefore:
 		'Prefer `{{oldChildNode}}.{{preferredMethod}}({{newChildNode}})` over `{{parentNode}}.{{method}}({{newChildNode}}, {{oldChildNode}})`.',
+	replaceChildOrInsertBeforeSuggestion: 'Switch to `{{oldChildNode}}.{{preferredMethod}}({{newChildNode}})`.',
 	insertAdjacentTextOrInsertAdjacentElement:
 		'Prefer `{{reference}}.{{preferredMethod}}({{content}})` over `{{reference}}.{{method}}({{position}}, {{content}})`.',
 	replaceChildren:
@@ -32,14 +33,7 @@ const getReplaceChildOrInsertBeforeProblem = (context, node) => {
 	const [newChildNodeName, oldChildNodeName] = node.arguments.map(({name}) => name);
 	const preferredMethod = disallowedMethods.get(method);
 
-	const fix = isValueNotUsable(node) && !wouldRemoveComments(context, node, [newChildNode, oldChildNode])
-		? fixer => fixer.replaceText(
-			node,
-			`${oldChildNodeName}.${preferredMethod}(${newChildNodeName})`,
-		)
-		: undefined;
-
-	return {
+	const problem = {
 		node,
 		messageId: 'replaceChildOrInsertBefore',
 		data: {
@@ -49,8 +43,33 @@ const getReplaceChildOrInsertBeforeProblem = (context, node) => {
 			newChildNode: newChildNodeName,
 			oldChildNode: oldChildNodeName,
 		},
-		fix,
 	};
+
+	if (!isValueNotUsable(node) || wouldRemoveComments(context, node, [newChildNode, oldChildNode])) {
+		return problem;
+	}
+
+	const fix = fixer => fixer.replaceText(
+		node,
+		`${oldChildNodeName}.${preferredMethod}(${newChildNodeName})`,
+	);
+
+	// `replaceChild()` throws when the explicit parent is not the child's parent, while `replaceWith()` uses the child's current parent. The fix only removes that error.
+	if (method === 'replaceChild') {
+		problem.fix = fix;
+		return problem;
+	}
+
+	// `insertBefore(child, null)` appends `child`, but `null.before(child)` throws, so the rewrite can only be suggested.
+	problem.suggest = [
+		{
+			messageId: 'replaceChildOrInsertBeforeSuggestion',
+			data: problem.data,
+			fix,
+		},
+	];
+
+	return problem;
 };
 
 const positionReplacers = new Map([
@@ -217,6 +236,7 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		messages,
 		languages: [
 			'js/js',

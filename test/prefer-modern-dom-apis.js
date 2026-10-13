@@ -115,6 +115,7 @@ test({
 	],
 	invalid: [
 		// Tests for .replaceChild()
+		// `replaceChild()` throws when the explicit parent is wrong, while `replaceWith()` does not. The fix only removes that error, so it is still an autofix.
 		{
 			code: 'parentNode.replaceChild(newChildNode, oldChildNode);',
 			errors: [
@@ -173,15 +174,31 @@ test({
 			],
 		},
 		// Tests for .insertBefore()
+		// `insertBefore(child, null)` appends, but `null.before(child)` throws, so the rewrite can only be a suggestion
 		{
 			code: 'parentNode.insertBefore(newNode, referenceNode);',
 			errors: [
 				{
 					message:
 						'Prefer `referenceNode.before(newNode)` over `parentNode.insertBefore(newNode, referenceNode)`.',
+					suggestions: [
+						{
+							messageId: 'replaceChildOrInsertBeforeSuggestion',
+							output: 'referenceNode.before(newNode);',
+						},
+					],
 				},
 			],
-			output: 'referenceNode.before(newNode);',
+		},
+		{
+			code: 'parentNode.insertBefore(/* comment */ newNode, referenceNode);',
+			errors: [
+				{
+					message:
+						'Prefer `referenceNode.before(newNode)` over `parentNode.insertBefore(newNode, referenceNode)`.',
+					suggestions: [],
+				},
+			],
 		},
 		{
 			code: 'parentNode.insertBefore(alfa, beta).insertBefore(charlie, delta);',
