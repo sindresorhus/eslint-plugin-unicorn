@@ -76,6 +76,11 @@ function fixRequireCall(node, context) {
 	} = requireCall;
 	const [source] = callArguments;
 
+	// A JSON module import needs `with {type: 'json'}`
+	const isJson = source.value.endsWith('.json');
+	const quote = source.raw.charAt(0);
+	const importAttributes = isJson ? ` with {type: ${quote}json${quote}}` : '';
+
 	// `require("foo")`
 	if (parent.type === 'ExpressionStatement' && parent.parent.type === 'Program') {
 		return function * (fixer) {
@@ -86,7 +91,7 @@ function fixRequireCall(node, context) {
 				closingParenthesisToken,
 			} = getCallExpressionTokens(requireCall, context);
 			yield fixer.replaceText(openingParenthesisToken, ' ');
-			yield fixer.remove(closingParenthesisToken);
+			yield fixer.replaceText(closingParenthesisToken, importAttributes);
 
 			for (const node of [callee, requireCall, source]) {
 				yield removeParentheses(node, fixer, context);
@@ -104,7 +109,9 @@ function fixRequireCall(node, context) {
 		&& (
 			parent.id.type === 'Identifier'
 			|| (
-				parent.id.type === 'ObjectPattern'
+				// A JSON module only has a default export
+				!isJson
+				&& parent.id.type === 'ObjectPattern'
 				&& parent.id.properties.every(({type, key, value, computed}) =>
 					type === 'Property'
 					&& !computed
@@ -150,7 +157,7 @@ function fixRequireCall(node, context) {
 			closingParenthesisToken,
 		} = getCallExpressionTokens(requireCall, context);
 		yield fixer.remove(openingParenthesisToken);
-		yield fixer.remove(closingParenthesisToken);
+		yield fixer.replaceText(closingParenthesisToken, importAttributes);
 
 		for (const node of [callee, requireCall, source]) {
 			yield removeParentheses(node, fixer, context);

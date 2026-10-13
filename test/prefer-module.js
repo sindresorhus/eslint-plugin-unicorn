@@ -285,6 +285,30 @@ test.typescript({
 	],
 });
 
+// JSON modules need the `type: 'json'` import attribute
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const data = require("./a.json");',
+			errors: [{messageId: 'error/identifier', suggestions: [{messageId: 'suggestion/import', output: 'import data from "./a.json" with {type: "json"};'}]}],
+		},
+		{
+			code: 'require("./a.json");',
+			errors: [{messageId: 'error/identifier', suggestions: [{messageId: 'suggestion/import', output: 'import "./a.json" with {type: "json"};'}]}],
+		},
+		{
+			code: 'const data = (require((\'./a.json\')));',
+			errors: [{messageId: 'error/identifier', suggestions: [{messageId: 'suggestion/import', output: 'import data from \'./a.json\' with {type: \'json\'};'}]}],
+		},
+		// A JSON module only has a default export
+		{
+			code: 'const {foo} = require("./a.json");',
+			errors: [{messageId: 'error/identifier', suggestions: []}],
+		},
+	],
+});
+
 // `.cjs` file
 test.snapshot({
 	valid: [
