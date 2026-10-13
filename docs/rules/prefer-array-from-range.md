@@ -13,6 +13,8 @@ Prefer `Array.from({length}, (_, index) => index)` when directly materializing a
 
 This rule only reports direct array materialization from `Array` constructor ranges. Lazy iterator use, `values()`, `entries()`, computed members, optional calls, and shadowed `Array` bindings are ignored.
 
+The fix assumes the length is a valid array length. For invalid lengths, `Array(length)` throws (negative or fractional numbers) or creates a one-element array (non-number values), while `Array.from({length})` converts and clamps the length.
+
 ## Examples
 
 ```js

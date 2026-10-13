@@ -3,6 +3,26 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+// Unknown lengths are still autofixed. The result only differs for invalid lengths, where `Array(length)` throws or creates a one-element array.
+test.snapshot({
+	valid: [],
+	invalid: [
+		'[...Array(0).keys()]',
+		'Array.from(new Array(3).keys())',
+		'const length = 3; [...Array(length).keys()]',
+		{
+			code: '[...Array((3 as number)).keys()]',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function range(length: number) { return [...Array(length).keys()]; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'function range(length) { return [...Array(length).keys()]; }',
+		'[...Array(getLength()).keys()]',
+	],
+});
+
 test.snapshot({
 	valid: [
 		'Array.from({length}, (_, index) => index);',

@@ -11,6 +11,8 @@
 
 `Math.min()` and `Math.max()` accept any number of arguments, so nesting the same call is unnecessary.
 
+The autofix does not preserve the coercion order of nested arguments: flattening converts them to numbers after later arguments are evaluated.
+
 ## Examples
 
 ```js

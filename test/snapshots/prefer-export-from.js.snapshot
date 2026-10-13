@@ -84,6 +84,27 @@ Output:
 
 `;
 
+exports[`prefer-export-from > invalid(1): import value from \"source\";\nexport default (value); 1`] = `
+
+  1 | import value from "source";
+  2 | export default (value);
+
+`;
+
+exports[`prefer-export-from > invalid(1): import value from \"source\";\nexport default (value); 2`] = `
+
+Message:
+  1 | import value from "source";
+> 2 | export default (value);
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {default} from "source";
+
+`;
+
 exports[`prefer-export-from > invalid(1): import { foo } from \"foo\";\nexport { foo };\nexport type { bar } from \"foo\"; 1`] = `
 
   1 | import { foo } from "foo";
@@ -657,6 +678,27 @@ Output:
   1 |
   2 |
   3 | export {default} from 'foo';
+
+`;
+
+exports[`prefer-export-from > invalid(2): import value from \"source\";\nexport const snapshot = (value); 1`] = `
+
+  1 | import value from "source";
+  2 | export const snapshot = (value);
+
+`;
+
+exports[`prefer-export-from > invalid(2): import value from \"source\";\nexport const snapshot = (value); 2`] = `
+
+Message:
+  1 | import value from "source";
+> 2 | export const snapshot = (value);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`snapshot\`.
+
+Output:
+  1 |
+  2 |
+  3 | export {default as snapshot} from "source";
 
 `;
 
@@ -1284,6 +1326,22 @@ Output:
 
 `;
 
+exports[`prefer-export-from > invalid(3): import {value} from \"source\";\nexport default /* keep */ value; 1`] = `
+
+  1 | import {value} from "source";
+  2 | export default /* keep */ value;
+
+`;
+
+exports[`prefer-export-from > invalid(3): import {value} from \"source\";\nexport default /* keep */ value; 2`] = `
+
+Message:
+  1 | import {value} from "source";
+> 2 | export default /* keep */ value;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`default\`.
+
+`;
+
 exports[`prefer-export-from > invalid(30): import foo from 'foo';\nexport {foo};\nexport {} from 'foo'; 1`] = `
 
   1 | import foo from 'foo';
@@ -1735,6 +1793,22 @@ Output:
   1 |
   2 |
   3 | export {bar, foo} from './foo.json' with { type: 'unknown' };
+
+`;
+
+exports[`prefer-export-from > invalid(4): import {value} from \"source\";\nexport const snapshot = /* keep */ value; 1`] = `
+
+  1 | import {value} from "source";
+  2 | export const snapshot = /* keep */ value;
+
+`;
+
+exports[`prefer-export-from > invalid(4): import {value} from \"source\";\nexport const snapshot = /* keep */ value; 2`] = `
+
+Message:
+  1 | import {value} from "source";
+> 2 | export const snapshot = /* keep */ value;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`export…from\` to re-export \`snapshot\`.
 
 `;
 

@@ -15,6 +15,23 @@ Output:
 
 `;
 
+exports[`new-for-builtins > invalid(1): const foo = RegExp(bar); 1`] = `
+
+  1 | const foo = RegExp(bar);
+
+`;
+
+exports[`new-for-builtins > invalid(1): const foo = RegExp(bar); 2`] = `
+
+Message:
+> 1 | const foo = RegExp(bar);
+    |             ^^^^^^^^^^^ Use \`new RegExp()\` instead of \`RegExp()\`.
+
+Output:
+  1 | const foo = new RegExp(bar);
+
+`;
+
 exports[`new-for-builtins > invalid(1): const object = (Object)(); 1`] = `
 
   1 | const object = (Object)();
@@ -693,6 +710,23 @@ Message:
 
 `;
 
+exports[`new-for-builtins > invalid(2): const foo = RegExp(/bar/g); 1`] = `
+
+  1 | const foo = RegExp(/bar/g);
+
+`;
+
+exports[`new-for-builtins > invalid(2): const foo = RegExp(/bar/g); 2`] = `
+
+Message:
+> 1 | const foo = RegExp(/bar/g);
+    |             ^^^^^^^^^^^^^^ Use \`new RegExp()\` instead of \`RegExp()\`.
+
+Output:
+  1 | const foo = new RegExp(/bar/g);
+
+`;
+
 exports[`new-for-builtins > invalid(2): const foo = globalThis.Date(); 1`] = `
 
   1 | const foo = globalThis.Date();
@@ -898,6 +932,23 @@ Message:
 
 Output:
   1 | const foo = new Object()
+
+`;
+
+exports[`new-for-builtins > invalid(3): const foo = RegExp('bar'); 1`] = `
+
+  1 | const foo = RegExp('bar');
+
+`;
+
+exports[`new-for-builtins > invalid(3): const foo = RegExp('bar'); 2`] = `
+
+Message:
+> 1 | const foo = RegExp('bar');
+    |             ^^^^^^^^^^^^^ Use \`new RegExp()\` instead of \`RegExp()\`.
+
+Output:
+  1 | const foo = new RegExp('bar');
 
 `;
 
@@ -1128,6 +1179,23 @@ Suggestion 1/1: Switch to \`String(new Date())\`.:
 
 `;
 
+exports[`new-for-builtins > invalid(4): const foo = RegExp(\`^\${bar}$\`); 1`] = `
+
+  1 | const foo = RegExp(\`^\${bar}$\`);
+
+`;
+
+exports[`new-for-builtins > invalid(4): const foo = RegExp(\`^\${bar}$\`); 2`] = `
+
+Message:
+> 1 | const foo = RegExp(\`^\${bar}$\`);
+    |             ^^^^^^^^^^^^^^^^^^ Use \`new RegExp()\` instead of \`RegExp()\`.
+
+Output:
+  1 | const foo = new RegExp(\`^\${bar}$\`);
+
+`;
+
 exports[`new-for-builtins > invalid(4): const symbol = new /* comment */ Symbol(\"\"); 1`] = `
 
   1 | const symbol = new /* comment */ Symbol("");
@@ -1312,6 +1380,23 @@ Message:
 
 Output:
   1 | const foo = new Float64Array()
+
+`;
+
+exports[`new-for-builtins > invalid(5): const foo = RegExp('^' + bar); 1`] = `
+
+  1 | const foo = RegExp('^' + bar);
+
+`;
+
+exports[`new-for-builtins > invalid(5): const foo = RegExp('^' + bar); 2`] = `
+
+Message:
+> 1 | const foo = RegExp('^' + bar);
+    |             ^^^^^^^^^^^^^^^^^ Use \`new RegExp()\` instead of \`RegExp()\`.
+
+Output:
+  1 | const foo = new RegExp('^' + bar);
 
 `;
 
@@ -1533,6 +1618,23 @@ Message:
 
 Suggestion 1/1: Switch to \`String(new Date())\`.:
   1 | const foo = String(new Date());
+
+`;
+
+exports[`new-for-builtins > invalid(6): const foo = RegExp(...bar); 1`] = `
+
+  1 | const foo = RegExp(...bar);
+
+`;
+
+exports[`new-for-builtins > invalid(6): const foo = RegExp(...bar); 2`] = `
+
+Message:
+> 1 | const foo = RegExp(...bar);
+    |             ^^^^^^^^^^^^^^ Use \`new RegExp()\` instead of \`RegExp()\`.
+
+Output:
+  1 | const foo = new RegExp(...bar);
 
 `;
 
@@ -1767,6 +1869,23 @@ Suggestion 1/1: Switch to \`String(new Date())\`.:
 
 `;
 
+exports[`new-for-builtins > invalid(7): const foo = RegExp(bar, 'g'); 1`] = `
+
+  1 | const foo = RegExp(bar, 'g');
+
+`;
+
+exports[`new-for-builtins > invalid(7): const foo = RegExp(bar, 'g'); 2`] = `
+
+Message:
+> 1 | const foo = RegExp(bar, 'g');
+    |             ^^^^^^^^^^^^^^^^ Use \`new RegExp()\` instead of \`RegExp()\`.
+
+Output:
+  1 | const foo = new RegExp(bar, 'g');
+
+`;
+
 exports[`new-for-builtins > invalid(70): const foo = Intl.ListFormat() 1`] = `
 
   1 | const foo = Intl.ListFormat()
@@ -1984,6 +2103,23 @@ Message:
 
 Suggestion 1/1: Switch to \`String(new Date())\`.:
   1 | const foo = String(new Date());
+
+`;
+
+exports[`new-for-builtins > invalid(8): function foo(bar: string) { return RegExp(bar); } 1`] = `
+
+  1 | function foo(bar: string) { return RegExp(bar); }
+
+`;
+
+exports[`new-for-builtins > invalid(8): function foo(bar: string) { return RegExp(bar); } 2`] = `
+
+Message:
+> 1 | function foo(bar: string) { return RegExp(bar); }
+    |                                    ^^^^^^^^^^^ Use \`new RegExp()\` instead of \`RegExp()\`.
+
+Output:
+  1 | function foo(bar: string) { return new RegExp(bar); }
 
 `;
 

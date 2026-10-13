@@ -3,6 +3,17 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+// `export default` and `export const` capture the current value, a live re-export only differs if the source module reassigns the binding later, so this is still autofixed
+test.snapshot({
+	valid: [],
+	invalid: [
+		'import value from "source";\nexport default (value);',
+		'import value from "source";\nexport const snapshot = (value);',
+		'import {value} from "source";\nexport default /* keep */ value;',
+		'import {value} from "source";\nexport const snapshot = /* keep */ value;',
+	],
+});
+
 test.snapshot({
 	valid: [
 		'import "foo";',

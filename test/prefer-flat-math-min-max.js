@@ -1,7 +1,84 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import {outdent} from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+const linterConfig = {
+	plugins: {unicorn: {rules: {'prefer-flat-math-min-max': rule}}},
+	rules: {'unicorn/prefer-flat-math-min-max': 'error'},
+};
+
+nodeTest('numeric literal autofixes preserve signed zero, finite values, and infinities', t => {
+	const linter = new Linter();
+	for (const method of ['min', 'max']) {
+		for (const left of ['0', '-0', '1', '-1', '+2', '1e999', '-1e999']) {
+			for (const right of ['0', '-0', '1', '-1', '+2', '1e999', '-1e999']) {
+				for (const code of [
+					`Math.${method}(Math.${method}(${left}, ${right}), -0);`,
+					`Math.${method}(-0, Math.${method}(${left}, ${right}));`,
+				]) {
+					const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
+					t.assert.strictEqual(fixed, true, code);
+					t.assert.deepStrictEqual(messages, []);
+					t.assert.strictEqual(runInNewContext(output), runInNewContext(code), code);
+				}
+			}
+		}
+
+		const code = `Math.${method}(Math.${method}());`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
+	}
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'Math.max(Math.max(1, 2), Math.max(3, 4), 5);',
+			output: 'Math.max(1, 2, 3, 4, 5);',
+			errors: 1,
+		},
+		{
+			code: 'Math.max(Math.max((1 as number), -0), +2);',
+			languageOptions: {parser: parsers.typescript},
+			output: 'Math.max((1 as number), -0, +2);',
+			errors: 1,
+		},
+		{
+			code: 'Math.min((<number>-1), Math.min(2 satisfies number, 3!));',
+			languageOptions: {parser: parsers.typescript},
+			output: 'Math.min((<number>-1), 2 satisfies number, 3!);',
+			errors: 1,
+		},
+		{
+			code: 'Math.min(Math.min((value as number), 0), 1);',
+			languageOptions: {parser: parsers.typescript},
+			output: 'Math.min((value as number), 0, 1);',
+			errors: 1,
+		},
+		{
+			code: 'Math.min(Math.min((getValue() as number), 0), 1);',
+			languageOptions: {parser: parsers.typescript},
+			output: 'Math.min((getValue() as number), 0, 1);',
+			errors: 1,
+		},
+		// Coercion order of nested arguments is unsupported, so arguments with side effects are still autofixed
+		{
+			code: 'Math.max(Math.max(width, height), size++);',
+			output: 'Math.max(width, height, size++);',
+			errors: 1,
+		},
+		{
+			code: 'Math.min(Math.min(/* keep */ 1, 2), 3);',
+			errors: 1,
+		},
+	],
+});
 
 test.snapshot({
 	valid: [

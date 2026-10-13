@@ -429,3 +429,24 @@ test.snapshot({
 		'const foo = Date(...arguments);',
 	],
 });
+
+// `RegExp`
+test.snapshot({
+	valid: [
+		'const foo = new RegExp(bar);',
+	],
+	invalid: [
+		// Without `new`, `RegExp(pattern)` returns `pattern` itself when it is already a `RegExp`. Only object identity and `lastIndex` differ, so it is still autofixed.
+		'const foo = RegExp(bar);',
+		'const foo = RegExp(/bar/g);',
+		'const foo = RegExp(\'bar\');',
+		'const foo = RegExp(`^${bar}$`);', // eslint-disable-line no-template-curly-in-string
+		'const foo = RegExp(\'^\' + bar);',
+		'const foo = RegExp(...bar);',
+		'const foo = RegExp(bar, \'g\');',
+		{
+			code: 'function foo(bar: string) { return RegExp(bar); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+});

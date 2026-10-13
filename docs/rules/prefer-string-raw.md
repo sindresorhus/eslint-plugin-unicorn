@@ -11,6 +11,8 @@
 
 [`String.raw`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/raw) is a tagged template that allows you to use backslashes without escaping them. This is particularly useful for file paths, regex patterns, and other strings with many backslashes, making the code more readable and less error-prone.
 
+Adding or removing `String.raw` from a template with two or more substitutions can change the order in which the substitutions are converted to strings.
+
 ## Examples
 
 ```js

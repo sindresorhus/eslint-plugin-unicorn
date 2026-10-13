@@ -11,6 +11,8 @@
 
 When re-exporting from a module, it's unnecessary to import and then export. It can be done in a single `export…from` declaration.
 
+`export default importedValue` and `export const alias = importedValue` capture the current value, while `export…from` is a live binding. The fix only changes behavior if the source module reassigns the exported binding later, which is not supported.
+
 Single-const re-export assignments with an attached JSDoc comment are left unchanged to preserve the documentation.
 
 ## Examples

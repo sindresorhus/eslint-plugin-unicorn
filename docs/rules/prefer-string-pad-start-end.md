@@ -15,6 +15,8 @@ This rule only reports static one-code-unit padding strings. Multi-character pad
 
 Autofixes and suggestions are only offered when the target length is a numeric literal, the padding is literal, and the padded value is a simple identifier.
 
+When the value is longer than the target length, `repeat()` throws for the negative count, while `padStart()` and `padEnd()` return the value unchanged. The fix removes that error.
+
 A padded value known not to be a string, from syntax, TypeScript annotations, or TypeScript type information, is ignored, since `padStart()` and `padEnd()` do not exist on it. Unknown values are still reported.
 
 ## Examples

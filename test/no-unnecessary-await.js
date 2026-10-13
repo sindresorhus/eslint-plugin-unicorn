@@ -122,6 +122,7 @@ ruleTest.snapshot({
 		'async function foo() {-await ++bar}',
 		'async function foo() {+await bar++}',
 		'async function foo() {~await ~1}',
+		'async function foo() { return await/* comment */1; }',
 	],
 });
 
@@ -155,7 +156,7 @@ test('only an `await` that is the last thing its function runs is unrolled', t =
 	for (const [code, isFixed] of [
 		['async function f() { log("s"); await 1; log("e"); }', false],
 		['async function f() { await 1; log("e"); }', false],
-		// The `await` is the last statement, so nothing runs after it either way
+		// The `await` is the last statement, so nothing runs after it either way. The function settles one microtask earlier, which is not supported.
 		['async function f() { if (q) { run(); } await 1; }', true],
 		['async function f() { log("s"); await 1; }', true],
 		['async function f() { await 1; }', true],

@@ -6,6 +6,23 @@ const {test} = getTester(import.meta);
 const MESSAGE_ID = 'prefer-string-pad-start-end';
 const MESSAGE_ID_SUGGESTION = 'suggest-padding-method';
 
+// `repeat()` throws for a value longer than the target length, while the padding methods return the value unchanged. The fix only removes that error, so it is still an autofix.
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const value = "long string"; " ".repeat(3 - value.length) + value;',
+			output: 'const value = "long string"; value.padStart(3);',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
+			code: 'const value = "long string"; value + "*".repeat(3 - value.length);',
+			output: 'const value = "long string"; value.padEnd(3, "*");',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+	],
+});
+
 test({
 	valid: [
 		// Known non-string target (type information)
@@ -242,6 +259,14 @@ test({
 			code: 'foo\n"*".repeat(10 - (value).length) + (value)',
 			output: 'foo\n;(value).padStart(10, "*")',
 			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
+			code: 'const foo = "*".repeat(10 - value.length) /* keep */ + value;',
+			errors: [{messageId: MESSAGE_ID, suggestions: []}],
+		},
+		{
+			code: 'const foo = value + "*".repeat(10 /* keep */ - value.length);',
+			errors: [{messageId: MESSAGE_ID, suggestions: []}],
 		},
 		{
 			code: 'const foo = "*".repeat(width - value.length) /* comment */ + value;',
