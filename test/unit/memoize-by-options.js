@@ -22,7 +22,7 @@ test('caches a falsy prepared result', t => {
 	let callCount = 0;
 	const getPrepared = memoizeByOptions(() => {
 		callCount++;
-		return undefined;
+		return false;
 	});
 
 	const options = {};
