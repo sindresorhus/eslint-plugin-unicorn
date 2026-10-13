@@ -1,5 +1,6 @@
 import {isLoop} from './ast/index.js';
 import {removeStatement} from './fix/index.js';
+import {getCommentSafeProblem} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -54,14 +55,14 @@ const create = context => {
 			return;
 		}
 
-		return {
+		return getCommentSafeProblem(context, {
 			node,
 			messageId: MESSAGE_ID,
 			/**
 			@param {ESLint.Rule.RuleFixer} fixer
 			*/
 			fix: fixer => removeStatement(node, context, fixer),
-		};
+		});
 	});
 };
 

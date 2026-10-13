@@ -474,6 +474,26 @@ Output:
 
 `;
 
+exports[`no-useless-continue > invalid(23): for (const x of xs) {\n\tdoX();\n\tcontinue /* keep me */;\n} 1`] = `
+
+  1 | for (const x of xs) {
+  2 | 	doX();
+  3 | 	continue /* keep me */;
+  4 | }
+
+`;
+
+exports[`no-useless-continue > invalid(23): for (const x of xs) {\n\tdoX();\n\tcontinue /* keep me */;\n} 2`] = `
+
+Message:
+  1 | for (const x of xs) {
+  2 | 	doX();
+> 3 | 	continue /* keep me */;
+    | 	^^^^^^^^^^^^^^^^^^^^^^^ Unnecessary \`continue\` statement.
+  4 | }
+
+`;
+
 exports[`no-useless-continue > invalid(3): while (cond) {\n\tdoX();\n\tcontinue;\n} 1`] = `
 
   1 | while (cond) {

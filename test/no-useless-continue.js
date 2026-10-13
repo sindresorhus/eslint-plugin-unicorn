@@ -345,5 +345,12 @@ test.snapshot({
 				continue;
 			}
 		`,
+		// Comment inside the `continue` statement must not be deleted by the fix
+		outdent`
+			for (const x of xs) {
+				doX();
+				continue /* keep me */;
+			}
+		`,
 	],
 });
