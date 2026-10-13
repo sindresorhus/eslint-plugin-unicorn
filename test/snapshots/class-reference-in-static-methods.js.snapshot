@@ -86,6 +86,23 @@ Suggestion 1/1: Replace \`A\` with \`this\`.:
 
 `;
 
+exports[`class-reference-in-static-methods > invalid(1): class Foo { static m() { return {Foo}; } } 1`] = `
+
+  1 | class Foo { static m() { return {Foo}; } }
+
+`;
+
+exports[`class-reference-in-static-methods > invalid(1): class Foo { static m() { return {Foo}; } } 2`] = `
+
+Message:
+> 1 | class Foo { static m() { return {Foo}; } }
+    |                                  ^^^ Use \`this\` instead of \`Foo\` in static methods.
+
+Suggestion 1/1: Replace \`Foo\` with \`this\`.:
+  1 | class Foo { static m() { return {Foo: this}; } }
+
+`;
+
 exports[`class-reference-in-static-methods > invalid(2): class A extends B {static foo() {return A.foo() + super.foo();}} 1`] = `
 
 Options:

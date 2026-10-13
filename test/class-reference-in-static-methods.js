@@ -337,3 +337,14 @@ test.snapshot({
 		'class A extends B {static foo(): unknown {return B.foo();}}',
 	],
 });
+
+test.snapshot({
+	valid: [
+		// A shorthand property in a destructuring assignment is an assignment target
+		'class Foo { static m() { ({Foo} = bar); } }',
+	],
+	invalid: [
+		// A shorthand property keeps its key, so the suggestion must not turn `{Foo}` into `{this}`
+		'class Foo { static m() { return {Foo}; } }',
+	],
+});

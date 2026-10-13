@@ -1,5 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isReferenceIdentifier} from './ast/index.js';
+import {replaceReferenceIdentifier} from './fix/index.js';
 import {
 	getOutermostTypeScriptExpression,
 	isParenthesized,
@@ -230,20 +231,14 @@ const getSimpleSuperClassReferenceNode = classNode => classNode.superClass?.type
 
 /**
 @param {ESTree.Node} node
-@param {string} replacement
-@returns {ESLint.Rule.ReportFixer}
-*/
-const replaceNodeSuggestion = (node, replacement) => fixer => fixer.replaceText(node, replacement);
-
-/**
-@param {ESTree.Node} node
 @param {string} messageId
 @param {string} source
 @param {string} replacement
 @param {string} name
+@param {ESLint.Rule.RuleContext} context
 @returns {ESLint.Rule.ReportDescriptor}
 */
-const problemWithSuggestion = ({node, messageId, source, replacement, name}) => ({
+const problemWithSuggestion = ({node, messageId, source, replacement, name, context}) => ({
 	node,
 	messageId,
 	data: {name},
@@ -251,7 +246,8 @@ const problemWithSuggestion = ({node, messageId, source, replacement, name}) => 
 		{
 			messageId: SUGGESTION_MESSAGE_ID,
 			data: {source, replacement},
-			fix: replaceNodeSuggestion(node, replacement),
+			// A shorthand property needs its key kept, so `{Foo}` becomes `{Foo: this}`.
+			fix: fixer => replaceReferenceIdentifier(node, replacement, context, fixer),
 		},
 	],
 });
@@ -316,6 +312,7 @@ const create = context => {
 			source: 'this',
 			replacement: classReferenceNode.name,
 			name: classReferenceNode.name,
+			context,
 		});
 	});
 
@@ -343,6 +340,7 @@ const create = context => {
 			source: 'super',
 			replacement: superClassReferenceNode.name,
 			name: superClassReferenceNode.name,
+			context,
 		});
 	});
 
@@ -388,6 +386,7 @@ const create = context => {
 					source: node.name,
 					replacement: 'this',
 					name: node.name,
+					context,
 				});
 			}
 		}
@@ -412,6 +411,7 @@ const create = context => {
 				source: node.name,
 				replacement: 'super',
 				name: node.name,
+				context,
 			});
 		}
 	});
