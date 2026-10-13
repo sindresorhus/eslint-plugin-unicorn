@@ -1,7 +1,49 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+// Sums with additions on both sides
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'Math.sqrt((a ** 2 + b ** 2) + (c ** 2 + d ** 2));',
+			output: 'Math.hypot(a, b, c, d);',
+			errors: 1,
+		},
+		{
+			code: 'Math.sqrt(a ** 2 + ((b ** 2 + c ** 2) + (d * d + e ** 2)));',
+			output: 'Math.hypot(a, b, c, d, e);',
+			errors: 1,
+		},
+		{
+			code: 'Math.sqrt(((a ** 2 + b ** 2) + (c ** 2 + d ** 2)) + ((e ** 2 + f ** 2) + (g ** 2 + h ** 2)));',
+			output: 'Math.hypot(a, b, c, d, e, f, g, h);',
+			errors: 1,
+		},
+		{
+			code: 'Math.sqrt((((a ** 2 + b ** 2))) + (((c ** 2 + d ** 2))),);',
+			output: 'Math.hypot(a, b, c, d,);',
+			errors: 1,
+		},
+		{
+			code: 'Math.sqrt(((a as number) ** 2 + b ** 2) + (c ** 2 + d ** 2));',
+			output: 'Math.hypot((a as number), b, c, d);',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'Math.sqrt((a ** 2 + b ** 2) /* keep */ + (c ** 2 + d ** 2));',
+			output: 'Math.hypot(a, b /* keep */, c, d);',
+			errors: 1,
+		},
+		{
+			code: 'Math.sqrt((a ** /* keep */ 2 + b ** 2) + (c ** 2 + d ** 2));',
+			errors: 1,
+		},
+	],
+});
 
 // `Math.log10()` and `Math.log2()`
 const duplicateLog10Test = code => [

@@ -126,10 +126,15 @@ const isPow2Expression = node =>
 		|| (node.operator === '**' && isLiteral(node.right, 2))
 	);
 
-const flatPlusExpression = node =>
-	isPlusExpression(node)
-		? [node.left, node.right].flatMap(child => flatPlusExpression(child))
-		: [node];
+function flatPlusExpression(node, plusExpressions) {
+	if (!isPlusExpression(node)) {
+		return [node];
+	}
+
+	// A sum can contain sums on both sides, so collect every addition, including those without a square child.
+	plusExpressions.push(node);
+	return [node.left, node.right].flatMap(child => flatPlusExpression(child, plusExpressions));
+}
 
 /**
 @param {import('eslint').Rule.RuleContext} context
@@ -148,13 +153,13 @@ const create = context => {
 			return;
 		}
 
-		const expressions = flatPlusExpression(callExpression.arguments[0]);
+		const plusExpressions = [];
+		const expressions = flatPlusExpression(callExpression.arguments[0], plusExpressions);
 		if (expressions.some(expression => !isPow2Expression(expression))) {
 			return;
 		}
 
 		const replacementMethod = expressions.length === 1 ? 'abs' : 'hypot';
-		const plusExpressions = new Set(expressions.length === 1 ? [] : expressions.map(expression => expression.parent));
 
 		return {
 			node: callExpression.callee.property,
