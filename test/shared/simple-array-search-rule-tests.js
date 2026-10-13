@@ -142,6 +142,9 @@ function snapshotTests({method, replacement}) {
 					}).call(thisObject, anotherFunctionNamedA, secondArgument)
 				})
 			`,
+			...['target', 'target.id', 'target?.id', '1 + 2', '-2n', '+1n', 'undefined', '/item/u', '`item`'].map(expression => `values.${method}(item => item === ${expression});`),
+			`const target = 2; values.${method}(item => item === target);`,
+			`values.${method}(item => item === /* keep */ target.id);`,
 		],
 	};
 }
@@ -150,6 +153,18 @@ function typescriptTests({method, replacement}) {
 	return {
 		valid: [],
 		invalid: [
+			...['(target as number)', '(target satisfies number)', 'target!', '<number>target', '(-2 as number)', '(2 satisfies number)', '2!', '<number>2'].map(expression => ({
+				code: `values.${method}(item => item === ${expression});`,
+				output: `values.${replacement}(${expression});`,
+				errors: 1,
+			})),
+			{
+				code: `values.${method}(item => item === (getTarget() as number));`,
+				errors: [{
+					messageId: `prefer-${replacement}-over-${method}/error`,
+					suggestions: [{messageId: `prefer-${replacement}-over-${method}/suggestion`, output: `values.${replacement}((getTarget() as number));`}],
+				}],
+			},
 			{
 				code: outdent`
 					function foo() {

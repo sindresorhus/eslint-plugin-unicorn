@@ -3,6 +3,10 @@ import {
 	checkVueTemplate,
 	isMethodNamed,
 	getTokenStore,
+	getCallArgumentText,
+	isArray,
+	isKnownNonString,
+	isRegExp,
 } from './utils/index.js';
 import simpleArraySearchRule from './shared/simple-array-search-rule.js';
 import {isLiteral, isNegativeOne} from './ast/index.js';
@@ -36,7 +40,7 @@ const getProblem = (context, node, target, argumentsNodes) => {
 		argumentsNodes = argumentsNodes.slice(0, 1);
 	}
 
-	const argumentsSource = argumentsNodes.map(argument => sourceCode.getText(argument));
+	const argumentsSource = argumentsNodes.map(argument => getCallArgumentText(argument, context));
 
 	const replacement = `${isNegativeResult(node) ? '!' : ''}${targetSource}.includes(${argumentsSource.join(', ')})`;
 
@@ -85,14 +89,27 @@ const create = context => {
 			return;
 		}
 
+		// String#indexOf() coerces a RegExp to a string, but String#includes() rejects it.
+		if (
+			argumentsNodes.length > 0
+			&& isRegExp(argumentsNodes[0], context)
+			&& !isArray(target, context)
+			&& !isKnownNonString(target, context)
+		) {
+			return;
+		}
+
 		// `indexOf()` compares with `===` and never finds `NaN`, while `.includes()` uses SameValueZero
 		if (argumentsNodes.length > 0 && isNaNValue(argumentsNodes[0], context)) {
 			return;
 		}
 
 		// `lastIndexOf(value, fromIndex)` searches backward from `fromIndex`, while `.includes(value, fromIndex)`
-		// searches forward, so they're only equivalent when no `fromIndex` is passed.
-		if (isMethodNamed(left, 'lastIndexOf') && argumentsNodes.length > 1) {
+		// searches forward, so they're only equivalent when no `fromIndex` is passed. A spread can hide a `fromIndex`.
+		if (
+			isMethodNamed(left, 'lastIndexOf')
+			&& (argumentsNodes.length > 1 || argumentsNodes.some(argument => argument.type === 'SpreadElement'))
+		) {
 			return;
 		}
 

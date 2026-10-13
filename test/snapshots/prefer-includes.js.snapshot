@@ -207,6 +207,23 @@ Output:
 
 `;
 
+exports[`prefer-includes > invalid(14): values.some(item => item === target); 1`] = `
+
+  1 | values.some(item => item === target);
+
+`;
+
+exports[`prefer-includes > invalid(14): values.some(item => item === target); 2`] = `
+
+Message:
+> 1 | values.some(item => item === target);
+    |        ^^^^ Use \`.includes()\` instead of \`.some()\` when checking value existence.
+
+Output:
+  1 | values.includes(target);
+
+`;
+
 exports[`prefer-includes > invalid(15): <template><div v-if=\"str.indexOf('foo') == -1\"></div></template> 1`] = `
 
   1 | <template><div v-if="str.indexOf('foo') == -1"></div></template>
@@ -221,6 +238,23 @@ Message:
 
 Output:
   1 | <template><div v-if="!str.includes('foo')"></div></template>
+
+`;
+
+exports[`prefer-includes > invalid(15): values.some(item => item === target.id); 1`] = `
+
+  1 | values.some(item => item === target.id);
+
+`;
+
+exports[`prefer-includes > invalid(15): values.some(item => item === target.id); 2`] = `
+
+Message:
+> 1 | values.some(item => item === target.id);
+    |        ^^^^ Use \`.includes()\` instead of \`.some()\` when checking value existence.
+
+Output:
+  1 | values.includes(target.id);
 
 `;
 
@@ -241,6 +275,23 @@ Output:
 
 `;
 
+exports[`prefer-includes > invalid(16): values.some(item => item === target?.id); 1`] = `
+
+  1 | values.some(item => item === target?.id);
+
+`;
+
+exports[`prefer-includes > invalid(16): values.some(item => item === target?.id); 2`] = `
+
+Message:
+> 1 | values.some(item => item === target?.id);
+    |        ^^^^ Use \`.includes()\` instead of \`.some()\` when checking value existence.
+
+Output:
+  1 | values.includes(target?.id);
+
+`;
+
 exports[`prefer-includes > invalid(17): 'foobar'.lastIndexOf('foo') >= 0 1`] = `
 
   1 | 'foobar'.lastIndexOf('foo') >= 0
@@ -255,6 +306,23 @@ Message:
 
 Output:
   1 | 'foobar'.includes('foo')
+
+`;
+
+exports[`prefer-includes > invalid(17): values.some(item => item === 1 + 2); 1`] = `
+
+  1 | values.some(item => item === 1 + 2);
+
+`;
+
+exports[`prefer-includes > invalid(17): values.some(item => item === 1 + 2); 2`] = `
+
+Message:
+> 1 | values.some(item => item === 1 + 2);
+    |        ^^^^ Use \`.includes()\` instead of \`.some()\` when checking value existence.
+
+Output:
+  1 | values.includes(1 + 2);
 
 `;
 
@@ -275,6 +343,23 @@ Output:
 
 `;
 
+exports[`prefer-includes > invalid(18): values.some(item => item === -2n); 1`] = `
+
+  1 | values.some(item => item === -2n);
+
+`;
+
+exports[`prefer-includes > invalid(18): values.some(item => item === -2n); 2`] = `
+
+Message:
+> 1 | values.some(item => item === -2n);
+    |        ^^^^ Use \`.includes()\` instead of \`.some()\` when checking value existence.
+
+Output:
+  1 | values.includes(-2n);
+
+`;
+
 exports[`prefer-includes > invalid(19): [1,2,3].indexOf(4) !== -1 1`] = `
 
   1 | [1,2,3].indexOf(4) !== -1
@@ -289,6 +374,23 @@ Message:
 
 Output:
   1 | [1,2,3].includes(4)
+
+`;
+
+exports[`prefer-includes > invalid(19): values.some(item => item === +1n); 1`] = `
+
+  1 | values.some(item => item === +1n);
+
+`;
+
+exports[`prefer-includes > invalid(19): values.some(item => item === +1n); 2`] = `
+
+Message:
+> 1 | values.some(item => item === +1n);
+    |        ^^^^ Use \`.includes()\` instead of \`.some()\` when checking value existence.
+
+Output:
+  1 | values.includes(+1n);
 
 `;
 
@@ -343,6 +445,23 @@ Output:
 
 `;
 
+exports[`prefer-includes > invalid(20): values.some(item => item === undefined); 1`] = `
+
+  1 | values.some(item => item === undefined);
+
+`;
+
+exports[`prefer-includes > invalid(20): values.some(item => item === undefined); 2`] = `
+
+Message:
+> 1 | values.some(item => item === undefined);
+    |        ^^^^ Use \`.includes()\` instead of \`.some()\` when checking value existence.
+
+Output:
+  1 | values.includes(undefined);
+
+`;
+
 exports[`prefer-includes > invalid(21): <template><div v-if=\"[1,2,3].indexOf(4) !== -1\"></div></template> 1`] = `
 
   1 | <template><div v-if="[1,2,3].indexOf(4) !== -1"></div></template>
@@ -360,6 +479,23 @@ Output:
 
 `;
 
+exports[`prefer-includes > invalid(21): values.some(item => item === /item/u); 1`] = `
+
+  1 | values.some(item => item === /item/u);
+
+`;
+
+exports[`prefer-includes > invalid(21): values.some(item => item === /item/u); 2`] = `
+
+Message:
+> 1 | values.some(item => item === /item/u);
+    |        ^^^^ Use \`.includes()\` instead of \`.some()\` when checking value existence.
+
+Output:
+  1 | values.includes(/item/u);
+
+`;
+
 exports[`prefer-includes > invalid(22): str.indexOf('foo') < 0 1`] = `
 
   1 | str.indexOf('foo') < 0
@@ -374,6 +510,40 @@ Message:
 
 Output:
   1 | !str.includes('foo')
+
+`;
+
+exports[`prefer-includes > invalid(22): values.some(item => item === \`item\`); 1`] = `
+
+  1 | values.some(item => item === \`item\`);
+
+`;
+
+exports[`prefer-includes > invalid(22): values.some(item => item === \`item\`); 2`] = `
+
+Message:
+> 1 | values.some(item => item === \`item\`);
+    |        ^^^^ Use \`.includes()\` instead of \`.some()\` when checking value existence.
+
+Output:
+  1 | values.includes(\`item\`);
+
+`;
+
+exports[`prefer-includes > invalid(23): const target = 2; values.some(item => item === target); 1`] = `
+
+  1 | const target = 2; values.some(item => item === target);
+
+`;
+
+exports[`prefer-includes > invalid(23): const target = 2; values.some(item => item === target); 2`] = `
+
+Message:
+> 1 | const target = 2; values.some(item => item === target);
+    |                          ^^^^ Use \`.includes()\` instead of \`.some()\` when checking value existence.
+
+Output:
+  1 | const target = 2; values.includes(target);
 
 `;
 
@@ -408,6 +578,20 @@ Message:
 
 Output:
   1 | <template><div v-if="!str.includes('foo')"></div></template>
+
+`;
+
+exports[`prefer-includes > invalid(24): values.some(item => item === /* keep */ target.id); 1`] = `
+
+  1 | values.some(item => item === /* keep */ target.id);
+
+`;
+
+exports[`prefer-includes > invalid(24): values.some(item => item === /* keep */ target.id); 2`] = `
+
+Message:
+> 1 | values.some(item => item === /* keep */ target.id);
+    |        ^^^^ Use \`.includes()\` instead of \`.some()\` when checking value existence.
 
 `;
 
@@ -581,7 +765,24 @@ Output:
 
 `;
 
-exports[`prefer-includes > invalid(33): <script setup lang=\"ts\">\nconsole.log([].indexOf(1) != -1);\n</script> 1`] = `
+exports[`prefer-includes > invalid(33): values.indexOf(...args) !== -1 1`] = `
+
+  1 | values.indexOf(...args) !== -1
+
+`;
+
+exports[`prefer-includes > invalid(33): values.indexOf(...args) !== -1 2`] = `
+
+Message:
+> 1 | values.indexOf(...args) !== -1
+    |        ^^^^^^^ Use \`.includes()\`, rather than \`.indexOf()\`, when checking for existence.
+
+Output:
+  1 | values.includes(...args)
+
+`;
+
+exports[`prefer-includes > invalid(34): <script setup lang=\"ts\">\nconsole.log([].indexOf(1) != -1);\n</script> 1`] = `
 
   1 | <script setup lang="ts">
   2 | console.log([].indexOf(1) != -1);
@@ -589,7 +790,7 @@ exports[`prefer-includes > invalid(33): <script setup lang=\"ts\">\nconsole.log(
 
 `;
 
-exports[`prefer-includes > invalid(33): <script setup lang=\"ts\">\nconsole.log([].indexOf(1) != -1);\n</script> 2`] = `
+exports[`prefer-includes > invalid(34): <script setup lang=\"ts\">\nconsole.log([].indexOf(1) != -1);\n</script> 2`] = `
 
 Message:
   1 | <script setup lang="ts">

@@ -212,6 +212,210 @@ Suggestion 1/1: Replace \`.findLastIndex()\` with \`.lastIndexOf()\`.:
 
 `;
 
+exports[`prefer-array-index-of > invalid(14): values.findIndex(item => item === target); 1`] = `
+
+  1 | values.findIndex(item => item === target);
+
+`;
+
+exports[`prefer-array-index-of > invalid(14): values.findIndex(item => item === target); 2`] = `
+
+Message:
+> 1 | values.findIndex(item => item === target);
+    |        ^^^^^^^^^ Use \`.indexOf()\` instead of \`.findIndex()\` when looking for the index of an item.
+
+Output:
+  1 | values.indexOf(target);
+
+`;
+
+exports[`prefer-array-index-of > invalid(14): values.findLastIndex(item => item === target); 1`] = `
+
+  1 | values.findLastIndex(item => item === target);
+
+`;
+
+exports[`prefer-array-index-of > invalid(14): values.findLastIndex(item => item === target); 2`] = `
+
+Message:
+> 1 | values.findLastIndex(item => item === target);
+    |        ^^^^^^^^^^^^^ Use \`.lastIndexOf()\` instead of \`.findLastIndex() when looking for the index of an item.\`
+
+Output:
+  1 | values.lastIndexOf(target);
+
+`;
+
+exports[`prefer-array-index-of > invalid(15): values.findIndex(item => item === target.id); 1`] = `
+
+  1 | values.findIndex(item => item === target.id);
+
+`;
+
+exports[`prefer-array-index-of > invalid(15): values.findIndex(item => item === target.id); 2`] = `
+
+Message:
+> 1 | values.findIndex(item => item === target.id);
+    |        ^^^^^^^^^ Use \`.indexOf()\` instead of \`.findIndex()\` when looking for the index of an item.
+
+Output:
+  1 | values.indexOf(target.id);
+
+`;
+
+exports[`prefer-array-index-of > invalid(15): values.findLastIndex(item => item === target.id); 1`] = `
+
+  1 | values.findLastIndex(item => item === target.id);
+
+`;
+
+exports[`prefer-array-index-of > invalid(15): values.findLastIndex(item => item === target.id); 2`] = `
+
+Message:
+> 1 | values.findLastIndex(item => item === target.id);
+    |        ^^^^^^^^^^^^^ Use \`.lastIndexOf()\` instead of \`.findLastIndex() when looking for the index of an item.\`
+
+Output:
+  1 | values.lastIndexOf(target.id);
+
+`;
+
+exports[`prefer-array-index-of > invalid(16): values.findIndex(item => item === target?.id); 1`] = `
+
+  1 | values.findIndex(item => item === target?.id);
+
+`;
+
+exports[`prefer-array-index-of > invalid(16): values.findIndex(item => item === target?.id); 2`] = `
+
+Message:
+> 1 | values.findIndex(item => item === target?.id);
+    |        ^^^^^^^^^ Use \`.indexOf()\` instead of \`.findIndex()\` when looking for the index of an item.
+
+Output:
+  1 | values.indexOf(target?.id);
+
+`;
+
+exports[`prefer-array-index-of > invalid(16): values.findLastIndex(item => item === target?.id); 1`] = `
+
+  1 | values.findLastIndex(item => item === target?.id);
+
+`;
+
+exports[`prefer-array-index-of > invalid(16): values.findLastIndex(item => item === target?.id); 2`] = `
+
+Message:
+> 1 | values.findLastIndex(item => item === target?.id);
+    |        ^^^^^^^^^^^^^ Use \`.lastIndexOf()\` instead of \`.findLastIndex() when looking for the index of an item.\`
+
+Output:
+  1 | values.lastIndexOf(target?.id);
+
+`;
+
+exports[`prefer-array-index-of > invalid(17): values.findIndex(item => item === 1 + 2); 1`] = `
+
+  1 | values.findIndex(item => item === 1 + 2);
+
+`;
+
+exports[`prefer-array-index-of > invalid(17): values.findIndex(item => item === 1 + 2); 2`] = `
+
+Message:
+> 1 | values.findIndex(item => item === 1 + 2);
+    |        ^^^^^^^^^ Use \`.indexOf()\` instead of \`.findIndex()\` when looking for the index of an item.
+
+Output:
+  1 | values.indexOf(1 + 2);
+
+`;
+
+exports[`prefer-array-index-of > invalid(17): values.findLastIndex(item => item === 1 + 2); 1`] = `
+
+  1 | values.findLastIndex(item => item === 1 + 2);
+
+`;
+
+exports[`prefer-array-index-of > invalid(17): values.findLastIndex(item => item === 1 + 2); 2`] = `
+
+Message:
+> 1 | values.findLastIndex(item => item === 1 + 2);
+    |        ^^^^^^^^^^^^^ Use \`.lastIndexOf()\` instead of \`.findLastIndex() when looking for the index of an item.\`
+
+Output:
+  1 | values.lastIndexOf(1 + 2);
+
+`;
+
+exports[`prefer-array-index-of > invalid(18): values.findIndex(item => item === -2n); 1`] = `
+
+  1 | values.findIndex(item => item === -2n);
+
+`;
+
+exports[`prefer-array-index-of > invalid(18): values.findIndex(item => item === -2n); 2`] = `
+
+Message:
+> 1 | values.findIndex(item => item === -2n);
+    |        ^^^^^^^^^ Use \`.indexOf()\` instead of \`.findIndex()\` when looking for the index of an item.
+
+Output:
+  1 | values.indexOf(-2n);
+
+`;
+
+exports[`prefer-array-index-of > invalid(18): values.findLastIndex(item => item === -2n); 1`] = `
+
+  1 | values.findLastIndex(item => item === -2n);
+
+`;
+
+exports[`prefer-array-index-of > invalid(18): values.findLastIndex(item => item === -2n); 2`] = `
+
+Message:
+> 1 | values.findLastIndex(item => item === -2n);
+    |        ^^^^^^^^^^^^^ Use \`.lastIndexOf()\` instead of \`.findLastIndex() when looking for the index of an item.\`
+
+Output:
+  1 | values.lastIndexOf(-2n);
+
+`;
+
+exports[`prefer-array-index-of > invalid(19): values.findIndex(item => item === +1n); 1`] = `
+
+  1 | values.findIndex(item => item === +1n);
+
+`;
+
+exports[`prefer-array-index-of > invalid(19): values.findIndex(item => item === +1n); 2`] = `
+
+Message:
+> 1 | values.findIndex(item => item === +1n);
+    |        ^^^^^^^^^ Use \`.indexOf()\` instead of \`.findIndex()\` when looking for the index of an item.
+
+Output:
+  1 | values.indexOf(+1n);
+
+`;
+
+exports[`prefer-array-index-of > invalid(19): values.findLastIndex(item => item === +1n); 1`] = `
+
+  1 | values.findLastIndex(item => item === +1n);
+
+`;
+
+exports[`prefer-array-index-of > invalid(19): values.findLastIndex(item => item === +1n); 2`] = `
+
+Message:
+> 1 | values.findLastIndex(item => item === +1n);
+    |        ^^^^^^^^^^^^^ Use \`.lastIndexOf()\` instead of \`.findLastIndex() when looking for the index of an item.\`
+
+Output:
+  1 | values.lastIndexOf(+1n);
+
+`;
+
 exports[`prefer-array-index-of > invalid(2): values?.findIndex(x => x === \"foo\") 1`] = `
 
   1 | values?.findIndex(x => x === "foo")
@@ -243,6 +447,170 @@ Message:
 
 Output:
   1 | values?.lastIndexOf("foo")
+
+`;
+
+exports[`prefer-array-index-of > invalid(20): values.findIndex(item => item === undefined); 1`] = `
+
+  1 | values.findIndex(item => item === undefined);
+
+`;
+
+exports[`prefer-array-index-of > invalid(20): values.findIndex(item => item === undefined); 2`] = `
+
+Message:
+> 1 | values.findIndex(item => item === undefined);
+    |        ^^^^^^^^^ Use \`.indexOf()\` instead of \`.findIndex()\` when looking for the index of an item.
+
+Output:
+  1 | values.indexOf(undefined);
+
+`;
+
+exports[`prefer-array-index-of > invalid(20): values.findLastIndex(item => item === undefined); 1`] = `
+
+  1 | values.findLastIndex(item => item === undefined);
+
+`;
+
+exports[`prefer-array-index-of > invalid(20): values.findLastIndex(item => item === undefined); 2`] = `
+
+Message:
+> 1 | values.findLastIndex(item => item === undefined);
+    |        ^^^^^^^^^^^^^ Use \`.lastIndexOf()\` instead of \`.findLastIndex() when looking for the index of an item.\`
+
+Output:
+  1 | values.lastIndexOf(undefined);
+
+`;
+
+exports[`prefer-array-index-of > invalid(21): values.findIndex(item => item === /item/u); 1`] = `
+
+  1 | values.findIndex(item => item === /item/u);
+
+`;
+
+exports[`prefer-array-index-of > invalid(21): values.findIndex(item => item === /item/u); 2`] = `
+
+Message:
+> 1 | values.findIndex(item => item === /item/u);
+    |        ^^^^^^^^^ Use \`.indexOf()\` instead of \`.findIndex()\` when looking for the index of an item.
+
+Output:
+  1 | values.indexOf(/item/u);
+
+`;
+
+exports[`prefer-array-index-of > invalid(21): values.findLastIndex(item => item === /item/u); 1`] = `
+
+  1 | values.findLastIndex(item => item === /item/u);
+
+`;
+
+exports[`prefer-array-index-of > invalid(21): values.findLastIndex(item => item === /item/u); 2`] = `
+
+Message:
+> 1 | values.findLastIndex(item => item === /item/u);
+    |        ^^^^^^^^^^^^^ Use \`.lastIndexOf()\` instead of \`.findLastIndex() when looking for the index of an item.\`
+
+Output:
+  1 | values.lastIndexOf(/item/u);
+
+`;
+
+exports[`prefer-array-index-of > invalid(22): values.findIndex(item => item === \`item\`); 1`] = `
+
+  1 | values.findIndex(item => item === \`item\`);
+
+`;
+
+exports[`prefer-array-index-of > invalid(22): values.findIndex(item => item === \`item\`); 2`] = `
+
+Message:
+> 1 | values.findIndex(item => item === \`item\`);
+    |        ^^^^^^^^^ Use \`.indexOf()\` instead of \`.findIndex()\` when looking for the index of an item.
+
+Output:
+  1 | values.indexOf(\`item\`);
+
+`;
+
+exports[`prefer-array-index-of > invalid(22): values.findLastIndex(item => item === \`item\`); 1`] = `
+
+  1 | values.findLastIndex(item => item === \`item\`);
+
+`;
+
+exports[`prefer-array-index-of > invalid(22): values.findLastIndex(item => item === \`item\`); 2`] = `
+
+Message:
+> 1 | values.findLastIndex(item => item === \`item\`);
+    |        ^^^^^^^^^^^^^ Use \`.lastIndexOf()\` instead of \`.findLastIndex() when looking for the index of an item.\`
+
+Output:
+  1 | values.lastIndexOf(\`item\`);
+
+`;
+
+exports[`prefer-array-index-of > invalid(23): const target = 2; values.findIndex(item => item === target); 1`] = `
+
+  1 | const target = 2; values.findIndex(item => item === target);
+
+`;
+
+exports[`prefer-array-index-of > invalid(23): const target = 2; values.findIndex(item => item === target); 2`] = `
+
+Message:
+> 1 | const target = 2; values.findIndex(item => item === target);
+    |                          ^^^^^^^^^ Use \`.indexOf()\` instead of \`.findIndex()\` when looking for the index of an item.
+
+Output:
+  1 | const target = 2; values.indexOf(target);
+
+`;
+
+exports[`prefer-array-index-of > invalid(23): const target = 2; values.findLastIndex(item => item === target); 1`] = `
+
+  1 | const target = 2; values.findLastIndex(item => item === target);
+
+`;
+
+exports[`prefer-array-index-of > invalid(23): const target = 2; values.findLastIndex(item => item === target); 2`] = `
+
+Message:
+> 1 | const target = 2; values.findLastIndex(item => item === target);
+    |                          ^^^^^^^^^^^^^ Use \`.lastIndexOf()\` instead of \`.findLastIndex() when looking for the index of an item.\`
+
+Output:
+  1 | const target = 2; values.lastIndexOf(target);
+
+`;
+
+exports[`prefer-array-index-of > invalid(24): values.findIndex(item => item === /* keep */ target.id); 1`] = `
+
+  1 | values.findIndex(item => item === /* keep */ target.id);
+
+`;
+
+exports[`prefer-array-index-of > invalid(24): values.findIndex(item => item === /* keep */ target.id); 2`] = `
+
+Message:
+> 1 | values.findIndex(item => item === /* keep */ target.id);
+    |        ^^^^^^^^^ Use \`.indexOf()\` instead of \`.findIndex()\` when looking for the index of an item.
+
+`;
+
+exports[`prefer-array-index-of > invalid(24): values.findLastIndex(item => item === /* keep */ target.id); 1`] = `
+
+  1 | values.findLastIndex(item => item === /* keep */ target.id);
+
+`;
+
+exports[`prefer-array-index-of > invalid(24): values.findLastIndex(item => item === /* keep */ target.id); 2`] = `
+
+Message:
+> 1 | values.findLastIndex(item => item === /* keep */ target.id);
+    |        ^^^^^^^^^^^^^ Use \`.lastIndexOf()\` instead of \`.findLastIndex() when looking for the index of an item.\`
 
 `;
 

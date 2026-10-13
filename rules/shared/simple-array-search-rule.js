@@ -178,6 +178,7 @@ export default function simpleArraySearchRule({method, replacement, checkBoolean
 				yield fixer.replaceText(callback, text);
 			};
 
+			// The search value is evaluated once up front after replacement, even when the array is empty, so only a side-effect-free value is autofixed.
 			if (hasSideEffect(searchValueNode, sourceCode)) {
 				problem.suggest.push({messageId: SUGGESTION, fix});
 			} else {

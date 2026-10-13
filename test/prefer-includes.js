@@ -1,9 +1,242 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import {outdent} from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 import tests from './shared/simple-array-search-rule-tests.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+const linterConfig = {
+	plugins: {unicorn: {rules: {'prefer-includes': rule}}},
+	rules: {'unicorn/prefer-includes': 'error'},
+};
+
+nodeTest('string RegExp searches retain results across constructors and comparison polarity', t => {
+	for (const initializer of ['/a/', 'RegExp("a")', 'new RegExp("a", "i")']) {
+		for (const method of ['indexOf', 'lastIndexOf']) {
+			for (const found of [false, true]) {
+				for (const [comparison, positive] of [['!== -1', true], ['>= 0', true], ['=== -1', false], ['< 0', false]]) {
+					const code = outdent`
+						const pattern = ${initializer};
+						const value = ${found ? 'String(pattern)' : '"missing"'};
+						value.${method}(pattern) ${comparison};
+					`;
+					const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+					t.assert.strictEqual(runInNewContext(code), positive === found);
+					t.assert.strictEqual(output, code);
+					t.assert.strictEqual(runInNewContext(output), positive === found);
+					t.assert.strictEqual(fixed, false);
+					t.assert.deepStrictEqual(messages, []);
+				}
+			}
+		}
+	}
+});
+
+nodeTest('known arrays retain RegExp identity search autofixes', t => {
+	for (const initializer of ['[pattern]', 'Array.of(pattern)', 'Array.from([pattern])', 'new Array(pattern)']) {
+		for (const method of ['indexOf', 'lastIndexOf']) {
+			for (const [search, found, calls] of [
+				['pattern', true, []],
+				['/a/', false, []],
+				['new RegExp("a")', false, []],
+				['(calls.push("read"), pattern)', true, ['read']],
+			]) {
+				const code = outdent`
+					const calls = [];
+					const pattern = /a/;
+					const values = ${initializer};
+					const result = values.${method}(${search}) !== -1;
+					JSON.stringify({result, calls});
+				`;
+				const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+				const expected = JSON.stringify({result: found, calls});
+				t.assert.strictEqual(runInNewContext(code), expected);
+				t.assert.strictEqual(runInNewContext(output), expected);
+				t.assert.strictEqual(fixed, true);
+				t.assert.deepStrictEqual(messages, []);
+			}
+		}
+	}
+
+	const code = 'new Uint8Array([1, 2]).indexOf(/a/) !== -1;';
+	const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+	t.assert.strictEqual(runInNewContext(code), false);
+	t.assert.strictEqual(runInNewContext(output), false);
+	t.assert.strictEqual(fixed, false);
+	t.assert.deepStrictEqual(messages, []);
+});
+
+nodeTest('sequence search arguments preserve comparison results and evaluation order', t => {
+	for (const receiver of ['"abb"', '["a", "b", "b"]']) {
+		for (const method of ['indexOf', 'lastIndexOf']) {
+			for (const needle of ['b', 'z']) {
+				for (const [comparison, positive] of [
+					['!== -1', true],
+					['!= -1', true],
+					['> -1', true],
+					['>= 0', true],
+					['=== -1', false],
+					['== -1', false],
+					['<= -1', false],
+					['< 0', false],
+				]) {
+					const code = outdent`
+						const calls = [];
+						const result = ${receiver}.${method}((calls.push("first"), calls.push("second"), "${needle}")) ${comparison};
+						JSON.stringify({calls, result});
+					`;
+					const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+					const found = needle === 'b';
+					const expected = JSON.stringify({calls: ['first', 'second'], result: positive === found});
+					t.assert.strictEqual(runInNewContext(code), expected);
+					t.assert.strictEqual(runInNewContext(output), expected);
+					t.assert.strictEqual(fixed, true);
+					t.assert.deepStrictEqual(messages, []);
+				}
+			}
+		}
+	}
+});
+
+nodeTest('sequence fromIndex arguments stay grouped after includes autofixes', t => {
+	for (const receiver of ['"abb"', '["a", "b", "b"]']) {
+		for (const fromIndex of [0, 2, 3, -1]) {
+			for (const sequenceSearch of [false, true]) {
+				const searchText = sequenceSearch ? '(calls.push("search"), "b")' : '"b"';
+				const code = outdent`
+					const calls = [];
+					const result = ${receiver}.indexOf(${searchText}, (calls.push("from"), ${fromIndex})) !== -1;
+					JSON.stringify({calls, result});
+				`;
+				const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+				const expected = JSON.stringify({calls: sequenceSearch ? ['search', 'from'] : ['from'], result: fromIndex !== 3});
+				t.assert.strictEqual(runInNewContext(code), expected);
+				t.assert.strictEqual(runInNewContext(output), expected);
+				t.assert.strictEqual(fixed, true);
+				t.assert.deepStrictEqual(messages, []);
+			}
+		}
+	}
+});
+
+test({
+	valid: [
+		'values.lastIndexOf((read(), needle), (readIndex(), 0)) !== -1;',
+		'values.indexOf((read(), needle), 0, extra) !== -1;',
+	],
+	invalid: [
+		{
+			code: 'values.indexOf(((read(), needle)), ((readIndex(), 2))) !== -1;',
+			output: 'values.includes((read(), needle), (readIndex(), 2));',
+			errors: [{messageId: 'prefer-includes'}],
+		},
+		{
+			code: 'values.indexOf((read(), needle), 0) === -1;',
+			output: '!values.includes((read(), needle));',
+			errors: [{messageId: 'prefer-includes'}],
+		},
+		{
+			code: 'values.indexOf((read(), needle), (readIndex(), 0)) < 0;',
+			output: '!values.includes((read(), needle), (readIndex(), 0));',
+			errors: [{messageId: 'prefer-includes'}],
+		},
+		{
+			code: 'values.indexOf((read(), /* keep */ needle)) !== -1;',
+			errors: [{messageId: 'prefer-includes'}],
+		},
+		{
+			code: 'values.indexOf(needle, (readIndex(), /* keep */ 2)) !== -1;',
+			errors: [{messageId: 'prefer-includes'}],
+		},
+		{
+			code: '(values as string[]).indexOf((read(), needle as string), (readIndex(), 2 satisfies number)) !== -1;',
+			output: '(values as string[]).includes((read(), needle as string), (readIndex(), 2 satisfies number));',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-includes'}],
+		},
+		{
+			code: 'values!.lastIndexOf((read(), needle!)) == -1;',
+			output: '!values!.includes((read(), needle!));',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-includes'}],
+		},
+		{
+			code: 'const view = <div>{values.indexOf((read(), needle)) !== -1}</div>;',
+			output: 'const view = <div>{values.includes((read(), needle))}</div>;',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+			errors: [{messageId: 'prefer-includes'}],
+		},
+		{
+			code: '<template><div v-if="values.indexOf((read(), needle)) !== -1"></div></template>',
+			output: '<template><div v-if="values.includes((read(), needle))"></div></template>',
+			languageOptions: {parser: parsers.vue},
+			errors: [{messageId: 'prefer-includes'}],
+		},
+	],
+});
+
+nodeTest('some searches with side effects stay suggestions', t => {
+	for (const [code, original, suggested] of [
+		[
+			'let calls = 0; function getValue() { calls++; return calls + 1; } const found = [1, 2].some(item => item === getValue()); JSON.stringify({found, calls});',
+			'{"found":false,"calls":2}',
+			'{"found":true,"calls":1}',
+		],
+		[
+			'let value = 1; const found = [].some(item => item === (value += 1)); JSON.stringify({found, value});',
+			'{"found":false,"value":1}',
+			'{"found":false,"value":2}',
+		],
+	]) {
+		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(fixed, false);
+		t.assert.strictEqual(runInNewContext(output), original);
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].fix, undefined);
+		t.assert.strictEqual(messages[0].suggestions.length, 1);
+		t.assert.strictEqual(messages[0].suggestions[0].messageId, 'prefer-includes-over-some/suggestion');
+		const {range, text} = messages[0].suggestions[0].fix;
+		const suggestedCode = code.slice(0, range[0]) + text + code.slice(range[1]);
+		t.assert.strictEqual(runInNewContext(suggestedCode), suggested);
+	}
+});
+
+nodeTest('some searches without side effects are autofixed', t => {
+	for (const value of [
+		'0',
+		'-0',
+		'+2',
+		'-(-2)',
+		'1e999',
+		'-1e999',
+		'"item"',
+		'true',
+		'false',
+		'null',
+		'2n',
+		'undefined',
+		'`item`',
+		'/item/u',
+		'target',
+		'object.id',
+		'object?.id',
+		'object.missing',
+	]) {
+		for (const values of ['[]', '[0, 2, "item", true, false, null, 2n, 1e999, undefined]']) {
+			const setup = 'const target = 2; const object = {id: "item"};';
+			const code = `${setup} ${values}.some(item => item === ${value});`;
+			const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+			t.assert.strictEqual(output, `${setup} ${values}.includes(${value});`);
+			t.assert.strictEqual(fixed, true);
+			t.assert.deepStrictEqual(messages, []);
+			t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
+		}
+	}
+});
 
 const typeAware = code => ({
 	code,
@@ -34,6 +267,9 @@ test.snapshot({
 		// `lastIndexOf` searches backward from `fromIndex`, so it is not equivalent to `.includes()` (forward)
 		'foo.lastIndexOf(bar, 0) !== -1',
 		'foo.lastIndexOf(bar, 1) !== -1',
+		// A spread can pass a `fromIndex`
+		'values.lastIndexOf(...args) !== -1',
+		'values.lastIndexOf(value, ...rest) === -1',
 		'str.includes(\'foo\')',
 		'\'foobar\'.includes(\'foo\')',
 		'[1,2,3].includes(4)',
@@ -61,6 +297,7 @@ test.snapshot({
 		// `indexOf` with `fromIndex` maps cleanly to `.includes()` (both search forward); `lastIndexOf` does not
 		'foo.indexOf(bar, 0) !== -1',
 		'foo.indexOf(bar, 1) !== -1',
+		'values.indexOf(...args) !== -1',
 		{
 			code: outdent`
 				<script setup lang="ts">
@@ -239,6 +476,94 @@ test({
 			code: 'str.indexOf() !== -1',
 			output: 'str.includes()',
 			errors: 1,
+		},
+	],
+});
+
+test({
+	valid: [
+		'value.indexOf(/a/) !== -1;',
+		'value.lastIndexOf(new RegExp("a")) === -1;',
+		'"/a/".indexOf((/a/)) >= 0;',
+		'"/a/".indexOf((read(), /a/), 0) !== -1;',
+		'const pattern = /a/; const alias = pattern; "/a/".indexOf(alias) !== -1;',
+		'"/a/".indexOf(/* keep */ /a/) !== -1;',
+		'function check(value: string, pattern: RegExp) { return value.indexOf(pattern) !== -1; }',
+		'function check(values: Uint8Array, pattern: RegExp) { return values.indexOf(pattern) < 0; }',
+		'(value as string).indexOf((/a/ as RegExp)) !== -1;',
+		'value!.lastIndexOf((/a/ satisfies RegExp)) === -1;',
+	].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
+	invalid: [
+		{
+			code: 'const pattern = /a/; [pattern].indexOf(pattern) !== -1;',
+			output: 'const pattern = /a/; [pattern].includes(pattern);',
+			errors: [{messageId: 'prefer-includes'}],
+		},
+		{
+			code: 'const pattern = /a/; Array.of(pattern).lastIndexOf(pattern) < 0;',
+			output: 'const pattern = /a/; !Array.of(pattern).includes(pattern);',
+			errors: [{messageId: 'prefer-includes'}],
+		},
+		{
+			code: 'function check(values: RegExp[], pattern: RegExp) { return values.indexOf(pattern) !== -1; }',
+			output: 'function check(values: RegExp[], pattern: RegExp) { return values.includes(pattern); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-includes'}],
+		},
+		{
+			code: 'function check(values: readonly RegExp[], pattern: RegExp) { return values.lastIndexOf(pattern) === -1; }',
+			output: 'function check(values: readonly RegExp[], pattern: RegExp) { return !values.includes(pattern); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-includes'}],
+		},
+		{
+			...typeAware('function check(values: Uint8Array, pattern: RegExp) { return values.indexOf(pattern) < 0; }'),
+			output: 'function check(values: Uint8Array, pattern: RegExp) { return !values.includes(pattern); }',
+			errors: [{messageId: 'prefer-includes'}],
+		},
+		{
+			code: 'const pattern = /a/; (values as RegExp[]).indexOf((pattern as RegExp)) !== -1;',
+			output: 'const pattern = /a/; (values as RegExp[]).includes(pattern as RegExp);',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-includes'}],
+		},
+		{
+			code: '"a".indexOf(String(/a/)) === -1;',
+			output: '!"a".includes(String(/a/));',
+			errors: [{messageId: 'prefer-includes'}],
+		},
+	],
+});
+
+test({
+	valid: [
+		typeAware('function getPattern() { return /a/; } const value = "/a/"; value.indexOf(getPattern()) !== -1;'),
+		{
+			code: 'const view = <div>{value.indexOf(/a/) !== -1}</div>;',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		{
+			code: '<template><div v-if="value.lastIndexOf(/a/) === -1"></div></template>',
+			languageOptions: {parser: parsers.vue},
+		},
+	],
+	invalid: [
+		{
+			...typeAware('function getValues() { return [/a/]; } getValues().indexOf(/a/) !== -1;'),
+			output: 'function getValues() { return [/a/]; } getValues().includes(/a/);',
+			errors: [{messageId: 'prefer-includes'}],
+		},
+		{
+			code: 'const pattern = /a/; const view = <div>{[pattern].indexOf(pattern) !== -1}</div>;',
+			output: 'const pattern = /a/; const view = <div>{[pattern].includes(pattern)}</div>;',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+			errors: [{messageId: 'prefer-includes'}],
+		},
+		{
+			code: '<template><div v-if="[pattern].indexOf(/a/) !== -1"></div></template>',
+			output: '<template><div v-if="[pattern].includes(/a/)"></div></template>',
+			languageOptions: {parser: parsers.vue},
+			errors: [{messageId: 'prefer-includes'}],
 		},
 	],
 });
