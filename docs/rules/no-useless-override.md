@@ -55,4 +55,6 @@ class Foo extends Bar {
 
 To stay safe, the rule only reports cases where removal cannot change behavior. It skips getters/setters, generators, decorated methods, methods with accessibility modifiers, and methods with TypeScript overload signatures.
 
-The statement form `super.method(…)` (without `return`) and `async` methods are only reported with [type information](https://typescript-eslint.io/getting-started/typed-linting) available — when the parent is known to return nothing or a promise, respectively.
+The statement form `super.method(…)` (without `return`) and `async` methods are only reported with [type information](https://typescript-eslint.io/getting-started/typed-linting) available — when the parent is known to return nothing or a promise, respectively. Removing an `async` override does not preserve promise identity or the extra microtask ticks of its wrapper.
+
+Computed method and `super` keys with side effects are left unchanged.

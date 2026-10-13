@@ -1,4 +1,5 @@
-import {getPropertyName, hasSideEffect} from '@eslint-community/eslint-utils';
+import {getPropertyName} from '@eslint-community/eslint-utils';
+import hasPossibleSideEffect from './has-possible-side-effect.js';
 import {getParenthesizedRange} from './parentheses/parentheses.js';
 
 /**
@@ -8,15 +9,16 @@ Returns `undefined` when the name is unknown, for a private name, or when the co
 
 @param {object} node - A `MemberExpression`, `Property`, `PropertyDefinition`, or `MethodDefinition`.
 @param {import('eslint').Rule.RuleContext} context
+@param {import('eslint').Scope.Scope} [initialScope] - Scope for resolving constant names and built-ins.
 @returns {string | undefined}
 */
-export function getStaticPropertyName(node, context) {
+export function getStaticPropertyName(node, context, initialScope) {
 	const key = node.type === 'MemberExpression' ? node.property : node.key;
-	if (node.computed && hasSideEffect(key, context.sourceCode)) {
+	if (node.computed && hasPossibleSideEffect(key, context)) {
 		return;
 	}
 
-	return getPropertyName(node) ?? undefined;
+	return getPropertyName(node, initialScope) ?? undefined;
 }
 
 /**

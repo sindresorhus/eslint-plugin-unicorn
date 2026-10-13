@@ -1,6 +1,6 @@
 import {getPropertyName} from '@eslint-community/eslint-utils';
 import {replaceNodeOrTokenAndSpacesBefore} from './fix/index.js';
-import {isPromiseType, withTypeInformation} from './utils/index.js';
+import {getStaticPropertyName, isPromiseType, withTypeInformation} from './utils/index.js';
 
 const MESSAGE_ID = 'no-useless-override';
 const messages = {
@@ -42,7 +42,7 @@ const argumentsForwardParameters = (callArguments, parameters) =>
 	});
 
 // Returns the `super.<name>(…)` call when the method body is a single passthrough that forwards its parameters unchanged.
-function getForwardedSuperCall(methodDefinition, sourceCode) {
+function getForwardedSuperCall(methodDefinition, context) {
 	const {value} = methodDefinition;
 
 	// The body must be exactly one statement: `super.method(…)` or `return super.method(…)`.
@@ -72,10 +72,10 @@ function getForwardedSuperCall(methodDefinition, sourceCode) {
 		return;
 	}
 
-	const scope = sourceCode.getScope(callExpression);
-	const name = getPropertyName(methodDefinition, scope);
-	// `getPropertyName` returns `null` for dynamic computed names like `[key]`.
-	if (typeof name !== 'string' || getPropertyName(callee, scope) !== name) {
+	const scope = context.sourceCode.getScope(callExpression);
+	const name = getStaticPropertyName(methodDefinition, context, scope);
+	// Dynamic computed names like `[key]` and keys with side effects must remain evaluated.
+	if (typeof name !== 'string' || getStaticPropertyName(callee, context, scope) !== name) {
 		return;
 	}
 
@@ -138,7 +138,7 @@ const create = context => {
 			return;
 		}
 
-		const forwardedSuperCall = getForwardedSuperCall(methodDefinition, sourceCode);
+		const forwardedSuperCall = getForwardedSuperCall(methodDefinition, context);
 		if (!forwardedSuperCall) {
 			return;
 		}

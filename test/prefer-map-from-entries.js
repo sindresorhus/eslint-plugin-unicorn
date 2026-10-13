@@ -4,6 +4,21 @@ import parsers from './utils/parsers.js';
 
 const {test} = getTester(import.meta);
 
+// Computed keys with tagged calls or spreads must keep their evaluation.
+test({
+	valid: [
+		'const object = Object.fromEntries([["foo", 1]]); object[(key`value`, "foo")];',
+		'const object = Object.fromEntries([["foo", 1]]); object[([...items], "foo")] = 2;',
+		'const object = Object.fromEntries([["foo", 1]]); delete object[(key`value`, "foo")];',
+		'const object = Object.fromEntries([["foo", 1]]); object[([...items], "f") + "oo"];',
+		{
+			code: 'const object = Object.fromEntries([["foo", 1]]); object[((key`value`, "foo") as string)];',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [],
+});
+
 test.snapshot({
 	valid: [
 		'const object = {foo: 1}; if (object.foo) {}',

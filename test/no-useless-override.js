@@ -47,6 +47,11 @@ test.snapshot({
 		'class Foo extends Bar { foo(a) { return () => super.foo(a); } }',
 		// Dynamic computed name cannot be matched.
 		'class Foo extends Bar { [key](a) { return super[key](a); } }',
+		// Computed keys with side effects must keep their evaluation.
+		'class Foo extends Bar { [(calls++, "foo")](a) { return super.foo(a); } }',
+		'class Foo extends Bar { [(key = "foo")](a) { return super.foo(a); } }',
+		'class Foo extends Bar { [(tag`key`, "foo")](a) { return super.foo(a); } }',
+		'class Foo extends Bar { foo(a) { return super[([...items], "foo")](a); } }',
 		// A rest parameter forwarded as an array, not spread, changes what the parent receives.
 		'class Foo extends Bar { foo(...args) { return super.foo(args); } }',
 		// Spreading a non-rest parameter is not plain forwarding.
@@ -90,6 +95,8 @@ test.snapshot({
 		'class Foo extends Bar { foo(a) { return super["foo"](a); } }',
 		// A well-known symbol key is matched.
 		'class Foo extends Bar { [Symbol.iterator]() { return super[Symbol.iterator](); } }',
+		// A constant computed key is resolved in scope.
+		'const key = "foo"; class Foo extends Bar { [key](a) { return super[key](a); } }',
 		// A computed `"constructor"` key is a normal method, not the real constructor.
 		'class Foo extends Bar { ["constructor"](a) { return super["constructor"](a); } }',
 		// A trailing comma adds no argument node.
