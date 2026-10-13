@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isLeftHandSide, unwrapTypeScriptExpression} from './utils/index.js';
-import {isCallOrNewExpression, isStringLiteral} from './ast/index.js';
+import {isCallOrNewExpression, isLoop, isStringLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'consistentDestructuring';
 const MESSAGE_ID_SUGGEST = 'consistentDestructuringSuggest';
@@ -73,7 +73,28 @@ const shouldIgnoreMemberExpression = node =>
 	)
 	|| isLeftHandSide(node);
 
-const isRootVariableReassigned = (declaration, memberExpressionNode, memberScope, sourceCode) => {
+// A loop runs its body again, so a write later in the body can still run before the read. Only a declaration inside the body is safe, since it is made fresh on each iteration. A `for` initializer runs once, so it does not count.
+const getLoopRangesRepeatingRead = (memberExpressionNode, declarationNode, sourceCode) => {
+	const [declarationStart] = sourceCode.getRange(declarationNode);
+	const ranges = [];
+	for (let node = memberExpressionNode.parent; node; node = node.parent) {
+		if (isLoop(node) && sourceCode.getRange(node.body)[0] > declarationStart) {
+			ranges.push(sourceCode.getRange(node));
+		}
+	}
+
+	return ranges;
+};
+
+const isStartInRanges = (start, ranges) => ranges.some(([rangeStart, rangeEnd]) => start >= rangeStart && start < rangeEnd);
+
+const isRootVariableReassigned = ({
+	declaration,
+	memberExpressionNode,
+	memberScope,
+	loopRanges,
+	sourceCode,
+}) => {
 	if (!declaration.rootVariable) {
 		return false;
 	}
@@ -92,7 +113,9 @@ const isRootVariableReassigned = (declaration, memberExpressionNode, memberScope
 		}
 
 		// Be conservative: writes from other variable scopes may run before this read via calls/closures.
-		return reference.from.variableScope !== memberScope.variableScope || referenceStart <= memberStart;
+		return reference.from.variableScope !== memberScope.variableScope
+			|| referenceStart <= memberStart
+			|| isStartInRanges(referenceStart, loopRanges);
 	});
 };
 
@@ -101,6 +124,7 @@ const isMemberExpressionReassigned = ({
 	memberExpressionNode,
 	memberScope,
 	memberExpressionWrites,
+	loopRanges,
 	sourceCode,
 }) => {
 	const [, declarationEnd] = sourceCode.getRange(declaration.object);
@@ -126,8 +150,8 @@ const isMemberExpressionReassigned = ({
 			return true;
 		}
 
-		return write.start >= declarationEnd
-			&& write.start <= memberStart;
+		return isStartInRanges(write.start, loopRanges)
+			|| (write.start >= declarationEnd && write.start <= memberStart);
 	});
 };
 
@@ -217,15 +241,26 @@ const isMatchingDeclaration = ({
 		return false;
 	}
 
+	// Property is destructured outside the current scope
+	if (!isChildInParentScope(memberScope, declaration.scope)) {
+		return false;
+	}
+
+	const loopRanges = getLoopRangesRepeatingRead(memberExpressionNode, declaration.object, sourceCode);
 	if (
-		// Property is destructured outside the current scope
-		!isChildInParentScope(memberScope, declaration.scope)
-		|| isRootVariableReassigned(declaration, memberExpressionNode, memberScope, sourceCode)
+		isRootVariableReassigned({
+			declaration,
+			memberExpressionNode,
+			memberScope,
+			loopRanges,
+			sourceCode,
+		})
 		|| isMemberExpressionReassigned({
 			declaration,
 			memberExpressionNode,
 			memberScope,
 			memberExpressionWrites,
+			loopRanges,
 			sourceCode,
 		})
 	) {

@@ -551,8 +551,63 @@ test({
 		// The destructured variable is not visible outside its block
 		'{ const {a} = foo; }\nconsole.log(foo.a);',
 		'function bar() { const {a} = foo; }\nconsole.log(foo.a);',
+		// The loop runs the write before the read on the next iteration, so the destructured value would be stale
+		'const {a} = obj;\nfor (let i = 0; i < 2; i++) {\n\tconsole.log(obj.a);\n\tobj.a = 2;\n}',
+		// The `for` initializer runs once, but the body runs again, so the write is still earlier than the read on the next iteration
+		outdent`
+			function f() {
+				const obj = {a: 0};
+				const out = [];
+				for (const {a} = obj; out.length < 3; ) {
+					out.push(obj.a);
+					obj.a = obj.a + 1;
+				}
+				return out;
+			}
+		`,
+		// A write to the root variable later in the loop counts too
+		'let obj = foo;\nconst {a} = obj;\nwhile (condition) {\n\tconsole.log(obj.a);\n\tobj = bar;\n}',
+		// The loop test runs again after the write in the body
+		'const {a} = obj;\nwhile (obj.a) {\n\tobj.a = 2;\n}',
+		// The declaration is inside the outer loop, but the inner loop repeats the read
+		'for (const x of xs) {\n\tconst {a} = obj;\n\tfor (const y of ys) {\n\t\tconsole.log(obj.a);\n\t\tobj.a = 2;\n\t}\n}',
+		'class Foo {\n\tbar() {\n\t\tconst {a} = this;\n\t\twhile (condition) {\n\t\t\tconsole.log(this.a);\n\t\t\tthis.a = 2;\n\t\t}\n\t}\n}',
 	],
 	invalid: [
+		// The write is after the loop, so it never runs before the read
+		invalidTestCase({
+			code: outdent`
+				const {a} = obj;
+				for (const x of xs) {
+					console.log(obj.a);
+				}
+				obj.a = 2;
+			`,
+			suggestions: [outdent`
+				const {a} = obj;
+				for (const x of xs) {
+					console.log(a);
+				}
+				obj.a = 2;
+			`],
+		}),
+		// A declaration inside the loop is fresh on every iteration, so the suggestion is still correct
+		invalidTestCase({
+			code: outdent`
+				for (const x of xs) {
+					const {a} = obj;
+					console.log(obj.a);
+					obj.a = 2;
+				}
+			`,
+			suggestions: [outdent`
+				for (const x of xs) {
+					const {a} = obj;
+					console.log(a);
+					obj.a = 2;
+				}
+			`],
+		}),
 		invalidTestCase({
 			code: outdent`
 				let foo = bar;
