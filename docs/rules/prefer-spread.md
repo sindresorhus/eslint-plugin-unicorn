@@ -34,6 +34,8 @@ Enforces the use of [the spread operator (`...`)](https://developer.mozilla.org/
 
 	Receivers that can be proven not to be arrays are ignored using simple syntax checks, `Array.isArray()` control flow, TypeScript annotations, and TypeScript type information when available.
 
+	Calls with an argument that can run code, like `array.concat([update()])`, offer suggestions because spreading reads the array elements before later arguments are evaluated.
+
 - `Array#slice()`
 
 	Shallow copy an `Array`.
@@ -46,7 +48,7 @@ Enforces the use of [the spread operator (`...`)](https://developer.mozilla.org/
 
 - Trivial `for…of` copies into a `const` or `let` empty array.
 
-	Indexed `.entries()` copies are only checked when the receiver is syntactically known or typed as an array.
+	Indexed `.entries()` copies are only checked when the receiver is syntactically known or typed as an array. When a function that can run during the loop references the destination array, loop copies offer suggestions, because the function could run while the iterable is spread, before the array is initialized.
 
 This rule intentionally does not check `String#split('')`. Spreading a string and splitting on an empty string segment text differently, and neither is generally correct for user-perceived characters. Use [`Intl.Segmenter`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Segmenter) when grapheme-aware segmentation is needed.
 

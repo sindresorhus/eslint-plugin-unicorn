@@ -4705,7 +4705,7 @@ Message:
 > 1 | [1].concat([2, ...bar],)
     |     ^^^^^^ Prefer the spread operator over \`Array#concat(…)\`.
 
-Output:
+Suggestion 1/1: Use the spread operator.:
   1 | [1, 2, ...bar]
 
 `;

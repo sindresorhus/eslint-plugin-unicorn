@@ -1,4 +1,6 @@
+/* eslint-disable max-lines */
 import test from 'node:test';
+import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import typescriptCompiler from 'typescript';
@@ -8,6 +10,88 @@ import {getTester, parsers} from './utils/test.js';
 import {DEFAULT_LANGUAGE_OPTIONS} from './utils/language-options.js';
 
 const {test: ruleTest, rule} = getTester(import.meta);
+
+const linterConfig = {
+	plugins: {unicorn: {rules: {'prefer-spread': rule}}},
+	rules: {'unicorn/prefer-spread': 'error'},
+};
+
+const applySuggestion = (code, {fix: {range, text}}) => code.slice(0, range[0]) + text + code.slice(range[1]);
+
+for (const kind of ['const', 'let']) {
+	test(`for-of copy suggestions expose ${kind} initialization timing`, t => {
+		const code = `function values() { return [result.length]; } ${kind} result = []; for (const value of values()) { result.push(value); } JSON.stringify(result);`;
+		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		t.assert.strictEqual(runInNewContext(code), '[0]');
+		t.assert.strictEqual(runInNewContext(output), '[0]');
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(fixed, false);
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].fix, undefined);
+		t.assert.strictEqual(messages[0].suggestions.length, 1);
+		t.assert.strictEqual(messages[0].suggestions[0].messageId, 'spread');
+		const suggested = applySuggestion(code, messages[0].suggestions[0]);
+		t.assert.throws(() => runInNewContext(suggested), error => error.name === 'ReferenceError');
+	});
+}
+
+test('for-of copy suggestions expose partially populated accumulators to helpers', t => {
+	const code = outdent`
+		const calls = [];
+		function* values() { yield 1; calls.push(result.length); yield result.length; }
+		const result = [];
+		for (const value of values()) { result.push(value); }
+		JSON.stringify({result, calls});
+	`;
+	const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+	t.assert.strictEqual(runInNewContext(code), '{"result":[1,1],"calls":[1]}');
+	t.assert.strictEqual(runInNewContext(output), '{"result":[1,1],"calls":[1]}');
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].suggestions.length, 1);
+	const suggested = applySuggestion(code, messages[0].suggestions[0]);
+	t.assert.throws(() => runInNewContext(suggested), error => error.name === 'ReferenceError');
+});
+
+test('indexed entries copy suggestions retain initialization before source helpers', t => {
+	const code = 'function length() { return result.length; } const result = []; for (const [index, value] of [length()].entries()) { result[index] = value; } JSON.stringify(result);';
+	const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+	t.assert.strictEqual(runInNewContext(code), '[0]');
+	t.assert.strictEqual(runInNewContext(output), '[0]');
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].suggestions.length, 1);
+	const suggested = applySuggestion(code, messages[0].suggestions[0]);
+	t.assert.throws(() => runInNewContext(suggested), error => error.name === 'ReferenceError');
+});
+
+test('concat suggestions expose receiver mutations before traversal', t => {
+	const generator = 'function* generate() { values[0] = 2; yield 3; } const extras = generate();';
+	for (const [setup, expression, replacement, original, suggested] of [
+		['', 'values.concat([values[0]++])', '[...values, values[0]++]', '[2,1]', '[1,1]'],
+		['', 'values.concat([values.push(2)])', '[...values, values.push(2)]', '[1,2,2]', '[1,2]'],
+		['const alias = values;', 'values.concat([(alias[0] = 2)])', '[...values, (alias[0] = 2)]', '[2,2]', '[1,2]'],
+		['', 'values.concat([0], [(values[0] = 2)])', '[...values, 0, (values[0] = 2)]', '[2,0,2]', '[1,0,2]'],
+		['function change() { values[0] = 2; return [3]; }', 'values.concat([0], change())', '[...values, 0].concat(change())', '[2,0,3]', '[1,0,3]'],
+		['function change() { values[0] = 2; return 3; }', 'values.concat([change`value`])', '[...values, change`value`]', '[2,3]', '[1,3]'],
+		[generator, 'values.concat([...extras])', '[...values, ...extras]', '[2,3]', '[1,3]'],
+		[generator, 'values.concat([0], ...extras)', '[...values, 0].concat(...extras)', '[2,0,3]', '[1,0,3]'],
+	]) {
+		const code = `const values = [1]; ${setup} JSON.stringify(${expression});`;
+		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(fixed, false);
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].messageId, 'array-concat');
+		t.assert.strictEqual(messages[0].fix, undefined);
+		t.assert.strictEqual(messages[0].suggestions.length, 1);
+		t.assert.strictEqual(messages[0].suggestions[0].messageId, 'spread');
+		const suggestion = applySuggestion(code, messages[0].suggestions[0]);
+		t.assert.strictEqual(suggestion, code.replace(expression, () => replacement));
+		t.assert.strictEqual(runInNewContext(code), original);
+		t.assert.strictEqual(runInNewContext(suggestion), suggested);
+	}
+});
 
 const typescript = code => ({
 	code,
@@ -22,6 +106,84 @@ const typeAware = code => ({
 		parser: typescriptEslintParser,
 		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
 	},
+});
+
+test('type-aware indexed copy suggestions retain initialized helper state', t => {
+	const code = outdent`
+		function values(): number[] { return [result.length]; }
+		const result: number[] = [];
+		for (const [index, value] of values().entries()) { result[index] = value; }
+		JSON.stringify(result);
+	`;
+	const {output, fixed, messages} = new Linter().verifyAndFix(code, {
+		...linterConfig,
+		files: ['*.ts'],
+		languageOptions: typeAware(code).languageOptions,
+	}, {filename: 'file.ts'});
+	const execute = source => runInNewContext(typescriptCompiler.transpileModule(source, {compilerOptions: {target: typescriptCompiler.ScriptTarget.ESNext}}).outputText);
+	t.assert.strictEqual(execute(code), '[0]');
+	t.assert.strictEqual(execute(output), '[0]');
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].suggestions.length, 1);
+	const suggested = applySuggestion(code, messages[0].suggestions[0]);
+	t.assert.throws(() => execute(suggested), error => error.name === 'ReferenceError');
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
+		...[
+			['const result = []; for (const value of (/* keep */ source)) { result.push(value); }', 'const result = [...(/* keep */ source)];'],
+			['before()\r\nconst result = [];\r\nfor (const value of source) {\r\n  result.push(value);\r\n}', 'before()\r\nconst result = [...source];'],
+			['const result = []; for (const [index, value] of [1, 2].entries()) { result[index] = value; }', 'const result = [...[1, 2]];'],
+		].map(([code, output]) => ({
+			code,
+			output,
+			errors: [{messageId: 'for-of'}],
+		})),
+		...['(source as number[])', '(<number[]>source)', '(source satisfies Iterable<number>)', 'source!'].map(source => ({
+			...typescript(`const result: number[] = []; for (const value of ${source}) { result.push(value); }`),
+			output: `const result: number[] = [...${source}];`,
+			errors: [{messageId: 'for-of'}],
+		})),
+		// A function created after the loop cannot run during the loop
+		{
+			code: 'const result = []; for (const value of values()) { result.push(value); } const read = () => result;',
+			output: 'const result = [...values()]; const read = () => result;',
+			errors: [{messageId: 'for-of'}],
+		},
+		// A hoisted function declaration can run during the loop
+		{
+			code: 'const result = []; for (const value of values()) { result.push(value); } function values() { return [result.length]; }',
+			errors: [{messageId: 'for-of', suggestions: [{messageId: 'spread', output: 'const result = [...values()]; function values() { return [result.length]; }'}]}],
+		},
+		{
+			code: 'const result = [/* keep */]; for (const value of source) { result.push(value); }',
+			errors: [{messageId: 'for-of', suggestions: []}],
+		},
+	],
+});
+
+test('for-of copy autofixes when no nested function reads the array', t => {
+	const code = 'function values() { return [1, 2]; } const result = []; for (const value of values()) { result.push(value); } JSON.stringify(result);';
+	const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+	t.assert.strictEqual(output, 'function values() { return [1, 2]; } const result = [...values()]; JSON.stringify(result);');
+	t.assert.strictEqual(fixed, true);
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
+});
+
+test('for-of copy autofixes compose with no-useless-spread', t => {
+	const config = {
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/prefer-spread': 'error', 'unicorn/no-useless-spread': 'error'},
+	};
+	const code = 'const result = []; for (const value of [1, 2]) { result.push(value); } JSON.stringify(result);';
+	const {output, messages} = new Linter().verifyAndFix(code, config);
+	t.assert.strictEqual(output, 'const result = [1, 2]; JSON.stringify(result);');
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
 });
 
 // `for...of`
@@ -640,7 +802,7 @@ ruleTest.snapshot({
 		'foo.concat([2, 3]).concat(4)',
 		'foo.concat(2, 3)',
 		'foo.concat(2, bar)',
-		// This is output of last case
+		// This is the suggestion output of the last case
 		'[...foo, 2].concat(bar)',
 		'let sortedScores = scores.concat().sort((a, b) => b[0] - a[0]);',
 		// Suggestion output should include fixable arguments after the first one
@@ -777,28 +939,44 @@ ruleTest.snapshot({
 	],
 });
 
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			code: 'function copy() {\r\n  return values.concat([2]);\r\n}',
+			output: 'function copy() {\r\n  return [...values, 2];\r\n}',
+			errors: [{messageId: 'array-concat'}],
+		},
+		{
+			code: 'render(<div>{values.concat([2])}</div>);',
+			output: 'render(<div>{[...values, 2]}</div>);',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+			errors: [{messageId: 'array-concat'}],
+		},
+		...[
+			['(values as number[]).concat([2]);', '[...(values as number[]), 2];'],
+			['(<number[]>values).concat([2]);', '[...(<number[]>values), 2];'],
+			['(values satisfies number[]).concat([2]);', '[...(values satisfies number[]), 2];'],
+			['values!.concat([2], tail);', '[...values!, 2].concat(tail);'],
+		].map(([code, output]) => ({
+			...typescript(code),
+			errors: [{messageId: 'array-concat', suggestions: [{messageId: 'spread', output}]}],
+		})),
+	],
+});
+
 test('fixes chained empty concat calls with no-useless-spread', t => {
 	const linter = new Linter();
 	const result = linter.verifyAndFix(
 		'const a = [].concat([1]).concat([2]);',
-		[
-			{
-				files: ['**'],
-				languageOptions: DEFAULT_LANGUAGE_OPTIONS,
-				plugins: {
-					'rule-to-test': {
-						rules: {
-							'prefer-spread': rule,
-							'no-useless-spread': plugin.rules['no-useless-spread'],
-						},
-					},
-				},
-				rules: {
-					'rule-to-test/prefer-spread': 'error',
-					'rule-to-test/no-useless-spread': 'error',
-				},
+		{
+			languageOptions: DEFAULT_LANGUAGE_OPTIONS,
+			plugins: {unicorn: plugin},
+			rules: {
+				'unicorn/prefer-spread': 'error',
+				'unicorn/no-useless-spread': 'error',
 			},
-		],
+		},
 		{filename: 'index.js'},
 	);
 

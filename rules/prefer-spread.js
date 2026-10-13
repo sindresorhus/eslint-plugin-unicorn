@@ -14,6 +14,7 @@ import {
 	isGlobalIdentifier,
 	isNodeMatches,
 	isMethodNamed,
+	isReferencedByNestedFunction,
 	isSameBinding,
 	isSameReference,
 	isTypeParameterType,
@@ -22,6 +23,7 @@ import {
 	isTypeScriptFile,
 	isDefaultLibrarySymbol,
 	getStaticValueIfNoSideEffects,
+	hasPossibleSideEffect,
 	hasPotentiallyMutableMemberAccess,
 	getVisitorChildNodes,
 	unwrapChainAndTypeScriptExpression,
@@ -424,6 +426,15 @@ function getSpreadFix(node, context, fix, array) {
 	return shouldSuggestSpread(node, context, array)
 		? {suggest: [{messageId: SUGGESTION_SPREAD, fix}]}
 		: {fix};
+}
+
+function getConcatFix(node, context, fix) {
+	// Spreading reads the receiver before later arguments are evaluated, so an argument that can run code could change what is read.
+	if (node.arguments.some(argument => hasPossibleSideEffect(argument, context))) {
+		return {suggest: [{messageId: SUGGESTION_SPREAD, fix}]};
+	}
+
+	return getSpreadFix(node, context, fix, node.arguments.length === 0 ? node.callee.object : undefined);
 }
 
 function isClassName(node) {
@@ -1078,15 +1089,20 @@ const create = context => {
 			return;
 		}
 
+		const fix = getForOfCopyFix({
+			declaration,
+			node,
+			iterableNode,
+			context,
+		});
+
 		return {
 			node,
 			messageId: ERROR_FOR_OF,
-			fix: getForOfCopyFix({
-				declaration,
-				node,
-				iterableNode,
-				context,
-			}),
+			// A function that can run during the loop and reads the array would then run while the iterable is spread, before the array is initialized.
+			...(fix && (isReferencedByNestedFunction(sourceCode.getDeclaredVariables(declarator)[0], node, context)
+				? {suggest: [{messageId: SUGGESTION_SPREAD, fix}]}
+				: {fix})),
 		};
 	});
 
@@ -1219,8 +1235,7 @@ const create = context => {
 				isReceiverSafeToSpread
 				&& !wouldRemoveComments(context, node, getConcatPreservedRanges(node, fixableArguments.length))
 			) {
-				const fix = fixConcat(node, context, fixableArguments);
-				Object.assign(problem, getSpreadFix(node, context, fix, node.arguments.length === 0 ? object : undefined));
+				Object.assign(problem, getConcatFix(node, context, fixConcat(node, context, fixableArguments)));
 			}
 
 			return problem;
