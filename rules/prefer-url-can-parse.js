@@ -6,6 +6,7 @@ import {
 } from './ast/index.js';
 import {
 	containsNode,
+	getCallArgumentText,
 	getCommentSafeProblem,
 	isGlobalIdentifier,
 	isSameIdentifier,
@@ -163,7 +164,7 @@ const isSameAssignmentTarget = (tryAssignment, catchAssignment, context) => {
 
 const getUrlCanParseText = (newUrlExpression, negate, context) => {
 	const {sourceCode} = context;
-	const argumentsText = newUrlExpression.arguments.map(node => sourceCode.getText(node)).join(', ');
+	const argumentsText = newUrlExpression.arguments.map(node => getCallArgumentText(node, context)).join(', ');
 	const text = `${sourceCode.getText(newUrlExpression.callee)}.canParse(${argumentsText})`;
 	return negate ? `!${text}` : text;
 };

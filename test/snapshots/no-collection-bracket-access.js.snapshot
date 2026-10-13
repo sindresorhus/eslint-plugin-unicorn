@@ -12,6 +12,23 @@ Message:
 
 `;
 
+exports[`no-collection-bracket-access > invalid(1): const map = new Map(); map[a, b] = d; 1`] = `
+
+  1 | const map = new Map(); map[a, b] = d;
+
+`;
+
+exports[`no-collection-bracket-access > invalid(1): const map = new Map(); map[a, b] = d; 2`] = `
+
+Message:
+> 1 | const map = new Map(); map[a, b] = d;
+    |                        ^^^^^^^^^ Do not write to a \`Map\` using bracket notation.
+
+Suggestion 1/1: Switch to \`Map#set()\`.:
+  1 | const map = new Map(); map.set((a, b), d);
+
+`;
+
 exports[`no-collection-bracket-access > invalid(10): const map = new Map(); map[Symbol.for(\"foo\")] = value; 1`] = `
 
   1 | const map = new Map(); map[Symbol.for("foo")] = value;
@@ -152,6 +169,23 @@ exports[`no-collection-bracket-access > invalid(19): const map = new Map(); map[
 Message:
 > 1 | const map = new Map(); map[(0, 0)];
     |                        ^^^^^^^^^^^ Do not read from a \`Map\` using bracket notation.
+
+`;
+
+exports[`no-collection-bracket-access > invalid(2): const map = new Map(); delete map[a, b]; 1`] = `
+
+  1 | const map = new Map(); delete map[a, b];
+
+`;
+
+exports[`no-collection-bracket-access > invalid(2): const map = new Map(); delete map[a, b]; 2`] = `
+
+Message:
+> 1 | const map = new Map(); delete map[a, b];
+    |                               ^^^^^^^^^ Do not delete from a \`Map\` using bracket notation.
+
+Suggestion 1/1: Switch to \`Map#delete()\`.:
+  1 | const map = new Map(); map.delete((a, b));
 
 `;
 
@@ -315,6 +349,23 @@ exports[`no-collection-bracket-access > invalid(29): const map = new Map(); for 
 Message:
 > 1 | const map = new Map(); for (map["foo"] of array) {}
     |                             ^^^^^^^^^^ Do not write to a \`Map\` using bracket notation.
+
+`;
+
+exports[`no-collection-bracket-access > invalid(3): const map = new Map(); map[(a, b)] = d; 1`] = `
+
+  1 | const map = new Map(); map[(a, b)] = d;
+
+`;
+
+exports[`no-collection-bracket-access > invalid(3): const map = new Map(); map[(a, b)] = d; 2`] = `
+
+Message:
+> 1 | const map = new Map(); map[(a, b)] = d;
+    |                        ^^^^^^^^^^^ Do not write to a \`Map\` using bracket notation.
+
+Suggestion 1/1: Switch to \`Map#set()\`.:
+  1 | const map = new Map(); map.set((a, b), d);
 
 `;
 
@@ -498,6 +549,23 @@ Message:
 
 `;
 
+exports[`no-collection-bracket-access > invalid(4): const map = new Map(); map[a] = (b, c); 1`] = `
+
+  1 | const map = new Map(); map[a] = (b, c);
+
+`;
+
+exports[`no-collection-bracket-access > invalid(4): const map = new Map(); map[a] = (b, c); 2`] = `
+
+Message:
+> 1 | const map = new Map(); map[a] = (b, c);
+    |                        ^^^^^^ Do not write to a \`Map\` using bracket notation.
+
+Suggestion 1/1: Switch to \`Map#set()\`.:
+  1 | const map = new Map(); map.set(a, (b, c));
+
+`;
+
 exports[`no-collection-bracket-access > invalid(40): const map = new Map(); if (delete map[\"foo\"]) {} 1`] = `
 
   1 | const map = new Map(); if (delete map["foo"]) {}
@@ -660,6 +728,23 @@ exports[`no-collection-bracket-access > invalid(5): const map = new Map(); if (m
 Message:
 > 1 | const map = new Map(); if (map["foo"]) {}
     |                            ^^^^^^^^^^ Do not read from a \`Map\` using bracket notation.
+
+`;
+
+exports[`no-collection-bracket-access > invalid(5): const map = new Map(); map[(key)] = value; 1`] = `
+
+  1 | const map = new Map(); map[(key)] = value;
+
+`;
+
+exports[`no-collection-bracket-access > invalid(5): const map = new Map(); map[(key)] = value; 2`] = `
+
+Message:
+> 1 | const map = new Map(); map[(key)] = value;
+    |                        ^^^^^^^^^^ Do not write to a \`Map\` using bracket notation.
+
+Suggestion 1/1: Switch to \`Map#set()\`.:
+  1 | const map = new Map(); map.set(key, value);
 
 `;
 

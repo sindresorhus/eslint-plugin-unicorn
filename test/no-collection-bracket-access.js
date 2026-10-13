@@ -176,3 +176,17 @@ test.snapshot({
 		'const map = new Map(); map[key || "get"];',
 	],
 });
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		// A sequence key is one key, so it keeps its parentheses in the suggestion
+		'const map = new Map(); map[a, b] = d;',
+		'const map = new Map(); delete map[a, b];',
+		'const map = new Map(); map[(a, b)] = d;',
+		// A sequence value is already parenthesized on the right side of the assignment
+		'const map = new Map(); map[a] = (b, c);',
+		// Redundant parentheses around the key are dropped
+		'const map = new Map(); map[(key)] = value;',
+	],
+});

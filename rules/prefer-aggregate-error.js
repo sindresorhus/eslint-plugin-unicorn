@@ -2,6 +2,7 @@ import {findVariable} from '@eslint-community/eslint-utils';
 import {isNewExpression, isMemberExpression, isLiteral} from './ast/index.js';
 import builtinErrors from './shared/builtin-errors.js';
 import {
+	getCallArgumentText,
 	getLogicalExpressionOperands,
 	getSingleStatement,
 	isArray,
@@ -385,7 +386,7 @@ const create = context => {
 				: fixer => {
 					const argumentsText = [
 						sourceCode.getText(errorCollection),
-						...errorExpression.arguments.map(argument => sourceCode.getText(argument)),
+						...errorExpression.arguments.map(argument => getCallArgumentText(argument, context)),
 					].join(', ');
 
 					return fixer.replaceText(errorExpression, `new AggregateError(${argumentsText})`);

@@ -1,8 +1,12 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
+import {transpileModule, ScriptTarget} from 'typescript';
 import outdent from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 const typeAware = code => ({
 	code,
@@ -16,6 +20,78 @@ const typeAware = code => ({
 const typescript = code => ({
 	code,
 	languageOptions: {parser: parsers.typescript},
+});
+
+nodeTest('aggregate error fixes preserve message, cause, and argument evaluation order', t => {
+	for (const [argumentsText, expected] of [
+		['(calls.push("message"), "failure")', {message: 'failure', calls: ['message']}],
+		['"failure", (calls.push("options"), {cause: "cause"})', {message: 'failure', cause: 'cause', calls: ['options']}],
+		['(calls.push("message"), "failure"), (calls.push("options"), {cause: "cause"})', {message: 'failure', cause: 'cause', calls: ['message', 'options']}],
+		['(calls.push("first"), calls.push("second"), "failure"), {cause: "cause"}', {message: 'failure', cause: 'cause', calls: ['first', 'second']}],
+		['((calls.push("message"), "failure") as string), {cause: "cause"}', {message: 'failure', cause: 'cause', calls: ['message']}],
+		['((calls.push("message"), "failure") satisfies string), {cause: "cause"}', {message: 'failure', cause: 'cause', calls: ['message']}],
+		['(calls.push("message"), "failure")!, ((calls.push("options"), {cause: "cause"}) as ErrorOptions)', {message: 'failure', cause: 'cause', calls: ['message', 'options']}],
+		['(calls.push("message"), undefined), (calls.push("options"), {cause: "cause"})', {message: '', cause: 'cause', calls: ['message', 'options']}],
+		[
+			'(calls.push("message"), (() => { throw new RangeError("stop"); })()), (calls.push("options"), {cause: "cause"})',
+			{message: 'stop', calls: ['message']},
+		],
+		['"failure", {cause: "cause"}', {message: 'failure', cause: 'cause', calls: []}],
+	]) {
+		const code = outdent`
+			const errors: Error[] = [new Error("original")];
+			const calls: string[] = [];
+			try {
+				if (errors.length) {
+					throw new Error(${argumentsText});
+				}
+			} catch (error) {
+				JSON.stringify({message: error.message, cause: error.cause, calls});
+			}
+		`;
+		const {output, fixed, messages} = new Linter().verifyAndFix(code, {
+			languageOptions: {parser: typescriptEslintParser},
+			plugins: {unicorn: {rules: {'prefer-aggregate-error': rule}}},
+			rules: {'unicorn/prefer-aggregate-error': 'error'},
+		});
+		const execute = source => runInNewContext(transpileModule(source, {compilerOptions: {target: ScriptTarget.ESNext}}).outputText);
+		t.assert.strictEqual(execute(code), JSON.stringify(expected));
+		t.assert.strictEqual(execute(output), execute(code));
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+	}
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['(first(), "failure")'],
+			['(((first(), "failure")))', '(first(), "failure")'],
+			['"failure", (second(), {cause})'],
+			['(first(), "failure"), (second(), {cause})'],
+			['(first(), (second(), "failure")), {cause}'],
+			['((first(), "failure") as string), {cause}', '(first(), "failure") as string, {cause}'],
+			['((first(), "failure") satisfies string), {cause}', '(first(), "failure") satisfies string, {cause}'],
+			['(first(), "failure")!, {cause}'],
+			['"failure", ((second(), {cause}) as ErrorOptions)', '"failure", (second(), {cause}) as ErrorOptions'],
+		].map(([argumentsText, expectedArguments = argumentsText]) => {
+			const code = `function fail(errors: Error[]) { if (errors.length) { throw new Error(${argumentsText}); } }`;
+			return {
+				...typescript(code),
+				output: `function fail(errors: Error[]) { if (errors.length) { throw new AggregateError(errors, ${expectedArguments}); } }`,
+				errors: [{messageId: 'prefer-aggregate-error'}],
+			};
+		}),
+		...[
+			'(/* keep */ first(), "failure")',
+			'"failure", (second(), /* keep */ {cause})',
+			'(first(), "failure"), /* keep */ {cause}',
+		].map(argumentsText => ({
+			...typescript(`function fail(errors: Error[]) { if (errors.length) { throw new Error(${argumentsText}); } }`),
+			errors: [{messageId: 'prefer-aggregate-error'}],
+		})),
+	],
 });
 
 test.snapshot({

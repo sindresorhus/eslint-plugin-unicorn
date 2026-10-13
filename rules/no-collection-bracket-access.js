@@ -10,6 +10,7 @@ import {
 	getStaticValueForControlFlow,
 	getConstVariableInitializer,
 	isGlobalIdentifier,
+	getCallArgumentText,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -128,7 +129,8 @@ function getProblem(node, collection, context) {
 	const outerNode = node.parent.type === 'ChainExpression' ? node.parent : node;
 	const {parent} = outerNode;
 	const object = getParenthesizedText(node.object, context);
-	const key = getParenthesizedText(node.property, context);
+	// A sequence key such as `map[a, b]` is one key, so it needs parentheses as a call argument.
+	const key = getCallArgumentText(node.property, context);
 
 	let messageId = MESSAGE_ID_READ;
 	let suggestionMessageId;
