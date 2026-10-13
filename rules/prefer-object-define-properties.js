@@ -1,4 +1,4 @@
-import {isMethodCall} from './ast/index.js';
+import {isFunction, isMethodCall, isReferenceIdentifier} from './ast/index.js';
 import {
 	getIndentString,
 	getIndentUnit,
@@ -6,6 +6,7 @@ import {
 	getNextNode,
 	getPreviousNode,
 	getStaticValueIfNoSideEffects,
+	getVisitorChildNodes,
 	hasCommentInRange,
 	hasPotentiallyMutableMemberAccess,
 	isSameReference,
@@ -16,6 +17,22 @@ import {
 const MESSAGE_ID = 'prefer-object-define-properties';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `Object.defineProperties()` over multiple `Object.defineProperty()` calls.',
+};
+
+// `Object.defineProperties()` converts every descriptor before it defines any property, so a call or a read of the target in a later key or descriptor can see it too early. The first call's key and descriptor run before any property is defined either way. `await` and `yield` let other code run in between, like a call. Function bodies run later, so they are skipped.
+const mayObserveTarget = (node, target, sourceCode) => {
+	if (isFunction(node)) {
+		return false;
+	}
+
+	if (
+		['CallExpression', 'NewExpression', 'TaggedTemplateExpression', 'AwaitExpression', 'YieldExpression'].includes(node.type)
+		|| ((node.type !== 'Identifier' || isReferenceIdentifier(node)) && isSameReference(node, target))
+	) {
+		return true;
+	}
+
+	return getVisitorChildNodes(node, sourceCode.visitorKeys).some(child => mayObserveTarget(child, target, sourceCode));
 };
 
 const isDefinePropertyCall = node =>
@@ -221,6 +238,7 @@ const create = context => {
 			&& !hasCommentInRange(context, range)
 			&& calls.every(call => !hasMultilineToken(call.arguments[2], sourceCode))
 			&& !hasReorderedKeys(calls, sourceCode)
+			&& calls.slice(1).every(call => !mayObserveTarget(call.arguments[1], firstCall.arguments[0], sourceCode) && !mayObserveTarget(call.arguments[2], firstCall.arguments[0], sourceCode))
 		) {
 			problem.fix = getDefinePropertiesFix(expressionStatements, calls, context);
 		}

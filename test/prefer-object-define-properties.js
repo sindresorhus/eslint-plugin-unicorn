@@ -228,5 +228,86 @@ test({
 			code: 'Object.defineProperty(object, Symbol.iterator, {value: 1});\nObject.defineProperty(object, \'value\', {value: 2});',
 			errors: 1,
 		},
+		// `Object.defineProperties()` converts every descriptor before it defines any property, so a descriptor that reads the target would see it too early
+		{
+			code: 'const a = {};\nObject.defineProperty(a, \'x\', {value: 1});\nObject.defineProperty(a, \'y\', {value: a.x});',
+			errors: 1,
+		},
+		{
+			code: 'const a = {};\nconst getX = () => a.x;\nObject.defineProperty(a, \'x\', {value: 1});\nObject.defineProperty(a, \'y\', {value: getX()});',
+			errors: 1,
+		},
+		// `await` and `yield` let other code run before `x` is defined
+		{
+			code: 'async function f(a, promise) {\n\tObject.defineProperty(a, \'x\', {value: 1});\n\tObject.defineProperty(a, \'y\', {value: await promise});\n}',
+			errors: 1,
+		},
+		{
+			code: 'function * f(a) {\n\tObject.defineProperty(a, \'x\', {value: 1});\n\tObject.defineProperty(a, \'y\', {value: yield});\n}',
+			errors: 1,
+		},
+		// A computed key is evaluated before any property is defined too
+		{
+			code: 'Object.defineProperty(a, \'x\', {value: \'z\'});\nObject.defineProperty(a, a.x, {value: 2});',
+			errors: 1,
+		},
+		// A bare read of the target in a descriptor sees it too, not only a member read
+		{
+			code: 'const a = {};\nObject.defineProperty(a, \'x\', {value: 1, enumerable: true});\nObject.defineProperty(a, \'y\', {value: {...a}});',
+			errors: 1,
+		},
+		// The first key and descriptor run before any property is defined, the same as in the merged call
+		{
+			code: 'Object.defineProperty(a, a.key(), {value: new Map(a.x)});\nObject.defineProperty(a, \'y\', {value: 1});',
+			output: 'Object.defineProperties(a, {\n\t[a.key()]: {value: new Map(a.x)},\n\ty: {value: 1},\n});',
+			errors: 1,
+		},
+		// A property named like the target is not a read of it
+		{
+			code: 'const value = {};\nObject.defineProperty(value, \'a\', {value: 1});\nObject.defineProperty(value, \'b\', {value: 2, writable: true});',
+			output: 'const value = {};\nObject.defineProperties(value, {\n\ta: {value: 1},\n\tb: {value: 2, writable: true},\n});',
+			errors: 1,
+		},
+		{
+			code: 'const exports = {};\nObject.defineProperty(exports, \'a\', {value: 1});\nObject.defineProperty(exports, \'b\', {value: module.exports});',
+			output: 'const exports = {};\nObject.defineProperties(exports, {\n\ta: {value: 1},\n\tb: {value: module.exports},\n});',
+			errors: 1,
+		},
+		// A bare read of a member-expression or `this` target sees it too
+		{
+			code: 'Object.defineProperty(foo.bar, \'x\', {value: 1});\nObject.defineProperty(foo.bar, \'y\', {value: {...foo.bar}});',
+			errors: 1,
+		},
+		{
+			code: 'Object.defineProperty(this, \'x\', {value: 1});\nObject.defineProperty(this, \'y\', {value: {...this}});',
+			errors: 1,
+		},
+		{
+			code: 'Object.defineProperty(a, \'x\', {value: 1});\nObject.defineProperty(a, \'y\', {value: (a as any).x});',
+			errors: 1,
+			languageOptions: {parser: parsers.typescript},
+		},
+		// A static class field runs when the class is created
+		{
+			code: 'Object.defineProperty(a, \'x\', {value: 1});\nObject.defineProperty(a, \'y\', {value: class { static z = a.x; }});',
+			errors: 1,
+		},
+		// A different member of the same object is not the target
+		{
+			code: 'Object.defineProperty(foo.bar, \'x\', {value: 1});\nObject.defineProperty(foo.bar, \'y\', {value: foo.baz});',
+			output: 'Object.defineProperties(foo.bar, {\n\tx: {value: 1},\n\ty: {value: foo.baz},\n});',
+			errors: 1,
+		},
+		// Function bodies run later, so reading the target there is fine
+		{
+			code: 'Object.defineProperty(a, \'x\', {value: 1});\nObject.defineProperty(a, \'y\', {get() { return a.x; }});',
+			output: 'Object.defineProperties(a, {\n\tx: {value: 1},\n\ty: {get() { return a.x; }},\n});',
+			errors: 1,
+		},
+		{
+			code: 'Object.defineProperty(a, \'x\', {value: 1});\nObject.defineProperty(a, \'y\', {value: class { z() { return a.x; } }});',
+			output: 'Object.defineProperties(a, {\n\tx: {value: 1},\n\ty: {value: class { z() { return a.x; } }},\n});',
+			errors: 1,
+		},
 	],
 });
