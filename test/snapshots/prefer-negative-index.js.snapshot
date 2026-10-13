@@ -10,8 +10,25 @@ Message:
 > 1 | /**/foo.slice(foo.length - 2, foo.length - 1)
     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
 
-Output:
+Suggestion 1/1: Use a negative index.:
   1 | /**/foo.slice(-2, -1)
+
+`;
+
+exports[`prefer-negative-index > invalid(1): foo.slice(foo.length - 2, foo.length - 1) 1`] = `
+
+  1 | foo.slice(foo.length - 2, foo.length - 1)
+
+`;
+
+exports[`prefer-negative-index > invalid(1): foo.slice(foo.length - 2, foo.length - 1) 2`] = `
+
+Message:
+> 1 | foo.slice(foo.length - 2, foo.length - 1)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | foo.slice(-2, -1)
 
 `;
 
@@ -27,8 +44,84 @@ Message:
 > 1 | [].toSpliced.call(foo, foo.length - 3, foo.length - 6)
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`toSpliced\`.
 
-Output:
+Suggestion 1/1: Use a negative index.:
   1 | [].toSpliced.call(foo, -3, foo.length - 6)
+
+`;
+
+exports[`prefer-negative-index > invalid(10): foo.slice(\n\t// comment 1\n\n\tfoo.length\n\n\t// comment 2\n\t- 1\n\t-1\n\t,\n\tfoo.length // comment 3\n\t- 1\n) 1`] = `
+
+   1 | foo.slice(
+   2 | 	// comment 1
+   3 |
+   4 | 	foo.length
+   5 |
+   6 | 	// comment 2
+   7 | 	- 1
+   8 | 	-1
+   9 | 	,
+  10 | 	foo.length // comment 3
+  11 | 	- 1
+  12 | )
+
+`;
+
+exports[`prefer-negative-index > invalid(10): foo.slice(\n\t// comment 1\n\n\tfoo.length\n\n\t// comment 2\n\t- 1\n\t-1\n\t,\n\tfoo.length // comment 3\n\t- 1\n) 2`] = `
+
+Message:
+>  1 | foo.slice(
+     | ^^^^^^^^^^
+>  2 | 	// comment 1
+     | ^^^^^^^^^^^^^
+>  3 |
+     | ^
+>  4 | 	foo.length
+     | ^^^^^^^^^^^
+>  5 |
+     | ^
+>  6 | 	// comment 2
+     | ^^^^^^^^^^^^^
+>  7 | 	- 1
+     | ^^^^
+>  8 | 	-1
+     | ^^^
+>  9 | 	,
+     | ^^
+> 10 | 	foo.length // comment 3
+     | ^^^^^^^^^^^^^^^^^^^^^^^^
+> 11 | 	- 1
+     | ^^^^
+> 12 | )
+     | ^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+   1 | foo.slice(
+   2 | 	// comment 1
+   3 |
+   4 | 	// comment 2
+   5 | 	-1
+   6 | 	-1
+   7 | 	,
+   8 | 	// comment 3
+   9 | 	-1
+  10 | )
+
+`;
+
+exports[`prefer-negative-index > invalid(11): foo.slice((((foo.length)) - 1) - 1) 1`] = `
+
+  1 | foo.slice((((foo.length)) - 1) - 1)
+
+`;
+
+exports[`prefer-negative-index > invalid(11): foo.slice((((foo.length)) - 1) - 1) 2`] = `
+
+Message:
+> 1 | foo.slice((((foo.length)) - 1) - 1)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | foo.slice((-1) - 1)
 
 `;
 
@@ -44,7 +137,7 @@ Message:
 > 1 | foo.subarray(foo.length - 3, foo.length - 6)
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`subarray\`.
 
-Output:
+Suggestion 1/1: Use a negative index.:
   1 | foo.subarray(-3, -6)
 
 `;
@@ -61,8 +154,22 @@ Message:
 > 1 | Uint8Array.prototype.subarray.call(foo, foo.length - 3, foo.length - 6)
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`subarray\`.
 
-Output:
+Suggestion 1/1: Use a negative index.:
   1 | Uint8Array.prototype.subarray.call(foo, -3, -6)
+
+`;
+
+exports[`prefer-negative-index > invalid(12): foo.slice(/* will keep */(/* will keep 1 */(/* will remove 2 */(foo.length)) - 1) - 1) 1`] = `
+
+  1 | foo.slice(/* will keep */(/* will keep 1 */(/* will remove 2 */(foo.length)) - 1) - 1)
+
+`;
+
+exports[`prefer-negative-index > invalid(12): foo.slice(/* will keep */(/* will keep 1 */(/* will remove 2 */(foo.length)) - 1) - 1) 2`] = `
+
+Message:
+> 1 | foo.slice(/* will keep */(/* will keep 1 */(/* will remove 2 */(foo.length)) - 1) - 1)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
 
 `;
 
@@ -78,8 +185,25 @@ Message:
 > 1 | Uint8Array.prototype.subarray.apply(foo, [foo.length - 3, foo.length - 6])
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`subarray\`.
 
-Output:
+Suggestion 1/1: Use a negative index.:
   1 | Uint8Array.prototype.subarray.apply(foo, [-3, -6])
+
+`;
+
+exports[`prefer-negative-index > invalid(13): [].slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 1`] = `
+
+  1 | [].slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(13): [].slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 2`] = `
+
+Message:
+> 1 | [].slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | [].slice.call(foo, -1, -2, foo.length - 3);
 
 `;
 
@@ -100,6 +224,23 @@ Output:
 
 `;
 
+exports[`prefer-negative-index > invalid(14): [].splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 1`] = `
+
+  1 | [].splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(14): [].splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 2`] = `
+
+Message:
+> 1 | [].splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`splice\`.
+
+Output:
+  1 | [].splice.call(foo, -1, foo.length - 2, foo.length - 3);
+
+`;
+
 exports[`prefer-negative-index > invalid(15): (array as number[]).splice((array as number[]).length - 2, 1) 1`] = `
 
   1 | (array as number[]).splice((array as number[]).length - 2, 1)
@@ -112,8 +253,25 @@ Message:
 > 1 | (array as number[]).splice((array as number[]).length - 2, 1)
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`splice\`.
 
-Output:
+Suggestion 1/1: Use a negative index.:
   1 | (array as number[]).splice(-2, 1)
+
+`;
+
+exports[`prefer-negative-index > invalid(15): [].slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 1`] = `
+
+  1 | [].slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(15): [].slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 2`] = `
+
+Message:
+> 1 | [].slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | [].slice.apply(foo, [-1, -2, foo.length - 3]);
 
 `;
 
@@ -134,6 +292,40 @@ Output:
 
 `;
 
+exports[`prefer-negative-index > invalid(16): [].splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 1`] = `
+
+  1 | [].splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(16): [].splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 2`] = `
+
+Message:
+> 1 | [].splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`splice\`.
+
+Output:
+  1 | [].splice.apply(foo, [-1, foo.length - 2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(17): ''.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 1`] = `
+
+  1 | ''.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(17): ''.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 2`] = `
+
+Message:
+> 1 | ''.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | ''.slice.call(foo, -1, -2, foo.length - 3);
+
+`;
+
 exports[`prefer-negative-index > invalid(17): foo!.slice(foo!.length - 1) 1`] = `
 
   1 | foo!.slice(foo!.length - 1)
@@ -151,6 +343,23 @@ Output:
 
 `;
 
+exports[`prefer-negative-index > invalid(18): ''.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 1`] = `
+
+  1 | ''.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(18): ''.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 2`] = `
+
+Message:
+> 1 | ''.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | ''.slice.apply(foo, [-1, -2, foo.length - 3]);
+
+`;
+
 exports[`prefer-negative-index > invalid(18): (foo satisfies string[]).slice((foo satisfies string[]).length - 1) 1`] = `
 
   1 | (foo satisfies string[]).slice((foo satisfies string[]).length - 1)
@@ -165,6 +374,23 @@ Message:
 
 Output:
   1 | (foo satisfies string[]).slice(-1)
+
+`;
+
+exports[`prefer-negative-index > invalid(19): Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 1`] = `
+
+  1 | Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(19): Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 2`] = `
+
+Message:
+> 1 | Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
 
 `;
 
@@ -202,6 +428,40 @@ Output:
 
 `;
 
+exports[`prefer-negative-index > invalid(2): foo.splice(foo.length - 1, 1) 1`] = `
+
+  1 | foo.splice(foo.length - 1, 1)
+
+`;
+
+exports[`prefer-negative-index > invalid(2): foo.splice(foo.length - 1, 1) 2`] = `
+
+Message:
+> 1 | foo.splice(foo.length - 1, 1)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`splice\`.
+
+Output:
+  1 | foo.splice(-1, 1)
+
+`;
+
+exports[`prefer-negative-index > invalid(20): Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 1`] = `
+
+  1 | Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(20): Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 2`] = `
+
+Message:
+> 1 | Array.prototype.splice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`splice\`.
+
+Output:
+  1 | Array.prototype.splice.call(foo, -1, foo.length - 2, foo.length - 3);
+
+`;
+
 exports[`prefer-negative-index > invalid(20): foo.slice((foo.length - 1) as number) 1`] = `
 
   1 | foo.slice((foo.length - 1) as number)
@@ -216,6 +476,23 @@ Message:
 
 Output:
   1 | foo.slice((-1) as number)
+
+`;
+
+exports[`prefer-negative-index > invalid(21): String.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 1`] = `
+
+  1 | String.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(21): String.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 2`] = `
+
+Message:
+> 1 | String.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | String.prototype.slice.call(foo, -1, -2, foo.length - 3);
 
 `;
 
@@ -236,6 +513,23 @@ Output:
 
 `;
 
+exports[`prefer-negative-index > invalid(22): ArrayBuffer.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 1`] = `
+
+  1 | ArrayBuffer.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(22): ArrayBuffer.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 2`] = `
+
+Message:
+> 1 | ArrayBuffer.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | ArrayBuffer.prototype.slice.call(foo, -1, -2, foo.length - 3);
+
+`;
+
 exports[`prefer-negative-index > invalid(22): array!.splice(array!.length - 2, 1) 1`] = `
 
   1 | array!.splice(array!.length - 2, 1)
@@ -248,8 +542,144 @@ Message:
 > 1 | array!.splice(array!.length - 2, 1)
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`splice\`.
 
-Output:
+Suggestion 1/1: Use a negative index.:
   1 | array!.splice(-2, 1)
+
+`;
+
+exports[`prefer-negative-index > invalid(23): Int8Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 1`] = `
+
+  1 | Int8Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(23): Int8Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 2`] = `
+
+Message:
+> 1 | Int8Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Int8Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(24): Uint8Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 1`] = `
+
+  1 | Uint8Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(24): Uint8Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 2`] = `
+
+Message:
+> 1 | Uint8Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Uint8Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(25): Uint8ClampedArray.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 1`] = `
+
+  1 | Uint8ClampedArray.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(25): Uint8ClampedArray.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 2`] = `
+
+Message:
+> 1 | Uint8ClampedArray.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Uint8ClampedArray.prototype.slice.call(foo, -1, -2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(26): Int16Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 1`] = `
+
+  1 | Int16Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(26): Int16Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 2`] = `
+
+Message:
+> 1 | Int16Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Int16Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(27): Uint16Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 1`] = `
+
+  1 | Uint16Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(27): Uint16Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 2`] = `
+
+Message:
+> 1 | Uint16Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Uint16Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(28): Int32Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 1`] = `
+
+  1 | Int32Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(28): Int32Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 2`] = `
+
+Message:
+> 1 | Int32Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Int32Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(29): Uint32Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 1`] = `
+
+  1 | Uint32Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(29): Uint32Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 2`] = `
+
+Message:
+> 1 | Uint32Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Uint32Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(3): Array.prototype.slice.call(foo, foo.length - 2, foo.length - 1) 1`] = `
+
+  1 | Array.prototype.slice.call(foo, foo.length - 2, foo.length - 1)
+
+`;
+
+exports[`prefer-negative-index > invalid(3): Array.prototype.slice.call(foo, foo.length - 2, foo.length - 1) 2`] = `
+
+Message:
+> 1 | Array.prototype.slice.call(foo, foo.length - 2, foo.length - 1)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Array.prototype.slice.call(foo, -2, -1)
 
 `;
 
@@ -270,6 +700,193 @@ Output:
 
 `;
 
+exports[`prefer-negative-index > invalid(30): Float16Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 1`] = `
+
+  1 | Float16Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(30): Float16Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 2`] = `
+
+Message:
+> 1 | Float16Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Float16Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(31): Float32Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 1`] = `
+
+  1 | Float32Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(31): Float32Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 2`] = `
+
+Message:
+> 1 | Float32Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Float32Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(32): Float64Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 1`] = `
+
+  1 | Float64Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(32): Float64Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 2`] = `
+
+Message:
+> 1 | Float64Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Float64Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(33): BigInt64Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 1`] = `
+
+  1 | BigInt64Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(33): BigInt64Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 2`] = `
+
+Message:
+> 1 | BigInt64Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | BigInt64Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(34): BigUint64Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 1`] = `
+
+  1 | BigUint64Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(34): BigUint64Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3); 2`] = `
+
+Message:
+> 1 | BigUint64Array.prototype.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | BigUint64Array.prototype.slice.call(foo, -1, -2, foo.length - 3);
+
+`;
+
+exports[`prefer-negative-index > invalid(35): Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 1`] = `
+
+  1 | Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(35): Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 2`] = `
+
+Message:
+> 1 | Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(36): Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 1`] = `
+
+  1 | Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(36): Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 2`] = `
+
+Message:
+> 1 | Array.prototype.splice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`splice\`.
+
+Output:
+  1 | Array.prototype.splice.apply(foo, [-1, foo.length - 2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(37): String.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 1`] = `
+
+  1 | String.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(37): String.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 2`] = `
+
+Message:
+> 1 | String.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | String.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(38): ArrayBuffer.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 1`] = `
+
+  1 | ArrayBuffer.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(38): ArrayBuffer.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 2`] = `
+
+Message:
+> 1 | ArrayBuffer.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | ArrayBuffer.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(39): Int8Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 1`] = `
+
+  1 | Int8Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(39): Int8Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 2`] = `
+
+Message:
+> 1 | Int8Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Int8Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(4): Array.prototype.slice.apply(foo, [foo.length - 2, foo.length - 1]) 1`] = `
+
+  1 | Array.prototype.slice.apply(foo, [foo.length - 2, foo.length - 1])
+
+`;
+
+exports[`prefer-negative-index > invalid(4): Array.prototype.slice.apply(foo, [foo.length - 2, foo.length - 1]) 2`] = `
+
+Message:
+> 1 | Array.prototype.slice.apply(foo, [foo.length - 2, foo.length - 1])
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Array.prototype.slice.apply(foo, [-2, -1])
+
+`;
+
 exports[`prefer-negative-index > invalid(4): foo[\`bar\`].slice(foo[\"bar\"].length - 1) 1`] = `
 
   1 | foo[\`bar\`].slice(foo["bar"].length - 1)
@@ -287,6 +904,193 @@ Output:
 
 `;
 
+exports[`prefer-negative-index > invalid(40): Uint8Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 1`] = `
+
+  1 | Uint8Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(40): Uint8Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 2`] = `
+
+Message:
+> 1 | Uint8Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Uint8Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(41): Uint8ClampedArray.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 1`] = `
+
+  1 | Uint8ClampedArray.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(41): Uint8ClampedArray.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 2`] = `
+
+Message:
+> 1 | Uint8ClampedArray.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Uint8ClampedArray.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(42): Int16Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 1`] = `
+
+  1 | Int16Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(42): Int16Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 2`] = `
+
+Message:
+> 1 | Int16Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Int16Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(43): Uint16Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 1`] = `
+
+  1 | Uint16Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(43): Uint16Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 2`] = `
+
+Message:
+> 1 | Uint16Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Uint16Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(44): Int32Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 1`] = `
+
+  1 | Int32Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(44): Int32Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 2`] = `
+
+Message:
+> 1 | Int32Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Int32Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(45): Uint32Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 1`] = `
+
+  1 | Uint32Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(45): Uint32Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 2`] = `
+
+Message:
+> 1 | Uint32Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Uint32Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(46): Float16Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 1`] = `
+
+  1 | Float16Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(46): Float16Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 2`] = `
+
+Message:
+> 1 | Float16Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Float16Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(47): Float32Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 1`] = `
+
+  1 | Float32Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(47): Float32Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 2`] = `
+
+Message:
+> 1 | Float32Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Float32Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(48): Float64Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 1`] = `
+
+  1 | Float64Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(48): Float64Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 2`] = `
+
+Message:
+> 1 | Float64Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | Float64Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(49): BigInt64Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 1`] = `
+
+  1 | BigInt64Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(49): BigInt64Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 2`] = `
+
+Message:
+> 1 | BigInt64Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | BigInt64Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(5): foo.slice(foo.length - 1 - 1) 1`] = `
+
+  1 | foo.slice(foo.length - 1 - 1)
+
+`;
+
+exports[`prefer-negative-index > invalid(5): foo.slice(foo.length - 1 - 1) 2`] = `
+
+Message:
+> 1 | foo.slice(foo.length - 1 - 1)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | foo.slice(-1 - 1)
+
+`;
+
 exports[`prefer-negative-index > invalid(5): foo[1].slice(foo[\"1\"].length - 1) 1`] = `
 
   1 | foo[1].slice(foo["1"].length - 1)
@@ -301,6 +1105,40 @@ Message:
 
 Output:
   1 | foo[1].slice(-1)
+
+`;
+
+exports[`prefer-negative-index > invalid(50): BigUint64Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 1`] = `
+
+  1 | BigUint64Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(50): BigUint64Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]); 2`] = `
+
+Message:
+> 1 | BigUint64Array.prototype.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Suggestion 1/1: Use a negative index.:
+  1 | BigUint64Array.prototype.slice.apply(foo, [-1, -2, foo.length - 3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(6): foo.bar.slice(foo.bar.length - 1) 1`] = `
+
+  1 | foo.bar.slice(foo.bar.length - 1)
+
+`;
+
+exports[`prefer-negative-index > invalid(6): foo.bar.slice(foo.bar.length - 1) 2`] = `
+
+Message:
+> 1 | foo.bar.slice(foo.bar.length - 1)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Output:
+  1 | foo.bar.slice(-1)
 
 `;
 
@@ -352,7 +1190,7 @@ Message:
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`at\`.
   3 | Array.prototype.at.apply(foo, [foo.length - 3]);
 
-Output:
+Suggestion 1/1: Use a negative index.:
   1 | foo.at(foo.length - 1);
   2 | Array.prototype.at.call(foo, -2);
   3 | Array.prototype.at.apply(foo, [foo.length - 3]);
@@ -367,10 +1205,27 @@ Message:
 > 3 | Array.prototype.at.apply(foo, [foo.length - 3]);
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`at\`.
 
-Output:
+Suggestion 1/1: Use a negative index.:
   1 | foo.at(foo.length - 1);
   2 | Array.prototype.at.call(foo, foo.length - 2);
   3 | Array.prototype.at.apply(foo, [-3]);
+
+`;
+
+exports[`prefer-negative-index > invalid(7): foo['bar'].slice(foo['bar'].length - 1) 1`] = `
+
+  1 | foo['bar'].slice(foo['bar'].length - 1)
+
+`;
+
+exports[`prefer-negative-index > invalid(7): foo['bar'].slice(foo['bar'].length - 1) 2`] = `
+
+Message:
+> 1 | foo['bar'].slice(foo['bar'].length - 1)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Output:
+  1 | foo['bar'].slice(-1)
 
 `;
 
@@ -386,8 +1241,25 @@ Message:
 > 1 | foo.toSpliced(foo.length - 3, foo.length - 6)
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`toSpliced\`.
 
-Output:
+Suggestion 1/1: Use a negative index.:
   1 | foo.toSpliced(-3, foo.length - 6)
+
+`;
+
+exports[`prefer-negative-index > invalid(8): foo[1].slice(foo[1].length - 1) 1`] = `
+
+  1 | foo[1].slice(foo[1].length - 1)
+
+`;
+
+exports[`prefer-negative-index > invalid(8): foo[1].slice(foo[1].length - 1) 2`] = `
+
+Message:
+> 1 | foo[1].slice(foo[1].length - 1)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Output:
+  1 | foo[1].slice(-1)
 
 `;
 
@@ -403,7 +1275,24 @@ Message:
 > 1 | Array.prototype.toSpliced.call(foo, foo.length - 3, foo.length - 6)
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`toSpliced\`.
 
-Output:
+Suggestion 1/1: Use a negative index.:
   1 | Array.prototype.toSpliced.call(foo, -3, foo.length - 6)
+
+`;
+
+exports[`prefer-negative-index > invalid(9): foo.slice(foo.length/* comment */ - 1) 1`] = `
+
+  1 | foo.slice(foo.length/* comment */ - 1)
+
+`;
+
+exports[`prefer-negative-index > invalid(9): foo.slice(foo.length/* comment */ - 1) 2`] = `
+
+Message:
+> 1 | foo.slice(foo.length/* comment */ - 1)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer negative index over length minus index for \`slice\`.
+
+Output:
+  1 | foo.slice(/* comment */ -1)
 
 `;

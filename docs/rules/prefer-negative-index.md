@@ -4,7 +4,7 @@
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
-🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -22,6 +22,8 @@ Prefer negative index over calculating from `.length` for:
 - [`Array#splice()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice)
 - [`Array#toSpliced()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSpliced)
 - [`TypedArray#subarray()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/subarray)
+
+Only `.length - 1` is autofixed. Other offsets are suggestions because they can change behavior when the offset exceeds the receiver's length. For example, `[1, 2, 3].slice(3 - 4)` returns `[3]`, while `[1, 2, 3].slice(-4)` returns the entire array. Check that the offset stays within bounds before applying a suggestion.
 
 This rule intentionally excludes `Array#with()` and `TypedArray#with()` because negative indexes throw on empty arrays, so `array.with(-1, value)` is not equivalent to `array.with(array.length - 1, value)`.
 

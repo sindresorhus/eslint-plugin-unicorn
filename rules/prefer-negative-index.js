@@ -2,10 +2,13 @@ import {getNegativeIndexLengthNode, removeLengthNode} from './shared/negative-in
 import typedArray from './shared/typed-array.js';
 import {isEmptyArrayExpression, isLiteral} from './ast/index.js';
 import {getParentheses} from './utils/index.js';
+import {isLengthMinusOneOf} from './utils/comparison.js';
 
 const MESSAGE_ID = 'prefer-negative-index';
+const SUGGESTION_ID = 'prefer-negative-index/suggestion';
 const messages = {
 	[MESSAGE_ID]: 'Prefer negative index over length minus index for `{{method}}`.',
+	[SUGGESTION_ID]: 'Use a negative index.',
 };
 
 const methods = new Map([
@@ -158,48 +161,59 @@ const create = context => {
 		} = parsed;
 
 		const {argumentsIndexes} = methods.get(method);
-		const removableNodes = argumentsIndexes
-			.map(index => getNegativeIndexLengthNode(argumentsNodes[index], target))
-			.filter(Boolean);
+		const lengthArguments = argumentsIndexes
+			.map(index => argumentsNodes[index])
+			.filter(argument => getNegativeIndexLengthNode(argument, target));
 
-		if (removableNodes.length === 0) {
+		if (lengthArguments.length === 0) {
 			return;
 		}
 
-		return {
+		const fix = function * (fixer, {abort}) {
+			for (const argument of lengthArguments) {
+				const node = getNegativeIndexLengthNode(argument, target);
+				const fix = removeLengthNode(node, fixer, context);
+				if (!fix) {
+					return abort();
+				}
+
+				yield fix;
+
+				// `removeLengthNode()` stops at the operator, so `foo.length - 1` would be left as `- 1` instead of `-1`
+				const lastToken = getParentheses(node, context).at(-1) ?? sourceCode.getLastToken(node);
+				const operatorToken = sourceCode.getTokenAfter(lastToken);
+				const numberToken = sourceCode.getTokenAfter(operatorToken);
+				if (
+					operatorToken?.type === 'Punctuator'
+					&& operatorToken.value === '-'
+					&& numberToken?.type === 'Numeric'
+					&& /^\s+$/u.test(sourceCode.text.slice(
+						sourceCode.getRange(operatorToken)[1],
+						sourceCode.getRange(numberToken)[0],
+					))
+				) {
+					yield fixer.removeRange([
+						sourceCode.getRange(operatorToken)[1],
+						sourceCode.getRange(numberToken)[0],
+					]);
+				}
+			}
+		};
+
+		const problem = {
 			node,
 			messageId: MESSAGE_ID,
 			data: {method},
-			* fix(fixer, {abort}) {
-				for (const node of removableNodes) {
-					const fix = removeLengthNode(node, fixer, context);
-					if (!fix) {
-						return abort();
-					}
-
-					yield fix;
-
-					// `removeLengthNode()` stops at the operator, so `foo.length - 1` would be left as `- 1` instead of `-1`
-					const lastToken = getParentheses(node, context).at(-1) ?? sourceCode.getLastToken(node);
-					const operatorToken = sourceCode.getTokenAfter(lastToken);
-					const numberToken = sourceCode.getTokenAfter(operatorToken);
-					if (
-						operatorToken?.type === 'Punctuator'
-						&& operatorToken.value === '-'
-						&& numberToken?.type === 'Numeric'
-						&& /^\s+$/u.test(sourceCode.text.slice(
-							sourceCode.getRange(operatorToken)[1],
-							sourceCode.getRange(numberToken)[0],
-						))
-					) {
-						yield fixer.removeRange([
-							sourceCode.getRange(operatorToken)[1],
-							sourceCode.getRange(numberToken)[0],
-						]);
-					}
-				}
-			},
 		};
+
+		// `length - 1` and `-1` agree for every length. Larger offsets differ when they exceed the receiver's length, for example `[1, 2, 3].slice(3 - 4)` is `[3]`, but `[1, 2, 3].slice(-4)` is the whole array.
+		if (lengthArguments.every(argument => isLengthMinusOneOf(argument, target))) {
+			problem.fix = fix;
+		} else {
+			problem.suggest = [{messageId: SUGGESTION_ID, fix}];
+		}
+
+		return problem;
 	});
 };
 
@@ -215,6 +229,7 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		messages,
 		languages: [
 			'js/js',
