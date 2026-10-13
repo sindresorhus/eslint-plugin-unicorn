@@ -576,6 +576,11 @@ const create = context => {
 			return;
 		}
 
+		// `dataset.constructor` is inherited, so it can't stand in for the `data-constructor` attribute, the same as `isUnsafeDatasetKey()` in the `preferAttributes` checks above.
+		if (DATASET_INHERITED_MEMBERS.has(dashToCamelCase(attributeName.slice(5)))) {
+			return;
+		}
+
 		const problem = {
 			node: callExpression,
 			messageId: MESSAGE_ID,

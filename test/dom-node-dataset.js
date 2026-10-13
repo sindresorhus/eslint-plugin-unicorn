@@ -195,6 +195,12 @@ test.snapshot({
 		// https://github.com/sindresorhus/eslint-plugin-unicorn/issues/2307
 		'await page.locator("text=Hello").getAttribute("data-foo")',
 		'await page.locator("text=Hello")?.getAttribute("data-foo")',
+		// `dataset.constructor` and `dataset.toString` are inherited from `Object.prototype`, not attributes
+		'element.getAttribute("data-constructor");',
+		'element.getAttribute("data-to-string");',
+		'element.setAttribute("data-constructor", value);',
+		'element.getAttribute("data-__proto__");',
+		'element.getAttribute("DATA-CONSTRUCTOR");',
 	],
 	invalid: [
 		outdent`
@@ -213,6 +219,8 @@ test.snapshot({
 		'element.getAttribute("data-foo.bar");',
 		'element.getAttribute("data-foo-bar");',
 		'element.getAttribute("data-foo");',
+		// Only the whole name is checked against `Object.prototype` members
+		'element.setAttribute("data-constructor-name", value);',
 		'element.querySelector("#selector").getAttribute("data-AllowAccess");',
 		'optional?.element.getAttribute("data-unicorn");',
 		'element.getAttribute("data-unicorn").toString()',
