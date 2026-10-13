@@ -1,8 +1,14 @@
 import identifierRegex from 'identifier-regex';
 import {findVariable} from '@eslint-community/eslint-utils';
-import {isFunction, isMethodCall, isUndefined} from './ast/index.js';
+import {
+	isFunction,
+	isMethodCall,
+	isReferenceIdentifier,
+	isUndefined,
+} from './ast/index.js';
 import {
 	getConstVariableInitializer,
+	getVisitorChildNodes,
 	isNodeMatches,
 	isNodeValueNotFunction,
 	isParenthesized,
@@ -203,14 +209,32 @@ function isDefinitelyNotFunctionValue(node, context, visitedInitializers = new S
 const identifierNameRegex = identifierRegex();
 const isValidParameterName = name => identifierNameRegex.test(name);
 
-function getSuggestionParameters(callExpression, callback, parameters) {
-	if (callback.type !== 'Identifier') {
-		return parameters;
-	}
+// The suggestion calls the method inside an arrow function, so a parameter with the same name as any identifier the callback refers to would shadow it.
+const getReferencedNames = (node, sourceCode) => {
+	const names = new Set();
+	const visit = child => {
+		if (child.type === 'Identifier' && isReferenceIdentifier(child)) {
+			names.add(child.name);
+		}
+
+		for (const grandchild of getVisitorChildNodes(child, sourceCode.visitorKeys)) {
+			visit(grandchild);
+		}
+	};
+
+	visit(node);
+	return names;
+};
+
+function getSuggestionParameters(callExpression, callback, parameters, context) {
+	const referencedNames = getReferencedNames(callback, context.sourceCode);
 
 	let suggestionParameters = parameters;
 	const {object} = callExpression.callee;
-	if (object.type === 'Identifier') {
+	if (
+		callback.type === 'Identifier'
+		&& object.type === 'Identifier'
+	) {
 		const elementName = singular(object.name);
 		if (elementName) {
 			suggestionParameters = parameters.map(parameter => {
@@ -223,7 +247,7 @@ function getSuggestionParameters(callExpression, callback, parameters) {
 
 				return replacement
 					&& !parameters.includes(replacement)
-					&& replacement !== callback.name
+					&& !referencedNames.has(replacement)
 					&& isValidParameterName(replacement)
 					? replacement
 					: parameter;
@@ -231,7 +255,13 @@ function getSuggestionParameters(callExpression, callback, parameters) {
 		}
 	}
 
-	return suggestionParameters.map(parameter => parameter === callback.name ? `${parameter}_` : parameter);
+	return suggestionParameters.map(parameter => {
+		while (referencedNames.has(parameter)) {
+			parameter += '_';
+		}
+
+		return parameter;
+	});
 }
 
 // Every suggestion forwards the same argument names to a different depth, and forwarding fewer arguments than the callback declares hands it `undefined` where it expected a value. So the depth has to start at the parameter count of the declaration, when there is one to read.
@@ -293,7 +323,7 @@ function getProblem(context, node, callExpression, options) {
 	problem.suggest = [];
 
 	const {minParameters, returnsUndefined} = options;
-	const parameters = getSuggestionParameters(callExpression, node, options.parameters);
+	const parameters = getSuggestionParameters(callExpression, node, options.parameters, context);
 
 	// A callback that declares more parameters than the method supplies still only receives what the method passes, so the depth is capped by the method rather than by the declaration.
 	const declaredParameterCount = getDeclaredParameterCount(node, context) ?? minParameters;

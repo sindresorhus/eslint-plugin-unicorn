@@ -1300,3 +1300,100 @@ test({
 		}),
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		// The suggested parameter must not shadow `element`, which the method is called on
+		invalidTestCase({
+			code: 'const element = {format: x => x * 2};\n[1, 2].map(element.format);',
+			method: 'map',
+			name: '',
+			suggestions: [
+				'const element = {format: x => x * 2};\n[1, 2].map((element_) => element.format(element_));',
+				'const element = {format: x => x * 2};\n[1, 2].map((element_, index) => element.format(element_, index));',
+				'const element = {format: x => x * 2};\n[1, 2].map((element_, index, array) => element.format(element_, index, array));',
+			],
+		}),
+		// A renamed parameter must not shadow another name in the callback either
+		invalidTestCase({
+			code: '[1, 2].map(element_[element]);',
+			method: 'map',
+			name: '',
+			suggestions: [
+				'[1, 2].map((element__) => element_[element](element__));',
+				'[1, 2].map((element__, index) => element_[element](element__, index));',
+				'[1, 2].map((element__, index, array) => element_[element](element__, index, array));',
+			],
+		}),
+		// Every identifier in the callback is a reference the suggestion must not shadow, not only the root object
+		invalidTestCase({
+			code: 'const index = 1;\nconst obj = {methods: [x => x * 2, x => x * 3]};\n[1, 2].map(obj.methods[index]);',
+			method: 'map',
+			name: '',
+			suggestions: [
+				'const index = 1;\nconst obj = {methods: [x => x * 2, x => x * 3]};\n[1, 2].map((element) => obj.methods[index](element));',
+				'const index = 1;\nconst obj = {methods: [x => x * 2, x => x * 3]};\n[1, 2].map((element, index_) => obj.methods[index](element, index_));',
+				'const index = 1;\nconst obj = {methods: [x => x * 2, x => x * 3]};\n[1, 2].map((element, index_, array) => obj.methods[index](element, index_, array));',
+			],
+		}),
+		// A non-computed property name is not a reference, so it is not renamed
+		invalidTestCase({
+			code: '[1, 2].map(formatters.element);',
+			method: 'map',
+			name: '',
+			suggestions: [
+				'[1, 2].map((element) => formatters.element(element));',
+				'[1, 2].map((element, index) => formatters.element(element, index));',
+				'[1, 2].map((element, index, array) => formatters.element(element, index, array));',
+			],
+		}),
+		// Optional chaining
+		invalidTestCase({
+			code: '[1, 2].map(element?.format);',
+			method: 'map',
+			name: '',
+			suggestions: [
+				'[1, 2].map((element_) => element?.format(element_));',
+				'[1, 2].map((element_, index) => element?.format(element_, index));',
+				'[1, 2].map((element_, index, array) => element?.format(element_, index, array));',
+			],
+		}),
+		// Logical expression
+		invalidTestCase({
+			code: '[1, 2].map(array || fallback);',
+			method: 'map',
+			name: '',
+			suggestions: [
+				'[1, 2].map((element) => (array || fallback)(element));',
+				'[1, 2].map((element, index) => (array || fallback)(element, index));',
+				'[1, 2].map((element, index, array_) => (array || fallback)(element, index, array_));',
+			],
+		}),
+		// `reduce`
+		invalidTestCase({
+			code: '[1, 2].reduce(accumulator.add);',
+			method: 'reduce',
+			name: '',
+			suggestions: [
+				'[1, 2].reduce((accumulator_, element) => accumulator.add(accumulator_, element));',
+				'[1, 2].reduce((accumulator_, element, index) => accumulator.add(accumulator_, element, index));',
+				'[1, 2].reduce((accumulator_, element, index, array) => accumulator.add(accumulator_, element, index, array));',
+			],
+		}),
+		// TypeScript wrapper
+		{
+			...invalidTestCase({
+				code: '[1, 2].map(element.format as Formatter);',
+				method: 'map',
+				name: '',
+				suggestions: [
+					'[1, 2].map((element_) => (element.format as Formatter)(element_));',
+					'[1, 2].map((element_, index) => (element.format as Formatter)(element_, index));',
+					'[1, 2].map((element_, index, array) => (element.format as Formatter)(element_, index, array));',
+				],
+			}),
+			languageOptions: {parser: typescriptEslintParser},
+		},
+	],
+});
