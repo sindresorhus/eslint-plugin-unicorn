@@ -26,6 +26,41 @@ const domCollectionInitializers = [
 const domCollectionTypes = ['NodeList', 'NodeListOf<Element>', 'HTMLCollection', 'HTMLCollectionOf<Element>'];
 const typescript = code => ({code, languageOptions: {parser: parsers.typescript}});
 
+// Type assertions and optional chains do not turn a reference into a value.
+const referenceWrappers = [
+	expression => `(${expression} as number)`,
+	expression => `(<number>${expression})`,
+	expression => `${expression}!`,
+	expression => `(${expression} satisfies number)`,
+	expression => `((${expression} as number)!)`,
+];
+test({
+	valid: [
+		...referenceWrappers.flatMap(wrap => [
+			`${wrap('array[array.length - 1]')} = 3;`,
+			`${wrap('array[array.length - 1]')} += 3;`,
+			`${wrap('array[array.length - 1]')}++;`,
+			`--${wrap('array[array.length - 1]')};`,
+			`delete ${wrap('array[array.length - 1]')};`,
+			`delete ${wrap('array.slice(-1)[0]')};`,
+		].map(code => typescript(code))),
+		'delete array?.[array.length - 1];',
+		'delete array?.slice(-1)[0];',
+		typescript('delete ((array?.[array.length - 1] as number)!);'),
+		typescript('([array[array.length - 1]!] = values);'),
+		typescript('({value: (array[array.length - 1] as number)} = object);'),
+		typescript('for (array[array.length - 1]! of values) {}'),
+		{...typescript('(array[0] as number) = 3;'), options: [{checkAllIndexAccess: true}]},
+	],
+	invalid: [
+		{
+			...typescript('const value = (array[array.length - 1] as number);'),
+			output: 'const value = (array.at(-1) as number);',
+			errors: 1,
+		},
+	],
+});
+
 test({
 	valid: [
 		...domCollectionInitializers.flatMap(initializer => [

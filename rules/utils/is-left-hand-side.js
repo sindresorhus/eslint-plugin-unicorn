@@ -1,5 +1,12 @@
-const isLeftHandSide = node =>
-	(
+import {getOutermostChainAndTypeScriptExpression} from './unwrap-typescript-expression.js';
+
+/**
+Check whether a node is a reference target, including through optional-chain and TypeScript expression wrappers.
+*/
+const isLeftHandSide = node => {
+	node = getOutermostChainAndTypeScriptExpression(node);
+
+	return (
 		(node.parent.type === 'AssignmentExpression' || node.parent.type === 'AssignmentPattern')
 		&& node.parent.left === node
 	)
@@ -21,5 +28,6 @@ const isLeftHandSide = node =>
 		&& node.parent.operator === 'delete'
 		&& node.parent.argument === node
 	);
+};
 
 export default isLeftHandSide;

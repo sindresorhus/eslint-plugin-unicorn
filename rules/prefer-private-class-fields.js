@@ -218,7 +218,7 @@ const getMemberAccessState = ({access, name, member, classBody, candidatesByClas
 	if (
 		member.type === 'MethodDefinition'
 		&& member.kind === 'method'
-		&& isLeftHandSide(getOutermostChainAndTypeScriptExpression(access))
+		&& isLeftHandSide(access)
 	) {
 		return memberAccessState.written;
 	}

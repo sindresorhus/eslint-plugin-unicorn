@@ -8,6 +8,7 @@ import {
 } from './ast/index.js';
 import {
 	getFunctionFromIdentifier,
+	getOutermostChainAndTypeScriptExpression,
 	getStaticPropertyName,
 	getVisitorChildNodes,
 	isGlobalIdentifier,
@@ -150,11 +151,14 @@ const isGlobalObject = (node, context) =>
 	&& globalObjectNames.has(node.name)
 	&& isGlobalIdentifier(node, context);
 
-const isWriteOnlyLeftHandSide = node =>
-	isLeftHandSide(node)
-	&& node.parent.type !== 'UpdateExpression'
-	&& (!(node.parent.type === 'AssignmentExpression'
-		&& node.parent.left === node) || node.parent.operator === '=');
+const isWriteOnlyLeftHandSide = node => {
+	node = getOutermostChainAndTypeScriptExpression(node);
+
+	return isLeftHandSide(node)
+		&& node.parent.type !== 'UpdateExpression'
+		&& (!(node.parent.type === 'AssignmentExpression'
+			&& node.parent.left === node) || node.parent.operator === '=');
+};
 
 const isGlobalDocument = (node, context) => {
 	node = unwrapTypeScriptExpression(node);

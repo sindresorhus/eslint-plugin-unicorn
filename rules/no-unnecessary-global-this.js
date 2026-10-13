@@ -92,13 +92,12 @@ function isOptionalChainUsage(node) {
 const create = context => {
 	context.on('MemberExpression', node => {
 		const object = unwrapTypeScriptExpression(node.object);
-		const writableTarget = getOutermostTypeScriptExpression(node);
 
 		if (
 			object.type !== 'Identifier'
 			|| object.name !== 'globalThis'
 			|| !isGlobalIdentifier(object, context)
-			|| isLeftHandSide(writableTarget)
+			|| isLeftHandSide(node)
 			|| isOptionalChainUsage(node)
 			|| isExistenceCheck(node, context)
 		) {

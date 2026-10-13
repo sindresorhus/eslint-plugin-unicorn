@@ -211,7 +211,7 @@ const shouldSkip = (node, context) =>
 	|| isCallableReference(node, context)
 	|| isReflectApplyArgument(node)
 	|| isTypeofArgument(node)
-	|| isLeftHandSide(getOutermostChainAndTypeScriptExpression(node))
+	|| isLeftHandSide(node)
 	|| isPrototypeMethod(node, context);
 
 function shouldReport({receiver, method, context}) {

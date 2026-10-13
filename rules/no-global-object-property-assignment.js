@@ -1,6 +1,6 @@
 import {getPropertyName} from '@eslint-community/eslint-utils';
 import {
-	getOutermostTypeScriptExpression,
+	getOutermostChainAndTypeScriptExpression,
 	isGlobalIdentifier,
 	isLeftHandSide,
 	unwrapTypeScriptExpression,
@@ -29,7 +29,7 @@ const isDeleteExpressionArgument = node =>
 const create = context => {
 	context.on('MemberExpression', node => {
 		const object = unwrapTypeScriptExpression(node.object);
-		const assignmentTarget = getOutermostTypeScriptExpression(node);
+		const assignmentTarget = getOutermostChainAndTypeScriptExpression(node);
 
 		if (
 			object.type !== 'Identifier'

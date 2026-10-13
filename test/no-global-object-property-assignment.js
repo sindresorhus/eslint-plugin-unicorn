@@ -3,6 +3,23 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [
+		'delete globalThis?.foo;',
+		'delete window?.["foo"];',
+		{code: 'delete ((globalThis?.foo as number)!);', languageOptions: {parser: parsers.typescript}},
+		{code: 'delete (globalThis.foo satisfies number);', languageOptions: {parser: parsers.typescript}},
+	],
+	invalid: [
+		...[
+			'(globalThis.foo as number) = 1;',
+			'(<number>window.foo) += 1;',
+			'(self.foo satisfies number)++;',
+			'((global.foo as number)!) ||= 1;',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}, errors: 1})),
+	],
+});
+
 test.snapshot({
 	valid: [
 		'globalThis.foo',

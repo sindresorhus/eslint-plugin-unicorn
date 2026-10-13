@@ -2,7 +2,6 @@ import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	getConstVariableInitializer,
 	getDuplicateArrayElements,
-	getOutermostTypeScriptExpression,
 	getVariableIdentifiers,
 	isComparableStaticValue,
 	isLeftHandSide,
@@ -355,7 +354,7 @@ const isLengthRead = identifier => {
 		return false;
 	}
 
-	if (isLeftHandSide(getOutermostTypeScriptExpression(parent))) {
+	if (isLeftHandSide(parent)) {
 		return false;
 	}
 

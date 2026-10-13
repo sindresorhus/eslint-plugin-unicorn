@@ -1,8 +1,30 @@
 import outdent from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+test({
+	valid: [
+		'window.addEventListener("resize", () => { delete window?.innerWidth; });',
+		...[
+			'(element.offsetWidth as number) = 1;',
+			'(<number>window.innerWidth) = 1;',
+			'innerHeight! = 1;',
+			'delete (element.offsetWidth satisfies number);',
+			'delete ((window?.innerWidth as number)!);',
+		].map(statement => ({code: `window.addEventListener("resize", () => { ${statement} });`, languageOptions: {parser: parsers.typescript}})),
+	],
+	invalid: [
+		...[
+			'(element.offsetWidth as number) += 1;',
+			'(<number>window.innerWidth)++;',
+			'--innerHeight!;',
+			'(element.offsetWidth satisfies number) ||= 1;',
+			'((visualViewport.width as number)!) *= 2;',
+		].map(statement => ({code: `window.addEventListener("resize", () => { ${statement} });`, languageOptions: {parser: parsers.typescript}, errors: [{messageId: 'resize'}]})),
+	],
+});
 
 const typeAware = code => ({
 	code,
