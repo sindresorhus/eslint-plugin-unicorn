@@ -7,6 +7,7 @@ import {
 	isComparableStaticValue,
 	isLeftHandSide,
 	getStaticValueIfNoSideEffects,
+	unwrapTypeScriptExpression,
 	wouldRemoveComments,
 } from './utils/index.js';
 import {getStaticStringValue, isCallOrNewExpression, isMethodCall} from './ast/index.js';
@@ -51,6 +52,21 @@ const methodsReturnsArrayAndString = [
 	'slice',
 	'concat',
 ];
+
+const isArrayAndStringMethodCall = node => isMethodCall(node, {
+	methods: methodsReturnsArrayAndString,
+	optionalCall: false,
+	optionalMember: false,
+});
+
+// `slice()` and `concat()` return a string on a string receiver, so the receiver has to be proven to be an array.
+const isArrayReceiver = (node, context, visitedInitializers) => {
+	node = unwrapTypeScriptExpression(node);
+
+	return node.type === 'Identifier'
+		? isIdentifierInitializedWithArray(node, context, visitedInitializers)
+		: isArrayMethodCall(node, context, visitedInitializers);
+};
 
 const isIdentifierInitializedWithArray = (node, context, visitedInitializers = new Set()) => {
 	const initializer = getConstVariableInitializer(node, context);
@@ -122,16 +138,8 @@ const isArrayMethodCall = (node, context, visitedInitializers = new Set()) =>
 		optionalMember: false,
 	})
 	|| (
-		isMethodCall(node, {
-			methods: methodsReturnsArrayAndString,
-			optionalCall: false,
-			optionalMember: false,
-		})
-		&& getStaticStringValue(node.callee.object) === undefined
-		&& (
-			node.callee.object.type !== 'Identifier'
-			|| isIdentifierInitializedWithArray(node.callee.object, context, visitedInitializers)
-		)
+		isArrayAndStringMethodCall(node)
+		&& isArrayReceiver(node.callee.object, context, visitedInitializers)
 	);
 
 const isNonNegativeInteger = value =>

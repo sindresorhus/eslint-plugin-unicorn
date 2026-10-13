@@ -1716,7 +1716,27 @@ Output:
 
 `;
 
-exports[`prefer-set-has > invalid(51): const foo = _([1,2,3]);\nconst bar = foo.map(value => value);\nfunction unicorn() {\n\treturn bar.includes(1);\n} 1`] = `
+exports[`prefer-set-has > invalid(51): const foo = [1, 2, 3].slice(1).concat(4);\nfoo.includes(1) || foo.includes(2); 1`] = `
+
+  1 | const foo = [1, 2, 3].slice(1).concat(4);
+  2 | foo.includes(1) || foo.includes(2);
+
+`;
+
+exports[`prefer-set-has > invalid(51): const foo = [1, 2, 3].slice(1).concat(4);\nfoo.includes(1) || foo.includes(2); 2`] = `
+
+Message:
+> 1 | const foo = [1, 2, 3].slice(1).concat(4);
+    |       ^^^ \`foo\` should be a \`Set\`, and use \`foo.has()\` to check existence or non-existence.
+  2 | foo.includes(1) || foo.includes(2);
+
+Output:
+  1 | const foo = new Set([1, 2, 3].slice(1).concat(4));
+  2 | foo.has(1) || foo.has(2);
+
+`;
+
+exports[`prefer-set-has > invalid(52): const foo = _([1,2,3]);\nconst bar = foo.map(value => value);\nfunction unicorn() {\n\treturn bar.includes(1);\n} 1`] = `
 
   1 | const foo = _([1,2,3]);
   2 | const bar = foo.map(value => value);
@@ -1726,7 +1746,7 @@ exports[`prefer-set-has > invalid(51): const foo = _([1,2,3]);\nconst bar = foo.
 
 `;
 
-exports[`prefer-set-has > invalid(51): const foo = _([1,2,3]);\nconst bar = foo.map(value => value);\nfunction unicorn() {\n\treturn bar.includes(1);\n} 2`] = `
+exports[`prefer-set-has > invalid(52): const foo = _([1,2,3]);\nconst bar = foo.map(value => value);\nfunction unicorn() {\n\treturn bar.includes(1);\n} 2`] = `
 
 Message:
   1 | const foo = _([1,2,3]);

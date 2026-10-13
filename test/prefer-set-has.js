@@ -1102,6 +1102,11 @@ test.snapshot({
 			const foo = items.concat(4);
 			foo.includes(1) || foo.includes(2);
 		`,
+		// A chained `slice()` or `concat()` on a proven array
+		outdent`
+			const foo = [1, 2, 3].slice(1).concat(4);
+			foo.includes(1) || foo.includes(2);
+		`,
 		// `lodash`
 		// `bar` is not `array`, but code not broken
 		// See https://github.com/sindresorhus/eslint-plugin-unicorn/pull/641
@@ -1508,6 +1513,34 @@ test({
 				}
 			`,
 			errors: [createError('foo')],
+		},
+	],
+});
+
+test({
+	valid: [
+		// `slice()` and `concat()` return a string on a string receiver, so a receiver that is not proven to be an array is not converted
+		...[
+			'getItems()',
+			'node.title',
+			'text.trim()',
+			'String(x)',
+			// A chained `slice()` or `concat()` is only an array when its own receiver is
+			'text.slice(1)',
+			'\'xyz\'.concat(x)',
+		].map(receiver => `function f(text, node, x) {\n\tconst s = ${receiver}.slice(1);\n\tfor (const c of ['YZ', 'X']) {\n\t\tif (s.includes(c)) console.log(c);\n\t}\n}`),
+		{
+			code: 'function f(text) {\n\tconst s = (text.trim() as any).slice(1);\n\tfor (const c of [\'YZ\', \'X\']) {\n\t\tif (s.includes(c)) console.log(c);\n\t}\n}',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [
+		// A TypeScript wrapper around a proven array
+		{
+			code: 'const items = [1, 2, 3];\nfunction f() {\n\tconst s = (items as number[]).slice(1);\n\tfor (const c of [1, 2]) {\n\t\tif (s.includes(c)) console.log(c);\n\t}\n}',
+			output: 'const items = [1, 2, 3];\nfunction f() {\n\tconst s = new Set((items as number[]).slice(1));\n\tfor (const c of [1, 2]) {\n\t\tif (s.has(c)) console.log(c);\n\t}\n}',
+			errors: [createError('s')],
+			languageOptions: {parser: parsers.typescript},
 		},
 	],
 });
