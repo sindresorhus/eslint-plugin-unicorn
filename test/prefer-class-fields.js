@@ -224,6 +224,32 @@ test({
 test({
 	valid: [],
 	invalid: [
+		// With duplicate fields, moving the value into the first one would leave the second one to reset it to `undefined`
+		{
+			code: outdent`
+				class A {
+					x;
+					x;
+					constructor() {
+						this.x = 'a';
+					}
+				}
+			`,
+			errors: 1,
+		},
+		// The suggestion is withheld too, and a string key is the same field
+		{
+			code: outdent`
+				class A {
+					x = 1;
+					'x';
+					constructor() {
+						this.x = 'a';
+					}
+				}
+			`,
+			errors: [{messageId: 'prefer-class-fields/error', suggestions: []}],
+		},
 		// A `declare` field has no initializer, a definite assignment assertion can not have one either
 		{
 			code: outdent`

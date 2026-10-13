@@ -32,6 +32,12 @@ const removeFieldAssignment = (node, sourceCode, fixer) => {
 // `TSAbstractPropertyDefinition` is a declaration only field, it can not get an initializer
 const fieldTypes = new Set(['AccessorProperty', 'PropertyDefinition', 'TSAbstractPropertyDefinition']);
 
+const hasNoInitializer = property => Boolean(
+	property.declare
+	|| property.definite
+	|| property.type === 'TSAbstractPropertyDefinition',
+);
+
 /**
 @type {import('eslint').Rule.RuleModule['create']}
 */
@@ -98,11 +104,12 @@ const create = context => {
 				)
 			),
 		);
-		const existingProperty = classBody.body.find(node =>
+		const existingProperties = classBody.body.filter(node =>
 			fieldTypes.has(node.type)
 			&& !node.computed
 			&& !node.static
 			&& isSameKey(node.key));
+		const existingProperty = existingProperties[0];
 
 		const problem = {
 			node,
@@ -110,15 +117,11 @@ const create = context => {
 		};
 
 		/*
-		An `abstract` or `declare` field has no initializer, and a definite assignment assertion can not have one either.
+		An `abstract` or `declare` field has no initializer, and a definite assignment assertion can not have one either. With duplicate fields, the later ones would still reset the value to `undefined`.
 		*/
 		if (
-			existingProperty
-			&& (
-				existingProperty.declare
-				|| existingProperty.definite
-				|| existingProperty.type === 'TSAbstractPropertyDefinition'
-			)
+			existingProperties.length > 1
+			|| (existingProperty && hasNoInitializer(existingProperty))
 		) {
 			return problem;
 		}
