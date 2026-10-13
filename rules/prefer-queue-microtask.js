@@ -1,6 +1,6 @@
 import {isMemberExpression} from './ast/index.js';
+import {removeArgument} from './fix/index.js';
 import {
-	hasCommentInRange,
 	isNodeContainsLexicalThis,
 	isNodeValueNotFunction,
 	isGlobalIdentifier,
@@ -48,28 +48,6 @@ const isZero = node => (
 	&& node.value === 0
 );
 
-const getSecondArgumentRemovalRange = (callExpression, context) => {
-	const {sourceCode} = context;
-	const [, secondArgument] = callExpression.arguments;
-	const commaToken = sourceCode.getTokenBefore(secondArgument);
-	const tokenAfter = sourceCode.getTokenAfter(secondArgument);
-	const tokenAfterRemovalRange = tokenAfter?.value === ',' ? sourceCode.getTokenAfter(tokenAfter) : tokenAfter;
-	const range = [
-		sourceCode.getRange(commaToken)[0],
-		tokenAfter?.value === ',' ? sourceCode.getRange(tokenAfter)[1] : sourceCode.getRange(secondArgument)[1],
-	];
-	const commentRange = [
-		range[0],
-		sourceCode.getRange(tokenAfterRemovalRange)[0],
-	];
-
-	if (hasCommentInRange(context, commentRange)) {
-		return;
-	}
-
-	return range;
-};
-
 // `setTimeout()`/`setImmediate()` call the callback with the timer as `this`, `queueMicrotask()` calls it with `this === undefined`, so a callback that reads `this` is not interchangeable.
 const hasThisBoundCallback = (node, context) => {
 	const callback = node.arguments[0];
@@ -82,14 +60,9 @@ const getSetTimeoutFix = (node, context) => {
 		return;
 	}
 
-	const removalRange = getSecondArgumentRemovalRange(node, context);
-	if (!removalRange) {
-		return;
-	}
-
 	return function * (fixer) {
 		yield fixer.replaceText(node.callee, 'queueMicrotask');
-		yield fixer.removeRange(removalRange);
+		yield removeArgument(fixer, node.arguments[1], context);
 	};
 };
 

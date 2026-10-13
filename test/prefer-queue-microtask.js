@@ -114,12 +114,12 @@ test.snapshot({
 			options: [{checkSetTimeout: true}],
 		},
 		{
-			// A comment between the trailing comma and `)` is inside the removal range.
+			// A comment between the trailing comma and `)` is kept.
 			code: 'setTimeout(callback, 0, /* trailing */);',
 			options: [{checkSetTimeout: true}],
 		},
 		{
-			// A comment before the comma is outside the removal range and is preserved.
+			// A comment before the comma is kept.
 			code: 'setTimeout(callback /* keep */, 0);',
 			options: [{checkSetTimeout: true}],
 		},
@@ -148,5 +148,31 @@ test({
 			output: code.replace('setTimeout', 'queueMicrotask').replace(', 0)', ')'),
 			errors: 1,
 		})),
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		// The parentheses around the second argument are removed with it
+		...[
+			['setTimeout(cb, (0));', 'queueMicrotask(cb);'],
+			['setTimeout(cb, (0),);', 'queueMicrotask(cb,);'],
+			['setTimeout(cb, ((0)));', 'queueMicrotask(cb);'],
+			['setTimeout((cb), (0));', 'queueMicrotask((cb));'],
+			['setTimeout(cb, 0\n);', 'queueMicrotask(cb\n);'],
+		].map(([code, output]) => ({
+			code,
+			options: [{checkSetTimeout: true}],
+			output,
+			errors: 1,
+		})),
+		// A comment inside the parentheses is kept
+		{
+			code: 'setTimeout(cb, (/* delay */ 0));',
+			options: [{checkSetTimeout: true}],
+			output: 'queueMicrotask(cb /* delay */);',
+			errors: 1,
+		},
 	],
 });
