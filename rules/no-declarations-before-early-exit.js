@@ -1,5 +1,6 @@
 import {isCommentToken, hasSideEffect} from '@eslint-community/eslint-utils';
 import {
+	containsNode,
 	containsSuspensionPoint,
 	getReferences,
 	isBranchExit,
@@ -47,6 +48,23 @@ const isReactHookCall = node => {
 		&& /^[A-Z]/.test(callee.object.name)
 		&& callee.property.type === 'Identifier'
 		&& isReactHookName(callee.property.name);
+};
+
+const callTypes = new Set([
+	'CallExpression',
+	'NewExpression',
+	'TaggedTemplateExpression',
+]);
+
+// A reference after the guard can only run before the guard exits when it is in a hoisted function declaration. Any other closure is created after the guard.
+const isInFunctionDeclaration = (reference, declarationScope) => {
+	for (let scope = reference.from; scope && scope !== declarationScope; scope = scope.upper) {
+		if (scope.block.type === 'FunctionDeclaration') {
+			return true;
+		}
+	}
+
+	return false;
 };
 
 const isSimpleInitializer = node =>
@@ -112,7 +130,8 @@ function getFix(sourceCode, declaration, guardStatement) {
 }
 
 function getProblem({
-	sourceCode,
+	context,
+	statements,
 	declaration,
 	declarator,
 	guardStatement,
@@ -122,6 +141,8 @@ function getProblem({
 	if (declarator.id.type !== 'Identifier') {
 		return;
 	}
+
+	const {sourceCode} = context;
 
 	// Moving a React hook call below an early exit would break the Rules of Hooks.
 	if (isReactHookCall(declarator.init)) {
@@ -167,6 +188,14 @@ function getProblem({
 		return;
 	}
 
+	// A call in the guard, or in a statement before it, can run a closure that reads the variable, which would throw once the declaration is moved below the guard.
+	if (
+		references.some(reference => isInFunctionDeclaration(reference, variable.scope))
+		&& statements.slice(declarationIndex + 1, guardIndex + 1).some(statement => containsNode(statement, context, node => callTypes.has(node.type)))
+	) {
+		return;
+	}
+
 	const problem = {
 		node: declarator.id,
 		messageId: MESSAGE_ID,
@@ -185,7 +214,7 @@ function getProblem({
 	return problem;
 }
 
-function * getStatementListProblems(sourceCode, statements, branchAlwaysExits) {
+function * getStatementListProblems(context, statements, branchAlwaysExits) {
 	// Resolve each statement to itself when it is a guard (or `undefined` otherwise) at most
 	// once per list, instead of re-running the code-path-analysis check for every
 	// declaration/statement pair.
@@ -209,7 +238,8 @@ function * getStatementListProblems(sourceCode, statements, branchAlwaysExits) {
 
 			for (const declarator of declaration.declarations) {
 				const problem = getProblem({
-					sourceCode,
+					context,
+					statements,
 					declaration,
 					declarator,
 					guardStatement,
@@ -231,13 +261,12 @@ function * getStatementListProblems(sourceCode, statements, branchAlwaysExits) {
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	const {sourceCode} = context;
 	const branchAlwaysExits = trackBranchExits(context, branch => isBranchExit(branch, context, branchAlwaysExits));
 
 	// Run on exit so that all nested `if` statements have been visited and their branch exit
 	// information is available before scanning each statement list.
-	context.onExit('Program', node => getStatementListProblems(sourceCode, node.body, branchAlwaysExits));
-	context.onExit('BlockStatement', node => getStatementListProblems(sourceCode, node.body, branchAlwaysExits));
+	context.onExit('Program', node => getStatementListProblems(context, node.body, branchAlwaysExits));
+	context.onExit('BlockStatement', node => getStatementListProblems(context, node.body, branchAlwaysExits));
 };
 
 /**

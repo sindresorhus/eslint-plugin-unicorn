@@ -626,6 +626,86 @@ test.snapshot({
 			`,
 			languageOptions: typescriptLanguageOptions,
 		},
+		// The guard calls a closure that reads `value`, so moving the declaration below the guard would throw a TDZ error
+		outdent`
+			function runOriginal() {
+				const value = 1;
+				if (isReady()) {
+					return 'returned';
+				}
+				return value;
+				function isReady() {
+					return value > 0;
+				}
+			}
+		`,
+		// A tagged template calls its tag, so the guard can run the closure too
+		outdent`
+			function runOriginal() {
+				const value = 1;
+				if (tag\`x\`) {
+					return 'returned';
+				}
+				return value;
+				function tag() {
+					return value > 0;
+				}
+			}
+		`,
+		// A statement between the declaration and the guard can call the closure too
+		outdent`
+			function runOriginal(isReady) {
+				const value = 1;
+				log();
+				if (isReady) {
+					return 'returned';
+				}
+				return value;
+				function log() {
+					console.log(value);
+				}
+			}
+		`,
+		// `new` calls the constructor, which reads `value`
+		outdent`
+			function runOriginal() {
+				const value = 1;
+				if (new Checker().isReady) {
+					return 'returned';
+				}
+				return value;
+				function Checker() {
+					this.isReady = value > 0;
+				}
+			}
+		`,
+		// A closure nested in the hoisted function declaration reads `value`
+		outdent`
+			function runOriginal() {
+				const value = 1;
+				if (isReady()) {
+					return 'returned';
+				}
+				return value;
+				function isReady() {
+					return [1].some(item => item === value);
+				}
+			}
+		`,
+		// The exiting branch calls the closure before it exits
+		outdent`
+			function runOriginal(isReady) {
+				const value = 1;
+				if (isReady) {
+					log();
+					return 'returned';
+				}
+				return value;
+				function log() {
+					console.log(value);
+				}
+			}
+		`,
 	],
 	invalid: [
 		outdent`
@@ -1096,6 +1176,53 @@ test.snapshot({
 					return;
 				}
 				console.log(a, b);
+			}
+		`,
+		// A closure reads the variable, but nothing before the exit calls it
+		outdent`
+			function runOriginal(isReady) {
+				const value = 1;
+				if (isReady) {
+					return 'returned';
+				}
+				return value;
+				function log() {
+					console.log(value);
+				}
+			}
+		`,
+		// A call before the exit, but no closure reads the variable
+		outdent`
+			function runOriginal(isReady) {
+				const value = 1;
+				log();
+				if (isReady) {
+					return 'returned';
+				}
+				return value;
+			}
+		`,
+		// A closure created after the guard can't run before the guard exits
+		outdent`
+			function runOriginal(items, input) {
+				const value = 1;
+				if (!isValid(input)) {
+					return;
+				}
+				items.forEach(item => use(item, value));
+			}
+		`,
+		// The closure that reads the variable is only called after the guard
+		outdent`
+			function runOriginal(isReady) {
+				const value = 1;
+				if (isReady) {
+					return 'returned';
+				}
+				log();
+				function log() {
+					console.log(value);
+				}
 			}
 		`,
 	],
