@@ -17,6 +17,8 @@ When checking `.map()` calls, this rule only reports inline arrow function callb
 
 When checking `for…of` loops, this rule only reports adjacent empty-array declarations followed by a simple loop body that adds exactly one mapped value. Trivial copies are handled by [`prefer-spread`](./prefer-spread.md).
 
+When a function that can run during the loop references the array, the loop replacement is a suggestion, because the function could run while the new initializer is built, before the array is initialized.
+
 ## Examples
 
 ```js

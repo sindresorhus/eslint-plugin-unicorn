@@ -17,6 +17,7 @@ import {
 	hasCommentInRange,
 	hasTypeArguments,
 	isKnownNonIndexedCollection,
+	isReferencedByNestedFunction,
 	isSameIdentifier,
 	isSameReference,
 	needsSemicolon,
@@ -26,9 +27,11 @@ import {containsOptionalChain} from './utils/comparison.js';
 
 const MESSAGE_ID = 'prefer-group-by';
 const MESSAGE_ID_LOOP = 'prefer-group-by-loop';
+const MESSAGE_ID_SUGGESTION = 'replace-loop-with-group-by';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `{{method}}()` over `Array#reduce()`.',
 	[MESSAGE_ID_LOOP]: 'Prefer `{{method}}()` over a `for-of` loop.',
+	[MESSAGE_ID_SUGGESTION]: 'Replace the loop with `{{method}}()`.',
 };
 
 const isSupportedOptionalParameter = node =>
@@ -648,36 +651,41 @@ function getLoopGroupByProblem(declaration, context) {
 		return;
 	}
 
+	const fix = function * (fixer, {abort}) {
+		const {sourceCode} = context;
+		const [start] = sourceCode.getRange(init);
+		const nextToken = sourceCode.getTokenAfter(loop);
+		const end = nextToken ? sourceCode.getRange(nextToken)[0] : sourceCode.text.length;
+		if (
+			hasCommentInRange(context, [start, end])
+			|| accumulator.typeAnnotation
+			|| hasTypeArguments(init)
+			|| hasRepeatedSideEffectfulKey(statements, key, context)
+			|| containsNode(key, context, node => node.type === 'AwaitExpression' || node.type === 'YieldExpression')
+		) {
+			return abort();
+		}
+
+		const iterableText = getParenthesizedText(loop.right, context);
+		const elementText = getArrowParameterText(element, context);
+		const keyText = getConciseArrowBodyText(key, context);
+		yield fixer.replaceText(init, `${method}(${iterableText}, ${elementText} => ${keyText})`);
+		// Removing the loop exposes the declaration to the following statement.
+		if (nextToken && needsSemicolon(sourceCode.getLastToken(declaration), context, nextToken.value)) {
+			yield fixer.insertTextAfter(declaration, ';');
+		}
+
+		yield removeStatement(loop, context, fixer);
+	};
+
 	return {
 		node: loop,
 		messageId: MESSAGE_ID_LOOP,
 		data: {method},
-		* fix(fixer, {abort}) {
-			const {sourceCode} = context;
-			const [start] = sourceCode.getRange(init);
-			const nextToken = sourceCode.getTokenAfter(loop);
-			const end = nextToken ? sourceCode.getRange(nextToken)[0] : sourceCode.text.length;
-			if (
-				hasCommentInRange(context, [start, end])
-				|| accumulator.typeAnnotation
-				|| hasTypeArguments(init)
-				|| hasRepeatedSideEffectfulKey(statements, key, context)
-				|| containsNode(key, context, node => node.type === 'AwaitExpression' || node.type === 'YieldExpression')
-			) {
-				return abort();
-			}
-
-			const iterableText = getParenthesizedText(loop.right, context);
-			const elementText = getArrowParameterText(element, context);
-			const keyText = getConciseArrowBodyText(key, context);
-			yield fixer.replaceText(init, `${method}(${iterableText}, ${elementText} => ${keyText})`);
-			// Removing the loop exposes the declaration to the following statement.
-			if (nextToken && needsSemicolon(sourceCode.getLastToken(declaration), context, nextToken.value)) {
-				yield fixer.insertTextAfter(declaration, ';');
-			}
-
-			yield removeStatement(loop, context, fixer);
-		},
+		// A function that can run during the loop and reads the accumulator would then run while the initializer is built, before the accumulator is initialized.
+		...(isReferencedByNestedFunction(context.sourceCode.getDeclaredVariables(declaration)[0], loop, context)
+			? {suggest: [{messageId: MESSAGE_ID_SUGGESTION, data: {method}, fix}]}
+			: {fix}),
 	};
 }
 
@@ -701,6 +709,7 @@ const config = {
 			recommended: true,
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema: [],
 		messages,
 		languages: [

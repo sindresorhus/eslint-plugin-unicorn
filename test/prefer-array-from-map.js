@@ -4,6 +4,31 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 test.snapshot({
+	valid: [],
+	invalid: [
+		'function transform(value) { return result.length + value; } const result = []; for (const value of ((items))) { result.push((transform(value))); }',
+		'/* before */ const result = []; for (const value of items) { result.push(value * 2); } /* after */',
+		'const result = []; for (const value of items) { /* keep */ result.push(transform(value)); }',
+		{
+			code: 'function transform(value: number): number { return result.length + value; } const result: number[] = []; for (const value of items) { result.push(transform(value)); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const result: number[] = []; for (const value of (items as number[])) { result.push(value! * 2); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const result: Item[] = []; for (const value of items!) { result.push(({value} satisfies Item)); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// A hoisted function declaration can run during the loop
+		'const result = []; for (const value of items) { result.push(transform(value)); } function transform(value) { return result.length + value; }',
+		// A function created after the loop cannot run during the loop
+		'const result = []; for (const value of items) { result.push(value * 2); } const read = () => result;',
+	],
+});
+
+test.snapshot({
 	valid: [
 		'Array.from(iterable, mapFunction);',
 		'Array.from(iterable, mapFunction).map(nextMapFunction);',

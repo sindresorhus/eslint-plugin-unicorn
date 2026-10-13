@@ -10,6 +10,7 @@ import {
 	getParenthesizedText,
 	getStaticValueForControlFlow,
 	isGlobalNameAvailable,
+	isReferencedByNestedFunction,
 	isStringMappingType,
 	isTemplateLiteralType,
 	isUniqueSymbolType,
@@ -230,6 +231,8 @@ const getLoopProblem = (declaration, context) => {
 	if (
 		binding.name === arrayName
 		|| referencesVariable(variable, loop.right, context)
+		// A function that can run during the loop and references the array would run before `Array.fromAsync()` assigns it.
+		|| isReferencedByNestedFunction(variable, loop, context)
 		|| !isMethodCall(expression, {
 			method: 'push',
 			argumentsLength: 1,

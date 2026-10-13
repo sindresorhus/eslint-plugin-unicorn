@@ -2,11 +2,14 @@ import {isNewExpression, isMethodCall} from './ast/index.js';
 import {removeStatement} from './fix/index.js';
 import {
 	getCommentSafeProblem,
+	getConstVariableInitializer,
 	getNextNode,
 	getOnlyExpression,
 	getParenthesizedText,
+	isReferencedByNestedFunction,
 	isSameIdentifier,
 	needsSemicolon,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {
 	getForOfDeclarationPattern,
@@ -20,8 +23,10 @@ import {
 */
 
 const MESSAGE_ID = 'prefer-iterable-in-constructor';
+const MESSAGE_ID_SUGGESTION = 'prefer-iterable-in-constructor/suggestion';
 const messages = {
 	[MESSAGE_ID]: 'Pass `{{source}}` directly to `new {{constructorName}}()`.',
+	[MESSAGE_ID_SUGGESTION]: 'Pass the iterable directly to `new {{constructorName}}()`.',
 };
 
 const setConstructorNames = new Set([
@@ -113,6 +118,13 @@ const isDirectlyUnsafeSource = (constructorName, sourceNode) =>
 		mapConstructorNames.has(constructorName)
 		&& hasUnsafeMapArrayEntry(sourceNode)
 	);
+
+// Also checks the initializer of a `const` source, like `const values = ["a"]`
+const isUnsafeSource = (constructorName, sourceNode, context) => {
+	const sourceExpression = unwrapTypeScriptExpression(sourceNode);
+	const sourceValue = getConstVariableInitializer(sourceExpression, context) ?? sourceExpression;
+	return isDirectlyUnsafeSource(constructorName, unwrapTypeScriptExpression(sourceValue));
+};
 
 const declaresVariableNamed = (node, name, context) =>
 	context.sourceCode.getDeclaredVariables(node).some(variable => variable.name === name);
@@ -226,7 +238,7 @@ const getLoopProblem = (declaration, context) => {
 		return;
 	}
 
-	if (isDirectlyUnsafeSource(constructorName, sourceNode)) {
+	if (isUnsafeSource(constructorName, sourceNode, context)) {
 		return;
 	}
 
@@ -247,6 +259,12 @@ const getLoopProblem = (declaration, context) => {
 	}
 
 	const range = [context.sourceCode.getRange(declaration)[0], context.sourceCode.getRange(loop)[1]];
+	const fix = getFix({
+		declaration,
+		loop,
+		newExpression,
+		sourceNode,
+	}, context);
 
 	return getCommentSafeProblem(context, {
 		node: loop,
@@ -255,12 +273,10 @@ const getLoopProblem = (declaration, context) => {
 			constructorName,
 			source: context.sourceCode.getText(sourceNode),
 		},
-		fix: getFix({
-			declaration,
-			loop,
-			newExpression,
-			sourceNode,
-		}, context),
+		// A function that can run during the loop and reads the collection would then run while the constructor consumes the source, before the collection is initialized.
+		...(isReferencedByNestedFunction(variable, loop, context)
+			? {suggest: [{messageId: MESSAGE_ID_SUGGESTION, data: {constructorName}, fix}]}
+			: {fix}),
 	}, range);
 };
 
@@ -283,7 +299,7 @@ const create = context => {
 
 		const objectEntriesCall = newExpression.arguments[0];
 		const [sourceNode] = objectEntriesCall.arguments;
-		if (isDirectlyUnsafeSource('URLSearchParams', sourceNode)) {
+		if (isUnsafeSource('URLSearchParams', sourceNode, context)) {
 			return;
 		}
 
@@ -311,6 +327,7 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		messages,
 		languages: [
 			'js/js',

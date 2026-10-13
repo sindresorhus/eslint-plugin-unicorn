@@ -4,7 +4,7 @@
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
-🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -13,11 +13,13 @@ Some built-in constructors accept the values they should contain. Creating an em
 
 This rule reports simple adjacent loops that fill an empty `Set`, `WeakSet`, `Map`, `WeakMap`, or `URLSearchParams`. It also reports `new URLSearchParams(Object.entries(record))`.
 
-`URLSearchParams` is only reported for `Object.entries(record)` because `new URLSearchParams(record)` can consume string-keyed records directly. The rule skips obvious non-record sources like arrays, strings, nullish values, primitive numbers, and constructor calls. Generic pair iterables are intentionally not reported for `URLSearchParams#set()` because duplicate names can make the loop behavior differ from constructor behavior.
+When a function that can run during the loop references the collection, the loop replacement is a suggestion, because the function could run while the constructor reads the source, before the collection is initialized.
+
+`URLSearchParams` is only reported for `Object.entries(record)` because `new URLSearchParams(record)` can consume string-keyed records directly. The rule skips obvious non-record sources like arrays, strings, nullish values, primitive numbers, and constructor calls, including in the initializer of a `const` variable. Generic pair iterables are intentionally not reported for `URLSearchParams#set()` because duplicate names can make the loop behavior differ from constructor behavior.
 
 `FormData` is intentionally unsupported because its constructor accepts a form and optional submitter, not arbitrary entries.
 
-Exotic custom iterator behavior, symbol-keyed records hidden behind variables, and shadowed built-ins are intentionally unsupported. The rule skips direct object literals with computed properties and direct `Map` array literals that are not array pairs, but it does not try to prove whether variables contain custom iterables or symbol keys.
+Exotic custom iterator behavior, symbol-keyed records hidden behind variables, and shadowed built-ins are intentionally unsupported. The rule skips object literals with computed properties and `Map` array literals that are not array pairs, directly or in the initializer of a `const` variable, but it does not try to prove whether other variables contain custom iterables or symbol keys.
 
 ## Examples
 

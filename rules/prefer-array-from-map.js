@@ -12,6 +12,7 @@ import {
 	isArray,
 	isGlobalNameAvailable,
 	isParenthesized,
+	isReferencedByNestedFunction,
 	wouldRemoveComments,
 } from './utils/index.js';
 import {
@@ -221,13 +222,18 @@ const getLoopProblem = (declaration, context) => {
 		sourceCode.getRange(declaration)[0],
 		sourceCode.getRange(loop)[1],
 	];
+	const fix = fixer => fixer.replaceTextRange(
+		replaceRange,
+		`${declaration.kind} ${getVariableTargetText(declarator, context)} = ${replacement};`,
+	);
+
 	return getCommentSafeProblem(context, {
 		node: loop,
 		messageId: MESSAGE_ID_ERROR,
-		fix: fixer => fixer.replaceTextRange(
-			replaceRange,
-			`${declaration.kind} ${getVariableTargetText(declarator, context)} = ${replacement};`,
-		),
+		// A function that can run during the loop and reads the array would then run while the initializer is built, before the array is initialized.
+		...(isReferencedByNestedFunction(variable, loop, context)
+			? {suggest: [{messageId: MESSAGE_ID_SUGGESTION, fix}]}
+			: {fix}),
 	}, replaceRange);
 };
 

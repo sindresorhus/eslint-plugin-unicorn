@@ -13,7 +13,7 @@ Prefer `Array.fromAsync()` over simple loops that only accumulate values into an
 
 `Array.fromAsync(iterable)` directly creates an array from an async iterable, sync iterable, or array-like value. It is clearer than manually creating and filling an array in a loop.
 
-This rule reports a `const` or `let` empty-array declaration immediately followed by a simple `for…of` or `for await…of` loop whose only statement pushes into the array. The loop must use one identifier binding, and mapped expressions must be explicitly awaited.
+This rule reports a `const` or `let` empty-array declaration immediately followed by a simple `for…of` or `for await…of` loop whose only statement pushes into the array. The loop must use one identifier binding, and mapped expressions must be explicitly awaited. Loops are skipped when a function that can run during the loop references the array, since it would run before `Array.fromAsync()` assigns the array.
 
 Ordinary `for…of` loops are limited to inputs known to yield primitives. Without type information, this covers statically known strings and array literals of primitives; array literals with spreads are skipped. Full TypeScript type information also enables strings, arrays, readonly arrays, and tuples of primitives. Arrays referenced through variable declarations are supported only when initialized by a single-use `const` array literal; aliases are skipped. Unknown values, object or promise elements, and custom iterables are also skipped. Syntax-only TypeScript uses the JavaScript checks.
 

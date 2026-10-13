@@ -88,6 +88,23 @@ Output:
 
 `;
 
+exports[`prefer-array-from-map > invalid(1): function transform(value) { return result.length + value; } const result = []; for (const value of ((items))) { result.push((transform(value))); } 1`] = `
+
+  1 | function transform(value) { return result.length + value; } const result = []; for (const value of ((items))) { result.push((transform(value))); }
+
+`;
+
+exports[`prefer-array-from-map > invalid(1): function transform(value) { return result.length + value; } const result = []; for (const value of ((items))) { result.push((transform(value))); } 2`] = `
+
+Message:
+> 1 | function transform(value) { return result.length + value; } const result = []; for (const value of ((items))) { result.push((transform(value))); }
+    |                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Suggestion 1/1: Use the \`Array.from()\` mapping function argument.:
+  1 | function transform(value) { return result.length + value; } const result = Array.from(((items)), value => transform(value));
+
+`;
+
 exports[`prefer-array-from-map > invalid(1): import type {Array} from './types.js';\nconst result = [];\nfor (const item of items) {\n\tresult.push(transform(item));\n} 1`] = `
 
   1 | import type {Array} from './types.js';
@@ -317,6 +334,23 @@ Message:
 
 Output:
   1 | const result = Array.from((iterable), element => transform(element));
+
+`;
+
+exports[`prefer-array-from-map > invalid(2): /* before */ const result = []; for (const value of items) { result.push(value * 2); } /* after */ 1`] = `
+
+  1 | /* before */ const result = []; for (const value of items) { result.push(value * 2); } /* after */
+
+`;
+
+exports[`prefer-array-from-map > invalid(2): /* before */ const result = []; for (const value of items) { result.push(value * 2); } /* after */ 2`] = `
+
+Message:
+> 1 | /* before */ const result = []; for (const value of items) { result.push(value * 2); } /* after */
+    |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Output:
+  1 | /* before */ const result = Array.from(items, value => value * 2); /* after */
 
 `;
 
@@ -628,6 +662,20 @@ Output:
 
 `;
 
+exports[`prefer-array-from-map > invalid(3): const result = []; for (const value of items) { /* keep */ result.push(transform(value)); } 1`] = `
+
+  1 | const result = []; for (const value of items) { /* keep */ result.push(transform(value)); }
+
+`;
+
+exports[`prefer-array-from-map > invalid(3): const result = []; for (const value of items) { /* keep */ result.push(transform(value)); } 2`] = `
+
+Message:
+> 1 | const result = []; for (const value of items) { /* keep */ result.push(transform(value)); }
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Pass the mapping function to \`Array.from()\` directly.
+
+`;
+
 exports[`prefer-array-from-map > invalid(30): const result = [];\n// Keep this comment.\nfor (const element of iterable) {\n\tresult.push(transform(element));\n} 1`] = `
 
   1 | const result = [];
@@ -711,6 +759,23 @@ Suggestion 1/1: Use the \`Array.from()\` mapping function argument.:
 
 `;
 
+exports[`prefer-array-from-map > invalid(4): function transform(value: number): number { return result.length + value; } const result: number[] = []; for (const value of items) { result.push(transform(value)); } 1`] = `
+
+  1 | function transform(value: number): number { return result.length + value; } const result: number[] = []; for (const value of items) { result.push(transform(value)); }
+
+`;
+
+exports[`prefer-array-from-map > invalid(4): function transform(value: number): number { return result.length + value; } const result: number[] = []; for (const value of items) { result.push(transform(value)); } 2`] = `
+
+Message:
+> 1 | function transform(value: number): number { return result.length + value; } const result: number[] = []; for (const value of items) { result.push(transform(value)); }
+    |                                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Suggestion 1/1: Use the \`Array.from()\` mapping function argument.:
+  1 | function transform(value: number): number { return result.length + value; } const result: number[] = Array.from(items, value => transform(value));
+
+`;
+
 exports[`prefer-array-from-map > invalid(5): (Array.from(iterable)).map(element => element); 1`] = `
 
   1 | (Array.from(iterable)).map(element => element);
@@ -722,6 +787,23 @@ exports[`prefer-array-from-map > invalid(5): (Array.from(iterable)).map(element 
 Message:
 > 1 | (Array.from(iterable)).map(element => element);
     |                        ^^^ Pass the mapping function to \`Array.from()\` directly.
+
+`;
+
+exports[`prefer-array-from-map > invalid(5): const result: number[] = []; for (const value of (items as number[])) { result.push(value! * 2); } 1`] = `
+
+  1 | const result: number[] = []; for (const value of (items as number[])) { result.push(value! * 2); }
+
+`;
+
+exports[`prefer-array-from-map > invalid(5): const result: number[] = []; for (const value of (items as number[])) { result.push(value! * 2); } 2`] = `
+
+Message:
+> 1 | const result: number[] = []; for (const value of (items as number[])) { result.push(value! * 2); }
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Output:
+  1 | const result: number[] = Array.from((items as number[]), value => value! * 2);
 
 `;
 
@@ -742,6 +824,23 @@ Suggestion 1/1: Use the \`Array.from()\` mapping function argument.:
 
 `;
 
+exports[`prefer-array-from-map > invalid(6): const result: Item[] = []; for (const value of items!) { result.push(({value} satisfies Item)); } 1`] = `
+
+  1 | const result: Item[] = []; for (const value of items!) { result.push(({value} satisfies Item)); }
+
+`;
+
+exports[`prefer-array-from-map > invalid(6): const result: Item[] = []; for (const value of items!) { result.push(({value} satisfies Item)); } 2`] = `
+
+Message:
+> 1 | const result: Item[] = []; for (const value of items!) { result.push(({value} satisfies Item)); }
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Output:
+  1 | const result: Item[] = Array.from(items!, value => ({value} satisfies Item));
+
+`;
+
 exports[`prefer-array-from-map > invalid(7): Array.from(iterable).map((element => element), thisArgument); 1`] = `
 
   1 | Array.from(iterable).map((element => element), thisArgument);
@@ -759,6 +858,23 @@ Suggestion 1/1: Use the \`Array.from()\` mapping function argument.:
 
 `;
 
+exports[`prefer-array-from-map > invalid(7): const result = []; for (const value of items) { result.push(transform(value)); } function transform(value) { return result.length + value; } 1`] = `
+
+  1 | const result = []; for (const value of items) { result.push(transform(value)); } function transform(value) { return result.length + value; }
+
+`;
+
+exports[`prefer-array-from-map > invalid(7): const result = []; for (const value of items) { result.push(transform(value)); } function transform(value) { return result.length + value; } 2`] = `
+
+Message:
+> 1 | const result = []; for (const value of items) { result.push(transform(value)); } function transform(value) { return result.length + value; }
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Suggestion 1/1: Use the \`Array.from()\` mapping function argument.:
+  1 | const result = Array.from(items, value => transform(value)); function transform(value) { return result.length + value; }
+
+`;
+
 exports[`prefer-array-from-map > invalid(8): Array.from(/* source */ iterable).map(element => element); 1`] = `
 
   1 | Array.from(/* source */ iterable).map(element => element);
@@ -773,6 +889,23 @@ Message:
 
 Suggestion 1/1: Use the \`Array.from()\` mapping function argument.:
   1 | Array.from(/* source */ iterable, element => element);
+
+`;
+
+exports[`prefer-array-from-map > invalid(8): const result = []; for (const value of items) { result.push(value * 2); } const read = () => result; 1`] = `
+
+  1 | const result = []; for (const value of items) { result.push(value * 2); } const read = () => result;
+
+`;
+
+exports[`prefer-array-from-map > invalid(8): const result = []; for (const value of items) { result.push(value * 2); } const read = () => result; 2`] = `
+
+Message:
+> 1 | const result = []; for (const value of items) { result.push(value * 2); } const read = () => result;
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Pass the mapping function to \`Array.from()\` directly.
+
+Output:
+  1 | const result = Array.from(items, value => value * 2); const read = () => result;
 
 `;
 

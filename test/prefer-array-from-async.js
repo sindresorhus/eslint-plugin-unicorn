@@ -518,3 +518,70 @@ test.snapshot({
 		'async function foo() { const result = []; for await (const item of items) { result.push(await {a: item}.a); } }',
 	],
 });
+
+test({
+	valid: [
+		// `snapshot()` reads `result` while the loop runs, which is before `Array.fromAsync()` has assigned it
+		outdent`
+			async function f() {
+				const result = [];
+				for await (const x of it) result.push(await g(x, snapshot()));
+				return result;
+				function snapshot() { return result.length; }
+			}
+		`,
+		// A closure defined before the array can also run during the loop
+		outdent`
+			async function f() {
+				const log = () => console.log(result.length);
+				const result = [];
+				for await (const x of it) result.push(x);
+				return result;
+			}
+		`,
+	],
+	invalid: [
+		// Functions created after the loop cannot run during the loop
+		...[
+			'return items.filter(item => result.includes(item));',
+			'return {get size() { return result.length; }};',
+			'return class { size = result.length; };',
+		].map(statement => ({
+			code: outdent`
+				async function f() {
+					const result = [];
+					for await (const x of it) result.push(x);
+					${statement}
+				}
+			`,
+			output: outdent`
+				async function f() {
+					const result = await Array.fromAsync(it);
+					${statement}
+				}
+			`,
+			errors: 1,
+		})),
+		// A block scope is not a nested function, so the loop is still fixed
+		{
+			code: outdent`
+				async function f() {
+					if (x) {
+						const result = [];
+						for await (const item of items) result.push(item);
+						return result;
+					}
+				}
+			`,
+			output: outdent`
+				async function f() {
+					if (x) {
+						const result = await Array.fromAsync(items);
+						return result;
+					}
+				}
+			`,
+			errors: 1,
+		},
+	],
+});

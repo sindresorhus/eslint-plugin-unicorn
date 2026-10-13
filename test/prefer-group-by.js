@@ -301,6 +301,31 @@ test({
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: 'prefer-group-by-loop'}],
 		},
+		// A function created after the loop cannot run during the loop
+		{
+			code: 'const groups = new Map(); for (const item of items) { const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group); } const read = () => groups;',
+			output: 'const groups = Map.groupBy(items, item => item.type);  const read = () => groups;',
+			errors: [{messageId: 'prefer-group-by-loop'}],
+		},
+		// A nested function that reads the accumulator would run before it is initialized
+		...[
+			[
+				'function getKey(item) { return Object.keys(groups).length; } const groups = {}; for (const item of items) { const key = getKey(item); groups[key] ??= []; groups[key].push(item); }',
+				'function getKey(item) { return Object.keys(groups).length; } const groups = Object.groupBy(items, item => getKey(item)); ',
+				'Object.groupBy',
+			],
+			[
+				'const groups = new Map(); for (const item of items) { const group = groups.get(item.type) ?? []; group.push(item); groups.set(item.type, group); } function read() { return groups; }',
+				'const groups = Map.groupBy(items, item => item.type);  function read() { return groups; }',
+				'Map.groupBy',
+			],
+		].map(([code, output, method]) => ({
+			code,
+			errors: [{
+				messageId: 'prefer-group-by-loop',
+				suggestions: [{messageId: 'replace-loop-with-group-by', data: {method}, output}],
+			}],
+		})),
 	],
 });
 
