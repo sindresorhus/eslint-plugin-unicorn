@@ -370,3 +370,36 @@ Output:
   3 | */
 
 `;
+
+exports[`no-asterisk-prefix-in-documentation-comments > invalid(7): /**\n * Options:\n *   * a\n *   * b\n */ 1`] = `
+
+  1 | /**
+  2 |  * Options:
+  3 |  *   * a
+  4 |  *   * b
+  5 |  */
+
+`;
+
+exports[`no-asterisk-prefix-in-documentation-comments > invalid(7): /**\n * Options:\n *   * a\n *   * b\n */ 2`] = `
+
+Message:
+> 1 | /**
+    | ^^^
+> 2 |  * Options:
+    | ^^^^^^^^^^^
+> 3 |  *   * a
+    | ^^^^^^^^
+> 4 |  *   * b
+    | ^^^^^^^^
+> 5 |  */
+    | ^^^ Remove asterisk prefixes and shared indentation from this comment.
+
+Output:
+  1 | /**
+  2 | Options:
+  3 |   * a
+  4 |   * b
+  5 | */
+
+`;

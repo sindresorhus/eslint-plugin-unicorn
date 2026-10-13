@@ -17,9 +17,23 @@ const getCommentRange = (sourceCode, comment) => {
 	return [sourceCode.getIndexFromLoc(start), sourceCode.getIndexFromLoc(end)];
 };
 
+// A line with only whitespace or the closing delimiter
+const isBlankLine = line => /^[\t ]*(?:\*\/)?$/v.test(line);
+
 const getFixedCommentText = (text, linePrefix) => {
 	const closingDelimiterPattern = new RegExp(`^${linePrefix}[ \t]+\\*/`, 'gmv');
 	const linePrefixPattern = new RegExp(`^${linePrefix}[ \t]+\\*(?:[ \t])?`, 'gmv');
+	const contentLines = text.split(LINE_ENDING_PATTERN).slice(1).filter(line => !isBlankLine(line));
+	const prefixedLinePattern = new RegExp(`^${linePrefix}[ \t]+\\*`, 'v');
+	const isPrefixedLine = line => prefixedLinePattern.test(line);
+
+	// When only some lines have an asterisk prefix, the asterisks may be content, like the indented Markdown list markers left by a previous fix.
+	if (
+		contentLines.some(line => isPrefixedLine(line))
+		&& contentLines.some(line => !isPrefixedLine(line))
+	) {
+		return text;
+	}
 
 	const fixedText = text
 		.replace(closingDelimiterPattern, () => `${linePrefix}*/`)
@@ -27,7 +41,7 @@ const getFixedCommentText = (text, linePrefix) => {
 	let sharedIndentation;
 
 	for (const line of fixedText.split(LINE_ENDING_PATTERN).slice(1)) {
-		if (/^[\t ]*(?:\*\/)?$/v.test(line)) {
+		if (isBlankLine(line)) {
 			continue;
 		}
 

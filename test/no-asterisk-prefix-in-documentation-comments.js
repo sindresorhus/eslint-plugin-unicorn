@@ -56,6 +56,14 @@ test.snapshot({
 			* This leading asterisk is content.
 			*/
 		`,
+		// Output of the fix for the nested Markdown list below. The indented asterisks are list markers, not prefixes.
+		outdent`
+			/**
+			Options:
+			  * a
+			  * b
+			*/
+		`,
 		outdent`
 			if (condition) {
 				/**
@@ -99,6 +107,14 @@ test.snapshot({
 			 */
 		`,
 		'/**\n\t* Description.\n\t*/',
+		// Nested Markdown list markers are kept, and the fix does not run again on its own output
+		outdent`
+			/**
+			 * Options:
+			 *   * a
+			 *   * b
+			 */
+		`,
 	],
 });
 
@@ -108,6 +124,10 @@ test({
 		'/**\n\n*/',
 		'/**\n\t \n*/',
 		'/**\n Description.\n\tDifferent indentation.\n*/',
+		// Output of the fix for a list marker one space deeper than the text. A comment where only some lines look prefixed is ignored.
+		'/**\nOptions:\n * a\n*/',
+		'/**\n  Options:\n    * a\n  */',
+		'/**\n * Description.\n More details.\n */',
 		'if (condition) {\n\t/**\nDescription.\n\t*/\n}',
 		'/*\n Description.\n */',
 		'/****\n Decorative banner.\n */',
@@ -132,6 +152,22 @@ test({
 		{
 			code: '/**\n  - Item.\n    - Nested item.\n  */',
 			output: '/**\n- Item.\n  - Nested item.\n*/',
+			errors: [error],
+		},
+		{
+			code: '/**\n * Options:\n *  * a\n */',
+			output: '/**\nOptions:\n * a\n*/',
+			errors: [error],
+		},
+		// The prefix does not have to be one space deeper than the opening line
+		{
+			code: '/**\n  * Description.\n  */',
+			output: '/**\nDescription.\n*/',
+			errors: [error],
+		},
+		{
+			code: '\t/**\n\t\t * Description.\n\t\t */',
+			output: '\t/**\n\tDescription.\n\t*/',
 			errors: [error],
 		},
 		{
