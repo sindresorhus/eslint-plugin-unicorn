@@ -1,8 +1,77 @@
+import {stripTypeScriptTypes} from 'node:module';
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+nodeTest('deleting a coerced value preserves the property and delete result', t => {
+	const linter = new Linter();
+	const config = {
+		languageOptions: {parser: typescriptEslintParser},
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	};
+
+	for (const [value, expression] of [
+		['1', 'Number(object.value as number)'],
+		['1', '+(object.value as number)'],
+		['true', 'Boolean(object.value as boolean)'],
+		['"x"', 'String(object.value as string)'],
+		['1n', 'BigInt(object.value as bigint)'],
+		['"x"', '(object.value as string) + ""'],
+		['"x"', '"" + (object.value as string)'],
+		['"x"', '(object.value as string).toString()'],
+	]) {
+		const code = `"use strict"; const object = {value: ${value}}; const result = delete (${expression}); JSON.stringify({result, exists: Object.hasOwn(object, "value")});`;
+		const {fixed, output, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, false, code);
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].fix, undefined);
+		const result = runInNewContext(stripTypeScriptTypes(output));
+		t.assert.deepStrictEqual(JSON.parse(result), {result: true, exists: true});
+	}
+
+	const code = '"use strict"; const result = delete Number(Math.PI); result;';
+	const {output, fixed, messages} = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(messages[0].fix, undefined);
+	t.assert.strictEqual(runInNewContext(output), true);
+	// Exposing the non-configurable reference would throw instead of returning true.
+	t.assert.throws(() => runInNewContext('"use strict"; delete Math.PI;'), {name: 'TypeError'});
+});
+
+test({
+	valid: [],
+	invalid: [
+		{code: 'const object = {length: 1}; delete Number(object.length);', errors: [{messageId: 'no-useless-coercion'}]},
+		{code: 'const object = {length: 1}; delete +object.length;', errors: [{messageId: 'no-useless-coercion'}]},
+		{code: 'delete Number(Math.PI);', errors: [{messageId: 'no-useless-coercion'}]},
+		...[
+			'delete (Number(object.length) as number);',
+			'delete Number(object.length)!;',
+			'delete (Number(object.length) satisfies number);',
+			'delete (<number>Number(object.length));',
+			'delete Number(object.length satisfies number);',
+			'delete Number(/* keep */ object.length);',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}, errors: [{messageId: 'no-useless-coercion'}]})),
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const object = {length: 1}; const result = Number(object.length) + 1;',
+			output: 'const object = {length: 1}; const result = object.length + 1;',
+			errors: [{messageId: 'no-useless-coercion'}],
+		},
+	],
+});
 
 test.snapshot({
 	valid: [
