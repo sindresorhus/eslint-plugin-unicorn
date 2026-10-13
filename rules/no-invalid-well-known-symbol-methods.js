@@ -1,3 +1,5 @@
+import {getPropertyName} from '@eslint-community/eslint-utils';
+import {isMemberExpression} from './ast/index.js';
 import {isPromiseType} from './utils/index.js';
 
 const MESSAGE_ID_ASYNC_DISPOSE = 'no-invalid-well-known-symbol-methods/async-dispose';
@@ -32,15 +34,10 @@ function getWellKnownSymbolName(member) {
 	return member.key.property.name;
 }
 
-// `[Symbol.asyncDispose]` and `[Symbol['asyncDispose']]` are the same key
-const isAsyncDisposeKey = key =>
-	key.type === 'MemberExpression'
-	&& key.object.type === 'Identifier'
-	&& key.object.name === 'Symbol'
-	&& (
-		(!key.computed && key.property.type === 'Identifier' && key.property.name === 'asyncDispose')
-		|| (key.computed && key.property.type === 'Literal' && key.property.value === 'asyncDispose')
-	);
+// `[Symbol.asyncDispose]`, `[Symbol['asyncDispose']]`, and `[Symbol[\`asyncDispose\`]]` are the same key
+const isAsyncDisposeKey = (key, context) =>
+	isMemberExpression(key, {object: 'Symbol'})
+	&& getPropertyName(key, context.sourceCode.getScope(key)) === 'asyncDispose';
 
 function getFunctionNode(member) {
 	if (member.kind === 'get' || member.kind === 'set') {
@@ -135,14 +132,15 @@ function getProblem(member, context) {
 
 		const {parent} = member;
 		const siblings = parent.type === 'ClassBody' ? parent.body : parent.properties;
-		// A second `[Symbol.asyncDispose]` would shadow this one, the later member wins. `Symbol.asyncDispose` and `Symbol['asyncDispose']` are the same key.
-		const hasOtherAsyncDispose = siblings.some(node =>
+		// A second `[Symbol.asyncDispose]` would shadow this one, the later member wins. A spread after this member can also supply `Symbol.asyncDispose` and win, which the renamed method would then not do. `Symbol.asyncDispose` and `Symbol['asyncDispose']` are the same key.
+		const mayShadowAsyncDispose = siblings.some(node =>
 			node !== member
-			&& node.computed
-			&& isAsyncDisposeKey(node.key)
-			&& node.static === member.static);
+			&& (
+				(node.computed && isAsyncDisposeKey(node.key, context) && node.static === member.static)
+				|| (node.type === 'SpreadElement' && siblings.indexOf(node) > siblings.indexOf(member))
+			));
 
-		if (!hasOtherAsyncDispose) {
+		if (!mayShadowAsyncDispose) {
 			problem.fix = fixer => fixer.replaceText(member.key.property, 'asyncDispose');
 		}
 

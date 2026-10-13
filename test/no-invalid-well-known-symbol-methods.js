@@ -380,3 +380,30 @@ test({
 		},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		// `Symbol[`asyncDispose`]` is the same key as `Symbol.asyncDispose`, so renaming would merge the two members
+		{
+			code: 'class A { async [Symbol.dispose]() { a(); } [Symbol[`asyncDispose`]]() { b(); } }',
+			errors: 1,
+		},
+		// A constant key is resolved too
+		{
+			code: 'const name = \'asyncDispose\'; class A { async [Symbol.dispose]() {} [Symbol[name]]() {} }',
+			errors: 1,
+		},
+		// A dynamic key is not known to be `Symbol.asyncDispose`, so it is still fixed
+		{
+			code: 'const o = { async [Symbol.dispose]() {}, [Symbol[name]]() {} };',
+			output: 'const o = { async [Symbol.asyncDispose]() {}, [Symbol[name]]() {} };',
+			errors: 1,
+		},
+		// A spread after the method can supply `Symbol.asyncDispose` and win, so renaming would drop the method
+		{
+			code: 'const o = { async [Symbol.dispose]() {}, ...other };',
+			errors: 1,
+		},
+	],
+});
