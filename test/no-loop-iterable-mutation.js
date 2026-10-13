@@ -1,8 +1,88 @@
+import nodeTest from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+for (const [description, statement, expected] of [
+	['continue', 'try { set.delete(value); } finally { continue; }', 'done'],
+	['break', 'try { set.delete(value); } finally { break; }', 'done'],
+	['return', 'try { set.delete(value); } finally { return "returned"; }', 'returned'],
+	['throw', 'try { set.delete(value); } finally { throw new Error("failure"); }', 'failure'],
+	['catch delete', 'try { throw 1; } catch { set.delete(value); } finally { continue; }', 'done'],
+]) {
+	nodeTest(`a ${description} finalizer leaves no reachable reinsertion`, t => {
+		const code = outdent`
+			const set = new Set([1]);
+			let additions = 0;
+			function run() {
+				outer: for (const value of set) {
+					${statement}
+					additions++;
+					set.add(value);
+				}
+				return "done";
+			}
+			let result;
+			try { result = run(); } catch (error) { result = error.message; }
+			JSON.stringify({size: set.size, additions, result});
+		`;
+		const messages = new Linter().verify(code, {
+			plugins: {unicorn: {rules: {'no-loop-iterable-mutation': rule}}},
+			rules: {'unicorn/no-loop-iterable-mutation': 'error'},
+		});
+		t.assert.strictEqual(runInNewContext(code), JSON.stringify({size: 0, additions: 0, result: expected}));
+		t.assert.deepStrictEqual(messages, []);
+	});
+}
+
+for (const binding of ['const key of map.keys()', 'const [key] of map']) {
+	nodeTest(`a jumping finalizer skips Map reinsertion with ${binding}`, t => {
+		const code = outdent`
+			const map = new Map([[1, 2]]); let additions = 0;
+			for (${binding}) { try { map.delete(key); } finally { continue; } additions++; map.set(key, 2); }
+			JSON.stringify({size: map.size, additions});
+		`;
+		const messages = new Linter().verify(code, {
+			plugins: {unicorn: {rules: {'no-loop-iterable-mutation': rule}}},
+			rules: {'unicorn/no-loop-iterable-mutation': 'error'},
+		});
+		t.assert.strictEqual(runInNewContext(code), '{"size":0,"additions":0}');
+		t.assert.deepStrictEqual(messages, []);
+	});
+}
+
+for (const statement of [
+	'try { set.delete(value); } finally { events.push("final"); }',
+	// A `break` inside the finalizer that only leaves an inner loop
+	'try { set.delete(value); } finally { events.push("final"); while (true) { break; } }',
+]) {
+	nodeTest(`a finalizer reaching reinsertion is still reported for ${statement}`, t => {
+		const code = `const set = new Set([1]); const events = []; for (const value of set) { ${statement} set.add(value); events.push("add"); break; } JSON.stringify({size: set.size, events});`;
+		const messages = new Linter().verify(code, {
+			plugins: {unicorn: {rules: {'no-loop-iterable-mutation': rule}}},
+			rules: {'unicorn/no-loop-iterable-mutation': 'error'},
+		});
+		t.assert.strictEqual(runInNewContext(code), '{"size":1,"events":["final","add"]}');
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].messageId, 'no-loop-iterable-mutation');
+	});
+}
+
+test({
+	valid: [
+		'const set = new Set([1]); for (const value of set) { try { /* keep */ set.delete(value); } finally { continue; } set.add(value); }',
+		'const set = new Set([1]);\r\nfor (const value of set) {\r\n  try { set.delete(value); } finally { continue; }\r\n  set.add(value);\r\n}',
+		{
+			code: 'const set = new Set<number>([1]); for (const value of (set as Set<number>)) { try { set.delete(value); } finally { continue; } set.add(value); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [],
+});
 
 const typeAware = code => ({
 	code,
@@ -902,6 +982,84 @@ test({
 		'const map = new Map(); for (const entry of map.entries()) { map.delete(entry); }',
 		'const set = new Set(); for (const entry of set.entries()) { set.delete(entry); }',
 		'const map = new Map(); for (const [key, value] of map) { map.delete(key); }',
+	],
+	invalid: [],
+});
+
+test({
+	valid: [],
+	invalid: [
+		// A delete inside a `try` or a labeled statement can run before the re-insert, so the re-insert is still reported
+		{
+			code: 'const set = new Set([1]);\nfor (const x of set) {\n\ttry {\n\t\tset.delete(x);\n\t} catch {}\n\tset.add(x);\n}',
+			errors: 1,
+		},
+		{
+			code: 'const set = new Set([1]);\nfor (const x of set) {\n\tlabel: {\n\t\tset.delete(x);\n\t}\n\tset.add(x);\n}',
+			errors: 1,
+		},
+		{
+			code: 'const set = new Set([1]);\nfor (const x of set) {\n\ttry {\n\t\tfoo(x);\n\t} catch {\n\t\tset.delete(x);\n\t}\n\tset.add(x);\n}',
+			errors: 1,
+		},
+		{
+			code: 'const set = new Set([1]);\nfor (const x of set) {\n\ttry {\n\t\tfoo(x);\n\t} finally {\n\t\tset.delete(x);\n\t}\n\tset.add(x);\n}',
+			errors: 1,
+		},
+		{
+			code: 'const set = new Set([1]);\nfor (const x of set) {\n\ttry {\n\t\ttry {\n\t\t\tset.delete(x);\n\t\t} catch {}\n\t} catch {}\n\tset.add(x);\n}',
+			errors: 1,
+		},
+		// A label without a block
+		{
+			code: 'const set = new Set([1]);\nfor (const x of set) {\n\tlabel: set.delete(x);\n\tset.add(x);\n}',
+			errors: 1,
+		},
+		{
+			code: 'const set = new Set([1]);\nfor (const x of set) {\n\touter: {\n\t\tinner: {\n\t\t\tset.delete(x);\n\t\t}\n\t}\n\tset.add(x);\n}',
+			errors: 1,
+		},
+		// Only the `try` block jumps, the `catch` still deletes and runs into the re-insert
+		{
+			code: 'const set = new Set([1]);\nfor (const x of set) {\n\ttry {\n\t\tset.delete(x);\n\t\tcontinue;\n\t} catch {\n\t\tset.delete(x);\n\t}\n\tset.add(x);\n}',
+			errors: 1,
+		},
+		// The re-insert is in a later nested block
+		{
+			code: 'const set = new Set([1]);\nfor (const x of set) {\n\ttry {\n\t\tset.delete(x);\n\t} catch {}\n\tif (condition) {\n\t\tset.add(x);\n\t}\n}',
+			errors: 1,
+		},
+	],
+});
+
+test({
+	valid: [
+		// A delete followed by `continue` in a `catch` never reaches the re-insert
+		'const set = new Set([1]);\nfor (const x of set) {\n\ttry {\n\t\tfoo(x);\n\t} catch {\n\t\tset.delete(x);\n\t\tcontinue;\n\t}\n\tset.add(x);\n}',
+		'const set = new Set([1]);\nfor (const x of set) {\n\tlabel: {\n\t\tset.delete(x);\n\t\tcontinue;\n\t}\n\tset.add(x);\n}',
+		// `throw` and an unlabeled `break` also skip the re-insert
+		'const set = new Set([1]);\nfor (const x of set) {\n\ttry {\n\t\tfoo(x);\n\t} catch (error) {\n\t\tset.delete(x);\n\t\tthrow error;\n\t}\n\tset.add(x);\n}',
+		'const set = new Set([1]);\nfor (const x of set) {\n\ttry {\n\t\tset.delete(x);\n\t\tbreak;\n\t} finally {\n\t\tfoo(x);\n\t}\n\tset.add(x);\n}',
+		'function foo(set) {\n\tfor (const x of set) {\n\t\tlabel: {\n\t\t\tset.delete(x);\n\t\t\treturn;\n\t\t}\n\t\tset.add(x);\n\t}\n}',
+		// A delete without a re-insert after it
+		'const set = new Set([1]);\nfor (const x of set) {\n\ttry {\n\t\tset.delete(x);\n\t} catch {}\n}',
+	],
+	invalid: [],
+});
+
+test({
+	valid: [
+		// `break outer` to the loop's own label leaves the loop, so the re-insert never runs
+		'const set = new Set([1]);\nouter: for (const x of set) {\n\ttry {\n\t\tset.delete(x);\n\t\tbreak outer;\n\t} catch {}\n\tset.add(x);\n}',
+		// `break outer` to an enclosing loop also leaves this loop
+		'const set = new Set([1]);\nouter: while (true) {\n\tfor (const x of set) {\n\t\tlabel: {\n\t\t\tset.delete(x);\n\t\t\tbreak outer;\n\t\t}\n\t\tset.add(x);\n\t}\n}',
+		// A `break` that skips the re-insert in the same `switch` case, nested loop, or label
+		'const set = new Set([1]);\nfor (const x of set) {\n\tswitch (key) {\n\t\tcase 1:\n\t\t\ttry {\n\t\t\t\tset.delete(x);\n\t\t\t\tbreak;\n\t\t\t} catch {}\n\t\t\tset.add(x);\n\t}\n}',
+		'const set = new Set([1]);\nfor (const x of set) {\n\tfor (const y of other) {\n\t\ttry {\n\t\t\tset.delete(x);\n\t\t\tbreak;\n\t\t} catch {}\n\t\tset.add(x);\n\t}\n}',
+		'const set = new Set([1]);\nfor (const x of set) {\n\tlabel: {\n\t\ttry {\n\t\t\tset.delete(x);\n\t\t\tbreak label;\n\t\t} catch {}\n\t\tset.add(x);\n\t}\n}',
+		// Limitation: like an `if` branch, any `break` counts as a jump, even one that only leaves an inner `switch` or label before the re-insert
+		'const set = new Set([1]);\nfor (const x of set) {\n\tswitch (key) {\n\t\tcase 1:\n\t\t\ttry {\n\t\t\t\tset.delete(x);\n\t\t\t} finally {\n\t\t\t\tbreak;\n\t\t\t}\n\t}\n\tset.add(x);\n}',
+		'const set = new Set([1]);\nfor (const x of set) {\n\tlabel: {\n\t\tset.delete(x);\n\t\tbreak label;\n\t}\n\tset.add(x);\n}',
 	],
 	invalid: [],
 });

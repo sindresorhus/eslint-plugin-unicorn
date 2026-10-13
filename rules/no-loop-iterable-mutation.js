@@ -375,6 +375,14 @@ function isFollowedByLoopExit(cases, index) {
 	return false;
 }
 
+const jumpStatementTypes = new Set([
+	...loopExitStatementTypes,
+	'BreakStatement',
+]);
+
+// A simple last-statement check. `trackBranchExits` only answers for `if` branches. Like there, any `break` counts as a jump, even one that only leaves an inner `switch` or label, so a delete before it is not counted.
+const endsWithJump = node => jumpStatementTypes.has((node.type === 'BlockStatement' ? node.body.at(-1) : node)?.type);
+
 function hasDirectCurrentDeleteStatement(statement, loopInformation, context) {
 	const callExpression = getSimpleCallStatement(statement);
 
@@ -398,6 +406,21 @@ function hasDirectCurrentDeleteStatement(statement, loopInformation, context) {
 				&& hasDirectCurrentDeleteStatement(statement.alternate, loopInformation, context)
 			)
 		);
+	}
+
+	// A delete in a `try` or a labeled statement may run before the code that follows, so it counts like one in a block
+	// A jumping finalizer skips all following code; a jumping `try`/`catch` block or label only skips its own path.
+	if (statement.type === 'TryStatement') {
+		if (statement.finalizer && endsWithJump(statement.finalizer)) {
+			return false;
+		}
+
+		return [statement.block, statement.handler?.body, statement.finalizer]
+			.some(child => child && !endsWithJump(child) && hasDirectCurrentDeleteStatement(child, loopInformation, context));
+	}
+
+	if (statement.type === 'LabeledStatement') {
+		return !endsWithJump(statement.body) && hasDirectCurrentDeleteStatement(statement.body, loopInformation, context);
 	}
 
 	// A `case` that deletes and is not followed by a loop exit runs into the code after the switch
