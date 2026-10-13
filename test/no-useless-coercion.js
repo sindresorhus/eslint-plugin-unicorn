@@ -8,6 +8,55 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+nodeTest('nonnumeric object lengths still require numeric coercion', t => {
+	const code = 'Number({length: "5"}.length);';
+	const {output, fixed, messages} = new Linter().verifyAndFix(code, {
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	});
+	t.assert.strictEqual(runInNewContext(code), 5);
+	t.assert.strictEqual(runInNewContext(output), 5);
+	t.assert.strictEqual(fixed, false);
+	t.assert.deepStrictEqual(messages, []);
+});
+
+nodeTest('optional numeric parameters still require numeric coercion', t => {
+	const code = 'function value(input?: number) { return Number(input); } Number.isNaN(value());';
+	const {output, fixed, messages} = new Linter().verifyAndFix(code, {
+		languageOptions: {parser: typescriptEslintParser},
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	});
+	t.assert.strictEqual(runInNewContext(stripTypeScriptTypes(code)), true);
+	t.assert.strictEqual(runInNewContext(stripTypeScriptTypes(output)), true);
+	t.assert.strictEqual(fixed, false);
+	t.assert.deepStrictEqual(messages, []);
+});
+
+nodeTest('an absent code point still requires numeric coercion', t => {
+	const code = 'Number.isNaN(Number("".codePointAt(0)));';
+	const {output, fixed, messages} = new Linter().verifyAndFix(code, {
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	});
+	t.assert.strictEqual(runInNewContext(code), true);
+	t.assert.strictEqual(runInNewContext(output), true);
+	t.assert.strictEqual(fixed, false);
+	t.assert.deepStrictEqual(messages, []);
+});
+
+test({
+	valid: [
+		'Number("".codePointAt(0));',
+		'+"a".codePointAt(1);',
+		...[
+			'function getValue(value: string, index: number) { return Number(value.codePointAt(index)); }',
+			'Number((value as string).codePointAt(index));',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
+	],
+	invalid: [],
+});
+
 nodeTest('deleting a coerced value preserves the property and delete result', t => {
 	const linter = new Linter();
 	const config = {
@@ -48,8 +97,8 @@ nodeTest('deleting a coerced value preserves the property and delete result', t 
 test({
 	valid: [],
 	invalid: [
-		{code: 'const object = {length: 1}; delete Number(object.length);', errors: [{messageId: 'no-useless-coercion'}]},
-		{code: 'const object = {length: 1}; delete +object.length;', errors: [{messageId: 'no-useless-coercion'}]},
+		{code: 'const object = [1]; delete Number(object.length);', errors: [{messageId: 'no-useless-coercion'}]},
+		{code: 'const object = [1]; delete +object.length;', errors: [{messageId: 'no-useless-coercion'}]},
 		{code: 'delete Number(Math.PI);', errors: [{messageId: 'no-useless-coercion'}]},
 		...[
 			'delete (Number(object.length) as number);',
@@ -57,19 +106,7 @@ test({
 			'delete (Number(object.length) satisfies number);',
 			'delete (<number>Number(object.length));',
 			'delete Number(object.length satisfies number);',
-			'delete Number(/* keep */ object.length);',
 		].map(code => ({code, languageOptions: {parser: parsers.typescript}, errors: [{messageId: 'no-useless-coercion'}]})),
-	],
-});
-
-test({
-	valid: [],
-	invalid: [
-		{
-			code: 'const object = {length: 1}; const result = Number(object.length) + 1;',
-			output: 'const object = {length: 1}; const result = object.length + 1;',
-			errors: [{messageId: 'no-useless-coercion'}],
-		},
 	],
 });
 
@@ -248,7 +285,7 @@ test.snapshot({
 		// Sequence expression keeps its existing parentheses
 		'Number((a, b.length))',
 		// Object literal needs parentheses, otherwise `{` starts a block at statement position
-		'Number({foo: 1}.length)',
+		'Number({length: 1}.length)',
 
 		// Fix: ASI
 		outdent`
@@ -298,11 +335,22 @@ test({
 		'const object = {length: "5"};\nconst a = Number(object.length);',
 		'const object = {length: "abc"};\nconst a = +object.length;',
 		'const object = {length: true};\nconst a = +object.length;',
+		'Number({foo: 1}.length)',
+		'Number({length: "5"}.length)',
+		'const object = {length: value}; Number(object.length);',
+		'const object = {length: 5};\nconst a = Number(object.length);',
+		'Number({length: 1, length: "5"}.length)',
+		'+({length: 1, ...other}).length',
+		...[
+			'Number(({length: "5"} as {length: string}).length);',
+			'const object = {"length": "5"} as const; +object!.length;',
+			'const object = {length: "5"}; Number((object as {length: string}).length);',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
 	],
 	invalid: [
 		{
-			code: 'const object = {length: 5};\nconst a = Number(object.length);',
-			output: 'const object = {length: 5};\nconst a = object.length;',
+			code: 'foo\nNumber({length: 1}.length)',
+			output: 'foo\n;({length: 1}.length)',
 			errors: 1,
 		},
 		{

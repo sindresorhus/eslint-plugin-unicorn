@@ -11,6 +11,10 @@
 
 Enforces the use of [Buffer.from](https://nodejs.org/api/buffer.html#static-method-bufferfromarray) and [Buffer.alloc()](https://nodejs.org/api/buffer.html#static-method-bufferallocsize-fill-encoding) instead of [new Buffer()](https://nodejs.org/api/buffer.html#new-bufferarray), which has been deprecated since Node.js 4.
 
+When the first argument's type is unknown, the rule offers suggestions because additional arguments do not distinguish a numeric size from data. A string encoding as the second argument is the exception, since both forms throw for a numeric input, so `new Buffer(data, 'base64')` is automatically fixed.
+
+Numeric inputs with extra arguments are also offered as suggestions because removing those arguments can change errors or evaluation. Numeric inputs with only a size are automatically fixed.
+
 ## Examples
 
 ```js

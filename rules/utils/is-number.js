@@ -4,6 +4,7 @@ import {isFunctionCall, isStaticProperties, hasTypeAnnotation} from './type-chec
 import {createTypeCheckers} from './type-helpers.js';
 import {getStaticValueForControlFlow} from './get-static-value.js';
 import getConstVariableInitializer from './get-const-variable-initializer.js';
+import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math#static_properties
 const mathProperties = new Set([
@@ -69,7 +70,6 @@ const isNumberCall = node => isFunctionCall(node, 'Number');
 
 const stringNumberMethods = new Set([
 	'charCodeAt',
-	'codePointAt',
 	'indexOf',
 	'lastIndexOf',
 	'localeCompare',
@@ -121,24 +121,11 @@ const isNumberTypeAnnotation = node =>
 // `function foo(bar: number) {}`, `const foo: number = …`
 const hasNumberTypeAnnotation = (node, scope) => hasTypeAnnotation(node, scope, isNumberTypeAnnotation);
 
-// A user object can have a `length` that is not a number, `const {length} = {length: '5'}`
-const isConstObjectLength = (node, context) => {
-	if (node.object.type !== 'Identifier') {
-		return false;
-	}
-
-	const initializer = getConstVariableInitializer(node.object, context);
-	if (initializer?.type !== 'ObjectExpression') {
-		return false;
-	}
-
-	const property = initializer.properties.find(property =>
-		property.type === 'Property'
-		&& !property.computed
-		&& property.key.type === 'Identifier'
-		&& property.key.name === 'length');
-
-	return Boolean(property && property.value?.type === 'Literal' && typeof property.value.value !== 'number');
+// A user object can have a `length` that is not a number, `const {length} = {length: '5'}`. Leave known objects to static evaluation instead of assuming their length is numeric.
+const isObjectLength = (node, context) => {
+	const object = unwrapTypeScriptExpression(node.object);
+	const initializer = unwrapTypeScriptExpression(getConstVariableInitializer(object, context) ?? object);
+	return initializer.type === 'ObjectExpression';
 };
 
 const isLengthProperty = (node, context) =>
@@ -147,7 +134,7 @@ const isLengthProperty = (node, context) =>
 	&& !node.optional
 	&& node.property.type === 'Identifier'
 	&& node.property.name === 'length'
-	&& !isConstObjectLength(node, context);
+	&& !isObjectLength(node, context);
 
 // `+` and `>>>` operators are handled separately
 const mathOperators = new Set(['-', '*', '/', '%', '**', '<<', '>>', '|', '^', '&']);

@@ -16,5 +16,7 @@ export const isStaticProperties = (node, object, properties) =>
 
 export const hasTypeAnnotation = (node, scope, predicate) => {
 	const variable = findVariable(scope, node);
-	return Boolean(variable) && variable.defs.some(definition => predicate(definition.name?.typeAnnotation?.typeAnnotation));
+	return Boolean(variable) && variable.defs.some(definition =>
+		!definition.name?.optional
+		&& predicate(definition.name?.typeAnnotation?.typeAnnotation));
 };

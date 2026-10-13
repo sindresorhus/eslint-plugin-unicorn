@@ -14,7 +14,7 @@ const messages = {
 };
 
 const inferMethod = (bufferArguments, context) => {
-	const [firstArgument] = bufferArguments;
+	const [firstArgument, secondArgument] = bufferArguments;
 
 	if (firstArgument === undefined) {
 		return 'from';
@@ -24,16 +24,17 @@ const inferMethod = (bufferArguments, context) => {
 		return;
 	}
 
-	// `new Buffer(size)` is the only form that takes a leading number, `Buffer.from()` would throw on it. The legacy constructor dispatches on the first argument alone and silently ignores the rest, so any extra argument has to be dropped to keep `Buffer.alloc(size)` equivalent.
+	// A numeric input selects allocation, while `Buffer.from()` would throw on it. Extra arguments can be ignored or rejected, so conversions that drop them require review.
 	if (isNumber(firstArgument, context)) {
 		return 'alloc';
 	}
 
-	if (bufferArguments.length !== 1) {
+	if (firstArgument.type === 'ArrayExpression' || firstArgument.type === 'TemplateLiteral') {
 		return 'from';
 	}
 
-	if (firstArgument.type === 'ArrayExpression' || firstArgument.type === 'TemplateLiteral') {
+	// `new Buffer(number, string)` throws like `Buffer.from()` does, so a string encoding selects `Buffer.from()` for any input.
+	if (secondArgument && typeof getStaticValueForControlFlow(secondArgument, context)?.value === 'string') {
 		return 'from';
 	}
 
@@ -50,7 +51,7 @@ const inferMethod = (bufferArguments, context) => {
 };
 
 /**
-`new Buffer(size, fill)` ignores `fill`, so the fix drops it. Dropping it must not drop a side effect, or move a comment that documents it onto the size.
+The allocation replacement drops extra arguments. Keep comments and explicit side effects detected by the guard.
 */
 function canRemoveIgnoredArguments(node, context) {
 	const [sizeArgument, ...ignoredArguments] = node.arguments;
@@ -68,7 +69,7 @@ function canRemoveIgnoredArguments(node, context) {
 
 function fix(node, context, method) {
 	return function * (fixer) {
-		// `new Buffer(size, fill)` ignores `fill`, `Buffer.alloc(size, fill)` would honour it
+		// The allocation replacement takes only the size, since passing extra arguments through can add a fill.
 		if (method === 'alloc') {
 			for (const argument of node.arguments.slice(1).toReversed()) {
 				yield removeArgument(fixer, argument, context);
@@ -95,7 +96,7 @@ const create = context => {
 			return {
 				node,
 				messageId: ERROR_UNKNOWN,
-				suggest: ['from', 'alloc'].map(replacement => ({
+				suggest: ['from', 'alloc'].filter(replacement => replacement !== 'alloc' || canRemoveIgnoredArguments(node, context)).map(replacement => ({
 					messageId: SUGGESTION,
 					data: {replacement},
 					fix: fix(node, context, replacement),
@@ -103,12 +104,21 @@ const create = context => {
 			};
 		}
 
-		return {
+		const problem = {
 			node,
 			messageId: ERROR,
 			data: {method},
-			...((method !== 'alloc' || canRemoveIgnoredArguments(node, context)) && {fix: fix(node, context, method)}),
 		};
+
+		if (method !== 'alloc' || node.arguments.length === 1) {
+			return {...problem, fix: fix(node, context, method)};
+		}
+
+		if (canRemoveIgnoredArguments(node, context)) {
+			problem.suggest = [{messageId: SUGGESTION, data: {replacement: method}, fix: fix(node, context, method)}];
+		}
+
+		return problem;
 	});
 };
 

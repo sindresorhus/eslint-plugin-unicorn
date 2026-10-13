@@ -1103,20 +1103,20 @@ Output:
 
 `;
 
-exports[`no-useless-coercion > invalid(69): Number({foo: 1}.length) 1`] = `
+exports[`no-useless-coercion > invalid(69): Number({length: 1}.length) 1`] = `
 
-  1 | Number({foo: 1}.length)
+  1 | Number({length: 1}.length)
 
 `;
 
-exports[`no-useless-coercion > invalid(69): Number({foo: 1}.length) 2`] = `
+exports[`no-useless-coercion > invalid(69): Number({length: 1}.length) 2`] = `
 
 Message:
-> 1 | Number({foo: 1}.length)
-    | ^^^^^^^^^^^^^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
+> 1 | Number({length: 1}.length)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^ \`Number()\` is unnecessary because the value is already a number.
 
 Output:
-  1 | ({foo: 1}.length)
+  1 | ({length: 1}.length)
 
 `;
 
