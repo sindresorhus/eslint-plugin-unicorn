@@ -162,6 +162,28 @@ Suggestion 1/1: Rename to \`password\`.:
 
 `;
 
+exports[`consistent-compound-words > invalid(1): const webSiteUrl = 1; use(webSiteUrl); 1`] = `
+
+Options:
+- replacements:
+    webSiteUrl: 'websiteURL'
+
+Code:
+  1 | const webSiteUrl = 1; use(webSiteUrl);
+
+`;
+
+exports[`consistent-compound-words > invalid(1): const webSiteUrl = 1; use(webSiteUrl); 2`] = `
+
+Message:
+> 1 | const webSiteUrl = 1; use(webSiteUrl);
+    |       ^^^^^^^^^^ Prefer \`websiteURL\` over \`webSiteUrl\`.
+
+Suggestion 1/1: Rename to \`websiteURL\`.:
+  1 | const websiteURL = 1; use(websiteURL);
+
+`;
+
 exports[`consistent-compound-words > invalid(1): {\"userName\": 1} 1`] = `
 
 Options:
@@ -379,6 +401,25 @@ exports[`consistent-compound-words > invalid(2): .back-ground-panel {} 2`] = `
 Message:
 > 1 | .back-ground-panel {}
     | ^^^^^^^^^^^^^^^^^^ Prefer \`background-panel\` over \`back-ground-panel\`.
+
+`;
+
+exports[`consistent-compound-words > invalid(2): .web-site-url {} 1`] = `
+
+Options:
+- replacements:
+    webSiteUrl: 'websiteURL'
+
+Code:
+  1 | .web-site-url {}
+
+`;
+
+exports[`consistent-compound-words > invalid(2): .web-site-url {} 2`] = `
+
+Message:
+> 1 | .web-site-url {}
+    | ^^^^^^^^^^^^^ Prefer \`websiteURL\` over \`web-site-url\`.
 
 `;
 
@@ -740,6 +781,25 @@ exports[`consistent-compound-words > invalid(3): 'data_base': {passWord: 1} 3`] 
 Message:
 > 1 | 'data_base': {passWord: 1}
     |               ^^^^^^^^ Prefer \`password\` over \`passWord\`.
+
+`;
+
+exports[`consistent-compound-words > invalid(3): <div class=\"web_site_url\"></div> 1`] = `
+
+Options:
+- replacements:
+    webSiteUrl: 'websiteURL'
+
+Code:
+  1 | <div class="web_site_url"></div>
+
+`;
+
+exports[`consistent-compound-words > invalid(3): <div class=\"web_site_url\"></div> 2`] = `
+
+Message:
+> 1 | <div class="web_site_url"></div>
+    |             ^^^^^^^^^^^^ Prefer \`websiteURL\` over \`web_site_url\`.
 
 `;
 

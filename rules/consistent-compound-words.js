@@ -128,7 +128,10 @@ const prepareOptions = ({
 		? {...defaultReplacements, ...replacements}
 		: replacements;
 
-	const replacementsMap = new Map(Object.entries(mergedReplacements).filter(([, replacement]) => replacement !== false));
+	// A longer name must come first, so `webSiteUrl` is not matched by its default prefix `webSite`. The regular expressions try the names in this order.
+	const replacementsMap = new Map(Object.entries(mergedReplacements)
+		.filter(([, replacement]) => replacement !== false)
+		.toSorted(([a], [b]) => b.length - a.length));
 
 	return {
 		checkProperties,

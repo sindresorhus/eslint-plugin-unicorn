@@ -607,3 +607,25 @@ ruleTest.snapshot({
 		{code: String.raw`parent: {"back\u{47}round": 1}`, options: [{checkProperties: true}]},
 	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
 });
+
+ruleTest.snapshot({
+	valid: [],
+	invalid: [
+		// A user replacement for a name that starts with a default key must win over the shorter default
+		{
+			code: 'const webSiteUrl = 1; use(webSiteUrl);',
+			options: [{replacements: {webSiteUrl: 'websiteURL'}}],
+		},
+		// The same applies to separated names outside JavaScript
+		{
+			code: '.web-site-url {}',
+			language: languages.css,
+			options: [{replacements: {webSiteUrl: 'websiteURL'}}],
+		},
+		{
+			code: '<div class="web_site_url"></div>',
+			language: languages.html,
+			options: [{replacements: {webSiteUrl: 'websiteURL'}}],
+		},
+	],
+});
