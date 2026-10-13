@@ -1,5 +1,49 @@
 import parsers from '../utils/parsers.js';
 
+// The first argument can reassign the receiver before `.length` is read, so the length is only removed when the first argument has no assignment or update. Calls cannot be followed, so they keep the fix.
+function createArgumentEvaluationFixtures(method) {
+	return {
+		valid: [],
+		invalid: [
+			...[
+				`array.${method}((array = other, 0), array.length)`,
+				`arrays[index].${method}(index++, arrays[index].length)`,
+			].map(code => ({code, errors: 1})),
+			{
+				code: `array.${method}(start(), array.length)`,
+				output: `array.${method}(start())`,
+				errors: 1,
+			},
+			{
+				code: `array.${method}(array.indexOf(item) + 1, array.length)`,
+				output: `array.${method}(array.indexOf(item) + 1)`,
+				errors: 1,
+			},
+			{
+				code: `array?.${method}(start(), array?.length)`,
+				output: `array?.${method}(start())`,
+				errors: 1,
+			},
+			{
+				code: `array.${method}((start() as number), array.length)`,
+				output: `array.${method}((start() as number))`,
+				languageOptions: {parser: parsers.typescript},
+				errors: 1,
+			},
+			{
+				code: `array.${method}(start(), Infinity)`,
+				output: `array.${method}(start())`,
+				errors: 1,
+			},
+			{
+				code: `array.${method}((array = other, 0), Number.POSITIVE_INFINITY)`,
+				output: `array.${method}((array = other, 0))`,
+				errors: 1,
+			},
+		],
+	};
+}
+
 function createFixtures(method) {
 	return {
 		valid: [
@@ -75,4 +119,4 @@ function createFixtures(method) {
 	};
 }
 
-export {createFixtures};
+export {createFixtures, createArgumentEvaluationFixtures};

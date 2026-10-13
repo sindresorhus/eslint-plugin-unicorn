@@ -1,5 +1,5 @@
 import {isMethodCall, isMemberExpression} from '../ast/index.js';
-import {isSameReference, shouldSkipKnownNonArrayReceiver} from '../utils/index.js';
+import {containsNode, isSameReference, shouldSkipKnownNonArrayReceiver} from '../utils/index.js';
 import {removeArgument} from '../fix/index.js';
 
 function getObjectLengthOrInfinityDescription(node, object) {
@@ -83,7 +83,17 @@ function listen(context, {methods, messageId, checkArrayReceiver = false}) {
 			/**
 			@param {import('eslint').Rule.RuleFixer} fixer
 			*/
-			fix: fixer => removeArgument(fixer, secondArgument, context),
+			fix(fixer) {
+				// The first argument can reassign the receiver before `.length` is read.
+				if (
+					description.endsWith('length')
+					&& containsNode(callExpression.arguments[0], context, node => node.type === 'AssignmentExpression' || node.type === 'UpdateExpression')
+				) {
+					return;
+				}
+
+				return removeArgument(fixer, secondArgument, context);
+			},
 		};
 	});
 }

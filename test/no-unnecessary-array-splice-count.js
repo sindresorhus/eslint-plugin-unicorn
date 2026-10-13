@@ -1,7 +1,10 @@
 import {getTester, parsers} from './utils/test.js';
-import {createFixtures} from './shared/no-unnecessary-length-or-infinity-rule-tests.js';
+import {createFixtures, createArgumentEvaluationFixtures} from './shared/no-unnecessary-length-or-infinity-rule-tests.js';
 
 const {test} = getTester(import.meta);
+
+test(createArgumentEvaluationFixtures('splice'));
+test(createArgumentEvaluationFixtures('toSpliced'));
 
 test.snapshot(createFixtures('splice'));
 test.snapshot(createFixtures('toSpliced'));

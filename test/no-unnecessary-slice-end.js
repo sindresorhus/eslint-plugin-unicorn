@@ -1,7 +1,20 @@
 import {getTester, parsers} from './utils/test.js';
-import {createFixtures} from './shared/no-unnecessary-length-or-infinity-rule-tests.js';
+import {createFixtures, createArgumentEvaluationFixtures} from './shared/no-unnecessary-length-or-infinity-rule-tests.js';
 
 const {test} = getTester(import.meta);
+
+test(createArgumentEvaluationFixtures('slice'));
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const text = \'a:b\'; text.slice(text.indexOf(\':\') + 1, text.length);',
+			output: 'const text = \'a:b\'; text.slice(text.indexOf(\':\') + 1);',
+			errors: 1,
+		},
+	],
+});
 
 test.snapshot(createFixtures('slice'));
 
