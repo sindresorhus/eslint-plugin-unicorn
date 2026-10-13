@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isMemberExpression} from './ast/index.js';
-import {getEnclosingFunction, isKnownNonEvent} from './utils/index.js';
+import {getEnclosingFunction, isKnownNonEvent, unwrapTypeScriptExpression} from './utils/index.js';
 import {
 	createLateEventHandlerTracker,
 	eventParameterNamePattern,
@@ -21,20 +21,21 @@ const create = context => {
 	const lateEventHandlerTracker = createLateEventHandlerTracker(context);
 
 	context.on('MemberExpression', node => {
+		const object = unwrapTypeScriptExpression(node.object);
 		if (
-			node.object.type !== 'Identifier'
+			object.type !== 'Identifier'
 			|| !isMemberExpression(node, {property: 'currentTarget'})
-			|| !eventParameterNamePattern.test(node.object.name)
+			|| !eventParameterNamePattern.test(object.name)
 		) {
 			return;
 		}
 
-		const variable = findVariable(sourceCode.getScope(node.object), node.object);
+		const variable = findVariable(sourceCode.getScope(object), object);
 		const definition = variable?.defs.find(({type}) => type === 'Parameter');
 		if (
 			!definition
 			// A parameter that is known not to be an event, e.g. `function f(event: number)`
-			|| isKnownNonEvent(node.object, context)
+			|| isKnownNonEvent(object, context)
 		) {
 			return;
 		}
@@ -54,7 +55,7 @@ const create = context => {
 		return {
 			node,
 			messageId: isInNestedFunction ? MESSAGE_ID_IN_NESTED_FUNCTION : MESSAGE_ID_AFTER_SUSPENSION,
-			data: {name: node.object.name},
+			data: {name: object.name},
 		};
 	});
 };

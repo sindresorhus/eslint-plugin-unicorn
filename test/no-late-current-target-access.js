@@ -237,3 +237,44 @@ test({
 		},
 	],
 });
+
+test({
+	valid: [
+		// An assertion does not hide a parameter that is known not to be an event
+		{
+			code: 'el.addEventListener("click", async (e: number) => { await x; (e as any).currentTarget; });',
+			languageOptions: {parser: parsers.typescript},
+		},
+		// Before the `await`, an assertion is still fine
+		{
+			code: 'el.addEventListener("click", async (e) => { (e as Event).currentTarget; await x; });',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [
+		// A TypeScript assertion or non-null assertion still refers to the event
+		{
+			code: 'el.addEventListener("click", async (e) => { await x; (e as Event).currentTarget; });',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'after-suspension', data: {name: 'e'}}],
+		},
+		{
+			code: 'el.addEventListener("click", async (e) => { await x; e!.currentTarget; });',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		...[
+			'el.addEventListener("click", async (event) => { await x; (event satisfies Event).currentTarget; });',
+			'el.addEventListener("click", async (event) => { await x; (event as Event)?.currentTarget; });',
+		].map(code => ({
+			code,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'after-suspension', data: {name: 'event'}}],
+		})),
+		{
+			code: 'el.addEventListener("click", (e) => { setTimeout(() => (e as Event).currentTarget); });',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'in-nested-function', data: {name: 'e'}}],
+		},
+	],
+});
