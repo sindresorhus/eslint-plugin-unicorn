@@ -248,6 +248,8 @@ Do not complicate autofixes to preserve Proxy or accessor side effects. Treat th
 
 Do not block reports, suggestions, or autofixes only to preserve sparse array holes. Treat array holes as unsupported.
 
+Do not turn all of a rule's autofixes into suggestions because of a rare evaluation-order case. These cases are unsupported: temporal dead zone reads, `valueOf`/`toString` coercion order, and when a side-effect-free expression is evaluated. Keep the autofix for the common pure form (for example `new Set([...x])`, `array.some(x => x === value)`, or a pure inline callback). Use a suggestion only when a real side effect can change the result, such as a call, assignment, update, `await`, `yield`, or a callback that is not proven pure. When a fix changes evaluation order, add a test that proves the most common form of the pattern is still autofixed.
+
 When writing fix functions:
 
 1. **Comments** - Keep reporting unless comments affect rule semantics; let ESLint handle disable directives. Withhold edits that remove or move comments using `getCommentSafeProblem()` or `abort()`. Preserve safe token edits.
