@@ -11,6 +11,12 @@
 
 Removing unnecessary spread avoids redundant copying and conversion, and makes it clear when an array, object, or iterable can be used directly.
 
+Removing an iterable-to-array conversion is autofixed, except in `for…of` and `yield*`, where it is offered as a suggestion: a loop body can change the collection while it is iterated, and `yield*` forwards `next()` and `return()` to the iterable. The autofix can change when an iterator that changes entries after yielding them is read, and an iterator error in `Promise.*()` becomes a rejection instead of a synchronous throw.
+
+Spreading `array.copyWithin(…)` is a real copy because `copyWithin()` mutates and returns the original array.
+
+Object literals containing `super` are ignored because flattening their methods can change which prototype `super` reads.
+
 - Using spread syntax in the following cases is unnecessary:
 
   - Spread an array literal as elements of an array literal
@@ -108,7 +114,7 @@ const results = await Promise.all(iterable);
 // ❌
 for (const foo of [...set]);
 
-// ✅
+// 💡
 for (const foo of set);
 ```
 
@@ -118,7 +124,7 @@ function * foo() {
 	yield * [...anotherGenerator()];
 }
 
-// ✅
+// 💡
 function * foo() {
 	yield * anotherGenerator();
 }

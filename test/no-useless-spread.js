@@ -1,8 +1,156 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+const linterConfig = {
+	plugins: {unicorn: {rules: {'no-useless-spread': rule}}},
+	rules: {'unicorn/no-useless-spread': 'error'},
+};
+
+for (const [description, objectText] of [
+	['method', '{...{read() { return super.value; }}}'],
+	['computed method name', '{...{["read"]() { return super.value; }}}'],
+	['lexical arrow', '{...{read() { return (() => super.value)(); }}}'],
+	['nested spreads', '{...{...{read() { return super.value; }}}}'],
+]) {
+	nodeTest(`object spread retains super lookup for ${description}`, t => {
+		const code = `const object = ${objectText}; Object.setPrototypeOf(object, {value: 1}); object.read();`;
+		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		// Flattened, `super` would read the new prototype and return `1`
+		t.assert.strictEqual(runInNewContext(code), undefined);
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(fixed, false);
+		t.assert.deepStrictEqual(messages, []);
+	});
+}
+
+for (const [description, objectText, callText] of [
+	['ordinary method', '{...{read() { return this.value; }}, value: 1}', 'object.read()'],
+	['data property', '{...{value: 1}}', 'object.value'],
+]) {
+	nodeTest(`object spread keeps autofixing a supported ${description}`, t => {
+		const code = `const object = ${objectText}; ${callText};`;
+		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		t.assert.strictEqual(runInNewContext(code), 1);
+		t.assert.strictEqual(runInNewContext(output), 1);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+	});
+}
+
+nodeTest('array literal spread fixes still preserve nested classes using super', t => {
+	const code = 'class Base { read() { return 1; } } const classes = [...[class extends Base { read() { return super.read(); } }]]; new classes[0]().read();';
+	const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+	t.assert.strictEqual(runInNewContext(code), 1);
+	t.assert.strictEqual(runInNewContext(output), 1);
+	t.assert.strictEqual(fixed, true);
+	t.assert.deepStrictEqual(messages, []);
+});
+
+test({
+	valid: [
+		'const object = {...(( {read() { return super.value; }} ))};',
+		'const object = {...{read() { return super /* keep */ .value; }}};',
+		'const object = {...{read() { return super.value?.(); }}};',
+		'const object = {\r\n  ...{\r\n    read() { return super.value; },\r\n  },\r\n};',
+		'const element = <div>{({...{read() { return super.value; }}})}</div>;',
+		'const object = {...{nested: {read() { return super.value; }}}};',
+		{
+			code: 'const object = {...{read() { return super.value!; }}};',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const object = {...{read() { return super.value satisfies unknown; }}};',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const object = {...{read() { return (super.value as number | undefined); }}};',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	testerOptions: {languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}}},
+	invalid: [{
+		code: 'const object = {...{read() { return this /* keep */ .value; }}};',
+		output: 'const object = {read() { return this /* keep */ .value; }};',
+		errors: 1,
+	}],
+});
+
+nodeTest('copyWithin spread keeps an independent array', t => {
+	const code = 'const values = [1, 2, 3]; const clone = [...values.copyWithin(0, 1)]; clone[0] = 9; JSON.stringify({values, clone, same: values === clone});';
+	const result = new Linter().verifyAndFix(code, linterConfig);
+	t.assert.strictEqual(runInNewContext(code), '{"values":[2,3,3],"clone":[9,3,3],"same":false}');
+	t.assert.strictEqual(runInNewContext(result.output), runInNewContext(code));
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.deepStrictEqual(result.messages, []);
+});
+
+function getIterableSuggestion(code, t) {
+	const {fixed, output, messages} = new Linter().verifyAndFix(code, linterConfig);
+	t.assert.strictEqual(fixed, false, code);
+	t.assert.strictEqual(output, code);
+	t.assert.strictEqual(messages.length, 1, code);
+	t.assert.strictEqual(messages[0].fix, undefined);
+	t.assert.strictEqual(messages[0].suggestions.length, 1);
+	t.assert.strictEqual(messages[0].suggestions[0].messageId, 'suggestion/remove-iterable-array');
+	const {range, text} = messages[0].suggestions[0].fix;
+	return code.slice(0, range[0]) + text + code.slice(range[1]);
+}
+
+nodeTest('iterable suggestions preserve snapshots and consumption order until applied', t => {
+	for (const {code, original, replacement} of [
+		{
+			code: 'const values = [1, 2, 3]; const result = []; for (const value of [...values]) { values.pop(); result.push(value); } JSON.stringify(result);',
+			original: '[1,2,3]',
+			replacement: '[1,2]',
+		},
+		{
+			code: outdent`
+				const calls = [];
+				function* values() { calls.push("source1"); yield 1; calls.push("source2"); yield 2; }
+				for (const value of [...values()]) { calls.push("body" + value); }
+				JSON.stringify(calls);
+			`,
+			original: '["source1","source2","body1","body2"]',
+			replacement: '["source1","body1","source2","body2"]',
+		},
+		{
+			code: outdent`
+				function* values() { yield 1; return 42; }
+				function* delegate() { return yield* [...values()]; }
+				const iterator = delegate();
+				JSON.stringify([iterator.next(), iterator.next()]);
+			`,
+			original: '[{"value":1,"done":false},{"done":true}]',
+			replacement: '[{"value":1,"done":false},{"value":42,"done":true}]',
+		},
+	]) {
+		t.assert.strictEqual(runInNewContext(code), original, code);
+		t.assert.strictEqual(runInNewContext(getIterableSuggestion(code, t)), replacement, code);
+	}
+});
+
+nodeTest('iterable conversions that only store the values are still autofixed', t => {
+	for (const consumer of ['[...new Set(VALUES)]', 'new WeakSet(VALUES).has(entry)', 'Array.from(VALUES)', '[...Uint8Array.from(VALUES)]']) {
+		const code = outdent`
+			const calls = [];
+			const entry = [1, 2];
+			function* values() { calls.push("source1"); yield entry; calls.push("source2"); entry[0] = 3; yield entry; }
+			const result = ${consumer.replace('VALUES', '[...values()]')};
+			JSON.stringify({calls, result});
+		`;
+		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		t.assert.strictEqual(fixed, true, code);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(output, code.replace('[...values()]', 'values()'));
+		t.assert.strictEqual(runInNewContext(output), runInNewContext(code), code);
+	}
+});
 
 const typeAware = code => ({
 	code,
@@ -11,6 +159,22 @@ const typeAware = code => ({
 		parser: typescriptEslintParser,
 		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
 	},
+});
+
+test({
+	valid: [
+		'[...values.copyWithin(-2)]',
+		'[...[1, 2, 3].copyWithin(0, 1)]',
+		{
+			code: 'function clone(values: number[]) { return [...values.copyWithin(0, 1)]; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('function clone(values: number[]) { return [...values.copyWithin(0, 1)]; }'),
+	],
+	invalid: [{
+		code: 'const values = [1, 2, 3]; for (const value of [...values.copyWithin(0)]) { values.pop(); consume(value); }',
+		errors: [{messageId: 'iterable-to-array-in-for-of', suggestions: 1}],
+	}],
 });
 
 // Spread in list
@@ -313,6 +477,24 @@ test.snapshot({
 	],
 });
 
+test.snapshot({
+	valid: [],
+	invalid: [
+		'for (const value of [...(first || second)]) { consume(value); }',
+		'for (const value of [.../* keep */ values,]) { consume(value); }',
+		'Promise.all((( [...(( values ))] )))',
+		'function* delegate() { return yield* [.../* keep */ values]; }',
+		{
+			code: 'function consume(values: number[]) { for (const value of [...(values as number[])]) { values.pop(); use(value); } }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'Object.fromEntries([...(values! satisfies Iterable<[string, number]>)])',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+});
+
 // Cloning an immediate array
 test.snapshot({
 	valid: [
@@ -358,7 +540,6 @@ test.snapshot({
 	],
 	invalid: [
 		'[...foo.concat(bar)]',
-		'[...foo.copyWithin(-2)]',
 		'[...foo.flat()]',
 		'[...foo.slice(1)]',
 		'[...foo.splice(1)]',
@@ -413,8 +594,10 @@ test.typescript({
 	invalid: [
 		{
 			code: 'for (const foo of[...iterable2]);',
-			output: 'for (const foo of iterable2);',
-			errors: 1,
+			errors: [{
+				messageId: 'iterable-to-array-in-for-of',
+				suggestions: [{messageId: 'suggestion/remove-iterable-array', output: 'for (const foo of iterable2);'}],
+			}],
 		},
 	],
 });
@@ -441,6 +624,29 @@ test({
 		{
 			code: 'const n = [...await Promise.all(x)]?.length;',
 			output: 'const n = (await Promise.all(x))?.length;',
+			errors: 1,
+		},
+	],
+});
+
+test({
+	valid: [
+		// `__proto__` in an object literal sets the prototype, but a spread only copies own properties, so the braces matter
+		'const o = {...{__proto__: p}};',
+		'x = {...{"__proto__": p}};',
+		'x = {__proto__: a, ...{__proto__: b}};',
+		'x = {...{a, __proto__: p}};',
+	],
+	invalid: [
+		// Computed and shorthand `__proto__` keys create own properties
+		{
+			code: 'x = {...{["__proto__"]: p}};',
+			output: 'x = {["__proto__"]: p};',
+			errors: 1,
+		},
+		{
+			code: 'x = {...{__proto__}};',
+			output: 'x = {__proto__};',
 			errors: 1,
 		},
 	],

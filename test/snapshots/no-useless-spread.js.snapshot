@@ -66,6 +66,23 @@ Output:
 
 `;
 
+exports[`no-useless-spread > invalid(1): for (const value of [...(first || second)]) { consume(value); } 1`] = `
+
+  1 | for (const value of [...(first || second)]) { consume(value); }
+
+`;
+
+exports[`no-useless-spread > invalid(1): for (const value of [...(first || second)]) { consume(value); } 2`] = `
+
+Message:
+> 1 | for (const value of [...(first || second)]) { consume(value); }
+    |                     ^^^^^^^^^^^^^^^^^^^^^^ \`for…of\` can iterate over an iterable, it's unnecessary to convert to an array.
+
+Suggestion 1/1: Remove the array conversion.:
+  1 | for (const value of (first || second)) { consume(value); }
+
+`;
+
 exports[`no-useless-spread > invalid(1): new Set(...iterable) 1`] = `
 
   1 | new Set(...iterable)
@@ -80,20 +97,20 @@ Message:
 
 `;
 
-exports[`no-useless-spread > invalid(10): [...foo.split(\"|\")] 1`] = `
+exports[`no-useless-spread > invalid(10): [...Object.keys(foo)] 1`] = `
 
-  1 | [...foo.split("|")]
+  1 | [...Object.keys(foo)]
 
 `;
 
-exports[`no-useless-spread > invalid(10): [...foo.split(\"|\")] 2`] = `
+exports[`no-useless-spread > invalid(10): [...Object.keys(foo)] 2`] = `
 
 Message:
-> 1 | [...foo.split("|")]
-    | ^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
+> 1 | [...Object.keys(foo)]
+    | ^^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
 
 Output:
-  1 | foo.split("|")
+  1 | Object.keys(foo)
 
 `;
 
@@ -131,20 +148,20 @@ Output:
 
 `;
 
-exports[`no-useless-spread > invalid(11): [...Object.keys(foo)] 1`] = `
+exports[`no-useless-spread > invalid(11): [...Object.values(foo)] 1`] = `
 
-  1 | [...Object.keys(foo)]
+  1 | [...Object.values(foo)]
 
 `;
 
-exports[`no-useless-spread > invalid(11): [...Object.keys(foo)] 2`] = `
+exports[`no-useless-spread > invalid(11): [...Object.values(foo)] 2`] = `
 
 Message:
-> 1 | [...Object.keys(foo)]
-    | ^^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
+> 1 | [...Object.values(foo)]
+    | ^^^^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
 
 Output:
-  1 | Object.keys(foo)
+  1 | Object.values(foo)
 
 `;
 
@@ -182,20 +199,20 @@ Output:
 
 `;
 
-exports[`no-useless-spread > invalid(12): [...Object.values(foo)] 1`] = `
+exports[`no-useless-spread > invalid(12): [...Array.from(foo)] 1`] = `
 
-  1 | [...Object.values(foo)]
+  1 | [...Array.from(foo)]
 
 `;
 
-exports[`no-useless-spread > invalid(12): [...Object.values(foo)] 2`] = `
+exports[`no-useless-spread > invalid(12): [...Array.from(foo)] 2`] = `
 
 Message:
-> 1 | [...Object.values(foo)]
-    | ^^^^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
+> 1 | [...Array.from(foo)]
+    | ^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
 
 Output:
-  1 | Object.values(foo)
+  1 | Array.from(foo)
 
 `;
 
@@ -211,7 +228,7 @@ Message:
 > 1 | for (const foo of [...iterable]);
     |                   ^^^^^^^^^^^^^ \`for…of\` can iterate over an iterable, it's unnecessary to convert to an array.
 
-Output:
+Suggestion 1/1: Remove the array conversion.:
   1 | for (const foo of iterable);
 
 `;
@@ -233,20 +250,20 @@ Output:
 
 `;
 
-exports[`no-useless-spread > invalid(13): [...Array.from(foo)] 1`] = `
+exports[`no-useless-spread > invalid(13): [...Array.of()] 1`] = `
 
-  1 | [...Array.from(foo)]
+  1 | [...Array.of()]
 
 `;
 
-exports[`no-useless-spread > invalid(13): [...Array.from(foo)] 2`] = `
+exports[`no-useless-spread > invalid(13): [...Array.of()] 2`] = `
 
 Message:
-> 1 | [...Array.from(foo)]
-    | ^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
+> 1 | [...Array.of()]
+    | ^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
 
 Output:
-  1 | Array.from(foo)
+  1 | Array.of()
 
 `;
 
@@ -262,7 +279,7 @@ Message:
 > 1 | async () => {for await (const foo of [...iterable]);}
     |                                      ^^^^^^^^^^^^^ \`for…of\` can iterate over an iterable, it's unnecessary to convert to an array.
 
-Output:
+Suggestion 1/1: Remove the array conversion.:
   1 | async () => {for await (const foo of iterable);}
 
 `;
@@ -284,20 +301,17 @@ Output:
 
 `;
 
-exports[`no-useless-spread > invalid(14): [...Array.of()] 1`] = `
+exports[`no-useless-spread > invalid(14): [...new Array(3)] 1`] = `
 
-  1 | [...Array.of()]
+  1 | [...new Array(3)]
 
 `;
 
-exports[`no-useless-spread > invalid(14): [...Array.of()] 2`] = `
+exports[`no-useless-spread > invalid(14): [...new Array(3)] 2`] = `
 
 Message:
-> 1 | [...Array.of()]
-    | ^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
-
-Output:
-  1 | Array.of()
+> 1 | [...new Array(3)]
+    | ^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
 
 `;
 
@@ -335,17 +349,20 @@ Output:
 
 `;
 
-exports[`no-useless-spread > invalid(15): [...new Array(3)] 1`] = `
+exports[`no-useless-spread > invalid(15): [...await Promise.all(foo)] 1`] = `
 
-  1 | [...new Array(3)]
+  1 | [...await Promise.all(foo)]
 
 `;
 
-exports[`no-useless-spread > invalid(15): [...new Array(3)] 2`] = `
+exports[`no-useless-spread > invalid(15): [...await Promise.all(foo)] 2`] = `
 
 Message:
-> 1 | [...new Array(3)]
-    | ^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
+> 1 | [...await Promise.all(foo)]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
+
+Output:
+  1 | (await Promise.all(foo))
 
 `;
 
@@ -378,25 +395,25 @@ Message:
 > 1 | for (const foo of [...iterable,]);
     |                   ^^^^^^^^^^^^^^ \`for…of\` can iterate over an iterable, it's unnecessary to convert to an array.
 
-Output:
+Suggestion 1/1: Remove the array conversion.:
   1 | for (const foo of iterable);
 
 `;
 
-exports[`no-useless-spread > invalid(16): [...await Promise.all(foo)] 1`] = `
+exports[`no-useless-spread > invalid(16): [...await Promise.allSettled(foo)] 1`] = `
 
-  1 | [...await Promise.all(foo)]
+  1 | [...await Promise.allSettled(foo)]
 
 `;
 
-exports[`no-useless-spread > invalid(16): [...await Promise.all(foo)] 2`] = `
+exports[`no-useless-spread > invalid(16): [...await Promise.allSettled(foo)] 2`] = `
 
 Message:
-> 1 | [...await Promise.all(foo)]
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
+> 1 | [...await Promise.allSettled(foo)]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
 
 Output:
-  1 | (await Promise.all(foo))
+  1 | (await Promise.allSettled(foo))
 
 `;
 
@@ -434,23 +451,6 @@ Output:
 
 `;
 
-exports[`no-useless-spread > invalid(17): [...await Promise.allSettled(foo)] 1`] = `
-
-  1 | [...await Promise.allSettled(foo)]
-
-`;
-
-exports[`no-useless-spread > invalid(17): [...await Promise.allSettled(foo)] 2`] = `
-
-Message:
-> 1 | [...await Promise.allSettled(foo)]
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
-
-Output:
-  1 | (await Promise.allSettled(foo))
-
-`;
-
 exports[`no-useless-spread > invalid(17): const array = [...[]] 1`] = `
 
   1 | const array = [...[]]
@@ -485,6 +485,25 @@ Output:
 
 `;
 
+exports[`no-useless-spread > invalid(17): function foo(array: number[]) { return [...array.map(value => value * 2)]; } 1`] = `
+
+Filename: file.ts
+
+  1 | function foo(array: number[]) { return [...array.map(value => value * 2)]; }
+
+`;
+
+exports[`no-useless-spread > invalid(17): function foo(array: number[]) { return [...array.map(value => value * 2)]; } 2`] = `
+
+Message:
+> 1 | function foo(array: number[]) { return [...array.map(value => value * 2)]; }
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
+
+Output:
+  1 | function foo(array: number[]) { return array.map(value => value * 2); }
+
+`;
+
 exports[`no-useless-spread > invalid(18): const object = {...{}} 1`] = `
 
   1 | const object = {...{}}
@@ -514,27 +533,27 @@ Message:
 > 1 | for (const foo of [...(( iterable ))]);
     |                   ^^^^^^^^^^^^^^^^^^^ \`for…of\` can iterate over an iterable, it's unnecessary to convert to an array.
 
-Output:
+Suggestion 1/1: Remove the array conversion.:
   1 | for (const foo of (( iterable )));
 
 `;
 
-exports[`no-useless-spread > invalid(18): function foo(array: number[]) { return [...array.map(value => value * 2)]; } 1`] = `
+exports[`no-useless-spread > invalid(18): function foo(array: number[]) { return [...array.filter(Boolean)]; } 1`] = `
 
 Filename: file.ts
 
-  1 | function foo(array: number[]) { return [...array.map(value => value * 2)]; }
+  1 | function foo(array: number[]) { return [...array.filter(Boolean)]; }
 
 `;
 
-exports[`no-useless-spread > invalid(18): function foo(array: number[]) { return [...array.map(value => value * 2)]; } 2`] = `
+exports[`no-useless-spread > invalid(18): function foo(array: number[]) { return [...array.filter(Boolean)]; } 2`] = `
 
 Message:
-> 1 | function foo(array: number[]) { return [...array.map(value => value * 2)]; }
-    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
+> 1 | function foo(array: number[]) { return [...array.filter(Boolean)]; }
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
 
 Output:
-  1 | function foo(array: number[]) { return array.map(value => value * 2); }
+  1 | function foo(array: number[]) { return array.filter(Boolean); }
 
 `;
 
@@ -572,22 +591,22 @@ Output:
 
 `;
 
-exports[`no-useless-spread > invalid(19): function foo(array: number[]) { return [...array.filter(Boolean)]; } 1`] = `
+exports[`no-useless-spread > invalid(19): function foo(array: number[]) { return [...array.flatMap(value => value)]; } 1`] = `
 
 Filename: file.ts
 
-  1 | function foo(array: number[]) { return [...array.filter(Boolean)]; }
+  1 | function foo(array: number[]) { return [...array.flatMap(value => value)]; }
 
 `;
 
-exports[`no-useless-spread > invalid(19): function foo(array: number[]) { return [...array.filter(Boolean)]; } 2`] = `
+exports[`no-useless-spread > invalid(19): function foo(array: number[]) { return [...array.flatMap(value => value)]; } 2`] = `
 
 Message:
-> 1 | function foo(array: number[]) { return [...array.filter(Boolean)]; }
-    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
+> 1 | function foo(array: number[]) { return [...array.flatMap(value => value)]; }
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
 
 Output:
-  1 | function foo(array: number[]) { return array.filter(Boolean); }
+  1 | function foo(array: number[]) { return array.flatMap(value => value); }
 
 `;
 
@@ -619,20 +638,20 @@ Suggestion 1/1: Remove the object literal wrapper.:
 
 `;
 
-exports[`no-useless-spread > invalid(2): [...foo.copyWithin(-2)] 1`] = `
+exports[`no-useless-spread > invalid(2): [...foo.flat()] 1`] = `
 
-  1 | [...foo.copyWithin(-2)]
+  1 | [...foo.flat()]
 
 `;
 
-exports[`no-useless-spread > invalid(2): [...foo.copyWithin(-2)] 2`] = `
+exports[`no-useless-spread > invalid(2): [...foo.flat()] 2`] = `
 
 Message:
-> 1 | [...foo.copyWithin(-2)]
-    | ^^^^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
+> 1 | [...foo.flat()]
+    | ^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
 
 Output:
-  1 | foo.copyWithin(-2)
+  1 | foo.flat()
 
 `;
 
@@ -670,6 +689,23 @@ Output:
 
 `;
 
+exports[`no-useless-spread > invalid(2): for (const value of [.../* keep */ values,]) { consume(value); } 1`] = `
+
+  1 | for (const value of [.../* keep */ values,]) { consume(value); }
+
+`;
+
+exports[`no-useless-spread > invalid(2): for (const value of [.../* keep */ values,]) { consume(value); } 2`] = `
+
+Message:
+> 1 | for (const value of [.../* keep */ values,]) { consume(value); }
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^ \`for…of\` can iterate over an iterable, it's unnecessary to convert to an array.
+
+Suggestion 1/1: Remove the array conversion.:
+  1 | for (const value of /* keep */ values) { consume(value); }
+
+`;
+
 exports[`no-useless-spread > invalid(2): new Map(...iterable) 1`] = `
 
   1 | new Map(...iterable)
@@ -696,27 +732,31 @@ Message:
 > 1 | for (const foo of (( [...(( iterable ))] )));
     |                      ^^^^^^^^^^^^^^^^^^^ \`for…of\` can iterate over an iterable, it's unnecessary to convert to an array.
 
-Output:
+Suggestion 1/1: Remove the array conversion.:
   1 | for (const foo of (( (( iterable )) )));
 
 `;
 
-exports[`no-useless-spread > invalid(20): function foo(array: number[]) { return [...array.flatMap(value => value)]; } 1`] = `
+exports[`no-useless-spread > invalid(20): function foo(bar) {\n\treturn[...Object.keys(bar)];\n} 1`] = `
 
-Filename: file.ts
-
-  1 | function foo(array: number[]) { return [...array.flatMap(value => value)]; }
+  1 | function foo(bar) {
+  2 | 	return[...Object.keys(bar)];
+  3 | }
 
 `;
 
-exports[`no-useless-spread > invalid(20): function foo(array: number[]) { return [...array.flatMap(value => value)]; } 2`] = `
+exports[`no-useless-spread > invalid(20): function foo(bar) {\n\treturn[...Object.keys(bar)];\n} 2`] = `
 
 Message:
-> 1 | function foo(array: number[]) { return [...array.flatMap(value => value)]; }
-    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
+  1 | function foo(bar) {
+> 2 | 	return[...Object.keys(bar)];
+    | 	      ^^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
+  3 | }
 
 Output:
-  1 | function foo(array: number[]) { return array.flatMap(value => value); }
+  1 | function foo(bar) {
+  2 | 	return Object.keys(bar);
+  3 | }
 
 `;
 
@@ -766,31 +806,39 @@ Message:
 > 1 | for (const foo of[...iterable]);
     |                  ^^^^^^^^^^^^^ \`for…of\` can iterate over an iterable, it's unnecessary to convert to an array.
 
-Output:
+Suggestion 1/1: Remove the array conversion.:
   1 | for (const foo of iterable);
 
 `;
 
-exports[`no-useless-spread > invalid(21): function foo(bar) {\n\treturn[...Object.keys(bar)];\n} 1`] = `
+exports[`no-useless-spread > invalid(21): function foo(bar) {\n\treturn[\n\t\t...Object.keys(bar)\n\t];\n} 1`] = `
 
   1 | function foo(bar) {
-  2 | 	return[...Object.keys(bar)];
-  3 | }
+  2 | 	return[
+  3 | 		...Object.keys(bar)
+  4 | 	];
+  5 | }
 
 `;
 
-exports[`no-useless-spread > invalid(21): function foo(bar) {\n\treturn[...Object.keys(bar)];\n} 2`] = `
+exports[`no-useless-spread > invalid(21): function foo(bar) {\n\treturn[\n\t\t...Object.keys(bar)\n\t];\n} 2`] = `
 
 Message:
   1 | function foo(bar) {
-> 2 | 	return[...Object.keys(bar)];
-    | 	      ^^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
-  3 | }
+> 2 | 	return[
+    | 	      ^
+> 3 | 		...Object.keys(bar)
+    | ^^^^^^^^^^^^^^^^^^^^^
+> 4 | 	];
+    | ^^ Unnecessarily cloning an array.
+  5 | }
 
 Output:
   1 | function foo(bar) {
-  2 | 	return Object.keys(bar);
-  3 | }
+  2 | 	return (
+  3 | 		Object.keys(bar)
+  4 | 	);
+  5 | }
 
 `;
 
@@ -827,68 +875,14 @@ Message:
     | 	        ^^^^^^^^^^^^^ \`yield*\` can delegate to an iterable, it's unnecessary to convert to an array.
   3 | }
 
-Output:
+Suggestion 1/1: Remove the array conversion.:
   1 | function * fn() {
   2 | 	yield * iterable;
   3 | }
 
 `;
 
-exports[`no-useless-spread > invalid(22): function foo(bar) {\n\treturn[\n\t\t...Object.keys(bar)\n\t];\n} 1`] = `
-
-  1 | function foo(bar) {
-  2 | 	return[
-  3 | 		...Object.keys(bar)
-  4 | 	];
-  5 | }
-
-`;
-
-exports[`no-useless-spread > invalid(22): function foo(bar) {\n\treturn[\n\t\t...Object.keys(bar)\n\t];\n} 2`] = `
-
-Message:
-  1 | function foo(bar) {
-> 2 | 	return[
-    | 	      ^
-> 3 | 		...Object.keys(bar)
-    | ^^^^^^^^^^^^^^^^^^^^^
-> 4 | 	];
-    | ^^ Unnecessarily cloning an array.
-  5 | }
-
-Output:
-  1 | function foo(bar) {
-  2 | 	return (
-  3 | 		Object.keys(bar)
-  4 | 	);
-  5 | }
-
-`;
-
-exports[`no-useless-spread > invalid(23): function * fn() {\n\tyield * [...iterable,];\n} 1`] = `
-
-  1 | function * fn() {
-  2 | 	yield * [...iterable,];
-  3 | }
-
-`;
-
-exports[`no-useless-spread > invalid(23): function * fn() {\n\tyield * [...iterable,];\n} 2`] = `
-
-Message:
-  1 | function * fn() {
-> 2 | 	yield * [...iterable,];
-    | 	        ^^^^^^^^^^^^^^ \`yield*\` can delegate to an iterable, it's unnecessary to convert to an array.
-  3 | }
-
-Output:
-  1 | function * fn() {
-  2 | 	yield * iterable;
-  3 | }
-
-`;
-
-exports[`no-useless-spread > invalid(23): function foo(bar) {\n\treturn[\n\t\t...(\n\t\t\tObject.keys(bar)\n\t\t)\n\t];\n} 1`] = `
+exports[`no-useless-spread > invalid(22): function foo(bar) {\n\treturn[\n\t\t...(\n\t\t\tObject.keys(bar)\n\t\t)\n\t];\n} 1`] = `
 
   1 | function foo(bar) {
   2 | 	return[
@@ -900,7 +894,7 @@ exports[`no-useless-spread > invalid(23): function foo(bar) {\n\treturn[\n\t\t..
 
 `;
 
-exports[`no-useless-spread > invalid(23): function foo(bar) {\n\treturn[\n\t\t...(\n\t\t\tObject.keys(bar)\n\t\t)\n\t];\n} 2`] = `
+exports[`no-useless-spread > invalid(22): function foo(bar) {\n\treturn[\n\t\t...(\n\t\t\tObject.keys(bar)\n\t\t)\n\t];\n} 2`] = `
 
 Message:
   1 | function foo(bar) {
@@ -924,6 +918,60 @@ Output:
   5 | 		)
   6 | 	);
   7 | }
+
+`;
+
+exports[`no-useless-spread > invalid(23): function * fn() {\n\tyield * [...iterable,];\n} 1`] = `
+
+  1 | function * fn() {
+  2 | 	yield * [...iterable,];
+  3 | }
+
+`;
+
+exports[`no-useless-spread > invalid(23): function * fn() {\n\tyield * [...iterable,];\n} 2`] = `
+
+Message:
+  1 | function * fn() {
+> 2 | 	yield * [...iterable,];
+    | 	        ^^^^^^^^^^^^^^ \`yield*\` can delegate to an iterable, it's unnecessary to convert to an array.
+  3 | }
+
+Suggestion 1/1: Remove the array conversion.:
+  1 | function * fn() {
+  2 | 	yield * iterable;
+  3 | }
+
+`;
+
+exports[`no-useless-spread > invalid(23): function foo(bar) {\n\treturn([\n\t\t...Object.keys(bar)\n\t]);\n} 1`] = `
+
+  1 | function foo(bar) {
+  2 | 	return([
+  3 | 		...Object.keys(bar)
+  4 | 	]);
+  5 | }
+
+`;
+
+exports[`no-useless-spread > invalid(23): function foo(bar) {\n\treturn([\n\t\t...Object.keys(bar)\n\t]);\n} 2`] = `
+
+Message:
+  1 | function foo(bar) {
+> 2 | 	return([
+    | 	       ^
+> 3 | 		...Object.keys(bar)
+    | ^^^^^^^^^^^^^^^^^^^^^
+> 4 | 	]);
+    | ^^ Unnecessarily cloning an array.
+  5 | }
+
+Output:
+  1 | function foo(bar) {
+  2 | 	return (
+  3 | 		Object.keys(bar)
+  4 | 	);
+  5 | }
 
 `;
 
@@ -977,41 +1025,10 @@ Message:
     | 	           ^^^^^^^^^^^^^ \`yield*\` can delegate to an iterable, it's unnecessary to convert to an array.
   3 | }
 
-Output:
+Suggestion 1/1: Remove the array conversion.:
   1 | function * fn() {
   2 | 	yield * (( iterable ));
   3 | }
-
-`;
-
-exports[`no-useless-spread > invalid(24): function foo(bar) {\n\treturn([\n\t\t...Object.keys(bar)\n\t]);\n} 1`] = `
-
-  1 | function foo(bar) {
-  2 | 	return([
-  3 | 		...Object.keys(bar)
-  4 | 	]);
-  5 | }
-
-`;
-
-exports[`no-useless-spread > invalid(24): function foo(bar) {\n\treturn([\n\t\t...Object.keys(bar)\n\t]);\n} 2`] = `
-
-Message:
-  1 | function foo(bar) {
-> 2 | 	return([
-    | 	       ^
-> 3 | 		...Object.keys(bar)
-    | ^^^^^^^^^^^^^^^^^^^^^
-> 4 | 	]);
-    | ^^ Unnecessarily cloning an array.
-  5 | }
-
-Output:
-  1 | function foo(bar) {
-  2 | 	return (
-  3 | 		Object.keys(bar)
-  4 | 	);
-  5 | }
 
 `;
 
@@ -1048,7 +1065,7 @@ Message:
     | 	           ^^^^^^^^^^^^^^^^^^^ \`yield*\` can delegate to an iterable, it's unnecessary to convert to an array.
   3 | }
 
-Output:
+Suggestion 1/1: Remove the array conversion.:
   1 | function * fn() {
   2 | 	yield * (( (( iterable )) ));
   3 | }
@@ -1140,20 +1157,34 @@ Suggestion 1/1: Remove the object literal wrapper.:
 
 `;
 
-exports[`no-useless-spread > invalid(3): [...foo.flat()] 1`] = `
+exports[`no-useless-spread > invalid(3): Promise.all((( [...(( values ))] ))) 1`] = `
 
-  1 | [...foo.flat()]
+  1 | Promise.all((( [...(( values ))] )))
 
 `;
 
-exports[`no-useless-spread > invalid(3): [...foo.flat()] 2`] = `
+exports[`no-useless-spread > invalid(3): Promise.all((( [...(( values ))] ))) 2`] = `
 
 Message:
-> 1 | [...foo.flat()]
-    | ^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
+> 1 | Promise.all((( [...(( values ))] )))
+    |                ^^^^^^^^^^^^^^^^^ \`Promise.all(…)\` accepts an iterable as an argument, it's unnecessary to convert to an array.
 
 Output:
-  1 | foo.flat()
+  1 | Promise.all((( (( values )) )))
+
+`;
+
+exports[`no-useless-spread > invalid(3): [...foo.slice(1)] 1`] = `
+
+  1 | [...foo.slice(1)]
+
+`;
+
+exports[`no-useless-spread > invalid(3): [...foo.slice(1)] 2`] = `
+
+Message:
+> 1 | [...foo.slice(1)]
+    | ^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
 
 `;
 
@@ -1392,17 +1423,20 @@ Suggestion 1/1: Remove the object literal wrapper.:
 
 `;
 
-exports[`no-useless-spread > invalid(4): [...foo.slice(1)] 1`] = `
+exports[`no-useless-spread > invalid(4): [...foo.splice(1)] 1`] = `
 
-  1 | [...foo.slice(1)]
+  1 | [...foo.splice(1)]
 
 `;
 
-exports[`no-useless-spread > invalid(4): [...foo.slice(1)] 2`] = `
+exports[`no-useless-spread > invalid(4): [...foo.splice(1)] 2`] = `
 
 Message:
-> 1 | [...foo.slice(1)]
-    | ^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
+> 1 | [...foo.splice(1)]
+    | ^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
+
+Output:
+  1 | foo.splice(1)
 
 `;
 
@@ -1420,6 +1454,23 @@ Message:
 
 Output:
   1 | const weakSet = new WeakSet(iterable)
+
+`;
+
+exports[`no-useless-spread > invalid(4): function* delegate() { return yield* [.../* keep */ values]; } 1`] = `
+
+  1 | function* delegate() { return yield* [.../* keep */ values]; }
+
+`;
+
+exports[`no-useless-spread > invalid(4): function* delegate() { return yield* [.../* keep */ values]; } 2`] = `
+
+Message:
+> 1 | function* delegate() { return yield* [.../* keep */ values]; }
+    |                                      ^^^^^^^^^^^^^^^^^^^^^^ \`yield*\` can delegate to an iterable, it's unnecessary to convert to an array.
+
+Suggestion 1/1: Remove the array conversion.:
+  1 | function* delegate() { return yield* /* keep */ values; }
 
 `;
 
@@ -1641,20 +1692,20 @@ Suggestion 1/1: Remove the object literal wrapper.:
 
 `;
 
-exports[`no-useless-spread > invalid(5): [...foo.splice(1)] 1`] = `
+exports[`no-useless-spread > invalid(5): [...foo.toReversed()] 1`] = `
 
-  1 | [...foo.splice(1)]
+  1 | [...foo.toReversed()]
 
 `;
 
-exports[`no-useless-spread > invalid(5): [...foo.splice(1)] 2`] = `
+exports[`no-useless-spread > invalid(5): [...foo.toReversed()] 2`] = `
 
 Message:
-> 1 | [...foo.splice(1)]
-    | ^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
+> 1 | [...foo.toReversed()]
+    | ^^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
 
 Output:
-  1 | foo.splice(1)
+  1 | foo.toReversed()
 
 `;
 
@@ -1689,6 +1740,23 @@ Message:
 
 Output:
   1 | const promise = Promise.all(iterable)
+
+`;
+
+exports[`no-useless-spread > invalid(5): function consume(values: number[]) { for (const value of [...(values as number[])]) { values.pop(); use(value); } } 1`] = `
+
+  1 | function consume(values: number[]) { for (const value of [...(values as number[])]) { values.pop(); use(value); } }
+
+`;
+
+exports[`no-useless-spread > invalid(5): function consume(values: number[]) { for (const value of [...(values as number[])]) { values.pop(); use(value); } } 2`] = `
+
+Message:
+> 1 | function consume(values: number[]) { for (const value of [...(values as number[])]) { values.pop(); use(value); } }
+    |                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^ \`for…of\` can iterate over an iterable, it's unnecessary to convert to an array.
+
+Suggestion 1/1: Remove the array conversion.:
+  1 | function consume(values: number[]) { for (const value of (values as number[])) { values.pop(); use(value); } }
 
 `;
 
@@ -2224,20 +2292,37 @@ Suggestion 1/1: Remove the object literal wrapper.:
 
 `;
 
-exports[`no-useless-spread > invalid(6): [...foo.toReversed()] 1`] = `
+exports[`no-useless-spread > invalid(6): Object.fromEntries([...(values! satisfies Iterable<[string, number]>)]) 1`] = `
 
-  1 | [...foo.toReversed()]
+  1 | Object.fromEntries([...(values! satisfies Iterable<[string, number]>)])
 
 `;
 
-exports[`no-useless-spread > invalid(6): [...foo.toReversed()] 2`] = `
+exports[`no-useless-spread > invalid(6): Object.fromEntries([...(values! satisfies Iterable<[string, number]>)]) 2`] = `
 
 Message:
-> 1 | [...foo.toReversed()]
-    | ^^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
+> 1 | Object.fromEntries([...(values! satisfies Iterable<[string, number]>)])
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`Object.fromEntries(…)\` accepts an iterable as an argument, it's unnecessary to convert to an array.
 
 Output:
-  1 | foo.toReversed()
+  1 | Object.fromEntries((values! satisfies Iterable<[string, number]>))
+
+`;
+
+exports[`no-useless-spread > invalid(6): [...foo.toSorted()] 1`] = `
+
+  1 | [...foo.toSorted()]
+
+`;
+
+exports[`no-useless-spread > invalid(6): [...foo.toSorted()] 2`] = `
+
+Message:
+> 1 | [...foo.toSorted()]
+    | ^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
+
+Output:
+  1 | foo.toSorted()
 
 `;
 
@@ -2326,20 +2411,20 @@ Suggestion 1/1: Remove the object literal wrapper.:
 
 `;
 
-exports[`no-useless-spread > invalid(7): [...foo.toSorted()] 1`] = `
+exports[`no-useless-spread > invalid(7): [...foo.toSpliced(0, 1)] 1`] = `
 
-  1 | [...foo.toSorted()]
+  1 | [...foo.toSpliced(0, 1)]
 
 `;
 
-exports[`no-useless-spread > invalid(7): [...foo.toSorted()] 2`] = `
+exports[`no-useless-spread > invalid(7): [...foo.toSpliced(0, 1)] 2`] = `
 
 Message:
-> 1 | [...foo.toSorted()]
-    | ^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
+> 1 | [...foo.toSpliced(0, 1)]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
 
 Output:
-  1 | foo.toSorted()
+  1 | foo.toSpliced(0, 1)
 
 `;
 
@@ -2394,20 +2479,20 @@ Suggestion 1/1: Remove the object literal wrapper.:
 
 `;
 
-exports[`no-useless-spread > invalid(8): [...foo.toSpliced(0, 1)] 1`] = `
+exports[`no-useless-spread > invalid(8): [...foo.with(0, bar)] 1`] = `
 
-  1 | [...foo.toSpliced(0, 1)]
+  1 | [...foo.with(0, bar)]
 
 `;
 
-exports[`no-useless-spread > invalid(8): [...foo.toSpliced(0, 1)] 2`] = `
+exports[`no-useless-spread > invalid(8): [...foo.with(0, bar)] 2`] = `
 
 Message:
-> 1 | [...foo.toSpliced(0, 1)]
-    | ^^^^^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
+> 1 | [...foo.with(0, bar)]
+    | ^^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
 
 Output:
-  1 | foo.toSpliced(0, 1)
+  1 | foo.with(0, bar)
 
 `;
 
@@ -2459,20 +2544,20 @@ Message:
 
 `;
 
-exports[`no-useless-spread > invalid(9): [...foo.with(0, bar)] 1`] = `
+exports[`no-useless-spread > invalid(9): [...foo.split(\"|\")] 1`] = `
 
-  1 | [...foo.with(0, bar)]
+  1 | [...foo.split("|")]
 
 `;
 
-exports[`no-useless-spread > invalid(9): [...foo.with(0, bar)] 2`] = `
+exports[`no-useless-spread > invalid(9): [...foo.split(\"|\")] 2`] = `
 
 Message:
-> 1 | [...foo.with(0, bar)]
-    | ^^^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
+> 1 | [...foo.split("|")]
+    | ^^^^^^^^^^^^^^^^^^^ Unnecessarily cloning an array.
 
 Output:
-  1 | foo.with(0, bar)
+  1 | foo.split("|")
 
 `;
 

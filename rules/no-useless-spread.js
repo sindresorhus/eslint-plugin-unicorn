@@ -1,4 +1,4 @@
-import {isCommaToken} from '@eslint-community/eslint-utils';
+import {getPropertyName, isCommaToken} from '@eslint-community/eslint-utils';
 import typedArray from './shared/typed-array.js';
 import {removeParentheses, fixSpaceAroundKeyword, addParenthesesToReturnOrThrowExpression} from './fix/index.js';
 import {
@@ -9,6 +9,7 @@ import {
 	getParenthesizedText,
 	isStrongPrecedenceNode,
 	unwrapTypeScriptExpression,
+	containsNode,
 } from './utils/index.js';
 import {
 	isNewExpression,
@@ -26,6 +27,7 @@ const SPREAD_IN_COLLECTION_CONSTRUCTOR = 'spread-in-collection-constructor';
 const SPREAD_IN_OBJECT_ASSIGN = 'spread-in-object-assign';
 const CLONE_ARRAY = 'clone-array';
 const SUGGESTION_REMOVE_OBJECT_ASSIGN_SPREAD = 'suggestion/remove-object-assign-spread';
+const SUGGESTION_REMOVE_ITERABLE_ARRAY = 'suggestion/remove-iterable-array';
 const messages = {
 	[SPREAD_IN_LIST]: 'Spread an {{argumentType}} literal in {{parentDescription}} is unnecessary.',
 	[ITERABLE_TO_ARRAY]: '`{{parentDescription}}` accepts an iterable as an argument, it\'s unnecessary to convert to an array.',
@@ -35,11 +37,11 @@ const messages = {
 	[SPREAD_IN_OBJECT_ASSIGN]: '`Object.assign(…)` source object with only spread properties is unnecessary.',
 	[CLONE_ARRAY]: 'Unnecessarily cloning an array.',
 	[SUGGESTION_REMOVE_OBJECT_ASSIGN_SPREAD]: 'Remove the object literal wrapper.',
+	[SUGGESTION_REMOVE_ITERABLE_ARRAY]: 'Remove the array conversion.',
 };
 
 const collectionConstructors = ['Map', 'WeakMap', 'Set', 'WeakSet'];
 const arrayCloneMethodNames = [
-	'copyWithin',
 	'flat',
 	'slice',
 	'splice',
@@ -59,6 +61,13 @@ const isSingleArraySpread = node =>
 	node.type === 'ArrayExpression'
 	&& node.elements.length === 1
 	&& node.elements[0]?.type === 'SpreadElement';
+
+// `__proto__: value` in an object literal sets the prototype, which the spread would drop or turn into a duplicate `__proto__`.
+const isPrototypeSetterProperty = property =>
+	property.type === 'Property'
+	&& !property.computed
+	&& !property.shorthand
+	&& getPropertyName(property) === '__proto__';
 
 const isObjectExpressionWithOnlySpreadProperties = node =>
 	node.type === 'ObjectExpression'
@@ -294,6 +303,17 @@ const create = context => {
 			return;
 		}
 
+		if (
+			node.type === 'ObjectExpression'
+			&& (
+				node.properties.some(property => isPrototypeSetterProperty(property))
+				// Flattening a method changes its home object, which determines `super` lookup.
+				|| containsNode(node, context, node => node.type === 'Super')
+			)
+		) {
+			return;
+		}
+
 		const spreadObject = node;
 		const spreadElement = spreadObject.parent;
 		const spreadToken = sourceCode.getFirstToken(spreadElement);
@@ -517,11 +537,24 @@ const create = context => {
 			// No default
 		}
 
-		return {
+		const problem = {
 			node: arrayExpression,
 			messageId,
 			data: {parentDescription},
-			fix: fixer => unwrapSingleArraySpread(fixer, arrayExpression, context),
+		};
+		const fix = fixer => unwrapSingleArraySpread(fixer, arrayExpression, context);
+
+		// A `for…of` loop body can change the collection while it is iterated, and `yield*` forwards `next()` and `return()` to the iterable, so removing the array snapshot is only a suggestion there.
+		if (parent.type !== 'ForOfStatement' && parent.type !== 'YieldExpression') {
+			return {...problem, fix};
+		}
+
+		return {
+			...problem,
+			suggest: [{
+				messageId: SUGGESTION_REMOVE_ITERABLE_ARRAY,
+				fix,
+			}],
 		};
 	});
 
