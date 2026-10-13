@@ -19,6 +19,8 @@ This rule reports `for…of` loops, `Object.keys().map()` callbacks, and `Object
 
 `Object.entries().reduce()` and `Object.entries().reduceRight()` are only reported when an initial value is provided.
 
+`Object.values()` and `Object.entries()` read every value before iteration, while `object[key]` reads it during iteration, so after the fix, a loop or callback that changes the object can see different values.
+
 ## Examples
 
 ```js
@@ -39,6 +41,14 @@ Object.keys(object).map(key => foo(object[key], key));
 
 // ✅
 Object.entries(object).map(([key, value]) => foo(value, key));
+```
+
+```js
+// ❌
+const doubled = Object.keys(object).map(key => object[key] * 2);
+
+// ✅
+const doubled = Object.values(object).map(value => value * 2);
 ```
 
 ```js

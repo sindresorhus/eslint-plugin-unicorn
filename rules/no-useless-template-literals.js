@@ -13,6 +13,7 @@ import {
 } from './utils/index.js';
 import escapeTemplateElementRaw from './utils/escape-template-element-raw.js';
 import hasTemplateIncompatibleEscape from './utils/has-template-incompatible-escape.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 
 const MESSAGE_ID = 'no-useless-template-literals';
 const MESSAGE_ID_SUGGESTION = 'no-useless-template-literals/suggestion';
@@ -280,7 +281,10 @@ const create = context => {
 							data: {
 								replacement,
 							},
-							fix: fixer => fixer.replaceText(node, replacement),
+							* fix(fixer) {
+								yield fixer.replaceText(node, replacement);
+								yield fixSpaceAroundKeyword(fixer, node, context);
+							},
 						},
 					],
 				}),

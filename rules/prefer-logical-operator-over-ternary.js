@@ -360,14 +360,15 @@ function getNullishTernaryProblem(conditionalExpression, context) {
 		suggest: [
 			{
 				messageId: MESSAGE_ID_OPTIONAL_CHAIN_SUGGESTION,
-				fix(fixer) {
+				* fix(fixer) {
 					let text = optionalChainText;
 
 					if (needsSemicolon(context.sourceCode.getTokenBefore(conditionalExpression), context, text)) {
 						text = `;${text}`;
 					}
 
-					return fixer.replaceText(conditionalExpression, text);
+					yield fixer.replaceText(conditionalExpression, text);
+					yield fixSpaceAroundKeyword(fixer, conditionalExpression, context);
 				},
 			},
 		],

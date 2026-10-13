@@ -8,6 +8,23 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+// Keyword spacing in optional chain suggestions
+test({
+	valid: [],
+	invalid: [
+		['function value(input) { return(input) == null ? undefined : input.value; }', 'function value(input) { return input?.value; }'],
+		['function value(input) { return((input) == null ? undefined : input.value); }', 'function value(input) { return (input?.value); }'],
+		['async function value(input) { return await((input) == null ? undefined : input.value); }', 'async function value(input) { return await (input?.value); }'],
+		['for (const value of(input) == null ? undefined : input.values);', 'for (const value of input?.values);'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{
+			messageId: 'prefer-logical-operator-over-ternary/optional-chain-error',
+			suggestions: [{messageId: 'prefer-logical-operator-over-ternary/optional-chain-suggestion', output}],
+		}],
+	})),
+});
+
 const typeAware = code => ({
 	code,
 	filename: 'file.ts',

@@ -8,6 +8,7 @@ import {
 	isMethodCall,
 	isNewExpression,
 } from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 
 const MESSAGE_ID = 'prefer-iterator-to-array';
 const MESSAGE_ID_SUGGESTION = 'prefer-iterator-to-array/suggestion';
@@ -131,7 +132,10 @@ const getFix = (arrayExpression, spreadElement, context) => {
 		return;
 	}
 
-	return fixer => fixer.replaceText(arrayExpression, getReplacementText(spreadElement, context));
+	return function * (fixer) {
+		yield fixer.replaceText(arrayExpression, getReplacementText(spreadElement, context));
+		yield fixSpaceAroundKeyword(fixer, arrayExpression, context);
+	};
 };
 
 /**

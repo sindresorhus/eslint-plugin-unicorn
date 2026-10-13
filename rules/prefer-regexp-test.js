@@ -1,6 +1,6 @@
 import {findVariable, getStaticValue, isParenthesized} from '@eslint-community/eslint-utils';
 import {checkVueTemplate} from './utils/rule.js';
-import {removeMemberExpressionProperty} from './fix/index.js';
+import {fixSpaceAroundKeyword, removeMemberExpressionProperty} from './fix/index.js';
 import {
 	isLiteral,
 	isNegativeOne,
@@ -76,6 +76,7 @@ function * fixStringMethodCall(fixer, {stringNode, methodNode, regexpNode}, cont
 	}
 
 	yield fixer.replaceText(stringNode, regexpText);
+	yield fixSpaceAroundKeyword(fixer, stringNode, context);
 }
 
 const cases = [
@@ -611,6 +612,11 @@ const create = context => {
 			};
 
 			const fixFunction = function * (fixer) {
+				// Run first so the space after a keyword goes before an inserted `!`
+				for (const fixResult of fix(fixer, nodes, context)) {
+					yield fixResult;
+				}
+
 				if (lengthCheck) {
 					yield removeMemberExpressionProperty(fixer, lengthCheck.lengthNode, context);
 
@@ -626,10 +632,6 @@ const create = context => {
 					}
 
 					yield fixer.removeRange(getSearchCheckRemovalRange(searchCheck, node, context));
-				}
-
-				for (const fixResult of fix(fixer, nodes, context)) {
-					yield fixResult;
 				}
 			};
 

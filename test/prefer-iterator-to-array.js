@@ -3,6 +3,36 @@ import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+// Keyword spacing
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function values() { return[...Iterator.from([1])]; }',
+			output: 'function values() { return Iterator.from([1]).toArray(); }',
+			errors: 1,
+		},
+		{
+			code: 'function values() { return([...Iterator.from([1])]); }',
+			output: 'function values() { return (Iterator.from([1]).toArray()); }',
+			errors: 1,
+		},
+		{
+			code: 'async function values() { return await[...Iterator.from([1])]; }',
+			output: 'async function values() { return await Iterator.from([1]).toArray(); }',
+			errors: 1,
+		},
+		{
+			code: 'function values(map) { return[...map.values()]; }',
+			output: null,
+			errors: [{
+				messageId: 'prefer-iterator-to-array',
+				suggestions: [{messageId: 'prefer-iterator-to-array/suggestion', output: 'function values(map) { return map.values().toArray(); }'}],
+			}],
+		},
+	],
+});
+
 test.snapshot({
 	valid: [
 		// Unknown iterable values are intentionally ignored.

@@ -10,6 +10,7 @@ import {
 	getVisitorChildNodes,
 	unwrapChainAndTypeScriptExpression,
 } from './utils/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {getForOfDeclarationPattern} from './shared/for-of-collection-loop.js';
 
 const MESSAGE_ID = 'prefer-object-iterable-methods';
@@ -299,29 +300,34 @@ const getReplacementBindingText = (binding, text, context, {needsParentheses = f
 const getAvailableName = (name, binding, context) =>
 	getAvailableVariableName(name, getScopes(context.sourceCode.getScope(binding)));
 
-const getFix = problem => fixer => {
+function * replaceNode(fixer, node, text, context) {
+	yield fixer.replaceText(node, text);
+	yield fixSpaceAroundKeyword(fixer, node, context);
+}
+
+const getFix = problem => function * (fixer) {
 	const {
+		context,
 		methodProperty,
 		preferredMethod,
 		binding,
 		bindingReplacement,
-		valueMembers,
+		valueMembers = [],
 		valueName,
 		objectNode,
 		objectReplacement,
 	} = problem;
 
-	const fixes = [
-		fixer.replaceText(methodProperty, preferredMethod),
-		fixer.replaceText(binding, bindingReplacement),
-		...valueMembers.map(node => fixer.replaceText(node, valueName)),
-	];
+	yield fixer.replaceText(methodProperty, preferredMethod);
+	yield replaceNode(fixer, binding, bindingReplacement, context);
 
-	if (objectReplacement !== undefined) {
-		fixes.push(fixer.replaceText(objectNode, objectReplacement));
+	for (const valueMember of valueMembers) {
+		yield replaceNode(fixer, valueMember, valueName, context);
 	}
 
-	return fixes;
+	if (objectReplacement !== undefined) {
+		yield fixer.replaceText(objectNode, objectReplacement);
+	}
 };
 
 const createProblem = problem => {
@@ -332,7 +338,6 @@ const createProblem = problem => {
 		preferredMethod,
 		binding,
 		valueMembers = [],
-		valueName,
 	} = problem;
 	const {sourceCode} = context;
 	const problemObject = {
@@ -345,21 +350,13 @@ const createProblem = problem => {
 	};
 
 	if (
-		valueName
-		&& problem.canFix !== false
-		&& !hasCommentsInside([binding, ...valueMembers], sourceCode)
+		problem.canFix === false
+		|| hasCommentsInside([binding, ...valueMembers], sourceCode)
 	) {
-		problemObject.fix = getFix(problem);
-	} else if (
-		!valueName
-		&& problem.canFix !== false
-		&& !hasCommentsInside([binding], sourceCode)
-	) {
-		problemObject.fix = fixer => [
-			fixer.replaceText(methodCall.callee.property, preferredMethod),
-			fixer.replaceText(binding, problem.bindingReplacement),
-		];
+		return problemObject;
 	}
+
+	problemObject.fix = getFix(problem);
 
 	return problemObject;
 };

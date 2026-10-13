@@ -7,6 +7,7 @@ import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
+
 const fixtureDirectory = fileURLToPath(new URL('fixtures/prefer-regexp-test/', import.meta.url));
 const typeAware = code => ({
 	code,
@@ -21,6 +22,47 @@ const typeAware = code => ({
 			},
 		},
 	},
+});
+
+// Keyword spacing and inserted `!`
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			code: 'const pattern = /a/; function run() { return"a".search(pattern) !== -1; }',
+			output: 'const pattern = /a/; function run() { return pattern.test("a"); }',
+			errors: 1,
+		},
+		{
+			code: 'const pattern = /a/; function run() { return"a".search(pattern) === -1; }',
+			output: 'const pattern = /a/; function run() { return !pattern.test("a"); }',
+			errors: 1,
+		},
+		{
+			code: 'foo\n"a".search(/a/) === -1',
+			output: 'foo\n;!/a/.test("a")',
+			errors: 1,
+		},
+		{
+			code: 'function run() { return"a".match(/a/) ? true : false; }',
+			output: 'function run() { return /a/.test("a") ? true : false; }',
+			errors: 1,
+		},
+		{
+			code: 'for (const value of"a".match(/a/) ? [1] : [2]);',
+			output: 'for (const value of /a/.test("a") ? [1] : [2]);',
+			errors: 1,
+		},
+		{
+			code: 'function run(pattern: RegExp) { return"a".search(pattern) !== -1; }',
+			languageOptions: {parser: parsers.typescript},
+			output: null,
+			errors: [{
+				messageId: 'string-search',
+				suggestions: [{messageId: 'suggestion', output: 'function run(pattern: RegExp) { return pattern.test("a"); }'}],
+			}],
+		},
+	],
 });
 
 ruleTest.snapshot({

@@ -9,6 +9,18 @@ const typescript = code => ({
 	},
 });
 
+// Keyword spacing
+test({
+	valid: [],
+	invalid: [
+		['function check(error) { return(error) instanceof Error; }', 'function check(error) { return Error.isError(error); }'],
+		['function check(error) { return"[object Error]" === Object.prototype.toString.call(error); }', 'function check(error) { return Error.isError(error); }'],
+		['function * check(error) { yield"[object Error]" !== Object.prototype.toString.call(error); }', 'function * check(error) { yield !Error.isError(error); }'],
+		['for (const value of(error) instanceof Error ? [1] : []);', 'for (const value of Error.isError(error) ? [1] : []);'],
+		['(error instanceof Error)in object;', '(Error.isError(error)) in object;'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
 test.snapshot({
 	valid: [
 		'Error.isError(error)',

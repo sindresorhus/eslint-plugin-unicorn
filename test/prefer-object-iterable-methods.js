@@ -1,7 +1,44 @@
+import nodeTest from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+const config = {
+	plugins: {unicorn: {rules: {'prefer-object-iterable-methods': rule}}},
+	rules: {'unicorn/prefer-object-iterable-methods': 'error'},
+};
+
+// `Object.values()` reads every value before iteration, so a loop or callback that changes the object can see different values after the fix. That is a documented limitation, so the common forms with calls are still autofixed.
+nodeTest('converting `Object.keys()` is autofixed when the value is passed to a call', t => {
+	for (const [code, expectedOutput] of [
+		[
+			'const object = {a: 1, b: 2}; const foo = (value, key) => key + value; JSON.stringify(Object.keys(object).map(key => foo(object[key], key)));',
+			'const object = {a: 1, b: 2}; const foo = (value, key) => key + value; JSON.stringify(Object.entries(object).map(([key, value]) => foo(value, key)));',
+		],
+		[
+			'const object = {a: 1, b: 2}; const result = []; for (const key of Object.keys(object)) { result.push(object[key]); } JSON.stringify(result);',
+			'const object = {a: 1, b: 2}; const result = []; for (const value of Object.values(object)) { result.push(value); } JSON.stringify(result);',
+		],
+	]) {
+		const {output, fixed, messages} = new Linter().verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true, code);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(output, expectedOutput);
+		t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
+	}
+});
+
+nodeTest('converting `Object.keys()` is autofixed when the callback has no side effects', t => {
+	const code = 'const object = {a: 1, b: 2}; JSON.stringify(Object.keys(object).map(key => [key, object[key] * 2]));';
+	const {output, fixed, messages} = new Linter().verifyAndFix(code, config);
+	t.assert.strictEqual(fixed, true);
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(output, 'const object = {a: 1, b: 2}; JSON.stringify(Object.entries(object).map(([key, value]) => [key, value * 2]));');
+	t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
+});
+
 const typescript = code => ({
 	code,
 	languageOptions: {
@@ -163,6 +200,18 @@ test.snapshot({
 		'for (const key of Object.keys(object)) {\n\tfoo(object[key]);\n\tconst read = () => object[key];\n\tconst Reader = class {\n\t\tread() {\n\t\t\treturn object[key];\n\t\t}\n\t};\n}',
 		// `arguments` in a nested function does not refer to the callback arguments
 		'Object.entries(object).map(function ([key, value]) {\n\tconst read = function () {\n\t\treturn arguments;\n\t};\n\treturn read(key);\n});',
+		'const result = Object.keys(object).map(key => [object[key], object[key]]);',
+		'const {result = Object.keys(object).map(key => object[key])} = options;',
+		'Object.keys(object /* keep argument */).map(key => /* keep body */ object[key]);',
+		{
+			code: '<div>{Object.keys(object).map(key => object[key])}</div>;',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		typescript('for (const key of Object.keys(object!)) { consume(key, object![key]); }'),
+		// Keyword spacing
+		'Object.keys(object).map(key => typeof(object)[key]);',
+		'for (const key of Object.keys(object)) {\n\tfoo((object)[key]in bar);\n}',
+		'for (const[key, value]of Object.entries(object)) {\n\tfoo(key);\n}',
 	],
 });
 

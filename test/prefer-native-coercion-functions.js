@@ -3,6 +3,16 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+// Keyword spacing
+test({
+	valid: [],
+	invalid: [
+		['function getConverter() { return(value) => Number(value); }', 'function getConverter() { return Number; }'],
+		['function getConverter() { return((value) => Number(value)); }', 'function getConverter() { return (Number); }'],
+		['for (const item of(value) => Number(value));', 'for (const item of Number);'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
 test.snapshot({
 	valid: [
 		'const foo = async v => String(v)',

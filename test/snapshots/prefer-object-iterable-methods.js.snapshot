@@ -1246,6 +1246,57 @@ Output:
 
 `;
 
+exports[`prefer-object-iterable-methods > invalid(67): const result = Object.keys(object).map(key => [object[key], object[key]]); 1`] = `
+
+  1 | const result = Object.keys(object).map(key => [object[key], object[key]]);
+
+`;
+
+exports[`prefer-object-iterable-methods > invalid(67): const result = Object.keys(object).map(key => [object[key], object[key]]); 2`] = `
+
+Message:
+> 1 | const result = Object.keys(object).map(key => [object[key], object[key]]);
+    |                       ^^^^ Prefer \`Object.values()\` over \`Object.keys()\`.
+
+Output:
+  1 | const result = Object.values(object).map(value => [value, value]);
+
+`;
+
+exports[`prefer-object-iterable-methods > invalid(68): const {result = Object.keys(object).map(key => object[key])} = options; 1`] = `
+
+  1 | const {result = Object.keys(object).map(key => object[key])} = options;
+
+`;
+
+exports[`prefer-object-iterable-methods > invalid(68): const {result = Object.keys(object).map(key => object[key])} = options; 2`] = `
+
+Message:
+> 1 | const {result = Object.keys(object).map(key => object[key])} = options;
+    |                        ^^^^ Prefer \`Object.values()\` over \`Object.keys()\`.
+
+Output:
+  1 | const {result = Object.values(object).map(value => value)} = options;
+
+`;
+
+exports[`prefer-object-iterable-methods > invalid(69): Object.keys(object /* keep argument */).map(key => /* keep body */ object[key]); 1`] = `
+
+  1 | Object.keys(object /* keep argument */).map(key => /* keep body */ object[key]);
+
+`;
+
+exports[`prefer-object-iterable-methods > invalid(69): Object.keys(object /* keep argument */).map(key => /* keep body */ object[key]); 2`] = `
+
+Message:
+> 1 | Object.keys(object /* keep argument */).map(key => /* keep body */ object[key]);
+    |        ^^^^ Prefer \`Object.values()\` over \`Object.keys()\`.
+
+Output:
+  1 | Object.values(object /* keep argument */).map(value => /* keep body */ value);
+
+`;
+
 exports[`prefer-object-iterable-methods > invalid(7): const result = Object.keys(object).map(function (key) {\n\treturn this.format(object[key]);\n}, formatter); 1`] = `
 
   1 | const result = Object.keys(object).map(function (key) {
@@ -1266,6 +1317,103 @@ Output:
   1 | const result = Object.values(object).map(function (value) {
   2 | 	return this.format(value);
   3 | }, formatter);
+
+`;
+
+exports[`prefer-object-iterable-methods > invalid(70): <div>{Object.keys(object).map(key => object[key])}</div>; 1`] = `
+
+  1 | <div>{Object.keys(object).map(key => object[key])}</div>;
+
+`;
+
+exports[`prefer-object-iterable-methods > invalid(70): <div>{Object.keys(object).map(key => object[key])}</div>; 2`] = `
+
+Message:
+> 1 | <div>{Object.keys(object).map(key => object[key])}</div>;
+    |              ^^^^ Prefer \`Object.values()\` over \`Object.keys()\`.
+
+Output:
+  1 | <div>{Object.values(object).map(value => value)}</div>;
+
+`;
+
+exports[`prefer-object-iterable-methods > invalid(71): for (const key of Object.keys(object!)) { consume(key, object![key]); } 1`] = `
+
+  1 | for (const key of Object.keys(object!)) { consume(key, object![key]); }
+
+`;
+
+exports[`prefer-object-iterable-methods > invalid(71): for (const key of Object.keys(object!)) { consume(key, object![key]); } 2`] = `
+
+Message:
+> 1 | for (const key of Object.keys(object!)) { consume(key, object![key]); }
+    |                          ^^^^ Prefer \`Object.entries()\` over \`Object.keys()\`.
+
+Output:
+  1 | for (const [key, value] of Object.entries(object!)) { consume(key, value); }
+
+`;
+
+exports[`prefer-object-iterable-methods > invalid(72): Object.keys(object).map(key => typeof(object)[key]); 1`] = `
+
+  1 | Object.keys(object).map(key => typeof(object)[key]);
+
+`;
+
+exports[`prefer-object-iterable-methods > invalid(72): Object.keys(object).map(key => typeof(object)[key]); 2`] = `
+
+Message:
+> 1 | Object.keys(object).map(key => typeof(object)[key]);
+    |        ^^^^ Prefer \`Object.values()\` over \`Object.keys()\`.
+
+Output:
+  1 | Object.values(object).map(value => typeof value);
+
+`;
+
+exports[`prefer-object-iterable-methods > invalid(73): for (const key of Object.keys(object)) {\n\tfoo((object)[key]in bar);\n} 1`] = `
+
+  1 | for (const key of Object.keys(object)) {
+  2 | 	foo((object)[key]in bar);
+  3 | }
+
+`;
+
+exports[`prefer-object-iterable-methods > invalid(73): for (const key of Object.keys(object)) {\n\tfoo((object)[key]in bar);\n} 2`] = `
+
+Message:
+> 1 | for (const key of Object.keys(object)) {
+    |                          ^^^^ Prefer \`Object.values()\` over \`Object.keys()\`.
+  2 | 	foo((object)[key]in bar);
+  3 | }
+
+Output:
+  1 | for (const value of Object.values(object)) {
+  2 | 	foo(value in bar);
+  3 | }
+
+`;
+
+exports[`prefer-object-iterable-methods > invalid(74): for (const[key, value]of Object.entries(object)) {\n\tfoo(key);\n} 1`] = `
+
+  1 | for (const[key, value]of Object.entries(object)) {
+  2 | 	foo(key);
+  3 | }
+
+`;
+
+exports[`prefer-object-iterable-methods > invalid(74): for (const[key, value]of Object.entries(object)) {\n\tfoo(key);\n} 2`] = `
+
+Message:
+> 1 | for (const[key, value]of Object.entries(object)) {
+    |                                 ^^^^^^^ Prefer \`Object.keys()\` over \`Object.entries()\`.
+  2 | 	foo(key);
+  3 | }
+
+Output:
+  1 | for (const key of Object.keys(object)) {
+  2 | 	foo(key);
+  3 | }
 
 `;
 

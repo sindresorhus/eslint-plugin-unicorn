@@ -1,4 +1,5 @@
 import {isMemberExpression, isMethodCall} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getCallArgumentText,
 	getCommentSafeProblem,
@@ -94,10 +95,13 @@ const getErrorTagComparison = (node, context) => {
 };
 
 const createFix = ({node, argument, negate}, context) =>
-	fixer => fixer.replaceText(
-		node,
-		`${negate ? '!' : ''}Error.isError(${getCallArgumentText(argument, context)})`,
-	);
+	function * (fixer) {
+		yield fixer.replaceText(
+			node,
+			`${negate ? '!' : ''}Error.isError(${getCallArgumentText(argument, context)})`,
+		);
+		yield fixSpaceAroundKeyword(fixer, node, context);
+	};
 
 /**
 @param {import('eslint').Rule.RuleContext} context

@@ -1,5 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isLiteral, isMethodCall} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getCallArgumentText,
 	isSameReference,
@@ -116,7 +117,10 @@ const create = context => {
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_INTEGER_CHECK_SUGGESTION,
-					fix: fixer => fixer.replaceText(node, `Number.isSafeInteger(${getCallArgumentText(argument, context)})`),
+					* fix(fixer) {
+						yield fixer.replaceText(node, `Number.isSafeInteger(${getCallArgumentText(argument, context)})`);
+						yield fixSpaceAroundKeyword(fixer, node, context);
+					},
 				},
 			];
 		}

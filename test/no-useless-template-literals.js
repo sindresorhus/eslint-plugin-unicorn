@@ -22,6 +22,31 @@ const typeAware = code => ({
 	},
 });
 
+const getSuggestionCase = (code, output) => ({
+	code,
+	errors: [{
+		messageId: 'no-useless-template-literals',
+		suggestions: [{messageId: 'no-useless-template-literals/suggestion', output}],
+	}],
+});
+
+// Keyword spacing
+test({
+	valid: [],
+	invalid: [
+		getSuggestionCase('function value(input) { return`${input}`; }', 'function value(input) { return String(input); }'),
+		getSuggestionCase('function value(input) { return(`${input}`); }', 'function value(input) { return (String(input)); }'),
+		getSuggestionCase('async function value(input) { return await`${input}`; }', 'async function value(input) { return await String(input); }'),
+		getSuggestionCase('for (const value of`${input}`);', 'for (const value of String(input));'),
+		getSuggestionCase('`${input}`in object;', 'String(input) in object;'),
+		{
+			code: 'function value() { return`${5}`; }',
+			output: 'function value() { return\'5\'; }',
+			errors: 1,
+		},
+	],
+});
+
 test.snapshot({
 	valid: [
 		'const string = `plain template`;',

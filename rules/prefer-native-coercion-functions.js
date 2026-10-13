@@ -1,5 +1,6 @@
 import {getFunctionHeadLocation, getFunctionNameWithKind} from '@eslint-community/eslint-utils';
 import {functionTypes} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {getFunctionReturnExpression, unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-native-coercion-functions';
@@ -97,7 +98,7 @@ function getCoercionFunctionProblem(node, context) {
 	/**
 	@param {import('eslint').Rule.RuleFixer} fixer
 	*/
-	problem.fix = fixer => {
+	problem.fix = function * (fixer) {
 		let text = name;
 
 		if (
@@ -112,7 +113,8 @@ function getCoercionFunctionProblem(node, context) {
 			text += ';';
 		}
 
-		return fixer.replaceText(node, text);
+		yield fixer.replaceText(node, text);
+		yield fixSpaceAroundKeyword(fixer, node, context);
 	};
 
 	return problem;

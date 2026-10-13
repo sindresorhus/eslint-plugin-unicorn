@@ -2,6 +2,22 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+// Keyword spacing
+test({
+	valid: [],
+	invalid: [
+		['function check(value) { return(value) % 1 === 0; }', 'function check(value) { return Number.isSafeInteger(value); }'],
+		['function check(value) { return(Math.trunc(value)) === value; }', 'function check(value) { return Number.isSafeInteger(value); }'],
+		['for (const item of(value) % 1 === 0 ? [1] : []);', 'for (const item of Number.isSafeInteger(value) ? [1] : []);'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{
+			messageId: 'prefer-number-is-safe-integer/integer-check-error',
+			suggestions: [{messageId: 'prefer-number-is-safe-integer/integer-check-suggestion', output}],
+		}],
+	})),
+});
+
 test.snapshot({
 	valid: [
 		'Number.isSafeInteger(x)',
