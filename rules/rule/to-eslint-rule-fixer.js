@@ -31,13 +31,14 @@ export default function toEslintRuleFixer(fix) {
 	@param {UnicornReportFixer} fixer
 	*/
 	return fixer => {
-		const unicornReport = fix(fixer, fixOptions);
-
 		const eslintReport = [];
 
 		try {
+			const unicornReport = fix(fixer, fixOptions);
 			forEachFixOrProblem(unicornReport, eslintFix => {
-				eslintReport.push(eslintFix);
+				if (eslintFix !== undefined) {
+					eslintReport.push(eslintFix);
+				}
 			});
 
 			return eslintReport;
