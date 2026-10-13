@@ -779,6 +779,57 @@ Output:
 
 `;
 
+exports[`prefer-dom-node-remove > invalid(46): getParent\`value\`.removeChild(child) 1`] = `
+
+  1 | getParent\`value\`.removeChild(child)
+
+`;
+
+exports[`prefer-dom-node-remove > invalid(46): getParent\`value\`.removeChild(child) 2`] = `
+
+Message:
+> 1 | getParent\`value\`.removeChild(child)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`childNode.remove()\` over \`parentNode.removeChild(childNode)\`.
+
+Suggestion 1/1: Replace \`parentNode.removeChild(childNode)\` with \`childNode.remove()\`.:
+  1 | child.remove()
+
+`;
+
+exports[`prefer-dom-node-remove > invalid(47): parentNode.removeChild(child as Element) 1`] = `
+
+  1 | parentNode.removeChild(child as Element)
+
+`;
+
+exports[`prefer-dom-node-remove > invalid(47): parentNode.removeChild(child as Element) 2`] = `
+
+Message:
+> 1 | parentNode.removeChild(child as Element)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`childNode.remove()\` over \`parentNode.removeChild(childNode)\`.
+
+Output:
+  1 | (child as Element).remove()
+
+`;
+
+exports[`prefer-dom-node-remove > invalid(48): function remove() { return(parent).removeChild(child); } 1`] = `
+
+  1 | function remove() { return(parent).removeChild(child); }
+
+`;
+
+exports[`prefer-dom-node-remove > invalid(48): function remove() { return(parent).removeChild(child); } 2`] = `
+
+Message:
+> 1 | function remove() { return(parent).removeChild(child); }
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`childNode.remove()\` over \`parentNode.removeChild(childNode)\`.
+
+Suggestion 1/1: Replace \`parentNode.removeChild(childNode)\` with \`childNode.remove()\`.:
+  1 | function remove() { return child.remove(); }
+
+`;
+
 exports[`prefer-dom-node-remove > invalid(5): element.parentNode.removeChild((element)); 1`] = `
 
   1 | element.parentNode.removeChild((element));

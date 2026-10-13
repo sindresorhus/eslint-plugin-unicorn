@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 import notDomNodeTypes from './utils/not-dom-node-types.js';
 
 const {test} = getTester(import.meta);
@@ -120,6 +120,14 @@ test.snapshot({
 		'a?.["b"].parentNode.removeChild(a.b)',
 		'a.b?.c.parentNode.removeChild(foo)',
 		'a[b?.c].parentNode.removeChild(foo)',
+
+		// `hasSideEffect()` does not treat a tagged template as a call
+		'getParent`value`.removeChild(child)',
+		{
+			code: 'parentNode.removeChild(child as Element)',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'function remove() { return(parent).removeChild(child); }',
 	],
 });
 

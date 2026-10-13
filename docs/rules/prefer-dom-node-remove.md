@@ -11,6 +11,8 @@
 
 [`Node#remove()`](https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/remove) is a cleaner and more direct way to remove an element from the DOM. It's simpler, more readable, and doesn't require a reference to the parent node.
 
+The autofix does not preserve the error that `parent.removeChild(child)` throws when `child` is not a child of `parent`. When evaluating the parent can have side effects, such as a call, the rule offers a suggestion instead.
+
 ## Examples
 
 ```js

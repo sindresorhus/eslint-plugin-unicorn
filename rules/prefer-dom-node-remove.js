@@ -1,7 +1,9 @@
-import {isParenthesized, hasSideEffect} from '@eslint-community/eslint-utils';
+import {isParenthesized} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getParenthesizedRange,
+	hasPossibleSideEffect,
 	isNodeValueNotDomNode,
 	isSameReference,
 	isValueNotUsable,
@@ -65,14 +67,15 @@ const create = context => {
 		const isSameReferenceParentNode = isParentNodeMemberExpression(parentNode)
 			&& isSameReference(parentNode.object, childNode);
 
-		const createFix = (optional = false) => fixer => {
+		const createFix = (optional = false) => function * (fixer) {
 			let childNodeText = getMemberExpressionObjectText(childNode, context);
 
 			if (needsSemicolon(sourceCode.getTokenBefore(node), context, childNodeText)) {
 				childNodeText = `;${childNodeText}`;
 			}
 
-			return fixer.replaceText(node, `${childNodeText}${optional ? '?' : ''}.remove()`);
+			yield fixer.replaceText(node, `${childNodeText}${optional ? '?' : ''}.remove()`);
+			yield fixSpaceAroundKeyword(fixer, node, context);
 		};
 
 		// `node.parentNode.removeChild(node)` names the child twice, so the fix starts after the child and drops the `.parentNode.removeChild(…)` part, which is what keeps the child's own optional chain intact: `a?.b.parentNode.removeChild(a.b)` has to stay `a?.b.remove()`. The parent is not what gets removed here, so the range must not start after `parentNode`.
@@ -94,7 +97,7 @@ const create = context => {
 			};
 		};
 
-		if (!hasSideEffect(parentNode, sourceCode) && isValueNotUsable(node)) {
+		if (!hasPossibleSideEffect(parentNode, context) && isValueNotUsable(node)) {
 			if (isSameReferenceParentNode) {
 				problem.fix = hasComment ? undefined : createSameReferenceFix(parentNode.optional);
 				return problem;
