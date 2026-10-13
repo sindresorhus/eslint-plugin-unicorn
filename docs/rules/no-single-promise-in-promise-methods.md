@@ -13,6 +13,8 @@ Passing a single-element array to `Promise.all()`, `Promise.any()`, or `Promise.
 
 Promise combinators are intended for coordinating multiple inputs; wrapping one value adds unnecessary array handling and can hide a missing promise.
 
+`Promise.any()` conversions are suggestions because a rejected input produces an `AggregateError`, while awaiting the input directly throws its rejection reason. Check whether callers rely on that error shape before accepting a suggestion.
+
 ## Examples
 
 ```js

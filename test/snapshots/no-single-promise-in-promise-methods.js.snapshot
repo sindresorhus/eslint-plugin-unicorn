@@ -32,6 +32,26 @@ Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
 
 `;
 
+exports[`no-single-promise-in-promise-methods > invalid(1): await Promise.any([Promise.resolve(42)]) 1`] = `
+
+  1 | await Promise.any([Promise.resolve(42)])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(1): await Promise.any([Promise.resolve(42)]) 2`] = `
+
+Message:
+> 1 | await Promise.any([Promise.resolve(42)])
+    |                   ^^^^^^^^^^^^^^^^^^^^^ Wrapping single-element array with \`Promise.any()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | await Promise.resolve(42)
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | await Promise.resolve(Promise.resolve(42))
+
+`;
+
 exports[`no-single-promise-in-promise-methods > invalid(1): await Promise.race([(0, promise)]) 1`] = `
 
   1 | await Promise.race([(0, promise)])
@@ -608,6 +628,26 @@ Output:
 
 `;
 
+exports[`no-single-promise-in-promise-methods > invalid(2): const result = await (Promise.any([(promise)])); 1`] = `
+
+  1 | const result = await (Promise.any([(promise)]));
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(2): const result = await (Promise.any([(promise)])); 2`] = `
+
+Message:
+> 1 | const result = await (Promise.any([(promise)]));
+    |                                   ^^^^^^^^^^^ Wrapping single-element array with \`Promise.any()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | const result = await ((promise));
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | const result = await (Promise.resolve((promise)));
+
+`;
+
 exports[`no-single-promise-in-promise-methods > invalid(2): foo\nPromise.race([(0, promise),],) 1`] = `
 
   1 | foo
@@ -859,8 +899,11 @@ Message:
 > 1 | await Promise.any([promise])
     |                   ^^^^^^^^^ Wrapping single-element array with \`Promise.any()\` is unnecessary.
 
-Output:
+Suggestion 1/2: Use the value directly.:
   1 | await promise
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | await Promise.resolve(promise)
 
 `;
 
@@ -890,8 +933,11 @@ Message:
 > 1 | await Promise.any([promise,],)
     |                   ^^^^^^^^^^ Wrapping single-element array with \`Promise.any()\` is unnecessary.
 
-Output:
+Suggestion 1/2: Use the value directly.:
   1 | await promise
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | await Promise.resolve(promise,)
 
 `;
 
@@ -1028,6 +1074,26 @@ Output:
 
 `;
 
+exports[`no-single-promise-in-promise-methods > invalid(3): await Promise.any([(left, right)]) 1`] = `
+
+  1 | await Promise.any([(left, right)])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(3): await Promise.any([(left, right)]) 2`] = `
+
+Message:
+> 1 | await Promise.any([(left, right)])
+    |                   ^^^^^^^^^^^^^^^ Wrapping single-element array with \`Promise.any()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | await (left, right)
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | await Promise.resolve((left, right))
+
+`;
+
 exports[`no-single-promise-in-promise-methods > invalid(3): const foo = () => Promise.all([promise]) 1`] = `
 
   1 | const foo = () => Promise.all([promise])
@@ -1077,6 +1143,9 @@ exports[`no-single-promise-in-promise-methods > invalid(30): await Promise.any([
 Message:
 > 1 | await Promise.any([/* comment */ promise])
     |                   ^^^^^^^^^^^^^^^^^^^^^^^ Wrapping single-element array with \`Promise.any()\` is unnecessary.
+
+Suggestion 1/1: Switch to \`Promise.resolve(…)\`.:
+  1 | await Promise.resolve(/* comment */ promise)
 
 `;
 
@@ -1141,6 +1210,23 @@ Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
 
 `;
 
+exports[`no-single-promise-in-promise-methods > invalid(4): await Promise./* keep */any([promise]) 1`] = `
+
+  1 | await Promise./* keep */any([promise])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(4): await Promise./* keep */any([promise]) 2`] = `
+
+Message:
+> 1 | await Promise./* keep */any([promise])
+    |                             ^^^^^^^^^ Wrapping single-element array with \`Promise.any()\` is unnecessary.
+
+Suggestion 1/1: Switch to \`Promise.resolve(…)\`.:
+  1 | await Promise./* keep */resolve(promise)
+
+`;
+
 exports[`no-single-promise-in-promise-methods > invalid(4): await Promise.race([() => promise,],) 1`] = `
 
   1 | await Promise.race([() => promise,],)
@@ -1192,6 +1278,26 @@ Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
 
 `;
 
+exports[`no-single-promise-in-promise-methods > invalid(5): await Promise.any([promise as Promise<number>]) 1`] = `
+
+  1 | await Promise.any([promise as Promise<number>])
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(5): await Promise.any([promise as Promise<number>]) 2`] = `
+
+Message:
+> 1 | await Promise.any([promise as Promise<number>])
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Wrapping single-element array with \`Promise.any()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | await (promise as Promise<number>)
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | await Promise.resolve(promise as Promise<number>)
+
+`;
+
 exports[`no-single-promise-in-promise-methods > invalid(5): await Promise.race([a ? b : c,],) 1`] = `
 
   1 | await Promise.race([a ? b : c,],)
@@ -1240,6 +1346,26 @@ Suggestion 1/2: Use the value directly.:
 
 Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
   1 | Promise.resolve(1.).then()
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(6): async function run(promise: Promise<number>) { return await Promise.any<number>([promise!]); } 1`] = `
+
+  1 | async function run(promise: Promise<number>) { return await Promise.any<number>([promise!]); }
+
+`;
+
+exports[`no-single-promise-in-promise-methods > invalid(6): async function run(promise: Promise<number>) { return await Promise.any<number>([promise!]); } 2`] = `
+
+Message:
+> 1 | async function run(promise: Promise<number>) { return await Promise.any<number>([promise!]); }
+    |                                                                                 ^^^^^^^^^^ Wrapping single-element array with \`Promise.any()\` is unnecessary.
+
+Suggestion 1/2: Use the value directly.:
+  1 | async function run(promise: Promise<number>) { return await promise!; }
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | async function run(promise: Promise<number>) { return await Promise.resolve<number>(promise!); }
 
 `;
 
@@ -1437,7 +1563,10 @@ Message:
 > 1 | const results = await Promise.any([promise])
     |                                   ^^^^^^^^^ Wrapping single-element array with \`Promise.any()\` is unnecessary.
 
-Output:
+Suggestion 1/2: Use the value directly.:
   1 | const results = await promise
+
+Suggestion 2/2: Switch to \`Promise.resolve(…)\`.:
+  1 | const results = await Promise.resolve(promise)
 
 `;

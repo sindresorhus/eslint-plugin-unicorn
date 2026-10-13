@@ -217,10 +217,13 @@ const create = context => {
 		const {sourceCode} = context;
 		// The unwrapped call is rebuilt from the promise node alone, so a comment inside the array would be lost
 		const canUnwrap = !hasCommentsInside(sourceCode, callExpression);
+		const isAwaited = callExpression.parent.type === 'AwaitExpression'
+			&& callExpression.parent.argument === callExpression;
 
 		if (
-			callExpression.parent.type === 'AwaitExpression'
-			&& callExpression.parent.argument === callExpression
+			// `Promise.any()` wraps rejections in `AggregateError`, so unwrapping must remain a suggestion.
+			methodName !== 'any'
+			&& isAwaited
 			&& (
 				methodName !== 'all'
 				|| isExpressionStatement(callExpression.parent.parent)
@@ -241,7 +244,9 @@ const create = context => {
 		problem.suggest = [
 			canUnwrap && {
 				messageId: MESSAGE_ID_SUGGESTION_UNWRAP,
-				fix: unwrapNonAwaitedCallExpression(callExpression, context),
+				fix: isAwaited
+					? unwrapAwaitedCallExpression(callExpression, context)
+					: unwrapNonAwaitedCallExpression(callExpression, context),
 			},
 			{
 				messageId: MESSAGE_ID_SUGGESTION_SWITCH_TO_PROMISE_RESOLVE,

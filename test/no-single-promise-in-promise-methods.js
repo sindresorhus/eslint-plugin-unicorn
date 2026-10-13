@@ -4,6 +4,25 @@ import parsers from './utils/parsers.js';
 
 const {test} = getTester(import.meta);
 
+// `Promise.any()` wraps rejections in `AggregateError`, so unwrapping an awaited call is only suggested
+test.snapshot({
+	valid: [],
+	invalid: [
+		'await Promise.any([Promise.resolve(42)])',
+		'const result = await (Promise.any([(promise)]));',
+		'await Promise.any([(left, right)])',
+		'await Promise./* keep */any([promise])',
+		{
+			code: 'await Promise.any([promise as Promise<number>])',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'async function run(promise: Promise<number>) { return await Promise.any<number>([promise!]); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+});
+
 // `await`ed
 test.snapshot({
 	valid: [
