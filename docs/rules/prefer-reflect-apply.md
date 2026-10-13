@@ -13,6 +13,10 @@
 
 If you prefer `.apply()` calls to be converted to spread syntax when it preserves the `this` value, enable ESLint's built-in [`prefer-spread`](https://eslint.org/docs/latest/rules/prefer-spread) rule.
 
+Computed method keys are only checked when they are string literals or template literals without substitutions, so their evaluation is safe to remove.
+
+Targets within an optional chain are ignored to preserve short-circuiting. Grouping the target ends the chain, so `(object?.method).apply(null, [])` can still be converted.
+
 ## Examples
 
 ```js

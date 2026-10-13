@@ -1,10 +1,21 @@
 import {getPropertyName} from '@eslint-community/eslint-utils';
-import {isNullLiteral, isMethodCall} from './ast/index.js';
-import {getParenthesizedText} from './utils/index.js';
+import {getStaticStringValue, isNullLiteral, isMethodCall} from './ast/index.js';
+import {getParenthesizedText, hasUnparenthesizedOptionalChainElement} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-reflect-apply';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `Reflect.apply()` over `Function#apply()`.',
+};
+
+const getMethodName = node => {
+	if (
+		node?.type !== 'MemberExpression'
+		|| (node.computed && getStaticStringValue(node.property) === undefined)
+	) {
+		return;
+	}
+
+	return getPropertyName(node);
 };
 
 const isApplySignature = (argument1, argument2) => (
@@ -34,10 +45,11 @@ const getReflectApplyCall = (target, receiver, argumentsList, context) => (
 
 const fixDirectApplyCall = (node, context) => {
 	if (
-		getPropertyName(node.callee) === 'apply'
+		getMethodName(node.callee) === 'apply'
 		&& node.arguments.length === 2
 		&& isValidCallArgument(node.callee.object)
 		&& isApplySignature(node.arguments[0], node.arguments[1])
+		&& !hasUnparenthesizedOptionalChainElement(node.callee.object, context)
 	) {
 		return fixer => (
 			fixer.replaceText(
@@ -50,9 +62,9 @@ const fixDirectApplyCall = (node, context) => {
 
 const fixFunctionPrototypeCall = (node, context) => {
 	if (
-		getPropertyName(node.callee) === 'call'
-		&& getPropertyName(node.callee.object) === 'apply'
-		&& getPropertyName(node.callee.object.object) === 'prototype'
+		getMethodName(node.callee) === 'call'
+		&& getMethodName(node.callee.object) === 'apply'
+		&& getMethodName(node.callee.object.object) === 'prototype'
 		&& node.callee.object.object.object?.type === 'Identifier'
 		&& node.callee.object.object.object.name === 'Function'
 		&& node.arguments.length === 3
