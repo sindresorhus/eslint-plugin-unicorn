@@ -1,6 +1,6 @@
 import test from 'node:test';
 import {Linter} from 'eslint';
-import isArray, {isKnownNonArray, isKnownNonIndexedCollection} from '../../rules/utils/is-array.js';
+import isArray, {isKnownNonArray, isKnownNonIndexedCollection, isKnownBigIntTypedArray} from '../../rules/utils/is-array.js';
 import typedArray from '../../rules/shared/typed-array.js';
 import parsers from '../utils/parsers.js';
 
@@ -39,6 +39,7 @@ const getReceiverVerdicts = code => {
 									isArray: isArray(receiver, context),
 									isKnownNonArray: isKnownNonArray(receiver, context),
 									isKnownNonIndexedCollection: isKnownNonIndexedCollection(receiver, context),
+									isKnownBigIntTypedArray: isKnownBigIntTypedArray(receiver, context),
 								};
 							},
 						}),
@@ -70,6 +71,36 @@ test('`isKnownNonArray` and `isKnownNonIndexedCollection` treat a typed array as
 			t.assert.strictEqual(verdicts.isKnownNonArray, true, `A typed array is not an array: ${code}`);
 			t.assert.strictEqual(verdicts.isKnownNonIndexedCollection, false, `A typed array is an indexed collection: ${code}`);
 		}
+	}
+});
+
+test('typed-array factories remain non-arrays and indexed collections', t => {
+	for (const typeName of typedArray) {
+		for (const receiver of [`${typeName}.from(input)`, `${typeName}.of(value)`, `${typeName}.of(...input)`]) {
+			for (const code of [`${receiver}.method();`, `const receiver = ${receiver}; receiver.method();`]) {
+				const verdicts = getReceiverVerdicts(code);
+
+				t.assert.strictEqual(verdicts.isArray, false, code);
+				t.assert.strictEqual(verdicts.isKnownNonArray, true, code);
+				t.assert.strictEqual(verdicts.isKnownNonIndexedCollection, false, code);
+				t.assert.strictEqual(verdicts.isKnownBigIntTypedArray, typeName.startsWith('Big'), code);
+			}
+		}
+	}
+});
+
+test('unknown and optional factory calls remain unknown', t => {
+	for (const code of [
+		'Uint8Array.create(input).method();',
+		'CustomArray.from(input).method();',
+		'Uint8Array.from?.(input).method();',
+		'Uint8Array?.of(input).method();',
+	]) {
+		const verdicts = getReceiverVerdicts(code);
+
+		t.assert.strictEqual(verdicts.isArray, false, code);
+		t.assert.strictEqual(verdicts.isKnownNonArray, false, code);
+		t.assert.strictEqual(verdicts.isKnownNonIndexedCollection, false, code);
 	}
 });
 

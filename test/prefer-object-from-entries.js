@@ -1,11 +1,59 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+nodeTest('typed-array reductions preserve object accumulators', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-object-from-entries': rule}}},
+		rules: {'unicorn/prefer-object-from-entries': 'error'},
+	};
+
+	for (const receiver of [
+		'new Uint8Array([1, 2])',
+		'new Float64Array([1, 2])',
+		'new BigInt64Array([1n, 2n])',
+		'Uint16Array.from([1, 2])',
+		'Uint8Array.of(1, 2)',
+	]) {
+		for (const body of ['({...object, [value]: Number(value)})', 'Object.assign(object, {[value]: Number(value)})']) {
+			const code = `JSON.stringify(${receiver}.reduce((object, value) => ${body}, {}));`;
+			const {fixed, output, messages} = linter.verifyAndFix(code, config);
+
+			t.assert.strictEqual(fixed, false, code);
+			t.assert.strictEqual(output, code);
+			t.assert.deepStrictEqual(messages, []);
+			t.assert.strictEqual(runInNewContext(output), '{"1":1,"2":2}');
+			// The previous rewrite either coerced pairs to numbers or failed to coerce them to BigInt.
+			t.assert.throws(() => runInNewContext(`Object.fromEntries(${receiver}.map(value => [value, Number(value)]));`), {name: receiver.includes('BigInt') ? 'SyntaxError' : 'TypeError'});
+		}
+	}
+
+	for (const receiver of ['[1, 2]', 'new Array(1, 2)', 'Array.from([1, 2])', 'Array.of(1, 2)']) {
+		const code = `JSON.stringify(${receiver}.reduce((object, value) => ({...object, [value]: value}), {}));`;
+		const {fixed, output, messages} = linter.verifyAndFix(code, config);
+
+		t.assert.strictEqual(fixed, true, code);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
+	}
+});
 
 // Fixable `Array#reduce()`
 test.snapshot({
 	valid: [
+		'new Uint8Array([1, 2]).reduce((object, value) => ({...object, [value]: value}), {});',
+		'const values = new Int16Array([1, 2]); values.reduce((object, value) => Object.assign(object, {[value]: value}), {});',
+		'Uint16Array.from([1, 2]).reduce((object, value) => ({...object, [value]: value}), {});',
+		'Uint8Array.of(1, 2).reduce((object, value) => Object.assign(object, {[value]: value}), {});',
+		'const values = Float32Array.of(...input); values.reduce((object, value) => Object.assign(object, {[value]: value}), {});',
+		'const values = new Uint8Array(input); const alias = values; alias.reduce((object, value) => ({...object, [value]: value}), {});',
+		'((new Uint8Array(values))).reduce((object, value) => ({...object, [value]: value}), {});',
 		// `Object.fromEntries()` always creates an object with `Object.prototype`, a null-prototype accumulator is not equivalent
 		'pairs.reduce(object => ({...object, key}), Object.create(null));',
 		'pairs.reduce(object => ({...object, key}), Object.create(null),);',
@@ -377,13 +425,34 @@ test.snapshot({
 });
 
 test.typescript({
-	valid: [],
+	valid: [
+		'function convert(values: Uint8Array) { return values.reduce((object, value) => ({...object, [value]: value}), {}); }',
+		'(values as Int32Array).reduce((object, value) => ({...object, [value]: value}), {});',
+		'(<Float32Array>values).reduce((object, value) => Object.assign(object, {[value]: value}), {});',
+		'function convert(values: Uint8Array) { return values!.reduce((object, value) => ({...object, [value]: value}), {}); }',
+		'(new Uint8Array(values) satisfies Uint8Array).reduce((object, value) => ({...object, [value]: value}), {});',
+		'type Bytes = Uint8Array; function convert(values: Bytes) { return values.reduce((object, value) => ({...object, [value]: value}), {}); }',
+	],
 	invalid: [
 		{
 			code: 'array.reduce<Record<string, Data & {b?: string}>>((result, entry) => ({...result, [entry.id]: entry.data}), {});',
 			errors: [{messageId: 'reduce'}],
 		},
 	],
+});
+
+test({
+	valid: [
+		{
+			code: 'declare function getValues(): Uint8Array; getValues().subarray(0).reduce((object, value) => ({...object, [value]: value}), {});',
+			filename: 'file.ts',
+			languageOptions: {
+				parser: typescriptEslintParser,
+				parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+			},
+		},
+	],
+	invalid: [],
 });
 
 // Functions

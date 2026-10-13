@@ -31,8 +31,8 @@ const bigIntTypedArrayTypeNames = new Set([
 	'BigUint64Array',
 ]);
 
-const isBigIntTypedArrayNode = node => isMethodCall(node, {
-	objects: [...bigIntTypedArrayTypeNames],
+const isTypedArrayFactory = node => isMethodCall(node, {
+	objects: typedArray,
 	methods: ['from', 'of'],
 	optionalCall: false,
 	optionalMember: false,
@@ -58,7 +58,8 @@ const isArrayNode = node =>
 
 const isNonArrayNode = node =>
 	node.type === 'NewExpression'
-	|| nonArrayExpressionTypes.has(node.type);
+	|| nonArrayExpressionTypes.has(node.type)
+	|| isTypedArrayFactory(node);
 
 const getStaticType = (value, node) => {
 	if (Array.isArray(value)) {
@@ -107,13 +108,14 @@ const {
 	]),
 	nonTargetTypeNames: knownNonIndexedCollectionTypeNames,
 	targetConstructorNames: ['Array', ...typedArray],
+	isTargetNode: node => isArrayNode(node) || isTypedArrayFactory(node),
 });
 
 const {isTarget: isKnownBigIntTypedArray} = createTypeCheckers({
 	treatMixedUnionAsTarget: true,
 	targetTypeNames: bigIntTypedArrayTypeNames,
 	targetConstructorNames: [...bigIntTypedArrayTypeNames],
-	isTargetNode: isBigIntTypedArrayNode,
+	isTargetNode: node => isTypedArrayFactory(node) && bigIntTypedArrayTypeNames.has(node.callee.object.name),
 });
 
 export {

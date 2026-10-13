@@ -9,6 +9,7 @@ import {
 	getParenthesizedText,
 	hasCommentInRange,
 	hasTypeArguments,
+	isKnownNonArray,
 	isNodeMatchesNameOrPath,
 	isSameIdentifier,
 	needsSemicolon,
@@ -297,6 +298,11 @@ function create(context) {
 	context.on('CallExpression', function * (callExpression) {
 		for (const {test, getProperty} of fixableArrayReduceCases) {
 			if (!test(callExpression)) {
+				continue;
+			}
+
+			// Typed-array `.map()` coerces entries to numeric elements instead of returning pairs.
+			if (isKnownNonArray(callExpression.callee.object, context)) {
 				continue;
 			}
 
