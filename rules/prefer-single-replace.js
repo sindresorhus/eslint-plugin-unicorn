@@ -176,6 +176,14 @@ const create = context => {
 			return;
 		}
 
+		// `$&` reintroduces the match, so a later pass for the same character would replace it again.
+		if (
+			uniqueCharacters.length !== characters.length
+			&& replacementValue.includes('$&')
+		) {
+			return;
+		}
+
 		const problem = {
 			node,
 			messageId: MESSAGE_ID,

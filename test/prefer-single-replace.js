@@ -43,6 +43,10 @@ test.snapshot({
 		'string.replaceAll(\'a\', \'$`\').replaceAll(\'b\', \'$`\');',
 		'string.replaceAll(\'a\', "$\'").replaceAll(\'b\', "$\'");',
 
+		// `$&` reintroduces the match, which a later pass for the same character replaces again
+		'string.replaceAll(\'a\', \'$&x\').replaceAll(\'a\', \'$&x\');',
+		'string.replace(/a/g, \'$&x\').replaceAll(\'b\', \'$&x\').replace(/[a]/g, \'$&x\');',
+
 		// Computed member
 		'string[\'replaceAll\'](\'a\', \'-\')[\'replaceAll\'](\'b\', \'-\');',
 
@@ -90,6 +94,9 @@ test.snapshot({
 		// `m`/`s` flags only affect `^`/`$`/`.`, so they are safe to drop
 		'string.replace(/a/gm, \'-\').replace(/b/gm, \'-\');',
 		'string.replace(/a/gs, \'-\').replaceAll(\'b\', \'-\');',
+
+		// `$&` is the matched character in both forms when no character repeats
+		String.raw`string.replace(/\[/g, '\\$&').replace(/\]/g, '\\$&');`,
 
 		// Duplicate characters are deduped
 		'string.replaceAll(\'a\', \'-\').replaceAll(\'a\', \'-\');',

@@ -13,6 +13,8 @@ A chain of replacements that each swap a single character for the same string sc
 
 Only global replacements are handled: [`String#replaceAll()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replaceAll) with a single-character string, and `String#replace()`/`String#replaceAll()` with a regex matching one literal character and the global flag. Plain `String#replace('a', …)` is left alone because it only replaces the first occurrence, so it has no character-class equivalent.
 
+Replacement strings containing the prematch (`` $` ``) or postmatch (`$'`) substitution tokens are ignored because their substitutions change once the passes are merged. Replacement strings containing `$&` are ignored when a character is replaced more than once, because the later pass would replace the reintroduced match again.
+
 ## Examples
 
 ```js

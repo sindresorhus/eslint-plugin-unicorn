@@ -202,13 +202,30 @@ Output:
 
 `;
 
-exports[`prefer-single-replace > invalid(20): string.replaceAll('a', '-').replaceAll('a', '-'); 1`] = `
+exports[`prefer-single-replace > invalid(20): string.replace(/\\[/g, '\\\\$&').replace(/\\]/g, '\\\\$&'); 1`] = `
+
+  1 | string.replace(/\\[/g, '\\\\$&').replace(/\\]/g, '\\\\$&');
+
+`;
+
+exports[`prefer-single-replace > invalid(20): string.replace(/\\[/g, '\\\\$&').replace(/\\]/g, '\\\\$&'); 2`] = `
+
+Message:
+> 1 | string.replace(/\\[/g, '\\\\$&').replace(/\\]/g, '\\\\$&');
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine these single-character replacements into a single \`replaceAll()\` with a regular expression.
+
+Output:
+  1 | string.replaceAll(/[[\\]]/g, '\\\\$&');
+
+`;
+
+exports[`prefer-single-replace > invalid(21): string.replaceAll('a', '-').replaceAll('a', '-'); 1`] = `
 
   1 | string.replaceAll('a', '-').replaceAll('a', '-');
 
 `;
 
-exports[`prefer-single-replace > invalid(20): string.replaceAll('a', '-').replaceAll('a', '-'); 2`] = `
+exports[`prefer-single-replace > invalid(21): string.replaceAll('a', '-').replaceAll('a', '-'); 2`] = `
 
 Message:
 > 1 | string.replaceAll('a', '-').replaceAll('a', '-');
@@ -219,13 +236,13 @@ Output:
 
 `;
 
-exports[`prefer-single-replace > invalid(21): (foo + bar).replaceAll('a', '-').replaceAll('b', '-'); 1`] = `
+exports[`prefer-single-replace > invalid(22): (foo + bar).replaceAll('a', '-').replaceAll('b', '-'); 1`] = `
 
   1 | (foo + bar).replaceAll('a', '-').replaceAll('b', '-');
 
 `;
 
-exports[`prefer-single-replace > invalid(21): (foo + bar).replaceAll('a', '-').replaceAll('b', '-'); 2`] = `
+exports[`prefer-single-replace > invalid(22): (foo + bar).replaceAll('a', '-').replaceAll('b', '-'); 2`] = `
 
 Message:
 > 1 | (foo + bar).replaceAll('a', '-').replaceAll('b', '-');
@@ -236,13 +253,13 @@ Output:
 
 `;
 
-exports[`prefer-single-replace > invalid(22): string.replaceAll('a', '-').replaceAll('b', '-').replaceAll('c', '+'); 1`] = `
+exports[`prefer-single-replace > invalid(23): string.replaceAll('a', '-').replaceAll('b', '-').replaceAll('c', '+'); 1`] = `
 
   1 | string.replaceAll('a', '-').replaceAll('b', '-').replaceAll('c', '+');
 
 `;
 
-exports[`prefer-single-replace > invalid(22): string.replaceAll('a', '-').replaceAll('b', '-').replaceAll('c', '+'); 2`] = `
+exports[`prefer-single-replace > invalid(23): string.replaceAll('a', '-').replaceAll('b', '-').replaceAll('c', '+'); 2`] = `
 
 Message:
 > 1 | string.replaceAll('a', '-').replaceAll('b', '-').replaceAll('c', '+');
@@ -253,13 +270,13 @@ Output:
 
 `;
 
-exports[`prefer-single-replace > invalid(23): string.replaceAll('a', '-')/* comment */.replaceAll('b', '-'); 1`] = `
+exports[`prefer-single-replace > invalid(24): string.replaceAll('a', '-')/* comment */.replaceAll('b', '-'); 1`] = `
 
   1 | string.replaceAll('a', '-')/* comment */.replaceAll('b', '-');
 
 `;
 
-exports[`prefer-single-replace > invalid(23): string.replaceAll('a', '-')/* comment */.replaceAll('b', '-'); 2`] = `
+exports[`prefer-single-replace > invalid(24): string.replaceAll('a', '-')/* comment */.replaceAll('b', '-'); 2`] = `
 
 Message:
 > 1 | string.replaceAll('a', '-')/* comment */.replaceAll('b', '-');
@@ -267,13 +284,13 @@ Message:
 
 `;
 
-exports[`prefer-single-replace > invalid(24): (string as string).replaceAll('a', '-').replaceAll('b', '-'); 1`] = `
+exports[`prefer-single-replace > invalid(25): (string as string).replaceAll('a', '-').replaceAll('b', '-'); 1`] = `
 
   1 | (string as string).replaceAll('a', '-').replaceAll('b', '-');
 
 `;
 
-exports[`prefer-single-replace > invalid(24): (string as string).replaceAll('a', '-').replaceAll('b', '-'); 2`] = `
+exports[`prefer-single-replace > invalid(25): (string as string).replaceAll('a', '-').replaceAll('b', '-'); 2`] = `
 
 Message:
 > 1 | (string as string).replaceAll('a', '-').replaceAll('b', '-');
@@ -284,13 +301,13 @@ Output:
 
 `;
 
-exports[`prefer-single-replace > invalid(25): string.replaceAll('\\x01', '-').replaceAll('\\x7F', '-'); 1`] = `
+exports[`prefer-single-replace > invalid(26): string.replaceAll('\\x01', '-').replaceAll('\\x7F', '-'); 1`] = `
 
   1 | string.replaceAll('\\x01', '-').replaceAll('\\x7F', '-');
 
 `;
 
-exports[`prefer-single-replace > invalid(25): string.replaceAll('\\x01', '-').replaceAll('\\x7F', '-'); 2`] = `
+exports[`prefer-single-replace > invalid(26): string.replaceAll('\\x01', '-').replaceAll('\\x7F', '-'); 2`] = `
 
 Message:
 > 1 | string.replaceAll('\\x01', '-').replaceAll('\\x7F', '-');
