@@ -1,6 +1,8 @@
 import {
+	isFunction,
 	isNewExpression,
 	isMethodCall,
+	isUndefinedValue,
 } from './ast/index.js';
 import {
 	switchNewExpressionToCallExpression,
@@ -10,12 +12,19 @@ import {
 	hasCommentInRange,
 	isParenthesized,
 	needsSemicolon,
+	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-response-static-json';
 const messages = {
 	[MESSAGE_ID]: 'Prefer using `Response.json(…)` over `JSON.stringify()`.',
 };
+
+// `JSON.stringify()` returns `undefined` for these, but `Response.json()` throws on them instead of creating a body. Other values are not checked, since their type is unknown.
+const isNonJsonValue = node =>
+	isUndefinedValue(node)
+	|| isFunction(node)
+	|| node.type === 'ClassExpression';
 
 /**
 @param {import('eslint').Rule.RuleContext} context
@@ -57,6 +66,10 @@ const create = context => {
 			hasCommentInRange(context, removedRangeBefore)
 			|| hasCommentInRange(context, removedRangeAfter)
 		) {
+			return problem;
+		}
+
+		if (isNonJsonValue(unwrapTypeScriptExpression(dataNode))) {
 			return problem;
 		}
 

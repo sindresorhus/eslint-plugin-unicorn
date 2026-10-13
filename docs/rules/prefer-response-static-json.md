@@ -11,6 +11,8 @@
 
 [`Response.json()`](https://developer.mozilla.org/en-US/docs/Web/API/Response/json_static) is a cleaner and more explicit way to create JSON responses. It automatically stringifies the data and sets the correct `Content-Type` header to `application/json`, whereas manually using `JSON.stringify()` requires you to handle the content-type yourself.
 
+The autofix is skipped when the data is `undefined`, `void …`, a function, or a class, including TypeScript assertions around them. `JSON.stringify()` returns `undefined` for these, while `Response.json()` throws.
+
 ## Examples
 
 ```js

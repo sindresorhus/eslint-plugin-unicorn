@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -53,5 +53,49 @@ test.snapshot({
 		'new Response( ( /* keep */ ( JSON.stringify( (( 0, foo )), ) ) ) );',
 		// A comment inside the data argument is kept
 		'new Response(JSON.stringify({a: 1 /* keep */}));',
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		// `JSON.stringify()` returns `undefined` for these, which `Response.json()` rejects instead of creating a body
+		{
+			code: 'new Response(JSON.stringify(undefined));',
+			errors: 1,
+		},
+		{
+			code: 'new Response(JSON.stringify(void 0));',
+			errors: 1,
+		},
+		{
+			code: 'new Response(JSON.stringify(() => {}));',
+			errors: 1,
+		},
+		{
+			code: 'new Response(JSON.stringify(function () {}));',
+			errors: 1,
+		},
+		{
+			code: 'new Response(JSON.stringify(class {}));',
+			errors: 1,
+		},
+		{
+			code: 'new Response(JSON.stringify((undefined as unknown)!));',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		// `JSON.stringify(null)` is `'null'`, which `Response.json(null)` also creates
+		{
+			code: 'new Response(JSON.stringify(null));',
+			output: 'Response.json(null);',
+			errors: 1,
+		},
+		{
+			code: 'new Response(JSON.stringify({value: 1} as const));',
+			languageOptions: {parser: parsers.typescript},
+			output: 'Response.json({value: 1} as const);',
+			errors: 1,
+		},
 	],
 });
