@@ -267,7 +267,8 @@ const create = context => {
 		}
 
 		const {functionNode, isInTryStatement} = getFunctionNode(callExpression);
-		if (!functionNode || !(functionNode.async || isPromiseCallback(functionNode))) {
+		// A synchronous generator callback returns an iterator, whose yielded and returned values are not adopted by the promise.
+		if (!functionNode || !(functionNode.async || (!functionNode.generator && isPromiseCallback(functionNode)))) {
 			return;
 		}
 

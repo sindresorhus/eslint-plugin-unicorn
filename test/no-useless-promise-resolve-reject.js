@@ -3,6 +3,16 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+// A synchronous generator callback returns an iterator, so its yielded and returned promises are not adopted
+test({
+	valid: [
+		'promise.then(function * () { yield Promise.resolve(value); });',
+		'promise.catch(function * () { return Promise.reject(error); });',
+		'promise.finally(((function * () { return Promise.resolve(value); })));',
+	],
+	invalid: [],
+});
+
 const createError = (type, messageId) => ({messageId, data: {type}});
 
 const returnResolveError = createError('return', 'resolve');
