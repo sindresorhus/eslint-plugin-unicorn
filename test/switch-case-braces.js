@@ -3,6 +3,23 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+// Lexical declarations shared with other cases
+test.snapshot({
+	valid: [],
+	invalid: [
+		'switch (foo) { case 1: const bar = 1; case 2: consume(bar); }',
+		'switch (foo) { case 1: let bar = 1; break; case 2: bar = 2; }',
+		'switch (foo) { case bar(): break; default: function bar() {} }',
+		'switch (foo) { case bar: const bar = 1; }',
+		'switch (foo) { case 1: const bar = 1; /* comment */ consume(bar); }',
+		'switch (foo) { case 1: class Bar { static create() { return new Bar(); } } consume(Bar); }',
+		{
+			code: 'switch (foo) { case 1: type Bar = string; break; case 2: let bar: Bar; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+});
+
 // Empty
 test.snapshot({
 	valid: [

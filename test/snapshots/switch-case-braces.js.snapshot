@@ -1,3 +1,29 @@
+exports[`switch-case-braces > invalid(1): switch (foo) { case 1: const bar = 1; case 2: consume(bar); } 1`] = `
+
+  1 | switch (foo) { case 1: const bar = 1; case 2: consume(bar); }
+
+`;
+
+exports[`switch-case-braces > invalid(1): switch (foo) { case 1: const bar = 1; case 2: consume(bar); } 2`] = `
+
+Message:
+> 1 | switch (foo) { case 1: const bar = 1; case 2: consume(bar); }
+    |                ^^^^^^^ Missing braces in case clause.
+
+`;
+
+exports[`switch-case-braces > invalid(1): switch (foo) { case 1: const bar = 1; case 2: consume(bar); } 3`] = `
+
+Message:
+> 1 | switch (foo) { case 1: const bar = 1; case 2: consume(bar); }
+    |                                       ^^^^^^^ Missing braces in case clause.
+
+Output:
+  1 | switch (foo) { case 1: const bar = 1; case 2: { consume(bar);
+  2 |  } }
+
+`;
+
 exports[`switch-case-braces > invalid(1): switch(foo) {\n\tdefault: {\n\t\tdoSomething();\n\t}\n} 1`] = `
 
 Options:
@@ -120,6 +146,32 @@ Output:
   6 | 		doSomething();
   7 | 	}
   8 | }
+
+`;
+
+exports[`switch-case-braces > invalid(2): switch (foo) { case 1: let bar = 1; break; case 2: bar = 2; } 1`] = `
+
+  1 | switch (foo) { case 1: let bar = 1; break; case 2: bar = 2; }
+
+`;
+
+exports[`switch-case-braces > invalid(2): switch (foo) { case 1: let bar = 1; break; case 2: bar = 2; } 2`] = `
+
+Message:
+> 1 | switch (foo) { case 1: let bar = 1; break; case 2: bar = 2; }
+    |                ^^^^^^^ Missing braces in case clause.
+
+`;
+
+exports[`switch-case-braces > invalid(2): switch (foo) { case 1: let bar = 1; break; case 2: bar = 2; } 3`] = `
+
+Message:
+> 1 | switch (foo) { case 1: let bar = 1; break; case 2: bar = 2; }
+    |                                            ^^^^^^^ Missing braces in case clause.
+
+Output:
+  1 | switch (foo) { case 1: let bar = 1; break; case 2: { bar = 2;
+  2 |  } }
 
 `;
 
@@ -269,6 +321,32 @@ Output:
 
 `;
 
+exports[`switch-case-braces > invalid(3): switch (foo) { case bar(): break; default: function bar() {} } 1`] = `
+
+  1 | switch (foo) { case bar(): break; default: function bar() {} }
+
+`;
+
+exports[`switch-case-braces > invalid(3): switch (foo) { case bar(): break; default: function bar() {} } 2`] = `
+
+Message:
+> 1 | switch (foo) { case bar(): break; default: function bar() {} }
+    |                ^^^^^^^^^^^ Missing braces in case clause.
+
+Output:
+  1 | switch (foo) { case bar(): { break;
+  2 |  } default: function bar() {} }
+
+`;
+
+exports[`switch-case-braces > invalid(3): switch (foo) { case bar(): break; default: function bar() {} } 3`] = `
+
+Message:
+> 1 | switch (foo) { case bar(): break; default: function bar() {} }
+    |                                   ^^^^^^^^ Missing braces in case clause.
+
+`;
+
 exports[`switch-case-braces > invalid(3): switch(foo) {\n\tdefault: {\n\t\t{\n\t\t\tconst bar = 2;\n\t\t\tdoSomething();\n\t\t}\n\t\tdoSomethingElse();\n\t}\n} 1`] = `
 
 Options:
@@ -340,6 +418,20 @@ Output:
 
 `;
 
+exports[`switch-case-braces > invalid(4): switch (foo) { case bar: const bar = 1; } 1`] = `
+
+  1 | switch (foo) { case bar: const bar = 1; }
+
+`;
+
+exports[`switch-case-braces > invalid(4): switch (foo) { case bar: const bar = 1; } 2`] = `
+
+Message:
+> 1 | switch (foo) { case bar: const bar = 1; }
+    |                ^^^^^^^^^ Missing braces in case clause.
+
+`;
+
 exports[`switch-case-braces > invalid(4): switch(foo) {\n\tcase 1: {\n\t\tbreak;\n\t}\n} 1`] = `
 
 Options:
@@ -369,6 +461,24 @@ Output:
   2 | 	case 1:
   3 | 		break;
   4 | }
+
+`;
+
+exports[`switch-case-braces > invalid(5): switch (foo) { case 1: const bar = 1; /* comment */ consume(bar); } 1`] = `
+
+  1 | switch (foo) { case 1: const bar = 1; /* comment */ consume(bar); }
+
+`;
+
+exports[`switch-case-braces > invalid(5): switch (foo) { case 1: const bar = 1; /* comment */ consume(bar); } 2`] = `
+
+Message:
+> 1 | switch (foo) { case 1: const bar = 1; /* comment */ consume(bar); }
+    |                ^^^^^^^ Missing braces in case clause.
+
+Output:
+  1 | switch (foo) { case 1: { const bar = 1; /* comment */ consume(bar);
+  2 |  } }
 
 `;
 
@@ -402,6 +512,24 @@ Output:
   3 | 		doSomething();
   4 | 	}}
   5 | }
+
+`;
+
+exports[`switch-case-braces > invalid(6): switch (foo) { case 1: class Bar { static create() { return new Bar(); } } consume(Bar); } 1`] = `
+
+  1 | switch (foo) { case 1: class Bar { static create() { return new Bar(); } } consume(Bar); }
+
+`;
+
+exports[`switch-case-braces > invalid(6): switch (foo) { case 1: class Bar { static create() { return new Bar(); } } consume(Bar); } 2`] = `
+
+Message:
+> 1 | switch (foo) { case 1: class Bar { static create() { return new Bar(); } } consume(Bar); }
+    |                ^^^^^^^ Missing braces in case clause.
+
+Output:
+  1 | switch (foo) { case 1: { class Bar { static create() { return new Bar(); } } consume(Bar);
+  2 |  } }
 
 `;
 
@@ -444,5 +572,31 @@ Output:
   6 | 		}
   7 | 	}}
   8 | }
+
+`;
+
+exports[`switch-case-braces > invalid(7): switch (foo) { case 1: type Bar = string; break; case 2: let bar: Bar; } 1`] = `
+
+  1 | switch (foo) { case 1: type Bar = string; break; case 2: let bar: Bar; }
+
+`;
+
+exports[`switch-case-braces > invalid(7): switch (foo) { case 1: type Bar = string; break; case 2: let bar: Bar; } 2`] = `
+
+Message:
+> 1 | switch (foo) { case 1: type Bar = string; break; case 2: let bar: Bar; }
+    |                ^^^^^^^ Missing braces in case clause.
+
+`;
+
+exports[`switch-case-braces > invalid(7): switch (foo) { case 1: type Bar = string; break; case 2: let bar: Bar; } 3`] = `
+
+Message:
+> 1 | switch (foo) { case 1: type Bar = string; break; case 2: let bar: Bar; }
+    |                                                  ^^^^^^^ Missing braces in case clause.
+
+Output:
+  1 | switch (foo) { case 1: type Bar = string; break; case 2: { let bar: Bar;
+  2 |  } }
 
 `;

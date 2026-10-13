@@ -86,6 +86,21 @@ function * removeBraces(fixer, node, context, abort) {
 	yield fixer.removeRange([sourceCode.getRange(lastBlockToken)[1], sourceCode.getRange(closingBraceToken)[1]]);
 }
 
+// Case declarations share the switch scope; a new block can hide them from other cases.
+function isDeclarationUsedOutsideCase(node, context) {
+	const {sourceCode} = context;
+	const [start] = sourceCode.getRange(node.consequent[0]);
+	const [, end] = sourceCode.getRange(node.consequent.at(-1));
+
+	return node.consequent
+		.filter(statement => needsCaseBlock(statement))
+		.flatMap(statement => sourceCode.getDeclaredVariables(statement))
+		.some(variable => variable.references.some(({identifier}) => {
+			const [referenceStart] = sourceCode.getRange(identifier);
+			return referenceStart < start || referenceStart >= end;
+		}));
+}
+
 function * addBraces(fixer, node, context) {
 	const {sourceCode} = context;
 	const colonToken = sourceCode.getTokenAfter(
@@ -174,12 +189,17 @@ const create = context => {
 				&& consequent[0].type === 'BlockStatement'
 			)
 		) {
-			return {
+			const problem = {
 				node,
 				loc: getSwitchCaseHeadLocation(node, context),
 				messageId: MESSAGE_ID_MISSING_BRACES,
-				fix: fixer => addBraces(fixer, node, context),
 			};
+
+			if (!isDeclarationUsedOutsideCase(node, context)) {
+				problem.fix = fixer => addBraces(fixer, node, context);
+			}
+
+			return problem;
 		}
 
 		if (

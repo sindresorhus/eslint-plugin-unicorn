@@ -14,6 +14,8 @@
 
 Braces give each non-empty case its own explicit scope and keep case-body structure consistent.
 
+Cases with lexical declarations that are used outside the case are reported without a fix, because adding braces would hide the bindings from the other cases.
+
 ## Examples
 
 ```js
