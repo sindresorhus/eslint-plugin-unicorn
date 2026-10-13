@@ -750,12 +750,56 @@ ruleTest({
 				\`
 			`),
 		},
+		{
+			name: 'Indents a template that starts on an indented line by the indent of the file',
+			code: fixInput(`
+				function foo() {
+				••••const text = outdent\`
+				select
+				••••\`;
+				}
+			`),
+			errors,
+			output: fixInput(`
+				function foo() {
+				••••const text = outdent\`
+				••••••••select
+				••••\`;
+				}
+			`),
+		},
+		{
+			name: 'Does not use the indent of the template content for a template on an indented line, since it includes the margin',
+			code: fixInput(`
+				const text = \`
+				→→\${outdent\`
+				→→→→→→select
+				→→\`}
+				\`;
+			`),
+			errors,
+			output: fixInput(`
+				const text = \`
+				→→\${outdent\`
+				→→→→select
+				→→\`}
+				\`;
+			`),
+		},
 	],
 	/**
 	@type {import('eslint').RuleTester.ValidTestCase[]}
 	*/
 	valid: [
 		'foo = dedent`one two three`',
+		// The fixed output of a template on an indented line is stable on the next pass
+		fixInput(`
+			const text = \`
+			→→\${outdent\`
+			→→→→select
+			→→\`}
+			\`;
+		`),
 		fixInput(`
 			function foo() {
 			→→const query = sql\`SELECT *

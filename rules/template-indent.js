@@ -35,18 +35,18 @@ const getTextForIndentDetection = (lines, ignoredLines = new Set()) => lines
 	.map((line, index) => ignoredLines.has(index + 1) || line.trim() === '' ? '' : line)
 	.join('\n');
 
+const getFileIndent = sourceCode => detectIndent(getTextForIndentDetection(sourceCode.lines, getIgnoredTemplateLiteralLines(sourceCode))).indent;
+
 const getTemplateIndent = template => {
 	const text = getTextForIndentDetection(template.split(/\r?\n/));
 	return detectIndent(stripIndent(text)).indent || detectIndent(text).indent;
 };
 
-const getDefaultIndent = (sourceCode, ignoredLines, parentMargin, template) => {
-	if (parentMargin === '') {
-		return detectIndent(getTextForIndentDetection(sourceCode.lines, ignoredLines)).indent || getTemplateIndent(template) || '  ';
-	}
-
-	return parentMargin.startsWith('\t') ? '\t' : '  ';
-};
+// The file's indent keeps the template aligned with the rest of the file, even when the template starts on an indented line. The template's own indent can include the parent margin, which the fix adds again on every pass, so it is only used for a template on an unindented line.
+const getDefaultIndent = (fileIndent, parentMargin, template) =>
+	fileIndent
+	|| (parentMargin === '' && getTemplateIndent(template))
+	|| (parentMargin.startsWith('\t') ? '\t' : '  ');
 
 /**
 @param {import('eslint').Rule.RuleContext} context
@@ -54,7 +54,8 @@ const getDefaultIndent = (sourceCode, ignoredLines, parentMargin, template) => {
 const create = context => {
 	const {sourceCode} = context;
 	const options = {...context.options[0]};
-	const ignoredTemplateLiteralLines = getIgnoredTemplateLiteralLines(sourceCode);
+	// It scans the whole file, so it is detected once, when a template first needs it
+	let fileIndent;
 
 	options.comments = options.comments.map(comment => comment.toLowerCase());
 	const checked = new WeakSet();
@@ -95,7 +96,8 @@ const create = context => {
 		} else if (typeof options.indent === 'number') {
 			indent = ' '.repeat(options.indent);
 		} else {
-			indent = getDefaultIndent(sourceCode, ignoredTemplateLiteralLines, parentMargin, joined);
+			fileIndent ??= getFileIndent(sourceCode);
+			indent = getDefaultIndent(fileIndent, parentMargin, joined);
 		}
 
 		const dedented = stripIndent(joined);
