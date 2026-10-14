@@ -727,6 +727,7 @@ for (const moduleName of ['eslint/config', '@eslint/config-helpers']) {
 		invalid: [
 			`import {globalIgnores} from "${moduleName}"; export default globalIgnores([initialize()]);`,
 			`import {defineConfig, includeIgnoreFile} from "${moduleName}"; export default defineConfig([includeIgnoreFile(".gitignore")]);`,
+			`import {defineConfig} from "${moduleName}"; export default [...defineConfig([])];`,
 			`import {globalIgnores} from "${moduleName}"; export default {...globalIgnores(["dist/"])};`,
 			`import {globalIgnores} from "${moduleName}"; export default globalIgnores(["dist/"], initialize());`,
 			`import {globalIgnores} from "${moduleName}"; export default globalIgnores?.(["dist/"]);`,
