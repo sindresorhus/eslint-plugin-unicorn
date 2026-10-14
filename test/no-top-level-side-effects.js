@@ -379,6 +379,16 @@ testDefaultExports({
 });
 
 for (const moduleName of ['eslint/config', '@eslint/config-helpers']) {
+	test({
+		valid: [
+			`import {globalIgnores} from "${moduleName}"; export {}; [globalIgnores(["dist/"])];`,
+		],
+		invalid: [{
+			code: `import {globalIgnores} from "${moduleName}"; export {}; [globalIgnores([initialize()])];`,
+			errors: [{messageId: 'no-top-level-side-effects'}],
+		}],
+	});
+
 	testDefaultExports({
 		valid: [
 			{
