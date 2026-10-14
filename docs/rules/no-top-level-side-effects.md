@@ -44,9 +44,9 @@ Direct calls to these imported helpers are allowed:
 - `vite`, `rollup`, and `astro/config`: `defineConfig`.
 - `vitest/config`: `defineConfig` and `defineProject`.
 
-Supports named imports (including aliases), namespace imports, default imports, and direct `const` destructuring from imported objects. Other local aliases, computed or optional calls, conditional callees, and globals remain checked.
+Supports named imports (including aliases), namespace imports, default imports, and direct `const` destructuring from imported objects. These exceptions do not cover other local aliases, computed or optional calls, conditional callees, or globals.
 
-Nested helpers and helpers inside arrays are allowed, with arguments and array elements checked recursively. Callback bodies are ignored; calls inside objects and spreads remain conservatively checked. `includeIgnoreFile` remains checked because it reads files.
+Nested helpers and helpers inside arrays are allowed, with arguments and array elements checked recursively. Callback bodies are ignored; calls inside objects and spreads remain conservatively checked. The built-in exceptions do not include `includeIgnoreFile`, which reads files.
 
 Tagged templates are checked directly and inside arrays.
 
@@ -131,7 +131,7 @@ Default: `{}`
 
 Extend the built-ins by mapping exact import sources to trusted export names or static member paths. Use `'default'` for a directly called default import. Arguments remain checked. Names and sources are matched exactly, without wildcards.
 
-For default and namespace imports, paths such as `'configs.customize'` are relative to the imported object. For named imports, include the original export name, such as `'builders.create'` for `import {builders as configuration}` followed by `configuration.create()`.
+For default imports (including `import {default as configuration}`) and namespace imports, paths such as `'configs.customize'` are relative to the imported object. For other named imports, include the original export name, such as `'builders.create'` for `import {builders as configuration}` followed by `configuration.create()`.
 
 ```js
 'unicorn/no-top-level-side-effects': [

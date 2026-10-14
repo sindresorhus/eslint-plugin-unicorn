@@ -89,11 +89,13 @@ const isKnownPureImport = (reference, memberPath, sourceCode, pureExports) => {
 		const specifier = definition.node;
 		if (specifier.type === 'ImportSpecifier') {
 			const exportName = specifier.imported.name ?? specifier.imported.value;
-			return exportNames.has(memberPath ? `${exportName}.${memberPath}` : exportName);
+			if (exportName !== 'default') {
+				return exportNames.has(memberPath ? `${exportName}.${memberPath}` : exportName);
+			}
 		}
 
-		return (specifier.type === 'ImportDefaultSpecifier' && exportNames.has(memberPath || 'default'))
-			|| (specifier.type === 'ImportNamespaceSpecifier' && memberPath !== '' && exportNames.has(memberPath));
+		return (specifier.type !== 'ImportNamespaceSpecifier' || memberPath !== '')
+			&& exportNames.has(memberPath || 'default');
 	}) ?? false;
 };
 

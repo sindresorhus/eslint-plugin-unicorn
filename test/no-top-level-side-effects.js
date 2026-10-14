@@ -630,15 +630,17 @@ testDefaultExports({
 			'export default (function () { init(); })();',
 			'export default (class extends init() {});',
 			'export default init`value`;',
+			'export default counter++;',
 		].map(code => ({code, errors: 1})),
 	],
 });
 
-// Default-exported construction expressions are allowed unless explicitly checked.
+// Default-exported expressions are allowed unless explicitly checked.
 test({
 	valid: [
 		'export default init();',
 		'export default new App();',
+		'export default counter++;',
 		'export default {config: createConfig()};',
 		'export default [globalIgnores(["dist/"])];',
 		'import stylelint from "stylelint"; const {createPlugin} = stylelint; export default createPlugin("my/rule", rule);',
@@ -678,6 +680,8 @@ const memberPathOptions = [{allow: {'@stylistic/eslint-plugin': ['configs.custom
 testDefaultExports({
 	valid: [
 		'import stylistic from "@stylistic/eslint-plugin"; export default stylistic.configs.customize({jsx: false});',
+		'import {default as stylistic} from "@stylistic/eslint-plugin"; export default stylistic.configs.customize({jsx: false});',
+		'import {"default" as stylistic} from "@stylistic/eslint-plugin"; export default stylistic.configs.customize({jsx: false});',
 		'import * as helpers from "@company/config"; export default helpers.config.builders.create({});',
 		'import {builders} from "@company/named"; export default builders.create({});',
 		'import {builders as configuration} from "@company/named"; export {}; configuration.create({});',
@@ -686,6 +690,7 @@ testDefaultExports({
 	].map(testCase => ({...(typeof testCase === 'string' ? {code: testCase} : testCase), options: memberPathOptions})),
 	invalid: [
 		'import stylistic from "@stylistic/eslint-plugin"; export default stylistic.configs.customize(initialize());',
+		'import {default as stylistic} from "@stylistic/eslint-plugin"; export default stylistic.configs.customize(initialize());',
 		'import stylistic from "@stylistic/eslint-plugin"; export default stylistic.configs.customize({value: initialize()});',
 		'import stylistic from "@stylistic/eslint-plugin"; export default stylistic.configs.other({});',
 		'import stylistic from "other"; export default stylistic.configs.customize({});',
@@ -734,7 +739,9 @@ testDefaultExports({
 		'import {convertIgnorePatternToMinimatch} from "@eslint/config-helpers"; export default convertIgnorePatternToMinimatch("dist/");',
 		'import {globalIgnores, convertIgnorePatternToMinimatch} from "@eslint/config-helpers"; export default globalIgnores([convertIgnorePatternToMinimatch("dist/")]);',
 		'import stylelint from "stylelint"; export default stylelint.createPlugin("my/rule", rule);',
+		'import {default as stylelint} from "stylelint"; export default stylelint.createPlugin("my/rule", rule);',
 		'import stylelint from "stylelint"; const {createPlugin, utils} = stylelint; export default createPlugin("my/rule", rule);',
+		'import {default as stylelint} from "stylelint"; const {createPlugin} = stylelint; export default createPlugin("my/rule", rule);',
 		'import stylelint from "stylelint"; const {createPlugin: plugin} = stylelint; export default plugin("my/rule", rule);',
 		typescriptCode('import stylelint from "stylelint"; const {createPlugin} = (stylelint as typeof stylelint); export default createPlugin("my/rule", rule) satisfies Plugin;'),
 	],
@@ -742,12 +749,15 @@ testDefaultExports({
 		'import {convertIgnorePatternToMinimatch} from "@eslint/config-helpers"; export default convertIgnorePatternToMinimatch(loadPattern());',
 		'import {convertIgnorePatternToMinimatch} from "eslint/config"; export default convertIgnorePatternToMinimatch("dist/");',
 		'import stylelint from "stylelint"; const {createPlugin} = stylelint; export default createPlugin("my/rule", initialize());',
+		'import {default as stylelint} from "stylelint"; const {createPlugin} = stylelint; export default createPlugin("my/rule", initialize());',
+		'import {default as stylelint} from "other"; export default stylelint.createPlugin("my/rule", rule);',
 		'import stylelint from "other"; const {createPlugin} = stylelint; export default createPlugin("my/rule", rule);',
 		'import stylelint from "stylelint"; let {createPlugin} = stylelint; createPlugin = initialize; export default createPlugin("my/rule", rule);',
 		'import stylelint from "stylelint"; const {createPlugin = initialize} = stylelint; export default createPlugin("my/rule", rule);',
 		'import stylelint from "stylelint"; const {["createPlugin"]: plugin} = stylelint; export default plugin("my/rule", rule);',
 		'import stylelint from "stylelint"; const plugin = stylelint.createPlugin; export default plugin("my/rule", rule);',
 		typescriptCode('import type stylelint from "stylelint"; const {createPlugin} = stylelint; export default createPlugin("my/rule", rule);'),
+		typescriptCode('import {type default as stylelint} from "stylelint"; export default stylelint.createPlugin("my/rule", rule);'),
 		'export default [tag`value`];',
 	].map(testCase => ({...(typeof testCase === 'string' ? {code: testCase} : testCase), errors: [{messageId: 'no-top-level-side-effects'}]})),
 });
