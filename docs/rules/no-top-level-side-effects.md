@@ -17,13 +17,11 @@ The rule ignores:
 - Executable scripts with a shebang.
 - Files whose only exports are type-only (`export type`, `export interface`, `export declare`, `export {type Foo}`, …), since those exports are erased when TypeScript is compiled to JavaScript.
 - Top-level assignments and declarations, such as `document.title = 'gone';` and `const response = fetch();`.
-- Default-exported expressions, such as `export default createConfig();`, unless `checkDefaultExports` is enabled.
+- Default-exported expressions, such as `export default createConfig();`, which are treated like variable initializers unless `checkDefaultExports` is enabled.
 
-Default-exported expressions are allowed by default, consistent with the allowance for variable initializers. The assignment exception is intentionally narrow: other standalone mutation expressions, including `counter++` and `delete object.property`, are reported. When intentionally removing a property while constructing an export, prefer object rest destructuring or locally disable the rule.
+The assignment exception is intentionally narrow: other standalone mutation expressions, including `counter++` and `delete object.property`, are reported. When intentionally removing a property while constructing an export, prefer object rest destructuring or locally disable the rule.
 
-Use ESLint config overrides or ignores for project-specific entrypoints, polyfills, or setup files.
-
-Configuration files are not automatically exempt. To disable the rule for tool configuration files, use an ESLint config override:
+Use ESLint config overrides or ignores for project-specific entrypoints, polyfills, setup files, or configuration files. Configuration files are not automatically exempt; this override disables the rule for tool configuration files:
 
 ```js
 {
@@ -114,14 +112,14 @@ Also check default-exported expressions. This stricter mode reports unknown fact
 
 With this option enabled:
 
-```ts
-import React from 'react';
+```js
+import {defineConfig, globalIgnores} from 'eslint/config';
 
 // ❌
-export default React.memo<Props>(initialize());
+export default defineConfig([globalIgnores([loadIgnorePattern()])]);
 
 // ✅
-export default React.memo<Props>(Link);
+export default defineConfig([globalIgnores(['dist/'])]);
 ```
 
 ### allow

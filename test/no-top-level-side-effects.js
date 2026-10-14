@@ -1,6 +1,7 @@
 import nodeTest from 'node:test';
 import outdent from 'outdent';
 import {Linter} from 'eslint';
+import markdown from '@eslint/markdown';
 import unicorn from '../index.js';
 import {getTester, parsers} from './utils/test.js';
 
@@ -770,5 +771,29 @@ testDefaultExports({
 		typescriptCode('import type stylelint from "stylelint"; const {createPlugin} = stylelint; export default createPlugin("my/rule", rule);'),
 		typescriptCode('import {type default as stylelint} from "stylelint"; export default stylelint.createPlugin("my/rule", rule);'),
 		'export default [tag`value`];',
+		'import {globalIgnores} from "eslint/config"; export default [globalIgnores(["dist/"]), [initialize()]];',
 	].map(testCase => ({...(typeof testCase === 'string' ? {code: testCase} : testCase), errors: [{messageId: 'no-top-level-side-effects'}]})),
+});
+
+nodeTest('checks Markdown JavaScript blocks independently', t => {
+	const linter = new Linter();
+	const configuration = [
+		{
+			files: ['**/*.md'],
+			plugins: {markdown},
+			processor: 'markdown/markdown',
+		},
+		{
+			files: ['**/*.js'],
+			plugins: {unicorn},
+			rules: {'unicorn/no-top-level-side-effects': 'error'},
+		},
+	];
+	const messages = linter.verify('```js\nexport {};\ninit();\n```', configuration, {filename: 'readme.md'});
+
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].ruleId, 'unicorn/no-top-level-side-effects');
+	t.assert.strictEqual(messages[0].messageId, 'no-top-level-side-effects');
+	t.assert.strictEqual(messages[0].line, 3);
+	t.assert.deepStrictEqual(linter.verify('```js\nexport {};\n```\n\n```js\ninit();\n```', configuration, {filename: 'readme.md'}), []);
 });
