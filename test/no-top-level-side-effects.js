@@ -6,6 +6,20 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+const withDefaultExportChecking = testCase => {
+	if (typeof testCase === 'string') {
+		testCase = {code: testCase};
+	}
+
+	return {...testCase, options: [{...testCase.options?.[0], checkDefaultExports: true}]};
+};
+
+const testDefaultExports = testCases => test({
+	...testCases,
+	valid: testCases.valid.map(testCase => withDefaultExportChecking(testCase)),
+	invalid: testCases.invalid.map(testCase => withDefaultExportChecking(testCase)),
+});
+
 const typescriptCode = code => ({
 	code,
 	languageOptions: {parser: parsers.typescript},
@@ -212,7 +226,7 @@ test.snapshot({
 	],
 });
 
-test({
+testDefaultExports({
 	valid: [
 		...[
 			'memo',
@@ -240,11 +254,12 @@ test({
 		'import {forwardRef} from "react"; export default forwardRef((properties, reference) => render(properties, reference));',
 		'import {lazy} from "react"; export default lazy(() => import("./Component.js"));',
 		'import {createElement} from "react"; export default createElement("div", {}, createElement("span"));',
-		// Nested tagged templates are outside the argument analysis.
+		// Tagged templates inside objects are outside the argument analysis.
 		'import {createElement} from "react"; export default createElement("div", {title: tag`value`});',
 		'import {memo} from "react"; export default memo(/* Component */ Link);',
 		'import {memo} from "react"; export default memo(class extends Component {});',
 		'import {createRef} from "react"; export default createRef();',
+		'import {memo} from "react"; export default [memo(Link)];',
 		typescriptCode('import {memo} from "react"; export default memo!(Link);'),
 		typescriptCode('import {memo} from "react"; export default (memo satisfies typeof memo)(Link);'),
 		typescriptCode('import React from "react"; export default (React as typeof React).memo(Link);'),
@@ -293,7 +308,6 @@ test({
 			'export default React.memo(Link);',
 			'function memo(value) { return value; } export default memo(Link);',
 			'import {memo} from "react"; export default {Component: memo(Link)};',
-			'import {memo} from "react"; export default [memo(Link)];',
 			'import {memo} from "react"; export default memo({Component: initialize()});',
 			// eslint-disable-next-line no-template-curly-in-string
 			'import figma from "figma"; export default {example: figma.code`<Tag ${figma.helpers.react.renderProp("color", color)} />`};',
@@ -327,7 +341,7 @@ test({
 	],
 });
 
-test({
+testDefaultExports({
 	valid: [
 		'import {defineComponent} from "vue"; export default defineComponent({setup() { initialize(); }});',
 		'import {defineComponent as component} from "vue"; export {}; component({});',
@@ -365,7 +379,7 @@ test({
 });
 
 for (const moduleName of ['eslint/config', '@eslint/config-helpers']) {
-	test({
+	testDefaultExports({
 		valid: [
 			{
 				code: `import {defineConfig} from "${moduleName}"; export default defineConfig([]);`,
@@ -381,7 +395,6 @@ for (const moduleName of ['eslint/config', '@eslint/config-helpers']) {
 				`import {defineConfig} from "${moduleName}"; export default defineConfig([loadConfig()]);`,
 				`import {defineConfig} from "${moduleName}"; export {}; defineConfig({settings: {value: loadConfig()}});`,
 				`import * as configHelpers from "${moduleName}"; export default configHelpers.defineConfig(loadConfig());`,
-				`import {globalIgnores} from "${moduleName}"; export default globalIgnores([]);`,
 				`import {includeIgnoreFile} from "${moduleName}"; export default includeIgnoreFile(".gitignore");`,
 				`import {defineConfig} from "${moduleName}"; const configure = defineConfig; export default configure([]);`,
 			].map(code => ({code, errors: [{messageId: 'no-top-level-side-effects'}]})),
@@ -393,7 +406,7 @@ for (const moduleName of ['eslint/config', '@eslint/config-helpers']) {
 	});
 }
 
-test({
+testDefaultExports({
 	valid: ['import configHelpers from "eslint/config"; export default configHelpers.defineConfig([]);'],
 	invalid: [
 		{
@@ -419,7 +432,7 @@ for (const [moduleName, method] of [
 	['rollup', 'defineConfig'],
 	['astro/config', 'defineConfig'],
 ]) {
-	test({
+	testDefaultExports({
 		valid: [
 			`import {${method}} from "${moduleName}"; export default ${method}({});`,
 			`import {${method} as configure} from "${moduleName}"; export {}; configure({});`,
@@ -441,7 +454,7 @@ for (const [moduleName, method] of [
 	});
 }
 
-test({
+testDefaultExports({
 	valid: [
 		'import {defineConfig} from "vite"; export default defineConfig(() => ({plugins: [initialize()]}));',
 		'import {defineConfig} from "vite"; export default defineConfig(async () => loadConfig());',
@@ -454,7 +467,7 @@ test({
 	].map(code => ({code, errors: [{messageId: 'no-top-level-side-effects'}]})),
 });
 
-test({
+testDefaultExports({
 	valid: [],
 	invalid: [
 		'import {defineProject} from "vite"; export default defineProject({});',
@@ -465,7 +478,7 @@ test({
 
 const defaultAllowOptions = [{allow: {'@company/wrapper': ['default']}}];
 
-test({
+testDefaultExports({
 	valid: [
 		'import wrap from "@company/wrapper"; export default wrap(Component);',
 		'import configure from "@company/wrapper"; export {}; configure({});',
@@ -495,12 +508,13 @@ test({
 
 const allowOptions = [{allow: {'@company/config': ['defineConfig', 'wrap'], react: ['custom']}}];
 
-nodeTest('validates the allow option schema', t => {
+nodeTest('validates the option schema', t => {
 	const linter = new Linter();
 	for (const options of [
 		{allow: ['wrap']},
 		{allow: {'@company/config': 'wrap'}},
 		{allow: {'@company/config': [1]}},
+		{checkDefaultExports: 'true'},
 		{unknown: true},
 	]) {
 		t.assert.throws(() => linter.verify('export {};', {
@@ -510,12 +524,14 @@ nodeTest('validates the allow option schema', t => {
 	}
 });
 
-test({
+testDefaultExports({
 	valid: [
 		'import {defineConfig} from "@company/config"; export default defineConfig({});',
 		'import {defineConfig as configure} from "@company/config"; export {}; configure({});',
 		'import * as config from "@company/config"; export default config.defineConfig({});',
 		'import {defineConfig, wrap} from "@company/config"; export default wrap(defineConfig({}));',
+		'import {defineConfig, wrap} from "@company/config"; export default [[wrap(defineConfig({}))]];',
+		'import * as config from "@company/config"; const {wrap: configure} = config; export default configure({});',
 		'import {wrap} from "@company/config"; export default wrap(() => initialize());',
 		'import {memo} from "react"; export default memo(Component);',
 		'import {custom} from "react"; export default custom(Component);',
@@ -557,7 +573,7 @@ test({
 	],
 });
 
-test({
+testDefaultExports({
 	valid: [
 		{
 			code: 'import {memo} from "react"; export default memo(Component);',
@@ -576,7 +592,7 @@ test({
 });
 
 for (const [parser, filename] of [[undefined, 'component.jsx'], [parsers.typescript, 'component.tsx']]) {
-	test({
+	testDefaultExports({
 		testerOptions: {
 			languageOptions: {
 				parser,
@@ -595,7 +611,7 @@ for (const [parser, filename] of [[undefined, 'component.jsx'], [parsers.typescr
 }
 
 // `export default init()` runs at module evaluation time just like a bare expression
-test({
+testDefaultExports({
 	valid: [
 		'export default {};',
 		typescriptCode('import React from "react"; export default React.memo<Props>(Link);'),
@@ -616,4 +632,122 @@ test({
 			'export default init`value`;',
 		].map(code => ({code, errors: 1})),
 	],
+});
+
+// Default-exported construction expressions are allowed unless explicitly checked.
+test({
+	valid: [
+		'export default init();',
+		'export default new App();',
+		'export default {config: createConfig()};',
+		'export default [globalIgnores(["dist/"])];',
+		'import stylelint from "stylelint"; const {createPlugin} = stylelint; export default createPlugin("my/rule", rule);',
+		'import stylistic from "@stylistic/eslint-plugin"; export default stylistic.configs.customize({jsx: false});',
+		typescriptCode('export default createConfig() satisfies Config;'),
+		{
+			code: 'export default init();',
+			options: [{checkDefaultExports: false}],
+		},
+		{
+			code: 'import {wrap} from "@company/wrapper"; export {}; wrap({});',
+			options: [{allow: {'@company/wrapper': ['wrap']}}],
+		},
+	],
+	invalid: [
+		{
+			code: 'export default createConfig();\ninit();',
+			filename: 'eslint.config.js',
+			errors: [{messageId: 'no-top-level-side-effects', line: 2}],
+		},
+		{
+			code: 'export default createConfig();\ninit();',
+			options: [{checkDefaultExports: false}],
+			errors: [{messageId: 'no-top-level-side-effects', line: 2}],
+		},
+		...[
+			'export {}; dotenv.config();',
+			'export {}; configureProcess();',
+			'export {}; await initialize();',
+			'export {}; counter++;',
+		].map(code => ({code, errors: [{messageId: 'no-top-level-side-effects'}]})),
+	],
+});
+
+const memberPathOptions = [{allow: {'@stylistic/eslint-plugin': ['configs.customize'], '@company/config': ['config.builders.create'], '@company/named': ['builders.create']}}];
+
+testDefaultExports({
+	valid: [
+		'import stylistic from "@stylistic/eslint-plugin"; export default stylistic.configs.customize({jsx: false});',
+		'import * as helpers from "@company/config"; export default helpers.config.builders.create({});',
+		'import {builders} from "@company/named"; export default builders.create({});',
+		'import {builders as configuration} from "@company/named"; export {}; configuration.create({});',
+		'import {builders as configuration} from "@company/named"; const {create: build} = configuration; export default build({});',
+		typescriptCode('import stylistic from "@stylistic/eslint-plugin"; export default (stylistic as typeof stylistic).configs.customize({}) satisfies Config;'),
+	].map(testCase => ({...(typeof testCase === 'string' ? {code: testCase} : testCase), options: memberPathOptions})),
+	invalid: [
+		'import stylistic from "@stylistic/eslint-plugin"; export default stylistic.configs.customize(initialize());',
+		'import stylistic from "@stylistic/eslint-plugin"; export default stylistic.configs.customize({value: initialize()});',
+		'import stylistic from "@stylistic/eslint-plugin"; export default stylistic.configs.other({});',
+		'import stylistic from "other"; export default stylistic.configs.customize({});',
+		'import stylistic from "@stylistic/eslint-plugin"; export default stylistic["configs"].customize({});',
+		'import stylistic from "@stylistic/eslint-plugin"; export default stylistic.configs.customize?.({});',
+		'import stylistic from "@stylistic/eslint-plugin"; export default stylistic?.configs.customize({});',
+		'import stylistic from "@stylistic/eslint-plugin"; const configuration = stylistic.configs; export default configuration.customize({});',
+		'import {builders} from "@company/named"; export default builders.other({});',
+		'import {builders} from "@company/named"; const {other} = builders; export default other({});',
+		'export default stylistic.configs.customize({});',
+		typescriptCode('import type stylistic from "@stylistic/eslint-plugin"; export default stylistic.configs.customize({});'),
+	].map(testCase => ({...(typeof testCase === 'string' ? {code: testCase} : testCase), options: memberPathOptions, errors: [{messageId: 'no-top-level-side-effects'}]})),
+});
+
+testDefaultExports({
+	valid: [],
+	invalid: [{
+		code: 'import {configure} from "@company/config"; export default configure({});',
+		options: [{allow: {'*config*': ['*']}}],
+		errors: [{messageId: 'no-top-level-side-effects'}],
+	}],
+});
+
+for (const moduleName of ['eslint/config', '@eslint/config-helpers']) {
+	testDefaultExports({
+		valid: [
+			`import {globalIgnores} from "${moduleName}"; export default globalIgnores(["dist/"]);`,
+			`import {globalIgnores as ignore} from "${moduleName}"; export {}; ignore(["dist/"]);`,
+			`import * as helpers from "${moduleName}"; export default helpers.globalIgnores(["dist/"]);`,
+			`import {defineConfig, globalIgnores} from "${moduleName}"; export default defineConfig([globalIgnores(["dist/"])]);`,
+			`import {globalIgnores} from "${moduleName}"; export default [, [globalIgnores(["dist/"])], ];`,
+			typescriptCode(`import {globalIgnores} from "${moduleName}"; export default globalIgnores(["dist/"]) satisfies Config;`),
+		],
+		invalid: [
+			`import {globalIgnores} from "${moduleName}"; export default globalIgnores([initialize()]);`,
+			`import {defineConfig, includeIgnoreFile} from "${moduleName}"; export default defineConfig([includeIgnoreFile(".gitignore")]);`,
+			`import {globalIgnores} from "${moduleName}"; export default {...globalIgnores(["dist/"])};`,
+			`import {globalIgnores} from "${moduleName}"; export default globalIgnores(["dist/"], initialize());`,
+			`import {globalIgnores} from "${moduleName}"; export default globalIgnores?.(["dist/"]);`,
+		].map(code => ({code, errors: [{messageId: 'no-top-level-side-effects'}]})),
+	});
+}
+
+testDefaultExports({
+	valid: [
+		'import {convertIgnorePatternToMinimatch} from "@eslint/config-helpers"; export default convertIgnorePatternToMinimatch("dist/");',
+		'import {globalIgnores, convertIgnorePatternToMinimatch} from "@eslint/config-helpers"; export default globalIgnores([convertIgnorePatternToMinimatch("dist/")]);',
+		'import stylelint from "stylelint"; export default stylelint.createPlugin("my/rule", rule);',
+		'import stylelint from "stylelint"; const {createPlugin, utils} = stylelint; export default createPlugin("my/rule", rule);',
+		'import stylelint from "stylelint"; const {createPlugin: plugin} = stylelint; export default plugin("my/rule", rule);',
+		typescriptCode('import stylelint from "stylelint"; const {createPlugin} = (stylelint as typeof stylelint); export default createPlugin("my/rule", rule) satisfies Plugin;'),
+	],
+	invalid: [
+		'import {convertIgnorePatternToMinimatch} from "@eslint/config-helpers"; export default convertIgnorePatternToMinimatch(loadPattern());',
+		'import {convertIgnorePatternToMinimatch} from "eslint/config"; export default convertIgnorePatternToMinimatch("dist/");',
+		'import stylelint from "stylelint"; const {createPlugin} = stylelint; export default createPlugin("my/rule", initialize());',
+		'import stylelint from "other"; const {createPlugin} = stylelint; export default createPlugin("my/rule", rule);',
+		'import stylelint from "stylelint"; let {createPlugin} = stylelint; createPlugin = initialize; export default createPlugin("my/rule", rule);',
+		'import stylelint from "stylelint"; const {createPlugin = initialize} = stylelint; export default createPlugin("my/rule", rule);',
+		'import stylelint from "stylelint"; const {["createPlugin"]: plugin} = stylelint; export default plugin("my/rule", rule);',
+		'import stylelint from "stylelint"; const plugin = stylelint.createPlugin; export default plugin("my/rule", rule);',
+		typescriptCode('import type stylelint from "stylelint"; const {createPlugin} = stylelint; export default createPlugin("my/rule", rule);'),
+		'export default [tag`value`];',
+	].map(testCase => ({...(typeof testCase === 'string' ? {code: testCase} : testCase), errors: [{messageId: 'no-top-level-side-effects'}]})),
 });
