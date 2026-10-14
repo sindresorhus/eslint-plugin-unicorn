@@ -212,7 +212,6 @@ function shouldSkipFunction(node, scopeManager, sourceCode) {
 
 	if (
 		!scope
-		|| isArrowFunctionNodeWithThis(node, sourceCode.visitorKeys)
 		|| isInsideJestMockFactory(node)
 	) {
 		return true;
@@ -257,7 +256,9 @@ function shouldSkipFunction(node, scopeManager, sourceCode) {
 		return true;
 	}
 
-	return checkReferences(scope, parentScopes, scopeManager);
+	// Checked last, since it walks the whole function body
+	return isArrowFunctionNodeWithThis(node, sourceCode.visitorKeys)
+		|| checkReferences(scope, parentScopes, scopeManager);
 }
 
 /**

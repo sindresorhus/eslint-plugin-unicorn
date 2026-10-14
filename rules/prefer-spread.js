@@ -816,10 +816,6 @@ function hasWriteBeforeNode(startNode, endNode, context) {
 	const [end] = sourceCode.getRange(endNode);
 
 	const visit = node => {
-		if (!node || typeof node.type !== 'string') {
-			return false;
-		}
-
 		const [nodeStart, nodeEnd] = sourceCode.getRange(node);
 		if (nodeEnd <= start || nodeStart >= end || isFunction(node)) {
 			return false;
@@ -833,21 +829,7 @@ function hasWriteBeforeNode(startNode, endNode, context) {
 			return true;
 		}
 
-		for (const value of Object.values(node)) {
-			if (value === node.parent) {
-				continue;
-			}
-
-			if (Array.isArray(value)) {
-				if (value.some(child => visit(child))) {
-					return true;
-				}
-			} else if (visit(value)) {
-				return true;
-			}
-		}
-
-		return false;
+		return getVisitorChildNodes(node, sourceCode.visitorKeys).some(child => visit(child));
 	};
 
 	return visit(startNode);

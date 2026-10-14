@@ -8,7 +8,7 @@ import {
 	getCommentSafeProblem,
 	getLastTrailingCommentOnSameLine,
 	getNegatedExpressionText,
-	getReferences,
+	getReferencesInside,
 	getVisitorChildNodes,
 } from './utils/index.js';
 
@@ -68,13 +68,10 @@ const hasLoopBodyLexicalDefinition = (variable, loop, sourceCode) => {
 		&& isNodeInsideRange(definition.name, loopBodyRange, sourceCode));
 };
 
-const hasUnsafeLiftReference = (loop, firstStatement, sourceCode) => {
-	const testRange = sourceCode.getRange(firstStatement.test);
-	return getReferences(sourceCode.getScope(firstStatement.test)).some(reference =>
-		isNodeInsideRange(reference.identifier, testRange, sourceCode)
-		&& reference.resolved
-		&& hasLoopBodyLexicalDefinition(reference.resolved, loop, sourceCode));
-};
+const hasUnsafeLiftReference = (loop, firstStatement, context) =>
+	getReferencesInside(firstStatement.test, context).some(reference =>
+		reference.resolved
+		&& hasLoopBodyLexicalDefinition(reference.resolved, loop, context.sourceCode));
 
 const isInfiniteLoop = node => {
 	if (node.type === 'ForStatement') {
@@ -158,7 +155,7 @@ const create = context => {
 		if (
 			!getOnlyUnlabeledBreakStatement(firstStatement.consequent)
 			|| hasOtherBreakForSameLoop(node, sourceCode)
-			|| hasUnsafeLiftReference(node, firstStatement, sourceCode)
+			|| hasUnsafeLiftReference(node, firstStatement, context)
 		) {
 			return;
 		}

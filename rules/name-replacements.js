@@ -9,6 +9,7 @@ import {
 	lowerFirst,
 	isVirtualFilename,
 	isIdentifierName,
+	memoizeByOptions,
 	onRoot,
 } from './utils/index.js';
 import {defaultReplacements, defaultAllowList, defaultIgnore} from './shared/name-replacements.js';
@@ -89,20 +90,8 @@ const prepareOptions = ({
 	};
 };
 
-/*
-Preparing the options builds around a hundred maps and regexes, and `create` runs once per linted file. ESLint hands the same options object to every file, so the prepared result can be cached on it. The prepared options are only ever read, never mutated.
-*/
-const preparedOptionsCache = new WeakMap();
-
-const getPreparedOptions = options => {
-	let preparedOptions = preparedOptionsCache.get(options);
-	if (!preparedOptions) {
-		preparedOptions = prepareOptions(options);
-		preparedOptionsCache.set(options, preparedOptions);
-	}
-
-	return preparedOptions;
-};
+// Preparing the options builds around a hundred maps and regexes, and `create` runs once per linted file.
+const getPreparedOptions = memoizeByOptions(prepareOptions);
 
 const getWordReplacements = (word, {replacements, allowList}) => {
 	// Skip constants and allowList
@@ -114,16 +103,16 @@ const getWordReplacements = (word, {replacements, allowList}) => {
 		|| replacements.get(word)
 		|| replacements.get(upperFirst(word));
 
-	let wordReplacement = [];
-	if (replacement) {
-		const transform = isUpperFirst(word) ? upperFirst : lowerFirst;
-		wordReplacement = replacement.keys()
-			.filter(name => replacement.get(name))
-			.map(name => transform(name))
-			.toArray();
+	if (!replacement) {
+		return [];
 	}
 
-	return wordReplacement.toSorted((first, second) => first.localeCompare(second));
+	const transform = isUpperFirst(word) ? upperFirst : lowerFirst;
+	return replacement.keys()
+		.filter(name => replacement.get(name))
+		.map(name => transform(name))
+		.toArray()
+		.toSorted((first, second) => first.localeCompare(second));
 };
 
 const getNameReplacements = (name, options, limit = 3) => {

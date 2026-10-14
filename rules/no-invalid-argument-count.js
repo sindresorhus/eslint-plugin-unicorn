@@ -1,5 +1,10 @@
 import {isFunction} from './ast/index.js';
-import {getFunctionFromIdentifier, isGlobalIdentifier, unwrapChainAndTypeScriptExpression} from './utils/index.js';
+import {
+	getFunctionFromIdentifier,
+	isGlobalIdentifier,
+	memoizeByOptions,
+	unwrapChainAndTypeScriptExpression,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'no-invalid-argument-count';
 const messages = {
@@ -1161,6 +1166,9 @@ const buildLookup = entries => {
 	return lookup;
 };
 
+// Building the lookup indexes about 600 entries, and `create` runs once per linted file.
+const getLookup = memoizeByOptions(options => buildLookup(createConfiguredArgumentCountEntries(options)));
+
 const getConfiguredArgumentCountProblem = (expression, lookup, context) => {
 	const calleePath = getCalleeRawPath(expression.callee);
 	if (!calleePath) {
@@ -1225,7 +1233,7 @@ const getConfiguredArgumentCountProblem = (expression, lookup, context) => {
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	const lookup = buildLookup(createConfiguredArgumentCountEntries(context.options[0]));
+	const lookup = getLookup(context.options[0]);
 
 	context.on('CallExpression', callExpression => {
 		const configuredArgumentCountProblem = getConfiguredArgumentCountProblem(callExpression, lookup, context);

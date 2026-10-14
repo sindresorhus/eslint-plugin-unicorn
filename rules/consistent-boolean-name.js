@@ -5,17 +5,19 @@ import {combineBooleanStates, getTypeBooleanState} from './utils/get-type-boolea
 import {getBooleanWrapperVariableState} from './utils/get-boolean-wrapper-variable-state.js';
 import {getTypeName} from './utils/type-helpers.js';
 import {
+	containsNode,
 	getAvailableVariableName,
 	getScopes,
 	matchesAnyRegExp,
 	getVariableIdentifiers,
 	getStaticValueIfNoSideEffects,
-	getChildNodes,
+	getVisitorChildNodes,
 	getFunctionReturnExpression,
 	isReactHookName,
 	lowerFirst,
 	upperFirst,
 	withTypeInformation,
+	memoizeByOptions,
 } from './utils/index.js';
 import {
 	isBooleanExpression,
@@ -172,6 +174,9 @@ const prepareOptions = options => {
 
 	return preparedOptions;
 };
+
+// Preparing the options builds a map and compiles regexes, and `create` runs once per linted file.
+const getPreparedOptions = memoizeByOptions(prepareOptions);
 
 function getBooleanPrefix(name, prefixes) {
 	name = stripLeadingUnderscores(name);
@@ -1084,31 +1089,8 @@ function getTypeParameterResolution(node, context, typeState) {
 	/* node:coverage enable */
 }
 
-function hasTypeParameterReference(node, name) {
-	const nodes = [node];
-	const visitedNodes = new Set();
-	while (nodes.length > 0) {
-		const currentNode = nodes.pop();
-		if (currentNode && typeof currentNode === 'object' && !visitedNodes.has(currentNode)) {
-			visitedNodes.add(currentNode);
-			if (currentNode.type === 'TSTypeReference' && getTypeName(currentNode.typeName) === name) {
-				return true;
-			}
-
-			for (const [key, value] of Object.entries(currentNode)) {
-				if (key !== 'parent') {
-					if (Array.isArray(value)) {
-						nodes.push(...value);
-					} else {
-						nodes.push(value);
-					}
-				}
-			}
-		}
-	}
-
-	return false;
-}
+const hasTypeParameterReference = (node, name, context) =>
+	containsNode(node, context, descendant => descendant.type === 'TSTypeReference' && getTypeName(descendant.typeName) === name);
 
 function resolveTypeParameterType(node, context, typeState) {
 	const createResolveTask = (node, state) => ({kind: 'resolve', node, ...state});
@@ -1289,8 +1271,8 @@ function getTypeParameterTypes(definitionNode, context, typeArguments, typeState
 	return typeParameterTypes;
 }
 
-const hasTypeParameterReferenceInType = (node, typeState) =>
-	typeState.typeParameterTypes.keys().some(name => hasTypeParameterReference(node, name));
+const hasTypeParameterReferenceInType = (node, typeState, context) =>
+	typeState.typeParameterTypes.keys().some(name => hasTypeParameterReference(node, name, context));
 
 function hasUnresolvedTypeParameterReference(node, context, typeState, scope, checkNode = true) {
 	const nodes = [{node, checkNode}];
@@ -1313,7 +1295,7 @@ function hasUnresolvedTypeParameterReference(node, context, typeState, scope, ch
 			return true;
 		}
 
-		for (const child of getChildNodes(current.node)) {
+		for (const child of getVisitorChildNodes(current.node, context.sourceCode.visitorKeys)) {
 			nodes.push({node: child, checkNode: true});
 		}
 	}
@@ -1321,12 +1303,12 @@ function hasUnresolvedTypeParameterReference(node, context, typeState, scope, ch
 	return false;
 }
 
-const hasUnresolvedTypeParameters = typeState =>
-	typeState.typeParameterTypes.entries().some(([name, type]) => hasTypeParameterReference(type, name));
+const hasUnresolvedTypeParameters = (typeState, context) =>
+	typeState.typeParameterTypes.entries().some(([name, type]) => hasTypeParameterReference(type, name, context));
 
 function canUseTypeInformationFallback(node, context, typeState, scope, definitions) {
-	return !hasTypeParameterReferenceInType(node, typeState)
-		&& !hasUnresolvedTypeParameters(typeState)
+	return !hasTypeParameterReferenceInType(node, typeState, context)
+		&& !hasUnresolvedTypeParameters(typeState, context)
 		&& !hasUnresolvedTypeParameterReference(node, context, typeState, scope)
 		&& (
 			definitions.some(definition =>
@@ -2555,7 +2537,7 @@ const create = context => {
 		prefixes,
 		ignore,
 		wrappers,
-	} = prepareOptions(context.options[0]);
+	} = getPreparedOptions(context.options[0]);
 
 	if (prefixes.length === 0) {
 		return;

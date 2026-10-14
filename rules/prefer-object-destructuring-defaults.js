@@ -2,7 +2,7 @@ import {getPropertyName, hasSideEffect} from '@eslint-community/eslint-utils';
 import {
 	getCommentSafeProblem,
 	getParenthesizedText,
-	getReferences,
+	getReferencesInside,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-object-destructuring-defaults';
@@ -24,18 +24,8 @@ const isSimpleProperty = property =>
 	&& !property.computed
 	&& !property.method;
 
-const isNodeInside = (node, parent, sourceCode) => {
-	const [start, end] = sourceCode.getRange(node);
-	const [parentStart, parentEnd] = sourceCode.getRange(parent);
-
-	return start >= parentStart && end <= parentEnd;
-};
-
 const referencesPatternBinding = (node, bindingNames, context) =>
-	getReferences(context.sourceCode.getScope(node)).some(reference =>
-		bindingNames.has(reference.identifier.name)
-		&& isNodeInside(reference.identifier, node, context.sourceCode),
-	);
+	getReferencesInside(node, context).some(reference => bindingNames.has(reference.identifier.name));
 
 const getSimplePatternProperties = (objectPattern, context) => {
 	if (objectPattern.typeAnnotation) {

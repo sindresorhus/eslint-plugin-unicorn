@@ -2,7 +2,7 @@ import {isCommentToken, hasSideEffect} from '@eslint-community/eslint-utils';
 import {
 	containsNode,
 	containsSuspensionPoint,
-	getReferences,
+	getReferencesInside,
 	isBranchExit,
 	isReactHookName,
 	trackBranchExits,
@@ -18,9 +18,7 @@ const isLetOrConstDeclaration = node =>
 	node.type === 'VariableDeclaration'
 	&& (node.kind === 'let' || node.kind === 'const');
 
-// A guard is an `if` statement where exactly one branch always exits, so control after it is
-// conditional. `branchAlwaysExits` uses code path analysis, so guards whose exiting branch ends
-// in an exhaustive `switch`, `try`/`finally`, or other complex control flow are detected too.
+// A guard is an `if` statement where exactly one branch always exits, so control after it is conditional. `branchAlwaysExits` uses code path analysis, so guards whose exiting branch ends in an exhaustive `switch`, `try`/`finally`, or other complex control flow are detected too.
 function isGuardStatement(node, branchAlwaysExits) {
 	if (node.type !== 'IfStatement') {
 		return false;
@@ -83,22 +81,9 @@ const hasCommentNextTo = (sourceCode, node, direction) => {
 	return token && isCommentToken(token);
 };
 
-const getReferencedVariableNames = (sourceCode, node) => {
-	const [start, end] = sourceCode.getRange(node);
-	return new Set(
-		getReferences(sourceCode.getScope(node))
-			.filter(({identifier}) => {
-				const [referenceStart, referenceEnd] = sourceCode.getRange(identifier);
-				return referenceStart >= start && referenceEnd <= end;
-			})
-			.map(({identifier}) => identifier.name),
-	);
-};
-
-const hasCommonReferencedVariable = (sourceCode, nodeA, nodeB) => {
-	const variableNames = getReferencedVariableNames(sourceCode, nodeB);
-	return [...getReferencedVariableNames(sourceCode, nodeA)]
-		.some(name => variableNames.has(name));
+const hasCommonReferencedVariable = (nodeA, nodeB, context) => {
+	const variableNames = new Set(getReferencesInside(nodeB, context).map(({identifier}) => identifier.name));
+	return getReferencesInside(nodeA, context).some(({identifier}) => variableNames.has(identifier.name));
 };
 
 const shouldFix = ({
@@ -138,11 +123,11 @@ function getProblem({
 	declarationIndex,
 	guardIndex,
 }) {
+	const {sourceCode} = context;
+
 	if (declarator.id.type !== 'Identifier') {
 		return;
 	}
-
-	const {sourceCode} = context;
 
 	// Moving a React hook call below an early exit would break the Rules of Hooks.
 	if (isReactHookCall(declarator.init)) {
@@ -164,7 +149,7 @@ function getProblem({
 	// Moving the declaration below the guard reorders its initializer past the guard's condition. That is unsafe when the two interfere through a shared variable and either side has a side effect, e.g. `const x = array.pop()` before `if (array.length > 0)`, or `const first = array[0]` before `if (array.shift())`.
 	if (
 		declarator.init
-		&& hasCommonReferencedVariable(sourceCode, declarator.init, guardStatement)
+		&& hasCommonReferencedVariable(declarator.init, guardStatement, context)
 		&& (
 			hasSideEffect(declarator.init, sourceCode)
 			|| hasSideEffect(guardStatement.test, sourceCode)
@@ -215,10 +200,12 @@ function getProblem({
 }
 
 function * getStatementListProblems(context, statements, branchAlwaysExits) {
-	// Resolve each statement to itself when it is a guard (or `undefined` otherwise) at most
-	// once per list, instead of re-running the code-path-analysis check for every
-	// declaration/statement pair.
-	let guards;
+	// Resolve whether each statement is a guard at most once per list, instead of re-running the code-path-analysis check for every declaration/statement pair. Resolve lazily, since only the statements between a declaration and the first guard after it are needed, and the check can walk a whole branch.
+	const guards = [];
+	const isGuardAt = index => {
+		guards[index] ??= isGuardStatement(statements[index], branchAlwaysExits);
+		return guards[index];
+	};
 
 	for (const [declarationIndex, declaration] of statements.entries()) {
 		if (
@@ -228,13 +215,12 @@ function * getStatementListProblems(context, statements, branchAlwaysExits) {
 			continue;
 		}
 
-		guards ??= statements.map(statement => isGuardStatement(statement, branchAlwaysExits) ? statement : undefined);
-
 		for (let guardIndex = declarationIndex + 1; guardIndex < statements.length; guardIndex++) {
-			const guardStatement = guards[guardIndex];
-			if (!guardStatement) {
+			if (!isGuardAt(guardIndex)) {
 				continue;
 			}
+
+			const guardStatement = statements[guardIndex];
 
 			for (const declarator of declaration.declarations) {
 				const problem = getProblem({
@@ -263,8 +249,7 @@ function * getStatementListProblems(context, statements, branchAlwaysExits) {
 const create = context => {
 	const branchAlwaysExits = trackBranchExits(context, branch => isBranchExit(branch, context, branchAlwaysExits));
 
-	// Run on exit so that all nested `if` statements have been visited and their branch exit
-	// information is available before scanning each statement list.
+	// Run on exit so that all nested `if` statements have been visited and their branch exit information is available before scanning each statement list.
 	context.onExit('Program', node => getStatementListProblems(context, node.body, branchAlwaysExits));
 	context.onExit('BlockStatement', node => getStatementListProblems(context, node.body, branchAlwaysExits));
 };

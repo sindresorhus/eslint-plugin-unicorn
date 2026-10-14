@@ -6,6 +6,7 @@ import {
 	maskCharacter,
 	maskJSDocumentSyntax,
 	maskRange,
+	memoizeByOptions,
 	normalizeComment,
 	onRoot,
 } from './utils/index.js';
@@ -254,6 +255,9 @@ function prepareReplacements({extendDefaultReplacements = true, replacements = {
 			&& !Object.hasOwn(replacements, pattern),
 		));
 }
+
+// Custom replacements compile a regex for each of the around 120 default patterns, and `create` runs once per linted file.
+const getReplacements = memoizeByOptions(prepareReplacements);
 
 function isEslintDirective(context, comment) {
 	return context.sourceCode.getDisableDirectives
@@ -1060,7 +1064,7 @@ function getReplacementProblem(comment, sourceCode, replacements, checkUniformCa
 */
 const create = context => {
 	const {checkUniformCase = true} = context.options[0];
-	const replacements = prepareReplacements(context.options[0]);
+	const replacements = getReplacements(context.options[0]);
 
 	if (replacements.length === 0) {
 		return;

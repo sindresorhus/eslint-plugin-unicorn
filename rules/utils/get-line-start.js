@@ -1,4 +1,4 @@
-const LINE_ENDINGS = ['\n', '\r', '\u2028', '\u2029'];
+const LINE_ENDINGS = new Set(['\n', '\r', '\u2028', '\u2029']);
 
 /**
 Get the index of the start of the line containing `index`.
@@ -8,7 +8,13 @@ Get the index of the start of the line containing `index`.
 @returns {number}
 */
 export default function getLineStart(text, index) {
-	return Math.max(...LINE_ENDINGS.map(lineEnding => text.lastIndexOf(lineEnding, index - 1))) + 1;
+	// Scan back to the previous line ending instead of searching for each kind, since a search for a rare one like `\u2028` scans to the start of the text on every call.
+	let lineStart = index;
+	while (lineStart > 0 && !LINE_ENDINGS.has(text[lineStart - 1])) {
+		lineStart--;
+	}
+
+	return lineStart;
 }
 
 /**

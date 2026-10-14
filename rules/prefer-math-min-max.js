@@ -2,7 +2,7 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isBigIntLiteral, isCallExpression, isNewExpression} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {getCallArgumentText, getChildNodes, isBigInt} from './utils/index.js';
+import {getCallArgumentText, getVisitorChildNodes, isBigInt} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-math-min-max';
 const SUGGESTION_ID = 'replace-with-math-min-max';
@@ -51,7 +51,7 @@ const lazilyEvaluatedTypes = new Set([
 	'FunctionExpression',
 ]);
 
-const isEffectFreeOperand = node => {
+const isEffectFreeOperand = (node, visitorKeys) => {
 	node = unwrapNode(node);
 
 	if (effectfulOperandTypes.has(node.type)) {
@@ -67,8 +67,8 @@ const isEffectFreeOperand = node => {
 	}
 
 	// A wrapper like a sequence, array or object evaluates its own operands, an effect hidden in one of them still runs twice in the source and once in the rewrite
-	for (const child of getChildNodes(node)) {
-		if (!isEffectFreeOperand(child)) {
+	for (const child of getVisitorChildNodes(node, visitorKeys)) {
+		if (!isEffectFreeOperand(child, visitorKeys)) {
 			return false;
 		}
 	}
@@ -269,8 +269,8 @@ const create = context => {
 		*/
 		if (
 			context.sourceCode.getCommentsInside(conditionalExpression).length === 0
-			&& isEffectFreeOperand(left)
-			&& isEffectFreeOperand(right)
+			&& isEffectFreeOperand(left, context.sourceCode.visitorKeys)
+			&& isEffectFreeOperand(right, context.sourceCode.visitorKeys)
 		) {
 			problem.suggest = [{
 				messageId: SUGGESTION_ID,

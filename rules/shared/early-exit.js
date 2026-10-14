@@ -6,6 +6,7 @@ import {
 	getLinebreak,
 	getNegatedExpressionText,
 	getParenthesizedText,
+	getReferencesInside,
 	getUnwrappedBranchText,
 	hasCommentInRange,
 	hasMultilineToken,
@@ -166,18 +167,12 @@ const hasReferenceToVariableName = (node, context, names) => {
 	const {sourceCode} = context;
 	const [start, end] = sourceCode.getRange(node);
 	const hasDefinitionInsideNode = variable => variable.identifiers.some(identifier => isNodeInsideRange(identifier, [start, end], context));
-	const hasReference = scope => scope.references.some(reference => {
-		const [referenceStart, referenceEnd] = sourceCode.getRange(reference.identifier);
-		return referenceStart >= start
-			&& referenceEnd <= end
-			&& names.has(reference.identifier.name)
-			&& !(
-				reference.resolved
-				&& hasDefinitionInsideNode(reference.resolved)
-			);
-	}) || scope.childScopes.some(scope => hasReference(scope));
-
-	return hasReference(sourceCode.getScope(node));
+	return getReferencesInside(node, context).some(reference =>
+		names.has(reference.identifier.name)
+		&& !(
+			reference.resolved
+			&& hasDefinitionInsideNode(reference.resolved)
+		));
 };
 
 // A function body shares its scope with the parameters, so a moved declaration must not redeclare one of them. A loop body has its own scope.

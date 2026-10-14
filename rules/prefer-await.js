@@ -6,7 +6,7 @@ import {
 	getLinebreak,
 	getParenthesizedRange,
 	getParenthesizedText,
-	getReferences,
+	getReferencesInside,
 	containsNode,
 	containsSuspensionPoint,
 	hasOptionalChainElement,
@@ -55,15 +55,7 @@ function hasPromiseMethodCallInChain(node, context) {
 }
 
 function hasCallbackBindingConflict(promiseObject, callback, context) {
-	const [start, end] = context.sourceCode.getRange(promiseObject);
-	const referencedNames = new Set(
-		getReferences(context.sourceCode.getScope(promiseObject))
-			.filter(reference => {
-				const [referenceStart, referenceEnd] = context.sourceCode.getRange(reference.identifier);
-				return referenceStart >= start && referenceEnd <= end;
-			})
-			.map(reference => reference.identifier.name),
-	);
+	const referencedNames = new Set(getReferencesInside(promiseObject, context).map(reference => reference.identifier.name));
 
 	return context.sourceCode.getScope(callback).variables.some(variable => referencedNames.has(variable.name));
 }

@@ -4,6 +4,7 @@ import {
 	lowerFirst,
 	upperFirst,
 	isIdentifierName,
+	memoizeByOptions,
 } from './utils/index.js';
 import {
 	createFixerNameTracker,
@@ -147,7 +148,8 @@ const prepareOptions = ({
 	};
 };
 
-const defaultPreparedOptions = prepareOptions();
+// Preparing the options builds a map and a regex, and `create` runs once per linted file.
+const getPreparedOptions = memoizeByOptions(prepareOptions);
 
 const getReplacementForPart = (part, replacements) => {
 	const replacement = replacements.get(part) ?? replacements.get(lowerFirst(part));
@@ -208,9 +210,7 @@ const createProblem = (node, replacement) => ({
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	const options = Object.keys(context.options[0]).length === 0
-		? defaultPreparedOptions
-		: prepareOptions(context.options[0]);
+	const options = getPreparedOptions(context.options[0]);
 
 	const {ast, parserServices} = context.sourceCode;
 	const isHtml = ast.body?.[0]?.type === 'Document';

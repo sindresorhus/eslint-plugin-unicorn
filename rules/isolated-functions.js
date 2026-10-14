@@ -105,12 +105,22 @@ const create = context => {
 
 	options.comments = options.comments.map(comment => comment.toLowerCase());
 
-	const configuredGlobals = {
-		// Defensive: a newer ESLint version can support an `ecmaVersion` that `globals` does not have yet
-		/* node:coverage ignore next */
-		...(globals[`es${context.languageOptions.ecmaVersion}`] ?? globals.builtin),
-		...context.languageOptions.globals,
+	const languageGlobals = context.languageOptions.globals ?? {};
+	// Defensive: a newer ESLint version can support an `ecmaVersion` that `globals` does not have yet
+	/* node:coverage ignore next */
+	const builtinGlobals = globals[`es${context.languageOptions.ecmaVersion}`] ?? globals.builtin;
+
+	// Look up the configured globals instead of merging them, since a merged object would copy over a thousand globals for every linted file.
+	const getConfiguredGlobal = name => {
+		if (Object.hasOwn(languageGlobals, name)) {
+			return languageGlobals[name];
+		}
+
+		if (Object.hasOwn(builtinGlobals, name)) {
+			return builtinGlobals[name];
+		}
 	};
+
 	const checked = new WeakSet();
 
 	const getAllowedGlobalValue = reference => {
@@ -131,10 +141,8 @@ const create = context => {
 			return overrideGlobalValue;
 		}
 
-		if (
-			Object.hasOwn(configuredGlobals, name)
-			&& configuredGlobals[name] === 'off'
-		) {
+		const configuredGlobal = getConfiguredGlobal(name);
+		if (configuredGlobal === 'off') {
 			return 'off';
 		}
 
@@ -143,7 +151,7 @@ const create = context => {
 		}
 
 		if (
-			!Object.hasOwn(configuredGlobals, name)
+			configuredGlobal === undefined
 			&& !resolved?.eslintExplicitGlobal
 		) {
 			return;
