@@ -8,6 +8,8 @@ import tests from './shared/simple-array-search-rule-tests.js';
 
 const {test, rule} = getTester(import.meta);
 
+const linter = new Linter();
+
 const linterConfig = {
 	plugins: {unicorn: {rules: {'prefer-includes': rule}}},
 	rules: {'unicorn/prefer-includes': 'error'},
@@ -23,7 +25,7 @@ nodeTest('string RegExp searches retain results across constructors and comparis
 						const value = ${found ? 'String(pattern)' : '"missing"'};
 						value.${method}(pattern) ${comparison};
 					`;
-					const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+					const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 					t.assert.strictEqual(runInNewContext(code), positive === found);
 					t.assert.strictEqual(output, code);
 					t.assert.strictEqual(runInNewContext(output), positive === found);
@@ -51,7 +53,7 @@ nodeTest('known arrays retain RegExp identity search autofixes', t => {
 					const result = values.${method}(${search}) !== -1;
 					JSON.stringify({result, calls});
 				`;
-				const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+				const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 				const expected = JSON.stringify({result: found, calls});
 				t.assert.strictEqual(runInNewContext(code), expected);
 				t.assert.strictEqual(runInNewContext(output), expected);
@@ -62,7 +64,7 @@ nodeTest('known arrays retain RegExp identity search autofixes', t => {
 	}
 
 	const code = 'new Uint8Array([1, 2]).indexOf(/a/) !== -1;';
-	const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+	const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 	t.assert.strictEqual(runInNewContext(code), false);
 	t.assert.strictEqual(runInNewContext(output), false);
 	t.assert.strictEqual(fixed, false);
@@ -88,7 +90,7 @@ nodeTest('sequence search arguments preserve comparison results and evaluation o
 						const result = ${receiver}.${method}((calls.push("first"), calls.push("second"), "${needle}")) ${comparison};
 						JSON.stringify({calls, result});
 					`;
-					const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+					const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 					const found = needle === 'b';
 					const expected = JSON.stringify({calls: ['first', 'second'], result: positive === found});
 					t.assert.strictEqual(runInNewContext(code), expected);
@@ -111,7 +113,7 @@ nodeTest('sequence fromIndex arguments stay grouped after includes autofixes', t
 					const result = ${receiver}.indexOf(${searchText}, (calls.push("from"), ${fromIndex})) !== -1;
 					JSON.stringify({calls, result});
 				`;
-				const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+				const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 				const expected = JSON.stringify({calls: sequenceSearch ? ['search', 'from'] : ['from'], result: fromIndex !== 3});
 				t.assert.strictEqual(runInNewContext(code), expected);
 				t.assert.strictEqual(runInNewContext(output), expected);
@@ -191,7 +193,7 @@ nodeTest('some searches with side effects stay suggestions', t => {
 			'{"found":false,"value":2}',
 		],
 	]) {
-		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 		t.assert.strictEqual(output, code);
 		t.assert.strictEqual(fixed, false);
 		t.assert.strictEqual(runInNewContext(output), original);
@@ -229,7 +231,7 @@ nodeTest('some searches without side effects are autofixed', t => {
 		for (const values of ['[]', '[0, 2, "item", true, false, null, 2n, 1e999, undefined]']) {
 			const setup = 'const target = 2; const object = {id: "item"};';
 			const code = `${setup} ${values}.some(item => item === ${value});`;
-			const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+			const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 			t.assert.strictEqual(output, `${setup} ${values}.includes(${value});`);
 			t.assert.strictEqual(fixed, true);
 			t.assert.deepStrictEqual(messages, []);

@@ -42,10 +42,15 @@ const getTemplateMatches = (raw, regex) => {
 	}).toArray();
 };
 
-// A copy keeps `test()` from reading or leaving `lastIndex` state on the global replacement regex.
-const hasReplacementMatch = (type, string, regex) => type === 'TemplateElement'
-	? getTemplateMatches(string, regex).length > 0
-	: new RegExp(regex).test(string);
+const hasReplacementMatch = (type, string, regex) => {
+	if (type === 'TemplateElement') {
+		return getTemplateMatches(string, regex).length > 0;
+	}
+
+	// A copy keeps `test()` from reading or leaving `lastIndex` state on the global replacement regex.
+	const regexCopy = new RegExp(regex);
+	return regexCopy.test(string);
+};
 
 const replaceMatches = (type, string, regex, suggest) => {
 	if (type !== 'TemplateElement') {

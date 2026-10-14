@@ -8,9 +8,11 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+const linter = new Linter();
+
 nodeTest('nonnumeric object lengths still require numeric coercion', t => {
 	const code = 'Number({length: "5"}.length);';
-	const {output, fixed, messages} = new Linter().verifyAndFix(code, {
+	const {output, fixed, messages} = linter.verifyAndFix(code, {
 		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
 		rules: {'unicorn/no-useless-coercion': 'error'},
 	});
@@ -22,7 +24,7 @@ nodeTest('nonnumeric object lengths still require numeric coercion', t => {
 
 nodeTest('optional numeric parameters still require numeric coercion', t => {
 	const code = 'function value(input?: number) { return Number(input); } Number.isNaN(value());';
-	const {output, fixed, messages} = new Linter().verifyAndFix(code, {
+	const {output, fixed, messages} = linter.verifyAndFix(code, {
 		languageOptions: {parser: typescriptEslintParser},
 		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
 		rules: {'unicorn/no-useless-coercion': 'error'},
@@ -35,7 +37,7 @@ nodeTest('optional numeric parameters still require numeric coercion', t => {
 
 nodeTest('an absent code point still requires numeric coercion', t => {
 	const code = 'Number.isNaN(Number("".codePointAt(0)));';
-	const {output, fixed, messages} = new Linter().verifyAndFix(code, {
+	const {output, fixed, messages} = linter.verifyAndFix(code, {
 		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
 		rules: {'unicorn/no-useless-coercion': 'error'},
 	});

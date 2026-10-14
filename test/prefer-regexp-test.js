@@ -56,7 +56,6 @@ ruleTest({
 		{
 			code: 'function run(pattern: RegExp) { return"a".search(pattern) !== -1; }',
 			languageOptions: {parser: parsers.typescript},
-			output: null,
 			errors: [{
 				messageId: 'string-search',
 				suggestions: [{messageId: 'suggestion', output: 'function run(pattern: RegExp) { return pattern.test("a"); }'}],

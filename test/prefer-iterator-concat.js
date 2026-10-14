@@ -7,23 +7,26 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+const linter = new Linter();
+
+// Minimal lazy `Iterator.concat()` for Node.js versions without it
+const Iterator = {
+	* concat(...iterables) {
+		for (const iterable of iterables) {
+			yield * iterable;
+		}
+	},
+};
+
 // `Iterator.concat()` evaluates every argument before consuming any iterable, so a later argument can change an earlier iterable before it is read. That is why conversions with a later argument that has a side effect are suggestions.
 nodeTest('iterator concatenation changes when later arguments are evaluated', t => {
 	const code = 'const first = [1]; function second() { first[0] = 2; return []; } JSON.stringify(Array.from([...first, ...second()]));';
-	const [problem] = new Linter().verify(code, {
+	const [problem] = linter.verify(code, {
 		plugins: {unicorn: {rules: {'prefer-iterator-concat': rule}}},
 		rules: {'unicorn/prefer-iterator-concat': 'error'},
 	});
 	const {fix} = problem.suggestions[0];
 	const suggestion = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
-	// Minimal lazy `Iterator.concat()` for Node.js versions without it
-	const Iterator = {
-		* concat(...iterables) {
-			for (const iterable of iterables) {
-				yield * iterable;
-			}
-		},
-	};
 	t.assert.strictEqual(runInNewContext(code), '[1]');
 	t.assert.strictEqual(runInNewContext(suggestion, {Iterator}), '[2]');
 });
@@ -37,14 +40,14 @@ nodeTest('iterator concatenation is autofixed when the consumer only stores the 
 			const result = ${consumer.replace('VALUES', '[...first(), ...second]')};
 			JSON.stringify({calls, result});
 		`;
-		const {output, fixed, messages} = new Linter().verifyAndFix(code, {
+		const {output, fixed, messages} = linter.verifyAndFix(code, {
 			plugins: {unicorn: {rules: {'prefer-iterator-concat': rule}}},
 			rules: {'unicorn/prefer-iterator-concat': 'error'},
 		});
 		t.assert.strictEqual(fixed, true, code);
 		t.assert.deepStrictEqual(messages, []);
 		t.assert.strictEqual(output, code.replace('[...first(), ...second]', 'Iterator.concat(first(), second)'));
-		t.assert.strictEqual(runInNewContext(output), runInNewContext(code), code);
+		t.assert.strictEqual(runInNewContext(output, {Iterator}), runInNewContext(code), code);
 	}
 });
 

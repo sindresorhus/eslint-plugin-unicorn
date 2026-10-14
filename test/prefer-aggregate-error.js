@@ -8,6 +8,8 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+const linter = new Linter();
+
 const typeAware = code => ({
 	code,
 	filename: 'file.ts',
@@ -49,7 +51,7 @@ nodeTest('aggregate error fixes preserve message, cause, and argument evaluation
 				JSON.stringify({message: error.message, cause: error.cause, calls});
 			}
 		`;
-		const {output, fixed, messages} = new Linter().verifyAndFix(code, {
+		const {output, fixed, messages} = linter.verifyAndFix(code, {
 			languageOptions: {parser: typescriptEslintParser},
 			plugins: {unicorn: {rules: {'prefer-aggregate-error': rule}}},
 			rules: {'unicorn/prefer-aggregate-error': 'error'},

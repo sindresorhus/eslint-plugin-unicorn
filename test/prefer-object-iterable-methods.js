@@ -5,6 +5,8 @@ import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
+
+const linter = new Linter();
 const config = {
 	plugins: {unicorn: {rules: {'prefer-object-iterable-methods': rule}}},
 	rules: {'unicorn/prefer-object-iterable-methods': 'error'},
@@ -22,7 +24,7 @@ nodeTest('converting `Object.keys()` is autofixed when the value is passed to a 
 			'const object = {a: 1, b: 2}; const result = []; for (const value of Object.values(object)) { result.push(value); } JSON.stringify(result);',
 		],
 	]) {
-		const {output, fixed, messages} = new Linter().verifyAndFix(code, config);
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
 		t.assert.strictEqual(fixed, true, code);
 		t.assert.deepStrictEqual(messages, []);
 		t.assert.strictEqual(output, expectedOutput);
@@ -32,7 +34,7 @@ nodeTest('converting `Object.keys()` is autofixed when the value is passed to a 
 
 nodeTest('converting `Object.keys()` is autofixed when the callback has no side effects', t => {
 	const code = 'const object = {a: 1, b: 2}; JSON.stringify(Object.keys(object).map(key => [key, object[key] * 2]));';
-	const {output, fixed, messages} = new Linter().verifyAndFix(code, config);
+	const {output, fixed, messages} = linter.verifyAndFix(code, config);
 	t.assert.strictEqual(fixed, true);
 	t.assert.deepStrictEqual(messages, []);
 	t.assert.strictEqual(output, 'const object = {a: 1, b: 2}; JSON.stringify(Object.entries(object).map(([key, value]) => [key, value * 2]));');

@@ -7,6 +7,8 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+const linter = new Linter();
+
 for (const [description, statement, expected] of [
 	['continue', 'try { set.delete(value); } finally { continue; }', 'done'],
 	['break', 'try { set.delete(value); } finally { break; }', 'done'],
@@ -30,7 +32,7 @@ for (const [description, statement, expected] of [
 			try { result = run(); } catch (error) { result = error.message; }
 			JSON.stringify({size: set.size, additions, result});
 		`;
-		const messages = new Linter().verify(code, {
+		const messages = linter.verify(code, {
 			plugins: {unicorn: {rules: {'no-loop-iterable-mutation': rule}}},
 			rules: {'unicorn/no-loop-iterable-mutation': 'error'},
 		});
@@ -46,7 +48,7 @@ for (const binding of ['const key of map.keys()', 'const [key] of map']) {
 			for (${binding}) { try { map.delete(key); } finally { continue; } additions++; map.set(key, 2); }
 			JSON.stringify({size: map.size, additions});
 		`;
-		const messages = new Linter().verify(code, {
+		const messages = linter.verify(code, {
 			plugins: {unicorn: {rules: {'no-loop-iterable-mutation': rule}}},
 			rules: {'unicorn/no-loop-iterable-mutation': 'error'},
 		});
@@ -62,7 +64,7 @@ for (const statement of [
 ]) {
 	nodeTest(`a finalizer reaching reinsertion is still reported for ${statement}`, t => {
 		const code = `const set = new Set([1]); const events = []; for (const value of set) { ${statement} set.add(value); events.push("add"); break; } JSON.stringify({size: set.size, events});`;
-		const messages = new Linter().verify(code, {
+		const messages = linter.verify(code, {
 			plugins: {unicorn: {rules: {'no-loop-iterable-mutation': rule}}},
 			rules: {'unicorn/no-loop-iterable-mutation': 'error'},
 		});

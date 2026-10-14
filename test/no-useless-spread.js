@@ -7,6 +7,8 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+const linter = new Linter();
+
 const linterConfig = {
 	plugins: {unicorn: {rules: {'no-useless-spread': rule}}},
 	rules: {'unicorn/no-useless-spread': 'error'},
@@ -20,7 +22,7 @@ for (const [description, objectText] of [
 ]) {
 	nodeTest(`object spread retains super lookup for ${description}`, t => {
 		const code = `const object = ${objectText}; Object.setPrototypeOf(object, {value: 1}); object.read();`;
-		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 		// Flattened, `super` would read the new prototype and return `1`
 		t.assert.strictEqual(runInNewContext(code), undefined);
 		t.assert.strictEqual(output, code);
@@ -35,7 +37,7 @@ for (const [description, objectText, callText] of [
 ]) {
 	nodeTest(`object spread keeps autofixing a supported ${description}`, t => {
 		const code = `const object = ${objectText}; ${callText};`;
-		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 		t.assert.strictEqual(runInNewContext(code), 1);
 		t.assert.strictEqual(runInNewContext(output), 1);
 		t.assert.strictEqual(fixed, true);
@@ -45,7 +47,7 @@ for (const [description, objectText, callText] of [
 
 nodeTest('array literal spread fixes still preserve nested classes using super', t => {
 	const code = 'class Base { read() { return 1; } } const classes = [...[class extends Base { read() { return super.read(); } }]]; new classes[0]().read();';
-	const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+	const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 	t.assert.strictEqual(runInNewContext(code), 1);
 	t.assert.strictEqual(runInNewContext(output), 1);
 	t.assert.strictEqual(fixed, true);
@@ -83,7 +85,7 @@ test({
 
 nodeTest('copyWithin spread keeps an independent array', t => {
 	const code = 'const values = [1, 2, 3]; const clone = [...values.copyWithin(0, 1)]; clone[0] = 9; JSON.stringify({values, clone, same: values === clone});';
-	const result = new Linter().verifyAndFix(code, linterConfig);
+	const result = linter.verifyAndFix(code, linterConfig);
 	t.assert.strictEqual(runInNewContext(code), '{"values":[2,3,3],"clone":[9,3,3],"same":false}');
 	t.assert.strictEqual(runInNewContext(result.output), runInNewContext(code));
 	t.assert.strictEqual(result.fixed, false);
@@ -91,7 +93,7 @@ nodeTest('copyWithin spread keeps an independent array', t => {
 });
 
 function getIterableSuggestion(code, t) {
-	const {fixed, output, messages} = new Linter().verifyAndFix(code, linterConfig);
+	const {fixed, output, messages} = linter.verifyAndFix(code, linterConfig);
 	t.assert.strictEqual(fixed, false, code);
 	t.assert.strictEqual(output, code);
 	t.assert.strictEqual(messages.length, 1, code);
@@ -144,7 +146,7 @@ nodeTest('iterable conversions that only store the values are still autofixed', 
 			const result = ${consumer.replace('VALUES', '[...values()]')};
 			JSON.stringify({calls, result});
 		`;
-		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 		t.assert.strictEqual(fixed, true, code);
 		t.assert.deepStrictEqual(messages, []);
 		t.assert.strictEqual(output, code.replace('[...values()]', 'values()'));

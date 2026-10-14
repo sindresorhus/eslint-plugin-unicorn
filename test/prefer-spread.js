@@ -11,6 +11,8 @@ import {DEFAULT_LANGUAGE_OPTIONS} from './utils/language-options.js';
 
 const {test: ruleTest, rule} = getTester(import.meta);
 
+const linter = new Linter();
+
 const linterConfig = {
 	plugins: {unicorn: {rules: {'prefer-spread': rule}}},
 	rules: {'unicorn/prefer-spread': 'error'},
@@ -21,7 +23,7 @@ const applySuggestion = (code, {fix: {range, text}}) => code.slice(0, range[0]) 
 for (const kind of ['const', 'let']) {
 	test(`for-of copy suggestions expose ${kind} initialization timing`, t => {
 		const code = `function values() { return [result.length]; } ${kind} result = []; for (const value of values()) { result.push(value); } JSON.stringify(result);`;
-		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 		t.assert.strictEqual(runInNewContext(code), '[0]');
 		t.assert.strictEqual(runInNewContext(output), '[0]');
 		t.assert.strictEqual(output, code);
@@ -43,7 +45,7 @@ test('for-of copy suggestions expose partially populated accumulators to helpers
 		for (const value of values()) { result.push(value); }
 		JSON.stringify({result, calls});
 	`;
-	const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+	const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 	t.assert.strictEqual(runInNewContext(code), '{"result":[1,1],"calls":[1]}');
 	t.assert.strictEqual(runInNewContext(output), '{"result":[1,1],"calls":[1]}');
 	t.assert.strictEqual(fixed, false);
@@ -55,7 +57,7 @@ test('for-of copy suggestions expose partially populated accumulators to helpers
 
 test('indexed entries copy suggestions retain initialization before source helpers', t => {
 	const code = 'function length() { return result.length; } const result = []; for (const [index, value] of [length()].entries()) { result[index] = value; } JSON.stringify(result);';
-	const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+	const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 	t.assert.strictEqual(runInNewContext(code), '[0]');
 	t.assert.strictEqual(runInNewContext(output), '[0]');
 	t.assert.strictEqual(fixed, false);
@@ -78,7 +80,7 @@ test('concat suggestions expose receiver mutations before traversal', t => {
 		[generator, 'values.concat([0], ...extras)', '[...values, 0].concat(...extras)', '[2,0,3]', '[1,0,3]'],
 	]) {
 		const code = `const values = [1]; ${setup} JSON.stringify(${expression});`;
-		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 		t.assert.strictEqual(output, code);
 		t.assert.strictEqual(fixed, false);
 		t.assert.strictEqual(messages.length, 1);
@@ -115,7 +117,7 @@ test('type-aware indexed copy suggestions retain initialized helper state', t =>
 		for (const [index, value] of values().entries()) { result[index] = value; }
 		JSON.stringify(result);
 	`;
-	const {output, fixed, messages} = new Linter().verifyAndFix(code, {
+	const {output, fixed, messages} = linter.verifyAndFix(code, {
 		...linterConfig,
 		files: ['*.ts'],
 		languageOptions: typeAware(code).languageOptions,
@@ -167,7 +169,7 @@ ruleTest({
 
 test('for-of copy autofixes when no nested function reads the array', t => {
 	const code = 'function values() { return [1, 2]; } const result = []; for (const value of values()) { result.push(value); } JSON.stringify(result);';
-	const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+	const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 	t.assert.strictEqual(output, 'function values() { return [1, 2]; } const result = [...values()]; JSON.stringify(result);');
 	t.assert.strictEqual(fixed, true);
 	t.assert.deepStrictEqual(messages, []);
@@ -180,7 +182,7 @@ test('for-of copy autofixes compose with no-useless-spread', t => {
 		rules: {'unicorn/prefer-spread': 'error', 'unicorn/no-useless-spread': 'error'},
 	};
 	const code = 'const result = []; for (const value of [1, 2]) { result.push(value); } JSON.stringify(result);';
-	const {output, messages} = new Linter().verifyAndFix(code, config);
+	const {output, messages} = linter.verifyAndFix(code, config);
 	t.assert.strictEqual(output, 'const result = [1, 2]; JSON.stringify(result);');
 	t.assert.deepStrictEqual(messages, []);
 	t.assert.strictEqual(runInNewContext(output), runInNewContext(code));

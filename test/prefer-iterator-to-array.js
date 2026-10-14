@@ -24,7 +24,6 @@ test({
 		},
 		{
 			code: 'function values(map) { return[...map.values()]; }',
-			output: null,
 			errors: [{
 				messageId: 'prefer-iterator-to-array',
 				suggestions: [{messageId: 'prefer-iterator-to-array/suggestion', output: 'function values(map) { return map.values().toArray(); }'}],

@@ -6,6 +6,8 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+const linter = new Linter();
+
 const linterConfig = {
 	plugins: {unicorn: {rules: {'prefer-reflect-apply': rule}}},
 	rules: {'unicorn/prefer-reflect-apply': 'error'},
@@ -35,7 +37,7 @@ nodeTest('optional target chains preserve missing targets and argument evaluatio
 			const expected = missing
 				? '{"calls":[]}'
 				: JSON.stringify({result: 'argument', calls: [...(usesFactory ? ['factory'] : []), 'argument', 'call']});
-			const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+			const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 			t.assert.strictEqual(runInNewContext(code), expected);
 			t.assert.strictEqual(runInNewContext(output), expected);
 			t.assert.strictEqual(output, code);
@@ -52,7 +54,7 @@ nodeTest('grouped optional targets retain autofixes and existing call failures',
 		['{value() { return 2; }}', 2],
 	]) {
 		const code = `const object = ${initialization}; let result; try { result = (object?.value).apply(null, []); } catch (error) { result = error.name; } result;`;
-		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 		t.assert.strictEqual(output, code.replace('(object?.value).apply(null, [])', 'Reflect.apply(object?.value, null, [])'));
 		t.assert.strictEqual(runInNewContext(code), expected);
 		t.assert.strictEqual(runInNewContext(output), expected);
@@ -80,7 +82,7 @@ for (const [position, getExpression] of [
 				try { result = ${getExpression(effect)}; } catch (error) { result = error.name; }
 				result;
 			`;
-			const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+			const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 			t.assert.strictEqual(runInNewContext(code), expected);
 			t.assert.strictEqual(runInNewContext(output), expected);
 			t.assert.strictEqual(output, code);
@@ -100,7 +102,7 @@ nodeTest('literal and static template method names retain safe autofixes', t => 
 		'Function[`prototype`][`apply`][`call`](value, null, [2])',
 	]) {
 		const code = `function value(input) { return input + 1; } ${expression};`;
-		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 		t.assert.strictEqual(output, 'function value(input) { return input + 1; } Reflect.apply(value, null, [2]);');
 		t.assert.strictEqual(runInNewContext(code), 3);
 		t.assert.strictEqual(runInNewContext(output), 3);
@@ -127,7 +129,7 @@ nodeTest('computed targets and sequence target arguments keep their evaluation o
 			const object = {value};
 			JSON.stringify(${expression});
 		`;
-		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 		t.assert.strictEqual(output, code.replace(expression, () => replacement));
 		t.assert.strictEqual(runInNewContext(code), '["target","argument","call"]');
 		t.assert.strictEqual(runInNewContext(output), runInNewContext(code));

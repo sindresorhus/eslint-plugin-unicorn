@@ -6,13 +6,15 @@ import {transpileModule, ScriptTarget} from 'typescript';
 import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
+
+const linter = new Linter();
 const keywordConfig = {
 	plugins: {unicorn: {rules: {'prefer-string-starts-ends-with': rule}}},
 	rules: {'unicorn/prefer-string-starts-ends-with': 'error'},
 };
 
 const getSliceSuggestion = (t, code, languageOptions) => {
-	const {output, fixed, messages} = new Linter().verifyAndFix(code, {...keywordConfig, ...(languageOptions && {languageOptions})});
+	const {output, fixed, messages} = linter.verifyAndFix(code, {...keywordConfig, ...(languageOptions && {languageOptions})});
 	t.assert.strictEqual(output, code);
 	t.assert.strictEqual(fixed, false);
 	t.assert.strictEqual(messages.length, 1);
@@ -20,12 +22,12 @@ const getSliceSuggestion = (t, code, languageOptions) => {
 	t.assert.strictEqual(messages[0].suggestions.length, 1);
 	const [{fix}] = messages[0].suggestions;
 	const suggestion = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
-	t.assert.deepStrictEqual(new Linter().verify(suggestion, {...keywordConfig, ...(languageOptions && {languageOptions})}), []);
+	t.assert.deepStrictEqual(linter.verify(suggestion, {...keywordConfig, ...(languageOptions && {languageOptions})}), []);
 	return suggestion;
 };
 
 const getKeywordOutput = (t, code, languageOptions) => {
-	const {output, fixed, messages} = new Linter().verifyAndFix(code, {...keywordConfig, ...(languageOptions && {languageOptions})});
+	const {output, fixed, messages} = linter.verifyAndFix(code, {...keywordConfig, ...(languageOptions && {languageOptions})});
 	t.assert.strictEqual(fixed, true);
 	t.assert.deepStrictEqual(messages, []);
 	return output;
@@ -67,7 +69,7 @@ nodeTest('left-side slice calls retain their autofixes and evaluation order', t 
 	for (const operator of ['===', '!==', '==', '!=']) {
 		const code = 'let needle: string = "a"; function value() { needle = "ab"; return "ab"; } '
 			+ `String(value()).slice(0, needle.length) ${operator} needle;`;
-		const {output, fixed, messages} = new Linter().verifyAndFix(code, {...keywordConfig, languageOptions: {parser: parsers.typescript.implementation}});
+		const {output, fixed, messages} = linter.verifyAndFix(code, {...keywordConfig, languageOptions: {parser: parsers.typescript.implementation}});
 		t.assert.strictEqual(fixed, true);
 		t.assert.deepStrictEqual(messages, []);
 		const execute = source => runInNewContext(transpileModule(source, {compilerOptions: {target: ScriptTarget.ESNext}}).outputText);
@@ -101,7 +103,6 @@ test({
 			code: 'let needle: string = "a"; function value() { needle = "ab"; return "ab"; } needle === String(value()).slice(0, needle.length);',
 			filename: 'file.ts',
 			languageOptions: {parser: parsers.typescript.implementation, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
-			output: null,
 			errors: [{
 				messageId: 'prefer-starts-with-slice',
 				suggestions: [{
@@ -128,14 +129,14 @@ for (const [keyword, createBody] of keywordBodies) {
 	for (const suggestionIndex of [0, 1, 2]) {
 		nodeTest(`string boundary keyword suggestions preserve ${keyword}: suggestion ${suggestionIndex + 1}`, t => {
 			const code = `function run(text) { ${createBody('/^a/.test(text)')} } run("abc");`;
-			const messages = new Linter().verify(code, keywordConfig);
+			const messages = linter.verify(code, keywordConfig);
 			t.assert.strictEqual(messages.length, 1);
 			t.assert.strictEqual(messages[0].suggestions.length, 3);
 			const {fix} = messages[0].suggestions[suggestionIndex];
 			const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
 			t.assert.strictEqual(runInNewContext(code), true);
 			t.assert.strictEqual(runInNewContext(output), true, output);
-			t.assert.deepStrictEqual(new Linter().verify(output, keywordConfig), []);
+			t.assert.deepStrictEqual(linter.verify(output, keywordConfig), []);
 		});
 	}
 }
@@ -232,12 +233,10 @@ test({
 		},
 		{
 			code: 'const text = "abc"; function run() { return(0) /* keep */ === text.indexOf("a"); }',
-			output: null,
 			errors: 1,
 		},
 		{
 			code: 'const text = "abc"; function run() { return("a") /* keep */ === text.slice(0, 1); }',
-			output: null,
 			errors: 1,
 		},
 	],

@@ -6,6 +6,8 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+const linter = new Linter();
+
 const linterConfig = {
 	plugins: {unicorn: {rules: {'prefer-array-find': rule}}},
 	rules: {'unicorn/prefer-array-find': 'error'},
@@ -42,7 +44,7 @@ nodeTest('side-effect-free inline callbacks are autofixed', t => {
 				[`${values}.filter(${callback}).slice(-1)[0];`, `${values}.findLast(${callback});`],
 				[`${values}.filter(${callback}).slice(-1).pop();`, `${values}.findLast(${callback});`],
 			]) {
-				const result = new Linter().verifyAndFix(code, linterConfig);
+				const result = linter.verifyAndFix(code, linterConfig);
 				t.assert.strictEqual(result.output, output);
 				t.assert.strictEqual(result.fixed, true);
 				t.assert.deepStrictEqual(result.messages, []);
@@ -75,7 +77,7 @@ nodeTest('callbacks with side effects or unknown callbacks stay suggestions', t 
 			'{"item":2,"calls":[2]}',
 		],
 	]) {
-		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 		t.assert.strictEqual(output, code);
 		t.assert.strictEqual(fixed, false);
 		t.assert.strictEqual(runInNewContext(code), original);

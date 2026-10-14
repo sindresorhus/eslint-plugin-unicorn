@@ -3,9 +3,11 @@ import {Linter} from 'eslint';
 import {isLeftHandSide} from '../../rules/utils/index.js';
 import {typescriptEslintParser} from '../../scripts/parsers.js';
 
+const linter = new Linter();
+
 const getVerdict = code => {
 	let verdict;
-	const messages = new Linter().verify(code, {
+	const messages = linter.verify(code, {
 		languageOptions: {parser: typescriptEslintParser},
 		plugins: {
 			test: {

@@ -6,6 +6,8 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+const linter = new Linter();
+
 const linterConfig = {
 	plugins: {unicorn: {rules: {'no-redundant-comparison': rule}}},
 	rules: {'unicorn/no-redundant-comparison': 'error'},
@@ -22,7 +24,7 @@ nodeTest('explicit side effects invalidate equality, disequality, and bound impl
 		'let first = 1; let second = 1; first === second && first > 0 && (second = 0) === 0 && second > 0;',
 		'let first = 1; let second = 1; let third = 1; first === second && second === third && first === 1 && (third = 2) === 2 && third === 1;',
 	]) {
-		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 		t.assert.strictEqual(runInNewContext(code), false);
 		t.assert.strictEqual(output, code);
 		t.assert.strictEqual(runInNewContext(output), false);
@@ -40,7 +42,7 @@ nodeTest('pure strict comparisons retain autofixes', t => {
 			'const first = 1; const second = 1; const third = 1; first === second && second === third && first === 1;',
 		],
 	]) {
-		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 		t.assert.strictEqual(output, expected);
 		t.assert.strictEqual(fixed, true);
 		t.assert.deepStrictEqual(messages, []);
@@ -50,7 +52,7 @@ nodeTest('pure strict comparisons retain autofixes', t => {
 
 nodeTest('implicit ordering coercion retains the existing suggestion', t => {
 	const code = 'const first = 1; const second = 1; first === second && first > 0 && second > 0;';
-	const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+	const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 	t.assert.strictEqual(output, code);
 	t.assert.strictEqual(fixed, false);
 	t.assert.strictEqual(messages.length, 1);

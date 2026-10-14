@@ -6,6 +6,8 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+const linter = new Linter();
+
 const linterConfig = {
 	plugins: {unicorn: {rules: {'prefer-url-can-parse': rule}}},
 	rules: {'unicorn/prefer-url-can-parse': 'error'},
@@ -49,7 +51,7 @@ nodeTest('URL and base sequences preserve return and assignment validation resul
 						}
 						validate();
 					`;
-				const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+				const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 				t.assert.strictEqual(runInNewContext(code, {URL}), positive === valid);
 				t.assert.strictEqual(output, expectedOutput);
 				t.assert.strictEqual(runInNewContext(output, {URL}), positive === valid);

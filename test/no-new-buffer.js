@@ -7,13 +7,15 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+const linter = new Linter();
+
 const linterConfig = {
 	plugins: {unicorn: {rules: {'no-new-buffer': rule}}},
 	rules: {'unicorn/no-new-buffer': 'error'},
 };
 
 const getSuggestions = (t, code, messageId = 'error-unknown') => {
-	const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+	const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 	t.assert.strictEqual(output, code);
 	t.assert.strictEqual(fixed, false);
 	t.assert.strictEqual(messages.length, 1);
@@ -94,7 +96,7 @@ nodeTest('known Buffer inputs retain safe autofixes and ignored-argument guards'
 		['function create(input) { try { new Buffer(input, "hex"); } catch (error) { return error.code; } } create(3);', 'ERR_INVALID_ARG_TYPE'],
 		['JSON.stringify([...new Buffer([1, 2, 3], 0)]);', '[1,2,3]'],
 	]) {
-		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 		t.assert.strictEqual(runInNewContext(code, {Buffer}), expected);
 		t.assert.strictEqual(runInNewContext(output, {Buffer}), expected);
 		t.assert.strictEqual(fixed, true);
@@ -103,7 +105,7 @@ nodeTest('known Buffer inputs retain safe autofixes and ignored-argument guards'
 
 	for (const extras of ['/* keep */ 65', 'getFill()']) {
 		const code = `function getFill() { return 65; } new Buffer(3, ${extras}).length;`;
-		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 		t.assert.strictEqual(output, code);
 		t.assert.strictEqual(fixed, false);
 		t.assert.strictEqual(messages[0].messageId, 'error');
@@ -179,7 +181,7 @@ nodeTest('numeric Buffer suggestions expose discarded spread errors', t => {
 
 nodeTest('zero arguments retain their existing conversion and error', t => {
 	const code = 'let failure; try { new Buffer(); } catch (error) { failure = error.name; } failure;';
-	const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+	const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 	t.assert.strictEqual(fixed, true);
 	t.assert.deepStrictEqual(messages, []);
 	t.assert.strictEqual(runInNewContext(code, {Buffer}), 'TypeError');

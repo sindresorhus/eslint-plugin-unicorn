@@ -6,13 +6,15 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+const linter = new Linter();
+
 const linterConfig = {
 	plugins: {unicorn: {rules: {'prefer-iterable-in-constructor': rule}}},
 	rules: {'unicorn/prefer-iterable-in-constructor': 'error'},
 };
 
 function getLoopSuggestion(code, t) {
-	const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+	const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 	t.assert.strictEqual(output, code);
 	t.assert.strictEqual(fixed, false);
 	t.assert.strictEqual(messages.length, 1);
@@ -24,7 +26,7 @@ function getLoopSuggestion(code, t) {
 }
 
 function getLoopFix(code, t) {
-	const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+	const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 	t.assert.strictEqual(fixed, true);
 	t.assert.deepStrictEqual(messages, []);
 	return output;
@@ -125,7 +127,7 @@ nodeTest('URLSearchParams preserves ordinary non-record const initializers', t =
 		['new String("ab")', '0=a&1=b'],
 	]) {
 		const code = `const values = ${initializer}; new URLSearchParams(Object.entries(values)).toString();`;
-		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 		t.assert.strictEqual(runInNewContext(code, {URLSearchParams}), expected);
 		t.assert.strictEqual(output, code);
 		t.assert.strictEqual(runInNewContext(output, {URLSearchParams}), expected);
@@ -137,7 +139,7 @@ nodeTest('URLSearchParams preserves ordinary non-record const initializers', t =
 nodeTest('URLSearchParams preserves errors from nullish const sources', t => {
 	for (const initializer of ['null', 'undefined']) {
 		const code = `const values = ${initializer}; new URLSearchParams(Object.entries(values));`;
-		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 		t.assert.throws(() => runInNewContext(code, {URLSearchParams}), {name: 'TypeError'});
 		t.assert.strictEqual(output, code);
 		t.assert.throws(() => runInNewContext(output, {URLSearchParams}), {name: 'TypeError'});
@@ -149,7 +151,7 @@ nodeTest('URLSearchParams preserves errors from nullish const sources', t => {
 nodeTest('plain const records retain runtime-safe direct constructor autofixes', t => {
 	for (const initializer of ['{a: "b", c: "d"}', '{}']) {
 		const code = `const record = ${initializer}; new URLSearchParams(Object.entries(record)).toString();`;
-		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 		t.assert.strictEqual(output, `const record = ${initializer}; new URLSearchParams(record).toString();`);
 		t.assert.strictEqual(fixed, true);
 		t.assert.deepStrictEqual(messages, []);

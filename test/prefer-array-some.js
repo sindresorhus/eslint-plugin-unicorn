@@ -7,6 +7,8 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+const linter = new Linter();
+
 const linterConfig = {
 	plugins: {unicorn: {rules: {'prefer-array-some': rule}}},
 	rules: {'unicorn/prefer-array-some': 'error'},
@@ -50,7 +52,7 @@ nodeTest('side-effect-free inline callbacks are autofixed', t => {
 				[`${values}.findLastIndex(${callback}) !== -1;`, `${values}.some(${callback});`],
 				[`${values}.findLastIndex(${callback}) === -1;`, `!${values}.some(${callback});`],
 			]) {
-				const result = new Linter().verifyAndFix(code, linterConfig);
+				const result = linter.verifyAndFix(code, linterConfig);
 				t.assert.strictEqual(result.output, output);
 				t.assert.strictEqual(result.fixed, true);
 				t.assert.deepStrictEqual(result.messages, []);
@@ -88,7 +90,7 @@ nodeTest('callbacks with side effects or unknown callbacks stay suggestions', t 
 			'{"found":true,"calls":["default"]}',
 		],
 	]) {
-		const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 		t.assert.strictEqual(output, code);
 		t.assert.strictEqual(fixed, false);
 		t.assert.strictEqual(runInNewContext(code), original);

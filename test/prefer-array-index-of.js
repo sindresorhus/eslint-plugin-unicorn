@@ -6,6 +6,8 @@ import createSimpleArraySearchRuleTestFixtures from './shared/simple-array-searc
 
 const {test, rule} = getTester(import.meta);
 
+const linter = new Linter();
+
 const linterConfig = {
 	plugins: {unicorn: {rules: {'prefer-array-index-of': rule}}},
 	rules: {'unicorn/prefer-array-index-of': 'error'},
@@ -25,7 +27,7 @@ nodeTest('index searches with side effects stay suggestions', t => {
 				'{"index":-1,"value":2}',
 			],
 		]) {
-			const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+			const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 			t.assert.strictEqual(output, code);
 			t.assert.strictEqual(fixed, false);
 			t.assert.strictEqual(runInNewContext(output), original);
@@ -65,7 +67,7 @@ nodeTest('index searches without side effects are autofixed', t => {
 			for (const values of ['[]', '[0, 2, "item", true, false, null, 2n, 1e999, undefined]']) {
 				const setup = 'const target = 2; const object = {id: "item"};';
 				const code = `${setup} ${values}.${method}(item => item === ${value});`;
-				const {output, fixed, messages} = new Linter().verifyAndFix(code, linterConfig);
+				const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 				t.assert.strictEqual(output, `${setup} ${values}.${replacement}(${value});`);
 				t.assert.strictEqual(fixed, true);
 				t.assert.deepStrictEqual(messages, []);
