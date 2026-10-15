@@ -18,8 +18,10 @@ const knownPureExports = new Map([
 		'isValidElement',
 	])],
 	['vue', new Set(['defineComponent'])],
-	['eslint/config', new Set(['defineConfig'])],
-	['@eslint/config-helpers', new Set(['defineConfig'])],
+	['eslint/config', new Set(['defineConfig', 'globalIgnores'])],
+	['@eslint/config-helpers', new Set(['defineConfig', 'globalIgnores', 'convertIgnorePatternToMinimatch'])],
+	['@stylistic/eslint-plugin', new Set(['configs.customize'])],
+	['stylelint', new Set(['createPlugin'])],
 	['vite', new Set(['defineConfig'])],
 	['vitest/config', new Set(['defineConfig', 'defineProject'])],
 	['rollup', new Set(['defineConfig'])],
@@ -65,19 +67,8 @@ const isInScriptSetup = (node, scriptSetupRange, sourceCode) => {
 	return scriptSetupRange[0] <= nodeRange[0] && nodeRange[1] <= scriptSetupRange[1];
 };
 
-const isKnownPureCall = (node, sourceCode, pureExports) => {
-	if (node.type !== 'CallExpression' || node.optional) {
-		return false;
-	}
-
-	const callee = unwrapTypeScriptExpression(node.callee);
-	const isMember = callee.type === 'MemberExpression';
-	if (isMember && (callee.computed || callee.optional)) {
-		return false;
-	}
-
-	const reference = unwrapTypeScriptExpression(isMember ? callee.object : callee);
-	if (reference.type !== 'Identifier') {
+const isKnownPureImport = (reference, memberPath, sourceCode, pureExports) => {
+	if (reference?.type !== 'Identifier') {
 		return false;
 	}
 
@@ -97,17 +88,74 @@ const isKnownPureCall = (node, sourceCode, pureExports) => {
 		}
 
 		const specifier = definition.node;
-		if (isMember) {
-			return exportNames.has(callee.property.name) && (specifier.type === 'ImportDefaultSpecifier' || specifier.type === 'ImportNamespaceSpecifier');
+		if (specifier.type === 'ImportSpecifier') {
+			const exportName = specifier.imported.name ?? specifier.imported.value;
+			if (exportName !== 'default') {
+				return exportNames.has(memberPath ? `${exportName}.${memberPath}` : exportName);
+			}
 		}
 
-		return (specifier.type === 'ImportDefaultSpecifier' && exportNames.has('default'))
-			|| (specifier.type === 'ImportSpecifier' && exportNames.has(specifier.imported.name ?? specifier.imported.value));
+		return (specifier.type !== 'ImportNamespaceSpecifier' || memberPath !== '')
+			&& exportNames.has(memberPath || 'default');
+	}) ?? false;
+};
+
+const isKnownPureCall = (node, sourceCode, pureExports) => {
+	if (node.type !== 'CallExpression' || node.optional) {
+		return false;
+	}
+
+	let reference = unwrapTypeScriptExpression(node.callee);
+	const members = [];
+	while (reference.type === 'MemberExpression') {
+		if (reference.computed || reference.optional) {
+			return false;
+		}
+
+		members.unshift(reference.property.name);
+		reference = unwrapTypeScriptExpression(reference.object);
+	}
+
+	if (reference.type !== 'Identifier') {
+		return false;
+	}
+
+	if (isKnownPureImport(reference, members.join('.'), sourceCode, pureExports)) {
+		return true;
+	}
+
+	if (members.length > 0) {
+		return false;
+	}
+
+	const variable = findVariable(sourceCode.getScope(reference), reference);
+	return variable?.defs.some(definition => {
+		if (
+			definition.type !== 'Variable'
+			|| definition.parent.kind !== 'const'
+			|| definition.node.id.type !== 'ObjectPattern'
+		) {
+			return false;
+		}
+
+		const property = definition.node.id.properties.find(property =>
+			property.type === 'Property'
+			&& !property.computed
+			&& property.value.type === 'Identifier'
+			&& property.value.name === reference.name,
+		);
+
+		return property !== undefined
+			&& isKnownPureImport(unwrapTypeScriptExpression(definition.node.init), property.key.name ?? property.key.value, sourceCode, pureExports);
 	}) ?? false;
 };
 
 const hasExpressionSideEffect = (node, sourceCode, pureExports) => {
 	node = unwrapTypeScriptExpression(node);
+
+	if (node.type === 'ArrayExpression') {
+		return node.elements.some(element => element && hasExpressionSideEffect(element, sourceCode, pureExports));
+	}
 
 	if (isKnownPureCall(node, sourceCode, pureExports)) {
 		return node.arguments.some(argument => hasExpressionSideEffect(argument, sourceCode, pureExports));
@@ -132,7 +180,7 @@ const hasTopLevelSideEffect = (node, sourceCode, pureExports) => {
 */
 const create = context => {
 	const {sourceCode} = context;
-	const {allow} = context.options[0];
+	const {allow, checkDefaultExports} = context.options[0];
 	const pureExports = new Map(knownPureExports);
 	for (const [source, exportNames] of Object.entries(allow)) {
 		pureExports.set(source, new Set([...pureExports.get(source) ?? [], ...exportNames]));
@@ -167,7 +215,8 @@ const create = context => {
 	context.on('ExportDefaultDeclaration', node => {
 		const {declaration} = node;
 		if (
-			!shouldCheck
+			!checkDefaultExports
+			|| !shouldCheck
 			|| (declaration.type === 'FunctionDeclaration' || declaration.type === 'ClassDeclaration')
 			|| isInScriptSetup(node, scriptSetupRange, sourceCode)
 			|| isAllowedAssignment(declaration)
@@ -197,9 +246,13 @@ const config = {
 		schema: [{
 			type: 'object',
 			properties: {
+				checkDefaultExports: {
+					type: 'boolean',
+					description: 'Check default-exported expressions for side effects.',
+				},
 				allow: {
 					type: 'object',
-					description: 'Additional pure export names by import source.',
+					description: 'Additional pure export names or member paths by import source.',
 					additionalProperties: {
 						type: 'array',
 						items: {
@@ -210,7 +263,7 @@ const config = {
 			},
 			additionalProperties: false,
 		}],
-		defaultOptions: [{allow: {}}],
+		defaultOptions: [{allow: {}, checkDefaultExports: false}],
 		messages,
 		languages: [
 			'js/js',

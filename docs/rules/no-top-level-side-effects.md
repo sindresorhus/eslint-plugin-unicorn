@@ -9,7 +9,7 @@
 
 Top-level side effects run as soon as a module is imported. This can make exported modules harder to test, reuse, and tree-shake.
 
-This rule reports direct top-level expression statements and default-exported expressions with side effects in files that have ESM exports. It intentionally stays conservative and does not try to prove full module purity.
+This rule reports direct top-level expression statements with side effects in files that have ESM exports. It intentionally stays conservative and does not try to prove full module purity.
 
 The rule ignores:
 
@@ -17,23 +17,37 @@ The rule ignores:
 - Executable scripts with a shebang.
 - Files whose only exports are type-only (`export type`, `export interface`, `export declare`, `export {type Foo}`, …), since those exports are erased when TypeScript is compiled to JavaScript.
 - Top-level assignments and declarations, such as `document.title = 'gone';` and `const response = fetch();`.
+- Default-exported expressions, such as `export default createConfig();`, which are treated like variable initializers unless `checkDefaultExports` is enabled.
 
-A default-exported expression is not a declaration, so `export default init();` is reported. The assignment exception is intentionally narrow: other mutation expressions, including `counter++` and `delete object.property`, are reported. When intentionally removing a property while constructing an export, prefer object rest destructuring or locally disable the rule.
+The assignment exception is intentionally narrow: other standalone mutation expressions, including `counter++` and `delete object.property`, are reported. When intentionally removing a property while constructing an export, prefer object rest destructuring or locally disable the rule.
 
-Use ESLint config overrides or ignores for project-specific entrypoints, polyfills, or setup files.
+Use ESLint config overrides or ignores for project-specific entrypoints, polyfills, setup files, or configuration files. Configuration files are not automatically exempt; this override disables the rule for tool configuration files:
+
+```js
+{
+	files: ['**/*.config.{js,mjs,cjs,ts,mts,cts}'],
+	rules: {
+		'unicorn/no-top-level-side-effects': 'off',
+	},
+}
+```
 
 Direct calls to these imported helpers are allowed:
 
 - `react`: `memo`, `forwardRef`, `lazy`, `createContext`, `createRef`, `createElement`, `cloneElement`, and `isValidElement`.
 - `vue`: `defineComponent`.
-- `eslint/config`, `@eslint/config-helpers`, `vite`, `rollup`, and `astro/config`: `defineConfig`.
+- `eslint/config` and `@eslint/config-helpers`: `defineConfig` and `globalIgnores`.
+- `@eslint/config-helpers`: `convertIgnorePatternToMinimatch`.
+- `@stylistic/eslint-plugin`: `configs.customize`.
+- `stylelint`: `createPlugin`.
+- `vite`, `rollup`, and `astro/config`: `defineConfig`.
 - `vitest/config`: `defineConfig` and `defineProject`.
 
-Supports named imports (including aliases), namespace imports, and React default imports. Local aliases, computed or optional calls, conditional callees, and globals remain checked.
+Supports named imports (including aliases), namespace imports, default imports, and direct `const` destructuring from imported objects. These exceptions do not cover other local aliases, computed or optional calls, conditional callees, or globals.
 
-Nested helpers are allowed, with arguments checked recursively. Callback bodies are ignored; calls inside objects or arrays remain conservatively checked.
+Nested helpers and helpers inside arrays are allowed, with arguments and array elements checked recursively. Callback bodies are ignored; calls inside objects and spreads remain conservatively checked. The built-in exceptions do not include `includeIgnoreFile`, which reads files.
 
-Only direct tagged templates are checked.
+Tagged templates are checked directly and inside arrays.
 
 With `vue-eslint-parser`, direct top-level expressions in `<script setup>` are ignored because they run in component setup scope, not module scope. The normal `<script>` is still checked when the module has a runtime export.
 
@@ -84,31 +98,47 @@ export {};
 document.title = 'gone';
 ```
 
-```ts
-import React from 'react';
+## Options
 
-// ❌
-export default React.memo<Props>(initialize());
+### checkDefaultExports
 
-// ✅
-export default React.memo<Props>(Link);
+Type: `boolean`\
+Default: `false`
+
+Also check default-exported expressions. This stricter mode reports unknown factory calls, even when they only construct the exported value. Use `allow` for trusted imported helpers.
+
+```js
+'unicorn/no-top-level-side-effects': ['error', {checkDefaultExports: true}]
 ```
 
-## Options
+With this option enabled:
+
+```js
+import {defineConfig, globalIgnores} from 'eslint/config';
+
+// ❌
+export default defineConfig([globalIgnores([loadIgnorePattern()])]);
+
+// ✅
+export default defineConfig([globalIgnores(['dist/'])]);
+```
 
 ### allow
 
 Type: `object`\
 Default: `{}`
 
-Extend the built-ins by mapping exact import sources to pure export names. Use `'default'` for default imports. Arguments remain checked.
+Extend the built-ins by mapping exact import sources to trusted export names or static member paths. Use `'default'` for a directly called default import. Arguments remain checked. Names and sources are matched exactly, without wildcards.
+
+For default imports (including `import {default as configuration}`) and namespace imports, paths such as `'configs.customize'` are relative to the imported object. For other named imports, include the original export name, such as `'builders.create'` for `import {builders as configuration}` followed by `configuration.create()`.
 
 ```js
 'unicorn/no-top-level-side-effects': [
 	'error',
 	{
+		checkDefaultExports: true,
 		allow: {
-			'@company/config': ['defineConfig'],
+			'@company/config': ['defineConfig', 'configs.customize'],
 			'@company/wrapper': ['default'],
 		},
 	},
