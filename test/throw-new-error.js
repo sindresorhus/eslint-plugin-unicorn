@@ -196,6 +196,21 @@ test({
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: 'throw-new-error'}],
 		},
+		{
+			...typeAware(outdent`
+				declare function CustomError(kind: 'factory'): () => Error;
+				declare function CustomError(kind: 'instance'): Error;
+				const factory = CustomError('factory');
+				const error = CustomError('instance');
+			`),
+			output: outdent`
+				declare function CustomError(kind: 'factory'): () => Error;
+				declare function CustomError(kind: 'instance'): Error;
+				const factory = CustomError('factory');
+				const error = new CustomError('instance');
+			`,
+			errors: [{messageId: 'throw-new-error', line: 4}],
+		},
 		...[
 			['const error = Error();', 'const error = new Error();'],
 			[
