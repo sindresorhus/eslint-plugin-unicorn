@@ -1,7 +1,17 @@
 import {outdent} from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
 
 const typescriptDecoratorsLanguageOptions = {
 	parser: parsers.typescript,
@@ -129,4 +139,101 @@ test({
 		'throw MyError(\'x\')`y`;',
 	],
 	invalid: [],
+});
+
+// Error factories return functions, not error instances.
+test({
+	valid: [
+		'class B extends Schema.TaggedError()(\'B\', {message: Schema.String}) {}',
+		'class C extends Schema.Error(\'C\')({message: Schema.String}) {}',
+		'const factory = CustomError()(options);',
+		'const factory = (CustomError())(options);',
+	],
+	invalid: [
+		{
+			code: 'consume(CustomError());',
+			output: 'consume(new CustomError());',
+			errors: [{messageId: 'throw-new-error'}],
+		},
+		{
+			code: 'const message = CustomError().toString();',
+			output: 'const message = new CustomError().toString();',
+			errors: [{messageId: 'throw-new-error'}],
+		},
+		{
+			code: 'const ErrorClass = CustomError(Error())(TypeError());',
+			output: 'const ErrorClass = CustomError(new Error())(new TypeError());',
+			errors: [{messageId: 'throw-new-error'}, {messageId: 'throw-new-error'}],
+		},
+	],
+});
+
+test.typescript({
+	valid: [
+		'class B extends Schema.TaggedError<B>()(\'B\', {message: Schema.String}) {}',
+		'class C extends Schema.Error<C>(\'C\')({message: Schema.String}) {}',
+		'class B extends RenamedSchema.TaggedError<B>()(\'B\', {message: RenamedSchema.String}) {}',
+		'class B extends TaggedError<B>()(\'B\', {message: Schema.String}) {}',
+	],
+	invalid: [],
+});
+
+test({
+	valid: [
+		typeAware('declare function CustomError(): () => Error; const factory = CustomError();'),
+		typeAware('declare function TaggedError<Self>(): new () => Error; const ErrorClass = TaggedError<Error>();'),
+		typeAware('declare const Schema: {TaggedError<Self>(): (tag: string, fields: object) => new () => Error}; const defineError = Schema.TaggedError<Error>();'),
+	],
+	invalid: [
+		{
+			code: 'function CustomError() {return () => new Error();} const factory = CustomError();',
+			output: 'function CustomError() {return () => new Error();} const factory = new CustomError();',
+			errors: [{messageId: 'throw-new-error'}],
+		},
+		{
+			code: 'declare function CustomError(): () => Error; const factory = CustomError();',
+			output: 'declare function CustomError(): () => Error; const factory = new CustomError();',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'throw-new-error'}],
+		},
+		{
+			...typeAware(outdent`
+				declare function CustomError(kind: 'factory'): () => Error;
+				declare function CustomError(kind: 'instance'): Error;
+				const factory = CustomError('factory');
+				const error = CustomError('instance');
+			`),
+			output: outdent`
+				declare function CustomError(kind: 'factory'): () => Error;
+				declare function CustomError(kind: 'instance'): Error;
+				const factory = CustomError('factory');
+				const error = new CustomError('instance');
+			`,
+			errors: [{messageId: 'throw-new-error', line: 4}],
+		},
+		...[
+			['const error = Error();', 'const error = new Error();'],
+			[
+				'declare function CustomError(): Error; const error = CustomError();',
+				'declare function CustomError(): Error; const error = new CustomError();',
+			],
+			[
+				'declare function CustomError(): any; const error = CustomError();',
+				'declare function CustomError(): any; const error = new CustomError();',
+			],
+			[
+				'declare function CustomError(): unknown; const error = CustomError();',
+				'declare function CustomError(): unknown; const error = new CustomError();',
+			],
+			['const error = UnresolvedError();', 'const error = new UnresolvedError();'],
+			[
+				'declare function CustomError(error: Error): () => Error; const factory = CustomError(TypeError());',
+				'declare function CustomError(error: Error): () => Error; const factory = CustomError(new TypeError());',
+			],
+		].map(([code, output]) => ({
+			...typeAware(code),
+			output,
+			errors: [{messageId: 'throw-new-error'}],
+		})),
+	],
 });
