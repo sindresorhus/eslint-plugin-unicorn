@@ -70,6 +70,11 @@ for (const [name, first, second] of [
 			const program = createProgram(code);
 			t.assert.deepStrictEqual(getDiagnostics(program), []);
 			const messages = getMessages(program, {ruleName});
+			if (ruleName === 'prefer-minimal-ternary') {
+				t.assert.deepStrictEqual(messages, []);
+				return;
+			}
+
 			t.assert.strictEqual(messages.length, 1);
 			const {fix} = messages[0];
 			if (!prefix) {

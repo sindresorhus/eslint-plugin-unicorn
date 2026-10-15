@@ -358,10 +358,10 @@ function getExpressionItems(node) {
 }
 
 /**
-Check whether factoring the branches preserves their types, using type information when available.
+Check whether factoring the branches preserves their types, or return undefined when type information is unavailable.
 */
-export function isTypeSafeToMinimize(consequent, alternate, context) {
-	const typeSafe = withTypeInformation(consequent, context, ({type, checker}) => {
+export function getTypeSafetyToMinimize(consequent, alternate, context) {
+	return withTypeInformation(consequent, context, ({type, checker}) => {
 		const {parserServices} = context.sourceCode;
 		const areTypesCompatible = (left, right) => checker.isTypeAssignableTo(left, right)
 			&& checker.isTypeAssignableTo(right, left);
@@ -446,10 +446,12 @@ export function isTypeSafeToMinimize(consequent, alternate, context) {
 
 		return true;
 	});
-	if (typeSafe !== undefined) {
-		return typeSafe;
-	}
+}
 
+/**
+Check whether factoring the branches is safe without type information.
+*/
+export function isSyntaxSafeToMinimize(consequent, alternate, context) {
 	if (
 		consequent.type !== 'ObjectExpression'
 		|| (!context.sourceCode.parserServices?.esTreeNodeToTSNodeMap && !isTypeScriptFile(context.physicalFilename))
@@ -461,6 +463,13 @@ export function isTypeSafeToMinimize(consequent, alternate, context) {
 	const differentIndex = getMinimalDifferentItemIndex(consequentItems, getExpressionItems(alternate), context);
 	// Shared non-literal values can lose branch narrowing when moved outside the ternary.
 	return consequentItems.every((item, index) => index === differentIndex || item.type === 'Literal');
+}
+
+/**
+Check whether factoring the branches preserves their types, using type information when available.
+*/
+export function isTypeSafeToMinimize(consequent, alternate, context) {
+	return getTypeSafetyToMinimize(consequent, alternate, context) ?? isSyntaxSafeToMinimize(consequent, alternate, context);
 }
 
 /**
