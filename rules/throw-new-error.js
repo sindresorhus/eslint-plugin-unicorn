@@ -1,5 +1,5 @@
 import {isMemberExpression} from './ast/index.js';
-import {hasOptionalChainElement} from './utils/index.js';
+import {hasOptionalChainElement, withTypeInformation} from './utils/index.js';
 import {switchCallExpressionToNewExpression} from './fix/index.js';
 
 const messageId = 'throw-new-error';
@@ -50,6 +50,10 @@ const create = context => {
 				computed: false,
 			})
 		) {
+			return;
+		}
+
+		if (withTypeInformation(node, context, ({type}) => type.getCallSignatures().length > 0 || type.getConstructSignatures().length > 0)) {
 			return;
 		}
 
