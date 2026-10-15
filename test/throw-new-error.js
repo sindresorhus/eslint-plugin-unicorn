@@ -135,7 +135,7 @@ test({
 test({
 	valid: [
 		'class B extends Schema.TaggedError()(\'B\', {message: Schema.String}) {}',
-		'class C extends Schema.Error()({message: Schema.String}) {}',
+		'class C extends Schema.Error(\'C\')({message: Schema.String}) {}',
 		'const factory = CustomError()(options);',
 		'const factory = (CustomError())(options);',
 	],
@@ -161,7 +161,7 @@ test({
 test.typescript({
 	valid: [
 		'class B extends Schema.TaggedError<B>()(\'B\', {message: Schema.String}) {}',
-		'class C extends Schema.Error<C>()({message: Schema.String}) {}',
+		'class C extends Schema.Error<C>(\'C\')({message: Schema.String}) {}',
 		'class B extends RenamedSchema.TaggedError<B>()(\'B\', {message: RenamedSchema.String}) {}',
 		'class B extends TaggedError<B>()(\'B\', {message: Schema.String}) {}',
 	],

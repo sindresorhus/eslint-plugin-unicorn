@@ -11,6 +11,8 @@
 
 While it's possible to create a new error without using the `new` keyword, it's better to be explicit.
 
+This rule identifies error constructors by names such as `Error`, `TypeError`, and `CustomError`. Calls whose results are immediately called are ignored because they may be factories.
+
 ## Examples
 
 ```js
