@@ -7,7 +7,8 @@ import {
 } from './utils/index.js';
 import {
 	isMinimalTernary,
-	isTypeSafeToMinimize,
+	getTypeSafetyToMinimize,
+	isSyntaxSafeToMinimize,
 	getMinimalExpressionText,
 	minimalTernaryOptionsSchema,
 	minimalTernaryDefaultOptions,
@@ -69,6 +70,11 @@ const create = context => {
 			return;
 		}
 
+		const typeSafety = getTypeSafetyToMinimize(node.consequent, node.alternate, context);
+		if (typeSafety === false) {
+			return;
+		}
+
 		const problem = {
 			node,
 			messageId: MESSAGE_ID,
@@ -77,7 +83,7 @@ const create = context => {
 			yield fixMinimalTernary(node, context, fixer, abort);
 		};
 
-		if (isTypeSafeToMinimize(node.consequent, node.alternate, context)) {
+		if (typeSafety ?? isSyntaxSafeToMinimize(node.consequent, node.alternate, context)) {
 			problem.fix = fix;
 		} else if (node.consequent.type === 'ObjectExpression') {
 			problem.suggest = [{messageId: MESSAGE_ID, fix}];

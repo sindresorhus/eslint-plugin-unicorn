@@ -73,13 +73,13 @@ Only shallow cases are reported; nested expressions are not recursively minimize
 
 Matching ignores comments and whitespace between tokens, including in TypeScript type arguments, and trailing commas in directly shared object literals. String, template, regex, and JSX text contents and other punctuation remain significant. Shared expressions containing functions or classes require identical source text.
 
-## Autofix limitations
+## Limitations
 
 Comments, unsafe evaluation reordering, Vue directive attributes, and statement bodies inside Vue interpolations prevent autofixes.
 
-With [type information](https://typescript-eslint.io/getting-started/typed-linting/), fixes that could change narrowing, overload resolution, generic inference, or correlated types are withheld, as are fixes for shared-callee calls and constructors with rest parameters. These checks are best-effort; review type-sensitive fixes.
+With [type information](https://typescript-eslint.io/getting-started/typed-linting/), the rule ignores ternaries whose minimization could change narrowing, overload resolution, generic inference, or correlated types, as well as shared-callee calls and constructors with rest parameters. These conservative checks can also skip safe transformations. They are best-effort; review type-sensitive fixes.
 
-TypeScript object autofixes require type information for shared non-literal values, even safe identifiers. When type safety blocks an object autofix, the rule offers a suggestion subject to runtime and comment safeguards; review it for lost narrowing.
+Without type information, TypeScript objects with shared non-literal values, even safe identifiers, receive suggestions instead of autofixes. Suggestions are subject to runtime and comment safeguards; review them for lost narrowing.
 
 TypeScript `const enum` receivers are ignored when type information is available, since conditional receivers and keys would not compile.
 
