@@ -14,10 +14,11 @@ const customError = /^(?:[A-Z][\da-z]*)*Error$/;
 */
 const create = context => {
 	context.on('CallExpression', node => {
-		// A decorator and a tagged template both use the call's return value, `new` produces the constructed instance instead
+		// Decorators, template tags, and calls used as callees rely on the return value; `new` produces the constructed instance instead
 		if (
 			node.parent.type === 'Decorator'
 			|| (node.parent.type === 'TaggedTemplateExpression' && node.parent.tag === node)
+			|| (node.parent.type === 'CallExpression' && node.parent.callee === node)
 		) {
 			return;
 		}

@@ -130,3 +130,35 @@ test({
 	],
 	invalid: [],
 });
+
+// Error factories return functions, not error instances.
+test({
+	valid: [
+		'class B extends Schema.TaggedError()(\'B\', {message: Schema.String}) {}',
+		'class C extends Schema.Error()({message: Schema.String}) {}',
+		'const factory = CustomError()(options);',
+		'const factory = (CustomError())(options);',
+	],
+	invalid: [
+		{
+			code: 'consume(CustomError());',
+			output: 'consume(new CustomError());',
+			errors: [{messageId: 'throw-new-error'}],
+		},
+		{
+			code: 'const ErrorClass = CustomError(Error())(TypeError());',
+			output: 'const ErrorClass = CustomError(new Error())(new TypeError());',
+			errors: [{messageId: 'throw-new-error'}, {messageId: 'throw-new-error'}],
+		},
+	],
+});
+
+test.typescript({
+	valid: [
+		'class B extends Schema.TaggedError<B>()(\'B\', {message: Schema.String}) {}',
+		'class C extends Schema.Error<C>()({message: Schema.String}) {}',
+		'class B extends RenamedSchema.TaggedError<B>()(\'B\', {message: RenamedSchema.String}) {}',
+		'class B extends TaggedError<B>()(\'B\', {message: Schema.String}) {}',
+	],
+	invalid: [],
+});
