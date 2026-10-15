@@ -20,6 +20,7 @@ const knownPureExports = new Map([
 	['vue', new Set(['defineComponent'])],
 	['eslint/config', new Set(['defineConfig', 'globalIgnores'])],
 	['@eslint/config-helpers', new Set(['defineConfig', 'globalIgnores', 'convertIgnorePatternToMinimatch'])],
+	['@stylistic/eslint-plugin', new Set(['configs.customize'])],
 	['stylelint', new Set(['createPlugin'])],
 	['vite', new Set(['defineConfig'])],
 	['vitest/config', new Set(['defineConfig', 'defineProject'])],

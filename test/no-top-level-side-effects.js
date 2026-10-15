@@ -686,13 +686,17 @@ test({
 	],
 });
 
-const memberPathOptions = [{allow: {'@stylistic/eslint-plugin': ['configs.customize'], '@company/config': ['config.builders.create'], '@company/named': ['builders.create']}}];
+const memberPathOptions = [{allow: {'@company/config': ['config.builders.create'], '@company/named': ['builders.create']}}];
 
 testDefaultExports({
 	valid: [
 		'import stylistic from "@stylistic/eslint-plugin"; export default stylistic.configs.customize({jsx: false});',
 		'import {default as stylistic} from "@stylistic/eslint-plugin"; export default stylistic.configs.customize({jsx: false});',
 		'import {"default" as stylistic} from "@stylistic/eslint-plugin"; export default stylistic.configs.customize({jsx: false});',
+		'import * as stylistic from "@stylistic/eslint-plugin"; export default stylistic.configs.customize({jsx: false});',
+		'import {defineConfig} from "eslint/config"; import stylistic from "@stylistic/eslint-plugin"; export default defineConfig([stylistic.configs.customize({jsx: false})]);',
+		'import stylistic from "@stylistic/eslint-plugin"; export {}; stylistic.configs.customize({jsx: false});',
+		'import helpers from "@company/config"; export default helpers.config.builders.create({});',
 		'import * as helpers from "@company/config"; export default helpers.config.builders.create({});',
 		'import {builders} from "@company/named"; export default builders.create({});',
 		'import {builders as configuration} from "@company/named"; export {}; configuration.create({});',

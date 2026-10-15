@@ -38,6 +38,7 @@ Direct calls to these imported helpers are allowed:
 - `vue`: `defineComponent`.
 - `eslint/config` and `@eslint/config-helpers`: `defineConfig` and `globalIgnores`.
 - `@eslint/config-helpers`: `convertIgnorePatternToMinimatch`.
+- `@stylistic/eslint-plugin`: `configs.customize`.
 - `stylelint`: `createPlugin`.
 - `vite`, `rollup`, and `astro/config`: `defineConfig`.
 - `vitest/config`: `defineConfig` and `defineProject`.
@@ -137,9 +138,8 @@ For default imports (including `import {default as configuration}`) and namespac
 	{
 		checkDefaultExports: true,
 		allow: {
-			'@company/config': ['defineConfig'],
+			'@company/config': ['defineConfig', 'configs.customize'],
 			'@company/wrapper': ['default'],
-			'@stylistic/eslint-plugin': ['configs.customize'],
 		},
 	},
 ]
