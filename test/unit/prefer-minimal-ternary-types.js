@@ -278,6 +278,19 @@ const cases = [
 		syntaxFix: false,
 	},
 	{
+		name: 'discriminated object properties with a destructured discriminant',
+		declarations: outdent`
+			type Entry = {kind: "text"; value: string} | {kind: "number"; value: number};
+			declare const entry: Entry;
+			const {kind, value} = entry;
+		`,
+		resultType: 'Entry',
+		expression: 'kind === "text" ? {kind: "text", value} : {kind: "number", value}',
+		unsafeExpression: '({kind: kind === "text" ? "text" : "number", value})',
+		diagnostic: 2322,
+		syntaxFix: false,
+	},
+	{
 		name: 'discriminated object properties with an aliased condition',
 		declarations: 'type Thing = {type: "a"; property: number} | {type: "b"; property: string}; declare const type: Thing["type"]; const isA = type === "a";',
 		resultType: 'Thing',

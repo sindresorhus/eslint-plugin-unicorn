@@ -77,7 +77,7 @@ Matching ignores comments and whitespace between tokens, including in TypeScript
 
 Comments, unsafe evaluation reordering, Vue directive attributes, and statement bodies inside Vue interpolations prevent autofixes.
 
-With [type information](https://typescript-eslint.io/getting-started/typed-linting/), the rule ignores ternaries whose minimization could change narrowing, overload resolution, generic inference, or correlated types, as well as shared-callee calls and constructors with rest parameters. These checks are best-effort; review type-sensitive fixes.
+With [type information](https://typescript-eslint.io/getting-started/typed-linting/), the rule ignores ternaries whose minimization could change narrowing, overload resolution, generic inference, or correlated types, as well as shared-callee calls and constructors with rest parameters. These conservative checks can also skip safe transformations. They are best-effort; review type-sensitive fixes.
 
 Without type information, TypeScript objects with shared non-literal values, even safe identifiers, receive suggestions instead of autofixes. Suggestions are subject to runtime and comment safeguards; review them for lost narrowing.
 
