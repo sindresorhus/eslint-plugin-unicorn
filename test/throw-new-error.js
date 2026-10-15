@@ -146,6 +146,11 @@ test({
 			errors: [{messageId: 'throw-new-error'}],
 		},
 		{
+			code: 'const message = CustomError().toString();',
+			output: 'const message = new CustomError().toString();',
+			errors: [{messageId: 'throw-new-error'}],
+		},
+		{
 			code: 'const ErrorClass = CustomError(Error())(TypeError());',
 			output: 'const ErrorClass = CustomError(new Error())(new TypeError());',
 			errors: [{messageId: 'throw-new-error'}, {messageId: 'throw-new-error'}],
