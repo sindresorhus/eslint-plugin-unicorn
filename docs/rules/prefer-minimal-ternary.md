@@ -73,7 +73,7 @@ Only shallow cases are reported; nested expressions are not recursively minimize
 
 Matching ignores comments and whitespace between tokens, including in TypeScript type arguments, and trailing commas in directly shared object literals. String, template, regex, and JSX text contents and other punctuation remain significant. Shared expressions containing functions or classes require identical source text.
 
-## Autofix limitations
+## Limitations
 
 Comments, unsafe evaluation reordering, Vue directive attributes, and statement bodies inside Vue interpolations prevent autofixes.
 
