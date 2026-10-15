@@ -656,6 +656,7 @@ test({
 		'export default [globalIgnores(["dist/"])];',
 		'import stylelint from "stylelint"; const {createPlugin} = stylelint; export default createPlugin("my/rule", rule);',
 		'import stylistic from "@stylistic/eslint-plugin"; export default stylistic.configs.customize({jsx: false});',
+		'import stylistic from "@stylistic/eslint-plugin"; export {}; stylistic.configs.customize({jsx: false});',
 		typescriptCode('export default createConfig() satisfies Config;'),
 		{
 			code: 'export default init();',
@@ -667,6 +668,10 @@ test({
 		},
 	],
 	invalid: [
+		{
+			code: 'import stylistic from "@stylistic/eslint-plugin"; export {}; stylistic.configs.customize({jsx: initialize()});',
+			errors: [{messageId: 'no-top-level-side-effects'}],
+		},
 		{
 			code: 'export default createConfig();\ninit();',
 			filename: 'eslint.config.js',
@@ -693,7 +698,6 @@ testDefaultExports({
 		'import stylistic from "@stylistic/eslint-plugin"; export default stylistic.configs.customize({jsx: false});',
 		'import {default as stylistic} from "@stylistic/eslint-plugin"; export default stylistic.configs.customize({jsx: false});',
 		'import {"default" as stylistic} from "@stylistic/eslint-plugin"; export default stylistic.configs.customize({jsx: false});',
-		'import * as stylistic from "@stylistic/eslint-plugin"; export default stylistic.configs.customize({jsx: false});',
 		'import {defineConfig} from "eslint/config"; import stylistic from "@stylistic/eslint-plugin"; export default defineConfig([stylistic.configs.customize({jsx: false})]);',
 		'import stylistic from "@stylistic/eslint-plugin"; export {}; stylistic.configs.customize({jsx: false});',
 		'import helpers from "@company/config"; export default helpers.config.builders.create({});',
@@ -715,6 +719,7 @@ testDefaultExports({
 		'import stylistic from "@stylistic/eslint-plugin"; const configuration = stylistic.configs; export default configuration.customize({});',
 		'import {builders} from "@company/named"; export default builders.other({});',
 		'import {builders} from "@company/named"; const {other} = builders; export default other({});',
+		'import {builders as configuration} from "@company/named"; const {create: build} = configuration; export default build(initialize());',
 		'export default stylistic.configs.customize({});',
 		typescriptCode('import type stylistic from "@stylistic/eslint-plugin"; export default stylistic.configs.customize({});'),
 	].map(testCase => ({...(typeof testCase === 'string' ? {code: testCase} : testCase), options: memberPathOptions, errors: [{messageId: 'no-top-level-side-effects'}]})),
@@ -753,6 +758,8 @@ for (const moduleName of ['eslint/config', '@eslint/config-helpers']) {
 testDefaultExports({
 	valid: [
 		'import {convertIgnorePatternToMinimatch} from "@eslint/config-helpers"; export default convertIgnorePatternToMinimatch("dist/");',
+		'import {convertIgnorePatternToMinimatch as convert} from "@eslint/config-helpers"; export {}; convert("dist/");',
+		typescriptCode('import * as helpers from "@eslint/config-helpers"; export default [helpers.convertIgnorePatternToMinimatch("dist/")] satisfies string[];'),
 		'import {globalIgnores, convertIgnorePatternToMinimatch} from "@eslint/config-helpers"; export default globalIgnores([convertIgnorePatternToMinimatch("dist/")]);',
 		'import stylelint from "stylelint"; export default stylelint.createPlugin("my/rule", rule);',
 		'import {default as stylelint} from "stylelint"; export default stylelint.createPlugin("my/rule", rule);',
