@@ -4,12 +4,12 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
-const typeAware = code => ({
+const typeAware = (code, filename = 'file.ts') => ({
 	code,
-	filename: 'file.ts',
+	filename,
 	languageOptions: {
 		parser: typescriptEslintParser,
-		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+		parserOptions: {projectService: {allowDefaultProject: ['file.*']}},
 	},
 });
 
@@ -26,6 +26,8 @@ test.snapshot({
 		`),
 		typeAware('declare const value: "a" | "b" | "c"; value === "a" || value === "b" || value === "c";'),
 		typeAware('declare const value: 1 | 2 | 3; value === 1 || value === 2 || value === 3;'),
+		typeAware('declare const value: string | number; value === "a" || value === "b" || value === "c";'),
+		typeAware('/** @param {"a" | "b" | "c"} value */ function check(value) { return value === "a" || value === "b" || value === "c"; }', 'file.js'),
 		typeAware('declare const object: {value: "a" | "b" | "c"}; "a" === object.value || object.value === "b" || "c" === object.value;'),
 		...[
 			'((value))',
@@ -192,5 +194,7 @@ test.snapshot({
 			code: 'declare const value: "a" | "b" | "c"; value === "a" || value === "b" || value === "c";',
 			languageOptions: {parser: parsers.typescript},
 		},
+		typeAware('declare const value: string | number; if (typeof value === "string") { value === "a" || value === "b" || value === "c"; }'),
+		typeAware('/** @param {string} value */ function check(value) { return value === "a" || value === "b" || value === "c"; }', 'file.js'),
 	],
 });
