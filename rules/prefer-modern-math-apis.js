@@ -148,8 +148,6 @@ function flatPlusExpression(node, plusExpressions) {
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	const nodes = [];
-
 	context.on('CallExpression', callExpression => {
 		if (!isMethodCall(callExpression, {
 			object: 'Math',
@@ -210,18 +208,12 @@ const create = context => {
 		};
 	});
 
-	context.on('BinaryExpression', node => {
-		nodes.push(node);
-	});
+	context.on('BinaryExpression', function * (node) {
+		for (const getProblem of checkFunctions) {
+			const problem = getProblem(node, context);
 
-	context.on('Program:exit', function * () {
-		for (const node of nodes) {
-			for (const getProblem of checkFunctions) {
-				const problem = getProblem(node, context);
-
-				if (problem) {
-					yield problem;
-				}
+			if (problem) {
+				yield problem;
 			}
 		}
 	});
