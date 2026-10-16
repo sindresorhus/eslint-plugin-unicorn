@@ -116,6 +116,7 @@ const create = context => {
 	context.on('TemplateLiteral', node => {
 		if (
 			(node.parent.type === 'TaggedTemplateExpression' && node.parent.quasi === node)
+			|| isStringLiteralRequired(node)
 			|| node.quasis.every(({value: {cooked, raw}}) => cooked === raw)
 			|| node.quasis.some(({value: {cooked, raw}}) => cooked.at(-1) === BACKSLASH || unescapeBackslash(raw) !== cooked)
 			|| isJestInlineSnapshot(node)

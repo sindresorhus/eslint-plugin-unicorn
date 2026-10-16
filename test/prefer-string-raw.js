@@ -31,7 +31,10 @@ const getSuggestionCase = (code, output) => ({
 });
 
 test.typescript({
-	valid: [],
+	valid: [
+		`type Path = \`${TEST_STRING}\`;`,
+		`enum Paths {File = \`${TEST_STRING}\`}`,
+	],
 	invalid: [
 		getSuggestionCase(
 			String.raw`type Separator = 'a\\b' | 'c\\d'; const separator: Separator = 'a\\b';`,
@@ -114,6 +117,23 @@ for (const expression of [`'${TEST_STRING}'`, `\`${TEST_STRING}\``]) {
 		],
 	});
 }
+
+const returnedTemplate = 'declare const suffix: string; function path(): string {return`a\\\\b${suffix}`;}';
+const returnedRawTemplate = 'declare const suffix: string; function path(): string {return String.raw`a\\b${suffix}`;}';
+test({
+	valid: [],
+	invalid: [
+		{
+			...typescript(returnedTemplate),
+			...getSuggestionCase(returnedTemplate, returnedRawTemplate),
+		},
+		{
+			...typeAware(returnedTemplate),
+			output: returnedRawTemplate,
+			errors: [{messageId: 'prefer-string-raw'}],
+		},
+	],
+});
 
 test({
 	valid: [],
