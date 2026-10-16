@@ -208,6 +208,52 @@ Message:
 
 `;
 
+exports[`prefer-includes-over-repeated-comparisons > invalid(21): declare const value: string; value === \"a\" || value === \"b\" || value === \"c\"; 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: string; value === "a" || value === "b" || value === "c";
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(21): declare const value: string; value === \"a\" || value === \"b\" || value === \"c\"; 2`] = `
+
+Message:
+> 1 | declare const value: string; value === "a" || value === "b" || value === "c";
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(22): declare const value: number; value === 1 || value === 2 || value === 3; 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: number; value === 1 || value === 2 || value === 3;
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(22): declare const value: number; value === 1 || value === 2 || value === 3; 2`] = `
+
+Message:
+> 1 | declare const value: number; value === 1 || value === 2 || value === 3;
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(23): declare const value: \"a\" | \"b\" | \"c\"; value === \"a\" || value === \"b\" || value === \"c\"; 1`] = `
+
+  1 | declare const value: "a" | "b" | "c"; value === "a" || value === "b" || value === "c";
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(23): declare const value: \"a\" | \"b\" | \"c\"; value === \"a\" || value === \"b\" || value === \"c\"; 2`] = `
+
+Message:
+> 1 | declare const value: "a" | "b" | "c"; value === "a" || value === "b" || value === "c";
+    |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
 exports[`prefer-includes-over-repeated-comparisons > invalid(3): value === undefined || value === \"a\" || value === \"b\"; 1`] = `
 
   1 | value === undefined || value === "a" || value === "b";

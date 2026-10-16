@@ -4,6 +4,7 @@ import {
 	getStaticValueIfNoSideEffects,
 	isOutermostLogicalExpression,
 	unwrapTypeScriptExpression,
+	withTypeInformation,
 } from './utils/index.js';
 import {isUndefined} from './ast/index.js';
 import {
@@ -97,6 +98,11 @@ const create = context => {
 					&& !isNaNValue(comparedValue, context);
 			})
 		) {
+			return;
+		}
+
+		// Equality checks can narrow unions, but `.includes()` cannot.
+		if (withTypeInformation(unwrapTypeScriptExpression(sharedReference), context, ({type}) => type.isUnion())) {
 			return;
 		}
 

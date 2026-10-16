@@ -1,10 +1,43 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
+
 test.snapshot({
 	valid: [
+		typeAware(outdent`
+			type Spec = {type: 'range' | 'tag' | 'version'; name: string} | {type: 'git'; name: null};
+
+			const getName = (spec: Spec): string | undefined => {
+				if (spec.type === 'range' || spec.type === 'tag' || spec.type === 'version') {
+					return spec.name;
+				}
+			};
+		`),
+		typeAware('declare const value: "a" | "b" | "c"; value === "a" || value === "b" || value === "c";'),
+		typeAware('declare const value: 1 | 2 | 3; value === 1 || value === 2 || value === 3;'),
+		typeAware('declare const object: {value: "a" | "b" | "c"}; "a" === object.value || object.value === "b" || "c" === object.value;'),
+		...[
+			'((value))',
+			'value!',
+			'(value as string)',
+			'(<string>value)',
+			'(value satisfies string)',
+		].map(reference => typeAware(`declare const value: "a" | "b" | "c"; ${reference} === "a" || ${reference} === "b" || ${reference} === "c";`)),
+		{
+			...typeAware('declare const value: "a" | "b"; "a" === value || "b" === value;'),
+			options: [{minimumComparisons: 2}],
+		},
 		'value === "a";',
 		'value === "a" || otherValue === "b";',
 		'value == "a" || value == "b";',
@@ -151,6 +184,12 @@ test.snapshot({
 		},
 		{
 			code: '(object satisfies Foo).value === "a" || (object satisfies Foo).value === "b" || (object satisfies Foo).value === "c";',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('declare const value: string; value === "a" || value === "b" || value === "c";'),
+		typeAware('declare const value: number; value === 1 || value === 2 || value === 3;'),
+		{
+			code: 'declare const value: "a" | "b" | "c"; value === "a" || value === "b" || value === "c";',
 			languageOptions: {parser: parsers.typescript},
 		},
 	],
