@@ -17,6 +17,8 @@ It also flags the equivalent operator idioms when the value is already the targe
 
 The check is syntactic, so it catches the common cases without type information, and uses TypeScript type information when it is available.
 
+In TypeScript, `Boolean()` calls inside functions without explicit return annotations are ignored because removing them can introduce inferred type predicates.
+
 For redundant wrapper callbacks like `array.map(x => String(x))`, see [`prefer-native-coercion-functions`](./prefer-native-coercion-functions.md). For `Boolean()` casts inside array predicate callbacks, see [`no-useless-boolean-cast`](./no-useless-boolean-cast.md).
 
 ## Examples

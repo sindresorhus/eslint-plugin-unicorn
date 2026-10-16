@@ -1,10 +1,11 @@
-import {isEmptyStringLiteral} from './ast/index.js';
+import {isEmptyStringLiteral, isFunction} from './ast/index.js';
 import {
 	isBoolean,
 	isString,
 	isNumber,
 	isBigInt,
 	isGlobalIdentifier,
+	isTypeScriptFile,
 } from './utils/index.js';
 import {replaceNodeWithExpression} from './fix/index.js';
 
@@ -31,6 +32,7 @@ const coercions = new Map([
 */
 const create = context => {
 	const {sourceCode} = context;
+	const isTypeScript = isTypeScriptFile(context.physicalFilename) || Boolean(sourceCode.parserServices?.esTreeNodeToTSNodeMap);
 
 	// Build a problem that removes the coercion `node` in favor of its inner `expression`.
 	const getProblem = (node, expression, description, type) => ({
@@ -69,6 +71,14 @@ const create = context => {
 
 		if (!isGlobalIdentifier(callExpression.callee, context)) {
 			return;
+		}
+
+		// `Boolean()` can suppress inferred type predicates in functions without return annotations.
+		if (name === 'Boolean' && isTypeScript) {
+			const functionNode = sourceCode.getAncestors(callExpression).findLast(isFunction);
+			if (functionNode && !functionNode.returnType) {
+				return;
+			}
 		}
 
 		const [argument] = callExpression.arguments;
