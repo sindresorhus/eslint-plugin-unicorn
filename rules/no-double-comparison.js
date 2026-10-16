@@ -2,6 +2,7 @@ import {
 	getParenthesizedRange,
 	getParenthesizedText,
 	getStaticValueForControlFlow,
+	isParenthesized,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {
@@ -50,6 +51,16 @@ const isCommentWithinOperand = (comment, operand, context) => {
 };
 
 /**
+Get comparison operand text with TypeScript assertions grouped so they continue to apply to the operand.
+*/
+function getComparisonOperandText(node, context) {
+	const text = getParenthesizedText(node, context);
+	return !isParenthesized(node, context) && ['TSAsExpression', 'TSSatisfiesExpression'].includes(node.type)
+		? `(${text})`
+		: text;
+}
+
+/**
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
@@ -86,8 +97,8 @@ const create = context => {
 			return;
 		}
 
-		const leftText = getParenthesizedText(left.left, context);
-		const rightText = getParenthesizedText(left.right, context);
+		const leftText = getComparisonOperandText(left.left, context);
+		const rightText = getComparisonOperandText(left.right, context);
 		const replacement = `${leftText} ${reduction.operator} ${rightText}`;
 
 		const problem = {

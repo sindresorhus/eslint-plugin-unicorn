@@ -5,6 +5,7 @@ import {
 	isParenthesized,
 	isGlobalIdentifier,
 	shouldAddParenthesesToUnaryExpressionArgument,
+	shouldAddParenthesesToComparison,
 } from './utils/index.js';
 import {replaceNodeOrTokenAndSpacesBefore, fixSpaceAroundKeyword} from './fix/index.js';
 import builtinErrors from './shared/builtin-errors.js';
@@ -96,6 +97,8 @@ const replaceWithTypeOfExpression = (node, context, constructorName) => function
 	yield fixSpaceAroundKeyword(fixer, node, context);
 
 	const leftRange = getParenthesizedRange(left, {sourceCode: tokenStore});
+	const needsParentheses = shouldAddParenthesesToComparison(node, context);
+	const prefix = needsParentheses ? '(' : '';
 
 	// Wrap a low-precedence left operand so `typeof` applies to the whole expression,
 	// e.g. `a + b instanceof Function` -> `typeof (a + b) === 'function'`.
@@ -103,17 +106,17 @@ const replaceWithTypeOfExpression = (node, context, constructorName) => function
 		!isParenthesized(left, context)
 		&& shouldAddParenthesesToUnaryExpressionArgument(left, 'typeof')
 	) {
-		yield fixer.insertTextBeforeRange(leftRange, 'typeof (');
+		yield fixer.insertTextBeforeRange(leftRange, prefix + 'typeof (');
 		yield fixer.insertTextAfterRange(leftRange, ')');
 	} else {
-		yield fixer.insertTextBeforeRange(leftRange, 'typeof ');
+		yield fixer.insertTextBeforeRange(leftRange, prefix + 'typeof ');
 	}
 
 	yield fixer.replaceText(instanceofToken, '===');
 
 	const rightRange = getParenthesizedRange(right, {sourceCode: tokenStore});
 
-	yield fixer.replaceTextRange(rightRange, safeQuote + constructorName.toLowerCase() + safeQuote);
+	yield fixer.replaceTextRange(rightRange, safeQuote + constructorName.toLowerCase() + safeQuote + (needsParentheses ? ')' : ''));
 };
 
 function getConstructor(node, context) {

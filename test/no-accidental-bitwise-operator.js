@@ -2,6 +2,25 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		['ready && value | \'\';', 'ready && (value || \'\');'],
+		['obj & obj.prop | fallback;', '(obj && obj.prop) | fallback;'],
+		['value | \'\' ?? fallback;', '(value || \'\') ?? fallback;'],
+		['fallback ?? value | \'\';', 'fallback ?? (value || \'\');'],
+		['ready && (value | \'\');', 'ready && (value || \'\');'],
+		['ready && value /* keep */ | \'\';', 'ready && (value /* keep */ || \'\');'],
+		['(obj & obj.prop) === expected;', '(obj && obj.prop) === expected;'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{
+			messageId: 'no-accidental-bitwise-operator/error',
+			suggestions: [{messageId: 'no-accidental-bitwise-operator/suggestion', output}],
+		}],
+	})),
+});
+
 test.snapshot({
 	valid: [
 		// Legitimate bitwise usage

@@ -220,6 +220,7 @@ export {checkVueTemplate} from './rule.js';
 export {default as getPrecedence, PRECEDENCE_ADDITION} from './get-precedence.js';
 export {default as shouldAddParenthesesToAwaitExpressionArgument} from './should-add-parentheses-to-await-expression-argument.js';
 export {default as shouldAddParenthesesToCallExpressionCallee} from './should-add-parentheses-to-call-expression-callee.js';
+export {default as shouldAddParenthesesToComparison} from './should-add-parentheses-to-comparison.js';
 export {default as shouldAddParenthesesToConditionalExpressionChild, getConditionalExpressionChildText} from './should-add-parentheses-to-conditional-expression-child.js';
 export {default as shouldAddParenthesesToMemberExpressionObject, getMemberExpressionObjectText} from './should-add-parentheses-to-member-expression-object.js';
 export {default as shouldAddParenthesesToUnaryExpressionArgument} from './should-add-parentheses-to-unary-expression.js';

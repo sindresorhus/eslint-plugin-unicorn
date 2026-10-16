@@ -154,7 +154,7 @@ Message:
     |                               ^^^^^ Prefer top-level await over an async function \`run\` call.
 
 Suggestion 1/1: Insert \`await\`.:
-  1 | async function run() {} cache[await run() as string] = value;
+  1 | async function run() {} cache[await (run() as string)] = value;
 
 `;
 
@@ -1538,7 +1538,7 @@ Message:
     |                              ^^^^^ Prefer top-level await over an async function \`foo\` call.
 
 Suggestion 1/1: Insert \`await\`.:
-  1 | const foo = async () => {}; (await foo() as Promise<void>);
+  1 | const foo = async () => {}; (await (foo() as Promise<void>));
 
 `;
 

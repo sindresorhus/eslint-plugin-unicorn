@@ -1,4 +1,4 @@
-import toLocation from './utils/to-location.js';
+import {shouldAddParenthesesToComparison, toLocation} from './utils/index.js';
 import {isMethodCall, isNegativeOne, isNumericLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'consistent-existence-index-check';
@@ -115,6 +115,11 @@ const create = context => {
 
 					if (replacement.replacementValue !== replacement.originalValue) {
 						yield fixer.replaceText(right, replacement.replacementValue);
+					}
+
+					if (shouldAddParenthesesToComparison(binaryExpression, context)) {
+						yield fixer.insertTextBefore(binaryExpression, '(');
+						yield fixer.insertTextAfter(binaryExpression, ')');
 					}
 				},
 			};

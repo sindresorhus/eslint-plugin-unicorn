@@ -1,4 +1,5 @@
 import {isStringLiteral, isBooleanLiteral, isFunction} from './ast/index.js';
+import {isParenthesized} from './utils/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
@@ -74,7 +75,17 @@ const create = context => {
 					/**
 					@param {ESLint.Rule.RuleFixer} fixer
 					*/
-					fix: fixer => fixer.replaceText(operatorToken, logicalOperator),
+					* fix(fixer) {
+						yield fixer.replaceText(operatorToken, logicalOperator);
+
+						if (
+							!isParenthesized(node, context)
+							&& ['BinaryExpression', 'LogicalExpression'].includes(node.parent.type)
+						) {
+							yield fixer.insertTextBefore(node, '(');
+							yield fixer.insertTextAfter(node, ')');
+						}
+					},
 				},
 			],
 		};

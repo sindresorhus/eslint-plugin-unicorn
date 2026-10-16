@@ -2,6 +2,28 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: ['as boolean', 'satisfies boolean'].flatMap(wrapper => [
+		{
+			code: `a < b < c ${wrapper}`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'no-chained-comparison/error', suggestions: []}],
+		},
+		{
+			code: `(a < b < c) ${wrapper}`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'no-chained-comparison/error',
+				suggestions: [{
+					messageId: 'no-chained-comparison/suggestion',
+					output: `(a < b && b < c) ${wrapper}`,
+				}],
+			}],
+		},
+	]),
+});
+
 test.snapshot({
 	valid: [
 		// Single comparison

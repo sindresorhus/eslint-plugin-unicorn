@@ -155,3 +155,42 @@ test.snapshot({
 		'const index = _.indexOf([1, 2, 1, 2], 2); index < 0;',
 	],
 });
+
+// Changing relational operators to equality operators must preserve the surrounding expression.
+test({
+	valid: [],
+	invalid: [
+		...[
+			['index < 0', 'index === -1'],
+			['index >= 0', 'index !== -1'],
+			['index > -1', 'index !== -1'],
+		].flatMap(([comparison, replacement]) => ['===', '!==', '==', '!='].map(operator => ({
+			code: `const index = list.indexOf(item); expected ${operator} ${comparison};`,
+			output: `const index = list.indexOf(item); expected ${operator} (${replacement});`,
+			errors: 1,
+		}))),
+		...[
+			['index < 0 < expected', '(index === -1) < expected'],
+			['index >= 0 === expected', '(index !== -1) === expected'],
+			['expected === (index < 0)', 'expected === (index === -1)'],
+			['expected === ((index < 0))', 'expected === ((index === -1))'],
+			['expected === index /* before */ < /* after */ 0', 'expected === (index /* before */ === /* after */ -1)'],
+			['index < 0 && expected', 'index === -1 && expected'],
+		].map(([comparison, replacement]) => ({
+			code: `const index = list.indexOf(item); ${comparison};`,
+			output: `const index = list.indexOf(item); ${replacement};`,
+			errors: 1,
+		})),
+		{
+			code: 'const index = list.indexOf(item); expected === index < 0; expected !== index >= 0;',
+			output: 'const index = list.indexOf(item); expected === (index === -1); expected !== (index !== -1);',
+			errors: 2,
+		},
+		...['as boolean', 'satisfies boolean'].map(wrapper => ({
+			code: `const index = list.indexOf(item); index < 0 ${wrapper};`,
+			output: `const index = list.indexOf(item); (index === -1) ${wrapper};`,
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		})),
+	],
+});

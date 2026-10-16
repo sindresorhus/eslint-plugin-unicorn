@@ -25,7 +25,7 @@ const isSafeForLogicalReplacement = (node, context) => {
 	}
 
 	const {parent} = node;
-	return parent.type !== 'BinaryExpression'
+	return !['BinaryExpression', 'TSAsExpression', 'TSSatisfiesExpression'].includes(parent.type)
 		&& !(parent.type === 'LogicalExpression' && parent.operator === '??');
 };
 

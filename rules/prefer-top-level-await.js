@@ -6,6 +6,7 @@ import {
 	isKnownNonPromise,
 	isLogicalExpression,
 	isParenthesized,
+	shouldAddParenthesesToAwaitExpressionArgument,
 } from './utils/index.js';
 
 const ERROR_PROMISE = 'promise';
@@ -330,9 +331,18 @@ function create(context) {
 			suggest: [
 				{
 					messageId: SUGGESTION_ADD_AWAIT,
-					fix: isLeftOperandOfExponentiation(expression, context)
-						? fixer => fixer.replaceText(expression, `(await ${sourceCode.getText(expression)})`)
-						: fixer => fixer.insertTextBefore(node, 'await '),
+					fix(fixer) {
+						const argumentText = sourceCode.getText(expression);
+						let text = shouldAddParenthesesToAwaitExpressionArgument(expression)
+							? `await (${argumentText})`
+							: `await ${argumentText}`;
+
+						if (isLeftOperandOfExponentiation(expression, context)) {
+							text = `(${text})`;
+						}
+
+						return fixer.replaceText(expression, text);
+					},
 				},
 			],
 		};

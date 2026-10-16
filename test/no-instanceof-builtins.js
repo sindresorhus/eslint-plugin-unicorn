@@ -3,6 +3,69 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		...['===', '!==', '==', '!='].map(operator => ({
+			code: `expected ${operator} value instanceof Function;`,
+			output: `expected ${operator} (typeof value === 'function');`,
+			errors: 1,
+		})),
+		{
+			code: 'value instanceof Function instanceof Object;',
+			output: '(typeof value === \'function\') instanceof Object;',
+			errors: 1,
+		},
+		{
+			code: 'expected === (value instanceof Function);',
+			output: 'expected === (typeof value === \'function\');',
+			errors: 1,
+		},
+		{
+			code: 'expected === a + b instanceof Function;',
+			output: 'expected === (typeof (a + b) === \'function\');',
+			errors: 1,
+		},
+		...['as boolean', 'satisfies boolean'].map(wrapper => ({
+			code: `value instanceof Function ${wrapper};`,
+			output: `(typeof value === 'function') ${wrapper};`,
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		})),
+		{
+			code: 'expected === value instanceof Number;',
+			errors: [{
+				messageId: 'no-instanceof-builtins',
+				suggestions: [{
+					messageId: 'switch-to-type-of',
+					output: 'expected === (typeof value === \'number\');',
+				}],
+			}],
+		},
+		{
+			code: 'expected === value /* keep */ instanceof Function;',
+			errors: 1,
+		},
+		{
+			code: '<template><div v-if="expected === value instanceof Function"></div></template>',
+			output: '<template><div v-if="expected === (typeof value === \'function\')"></div></template>',
+			languageOptions: {parser: parsers.vue},
+			errors: 1,
+		},
+		{
+			code: '<template><div v-if="expected === value instanceof Number"></div></template>',
+			languageOptions: {parser: parsers.vue},
+			errors: [{
+				messageId: 'no-instanceof-builtins',
+				suggestions: [{
+					messageId: 'switch-to-type-of',
+					output: '<template><div v-if="expected === (typeof value === \'number\')"></div></template>',
+				}],
+			}],
+		},
+	],
+});
+
 const looseStrategyInvalid = [
 	// Primitive types
 	'foo instanceof String',

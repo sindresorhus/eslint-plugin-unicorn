@@ -4,6 +4,26 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		['foo() as Promise<void>;', 'await (foo() as Promise<void>);'],
+		['foo() satisfies Promise<void>;', 'await (foo() satisfies Promise<void>);'],
+		['(foo() as Promise<void>);', '(await (foo() as Promise<void>));'],
+		['<Promise<void>>foo();', 'await <Promise<void>>foo();'],
+		['foo()!;', 'await foo()!;'],
+		['(/* before */ foo() /* after */ as Promise<void>);', '(/* before */ await (foo() /* after */ as Promise<void>));'],
+		['(foo() as Promise<void>) ** 2;', '(await (foo() as Promise<void>)) ** 2;'],
+	].map(([expression, replacement]) => ({
+		code: `async function foo() {} ${expression}`,
+		languageOptions: {parser: parsers.typescript},
+		errors: [{
+			messageId: 'identifier',
+			suggestions: [{messageId: 'add-await', output: `async function foo() {} ${replacement}`}],
+		}],
+	})),
+});
+
 const typeAware = code => ({
 	code,
 	filename: 'file.ts',
