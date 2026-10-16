@@ -3,6 +3,31 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		...['/* keep\n*/', '// keep\n'].map(comment => ({
+			code: `function* check(value) { yield typeof ${comment} value === 'undefined'; }`,
+			errors: [{messageId: 'no-typeof-undefined/error', suggestions: []}],
+		})),
+		{
+			code: 'function* check() { yield typeof // keep\nmissing === \'undefined\'; }',
+			options: [{checkGlobalVariables: true}],
+			errors: [{messageId: 'no-typeof-undefined/error', suggestions: []}],
+		},
+		...[
+			['yield (typeof // keep\nvalue === \'undefined\')', 'yield (// keep\nvalue === undefined)'],
+			['yield (typeof // keep\nvalue) === \'undefined\'', 'yield (// keep\nvalue) === undefined'],
+			['yield* typeof // keep\nvalue === \'undefined\'', 'yield* // keep\nvalue === undefined'],
+			['yield typeof value === \'undefined\'', 'yield value === undefined'],
+		].map(([expression, replacement]) => ({
+			code: `function* check(value) { ${expression}; }`,
+			output: `function* check(value) { ${replacement}; }`,
+			errors: 1,
+		})),
+	],
+});
+
 const ambientVariableComparisons = [
 	outdent`
 		declare const COMPILE_TIME_FLAG: boolean | undefined;

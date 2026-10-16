@@ -1,5 +1,6 @@
 import {
 	getCallArgumentText,
+	getConciseArrowBodyText,
 	getParenthesizedRange,
 	shouldAddParenthesesToAwaitExpressionArgument,
 	wouldRemoveComments,
@@ -218,12 +219,8 @@ function fix(callExpression, isInTryStatement, context) {
 			} else if (parent.type === 'ReturnStatement') {
 				text = `return${text ? ' ' : ''}${text};`;
 			} else {
-				if (errorOrValue?.type === 'ObjectExpression') {
-					text = `(${text})`;
-				}
-
 				// `=> Promise.resolve()` -> `=> {}`
-				text ||= '{}';
+				text = errorOrValue ? getConciseArrowBodyText(errorOrValue, context) : '{}';
 			}
 		}
 

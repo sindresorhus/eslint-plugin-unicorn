@@ -1,8 +1,7 @@
 import {
 	getParenthesizedRange,
-	getParenthesizedText,
+	getComparisonOperandText,
 	getStaticValueForControlFlow,
-	isParenthesized,
 	needsSemicolon,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
@@ -50,16 +49,6 @@ const isCommentWithinOperand = (comment, operand, context) => {
 	const [operandStart, operandEnd] = getParenthesizedRange(operand, context);
 	return commentStart >= operandStart && commentEnd <= operandEnd;
 };
-
-/**
-Get comparison operand text with TypeScript assertions grouped so they continue to apply to the operand.
-*/
-function getComparisonOperandText(node, context) {
-	const text = getParenthesizedText(node, context);
-	return !isParenthesized(node, context) && ['TSAsExpression', 'TSSatisfiesExpression'].includes(node.type)
-		? `(${text})`
-		: text;
-}
 
 /**
 @param {import('eslint').Rule.RuleContext} context

@@ -1,5 +1,10 @@
 import {fixSpaceAroundKeyword, addParenthesesToReturnOrThrowExpression} from './fix/index.js';
-import {needsSemicolon, isParenthesized, isOnSameLine} from './utils/index.js';
+import {
+	needsSemicolon,
+	isParenthesized,
+	isOnSameLine,
+	isUnparenthesizedYieldArgument,
+} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-negation-in-equality-check/error';
 const MESSAGE_ID_SUGGESTION = 'no-negation-in-equality-check/suggestion';
@@ -33,10 +38,20 @@ const create = context => {
 		const {sourceCode} = context;
 		const bangToken = sourceCode.getFirstToken(left);
 		const negatedOperator = `${operator.startsWith('!') ? '=' : '!'}${operator.slice(1)}`;
-
-		return {
+		const problem = {
 			node: bangToken,
 			messageId: MESSAGE_ID_ERROR,
+		};
+		if (
+			isUnparenthesizedYieldArgument(binaryExpression, context)
+			&& !isParenthesized(left, context)
+			&& !isOnSameLine(bangToken, sourceCode.getTokenAfter(bangToken), context)
+		) {
+			return problem;
+		}
+
+		return {
+			...problem,
 			/**
 			@param {import('eslint').Rule.RuleFixer} fixer
 			*/

@@ -3,6 +3,27 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: ['as boolean', 'satisfies boolean'].map(wrapper => ({
+		code: `function* foo(array) { yield !\narray.every(value => value) ${wrapper}; }`,
+		languageOptions: {parser: parsers.typescript},
+	})),
+	invalid: [
+		{
+			code: 'function* foo(array) { yield (!\narray.every(value => value)) as boolean; }',
+			output: 'function* foo(array) { yield (\narray.some(value => !value)) as boolean; }',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'function* foo(array) { yield <boolean>!\narray.every(value => value); }',
+			output: 'function* foo(array) { yield <boolean>\narray.some(value => !value); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+	],
+});
+
 test.snapshot({
 	valid: [
 		'array.some(element => test(element));',

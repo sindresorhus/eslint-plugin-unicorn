@@ -3,6 +3,33 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		...[
+			['foo()\narray.length > 0 && (array).some(Boolean)', 'foo()\n;(array).some(Boolean)'],
+			['foo()\narray.length === 0 || (array).every(Boolean)', 'foo()\n;(array).every(Boolean)'],
+			['const previous = value\narray.length !== 0 && (array.some)(Boolean)', 'const previous = value\n;(array.some)(Boolean)'],
+			['foo() // keep\narray.length > 0 && (array).some(Boolean)', 'foo() // keep\n;(array).some(Boolean)'],
+			['foo();\narray.length > 0 && (array).some(Boolean)', 'foo();\n(array).some(Boolean)'],
+			['if (ready)\narray.length > 0 && (array).some(Boolean)', 'if (ready)\n(array).some(Boolean)'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+		{
+			code: 'foo()\narray.length > 0 && (array as number[]).some(Boolean)',
+			output: 'foo()\n;(array as number[]).some(Boolean)',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'foo()\narray.length > 0 && (array).some(createPredicate())',
+			errors: [{
+				messageId: 'non-zero',
+				suggestions: [{messageId: 'remove-length-check', output: 'foo()\n;(array).some(createPredicate())'}],
+			}],
+		},
+	],
+});
+
 // Leading checks are autofixed when the call arguments have no side effects, and trailing checks when the callback is a pure inline arrow function
 test({
 	valid: [],

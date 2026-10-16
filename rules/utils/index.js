@@ -221,10 +221,12 @@ export {default as getPrecedence, PRECEDENCE_ADDITION} from './get-precedence.js
 export {default as shouldAddParenthesesToAwaitExpressionArgument} from './should-add-parentheses-to-await-expression-argument.js';
 export {default as shouldAddParenthesesToCallExpressionCallee} from './should-add-parentheses-to-call-expression-callee.js';
 export {default as shouldAddParenthesesToComparison} from './should-add-parentheses-to-comparison.js';
+export {default as getComparisonOperandText} from './get-comparison-operand-text.js';
 export {default as shouldAddParenthesesToConditionalExpressionChild, getConditionalExpressionChildText} from './should-add-parentheses-to-conditional-expression-child.js';
 export {default as shouldAddParenthesesToMemberExpressionObject, getMemberExpressionObjectText} from './should-add-parentheses-to-member-expression-object.js';
 export {default as shouldAddParenthesesToUnaryExpressionArgument} from './should-add-parentheses-to-unary-expression.js';
 export {default as getNegatedExpressionText} from './get-negated-expression-text.js';
+export {default as isUnparenthesizedYieldArgument} from './is-unparenthesized-yield-argument.js';
 export {default as shouldAddParenthesesToNewExpressionCallee} from './should-add-parentheses-to-new-expression-callee.js';
 export {default as shouldAddParenthesesToExpressionStatementExpression} from './should-add-parentheses-to-expression-statement-expression.js';
 export {default as shouldAddParenthesesToLogicalExpressionChild, getLogicalExpressionChildText} from './should-add-parentheses-to-logical-expression-child.js';

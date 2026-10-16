@@ -1,7 +1,36 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function* foo(value) { yield !\nvalue === true; }',
+			errors: [{messageId: 'no-negation-in-equality-check/error', suggestions: []}],
+		},
+		...['as boolean', 'satisfies boolean'].map(wrapper => ({
+			code: `function* foo(value) { yield !\nvalue === true ${wrapper}; }`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'no-negation-in-equality-check/error', suggestions: []}],
+		})),
+		...[
+			['yield (!\nvalue === true)', 'yield (\nvalue !== true)'],
+			['yield (!\nvalue) === true', 'yield (\nvalue) !== true'],
+			['yield* !\nvalue === true', 'yield* \nvalue !== true'],
+		].map(([expression, replacement]) => ({
+			code: `function* foo(value) { ${expression}; }`,
+			errors: [{
+				messageId: 'no-negation-in-equality-check/error',
+				suggestions: [{
+					messageId: 'no-negation-in-equality-check/suggestion',
+					output: `function* foo(value) { ${replacement}; }`,
+				}],
+			}],
+		})),
+	],
+});
 
 test.snapshot({
 	valid: [

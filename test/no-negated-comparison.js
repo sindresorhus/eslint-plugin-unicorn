@@ -3,6 +3,45 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		{code: 'function* foo(a, b) { yield !\n(a === b); }', errors: 1},
+		{
+			code: 'function* foo(a, b, c, d) { yield !\n(a === b && c === d); }',
+			options: [{checkLogicalExpressions: true}],
+			errors: 1,
+		},
+		...['as boolean', 'satisfies boolean'].map(wrapper => ({
+			code: `function* foo(a, b) { yield !\n(a === b) ${wrapper}; }`,
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		})),
+		{
+			code: 'function* foo(a, b) { yield (!\n(a === b)); }',
+			output: 'function* foo(a, b) { yield (\na !== b); }',
+			errors: 1,
+		},
+		{
+			code: 'function* foo(a, b) { yield (!\n(a === b) as boolean); }',
+			output: 'function* foo(a, b) { yield (\n(a !== b) as boolean); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'function* foo(a, b) { yield* !\n(a === b); }',
+			output: 'function* foo(a, b) { yield* \n(a !== b); }',
+			errors: 1,
+		},
+		{
+			code: 'function* foo(a, b) { yield <boolean>!\n(a === b); }',
+			output: 'function* foo(a, b) { yield <boolean>\n(a !== b); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+	],
+});
+
 test.snapshot({
 	valid: [
 		'a === b',

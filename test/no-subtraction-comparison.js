@@ -2,6 +2,32 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		...[
+			['foo()\n0 < (1) - 2', 'foo()\n;(1) > 2'],
+			['const previous = value\n0 > (1) - 2', 'const previous = value\n;(1) < 2'],
+			['foo() // keep\n0 === (1) - 2', 'foo() // keep\n;(1) === 2'],
+			['foo();\n0 < (1) - 2', 'foo();\n(1) > 2'],
+			['if (ready)\n0 < (1) - 2', 'if (ready)\n(1) > 2'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+		{
+			code: 'foo()\n0 < (a as number) - (b as number)',
+			output: 'foo()\n;(a as number) > (b as number)',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'foo()\n0 < (a) - b',
+			errors: [{
+				messageId: 'no-subtraction-comparison/error',
+				suggestions: [{messageId: 'no-subtraction-comparison/suggestion', output: 'foo()\n;(a) > b'}],
+			}],
+		},
+	],
+});
+
 test.snapshot({
 	valid: [
 		'a > b',

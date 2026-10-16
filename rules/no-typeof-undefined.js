@@ -7,6 +7,7 @@ import {
 	needsSemicolon,
 	isParenthesized,
 	isOnSameLine,
+	isUnparenthesizedYieldArgument,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -126,6 +127,14 @@ const create = context => {
 			loc: sourceCode.getLoc(typeofToken),
 			messageId: MESSAGE_ID_ERROR,
 		};
+
+		if (
+			isUnparenthesizedYieldArgument(binaryExpression, context)
+			&& !isParenthesized(typeofNode, context)
+			&& !isOnSameLine(typeofToken, secondToken, context)
+		) {
+			return problem;
+		}
 
 		if (isGlobalVariable) {
 			problem.suggest = [

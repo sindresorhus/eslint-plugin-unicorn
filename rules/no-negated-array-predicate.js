@@ -8,6 +8,7 @@ import {
 	isKnownNonIndexedCollection,
 	isOnSameLine,
 	isParenthesized,
+	isUnparenthesizedYieldArgument,
 	needsSemicolon,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
@@ -114,10 +115,8 @@ const create = context => {
 		const tokenAfterBang = tokenStore.getTokenAfter(bangToken);
 		const {parent} = unaryExpression;
 		if (
-			parent.type === 'YieldExpression'
-			&& parent.argument === unaryExpression
+			isUnparenthesizedYieldArgument(unaryExpression, context)
 			&& !isOnSameLine(bangToken, tokenAfterBang, context)
-			&& !isParenthesized(unaryExpression, context)
 		) {
 			return;
 		}

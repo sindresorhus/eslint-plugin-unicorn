@@ -7,6 +7,7 @@ import {
 	isParenthesized,
 	isOnSameLine,
 	needsSemicolon,
+	isUnparenthesizedYieldArgument,
 } from './utils/index.js';
 import {
 	getBinaryExpressionWithReplacedOperatorText,
@@ -212,6 +213,12 @@ const create = context => {
 		}
 
 		const {argument} = unaryExpression;
+		const {sourceCode} = context;
+		const bangToken = sourceCode.getFirstToken(unaryExpression);
+		const canRemoveNegation = !(
+			isUnparenthesizedYieldArgument(unaryExpression, context)
+			&& !isOnSameLine(bangToken, sourceCode.getTokenAfter(bangToken), context)
+		);
 
 		if (isEqualityComparison(argument)) {
 			const comparison = argument;
@@ -219,13 +226,15 @@ const create = context => {
 			return {
 				node: unaryExpression,
 				messageId: MESSAGE_ID_ERROR,
-				fix: fixer => fix({
-					fixer,
-					context,
-					unaryExpression,
-					comparison,
-					replacementOperator: negatedEqualityOperators.get(comparison.operator),
-				}),
+				fix: canRemoveNegation
+					? fixer => fix({
+						fixer,
+						context,
+						unaryExpression,
+						comparison,
+						replacementOperator: negatedEqualityOperators.get(comparison.operator),
+					})
+					: undefined,
 			};
 		}
 
@@ -243,7 +252,7 @@ const create = context => {
 			messageId: MESSAGE_ID_LOGICAL_ERROR,
 		};
 
-		if (context.sourceCode.getCommentsInside(unaryExpression).length > 0) {
+		if (!canRemoveNegation || sourceCode.getCommentsInside(unaryExpression).length > 0) {
 			return problem;
 		}
 

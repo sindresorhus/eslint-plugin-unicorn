@@ -7,6 +7,7 @@ import {
 } from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
+	getComparisonOperandText,
 	getParenthesizedText,
 	isSameReference,
 	unwrapTypeScriptExpression,
@@ -368,7 +369,7 @@ const create = context => {
 		)
 			? function * (fixer) {
 				yield fixSpaceAroundKeyword(fixer, logicalExpression, context);
-				yield fixer.replaceText(logicalExpression, `Math.abs(${getParenthesizedText(value, context)}) ${operator} ${getParenthesizedText(threshold, context)}`);
+				yield fixer.replaceText(logicalExpression, `Math.abs(${getParenthesizedText(value, context)}) ${operator} ${getComparisonOperandText(threshold, context)}`);
 			}
 			: undefined;
 
