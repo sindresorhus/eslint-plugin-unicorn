@@ -1,5 +1,10 @@
 import {getFunctionHeadLocation, getFunctionNameWithKind} from '@eslint-community/eslint-utils';
-import {getReferences, isNodeContainsLexicalThis, isNodeMatches} from './utils/index.js';
+import {
+	getReferences,
+	isNodeContainsLexicalThis,
+	isNodeMatches,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 import {functionTypes} from './ast/index.js';
 
 const MESSAGE_ID = 'consistent-function-scoping';
@@ -93,7 +98,7 @@ function isInsideHoistedFactory(node) {
 		const {parent} = current;
 		if (
 			parent.type === 'CallExpression'
-			&& functionTypes.includes(current.type)
+			&& functionTypes.includes(unwrapTypeScriptExpression(current).type)
 			&& (
 				(parent.arguments[1] === current && isNodeMatches(parent.callee, ['jest.mock', 'vi.mock']))
 				|| (parent.arguments[0] === current && isNodeMatches(parent.callee, ['vi.hoisted']))

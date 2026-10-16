@@ -1086,6 +1086,17 @@ test({
 			`,
 			errors: [createError('function \'createMock\'')],
 		},
+		...['vi.mock("module", () => () => 1);', 'vi.hoisted(() => () => 1);'].map(call => ({
+			code: outdent`
+				function outer() {
+					function setup() {
+						${call}
+						function sibling() {}
+					}
+				}
+			`,
+			errors: [createError('function \'setup\''), createError('function \'sibling\'')],
+		})),
 		{
 			code: outdent`
 				const outer = function() {
@@ -1279,6 +1290,10 @@ test.typescript({
 
 test.typescript({
 	valid: [
+		'vi.mock<typeof import("./foo.js")>("./foo.js", () => { const create = (): number => 1; return {create}; });',
+		'vi.hoisted<{create: () => number}>(() => { const create = (): number => 1; return {create}; });',
+		...['jest.mock("module", ', 'vi.mock("module", ', 'vi.hoisted('].flatMap(call =>
+			['as', 'satisfies'].map(operator => `${call}(() => { const create = () => 1; return {create}; }) ${operator} () => unknown);`)),
 		// #372
 		outdent`
 			type Data<T> = T extends 'error' ? Error : Record<string, unknown> | unknown[]
@@ -1354,7 +1369,12 @@ test.typescript({
 			}
 		`,
 	],
-	invalid: [],
+	invalid: [
+		{
+			code: 'vi.doMock("module", (() => () => 1) as () => unknown);',
+			errors: [createError('arrow function')],
+		},
+	],
 });
 
 test.snapshot({
