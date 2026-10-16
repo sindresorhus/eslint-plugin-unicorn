@@ -1190,6 +1190,67 @@ test({
 	],
 });
 
+// #3902 - Vitest factories run before the module's top-level code.
+test.snapshot({
+	valid: [
+		outdent`
+			import {vi} from 'vitest';
+
+			vi.mock('./foo.js', () => {
+				const create = () => 1;
+				return {create};
+			});
+		`,
+		outdent`
+			import {vi} from 'vitest';
+
+			export const mocks = vi.hoisted(() => {
+				const create = () => 1;
+				return {create};
+			});
+		`,
+		...['vi.mock("module", ', 'vi.hoisted('].flatMap(call => [
+			'() => () => 1',
+			outdent`
+				function() {
+					function create() {
+						return 1;
+					}
+
+					return {create};
+				}
+			`,
+			outdent`
+				async () => {
+					const create = async () => 1;
+					return {create};
+				}
+			`,
+			outdent`
+				() => ({
+					default: function MockComponent() {
+						const create = () => 1;
+						return create();
+					},
+				})
+			`,
+		].map(factory => `${call}${factory});`)),
+		outdent`
+			vi.mock(import('./foo.js'), () => {
+				const create = () => 1;
+				return {create};
+			});
+		`,
+	],
+	invalid: [
+		'vi.doMock("module", () => () => 1);',
+		'other.mock("module", () => () => 1);',
+		'other.hoisted(() => () => 1);',
+		'vi.mock(() => () => 1);',
+		'vi.hoisted("module", () => () => 1);',
+	],
+});
+
 test.typescript({
 	testerOptions: {
 		languageOptions: {

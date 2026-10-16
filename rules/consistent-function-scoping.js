@@ -87,15 +87,17 @@ const isArrowFunctionNodeWithThis = (node, visitorKeys) =>
 	// Include both params and body, because parameter defaults can reference lexical `this`.
 	&& isNodeContainsLexicalThis(node, visitorKeys);
 
-function isInsideJestMockFactory(node) {
+function isInsideHoistedFactory(node) {
 	let current = node;
 	while (current.parent) {
 		const {parent} = current;
 		if (
 			parent.type === 'CallExpression'
-			&& parent.arguments[1] === current
 			&& functionTypes.includes(current.type)
-			&& isNodeMatches(parent.callee, ['jest.mock'])
+			&& (
+				(parent.arguments[1] === current && isNodeMatches(parent.callee, ['jest.mock', 'vi.mock']))
+				|| (parent.arguments[0] === current && isNodeMatches(parent.callee, ['vi.hoisted']))
+			)
 		) {
 			return true;
 		}
@@ -212,7 +214,7 @@ function shouldSkipFunction(node, scopeManager, sourceCode) {
 
 	if (
 		!scope
-		|| isInsideJestMockFactory(node)
+		|| isInsideHoistedFactory(node)
 	) {
 		return true;
 	}
