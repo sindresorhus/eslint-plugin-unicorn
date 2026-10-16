@@ -1,5 +1,5 @@
 import {isStringLiteral, isBooleanLiteral, isFunction} from './ast/index.js';
-import {isParenthesized} from './utils/index.js';
+import {isParenthesized, needsSemicolon} from './utils/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
@@ -82,7 +82,8 @@ const create = context => {
 							!isParenthesized(node, context)
 							&& ['BinaryExpression', 'LogicalExpression'].includes(node.parent.type)
 						) {
-							yield fixer.insertTextBefore(node, '(');
+							const prefix = needsSemicolon(sourceCode.getTokenBefore(node), context, '(') ? ';(' : '(';
+							yield fixer.insertTextBefore(node, prefix);
 							yield fixer.insertTextAfter(node, ')');
 						}
 					},

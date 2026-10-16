@@ -13,6 +13,8 @@ Using `instanceof` to determine the type of an object has [limitations](https://
 
 Therefore, it is recommended to use a safer method, like `Object.prototype.toString.call(foo)` or the npm package [@sindresorhus/is](https://www.npmjs.com/package/@sindresorhus/is) to determine the type of an object.
 
+Fixes and suggestions that add grouping parentheses are not applied inside Vue event handlers or template function bodies.
+
 ## Examples
 
 ```js

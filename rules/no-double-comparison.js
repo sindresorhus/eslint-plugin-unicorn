@@ -3,6 +3,7 @@ import {
 	getParenthesizedText,
 	getStaticValueForControlFlow,
 	isParenthesized,
+	needsSemicolon,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {
@@ -114,7 +115,7 @@ const create = context => {
 			return problem;
 		}
 
-		const fix = fixer => fixer.replaceText(node, replacement);
+		const fix = fixer => fixer.replaceText(node, needsSemicolon(sourceCode.getTokenBefore(node), context, replacement) ? `;${replacement}` : replacement);
 		problem.suggest = [{messageId: MESSAGE_ID_SUGGESTION, data: {replacement}, fix}];
 
 		return problem;

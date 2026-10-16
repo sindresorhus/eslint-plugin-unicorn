@@ -3,7 +3,7 @@ import {isParenthesized} from './parentheses/parentheses.js';
 /**
 Check whether replacing `node` with a comparison needs parentheses in its surrounding expression.
 
-A comparison like `foo.length > 0` binds looser than the `!foo.length` or `Boolean(foo.length)` it replaces, so it needs parentheses wherever the replaced expression needed them.
+A comparison can bind more loosely than the expression it replaces, for example when changing `instanceof Function` to `typeof … === 'function'`.
 
 @param {import('estree').Node} node
 @param {import('eslint').Rule.RuleContext} context

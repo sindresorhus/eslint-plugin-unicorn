@@ -9,6 +9,8 @@ test({
 	invalid: [
 		['foo() as Promise<void>;', 'await (foo() as Promise<void>);'],
 		['foo() satisfies Promise<void>;', 'await (foo() satisfies Promise<void>);'],
+		['foo?.() satisfies Promise<void>;', 'await (foo?.() satisfies Promise<void>);'],
+		['(foo() as Promise<void>)!;', 'await (foo() as Promise<void>)!;'],
 		['(foo() as Promise<void>);', '(await (foo() as Promise<void>));'],
 		['<Promise<void>>foo();', 'await <Promise<void>>foo();'],
 		['foo()!;', 'await foo()!;'],

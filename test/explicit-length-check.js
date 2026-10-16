@@ -636,3 +636,34 @@ test({
 	],
 	invalid: [],
 });
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'foo()\nBoolean(array.length) === expected',
+			output: 'foo()\n;(array.length > 0) === expected',
+			errors: 1,
+		},
+		{
+			code: 'if (ready)\nBoolean(array.length) === expected',
+			output: 'if (ready)\n(array.length > 0) === expected',
+			errors: 1,
+		},
+		...[
+			'foo()\nBoolean(array.length) === expected',
+			'() => {foo()\nBoolean(array.length) === expected}',
+			'function () {foo()\nBoolean(array.length) === expected}',
+		].map(expression => ({
+			code: `<template><button @click="${expression}"></button></template>`,
+			languageOptions: {parser: parsers.vue},
+			errors: 1,
+		})),
+		{
+			code: '<template><div v-if="expected === Boolean(array.length)"></div></template>',
+			output: '<template><div v-if="expected === (array.length > 0)"></div></template>',
+			languageOptions: {parser: parsers.vue},
+			errors: 1,
+		},
+	],
+});

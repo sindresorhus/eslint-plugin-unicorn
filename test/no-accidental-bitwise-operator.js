@@ -12,6 +12,9 @@ test({
 		['ready && (value | \'\');', 'ready && (value || \'\');'],
 		['ready && value /* keep */ | \'\';', 'ready && (value /* keep */ || \'\');'],
 		['(obj & obj.prop) === expected;', '(obj && obj.prop) === expected;'],
+		['foo()\nobj & obj.prop | fallback', 'foo()\n;(obj && obj.prop) | fallback'],
+		['foo()\nvalue | \'\' ?? fallback', 'foo()\n;(value || \'\') ?? fallback'],
+		['if (ready)\nobj & obj.prop | fallback', 'if (ready)\n(obj && obj.prop) | fallback'],
 	].map(([code, output]) => ({
 		code,
 		errors: [{

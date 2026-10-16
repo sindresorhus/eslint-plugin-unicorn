@@ -1,5 +1,8 @@
 import {
 	shouldAddParenthesesToComparison,
+	needsSemicolon,
+	getTokenStore,
+	getAncestor,
 	checkVueTemplate,
 	isLogicalExpression,
 	isBooleanContext,
@@ -186,11 +189,24 @@ function create(context) {
 		}
 
 		const comparison = `${sourceCode.getText(lengthNode)} ${code}`;
-		const fixed = shouldAddParenthesesToComparison(node, context)
+		const needsParentheses = shouldAddParenthesesToComparison(node, context);
+		const tokenStore = getTokenStore(context, node);
+		let fixed = needsParentheses
 			? `(${comparison})`
 			: comparison;
+		if (needsSemicolon(tokenStore.getTokenBefore(node), context, fixed)) {
+			fixed = ';' + fixed;
+		}
 
-		const fix = function * (fixer) {
+		const fix = function * (fixer, {abort}) {
+			if (
+				needsParentheses
+				&& tokenStore !== sourceCode
+				&& (getAncestor(node, 'VOnExpression') || getAncestor(node, 'BlockStatement'))
+			) {
+				abort();
+			}
+
 			yield fixer.replaceText(node, fixed);
 			yield fixSpaceAroundKeyword(fixer, node, context);
 		};

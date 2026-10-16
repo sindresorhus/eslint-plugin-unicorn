@@ -46,11 +46,40 @@ test({
 			code: 'expected === value /* keep */ instanceof Function;',
 			errors: 1,
 		},
+		...[
+			['foo()\nvalue instanceof Function instanceof Object', 'foo()\n;(typeof value === \'function\') instanceof Object'],
+			['foo()\nvalue instanceof (Function) instanceof Object', 'foo()\n;(typeof value === \'function\') instanceof Object'],
+			['if (ready)\nvalue instanceof Function instanceof Object', 'if (ready)\n(typeof value === \'function\') instanceof Object'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+		{
+			code: 'foo()\nvalue instanceof Number === expected',
+			errors: [{
+				messageId: 'no-instanceof-builtins',
+				suggestions: [{
+					messageId: 'switch-to-type-of',
+					output: 'foo()\n;(typeof value === \'number\') === expected',
+				}],
+			}],
+		},
 		{
 			code: '<template><div v-if="expected === value instanceof Function"></div></template>',
 			output: '<template><div v-if="expected === (typeof value === \'function\')"></div></template>',
 			languageOptions: {parser: parsers.vue},
 			errors: 1,
+		},
+		...[
+			'foo()\nvalue instanceof Function instanceof Object',
+			'() => {foo()\nvalue instanceof Function instanceof Object}',
+			'function () {foo()\nvalue instanceof Function instanceof Object}',
+		].map(expression => ({
+			code: `<template><button @click="${expression}"></button></template>`,
+			languageOptions: {parser: parsers.vue},
+			errors: 1,
+		})),
+		{
+			code: '<template><button @click="foo()\nvalue instanceof Number === expected"></button></template>',
+			languageOptions: {parser: parsers.vue},
+			errors: [{messageId: 'no-instanceof-builtins', suggestions: []}],
 		},
 		{
 			code: '<template><div v-if="expected === value instanceof Number"></div></template>',

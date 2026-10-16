@@ -186,6 +186,23 @@ test({
 			output: 'const index = list.indexOf(item); expected === (index === -1); expected !== (index !== -1);',
 			errors: 2,
 		},
+		...[
+			['foo()\nindex < 0 < 1', 'foo()\n;(index === -1) < 1'],
+			['const previous = value\nindex < 0 === expected', 'const previous = value\n;(index === -1) === expected'],
+			['foo() // keep\nindex < 0 < 1', 'foo() // keep\n;(index === -1) < 1'],
+			['foo();\nindex < 0 < 1', 'foo();\n(index === -1) < 1'],
+			['if (ready)\nindex < 0 < 1', 'if (ready)\n(index === -1) < 1'],
+		].map(([expression, replacement]) => ({
+			code: `const index = list.indexOf(item);\n${expression}`,
+			output: `const index = list.indexOf(item);\n${replacement}`,
+			errors: 1,
+		})),
+		{
+			code: 'const index = list.indexOf(item);\nfoo()\nindex < 0 as boolean',
+			output: 'const index = list.indexOf(item);\nfoo()\n;(index === -1) as boolean',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
 		...['as boolean', 'satisfies boolean'].map(wrapper => ({
 			code: `const index = list.indexOf(item); index < 0 ${wrapper};`,
 			output: `const index = list.indexOf(item); (index === -1) ${wrapper};`,
