@@ -191,7 +191,12 @@ test({
 			'declare const validator: {isJson(value: unknown): value is string}; declare const value: unknown; Boolean(validator.isJson(value));',
 			'declare const validator: {isJson(value: unknown): value is string}; declare const value: unknown; validator.isJson(value);',
 		],
-	].map(([code, output]) => ({code, output, filename: 'file.ts', errors: [{messageId: 'no-useless-coercion'}]})),
+	].map(([code, output]) => ({
+		code,
+		output,
+		filename: 'file.ts',
+		errors: [{messageId: 'no-useless-coercion'}],
+	})),
 });
 
 test.snapshot({
