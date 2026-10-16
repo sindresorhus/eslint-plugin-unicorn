@@ -1374,6 +1374,10 @@ test.typescript({
 			code: 'vi.doMock("module", (() => () => 1) as () => unknown);',
 			errors: [createError('arrow function')],
 		},
+		{
+			code: 'vi.mock("module", {get spy() { const shouldSpy = () => true; return shouldSpy(); }} as {spy: boolean});',
+			errors: [createError('arrow function \'shouldSpy\'')],
+		},
 	],
 });
 
