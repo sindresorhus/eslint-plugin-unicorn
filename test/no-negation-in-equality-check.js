@@ -6,6 +6,20 @@ const {test} = getTester(import.meta);
 test({
 	valid: [],
 	invalid: [
+		...['return', 'throw'].map(keyword => ({
+			code: `function foo(value, ready) { ${keyword} !\nvalue === true && ready; }`,
+			errors: [{
+				messageId: 'no-negation-in-equality-check/error',
+				suggestions: [{
+					messageId: 'no-negation-in-equality-check/suggestion',
+					output: `function foo(value, ready) { ${keyword} ( \nvalue !== true && ready); }`,
+				}],
+			}],
+		})),
+		{
+			code: 'function* foo(value, ready) { yield !\nvalue === true && ready; }',
+			errors: [{messageId: 'no-negation-in-equality-check/error', suggestions: []}],
+		},
 		{
 			code: 'function* foo(value) { yield !\nvalue === true; }',
 			errors: [{messageId: 'no-negation-in-equality-check/error', suggestions: []}],

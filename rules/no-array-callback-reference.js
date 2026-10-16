@@ -16,6 +16,7 @@ import {
 	getParenthesizedText,
 	isKnownNonIndexedCollection,
 	shouldAddParenthesesToCallExpressionCallee,
+	shouldAddParenthesesToExpressionStatementExpression,
 	singular,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
@@ -343,7 +344,10 @@ function getProblem(context, node, callExpression, options) {
 
 				if (
 					!isParenthesized(node, context)
-					&& shouldAddParenthesesToCallExpressionCallee(node)
+					&& (
+						shouldAddParenthesesToCallExpressionCallee(node)
+						|| shouldAddParenthesesToExpressionStatementExpression(node, context)
+					)
 				) {
 					text = `(${text})`;
 				}

@@ -6,6 +6,7 @@ import {
 	getStaticValueIfNoSideEffects,
 	hasCommentInRange,
 	isOutermostLogicalExpression,
+	needsSemicolon,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {
@@ -290,7 +291,8 @@ const create = context => {
 			return problem;
 		}
 
-		const fix = fixer => fixer.removeRange(range);
+		const replacement = redundant === parent.left && needsSemicolon(sourceCode.getTokenBefore({range}), context, sourceCode.text[range[1]]) ? ';' : '';
+		const fix = fixer => fixer.replaceTextRange(range, replacement);
 
 		// Removing the comparison drops its evaluation. That only preserves behavior when evaluating it cannot trigger user code such as a getter or a `valueOf`/`toString` coercion; otherwise offer it as a suggestion instead of an autofix.
 		if (hasSideEffect(redundant, sourceCode, {considerGetters: true, considerImplicitTypeConversion: true})) {

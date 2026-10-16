@@ -4,6 +4,23 @@ import notDomNodeTypes from './utils/not-dom-node-types.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		...['{child: node}.child', 'function () {}.child', 'class {}.child', 'async function () {}.child'].map(child => ({
+			code: `parent.removeChild(${child});`,
+			output: `(${child}).remove();`,
+			errors: 1,
+		})),
+		{
+			code: 'parent.removeChild({child: node}.child!);',
+			output: '({child: node}.child!).remove();',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+	],
+});
+
 test.snapshot({
 	valid: [
 		'foo.remove()',

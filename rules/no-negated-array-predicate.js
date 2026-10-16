@@ -7,8 +7,7 @@ import {
 	hasTypeArguments,
 	isKnownNonIndexedCollection,
 	isOnSameLine,
-	isParenthesized,
-	isUnparenthesizedYieldArgument,
+	getUnparenthesizedKeywordArgumentParent,
 	needsSemicolon,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
@@ -113,9 +112,9 @@ const create = context => {
 		const tokenStore = getTokenStore(context, unaryExpression);
 		const bangToken = tokenStore.getFirstToken(unaryExpression);
 		const tokenAfterBang = tokenStore.getTokenAfter(bangToken);
-		const {parent} = unaryExpression;
+		const keywordParent = getUnparenthesizedKeywordArgumentParent(unaryExpression, context);
 		if (
-			isUnparenthesizedYieldArgument(unaryExpression, context)
+			keywordParent?.type === 'YieldExpression'
 			&& !isOnSameLine(bangToken, tokenAfterBang, context)
 		) {
 			return;
@@ -148,10 +147,8 @@ const create = context => {
 				}
 
 				const isNeedsReturnOrThrowParentheses = (
-					(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
-					&& parent.argument === unaryExpression
+					(keywordParent?.type === 'ReturnStatement' || keywordParent?.type === 'ThrowStatement')
 					&& !isOnSameLine(bangToken, tokenAfterBang, context)
-					&& !isParenthesized(unaryExpression, context)
 				);
 
 				yield fixer.remove(bangToken);
@@ -166,7 +163,7 @@ const create = context => {
 				}
 
 				if (isNeedsReturnOrThrowParentheses) {
-					yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
+					yield addParenthesesToReturnOrThrowExpression(fixer, keywordParent, context);
 					return;
 				}
 

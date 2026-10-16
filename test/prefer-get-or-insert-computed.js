@@ -2,6 +2,27 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		...[
+			['{value: createValue()}.value', '({value: createValue()}.value)'],
+			['{value: createValue()} || fallback', '({value: createValue()} || fallback)'],
+			['({value: createValue()}.value)', '({value: createValue()}.value)'],
+		].map(([value, body]) => ({
+			code: `map.getOrInsert(key, ${value});`,
+			output: `map.getOrInsertComputed(key, () => ${body});`,
+			errors: 1,
+		})),
+		...['as object', 'satisfies object'].map(assertion => ({
+			code: `map.getOrInsert(key, {value: createValue()} ${assertion});`,
+			output: `map.getOrInsertComputed(key, () => ({value: createValue()} ${assertion}));`,
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		})),
+	],
+});
+
 test.snapshot({
 	valid: [
 		'map.getOrInsert(key, value)',

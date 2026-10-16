@@ -406,7 +406,7 @@ Message:
     |                      ^^^^^^^^^^^^^^ Prefer \`.getOrInsertComputed()\` when the default value has side effects.
 
 Output:
-  1 | map.getOrInsertComputed(key, () => value = call())
+  1 | map.getOrInsertComputed(key, () => (value = call()))
 
 `;
 

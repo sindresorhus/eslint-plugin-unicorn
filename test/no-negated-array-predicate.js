@@ -4,11 +4,26 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 test({
-	valid: ['as boolean', 'satisfies boolean'].map(wrapper => ({
+	valid: ['&& ready', '? 1 : 2', 'as boolean', 'satisfies boolean'].map(wrapper => ({
 		code: `function* foo(array) { yield !\narray.every(value => value) ${wrapper}; }`,
 		languageOptions: {parser: parsers.typescript},
 	})),
 	invalid: [
+		...[
+			['return !\narray.every(value => value)', 'return ( \narray.some(value => !value))'],
+			['return !\narray.every(value => value) && ready', 'return ( \narray.some(value => !value) && ready)'],
+			['throw !\narray.every(value => value) && ready', 'throw ( \narray.some(value => !value) && ready)'],
+		].map(([expression, replacement]) => ({
+			code: `<template><button @click="() => { ${expression}; }"></button></template>`,
+			output: `<template><button @click="() => { ${replacement}; }"></button></template>`,
+			languageOptions: {parser: parsers.vue},
+			errors: 1,
+		})),
+		...['return', 'throw'].map(keyword => ({
+			code: `function foo(array, ready) { ${keyword} !\narray.every(value => value) && ready; }`,
+			output: `function foo(array, ready) { ${keyword} ( \narray.some(value => !value) && ready); }`,
+			errors: 1,
+		})),
 		{
 			code: 'function* foo(array) { yield (!\narray.every(value => value)) as boolean; }',
 			output: 'function* foo(array) { yield (\narray.some(value => !value)) as boolean; }',

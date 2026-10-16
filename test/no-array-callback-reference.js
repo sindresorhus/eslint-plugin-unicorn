@@ -78,6 +78,24 @@ const invalidMapCallbackTestCase = code => invalidTestCase({
 const invalidTypeAwareMapCallbackTestCase = code => typeAware(invalidMapCallbackTestCase(code));
 
 test({
+	valid: [],
+	invalid: ['map', 'forEach'].flatMap(method => [
+		'{fn: callback}.fn',
+		'function () {}.fn',
+		'class {}.fn',
+		'async function () {}.fn',
+	].map(callback => invalidTestCase({
+		code: `array.${method}(${callback});`,
+		method,
+		suggestions: ['element', 'element, index', 'element, index, array'].map(parameters => {
+			const call = `(${callback})(${parameters})`;
+			const body = method === 'forEach' ? `{ ${call}; }` : call;
+			return `array.${method}((${parameters}) => ${body});`;
+		}),
+	}))),
+});
+
+test({
 	valid: [
 		...simpleMethods.map(method => `foo.${method}(element => fn(element))`),
 		...reduceLikeMethods.map(method => `foo.${method}((accumulator, element) => fn(element))`),

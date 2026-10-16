@@ -13,6 +13,32 @@ const linterConfig = {
 	rules: {'unicorn/no-redundant-comparison': 'error'},
 };
 
+test({
+	valid: [],
+	invalid: [
+		...[
+			['foo()\nb !== 1 && (a === 1) && a !== b', 'foo()\n;(a === 1) && a !== b'],
+			['const previous = value\nb !== 1 && (a === 1) && a !== b', 'const previous = value\n;(a === 1) && a !== b'],
+			['foo() // keep\nb !== 1 && (a === 1) && a !== b', 'foo() // keep\n;(a === 1) && a !== b'],
+			['foo();\nb !== 1 && (a === 1) && a !== b', 'foo();\n(a === 1) && a !== b'],
+			['if (ready)\nb !== 1 && (a === 1) && a !== b', 'if (ready)\n(a === 1) && a !== b'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+		{
+			code: 'foo()\nb !== 1 && (a as number) === 1 && a !== b',
+			output: 'foo()\n;(a as number) === 1 && a !== b',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'foo()\na > 0 && (a > 1) && a === b',
+			errors: [{
+				messageId: 'no-redundant-comparison',
+				suggestions: [{messageId: 'no-redundant-comparison/suggestion', output: 'foo()\n;(a > 1) && a === b'}],
+			}],
+		},
+	],
+});
+
 nodeTest('explicit side effects invalidate equality, disequality, and bound implications', t => {
 	for (const code of [
 		'let first = 1; let second = 1; first === second && first === 1 && (second = 2) === 2 && second === 1;',

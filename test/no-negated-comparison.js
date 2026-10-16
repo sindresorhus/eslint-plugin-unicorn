@@ -6,6 +6,13 @@ const {test} = getTester(import.meta);
 test({
 	valid: [],
 	invalid: [
+		...['return', 'throw'].map(keyword => ({
+			code: `function foo(a, b, ready) { ${keyword} !\n(a === b) && ready; }`,
+			output: `function foo(a, b, ready) { ${keyword} ( \na !== b && ready); }`,
+			errors: 1,
+		})),
+		{code: 'function* foo(a, b, ready) { yield !\n(a === b) && ready; }', errors: 1},
+		{code: 'function* foo(a, b) { yield !\n(a === b) ? 1 : 2; }', errors: 1},
 		{code: 'function* foo(a, b) { yield !\n(a === b); }', errors: 1},
 		{
 			code: 'function* foo(a, b, c, d) { yield !\n(a === b && c === d); }',

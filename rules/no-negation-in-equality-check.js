@@ -1,9 +1,8 @@
 import {fixSpaceAroundKeyword, addParenthesesToReturnOrThrowExpression} from './fix/index.js';
 import {
 	needsSemicolon,
-	isParenthesized,
 	isOnSameLine,
-	isUnparenthesizedYieldArgument,
+	getUnparenthesizedKeywordArgumentParent,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-negation-in-equality-check/error';
@@ -37,14 +36,14 @@ const create = context => {
 
 		const {sourceCode} = context;
 		const bangToken = sourceCode.getFirstToken(left);
+		const keywordParent = getUnparenthesizedKeywordArgumentParent(left, context);
 		const negatedOperator = `${operator.startsWith('!') ? '=' : '!'}${operator.slice(1)}`;
 		const problem = {
 			node: bangToken,
 			messageId: MESSAGE_ID_ERROR,
 		};
 		if (
-			isUnparenthesizedYieldArgument(binaryExpression, context)
-			&& !isParenthesized(left, context)
+			keywordParent?.type === 'YieldExpression'
 			&& !isOnSameLine(bangToken, sourceCode.getTokenAfter(bangToken), context)
 		) {
 			return problem;
@@ -69,14 +68,13 @@ const create = context => {
 
 						const tokenAfterBang = sourceCode.getTokenAfter(bangToken);
 
-						const {parent} = binaryExpression;
 						if (
-							(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
-							&& !isParenthesized(binaryExpression, context)
+							keywordParent?.type === 'ReturnStatement'
+							|| keywordParent?.type === 'ThrowStatement'
 						) {
-							const returnToken = sourceCode.getFirstToken(parent);
+							const returnToken = sourceCode.getFirstToken(keywordParent);
 							if (!isOnSameLine(returnToken, tokenAfterBang, context)) {
-								yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
+								yield addParenthesesToReturnOrThrowExpression(fixer, keywordParent, context);
 							}
 						}
 

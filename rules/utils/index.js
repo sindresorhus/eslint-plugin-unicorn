@@ -172,6 +172,7 @@ export {default as isStrongPrecedenceNode} from './is-strong-precedence-node.js'
 export {default as isStringLiteralRequired} from './is-string-literal-required.js';
 export {default as isShorthandPropertyValue} from './is-shorthand-property-value.js';
 export {default as isValueNotUsable} from './is-value-not-usable.js';
+export {default as isReferenceContext} from './is-reference-context.js';
 export {default as needsSemicolon} from './needs-semicolon.js';
 export {default as normalizeComment} from './normalize-comment.js';
 export {default as maskJSDocumentSyntax} from './jsdoc.js';
@@ -226,7 +227,7 @@ export {default as shouldAddParenthesesToConditionalExpressionChild, getConditio
 export {default as shouldAddParenthesesToMemberExpressionObject, getMemberExpressionObjectText} from './should-add-parentheses-to-member-expression-object.js';
 export {default as shouldAddParenthesesToUnaryExpressionArgument} from './should-add-parentheses-to-unary-expression.js';
 export {default as getNegatedExpressionText} from './get-negated-expression-text.js';
-export {default as isUnparenthesizedYieldArgument} from './is-unparenthesized-yield-argument.js';
+export {default as getUnparenthesizedKeywordArgumentParent} from './get-unparenthesized-keyword-argument-parent.js';
 export {default as shouldAddParenthesesToNewExpressionCallee} from './should-add-parentheses-to-new-expression-callee.js';
 export {default as shouldAddParenthesesToExpressionStatementExpression} from './should-add-parentheses-to-expression-statement-expression.js';
 export {default as shouldAddParenthesesToLogicalExpressionChild, getLogicalExpressionChildText} from './should-add-parentheses-to-logical-expression-child.js';

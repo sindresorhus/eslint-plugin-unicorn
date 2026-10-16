@@ -48,3 +48,18 @@ test('keeps existing parentheses without adding more', t => {
 	t.assert.strictEqual(getText('marker((a + b))'), '(a + b)');
 	t.assert.strictEqual(getText('marker((foo))'), '(foo)');
 });
+
+test('groups declaration-like prefixes in nested expressions', t => {
+	for (const expression of [
+		'{value: 1}.value',
+		'function () {}.value',
+		'async function () {}.value',
+		'class {}.value',
+		'{fn: foo}.fn()',
+		'{tag: foo}.tag`text`',
+	]) {
+		t.assert.strictEqual(getText(`marker(${expression})`), `(${expression})`);
+	}
+
+	t.assert.strictEqual(getText('marker(({value: 1}).value)'), '({value: 1}).value');
+});

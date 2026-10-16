@@ -5,9 +5,8 @@ import {
 } from './fix/index.js';
 import {
 	needsSemicolon,
-	isParenthesized,
 	isOnSameLine,
-	isUnparenthesizedYieldArgument,
+	getUnparenthesizedKeywordArgumentParent,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -87,6 +86,7 @@ const create = context => {
 		}
 
 		const [typeofToken, secondToken] = sourceCode.getFirstTokens(typeofNode, 2);
+		const keywordParent = getUnparenthesizedKeywordArgumentParent(typeofNode, context);
 
 		const fix = function * (fixer) {
 			// Change `==`/`!=` to `===`/`!==`
@@ -104,15 +104,11 @@ const create = context => {
 			yield fixer.remove(typeofToken);
 			yield removeSpacesAfter(typeofToken, context, fixer);
 
-			const {parent} = binaryExpression;
 			if (
-				(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
-				&& parent.argument === binaryExpression
+				(keywordParent?.type === 'ReturnStatement' || keywordParent?.type === 'ThrowStatement')
 				&& !isOnSameLine(typeofToken, secondToken, context)
-				&& !isParenthesized(binaryExpression, context)
-				&& !isParenthesized(typeofNode, context)
 			) {
-				yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
+				yield addParenthesesToReturnOrThrowExpression(fixer, keywordParent, context);
 				return;
 			}
 
@@ -129,8 +125,7 @@ const create = context => {
 		};
 
 		if (
-			isUnparenthesizedYieldArgument(binaryExpression, context)
-			&& !isParenthesized(typeofNode, context)
+			keywordParent?.type === 'YieldExpression'
 			&& !isOnSameLine(typeofToken, secondToken, context)
 		) {
 			return problem;

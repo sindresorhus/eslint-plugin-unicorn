@@ -7,7 +7,7 @@ import {
 	isParenthesized,
 	isOnSameLine,
 	needsSemicolon,
-	isUnparenthesizedYieldArgument,
+	getUnparenthesizedKeywordArgumentParent,
 } from './utils/index.js';
 import {
 	getBinaryExpressionWithReplacedOperatorText,
@@ -86,15 +86,17 @@ const parentNeedsGroupedComparison = parent => [
 ].includes(parent.type);
 
 // `return`/`throw` followed by a line break needs the expression wrapped, otherwise removing the `!` makes ASI turn it into a bare `return;`/`throw;`.
-const needsReturnOrThrowParentheses = (unaryExpression, context) => {
-	const {parent} = unaryExpression;
+const getParentToParenthesize = (unaryExpression, context) => {
+	const parent = getUnparenthesizedKeywordArgumentParent(unaryExpression, context);
 	const {sourceCode} = context;
 	const bangToken = sourceCode.getFirstToken(unaryExpression);
 
-	return (parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
-		&& parent.argument === unaryExpression
+	if (
+		(parent?.type === 'ReturnStatement' || parent?.type === 'ThrowStatement')
 		&& !isOnSameLine(bangToken, sourceCode.getTokenAfter(bangToken), context)
-		&& !isParenthesized(unaryExpression, context);
+	) {
+		return parent;
+	}
 };
 
 function * fix({
@@ -109,9 +111,9 @@ function * fix({
 	const tokenAfterBangIncludingComments = sourceCode.getTokenAfter(bangToken, {includeComments: true});
 	const operatorToken = getPunctuatorBinaryExpressionOperatorToken(comparison, context);
 	const {parent} = unaryExpression;
-	const shouldAddReturnOrThrowParentheses = needsReturnOrThrowParentheses(unaryExpression, context);
+	const parentToParenthesize = getParentToParenthesize(unaryExpression, context);
 
-	if (!shouldAddReturnOrThrowParentheses) {
+	if (!parentToParenthesize) {
 		yield fixSpaceAroundKeyword(fixer, unaryExpression, context);
 	}
 
@@ -130,8 +132,8 @@ function * fix({
 
 	yield fixer.replaceText(operatorToken, replacementOperator);
 
-	if (shouldAddReturnOrThrowParentheses) {
-		yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
+	if (parentToParenthesize) {
+		yield addParenthesesToReturnOrThrowExpression(fixer, parentToParenthesize, context);
 		return;
 	}
 
@@ -180,18 +182,17 @@ function * fixLogical({
 	const {sourceCode} = context;
 	const bangToken = sourceCode.getFirstToken(unaryExpression);
 	const tokenAfterBang = sourceCode.getTokenAfter(bangToken);
-	const {parent} = unaryExpression;
-	const shouldAddReturnOrThrowParentheses = needsReturnOrThrowParentheses(unaryExpression, context);
+	const parentToParenthesize = getParentToParenthesize(unaryExpression, context);
 
-	if (!shouldAddReturnOrThrowParentheses) {
+	if (!parentToParenthesize) {
 		yield fixSpaceAroundKeyword(fixer, unaryExpression, context);
 	}
 
 	yield fixer.remove(bangToken);
 	yield fixer.replaceText(logicalExpression, getFixedLogicalExpressionText(logicalExpression, context));
 
-	if (shouldAddReturnOrThrowParentheses) {
-		yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
+	if (parentToParenthesize) {
+		yield addParenthesesToReturnOrThrowExpression(fixer, parentToParenthesize, context);
 		return;
 	}
 
@@ -216,7 +217,7 @@ const create = context => {
 		const {sourceCode} = context;
 		const bangToken = sourceCode.getFirstToken(unaryExpression);
 		const canRemoveNegation = !(
-			isUnparenthesizedYieldArgument(unaryExpression, context)
+			getUnparenthesizedKeywordArgumentParent(unaryExpression, context)?.type === 'YieldExpression'
 			&& !isOnSameLine(bangToken, sourceCode.getTokenAfter(bangToken), context)
 		);
 

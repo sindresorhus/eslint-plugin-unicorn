@@ -8,6 +8,28 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
 
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			code: 'text.search({regexp: /x/}.regexp) !== -1;',
+			output: '({regexp: /x/}.regexp).test(text);',
+			errors: 1,
+		},
+		{
+			code: 'text.search(({regexp: /x/}.regexp)) !== -1;',
+			output: '({regexp: /x/}.regexp).test((text));',
+			errors: 1,
+		},
+		{
+			code: 'text.search({regexp: /x/}.regexp!) !== -1;',
+			output: '({regexp: /x/}.regexp!).test(text);',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+	],
+});
+
 const fixtureDirectory = fileURLToPath(new URL('fixtures/prefer-regexp-test/', import.meta.url));
 const typeAware = code => ({
 	code,

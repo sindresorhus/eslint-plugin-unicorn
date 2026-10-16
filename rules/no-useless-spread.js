@@ -6,6 +6,7 @@ import {
 	isKnownNonArray,
 	isParenthesized,
 	isOnSameLine,
+	getUnparenthesizedKeywordArgumentParent,
 	getParenthesizedText,
 	isStrongPrecedenceNode,
 	unwrapTypeScriptExpression,
@@ -114,6 +115,14 @@ function * unwrapSingleArraySpread(fixer, arrayExpression, context) {
 		spreadToken,
 		thirdToken,
 	] = sourceCode.getFirstTokens(arrayExpression, 3);
+	const keywordParent = getUnparenthesizedKeywordArgumentParent(arrayExpression, context);
+
+	if (
+		keywordParent?.type === 'YieldExpression'
+		&& !isOnSameLine(openingBracketToken, thirdToken, context)
+	) {
+		return;
+	}
 
 	// `[...value]`
 	//  ^
@@ -161,14 +170,11 @@ function * unwrapSingleArraySpread(fixer, arrayExpression, context) {
 	}
 	```
 	*/
-	const {parent} = arrayExpression;
 	if (
-		(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
-		&& parent.argument === arrayExpression
+		(keywordParent?.type === 'ReturnStatement' || keywordParent?.type === 'ThrowStatement')
 		&& !isOnSameLine(openingBracketToken, thirdToken, context)
-		&& !isParenthesized(arrayExpression, context)
 	) {
-		yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
+		yield addParenthesesToReturnOrThrowExpression(fixer, keywordParent, context);
 		return;
 	}
 

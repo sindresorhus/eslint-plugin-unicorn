@@ -1,6 +1,7 @@
 import isNewExpressionWithParentheses from './is-new-expression-with-parentheses.js';
 import {isDecimalIntegerNode} from './numeric.js';
 import {getParenthesizedText, isParenthesized} from './parentheses/parentheses.js';
+import {startsWithDeclarationLikeToken} from './should-add-parentheses-to-expression-statement-expression.js';
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
 @import * as ESLint from 'eslint';
@@ -9,11 +10,17 @@ import {getParenthesizedText, isParenthesized} from './parentheses/parentheses.j
 /**
 Check if parentheses should be added to a `node` when it's used as an `object` of `MemberExpression`.
 
+Grouping also keeps declaration-like prefixes from being parsed as a block or declaration when the member expression starts a statement.
+
 @param {ESTree.Node} node - The AST node to check.
 @param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
 @returns {boolean}
 */
 export default function shouldAddParenthesesToMemberExpressionObject(node, context) {
+	if (startsWithDeclarationLikeToken(node, context)) {
+		return true;
+	}
+
 	switch (node.type) {
 		// This is not a full list. Some other nodes like `FunctionDeclaration` don't need parentheses,
 		// but it's not possible to be in the place we are checking at this point.

@@ -14,6 +14,46 @@ const linterConfig = {
 	rules: {'unicorn/no-useless-spread': 'error'},
 };
 
+test({
+	valid: [],
+	invalid: [
+		...['return', 'throw'].map(keyword => ({
+			code: `function values(fallback) { ${keyword} [\n...Array.of(1)] || fallback; }`,
+			output: `function values(fallback) { ${keyword} ( \nArray.of(1) || fallback); }`,
+			errors: [{messageId: 'clone-array'}],
+		})),
+		...[
+			'function* values() { yield [\n...Array.of(1)]; }',
+			'function* values() { yield [\n...Array.of(1)] || fallback; }',
+			'function* values() { yield [/* keep\n*/ ...Array.of(1)]; }',
+		].map(code => ({code, errors: [{messageId: 'clone-array'}]})),
+		{
+			code: 'function* values() { yield [\n...Array.of(1)] as number[]; }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'clone-array'}],
+		},
+		...[
+			['yield ([\n...Array.of(1)])', 'yield (\nArray.of(1))'],
+			['yield [...Array.of(1)]', 'yield Array.of(1)'],
+		].map(([expression, replacement]) => ({
+			code: `function* values() { ${expression}; }`,
+			output: `function* values() { ${replacement}; }`,
+			errors: [{messageId: 'clone-array'}],
+		})),
+		{
+			code: 'function* values() { yield <number[]>[\n...Array.of(1)]; }',
+			output: 'function* values() { yield <number[]>\nArray.of(1); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'clone-array'}],
+		},
+		{
+			code: 'function* values() { yield* [\n...Array.of(1)]; }',
+			output: 'function* values() { yield* \nArray.of(1); }',
+			errors: 2,
+		},
+	],
+});
+
 for (const [description, objectText] of [
 	['method', '{...{read() { return super.value; }}}'],
 	['computed method name', '{...{["read"]() { return super.value; }}}'],

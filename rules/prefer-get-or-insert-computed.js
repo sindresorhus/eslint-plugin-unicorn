@@ -5,7 +5,12 @@ import {
 	isMethodCall,
 } from './ast/index.js';
 import {replaceArgument} from './fix/index.js';
-import {containsNode, getParenthesizedRange, hasCommentInRange} from './utils/index.js';
+import {
+	containsNode,
+	getConciseArrowBodyText,
+	getParenthesizedRange,
+	hasCommentInRange,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-get-or-insert-computed';
 const messages = {
@@ -31,10 +36,6 @@ const containsNodeMatching = (node, context, predicate) => containsNode(
 	node => predicate(node) || (isInstanceField(node) && node.computed && containsNodeMatching(node.key, context, predicate)),
 	node => isFunction(node) || isInstanceField(node),
 );
-
-const shouldWrapArrowBody = node =>
-	node.type === 'ObjectExpression'
-	|| node.type === 'SequenceExpression';
 
 // Node types that have a side effect when evaluated. This mirrors the default behavior of
 // `hasSideEffect` from `@eslint-community/eslint-utils`, plus `TaggedTemplateExpression`,
@@ -66,21 +67,18 @@ const containsNodeUnsafeToWrap = (node, context) =>
 		|| node.type === 'YieldExpression'
 		|| isDirectEvalCall(node));
 
-const getCallbackText = (key, value, sourceCode) => {
+const getCallbackText = (key, value, context) => {
 	if (shouldUseDirectCallback(key, value)) {
-		return sourceCode.getText(value.callee);
+		return context.sourceCode.getText(value.callee);
 	}
 
-	const valueText = sourceCode.getText(value);
-	return `() => ${shouldWrapArrowBody(value) ? `(${valueText})` : valueText}`;
+	return `() => ${getConciseArrowBodyText(value, context)}`;
 };
 
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	const {sourceCode} = context;
-
 	context.on('CallExpression', callExpression => {
 		if (!isMethodCall(callExpression, {
 			method: 'getOrInsert',
@@ -109,7 +107,7 @@ const create = context => {
 
 		problem.fix = function * (fixer) {
 			yield fixer.replaceText(callExpression.callee.property, 'getOrInsertComputed');
-			yield replaceArgument(fixer, value, getCallbackText(key, value, sourceCode), context);
+			yield replaceArgument(fixer, value, getCallbackText(key, value, context), context);
 		};
 
 		return problem;

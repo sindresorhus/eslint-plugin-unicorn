@@ -6,6 +6,15 @@ const {test} = getTester(import.meta);
 test({
 	valid: [],
 	invalid: [
+		...['return', 'throw'].map(keyword => ({
+			code: `function check(value, ready) { ${keyword} typeof /* keep\n*/ value === 'undefined' && ready; }`,
+			output: `function check(value, ready) { ${keyword} ( /* keep\n*/ value === undefined && ready); }`,
+			errors: 1,
+		})),
+		{
+			code: 'function* check(value, ready) { yield typeof /* keep\n*/ value === \'undefined\' && ready; }',
+			errors: [{messageId: 'no-typeof-undefined/error', suggestions: []}],
+		},
 		...['/* keep\n*/', '// keep\n'].map(comment => ({
 			code: `function* check(value) { yield typeof ${comment} value === 'undefined'; }`,
 			errors: [{messageId: 'no-typeof-undefined/error', suggestions: []}],

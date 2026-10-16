@@ -7,6 +7,14 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		['/^a/.test({value: "abc"}.value);', '({value: "abc"}.value).startsWith(\'a\');'],
+		['/c$/.test({value: "abc"}.value);', '({value: "abc"}.value).endsWith(\'c\');'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
 const linter = new Linter();
 const keywordConfig = {
 	plugins: {unicorn: {rules: {'prefer-string-starts-ends-with': rule}}},

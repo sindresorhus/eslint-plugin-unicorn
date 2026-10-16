@@ -1,4 +1,9 @@
-import {getParenthesizedRange, getParenthesizedText, unwrapTypeScriptExpression} from './utils/index.js';
+import {
+	getParenthesizedRange,
+	getParenthesizedText,
+	isReferenceContext,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 import {isSame} from './utils/comparison.js';
 
 /**
@@ -96,7 +101,7 @@ const create = context => {
 			messageId: MESSAGE_ID,
 		};
 
-		if (!canReplaceWithoutDroppingComments(node, node.left, context)) {
+		if (isReferenceContext(node) || !canReplaceWithoutDroppingComments(node, node.left, context)) {
 			return problem;
 		}
 
