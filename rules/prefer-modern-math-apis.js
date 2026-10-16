@@ -9,8 +9,10 @@ import {isLiteral, isMethodCall} from './ast/index.js';
 import {replaceNodeOrTokenAndSpacesBefore, removeParentheses} from './fix/index.js';
 
 const MESSAGE_ID = 'prefer-modern-math-apis';
+const MESSAGE_ID_SUGGESTION = 'suggestion';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{description}}`.',
+	[MESSAGE_ID_SUGGESTION]: 'Replace with `{{replacement}}`.',
 };
 
 const isMathProperty = (node, property) =>
@@ -65,9 +67,12 @@ function createLogCallTimesConstantCheck({constantName, replacementMethod}) {
 				description,
 			},
 			// The replacement is built from the argument alone, so a comment elsewhere in the expression would be lost
-			fix: wouldRemoveComments(context, node, [getParenthesizedRange(valueNode, context)])
+			suggest: wouldRemoveComments(context, node, [getParenthesizedRange(valueNode, context)])
 				? undefined
-				: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context)})`),
+				: [{
+					messageId: MESSAGE_ID_SUGGESTION,
+					fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context)})`),
+				}],
 		};
 	};
 }
@@ -101,9 +106,12 @@ function createLogCallDivideConstantCheck({constantName, replacementMethod}) {
 			...message,
 			node,
 			// The replacement is built from the argument alone, so a comment elsewhere in the expression would be lost
-			fix: wouldRemoveComments(context, node, [getParenthesizedRange(valueNode, context)])
+			suggest: wouldRemoveComments(context, node, [getParenthesizedRange(valueNode, context)])
 				? undefined
-				: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context)})`),
+				: [{
+					messageId: MESSAGE_ID_SUGGESTION,
+					fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context)})`),
+				}],
 		};
 	};
 }
@@ -168,32 +176,37 @@ const create = context => {
 				replacement: `Math.${replacementMethod}(…)`,
 				description: 'Math.sqrt(…)',
 			},
-			* fix(fixer, {abort}) {
-				const {sourceCode} = context;
+			suggest: [
+				{
+					messageId: MESSAGE_ID_SUGGESTION,
+					* fix(fixer, {abort}) {
+						const {sourceCode} = context;
 
-				// `Math.sqrt` -> `Math.{hypot,abs}`
-				yield fixer.replaceText(callExpression.callee.property, replacementMethod);
+						// `Math.sqrt` -> `Math.{hypot,abs}`
+						yield fixer.replaceText(callExpression.callee.property, replacementMethod);
 
-				// `a ** 2 + b ** 2` -> `a, b`
-				for (const expression of plusExpressions) {
-					const plusToken = sourceCode.getTokenAfter(expression.left, token => token.type === 'Punctuator' && token.value === '+');
+						// `a ** 2 + b ** 2` -> `a, b`
+						for (const expression of plusExpressions) {
+							const plusToken = sourceCode.getTokenAfter(expression.left, token => token.type === 'Punctuator' && token.value === '+');
 
-					yield replaceNodeOrTokenAndSpacesBefore(plusToken, ',', fixer, context);
-					yield removeParentheses(expression, fixer, context);
-				}
+							yield replaceNodeOrTokenAndSpacesBefore(plusToken, ',', fixer, context);
+							yield removeParentheses(expression, fixer, context);
+						}
 
-				// `x ** 2` => `x`
-				// `x * a` => `x`
-				for (const expression of expressions) {
-					// The removed range holds the operator and its right operand, so a comment there would be lost
-					const [start, end] = [getParenthesizedRange(expression.left, context)[1], sourceCode.getRange(expression)[1]];
-					if (hasCommentInRange(context, [start, end])) {
-						return abort();
-					}
+						// `x ** 2` => `x`
+						// `x * x` => `x`
+						for (const expression of expressions) {
+							// The removed range holds the operator and its right operand, so a comment there would be lost
+							const [start, end] = [getParenthesizedRange(expression.left, context)[1], sourceCode.getRange(expression)[1]];
+							if (hasCommentInRange(context, [start, end])) {
+								return abort();
+							}
 
-					yield fixer.removeRange([start, end]);
-				}
-			},
+							yield fixer.removeRange([start, end]);
+						}
+					},
+				},
+			],
 		};
 	});
 
@@ -225,7 +238,7 @@ const config = {
 			description: 'Prefer modern `Math` APIs over legacy patterns.',
 			recommended: 'unopinionated',
 		},
-		fixable: 'code',
+		hasSuggestions: true,
 		messages,
 		languages: [
 			'js/js',
