@@ -1,4 +1,4 @@
-import {isEmptyStringLiteral, isFunction} from './ast/index.js';
+import {isEmptyStringLiteral} from './ast/index.js';
 import {
 	isBoolean,
 	isString,
@@ -6,6 +6,7 @@ import {
 	isBigInt,
 	isGlobalIdentifier,
 	isTypeScriptFile,
+	getEnclosingFunction,
 } from './utils/index.js';
 import {replaceNodeWithExpression} from './fix/index.js';
 
@@ -75,7 +76,7 @@ const create = context => {
 
 		// `Boolean()` can suppress inferred type predicates in functions without return annotations.
 		if (name === 'Boolean' && isTypeScript) {
-			const functionNode = sourceCode.getAncestors(callExpression).findLast(isFunction);
+			const functionNode = getEnclosingFunction(callExpression);
 			if (functionNode && !functionNode.returnType) {
 				return;
 			}

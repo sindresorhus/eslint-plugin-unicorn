@@ -136,6 +136,14 @@ test.typescript({
 			'function isString(value: unknown): boolean { return (typeof value === "string"); }',
 		],
 		[
+			'const object = {isArray(value: unknown): boolean { return Boolean(Array.isArray(value)); }};',
+			'const object = {isArray(value: unknown): boolean { return Array.isArray(value); }};',
+		],
+		[
+			'class Validator { isArray(value: unknown): boolean { return Boolean(Array.isArray(value)); } }',
+			'class Validator { isArray(value: unknown): boolean { return Array.isArray(value); } }',
+		],
+		[
 			'function outer() { return (value: unknown): boolean => Boolean(Array.isArray(value)); }',
 			'function outer() { return (value: unknown): boolean => Array.isArray(value); }',
 		],
@@ -153,17 +161,6 @@ test.typescript({
 test({
 	valid: [
 		{code: 'function getFlag() { return Boolean(true); }', filename: 'file.ts'},
-		...[
-			'declare const isJson: (value: unknown) => value is string; export const isValidJson = (value: unknown) => Boolean(isJson(value));',
-			'declare const validator: {isJson(value: unknown): value is string}; const isValidJson = (value: unknown) => Boolean(validator.isJson(value));',
-		].map(code => ({
-			code,
-			filename: 'file.ts',
-			languageOptions: {
-				parser: typescriptEslintParser,
-				parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
-			},
-		})),
 	],
 	invalid: [
 		{
@@ -172,6 +169,29 @@ test({
 			errors: [{messageId: 'no-useless-coercion'}],
 		},
 	],
+});
+
+test({
+	testerOptions: {
+		languageOptions: {
+			parser: typescriptEslintParser,
+			parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+		},
+	},
+	valid: [
+		'declare const isJson: (value: unknown) => value is string; export const isValidJson = (value: unknown) => Boolean(isJson(value));',
+		'declare const validator: {isJson(value: unknown): value is string}; const isValidJson = (value: unknown) => Boolean(validator.isJson(value));',
+	].map(code => ({code, filename: 'file.ts'})),
+	invalid: [
+		[
+			'declare const validator: {isJson(value: unknown): value is string}; const isValidJson = (value: unknown): boolean => Boolean(validator.isJson(value));',
+			'declare const validator: {isJson(value: unknown): value is string}; const isValidJson = (value: unknown): boolean => validator.isJson(value);',
+		],
+		[
+			'declare const validator: {isJson(value: unknown): value is string}; declare const value: unknown; Boolean(validator.isJson(value));',
+			'declare const validator: {isJson(value: unknown): value is string}; declare const value: unknown; validator.isJson(value);',
+		],
+	].map(([code, output]) => ({code, output, filename: 'file.ts', errors: [{messageId: 'no-useless-coercion'}]})),
 });
 
 test.snapshot({
