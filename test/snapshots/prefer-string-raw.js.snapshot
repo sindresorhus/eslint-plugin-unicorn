@@ -10,7 +10,7 @@ Message:
 > 1 | ({ ['a\\\\b']: 1 })
     |     ^^^^^^ \`String.raw\` should be used to avoid escaping \`\\\`.
 
-Output:
+Suggestion 1/1: Use \`String.raw\`. This may widen the string literal type to \`string\`.:
   1 | ({ [String.raw\`a\\b\`]: 1 })
 
 `;
@@ -302,7 +302,7 @@ Message:
 > 1 | class C { ['a\\\\b'] = 1 }
     |            ^^^^^^ \`String.raw\` should be used to avoid escaping \`\\\`.
 
-Output:
+Suggestion 1/1: Use \`String.raw\`. This may widen the string literal type to \`string\`.:
   1 | class C { [String.raw\`a\\b\`] = 1 }
 
 `;
@@ -387,7 +387,7 @@ Message:
 > 1 | class C { ['a\\\\b'](){} }
     |            ^^^^^^ \`String.raw\` should be used to avoid escaping \`\\\`.
 
-Output:
+Suggestion 1/1: Use \`String.raw\`. This may widen the string literal type to \`string\`.:
   1 | class C { [String.raw\`a\\b\`](){} }
 
 `;
@@ -472,7 +472,7 @@ Message:
 > 1 | class C { accessor ['a\\\\b'] = 1 }
     |                     ^^^^^^ \`String.raw\` should be used to avoid escaping \`\\\`.
 
-Output:
+Suggestion 1/1: Use \`String.raw\`. This may widen the string literal type to \`string\`.:
   1 | class C { accessor [String.raw\`a\\b\`] = 1 }
 
 `;
@@ -551,7 +551,7 @@ Message:
 > 1 | expect('a\\\\b').toMatchInlineSnapshot("")
     |        ^^^^^^ \`String.raw\` should be used to avoid escaping \`\\\`.
 
-Output:
+Suggestion 1/1: Use \`String.raw\`. This may widen the string literal type to \`string\`.:
   1 | expect(String.raw\`a\\b\`).toMatchInlineSnapshot("")
 
 `;
@@ -609,7 +609,7 @@ Message:
 > 1 | expect(\`a\\\\b\`).toMatchInlineSnapshot(\`\`)
     |        ^^^^^^ \`String.raw\` should be used to avoid escaping \`\\\`.
 
-Output:
+Suggestion 1/1: Use \`String.raw\`. This may widen the string literal type to \`string\`.:
   1 | expect(String.raw\`a\\b\`).toMatchInlineSnapshot(\`\`)
 
 `;

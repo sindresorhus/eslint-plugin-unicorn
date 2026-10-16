@@ -1,10 +1,147 @@
 /* eslint-disable no-template-curly-in-string */
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
 const TEST_STRING = String.raw`a\\b`;
+
+const typescript = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {parser: parsers.typescript},
+});
+
+const typeAware = code => ({
+	code,
+	filename: 'file.ts',
+	languageOptions: {
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+});
+
+const getSuggestionCase = (code, output) => ({
+	code,
+	errors: [{
+		messageId: 'prefer-string-raw',
+		suggestions: [{messageId: 'prefer-string-raw/suggestion', output}],
+	}],
+});
+
+test.typescript({
+	valid: [],
+	invalid: [
+		getSuggestionCase(
+			String.raw`type Separator = 'a\\b' | 'c\\d'; const separator: Separator = 'a\\b';`,
+			'type Separator = \'a\\\\b\' | \'c\\\\d\'; const separator: Separator = String.raw`a\\b`;',
+		),
+		getSuggestionCase(
+			String.raw`const options = {path: 'C:\\Users'} as const; const exact: 'C:\\Users' = options.path;`,
+			'const options = {path: String.raw`C:\\Users`} as const; const exact: \'C:\\\\Users\' = options.path;',
+		),
+	],
+});
+
+for (const expression of [`'${TEST_STRING}'`, `\`${TEST_STRING}\``]) {
+	const replacement = 'String.raw`a\\b`';
+	const suggestionPatterns = [
+		'const path = VALUE;',
+		`const path: '${TEST_STRING}' = VALUE;`,
+		`declare function use(path: '${TEST_STRING}'): void; use(VALUE);`,
+		'const options = {path: VALUE} as const;',
+		'const options = [VALUE] as const;',
+		'const options = {nested: {path: VALUE}} as const;',
+		'const path = VALUE satisfies string;',
+		`const path = VALUE satisfies '${TEST_STRING}';`,
+		'declare function use<const Type>(value: Type): Type; const path = use(VALUE);',
+		`declare function use(value: '${TEST_STRING}'): 1; declare function use(value: string): 2; const result: 1 = use(VALUE);`,
+		'const path = (/* keep */ VALUE);',
+		'function path(): string {return VALUE;}',
+	];
+
+	test({
+		valid: [],
+		invalid: [typescript, typeAware].flatMap(createTestCase => suggestionPatterns.map(pattern => ({
+			...createTestCase(pattern.replace('VALUE', () => expression)),
+			...getSuggestionCase(
+				pattern.replace('VALUE', () => expression),
+				pattern.replace('VALUE', () => replacement),
+			),
+		}))),
+	});
+
+	test({
+		valid: [],
+		invalid: [typescript, typeAware].flatMap(createTestCase => [
+			'const path: string = VALUE;',
+			'let path: string = VALUE;',
+			'let path = VALUE;',
+			'var path = VALUE;',
+			'const path: string = (/* keep */ VALUE);',
+		].map(pattern => ({
+			...createTestCase(pattern.replace('VALUE', () => expression)),
+			output: pattern.replace('VALUE', () => replacement),
+			errors: [{messageId: 'prefer-string-raw'}],
+		}))),
+	});
+
+	test({
+		valid: [],
+		invalid: [typescript, typeAware].flatMap(createTestCase => [
+			`const path = ${expression} as const;`,
+			`const path = <const>${expression};`,
+		].map(code => ({
+			...createTestCase(code),
+			errors: [{messageId: 'prefer-string-raw', suggestions: []}],
+		}))),
+	});
+
+	const aliasCode = `type PathText = string; const path: PathText = ${expression};`;
+	test({
+		valid: [],
+		invalid: [
+			{
+				...typescript(aliasCode),
+				...getSuggestionCase(aliasCode, `type PathText = string; const path: PathText = ${replacement};`),
+			},
+			{
+				...typeAware(aliasCode),
+				output: `type PathText = string; const path: PathText = ${replacement};`,
+				errors: [{messageId: 'prefer-string-raw'}],
+			},
+		],
+	});
+}
+
+test({
+	valid: [],
+	invalid: [
+		...['file.ts', 'file.mts', 'file.cts', 'file.tsx', 'file.js'].map(filename => ({
+			filename,
+			...getSuggestionCase(`const path = '${TEST_STRING}';`, 'const path = String.raw`a\\b`;'),
+			...((filename === 'file.js') && {languageOptions: {parser: parsers.typescript}}),
+		})),
+		{
+			...typeAware('declare const suffix: string; const path = `a\\\\b${suffix}`;'),
+			output: 'declare const suffix: string; const path = String.raw`a\\b${suffix}`;',
+			errors: [{messageId: 'prefer-string-raw'}],
+		},
+		{
+			...typeAware('declare const suffix: string; declare function use<const Type>(value: Type): Type; const result = use({path: `a\\\\b${suffix}`});'),
+			...getSuggestionCase(
+				'declare const suffix: string; declare function use<const Type>(value: Type): Type; const result = use({path: `a\\\\b${suffix}`});',
+				'declare const suffix: string; declare function use<const Type>(value: Type): Type; const result = use({path: String.raw`a\\b${suffix}`});',
+			),
+		},
+		{
+			...typescript('const path = String.raw`abc`;'),
+			output: 'const path = \'abc\';',
+			errors: [{messageId: 'unnecessary-string-raw'}],
+		},
+	],
+});
 
 // String literal to `String.raw`
 test.snapshot({

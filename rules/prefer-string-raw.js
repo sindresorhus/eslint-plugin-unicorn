@@ -6,13 +6,21 @@ import {
 	replaceTemplateElement,
 } from './fix/index.js';
 import isJestInlineSnapshot from './shared/is-jest-inline-snapshot.js';
-import {isOnSameLine, isParenthesized, isStringLiteralRequired} from './utils/index.js';
+import {
+	isOnSameLine,
+	isParenthesized,
+	isStringLiteralRequired,
+	isTypeScriptFile,
+	withTypeInformation,
+} from './utils/index.js';
 import needsSemicolon from './utils/needs-semicolon.js';
 
 const MESSAGE_ID = 'prefer-string-raw';
+const MESSAGE_ID_SUGGESTION = 'prefer-string-raw/suggestion';
 const MESSAGE_ID_UNNECESSARY_STRING_RAW = 'unnecessary-string-raw';
 const messages = {
 	[MESSAGE_ID]: '`String.raw` should be used to avoid escaping `\\`.',
+	[MESSAGE_ID_SUGGESTION]: 'Use `String.raw`. This may widen the string literal type to `string`.',
 	[MESSAGE_ID_UNNECESSARY_STRING_RAW]: 'Using `String.raw` is unnecessary as the string does not contain any `\\`.',
 };
 
@@ -28,6 +36,49 @@ function shouldParenthesizeYieldArgument(parent, node, tokenBefore, context) {
 		&& parent.argument === node
 		&& !isOnSameLine(tokenBefore, node.quasi, context)
 		&& !isParenthesized(node, context);
+}
+
+/**
+Build a problem that preserves TypeScript literal types during automatic fixing.
+*/
+function getStringRawProblem(node, context, fix) {
+	const problem = {node, messageId: MESSAGE_ID};
+	const {parent} = node;
+	if (
+		(parent.type === 'TSAsExpression' || parent.type === 'TSTypeAssertion')
+		&& parent.typeAnnotation.type === 'TSTypeReference'
+		&& parent.typeAnnotation.typeName.name === 'const'
+	) {
+		return problem;
+	}
+
+	const {parserServices} = context.sourceCode;
+	if (!isTypeScriptFile(context.physicalFilename) && !parserServices?.esTreeNodeToTSNodeMap) {
+		problem.fix = fix;
+		return problem;
+	}
+
+	const binding = parent.type === 'VariableDeclarator' && parent.init === node && parent.id.type === 'Identifier'
+		? parent.id
+		: undefined;
+	const canFix = withTypeInformation(node, context, ({type}) =>
+		type.intrinsicName === 'string'
+		|| (binding !== undefined && parserServices.getTypeAtLocation(binding).intrinsicName === 'string'),
+	) ?? (
+		binding !== undefined
+		&& (
+			binding.typeAnnotation?.typeAnnotation.type === 'TSStringKeyword'
+			|| (!binding.typeAnnotation && (parent.parent.kind === 'let' || parent.parent.kind === 'var'))
+		)
+	);
+
+	if (canFix) {
+		problem.fix = fix;
+	} else {
+		problem.suggest = [{messageId: MESSAGE_ID_SUGGESTION, fix}];
+	}
+
+	return problem;
 }
 
 /**
@@ -56,14 +107,10 @@ const create = context => {
 			return;
 		}
 
-		return {
-			node,
-			messageId: MESSAGE_ID,
-			* fix(fixer) {
-				yield fixSpaceAroundKeyword(fixer, node, context);
-				yield fixer.replaceText(node, `String.raw\`${unescaped}\``);
-			},
-		};
+		return getStringRawProblem(node, context, function * (fixer) {
+			yield fixSpaceAroundKeyword(fixer, node, context);
+			yield fixer.replaceText(node, `String.raw\`${unescaped}\``);
+		});
 	});
 
 	context.on('TemplateLiteral', node => {
@@ -76,23 +123,19 @@ const create = context => {
 			return;
 		}
 
-		return {
-			node,
-			messageId: MESSAGE_ID,
-			* fix(fixer) {
-				yield fixSpaceAroundKeyword(fixer, node, context);
-				yield fixer.insertTextBefore(node, 'String.raw');
+		return getStringRawProblem(node, context, function * (fixer) {
+			yield fixSpaceAroundKeyword(fixer, node, context);
+			yield fixer.insertTextBefore(node, 'String.raw');
 
-				for (const quasis of node.quasis) {
-					const {cooked, raw} = quasis.value;
-					if (cooked === raw) {
-						continue;
-					}
-
-					yield replaceTemplateElement(quasis, cooked, context, fixer);
+			for (const quasis of node.quasis) {
+				const {cooked, raw} = quasis.value;
+				if (cooked === raw) {
+					continue;
 				}
-			},
-		};
+
+				yield replaceTemplateElement(quasis, cooked, context, fixer);
+			}
+		});
 	});
 
 	context.on('TaggedTemplateExpression', node => {
@@ -167,6 +210,7 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		messages,
 		languages: [
 			'js/js',
