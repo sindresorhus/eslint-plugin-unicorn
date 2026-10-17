@@ -153,3 +153,16 @@ test.snapshot({
 		'window[document].querySelector("a").querySelector("b");',
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		['({element}.element.querySelector("a")).querySelector("b");', '({element}.element).querySelector(":scope a b");'],
+		['const result = ({element}.element.querySelector("a")).querySelector("b");', 'const result = {element}.element.querySelector(":scope a b");'],
+		['const read = () => ({element}.element.querySelector("a")).querySelector("b");', 'const read = () => ({element}.element).querySelector(":scope a b");'],
+		['({element}.element).querySelector("a").querySelector("b");', '({element}.element).querySelector(":scope a b");'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{messageId: 'merge-query-selector', suggestions: [{messageId: 'suggestion-merge-query-selector', output}]}],
+	})),
+});

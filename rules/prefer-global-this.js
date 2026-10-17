@@ -1,5 +1,6 @@
 import {getStaticStringValue, isInTypeQuery} from './ast/index.js';
 import {replaceReferenceIdentifier} from './fix/index.js';
+import {getOutermostTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-global-this/error';
 const messages = {
@@ -140,7 +141,7 @@ function isComputedMemberExpressionObject(identifier) {
 }
 
 /**
-Check if the identifier is the operand of a `typeof` operator, in either value position (`typeof window`) or TypeScript type position (`type T = typeof window` or `typeof window.foo`).
+Check if the identifier is the operand of a `typeof` operator, in either value position (`typeof window`), including erased TypeScript wrappers, or TypeScript type position (`type T = typeof window` or `typeof window.foo`).
 
 These are portable as-is: the runtime check works in any environment and lets bundlers tree-shake guarded code, and the type query `typeof window` is not equivalent to `typeof globalThis`.
 
@@ -148,9 +149,10 @@ These are portable as-is: the runtime check works in any environment and lets bu
 @returns {boolean}
 */
 function isTypeofOperand(identifier) {
-	const {parent} = identifier;
+	const expression = getOutermostTypeScriptExpression(identifier);
+	const {parent} = expression;
 
-	if (parent.type === 'UnaryExpression' && parent.operator === 'typeof' && parent.argument === identifier) {
+	if (parent.type === 'UnaryExpression' && parent.operator === 'typeof' && parent.argument === expression) {
 		return true;
 	}
 

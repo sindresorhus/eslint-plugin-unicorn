@@ -6,8 +6,8 @@ import {
 } from './ast/index.js';
 import {
 	escapeString,
+	getMemberExpressionObjectText,
 	getParenthesizedRange,
-	getParenthesizedText,
 	isLeftHandSide,
 	isNodeValueNotDomNode,
 } from './utils/index.js';
@@ -209,7 +209,7 @@ const getMergeQuerySelectorSuggestion = (node, querySelectorChain, context) => {
 		return;
 	}
 
-	const root = getParenthesizedText(querySelectorChain.root, context);
+	const root = getMemberExpressionObjectText(querySelectorChain.root, context, node);
 	const selector = `${isDocumentObject(querySelectorChain.root) ? '' : ':scope '}${querySelectorChain.selectors.join(' ')}`;
 	const replacement = `${root}.querySelector(${escapeString(selector, getSelectorQuote(querySelectorChain.quoteNode))})`;
 
