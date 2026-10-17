@@ -235,6 +235,11 @@ ruleTest({
 			errors: 1,
 		},
 		{
+			code: 'const value = `before\\x20 \\u0020\t\\u{20}after`;',
+			output: 'const value = `before   \t after`;',
+			errors: 1,
+		},
+		{
 			code: 'const value = `before\\u{20}`;',
 			output: 'const value = `before `;',
 			errors: 1,
