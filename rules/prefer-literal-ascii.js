@@ -85,6 +85,28 @@ function wouldExtendLegacyEscape(text, character) {
 	return digits.length < maximumLength;
 }
 
+function getSpaceRun(text, start) {
+	let end = start;
+	let replacement = '';
+	while (end < text.length) {
+		if (text[end] === ' ' || text[end] === '\t') {
+			replacement += text[end];
+			end++;
+			continue;
+		}
+
+		const escape = getNumericEscape(text, end);
+		if (escape?.value !== 0x20) {
+			break;
+		}
+
+		replacement += ' ';
+		end = escape.end;
+	}
+
+	return {end, replacement};
+}
+
 function replaceEscapes(text, quote, checkSlash) {
 	let fixed = '';
 	let canFix = true;
@@ -111,6 +133,13 @@ function replaceEscapes(text, quote, checkSlash) {
 		const escape = getNumericEscape(text, index);
 		if (!escape || !isPrintableAscii(escape.value)) {
 			fixed += character;
+			continue;
+		}
+
+		if (quote === '`' && escape.value === 0x20) {
+			const {end, replacement} = getSpaceRun(text, index);
+			fixed += /[\n\r\u{2028}\u{2029}]/v.test(text[end]) ? text.slice(index, end) : replacement;
+			index = end - 1;
 			continue;
 		}
 
