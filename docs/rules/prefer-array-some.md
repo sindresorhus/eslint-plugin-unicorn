@@ -25,11 +25,11 @@ We only check `.filter().length > 0` and `.filter().length !== 0`. These two non
 
 This rule is fixable for `.findIndex(…)`, and for `.findLastIndex(…)` and `.filter(…).length` checks when the callback is an inline function without side effects.
 
-This rule provides a suggestion for `.{find,findLast}(…)`, and for `.findLastIndex(…)` and `.filter(…).length` checks when the callback is a reference or has side effects. `.some()` stops at the first match, and `.findLastIndex()` visits elements in reverse order, so such a callback can be called a different number of times or in a different order.
+This rule provides a suggestion for `.{find,findLast}(…)`, and for `.findLastIndex(…)` and `.filter(…).length` checks when the callback is a reference or has side effects. `.some()` stops at the first match, and `.findLastIndex()` visits elements in reverse order, so such a callback can be called a different number of times or in a different order. A matching value returned by `.find()` or `.findLast()` can also be falsy.
 
 This rule skips receivers known to be neither an array nor a typed array, from syntax, TypeScript annotations, or TypeScript type information. Unknown receivers are still checked.
 
-The rule also checks results assigned to a `const` variable when every use passes the variable directly to `Boolean()`. Other boolean contexts are supported when the receiver is known to be an array.
+The rule also checks `.find()` and `.findLast()` results assigned to a `const` variable when every use passes the variable directly to the global `Boolean()` function. Other boolean contexts are supported when the receiver is known to be an array.
 
 ## Examples
 

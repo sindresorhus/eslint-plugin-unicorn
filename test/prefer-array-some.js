@@ -50,8 +50,11 @@ test({
 			'const found = values.find(predicate); Boolean(found); if (found) {}',
 			'const found = values.find(predicate); Boolean(found); !found;',
 			'const found = values.find(predicate); Boolean(found && other);',
+			'const found = values.find(predicate); Boolean(found, other);',
+			'const found = values.find(predicate); new Boolean(found);',
 			'const found = values.find(predicate); const Boolean = value => value; Boolean(found);',
 			'function hasMatch(values, Boolean) { const found = values.find(predicate); return Boolean(found); }',
+			'const found = values.find(predicate); Boolean(found); function hasMatch(Boolean) { return Boolean(found); }',
 			'const found = new Store().find(predicate); Boolean(found);',
 			'const values = {find() {}}; const found = values.find(predicate); Boolean(found);',
 			'export const found = values.find(predicate); Boolean(found);',
@@ -61,7 +64,7 @@ test({
 			'const found = values.find(predicate); Boolean?.(found);',
 			'const found = values?.find(predicate); Boolean(found);',
 			'const found = values.find?.(predicate); Boolean(found);',
-		].flatMap(code => [code, code.replace('.find', '.findLast')]),
+		].flatMap(code => [code, code.replaceAll('find', 'findLast')]),
 		{
 			code: 'const found: Item | undefined = values.find(predicate); Boolean(found);',
 			languageOptions: {parser: parsers.typescript},
@@ -72,6 +75,10 @@ test({
 		},
 		{
 			code: 'const found = values.find(predicate); Boolean(found as Item);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const found = values.find(predicate); Boolean(found); type Found = typeof found;',
 			languageOptions: {parser: parsers.typescript},
 		},
 		typeAware('function hasMatch(values: {find(predicate: Function): unknown}) { const found = values.find(predicate); return Boolean(found); }'),
@@ -97,6 +104,7 @@ test({
 			'const values = []; const found = values.find(predicate); Boolean(found); if (found) {}',
 			'const found = ((values).find(/* keep */ predicate, receiver)); Boolean(/* keep */ (found));',
 			'const found = values.find(predicate); doSomething(); !Boolean(found);',
+			'const found = values.find(predicate); function hasMatch() { return Boolean(found); }',
 			'const found = new Uint8Array([0, 1]).find(predicate); Boolean(found);',
 		].flatMap(code => ['find', 'findLast'].map(method => invalidCase({
 			code: code.replace('.find(', () => `.${method}(`),
@@ -114,6 +122,11 @@ test({
 			languageOptions: {parser: parsers.typescript},
 			method: 'find',
 		}),
+		...['find', 'findLast'].map(method => invalidCase({
+			...typeAware(`function hasMatch(values: any) { const found = values.${method}(predicate); return Boolean(found); }`),
+			suggestionOutput: 'function hasMatch(values: any) { const found = values.some(predicate); return Boolean(found); }',
+			method,
+		})),
 	],
 });
 
