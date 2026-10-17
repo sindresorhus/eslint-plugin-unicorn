@@ -3,6 +3,81 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+// NaN propagation and contexts that do not observe the numeric value
+test({
+	valid: [],
+	invalid: [
+		['Math.sqrt(NaN ** 2 + 3 ** 2);', 'Math.hypot(NaN, 3);'],
+		['Math.sqrt(1e200 * 1e200 + NaN ** 2);', 'Math.hypot(1e200, NaN);'],
+		['Math.sqrt("not a number" ** 2 + 0 ** 2);', 'Math.hypot("not a number", 0);'],
+		['const value = NaN; Math.sqrt((0 ** 2 + value ** 2) + 4 * 4);', 'const value = NaN; Math.hypot(0, value, 4);'],
+		['Math.log(undefined) / Math.LN2;', 'Math.log2(undefined);'],
+		['const value = undefined; Math.log(value) * Math.LOG10E;', 'const value = undefined; Math.log10(value);'],
+		['Math.sqrt(undefined ** 2);', 'Math.abs(undefined);'],
+		['Math.sqrt(undefined ** 2 + 4 * 4);', 'Math.hypot(undefined, 4);'],
+		['for (Math.log(value) / Math.LN2; condition; update()) {}', 'for (Math.log2(value); condition; update()) {}'],
+		['for (; condition; Math.LOG10E * Math.log(getValue())) {}', 'for (; condition; Math.log10(getValue())) {}'],
+		['for (start(); condition; next(), Math.log(value) / Math.LN10) {}', 'for (start(); condition; next(), Math.log10(value)) {}'],
+		['typeof (Math.log(value) * Math.LOG2E);', 'typeof (Math.log2(value));'],
+		['const type = typeof (Math.LOG10E * Math.log(getValue()));', 'const type = typeof (Math.log10(getValue()));'],
+		['void (condition ? Math.log(value) / Math.LN2 : fallback());', 'void (condition ? Math.log2(value) : fallback());'],
+		['void (condition ? fallback() : Math.log(value) / Math.LN10);', 'void (condition ? fallback() : Math.log10(value));'],
+		['void (condition && Math.log(value) / Math.LN2);', 'void (condition && Math.log2(value));'],
+		['const type = typeof (condition || Math.log(value) * Math.LOG10E);', 'const type = typeof (condition || Math.log10(value));'],
+		['const result = (condition ?? Math.log(value) / Math.LN2, next());', 'const result = (condition ?? Math.log2(value), next());'],
+		['void (first ? second && (next(), Math.log(getValue()) / Math.LN2) : fallback());', 'void (first ? second && (next(), Math.log2(getValue())) : fallback());'],
+		['for (; condition; flag ? Math.log(value) / Math.LN2 : fallback()) {}', 'for (; condition; flag ? Math.log2(value) : fallback()) {}'],
+		['void Math.sqrt(4 ** 2);', 'void Math.abs(4);'],
+		['void Math.sqrt(1e200 * 1e200);', 'void Math.abs(1e200);'],
+		['typeof Math.sqrt(3 * 3 + 4 * 4);', 'typeof Math.hypot(3, 4);'],
+		['void Math.sqrt(NaN ** 2 + Infinity ** 2);', 'void Math.hypot(NaN, Infinity);'],
+		['const result = (Math.sqrt(3 ** 2 + 4 ** 2), next());', 'const result = (Math.hypot(3, 4), next());'],
+	].map(([code, output]) => ({
+		code,
+		output,
+		errors: [{messageId: 'prefer-modern-math-apis', suggestions: []}],
+	})),
+});
+
+test.typescript({
+	valid: [],
+	invalid: [
+		['Math.sqrt((NaN as number) ** 2 + 3 ** 2);', 'Math.hypot((NaN as number), 3);'],
+		['Math.log(undefined as undefined) / Math.LN2;', 'Math.log2(undefined as undefined);'],
+		['for ((Math.log(value) / Math.LN2) as number; condition; update()) {}', 'for ((Math.log2(value)) as number; condition; update()) {}'],
+		['typeof ((Math.log(value) / Math.LN2) satisfies number);', 'typeof ((Math.log2(value)) satisfies number);'],
+		['void ((condition ? (Math.log(value) / Math.LN2) as number : fallback()) satisfies number);', 'void ((condition ? (Math.log2(value)) as number : fallback()) satisfies number);'],
+	].map(([code, output]) => ({
+		code,
+		output,
+		errors: [{messageId: 'prefer-modern-math-apis', suggestions: []}],
+	})),
+});
+
+// These contexts still observe a result or can change coercion and errors
+test.snapshot({
+	valid: [],
+	invalid: [
+		'Math.sqrt(NaN ** 2 + value ** 2);',
+		'Math.sqrt(undefined ** 2 + Infinity ** 2);',
+		'const result = condition ? Math.log(value) / Math.LN2 : fallback();',
+		'const result = condition && Math.log(value) / Math.LN2;',
+		'void ((Math.log(value) / Math.LN2) ? first() : second());',
+		'void ((Math.log(value) / Math.LN2) && next());',
+		'for (; Math.log(value) / Math.LN2; update()) {}',
+		'for (const value = Math.log(input) / Math.LN2; condition; update()) {}',
+		'for (; condition; update()) { Math.log(value) / Math.LN2; }',
+		'void Math.sqrt(getValue() ** 2);',
+		'void Math.sqrt(1n ** 2);',
+		'typeof Math.sqrt(value * value);',
+		'void (Math.sqrt(1e-200 * 1e-200) && next());',
+		'void (Math.sqrt(1e-200 * 1e-200) ? first() : second());',
+		'void Math.sqrt(getValue() ** 2 + 3 ** 2);',
+		'void Math.sqrt(4 ** /* keep */ 2);',
+		'for (Math.log(/* keep */ value) / Math.LN2; condition; update()) {}',
+	],
+});
+
 // Special values and explicitly discarded logarithms have exact behavior
 test({
 	valid: [],

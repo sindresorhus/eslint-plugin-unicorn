@@ -25,7 +25,7 @@ function getStaticNumber(node, context) {
 	const argument = node.type === 'UnaryExpression' && (node.operator === '+' || node.operator === '-')
 		? unwrapTypeScriptExpression(node.argument)
 		: node;
-	if (argument.type === 'Identifier' && (argument.name === 'Infinity' || argument.name === 'NaN')) {
+	if (argument.type === 'Identifier' && ['Infinity', 'NaN', 'undefined'].includes(argument.name)) {
 		const value = argument.name === 'Infinity' ? Infinity : NaN;
 		return node.type === 'UnaryExpression' && node.operator === '-' ? -value : value;
 	}
@@ -34,25 +34,53 @@ function getStaticNumber(node, context) {
 	return value === undefined || typeof value === 'bigint' ? undefined : Number(value);
 }
 
-function isExplicitlyDiscarded(node) {
+function isNumericValueUnused(node) {
 	// Expression statement completion values can be observed by `eval()`.
 	while (true) {
-		node = getOutermostTypeScriptExpression(node);
-		const {parent} = node;
-		if (parent.type !== 'SequenceExpression') {
-			return parent.type === 'UnaryExpression' && parent.operator === 'void';
-		}
+		const expression = getOutermostTypeScriptExpression(node);
+		node = expression.parent;
+		switch (node.type) {
+			case 'UnaryExpression': {
+				return node.operator === 'void' || node.operator === 'typeof';
+			}
 
-		if (parent.expressions.at(-1) !== node) {
-			return true;
-		}
+			case 'ForStatement': {
+				return node.init === expression || node.update === expression;
+			}
 
-		node = parent;
+			case 'SequenceExpression': {
+				if (node.expressions.at(-1) !== expression) {
+					return true;
+				}
+
+				continue;
+			}
+
+			case 'ConditionalExpression': {
+				if (node.test === expression) {
+					return false;
+				}
+
+				continue;
+			}
+
+			case 'LogicalExpression': {
+				if (node.left === expression) {
+					return false;
+				}
+
+				continue;
+			}
+
+			default: {
+				return false;
+			}
+		}
 	}
 }
 
 function canAutoFixLogCall(node, valueNode, context) {
-	if (isExplicitlyDiscarded(node)) {
+	if (isNumericValueUnused(node)) {
 		return true;
 	}
 
@@ -198,15 +226,24 @@ function flatPlusExpression(node, plusExpressions) {
 	return [node.left, node.right].flatMap(child => flatPlusExpression(child, plusExpressions));
 }
 
-function canAutoFixSquareExpressions(expressions, context) {
+function canAutoFixSquareExpressions(node, expressions, context) {
 	const values = expressions.map(expression => getStaticNumber(expression.left, context));
 	if (values.includes(undefined)) {
 		return false;
 	}
 
+	if (isNumericValueUnused(node)) {
+		return true;
+	}
+
 	if (values.length > 1) {
+		const hasInfinity = values.includes(Infinity) || values.includes(-Infinity);
+		if (hasInfinity) {
+			return values.every(value => !Number.isNaN(value));
+		}
+
 		return values.every(value => value === 0)
-			|| (values.every(value => !Number.isNaN(value)) && values.some(value => !Number.isFinite(value)));
+			|| values.some(value => Number.isNaN(value));
 	}
 
 	const [value] = values;
@@ -241,7 +278,7 @@ const create = context => {
 		}
 
 		const replacementMethod = expressions.length === 1 ? 'abs' : 'hypot';
-		const canAutoFix = canAutoFixSquareExpressions(expressions, context);
+		const canAutoFix = canAutoFixSquareExpressions(callExpression, expressions, context);
 		const fix = function * (fixer, {abort}) {
 			const {sourceCode} = context;
 

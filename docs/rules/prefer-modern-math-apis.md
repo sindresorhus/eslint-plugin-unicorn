@@ -11,9 +11,11 @@
 
 Standard `Math` methods express mathematical intent directly and are less error-prone than reimplementing them.
 
-Autofixes use literal values, `const` variables initialized with them, and the numeric globals `Infinity` and `NaN` to prove the result is unchanged. These cover safe multiplication-based squares, exponentiation of zero or nonfinite values, logarithms with exact special results, and `Math.hypot()` inputs that are all zero or contain infinity without `NaN`.
+Autofixes use literal values, `const` variables initialized with them, and the globals `Infinity`, `NaN`, and `undefined` to prove the result is unchanged. These cover safe multiplication-based squares, exponentiation of zero or nonfinite values, logarithms with exact special results, and `Math.hypot()` inputs that are all zero, contain infinity without `NaN`, or contain `NaN` without infinity.
 
-Logarithm replacements can also be automatically fixed when their results are explicitly discarded with `void` or a nonfinal comma operand. Other replacements are offered as suggestions because they can change rounding, overflow, and underflow behavior.
+Logarithm replacements can also be automatically fixed when the numeric value is unused: under `void` or `typeof`, in a nonfinal comma operand, or in a `for` loop's expression initializer or update. Conditional branches and logical right operands inherit that context. Square replacements can use the same contexts when all inputs are known primitive values.
+
+Other replacements are offered as suggestions because they can change rounding, overflow, and underflow behavior.
 
 Math additions in ES2015:
 
