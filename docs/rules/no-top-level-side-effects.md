@@ -77,8 +77,14 @@ Direct calls to these imported helpers are trusted:
 - `@eslint/config-helpers`: `convertIgnorePatternToMinimatch`.
 - `@stylistic/eslint-plugin`: `configs.customize`.
 - `stylelint`: `createPlugin`.
-- `vite`, `rollup`, and `astro/config`: `defineConfig`.
+- `vite`, `rollup`, `rolldown`, and `tsdown`: `defineConfig`.
 - `vitest/config`: `defineConfig` and `defineProject`.
+- `@playwright/test`, `playwright/test`, and `cypress`: `defineConfig`.
+- `astro/config` and `vitepress`: `defineConfig`.
+- `@rsbuild/core`, `@rslib/core`, and `@rspack/cli`: `defineConfig`.
+- `drizzle-kit`: `defineConfig`.
+- `unocss` and `@pandacss/dev`: `defineConfig`.
+- `nuxt/config`: `defineNuxtConfig`.
 - `memoize`, `debounce`, `onetime`, `p-memoize`, and `throttleit`: the default export.
 - `p-debounce`: the default export and its `.promise()` method.
 - `p-limit`: the default export and `limitFunction`.
