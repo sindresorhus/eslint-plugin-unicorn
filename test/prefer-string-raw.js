@@ -56,12 +56,19 @@ for (const expression of [`'${TEST_STRING}'`, `\`${TEST_STRING}\``]) {
 		'const options = {path: VALUE} as const;',
 		'const options = [VALUE] as const;',
 		'const options = {nested: {path: VALUE}} as const;',
+		'class Paths {readonly path = VALUE;}',
 		'const path = VALUE satisfies string;',
 		`const path = VALUE satisfies '${TEST_STRING}';`,
 		'declare function use<const Type>(value: Type): Type; const path = use(VALUE);',
 		`declare function use(value: '${TEST_STRING}'): 1; declare function use(value: string): 2; const result: 1 = use(VALUE);`,
 		'const path = (/* keep */ VALUE);',
 		'function path(): string {return VALUE;}',
+		outdent`
+			type Tag<Value> = Value extends string ? 'string' : 'other';
+			declare function getTag<Value>(value: Value): Tag<Value>;
+			const path: {} | '${TEST_STRING}' = VALUE;
+			if (getTag(path) === 'string') {}
+		`,
 	];
 
 	test({
@@ -98,20 +105,28 @@ for (const expression of [`'${TEST_STRING}'`, `\`${TEST_STRING}\``]) {
 		invalid: [],
 	});
 
-	const aliasCode = `type PathText = string; const path: PathText = ${expression};`;
 	test({
 		valid: [],
 		invalid: [
-			{
-				...typescript(aliasCode),
-				...getSuggestionCase(aliasCode, `type PathText = string; const path: PathText = ${replacement};`),
-			},
-			{
-				...typeAware(aliasCode),
-				output: `type PathText = string; const path: PathText = ${replacement};`,
-				errors: [{messageId: 'prefer-string-raw'}],
-			},
-		],
+			'type PathText = string; const path: PathText = VALUE;',
+			'const path: string | undefined = VALUE;',
+			'let path: string | null = VALUE;',
+			'type PathText = string | undefined; const path: PathText = VALUE;',
+		].flatMap(pattern => {
+			const code = pattern.replace('VALUE', () => expression);
+			const output = pattern.replace('VALUE', () => replacement);
+			return [
+				{
+					...typescript(code),
+					...getSuggestionCase(code, output),
+				},
+				{
+					...typeAware(code),
+					output,
+					errors: [{messageId: 'prefer-string-raw'}],
+				},
+			];
+		}),
 	});
 }
 
@@ -135,6 +150,7 @@ test({
 test({
 	valid: [
 		typeAware('declare const suffix: string; declare function use<const Type>(value: Type): Type; const result = use({path: `a\\\\b${suffix}`});'),
+		typeAware('declare const suffix: string; const path: `a\\\\b${string}` = `a\\\\b${suffix}`;'),
 	],
 	invalid: [
 		...['file.ts', 'file.mts', 'file.cts', 'file.tsx', 'file.js'].map(filename => ({

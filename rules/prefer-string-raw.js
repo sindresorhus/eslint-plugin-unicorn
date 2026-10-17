@@ -61,9 +61,9 @@ function getStringRawProblem(node, context, fix) {
 	const binding = parent.type === 'VariableDeclarator' && parent.init === node && parent.id.type === 'Identifier'
 		? parent.id
 		: undefined;
-	const typeSafety = withTypeInformation(node, context, ({type}) =>
+	const typeSafety = withTypeInformation(node, context, ({type, checker}) =>
 		type.intrinsicName === 'string'
-		|| (binding !== undefined && parserServices.getTypeAtLocation(binding).intrinsicName === 'string'),
+		|| (binding !== undefined && checker.getNonNullableType(parserServices.getTypeAtLocation(binding)).intrinsicName === 'string'),
 	);
 	if (typeSafety === false) {
 		return;
