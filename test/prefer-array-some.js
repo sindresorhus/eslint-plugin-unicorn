@@ -1,6 +1,7 @@
 import {test as nodeTest} from 'node:test';
 import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
+import {transpileModule, ScriptTarget} from 'typescript';
 import outdent from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
@@ -905,4 +906,46 @@ test({
 			['a = (( ((foo.find(fn))) == ((null)) )) ? "no" : "yes";', 'a = (( !((foo.some(fn))) )) ? "no" : "yes";', 'find'],
 		].map(([code, suggestionOutput, method]) => invalidCase({code, suggestionOutput, method})),
 	],
+});
+
+// Erased type assertions must not expose a unary left operand of exponentiation.
+test({
+	valid: [],
+	invalid: [{
+		code: 'array.findIndex(item => item === value) < 0 as any ** 2;',
+		languageOptions: {parser: parsers.typescript},
+		output: '(!array.some(item => item === value)) as any ** 2;',
+		errors: 1,
+	}],
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['setup()\narray.findIndex(item => item === value) < 0 as any ** 2;', 'setup()\n;(!array.some(item => item === value)) as any ** 2;'],
+			['(array.findIndex(item => item === value) < 0) as any ** 2;', '(!array.some(item => item === value)) as any ** 2;'],
+			['array.findLastIndex(item => item === /* keep */ value) < 0 satisfies boolean as any ** 2;', '(!array.some(item => item === /* keep */ value)) satisfies boolean as any ** 2;'],
+		].map(([code, output]) => ({
+			code, output, languageOptions: {parser: parsers.typescript}, errors: 1,
+		})),
+		invalidCase({
+			code: 'array.findLastIndex(predicate) < 0 as any ** 2;',
+			languageOptions: {parser: parsers.typescript},
+			suggestionOutput: '(!array.some(predicate)) as any ** 2;',
+			method: 'findLastIndex',
+		}),
+	],
+});
+
+nodeTest('negated index predicate checks compile and retain results through type assertions', t => {
+	for (const value of [1, 2]) {
+		const code = `const array = [1]; const value = ${value}; const setup = () => undefined;\nsetup()\narray.findIndex(item => item === value) < 0 as any ** 2;`;
+		const config = {...linterConfig, languageOptions: {parser: typescriptEslintParser}};
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		const execute = source => runInNewContext(transpileModule(source, {compilerOptions: {target: ScriptTarget.ESNext}}).outputText);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(execute(output), execute(code));
+	}
 });

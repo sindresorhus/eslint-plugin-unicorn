@@ -8,7 +8,10 @@ import {
 	isIndexedCollection,
 	isKnownNonIndexedCollection,
 	isNodeValueNotFunction,
+	isParenthesized,
 	isSideEffectFreeFunction,
+	isTypeScriptExpressionWrapper,
+	needsSemicolon,
 } from './utils/index.js';
 import {removeMemberExpressionProperty} from './fix/index.js';
 import {
@@ -220,7 +223,17 @@ const create = context => {
 			}
 
 			if (['===', '==', '<'].includes(operator)) {
-				yield fixer.insertTextBefore(binaryExpression, '!');
+				let prefix = '!';
+				if (!isParenthesized(binaryExpression, context) && isTypeScriptExpressionWrapper(binaryExpression.parent)) {
+					prefix = '(!';
+					yield fixer.insertTextAfter(binaryExpression, ')');
+				}
+
+				if (needsSemicolon(sourceCode.getTokenBefore(binaryExpression), context, prefix)) {
+					prefix = ';' + prefix;
+				}
+
+				yield fixer.insertTextBefore(binaryExpression, prefix);
 			}
 
 			yield fixer.replaceText(methodNode, 'some');

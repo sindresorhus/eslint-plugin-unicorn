@@ -1,7 +1,10 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 // `setAttribute`
 test.snapshot({
@@ -486,4 +489,92 @@ test({
 			}],
 		})),
 	],
+});
+
+// Introducing a call inside a constructor callee must retain its grouping.
+test({
+	valid: [],
+	invalid: [{
+		code: 'new element.dataset.foo.constructor("text");',
+		options: [{preferAttributes: true}],
+		errors: [{
+			messageId: 'prefer-attributes', suggestions: [{
+				messageId: 'prefer-attributes/suggestion',
+				output: 'new (element.getAttribute(\'data-foo\')).constructor("text");',
+			}],
+		}],
+	}],
+});
+
+// An in expression can leave call-argument grammar and enter a for initializer.
+test({
+	valid: [],
+	invalid: [{
+		code: 'for (element.setAttribute("data-value", "key" in object), ready;;) {}',
+		output: 'for (element.dataset.value = ("key" in object), ready;;) {}',
+		errors: 1,
+	}],
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['const data = element.dataset; new data.foo.constructor("text");', ' new (element.getAttribute(\'data-foo\')).constructor("text");'],
+			['new (element.dataset.foo).constructor("text");', 'new (element.getAttribute(\'data-foo\')).constructor("text");'],
+			['const data = element.dataset; use(data.foo);', ' use(element.getAttribute(\'data-foo\'));'],
+		].map(([code, output]) => ({
+			code,
+			options: [{preferAttributes: true}],
+			errors: [{messageId: 'prefer-attributes', suggestions: [{messageId: 'prefer-attributes/suggestion', output}]}],
+		})),
+		{
+			code: 'new element.dataset.foo!.constructor("text");',
+			languageOptions: {parser: parsers.typescript},
+			options: [{preferAttributes: true}],
+			errors: [{messageId: 'prefer-attributes', suggestions: [{messageId: 'prefer-attributes/suggestion', output: 'new (element.getAttribute(\'data-foo\'))!.constructor("text");'}]}],
+		},
+		{
+			code: 'new element.dataset./* keep */foo.constructor("text");',
+			options: [{preferAttributes: true}],
+			errors: [{messageId: 'prefer-attributes', suggestions: []}],
+		},
+		{
+			code: 'for (element.setAttribute("data-value", ("key" in object)), ready;;) {}',
+			output: 'for (element.dataset.value = (("key" in object)), ready;;) {}',
+			errors: 1,
+		},
+	],
+});
+
+nodeTest('attribute read suggestions preserve constructor grouping', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: {rules: {'dom-node-dataset': rule}}}, rules: {'unicorn/dom-node-dataset': ['error', {preferAttributes: true}]}};
+	const element = {dataset: {foo: ''}, getAttribute: () => ''};
+	for (const prefix of ['', 'const data = element.dataset; ']) {
+		const code = `${prefix}new ${prefix ? 'data.foo' : 'element.dataset.foo'}.constructor("text").valueOf();`;
+		const [message] = linter.verify(code, config);
+		const {range, text} = message.suggestions[0].fix;
+		const output = code.slice(0, range[0]) + text + code.slice(range[1]);
+		t.assert.strictEqual(runInNewContext(output, {element}), runInNewContext(code, {element}));
+		t.assert.deepStrictEqual(linter.verify(output, config), []);
+	}
+});
+
+nodeTest('dataset assignment preserves in expressions in for initializers', t => {
+	const linter = new Linter();
+	const code = 'for (element.setAttribute("data-value", "key" in object), ready;;) { break; } element.dataset.value;';
+	const config = {plugins: {unicorn: {rules: {'dom-node-dataset': rule}}}, rules: {'unicorn/dom-node-dataset': 'error'}};
+	const {output, fixed, messages} = linter.verifyAndFix(code, config);
+	const dataset = {};
+	const element = {
+		dataset,
+		setAttribute(name, value) {
+			dataset.value = value;
+		},
+	};
+	t.assert.strictEqual(fixed, true);
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(runInNewContext(code, {element, object: {key: true}, ready: true}), true);
+	t.assert.strictEqual(runInNewContext(output, {element, object: {key: true}, ready: true}), true);
 });

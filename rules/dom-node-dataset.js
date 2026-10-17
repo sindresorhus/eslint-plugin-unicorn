@@ -9,6 +9,7 @@ import {
 	hasOptionalChainElement,
 	isGlobalIdentifier,
 	isIdentifierName,
+	isInUnparenthesizedNewExpressionCallee,
 	isKnownNonDomNode,
 	isLeftHandSide,
 	isValueNotUsable,
@@ -159,7 +160,12 @@ function getDatasetVariableInlineFix(declarator, context) {
 		yield removeStatement(declaration, context, fixer);
 		for (const member of usageMembers) {
 			const attributeName = escapeString(camelCaseToDash(getStaticPropertyName(member, context)), getKeyQuote(member));
-			yield fixer.replaceText(member, `${objectText}.getAttribute(${attributeName})`);
+			let text = `${objectText}.getAttribute(${attributeName})`;
+			if (isInUnparenthesizedNewExpressionCallee(member, context)) {
+				text = `(${text})`;
+			}
+
+			yield fixer.replaceText(member, text);
 		}
 	};
 }
@@ -205,7 +211,9 @@ function getFix(callExpression, context) {
 				text = isIdentifierName(name) ? `.${name}` : `[${escapeString(name, nameNode.raw.charAt(0))}]`;
 				text = `${datasetText}${text}`;
 				if (method === 'setAttribute') {
-					text += ` = ${getParenthesizedText(callExpression.arguments[1], context)}`;
+					const valueText = getParenthesizedText(callExpression.arguments[1], context);
+					// Sequence items can be in a `for` initializer, where bare `in` is not allowed.
+					text += ` = ${callExpression.parent.type === 'SequenceExpression' ? `(${valueText})` : valueText}`;
 				} else if (method === 'removeAttribute') {
 					text = `delete ${text}`;
 				}
@@ -503,7 +511,14 @@ const create = context => {
 					data: {method},
 					suggest: [{
 						messageId: INVERSE_SUGGESTION_MESSAGE_ID,
-						fix: fixer => fixer.replaceText(memberExpression, `${objectText}${chain}getAttribute(${attributeName})`),
+						fix(fixer) {
+							let text = `${objectText}${chain}getAttribute(${attributeName})`;
+							if (isInUnparenthesizedNewExpressionCallee(memberExpression, context)) {
+								text = `(${text})`;
+							}
+
+							return fixer.replaceText(memberExpression, text);
+						},
 					}],
 				};
 			}

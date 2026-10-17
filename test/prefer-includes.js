@@ -1,6 +1,7 @@
 import {test as nodeTest} from 'node:test';
 import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
+import {transpileModule, ScriptTarget} from 'typescript';
 import {outdent} from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
@@ -568,4 +569,55 @@ test({
 			errors: [{messageId: 'prefer-includes'}],
 		},
 	],
+});
+
+// Erased type assertions must not expose a unary left operand of exponentiation.
+test({
+	valid: [],
+	invalid: [{
+		code: 'array.indexOf(value) < 0 as any ** 2;',
+		languageOptions: {parser: parsers.typescript},
+		output: '(!array.includes(value)) as any ** 2;',
+		errors: 1,
+	}],
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['setup()\narray.indexOf(value) < 0 as any ** 2;', 'setup()\n;(!array.includes(value)) as any ** 2;'],
+			['(array.indexOf(value) < 0) as any ** 2;', '(!array.includes(value)) as any ** 2;'],
+			['array.lastIndexOf(value) < 0 satisfies boolean as any ** 2;', '(!array.includes(value)) satisfies boolean as any ** 2;'],
+		].map(([code, output]) => ({
+			code, output, languageOptions: {parser: parsers.typescript}, errors: 1,
+		})),
+		{
+			code: 'array.indexOf(/* keep */ value) < 0 as any ** 2;',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+	],
+});
+
+nodeTest('negated index checks retain grouping after TypeScript assertions are erased', t => {
+	for (const value of [1, 2]) {
+		const code = `const array = [1]; const value = ${value}; const setup = () => undefined;\nsetup()\narray.indexOf(value) < 0 as any ** 2;`;
+		const config = {...linterConfig, languageOptions: {parser: typescriptEslintParser}};
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		const execute = source => runInNewContext(transpileModule(source, {compilerOptions: {target: ScriptTarget.ESNext}}).outputText);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(execute(output), execute(code));
+	}
+});
+
+// Parentheses around the old call can hide an object-derived receiver prefix.
+test({
+	valid: [],
+	invalid: [{
+		code: '({array: [1]}.array.indexOf(1)) >= 0;',
+		output: '({array: [1]}.array).includes(1);',
+		errors: 1,
+	}],
 });

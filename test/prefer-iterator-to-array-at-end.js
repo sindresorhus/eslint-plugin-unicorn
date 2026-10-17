@@ -1,7 +1,10 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
@@ -137,4 +140,66 @@ test.snapshot({
 		// Comments inside `.toArray()` are reported without a fix
 		'iterator.toArray(/* comment */).map(value => value)',
 	],
+});
+
+// Rebuilding the chain must not expose a declaration-like statement prefix.
+test({
+	valid: [],
+	invalid: [{
+		code: '(function* () { yield 1; }().toArray()).map(value => value);',
+		errors: [{
+			messageId: 'prefer-iterator-to-array-at-end', suggestions: [{
+				messageId: 'prefer-iterator-to-array-at-end',
+				output: '(function* () { yield 1; }()).map(value => value).toArray();',
+			}],
+		}],
+	}],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: '({iterator: Iterator.from([1, 2])}.iterator.toArray()).map(value => value);',
+			errors: [{
+				messageId: 'prefer-iterator-to-array-at-end',
+				suggestions: [{
+					messageId: 'prefer-iterator-to-array-at-end',
+					output: '({iterator: Iterator.from([1, 2])}.iterator).map(value => value).toArray();',
+				}],
+			}],
+		},
+		{
+			code: '(function* () { yield 1; }()!.toArray()).map(value => value);',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'prefer-iterator-to-array-at-end',
+				suggestions: [{
+					messageId: 'prefer-iterator-to-array-at-end',
+					output: '(function* () { yield 1; }()!).map(value => value).toArray();',
+				}],
+			}],
+		},
+		{
+			code: '(function* () { yield 1; }().toArray()).map(/* keep */ value => value);',
+			errors: [{
+				messageId: 'prefer-iterator-to-array-at-end',
+				suggestions: [{
+					messageId: 'prefer-iterator-to-array-at-end',
+					output: '(function* () { yield 1; }()).map(/* keep */ value => value).toArray();',
+				}],
+			}],
+		},
+	],
+});
+
+nodeTest('moving toArray preserves parenthesized receiver expressions', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: {rules: {'prefer-iterator-to-array-at-end': rule}}}, rules: {'unicorn/prefer-iterator-to-array-at-end': 'error'}};
+	const code = '(function* () { yield 1; }().toArray()).map(value => value);';
+	const [message] = linter.verify(code, config);
+	const {range, text} = message.suggestions[0].fix;
+	const output = code.slice(0, range[0]) + text + code.slice(range[1]);
+	t.assert.deepStrictEqual(linter.verify(output, config), []);
+	t.assert.strictEqual(JSON.stringify(runInNewContext(output)), JSON.stringify(runInNewContext(code)));
 });

@@ -1,6 +1,6 @@
 import {getPropertyName} from '@eslint-community/eslint-utils';
 import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
-import {getParenthesizedText, getStaticValueIfNoSideEffects} from './utils/index.js';
+import {getParenthesizedText, getStaticValueIfNoSideEffects, isInUnparenthesizedNewExpressionCallee} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-temporal';
 const MESSAGE_ID_PARSE = 'prefer-temporal/parse';
@@ -71,10 +71,11 @@ function replacementSuggestions(node, context, replacements) {
 		return;
 	}
 
+	const needsParentheses = isInUnparenthesizedNewExpressionCallee(node, context);
 	return replacements.map(replacement => ({
 		messageId: MESSAGE_ID_SUGGESTION,
 		data: {replacement},
-		fix: fixer => fixer.replaceText(node, replacement),
+		fix: fixer => fixer.replaceText(node, needsParentheses ? `(${replacement})` : replacement),
 	}));
 }
 

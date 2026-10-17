@@ -1,6 +1,7 @@
 import {
 	getParenthesizedRange,
-	getParenthesizedText,
+	getMemberExpressionObjectText,
+	isInUnparenthesizedNewExpressionCallee,
 	wouldRemoveComments,
 } from './utils/index.js';
 import typedArray from './shared/typed-array.js';
@@ -124,8 +125,10 @@ const isIterableAcceptingParent = node => {
 	);
 };
 
-const getReplacementText = (spreadElement, context) =>
-	`${getParenthesizedText(spreadElement.argument, context)}.toArray()`;
+const getReplacementText = (arrayExpression, spreadElement, context) => {
+	const text = `${getMemberExpressionObjectText(spreadElement.argument, context)}.toArray()`;
+	return isInUnparenthesizedNewExpressionCallee(arrayExpression, context) ? `(${text})` : text;
+};
 
 const getFix = (arrayExpression, spreadElement, context) => {
 	if (wouldRemoveComments(context, arrayExpression, [getParenthesizedRange(spreadElement.argument, context)])) {
@@ -133,7 +136,7 @@ const getFix = (arrayExpression, spreadElement, context) => {
 	}
 
 	return function * (fixer) {
-		yield fixer.replaceText(arrayExpression, getReplacementText(spreadElement, context));
+		yield fixer.replaceText(arrayExpression, getReplacementText(arrayExpression, spreadElement, context));
 		yield fixSpaceAroundKeyword(fixer, arrayExpression, context);
 	};
 };

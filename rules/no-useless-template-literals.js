@@ -9,6 +9,7 @@ import {
 	getCallArgumentText,
 	hasCommentInRange,
 	isEscapedCharacter,
+	isInUnparenthesizedNewExpressionCallee,
 	isTypeScriptFile,
 } from './utils/index.js';
 import escapeTemplateElementRaw from './utils/escape-template-element-raw.js';
@@ -269,7 +270,10 @@ const create = context => {
 			}
 
 			const hasComments = hasCommentInRange(context, getInterpolationRange(node, sourceCode, 0));
-			const replacement = `String(${getCallArgumentText(expression, context)})`;
+			let replacement = `String(${getCallArgumentText(expression, context)})`;
+			if (isInUnparenthesizedNewExpressionCallee(node, context)) {
+				replacement = `(${replacement})`;
+			}
 
 			return {
 				node,

@@ -11,6 +11,7 @@ import {
 	getUnnecessarySpliceReplacement,
 } from './shared/splice-replacements.js';
 import {
+	getMemberExpressionObjectText,
 	getParenthesizedText,
 	hasOptionalChainElement,
 	isValueNotUsable,
@@ -84,7 +85,7 @@ function getFix(callExpression, replacement, context) {
 		return fixer => removeStatement(callExpression.parent, context, fixer);
 	}
 
-	const objectText = getParenthesizedText(object, context);
+	const objectText = getMemberExpressionObjectText(object, context);
 	if (replacement.messageId === MESSAGE_ID_EMPTY) {
 		return fixer => fixer.replaceText(callExpression, `${objectText}.length = 0`);
 	}

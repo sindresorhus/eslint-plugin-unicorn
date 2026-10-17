@@ -1,7 +1,10 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 // Keyword spacing
 test({
@@ -118,4 +121,51 @@ test.snapshot({
 		'[...map.values() /* comment */]',
 		'[/* comment */ ...Iterator.from(iterable)]',
 	],
+});
+
+// Unwrapping a spread must preserve statement prefixes and constructor grouping.
+test({
+	valid: [],
+	invalid: [
+		['[...function () { return [1, 2]; }().values()];', '(function () { return [1, 2]; }().values()).toArray();'],
+		['new [...array.values()].constructor(3);', 'new (array.values().toArray()).constructor(3);'],
+	].map(([code, output]) => ({code, errors: [{messageId: 'prefer-iterator-to-array', suggestions: [{messageId: 'prefer-iterator-to-array/suggestion', output}]}]})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'new [...Iterator.from(array)].constructor(3);',
+			output: 'new (Iterator.from(array).toArray()).constructor(3);',
+			errors: 1,
+		},
+		{
+			code: 'new [...Iterator.from(array)]!.constructor(3);',
+			output: 'new (Iterator.from(array).toArray())!.constructor(3);',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'new ([...Iterator.from(array)]).constructor(3);',
+			output: 'new (Iterator.from(array).toArray()).constructor(3);',
+			errors: 1,
+		},
+	],
+});
+
+nodeTest('iterator replacements preserve expression grammar and constructors', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: {rules: {'prefer-iterator-to-array': rule}}}, rules: {'unicorn/prefer-iterator-to-array': 'error'}};
+	for (const code of [
+		'[...function () { return [1, 2]; }().values()];',
+		'const array = [1, 2]; new [...array.values()].constructor(3).length;',
+		'const array = [1, 2]; new [...Iterator.from(array)].constructor(3).length;',
+	]) {
+		const [message] = linter.verify(code, config);
+		const {range, text} = message.fix ?? message.suggestions[0].fix;
+		const output = code.slice(0, range[0]) + text + code.slice(range[1]);
+		t.assert.deepStrictEqual(linter.verify(output, config), []);
+		t.assert.strictEqual(JSON.stringify(runInNewContext(output, {Iterator})), JSON.stringify(runInNewContext(code, {Iterator})));
+	}
 });

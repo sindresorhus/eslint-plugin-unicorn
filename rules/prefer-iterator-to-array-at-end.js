@@ -1,7 +1,7 @@
 import {
 	getCallExpressionArgumentsText,
 	getCallExpressionTokens,
-	getParenthesizedText,
+	getMemberExpressionObjectText,
 	isParenthesized,
 	wouldRemoveComments,
 } from './utils/index.js';
@@ -47,7 +47,7 @@ const canObserveArrayArgument = (node, context) => {
 
 const getReplacementText = (toArrayCall, methodCall, context, openingParenthesisToken) => {
 	const {sourceCode} = context;
-	const iteratorText = getParenthesizedText(toArrayCall.callee.object, context);
+	const iteratorText = getMemberExpressionObjectText(toArrayCall.callee.object, context);
 	const method = methodCall.callee.property.name;
 	const argumentsText = getCallExpressionArgumentsText(context, methodCall);
 	const [, methodNameEnd] = sourceCode.getRange(methodCall.callee.property);
