@@ -193,6 +193,8 @@ nodeTest('setHTML suggestions retain the receiver when assignment parentheses ar
 		content: '<p>text</p>',
 		element: {
 			setHTML(content) {
+				// Model the unsafe write to compare its result with the suggested method call.
+				// eslint-disable-next-line unicorn/no-this-outside-of-class, unicorn/no-unsafe-dom-html
 				this.innerHTML = content;
 			},
 		},
