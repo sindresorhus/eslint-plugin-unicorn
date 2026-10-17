@@ -23,6 +23,7 @@ import {
 	getStaticValueIfNoSideEffects,
 	hasCommentInRange,
 	hasPotentiallyMutableMemberAccess,
+	hasUnparenthesizedOptionalChainElement,
 	shouldAddParenthesesToMemberExpressionObject,
 	withTypeInformation,
 } from './utils/index.js';
@@ -588,6 +589,10 @@ const create = context => {
 
 			const nodes = getNodes(node);
 			const {methodNode, regexpNode} = nodes;
+			// Moving the string receiver into the argument would lose its optional-chain short circuit.
+			if (type === STRING_MATCH && hasUnparenthesizedOptionalChainElement(nodes.stringNode, context)) {
+				continue;
+			}
 
 			const staticRegExp = getStaticRegExp(regexpNode, context);
 			const isSafeRegExp = isRegexLiteral(regexpNode)

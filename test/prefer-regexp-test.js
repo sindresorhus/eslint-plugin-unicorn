@@ -1,5 +1,6 @@
 import {fileURLToPath} from 'node:url';
 import test from 'node:test';
+import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
@@ -7,6 +8,39 @@ import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
+
+test('optional match receivers retain short-circuiting', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/prefer-regexp-test': 'error'},
+	};
+	for (const [receiver, expected] of [['null', [false, 0]], ['undefined', [false, 0]], ['{value: "x"}', [true, 1]]]) {
+		const code = `const object = ${receiver}; let calls = 0; function getPattern() {calls++; return /./;} [Boolean(object?.value.match(getPattern()).length), calls];`;
+		const result = linter.verifyAndFix(code, config);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.deepStrictEqual([...runInNewContext(result.output)], expected);
+	}
+});
+
+ruleTest({
+	valid: [
+		'if (object?.value.match(/./).length) {}',
+		'if (object?.value.match(/./).length > 0) {}',
+		'if (getObject()?.value.match(getPattern())?.length) {}',
+		'if (object?.getValue().match(/./).length) {}',
+		'if (object?.value.match(/./)?.length > 0) {}',
+		{code: 'if (object?.value!.match(/./).length) {}', languageOptions: {parser: parsers.typescript}},
+	],
+	invalid: [{
+		code: 'if ((object?.value).match(/./).length) {}',
+		errors: [{messageId: 'string-match', suggestions: [{messageId: 'suggestion', output: 'if ((/./).test(object?.value)) {}'}]}],
+	}, {
+		code: 'if (object?.regexp.exec(value).length) {}',
+		errors: [{messageId: 'regexp-exec', suggestions: [{messageId: 'suggestion', output: 'if (object?.regexp.test(value)) {}'}]}],
+	}],
+});
 
 ruleTest({
 	valid: [],
