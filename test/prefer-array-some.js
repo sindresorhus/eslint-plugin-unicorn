@@ -786,6 +786,7 @@ test.svelte({
 test.vue({
 	valid: [
 		...[
+			'<script setup>const found = values.find(predicate); Boolean(found);</script><template><p>{{found}}</p></template>',
 			'<template><div v-if="(() => { const found = values.find(predicate); return Boolean(found); })()"></div></template>',
 			'<template><div v-if="(() => { const found = [].find(predicate); return Boolean(found); })()"></div></template>',
 		].flatMap(code => [code, code.replace('.find(', '.findLast(')]),
