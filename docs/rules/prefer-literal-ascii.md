@@ -13,7 +13,7 @@ Prefer literal printable ASCII (U+0020–U+007E) over numeric escapes in JavaScr
 
 In JSON, JSONC, and JSON5, `\/` becomes `/`. For `\/` in JavaScript, use ESLint's [`no-useless-escape`](https://eslint.org/docs/latest/rules/no-useless-escape). Tagged templates, regex literals, and JSX attribute strings are ignored. Use [`prefer-unicode-code-point-escapes`](prefer-unicode-code-point-escapes.md) for other legacy escapes.
 
-In untagged templates, escaped spaces at the end of physical lines are allowed to keep significant trailing whitespace visible and protect it from editor trimming. This includes runs of escaped spaces mixed with literal spaces or tabs.
+In untagged templates, escaped spaces (`\u{20}`) at physical line endings are allowed to keep trailing whitespace visible and prevent editor trimming. They may be mixed with literal spaces or tabs.
 
 Autofix is omitted for directive prologues, digits that would extend a preceding `\0` or legacy octal escape, and TypeScript template literal types without substitutions when they contain a literal backslash. In HTML-embedded content, making `<` or `/` literal may affect HTML parsing.
 
