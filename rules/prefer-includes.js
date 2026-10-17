@@ -4,9 +4,12 @@ import {
 	isMethodNamed,
 	getTokenStore,
 	getCallArgumentText,
+	getMemberExpressionObjectText,
 	isArray,
 	isKnownNonString,
 	isRegExp,
+	needsSemicolon,
+	shouldAddParenthesesToUnaryExpressionReplacement,
 } from './utils/index.js';
 import simpleArraySearchRule from './shared/simple-array-search-rule.js';
 import {isLiteral, isNegativeOne} from './ast/index.js';
@@ -25,15 +28,11 @@ const isNaNValue = (node, context) => Number.isNaN(getStaticValue(node, context.
 const isNegativeResult = node => ['===', '==', '<', '<='].includes(node.operator);
 
 const getProblem = (context, node, target, argumentsNodes) => {
-	const {sourceCode} = context;
 	const tokenStore = getTokenStore(context, target);
 
 	const memberExpressionNode = target.parent;
-	const dotToken = tokenStore.getTokenBefore(memberExpressionNode.property);
-	const targetSource = sourceCode.getText().slice(
-		sourceCode.getRange(memberExpressionNode)[0],
-		sourceCode.getRange(dotToken)[0],
-	);
+	const isNegative = isNegativeResult(node);
+	const targetSource = getMemberExpressionObjectText(target, context, isNegative ? target : node);
 
 	// Strip default `fromIndex`
 	if (isLiteralZero(argumentsNodes[1])) {
@@ -42,7 +41,13 @@ const getProblem = (context, node, target, argumentsNodes) => {
 
 	const argumentsSource = argumentsNodes.map(argument => getCallArgumentText(argument, context));
 
-	const replacement = `${isNegativeResult(node) ? '!' : ''}${targetSource}.includes(${argumentsSource.join(', ')})`;
+	let replacement = `${isNegative ? '!' : ''}${targetSource}.includes(${argumentsSource.join(', ')})`;
+	if (isNegative && shouldAddParenthesesToUnaryExpressionReplacement(node, context)) {
+		replacement = `(${replacement})`;
+		if (needsSemicolon(tokenStore.getTokenBefore(node), context, replacement)) {
+			replacement = ';' + replacement;
+		}
+	}
 
 	return {
 		node: memberExpressionNode.property,
@@ -51,7 +56,7 @@ const getProblem = (context, node, target, argumentsNodes) => {
 			method: node.left.callee.property.name,
 		},
 		// The whole comparison is replaced, a comment in it would be dropped
-		fix: sourceCode.getCommentsInside(node).length > 0
+		fix: tokenStore.getCommentsInside(node).length > 0
 			? undefined
 			: fixer => fixer.replaceText(node, replacement),
 	};

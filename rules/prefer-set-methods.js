@@ -13,10 +13,11 @@ import {
 	isBuiltinSet,
 	isFirstTokenOfExpressionStatement,
 	isGlobalIdentifier,
-	isParenthesized,
+	isInUnparenthesizedNewExpressionCallee,
 	isSameReference,
 	isTypeScriptExpressionWrapper,
 	needsSemicolon,
+	shouldAddParenthesesToUnaryExpressionReplacement,
 	getMemberExpressionObjectText,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
@@ -101,10 +102,14 @@ const isSetSpreadArray = (node, context) =>
 const getUnionReplacement = (arrayExpression, context) => {
 	const spreadArguments = arrayExpression.elements.map(element => element.argument);
 	const [firstArgument, ...remainingArguments] = spreadArguments;
-	let text = getMemberExpressionObjectText(firstArgument, context);
+	let text = getMemberExpressionObjectText(firstArgument, context, arrayExpression.parent);
 
 	for (const argument of remainingArguments) {
 		text += `.union(${getParenthesizedText(argument, context)})`;
+	}
+
+	if (isInUnparenthesizedNewExpressionCallee(arrayExpression.parent, context)) {
+		text = `(${text})`;
 	}
 
 	return text;
@@ -197,7 +202,7 @@ const getSetOperation = (node, parameter, context) => {
 	};
 };
 
-const getSetOperationReplacement = (filterCall, context) => {
+const getSetOperationReplacement = (filterCall, context, replacementNode) => {
 	if (!isMethodCall(filterCall, {
 		method: 'filter',
 		argumentsLength: 1,
@@ -222,10 +227,11 @@ const getSetOperationReplacement = (filterCall, context) => {
 		return;
 	}
 
+	const replacement = `${getMemberExpressionObjectText(set, context, replacementNode)}.${operation.method}(${getParenthesizedText(operation.otherSet, context)})`;
 	return {
 		messageId: operation.messageId,
 		suggestionMessageId: operation.suggestionMessageId,
-		replacement: `${getMemberExpressionObjectText(set, context)}.${operation.method}(${getParenthesizedText(operation.otherSet, context)})`,
+		replacement: isInUnparenthesizedNewExpressionCallee(replacementNode, context) ? `(${replacement})` : replacement,
 	};
 };
 
@@ -237,7 +243,7 @@ const getSetOperationProblem = (node, replacementNode, context) => {
 		return;
 	}
 
-	const operation = getSetOperationReplacement(node, context);
+	const operation = getSetOperationReplacement(node, context, replacementNode);
 	if (!operation) {
 		return;
 	}
@@ -258,23 +264,10 @@ const getSetOperationProblem = (node, replacementNode, context) => {
 };
 
 const getSetPredicateProblem = (node, {set, otherSet, method, negated}, context) => {
-	let replacement = `${getMemberExpressionObjectText(set, context)}.${method}(${getParenthesizedText(otherSet, context)})`;
+	let replacement = `${getMemberExpressionObjectText(set, context, negated ? set : node)}.${method}(${getParenthesizedText(otherSet, context)})`;
 	if (negated) {
 		replacement = `!${replacement}`;
-		const {parent} = node;
-		if (
-			!isParenthesized(node, context)
-			&& (
-				(parent.type === 'MemberExpression' && parent.object === node)
-				|| ((parent.type === 'CallExpression' || parent.type === 'NewExpression') && parent.callee === node)
-				|| (parent.type === 'TaggedTemplateExpression' && parent.tag === node)
-				|| (parent.type === 'BinaryExpression' && parent.operator === '**' && parent.left === node)
-				// `!expr` is not a `LeftHandSideExpression`, so it cannot be a `superClass` either
-				|| (parent.type === 'ClassDeclaration' && parent.superClass === node)
-				|| (parent.type === 'ClassExpression' && parent.superClass === node)
-				|| parent.type === 'TSNonNullExpression'
-			)
-		) {
+		if (shouldAddParenthesesToUnaryExpressionReplacement(node, context)) {
 			replacement = `(${replacement})`;
 		}
 	}

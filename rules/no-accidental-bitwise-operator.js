@@ -1,4 +1,5 @@
 import {isStringLiteral, isBooleanLiteral, isFunction} from './ast/index.js';
+import {isParenthesized, needsSemicolon} from './utils/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
@@ -74,7 +75,24 @@ const create = context => {
 					/**
 					@param {ESLint.Rule.RuleFixer} fixer
 					*/
-					fix: fixer => fixer.replaceText(operatorToken, logicalOperator),
+					* fix(fixer) {
+						yield fixer.replaceText(operatorToken, logicalOperator);
+
+						if (
+							!isParenthesized(node, context)
+							&& (
+								node.parent.type === 'BinaryExpression'
+								|| (node.parent.type === 'LogicalExpression' && (
+									node.parent.operator === '??'
+									|| (logicalOperator === '||' && node.parent.operator === '&&')
+								))
+							)
+						) {
+							const prefix = needsSemicolon(sourceCode.getTokenBefore(node), context, '(') ? ';(' : '(';
+							yield fixer.insertTextBefore(node, prefix);
+							yield fixer.insertTextAfter(node, ')');
+						}
+					},
 				},
 			],
 		};

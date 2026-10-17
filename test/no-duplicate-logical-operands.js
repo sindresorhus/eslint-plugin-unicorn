@@ -2,6 +2,35 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		...[
+			'(object.method || object.method)()',
+			'(object.tag && object.tag)`text`',
+			'delete (object.value || object.value)',
+			'delete (value || value)',
+			'function check() { const local = 1; return (eval || eval)("typeof local"); }',
+		].map(code => ({
+			code,
+			errors: [{messageId: 'no-duplicate-logical-operands', suggestions: []}],
+		})),
+		...[
+			'(object.method || object.method)!()',
+			'delete ((object.value || object.value) as unknown)',
+		].map(code => ({
+			code,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'no-duplicate-logical-operands', suggestions: []}],
+		})),
+		{
+			code: 'new (Constructor || Constructor)()',
+			output: 'new (Constructor)()',
+			errors: 1,
+		},
+	],
+});
+
 test.snapshot({
 	valid: [
 		// Different operands.

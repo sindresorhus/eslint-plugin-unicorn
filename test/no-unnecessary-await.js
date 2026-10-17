@@ -2,6 +2,7 @@ import test from 'node:test';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
@@ -180,5 +181,19 @@ test('only an `await` that is the last thing its function runs is unrolled', t =
 
 		t.assert.ok(problem, `should report \`${code}\``);
 		t.assert.strictEqual(Boolean(problem.fix), isFixed, `fix availability for \`${code}\``);
+	}
+});
+
+test('TypeScript wrappers do not bypass the function and class fix boundary', t => {
+	const linter = new Linter();
+	for (const code of ['await function () {}!;', 'await class {}!;']) {
+		const messages = linter.verify(code, {
+			languageOptions: {parser: typescriptEslintParser},
+			plugins: {unicorn: plugin},
+			rules: {'unicorn/no-unnecessary-await': 'error'},
+		});
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].messageId, 'no-unnecessary-await');
+		t.assert.strictEqual(messages[0].fix, undefined, code);
 	}
 });

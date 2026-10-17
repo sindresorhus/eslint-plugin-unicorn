@@ -1,7 +1,7 @@
 import {getFunctionHeadLocation, getFunctionNameWithKind} from '@eslint-community/eslint-utils';
 import {functionTypes} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {getFunctionReturnExpression, unwrapTypeScriptExpression} from './utils/index.js';
+import {getFunctionReturnExpression, getOutermostTypeScriptExpression, unwrapTypeScriptExpression} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-native-coercion-functions';
 const MESSAGE_ID_SUGGESTION = 'prefer-native-coercion-functions/suggestion';
@@ -163,6 +163,11 @@ const create = context => {
 				replacementFunction,
 			},
 		};
+
+		const {parent} = getOutermostTypeScriptExpression(node);
+		if (parent.type === 'UnaryExpression' && parent.operator === 'delete') {
+			return problem;
+		}
 
 		/*
 		We do not fix if there are:

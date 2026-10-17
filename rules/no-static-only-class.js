@@ -2,7 +2,7 @@ import {findVariable, isSemicolonToken} from '@eslint-community/eslint-utils';
 import getClassHeadLocation from './utils/get-class-head-location.js';
 import assertToken from './utils/assert-token.js';
 import {removeSpacesAfter} from './fix/index.js';
-import {needsSemicolon} from './utils/index.js';
+import {getUnparenthesizedKeywordArgumentParent, needsSemicolon} from './utils/index.js';
 
 const MESSAGE_ID = 'no-static-only-class';
 const messages = {
@@ -167,7 +167,7 @@ function switchClassToObject(node, context) {
 			const isConciseArrowBody = sourceCode.getTokenBefore(classToken).value === '=>';
 
 			/*
-				There are comments after return, and `{` is not on same line
+				There are comments after the keyword, and `{` is not on the same line
 
 				```js
 				function a() {
@@ -180,7 +180,7 @@ function switchClassToObject(node, context) {
 			*/
 			if (
 				type === 'ClassExpression'
-				&& parent.type === 'ReturnStatement'
+				&& getUnparenthesizedKeywordArgumentParent(node, context)
 				&& sourceCode.getLoc(body).start.line !== sourceCode.getLoc(parent).start.line
 				&& sourceCode.text.slice(sourceCode.getRange(classToken)[1], sourceCode.getRange(body)[0]).trim()
 			) {

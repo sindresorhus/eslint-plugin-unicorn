@@ -3,6 +3,22 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: ['as number', 'satisfies number'].flatMap(wrapper => [
+		[`limit ${wrapper} < value || value < -(limit ${wrapper})`, `Math.abs(value) > (limit ${wrapper})`],
+		[`value <= -(limit ${wrapper}) || limit ${wrapper} <= value`, `Math.abs(value) >= (limit ${wrapper})`],
+		[`(limit ${wrapper}) < value || value < -(limit ${wrapper})`, `Math.abs(value) > (limit ${wrapper})`],
+	].map(([code, output]) => ({
+		code,
+		languageOptions: {parser: parsers.typescript},
+		errors: [{
+			messageId: 'prefer-math-abs',
+			suggestions: [{messageId: 'prefer-math-abs/suggestion', output}],
+		}],
+	}))),
+});
+
 test.snapshot({
 	valid: [
 		'const absolute = Math.abs(value);',

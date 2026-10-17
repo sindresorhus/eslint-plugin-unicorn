@@ -1,5 +1,6 @@
 import {
 	containsNode,
+	getMemberExpressionObjectText,
 	isParenthesized,
 	isNodeValueNotFunction,
 	isSameReference,
@@ -24,10 +25,7 @@ const getEventTypeName = eventMethodName => eventMethodName.slice('on'.length);
 const fixCode = (fixer, context, assignmentNode, memberExpression) => {
 	const {sourceCode} = context;
 	const eventTypeName = getEventTypeName(getEventMethodName(memberExpression));
-	let eventObjectCode = sourceCode.getText(memberExpression.object);
-	if (isParenthesized(memberExpression.object, context)) {
-		eventObjectCode = `(${eventObjectCode})`;
-	}
+	const eventObjectCode = getMemberExpressionObjectText(memberExpression.object, context, assignmentNode);
 
 	let fncCode = sourceCode.getText(assignmentNode.right);
 	if (isParenthesized(assignmentNode.right, context)) {

@@ -4,6 +4,7 @@ import {
 	getTypeArgumentsText,
 	hasTypeArguments,
 	isGlobalIdentifier,
+	isInUnparenthesizedNewExpressionCallee,
 	wouldRemoveComments,
 } from './utils/index.js';
 
@@ -61,7 +62,12 @@ const getFix = (newExpression, callExpression, method, context) => {
 
 	const typeArgumentsText = getTypeArgumentsText(newExpression, context);
 	const valueText = value ? sourceCode.getText(value) : '';
-	return fixer => fixer.replaceText(newExpression, `Promise.${method}${typeArgumentsText}(${valueText})`);
+	let replacement = `Promise.${method}${typeArgumentsText}(${valueText})`;
+	if (isInUnparenthesizedNewExpressionCallee(newExpression, context)) {
+		replacement = `(${replacement})`;
+	}
+
+	return fixer => fixer.replaceText(newExpression, replacement);
 };
 
 /**

@@ -1,7 +1,7 @@
 import {isOpeningBraceToken} from '@eslint-community/eslint-utils';
 import {isStringLiteral} from './ast/index.js';
 import {removeSpecifier} from './fix/index.js';
-import {getLinebreak, isTypeImportSpecifier} from './utils/index.js';
+import {getLinebreak, isTypeImportSpecifier, needsSemicolon} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
@@ -61,7 +61,9 @@ function * removeImportOrExport(node, fixer, context) {
 
 		case 'ExportDefaultDeclaration':
 		case 'ExportNamedDeclaration': {
-			yield fixer.remove(node);
+			const {sourceCode} = context;
+			const tokenBefore = sourceCode.getTokenBefore(node);
+			yield fixer.replaceText(node, needsSemicolon(tokenBefore, context) ? ';' : '');
 		}
 
 		// No default

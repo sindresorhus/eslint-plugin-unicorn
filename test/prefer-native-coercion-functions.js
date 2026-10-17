@@ -3,6 +3,32 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		'delete (value => String(value));',
+		'delete (function (value) {return Number(value);});',
+		'delete (((value => Boolean(value))));',
+		...[
+			'delete ((value => String(value)) as unknown);',
+			'delete ((value => String(value)) satisfies unknown);',
+			'delete (<unknown>(value => String(value)));',
+			'delete (value => String(value))!;',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
+	].map(testCase => ({
+		...(typeof testCase === 'string' ? {code: testCase} : testCase),
+		errors: [{messageId: 'prefer-native-coercion-functions', suggestions: 0}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		['delete [value => String(value)][0];', 'delete [String][0];'],
+		['delete (value => String(value))(1);', 'delete (String)(1);'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
 // Keyword spacing
 test({
 	valid: [],

@@ -3,6 +3,103 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		...['===', '!==', '==', '!='].map(operator => ({
+			code: `expected ${operator} value instanceof Function;`,
+			output: `expected ${operator} (typeof value === 'function');`,
+			errors: 1,
+		})),
+		{
+			code: 'value instanceof Function instanceof Object;',
+			output: '(typeof value === \'function\') instanceof Object;',
+			errors: 1,
+		},
+		{
+			code: 'expected === (value instanceof Function);',
+			output: 'expected === (typeof value === \'function\');',
+			errors: 1,
+		},
+		{
+			code: 'expected === a + b instanceof Function;',
+			output: 'expected === (typeof (a + b) === \'function\');',
+			errors: 1,
+		},
+		...['as boolean', 'satisfies boolean'].map(wrapper => ({
+			code: `value instanceof Function ${wrapper};`,
+			output: `(typeof value === 'function') ${wrapper};`,
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		})),
+		{
+			code: 'expected === value instanceof Number;',
+			errors: [{
+				messageId: 'no-instanceof-builtins',
+				suggestions: [{
+					messageId: 'switch-to-type-of',
+					output: 'expected === (typeof value === \'number\');',
+				}],
+			}],
+		},
+		{
+			code: 'expected === value /* keep */ instanceof Function;',
+			errors: 1,
+		},
+		...[
+			['foo()\nvalue instanceof Function instanceof Object', 'foo()\n;(typeof value === \'function\') instanceof Object'],
+			['foo()\nvalue instanceof (Function) instanceof Object', 'foo()\n;(typeof value === \'function\') instanceof Object'],
+			['if (ready)\nvalue instanceof Function instanceof Object', 'if (ready)\n(typeof value === \'function\') instanceof Object'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+		{
+			code: 'foo()\nvalue instanceof Number === expected',
+			errors: [{
+				messageId: 'no-instanceof-builtins',
+				suggestions: [{
+					messageId: 'switch-to-type-of',
+					output: 'foo()\ntypeof value === \'number\' === expected',
+				}],
+			}],
+		},
+		{
+			code: '<template><div v-if="expected === value instanceof Function"></div></template>',
+			output: '<template><div v-if="expected === (typeof value === \'function\')"></div></template>',
+			languageOptions: {parser: parsers.vue},
+			errors: 1,
+		},
+		...[
+			'foo()\nvalue instanceof Function instanceof Object',
+			'() => {foo()\nvalue instanceof Function instanceof Object}',
+			'function () {foo()\nvalue instanceof Function instanceof Object}',
+		].map(expression => ({
+			code: `<template><button @click="${expression}"></button></template>`,
+			languageOptions: {parser: parsers.vue},
+			errors: 1,
+		})),
+		{
+			code: '<template><button @click="foo()\nvalue instanceof Number === expected"></button></template>',
+			languageOptions: {parser: parsers.vue},
+			errors: [{
+				messageId: 'no-instanceof-builtins', suggestions: [{
+					messageId: 'switch-to-type-of',
+					output: '<template><button @click="foo()\ntypeof value === \'number\' === expected"></button></template>',
+				}],
+			}],
+		},
+		{
+			code: '<template><div v-if="expected === value instanceof Number"></div></template>',
+			languageOptions: {parser: parsers.vue},
+			errors: [{
+				messageId: 'no-instanceof-builtins',
+				suggestions: [{
+					messageId: 'switch-to-type-of',
+					output: '<template><div v-if="expected === (typeof value === \'number\')"></div></template>',
+				}],
+			}],
+		},
+	],
+});
+
 const looseStrategyInvalid = [
 	// Primitive types
 	'foo instanceof String',
@@ -286,4 +383,28 @@ test({
 			errors: 1,
 		},
 	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'value instanceof Function | mask;',
+			output: 'typeof value === \'function\' | mask;',
+			errors: 1,
+		},
+		{
+			code: 'value instanceof Function === expected;',
+			output: 'typeof value === \'function\' === expected;',
+			errors: 1,
+		},
+	],
+});
+
+test.vue({
+	valid: [],
+	invalid: ['Function', 'String', 'Array'].map(constructor => ({
+		code: `<template><div v-if="value instanceof (/* keep */ ${constructor})"></div></template>`,
+		errors: [{messageId: 'no-instanceof-builtins', suggestions: 0}],
+	})),
 });

@@ -483,7 +483,7 @@ function createFix(callExpression, context) {
 	const bodyIndent = `${indent}${indentUnit}`;
 	const nestedBodyIndent = `${bodyIndent}${indentUnit}`;
 	const hasInitialValue = Boolean(initialValue);
-	const initialValueText = hasInitialValue ? ` = ${sourceCode.getText(initialValue)}` : '';
+	const initialValueText = hasInitialValue ? ` = ${getParenthesizedText(initialValue, context)}` : '';
 	const loopHead = `${indent}for (const [${indexName}, ${elementName}] of ${arrayText}.entries()) {`;
 	// `reduce` skips a hole whether or not there is an initial value, and `entries()` yields `undefined` for one, so the loop has to skip it in both shapes.
 	const holeCheck = [

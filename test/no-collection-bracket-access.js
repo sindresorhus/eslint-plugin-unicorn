@@ -190,3 +190,45 @@ test.snapshot({
 		'const map = new Map(); map[(key)] = value;',
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		{
+			...typeAware('({map: new Map()}.map["foo"]) = value;'),
+			errors: [{
+				messageId: 'no-collection-bracket-access/write', suggestions: [{
+					messageId: 'no-collection-bracket-access/suggestion-set',
+					output: '({map: new Map()}.map).set("foo", value);',
+				}],
+			}],
+		},
+		{
+			...typeAware('delete {map: new Map()}.map["foo"];'),
+			errors: [{
+				messageId: 'no-collection-bracket-access/delete', suggestions: [{
+					messageId: 'no-collection-bracket-access/suggestion-delete',
+					output: '({map: new Map()}.map).delete("foo");',
+				}],
+			}],
+		},
+		{
+			code: 'const map = new Map(); setup()\ndelete (map)["foo"];',
+			errors: [{
+				messageId: 'no-collection-bracket-access/delete', suggestions: [{
+					messageId: 'no-collection-bracket-access/suggestion-delete',
+					output: 'const map = new Map(); setup()\n;(map).delete("foo");',
+				}],
+			}],
+		},
+		{
+			code: 'const map = new Map(); delete ((map))["foo"];',
+			errors: [{
+				messageId: 'no-collection-bracket-access/delete', suggestions: [{
+					messageId: 'no-collection-bracket-access/suggestion-delete',
+					output: 'const map = new Map(); ((map)).delete("foo");',
+				}],
+			}],
+		},
+	],
+});

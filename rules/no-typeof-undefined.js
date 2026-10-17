@@ -5,8 +5,10 @@ import {
 } from './fix/index.js';
 import {
 	needsSemicolon,
-	isParenthesized,
 	isOnSameLine,
+	isParenthesized,
+	getUnparenthesizedKeywordArgumentParent,
+	shouldAddParenthesesToExpressionStart,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -86,6 +88,9 @@ const create = context => {
 		}
 
 		const [typeofToken, secondToken] = sourceCode.getFirstTokens(typeofNode, 2);
+		const keywordParent = getUnparenthesizedKeywordArgumentParent(typeofNode, context);
+		const needsParentheses = !isParenthesized(typeofNode.argument, context)
+			&& shouldAddParenthesesToExpressionStart(typeofNode.argument, context, typeofNode);
 
 		const fix = function * (fixer) {
 			// Change `==`/`!=` to `===`/`!==`
@@ -103,20 +108,21 @@ const create = context => {
 			yield fixer.remove(typeofToken);
 			yield removeSpacesAfter(typeofToken, context, fixer);
 
-			const {parent} = binaryExpression;
+			if (needsParentheses) {
+				yield fixer.insertTextBefore(typeofNode.argument, '(');
+				yield fixer.insertTextAfter(typeofNode.argument, ')');
+			}
+
 			if (
-				(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
-				&& parent.argument === binaryExpression
+				(keywordParent?.type === 'ReturnStatement' || keywordParent?.type === 'ThrowStatement')
 				&& !isOnSameLine(typeofToken, secondToken, context)
-				&& !isParenthesized(binaryExpression, context)
-				&& !isParenthesized(typeofNode, context)
 			) {
-				yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
+				yield addParenthesesToReturnOrThrowExpression(fixer, keywordParent, context);
 				return;
 			}
 
 			const tokenBefore = sourceCode.getTokenBefore(binaryExpression);
-			if (needsSemicolon(tokenBefore, context, secondToken.value)) {
+			if (needsSemicolon(tokenBefore, context, needsParentheses ? '(' : secondToken.value)) {
 				yield fixer.insertTextBefore(binaryExpression, ';');
 			}
 		};
@@ -126,6 +132,13 @@ const create = context => {
 			loc: sourceCode.getLoc(typeofToken),
 			messageId: MESSAGE_ID_ERROR,
 		};
+
+		if (
+			keywordParent?.type === 'YieldExpression'
+			&& !isOnSameLine(typeofToken, secondToken, context)
+		) {
+			return problem;
+		}
 
 		if (isGlobalVariable) {
 			problem.suggest = [

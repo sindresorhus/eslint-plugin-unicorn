@@ -718,3 +718,61 @@ test.snapshot({
 		'foo == null ? undefined : foo /* comment */ [bar];',
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		['!{value: null}.value ? 1 : {value: null}.value;', '({value: null}.value ?? 1);', '({value: null}.value || 1);'],
+		['!function () {}.name ? "none" : function () {}.name;', '(function () {}.name ?? "none");', '(function () {}.name || "none");'],
+		['const result = !{value: null}.value ? 1 : {value: null}.value;', 'const result = {value: null}.value ?? 1;', 'const result = {value: null}.value || 1;'],
+		['(!{value: null}.value ? 1 : {value: null}.value);', '({value: null}.value ?? 1);', '({value: null}.value || 1);'],
+		['!({value: null}.value) ? 1 : {value: null}.value;', '({value: null}.value) ?? 1;', '({value: null}.value) || 1;'],
+		['const read = () => !{value: null}.value ? 1 : {value: null}.value;', 'const read = () => ({value: null}.value ?? 1);', 'const read = () => ({value: null}.value || 1);'],
+		['setup()\n!{value: null}.value ? 1 : {value: null}.value;', 'setup()\n;({value: null}.value ?? 1);', 'setup()\n;({value: null}.value || 1);'],
+	].map(([code, nullishOutput, logicalOutput]) => ({
+		code,
+		errors: [{
+			messageId: 'prefer-logical-operator-over-ternary/error', suggestions: [
+				{messageId: 'prefer-logical-operator-over-ternary/suggestion', data: {operator: '??'}, output: nullishOutput},
+				{messageId: 'prefer-logical-operator-over-ternary/suggestion', data: {operator: '||'}, output: logicalOutput},
+			],
+		}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		['({value: null}.value == null) ? 1 : {value: null}.value;', '({value: null}.value ?? 1);'],
+		['({value: 0}.value + 1 == null) ? 5 : {value: 0}.value + 1;', '({value: 0}.value + 1) ?? 5;'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{
+			messageId: 'prefer-logical-operator-over-ternary/error', suggestions: [{
+				messageId: 'prefer-logical-operator-over-ternary/suggestion', data: {operator: '??'}, output,
+			}],
+		}],
+	})),
+});
+
+nodeTest('logical suggestions preserve declaration-like prefixes and statement boundaries', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/prefer-logical-operator-over-ternary': 'error'},
+	};
+	for (const code of [
+		'!{value: null}.value ? 1 : {value: null}.value;',
+		'({value: null}.value == null) ? 1 : {value: null}.value;',
+		'const read = () => !{value: null}.value ? 1 : {value: null}.value; read();',
+		'setup()\n!{value: null}.value ? 1 : {value: null}.value;',
+	]) {
+		const [problem] = linter.verify(code, config);
+		t.assert.ok(problem.suggestions.length > 0);
+		for (const {fix} of problem.suggestions) {
+			const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+			t.assert.deepStrictEqual(linter.verify(output, {}), []);
+			t.assert.strictEqual(runInNewContext(output, {setup() {}}), runInNewContext(code, {setup() {}}));
+		}
+	}
+});

@@ -32,6 +32,23 @@ const replaceAndAddSuggestion = {
 };
 
 testRule({
+	valid: [],
+	invalid: [
+		...['{root: node}.root', 'function () {}.root', 'class {}.root'].map(root => ({
+			code: `(${root}).innerHTML = "";`,
+			output: `(${root}).replaceChildren();`,
+			errors: 1,
+		})),
+		{
+			code: '({root: node}.root!).innerHTML = "";',
+			output: '({root: node}.root!).replaceChildren();',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+	],
+});
+
+testRule({
 	valid: [
 		'element.replaceChildren();',
 		'element.replaceChildren(child); element.append(otherChild);',
@@ -243,8 +260,9 @@ document.createElement(options.tagName).innerHTML = '';`,
 					...replaceAndAddSuggestion,
 					output: outdent`
 						const value = foo
+						;
 						// Keep this comment.
-						;(element).replaceChildren(child);
+						(element).replaceChildren(child);
 					`,
 				}],
 			}],

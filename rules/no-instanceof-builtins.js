@@ -1,10 +1,13 @@
 import {
 	checkVueTemplate,
+	getAncestor,
 	getParenthesizedRange,
 	getTokenStore,
 	isParenthesized,
 	isGlobalIdentifier,
+	needsSemicolon,
 	shouldAddParenthesesToUnaryExpressionArgument,
+	shouldAddParenthesesToComparison,
 } from './utils/index.js';
 import {replaceNodeOrTokenAndSpacesBefore, fixSpaceAroundKeyword} from './fix/index.js';
 import builtinErrors from './shared/builtin-errors.js';
@@ -81,7 +84,7 @@ const replaceWithFunctionCall = (node, context, functionName) => function * (fix
 	yield replaceNodeOrTokenAndSpacesBefore(right, '', fixer, context, tokenStore);
 };
 
-const replaceWithTypeOfExpression = (node, context, constructorName) => function * (fixer) {
+const replaceWithTypeOfExpression = (node, context, constructorName) => function * (fixer, {abort}) {
 	const {left, right} = node;
 	const tokenStore = getTokenStore(context, node);
 	const instanceofToken = tokenStore.getTokenAfter(left, isInstanceofToken);
@@ -92,10 +95,22 @@ const replaceWithTypeOfExpression = (node, context, constructorName) => function
 
 	// Get safe quote
 	const safeQuote = vueExpressionContainer ? (sourceCode.getText(vueExpressionContainer)[0] === '"' ? '\'' : '"') : '\'';
+	const needsParentheses = shouldAddParenthesesToComparison(node, context, '===');
+	if (
+		needsParentheses
+		&& tokenStore !== sourceCode
+		&& (getAncestor(node, 'VOnExpression') || getAncestor(node, 'BlockStatement'))
+	) {
+		abort();
+	}
 
 	yield fixSpaceAroundKeyword(fixer, node, context);
 
 	const leftRange = getParenthesizedRange(left, {sourceCode: tokenStore});
+	let prefix = needsParentheses ? '(' : '';
+	if (needsSemicolon(tokenStore.getTokenBefore(node), context, prefix)) {
+		prefix = ';' + prefix;
+	}
 
 	// Wrap a low-precedence left operand so `typeof` applies to the whole expression,
 	// e.g. `a + b instanceof Function` -> `typeof (a + b) === 'function'`.
@@ -103,17 +118,17 @@ const replaceWithTypeOfExpression = (node, context, constructorName) => function
 		!isParenthesized(left, context)
 		&& shouldAddParenthesesToUnaryExpressionArgument(left, 'typeof')
 	) {
-		yield fixer.insertTextBeforeRange(leftRange, 'typeof (');
+		yield fixer.insertTextBeforeRange(leftRange, prefix + 'typeof (');
 		yield fixer.insertTextAfterRange(leftRange, ')');
 	} else {
-		yield fixer.insertTextBeforeRange(leftRange, 'typeof ');
+		yield fixer.insertTextBeforeRange(leftRange, prefix + 'typeof ');
 	}
 
 	yield fixer.replaceText(instanceofToken, '===');
 
 	const rightRange = getParenthesizedRange(right, {sourceCode: tokenStore});
 
-	yield fixer.replaceTextRange(rightRange, safeQuote + constructorName.toLowerCase() + safeQuote);
+	yield fixer.replaceTextRange(rightRange, safeQuote + constructorName.toLowerCase() + safeQuote + (needsParentheses ? ')' : ''));
 };
 
 function getConstructor(node, context) {
@@ -140,7 +155,7 @@ function getConstructor(node, context) {
 }
 
 const hasCommentsInside = (node, context) =>
-	context.sourceCode.getCommentsInside(node).length > 0;
+	getTokenStore(context, node).getCommentsInside(node).length > 0;
 
 /**
 @param {import('eslint').Rule.RuleContext} context

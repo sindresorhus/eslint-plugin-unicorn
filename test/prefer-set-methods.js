@@ -1,8 +1,12 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
+import {transpileModule, ScriptTarget} from 'typescript';
 import outdent from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 const typescript = code => ({
 	code,
@@ -313,4 +317,140 @@ test({
 			errors: 1,
 		},
 	],
+});
+
+// Type assertions must not hide an exponentiation parent from the negation guard.
+test({
+	valid: [],
+	invalid: [
+		...[
+			['[...a].some(value => b.has(value)) as any ** 2', '(!a.isDisjointFrom(b)) as any ** 2'],
+			['[...a].some(value => b.has(value)) satisfies boolean as any ** 2', '(!a.isDisjointFrom(b)) satisfies boolean as any ** 2'],
+			['<boolean>[...a].some(value => b.has(value))', '<boolean>!a.isDisjointFrom(b)'],
+			['[...a].some(value => b.has(value))! as any ** 2', '(!a.isDisjointFrom(b))! as any ** 2'],
+		].map(([expression, output]) => ({
+			code: `const a = new Set([1]); const b = new Set([1]); ${expression};`,
+			languageOptions: {parser: parsers.typescript},
+			output: `const a = new Set([1]); const b = new Set([1]); ${output};`,
+			errors: 1,
+		})),
+	],
+});
+
+// Preserve existing grouping and add it only for an actual surrounding operator.
+test({
+	valid: [],
+	invalid: [
+		['[...a].some(value => b.has(value)) as boolean', '!a.isDisjointFrom(b) as boolean'],
+		['[...a].some(value => b.has(value)) satisfies boolean', '!a.isDisjointFrom(b) satisfies boolean'],
+		['[...a].some(value => b.has(value))!', '!a.isDisjointFrom(b)!'],
+		['[...a].some(value => b.has(value))!.toString()', '(!a.isDisjointFrom(b))!.toString()'],
+		['([...a].some(value => b.has(value)) as any) ** 2', '((!a.isDisjointFrom(b)) as any) ** 2'],
+		['([...a].some(value => b.has(value))!) as any ** 2', '(!a.isDisjointFrom(b)!) as any ** 2'],
+	].map(([expression, output]) => ({
+		code: `const a = new Set([1]); const b = new Set([1]); ${expression};`,
+		output: `const a = new Set([1]); const b = new Set([1]); ${output};`,
+		languageOptions: {parser: parsers.typescript},
+		errors: 1,
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [{
+		...typeAware('const b = new Set([1]); [...{value: new Set([1])}.value].every(value => b.has(value));'),
+		output: 'const b = new Set([1]); ({value: new Set([1])}.value).isSubsetOf(b);',
+		errors: 1,
+	}],
+});
+
+test({
+	valid: [],
+	invalid: ['', 'const value = '].map(prefix => ({
+		...typeAware(`const b = new Set([1]); ${prefix}new Set([...{value: new Set([1])}.value].filter(value => b.has(value)));`),
+		errors: [{
+			messageId: 'prefer-set-methods/intersection',
+			suggestions: [{
+				messageId: 'prefer-set-methods/intersection-suggestion',
+				output: `const b = new Set([1]); ${prefix}${prefix ? '{value: new Set([1])}.value' : '({value: new Set([1])}.value)'}.intersection(b);`,
+			}],
+		}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		['new new Set([...new Set(), ...new Set()]).constructor([42]);', 'new (new Set().union(new Set())).constructor([42]);'],
+		['new (new Set([...new Set(), ...new Set()])).constructor([42]);', 'new (new Set().union(new Set())).constructor([42]);'],
+		['const result = new Set([...new Set(), ...new Set()]);', 'const result = new Set().union(new Set());'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		['second.has(value)', 'intersection'],
+		['!second.has(value)', 'difference'],
+	].map(([predicate, operation]) => ({
+		code: `const first = new Set([1]); const second = new Set([1]); new new Set([...first].filter(value => ${predicate})).constructor([42]);`,
+		errors: [{
+			messageId: `prefer-set-methods/${operation}`, suggestions: [{
+				messageId: `prefer-set-methods/${operation}-suggestion`,
+				output: `const first = new Set([1]); const second = new Set([1]); new (first.${operation}(second)).constructor([42]);`,
+			}],
+		}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: 'new new Set([...new Set(), ...new Set()])!.constructor([42]);',
+		output: 'new (new Set().union(new Set()))!.constructor([42]);',
+		languageOptions: {parser: parsers.typescript},
+		errors: 1,
+	}, {
+		code: 'const first = new Set([1]); const second = new Set([1]); new (new Set([...first].filter(value => second.has(value))) as Set<number>).constructor([42]);',
+		languageOptions: {parser: parsers.typescript},
+		errors: [{
+			messageId: 'prefer-set-methods/intersection', suggestions: [{
+				messageId: 'prefer-set-methods/intersection-suggestion',
+				output: 'const first = new Set([1]); const second = new Set([1]); new (first.intersection(second) as Set<number>).constructor([42]);',
+			}],
+		}],
+	}],
+});
+
+nodeTest('Set operation replacements preserve the actual Set constructor', t => {
+	const linter = new Linter();
+	const config = {
+		languageOptions: {parser: typescriptEslintParser},
+		plugins: {unicorn: {rules: {'prefer-set-methods': rule}}},
+		rules: {'unicorn/prefer-set-methods': 'error'},
+	};
+	const execute = source => {
+		const {outputText, diagnostics} = transpileModule(source, {compilerOptions: {target: ScriptTarget.ESNext}, reportDiagnostics: true});
+		t.assert.deepStrictEqual(diagnostics, []);
+		return runInNewContext(outputText);
+	};
+
+	for (const code of [
+		'new new Set([...new Set(), ...new Set()]).constructor([42]).has(42);',
+		'new new Set([...new Set(), ...new Set()])!.constructor([42]).has(42);',
+		...['', '!'].map(negation => `const first = new Set([1]); const second = new Set([1]); new new Set([...first].filter(value => ${negation}second.has(value))).constructor([42]).has(42);`),
+	]) {
+		const {fixed, output, messages} = linter.verifyAndFix(code, config);
+		let corrected = output;
+		if (!fixed) {
+			t.assert.strictEqual(messages.length, 1);
+			t.assert.strictEqual(messages[0].suggestions.length, 1);
+			const {fix} = messages[0].suggestions[0];
+			corrected = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		}
+
+		t.assert.deepStrictEqual(linter.verify(corrected, config), []);
+		t.assert.strictEqual(execute(code), true);
+		t.assert.strictEqual(execute(corrected), execute(code));
+	}
 });

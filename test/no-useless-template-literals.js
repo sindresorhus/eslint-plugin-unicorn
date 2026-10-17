@@ -1,9 +1,12 @@
 /* eslint-disable no-template-curly-in-string */
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 const typescript = code => ({
 	code,
@@ -170,4 +173,34 @@ test.snapshot({
 		'"use strict"; `${"value"}`;',
 		'foo(); `${"value"}`;',
 	],
+});
+
+// A new call inside a constructor callee must retain the constructor grouping.
+test({
+	valid: [],
+	invalid: [getSuggestionCase('new `${value}`.constructor("text");', 'new (String(value)).constructor("text");')],
+});
+
+test({
+	valid: [],
+	invalid: [
+		getSuggestionCase('new (`${value}`).constructor("text");', 'new (String(value)).constructor("text");'),
+		getSuggestionCase('new (`${value}`.constructor)("text");', 'new (String(value).constructor)("text");'),
+		{
+			code: 'new `${/* keep */ value}`.constructor("text");',
+			errors: [{messageId: 'no-useless-template-literals', suggestions: []}],
+		},
+	],
+});
+
+nodeTest('template conversion keeps the enclosing constructor call', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: {rules: {'no-useless-template-literals': rule}}}, rules: {'unicorn/no-useless-template-literals': 'error'}};
+	const code = 'const value = "value"; new `${value}`.constructor("text") instanceof String;';
+	const [message] = linter.verify(code, config);
+	const {range, text} = message.suggestions[0].fix;
+	const output = code.slice(0, range[0]) + text + code.slice(range[1]);
+	t.assert.deepStrictEqual(linter.verify(output, config), []);
+	t.assert.strictEqual(runInNewContext(code), true);
+	t.assert.strictEqual(runInNewContext(output), true);
 });

@@ -169,19 +169,19 @@ const isChildNodeMemberExpression = node =>
 		optional: false,
 	});
 
-const getParentNodeText = (parentNode, context) => {
+const getParentNodeText = (parentNode, context, replacementNode = parentNode) => {
 	const {sourceCode} = context;
 
 	return (
 		parentNode.type !== 'Super'
-		&& shouldAddParenthesesToMemberExpressionObject(parentNode, context)
+		&& shouldAddParenthesesToMemberExpressionObject(parentNode, context, replacementNode)
 	)
 		? `(${sourceCode.getText(parentNode)})`
 		: sourceCode.getText(parentNode);
 };
 
 const getReplaceChildrenStatement = (node, parentNode, context) => {
-	const parentNodeText = getParentNodeText(parentNode, context);
+	const parentNodeText = getParentNodeText(parentNode, context, node);
 	return `${needsSemicolon(context.sourceCode.getTokenBefore(node), context, parentNodeText) ? ';' : ''}${parentNodeText}.replaceChildren();`;
 };
 
@@ -294,9 +294,6 @@ function * removeStatementBefore(statement, nextStatement, context, fixer) {
 	}
 
 	yield removeStatement(statement, context, fixer);
-	if (shouldAddSemicolon) {
-		yield fixer.insertTextBefore(nextStatement, ';');
-	}
 }
 
 const getReplaceAndAddProblem = (context, node) => {

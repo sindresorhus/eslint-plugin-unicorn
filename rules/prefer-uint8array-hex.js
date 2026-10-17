@@ -257,7 +257,7 @@ function getProblem(node, input, context, {decoding = false, autofix = false, ca
 		// Preserve existing grouping, including parentheses that keep sequence expressions as a single argument.
 		let text = decoding
 			? `Uint8Array.fromHex(${getParenthesizedText(input, context)})`
-			: `${getMemberExpressionObjectText(input, context)}.toHex()`;
+			: `${getMemberExpressionObjectText(input, context, node)}.toHex()`;
 		if (needsSemicolon(sourceCode.getTokenBefore(node), context, text)) {
 			text = `;${text}`;
 		}

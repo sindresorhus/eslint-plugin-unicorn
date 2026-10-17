@@ -1,5 +1,12 @@
 import {isLiteral} from './ast/index.js';
-import {getParenthesizedText, getStaticValueForControlFlow, isNumber} from './utils/index.js';
+import {
+	getParenthesizedText,
+	getStaticValueForControlFlow,
+	isNumber,
+	isParenthesized,
+	needsSemicolon,
+	shouldAddParenthesesToExpressionStart,
+} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-subtraction-comparison/error';
 const MESSAGE_ID_SUGGESTION = 'no-subtraction-comparison/suggestion';
@@ -65,12 +72,15 @@ const create = context => {
 		}
 
 		const {left, right} = subtraction;
-		const replacement = `${getParenthesizedText(left, context)} ${operator} ${getParenthesizedText(right, context)}`;
+		let replacement = `${getParenthesizedText(left, context)} ${operator} ${getParenthesizedText(right, context)}`;
+		if (!isParenthesized(left, context) && shouldAddParenthesesToExpressionStart(left, context, node)) {
+			replacement = `(${replacement})`;
+		}
 
 		/**
 		@param {import('eslint').Rule.RuleFixer} fixer
 		*/
-		const fix = fixer => fixer.replaceText(node, replacement);
+		const fix = fixer => fixer.replaceText(node, needsSemicolon(sourceCode.getTokenBefore(node), context, replacement) ? `;${replacement}` : replacement);
 
 		const canAutofix = strictOrderingOperators.has(operator)
 			? isNumber(left, context) && isNumber(right, context)

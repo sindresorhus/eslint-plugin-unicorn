@@ -1,4 +1,10 @@
+import nodeTest from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
+import {transpileModule, ScriptTarget} from 'typescript';
 import outdent from 'outdent';
+import plugin from '../index.js';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
@@ -112,4 +118,56 @@ test({
 			errors: 1,
 		},
 	],
+});
+
+// The replacement can introduce a leading parenthesis after an ASI boundary.
+test({
+	valid: [],
+	invalid: [{
+		code: 'const set = new Set();\nuse()\nArray.from(set as Set<number>).length;',
+		languageOptions: {parser: parsers.typescript},
+		output: 'const set = new Set();\nuse()\n;(set as Set<number>).size;',
+		errors: 1,
+	}],
+});
+
+test({
+	valid: [],
+	invalid: [
+		['getSet()', '(getSet())'],
+		['(getSet())', '(getSet())'],
+		['getSet() as Set<number>', '(getSet() as Set<number>)'],
+		['getSet() satisfies Set<number>', '(getSet() satisfies Set<number>)'],
+		['getSet()!', '(getSet()!)'],
+		['new Set([1])', 'new Set([1])'],
+	].map(([receiver, replacement]) => ({
+		code: `declare function getSet(): Set<number>; new [...${receiver}].length.constructor("42");`,
+		languageOptions: {parser: parsers.typescript},
+		output: `declare function getSet(): Set<number>; new ${replacement}.size.constructor("42");`,
+		errors: 1,
+	})),
+});
+
+nodeTest('set size fixes preserve constructor callees after TypeScript erasure', t => {
+	const linter = new Linter();
+	const config = {
+		languageOptions: {parser: typescriptEslintParser},
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/prefer-set-size': 'error'},
+	};
+	const execute = source => {
+		const {outputText, diagnostics} = transpileModule(source, {compilerOptions: {target: ScriptTarget.ESNext}, reportDiagnostics: true});
+		t.assert.deepStrictEqual(diagnostics, []);
+		t.assert.deepStrictEqual(linter.verify(outputText, {}), []);
+		return runInNewContext(outputText, {getSet: () => new Set([1])});
+	};
+
+	for (const receiver of ['getSet()', '(getSet())', 'getSet() as Set<number>', 'getSet() satisfies Set<number>', 'getSet()!', 'new Set([1])']) {
+		const code = `declare function getSet(): Set<number>; new [...${receiver}].length.constructor("42").valueOf();`;
+		const {output, messages, fixed} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(execute(code), 42);
+		t.assert.strictEqual(execute(output), execute(code));
+	}
 });

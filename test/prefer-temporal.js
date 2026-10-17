@@ -1,7 +1,10 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 // `checkMethods` needs type information. Use the raw TypeScript parser with `projectService`
 // (the shared `parsers.typescript` injects `project: []`, which conflicts with `projectService`).
@@ -168,4 +171,55 @@ test.snapshot({
 		// Chained directly on a construction (also reported at `new Date()`)
 		typeAware('new Date().getFullYear();'),
 	],
+});
+
+// The replacement call must not become an enclosing constructor's argument list.
+test({
+	valid: [],
+	invalid: [{
+		code: 'new new Date(0).toString.constructor("return 42")();',
+		errors: [{
+			messageId: 'prefer-temporal', suggestions: [{
+				messageId: 'prefer-temporal/suggestion',
+				output: 'new (Temporal.Instant.fromEpochMilliseconds(0)).toString.constructor("return 42")();',
+			}],
+		}],
+	}],
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['new (new Date(0)).toString.constructor("return 42")();', 'new (Temporal.Instant.fromEpochMilliseconds(0)).toString.constructor("return 42")();'],
+			['new new Date(0) /* keep */ .toString.constructor("return 42")();', 'new (Temporal.Instant.fromEpochMilliseconds(0)) /* keep */ .toString.constructor("return 42")();'],
+		].map(([code, output]) => ({
+			code,
+			errors: [{messageId: 'prefer-temporal', suggestions: [{messageId: 'prefer-temporal/suggestion', output}]}],
+		})),
+		{
+			code: 'new new Date(0)!.toString.constructor("return 42")();',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'prefer-temporal',
+				suggestions: [{messageId: 'prefer-temporal/suggestion', output: 'new (Temporal.Instant.fromEpochMilliseconds(0))!.toString.constructor("return 42")();'}],
+			}],
+		},
+		{
+			code: 'new new Date(/* keep */ 0).toString.constructor("return 42")();',
+			errors: [{messageId: 'prefer-temporal', suggestions: []}],
+		},
+	],
+});
+
+nodeTest('Temporal suggestions preserve the enclosing constructor target', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: {rules: {'prefer-temporal': rule}}}, rules: {'unicorn/prefer-temporal': 'error'}};
+	const code = 'new new Date(0).toString.constructor("return 42")();';
+	const [message] = linter.verify(code, config);
+	const {range, text} = message.suggestions[0].fix;
+	const output = code.slice(0, range[0]) + text + code.slice(range[1]);
+	const temporal = {Instant: {fromEpochMilliseconds: () => ({})}};
+	t.assert.strictEqual(runInNewContext(output, {Temporal: temporal}), runInNewContext(code));
+	t.assert.deepStrictEqual(linter.verify(output, config), []);
 });

@@ -577,3 +577,28 @@ test.snapshot({
 		},
 	],
 });
+
+test.typescript({
+	valid: [
+		'delete (-Infinity as number);',
+		'delete (-Infinity satisfies number);',
+		'delete (<number>-Infinity);',
+		'delete (-Infinity)!;',
+	].map(code => ({code, options: [{checkInfinity: true}]})),
+	invalid: [{
+		code: 'const value = -Infinity as number;',
+		options: [{checkInfinity: true}],
+		output: 'const value = Number.NEGATIVE_INFINITY as number;',
+		errors: errorNegativeInfinity,
+	}, {
+		code: 'delete -(Infinity as number);',
+		options: [{checkInfinity: true}],
+		output: 'delete -(Number.POSITIVE_INFINITY as number);',
+		errors: errorPositiveInfinity,
+	}, {
+		code: 'delete (-Infinity as number).valueOf;',
+		options: [{checkInfinity: true}],
+		output: 'delete (Number.NEGATIVE_INFINITY as number).valueOf;',
+		errors: errorNegativeInfinity,
+	}],
+});

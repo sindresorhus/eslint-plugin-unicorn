@@ -132,3 +132,32 @@ test.snapshot({
 		'array.splice(undefined!, 1, element)',
 	],
 });
+
+test({
+	valid: [],
+	invalid: [{
+		code: '({array: [1]}.array.toSpliced)(0, 1, 2);',
+		errors: [{
+			messageId: 'replace-one-element', suggestions: [{
+				messageId: 'suggestion-replace-one-element',
+				output: '({array: [1]}.array).with(0, 2);',
+			}],
+		}],
+	}, {
+		code: 'const result = ({array: [1]}.array.toSpliced)(0, 1, 2);',
+		errors: [{
+			messageId: 'replace-one-element', suggestions: [{
+				messageId: 'suggestion-replace-one-element',
+				output: 'const result = {array: [1]}.array.with(0, 2);',
+			}],
+		}],
+	}, {
+		code: '((array)).toSpliced(0, 1, 2);',
+		errors: [{
+			messageId: 'replace-one-element', suggestions: [{
+				messageId: 'suggestion-replace-one-element',
+				output: '((array)).with(0, 2);',
+			}],
+		}],
+	}],
+});

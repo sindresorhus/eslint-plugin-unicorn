@@ -155,3 +155,69 @@ test.snapshot({
 		'const index = _.indexOf([1, 2, 1, 2], 2); index < 0;',
 	],
 });
+
+// Changing relational operators to equality operators must preserve the surrounding expression.
+test({
+	valid: [],
+	invalid: [
+		...[
+			['index < 0', 'index === -1'],
+			['index >= 0', 'index !== -1'],
+			['index > -1', 'index !== -1'],
+		].flatMap(([comparison, replacement]) => ['===', '!==', '==', '!='].map(operator => ({
+			code: `const index = list.indexOf(item); expected ${operator} ${comparison};`,
+			output: `const index = list.indexOf(item); expected ${operator} (${replacement});`,
+			errors: 1,
+		}))),
+		...[
+			['index < 0 < expected', '(index === -1) < expected'],
+			['index >= 0 === expected', 'index !== -1 === expected'],
+			['expected === (index < 0)', 'expected === (index === -1)'],
+			['expected === ((index < 0))', 'expected === ((index === -1))'],
+			['expected === index /* before */ < /* after */ 0', 'expected === (index /* before */ === /* after */ -1)'],
+			['index < 0 && expected', 'index === -1 && expected'],
+		].map(([comparison, replacement]) => ({
+			code: `const index = list.indexOf(item); ${comparison};`,
+			output: `const index = list.indexOf(item); ${replacement};`,
+			errors: 1,
+		})),
+		{
+			code: 'const index = list.indexOf(item); expected === index < 0; expected !== index >= 0;',
+			output: 'const index = list.indexOf(item); expected === (index === -1); expected !== (index !== -1);',
+			errors: 2,
+		},
+		...[
+			['foo()\nindex < 0 < 1', 'foo()\n;(index === -1) < 1'],
+			['const previous = value\nindex < 0 === expected', 'const previous = value\nindex === -1 === expected'],
+			['foo() // keep\nindex < 0 < 1', 'foo() // keep\n;(index === -1) < 1'],
+			['foo();\nindex < 0 < 1', 'foo();\n(index === -1) < 1'],
+			['if (ready)\nindex < 0 < 1', 'if (ready)\n(index === -1) < 1'],
+		].map(([expression, replacement]) => ({
+			code: `const index = list.indexOf(item);\n${expression}`,
+			output: `const index = list.indexOf(item);\n${replacement}`,
+			errors: 1,
+		})),
+		{
+			code: 'const index = list.indexOf(item);\nfoo()\nindex < 0 as boolean',
+			output: 'const index = list.indexOf(item);\nfoo()\n;(index === -1) as boolean',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		...['as boolean', 'satisfies boolean'].map(wrapper => ({
+			code: `const index = list.indexOf(item); index < 0 ${wrapper};`,
+			output: `const index = list.indexOf(item); (index === -1) ${wrapper};`,
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		})),
+	],
+});
+
+// Equality binds more tightly than bitwise operators.
+test({
+	valid: [],
+	invalid: [{
+		code: 'const index = array.indexOf(value); index < 0 | mask;',
+		output: 'const index = array.indexOf(value); index === -1 | mask;',
+		errors: 1,
+	}],
+});

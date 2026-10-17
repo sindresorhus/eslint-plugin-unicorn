@@ -20,7 +20,6 @@ import {
 	isReferencedByNestedFunction,
 	isSameIdentifier,
 	isSameReference,
-	needsSemicolon,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {containsOptionalChain} from './utils/comparison.js';
@@ -671,10 +670,6 @@ function getLoopGroupByProblem(declaration, context) {
 		const keyText = getConciseArrowBodyText(key, context);
 		yield fixer.replaceText(init, `${method}(${iterableText}, ${elementText} => ${keyText})`);
 		// Removing the loop exposes the declaration to the following statement.
-		if (nextToken && needsSemicolon(sourceCode.getLastToken(declaration), context, nextToken.value)) {
-			yield fixer.insertTextAfter(declaration, ';');
-		}
-
 		yield removeStatement(loop, context, fixer);
 	};
 

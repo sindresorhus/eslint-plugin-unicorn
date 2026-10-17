@@ -271,7 +271,12 @@ function getFixFunction(callExpression, functionInfo, context) {
 		yield fixSpaceAroundKeyword(fixer, callExpression.parent, context);
 
 		if (isOptionalObject) {
-			yield fixer.insertTextBefore(callExpression, `if (${objectText}) `);
+			const shouldWrapStatement = ancestor.type === 'ExpressionStatement'
+				&& !['Program', 'BlockStatement', 'StaticBlock', 'SwitchCase'].includes(ancestor.parent.type);
+			yield fixer.insertTextBefore(callExpression, `${shouldWrapStatement ? '{ ' : ''}if (${objectText}) `);
+			if (shouldWrapStatement) {
+				yield fixer.insertTextAfter(ancestor, ' }');
+			}
 		}
 
 		// Prevent possible variable conflicts

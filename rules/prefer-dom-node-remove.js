@@ -68,7 +68,7 @@ const create = context => {
 			&& isSameReference(parentNode.object, childNode);
 
 		const createFix = (optional = false) => function * (fixer) {
-			let childNodeText = getMemberExpressionObjectText(childNode, context);
+			let childNodeText = getMemberExpressionObjectText(childNode, context, node);
 
 			if (needsSemicolon(sourceCode.getTokenBefore(node), context, childNodeText)) {
 				childNodeText = `;${childNodeText}`;

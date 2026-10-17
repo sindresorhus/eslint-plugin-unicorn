@@ -1,6 +1,9 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
@@ -141,4 +144,58 @@ test({
 			['const array = [1, 2, 3]; array.splice(0, 0, foo());', 'const array = [1, 2, 3]; array.unshift(foo());'],
 		].map(([code, output]) => ({code, output, errors: 1})),
 	],
+});
+
+// Removing a parenthesized callee must keep its receiver valid at statement start.
+test({
+	valid: [],
+	invalid: [
+		['(function () { return [1, 2]; }().splice)(0);', '(function () { return [1, 2]; }()).length = 0;'],
+		['({array: [1, 2]}.array.splice)(0, 1);', '({array: [1, 2]}.array).shift();'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: '(function () { return [1, 2]; }()!.splice)(0);',
+			output: '(function () { return [1, 2]; }()!).length = 0;',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: '(function () { return [1, 2]; }()).splice(0);',
+			output: '(function () { return [1, 2]; }()).length = 0;',
+			errors: 1,
+		},
+		{
+			code: '(function () { return [1, 2]; }().splice)(/* keep */ 0);',
+			errors: 1,
+		},
+	],
+});
+
+nodeTest('rewritten parenthesized splice callees retain array mutations', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: {rules: {'no-unnecessary-splice': rule}}}, rules: {'unicorn/no-unnecessary-splice': 'error'}};
+	for (const expression of [
+		'(function () { return array; }().splice)(0);',
+		'({array}.array.splice)(0, 1);',
+	]) {
+		const code = `const array = [1, 2]; ${expression} JSON.stringify(array);`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
+	}
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: '({array: [1]}.array.splice)(0, 0, 2);',
+		output: '({array: [1]}.array).unshift(2);',
+		errors: 1,
+	}],
 });

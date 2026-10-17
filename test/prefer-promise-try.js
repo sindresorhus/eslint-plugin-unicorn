@@ -127,3 +127,21 @@ test.snapshot({
 		'new Promise(resolve => resolve({foo}.foo()));',
 	],
 });
+
+test({
+	valid: [],
+	invalid: [{
+		code: 'new new Promise(resolve => resolve(getValue()))!.constructor(resolve => resolve(2));',
+		languageOptions: {parser: parsers.typescript},
+		errors: 1,
+	}, {
+		code: 'new (new Promise(resolve => resolve(getValue())) as any).constructor(resolve => resolve(2));',
+		languageOptions: {parser: parsers.typescript},
+		errors: 1,
+	}, {
+		code: 'const promise = new Promise(resolve => resolve(getValue()))!.then(onFulfilled);',
+		languageOptions: {parser: parsers.typescript},
+		output: 'const promise = Promise.try(() => getValue())!.then(onFulfilled);',
+		errors: 1,
+	}],
+});

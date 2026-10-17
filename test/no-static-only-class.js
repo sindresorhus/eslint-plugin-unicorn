@@ -1,7 +1,10 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
@@ -354,4 +357,46 @@ test({
 			errors: 1,
 		},
 	],
+});
+
+// Removing the class keyword must keep newline comments inside keyword arguments.
+test({
+	valid: [],
+	invalid: [
+		['function run() { return class // keep\n{static value=1;}.value; }', 'function run() { return { // keep\nvalue:1,}.value; }'],
+		['function run() { throw class // keep\n{static value=1;}.value; }', 'function run() { throw { // keep\nvalue:1,}.value; }'],
+		['function* run() { yield class // keep\n{static value=1;}.value; }', 'function* run() { yield { // keep\nvalue:1,}.value; }'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function run() { return (class // keep\n{static value=1;}).value; }',
+			output: 'function run() { return (// keep\n{value:1,}).value; }',
+			errors: 1,
+		},
+		{
+			code: 'function run() { return class /* keep\ncomment */ {static value=1;} as {value: number}; }',
+			output: 'function run() { return { /* keep\ncomment */ value:1,} as {value: number}; }',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+	],
+});
+
+nodeTest('removing class keeps comments inside surrounding keyword expressions', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: {rules: {'no-static-only-class': rule}}}, rules: {'unicorn/no-static-only-class': 'error'}};
+	for (const code of [
+		'function run() { return class // keep\n{static value=1;}.value; } run();',
+		'function run() { throw class // keep\n{static value=1;}.value; } try {run();} catch (value) {value;}',
+		'function* run() { yield class // keep\n{static value=1;}.value; } run().next().value;',
+	]) {
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
+	}
 });

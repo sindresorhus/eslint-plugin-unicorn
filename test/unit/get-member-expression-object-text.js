@@ -16,7 +16,7 @@ const getText = code => {
 					inspect: {
 						create: context => ({
 							'CallExpression[callee.name="marker"]'(node) {
-								result = getMemberExpressionObjectText(node.arguments[0], context);
+								result = getMemberExpressionObjectText(node.arguments[0], context, node);
 							},
 						}),
 					},
@@ -47,4 +47,32 @@ test('adds parentheses when the node needs them as a member expression object', 
 test('keeps existing parentheses without adding more', t => {
 	t.assert.strictEqual(getText('marker((a + b))'), '(a + b)');
 	t.assert.strictEqual(getText('marker((foo))'), '(foo)');
+});
+
+test('groups declaration-like prefixes in nested expressions', t => {
+	for (const expression of [
+		'{value: 1}.value',
+		'function () {}.value',
+		'async function () {}.value',
+		'class {}.value',
+		'{fn: foo}.fn()',
+		'{tag: foo}.tag`text`',
+	]) {
+		t.assert.strictEqual(getText(`marker(${expression})`), `(${expression})`);
+	}
+
+	t.assert.strictEqual(getText('marker(({value: 1}).value)'), '({value: 1}).value');
+});
+
+test('declaration-like prefixes are grouped only at exposed expression starts', t => {
+	for (const expression of ['{value: 1}.value', 'function () {}.value', 'class {}.value']) {
+		t.assert.strictEqual(getText(`const value = marker(${expression});`), expression);
+		t.assert.strictEqual(getText(`function read() { return marker(${expression}); }`), expression);
+		t.assert.strictEqual(getText(`(marker(${expression}));`), expression);
+		t.assert.strictEqual(getText(`export default marker(${expression});`), expression.startsWith('{') ? expression : `(${expression})`);
+	}
+
+	t.assert.strictEqual(getText('const read = () => marker({value: 1}.value) || fallback;'), '({value: 1}.value)');
+	t.assert.strictEqual(getText('const read = () => marker(function () {}.value);'), 'function () {}.value');
+	t.assert.strictEqual(getText('const read = () => marker(class {}.value);'), 'class {}.value');
 });

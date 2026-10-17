@@ -1,5 +1,6 @@
 import {fileURLToPath} from 'node:url';
 import test from 'node:test';
+import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
@@ -7,6 +8,61 @@ import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
+
+test('optional match receivers retain short-circuiting', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/prefer-regexp-test': 'error'},
+	};
+	for (const [receiver, expected] of [['null', [false, 0]], ['undefined', [false, 0]], ['{value: "x"}', [true, 1]]]) {
+		const code = `const object = ${receiver}; let calls = 0; function getPattern() {calls++; return /./;} [Boolean(object?.value.match(getPattern()).length), calls];`;
+		const result = linter.verifyAndFix(code, config);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.deepStrictEqual([...runInNewContext(result.output)], expected);
+	}
+});
+
+ruleTest({
+	valid: [
+		'if (object?.value.match(/./).length) {}',
+		'if (object?.value.match(/./).length > 0) {}',
+		'if (getObject()?.value.match(getPattern())?.length) {}',
+		'if (object?.getValue().match(/./).length) {}',
+		'if (object?.value.match(/./)?.length > 0) {}',
+		{code: 'if (object?.value!.match(/./).length) {}', languageOptions: {parser: parsers.typescript}},
+	],
+	invalid: [{
+		code: 'if ((object?.value).match(/./).length) {}',
+		errors: [{messageId: 'string-match', suggestions: [{messageId: 'suggestion', output: 'if ((/./).test(object?.value)) {}'}]}],
+	}, {
+		code: 'if (object?.regexp.exec(value).length) {}',
+		errors: [{messageId: 'regexp-exec', suggestions: [{messageId: 'suggestion', output: 'if (object?.regexp.test(value)) {}'}]}],
+	}],
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			code: 'text.search({regexp: /x/}.regexp) !== -1;',
+			output: '({regexp: /x/}.regexp).test(text);',
+			errors: 1,
+		},
+		{
+			code: 'text.search(({regexp: /x/}.regexp)) !== -1;',
+			output: '({regexp: /x/}.regexp).test((text));',
+			errors: 1,
+		},
+		{
+			code: 'text.search({regexp: /x/}.regexp!) !== -1;',
+			output: '({regexp: /x/}.regexp!).test(text);',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+	],
+});
 
 const fixtureDirectory = fileURLToPath(new URL('fixtures/prefer-regexp-test/', import.meta.url));
 const typeAware = code => ({
@@ -405,6 +461,35 @@ ruleTest.vue({
 	],
 });
 
+ruleTest.vue({
+	valid: [],
+	invalid: [
+		...[
+			'setup()\nvalue.search(/x/) !== -1',
+			'setup()\r\nvalue.search(/x/) !== -1',
+			'setup()\nvalue.match(/x/) ? found() : missing()',
+			'if (q) run();\nvalue.search(/x/) !== -1',
+		].map(code => ({
+			code: `<template><button @click="${code}"></button></template>`,
+			errors: [{messageId: code.includes('.search(') ? 'string-search' : 'string-match', suggestions: 0}],
+		})),
+		{
+			code: '<template><div>{{ (() => { setup()\nvalue.search(/x/) !== -1 })() }}</div></template>',
+			errors: [{messageId: 'string-search', suggestions: 0}],
+		},
+		{
+			code: '<template><button @click="() => value.search(/x/) !== -1"></button></template>',
+			output: '<template><button @click="() => /x/.test(value)"></button></template>',
+			errors: 1,
+		},
+		{
+			code: '<template><button @click="setup(); if (/x/.exec(value)) run()"></button></template>',
+			output: '<template><button @click="setup(); if (/x/.test(value)) run()"></button></template>',
+			errors: 1,
+		},
+	],
+});
+
 ruleTest.typescript({
 	valid: [
 		outdent`
@@ -722,4 +807,40 @@ test('no redundant semicolon, and CRLF input', t => {
 
 		t.assert.strictEqual(result.output, expected, `output for \`${code}\``);
 	}
+});
+
+ruleTest.svelte({
+	valid: [],
+	invalid: [
+		['{value.search(/x/) !== -1}', '{(/x/).test(value)}'],
+		['<div>{value.match(/x/) ? yes : no}</div>', '<div>{(/x/).test(value) ? yes : no}</div>'],
+		['{#if value}{value.search(/x/) !== -1}{/if}', '{#if value}{(/x/).test(value)}{/if}'],
+		['{ value.search(/x/) !== -1}', '{ (/x/).test(value)}'],
+		['{/* keep */ value.search(/x/) !== -1}', '{/* keep */ /x/.test(value)}'],
+		['{@html value.search(/x/) !== -1}', '{@html /x/.test(value)}'],
+		['<div style:color={value.search(/x/) !== -1}></div>', '<div style:color={/x/.test(value)}></div>'],
+		['{(value.search(/x/) !== -1)}', '{(/x/.test(value))}'],
+		['{value.search(/x/) === -1}', '{!/x/.test(value)}'],
+		['<div title={value.search(/x/) !== -1}></div>', '<div title={/x/.test(value)}></div>'],
+		['{#if value.search(/x/) !== -1}yes{/if}', '{#if /x/.test(value)}yes{/if}'],
+		['<button onclick={() => value.search(/x/) !== -1}>test</button>', '<button onclick={() => /x/.test(value)}>test</button>'],
+		['{value.search(/* keep */ /x/) !== -1}', '{(/x/).test(/* keep */ value)}'],
+	].map(([code, output]) => ({
+		code: `<script>const value = "x";</script>${code}`,
+		output: `<script>const value = "x";</script>${output}`,
+		errors: 1,
+	})),
+});
+
+ruleTest.vue({
+	valid: [],
+	invalid: [
+		'value.search(/x/) /* keep */ !== -1',
+		'value.search(/x/) === /* keep */ -1',
+		'value.match(/x/) /* keep */ .length',
+		'value.match(/x/).length /* keep */ > 0',
+	].map(expression => ({
+		code: `<template><div v-if="${expression}"></div></template>`,
+		errors: [{messageId: expression.includes('.search(') ? 'string-search' : 'string-match', suggestions: 0}],
+	})),
 });

@@ -223,3 +223,39 @@ test.snapshot({
 		'foo\ntrue && (a || b) && c',
 	],
 });
+
+// Removing an identity must not expose a block or declaration at the start of a statement.
+test({
+	valid: [],
+	invalid: [
+		...[
+			['true && function () {}.length;', '(function () {}.length);'],
+			['true && class {}.name;', '(class {}.name);'],
+			['true && async function () {}.length;', '(async function () {}.length);'],
+			['true && {value: 1}.value && flag;', '({value: 1}.value) && flag;'],
+			['true && function () {}.length && flag;', '(function () {}.length) && flag;'],
+			['true && class {}.name && flag;', '(class {}.name) && flag;'],
+			['use()\ntrue && function () {}.length;', 'use()\n;(function () {}.length);'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		['const value = true && function () {}.length && flag;', 'const value = function () {}.length && flag;'],
+		['const get = () => true && {value: 1}.value && flag;', 'const get = () => ({value: 1}.value) && flag;'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test.svelte({
+	valid: [],
+	invalid: [
+		['{true && /x/}', '{(/x/)}'],
+		['<div>{true && /x/ && value}</div>', '<div>{(/x/) && value}</div>'],
+		['{ true && /x/}', '{ (/x/)}'],
+		['{(true && /x/)}', '{(/x/)}'],
+		['{true && (/x/)}', '{(/x/)}'],
+		['<div title={true && /x/}></div>', '<div title={/x/}></div>'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});

@@ -10,6 +10,7 @@ import {
 	isParenthesized,
 	isTypeScriptExpressionWrapper,
 	needsSemicolon,
+	shouldAddParenthesesToExpressionStart,
 	shouldAddParenthesesToMemberExpressionObject,
 	wouldRemoveComments,
 } from './utils/index.js';
@@ -109,7 +110,8 @@ function createFix(node, replacement, context) {
 	if (
 		!isParenthesized(replacement, context)
 		&& (
-			(isMemberExpressionObject && shouldAddParenthesesToMemberExpressionObject(replacement, context))
+			shouldAddParenthesesToExpressionStart(replacement, context, node)
+			|| (isMemberExpressionObject && shouldAddParenthesesToMemberExpressionObject(replacement, context, node))
 			|| (callee.parent.type === 'NewExpression' && callee.parent.callee === callee)
 		)
 	) {

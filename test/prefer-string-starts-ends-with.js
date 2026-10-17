@@ -7,6 +7,14 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		['/^a/.test({value: "abc"}.value);', '({value: "abc"}.value).startsWith(\'a\');'],
+		['/c$/.test({value: "abc"}.value);', '({value: "abc"}.value).endsWith(\'c\');'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
 const linter = new Linter();
 const keywordConfig = {
 	plugins: {unicorn: {rules: {'prefer-string-starts-ends-with': rule}}},
@@ -936,4 +944,14 @@ test.snapshot({
 		// eslint-disable-next-line no-template-curly-in-string
 		'`${/^a/.test((foo))}`',
 	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		['({value: "abc"}.value.indexOf("a")) === 0;', '({value: "abc"}.value).startsWith("a");'],
+		['({value: "abc"}.value.slice(0, 1)) === "a";', '({value: "abc"}.value).startsWith("a");'],
+		['const value = ({value: "abc"}.value.indexOf("a")) === 0;', 'const value = {value: "abc"}.value.startsWith("a");'],
+		['({value: "abc"}.value.indexOf("a")) !== 0;', '!{value: "abc"}.value.startsWith("a");'],
+	].map(([code, output]) => ({code, output, errors: 1})),
 });

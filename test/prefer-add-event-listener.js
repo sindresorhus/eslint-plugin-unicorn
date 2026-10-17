@@ -315,3 +315,10 @@ test('a handler that reassigns the same `on*` attribute is not autofixed', t => 
 		t.assert.strictEqual(Boolean(problem.fix), isFixed, `fix availability for \`${code}\``);
 	}
 });
+
+ruleTest({
+	valid: [],
+	invalid: [
+		{code: '({node: element}.node.onclick) = handler;', output: '({node: element}.node).addEventListener(\'click\', handler);', errors: 1},
+	],
+});

@@ -1,6 +1,6 @@
 import regjsparser from 'regjsparser';
 import {isMethodCall, isStringLiteral, isRegexLiteral} from './ast/index.js';
-import {getParenthesizedText} from './utils/index.js';
+import {getMemberExpressionObjectText, getParenthesizedText} from './utils/index.js';
 
 const {parse: parseRegExp} = regjsparser;
 
@@ -194,7 +194,7 @@ const create = context => {
 			const characterClass = uniqueCharacters
 				.map((character, index) => escapeCharacterClassCharacter(character, index === 0, index === uniqueCharacters.length - 1))
 				.join('');
-			const base = getParenthesizedText(baseReceiver, context);
+			const base = getMemberExpressionObjectText(baseReceiver, context, node);
 			const replacementText = getParenthesizedText(replacement, context);
 
 			problem.fix = fixer => fixer.replaceText(node, `${base}.replaceAll(/[${characterClass}]/g, ${replacementText})`);

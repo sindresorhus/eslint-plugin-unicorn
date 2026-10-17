@@ -114,3 +114,41 @@ test.snapshot({
 	],
 });
 
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'let value = 1\nuse(value)\nvalue += 0;\n[1].forEach(use)',
+			errors: [{
+				messageId: 'no-useless-compound-assignment/error',
+				suggestions: [{
+					messageId: 'no-useless-compound-assignment/remove',
+					output: 'let value = 1\nuse(value)\n;\n[1].forEach(use)',
+				}],
+			}],
+		},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: 'if (ready) ({value: 1}.value) += 0;',
+		errors: [{messageId: 'no-useless-compound-assignment/error', suggestions: [{messageId: 'no-useless-compound-assignment/replace', output: 'if (ready) ({value: 1}.value);'}]}],
+	}, {
+		code: 'const read = () => ({value: 1}.value) += 0;',
+		errors: [{messageId: 'no-useless-compound-assignment/error', suggestions: [{messageId: 'no-useless-compound-assignment/replace', output: 'const read = () => ({value: 1}.value);'}]}],
+	}],
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: 'const object = {value: 1}; delete (object.value += 0);',
+		errors: [{messageId: 'no-useless-compound-assignment/error', suggestions: []}],
+	}, {
+		code: 'const object = {value: 1}; delete (object.value += 0)!;',
+		languageOptions: {parser: parsers.typescript},
+		errors: [{messageId: 'no-useless-compound-assignment/error', suggestions: []}],
+	}],
+});

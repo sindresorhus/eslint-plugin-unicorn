@@ -18,6 +18,24 @@ const errorsWithoutSuggestion = [{
 const optionsIgnoreArguments = [{checkArguments: false}];
 const optionsIgnoreArrowFunctionBody = [{checkArrowFunctionBody: false}];
 
+// A conditional produces a value, while indexed access can expose a reference
+test({
+	valid: [],
+	invalid: [
+		...[
+			'(index >= 0 ? array[index] : undefined)();',
+			'(index >= 0 ? array[index] : undefined)?.();',
+			'(index >= 0 ? array[index] : undefined)`template`;',
+			'delete (index >= 0 ? array[index] : undefined);',
+		].map(code => ({code, errors: errorsWithoutSuggestion})),
+		{
+			code: '((index >= 0 ? array[index] : undefined) as Function)();',
+			languageOptions: {parser: parsers.typescript},
+			errors: errorsWithoutSuggestion,
+		},
+	],
+});
+
 // Indexed access suggestions keep the space after a keyword
 test({
 	valid: [],

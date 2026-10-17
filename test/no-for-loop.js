@@ -1,9 +1,12 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
 import {fileURLToPath} from 'node:url';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, avoidTestTitleConflict} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 const fixtureDirectory = fileURLToPath(new URL('fixtures/no-for-loop/', import.meta.url));
 
 function testCase(code, output) {
@@ -1920,4 +1923,86 @@ test({
 			errors: 1,
 		},
 	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const array = [1]; for (let index = 0; index < array.length; index++) {use()\nconst element = array[index];\n[1].forEach(use); consume(element)}',
+			output: 'const array = [1]; for (const element of array) {use()\n;\n[1].forEach(use); consume(element)}',
+			errors: 1,
+		},
+		{
+			code: 'const array = [1]; for (let index = 0; index < array.length; index++) {use() // keep\nconst element = array[index];\n[1].forEach(use); consume(element)}',
+			output: 'const array = [1]; for (const element of array) {use() // keep\n;\n[1].forEach(use); consume(element)}',
+			errors: 1,
+		},
+		...[
+			'array[index]()',
+			'array[index]?.()',
+			'(array[index])()',
+			'(array?.[index])()',
+			'(array?.[index])`template`',
+			'delete (array?.[index])',
+			'array[index]`template`',
+		].map(expression => ({
+			code: `const array = [callback]; for (let index = 0; index < array.length; index++) {${expression}}`,
+			errors: 1,
+		})),
+		{
+			code: 'const array = [callback]; for (let index = 0; index < array.length; index++) {(array[index] as Function)()}',
+			languageOptions: {parser: typescriptEslintParser},
+			errors: 1,
+		},
+		{
+			code: 'const array = [callback]; for (let index = 0; index < array.length; index++) {(array?.[index] as Function)()}',
+			languageOptions: {parser: typescriptEslintParser},
+			errors: 1,
+		},
+		{
+			code: 'const array = [callback]; for (let index = 0; index < array.length; index++) {const callback = array[index]; callback()}',
+			output: 'const array = [callback]; for (const callback of array) { callback()}',
+			errors: 1,
+		},
+	],
+});
+
+nodeTest('preserves statement boundaries when removing an element declaration', t => {
+	const code = outdent`
+		const array = [1];
+		const calls = [];
+		for (let index = 0; index < array.length; index++) {
+			calls.push(0) // keep
+			const element = array[index];
+			[1].forEach(value => calls.push(value));
+			calls.push(element);
+		}
+		JSON.stringify(calls);
+	`;
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, {
+		plugins: {unicorn: {rules: {'no-for-loop': rule}}},
+		rules: {'unicorn/no-for-loop': 'error'},
+	});
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(runInNewContext(code), '[0,1,1]');
+	t.assert.strictEqual(runInNewContext(result.output), '[0,1,1]');
+});
+
+nodeTest('keeps indexed calls and tagged templates bound to the array', t => {
+	for (const expression of ['array[index]()', 'array[index]`template`', '(array?.[index])()', '(array?.[index])`template`']) {
+		const code = `const array = [function () {return this === array}]; const calls = []; for (let index = 0; index < array.length; index++) {calls.push(${expression})} JSON.stringify(calls)`;
+		const linter = new Linter();
+		const result = linter.verifyAndFix(code, {
+			plugins: {unicorn: {rules: {'no-for-loop': rule}}},
+			rules: {'unicorn/no-for-loop': 'error'},
+		});
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.messages.length, 1);
+		t.assert.strictEqual(result.messages[0].fix, undefined);
+		t.assert.strictEqual(result.messages[0].suggestions, undefined);
+		t.assert.strictEqual(runInNewContext(result.output), '[true]');
+	}
 });

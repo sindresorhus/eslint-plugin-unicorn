@@ -1,4 +1,5 @@
 import getComments from './get-comments.js';
+import getTokenStore from './get-token-store.js';
 import {isEslintDisableOrEnableDirective} from './eslint-directive.js';
 
 const getRange = (context, nodeOrRange) =>
@@ -21,8 +22,10 @@ function wouldRemoveComments(context, nodeOrRange, preservedNodeOrRanges = [], {
 	const {sourceCode} = context;
 	const replacedRange = getRange(context, nodeOrRange);
 	const preservedRanges = preservedNodeOrRanges.map(nodeOrRange => getRange(context, nodeOrRange));
+	const tokenStore = getTokenStore(context, {range: replacedRange});
+	const comments = tokenStore === sourceCode ? getComments(context) : tokenStore.getCommentsInside({range: replacedRange});
 
-	return getComments(context).some(comment => {
+	return comments.some(comment => {
 		const commentRange = sourceCode.getRange(comment);
 		return isRangeInside(commentRange, replacedRange)
 			&& preservedRanges.every(range => !isRangeInside(commentRange, range))

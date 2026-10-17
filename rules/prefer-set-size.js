@@ -1,6 +1,14 @@
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {isMemberExpression, isMethodCall} from './ast/index.js';
-import {isLeftHandSide, isSet, shouldAddParenthesesToMemberExpressionObject} from './utils/index.js';
+import {
+	isLeftHandSide,
+	isSet,
+	needsSemicolon,
+	getMemberExpressionObjectText,
+	isInUnparenthesizedNewExpressionCallee,
+	shouldAddParenthesesToMemberExpressionObject,
+	shouldAddParenthesesToNewExpressionCallee,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-set-size';
 const messages = {
@@ -50,9 +58,17 @@ function createFix(context, lengthAccessNode, set) {
 
 		// `set` becomes the object of `.size`, so wrap expressions that need parentheses there
 		// (e.g. a TypeScript `set as Set<string>` assertion).
-		let setText = sourceCode.getText(set);
-		if (shouldAddParenthesesToMemberExpressionObject(set, context)) {
+		let setText = getMemberExpressionObjectText(set, context, array);
+		if (
+			isInUnparenthesizedNewExpressionCallee(array, context)
+			&& !shouldAddParenthesesToMemberExpressionObject(set, context, array)
+			&& shouldAddParenthesesToNewExpressionCallee({type: 'MemberExpression', object: set}, context)
+		) {
 			setText = `(${setText})`;
+		}
+
+		if (needsSemicolon(sourceCode.getTokenBefore(array), context, setText)) {
+			setText = `;${setText}`;
 		}
 
 		yield fixer.replaceText(array, setText);

@@ -13,6 +13,8 @@ Explicit comparisons make empty and non-empty intent clear instead of relying on
 
 This rule is fixable, unless it's [unsafe to fix](#unsafe-to-fix-case).
 
+In Vue templates, checks inside event handler statement bodies or block statements are reported without fixes or suggestions.
+
 ## Zero comparisons
 
 Enforce comparison with `=== 0` when checking for zero length.

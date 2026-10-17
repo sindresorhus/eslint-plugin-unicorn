@@ -157,7 +157,7 @@ const getReplaceChildrenProblem = (context, node) => {
 
 	const parentNodeText = (
 		parentNode.type !== 'Super'
-		&& shouldAddParenthesesToMemberExpressionObject(parentNode, context)
+		&& shouldAddParenthesesToMemberExpressionObject(parentNode, context, node)
 	)
 		? `(${sourceCode.getText(parentNode)})`
 		: sourceCode.getText(parentNode);

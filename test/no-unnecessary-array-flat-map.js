@@ -356,3 +356,28 @@ test.snapshot({
 		'foo.filter(Boolean).flatMap(x => [{a: x}.a]);',
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: '({array: values}.array.flatMap)(value => value ? [value] : []);',
+			output: '({array: values}.array).filter(value => value);',
+			errors: 1,
+		},
+		{
+			code: '({array: values}.array.flatMap)(value => value ? [value + 1] : []);',
+			errors: [{
+				messageId: 'no-unnecessary-array-flat-map', suggestions: [{
+					messageId: 'no-unnecessary-array-flat-map/filter-map-suggestion',
+					output: '({array: values}.array).filter(value => value).map(value => value + 1);',
+				}],
+			}],
+		},
+		{
+			code: 'const result = ({array: values}.array.flatMap)(value => value ? [value] : []);',
+			output: 'const result = {array: values}.array.filter(value => value);',
+			errors: 1,
+		},
+	],
+});

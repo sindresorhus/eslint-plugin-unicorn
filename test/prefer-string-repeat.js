@@ -1,7 +1,10 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
@@ -155,4 +158,26 @@ test({
 			errors: [{messageId: 'prefer-string-repeat'}],
 		},
 	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{code: 'new "   ".constructor("text").valueOf();', output: 'new (\' \'.repeat(3)).constructor("text").valueOf();', errors: 1},
+		{code: 'new `   `.constructor("text").valueOf();', output: 'new (\' \'.repeat(3)).constructor("text").valueOf();', errors: 1},
+		{code: 'new ("   ").constructor("text").valueOf();', output: 'new (\' \'.repeat(3)).constructor("text").valueOf();', errors: 1},
+		{code: 'new "   " /* keep */ .constructor("text").valueOf();', output: 'new (\' \'.repeat(3)) /* keep */ .constructor("text").valueOf();', errors: 1},
+		{code: '"   ".length;', output: '\' \'.repeat(3).length;', errors: 1},
+	],
+});
+
+nodeTest('repeated whitespace fixes preserve constructor receivers', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: {rules: {'prefer-string-repeat': rule}}}, rules: {'unicorn/prefer-string-repeat': 'error'}};
+	for (const code of ['new "   ".constructor("text").valueOf();', 'new `   `.constructor("text").valueOf();', 'new ("   ").constructor("text").valueOf();']) {
+		const {output, messages, fixed} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
+	}
 });

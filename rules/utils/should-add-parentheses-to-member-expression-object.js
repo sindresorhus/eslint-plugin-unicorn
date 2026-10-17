@@ -1,6 +1,7 @@
 import isNewExpressionWithParentheses from './is-new-expression-with-parentheses.js';
 import {isDecimalIntegerNode} from './numeric.js';
 import {getParenthesizedText, isParenthesized} from './parentheses/parentheses.js';
+import {shouldAddParenthesesToExpressionStart} from './should-add-parentheses-to-expression-statement-expression.js';
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
 @import * as ESLint from 'eslint';
@@ -9,11 +10,18 @@ import {getParenthesizedText, isParenthesized} from './parentheses/parentheses.j
 /**
 Check if parentheses should be added to a `node` when it's used as an `object` of `MemberExpression`.
 
+Grouping also keeps declaration-like prefixes from being parsed as a block or declaration when the member expression starts a statement.
+
 @param {ESTree.Node} node - The AST node to check.
 @param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
+@param {ESTree.Node} [replacementNode=node] - The node whose position the replacement will occupy.
 @returns {boolean}
 */
-export default function shouldAddParenthesesToMemberExpressionObject(node, context) {
+export default function shouldAddParenthesesToMemberExpressionObject(node, context, replacementNode = node) {
+	if (shouldAddParenthesesToExpressionStart(node, context, replacementNode)) {
+		return true;
+	}
+
 	switch (node.type) {
 		// This is not a full list. Some other nodes like `FunctionDeclaration` don't need parentheses,
 		// but it's not possible to be in the place we are checking at this point.
@@ -53,14 +61,15 @@ Get the text of `node` for use as the `object` of a `MemberExpression`, keeping 
 
 @param {ESTree.Node} node - The AST node.
 @param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
+@param {ESTree.Node} [replacementNode=node] - The node whose position the replacement will occupy.
 @returns {string}
 */
-export function getMemberExpressionObjectText(node, context) {
+export function getMemberExpressionObjectText(node, context, replacementNode = node) {
 	const text = getParenthesizedText(node, context);
 
 	if (
 		!isParenthesized(node, context)
-		&& shouldAddParenthesesToMemberExpressionObject(node, context)
+		&& shouldAddParenthesesToMemberExpressionObject(node, context, replacementNode)
 	) {
 		return `(${text})`;
 	}

@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
@@ -87,4 +88,25 @@ test('does not duplicate prefer-promise-try reports', t => {
 	});
 
 	t.assert.deepStrictEqual(messages.map(({ruleId}) => ruleId), ['unicorn/prefer-promise-try']);
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
+		{code: 'new new Promise(resolve => resolve(1)).constructor(resolve => resolve(2));', output: 'new (Promise.resolve(1)).constructor(resolve => resolve(2));', errors: 1},
+		{code: 'new (new Promise(resolve => resolve(1))).constructor(resolve => resolve(2));', output: 'new (Promise.resolve(1)).constructor(resolve => resolve(2));', errors: 1},
+		{code: 'new new Promise(resolve => resolve(1)) /* keep */ .constructor(resolve => resolve(2));', output: 'new (Promise.resolve(1)) /* keep */ .constructor(resolve => resolve(2));', errors: 1},
+		{code: 'new new Promise(resolve => resolve(/* keep */ 1)).constructor(resolve => resolve(2));', errors: 1},
+	],
+});
+
+test('static promise fixes preserve constructor receivers', async t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/prefer-promise-static-methods': 'error'}};
+	await Promise.all(['new new Promise(resolve => resolve(1)).constructor(resolve => resolve(2));', 'new (new Promise(resolve => resolve(1))).constructor(resolve => resolve(2));'].map(async code => {
+		const {output, messages, fixed} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(await runInNewContext(output), await runInNewContext(code));
+	}));
 });

@@ -4,6 +4,9 @@ import {
 	getStaticValueForControlFlow,
 	needsSemicolon,
 	getMemberExpressionObjectText,
+	isInUnparenthesizedNewExpressionCallee,
+	shouldAddParenthesesToMemberExpressionObject,
+	shouldAddParenthesesToNewExpressionCallee,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {createBuiltinTypeCheckers} from './utils/type-helpers.js';
@@ -45,8 +48,16 @@ const isLocation = node => {
 /**
 Get access to the URL's search parameters, protecting statement boundaries.
 */
-const getSearchParametersText = (receiverText, node, context) => {
-	const text = `${receiverText}.searchParams`;
+const getSearchParametersText = (receiver, node, context) => {
+	let text = `${getMemberExpressionObjectText(receiver, context, node)}.searchParams`;
+	if (
+		isInUnparenthesizedNewExpressionCallee(node, context)
+		&& !shouldAddParenthesesToMemberExpressionObject(receiver, context, node)
+		&& shouldAddParenthesesToNewExpressionCallee({type: 'MemberExpression', object: receiver}, context)
+	) {
+		text = `(${text})`;
+	}
+
 	return needsSemicolon(context.sourceCode.getTokenBefore(node), context, text) ? `;${text}` : text;
 };
 
@@ -73,7 +84,7 @@ const create = context => {
 					fix: fixer => fixer.replaceText(node, `new URLSearchParams(${receiverText}.search)`),
 				}, {
 					messageId: MESSAGE_ID_LIVE,
-					fix: fixer => fixer.replaceText(node, getSearchParametersText(receiverText, node, context)),
+					fix: fixer => fixer.replaceText(node, getSearchParametersText(argument, node, context)),
 				}];
 			}
 
@@ -94,7 +105,7 @@ const create = context => {
 			if (receiverIsUrl && !hasComments) {
 				problem.suggest.push({
 					messageId: MESSAGE_ID_LIVE,
-					fix: fixer => fixer.replaceText(node, getSearchParametersText(getParenthesizedText(receiver, context), node, context)),
+					fix: fixer => fixer.replaceText(node, getSearchParametersText(receiver, node, context)),
 				});
 			}
 

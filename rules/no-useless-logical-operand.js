@@ -3,12 +3,13 @@ import replaceNodeWithExpression from './fix/replace-node-with-expression.js';
 import {
 	getLogicalExpressionChildText,
 	getLogicalExpressionOperands,
-	getOutermostTypeScriptExpression,
 	isBoolean,
 	isBooleanContext,
 	isOutermostLogicalExpression,
 	isParenthesized,
+	isReferenceContext,
 	needsSemicolon,
+	shouldAddParenthesesToExpressionStart,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -30,12 +31,6 @@ const identityByOperator = new Map([
 const absorbingByOperator = new Map([
 	['&&', false],
 	['||', true],
-]);
-
-const leadingOperandTypesNeedingParentheses = new Set([
-	'FunctionExpression',
-	'ClassExpression',
-	'ObjectExpression',
 ]);
 
 function areKnownBooleanOperands(operands, context) {
@@ -68,24 +63,20 @@ function getRemovableIdentityOperands(operands, operator, context) {
 	);
 }
 
-function needsLeadingOperandParentheses(operand) {
-	return leadingOperandTypesNeedingParentheses.has(unwrapTypeScriptExpression(operand).type);
-}
-
 function isStringLiteralExpression(node) {
 	return isStringLiteral(unwrapTypeScriptExpression(node));
 }
 
-function getOperandText(operand, operator, index, context) {
+function getOperandText(operand, index, context, replacementNode) {
 	const text = getLogicalExpressionChildText(operand, context, {
-		operator,
+		operator: replacementNode.operator,
 		property: index === 0 ? 'left' : 'right',
 	});
 
 	if (
 		index === 0
 		&& !isParenthesized(operand, context)
-		&& needsLeadingOperandParentheses(operand)
+		&& shouldAddParenthesesToExpressionStart(unwrapTypeScriptExpression(operand), context, replacementNode)
 	) {
 		return `(${text})`;
 	}
@@ -95,7 +86,7 @@ function getOperandText(operand, operator, index, context) {
 
 function getReplacementText(node, replacementOperands, operator, context) {
 	const replacement = replacementOperands
-		.map((operand, index) => getOperandText(operand, operator, index, context))
+		.map((operand, index) => getOperandText(operand, index, context, node))
 		.join(` ${operator} `);
 
 	return needsSemicolon(context.sourceCode.getTokenBefore(node), context, replacement)
@@ -127,16 +118,6 @@ function getProblem(node, context) {
 		replacementOperands: replacementOperands.length === 0 ? [removableOperands.at(-1)] : replacementOperands,
 	};
 }
-
-// `(true && obj.method)()` calls the method with `this` undefined, but `(obj.method)()` would pass `obj` as `this`. `delete` also needs a reference, so the result is not a plain value in these positions.
-// TypeScript wrappers like `(true && obj.method)!()` are removed at runtime, so check the position of the outermost one.
-const isReferenceContext = node => {
-	const expression = getOutermostTypeScriptExpression(node);
-	const {parent} = expression;
-	return (parent.type === 'CallExpression' && parent.callee === expression)
-		|| (parent.type === 'TaggedTemplateExpression' && parent.tag === expression)
-		|| (parent.type === 'UnaryExpression' && parent.operator === 'delete');
-};
 
 /**
 @param {ESLint.Rule.RuleContext} context

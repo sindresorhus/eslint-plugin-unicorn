@@ -1,6 +1,7 @@
 import {test as nodeTest} from 'node:test';
 import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
+import {transpileModule, ScriptTarget} from 'typescript';
 import outdent from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
@@ -833,6 +834,44 @@ test.vue({
 	],
 });
 
+test.vue({
+	valid: [],
+	invalid: [
+		...['findIndex', 'findLastIndex'].flatMap(method => [
+			['!== -1', ''],
+			['!= -1', ''],
+			['> -1', ''],
+			['>= 0', ''],
+			['=== -1', '!'],
+			['== -1', '!'],
+			['< 0', '!'],
+		].map(([comparison, prefix]) => ({
+			code: `<template><div>{{ array.${method}(value => value > 0) ${comparison} }}</div></template>`,
+			output: `<template><div>{{ ${prefix}array.some(value => value > 0) }}</div></template>`,
+			errors: 1,
+		}))),
+		{
+			code: '<template><div v-if="array.findIndex(value => value > 0) === -1"></div></template>',
+			output: '<template><div v-if="!array.some(value => value > 0)"></div></template>',
+			errors: 1,
+		},
+		{
+			code: '<template><div>{{ (array.findIndex(fn)) /* keep */ === -1 }}</div></template>',
+			output: '<template><div>{{ !(array.some(fn)) /* keep */ }}</div></template>',
+			errors: 1,
+		},
+		{
+			code: '<template><div>{{ array.findIndex(fn) === /* keep */ -1 }}</div></template>',
+			errors: [{messageId: ERROR_ID_ARRAY_SOME, suggestions: 0}],
+		},
+		invalidCase({
+			code: '<template><div>{{ array.findLastIndex(predicate) === -1 }}</div></template>',
+			suggestionOutput: '<template><div>{{ !array.some(predicate) }}</div></template>',
+			method: 'findLastIndex',
+		}),
+	],
+});
+
 // Compare with `undefined`
 test.snapshot({
 	valid: [
@@ -905,4 +944,106 @@ test({
 			['a = (( ((foo.find(fn))) == ((null)) )) ? "no" : "yes";', 'a = (( !((foo.some(fn))) )) ? "no" : "yes";', 'find'],
 		].map(([code, suggestionOutput, method]) => invalidCase({code, suggestionOutput, method})),
 	],
+});
+
+// Erased type assertions must not expose a unary left operand of exponentiation.
+test({
+	valid: [],
+	invalid: [{
+		code: 'array.findIndex(item => item === value) < 0 as any ** 2;',
+		languageOptions: {parser: parsers.typescript},
+		output: '(!array.some(item => item === value)) as any ** 2;',
+		errors: 1,
+	}],
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['setup()\narray.findIndex(item => item === value) < 0 as any ** 2;', 'setup()\n;(!array.some(item => item === value)) as any ** 2;'],
+			['(array.findIndex(item => item === value) < 0) as any ** 2;', '(!array.some(item => item === value)) as any ** 2;'],
+			['array.findLastIndex(item => item === /* keep */ value) < 0 satisfies boolean as any ** 2;', '(!array.some(item => item === /* keep */ value)) satisfies boolean as any ** 2;'],
+		].map(([code, output]) => ({
+			code, output, languageOptions: {parser: parsers.typescript}, errors: 1,
+		})),
+		invalidCase({
+			code: 'array.findLastIndex(predicate) < 0 as any ** 2;',
+			languageOptions: {parser: parsers.typescript},
+			suggestionOutput: '(!array.some(predicate)) as any ** 2;',
+			method: 'findLastIndex',
+		}),
+	],
+});
+
+nodeTest('negated index predicate checks compile and retain results through type assertions', t => {
+	for (const value of [1, 2]) {
+		for (const expression of ['array.findIndex(item => item === value) < 0 as any ** 2', '(array.findIndex(item => item === value) < 0 as any) ** 2']) {
+			const code = `const array = [1]; const value = ${value}; const setup = () => undefined;\nsetup()${expression.startsWith('(') ? ';' : ''}\n${expression};`;
+			const config = {...linterConfig, languageOptions: {parser: typescriptEslintParser}};
+			const {output, fixed, messages} = linter.verifyAndFix(code, config);
+			const execute = source => runInNewContext(transpileModule(source, {compilerOptions: {target: ScriptTarget.ESNext}}).outputText);
+			t.assert.strictEqual(fixed, true);
+			t.assert.deepStrictEqual(messages, []);
+			t.assert.strictEqual(execute(output), execute(code));
+		}
+	}
+});
+
+// Group only where the surrounding expression needs the generated negation isolated.
+test({
+	valid: [],
+	invalid: [
+		['array.findIndex(item => item === value) < 0 as boolean;', '!array.some(item => item === value) as boolean;'],
+		['array.findIndex(item => item === value) < 0 satisfies boolean;', '!array.some(item => item === value) satisfies boolean;'],
+		['(array.findIndex(item => item === value) < 0 as any) ** 2;', '((!array.some(item => item === value)) as any) ** 2;'],
+	].map(([code, output]) => ({
+		code, output, languageOptions: {parser: parsers.typescript}, errors: 1,
+	})),
+});
+
+test.vue({
+	valid: [],
+	invalid: [
+		{
+			code: '<template><div v-if="array.find(predicate) /* keep */ !== undefined"></div></template>',
+			errors: [{messageId: 'some', suggestions: 0}],
+		},
+		...[
+			'array.filter(value => value) /* keep */ .length > 0',
+			'array.filter(value => value).length /* keep */ > 0',
+		].map(expression => ({
+			code: `<template><div v-if="${expression}"></div></template>`,
+			errors: [{messageId: 'filter', suggestions: 0}],
+		})),
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		'[1].findIndex(value => value === 1) // keep\n>= 0 && false;',
+		'[1].findIndex(value => value === 1) // keep\r\n< 0 || true;',
+		'array.findLastIndex(predicate) // keep\n!== -1 && ready;',
+	].map(code => ({code, errors: [{messageId: 'some', suggestions: 0}]})),
+});
+
+test.vue({
+	valid: [],
+	invalid: [
+		'[1].findIndex(value => value === 1) // keep\n>= 0 && false',
+		'array.findLastIndex(predicate) // keep\r\n=== -1 || ready',
+	].map(expression => ({
+		code: `<template><div v-if="${expression}"></div></template>`,
+		errors: [{messageId: 'some', suggestions: 0}],
+	})),
+});
+
+nodeTest('line comments do not swallow expressions following index comparisons', t => {
+	for (const comparison of ['>= 0 && false', '< 0 || true']) {
+		const code = `const result = [1].findIndex(value => value === 1) // keep\n${comparison};\nresult;`;
+		const result = linter.verifyAndFix(code, linterConfig);
+		t.assert.strictEqual(runInNewContext(result.output), runInNewContext(code));
+		t.assert.strictEqual(result.fixed, false);
+	}
 });

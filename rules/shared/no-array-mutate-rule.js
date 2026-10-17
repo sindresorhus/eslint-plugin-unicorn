@@ -115,7 +115,7 @@ export default function noArrayMutateRule(methodName) {
 						const {argument} = array.elements[0];
 						// The unwrapped argument becomes the object of `.toReversed()`/`.toSorted()`,
 						// so wrap low-precedence expressions (e.g. `[...a + b]`) to keep parsing intact.
-						yield fixer.replaceText(array, getMemberExpressionObjectText(argument, context));
+						yield fixer.replaceText(array, getMemberExpressionObjectText(argument, context, array));
 						yield fixMethodName(fixer);
 					},
 				});

@@ -1,5 +1,5 @@
 import {isClosingBraceToken} from '@eslint-community/eslint-utils';
-import {isRuntimeImportSpecifier} from './utils/index.js';
+import {isRuntimeImportSpecifier, needsSemicolon} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION_REMOVE_DECLARATION = 'suggestion/remove-declaration';
@@ -11,6 +11,12 @@ const messages = {
 };
 
 const isFromToken = token => token.type === 'Identifier' && token.value === 'from';
+
+const removeDeclaration = (node, fixer, context) => {
+	const {sourceCode} = context;
+	const tokenBefore = sourceCode.getTokenBefore(node);
+	return fixer.replaceText(node, needsSemicolon(tokenBefore, context) ? ';' : '');
+};
 
 const isRuntimeImportDeclaration = importDeclaration =>
 	importDeclaration.importKind !== 'type'
@@ -109,7 +115,7 @@ const create = context => {
 		const importDefaultSpecifier = specifiers.length === 1 ? specifiers[0] : undefined;
 		if (importKind === 'type' && !importDefaultSpecifier) {
 			if (!hasComments) {
-				problem.fix = fixer => fixer.remove(importDeclaration);
+				problem.fix = fixer => removeDeclaration(importDeclaration, fixer, context);
 			}
 
 			return problem;
@@ -136,7 +142,7 @@ const create = context => {
 				? []
 				: [{
 					messageId: MESSAGE_ID_SUGGESTION_REMOVE_DECLARATION,
-					fix: fixer => fixer.remove(importDeclaration),
+					fix: fixer => removeDeclaration(importDeclaration, fixer, context),
 				}]),
 			{
 				messageId: MESSAGE_ID_SUGGESTION_TO_SIDE_EFFECT_IMPORT,
@@ -188,7 +194,7 @@ const create = context => {
 
 		if (!source || exportKind === 'type') {
 			if (!hasComments) {
-				problem.fix = fixer => fixer.remove(exportDeclaration);
+				problem.fix = fixer => removeDeclaration(exportDeclaration, fixer, context);
 			}
 
 			return problem;
@@ -199,7 +205,7 @@ const create = context => {
 				? []
 				: [{
 					messageId: MESSAGE_ID_SUGGESTION_REMOVE_DECLARATION,
-					fix: fixer => fixer.remove(exportDeclaration),
+					fix: fixer => removeDeclaration(exportDeclaration, fixer, context),
 				}]),
 			{
 				messageId: MESSAGE_ID_SUGGESTION_TO_SIDE_EFFECT_IMPORT,

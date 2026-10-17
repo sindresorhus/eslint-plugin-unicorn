@@ -7,6 +7,20 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule, ruleId} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: ['', ' // keep'].map(comment => ({
+		code: `function foo(value) { object${comment}\nvalue ||= 1;\n[1].forEach(use); }`,
+		errors: [{
+			messageId: 'preferDefaultParameters',
+			suggestions: [{
+				messageId: 'preferDefaultParametersSuggest',
+				output: `function foo(value = 1) { object${comment}\n;\n[1].forEach(use); }`,
+			}],
+		}],
+	})),
+});
+
 const typeAware = (code, filename = 'file.ts') => ({
 	code,
 	filename,

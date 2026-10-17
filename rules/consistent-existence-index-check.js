@@ -1,4 +1,4 @@
-import toLocation from './utils/to-location.js';
+import {needsSemicolon, shouldAddParenthesesToComparison, toLocation} from './utils/index.js';
 import {isMethodCall, isNegativeOne, isNumericLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'consistent-existence-index-check';
@@ -9,7 +9,7 @@ const messages = {
 const isZero = node => isNumericLiteral(node) && node.value === 0;
 
 /**
-@param {parent: import('estree').BinaryExpression} binaryExpression
+@param {import('estree').BinaryExpression} binaryExpression
 @returns {{
 	replacementOperator: string,
 	replacementValue: string,
@@ -115,6 +115,12 @@ const create = context => {
 
 					if (replacement.replacementValue !== replacement.originalValue) {
 						yield fixer.replaceText(right, replacement.replacementValue);
+					}
+
+					if (shouldAddParenthesesToComparison(binaryExpression, context, replacement.replacementOperator)) {
+						const prefix = needsSemicolon(sourceCode.getTokenBefore(binaryExpression), context, '(') ? ';(' : '(';
+						yield fixer.insertTextBefore(binaryExpression, prefix);
+						yield fixer.insertTextAfter(binaryExpression, ')');
 					}
 				},
 			};

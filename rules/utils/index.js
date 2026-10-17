@@ -93,6 +93,7 @@ export {default as isVirtualFilename} from './is-virtual-filename.js';
 export {default as onRoot} from './on-root.js';
 export {default as getScopes} from './get-scopes.js';
 export {default as getTokenStore} from './get-token-store.js';
+export {default as isInVueTemplateStatement} from './is-in-vue-template-statement.js';
 export {default as getTemplateElementRaw} from './get-template-element-raw.js';
 export {default as getVariableIdentifiers} from './get-variable-identifiers.js';
 export {default as hasUnsafeArrowConversionReference} from './has-unsafe-arrow-conversion-reference.js';
@@ -172,6 +173,7 @@ export {default as isStrongPrecedenceNode} from './is-strong-precedence-node.js'
 export {default as isStringLiteralRequired} from './is-string-literal-required.js';
 export {default as isShorthandPropertyValue} from './is-shorthand-property-value.js';
 export {default as isValueNotUsable} from './is-value-not-usable.js';
+export {default as isReferenceContext} from './is-reference-context.js';
 export {default as needsSemicolon} from './needs-semicolon.js';
 export {default as normalizeComment} from './normalize-comment.js';
 export {default as maskJSDocumentSyntax} from './jsdoc.js';
@@ -220,12 +222,21 @@ export {checkVueTemplate} from './rule.js';
 export {default as getPrecedence, PRECEDENCE_ADDITION} from './get-precedence.js';
 export {default as shouldAddParenthesesToAwaitExpressionArgument} from './should-add-parentheses-to-await-expression-argument.js';
 export {default as shouldAddParenthesesToCallExpressionCallee} from './should-add-parentheses-to-call-expression-callee.js';
+export {default as shouldAddParenthesesToComparison} from './should-add-parentheses-to-comparison.js';
+export {default as getComparisonOperandText} from './get-comparison-operand-text.js';
 export {default as shouldAddParenthesesToConditionalExpressionChild, getConditionalExpressionChildText} from './should-add-parentheses-to-conditional-expression-child.js';
 export {default as shouldAddParenthesesToMemberExpressionObject, getMemberExpressionObjectText} from './should-add-parentheses-to-member-expression-object.js';
 export {default as shouldAddParenthesesToUnaryExpressionArgument} from './should-add-parentheses-to-unary-expression.js';
+export {default as shouldAddParenthesesToUnaryExpressionReplacement} from './should-add-parentheses-to-unary-expression-replacement.js';
 export {default as getNegatedExpressionText} from './get-negated-expression-text.js';
+export {default as getUnparenthesizedKeywordArgumentParent} from './get-unparenthesized-keyword-argument-parent.js';
+export {default as isInUnparenthesizedNewExpressionCallee} from './is-in-unparenthesized-new-expression-callee.js';
 export {default as shouldAddParenthesesToNewExpressionCallee} from './should-add-parentheses-to-new-expression-callee.js';
-export {default as shouldAddParenthesesToExpressionStatementExpression} from './should-add-parentheses-to-expression-statement-expression.js';
+export {
+	default as shouldAddParenthesesToExpressionStatementExpression,
+	shouldAddParenthesesToExpressionStart,
+	startsWithDeclarationLikeToken,
+} from './should-add-parentheses-to-expression-statement-expression.js';
 export {default as shouldAddParenthesesToLogicalExpressionChild, getLogicalExpressionChildText} from './should-add-parentheses-to-logical-expression-child.js';
 export {default as shouldReportReplaceChildrenReceiver, mayBeHtmlTemplateElement} from './should-report-replace-children-receiver.js';
 export {default as singular} from './singular.js';

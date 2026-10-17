@@ -1,5 +1,11 @@
 import {fixSpaceAroundKeyword, addParenthesesToReturnOrThrowExpression} from './fix/index.js';
-import {needsSemicolon, isParenthesized, isOnSameLine} from './utils/index.js';
+import {
+	needsSemicolon,
+	isOnSameLine,
+	isParenthesized,
+	getUnparenthesizedKeywordArgumentParent,
+	shouldAddParenthesesToExpressionStart,
+} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-negation-in-equality-check/error';
 const MESSAGE_ID_SUGGESTION = 'no-negation-in-equality-check/suggestion';
@@ -32,11 +38,23 @@ const create = context => {
 
 		const {sourceCode} = context;
 		const bangToken = sourceCode.getFirstToken(left);
+		const keywordParent = getUnparenthesizedKeywordArgumentParent(left, context);
+		const needsParentheses = !isParenthesized(left.argument, context)
+			&& shouldAddParenthesesToExpressionStart(left.argument, context, left);
 		const negatedOperator = `${operator.startsWith('!') ? '=' : '!'}${operator.slice(1)}`;
-
-		return {
+		const problem = {
 			node: bangToken,
 			messageId: MESSAGE_ID_ERROR,
+		};
+		if (
+			keywordParent?.type === 'YieldExpression'
+			&& !isOnSameLine(bangToken, sourceCode.getTokenAfter(bangToken), context)
+		) {
+			return problem;
+		}
+
+		return {
+			...problem,
 			/**
 			@param {import('eslint').Rule.RuleFixer} fixer
 			*/
@@ -54,22 +72,26 @@ const create = context => {
 
 						const tokenAfterBang = sourceCode.getTokenAfter(bangToken);
 
-						const {parent} = binaryExpression;
 						if (
-							(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
-							&& !isParenthesized(binaryExpression, context)
+							keywordParent?.type === 'ReturnStatement'
+							|| keywordParent?.type === 'ThrowStatement'
 						) {
-							const returnToken = sourceCode.getFirstToken(parent);
+							const returnToken = sourceCode.getFirstToken(keywordParent);
 							if (!isOnSameLine(returnToken, tokenAfterBang, context)) {
-								yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
+								yield addParenthesesToReturnOrThrowExpression(fixer, keywordParent, context);
 							}
 						}
 
 						yield fixer.remove(bangToken);
 
+						if (needsParentheses) {
+							yield fixer.insertTextBefore(left.argument, '(');
+							yield fixer.insertTextAfter(left.argument, ')');
+						}
+
 						const previousToken = sourceCode.getTokenBefore(bangToken);
-						if (needsSemicolon(previousToken, context, tokenAfterBang.value)) {
-							yield fixer.insertTextAfter(bangToken, ';');
+						if (needsSemicolon(previousToken, context, needsParentheses ? '(' : tokenAfterBang.value)) {
+							yield fixer.insertTextBefore(bangToken, ';');
 						}
 
 						const operatorToken = sourceCode.getTokenAfter(

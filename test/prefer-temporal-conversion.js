@@ -227,3 +227,46 @@ test.snapshot({
 		})),
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		['new new Temporal.Instant(source.epochNanoseconds).constructor(0n);', 'new (source.toInstant()).constructor(0n);'],
+		['new (new Temporal.Instant(source.epochNanoseconds)).constructor(0n);', 'new (source.toInstant()).constructor(0n);'],
+		['const instant = new Temporal.Instant(source.epochNanoseconds);', 'const instant = source.toInstant();'],
+	].map(([expression, output]) => ({code: `${zoned} ${expression}`, output: `${zoned} ${output}`, errors: 1})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		['new new Temporal.Instant(source.epochNanoseconds)!.constructor(0n);', 'new (source.toInstant())!.constructor(0n);'],
+		['new (new Temporal.Instant(source.epochNanoseconds) as Temporal.Instant).constructor(0n);', 'new (source.toInstant() as Temporal.Instant).constructor(0n);'],
+	].map(([expression, output]) => ({
+		code: `${zoned} ${expression}`,
+		output: `${zoned} ${output}`,
+		errors: 1,
+		languageOptions: {parser: parsers.typescript},
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: `${zoned} new new Temporal.Instant(/* keep */ source.epochNanoseconds).constructor(0n);`,
+		errors: 1,
+	}],
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: `${zoned} new new Temporal.PlainDate(source.year, source.month, source.day).constructor(2024, 1, 2);`,
+		errors: [{
+			messageId: 'prefer-temporal-conversion', suggestions: [{
+				messageId: 'prefer-temporal-conversion/suggestion',
+				output: `${zoned} new (source.toPlainDate()).constructor(2024, 1, 2);`,
+			}],
+		}],
+	}],
+});

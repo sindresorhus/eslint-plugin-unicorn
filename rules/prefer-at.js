@@ -10,6 +10,9 @@ import {
 	needsSemicolon,
 	getMemberExpressionObjectText,
 	isLeftHandSide,
+	isReferenceContext,
+	isInUnparenthesizedNewExpressionCallee,
+	getOutermostChainAndTypeScriptExpression,
 	getStaticValueIfNoSideEffects,
 	hasCommentInRange,
 	unwrapChainAndTypeScriptExpression,
@@ -79,6 +82,7 @@ const isLiteralNegativeInteger = node =>
 	&& node.argument.type === 'Literal'
 	&& Number.isSafeInteger(node.argument.value)
 	&& node.argument.value > 0;
+
 const isZeroIndexAccess = node =>
 	isMemberExpression(node.parent, {
 		optional: false,
@@ -101,7 +105,7 @@ const isArrayShiftCall = node => isArrayPopOrShiftCall(node, 'shift');
 
 function getFirstElementGetMethod(node) {
 	if (isZeroIndexAccess(node)) {
-		return isLeftHandSide(node.parent) ? undefined : 'zero-index';
+		return isLeftHandSide(node.parent) || isReferenceContext(getOutermostChainAndTypeScriptExpression(node.parent)) ? undefined : 'zero-index';
 	}
 
 	if (isArrayShiftCall(node)) {
@@ -204,7 +208,7 @@ function create(context) {
 
 	// Index access
 	context.on('MemberExpression', node => {
-		if (!node.computed || isLeftHandSide(node)) {
+		if (!node.computed || isLeftHandSide(node) || isReferenceContext(getOutermostChainAndTypeScriptExpression(node))) {
 			return;
 		}
 
@@ -270,6 +274,11 @@ function create(context) {
 
 				const closingBracketToken = sourceCode.getTokenAfter(indexNode, isClosingBracketToken);
 				yield fixer.replaceText(closingBracketToken, ')');
+
+				if (isInUnparenthesizedNewExpressionCallee(node, context)) {
+					yield fixer.insertTextBefore(node, '(');
+					yield fixer.insertTextAfter(node, ')');
+				}
 			},
 		};
 	});
@@ -446,7 +455,7 @@ function create(context) {
 		return {
 			...problem,
 			fix(fixer) {
-				let fixed = `${getMemberExpressionObjectText(array, context)}.at(-1)`;
+				let fixed = `${getMemberExpressionObjectText(array, context, node)}.at(-1)`;
 
 				const tokenBefore = sourceCode.getTokenBefore(node);
 				if (needsSemicolon(tokenBefore, context, fixed)) {

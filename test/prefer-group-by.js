@@ -288,6 +288,7 @@ test({
 			`,
 			output: outdent`
 				const groups = Object.groupBy(items, item => item.type)
+				;
 				consume(groups)
 			`,
 			errors: [{messageId: 'prefer-group-by-loop'}],

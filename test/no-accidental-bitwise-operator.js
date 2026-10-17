@@ -2,6 +2,28 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		['ready && value | \'\';', 'ready && (value || \'\');'],
+		['obj & obj.prop | fallback;', '(obj && obj.prop) | fallback;'],
+		['value | \'\' ?? fallback;', '(value || \'\') ?? fallback;'],
+		['fallback ?? value | \'\';', 'fallback ?? (value || \'\');'],
+		['ready && (value | \'\');', 'ready && (value || \'\');'],
+		['ready && value /* keep */ | \'\';', 'ready && (value /* keep */ || \'\');'],
+		['(obj & obj.prop) === expected;', '(obj && obj.prop) === expected;'],
+		['foo()\nobj & obj.prop | fallback', 'foo()\n;(obj && obj.prop) | fallback'],
+		['foo()\nvalue | \'\' ?? fallback', 'foo()\n;(value || \'\') ?? fallback'],
+		['if (ready)\nobj & obj.prop | fallback', 'if (ready)\n(obj && obj.prop) | fallback'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{
+			messageId: 'no-accidental-bitwise-operator/error',
+			suggestions: [{messageId: 'no-accidental-bitwise-operator/suggestion', output}],
+		}],
+	})),
+});
+
 test.snapshot({
 	valid: [
 		// Legitimate bitwise usage
@@ -87,4 +109,21 @@ test.snapshot({
 		{code: 'obj & obj.a;', languageOptions: {parser: parsers.typescript}},
 		{code: 'options | {};', languageOptions: {parser: parsers.typescript}},
 	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		['ready || object & object.value;', 'ready || object && object.value;'],
+		['ready && object & object.value;', 'ready && object && object.value;'],
+		['value | \'\' || fallback;', 'value || \'\' || fallback;'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{
+			messageId: 'no-accidental-bitwise-operator/error', suggestions: [{
+				messageId: 'no-accidental-bitwise-operator/suggestion',
+				output,
+			}],
+		}],
+	})),
 });

@@ -8,6 +8,7 @@ import {
 	hasCommentInRange,
 	isNodeMatchesNameOrPath,
 	isParenthesized,
+	needsSemicolon,
 	unwrapTypeScriptExpression,
 	getVisitorChildNodes,
 } from './utils/index.js';
@@ -485,7 +486,8 @@ function * getConstructorBodyProblems(context, constructor, errorDefinition) {
 					yield fixer.insertTextAfter(firstParameter, `, ${getOptionsParameterText(firstParameter)}`);
 				}
 
-				yield fixer.removeRange([start, end]);
+				const replacement = needsSemicolon(sourceCode.getTokenBefore(expression), context) ? ';' : '';
+				yield fixer.replaceTextRange([start, end], replacement);
 			},
 		};
 	}

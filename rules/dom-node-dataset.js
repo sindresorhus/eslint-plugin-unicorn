@@ -9,8 +9,11 @@ import {
 	hasOptionalChainElement,
 	isGlobalIdentifier,
 	isIdentifierName,
+	isInUnparenthesizedNewExpressionCallee,
 	isKnownNonDomNode,
 	isLeftHandSide,
+	isParenthesized,
+	isTypeScriptExpressionWrapper,
 	isValueNotUsable,
 	needsSemicolon,
 	wouldRemoveComments,
@@ -33,6 +36,53 @@ const messages = {
 	[INVERSE_MESSAGE_ID]: 'Prefer `.{{method}}(…)` over `.dataset`.',
 	[INVERSE_SUGGESTION_MESSAGE_ID]: 'Switch to `getAttribute()`.',
 };
+
+// These expression positions inherit the surrounding grammar's allowance of `in`.
+const getInheritingChildren = node => {
+	switch (node.type) {
+		case 'BinaryExpression':
+		case 'LogicalExpression': {
+			return [node.left, node.right];
+		}
+
+		case 'ConditionalExpression': {
+			return [node.test, node.alternate];
+		}
+
+		case 'AssignmentExpression': {
+			return [node.right];
+		}
+
+		case 'SequenceExpression': {
+			return node.expressions;
+		}
+
+		case 'ArrowFunctionExpression': {
+			return [node.body];
+		}
+
+		default: {
+			return isTypeScriptExpressionWrapper(node) ? [node.expression] : [];
+		}
+	}
+};
+
+const hasExposedInOperator = (node, context) => !isParenthesized(node, context)
+	&& ((node.type === 'BinaryExpression' && node.operator === 'in')
+		|| getInheritingChildren(node).some(child => hasExposedInOperator(child, context)));
+
+/**
+Check whether moving an expression to a replacement position exposes an `in` operator in a `for` initializer.
+*/
+function needsParenthesesForInOperator(expression, context, callExpression) {
+	const sequence = callExpression.parent;
+	return sequence.type === 'SequenceExpression'
+		&& sequence.parent.type === 'ForStatement'
+		&& sequence.parent.init === sequence
+		&& !isParenthesized(callExpression, context)
+		&& !isParenthesized(sequence, context)
+		&& hasExposedInOperator(expression, context);
+}
 
 const dashToCamelCase = string => string.replaceAll(/-[a-z]/g, s => s[1].toUpperCase());
 const camelCaseToDash = string => `data-${string.replaceAll(/[A-Z]/g, char => `-${char.toLowerCase()}`)}`;
@@ -159,7 +209,12 @@ function getDatasetVariableInlineFix(declarator, context) {
 		yield removeStatement(declaration, context, fixer);
 		for (const member of usageMembers) {
 			const attributeName = escapeString(camelCaseToDash(getStaticPropertyName(member, context)), getKeyQuote(member));
-			yield fixer.replaceText(member, `${objectText}.getAttribute(${attributeName})`);
+			let text = `${objectText}.getAttribute(${attributeName})`;
+			if (isInUnparenthesizedNewExpressionCallee(member, context)) {
+				text = `(${text})`;
+			}
+
+			yield fixer.replaceText(member, text);
 		}
 	};
 }
@@ -197,7 +252,12 @@ function getFix(callExpression, context) {
 		const [nameNode] = callExpression.arguments;
 		const name = dashToCamelCase(nameNode.value.toLowerCase().slice(5));
 		let text = '';
-		const datasetText = `${getMemberExpressionObjectText(callExpression.callee.object, context)}${callExpression.callee.optional ? '?' : ''}.dataset`;
+		const objectText = getMemberExpressionObjectText(
+			callExpression.callee.object,
+			context,
+			method === 'setAttribute' || method === 'getAttribute' ? callExpression : callExpression.callee.object,
+		);
+		const datasetText = `${objectText}${callExpression.callee.optional ? '?' : ''}.dataset`;
 		switch (method) {
 			case 'setAttribute':
 			case 'getAttribute':
@@ -205,7 +265,10 @@ function getFix(callExpression, context) {
 				text = isIdentifierName(name) ? `.${name}` : `[${escapeString(name, nameNode.raw.charAt(0))}]`;
 				text = `${datasetText}${text}`;
 				if (method === 'setAttribute') {
-					text += ` = ${getParenthesizedText(callExpression.arguments[1], context)}`;
+					const value = callExpression.arguments[1];
+					const valueText = getParenthesizedText(value, context);
+					// Moving the value out of call arguments can expose `in` in a `for` initializer.
+					text += ` = ${needsParenthesesForInOperator(value, context, callExpression) ? `(${valueText})` : valueText}`;
 				} else if (method === 'removeAttribute') {
 					text = `delete ${text}`;
 				}
@@ -258,7 +321,7 @@ const create = context => {
 				return;
 			}
 
-			const objectText = getMemberExpressionObjectText(datasetNode.object, context);
+			const objectText = getMemberExpressionObjectText(datasetNode.object, context, reportNode);
 			const chain = datasetNode.optional ? '?.' : '.';
 			const attributeName = escapeString(camelCaseToDash(keyNode.value), keyNode.raw.charAt(0));
 			const fix = wouldRemoveComments(context, reportNode, [datasetNode.object])
@@ -467,7 +530,7 @@ const create = context => {
 
 			const method = isWrite ? 'setAttribute' : (isDelete ? 'removeAttribute' : 'getAttribute');
 
-			const objectText = getMemberExpressionObjectText(object.object, context);
+			const objectText = getMemberExpressionObjectText(object.object, context, isWrite || isDelete ? parent : memberExpression);
 			const chain = object.optional ? '?.' : '.';
 			const attributeName = escapeString(camelCaseToDash(keyName), getKeyQuote(memberExpression));
 
@@ -503,7 +566,14 @@ const create = context => {
 					data: {method},
 					suggest: [{
 						messageId: INVERSE_SUGGESTION_MESSAGE_ID,
-						fix: fixer => fixer.replaceText(memberExpression, `${objectText}${chain}getAttribute(${attributeName})`),
+						fix(fixer) {
+							let text = `${objectText}${chain}getAttribute(${attributeName})`;
+							if (isInUnparenthesizedNewExpressionCallee(memberExpression, context)) {
+								text = `(${text})`;
+							}
+
+							return fixer.replaceText(memberExpression, text);
+						},
 					}],
 				};
 			}

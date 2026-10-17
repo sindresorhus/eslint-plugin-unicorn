@@ -1,6 +1,9 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
@@ -116,4 +119,28 @@ test.snapshot({
 		// Control characters are escaped in the character class
 		String.raw`string.replaceAll('\x01', '-').replaceAll('\x7F', '-');`,
 	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		['({text: "ab"}.text.replaceAll("a", "x")).replaceAll("b", "x");', '({text: "ab"}.text).replaceAll(/[ab]/g, "x");'],
+		['const text = ({text: "ab"}.text.replaceAll("a", "x")).replaceAll("b", "x");', 'const text = {text: "ab"}.text.replaceAll(/[ab]/g, "x");'],
+		['({text: "ab"}.text).replaceAll("a", "x").replaceAll("b", "x");', '({text: "ab"}.text).replaceAll(/[ab]/g, "x");'],
+		['const read = () => ({text: "ab"}.text.replaceAll("a", "x")).replaceAll("b", "x");', 'const read = () => ({text: "ab"}.text).replaceAll(/[ab]/g, "x");'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+nodeTest('merged replacement chains preserve object-prefix grouping', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-single-replace': rule}}},
+		rules: {'unicorn/prefer-single-replace': 'error'},
+	};
+	const code = '({text: "abba"}.text.replaceAll("a", "x")).replaceAll("b", "x");';
+	const {output, messages, fixed} = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(fixed, true);
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(runInNewContext(output), 'xxxx');
+	t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
 });

@@ -3,12 +3,15 @@ import {
 	isBooleanContext,
 	isGlobalBooleanCall,
 	getParenthesizedRange,
+	getTokenStore,
 	hasCommentInRange,
 	hasTypeArguments,
 	isIndexedCollection,
 	isKnownNonIndexedCollection,
 	isNodeValueNotFunction,
 	isSideEffectFreeFunction,
+	needsSemicolon,
+	shouldAddParenthesesToUnaryExpressionReplacement,
 } from './utils/index.js';
 import {removeMemberExpressionProperty} from './fix/index.js';
 import {
@@ -206,21 +209,36 @@ const create = context => {
 		const methodNode = left.callee.property;
 		function * fix(fixer, {abort}) {
 			const {sourceCode} = context;
-			const operatorToken = sourceCode.getTokenAfter(
+			const tokenStore = getTokenStore(context, binaryExpression);
+			const operatorToken = tokenStore.getTokenAfter(
 				left,
 				token => token.type === 'Punctuator' && token.value === operator,
 			);
+			const tokenBeforeOperator = tokenStore.getTokenBefore(operatorToken, {includeComments: true});
 			// Start right after the token or comment before the operator, so the space before the operator is not left dangling
-			const [, start] = sourceCode.getRange(sourceCode.getTokenBefore(operatorToken, {includeComments: true}));
+			const [, start] = sourceCode.getRange(tokenBeforeOperator);
 			const [, end] = sourceCode.getRange(binaryExpression);
 
-			// Removing the comparison would drop comments in the removed range.
-			if (hasCommentInRange(context, [start, end])) {
+			// Removing the comparison would drop comments or the newline ending a line comment.
+			if (
+				tokenBeforeOperator.type === 'Line'
+				|| tokenStore.getCommentsInside({range: [start, end]}).length > 0
+			) {
 				return abort();
 			}
 
 			if (['===', '==', '<'].includes(operator)) {
-				yield fixer.insertTextBefore(binaryExpression, '!');
+				let prefix = '!';
+				if (shouldAddParenthesesToUnaryExpressionReplacement(binaryExpression, context)) {
+					prefix = '(!';
+					yield fixer.insertTextAfter(binaryExpression, ')');
+				}
+
+				if (needsSemicolon(tokenStore.getTokenBefore(binaryExpression), context, prefix)) {
+					prefix = ';' + prefix;
+				}
+
+				yield fixer.insertTextBefore(binaryExpression, prefix);
 			}
 
 			yield fixer.replaceText(methodNode, 'some');

@@ -4,7 +4,7 @@ import {
 	isCallOrNewExpression,
 	isNullLiteral,
 } from './ast/index.js';
-import {getParenthesizedRange} from './utils/index.js';
+import {getOutermostTypeScriptExpression, getParenthesizedRange} from './utils/index.js';
 
 const ERROR_MESSAGE_ID = 'error';
 const SUGGESTION_REPLACE_MESSAGE_ID = 'replace';
@@ -97,6 +97,11 @@ const create = context => {
 			node,
 			messageId: ERROR_MESSAGE_ID,
 		};
+
+		const {parent: outerParent} = getOutermostTypeScriptExpression(node);
+		if (outerParent.type === 'UnaryExpression' && outerParent.operator === 'delete') {
+			return problem;
+		}
 
 		const useUndefinedFix = fixer => fixer.replaceText(node, 'undefined');
 

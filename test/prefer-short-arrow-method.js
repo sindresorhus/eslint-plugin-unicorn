@@ -1,6 +1,42 @@
+import nodeTest from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
+import plugin from '../index.js';
 import {parsers, getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: ['always', 'consistent-as-needed'].flatMap(mode => [
+		['const object = {[(0, "foo")]() {return 1;}};', 'const object = {[(0, "foo")]: () => 1};'],
+		['const object = {[((0, "foo"))]() {return 1;}};', 'const object = {[((0, "foo"))]: () => 1};'],
+		['const object = {[key]() {return 1;}};', 'const object = {[key]: () => 1};'],
+	].map(([code, output]) => ({
+		code, output, options: [mode], errors: 1,
+	}))),
+});
+
+test.typescript({
+	valid: [],
+	invalid: [
+		['const object = {[(0, "foo" as const)]() {return 1;}};', 'const object = {[(0, "foo" as const)]: () => 1};'],
+		['const object = {[(0, "foo" satisfies string)]() {return 1;}};', 'const object = {[(0, "foo" satisfies string)]: () => 1};'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+nodeTest('computed sequence keys keep their evaluation order', t => {
+	const code = 'const events = []; const object = {[(events.push("first"), events.push("second"), "foo")]() {return 1;}}; JSON.stringify([object.foo(), events]);';
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, {
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/prefer-short-arrow-method': 'error'},
+	});
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(runInNewContext(result.output), runInNewContext(code));
+	t.assert.strictEqual(runInNewContext(result.output), '[1,["first","second"]]');
+});
 
 test.snapshot({
 	valid: [

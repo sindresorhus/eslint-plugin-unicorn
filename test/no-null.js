@@ -5,6 +5,32 @@ const {test} = getTester(import.meta);
 
 const optionsIgnoreArguments = [{checkArguments: false}];
 
+test({
+	valid: [],
+	invalid: [
+		'delete null;',
+		'delete ((null));',
+		'delete (/* keep */ null);',
+		...[
+			'delete (null as unknown);',
+			'delete (null satisfies unknown);',
+			'delete (<unknown>null);',
+			'delete null!;',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
+	].map(testCase => ({
+		...(typeof testCase === 'string' ? {code: testCase} : testCase),
+		errors: [{messageId: 'error', suggestions: 0}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: 'delete [null][0];',
+		errors: [{messageId: 'error', suggestions: [{messageId: 'replace', output: 'delete [undefined][0];'}]}],
+	}],
+});
+
 test.snapshot({
 	valid: [
 		'let foo',

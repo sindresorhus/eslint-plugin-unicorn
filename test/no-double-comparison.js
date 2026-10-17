@@ -2,6 +2,25 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: ['as number', 'satisfies number'].flatMap(wrapper => [
+		[`x === y ${wrapper} || x < (y ${wrapper})`, `x <= (y ${wrapper})`],
+		[`x === y ${wrapper} || x > (y ${wrapper})`, `x >= (y ${wrapper})`],
+		[`x ${wrapper} === y || (x ${wrapper}) < y`, `x ${wrapper} <= y`],
+		[`x === (y /* keep */ ${wrapper}) || x < (y ${wrapper})`, `x <= (y /* keep */ ${wrapper})`],
+		[`foo()\nx ${wrapper} === y || (x ${wrapper}) < y`, `foo()\nx ${wrapper} <= y`],
+		[`if (ready)\nx ${wrapper} === y || (x ${wrapper}) < y`, `if (ready)\nx ${wrapper} <= y`],
+	].map(([code, output]) => ({
+		code,
+		languageOptions: {parser: parsers.typescript},
+		errors: [{
+			messageId: 'no-double-comparison',
+			suggestions: [{messageId: 'no-double-comparison/suggestion', output}],
+		}],
+	}))),
+});
+
 test.snapshot({
 	valid: [
 		// Loose equality (`==`/`!=`) is not recognized, only strict equality.

@@ -12,6 +12,7 @@ import {
 	getTypeArgumentsText,
 	hasCommentInRange,
 	isGlobalIdentifier,
+	isTypeScriptExpressionWrapper,
 	unwrapChainAndTypeScriptExpression,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
@@ -45,13 +46,14 @@ const hasExecutorTypeSyntax = executor => Boolean(
 	|| executor.typeParameters,
 );
 
+// Surrounding parentheses are removed by the replacement, so constructor callees stay unsupported even through TypeScript wrappers.
 const isPartOfNewExpressionCallee = node => {
 	let currentNode = node;
 	let parentNode = node.parent;
 
 	while (
-		parentNode.type === 'MemberExpression'
-		&& parentNode.object === currentNode
+		(parentNode.type === 'MemberExpression' && parentNode.object === currentNode)
+		|| (isTypeScriptExpressionWrapper(parentNode) && parentNode.expression === currentNode)
 	) {
 		currentNode = parentNode;
 		parentNode = parentNode.parent;

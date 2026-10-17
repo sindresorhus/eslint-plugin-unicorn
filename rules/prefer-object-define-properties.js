@@ -4,6 +4,7 @@ import {
 	getIndentUnit,
 	getLinebreak,
 	getNextNode,
+	getParenthesizedText,
 	getPreviousNode,
 	getStaticValueIfNoSideEffects,
 	getVisitorChildNodes,
@@ -68,8 +69,8 @@ function getStaticPropertyKey(node, sourceCode) {
 	return typeof staticValue.value === 'symbol' ? staticValue.value : String(staticValue.value);
 }
 
-function getPropertyKeyText(node, sourceCode) {
-	const nodeText = sourceCode.getText(node);
+function getPropertyKeyText(node, context) {
+	const nodeText = context.sourceCode.getText(node);
 
 	if (node.type === 'Literal') {
 		if (typeof node.value === 'string') {
@@ -85,7 +86,7 @@ function getPropertyKeyText(node, sourceCode) {
 		}
 	}
 
-	return `[${nodeText}]`;
+	return `[${getParenthesizedText(node, context)}]`;
 }
 
 function hasDuplicatePropertyKeys(calls, sourceCode) {
@@ -165,8 +166,8 @@ function getDefinePropertiesFix(expressionStatements, calls, context) {
 	const propertyIndent = `${indent}${indentUnit}`;
 	const targetText = sourceCode.getText(calls[0].arguments[0]);
 	const propertiesText = calls.map(call => {
-		const propertyKeyText = getPropertyKeyText(call.arguments[1], sourceCode);
-		const descriptorText = reindentText(sourceCode.getText(call.arguments[2]), '', indentUnit);
+		const propertyKeyText = getPropertyKeyText(call.arguments[1], context);
+		const descriptorText = reindentText(getParenthesizedText(call.arguments[2], context), '', indentUnit);
 
 		return `${propertyIndent}${propertyKeyText}: ${descriptorText},`;
 	}).join(linebreak);

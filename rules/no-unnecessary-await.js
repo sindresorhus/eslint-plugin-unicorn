@@ -100,10 +100,11 @@ const create = context => {
 		};
 
 		const valueNode = node.argument;
+		const valueType = unwrapTypeScriptExpression(valueNode).type;
 		if (
 			// Removing `await` may change them to a declaration, if there is no `id` will cause SyntaxError
-			valueNode.type === 'FunctionExpression'
-			|| valueNode.type === 'ClassExpression'
+			valueType === 'FunctionExpression'
+			|| valueType === 'ClassExpression'
 			// This also covers `+await +1`, the unary operator runs after the `await`
 			|| !isLastEvaluated(node)
 		) {

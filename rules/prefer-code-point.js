@@ -1,4 +1,5 @@
 import {isMemberExpression, isMethodCall} from './ast/index.js';
+import {isTypeScriptExpressionWrapper} from './utils/index.js';
 
 const messages = {
 	'error/charCodeAt': 'Prefer `String#codePointAt()` over `String#charCodeAt()`.',
@@ -28,7 +29,7 @@ const getNumericContextNode = node => {
 
 	while (true) {
 		const {parent} = current;
-		if (parent.type === 'ChainExpression' || parent.type === 'LogicalExpression') {
+		if (parent.type === 'ChainExpression' || parent.type === 'LogicalExpression' || isTypeScriptExpressionWrapper(parent)) {
 			current = parent;
 			continue;
 		}

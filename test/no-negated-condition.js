@@ -334,3 +334,34 @@ test.snapshot({
 		},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [{
+		code: 'function read(value) { return !\nvalue ? 1 : 2, 3; }',
+		output: 'function read(value) { return ( \nvalue ? 2 : 1, 3); }',
+		errors: 1,
+	}, ...[
+		['function read(value) { throw !\nvalue ? 1 : 2, 3; }', 'function read(value) { throw ( \nvalue ? 2 : 1, 3); }'],
+		['function read(value) { return !value ? 1 : 2, 3; }', 'function read(value) { return value ? 2 : 1, 3; }'],
+		['function read(value) { return (!\nvalue ? 1 : 2, 3); }', 'function read(value) { return (\nvalue ? 2 : 1, 3); }'],
+	].map(([code, output]) => ({code, output, errors: 1})), {
+		code: 'function* read(value) { yield !\nvalue ? 1 : 2, 3; }',
+		errors: 1,
+	}],
+});
+
+test.svelte({
+	valid: [],
+	invalid: [
+		['{!/x/.test(value) ? "no" : "yes"}', '{(/x/.test(value)) ? "yes" : "no"}'],
+		['{!/x/.test(value) && !/y/.test(value) ? "no" : "yes"}', '{(/x/.test(value)) || /y/.test(value) ? "yes" : "no"}'],
+		['{ !/x/.test(value) ? "no" : "yes"}', '{ (/x/.test(value)) ? "yes" : "no"}'],
+		['{(!/x/.test(value)) ? "no" : "yes"}', '{(/x/.test(value)) ? "yes" : "no"}'],
+		['{!(/x/.test(value)) ? "no" : "yes"}', '{(/x/.test(value)) ? "yes" : "no"}'],
+		['{/* keep */ !/x/.test(value) ? "no" : "yes"}', '{/* keep */ /x/.test(value) ? "yes" : "no"}'],
+		['{!/* keep */ /x/.test(value) ? "no" : "yes"}', '{/* keep */ /x/.test(value) ? "yes" : "no"}'],
+		['<div title={!/x/.test(value) ? "no" : "yes"}></div>', '<div title={/x/.test(value) ? "yes" : "no"}></div>'],
+		['{@html !/x/.test(value) ? "no" : "yes"}', '{@html /x/.test(value) ? "yes" : "no"}'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});

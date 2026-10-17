@@ -1,5 +1,6 @@
 import {isNumericLiteral} from './ast/index.js';
 import {removeStatement} from './fix/index.js';
+import {getParenthesizedText, isReferenceContext} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -54,7 +55,7 @@ const create = context => {
 				&& ['Program', 'BlockStatement', 'StaticBlock', 'SwitchCase'].includes(parent.parent.type);
 
 		// A comment inside the removed or replaced code can't be preserved, so report without a suggestion in that case. When the whole statement is removed, that includes a trailing comment before the `;`.
-		if (sourceCode.getCommentsInside(isRemovableStatement ? parent : node).length > 0) {
+		if (isReferenceContext(node) || sourceCode.getCommentsInside(isRemovableStatement ? parent : node).length > 0) {
 			return {node, messageId: MESSAGE_ID_ERROR, data};
 		}
 
@@ -88,7 +89,7 @@ const create = context => {
 					/**
 					@param {ESLint.Rule.RuleFixer} fixer
 					*/
-					fix: fixer => fixer.replaceText(node, left),
+					fix: fixer => fixer.replaceText(node, getParenthesizedText(node.left, context)),
 				},
 			],
 		};

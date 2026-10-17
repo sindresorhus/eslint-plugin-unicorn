@@ -406,3 +406,86 @@ test.snapshot({
 		},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function create() {return new // keep\nBuffer(0).length === 0}',
+			output: 'function create() {return (// keep\nBuffer.alloc(0)).length === 0}',
+			errors: 1,
+		},
+		{
+			code: 'function* create() {yield new // keep\nBuffer(0).length === 0}',
+			output: 'function* create() {yield (// keep\nBuffer.alloc(0)).length === 0}',
+			errors: 1,
+		},
+		{
+			code: 'function create() {throw new // keep\nBuffer(0).length === 0}',
+			output: 'function create() {throw (// keep\nBuffer.alloc(0)).length === 0}',
+			errors: 1,
+		},
+		{
+			code: 'use()\nnew (Buffer)(0)',
+			output: 'use()\n;(Buffer.alloc)(0)',
+			errors: 1,
+		},
+	],
+});
+
+nodeTest('removing new preserves surrounding expression and statement boundaries', t => {
+	for (const [code, expected] of [
+		['function create() {return new // keep\nBuffer(0).length === 0} create()', true],
+		['function* create() {yield new // keep\nBuffer(0).length === 0} create().next().value', true],
+		['function create() {throw new // keep\nBuffer(0).length === 0} try {create()} catch (error) {error}', true],
+		['let calls = 0; function use() {calls++; return () => {calls += 10}} use()\nnew (Buffer)(0); calls', 1],
+	]) {
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(code, {Buffer}), expected);
+		t.assert.strictEqual(runInNewContext(output, {Buffer}), expected);
+	}
+
+	const code = 'function create(input) {return new // keep\nBuffer(input).length === 0} create(0)';
+	const suggestions = getSuggestions(t, code);
+	t.assert.strictEqual(runInNewContext(suggestions.find(({method}) => method === 'alloc').code, {Buffer}), true);
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function create() {return new // keep\nBuffer(0) as Buffer}',
+			output: 'function create() {return (// keep\nBuffer.alloc(0)) as Buffer}',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'function create() {return (new // keep\nBuffer(0)).length}',
+			output: 'function create() {return (// keep\nBuffer.alloc(0)).length}',
+			errors: 1,
+		},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{code: 'new new Buffer("text").constructor("other");', output: 'new (Buffer.from("text")).constructor("other");', errors: 1},
+		{code: 'new (new Buffer("text")).constructor("other");', output: 'new (Buffer.from("text")).constructor("other");', errors: 1},
+		{code: 'new new Buffer;', output: 'new (Buffer.from());', errors: 1},
+	],
+});
+
+nodeTest('Buffer call conversions preserve constructor receivers', t => {
+	for (const code of ['new new Buffer("text").constructor("other");', 'new (new Buffer("text")).constructor("other");']) {
+		const {output, messages, fixed} = linter.verifyAndFix(code, linterConfig);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		const original = runInNewContext(code, {Buffer});
+		const actual = runInNewContext(output, {Buffer});
+		t.assert.strictEqual(actual.constructor, Buffer);
+		t.assert.strictEqual(actual.toString(), original.toString());
+	}
+});

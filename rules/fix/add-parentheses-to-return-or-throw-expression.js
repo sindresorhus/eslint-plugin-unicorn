@@ -1,4 +1,5 @@
 import {isSemicolonToken} from '@eslint-community/eslint-utils';
+import {getTokenStore} from '../utils/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
@@ -16,10 +17,10 @@ export default function * addParenthesesToReturnOrThrowExpression(fixer, node, c
 		return;
 	}
 
-	const {sourceCode} = context;
-	const returnOrThrowToken = sourceCode.getFirstToken(node);
+	const tokenStore = getTokenStore(context, node);
+	const returnOrThrowToken = tokenStore.getFirstToken(node);
 	yield fixer.insertTextAfter(returnOrThrowToken, ' (');
-	const lastToken = sourceCode.getLastToken(node);
+	const lastToken = tokenStore.getLastToken(node);
 	if (!isSemicolonToken(lastToken)) {
 		yield fixer.insertTextAfter(node, ')');
 		return;

@@ -1,7 +1,12 @@
+import nodeTest from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
+import {transpileModule, ScriptTarget} from 'typescript';
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
@@ -253,4 +258,42 @@ test({
 			errors: 2,
 		},
 	],
+});
+
+test.typescript({
+	valid: ['window', 'self', 'global'].flatMap(name => [
+		`typeof (${name} as unknown);`,
+		`typeof (${name} satisfies unknown);`,
+		`typeof (<unknown>${name});`,
+		`typeof ${name}!;`,
+	]),
+	invalid: ['window', 'self', 'global'].flatMap(name => [{
+		code: `const value = (${name} as unknown);`,
+		output: 'const value = (globalThis as unknown);',
+		errors: 1,
+	}, {
+		code: `typeof (${name} as unknown).value;`,
+		output: 'typeof (globalThis as unknown).value;',
+		errors: 1,
+	}]),
+});
+
+nodeTest('wrapped typeof operands preserve portable checks for missing globals', t => {
+	const linter = new Linter();
+	const config = {
+		languageOptions: {parser: typescriptEslintParser},
+		plugins: {unicorn: {rules: {'prefer-global-this': rule}}},
+		rules: {'unicorn/prefer-global-this': 'error'},
+	};
+	for (const name of ['window', 'self', 'global']) {
+		for (const expression of [`(${name} as unknown)`, `(${name} satisfies unknown)`, `(<unknown>${name})`, `${name}!`]) {
+			const code = `typeof ${expression};`;
+			const {output, messages, fixed} = linter.verifyAndFix(code, config);
+			t.assert.strictEqual(fixed, false);
+			t.assert.deepStrictEqual(messages, []);
+			const {outputText, diagnostics} = transpileModule(output, {compilerOptions: {target: ScriptTarget.ESNext}, reportDiagnostics: true});
+			t.assert.deepStrictEqual(diagnostics, []);
+			t.assert.strictEqual(runInNewContext(outputText), 'undefined');
+		}
+	}
 });

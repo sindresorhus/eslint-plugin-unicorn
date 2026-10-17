@@ -1,5 +1,12 @@
 import {isMemberExpression} from './ast/index.js';
-import {getParenthesizedText, isLeftHandSide, isValueNotUsable} from './utils/index.js';
+import {
+	getParenthesizedText,
+	getMemberExpressionObjectText,
+	getOutermostChainAndTypeScriptExpression,
+	isInUnparenthesizedNewExpressionCallee,
+	isLeftHandSide,
+	isValueNotUsable,
+} from './utils/index.js';
 
 const MESSAGE_ID_READ = 'prefer-dom-node-html-methods/read';
 const MESSAGE_ID_WRITE = 'prefer-dom-node-html-methods/write';
@@ -22,13 +29,8 @@ const isPlainInnerHTMLAssignment = node =>
 const hasComments = (node, sourceCode) =>
 	sourceCode.getCommentsInside(node).length > 0;
 
-const getParentExpression = node =>
-	node.parent.type === 'ChainExpression'
-		? node.parent
-		: node;
-
 const isCalleeOrTag = node => {
-	const expression = getParentExpression(node);
+	const expression = getOutermostChainAndTypeScriptExpression(node);
 	const {parent} = expression;
 
 	return (
@@ -71,7 +73,11 @@ const create = context => {
 		) {
 			problem.fix = function * (fixer) {
 				yield fixer.replaceText(memberExpression.property, 'getHTML');
-				yield fixer.insertTextAfter(memberExpression, '()');
+				const needsParentheses = isInUnparenthesizedNewExpressionCallee(memberExpression, context);
+				yield fixer.insertTextAfter(memberExpression, needsParentheses ? '())' : '()');
+				if (needsParentheses) {
+					yield fixer.insertTextBefore(memberExpression, '(');
+				}
 			};
 		}
 
@@ -100,7 +106,7 @@ const create = context => {
 				{
 					messageId: MESSAGE_ID_WRITE_SUGGESTION,
 					fix(fixer) {
-						const object = getParenthesizedText(assignmentExpression.left.object, context);
+						const object = getMemberExpressionObjectText(assignmentExpression.left.object, context, assignmentExpression);
 						const value = getParenthesizedText(assignmentExpression.right, context);
 						return fixer.replaceText(assignmentExpression, `${object}.setHTML(${value})`);
 					},

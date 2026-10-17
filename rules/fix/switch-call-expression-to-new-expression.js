@@ -23,7 +23,7 @@ export default function * switchCallExpressionToNewExpression(node, context, fix
 	const {callee} = node;
 	if (
 		!isParenthesized(callee, context)
-		&& shouldAddParenthesesToNewExpressionCallee(callee)
+		&& shouldAddParenthesesToNewExpressionCallee(callee, context)
 	) {
 		yield fixer.insertTextBefore(callee, '(');
 		yield fixer.insertTextAfter(callee, ')');

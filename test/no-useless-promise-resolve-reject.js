@@ -21,6 +21,32 @@ const yieldResolveError = createError('yield', 'resolve');
 const yieldRejectError = createError('yield', 'reject');
 
 test({
+	valid: [],
+	invalid: [
+		...[
+			['{value: 1}.value', '({value: 1}.value)'],
+			['{} || fallback', '({} || fallback)'],
+			['({value: 1}.value)', '({value: 1}.value)'],
+		].map(([argument, replacement]) => ({
+			code: `const getValue = async () => Promise.resolve(${argument});`,
+			output: `const getValue = async () => ${replacement};`,
+			errors: [returnResolveError],
+		})),
+		...['as object', 'satisfies object'].map(assertion => ({
+			code: `const getValue = async () => Promise.resolve({} ${assertion});`,
+			output: `const getValue = async () => ({} ${assertion});`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [returnResolveError],
+		})),
+		{
+			code: 'for (const getValue = async () => Promise.resolve("key" in object);;) {}',
+			output: 'for (const getValue = async () => ("key" in object);;) {}',
+			errors: [returnResolveError],
+		},
+	],
+});
+
+test({
 	valid: [
 		// Async functions returning normal values/throwing values
 		'async () => bar;',

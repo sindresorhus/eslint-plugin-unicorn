@@ -450,3 +450,19 @@ test.snapshot({
 		},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'use()\nnew (Symbol)("value")',
+			output: 'use()\n;(Symbol)("value")',
+			errors: 1,
+		},
+		{
+			code: 'function create() {return new // keep\nSymbol("value").description}',
+			output: 'function create() {return (// keep\nSymbol("value")).description}',
+			errors: 1,
+		},
+	],
+});

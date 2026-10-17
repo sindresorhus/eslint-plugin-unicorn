@@ -1,5 +1,5 @@
 import assertToken from './utils/assert-token.js';
-import {getCallExpressionTokens, getEnclosingFunction} from './utils/index.js';
+import {getCallExpressionTokens, getEnclosingFunction, isInUnparenthesizedNewExpressionCallee} from './utils/index.js';
 import {isStaticRequire} from './ast/index.js';
 import {removeParentheses, replaceReferenceIdentifier, removeSpacesAfter} from './fix/index.js';
 
@@ -37,6 +37,7 @@ const suggestions = new Map([
 			{
 				messageId: SUGGESTION_IMPORT_META_URL_TO_DIRNAME,
 				replacement: 'path.dirname(url.fileURLToPath(import.meta.url))',
+				isCall: true,
 			},
 		],
 	],
@@ -50,6 +51,7 @@ const suggestions = new Map([
 			{
 				messageId: SUGGESTION_IMPORT_META_URL_TO_FILENAME,
 				replacement: 'url.fileURLToPath(import.meta.url)',
+				isCall: true,
 			},
 		],
 	],
@@ -314,10 +316,18 @@ function create(context) {
 			case '__filename':
 			case '__dirname': {
 				problem.suggest = suggestions.get(node.name)
-					.map(({messageId, replacement}) => ({
-						messageId,
-						fix: fixer => replaceReferenceIdentifier(node, replacement, context, fixer),
-					}));
+					.map(({messageId, replacement, isCall}) => {
+						// TypeScript also requires parentheses before `import.meta` in a constructor callee.
+						const text = (isCall || sourceCode.parserServices?.esTreeNodeToTSNodeMap)
+							&& isInUnparenthesizedNewExpressionCallee(node, context)
+							? `(${replacement})`
+							: replacement;
+
+						return {
+							messageId,
+							fix: fixer => replaceReferenceIdentifier(node, text, context, fixer),
+						};
+					});
 
 				return problem;
 			}

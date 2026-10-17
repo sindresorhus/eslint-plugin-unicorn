@@ -8,7 +8,7 @@ import {isRegExpEscapeReplaceCall} from './shared/regexp-escape.js';
 import {
 	escapeString,
 	getCommentSafeProblem,
-	getParenthesizedText,
+	getMemberExpressionObjectText,
 	getStaticRegExp,
 	isKnownNonString,
 } from './utils/index.js';
@@ -303,7 +303,7 @@ const getSplitJoinReplacement = (node, context) => {
 		return;
 	}
 
-	return `${getParenthesizedText(splitCall.callee.object, context)}.replaceAll(${searchText}, ${escapeString(replacementValue.replaceAll('$', '$$$$'))})`;
+	return `${getMemberExpressionObjectText(splitCall.callee.object, context, node)}.replaceAll(${searchText}, ${escapeString(replacementValue.replaceAll('$', '$$$$'))})`;
 };
 
 /**

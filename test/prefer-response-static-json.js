@@ -1,7 +1,10 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
@@ -98,4 +101,38 @@ test({
 			errors: 1,
 		},
 	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function create() {return new // keep\nResponse(JSON.stringify({})).ok}',
+			output: 'function create() {return (// keep\nResponse.json({})).ok}',
+			errors: 1,
+		},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{code: 'new new Response(JSON.stringify({value: 1})).constructor("text");', output: 'new (Response.json({value: 1})).constructor("text");', errors: 1},
+		{code: 'new (new Response(JSON.stringify({value: 1}))).constructor("text");', output: 'new (Response.json({value: 1})).constructor("text");', errors: 1},
+		{code: 'new new // keep\nResponse(JSON.stringify({value: 1})).constructor("text");', output: 'new (// keep\nResponse.json({value: 1})).constructor("text");', errors: 1},
+	],
+});
+
+nodeTest('Response call conversions preserve constructor receivers', async t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: {rules: {'prefer-response-static-json': rule}}}, rules: {'unicorn/prefer-response-static-json': 'error'}};
+	await Promise.all(['new new Response(JSON.stringify({value: 1})).constructor("text");', 'new (new Response(JSON.stringify({value: 1}))).constructor("text");'].map(async code => {
+		const {output, messages, fixed} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		const original = runInNewContext(code, {Response});
+		const actual = runInNewContext(output, {Response});
+		t.assert.strictEqual(actual.constructor, Response);
+		t.assert.strictEqual(await actual.text(), await original.text());
+	}));
 });

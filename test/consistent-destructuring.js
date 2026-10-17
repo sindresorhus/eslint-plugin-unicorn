@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -1181,4 +1181,18 @@ test({
 			errors: [{messageId: 'consistentDestructuring', suggestions: []}],
 		},
 	],
+});
+
+// A type wrapper does not detach a method from its receiver.
+test({
+	valid: [
+		'object.method!();',
+		'(object?.method)!();',
+		'object.method?.();',
+		'(object.method as Function)();',
+		'(object?.method as Function)?.();',
+		'(object.method satisfies Function)`template`;',
+		'new (object.method as Constructor)();',
+	].map(expression => ({code: `const {method} = object; ${expression}`, languageOptions: {parser: parsers.typescript}})),
+	invalid: [],
 });

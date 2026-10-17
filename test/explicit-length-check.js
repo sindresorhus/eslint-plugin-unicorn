@@ -1,7 +1,10 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 const TYPE_NON_ZERO = 'non-zero';
 const TYPE_ZERO = 'zero';
@@ -563,7 +566,7 @@ test({
 		},
 		{
 			code: 'if (bar === Boolean(foo.length)) {}',
-			output: 'if (bar === (foo.length > 0)) {}',
+			output: 'if (bar === foo.length > 0) {}',
 			errors: 1,
 		},
 		{
@@ -619,7 +622,7 @@ test({
 		},
 		{
 			code: 'const a = Boolean(foo.length) satisfies boolean;',
-			output: 'const a = (foo.length > 0) satisfies boolean;',
+			output: 'const a = foo.length > 0 satisfies boolean;',
 			errors: 1,
 			languageOptions: {parser: parsers.typescript},
 		},
@@ -635,4 +638,106 @@ test({
 		'switch (array.length === 0 && other) { case true: break; }',
 	],
 	invalid: [],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'foo()\nBoolean(array.length) === expected',
+			output: 'foo()\narray.length > 0 === expected',
+			errors: 1,
+		},
+		{
+			code: 'if (ready)\nBoolean(array.length) === expected',
+			output: 'if (ready)\narray.length > 0 === expected',
+			errors: 1,
+		},
+		...[
+			'foo()\nBoolean(array.length) === expected',
+			'() => {foo()\nBoolean(array.length) === expected}',
+			'function () {foo()\nBoolean(array.length) === expected}',
+		].map(expression => ({
+			code: `<template><button @click="${expression}"></button></template>`,
+			languageOptions: {parser: parsers.vue},
+			errors: 1,
+		})),
+		{
+			code: '<template><div v-if="expected === Boolean(array.length)"></div></template>',
+			output: '<template><div v-if="expected === array.length > 0"></div></template>',
+			languageOptions: {parser: parsers.vue},
+			errors: 1,
+		},
+	],
+});
+
+test.vue({
+	valid: [],
+	invalid: [
+		...[
+			'<template><button @click="setup()\n![1].length"></button></template>',
+			'<template><button @click="setup()\n!([1].length)"></button></template>',
+			'<template><div>{{ (() => { setup()\n![1].length })() }}</div></template>',
+		].map(code => ({code, errors: [{messageId: TYPE_ZERO, suggestions: 0}]})),
+		{
+			code: '<template><button @click="() => !array.length"></button></template>',
+			output: '<template><button @click="() => array.length === 0"></button></template>',
+			errors: 1,
+		},
+	],
+});
+
+// Dropping Boolean() must not expose a block or declaration at statement start.
+test({
+	valid: [],
+	invalid: [
+		...[
+			['Boolean(function () {return []}().length);', '(function () {return []}().length > 0);'],
+			['Boolean((function () {}.length) > 0);', '(function () {}.length > 0);'],
+			['Boolean(({length: 1}.length));', '({length: 1}.length > 0);'],
+			['Boolean(class {}.length);', '(class {}.length > 0);'],
+			['Boolean(async function () {}.length);', '(async function () {}.length > 0);'],
+			['use()\nBoolean(function () {}.length > 0);', 'use()\n;(function () {}.length > 0);'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+	],
+});
+
+nodeTest('removing Boolean preserves declaration-like length expressions', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'explicit-length-check': rule}}},
+		rules: {'unicorn/explicit-length-check': 'error'},
+	};
+	for (const code of [
+		'Boolean(function () {}.length > 0);',
+		'Boolean(({length: 1}.length));',
+		'Boolean(class {}.length);',
+		'Boolean(async function () {}.length);',
+		'const getResult = () => Boolean(({length: 1}.length)); getResult();',
+	]) {
+		const {output, messages, fixed} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
+	}
+});
+
+test({
+	valid: [],
+	invalid: [
+		['Boolean(array.length) | mask;', 'array.length > 0 | mask;'],
+		['Boolean(array.length) > limit;', 'array.length > 0 > limit;'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test.vue({
+	valid: [],
+	invalid: [
+		'array.length /* keep */ >= 1',
+		'! /* keep */ array.length',
+		'Boolean(/* keep */ array.length)',
+	].map(expression => ({
+		code: `<template><div v-if="${expression}"></div></template>`,
+		errors: [{messageId: expression.startsWith('!') ? 'zero' : 'non-zero', suggestions: 0}],
+	})),
 });

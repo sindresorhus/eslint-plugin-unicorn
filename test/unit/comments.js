@@ -1,5 +1,6 @@
 import test from 'node:test';
 import {Linter} from 'eslint';
+import {vueEslintParser} from '../../scripts/parsers.js';
 import {
 	getCommentSafeProblem,
 	getLastTrailingCommentOnSameLine,
@@ -132,4 +133,35 @@ test('trailing comment lookup can ignore directives while retaining ordinary com
 	inspectComments('foo(); /* eslint-enable */', (context, node) => {
 		t.assert.strictEqual(getLastTrailingCommentOnSameLine(context, node.parent, {ignoreDirectives: true}), undefined);
 	});
+});
+
+test('comment checks use Vue template comments even when the script has comments', t => {
+	for (const script of ['', '<script>/* script */ const value = 1;</script>']) {
+		let inspected = false;
+		const linter = new Linter();
+		const messages = linter.verify(`<template><div>{{ foo({/* keep */ value: 1}) }}</div></template>${script}`, {
+			languageOptions: {parser: vueEslintParser},
+			plugins: {
+				test: {
+					rules: {
+						capture: {
+							create: context => context.sourceCode.parserServices.defineTemplateBodyVisitor({
+								CallExpression(node) {
+									inspected = true;
+									t.assert.strictEqual(wouldRemoveComments(context, node), true);
+									t.assert.strictEqual(hasCommentInRange(context, context.sourceCode.getRange(node)), true);
+									t.assert.strictEqual(wouldRemoveComments(context, node, [node.arguments[0]]), false);
+									const problem = {node, fix() {}};
+									t.assert.strictEqual(getCommentSafeProblem(context, problem).fix, undefined);
+								},
+							}),
+						},
+					},
+				},
+			},
+			rules: {'test/capture': 'error'},
+		});
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(inspected, true);
+	}
 });

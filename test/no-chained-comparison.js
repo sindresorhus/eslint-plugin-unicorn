@@ -2,6 +2,28 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: ['as boolean', 'satisfies boolean'].flatMap(wrapper => [
+		{
+			code: `a < b < c ${wrapper}`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'no-chained-comparison/error', suggestions: []}],
+		},
+		{
+			code: `(a < b < c) ${wrapper}`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'no-chained-comparison/error',
+				suggestions: [{
+					messageId: 'no-chained-comparison/suggestion',
+					output: `(a < b && b < c) ${wrapper}`,
+				}],
+			}],
+		},
+	]),
+});
+
 test.snapshot({
 	valid: [
 		// Single comparison
@@ -119,4 +141,23 @@ test.snapshot({
 		{code: 'a < b! < c', languageOptions: {parser: parsers.typescript}},
 		{code: 'a < (b as number) < c', languageOptions: {parser: parsers.typescript}},
 	],
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: '({value: 1}.value < b) < c;',
+		errors: [{messageId: 'no-chained-comparison/error', suggestions: [{messageId: 'no-chained-comparison/suggestion', output: '({value: 1}.value < b && b < c);'}]}],
+	}, ...[
+		['(function () {}.length < b) < c;', '(function () {}.length < b && b < c);'],
+		['const result = ({value: 1}.value < b) < c;', 'const result = {value: 1}.value < b && b < c;'],
+		['function check() { return ({value: 1}.value < b) < c; }', 'function check() { return {value: 1}.value < b && b < c; }'],
+		['(({value: 1}.value < b) < c);', '({value: 1}.value < b && b < c);'],
+		['(({value: 1}.value) < b) < c;', '({value: 1}.value) < b && b < c;'],
+		['const check = () => ({value: 1}.value < b) < c;', 'const check = () => ({value: 1}.value < b && b < c);'],
+		['const check = () => (function () {}.length < b) < c;', 'const check = () => function () {}.length < b && b < c;'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{messageId: 'no-chained-comparison/error', suggestions: [{messageId: 'no-chained-comparison/suggestion', output}]}],
+	}))],
 });

@@ -483,3 +483,18 @@ test({
 		},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [{
+		code: 'function read(ready) { return String.raw\n`x` && ready; }',
+		output: 'function read(ready) { return ( \n\'x\' && ready); }',
+		errors: 1,
+	}, ...[
+		['function read(ready) { throw String.raw\n`x` && ready; }', 'function read(ready) { throw ( \n\'x\' && ready); }'],
+		['function* read(ready) { yield String.raw\n`x` && ready; }', 'function* read(ready) { yield (\n\'x\') && ready; }'],
+		['function read(ready) { return String.raw`x` && ready; }', 'function read(ready) { return \'x\' && ready; }'],
+		['function read(ready) { return (String.raw\n`x` && ready); }', 'function read(ready) { return (\n\'x\' && ready); }'],
+		['function read(ready) { return String.raw /* keep */\n`x` && ready; }', 'function read(ready) { return (  /* keep */\n\'x\' && ready); }'],
+	].map(([code, output]) => ({code, output, errors: 1}))],
+});

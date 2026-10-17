@@ -14,7 +14,9 @@ import {
 	needsSemicolon,
 	isLogicalExpression,
 	getLogicalExpressionOperands,
+	getUnparenthesizedKeywordArgumentParent,
 	shouldAddParenthesesToExpressionStatementExpression,
+	shouldAddParenthesesToExpressionStart,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-negated-condition';
@@ -34,8 +36,15 @@ function * convertNegatedCondition(fixer, test, context) {
 
 	if (test.type === 'UnaryExpression') {
 		const token = sourceCode.getFirstToken(test);
+		const needsParentheses = !isParenthesized(test.argument, context)
+			&& !sourceCode.commentsExistBetween(token, test.argument)
+			&& shouldAddParenthesesToExpressionStart(test.argument, context, test);
 
-		yield fixer.remove(token);
+		yield fixer.replaceText(token, needsParentheses ? '(' : '');
+		if (needsParentheses) {
+			yield fixer.insertTextAfter(test.argument, ')');
+		}
+
 		return;
 	}
 
@@ -140,28 +149,21 @@ const create = context => {
 				yield fixSpaceAroundKeyword(fixer, node, context);
 
 				const {sourceCode} = context;
-				const {parent} = node;
+				const keywordParent = getUnparenthesizedKeywordArgumentParent(test, context);
 				const [firstToken, secondToken] = sourceCode.getFirstTokens(test, 2);
 				if (firstToken.value !== '!') {
 					return;
 				}
 
 				if (
-					(
-						parent.type === 'ReturnStatement'
-						|| parent.type === 'ThrowStatement'
-						|| (parent.type === 'YieldExpression' && !parent.delegate)
-					)
-					&& parent.argument === node
+					keywordParent
 					&& !isOnSameLine(firstToken, secondToken, context)
-					&& !isParenthesized(node, context)
-					&& !isParenthesized(test, context)
 				) {
-					if (parent.type === 'YieldExpression') {
+					if (keywordParent.type === 'YieldExpression') {
 						abort();
 					}
 
-					yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
+					yield addParenthesesToReturnOrThrowExpression(fixer, keywordParent, context);
 					return;
 				}
 

@@ -11,6 +11,7 @@ import {
 	isOutermostLogicalExpression,
 	isKnownNonIndexedCollection,
 	isSideEffectFreeFunction,
+	needsSemicolon,
 	reindentText,
 	wouldRemoveComments,
 } from './utils/index.js';
@@ -112,7 +113,8 @@ const create = context => {
 			return;
 		}
 
-		return fixer.removeRange(range);
+		const replacement = left === node && needsSemicolon(sourceCode.getTokenBefore({range}), context, sourceCode.text[range[1]]) ? ';' : '';
+		return fixer.replaceTextRange(range, replacement);
 	}
 
 	function * getUselessLengthCheckProblems(logicalExpression) {

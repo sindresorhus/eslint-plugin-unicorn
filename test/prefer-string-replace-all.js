@@ -273,3 +273,12 @@ test.snapshot({
 		`,
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		{code: '({text: "a.a"}.text.split(".")).join("-");', output: '({text: "a.a"}.text).replaceAll(\'.\', \'-\');', errors: 1},
+		{code: 'const text = ({value: "a.a"}.value.split(".")).join("-");', output: 'const text = {value: "a.a"}.value.replaceAll(\'.\', \'-\');', errors: 1},
+		{code: '(({text: "a.a"}.text)).split(".").join("-");', output: '(({text: "a.a"}.text)).replaceAll(\'.\', \'-\');', errors: 1},
+	],
+});

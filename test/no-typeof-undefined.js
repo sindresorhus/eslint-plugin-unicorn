@@ -3,6 +3,40 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		...['return', 'throw'].map(keyword => ({
+			code: `function check(value, ready) { ${keyword} typeof /* keep\n*/ value === 'undefined' && ready; }`,
+			output: `function check(value, ready) { ${keyword} ( /* keep\n*/ value === undefined && ready); }`,
+			errors: 1,
+		})),
+		{
+			code: 'function* check(value, ready) { yield typeof /* keep\n*/ value === \'undefined\' && ready; }',
+			errors: [{messageId: 'no-typeof-undefined/error', suggestions: []}],
+		},
+		...['/* keep\n*/', '// keep\n'].map(comment => ({
+			code: `function* check(value) { yield typeof ${comment} value === 'undefined'; }`,
+			errors: [{messageId: 'no-typeof-undefined/error', suggestions: []}],
+		})),
+		{
+			code: 'function* check() { yield typeof // keep\nmissing === \'undefined\'; }',
+			options: [{checkGlobalVariables: true}],
+			errors: [{messageId: 'no-typeof-undefined/error', suggestions: []}],
+		},
+		...[
+			['yield (typeof // keep\nvalue === \'undefined\')', 'yield (// keep\nvalue === undefined)'],
+			['yield (typeof // keep\nvalue) === \'undefined\'', 'yield (// keep\nvalue) === undefined'],
+			['yield* typeof // keep\nvalue === \'undefined\'', 'yield* // keep\nvalue === undefined'],
+			['yield typeof value === \'undefined\'', 'yield value === undefined'],
+		].map(([expression, replacement]) => ({
+			code: `function* check(value) { ${expression}; }`,
+			output: `function* check(value) { ${replacement}; }`,
+			errors: 1,
+		})),
+	],
+});
+
 const ambientVariableComparisons = [
 	outdent`
 		declare const COMPILE_TIME_FLAG: boolean | undefined;
@@ -187,4 +221,28 @@ test.snapshot({
 			}
 		`,
 	].map(code => ({code, options: [{checkGlobalVariables: true}]})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{code: 'typeof {value: undefined}.value === "undefined";', output: '({value: undefined}.value) === undefined;', errors: 1},
+		{code: 'typeof function () {} === "undefined";', output: '(function () {}) === undefined;', errors: 1},
+		{code: 'setup()\ntypeof {value: undefined}.value === "undefined";', output: 'setup()\n;({value: undefined}.value) === undefined;', errors: 1},
+		{code: 'const value = typeof {value: undefined}.value === "undefined";', output: 'const value = {value: undefined}.value === undefined;', errors: 1},
+		{code: 'const read = () => typeof {value: undefined}.value === "undefined";', output: 'const read = () => ({value: undefined}.value) === undefined;', errors: 1},
+		{code: 'export default typeof function () {} === "undefined";', output: 'export default (function () {}) === undefined;', errors: 1},
+		{code: '(typeof {value: undefined}.value) === "undefined";', output: '({value: undefined}.value) === undefined;', errors: 1},
+		{code: 'typeof ({value: undefined}.value) === "undefined";', output: '({value: undefined}.value) === undefined;', errors: 1},
+		{code: 'typeof /* keep */{value: undefined}.value === "undefined";', output: '/* keep */({value: undefined}.value) === undefined;', errors: 1},
+	],
+});
+
+test.svelte({
+	valid: [],
+	invalid: [{
+		code: '{typeof /x/.source === "undefined"}',
+		output: '{(/x/.source) === undefined}',
+		errors: 1,
+	}],
 });

@@ -1,7 +1,9 @@
 import {
 	getParenthesizedRange,
 	getParenthesizedText,
+	getComparisonOperandText,
 	getStaticValueForControlFlow,
+	needsSemicolon,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {
@@ -87,7 +89,7 @@ const create = context => {
 		}
 
 		const leftText = getParenthesizedText(left.left, context);
-		const rightText = getParenthesizedText(left.right, context);
+		const rightText = getComparisonOperandText(left.right, context, reduction.operator);
 		const replacement = `${leftText} ${reduction.operator} ${rightText}`;
 
 		const problem = {
@@ -103,7 +105,7 @@ const create = context => {
 			return problem;
 		}
 
-		const fix = fixer => fixer.replaceText(node, replacement);
+		const fix = fixer => fixer.replaceText(node, needsSemicolon(sourceCode.getTokenBefore(node), context, replacement) ? `;${replacement}` : replacement);
 		problem.suggest = [{messageId: MESSAGE_ID_SUGGESTION, data: {replacement}, fix}];
 
 		return problem;

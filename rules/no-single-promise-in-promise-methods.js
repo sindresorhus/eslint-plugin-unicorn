@@ -2,9 +2,11 @@ import {isCommaToken} from '@eslint-community/eslint-utils';
 import {isExpressionStatement, isLiteral, isMethodCall} from './ast/index.js';
 import {
 	getParenthesizedText,
+	isLeftHandSide,
 	isParenthesized,
 	needsSemicolon,
 	shouldAddParenthesesToAwaitExpressionArgument,
+	shouldAddParenthesesToExpressionStart,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-single-promise-in-promise-methods/error';
@@ -55,10 +57,10 @@ const unwrapNonAwaitedCallExpression = (callExpression, context) => fixer => {
 		!isParenthesized(promiseNode, context)
 		// Since the original call expression can be anywhere, it's hard to tell if the promise
 		// need to be parenthesized, but it's safe to add parentheses
-		&& !(
-			// Known cases that not need parentheses
-			promiseNode.type === 'Identifier'
-			|| promiseNode.type === 'MemberExpression'
+		&& (
+			shouldAddParenthesesToExpressionStart(promiseNode, context, callExpression)
+			// Identifiers and member expressions otherwise do not need parentheses
+			|| (promiseNode.type !== 'Identifier' && promiseNode.type !== 'MemberExpression')
 		)
 	) {
 		text = `(${text})`;
@@ -216,7 +218,7 @@ const create = context => {
 
 		const {sourceCode} = context;
 		// The unwrapped call is rebuilt from the promise node alone, so a comment inside the array would be lost
-		const canUnwrap = !hasCommentsInside(sourceCode, callExpression);
+		const canUnwrap = !isLeftHandSide(callExpression) && !hasCommentsInside(sourceCode, callExpression);
 		const isAwaited = callExpression.parent.type === 'AwaitExpression'
 			&& callExpression.parent.argument === callExpression;
 

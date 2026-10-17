@@ -13,6 +13,7 @@ import {
 	isBooleanContext,
 	getBaseTypes,
 	getTypeSymbol,
+	isInVueTemplateStatement,
 	getParenthesizedRange,
 	isLogicalExpression,
 	isString,
@@ -23,6 +24,7 @@ import {
 	getStaticValueIfNoSideEffects,
 	hasCommentInRange,
 	hasPotentiallyMutableMemberAccess,
+	hasUnparenthesizedOptionalChainElement,
 	shouldAddParenthesesToMemberExpressionObject,
 	withTypeInformation,
 } from './utils/index.js';
@@ -47,7 +49,7 @@ const messages = {
 const isLiteralZero = node => isLiteral(node, 0);
 const isRegExpValue = value => Object.prototype.toString.call(value) === '[object RegExp]';
 
-function * fixStringMethodCall(fixer, {stringNode, methodNode, regexpNode}, context) {
+function * fixStringMethodCall(fixer, {stringNode, methodNode, regexpNode}, context, searchCheck) {
 	const {sourceCode} = context;
 	yield fixer.replaceText(methodNode, 'test');
 
@@ -65,7 +67,8 @@ function * fixStringMethodCall(fixer, {stringNode, methodNode, regexpNode}, cont
 	let regexpText = sourceCode.getText(regexpNode);
 	if (
 		!isParenthesized(stringNode, sourceCode)
-		&& shouldAddParenthesesToMemberExpressionObject(regexpNode, context)
+		// An inserted `!` already protects the expression start.
+		&& shouldAddParenthesesToMemberExpressionObject(regexpNode, context, searchCheck?.negate ? regexpNode : stringNode)
 	) {
 		regexpText = `(${regexpText})`;
 	}
@@ -588,6 +591,10 @@ const create = context => {
 
 			const nodes = getNodes(node);
 			const {methodNode, regexpNode} = nodes;
+			// Moving the string receiver into the argument would lose its optional-chain short circuit.
+			if (type === STRING_MATCH && hasUnparenthesizedOptionalChainElement(nodes.stringNode, context)) {
+				continue;
+			}
 
 			const staticRegExp = getStaticRegExp(regexpNode, context);
 			const isSafeRegExp = isRegexLiteral(regexpNode)
@@ -610,10 +617,18 @@ const create = context => {
 				node: type === REGEXP_EXEC ? methodNode : node,
 				messageId: type,
 			};
+			// Vue.js template statements are unavailable to the source-text helpers needed when moving the receiver.
+			if (
+				type !== REGEXP_EXEC
+				&& isInVueTemplateStatement(node, context)
+			) {
+				yield problem;
+				continue;
+			}
 
 			const fixFunction = function * (fixer) {
 				// Run first so the space after a keyword goes before an inserted `!`
-				for (const fixResult of fix(fixer, nodes, context)) {
+				for (const fixResult of fix(fixer, nodes, context, searchCheck)) {
 					yield fixResult;
 				}
 
