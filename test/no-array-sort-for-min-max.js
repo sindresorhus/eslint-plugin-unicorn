@@ -1,7 +1,10 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import {outdent} from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
@@ -132,4 +135,51 @@ test.snapshot({
 		// The iterated value of a loop is not its left-hand side
 		'for (const value of array.sort((a, b) => a - b)[0]) {}',
 	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		['new ([3, 1, 2].toSorted((a, b) => a - b))[0].constructor("42");', 'new (Math.min(...[3, 1, 2])).constructor("42");', 'Math.min(...[3, 1, 2])'],
+		['new (([3, 1, 2].toSorted((a, b) => a - b))[0]).constructor("42");', 'new (Math.min(...[3, 1, 2])).constructor("42");', 'Math.min(...[3, 1, 2])'],
+		['const minimum = [3, 1, 2].toSorted((a, b) => a - b)[0];', 'const minimum = Math.min(...[3, 1, 2]);', 'Math.min(...[3, 1, 2])'],
+	].map(([code, output, replacement]) => ({
+		code,
+		errors: [{messageId: 'no-array-sort-for-min-max/error', suggestions: [{messageId: 'no-array-sort-for-min-max/suggestion', data: {replacement}, output}]}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: 'new ([3, 1, 2].toSorted((a, b) => a - b))[0]!.constructor("42");',
+		languageOptions: {parser: parsers.typescript},
+		errors: [{
+			messageId: 'no-array-sort-for-min-max/error', suggestions: [{
+				messageId: 'no-array-sort-for-min-max/suggestion',
+				data: {replacement: 'Math.min(...[3, 1, 2])'},
+				output: 'new (Math.min(...[3, 1, 2]))!.constructor("42");',
+			}],
+		}],
+	}],
+});
+
+nodeTest('min/max suggestions preserve the actual number constructor', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'no-array-sort-for-min-max': rule}}},
+		rules: {'unicorn/no-array-sort-for-min-max': 'error'},
+	};
+	for (const code of ['new ([3, 1, 2].toSorted((a, b) => a - b))[0].constructor("42");', 'new (([3, 1, 2].toSorted((a, b) => a - b))[0]).constructor("42");']) {
+		const [problem] = linter.verify(code, config);
+		t.assert.strictEqual(problem.messageId, 'no-array-sort-for-min-max/error');
+		const {fix} = problem.suggestions[0];
+		const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		const original = runInNewContext(code);
+		const corrected = runInNewContext(output);
+		t.assert.strictEqual(typeof corrected, 'object');
+		t.assert.strictEqual(Number(corrected), Number(original));
+		t.assert.strictEqual(Number(corrected), 42);
+		t.assert.deepStrictEqual(linter.verify(output, config), []);
+	}
 });

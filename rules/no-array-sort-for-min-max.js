@@ -7,6 +7,7 @@ import {
 import {
 	getFunctionReturnExpression,
 	hasOptionalChainElement,
+	isInUnparenthesizedNewExpressionCallee,
 	isKnownBigIntTypedArray,
 	isKnownNonIndexedCollection,
 	isLeftHandSide,
@@ -127,12 +128,13 @@ const createProblem = (node, sortedSource, endpoint, context) => {
 		&& context.sourceCode.getCommentsInside(node).length === 0
 	) {
 		const replacement = getReplacement(method, sortedSource.node, context.sourceCode);
+		const fixedText = isInUnparenthesizedNewExpressionCallee(node, context) ? `(${replacement})` : replacement;
 
 		problem.suggest = [
 			{
 				messageId: MESSAGE_ID_SUGGESTION,
 				data: {replacement},
-				fix: fixer => fixer.replaceText(node, replacement),
+				fix: fixer => fixer.replaceText(node, fixedText),
 			},
 		];
 	}

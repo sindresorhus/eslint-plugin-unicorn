@@ -4,6 +4,7 @@ import {
 	isSameReference,
 	needsSemicolon,
 	getMemberExpressionObjectText,
+	isInUnparenthesizedNewExpressionCallee,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {createTypeCheckers} from './utils/type-helpers.js';
@@ -192,6 +193,10 @@ const create = context => {
 
 		const fix = fixer => {
 			let text = `${getMemberExpressionObjectText(source, context, node)}.${method}()`;
+			if (isInUnparenthesizedNewExpressionCallee(node, context)) {
+				text = `(${text})`;
+			}
+
 			if (needsSemicolon(sourceCode.getTokenBefore(node), context, text)) {
 				text = `;${text}`;
 			}

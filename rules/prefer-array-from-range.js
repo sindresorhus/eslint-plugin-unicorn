@@ -1,6 +1,7 @@
 import {isMethodCall} from './ast/index.js';
 import {
 	getParenthesizedText,
+	isInUnparenthesizedNewExpressionCallee,
 	wouldRemoveComments,
 } from './utils/index.js';
 import {getArrayRangeLength} from './shared/array-range.js';
@@ -62,11 +63,16 @@ const getProblem = (node, context) => {
 		return;
 	}
 
+	let replacement = getFixedText(length, context);
+	if (isInUnparenthesizedNewExpressionCallee(node, context)) {
+		replacement = `(${replacement})`;
+	}
+
 	return {
 		node,
 		messageId: MESSAGE_ID,
 		...(!wouldRemoveComments(context, node, [length]) && {
-			fix: fixer => fixer.replaceText(node, getFixedText(length, context)),
+			fix: fixer => fixer.replaceText(node, replacement),
 		}),
 	};
 };

@@ -1,7 +1,10 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 // Unknown lengths are still autofixed. The result only differs for invalid lengths, where `Array(length)` throws or creates a one-element array.
 test.snapshot({
@@ -187,4 +190,41 @@ Object.defineProperty(object, 'value', {get() { return -1; }});
 			},
 		},
 	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		['new [...Array(3).keys()].constructor(2);', 'new (Array.from({length: 3}, (_, index) => index)).constructor(2);'],
+		['new ([...Array(3).keys()]).constructor(2);', 'new (Array.from({length: 3}, (_, index) => index)).constructor(2);'],
+		['const range = [...Array(3).keys()];', 'const range = Array.from({length: 3}, (_, index) => index);'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: 'new [...Array(3).keys()]!.constructor(2);',
+		output: 'new (Array.from({length: 3}, (_, index) => index))!.constructor(2);',
+		languageOptions: {parser: parsers.typescript},
+		errors: 1,
+	}],
+});
+
+nodeTest('range fixes preserve the actual array constructor', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-array-from-range': rule}}},
+		rules: {'unicorn/prefer-array-from-range': 'error'},
+	};
+	for (const code of ['new [...Array(3).keys()].constructor(2);', 'new ([...Array(3).keys()]).constructor(2);']) {
+		const {fixed, output, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		const original = runInNewContext(code);
+		const corrected = runInNewContext(output);
+		t.assert.strictEqual(Array.isArray(corrected), true);
+		t.assert.strictEqual(corrected.length, original.length);
+		t.assert.strictEqual(corrected.length, 2);
+	}
 });

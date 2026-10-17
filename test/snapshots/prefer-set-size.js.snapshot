@@ -65,7 +65,7 @@ Message:
     |                                  ^^^^^^ Prefer using \`Set#size\` instead of \`Array#length\`.
 
 Output:
-  1 | new Set(array).size
+  1 | (( new Set(array) )).size
 
 `;
 
@@ -281,7 +281,7 @@ Message:
     |                           ^^^^^^ Prefer using \`Set#size\` instead of \`Array#length\`.
 
 Output:
-  1 | new Set(array).size
+  1 | (( new Set(array) )).size
 
 `;
 

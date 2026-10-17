@@ -12,7 +12,10 @@ import {
 	getMemberAccessOperatorRange,
 	isSameReference,
 	isBoolean,
+	isParenthesized,
 	needsSemicolon,
+	shouldAddParenthesesToExpressionStart,
+	shouldAddParenthesesToLogicalExpressionChild,
 	isTypeScriptFile,
 	getOutermostTypeScriptExpression,
 	unwrapTypeScriptExpression,
@@ -56,7 +59,16 @@ function * fix({
 	}).join(` ${operator} `);
 
 	// According to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#table
-	// There should be no cases that need to add parentheses when switching ternary to logical expression
+	// Switching a ternary to a logical expression preserves precedence, but removing a leading negation or comparison can expose a block or declaration prefix.
+	if (
+		!negateLeft
+		&& !coerceLeft
+		&& !isParenthesized(left, context)
+		&& !shouldAddParenthesesToLogicalExpressionChild(left, {operator, property: 'left'})
+		&& shouldAddParenthesesToExpressionStart(left, context, conditionalExpression)
+	) {
+		text = `(${text})`;
+	}
 
 	// ASI
 	if (needsSemicolon(sourceCode.getTokenBefore(conditionalExpression), context, text)) {
