@@ -20,8 +20,6 @@ const messages = {
 const isIgnoredChar = char => !/^[\w-]$/.test(char);
 const ignoredByDefault = new Set(['index.js', 'index.mjs', 'index.cjs', 'index.ts', 'index.tsx', 'index.vue']);
 const isLowerCase = string => string === string.toLowerCase();
-// Created on first use, since creating it loads locale data, which slows down loading the plugin.
-let disjunctionListFormat;
 const alphanumericRegex = /^[\da-z]+$/i;
 const leadingAcronymRegex = /^[A-Z]{3,}(?=\d*[A-Z](?:[a-z]|\d+[a-z]))/;
 
@@ -289,8 +287,9 @@ Turns `[a, b, c]` into `a, b, or c`.
 @returns {string}
 */
 const formatDisjunction = words => {
-	disjunctionListFormat ??= new Intl.ListFormat('en-US', {type: 'disjunction'});
-	return disjunctionListFormat.format(words);
+	// Created per call instead of when the plugin is loaded, since creating it loads locale data, and it is only needed for reports.
+	const listFormat = new Intl.ListFormat('en-US', {type: 'disjunction'});
+	return listFormat.format(words);
 };
 
 function formatCaseNames(chosenCases) {
