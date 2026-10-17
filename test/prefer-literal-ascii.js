@@ -198,6 +198,83 @@ ruleTest({
 	],
 });
 
+ruleTest({
+	valid: [
+		...['\n', '\r\n', '\r', '\u2028', '\u2029'].flatMap(linebreak => [
+			String.raw`\x20`,
+			String.raw`\u0020`,
+			String.raw`\u{20}`,
+			String.raw`\u{000020}`,
+		].map(escape => `const value = \`before${escape}${linebreak}after\`;`)),
+		'const value = `before\\x20 \\u0020\t\\u{20}\nafter`;',
+		'const value = `before\\u{20} \t\nafter`;',
+		'const value = `first\\u{20}\nsecond\\x20\nthird`;',
+		'const value = `before\\\\\\u{20}\nafter`;',
+		// eslint-disable-next-line no-template-curly-in-string
+		'const value = `${value}before\\u{20}\nafter`;',
+		// eslint-disable-next-line no-template-curly-in-string
+		'const value = `before\\u{20}\n${value}`;',
+		{
+			code: 'const value: string = `before\\u{20}\nafter`;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'type Value = `before\\u{20}\nafter`;',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [
+		{
+			code: 'const value = \'before\\u{20}\u2028after\';',
+			output: 'const value = \'before \u2028after\';',
+			errors: 1,
+		},
+		{
+			code: 'const value = `before\\u{20}after`;',
+			output: 'const value = `before after`;',
+			errors: 1,
+		},
+		{
+			code: 'const value = `before\\u{20}`;',
+			output: 'const value = `before `;',
+			errors: 1,
+		},
+		{
+			code: 'const value = `before\\u{20}\\nafter`;',
+			output: 'const value = `before \\nafter`;',
+			errors: 1,
+		},
+		{
+			// eslint-disable-next-line no-template-curly-in-string
+			code: 'const value = `before\\u{20}${value}\nafter`;',
+			// eslint-disable-next-line no-template-curly-in-string
+			output: 'const value = `before ${value}\nafter`;',
+			errors: 1,
+		},
+		{
+			code: 'const value = `\\x41\\u{20}\r\n\\u0042`;',
+			output: 'const value = `A\\u{20}\r\nB`;',
+			errors: 1,
+		},
+		{
+			code: 'const value = `before\\u{20}\\\\u{20}\nafter`;',
+			output: 'const value = `before \\\\u{20}\nafter`;',
+			errors: 1,
+		},
+		{
+			code: 'const value = `first\\u{20}\\x41\nsecond\\u{20}\nthird`;',
+			output: 'const value = `first A\nsecond\\u{20}\nthird`;',
+			errors: 1,
+		},
+		{
+			code: 'const value: string = `\\u0041\\u{20}\nafter`;',
+			output: 'const value: string = `A\\u{20}\nafter`;',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+	],
+});
+
 for (const language of ['json/json', 'json/jsonc', 'json/json5']) {
 	const languageConfig = {language, plugins: {json}};
 
@@ -344,6 +421,38 @@ test('works with `prefer-unicode-code-point-escapes`', t => {
 test('scans long backslash runs efficiently', t => {
 	const code = `const value = '${'\\\\'.repeat(40_000)}';`;
 	const linter = new Linter({configType: 'flat'});
+	const config = {
+		plugins: {unicorn},
+		rules: {
+			[RULE_ID]: 'error',
+		},
+	};
+	const startTime = performance.now();
+	const messages = linter.verify(code, config);
+	const duration = performance.now() - startTime;
+
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(duration < 2000, true, `Expected linting to take less than 2 seconds, but it took ${duration} milliseconds.`);
+});
+
+test('keeps trailing spaces escaped when normalizing other Unicode escapes', t => {
+	const linter = new Linter();
+	const code = 'const value = `\\x41\\xA9\\x20\r\nafter`;';
+	const result = linter.verifyAndFix(code, [{
+		plugins: {unicorn},
+		rules: {
+			[RULE_ID]: 'error',
+			'unicorn/prefer-unicode-code-point-escapes': 'error',
+		},
+	}]);
+
+	t.assert.strictEqual(result.output, 'const value = `A\\u{A9}\\x20\r\nafter`;');
+	t.assert.deepStrictEqual(result.messages, []);
+});
+
+test('scans long trailing-space escape runs efficiently', t => {
+	const code = `const value = \`${String.raw`\u{20}`.repeat(20_000)}\n\`;`;
+	const linter = new Linter();
 	const config = {
 		plugins: {unicorn},
 		rules: {
