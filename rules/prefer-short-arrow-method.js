@@ -2,6 +2,7 @@ import {
 	getCommentSafeProblem,
 	getConciseArrowBodyText,
 	getFunctionReturnExpression,
+	getParenthesizedText,
 	hasUnsafeArrowConversionReference,
 } from './utils/index.js';
 
@@ -20,10 +21,10 @@ const isPrototypeProperty = property =>
 		|| (property.key.type === 'Literal' && property.key.value === '__proto__')
 	);
 
-const getKeyText = (property, sourceCode) =>
+const getKeyText = (property, context) =>
 	property.computed
-		? `[${sourceCode.getText(property.key)}]`
-		: sourceCode.getText(property.key);
+		? `[${getParenthesizedText(property.key, context)}]`
+		: context.sourceCode.getText(property.key);
 
 const getParametersText = (functionNode, sourceCode) =>
 	functionNode.params.map(parameter => sourceCode.getText(parameter)).join(', ');
@@ -44,7 +45,7 @@ const getReturnTypeText = (functionNode, sourceCode) =>
 const getReplacementText = (property, returnExpression, context) => {
 	const {sourceCode} = context;
 	const functionNode = property.value;
-	const keyText = getKeyText(property, sourceCode);
+	const keyText = getKeyText(property, context);
 	const asyncText = functionNode.async ? 'async ' : '';
 	const parametersText = getParametersText(functionNode, sourceCode);
 	const returnTypeText = getReturnTypeText(functionNode, sourceCode);
