@@ -47,8 +47,26 @@ const booleanPropertiesByExpressionKind = new Map([
 	['regexp', new Set(['dotAll', 'global', 'hasIndices', 'ignoreCase', 'multiline', 'sticky', 'unicode', 'unicodeSets'])],
 ]);
 
-const isBooleanStaticValue = (node, context) =>
-	typeof getStaticValueIfNoSideEffects(node, context)?.value === 'boolean';
+// The static value of these is never a primitive boolean, so they skip the costly side effect checks and evaluation.
+const nonBooleanStaticValueTypes = new Set([
+	'ArrayExpression',
+	'ArrowFunctionExpression',
+	'ClassExpression',
+	'FunctionExpression',
+	'NewExpression',
+	'ObjectExpression',
+	'TaggedTemplateExpression',
+	'TemplateLiteral',
+]);
+
+const isBooleanStaticValue = (node, context) => {
+	if (node.type === 'Literal') {
+		return typeof node.value === 'boolean';
+	}
+
+	return !nonBooleanStaticValueTypes.has(node.type)
+		&& typeof getStaticValueIfNoSideEffects(node, context)?.value === 'boolean';
+};
 
 function isBooleanTypeScriptType(type, checker) {
 	if (type.isUnion?.()) {

@@ -2544,8 +2544,10 @@ const create = context => {
 	}
 
 	const checkVariable = variable => {
+		// Variables without definitions (globals, `arguments`) are never checked, and the global scope can hold more than a thousand of them.
 		if (
-			matchesAnyRegExp(variable.name, ignore)
+			variable.defs.length === 0
+			|| matchesAnyRegExp(variable.name, ignore)
 			|| isDestructuredVariable(variable)
 		) {
 			return;

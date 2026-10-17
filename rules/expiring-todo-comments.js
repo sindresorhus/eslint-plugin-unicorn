@@ -315,10 +315,18 @@ const create = context => {
 	const {packageJson, packageDependencies, parseArgument, parseTodoMessage, parseTodoWithArguments} = getPackageHelpers(dirname);
 
 	const {sourceCode} = context;
+	const lowerCaseTerms = options.terms.map(term => term.toLowerCase());
+	const hasTerm = comment => {
+		const lowerCaseValue = comment.value.toLowerCase();
+		return lowerCaseTerms.some(term => lowerCaseValue.includes(term));
+	};
+
 	const comments = [...getComments(context), ...getMarkdownHtmlComments(context)];
 	const unusedComments = comments
 		.filter(comment => comment.type !== 'Shebang' && !isEslintDisableOrEnableDirective(context, comment))
 		.map(comment => normalizeComment(comment, context))
+		// A comment without a term is never reported by this rule. It is only needed for `no-warning-comments`, which gets no comments when warning comments are allowed.
+		.filter(comment => !options.allowWarningComments || hasTerm(comment))
 		// Block comments come as one.
 		// Split for situations like this:
 		// /*

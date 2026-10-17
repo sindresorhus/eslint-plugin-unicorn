@@ -167,7 +167,12 @@ const acronymTermEntries = Object.entries(defaultReplacements)
 const acronymTermPatterns = acronymTermEntries
 	.map(([pattern]) => `(?:${getDefaultReplacementPattern(pattern)})`);
 // A single alternation of every acronym-style term, so a token is tested with one regex instead of one per term.
-const defaultReplacementTermPattern = new RegExp(`^(?:${acronymTermPatterns.join('|')})$`, 'iv');
+// Compiling it takes tens of milliseconds, so it is built on first use instead of when the plugin is loaded, even with this rule off.
+let defaultReplacementTermPattern;
+const getDefaultReplacementTermPattern = () => {
+	defaultReplacementTermPattern ??= new RegExp(`^(?:${acronymTermPatterns.join('|')})$`, 'iv');
+	return defaultReplacementTermPattern;
+};
 
 /*
 Every acronym-style pattern is a boundary-wrapped run of literal ASCII characters, where `x?` marks a character that may be absent. Such a run is never shorter than what the term can match, so a slash-pair part longer than the longest run can never be prose. Checking the length first skips the alternation for the many path segments that exceed it. A pattern of an unrecognized shape makes the bound infinite, leaving the regex authoritative.
@@ -224,8 +229,8 @@ function normalizeReplacement(pattern, options, isDefaultReplacement) {
 	};
 }
 
-const normalizedDefaultReplacements = Object.entries(defaultReplacements)
-	.map(([pattern, replacement]) => normalizeReplacement(pattern, replacement, true));
+// Built on first use, like `defaultReplacementTermPattern`, since compiling around 120 regexes slows down loading the plugin.
+let normalizedDefaultReplacements;
 
 // A pattern that is one literal word cannot match unless that word appears in the text.
 function hasRequiredText({requiredText, caseSensitive}, commentValue, lowercaseCommentValue) {
@@ -238,6 +243,8 @@ function hasRequiredText({requiredText, caseSensitive}, commentValue, lowercaseC
 
 function prepareReplacements({extendDefaultReplacements = true, replacements = {}} = {}) {
 	if (extendDefaultReplacements && Object.keys(replacements).length === 0) {
+		normalizedDefaultReplacements ??= Object.entries(defaultReplacements)
+			.map(([pattern, replacement]) => normalizeReplacement(pattern, replacement, true));
 		return normalizedDefaultReplacements;
 	}
 
@@ -632,7 +639,7 @@ function getPathTextAfterIndex(commentValue, index) {
 function isSlashPairProse(text) {
 	const parts = text.replace(/[!.?]$/v, '').split('/');
 
-	return parts.length === 2 && parts.every(part => part.length <= maxAcronymTermLength && defaultReplacementTermPattern.test(part));
+	return parts.length === 2 && parts.every(part => part.length <= maxAcronymTermLength && getDefaultReplacementTermPattern().test(part));
 }
 
 function getPackageSpecifierBase(text) {

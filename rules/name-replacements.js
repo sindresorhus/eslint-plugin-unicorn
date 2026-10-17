@@ -94,16 +94,13 @@ const prepareOptions = ({
 const getPreparedOptions = memoizeByOptions(prepareOptions);
 
 const getWordReplacements = (word, {replacements, allowList}) => {
-	// Skip constants and allowList
-	if (isUpperCase(word) || allowList.get(word)) {
-		return [];
-	}
-
+	// Most words have no replacement, so check that first.
 	const replacement = replacements.get(lowerFirst(word))
 		|| replacements.get(word)
 		|| replacements.get(upperFirst(word));
 
-	if (!replacement) {
+	// Skip constants and allowList
+	if (!replacement || isUpperCase(word) || allowList.get(word)) {
 		return [];
 	}
 
