@@ -11,9 +11,9 @@
 
 Standard `Math` methods express mathematical intent directly and are less error-prone than reimplementing them.
 
-Autofixes use literal values, `const` variables initialized with them, the globals `Infinity`, `NaN`, and `undefined`, and immutable numeric properties of `Number` to prove the result is unchanged. These cover safe multiplication-based squares, exponentiation of zero or nonfinite values, logarithms with exact special results, and `Math.hypot()` inputs that are all zero, contain infinity without `NaN`, or contain `NaN` without infinity.
+Autofixes use literal values, `const` variables initialized with them, the globals `Infinity`, `NaN`, and `undefined`, and immutable numeric properties of `Number` and `Math` to prove the result is unchanged. These cover safe multiplication-based squares, exponentiation of zero or nonfinite values, logarithms with exact special results, and `Math.hypot()` inputs that are all zero, contain infinity without `NaN`, or contain `NaN` without infinity.
 
-Logarithm replacements can also be automatically fixed when the numeric value is unused: under `void` or `typeof`, in a nonfinal comma operand, or in a `for` loop's expression initializer or update. Conditional branches and logical right operands inherit that context. Square replacements can use the same contexts when all inputs are known primitive values.
+Logarithm replacements can also be automatically fixed when the numeric value is unused: under `void`, `typeof`, or `delete`, in a nonfinal comma operand, or in a `for` loop's expression initializer or update. Conditional branches and logical right operands inherit that context. Square replacements can use the same contexts when all inputs are known primitive values.
 
 Other replacements are offered as suggestions because they can change rounding, overflow, and underflow behavior.
 

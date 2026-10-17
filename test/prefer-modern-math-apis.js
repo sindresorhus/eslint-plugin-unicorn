@@ -3,6 +3,66 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+// Math constants have specified values and reuse the numeric safety checks
+test({
+	valid: [],
+	invalid: [
+		...['E', 'LN10', 'LN2', 'LOG10E', 'LOG2E', 'PI', 'SQRT1_2', 'SQRT2'].map(name => [
+			`Math.sqrt(Math.${name} * Math.${name});`,
+			`Math.abs(Math.${name});`,
+		]),
+		['Math.log(-Math.PI) / Math.LN2;', 'Math.log2(-Math.PI);'],
+		['Math.LOG10E * Math.log(-Math.E);', 'Math.log10(-Math.E);'],
+		['const value = Math.PI; Math.sqrt(value * value);', 'const value = Math.PI; Math.abs(value);'],
+		['const value = -Math.SQRT2; Math.log(value) / Math.LN10;', 'const value = -Math.SQRT2; Math.log10(value);'],
+		['Math.sqrt(Math.PI * Math.PI + Infinity ** 2);', 'Math.hypot(Math.PI, Infinity);'],
+		['Math.sqrt(NaN ** 2 + Math.SQRT2 ** 2);', 'Math.hypot(NaN, Math.SQRT2);'],
+		['void Math.sqrt(Math.E ** 2 + Math.PI ** 2);', 'void Math.hypot(Math.E, Math.PI);'],
+		['Math.sqrt((Math./* keep */PI) * Math.PI);', 'Math.abs((Math./* keep */PI));'],
+		['delete (Math.log(getValue()) / Math.LN2);', 'delete (Math.log2(getValue()));'],
+		['delete (Math.LOG10E * Math.log(value));', 'delete (Math.log10(value));'],
+		['delete Math.sqrt(1e200 * 1e200);', 'delete Math.abs(1e200);'],
+		['delete Math.sqrt(3 ** 2 + 4 ** 2);', 'delete Math.hypot(3, 4);'],
+		['delete (condition && Math.log(value) / Math.LN2);', 'delete (condition && Math.log2(value));'],
+	].map(([code, output]) => ({
+		code,
+		output,
+		errors: [{messageId: 'prefer-modern-math-apis', suggestions: []}],
+	})),
+});
+
+test.typescript({
+	valid: [],
+	invalid: [
+		['Math.sqrt((Math.PI as number) * Math.PI);', 'Math.abs((Math.PI as number));'],
+		['const value = Math.LN2 as number; Math.sqrt(value * value);', 'const value = Math.LN2 as number; Math.abs(value);'],
+		['Math.log(-(Math.SQRT2 as number)) / Math.LN2;', 'Math.log2(-(Math.SQRT2 as number));'],
+	].map(([code, output]) => ({
+		code,
+		output,
+		errors: [{messageId: 'prefer-modern-math-apis', suggestions: []}],
+	})),
+});
+
+// Constants do not prove approximate formulas safe, and other Math properties are unknown
+test.snapshot({
+	valid: [],
+	invalid: [
+		'Math.log(Math.E) / Math.LN2;',
+		'Math.log(Math.LN2) * Math.LOG10E;',
+		'Math.sqrt(Math.PI ** 2);',
+		'Math.sqrt(Math.E * Math.E + Math.PI * Math.PI);',
+		'Math.log(Math.custom) / Math.LN2;',
+		'Math.log(Math.random) / Math.LN2;',
+		'Math.sqrt(Math["PI"] * Math["PI"]);',
+		'Math.log(Math?.PI) / Math.LN2;',
+		'Math.sqrt(Math.PI * /* keep */ Math.PI);',
+		'delete Math.sqrt(value ** 2);',
+		'delete (Math.log(/* keep */ value) / Math.LN2);',
+		'delete (Math.log(value) / Math.LN2).property;',
+	],
+});
+
 // Immutable Number constants use the same numeric safety checks
 test({
 	valid: [],

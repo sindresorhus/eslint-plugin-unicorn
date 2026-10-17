@@ -44,6 +44,22 @@ function getStaticNumber(node, context) {
 		computed: false,
 	})) {
 		value = Number[argument.property.name];
+	} else if (isMemberExpression(argument, {
+		object: 'Math',
+		properties: [
+			'E',
+			'LN10',
+			'LN2',
+			'LOG10E',
+			'LOG2E',
+			'PI',
+			'SQRT1_2',
+			'SQRT2',
+		],
+		optional: false,
+		computed: false,
+	})) {
+		value = Math[argument.property.name];
 	} else {
 		const literalValue = getPrimitiveLiteralValue(node);
 		return literalValue === undefined || typeof literalValue === 'bigint' ? undefined : Number(literalValue);
@@ -59,7 +75,7 @@ function isNumericValueUnused(node) {
 		node = expression.parent;
 		switch (node.type) {
 			case 'UnaryExpression': {
-				return node.operator === 'void' || node.operator === 'typeof';
+				return ['void', 'typeof', 'delete'].includes(node.operator);
 			}
 
 			case 'ForStatement': {
