@@ -1980,7 +1980,8 @@ nodeTest('preserves statement boundaries when removing an element declaration', 
 		}
 		JSON.stringify(calls);
 	`;
-	const result = new Linter().verifyAndFix(code, {
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, {
 		plugins: {unicorn: {rules: {'no-for-loop': rule}}},
 		rules: {'unicorn/no-for-loop': 'error'},
 	});
@@ -1993,7 +1994,8 @@ nodeTest('preserves statement boundaries when removing an element declaration', 
 nodeTest('keeps indexed calls and tagged templates bound to the array', t => {
 	for (const expression of ['array[index]()', 'array[index]`template`', '(array?.[index])()', '(array?.[index])`template`']) {
 		const code = `const array = [function () {return this === array}]; const calls = []; for (let index = 0; index < array.length; index++) {calls.push(${expression})} JSON.stringify(calls)`;
-		const result = new Linter().verifyAndFix(code, {
+		const linter = new Linter();
+		const result = linter.verifyAndFix(code, {
 			plugins: {unicorn: {rules: {'no-for-loop': rule}}},
 			rules: {'unicorn/no-for-loop': 'error'},
 		});

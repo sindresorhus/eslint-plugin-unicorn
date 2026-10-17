@@ -1195,7 +1195,8 @@ test({
 nodeTest('preserves else bindings around optional forEach calls', t => {
 	for (const body of ['array?.forEach(value => {})', 'while (false) array?.forEach(value => {})']) {
 		const code = `const array = [1]; const calls = []; if (false) ${body}; else calls.push('else'); JSON.stringify(calls)`;
-		const result = new Linter().verifyAndFix(code, {
+		const linter = new Linter();
+		const result = linter.verifyAndFix(code, {
 			plugins: {unicorn: {rules: {'no-for-each': rule}}},
 			rules: {'unicorn/no-for-each': 'error'},
 		});
