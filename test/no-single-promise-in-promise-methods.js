@@ -1,8 +1,11 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester} from './utils/test.js';
 import parsers from './utils/parsers.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 // `Promise.any()` wraps rejections in `AggregateError`, so unwrapping an awaited call is only suggested
 test.snapshot({
@@ -207,4 +210,60 @@ test({
 			}],
 		},
 	],
+});
+
+test({
+	valid: [],
+	invalid: ['race', 'any'].flatMap(method => ['promise', 'object.value'].map(value => ({
+		code: `delete (Promise.${method}([${value}]));`,
+		errors: [{
+			messageId: 'no-single-promise-in-promise-methods/error', suggestions: [{
+				messageId: 'no-single-promise-in-promise-methods/use-promise-resolve',
+				output: `delete (Promise.resolve(${value}));`,
+			}],
+		}],
+	}))),
+});
+
+test({
+	valid: [],
+	invalid: [
+		['delete (Promise.race([object.value]) as Promise<number>);', 'delete (Promise.resolve(object.value) as Promise<number>);'],
+		['delete (Promise.any([object.value]))!;', 'delete (Promise.resolve(object.value))!;'],
+	].map(([code, output]) => ({
+		code,
+		languageOptions: {parser: parsers.typescript},
+		errors: [{
+			messageId: 'no-single-promise-in-promise-methods/error', suggestions: [{
+				messageId: 'no-single-promise-in-promise-methods/use-promise-resolve', output,
+			}],
+		}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: 'async function run() { return delete await Promise.race([object.value]); }',
+		output: 'async function run() { return delete await object.value; }',
+		errors: 1,
+	}],
+});
+
+nodeTest('suggestions beneath delete keep the property instead of deleting it', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'no-single-promise-in-promise-methods': rule}}},
+		rules: {'unicorn/no-single-promise-in-promise-methods': 'error'},
+	};
+	for (const method of ['race', 'any']) {
+		const code = `const object = {value: Promise.resolve(1)}; delete Promise.${method}([object.value]); "value" in object;`;
+		const [problem] = linter.verify(code, config);
+		t.assert.strictEqual(problem.suggestions.length, 1);
+		t.assert.strictEqual(problem.suggestions[0].messageId, 'no-single-promise-in-promise-methods/use-promise-resolve');
+		const {fix} = problem.suggestions[0];
+		const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		t.assert.strictEqual(runInNewContext(code), true);
+		t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
+	}
 });

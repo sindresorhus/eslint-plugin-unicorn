@@ -13,6 +13,7 @@ import {
 	isBuiltinSet,
 	isFirstTokenOfExpressionStatement,
 	isGlobalIdentifier,
+	isInUnparenthesizedNewExpressionCallee,
 	isSameReference,
 	isTypeScriptExpressionWrapper,
 	needsSemicolon,
@@ -105,6 +106,10 @@ const getUnionReplacement = (arrayExpression, context) => {
 
 	for (const argument of remainingArguments) {
 		text += `.union(${getParenthesizedText(argument, context)})`;
+	}
+
+	if (isInUnparenthesizedNewExpressionCallee(arrayExpression.parent, context)) {
+		text = `(${text})`;
 	}
 
 	return text;
@@ -222,10 +227,11 @@ const getSetOperationReplacement = (filterCall, context, replacementNode) => {
 		return;
 	}
 
+	const replacement = `${getMemberExpressionObjectText(set, context, replacementNode)}.${operation.method}(${getParenthesizedText(operation.otherSet, context)})`;
 	return {
 		messageId: operation.messageId,
 		suggestionMessageId: operation.suggestionMessageId,
-		replacement: `${getMemberExpressionObjectText(set, context, replacementNode)}.${operation.method}(${getParenthesizedText(operation.otherSet, context)})`,
+		replacement: isInUnparenthesizedNewExpressionCallee(replacementNode, context) ? `(${replacement})` : replacement,
 	};
 };
 

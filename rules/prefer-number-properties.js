@@ -28,16 +28,7 @@ const isNegative = node => {
 	return parent.type === 'UnaryExpression' && parent.operator === '-' && parent.argument === node;
 };
 
-const isDeletedNegativeInfinity = node => {
-	if (!isNegative(node)) {
-		return false;
-	}
-
-	const {parent} = node;
-	const {parent: grandparent} = parent;
-
-	return grandparent.type === 'UnaryExpression' && grandparent.operator === 'delete' && grandparent.argument === parent;
-};
+const isDeletedNegativeInfinity = node => isNegative(node) && isLeftHandSide(node.parent);
 
 function isBase10OrNoRadixParseIntCall(node, context) {
 	const {parent} = node;

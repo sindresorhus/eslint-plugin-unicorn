@@ -2,6 +2,7 @@ import {isCommaToken} from '@eslint-community/eslint-utils';
 import {isExpressionStatement, isLiteral, isMethodCall} from './ast/index.js';
 import {
 	getParenthesizedText,
+	isLeftHandSide,
 	isParenthesized,
 	needsSemicolon,
 	shouldAddParenthesesToAwaitExpressionArgument,
@@ -217,7 +218,7 @@ const create = context => {
 
 		const {sourceCode} = context;
 		// The unwrapped call is rebuilt from the promise node alone, so a comment inside the array would be lost
-		const canUnwrap = !hasCommentsInside(sourceCode, callExpression);
+		const canUnwrap = !isLeftHandSide(callExpression) && !hasCommentsInside(sourceCode, callExpression);
 		const isAwaited = callExpression.parent.type === 'AwaitExpression'
 			&& callExpression.parent.argument === callExpression;
 

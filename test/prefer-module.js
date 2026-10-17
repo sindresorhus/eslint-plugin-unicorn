@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -349,4 +349,53 @@ test({
 		code,
 		errors: [{messageId: 'error/identifier', suggestions: []}],
 	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		['__filename', 'import.meta.filename', 'url.fileURLToPath(import.meta.url)', 'filename'],
+		['__dirname', 'import.meta.dirname', 'path.dirname(url.fileURLToPath(import.meta.url))', 'dirname'],
+	].flatMap(([name, member, call, kind]) => [
+		{
+			code: `new ${name}.constructor("text");`,
+			languageOptions: {globals: {[name]: 'readonly'}},
+			errors: [{
+				messageId: 'error/identifier', suggestions: [
+					{messageId: `suggestion/import-meta-${kind}`, output: `new ${member}.constructor("text");`},
+					{messageId: `suggestion/import-meta-url-to-${kind}`, output: `new (${call}).constructor("text");`},
+				],
+			}],
+		},
+		{
+			code: `new (${name}).constructor("text");`,
+			languageOptions: {globals: {[name]: 'readonly'}},
+			errors: [{
+				messageId: 'error/identifier', suggestions: [
+					{messageId: `suggestion/import-meta-${kind}`, output: `new (${member}).constructor("text");`},
+					{messageId: `suggestion/import-meta-url-to-${kind}`, output: `new (${call}).constructor("text");`},
+				],
+			}],
+		},
+		{
+			code: `new ${name}.constructor("text");`,
+			languageOptions: {globals: {[name]: 'readonly'}, parser: parsers.typescript},
+			errors: [{
+				messageId: 'error/identifier', suggestions: [
+					{messageId: `suggestion/import-meta-${kind}`, output: `new (${member}).constructor("text");`},
+					{messageId: `suggestion/import-meta-url-to-${kind}`, output: `new (${call}).constructor("text");`},
+				],
+			}],
+		},
+		{
+			code: `new ${name}!.constructor("text");`,
+			languageOptions: {globals: {[name]: 'readonly'}, parser: parsers.typescript},
+			errors: [{
+				messageId: 'error/identifier', suggestions: [
+					{messageId: `suggestion/import-meta-${kind}`, output: `new (${member})!.constructor("text");`},
+					{messageId: `suggestion/import-meta-url-to-${kind}`, output: `new (${call})!.constructor("text");`},
+				],
+			}],
+		},
+	]),
 });
