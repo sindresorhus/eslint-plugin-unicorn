@@ -23,13 +23,13 @@ We only check `.filter().length > 0` and `.filter().length !== 0`. These two non
 
 - Using [`Array#findIndex()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex) or [`Array#findLastIndex()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findLastIndex) to ensure at least one element in the array passes a given check.
 
-Replacements for `.find()` and `.findLast()` are suggestions because a matching element can be falsy. Replacing `.findLast()` also changes the iteration order.
+`.find()` and `.findLast()` replacements are suggestions because matches can be falsy. Replacing `.findLast()` also changes iteration order.
 
-`.findIndex()` checks are autofixed. `.findLastIndex()` and `.filter().length` checks are autofixed when the callback is an inline function without side effects; otherwise, a suggestion is offered. These replacements can change how many times the callback runs or its iteration order.
+`.findIndex()` checks are autofixed. `.findLastIndex()` and `.filter().length` checks are autofixed only for inline callbacks without side effects; otherwise, suggestions are offered because callback count or order can change.
 
 This rule skips receivers known to be neither an array nor a typed array, from syntax, TypeScript annotations, or TypeScript type information. Unknown receivers are still checked.
 
-The rule also checks `.find()` and `.findLast()` results assigned to a `const` variable without a TypeScript type annotation when every use passes the variable directly to the global `Boolean()` function. Other boolean contexts are supported when the receiver is known to be an array or typed array.
+`.find()` and `.findLast()` results stored in `const` variables are checked when every use is a direct argument to global `Boolean()`. Other boolean contexts require a known array or typed array. Variables with TypeScript type annotations are skipped.
 
 ## Examples
 
@@ -64,16 +64,12 @@ if (array.some(element => isUnicorn(element))) {
 
 ```js
 // ❌
-function hasBigItem(array) {
-	const found = array.find(item => item > 2);
-	return Boolean(found);
-}
+const found = array.find(item => item > 2);
+Boolean(found);
 
 // ✅
-function hasBigItem(array) {
-	const found = array.some(item => item > 2);
-	return Boolean(found);
-}
+const found = array.some(item => item > 2);
+Boolean(found);
 ```
 
 ```js
