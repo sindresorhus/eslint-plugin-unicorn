@@ -494,3 +494,30 @@ test('absorption preserves indirect eval scope', t => {
 	t.assert.strictEqual(result.output, code);
 	t.assert.strictEqual(result.messages.length, 1);
 });
+
+ruleTester({
+	valid: [],
+	invalid: [
+		['!({} === value && other !== final);', '({} !== value || other === final);'],
+		['!(({} === value) && other !== final);', '({} !== value || other === final);'],
+		['!((function () {} === value) && other !== final);', '(function () {} !== value || other === final);'],
+		['const get = () => !(({} === value) && other !== final);', 'const get = () => ({} !== value || other === final);'],
+		['!(function () {} === value && other !== final);', '(function () {} !== value || other === final);'],
+		['const get = () => !({} === value && other !== final);', 'const get = () => ({} !== value || other === final);'],
+		['const result = !({} === value && other !== final);', 'const result = {} !== value || other === final;'],
+		['!(({}) === value && other !== final);', '({}) !== value || other === final;'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+ruleTester.svelte({
+	valid: [],
+	invalid: [
+		['{!(!/x/.test(value) && !/y/.test(value))}', '{(/x/.test(value) || /y/.test(value))}'],
+		['{!(!/x/.test(value) || !/y/.test(value))}', '{(/x/.test(value) && /y/.test(value))}'],
+		['{(!(!/x/.test(value) && !/y/.test(value)))}', '{(/x/.test(value) || /y/.test(value))}'],
+		['{!(!(/x/.test(value)) && !/y/.test(value))}', '{(/x/.test(value)) || /y/.test(value)}'],
+		['{/* keep */ !(!/x/.test(value) && !/y/.test(value))}', '{/* keep */ /x/.test(value) || /y/.test(value)}'],
+		['<div title={!(!/x/.test(value) && !/y/.test(value))}></div>', '<div title={/x/.test(value) || /y/.test(value)}></div>'],
+		['{@html !(!/x/.test(value) && !/y/.test(value))}', '{@html /x/.test(value) || /y/.test(value)}'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});

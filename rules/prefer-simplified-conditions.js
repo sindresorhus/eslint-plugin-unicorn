@@ -15,6 +15,7 @@ import {
 	isReferenceContext,
 	isTypeScriptExpressionWrapper,
 	needsSemicolon,
+	shouldAddParenthesesToExpressionStart,
 	shouldAddParenthesesToLogicalExpressionChild,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
@@ -243,11 +244,27 @@ function getDeMorganReplacementText(node, context) {
 	const {argument} = node;
 	const operator = negatedLogicalOperators.get(argument.operator);
 	const canUseTruthiness = isControlFlowTest(node);
-	const replacement = [
+	let replacement = [
 		getNegatedOperandText(argument.left, context, canUseTruthiness),
 		operator,
 		getNegatedOperandText(argument.right, context, canUseTruthiness),
 	].join(' ');
+
+	let leadingExpression;
+	if (isEqualityComparison(argument.left)) {
+		leadingExpression = argument.left.left;
+	} else if (isNegation(argument.left) && (canUseTruthiness || isBoolean(argument.left.argument, context))) {
+		leadingExpression = argument.left.argument;
+	}
+
+	if (
+		leadingExpression
+		&& !isParenthesized(leadingExpression, context)
+		&& !shouldAddParenthesesToLogicalReplacement(node, operator, context)
+		&& shouldAddParenthesesToExpressionStart(leadingExpression, context, node)
+	) {
+		replacement = `(${replacement})`;
+	}
 
 	return getLogicalReplacementText(node, operator, replacement, context);
 }

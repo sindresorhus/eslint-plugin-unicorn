@@ -9,12 +9,14 @@ import {
 } from './fix/index.js';
 import {
 	getParenthesizedRange,
+	isParenthesized,
 	isOnSameLine,
 	needsSemicolon,
 	isLogicalExpression,
 	getLogicalExpressionOperands,
 	getUnparenthesizedKeywordArgumentParent,
 	shouldAddParenthesesToExpressionStatementExpression,
+	shouldAddParenthesesToExpressionStart,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-negated-condition';
@@ -34,8 +36,15 @@ function * convertNegatedCondition(fixer, test, context) {
 
 	if (test.type === 'UnaryExpression') {
 		const token = sourceCode.getFirstToken(test);
+		const needsParentheses = !isParenthesized(test.argument, context)
+			&& !sourceCode.commentsExistBetween(token, test.argument)
+			&& shouldAddParenthesesToExpressionStart(test.argument, context, test);
 
-		yield fixer.remove(token);
+		yield fixer.replaceText(token, needsParentheses ? '(' : '');
+		if (needsParentheses) {
+			yield fixer.insertTextAfter(test.argument, ')');
+		}
+
 		return;
 	}
 
