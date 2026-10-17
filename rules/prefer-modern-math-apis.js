@@ -9,7 +9,7 @@ import {
 	unwrapTypeScriptExpression,
 	wouldRemoveComments,
 } from './utils/index.js';
-import {isLiteral, isMethodCall} from './ast/index.js';
+import {isLiteral, isMemberExpression, isMethodCall} from './ast/index.js';
 import {replaceNodeOrTokenAndSpacesBefore, removeParentheses} from './fix/index.js';
 
 const MESSAGE_ID = 'prefer-modern-math-apis';
@@ -25,13 +25,31 @@ function getStaticNumber(node, context) {
 	const argument = node.type === 'UnaryExpression' && (node.operator === '+' || node.operator === '-')
 		? unwrapTypeScriptExpression(node.argument)
 		: node;
+	let value;
 	if (argument.type === 'Identifier' && ['Infinity', 'NaN', 'undefined'].includes(argument.name)) {
-		const value = argument.name === 'Infinity' ? Infinity : NaN;
-		return node.type === 'UnaryExpression' && node.operator === '-' ? -value : value;
+		value = argument.name === 'Infinity' ? Infinity : NaN;
+	} else if (isMemberExpression(argument, {
+		object: 'Number',
+		properties: [
+			'EPSILON',
+			'MAX_SAFE_INTEGER',
+			'MAX_VALUE',
+			'MIN_SAFE_INTEGER',
+			'MIN_VALUE',
+			'NEGATIVE_INFINITY',
+			'NaN',
+			'POSITIVE_INFINITY',
+		],
+		optional: false,
+		computed: false,
+	})) {
+		value = Number[argument.property.name];
+	} else {
+		const literalValue = getPrimitiveLiteralValue(node);
+		return literalValue === undefined || typeof literalValue === 'bigint' ? undefined : Number(literalValue);
 	}
 
-	const value = getPrimitiveLiteralValue(node);
-	return value === undefined || typeof value === 'bigint' ? undefined : Number(value);
+	return node.type === 'UnaryExpression' && node.operator === '-' ? -value : value;
 }
 
 function isNumericValueUnused(node) {

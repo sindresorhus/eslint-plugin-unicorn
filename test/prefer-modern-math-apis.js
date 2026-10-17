@@ -3,6 +3,71 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+// Immutable Number constants use the same numeric safety checks
+test({
+	valid: [],
+	invalid: [
+		['Math.log(Number.NaN) / Math.LN2;', 'Math.log2(Number.NaN);'],
+		['Math.log(Number./* keep */NaN) / Math.LN2;', 'Math.log2(Number./* keep */NaN);'],
+		['Math.log(Number.POSITIVE_INFINITY) * Math.LOG10E;', 'Math.log10(Number.POSITIVE_INFINITY);'],
+		['Math.LOG2E * Math.log(Number.NEGATIVE_INFINITY);', 'Math.log2(Number.NEGATIVE_INFINITY);'],
+		['Math.log(Number.MIN_SAFE_INTEGER) / Math.LN10;', 'Math.log10(Number.MIN_SAFE_INTEGER);'],
+		['Math.log(-Number.MIN_VALUE) / Math.LN2;', 'Math.log2(-Number.MIN_VALUE);'],
+		['Math.log(-Number.NEGATIVE_INFINITY) / Math.LN10;', 'Math.log10(-Number.NEGATIVE_INFINITY);'],
+		['Math.sqrt(Number.NaN ** 2);', 'Math.abs(Number.NaN);'],
+		['Math.sqrt(Number.POSITIVE_INFINITY ** 2);', 'Math.abs(Number.POSITIVE_INFINITY);'],
+		['Math.sqrt(Number.NEGATIVE_INFINITY ** 2);', 'Math.abs(Number.NEGATIVE_INFINITY);'],
+		['Math.sqrt((-Number.POSITIVE_INFINITY) ** 2);', 'Math.abs((-Number.POSITIVE_INFINITY));'],
+		['Math.sqrt((+Number.POSITIVE_INFINITY) ** 2);', 'Math.abs((+Number.POSITIVE_INFINITY));'],
+		['Math.sqrt(Number.EPSILON * Number.EPSILON);', 'Math.abs(Number.EPSILON);'],
+		['Math.sqrt(Number.MAX_SAFE_INTEGER * Number.MAX_SAFE_INTEGER);', 'Math.abs(Number.MAX_SAFE_INTEGER);'],
+		['Math.sqrt(Number.MIN_SAFE_INTEGER * Number.MIN_SAFE_INTEGER);', 'Math.abs(Number.MIN_SAFE_INTEGER);'],
+		['Math.sqrt(Number.MAX_VALUE * Number.MAX_VALUE + Number.NaN ** 2);', 'Math.hypot(Number.MAX_VALUE, Number.NaN);'],
+		['Math.sqrt(Number.NEGATIVE_INFINITY ** 2 + 3 ** 2);', 'Math.hypot(Number.NEGATIVE_INFINITY, 3);'],
+		['const value = Number.NaN; Math.log(value) / Math.LN2;', 'const value = Number.NaN; Math.log2(value);'],
+		['const value = -Number.POSITIVE_INFINITY; Math.sqrt(value ** 2);', 'const value = -Number.POSITIVE_INFINITY; Math.abs(value);'],
+		['void Math.sqrt(Number.MAX_VALUE ** 2 + Number.MIN_VALUE ** 2);', 'void Math.hypot(Number.MAX_VALUE, Number.MIN_VALUE);'],
+	].map(([code, output]) => ({
+		code,
+		output,
+		errors: [{messageId: 'prefer-modern-math-apis', suggestions: []}],
+	})),
+});
+
+test.typescript({
+	valid: [],
+	invalid: [
+		['Math.log(Number.NaN as number) / Math.LN2;', 'Math.log2(Number.NaN as number);'],
+		['const value = Number.POSITIVE_INFINITY as number; Math.sqrt(value ** 2);', 'const value = Number.POSITIVE_INFINITY as number; Math.abs(value);'],
+		['Math.log(-(Number.MIN_VALUE as number)) * Math.LOG2E;', 'Math.log2(-(Number.MIN_VALUE as number));'],
+	].map(([code, output]) => ({
+		code,
+		output,
+		errors: [{messageId: 'prefer-modern-math-apis', suggestions: []}],
+	})),
+});
+
+// Known constants can still change numerical results; other properties are unknown
+test.snapshot({
+	valid: [],
+	invalid: [
+		'Math.sqrt(Number.MAX_VALUE * Number.MAX_VALUE);',
+		'Math.sqrt(Number.MIN_VALUE * Number.MIN_VALUE);',
+		'Math.sqrt(Number.EPSILON ** 2);',
+		'Math.sqrt(Number.NaN ** 2 + Number.POSITIVE_INFINITY ** 2);',
+		'Math.log(Number.EPSILON) / Math.LN2;',
+		'Math.log(Number.MIN_VALUE) / Math.LN2;',
+		'Math.log(Number.length) / Math.LN2;',
+		'Math.log(Number.custom) / Math.LN2;',
+		'Math.log(Number["NaN"]) / Math.LN2;',
+		'Math.log(Number?.NaN) / Math.LN2;',
+		'Math.log(Number.prototype) / Math.LN2;',
+		'Math.log(other.NaN) / Math.LN2;',
+		'Math.log(Number.NaN /* keep */ + value) / Math.LN2;',
+		'Math.sqrt(Number.NaN ** /* keep */ 2);',
+	],
+});
+
 // NaN propagation and contexts that do not observe the numeric value
 test({
 	valid: [],

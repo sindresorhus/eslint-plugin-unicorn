@@ -128,6 +128,23 @@ Suggestion 1/1: Replace with \`Math.hypot(…)\`.:
 
 `;
 
+exports[`prefer-modern-math-apis > invalid(1): Math.sqrt(Number.MAX_VALUE * Number.MAX_VALUE); 1`] = `
+
+  1 | Math.sqrt(Number.MAX_VALUE * Number.MAX_VALUE);
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(1): Math.sqrt(Number.MAX_VALUE * Number.MAX_VALUE); 2`] = `
+
+Message:
+> 1 | Math.sqrt(Number.MAX_VALUE * Number.MAX_VALUE);
+    |      ^^^^ Prefer \`Math.abs(…)\` over \`Math.sqrt(…)\`.
+
+Suggestion 1/1: Replace with \`Math.abs(…)\`.:
+  1 | Math.abs(Number.MAX_VALUE);
+
+`;
+
 exports[`prefer-modern-math-apis > invalid(1): Math.sqrt(a * a + b * b) 1`] = `
 
   1 | Math.sqrt(a * a + b * b)
@@ -210,6 +227,23 @@ Message:
 
 Suggestion 1/1: Replace with \`Math.log2(…)\`.:
   1 | Math.log2((( 0,x )))
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(10): Math.log(Number?.NaN) / Math.LN2; 1`] = `
+
+  1 | Math.log(Number?.NaN) / Math.LN2;
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(10): Math.log(Number?.NaN) / Math.LN2; 2`] = `
+
+Message:
+> 1 | Math.log(Number?.NaN) / Math.LN2;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.log2(…)\` over \`Math.log(…) / Math.LN2\`.
+
+Suggestion 1/1: Replace with \`Math.log2(…)\`.:
+  1 | Math.log2(Number?.NaN);
 
 `;
 
@@ -329,6 +363,23 @@ Message:
 
 Suggestion 1/1: Replace with \`Math.log10(…)\`.:
   1 | Math.log10((( 0,x )))
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(11): Math.log(Number.prototype) / Math.LN2; 1`] = `
+
+  1 | Math.log(Number.prototype) / Math.LN2;
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(11): Math.log(Number.prototype) / Math.LN2; 2`] = `
+
+Message:
+> 1 | Math.log(Number.prototype) / Math.LN2;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.log2(…)\` over \`Math.log(…) / Math.LN2\`.
+
+Suggestion 1/1: Replace with \`Math.log2(…)\`.:
+  1 | Math.log2(Number.prototype);
 
 `;
 
@@ -468,6 +519,23 @@ Suggestion 1/1: Replace with \`Math.log2(…)\`.:
 
 `;
 
+exports[`prefer-modern-math-apis > invalid(12): Math.log(other.NaN) / Math.LN2; 1`] = `
+
+  1 | Math.log(other.NaN) / Math.LN2;
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(12): Math.log(other.NaN) / Math.LN2; 2`] = `
+
+Message:
+> 1 | Math.log(other.NaN) / Math.LN2;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.log2(…)\` over \`Math.log(…) / Math.LN2\`.
+
+Suggestion 1/1: Replace with \`Math.log2(…)\`.:
+  1 | Math.log2(other.NaN);
+
+`;
+
 exports[`prefer-modern-math-apis > invalid(12): Math.sqrt((/* keep */ first) ** 2 + second ** 2); 1`] = `
 
   1 | Math.sqrt((/* keep */ first) ** 2 + second ** 2);
@@ -584,6 +652,23 @@ Message:
 
 Suggestion 1/1: Replace with \`Math.log2(…)\`.:
   1 | void (Math.log2(value) + next());
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(13): Math.log(Number.NaN /* keep */ + value) / Math.LN2; 1`] = `
+
+  1 | Math.log(Number.NaN /* keep */ + value) / Math.LN2;
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(13): Math.log(Number.NaN /* keep */ + value) / Math.LN2; 2`] = `
+
+Message:
+> 1 | Math.log(Number.NaN /* keep */ + value) / Math.LN2;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.log2(…)\` over \`Math.log(…) / Math.LN2\`.
+
+Suggestion 1/1: Replace with \`Math.log2(…)\`.:
+  1 | Math.log2(Number.NaN /* keep */ + value);
 
 `;
 
@@ -752,6 +837,20 @@ Message:
 
 Suggestion 1/1: Replace with \`Math.hypot(…)\`.:
   1 | Math.hypot((( a )),  b, c , (( d )), (( e )))
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(14): Math.sqrt(Number.NaN ** /* keep */ 2); 1`] = `
+
+  1 | Math.sqrt(Number.NaN ** /* keep */ 2);
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(14): Math.sqrt(Number.NaN ** /* keep */ 2); 2`] = `
+
+Message:
+> 1 | Math.sqrt(Number.NaN ** /* keep */ 2);
+    |      ^^^^ Prefer \`Math.abs(…)\` over \`Math.sqrt(…)\`.
 
 `;
 
@@ -1321,6 +1420,23 @@ Suggestion 1/1: Replace with \`Math.hypot(…)\`.:
 
 `;
 
+exports[`prefer-modern-math-apis > invalid(2): Math.sqrt(Number.MIN_VALUE * Number.MIN_VALUE); 1`] = `
+
+  1 | Math.sqrt(Number.MIN_VALUE * Number.MIN_VALUE);
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(2): Math.sqrt(Number.MIN_VALUE * Number.MIN_VALUE); 2`] = `
+
+Message:
+> 1 | Math.sqrt(Number.MIN_VALUE * Number.MIN_VALUE);
+    |      ^^^^ Prefer \`Math.abs(…)\` over \`Math.sqrt(…)\`.
+
+Suggestion 1/1: Replace with \`Math.abs(…)\`.:
+  1 | Math.abs(Number.MIN_VALUE);
+
+`;
+
 exports[`prefer-modern-math-apis > invalid(2): Math.sqrt(a ** 2 + ((b ** 2 + c ** 2) + (d * d + e ** 2))); 1`] = `
 
   1 | Math.sqrt(a ** 2 + ((b ** 2 + c ** 2) + (d * d + e ** 2)));
@@ -1554,6 +1670,23 @@ Suggestion 1/1: Replace with \`Math.hypot(…)\`.:
 
 `;
 
+exports[`prefer-modern-math-apis > invalid(3): Math.sqrt(Number.EPSILON ** 2); 1`] = `
+
+  1 | Math.sqrt(Number.EPSILON ** 2);
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(3): Math.sqrt(Number.EPSILON ** 2); 2`] = `
+
+Message:
+> 1 | Math.sqrt(Number.EPSILON ** 2);
+    |      ^^^^ Prefer \`Math.abs(…)\` over \`Math.sqrt(…)\`.
+
+Suggestion 1/1: Replace with \`Math.abs(…)\`.:
+  1 | Math.abs(Number.EPSILON);
+
+`;
+
 exports[`prefer-modern-math-apis > invalid(3): Math.sqrt(Number.MAX_VALUE ** 2 + Number.MIN_VALUE ** 2); 1`] = `
 
   1 | Math.sqrt(Number.MAX_VALUE ** 2 + Number.MIN_VALUE ** 2);
@@ -1718,6 +1851,23 @@ Suggestion 1/1: Replace with \`Math.abs(…)\`.:
 
 `;
 
+exports[`prefer-modern-math-apis > invalid(4): Math.sqrt(Number.NaN ** 2 + Number.POSITIVE_INFINITY ** 2); 1`] = `
+
+  1 | Math.sqrt(Number.NaN ** 2 + Number.POSITIVE_INFINITY ** 2);
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(4): Math.sqrt(Number.NaN ** 2 + Number.POSITIVE_INFINITY ** 2); 2`] = `
+
+Message:
+> 1 | Math.sqrt(Number.NaN ** 2 + Number.POSITIVE_INFINITY ** 2);
+    |      ^^^^ Prefer \`Math.hypot(…)\` over \`Math.sqrt(…)\`.
+
+Suggestion 1/1: Replace with \`Math.hypot(…)\`.:
+  1 | Math.hypot(Number.NaN, Number.POSITIVE_INFINITY);
+
+`;
+
 exports[`prefer-modern-math-apis > invalid(4): Math.sqrt(a * a + b * b + c * c) 1`] = `
 
   1 | Math.sqrt(a * a + b * b + c * c)
@@ -1783,6 +1933,23 @@ Message:
 
 Suggestion 1/1: Replace with \`Math.abs(…)\`.:
   1 | const x = 1e200; Math.abs(x);
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(5): Math.log(Number.EPSILON) / Math.LN2; 1`] = `
+
+  1 | Math.log(Number.EPSILON) / Math.LN2;
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(5): Math.log(Number.EPSILON) / Math.LN2; 2`] = `
+
+Message:
+> 1 | Math.log(Number.EPSILON) / Math.LN2;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.log2(…)\` over \`Math.log(…) / Math.LN2\`.
+
+Suggestion 1/1: Replace with \`Math.log2(…)\`.:
+  1 | Math.log2(Number.EPSILON);
 
 `;
 
@@ -2001,6 +2168,23 @@ Suggestion 1/1: Replace with \`Math.log2(…)\`.:
 
 `;
 
+exports[`prefer-modern-math-apis > invalid(6): Math.log(Number.MIN_VALUE) / Math.LN2; 1`] = `
+
+  1 | Math.log(Number.MIN_VALUE) / Math.LN2;
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(6): Math.log(Number.MIN_VALUE) / Math.LN2; 2`] = `
+
+Message:
+> 1 | Math.log(Number.MIN_VALUE) / Math.LN2;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.log2(…)\` over \`Math.log(…) / Math.LN2\`.
+
+Suggestion 1/1: Replace with \`Math.log2(…)\`.:
+  1 | Math.log2(Number.MIN_VALUE);
+
+`;
+
 exports[`prefer-modern-math-apis > invalid(6): Math.log(value = nextValue) / Math.LN10; 1`] = `
 
   1 | Math.log(value = nextValue) / Math.LN10;
@@ -2198,6 +2382,23 @@ Message:
 
 Suggestion 1/1: Replace with \`Math.log10(…)\`.:
   1 | Math.log10((( 0,x )))
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(7): Math.log(Number.length) / Math.LN2; 1`] = `
+
+  1 | Math.log(Number.length) / Math.LN2;
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(7): Math.log(Number.length) / Math.LN2; 2`] = `
+
+Message:
+> 1 | Math.log(Number.length) / Math.LN2;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.log2(…)\` over \`Math.log(…) / Math.LN2\`.
+
+Suggestion 1/1: Replace with \`Math.log2(…)\`.:
+  1 | Math.log2(Number.length);
 
 `;
 
@@ -2413,6 +2614,23 @@ Suggestion 1/1: Replace with \`Math.log2(…)\`.:
 
 `;
 
+exports[`prefer-modern-math-apis > invalid(8): Math.log(Number.custom) / Math.LN2; 1`] = `
+
+  1 | Math.log(Number.custom) / Math.LN2;
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(8): Math.log(Number.custom) / Math.LN2; 2`] = `
+
+Message:
+> 1 | Math.log(Number.custom) / Math.LN2;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.log2(…)\` over \`Math.log(…) / Math.LN2\`.
+
+Suggestion 1/1: Replace with \`Math.log2(…)\`.:
+  1 | Math.log2(Number.custom);
+
+`;
+
 exports[`prefer-modern-math-apis > invalid(8): Math.sqrt((first ** 2 + second ** 2) + (third * /* keep */ third + fourth ** 2)); 1`] = `
 
   1 | Math.sqrt((first ** 2 + second ** 2) + (third * /* keep */ third + fourth ** 2));
@@ -2526,6 +2744,23 @@ Message:
 
 Suggestion 1/1: Replace with \`Math.log2(…)\`.:
   1 | Math.log2(/1/);
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(9): Math.log(Number[\"NaN\"]) / Math.LN2; 1`] = `
+
+  1 | Math.log(Number["NaN"]) / Math.LN2;
+
+`;
+
+exports[`prefer-modern-math-apis > invalid(9): Math.log(Number[\"NaN\"]) / Math.LN2; 2`] = `
+
+Message:
+> 1 | Math.log(Number["NaN"]) / Math.LN2;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.log2(…)\` over \`Math.log(…) / Math.LN2\`.
+
+Suggestion 1/1: Replace with \`Math.log2(…)\`.:
+  1 | Math.log2(Number["NaN"]);
 
 `;
 
