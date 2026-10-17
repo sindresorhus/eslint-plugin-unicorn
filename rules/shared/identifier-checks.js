@@ -104,6 +104,8 @@ Get the variables declared in `scope` and all its descendant scopes.
 
 A `class` declaration produces two variables in two scopes: the inner class scope, and the outer one (wherever the class is declared). They are yielded as one variable that holds the references of both.
 
+Variables without definitions (globals, `arguments`) are skipped. The global scope can hold more than a thousand of them.
+
 For why this is not an ESLint issue see https://github.com/eslint/eslint-scope/issues/48#issuecomment-464358754
 */
 export function * getAllVariables(scope) {
@@ -112,6 +114,10 @@ export function * getAllVariables(scope) {
 
 	for (const childScope of getScopes(scope)) {
 		for (const variable of childScope.variables) {
+			if (variable.defs.length === 0) {
+				continue;
+			}
+
 			if (!isClassVariable(variable)) {
 				yield variable;
 				continue;

@@ -184,8 +184,8 @@ const create = context => {
 		const scope = context.sourceCode.getScope(program);
 
 		const references = [
-			// Variables declared at globals options
-			...scope.variables.flatMap(variable => globalIdentifier.has(variable.name) ? variable.references : []),
+			// Variables declared at globals options, looked up by name since the global scope can hold more than a thousand variables
+			...[...globalIdentifier].flatMap(name => scope.set.get(name)?.references ?? []),
 			// Variables not declared at globals options
 			...scope.through.filter(reference => globalIdentifier.has(reference.identifier.name)),
 		];

@@ -492,6 +492,15 @@ const create = context => {
 			}
 
 			const nextStatement = program.body[index + 1];
+
+			// Only a declaration followed by `export default <identifier>` can be reported, and getting the declaration can walk a whole function.
+			if (
+				nextStatement?.type !== 'ExportDefaultDeclaration'
+				|| nextStatement.declaration.type !== 'Identifier'
+			) {
+				continue;
+			}
+
 			const separateDeclaration = getSeparateDeclaration(statement, context);
 
 			if (
