@@ -189,16 +189,16 @@ nodeTest('setHTML suggestions retain the receiver when assignment parentheses ar
 	const [problem] = linter.verify(code, config);
 	const {fix} = problem.suggestions[0];
 	const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
-	const execute = source => runInNewContext(source, {
-		content: '<p>text</p>',
-		element: {
+	const execute = source => {
+		const element = {
 			setHTML(content) {
-				// Model the unsafe write to compare its result with the suggested method call.
-				// eslint-disable-next-line unicorn/no-this-outside-of-class, unicorn/no-unsafe-dom-html
-				this.innerHTML = content;
+				// Model the original property write in this fake element.
+				Object.assign(element, {innerHTML: content});
 			},
-		},
-	});
+		};
+		return runInNewContext(source, {content: '<p>text</p>', element});
+	};
+
 	t.assert.strictEqual(execute(code), '<p>text</p>');
 	t.assert.strictEqual(execute(output), execute(code));
 	t.assert.deepStrictEqual(linter.verify(output, config), []);
