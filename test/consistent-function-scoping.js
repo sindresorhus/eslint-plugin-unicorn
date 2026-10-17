@@ -1086,6 +1086,17 @@ test({
 			`,
 			errors: [createError('function \'createMock\'')],
 		},
+		...['vi.mock("module", () => () => 1);', 'vi.hoisted(() => () => 1);'].map(call => ({
+			code: outdent`
+				function outer() {
+					function setup() {
+						${call}
+						function sibling() {}
+					}
+				}
+			`,
+			errors: [createError('function \'setup\''), createError('function \'sibling\'')],
+		})),
 		{
 			code: outdent`
 				const outer = function() {
@@ -1190,6 +1201,67 @@ test({
 	],
 });
 
+// #3902 - Vitest factories run before the module's top-level code.
+test.snapshot({
+	valid: [
+		outdent`
+			import {vi} from 'vitest';
+
+			vi.mock('./foo.js', () => {
+				const create = () => 1;
+				return {create};
+			});
+		`,
+		outdent`
+			import {vi} from 'vitest';
+
+			export const mocks = vi.hoisted(() => {
+				const create = () => 1;
+				return {create};
+			});
+		`,
+		...['vi.mock("module", ', 'vi.hoisted('].flatMap(call => [
+			'() => () => 1',
+			outdent`
+				function() {
+					function create() {
+						return 1;
+					}
+
+					return {create};
+				}
+			`,
+			outdent`
+				async () => {
+					const create = async () => 1;
+					return {create};
+				}
+			`,
+			outdent`
+				() => ({
+					default: function MockComponent() {
+						const create = () => 1;
+						return create();
+					},
+				})
+			`,
+		].map(factory => `${call}${factory});`)),
+		outdent`
+			vi.mock(import('./foo.js'), () => {
+				const create = () => 1;
+				return {create};
+			});
+		`,
+	],
+	invalid: [
+		'vi.doMock("module", () => () => 1);',
+		'other.mock("module", () => () => 1);',
+		'other.hoisted(() => () => 1);',
+		'vi.mock(() => () => 1);',
+		'vi.hoisted("module", () => () => 1);',
+	],
+});
+
 test.typescript({
 	testerOptions: {
 		languageOptions: {
@@ -1218,6 +1290,10 @@ test.typescript({
 
 test.typescript({
 	valid: [
+		'vi.mock<typeof import("./foo.js")>("./foo.js", () => { const create = (): number => 1; return {create}; });',
+		'vi.hoisted<{create: () => number}>(() => { const create = (): number => 1; return {create}; });',
+		...['jest.mock("module", ', 'vi.mock("module", ', 'vi.hoisted('].flatMap(call =>
+			['as', 'satisfies'].map(operator => `${call}(() => { const create = () => 1; return {create}; }) ${operator} () => unknown);`)),
 		// #372
 		outdent`
 			type Data<T> = T extends 'error' ? Error : Record<string, unknown> | unknown[]
@@ -1293,7 +1369,16 @@ test.typescript({
 			}
 		`,
 	],
-	invalid: [],
+	invalid: [
+		{
+			code: 'vi.doMock("module", (() => () => 1) as () => unknown);',
+			errors: [createError('arrow function')],
+		},
+		{
+			code: 'vi.mock("module", {get spy() { const shouldSpy = () => true; return shouldSpy(); }} as {spy: boolean});',
+			errors: [createError('arrow function \'shouldSpy\'')],
+		},
+	],
 });
 
 test.snapshot({

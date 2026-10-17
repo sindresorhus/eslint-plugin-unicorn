@@ -160,3 +160,17 @@ jest.mock('module', () => {
 	return createMock;
 });
 ```
+
+Functions inside Vitest's `vi.mock()` and `vi.hoisted()` factories are also ignored because those factories run before the module's top-level code:
+
+```js
+const mocks = vi.hoisted(() => {
+	const createMock = () => 'mock';
+	return {createMock};
+});
+
+vi.mock('module', () => {
+	const createMock = () => 'mock';
+	return {createMock};
+});
+```

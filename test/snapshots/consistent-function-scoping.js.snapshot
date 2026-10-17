@@ -16,6 +16,20 @@ Message:
 
 `;
 
+exports[`consistent-function-scoping > invalid(1): vi.doMock(\"module\", () => () => 1); 1`] = `
+
+  1 | vi.doMock("module", () => () => 1);
+
+`;
+
+exports[`consistent-function-scoping > invalid(1): vi.doMock(\"module\", () => () => 1); 2`] = `
+
+Message:
+> 1 | vi.doMock("module", () => () => 1);
+    |                              ^^ Move arrow function to the outer scope.
+
+`;
+
 exports[`consistent-function-scoping > invalid(2): function foo() {\n\tasync function bar() {}\n} 1`] = `
 
   1 | function foo() {
@@ -31,6 +45,20 @@ Message:
 > 2 | 	async function bar() {}
     | 	^^^^^^^^^^^^^^^^^^ Move async function 'bar' to the outer scope.
   3 | }
+
+`;
+
+exports[`consistent-function-scoping > invalid(2): other.mock(\"module\", () => () => 1); 1`] = `
+
+  1 | other.mock("module", () => () => 1);
+
+`;
+
+exports[`consistent-function-scoping > invalid(2): other.mock(\"module\", () => () => 1); 2`] = `
+
+Message:
+> 1 | other.mock("module", () => () => 1);
+    |                               ^^ Move arrow function to the outer scope.
 
 `;
 
@@ -52,6 +80,20 @@ Message:
 
 `;
 
+exports[`consistent-function-scoping > invalid(3): other.hoisted(() => () => 1); 1`] = `
+
+  1 | other.hoisted(() => () => 1);
+
+`;
+
+exports[`consistent-function-scoping > invalid(3): other.hoisted(() => () => 1); 2`] = `
+
+Message:
+> 1 | other.hoisted(() => () => 1);
+    |                        ^^ Move arrow function to the outer scope.
+
+`;
+
 exports[`consistent-function-scoping > invalid(4): function foo() {\n\tasync function * bar() {}\n} 1`] = `
 
   1 | function foo() {
@@ -70,6 +112,20 @@ Message:
 
 `;
 
+exports[`consistent-function-scoping > invalid(4): vi.mock(() => () => 1); 1`] = `
+
+  1 | vi.mock(() => () => 1);
+
+`;
+
+exports[`consistent-function-scoping > invalid(4): vi.mock(() => () => 1); 2`] = `
+
+Message:
+> 1 | vi.mock(() => () => 1);
+    |                  ^^ Move arrow function to the outer scope.
+
+`;
+
 exports[`consistent-function-scoping > invalid(5): function foo() {\n\tconst bar = () => {}\n} 1`] = `
 
   1 | function foo() {
@@ -85,6 +141,20 @@ Message:
 > 2 | 	const bar = () => {}
     | 	               ^^ Move arrow function 'bar' to the outer scope.
   3 | }
+
+`;
+
+exports[`consistent-function-scoping > invalid(5): vi.hoisted(\"module\", () => () => 1); 1`] = `
+
+  1 | vi.hoisted("module", () => () => 1);
+
+`;
+
+exports[`consistent-function-scoping > invalid(5): vi.hoisted(\"module\", () => () => 1); 2`] = `
+
+Message:
+> 1 | vi.hoisted("module", () => () => 1);
+    |                               ^^ Move arrow function to the outer scope.
 
 `;
 
