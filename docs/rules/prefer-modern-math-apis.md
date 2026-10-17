@@ -4,12 +4,14 @@
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
-🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
 Standard `Math` methods express mathematical intent directly and are less error-prone than reimplementing them.
+
+Replacements can change rounding, overflow, or underflow behavior. The rule provides an autofix only when it can prove the change preserves behavior; otherwise, it offers a suggestion.
 
 Math additions in ES2015:
 
@@ -31,7 +33,7 @@ Math additions in ES2015:
 - [Math.imul()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/imul)
 - [Math.fround()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/fround)
 
-Currently, we only check a few known cases, but we are open to add more patterns.
+Currently, we only check a few known cases, but we are open to adding more patterns.
 
 If you find a suitable case for this rule, please [open an issue](https://github.com/sindresorhus/eslint-plugin-unicorn/issues/new?title=%20%60prefer-modern-math-apis%60%20%20change%20request&labels=evaluating).
 
