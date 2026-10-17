@@ -763,3 +763,33 @@ test({
 		},
 	],
 });
+
+// Both the import and export can separate expressions without semicolons.
+test({
+	valid: [],
+	invalid: [
+		...[
+			['export {foo};', 'foo'],
+			['export default foo;', 'foo as default'],
+			['export const bar = foo;', 'foo as bar'],
+		].map(([declaration, specifier]) => ({
+			code: `import {foo} from "foo";\nlog()\n${declaration}\n[1].forEach(log);`,
+			output: `\nlog()\n;\n[1].forEach(log);\nexport {${specifier}} from "foo";`,
+			errors: 1,
+		})),
+		{
+			code: 'log()\nimport {foo} from "foo";\n[1].forEach(log);\nexport {foo};',
+			output: 'log()\n;\n[1].forEach(log);\n\nexport {foo} from "foo";',
+			errors: 1,
+		},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: 'log()\nimport {foo} from "foo";\nexport {foo};\n[1].forEach(log);',
+		output: 'log()\n;\n\n[1].forEach(log);\nexport {foo} from "foo";',
+		errors: 1,
+	}],
+});

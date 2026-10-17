@@ -14,6 +14,7 @@ import {
 	getParenthesizedRange,
 	getStaticNumberValue,
 	hasCommentInRange,
+	isReferenceContext,
 	isTypeScriptFile,
 	needsSemicolon,
 	unwrapTypeScriptExpression,
@@ -479,7 +480,7 @@ const create = context => {
 			messageId,
 		};
 
-		if (sourceCode.getCommentsInside(node).length === 0) {
+		if (!isReferenceContext(node) && sourceCode.getCommentsInside(node).length === 0) {
 			problem.suggest = [{
 				messageId: suggestionMessageId,
 				* fix(fixer) {

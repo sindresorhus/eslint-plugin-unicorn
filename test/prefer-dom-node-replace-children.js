@@ -260,8 +260,9 @@ document.createElement(options.tagName).innerHTML = '';`,
 					...replaceAndAddSuggestion,
 					output: outdent`
 						const value = foo
+						;
 						// Keep this comment.
-						;(element).replaceChildren(child);
+						(element).replaceChildren(child);
 					`,
 				}],
 			}],

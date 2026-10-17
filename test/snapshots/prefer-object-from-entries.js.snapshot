@@ -917,8 +917,9 @@ Message:
   5 | [1].forEach(foo);
 
 Output:
-  1 | const object = Object.fromEntries(pairs);
-  2 | [1].forEach(foo);
+  1 | const object = Object.fromEntries(pairs)
+  2 | ;
+  3 | [1].forEach(foo);
 
 `;
 
@@ -945,8 +946,9 @@ Message:
   5 | (foo)();
 
 Output:
-  1 | const object = Object.fromEntries(pairs);
-  2 | (foo)();
+  1 | const object = Object.fromEntries(pairs)
+  2 | ;
+  3 | (foo)();
 
 `;
 
@@ -973,8 +975,9 @@ Message:
   5 | \`foo\`;
 
 Output:
-  1 | const object = Object.fromEntries(pairs);
-  2 | \`foo\`;
+  1 | const object = Object.fromEntries(pairs)
+  2 | ;
+  3 | \`foo\`;
 
 `;
 
@@ -1001,8 +1004,9 @@ Message:
   5 | +foo;
 
 Output:
-  1 | const object = Object.fromEntries(pairs);
-  2 | +foo;
+  1 | const object = Object.fromEntries(pairs)
+  2 | ;
+  3 | +foo;
 
 `;
 
@@ -1046,8 +1050,9 @@ Message:
   5 | /foo/.test(bar);
 
 Output:
-  1 | const object = Object.fromEntries(pairs);
-  2 | /foo/.test(bar);
+  1 | const object = Object.fromEntries(pairs)
+  2 | ;
+  3 | /foo/.test(bar);
 
 `;
 
@@ -1075,7 +1080,8 @@ Message:
 
 Output:
   1 | const object = Object.fromEntries(pairs)
-  2 | foo();
+  2 | ;
+  3 | foo();
 
 `;
 

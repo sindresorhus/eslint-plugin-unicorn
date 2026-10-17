@@ -128,7 +128,7 @@ Message:
 
 Output:
   1 | function foo() {
-  2 | 	return ( // comment
+  2 | 	return (// comment
   3 | 		Response.json(data))
   4 | }
 

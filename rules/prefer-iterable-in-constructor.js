@@ -8,7 +8,6 @@ import {
 	getParenthesizedText,
 	isReferencedByNestedFunction,
 	isSameIdentifier,
-	needsSemicolon,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {
@@ -178,25 +177,15 @@ const getConstructorReplacementText = (newExpression, sourceNode, context) => {
 
 const getFix = (problem, context) => {
 	const {
-		declaration,
 		loop,
 		newExpression,
 		sourceNode,
 	} = problem;
 
 	return function * (fixer) {
-		const {sourceCode} = context;
 		yield fixer.replaceText(newExpression, getConstructorReplacementText(newExpression, sourceNode, context));
 
 		// Removing the loop exposes the declaration to the following statement.
-		const tokenAfter = sourceCode.getTokenAfter(loop);
-		if (
-			tokenAfter
-			&& needsSemicolon(sourceCode.getLastToken(declaration), context, tokenAfter.value)
-		) {
-			yield fixer.insertTextAfter(declaration, ';');
-		}
-
 		yield removeStatement(loop, context, fixer);
 	};
 };
@@ -260,7 +249,6 @@ const getLoopProblem = (declaration, context) => {
 
 	const range = [context.sourceCode.getRange(declaration)[0], context.sourceCode.getRange(loop)[1]];
 	const fix = getFix({
-		declaration,
 		loop,
 		newExpression,
 		sourceNode,

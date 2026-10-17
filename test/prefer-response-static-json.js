@@ -99,3 +99,14 @@ test({
 		},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function create() {return new // keep\nResponse(JSON.stringify({})).ok}',
+			output: 'function create() {return (// keep\nResponse.json({})).ok}',
+			errors: 1,
+		},
+	],
+});

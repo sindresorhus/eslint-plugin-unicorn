@@ -4,6 +4,7 @@ import {
 	isMemberExpression,
 } from './ast/index.js';
 import builtinErrors from './shared/builtin-errors.js';
+import {needsSemicolon} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-useless-error-capture-stack-trace/error';
 const messages = {
@@ -127,7 +128,11 @@ const create = context => {
 			// The whole statement is removed, so a comment inside it would be lost
 			&& context.sourceCode.getCommentsInside(maybeExpressionStatement).length === 0
 		) {
-			problem.fix = fixer => fixer.remove(maybeExpressionStatement);
+			problem.fix = fixer => {
+				const {sourceCode} = context;
+				const replacement = needsSemicolon(sourceCode.getTokenBefore(maybeExpressionStatement), context) ? ';' : '';
+				return fixer.replaceText(maybeExpressionStatement, replacement);
+			};
 		}
 
 		return problem;

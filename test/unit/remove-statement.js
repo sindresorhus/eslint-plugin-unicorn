@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
 import removeStatement from '../../rules/fix/remove-statement.js';
 import {DEFAULT_LANGUAGE_OPTIONS} from '../utils/language-options.js';
@@ -130,4 +131,34 @@ test('removes a single statement in an array like the statement itself', t => {
 	]) {
 		t.assert.strictEqual(fixGroup(code), fix(code), code);
 	}
+});
+
+test('preserves the boundary between surrounding expressions', t => {
+	for (const expression of ['[1].map(bar)', '(bar)()', '`template`', '/pattern/.test(bar)', '+bar', '-bar']) {
+		t.assert.strictEqual(fix(`bar()\nfoo();\n${expression}`), `bar()\n;\n${expression}`);
+		t.assert.strictEqual(fix(`bar()\r\n\tfoo();\r\n${expression}`), `bar()\r\n\t;\r\n${expression}`);
+		t.assert.strictEqual(fixGroup(`bar()\nfoo(1);\nfoo(2);\n${expression}`), `bar()\n;\n${expression}`);
+	}
+});
+
+test('preserves boundaries independently of the following statement', t => {
+	t.assert.strictEqual(fix('bar()\nfoo();\nbaz()'), 'bar()\n;\nbaz()');
+	t.assert.strictEqual(fix('bar();\nfoo();\n[1].map(bar)'), 'bar();\n[1].map(bar)');
+	t.assert.strictEqual(fix('foo();\n[1].map(bar)'), '[1].map(bar)');
+	t.assert.strictEqual(fix('function bar() {}\nfoo();\n[1].map(bar)'), 'function bar() {}\n[1].map(bar)');
+	t.assert.strictEqual(fix('class Bar {}\nfoo();\n[1].map(bar)'), 'class Bar {}\n[1].map(bar)');
+});
+
+test('keeps surrounding expressions separate at runtime', t => {
+	const code = 'const result = []\nresult.push(1)\nfoo();\n[2].forEach(value => result.push(value));\nreturn result;';
+	const output = fix(`function run() {\n${code}\n}`);
+	t.assert.deepStrictEqual([...runInNewContext(`${output}\nrun();`)], [1, 2]);
+});
+
+test('preserves the boundary when adjacent statements are removed together', t => {
+	t.assert.strictEqual(fix('bar()\nfoo(1); foo(2);\n[1].map(bar)'), 'bar()\n; \n[1].map(bar)');
+});
+
+test('keeps a separator outside a preceding line comment', t => {
+	t.assert.strictEqual(fix('bar() // keep\nfoo();\n[1].map(bar)'), 'bar() // keep\n;\n[1].map(bar)');
 });

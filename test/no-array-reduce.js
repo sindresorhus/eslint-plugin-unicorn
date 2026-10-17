@@ -8,6 +8,27 @@ const {test} = getTester(import.meta);
 const errorsReduce = [{messageId: 'reduce'}];
 const errorsReduceRight = [{messageId: 'reduceRight'}];
 
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const array = [1, 2]; const result = array.reduce((total, item) => Math.max(total, item), (0, 10));',
+			output: outdent`
+				const array = [1, 2]; let result = (0, 10);
+
+				for (const [index, item] of array.entries()) {
+					if (!(index in array)) {
+						continue;
+					}
+
+					result = Math.max(result, item);
+				}
+			`,
+			errors: errorsReduce,
+		},
+	],
+});
+
 // Resolves inferred element types (e.g. `number[]`) via the TypeScript type checker
 const typeAware = (code, options) => ({
 	code,

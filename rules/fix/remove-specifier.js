@@ -1,4 +1,5 @@
 import {isCommaToken, isOpeningBraceToken} from '@eslint-community/eslint-utils';
+import {needsSemicolon} from '../utils/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
@@ -13,15 +14,16 @@ import {isCommaToken, isOpeningBraceToken} from '@eslint-community/eslint-utils'
 @returns {ESLint.Rule.ReportFixer}
 */
 export default function * removeSpecifier(specifier, fixer, context, keepDeclaration = false) {
+	const {sourceCode} = context;
 	const declaration = specifier.parent;
 	const {specifiers} = declaration;
 
 	if (specifiers.length === 1 && !keepDeclaration) {
-		yield fixer.remove(declaration);
+		const tokenBefore = sourceCode.getTokenBefore(declaration);
+		yield fixer.replaceText(declaration, needsSemicolon(tokenBefore, context) ? ';' : '');
 		return;
 	}
 
-	const {sourceCode} = context;
 	switch (specifier.type) {
 		case 'ImportSpecifier': {
 			const isTheOnlyNamedImport = specifiers.every(node => specifier === node || specifier.type !== node.type);

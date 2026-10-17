@@ -187,7 +187,7 @@ test({
 	valid: [],
 	invalid: [{
 		code: 'const collection = new Set()\r\nfor (const value of values) { collection.add(value); }\r\n(() => {})()',
-		output: 'const collection = new Set(values);\r\n(() => {})()',
+		output: 'const collection = new Set(values)\r\n;\r\n(() => {})()',
 		errors: [{messageId: 'prefer-iterable-in-constructor'}],
 	}],
 });

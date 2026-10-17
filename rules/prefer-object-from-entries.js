@@ -12,7 +12,6 @@ import {
 	isKnownNonArray,
 	isNodeMatchesNameOrPath,
 	isSameIdentifier,
-	needsSemicolon,
 } from './utils/index.js';
 import {isCallExpression} from './ast/call-or-new-expression.js';
 import {
@@ -271,14 +270,6 @@ const getForOfLoopProblem = (declaration, context) => {
 			}
 
 			// The `for…of` statement disappears, so the declaration becomes an expression statement the next statement could continue
-			const tokenAfter = context.sourceCode.getTokenAfter(loop);
-			if (
-				tokenAfter
-				&& needsSemicolon(context.sourceCode.getLastToken(declaration), context, tokenAfter.value)
-			) {
-				yield fixer.insertTextAfter(declaration, ';');
-			}
-
 			yield fixer.replaceText(init, `Object.fromEntries(${getParenthesizedText(loop.right, context)})`);
 			yield removeStatement(loop, context, fixer);
 		},

@@ -10,8 +10,6 @@ import {
 import {
 	getParenthesizedRange,
 	hasCommentInRange,
-	isParenthesized,
-	needsSemicolon,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -81,14 +79,6 @@ const create = context => {
 			yield switchNewExpressionToCallExpression(newExpression, context, fixer);
 			yield fixer.removeRange(removedRangeBefore);
 			yield fixer.removeRange(removedRangeAfter);
-
-			if (
-				!isParenthesized(newExpression, context)
-				&& isParenthesized(newExpression.callee, context)
-				&& needsSemicolon(context.sourceCode.getTokenBefore(newExpression), context, '(')
-			) {
-				yield fixer.insertTextBefore(newExpression, ';');
-			}
 		};
 
 		return problem;

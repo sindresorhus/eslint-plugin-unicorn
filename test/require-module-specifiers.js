@@ -161,3 +161,30 @@ test.snapshot({
 		typescriptCode('import type {/* keep */} from "foo";'),
 	],
 });
+
+// Removing a declaration must not join the expressions around it.
+test({
+	valid: [],
+	invalid: [
+		{
+			...typescriptCode('log()\nimport type {} from "foo";\n[1].forEach(log);'),
+			output: 'log()\n;\n[1].forEach(log);',
+			errors: 1,
+		},
+		{
+			code: 'export const value = 1;\nlog()\nexport {};\n[1].forEach(log);',
+			output: 'export const value = 1;\nlog()\n;\n[1].forEach(log);',
+			errors: 1,
+		},
+		{
+			code: 'log()\nimport {} from "foo";\n[1].forEach(log);',
+			errors: [{
+				messageId: 'error',
+				suggestions: [
+					{messageId: 'suggestion/remove-declaration', output: 'log()\n;\n[1].forEach(log);'},
+					{messageId: 'suggestion/to-side-effect-import', output: 'log()\nimport   "foo";\n[1].forEach(log);'},
+				],
+			}],
+		},
+	],
+});

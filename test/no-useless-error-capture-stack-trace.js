@@ -242,3 +242,14 @@ test({
 		},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'class MyError extends Error {constructor() {super()\nError.captureStackTrace(this, MyError);\n[1].forEach(use)}}',
+			output: 'class MyError extends Error {constructor() {super()\n;\n[1].forEach(use)}}',
+			errors: 1,
+		},
+	],
+});

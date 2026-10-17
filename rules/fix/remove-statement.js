@@ -1,9 +1,10 @@
 import {isSemicolonToken} from '@eslint-community/eslint-utils';
+import needsSemicolon from '../utils/needs-semicolon.js';
 
 const isWhitespaceOnly = text => /^\s*$/.test(text);
 
 /**
-Remove a statement, or an array of consecutive statements (first to last), along with the surrounding whitespace, while preserving comments.
+Remove a statement, or an array of consecutive statements (first to last), along with the surrounding whitespace, while preserving comments. When the preceding expression needs a boundary, replace only the statements with a semicolon.
 
 @param {import('estree').Statement | import('estree').Statement[]} statements - A statement, or an array of consecutive statements. Everything from the first to the last statement is removed, including comments between them.
 @param {import('eslint').Rule.RuleContext} context
@@ -15,6 +16,12 @@ export default function removeStatement(statements, context, fixer, preserveSemi
 	const {sourceCode} = context;
 	const {lines} = sourceCode;
 	const [firstStatement, lastStatement] = Array.isArray(statements) ? [statements[0], statements.at(-1)] : [statements, statements];
+
+	// Removing statements can expose the preceding expression to a following continuation. Preserve the boundary independently of other fixes removing surrounding statements.
+	if (needsSemicolon(sourceCode.getTokenBefore(firstStatement), context)) {
+		return fixer.replaceTextRange([sourceCode.getRange(firstStatement)[0], sourceCode.getRange(lastStatement)[1]], ';');
+	}
+
 	let endToken = lastStatement;
 
 	if (preserveSemiColon) {

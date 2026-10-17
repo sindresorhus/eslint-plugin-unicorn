@@ -3,6 +3,22 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'Object.defineProperty(object, (0, "a"), {value: 1});\nObject.defineProperty(object, ((0, "b")), {value: 2});',
+			output: 'Object.defineProperties(object, {\n\t[(0, "a")]: {value: 1},\n\t[((0, "b"))]: {value: 2},\n});',
+			errors: 1,
+		},
+		{
+			code: 'Object.defineProperty(object, "a", (0, {value: 1}));\nObject.defineProperty(object, "b", ((0, {value: 2})));',
+			output: 'Object.defineProperties(object, {\n\ta: (0, {value: 1}),\n\tb: ((0, {value: 2})),\n});',
+			errors: 1,
+		},
+	],
+});
+
 test.snapshot({
 	valid: [
 		'Object.defineProperty(foo, "bar", {value: 1});',

@@ -7,6 +7,8 @@ import {
 } from './fix/index.js';
 import {
 	isLeftHandSide,
+	isReferenceContext,
+	getOutermostChainAndTypeScriptExpression,
 	singular,
 	getParenthesizedRange,
 	getScopes,
@@ -186,7 +188,8 @@ const isAccessingZeroIndex = node =>
 	&& node.parent.property.type === 'Literal'
 	&& node.parent.property.raw === '0'
 	// Writing to the first element is not the same as reading from it
-	&& !isLeftHandSide(node.parent);
+	&& !isLeftHandSide(node.parent)
+	&& !isReferenceContext(getOutermostChainAndTypeScriptExpression(node.parent));
 
 const isDestructuringFirstElement = node => {
 	const {left, right} = getDestructuringLeftAndRight(node.parent);
@@ -222,7 +225,10 @@ const create = context => {
 			messageId: ERROR_ZERO_INDEX,
 		};
 
-		if (!hasCommentAfterFilterCall(node.object, node, context)) {
+		if (
+			!isReferenceContext(getOutermostChainAndTypeScriptExpression(node))
+			&& !hasCommentAfterFilterCall(node.object, node, context)
+		) {
 			problem.fix = fixer => [
 				fixer.replaceText(node.object.callee.property, 'find'),
 				removeMemberExpressionProperty(fixer, node, context),
@@ -445,7 +451,10 @@ const create = context => {
 			node: filterCall.callee.property,
 			messageId: ERROR_SLICE_MINUS_ONE,
 			* fix(fixer, {abort}) {
-				if (hasCommentAfterFilterCall(filterCall, node, context)) {
+				if (
+					isReferenceContext(getOutermostChainAndTypeScriptExpression(node))
+					|| hasCommentAfterFilterCall(filterCall, node, context)
+				) {
 					return abort();
 				}
 

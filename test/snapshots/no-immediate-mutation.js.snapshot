@@ -3714,8 +3714,9 @@ Message:
   3 | [1].map(callback)
 
 Output:
-  1 | const array = [ ...((enabled) ? [value] : [])];
-  2 | [1].map(callback)
+  1 | const array = [ ...((enabled) ? [value] : [])]
+  2 | ;
+  3 | [1].map(callback)
 
 `;
 
@@ -3759,8 +3760,9 @@ Message:
 
 Output:
   1 | let array
-  2 | array = [ ...((enabled) ? [value] : [other])];
-  3 | (functionCall)()
+  2 | array = [ ...((enabled) ? [value] : [other])]
+  3 | ;
+  4 | (functionCall)()
 
 `;
 
@@ -3786,8 +3788,8 @@ Message:
     | ^ Immediate mutation on array is not allowed.
 
 Output:
-  1 | const array = [ ...((enabled) ? [value] : [])];
-  2 | [1].map(callback)
+  1 | const array = [ ...((enabled) ? [value] : [])]
+  2 | ;[1].map(callback)
 
 `;
 
@@ -3839,8 +3841,9 @@ Message:
   3 | [1].map(callback)
 
 Output:
-  1 | const map = new Map([...((enabled) ? [[key, value]] : [])]);
-  2 | [1].map(callback)
+  1 | const map = new Map([...((enabled) ? [[key, value]] : [])])
+  2 | ;
+  3 | [1].map(callback)
 
 `;
 
@@ -3907,8 +3910,9 @@ Message:
   3 | <Component />
 
 Output:
-  1 | const array = [ ...((enabled) ? [value] : [])];
-  2 | <Component />
+  1 | const array = [ ...((enabled) ? [value] : [])]
+  2 | ;
+  3 | <Component />
 
 `;
 

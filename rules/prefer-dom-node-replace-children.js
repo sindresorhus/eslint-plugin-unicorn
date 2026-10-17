@@ -294,9 +294,6 @@ function * removeStatementBefore(statement, nextStatement, context, fixer) {
 	}
 
 	yield removeStatement(statement, context, fixer);
-	if (shouldAddSemicolon) {
-		yield fixer.insertTextBefore(nextStatement, ';');
-	}
 }
 
 const getReplaceAndAddProblem = (context, node) => {

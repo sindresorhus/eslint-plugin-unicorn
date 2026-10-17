@@ -28,7 +28,6 @@ import {
 	isNewExpressionWithParentheses,
 	isParenthesized,
 	isTypeScriptFile,
-	needsSemicolon,
 	unwrapTypeScriptExpression,
 	wouldRemoveComments,
 } from './utils/index.js';
@@ -103,16 +102,6 @@ function isCallExpressionWithOptionalArrayExpression(newExpression, names) {
 
 function * removeStatementAfterAssign(statement, context, fixer) {
 	const tokenBefore = context.sourceCode.getTokenBefore(statement);
-	if (statement.type === 'IfStatement') {
-		const tokenAfter = context.sourceCode.getTokenAfter(statement);
-		if (tokenAfter && needsSemicolon(tokenBefore, context, tokenAfter.value)) {
-			yield fixer.insertTextAfter(tokenBefore, ';');
-		}
-
-		yield removeStatement(statement, context, fixer);
-		return;
-	}
-
 	const shouldPreserveSemiColon = !isSemicolonToken(tokenBefore);
 	yield removeStatement(statement, context, fixer, shouldPreserveSemiColon);
 }

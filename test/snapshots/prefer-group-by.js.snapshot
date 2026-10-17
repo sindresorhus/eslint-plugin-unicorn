@@ -440,8 +440,9 @@ Message:
   3 | (() => {})()
 
 Output:
-  1 | const groups = Object.groupBy(items, item => item.type);
-  2 | (() => {})()
+  1 | const groups = Object.groupBy(items, item => item.type)
+  2 | ;
+  3 | (() => {})()
 
 `;
 
@@ -476,8 +477,9 @@ Message:
   3 | [1].map(foo)
 
 Output:
-  1 | const groups = Map.groupBy(items, item => item.type);
-  2 | [1].map(foo)
+  1 | const groups = Map.groupBy(items, item => item.type)
+  2 | ;
+  3 | [1].map(foo)
 
 `;
 

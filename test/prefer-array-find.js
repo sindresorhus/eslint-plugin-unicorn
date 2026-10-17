@@ -29,6 +29,50 @@ const getSuggestionError = (messageId, output, method = 'find') => ({
 	suggestions: [{messageId: SUGGESTION_ID, data: {method}, output}],
 });
 
+// Replacing indexed function values must preserve their call or tag receiver.
+test({
+	valid: [
+		'const items = array.filter(value => true); items[0]();',
+		'let foo = array.filter(bar);foo[0](foo[0])[foo[0]];',
+		'const items = array.filter(value => true); items[0]`template`;',
+		{
+			code: 'const items = array.filter(value => true); items[0]!();',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [
+		...[
+			'array.filter(value => true)[0]()',
+			'array.filter(predicate)[0]()',
+			'array.filter(value => true)[0]?.()',
+			'array.filter(value => true)[0]`template`',
+			'array?.filter(value => true)[0]()',
+			'(array?.filter(value => true)[0])()',
+			'array.filter(value => true).slice(-1)[0]()',
+			'array.filter(value => true).slice(-1)[0]`template`',
+		].map(code => ({code, errors: [{messageId: code.includes('.slice(-1)') ? ERROR_SLICE_MINUS_ONE : ERROR_ZERO_INDEX, suggestions: []}]})),
+		...[
+			'array.filter(value => true)[0]!()',
+			'(array.filter(value => true)[0] as Function)()',
+			'(array.filter(value => true)[0] satisfies Function)`template`',
+			'array.filter(value => true).slice(-1)[0]!()',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}, errors: [{messageId: code.includes('.slice(-1)') ? ERROR_SLICE_MINUS_ONE : ERROR_ZERO_INDEX, suggestions: []}]})),
+	],
+});
+
+nodeTest('indexed calls retain their original receiver', t => {
+	for (const code of [
+		'const array = [function () { return this.length; }]; array.filter(value => true)[0]();',
+		'const array = [function () { return this.length; }]; array.filter(value => true).slice(-1)[0]();',
+		'const array = [function () { return this.length; }]; const items = array.filter(value => true); items[0]();',
+	]) {
+		const {output, fixed} = linter.verifyAndFix(code, linterConfig);
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(fixed, false);
+		t.assert.strictEqual(runInNewContext(output), 1);
+	}
+});
+
 nodeTest('side-effect-free inline callbacks are autofixed', t => {
 	for (const callback of ['value => value.id > 1', 'function (value) { return value.id > 1; }', '({id}) => id > 1', '(value, index) => index > 0 && value.id > 1']) {
 		for (const values of ['[]', '[{id: 0}, {id: 1}]', '[{id: 2}, {id: 0}, {id: 3}]']) {
@@ -782,10 +826,6 @@ test({
 			errors: [{messageId: ERROR_DECLARATION}],
 		},
 		// Many
-		{
-			code: 'let foo = array.filter(bar);foo[0](foo[0])[foo[0]];',
-			errors: [getSuggestionError(ERROR_DECLARATION, 'let foo = array.find(bar);foo(foo)[foo];')],
-		},
 		{
 			code: outdent`
 				let baz;

@@ -1,8 +1,11 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 const typeAware = code => ({
 	code,
@@ -59,6 +62,65 @@ test({
 			errors: 1,
 		},
 	],
+});
+
+// Accessing a method or tag must preserve the original receiver.
+test({
+	valid: [
+		'array[array.length - 1]()',
+		'array[array.length - 1]?.()',
+		'array[array.length - 1]`template`',
+		'array?.[array.length - 1]()',
+		'(array?.[array.length - 1])()',
+		'array.slice(-1)[0]()',
+		'array.slice(-1)[0]`template`',
+		'(array?.slice(-1)[0])()',
+		...referenceWrappers.flatMap(wrap => [
+			typescript(`${wrap('array[array.length - 1]')}()`),
+			typescript(`${wrap('array.slice(-1)[0]')}\`template\``),
+		]),
+		{code: 'array[0]()', options: [{checkAllIndexAccess: true}]},
+	],
+	invalid: [
+		...[
+			['new array[array.length - 1]()', 'new (array.at(-1))()'],
+			['new array[array.length - 1].Constructor()', 'new (array.at(-1)).Constructor()'],
+			['new array[array.length - 1].tag`template`()', 'new (array.at(-1)).tag`template`()'],
+			['new (array[array.length - 1])()', 'new (array.at(-1))()'],
+			['new (array[array.length - 1].Constructor)()', 'new (array.at(-1).Constructor)()'],
+			['new array[array.length - /* keep */ 1]()', 'new (array.at(- /* keep */ 1))()'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+		{
+			...typescript('new array[array.length - 1]!.Constructor()'),
+			output: 'new (array.at(-1))!.Constructor()',
+			errors: 1,
+		},
+		{
+			code: 'new array[0]()',
+			output: 'new (array.at(0))()',
+			options: [{checkAllIndexAccess: true}],
+			errors: 1,
+		},
+	],
+});
+
+nodeTest('index replacements preserve constructor grouping and method receivers', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-at': rule}}},
+		rules: {'unicorn/prefer-at': 'error'},
+	};
+	for (const code of [
+		'const array = [class { value = 1; }]; new array[array.length - 1]().value;',
+		'const array = [{Constructor: class { value = 1; }}]; new array[array.length - 1].Constructor().value;',
+		'const array = [{tag() { return class { value = 1; }; }}]; new array[array.length - 1].tag`template`().value;',
+		'const array = [function () { return this === array; }]; array[array.length - 1]();',
+		'const array = [function () { return this.length; }]; array.slice(-1)[0]();',
+	]) {
+		const {output, messages} = linter.verifyAndFix(code, config);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
+	}
 });
 
 test({

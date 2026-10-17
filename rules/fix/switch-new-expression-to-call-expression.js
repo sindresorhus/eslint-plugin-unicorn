@@ -1,9 +1,9 @@
 import {
 	isNewExpressionWithParentheses,
-	isParenthesized,
+	getUnparenthesizedKeywordArgumentParent,
+	needsSemicolon,
 	isOnSameLine,
 } from '../utils/index.js';
-import addParenthesesToReturnOrThrowExpression from './add-parentheses-to-return-or-throw-expression.js';
 import removeSpaceAfter from './remove-spaces-after.js';
 
 /**
@@ -18,8 +18,11 @@ import removeSpaceAfter from './remove-spaces-after.js';
 @returns {ESLint.Rule.ReportFixer}
 */
 export default function * switchNewExpressionToCallExpression(newExpression, context, fixer) {
-	const newToken = context.sourceCode.getFirstToken(newExpression);
-	yield fixer.remove(newToken);
+	const {sourceCode} = context;
+	const newToken = sourceCode.getFirstToken(newExpression);
+	const shouldParenthesize = !isOnSameLine(newToken, newExpression.callee, context)
+		&& Boolean(getUnparenthesizedKeywordArgumentParent(newExpression, context));
+	yield fixer.replaceText(newToken, shouldParenthesize ? '(' : '');
 	yield removeSpaceAfter(newToken, context, fixer);
 
 	if (!isNewExpressionWithParentheses(newExpression, context)) {
@@ -27,7 +30,7 @@ export default function * switchNewExpressionToCallExpression(newExpression, con
 	}
 
 	/*
-		Remove `new` from this code will makes the function return `undefined`
+		Removing `new` from this code would make the function return `undefined`.
 
 		```js
 			() => {
@@ -36,9 +39,13 @@ export default function * switchNewExpressionToCallExpression(newExpression, con
 			}
 		```
 	*/
-	if (!isOnSameLine(newToken, newExpression.callee, context) && !isParenthesized(newExpression, context)) {
-		// Ideally, we should use first parenthesis of the `callee`, and should check spaces after the `new` token
-		// But adding extra parentheses is harmless, no need to be too complicated
-		yield addParenthesesToReturnOrThrowExpression(fixer, newExpression.parent, context);
+	if (shouldParenthesize) {
+		// Group the replacement before its leading comment, including when a surrounding expression is returned, thrown, or yielded.
+		yield fixer.insertTextAfter(newExpression, ')');
+	}
+
+	const nextToken = sourceCode.getTokenAfter(newToken);
+	if (needsSemicolon(sourceCode.getTokenBefore(newExpression), context, nextToken.value)) {
+		yield fixer.insertTextBefore(newExpression, ';');
 	}
 }
