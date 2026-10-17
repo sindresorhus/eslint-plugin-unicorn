@@ -1,6 +1,11 @@
 import test from 'node:test';
 import {Linter} from 'eslint';
-import isArray, {isKnownNonArray, isKnownNonIndexedCollection, isKnownBigIntTypedArray} from '../../rules/utils/is-array.js';
+import isArray, {
+	isIndexedCollection,
+	isKnownNonArray,
+	isKnownNonIndexedCollection,
+	isKnownBigIntTypedArray,
+} from '../../rules/utils/is-array.js';
 import typedArray from '../../rules/shared/typed-array.js';
 import parsers from '../utils/parsers.js';
 
@@ -37,6 +42,7 @@ const getReceiverVerdicts = code => {
 								const receiver = node.callee.object;
 								verdicts ??= {
 									isArray: isArray(receiver, context),
+									isIndexedCollection: isIndexedCollection(receiver, context),
 									isKnownNonArray: isKnownNonArray(receiver, context),
 									isKnownNonIndexedCollection: isKnownNonIndexedCollection(receiver, context),
 									isKnownBigIntTypedArray: isKnownBigIntTypedArray(receiver, context),
@@ -69,6 +75,7 @@ test('`isKnownNonArray` and `isKnownNonIndexedCollection` treat a typed array as
 			const verdicts = getReceiverVerdicts(code);
 
 			t.assert.strictEqual(verdicts.isKnownNonArray, true, `A typed array is not an array: ${code}`);
+			t.assert.strictEqual(verdicts.isIndexedCollection, true, code);
 			t.assert.strictEqual(verdicts.isKnownNonIndexedCollection, false, `A typed array is an indexed collection: ${code}`);
 		}
 	}
@@ -81,6 +88,7 @@ test('typed-array factories remain non-arrays and indexed collections', t => {
 				const verdicts = getReceiverVerdicts(code);
 
 				t.assert.strictEqual(verdicts.isArray, false, code);
+				t.assert.strictEqual(verdicts.isIndexedCollection, true, code);
 				t.assert.strictEqual(verdicts.isKnownNonArray, true, code);
 				t.assert.strictEqual(verdicts.isKnownNonIndexedCollection, false, code);
 				t.assert.strictEqual(verdicts.isKnownBigIntTypedArray, typeName.startsWith('Big'), code);
@@ -99,6 +107,7 @@ test('unknown and optional factory calls remain unknown', t => {
 		const verdicts = getReceiverVerdicts(code);
 
 		t.assert.strictEqual(verdicts.isArray, false, code);
+		t.assert.strictEqual(verdicts.isIndexedCollection, false, code);
 		t.assert.strictEqual(verdicts.isKnownNonArray, false, code);
 		t.assert.strictEqual(verdicts.isKnownNonIndexedCollection, false, code);
 	}
@@ -110,6 +119,7 @@ test('both checkers agree that a keyed collection is neither', t => {
 			const verdicts = getReceiverVerdicts(code);
 
 			t.assert.strictEqual(verdicts.isKnownNonArray, true, `Unexpected verdict for: ${code}`);
+			t.assert.strictEqual(verdicts.isIndexedCollection, false, code);
 			t.assert.strictEqual(verdicts.isKnownNonIndexedCollection, true, `Unexpected verdict for: ${code}`);
 		}
 	}
@@ -149,6 +159,7 @@ test('both checkers agree that an array is neither a non-array nor a non-indexed
 		const verdicts = getReceiverVerdicts(code);
 
 		t.assert.strictEqual(verdicts.isArray, true, `Unexpected verdict for: ${code}`);
+		t.assert.strictEqual(verdicts.isIndexedCollection, true, code);
 		t.assert.strictEqual(verdicts.isKnownNonArray, false, `Unexpected verdict for: ${code}`);
 		t.assert.strictEqual(verdicts.isKnownNonIndexedCollection, false, `Unexpected verdict for: ${code}`);
 	}
@@ -165,6 +176,7 @@ test('both checkers agree that an unknown receiver is not known to be anything',
 		const verdicts = getReceiverVerdicts(code);
 
 		t.assert.strictEqual(verdicts.isArray, false, `Unexpected verdict for: ${code}`);
+		t.assert.strictEqual(verdicts.isIndexedCollection, false, code);
 		t.assert.strictEqual(verdicts.isKnownNonArray, false, `Unexpected verdict for: ${code}`);
 		t.assert.strictEqual(verdicts.isKnownNonIndexedCollection, false, `Unexpected verdict for: ${code}`);
 	}
@@ -221,9 +233,14 @@ test('array checkers leave unsupported local function returns unknown', t => {
 });
 
 test('a union is only known when every member is', t => {
-	// A typed array member makes the union an indexed collection but still not an array
+	const indexed = getReceiverVerdicts('function foo(receiver: number[] | Uint8Array) { receiver.method(); }');
+
+	t.assert.strictEqual(indexed.isIndexedCollection, true);
+
+	// Every member is a non-array, but only one is an indexed collection
 	const mixed = getReceiverVerdicts('function foo(receiver: Uint8Array | Set<number>) { receiver.method(); }');
 	t.assert.strictEqual(mixed.isKnownNonArray, true);
+	t.assert.strictEqual(mixed.isIndexedCollection, false);
 	t.assert.strictEqual(mixed.isKnownNonIndexedCollection, false);
 
 	// An array member makes it neither

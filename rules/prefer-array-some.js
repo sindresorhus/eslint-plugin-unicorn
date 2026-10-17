@@ -1,10 +1,11 @@
 import {checkVueTemplate} from './utils/rule.js';
 import {
 	isBooleanContext,
+	isGlobalBooleanCall,
 	getParenthesizedRange,
 	hasCommentInRange,
 	hasTypeArguments,
-	isArray,
+	isIndexedCollection,
 	isKnownNonIndexedCollection,
 	isNodeValueNotFunction,
 	isSideEffectFreeFunction,
@@ -56,10 +57,6 @@ const isNegativeOne = node => node.type === 'UnaryExpression' && node.operator =
 const isLiteralZero = node => isLiteral(node, 0);
 
 function isFindResultVariableUsedOnlyAsBoolean(callExpression, context) {
-	if (!isArray(callExpression.callee.object, context)) {
-		return false;
-	}
-
 	const variableDeclarator = callExpression.parent;
 
 	if (
@@ -76,7 +73,8 @@ function isFindResultVariableUsedOnlyAsBoolean(callExpression, context) {
 
 	const [variable] = context.sourceCode.getDeclaredVariables(variableDeclarator);
 
-	if (variable.identifiers.length !== 1) {
+	// Vue.js template-local declarations may not have scope information.
+	if (variable?.identifiers.length !== 1) {
 		return false;
 	}
 
@@ -85,10 +83,14 @@ function isFindResultVariableUsedOnlyAsBoolean(callExpression, context) {
 		return false;
 	}
 
+	const isIndexedCollectionReceiver = isIndexedCollection(callExpression.callee.object, context);
+
 	return references.every(reference => {
 		const {identifier} = reference;
 
-		return reference.isRead() && isBooleanContext(identifier, context);
+		return reference.isRead() && (isIndexedCollectionReceiver
+			? isBooleanContext(identifier, context)
+			: isGlobalBooleanCall(identifier.parent, context));
 	});
 }
 

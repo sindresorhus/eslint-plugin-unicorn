@@ -23,11 +23,13 @@ We only check `.filter().length > 0` and `.filter().length !== 0`. These two non
 
 - Using [`Array#findIndex()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex) or [`Array#findLastIndex()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findLastIndex) to ensure at least one element in the array passes a given check.
 
-This rule is fixable for `.findIndex(…)`, and for `.findLastIndex(…)` and `.filter(…).length` checks when the callback is an inline function without side effects.
+`.find()` and `.findLast()` replacements are suggestions because matches can be falsy. Replacing `.findLast()` also changes iteration order.
 
-This rule provides a suggestion for `.{find,findLast}(…)`, and for `.findLastIndex(…)` and `.filter(…).length` checks when the callback is a reference or has side effects. `.some()` stops at the first match, and `.findLastIndex()` visits elements in reverse order, so such a callback can be called a different number of times or in a different order.
+`.findIndex()` checks are autofixed. `.findLastIndex()` and `.filter().length` checks are autofixed only for inline callbacks without side effects; otherwise, suggestions are offered because callback count or order can change.
 
 This rule skips receivers known to be neither an array nor a typed array, from syntax, TypeScript annotations, or TypeScript type information. Unknown receivers are still checked.
+
+`.find()` and `.findLast()` results stored in `const` variables are checked when every use is a direct argument to global `Boolean()`. Other boolean contexts require a known array or typed array. Variables with TypeScript type annotations are skipped.
 
 ## Examples
 
@@ -58,6 +60,16 @@ if (array.find(element => isUnicorn(element))) {
 if (array.some(element => isUnicorn(element))) {
 	// …
 }
+```
+
+```js
+// ❌
+const found = array.find(item => item > 2);
+Boolean(found);
+
+// ✅
+const found = array.some(item => item > 2);
+Boolean(found);
 ```
 
 ```js

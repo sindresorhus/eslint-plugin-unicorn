@@ -99,6 +99,7 @@ The indexed collections, `Array` and the typed arrays. A typed array is not an a
 A typed array name must be a target in both of the ways it can be spelled, otherwise the two disagree: `targetTypeNames` covers the annotation `foo: Uint8Array` and the type-information symbol lookup, `targetConstructorNames` covers `new Uint8Array()`, which the blanket `NewExpression` rule in `isNonArrayNode` would otherwise claim.
 */
 const {
+	isTarget: isIndexedCollection,
 	isKnownNonTarget: isKnownNonIndexedCollection,
 } = createTypeCheckers({
 	...arrayTypeCheckerOptions,
@@ -119,6 +120,7 @@ const {isTarget: isKnownBigIntTypedArray} = createTypeCheckers({
 });
 
 export {
+	isIndexedCollection,
 	isKnownNonArray,
 	isKnownNonIndexedCollection,
 	isKnownBigIntTypedArray,

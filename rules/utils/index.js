@@ -104,6 +104,7 @@ export {default as isFunctionSelfUsedInside} from './is-function-self-used-insid
 export {default as isKnownNonIterable} from './is-known-non-iterable.js';
 export {
 	default as isArray,
+	isIndexedCollection,
 	isKnownBigIntTypedArray,
 	isKnownNonArray,
 	isKnownNonIndexedCollection,

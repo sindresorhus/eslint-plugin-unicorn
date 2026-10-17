@@ -4,6 +4,22 @@ import notDomNodeTypes from './utils/not-dom-node-types.js';
 
 const {test} = getTester(import.meta);
 
+test.svelte({
+	valid: [],
+	invalid: [
+		{
+			code: '{#if document.querySelectorAll(".item")}<p>Found</p>{/if}',
+			output: '{#if document.querySelectorAll(".item").length > 0}<p>Found</p>{/if}',
+			errors: [{messageId: 'length-check'}],
+		},
+		{
+			code: '<script>const elements = document.querySelectorAll(".item");</script>{#if other}<p>Other</p>{:else if elements}<p>Found</p>{/if}',
+			output: '<script>const elements = document.querySelectorAll(".item");</script>{#if other}<p>Other</p>{:else if elements.length > 0}<p>Found</p>{/if}',
+			errors: [{messageId: 'length-check'}],
+		},
+	],
+});
+
 test.snapshot({
 	valid: [
 		// Not `CallExpression`

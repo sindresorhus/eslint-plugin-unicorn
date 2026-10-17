@@ -6,7 +6,7 @@ import {
 	isControlFlowTest,
 	getBooleanAncestor,
 } from '../../rules/utils/boolean.js';
-import {typescriptEslintParser} from '../../scripts/parsers.js';
+import {svelteEslintParser, typescriptEslintParser} from '../../scripts/parsers.js';
 
 const linter = new Linter();
 const testConfig = {
@@ -35,10 +35,13 @@ const testConfig = {
 let memberExpressionNode;
 let ruleContext;
 
-function findFirstMemberExpression(code) {
+function findFirstMemberExpression(code, languageOptions = {}) {
 	memberExpressionNode = undefined;
 	ruleContext = undefined;
-	linter.verify(code, testConfig);
+	linter.verify(code, {
+		...testConfig,
+		languageOptions: {...testConfig.languageOptions, ...languageOptions},
+	});
 
 	if (!memberExpressionNode) {
 		throw new Error('Expected to find a MemberExpression node.');
@@ -100,6 +103,22 @@ test('`isControlFlowTest` returns `false` for non-control-flow contexts', t => {
 	]) {
 		const {node} = findFirstMemberExpression(code);
 		t.assert.strictEqual(isControlFlowTest(node), false);
+	}
+});
+
+test('Svelte conditions only use their expression for truthiness', t => {
+	for (const [code, expected] of [
+		['{#if foo.length}<p>Found</p>{/if}', true],
+		['{#if other}<p>Other</p>{:else if foo.length}<p>Found</p>{/if}', true],
+		['{#if foo.length && other}<p>Found</p>{/if}', true],
+		['{#if other || foo.length}<p>Found</p>{/if}', true],
+		['<p>{foo.length}</p>', false],
+		['{#if other}<p>{foo.length}</p>{/if}', false],
+		['{#key foo.length}<p>Found</p>{/key}', false],
+	]) {
+		const {node, context} = findFirstMemberExpression(code, {parser: svelteEslintParser});
+		t.assert.strictEqual(isControlFlowTest(node), expected, code);
+		t.assert.strictEqual(isBooleanContext(node, context), expected, code);
 	}
 });
 
