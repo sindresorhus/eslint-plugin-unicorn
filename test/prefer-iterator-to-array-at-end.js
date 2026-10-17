@@ -203,3 +203,24 @@ nodeTest('moving toArray preserves parenthesized receiver expressions', t => {
 	t.assert.deepStrictEqual(linter.verify(output, config), []);
 	t.assert.strictEqual(JSON.stringify(runInNewContext(output)), JSON.stringify(runInNewContext(code)));
 });
+
+test({
+	valid: [],
+	invalid: [{
+		code: '({iterator: values}.iterator.toArray()).map(value => value);',
+		errors: [{
+			messageId: 'prefer-iterator-to-array-at-end', suggestions: [{
+				messageId: 'prefer-iterator-to-array-at-end',
+				output: '({iterator: values}.iterator).map(value => value).toArray();',
+			}],
+		}],
+	}, {
+		code: 'const result = ({iterator: values}.iterator.toArray()).map(value => value);',
+		errors: [{
+			messageId: 'prefer-iterator-to-array-at-end', suggestions: [{
+				messageId: 'prefer-iterator-to-array-at-end',
+				output: 'const result = {iterator: values}.iterator.map(value => value).toArray();',
+			}],
+		}],
+	}],
+});

@@ -459,5 +459,33 @@ test({
 			output: 'const a = foo.length;',
 			errors: 1,
 		},
+		{
+			code: 'const size = Number(function () {}.length);',
+			output: 'const size = function () {}.length;',
+			errors: 1,
+		},
+		{
+			code: 'export default Number(function () {}.length);',
+			output: 'export default (function () {}.length);',
+			errors: 1,
+		},
 	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		['function get() { return Number({value: 1}.value); }', 'function get() { return {value: 1}.value; }'],
+		['const get = () => Number({value: 1}.value);', 'const get = () => ({value: 1}.value);'],
+		['const get = () => Number(function () {}.length);', 'const get = () => function () {}.length;'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: 'export default Number({value: 1}.value);',
+		output: 'export default {value: 1}.value;',
+		errors: 1,
+	}],
 });

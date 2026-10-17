@@ -65,7 +65,7 @@ function * fixStringMethodCall(fixer, {stringNode, methodNode, regexpNode}, cont
 	let regexpText = sourceCode.getText(regexpNode);
 	if (
 		!isParenthesized(stringNode, sourceCode)
-		&& shouldAddParenthesesToMemberExpressionObject(regexpNode, context)
+		&& shouldAddParenthesesToMemberExpressionObject(regexpNode, context, stringNode)
 	) {
 		regexpText = `(${regexpText})`;
 	}

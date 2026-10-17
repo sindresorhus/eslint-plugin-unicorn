@@ -171,7 +171,7 @@ test({
 		}))),
 		...[
 			['index < 0 < expected', '(index === -1) < expected'],
-			['index >= 0 === expected', '(index !== -1) === expected'],
+			['index >= 0 === expected', 'index !== -1 === expected'],
 			['expected === (index < 0)', 'expected === (index === -1)'],
 			['expected === ((index < 0))', 'expected === ((index === -1))'],
 			['expected === index /* before */ < /* after */ 0', 'expected === (index /* before */ === /* after */ -1)'],
@@ -188,7 +188,7 @@ test({
 		},
 		...[
 			['foo()\nindex < 0 < 1', 'foo()\n;(index === -1) < 1'],
-			['const previous = value\nindex < 0 === expected', 'const previous = value\n;(index === -1) === expected'],
+			['const previous = value\nindex < 0 === expected', 'const previous = value\nindex === -1 === expected'],
 			['foo() // keep\nindex < 0 < 1', 'foo() // keep\n;(index === -1) < 1'],
 			['foo();\nindex < 0 < 1', 'foo();\n(index === -1) < 1'],
 			['if (ready)\nindex < 0 < 1', 'if (ready)\n(index === -1) < 1'],
@@ -210,4 +210,14 @@ test({
 			errors: 1,
 		})),
 	],
+});
+
+// Equality binds more tightly than bitwise operators.
+test({
+	valid: [],
+	invalid: [{
+		code: 'const index = array.indexOf(value); index < 0 | mask;',
+		output: 'const index = array.indexOf(value); index === -1 | mask;',
+		errors: 1,
+	}],
 });

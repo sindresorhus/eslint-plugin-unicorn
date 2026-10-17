@@ -221,7 +221,7 @@ const create = context => {
 		const fix = shouldReportOnly || wouldRemoveComments(context, node, preservedNodes)
 			? undefined
 			: function * (fixer) {
-				const receiverText = getMemberExpressionObjectText(setCall.receiver, context);
+				const receiverText = getMemberExpressionObjectText(setCall.receiver, context, node);
 				const attributeNameText = getParenthesizedText(setCall.attributeName, context);
 				const optional = setCall.isOptional ? '?' : '';
 				const isExpression = node.type === 'ConditionalExpression';

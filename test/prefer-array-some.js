@@ -940,12 +940,26 @@ test({
 
 nodeTest('negated index predicate checks compile and retain results through type assertions', t => {
 	for (const value of [1, 2]) {
-		const code = `const array = [1]; const value = ${value}; const setup = () => undefined;\nsetup()\narray.findIndex(item => item === value) < 0 as any ** 2;`;
-		const config = {...linterConfig, languageOptions: {parser: typescriptEslintParser}};
-		const {output, fixed, messages} = linter.verifyAndFix(code, config);
-		const execute = source => runInNewContext(transpileModule(source, {compilerOptions: {target: ScriptTarget.ESNext}}).outputText);
-		t.assert.strictEqual(fixed, true);
-		t.assert.deepStrictEqual(messages, []);
-		t.assert.strictEqual(execute(output), execute(code));
+		for (const expression of ['array.findIndex(item => item === value) < 0 as any ** 2', '(array.findIndex(item => item === value) < 0 as any) ** 2']) {
+			const code = `const array = [1]; const value = ${value}; const setup = () => undefined;\nsetup()${expression.startsWith('(') ? ';' : ''}\n${expression};`;
+			const config = {...linterConfig, languageOptions: {parser: typescriptEslintParser}};
+			const {output, fixed, messages} = linter.verifyAndFix(code, config);
+			const execute = source => runInNewContext(transpileModule(source, {compilerOptions: {target: ScriptTarget.ESNext}}).outputText);
+			t.assert.strictEqual(fixed, true);
+			t.assert.deepStrictEqual(messages, []);
+			t.assert.strictEqual(execute(output), execute(code));
+		}
 	}
+});
+
+// Group only where the surrounding expression needs the generated negation isolated.
+test({
+	valid: [],
+	invalid: [
+		['array.findIndex(item => item === value) < 0 as boolean;', '!array.some(item => item === value) as boolean;'],
+		['array.findIndex(item => item === value) < 0 satisfies boolean;', '!array.some(item => item === value) satisfies boolean;'],
+		['(array.findIndex(item => item === value) < 0 as any) ** 2;', '((!array.some(item => item === value)) as any) ** 2;'],
+	].map(([code, output]) => ({
+		code, output, languageOptions: {parser: parsers.typescript}, errors: 1,
+	})),
 });

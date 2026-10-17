@@ -195,7 +195,7 @@ const isObviouslyNonArrayFlatMapReceiver = (node, context) =>
 function fix(node, array, context, optional) {
 	return function * (fixer) {
 		const {sourceCode} = context;
-		let fixed = `${getMemberExpressionObjectText(array, context)}${optional ? '?' : ''}.flat()`;
+		let fixed = `${getMemberExpressionObjectText(array, context, node)}${optional ? '?' : ''}.flat()`;
 
 		const tokenBefore = sourceCode.getTokenBefore(node);
 		if (needsSemicolon(tokenBefore, context, fixed)) {

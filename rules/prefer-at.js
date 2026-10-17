@@ -455,7 +455,7 @@ function create(context) {
 		return {
 			...problem,
 			fix(fixer) {
-				let fixed = `${getMemberExpressionObjectText(array, context)}.at(-1)`;
+				let fixed = `${getMemberExpressionObjectText(array, context, node)}.at(-1)`;
 
 				const tokenBefore = sourceCode.getTokenBefore(node);
 				if (needsSemicolon(tokenBefore, context, fixed)) {

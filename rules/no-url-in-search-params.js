@@ -73,7 +73,7 @@ const create = context => {
 					fix: fixer => fixer.replaceText(node, `new URLSearchParams(${receiverText}.search)`),
 				}, {
 					messageId: MESSAGE_ID_LIVE,
-					fix: fixer => fixer.replaceText(node, getSearchParametersText(receiverText, node, context)),
+					fix: fixer => fixer.replaceText(node, getSearchParametersText(getMemberExpressionObjectText(argument, context, node), node, context)),
 				}];
 			}
 

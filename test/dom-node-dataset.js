@@ -506,6 +506,30 @@ test({
 	}],
 });
 
+test({
+	valid: [],
+	invalid: [{
+		code: 'Object.hasOwn({node: element}.node.dataset, "value");',
+		output: '({node: element}.node).hasAttribute("data-value");',
+		options: [{preferAttributes: true}],
+		errors: 1,
+	}, {
+		code: '({element}.element.dataset.foo) = value;',
+		output: '({element}.element).setAttribute(\'data-foo\', value);',
+		options: [{preferAttributes: true}],
+		errors: 1,
+	}, {
+		code: '({element}.element.dataset).foo;',
+		options: [{preferAttributes: true}],
+		errors: [{
+			messageId: 'prefer-attributes', suggestions: [{
+				messageId: 'prefer-attributes/suggestion',
+				output: '({element}.element).getAttribute(\'data-foo\');',
+			}],
+		}],
+	}],
+});
+
 // An in expression can leave call-argument grammar and enter a for initializer.
 test({
 	valid: [],
@@ -541,10 +565,20 @@ test({
 		},
 		{
 			code: 'for (element.setAttribute("data-value", ("key" in object)), ready;;) {}',
-			output: 'for (element.dataset.value = (("key" in object)), ready;;) {}',
+			output: 'for (element.dataset.value = ("key" in object), ready;;) {}',
 			errors: 1,
 		},
 	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		['element.setAttribute("data-value", value), ready;', 'element.dataset.value = value, ready;'],
+		['for (element.setAttribute("data-value", read("key" in object)), ready;;) {}', 'for (element.dataset.value = read("key" in object), ready;;) {}'],
+		['for ((element.setAttribute("data-value", "key" in object)), ready;;) {}', 'for ((element.dataset.value = "key" in object), ready;;) {}'],
+		['for (const value = (element.setAttribute("data-value", "key" in object), ready);;) {}', 'for (const value = (element.dataset.value = "key" in object, ready);;) {}'],
+	].map(([code, output]) => ({code, output, errors: 1})),
 });
 
 nodeTest('attribute read suggestions preserve constructor grouping', t => {
@@ -577,4 +611,22 @@ nodeTest('dataset assignment preserves in expressions in for initializers', t =>
 	t.assert.deepStrictEqual(messages, []);
 	t.assert.strictEqual(runInNewContext(code, {element, object: {key: true}, ready: true}), true);
 	t.assert.strictEqual(runInNewContext(output, {element, object: {key: true}, ready: true}), true);
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: 'delete {node: element}.node.dataset.value;',
+		options: [{preferAttributes: true}],
+		output: '({node: element}.node).removeAttribute(\'data-value\');',
+		errors: 1,
+	}],
+});
+
+test({
+	valid: [],
+	invalid: [
+		['({node: element}.node.setAttribute)("data-value", value);', '({node: element}.node).dataset.value = value;'],
+		['({node: element}.node.removeAttribute)("data-value");', 'delete {node: element}.node.dataset.value;'],
+	].map(([code, output]) => ({code, output, errors: 1})),
 });

@@ -8,10 +8,9 @@ import {
 	isIndexedCollection,
 	isKnownNonIndexedCollection,
 	isNodeValueNotFunction,
-	isParenthesized,
 	isSideEffectFreeFunction,
-	isTypeScriptExpressionWrapper,
 	needsSemicolon,
+	shouldAddParenthesesToUnaryExpressionReplacement,
 } from './utils/index.js';
 import {removeMemberExpressionProperty} from './fix/index.js';
 import {
@@ -224,7 +223,7 @@ const create = context => {
 
 			if (['===', '==', '<'].includes(operator)) {
 				let prefix = '!';
-				if (!isParenthesized(binaryExpression, context) && isTypeScriptExpressionWrapper(binaryExpression.parent)) {
+				if (shouldAddParenthesesToUnaryExpressionReplacement(binaryExpression, context)) {
 					prefix = '(!';
 					yield fixer.insertTextAfter(binaryExpression, ')');
 				}

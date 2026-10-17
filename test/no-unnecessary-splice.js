@@ -190,3 +190,12 @@ nodeTest('rewritten parenthesized splice callees retain array mutations', t => {
 		t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
 	}
 });
+
+test({
+	valid: [],
+	invalid: [{
+		code: '({array: [1]}.array.splice)(0, 0, 2);',
+		output: '({array: [1]}.array).unshift(2);',
+		errors: 1,
+	}],
+});

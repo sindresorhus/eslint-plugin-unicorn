@@ -88,7 +88,7 @@ test({
 		code: `array.${method}(${callback});`,
 		method,
 		suggestions: ['element', 'element, index', 'element, index, array'].map(parameters => {
-			const call = `(${callback})(${parameters})`;
+			const call = `${method === 'forEach' || callback.startsWith('{') ? `(${callback})` : callback}(${parameters})`;
 			const body = method === 'forEach' ? `{ ${call}; }` : call;
 			return `array.${method}((${parameters}) => ${body});`;
 		}),

@@ -250,7 +250,7 @@ const create = context => {
 					if (
 						!isRegexParenthesized
 						&& !isTargetParenthesized
-						&& shouldAddParenthesesToMemberExpressionObject(target, context)
+						&& shouldAddParenthesesToMemberExpressionObject(target, context, regexNode)
 					) {
 						targetText = addParentheses(targetText);
 					}
@@ -340,7 +340,7 @@ const create = context => {
 					return abort();
 				}
 
-				const targetText = getMemberExpressionObjectText(target, context);
+				const targetText = getMemberExpressionObjectText(target, context, isNegated ? target : node);
 				const searchText = getParenthesizedText(searchArgument, context);
 				let replacement = `${isNegated ? '!' : ''}${targetText}.startsWith(${searchText})`;
 				if (needsSemicolon(sourceCode.getTokenBefore(node), context, replacement)) {
@@ -405,7 +405,7 @@ const create = context => {
 					return abort();
 				}
 
-				const targetText = getMemberExpressionObjectText(target, context);
+				const targetText = getMemberExpressionObjectText(target, context, isNegatedEqualityOperator(operator) ? target : node);
 				const searchText = getParenthesizedText(searchArgument, context);
 				let replacement = `${isNegatedEqualityOperator(operator) ? '!' : ''}${targetText}.${comparison.method}(${searchText})`;
 				if (needsSemicolon(sourceCode.getTokenBefore(node), context, replacement)) {

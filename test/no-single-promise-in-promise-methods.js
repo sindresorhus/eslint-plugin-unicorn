@@ -190,7 +190,7 @@ test({
 				messageId: 'no-single-promise-in-promise-methods/error',
 				data: {method: 'race'},
 				suggestions: [
-					{messageId: 'no-single-promise-in-promise-methods/unwrap', output: `${prefix}(${expression});`},
+					{messageId: 'no-single-promise-in-promise-methods/unwrap', output: `${prefix}${prefix && !expression.startsWith('{') ? expression : `(${expression})`};`},
 					{messageId: 'no-single-promise-in-promise-methods/use-promise-resolve', output: `${prefix}Promise.resolve(${expression});`},
 				],
 			}],

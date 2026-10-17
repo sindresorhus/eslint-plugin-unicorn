@@ -369,7 +369,7 @@ const create = context => {
 		)
 			? function * (fixer) {
 				yield fixSpaceAroundKeyword(fixer, logicalExpression, context);
-				yield fixer.replaceText(logicalExpression, `Math.abs(${getParenthesizedText(value, context)}) ${operator} ${getComparisonOperandText(threshold, context)}`);
+				yield fixer.replaceText(logicalExpression, `Math.abs(${getParenthesizedText(value, context)}) ${operator} ${getComparisonOperandText(threshold, context, operator)}`);
 			}
 			: undefined;
 

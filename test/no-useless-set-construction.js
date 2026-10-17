@@ -285,3 +285,24 @@ test('related rules converge without conflicting fixes', t => {
 	t.assert.strictEqual(result.output, withDeclarations('selected.union(other); selected.intersection(records); selected.union(other);'));
 	t.assert.strictEqual(linter.verifyAndFix(result.output, config).fixed, false);
 });
+
+ruleTest({
+	valid: [],
+	invalid: [{
+		...typeAware('const b = new Set(); new Set({value: new Set([1])}.value).union(b);'),
+		output: 'const b = new Set(); ({value: new Set([1])}.value).union(b);',
+		errors: 1,
+	}, {
+		...typeAware('const b = new Set(); const result = new Set({value: new Set([1])}.value).union(b);'),
+		output: 'const b = new Set(); const result = {value: new Set([1])}.value.union(b);',
+		errors: 1,
+	}, {
+		...typeAware('const b = new Set(); new Set({value: new Set([1])}.value.union(b));'),
+		output: 'const b = new Set(); ({value: new Set([1])}.value.union(b));',
+		errors: 1,
+	}, {
+		...typeAware('const b = new Set(); const result = new Set({value: new Set([1])}.value.union(b));'),
+		output: 'const b = new Set(); const result = {value: new Set([1])}.value.union(b);',
+		errors: 1,
+	}],
+});

@@ -57,7 +57,7 @@ test({
 				messageId: 'no-instanceof-builtins',
 				suggestions: [{
 					messageId: 'switch-to-type-of',
-					output: 'foo()\n;(typeof value === \'number\') === expected',
+					output: 'foo()\ntypeof value === \'number\' === expected',
 				}],
 			}],
 		},
@@ -79,7 +79,12 @@ test({
 		{
 			code: '<template><button @click="foo()\nvalue instanceof Number === expected"></button></template>',
 			languageOptions: {parser: parsers.vue},
-			errors: [{messageId: 'no-instanceof-builtins', suggestions: []}],
+			errors: [{
+				messageId: 'no-instanceof-builtins', suggestions: [{
+					messageId: 'switch-to-type-of',
+					output: '<template><button @click="foo()\ntypeof value === \'number\' === expected"></button></template>',
+				}],
+			}],
 		},
 		{
 			code: '<template><div v-if="expected === value instanceof Number"></div></template>',
@@ -375,6 +380,22 @@ test({
 		{
 			code: 'if (/* not empty */ value instanceof Array) {}',
 			output: 'if (/* not empty */ Array.isArray(value)) {}',
+			errors: 1,
+		},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'value instanceof Function | mask;',
+			output: 'typeof value === \'function\' | mask;',
+			errors: 1,
+		},
+		{
+			code: 'value instanceof Function === expected;',
+			output: 'typeof value === \'function\' === expected;',
 			errors: 1,
 		},
 	],

@@ -216,3 +216,16 @@ test.snapshot({
 		'array.filter(value => value.active) /* comment */ .flatMap(value => [value.id, value.name]);',
 	],
 });
+
+test({
+	valid: [],
+	invalid: [{
+		code: '({array: [1]}.array.filter(value => value)).flatMap(value => [value, value]);',
+		errors: [{
+			messageId: 'prefer-array-flat-map/filter-flat-map', suggestions: [{
+				messageId: 'prefer-array-flat-map/filter-flat-map-suggestion',
+				output: '({array: [1]}.array).flatMap(value => value ? [value, value] : []);',
+			}],
+		}],
+	}],
+});

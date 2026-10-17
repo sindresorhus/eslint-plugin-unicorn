@@ -1,3 +1,4 @@
+import getPrecedence from './get-precedence.js';
 import {isParenthesized} from './parentheses/parentheses.js';
 
 /**
@@ -7,9 +8,10 @@ A comparison can bind more loosely than the expression it replaces, for example 
 
 @param {import('estree').Node} node
 @param {import('eslint').Rule.RuleContext} context
+@param {string} operator - The replacement comparison operator.
 @returns {boolean}
 */
-export default function shouldAddParenthesesToComparison(node, context) {
+export default function shouldAddParenthesesToComparison(node, context, operator) {
 	if (isParenthesized(node, context)) {
 		return false;
 	}
@@ -33,13 +35,19 @@ export default function shouldAddParenthesesToComparison(node, context) {
 			return parent.tag === node;
 		}
 
-		// `typeof (foo.length > 0)`, `await (foo.length > 0)`, `(foo.length > 0)!`
-		// `bar === (foo.length > 0)`, `bar + (foo.length > 0)`, `(foo.length > 0) ** 2`
-		case 'AwaitExpression':
+		// `bar === (foo.length === 0)`, `bar + (foo.length > 0)`, `(foo.length > 0) ** 2`
 		case 'BinaryExpression':
 		case 'TSAsExpression':
+		case 'TSSatisfiesExpression': {
+			const precedence = getPrecedence({type: 'BinaryExpression', operator});
+			const parentPrecedence = getPrecedence(parent);
+			return parentPrecedence > precedence
+				|| (parentPrecedence === precedence && parent.type === 'BinaryExpression' && parent.right === node);
+		}
+
+		// `typeof (foo.length > 0)`, `await (foo.length > 0)`, `(foo.length > 0)!`
+		case 'AwaitExpression':
 		case 'TSNonNullExpression':
-		case 'TSSatisfiesExpression':
 		case 'TSTypeAssertion':
 		case 'UnaryExpression': {
 			return true;

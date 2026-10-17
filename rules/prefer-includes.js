@@ -7,10 +7,9 @@ import {
 	getMemberExpressionObjectText,
 	isArray,
 	isKnownNonString,
-	isParenthesized,
 	isRegExp,
-	isTypeScriptExpressionWrapper,
 	needsSemicolon,
+	shouldAddParenthesesToUnaryExpressionReplacement,
 } from './utils/index.js';
 import simpleArraySearchRule from './shared/simple-array-search-rule.js';
 import {isLiteral, isNegativeOne} from './ast/index.js';
@@ -33,7 +32,8 @@ const getProblem = (context, node, target, argumentsNodes) => {
 	const tokenStore = getTokenStore(context, target);
 
 	const memberExpressionNode = target.parent;
-	const targetSource = getMemberExpressionObjectText(target, context);
+	const isNegative = isNegativeResult(node);
+	const targetSource = getMemberExpressionObjectText(target, context, isNegative ? target : node);
 
 	// Strip default `fromIndex`
 	if (isLiteralZero(argumentsNodes[1])) {
@@ -42,9 +42,8 @@ const getProblem = (context, node, target, argumentsNodes) => {
 
 	const argumentsSource = argumentsNodes.map(argument => getCallArgumentText(argument, context));
 
-	const isNegative = isNegativeResult(node);
 	let replacement = `${isNegative ? '!' : ''}${targetSource}.includes(${argumentsSource.join(', ')})`;
-	if (isNegative && !isParenthesized(node, context) && isTypeScriptExpressionWrapper(node.parent)) {
+	if (isNegative && shouldAddParenthesesToUnaryExpressionReplacement(node, context)) {
 		replacement = `(${replacement})`;
 		if (needsSemicolon(tokenStore.getTokenBefore(node), context, replacement)) {
 			replacement = ';' + replacement;

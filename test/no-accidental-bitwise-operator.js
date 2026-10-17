@@ -110,3 +110,20 @@ test.snapshot({
 		{code: 'options | {};', languageOptions: {parser: parsers.typescript}},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		['ready || object & object.value;', 'ready || object && object.value;'],
+		['ready && object & object.value;', 'ready && object && object.value;'],
+		['value | \'\' || fallback;', 'value || \'\' || fallback;'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{
+			messageId: 'no-accidental-bitwise-operator/error', suggestions: [{
+				messageId: 'no-accidental-bitwise-operator/suggestion',
+				output,
+			}],
+		}],
+	})),
+});

@@ -153,7 +153,7 @@ function getFilterMapSuggestion(flatMapCallExpression, callback, callbackResult,
 		return;
 	}
 
-	const arrayText = getMemberExpressionObjectText(flatMapCallExpression.callee.object, context);
+	const arrayText = getMemberExpressionObjectText(flatMapCallExpression.callee.object, context, flatMapCallExpression);
 	const parameterText = getArrowParameterText(callback, context);
 	const testText = getConciseArrowBodyText(callbackResult.test, context);
 	const elementText = getConciseArrowBodyText(callbackResult.element, context);
@@ -218,7 +218,7 @@ function getProblemForConditionalFlatMap(flatMapCallExpression, callback, callba
 			return problem;
 		}
 
-		const arrayText = getMemberExpressionObjectText(flatMapCallExpression.callee.object, context);
+		const arrayText = getMemberExpressionObjectText(flatMapCallExpression.callee.object, context, flatMapCallExpression);
 		const parameterText = getArrowParameterText(callback, context);
 		const testText = getConciseArrowBodyText(callbackResult.test, context);
 

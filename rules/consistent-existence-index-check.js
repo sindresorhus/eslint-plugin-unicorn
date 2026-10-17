@@ -117,7 +117,7 @@ const create = context => {
 						yield fixer.replaceText(right, replacement.replacementValue);
 					}
 
-					if (shouldAddParenthesesToComparison(binaryExpression, context)) {
+					if (shouldAddParenthesesToComparison(binaryExpression, context, replacement.replacementOperator)) {
 						const prefix = needsSemicolon(sourceCode.getTokenBefore(binaryExpression), context, '(') ? ';(' : '(';
 						yield fixer.insertTextBefore(binaryExpression, prefix);
 						yield fixer.insertTextAfter(binaryExpression, ')');

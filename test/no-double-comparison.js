@@ -7,10 +7,10 @@ test({
 	invalid: ['as number', 'satisfies number'].flatMap(wrapper => [
 		[`x === y ${wrapper} || x < (y ${wrapper})`, `x <= (y ${wrapper})`],
 		[`x === y ${wrapper} || x > (y ${wrapper})`, `x >= (y ${wrapper})`],
-		[`x ${wrapper} === y || (x ${wrapper}) < y`, `(x ${wrapper}) <= y`],
+		[`x ${wrapper} === y || (x ${wrapper}) < y`, `x ${wrapper} <= y`],
 		[`x === (y /* keep */ ${wrapper}) || x < (y ${wrapper})`, `x <= (y /* keep */ ${wrapper})`],
-		[`foo()\nx ${wrapper} === y || (x ${wrapper}) < y`, `foo()\n;(x ${wrapper}) <= y`],
-		[`if (ready)\nx ${wrapper} === y || (x ${wrapper}) < y`, `if (ready)\n(x ${wrapper}) <= y`],
+		[`foo()\nx ${wrapper} === y || (x ${wrapper}) < y`, `foo()\nx ${wrapper} <= y`],
+		[`if (ready)\nx ${wrapper} === y || (x ${wrapper}) < y`, `if (ready)\nx ${wrapper} <= y`],
 	].map(([code, output]) => ({
 		code,
 		languageOptions: {parser: parsers.typescript},

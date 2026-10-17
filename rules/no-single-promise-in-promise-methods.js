@@ -5,7 +5,7 @@ import {
 	isParenthesized,
 	needsSemicolon,
 	shouldAddParenthesesToAwaitExpressionArgument,
-	shouldAddParenthesesToExpressionStatementExpression,
+	shouldAddParenthesesToExpressionStart,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-single-promise-in-promise-methods/error';
@@ -57,7 +57,7 @@ const unwrapNonAwaitedCallExpression = (callExpression, context) => fixer => {
 		// Since the original call expression can be anywhere, it's hard to tell if the promise
 		// need to be parenthesized, but it's safe to add parentheses
 		&& (
-			shouldAddParenthesesToExpressionStatementExpression(promiseNode, context)
+			shouldAddParenthesesToExpressionStart(promiseNode, context, callExpression)
 			// Identifiers and member expressions otherwise do not need parentheses
 			|| (promiseNode.type !== 'Identifier' && promiseNode.type !== 'MemberExpression')
 		)

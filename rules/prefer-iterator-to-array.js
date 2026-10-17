@@ -126,7 +126,7 @@ const isIterableAcceptingParent = node => {
 };
 
 const getReplacementText = (arrayExpression, spreadElement, context) => {
-	const text = `${getMemberExpressionObjectText(spreadElement.argument, context)}.toArray()`;
+	const text = `${getMemberExpressionObjectText(spreadElement.argument, context, arrayExpression)}.toArray()`;
 	return isInUnparenthesizedNewExpressionCallee(arrayExpression, context) ? `(${text})` : text;
 };
 

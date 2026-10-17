@@ -80,7 +80,13 @@ const create = context => {
 
 						if (
 							!isParenthesized(node, context)
-							&& ['BinaryExpression', 'LogicalExpression'].includes(node.parent.type)
+							&& (
+								node.parent.type === 'BinaryExpression'
+								|| (node.parent.type === 'LogicalExpression' && (
+									node.parent.operator === '??'
+									|| (logicalOperator === '||' && node.parent.operator === '&&')
+								))
+							)
 						) {
 							const prefix = needsSemicolon(sourceCode.getTokenBefore(node), context, '(') ? ';(' : '(';
 							yield fixer.insertTextBefore(node, prefix);

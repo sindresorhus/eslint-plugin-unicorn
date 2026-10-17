@@ -9,7 +9,7 @@ import {
 	isParenthesized,
 	isReferenceContext,
 	needsSemicolon,
-	shouldAddParenthesesToExpressionStatementExpression,
+	shouldAddParenthesesToExpressionStart,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -67,16 +67,16 @@ function isStringLiteralExpression(node) {
 	return isStringLiteral(unwrapTypeScriptExpression(node));
 }
 
-function getOperandText(operand, operator, index, context) {
+function getOperandText(operand, index, context, replacementNode) {
 	const text = getLogicalExpressionChildText(operand, context, {
-		operator,
+		operator: replacementNode.operator,
 		property: index === 0 ? 'left' : 'right',
 	});
 
 	if (
 		index === 0
 		&& !isParenthesized(operand, context)
-		&& shouldAddParenthesesToExpressionStatementExpression(unwrapTypeScriptExpression(operand), context)
+		&& shouldAddParenthesesToExpressionStart(unwrapTypeScriptExpression(operand), context, replacementNode)
 	) {
 		return `(${text})`;
 	}
@@ -86,7 +86,7 @@ function getOperandText(operand, operator, index, context) {
 
 function getReplacementText(node, replacementOperands, operator, context) {
 	const replacement = replacementOperands
-		.map((operand, index) => getOperandText(operand, operator, index, context))
+		.map((operand, index) => getOperandText(operand, index, context, node))
 		.join(` ${operator} `);
 
 	return needsSemicolon(context.sourceCode.getTokenBefore(node), context, replacement)

@@ -744,7 +744,9 @@ const isMatchingMissingValue = (value, missingType, context) =>
 	missingType === 'undefined' ? isUndefinedSentinel(value, context) : isNullLiteral(value);
 
 const getComparisonFix = (callExpression, comparison, context) => {
-	const replacement = `${isPositiveComparison(comparison) ? '' : '!'}${getMemberExpressionObjectText(callExpression.callee.object, context)}.has(${getSingleArgumentText(callExpression, context)})`;
+	const receiver = callExpression.callee.object;
+	const isPositive = isPositiveComparison(comparison);
+	const replacement = `${isPositive ? '' : '!'}${getMemberExpressionObjectText(receiver, context, isPositive ? comparison.node : receiver)}.has(${getSingleArgumentText(callExpression, context)})`;
 	const semicolon = needsSemicolon(context.sourceCode.getTokenBefore(comparison.node), context, replacement) ? ';' : '';
 	return fixer => fixer.replaceText(comparison.node, semicolon + replacement);
 };

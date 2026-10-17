@@ -1,5 +1,6 @@
 import {
 	getParenthesizedRange,
+	getParenthesizedText,
 	getComparisonOperandText,
 	getStaticValueForControlFlow,
 	needsSemicolon,
@@ -87,8 +88,8 @@ const create = context => {
 			return;
 		}
 
-		const leftText = getComparisonOperandText(left.left, context);
-		const rightText = getComparisonOperandText(left.right, context);
+		const leftText = getParenthesizedText(left.left, context);
+		const rightText = getComparisonOperandText(left.right, context, reduction.operator);
 		const replacement = `${leftText} ${reduction.operator} ${rightText}`;
 
 		const problem = {

@@ -34,12 +34,16 @@ test({
 			['getTag()`x`.Error("message")', 'new (getTag()`x`.Error)("message")'],
 			['getTag()`x``y`.nested.Error("message")', 'new (getTag()`x``y`.nested.Error)("message")'],
 			['getTag`x`.Error("message")', 'new getTag`x`.Error("message")'],
+			['(getTag())`x`.Error("message")', 'new (getTag())`x`.Error("message")'],
+			['(getTag()`x`).Error("message")', 'new (getTag()`x`).Error("message")'],
 		].map(([code, output]) => ({code, output, errors: 1})),
 		...[
 			['getErrors()!.Error("message")', 'new (getErrors()!.Error)("message")'],
 			['getErrors()!.nested.Error("message")', 'new (getErrors()!.nested.Error)("message")'],
 			['getErrors() /* keep */ !.Error("message")', 'new (getErrors() /* keep */ !.Error)("message")'],
 			['getTag()!`x`.Error("message")', 'new (getTag()!`x`.Error)("message")'],
+			['(getErrors()!).Error("message")', 'new (getErrors()!).Error("message")'],
+			['(getErrors())!.Error("message")', 'new (getErrors())!.Error("message")'],
 			['((getErrors()!.Error))("message")', 'new ((getErrors()!.Error))("message")'],
 		].map(([code, output]) => ({
 			code, output, errors: 1, languageOptions: {parser: parsers.typescript},
@@ -63,6 +67,8 @@ nodeTest('constructor fixes preserve calls in receivers', t => {
 	for (const code of [
 		'const getErrors = () => ({TypeError}); getErrors()!.TypeError("message").message;',
 		'const getTag = () => () => ({TypeError}); getTag()`x`.TypeError("message").message;',
+		'const getTag = () => () => ({TypeError}); (getTag())`x`.TypeError("message").message;',
+		'const getErrors = () => ({TypeError}); (getErrors()!).TypeError("message").message;',
 	]) {
 		const {output, messages, fixed} = linter.verifyAndFix(code, config);
 		t.assert.strictEqual(fixed, true);

@@ -226,11 +226,16 @@ export {default as getComparisonOperandText} from './get-comparison-operand-text
 export {default as shouldAddParenthesesToConditionalExpressionChild, getConditionalExpressionChildText} from './should-add-parentheses-to-conditional-expression-child.js';
 export {default as shouldAddParenthesesToMemberExpressionObject, getMemberExpressionObjectText} from './should-add-parentheses-to-member-expression-object.js';
 export {default as shouldAddParenthesesToUnaryExpressionArgument} from './should-add-parentheses-to-unary-expression.js';
+export {default as shouldAddParenthesesToUnaryExpressionReplacement} from './should-add-parentheses-to-unary-expression-replacement.js';
 export {default as getNegatedExpressionText} from './get-negated-expression-text.js';
 export {default as getUnparenthesizedKeywordArgumentParent} from './get-unparenthesized-keyword-argument-parent.js';
 export {default as isInUnparenthesizedNewExpressionCallee} from './is-in-unparenthesized-new-expression-callee.js';
 export {default as shouldAddParenthesesToNewExpressionCallee} from './should-add-parentheses-to-new-expression-callee.js';
-export {default as shouldAddParenthesesToExpressionStatementExpression, startsWithDeclarationLikeToken} from './should-add-parentheses-to-expression-statement-expression.js';
+export {
+	default as shouldAddParenthesesToExpressionStatementExpression,
+	shouldAddParenthesesToExpressionStart,
+	startsWithDeclarationLikeToken,
+} from './should-add-parentheses-to-expression-statement-expression.js';
 export {default as shouldAddParenthesesToLogicalExpressionChild, getLogicalExpressionChildText} from './should-add-parentheses-to-logical-expression-child.js';
 export {default as shouldReportReplaceChildrenReceiver, mayBeHtmlTemplateElement} from './should-report-replace-children-receiver.js';
 export {default as singular} from './singular.js';

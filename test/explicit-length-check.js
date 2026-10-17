@@ -566,7 +566,7 @@ test({
 		},
 		{
 			code: 'if (bar === Boolean(foo.length)) {}',
-			output: 'if (bar === (foo.length > 0)) {}',
+			output: 'if (bar === foo.length > 0) {}',
 			errors: 1,
 		},
 		{
@@ -622,7 +622,7 @@ test({
 		},
 		{
 			code: 'const a = Boolean(foo.length) satisfies boolean;',
-			output: 'const a = (foo.length > 0) satisfies boolean;',
+			output: 'const a = foo.length > 0 satisfies boolean;',
 			errors: 1,
 			languageOptions: {parser: parsers.typescript},
 		},
@@ -645,12 +645,12 @@ test({
 	invalid: [
 		{
 			code: 'foo()\nBoolean(array.length) === expected',
-			output: 'foo()\n;(array.length > 0) === expected',
+			output: 'foo()\narray.length > 0 === expected',
 			errors: 1,
 		},
 		{
 			code: 'if (ready)\nBoolean(array.length) === expected',
-			output: 'if (ready)\n(array.length > 0) === expected',
+			output: 'if (ready)\narray.length > 0 === expected',
 			errors: 1,
 		},
 		...[
@@ -659,12 +659,13 @@ test({
 			'function () {foo()\nBoolean(array.length) === expected}',
 		].map(expression => ({
 			code: `<template><button @click="${expression}"></button></template>`,
+			output: `<template><button @click="${expression.replace('Boolean(array.length)', 'array.length > 0')}"></button></template>`,
 			languageOptions: {parser: parsers.vue},
 			errors: 1,
 		})),
 		{
 			code: '<template><div v-if="expected === Boolean(array.length)"></div></template>',
-			output: '<template><div v-if="expected === (array.length > 0)"></div></template>',
+			output: '<template><div v-if="expected === array.length > 0"></div></template>',
 			languageOptions: {parser: parsers.vue},
 			errors: 1,
 		},
@@ -704,4 +705,12 @@ nodeTest('removing Boolean preserves declaration-like length expressions', t => 
 		t.assert.deepStrictEqual(messages, []);
 		t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
 	}
+});
+
+test({
+	valid: [],
+	invalid: [
+		['Boolean(array.length) | mask;', 'array.length > 0 | mask;'],
+		['Boolean(array.length) > limit;', 'array.length > 0 > limit;'],
+	].map(([code, output]) => ({code, output, errors: 1})),
 });

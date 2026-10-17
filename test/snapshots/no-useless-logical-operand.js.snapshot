@@ -782,7 +782,7 @@ Message:
     |               ^^^^ Simplify this \`&&\` expression.
 
 Output:
-  1 | const value = ({}) && input;
+  1 | const value = {} && input;
 
 `;
 

@@ -322,7 +322,7 @@ test({
 		...[
 			['[...a].some(value => b.has(value)) as any ** 2', '(!a.isDisjointFrom(b)) as any ** 2'],
 			['[...a].some(value => b.has(value)) satisfies boolean as any ** 2', '(!a.isDisjointFrom(b)) satisfies boolean as any ** 2'],
-			['<boolean>[...a].some(value => b.has(value))', '<boolean>(!a.isDisjointFrom(b))'],
+			['<boolean>[...a].some(value => b.has(value))', '<boolean>!a.isDisjointFrom(b)'],
 			['[...a].some(value => b.has(value))! as any ** 2', '(!a.isDisjointFrom(b))! as any ** 2'],
 		].map(([expression, output]) => ({
 			code: `const a = new Set([1]); const b = new Set([1]); ${expression};`,
@@ -331,4 +331,45 @@ test({
 			errors: 1,
 		})),
 	],
+});
+
+// Preserve existing grouping and add it only for an actual surrounding operator.
+test({
+	valid: [],
+	invalid: [
+		['[...a].some(value => b.has(value)) as boolean', '!a.isDisjointFrom(b) as boolean'],
+		['[...a].some(value => b.has(value)) satisfies boolean', '!a.isDisjointFrom(b) satisfies boolean'],
+		['[...a].some(value => b.has(value))!', '!a.isDisjointFrom(b)!'],
+		['[...a].some(value => b.has(value))!.toString()', '(!a.isDisjointFrom(b))!.toString()'],
+		['([...a].some(value => b.has(value)) as any) ** 2', '((!a.isDisjointFrom(b)) as any) ** 2'],
+		['([...a].some(value => b.has(value))!) as any ** 2', '(!a.isDisjointFrom(b)!) as any ** 2'],
+	].map(([expression, output]) => ({
+		code: `const a = new Set([1]); const b = new Set([1]); ${expression};`,
+		output: `const a = new Set([1]); const b = new Set([1]); ${output};`,
+		languageOptions: {parser: parsers.typescript},
+		errors: 1,
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [{
+		...typeAware('const b = new Set([1]); [...{value: new Set([1])}.value].every(value => b.has(value));'),
+		output: 'const b = new Set([1]); ({value: new Set([1])}.value).isSubsetOf(b);',
+		errors: 1,
+	}],
+});
+
+test({
+	valid: [],
+	invalid: ['', 'const value = '].map(prefix => ({
+		...typeAware(`const b = new Set([1]); ${prefix}new Set([...{value: new Set([1])}.value].filter(value => b.has(value)));`),
+		errors: [{
+			messageId: 'prefer-set-methods/intersection',
+			suggestions: [{
+				messageId: 'prefer-set-methods/intersection-suggestion',
+				output: `const b = new Set([1]); ${prefix}${prefix ? '{value: new Set([1])}.value' : '({value: new Set([1])}.value)'}.intersection(b);`,
+			}],
+		}],
+	})),
 });

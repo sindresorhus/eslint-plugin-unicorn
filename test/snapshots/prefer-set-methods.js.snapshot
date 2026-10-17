@@ -692,7 +692,7 @@ Message:
     |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Set#isDisjointFrom()\` to check whether Sets have any elements in common.
 
 Output:
-  1 | function foo(a: Set<string>, b: Set<string>) { return (!a!.isDisjointFrom(b!))!; }
+  1 | function foo(a: Set<string>, b: Set<string>) { return !a!.isDisjointFrom(b!)!; }
 
 `;
 

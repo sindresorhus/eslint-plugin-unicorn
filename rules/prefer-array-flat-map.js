@@ -195,7 +195,7 @@ const create = context => {
 			return;
 		}
 
-		const arrayText = getMemberExpressionObjectText(filterCallExpression.callee.object, context);
+		const arrayText = getMemberExpressionObjectText(filterCallExpression.callee.object, context, flatMapCallExpression);
 		const parameterText = sourceCode.getText(filterElementParameter);
 		const predicateText = getConditionalTestText(filterCallback.body, context);
 		const mappedText = sourceCode.getText(flatMapCallback.body);

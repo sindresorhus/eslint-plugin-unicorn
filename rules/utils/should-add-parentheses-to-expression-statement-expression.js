@@ -24,3 +24,39 @@ An expression statement cannot start with `{`, `class`, `function`, or `async fu
 export default function shouldAddParenthesesToExpressionStatementExpression(node, context) {
 	return !isParenthesized(node, context) && startsWithDeclarationLikeToken(node, context);
 }
+
+/**
+Check whether moving an expression to the replacement position would expose a block or declaration prefix.
+*/
+export function shouldAddParenthesesToExpressionStart(expression, context, replacementNode = expression) {
+	if (!startsWithDeclarationLikeToken(expression, context)) {
+		return false;
+	}
+
+	const {sourceCode} = context;
+	const firstToken = getTokenStore(context, expression).getFirstToken(expression);
+	for (let node = replacementNode; node; node = node.parent) {
+		if (isParenthesized(node, context)) {
+			return false;
+		}
+
+		const {parent} = node;
+		if (parent?.type === 'ArrowFunctionExpression' && parent.body === node) {
+			return firstToken.value === '{';
+		}
+
+		if (parent?.type === 'ExportDefaultDeclaration' && parent.declaration === node) {
+			return firstToken.value !== '{';
+		}
+
+		if (node.type.endsWith('Statement')) {
+			return true;
+		}
+
+		if (!parent || sourceCode.getRange(parent)[0] !== sourceCode.getRange(node)[0]) {
+			return false;
+		}
+	}
+
+	return false;
+}

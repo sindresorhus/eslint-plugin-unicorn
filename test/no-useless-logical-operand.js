@@ -239,3 +239,11 @@ test({
 		].map(([code, output]) => ({code, output, errors: 1})),
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		['const value = true && function () {}.length && flag;', 'const value = function () {}.length && flag;'],
+		['const get = () => true && {value: 1}.value && flag;', 'const get = () => ({value: 1}.value) && flag;'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});

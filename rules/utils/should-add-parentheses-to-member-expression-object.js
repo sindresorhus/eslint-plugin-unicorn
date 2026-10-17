@@ -1,7 +1,7 @@
 import isNewExpressionWithParentheses from './is-new-expression-with-parentheses.js';
 import {isDecimalIntegerNode} from './numeric.js';
 import {getParenthesizedText, isParenthesized} from './parentheses/parentheses.js';
-import {startsWithDeclarationLikeToken} from './should-add-parentheses-to-expression-statement-expression.js';
+import {shouldAddParenthesesToExpressionStart} from './should-add-parentheses-to-expression-statement-expression.js';
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
 @import * as ESLint from 'eslint';
@@ -14,10 +14,11 @@ Grouping also keeps declaration-like prefixes from being parsed as a block or de
 
 @param {ESTree.Node} node - The AST node to check.
 @param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
+@param {ESTree.Node} [replacementNode=node] - The node whose position the replacement will occupy.
 @returns {boolean}
 */
-export default function shouldAddParenthesesToMemberExpressionObject(node, context) {
-	if (startsWithDeclarationLikeToken(node, context)) {
+export default function shouldAddParenthesesToMemberExpressionObject(node, context, replacementNode = node) {
+	if (shouldAddParenthesesToExpressionStart(node, context, replacementNode)) {
 		return true;
 	}
 
@@ -60,14 +61,15 @@ Get the text of `node` for use as the `object` of a `MemberExpression`, keeping 
 
 @param {ESTree.Node} node - The AST node.
 @param {ESLint.Rule.RuleContext} context - The ESLint rule context object.
+@param {ESTree.Node} [replacementNode=node] - The node whose position the replacement will occupy.
 @returns {string}
 */
-export function getMemberExpressionObjectText(node, context) {
+export function getMemberExpressionObjectText(node, context, replacementNode = node) {
 	const text = getParenthesizedText(node, context);
 
 	if (
 		!isParenthesized(node, context)
-		&& shouldAddParenthesesToMemberExpressionObject(node, context)
+		&& shouldAddParenthesesToMemberExpressionObject(node, context, replacementNode)
 	) {
 		return `(${text})`;
 	}

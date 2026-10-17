@@ -56,7 +56,7 @@ function createFix(context, lengthAccessNode, set) {
 		// `set` becomes the object of `.size`, so wrap expressions that need parentheses there
 		// (e.g. a TypeScript `set as Set<string>` assertion).
 		let setText = sourceCode.getText(set);
-		if (shouldAddParenthesesToMemberExpressionObject(set, context)) {
+		if (shouldAddParenthesesToMemberExpressionObject(set, context, array)) {
 			setText = `(${setText})`;
 		}
 

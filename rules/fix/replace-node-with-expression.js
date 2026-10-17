@@ -1,5 +1,5 @@
 import {getParenthesizedText, isParenthesized} from '../utils/parentheses/parentheses.js';
-import {getOutermostTypeScriptExpression, shouldAddParenthesesToExpressionStatementExpression} from '../utils/index.js';
+import {getOutermostTypeScriptExpression, shouldAddParenthesesToExpressionStart} from '../utils/index.js';
 import needsSemicolon from '../utils/needs-semicolon.js';
 import isStrongPrecedenceNode from '../utils/is-strong-precedence-node.js';
 import shouldAddParenthesesToMemberExpressionObject from '../utils/should-add-parentheses-to-member-expression-object.js';
@@ -35,9 +35,9 @@ export default function replaceNodeWithExpression(fixer, node, expression, conte
 
 	// A member-expression object has its own precedence subtleties (for example, a decimal integer literal like `1` needs parentheses before `.`), so defer to the dedicated check there.
 	// A leading `{`, `function`, or `class` can't start an expression statement, so declaration-like prefixes need parentheses too, for example `Number(function () {}.length)` -> `(function () {}.length)`.
-	const needsParentheses = shouldAddParenthesesToExpressionStatementExpression(expression, context)
+	const needsParentheses = shouldAddParenthesesToExpressionStart(expression, context, node)
 		|| (isObjectOfMemberExpression(node)
-			? shouldAddParenthesesToMemberExpressionObject(expression, context)
+			? shouldAddParenthesesToMemberExpressionObject(expression, context, node)
 			: !isStrongPrecedenceNode(expression));
 
 	if (needsParentheses && !isParenthesized(expression, context)) {

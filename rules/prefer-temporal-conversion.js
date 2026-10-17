@@ -191,7 +191,7 @@ const create = context => {
 		}
 
 		const fix = fixer => {
-			let text = `${getMemberExpressionObjectText(source, context)}.${method}()`;
+			let text = `${getMemberExpressionObjectText(source, context, node)}.${method}()`;
 			if (needsSemicolon(sourceCode.getTokenBefore(node), context, text)) {
 				text = `;${text}`;
 			}

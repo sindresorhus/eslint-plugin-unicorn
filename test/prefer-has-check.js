@@ -267,3 +267,16 @@ test.snapshot({
 		'if (new Map([["key", {}]]).get(// lookup key\n"key")) {}',
 	],
 });
+
+test({
+	valid: [],
+	invalid: [{
+		...typeAware('({value: new Map([[1, 2]])}.value.get(1)) !== undefined;'),
+		output: '({value: new Map([[1, 2]])}.value).has(1);',
+		errors: 1,
+	}, {
+		...typeAware('({value: new Map([[1, 2]])}.value.get(1)) === undefined;'),
+		output: '!{value: new Map([[1, 2]])}.value.has(1);',
+		errors: 1,
+	}],
+});

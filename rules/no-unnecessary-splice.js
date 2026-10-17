@@ -85,7 +85,7 @@ function getFix(callExpression, replacement, context) {
 		return fixer => removeStatement(callExpression.parent, context, fixer);
 	}
 
-	const objectText = getMemberExpressionObjectText(object, context);
+	const objectText = getMemberExpressionObjectText(object, context, callExpression);
 	if (replacement.messageId === MESSAGE_ID_EMPTY) {
 		return fixer => fixer.replaceText(callExpression, `${objectText}.length = 0`);
 	}

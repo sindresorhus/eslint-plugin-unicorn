@@ -346,7 +346,9 @@ function getProblem(context, node, callExpression, options) {
 					!isParenthesized(node, context)
 					&& (
 						shouldAddParenthesesToCallExpressionCallee(node)
-						|| shouldAddParenthesesToExpressionStatementExpression(node, context)
+						|| (returnsUndefined
+							? shouldAddParenthesesToExpressionStatementExpression(node, context)
+							: context.sourceCode.getFirstToken(node).value === '{')
 					)
 				) {
 					text = `(${text})`;

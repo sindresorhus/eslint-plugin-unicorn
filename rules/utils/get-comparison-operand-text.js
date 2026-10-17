@@ -1,11 +1,13 @@
 import {getParenthesizedText, isParenthesized} from './parentheses/parentheses.js';
 
 /**
-Get comparison operand text with TypeScript assertions grouped so they continue to apply to the operand.
+Get the right comparison operand text, grouping TypeScript assertions when a relational operator would otherwise capture them.
 */
-export default function getComparisonOperandText(node, context) {
+export default function getComparisonOperandText(node, context, operator) {
 	const text = getParenthesizedText(node, context);
-	return !isParenthesized(node, context) && ['TSAsExpression', 'TSSatisfiesExpression'].includes(node.type)
+	return !isParenthesized(node, context)
+		&& ['<', '<=', '>', '>='].includes(operator)
+		&& ['TSAsExpression', 'TSSatisfiesExpression'].includes(node.type)
 		? `(${text})`
 		: text;
 }
