@@ -2,6 +2,7 @@ import {
 	getParenthesizedText,
 	getParenthesizedRange,
 	getConstVariableInitializer,
+	getOutermostTypeScriptExpression,
 	getPrimitiveLiteralValue,
 	hasCommentInRange,
 	isSameReference,
@@ -20,12 +21,42 @@ const messages = {
 
 function getStaticNumber(node, context) {
 	node = unwrapTypeScriptExpression(node);
-	const value = getPrimitiveLiteralValue(getConstVariableInitializer(node, context) ?? node);
-	return typeof value === 'number' ? value : undefined;
+	node = unwrapTypeScriptExpression(getConstVariableInitializer(node, context) ?? node);
+	const argument = node.type === 'UnaryExpression' && (node.operator === '+' || node.operator === '-')
+		? unwrapTypeScriptExpression(node.argument)
+		: node;
+	if (argument.type === 'Identifier' && (argument.name === 'Infinity' || argument.name === 'NaN')) {
+		const value = argument.name === 'Infinity' ? Infinity : NaN;
+		return node.type === 'UnaryExpression' && node.operator === '-' ? -value : value;
+	}
+
+	const value = getPrimitiveLiteralValue(node);
+	return value === undefined || typeof value === 'bigint' ? undefined : Number(value);
 }
 
-function canAutoFixLogCall(node, context) {
-	const value = getStaticNumber(node, context);
+function isExplicitlyDiscarded(node) {
+	// Expression statement completion values can be observed by `eval()`.
+	while (true) {
+		node = getOutermostTypeScriptExpression(node);
+		const {parent} = node;
+		if (parent.type !== 'SequenceExpression') {
+			return parent.type === 'UnaryExpression' && parent.operator === 'void';
+		}
+
+		if (parent.expressions.at(-1) !== node) {
+			return true;
+		}
+
+		node = parent;
+	}
+}
+
+function canAutoFixLogCall(node, valueNode, context) {
+	if (isExplicitlyDiscarded(node)) {
+		return true;
+	}
+
+	const value = getStaticNumber(valueNode, context);
 	// These inputs have specified exact results for every logarithm base.
 	return value !== undefined && (value <= 0 || value === 1 || !Number.isFinite(value));
 }
@@ -99,7 +130,7 @@ function createLogCallTimesConstantCheck({constantName, replacementMethod}) {
 				replacement,
 				description,
 			},
-		}, fix, canAutoFixLogCall(valueNode, context));
+		}, fix, canAutoFixLogCall(node, valueNode, context));
 	};
 }
 
@@ -135,7 +166,7 @@ function createLogCallDivideConstantCheck({constantName, replacementMethod}) {
 		return getProblemWithFix({
 			...message,
 			node,
-		}, fix, canAutoFixLogCall(valueNode, context));
+		}, fix, canAutoFixLogCall(node, valueNode, context));
 	};
 }
 
@@ -167,6 +198,27 @@ function flatPlusExpression(node, plusExpressions) {
 	return [node.left, node.right].flatMap(child => flatPlusExpression(child, plusExpressions));
 }
 
+function canAutoFixSquareExpressions(expressions, context) {
+	const values = expressions.map(expression => getStaticNumber(expression.left, context));
+	if (values.includes(undefined)) {
+		return false;
+	}
+
+	if (values.length > 1) {
+		return values.every(value => value === 0)
+			|| (values.every(value => !Number.isNaN(value)) && values.some(value => !Number.isFinite(value)));
+	}
+
+	const [value] = values;
+	if (expressions[0].operator === '**') {
+		return value === 0 || !Number.isFinite(value);
+	}
+
+	// Multiplication and square root have specified rounding; general exponentiation and `Math.hypot()` results do not.
+	// eslint-disable-next-line unicorn/prefer-modern-math-apis -- Compare the original and replacement results.
+	return Object.is(Math.sqrt(value * value), Math.abs(value));
+}
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
@@ -189,13 +241,7 @@ const create = context => {
 		}
 
 		const replacementMethod = expressions.length === 1 ? 'abs' : 'hypot';
-		const [square] = expressions;
-		const value = expressions.length === 1 && square.operator === '*'
-			? getStaticNumber(square.left, context)
-			: undefined;
-		// Multiplication and square root have specified rounding; exponentiation and `Math.hypot()` do not.
-		// eslint-disable-next-line unicorn/prefer-modern-math-apis -- Compare the original and replacement results.
-		const canAutoFix = value !== undefined && Object.is(Math.sqrt(value * value), Math.abs(value));
+		const canAutoFix = canAutoFixSquareExpressions(expressions, context);
 		const fix = function * (fixer, {abort}) {
 			const {sourceCode} = context;
 

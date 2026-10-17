@@ -3,6 +3,87 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+// Special values and explicitly discarded logarithms have exact behavior
+test({
+	valid: [],
+	invalid: [
+		['Math.sqrt(0 ** 2);', 'Math.abs(0);'],
+		['Math.sqrt((-0) ** 2);', 'Math.abs((-0));'],
+		['Math.sqrt(Infinity ** 2);', 'Math.abs(Infinity);'],
+		['Math.sqrt((-Infinity) ** 2);', 'Math.abs((-Infinity));'],
+		['Math.sqrt(NaN ** 2);', 'Math.abs(NaN);'],
+		['Math.sqrt("4" * "4");', 'Math.abs("4");'],
+		['Math.sqrt(true * true);', 'Math.abs(true);'],
+		['const value = -0; Math.sqrt(value ** 2);', 'const value = -0; Math.abs(value);'],
+		['const value = Infinity; Math.sqrt(value ** 2);', 'const value = Infinity; Math.abs(value);'],
+		['Math.sqrt(0 ** 2 + 0 ** 2);', 'Math.hypot(0, 0);'],
+		['Math.sqrt((0 * 0 + (-0) ** 2) + 0 ** 2);', 'Math.hypot(0, (-0), 0);'],
+		['Math.sqrt(Infinity ** 2 + 3 * 3);', 'Math.hypot(Infinity, 3);'],
+		['Math.sqrt(3 ** 2 + (-Infinity) ** 2);', 'Math.hypot(3, (-Infinity));'],
+		['const value = -Infinity; Math.sqrt(4 * 4 + value ** 2);', 'const value = -Infinity; Math.hypot(4, value);'],
+		['Math.sqrt(1e999 * 1e999 + 1e200 * 1e200);', 'Math.hypot(1e999, 1e200);'],
+		['Math.log(true) / Math.LN2;', 'Math.log2(true);'],
+		['Math.log(false) * Math.LOG10E;', 'Math.log10(false);'],
+		['Math.LOG2E * Math.log(null);', 'Math.log2(null);'],
+		['Math.log("1") / Math.LN2;', 'Math.log2("1");'],
+		['Math.log("-1") * Math.LOG2E;', 'Math.log2("-1");'],
+		['Math.log("not a number") / Math.LN2;', 'Math.log2("not a number");'],
+		['Math.log("Infinity") / Math.LN10;', 'Math.log10("Infinity");'],
+		['const value = true; Math.log(value) / Math.LN2;', 'const value = true; Math.log2(value);'],
+		['void (Math.log(value) / Math.LN2);', 'void (Math.log2(value));'],
+		['void (Math.log(getValue()) * Math.LOG10E);', 'void (Math.log10(getValue()));'],
+		['void (Math.LOG2E * Math.log(value));', 'void (Math.log2(value));'],
+		['const result = (Math.log(value) / Math.LN10, next());', 'const result = (Math.log10(value), next());'],
+		['const result = (Math.LOG10E * Math.log(value), next());', 'const result = (Math.log10(value), next());'],
+		['const result = ((next(), Math.log(value) / Math.LN2), final());', 'const result = ((next(), Math.log2(value)), final());'],
+		['void (next(), Math.log(value) / Math.LN2);', 'void (next(), Math.log2(value));'],
+		['void (Math.log((/* keep */ value)) / Math.LN2);', 'void (Math.log2((/* keep */ value)));'],
+		['void (Math.log(1n) / Math.LN2);', 'void (Math.log2(1n));'],
+		['async function calculate() { return void (Math.log(await getValue()) / Math.LN2); }', 'async function calculate() { return void (Math.log2(await getValue())); }'],
+	].map(([code, output]) => ({
+		code,
+		output,
+		errors: [{messageId: 'prefer-modern-math-apis', suggestions: []}],
+	})),
+});
+
+test.typescript({
+	valid: [],
+	invalid: [
+		['Math.sqrt((0 as number) ** 2);', 'Math.abs((0 as number));'],
+		['const value = Infinity as number; Math.sqrt(value ** 2 + 4 ** 2);', 'const value = Infinity as number; Math.hypot(value, 4);'],
+		['Math.log(true as boolean) / Math.LN2;', 'Math.log2(true as boolean);'],
+		['void ((Math.log(value) / Math.LN2) as number);', 'void ((Math.log2(value)) as number);'],
+		['const result = ((Math.log(value) / Math.LN2) satisfies number, next());', 'const result = ((Math.log2(value)) satisfies number, next());'],
+	].map(([code, output]) => ({
+		code,
+		output,
+		errors: [{messageId: 'prefer-modern-math-apis', suggestions: []}],
+	})),
+});
+
+// Unknown operands and observable results still require a suggestion
+test.snapshot({
+	valid: [],
+	invalid: [
+		'Math.sqrt(Infinity ** 2 + "not a number" ** 2);',
+		'Math.sqrt(NaN ** 2 + (-Infinity) ** 2);',
+		'Math.sqrt(Infinity ** 2 + value ** 2);',
+		'Math.sqrt(0 ** 2 + getValue() ** 2);',
+		'Math.sqrt(1 ** 2);',
+		'Math.sqrt((-1) ** 2);',
+		'Math.sqrt(0 ** /* keep */ 2);',
+		'Math.log(2n) / Math.LN2;',
+		'Math.log(/1/) / Math.LN2;',
+		'Math.log({valueOf() { return 1; }}) / Math.LN2;',
+		'const result = (next(), Math.log(value) / Math.LN2);',
+		'void (Math.log(value) / Math.LN2 + next());',
+		'Math.log(value) / Math.LN2;',
+		'void (Math.log(/* keep */ value) / Math.LN2);',
+		'void Math.sqrt(value ** 2);',
+	],
+});
+
 // Literal constants can be fixed when the result is provably unchanged
 test({
 	valid: [],
@@ -48,7 +129,7 @@ test.snapshot({
 		'Math.sqrt(4 ** 2);',
 		'Math.sqrt(3 * 3 + 4 * 4);',
 		'Math.log(2) / Math.LN2;',
-		'Math.log("1") / Math.LN2;',
+		'Math.log("2") / Math.LN2;',
 		'Math.log(1n) / Math.LN2;',
 		'Math.log({valueOf() { return 1; }}) * Math.LOG10E;',
 		'Math.log(getValue()) / Math.LN2;',
