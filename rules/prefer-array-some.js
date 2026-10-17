@@ -214,12 +214,16 @@ const create = context => {
 				left,
 				token => token.type === 'Punctuator' && token.value === operator,
 			);
+			const tokenBeforeOperator = tokenStore.getTokenBefore(operatorToken, {includeComments: true});
 			// Start right after the token or comment before the operator, so the space before the operator is not left dangling
-			const [, start] = sourceCode.getRange(tokenStore.getTokenBefore(operatorToken, {includeComments: true}));
+			const [, start] = sourceCode.getRange(tokenBeforeOperator);
 			const [, end] = sourceCode.getRange(binaryExpression);
 
-			// Removing the comparison would drop comments in the removed range.
-			if (tokenStore.getCommentsInside({range: [start, end]}).length > 0) {
+			// Removing the comparison would drop comments or the newline ending a line comment.
+			if (
+				tokenBeforeOperator.type === 'Line'
+				|| tokenStore.getCommentsInside({range: [start, end]}).length > 0
+			) {
 				return abort();
 			}
 

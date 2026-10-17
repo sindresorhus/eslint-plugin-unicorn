@@ -1018,3 +1018,32 @@ test.vue({
 		})),
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		'[1].findIndex(value => value === 1) // keep\n>= 0 && false;',
+		'[1].findIndex(value => value === 1) // keep\r\n< 0 || true;',
+		'array.findLastIndex(predicate) // keep\n!== -1 && ready;',
+	].map(code => ({code, errors: [{messageId: 'some', suggestions: 0}]})),
+});
+
+test.vue({
+	valid: [],
+	invalid: [
+		'[1].findIndex(value => value === 1) // keep\n>= 0 && false',
+		'array.findLastIndex(predicate) // keep\r\n=== -1 || ready',
+	].map(expression => ({
+		code: `<template><div v-if="${expression}"></div></template>`,
+		errors: [{messageId: 'some', suggestions: 0}],
+	})),
+});
+
+nodeTest('line comments do not swallow expressions following index comparisons', t => {
+	for (const comparison of ['>= 0 && false', '< 0 || true']) {
+		const code = `const result = [1].findIndex(value => value === 1) // keep\n${comparison};\nresult;`;
+		const result = linter.verifyAndFix(code, linterConfig);
+		t.assert.strictEqual(runInNewContext(result.output), runInNewContext(code));
+		t.assert.strictEqual(result.fixed, false);
+	}
+});
