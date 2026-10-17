@@ -808,3 +808,26 @@ test('no redundant semicolon, and CRLF input', t => {
 		t.assert.strictEqual(result.output, expected, `output for \`${code}\``);
 	}
 });
+
+ruleTest.svelte({
+	valid: [],
+	invalid: [
+		['{value.search(/x/) !== -1}', '{(/x/).test(value)}'],
+		['<div>{value.match(/x/) ? yes : no}</div>', '<div>{(/x/).test(value) ? yes : no}</div>'],
+		['{#if value}{value.search(/x/) !== -1}{/if}', '{#if value}{(/x/).test(value)}{/if}'],
+		['{ value.search(/x/) !== -1}', '{ (/x/).test(value)}'],
+		['{/* keep */ value.search(/x/) !== -1}', '{/* keep */ /x/.test(value)}'],
+		['{@html value.search(/x/) !== -1}', '{@html /x/.test(value)}'],
+		['<div style:color={value.search(/x/) !== -1}></div>', '<div style:color={/x/.test(value)}></div>'],
+		['{(value.search(/x/) !== -1)}', '{(/x/.test(value))}'],
+		['{value.search(/x/) === -1}', '{!/x/.test(value)}'],
+		['<div title={value.search(/x/) !== -1}></div>', '<div title={/x/.test(value)}></div>'],
+		['{#if value.search(/x/) !== -1}yes{/if}', '{#if /x/.test(value)}yes{/if}'],
+		['<button onclick={() => value.search(/x/) !== -1}>test</button>', '<button onclick={() => /x/.test(value)}>test</button>'],
+		['{value.search(/* keep */ /x/) !== -1}', '{(/x/).test(/* keep */ value)}'],
+	].map(([code, output]) => ({
+		code: `<script>const value = "x";</script>${code}`,
+		output: `<script>const value = "x";</script>${output}`,
+		errors: 1,
+	})),
+});

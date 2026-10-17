@@ -112,3 +112,17 @@ test({
 		errors: [{messageId: 'no-negation-in-equality-check/error', suggestions: [{messageId: 'no-negation-in-equality-check/suggestion', output}]}],
 	}))],
 });
+
+test.svelte({
+	valid: [],
+	invalid: [{
+		code: '{!/x/.test(value) === true}',
+		errors: [{
+			messageId: 'no-negation-in-equality-check/error',
+			suggestions: [{
+				messageId: 'no-negation-in-equality-check/suggestion',
+				output: '{(/x/.test(value)) !== true}',
+			}],
+		}],
+	}],
+});

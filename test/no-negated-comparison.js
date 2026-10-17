@@ -323,3 +323,12 @@ test({
 		['setup()\n!({value: 1}.value === 1);', 'setup()\n;({value: 1}.value !== 1);'],
 	].map(([code, output]) => ({code, output, errors: 1})),
 });
+
+test.svelte({
+	valid: [],
+	invalid: [{
+		code: '{!(/x/.test(value) === true)}',
+		output: '{(/x/.test(value) !== true)}',
+		errors: 1,
+	}],
+});

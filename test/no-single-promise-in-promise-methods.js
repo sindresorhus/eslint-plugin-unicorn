@@ -267,3 +267,17 @@ nodeTest('suggestions beneath delete keep the property instead of deleting it', 
 		t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
 	}
 });
+
+test.svelte({
+	valid: [],
+	invalid: ['race', 'any'].map(method => ({
+		code: `{Promise.${method}([/x/.source])}`,
+		errors: [{
+			messageId: 'no-single-promise-in-promise-methods/error',
+			suggestions: [
+				{messageId: 'no-single-promise-in-promise-methods/unwrap', output: '{(/x/.source)}'},
+				{messageId: 'no-single-promise-in-promise-methods/use-promise-resolve', output: '{Promise.resolve(/x/.source)}'},
+			],
+		}],
+	})),
+});

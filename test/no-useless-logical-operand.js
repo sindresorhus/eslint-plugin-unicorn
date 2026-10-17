@@ -247,3 +247,15 @@ test({
 		['const get = () => true && {value: 1}.value && flag;', 'const get = () => ({value: 1}.value) && flag;'],
 	].map(([code, output]) => ({code, output, errors: 1})),
 });
+
+test.svelte({
+	valid: [],
+	invalid: [
+		['{true && /x/}', '{(/x/)}'],
+		['<div>{true && /x/ && value}</div>', '<div>{(/x/) && value}</div>'],
+		['{ true && /x/}', '{ (/x/)}'],
+		['{(true && /x/)}', '{(/x/)}'],
+		['{true && (/x/)}', '{(/x/)}'],
+		['<div title={true && /x/}></div>', '<div title={/x/}></div>'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});

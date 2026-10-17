@@ -25,32 +25,43 @@ export default function shouldAddParenthesesToExpressionStatementExpression(node
 	return !isParenthesized(node, context) && startsWithDeclarationLikeToken(node, context);
 }
 
+const isSvelteTextInterpolation = node =>
+	node?.type === 'SvelteMustacheTag'
+	&& node.kind === 'text'
+	&& node.parent.type !== 'SvelteAttribute'
+	&& node.parent.type !== 'SvelteStyleDirective';
+
 /**
-Check whether moving an expression to the replacement position would expose a block or declaration prefix.
+Check whether moving an expression to the replacement position would expose a block or declaration prefix, or a regular expression parsed as a Svelte closing tag.
 */
 export function shouldAddParenthesesToExpressionStart(expression, context, replacementNode = expression) {
-	if (!startsWithDeclarationLikeToken(expression, context)) {
+	const {sourceCode} = context;
+	const firstToken = getTokenStore(context, expression).getFirstToken(expression);
+	const startsWithRegExp = firstToken.type === 'RegularExpression';
+	if (!startsWithRegExp && !startsWithDeclarationLikeToken(expression, context)) {
 		return false;
 	}
 
-	const {sourceCode} = context;
-	const firstToken = getTokenStore(context, expression).getFirstToken(expression);
 	for (let node = replacementNode; node; node = node.parent) {
 		if (isParenthesized(node, context)) {
 			return false;
 		}
 
 		const {parent} = node;
+		if (startsWithRegExp && isSvelteTextInterpolation(parent)) {
+			return sourceCode.getCommentsBefore(node).length === 0;
+		}
+
 		if (parent?.type === 'ArrowFunctionExpression' && parent.body === node) {
 			return firstToken.value === '{';
 		}
 
 		if (parent?.type === 'ExportDefaultDeclaration' && parent.declaration === node) {
-			return firstToken.value !== '{';
+			return !startsWithRegExp && firstToken.value !== '{';
 		}
 
 		if (node.type.endsWith('Statement')) {
-			return true;
+			return !startsWithRegExp;
 		}
 
 		if (!parent || sourceCode.getRange(parent)[0] !== sourceCode.getRange(node)[0]) {

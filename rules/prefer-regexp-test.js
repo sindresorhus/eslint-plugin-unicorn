@@ -49,7 +49,7 @@ const messages = {
 const isLiteralZero = node => isLiteral(node, 0);
 const isRegExpValue = value => Object.prototype.toString.call(value) === '[object RegExp]';
 
-function * fixStringMethodCall(fixer, {stringNode, methodNode, regexpNode}, context) {
+function * fixStringMethodCall(fixer, {stringNode, methodNode, regexpNode}, context, searchCheck) {
 	const {sourceCode} = context;
 	yield fixer.replaceText(methodNode, 'test');
 
@@ -67,7 +67,8 @@ function * fixStringMethodCall(fixer, {stringNode, methodNode, regexpNode}, cont
 	let regexpText = sourceCode.getText(regexpNode);
 	if (
 		!isParenthesized(stringNode, sourceCode)
-		&& shouldAddParenthesesToMemberExpressionObject(regexpNode, context, stringNode)
+		// An inserted `!` already protects the expression start.
+		&& shouldAddParenthesesToMemberExpressionObject(regexpNode, context, searchCheck?.negate ? regexpNode : stringNode)
 	) {
 		regexpText = `(${regexpText})`;
 	}
@@ -627,7 +628,7 @@ const create = context => {
 
 			const fixFunction = function * (fixer) {
 				// Run first so the space after a keyword goes before an inserted `!`
-				for (const fixResult of fix(fixer, nodes, context)) {
+				for (const fixResult of fix(fixer, nodes, context, searchCheck)) {
 					yield fixResult;
 				}
 

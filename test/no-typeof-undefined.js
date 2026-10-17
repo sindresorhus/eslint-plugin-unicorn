@@ -237,3 +237,12 @@ test({
 		{code: 'typeof /* keep */{value: undefined}.value === "undefined";', output: '/* keep */({value: undefined}.value) === undefined;', errors: 1},
 	],
 });
+
+test.svelte({
+	valid: [],
+	invalid: [{
+		code: '{typeof /x/.source === "undefined"}',
+		output: '{(/x/.source) === undefined}',
+		errors: 1,
+	}],
+});
