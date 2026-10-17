@@ -137,21 +137,19 @@ function getProblemWithFix(problem, fix, canAutoFix) {
 	return problem;
 }
 
-const isMathProperty = (node, property) =>
-	node.type === 'MemberExpression'
-	&& !node.optional
-	&& !node.computed
-	&& node.object.type === 'Identifier'
-	&& node.object.name === 'Math'
-	&& node.property.type === 'Identifier'
-	&& node.property.name === property;
+const isMathProperty = (node, property) => isMemberExpression(node, {
+	object: 'Math',
+	property,
+	optional: false,
+});
 
-const isMathMethodCall = (node, method) =>
-	node.type === 'CallExpression'
-	&& !node.optional
-	&& isMathProperty(node.callee, method)
-	&& node.arguments.length === 1
-	&& node.arguments[0].type !== 'SpreadElement';
+const isMathMethodCall = (node, method) => isMethodCall(node, {
+	object: 'Math',
+	method,
+	argumentsLength: 1,
+	optionalCall: false,
+	optionalMember: false,
+});
 
 // `Math.log(x) * Math.LOG10E` -> `Math.log10(x)`
 // `Math.LOG10E * Math.log(x)` -> `Math.log10(x)`

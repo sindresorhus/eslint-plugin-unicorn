@@ -226,6 +226,9 @@ test({
 		['Math.log(false) * Math.LOG10E;', 'Math.log10(false);'],
 		['Math.LOG2E * Math.log(null);', 'Math.log2(null);'],
 		['Math.log("1") / Math.LN2;', 'Math.log2("1");'],
+		['Math.log(`1`) / Math.LN2;', 'Math.log2(`1`);'],
+		['Math.sqrt(`0` ** 2);', 'Math.abs(`0`);'],
+		['Math.sqrt(`not a number` ** 2);', 'Math.abs(`not a number`);'],
 		['Math.log("-1") * Math.LOG2E;', 'Math.log2("-1");'],
 		['Math.log("not a number") / Math.LN2;', 'Math.log2("not a number");'],
 		['Math.log("Infinity") / Math.LN10;', 'Math.log10("Infinity");'],
@@ -377,6 +380,24 @@ test({
 		errors: [{
 			messageId: 'prefer-modern-math-apis',
 			suggestions: [{messageId: 'suggestion', data: {replacement}, output}],
+		}],
+	})),
+});
+
+// Unsafe templates and unresolved bindings remain suggestions
+test({
+	valid: [],
+	invalid: [
+		['Math.log(`2`) / Math.LN2;', 'Math.log2(`2`);'],
+		['Math.log(`${1}`) / Math.LN2;', 'Math.log2(`${1}`);'],
+		['Math.sqrt(`${0}` ** 2);', 'Math.abs(`${0}`);'],
+		['const {length} = "Infinity"; Math.log(length) / Math.LN2;', 'const {length} = "Infinity"; Math.log2(length);'],
+		['const [value] = "4"; Math.sqrt(value * value);', 'const [value] = "4"; Math.abs(value);'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{
+			messageId: 'prefer-modern-math-apis',
+			suggestions: [{messageId: 'suggestion', output}],
 		}],
 	})),
 });
