@@ -23,13 +23,13 @@ We only check `.filter().length > 0` and `.filter().length !== 0`. These two non
 
 - Using [`Array#findIndex()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex) or [`Array#findLastIndex()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findLastIndex) to ensure at least one element in the array passes a given check.
 
-This rule is fixable for `.findIndex(…)`, and for `.findLastIndex(…)` and `.filter(…).length` checks when the callback is an inline function without side effects.
+Replacements for `.find()` and `.findLast()` are suggestions because a matching element can be falsy. Replacing `.findLast()` also changes the iteration order.
 
-This rule provides a suggestion for `.{find,findLast}(…)`, and for `.findLastIndex(…)` and `.filter(…).length` checks when the callback is a reference or has side effects. `.some()` stops at the first match, and `.findLastIndex()` visits elements in reverse order, so such a callback can be called a different number of times or in a different order. A matching value returned by `.find()` or `.findLast()` can also be falsy.
+`.findIndex()` checks are autofixed. `.findLastIndex()` and `.filter().length` checks are autofixed when the callback is an inline function without side effects; otherwise, a suggestion is offered. These replacements can change how many times the callback runs or its iteration order.
 
 This rule skips receivers known to be neither an array nor a typed array, from syntax, TypeScript annotations, or TypeScript type information. Unknown receivers are still checked.
 
-The rule also checks `.find()` and `.findLast()` results assigned to a `const` variable when every use passes the variable directly to the global `Boolean()` function. Other boolean contexts are supported when the receiver is known to be an array.
+The rule also checks `.find()` and `.findLast()` results assigned to an unannotated `const` variable when every use passes the variable directly to the global `Boolean()` function. Other boolean contexts are supported when the receiver is known to be an array or typed array.
 
 ## Examples
 

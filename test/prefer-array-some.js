@@ -81,6 +81,15 @@ test({
 			code: 'const found = values.find(predicate); Boolean(found); type Found = typeof found;',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'function hasMatch(values: unknown) { if (!Array.isArray(values)) { return false; } const found = values.find(value => value > 2); return !!found; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		...[
+			'function hasMatch(values: Uint8Array | {find(predicate: Function): unknown}) { const found = values.find(predicate); return !!found; }',
+			'function hasMatch(values: Uint8Array) { const found: number | undefined = values.find(predicate); return Boolean(found); }',
+			'function hasMatch(values: Uint8Array) { const found = values.find(predicate); return found; }',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
 		typeAware('function hasMatch(values: {find(predicate: Function): unknown}) { const found = values.find(predicate); return Boolean(found); }'),
 	],
 	invalid: [
@@ -106,6 +115,9 @@ test({
 			'const found = values.find(predicate); doSomething(); !Boolean(found);',
 			'const found = values.find(predicate); function hasMatch() { return Boolean(found); }',
 			'const found = new Uint8Array([0, 1]).find(predicate); Boolean(found);',
+			'const found = new Uint8Array(values).find(predicate); if (found) {}',
+			'const found = Uint8Array.from(values).find(predicate); !found;',
+			'const found = new BigInt64Array(values).find(predicate); if (found) {}',
 		].flatMap(code => ['find', 'findLast'].map(method => invalidCase({
 			code: code.replace('.find(', () => `.${method}(`),
 			suggestionOutput: code.replace('.find(', '.some('),
@@ -127,23 +139,43 @@ test({
 			suggestionOutput: 'function hasMatch(values: any) { const found = values.some(predicate); return Boolean(found); }',
 			method,
 		})),
+		...['find', 'findLast'].map(method => invalidCase({
+			code: `function hasMatch(values: Uint8Array) { const found = values.${method}(predicate); return !!found; }`,
+			suggestionOutput: 'function hasMatch(values: Uint8Array) { const found = values.some(predicate); return !!found; }',
+			languageOptions: {parser: parsers.typescript},
+			method,
+		})),
+		...['find', 'findLast'].map(method => invalidCase({
+			...typeAware(`function hasMatch(values: number[] | Uint8Array) { const found = values.${method}(predicate); return !!found; }`),
+			suggestionOutput: 'function hasMatch(values: number[] | Uint8Array) { const found = values.some(predicate); return !!found; }',
+			method,
+		})),
+		invalidCase({
+			...typeAware('function hasMatch(values: unknown) { if (!Array.isArray(values)) { return false; } const found = values.find(value => value > 2); return !!found; }'),
+			suggestionOutput: 'function hasMatch(values: unknown) { if (!Array.isArray(values)) { return false; } const found = values.some(value => value > 2); return !!found; }',
+			method: 'find',
+		}),
 	],
 });
 
-nodeTest('find results used through Boolean stay suggestions for falsy matches', t => {
+nodeTest('find results used as booleans stay suggestions for falsy matches', t => {
 	for (const method of ['find', 'findLast']) {
-		const code = `function hasMatch(values) { const found = values.${method}(() => true); return Boolean(found); } hasMatch([0]);`;
-		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
-		t.assert.strictEqual(output, code);
-		t.assert.strictEqual(fixed, false);
-		t.assert.strictEqual(messages.length, 1);
-		t.assert.strictEqual(messages[0].fix, undefined);
-		t.assert.strictEqual(messages[0].suggestions.length, 1);
-		const {range, text} = messages[0].suggestions[0].fix;
-		const suggestedCode = code.slice(0, range[0]) + text + code.slice(range[1]);
-		t.assert.strictEqual(suggestedCode, code.replace(`.${method}(`, '.some('));
-		t.assert.strictEqual(runInNewContext(code), false);
-		t.assert.strictEqual(runInNewContext(suggestedCode), true);
+		for (const code of [
+			`function hasMatch(values) { const found = values.${method}(() => true); return Boolean(found); } hasMatch([0]);`,
+			`const values = new Uint8Array([0]); const found = values.${method}(() => true); !!found;`,
+		]) {
+			const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
+			t.assert.strictEqual(output, code);
+			t.assert.strictEqual(fixed, false);
+			t.assert.strictEqual(messages.length, 1);
+			t.assert.strictEqual(messages[0].fix, undefined);
+			t.assert.strictEqual(messages[0].suggestions.length, 1);
+			const {range, text} = messages[0].suggestions[0].fix;
+			const suggestedCode = code.slice(0, range[0]) + text + code.slice(range[1]);
+			t.assert.strictEqual(suggestedCode, code.replace(`.${method}(`, '.some('));
+			t.assert.strictEqual(runInNewContext(code), false);
+			t.assert.strictEqual(runInNewContext(suggestedCode), true);
+		}
 	}
 });
 
@@ -710,6 +742,17 @@ test.snapshot({
 		// The second argument is the `thisArg`, `.some(…)` takes it too
 		'foo.findIndex(bar, thisArgument) !== -1;',
 		'foo.findLastIndex(bar, thisArgument) !== -1;',
+	],
+});
+
+test.svelte({
+	valid: [],
+	invalid: [
+		invalidCase({
+			code: '<script>const found = values.find(predicate);</script><p>{Boolean(found)}</p>',
+			suggestionOutput: '<script>const found = values.some(predicate);</script><p>{Boolean(found)}</p>',
+			method: 'find',
+		}),
 	],
 });
 

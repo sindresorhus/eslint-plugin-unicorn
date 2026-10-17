@@ -5,7 +5,7 @@ import {
 	getParenthesizedRange,
 	hasCommentInRange,
 	hasTypeArguments,
-	isArray,
+	isIndexedCollection,
 	isKnownNonIndexedCollection,
 	isNodeValueNotFunction,
 	isSideEffectFreeFunction,
@@ -83,12 +83,12 @@ function isFindResultVariableUsedOnlyAsBoolean(callExpression, context) {
 		return false;
 	}
 
-	const isArrayReceiver = isArray(callExpression.callee.object, context);
+	const isIndexedCollectionReceiver = isIndexedCollection(callExpression.callee.object, context);
 
 	return references.every(reference => {
 		const {identifier} = reference;
 
-		return reference.isRead() && (isArrayReceiver
+		return reference.isRead() && (isIndexedCollectionReceiver
 			? isBooleanContext(identifier, context)
 			: isGlobalBooleanCall(identifier.parent, context));
 	});
