@@ -1025,7 +1025,20 @@ for (const [moduleName, method] of [
 	['vitest/config', 'defineConfig'],
 	['vitest/config', 'defineProject'],
 	['rollup', 'defineConfig'],
+	['tsdown', 'defineConfig'],
 	['astro/config', 'defineConfig'],
+	['@playwright/test', 'defineConfig'],
+	['playwright/test', 'defineConfig'],
+	['cypress', 'defineConfig'],
+	['rolldown', 'defineConfig'],
+	['drizzle-kit', 'defineConfig'],
+	['vitepress', 'defineConfig'],
+	['@rsbuild/core', 'defineConfig'],
+	['@rslib/core', 'defineConfig'],
+	['@rspack/cli', 'defineConfig'],
+	['unocss', 'defineConfig'],
+	['@pandacss/dev', 'defineConfig'],
+	['nuxt/config', 'defineNuxtConfig'],
 ]) {
 	testUnknownCalls({
 		valid: [
@@ -1068,6 +1081,9 @@ testUnknownCalls({
 		'import {defineProject} from "vite"; export default defineProject({});',
 		'import {defineProject} from "other"; export default defineProject({});',
 		'export default defineProject({});',
+		'import {defineConfig} from "nuxt/config"; export default defineConfig({});',
+		'import {defineNuxtConfig} from "other"; export default defineNuxtConfig({});',
+		'export default defineNuxtConfig({});',
 	].map(code => ({code, errors: [{messageId: 'no-top-level-side-effects'}]})),
 });
 
