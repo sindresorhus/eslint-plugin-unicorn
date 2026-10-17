@@ -165,3 +165,39 @@ test({
 		'(element.innerHTML as Function)`template`;',
 	].map(code => ({code, languageOptions: {parser: parsers.typescript}, errors: 1})),
 });
+
+test({
+	valid: [],
+	invalid: [{
+		code: '({element}.element.innerHTML) = content;',
+		options: [{checkSetHTML: true}],
+		errors: [{messageId: 'prefer-dom-node-html-methods/write', suggestions: [{messageId: 'prefer-dom-node-html-methods/write-suggestion', output: '({element}.element).setHTML(content);'}]}],
+	}, {
+		code: '((element)).innerHTML = content;',
+		options: [{checkSetHTML: true}],
+		errors: [{messageId: 'prefer-dom-node-html-methods/write', suggestions: [{messageId: 'prefer-dom-node-html-methods/write-suggestion', output: '((element)).setHTML(content);'}]}],
+	}],
+});
+
+nodeTest('setHTML suggestions retain the receiver when assignment parentheses are removed', t => {
+	const linter = new Linter();
+	const code = '({element}.element.innerHTML) = content; element.innerHTML;';
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-dom-node-html-methods': rule}}},
+		rules: {'unicorn/prefer-dom-node-html-methods': ['error', {checkSetHTML: true, checkGetHTML: false}]},
+	};
+	const [problem] = linter.verify(code, config);
+	const {fix} = problem.suggestions[0];
+	const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	const execute = source => runInNewContext(source, {
+		content: '<p>text</p>',
+		element: {
+			setHTML(content) {
+				this.innerHTML = content;
+			},
+		},
+	});
+	t.assert.strictEqual(execute(code), '<p>text</p>');
+	t.assert.strictEqual(execute(output), execute(code));
+	t.assert.deepStrictEqual(linter.verify(output, config), []);
+});

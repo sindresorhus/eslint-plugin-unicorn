@@ -265,3 +265,22 @@ test.snapshot({
 		},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['!{array: [1]}.array.some(value => value);', '({array: [1]}.array.every(value => !value));'],
+			['const value = !{array: [1]}.array.some(value => value);', 'const value = {array: [1]}.array.every(value => !value);'],
+			['const read = () => !{array: [1]}.array.some(value => value);', 'const read = () => ({array: [1]}.array.every(value => !value));'],
+			['(!{array: [1]}.array.some(value => value));', '({array: [1]}.array.every(value => !value));'],
+			['!({array: [1]}.array.some(value => value));', '({array: [1]}.array.every(value => !value));'],
+			['setup()\n!{array: [1]}.array.some(value => value);', 'setup()\n;({array: [1]}.array.every(value => !value));'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+		{
+			code: '<template><button @click="setup()\n!{array:[1]}.array.some(value => value)"></button></template>',
+			languageOptions: {parser: parsers.vue},
+			errors: 1,
+		},
+	],
+});

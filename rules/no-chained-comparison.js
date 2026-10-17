@@ -1,6 +1,11 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {isBooleanLiteral} from './ast/index.js';
-import {getParenthesizedText, isParenthesized, isBoolean} from './utils/index.js';
+import {
+	getParenthesizedText,
+	isParenthesized,
+	isBoolean,
+	shouldAddParenthesesToExpressionStart,
+} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-chained-comparison/error';
 const MESSAGE_ID_SUGGESTION = 'no-chained-comparison/suggestion';
@@ -82,7 +87,10 @@ const create = context => {
 			&& !hasSideEffect(nested.right, sourceCode)
 			&& sourceCode.getCommentsInside(node).length === 0
 		) {
-			const replacement = `${sourceCode.getText(node.left)} && ${getParenthesizedText(nested.right, context)} ${node.operator} ${getParenthesizedText(node.right, context)}`;
+			let replacement = `${sourceCode.getText(node.left)} && ${getParenthesizedText(nested.right, context)} ${node.operator} ${getParenthesizedText(node.right, context)}`;
+			if (shouldAddParenthesesToExpressionStart(node.left, context, node)) {
+				replacement = `(${replacement})`;
+			}
 
 			problem.suggest = [
 				{

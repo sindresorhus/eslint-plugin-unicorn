@@ -1,5 +1,6 @@
 import {
 	checkVueTemplate,
+	getAncestor,
 	getFunctionReturnExpression,
 	getNegatedExpressionText,
 	getParenthesizedRange,
@@ -7,8 +8,10 @@ import {
 	hasTypeArguments,
 	isKnownNonIndexedCollection,
 	isOnSameLine,
+	isParenthesized,
 	getUnparenthesizedKeywordArgumentParent,
 	needsSemicolon,
+	shouldAddParenthesesToExpressionStart,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 import {
@@ -113,6 +116,8 @@ const create = context => {
 		const bangToken = tokenStore.getFirstToken(unaryExpression);
 		const tokenAfterBang = tokenStore.getTokenAfter(bangToken);
 		const keywordParent = getUnparenthesizedKeywordArgumentParent(unaryExpression, context);
+		const needsParentheses = !isParenthesized(unaryExpression.argument, context)
+			&& shouldAddParenthesesToExpressionStart(unaryExpression.argument, context, unaryExpression);
 		if (
 			keywordParent?.type === 'YieldExpression'
 			&& !isOnSameLine(bangToken, tokenAfterBang, context)
@@ -133,11 +138,14 @@ const create = context => {
 				replacement,
 			},
 			* fix(fixer, {abort}) {
-				// Vue.js template comments are unavailable to the source-text helpers, including comments inside surrounding parentheses.
+				// Vue.js template statements and comments are unavailable to the source-text helpers, including comments inside surrounding parentheses.
 				const predicateNode = tokenStore === sourceCode ? returnedExpression : callback;
 				const [predicateStart, predicateEnd] = replacementPredicateRange;
 				if (
-					tokenStore.getTokensBetween(bangToken, tokenAfterBang, {includeComments: true}).length > 0
+					(needsParentheses
+						&& tokenStore !== sourceCode
+						&& (getAncestor(unaryExpression, 'VOnExpression') || getAncestor(unaryExpression, 'BlockStatement')))
+					|| tokenStore.getTokensBetween(bangToken, tokenAfterBang, {includeComments: true}).length > 0
 					|| tokenStore.getCommentsInside(predicateNode).some(comment => {
 						const [commentStart, commentEnd] = sourceCode.getRange(comment);
 						return commentStart >= predicateStart && commentEnd <= predicateEnd;
@@ -155,6 +163,11 @@ const create = context => {
 				yield fixer.replaceText(methodNode, replacement);
 				yield fixer.replaceTextRange(replacementPredicateRange, replacementPredicateText);
 
+				if (needsParentheses) {
+					yield fixer.insertTextBefore(unaryExpression.argument, '(');
+					yield fixer.insertTextAfter(unaryExpression.argument, ')');
+				}
+
 				if (
 					tokenStore === sourceCode
 					&& !isNeedsReturnOrThrowParentheses
@@ -169,7 +182,7 @@ const create = context => {
 
 				if (tokenStore === sourceCode) {
 					const tokenBefore = sourceCode.getTokenBefore(unaryExpression);
-					if (needsSemicolon(tokenBefore, context, tokenAfterBang.value)) {
+					if (needsSemicolon(tokenBefore, context, needsParentheses ? '(' : tokenAfterBang.value)) {
 						yield fixer.insertTextBefore(unaryExpression, ';');
 					}
 				}

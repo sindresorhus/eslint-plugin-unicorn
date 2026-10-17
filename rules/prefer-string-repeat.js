@@ -1,7 +1,7 @@
 import {isStringLiteral} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import isJestInlineSnapshot from './shared/is-jest-inline-snapshot.js';
-import {isStringLiteralRequired} from './utils/index.js';
+import {isInUnparenthesizedNewExpressionCallee, isStringLiteralRequired} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-string-repeat';
 const messages = {
@@ -54,7 +54,10 @@ function getProblem(node, value, context, minimumRepetitions) {
 		return;
 	}
 
-	const replacement = `${quoteWhitespace(repeatedWhitespace.character)}.repeat(${repeatedWhitespace.count})`;
+	let replacement = `${quoteWhitespace(repeatedWhitespace.character)}.repeat(${repeatedWhitespace.count})`;
+	if (isInUnparenthesizedNewExpressionCallee(node, context)) {
+		replacement = `(${replacement})`;
+	}
 
 	return {
 		node,

@@ -1,4 +1,8 @@
-import {needsSemicolon, shouldAddParenthesesToUnaryExpressionArgument} from './utils/index.js';
+import {
+	needsSemicolon,
+	shouldAddParenthesesToUnaryExpressionArgument,
+	shouldAddParenthesesToUnaryExpressionReplacement,
+} from './utils/index.js';
 import {isNegativeOne} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-unary-minus';
@@ -65,6 +69,9 @@ const create = context => {
 			const isNegativeUnary = operand.type === 'UnaryExpression' && operand.operator === '-';
 			const needsParentheses = shouldAddParenthesesToUnaryExpressionArgument(operand, '-') || isNegativeUnary;
 			let replacement = needsParentheses ? `-(${text})` : `-${text}`;
+			if (shouldAddParenthesesToUnaryExpressionReplacement(node, context)) {
+				replacement = `(${replacement})`;
+			}
 
 			const tokenBefore = sourceCode.getTokenBefore(node);
 			if (needsSemicolon(tokenBefore, context, replacement)) {

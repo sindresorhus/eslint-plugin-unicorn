@@ -8,6 +8,7 @@ import {
 	isOnSameLine,
 	needsSemicolon,
 	getUnparenthesizedKeywordArgumentParent,
+	shouldAddParenthesesToExpressionStart,
 } from './utils/index.js';
 import {
 	getBinaryExpressionWithReplacedOperatorText,
@@ -125,7 +126,8 @@ function * fix({
 		yield fixer.insertTextAfter(tokenAfterBangIncludingComments, ' ');
 	}
 
-	const shouldKeepParentheses = parentNeedsGroupedComparison(parent) && !isParenthesized(unaryExpression, context);
+	const shouldKeepParentheses = (parentNeedsGroupedComparison(parent) && !isParenthesized(unaryExpression, context))
+		|| shouldAddParenthesesToExpressionStart(comparison, context, unaryExpression);
 	if (!shouldKeepParentheses) {
 		yield removeParentheses(comparison, fixer, context);
 	}

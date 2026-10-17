@@ -334,3 +334,19 @@ test.snapshot({
 		},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [{
+		code: 'function read(value) { return !\nvalue ? 1 : 2, 3; }',
+		output: 'function read(value) { return ( \nvalue ? 2 : 1, 3); }',
+		errors: 1,
+	}, ...[
+		['function read(value) { throw !\nvalue ? 1 : 2, 3; }', 'function read(value) { throw ( \nvalue ? 2 : 1, 3); }'],
+		['function read(value) { return !value ? 1 : 2, 3; }', 'function read(value) { return value ? 2 : 1, 3; }'],
+		['function read(value) { return (!\nvalue ? 1 : 2, 3); }', 'function read(value) { return (\nvalue ? 2 : 1, 3); }'],
+	].map(([code, output]) => ({code, output, errors: 1})), {
+		code: 'function* read(value) { yield !\nvalue ? 1 : 2, 3; }',
+		errors: 1,
+	}],
+});

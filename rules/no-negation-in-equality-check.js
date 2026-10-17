@@ -2,7 +2,9 @@ import {fixSpaceAroundKeyword, addParenthesesToReturnOrThrowExpression} from './
 import {
 	needsSemicolon,
 	isOnSameLine,
+	isParenthesized,
 	getUnparenthesizedKeywordArgumentParent,
+	shouldAddParenthesesToExpressionStart,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-negation-in-equality-check/error';
@@ -37,6 +39,8 @@ const create = context => {
 		const {sourceCode} = context;
 		const bangToken = sourceCode.getFirstToken(left);
 		const keywordParent = getUnparenthesizedKeywordArgumentParent(left, context);
+		const needsParentheses = !isParenthesized(left.argument, context)
+			&& shouldAddParenthesesToExpressionStart(left.argument, context, left);
 		const negatedOperator = `${operator.startsWith('!') ? '=' : '!'}${operator.slice(1)}`;
 		const problem = {
 			node: bangToken,
@@ -80,9 +84,14 @@ const create = context => {
 
 						yield fixer.remove(bangToken);
 
+						if (needsParentheses) {
+							yield fixer.insertTextBefore(left.argument, '(');
+							yield fixer.insertTextAfter(left.argument, ')');
+						}
+
 						const previousToken = sourceCode.getTokenBefore(bangToken);
-						if (needsSemicolon(previousToken, context, tokenAfterBang.value)) {
-							yield fixer.insertTextAfter(bangToken, ';');
+						if (needsSemicolon(previousToken, context, needsParentheses ? '(' : tokenAfterBang.value)) {
+							yield fixer.insertTextBefore(bangToken, ';');
 						}
 
 						const operatorToken = sourceCode.getTokenAfter(

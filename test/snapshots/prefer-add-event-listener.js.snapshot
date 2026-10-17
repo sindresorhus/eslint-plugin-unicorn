@@ -360,7 +360,7 @@ Message:
     |         ^^^^^^^ Prefer \`addEventListener\` over \`onclick\`.
 
 Output:
-  1 | (foo).addEventListener('click', (0, listener))
+  1 | ((foo)).addEventListener('click', (0, listener))
 
 `;
 

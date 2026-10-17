@@ -222,3 +222,18 @@ test.snapshot({
 		`,
 	].map(code => ({code, options: [{checkGlobalVariables: true}]})),
 });
+
+test({
+	valid: [],
+	invalid: [
+		{code: 'typeof {value: undefined}.value === "undefined";', output: '({value: undefined}.value) === undefined;', errors: 1},
+		{code: 'typeof function () {} === "undefined";', output: '(function () {}) === undefined;', errors: 1},
+		{code: 'setup()\ntypeof {value: undefined}.value === "undefined";', output: 'setup()\n;({value: undefined}.value) === undefined;', errors: 1},
+		{code: 'const value = typeof {value: undefined}.value === "undefined";', output: 'const value = {value: undefined}.value === undefined;', errors: 1},
+		{code: 'const read = () => typeof {value: undefined}.value === "undefined";', output: 'const read = () => ({value: undefined}.value) === undefined;', errors: 1},
+		{code: 'export default typeof function () {} === "undefined";', output: 'export default (function () {}) === undefined;', errors: 1},
+		{code: '(typeof {value: undefined}.value) === "undefined";', output: '({value: undefined}.value) === undefined;', errors: 1},
+		{code: 'typeof ({value: undefined}.value) === "undefined";', output: '({value: undefined}.value) === undefined;', errors: 1},
+		{code: 'typeof /* keep */{value: undefined}.value === "undefined";', output: '/* keep */({value: undefined}.value) === undefined;', errors: 1},
+	],
+});

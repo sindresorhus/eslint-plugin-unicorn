@@ -142,3 +142,22 @@ test.snapshot({
 		{code: 'a < (b as number) < c', languageOptions: {parser: parsers.typescript}},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [{
+		code: '({value: 1}.value < b) < c;',
+		errors: [{messageId: 'no-chained-comparison/error', suggestions: [{messageId: 'no-chained-comparison/suggestion', output: '({value: 1}.value < b && b < c);'}]}],
+	}, ...[
+		['(function () {}.length < b) < c;', '(function () {}.length < b && b < c);'],
+		['const result = ({value: 1}.value < b) < c;', 'const result = {value: 1}.value < b && b < c;'],
+		['function check() { return ({value: 1}.value < b) < c; }', 'function check() { return {value: 1}.value < b && b < c; }'],
+		['(({value: 1}.value < b) < c);', '({value: 1}.value < b && b < c);'],
+		['(({value: 1}.value) < b) < c;', '({value: 1}.value) < b && b < c;'],
+		['const check = () => ({value: 1}.value < b) < c;', 'const check = () => ({value: 1}.value < b && b < c);'],
+		['const check = () => (function () {}.length < b) < c;', 'const check = () => function () {}.length < b && b < c;'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{messageId: 'no-chained-comparison/error', suggestions: [{messageId: 'no-chained-comparison/suggestion', output}]}],
+	}))],
+});

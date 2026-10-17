@@ -92,3 +92,23 @@ test.snapshot({
 		`,
 	],
 });
+
+test({
+	valid: [],
+	invalid: [{
+		code: '!{value: false}.value === true;',
+		errors: [{messageId: 'no-negation-in-equality-check/error', suggestions: [{messageId: 'no-negation-in-equality-check/suggestion', output: '({value: false}.value) !== true;'}]}],
+	}, ...[
+		['!function () {} === true;', '(function () {}) !== true;'],
+		['const value = !{value: false}.value === true;', 'const value = {value: false}.value !== true;'],
+		['const read = () => !{value: false}.value === true;', 'const read = () => ({value: false}.value) !== true;'],
+		['export default !function () {} === true;', 'export default (function () {}) !== true;'],
+		['(!{value: false}.value) === true;', '({value: false}.value) !== true;'],
+		['!({value: false}.value) === true;', '({value: false}.value) !== true;'],
+		['setup()\n!{value: false}.value === true;', 'setup()\n;({value: false}.value) !== true;'],
+		['!/* keep */{value: false}.value === true;', '/* keep */({value: false}.value) !== true;'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{messageId: 'no-negation-in-equality-check/error', suggestions: [{messageId: 'no-negation-in-equality-check/suggestion', output}]}],
+	}))],
+});

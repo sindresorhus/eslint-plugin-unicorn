@@ -3,7 +3,9 @@ import {
 	getParenthesizedText,
 	getStaticValueForControlFlow,
 	isNumber,
+	isParenthesized,
 	needsSemicolon,
+	shouldAddParenthesesToExpressionStart,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-subtraction-comparison/error';
@@ -70,7 +72,10 @@ const create = context => {
 		}
 
 		const {left, right} = subtraction;
-		const replacement = `${getParenthesizedText(left, context)} ${operator} ${getParenthesizedText(right, context)}`;
+		let replacement = `${getParenthesizedText(left, context)} ${operator} ${getParenthesizedText(right, context)}`;
+		if (!isParenthesized(left, context) && shouldAddParenthesesToExpressionStart(left, context, node)) {
+			replacement = `(${replacement})`;
+		}
 
 		/**
 		@param {import('eslint').Rule.RuleFixer} fixer

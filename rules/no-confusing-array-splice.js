@@ -2,6 +2,7 @@ import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {
 	getParenthesizedText,
+	getMemberExpressionObjectText,
 	getStaticNumberValue,
 	shouldSkipKnownNonArrayReceiver,
 	unwrapTypeScriptExpression,
@@ -86,7 +87,7 @@ function getSuggestion(callExpression, messageId, context) {
 	const {object, property} = callExpression.callee;
 	const [start, , element] = callExpression.arguments;
 	const method = property.name;
-	const objectText = getParenthesizedText(object, context);
+	const objectText = getMemberExpressionObjectText(object, context, callExpression);
 	// A sequence expression has to keep its parentheses, it would otherwise merge into the new argument list or the assignment and change what runs
 	const startText = getParenthesizedText(start, context);
 	const elementText = getParenthesizedText(element, context);

@@ -7,8 +7,8 @@ import {
 } from './fix/index.js';
 import isJestInlineSnapshot from './shared/is-jest-inline-snapshot.js';
 import {
+	getUnparenthesizedKeywordArgumentParent,
 	isOnSameLine,
-	isParenthesized,
 	isStringLiteralRequired,
 	isTypeScriptFile,
 	withTypeInformation,
@@ -28,14 +28,6 @@ const BACKSLASH = '\\';
 
 function unescapeBackslash(text, quote = '') {
 	return text.replaceAll(new RegExp(String.raw`\\(?<escapedCharacter>[\\${quote}])`, 'g'), '$<escapedCharacter>');
-}
-
-function shouldParenthesizeYieldArgument(parent, node, tokenBefore, context) {
-	return parent.type === 'YieldExpression'
-		&& !parent.delegate
-		&& parent.argument === node
-		&& !isOnSameLine(tokenBefore, node.quasi, context)
-		&& !isParenthesized(node, context);
 }
 
 /**
@@ -146,7 +138,7 @@ const create = context => {
 	});
 
 	context.on('TaggedTemplateExpression', node => {
-		const {quasi, tag, parent} = node;
+		const {quasi, tag} = node;
 		const {sourceCode} = context;
 
 		if (
@@ -180,19 +172,19 @@ const create = context => {
 				}
 
 				const tokenBefore = sourceCode.getTokenBefore(node);
+				const keywordParent = getUnparenthesizedKeywordArgumentParent(node, context);
 				if (needsSemicolon(tokenBefore, context, suggestion)) {
 					yield fixer.insertTextBefore(node, ';');
 				}
 
 				if (
-					(parent.type === 'ReturnStatement' || parent.type === 'ThrowStatement')
+					(keywordParent?.type === 'ReturnStatement' || keywordParent?.type === 'ThrowStatement')
 					&& !isOnSameLine(tokenBefore, node.quasi, context)
-					&& !isParenthesized(node, context)
 				) {
-					yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
+					yield addParenthesesToReturnOrThrowExpression(fixer, keywordParent, context);
 				}
 
-				if (shouldParenthesizeYieldArgument(parent, node, tokenBefore, context)) {
+				if (keywordParent?.type === 'YieldExpression' && !isOnSameLine(tokenBefore, node.quasi, context)) {
 					yield fixer.insertTextBefore(node, '(');
 					yield fixer.insertTextAfter(node, ')');
 				}

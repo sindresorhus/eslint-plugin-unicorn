@@ -6,6 +6,8 @@ import {
 	isWeakSet,
 	isLeftHandSide,
 	getParenthesizedText,
+	getMemberExpressionObjectText,
+	needsSemicolon,
 	getStaticValueIfNoSideEffects,
 	getStaticValueForControlFlow,
 	getConstVariableInitializer,
@@ -58,8 +60,7 @@ const collectionTypes = [
 	},
 ];
 
-// Only `Identifier`/`ThisExpression`/`MemberExpression` receivers can be placed before
-// `.method(…)` without parentheses, so suggestions are limited to them.
+// Suggestions are limited to simple receiver node types; replacing the whole assignment or deletion can still expose a prefix that needs parentheses.
 const simpleObjectTypes = new Set(['Identifier', 'ThisExpression', 'MemberExpression']);
 const skipPropertyCheck = Symbol('skipPropertyCheck');
 
@@ -128,7 +129,7 @@ function getProblem(node, collection, context) {
 	// An optional access (`map?.['foo']`) wraps the member in a `ChainExpression`.
 	const outerNode = node.parent.type === 'ChainExpression' ? node.parent : node;
 	const {parent} = outerNode;
-	const object = getParenthesizedText(node.object, context);
+	const object = getMemberExpressionObjectText(node.object, context, parent);
 	// A sequence key such as `map[a, b]` is one key, so it needs parentheses as a call argument.
 	const key = getCallArgumentText(node.property, context);
 
@@ -158,8 +159,7 @@ function getProblem(node, collection, context) {
 
 	const problem = {node, messageId, data: {type}};
 
-	// Only suggest for the simple, statement-level case, to avoid changing the value of the
-	// surrounding expression, dropping comments, or needing to parenthesize the receiver.
+	// Only suggest for the simple, statement-level case, to avoid changing the value of the surrounding expression or dropping comments.
 	if (
 		suggestionMessageId
 		&& !node.optional
@@ -167,11 +167,12 @@ function getProblem(node, collection, context) {
 		&& parent.parent.type === 'ExpressionStatement'
 		&& sourceCode.getCommentsInside(parent).length === 0
 	) {
+		const prefix = needsSemicolon(sourceCode.getTokenBefore(parent), context, replacement) ? ';' : '';
 		problem.suggest = [
 			{
 				messageId: suggestionMessageId,
 				data: {type},
-				fix: fixer => fixer.replaceText(parent, replacement),
+				fix: fixer => fixer.replaceText(parent, prefix + replacement),
 			},
 		];
 	}

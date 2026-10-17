@@ -693,3 +693,19 @@ test({
 		},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		{code: 'new [...Array.of(1)].constructor(2).length;', output: 'new (Array.of(1)).constructor(2).length;', errors: 1},
+		{code: '[...function () { return [1]; }().toReversed()];', output: '(function () { return [1]; }().toReversed());', errors: 1},
+		{code: 'const read = () => [...{value: [1]}.value.toReversed()];', output: 'const read = () => ({value: [1]}.value.toReversed());', errors: 1},
+		{code: 'const copy = [...function () { return [1]; }().toReversed()];', output: 'const copy = function () { return [1]; }().toReversed();', errors: 1},
+		{code: 'const read = () => [...function () { return [1]; }().toReversed()];', output: 'const read = () => function () { return [1]; }().toReversed();', errors: 1},
+		{code: 'new ([...Array.of(1)]).constructor(2);', output: 'new (Array.of(1)).constructor(2);', errors: 1},
+		{code: 'new [...(Array.of(1))].constructor(2);', output: 'new (Array.of(1)).constructor(2);', errors: 1},
+		{
+			code: 'new [...Array.of(1)]!.constructor(2);', output: 'new (Array.of(1))!.constructor(2);', languageOptions: {parser: parsers.typescript}, errors: 1,
+		},
+	],
+});

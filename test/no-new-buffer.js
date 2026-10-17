@@ -468,3 +468,24 @@ test({
 		},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		{code: 'new new Buffer("text").constructor("other");', output: 'new (Buffer.from("text")).constructor("other");', errors: 1},
+		{code: 'new (new Buffer("text")).constructor("other");', output: 'new (Buffer.from("text")).constructor("other");', errors: 1},
+		{code: 'new new Buffer;', output: 'new (Buffer.from());', errors: 1},
+	],
+});
+
+nodeTest('Buffer call conversions preserve constructor receivers', t => {
+	for (const code of ['new new Buffer("text").constructor("other");', 'new (new Buffer("text")).constructor("other");']) {
+		const {output, messages, fixed} = linter.verifyAndFix(code, linterConfig);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		const original = runInNewContext(code, {Buffer});
+		const actual = runInNewContext(output, {Buffer});
+		t.assert.strictEqual(actual.constructor, Buffer);
+		t.assert.strictEqual(actual.toString(), original.toString());
+	}
+});

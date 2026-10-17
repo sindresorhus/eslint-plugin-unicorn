@@ -310,3 +310,16 @@ test.snapshot({
 		},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [
+		['!({value: 1}.value === 1);', '({value: 1}.value !== 1);'],
+		['!(function () {} === value);', '(function () {} !== value);'],
+		['const value = !({value: 1}.value === 1);', 'const value = {value: 1}.value !== 1;'],
+		['const read = () => !({value: 1}.value === 1);', 'const read = () => ({value: 1}.value !== 1);'],
+		['export default !(function () {} === value);', 'export default (function () {} !== value);'],
+		['(!({value: 1}.value === 1));', '({value: 1}.value !== 1);'],
+		['setup()\n!({value: 1}.value === 1);', 'setup()\n;({value: 1}.value !== 1);'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});

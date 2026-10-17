@@ -2,6 +2,7 @@
 import {runInNewContext} from 'node:vm';
 import test from 'node:test';
 import {Linter} from 'eslint';
+import {transpileModule, ScriptTarget} from 'typescript';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import plugin from '../index.js';
 import {getTester} from './utils/test.js';
@@ -284,4 +285,103 @@ test('URL preference rules complement the diagnostic', t => {
 	const {fix} = manual.suggestions[0];
 	const corrected = original.slice(0, fix.range[0]) + fix.text + original.slice(fix.range[1]);
 	t.assert.deepStrictEqual(linter.verify(corrected, config).map(({ruleId}) => ruleId), ['unicorn/no-url-in-search-params']);
+});
+
+ruleTest({
+	valid: [],
+	invalid: [{
+		...typeAware('new URLSearchParams({url: new URL("https://example.com/?x=1")}.url.href);'),
+		errors: [{
+			messageId: 'no-url-in-search-params', suggestions: [{
+				messageId: 'detached-copy',
+				output: 'new URLSearchParams({url: new URL("https://example.com/?x=1")}.url.search);',
+			}, {
+				messageId: 'live-search-params',
+				output: '({url: new URL("https://example.com/?x=1")}.url).searchParams;',
+			}],
+		}],
+	}, {
+		...typeAware('const parameters = new URLSearchParams({url: new URL("https://example.com/?x=1")}.url.href);'),
+		errors: [{
+			messageId: 'no-url-in-search-params', suggestions: [{
+				messageId: 'detached-copy',
+				output: 'const parameters = new URLSearchParams({url: new URL("https://example.com/?x=1")}.url.search);',
+			}, {
+				messageId: 'live-search-params',
+				output: 'const parameters = {url: new URL("https://example.com/?x=1")}.url.searchParams;',
+			}],
+		}],
+	}],
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
+		...[
+			['getUrl()', 'getUrl().search', '(getUrl().searchParams)'],
+			['getUrl().href', 'getUrl().search', '(getUrl().searchParams)'],
+			['getUrl()!', 'getUrl()!.search', '(getUrl()!.searchParams)'],
+			['(getUrl())', '(getUrl()).search', '(getUrl()).searchParams'],
+			['url', 'url.search', 'url.searchParams'],
+		].map(([argument, search, replacement]) => ({
+			code: `declare function getUrl(): URL; declare const url: URL; new new URLSearchParams(${argument}).constructor();`,
+			languageOptions: {parser: typescriptEslintParser},
+			errors: [{
+				messageId: 'no-url-in-search-params', suggestions: [{
+					messageId: 'detached-copy',
+					output: `declare function getUrl(): URL; declare const url: URL; new new URLSearchParams(${search}).constructor();`,
+				}, {
+					messageId: 'live-search-params',
+					output: `declare function getUrl(): URL; declare const url: URL; new ${replacement}.constructor();`,
+				}],
+			}],
+		})),
+	],
+});
+
+test('live URL suggestions preserve constructor callees', t => {
+	const prefix = 'declare function getUrl(): URL; ';
+	const linter = new Linter();
+	const config = {
+		files: ['**/*.ts'],
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/no-url-in-search-params': 'error'},
+		languageOptions: {parser: typescriptEslintParser},
+	};
+	for (const argument of ['getUrl()', 'getUrl().href', 'getUrl() as URL', 'getUrl() satisfies URL', '<URL>getUrl()']) {
+		const code = `${prefix}new new URLSearchParams(${argument}).constructor("answer=42").get("answer");`;
+		const [problem] = linter.verify(code, config, {filename: 'file.ts'});
+		const {fix} = problem.suggestions.find(suggestion => suggestion.messageId === 'live-search-params');
+		const corrected = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		const execute = source => {
+			const {outputText, diagnostics} = transpileModule(source.slice(prefix.length), {compilerOptions: {target: ScriptTarget.ESNext}, reportDiagnostics: true});
+			t.assert.deepStrictEqual(diagnostics, []);
+			return runInNewContext(outputText, {URLSearchParams, getUrl: () => new URL('https://example.com/?x=1')});
+		};
+
+		t.assert.strictEqual(execute(code), '42');
+		t.assert.strictEqual(execute(corrected), execute(code));
+		t.assert.deepStrictEqual(linter.verify(corrected, config, {filename: 'file.ts'}), []);
+	}
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
+		['getUrl() as URL', '(getUrl() as URL)'],
+		['getUrl() satisfies URL', '(getUrl() satisfies URL)'],
+		['<URL>getUrl()', '(<URL>getUrl())'],
+	].map(([argument, receiver]) => ({
+		code: `declare function getUrl(): URL; new new URLSearchParams(${argument}).constructor("x=1");`,
+		languageOptions: {parser: typescriptEslintParser},
+		errors: [{
+			messageId: 'no-url-in-search-params', suggestions: [{
+				messageId: 'detached-copy',
+				output: `declare function getUrl(): URL; new new URLSearchParams(${receiver}.search).constructor("x=1");`,
+			}, {
+				messageId: 'live-search-params',
+				output: `declare function getUrl(): URL; new ${receiver}.searchParams.constructor("x=1");`,
+			}],
+		}],
+	})),
 });

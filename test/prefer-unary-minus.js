@@ -1,6 +1,11 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
+import {transpileModule, ScriptTarget} from 'typescript';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
@@ -96,4 +101,52 @@ test.snapshot({
 		{code: '-1 * (x as number);', languageOptions: {parser: parsers.typescript}},
 		{code: 'x! * -1;', languageOptions: {parser: parsers.typescript}},
 	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'value * -1 as any ** 2;', output: '(-value) as any ** 2;', errors: 1, languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '(value * -1 as any) ** 2;', output: '((-value) as any) ** 2;', errors: 1, languageOptions: {parser: parsers.typescript},
+		},
+		...[
+			['-1 * value satisfies number as any ** 2;', '(-value) satisfies number as any ** 2;'],
+			['value / -1 as any ** 2;', '(-value) as any ** 2;'],
+			['value * -1 as number;', '-value as number;'],
+			['value * -1 satisfies number;', '-value satisfies number;'],
+			['(value * -1) as number;', '(-value) as number;'],
+		].map(([code, output]) => ({
+			code, output, errors: 1, languageOptions: {parser: parsers.typescript},
+		})),
+		{
+			code: 'value /* keep */ * -1 as any ** 2;',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+	],
+});
+
+nodeTest('unary replacements remain valid after type assertions are erased before exponentiation', t => {
+	const linter = new Linter();
+	const config = {
+		languageOptions: {parser: typescriptEslintParser},
+		plugins: {unicorn: {rules: {'prefer-unary-minus': rule}}},
+		rules: {'unicorn/prefer-unary-minus': 'error'},
+	};
+	const execute = source => {
+		const {outputText, diagnostics} = transpileModule(source, {compilerOptions: {target: ScriptTarget.ESNext}, reportDiagnostics: true});
+		t.assert.deepStrictEqual(diagnostics, []);
+		t.assert.deepStrictEqual(linter.verify(outputText, {}), []);
+		return runInNewContext(outputText, {value: 3});
+	};
+
+	for (const code of ['value * -1 as any ** 2;', '(value * -1 as any) ** 2;', '-1 * value satisfies number as any ** 2;', 'value / -1 as any ** 2;']) {
+		const {output, messages, fixed} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(execute(output), execute(code));
+	}
 });

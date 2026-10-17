@@ -125,3 +125,25 @@ test({
 		},
 	],
 });
+
+test({
+	valid: [],
+	invalid: [{
+		code: '({value: 1}.value - other) > 0;',
+		errors: [{
+			messageId: 'no-subtraction-comparison/error', suggestions: [{
+				messageId: 'no-subtraction-comparison/suggestion',
+				output: '({value: 1}.value > other);',
+			}],
+		}],
+	}, ...[
+		['(function () {}.length - other) > 0;', '(function () {}.length > other);'],
+		['const result = ({value: 1}.value - other) > 0;', 'const result = {value: 1}.value > other;'],
+		['function check() { return ({value: 1}.value - other) > 0; }', 'function check() { return {value: 1}.value > other; }'],
+		['(({value: 1}.value - other) > 0);', '({value: 1}.value > other);'],
+		['({value: 1}.value) - other > 0;', '({value: 1}.value) > other;'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{messageId: 'no-subtraction-comparison/error', suggestions: [{messageId: 'no-subtraction-comparison/suggestion', output}]}],
+	}))],
+});

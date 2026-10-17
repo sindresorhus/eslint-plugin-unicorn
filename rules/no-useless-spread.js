@@ -4,11 +4,13 @@ import {removeParentheses, fixSpaceAroundKeyword, addParenthesesToReturnOrThrowE
 import {
 	isArray,
 	isKnownNonArray,
+	isInUnparenthesizedNewExpressionCallee,
 	isParenthesized,
 	isOnSameLine,
 	getUnparenthesizedKeywordArgumentParent,
 	getParenthesizedText,
 	isStrongPrecedenceNode,
+	shouldAddParenthesesToExpressionStart,
 	unwrapTypeScriptExpression,
 	containsNode,
 } from './utils/index.js';
@@ -132,8 +134,11 @@ function * unwrapSingleArraySpread(fixer, arrayExpression, context) {
 	const {argument} = arrayExpression.elements[0];
 	const shouldAddParentheses
 		= !isParenthesized(argument, context)
-			&& !isStrongPrecedenceNode(argument)
-			&& !isStrongPrecedenceNode(unwrapTypeScriptExpression(argument));
+			&& (
+				isInUnparenthesizedNewExpressionCallee(arrayExpression, context)
+				|| shouldAddParenthesesToExpressionStart(argument, context, arrayExpression)
+				|| (!isStrongPrecedenceNode(argument) && !isStrongPrecedenceNode(unwrapTypeScriptExpression(argument)))
+			);
 	if (shouldAddParentheses) {
 		yield fixer.insertTextAfter(openingBracketToken, '(');
 	}

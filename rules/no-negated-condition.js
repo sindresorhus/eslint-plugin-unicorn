@@ -9,11 +9,11 @@ import {
 } from './fix/index.js';
 import {
 	getParenthesizedRange,
-	isParenthesized,
 	isOnSameLine,
 	needsSemicolon,
 	isLogicalExpression,
 	getLogicalExpressionOperands,
+	getUnparenthesizedKeywordArgumentParent,
 	shouldAddParenthesesToExpressionStatementExpression,
 } from './utils/index.js';
 
@@ -140,28 +140,21 @@ const create = context => {
 				yield fixSpaceAroundKeyword(fixer, node, context);
 
 				const {sourceCode} = context;
-				const {parent} = node;
+				const keywordParent = getUnparenthesizedKeywordArgumentParent(test, context);
 				const [firstToken, secondToken] = sourceCode.getFirstTokens(test, 2);
 				if (firstToken.value !== '!') {
 					return;
 				}
 
 				if (
-					(
-						parent.type === 'ReturnStatement'
-						|| parent.type === 'ThrowStatement'
-						|| (parent.type === 'YieldExpression' && !parent.delegate)
-					)
-					&& parent.argument === node
+					keywordParent
 					&& !isOnSameLine(firstToken, secondToken, context)
-					&& !isParenthesized(node, context)
-					&& !isParenthesized(test, context)
 				) {
-					if (parent.type === 'YieldExpression') {
+					if (keywordParent.type === 'YieldExpression') {
 						abort();
 					}
 
-					yield addParenthesesToReturnOrThrowExpression(fixer, parent, context);
+					yield addParenthesesToReturnOrThrowExpression(fixer, keywordParent, context);
 					return;
 				}
 

@@ -3,6 +3,7 @@ import {
 	getUnparenthesizedKeywordArgumentParent,
 	needsSemicolon,
 	isOnSameLine,
+	isInUnparenthesizedNewExpressionCallee,
 } from '../utils/index.js';
 import removeSpaceAfter from './remove-spaces-after.js';
 
@@ -20,8 +21,9 @@ import removeSpaceAfter from './remove-spaces-after.js';
 export default function * switchNewExpressionToCallExpression(newExpression, context, fixer) {
 	const {sourceCode} = context;
 	const newToken = sourceCode.getFirstToken(newExpression);
-	const shouldParenthesize = !isOnSameLine(newToken, newExpression.callee, context)
-		&& Boolean(getUnparenthesizedKeywordArgumentParent(newExpression, context));
+	const shouldParenthesize = isInUnparenthesizedNewExpressionCallee(newExpression, context)
+		|| (!isOnSameLine(newToken, newExpression.callee, context)
+			&& Boolean(getUnparenthesizedKeywordArgumentParent(newExpression, context)));
 	yield fixer.replaceText(newToken, shouldParenthesize ? '(' : '');
 	yield removeSpaceAfter(newToken, context, fixer);
 
