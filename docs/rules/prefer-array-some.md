@@ -29,7 +29,7 @@ Replacements for `.find()` and `.findLast()` are suggestions because a matching 
 
 This rule skips receivers known to be neither an array nor a typed array, from syntax, TypeScript annotations, or TypeScript type information. Unknown receivers are still checked.
 
-The rule also checks `.find()` and `.findLast()` results assigned to an unannotated `const` variable when every use passes the variable directly to the global `Boolean()` function. Other boolean contexts are supported when the receiver is known to be an array or typed array.
+The rule also checks `.find()` and `.findLast()` results assigned to a `const` variable without a TypeScript type annotation when every use passes the variable directly to the global `Boolean()` function. Other boolean contexts are supported when the receiver is known to be an array or typed array.
 
 ## Examples
 

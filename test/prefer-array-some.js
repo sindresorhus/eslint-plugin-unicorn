@@ -17,12 +17,12 @@ const linterConfig = {
 const ERROR_ID_ARRAY_SOME = 'some';
 const SUGGESTION_ID_ARRAY_SOME = 'some-suggestion';
 
-const typeAware = code => ({
+const typeAware = (code, filename = 'file.ts') => ({
 	code,
-	filename: 'file.ts',
+	filename,
 	languageOptions: {
 		parser: typescriptEslintParser,
-		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts', '*.js']}},
 	},
 });
 const invalidCase = ({code, suggestionOutput, method, ...testCase}) => ({
@@ -83,6 +83,11 @@ test({
 		},
 		{
 			code: 'function hasMatch(values: unknown) { if (!Array.isArray(values)) { return false; } const found = values.find(value => value > 2); return !!found; }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '/** @param {readonly number[]} values */ function hasMatch(values) { const found = values.find(value => value > 2); return !!found; }',
+			filename: 'file.js',
 			languageOptions: {parser: parsers.typescript},
 		},
 		...[
@@ -153,6 +158,11 @@ test({
 		invalidCase({
 			...typeAware('function hasMatch(values: unknown) { if (!Array.isArray(values)) { return false; } const found = values.find(value => value > 2); return !!found; }'),
 			suggestionOutput: 'function hasMatch(values: unknown) { if (!Array.isArray(values)) { return false; } const found = values.some(value => value > 2); return !!found; }',
+			method: 'find',
+		}),
+		invalidCase({
+			...typeAware('/** @param {readonly number[]} values */ function hasMatch(values) { const found = values.find(value => value > 2); return !!found; }', 'file.js'),
+			suggestionOutput: '/** @param {readonly number[]} values */ function hasMatch(values) { const found = values.some(value => value > 2); return !!found; }',
 			method: 'find',
 		}),
 	],
@@ -746,13 +756,30 @@ test.snapshot({
 });
 
 test.svelte({
-	valid: [],
+	valid: [
+		...[
+			'<script>const found = values.find(predicate);</script><p>{Boolean(found)} {found}</p>',
+			'<script>const values = []; const found = values.find(predicate);</script>{#if found}<p>{found}</p>{/if}',
+			'<script>const found = values.find(predicate);</script>{#if found}<p>Found</p>{/if}',
+			'{#key values.find(predicate)}<p>Found</p>{/key}',
+		].flatMap(code => [code, code.replace('.find(', '.findLast(')]),
+	],
 	invalid: [
 		invalidCase({
 			code: '<script>const found = values.find(predicate);</script><p>{Boolean(found)}</p>',
 			suggestionOutput: '<script>const found = values.some(predicate);</script><p>{Boolean(found)}</p>',
 			method: 'find',
 		}),
+		...[
+			'{#if values.find(predicate)}<p>Found</p>{/if}',
+			'{#if other}<p>Other</p>{:else if values.find(predicate)}<p>Found</p>{/if}',
+			'<script>const values = []; const found = values.find(predicate);</script>{#if found}<p>Found</p>{/if}',
+			'<script>const values = new Uint8Array(); const found = values.find(predicate);</script>{#if other}<p>Other</p>{:else if found}<p>Found</p>{/if}',
+		].flatMap(code => ['find', 'findLast'].map(method => invalidCase({
+			code: code.replace('.find(', () => `.${method}(`),
+			suggestionOutput: code.replace('.find(', '.some('),
+			method,
+		}))),
 	],
 });
 

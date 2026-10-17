@@ -43,7 +43,8 @@ export const controlFlowStatementTypes = new Set([
 ]);
 // `switch` is deliberately absent: it compares its discriminant against each case with `===`, so the value is the thing being compared rather than a truthiness test.
 const isDirectControlFlowTest = node =>
-	controlFlowStatementTypes.has(node.parent.type) && node.parent.test === node;
+	(controlFlowStatementTypes.has(node.parent.type) && node.parent.test === node)
+	|| (node.parent.type === 'SvelteIfBlock' && node.parent.expression === node);
 const isDirectBooleanExpression = (node, context) =>
 	isLogicNot(node)
 	|| isLogicNotArgument(node)

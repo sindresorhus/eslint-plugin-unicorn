@@ -108,6 +108,7 @@ const controlFlowTestParentTypes = new Set([
 	'UnaryExpression',
 	'CallExpression',
 	'VExpressionContainer',
+	'SvelteIfBlock',
 ]);
 
 const getLengthCheckProblem = (node, context) => {
