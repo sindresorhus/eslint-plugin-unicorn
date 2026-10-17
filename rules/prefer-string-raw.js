@@ -61,6 +61,7 @@ function getStringRawProblem(node, context, fix) {
 	const binding = parent.type === 'VariableDeclarator' && parent.init === node && parent.id.type === 'Identifier'
 		? parent.id
 		: undefined;
+	// Assignability alone does not guarantee preserved narrowing or generic inference.
 	const typeSafety = withTypeInformation(node, context, ({type, checker}) =>
 		type.intrinsicName === 'string'
 		|| (binding !== undefined && checker.getNonNullableType(parserServices.getTypeAtLocation(binding)).intrinsicName === 'string'),

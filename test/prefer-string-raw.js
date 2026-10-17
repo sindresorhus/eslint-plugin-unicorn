@@ -52,6 +52,7 @@ for (const expression of [`'${TEST_STRING}'`, `\`${TEST_STRING}\``]) {
 	const suggestionPatterns = [
 		'const path = VALUE;',
 		`const path: '${TEST_STRING}' = VALUE;`,
+		`type PathText = '${TEST_STRING}' | undefined; const path: PathText = VALUE; const exact: '${TEST_STRING}' = path;`,
 		`declare function use(path: '${TEST_STRING}'): void; use(VALUE);`,
 		'const options = {path: VALUE} as const;',
 		'const options = [VALUE] as const;',
