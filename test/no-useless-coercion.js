@@ -10,6 +10,18 @@ const {test, rule} = getTester(import.meta);
 
 const linter = new Linter();
 
+test({
+	valid: [],
+	invalid: [
+		...[
+			['Number(function () {}.length);', '(function () {}.length);'],
+			['Number(class {}.length);', '(class {}.length);'],
+			['Number(async function () {}.length);', '(async function () {}.length);'],
+			['use()\nNumber(function () {}.length);', 'use()\n;(function () {}.length);'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+	],
+});
+
 nodeTest('nonnumeric object lengths still require numeric coercion', t => {
 	const code = 'Number({length: "5"}.length);';
 	const {output, fixed, messages} = linter.verifyAndFix(code, {

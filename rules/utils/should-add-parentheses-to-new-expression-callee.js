@@ -1,20 +1,20 @@
+import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
+
 // Copied from https://github.com/eslint/eslint/blob/aa87329d919f569404ca573b439934552006572f/lib/rules/no-extra-parens.js#L448
 /**
-Check if a member expression contains a call expression.
+Check if a member expression contains a call expression, including through template tags and TypeScript wrappers.
 
 @param {ASTNode} node - The `MemberExpression` node to evaluate.
 @returns {boolean} true if found, false if not.
 */
 function doesMemberExpressionContainCallExpression(node) {
-	let currentNode = node.object;
-	let currentNodeType = node.object.type;
+	let currentNode = unwrapTypeScriptExpression(node.object);
 
-	while (currentNodeType === 'MemberExpression') {
-		currentNode = currentNode.object;
-		currentNodeType = currentNode.type;
+	while (currentNode.type === 'MemberExpression' || currentNode.type === 'TaggedTemplateExpression') {
+		currentNode = unwrapTypeScriptExpression(currentNode.type === 'MemberExpression' ? currentNode.object : currentNode.tag);
 	}
 
-	return currentNodeType === 'CallExpression';
+	return currentNode.type === 'CallExpression';
 }
 
 /**

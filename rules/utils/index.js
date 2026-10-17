@@ -229,7 +229,7 @@ export {default as shouldAddParenthesesToUnaryExpressionArgument} from './should
 export {default as getNegatedExpressionText} from './get-negated-expression-text.js';
 export {default as getUnparenthesizedKeywordArgumentParent} from './get-unparenthesized-keyword-argument-parent.js';
 export {default as shouldAddParenthesesToNewExpressionCallee} from './should-add-parentheses-to-new-expression-callee.js';
-export {default as shouldAddParenthesesToExpressionStatementExpression} from './should-add-parentheses-to-expression-statement-expression.js';
+export {default as shouldAddParenthesesToExpressionStatementExpression, startsWithDeclarationLikeToken} from './should-add-parentheses-to-expression-statement-expression.js';
 export {default as shouldAddParenthesesToLogicalExpressionChild, getLogicalExpressionChildText} from './should-add-parentheses-to-logical-expression-child.js';
 export {default as shouldReportReplaceChildrenReceiver, mayBeHtmlTemplateElement} from './should-report-replace-children-receiver.js';
 export {default as singular} from './singular.js';

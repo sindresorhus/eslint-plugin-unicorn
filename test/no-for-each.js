@@ -1,8 +1,11 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 const typeAware = code => ({
 	code,
@@ -1166,4 +1169,39 @@ test({
 			errors: 1,
 		},
 	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const array = [1]; if (condition) array?.forEach(value => {}); else alternate();',
+			output: 'const array = [1]; if (condition) { if (array) for (const value of array) {} } else alternate();',
+			errors: 1,
+		},
+		{
+			code: 'const array = [1]; if (condition) while (running) array?.forEach(value => {}); else alternate();',
+			output: 'const array = [1]; if (condition) while (running) { if (array) for (const value of array) {} } else alternate();',
+			errors: 1,
+		},
+		{
+			code: 'const array = [1]; if (condition) array?.forEach(value => use(value)); else alternate();',
+			output: 'const array = [1]; if (condition) { if (array) for (const value of array) use(value); } else alternate();',
+			errors: 1,
+		},
+	],
+});
+
+nodeTest('preserves else bindings around optional forEach calls', t => {
+	for (const body of ['array?.forEach(value => {})', 'while (false) array?.forEach(value => {})']) {
+		const code = `const array = [1]; const calls = []; if (false) ${body}; else calls.push('else'); JSON.stringify(calls)`;
+		const result = new Linter().verifyAndFix(code, {
+			plugins: {unicorn: {rules: {'no-for-each': rule}}},
+			rules: {'unicorn/no-for-each': 'error'},
+		});
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(runInNewContext(code), '["else"]');
+		t.assert.strictEqual(runInNewContext(result.output), '["else"]');
+	}
 });

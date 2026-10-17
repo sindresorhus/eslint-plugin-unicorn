@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {functionTypes, getStaticStringValue} from './ast/index.js';
-import {getVisitorChildNodes, withTypeInformation} from './utils/index.js';
+import {getVisitorChildNodes, needsSemicolon, withTypeInformation} from './utils/index.js';
 
 const MESSAGE_ID = 'preferDefaultParameters';
 const MESSAGE_ID_SUGGEST = 'preferDefaultParametersSuggest';
@@ -88,7 +88,12 @@ const needsParentheses = (sourceCode, function_) => {
 /**
 @param {import('eslint').Rule.RuleFixer} fixer
 */
-const fixDefaultExpression = (fixer, sourceCode, node) => {
+const fixDefaultExpression = (fixer, context, node) => {
+	const {sourceCode} = context;
+	if (needsSemicolon(sourceCode.getTokenBefore(node), context)) {
+		return fixer.replaceText(node, ';');
+	}
+
 	const {line} = sourceCode.getLoc(node).start;
 	const nodeText = sourceCode.getText(node);
 	const lineText = sourceCode.lines[line - 1];
@@ -332,7 +337,7 @@ const create = context => {
 					}
 
 					yield fixer.replaceText(parameter, replacement);
-					yield fixDefaultExpression(fixer, sourceCode, node);
+					yield fixDefaultExpression(fixer, context, node);
 				},
 			}],
 		};

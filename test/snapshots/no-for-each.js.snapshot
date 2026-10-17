@@ -2368,7 +2368,7 @@ Message:
     |                         ^^^^^^^ Use \`for…of\` instead of \`.forEach(…)\`.
 
 Output:
-  1 | if (true) {} else if ([foo]) for (const element of [foo]) {}
+  1 | if (true) {} else { if ([foo]) for (const element of [foo]) {} }
 
 `;
 

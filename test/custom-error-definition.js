@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, avoidTestTitleConflict} from './utils/test.js';
@@ -2385,4 +2386,36 @@ ruleTest.typescript({
 		'class FooError extends Error { name = \'FooError\'; constructor(message: string, private readonly options: ErrorOptions) { super(message, {cause: options.cause}); } }',
 	],
 	invalid: [],
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			code: 'class FooError extends Error {name = "FooError"; constructor(message, options) {super(message, options)\nthis.message = message;\n[1].forEach(use)}}',
+			output: 'class FooError extends Error {name = "FooError"; constructor(message, options) {super(message, options);\n[1].forEach(use)}}',
+			errors: [passMessageToSuperError],
+		},
+	],
+});
+
+test('preserves the boundary after super when removing a message assignment', t => {
+	const code = outdent`
+		const calls = [];
+		class FooError extends Error {
+			name = "FooError";
+			constructor(message, options) {
+				super(message, options)
+				this.message = message;
+				[1].forEach(value => calls.push(value));
+			}
+		}
+		new FooError("message");
+		JSON.stringify(calls);
+	`;
+	const result = fixCode(code);
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(runInNewContext(code), '[1]');
+	t.assert.strictEqual(runInNewContext(result.output), '[1]');
 });

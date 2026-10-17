@@ -9,6 +9,7 @@ import {
 	isParenthesized,
 	isReferenceContext,
 	needsSemicolon,
+	shouldAddParenthesesToExpressionStatementExpression,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
 
@@ -30,12 +31,6 @@ const identityByOperator = new Map([
 const absorbingByOperator = new Map([
 	['&&', false],
 	['||', true],
-]);
-
-const leadingOperandTypesNeedingParentheses = new Set([
-	'FunctionExpression',
-	'ClassExpression',
-	'ObjectExpression',
 ]);
 
 function areKnownBooleanOperands(operands, context) {
@@ -68,10 +63,6 @@ function getRemovableIdentityOperands(operands, operator, context) {
 	);
 }
 
-function needsLeadingOperandParentheses(operand) {
-	return leadingOperandTypesNeedingParentheses.has(unwrapTypeScriptExpression(operand).type);
-}
-
 function isStringLiteralExpression(node) {
 	return isStringLiteral(unwrapTypeScriptExpression(node));
 }
@@ -85,7 +76,7 @@ function getOperandText(operand, operator, index, context) {
 	if (
 		index === 0
 		&& !isParenthesized(operand, context)
-		&& needsLeadingOperandParentheses(operand)
+		&& shouldAddParenthesesToExpressionStatementExpression(unwrapTypeScriptExpression(operand), context)
 	) {
 		return `(${text})`;
 	}

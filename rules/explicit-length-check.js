@@ -1,5 +1,6 @@
 import {
 	shouldAddParenthesesToComparison,
+	startsWithDeclarationLikeToken,
 	needsSemicolon,
 	getTokenStore,
 	getAncestor,
@@ -189,7 +190,8 @@ function create(context) {
 		}
 
 		const comparison = `${sourceCode.getText(lengthNode)} ${code}`;
-		const needsParentheses = shouldAddParenthesesToComparison(node, context);
+		const needsParentheses = shouldAddParenthesesToComparison(node, context)
+			|| startsWithDeclarationLikeToken(lengthNode, context);
 		const tokenStore = getTokenStore(context, node);
 		let fixed = needsParentheses
 			? `(${comparison})`

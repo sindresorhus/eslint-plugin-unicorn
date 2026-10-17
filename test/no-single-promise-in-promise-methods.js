@@ -175,3 +175,36 @@ test.snapshot({
 		'Promise.race([/* comment */ promise])',
 	],
 });
+
+// Unwrapping an expression must keep its leading tokens in expression grammar.
+test({
+	valid: [],
+	invalid: [
+		...['', 'const getValue = () => '].flatMap(prefix => [
+			'{promise: Promise.resolve(1)}.promise',
+			'function () {}.promise',
+			'class {}.promise',
+		].map(expression => ({
+			code: `${prefix}Promise.race([${expression}]);`,
+			errors: [{
+				messageId: 'no-single-promise-in-promise-methods/error',
+				data: {method: 'race'},
+				suggestions: [
+					{messageId: 'no-single-promise-in-promise-methods/unwrap', output: `${prefix}(${expression});`},
+					{messageId: 'no-single-promise-in-promise-methods/use-promise-resolve', output: `${prefix}Promise.resolve(${expression});`},
+				],
+			}],
+		}))),
+		{
+			code: 'log()\nPromise.race([{promise: Promise.resolve(1)}.promise]);',
+			errors: [{
+				messageId: 'no-single-promise-in-promise-methods/error',
+				data: {method: 'race'},
+				suggestions: [
+					{messageId: 'no-single-promise-in-promise-methods/unwrap', output: 'log()\n;({promise: Promise.resolve(1)}.promise);'},
+					{messageId: 'no-single-promise-in-promise-methods/use-promise-resolve', output: 'log()\nPromise.resolve({promise: Promise.resolve(1)}.promise);'},
+				],
+			}],
+		},
+	],
+});

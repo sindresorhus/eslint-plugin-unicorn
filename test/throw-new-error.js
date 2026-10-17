@@ -1,8 +1,12 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import {outdent} from 'outdent';
+import {transpileModule, ScriptTarget} from 'typescript';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 const typeAware = code => ({
 	code,
@@ -21,6 +25,52 @@ const typescriptDecoratorsLanguageOptions = {
 		},
 	},
 };
+
+// A call inside a constructor's receiver must keep its argument list.
+test({
+	valid: [],
+	invalid: [
+		...[
+			['getTag()`x`.Error("message")', 'new (getTag()`x`.Error)("message")'],
+			['getTag()`x``y`.nested.Error("message")', 'new (getTag()`x``y`.nested.Error)("message")'],
+			['getTag`x`.Error("message")', 'new getTag`x`.Error("message")'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+		...[
+			['getErrors()!.Error("message")', 'new (getErrors()!.Error)("message")'],
+			['getErrors()!.nested.Error("message")', 'new (getErrors()!.nested.Error)("message")'],
+			['getErrors() /* keep */ !.Error("message")', 'new (getErrors() /* keep */ !.Error)("message")'],
+			['getTag()!`x`.Error("message")', 'new (getTag()!`x`.Error)("message")'],
+			['((getErrors()!.Error))("message")', 'new ((getErrors()!.Error))("message")'],
+		].map(([code, output]) => ({
+			code, output, errors: 1, languageOptions: {parser: parsers.typescript},
+		})),
+	],
+});
+
+nodeTest('constructor fixes preserve calls in receivers', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'throw-new-error': rule}}},
+		rules: {'unicorn/throw-new-error': 'error'},
+		languageOptions: {parser: typescriptEslintParser},
+	};
+	const execute = code => {
+		const {outputText, diagnostics} = transpileModule(code, {compilerOptions: {target: ScriptTarget.ESNext}, reportDiagnostics: true});
+		t.assert.deepStrictEqual(diagnostics, []);
+		return runInNewContext(outputText);
+	};
+
+	for (const code of [
+		'const getErrors = () => ({TypeError}); getErrors()!.TypeError("message").message;',
+		'const getTag = () => () => ({TypeError}); getTag()`x`.TypeError("message").message;',
+	]) {
+		const {output, messages, fixed} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(execute(output), execute(code));
+		t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
+	}
+});
 
 test.snapshot({
 	valid: [

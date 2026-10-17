@@ -1,7 +1,10 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 const TYPE_NON_ZERO = 'non-zero';
 const TYPE_ZERO = 'zero';
@@ -666,4 +669,39 @@ test({
 			errors: 1,
 		},
 	],
+});
+
+// Dropping Boolean() must not expose a block or declaration at statement start.
+test({
+	valid: [],
+	invalid: [
+		...[
+			['Boolean(function () {return []}().length);', '(function () {return []}().length > 0);'],
+			['Boolean((function () {}.length) > 0);', '(function () {}.length > 0);'],
+			['Boolean(({length: 1}.length));', '({length: 1}.length > 0);'],
+			['Boolean(class {}.length);', '(class {}.length > 0);'],
+			['Boolean(async function () {}.length);', '(async function () {}.length > 0);'],
+			['use()\nBoolean(function () {}.length > 0);', 'use()\n;(function () {}.length > 0);'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+	],
+});
+
+nodeTest('removing Boolean preserves declaration-like length expressions', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'explicit-length-check': rule}}},
+		rules: {'unicorn/explicit-length-check': 'error'},
+	};
+	for (const code of [
+		'Boolean(function () {}.length > 0);',
+		'Boolean(({length: 1}.length));',
+		'Boolean(class {}.length);',
+		'Boolean(async function () {}.length);',
+		'const getResult = () => Boolean(({length: 1}.length)); getResult();',
+	]) {
+		const {output, messages, fixed} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
+	}
 });

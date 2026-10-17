@@ -2,6 +2,7 @@ import {findVariable, getStaticValue, isClosingParenToken} from '@eslint-communi
 import {
 	getAvailableVariableName,
 	getConstVariableInitializer,
+	getOutermostChainAndTypeScriptExpression,
 	getScopes,
 	singular,
 	toLocation,
@@ -11,6 +12,7 @@ import {
 	isNumber,
 	isArray,
 	isNullishType,
+	isReferenceContext,
 	isUnknownType,
 	hasPotentiallyMutableMemberAccess,
 	hasCommentInRange,
@@ -22,6 +24,7 @@ import {
 	isIdentifierNamed,
 	isLiteral,
 } from './ast/index.js';
+import {removeStatement} from './fix/index.js';
 
 const MESSAGE_ID = 'no-for-loop';
 const messages = {
@@ -600,17 +603,7 @@ const getRemovalRange = (node, sourceCode) => {
 	const declarationNode = node.parent;
 
 	if (declarationNode.declarations.length === 1) {
-		const {line} = sourceCode.getLoc(declarationNode).start;
-		const lineText = sourceCode.lines[line - 1];
-
-		const isOnlyNodeOnLine = lineText.trim() === sourceCode.getText(declarationNode);
-
-		return isOnlyNodeOnLine
-			? [
-				sourceCode.getIndexFromLoc({line, column: 0}),
-				sourceCode.getIndexFromLoc({line: line + 1, column: 0}),
-			]
-			: sourceCode.getRange(declarationNode);
+		return sourceCode.getRange(declarationNode);
 	}
 
 	const index = declarationNode.declarations.indexOf(node);
@@ -707,6 +700,7 @@ const shouldFixProblem = ({
 	isStandardUpdateExpression
 	&& !isElementNameShadowed
 	&& !isElementReassignedWhileArrayIsRead({elementNode, elementVariable, arrayReferences})
+	&& arrayReferences.every(reference => !isReferenceContext(getOutermostChainAndTypeScriptExpression(reference.identifier.parent)))
 	&& !hasCommentsInsideLoopHeader(forStatement, context)
 	&& !someVariablesLeakOutOfTheLoop(forStatement, [indexVariable, elementVariable, cachedLengthVariable].filter(Boolean), forScope)
 	&& canRemoveCachedLengthVariable({
@@ -953,9 +947,13 @@ const create = context => {
 					return abort();
 				}
 
-				yield isRemoveDeclaration
-					? fixer.removeRange(rewrittenRange)
-					: fixer.replaceText(elementNode.init, element);
+				if (isRemoveDeclaration) {
+					yield elementNode.parent.declarations.length === 1
+						? removeStatement(elementNode.parent, context, fixer)
+						: fixer.removeRange(rewrittenRange);
+				} else {
+					yield fixer.replaceText(elementNode.init, element);
+				}
 			};
 		}
 

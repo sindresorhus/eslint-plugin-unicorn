@@ -1,5 +1,5 @@
 import {getParenthesizedText, isParenthesized} from '../utils/parentheses/parentheses.js';
-import {getOutermostTypeScriptExpression} from '../utils/index.js';
+import {getOutermostTypeScriptExpression, shouldAddParenthesesToExpressionStatementExpression} from '../utils/index.js';
 import needsSemicolon from '../utils/needs-semicolon.js';
 import isStrongPrecedenceNode from '../utils/is-strong-precedence-node.js';
 import shouldAddParenthesesToMemberExpressionObject from '../utils/should-add-parentheses-to-member-expression-object.js';
@@ -34,16 +34,13 @@ export default function replaceNodeWithExpression(fixer, node, expression, conte
 	let text = getParenthesizedText(expression, context);
 
 	// A member-expression object has its own precedence subtleties (for example, a decimal integer literal like `1` needs parentheses before `.`), so defer to the dedicated check there.
-	const needsParentheses = isObjectOfMemberExpression(node)
-		? shouldAddParenthesesToMemberExpressionObject(expression, context)
-		: !isStrongPrecedenceNode(expression);
+	// A leading `{`, `function`, or `class` can't start an expression statement, so declaration-like prefixes need parentheses too, for example `Number(function () {}.length)` -> `(function () {}.length)`.
+	const needsParentheses = shouldAddParenthesesToExpressionStatementExpression(expression, context)
+		|| (isObjectOfMemberExpression(node)
+			? shouldAddParenthesesToMemberExpressionObject(expression, context)
+			: !isStrongPrecedenceNode(expression));
 
 	if (needsParentheses && !isParenthesized(expression, context)) {
-		text = `(${text})`;
-	}
-
-	// A leading `{` can't start an expression statement (it is parsed as a block) and is invalid as a member-expression object, so it always needs parentheses, for example `Number({foo: 1}.length)` -> `({foo: 1}.length)`.
-	if (text.startsWith('{')) {
 		text = `(${text})`;
 	}
 
