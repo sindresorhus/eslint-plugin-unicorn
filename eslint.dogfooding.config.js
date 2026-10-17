@@ -7,6 +7,8 @@ Run all unicorn rules on codebase
 import eslintPluginUnicorn from './index.js';
 
 const config = [
+	// Module-local class setup is allowed by `no-top-level-side-effects`.
+	// Building project lists and configuring `node:test` also need no exemption.
 	eslintPluginUnicorn.configs.all,
 	disableExternalRules([
 		// If external rules need to be disabled, add the rule name here.
@@ -90,25 +92,6 @@ const config = [
 		rules: {
 			// Internal fallback expressions intentionally handle null and other falsy values.
 			'unicorn/prefer-default-parameters': 'off',
-		},
-	},
-	{
-		files: [
-			'rules/utils/global-reference-tracker.js',
-		],
-		rules: {
-			// This module intentionally mutates its own exported class during setup.
-			'unicorn/no-top-level-side-effects': 'off',
-		},
-	},
-	{
-		files: [
-			'test/integration/projects.js',
-			'test/utils/test.js',
-		],
-		rules: {
-			// The project list is built, and `node:test` is configured, when the module is loaded.
-			'unicorn/no-top-level-side-effects': 'off',
 		},
 	},
 	{
