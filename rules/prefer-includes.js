@@ -28,7 +28,6 @@ const isNaNValue = (node, context) => Number.isNaN(getStaticValue(node, context.
 const isNegativeResult = node => ['===', '==', '<', '<='].includes(node.operator);
 
 const getProblem = (context, node, target, argumentsNodes) => {
-	const {sourceCode} = context;
 	const tokenStore = getTokenStore(context, target);
 
 	const memberExpressionNode = target.parent;
@@ -57,7 +56,7 @@ const getProblem = (context, node, target, argumentsNodes) => {
 			method: node.left.callee.property.name,
 		},
 		// The whole comparison is replaced, a comment in it would be dropped
-		fix: sourceCode.getCommentsInside(node).length > 0
+		fix: tokenStore.getCommentsInside(node).length > 0
 			? undefined
 			: fixer => fixer.replaceText(node, replacement),
 	};

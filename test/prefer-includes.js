@@ -644,3 +644,23 @@ test({
 		code, output, languageOptions: {parser: parsers.typescript}, errors: 1,
 	})),
 });
+
+test.vue({
+	valid: [],
+	invalid: [
+		...[
+			'array /* keep */ .indexOf(value) > -1',
+			'array /* keep */ .lastIndexOf(value) === -1',
+			'array.indexOf(/* keep */ value) > -1',
+			'array.indexOf(value) /* keep */ > -1',
+		].map(expression => ({
+			code: `<template><div v-if="${expression}"></div></template>`,
+			errors: [{messageId: 'prefer-includes'}],
+		})),
+		{
+			code: '<template><div v-if="/* keep */ array.indexOf(value) > -1"></div></template>',
+			output: '<template><div v-if="/* keep */ array.includes(value)"></div></template>',
+			errors: [{messageId: 'prefer-includes'}],
+		},
+	],
+});
