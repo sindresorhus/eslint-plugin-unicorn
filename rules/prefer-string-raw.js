@@ -49,7 +49,7 @@ function getStringRawProblem(node, context, fix) {
 		&& parent.typeAnnotation.type === 'TSTypeReference'
 		&& parent.typeAnnotation.typeName.name === 'const'
 	) {
-		return problem;
+		return;
 	}
 
 	const {parserServices} = context.sourceCode;
@@ -61,10 +61,15 @@ function getStringRawProblem(node, context, fix) {
 	const binding = parent.type === 'VariableDeclarator' && parent.init === node && parent.id.type === 'Identifier'
 		? parent.id
 		: undefined;
-	const canFix = withTypeInformation(node, context, ({type}) =>
+	const typeSafety = withTypeInformation(node, context, ({type}) =>
 		type.intrinsicName === 'string'
 		|| (binding !== undefined && parserServices.getTypeAtLocation(binding).intrinsicName === 'string'),
-	) ?? (
+	);
+	if (typeSafety === false) {
+		return;
+	}
+
+	const canFix = typeSafety ?? (
 		binding !== undefined
 		&& (
 			binding.typeAnnotation?.typeAnnotation.type === 'TSStringKeyword'

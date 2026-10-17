@@ -65,14 +65,14 @@ for (const expression of [`'${TEST_STRING}'`, `\`${TEST_STRING}\``]) {
 	];
 
 	test({
-		valid: [],
-		invalid: [typescript, typeAware].flatMap(createTestCase => suggestionPatterns.map(pattern => ({
-			...createTestCase(pattern.replace('VALUE', () => expression)),
+		valid: suggestionPatterns.map(pattern => typeAware(pattern.replace('VALUE', () => expression))),
+		invalid: suggestionPatterns.map(pattern => ({
+			...typescript(pattern.replace('VALUE', () => expression)),
 			...getSuggestionCase(
 				pattern.replace('VALUE', () => expression),
 				pattern.replace('VALUE', () => replacement),
 			),
-		}))),
+		})),
 	});
 
 	test({
@@ -91,14 +91,11 @@ for (const expression of [`'${TEST_STRING}'`, `\`${TEST_STRING}\``]) {
 	});
 
 	test({
-		valid: [],
-		invalid: [typescript, typeAware].flatMap(createTestCase => [
+		valid: [typescript, typeAware].flatMap(createTestCase => [
 			`const path = ${expression} as const;`,
 			`const path = <const>${expression};`,
-		].map(code => ({
-			...createTestCase(code),
-			errors: [{messageId: 'prefer-string-raw', suggestions: []}],
-		}))),
+		].map(code => createTestCase(code))),
+		invalid: [],
 	});
 
 	const aliasCode = `type PathText = string; const path: PathText = ${expression};`;
@@ -136,7 +133,9 @@ test({
 });
 
 test({
-	valid: [],
+	valid: [
+		typeAware('declare const suffix: string; declare function use<const Type>(value: Type): Type; const result = use({path: `a\\\\b${suffix}`});'),
+	],
 	invalid: [
 		...['file.ts', 'file.mts', 'file.cts', 'file.tsx', 'file.js'].map(filename => ({
 			filename,
@@ -147,13 +146,6 @@ test({
 			...typeAware('declare const suffix: string; const path = `a\\\\b${suffix}`;'),
 			output: 'declare const suffix: string; const path = String.raw`a\\b${suffix}`;',
 			errors: [{messageId: 'prefer-string-raw'}],
-		},
-		{
-			...typeAware('declare const suffix: string; declare function use<const Type>(value: Type): Type; const result = use({path: `a\\\\b${suffix}`});'),
-			...getSuggestionCase(
-				'declare const suffix: string; declare function use<const Type>(value: Type): Type; const result = use({path: `a\\\\b${suffix}`});',
-				'declare const suffix: string; declare function use<const Type>(value: Type): Type; const result = use({path: String.raw`a\\b${suffix}`});',
-			),
 		},
 		{
 			...typescript('const path = String.raw`abc`;'),

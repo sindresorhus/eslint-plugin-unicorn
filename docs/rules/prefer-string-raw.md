@@ -13,7 +13,7 @@
 
 Adding or removing `String.raw` from a template with two or more substitutions can change the order in which the substitutions are converted to strings.
 
-In TypeScript, adding `String.raw` can widen a string literal type to `string`. The rule offers a suggestion unless the conversion is known to preserve the type. Strings directly under a const assertion are reported without a fix or suggestion, since adding a tag would invalidate the assertion. Type information, when available, allows more conversions to be automatically fixed.
+In TypeScript, `String.raw` can widen literal types to `string`. With type information, unsafe conversions are ignored; otherwise, uncertain cases use suggestions. Strings directly under const assertions are always ignored.
 
 ## Examples
 
