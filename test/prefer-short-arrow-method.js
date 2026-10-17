@@ -27,7 +27,8 @@ test.typescript({
 
 nodeTest('computed sequence keys keep their evaluation order', t => {
 	const code = 'const events = []; const object = {[(events.push("first"), events.push("second"), "foo")]() {return 1;}}; JSON.stringify([object.foo(), events]);';
-	const result = new Linter().verifyAndFix(code, {
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, {
 		plugins: {unicorn: plugin},
 		rules: {'unicorn/prefer-short-arrow-method': 'error'},
 	});
