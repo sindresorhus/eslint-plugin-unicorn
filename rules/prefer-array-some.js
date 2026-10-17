@@ -1,6 +1,7 @@
 import {checkVueTemplate} from './utils/rule.js';
 import {
 	isBooleanContext,
+	isGlobalBooleanCall,
 	getParenthesizedRange,
 	hasCommentInRange,
 	hasTypeArguments,
@@ -56,10 +57,6 @@ const isNegativeOne = node => node.type === 'UnaryExpression' && node.operator =
 const isLiteralZero = node => isLiteral(node, 0);
 
 function isFindResultVariableUsedOnlyAsBoolean(callExpression, context) {
-	if (!isArray(callExpression.callee.object, context)) {
-		return false;
-	}
-
 	const variableDeclarator = callExpression.parent;
 
 	if (
@@ -85,10 +82,14 @@ function isFindResultVariableUsedOnlyAsBoolean(callExpression, context) {
 		return false;
 	}
 
+	const isArrayReceiver = isArray(callExpression.callee.object, context);
+
 	return references.every(reference => {
 		const {identifier} = reference;
 
-		return reference.isRead() && isBooleanContext(identifier, context);
+		return reference.isRead() && (isArrayReceiver
+			? isBooleanContext(identifier, context)
+			: isGlobalBooleanCall(identifier.parent, context));
 	});
 }
 

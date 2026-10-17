@@ -29,6 +29,8 @@ This rule provides a suggestion for `.{find,findLast}(…)`, and for `.findLastI
 
 This rule skips receivers known to be neither an array nor a typed array, from syntax, TypeScript annotations, or TypeScript type information. Unknown receivers are still checked.
 
+The rule also checks results assigned to a `const` variable when every use passes the variable directly to `Boolean()`. Other boolean contexts are supported when the receiver is known to be an array.
+
 ## Examples
 
 ```js
@@ -57,6 +59,20 @@ if (array.find(element => isUnicorn(element))) {
 // ✅
 if (array.some(element => isUnicorn(element))) {
 	// …
+}
+```
+
+```js
+// ❌
+function hasBigItem(array) {
+	const found = array.find(item => item > 2);
+	return Boolean(found);
+}
+
+// ✅
+function hasBigItem(array) {
+	const found = array.some(item => item > 2);
+	return Boolean(found);
 }
 ```
 

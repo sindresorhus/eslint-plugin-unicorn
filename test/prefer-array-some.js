@@ -43,6 +43,97 @@ const invalidCase = ({code, suggestionOutput, method, ...testCase}) => ({
 	],
 });
 
+test({
+	valid: [
+		...[
+			'const found = values.find(predicate); Boolean(found); use(found);',
+			'const found = values.find(predicate); Boolean(found); if (found) {}',
+			'const found = values.find(predicate); Boolean(found); !found;',
+			'const found = values.find(predicate); Boolean(found && other);',
+			'const found = values.find(predicate); const Boolean = value => value; Boolean(found);',
+			'function hasMatch(values, Boolean) { const found = values.find(predicate); return Boolean(found); }',
+			'const found = new Store().find(predicate); Boolean(found);',
+			'const values = {find() {}}; const found = values.find(predicate); Boolean(found);',
+			'export const found = values.find(predicate); Boolean(found);',
+			'const found = values.find(predicate); Boolean(found); export {found};',
+			'let found = values.find(predicate); Boolean(found);',
+			'const found = values.find(predicate); found = other; Boolean(found);',
+			'const found = values.find(predicate); Boolean?.(found);',
+			'const found = values?.find(predicate); Boolean(found);',
+			'const found = values.find?.(predicate); Boolean(found);',
+		].flatMap(code => [code, code.replace('.find', '.findLast')]),
+		{
+			code: 'const found: Item | undefined = values.find(predicate); Boolean(found);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const found = values.find<Item>(predicate); Boolean(found);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const found = values.find(predicate); Boolean(found as Item);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('function hasMatch(values: {find(predicate: Function): unknown}) { const found = values.find(predicate); return Boolean(found); }'),
+	],
+	invalid: [
+		invalidCase({
+			code: outdent`
+				function hasBigItem(array) {
+					const foo = array.find(x => x > 2);
+					return Boolean(foo);
+				}
+			`,
+			suggestionOutput: outdent`
+				function hasBigItem(array) {
+					const foo = array.some(x => x > 2);
+					return Boolean(foo);
+				}
+			`,
+			method: 'find',
+		}),
+		...[
+			'const found = values.find(predicate); const first = Boolean(found); const second = Boolean(found);',
+			'const values = []; const found = values.find(predicate); Boolean(found); if (found) {}',
+			'const found = ((values).find(/* keep */ predicate, receiver)); Boolean(/* keep */ (found));',
+			'const found = values.find(predicate); doSomething(); !Boolean(found);',
+			'const found = new Uint8Array([0, 1]).find(predicate); Boolean(found);',
+		].flatMap(code => ['find', 'findLast'].map(method => invalidCase({
+			code: code.replace('.find(', () => `.${method}(`),
+			suggestionOutput: code.replace('.find(', '.some('),
+			method,
+		}))),
+		invalidCase({
+			code: 'function hasBigItem(array) { const foo = array.findLast(x => x > 2); return Boolean(foo); }',
+			suggestionOutput: 'function hasBigItem(array) { const foo = array.some(x => x > 2); return Boolean(foo); }',
+			method: 'findLast',
+		}),
+		invalidCase({
+			code: 'function hasMatch(values: Uint8Array) { const found = values.find(predicate); return Boolean(found); }',
+			suggestionOutput: 'function hasMatch(values: Uint8Array) { const found = values.some(predicate); return Boolean(found); }',
+			languageOptions: {parser: parsers.typescript},
+			method: 'find',
+		}),
+	],
+});
+
+nodeTest('find results used through Boolean stay suggestions for falsy matches', t => {
+	for (const method of ['find', 'findLast']) {
+		const code = `function hasMatch(values) { const found = values.${method}(() => true); return Boolean(found); } hasMatch([0]);`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(fixed, false);
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].fix, undefined);
+		t.assert.strictEqual(messages[0].suggestions.length, 1);
+		const {range, text} = messages[0].suggestions[0].fix;
+		const suggestedCode = code.slice(0, range[0]) + text + code.slice(range[1]);
+		t.assert.strictEqual(suggestedCode, code.replace(`.${method}(`, '.some('));
+		t.assert.strictEqual(runInNewContext(code), false);
+		t.assert.strictEqual(runInNewContext(suggestedCode), true);
+	}
+});
+
 nodeTest('side-effect-free inline callbacks are autofixed', t => {
 	for (const callback of ['value => value.id > 1', 'function (value) { return value.id > 1; }', '({id}) => id > 1', '(value, index) => index > 0 && value.id > 1']) {
 		for (const values of ['[]', '[{id: 0}, {id: 1}]', '[{id: 2}, {id: 0}, {id: 3}]']) {
