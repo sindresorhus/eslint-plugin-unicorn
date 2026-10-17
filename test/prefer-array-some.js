@@ -714,8 +714,19 @@ test.snapshot({
 });
 
 test.vue({
-	valid: [],
+	valid: [
+		...[
+			'<template><div v-if="(() => { const found = values.find(predicate); return Boolean(found); })()"></div></template>',
+			'<template><div v-if="(() => { const found = [].find(predicate); return Boolean(found); })()"></div></template>',
+		].flatMap(code => [code, code.replace('.find(', '.findLast(')]),
+		'<template><button @click="() => { const found = values.findLast(predicate); Boolean(found); }">Check</button></template>',
+	],
 	invalid: [
+		invalidCase({
+			code: '<script>const found = values.find(predicate); Boolean(found);</script>',
+			suggestionOutput: '<script>const found = values.some(predicate); Boolean(found);</script>',
+			method: 'find',
+		}),
 		invalidCase({
 			code: '<template><div v-if="foo.find(fn)"></div></template>',
 			suggestionOutput: '<template><div v-if="foo.some(fn)"></div></template>',

@@ -73,7 +73,8 @@ function isFindResultVariableUsedOnlyAsBoolean(callExpression, context) {
 
 	const [variable] = context.sourceCode.getDeclaredVariables(variableDeclarator);
 
-	if (variable.identifiers.length !== 1) {
+	// Vue template-local declarations may not have scope information.
+	if (variable?.identifiers.length !== 1) {
 		return false;
 	}
 
