@@ -13,6 +13,8 @@ This rule only reports strict equality comparisons joined by `||`. It ignores op
 
 This rule does not autofix because the best rewrite depends on context. Plain member expressions are still reported, so consider accessors and proxies before rewriting.
 
+With [type information](https://typescript-eslint.io/getting-started/typed-linting/), the rule skips union-typed subjects to preserve narrowing. Other narrowing-dependent comparisons may require disabling the rule locally.
+
 ## Examples
 
 ```js
