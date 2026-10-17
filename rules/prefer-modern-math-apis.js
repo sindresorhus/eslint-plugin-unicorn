@@ -1,8 +1,11 @@
 import {
 	getParenthesizedText,
 	getParenthesizedRange,
+	getConstVariableInitializer,
+	getPrimitiveLiteralValue,
 	hasCommentInRange,
 	isSameReference,
+	unwrapTypeScriptExpression,
 	wouldRemoveComments,
 } from './utils/index.js';
 import {isLiteral, isMethodCall} from './ast/index.js';
@@ -14,6 +17,32 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `{{replacement}}` over `{{description}}`.',
 	[MESSAGE_ID_SUGGESTION]: 'Replace with `{{replacement}}`.',
 };
+
+function getStaticNumber(node, context) {
+	node = unwrapTypeScriptExpression(node);
+	const value = getPrimitiveLiteralValue(getConstVariableInitializer(node, context) ?? node);
+	return typeof value === 'number' ? value : undefined;
+}
+
+function canAutoFixLogCall(node, context) {
+	const value = getStaticNumber(node, context);
+	// These inputs have specified exact results for every logarithm base.
+	return value !== undefined && (value <= 0 || value === 1 || !Number.isFinite(value));
+}
+
+function getProblemWithFix(problem, fix, canAutoFix) {
+	if (!fix) {
+		return problem;
+	}
+
+	if (canAutoFix) {
+		problem.fix = fix;
+	} else {
+		problem.suggest = [{messageId: MESSAGE_ID_SUGGESTION, fix}];
+	}
+
+	return problem;
+}
 
 const isMathProperty = (node, property) =>
 	node.type === 'MemberExpression'
@@ -58,22 +87,19 @@ function createLogCallTimesConstantCheck({constantName, replacementMethod}) {
 		}
 
 		const [valueNode] = mathLogCall.arguments;
+		// The replacement is built from the argument alone, so a comment elsewhere in the expression would be lost
+		const fix = wouldRemoveComments(context, node, [getParenthesizedRange(valueNode, context)])
+			? undefined
+			: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context)})`);
 
-		return {
+		return getProblemWithFix({
 			node,
 			messageId: MESSAGE_ID,
 			data: {
 				replacement,
 				description,
 			},
-			// The replacement is built from the argument alone, so a comment elsewhere in the expression would be lost
-			suggest: wouldRemoveComments(context, node, [getParenthesizedRange(valueNode, context)])
-				? undefined
-				: [{
-					messageId: MESSAGE_ID_SUGGESTION,
-					fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context)})`),
-				}],
-		};
+		}, fix, canAutoFixLogCall(valueNode, context));
 	};
 }
 
@@ -101,18 +127,15 @@ function createLogCallDivideConstantCheck({constantName, replacementMethod}) {
 		}
 
 		const [valueNode] = node.left.arguments;
+		// The replacement is built from the argument alone, so a comment elsewhere in the expression would be lost
+		const fix = wouldRemoveComments(context, node, [getParenthesizedRange(valueNode, context)])
+			? undefined
+			: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context)})`);
 
-		return {
+		return getProblemWithFix({
 			...message,
 			node,
-			// The replacement is built from the argument alone, so a comment elsewhere in the expression would be lost
-			suggest: wouldRemoveComments(context, node, [getParenthesizedRange(valueNode, context)])
-				? undefined
-				: [{
-					messageId: MESSAGE_ID_SUGGESTION,
-					fix: fixer => fixer.replaceText(node, `Math.${replacementMethod}(${getParenthesizedText(valueNode, context)})`),
-				}],
-		};
+		}, fix, canAutoFixLogCall(valueNode, context));
 	};
 }
 
@@ -166,46 +189,48 @@ const create = context => {
 		}
 
 		const replacementMethod = expressions.length === 1 ? 'abs' : 'hypot';
+		const [square] = expressions;
+		const value = expressions.length === 1 && square.operator === '*'
+			? getStaticNumber(square.left, context)
+			: undefined;
+		// Multiplication and square root have specified rounding; exponentiation and `Math.hypot()` do not.
+		// eslint-disable-next-line unicorn/prefer-modern-math-apis -- Compare the original and replacement results.
+		const canAutoFix = value !== undefined && Object.is(Math.sqrt(value * value), Math.abs(value));
+		const fix = function * (fixer, {abort}) {
+			const {sourceCode} = context;
 
-		return {
+			// `Math.sqrt` -> `Math.{hypot,abs}`
+			yield fixer.replaceText(callExpression.callee.property, replacementMethod);
+
+			// `a ** 2 + b ** 2` -> `a, b`
+			for (const expression of plusExpressions) {
+				const plusToken = sourceCode.getTokenAfter(expression.left, token => token.type === 'Punctuator' && token.value === '+');
+
+				yield replaceNodeOrTokenAndSpacesBefore(plusToken, ',', fixer, context);
+				yield removeParentheses(expression, fixer, context);
+			}
+
+			// `x ** 2` => `x`
+			// `x * x` => `x`
+			for (const expression of expressions) {
+				// The removed range holds the operator and its right operand, so a comment there would be lost
+				const [start, end] = [getParenthesizedRange(expression.left, context)[1], sourceCode.getRange(expression)[1]];
+				if (hasCommentInRange(context, [start, end])) {
+					return abort();
+				}
+
+				yield fixer.removeRange([start, end]);
+			}
+		};
+
+		return getProblemWithFix({
 			node: callExpression.callee.property,
 			messageId: MESSAGE_ID,
 			data: {
 				replacement: `Math.${replacementMethod}(…)`,
 				description: 'Math.sqrt(…)',
 			},
-			suggest: [
-				{
-					messageId: MESSAGE_ID_SUGGESTION,
-					* fix(fixer, {abort}) {
-						const {sourceCode} = context;
-
-						// `Math.sqrt` -> `Math.{hypot,abs}`
-						yield fixer.replaceText(callExpression.callee.property, replacementMethod);
-
-						// `a ** 2 + b ** 2` -> `a, b`
-						for (const expression of plusExpressions) {
-							const plusToken = sourceCode.getTokenAfter(expression.left, token => token.type === 'Punctuator' && token.value === '+');
-
-							yield replaceNodeOrTokenAndSpacesBefore(plusToken, ',', fixer, context);
-							yield removeParentheses(expression, fixer, context);
-						}
-
-						// `x ** 2` => `x`
-						// `x * x` => `x`
-						for (const expression of expressions) {
-							// The removed range holds the operator and its right operand, so a comment there would be lost
-							const [start, end] = [getParenthesizedRange(expression.left, context)[1], sourceCode.getRange(expression)[1]];
-							if (hasCommentInRange(context, [start, end])) {
-								return abort();
-							}
-
-							yield fixer.removeRange([start, end]);
-						}
-					},
-				},
-			],
-		};
+		}, fix, canAutoFix);
 	});
 
 	context.on('BinaryExpression', function * (node) {
@@ -230,6 +255,7 @@ const config = {
 			description: 'Prefer modern `Math` APIs over legacy patterns.',
 			recommended: 'unopinionated',
 		},
+		fixable: 'code',
 		hasSuggestions: true,
 		messages,
 		languages: [

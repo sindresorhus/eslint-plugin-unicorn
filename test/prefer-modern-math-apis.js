@@ -3,6 +3,84 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+// Literal constants can be fixed when the result is provably unchanged
+test({
+	valid: [],
+	invalid: [
+		['Math.sqrt(4 * 4);', 'Math.abs(4);'],
+		['Math.sqrt(0 * 0);', 'Math.abs(0);'],
+		['Math.sqrt(0.5 * 0.5);', 'Math.abs(0.5);'],
+		['Math.sqrt(1.5 * 1.5);', 'Math.abs(1.5);'],
+		['Math.sqrt(1e150 * 1e150);', 'Math.abs(1e150);'],
+		['Math.sqrt(1e-150 * 1e-150);', 'Math.abs(1e-150);'],
+		['Math.sqrt(1e999 * 1e999);', 'Math.abs(1e999);'],
+		['const value = 4; Math.sqrt(value * value);', 'const value = 4; Math.abs(value);'],
+		['const value = -4; Math.sqrt(value * value);', 'const value = -4; Math.abs(value);'],
+		['const value = -0; Math.sqrt(value * value);', 'const value = -0; Math.abs(value);'],
+		['Math.sqrt(((4)) * ((4)),);', 'Math.abs(((4)),);'],
+		['Math.sqrt((/* keep */ 4) * 4);', 'Math.abs((/* keep */ 4));'],
+		['Math.log(1) * Math.LOG10E;', 'Math.log10(1);'],
+		['Math.LOG10E * Math.log(0);', 'Math.log10(0);'],
+		['Math.log(-1) / Math.LN10;', 'Math.log10(-1);'],
+		['Math.log(-0) * Math.LOG2E;', 'Math.log2(-0);'],
+		['Math.LOG2E * Math.log(1);', 'Math.log2(1);'],
+		['Math.log(1) / Math.LN2;', 'Math.log2(1);'],
+		['Math.log(+1) / Math.LN2;', 'Math.log2(+1);'],
+		['Math.log(1e999) / Math.LN10;', 'Math.log10(1e999);'],
+		['Math.log(-1e999) * Math.LOG2E;', 'Math.log2(-1e999);'],
+		['const value = 1; Math.log(value) / Math.LN2;', 'const value = 1; Math.log2(value);'],
+		['const value = -1; Math.LOG10E * Math.log(value);', 'const value = -1; Math.log10(value);'],
+		['Math.log((/* keep */ 1)) / Math.LN2;', 'Math.log2((/* keep */ 1));'],
+	].map(([code, output]) => ({
+		code,
+		output,
+		errors: [{messageId: 'prefer-modern-math-apis', suggestions: []}],
+	})),
+});
+
+// Unsafe or unproven constants must still require explicit acceptance
+test.snapshot({
+	valid: [],
+	invalid: [
+		'Math.sqrt(1e200 * 1e200);',
+		'Math.sqrt(1e-200 * 1e-200);',
+		'Math.sqrt(1e-160 * 1e-160);',
+		'Math.sqrt(4 ** 2);',
+		'Math.sqrt(3 * 3 + 4 * 4);',
+		'Math.log(2) / Math.LN2;',
+		'Math.log("1") / Math.LN2;',
+		'Math.log(1n) / Math.LN2;',
+		'Math.log({valueOf() { return 1; }}) * Math.LOG10E;',
+		'Math.log(getValue()) / Math.LN2;',
+		'let value = 1; value = 2; Math.log(value) / Math.LN2;',
+		'const value = getValue(); Math.log(value) / Math.LN2;',
+		'const value = 4; const alias = value; Math.sqrt(alias * alias);',
+		'const value = 2 + 2; Math.sqrt(value * value);',
+		'const value = {number: 4}; Math.sqrt(value.number * value.number);',
+		'const value = 4; function calculate(value) { return Math.sqrt(value * value); }',
+		'const value = 1; { let value = 2; Math.log(value) / Math.LN2; }',
+		'Math.sqrt(4 * /* keep */ 4);',
+		'Math.log(/* keep */ 1) / Math.LN2;',
+	],
+});
+
+test.typescript({
+	valid: [],
+	invalid: [
+		['Math.log(1 as number) / Math.LN2;', 'Math.log2(1 as number);'],
+		['Math.sqrt((4 as number) * (4 as number));', 'Math.abs((4 as number));'],
+		['const value: number = 4; Math.sqrt(value * value);', 'const value: number = 4; Math.abs(value);'],
+		['const value = 4; Math.sqrt((value as number) * value);', 'const value = 4; Math.abs((value as number));'],
+		['const value = 1; Math.log(value as number) / Math.LN2;', 'const value = 1; Math.log2(value as number);'],
+		['const value = -1 as number; Math.log(value) / Math.LN10;', 'const value = -1 as number; Math.log10(value);'],
+		['Math.log((1 satisfies number)) * Math.LOG2E;', 'Math.log2((1 satisfies number));'],
+	].map(([code, output]) => ({
+		code,
+		output,
+		errors: [{messageId: 'prefer-modern-math-apis', suggestions: []}],
+	})),
+});
+
 // Modern APIs can change rounding, overflow, and underflow behavior
 test({
 	valid: [],

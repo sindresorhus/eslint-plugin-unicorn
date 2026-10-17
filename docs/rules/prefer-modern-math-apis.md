@@ -4,14 +4,14 @@
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
-💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
+🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
 Standard `Math` methods express mathematical intent directly and are less error-prone than reimplementing them.
 
-Replacements are offered as suggestions because they can change rounding, overflow, and underflow behavior.
+Autofixes are limited to numeric literals and `const` variables initialized with them: squares written as `x * x` whose results are unchanged, and logarithms of zero, one, negative numbers, or infinity. Other replacements are offered as suggestions because they can change rounding, overflow, and underflow behavior. Exponentiation and `Math.hypot()` replacements remain suggestions.
 
 Math additions in ES2015:
 
