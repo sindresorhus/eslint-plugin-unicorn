@@ -389,8 +389,8 @@ test({
 	valid: [],
 	invalid: [
 		['Math.log(`2`) / Math.LN2;', 'Math.log2(`2`);'],
-		['Math.log(`${1}`) / Math.LN2;', 'Math.log2(`${1}`);'],
-		['Math.sqrt(`${0}` ** 2);', 'Math.abs(`${0}`);'],
+		['Math.log(`${1}`) / Math.LN2;', 'Math.log2(`${1}`);'], // eslint-disable-line no-template-curly-in-string
+		['Math.sqrt(`${0}` ** 2);', 'Math.abs(`${0}`);'], // eslint-disable-line no-template-curly-in-string
 		['const {length} = "Infinity"; Math.log(length) / Math.LN2;', 'const {length} = "Infinity"; Math.log2(length);'],
 		['const [value] = "4"; Math.sqrt(value * value);', 'const [value] = "4"; Math.abs(value);'],
 	].map(([code, output]) => ({
