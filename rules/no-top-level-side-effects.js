@@ -1,9 +1,17 @@
-import {findVariable, hasSideEffect} from '@eslint-community/eslint-utils';
-import {isRuntimeImportSpecifier, unwrapTypeScriptExpression} from './utils/index.js';
+import {findVariable} from '@eslint-community/eslint-utils';
+import {
+	getAssignmentTargets,
+	getOutermostChainAndTypeScriptExpression,
+	getParentheses,
+	isRuntimeImportSpecifier,
+	isTypeOnlyDefinition,
+	unwrapChainAndTypeScriptExpression,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'no-top-level-side-effects';
 const messages = {
-	[MESSAGE_ID]: 'Do not use top-level side effects in exported modules.',
+	[MESSAGE_ID]: 'This invocation may cause side effects when the module is imported.',
+	'global-mutation': 'Do not modify global state when the module is imported.',
 };
 
 const knownPureExports = new Map([
@@ -26,7 +34,25 @@ const knownPureExports = new Map([
 	['vitest/config', new Set(['defineConfig', 'defineProject'])],
 	['rollup', new Set(['defineConfig'])],
 	['astro/config', new Set(['defineConfig'])],
+	['memoize', new Set(['default'])],
+	['debounce', new Set(['default'])],
+	['onetime', new Set(['default'])],
+	['p-memoize', new Set(['default'])],
+	['p-debounce', new Set(['default', 'promise', 'default.promise'])],
+	['throttleit', new Set(['default'])],
+	['p-limit', new Set(['default', 'limitFunction'])],
+	['node:util', new Set(['promisify', 'callbackify'])],
+	['lodash', new Set(['debounce', 'throttle', 'memoize', 'once'])],
+	['lodash-es', new Set(['debounce', 'throttle', 'memoize', 'once'])],
 ]);
+
+for (const source of ['lodash', 'lodash-es']) {
+	for (const method of ['debounce', 'throttle', 'memoize', 'once']) {
+		for (const extension of ['', '.js']) {
+			knownPureExports.set(`${source}/${method}${extension}`, new Set(['default']));
+		}
+	}
+}
 
 const exportDeclarationTypes = new Set([
 	'ExportAllDeclaration',
@@ -34,16 +60,88 @@ const exportDeclarationTypes = new Set([
 	'ExportNamedDeclaration',
 ]);
 
+const mutatingMethods = new Map([
+	['Object', new Set(['assign', 'defineProperty', 'defineProperties', 'freeze', 'seal', 'preventExtensions', 'setPrototypeOf'])],
+	['Reflect', new Set(['defineProperty', 'deleteProperty', 'set', 'preventExtensions', 'setPrototypeOf'])],
+]);
+
+const invocationTypes = new Set(['CallExpression', 'NewExpression', 'TaggedTemplateExpression', 'ImportExpression']);
+
+const isTypeOnlyReference = (node, sourceCode) => {
+	if (node.type !== 'Identifier') {
+		return false;
+	}
+
+	const variable = findVariable(sourceCode.getScope(node), node);
+	return variable?.isValueVariable === false
+		|| (variable?.defs.length > 0 && variable.defs.every(isTypeOnlyDefinition));
+};
+
 // Type-only exports (`export type`, `export interface`, `export declare`, `export {type Foo}`, …) are erased when TypeScript is compiled to JavaScript, so a file whose only exports are type-only has no runtime exports.
-const isTypeOnlyExport = node =>
+const isTypeOnlyExport = (node, sourceCode) =>
 	node.exportKind === 'type'
 	|| node.declaration?.type === 'TSInterfaceDeclaration'
-	// `export {type Foo}` keeps `exportKind: 'value'` on the declaration, but every specifier is type-only, so it is fully erased. `export {}` (no specifiers) is a runtime module marker and is not type-only.
-	|| (node.specifiers?.length > 0 && node.specifiers.every(specifier => specifier.exportKind === 'type'));
+	|| node.declaration?.declare === true
+	|| (node.type === 'ExportDefaultDeclaration' && isTypeOnlyReference(node.declaration, sourceCode))
+	// `export {type Foo}` keeps `exportKind: 'value'` on the declaration, but every specifier is type-only, so it is fully erased. An empty `export {}` marker does not activate the rule either.
+	|| (node.specifiers?.length > 0 && node.specifiers.every(specifier =>
+		specifier.exportKind === 'type'
+		|| (!node.source && isTypeOnlyReference(specifier.local, sourceCode)),
+	));
 
-const isExportDeclaration = node => exportDeclarationTypes.has(node.type) && !isTypeOnlyExport(node);
+const isExportDeclaration = (node, sourceCode) =>
+	exportDeclarationTypes.has(node.type)
+	&& !isTypeOnlyExport(node, sourceCode)
+	&& (node.type !== 'ExportNamedDeclaration' || Boolean(node.declaration) || Boolean(node.source) || node.specifiers.length > 0);
 
-const isAllowedAssignment = node => unwrapTypeScriptExpression(node).type === 'AssignmentExpression';
+const isModuleEvaluation = (node, sourceCode) => {
+	for (let scope = sourceCode.getScope(node); scope; scope = scope.upper) {
+		if (scope.type === 'function' || (scope.type === 'class-field-initializer' && !scope.block.parent.static)) {
+			return false;
+		}
+	}
+
+	return true;
+};
+
+const isGlobalMutationTarget = (node, sourceCode) => {
+	node = unwrapChainAndTypeScriptExpression(node);
+	while (node.type === 'MemberExpression') {
+		node = unwrapChainAndTypeScriptExpression(node.object);
+	}
+
+	return sourceCode.isGlobalReference(node);
+};
+
+const isGlobalMutation = (node, sourceCode) => {
+	if (['AssignmentExpression', 'ForInStatement', 'ForOfStatement'].includes(node.type)) {
+		return [...getAssignmentTargets(node.left)].some(target => isGlobalMutationTarget(target, sourceCode));
+	}
+
+	if (node.type === 'UpdateExpression' || (node.type === 'UnaryExpression' && node.operator === 'delete')) {
+		return isGlobalMutationTarget(node.argument, sourceCode);
+	}
+
+	if (node.type !== 'CallExpression' || !node.arguments[0]) {
+		return false;
+	}
+
+	const callee = unwrapChainAndTypeScriptExpression(node.callee);
+	if (callee.type !== 'MemberExpression') {
+		return false;
+	}
+
+	const receiver = unwrapChainAndTypeScriptExpression(callee.object);
+	const method = callee.computed ? callee.property.type === 'Literal' && callee.property.value : callee.property.name;
+	// An explicit receiver can receive the write instead of the target.
+	if (receiver.name === 'Reflect' && method === 'set' && (node.arguments.length !== 3 || node.arguments.some(argument => argument.type === 'SpreadElement'))) {
+		return false;
+	}
+
+	return sourceCode.isGlobalReference(receiver)
+		&& (mutatingMethods.get(receiver.name)?.has(method) ?? false)
+		&& isGlobalMutationTarget(node.arguments[0], sourceCode);
+};
 
 const isScriptSetupElement = node =>
 	node.type === 'VElement'
@@ -101,19 +199,19 @@ const isKnownPureImport = (reference, memberPath, sourceCode, pureExports) => {
 };
 
 const isKnownPureCall = (node, sourceCode, pureExports) => {
-	if (node.type !== 'CallExpression' || node.optional) {
+	if (node.type !== 'CallExpression') {
 		return false;
 	}
 
-	let reference = unwrapTypeScriptExpression(node.callee);
+	let reference = unwrapChainAndTypeScriptExpression(node.callee);
 	const members = [];
 	while (reference.type === 'MemberExpression') {
-		if (reference.computed || reference.optional) {
+		if (reference.computed && (reference.property.type !== 'Literal' || typeof reference.property.value !== 'string')) {
 			return false;
 		}
 
-		members.unshift(reference.property.name);
-		reference = unwrapTypeScriptExpression(reference.object);
+		members.unshift(reference.computed ? reference.property.value : reference.property.name);
+		reference = unwrapChainAndTypeScriptExpression(reference.object);
 	}
 
 	if (reference.type !== 'Identifier') {
@@ -146,33 +244,46 @@ const isKnownPureCall = (node, sourceCode, pureExports) => {
 		);
 
 		return property !== undefined
-			&& isKnownPureImport(unwrapTypeScriptExpression(definition.node.init), property.key.name ?? property.key.value, sourceCode, pureExports);
+			&& isKnownPureImport(unwrapChainAndTypeScriptExpression(definition.node.init), property.key.name ?? property.key.value, sourceCode, pureExports);
 	}) ?? false;
 };
 
-const hasExpressionSideEffect = (node, sourceCode, pureExports) => {
-	node = unwrapTypeScriptExpression(node);
-
-	if (node.type === 'ArrayExpression') {
-		return node.elements.some(element => element && hasExpressionSideEffect(element, sourceCode, pureExports));
+const isPureAnnotatedCall = (node, sourceCode) => {
+	if (node.type !== 'CallExpression' && node.type !== 'NewExpression') {
+		return false;
 	}
 
-	if (isKnownPureCall(node, sourceCode, pureExports)) {
-		return node.arguments.some(argument => hasExpressionSideEffect(argument, sourceCode, pureExports));
-	}
+	return [node, getOutermostChainAndTypeScriptExpression(node)].some(expression => {
+		const parentheses = getParentheses(expression, {sourceCode});
+		let token = sourceCode.getTokenBefore(expression, {includeComments: true});
+		while (token && (token.type === 'Block' || token.type === 'Line' || parentheses.includes(token))) {
+			if (token.type === 'Block' && /[#@]__PURE__/v.test(token.value)) {
+				return true;
+			}
 
-	return node.type === 'TaggedTemplateExpression'
-		|| hasSideEffect(node, sourceCode);
+			token = sourceCode.getTokenBefore(token, {includeComments: true});
+		}
+
+		return false;
+	});
 };
 
-const hasTopLevelSideEffect = (node, sourceCode, pureExports) => {
-	node = unwrapTypeScriptExpression(node);
-
-	if (node.type === 'ClassExpression') {
-		return node.superClass ? hasTopLevelSideEffect(node.superClass, sourceCode, pureExports) : false;
+const isTrustedInvocation = (node, sourceCode, pureExports) => {
+	if (isPureAnnotatedCall(node, sourceCode) || isKnownPureCall(node, sourceCode, pureExports)) {
+		return true;
 	}
 
-	return hasExpressionSideEffect(node, sourceCode, pureExports);
+	let child = node;
+	for (let {parent} = node; parent; parent = parent.parent) {
+		const isMutationExpression = parent.type !== 'ForInStatement' && parent.type !== 'ForOfStatement' && isGlobalMutation(parent, sourceCode);
+		if (isMutationExpression || (child === parent.callee && isPureAnnotatedCall(parent, sourceCode))) {
+			return true;
+		}
+
+		child = parent;
+	}
+
+	return false;
 };
 
 /**
@@ -180,56 +291,57 @@ const hasTopLevelSideEffect = (node, sourceCode, pureExports) => {
 */
 const create = context => {
 	const {sourceCode} = context;
-	const {allow, checkDefaultExports} = context.options[0];
-	const pureExports = new Map(knownPureExports);
-	for (const [source, exportNames] of Object.entries(allow)) {
-		pureExports.set(source, new Set([...pureExports.get(source) ?? [], ...exportNames]));
+	if (
+		sourceCode.lines[0].startsWith('#!')
+		|| sourceCode.parserServices?.isAstro
+		|| sourceCode.parserServices?.isSvelte
+		|| sourceCode.ast.body.every(node => !isExportDeclaration(node, sourceCode))
+	) {
+		return;
 	}
 
+	const {allow, checkUnknownCalls} = context.options[0];
 	const scriptSetupRange = getScriptSetupRange(sourceCode);
-	let shouldCheck = false;
+	const reported = new WeakSet();
 
-	context.on('Program', program => {
-		shouldCheck = !sourceCode.lines[0].startsWith('#!')
-			&& program.body.some(node => isExportDeclaration(node));
-	});
+	const shouldCheckNode = node => !isInScriptSetup(node, scriptSetupRange, sourceCode)
+		&& isModuleEvaluation(node, sourceCode);
 
-	context.on('ExpressionStatement', node => {
-		if (
-			!shouldCheck
-			|| node.parent.type !== 'Program'
-			|| isInScriptSetup(node, scriptSetupRange, sourceCode)
-			|| isAllowedAssignment(node.expression)
-			|| !hasTopLevelSideEffect(node.expression, sourceCode, pureExports)
-		) {
-			return;
+	const getProblem = (node, messageId) => {
+		reported.add(node);
+		for (let {parent} = node; parent; parent = parent.parent) {
+			if (invocationTypes.has(parent.type)) {
+				reported.add(parent);
+			}
 		}
 
-		return {
-			node,
-			messageId: MESSAGE_ID,
-		};
-	});
+		return {node, messageId};
+	};
 
-	// `export default init()` runs at module evaluation time just like a bare expression does
-	context.on('ExportDefaultDeclaration', node => {
-		const {declaration} = node;
-		if (
-			!checkDefaultExports
-			|| !shouldCheck
-			|| (declaration.type === 'FunctionDeclaration' || declaration.type === 'ClassDeclaration')
-			|| isInScriptSetup(node, scriptSetupRange, sourceCode)
-			|| isAllowedAssignment(declaration)
-			|| !hasTopLevelSideEffect(declaration, sourceCode, pureExports)
-		) {
-			return;
+	for (const nodeType of ['AssignmentExpression', 'ForInStatement', 'ForOfStatement', 'UpdateExpression', 'UnaryExpression', 'CallExpression']) {
+		context.on(nodeType, node => {
+			if (shouldCheckNode(node) && isGlobalMutation(node, sourceCode)) {
+				const target = node.type === 'ForInStatement' || node.type === 'ForOfStatement' ? node.left : node;
+				return getProblem(target, 'global-mutation');
+			}
+		});
+	}
+
+	// `export default init()` runs at module evaluation time just like a bare expression does, as do declaration initializers and other evaluated expressions.
+	if (checkUnknownCalls) {
+		const pureExports = new Map(knownPureExports);
+		for (const [source, exportNames] of Object.entries(allow)) {
+			pureExports.set(source, new Set([...pureExports.get(source) ?? [], ...exportNames]));
 		}
 
-		return {
-			node: declaration,
-			messageId: MESSAGE_ID,
-		};
-	});
+		for (const nodeType of invocationTypes) {
+			context.onExit(nodeType, node => {
+				if (shouldCheckNode(node) && !reported.has(node) && !isTrustedInvocation(node, sourceCode, pureExports)) {
+					return getProblem(node, MESSAGE_ID);
+				}
+			});
+		}
+	}
 };
 
 /**
@@ -241,14 +353,14 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Disallow top-level side effects in exported modules.',
-			recommended: 'unopinionated',
+			recommended: true,
 		},
 		schema: [{
 			type: 'object',
 			properties: {
-				checkDefaultExports: {
+				checkUnknownCalls: {
 					type: 'boolean',
-					description: 'Check default-exported expressions for side effects.',
+					description: 'Check invocations whose side effects are unknown.',
 				},
 				allow: {
 					type: 'object',
@@ -263,7 +375,7 @@ const config = {
 			},
 			additionalProperties: false,
 		}],
-		defaultOptions: [{allow: {}, checkDefaultExports: false}],
+		defaultOptions: [{allow: {}, checkUnknownCalls: false}],
 		messages,
 		languages: [
 			'js/js',

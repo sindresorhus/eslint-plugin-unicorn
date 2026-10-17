@@ -2,37 +2,74 @@
 
 📝 Disallow top-level side effects in exported modules.
 
-💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
+💼🚫 This rule is enabled in the ✅ `recommended` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config). This rule is _disabled_ in the ☑️ `unopinionated` [config](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Top-level side effects run as soon as a module is imported. This can make exported modules harder to test, reuse, and tree-shake.
+This rule reports explicit global mutations when importing ES modules with runtime exports. Unknown calls are allowed by default; enable `checkUnknownCalls` to also check invocations whose effects are unknown.
 
-This rule reports direct top-level expression statements with side effects in files that have ESM exports. It intentionally stays conservative and does not try to prove full module purity.
+The default checks assignments, updates, and deletions whose target is rooted in a built-in or configured global binding. It also checks these standard operations when their first argument is such a target:
 
-The rule ignores:
+- `Object.assign`, `Object.defineProperty`, `Object.defineProperties`, `Object.freeze`, `Object.seal`, `Object.preventExtensions`, and `Object.setPrototypeOf`.
+- `Reflect.defineProperty`, `Reflect.deleteProperty`, `Reflect.set` (three arguments without spread), `Reflect.preventExtensions`, and `Reflect.setPrototypeOf`.
 
-- Files without exports.
-- Executable scripts with a shebang.
-- Files whose only exports are type-only (`export type`, `export interface`, `export declare`, `export {type Foo}`, …), since those exports are erased when TypeScript is compiled to JavaScript.
-- Top-level assignments and declarations, such as `document.title = 'gone';` and `const response = fetch();`.
-- Default-exported expressions, such as `export default createConfig();`, which are treated like variable initializers unless `checkDefaultExports` is enabled.
+Configure environment globals such as `window` and `process` through ESLint's [`languageOptions.globals`](https://eslint.org/docs/latest/use/configure/language-options#specifying-globals). Local bindings that shadow globals are ignored.
 
-The assignment exception is intentionally narrow: other standalone mutation expressions, including `counter++` and `delete object.property`, are reported. When intentionally removing a property while constructing an export, prefer object rest destructuring or locally disable the rule.
+Both modes check declarations, default exports, conditionals, computed class keys, and static initialization. Function bodies (including immediately invoked functions) and instance field values are ignored. Aliases, imported objects, and targets returned by calls are not resolved. The rule does not prove purity or branch reachability.
 
-Use ESLint config overrides or ignores for project-specific entrypoints, polyfills, setup files, or configuration files. Configuration files are not automatically exempt; this override disables the rule for tool configuration files:
+Files without runtime exports (including empty `export {}` and type-only exports), shebang scripts, and Astro/Svelte components are ignored. With `vue-eslint-parser`, the normal module `<script>` is checked; `<script setup>` is ignored.
+
+## Examples
 
 ```js
-{
-	files: ['**/*.config.{js,mjs,cjs,ts,mts,cts}'],
-	rules: {
-		'unicorn/no-top-level-side-effects': 'off',
-	},
+export const version = 1;
+
+// ❌
+globalThis.application = createApplication();
+
+// ✅
+const application = createApplication();
+```
+
+```js
+export const options = {};
+
+// ❌
+Object.assign(globalThis, {options});
+
+// ✅
+Object.assign(options, {timeout: 1000});
+```
+
+## Options
+
+### checkUnknownCalls
+
+Type: `boolean`\
+Default: `false`
+
+Also report untrusted function and constructor calls, tagged templates, and dynamic imports during module evaluation. This may flag harmless initialization. Static imports, bare `await`, and local assignments, updates, and deletions remain allowed.
+
+```js
+'unicorn/no-top-level-side-effects': ['error', {checkUnknownCalls: true}]
+```
+
+With this option enabled:
+
+```js
+export const version = 1;
+
+// ❌
+const handler = initialize();
+
+// ✅
+function createHandler() {
+	return initialize();
 }
 ```
 
-Direct calls to these imported helpers are allowed:
+Direct calls to these imported helpers are trusted:
 
 - `react`: `memo`, `forwardRef`, `lazy`, `createContext`, `createRef`, `createElement`, `cloneElement`, and `isValidElement`.
 - `vue`: `defineComponent`.
@@ -42,101 +79,26 @@ Direct calls to these imported helpers are allowed:
 - `stylelint`: `createPlugin`.
 - `vite`, `rollup`, and `astro/config`: `defineConfig`.
 - `vitest/config`: `defineConfig` and `defineProject`.
+- `memoize`, `debounce`, `onetime`, `p-memoize`, and `throttleit`: the default export.
+- `p-debounce`: the default export and its `.promise()` method.
+- `p-limit`: the default export and `limitFunction`.
+- `node:util`: `promisify` and `callbackify`.
+- `lodash` and `lodash-es`: `debounce`, `throttle`, `memoize`, and `once`, including default imports from their corresponding subpaths with or without `.js`.
 
-Supports named imports (including aliases), namespace imports, default imports, and direct `const` destructuring from imported objects. These exceptions do not cover other local aliases, computed or optional calls, conditional callees, or globals.
-
-Nested helpers and helpers inside arrays are allowed, with arguments and array elements checked recursively. Callback bodies are ignored; calls inside objects and spreads remain conservatively checked. The built-in exceptions do not include `includeIgnoreFile`, which reads files.
-
-Tagged templates are checked directly and inside arrays.
-
-With `vue-eslint-parser`, direct top-level expressions in `<script setup>` are ignored because they run in component setup scope, not module scope. The normal `<script>` is still checked when the module has a runtime export.
-
-```vue
-<script>
-export default {};
-runSideEffectOnce(); // ❌
-</script>
-
-<script setup>
-import {watch} from 'vue';
-watch(source, callback); // ✅
-</script>
-```
-
-## Examples
-
-```js
-// ❌
-export {};
-init();
-
-// ✅
-export {};
-function init() {
-	document.title = 'gone';
-}
-```
-
-```js
-// ❌
-export {};
-new App();
-
-// ✅
-new App();
-```
-
-```js
-// ✅
-export {};
-const response = fetch();
-```
-
-```js
-// ✅
-export {};
-document.title = 'gone';
-```
-
-## Options
-
-### checkDefaultExports
-
-Type: `boolean`\
-Default: `false`
-
-Also check default-exported expressions. This stricter mode reports unknown factory calls, even when they only construct the exported value. Use `allow` for trusted imported helpers.
-
-```js
-'unicorn/no-top-level-side-effects': ['error', {checkDefaultExports: true}]
-```
-
-With this option enabled:
-
-```js
-import {defineConfig, globalIgnores} from 'eslint/config';
-
-// ❌
-export default defineConfig([globalIgnores([loadIgnorePattern()])]);
-
-// ✅
-export default defineConfig([globalIgnores(['dist/'])]);
-```
+Named imports (including aliases), namespace and default imports, direct `const` destructuring from imported objects, literal string member access, and optional calls are supported. Other local aliases, dynamic properties, conditional callees, and globals remain untrusted. Evaluated arguments are still checked.
 
 ### allow
 
 Type: `object`\
 Default: `{}`
 
-Extend the built-ins by mapping exact import sources to trusted export names or static member paths. Use `'default'` for a directly called default import. Arguments remain checked. Names and sources are matched exactly, without wildcards.
-
-For default imports (including `import {default as configuration}`) and namespace imports, paths such as `'configs.customize'` are relative to the imported object. For other named imports, include the original export name, such as `'builders.create'` for `import {builders as configuration}` followed by `configuration.create()`.
+Add trusted export names or member paths by exact import source, keeping the built-in trusted helpers. Use `'default'` for a directly called default import. Member paths are relative to default/namespace imports; for named imports, include the original export name. This only affects `checkUnknownCalls`; explicit global mutations remain reportable.
 
 ```js
 'unicorn/no-top-level-side-effects': [
 	'error',
 	{
-		checkDefaultExports: true,
+		checkUnknownCalls: true,
 		allow: {
 			'@company/config': ['defineConfig', 'configs.customize'],
 			'@company/wrapper': ['default'],
@@ -144,3 +106,30 @@ For default imports (including `import {default as configuration}`) and namespac
 	},
 ]
 ```
+
+## Pure annotations
+
+With `checkUnknownCalls` enabled, `/* @__PURE__ */` and `/* #__PURE__ */` immediately before a call or constructor invocation (including parenthesized invocations) trust it and its callee expression. Comments may include explanations; immediate arguments are still checked.
+
+```js
+// ❌
+export default /* @__PURE__ */ wrap(createHandler());
+
+// ✅
+export default /* @__PURE__ Creates a wrapper. */ wrap(() => createHandler());
+```
+
+Explicit global mutations are still reported, even inside trusted callees or arguments. PURE annotations affect bundling; only annotate invocations that can be discarded when their results are unused.
+
+## Intentional initialization
+
+For intentional global mutations, use an ESLint disable comment with a reason:
+
+```js
+export const application = createApplication();
+
+// eslint-disable-next-line unicorn/no-top-level-side-effects -- Expose the application to legacy scripts.
+globalThis.application = application;
+```
+
+With `checkUnknownCalls`, consider file-specific overrides for intentional initialization entrypoints, such as Storybook preview configuration or Next.js client instrumentation.
