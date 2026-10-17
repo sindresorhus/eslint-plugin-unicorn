@@ -150,9 +150,7 @@ nodeTest('getHTML replacement preserves an enclosing constructor', t => {
 	const {output, messages, fixed} = linter.verifyAndFix(code, config);
 	const element = {
 		innerHTML: '',
-		getHTML() {
-			return '';
-		},
+		getHTML: () => '',
 	};
 	t.assert.strictEqual(fixed, true);
 	t.assert.deepStrictEqual(messages, []);
