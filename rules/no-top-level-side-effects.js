@@ -5,7 +5,7 @@ import {
 	getParentheses,
 	isRuntimeImportSpecifier,
 	isTypeOnlyDefinition,
-	unwrapTypeScriptExpression,
+	unwrapChainAndTypeScriptExpression,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-top-level-side-effects';
@@ -38,7 +38,7 @@ const knownPureExports = new Map([
 	['debounce', new Set(['default'])],
 	['onetime', new Set(['default'])],
 	['p-memoize', new Set(['default'])],
-	['p-debounce', new Set(['default', 'promise'])],
+	['p-debounce', new Set(['default', 'promise', 'default.promise'])],
 	['throttleit', new Set(['default'])],
 	['p-limit', new Set(['default', 'limitFunction'])],
 	['node:util', new Set(['promisify', 'callbackify'])],
@@ -104,28 +104,13 @@ const isModuleEvaluation = (node, sourceCode) => {
 	return true;
 };
 
-const isGlobalIdentifier = (node, sourceCode) => {
-	if (node.type !== 'Identifier') {
-		return false;
-	}
-
-	const variable = findVariable(sourceCode.getScope(node), node);
-	return variable?.scope.type === 'global' && variable.defs.length === 0;
-};
-
 const isGlobalMutationTarget = (node, sourceCode) => {
-	while (node) {
-		node = unwrapTypeScriptExpression(node);
-		if (node.type === 'MemberExpression') {
-			node = node.object;
-		} else if (node.type === 'ChainExpression') {
-			node = node.expression;
-		} else {
-			return isGlobalIdentifier(node, sourceCode);
-		}
+	node = unwrapChainAndTypeScriptExpression(node);
+	while (node.type === 'MemberExpression') {
+		node = unwrapChainAndTypeScriptExpression(node.object);
 	}
 
-	return false;
+	return sourceCode.isGlobalReference(node);
 };
 
 const isGlobalMutation = (node, sourceCode) => {
@@ -141,19 +126,19 @@ const isGlobalMutation = (node, sourceCode) => {
 		return false;
 	}
 
-	const callee = unwrapTypeScriptExpression(node.callee);
+	const callee = unwrapChainAndTypeScriptExpression(node.callee);
 	if (callee.type !== 'MemberExpression') {
 		return false;
 	}
 
-	const receiver = unwrapTypeScriptExpression(callee.object);
+	const receiver = unwrapChainAndTypeScriptExpression(callee.object);
 	const method = callee.computed ? callee.property.type === 'Literal' && callee.property.value : callee.property.name;
 	// An explicit receiver can receive the write instead of the target.
 	if (receiver.name === 'Reflect' && method === 'set' && (node.arguments.length !== 3 || node.arguments.some(argument => argument.type === 'SpreadElement'))) {
 		return false;
 	}
 
-	return isGlobalIdentifier(receiver, sourceCode)
+	return sourceCode.isGlobalReference(receiver)
 		&& (mutatingMethods.get(receiver.name)?.has(method) ?? false)
 		&& isGlobalMutationTarget(node.arguments[0], sourceCode);
 };
@@ -218,7 +203,7 @@ const isKnownPureCall = (node, sourceCode, pureExports) => {
 		return false;
 	}
 
-	let reference = unwrapTypeScriptExpression(node.callee);
+	let reference = unwrapChainAndTypeScriptExpression(node.callee);
 	const members = [];
 	while (reference.type === 'MemberExpression') {
 		if (reference.computed && (reference.property.type !== 'Literal' || typeof reference.property.value !== 'string')) {
@@ -226,7 +211,7 @@ const isKnownPureCall = (node, sourceCode, pureExports) => {
 		}
 
 		members.unshift(reference.computed ? reference.property.value : reference.property.name);
-		reference = unwrapTypeScriptExpression(reference.object);
+		reference = unwrapChainAndTypeScriptExpression(reference.object);
 	}
 
 	if (reference.type !== 'Identifier') {
@@ -259,7 +244,7 @@ const isKnownPureCall = (node, sourceCode, pureExports) => {
 		);
 
 		return property !== undefined
-			&& isKnownPureImport(unwrapTypeScriptExpression(definition.node.init), property.key.name ?? property.key.value, sourceCode, pureExports);
+			&& isKnownPureImport(unwrapChainAndTypeScriptExpression(definition.node.init), property.key.name ?? property.key.value, sourceCode, pureExports);
 	}) ?? false;
 };
 

@@ -362,9 +362,7 @@ nodeTest('component parser contexts stay outside module evaluation', t => {
 	for (const checkUnknownCalls of [false, true]) {
 		for (const services of [{isAstro: true}, {isSvelte: true}, {isSvelteScript: true}, {}]) {
 			const parser = {
-				parseForESLint(code, options) {
-					return {ast: espree.parse(code, options), services};
-				},
+				parseForESLint: (code, options) => ({ast: espree.parse(code, options), services}),
 			};
 			const messages = linter.verify(code, {
 				languageOptions: {parser},
@@ -391,6 +389,24 @@ nodeTest('only configured globals establish ambient mutation targets', t => {
 	}
 });
 
+for (const checkUnknownCalls of [false, true]) {
+	test({
+		testerOptions: {languageOptions: {parser: parsers.typescript, globals: {process: 'readonly'}}},
+		valid: [
+			'interface unconfiguredState {} unconfiguredState.value = 1;',
+			'interface globalThis {} const globalThis = {}; globalThis.value = 1;',
+			'const globalThis = {}; { type globalThis = {}; globalThis.value = 1; }',
+		].map(code => ({code: moduleCode(code), options: [{checkUnknownCalls}]})),
+		invalid: [
+			'type globalThis = {}; globalThis.value = 1;',
+			'interface Array<T> {} Array.prototype.value = 1;',
+			'interface Object {} Object.assign(globalThis, {value: 1});',
+			'interface Reflect {} Reflect.set(globalThis, "value", 1);',
+			'interface process {} process.value = 1;',
+		].map(code => ({code: moduleCode(code), options: [{checkUnknownCalls}], errors: [{messageId: 'global-mutation'}]})),
+	});
+}
+
 nodeTest('highlights the operation that may have side effects', t => {
 	const linter = new Linter();
 	for (const code of [
@@ -398,6 +414,7 @@ nodeTest('highlights the operation that may have side effects', t => {
 		'import {memo} from "react"; export default {Component: memo(initialize())};',
 		'import {memo} from "react"; export default enabled ? memo(Component) : initialize();',
 		'import {memo} from "react"; export const value = 1; memo(initialize());',
+		'import * as helpers from "p-debounce"; export default helpers.default.promise(initialize());',
 	]) {
 		const messages = linter.verify(code, {plugins: {unicorn}, rules: {'unicorn/no-top-level-side-effects': ['error', {checkUnknownCalls: true}]}});
 		t.assert.strictEqual(messages.length, 1);
@@ -455,6 +472,7 @@ for (const [moduleName, arguments_] of [
 testUnknownCalls({
 	valid: [
 		'import pDebounce from "p-debounce"; export default pDebounce.promise(() => initialize());',
+		'import * as helpers from "p-debounce"; export default helpers.default.promise(callback);',
 		'import {default as pDebounce} from "p-debounce"; export default pDebounce.promise(callback);',
 		'import pDebounce from "p-debounce"; export const exported = 1; pDebounce.promise(callback, {after: true});',
 		'import {limitFunction} from "p-limit"; export default limitFunction(() => initialize(), {concurrency: 2});',
@@ -463,6 +481,7 @@ testUnknownCalls({
 	],
 	invalid: [
 		'import pDebounce from "p-debounce"; export default pDebounce.promise(initialize());',
+		'import * as helpers from "p-debounce"; export default helpers.default.promise(initialize());',
 		'import {default as pDebounce} from "p-debounce"; export default pDebounce.promise(initialize());',
 		'import {other as pDebounce} from "p-debounce"; export default pDebounce.promise(callback);',
 		'import pDebounce from "p-debounce"; export default pDebounce.promise(callback, {after: initialize()});',
@@ -1278,4 +1297,36 @@ testUnknownCalls({
 			'export default init`value`;',
 		].map(code => ({code, errors: 1})),
 	],
+});
+
+for (const checkUnknownCalls of [false, true]) {
+	test({
+		valid: [],
+		invalid: [
+			...[
+				'(Object?.assign)(globalThis, {value: 1});',
+				'(Object?.["assign"])?.(globalThis, {value: 1});',
+				'(Reflect?.set)(globalThis, "value", 1);',
+			].map(code => ({code: moduleCode(code), options: [{checkUnknownCalls}], errors: [{messageId: 'global-mutation'}]})),
+			{
+				...typescriptCode(moduleCode('((Object?.assign) as typeof Object.assign)(globalThis, {value: 1});')),
+				options: [{checkUnknownCalls}],
+				errors: [{messageId: 'global-mutation'}],
+			},
+		],
+	});
+}
+
+testUnknownCalls({
+	valid: [
+		'import React from "react"; export default (React?.memo)(Component);',
+		'import React from "react"; export default (React?.["memo"])?.(Component);',
+		'import stylistic from "@stylistic/eslint-plugin"; export default (stylistic?.configs).customize({});',
+		typescriptCode('import React from "react"; export default ((React?.memo) as typeof React.memo)(Component);'),
+	],
+	invalid: [
+		'import React from "react"; export default (React?.memo)(initialize());',
+		'import React from "other"; export default (React?.memo)(Component);',
+		'import React from "react"; export default (React?.[initialize()])(Component);',
+	].map(code => ({code, errors: [{messageId: 'no-top-level-side-effects'}]})),
 });

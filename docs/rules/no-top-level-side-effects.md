@@ -85,14 +85,14 @@ Direct calls to these imported helpers are trusted:
 - `node:util`: `promisify` and `callbackify`.
 - `lodash` and `lodash-es`: `debounce`, `throttle`, `memoize`, and `once`, including default imports from their corresponding subpaths with or without `.js`.
 
-Named imports (including aliases), namespace and default imports, direct `const` destructuring from imported objects, literal string properties, and optional calls are supported. Other local aliases, dynamic properties, conditional callees, and globals remain untrusted. Evaluated arguments are still checked.
+Named imports (including aliases), namespace and default imports, direct `const` destructuring from imported objects, literal string member access, and optional calls are supported. Other local aliases, dynamic properties, conditional callees, and globals remain untrusted. Evaluated arguments are still checked.
 
 ### allow
 
 Type: `object`\
 Default: `{}`
 
-Map exact import sources to trusted export names or member paths. Use `'default'` for a directly called default import. Member paths are relative to default/namespace imports; for named imports, include the original export name. This only affects `checkUnknownCalls`; explicit global mutations remain reportable.
+Add trusted export names or member paths by exact import source, keeping the built-in trusted helpers. Use `'default'` for a directly called default import. Member paths are relative to default/namespace imports; for named imports, include the original export name. This only affects `checkUnknownCalls`; explicit global mutations remain reportable.
 
 ```js
 'unicorn/no-top-level-side-effects': [
