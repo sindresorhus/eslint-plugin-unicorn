@@ -834,6 +834,44 @@ test.vue({
 	],
 });
 
+test.vue({
+	valid: [],
+	invalid: [
+		...['findIndex', 'findLastIndex'].flatMap(method => [
+			['!== -1', ''],
+			['!= -1', ''],
+			['> -1', ''],
+			['>= 0', ''],
+			['=== -1', '!'],
+			['== -1', '!'],
+			['< 0', '!'],
+		].map(([comparison, prefix]) => ({
+			code: `<template><div>{{ array.${method}(value => value > 0) ${comparison} }}</div></template>`,
+			output: `<template><div>{{ ${prefix}array.some(value => value > 0) }}</div></template>`,
+			errors: 1,
+		}))),
+		{
+			code: '<template><div v-if="array.findIndex(value => value > 0) === -1"></div></template>',
+			output: '<template><div v-if="!array.some(value => value > 0)"></div></template>',
+			errors: 1,
+		},
+		{
+			code: '<template><div>{{ (array.findIndex(fn)) /* keep */ === -1 }}</div></template>',
+			output: '<template><div>{{ !(array.some(fn)) /* keep */ }}</div></template>',
+			errors: 1,
+		},
+		{
+			code: '<template><div>{{ array.findIndex(fn) === /* keep */ -1 }}</div></template>',
+			errors: [{messageId: ERROR_ID_ARRAY_SOME, suggestions: 0}],
+		},
+		invalidCase({
+			code: '<template><div>{{ array.findLastIndex(predicate) === -1 }}</div></template>',
+			suggestionOutput: '<template><div>{{ !array.some(predicate) }}</div></template>',
+			method: 'findLastIndex',
+		}),
+	],
+});
+
 // Compare with `undefined`
 test.snapshot({
 	valid: [

@@ -1,10 +1,10 @@
 import {
 	checkVueTemplate,
-	getAncestor,
 	getFunctionReturnExpression,
 	getNegatedExpressionText,
 	getParenthesizedRange,
 	getTokenStore,
+	isInVueTemplateStatement,
 	hasTypeArguments,
 	isKnownNonIndexedCollection,
 	isOnSameLine,
@@ -142,9 +142,7 @@ const create = context => {
 				const predicateNode = tokenStore === sourceCode ? returnedExpression : callback;
 				const [predicateStart, predicateEnd] = replacementPredicateRange;
 				if (
-					(needsParentheses
-						&& tokenStore !== sourceCode
-						&& (getAncestor(unaryExpression, 'VOnExpression') || getAncestor(unaryExpression, 'BlockStatement')))
+					isInVueTemplateStatement(unaryExpression, context)
 					|| tokenStore.getTokensBetween(bangToken, tokenAfterBang, {includeComments: true}).length > 0
 					|| tokenStore.getCommentsInside(predicateNode).some(comment => {
 						const [commentStart, commentEnd] = sourceCode.getRange(comment);

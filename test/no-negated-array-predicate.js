@@ -10,12 +10,11 @@ test({
 	})),
 	invalid: [
 		...[
-			['return !\narray.every(value => value)', 'return ( \narray.some(value => !value))'],
-			['return !\narray.every(value => value) && ready', 'return ( \narray.some(value => !value) && ready)'],
-			['throw !\narray.every(value => value) && ready', 'throw ( \narray.some(value => !value) && ready)'],
-		].map(([expression, replacement]) => ({
+			'return !\narray.every(value => value)',
+			'return !\narray.every(value => value) && ready',
+			'throw !\narray.every(value => value) && ready',
+		].map(expression => ({
 			code: `<template><button @click="() => { ${expression}; }"></button></template>`,
-			output: `<template><button @click="() => { ${replacement}; }"></button></template>`,
 			languageOptions: {parser: parsers.vue},
 			errors: 1,
 		})),
@@ -34,6 +33,23 @@ test({
 			code: 'function* foo(array) { yield <boolean>!\narray.every(value => value); }',
 			output: 'function* foo(array) { yield <boolean>\narray.some(value => !value); }',
 			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+	],
+});
+
+test.vue({
+	valid: [],
+	invalid: [
+		...[
+			'<template><button @click="setup()\n![1].every(value => value > 0)"></button></template>',
+			'<template><button @click="setup()\n!([1].every(value => value > 0))"></button></template>',
+			'<template><div>{{ (() => { setup()\n![1].every(value => value > 0) })() }}</div></template>',
+			'<template><button @click="return!array.some(value => value)"></button></template>',
+		].map(code => ({code, errors: 1})),
+		{
+			code: '<template><button @click="() => !array.every(value => value)"></button></template>',
+			output: '<template><button @click="() => array.some(value => !value)"></button></template>',
 			errors: 1,
 		},
 	],

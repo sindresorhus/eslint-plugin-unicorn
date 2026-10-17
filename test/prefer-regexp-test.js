@@ -461,6 +461,35 @@ ruleTest.vue({
 	],
 });
 
+ruleTest.vue({
+	valid: [],
+	invalid: [
+		...[
+			'setup()\nvalue.search(/x/) !== -1',
+			'setup()\r\nvalue.search(/x/) !== -1',
+			'setup()\nvalue.match(/x/) ? found() : missing()',
+			'if (q) run();\nvalue.search(/x/) !== -1',
+		].map(code => ({
+			code: `<template><button @click="${code}"></button></template>`,
+			errors: [{messageId: code.includes('.search(') ? 'string-search' : 'string-match', suggestions: 0}],
+		})),
+		{
+			code: '<template><div>{{ (() => { setup()\nvalue.search(/x/) !== -1 })() }}</div></template>',
+			errors: [{messageId: 'string-search', suggestions: 0}],
+		},
+		{
+			code: '<template><button @click="() => value.search(/x/) !== -1"></button></template>',
+			output: '<template><button @click="() => /x/.test(value)"></button></template>',
+			errors: 1,
+		},
+		{
+			code: '<template><button @click="setup(); if (/x/.exec(value)) run()"></button></template>',
+			output: '<template><button @click="setup(); if (/x/.test(value)) run()"></button></template>',
+			errors: 1,
+		},
+	],
+});
+
 ruleTest.typescript({
 	valid: [
 		outdent`

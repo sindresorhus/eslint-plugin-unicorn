@@ -3,7 +3,7 @@ import {
 	shouldAddParenthesesToExpressionStart,
 	needsSemicolon,
 	getTokenStore,
-	getAncestor,
+	isInVueTemplateStatement,
 	checkVueTemplate,
 	isLogicalExpression,
 	isBooleanContext,
@@ -201,11 +201,7 @@ function create(context) {
 		}
 
 		const fix = function * (fixer, {abort}) {
-			if (
-				needsParentheses
-				&& tokenStore !== sourceCode
-				&& (getAncestor(node, 'VOnExpression') || getAncestor(node, 'BlockStatement'))
-			) {
+			if (isInVueTemplateStatement(node, context)) {
 				abort();
 			}
 

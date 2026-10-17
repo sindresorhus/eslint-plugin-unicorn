@@ -13,7 +13,7 @@ Explicit comparisons make empty and non-empty intent clear instead of relying on
 
 This rule is fixable, unless it's [unsafe to fix](#unsafe-to-fix-case).
 
-Fixes and suggestions that add grouping parentheses are not applied inside Vue event handlers or template function bodies.
+In Vue templates, checks inside event handler statement bodies or block statements are reported without fixes or suggestions.
 
 ## Zero comparisons
 

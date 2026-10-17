@@ -990,9 +990,6 @@ Message:
 > 1 | <template><div @click="method($event, foo.length >= 1)"></div></template>
     |                                       ^^^^^^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
 
-Output:
-  1 | <template><div @click="method($event, foo.length > 0)"></div></template>
-
 `;
 
 exports[`explicit-length-check > invalid(10): if (foo.bar && foo.bar.length) {} 1`] = `
@@ -2482,9 +2479,6 @@ exports[`explicit-length-check > invalid(9): <template><div @click=\"foo.length 
 Message:
 > 1 | <template><div @click="foo.length >= 1"></div></template>
     |                        ^^^^^^^^^^^^^^^ Use \`.length > 0\` when checking length is not zero.
-
-Output:
-  1 | <template><div @click="foo.length > 0"></div></template>
 
 `;
 

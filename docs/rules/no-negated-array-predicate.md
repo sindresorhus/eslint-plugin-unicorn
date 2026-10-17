@@ -13,6 +13,8 @@ Prefer swapping [`Array#some()`](https://developer.mozilla.org/en-US/docs/Web/Ja
 
 This applies De Morgan's laws in the small, focused case where the callback has a directly returned expression.
 
+In Vue templates, calls inside event handler statement bodies or block statements are reported without fixes.
+
 ## Examples
 
 ```js

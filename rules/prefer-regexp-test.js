@@ -13,6 +13,7 @@ import {
 	isBooleanContext,
 	getBaseTypes,
 	getTypeSymbol,
+	isInVueTemplateStatement,
 	getParenthesizedRange,
 	isLogicalExpression,
 	isString,
@@ -615,6 +616,14 @@ const create = context => {
 				node: type === REGEXP_EXEC ? methodNode : node,
 				messageId: type,
 			};
+			// Vue.js template statements are unavailable to the source-text helpers needed when moving the receiver.
+			if (
+				type !== REGEXP_EXEC
+				&& isInVueTemplateStatement(node, context)
+			) {
+				yield problem;
+				continue;
+			}
 
 			const fixFunction = function * (fixer) {
 				// Run first so the space after a keyword goes before an inserted `!`

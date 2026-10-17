@@ -659,7 +659,6 @@ test({
 			'function () {foo()\nBoolean(array.length) === expected}',
 		].map(expression => ({
 			code: `<template><button @click="${expression}"></button></template>`,
-			output: `<template><button @click="${expression.replace('Boolean(array.length)', 'array.length > 0')}"></button></template>`,
 			languageOptions: {parser: parsers.vue},
 			errors: 1,
 		})),
@@ -667,6 +666,22 @@ test({
 			code: '<template><div v-if="expected === Boolean(array.length)"></div></template>',
 			output: '<template><div v-if="expected === array.length > 0"></div></template>',
 			languageOptions: {parser: parsers.vue},
+			errors: 1,
+		},
+	],
+});
+
+test.vue({
+	valid: [],
+	invalid: [
+		...[
+			'<template><button @click="setup()\n![1].length"></button></template>',
+			'<template><button @click="setup()\n!([1].length)"></button></template>',
+			'<template><div>{{ (() => { setup()\n![1].length })() }}</div></template>',
+		].map(code => ({code, errors: [{messageId: TYPE_ZERO, suggestions: 0}]})),
+		{
+			code: '<template><button @click="() => !array.length"></button></template>',
+			output: '<template><button @click="() => array.length === 0"></button></template>',
 			errors: 1,
 		},
 	],

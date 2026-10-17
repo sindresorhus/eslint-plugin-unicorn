@@ -3,6 +3,7 @@ import {
 	isBooleanContext,
 	isGlobalBooleanCall,
 	getParenthesizedRange,
+	getTokenStore,
 	hasCommentInRange,
 	hasTypeArguments,
 	isIndexedCollection,
@@ -208,16 +209,17 @@ const create = context => {
 		const methodNode = left.callee.property;
 		function * fix(fixer, {abort}) {
 			const {sourceCode} = context;
-			const operatorToken = sourceCode.getTokenAfter(
+			const tokenStore = getTokenStore(context, binaryExpression);
+			const operatorToken = tokenStore.getTokenAfter(
 				left,
 				token => token.type === 'Punctuator' && token.value === operator,
 			);
 			// Start right after the token or comment before the operator, so the space before the operator is not left dangling
-			const [, start] = sourceCode.getRange(sourceCode.getTokenBefore(operatorToken, {includeComments: true}));
+			const [, start] = sourceCode.getRange(tokenStore.getTokenBefore(operatorToken, {includeComments: true}));
 			const [, end] = sourceCode.getRange(binaryExpression);
 
 			// Removing the comparison would drop comments in the removed range.
-			if (hasCommentInRange(context, [start, end])) {
+			if (tokenStore.getCommentsInside({range: [start, end]}).length > 0) {
 				return abort();
 			}
 
@@ -228,7 +230,7 @@ const create = context => {
 					yield fixer.insertTextAfter(binaryExpression, ')');
 				}
 
-				if (needsSemicolon(sourceCode.getTokenBefore(binaryExpression), context, prefix)) {
+				if (needsSemicolon(tokenStore.getTokenBefore(binaryExpression), context, prefix)) {
 					prefix = ';' + prefix;
 				}
 
