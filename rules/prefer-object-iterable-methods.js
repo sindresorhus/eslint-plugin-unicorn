@@ -2,8 +2,10 @@ import {findVariable, hasSideEffect} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {
 	getAvailableVariableName,
+	getOutermostChainAndTypeScriptExpression,
 	getScopes,
 	isLeftHandSide,
+	isReferenceContext,
 	isSameBinding,
 	isSameReference,
 	isTypeScriptExpressionWrapper,
@@ -144,14 +146,7 @@ const getVariableReferencesInNode = (variable, node, context) =>
 
 const isWriteReference = reference => !reference.init && reference.isWrite();
 
-const isMutationTarget = node => {
-	const {parent} = node;
-
-	return (
-		isLeftHandSide(node)
-		|| (parent.type === 'CallExpression' && parent.callee === node)
-	);
-};
+const isMutationTarget = node => isLeftHandSide(node) || isReferenceContext(getOutermostChainAndTypeScriptExpression(node));
 
 const isSameScopedReference = (left, right, context) => {
 	left = unwrapChainAndTypeScriptExpression(left);

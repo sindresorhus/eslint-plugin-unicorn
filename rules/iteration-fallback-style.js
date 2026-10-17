@@ -13,6 +13,7 @@ import {
 	hasMultilineToken,
 	isSameReference,
 	isTypeScriptExpressionWrapper,
+	needsSemicolon,
 	reindentText,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
@@ -208,11 +209,15 @@ const getFallbackFix = (node, guardInfo, context) => fixer => {
 	const loopText = sourceCode.getText(loop);
 	const sourceText = sourceCode.getText(sourceNode);
 	const fallbackText = isObjectIteration(loop) ? '{}' : '[]';
-	const loopWithFallback = [
+	let loopWithFallback = [
 		loopText.slice(0, sourceStart - loopStart),
 		`${sourceText} ${operator} ${fallbackText}`,
 		loopText.slice(sourceEnd - loopStart),
 	].join('');
+	if (needsSemicolon(sourceCode.getLastToken(loop), context)) {
+		loopWithFallback += ';';
+	}
+
 	const indent = getIndentString(node, context);
 
 	return fixer.replaceText(node, reindentText(loopWithFallback, getIndentString(loop, context), indent));

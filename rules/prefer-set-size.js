@@ -1,6 +1,11 @@
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {isMemberExpression, isMethodCall} from './ast/index.js';
-import {isLeftHandSide, isSet, shouldAddParenthesesToMemberExpressionObject} from './utils/index.js';
+import {
+	isLeftHandSide,
+	isSet,
+	needsSemicolon,
+	shouldAddParenthesesToMemberExpressionObject,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-set-size';
 const messages = {
@@ -53,6 +58,10 @@ function createFix(context, lengthAccessNode, set) {
 		let setText = sourceCode.getText(set);
 		if (shouldAddParenthesesToMemberExpressionObject(set, context)) {
 			setText = `(${setText})`;
+		}
+
+		if (needsSemicolon(sourceCode.getTokenBefore(array), context, setText)) {
+			setText = `;${setText}`;
 		}
 
 		yield fixer.replaceText(array, setText);

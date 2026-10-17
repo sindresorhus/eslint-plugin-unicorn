@@ -11,8 +11,7 @@ import {
 	getMemberExpressionObjectText,
 	isLeftHandSide,
 	isReferenceContext,
-	isParenthesized,
-	isTypeScriptExpressionWrapper,
+	isInUnparenthesizedNewExpressionCallee,
 	getOutermostChainAndTypeScriptExpression,
 	getStaticValueIfNoSideEffects,
 	hasCommentInRange,
@@ -83,29 +82,6 @@ const isLiteralNegativeInteger = node =>
 	&& node.argument.type === 'Literal'
 	&& Number.isSafeInteger(node.argument.value)
 	&& node.argument.value > 0;
-
-// A call introduced in an unparenthesized constructor callee would become the constructor's argument list.
-function needsConstructorParentheses(node, context) {
-	while (!isParenthesized(node, context)) {
-		const {parent} = node;
-		if (parent.type === 'NewExpression' && parent.callee === node) {
-			return true;
-		}
-
-		if (
-			(parent.type === 'MemberExpression' && parent.object === node)
-			|| (parent.type === 'TaggedTemplateExpression' && parent.tag === node)
-			|| (isTypeScriptExpressionWrapper(parent) && parent.expression === node)
-		) {
-			node = parent;
-			continue;
-		}
-
-		break;
-	}
-
-	return false;
-}
 
 const isZeroIndexAccess = node =>
 	isMemberExpression(node.parent, {
@@ -299,7 +275,7 @@ function create(context) {
 				const closingBracketToken = sourceCode.getTokenAfter(indexNode, isClosingBracketToken);
 				yield fixer.replaceText(closingBracketToken, ')');
 
-				if (needsConstructorParentheses(node, context)) {
+				if (isInUnparenthesizedNewExpressionCallee(node, context)) {
 					yield fixer.insertTextBefore(node, '(');
 					yield fixer.insertTextAfter(node, ')');
 				}

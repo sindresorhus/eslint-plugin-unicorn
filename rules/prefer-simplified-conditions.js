@@ -12,6 +12,7 @@ import {
 	isControlFlowTest,
 	isOnSameLine,
 	isParenthesized,
+	isReferenceContext,
 	isTypeScriptExpressionWrapper,
 	needsSemicolon,
 	shouldAddParenthesesToLogicalExpressionChild,
@@ -493,12 +494,14 @@ const create = context => {
 		if (absorptionTerm) {
 			return getProblem(
 				node,
-				fixer => fixLogicalExpression(
-					fixer,
-					node,
-					getLogicalReplacementText(node, node.operator, getParenthesizedText(absorptionTerm, context), context),
-					context,
-				),
+				isReferenceContext(node)
+					? undefined
+					: fixer => fixLogicalExpression(
+						fixer,
+						node,
+						getLogicalReplacementText(node, node.operator, getParenthesizedText(absorptionTerm, context), context),
+						context,
+					),
 			);
 		}
 

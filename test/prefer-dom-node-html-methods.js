@@ -1,7 +1,10 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
@@ -108,4 +111,59 @@ test.snapshot({
 			options: [{checkSetHTML: true}],
 		},
 	],
+});
+
+// A call introduced inside a constructor member chain must stay grouped.
+test({
+	valid: [],
+	invalid: [{
+		code: 'new element.innerHTML.constructor("value");',
+		output: 'new (element.getHTML()).constructor("value");',
+		errors: 1,
+	}],
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['new (element.innerHTML).constructor("value");', 'new (element.getHTML()).constructor("value");'],
+			['new (element.innerHTML.constructor)("value");', 'new (element.getHTML().constructor)("value");'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+		{
+			code: 'new element.innerHTML!.constructor("value");',
+			output: 'new (element.getHTML())!.constructor("value");',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'new element /* keep */ .innerHTML.constructor("value");',
+			errors: 1,
+		},
+	],
+});
+
+nodeTest('getHTML replacement preserves an enclosing constructor', t => {
+	const linter = new Linter();
+	const code = 'new element.innerHTML.constructor("value").valueOf();';
+	const config = {plugins: {unicorn: {rules: {'prefer-dom-node-html-methods': rule}}}, rules: {'unicorn/prefer-dom-node-html-methods': 'error'}};
+	const {output, messages, fixed} = linter.verifyAndFix(code, config);
+	const element = {
+		innerHTML: '',
+		getHTML() {
+			return '';
+		},
+	};
+	t.assert.strictEqual(fixed, true);
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(runInNewContext(output, {element}), runInNewContext(code, {element}));
+});
+
+// Type wrappers retain the existing callee and tag boundary.
+test({
+	valid: [],
+	invalid: [
+		'element.innerHTML!();',
+		'(element.innerHTML as Function)`template`;',
+	].map(code => ({code, languageOptions: {parser: parsers.typescript}, errors: 1})),
 });

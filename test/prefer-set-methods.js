@@ -314,3 +314,21 @@ test({
 		},
 	],
 });
+
+// Type assertions must not hide an exponentiation parent from the negation guard.
+test({
+	valid: [],
+	invalid: [
+		...[
+			['[...a].some(value => b.has(value)) as any ** 2', '(!a.isDisjointFrom(b)) as any ** 2'],
+			['[...a].some(value => b.has(value)) satisfies boolean as any ** 2', '(!a.isDisjointFrom(b)) satisfies boolean as any ** 2'],
+			['<boolean>[...a].some(value => b.has(value))', '<boolean>(!a.isDisjointFrom(b))'],
+			['[...a].some(value => b.has(value))! as any ** 2', '(!a.isDisjointFrom(b))! as any ** 2'],
+		].map(([expression, output]) => ({
+			code: `const a = new Set([1]); const b = new Set([1]); ${expression};`,
+			languageOptions: {parser: parsers.typescript},
+			output: `const a = new Set([1]); const b = new Set([1]); ${output};`,
+			errors: 1,
+		})),
+	],
+});

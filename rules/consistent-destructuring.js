@@ -1,6 +1,11 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {isLeftHandSide, unwrapTypeScriptExpression} from './utils/index.js';
-import {isCallOrNewExpression, isLoop, isStringLiteral} from './ast/index.js';
+import {
+	getOutermostChainAndTypeScriptExpression,
+	isLeftHandSide,
+	isReferenceContext,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
+import {isLoop, isStringLiteral} from './ast/index.js';
 
 const MESSAGE_ID = 'consistentDestructuring';
 const MESSAGE_ID_SUGGEST = 'consistentDestructuringSuggest';
@@ -60,18 +65,14 @@ const getAvailableDestructuredMember = (properties, member, memberScope, sourceC
 	}
 };
 
-const shouldIgnoreMemberExpression = node =>
-	node.computed
-	|| (
-		isCallOrNewExpression(node.parent)
-		&& node.parent.callee === node
-	)
-	// Replacing the tag would change the `this` binding, like a method call.
-	|| (
-		node.parent.type === 'TaggedTemplateExpression'
-		&& node.parent.tag === node
-	)
-	|| isLeftHandSide(node);
+const shouldIgnoreMemberExpression = node => {
+	const expression = getOutermostChainAndTypeScriptExpression(node);
+	return node.computed
+		|| (expression.parent.type === 'NewExpression' && expression.parent.callee === expression)
+		// Calling or tagging the destructured value would change the `this` binding.
+		|| isReferenceContext(expression)
+		|| isLeftHandSide(node);
+};
 
 // A loop runs its body again, so a write later in the body can still run before the read. Only a declaration inside the body is safe, since it is made fresh on each iteration. A `for` initializer runs once, so it does not count.
 const getLoopRangesRepeatingRead = (memberExpressionNode, declarationNode, sourceCode) => {

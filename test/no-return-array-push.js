@@ -1,8 +1,11 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
@@ -475,4 +478,61 @@ test.snapshot({
 		typeAware('declare const process: {stdout: string[]}; function foo() { return process.stdout.push(value); }'),
 		typeAware('declare const process: {stderr: string[]}; function foo() { return process.stderr.push(value); }'),
 	],
+});
+
+// A receiver can start with a token forbidden at the start of a statement.
+test({
+	valid: [],
+	invalid: ['push', 'unshift'].flatMap(method => [
+		`function run() { return function () { return []; }().${method}(1); }`,
+		`function run() { return (function () { return []; }().${method}(1)); }`,
+	].map(code => ({
+		code,
+		errors: [{
+			messageId: 'no-return-array-push/error',
+			suggestions: [{
+				messageId: 'no-return-array-push/suggestion',
+				output: `function run() { (function () { return []; }().${method}(1)); return; }`,
+			}],
+		}],
+	}))),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'function run() { setup()\nreturn function () { return []; }().push(1); }',
+			errors: [{
+				messageId: 'no-return-array-push/error',
+				suggestions: [{messageId: 'no-return-array-push/suggestion', output: 'function run() { setup()\n;(function () { return []; }().push(1)); return; }'}],
+			}],
+		},
+		{
+			code: 'function run() { return function () { return []; }().push(/* keep */ 1); }',
+			errors: [{
+				messageId: 'no-return-array-push/error',
+				suggestions: [{messageId: 'no-return-array-push/suggestion', output: 'function run() { (function () { return []; }().push(/* keep */ 1)); return; }'}],
+			}],
+		},
+		{
+			code: 'function run() { return function () { return []; }()!.push(1); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'no-return-array-push/error',
+				suggestions: [{messageId: 'no-return-array-push/suggestion', output: 'function run() { (function () { return []; }()!.push(1)); return; }'}],
+			}],
+		},
+	],
+});
+
+nodeTest('separating return keeps an IIFE receiver as an expression', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: {rules: {'no-return-array-push': rule}}}, rules: {'unicorn/no-return-array-push': 'error'}};
+	const code = 'const array = []; function run() { return function () { return array; }().push(1); } run(); array.join();';
+	const [message] = linter.verify(code, config);
+	const {range, text} = message.suggestions[0].fix;
+	const output = code.slice(0, range[0]) + text + code.slice(range[1]);
+	t.assert.deepStrictEqual(linter.verify(output, config), []);
+	t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
 });

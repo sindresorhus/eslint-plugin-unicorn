@@ -272,7 +272,7 @@ const getSetPredicateProblem = (node, {set, otherSet, method, negated}, context)
 				// `!expr` is not a `LeftHandSideExpression`, so it cannot be a `superClass` either
 				|| (parent.type === 'ClassDeclaration' && parent.superClass === node)
 				|| (parent.type === 'ClassExpression' && parent.superClass === node)
-				|| parent.type === 'TSNonNullExpression'
+				|| isTypeScriptExpressionWrapper(parent)
 			)
 		) {
 			replacement = `(${replacement})`;

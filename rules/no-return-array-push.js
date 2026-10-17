@@ -4,6 +4,7 @@ import {
 	isArray,
 	isKnownNonIndexedCollection,
 	needsSemicolon,
+	startsWithDeclarationLikeToken,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-return-array-push/error';
@@ -93,7 +94,11 @@ function getSuggestion(callExpression, returnStatement, method, context) {
 		messageId: MESSAGE_ID_SUGGESTION,
 		data: {method},
 		fix(fixer) {
-			const callText = sourceCode.getText(callExpression);
+			let callText = sourceCode.getText(callExpression);
+			if (startsWithDeclarationLikeToken(callExpression, context)) {
+				callText = `(${callText})`;
+			}
+
 			const semicolon = needsSemicolon(sourceCode.getTokenBefore(returnStatement), context, callText) ? ';' : '';
 
 			return fixer.replaceText(returnStatement, `${semicolon}${callText}; return;`);

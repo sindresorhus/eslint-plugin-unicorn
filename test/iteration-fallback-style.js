@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import unicorn from '../index.js';
@@ -334,4 +335,52 @@ ruleTest({
 			errors: 1,
 		},
 	],
+});
+
+// Removing the guard must keep the boundary after an unbraced loop body.
+ruleTest({
+	valid: [],
+	invalid: [{
+		code: 'if (array) {\n\tfor (const value of array) consume(value)\n}\n[1].forEach(consume);',
+		options: ['fallback'],
+		output: 'for (const value of array || []) consume(value);\n[1].forEach(consume);',
+		errors: 1,
+	}],
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
+		...[
+			['if (array) {\n\tfor (const value of array) consume(value)\n}\n(other)();', 'for (const value of array || []) consume(value);\n(other)();'],
+			['if (array) {\n\tfor (const value of array) if (value) consume(value)\n}\n[1].forEach(consume);', 'for (const value of array || []) if (value) consume(value);\n[1].forEach(consume);'],
+			['if (array) {\r\n\tfor (const value of (array)) consume(value)\r\n}\r\n[1].forEach(consume);', 'for (const value of (array || [])) consume(value);\r\n[1].forEach(consume);'],
+		].map(([code, output]) => ({
+			code, output, options: ['fallback'], errors: 1,
+		})),
+		{
+			code: 'if (array) {\n\tfor (const value of array) consume(value) /* keep */\n}\n[1].forEach(consume);',
+			options: ['fallback'],
+			errors: 1,
+		},
+	],
+});
+
+test('removing the guard preserves the following statement', t => {
+	const linter = new Linter();
+	const code = outdent`
+		const array = [2];
+		const seen = [];
+		const consume = value => {seen.push(value);};
+		if (array) {
+			for (const value of array) consume(value)
+		}
+		[1].forEach(consume);
+		JSON.stringify(seen);
+	`;
+	const config = {plugins: {unicorn}, rules: {'unicorn/iteration-fallback-style': ['error', 'fallback']}};
+	const {output, messages, fixed} = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(fixed, true);
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
 });

@@ -113,3 +113,14 @@ test({
 		},
 	],
 });
+
+// The replacement can introduce a leading parenthesis after an ASI boundary.
+test({
+	valid: [],
+	invalid: [{
+		code: 'const set = new Set();\nuse()\nArray.from(set as Set<number>).length;',
+		languageOptions: {parser: parsers.typescript},
+		output: 'const set = new Set();\nuse()\n;(set as Set<number>).size;',
+		errors: 1,
+	}],
+});

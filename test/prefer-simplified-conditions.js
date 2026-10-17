@@ -447,3 +447,50 @@ test('expanded conditions settle with related rules enabled', t => {
 		t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
 	}
 });
+
+// Absorption must not turn a value into a reference.
+ruleTester({
+	valid: ['(object.method || (object.method && other))();'],
+	invalid: [
+		...[
+			'delete (value || (value && other));',
+			'(callback || (callback && other))();',
+			'(callback || (callback && other))?.();',
+			'(tag || (tag && other))`text`;',
+			'(eval || (eval && other))("typeof local");',
+		].map(code => ({code, errors: [{messageId: 'prefer-simplified-conditions'}]})),
+		...[
+			'(callback || (callback && other))!();',
+			'delete ((value || (value && other)) as unknown);',
+		].map(code => ({
+			code,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-simplified-conditions'}],
+		})),
+		{
+			code: 'const result = value || (value && other);',
+			output: 'const result = value;',
+			errors: [{messageId: 'prefer-simplified-conditions'}],
+		},
+		{
+			code: 'new (Constructor || (Constructor && other))();',
+			output: 'new (Constructor)();',
+			errors: [{messageId: 'prefer-simplified-conditions'}],
+		},
+	],
+});
+
+test('absorption preserves indirect eval scope', t => {
+	const code = 'function check() { const local = 1; return (eval || (eval && other))("typeof local"); } check();';
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, {
+		plugins: {unicorn: {rules: {[ruleId]: rule}}},
+		rules: {[`unicorn/${ruleId}`]: 'error'},
+	});
+
+	t.assert.strictEqual(runInNewContext(code), 'undefined');
+	t.assert.strictEqual(runInNewContext(result.output), 'undefined');
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.strictEqual(result.messages.length, 1);
+});

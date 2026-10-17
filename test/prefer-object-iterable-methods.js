@@ -238,3 +238,38 @@ test({
 		},
 	],
 });
+
+// Calling or tagging an indexed method must retain its receiver.
+test({
+	valid: [
+		'Object.keys(object).map(key => object[key]`template`);',
+		'for (const key of Object.keys(object)) { object[key]`template`; }',
+		'Object.keys(object).map(key => object[key]?.());',
+		...[
+			'Object.keys(object).map(key => object[key]!());',
+			'Object.keys(object).map(key => (object[key] as Function)());',
+			'Object.keys(object).map(key => (object[key] as Function)?.());',
+			'Object.keys(object).map(key => (object[key] satisfies Function)`template`);',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
+	],
+	invalid: [],
+});
+
+// A chain inherited from the receiver still preserves the method reference.
+nodeTest('indexed calls and tags through optional receivers keep their receiver', t => {
+	for (const suffix of ['()', '`template`']) {
+		const code = `const object = {foo: {method() { return this === object.foo; }}}; JSON.stringify(Object.keys(object?.foo).map(key => (object?.foo[key])${suffix}));`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, false);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(output), '[true]');
+	}
+});
+
+test({
+	valid: [
+		'Object.keys(object?.foo).map(key => (object?.foo[key])());',
+		'Object.keys(object?.foo).map(key => (object?.foo[key])`template`);',
+	],
+	invalid: [],
+});
