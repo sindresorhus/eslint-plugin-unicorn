@@ -1001,3 +1001,20 @@ test({
 		code, output, languageOptions: {parser: parsers.typescript}, errors: 1,
 	})),
 });
+
+test.vue({
+	valid: [],
+	invalid: [
+		{
+			code: '<template><div v-if="array.find(predicate) /* keep */ !== undefined"></div></template>',
+			errors: [{messageId: 'some', suggestions: 0}],
+		},
+		...[
+			'array.filter(value => value) /* keep */ .length > 0',
+			'array.filter(value => value).length /* keep */ > 0',
+		].map(expression => ({
+			code: `<template><div v-if="${expression}"></div></template>`,
+			errors: [{messageId: 'filter', suggestions: 0}],
+		})),
+	],
+});

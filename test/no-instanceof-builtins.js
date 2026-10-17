@@ -400,3 +400,11 @@ test({
 		},
 	],
 });
+
+test.vue({
+	valid: [],
+	invalid: ['Function', 'String', 'Array'].map(constructor => ({
+		code: `<template><div v-if="value instanceof (/* keep */ ${constructor})"></div></template>`,
+		errors: [{messageId: 'no-instanceof-builtins', suggestions: 0}],
+	})),
+});

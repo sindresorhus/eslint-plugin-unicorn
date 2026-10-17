@@ -831,3 +831,16 @@ ruleTest.svelte({
 		errors: 1,
 	})),
 });
+
+ruleTest.vue({
+	valid: [],
+	invalid: [
+		'value.search(/x/) /* keep */ !== -1',
+		'value.search(/x/) === /* keep */ -1',
+		'value.match(/x/) /* keep */ .length',
+		'value.match(/x/).length /* keep */ > 0',
+	].map(expression => ({
+		code: `<template><div v-if="${expression}"></div></template>`,
+		errors: [{messageId: expression.includes('.search(') ? 'string-search' : 'string-match', suggestions: 0}],
+	})),
+});

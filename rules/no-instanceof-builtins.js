@@ -155,7 +155,7 @@ function getConstructor(node, context) {
 }
 
 const hasCommentsInside = (node, context) =>
-	context.sourceCode.getCommentsInside(node).length > 0;
+	getTokenStore(context, node).getCommentsInside(node).length > 0;
 
 /**
 @param {import('eslint').Rule.RuleContext} context

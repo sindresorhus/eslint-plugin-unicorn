@@ -729,3 +729,15 @@ test({
 		['Boolean(array.length) > limit;', 'array.length > 0 > limit;'],
 	].map(([code, output]) => ({code, output, errors: 1})),
 });
+
+test.vue({
+	valid: [],
+	invalid: [
+		'array.length /* keep */ >= 1',
+		'! /* keep */ array.length',
+		'Boolean(/* keep */ array.length)',
+	].map(expression => ({
+		code: `<template><div v-if="${expression}"></div></template>`,
+		errors: [{messageId: expression.startsWith('!') ? 'zero' : 'non-zero', suggestions: 0}],
+	})),
+});
