@@ -1,3 +1,17 @@
+exports[`no-shorthand-property-overrides > invalid(1): a { background-position-x: 1px; background-position: 0 0; } 1`] = `
+
+  1 | a { background-position-x: 1px; background-position: 0 0; }
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(1): a { background-position-x: 1px; background-position: 0 0; } 2`] = `
+
+Message:
+> 1 | a { background-position-x: 1px; background-position: 0 0; }
+    |                                 ^^^^^^^^^^^^^^^^^^^^^^^^ The shorthand property \`background-position\` overrides the previously declared \`background-position-x\` property.
+
+`;
+
 exports[`no-shorthand-property-overrides > invalid(1): a { padding-left: 10px !important; padding: 20px !important; } 1`] = `
 
   1 | a { padding-left: 10px !important; padding: 20px !important; }
@@ -76,6 +90,20 @@ Message:
 
 `;
 
+exports[`no-shorthand-property-overrides > invalid(2): a { background-position-y: 1px; background-position: 0 0; } 1`] = `
+
+  1 | a { background-position-y: 1px; background-position: 0 0; }
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(2): a { background-position-y: 1px; background-position: 0 0; } 2`] = `
+
+Message:
+> 1 | a { background-position-y: 1px; background-position: 0 0; }
+    |                                 ^^^^^^^^^^^^^^^^^^^^^^^^ The shorthand property \`background-position\` overrides the previously declared \`background-position-y\` property.
+
+`;
+
 exports[`no-shorthand-property-overrides > invalid(2): a { background-repeat: no-repeat; background: url(lion.png); } 1`] = `
 
   1 | a { background-repeat: no-repeat; background: url(lion.png); }
@@ -129,6 +157,20 @@ exports[`no-shorthand-property-overrides > invalid(3): a { TRANSITION-BEHAVIOR: 
 Message:
 > 1 | a { TRANSITION-BEHAVIOR: allow-discrete; TRANSITION: opacity 1s; }
     |                                          ^^^^^^^^^^^^^^^^^^^^^^ The shorthand property \`TRANSITION\` overrides the previously declared \`TRANSITION-BEHAVIOR\` property.
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(3): a { background-position-x: 1px; background: none; } 1`] = `
+
+  1 | a { background-position-x: 1px; background: none; }
+
+`;
+
+exports[`no-shorthand-property-overrides > invalid(3): a { background-position-x: 1px; background: none; } 2`] = `
+
+Message:
+> 1 | a { background-position-x: 1px; background: none; }
+    |                                 ^^^^^^^^^^^^^^^^ The shorthand property \`background\` overrides the previously declared \`background-position-x\` property.
 
 `;
 

@@ -234,3 +234,14 @@ test.typescript({
 		errors: [{messageId: 'no-shorthand-property-overrides', data: {longhand: 'paddingLeft', shorthand: 'padding'}}],
 	})),
 });
+
+test.snapshot({
+	valid: [
+		'a { background-position-x: 1px; background-position-y: 2px; }',
+	].map(code => ({code, language: languages.css})),
+	invalid: [
+		'a { background-position-x: 1px; background-position: 0 0; }',
+		'a { background-position-y: 1px; background-position: 0 0; }',
+		'a { background-position-x: 1px; background: none; }',
+	].map(code => ({code, language: languages.css})),
+});

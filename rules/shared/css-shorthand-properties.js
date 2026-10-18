@@ -111,7 +111,9 @@ const additionalAffectedPropertyEntries = [
 	// `animation` does not reset `animation-composition`: https://drafts.csswg.org/css-animations-2/#animation
 	['animation', 'animation-trigger'],
 	// Missing shorthand metadata: https://drafts.csswg.org/css-backgrounds-4/#propdef-background-repeat
-	['background', 'background-repeat-x background-repeat-y'],
+	['background', 'background-position-x background-position-y background-repeat-x background-repeat-y'],
+	// https://drafts.csswg.org/css-backgrounds-4/#background-position
+	['background-position', 'background-position-x background-position-y'],
 	['background-repeat', 'background-repeat-x background-repeat-y'],
 	// https://drafts.csswg.org/css-ui-4/#propdef-caret
 	['caret', 'caret-color caret-animation caret-shape'],
