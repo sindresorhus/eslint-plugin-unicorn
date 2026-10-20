@@ -1,4 +1,5 @@
 import {findVariable, isCommentToken} from '@eslint-community/eslint-utils';
+import reservedIdentifiers from 'reserved-identifiers';
 import {removeStatement} from './fix/index.js';
 import {isDirectEvalCall} from './ast/index.js';
 import {
@@ -17,6 +18,8 @@ const MESSAGE_ID = 'prefer-smaller-scope';
 const messages = {
 	[MESSAGE_ID]: 'Move `{{name}}` into the block where it is used.',
 };
+
+const reserved = reservedIdentifiers();
 
 const scopeBoundaryTypes = new Set([
 	'ArrowFunctionExpression',
@@ -360,7 +363,7 @@ function getTypeAliasProblem(declaration, context) {
 		|| containsNode(declaration, context, node =>
 			node.type === 'TSTypeQuery'
 			|| node.type === 'TSThisType'
-			|| (node.type === 'Identifier' && (node.name === 'await' || node.name === 'yield')),
+			|| (node.type === 'Identifier' && reserved.has(node.name)),
 		)
 		|| hasMultilineToken(declaration, context)
 		|| hasCommentsThatBlockDeclarationMove(sourceCode, declaration, firstStatement)

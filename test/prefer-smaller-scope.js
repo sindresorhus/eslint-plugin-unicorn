@@ -97,6 +97,16 @@ testRule.typescript({
 			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
 		},
 		{
+			code: 'type Value<implements> = implements; class Foo { method() { return 1 as Value<number>; } }',
+			languageOptions: {sourceType: 'script'},
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		},
+		{
+			code: 'type implements = number; type Value = implements; class Foo { method() { return 1 as Value; } }',
+			languageOptions: {sourceType: 'script'},
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		},
+		{
 			code: 'type Tree = {children?: Tree[]}; export function make() { return {} as Tree; }',
 			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Tree'}}],
 		},
