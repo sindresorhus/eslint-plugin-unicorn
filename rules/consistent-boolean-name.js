@@ -2353,11 +2353,7 @@ function getParameterPropertyNameNode(node) {
 function getGetterBooleanState(node, context) {
 	const scope = context.sourceCode.getScope(node);
 	if (node.type === 'Identifier') {
-		const variable = findVariable(scope, node);
-		const definitions = getFunctionDefinitions(variable) ?? variable.defs;
-		return combineBooleanStates(definitions.map(definition => definition.name.typeAnnotation
-			? getTypeAnnotationBooleanState(definition.name.typeAnnotation, context, context.sourceCode.getScope(definition.name))
-			: getGetterBooleanState(definition.node.init ?? definition.node, context)));
+		return getVariableBooleanState(findVariable(scope, node), context);
 	}
 
 	if (node.type === 'TSMethodSignature') {

@@ -29,7 +29,7 @@ const typeAware = testCase => {
 			parser: typescriptEslintParser,
 			parserOptions: {
 				...testCase.languageOptions?.parserOptions,
-				projectService: {allowDefaultProject: ['*.ts']},
+				projectService: {allowDefaultProject: ['*.js', '*.ts']},
 			},
 		},
 	};
@@ -169,15 +169,24 @@ test.snapshot({
 		].map(code => ({
 			...typeAware(code),
 			filename: 'file.js',
-			languageOptions: {
-				parser: typescriptEslintParser,
-				parserOptions: {projectService: {allowDefaultProject: ['*.js', '*.ts']}},
-			},
 		})),
 	].map(testCase => {
 		testCase = typeof testCase === 'string' ? {code: testCase} : testCase;
 		return {...testCase, options: [{...onlyIsPrefixOptions, ...testCase.options?.[0]}]};
 	}),
+});
+
+test({
+	valid: [
+		'/** @type {() => boolean} */ const isValue = source; const isReady = computed(isValue);',
+		'/** @type {() => boolean} */ let isValue; const isReady = computed(isValue);',
+		'/** @param {() => boolean} isValue */ function run(isValue) { const isReady = computed(isValue); }',
+		'/** @type {unknown} */ const isValue = (): boolean => true; const isReady = computed(isValue);',
+	].map(code => typeAware({
+		code: `declare function computed(getter: () => boolean): {value: boolean}; ${code}`,
+		options: [{checkArguments: 'never'}],
+	})),
+	invalid: [],
 });
 
 test({
@@ -3887,6 +3896,10 @@ test({
 
 // Parameter renames preserve the documentation around the exact name token.
 for (const [code, output] of [
+	[
+		'/** @param {boolean} value */ function run(value, isNext = value) { consume({value, isNext}); }',
+		'/** @param {boolean} isValue */ function run(isValue, isNext = isValue) { consume({value: isValue, isNext}); }',
+	],
 	[
 		'/** @param {boolean} value */ function run(/** @type {boolean} */ value) { consume(value); }',
 		'/** @param {boolean} isValue */ function run(/** @type {boolean} */ isValue) { consume(isValue); }',

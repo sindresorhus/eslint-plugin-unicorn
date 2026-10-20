@@ -650,6 +650,24 @@ test('computed property annotations prevent static lookup from bypassing uncerta
 	t.assert.deepStrictEqual(getInferences(code), [[], [], [], [], []]);
 });
 
+test('numeric conditional inference does not bypass documented condition uncertainty', t => {
+	const code = '/** @type {unknown} */ const flag = true; const alias = flag; inspect(flag ? 1 : "text"); inspect(flag ? "text" : 1); inspect(alias ? 1 : "text"); inspect(flag ? 1 : 2);';
+	t.assert.deepStrictEqual(getInferences(code), [[], [], [], ['number']]);
+	t.assert.deepStrictEqual(getInferences('/** @type {unknown} */ const flag = false; inspect(flag ? "text" : 1);'), [[]]);
+});
+
+test('numeric conditional uncertainty survives transparent wrappers around the test', t => {
+	for (const expression of ['flag!', 'flag as unknown']) {
+		const code = `/** @type {unknown} */ const flag = true; inspect(${expression} ? 1 : "text");`;
+		t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[]], expression);
+	}
+});
+
+test('ordinary static conditions keep numeric branch inference without documentation', t => {
+	const code = 'const flag = true; inspect(flag ? 1 : "text"); inspect(!flag ? "text" : 1); inspect(flag ? 1 : 2);';
+	t.assert.deepStrictEqual(getInferences(code), [['number'], ['number'], ['number']]);
+});
+
 test('constant computed keys without annotations retain static lookup inference', t => {
 	const code = 'const key = "slot"; inspect({slot: true}[key]); inspect({slot: "text"}[key]); inspect({slot: 1}[key]); inspect({slot: 1n}[key]); inspect({slot: []}[key]);';
 	t.assert.deepStrictEqual(getInferences(code), [['boolean'], ['string'], ['number'], ['bigint'], ['array', 'indexed']]);

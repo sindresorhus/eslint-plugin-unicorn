@@ -222,6 +222,7 @@ export default function isNumber(node, context) {
 			const testStaticValueResult = getStaticValueForControlFlow(node.test, context);
 			if (
 				testStaticValueResult !== undefined
+				&& !hasJSDocumentTypeReference(node.test, context)
 				&& (
 					(isConsequentNumber && testStaticValueResult.value)
 					|| (isAlternateNumber && !testStaticValueResult.value)

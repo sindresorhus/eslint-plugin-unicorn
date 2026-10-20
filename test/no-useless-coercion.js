@@ -13,6 +13,7 @@ const linter = new Linter();
 test({
 	valid: [
 		'/** @type {() => boolean} */ let read; read = () => "changed"; Boolean(read());',
+		'/** @type {unknown} */ const flag = true; Number(flag ? 1 : "text");',
 		'/** @type {(() => boolean) & (() => string)} */ const read = () => "yes"; Boolean(read());',
 		{
 			code: '/** @returns {string} */ let read: () => unknown = (): string => source; String(read());',
@@ -22,6 +23,10 @@ test({
 		'/** @returns {?string} */ function text() { return source; } Boolean(text().includes("x"));',
 	],
 	invalid: [{
+		code: '/** @type {unknown} */ const flag = true; Number(flag ? 1 : 2);',
+		output: '/** @type {unknown} */ const flag = true; (flag ? 1 : 2);',
+		errors: [{messageId: 'no-useless-coercion'}],
+	}, {
 		code: '/** @returns {string} */ function text() { return source; } Boolean(text().includes("x"));',
 		output: '/** @returns {string} */ function text() { return source; } text().includes("x");',
 		errors: [{messageId: 'no-useless-coercion'}],
