@@ -6,6 +6,7 @@ import {getBooleanWrapperVariableState} from './utils/get-boolean-wrapper-variab
 import {
 	getJSDocumentType,
 	getJSDocumentTypeName,
+	hasJSDocumentTypeReference,
 	getTypeName,
 	target,
 } from './utils/type-helpers.js';
@@ -1874,7 +1875,7 @@ function getStaticExpressionBooleanState(node, context) {
 	const staticValue = getStaticValueIfNoSideEffects(node, context)?.value;
 
 	// `null` is a common placeholder before a boolean is assigned, like `undefined`.
-	if (staticValue === undefined || staticValue === null) {
+	if (staticValue === undefined || staticValue === null || hasJSDocumentTypeReference(node, context)) {
 		return unknown;
 	}
 
@@ -2371,11 +2372,9 @@ function getGetterBooleanState(node, context) {
 	}
 
 	const annotation = getJSDocumentFunctionReturnType(node, context);
-	if (annotation) {
-		return getJSDocumentBooleanState(annotation, {allowNullish: true});
-	}
-
-	const stateFromReturnType = getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false});
+	const stateFromReturnType = annotation
+		? getJSDocumentBooleanState(annotation, {allowNullish: true})
+		: getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false});
 	if (stateFromReturnType !== unknown) {
 		return stateFromReturnType;
 	}
@@ -2389,7 +2388,7 @@ function getGetterBooleanState(node, context) {
 		return stateFromTypeInformation;
 	}
 
-	return getFunctionBodyBooleanState(node, context);
+	return annotation ? unknown : getFunctionBodyBooleanState(node, context);
 }
 
 function isBooleanProperty(node, context) {
@@ -2447,37 +2446,28 @@ function getExplicitPropertyBooleanState(node, context) {
 	}
 
 	// Setters are skipped by `checkProperty()`.
-	if (node.type === 'Property') {
-		if (node.parent.type !== 'ObjectExpression') {
-			return unknown;
-		}
+	if (node.type === 'Property' && node.parent.type !== 'ObjectExpression') {
+		return unknown;
+	}
 
+	if (node.type === 'Property' || propertyDefinitionTypes.has(node.type)) {
 		const annotation = getJSDocumentTypeAnnotation(node, context);
 		if (annotation) {
-			return getJSDocumentBooleanState(annotation, {allowNullish: true, functionTypesAreBoolean: true});
+			const state = getJSDocumentBooleanState(annotation, {allowNullish: true, functionTypesAreBoolean: true});
+			return state === unknown ? getTypeInformationBooleanState(node, context) : state;
 		}
 
 		if (node.shorthand) {
 			return getVariableBooleanState(findVariable(sourceCode.getScope(node), node.key), context);
 		}
 
-		return getExpressionBooleanState(node.value, context);
+		return node.typeAnnotation
+			? getDirectTypeAnnotationBooleanState(node.typeAnnotation, context, sourceCode.getScope(node))
+			: getExpressionBooleanState(node.value, context);
 	}
 
 	if (methodDefinitionTypes.has(node.type)) {
 		return ['constructor', 'set'].includes(node.kind) ? unknown : getFunctionBooleanState(node.value, context);
-	}
-
-	if (propertyDefinitionTypes.has(node.type)) {
-		const scope = sourceCode.getScope(node);
-		const annotation = getJSDocumentTypeAnnotation(node, context);
-		if (annotation) {
-			return getJSDocumentBooleanState(annotation, {allowNullish: true, functionTypesAreBoolean: true});
-		}
-
-		return node.typeAnnotation
-			? getDirectTypeAnnotationBooleanState(node.typeAnnotation, context, scope)
-			: getExpressionBooleanState(node.value, context);
 	}
 
 	if (node.type === 'TSPropertySignature') {

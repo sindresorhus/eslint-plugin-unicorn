@@ -4417,3 +4417,121 @@ for (const wrap of [typescript, typeAware]) {
 		})],
 	});
 }
+
+// Unknown documentation keeps syntax-only getters uncertain while type information can resolve them.
+for (const wrap of [testCase => testCase, typescript]) {
+	test({
+		valid: [
+			'const task = {/** @returns {unknown} */ get ready() { return true; }};',
+			'class Task { /** @returns {Unresolved} */ get isReady() { return "text"; } }',
+		].map(code => wrap({code, options: [{checkMethods: 'always'}]})),
+		invalid: [],
+	});
+}
+
+test({
+	valid: [
+		'const task = {/** @returns {string} */ get ready() { return true; }};',
+		'class Task { /** @returns {boolean} */ get isReady() { return "text"; } }',
+	].map(code => typeAware({code, options: [{checkMethods: 'always'}]})),
+	invalid: [
+		...[
+			'const task = {/** @returns {unknown} */ get ready() { return true; }};',
+			'class Task { /** @returns {Unresolved} */ get ready() { return true; } }',
+		].map(code => typeAware({
+			code,
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 0}],
+		})),
+		...[
+			'const task = {/** @returns {unknown} */ get isReady() { return "text"; }};',
+			'class Task { /** @returns {Unresolved} */ get isReady() { return "text"; } }',
+		].map(code => typeAware({
+			code,
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+		})),
+	],
+});
+
+// Static evaluation must not bypass documented types through surrounding expressions.
+for (const wrap of [testCase => testCase, typescript]) {
+	test({
+		valid: [
+			'/** @type {unknown} */ const value = "text"; const isReady = (0, value);',
+			'/** @type {unknown} */ const value = "text"; const isReady = true ? value : value;',
+			'/** @type {unknown} */ const value = "text"; const isReady = [value][0];',
+		].map(code => wrap(code)),
+		invalid: [wrap({
+			code: '/** @type {string} */ const value = true; const isReady = (0, value);',
+			errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+		}), wrap({
+			code: '/** @type {unknown} */ const value = "text"; const isReady = value + "";',
+			errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+		})],
+	});
+}
+
+// Unknown property documentation can use compiler information without trusting syntax-only initializers.
+for (const wrap of [testCase => testCase, typescript]) {
+	test({
+		valid: [
+			'const task = {/** @type {unknown} */ isReady: "text"};',
+			'class Task { /** @type {Unresolved} */ isReady = "text"; }',
+		].map(code => wrap({code, options: [{checkFields: 'always'}]})),
+		invalid: [],
+	});
+}
+
+test({
+	valid: [
+		'const task = {/** @type {boolean} */ isReady: "text"};',
+		'class Task { /** @type {string} */ ready = true; }',
+	].map(code => typeAware({code, options: [{checkFields: 'always'}]})),
+	invalid: [
+		...[
+			'const task = {/** @type {unknown} */ ready: true};',
+			'class Task { /** @type {Unresolved} */ ready = true; }',
+		].map(code => typeAware({
+			code,
+			options: [{checkFields: 'always'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 0}],
+		})),
+		...[
+			'const task = {/** @type {unknown} */ isReady: "text"};',
+			'class Task { /** @type {Unresolved} */ isReady = "text"; }',
+		].map(code => typeAware({
+			code,
+			options: [{checkFields: 'always'}],
+			errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+		})),
+	],
+});
+
+// Empty record types describe any non-nullish value, including booleans.
+for (const wrap of [testCase => testCase, typescript]) {
+	test({
+		valid: [
+			'/** @type {{}} */ const isReady = true;',
+			'/** @param {{}} isReady */ function run(isReady = true) {}',
+			'/** @returns {{}} */ function isReady() { return true; }',
+			{code: 'const task = {/** @type {{}} */ isReady: true};', options: [{checkFields: 'always'}]},
+			{code: 'class Task { /** @type {{}} */ isReady = true; }', options: [{checkFields: 'always'}]},
+			{code: 'const task = {/** @returns {{}} */ get isReady() { return true; }};', options: [{checkMethods: 'always'}]},
+			'/** @type {boolean & {}} */ const ready = true;',
+		].map(testCase => wrap(testCase)),
+		invalid: [],
+	});
+}
+
+test({
+	valid: [
+		typescript('const isReady: {} = true;'),
+		typescript('function run(isReady: {} = true) {}'),
+		typescript('function isReady(): {} { return true; }'),
+		typescript({code: 'class Task { isReady: {} = true; }', options: [{checkFields: 'always'}]}),
+		typescript({code: 'const task = {get isReady(): {} { return true; }};', options: [{checkMethods: 'always'}]}),
+		typescript('const ready: boolean & {} = true;'),
+	],
+	invalid: [],
+});

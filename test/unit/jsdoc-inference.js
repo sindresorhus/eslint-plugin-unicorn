@@ -830,3 +830,24 @@ test('constructor parameter callback defaults retain async and synchronous bound
 		t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [expected], initializer);
 	}
 });
+
+test('empty object annotations do not establish primitive or non-primitive certainty', t => {
+	const checks = {
+		...predicates,
+		nonString: isKnownNonString,
+		nonNumber: isKnownNonNumber,
+		nonBigint: isKnownNonBigInt,
+		nonArray: isKnownNonArray,
+	};
+	for (const type of ['{}', 'boolean | {}', 'boolean & {}']) {
+		const code = `/** @type {${type}} */ const value = true; inspect(value);`;
+		t.assert.deepStrictEqual(getInferences(code, {checks}), [[]], type);
+		t.assert.deepStrictEqual(getInferences(code, {checks, typescript: true}), [[]], type);
+	}
+});
+
+test('empty object callable metadata remains uncertain while nested argument types preserve the outer result', t => {
+	t.assert.deepStrictEqual(getInferences('/** @type {(() => boolean) & {}} */ let read; inspect(read());'), [[]]);
+	t.assert.deepStrictEqual(getInferences('/** @type {Array<{}>} */ let values; inspect(values);'), [['array', 'indexed']]);
+	t.assert.deepStrictEqual(getInferences('/** @param {function({}): boolean} read */ function run(read) { inspect(read()); }'), [['boolean']]);
+});

@@ -561,19 +561,14 @@ const getTypeFromVariable = (node, context, options, visitedVariables) => {
 
 	const [definition] = variable.defs;
 	const definitionScope = context.sourceCode.getScope(definition.name);
-	const jsdocAnnotation = getJSDocumentTypeAnnotation(definition.name, context);
 	let typeFromAnnotation = getTypeAnnotationType(definition.name?.typeAnnotation, definitionScope, options);
-	if (jsdocAnnotation) {
-		typeFromAnnotation = getJSDocumentType(jsdocAnnotation, options);
-	}
-
 	if (definition.name?.optional) {
 		typeFromAnnotation = combineUnionTypes([typeFromAnnotation, nullish], options);
 	}
 
 	let type = unknown;
 
-	if (typeFromAnnotation !== unknown || jsdocAnnotation) {
+	if (typeFromAnnotation !== unknown) {
 		type = typeFromAnnotation;
 	} else if (
 		definition.type === 'Variable'

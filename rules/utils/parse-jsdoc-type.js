@@ -203,6 +203,10 @@ function parseJSDocumentType(text) {
 
 	function parseRecord() {
 		expect('{');
+		if (consume('}')) {
+			return unknown;
+		}
+
 		while (!consume('}')) {
 			if (tokens[index] === 'readonly' && ![':', '?', ',', ';', '}'].includes(tokens[index + 1])) {
 				index++;
