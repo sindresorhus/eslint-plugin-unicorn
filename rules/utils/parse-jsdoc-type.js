@@ -3,7 +3,7 @@ const tokenPattern = /\s+|=>|\.\.\.|[\p{ID_Start}$_][\p{ID_Continue}$\u{200C}\u{
 const identifierPattern = /^[\p{ID_Start}$_][\p{ID_Continue}$\u{200C}\u{200D}]*$/v;
 const aliases = new Map([['Boolean', 'boolean'], ['String', 'string'], ['Number', 'number']]);
 const reservedNames = new Set(['import', 'typeof', 'extends', 'new']);
-const unsupportedNames = new Set([...reservedNames, 'keyof', 'infer', 'asserts', 'is']);
+const unsupportedNames = new Set([...reservedNames, 'keyof', 'infer', 'asserts', 'is', 'readonly']);
 const unknownNames = new Set(['any', 'unknown', 'never']);
 const primitiveNames = new Set(['boolean', 'string', 'number', 'bigint', 'symbol', 'void', 'null', 'undefined', 'true', 'false', ...aliases.keys(), ...unknownNames]);
 const closingTokens = new Map([['(', ')'], ['[', ']'], ['{', '}'], ['<', '>']]);
@@ -47,9 +47,14 @@ function hasValidStringEscapes(token) {
 Read the type facts needed by rules. Unsupported or malformed syntax stays unknown, including when nested inside a supported container.
 */
 function parseJSDocumentType(text) {
-	const primitiveType = primitiveTypes.get(text.trim());
+	const trimmed = text.trim();
+	const primitiveType = primitiveTypes.get(trimmed);
 	if (primitiveType) {
 		return primitiveType;
+	}
+
+	if (identifierPattern.test(trimmed)) {
+		return unsupportedNames.has(trimmed) ? unknown : {kind: 'name', name: trimmed};
 	}
 
 	const tokens = [];

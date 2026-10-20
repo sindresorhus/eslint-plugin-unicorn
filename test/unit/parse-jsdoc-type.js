@@ -61,6 +61,31 @@ test('primitive types with surrounding whitespace retain their complete-expressi
 	}
 });
 
+test('standalone named types preserve keyword and whole-expression boundaries', t => {
+	for (const [expression, expected] of [
+		['Array', array],
+		['Set', name('Set')],
+		['Uint8Array', name('Uint8Array')],
+		['My_Options2', name('My_Options2')],
+		['𝒱alue', name('𝒱alue')],
+		['boolean\u200C', name('boolean\u200C')],
+		['function', name('function')],
+		['readonlyBoolean', name('readonlyBoolean')],
+		['types.readonly', name('types.readonly')],
+		['Set[]', array],
+		['Set<string>', name('Set')],
+		['Set | null', union(name('Set'), nullish('null'))],
+		['Set;', unknown],
+		['Set/* description */', unknown],
+		['Set other', unknown],
+		['Set??', unknown],
+		['\u200Cboolean', unknown],
+		...['readonly', 'keyof', 'typeof', 'infer', 'new', 'extends', 'is', 'asserts', 'import'].map(expression => [expression, unknown]),
+	]) {
+		t.assert.deepStrictEqual(parseJSDocumentType(`\uFEFF\t${expression}\r\n\u2028`), expected, expression);
+	}
+});
+
 for (const [description, expression, expected] of [
 	['primitive lowercase', 'boolean', boolean],
 	['string alias', 'String', string],

@@ -64,6 +64,11 @@ function memoizeJSDocumentLookup(lookup) {
 Parse a supported tag while preserving the source range of a parameter name.
 */
 function parseTag(text, {tag, end}, offset) {
+	const isParameter = parameterTags.has(tag.name);
+	if (!isParameter && tag.name !== 'type' && !returnTags.has(tag.name)) {
+		return;
+	}
+
 	let start = skipJSDocumentTemplateWhitespace(text, tag.contentStart, end);
 	let type;
 	if (text[start] === '{') {
@@ -74,14 +79,14 @@ function parseTag(text, {tag, end}, offset) {
 
 		type = parseJSDocumentType(text.slice(start + 1, typeEnd - 1).replaceAll(/\r?\n[^\S\n]*\*?/gv, '\n'));
 		start = skipJSDocumentTemplateWhitespace(text, typeEnd, end);
-	} else if (!parameterTags.has(tag.name)) {
+	} else if (!isParameter) {
 		return {tag: tag.name};
 	}
 
 	let optional = false;
 	let name;
 	let nameRange;
-	if (parameterTags.has(tag.name)) {
+	if (isParameter) {
 		optional = text[start] === '[';
 		const nameEnd = optional ? getJSDocumentDelimitedEnd(text, start, end, '[') : end;
 		if (

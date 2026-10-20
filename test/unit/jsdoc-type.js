@@ -99,6 +99,53 @@ test('ignores malformed, duplicate, mismatched, and unrelated annotations', t =>
 	}
 });
 
+test('irrelevant type tags retain parameter and return boundaries without contributing annotations', t => {
+	for (const tag of ['throws', 'exception', 'property', 'prop', 'this', 'extends', 'satisfies', 'example', 'custom']) {
+		const code = [
+			'/**',
+			` * @${tag} {Array<{broken:} flag`,
+			' * @argument {boolean} [flag=false] Keep flag in the description.',
+			` * @${tag} {function(string): number} flag`,
+			' * @return {string}',
+			' */ function run(flag = source) { inspect(flag); }',
+		].join('\r\n');
+		t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'name', name: 'boolean'}, optional: true, name: 'flag'}], tag);
+		t.assert.strictEqual(getAnnotations(code, true)[0]?.type.name, 'string', tag);
+		const start = code.indexOf('[flag') + 1;
+		t.assert.deepStrictEqual(getParameterRanges(code), [[start, start + 4]], tag);
+	}
+});
+
+test('irrelevant tags do not supply a binding type or hide duplicate supported tags', t => {
+	for (const tag of ['throws', 'property', 'example']) {
+		const code = `/** @${tag} {boolean} flag */ let flag; inspect(flag);`;
+		t.assert.deepStrictEqual(getAnnotations(code), [undefined], tag);
+		const duplicate = `/** @type {boolean}\n * @${tag} {string}\n * @type {number} */ let flag; inspect(flag);`;
+		t.assert.deepStrictEqual(getAnnotations(duplicate), [undefined], tag);
+	}
+});
+
+test('irrelevant tags remain boundaries for malformed supported annotations', t => {
+	const code = '/** @param {boolean\n * @throws Error} flag\n * @returns {string} */ function run(flag) { inspect(flag); }';
+	t.assert.deepStrictEqual(getAnnotations(code), [undefined]);
+	t.assert.deepStrictEqual(getParameterRanges(code), [undefined]);
+	t.assert.strictEqual(getAnnotations(code, true)[0]?.type.name, 'string');
+});
+
+test('ignored declaration tags still exclude the whole documentation comment from inference', t => {
+	for (const declaration of ['@typedef {boolean} Flag', '@callback Read', '@overload']) {
+		const code = [
+			'/** @param {boolean} flag',
+			' * @throws {Error}',
+			` * ${declaration}`,
+			' * @returns {string} */ function run(flag) { inspect(flag); }',
+		].join('\n');
+		t.assert.deepStrictEqual(getAnnotations(code), [undefined], declaration);
+		t.assert.deepStrictEqual(getAnnotations(code, true), [undefined], declaration);
+		t.assert.deepStrictEqual(getParameterRanges(code), [undefined], declaration);
+	}
+});
+
 test('does not attach whole-value annotations to destructured or multiple bindings', t => {
 	for (const code of [
 		'/** @type {boolean} */ let flag, other; inspect(flag); inspect(other);',
