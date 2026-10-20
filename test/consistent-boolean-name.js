@@ -3753,6 +3753,138 @@ test({
 	})],
 });
 
+// Documentation edits follow each suggestion's prefix, including custom prefixes.
+test({
+	valid: [],
+	invalid: [{
+		code: '/** @param {boolean} value Keep value here. */ function run(value) { consume(value); }',
+		options: [{
+			...onlyIsPrefixOptions,
+			checkFunctions: 'never',
+			prefixes: {
+				...onlyIsPrefixOptions.prefixes, is: false, can: true, accepts: true,
+			},
+		}],
+		errors: [{
+			messageId: 'consistent-boolean-name',
+			suggestions: [
+				{
+					messageId: 'rename',
+					data: {replacement: 'canValue'},
+					output: '/** @param {boolean} canValue Keep value here. */ function run(canValue) { consume(canValue); }',
+				},
+				{
+					messageId: 'rename',
+					data: {replacement: 'acceptsValue'},
+					output: '/** @param {boolean} acceptsValue Keep value here. */ function run(acceptsValue) { consume(acceptsValue); }',
+				},
+			],
+		}],
+	}],
+});
+
+// Parameter suggestions preserve public exports and unrelated shadowed bindings.
+for (const [code, output] of [
+	[
+		'/** @param {boolean} value */ export default function run(value) { consume(value); }',
+		'/** @param {boolean} isValue */ export default function run(isValue) { consume(isValue); }',
+	],
+	[
+		'/** @param {boolean} value */ function run(value) { function child(value) { consume(value); } consume(value); }',
+		'/** @param {boolean} isValue */ function run(isValue) { function child(value) { consume(value); } consume(isValue); }',
+	],
+	[
+		'/** @param {boolean} value */ function run(value) { return <Child value={value} />; }',
+		'/** @param {boolean} isValue */ function run(isValue) { return <Child value={isValue} />; }',
+	],
+]) {
+	test({
+		valid: [],
+		invalid: [{
+			code,
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+			options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{messageId: 'rename', data: {replacement: 'isValue'}, output}],
+			}],
+		}],
+	});
+}
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: '/** @type {boolean} */ const Flag = source; const element = <Flag />;',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+			errors: [{messageId: 'consistent-boolean-name', suggestions: []}],
+		},
+		typescript({
+			code: '/** @param {unknown} [value] */ function run(value /* keep */ ?: boolean) { consume(value); }',
+			options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isValue'},
+					output: '/** @param {unknown} [isValue] */ function run(isValue /* keep */ ?: boolean) { consume(isValue); }',
+				}],
+			}],
+		}),
+	],
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: '/** @param {boolean} first\n * @arg {boolean} second */ function run(first, second) { consume({first, second}); }',
+		options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+		errors: [
+			{
+				messageId: 'consistent-boolean-name',
+				data: {name: 'first', prefixes: '`is`'},
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isFirst'},
+					output: '/** @param {boolean} isFirst\n * @arg {boolean} second */ function run(isFirst, second) { consume({first: isFirst, second}); }',
+				}],
+			},
+			{
+				messageId: 'consistent-boolean-name',
+				data: {name: 'second', prefixes: '`is`'},
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isSecond'},
+					output: '/** @param {boolean} first\n * @arg {boolean} isSecond */ function run(first, isSecond) { consume({first, second: isSecond}); }',
+				}],
+			},
+		],
+	}],
+});
+
+test({
+	valid: [
+		{
+			code: '/** @param {boolean} value */ function run(value) {}',
+			options: [{checkArguments: 'prohibit'}],
+		},
+		{
+			code: '/** @param {string} isValue */ function run(isValue) {}',
+			options: [{checkArguments: 'never'}],
+		},
+		{
+			code: '/** @param {boolean} value */ function run(value) {}',
+			options: [{ignore: ['^value$']}],
+		},
+		'/** @param {boolean} value */ function run(value) { value = "changed"; }',
+	],
+	invalid: [{
+		code: '/** @param {boolean} isValue */ function run(isValue) { function mutate() { isValue++; } }',
+		errors: [{messageId: 'non-boolean-prefix'}],
+	}],
+});
+
 // Parameter renames preserve the documentation around the exact name token.
 for (const [code, output] of [
 	[

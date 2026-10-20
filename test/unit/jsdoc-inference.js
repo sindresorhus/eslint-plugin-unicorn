@@ -436,6 +436,16 @@ test('non-computed property names do not inherit unrelated annotation uncertaint
 	t.assert.deepStrictEqual(getInferences(code), [['boolean'], ['string'], ['number'], ['bigint']]);
 });
 
+test('computed property annotations prevent static lookup from bypassing uncertain keys', t => {
+	const code = '/** @type {unknown} */ const key = "slot"; inspect({slot: true}[key]); inspect({slot: "text"}[key]); inspect({slot: 1}[key]); inspect({slot: 1n}[key]); inspect({slot: []}[key]);';
+	t.assert.deepStrictEqual(getInferences(code), [[], [], [], [], []]);
+});
+
+test('constant computed keys without annotations retain static lookup inference', t => {
+	const code = 'const key = "slot"; inspect({slot: true}[key]); inspect({slot: "text"}[key]); inspect({slot: 1}[key]); inspect({slot: 1n}[key]); inspect({slot: []}[key]);';
+	t.assert.deepStrictEqual(getInferences(code), [['boolean'], ['string'], ['number'], ['bigint'], ['array', 'indexed']]);
+});
+
 for (const [type, initializer, expected] of [
 	['boolean', 'true', ['boolean']],
 	['string', '"text"', ['string']],
