@@ -232,6 +232,36 @@ const getJSDocumentType = (annotation, options) => {
 	return annotation?.optional ? combineUnionTypes([type, nullish], options) : type;
 };
 
+/**
+Flatten grouped JSDoc intersections before inspecting their members.
+*/
+function getJSDocumentIntersectionMembers(type) {
+	return type.kind === 'intersection' ? type.elements.flatMap(element => getJSDocumentIntersectionMembers(element)) : [type];
+}
+
+/**
+Collect documented callable results without treating scalar, optional, or unresolved values as functions.
+*/
+function getJSDocumentCallableReturnType(type) {
+	if (type?.kind === 'function') {
+		return type.returnType;
+	}
+
+	if (type?.kind !== 'union' && type?.kind !== 'intersection') {
+		return;
+	}
+
+	const members = type.kind === 'intersection'
+		? getJSDocumentIntersectionMembers(type).filter(element => element.kind !== 'non-primitive')
+		: type.elements;
+	const returnTypes = members.map(element => getJSDocumentCallableReturnType(element));
+	if (returnTypes.length === 0 || returnTypes.includes(undefined)) {
+		return;
+	}
+
+	return {kind: 'union', elements: returnTypes};
+}
+
 const isAnyTargetImportName = (importedName, targetTypeImports) => {
 	for (const importedNames of targetTypeImports.values()) {
 		if (importedNames.has(importedName)) {
@@ -613,9 +643,9 @@ const getTypeFromFunctionCall = (node, context, options) => {
 
 	const annotation = getJSDocumentTypeAnnotation(definition.name, context);
 	if (annotation) {
-		return !annotation.optional && annotation.type.kind === 'function'
-			? getJSDocumentType({type: annotation.type.returnType}, options)
-			: unknown;
+		return annotation.optional
+			? unknown
+			: getJSDocumentType({type: getJSDocumentCallableReturnType(annotation.type)}, options);
 	}
 
 	return getJSDocumentType(getJSDocumentReturnType(functionNode, context), options);
@@ -909,6 +939,8 @@ export {
 	getTypeReferenceDefinition,
 	getJSDocumentType,
 	getJSDocumentTypeName,
+	getJSDocumentCallableReturnType,
+	getJSDocumentIntersectionMembers,
 	hasJSDocumentTypeReference,
 	nonTarget,
 	nullish,

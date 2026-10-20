@@ -6,9 +6,8 @@ import {getJSDocumentTypeAnnotation, getJSDocumentReturnType} from './jsdoc-type
 import {getJSDocumentBooleanState} from './get-jsdoc-boolean-state.js';
 import {
 	createTypeCheckers,
-	getJSDocumentType,
+	getJSDocumentCallableReturnType,
 	hasJSDocumentTypeReference,
-	target,
 } from './type-helpers.js';
 import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
 import isArray from './is-array.js';
@@ -360,6 +359,7 @@ function isBooleanFunctionReference(node, context, visitedVariables = new Set())
 		const annotation = getJSDocumentTypeAnnotation(definition.name, context);
 		if (annotation) {
 			const initializer = unwrapTypeScriptExpression(definition.node.init);
+			const returnType = getJSDocumentCallableReturnType(annotation.type);
 			if (
 				!initializer?.async
 				&& !initializer?.generator
@@ -367,11 +367,9 @@ function isBooleanFunctionReference(node, context, visitedVariables = new Set())
 			) {
 				isBoolean = initializer?.returnType
 					? isBooleanTypeAnnotation(initializer.returnType, context, context.sourceCode.getScope(initializer))
-					: getJSDocumentBooleanState(annotation, {functionTypesAreBoolean: true}) === 'boolean'
-						&& getJSDocumentType(annotation, {
-							targetTypeNames: new Set(),
-							isTargetJSDocumentType: type => type?.kind === 'function',
-						}) === target;
+					: !annotation.optional
+						&& returnType !== undefined
+						&& getJSDocumentBooleanState({type: returnType}) === 'boolean';
 			}
 		} else if (definition.name?.typeAnnotation) {
 			isBoolean = isBooleanFunctionTypeAnnotation(definition.name.typeAnnotation, context, scope);

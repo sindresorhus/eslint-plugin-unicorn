@@ -1,15 +1,13 @@
 import {combineBooleanStates} from './get-type-boolean-state.js';
-import {getJSDocumentType, nonTarget, target} from './type-helpers.js';
+import {
+	getJSDocumentType,
+	getJSDocumentIntersectionMembers,
+	nonTarget,
+	target,
+} from './type-helpers.js';
 
 const booleanTypeNames = new Set(['boolean']);
 const nonBooleanTypeNames = new Set(['Array', 'ReadonlyArray', 'Promise', 'PromiseLike']);
-
-/**
-Flatten grouped intersections before combining their callable contracts.
-*/
-function getIntersectionMembers(type) {
-	return type.kind === 'intersection' ? type.elements.flatMap(element => getIntersectionMembers(element)) : [type];
-}
 
 /**
 Classify documented values using the naming rule's unknown, nullish, and callable policies.
@@ -22,7 +20,7 @@ function getTypeBooleanState(type, {allowNullish, functionTypesAreBoolean}) {
 		}
 
 		case 'intersection': {
-			const members = getIntersectionMembers(type).filter(element => element.kind !== 'non-primitive');
+			const members = getJSDocumentIntersectionMembers(type).filter(element => element.kind !== 'non-primitive');
 			return members.length > 0
 				? combineBooleanStates(members.map(element => getTypeBooleanState(element, {allowNullish, functionTypesAreBoolean})))
 				: 'non-boolean';

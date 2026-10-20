@@ -596,3 +596,38 @@ nodeTest('an omitted parameter documented as boolean still needs boolean coercio
 	t.assert.strictEqual(fixed, false);
 	t.assert.deepStrictEqual(messages, []);
 });
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @type {(() => string) | (() => number)} */ let read; String(read());',
+			'/** @type {?(() => string)} */ let read; String(read());',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			...[
+				['(() => string) | (() => "text")', 'String'],
+				['(() => number) & {label: string}', 'Number'],
+				['(() => bigint) | (() => 1n)', 'BigInt'],
+			].map(([type, constructor]) => ({
+				filename: 'file.ts',
+				code: `/** @type {${type}} */ let read; ${constructor}(read());`,
+				output: `/** @type {${type}} */ let read; read();`,
+				errors: [{messageId: 'no-useless-coercion'}],
+			})),
+			{
+				filename: 'file.ts',
+				code: '/** @type {(() => string[]) | (() => readonly string[])} */ let read; Boolean(read().some(predicate));',
+				output: '/** @type {(() => string[]) | (() => readonly string[])} */ let read; read().some(predicate);',
+				errors: [{messageId: 'no-useless-coercion'}],
+			},
+		],
+	});
+}

@@ -531,8 +531,8 @@ test('documented boolean overloads retain certainty with record metadata and gro
 	}
 });
 
-test('documented scalar and scalar-callable unions do not prove boolean call results', t => {
-	for (const type of ['boolean', 'boolean | (() => boolean)']) {
+test('documented scalar and scalar-callable combinations do not prove boolean call results', t => {
+	for (const type of ['boolean', 'boolean | (() => boolean)', 'boolean & (() => boolean)', '(() => boolean) | (boolean & (() => boolean))']) {
 		const code = `/** @type {${type}} */ const read = source; inspect(read());`;
 		t.assert.deepStrictEqual(getInferences(code), [[]], type);
 	}
@@ -725,4 +725,67 @@ for (const [type, expected] of [
 test('native optional markers also guard documented callback results and receiver methods', t => {
 	const code = '/** @param {() => boolean} read */ function run(read?) { inspect(read()); } /** @param {string} text */ function other(text?) { inspect(text.includes("x")); }';
 	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[], []]);
+});
+
+for (const [returnType, expected] of [
+	['string', ['string']],
+	['number', ['number']],
+	['bigint', ['bigint']],
+	['string[]', ['array', 'indexed']],
+	['Set<string>', ['set']],
+]) {
+	test(`documented callable groups retain their ${returnType} result without changing the binding type`, t => {
+		for (const type of [
+			`(() => ${returnType}) | ((value: string) => ${returnType})`,
+			`(() => ${returnType}) & ({label: string} & {tag: number})`,
+		]) {
+			const code = `/** @type {${type}} */ let read; inspect(read); inspect(read());`;
+			t.assert.deepStrictEqual(getInferences(code), [[], expected], type);
+			t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[], expected], type);
+		}
+	});
+}
+
+test('documented callable parameter unions classify their call result', t => {
+	const code = '/** @param {(() => string[]) | ((value: number) => string[])} read */ function run(read) { inspect(read()); }';
+	t.assert.deepStrictEqual(getInferences(code), [['array', 'indexed']]);
+});
+
+for (const [description, type] of [
+	['mixed returns', '(() => string) & (() => number)'],
+	['unknown returns', '(() => string) | (() => unknown)'],
+	['nullable returns', '(() => string) & (() => string | null)'],
+	['nullable callable union', '(() => string) | undefined'],
+	['optional metadata callable', '((() => string) & {label: string})='],
+	['nullable metadata callable', '?((() => string) & {label: string})'],
+	['scalar union', 'string | (() => string)'],
+	['scalar intersection', 'string & (() => string)'],
+	['record containing a callable', '{read: () => string}'],
+]) {
+	test(`documented callable ${description} cannot establish a definite result`, t => {
+		t.assert.deepStrictEqual(getInferences(`/** @type {${type}} */ let read; inspect(read());`), [[]]);
+	});
+}
+
+test('callable metadata and unions cannot hide async, generator, or reassigned bindings', t => {
+	for (const initializer of ['async () => source', 'function* () { return source; }']) {
+		const code = `/** @type {(() => string[]) & {label: string}} */ const read = ${initializer}; inspect(read());`;
+		t.assert.deepStrictEqual(getInferences(code), [[]], initializer);
+	}
+
+	const code = '/** @type {(() => string) | (() => string)} */ let read = source; function replace() { read = other; } inspect(read());';
+	t.assert.deepStrictEqual(getInferences(code), [[]]);
+});
+
+test('native annotations and assertions remain authoritative over grouped callable documentation', t => {
+	for (const declaration of [
+		'const read: () => unknown = source;',
+		'const read = source as (() => unknown);',
+	]) {
+		const code = `/** @type {(() => string) & {label: string}} */ ${declaration} inspect(read());`;
+		t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[]], declaration);
+	}
+
+	const code = '/** @type {(() => string) | (() => string)} */ const read = (): number => source; inspect(read());';
+	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [['number']]);
 });

@@ -242,3 +242,33 @@ test('documented callback return types reuse named checker classification polici
 		t.assert.deepStrictEqual(getTypes(code, options, {javascript: true}), [expected], returnType);
 	}
 });
+
+test('documented callable unions and intersections classify all possible return types', t => {
+	for (const [type, expected] of [
+		['(() => Foo) | (() => Foo<string>)', target],
+		['(() => Foo) & {label: string}', target],
+		['(() => Foo) & ({label: string} & {tag: string})', target],
+		['((() => Foo) & {label: string}) & ((() => Foo) & {tag: string})', target],
+		['(() => Foo) & (() => string)', unknown],
+		['(() => Foo) & (() => unknown)', unknown],
+		['(() => Foo) & Unresolved', unknown],
+		['(() => Foo) | string', unknown],
+		['{label: string} & {tag: string}', unknown],
+		['?(() => Foo)', unknown],
+		['(() => Foo)=', unknown],
+	]) {
+		const code = `/** @type {${type}} */ let create; check(create());`;
+		t.assert.deepStrictEqual(getTypes(code, {}, {javascript: true}), [expected], type);
+		t.assert.deepStrictEqual(getTypes(code, {}), [expected], type);
+	}
+});
+
+test('documented callable return combinations reuse checker union policies', t => {
+	for (const type of ['(() => Foo) | (() => string)', '(() => Foo) & (() => string)']) {
+		const code = `/** @type {${type}} */ let create; check(create());`;
+		t.assert.deepStrictEqual(getTypes(code, {treatMixedUnionAsTarget: true}, {javascript: true}), [target], type);
+	}
+
+	const code = '/** @type {(() => Foo) | (() => null)} */ let create; check(create());';
+	t.assert.deepStrictEqual(getTypes(code, {allowNullishInMixedUnion: true}, {javascript: true}), [target]);
+});
