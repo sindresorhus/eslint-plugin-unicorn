@@ -507,6 +507,42 @@ test('native receiver parameter types use shared boolean method classification',
 	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [['boolean'], ['boolean'], ['boolean'], ['boolean'], ['boolean']]);
 });
 
+test('documented callable intersections require every overload result to be boolean', t => {
+	for (const type of [
+		'((value: string) => boolean) & ((value: number) => string)',
+		'((value: number) => string) & ((value: string) => boolean)',
+		'(() => boolean) & (() => boolean | undefined)',
+		'(() => boolean) & (() => unknown)',
+		'((() => boolean) & {name: string}) & ((() => string) & {tag: string})',
+	]) {
+		const code = `/** @type {${type}} */ const read = source; inspect(read(1));`;
+		t.assert.deepStrictEqual(getInferences(code), [[]], type);
+	}
+});
+
+test('documented boolean overloads retain certainty with record metadata and grouping', t => {
+	for (const type of [
+		'((value: string) => boolean) & ((value: number) => boolean)',
+		'((() => boolean) & {name: string}) & ((() => true) & {tag: string})',
+		'((value: string) => boolean) | ((value: number) => boolean)',
+	]) {
+		const code = `/** @type {${type}} */ const read = source; inspect(read); inspect(read(1));`;
+		t.assert.deepStrictEqual(getInferences(code), [[], ['boolean']], type);
+	}
+});
+
+test('documented scalar and scalar-callable unions do not prove boolean call results', t => {
+	for (const type of ['boolean', 'boolean | (() => boolean)']) {
+		const code = `/** @type {${type}} */ const read = source; inspect(read());`;
+		t.assert.deepStrictEqual(getInferences(code), [[]], type);
+	}
+});
+
+test('native callback return annotations override documented overload results', t => {
+	const code = '/** @type {(() => boolean) & (() => string)} */ const flag = (): boolean => source; /** @type {(() => boolean) & (() => true)} */ const text = (): string => source; inspect(flag()); inspect(text());';
+	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [['boolean'], ['string']]);
+});
+
 test('simple rest arrays supply boolean receiver methods without documentation', t => {
 	const code = 'function run(...values) { inspect(values.includes(item)); inspect(values.some(predicate)); inspect(values.every(predicate)); }';
 	t.assert.deepStrictEqual(getInferences(code), [['boolean'], ['boolean'], ['boolean']]);

@@ -367,11 +367,11 @@ function isBooleanFunctionReference(node, context, visitedVariables = new Set())
 			) {
 				isBoolean = initializer?.returnType
 					? isBooleanTypeAnnotation(initializer.returnType, context, context.sourceCode.getScope(initializer))
-					: getJSDocumentType(annotation, {
-						targetTypeNames: new Set(),
-						isTargetJSDocumentType: type => type?.kind === 'function'
-							&& getJSDocumentBooleanState({type: type.returnType}) === 'boolean',
-					}) === target;
+					: getJSDocumentBooleanState(annotation, {functionTypesAreBoolean: true}) === 'boolean'
+						&& getJSDocumentType(annotation, {
+							targetTypeNames: new Set(),
+							isTargetJSDocumentType: type => type?.kind === 'function',
+						}) === target;
 			}
 		} else if (definition.name?.typeAnnotation) {
 			isBoolean = isBooleanFunctionTypeAnnotation(definition.name.typeAnnotation, context, scope);

@@ -10,6 +10,7 @@ const {test, rule} = getTester(import.meta);
 test({
 	valid: [
 		'/** @returns {boolean} */ let read = () => source; read = replacement; read() === true;',
+		'/** @type {((value: string) => boolean) & ((value: number) => string)} */ const read = value => typeof value === "string" ? true : "yes"; if (read(1) === true) { consume(); }',
 		'function run(...values) { values = replacement; return values.some(predicate) === true; }',
 		{
 			code: '/** @returns {boolean} */ let read = (): unknown => true; read() === true;',
