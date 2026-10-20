@@ -1,7 +1,7 @@
 // eslint-disable-next-line @stylistic/max-len
 const tokenPattern = /\s+|=>|\.\.\.|[\p{ID_Start}$_][\p{ID_Continue}$\u{200C}\u{200D}]*|(?:0[Xx][\dA-Fa-f](?:_?[\dA-Fa-f])*|0[Bb][01](?:_?[01])*|0[Oo][0-7](?:_?[0-7])*|(?:0|[1-9](?:_?\d)*)(?:\.(?:\d(?:_?\d)*)?)?(?:[Ee][+\-]?\d(?:_?\d)*)?|\.\d(?:_?\d)*(?:[Ee][+\-]?\d(?:_?\d)*)?)n?|"(?:\\[^\n\r]|[^\n\r"\\])*"|'(?:\\[^\n\r]|[^\n\r'\\])*'|./gsv;
 const identifierPattern = /^[\p{ID_Start}$_][\p{ID_Continue}$\u{200C}\u{200D}]*$/v;
-const aliases = new Map([['Boolean', 'boolean'], ['String', 'string'], ['Number', 'number']]);
+const aliases = new Map([['Boolean', 'boolean'], ['String', 'string'], ['Number', 'number'], ['Void', 'void'], ['Null', 'null'], ['Undefined', 'undefined']]);
 const reservedNames = new Set(['import', 'typeof', 'extends', 'new']);
 const unsupportedNames = new Set([...reservedNames, 'keyof', 'infer', 'asserts', 'is', 'readonly']);
 const unknownNames = new Set(['any', 'unknown', 'never']);
@@ -11,15 +11,16 @@ const unknown = {kind: 'unknown'};
 const array = {kind: 'name', name: 'Array'};
 const nonPrimitive = {kind: 'non-primitive'};
 const primitiveTypes = new Map([...primitiveNames].map(name => {
-	if (unknownNames.has(name)) {
+	const normalizedName = aliases.get(name) ?? name;
+	if (unknownNames.has(normalizedName)) {
 		return [name, unknown];
 	}
 
-	if (name === 'null' || name === 'undefined') {
-		return [name, {kind: 'nullish', name}];
+	if (normalizedName === 'null' || normalizedName === 'undefined') {
+		return [name, {kind: 'nullish', name: normalizedName}];
 	}
 
-	return [name, {kind: 'name', name: ['true', 'false'].includes(name) ? 'boolean' : aliases.get(name) ?? name}];
+	return [name, {kind: 'name', name: ['true', 'false'].includes(normalizedName) ? 'boolean' : normalizedName}];
 }));
 
 const isNumericLiteralToken = token => /^(?:\d|\.\d)/v.test(token ?? '')

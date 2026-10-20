@@ -6,6 +6,7 @@ import {getBooleanWrapperVariableState} from './utils/get-boolean-wrapper-variab
 import {
 	getJSDocumentType,
 	getJSDocumentTypeName,
+	getJSDocumentCallableReturnType,
 	hasJSDocumentTypeReference,
 	getTypeName,
 	target,
@@ -305,6 +306,21 @@ const hasBooleanReturnType = (node, context) =>
 function getJSDocumentFunctionReturnType(node, context) {
 	const annotation = getJSDocumentReturnType(node, context);
 	return promiseValueTypeNames.has(getJSDocumentTypeName(annotation?.type)) ? undefined : annotation;
+}
+
+/**
+Keep native return annotations and generator syntax authoritative over directly initialized documented callables, while preserving scalar and parameter contracts.
+*/
+function getJSDocumentValueTypeAnnotation(node, context) {
+	const annotation = getJSDocumentTypeAnnotation(node, context);
+	if (!annotation) {
+		return;
+	}
+
+	const value = node.parent?.type === 'VariableDeclarator' && node.parent.id === node ? node.parent.init : node.value;
+	return isFunction(value) && (value.generator || value.returnType) && getJSDocumentCallableReturnType(annotation.type)
+		? undefined
+		: annotation;
 }
 
 function getFunctionTypeAnnotationBooleanState(node, context, scope, typeState) {
@@ -1057,7 +1073,7 @@ function isCallableTypeAnnotation(node, context, scope, {visitedTypeReferenceNod
 function isBooleanTypeAnnotatedValue(node, context) {
 	const {typeAnnotation} = node;
 	if (!typeAnnotation) {
-		const annotation = getJSDocumentTypeAnnotation(node, context);
+		const annotation = getJSDocumentValueTypeAnnotation(node, context);
 		if (!annotation) {
 			return false;
 		}
@@ -2037,7 +2053,7 @@ const isBooleanVariable = (variable, context, visitedVariables) => {
 
 	const {name} = definition;
 
-	if (name.typeAnnotation || getJSDocumentTypeAnnotation(name, context)) {
+	if (name.typeAnnotation || getJSDocumentValueTypeAnnotation(name, context)) {
 		return isBooleanTypeAnnotatedValue(name, context);
 	}
 
@@ -2115,7 +2131,7 @@ function getDirectTypeAnnotationBooleanState(node, context, scope, typeState) {
 
 function getDefinitionBooleanState(definition, context, visitedVariables, functionValuesAreBoolean) {
 	const scope = context.sourceCode.getScope(definition.name);
-	const annotation = getJSDocumentTypeAnnotation(definition.name, context);
+	const annotation = getJSDocumentValueTypeAnnotation(definition.name, context);
 	if (annotation) {
 		const state = getJSDocumentBooleanState(annotation, {allowNullish: true, functionTypesAreBoolean: functionValuesAreBoolean});
 		return state === unknown ? getTypeInformationBooleanState(definition.name, context, functionValuesAreBoolean) : state;
@@ -2412,7 +2428,7 @@ function isBooleanProperty(node, context) {
 			return false;
 		}
 
-		return getJSDocumentTypeAnnotation(node, context)
+		return getJSDocumentValueTypeAnnotation(node, context)
 			? isBooleanTypeAnnotatedValue(node, context)
 			: isBooleanValue(node.value, context);
 	}
@@ -2422,7 +2438,7 @@ function isBooleanProperty(node, context) {
 	}
 
 	if (propertyDefinitionTypes.has(node.type)) {
-		return node.typeAnnotation || getJSDocumentTypeAnnotation(node, context)
+		return node.typeAnnotation || getJSDocumentValueTypeAnnotation(node, context)
 			? isBooleanTypeAnnotatedValue(node, context)
 			: isBooleanValue(node.value, context);
 	}
@@ -2455,7 +2471,7 @@ function getExplicitPropertyBooleanState(node, context) {
 	}
 
 	if (node.type === 'Property' || propertyDefinitionTypes.has(node.type)) {
-		const annotation = getJSDocumentTypeAnnotation(node, context);
+		const annotation = getJSDocumentValueTypeAnnotation(node, context);
 		if (annotation) {
 			const state = getJSDocumentBooleanState(annotation, {allowNullish: true, functionTypesAreBoolean: true});
 			return state === unknown ? getTypeInformationBooleanState(node, context) : state;

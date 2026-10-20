@@ -4,6 +4,18 @@ import {parseJSDocumentType} from '../../rules/utils/parse-jsdoc-type.js';
 
 const getAnnotation = expression => ({type: parseJSDocumentType(expression)});
 
+test('legacy nullish aliases retain relaxed naming and strict return policies', t => {
+	for (const alias of ['Null', 'Undefined']) {
+		const annotation = getAnnotation(`boolean | ${alias}`);
+		t.assert.strictEqual(getJSDocumentBooleanState(annotation), 'unknown', alias);
+		t.assert.strictEqual(getJSDocumentBooleanState(annotation, {allowNullish: true}), 'boolean', alias);
+		t.assert.strictEqual(getJSDocumentBooleanState(getAnnotation(`() => boolean | ${alias}`), {functionTypesAreBoolean: true}), 'unknown', alias);
+	}
+
+	t.assert.strictEqual(getJSDocumentBooleanState(getAnnotation('Void')), 'non-boolean');
+	t.assert.strictEqual(getJSDocumentBooleanState(getAnnotation('() => Void'), {functionTypesAreBoolean: true}), 'non-boolean');
+});
+
 test('parameter optionality changes certainty without changing its primitive type', t => {
 	const annotation = {...getAnnotation('boolean'), optional: true};
 	t.assert.strictEqual(getJSDocumentBooleanState(annotation), 'unknown');

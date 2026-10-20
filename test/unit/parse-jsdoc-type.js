@@ -32,6 +32,27 @@ const string = name('string');
 const number = name('number');
 const array = name('Array');
 
+test('legacy void and nullish aliases normalize before wrappers and generic validation', t => {
+	for (const [expression, expected] of [
+		['Void', name('void')],
+		['Null', nullish('null')],
+		['Undefined', nullish('undefined')],
+		['boolean | Null | Undefined', union(boolean, nullish('null'), nullish('undefined'))],
+		['function(): Void', callable(name('void'))],
+		['() => boolean | Undefined', callable(union(boolean, nullish('undefined')))],
+		['?Void', nullable(name('void'))],
+		['Undefined=', optional(nullish('undefined'))],
+		['Null[]', array],
+		['types.Null', name('types.Null')],
+		['Voidish', name('Voidish')],
+		['Void<boolean>', unknown],
+		['Null<boolean>', unknown],
+		['Undefined<boolean>', unknown],
+	]) {
+		t.assert.deepStrictEqual(parseJSDocumentType(expression), expected, expression);
+	}
+});
+
 test('consecutive parses restart tokenization after early failures and primitive or named fast paths', t => {
 	for (const [expression, expected] of [
 		['Map<string, "unterminated', unknown],

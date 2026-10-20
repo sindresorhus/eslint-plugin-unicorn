@@ -14,6 +14,15 @@ const predicates = {
 	boolean: isBoolean, string: isString, number: isNumber, bigint: isBigInt, array: isArray, indexed: isIndexedCollection, set: isSet, bigintArray: isKnownBigIntTypedArray,
 };
 
+test('legacy void and nullish aliases are definite non-string values', t => {
+	const checks = {string: isString, nonString: isKnownNonString};
+	for (const type of ['Void', 'Null', 'Undefined']) {
+		const code = `/** @type {${type}} */ let value; inspect(value);`;
+		t.assert.deepStrictEqual(getInferences(code, {checks}), [['nonString']], type);
+		t.assert.deepStrictEqual(getInferences(code, {checks, typescript: true}), [['nonString']], type);
+	}
+});
+
 /**
 Exercise the production inference entry points on every inspected expression.
 */

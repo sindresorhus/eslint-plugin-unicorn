@@ -4399,6 +4399,125 @@ for (const wrap of [typescript, typeAware]) {
 	});
 }
 
+// Legacy primitive aliases use the same naming policies as their lowercase counterparts.
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [
+			'/** @returns {Void} */ function ready() {}',
+			'/** @type {boolean | Null | Undefined} */ let isReady;',
+		].map(code => wrap(code)),
+		invalid: [
+			'/** @returns {Void} */ function isReady() {}',
+			'/** @param {Void} isReady */ function run(isReady) {}',
+		].map(code => wrap({code, errors: [{messageId: 'non-boolean-prefix'}]})),
+	});
+}
+
+// Native function return annotations take precedence over conflicting callable JSDoc on the binding.
+for (const wrap of [typescript, typeAware]) {
+	test({
+		valid: [
+			'/** @type {() => string} */ const isReady = (): boolean => true;',
+			'/** @type {() => boolean} */ const ready = (): string => "text";',
+			'/** @type {() => boolean} */ const ready = (): void => {};',
+			'/** @type {() => boolean} */ const ready = (): unknown => source;',
+			'/** @type {() => string} */ const isReady = (): unknown => source;',
+			'/** @type {() => boolean} */ const ready = (): boolean | undefined => source;',
+			'/** @type {() => string} */ const isReady = (): boolean | undefined => source;',
+			'type Result = boolean; /** @type {function(): string} */ const isReady = (): Result => source;',
+			'/** @type {() => boolean} */ const isReady = (((): boolean => true) satisfies (() => boolean))!;',
+			'/** @type {() => string} */ const ready = (function (): string { return "text"; })!;',
+		].map(code => wrap(code)),
+		invalid: [
+			...[
+				'(function (): boolean { return true; })!',
+				'(((): boolean => true) satisfies (() => boolean))!',
+			].map(initializer => wrap({
+				code: `/** @type {() => boolean} */ const ready = ${initializer};`,
+				options: [onlyIsPrefixOptions],
+				errors: [{messageId: 'consistent-boolean-name', suggestions: 1}],
+			})),
+			wrap({
+				code: '/** @type {() => string} */ const ready = (): boolean => true;',
+				options: [onlyIsPrefixOptions],
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					suggestions: [{
+						messageId: 'rename',
+						data: {replacement: 'isReady'},
+						output: '/** @type {() => string} */ const isReady = (): boolean => true;',
+					}],
+				}],
+			}),
+			...['string', 'void'].map(returnType => wrap({
+				code: `/** @type {() => boolean} */ const isReady = (): ${returnType} => source;`,
+				errors: [{messageId: 'non-boolean-prefix'}],
+			})),
+		],
+	});
+}
+
+// Initializer return types do not replace scalar binding annotations or the contract of a supplied callback.
+for (const wrap of [typescript, typeAware]) {
+	test({
+		valid: [
+			'/** @type {boolean} */ const isReady = (): string => "text";',
+			'/** @type {string} */ const ready = (): boolean => true;',
+			'/** @type {unknown} */ const isReady = (): boolean => true;',
+		].map(code => wrap(code)),
+		invalid: [
+			wrap({
+				code: '/** @type {string} */ const isReady = (): boolean => true;',
+				errors: [{messageId: 'non-boolean-prefix'}],
+			}),
+			wrap({
+				code: '/** @param {() => string} isReady */ function run(isReady = (): boolean => true) {}',
+				errors: [{messageId: 'non-boolean-prefix'}],
+			}),
+			wrap({
+				code: '/** @param {() => boolean} ready */ function run(ready = (): string => "text") {}',
+				options: [onlyIsPrefixOptions],
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					suggestions: [{
+						messageId: 'rename',
+						data: {replacement: 'isReady'},
+						output: '/** @param {() => boolean} isReady */ function run(isReady = (): string => "text") {}',
+					}],
+				}],
+			}),
+		],
+	});
+	test({
+		valid: [
+			'const task = {/** @type {() => string} */ isReady: (): boolean => true};',
+			'const task = {/** @type {() => boolean} */ ready: (): string => "text"};',
+			'class Task { /** @type {() => string} */ isReady = (): boolean => true; }',
+			'class Task { /** @type {() => boolean} */ ready = (): string => "text"; }',
+		].map(code => wrap({code, options: [{checkFields: 'always'}]})),
+		invalid: [
+			['const task = {/** @type {() => string} */ ready: (): boolean => true};', 'consistent-boolean-name'],
+			['const task = {/** @type {() => boolean} */ isReady: (): string => "text"};', 'non-boolean-prefix'],
+			['class Task { /** @type {() => string} */ ready = (): boolean => true; }', 'consistent-boolean-name'],
+			['class Task { /** @type {() => boolean} */ isReady = (): string => "text"; }', 'non-boolean-prefix'],
+		].map(([code, messageId]) => wrap({code, options: [{checkFields: 'always'}], errors: [{messageId}]})),
+	});
+}
+
+// Generator initializers remain generators when their callable documentation claims a scalar result.
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [
+			'/** @type {() => boolean} */ const ready = function* () { yield true; };',
+			'/** @type {() => boolean} */ const ready = async function* () { yield true; };',
+		].map(code => wrap(code)),
+		invalid: [
+			'/** @type {() => boolean} */ const isReady = function* () { yield true; };',
+			'/** @type {() => boolean} */ const isReady = async function* () { yield true; };',
+		].map(code => wrap({code, errors: [{messageId: 'non-boolean-prefix'}]})),
+	});
+}
+
 // Native optionality keeps shared inference uncertain while naming still requires boolean prefixes.
 for (const wrap of [typescript, typeAware]) {
 	test({
