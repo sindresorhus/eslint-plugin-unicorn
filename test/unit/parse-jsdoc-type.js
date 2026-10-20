@@ -32,6 +32,35 @@ const string = name('string');
 const number = name('number');
 const array = name('Array');
 
+test('primitive types with surrounding whitespace retain their complete-expression boundaries', t => {
+	for (const [expression, expected] of [
+		['boolean', boolean],
+		['Boolean', boolean],
+		['true', boolean],
+		['false', boolean],
+		['string', string],
+		['String', string],
+		['number', number],
+		['Number', number],
+		['bigint', name('bigint')],
+		['symbol', name('symbol')],
+		['void', name('void')],
+		['null', nullish('null')],
+		['undefined', nullish('undefined')],
+		['any', unknown],
+		['unknown', unknown],
+		['never', unknown],
+		['boolean | string', union(boolean, string)],
+		['Booleanish', name('Booleanish')],
+		['boolean[]', array],
+		['boolean = string', unknown],
+		['Boolean<string>', unknown],
+		['boolean;', unknown],
+	]) {
+		t.assert.deepStrictEqual(parseJSDocumentType(`\uFEFF\t${expression}\r\n\u2028`), expected, expression);
+	}
+});
+
 for (const [description, expression, expected] of [
 	['primitive lowercase', 'boolean', boolean],
 	['string alias', 'String', string],

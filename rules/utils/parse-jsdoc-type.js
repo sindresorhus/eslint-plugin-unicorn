@@ -10,6 +10,17 @@ const closingTokens = new Map([['(', ')'], ['[', ']'], ['{', '}'], ['<', '>']]);
 const unknown = {kind: 'unknown'};
 const array = {kind: 'name', name: 'Array'};
 const nonPrimitive = {kind: 'non-primitive'};
+const primitiveTypes = new Map([...primitiveNames].map(name => {
+	if (unknownNames.has(name)) {
+		return [name, unknown];
+	}
+
+	if (name === 'null' || name === 'undefined') {
+		return [name, {kind: 'nullish', name}];
+	}
+
+	return [name, {kind: 'name', name: ['true', 'false'].includes(name) ? 'boolean' : aliases.get(name) ?? name}];
+}));
 
 const isNumericLiteralToken = token => /^(?:\d|\.\d)/v.test(token ?? '')
 	&& (!token.endsWith('n') || /^0[box]/iv.test(token) || !/[.e]/iv.test(token));
@@ -36,6 +47,11 @@ function hasValidStringEscapes(token) {
 Read the type facts needed by rules. Unsupported or malformed syntax stays unknown, including when nested inside a supported container.
 */
 function parseJSDocumentType(text) {
+	const primitiveType = primitiveTypes.get(text.trim());
+	if (primitiveType) {
+		return primitiveType;
+	}
+
 	const tokens = [];
 	const lineBreaks = new Set();
 	for (const match of text.matchAll(tokenPattern)) {
@@ -51,7 +67,7 @@ function parseJSDocumentType(text) {
 		}
 	}
 
-	const closes = new Map();
+	const parenthesisCloses = new Map();
 	const openings = [];
 	for (const [index, token] of tokens.entries()) {
 		if (closingTokens.has(token)) {
@@ -62,7 +78,9 @@ function parseJSDocumentType(text) {
 				return unknown;
 			}
 
-			closes.set(opening, index);
+			if (tokens[opening] === '(') {
+				parenthesisCloses.set(opening, index);
+			}
 		}
 	}
 
@@ -249,7 +267,7 @@ function parseJSDocumentType(text) {
 	function parsePrimary() {
 		const token = tokens[index];
 		if (token === '(') {
-			if (tokens[closes.get(index) + 1] === '=>') {
+			if (tokens[parenthesisCloses.get(index) + 1] === '=>') {
 				parseList('(', ')', parseArrowParameter);
 				expect('=>');
 				return {kind: 'function', returnType: parseUnion()};
@@ -326,11 +344,7 @@ function parseJSDocumentType(text) {
 			parseList('<', '>', parseUnion);
 		}
 
-		if (name === 'null' || name === 'undefined') {
-			return {kind: 'nullish', name};
-		}
-
-		return unknownNames.has(name) ? unknown : {kind: 'name', name: ['true', 'false'].includes(name) ? 'boolean' : aliases.get(name) ?? name};
+		return primitiveTypes.get(name) ?? {kind: 'name', name};
 	}
 
 	try {

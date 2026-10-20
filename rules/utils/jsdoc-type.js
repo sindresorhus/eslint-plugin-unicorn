@@ -8,12 +8,57 @@ import {
 	skipJSDocumentTemplateWhitespace,
 } from './jsdoc.js';
 
-const commentCaches = new WeakMap();
+const sourceCodeCaches = new WeakMap();
 const parameterTags = new Set(['param', 'arg', 'argument']);
 const returnTags = new Set(['return', 'returns']);
 const parameterNamePattern = /^[\p{ID_Start}$_][\p{ID_Continue}$\u{200C}\u{200D}]*/v;
 const propertyTypes = new Set(['Property', 'PropertyDefinition', 'AccessorProperty']);
 const exportTypes = new Set(['ExportNamedDeclaration', 'ExportDefaultDeclaration']);
+
+function getSourceCodeCache({sourceCode}) {
+	let cache = sourceCodeCaches.get(sourceCode);
+	if (!cache) {
+		cache = {
+			comments: new WeakMap(),
+			hasComments: sourceCode.getAllComments().some(comment => comment.type === 'Block' && comment.value.startsWith('*')),
+		};
+		sourceCodeCaches.set(sourceCode, cache);
+	}
+
+	return cache;
+}
+
+/**
+Check whether this source file has any JSDoc comments before resolving annotations or following aliases.
+*/
+function hasJSDocumentComments(context) {
+	return getSourceCodeCache(context).hasComments;
+}
+
+/**
+Cache context-independent annotation lookups, including misses, for the lifetime of their source file.
+*/
+function memoizeJSDocumentLookup(lookup) {
+	const caches = new WeakMap();
+	return (node, context) => {
+		if (!node || !hasJSDocumentComments(context)) {
+			return;
+		}
+
+		const {sourceCode} = context;
+		let cache = caches.get(sourceCode);
+		if (!cache) {
+			cache = new WeakMap();
+			caches.set(sourceCode, cache);
+		}
+
+		if (!cache.has(node)) {
+			cache.set(node, lookup(node, context));
+		}
+
+		return cache.get(node);
+	};
+}
 
 /**
 Parse a supported tag while preserving the source range of a parameter name.
@@ -79,11 +124,7 @@ Get parsed type tags from a documentation comment, shared across rules for this 
 */
 function getCommentTags(comment, context) {
 	const {sourceCode} = context;
-	let cache = commentCaches.get(sourceCode);
-	if (!cache) {
-		cache = new WeakMap();
-		commentCaches.set(sourceCode, cache);
-	}
+	const cache = getSourceCodeCache(context).comments;
 
 	if (!cache.has(comment)) {
 		const tags = getJSDocumentTags(comment.value);
@@ -169,7 +210,7 @@ function getAnnotation(tags, predicate) {
 /**
 Get a simple parameter's inline or named documentation tag.
 */
-function getParameterAnnotation(node, context) {
+const getParameterAnnotation = memoizeJSDocumentLookup((node, context) => {
 	const {parent} = node;
 	let parameter = parent?.type === 'AssignmentPattern' && parent.left === node ? parent : node;
 	if (parameter.parent?.type === 'TSParameterProperty') {
@@ -193,7 +234,7 @@ function getParameterAnnotation(node, context) {
 		type: annotation.type?.kind === 'optional' ? annotation.type.element : annotation.type,
 		optional: Boolean(node.optional) || [inline, named].some(annotation => annotation?.optional || annotation?.type?.kind === 'optional'),
 	};
-}
+});
 
 /**
 Get a parameter tag's name range even when its type is omitted or a native TypeScript annotation takes precedence for inference.
@@ -220,8 +261,8 @@ function hasNativeTypeAssertion(node) {
 /**
 Get a directly documented binding or property type, resolving simple identifier references to their declaration.
 */
-function getJSDocumentTypeAnnotation(node, context) {
-	if (!node || node.typeAnnotation) {
+const getJSDocumentTypeAnnotation = memoizeJSDocumentLookup((node, context) => {
+	if (node.typeAnnotation) {
 		return;
 	}
 
@@ -260,13 +301,13 @@ function getJSDocumentTypeAnnotation(node, context) {
 
 	const annotation = getAnnotation(getDocumentationTags(owners, context), tag => tag.tag === 'type');
 	return annotation?.type ? annotation : undefined;
-}
+});
 
 /**
 Get the explicit return type documented on a function or its declaration.
 */
-function getJSDocumentReturnType(node, context) {
-	if (!node || node.returnType) {
+const getJSDocumentReturnType = memoizeJSDocumentLookup((node, context) => {
+	if (node.returnType) {
 		return;
 	}
 
@@ -279,9 +320,10 @@ function getJSDocumentReturnType(node, context) {
 
 	const annotation = getAnnotation(getDocumentationTags(owners, context), tag => returnTags.has(tag.tag));
 	return annotation?.type ? annotation : undefined;
-}
+});
 
 export {
+	hasJSDocumentComments,
 	getJSDocumentParameterNameRange,
 	getJSDocumentTypeAnnotation,
 	getJSDocumentReturnType,

@@ -12,7 +12,7 @@ import {
 	withTypeInformation,
 } from './types.js';
 import {getStaticValueForControlFlow} from './get-static-value.js';
-import {getJSDocumentTypeAnnotation, getJSDocumentReturnType} from './jsdoc-type.js';
+import {getJSDocumentTypeAnnotation, getJSDocumentReturnType, hasJSDocumentComments} from './jsdoc-type.js';
 import {getEvaluatedChildNodes} from './get-visitor-child-nodes.js';
 import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
 
@@ -150,6 +150,10 @@ const jsdocPrimitiveNames = new Set(['boolean', 'string', 'number', 'bigint', 's
 Prevent static type inference from bypassing an explicit annotation through an alias or a larger expression.
 */
 function hasJSDocumentTypeReference(node, context, visitedVariables = new Set()) {
+	if (!hasJSDocumentComments(context)) {
+		return false;
+	}
+
 	node = unwrapTypeScriptExpression(node);
 	if (node.type === 'Identifier') {
 		if (getJSDocumentTypeAnnotation(node, context)) {

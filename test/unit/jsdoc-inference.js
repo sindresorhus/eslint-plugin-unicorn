@@ -6,7 +6,7 @@ import isNumber, {isKnownNonNumber} from '../../rules/utils/is-number.js';
 import isBigInt, {isKnownNonBigInt} from '../../rules/utils/is-bigint.js';
 import isArray, {isIndexedCollection, isKnownNonArray, isKnownBigIntTypedArray} from '../../rules/utils/is-array.js';
 import {isSet} from '../../rules/utils/is-set.js';
-import {createTypeCheckers} from '../../rules/utils/type-helpers.js';
+import {createTypeCheckers, hasJSDocumentTypeReference} from '../../rules/utils/type-helpers.js';
 import parsers from '../utils/parsers.js';
 
 const linter = new Linter();
@@ -859,4 +859,33 @@ test('empty object callable metadata remains uncertain while nested argument typ
 	t.assert.deepStrictEqual(getInferences('/** @type {(() => boolean) & {}} */ let read; inspect(read());'), [[]]);
 	t.assert.deepStrictEqual(getInferences('/** @type {Array<{}>} */ let values; inspect(values);'), [['array', 'indexed']]);
 	t.assert.deepStrictEqual(getInferences('/** @param {function({}): boolean} read */ function run(read) { inspect(read()); }'), [['boolean']]);
+});
+
+test('reference scans do not resolve bindings in files without documentation comments', t => {
+	for (const comments of [[], [{type: 'Line', value: '* @type {boolean} value'}], [{type: 'Block', value: ' @type {boolean} '}]]) {
+		const context = {
+			sourceCode: {
+				getAllComments: () => comments,
+				getScope() {
+					throw new Error('A file without documentation must not resolve bindings for a documentation scan.');
+				},
+			},
+		};
+		t.assert.strictEqual(hasJSDocumentTypeReference({type: 'Identifier', name: 'value'}, context), false);
+	}
+});
+
+test('reference scans retain documentation evidence across aliases and source files', t => {
+	const checks = {documented: hasJSDocumentTypeReference};
+	for (const [comment, expected] of [
+		['', []],
+		['/** Description only. */', []],
+		['/** @type {unknown} */', ['documented']],
+		['/* @type {boolean} */', []],
+		['/** @type {boolean} */', ['documented']],
+	]) {
+		const code = `${comment} const value = source; const first = value; const alias = first; inspect(alias);`;
+		t.assert.deepStrictEqual(getInferences(code, {checks}), [expected], comment);
+		t.assert.deepStrictEqual(getInferences(code, {checks, typescript: true}), [expected], comment);
+	}
 });

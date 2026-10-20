@@ -1,6 +1,11 @@
 import test from 'node:test';
 import {Linter} from 'eslint';
-import {getJSDocumentParameterNameRange, getJSDocumentTypeAnnotation, getJSDocumentReturnType} from '../../rules/utils/jsdoc-type.js';
+import {
+	getJSDocumentParameterNameRange,
+	getJSDocumentTypeAnnotation,
+	getJSDocumentReturnType,
+	hasJSDocumentComments,
+} from '../../rules/utils/jsdoc-type.js';
 import parsers from '../utils/parsers.js';
 
 const linter = new Linter();
@@ -139,6 +144,102 @@ test('resolves shadowed names to their own declarations', t => {
 test('does not leak cached annotations between source files with identical ranges', t => {
 	for (const type of ['boolean', 'string', 'boolean']) {
 		t.assert.strictEqual(getAnnotations(`/** @type {${type}} */ let value; inspect(value);`)[0].type.name, type);
+	}
+});
+
+test('annotation consumers share successful and missing lookups without hiding native parameter rename metadata', t => {
+	const code = [
+		'/** @param {boolean} [flag=false]',
+		' * @returns {string} */ function documented(flag = source) { inspect(flag); }',
+		'function undocumented(flag) { inspect(flag); }',
+		'/** @param {boolean} [flag=false]',
+		' * @returns {boolean} */ function native(flag: string): number { inspect(flag); }',
+	].join('\n');
+	const visited = [];
+	const messages = linter.verify(code, {
+		languageOptions: {parser: parsers.typescript.implementation},
+		plugins: {
+			test: {
+				rules: {
+					capture: {
+						create(context) {
+							const calls = {getAllComments: 0, getCommentsBefore: 0, getScope: 0};
+							const sourceCode = new Proxy(context.sourceCode, {
+								get(target, property) {
+									const value = Reflect.get(target, property, target);
+									if (Object.hasOwn(calls, property)) {
+										return (...arguments_) => {
+											calls[property]++;
+											return value.apply(target, arguments_);
+										};
+									}
+
+									return typeof value === 'function' ? value.bind(target) : value;
+								},
+							});
+							return {
+								FunctionDeclaration(node) {
+									const parameter = node.params[0].left ?? node.params[0];
+									const reference = node.body.body[0].expression.arguments[0];
+									const firstContext = {sourceCode};
+									const annotation = getJSDocumentTypeAnnotation(parameter, firstContext);
+									const referenceAnnotation = getJSDocumentTypeAnnotation(reference, firstContext);
+									const returnAnnotation = getJSDocumentReturnType(node, firstContext);
+									const range = getJSDocumentParameterNameRange(parameter, firstContext);
+									const firstCalls = {...calls};
+									const secondContext = {sourceCode};
+									t.assert.deepStrictEqual(getJSDocumentParameterNameRange(parameter, secondContext), range);
+									t.assert.deepStrictEqual(getJSDocumentReturnType(node, secondContext), returnAnnotation);
+									t.assert.deepStrictEqual(getJSDocumentTypeAnnotation(reference, secondContext), referenceAnnotation);
+									t.assert.deepStrictEqual(getJSDocumentTypeAnnotation(parameter, secondContext), annotation);
+									t.assert.deepStrictEqual(calls, firstCalls);
+									t.assert.strictEqual(calls.getAllComments, 1);
+									t.assert.deepStrictEqual(referenceAnnotation, annotation);
+									visited.push([node.id.name, annotation?.type.name, returnAnnotation?.type.name, range && code.slice(...range)]);
+								},
+							};
+						},
+					},
+				},
+			},
+		},
+		rules: {'test/capture': 'error'},
+	});
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.deepStrictEqual(visited, [
+		['documented', 'boolean', 'string', 'flag'],
+		['undocumented', undefined, undefined, undefined],
+		['native', undefined, undefined, 'flag'],
+	]);
+});
+
+test('documentation presence is isolated to each source file and includes description-only comments', t => {
+	for (const [code, expected] of [
+		['/** @type {boolean} */ let value;', true],
+		['/* @type {boolean} */ let value;', false],
+		['// /** @type {boolean} */\nlet value;', false],
+		['/** Description only. */ let value;', true],
+		['let value;', false],
+	]) {
+		let actual;
+		const messages = linter.verify(code, {
+			plugins: {
+				test: {
+					rules: {
+						capture: {
+							create: context => ({
+								Program() {
+									actual = hasJSDocumentComments(context);
+								},
+							}),
+						},
+					},
+				},
+			},
+			rules: {'test/capture': 'error'},
+		});
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(actual, expected, code);
 	}
 });
 
