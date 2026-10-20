@@ -405,6 +405,32 @@ test('native receiver assertions override conflicting documented method types', 
 	}
 });
 
+test('native scalar assertions override documented booleans', t => {
+	const code = [
+		'/** @param {boolean} value */ function run(value) {',
+		' inspect(value as string);',
+		' inspect(<boolean | string>value);',
+		' inspect(value as unknown);',
+		' inspect(<any>value);',
+		' inspect(value satisfies unknown);',
+		'}',
+	].join('\n');
+	for (const typeAware of [false, true]) {
+		t.assert.deepStrictEqual(getResults(code, {typeAware}), [false, false, true, true, true]);
+	}
+});
+
+test('scalar assertion inference preserves literal facts and ordinary boolean assertions', t => {
+	const code = 'inspect(true as string); inspect((value === other) as boolean); inspect(Boolean(value) as unknown); inspect((value > 0) satisfies boolean);';
+	t.assert.deepStrictEqual(getResults(code), [true, true, true, true]);
+});
+
+test('scalar assertions retain richer boolean evidence from type information', t => {
+	const code = 'type Flag<T> = T extends string ? boolean : string; function run(value) { inspect(value as Flag<string>); }';
+	t.assert.deepStrictEqual(getResults(code), [false]);
+	t.assert.deepStrictEqual(getResults(code, {typeAware: true}), [true]);
+});
+
 test('native receiver assertions provide their own string and collection types', t => {
 	const code = 'inspect((source as string).includes("x")); inspect((source as Uint8Array).some(predicate)); inspect((<string>source).startsWith("x"));';
 	for (const typeAware of [false, true]) {

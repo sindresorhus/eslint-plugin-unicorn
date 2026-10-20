@@ -58,7 +58,11 @@ const onlyIsPrefixOptions = {
 
 for (const wrap of [typescript, typeAware]) {
 	test({
-		valid: [wrap('/** @param {string} text */ function run(text) { const ready = (text as {includes(): string}).includes(); consume(ready); }')],
+		valid: [
+			'/** @param {string} text */ function run(text) { const ready = (text as {includes(): string}).includes(); consume(ready); }',
+			'/** @param {boolean} isFlag */ function run(isFlag) { const ready = isFlag as string; consume(ready); }',
+			'/** @param {boolean} isFlag */ function run(isFlag) { const ready = <boolean | string>isFlag; consume(ready); }',
+		].map(code => wrap(code)),
 		invalid: [wrap({
 			code: 'function run() { const ready = (source as string).includes("x"); consume(ready); }',
 			output: 'function run() { const isReady = (source as string).includes("x"); consume(isReady); }',

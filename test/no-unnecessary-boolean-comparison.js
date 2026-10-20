@@ -222,12 +222,15 @@ const typeAware = code => ({
 for (const wrap of [code => ({code, languageOptions: {parser: parsers.typescript}}), typeAware]) {
 	test({
 		valid: [
+			'/** @param {boolean} isFlag */ function run(isFlag) { return (isFlag as string) === true; }',
+			'/** @param {boolean} isFlag */ function run(isFlag) { return (<boolean | string>isFlag) === true; }',
 			'/** @param {string} text */ function run(text) { return (text as {includes(): string}).includes() === true; }',
 			'/** @param {Array<string>} values */ function run(values) { return (<{some(): string}>values).some() === false; }',
 			'/** @param {string} text */ function run(text) { return (text as string | {includes(): string}).includes() === true; }',
 			'/** @param {Uint8Array} values */ function run(values) { return (<Uint8Array | {some(): string}>values).some() === false; }',
 		].map(code => wrap(code)),
 		invalid: [
+			['/** @param {boolean} isFlag */ function run(isFlag) { return (isFlag as unknown) === false; }', '/** @param {boolean} isFlag */ function run(isFlag) { return !(isFlag as unknown); }'],
 			['(source as string).includes("x") === true;', '(source as string).includes("x");'],
 			['(<Uint8Array>source).some(predicate) === false;', '!(<Uint8Array>source).some(predicate);'],
 		].map(([code, output]) => ({
@@ -237,6 +240,18 @@ for (const wrap of [code => ({code, languageOptions: {parser: parsers.typescript
 		})),
 	});
 }
+
+test({
+	valid: [{
+		code: 'type Flag<T> = T extends string ? boolean : string; (source as Flag<string>) === true;',
+		languageOptions: {parser: parsers.typescript},
+	}],
+	invalid: [{
+		...typeAware('type Flag<T> = T extends string ? boolean : string; (source as Flag<string>) === true;'),
+		output: 'type Flag<T> = T extends string ? boolean : string; (source as Flag<string>);',
+		errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+	}],
+});
 
 test({
 	valid: [

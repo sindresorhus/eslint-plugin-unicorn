@@ -446,7 +446,11 @@ function isBooleanTypeScriptExpression(node, context, visitedVariables) {
 	const scope = context.sourceCode.getScope(node);
 
 	return isBooleanTypeAnnotation(node.typeAnnotation, context, scope)
-		|| isBooleanExpression(node.expression, context, visitedVariables);
+		|| (
+			(node.type === 'TSSatisfiesExpression' || ['TSAnyKeyword', 'TSUnknownKeyword'].includes(node.typeAnnotation.type))
+			&& isBooleanExpression(node.expression, context, visitedVariables)
+		)
+		|| isBooleanTypeInformation(node, context);
 }
 
 function getKnownLiteralExpressionKind(node) {
