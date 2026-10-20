@@ -202,6 +202,8 @@ testRule.snapshot({
 			'export type {Value};',
 			'export {type Value};',
 			'export type {Value as Shared};',
+			'export default Value;',
+			'export = Value;',
 		].map(exportStatement => `type Value = number; function foo() { return 1 as Value; } ${exportStatement}`),
 		'type Unused = number; function foo() {}',
 		'type Unused = {next: Unused}; function foo() {}',
