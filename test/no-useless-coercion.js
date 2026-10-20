@@ -10,6 +10,38 @@ const {test, rule} = getTester(import.meta);
 
 const linter = new Linter();
 
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @returns {number | undefined} */ function count() { return source; } Number(count());',
+			'/** @returns {number} */ async function count() { return source; } Number(count());',
+			'/** @returns {number} */ function* count() { yield source; } +count();',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			{
+				filename: 'file.ts',
+				code: '/** @returns {number} */ function count() { return source; } Number(count());',
+				output: '/** @returns {number} */ function count() { return source; } count();',
+				errors: [{messageId: 'no-useless-coercion'}],
+			},
+			{
+				filename: 'file.ts',
+				code: '/** @return {Number} */ const count = () => source; +count();',
+				output: '/** @return {Number} */ const count = () => source; count();',
+				errors: [{messageId: 'no-useless-coercion'}],
+			},
+		],
+	});
+}
+
 test({
 	valid: [],
 	invalid: [

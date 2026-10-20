@@ -5,6 +5,13 @@ const booleanTypeNames = new Set(['boolean']);
 const nonBooleanTypeNames = new Set(['Array', 'ReadonlyArray', 'Promise', 'PromiseLike']);
 
 /**
+Flatten grouped intersections before combining their callable contracts.
+*/
+function getIntersectionMembers(type) {
+	return type.kind === 'intersection' ? type.elements.flatMap(getIntersectionMembers) : [type];
+}
+
+/**
 Classify documented values using the naming rule's unknown, nullish, and callable policies.
 */
 function getTypeBooleanState(type, {allowNullish, functionTypesAreBoolean}) {
@@ -15,12 +22,10 @@ function getTypeBooleanState(type, {allowNullish, functionTypesAreBoolean}) {
 		}
 
 		case 'intersection': {
-			const states = new Set(type.elements.map(element => getTypeBooleanState(element, {allowNullish, functionTypesAreBoolean})));
-			if (states.has('unknown')) {
-				return 'unknown';
-			}
-
-			return states.has('boolean') ? 'boolean' : 'non-boolean';
+			const members = getIntersectionMembers(type).filter(element => element.kind !== 'non-primitive');
+			return members.length > 0
+				? combineBooleanStates(members.map(element => getTypeBooleanState(element, {allowNullish, functionTypesAreBoolean})))
+				: 'non-boolean';
 		}
 
 		case 'nullable':

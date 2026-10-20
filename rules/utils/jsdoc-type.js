@@ -117,7 +117,7 @@ function withExport(node) {
 }
 
 /**
-Get a function's declaration wrappers without searching enclosing functions or arbitrary statements.
+Get a function's documentation owners without searching enclosing functions or arbitrary expressions.
 */
 function getFunctionOwners(node) {
 	const owners = [node];
@@ -130,7 +130,16 @@ function getFunctionOwners(node) {
 	if (parent?.type === 'VariableDeclarator' && parent.init === node) {
 		return parent.parent.declarations.length === 1
 			? [...owners, parent, ...withExport(parent.parent)]
-			: owners;
+			: [...owners, parent];
+	}
+
+	if (
+		parent?.type === 'AssignmentExpression'
+		&& parent.operator === '='
+		&& parent.right === node
+		&& parent.parent.type === 'ExpressionStatement'
+	) {
+		return [...owners, parent, parent.parent];
 	}
 
 	if (propertyTypes.has(parent?.type) || parent?.type === 'MethodDefinition') {
@@ -216,11 +225,13 @@ function getJSDocumentTypeAnnotation(node, context) {
 		owners = [node];
 	} else if (node.type === 'Identifier') {
 		if (parent?.type === 'VariableDeclarator' && parent.id === node) {
-			if (parent.parent.declarations.length !== 1 || hasNativeTypeAssertion(parent.init)) {
+			if (hasNativeTypeAssertion(parent.init)) {
 				return;
 			}
 
-			owners = [node, parent, ...withExport(parent.parent)];
+			owners = parent.parent.declarations.length === 1
+				? [node, parent, ...withExport(parent.parent)]
+				: [node, parent];
 		} else {
 			const annotation = getParameterAnnotation(node, context);
 			if (annotation?.type) {

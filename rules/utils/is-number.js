@@ -271,9 +271,8 @@ export default function isNumber(node, context) {
 		// No default
 	}
 
-	return hasJSDocumentTypeReference(node, context)
-		? isNumberTarget(node, context)
-		: typeof getStaticValueForControlFlow(node, context)?.value === 'number';
+	return isNumberTarget(node, context)
+		|| (!hasJSDocumentTypeReference(node, context) && typeof getStaticValueForControlFlow(node, context)?.value === 'number');
 }
 
 // Complements the AST-based `isNumber` above by using type information when available: resolves type annotations (`: number`), `as`/`satisfies` casts, and inferred element types (e.g. `number[]`) via the TypeScript type checker.

@@ -81,10 +81,12 @@ function parseJSDocumentType(text) {
 	}
 
 	function parseUnion() {
+		consume('|');
 		return parseCombined('|', 'union', parseIntersection);
 	}
 
 	function parseIntersection() {
+		consume('&');
 		return parseCombined('&', 'intersection', parsePostfix);
 	}
 
@@ -195,7 +197,7 @@ function parseJSDocumentType(text) {
 	function parseRecord() {
 		expect('{');
 		while (!consume('}')) {
-			if (tokens[index] === 'readonly' && ![':', '?'].includes(tokens[index + 1])) {
+			if (tokens[index] === 'readonly' && ![':', '?', ',', ';', '}'].includes(tokens[index + 1])) {
 				index++;
 			}
 
@@ -207,6 +209,8 @@ function parseJSDocumentType(text) {
 				expect(':');
 				parseUnion();
 				expect(']');
+				expect(':');
+				parseUnion();
 			} else {
 				const key = tokens[index++];
 				if (!identifierPattern.test(key ?? '') && !/^[\d"']/v.test(key ?? '')) {
@@ -214,10 +218,11 @@ function parseJSDocumentType(text) {
 				}
 
 				consume('?');
+				if (consume(':')) {
+					parseUnion();
+				}
 			}
 
-			expect(':');
-			parseUnion();
 			if (!consume(',') && !consume(';') && tokens[index] !== '}') {
 				throw new SyntaxError('Unsupported JSDoc property');
 			}

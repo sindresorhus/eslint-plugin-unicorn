@@ -3909,6 +3909,100 @@ test({
 	}],
 });
 
+// Every callable intersection member contributes to the return contract.
+test({
+	valid: [
+		'/** @type {(() => boolean) & (() => string)} */ let ready;',
+		'/** @type {(() => boolean) & ((() => string) & {label: string})} */ let ready;',
+		'/** @type {(() => boolean) & (() => unknown)} */ let ready;',
+		'/** @type {(() => boolean) & (() => unknown)} */ let isReady;',
+		'/** @type {(() => boolean) & ({label: string} & {tag: string})} */ let isReady;',
+	],
+	invalid: [
+		{
+			code: '/** @type {(() => boolean) & (() => string)} */ let isReady;',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		},
+		{
+			code: '/** @type {(() => boolean) & ((() => string) & {label: string})} */ let isReady;',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		},
+		{
+			code: '/** @type {(() => boolean) & {label: string}} */ let ready;',
+			options: [onlyIsPrefixOptions],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 1}],
+		},
+		{
+			code: '/** @type {(() => boolean) & (() => true) & {label: string}} */ let ready;',
+			options: [onlyIsPrefixOptions],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 1}],
+		},
+		{
+			code: '/** @type {(() => boolean) & ({label: string} & {tag: string})} */ let ready;',
+			options: [onlyIsPrefixOptions],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 1}],
+		},
+	],
+});
+
+// Rename the documented token to the final collision-free identifier.
+for (const [code, output, replacement] of [
+	[
+		'/** @param {boolean} [value = false] Keep value. */ task.run = function (value, isValue) { consume(value, isValue); };',
+		'/** @param {boolean} [isValue_ = false] Keep value. */ task.run = function (isValue_, isValue) { consume(isValue_, isValue); };',
+		'isValue_',
+	],
+	[
+		'/** @arg {Boolean} value */ module.exports = value => consume({value});',
+		'/** @arg {Boolean} isValue */ module.exports = isValue => consume({value: isValue});',
+		'isValue',
+	],
+	[
+		'/** 😀\r\n * @argument {boolean} válue Keep válue.\r\n */ Task.prototype.run = function (válue) { consume(válue); };',
+		'/** 😀\r\n * @argument {boolean} isVálue Keep válue.\r\n */ Task.prototype.run = function (isVálue) { consume(isVálue); };',
+		'isVálue',
+	],
+]) {
+	test({
+		valid: [],
+		invalid: [{
+			code,
+			options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{messageId: 'rename', data: {replacement}, output}],
+			}],
+		}],
+	});
+}
+
+test({
+	valid: [
+		'/** @param {boolean} value */ task.run ||= function (value) { consume(value); };',
+		'/** @param {boolean} value */ consume(task.run = function (value) {});',
+		'/** @type {boolean} */ const first = source, second = source;',
+	],
+	invalid: [
+		{
+			code: 'const /** @type {boolean} */ value = source, other = source;',
+			output: 'const /** @type {boolean} */ isValue = source, other = source;',
+			options: [onlyIsPrefixOptions],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isValue'},
+					output: 'const /** @type {boolean} */ isValue = source, other = source;',
+				}],
+			}],
+		},
+		{
+			code: '/** @param {string} isValue */ task.run = function (isValue) {};',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		},
+	],
+});
+
 // Unknown union members and nullish placeholders do not establish a non-boolean contract.
 for (const annotation of ['unknown | string', 'any | number', 'Unresolved | string', 'boolean | unknown | string', 'null', 'undefined', 'null | undefined', '() => (unknown | string)', '() => (null | undefined)']) {
 	test({

@@ -408,3 +408,77 @@ test('native initializer assertions do not erase parameter rename metadata', t =
 	const [range] = getParameterRanges(code, true);
 	t.assert.strictEqual(code.slice(...range), 'flag');
 });
+
+for (const [name, assignment, typescript] of [
+	['prototype method', 'Example.prototype.run = function (flag) { inspect(flag); };', false],
+	['CommonJS export', 'module.exports = flag => { inspect(flag); };', false],
+	['identifier assignment', 'run = flag => { inspect(flag); };', false],
+	['wrapped function assignment', 'module.exports = ((flag) => { inspect(flag); }) satisfies ((flag: boolean) => string);', true],
+]) {
+	test(`associates parameter and return documentation with a direct ${name}`, t => {
+		const documentation = '/** @param {boolean} [flag=false]\n * @returns {string} */ ';
+		const code = documentation + assignment;
+		t.assert.deepStrictEqual(getAnnotations(code, false, typescript), [{type: {kind: 'name', name: 'boolean'}, optional: true, name: 'flag'}]);
+		t.assert.strictEqual(getAnnotations(code, true, typescript)[0]?.type.name, 'string');
+		const [range] = getParameterRanges(code, typescript);
+		t.assert.strictEqual(code.slice(...range), 'flag');
+	});
+}
+
+test('assignment documentation does not escape nested, compound, or conditional expressions', t => {
+	for (const assignment of [
+		'consume(run = flag => { inspect(flag); });',
+		'first = second = flag => { inspect(flag); };',
+		'run ||= flag => { inspect(flag); };',
+		'condition ? run = flag => { inspect(flag); } : source;',
+	]) {
+		const code = `/** @param {boolean} flag\n * @returns {string} */ ${assignment}`;
+		t.assert.deepStrictEqual(getAnnotations(code), [undefined], assignment);
+		t.assert.deepStrictEqual(getAnnotations(code, true), [undefined], assignment);
+		t.assert.deepStrictEqual(getParameterRanges(code), [undefined], assignment);
+	}
+});
+
+test('inline annotations belong to individual declarators in a multiple declaration', t => {
+	const code = 'const /** @type {boolean} */ first = source, /** @type {string} */ second = source, third = source; inspect(first); inspect(second); inspect(third);';
+	t.assert.deepStrictEqual(getAnnotations(code).map(annotation => annotation?.type.name), ['boolean', 'string', undefined]);
+});
+
+test('inline function documentation belongs to one declarator in a multiple declaration', t => {
+	const code = 'const /** @param {boolean} flag\n * @returns {string} */ run = flag => { inspect(flag); }, other = () => source;';
+	t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'name', name: 'boolean'}, optional: false, name: 'flag'}]);
+	t.assert.deepStrictEqual(getAnnotations(code, true).map(annotation => annotation?.type.name), ['string', undefined]);
+	t.assert.strictEqual(code.slice(...getParameterRanges(code)[0]), 'flag');
+});
+
+test('declaration documentation does not override an individually documented binding', t => {
+	const code = '/** @type {boolean} */ export const first = source, /** @type {string} */ second = source; inspect(first); inspect(second);';
+	t.assert.deepStrictEqual(getAnnotations(code).map(annotation => annotation?.type.name), [undefined, 'string']);
+});
+
+test('assignment-owned parameter ranges preserve quoted defaults and descriptions', t => {
+	const code = '/** 😀\r\n * @argument {boolean} [flag = "keep ] flag"] Preserve flag.\r\n */\r\nmodule.exports = function (flag = source) { inspect(flag); };';
+	const start = code.indexOf('flag = "keep');
+	t.assert.deepStrictEqual(getParameterRanges(code), [[start, start + 4]]);
+	t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'name', name: 'boolean'}, optional: true, name: 'flag'}]);
+});
+
+test('direct assignment ownership preserves native parameter and return precedence', t => {
+	const code = '/** @param {boolean} flag\n * @returns {boolean} */ module.exports = (flag: string): string => { inspect(flag); return source; };';
+	t.assert.deepStrictEqual(getAnnotations(code, false, true), [undefined]);
+	t.assert.deepStrictEqual(getAnnotations(code, true, true), [undefined]);
+	const [range] = getParameterRanges(code, true);
+	t.assert.strictEqual(code.slice(...range), 'flag');
+});
+
+test('individual declarator documentation preserves native binding precedence', t => {
+	const code = 'const /** @type {boolean} */ first: string = source, /** @type {boolean} */ second = source as string; inspect(first); inspect(second);';
+	t.assert.deepStrictEqual(getAnnotations(code, false, true), [undefined, undefined]);
+});
+
+test('duplicate assignment-owned tags remain ambiguous', t => {
+	const code = '/** @param {boolean} flag\n * @arg {string} flag\n * @return {boolean}\n * @returns {string} */ module.exports = flag => { inspect(flag); };';
+	t.assert.deepStrictEqual(getAnnotations(code), [undefined]);
+	t.assert.deepStrictEqual(getAnnotations(code, true), [undefined]);
+	t.assert.deepStrictEqual(getParameterRanges(code), [undefined]);
+});

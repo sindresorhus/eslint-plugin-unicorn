@@ -53,6 +53,7 @@ for (const [name, type, expected] of [
 	['boxed JSDoc boolean alias', 'Boolean', ['boolean']],
 	['true literal', 'true', ['boolean']],
 	['homogeneous boolean union', 'false | boolean | true', ['boolean']],
+	['multiline leading union', '\n * | true\n * | false\n ', ['boolean']],
 	['primitive string', 'string', ['string']],
 	['boxed JSDoc string alias', 'String', ['string']],
 	['quoted string union', '"left" | \'right\'', ['string']],
@@ -64,6 +65,7 @@ for (const [name, type, expected] of [
 	['negative bigint literal', '-12n', ['bigint']],
 	['homogeneous bigint union', '0n | bigint', ['bigint']],
 	['nested generic array', 'Array<Map<string, Set<boolean>>>', ['array', 'indexed']],
+	['record array with untyped field', 'Array<{a: number, b}>', ['array', 'indexed']],
 	['Closure generic outer array', 'Array.<Promise<boolean>>', ['array', 'indexed']],
 	['generic readonly array', 'ReadonlyArray<() => boolean>', ['array', 'indexed']],
 	['array of nullable booleans', '(boolean | null)[]', ['array', 'indexed']],
@@ -100,7 +102,7 @@ for (const [name, type, expected] of [
 
 for (const [name, type] of [
 	['trailing union separator', 'boolean |'],
-	['leading intersection separator', '& boolean'],
+	['repeated intersection separator', '&& boolean'],
 	['unbalanced parenthesis', '(boolean'],
 	['extra token', 'boolean string'],
 	['empty generic', 'Array<>'],
@@ -167,9 +169,32 @@ test('documented return types classify call results without classifying the func
 	t.assert.deepStrictEqual(getInferences(code), [[], ['boolean'], [], ['string'], ['bigint'], ['set']]);
 });
 
+test('documented numeric returns are recognized across function declaration forms', t => {
+	const code = '/** @returns {number} */ function count() { return source; } /** @return {Number} */ const size = () => source; /** @returns {1 | 2} */ const rank = function () { return source; }; inspect(count); inspect(count()); inspect(size()); inspect(rank());';
+	t.assert.deepStrictEqual(getInferences(code), [[], ['number'], ['number'], ['number']]);
+});
+
+test('documented numeric returns retain strict nullish, optional, async, and write policies', t => {
+	for (const type of ['number | null', '?number', 'number=', 'unknown']) {
+		t.assert.deepStrictEqual(getInferences(`/** @returns {${type}} */ function count() { return source; } inspect(count());`), [[]], type);
+	}
+
+	t.assert.deepStrictEqual(getInferences('/** @returns {number} */ async function count() { return source; } /** @returns {number} */ function* rank() { yield source; } inspect(count()); inspect(rank());'), [[], []]);
+	t.assert.deepStrictEqual(getInferences('/** @returns {number} */ let count = () => source; count = source; inspect(count());'), [[]]);
+});
+
+test('native numeric return annotations take precedence over documented returns', t => {
+	const code = '/** @returns {number} */ function label(): string { return source; } /** @returns {string} */ function count(): number { return source; } inspect(label()); inspect(count());';
+	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [['string'], ['number']]);
+});
+
 test('function type annotations classify boolean calls without mistaking the function for a boolean', t => {
 	const code = '/** @type {() => boolean} */ let ready; inspect(ready); inspect(ready()); /** @type {function(string): boolean} */ let test; inspect(test); inspect(test("input"));';
 	t.assert.deepStrictEqual(getInferences(code), [[], ['boolean'], [], ['boolean']]);
+});
+
+test('Closure callable records with untyped fields still describe a boolean return', t => {
+	t.assert.deepStrictEqual(getInferences('/** @param {function({value}): boolean} test */ function run(test) { inspect(test); inspect(test({value: source})); }'), [[], ['boolean']]);
 });
 
 test('nullable or unknown documented returns cannot use a boolean function body as proof', t => {
@@ -404,6 +429,11 @@ test('type assertions and inherent result types retain certainty when their inpu
 test('ordinary constant aliases and transparent expressions keep their static inference', t => {
 	const code = 'const flag = true; const alias = flag; inspect(alias!); const text = "ready"; inspect((0, text)); const count = 1n; inspect(count as unknown); const values = []; inspect(values!);';
 	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [['boolean'], ['string'], ['bigint'], ['array', 'indexed']]);
+});
+
+test('non-computed property names do not inherit unrelated annotation uncertainty', t => {
+	const code = '/** @type {unknown} */ const value = source; inspect({value: true}.value); inspect({value: "text"}.value); inspect({value: 1}.value); inspect({value: 1n}.value);';
+	t.assert.deepStrictEqual(getInferences(code), [['boolean'], ['string'], ['number'], ['bigint']]);
 });
 
 for (const [type, initializer, expected] of [
