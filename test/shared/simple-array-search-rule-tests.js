@@ -199,6 +199,7 @@ export default function tests(options) {
 }
 
 function createTypeScriptProgram(code, filename) {
+	filename = filename.replaceAll('\\', '/');
 	const options = {
 		strict: true, noEmit: true, types: [], target: typescript.ScriptTarget.ESNext,
 	};
@@ -216,6 +217,7 @@ export function testTypeAwareSearches({method, replacement, rule, test}) {
 		['wider string', 'const values = ["small", "medium", "large"] as const; declare const input: string; values.SEARCH;', 'value => value === input'],
 		['reversed comparison', 'const values = ["small", "medium", "large"] as const; declare const input: string; values.SEARCH;', 'value => input === value'],
 		['generic unknown', `function check<Type>(value: unknown, values: readonly Type[]): ${returnType} { return values.SEARCH; }`, 'option => option === value'],
+		['constrained literal receiver', 'function check<Type extends readonly ["small", "large"]>(values: Type, input: string) { return values.SEARCH; }', 'value => value === input'],
 		['optional value with block body', 'declare const values: string[]; declare const input: string | undefined; values.SEARCH;', 'value => {return value === input;}'],
 		['incompatible side effect', 'const values = ["small", "medium", "large"] as const; declare function getInput(): string; values.SEARCH;', 'value => value === getInput()'],
 		['widened callback parameter', 'const values = ["small", "medium", "large"] as const; declare const input: string; values.SEARCH;', '(value: string) => value === input'],
@@ -225,6 +227,7 @@ export function testTypeAwareSearches({method, replacement, rule, test}) {
 		['compatible side effect', 'declare const values: string[]; declare function getInput(): string; values.SEARCH;', 'value => value === getInput()', 'getInput()', true],
 		['compatible literal', 'const values = ["small", "medium", "large"] as const; values.SEARCH;', 'value => value === "small"', '"small"'],
 		['compatible generic', 'function check<Type>(input: Type, values: readonly Type[]) { return values.SEARCH; }', 'value => value === input', 'input'],
+		['compatible constrained receiver', 'function check<Type extends readonly string[]>(values: Type, input: string) { return values.SEARCH; }', 'value => value === input', 'input'],
 		['compatible optional value', 'declare const values: (string | undefined)[]; declare const input: string | undefined; values.SEARCH;', 'value => value === input', 'input'],
 		['compatible union receiver', 'declare const values: string[] | (string | number)[]; declare const input: string; values.SEARCH;', 'value => value === input', 'input'],
 		['compatible optional receiver', 'declare const values: string[] | undefined; declare const input: string; values?.SEARCH;', 'value => value === input', 'input'],
