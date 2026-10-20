@@ -13,7 +13,7 @@
 
 This rule is fixable, unless the search expression has side effects.
 
-With TypeScript type information, searches are skipped when the search value's type is not assignable to the callback parameter's type.
+With TypeScript type information, searches are skipped when the search value's type is not accepted by `.indexOf()` or `.lastIndexOf()`.
 
 ## Examples
 

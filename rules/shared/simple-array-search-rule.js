@@ -93,7 +93,7 @@ export default function simpleArraySearchRule({method, replacement, checkBoolean
 	const SUGGESTION = `${MESSAGE_ID_PREFIX}suggestion`;
 	const ERROR_MESSAGES = {
 		findIndex: 'Use `.indexOf()` instead of `.findIndex()` when looking for the index of an item.',
-		findLastIndex: 'Use `.lastIndexOf()` instead of `.findLastIndex() when looking for the index of an item.`',
+		findLastIndex: 'Use `.lastIndexOf()` instead of `.findLastIndex()` when looking for the index of an item.',
 		some: `Use \`.${replacement}()\` instead of \`.${method}()\` when checking value existence.`,
 	};
 
@@ -140,7 +140,22 @@ export default function simpleArraySearchRule({method, replacement, checkBoolean
 				return;
 			}
 
-			if (withTypeInformation(searchValueNode, context, ({type, checker}) => !checker.isTypeAssignableTo(type, sourceCode.parserServices.getTypeAtLocation(parameter)))) {
+			if (withTypeInformation(searchValueNode, context, ({type, checker}) => {
+				const {parserServices} = sourceCode;
+				const receiverType = parserServices.getTypeAtLocation(callExpression.callee.object).getNonNullableType();
+				const replacementMethod = receiverType.getProperty(replacement);
+				if (!replacementMethod) {
+					return;
+				}
+
+				const location = parserServices.esTreeNodeToTSNodeMap.get(callExpression);
+				const searchParameter = checker.getTypeOfSymbolAtLocation(replacementMethod, location).getCallSignatures()[0]?.parameters[0];
+				if (!searchParameter) {
+					return;
+				}
+
+				return !checker.isTypeAssignableTo(type, checker.getTypeOfSymbolAtLocation(searchParameter, location));
+			})) {
 				return;
 			}
 

@@ -212,22 +212,28 @@ function createTypeScriptProgram(code, filename) {
 
 export function testTypeAwareSearches({method, replacement, rule, test}) {
 	const returnType = method === 'some' ? 'value is Type' : 'number';
-	for (const [name, setup, callback, searchValue, hasSideEffect = false] of [
-		['wider string', 'const values = ["small", "medium", "large"] as const; declare const input: string;', 'value => value === input'],
-		['reversed comparison', 'const values = ["small", "medium", "large"] as const; declare const input: string;', 'value => input === value'],
-		['generic unknown', `function check<Type>(value: unknown, values: readonly Type[]): ${returnType} { return`, 'option => option === value'],
-		['optional value with block body', 'declare const values: string[]; declare const input: string | undefined;', 'value => {return value === input;}'],
-		['incompatible side effect', 'const values = ["small", "medium", "large"] as const; declare function getInput(): string;', 'value => value === getInput()'],
-		['compatible string', 'declare const values: string[]; declare const input: string;', 'value => value === input', 'input'],
-		['compatible side effect', 'declare const values: string[]; declare function getInput(): string;', 'value => value === getInput()', 'getInput()', true],
-		['compatible literal', 'const values = ["small", "medium", "large"] as const;', 'value => value === "small"', '"small"'],
-		['compatible generic', 'function check<Type>(input: Type, values: readonly Type[]) { return', 'value => value === input', 'input'],
-		['compatible optional value', 'declare const values: (string | undefined)[]; declare const input: string | undefined;', 'value => value === input', 'input'],
-		['narrowed value', 'function check(values: string[], input: string | undefined) { if (typeof input !== "string") { return; } return', 'value => value === input', 'input'],
+	for (const [name, template, callback, searchValue, hasSideEffect = false] of [
+		['wider string', 'const values = ["small", "medium", "large"] as const; declare const input: string; values.SEARCH;', 'value => value === input'],
+		['reversed comparison', 'const values = ["small", "medium", "large"] as const; declare const input: string; values.SEARCH;', 'value => input === value'],
+		['generic unknown', `function check<Type>(value: unknown, values: readonly Type[]): ${returnType} { return values.SEARCH; }`, 'option => option === value'],
+		['optional value with block body', 'declare const values: string[]; declare const input: string | undefined; values.SEARCH;', 'value => {return value === input;}'],
+		['incompatible side effect', 'const values = ["small", "medium", "large"] as const; declare function getInput(): string; values.SEARCH;', 'value => value === getInput()'],
+		['widened callback parameter', 'const values = ["small", "medium", "large"] as const; declare const input: string; values.SEARCH;', '(value: string) => value === input'],
+		['incompatible union receiver', 'declare const values: string[] | number[]; declare const input: string; values.SEARCH;', 'value => value === input'],
+		['incompatible optional receiver', 'declare const values: readonly ["small"] | undefined; declare const input: string; values?.SEARCH;', 'value => value === input'],
+		['compatible string', 'declare const values: string[]; declare const input: string; values.SEARCH;', 'value => value === input', 'input'],
+		['compatible side effect', 'declare const values: string[]; declare function getInput(): string; values.SEARCH;', 'value => value === getInput()', 'getInput()', true],
+		['compatible literal', 'const values = ["small", "medium", "large"] as const; values.SEARCH;', 'value => value === "small"', '"small"'],
+		['compatible generic', 'function check<Type>(input: Type, values: readonly Type[]) { return values.SEARCH; }', 'value => value === input', 'input'],
+		['compatible optional value', 'declare const values: (string | undefined)[]; declare const input: string | undefined; values.SEARCH;', 'value => value === input', 'input'],
+		['compatible union receiver', 'declare const values: string[] | (string | number)[]; declare const input: string; values.SEARCH;', 'value => value === input', 'input'],
+		['compatible optional receiver', 'declare const values: string[] | undefined; declare const input: string; values?.SEARCH;', 'value => value === input', 'input'],
+		['compatible typed array', 'declare const values: Uint8Array; declare const input: number; values.SEARCH;', 'value => value === input', 'input'],
+		['unknown receiver', 'declare const values: any; declare const input: string; values.SEARCH;', '(value: unknown) => value === input', 'input'],
+		['narrowed value', 'function check(values: string[], input: string | undefined) { if (typeof input !== "string") { return; } return values.SEARCH; }', 'value => value === input', 'input'],
 	]) {
 		test(`${method}: ${name} with type information`, t => {
-			const suffix = setup.startsWith('function') ? ' }' : '';
-			const code = `${setup} values.${method}(${callback});${suffix}`;
+			const code = template.replace('SEARCH', `${method}(${callback})`);
 			const filename = path.resolve(`simple-array-search-${method}.ts`);
 			const program = createTypeScriptProgram(code, filename);
 			t.assert.deepStrictEqual(typescript.getPreEmitDiagnostics(program), []);
@@ -254,7 +260,7 @@ export function testTypeAwareSearches({method, replacement, rule, test}) {
 
 			const {range, text} = hasSideEffect ? messages[0].suggestions[0].fix : messages[0].fix;
 			const output = code.slice(0, range[0]) + text + code.slice(range[1]);
-			t.assert.strictEqual(output, `${setup} values.${replacement}(${searchValue});${suffix}`);
+			t.assert.strictEqual(output, template.replace('SEARCH', `${replacement}(${searchValue})`));
 			t.assert.deepStrictEqual(typescript.getPreEmitDiagnostics(createTypeScriptProgram(output, filename)), []);
 		});
 	}
