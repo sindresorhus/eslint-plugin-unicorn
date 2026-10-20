@@ -59,6 +59,7 @@ test.snapshot({
 		typeAware('declare function readEntry(): {setAt: number; value: string}; const {setAt} = readEntry();'),
 		typeAware('const {setTitle = true} = {} as {setTitle?: boolean};'),
 		typeAware('function render({setTitle = true}: {setTitle?: boolean}) {}'),
+		typeAware('const render = function ({setTitle = true}: {setTitle?: boolean} = {}) {};'),
 		typeAware('const {nested: {setTitle}} = {nested: {setTitle: true}};'),
 		typeAware('const [{setTitle = true}] = [{} as {setTitle?: boolean}];'),
 		typeAware('function run<T>(getName: T) { return getName; }'),
@@ -142,5 +143,8 @@ test.snapshot({
 		typeAware('function render({title: setTitle = true}: {title?: boolean}) {}'),
 		typeAware('const {nested: {title: setTitle}} = {nested: {title: true}};'),
 		typeAware('const {setTitle, title: getTitle} = {setTitle: true, title: "title"};'),
+		typeAware('const {setTitle: setTitle} = {setTitle: true};'),
+		typeAware('const {setTitle, ...getRest} = {setTitle: true, title: "title"};'),
+		typeAware('const {setTitle, values: [getName]} = {setTitle: true, values: ["name"]};'),
 	],
 });
