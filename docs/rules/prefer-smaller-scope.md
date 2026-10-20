@@ -108,3 +108,5 @@ Autofixes are omitted when comments could be displaced, a declaration has a Type
 Exported and ambient type aliases, and aliases with explicit variance annotations (`in` or `out`), are ignored.
 
 Autofixes are omitted when moving an alias could change name resolution, displace comments, or alter multiline literals. Recursive aliases and aliases containing value references (`typeof` queries or computed property keys), `this` types, or identifiers named `await` or `yield` are reported without fixes. Value references can depend on control-flow narrowing, and recursive aliases can be needed outside a function when generating declarations for inferred return types.
+
+Aliases that share a name with a value declaration are also reported without fixes, because separating the declarations can change TypeScript decorator metadata.

@@ -353,7 +353,8 @@ function getTypeAliasProblem(declaration, context) {
 	);
 
 	if (
-		hasUnsafeDependency
+		variable.isValueVariable
+		|| hasUnsafeDependency
 		|| variable.references.some(reference => isInside(reference.identifier, declaration, sourceCode))
 		|| findVariable(destinationScope, declaration.id.name) !== variable
 		|| containsNode(declaration, context, node =>

@@ -105,18 +105,24 @@ testRule.typescript({
 			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Shape'}}],
 		},
 		{
+			code: 'function decorate(...arguments_: any[]) {} type Alias = Date; const Alias = Date; function make() { class Value { @decorate value!: Alias; } return Value; }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Alias'}}],
+		},
+		{
+			code: 'function decorate(...arguments_: any[]) {}\ntype Alias = Date;\nfunction make() { class Value { @decorate value!: Alias; } return Value; }',
+			output: 'function decorate(...arguments_: any[]) {}\nfunction make() { type Alias = Date; class Value { @decorate value!: Alias; } return Value; }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Alias'}}],
+		},
+		{
 			code: 'const Value = "runtime"; type Value = number; function foo() { return 1 as Value; }',
-			output: 'const Value = "runtime";  function foo() { type Value = number; return 1 as Value; }',
 			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
 		},
 		{
 			code: 'type Value = number; const Value = "runtime"; consume(Value); function foo() { return 1 as Value; }',
-			output: ' const Value = "runtime"; consume(Value); function foo() { type Value = number; return 1 as Value; }',
 			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
 		},
 		{
 			code: 'type Value = number; export const Value = "runtime"; function foo() { return 1 as Value; }',
-			output: ' export const Value = "runtime"; function foo() { type Value = number; return 1 as Value; }',
 			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
 		},
 		{
