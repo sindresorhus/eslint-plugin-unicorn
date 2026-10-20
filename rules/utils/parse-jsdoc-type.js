@@ -10,6 +10,9 @@ const unknown = {kind: 'unknown'};
 const array = {kind: 'name', name: 'Array'};
 const nonPrimitive = {kind: 'non-primitive'};
 
+const isNumericLiteralToken = token => /^(?:\d|\.\d)/v.test(token ?? '')
+	&& (!token.endsWith('n') || /^0[box]/iv.test(token) || !/[.e]/iv.test(token));
+
 function hasValidStringEscapes(token) {
 	for (const match of token.matchAll(/\\(.)/gv)) {
 		const following = token.slice(match.index + 2, -1);
@@ -213,7 +216,7 @@ function parseJSDocumentType(text) {
 				parseUnion();
 			} else {
 				const key = tokens[index++];
-				if (!identifierPattern.test(key ?? '') && !/^[\d"']/v.test(key ?? '')) {
+				if (!identifierPattern.test(key ?? '') && !/^["']/v.test(key ?? '') && !isNumericLiteralToken(key)) {
 					throw new SyntaxError('Unsupported JSDoc property');
 				}
 
@@ -274,7 +277,7 @@ function parseJSDocumentType(text) {
 		if (token === '-' || /^(?:\d|\.\d)/v.test(token ?? '')) {
 			consume('-');
 			const literal = tokens[index++];
-			if (!/^(?:\d|\.\d)/v.test(literal ?? '') || (literal.endsWith('n') && !/^0[box]/iv.test(literal) && /[.e]/iv.test(literal))) {
+			if (!isNumericLiteralToken(literal)) {
 				throw new SyntaxError('Unsupported JSDoc literal');
 			}
 

@@ -3944,6 +3944,10 @@ for (const [code, output] of [
 // Unsupported or malformed type expressions must not become evidence from their initializer or nested types.
 test({
 	valid: [
+		'/** @type {{1.5n: boolean}} */ let isReady;',
+		'/** @type {Array<{1e3n: boolean}>} */ let isReady;',
+		'/** @type {"left\n * right"} */ let isReady;',
+		'/** @returns {"left\r\n * right"} */ function isReady() { return source; }',
 		'/** @type {Array<} */ const value = true;',
 		'/** @type {boolean |} */ const value = true;',
 		'/** @type {boolean &} */ const value = true;',
@@ -3972,6 +3976,44 @@ test({
 		'/** @returns {boolean |} */ function value() { return true; }',
 	],
 	invalid: [],
+});
+
+test({
+	valid: [
+		'/** @callback Check\n * @param {boolean} value\n * @returns {string} */ function run(value) {}',
+		'/** @typedef {function(): string} Check\n * @returns {string} */ function isReady() { return source; }',
+	],
+	invalid: [
+		{
+			code: '/** @type {{.5: boolean}} */ let isReady;',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		},
+		{
+			code: '/** @returns {string} */ function text() { return source; } const ready = text().includes("x");',
+			output: '/** @returns {string} */ function text() { return source; } const isReady = text().includes("x");',
+			options: [onlyIsPrefixOptions],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isReady'},
+					output: '/** @returns {string} */ function text() { return source; } const isReady = text().includes("x");',
+				}],
+			}],
+		},
+		{
+			code: '/** @callback Check\n * @param {boolean} value */ function run(value = false) { consume(value); }',
+			options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isValue'},
+					output: '/** @callback Check\n * @param {boolean} value */ function run(isValue = false) { consume(isValue); }',
+				}],
+			}],
+		},
+	],
 });
 
 // Callable annotations preserve the same unknown and nullish return states as native types.

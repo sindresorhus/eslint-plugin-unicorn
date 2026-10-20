@@ -10,6 +10,31 @@ const {test, rule} = getTester(import.meta);
 
 const linter = new Linter();
 
+test({
+	valid: [
+		'/** @type {() => boolean} */ let read; read = () => "changed"; Boolean(read());',
+		'/** @param {() => boolean} read */ function run(read) { read = () => 0; Boolean(read()); }',
+		'/** @returns {?string} */ function text() { return source; } Boolean(text().includes("x"));',
+	],
+	invalid: [{
+		code: '/** @returns {string} */ function text() { return source; } Boolean(text().includes("x"));',
+		output: '/** @returns {string} */ function text() { return source; } text().includes("x");',
+		errors: [{messageId: 'no-useless-coercion'}],
+	}],
+});
+
+test({
+	valid: [
+		'/** @type {"left\n * right"} */ let text; String(text);',
+		'/** @returns {"left\r\n * right"} */ function text() { return source; } String(text());',
+	],
+	invalid: [{
+		code: '/** @type {\n * "left"\n * | "right"\n * } */ let text; String(text);',
+		output: '/** @type {\n * "left"\n * | "right"\n * } */ let text; text;',
+		errors: [{messageId: 'no-useless-coercion'}],
+	}],
+});
+
 for (const languageOptions of [
 	{},
 	{parser: parsers.typescript},

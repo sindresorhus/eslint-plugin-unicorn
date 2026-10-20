@@ -27,7 +27,7 @@ function parseTag(text, {tag, end}, offset) {
 			return {tag: tag.name};
 		}
 
-		type = parseJSDocumentType(text.slice(start + 1, typeEnd - 1).replaceAll(/\r?\n[^\S\n]*\*?/gv, ' '));
+		type = parseJSDocumentType(text.slice(start + 1, typeEnd - 1).replaceAll(/\r?\n[^\S\n]*\*?/gv, '\n'));
 		start = skipJSDocumentTemplateWhitespace(text, typeEnd, end);
 	} else if (!parameterTags.has(tag.name)) {
 		return {tag: tag.name};
@@ -84,10 +84,13 @@ function getCommentTags(comment, context) {
 
 	if (!cache.has(comment)) {
 		const tags = getJSDocumentTags(comment.value);
-		cache.set(comment, tags.map(({tag}, index) => parseTag(comment.value, {
-			tag,
-			end: tags[index + 1]?.lineStart ?? comment.value.length,
-		}, sourceCode.getRange(comment)[0] + 2)).filter(Boolean));
+		const parsedTags = tags.some(({tag}) => tag.name === 'typedef' || tag.name === 'callback')
+			? []
+			: tags.map(({tag}, index) => parseTag(comment.value, {
+				tag,
+				end: tags[index + 1]?.lineStart ?? comment.value.length,
+			}, sourceCode.getRange(comment)[0] + 2)).filter(Boolean);
+		cache.set(comment, parsedTags);
 	}
 
 	return cache.get(comment);

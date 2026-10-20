@@ -545,3 +545,52 @@ test('functions in default parameters do not inherit the outer function document
 	const start = code.indexOf('flag');
 	t.assert.deepStrictEqual(getParameterRanges(code), [[start, start + 4], undefined]);
 });
+
+for (const declaration of ['@callback Check', '@typedef {function(boolean): string} Check']) {
+	test(`type declaration ${declaration} does not annotate an adjacent function`, t => {
+		const code = `/** ${declaration}\n * @param {boolean} flag\n * @returns {string}\n */ function run(flag) { inspect(flag); }`;
+		t.assert.deepStrictEqual(getAnnotations(code), [undefined]);
+		t.assert.deepStrictEqual(getAnnotations(code, true), [undefined]);
+		t.assert.deepStrictEqual(getParameterRanges(code), [undefined]);
+	});
+}
+
+test('a type-declaration comment cannot provide a binding annotation', t => {
+	const code = '/** @typedef {boolean} Flag\n * @type {boolean}\n */ let flag; inspect(flag);';
+	t.assert.deepStrictEqual(getAnnotations(code), [undefined]);
+});
+
+test('separate function documentation still owns its tags after a callback declaration', t => {
+	const code = '/** @callback Check\n * @param {number} flag\n * @returns {number} */\n/** @param {boolean} flag\n * @returns {string} */ function run(flag) { inspect(flag); }';
+	t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'name', name: 'boolean'}, optional: false, name: 'flag'}]);
+	t.assert.strictEqual(getAnnotations(code, true)[0]?.type.name, 'string');
+	t.assert.strictEqual(code.slice(...getParameterRanges(code)[0]), 'flag');
+});
+
+test('astral identifier characters retain exact optional parameter ranges', t => {
+	const code = '/** @param {boolean} [flag𐐀 = false] Preserve flag𐐀. */ function run(flag𐐀) { inspect(flag𐐀); }';
+	const start = code.indexOf('flag𐐀');
+	t.assert.deepStrictEqual(getParameterRanges(code), [[start, start + 'flag𐐀'.length]]);
+	t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'name', name: 'boolean'}, optional: true, name: 'flag𐐀'}]);
+});
+
+test('getter return tags and setter parameter tags belong to separate method owners', t => {
+	const code = 'const task = {/** @returns {string} */ get ready() { return source; }, /** @param {boolean} value */ set ready(value) { inspect(value); }};';
+	t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'name', name: 'boolean'}, optional: false, name: 'value'}]);
+	t.assert.deepStrictEqual(getAnnotations(code, true).map(annotation => annotation?.type.name), ['string', undefined]);
+	t.assert.strictEqual(code.slice(...getParameterRanges(code)[0]), 'value');
+});
+
+test('ignoring callback declaration tags does not suppress an independent inline parameter type', t => {
+	const code = '/** @callback Check\n * @param {string} flag\n * @returns {string} */ function run(/** @type {boolean} */ flag) { inspect(flag); }';
+	t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'name', name: 'boolean'}, optional: false, name: undefined}]);
+	t.assert.deepStrictEqual(getParameterRanges(code), [undefined]);
+	t.assert.deepStrictEqual(getAnnotations(code, true), [undefined]);
+});
+
+test('decorated method documentation skips decorator callbacks and preserves native return precedence', t => {
+	const code = 'class Task { /** @param {boolean} flag\n * @returns {string} */ @decorate(function (flag) { inspect(flag); }) run(flag): number { inspect(flag); return source; } }';
+	t.assert.deepStrictEqual(getAnnotations(code, false, true).map(annotation => annotation?.type.name), [undefined, 'boolean']);
+	t.assert.deepStrictEqual(getAnnotations(code, true, true), [undefined, undefined]);
+	t.assert.deepStrictEqual(getParameterRanges(code, true).map(range => range && code.slice(...range)), [undefined, 'flag']);
+});

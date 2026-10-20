@@ -4,7 +4,12 @@ import {getFunctionReturnExpression} from './function-body.js';
 import {withTypeInformation} from './types.js';
 import {getJSDocumentTypeAnnotation, getJSDocumentReturnType} from './jsdoc-type.js';
 import {getJSDocumentBooleanState} from './get-jsdoc-boolean-state.js';
-import {getJSDocumentType, hasJSDocumentTypeReference, target} from './type-helpers.js';
+import {
+	createTypeCheckers,
+	getJSDocumentType,
+	hasJSDocumentTypeReference,
+	target,
+} from './type-helpers.js';
 import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
 
 const booleanBinaryOperators = new Set([
@@ -344,7 +349,11 @@ function isBooleanFunctionReference(node, context, visitedVariables = new Set())
 		const annotation = getJSDocumentTypeAnnotation(definition.name, context);
 		if (annotation) {
 			const initializer = unwrapTypeScriptExpression(definition.node.init);
-			if (!initializer?.async && !initializer?.generator) {
+			if (
+				!initializer?.async
+				&& !initializer?.generator
+				&& variable.references.every(reference => !reference.isWrite() || reference.init)
+			) {
 				isBoolean = initializer?.returnType
 					? isBooleanTypeAnnotation(initializer.returnType, context, context.sourceCode.getScope(initializer))
 					: getJSDocumentType(annotation, {
@@ -498,6 +507,16 @@ function getKnownExpressionKind(node, context, visitedVariables = new Set()) {
 
 		case 'Identifier': {
 			return getKnownIdentifierExpressionKind(node, context, visitedVariables);
+		}
+
+		case 'CallExpression': {
+			for (const [kind, targetTypeNames] of jsdocTypeNamesByExpressionKind) {
+				if (createTypeCheckers({targetTypeNames, checkClassHeritage: false}).isTarget(node, context)) {
+					return kind;
+				}
+			}
+
+			return;
 		}
 
 		// `ParenthesizedExpression` only comes from `@babel/eslint-parser` with `createParenthesizedExpressions`, which the tests do not use.

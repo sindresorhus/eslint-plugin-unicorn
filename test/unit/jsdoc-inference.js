@@ -321,6 +321,11 @@ test('subsequent writes prevent callable return inference', t => {
 	t.assert.deepStrictEqual(getInferences(code), [[], []]);
 });
 
+test('subsequent writes prevent documented boolean callback result inference too', t => {
+	const code = '/** @type {() => boolean} */ let read; read = other; inspect(read()); /** @param {() => boolean} callback */ function run(callback) { callback = other; inspect(callback()); }';
+	t.assert.deepStrictEqual(getInferences(code), [[], []]);
+});
+
 for (const [description, declaration] of [
 	['async declaration', 'async function read() { return source; }'],
 	['generator declaration', 'function* read() { return source; }'],
@@ -340,6 +345,32 @@ for (const [description, declaration] of [
 test('synchronous return annotations still classify array, set, string, and bigint results', t => {
 	const code = '/** @returns {string[]} */ function read() { return source; } /** @returns {Set<number>} */ const make = () => source; /** @returns {string} */ function label() { return source; } /** @returns {bigint} */ const count = function () { return source; }; inspect(read()); inspect(make()); inspect(label()); inspect(count());';
 	t.assert.deepStrictEqual(getInferences(code), [['array', 'indexed'], ['set'], ['string'], ['bigint']]);
+});
+
+test('documented return values retain known boolean receiver methods and properties', t => {
+	const code = '/** @returns {string} */ function text() { return source; } /** @returns {string[]} */ function values() { return source; } /** @returns {Set<string>} */ function keys() { return source; } /** @returns {RegExp} */ function pattern() { return source; } inspect(text().includes("x")); inspect(values().some(predicate)); inspect(keys().has(key)); inspect(pattern().test("x")); inspect(pattern().global);';
+	t.assert.deepStrictEqual(getInferences(code), [['boolean'], ['boolean'], ['boolean'], ['boolean'], ['boolean']]);
+});
+
+test('documented callback results retain known boolean receiver methods', t => {
+	const code = '/** @param {() => ReadonlyMap<string, number>} read */ function run(read) { inspect(read().has(key)); }';
+	t.assert.deepStrictEqual(getInferences(code), [['boolean']]);
+});
+
+test('receiver return annotations recognize named built-ins without resolving Array subclasses', t => {
+	const code = 'class Values extends Array { includes() { return "changed"; } } function inherited(): Values { return source; } function direct(): Array<string> { return source; } inspect(inherited().includes("x")); inspect(direct().includes("x"));';
+	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[], ['boolean']]);
+});
+
+test('uncertain documented return values cannot prove a boolean receiver method', t => {
+	for (const declaration of [
+		'/** @returns {?string} */ function text() { return source; }',
+		'/** @returns {string} */ async function text() { return source; }',
+		'/** @returns {string} */ function* text() { return source; }',
+		'/** @returns {string} */ let text = () => source; text = source;',
+	]) {
+		t.assert.deepStrictEqual(getInferences(`${declaration} inspect(text().includes("x"));`), [[]], declaration);
+	}
 });
 
 test('native function return annotations override conflicting callable binding documentation', t => {
