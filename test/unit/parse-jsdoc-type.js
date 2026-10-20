@@ -32,6 +32,43 @@ const string = name('string');
 const number = name('number');
 const array = name('Array');
 
+for (const [description, expression, expected] of [
+	['empty parameter list', '{(): boolean}', callable(boolean)],
+	['typed parameter', '{(value: string): boolean}', callable(boolean)],
+	['properties before and after the signature', '{readonly label: string; (): boolean; count: number}', callable(boolean)],
+	['optional and rest parameters', '{(value?: string, ...rest: number[]): boolean}', callable(boolean)],
+	['explicit this parameter', '{(this: Context, value: string): boolean}', callable(boolean)],
+	['nullable return', '{(): boolean | undefined}', callable(union(boolean, nullish('undefined')))],
+	['unknown return', '{(): unknown}', callable(unknown)],
+	['function-valued return', '{(): () => boolean}', callable(callable(boolean))],
+	['mixed overload return types', '{(value: string): boolean; (value: number): string}', intersection(callable(boolean), callable(string))],
+	['comma-separated overloads', '{(value: string): boolean, (value: number): boolean}', intersection(callable(boolean), callable(boolean))],
+	['newline-separated members', '{label: string\n(value: string): boolean\ncount: number}', callable(boolean)],
+	['array element', 'Array<{(value: string): boolean; label: string}>', array],
+	['callback parameter', 'function({(): boolean}): string', callable(string)],
+	['nested property stays an object', '{callback: {(): boolean}}', nonPrimitive],
+	['readonly named method stays an object', '{readonly(): boolean}', nonPrimitive],
+	['readonly named method inside an array', 'Array<{readonly(): boolean}>', array],
+]) {
+	test(`parses object type with ${description}`, t => {
+		t.assert.deepStrictEqual(parseJSDocumentType(expression), expected);
+	});
+}
+
+for (const [description, expression] of [
+	['missing return type', '{():}'],
+	['missing member separator', '{(): boolean label: string}'],
+	['missing parameter type', '{(value:): boolean}'],
+	['arrow instead of return colon', '{(value: string) => boolean}'],
+	['generic declaration', '{<T>(value: T): boolean}'],
+	['unsupported later property', '{(): boolean; broken: keyof Value}'],
+	['malformed later overload', '{(): boolean; (value:): boolean}'],
+]) {
+	test(`keeps object call signature with ${description} unknown`, t => {
+		t.assert.deepStrictEqual(parseJSDocumentType(expression), unknown);
+	});
+}
+
 test('legacy void and nullish aliases normalize before wrappers and generic validation', t => {
 	for (const [expression, expected] of [
 		['Void', name('void')],

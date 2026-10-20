@@ -57,6 +57,40 @@ test('a callback returning another callback does not inherit its eventual boolea
 	t.assert.strictEqual(getJSDocumentBooleanState(annotation, {allowNullish: true, functionTypesAreBoolean: true}), 'non-boolean');
 });
 
+test('callable object signatures supply boolean return contracts without making their bindings boolean', t => {
+	for (const expression of ['{(): boolean}', '{(value: string): boolean; label: string}', '{(value: string): boolean; (value: number): true}']) {
+		const annotation = getAnnotation(expression);
+		t.assert.strictEqual(getJSDocumentBooleanState(annotation), 'non-boolean', expression);
+		t.assert.strictEqual(getJSDocumentBooleanState(annotation, {functionTypesAreBoolean: true}), 'boolean', expression);
+	}
+
+	for (const expression of ['{read(): boolean}', '{readonly(): boolean}', '{readonly read(): boolean}']) {
+		t.assert.strictEqual(getJSDocumentBooleanState(getAnnotation(expression), {functionTypesAreBoolean: true}), 'non-boolean', expression);
+	}
+});
+
+test('callable object contracts preserve mixed, unknown, and higher-order overload results', t => {
+	for (const [expression, expected] of [
+		['{(value: string): boolean; (value: number): string}', 'non-boolean'],
+		['{(): boolean; (value: string): unknown}', 'unknown'],
+		['{(): () => boolean}', 'non-boolean'],
+	]) {
+		t.assert.strictEqual(getJSDocumentBooleanState(getAnnotation(expression), {functionTypesAreBoolean: true}), expected, expression);
+	}
+});
+
+test('callable object nullability and optionality follow the selected return policy', t => {
+	for (const annotation of [
+		getAnnotation('?{(): boolean}'),
+		getAnnotation('({(): boolean}) | undefined'),
+		getAnnotation('{(): boolean | undefined}'),
+		{...getAnnotation('{(): boolean}'), optional: true},
+	]) {
+		t.assert.strictEqual(getJSDocumentBooleanState(annotation, {functionTypesAreBoolean: true}), 'unknown');
+		t.assert.strictEqual(getJSDocumentBooleanState(annotation, {allowNullish: true, functionTypesAreBoolean: true}), 'boolean');
+	}
+});
+
 test('boolean elements and fields do not make their containing value boolean', t => {
 	for (const expression of ['Array<() => boolean>', '{ready: boolean}', 'readonly [() => boolean]']) {
 		t.assert.strictEqual(getJSDocumentBooleanState(getAnnotation(expression), {functionTypesAreBoolean: true}), 'non-boolean', expression);

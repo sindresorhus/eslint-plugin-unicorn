@@ -233,12 +233,17 @@ function parseJSDocumentType(text) {
 			return unknown;
 		}
 
+		const signatures = [];
 		while (!consume('}')) {
-			if (tokens[index] === 'readonly' && ![':', '?', ',', ';', '}'].includes(tokens[index + 1])) {
+			if (tokens[index] === 'readonly' && ![':', '?', '(', ',', ';', '}'].includes(tokens[index + 1])) {
 				index++;
 			}
 
-			if (consume('[')) {
+			if (tokens[index] === '(') {
+				parseList('(', ')', parseArrowParameter);
+				expect(':');
+				signatures.push({kind: 'function', returnType: parseUnion()});
+			} else if (consume('[')) {
 				if (!identifierPattern.test(tokens[index++] ?? '')) {
 					throw new SyntaxError('Unsupported JSDoc index signature');
 				}
@@ -269,7 +274,11 @@ function parseJSDocumentType(text) {
 			}
 		}
 
-		return nonPrimitive;
+		if (signatures.length === 0) {
+			return nonPrimitive;
+		}
+
+		return signatures.length === 1 ? signatures[0] : {kind: 'intersection', elements: signatures};
 	}
 
 	function parsePrimary() {

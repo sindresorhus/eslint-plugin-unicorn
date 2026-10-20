@@ -56,6 +56,48 @@ const onlyIsPrefixOptions = {
 	},
 };
 
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [
+			'/** @type {{(): boolean; label: string}} */ let isReady;',
+			'/** @type {{(): unknown; (value: string): boolean}} */ let ready;',
+			'/** @type {{(): unknown; (value: string): boolean}} */ let isReady;',
+			'/** @type {{(): boolean | undefined}} */ let ready;',
+			'/** @type {{(): boolean | undefined}} */ let isReady;',
+			'/** @returns {{(): boolean}} */ function makePredicate() { return source; }',
+		].map(code => wrap(code)),
+		invalid: [
+			{
+				code: '/** @type {{(): boolean; label: string}} */ let ready;',
+				options: [onlyIsPrefixOptions],
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					suggestions: [{
+						messageId: 'rename',
+						output: '/** @type {{(): boolean; label: string}} */ let isReady;',
+					}],
+				}],
+			},
+			{
+				code: '/**\r\n * @param {{(): boolean; (value: string): boolean}} [ready=source] Description.\r\n */\r\nfunction run(ready = source) { return ready(); }',
+				options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					suggestions: [{
+						messageId: 'rename',
+						output: '/**\r\n * @param {{(): boolean; (value: string): boolean}} [isReady=source] Description.\r\n */\r\nfunction run(isReady = source) { return isReady(); }',
+					}],
+				}],
+			},
+			...[
+				'/** @type {{(): boolean; (value: string): string}} */ let isReady;',
+				'/** @type {{(): () => boolean}} */ let isReady;',
+				'/** @type {{readonly(): boolean}} */ let isReady;',
+			].map(code => ({code, errors: [{messageId: 'non-boolean-prefix'}]})),
+		].map(testCase => wrap(testCase)),
+	});
+}
+
 test.snapshot({
 	valid: [
 		'/** @param {boolean} isReferrerAllowed */ function checkSecureRel(isReferrerAllowed) {}',

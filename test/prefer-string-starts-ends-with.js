@@ -992,9 +992,14 @@ test({
 
 test({
 	valid: [
+		'/** @type {{(): string; (value: number): number}} */ let read; read().indexOf("a") === 0;',
 		'/** @type {(() => string) | (() => number)} */ let read; read().indexOf("a") === 0;',
 	],
 	invalid: [{
+		code: '/** @type {{(): string; label: string}} */ let read; read().indexOf("a") === 0;',
+		output: '/** @type {{(): string; label: string}} */ let read; read().startsWith("a");',
+		errors: [{messageId: 'prefer-starts-with-indexOf'}],
+	}, {
 		code: '/** @type {(() => string) & {label: string}} */ let read; read().indexOf("a") === 0;',
 		output: '/** @type {(() => string) & {label: string}} */ let read; read().startsWith("a");',
 		errors: [{messageId: 'prefer-starts-with-indexOf'}],

@@ -75,6 +75,7 @@ for (const [name, type, expected] of [
 	['homogeneous bigint union', '0n | bigint', ['bigint']],
 	['nested generic array', 'Array<Map<string, Set<boolean>>>', ['array', 'indexed']],
 	['record array with untyped field', 'Array<{a: number, b}>', ['array', 'indexed']],
+	['record array with readonly-named method', 'Array<{readonly(): boolean}>', ['array', 'indexed']],
 	['multiline record array without member punctuation', 'Array<{\n * first: boolean\n * second: string\n * }>', ['array', 'indexed']],
 	['Closure generic outer array', 'Array.<Promise<boolean>>', ['array', 'indexed']],
 	['generic readonly array', 'ReadonlyArray<() => boolean>', ['array', 'indexed']],
@@ -547,6 +548,55 @@ test('documented boolean overloads retain certainty with record metadata and gro
 		const code = `/** @type {${type}} */ const read = source; inspect(read); inspect(read(1));`;
 		t.assert.deepStrictEqual(getInferences(code), [[], ['boolean']], type);
 	}
+});
+
+test('documented callable objects expose their call results without classifying their bindings as primitives', t => {
+	for (const typescript of [false, true]) {
+		for (const [type, expected] of [
+			['{(value: string): boolean; description: string}', ['boolean']],
+			['{(): string}', ['string']],
+			['{(): Array<string>; readonly label: string}', ['array', 'indexed']],
+			['{(value: string): boolean; (value: number): true}', ['boolean']],
+		]) {
+			const code = `/** @type {${type}} */ const read = source; inspect(read); inspect(read("x"));`;
+			t.assert.deepStrictEqual(getInferences(code, {typescript}), [[], expected], code);
+		}
+	}
+});
+
+test('documented callable objects remain known nonprimitive values', t => {
+	const code = '/** @type {{(): boolean; label: string}} */ const read = source; inspect(read);';
+	const checks = {nonString: isKnownNonString, nonNumber: isKnownNonNumber, nonArray: isKnownNonArray};
+	t.assert.deepStrictEqual(getInferences(code, {checks}), [['nonString', 'nonNumber', 'nonArray']]);
+});
+
+test('documented callable objects retain uncertainty and do not unwrap higher-order results', t => {
+	for (const type of [
+		'{(value: string): boolean; (value: number): string}',
+		'{(): boolean; (value: string): unknown}',
+		'{(): () => boolean}',
+		'?{(): boolean}',
+		'({(): boolean}) | undefined',
+		'{(): boolean | undefined}',
+	]) {
+		const code = `/** @type {${type}} */ const read = source; inspect(read("x"));`;
+		t.assert.deepStrictEqual(getInferences(code), [[]], type);
+	}
+
+	const code = '/** @param {{(): boolean}} [read] */ function run(read) { inspect(read()); }';
+	t.assert.deepStrictEqual(getInferences(code), [[]]);
+});
+
+test('documented method properties do not make their containing object callable', t => {
+	for (const type of ['{read(): boolean}', '{readonly(): boolean}', '{readonly read(): boolean}']) {
+		const code = `/** @type {${type}} */ const read = source; inspect(read); inspect(read());`;
+		t.assert.deepStrictEqual(getInferences(code), [[], []], type);
+	}
+});
+
+test('documented callable object results supply string and array receiver facts', t => {
+	const code = '/** @type {{(): string}} */ const text = source; /** @type {{(): string[]}} */ const values = source; inspect(text().includes("x")); inspect(values().some(predicate));';
+	t.assert.deepStrictEqual(getInferences(code), [['boolean'], ['boolean']]);
 });
 
 test('documented scalar and scalar-callable combinations do not prove boolean call results', t => {

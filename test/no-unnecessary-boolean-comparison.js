@@ -9,6 +9,19 @@ const {test, rule} = getTester(import.meta);
 
 test({
 	valid: [
+		'/** @type {{(): boolean; label: string}} */ let predicate; predicate === true;',
+		'/** @type {{(): boolean; (value: string): string}} */ let predicate; predicate() === true;',
+		'/** @type {{readonly(): boolean}} */ let predicate; predicate() === true;',
+	],
+	invalid: [{
+		code: '/** @param {{(): boolean; label: string}} predicate */ function run(predicate) { return predicate() === true; }',
+		output: '/** @param {{(): boolean; label: string}} predicate */ function run(predicate) { return predicate(); }',
+		errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+	}],
+});
+
+test({
+	valid: [
 		'/** @returns {boolean} */ let read = () => source; read = replacement; read() === true;',
 		'/** @type {((value: string) => boolean) & ((value: number) => string)} */ const read = value => typeof value === "string" ? true : "yes"; if (read(1) === true) { consume(); }',
 		'function run(...values) { values = replacement; return values.some(predicate) === true; }',
