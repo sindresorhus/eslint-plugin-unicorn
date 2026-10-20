@@ -1,5 +1,6 @@
 import {isMethodCall} from './ast/index.js';
 import {appendArgument} from './fix/index.js';
+import {withTypeInformation} from './utils/index.js';
 
 const ERROR = 'error';
 const SUGGESTION = 'suggestion';
@@ -18,6 +19,16 @@ function create(context) {
 			method: 'postMessage',
 			argumentsLength: 1,
 			optionalCall: false,
+		})) {
+			return;
+		}
+
+		if (withTypeInformation(node.callee, context, ({type}) => {
+			const nonNullableType = type.getNonNullableType();
+			// Inspect union members separately so TypeScript does not discard the Window overload with `targetOrigin` when combining signatures.
+			const types = nonNullableType.isUnion() ? nonNullableType.types : [nonNullableType];
+			const signatures = types.flatMap(type => type.getCallSignatures());
+			return signatures.length > 0 && signatures.every(({parameters}) => parameters.every(({name}) => name !== 'targetOrigin'));
 		})) {
 			return;
 		}
@@ -66,7 +77,7 @@ const config = {
 		type: 'problem',
 		docs: {
 			description: 'Enforce using the `targetOrigin` argument with `window.postMessage()`.',
-			// Turned off because we can't distinguish `window.postMessage` and `{Worker,MessagePort,Client,BroadcastChannel}#postMessage()`
+			// Turned off because without type information we can't distinguish `window.postMessage` and `{Worker,MessagePort,Client,BroadcastChannel}#postMessage()`
 			// See #1396
 			recommended: false,
 		},

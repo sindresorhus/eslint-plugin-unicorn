@@ -11,7 +11,9 @@
 
 Specifying the `targetOrigin` argument with [`window.postMessage()`](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) is a security best practice. It ensures that sensitive messages are only delivered to the intended recipient, preventing accidentally sending data to a window with an unexpected origin due to navigation or redirects.
 
-This rule cannot distinguish between `window.postMessage()` and other calls like [`Worker#postMessage()`](https://developer.mozilla.org/en-US/docs/Web/API/Worker/postMessage), [`MessagePort#postMessage()`](https://developer.mozilla.org/en-US/docs/Web/API/MessagePort/postMessage), [`Client#postMessage()`](https://developer.mozilla.org/en-US/docs/Web/API/Client/postMessage), and [`BroadcastChannel#postMessage()`](https://developer.mozilla.org/en-US/docs/Web/API/BroadcastChannel/postMessage), which don't have a `targetOrigin` parameter.
+When TypeScript type information is available, this rule ignores methods whose call signatures have no `targetOrigin` parameter, such as `Worker#postMessage()`, `MessagePort#postMessage()`, and `BroadcastChannel#postMessage()`.
+
+Without type information, or when the method's type is `any`, this rule cannot distinguish between `window.postMessage()` and other `.postMessage()` methods.
 
 ## Examples
 
