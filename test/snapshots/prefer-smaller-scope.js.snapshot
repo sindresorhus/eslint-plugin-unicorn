@@ -1484,6 +1484,23 @@ Message:
 
 `;
 
+exports[`prefer-smaller-scope > invalid(43): type Value = number; function foo(callback = () => { return 1 as Value; }) { return callback(); } 1`] = `
+
+  1 | type Value = number; function foo(callback = () => { return 1 as Value; }) { return callback(); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(43): type Value = number; function foo(callback = () => { return 1 as Value; }) { return callback(); } 2`] = `
+
+Message:
+> 1 | type Value = number; function foo(callback = () => { return 1 as Value; }) { return callback(); }
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+Output:
+  1 |  function foo(callback = () => { type Value = number; return 1 as Value; }) { return callback(); }
+
+`;
+
 exports[`prefer-smaller-scope > invalid(5): const value = null; if (condition) { consume(value); } 1`] = `
 
   1 | const value = null; if (condition) { consume(value); }

@@ -7,7 +7,11 @@ import {getTester, parsers} from './utils/test.js';
 const {test: testRule} = getTester(import.meta);
 
 testRule.typescript({
-	valid: [],
+	valid: [
+		'type Box<in out Type> = {readonly value: Type}; export function make<Type>() { return {} as Box<Type>; }',
+		'type Consumer<in Type> = (value: Type) => void; function make() { return {} as Consumer<string>; }',
+		'type Producer<out Type> = () => Type; function make() { return {} as Producer<string>; }',
+	],
 	invalid: [
 		{
 			code: outdent`
@@ -65,6 +69,10 @@ testRule.typescript({
 			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Tree'}}],
 		},
 		{
+			code: 'let key: "a" | "b" = "a"; type Shape = {[key]: number}; function make() { const name: "a" = {} as keyof Shape; return name; }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Shape'}}],
+		},
+		{
 			code: 'const Value = "runtime"; type Value = number; function foo() { return 1 as Value; }',
 			output: 'const Value = "runtime";  function foo() { type Value = number; return 1 as Value; }',
 			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
@@ -101,6 +109,7 @@ testRule.snapshot({
 		'declare type Value = number; function foo() { return 1 as Value; }',
 		'function foo() { type Value = number; return 1 as Value; }',
 		'type Value = number; function foo(value: Value) { return value; }',
+		'type Value = number; function foo(value = 1 as Value) { return value; }',
 		'type Value = number; function foo(): Value { return 1 as Value; }',
 		'type Value = number; function foo<Type extends Value>() { return 1 as Value; }',
 		'type Value = number; const foo = (value: Value) => value;',
@@ -165,7 +174,27 @@ testRule.snapshot({
 		'type Value = "first\\\nsecond"; function foo() { return "firstsecond" as Value; }',
 		'type Callback = <Type>(value: Type) => Type; function foo<Type>() { return {} as Callback; }',
 		'interface Base {value: number} type Recursive<Type extends Base> = {value: Type; next?: Recursive<Type>}; function foo() { return {} as Recursive<Base>; }',
+		'type Value = number; function foo(callback = () => { return 1 as Value; }) { return callback(); }',
 	],
+});
+
+test('independent type aliases with overlapping fixes reach a stable smallest scope', t => {
+	const linter = new Linter();
+	const config = {
+		languageOptions: {parser: parsers.typescript.implementation},
+		plugins: {unicorn},
+		rules: {'unicorn/prefer-smaller-scope': 'error'},
+	};
+	const code = 'type First = number;\ntype Second = string;\nfunction foo() { return [1 as First, "a" as Second]; }';
+	t.assert.strictEqual(linter.verify(code, config).length, 2);
+	const result = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(result.output, 'function foo() { type Second = string; type First = number; return [1 as First, "a" as Second]; }');
+	const secondResult = linter.verifyAndFix(result.output, config);
+	t.assert.strictEqual(secondResult.fixed, false);
+	t.assert.deepStrictEqual(secondResult.messages, []);
+	t.assert.strictEqual(secondResult.output, result.output);
 });
 
 test('dependent type aliases reach a stable smallest scope', t => {

@@ -320,6 +320,7 @@ function getTypeAliasProblem(declaration, context) {
 	if (
 		!(declaration.parent.type === 'Program' || declaration.parent.type === 'BlockStatement')
 		|| declaration.declare
+		|| declaration.typeParameters?.params.some(parameter => parameter.in || parameter.out)
 		|| isExported(declaration, declaration.id.name)
 	) {
 		return;
@@ -343,16 +344,16 @@ function getTypeAliasProblem(declaration, context) {
 	};
 	const firstStatement = block.body.find(statement => !statement.directive);
 	const destinationScope = sourceCode.getScope(block);
-	const hasReboundDependency = getReferencesInside(declaration, context).some(reference =>
-		!(
-			reference.resolved
-			&& isInside(reference.resolved.scope.block, declaration, sourceCode)
-		)
-		&& findVariable(destinationScope, reference.identifier.name) !== reference.resolved,
+	const hasUnsafeDependency = getReferencesInside(declaration, context).some(({identifier, resolved, isValueReference}) =>
+		isValueReference
+		|| (
+			!(resolved && isInside(resolved.scope.block, declaration, sourceCode))
+			&& findVariable(destinationScope, identifier.name) !== resolved
+		),
 	);
 
 	if (
-		hasReboundDependency
+		hasUnsafeDependency
 		|| variable.references.some(reference => isInside(reference.identifier, declaration, sourceCode))
 		|| findVariable(destinationScope, declaration.id.name) !== variable
 		|| containsNode(declaration, context, node => node.type === 'TSTypeQuery' || node.type === 'TSThisType')
