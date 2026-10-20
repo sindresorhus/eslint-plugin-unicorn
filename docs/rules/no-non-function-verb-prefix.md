@@ -9,9 +9,11 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Names that start with function-style verbs like `get`, `set`, or `create` imply that the value is callable or constructable. This rule reports TypeScript bindings where the name starts with a configured verb but the non-nullish type is not always callable or constructable.
+Names that start with function-style verbs like `get`, `set`, or `create` imply that the value is callable or constructable. This rule reports JavaScript and TypeScript bindings where the name starts with a configured verb but the non-nullish type is not always callable or constructable.
 
-This rule only runs in TypeScript files and requires [type-aware linting](https://typescript-eslint.io/getting-started/typed-linting/). Without type information, it does nothing.
+This rule requires [type-aware linting](https://typescript-eslint.io/getting-started/typed-linting/), including for JavaScript files. Both inferred types and JSDoc annotations are supported. Without type information, it does nothing.
+
+Object-literal property names and type members are ignored; class fields are checked.
 
 Shorthand object destructuring is ignored, including shorthand with default values, because the name comes from the property. Explicitly renamed bindings are still checked.
 

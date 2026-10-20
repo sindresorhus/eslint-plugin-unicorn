@@ -5,15 +5,15 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 const fixtureDirectory = fileURLToPath(new URL('fixtures/no-non-function-verb-prefix/', import.meta.url));
 
-const typeAware = testCase => ({
+const typeAware = (testCase, filename = 'file.ts') => ({
 	...(typeof testCase === 'string' ? {code: testCase} : testCase),
-	filename: 'file.ts',
+	filename,
 	languageOptions: {
 		parser: typescriptEslintParser,
 		parserOptions: {
 			tsconfigRootDir: fixtureDirectory,
 			projectService: {
-				allowDefaultProject: ['*.ts'],
+				allowDefaultProject: ['file.*'],
 				defaultProject: 'tsconfig.json',
 			},
 		},
@@ -25,6 +25,7 @@ test.snapshot({
 		// JavaScript and TypeScript without type information are no-ops.
 		'const getName = "name";',
 		{code: 'const getName = "name";', filename: 'file.ts', languageOptions: {parser: parsers.typescript}},
+		{code: 'const getName = "name";', filename: 'file.js', languageOptions: {parser: parsers.typescript}},
 
 		typeAware('const name = "name";'),
 		typeAware('const getter = "name";'),
@@ -100,6 +101,12 @@ test.snapshot({
 		typeAware('const [, getName] = [1, () => "name"];'),
 		typeAware('function run<T extends U, U extends T>(getName: T) { return getName; }'),
 		typeAware('function run<T extends Record<string, unknown>, K extends keyof T>(getName: T[K]) { return getName; }'),
+		typeAware('const getName = () => "name";', 'file.js'),
+		typeAware('/** @type {() => string} */ const getName = () => "name";', 'file.js'),
+		typeAware('/** @type {any} */ const getName = "name";', 'file.js'),
+		typeAware('/** @type {unknown} */ const getName = "name";', 'file.js'),
+		typeAware('class Pizza {} const createPizza = Pizza;', 'file.js'),
+		typeAware('const {setTitle = true} = {};', 'file.js'),
 	],
 	invalid: [
 		typeAware('const getName = "name";'),
@@ -146,5 +153,12 @@ test.snapshot({
 		typeAware('const {setTitle: setTitle} = {setTitle: true};'),
 		typeAware('const {setTitle, ...getRest} = {setTitle: true, title: "title"};'),
 		typeAware('const {setTitle, values: [getName]} = {setTitle: true, values: ["name"]};'),
+		...['file.js', 'file.mjs', 'file.cjs'].map(filename => typeAware('const getName = "name";', filename)),
+		typeAware('const getName = "name"; const element = <div>{getName}</div>;', 'file.jsx'),
+		typeAware('/** @type {object} */ const getName = () => "name";', 'file.js'),
+		typeAware('/** @param {string} getName */ function run(getName) {}', 'file.js'),
+		typeAware('class Person { getName = "name"; }', 'file.js'),
+		typeAware('const {name: getName} = {name: "name"};', 'file.js'),
+		typeAware('const {setTitle = (() => {const getCount = 1; return true;})()} = {};', 'file.js'),
 	],
 });

@@ -1,7 +1,6 @@
 import {isRegExp} from 'node:util/types';
 import {
 	isNullishType,
-	isTypeScriptFile,
 	matchesAnyRegExp,
 	isUnknownType,
 	getTypeSymbol,
@@ -231,10 +230,7 @@ const isTypeOnlyClassField = node =>
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	if (
-		!isTypeScriptFile(context.physicalFilename)
-		|| !context.sourceCode.parserServices?.program
-	) {
+	if (!context.sourceCode.parserServices?.program) {
 		return;
 	}
 
