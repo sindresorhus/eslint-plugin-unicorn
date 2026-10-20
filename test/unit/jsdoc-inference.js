@@ -699,3 +699,10 @@ test('asserted callable initializers do not use conflicting JSDoc return evidenc
 		t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[]], initializer);
 	}
 });
+
+test('contextual callback parameter names preserve outer and return types independently', t => {
+	const code = '/** @param {(is: string) => string} read\n * @param {Array<{test(infer: string): boolean}>} list */ function run(read, list) { inspect(read); inspect(read("text")); inspect(list); }';
+	for (const typescript of [false, true]) {
+		t.assert.deepStrictEqual(getInferences(code, {typescript}), [[], ['string'], ['array', 'indexed']]);
+	}
+});

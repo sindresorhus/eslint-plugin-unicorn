@@ -651,3 +651,25 @@ test('constructor parameter property documentation stays exact and ambiguous dup
 		t.assert.deepStrictEqual(getParameterRanges(code, true), [undefined], tags);
 	}
 });
+
+test('async and generator functions retain parameter documentation independently of callable return inference', t => {
+	for (const code of [
+		'/** @param {boolean} flag */ async function run(flag) { inspect(flag); }',
+		'/** @param {boolean} flag */ async function* run(flag) { inspect(flag); }',
+		'const task = { /** @param {boolean} flag */ async [key](flag) { inspect(flag); } };',
+		'class Task { /** @param {boolean} flag */ static async run(flag) { inspect(flag); } }',
+		'class Task { /** @param {boolean} flag */ *#run(flag) { inspect(flag); } }',
+		'class Task { /** @param {boolean} flag */ run = async flag => { inspect(flag); }; }',
+	]) {
+		t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'name', name: 'boolean'}, optional: false, name: 'flag'}], code);
+		const start = code.indexOf('flag');
+		t.assert.deepStrictEqual(getParameterRanges(code), [[start, start + 4]], code);
+	}
+});
+
+test('multiline parameter tags preserve exact names across separated type and default tokens', t => {
+	const code = '/**\r\n * @param\r\n * {boolean}\r\n * [flag\r\n * = false]\r\n * Keep flag in this description.\r\n */\r\nfunction run(flag = source) { inspect(flag); }';
+	const start = code.indexOf('flag');
+	t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'name', name: 'boolean'}, optional: true, name: 'flag'}]);
+	t.assert.deepStrictEqual(getParameterRanges(code), [[start, start + 4]]);
+});

@@ -2,7 +2,8 @@
 const tokenPattern = /\s+|=>|\.\.\.|[\p{ID_Start}$_][\p{ID_Continue}$\u{200C}\u{200D}]*|(?:0[Xx][\dA-Fa-f](?:_?[\dA-Fa-f])*|0[Bb][01](?:_?[01])*|0[Oo][0-7](?:_?[0-7])*|(?:0|[1-9](?:_?\d)*)(?:\.(?:\d(?:_?\d)*)?)?(?:[Ee][+\-]?\d(?:_?\d)*)?|\.\d(?:_?\d)*(?:[Ee][+\-]?\d(?:_?\d)*)?)n?|"(?:\\[^\n\r]|[^\n\r"\\])*"|'(?:\\[^\n\r]|[^\n\r'\\])*'|./gsv;
 const identifierPattern = /^[\p{ID_Start}$_][\p{ID_Continue}$\u{200C}\u{200D}]*$/v;
 const aliases = new Map([['Boolean', 'boolean'], ['String', 'string'], ['Number', 'number']]);
-const unsupportedNames = new Set(['import', 'keyof', 'typeof', 'infer', 'extends', 'new', 'asserts', 'is']);
+const reservedNames = new Set(['import', 'typeof', 'extends', 'new']);
+const unsupportedNames = new Set([...reservedNames, 'keyof', 'infer', 'asserts', 'is']);
 const unknownNames = new Set(['any', 'unknown', 'never']);
 const primitiveNames = new Set(['boolean', 'string', 'number', 'bigint', 'symbol', 'void', 'null', 'undefined', 'true', 'false', ...aliases.keys(), ...unknownNames]);
 const closingTokens = new Map([['(', ')'], ['[', ']'], ['{', '}'], ['<', '>']]);
@@ -171,7 +172,7 @@ function parseJSDocumentType(text) {
 
 	function parseArrowParameter() {
 		consume('...');
-		if (!identifierPattern.test(tokens[index] ?? '') || unsupportedNames.has(tokens[index])) {
+		if (!identifierPattern.test(tokens[index] ?? '') || reservedNames.has(tokens[index])) {
 			throw new SyntaxError('Unsupported JSDoc parameter');
 		}
 

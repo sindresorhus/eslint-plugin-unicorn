@@ -4298,3 +4298,25 @@ test({
 	],
 	invalid: [],
 });
+
+// Contextual type keywords can be ordinary callback parameter names.
+for (const wrap of [testCase => testCase, typescript]) {
+	test({
+		valid: [
+			wrap('/** @type {(is: string) => boolean | undefined} */ let ready;'),
+			wrap('/** @type {(is: keyof Options) => boolean} */ let ready;'),
+		],
+		invalid: [wrap({
+			code: '/** @param {(is: string) => boolean} ready */ function run(ready) { consume(ready("value")); }',
+			options: [onlyIsPrefixOptions],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isReady'},
+					output: '/** @param {(is: string) => boolean} isReady */ function run(isReady) { consume(isReady("value")); }',
+				}],
+			}],
+		})],
+	});
+}
