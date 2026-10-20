@@ -392,6 +392,56 @@ test('native mixed receiver types retain uncertainty over conflicting documentat
 	}
 });
 
+test('native receiver assertions override conflicting documented method types', t => {
+	const code = [
+		'/** @param {string} text\n * @param {Array<string>} values */',
+		'function run(text, values) {',
+		' inspect((text as {includes(): string}).includes());',
+		' inspect((<{some(): string}>values).some());',
+		'}',
+	].join('\n');
+	for (const typeAware of [false, true]) {
+		t.assert.deepStrictEqual(getResults(code, {typeAware}), [false, false]);
+	}
+});
+
+test('native receiver assertions provide their own string and collection types', t => {
+	const code = 'inspect((source as string).includes("x")); inspect((source as Uint8Array).some(predicate)); inspect((<string>source).startsWith("x"));';
+	for (const typeAware of [false, true]) {
+		t.assert.deepStrictEqual(getResults(code, {typeAware}), [true, true, true]);
+	}
+});
+
+test('native receiver assertions supply certainty over unknown documentation', t => {
+	const code = '/** @param {unknown} value */ function run(value) { inspect((value as string).includes("x")); inspect((value as string[]).some(predicate)); }';
+	t.assert.deepStrictEqual(getResults(code), [true, true]);
+});
+
+test('receiver assertion inference retains syntax-only nullish and union uncertainty', t => {
+	const code = 'inspect((source as string | null).includes("x")); inspect((source as Uint8Array | {some(): string}).some());';
+	t.assert.deepStrictEqual(getResults(code), [false, false]);
+});
+
+test('mixed receiver assertions cannot recover certainty from their documented binding', t => {
+	const code = [
+		'/** @param {string} text\n * @param {Uint8Array} values */',
+		'function run(text, values) {',
+		' inspect((text as string | {includes(): string}).includes());',
+		' inspect((<Uint8Array | {some(): string}>values).some());',
+		'}',
+	].join('\n');
+	for (const typeAware of [false, true]) {
+		t.assert.deepStrictEqual(getResults(code, {typeAware}), [false, false]);
+	}
+});
+
+test('asserted receiver types also govern boolean property reads', t => {
+	const code = '/** @param {RegExp} pattern */ function run(pattern) { inspect((pattern as {global: string}).global); inspect((source as RegExp).global); }';
+	for (const typeAware of [false, true]) {
+		t.assert.deepStrictEqual(getResults(code, {typeAware}), [false, true]);
+	}
+});
+
 test('native typed array receivers supply boolean results with and without type information', t => {
 	for (const typeAware of [false, true]) {
 		for (const type of ['Uint8Array', 'BigInt64Array', 'Array<number> | Uint8Array']) {

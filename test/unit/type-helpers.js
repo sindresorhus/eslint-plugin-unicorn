@@ -93,6 +93,20 @@ test('native TypeScript annotations take precedence over JSDoc', t => {
 	t.assert.deepStrictEqual(getTypes('/** @returns {Foo} */ function create(): string { return source; } check(create());', {}), [nonTarget]);
 });
 
+test('mixed native assertions cannot fall back to a more specific binding annotation', t => {
+	for (const declaration of ['/** @param {Foo} value */ function run(value)', 'function run(value: Foo)']) {
+		const code = `${declaration} { check(value as Foo | string); check(<Foo | null>value); }`;
+		t.assert.deepStrictEqual(getTypes(code, {}), [unknown, unknown], declaration);
+	}
+});
+
+test('explicit unknown and any assertions retain existing binding evidence', t => {
+	for (const declaration of ['/** @param {Foo} value */ function run(value)', 'function run(value: Foo)']) {
+		const code = `${declaration} { check(value as unknown); check(<any>value); }`;
+		t.assert.deepStrictEqual(getTypes(code, {}), [target, target], declaration);
+	}
+});
+
 test('an intersection without a target or unknown member is not a target', t => {
 	t.assert.deepStrictEqual(getTypes('function f(a: string & null) { check(a); }', {}), [nonTarget]);
 });

@@ -539,7 +539,9 @@ function getKnownExpressionKind(node, context, visitedVariables = new Set()) {
 
 		case 'CallExpression':
 		case 'ConditionalExpression':
-		case 'SequenceExpression': {
+		case 'SequenceExpression':
+		case 'TSAsExpression':
+		case 'TSTypeAssertion': {
 			return getTypeCheckedExpressionKind(node, context);
 		}
 
@@ -547,8 +549,6 @@ function getKnownExpressionKind(node, context, visitedVariables = new Set()) {
 		/* node:coverage ignore next */
 		case 'ParenthesizedExpression':
 		case 'TSNonNullExpression':
-		case 'TSAsExpression':
-		case 'TSTypeAssertion':
 		case 'TSSatisfiesExpression': {
 			return getKnownExpressionKind(node.expression, context, visitedVariables);
 		}

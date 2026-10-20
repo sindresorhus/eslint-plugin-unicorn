@@ -56,6 +56,18 @@ const onlyIsPrefixOptions = {
 	},
 };
 
+for (const wrap of [typescript, typeAware]) {
+	test({
+		valid: [wrap('/** @param {string} text */ function run(text) { const ready = (text as {includes(): string}).includes(); consume(ready); }')],
+		invalid: [wrap({
+			code: 'function run() { const ready = (source as string).includes("x"); consume(ready); }',
+			output: 'function run() { const isReady = (source as string).includes("x"); consume(isReady); }',
+			options: [onlyIsPrefixOptions],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 1}],
+		})],
+	});
+}
+
 for (const wrap of [testCase => testCase, typescript, typeAware]) {
 	test({
 		valid: [],

@@ -837,7 +837,7 @@ const getTypeFromExpression = (node, context, options, visitedVariables) => {
 		case 'TSTypeAssertion': {
 			const typeFromAnnotation = getTypeAnnotationType(node.typeAnnotation, scope, options);
 
-			return typeFromAnnotation === unknown
+			return typeFromAnnotation === unknown && ['TSAnyKeyword', 'TSUnknownKeyword'].includes(node.typeAnnotation.type)
 				? getType(node.expression, context, options, visitedVariables)
 				: typeFromAnnotation;
 		}

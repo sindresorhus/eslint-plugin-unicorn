@@ -219,6 +219,25 @@ const typeAware = code => ({
 	},
 });
 
+for (const wrap of [code => ({code, languageOptions: {parser: parsers.typescript}}), typeAware]) {
+	test({
+		valid: [
+			'/** @param {string} text */ function run(text) { return (text as {includes(): string}).includes() === true; }',
+			'/** @param {Array<string>} values */ function run(values) { return (<{some(): string}>values).some() === false; }',
+			'/** @param {string} text */ function run(text) { return (text as string | {includes(): string}).includes() === true; }',
+			'/** @param {Uint8Array} values */ function run(values) { return (<Uint8Array | {some(): string}>values).some() === false; }',
+		].map(code => wrap(code)),
+		invalid: [
+			['(source as string).includes("x") === true;', '(source as string).includes("x");'],
+			['(<Uint8Array>source).some(predicate) === false;', '!(<Uint8Array>source).some(predicate);'],
+		].map(([code, output]) => ({
+			...wrap(code),
+			output,
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		})),
+	});
+}
+
 test({
 	valid: [
 		typeAware('/** @type {string} */ const value = true; value === true;'),
