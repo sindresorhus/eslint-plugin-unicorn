@@ -321,9 +321,21 @@ for (const [type, expression, expected] of [
 }
 
 test('documented typed arrays supply boolean iteration and membership results', t => {
-	for (const type of ['Uint8Array', 'BigInt64Array', 'Array<number> | Uint8Array']) {
+	for (const type of ['Uint8Array', 'BigInt64Array', 'Array<number> | Uint8Array', 'Uint8Array | BigInt64Array']) {
 		const code = `/** @param {${type}} values */ function run(values) { inspect(values.every(predicate)); inspect(values.includes(value)); inspect(values.some(predicate)); }`;
 		t.assert.deepStrictEqual(getResults(code), [true, true, true], type);
+	}
+});
+
+test('documented callable objects supply typed array union receiver methods', t => {
+	const code = '/** @param {{(): Uint8Array | BigInt64Array}} read */ function run(read) { inspect(read().some(predicate)); }';
+	t.assert.deepStrictEqual(getResults(code), [true]);
+});
+
+test('native mixed receiver types retain uncertainty over conflicting documentation', t => {
+	const code = '/** @param {Array<string>} values */ function run(values: Uint8Array | {some(predicate): string}) { inspect(values.some(predicate)); }';
+	for (const typeAware of [false, true]) {
+		t.assert.deepStrictEqual(getResults(code, {typeAware}), [false]);
 	}
 });
 

@@ -15,6 +15,16 @@ test({
 	],
 	invalid: [
 		{
+			code: '/** @param {Uint8Array} values */ function run(values) { return values["every"](predicate) === true; }',
+			output: '/** @param {Uint8Array} values */ function run(values) { return values["every"](predicate); }',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+		{
+			code: '/** @param {BigInt64Array} values */ function run(values) { return values["includes"](value) === false; }',
+			output: '/** @param {BigInt64Array} values */ function run(values) { return !values["includes"](value); }',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+		{
 			code: '/** @param {Uint8Array} values */ function run(values) { return values.includes(value) === false; }',
 			output: '/** @param {Uint8Array} values */ function run(values) { return !values.includes(value); }',
 			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
