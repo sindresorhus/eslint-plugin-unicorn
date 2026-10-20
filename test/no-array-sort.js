@@ -6,6 +6,7 @@ const FORBID_EXPRESSION_OPTIONS = [{allowExpressionStatement: false}];
 
 test.snapshot({
 	valid: [
+		'/** @param {Set<number>} collection */ function run(collection) { return collection.sort(); }',
 		// Known non-array receiver (type information)
 		{
 			code: 'function f(foo: Set<number>) { foo.sort(); }',
@@ -74,5 +75,6 @@ test.snapshot({
 		'sorted = [...foo(/* keep */)].sort()',
 		// A receiver that is not an array literal has no `elements` to inspect
 		'const x = a\n\t// keep\n\t.slice()\n\t.sort();',
+		'/** @param {number[]} array */ function run(array) { return array.sort(); }',
 	],
 });

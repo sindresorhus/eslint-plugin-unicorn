@@ -12,6 +12,9 @@ import {
 	withTypeInformation,
 } from './types.js';
 import {getStaticValueForControlFlow} from './get-static-value.js';
+import {getJSDocTypeAnnotation, getJSDocReturnType} from './jsdoc-type.js';
+import {getEvaluatedChildNodes} from './get-visitor-child-nodes.js';
+import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
 
 const target = 'target';
 const nonTarget = 'non-target';
@@ -139,6 +142,94 @@ const getKnownTypeReferenceType = (typeReferenceName, options) => {
 	}
 
 	return options.nonTargetTypeNames?.has(typeReferenceName) ? nonTarget : unknown;
+};
+
+const jsdocPrimitiveNames = new Set(['boolean', 'string', 'number', 'bigint', 'symbol', 'void']);
+
+/**
+Prevent static type inference from bypassing an explicit annotation through an alias or a larger expression.
+*/
+function hasJSDocTypeReference(node, context, visitedVariables = new Set()) {
+	node = unwrapTypeScriptExpression(node);
+	if (node.type === 'Identifier') {
+		if (getJSDocTypeAnnotation(node, context)) {
+			return true;
+		}
+
+		const variable = findVariable(context.sourceCode.getScope(node), node);
+		const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+		if (
+			definition?.type !== 'Variable'
+			|| definition.node.id !== definition.name
+			|| !definition.node.init
+			|| visitedVariables.has(variable)
+		) {
+			return false;
+		}
+
+		visitedVariables.add(variable);
+		return hasJSDocTypeReference(definition.node.init, context, visitedVariables);
+	}
+
+	if (isFunction(node) || classNodeTypes.has(node.type)) {
+		return false;
+	}
+
+	return getEvaluatedChildNodes(node, context.sourceCode.visitorKeys).some(child => hasJSDocTypeReference(child, context, visitedVariables));
+}
+
+/**
+Get a JSDoc type's outer name.
+*/
+const getJSDocTypeName = node => node?.kind === 'name' ? node.name : undefined;
+
+function getJSDocTypeNodeType(node, options) {
+	switch (node?.kind) {
+		case 'nullable':
+		case 'optional': {
+			return combineUnionTypes([getJSDocTypeNodeType(node.element, options), nullish], options);
+		}
+
+		case 'union': {
+			return combineUnionTypes(node.elements.map(type => getJSDocTypeNodeType(type, options)), options);
+		}
+
+		case 'intersection': {
+			return combineIntersectionTypes(node.elements.map(type => getJSDocTypeNodeType(type, options)));
+		}
+
+		case 'nullish': {
+			return nullish;
+		}
+
+		default: {
+			if (options.isTargetJSDocType?.(node)) {
+				return target;
+			}
+
+			const name = getJSDocTypeName(node);
+			if (name) {
+				const knownType = getKnownTypeReferenceType(name, options);
+				if (knownType !== unknown) {
+					return knownType;
+				}
+
+				if (jsdocPrimitiveNames.has(name)) {
+					return nonTarget;
+				}
+			}
+
+			return node?.kind === 'non-primitive' || node?.kind === 'function' ? nonTarget : unknown;
+		}
+	}
+}
+
+/**
+Classify a parsed JSDoc annotation using the same target and union policies as native type annotations.
+*/
+const getJSDocType = (annotation, options) => {
+	const type = getJSDocTypeNodeType(annotation?.type, options);
+	return annotation?.optional ? combineUnionTypes([type, nullish], options) : type;
 };
 
 const isAnyTargetImportName = (importedName, targetTypeImports) => {
@@ -421,7 +512,8 @@ const getTypeFromStaticValue = (node, context, options) => {
 		return unknown;
 	}
 
-	return options.getStaticType?.(result.value, node) ?? unknown;
+	const type = options.getStaticType?.(result.value, node) ?? unknown;
+	return type !== unknown && hasJSDocTypeReference(node, context) ? unknown : type;
 };
 
 const getTypeFromVariable = (node, context, options, visitedVariables) => {
@@ -439,14 +531,19 @@ const getTypeFromVariable = (node, context, options, visitedVariables) => {
 
 	const [definition] = variable.defs;
 	const definitionScope = context.sourceCode.getScope(definition.name);
+	const jsdocAnnotation = getJSDocTypeAnnotation(definition.name, context);
 	let typeFromAnnotation = getTypeAnnotationType(definition.name?.typeAnnotation, definitionScope, options);
+	if (jsdocAnnotation) {
+		typeFromAnnotation = getJSDocType(jsdocAnnotation, options);
+	}
+
 	if (definition.name?.optional) {
 		typeFromAnnotation = combineUnionTypes([typeFromAnnotation, nullish], options);
 	}
 
 	let type = unknown;
 
-	if (typeFromAnnotation !== unknown) {
+	if (typeFromAnnotation !== unknown || jsdocAnnotation) {
 		type = typeFromAnnotation;
 	} else if (
 		definition.type === 'Variable'
@@ -477,12 +574,16 @@ const getTypeFromFunctionCall = (node, context, options) => {
 	}
 
 	const [definition] = variable.defs;
+	const value = definition.type === 'FunctionName' ? definition.node : unwrapTypeScriptExpression(definition.node.init);
+	if (value?.async || value?.generator) {
+		return unknown;
+	}
+
 	let functionNode;
 	if (definition.type === 'FunctionName') {
 		functionNode = definition.node;
 	} else if (
 		definition.type === 'Variable'
-		&& definition.parent.kind === 'const'
 		&& definition.node.id === definition.name
 	) {
 		let initializer = definition.node.init;
@@ -498,9 +599,22 @@ const getTypeFromFunctionCall = (node, context, options) => {
 		}
 	}
 
-	return functionNode?.returnType && !functionNode.typeParameters
-		? getTypeAnnotationType(functionNode.returnType, context.sourceCode.getScope(functionNode).upper, options)
-		: unknown;
+	if (functionNode?.typeParameters) {
+		return unknown;
+	}
+
+	if (functionNode?.returnType) {
+		return getTypeAnnotationType(functionNode.returnType, context.sourceCode.getScope(functionNode).upper, options);
+	}
+
+	const annotation = getJSDocTypeAnnotation(definition.name, context);
+	if (annotation) {
+		return !annotation.optional && annotation.type.kind === 'function'
+			? getJSDocType({type: annotation.type.returnType}, options)
+			: unknown;
+	}
+
+	return getJSDocType(getJSDocReturnType(functionNode, context), options);
 };
 
 const getClassType = (node, scope, options, visitedTypeReferenceDefinitions) => {
@@ -717,6 +831,12 @@ function getType(node, context, options, visitedVariables = new Set()) {
 		if (typeFromOwnAnnotation !== unknown) {
 			return typeFromOwnAnnotation;
 		}
+	} else {
+		const annotation = getJSDocTypeAnnotation(node, context);
+		if (annotation) {
+			const type = getJSDocType(annotation, options);
+			return type === unknown ? getTypeFromTypeInformation(node, context, options) : type;
+		}
 	}
 
 	const typeFromExpression = getTypeFromExpression(node, context, options, visitedVariables);
@@ -783,6 +903,9 @@ export {
 	createTypeCheckers,
 	getTypeName,
 	getTypeReferenceDefinition,
+	getJSDocType,
+	getJSDocTypeName,
+	hasJSDocTypeReference,
 	nonTarget,
 	nullish,
 	target,

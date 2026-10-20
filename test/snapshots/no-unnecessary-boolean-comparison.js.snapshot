@@ -509,6 +509,57 @@ Output:
 
 `;
 
+exports[`no-unnecessary-boolean-comparison > invalid(35): /** @param {boolean} value */ function run(value) { return value === true; } 1`] = `
+
+  1 | /** @param {boolean} value */ function run(value) { return value === true; }
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(35): /** @param {boolean} value */ function run(value) { return value === true; } 2`] = `
+
+Message:
+> 1 | /** @param {boolean} value */ function run(value) { return value === true; }
+    |                                                            ^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | /** @param {boolean} value */ function run(value) { return value; }
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(36): /** @type {boolean} */ let value; value === true; 1`] = `
+
+  1 | /** @type {boolean} */ let value; value === true;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(36): /** @type {boolean} */ let value; value === true; 2`] = `
+
+Message:
+> 1 | /** @type {boolean} */ let value; value === true;
+    |                                   ^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | /** @type {boolean} */ let value; value;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(37): /** @returns {boolean} */ function predicate() { return value; } predicate() === true; 1`] = `
+
+  1 | /** @returns {boolean} */ function predicate() { return value; } predicate() === true;
+
+`;
+
+exports[`no-unnecessary-boolean-comparison > invalid(37): /** @returns {boolean} */ function predicate() { return value; } predicate() === true; 2`] = `
+
+Message:
+> 1 | /** @returns {boolean} */ function predicate() { return value; } predicate() === true;
+    |                                                                  ^^^^^^^^^^^^^^^^^^^^ Do not compare a boolean expression against a boolean literal.
+
+Output:
+  1 | /** @returns {boolean} */ function predicate() { return value; } predicate();
+
+`;
+
 exports[`no-unnecessary-boolean-comparison > invalid(4): const result = (a > b) !== true; 1`] = `
 
   1 | const result = (a > b) !== true;

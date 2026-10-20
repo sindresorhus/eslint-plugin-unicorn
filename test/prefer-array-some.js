@@ -86,11 +86,6 @@ test({
 			code: 'function hasMatch(values: unknown) { if (!Array.isArray(values)) { return false; } const found = values.find(value => value > 2); return !!found; }',
 			languageOptions: {parser: parsers.typescript},
 		},
-		{
-			code: '/** @param {readonly number[]} values */ function hasMatch(values) { const found = values.find(value => value > 2); return !!found; }',
-			filename: 'file.js',
-			languageOptions: {parser: parsers.typescript},
-		},
 		...[
 			'function hasMatch(values: Uint8Array | {find(predicate: Function): unknown}) { const found = values.find(predicate); return !!found; }',
 			'function hasMatch(values: Uint8Array) { const found: number | undefined = values.find(predicate); return Boolean(found); }',
@@ -164,6 +159,13 @@ test({
 		invalidCase({
 			...typeAware('/** @param {readonly number[]} values */ function hasMatch(values) { const found = values.find(value => value > 2); return !!found; }', 'file.js'),
 			suggestionOutput: '/** @param {readonly number[]} values */ function hasMatch(values) { const found = values.some(value => value > 2); return !!found; }',
+			method: 'find',
+		}),
+		invalidCase({
+			code: '/** @param {readonly number[]} values */ function hasMatch(values) { const found = values.find(value => value > 2); return !!found; }',
+			suggestionOutput: '/** @param {readonly number[]} values */ function hasMatch(values) { const found = values.some(value => value > 2); return !!found; }',
+			filename: 'file.js',
+			languageOptions: {parser: parsers.typescript},
 			method: 'find',
 		}),
 	],

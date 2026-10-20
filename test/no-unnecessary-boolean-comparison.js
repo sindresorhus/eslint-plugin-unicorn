@@ -7,6 +7,18 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+test({
+	valid: [
+		'class Foo {} /** @type {function(new: Foo): boolean} */ const predicate = function () { return "no"; }; predicate() === true;',
+		'class Foo {} /** @param {function(new: Foo): boolean} predicate */ function run(predicate) { return predicate() === true; }',
+	],
+	invalid: [{
+		code: '/** @type {function(): true | false} */ let predicate; predicate() === true;',
+		output: '/** @type {function(): true | false} */ let predicate; predicate();',
+		errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+	}],
+});
+
 nodeTest('boolean comparison fixes under delete preserve the property reference boundary', t => {
 	const linter = new Linter();
 	const config = {
@@ -69,6 +81,9 @@ const typeAware = code => ({
 
 test.snapshot({
 	valid: [
+		'/** @param {boolean} [value] */ function run(value) { return value === true; }',
+		'/** @param {?boolean} value */ function run(value) { return value === true; }',
+		'/** @type {unknown} */ const value = true; value === true;',
 		// Unknown value. `value === true` is not equivalent to `value` or `Boolean(value)`.
 		'value === true',
 		'value !== true',
@@ -187,5 +202,50 @@ test.snapshot({
 		},
 		// Nested functions are not searched for `yield` expressions.
 		'function * foo() {\n\tconst result = [a, b].some(item => item > c) === false;\n}',
+		'/** @param {boolean} value */ function run(value) { return value === true; }',
+		'/** @type {boolean} */ let value; value === true;',
+		'/** @returns {boolean} */ function predicate() { return value; } predicate() === true;',
 	],
+});
+
+test({
+	valid: [
+		'/** @param {boolean} [value] */ function run(/** @type {boolean} */ value) { return value === true; }',
+		'/** @param {boolean=} value */ function run(/** @type {boolean} */ value) { return value !== false; }',
+		'/** @param {boolean} [value=false] */ function run(/** @type {boolean} */ value = false) { return value === false; }',
+		'/** @param {?string} value */ function run(value) { return value.includes("a") === true; }',
+		'/** @type {unknown} */ const value = []; value.includes(1) === true;',
+	],
+	invalid: [{
+		code: '/** @param {string} value */ function run(value) { return value.startsWith("a") === true; }',
+		output: '/** @param {string} value */ function run(value) { return value.startsWith("a"); }',
+		errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+	}],
+});
+
+test({
+	valid: [
+		'/** @type {() => boolean} */ const predicate = async () => true; predicate() === true;',
+		'/** @type {() => boolean} */ const predicate = function* () { return true; }; predicate() === true;',
+		{
+			code: '/** @returns {boolean} */ const predicate: () => string = () => source; predicate() === true;',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [],
+});
+
+test({
+	valid: [
+		'/** @type {unknown} */ const value = true; const alias = value; alias === true;',
+		{
+			code: '/** @type {unknown} */ const value = true; value! === true;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '/** @type {() => boolean} */ const predicate = (): string => "text"; predicate() === true;',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [],
 });

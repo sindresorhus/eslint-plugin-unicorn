@@ -8,6 +8,17 @@ import {getTester, parsers} from './utils/test.js';
 const {test, rule} = getTester(import.meta);
 
 test({
+	valid: [
+		'/** @param {number[]} value */ function run(value) { return value.indexOf("a") === 0; }',
+	],
+	invalid: [{
+		code: '/** @param {string} value */ function run(value) { return value.indexOf("a") === 0; }',
+		output: '/** @param {string} value */ function run(value) { return value.startsWith("a"); }',
+		errors: [{messageId: 'prefer-starts-with-indexOf'}],
+	}],
+});
+
+test({
 	valid: [],
 	invalid: [
 		['/^a/.test({value: "abc"}.value);', '({value: "abc"}.value).startsWith(\'a\');'],
@@ -954,4 +965,27 @@ test({
 		['const value = ({value: "abc"}.value.indexOf("a")) === 0;', 'const value = {value: "abc"}.value.startsWith("a");'],
 		['({value: "abc"}.value.indexOf("a")) !== 0;', '!{value: "abc"}.value.startsWith("a");'],
 	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [
+		'/** @param {() => ?string} read */ function run(read) { return read().indexOf("a") === 0; }',
+		'/** @returns {string} */ async function read() { return source; } read().indexOf("a") === 0;',
+	],
+	invalid: [{
+		code: '/** @param {() => string} read */ function run(read) { return read().indexOf("a") === 0; }',
+		output: '/** @param {() => string} read */ function run(read) { return read().startsWith("a"); }',
+		errors: [{messageId: 'prefer-starts-with-indexOf'}],
+	}],
+});
+
+test({
+	valid: [
+		'/** @type {unknown} */ const value = "text"; const alias = value; alias.indexOf("t") === 0;',
+		{
+			code: '/** @type {unknown} */ const value = "text"; (value as unknown).indexOf("t") === 0;',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [],
 });

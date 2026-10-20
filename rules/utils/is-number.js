@@ -1,7 +1,7 @@
 import {isNumericLiteral} from '../ast/index.js';
 import isString from './is-string.js';
 import {isFunctionCall, isStaticProperties, hasTypeAnnotation} from './type-check.js';
-import {createTypeCheckers} from './type-helpers.js';
+import {createTypeCheckers, hasJSDocTypeReference} from './type-helpers.js';
 import {getStaticValueForControlFlow} from './get-static-value.js';
 import getConstVariableInitializer from './get-const-variable-initializer.js';
 import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
@@ -109,9 +109,6 @@ const isNumberMethodCall = node =>
 	&& !node.optional
 	&& isStaticProperties(node.callee, 'Number', numberMethods);
 const isGlobalParseToNumberFunctionCall = node => isFunctionCall(node, 'parseInt') || isFunctionCall(node, 'parseFloat');
-
-const isStaticNumber = (node, context) =>
-	typeof getStaticValueForControlFlow(node, context)?.value === 'number';
 
 // Only the bare `number` keyword and numeric literal types (`5`), never the boxed `Number` object (which doesn't coerce the same way), unions, or generics, so accuracy stays high
 const isNumberTypeAnnotation = node =>
@@ -274,12 +271,14 @@ export default function isNumber(node, context) {
 		// No default
 	}
 
-	return isStaticNumber(node, context);
+	return hasJSDocTypeReference(node, context)
+		? isNumberTarget(node, context)
+		: typeof getStaticValueForControlFlow(node, context)?.value === 'number';
 }
 
 // Complements the AST-based `isNumber` above by using type information when available: resolves type annotations (`: number`), `as`/`satisfies` casts, and inferred element types (e.g. `number[]`) via the TypeScript type checker.
-const {isKnownNonTarget: isKnownNonNumber} = createTypeCheckers({
-	targetTypeNames: new Set(),
+const {isTarget: isNumberTarget, isKnownNonTarget: isKnownNonNumber} = createTypeCheckers({
+	targetTypeNames: new Set(['number']),
 	targetCallNames: ['Number'],
 	isTargetTypeAnnotation: isNumberTypeAnnotation,
 	isTargetType: type => type.isNumberLiteral?.() || type.intrinsicName === 'number',

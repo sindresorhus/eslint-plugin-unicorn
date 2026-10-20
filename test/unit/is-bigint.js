@@ -55,6 +55,16 @@ test('a bigint literal type annotation', t => {
 	t.assert.deepStrictEqual(getVerdicts('declare const foo: 1; check(foo);'), [false]);
 });
 
+test('uses JSDoc bigint annotations and preserves unknown types', t => {
+	for (const type of ['bigint', '1n', 'bigint | 1n']) {
+		t.assert.deepStrictEqual(getVerdicts(`/** @param {${type}} value */ function run(value) { check(value); }`), [true], type);
+	}
+
+	t.assert.deepStrictEqual(getVerdicts('/** @returns {bigint} */ function create() { return source; } check(create());'), [true]);
+	t.assert.deepStrictEqual(getVerdicts('/** @type {unknown} */ const value = 1n; check(value);'), [false]);
+	t.assert.deepStrictEqual(getVerdicts('/** @param {bigint} [value] */ function run(value) { check(value); }'), [false]);
+});
+
 test('a bigint literal type from type information', t => {
 	t.assert.deepStrictEqual(getVerdicts('declare const object: {a: 1n; b: bigint; c: 1}; check(object.a); check(object.b); check(object.c);', {typeAware: true}), [true, true, false]);
 });

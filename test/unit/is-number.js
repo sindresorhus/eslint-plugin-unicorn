@@ -50,6 +50,16 @@ test('assignment expressions', t => {
 	t.assert.deepStrictEqual(getVerdicts('check(foo = bar);'), [false]);
 });
 
+test('uses JSDoc numeric annotations without promoting optional or unknown types', t => {
+	for (const type of ['number', 'Number', '5', 'number | 5']) {
+		t.assert.deepStrictEqual(getVerdicts(`/** @param {${type}} value */ function run(value) { check(value); }`), [true], type);
+	}
+
+	t.assert.deepStrictEqual(getVerdicts('/** @type {unknown} */ const value = 1; check(value);'), [false]);
+	t.assert.deepStrictEqual(getVerdicts('/** @param {number} [value] */ function run(value) { check(value); }'), [false]);
+	t.assert.deepStrictEqual(getVerdicts('/** @param {?number} value */ function run(value) { check(value); }'), [false]);
+});
+
 test('update expressions', t => {
 	t.assert.deepStrictEqual(getVerdicts('function f(foo: number) { check(foo++); }'), [true]);
 	t.assert.deepStrictEqual(getVerdicts('check(foo++);'), [false]);

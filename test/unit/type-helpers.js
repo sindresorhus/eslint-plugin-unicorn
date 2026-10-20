@@ -15,18 +15,20 @@ const linter = new Linter();
 /*
 Return the type of the first argument of each `check()` call in `code`, or of each node that `selector` matches.
 */
-const getTypes = (code, options, {selector, typeAware = false} = {}) => {
+const getTypes = (code, options, {selector, typeAware = false, javascript = false} = {}) => {
 	const {getType} = createTypeCheckers({targetTypeNames: new Set(['Foo']), ...options});
 	const types = [];
 
 	const messages = linter.verify(code, {
 		files: ['**'],
-		languageOptions: {
-			parser: typeAware ? typescriptEslintParser : parsers.typescript.implementation,
-			parserOptions: typeAware
-				? {projectService: {allowDefaultProject: ['*.ts']}}
-				: parsers.typescript.mergeParserOptions(),
-		},
+		languageOptions: javascript
+			? {}
+			: {
+				parser: typeAware ? typescriptEslintParser : parsers.typescript.implementation,
+				parserOptions: typeAware
+					? {projectService: {allowDefaultProject: ['*.ts']}}
+					: parsers.typescript.mergeParserOptions(),
+			},
 		plugins: {
 			test: {
 				rules: {
@@ -53,6 +55,42 @@ const getTypes = (code, options, {selector, typeAware = false} = {}) => {
 
 test('a union of only nullish members is not a target when nullish members are allowed', t => {
 	t.assert.deepStrictEqual(getTypes('function f(a: null | undefined) { check(a); }', {allowNullishInMixedUnion: true}), [nonTarget]);
+});
+
+test('uses JSDoc variable, parameter, and function return annotations', t => {
+	for (const code of [
+		'/** @type {Foo} */ let value; check(value);',
+		'/** @param {Foo} value */ function run(value) { check(value); }',
+		'/** @returns {Foo} */ function create() { return source; } check(create());',
+		'/** @returns {Foo} */ const create = () => source; check(create());',
+	]) {
+		t.assert.deepStrictEqual(getTypes(code, {}), [target], code);
+		t.assert.deepStrictEqual(getTypes(code, {}, {javascript: true}), [target], code);
+	}
+});
+
+test('JSDoc annotations preserve union, optionality, and unknown inference policies', t => {
+	for (const [type, expected] of [
+		['Foo', target],
+		['Foo<string>', target],
+		['string', nonTarget],
+		['Foo | string', unknown],
+		['?Foo', unknown],
+		['Foo=', unknown],
+		['Unresolved', unknown],
+	]) {
+		const code = `/** @param {${type}} value */ function run(value) { check(value); }`;
+		t.assert.deepStrictEqual(getTypes(code, {}), [expected], code);
+	}
+
+	t.assert.deepStrictEqual(getTypes('/** @param {Foo} [value] */ function run(value) { check(value); }', {}), [unknown]);
+	t.assert.deepStrictEqual(getTypes('/** @param {?Foo} value */ function run(value) { check(value); }', {allowNullishInMixedUnion: true}), [target]);
+	t.assert.deepStrictEqual(getTypes('/** @type {Unresolved} */ const value = new Foo(); check(value);', {targetConstructorNames: ['Foo']}), [unknown]);
+});
+
+test('native TypeScript annotations take precedence over JSDoc', t => {
+	t.assert.deepStrictEqual(getTypes('/** @type {Foo} */ let value: string; check(value);', {}), [nonTarget]);
+	t.assert.deepStrictEqual(getTypes('/** @returns {Foo} */ function create(): string { return source; } check(create());', {}), [nonTarget]);
 });
 
 test('an intersection without a target or unknown member is not a target', t => {
@@ -188,4 +226,19 @@ test('`getTypeReferenceDefinition` skips non-type definitions', t => {
 	t.assert.deepStrictEqual(getTypeReferenceDefinitions('const Foo = 1; let a: Foo;'), [undefined]);
 	t.assert.deepStrictEqual(getTypeReferenceDefinitions('let a: Foo;'), [undefined]);
 	t.assert.deepStrictEqual(getTypeReferenceDefinitions('class Foo {} function f(Foo) { let a: Foo; }'), [['ClassName', 'module']]);
+});
+
+test('documented callback return types reuse named checker classification policies', t => {
+	for (const [returnType, options, expected] of [
+		['Foo<string>', {}, target],
+		['string', {}, nonTarget],
+		['Foo | string', {}, unknown],
+		['Foo | string', {treatMixedUnionAsTarget: true}, target],
+		['Foo | null', {}, unknown],
+		['Foo | null', {allowNullishInMixedUnion: true}, target],
+		['Unresolved', {}, unknown],
+	]) {
+		const code = `/** @type {() => ${returnType}} */ let create; check(create());`;
+		t.assert.deepStrictEqual(getTypes(code, options, {javascript: true}), [expected], returnType);
+	}
 });

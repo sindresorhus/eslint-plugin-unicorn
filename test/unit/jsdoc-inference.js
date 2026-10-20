@@ -1,0 +1,434 @@
+import test from 'node:test';
+import {Linter} from 'eslint';
+import isBoolean from '../../rules/utils/is-boolean.js';
+import isString, {isKnownNonString} from '../../rules/utils/is-string.js';
+import isNumber, {isKnownNonNumber} from '../../rules/utils/is-number.js';
+import isBigInt, {isKnownNonBigInt} from '../../rules/utils/is-bigint.js';
+import isArray, {isIndexedCollection, isKnownNonArray, isKnownBigIntTypedArray} from '../../rules/utils/is-array.js';
+import {isSet} from '../../rules/utils/is-set.js';
+import {createTypeCheckers} from '../../rules/utils/type-helpers.js';
+import parsers from '../utils/parsers.js';
+
+const linter = new Linter();
+const predicates = {
+	boolean: isBoolean, string: isString, number: isNumber, bigint: isBigInt, array: isArray, indexed: isIndexedCollection, set: isSet, bigintArray: isKnownBigIntTypedArray,
+};
+
+/**
+Exercise the production inference entry points on every inspected expression.
+*/
+function getInferences(code, {typescript = false, checks = predicates} = {}) {
+	const results = [];
+	const messages = linter.verify(code, {
+		languageOptions: typescript
+			? {
+				parser: parsers.typescript.implementation,
+				parserOptions: parsers.typescript.mergeParserOptions(),
+			}
+			: {},
+		plugins: {
+			test: {
+				rules: {
+					inspect: {
+						create: context => ({
+							'CallExpression[callee.name="inspect"]'(node) {
+								results.push(Object.entries(checks).filter(([, predicate]) => predicate(node.arguments[0], context)).map(([name]) => name));
+							},
+						}),
+					},
+				},
+			},
+		},
+		rules: {'test/inspect': 'error'},
+	});
+	if (messages.length > 0) {
+		throw new Error(messages.map(message => message.message).join('\n'));
+	}
+
+	return results;
+}
+
+for (const [name, type, expected] of [
+	['primitive boolean', 'boolean', ['boolean']],
+	['boxed JSDoc boolean alias', 'Boolean', ['boolean']],
+	['true literal', 'true', ['boolean']],
+	['homogeneous boolean union', 'false | boolean | true', ['boolean']],
+	['primitive string', 'string', ['string']],
+	['boxed JSDoc string alias', 'String', ['string']],
+	['quoted string union', '"left" | \'right\'', ['string']],
+	['primitive number', 'number', ['number']],
+	['boxed JSDoc number alias', 'Number', ['number']],
+	['negative number literal', '-12.5', ['number']],
+	['homogeneous number union', '1 | 2 | number', ['number']],
+	['primitive bigint', 'bigint', ['bigint']],
+	['negative bigint literal', '-12n', ['bigint']],
+	['homogeneous bigint union', '0n | bigint', ['bigint']],
+	['nested generic array', 'Array<Map<string, Set<boolean>>>', ['array', 'indexed']],
+	['Closure generic outer array', 'Array.<Promise<boolean>>', ['array', 'indexed']],
+	['generic readonly array', 'ReadonlyArray<() => boolean>', ['array', 'indexed']],
+	['array of nullable booleans', '(boolean | null)[]', ['array', 'indexed']],
+	['array of optional functions', '(() => boolean)[]', ['array', 'indexed']],
+	['tuple with optional element', '[boolean, string?]', ['array', 'indexed']],
+	['named tuple', '[value: boolean, label?: string]', ['array', 'indexed']],
+	['generic trailing comma', 'Array<boolean,>', ['array', 'indexed']],
+	['readonly tuple', 'readonly [boolean, ...string[]]', ['array', 'indexed']],
+	['set generic outer type', 'Set<Array<boolean>>', ['set']],
+	['readonly set', 'ReadonlySet<string>', ['set']],
+	['numeric typed array', 'Uint16Array', ['indexed']],
+	['bigint typed array', 'BigUint64Array', ['indexed', 'bigintArray']],
+	['mixed bigint typed array guard', 'BigInt64Array | Uint8Array', ['indexed', 'bigintArray']],
+	['mixed primitive union', 'boolean | string', []],
+	['nullable shorthand', '?boolean', []],
+	['explicit nullish union', 'boolean | undefined', []],
+	['optional outer array', 'Array<boolean>=', []],
+	['boolean element is not the array type', 'boolean[]', ['array', 'indexed']],
+	['boolean generic argument is not the outer type', 'Promise<boolean>', []],
+	['callable return is not the binding type', '() => boolean', []],
+	['Closure callable return is not the binding type', 'function(string): boolean', []],
+	['record field is not the binding type', '{ready: boolean}', []],
+	['unresolved name', 'Ready', []],
+	['explicit any', 'any', []],
+	['explicit unknown', 'unknown', []],
+	['never', 'never', []],
+	['null', 'null', []],
+	['undefined', 'undefined', []],
+]) {
+	test(`shared inference classifies ${name}`, t => {
+		t.assert.deepStrictEqual(getInferences(`/** @param {${type}} value */ function run(value) { inspect(value); }`), [expected]);
+	});
+}
+
+for (const [name, type] of [
+	['trailing union separator', 'boolean |'],
+	['leading intersection separator', '& boolean'],
+	['unbalanced parenthesis', '(boolean'],
+	['extra token', 'boolean string'],
+	['empty generic', 'Array<>'],
+	['malformed generic argument', 'Array<boolean |>'],
+	['malformed tuple member', '[boolean |]'],
+	['malformed callable return', '() => boolean |'],
+	['conditional type', 'T extends boolean ? boolean : string'],
+	['indexed access type', 'Options["ready"]'],
+	['key query', 'keyof Options'],
+	['type query', 'typeof value'],
+	['import type', 'import("package").Boolean'],
+	// eslint-disable-next-line no-template-curly-in-string -- The annotation contains a template literal type.
+	['template literal type', '`ready-${string}`'],
+	['generic callable', '<T>() => boolean'],
+]) {
+	test(`present unknown ${name} suppresses boolean initializer inference`, t => {
+		t.assert.deepStrictEqual(getInferences(`/** @type {${type}} */ const value = true; inspect(value);`), [[]]);
+	});
+}
+
+for (const [name, code] of [
+	['string', '/** @type {string |} */ const value = "ready"; inspect(value);'],
+	['number', '/** @type {number |} */ const value = 1; inspect(value);'],
+	['bigint', '/** @type {bigint |} */ const value = 1n; inspect(value);'],
+	['array', '/** @type {Array<>} */ const value = []; inspect(value);'],
+	['set', '/** @type {Set<>} */ const value = new Set(); inspect(value);'],
+	['explicit unresolved type', '/** @type {Unresolved} */ const value = true; inspect(value);'],
+	['explicit mixed union', '/** @type {boolean | string} */ const value = true; inspect(value);'],
+]) {
+	test(`annotation uncertainty masks ${name} initializer certainty`, t => {
+		t.assert.deepStrictEqual(getInferences(code), [[]]);
+	});
+}
+
+test('missing type braces preserve existing initializer inference', t => {
+	t.assert.deepStrictEqual(getInferences('/** @type boolean */ const value = true; inspect(value);'), [['boolean']]);
+	t.assert.deepStrictEqual(getInferences('/** @type {boolean */ const value = "ready"; inspect(value);'), [['string']]);
+});
+
+test('different source files cannot reuse cached classification for the same identifier', t => {
+	for (const [type, expected] of [['boolean', ['boolean']], ['string', ['string']], ['number', ['number']], ['boolean', ['boolean']]]) {
+		t.assert.deepStrictEqual(getInferences(`/** @type {${type}} */ let value; inspect(value);`), [expected]);
+	}
+});
+
+test('same-named bindings stay scoped across parameters and blocks', t => {
+	const code = '/** @type {string} */ let value; inspect(value); { /** @type {number} */ let value; inspect(value); } /** @param {boolean} value */ function run(value) { inspect(value); } inspect(value);';
+	t.assert.deepStrictEqual(getInferences(code), [['string'], ['number'], ['boolean'], ['string']]);
+});
+
+test('exact parameter matching supports reordered aliases without affecting other parameters', t => {
+	const code = '/**\n * @argument {Array<boolean>} second\n * @arg {string} first\n */ function run(first, second, third) { inspect(first); inspect(second); inspect(third); }';
+	t.assert.deepStrictEqual(getInferences(code), [['string'], ['array', 'indexed'], []]);
+});
+
+test('optional parameter metadata is strict even when the JavaScript parameter has a default', t => {
+	t.assert.deepStrictEqual(getInferences('/** @param {boolean} [value=false] */ function run(value = true) { inspect(value); }'), [[]]);
+	t.assert.deepStrictEqual(getInferences('/** @param {boolean} value */ function run(value = true) { inspect(value); }'), [['boolean']]);
+	t.assert.deepStrictEqual(getInferences('/** @param {string=} value */ function run(value = "ready") { inspect(value); }'), [[]]);
+});
+
+test('documented return types classify call results without classifying the function itself', t => {
+	const code = '/** @returns {boolean} */ function ready() { return source; } /** @returns {string} */ const label = () => source; /** @returns {bigint} */ function count() { return source; } /** @returns {Set<boolean>} */ const values = () => source; inspect(ready); inspect(ready()); inspect(label); inspect(label()); inspect(count()); inspect(values());';
+	t.assert.deepStrictEqual(getInferences(code), [[], ['boolean'], [], ['string'], ['bigint'], ['set']]);
+});
+
+test('function type annotations classify boolean calls without mistaking the function for a boolean', t => {
+	const code = '/** @type {() => boolean} */ let ready; inspect(ready); inspect(ready()); /** @type {function(string): boolean} */ let test; inspect(test); inspect(test("input"));';
+	t.assert.deepStrictEqual(getInferences(code), [[], ['boolean'], [], ['boolean']]);
+});
+
+test('nullable or unknown documented returns cannot use a boolean function body as proof', t => {
+	for (const type of ['?boolean', 'boolean | null', 'boolean=', 'boolean |', 'Unresolved']) {
+		t.assert.deepStrictEqual(getInferences(`/** @returns {${type}} */ function ready() { return true; } inspect(ready());`), [[]], type);
+	}
+});
+
+test('async and generator return annotations do not classify their immediate results as boolean', t => {
+	t.assert.deepStrictEqual(getInferences('/** @returns {boolean} */ async function ready() { return true; } inspect(ready());'), [[]]);
+	t.assert.deepStrictEqual(getInferences('/** @returns {boolean} */ function* ready() { return true; } inspect(ready());'), [[]]);
+});
+
+test('syntax-only TypeScript can consume JSDoc without requiring the compiler', t => {
+	const code = '/** @param {Boolean} flag */ function run(flag) { inspect(flag); } /** @type {Array<string>} */ let values; inspect(values);';
+	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [['boolean'], ['array', 'indexed']]);
+});
+
+test('native TypeScript binding annotations override conflicting and malformed JSDoc', t => {
+	const code = '/** @type {boolean} */ let value: string; inspect(value); /** @param {Array<>} values */ function run(values: boolean[]) { inspect(values); } /** @param {boolean} flag */ function other(flag: Boolean) { inspect(flag); }';
+	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [['string'], ['array', 'indexed'], []]);
+});
+
+test('native TypeScript return annotations override conflicting JSDoc', t => {
+	const code = '/** @returns {string} */ function ready(): boolean { return source; } /** @returns {boolean} */ function label(): string { return source; } inspect(ready()); inspect(label());';
+	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [['boolean'], ['string']]);
+});
+
+test('JSDoc aliases do not change native TypeScript wrapper semantics', t => {
+	const code = '/** @param {String} documented */ function run(documented, native: String, numeric: Number, boolean: Boolean) { inspect(documented); inspect(native); inspect(numeric); inspect(boolean); }';
+	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [['string'], [], [], []]);
+});
+
+test('known non-target predicates distinguish primitives without guessing names or container semantics', t => {
+	const checks = {
+		nonString: isKnownNonString, nonNumber: isKnownNonNumber, nonBigint: isKnownNonBigInt, nonArray: isKnownNonArray,
+	};
+	const code = '/** @param {string} text\n * @param {number} count\n * @param {bigint} big\n * @param {boolean[]} flags\n * @param {Unresolved} unknown\n * @param {boolean |} invalid\n */ function run(text, count, big, flags, unknown, invalid) { inspect(text); inspect(count); inspect(big); inspect(flags); inspect(unknown); inspect(invalid); }';
+	t.assert.deepStrictEqual(getInferences(code, {checks}), [['nonNumber', 'nonBigint', 'nonArray'], ['nonString', 'nonBigint', 'nonArray'], ['nonString', 'nonNumber', 'nonArray'], [], [], []]);
+});
+
+test('shared named checkers recognize the outer type and preserve consumer union policies', t => {
+	const common = {targetTypeNames: new Set(['Widget']), nonTargetTypeNames: new Set(['Other'])};
+	const definite = createTypeCheckers(common).isTarget;
+	const mixed = createTypeCheckers({...common, treatMixedUnionAsTarget: true}).isTarget;
+	const nullish = createTypeCheckers({...common, allowNullishInMixedUnion: true}).isTarget;
+	const checks = {definite, mixed, nullish};
+	const code = '/** @param {Widget<string>} outer\n * @param {Other<Widget>} inner\n * @param {Widget | Other} mixed\n * @param {Widget | null} nullable\n * @param {Widget<keyof Options>} unsupported\n */ function run(outer, inner, mixed, nullable, unsupported) { inspect(outer); inspect(inner); inspect(mixed); inspect(nullable); inspect(unsupported); }';
+	t.assert.deepStrictEqual(getInferences(code, {checks}), [['definite', 'mixed', 'nullish'], [], ['mixed'], ['mixed', 'nullish'], []]);
+});
+
+test('explicit annotations keep their existing trust across subsequent writes', t => {
+	const code = '/** @type {boolean} */ let flag = source; flag = "other"; inspect(flag); /** @type {string} */ let text = source; text = 42; inspect(text);';
+	t.assert.deepStrictEqual(getInferences(code), [['boolean'], ['string']]);
+});
+
+test('unsupported typedef resolution stays unknown even when the initializer is boolean', t => {
+	const code = '/** @typedef {boolean} Flag */\n/** @type {Flag} */ const value = true; inspect(value);';
+	t.assert.deepStrictEqual(getInferences(code), [[]]);
+});
+
+test('unattached declaration documentation does not override the next declaration', t => {
+	const code = '/** @type {boolean} */ const previous = source; const value = "ready"; inspect(value);';
+	t.assert.deepStrictEqual(getInferences(code), [['string']]);
+});
+
+test('destructuring annotations are ignored rather than applied to each extracted binding', t => {
+	const code = '/** @param {boolean} options */ function run({value}) { inspect(value); } /** @type {boolean} */ const [element] = source; inspect(element);';
+	t.assert.deepStrictEqual(getInferences(code), [[], []]);
+});
+
+test('unions of arrays retain only collection certainty', t => {
+	const code = '/** @param {Array<boolean> | ReadonlyArray<string>} values */ function run(values) { inspect(values); }';
+	t.assert.deepStrictEqual(getInferences(code), [['array', 'indexed']]);
+});
+
+test('postfix nullable array annotation remains uncertain for receiver checks', t => {
+	const code = '/** @param {boolean[]?} values */ function run(values) { inspect(values); }';
+	t.assert.deepStrictEqual(getInferences(code), [[]]);
+});
+
+for (const [description, type, expected] of [
+	['arrow string return', '() => string', ['string']],
+	['Closure string return', 'function(number): String', ['string']],
+	['arrow array return', '() => Array<string>', ['array', 'indexed']],
+	['arrow readonly array return', '() => readonly string[]', ['array', 'indexed']],
+	['Closure set return', 'function(): Set<boolean>', ['set']],
+	['arrow bigint return', '() => bigint', ['bigint']],
+	['arrow bigint typed array return', '() => BigInt64Array', ['indexed', 'bigintArray']],
+	['nullable return', '() => string | undefined', []],
+	['nullable callable', '?(() => string)', []],
+	['optional callable', '(() => string)=', []],
+	['unresolved return', '() => Unresolved', []],
+	['higher-order return', '() => () => string', []],
+]) {
+	test(`shared call inference uses ${description} on a binding`, t => {
+		const code = `/** @type {${type}} */ let read; inspect(read());`;
+		t.assert.deepStrictEqual(getInferences(code), [expected]);
+	});
+
+	test(`shared call inference uses ${description} on a parameter`, t => {
+		const code = `/** @param {${type}} read */ function run(read) { inspect(read()); }`;
+		t.assert.deepStrictEqual(getInferences(code), [expected]);
+	});
+}
+
+test('callable return annotations keep variable and result types separate', t => {
+	const code = '/** @type {() => Array<string>} */ const read = () => source; inspect(read); inspect(read());';
+	t.assert.deepStrictEqual(getInferences(code), [[], ['array', 'indexed']]);
+});
+
+test('optional documented callback parameters do not guarantee a callable result', t => {
+	const code = '/** @param {() => string} [read] */ function run(read) { inspect(read()); }';
+	t.assert.deepStrictEqual(getInferences(code), [[]]);
+});
+
+test('native callback binding types take precedence over conflicting JSDoc', t => {
+	const code = '/** @type {() => Array<string>} */ const read: () => string = () => source; inspect(read());';
+	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[]]);
+});
+
+test('subsequent writes prevent callable return inference', t => {
+	const code = '/** @type {() => string} */ let read; read = other; inspect(read()); /** @param {() => Array<string>} callback */ function run(callback) { callback = other; inspect(callback()); }';
+	t.assert.deepStrictEqual(getInferences(code), [[], []]);
+});
+
+for (const [description, declaration] of [
+	['async declaration', 'async function read() { return source; }'],
+	['generator declaration', 'function* read() { return source; }'],
+	['async generator declaration', 'async function* read() { return source; }'],
+	['async arrow', 'const read = async () => source;'],
+	['generator expression', 'const read = function* () { return source; };'],
+	['async function expression', 'const read = async function () { return source; };'],
+]) {
+	test(`${description} does not expose its documented yielded or resolved value as the call result`, t => {
+		for (const type of ['Array<string>', 'Set<number>', 'string', 'bigint', 'BigInt64Array']) {
+			const code = `/** @returns {${type}} */ ${declaration} inspect(read());`;
+			t.assert.deepStrictEqual(getInferences(code), [[]], type);
+		}
+	});
+}
+
+test('synchronous return annotations still classify array, set, string, and bigint results', t => {
+	const code = '/** @returns {string[]} */ function read() { return source; } /** @returns {Set<number>} */ const make = () => source; /** @returns {string} */ function label() { return source; } /** @returns {bigint} */ const count = function () { return source; }; inspect(read()); inspect(make()); inspect(label()); inspect(count());';
+	t.assert.deepStrictEqual(getInferences(code), [['array', 'indexed'], ['set'], ['string'], ['bigint']]);
+});
+
+test('native function return annotations override conflicting callable binding documentation', t => {
+	const code = '/** @type {() => Array<string>} */ const read = (): string => source; inspect(read());';
+	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [['string']]);
+});
+
+test('async and generator syntax cannot be overridden by synchronous callable documentation', t => {
+	const code = '/** @type {() => string[]} */ const read = async () => source; /** @type {() => string[]} */ const generate = function* () { return source; }; inspect(read()); inspect(generate());';
+	t.assert.deepStrictEqual(getInferences(code), [[], []]);
+});
+
+test('mutable callable bindings cannot disguise async or generator results', t => {
+	for (const declaration of ['let', 'var']) {
+		for (const initializer of ['async () => source', 'async function () { return source; }', 'function* () { return source; }', 'async function* () { return source; }']) {
+			t.assert.deepStrictEqual(getInferences(`/** @type {() => string[]} */ ${declaration} read = ${initializer}; inspect(read());`), [[]], `${declaration} ${initializer}`);
+		}
+	}
+});
+
+test('unwritten mutable functions preserve synchronous documented returns', t => {
+	for (const declaration of ['let', 'var']) {
+		for (const documentation of ['@type {() => string[]}', '@returns {string[]}']) {
+			const code = `/** ${documentation} */ ${declaration} read = () => source; inspect(read());`;
+			t.assert.deepStrictEqual(getInferences(code), [['array', 'indexed']], `${declaration} ${documentation}`);
+		}
+	}
+});
+
+test('reassigned mutable function initializers stay unknown despite documented synchronous returns', t => {
+	for (const declaration of ['let', 'var']) {
+		const code = `/** @returns {string[]} */ ${declaration} read = () => source; read = other; inspect(read());`;
+		t.assert.deepStrictEqual(getInferences(code), [[]], declaration);
+	}
+});
+
+test('TypeScript wrappers cannot disguise known async or generator callable initializers', t => {
+	for (const declaration of ['const', 'let', 'var']) {
+		for (const initializer of ['async () => source', 'function* () { return source; }']) {
+			for (const wrap of [value => `(${value}) as (() => string[])`, value => `<() => string[]>(${value})`, value => `(${value})!`, value => `(${value}) satisfies (() => string[])`]) {
+				const code = `/** @type {() => string[]} */ ${declaration} read = ${wrap(initializer)}; inspect(read());`;
+				t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[]], code);
+			}
+		}
+	}
+});
+
+for (const [name, initializer] of [['boolean', 'true'], ['string', '"text"'], ['number', '1'], ['bigint', '1n'], ['array', '[]']]) {
+	test(`explicit unknown ${name} stays unknown through aliases and transparent expressions`, t => {
+		for (const expression of ['value!', 'value as unknown', '(0, value)']) {
+			const code = `/** @type {unknown} */ const value = ${initializer}; inspect(${expression});`;
+			t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[]], expression);
+		}
+
+		for (const declaration of ['const', 'let', 'var']) {
+			for (const expression of ['alias', 'alias!', 'alias as unknown', '(0, alias)']) {
+				const code = `/** @type {unknown} */ const value = ${initializer}; ${declaration} alias = value; inspect(${expression});`;
+				t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[]], `${declaration} ${expression}`);
+			}
+		}
+	});
+}
+
+test('type assertions and inherent result types retain certainty when their input has an unknown annotation', t => {
+	for (const [expression, expected] of [
+		['value as boolean', ['boolean']],
+		['value as string', ['string']],
+		['value as bigint', ['bigint']],
+		['value as string[]', ['array', 'indexed']],
+		['value satisfies string', ['string']],
+		['Boolean(value)', ['boolean']],
+		['typeof value', ['string']],
+		['[value]', ['array', 'indexed']],
+		['+value', ['number']],
+		['value >>> 0', ['number']],
+		['value === 1', ['boolean']],
+		['!value', ['boolean']],
+		['String(value)', ['string']],
+		['Number(value)', ['number']],
+		['BigInt(value)', ['bigint']],
+	]) {
+		const code = `/** @type {unknown} */ const value = source; inspect(${expression});`;
+		t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [expected], expression);
+	}
+});
+
+test('ordinary constant aliases and transparent expressions keep their static inference', t => {
+	const code = 'const flag = true; const alias = flag; inspect(alias!); const text = "ready"; inspect((0, text)); const count = 1n; inspect(count as unknown); const values = []; inspect(values!);';
+	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [['boolean'], ['string'], ['bigint'], ['array', 'indexed']]);
+});
+
+for (const [type, initializer, expected] of [
+	['boolean', 'true', ['boolean']],
+	['string', '"text"', ['string']],
+	['number', '1', ['number']],
+	['bigint', '1n', ['bigint']],
+	['string[]', '[]', ['array', 'indexed']],
+]) {
+	test(`known documented ${type} aliases keep their positive type evidence`, t => {
+		for (const expression of ['alias', 'alias!', 'alias as unknown', '(0, alias)']) {
+			const code = `/** @type {${type}} */ const value = ${initializer}; const alias = value; inspect(${expression});`;
+			t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [expected], expression);
+		}
+	});
+}
+
+test('asserted callable initializers do not use conflicting JSDoc return evidence', t => {
+	for (const initializer of [
+		'(() => "text") as (() => string)',
+		'<() => string>(() => "text")',
+		'((() => "text") as (() => string))!',
+		'((() => "text") as (() => string)) satisfies (() => string)',
+	]) {
+		const code = `/** @type {() => string[]} */ const read = ${initializer}; inspect(read());`;
+		t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[]], initializer);
+	}
+});

@@ -318,7 +318,7 @@ function getJSDocumentTag(text, start, end) {
 	};
 }
 
-function maskJSDocumentTagSyntax(characters, text) {
+function getJSDocumentTags(text) {
 	const tags = [];
 	let lineStart = 0;
 
@@ -332,6 +332,12 @@ function maskJSDocumentTagSyntax(characters, text) {
 
 		lineStart = lineEnd + 1;
 	}
+
+	return tags;
+}
+
+function maskJSDocumentTagSyntax(characters, text) {
+	const tags = getJSDocumentTags(text);
 
 	for (const [index, {tag, lineEnd}] of tags.entries()) {
 		const tagEnd = tags[index + 1]?.lineStart ?? text.length;
@@ -383,6 +389,9 @@ export default function maskJSDocumentSyntax(characters, text) {
 }
 
 export {
+	getJSDocumentDelimitedEnd,
+	getJSDocumentTags,
+	skipJSDocumentTemplateWhitespace,
 	getLineEndIndex,
 	maskCharacter,
 	maskRange,

@@ -213,6 +213,31 @@ test('array checkers resolve explicit local function return annotations', t => {
 	t.assert.strictEqual(typedArray.isKnownNonIndexedCollection, false);
 });
 
+test('array checkers use JSDoc parameter and return annotations', t => {
+	for (const code of [
+		'/** @param {string[]} receiver */ function run(receiver) { receiver.method(); }',
+		'/** @param {Array<string>} receiver */ function run(receiver) { receiver.method(); }',
+		'/** @param {Array.<string>} receiver */ function run(receiver) { receiver.method(); }',
+		'/** @param {ReadonlyArray<string>} receiver */ function run(receiver) { receiver.method(); }',
+		'/** @param {readonly string[]} receiver */ function run(receiver) { receiver.method(); }',
+		'/** @param {[string, number]} receiver */ function run(receiver) { receiver.method(); }',
+		'/** @returns {string[]} */ function create() { return source; } create().method();',
+	]) {
+		const verdicts = getReceiverVerdicts(code);
+		t.assert.strictEqual(verdicts.isArray, true, code);
+		t.assert.strictEqual(verdicts.isIndexedCollection, true, code);
+		t.assert.strictEqual(verdicts.isKnownNonArray, false, code);
+	}
+
+	const typedArray = getReceiverVerdicts('/** @param {Uint8Array} receiver */ function run(receiver) { receiver.method(); }');
+	t.assert.strictEqual(typedArray.isArray, false);
+	t.assert.strictEqual(typedArray.isIndexedCollection, true);
+	t.assert.strictEqual(typedArray.isKnownNonArray, true);
+	const optional = getReceiverVerdicts('/** @param {Array<string>} [receiver] */ function run(receiver) { receiver.method(); }');
+	t.assert.strictEqual(optional.isArray, false);
+	t.assert.strictEqual(optional.isKnownNonArray, false);
+});
+
 test('array checkers leave unsupported local function returns unknown', t => {
 	for (const code of [
 		'function getValues() { return []; } getValues().method();',

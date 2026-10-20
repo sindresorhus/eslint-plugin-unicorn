@@ -2,6 +2,10 @@ import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import getStaticValueIfNoSideEffects from './get-static-value.js';
 import {getFunctionReturnExpression} from './function-body.js';
 import {withTypeInformation} from './types.js';
+import {getJSDocTypeAnnotation, getJSDocReturnType} from './jsdoc-type.js';
+import {getJSDocBooleanState} from './get-jsdoc-boolean-state.js';
+import {getJSDocType, hasJSDocTypeReference, target} from './type-helpers.js';
+import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
 
 const booleanBinaryOperators = new Set([
 	'>',
@@ -47,6 +51,15 @@ const booleanPropertiesByExpressionKind = new Map([
 	['regexp', new Set(['dotAll', 'global', 'hasIndices', 'ignoreCase', 'multiline', 'sticky', 'unicode', 'unicodeSets'])],
 ]);
 
+const jsdocTypeNamesByExpressionKind = new Map([
+	['array', new Set(['Array', 'ReadonlyArray'])],
+	['map', new Set(['Map', 'ReadonlyMap', 'WeakMap'])],
+	['regexp', new Set(['RegExp'])],
+	['set', new Set(['Set', 'ReadonlySet'])],
+	['string', new Set(['string'])],
+	['weakSet', new Set(['WeakSet'])],
+]);
+
 // The static value of these is never a primitive boolean, so they skip the costly side effect checks and evaluation.
 const nonBooleanStaticValueTypes = new Set([
 	'ArrayExpression',
@@ -65,7 +78,8 @@ const isBooleanStaticValue = (node, context) => {
 	}
 
 	return !nonBooleanStaticValueTypes.has(node.type)
-		&& typeof getStaticValueIfNoSideEffects(node, context)?.value === 'boolean';
+		&& typeof getStaticValueIfNoSideEffects(node, context)?.value === 'boolean'
+		&& !hasJSDocTypeReference(node, context);
 };
 
 function isBooleanTypeScriptType(type, checker) {
@@ -278,6 +292,11 @@ function isBooleanFunction(node, context, visitedVariables = new Set()) {
 	}
 
 	const scope = context.sourceCode.getScope(node);
+	const annotation = getJSDocReturnType(node, context);
+	if (annotation) {
+		return getJSDocBooleanState(annotation) === 'boolean';
+	}
+
 	if (isBooleanTypeAnnotation(node.returnType, context, scope)) {
 		return true;
 	}
@@ -322,7 +341,19 @@ function isBooleanFunctionReference(node, context, visitedVariables = new Set())
 	} else if (variable.defs.length === 1) {
 		const [definition] = variable.defs;
 		const scope = context.sourceCode.getScope(definition.name);
-		if (isBooleanFunctionTypeAnnotation(definition.name?.typeAnnotation, context, scope)) {
+		const annotation = getJSDocTypeAnnotation(definition.name, context);
+		if (annotation) {
+			const initializer = unwrapTypeScriptExpression(definition.node.init);
+			if (!initializer?.async && !initializer?.generator) {
+				isBoolean = initializer?.returnType
+					? isBooleanTypeAnnotation(initializer.returnType, context, context.sourceCode.getScope(initializer))
+					: getJSDocType(annotation, {
+						targetTypeNames: new Set(),
+						isTargetJSDocType: type => type?.kind === 'function'
+							&& getJSDocBooleanState({type: type.returnType}) === 'boolean',
+					}) === target;
+			}
+		} else if (isBooleanFunctionTypeAnnotation(definition.name?.typeAnnotation, context, scope)) {
 			isBoolean = true;
 		} else {
 			let functionNode;
@@ -419,6 +450,17 @@ function getKnownConstructorExpressionKind(node, context) {
 }
 
 function getKnownIdentifierExpressionKind(node, context, visitedVariables) {
+	const annotation = getJSDocTypeAnnotation(node, context);
+	if (annotation) {
+		for (const [kind, targetTypeNames] of jsdocTypeNamesByExpressionKind) {
+			if (getJSDocType(annotation, {targetTypeNames}) === target) {
+				return kind;
+			}
+		}
+
+		return;
+	}
+
 	const variable = findVariable(context.sourceCode.getScope(node), node);
 	const [definition] = variable?.defs ?? [];
 	if (
@@ -627,6 +669,11 @@ function isBooleanExpressionBySyntax(node, context, visitedVariables) {
 function isBooleanExpression(node, context, visitedVariables = new Set()) {
 	if (!node) {
 		return false;
+	}
+
+	const annotation = getJSDocTypeAnnotation(node, context);
+	if (annotation) {
+		return getJSDocBooleanState(annotation) === 'boolean' || isBooleanTypeInformation(node, context);
 	}
 
 	if (

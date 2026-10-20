@@ -43,6 +43,22 @@ test('uses string type annotations', t => {
 	t.assert.deepStrictEqual(getResults('function foo(value: string) { inspect(value); }'), [true]);
 });
 
+test('uses JSDoc string annotations without type information', t => {
+	for (const type of ['string', 'String', '\'ready\'', 'string | \'ready\'']) {
+		const code = `/** @param {${type}} value */ function run(value) { inspect(value); }`;
+		t.assert.deepStrictEqual(getResults(code), [true], code);
+	}
+
+	t.assert.deepStrictEqual(getResults('/** @returns {string} */ function create() { return source; } inspect(create());'), [true]);
+	t.assert.deepStrictEqual(getResults('/** @param {number} value */ function run(value) { inspect(value); }', isKnownNonString), [true]);
+	t.assert.deepStrictEqual(getResults('/** @type {unknown} */ const value = "ready"; inspect(value);'), [false]);
+	t.assert.deepStrictEqual(getResults('/** @type {number} */ const value = "ready"; inspect(value);'), [false]);
+	for (const type of ['?string', 'string | undefined', 'string[]', 'Array<string>', '() => string', 'Unresolved']) {
+		const code = `/** @param {${type}} value */ function run(value) { inspect(value); }`;
+		t.assert.deepStrictEqual(getResults(code), [false], code);
+	}
+});
+
 test('terminates when concatenation references its own initializer', t => {
 	t.assert.deepStrictEqual(getResults('const text = text + ""; inspect(text);'), [true]);
 	t.assert.deepStrictEqual(getResults('const text = text + text; inspect(text);'), [false]);

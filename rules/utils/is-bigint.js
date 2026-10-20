@@ -3,6 +3,7 @@ import {isFunctionCall, isStaticProperties} from './type-check.js';
 import getStaticValueIfNoSideEffects from './get-static-value.js';
 import {
 	createTypeCheckers,
+	hasJSDocTypeReference,
 	target,
 	unknown,
 } from './type-helpers.js';
@@ -49,7 +50,7 @@ const {
 	isTarget: isBigIntTarget,
 	isKnownNonTarget: isKnownNonBigInt,
 } = createTypeCheckers({
-	targetTypeNames: new Set(),
+	targetTypeNames: new Set(['bigint']),
 	targetCallNames: ['BigInt'],
 	isTargetNode: isBigIntNode,
 	isTargetTypeAnnotation: isBigIntTypeAnnotation,
@@ -70,7 +71,8 @@ export default function isBigInt(node, context) {
 		return true;
 	}
 
-	return typeof getStaticValueIfNoSideEffects(node, context)?.value === 'bigint';
+	return typeof getStaticValueIfNoSideEffects(node, context)?.value === 'bigint'
+		&& !hasJSDocTypeReference(node, context);
 }
 
 export {

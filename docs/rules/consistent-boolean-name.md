@@ -62,6 +62,10 @@ This rule intentionally does not check destructuring bindings, imports, class na
 
 TypeScript type annotation checks resolve local type aliases and callable interfaces, including generic type parameters, but not qualified or namespaced type references.
 
+JSDoc annotations are also recognized without TypeScript configuration: `@type` on variables and properties, `@param` on simple parameters, and `@returns` on functions. Common primitive, union, array, tuple, record, and function types are supported. Rename suggestions update matching `@param` names, including documentation without a type.
+
+Advanced JSDoc type expressions, typedefs, imported types, constructor signatures, promise return types, destructured parameter paths, and declaration-level annotations on multiple variable declarators are not resolved.
+
 Without TypeScript type information, nested generic alias resolution is best effort. Some finite nested instantiations may be treated as unknown.
 
 This rule is only automatically fixable when a non-global, non-exported, non-ambient variable binding can be safely renamed to the first enabled prefix without adding a collision suffix. Other safe rename candidates are still provided as editor suggestions.
@@ -118,6 +122,16 @@ function download(showProgress = false) {}
 
 // ✅
 function download(shouldShowProgress = false) {}
+```
+
+```js
+// ❌
+/** @param {boolean} showProgress */
+function download(showProgress) {}
+
+// ✅
+/** @param {boolean} shouldShowProgress */
+function download(shouldShowProgress) {}
 ```
 
 ```ts

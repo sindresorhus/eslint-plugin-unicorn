@@ -246,6 +246,23 @@ Suggestion 2/2: The spreading object is NOT an array.:
 
 `;
 
+exports[`no-array-sort > invalid(20): /** @param {number[]} array */ function run(array) { return array.sort(); } 1`] = `
+
+  1 | /** @param {number[]} array */ function run(array) { return array.sort(); }
+
+`;
+
+exports[`no-array-sort > invalid(20): /** @param {number[]} array */ function run(array) { return array.sort(); } 2`] = `
+
+Message:
+> 1 | /** @param {number[]} array */ function run(array) { return array.sort(); }
+    |                                                                   ^^^^ Use \`Array#toSorted()\` instead of \`Array#sort()\`.
+
+Suggestion 1/1: Switch to \`.toSorted()\`.:
+  1 | /** @param {number[]} array */ function run(array) { return array.toSorted(); }
+
+`;
+
 exports[`no-array-sort > invalid(3): sorted = array.sort() 1`] = `
 
   1 | sorted = array.sort()

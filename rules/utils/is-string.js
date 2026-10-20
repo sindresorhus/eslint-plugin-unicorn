@@ -4,6 +4,7 @@ import {isFunctionCall, isStaticProperties} from './type-check.js';
 import getStaticValueIfNoSideEffects, {getStaticValueForControlFlow} from './get-static-value.js';
 import {
 	createTypeCheckers,
+	hasJSDocTypeReference,
 	target,
 	unknown,
 } from './type-helpers.js';
@@ -99,7 +100,7 @@ const {
 	isTarget: isStringTarget,
 	isKnownNonTarget: isKnownNonString,
 } = createTypeCheckers({
-	targetTypeNames: new Set(),
+	targetTypeNames: new Set(['string']),
 	targetCallNames: ['String'],
 	isTargetNode: isStringNode,
 	isTargetTypeAnnotation: isStringTypeAnnotation,
@@ -126,7 +127,7 @@ export default function isString(node, context, isTarget = isStringTarget) {
 	const staticValue = isUnmodifiedMutableVariable(node, context)
 		? getStaticValueIfNoSideEffects(node, context)
 		: getStaticValueForControlFlow(node, context);
-	return typeof staticValue?.value === 'string';
+	return typeof staticValue?.value === 'string' && !hasJSDocTypeReference(node, context);
 }
 
 export {
