@@ -58,6 +58,19 @@ const onlyIsPrefixOptions = {
 
 for (const wrap of [testCase => testCase, typescript, typeAware]) {
 	test({
+		valid: [],
+		// eslint-disable-next-line no-template-curly-in-string -- Test expressions contain template literal source.
+		invalid: ['new Uint8Array(length).some(predicate)', '`${value}`.startsWith("x")'].map(expression => wrap({
+			code: `function run() { const ready = ${expression}; consume(ready); }`,
+			output: `function run() { const isReady = ${expression}; consume(isReady); }`,
+			options: [onlyIsPrefixOptions],
+			errors: 1,
+		})),
+	});
+}
+
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
 		valid: [
 			'/** @param {function(): boolean | undefined=} ready */ function run(ready) {}',
 			'/** @param {() => boolean | string=} ready */ function run(ready) {}',

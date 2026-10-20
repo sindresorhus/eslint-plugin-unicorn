@@ -327,6 +327,30 @@ test('documented typed arrays supply boolean iteration and membership results', 
 	}
 });
 
+test('inline indexed collection constructors supply boolean method results', t => {
+	for (const constructor of ['Array', 'Uint8Array', 'BigInt64Array']) {
+		const code = `inspect(new ${constructor}(length).every(predicate)); inspect(new ${constructor}(length).includes(value)); inspect(new ${constructor}(length).some(predicate));`;
+		t.assert.deepStrictEqual(getResults(code), [true, true, true], constructor);
+	}
+});
+
+test('inline constructor inference keeps unknown receivers and method chains uncertain', t => {
+	const code = 'class Values extends Array {} inspect(new Values().some(predicate)); inspect(new Unknown().every(predicate)); inspect(new BigInt64Array(length).subarray(1).some(predicate));';
+	t.assert.deepStrictEqual(getResults(code), [false, false, false]);
+});
+
+test('interpolated template receivers supply boolean string methods', t => {
+	// eslint-disable-next-line no-template-curly-in-string -- The inspected source contains template literals.
+	const code = 'inspect(`${value}`.startsWith("x")); inspect(`prefix${value}`.includes("x")); inspect(`${value}suffix`.isWellFormed());';
+	t.assert.deepStrictEqual(getResults(code), [true, true, true]);
+});
+
+test('template receiver inference keeps tagged values and nonboolean methods uncertain', t => {
+	// eslint-disable-next-line no-template-curly-in-string -- The inspected source contains template literals.
+	const code = 'inspect(tag`${value}`.startsWith("x")); inspect(`${value}`.charAt(0));';
+	t.assert.deepStrictEqual(getResults(code), [false, false]);
+});
+
 test('documented callable objects supply typed array union receiver methods', t => {
 	const code = '/** @param {{(): Uint8Array | BigInt64Array}} read */ function run(read) { inspect(read().some(predicate)); }';
 	t.assert.deepStrictEqual(getResults(code), [true]);

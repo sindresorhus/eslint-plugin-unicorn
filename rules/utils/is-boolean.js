@@ -526,11 +526,11 @@ function getKnownExpressionKind(node, context, visitedVariables = new Set()) {
 		}
 
 		case 'TemplateLiteral': {
-			return node.expressions.length === 0 ? 'string' : undefined;
+			return 'string';
 		}
 
 		case 'NewExpression': {
-			return getKnownConstructorExpressionKind(node, context);
+			return getKnownConstructorExpressionKind(node, context) ?? getTypeCheckedExpressionKind(node, context);
 		}
 
 		case 'Identifier': {

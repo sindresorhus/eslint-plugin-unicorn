@@ -7,6 +7,37 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+/* eslint-disable no-template-curly-in-string -- Test cases contain template literal source. */
+test({
+	valid: [
+		'class Values extends Array {} new Values().some(predicate) === true;',
+		'tag`${value}`.startsWith("x") === true;',
+	],
+	invalid: [
+		{
+			code: 'new Uint8Array(length).every(predicate) === true;',
+			output: 'new Uint8Array(length).every(predicate);',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+		{
+			code: 'new BigInt64Array(length).includes(value) === false;',
+			output: '!new BigInt64Array(length).includes(value);',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+		{
+			code: '`${value}`.startsWith("x") === true;',
+			output: '`${value}`.startsWith("x");',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+		{
+			code: '`${value}`.includes("x") === false;',
+			output: '!`${value}`.includes("x");',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+	],
+});
+/* eslint-enable no-template-curly-in-string */
+
 test({
 	valid: [
 		'/** @param {?Uint8Array} values */ function run(values) { return values.some(predicate) === true; }',
