@@ -139,6 +139,7 @@ testRule.svelte({
 	testerOptions: {languageOptions: {parserOptions: {parser: parsers.typescript.implementation}}},
 	valid: [
 		'<script lang="ts">type Value = number; function foo() { return 1 as Value; }</script>{1 as Value}',
+		'<script lang="ts" generics="Type extends Value">type Value = number; function foo() { return 1 as Value; }</script>',
 		'<script module lang="ts">type Value = number; function foo() { return 1 as Value; } export type {Value as Shared};</script>',
 	],
 	invalid: [
