@@ -7,6 +7,25 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+test({
+	valid: [
+		'/** @param {string} text\n * @param {unknown} other */ function run(text, other) { return (flag ? text : other).includes("x") === true; }',
+		'/** @param {?Uint8Array} values */ function run(values) { return (effect(), values).some(predicate) === true; }',
+	],
+	invalid: [
+		{
+			code: '/** @param {string} text */ function run(text) { return (flag ? text : "fallback").startsWith("x") === true; }',
+			output: '/** @param {string} text */ function run(text) { return (flag ? text : "fallback").startsWith("x"); }',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+		{
+			code: '/** @param {Uint8Array} values */ function run(values) { return (effect(), values).some(predicate) === false; }',
+			output: '/** @param {Uint8Array} values */ function run(values) { return !(effect(), values).some(predicate); }',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+	],
+});
+
 /* eslint-disable no-template-curly-in-string -- Test cases contain template literal source. */
 test({
 	valid: [

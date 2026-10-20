@@ -345,6 +345,35 @@ test('interpolated template receivers supply boolean string methods', t => {
 	t.assert.deepStrictEqual(getResults(code), [true, true, true]);
 });
 
+test('conditional receivers retain common documented string and collection types', t => {
+	const code = [
+		'/** @param {string} left\n * @param {string} right\n * @param {Array<string>} values\n * @param {Uint8Array} bytes */',
+		'function run(left, right, values, bytes) {',
+		' inspect((flag ? left : right).startsWith("x"));',
+		' inspect((flag ? values : bytes).some(predicate));',
+		'}',
+	].join('\n');
+	t.assert.deepStrictEqual(getResults(code), [true, true]);
+});
+
+test('sequence receivers use their final documented value', t => {
+	const code = '/** @param {string} text\n * @param {BigInt64Array} values */ function run(text, values) { inspect((effect(), text).includes("x")); inspect((effect(), values).every(predicate)); }';
+	t.assert.deepStrictEqual(getResults(code), [true, true]);
+});
+
+test('conditional and sequence receiver inference retains uncertainty and method boundaries', t => {
+	const code = [
+		'/** @param {string} text\n * @param {Array<string>} values\n * @param {unknown} other */',
+		'function run(text, values, other) {',
+		' inspect((flag ? text : other).startsWith("x"));',
+		' inspect((flag ? values : other).some(predicate));',
+		' inspect((text, other).includes("x"));',
+		' inspect((flag ? text : text).charAt(0));',
+		'}',
+	].join('\n');
+	t.assert.deepStrictEqual(getResults(code), [false, false, false, false]);
+});
+
 test('template receiver inference keeps tagged values and nonboolean methods uncertain', t => {
 	// eslint-disable-next-line no-template-curly-in-string -- The inspected source contains template literals.
 	const code = 'inspect(tag`${value}`.startsWith("x")); inspect(`${value}`.charAt(0));';

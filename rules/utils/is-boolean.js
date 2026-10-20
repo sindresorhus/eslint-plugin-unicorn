@@ -537,7 +537,9 @@ function getKnownExpressionKind(node, context, visitedVariables = new Set()) {
 			return getKnownIdentifierExpressionKind(node, context, visitedVariables);
 		}
 
-		case 'CallExpression': {
+		case 'CallExpression':
+		case 'ConditionalExpression':
+		case 'SequenceExpression': {
 			return getTypeCheckedExpressionKind(node, context);
 		}
 

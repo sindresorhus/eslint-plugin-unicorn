@@ -59,6 +59,21 @@ const onlyIsPrefixOptions = {
 for (const wrap of [testCase => testCase, typescript, typeAware]) {
 	test({
 		valid: [],
+		invalid: [
+			['string', 'text', '(flag ? text : "fallback").startsWith("x")'],
+			['Uint8Array', 'values', '(effect(), values).some(predicate)'],
+		].map(([type, parameter, expression]) => wrap({
+			code: `/** @param {${type}} ${parameter} */ function run(${parameter}) { const ready = ${expression}; consume(ready); }`,
+			output: `/** @param {${type}} ${parameter} */ function run(${parameter}) { const isReady = ${expression}; consume(isReady); }`,
+			options: [onlyIsPrefixOptions],
+			errors: 1,
+		})),
+	});
+}
+
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [],
 		// eslint-disable-next-line no-template-curly-in-string -- Test expressions contain template literal source.
 		invalid: ['new Uint8Array(length).some(predicate)', '`${value}`.startsWith("x")'].map(expression => wrap({
 			code: `function run() { const ready = ${expression}; consume(ready); }`,
