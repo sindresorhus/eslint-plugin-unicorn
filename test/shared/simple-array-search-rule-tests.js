@@ -233,7 +233,7 @@ export function testTypeAwareSearches({method, replacement, rule, test}) {
 		['narrowed value', 'function check(values: string[], input: string | undefined) { if (typeof input !== "string") { return; } return values.SEARCH; }', 'value => value === input', 'input'],
 	]) {
 		test(`${method}: ${name} with type information`, t => {
-			const code = template.replace('SEARCH', `${method}(${callback})`);
+			const code = template.replace('SEARCH', () => `${method}(${callback})`);
 			const filename = path.resolve(`simple-array-search-${method}.ts`);
 			const program = createTypeScriptProgram(code, filename);
 			t.assert.deepStrictEqual(typescript.getPreEmitDiagnostics(program), []);
@@ -260,7 +260,7 @@ export function testTypeAwareSearches({method, replacement, rule, test}) {
 
 			const {range, text} = hasSideEffect ? messages[0].suggestions[0].fix : messages[0].fix;
 			const output = code.slice(0, range[0]) + text + code.slice(range[1]);
-			t.assert.strictEqual(output, template.replace('SEARCH', `${replacement}(${searchValue})`));
+			t.assert.strictEqual(output, template.replace('SEARCH', () => `${replacement}(${searchValue})`));
 			t.assert.deepStrictEqual(typescript.getPreEmitDiagnostics(createTypeScriptProgram(output, filename)), []);
 		});
 	}
