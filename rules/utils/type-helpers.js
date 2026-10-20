@@ -574,6 +574,10 @@ const getTypeFromFunctionCall = (node, context, options) => {
 	}
 
 	const [definition] = variable.defs;
+	if (definition.name?.typeAnnotation) {
+		return unknown;
+	}
+
 	const value = definition.type === 'FunctionName' ? definition.node : unwrapTypeScriptExpression(definition.node.init);
 	if (value?.async || value?.generator) {
 		return unknown;

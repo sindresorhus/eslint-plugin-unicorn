@@ -481,6 +481,27 @@ test('native function return annotations override documented and literal boolean
 	}
 });
 
+test('native callable binding uncertainty cannot be narrowed by initializer return annotations', t => {
+	for (const declaration of ['const', 'let', 'var']) {
+		for (const [returnType, value] of [['boolean', 'true'], ['string', '"text"'], ['string[]', '[]']]) {
+			const code = `/** @returns {${returnType}} */ ${declaration} read: () => unknown = (): ${returnType} => ${value}; inspect(read());`;
+			t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[]], code);
+		}
+	}
+});
+
+test('native callable binding contracts remain authoritative over narrower implementations and assertions', t => {
+	for (const bindingType of ['unknown', '() => string', '() => boolean | undefined', '(() => boolean) | undefined']) {
+		for (const initializer of ['(): boolean => true', '(() => true) as (() => boolean)']) {
+			const code = `/** @returns {boolean} */ const read: ${bindingType} = ${initializer}; inspect(read());`;
+			t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[]], code);
+		}
+	}
+
+	const code = '/** @returns {string} */ const read: () => boolean = (): string => "text"; inspect(read());';
+	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [['boolean']]);
+});
+
 test('native receiver parameter types use shared boolean method classification', t => {
 	const code = 'function run(text: string, values: readonly string[], tuple: [number], keys: ReadonlyMap<string, number>, pattern: RegExp) { inspect(text.includes("x")); inspect(values.some(predicate)); inspect(tuple.every(predicate)); inspect(keys.has("x")); inspect(pattern.global); }';
 	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [['boolean'], ['boolean'], ['boolean'], ['boolean'], ['boolean']]);

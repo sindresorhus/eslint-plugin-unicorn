@@ -108,6 +108,17 @@ const typeAware = code => ({
 	},
 });
 
+test({
+	valid: [
+		{
+			code: '/** @returns {boolean} */ const read: () => unknown = (): boolean => true; read() === true;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('/** @returns {boolean} */ let read: () => unknown = (): boolean => true; read() === true;'),
+	],
+	invalid: [],
+});
+
 test.snapshot({
 	valid: [
 		'/** @param {boolean} [value] */ function run(value) { return value === true; }',

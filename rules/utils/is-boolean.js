@@ -373,8 +373,8 @@ function isBooleanFunctionReference(node, context, visitedVariables = new Set())
 							&& getJSDocumentBooleanState({type: type.returnType}) === 'boolean',
 					}) === target;
 			}
-		} else if (isBooleanFunctionTypeAnnotation(definition.name?.typeAnnotation, context, scope)) {
-			isBoolean = true;
+		} else if (definition.name?.typeAnnotation) {
+			isBoolean = isBooleanFunctionTypeAnnotation(definition.name.typeAnnotation, context, scope);
 		} else {
 			let functionNode;
 			if (hasStableFunctionNameDefinitions(variable)) {

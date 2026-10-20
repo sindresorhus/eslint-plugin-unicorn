@@ -13,6 +13,10 @@ const linter = new Linter();
 test({
 	valid: [
 		'/** @type {() => boolean} */ let read; read = () => "changed"; Boolean(read());',
+		{
+			code: '/** @returns {string} */ let read: () => unknown = (): string => source; String(read());',
+			languageOptions: {parser: parsers.typescript},
+		},
 		'/** @param {() => boolean} read */ function run(read) { read = () => 0; Boolean(read()); }',
 		'/** @returns {?string} */ function text() { return source; } Boolean(text().includes("x"));',
 	],
