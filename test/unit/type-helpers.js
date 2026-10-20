@@ -272,3 +272,21 @@ test('documented callable return combinations reuse checker union policies', t =
 	const code = '/** @type {(() => Foo) | (() => null)} */ let create; check(create());';
 	t.assert.deepStrictEqual(getTypes(code, {allowNullishInMixedUnion: true}, {javascript: true}), [target]);
 });
+
+test('documented callback defaults cannot classify async or generator results', t => {
+	for (const initializer of ['async () => source', 'function* () { return source; }', 'async function* () { return source; }']) {
+		const code = `/** @param {() => Foo} create */ function run(create = ${initializer}) { check(create()); }`;
+		t.assert.deepStrictEqual(getTypes(code, {}, {javascript: true}), [unknown], initializer);
+		t.assert.deepStrictEqual(getTypes(code, {}), [unknown], initializer);
+	}
+});
+
+test('native callback default return annotations do not replace parameter documentation', t => {
+	for (const [documented, native] of [['Foo', 'string'], ['string', 'Foo'], ['Foo', 'Foo']]) {
+		const code = `/** @param {() => ${documented}} create */ function run(create = (): ${native} => source) { check(create()); }`;
+		t.assert.deepStrictEqual(getTypes(code, {}), [unknown], code);
+	}
+
+	const code = '/** @param {() => Foo} create */ function run(create = () => source) { check(create()); }';
+	t.assert.deepStrictEqual(getTypes(code, {}, {javascript: true}), [target]);
+});

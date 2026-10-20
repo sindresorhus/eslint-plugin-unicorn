@@ -6,6 +6,7 @@ import {getJSDocumentTypeAnnotation, getJSDocumentReturnType} from './jsdoc-type
 import {getJSDocumentBooleanState} from './get-jsdoc-boolean-state.js';
 import {
 	createTypeCheckers,
+	getDefinitionInitializer,
 	getJSDocumentCallableReturnType,
 	hasJSDocumentTypeReference,
 } from './type-helpers.js';
@@ -358,11 +359,12 @@ function isBooleanFunctionReference(node, context, visitedVariables = new Set())
 		const scope = context.sourceCode.getScope(definition.name);
 		const annotation = getJSDocumentTypeAnnotation(definition.name, context);
 		if (annotation) {
-			const initializer = unwrapTypeScriptExpression(definition.node.init);
+			const initializer = unwrapTypeScriptExpression(getDefinitionInitializer(definition));
 			const returnType = getJSDocumentCallableReturnType(annotation.type);
 			if (
 				!initializer?.async
 				&& !initializer?.generator
+				&& !(definition.type === 'Parameter' && initializer?.returnType)
 				&& variable.references.every(reference => !reference.isWrite() || reference.init)
 			) {
 				isBoolean = initializer?.returnType

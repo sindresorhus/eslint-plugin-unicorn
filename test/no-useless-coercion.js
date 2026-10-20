@@ -631,3 +631,52 @@ for (const languageOptions of [
 		],
 	});
 }
+
+test({
+	valid: [
+		'/** @param {() => boolean} read */ function value(read = async () => true) { return Boolean(read()); }',
+		'/** @param {() => string} read */ function value(read = function* () {}) { return String(read()); }',
+		{
+			code: '/** @param {() => string} read */ function value(read = (): boolean => true) { return String(read()); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '/** @param {() => boolean} read */ function value(read = (): string => "text"): boolean { return Boolean(read()); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [{
+		code: '/** @param {() => string} read */ function value(read = () => "text") { return String(read()); }',
+		output: '/** @param {() => string} read */ function value(read = () => "text") { return read(); }',
+		errors: [{messageId: 'no-useless-coercion'}],
+	}],
+});
+
+for (const initializer of ['async () => true', 'function* () { return true; }']) {
+	nodeTest(`a documented synchronous callback with default ${initializer} still needs coercion`, t => {
+		const code = `/** @param {() => boolean} read */ function value(read = ${initializer}) { return Boolean(read()); } value();`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, {
+			plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+			rules: {'unicorn/no-useless-coercion': 'error'},
+		});
+		t.assert.strictEqual(runInNewContext(code), true);
+		t.assert.strictEqual(runInNewContext(output), true);
+		t.assert.strictEqual(fixed, false);
+		t.assert.deepStrictEqual(messages, []);
+	});
+}
+
+const nativeCallbackDefault = '/** @param {() => boolean} read */ function value(read = (): boolean => true): boolean { return Boolean(read()); }';
+test({
+	valid: [{code: nativeCallbackDefault, languageOptions: {parser: parsers.typescript}}],
+	invalid: [{
+		code: nativeCallbackDefault,
+		filename: 'file.ts',
+		languageOptions: {
+			parser: typescriptEslintParser,
+			parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+		},
+		output: nativeCallbackDefault.replace('Boolean(read())', 'read()'),
+		errors: [{messageId: 'no-useless-coercion'}],
+	}],
+});

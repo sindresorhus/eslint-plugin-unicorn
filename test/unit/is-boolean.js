@@ -253,3 +253,36 @@ test('callable JSDoc cannot override native asserted initializer types', t => {
 		t.assert.deepStrictEqual(getResults(code), [false], initializer);
 	}
 });
+
+test('documented callback defaults cannot disguise async or generator call results', t => {
+	for (const initializer of [
+		'async () => true',
+		'async function () { return true; }',
+		'function* () { return true; }',
+		'async function* () { return true; }',
+		'(async () => true)!',
+		'(function* () { return true; }) satisfies (() => boolean)',
+	]) {
+		const code = `/** @param {() => boolean} predicate */ function run(predicate = ${initializer}) { inspect(predicate()); }`;
+		t.assert.deepStrictEqual(getResults(code), [false], initializer);
+	}
+
+	const code = 'class Task { /** @param {() => boolean} predicate */ constructor(public predicate = async () => true) { inspect(predicate()); } }';
+	t.assert.deepStrictEqual(getResults(code), [false]);
+});
+
+test('native return annotations on parameter defaults cannot establish the supplied callback contract', t => {
+	for (const [type, initializer] of [
+		['() => boolean', '(): string => "text"'],
+		['() => string', '(): boolean => true'],
+		['() => boolean', '(): boolean => true'],
+	]) {
+		const code = `/** @param {${type}} predicate */ function run(predicate = ${initializer}) { inspect(predicate()); }`;
+		t.assert.deepStrictEqual(getResults(code), [false], code);
+	}
+});
+
+test('unannotated synchronous callback defaults retain their documented return contract', t => {
+	const code = '/** @param {() => boolean} predicate */ function run(predicate = () => true) { inspect(predicate()); }';
+	t.assert.deepStrictEqual(getResults(code), [true]);
+});

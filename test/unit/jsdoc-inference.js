@@ -789,3 +789,44 @@ test('native annotations and assertions remain authoritative over grouped callab
 	const code = '/** @type {(() => string) | (() => string)} */ const read = (): number => source; inspect(read());';
 	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [['number']]);
 });
+
+for (const [returnType, expected] of [
+	['boolean', ['boolean']],
+	['string', ['string']],
+	['number', ['number']],
+	['bigint', ['bigint']],
+	['string[]', ['array', 'indexed']],
+]) {
+	test(`documented ${returnType} callback parameters cannot hide async or generator defaults`, t => {
+		for (const initializer of ['async () => source', 'function* () { return source; }', 'async function* () { return source; }']) {
+			const code = `/** @param {() => ${returnType}} read */ function run(read = ${initializer}) { inspect(read()); }`;
+			t.assert.deepStrictEqual(getInferences(code), [[]], initializer);
+		}
+
+		const code = `/** @param {() => ${returnType}} read */ function run(read = () => source) { inspect(read()); }`;
+		t.assert.deepStrictEqual(getInferences(code), [expected]);
+	});
+}
+
+test('transparent wrappers cannot hide async defaults of documented callback parameters', t => {
+	for (const initializer of ['async () => source', 'function* () { return source; }']) {
+		for (const wrap of [value => `(${value})!`, value => `(${value}) satisfies (() => boolean)`, value => `(${value}) as (() => boolean)`]) {
+			const code = `/** @param {() => boolean} read */ function run(read = ${wrap(initializer)}) { inspect(read()); }`;
+			t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[]], code);
+		}
+	}
+});
+
+test('native default callback return types cannot replace the documented caller contract', t => {
+	for (const [documented, native] of [['boolean', 'string'], ['string', 'boolean'], ['string[]', 'Set<string>']]) {
+		const code = `/** @param {() => ${documented}} read */ function run(read = (): ${native} => source) { inspect(read()); }`;
+		t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[]], code);
+	}
+});
+
+test('constructor parameter callback defaults retain async and synchronous boundaries', t => {
+	for (const [initializer, expected] of [['async () => source', []], ['() => source', ['boolean']]]) {
+		const code = `class Task { /** @param {() => boolean} read */ constructor(public read = ${initializer}) { inspect(read()); } }`;
+		t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [expected], initializer);
+	}
+});

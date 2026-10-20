@@ -589,6 +589,20 @@ const getTypeFromVariable = (node, context, options, visitedVariables) => {
 	return type;
 };
 
+/**
+Get a variable initializer or the default value of a simple parameter binding. A parameter default only describes the omitted-argument case.
+*/
+function getDefinitionInitializer(definition) {
+	if (definition.type === 'Variable') {
+		return definition.node.init;
+	}
+
+	const parent = definition.name?.parent;
+	return definition.type === 'Parameter' && parent?.type === 'AssignmentPattern' && parent.left === definition.name
+		? parent.right
+		: undefined;
+}
+
 const getTypeFromFunctionCall = (node, context, options) => {
 	if (node.callee.type !== 'Identifier') {
 		return unknown;
@@ -608,8 +622,8 @@ const getTypeFromFunctionCall = (node, context, options) => {
 		return unknown;
 	}
 
-	const value = definition.type === 'FunctionName' ? definition.node : unwrapTypeScriptExpression(definition.node.init);
-	if (value?.async || value?.generator) {
+	const value = definition.type === 'FunctionName' ? definition.node : unwrapTypeScriptExpression(getDefinitionInitializer(definition));
+	if (value?.async || value?.generator || (definition.type === 'Parameter' && value?.returnType)) {
 		return unknown;
 	}
 
@@ -937,6 +951,7 @@ export {
 	createTypeCheckers,
 	getTypeName,
 	getTypeReferenceDefinition,
+	getDefinitionInitializer,
 	getJSDocumentType,
 	getJSDocumentTypeName,
 	getJSDocumentCallableReturnType,
