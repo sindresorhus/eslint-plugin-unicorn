@@ -152,6 +152,47 @@ test('resolves type annotations that reference other types', t => {
 	}
 });
 
+test('native return aliases resolve in their signature scope rather than the function body', t => {
+	for (const code of [
+		'type Result = string; /** @type {() => boolean} */ const read = (): Result => { type Result = boolean; return "text"; }; inspect(read());',
+		'type Result = string; /** @returns {boolean} */ function read(): Result { type Result = boolean; return "text"; } inspect(read());',
+		'type Result = string; const read = function named(): Result { type Result = boolean; return "text"; }; inspect(read());',
+	]) {
+		t.assert.deepStrictEqual(getResults(code), [false], code);
+	}
+
+	for (const code of [
+		'type Result = boolean; /** @type {() => string} */ const read = (): Result => { type Result = string; return source; }; inspect(read());',
+		'type Result = boolean; /** @returns {string} */ function read(): Result { type Result = string; return source; } inspect(read());',
+		'type Result = boolean; const read = function named(): Result { type Result = string; return source; }; inspect(read());',
+	]) {
+		t.assert.deepStrictEqual(getResults(code), [true], code);
+	}
+});
+
+test('generic return parameters do not resolve to same-named outer boolean aliases', t => {
+	for (const code of [
+		'type T = boolean; const read = <T>(value: T): T => value; inspect(read("text"));',
+		'type T = boolean; /** @type {() => boolean} */ const read = <T>(value: T): T => value; inspect(read("text"));',
+		'type T = boolean; function read<T>(value: T): T { return value; } inspect(read("text"));',
+	]) {
+		t.assert.deepStrictEqual(getResults(code), [false], code);
+	}
+
+	t.assert.deepStrictEqual(getResults('type T = string; const read = <T>(value: T): boolean => source; inspect(read("text"));'), [true]);
+});
+
+test('callable alias and interface signatures use their own reference scopes', t => {
+	for (const [code, expected] of [
+		['type Flag = boolean; type Read = () => Flag; let read: Read; inspect(read());', true],
+		['type Flag = boolean; interface Read { (): Flag; } let read: Read; inspect(read());', true],
+		['type Flag = boolean; type Read = <Flag>(value: Flag) => Flag; let read: Read; inspect(read("text"));', false],
+		['type Flag = boolean; interface Read { <Flag>(value: Flag): Flag; } let read: Read; inspect(read("text"));', false],
+	]) {
+		t.assert.deepStrictEqual(getResults(code), [expected], code);
+	}
+});
+
 test('sees through TypeScript wrappers around known receivers', t => {
 	for (const [code, expected] of [
 		['inspect(new Set()!.has(value));', true],

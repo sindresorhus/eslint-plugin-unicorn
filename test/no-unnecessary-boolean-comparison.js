@@ -16,6 +16,10 @@ test({
 			code: '/** @returns {boolean} */ let read = (): unknown => true; read() === true;',
 			languageOptions: {parser: parsers.typescript},
 		},
+		{
+			code: 'type Result = string; /** @type {() => boolean} */ const read = (): Result => { type Result = boolean; return "text"; }; read() === true;',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		{
@@ -31,6 +35,12 @@ test({
 		{
 			code: 'function run(text: string) { return text.includes("x") === false; }',
 			output: 'function run(text: string) { return !text.includes("x"); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+		{
+			code: 'type Result = boolean; /** @type {() => string} */ const read = (): Result => { type Result = string; return source; }; read() === true;',
+			output: 'type Result = boolean; /** @type {() => string} */ const read = (): Result => { type Result = string; return source; }; read();',
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
 		},

@@ -424,6 +424,15 @@ test('native function return annotations override conflicting callable binding d
 	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [['string']]);
 });
 
+test('native return alias scope keeps boolean and string classifiers consistent', t => {
+	for (const [code, expected] of [
+		['type Result = string; /** @type {() => boolean} */ const read = (): Result => { type Result = boolean; return "text"; }; inspect(read());', ['string']],
+		['type Result = boolean; /** @type {() => string} */ const read = (): Result => { type Result = string; return source; }; inspect(read());', ['boolean']],
+	]) {
+		t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [expected]);
+	}
+});
+
 test('async and generator syntax cannot be overridden by synchronous callable documentation', t => {
 	const code = '/** @type {() => string[]} */ const read = async () => source; /** @type {() => string[]} */ const generate = function* () { return source; }; inspect(read()); inspect(generate());';
 	t.assert.deepStrictEqual(getInferences(code), [[], []]);

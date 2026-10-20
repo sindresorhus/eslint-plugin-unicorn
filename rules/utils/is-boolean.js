@@ -124,12 +124,6 @@ function isBooleanTypeInformation(node, context) {
 		&& !isKnownNonBoolean(node, context);
 }
 
-function getTypeReferenceName(typeName) {
-	if (typeName?.type === 'Identifier') {
-		return typeName.name;
-	}
-}
-
 function isBooleanCallSignatureMembers(members, context, scope, visitedTypeReferences) {
 	const callSignatures = members.filter(member => member.type === 'TSCallSignatureDeclaration');
 
@@ -147,12 +141,12 @@ function isTypeReference({
 	visitedTypeReferences,
 	predicate,
 }) {
-	const name = getTypeReferenceName(node.typeName);
-	if (!name) {
+	if (node.typeName?.type !== 'Identifier') {
 		return false;
 	}
 
-	const variable = findVariable(scope, name);
+	// Use the parser's binding to respect function signature scopes and generic parameters.
+	const variable = context.sourceCode.getScope(node).references.find(reference => reference.identifier === node.typeName)?.resolved;
 	if (!variable || visitedTypeReferences.has(variable)) {
 		return false;
 	}

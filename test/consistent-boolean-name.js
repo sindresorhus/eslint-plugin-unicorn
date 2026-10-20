@@ -4594,3 +4594,62 @@ test({
 		}),
 	],
 });
+
+// Function aliases keep React's required `use` prefix in rename suggestions.
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [wrap('/** @type {() => boolean} */ const isReady = source; const useIsReady = isReady;')],
+		invalid: [
+			...[
+				'/** @type {() => boolean} */ const isReady = source;',
+				'/** @returns {boolean} */ function isReady() { return source; }',
+				'const isReady = () => true;',
+			].map(declaration => wrap({
+				code: `${declaration} const useReady = isReady; useReady();`,
+				options: [onlyIsPrefixOptions],
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					data: {name: 'ready', prefixes: '`is`'},
+					suggestions: [{
+						messageId: 'rename',
+						data: {replacement: 'useIsReady'},
+						output: `${declaration} const useIsReady = isReady; useIsReady();`,
+					}],
+				}],
+			})),
+			wrap({
+				code: '/** @type {boolean} */ const isReady = true; const useReady = isReady; consume(useReady);',
+				output: '/** @type {boolean} */ const isReady = true; const isUseReady = isReady; consume(isUseReady);',
+				options: [onlyIsPrefixOptions],
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					data: {name: 'useReady', prefixes: '`is`'},
+					suggestions: [{
+						messageId: 'rename',
+						data: {replacement: 'isUseReady'},
+						output: '/** @type {boolean} */ const isReady = true; const isUseReady = isReady; consume(isUseReady);',
+					}],
+				}],
+			}),
+		],
+	});
+}
+
+for (const wrap of [typescript, typeAware]) {
+	test({
+		valid: [],
+		invalid: [wrap({
+			code: 'const isReady: () => boolean = source; const useReady = isReady; useReady();',
+			options: [onlyIsPrefixOptions],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				data: {name: 'ready', prefixes: '`is`'},
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'useIsReady'},
+					output: 'const isReady: () => boolean = source; const useIsReady = isReady; useIsReady();',
+				}],
+			}],
+		})],
+	});
+}

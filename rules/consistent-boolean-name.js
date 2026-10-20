@@ -505,6 +505,7 @@ function isReactHookFunctionBinding(variable, context) {
 	return definition?.type === 'Variable'
 		&& (
 			isFunction(definition.node.init)
+			|| isBooleanFunctionReference(definition.node.init, context)
 			|| isBooleanReturningFunctionReference(definition.node.init, context)
 			|| isCallableTypeAnnotation(definition.name.typeAnnotation, context, context.sourceCode.getScope(definition.name))
 			|| getJSDocumentType(getJSDocumentTypeAnnotation(definition.name, context), {
