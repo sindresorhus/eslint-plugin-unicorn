@@ -84,6 +84,23 @@ test('type information only refines unknown documented value types', t => {
 	t.assert.deepStrictEqual(getResults('/** @type {boolean} */ const value = "text"; inspect(value);', {typeAware: true}), [true]);
 });
 
+test('compiler inference through aliases respects definite documented types', t => {
+	for (const expression of ['value', '(0, value)', 'source ? value : value']) {
+		const code = `/** @type {string} */ const value = true; const alias = ${expression}; inspect(alias);`;
+		t.assert.deepStrictEqual(getResults(code, {typeAware: true}), [false], expression);
+	}
+
+	t.assert.deepStrictEqual(getResults('/** @type {unknown} */ const value = true; const alias = value; inspect(alias);', {typeAware: true}), [true]);
+});
+
+test('mixed documented types retain consistent compiler refinement through aliases', t => {
+	for (const type of ['boolean | string', 'boolean | (() => boolean)']) {
+		const code = `/** @type {${type}} */ const value = true; const alias = value; inspect(value); inspect(alias);`;
+		t.assert.deepStrictEqual(getResults(code), [false, false], type);
+		t.assert.deepStrictEqual(getResults(code, {typeAware: true}), [true, true], type);
+	}
+});
+
 test('type information cannot bypass definite documented call result types', t => {
 	for (const code of [
 		'/** @returns {string} */ function read() { return true; } inspect(read());',

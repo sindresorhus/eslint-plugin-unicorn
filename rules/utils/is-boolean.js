@@ -111,7 +111,7 @@ function isBooleanTypeScriptType(type, checker) {
 	return booleanTypeStrings.has(checker.typeToString(type));
 }
 
-const {isKnownNonTarget: isKnownNonBooleanCall} = createTypeCheckers({
+const {isKnownNonTarget: isKnownNonBoolean} = createTypeCheckers({
 	targetTypeNames: new Set(['boolean']),
 	nonTargetTypeNames: new Set(['Array', 'ReadonlyArray', 'Promise', 'PromiseLike']),
 	isTargetTypeAnnotation: node => node?.type === 'TSBooleanKeyword'
@@ -120,7 +120,8 @@ const {isKnownNonTarget: isKnownNonBooleanCall} = createTypeCheckers({
 });
 
 function isBooleanTypeInformation(node, context) {
-	return withTypeInformation(node, context, ({type, checker}) => isBooleanTypeScriptType(type, checker)) ?? false;
+	return (withTypeInformation(node, context, ({type, checker}) => isBooleanTypeScriptType(type, checker)) ?? false)
+		&& !isKnownNonBoolean(node, context);
 }
 
 function getTypeReferenceName(typeName) {
@@ -665,7 +666,7 @@ function isBooleanCallExpression(node, context, visitedVariables) {
 	}
 
 	return isBooleanFunctionReference(node.callee, context, visitedVariables)
-		|| (isBooleanTypeInformation(node, context) && !isKnownNonBooleanCall(node, context));
+		|| isBooleanTypeInformation(node, context);
 }
 
 function isBooleanExpressionBySyntax(node, context, visitedVariables) {
@@ -719,8 +720,7 @@ function isBooleanExpression(node, context, visitedVariables = new Set()) {
 
 	const annotation = getJSDocumentTypeAnnotation(node, context);
 	if (annotation) {
-		const state = getJSDocumentBooleanState(annotation);
-		return state === 'unknown' ? isBooleanTypeInformation(node, context) : state === 'boolean';
+		return getJSDocumentBooleanState(annotation) === 'boolean' || isBooleanTypeInformation(node, context);
 	}
 
 	if (
