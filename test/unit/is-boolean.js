@@ -1,7 +1,7 @@
 import test from 'node:test';
 import {Linter} from 'eslint';
 import {parseForESLint} from '@typescript-eslint/parser';
-import {isBooleanExpression, isFunctionTypeAnnotation} from '../../rules/utils/is-boolean.js';
+import {isBooleanExpression, isBooleanFunction, isFunctionTypeAnnotation} from '../../rules/utils/is-boolean.js';
 import {typescriptEslintParser} from '../../scripts/parsers.js';
 
 const linter = new Linter();
@@ -139,6 +139,32 @@ test('uses documented returns and callable annotations only for calls', t => {
 		'/** @returns {boolean} */ async function predicate() { return true; } inspect(predicate());',
 	]) {
 		t.assert.deepStrictEqual(getResults(code), [false], code);
+	}
+});
+
+test('documented function returns can be classified without resolving scopes', t => {
+	for (const [type, expected] of [['boolean', true], ['string', false], ['boolean | null', false], ['() => boolean', false], ['unknown', false]]) {
+		let scopeQueries = 0;
+		const results = getResults(`inspect(/** @returns {${type}} */ () => source);`, {
+			inspect(node, context) {
+				const sourceCode = new Proxy(context.sourceCode, {
+					get(target, property) {
+						const value = Reflect.get(target, property, target);
+						if (property === 'getScope') {
+							return (...arguments_) => {
+								scopeQueries++;
+								return value.apply(target, arguments_);
+							};
+						}
+
+						return typeof value === 'function' ? value.bind(target) : value;
+					},
+				});
+				return isBooleanFunction(node, {sourceCode});
+			},
+		});
+		t.assert.deepStrictEqual(results, [expected], type);
+		t.assert.strictEqual(scopeQueries, 0, type);
 	}
 });
 

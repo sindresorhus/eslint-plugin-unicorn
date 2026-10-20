@@ -310,12 +310,12 @@ function isBooleanFunction(node, context, visitedVariables = new Set()) {
 		return false;
 	}
 
-	const scope = context.sourceCode.getScope(node);
 	const annotation = getJSDocumentReturnType(node, context);
 	if (annotation) {
 		return getJSDocumentBooleanState(annotation) === 'boolean';
 	}
 
+	const scope = context.sourceCode.getScope(node);
 	if (isBooleanTypeAnnotation(node.returnType, context, scope)) {
 		return true;
 	}

@@ -32,6 +32,27 @@ const string = name('string');
 const number = name('number');
 const array = name('Array');
 
+test('consecutive parses restart tokenization after early failures and primitive or named fast paths', t => {
+	for (const [expression, expected] of [
+		['Map<string, "unterminated', unknown],
+		['boolean', boolean],
+		['Set', name('Set')],
+		['Array<string>', array],
+		[String.raw`Map<string, "\x0G">`, unknown],
+		['number', number],
+		['Uint8Array', name('Uint8Array')],
+		['(value: string) => boolean', callable(boolean)],
+		[String.raw`function("\u{110000}"): boolean`, unknown],
+		['true', boolean],
+		['𝒱alue', name('𝒱alue')],
+		['{value: Array<boolean>}', nonPrimitive],
+		['Array<"unterminated\n', unknown],
+		['boolean | undefined', union(boolean, nullish('undefined'))],
+	]) {
+		t.assert.deepStrictEqual(parseJSDocumentType(expression), expected, expression);
+	}
+});
+
 test('primitive types with surrounding whitespace retain their complete-expression boundaries', t => {
 	for (const [expression, expected] of [
 		['boolean', boolean],

@@ -59,7 +59,9 @@ function parseJSDocumentType(text) {
 
 	const tokens = [];
 	const lineBreaks = new Set();
-	for (const match of text.matchAll(tokenPattern)) {
+	tokenPattern.lastIndex = 0;
+	let match;
+	while ((match = tokenPattern.exec(text))) {
 		const token = match[0];
 		if (/^["']/v.test(token) && (token.length === 1 || !hasValidStringEscapes(token))) {
 			return unknown;
