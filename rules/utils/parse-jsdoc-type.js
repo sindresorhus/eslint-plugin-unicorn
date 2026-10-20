@@ -112,7 +112,7 @@ function parseJSDocumentType(text) {
 				throw new SyntaxError('Unsupported JSDoc type');
 			}
 
-			type = tokens[index] === undefined || [')', '>', ']', ',', '|', '&'].includes(tokens[index])
+			type = tokens[index] === undefined || [')', '>', ']', '}', ',', ';', '|', '&'].includes(tokens[index])
 				? unknown
 				: {kind: 'nullable', element: parsePostfix()};
 		} else if (consume('!')) {
@@ -224,6 +224,10 @@ function parseJSDocumentType(text) {
 				}
 
 				consume('?');
+				if (tokens[index] === '(') {
+					parseList('(', ')', parseArrowParameter);
+				}
+
 				if (consume(':')) {
 					parseUnion();
 				}

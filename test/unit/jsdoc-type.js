@@ -219,7 +219,8 @@ function getParameterRanges(code, typescript = false) {
 						create: context => ({
 							':function'(node) {
 								for (const parameter of node.params) {
-									const identifier = parameter.type === 'AssignmentPattern' ? parameter.left : parameter;
+									const binding = parameter.type === 'TSParameterProperty' ? parameter.parameter : parameter;
+									const identifier = binding.type === 'AssignmentPattern' ? binding.left : binding;
 									ranges.push(getJSDocumentParameterNameRange(identifier, context));
 								}
 							},
@@ -627,4 +628,26 @@ test('auto-accessor initializers own parameter and return documentation', t => {
 test('native auto-accessor binding types override documented initializer returns', t => {
 	const code = 'class Example { /** @returns {boolean} */ accessor read: () => string = () => source; }';
 	t.assert.deepStrictEqual(getAnnotations(code, true, true), [undefined]);
+});
+
+test('constructor parameter properties own exact named documentation', t => {
+	for (const parameter of ['public flag', 'private flag', 'protected flag', 'readonly flag', 'public readonly flag = source']) {
+		const code = `class Example { /** @param {boolean} [flag=false] */ constructor(${parameter}) { inspect(flag); } }`;
+		t.assert.deepStrictEqual(getAnnotations(code, false, true), [{type: {kind: 'name', name: 'boolean'}, optional: true, name: 'flag'}], parameter);
+		t.assert.strictEqual(code.slice(...getParameterRanges(code, true)[0]), 'flag', parameter);
+	}
+});
+
+test('constructor parameter properties preserve native types and documentation rename ranges', t => {
+	const code = 'class Example { /** @argument {boolean} [flag=false] */ constructor(public flag: string = "") { inspect(flag); } }';
+	t.assert.deepStrictEqual(getAnnotations(code, false, true), [undefined]);
+	t.assert.strictEqual(code.slice(...getParameterRanges(code, true)[0]), 'flag');
+});
+
+test('constructor parameter property documentation stays exact and ambiguous duplicates stay unknown', t => {
+	for (const tags of ['@param {boolean} other', '@param {boolean} flag.ready', '@param {boolean} flag\n * @arg {string} flag']) {
+		const code = `class Example { /** ${tags} */ constructor(public flag) { inspect(flag); } }`;
+		t.assert.deepStrictEqual(getAnnotations(code, false, true), [undefined], tags);
+		t.assert.deepStrictEqual(getParameterRanges(code, true), [undefined], tags);
+	}
 });

@@ -58,7 +58,7 @@ const booleanPropertiesByExpressionKind = new Map([
 	['regexp', new Set(['dotAll', 'global', 'hasIndices', 'ignoreCase', 'multiline', 'sticky', 'unicode', 'unicodeSets'])],
 ]);
 
-const jsdocTypeNamesByExpressionKind = new Map([
+const typeNamesByExpressionKind = new Map([
 	['array', new Set(['Array', 'ReadonlyArray'])],
 	['map', new Set(['Map', 'ReadonlyMap', 'WeakMap'])],
 	['regexp', new Set(['RegExp'])],
@@ -67,8 +67,8 @@ const jsdocTypeNamesByExpressionKind = new Map([
 	['weakSet', new Set(['WeakSet'])],
 ]);
 
-const callExpressionKindCheckers = new Map([
-	...[...jsdocTypeNamesByExpressionKind].map(([kind, targetTypeNames]) => [
+const expressionKindCheckers = new Map([
+	...[...typeNamesByExpressionKind].map(([kind, targetTypeNames]) => [
 		kind,
 		createTypeCheckers({targetTypeNames, checkClassHeritage: false}).isTarget,
 	]),
@@ -381,7 +381,11 @@ function isBooleanFunctionReference(node, context, visitedVariables = new Set())
 				if (variable.references.every(reference => !reference.isWrite())) {
 					functionNode = definition.node;
 				}
-			} else if (isSimpleConstVariableDefinition(definition)) {
+			} else if (
+				definition.type === 'Variable'
+				&& definition.node.id === definition.name
+				&& variable.references.every(reference => !reference.isWrite() || reference.init)
+			) {
 				let initializer = definition.node.init;
 				while (
 					initializer?.type === 'TSSatisfiesExpression'
@@ -396,7 +400,8 @@ function isBooleanFunctionReference(node, context, visitedVariables = new Set())
 			}
 
 			isBoolean = functionNode
-				? isBooleanFunction(functionNode, context, visitedVariables)
+				? (!functionNode.returnType || isBooleanTypeAnnotation(functionNode.returnType, context, context.sourceCode.getScope(functionNode)))
+				&& isBooleanFunction(functionNode, context, visitedVariables)
 				: false;
 		}
 	}
@@ -476,16 +481,18 @@ function getKnownConstructorExpressionKind(node, context) {
 	}
 }
 
-function getKnownIdentifierExpressionKind(node, context, visitedVariables) {
-	const annotation = getJSDocumentTypeAnnotation(node, context);
-	if (annotation) {
-		for (const [kind, targetTypeNames] of jsdocTypeNamesByExpressionKind) {
-			if (getJSDocumentType(annotation, {targetTypeNames}) === target) {
-				return kind;
-			}
+function getTypeCheckedExpressionKind(node, context) {
+	for (const [kind, isTarget] of expressionKindCheckers) {
+		if (isTarget(node, context)) {
+			return kind;
 		}
+	}
+}
 
-		return;
+function getKnownIdentifierExpressionKind(node, context, visitedVariables) {
+	const kind = getTypeCheckedExpressionKind(node, context);
+	if (kind || getJSDocumentTypeAnnotation(node, context)) {
+		return kind;
 	}
 
 	const variable = findVariable(context.sourceCode.getScope(node), node);
@@ -528,13 +535,7 @@ function getKnownExpressionKind(node, context, visitedVariables = new Set()) {
 		}
 
 		case 'CallExpression': {
-			for (const [kind, isTarget] of callExpressionKindCheckers) {
-				if (isTarget(node, context)) {
-					return kind;
-				}
-			}
-
-			return;
+			return getTypeCheckedExpressionKind(node, context);
 		}
 
 		// `ParenthesizedExpression` only comes from `@babel/eslint-parser` with `createParenthesizedExpressions`, which the tests do not use.

@@ -171,7 +171,11 @@ Get a simple parameter's inline or named documentation tag.
 */
 function getParameterAnnotation(node, context) {
 	const {parent} = node;
-	const parameter = parent?.type === 'AssignmentPattern' && parent.left === node ? parent : node;
+	let parameter = parent?.type === 'AssignmentPattern' && parent.left === node ? parent : node;
+	if (parameter.parent?.type === 'TSParameterProperty') {
+		parameter = parameter.parent;
+	}
+
 	const functionNode = parameter.parent;
 	if (!functionNode || !isFunction(functionNode) || !functionNode.params.includes(parameter)) {
 		return;

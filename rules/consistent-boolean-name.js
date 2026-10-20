@@ -2446,13 +2446,13 @@ function getExplicitPropertyBooleanState(node, context) {
 			return unknown;
 		}
 
-		if (node.shorthand) {
-			return getVariableBooleanState(findVariable(sourceCode.getScope(node), node.key), context);
-		}
-
 		const annotation = getJSDocumentTypeAnnotation(node, context);
 		if (annotation) {
 			return getJSDocumentBooleanState(annotation, {allowNullish: true, functionTypesAreBoolean: true});
+		}
+
+		if (node.shorthand) {
+			return getVariableBooleanState(findVariable(sourceCode.getScope(node), node.key), context);
 		}
 
 		return getExpressionBooleanState(node.value, context);

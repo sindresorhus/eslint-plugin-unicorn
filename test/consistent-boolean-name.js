@@ -3941,6 +3941,51 @@ for (const [code, output] of [
 	});
 }
 
+test({
+	valid: [],
+	invalid: [
+		typescript({
+			code: 'class Task { /** @param {boolean} ready */ constructor(public ready) {} }',
+			options: [{checkArguments: 'always', checkFields: 'never'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 0}],
+		}),
+		typescript({
+			code: 'class Task { /** @param {string} isReady */ constructor(private isReady) {} }',
+			options: [{checkArguments: 'never', checkFields: 'prohibit'}],
+			errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+		}),
+		{
+			code: '/** @param {Array<{matches(value: string): boolean}>} values */ function run(values) { const ready = values.some(predicate); }',
+			output: '/** @param {Array<{matches(value: string): boolean}>} values */ function run(values) { const isReady = values.some(predicate); }',
+			options: [onlyIsPrefixOptions],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 1}],
+		},
+	],
+});
+
+// A shorthand property's own documentation takes precedence over its referenced binding.
+for (const parserCase of [value => value, typescript, typeAware]) {
+	test({
+		valid: [
+			'const isReady = "text"; const task = {/** @type {boolean} */ isReady};',
+			'const ready = source; const task = {/** @type {unknown} */ ready};',
+			'const ready = source; const task = {/** @type {boolean | undefined} */ ready};',
+		].map(code => parserCase({code, options: [{checkVariables: 'never', checkFields: 'always'}]})),
+		invalid: [
+			parserCase({
+				code: 'const isReady = true; const task = {/** @type {string} */ isReady};',
+				options: [{checkVariables: 'never', checkFields: 'always'}],
+				errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+			}),
+			parserCase({
+				code: 'const ready = "text"; const task = {/** @type {boolean} */ ready};',
+				options: [{checkVariables: 'never', checkFields: 'always'}],
+				errors: [{messageId: 'consistent-boolean-name', suggestions: 0}],
+			}),
+		],
+	});
+}
+
 // Unsupported or malformed type expressions must not become evidence from their initializer or nested types.
 test({
 	valid: [

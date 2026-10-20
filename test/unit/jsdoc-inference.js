@@ -446,6 +446,81 @@ test('unwritten mutable functions preserve synchronous documented returns', t =>
 	}
 });
 
+test('unwritten mutable boolean functions preserve documented return contracts', t => {
+	for (const declaration of ['let', 'var']) {
+		for (const initializer of ['() => source', 'function () { return source; }']) {
+			const code = `/** @returns {boolean} */ ${declaration} read = ${initializer}; inspect(read); inspect(read());`;
+			t.assert.deepStrictEqual(getInferences(code), [[], ['boolean']], code);
+		}
+	}
+});
+
+test('mutable boolean function return inference excludes subsequent writes and async results', t => {
+	for (const declaration of ['let', 'var']) {
+		for (const suffix of ['read = other;', 'function replace() { read = other; }']) {
+			const code = `/** @returns {boolean} */ ${declaration} read = () => source; ${suffix} inspect(read());`;
+			t.assert.deepStrictEqual(getInferences(code), [[]], code);
+		}
+
+		for (const initializer of ['async () => source', 'function* () { return source; }']) {
+			const code = `/** @returns {boolean} */ ${declaration} read = ${initializer}; inspect(read());`;
+			t.assert.deepStrictEqual(getInferences(code), [[]], code);
+		}
+	}
+});
+
+test('native function return annotations override documented and literal boolean results', t => {
+	for (const declaration of ['function', 'const', 'let', 'var']) {
+		for (const [returnType, expected] of [['string', ['string']], ['unknown', []], ['boolean | undefined', []]]) {
+			const binding = declaration === 'function'
+				? `function read(): ${returnType} { return true; }`
+				: `${declaration} read = (): ${returnType} => true;`;
+			const code = `/** @returns {boolean} */ ${binding} inspect(read());`;
+			t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [expected], code);
+		}
+	}
+});
+
+test('native receiver parameter types use shared boolean method classification', t => {
+	const code = 'function run(text: string, values: readonly string[], tuple: [number], keys: ReadonlyMap<string, number>, pattern: RegExp) { inspect(text.includes("x")); inspect(values.some(predicate)); inspect(tuple.every(predicate)); inspect(keys.has("x")); inspect(pattern.global); }';
+	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [['boolean'], ['boolean'], ['boolean'], ['boolean'], ['boolean']]);
+});
+
+test('simple rest arrays supply boolean receiver methods without documentation', t => {
+	const code = 'function run(...values) { inspect(values.includes(item)); inspect(values.some(predicate)); inspect(values.every(predicate)); }';
+	t.assert.deepStrictEqual(getInferences(code), [['boolean'], ['boolean'], ['boolean']]);
+});
+
+test('uncertain receiver parameters retain shared nullish and rest write boundaries', t => {
+	const code = 'function run(text?: string, values: string[] | null) { inspect(text.includes("x")); inspect(values.some(predicate)); } function rest(...values) { values = other; inspect(values.every(predicate)); }';
+	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[], [], []]);
+});
+
+test('receiver aliases reuse native type resolution without inheriting conflicting documentation', t => {
+	const code = 'type Words = readonly string[]; type Text = "left" | "right"; /** @param {string} values\n * @param {Array<number>} text */ function run(values: Words, text: Text) { const list = values; const label = text; inspect(list.every(predicate)); inspect(label.endsWith("t")); }';
+	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [['boolean'], ['boolean']]);
+});
+
+test('receiver aliases cannot bypass documented uncertainty or recursive native types', t => {
+	const code = '/** @type {unknown} */ const values = []; const alias = values; inspect(alias.every(predicate)); type Recursive = Recursive; function run(text: Recursive) { inspect(text.includes("x")); }';
+	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[], []]);
+});
+
+test('rest receiver inference stops at ordinary shadowed parameters and closure writes', t => {
+	const code = 'function outer(...values) { function inner(values) { inspect(values.includes(item)); } } function rest(...values) { function replace() { values = other; } inspect(values.some(predicate)); }';
+	t.assert.deepStrictEqual(getInferences(code), [[], []]);
+});
+
+test('explicit receiver annotations keep their existing trust after writes', t => {
+	const code = '/** @param {Array<string>} values */ function run(values, text: string) { values = other; text = other; inspect(values.every(predicate)); inspect(text.includes("x")); }';
+	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [['boolean'], ['boolean']]);
+});
+
+test('receiver classification preserves unsupported subclass and boxed native string boundaries', t => {
+	const code = 'class Values extends Array { some() { return "changed"; } } function run(values: Values, text: String) { inspect(values.some(predicate)); inspect(text.includes("x")); }';
+	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[], []]);
+});
+
 test('reassigned mutable function initializers stay unknown despite documented synchronous returns', t => {
 	for (const declaration of ['let', 'var']) {
 		const code = `/** @returns {string[]} */ ${declaration} read = () => source; read = other; inspect(read());`;

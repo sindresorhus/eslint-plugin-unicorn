@@ -9,6 +9,35 @@ const {test, rule} = getTester(import.meta);
 
 test({
 	valid: [
+		'/** @returns {boolean} */ let read = () => source; read = replacement; read() === true;',
+		'function run(...values) { values = replacement; return values.some(predicate) === true; }',
+		{
+			code: '/** @returns {boolean} */ let read = (): unknown => true; read() === true;',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [
+		{
+			code: '/** @returns {boolean} */ let read = () => source; read() === true;',
+			output: '/** @returns {boolean} */ let read = () => source; read();',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+		{
+			code: 'function run(...values) { return values.every(predicate) === true; }',
+			output: 'function run(...values) { return values.every(predicate); }',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+		{
+			code: 'function run(text: string) { return text.includes("x") === false; }',
+			output: 'function run(text: string) { return !text.includes("x"); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+	],
+});
+
+test({
+	valid: [
 		'class Foo {} /** @type {function(new: Foo): boolean} */ const predicate = function () { return "no"; }; predicate() === true;',
 		'class Foo {} /** @param {function(new: Foo): boolean} predicate */ function run(predicate) { return predicate() === true; }',
 	],
