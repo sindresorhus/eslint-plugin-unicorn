@@ -1,10 +1,16 @@
-import {isCommentToken} from '@eslint-community/eslint-utils';
+import {findVariable, isCommentToken} from '@eslint-community/eslint-utils';
 import {removeStatement} from './fix/index.js';
 import {isDirectEvalCall} from './ast/index.js';
 import {
+	containsNode,
+	getIndentUnit,
+	getLineIndent,
 	getParenthesizedRange,
 	getParenthesizedText,
+	getReferencesInside,
 	getVisitorChildNodes,
+	hasMultilineToken,
+	reindentText,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-smaller-scope';
@@ -285,6 +291,95 @@ function getProblem(node, sourceCode) {
 	return problem;
 }
 
+const isInside = (node, ancestor, sourceCode) => {
+	const [start, end] = sourceCode.getRange(node);
+	const [ancestorStart, ancestorEnd] = sourceCode.getRange(ancestor);
+	return start >= ancestorStart && end <= ancestorEnd;
+};
+
+function getTypeAliasBlock(declaration, references, sourceCode) {
+	if (references.length === 0) {
+		return;
+	}
+
+	let ancestor = references[0].identifier.parent;
+	while (ancestor && ancestor !== declaration.parent) {
+		if (
+			ancestor.type === 'BlockStatement'
+			&& references.every(reference => isInside(reference.identifier, ancestor, sourceCode))
+		) {
+			return ancestor;
+		}
+
+		ancestor = ancestor.parent;
+	}
+}
+
+function getTypeAliasProblem(declaration, context) {
+	const {sourceCode} = context;
+	if (
+		!(declaration.parent.type === 'Program' || declaration.parent.type === 'BlockStatement')
+		|| declaration.declare
+		|| isExported(declaration, declaration.id.name)
+	) {
+		return;
+	}
+
+	const [variable] = sourceCode.getDeclaredVariables(declaration);
+	if (variable.eslintUsed) {
+		return;
+	}
+
+	const references = variable.references.filter(reference => !isInside(reference.identifier, declaration, sourceCode));
+	const block = getTypeAliasBlock(declaration, references, sourceCode);
+	if (!block) {
+		return;
+	}
+
+	const problem = {
+		node: declaration.id,
+		messageId: MESSAGE_ID,
+		data: {name: declaration.id.name},
+	};
+	const firstStatement = block.body.find(statement => !statement.directive);
+	const destinationScope = sourceCode.getScope(block);
+	const hasReboundDependency = getReferencesInside(declaration, context).some(reference =>
+		reference.resolved !== variable
+		&& !(
+			reference.resolved
+			&& isInside(reference.resolved.scope.block, declaration, sourceCode)
+		)
+		&& findVariable(destinationScope, reference.identifier.name) !== reference.resolved,
+	);
+
+	if (
+		hasReboundDependency
+		|| findVariable(destinationScope, declaration.id.name) !== variable
+		|| containsNode(declaration, context, node => node.type === 'TSTypeQuery' || node.type === 'TSThisType')
+		|| hasMultilineToken(declaration, context)
+		|| hasCommentsThatBlockInitializedDeclarationFix(sourceCode, declaration, firstStatement)
+	) {
+		return problem;
+	}
+
+	problem.fix = function * (fixer) {
+		const previousToken = sourceCode.getTokenBefore(firstStatement);
+		const [, previousTokenEnd] = sourceCode.getRange(previousToken);
+		const [firstStatementStart] = sourceCode.getRange(firstStatement);
+		const separator = sourceCode.text.slice(previousTokenEnd, firstStatementStart) || ' ';
+		const targetIndent = sourceCode.getLoc(previousToken).end.line === sourceCode.getLoc(firstStatement).start.line
+			? getLineIndent(block, context) + getIndentUnit(context)
+			: getLineIndent(firstStatement, context);
+		const declarationText = reindentText(sourceCode.getText(declaration), getLineIndent(declaration, context), targetIndent);
+		const semicolon = declarationText.endsWith(';') ? '' : ';';
+
+		yield removeStatement(declaration, context, fixer);
+		yield fixer.insertTextBefore(firstStatement, `${declarationText}${semicolon}${separator}`);
+	};
+
+	return problem;
+}
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
@@ -292,6 +387,7 @@ const create = context => {
 	const {sourceCode} = context;
 
 	context.on('VariableDeclaration', node => getProblem(node, sourceCode));
+	context.on('TSTypeAliasDeclaration', node => getTypeAliasProblem(node, context));
 };
 
 /**
@@ -302,7 +398,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer declaring variables in the smallest possible scope.',
+			description: 'Prefer declaring variables and type aliases in the smallest possible scope.',
 			recommended: true,
 		},
 		fixable: 'code',

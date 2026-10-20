@@ -43,6 +43,23 @@ Output:
 
 `;
 
+exports[`prefer-smaller-scope > invalid(1): type Value = number; const foo = () => { return 1 as Value; }; 1`] = `
+
+  1 | type Value = number; const foo = () => { return 1 as Value; };
+
+`;
+
+exports[`prefer-smaller-scope > invalid(1): type Value = number; const foo = () => { return 1 as Value; }; 2`] = `
+
+Message:
+> 1 | type Value = number; const foo = () => { return 1 as Value; };
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+Output:
+  1 |  const foo = () => { type Value = number; return 1 as Value; };
+
+`;
+
 exports[`prefer-smaller-scope > invalid(10): const value = 1; if (condition) { consume(); } else { consume(value); } 1`] = `
 
   1 | const value = 1; if (condition) { consume(); } else { consume(value); }
@@ -94,6 +111,23 @@ Output:
 
 `;
 
+exports[`prefer-smaller-scope > invalid(10): type Value = number; function foo() { if (condition) { consume(1 as Value); } else { consume(2 as Value); } } 1`] = `
+
+  1 | type Value = number; function foo() { if (condition) { consume(1 as Value); } else { consume(2 as Value); } }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(10): type Value = number; function foo() { if (condition) { consume(1 as Value); } else { consume(2 as Value); } } 2`] = `
+
+Message:
+> 1 | type Value = number; function foo() { if (condition) { consume(1 as Value); } else { consume(2 as Value); } }
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+Output:
+  1 |  function foo() { type Value = number; if (condition) { consume(1 as Value); } else { consume(2 as Value); } }
+
+`;
+
 exports[`prefer-smaller-scope > invalid(11): const value = 1; if (condition) { consume(value); } else { const value = 2; consume(value); } 1`] = `
 
   1 | const value = 1; if (condition) { consume(value); } else { const value = 2; consume(value); }
@@ -134,6 +168,23 @@ Message:
   5 | 		console.log(value);
   6 | 	}
   7 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(11): type Value = number; if (condition) { function foo(value: Value) { return value; } function bar(value: Value) { return value; } } 1`] = `
+
+  1 | type Value = number; if (condition) { function foo(value: Value) { return value; } function bar(value: Value) { return value; } }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(11): type Value = number; if (condition) { function foo(value: Value) { return value; } function bar(value: Value) { return value; } } 2`] = `
+
+Message:
+> 1 | type Value = number; if (condition) { function foo(value: Value) { return value; } function bar(value: Value) { return value; } }
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+Output:
+  1 |  if (condition) { type Value = number; function foo(value: Value) { return value; } function bar(value: Value) { return value; } }
 
 `;
 
@@ -180,6 +231,23 @@ Message:
 
 `;
 
+exports[`prefer-smaller-scope > invalid(12): type Value = number; function foo() { const bar = (value: Value): Value => value; } 1`] = `
+
+  1 | type Value = number; function foo() { const bar = (value: Value): Value => value; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(12): type Value = number; function foo() { const bar = (value: Value): Value => value; } 2`] = `
+
+Message:
+> 1 | type Value = number; function foo() { const bar = (value: Value): Value => value; }
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+Output:
+  1 |  function foo() { type Value = number; const bar = (value: Value): Value => value; }
+
+`;
+
 exports[`prefer-smaller-scope > invalid(13): const value = (1); if (condition) { consume(value); } 1`] = `
 
   1 | const value = (1); if (condition) { consume(value); }
@@ -223,6 +291,23 @@ Message:
 
 `;
 
+exports[`prefer-smaller-scope > invalid(13): type Value = {next?: Value}; function foo() { return {} as Value; } 1`] = `
+
+  1 | type Value = {next?: Value}; function foo() { return {} as Value; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(13): type Value = {next?: Value}; function foo() { return {} as Value; } 2`] = `
+
+Message:
+> 1 | type Value = {next?: Value}; function foo() { return {} as Value; }
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+Output:
+  1 |  function foo() { type Value = {next?: Value}; return {} as Value; }
+
+`;
+
 exports[`prefer-smaller-scope > invalid(14): const value = 1; if (condition) { returnValue = <Component value={value} />; } 1`] = `
 
   1 | const value = 1; if (condition) { returnValue = <Component value={value} />; }
@@ -237,6 +322,23 @@ Message:
 
 Output:
   1 | if (condition) { const value = 1; returnValue = <Component value={value} />; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(14): type Box<Type> = {value: Type}; function foo<Type>() { return {} as Box<Type>; } 1`] = `
+
+  1 | type Box<Type> = {value: Type}; function foo<Type>() { return {} as Box<Type>; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(14): type Box<Type> = {value: Type}; function foo<Type>() { return {} as Box<Type>; } 2`] = `
+
+Message:
+> 1 | type Box<Type> = {value: Type}; function foo<Type>() { return {} as Box<Type>; }
+    |      ^^^ Move \`Box\` into the block where it is used.
+
+Output:
+  1 |  function foo<Type>() { type Box<Type> = {value: Type}; return {} as Box<Type>; }
 
 `;
 
@@ -255,6 +357,33 @@ exports[`prefer-smaller-scope > invalid(14): type Value = string;\nfunction foo(
 `;
 
 exports[`prefer-smaller-scope > invalid(14): type Value = string;\nfunction foo() {\n\tlet value: Value;\n\tif (condition) {\n\t\tvalue = getValue();\n\t\ttype Value = number;\n\t\tconsole.log(value);\n\t}\n} 2`] = `
+
+Message:
+> 1 | type Value = string;
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+  2 | function foo() {
+  3 | 	let value: Value;
+  4 | 	if (condition) {
+  5 | 		value = getValue();
+  6 | 		type Value = number;
+  7 | 		console.log(value);
+  8 | 	}
+  9 | }
+
+Output:
+  1 | function foo() {
+  2 | 	type Value = string;
+  3 | 	let value: Value;
+  4 | 	if (condition) {
+  5 | 		value = getValue();
+  6 | 		type Value = number;
+  7 | 		console.log(value);
+  8 | 	}
+  9 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(14): type Value = string;\nfunction foo() {\n\tlet value: Value;\n\tif (condition) {\n\t\tvalue = getValue();\n\t\ttype Value = number;\n\t\tconsole.log(value);\n\t}\n} 3`] = `
 
 Message:
   1 | type Value = string;
@@ -321,6 +450,23 @@ Output:
 
 `;
 
+exports[`prefer-smaller-scope > invalid(15): type Keys<Type> = {[Key in keyof Type]: Key}; function foo<Key>() { return {} as Keys<Key>; } 1`] = `
+
+  1 | type Keys<Type> = {[Key in keyof Type]: Key}; function foo<Key>() { return {} as Keys<Key>; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(15): type Keys<Type> = {[Key in keyof Type]: Key}; function foo<Key>() { return {} as Keys<Key>; } 2`] = `
+
+Message:
+> 1 | type Keys<Type> = {[Key in keyof Type]: Key}; function foo<Key>() { return {} as Keys<Key>; }
+    |      ^^^^ Move \`Keys\` into the block where it is used.
+
+Output:
+  1 |  function foo<Key>() { type Keys<Type> = {[Key in keyof Type]: Key}; return {} as Keys<Key>; }
+
+`;
+
 exports[`prefer-smaller-scope > invalid(16): const value = 1\nif (condition) {\n\t[value].map(consume)\n} 1`] = `
 
   1 | const value = 1
@@ -381,6 +527,23 @@ Output:
 
 `;
 
+exports[`prefer-smaller-scope > invalid(16): type Result<Type> = Type extends Promise<infer Value> ? Value : never; function foo<Value>() { return {} as Result<Value>; } 1`] = `
+
+  1 | type Result<Type> = Type extends Promise<infer Value> ? Value : never; function foo<Value>() { return {} as Result<Value>; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(16): type Result<Type> = Type extends Promise<infer Value> ? Value : never; function foo<Value>() { return {} as Result<Value>; } 2`] = `
+
+Message:
+> 1 | type Result<Type> = Type extends Promise<infer Value> ? Value : never; function foo<Value>() { return {} as Result<Value>; }
+    |      ^^^^^^ Move \`Result\` into the block where it is used.
+
+Output:
+  1 |  function foo<Value>() { type Result<Type> = Type extends Promise<infer Value> ? Value : never; return {} as Result<Value>; }
+
+`;
+
 exports[`prefer-smaller-scope > invalid(17): const value = \`first\nsecond\`; if (condition) { consume(value); } 1`] = `
 
   1 | const value = \`first
@@ -435,6 +598,23 @@ Output:
 
 `;
 
+exports[`prefer-smaller-scope > invalid(17): import type {Item} from \"./module.js\"; type Pair = [Item, Item]; function foo() { return [] as Pair; } 1`] = `
+
+  1 | import type {Item} from "./module.js"; type Pair = [Item, Item]; function foo() { return [] as Pair; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(17): import type {Item} from \"./module.js\"; type Pair = [Item, Item]; function foo() { return [] as Pair; } 2`] = `
+
+Message:
+> 1 | import type {Item} from "./module.js"; type Pair = [Item, Item]; function foo() { return [] as Pair; }
+    |                                             ^^^^ Move \`Pair\` into the block where it is used.
+
+Output:
+  1 | import type {Item} from "./module.js";  function foo() { type Pair = [Item, Item]; return [] as Pair; }
+
+`;
+
 exports[`prefer-smaller-scope > invalid(18): const value = 1; if (condition) { \"use strict\"; consume(value); } 1`] = `
 
   1 | const value = 1; if (condition) { "use strict"; consume(value); }
@@ -452,6 +632,23 @@ Output:
 
 `;
 
+exports[`prefer-smaller-scope > invalid(18): type Value = number; class Foo { method() { return 1 as Value; } } 1`] = `
+
+  1 | type Value = number; class Foo { method() { return 1 as Value; } }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(18): type Value = number; class Foo { method() { return 1 as Value; } } 2`] = `
+
+Message:
+> 1 | type Value = number; class Foo { method() { return 1 as Value; } }
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+Output:
+  1 |  class Foo { method() { type Value = number; return 1 as Value; } }
+
+`;
+
 exports[`prefer-smaller-scope > invalid(19): /* declaration */ const value = 1; if (condition) { consume(value); } 1`] = `
 
   1 | /* declaration */ const value = 1; if (condition) { consume(value); }
@@ -463,6 +660,25 @@ exports[`prefer-smaller-scope > invalid(19): /* declaration */ const value = 1; 
 Message:
 > 1 | /* declaration */ const value = 1; if (condition) { consume(value); }
     |                         ^^^^^ Move \`value\` into the block where it is used.
+
+`;
+
+exports[`prefer-smaller-scope > invalid(19): function foo() { return 1 as Value; }\ntype Value = number; 1`] = `
+
+  1 | function foo() { return 1 as Value; }
+  2 | type Value = number;
+
+`;
+
+exports[`prefer-smaller-scope > invalid(19): function foo() { return 1 as Value; }\ntype Value = number; 2`] = `
+
+Message:
+  1 | function foo() { return 1 as Value; }
+> 2 | type Value = number;
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+Output:
+  1 | function foo() { type Value = number; return 1 as Value; }
 
 `;
 
@@ -517,6 +733,23 @@ Output:
 
 `;
 
+exports[`prefer-smaller-scope > invalid(2): type Value = number; const foo = function () { return 1 as Value; }; 1`] = `
+
+  1 | type Value = number; const foo = function () { return 1 as Value; };
+
+`;
+
+exports[`prefer-smaller-scope > invalid(2): type Value = number; const foo = function () { return 1 as Value; }; 2`] = `
+
+Message:
+> 1 | type Value = number; const foo = function () { return 1 as Value; };
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+Output:
+  1 |  const foo = function () { type Value = number; return 1 as Value; };
+
+`;
+
 exports[`prefer-smaller-scope > invalid(20): const value = /* initializer */ 1; if (condition) { consume(value); } 1`] = `
 
   1 | const value = /* initializer */ 1; if (condition) { consume(value); }
@@ -528,6 +761,23 @@ exports[`prefer-smaller-scope > invalid(20): const value = /* initializer */ 1; 
 Message:
 > 1 | const value = /* initializer */ 1; if (condition) { consume(value); }
     |       ^^^^^ Move \`value\` into the block where it is used.
+
+`;
+
+exports[`prefer-smaller-scope > invalid(20): type Value = number; function foo() { \"use strict\"; return 1 as Value; } 1`] = `
+
+  1 | type Value = number; function foo() { "use strict"; return 1 as Value; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(20): type Value = number; function foo() { \"use strict\"; return 1 as Value; } 2`] = `
+
+Message:
+> 1 | type Value = number; function foo() { "use strict"; return 1 as Value; }
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+Output:
+  1 |  function foo() { "use strict"; type Value = number; return 1 as Value; }
 
 `;
 
@@ -545,6 +795,23 @@ Message:
 
 `;
 
+exports[`prefer-smaller-scope > invalid(21): type Value = number; function foo() { \"use strict\"; \"other directive\"; return 1 as Value; } 1`] = `
+
+  1 | type Value = number; function foo() { "use strict"; "other directive"; return 1 as Value; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(21): type Value = number; function foo() { \"use strict\"; \"other directive\"; return 1 as Value; } 2`] = `
+
+Message:
+> 1 | type Value = number; function foo() { "use strict"; "other directive"; return 1 as Value; }
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+Output:
+  1 |  function foo() { "use strict"; "other directive"; type Value = number; return 1 as Value; }
+
+`;
+
 exports[`prefer-smaller-scope > invalid(22): const value = 1; if (condition) { /* first statement */ consume(value); } 1`] = `
 
   1 | const value = 1; if (condition) { /* first statement */ consume(value); }
@@ -556,6 +823,35 @@ exports[`prefer-smaller-scope > invalid(22): const value = 1; if (condition) { /
 Message:
 > 1 | const value = 1; if (condition) { /* first statement */ consume(value); }
     |       ^^^^^ Move \`value\` into the block where it is used.
+
+`;
+
+exports[`prefer-smaller-scope > invalid(22): type Value = number\nfunction foo() {\n  \"use strict\"\n  return 1 as Value\n} 1`] = `
+
+  1 | type Value = number
+  2 | function foo() {
+  3 |   "use strict"
+  4 |   return 1 as Value
+  5 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(22): type Value = number\nfunction foo() {\n  \"use strict\"\n  return 1 as Value\n} 2`] = `
+
+Message:
+> 1 | type Value = number
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+  2 | function foo() {
+  3 |   "use strict"
+  4 |   return 1 as Value
+  5 | }
+
+Output:
+  1 | function foo() {
+  2 |   "use strict"
+  3 |   type Value = number;
+  4 |   return 1 as Value
+  5 | }
 
 `;
 
@@ -573,6 +869,32 @@ Message:
 
 `;
 
+exports[`prefer-smaller-scope > invalid(23): type Value = number\nfunction foo() {\n  return (1 as Value)\n} 1`] = `
+
+  1 | type Value = number
+  2 | function foo() {
+  3 |   return (1 as Value)
+  4 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(23): type Value = number\nfunction foo() {\n  return (1 as Value)\n} 2`] = `
+
+Message:
+> 1 | type Value = number
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+  2 | function foo() {
+  3 |   return (1 as Value)
+  4 | }
+
+Output:
+  1 | function foo() {
+  2 |   type Value = number;
+  3 |   return (1 as Value)
+  4 | }
+
+`;
+
 exports[`prefer-smaller-scope > invalid(24): type Value = number; const value: Value = 1; if (condition) { type Value = string; consume(value); } 1`] = `
 
   1 | type Value = number; const value: Value = 1; if (condition) { type Value = string; consume(value); }
@@ -584,6 +906,38 @@ exports[`prefer-smaller-scope > invalid(24): type Value = number; const value: V
 Message:
 > 1 | type Value = number; const value: Value = 1; if (condition) { type Value = string; consume(value); }
     |                            ^^^^^^^^^^^^ Move \`value\` into the block where it is used.
+
+`;
+
+exports[`prefer-smaller-scope > invalid(24): type Value = {\n  value: number;\n};\nfunction foo() {\n  return {} as Value;\n} 1`] = `
+
+  1 | type Value = {
+  2 |   value: number;
+  3 | };
+  4 | function foo() {
+  5 |   return {} as Value;
+  6 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(24): type Value = {\n  value: number;\n};\nfunction foo() {\n  return {} as Value;\n} 2`] = `
+
+Message:
+> 1 | type Value = {
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+  2 |   value: number;
+  3 | };
+  4 | function foo() {
+  5 |   return {} as Value;
+  6 | }
+
+Output:
+  1 | function foo() {
+  2 |   type Value = {
+  3 |     value: number;
+  4 |   };
+  5 |   return {} as Value;
+  6 | }
 
 `;
 
@@ -604,6 +958,44 @@ Output:
 
 `;
 
+exports[`prefer-smaller-scope > invalid(25): function outer() {\n  type Value = {\n    value: number;\n  };\n  function foo() {\n    return {} as Value;\n  }\n} 1`] = `
+
+  1 | function outer() {
+  2 |   type Value = {
+  3 |     value: number;
+  4 |   };
+  5 |   function foo() {
+  6 |     return {} as Value;
+  7 |   }
+  8 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(25): function outer() {\n  type Value = {\n    value: number;\n  };\n  function foo() {\n    return {} as Value;\n  }\n} 2`] = `
+
+Message:
+  1 | function outer() {
+> 2 |   type Value = {
+    |        ^^^^^ Move \`Value\` into the block where it is used.
+  3 |     value: number;
+  4 |   };
+  5 |   function foo() {
+  6 |     return {} as Value;
+  7 |   }
+  8 | }
+
+Output:
+  1 | function outer() {
+  2 |   function foo() {
+  3 |     type Value = {
+  4 |       value: number;
+  5 |     };
+  6 |     return {} as Value;
+  7 |   }
+  8 | }
+
+`;
+
 exports[`prefer-smaller-scope > invalid(26): type Other = string; const value = 1; if (condition) { consume(value); } export type {Other}; 1`] = `
 
   1 | type Other = string; const value = 1; if (condition) { consume(value); } export type {Other};
@@ -618,6 +1010,23 @@ Message:
 
 Output:
   1 | type Other = string; if (condition) { const value = 1; consume(value); } export type {Other};
+
+`;
+
+exports[`prefer-smaller-scope > invalid(26): type Value = number; function foo() {return 1 as Value;} 1`] = `
+
+  1 | type Value = number; function foo() {return 1 as Value;}
+
+`;
+
+exports[`prefer-smaller-scope > invalid(26): type Value = number; function foo() {return 1 as Value;} 2`] = `
+
+Message:
+> 1 | type Value = number; function foo() {return 1 as Value;}
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+Output:
+  1 |  function foo() {type Value = number; return 1 as Value;}
 
 `;
 
@@ -638,6 +1047,23 @@ Output:
 
 `;
 
+exports[`prefer-smaller-scope > invalid(27): type Value = number; function foo() { return (<Value>1)!; } 1`] = `
+
+  1 | type Value = number; function foo() { return (<Value>1)!; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(27): type Value = number; function foo() { return (<Value>1)!; } 2`] = `
+
+Message:
+> 1 | type Value = number; function foo() { return (<Value>1)!; }
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+Output:
+  1 |  function foo() { type Value = number; return (<Value>1)!; }
+
+`;
+
 exports[`prefer-smaller-scope > invalid(28): /* exported exportedValue */ const exportedValue = 1; const value = 1; if (condition) { consume(value); } 1`] = `
 
   1 | /* exported exportedValue */ const exportedValue = 1; const value = 1; if (condition) { consume(value); }
@@ -655,6 +1081,23 @@ Output:
 
 `;
 
+exports[`prefer-smaller-scope > invalid(28): type Value = number; function foo() { return (1 as Value) satisfies Value; } 1`] = `
+
+  1 | type Value = number; function foo() { return (1 as Value) satisfies Value; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(28): type Value = number; function foo() { return (1 as Value) satisfies Value; } 2`] = `
+
+Message:
+> 1 | type Value = number; function foo() { return (1 as Value) satisfies Value; }
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+Output:
+  1 |  function foo() { type Value = number; return (1 as Value) satisfies Value; }
+
+`;
+
 exports[`prefer-smaller-scope > invalid(29): const value = 1; if (condition) {consume(value);} 1`] = `
 
   1 | const value = 1; if (condition) {consume(value);}
@@ -669,6 +1112,36 @@ Message:
 
 Output:
   1 | if (condition) {const value = 1; consume(value);}
+
+`;
+
+exports[`prefer-smaller-scope > invalid(29): consume()\ntype Value = number\n{\n\tconsume(1 as Value)\n} 1`] = `
+
+  1 | consume()
+  2 | type Value = number
+  3 | {
+  4 | 	consume(1 as Value)
+  5 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(29): consume()\ntype Value = number\n{\n\tconsume(1 as Value)\n} 2`] = `
+
+Message:
+  1 | consume()
+> 2 | type Value = number
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+  3 | {
+  4 | 	consume(1 as Value)
+  5 | }
+
+Output:
+  1 | consume()
+  2 | ;
+  3 | {
+  4 | 	type Value = number;
+  5 | 	consume(1 as Value)
+  6 | }
 
 `;
 
@@ -723,6 +1196,23 @@ Output:
 
 `;
 
+exports[`prefer-smaller-scope > invalid(3): type Value = number; values.map(value => { return value as Value; }); 1`] = `
+
+  1 | type Value = number; values.map(value => { return value as Value; });
+
+`;
+
+exports[`prefer-smaller-scope > invalid(3): type Value = number; values.map(value => { return value as Value; }); 2`] = `
+
+Message:
+> 1 | type Value = number; values.map(value => { return value as Value; });
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+Output:
+  1 |  values.map(value => { type Value = number; return value as Value; });
+
+`;
+
 exports[`prefer-smaller-scope > invalid(30): const value = 1; if (condition) { consume(value); } eval?.(\"consume(value)\"); 1`] = `
 
   1 | const value = 1; if (condition) { consume(value); } eval?.("consume(value)");
@@ -737,6 +1227,148 @@ Message:
 
 Output:
   1 | if (condition) { const value = 1; consume(value); } eval?.("consume(value)");
+
+`;
+
+exports[`prefer-smaller-scope > invalid(30): type Item = {id: string}; type Pair = [Item, Item]; function makePair<Item>(value: Item) { const pair: Pair = [{id: \"a\"}, {id: \"b\"}]; return [value, pair]; } 1`] = `
+
+  1 | type Item = {id: string}; type Pair = [Item, Item]; function makePair<Item>(value: Item) { const pair: Pair = [{id: "a"}, {id: "b"}]; return [value, pair]; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(30): type Item = {id: string}; type Pair = [Item, Item]; function makePair<Item>(value: Item) { const pair: Pair = [{id: \"a\"}, {id: \"b\"}]; return [value, pair]; } 2`] = `
+
+Message:
+> 1 | type Item = {id: string}; type Pair = [Item, Item]; function makePair<Item>(value: Item) { const pair: Pair = [{id: "a"}, {id: "b"}]; return [value, pair]; }
+    |                                ^^^^ Move \`Pair\` into the block where it is used.
+
+`;
+
+exports[`prefer-smaller-scope > invalid(31): type Pair = [Item, Item]; function foo() { type Item = number; return [] as Pair; } 1`] = `
+
+  1 | type Pair = [Item, Item]; function foo() { type Item = number; return [] as Pair; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(31): type Pair = [Item, Item]; function foo() { type Item = number; return [] as Pair; } 2`] = `
+
+Message:
+> 1 | type Pair = [Item, Item]; function foo() { type Item = number; return [] as Pair; }
+    |      ^^^^ Move \`Pair\` into the block where it is used.
+
+`;
+
+exports[`prefer-smaller-scope > invalid(32): type Value = number; function foo() { const Value = 1; return Value as Value; } 1`] = `
+
+  1 | type Value = number; function foo() { const Value = 1; return Value as Value; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(32): type Value = number; function foo() { const Value = 1; return Value as Value; } 2`] = `
+
+Message:
+> 1 | type Value = number; function foo() { const Value = 1; return Value as Value; }
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+`;
+
+exports[`prefer-smaller-scope > invalid(33): let value: string | number = 1; type Value = typeof value; function foo() { return 1 as Value; } 1`] = `
+
+  1 | let value: string | number = 1; type Value = typeof value; function foo() { return 1 as Value; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(33): let value: string | number = 1; type Value = typeof value; function foo() { return 1 as Value; } 2`] = `
+
+Message:
+> 1 | let value: string | number = 1; type Value = typeof value; function foo() { return 1 as Value; }
+    |                                      ^^^^^ Move \`Value\` into the block where it is used.
+
+`;
+
+exports[`prefer-smaller-scope > invalid(34): type Value = {value: typeof item}; function foo() { return {} as Value; } 1`] = `
+
+  1 | type Value = {value: typeof item}; function foo() { return {} as Value; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(34): type Value = {value: typeof item}; function foo() { return {} as Value; } 2`] = `
+
+Message:
+> 1 | type Value = {value: typeof item}; function foo() { return {} as Value; }
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+`;
+
+exports[`prefer-smaller-scope > invalid(35): /* declaration */ type Value = number; function foo() { return 1 as Value; } 1`] = `
+
+  1 | /* declaration */ type Value = number; function foo() { return 1 as Value; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(35): /* declaration */ type Value = number; function foo() { return 1 as Value; } 2`] = `
+
+Message:
+> 1 | /* declaration */ type Value = number; function foo() { return 1 as Value; }
+    |                        ^^^^^ Move \`Value\` into the block where it is used.
+
+`;
+
+exports[`prefer-smaller-scope > invalid(36): type Value = /* value */ number; function foo() { return 1 as Value; } 1`] = `
+
+  1 | type Value = /* value */ number; function foo() { return 1 as Value; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(36): type Value = /* value */ number; function foo() { return 1 as Value; } 2`] = `
+
+Message:
+> 1 | type Value = /* value */ number; function foo() { return 1 as Value; }
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+`;
+
+exports[`prefer-smaller-scope > invalid(37): type Value = number; /* following */ function foo() { return 1 as Value; } 1`] = `
+
+  1 | type Value = number; /* following */ function foo() { return 1 as Value; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(37): type Value = number; /* following */ function foo() { return 1 as Value; } 2`] = `
+
+Message:
+> 1 | type Value = number; /* following */ function foo() { return 1 as Value; }
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+`;
+
+exports[`prefer-smaller-scope > invalid(38): type Value = number; function foo() { /* use */ return 1 as Value; } 1`] = `
+
+  1 | type Value = number; function foo() { /* use */ return 1 as Value; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(38): type Value = number; function foo() { /* use */ return 1 as Value; } 2`] = `
+
+Message:
+> 1 | type Value = number; function foo() { /* use */ return 1 as Value; }
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+`;
+
+exports[`prefer-smaller-scope > invalid(39): type Value = \`first\nsecond\`; function foo() { return \"first\\nsecond\" as Value; } 1`] = `
+
+  1 | type Value = \`first
+  2 | second\`; function foo() { return "first\\nsecond" as Value; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(39): type Value = \`first\nsecond\`; function foo() { return \"first\\nsecond\" as Value; } 2`] = `
+
+Message:
+> 1 | type Value = \`first
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+  2 | second\`; function foo() { return "first\\nsecond" as Value; }
 
 `;
 
@@ -791,6 +1423,39 @@ Output:
 
 `;
 
+exports[`prefer-smaller-scope > invalid(4): type Value = number; while (condition) { consume(1 as Value); } 1`] = `
+
+  1 | type Value = number; while (condition) { consume(1 as Value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(4): type Value = number; while (condition) { consume(1 as Value); } 2`] = `
+
+Message:
+> 1 | type Value = number; while (condition) { consume(1 as Value); }
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+Output:
+  1 |  while (condition) { type Value = number; consume(1 as Value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(40): type Value = \"first\\\nsecond\"; function foo() { return \"firstsecond\" as Value; } 1`] = `
+
+  1 | type Value = "first\\
+  2 | second"; function foo() { return "firstsecond" as Value; }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(40): type Value = \"first\\\nsecond\"; function foo() { return \"firstsecond\" as Value; } 2`] = `
+
+Message:
+> 1 | type Value = "first\\
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+  2 | second"; function foo() { return "firstsecond" as Value; }
+
+`;
+
 exports[`prefer-smaller-scope > invalid(5): const value = null; if (condition) { consume(value); } 1`] = `
 
   1 | const value = null; if (condition) { consume(value); }
@@ -839,6 +1504,23 @@ Output:
   4 | 		console.log(value);
   5 | 	}
   6 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(5): type Value = number; for (const value of values) { consume(value as Value); } 1`] = `
+
+  1 | type Value = number; for (const value of values) { consume(value as Value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(5): type Value = number; for (const value of values) { consume(value as Value); } 2`] = `
+
+Message:
+> 1 | type Value = number; for (const value of values) { consume(value as Value); }
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+Output:
+  1 |  for (const value of values) { type Value = number; consume(value as Value); }
 
 `;
 
@@ -902,6 +1584,23 @@ Output:
 
 `;
 
+exports[`prefer-smaller-scope > invalid(6): type Value = number; try { consume(1 as Value); } catch {} 1`] = `
+
+  1 | type Value = number; try { consume(1 as Value); } catch {}
+
+`;
+
+exports[`prefer-smaller-scope > invalid(6): type Value = number; try { consume(1 as Value); } catch {} 2`] = `
+
+Message:
+> 1 | type Value = number; try { consume(1 as Value); } catch {}
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+Output:
+  1 |  try { type Value = number; consume(1 as Value); } catch {}
+
+`;
+
 exports[`prefer-smaller-scope > invalid(7): const value = \`value\`; if (condition) { consume(value); } 1`] = `
 
   1 | const value = \`value\`; if (condition) { consume(value); }
@@ -944,6 +1643,23 @@ Message:
   6 | 		console.log(value);
   7 | 	}
   8 | }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(7): type Value = number; try {} catch (error) { consume(error as Value); } 1`] = `
+
+  1 | type Value = number; try {} catch (error) { consume(error as Value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(7): type Value = number; try {} catch (error) { consume(error as Value); } 2`] = `
+
+Message:
+> 1 | type Value = number; try {} catch (error) { consume(error as Value); }
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+Output:
+  1 |  try {} catch (error) { type Value = number; consume(error as Value); }
 
 `;
 
@@ -992,6 +1708,23 @@ Output:
 
 `;
 
+exports[`prefer-smaller-scope > invalid(8): type Value = number; { consume(1 as Value); } 1`] = `
+
+  1 | type Value = number; { consume(1 as Value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(8): type Value = number; { consume(1 as Value); } 2`] = `
+
+Message:
+> 1 | type Value = number; { consume(1 as Value); }
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+Output:
+  1 |  { type Value = number; consume(1 as Value); }
+
+`;
+
 exports[`prefer-smaller-scope > invalid(9): function foo() {\n\tlet value;\n\tif (condition) {\n\t\tvalue = getValue(); // Keep this comment.\n\t\tconsole.log(value);\n\t}\n} 1`] = `
 
   1 | function foo() {
@@ -1032,5 +1765,22 @@ Message:
 
 Output:
   1 | if (condition) { let value = 1; ({value} = object); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(9): type Value = number; function foo() { if (condition) { consume(1 as Value); } consume(2 as Value); } 1`] = `
+
+  1 | type Value = number; function foo() { if (condition) { consume(1 as Value); } consume(2 as Value); }
+
+`;
+
+exports[`prefer-smaller-scope > invalid(9): type Value = number; function foo() { if (condition) { consume(1 as Value); } consume(2 as Value); } 2`] = `
+
+Message:
+> 1 | type Value = number; function foo() { if (condition) { consume(1 as Value); } consume(2 as Value); }
+    |      ^^^^^ Move \`Value\` into the block where it is used.
+
+Output:
+  1 |  function foo() { type Value = number; if (condition) { consume(1 as Value); } consume(2 as Value); }
 
 `;
