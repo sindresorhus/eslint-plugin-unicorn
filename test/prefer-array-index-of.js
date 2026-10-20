@@ -2,7 +2,7 @@ import {test as nodeTest} from 'node:test';
 import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
 import {getTester} from './utils/test.js';
-import createSimpleArraySearchRuleTestFixtures from './shared/simple-array-search-rule-tests.js';
+import createSimpleArraySearchRuleTestFixtures, {testTypeAwareSearches} from './shared/simple-array-search-rule-tests.js';
 
 const {test, rule} = getTester(import.meta);
 
@@ -92,6 +92,13 @@ const lastIndexOfOverFindLastIndexFixtures = createSimpleArraySearchRuleTestFixt
 
 test.snapshot(lastIndexOfOverFindLastIndexFixtures.snapshot);
 test.typescript(lastIndexOfOverFindLastIndexFixtures.typescript);
+
+testTypeAwareSearches({
+	method: 'findIndex', replacement: 'indexOf', rule, test: nodeTest,
+});
+testTypeAwareSearches({
+	method: 'findLastIndex', replacement: 'lastIndexOf', rule, test: nodeTest,
+});
 
 // Unlike `some()` and `includes()`, both sides use `===`, so a `NaN` search value finds nothing either way
 test({

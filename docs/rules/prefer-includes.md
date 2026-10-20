@@ -15,6 +15,8 @@ All built-ins have `.includes()` in addition to `.indexOf()` and `.lastIndexOf()
 
 This rule is fixable, unless the search expression in `Array#some()` has side effects.
 
+With TypeScript type information, `Array#some()` searches are skipped when the search value's type is not assignable to the callback parameter's type.
+
 Known RegExp search values are skipped unless the receiver is known to be an array or another non-string value. String index searches coerce RegExp values to strings, while `String#includes()` rejects them.
 
 ## Examples

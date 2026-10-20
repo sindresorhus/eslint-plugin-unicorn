@@ -6,6 +6,7 @@ import {
 	isFunctionSelfUsedInside,
 	isParenthesized,
 	shouldSkipKnownNonArrayReceiver,
+	withTypeInformation,
 } from '../utils/index.js';
 
 const booleanLiteralTypeNames = new Set(['false', 'true']);
@@ -136,6 +137,10 @@ export default function simpleArraySearchRule({method, replacement, checkBoolean
 				searchValueNode = left;
 				parameterInBinaryExpression = right;
 			} else {
+				return;
+			}
+
+			if (withTypeInformation(searchValueNode, context, ({type, checker}) => !checker.isTypeAssignableTo(type, sourceCode.parserServices.getTypeAtLocation(parameter)))) {
 				return;
 			}
 

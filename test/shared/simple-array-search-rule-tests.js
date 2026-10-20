@@ -1,4 +1,8 @@
+import path from 'node:path';
+import {Linter} from 'eslint';
+import typescript from 'typescript';
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../../scripts/parsers.js';
 import {parsers} from '../utils/test.js';
 
 function snapshotTests({method, replacement}) {
@@ -153,6 +157,11 @@ function typescriptTests({method, replacement}) {
 	return {
 		valid: [],
 		invalid: [
+			{
+				code: `const values = ["small", "medium", "large"] as const; declare const input: string; values.${method}(value => value === input);`,
+				output: `const values = ["small", "medium", "large"] as const; declare const input: string; values.${replacement}(input);`,
+				errors: 1,
+			},
 			...['(target as number)', '(target satisfies number)', 'target!', '<number>target', '(-2 as number)', '(2 satisfies number)', '2!', '<number>2'].map(expression => ({
 				code: `values.${method}(item => item === ${expression});`,
 				output: `values.${replacement}(${expression});`,
@@ -187,4 +196,66 @@ export default function tests(options) {
 		snapshot: snapshotTests(options),
 		typescript: typescriptTests(options),
 	};
+}
+
+function createTypeScriptProgram(code, filename) {
+	const options = {
+		strict: true, noEmit: true, types: [], target: typescript.ScriptTarget.ESNext,
+	};
+	const host = typescript.createCompilerHost(options);
+	const {getSourceFile} = host;
+	host.getSourceFile = (name, ...arguments_) => name === filename
+		? typescript.createSourceFile(name, code, options.target, true)
+		: getSourceFile(name, ...arguments_);
+	return typescript.createProgram([filename], options, host);
+}
+
+export function testTypeAwareSearches({method, replacement, rule, test}) {
+	const returnType = method === 'some' ? 'value is Type' : 'number';
+	for (const [name, setup, callback, searchValue, hasSideEffect = false] of [
+		['wider string', 'const values = ["small", "medium", "large"] as const; declare const input: string;', 'value => value === input'],
+		['reversed comparison', 'const values = ["small", "medium", "large"] as const; declare const input: string;', 'value => input === value'],
+		['generic unknown', `function check<Type>(value: unknown, values: readonly Type[]): ${returnType} { return`, 'option => option === value'],
+		['optional value with block body', 'declare const values: string[]; declare const input: string | undefined;', 'value => {return value === input;}'],
+		['incompatible side effect', 'const values = ["small", "medium", "large"] as const; declare function getInput(): string;', 'value => value === getInput()'],
+		['compatible string', 'declare const values: string[]; declare const input: string;', 'value => value === input', 'input'],
+		['compatible side effect', 'declare const values: string[]; declare function getInput(): string;', 'value => value === getInput()', 'getInput()', true],
+		['compatible literal', 'const values = ["small", "medium", "large"] as const;', 'value => value === "small"', '"small"'],
+		['compatible generic', 'function check<Type>(input: Type, values: readonly Type[]) { return', 'value => value === input', 'input'],
+		['compatible optional value', 'declare const values: (string | undefined)[]; declare const input: string | undefined;', 'value => value === input', 'input'],
+		['narrowed value', 'function check(values: string[], input: string | undefined) { if (typeof input !== "string") { return; } return', 'value => value === input', 'input'],
+	]) {
+		test(`${method}: ${name} with type information`, t => {
+			const suffix = setup.startsWith('function') ? ' }' : '';
+			const code = `${setup} values.${method}(${callback});${suffix}`;
+			const filename = path.resolve(`simple-array-search-${method}.ts`);
+			const program = createTypeScriptProgram(code, filename);
+			t.assert.deepStrictEqual(typescript.getPreEmitDiagnostics(program), []);
+			const config = {
+				files: ['**/*.ts'],
+				languageOptions: {parser: typescriptEslintParser, parserOptions: {programs: [program]}},
+				plugins: {unicorn: {rules: {search: rule}}},
+				rules: {'unicorn/search': 'error'},
+			};
+			const linter = new Linter();
+			const messages = linter.verify(code, config, {filename});
+			if (searchValue === undefined) {
+				t.assert.deepStrictEqual(messages, []);
+				return;
+			}
+
+			t.assert.strictEqual(messages.length, 1);
+			t.assert.strictEqual(messages[0].messageId, `prefer-${replacement}-over-${method}/error`);
+			if (hasSideEffect) {
+				t.assert.strictEqual(messages[0].fix, undefined);
+				t.assert.strictEqual(messages[0].suggestions.length, 1);
+				t.assert.strictEqual(messages[0].suggestions[0].messageId, `prefer-${replacement}-over-${method}/suggestion`);
+			}
+
+			const {range, text} = hasSideEffect ? messages[0].suggestions[0].fix : messages[0].fix;
+			const output = code.slice(0, range[0]) + text + code.slice(range[1]);
+			t.assert.strictEqual(output, `${setup} values.${replacement}(${searchValue});${suffix}`);
+			t.assert.deepStrictEqual(typescript.getPreEmitDiagnostics(createTypeScriptProgram(output, filename)), []);
+		});
+	}
 }
