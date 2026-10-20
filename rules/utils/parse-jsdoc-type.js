@@ -210,8 +210,8 @@ function parseJSDocumentType(text) {
 	}
 
 	function parseFunctionParameter() {
-		if (tokens[index] === 'this' && tokens[index + 1] === ':') {
-			index += 2;
+		if (consume('this')) {
+			expect(':');
 		}
 
 		parseUnion();

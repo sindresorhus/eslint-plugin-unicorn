@@ -23,6 +23,15 @@ test('legacy void and nullish aliases are definite non-string values', t => {
 	}
 });
 
+test('malformed callback receiver types cannot establish binding or call result types', t => {
+	for (const typescript of [false, true]) {
+		for (const type of ['function(this): boolean', 'function(this, string): string', 'function(function(this)): boolean', 'Array<function(this): boolean>']) {
+			const code = `/** @type {${type}} */ const read = source; inspect(read); inspect(read());`;
+			t.assert.deepStrictEqual(getInferences(code, {typescript}), [[], []], type);
+		}
+	}
+});
+
 /**
 Exercise the production inference entry points on every inspected expression.
 */

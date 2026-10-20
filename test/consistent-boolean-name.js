@@ -59,6 +59,8 @@ const onlyIsPrefixOptions = {
 for (const wrap of [testCase => testCase, typescript, typeAware]) {
 	test({
 		valid: [
+			'/** @type {function(this): boolean} */ let ready;',
+			'/** @param {function(this): boolean} ready */ function run(ready) {}',
 			'/** @type {{(): boolean; label: string}} */ let isReady;',
 			'/** @type {{(): unknown; (value: string): boolean}} */ let ready;',
 			'/** @type {{(): unknown; (value: string): boolean}} */ let isReady;',

@@ -9,6 +9,8 @@ const {test, rule} = getTester(import.meta);
 
 test({
 	valid: [
+		'/** @type {function(this): boolean} */ const predicate = () => "no"; predicate() === true;',
+		'/** @param {function(this, string): boolean} predicate */ function run(predicate) { return predicate() === true; }',
 		'/** @type {{(): boolean; label: string}} */ let predicate; predicate === true;',
 		'/** @type {{(): boolean; (value: string): string}} */ let predicate; predicate() === true;',
 		'/** @type {{readonly(): boolean}} */ let predicate; predicate() === true;',

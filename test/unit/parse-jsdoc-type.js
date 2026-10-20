@@ -32,6 +32,32 @@ const string = name('string');
 const number = name('number');
 const array = name('Array');
 
+for (const expression of [
+	'function(this): boolean',
+	'function(this, string): boolean',
+	'Array<function(this): boolean>',
+	'function(function(this)): boolean',
+]) {
+	test(`missing receiver colon keeps ${expression} unknown`, t => {
+		t.assert.deepStrictEqual(parseJSDocumentType(expression), unknown);
+	});
+}
+
+test('receiver validation preserves explicit receiver types and ordinary this types', t => {
+	for (const [expression, expected] of [
+		['function(this: Context): boolean', callable(boolean)],
+		['function(this: Context, string): boolean', callable(boolean)],
+		['function(ThisType): boolean', callable(boolean)],
+		['function(this: Context): this', callable(name('this'))],
+		['(this) => boolean', callable(boolean)],
+		['Array<function(this: Context): boolean>', array],
+		['function(function(this: Context)): boolean', callable(boolean)],
+		['this', name('this')],
+	]) {
+		t.assert.deepStrictEqual(parseJSDocumentType(expression), expected, expression);
+	}
+});
+
 for (const [description, expression, expected] of [
 	['empty parameter list', '{(): boolean}', callable(boolean)],
 	['typed parameter', '{(value: string): boolean}', callable(boolean)],
