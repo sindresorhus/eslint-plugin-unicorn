@@ -113,6 +113,11 @@ function parseJSDocumentType(text) {
 		}
 	}
 
+	function parseOptional() {
+		const type = parseUnion();
+		return consume('=') ? {kind: 'optional', element: type} : type;
+	}
+
 	function parseUnion() {
 		consume('|');
 		return parseCombined('|', 'union', parseIntersection);
@@ -169,10 +174,6 @@ function parseJSDocumentType(text) {
 			return {kind: 'nullable', element: type};
 		}
 
-		if (consume('=')) {
-			return {kind: 'optional', element: type};
-		}
-
 		consume('!');
 		return type;
 	}
@@ -214,7 +215,7 @@ function parseJSDocumentType(text) {
 			expect(':');
 		}
 
-		parseUnion();
+		parseOptional();
 	}
 
 	function parseTupleMember() {
@@ -224,7 +225,7 @@ function parseJSDocumentType(text) {
 			index = colonIndex + 1;
 		}
 
-		parseUnion();
+		parseOptional();
 	}
 
 	function parseRecord() {
@@ -291,7 +292,7 @@ function parseJSDocumentType(text) {
 			}
 
 			index++;
-			const type = parseUnion();
+			const type = parseOptional();
 			expect(')');
 			return type;
 		}
@@ -365,7 +366,7 @@ function parseJSDocumentType(text) {
 	}
 
 	try {
-		const type = parseUnion();
+		const type = parseOptional();
 		return index === tokens.length ? type : unknown;
 	} catch {
 		return unknown;

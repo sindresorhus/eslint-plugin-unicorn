@@ -72,6 +72,19 @@ test('treats an optional type as parameter optionality', t => {
 	t.assert.strictEqual(parameter.optional, true);
 });
 
+test('ungrouped optional callbacks retain their return type and parameter name', t => {
+	for (const type of ['function(): boolean=', '() => boolean=']) {
+		const code = `/** @param {${type}} ready */ function run(ready) { inspect(ready); }`;
+		for (const typescript of [false, true]) {
+			t.assert.deepStrictEqual(getAnnotations(code, false, typescript), [{
+				type: {kind: 'function', returnType: {kind: 'name', name: 'boolean'}},
+				optional: true,
+				name: 'ready',
+			}], type);
+		}
+	}
+});
+
 test('finds return annotations on functions and their declaration wrappers', t => {
 	for (const code of [
 		'/** @return {boolean} */ function run() {}',

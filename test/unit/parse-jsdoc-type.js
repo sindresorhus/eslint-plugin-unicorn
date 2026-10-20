@@ -32,6 +32,30 @@ const string = name('string');
 const number = name('number');
 const array = name('Array');
 
+test('optional suffix wraps the complete annotated type', t => {
+	const nullableReturn = union(boolean, nullish('undefined'));
+	for (const [expression, expected] of [
+		['boolean | string=', optional(union(boolean, string))],
+		['boolean & {brand: string}=', optional(intersection(boolean, nonPrimitive))],
+		['?boolean=', optional(nullable(boolean))],
+		['function(): boolean=', optional(callable(boolean))],
+		['() => boolean=', optional(callable(boolean))],
+		['function(): boolean | string=', optional(callable(union(boolean, string)))],
+		['() => boolean | undefined=', optional(callable(nullableReturn))],
+		['function(): function(): boolean=', optional(callable(callable(boolean)))],
+		['?function(): boolean=', optional(nullable(callable(boolean)))],
+		['(function(): boolean)=', optional(callable(boolean))],
+		['function(function(): boolean=): string', callable(string)],
+		['[function(): boolean=]', array],
+		['function(): boolean==', unknown],
+		['boolean | string==', unknown],
+		['function(boolean==): string', unknown],
+		['[boolean==]', unknown],
+	]) {
+		t.assert.deepStrictEqual(parseJSDocumentType(expression), expected, expression);
+	}
+});
+
 for (const expression of [
 	'function(this): boolean',
 	'function(this, string): boolean',
@@ -267,7 +291,7 @@ for (const [description, expression, expected] of [
 	['nonnullable prefix preserves an explicit null union', '!(boolean | null)', union(boolean, nullish('null'))],
 	['nonnullable suffix preserves an explicit null union', '(boolean | null)!', union(boolean, nullish('null'))],
 	['parenthesized primitive', '(((boolean)))', boolean],
-	['nullable optional primitive', '?boolean=', nullable(optional(boolean))],
+	['nullable optional primitive', '?boolean=', optional(nullable(boolean))],
 	['optional nullable primitive', '(?boolean)=', optional(nullable(boolean))],
 	['nullable union', '?(boolean | string)', nullable(union(boolean, string))],
 	['nullable union member', '?boolean | string', union(nullable(boolean), string)],

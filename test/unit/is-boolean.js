@@ -320,6 +320,48 @@ for (const [type, expression, expected] of [
 	});
 }
 
+test('documented typed arrays supply boolean iteration and membership results', t => {
+	for (const type of ['Uint8Array', 'BigInt64Array', 'Array<number> | Uint8Array']) {
+		const code = `/** @param {${type}} values */ function run(values) { inspect(values.every(predicate)); inspect(values.includes(value)); inspect(values.some(predicate)); }`;
+		t.assert.deepStrictEqual(getResults(code), [true, true, true], type);
+	}
+});
+
+test('native typed array receivers supply boolean results with and without type information', t => {
+	for (const typeAware of [false, true]) {
+		for (const type of ['Uint8Array', 'BigInt64Array', 'Array<number> | Uint8Array']) {
+			const code = `function run(values: ${type}) { inspect(values.every(predicate)); inspect(values.includes(value)); inspect(values.some(predicate)); }`;
+			t.assert.deepStrictEqual(getResults(code, {typeAware}), [true, true, true], code);
+		}
+	}
+});
+
+test('uncertain typed array receivers do not prove boolean method results', t => {
+	for (const type of ['?Uint8Array', 'BigInt64Array | undefined', 'Uint8Array | string', 'Uint8Array | Unresolved']) {
+		const code = `/** @param {${type}} values */ function run(values) { inspect(values.some(predicate)); inspect(values.includes(value)); }`;
+		t.assert.deepStrictEqual(getResults(code), [false, false], type);
+	}
+
+	for (const type of ['Uint8Array | null', 'BigInt64Array | undefined']) {
+		const code = `function run(values: ${type}) { inspect(values.some(predicate)); }`;
+		t.assert.deepStrictEqual(getResults(code), [false], type);
+	}
+
+	const code = 'function run(values: Uint8Array | {some(predicate): string}) { inspect(values.some(predicate)); }';
+	t.assert.deepStrictEqual(getResults(code), [false]);
+	t.assert.deepStrictEqual(getResults(code, {typeAware: true}), [false]);
+});
+
+test('typed array receiver classification does not extend to unsupported BigInt method chains', t => {
+	const code = '/** @param {BigInt64Array} values */ function run(values) { inspect(values.subarray(1).every(predicate)); }';
+	t.assert.deepStrictEqual(getResults(code), [false]);
+});
+
+test('typed array constructor bindings and static factories supply boolean receiver methods', t => {
+	const code = 'const values = new BigInt64Array(1); inspect(values.some(predicate)); inspect(BigInt64Array.from(source).every(predicate));';
+	t.assert.deepStrictEqual(getResults(code), [true, true]);
+});
+
 test('unknown documented receivers do not inherit certainty from their initializer', t => {
 	for (const code of [
 		'/** @type {unknown} */ const value = []; inspect(value.some(predicate));',

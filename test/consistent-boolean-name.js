@@ -59,6 +59,33 @@ const onlyIsPrefixOptions = {
 for (const wrap of [testCase => testCase, typescript, typeAware]) {
 	test({
 		valid: [
+			'/** @param {function(): boolean | undefined=} ready */ function run(ready) {}',
+			'/** @param {() => boolean | string=} ready */ function run(ready) {}',
+			'/** @param {function(): function(): boolean=} ready */ function run(ready) {}',
+		].map(code => wrap(code)),
+		invalid: [
+			'function(): boolean=',
+			'() => boolean=',
+			'(function(): boolean)=',
+			'(() => boolean)=',
+		].map(type => wrap({
+			code: `/** @param {${type}} ready Description. */ function run(ready) { consume(ready()); }`,
+			options: [onlyIsPrefixOptions],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isReady'},
+					output: `/** @param {${type}} isReady Description. */ function run(isReady) { consume(isReady()); }`,
+				}],
+			}],
+		})),
+	});
+}
+
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [
 			'/** @type {function(this): boolean} */ let ready;',
 			'/** @param {function(this): boolean} ready */ function run(ready) {}',
 			'/** @type {{(): boolean; label: string}} */ let isReady;',

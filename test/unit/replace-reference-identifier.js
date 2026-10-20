@@ -8,6 +8,10 @@ const linter = new Linter();
 for (const [code, output, selector = 'Identifier[name="ready"]'] of [
 	['function run(ready?) { consume(ready); }', 'function run(isReady?) { consume(isReady); }'],
 	['class Task { constructor(public ready?) {} }', 'class Task { constructor(public isReady?) {} }'],
+	['let ready : boolean; consume(ready);', 'let isReady : boolean; consume(isReady);'],
+	['function run(ready ? : boolean) { consume(ready); }', 'function run(isReady ? : boolean) { consume(isReady); }'],
+	['class Task {\r\n  constructor(public ready\r\n    : boolean) {}\r\n}', 'class Task {\r\n  constructor(public isReady\r\n    : boolean) {}\r\n}'],
+	['function run(ready /* Keep */ ? /* Type */ : boolean) { consume(ready); }', 'function run(isReady /* Keep */ ? /* Type */ : boolean) { consume(isReady); }'],
 	[String.raw`function run(r\u0065ady /* Keep */ ?) { consume(r\u0065ady); }`, 'function run(isReady /* Keep */ ?) { consume(isReady); }'],
 	['globalThis.ready;', 'isReady;', 'MemberExpression[property.name="ready"]'],
 ]) {

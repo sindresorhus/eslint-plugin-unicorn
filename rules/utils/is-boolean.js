@@ -11,7 +11,7 @@ import {
 	hasJSDocumentTypeReference,
 } from './type-helpers.js';
 import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
-import isArray from './is-array.js';
+import {isIndexedCollection} from './is-array.js';
 import isString from './is-string.js';
 
 const booleanBinaryOperators = new Set([
@@ -72,7 +72,7 @@ const expressionKindCheckers = new Map([
 		kind,
 		createTypeCheckers({targetTypeNames, checkClassHeritage: false}).isTarget,
 	]),
-	['array', isArray],
+	['array', isIndexedCollection],
 	['string', isString],
 ]);
 
