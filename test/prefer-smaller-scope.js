@@ -65,6 +65,14 @@ testRule.typescript({
 			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Self'}}],
 		},
 		{
+			code: 'class A { a = 1; method() { type Self = typeof this; class B { b = 2; method() { return ({} as Self).a; } } return B; } }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Self'}}],
+		},
+		{
+			code: 'type Item = number; type Box<Type = Item> = {value: Type}; function foo<Item>() { return {} as Box; }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Box'}}],
+		},
+		{
 			code: 'type Tree = {children?: Tree[]}; export function make() { return {} as Tree; }',
 			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Tree'}}],
 		},
