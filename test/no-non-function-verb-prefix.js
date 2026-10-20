@@ -1,5 +1,5 @@
 import {fileURLToPath} from 'node:url';
-import {typescriptEslintParser} from '../scripts/parsers.js';
+import {typescriptEslintParser, vueEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
@@ -19,6 +19,14 @@ const typeAware = (testCase, filename = 'file.ts') => ({
 		},
 	},
 });
+
+const typeAwareVue = code => {
+	const testCase = typeAware(`<script setup lang="ts">${code}</script>`, 'file.vue');
+	testCase.languageOptions.parser = vueEslintParser;
+	testCase.languageOptions.parserOptions.parser = typescriptEslintParser;
+	testCase.languageOptions.parserOptions.extraFileExtensions = ['.vue'];
+	return testCase;
+};
 
 test.snapshot({
 	valid: [
@@ -110,6 +118,8 @@ test.snapshot({
 		typeAware('const {setTitle = true} = {};', 'file.js'),
 		typeAware('function run(getName: (() => string) | null | undefined) {}'),
 		typeAware('/** @param {(() => string) | null | undefined} getName */ function run(getName) {}', 'file.js'),
+		typeAwareVue('const getName: () => string = () => "name";'),
+		typeAwareVue('const {setTitle}: {setTitle: boolean} = {setTitle: true};'),
 	],
 	invalid: [
 		typeAware('const getName = "name";'),
@@ -165,5 +175,7 @@ test.snapshot({
 		typeAware('const {setTitle = (() => {const getCount = 1; return true;})()} = {};', 'file.js'),
 		typeAware('function run(getName: string | null | undefined) {}'),
 		typeAware('/** @param {string | null | undefined} getName */ function run(getName) {}', 'file.js'),
+		typeAwareVue('const getName: string = "name";'),
+		typeAwareVue('const {title: setTitle}: {title: boolean} = {title: true};'),
 	],
 });

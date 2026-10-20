@@ -728,6 +728,38 @@ Message:
 
 `;
 
+exports[`no-non-function-verb-prefix > invalid(50): <script setup lang=\"ts\">const getName: string = \"name\";</script> 1`] = `
+
+Filename: file.vue
+
+  1 | <script setup lang="ts">const getName: string = "name";</script>
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(50): <script setup lang=\"ts\">const getName: string = \"name\";</script> 2`] = `
+
+Message:
+> 1 | <script setup lang="ts">const getName: string = "name";</script>
+    |                               ^^^^^^^^^^^^^^^ \`getName\` starts with \`get\`, so it should be a function.
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(51): <script setup lang=\"ts\">const {title: setTitle}: {title: boolean} = {title: true};</script> 1`] = `
+
+Filename: file.vue
+
+  1 | <script setup lang="ts">const {title: setTitle}: {title: boolean} = {title: true};</script>
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(51): <script setup lang=\"ts\">const {title: setTitle}: {title: boolean} = {title: true};</script> 2`] = `
+
+Message:
+> 1 | <script setup lang="ts">const {title: setTitle}: {title: boolean} = {title: true};</script>
+    |                                       ^^^^^^^^ \`setTitle\` starts with \`set\`, so it should be a function.
+
+`;
+
 exports[`no-non-function-verb-prefix > invalid(6): class Person { constructor(public getName: string) {} } 1`] = `
 
 Filename: file.ts
