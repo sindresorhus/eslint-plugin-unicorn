@@ -85,6 +85,10 @@ function * getBindingIdentifiers(node) {
 
 		case 'ObjectPattern': {
 			for (const property of node.properties) {
+				if (property.shorthand) {
+					continue;
+				}
+
 				yield * getBindingIdentifiers(property.type === 'Property' ? property.value : property);
 			}
 

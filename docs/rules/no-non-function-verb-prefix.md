@@ -13,6 +13,8 @@ Names that start with function-style verbs like `get`, `set`, or `create` imply 
 
 This rule only runs in TypeScript files and requires [type-aware linting](https://typescript-eslint.io/getting-started/typed-linting/). Without type information, it does nothing.
 
+Shorthand object destructuring is ignored, including shorthand with default values, because the name comes from the property. Explicitly renamed bindings are still checked.
+
 ## Examples
 
 ```js
@@ -29,6 +31,16 @@ const createPizza = new Pizza();
 
 // ✅
 const createPizza = () => new Pizza();
+```
+
+```ts
+declare const options: {setTitle: boolean; title: boolean};
+
+// ❌
+const {title: setTitle} = options;
+
+// ✅
+const {setTitle} = options;
 ```
 
 ```js
