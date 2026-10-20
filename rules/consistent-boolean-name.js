@@ -125,6 +125,17 @@ const isFunction = node => [
 	'TSDeclareFunction',
 ].includes(node?.type);
 
+/**
+Get a function value through transparent TypeScript wrappers while keeping type assertions authoritative.
+*/
+function getFunctionValue(node) {
+	while (node?.type === 'TSNonNullExpression' || node?.type === 'TSSatisfiesExpression') {
+		node = node.expression;
+	}
+
+	return isFunction(node) ? node : undefined;
+}
+
 const propertyDefinitionTypes = new Set([
 	'PropertyDefinition',
 	'AccessorProperty',
@@ -317,8 +328,8 @@ function getJSDocumentValueTypeAnnotation(node, context) {
 		return;
 	}
 
-	const value = node.parent?.type === 'VariableDeclarator' && node.parent.id === node ? node.parent.init : node.value;
-	return isFunction(value) && (value.generator || value.returnType) && getJSDocumentCallableReturnType(annotation.type)
+	const functionNode = getFunctionValue(node.parent?.type === 'VariableDeclarator' && node.parent.id === node ? node.parent.init : node.value);
+	return functionNode && (functionNode.generator || functionNode.returnType) && getJSDocumentCallableReturnType(annotation.type)
 		? undefined
 		: annotation;
 }
@@ -435,17 +446,20 @@ const isBooleanReturningFunctionReference = (node, context) => {
 		&& hasBooleanReturnType(definition.node.init, context);
 };
 
-const isBooleanValue = (node, context, visitedVariables) => isFunction(node)
-	? isBooleanFunctionValue(node, context)
-	: (
-		(
-			isBooleanFunctionReference(node, context)
-			|| isBooleanReturningFunctionReference(node, context)
-			|| getFunctionReturnTypeInformationBooleanState(node, context, false) === boolean
+const isBooleanValue = (node, context, visitedVariables) => {
+	const functionNode = getFunctionValue(node);
+	return functionNode
+		? isBooleanFunctionValue(functionNode, context)
+		: (
+			(
+				isBooleanFunctionReference(node, context)
+				|| isBooleanReturningFunctionReference(node, context)
+				|| getFunctionReturnTypeInformationBooleanState(node, context, false) === boolean
+			)
+			&& getExpressionBooleanState(node, context, visitedVariables) === boolean
 		)
-		&& getExpressionBooleanState(node, context, visitedVariables) === boolean
-	)
-	|| isBooleanExpression(node, context);
+		|| isBooleanExpression(node, context);
+};
 
 function getSupportedVariableDefinition(variable) {
 	if (variable.defs.length !== 1) {
@@ -520,7 +534,7 @@ function isReactHookFunctionBinding(variable, context) {
 
 	return definition?.type === 'Variable'
 		&& (
-			isFunction(definition.node.init)
+			Boolean(getFunctionValue(definition.node.init))
 			|| isBooleanFunctionReference(definition.node.init, context)
 			|| isBooleanReturningFunctionReference(definition.node.init, context)
 			|| isCallableTypeAnnotation(definition.name.typeAnnotation, context, context.sourceCode.getScope(definition.name))
@@ -2556,7 +2570,7 @@ function isAutofixableVariable(variable, context) {
 		variable.scope.type === 'global'
 		|| definition?.type !== 'Variable'
 		|| isInDeclareContext(definition.node)
-		|| isFunction(definition.node.init)
+		|| getFunctionValue(definition.node.init)
 		|| getVariableIdentifiers(variable).some(identifier =>
 			isExportedIdentifier(identifier)
 			|| isExportDefaultIdentifier(identifier)

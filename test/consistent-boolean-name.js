@@ -4514,6 +4514,93 @@ for (const wrap of [testCase => testCase, typescript, typeAware]) {
 
 // Native function return annotations take precedence over conflicting callable JSDoc on the binding.
 for (const wrap of [typescript, typeAware]) {
+	for (const expression of [
+		value => `(${value})!`,
+		value => `(${value}) satisfies Function`,
+	]) {
+		test({
+			valid: [wrap(`const useIsReady = ${expression('(): boolean => true')};`)],
+			invalid: [wrap({
+				code: `const useReady = ${expression('(): boolean => true')};`,
+				options: [onlyIsPrefixOptions],
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					suggestions: [{
+						messageId: 'rename',
+						output: `const useIsReady = ${expression('(): boolean => true')};`,
+					}],
+				}],
+			})],
+		});
+
+		test({
+			valid: [
+				`/** @type {() => boolean} */ const ready = ${expression('(): string => "text"')};`,
+				`/** @type {() => string} */ const isReady = ${expression('(): boolean => true')};`,
+				`/** @type {() => boolean} */ const ready = ${expression('function* () { yield true; }')};`,
+				`/** @type {boolean} */ const isReady = ${expression('(): string => "text"')};`,
+				`/** @param {() => boolean} isReady */ function run(isReady = ${expression('(): string => "text"')}) {}`,
+			].map(code => wrap(code)),
+			invalid: [
+				wrap({
+					code: `/** @type {() => boolean} */ const isReady = ${expression('(): string => "text"')};`,
+					errors: [{messageId: 'non-boolean-prefix'}],
+				}),
+				wrap({
+					code: `/** @type {() => boolean} */ const isReady = ${expression('function* () { yield true; }')};`,
+					errors: [{messageId: 'non-boolean-prefix'}],
+				}),
+			],
+		});
+	}
+
+	test({
+		valid: [
+			'const task = {/** @type {() => boolean} */ ready: ((): string => "text")!};',
+			'class Task { /** @type {() => string} */ isReady = (((): boolean => true) satisfies Function)!; }',
+			'const task = {/** @type {() => boolean} */ ready: (function* () { yield true; })!};',
+		].map(code => wrap({code, options: [{checkFields: 'always'}]})),
+		invalid: [
+			['const task = {/** @type {() => boolean} */ isReady: ((): string => "text")!};', 'non-boolean-prefix'],
+			['class Task { /** @type {() => string} */ ready = (((): boolean => true) satisfies Function)!; }', 'consistent-boolean-name'],
+			['const task = {/** @type {() => boolean} */ isReady: (function* () { yield true; })!};', 'non-boolean-prefix'],
+		].map(([code, messageId]) => wrap({code, options: [{checkFields: 'always'}], errors: [{messageId}]})),
+	});
+
+	test({
+		valid: [wrap('/** @type {() => boolean} */ const ready = ((() => true) as (() => unknown))!;')],
+		invalid: [
+			wrap({
+				code: 'const useReady = (() => true) as boolean;',
+				output: 'const isUseReady = (() => true) as boolean;',
+				options: [onlyIsPrefixOptions],
+				errors: [{messageId: 'consistent-boolean-name', suggestions: 1}],
+			}),
+			wrap({
+				code: 'const task = {ready: source satisfies boolean};',
+				options: [{checkFields: 'always'}],
+				errors: [{messageId: 'consistent-boolean-name'}],
+			}),
+			wrap({
+				code: '/** @type {() => boolean} */ const isReady = ((() => true) as (() => string))!;',
+				errors: [{messageId: 'non-boolean-prefix'}],
+			}),
+			wrap({
+				code: '/** @type {() => string} */ const ready = (((): boolean => true) satisfies Function)!;',
+				options: [onlyIsPrefixOptions],
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					suggestions: [{
+						messageId: 'rename',
+						output: '/** @type {() => string} */ const isReady = (((): boolean => true) satisfies Function)!;',
+					}],
+				}],
+			}),
+		],
+	});
+}
+
+for (const wrap of [typescript, typeAware]) {
 	test({
 		valid: [
 			'/** @type {() => string} */ const isReady = (): boolean => true;',
