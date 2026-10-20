@@ -37,6 +37,7 @@ test.snapshot({
 		typeAware('declare const callback: Function; const getName: Function = callback;'),
 		typeAware('declare const callback: CallableFunction; const getName: CallableFunction = callback;'),
 		typeAware('declare const Constructor: NewableFunction; const createName: NewableFunction = Constructor;'),
+		...['Function', 'CallableFunction', 'NewableFunction'].map(typeName => typeAware(`declare const callback: ${typeName} & {tag: string}; const getName = callback;`)),
 		typeAware('declare const getName: () => string;'),
 		typeAware('const getName: (() => string) | undefined = undefined;'),
 		typeAware('const getName: (() => string) & {property: string} = Object.assign(() => "name", {property: "name"});'),
@@ -107,6 +108,8 @@ test.snapshot({
 		typeAware('/** @type {unknown} */ const getName = "name";', 'file.js'),
 		typeAware('class Pizza {} const createPizza = Pizza;', 'file.js'),
 		typeAware('const {setTitle = true} = {};', 'file.js'),
+		typeAware('function run(getName: (() => string) | null | undefined) {}'),
+		typeAware('/** @param {(() => string) | null | undefined} getName */ function run(getName) {}', 'file.js'),
 	],
 	invalid: [
 		typeAware('const getName = "name";'),
@@ -160,5 +163,7 @@ test.snapshot({
 		typeAware('class Person { getName = "name"; }', 'file.js'),
 		typeAware('const {name: getName} = {name: "name"};', 'file.js'),
 		typeAware('const {setTitle = (() => {const getCount = 1; return true;})()} = {};', 'file.js'),
+		typeAware('function run(getName: string | null | undefined) {}'),
+		typeAware('/** @param {string | null | undefined} getName */ function run(getName) {}', 'file.js'),
 	],
 });

@@ -137,8 +137,12 @@ const getUnionTypeCallability = (type, checker, program, visitedTypes) =>
 	);
 
 const getIntersectionTypeCallability = (type, checker, program, visitedTypes) => {
-	const results = type.types.map(type => getTypeCallability(type, checker, program, visitedTypes));
-	return results.includes(unknown) ? unknown : nonCallable;
+	const results = new Set(type.types.map(type => getTypeCallability(type, checker, program, visitedTypes)));
+	if (results.has(callable)) {
+		return callable;
+	}
+
+	return results.has(unknown) ? unknown : nonCallable;
 };
 
 const isInDeclaredModule = (node, sourceCode) =>

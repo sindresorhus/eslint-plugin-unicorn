@@ -680,6 +680,38 @@ Message:
 
 `;
 
+exports[`no-non-function-verb-prefix > invalid(48): function run(getName: string | null | undefined) {} 1`] = `
+
+Filename: file.ts
+
+  1 | function run(getName: string | null | undefined) {}
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(48): function run(getName: string | null | undefined) {} 2`] = `
+
+Message:
+> 1 | function run(getName: string | null | undefined) {}
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`getName\` starts with \`get\`, so it should be a function.
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(49): /** @param {string | null | undefined} getName */ function run(getName) {} 1`] = `
+
+Filename: file.js
+
+  1 | /** @param {string | null | undefined} getName */ function run(getName) {}
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(49): /** @param {string | null | undefined} getName */ function run(getName) {} 2`] = `
+
+Message:
+> 1 | /** @param {string | null | undefined} getName */ function run(getName) {}
+    |                                                                ^^^^^^^ \`getName\` starts with \`get\`, so it should be a function.
+
+`;
+
 exports[`no-non-function-verb-prefix > invalid(5): function render({title: setTitle}: {title: boolean}) {} 1`] = `
 
 Filename: file.ts
