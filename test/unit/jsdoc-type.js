@@ -594,3 +594,37 @@ test('decorated method documentation skips decorator callbacks and preserves nat
 	t.assert.deepStrictEqual(getAnnotations(code, true, true), [undefined, undefined]);
 	t.assert.deepStrictEqual(getParameterRanges(code, true).map(range => range && code.slice(...range)), [undefined, 'flag']);
 });
+
+test('overload documentation does not become an implementation annotation', t => {
+	const code = '/** @overload\n * @param {string} flag\n * @returns {string} */\n/** @overload\n * @param {boolean} flag\n * @returns {boolean} */ function run(flag) { inspect(flag); }';
+	t.assert.deepStrictEqual(getAnnotations(code), [undefined]);
+	t.assert.deepStrictEqual(getAnnotations(code, true), [undefined]);
+	t.assert.deepStrictEqual(getParameterRanges(code), [undefined]);
+});
+
+test('implementation documentation remains independent from preceding overload signatures', t => {
+	const code = '/** @overload\n * @param {boolean} flag\n * @returns {boolean} */\n/** @param {string} flag\n * @returns {number} */ function run(flag) { inspect(flag); }';
+	t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'name', name: 'string'}, optional: false, name: 'flag'}]);
+	t.assert.strictEqual(getAnnotations(code, true)[0]?.type.name, 'number');
+	t.assert.strictEqual(code.slice(...getParameterRanges(code)[0]), 'flag');
+});
+
+test('optional parameter names require a boundary after their closing bracket', t => {
+	for (const name of ['[flag]suffix', '[flag=false].value', '[flag="text"][]']) {
+		const code = `/** @param {boolean} ${name} */ function run(flag) { inspect(flag); }`;
+		t.assert.deepStrictEqual(getAnnotations(code), [undefined], name);
+		t.assert.deepStrictEqual(getParameterRanges(code), [undefined], name);
+	}
+});
+
+test('auto-accessor initializers own parameter and return documentation', t => {
+	const code = 'class Example { /** @param {boolean} flag\n * @returns {string} */ accessor read = flag => { inspect(flag); }; }';
+	t.assert.deepStrictEqual(getAnnotations(code, false, true), [{type: {kind: 'name', name: 'boolean'}, optional: false, name: 'flag'}]);
+	t.assert.strictEqual(getAnnotations(code, true, true)[0]?.type.name, 'string');
+	t.assert.strictEqual(code.slice(...getParameterRanges(code, true)[0]), 'flag');
+});
+
+test('native auto-accessor binding types override documented initializer returns', t => {
+	const code = 'class Example { /** @returns {boolean} */ accessor read: () => string = () => source; }';
+	t.assert.deepStrictEqual(getAnnotations(code, true, true), [undefined]);
+});

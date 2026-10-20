@@ -4016,6 +4016,45 @@ test({
 	],
 });
 
+test({
+	valid: [
+		'/** @overload\n * @param {boolean} value\n * @returns {string} */ function run(value) {}',
+		'/** @param {boolean} [value].ready */ function run(value) {}',
+	],
+	invalid: [
+		{
+			code: '/** @param {Array<{\n * active: boolean\n * label: string\n * }>} values */ function run(values) { const ready = values.some(predicate); }',
+			output: '/** @param {Array<{\n * active: boolean\n * label: string\n * }>} values */ function run(values) { const isReady = values.some(predicate); }',
+			options: [onlyIsPrefixOptions],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 1}],
+		},
+		{
+			code: '/** @param {boolean} [value].ready */ function run(value = false) { consume(value); }',
+			options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isValue'},
+					output: '/** @param {boolean} [value].ready */ function run(isValue = false) { consume(isValue); }',
+				}],
+			}],
+		},
+		{
+			code: '/** @overload\n * @param {boolean} value */ function run(value = false) { consume(value); }',
+			options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isValue'},
+					output: '/** @overload\n * @param {boolean} value */ function run(isValue = false) { consume(isValue); }',
+				}],
+			}],
+		},
+	],
+});
+
 // Callable annotations preserve the same unknown and nullish return states as native types.
 for (const annotation of ['() => unknown', '() => Unresolved', '() => any', '() => boolean | undefined', '() => ?boolean', 'function(): Unresolved', 'function(): (boolean | null)', '(() => unknown) | undefined']) {
 	test({

@@ -39,7 +39,10 @@ function parseTag(text, {tag, end}, offset) {
 	if (parameterTags.has(tag.name)) {
 		optional = text[start] === '[';
 		const nameEnd = optional ? getJSDocumentDelimitedEnd(text, start, end, '[') : end;
-		if (nameEnd === undefined) {
+		if (
+			nameEnd === undefined
+			|| (nameEnd < end && !/\s/v.test(text[nameEnd]))
+		) {
 			return;
 		}
 
@@ -84,7 +87,7 @@ function getCommentTags(comment, context) {
 
 	if (!cache.has(comment)) {
 		const tags = getJSDocumentTags(comment.value);
-		const parsedTags = tags.some(({tag}) => tag.name === 'typedef' || tag.name === 'callback')
+		const parsedTags = tags.some(({tag}) => ['typedef', 'callback', 'overload'].includes(tag.name))
 			? []
 			: tags.map(({tag}, index) => parseTag(comment.value, {
 				tag,

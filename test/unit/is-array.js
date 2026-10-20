@@ -69,6 +69,37 @@ const spellings = typeName => [
 	`const receiver = new ${typeName}(); receiver.method();`,
 ];
 
+test('unwritten simple rest parameters are arrays without type information', t => {
+	for (const code of [
+		'function run(...values) { values.method(); }',
+		'/** @param {...boolean} values */ function run(...values) { values.method(); }',
+		'const run = (...values) => values.method();',
+		'class Task { run(first, ...values) { values.push(first); values.method(); } }',
+	]) {
+		const verdicts = getReceiverVerdicts(code);
+		t.assert.strictEqual(verdicts.isArray, true, code);
+		t.assert.strictEqual(verdicts.isIndexedCollection, true, code);
+		t.assert.strictEqual(verdicts.isKnownNonArray, false, code);
+		t.assert.strictEqual(verdicts.isKnownNonIndexedCollection, false, code);
+		t.assert.strictEqual(verdicts.isKnownBigIntTypedArray, false, code);
+	}
+});
+
+test('rest parameter inference excludes writes, object rest, and shadowed ordinary parameters', t => {
+	for (const code of [
+		'function run(...values) { values = source; values.method(); }',
+		'function run(...values) { function change() { values = source; } values.method(); }',
+		'function run({...values}) { values.method(); }',
+		'function outer(...values) { function inner(values) { values.method(); } }',
+	]) {
+		const verdicts = getReceiverVerdicts(code);
+		t.assert.strictEqual(verdicts.isArray, false, code);
+		t.assert.strictEqual(verdicts.isIndexedCollection, false, code);
+		t.assert.strictEqual(verdicts.isKnownNonArray, false, code);
+		t.assert.strictEqual(verdicts.isKnownNonIndexedCollection, false, code);
+	}
+});
+
 test('`isKnownNonArray` and `isKnownNonIndexedCollection` treat a typed array as the only disagreement', t => {
 	for (const typeName of typedArray) {
 		for (const code of spellings(typeName)) {

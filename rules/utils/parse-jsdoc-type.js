@@ -36,6 +36,7 @@ Read the type facts needed by rules. Unsupported or malformed syntax stays unkno
 */
 function parseJSDocumentType(text) {
 	const tokens = [];
+	const lineBreaks = new Set();
 	for (const match of text.matchAll(tokenPattern)) {
 		const token = match[0];
 		if (/^["']/v.test(token) && (token.length === 1 || !hasValidStringEscapes(token))) {
@@ -44,6 +45,8 @@ function parseJSDocumentType(text) {
 
 		if (!/^\s/v.test(token)) {
 			tokens.push(token);
+		} else if (/[\n\r\u{2028}\u{2029}]/v.test(token)) {
+			lineBreaks.add(tokens.length);
 		}
 	}
 
@@ -226,7 +229,7 @@ function parseJSDocumentType(text) {
 				}
 			}
 
-			if (!consume(',') && !consume(';') && tokens[index] !== '}') {
+			if (!consume(',') && !consume(';') && tokens[index] !== '}' && !lineBreaks.has(index)) {
 				throw new SyntaxError('Unsupported JSDoc property');
 			}
 		}

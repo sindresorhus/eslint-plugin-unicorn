@@ -11,6 +11,8 @@ import {
 	target,
 } from './type-helpers.js';
 import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
+import isArray from './is-array.js';
+import isString from './is-string.js';
 
 const booleanBinaryOperators = new Set([
 	'>',
@@ -63,6 +65,15 @@ const jsdocTypeNamesByExpressionKind = new Map([
 	['set', new Set(['Set', 'ReadonlySet'])],
 	['string', new Set(['string'])],
 	['weakSet', new Set(['WeakSet'])],
+]);
+
+const callExpressionKindCheckers = new Map([
+	...[...jsdocTypeNamesByExpressionKind].map(([kind, targetTypeNames]) => [
+		kind,
+		createTypeCheckers({targetTypeNames, checkClassHeritage: false}).isTarget,
+	]),
+	['array', isArray],
+	['string', isString],
 ]);
 
 // The static value of these is never a primitive boolean, so they skip the costly side effect checks and evaluation.
@@ -370,11 +381,18 @@ function isBooleanFunctionReference(node, context, visitedVariables = new Set())
 				if (variable.references.every(reference => !reference.isWrite())) {
 					functionNode = definition.node;
 				}
-			} else if (
-				isSimpleConstVariableDefinition(definition)
-				&& ['ArrowFunctionExpression', 'FunctionExpression'].includes(definition.node.init?.type)
-			) {
-				functionNode = definition.node.init;
+			} else if (isSimpleConstVariableDefinition(definition)) {
+				let initializer = definition.node.init;
+				while (
+					initializer?.type === 'TSSatisfiesExpression'
+					|| initializer?.type === 'TSNonNullExpression'
+				) {
+					initializer = initializer.expression;
+				}
+
+				if (['ArrowFunctionExpression', 'FunctionExpression'].includes(initializer?.type)) {
+					functionNode = initializer;
+				}
 			}
 
 			isBoolean = functionNode
@@ -510,8 +528,8 @@ function getKnownExpressionKind(node, context, visitedVariables = new Set()) {
 		}
 
 		case 'CallExpression': {
-			for (const [kind, targetTypeNames] of jsdocTypeNamesByExpressionKind) {
-				if (createTypeCheckers({targetTypeNames, checkClassHeritage: false}).isTarget(node, context)) {
+			for (const [kind, isTarget] of callExpressionKindCheckers) {
+				if (isTarget(node, context)) {
 					return kind;
 				}
 			}

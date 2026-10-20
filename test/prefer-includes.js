@@ -16,6 +16,18 @@ const linterConfig = {
 	rules: {'unicorn/prefer-includes': 'error'},
 };
 
+test({
+	valid: [
+		'function run(...values) { values = source; return values.indexOf(/x/) !== -1; }',
+		'function run({...values}) { return values.indexOf(/x/) !== -1; }',
+	],
+	invalid: [{
+		code: '/** @param {...RegExp} values */ function run(...values) { return values.indexOf(/x/) !== -1; }',
+		output: '/** @param {...RegExp} values */ function run(...values) { return values.includes(/x/); }',
+		errors: [{messageId: 'prefer-includes'}],
+	}],
+});
+
 nodeTest('string RegExp searches retain results across constructors and comparison polarity', t => {
 	for (const initializer of ['/a/', 'RegExp("a")', 'new RegExp("a", "i")']) {
 		for (const method of ['indexOf', 'lastIndexOf']) {

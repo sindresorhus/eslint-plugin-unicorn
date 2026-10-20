@@ -66,6 +66,7 @@ for (const [name, type, expected] of [
 	['homogeneous bigint union', '0n | bigint', ['bigint']],
 	['nested generic array', 'Array<Map<string, Set<boolean>>>', ['array', 'indexed']],
 	['record array with untyped field', 'Array<{a: number, b}>', ['array', 'indexed']],
+	['multiline record array without member punctuation', 'Array<{\n * first: boolean\n * second: string\n * }>', ['array', 'indexed']],
 	['Closure generic outer array', 'Array.<Promise<boolean>>', ['array', 'indexed']],
 	['generic readonly array', 'ReadonlyArray<() => boolean>', ['array', 'indexed']],
 	['array of nullable booleans', '(boolean | null)[]', ['array', 'indexed']],
@@ -355,6 +356,51 @@ test('documented return values retain known boolean receiver methods and propert
 test('documented callback results retain known boolean receiver methods', t => {
 	const code = '/** @param {() => ReadonlyMap<string, number>} read */ function run(read) { inspect(read().has(key)); }';
 	t.assert.deepStrictEqual(getInferences(code), [['boolean']]);
+});
+
+test('native primitive and array return syntax uses the existing receiver classifiers', t => {
+	const code = 'type Label = "left" | "right"; function text(): string { return source; } function label(): Label { return source; } function values(): readonly string[] { return source; } function tuple(): [number] { return source; } inspect(text().includes("x")); inspect(label().startsWith("l")); inspect(values().some(predicate)); inspect(tuple().every(predicate));';
+	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [['boolean'], ['boolean'], ['boolean'], ['boolean']]);
+});
+
+test('native nullish string and array return unions stay uncertain for receiver inference', t => {
+	const code = 'function text(): string | undefined { return source; } function values(): string[] | null { return source; } inspect(text().includes("x")); inspect(values().some(predicate));';
+	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[], []]);
+});
+
+test('transparent function wrappers preserve documented boolean call results', t => {
+	for (const initializer of ['() => source', 'function () { return source; }']) {
+		for (const wrap of [value => `(${value})!`, value => `(${value}) satisfies (() => boolean)`, value => `((${value}) satisfies (() => boolean))!`]) {
+			const code = `/** @returns {boolean} */ const read = ${wrap(initializer)}; inspect(read); inspect(read());`;
+			t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[], ['boolean']], code);
+		}
+	}
+});
+
+test('transparent function wrappers retain uncertain documented boolean returns', t => {
+	for (const type of ['unknown', 'boolean | undefined', '?boolean']) {
+		const code = `/** @returns {${type}} */ const read = ((() => true) satisfies (() => boolean))!; inspect(read());`;
+		t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[]], type);
+	}
+});
+
+test('transparent function wrappers do not expose async or generator boolean returns', t => {
+	for (const initializer of ['async () => source', 'function* () { return source; }']) {
+		const code = `/** @returns {boolean} */ const read = ((${initializer}) satisfies (() => unknown))!; inspect(read());`;
+		t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[]], initializer);
+	}
+});
+
+test('transparent function wrappers keep asserted callable types authoritative', t => {
+	for (const initializer of ['((() => source) as (() => string))!', '((<() => string>(() => source)) satisfies (() => string))!']) {
+		const code = `/** @returns {boolean} */ const read = ${initializer}; inspect(read());`;
+		t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[]], initializer);
+	}
+});
+
+test('native return annotations keep precedence through transparent documented function wrappers', t => {
+	const code = '/** @returns {boolean} */ const text = (((): string => source) satisfies (() => string))!; /** @returns {string} */ const flag = (((): boolean => source) satisfies (() => boolean))!; inspect(text()); inspect(flag());';
+	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [['string'], ['boolean']]);
 });
 
 test('receiver return annotations recognize named built-ins without resolving Array subclasses', t => {

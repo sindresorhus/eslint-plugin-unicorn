@@ -1,4 +1,5 @@
-import {isMethodCall} from '../ast/index.js';
+import {findVariable} from '@eslint-community/eslint-utils';
+import {isFunction, isMethodCall} from '../ast/index.js';
 import typedArray from '../shared/typed-array.js';
 import {
 	createTypeCheckers,
@@ -47,8 +48,27 @@ const isArrayTypeAnnotation = node =>
 	node?.type === 'TSArrayType'
 	|| node?.type === 'TSTupleType';
 
-const isArrayNode = node =>
+/**
+Recognize simple rest bindings while they retain the array created by parameter collection.
+*/
+function isRestParameter(node, context) {
+	if (node.type !== 'Identifier') {
+		return false;
+	}
+
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+	const parameter = definition?.name?.parent;
+	return definition?.type === 'Parameter'
+		&& parameter?.type === 'RestElement'
+		&& isFunction(definition.node)
+		&& definition.node.params.includes(parameter)
+		&& variable.references.every(reference => !reference.isWrite());
+}
+
+const isArrayNode = (node, context) =>
 	node.type === 'ArrayExpression'
+	|| isRestParameter(node, context)
 	|| isMethodCall(node, {
 		object: 'Array',
 		methods: ['from', 'of'],
@@ -109,7 +129,7 @@ const {
 	]),
 	nonTargetTypeNames: knownNonIndexedCollectionTypeNames,
 	targetConstructorNames: ['Array', ...typedArray],
-	isTargetNode: node => isArrayNode(node) || isTypedArrayFactory(node),
+	isTargetNode: (node, context) => isArrayNode(node, context) || isTypedArrayFactory(node),
 });
 
 const {isTarget: isKnownBigIntTypedArray} = createTypeCheckers({
