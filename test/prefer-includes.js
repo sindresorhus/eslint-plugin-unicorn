@@ -5,7 +5,7 @@ import {transpileModule, ScriptTarget} from 'typescript';
 import {outdent} from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
-import tests from './shared/simple-array-search-rule-tests.js';
+import tests, {testTypeAwareSearches} from './shared/simple-array-search-rule-tests.js';
 
 const {test, rule} = getTester(import.meta);
 
@@ -319,6 +319,10 @@ const {snapshot, typescript} = tests({
 
 test.snapshot(snapshot);
 test.typescript(typescript);
+
+testTypeAwareSearches({
+	method: 'some', replacement: 'includes', rule, test: nodeTest,
+});
 
 test({
 	valid: [
