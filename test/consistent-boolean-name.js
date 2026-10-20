@@ -4320,3 +4320,81 @@ for (const wrap of [testCase => testCase, typescript]) {
 		})],
 	});
 }
+
+// Documented callable bindings keep React's required `use` prefix when checked or renamed.
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [
+			'/** @type {() => boolean} */ let useIsReady;',
+			'/** @type {(() => boolean) | undefined} */ let useReady;',
+			'/** @type {?(() => boolean)} */ let useIsReady;',
+			'/** @type {() => unknown} */ let useIsReady;',
+			'/** @type {Unresolved} */ let useIsReady;',
+			'/** @type {(value:) => boolean} */ let useIsReady;',
+			'/** @type {(() => boolean) | string} */ let useIsReady;',
+		].map(code => wrap(code)),
+		invalid: [
+			...['() => boolean', '(() => boolean) & {label: string}', '(() => boolean) | (() => true)'].map(type => wrap({
+				code: `/** @type {${type}} */ const useReady = source; useReady();`,
+				options: [onlyIsPrefixOptions],
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					data: {name: 'ready', prefixes: '`is`'},
+					suggestions: [{
+						messageId: 'rename',
+						data: {replacement: 'useIsReady'},
+						output: `/** @type {${type}} */ const useIsReady = source; useIsReady();`,
+					}],
+				}],
+			})),
+			...['() => string', '(() => string) | undefined', '(() => string)='].map(type => wrap({
+				code: `/** @type {${type}} */ let useIsReady;`,
+				errors: [{messageId: 'non-boolean-prefix', data: {name: 'isReady', prefix: 'is'}}],
+			})),
+			wrap({
+				code: '/** @type {boolean} */ const useReady = source;',
+				output: '/** @type {boolean} */ const isUseReady = source;',
+				options: [onlyIsPrefixOptions],
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					data: {name: 'useReady', prefixes: '`is`'},
+					suggestions: [{
+						messageId: 'rename',
+						output: '/** @type {boolean} */ const isUseReady = source;',
+					}],
+				}],
+			}),
+			wrap({
+				code: '/** @type {boolean | (() => boolean)} */ let useReady;',
+				options: [onlyIsPrefixOptions],
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					data: {name: 'useReady', prefixes: '`is`'},
+					suggestions: [{
+						messageId: 'rename',
+						output: '/** @type {boolean | (() => boolean)} */ let isUseReady;',
+					}],
+				}],
+			}),
+		],
+	});
+}
+
+for (const wrap of [typescript, typeAware]) {
+	test({
+		valid: [wrap('/** @type {() => boolean} */ const useIsReady: string = source;')],
+		invalid: [wrap({
+			code: '/** @type {() => boolean} */ const useReady: boolean = source;',
+			output: '/** @type {() => boolean} */ const isUseReady: boolean = source;',
+			options: [onlyIsPrefixOptions],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				data: {name: 'useReady', prefixes: '`is`'},
+				suggestions: [{
+					messageId: 'rename',
+					output: '/** @type {() => boolean} */ const isUseReady: boolean = source;',
+				}],
+			}],
+		})],
+	});
+}

@@ -3,7 +3,12 @@ import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {renameVariable} from './fix/index.js';
 import {combineBooleanStates, getTypeBooleanState} from './utils/get-type-boolean-state.js';
 import {getBooleanWrapperVariableState} from './utils/get-boolean-wrapper-variable-state.js';
-import {getJSDocumentTypeName, getTypeName} from './utils/type-helpers.js';
+import {
+	getJSDocumentType,
+	getJSDocumentTypeName,
+	getTypeName,
+	target,
+} from './utils/type-helpers.js';
 import {
 	containsNode,
 	getAvailableVariableName,
@@ -501,6 +506,11 @@ function isReactHookFunctionBinding(variable, context) {
 			isFunction(definition.node.init)
 			|| isBooleanReturningFunctionReference(definition.node.init, context)
 			|| isCallableTypeAnnotation(definition.name.typeAnnotation, context, context.sourceCode.getScope(definition.name))
+			|| getJSDocumentType(getJSDocumentTypeAnnotation(definition.name, context), {
+				targetTypeNames: new Set(),
+				allowNullishInMixedUnion: true,
+				isTargetJSDocumentType: type => type?.kind === 'function',
+			}) === target
 			|| (withTypeInformation(definition.name, context, ({type}) => type.getCallSignatures().length > 0) ?? false)
 		);
 }
