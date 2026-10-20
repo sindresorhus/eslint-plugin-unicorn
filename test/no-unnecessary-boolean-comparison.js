@@ -111,6 +111,20 @@ const typeAware = code => ({
 
 test({
 	valid: [
+		typeAware('/** @type {string} */ const value = true; value === true;'),
+		typeAware('/** @type {Array<boolean>} */ const value = false; value !== false;'),
+		typeAware('/** @returns {string} */ function read() { return true; } read() === true;'),
+		typeAware('/** @type {() => string} */ const read = () => true; read() === true;'),
+	],
+	invalid: [{
+		...typeAware('/** @type {unknown} */ const value = true; value === true;'),
+		output: '/** @type {unknown} */ const value = true; value;',
+		errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+	}],
+});
+
+test({
+	valid: [
 		{
 			code: '/** @returns {boolean} */ const read: () => unknown = (): boolean => true; read() === true;',
 			languageOptions: {parser: parsers.typescript},

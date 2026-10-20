@@ -111,6 +111,14 @@ function isBooleanTypeScriptType(type, checker) {
 	return booleanTypeStrings.has(checker.typeToString(type));
 }
 
+const {isKnownNonTarget: isKnownNonBooleanCall} = createTypeCheckers({
+	targetTypeNames: new Set(['boolean']),
+	nonTargetTypeNames: new Set(['Array', 'ReadonlyArray', 'Promise', 'PromiseLike']),
+	isTargetTypeAnnotation: node => node?.type === 'TSBooleanKeyword'
+		|| (node?.type === 'TSLiteralType' && typeof node.literal.value === 'boolean'),
+	isTargetType: isBooleanTypeScriptType,
+});
+
 function isBooleanTypeInformation(node, context) {
 	return withTypeInformation(node, context, ({type, checker}) => isBooleanTypeScriptType(type, checker)) ?? false;
 }
@@ -657,7 +665,7 @@ function isBooleanCallExpression(node, context, visitedVariables) {
 	}
 
 	return isBooleanFunctionReference(node.callee, context, visitedVariables)
-		|| isBooleanTypeInformation(node, context);
+		|| (isBooleanTypeInformation(node, context) && !isKnownNonBooleanCall(node, context));
 }
 
 function isBooleanExpressionBySyntax(node, context, visitedVariables) {
@@ -711,7 +719,8 @@ function isBooleanExpression(node, context, visitedVariables = new Set()) {
 
 	const annotation = getJSDocumentTypeAnnotation(node, context);
 	if (annotation) {
-		return getJSDocumentBooleanState(annotation) === 'boolean' || isBooleanTypeInformation(node, context);
+		const state = getJSDocumentBooleanState(annotation);
+		return state === 'unknown' ? isBooleanTypeInformation(node, context) : state === 'boolean';
 	}
 
 	if (

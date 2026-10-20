@@ -74,6 +74,38 @@ test('trusts explicit JSDoc over initializers and keeps optional parameters unce
 	t.assert.deepStrictEqual(getResults('/** @param {boolean} value */ function run(value) { inspect(value); }'), [true]);
 });
 
+test('type information only refines unknown documented value types', t => {
+	for (const type of ['string', 'number', 'Array<boolean>', '() => boolean']) {
+		const code = `/** @type {${type}} */ const value = true; inspect(value);`;
+		t.assert.deepStrictEqual(getResults(code, {typeAware: true}), [false], type);
+	}
+
+	t.assert.deepStrictEqual(getResults('/** @type {unknown} */ const value = true; inspect(value);', {typeAware: true}), [true]);
+	t.assert.deepStrictEqual(getResults('/** @type {boolean} */ const value = "text"; inspect(value);', {typeAware: true}), [true]);
+});
+
+test('type information cannot bypass definite documented call result types', t => {
+	for (const code of [
+		'/** @returns {string} */ function read() { return true; } inspect(read());',
+		'/** @type {() => string} */ const read = () => true; inspect(read());',
+		'/** @param {() => string} read */ function run(read = () => true) { inspect(read()); }',
+		'/** @type {() => Array<boolean>} */ const read = () => true; inspect(read());',
+	]) {
+		t.assert.deepStrictEqual(getResults(code, {typeAware: true}), [false], code);
+	}
+
+	for (const code of [
+		'/** @returns {unknown} */ function read() { return true; } inspect(read());',
+		'/** @type {() => unknown} */ const read = () => true; inspect(read());',
+		'/** @returns {string} */ function read(): boolean { return true; } inspect(read());',
+		'type Flag = true | false; /** @returns {string} */ function read(): Flag { return true; } inspect(read());',
+		'function read(value: unknown): value is boolean { return true; } inspect(read(source));',
+		'function read(value: string): boolean; function read(value: number): boolean; function read(value: string | number): boolean | string { return true; } inspect(read(1));',
+	]) {
+		t.assert.deepStrictEqual(getResults(code, {typeAware: true}), [true], code);
+	}
+});
+
 test('uses documented returns and callable annotations only for calls', t => {
 	for (const code of [
 		'/** @returns {boolean} */ function predicate() { return value; } inspect(predicate());',
