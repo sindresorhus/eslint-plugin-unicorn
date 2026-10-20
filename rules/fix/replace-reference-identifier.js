@@ -31,5 +31,5 @@ export default function replaceReferenceIdentifier(identifier, replacement, cont
 		);
 	}
 
-	return fixer.replaceText(identifier, replacement);
+	return fixer.replaceText(identifier.type === 'Identifier' ? context.sourceCode.getFirstToken(identifier) : identifier, replacement);
 }

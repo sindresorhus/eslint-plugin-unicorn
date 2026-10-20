@@ -556,3 +556,43 @@ test({
 		errors: 1,
 	}],
 });
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			['boolean', 'Boolean'],
+			['string', 'String'],
+			['number', 'Number'],
+			['bigint', 'BigInt'],
+		].map(([type, constructor]) => ({
+			code: `/** @param {${type}} input */ function value(input?): ${type} { return ${constructor}(input); }`,
+			filename: 'file.ts',
+		})),
+		invalid: [{
+			filename: 'file.ts',
+			code: '/** @param {boolean} input */ function value(input = false): boolean { return Boolean(input); }',
+			output: '/** @param {boolean} input */ function value(input = false): boolean { return input; }',
+			errors: [{messageId: 'no-useless-coercion'}],
+		}],
+	});
+}
+
+nodeTest('an omitted parameter documented as boolean still needs boolean coercion', t => {
+	const code = '/** @param {boolean} input */ function value(input?): boolean { return Boolean(input); } value();';
+	const {output, fixed, messages} = linter.verifyAndFix(code, {
+		languageOptions: {parser: typescriptEslintParser},
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	});
+	t.assert.strictEqual(runInNewContext(stripTypeScriptTypes(code)), false);
+	t.assert.strictEqual(runInNewContext(stripTypeScriptTypes(output)), false);
+	t.assert.strictEqual(fixed, false);
+	t.assert.deepStrictEqual(messages, []);
+});

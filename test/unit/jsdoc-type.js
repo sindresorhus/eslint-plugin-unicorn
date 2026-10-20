@@ -673,3 +673,20 @@ test('multiline parameter tags preserve exact names across separated type and de
 	t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'name', name: 'boolean'}, optional: true, name: 'flag'}]);
 	t.assert.deepStrictEqual(getParameterRanges(code), [[start, start + 4]]);
 });
+
+test('native optional parameters retain their optionality with a required JSDoc tag', t => {
+	for (const declaration of [
+		'function run(flag?) { inspect(flag); }',
+		'function run(/** @type {boolean} */ flag?) { inspect(flag); }',
+		'constructor(public flag?) { inspect(flag); }',
+	]) {
+		const documented = `/** @param {boolean} flag */ ${declaration}`;
+		const code = declaration.startsWith('constructor') ? `class Task { ${documented} }` : documented;
+		const start = code.indexOf('flag');
+		t.assert.deepStrictEqual(getAnnotations(code, false, true), [{type: {kind: 'name', name: 'boolean'}, optional: true, name: 'flag'}], declaration);
+		t.assert.deepStrictEqual(getParameterRanges(code, true), [[start, start + 4]], declaration);
+	}
+
+	const code = '/** @param {boolean} flag */ function run(flag) { inspect(flag); }';
+	t.assert.deepStrictEqual(getAnnotations(code, false, true), [{type: {kind: 'name', name: 'boolean'}, optional: false, name: 'flag'}]);
+});

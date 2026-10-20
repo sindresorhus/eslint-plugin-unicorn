@@ -706,3 +706,23 @@ test('contextual callback parameter names preserve outer and return types indepe
 		t.assert.deepStrictEqual(getInferences(code, {typescript}), [[], ['string'], ['array', 'indexed']]);
 	}
 });
+
+for (const [type, expected] of [
+	['boolean', ['boolean']],
+	['string', ['string']],
+	['number', ['number']],
+	['bigint', ['bigint']],
+	['string[]', ['array', 'indexed']],
+]) {
+	test(`native optional markers keep documented ${type} parameters uncertain`, t => {
+		const code = `/** @param {${type}} value */ function run(value?) { inspect(value); }`;
+		t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[]]);
+		const required = `/** @param {${type}} value */ function run(value) { inspect(value); }`;
+		t.assert.deepStrictEqual(getInferences(required, {typescript: true}), [expected]);
+	});
+}
+
+test('native optional markers also guard documented callback results and receiver methods', t => {
+	const code = '/** @param {() => boolean} read */ function run(read?) { inspect(read()); } /** @param {string} text */ function other(text?) { inspect(text.includes("x")); }';
+	t.assert.deepStrictEqual(getInferences(code, {typescript: true}), [[], []]);
+});

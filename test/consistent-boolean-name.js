@@ -4398,3 +4398,22 @@ for (const wrap of [typescript, typeAware]) {
 		})],
 	});
 }
+
+// Native optionality keeps shared inference uncertain while naming still requires boolean prefixes.
+for (const wrap of [typescript, typeAware]) {
+	test({
+		valid: [],
+		invalid: [wrap({
+			code: '/** @param {boolean} ready */ function run(ready?) { consume(ready); }',
+			options: [onlyIsPrefixOptions],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isReady'},
+					output: '/** @param {boolean} isReady */ function run(isReady?) { consume(isReady); }',
+				}],
+			}],
+		})],
+	});
+}

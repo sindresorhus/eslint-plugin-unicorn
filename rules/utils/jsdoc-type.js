@@ -191,7 +191,7 @@ function getParameterAnnotation(node, context) {
 	return {
 		...annotation,
 		type: annotation.type?.kind === 'optional' ? annotation.type.element : annotation.type,
-		optional: [inline, named].some(annotation => annotation?.optional || annotation?.type?.kind === 'optional'),
+		optional: Boolean(node.optional) || [inline, named].some(annotation => annotation?.optional || annotation?.type?.kind === 'optional'),
 	};
 }
 
