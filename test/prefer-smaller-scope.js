@@ -60,6 +60,30 @@ testRule.typescript({
 			code: 'class A { a = 1; method() { type Self = this; class B { b = 2; method() { return ({} as Self).a; } } return B; } }',
 			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Self'}}],
 		},
+		{
+			code: 'type Tree = {children?: Tree[]}; export function make() { return {} as Tree; }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Tree'}}],
+		},
+		{
+			code: 'const Value = "runtime"; type Value = number; function foo() { return 1 as Value; }',
+			output: 'const Value = "runtime";  function foo() { type Value = number; return 1 as Value; }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		},
+		{
+			code: 'type Value = number; const Value = "runtime"; consume(Value); function foo() { return 1 as Value; }',
+			output: ' const Value = "runtime"; consume(Value); function foo() { type Value = number; return 1 as Value; }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		},
+		{
+			code: 'type Value = number; export const Value = "runtime"; function foo() { return 1 as Value; }',
+			output: ' export const Value = "runtime"; function foo() { type Value = number; return 1 as Value; }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		},
+		{
+			code: 'consume()\ntype Value = number;\n[1].map(value => { return value as Value; });',
+			output: 'consume()\n;\n[1].map(value => { type Value = number; return value as Value; });',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		},
 	],
 });
 
@@ -89,6 +113,8 @@ testRule.snapshot({
 		'type Value = number; if (condition) consume(1 as Value);',
 		'type Value = number; class Foo { value: Value; }',
 		'type Value = number; class Foo { static { consume(1 as Value); } }',
+		'type First = {next?: Second}; type Second = {next?: First}; function foo() { return {} as First; }',
+		'type Value = number; const Value = "runtime"; function foo() { return 1 as Value; } export default Value;',
 		'interface Value {value: number} function foo() { return {} as Value; }',
 		'namespace Foo { type Value = number; function foo() { return 1 as Value; } }',
 		'switch (condition) { case 1: type Value = number; if (condition) { consume(1 as Value); } }',
@@ -137,6 +163,8 @@ testRule.snapshot({
 		// Reindenting a multiline literal type would change its meaning.
 		'type Value = `first\nsecond`; function foo() { return "first\\nsecond" as Value; }',
 		'type Value = "first\\\nsecond"; function foo() { return "firstsecond" as Value; }',
+		'type Callback = <Type>(value: Type) => Type; function foo<Type>() { return {} as Callback; }',
+		'interface Base {value: number} type Recursive<Type extends Base> = {value: Type; next?: Recursive<Type>}; function foo() { return {} as Recursive<Base>; }',
 	],
 });
 

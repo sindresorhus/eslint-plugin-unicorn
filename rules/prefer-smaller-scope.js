@@ -114,7 +114,7 @@ const hasCommentsThatBlockUninitializedDeclarationFix = (sourceCode, declaration
 	|| hasCommentNextTo(sourceCode, assignmentStatement, 'before')
 	|| hasCommentNextTo(sourceCode, assignmentStatement, 'after');
 
-const hasCommentsThatBlockInitializedDeclarationFix = (sourceCode, declaration, firstStatement) =>
+const hasCommentsThatBlockDeclarationMove = (sourceCode, declaration, firstStatement) =>
 	sourceCode.getCommentsInside(declaration).length > 0
 	|| hasCommentNextTo(sourceCode, declaration, 'before')
 	|| hasCommentNextTo(sourceCode, declaration, 'after')
@@ -182,7 +182,7 @@ function getInitializedDeclarationProblem(declaration, sourceCode, references) {
 	const [firstStatement] = block.body;
 	if (
 		!declarator.id.typeAnnotation
-		&& !hasCommentsThatBlockInitializedDeclarationFix(sourceCode, declaration, firstStatement)
+		&& !hasCommentsThatBlockDeclarationMove(sourceCode, declaration, firstStatement)
 	) {
 		problem.fix = function * (fixer) {
 			const openingBrace = sourceCode.getFirstToken(block);
@@ -330,7 +330,7 @@ function getTypeAliasProblem(declaration, context) {
 		return;
 	}
 
-	const references = variable.references.filter(reference => !isInside(reference.identifier, declaration, sourceCode));
+	const references = variable.references.filter(reference => reference.isTypeReference && !isInside(reference.identifier, declaration, sourceCode));
 	const block = getTypeAliasBlock(declaration, references, sourceCode);
 	if (!block) {
 		return;
@@ -344,8 +344,7 @@ function getTypeAliasProblem(declaration, context) {
 	const firstStatement = block.body.find(statement => !statement.directive);
 	const destinationScope = sourceCode.getScope(block);
 	const hasReboundDependency = getReferencesInside(declaration, context).some(reference =>
-		reference.resolved !== variable
-		&& !(
+		!(
 			reference.resolved
 			&& isInside(reference.resolved.scope.block, declaration, sourceCode)
 		)
@@ -354,10 +353,11 @@ function getTypeAliasProblem(declaration, context) {
 
 	if (
 		hasReboundDependency
+		|| variable.references.some(reference => isInside(reference.identifier, declaration, sourceCode))
 		|| findVariable(destinationScope, declaration.id.name) !== variable
 		|| containsNode(declaration, context, node => node.type === 'TSTypeQuery' || node.type === 'TSThisType')
 		|| hasMultilineToken(declaration, context)
-		|| hasCommentsThatBlockInitializedDeclarationFix(sourceCode, declaration, firstStatement)
+		|| hasCommentsThatBlockDeclarationMove(sourceCode, declaration, firstStatement)
 	) {
 		return problem;
 	}

@@ -11,7 +11,7 @@
 
 Declare variables as close as possible to where they are used. This reduces the amount of code that can access the variable and makes the lifetime of the value easier to see.
 
-The rule checks two patterns: an uninitialized `let` assigned once in a nested block and read only afterward in that block; and a `let` or `const` initialized with a primitive literal or a template literal without substitutions, immediately before an `if`, with all references in one braced branch.
+For variables, the rule checks two patterns: an uninitialized `let` assigned once in a nested block and read only afterward in that block; and a `let` or `const` initialized with a primitive literal or a template literal without substitutions, immediately before an `if`, with all references in one braced branch.
 
 TypeScript type aliases are also checked when all their uses fit inside a smaller block, including a function body, callback, loop, or branch. Uses in function signatures must remain visible outside the body.
 
@@ -101,8 +101,8 @@ function overlaps() {
 
 For variables, the rule ignores `var`, destructuring, multiple declarators, TypeScript ambient declarations, references crossing a function, class, or static block, and cases involving dynamic scope. An uninitialized `let` needs one direct `=` assignment followed only by reads in the same block.
 
-An initialized declaration must immediately precede an `if`, use a primitive literal or substitution-free template, and have all value and TypeScript type references within one braced branch. Regular expressions and expressions such as `-1` are ignored.
+An initialized variable declaration must immediately precede an `if`, use a primitive literal or substitution-free template, and have all value and TypeScript type references within one braced branch. Regular expressions and expressions such as `-1` are ignored.
 
 Autofixes are omitted when comments could be displaced, a declaration has a TypeScript annotation, or a parenthesized assignment is syntax-sensitive.
 
-Exported and ambient type aliases are ignored. Type aliases are reported without an autofix when moving them could change name resolution, they contain a `typeof` query or `this` type, or comments or multiline literals could be affected.
+Exported and ambient type aliases are ignored. Autofixes are omitted for recursive aliases and aliases containing a `typeof` query or `this` type, or when moving an alias could change name resolution or affect comments or multiline literals. Recursive aliases can be needed outside a function to generate declaration files for inferred return types.
