@@ -1963,7 +1963,10 @@ function getExpressionBooleanState(node, context, visitedVariables = new Set(), 
 
 	if (
 		node.type === 'Identifier'
-		&& withTypeInformation(node, context, ({type}) => type.getCallSignatures().length > 0)
+		&& (
+			hasJSDocumentTypeReference(node, context)
+			|| withTypeInformation(node, context, ({type}) => type.getCallSignatures().length > 0)
+		)
 	) {
 		const state = getKnownIdentifierBooleanState(node, context, visitedVariables, functionValuesAreBoolean);
 		if (state !== undefined) {
@@ -1974,7 +1977,7 @@ function getExpressionBooleanState(node, context, visitedVariables = new Set(), 
 	const scope = context.sourceCode.getScope(node);
 	const typeState = getTypeState();
 	if (!hasUnresolvedTypeParameterReference(node.typeAnnotation, context, typeState, scope, false)) {
-		// Supported callable identifier bindings use their declaration analysis above, since TypeScript may narrow references to a more specific function type.
+		// Documented bindings and supported callable identifiers use their declaration analysis above, since TypeScript may narrow references to a more specific type.
 		if (functionValuesAreBoolean) {
 			const stateFromReturnType = getFunctionReturnTypeInformationBooleanState(node, context, false);
 			if (stateFromReturnType !== unknown) {

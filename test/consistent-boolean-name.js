@@ -4535,3 +4535,62 @@ test({
 	],
 	invalid: [],
 });
+
+// Documented identifier types remain authoritative through aliases, including with compiler information.
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [
+			'/** @type {boolean} */ const isValue = "text"; const isAlias = isValue;',
+			'/** @type {unknown} */ const isValue = true; const isAlias = isValue;',
+		].map(code => wrap(code)),
+		invalid: [
+			{
+				code: '/** @type {string} */ const value = true; const isAlias = value;',
+				errors: [{messageId: 'non-boolean-prefix', data: {name: 'isAlias', prefix: 'is'}}],
+			},
+			{
+				code: '/** @type {string} */ const value = true; const first = value; const isAlias = first;',
+				errors: [{messageId: 'non-boolean-prefix', data: {name: 'isAlias', prefix: 'is'}}],
+			},
+			{
+				code: '/** @type {boolean} */ const isValue = "text"; const isFirst = isValue; const ready = isFirst;',
+				options: [onlyIsPrefixOptions],
+				output: '/** @type {boolean} */ const isValue = "text"; const isFirst = isValue; const isReady = isFirst;',
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					data: {name: 'ready', prefixes: '`is`'},
+					suggestions: [{
+						messageId: 'rename',
+						data: {replacement: 'isReady'},
+						output: '/** @type {boolean} */ const isValue = "text"; const isFirst = isValue; const isReady = isFirst;',
+					}],
+				}],
+			},
+			{
+				code: '/** @type {boolean} */ let isValue = true; isValue = "text"; const isAlias = isValue;',
+				errors: [
+					{messageId: 'non-boolean-prefix', data: {name: 'isValue', prefix: 'is'}},
+					{messageId: 'non-boolean-prefix', data: {name: 'isAlias', prefix: 'is'}},
+				],
+			},
+		].map(testCase => wrap(testCase)),
+	});
+}
+
+test({
+	valid: [
+		typeAware('/** @type {boolean} */ const value: string = "text"; const text = value;'),
+		typeAware('/** @type {string} */ const isValue: boolean = true; const isAlias = isValue;'),
+		typeAware('/** @type {string} */ const isValue = true as boolean; const isAlias = isValue;'),
+	],
+	invalid: [
+		typeAware({
+			code: '/** @type {unknown} */ const value = "text"; const isAlias = value;',
+			errors: [{messageId: 'non-boolean-prefix', data: {name: 'isAlias', prefix: 'is'}}],
+		}),
+		typeAware({
+			code: '/** @type {boolean} */ const value = "text" as string; const isAlias = value;',
+			errors: [{messageId: 'non-boolean-prefix', data: {name: 'isAlias', prefix: 'is'}}],
+		}),
+	],
+});
