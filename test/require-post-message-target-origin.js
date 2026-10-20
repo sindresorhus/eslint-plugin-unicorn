@@ -32,6 +32,7 @@ test.snapshot({
 		typeAware('declare const port: MessagePort | undefined; port?.postMessage("ping")'),
 		typeAware('declare const target: MessagePort | BroadcastChannel; target.postMessage("ping")'),
 		typeAware('function send<T extends MessagePort>(target: T) {target.postMessage("ping")}'),
+		typeAware('declare const target: unknown; (target as MessagePort).postMessage("ping")'),
 	],
 	invalid: [
 		'window.postMessage(message)',
@@ -54,5 +55,7 @@ test.snapshot({
 		typeAware('declare const target: Window | undefined; target?.postMessage("ping")'),
 		typeAware('declare const target: Window | MessagePort; target.postMessage("ping")'),
 		typeAware('function send<T extends Window>(target: T) {target.postMessage("ping")}'),
+		typeAware('declare const target: unknown; (target as Window).postMessage("ping")'),
+		typeAware('declare const target: {location: Location; postMessage(message: unknown, targetOrigin?: string): void}; target.postMessage("ping")'),
 	],
 });

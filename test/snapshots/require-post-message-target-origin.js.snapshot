@@ -295,6 +295,53 @@ Suggestion 3/3: Use \`'*'\`.:
 
 `;
 
+exports[`require-post-message-target-origin > invalid(21): declare const target: unknown; (target as Window).postMessage(\"ping\") 1`] = `
+
+Filename: file.ts
+
+  1 | declare const target: unknown; (target as Window).postMessage("ping")
+
+`;
+
+exports[`require-post-message-target-origin > invalid(21): declare const target: unknown; (target as Window).postMessage(\"ping\") 2`] = `
+
+Message:
+> 1 | declare const target: unknown; (target as Window).postMessage("ping")
+    |                                                                     ^ Missing the \`targetOrigin\` argument.
+
+Suggestion 1/2: Use \`self.location.origin\`.:
+  1 | declare const target: unknown; (target as Window).postMessage("ping", self.location.origin)
+
+Suggestion 2/2: Use \`'*'\`.:
+  1 | declare const target: unknown; (target as Window).postMessage("ping", '*')
+
+`;
+
+exports[`require-post-message-target-origin > invalid(22): declare const target: {location: Location; postMessage(message: unknown, targetOrigin?: string): void}; target.postMessage(\"ping\") 1`] = `
+
+Filename: file.ts
+
+  1 | declare const target: {location: Location; postMessage(message: unknown, targetOrigin?: string): void}; target.postMessage("ping")
+
+`;
+
+exports[`require-post-message-target-origin > invalid(22): declare const target: {location: Location; postMessage(message: unknown, targetOrigin?: string): void}; target.postMessage(\"ping\") 2`] = `
+
+Message:
+> 1 | declare const target: {location: Location; postMessage(message: unknown, targetOrigin?: string): void}; target.postMessage("ping")
+    |                                                                                                                                  ^ Missing the \`targetOrigin\` argument.
+
+Suggestion 1/3: Use \`target.location.origin\`.:
+  1 | declare const target: {location: Location; postMessage(message: unknown, targetOrigin?: string): void}; target.postMessage("ping", target.location.origin)
+
+Suggestion 2/3: Use \`self.location.origin\`.:
+  1 | declare const target: {location: Location; postMessage(message: unknown, targetOrigin?: string): void}; target.postMessage("ping", self.location.origin)
+
+Suggestion 3/3: Use \`'*'\`.:
+  1 | declare const target: {location: Location; postMessage(message: unknown, targetOrigin?: string): void}; target.postMessage("ping", '*')
+
+`;
+
 exports[`require-post-message-target-origin > invalid(3): globalThis.postMessage(message) 1`] = `
 
   1 | globalThis.postMessage(message)
