@@ -215,6 +215,7 @@ export function testTypeAwareSearches({method, replacement, rule, test}) {
 	const returnType = method === 'some' ? 'value is Type' : 'number';
 	for (const [name, template, callback, searchValue, {hasSideEffect = false, extension = 'ts'} = {}] of [
 		['wider string', 'const values = ["small", "medium", "large"] as const; declare const input: string; values.SEARCH;', 'value => value === input'],
+		['wider object', 'declare const values: readonly {id: string; label: string}[]; declare const input: {id: string}; values.SEARCH;', 'value => value === input'],
 		['reversed comparison', 'const values = ["small", "medium", "large"] as const; declare const input: string; values.SEARCH;', 'value => input === value'],
 		['generic unknown', `function check<Type>(value: unknown, values: readonly Type[]): ${returnType} { return values.SEARCH; }`, 'option => option === value'],
 		['constrained literal receiver', 'function check<Type extends readonly ["small", "large"]>(values: Type, input: string) { return values.SEARCH; }', 'value => value === input'],
@@ -224,6 +225,12 @@ export function testTypeAwareSearches({method, replacement, rule, test}) {
 		['incompatible union receiver', 'declare const values: string[] | number[]; declare const input: string; values.SEARCH;', 'value => value === input'],
 		['incompatible optional receiver', 'declare const values: readonly ["small"] | undefined; declare const input: string; values?.SEARCH;', 'value => value === input'],
 		['compatible string', 'declare const values: string[]; declare const input: string; values.SEARCH;', 'value => value === input', 'input'],
+		[
+			'compatible object with extra property',
+			'declare const values: readonly {id: string; label: string}[]; declare const input: {id: string; label: string; extra: boolean}; values.SEARCH;',
+			'value => value === input',
+			'input',
+		],
 		['compatible side effect', 'declare const values: string[]; declare function getInput(): string; values.SEARCH;', 'value => value === getInput()', 'getInput()', {hasSideEffect: true}],
 		['compatible literal', 'const values = ["small", "medium", "large"] as const; values.SEARCH;', 'value => value === "small"', '"small"'],
 		['compatible generic', 'function check<Type>(input: Type, values: readonly Type[]) { return values.SEARCH; }', 'value => value === input', 'input'],
