@@ -356,7 +356,11 @@ function getTypeAliasProblem(declaration, context) {
 		hasUnsafeDependency
 		|| variable.references.some(reference => isInside(reference.identifier, declaration, sourceCode))
 		|| findVariable(destinationScope, declaration.id.name) !== variable
-		|| containsNode(declaration, context, node => node.type === 'TSTypeQuery' || node.type === 'TSThisType')
+		|| containsNode(declaration, context, node =>
+			node.type === 'TSTypeQuery'
+			|| node.type === 'TSThisType'
+			|| (node.type === 'Identifier' && (node.name === 'await' || node.name === 'yield')),
+		)
 		|| hasMultilineToken(declaration, context)
 		|| hasCommentsThatBlockDeclarationMove(sourceCode, declaration, firstStatement)
 	) {

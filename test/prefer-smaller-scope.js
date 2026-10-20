@@ -73,6 +73,19 @@ testRule.typescript({
 			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Box'}}],
 		},
 		{
+			code: 'type await = number; async function foo() { return 1 as await; }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'await'}}],
+		},
+		{
+			code: 'type Value<await> = await; async function foo() { return 1 as Value<number>; }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		},
+		{
+			code: 'type Value<yield> = yield; function* foo() { return 1 as Value<number>; }',
+			languageOptions: {sourceType: 'script'},
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		},
+		{
 			code: 'type Tree = {children?: Tree[]}; export function make() { return {} as Tree; }',
 			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Tree'}}],
 		},
