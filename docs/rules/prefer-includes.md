@@ -9,13 +9,13 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-All built-ins have `.includes()` in addition to `.indexOf()` and `.lastIndexOf()`. Prefer `.includes()` over comparing the value of `.indexOf()` and `.lastIndexOf()`.
+Prefer `.includes()` over comparing the result of `.indexOf()` or `.lastIndexOf()`.
 
-[`Array#some()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some) is intended for more complex needs. If you are just looking for the index where the given item is present, the code can be simplified to use [`Array#includes()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/includes). This applies to any search with a literal, a variable, or any expression that doesn't have any explicit side effects. However, if the expression you are looking for relies on an item related to the function (its arguments, the function self, etc.), the case is still valid.
+Simple equality checks with [`Array#some()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some) can also use [`Array#includes()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/includes).
 
-This rule is fixable, unless the search expression in `Array#some()` has side effects.
+For `Array#some()`, search expressions with side effects receive suggestions instead of autofixes.
 
-With TypeScript type information, `Array#some()` searches are skipped when the search value's type is not accepted by `.includes()`.
+With [TypeScript type information](https://typescript-eslint.io/getting-started/typed-linting/), `Array#some()` searches are skipped when the search value's type is not accepted by `.includes()`. Using the TypeScript parser alone does not enable this check.
 
 Known RegExp search values are skipped unless the receiver is known to be an array or another non-string value. String index searches coerce RegExp values to strings, while `String#includes()` rejects them.
 
@@ -79,6 +79,17 @@ foo.some(x => {
 
 // ✅
 foo.includes('foo');
+```
+
+With type information, `.some()` is allowed when the search value has a wider type:
+
+```ts
+const sizes = ['small', 'large'] as const;
+
+// ✅ `string` is wider than the array's element type.
+function isSize(input: string) {
+	return sizes.some(size => size === input);
+}
 ```
 
 With TypeScript type information, boolean array predicates are also simplified:

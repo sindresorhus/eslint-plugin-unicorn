@@ -9,11 +9,11 @@
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-[`Array#findIndex()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex) and [`Array#findLastIndex()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findLastIndex) are intended for more complex needs. If you are just looking for the index where the given item is present, then the code can be simplified to use [`Array#indexOf()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf) or [`Array#lastIndexOf()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf). This applies to any search with a literal, a variable, or any expression that doesn't have any explicit side effects. However, if the expression you are looking for relies on an item related to the function (its arguments, the function self, etc.), the case is still valid.
+Replace simple equality callbacks passed to [`Array#findIndex()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex) and [`Array#findLastIndex()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findLastIndex) with [`Array#indexOf()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf) and [`Array#lastIndexOf()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf), respectively.
 
-This rule is fixable, unless the search expression has side effects.
+Search expressions with side effects receive suggestions instead of autofixes.
 
-With TypeScript type information, searches are skipped when the search value's type is not accepted by `.indexOf()` or `.lastIndexOf()`.
+With [TypeScript type information](https://typescript-eslint.io/getting-started/typed-linting/), searches are skipped when the search value's type is not accepted by `.indexOf()` or `.lastIndexOf()`. Using the TypeScript parser alone does not enable this check.
 
 ## Examples
 
