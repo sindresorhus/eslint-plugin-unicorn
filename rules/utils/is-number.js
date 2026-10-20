@@ -1,7 +1,7 @@
 import {isNumericLiteral} from '../ast/index.js';
 import isString from './is-string.js';
 import {isFunctionCall, isStaticProperties, hasTypeAnnotation} from './type-check.js';
-import {createTypeCheckers, hasJSDocTypeReference} from './type-helpers.js';
+import {createTypeCheckers, hasJSDocumentTypeReference} from './type-helpers.js';
 import {getStaticValueForControlFlow} from './get-static-value.js';
 import getConstVariableInitializer from './get-const-variable-initializer.js';
 import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
@@ -271,7 +271,7 @@ export default function isNumber(node, context) {
 		// No default
 	}
 
-	return hasJSDocTypeReference(node, context)
+	return hasJSDocumentTypeReference(node, context)
 		? isNumberTarget(node, context)
 		: typeof getStaticValueForControlFlow(node, context)?.value === 'number';
 }

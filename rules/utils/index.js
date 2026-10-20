@@ -177,8 +177,8 @@ export {default as isReferenceContext} from './is-reference-context.js';
 export {default as needsSemicolon} from './needs-semicolon.js';
 export {default as normalizeComment} from './normalize-comment.js';
 export {default as maskJSDocumentSyntax} from './jsdoc.js';
-export {getJSDocTypeAnnotation, getJSDocReturnType, getJSDocParameterNameRange} from './jsdoc-type.js';
-export {getJSDocBooleanState} from './get-jsdoc-boolean-state.js';
+export {getJSDocumentTypeAnnotation, getJSDocumentReturnType, getJSDocumentParameterNameRange} from './jsdoc-type.js';
+export {getJSDocumentBooleanState} from './get-jsdoc-boolean-state.js';
 export {
 	getLineEndIndex,
 	maskCharacter,

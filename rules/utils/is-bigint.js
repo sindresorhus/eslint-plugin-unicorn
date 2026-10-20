@@ -3,7 +3,7 @@ import {isFunctionCall, isStaticProperties} from './type-check.js';
 import getStaticValueIfNoSideEffects from './get-static-value.js';
 import {
 	createTypeCheckers,
-	hasJSDocTypeReference,
+	hasJSDocumentTypeReference,
 	target,
 	unknown,
 } from './type-helpers.js';
@@ -72,7 +72,7 @@ export default function isBigInt(node, context) {
 	}
 
 	return typeof getStaticValueIfNoSideEffects(node, context)?.value === 'bigint'
-		&& !hasJSDocTypeReference(node, context);
+		&& !hasJSDocumentTypeReference(node, context);
 }
 
 export {

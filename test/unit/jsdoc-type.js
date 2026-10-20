@@ -1,6 +1,6 @@
 import test from 'node:test';
 import {Linter} from 'eslint';
-import {getJSDocParameterNameRange, getJSDocTypeAnnotation, getJSDocReturnType} from '../../rules/utils/jsdoc-type.js';
+import {getJSDocumentParameterNameRange, getJSDocumentTypeAnnotation, getJSDocumentReturnType} from '../../rules/utils/jsdoc-type.js';
 import parsers from '../utils/parsers.js';
 
 const linter = new Linter();
@@ -24,8 +24,8 @@ function getAnnotations(code, returns = false, typescript = false) {
 						create: context => ({
 							[returns ? ':function' : 'CallExpression[callee.name="inspect"]'](node) {
 								const annotation = returns
-									? getJSDocReturnType(node, context)
-									: getJSDocTypeAnnotation(node.arguments[0], context);
+									? getJSDocumentReturnType(node, context)
+									: getJSDocumentTypeAnnotation(node.arguments[0], context);
 								annotations.push(annotation && {
 									type: annotation.type,
 									optional: annotation.optional,
@@ -220,7 +220,7 @@ function getParameterRanges(code, typescript = false) {
 							':function'(node) {
 								for (const parameter of node.params) {
 									const identifier = parameter.type === 'AssignmentPattern' ? parameter.left : parameter;
-									ranges.push(getJSDocParameterNameRange(identifier, context));
+									ranges.push(getJSDocumentParameterNameRange(identifier, context));
 								}
 							},
 						}),
@@ -264,7 +264,7 @@ test('direct object properties and class fields expose their own annotation', t 
 					capture: {
 						create: context => ({
 							'Property, PropertyDefinition'(node) {
-								annotations.push(getJSDocTypeAnnotation(node, context)?.type.name);
+								annotations.push(getJSDocumentTypeAnnotation(node, context)?.type.name);
 							},
 						}),
 					},

@@ -1,21 +1,21 @@
 import test from 'node:test';
-import {parseJSDocType} from '../../rules/utils/parse-jsdoc-type.js';
+import {parseJSDocumentType} from '../../rules/utils/parse-jsdoc-type.js';
 
 test('reads primitive boolean facts', t => {
-	t.assert.deepStrictEqual(parseJSDocType('Boolean'), {kind: 'name', name: 'boolean'});
+	t.assert.deepStrictEqual(parseJSDocumentType('Boolean'), {kind: 'name', name: 'boolean'});
 });
 
 test('malformed generic arguments cannot establish an array type', t => {
-	t.assert.deepStrictEqual(parseJSDocType('Array<boolean |>'), {kind: 'unknown'});
+	t.assert.deepStrictEqual(parseJSDocumentType('Array<boolean |>'), {kind: 'unknown'});
 });
 
 test('malformed parameters cannot establish a boolean-returning callable', t => {
-	t.assert.deepStrictEqual(parseJSDocType('(value:) => boolean'), {kind: 'unknown'});
+	t.assert.deepStrictEqual(parseJSDocumentType('(value:) => boolean'), {kind: 'unknown'});
 });
 
 test('unsupported types retain unknown evidence', t => {
 	// eslint-disable-next-line no-template-curly-in-string
-	t.assert.deepStrictEqual(parseJSDocType('`prefix<${string}`'), {kind: 'unknown'});
+	t.assert.deepStrictEqual(parseJSDocumentType('`prefix<${string}`'), {kind: 'unknown'});
 });
 
 const name = name => ({kind: 'name', name});
@@ -195,7 +195,7 @@ for (const [description, expression, expected] of [
 	['array of callbacks', '(() => boolean)[]', array],
 ]) {
 	test(`parses ${description}`, t => {
-		t.assert.deepStrictEqual(parseJSDocType(expression), expected);
+		t.assert.deepStrictEqual(parseJSDocumentType(expression), expected);
 	});
 }
 
@@ -350,23 +350,23 @@ for (const [description, expression] of [
 	['stray type terminator', 'boolean;'],
 ]) {
 	test(`keeps ${description} unknown`, t => {
-		t.assert.deepStrictEqual(parseJSDocType(expression), unknown);
+		t.assert.deepStrictEqual(parseJSDocumentType(expression), unknown);
 	});
 }
 
 test('parses a long flat union without recursive union nesting', t => {
 	const elements = Array.from({length: 2000}, () => boolean);
-	t.assert.deepStrictEqual(parseJSDocType(Array.from({length: 2000}, () => 'boolean').join('|')), union(...elements));
+	t.assert.deepStrictEqual(parseJSDocumentType(Array.from({length: 2000}, () => 'boolean').join('|')), union(...elements));
 });
 
 test('deep nesting fails conservatively instead of leaking a recursion error', t => {
-	t.assert.deepStrictEqual(parseJSDocType(`${'('.repeat(20_000)}keyof Foo${')'.repeat(20_000)}`), unknown);
+	t.assert.deepStrictEqual(parseJSDocumentType(`${'('.repeat(20_000)}keyof Foo${')'.repeat(20_000)}`), unknown);
 });
 
 test('unterminated escaped quotes stop tokenization without rescanning every quote', t => {
-	t.assert.deepStrictEqual(parseJSDocType(`"${String.raw`\"`.repeat(20_000)}`), unknown);
+	t.assert.deepStrictEqual(parseJSDocumentType(`"${String.raw`\"`.repeat(20_000)}`), unknown);
 });
 
 test('whitespace and an unrecognized token cannot establish a primitive type', t => {
-	t.assert.deepStrictEqual(parseJSDocType(`${' '.repeat(100_000)}#boolean`), unknown);
+	t.assert.deepStrictEqual(parseJSDocumentType(`${' '.repeat(100_000)}#boolean`), unknown);
 });

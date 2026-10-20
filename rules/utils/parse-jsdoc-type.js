@@ -31,7 +31,7 @@ function hasValidStringEscapes(token) {
 /**
 Read the type facts needed by rules. Unsupported or malformed syntax stays unknown, including when nested inside a supported container.
 */
-function parseJSDocType(text) {
+function parseJSDocumentType(text) {
 	const tokens = [];
 	for (const match of text.matchAll(tokenPattern)) {
 		const token = match[0];
@@ -321,4 +321,4 @@ function parseJSDocType(text) {
 	}
 }
 
-export {parseJSDocType};
+export {parseJSDocumentType};

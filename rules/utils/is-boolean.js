@@ -2,9 +2,9 @@ import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import getStaticValueIfNoSideEffects from './get-static-value.js';
 import {getFunctionReturnExpression} from './function-body.js';
 import {withTypeInformation} from './types.js';
-import {getJSDocTypeAnnotation, getJSDocReturnType} from './jsdoc-type.js';
-import {getJSDocBooleanState} from './get-jsdoc-boolean-state.js';
-import {getJSDocType, hasJSDocTypeReference, target} from './type-helpers.js';
+import {getJSDocumentTypeAnnotation, getJSDocumentReturnType} from './jsdoc-type.js';
+import {getJSDocumentBooleanState} from './get-jsdoc-boolean-state.js';
+import {getJSDocumentType, hasJSDocumentTypeReference, target} from './type-helpers.js';
 import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
 
 const booleanBinaryOperators = new Set([
@@ -79,7 +79,7 @@ const isBooleanStaticValue = (node, context) => {
 
 	return !nonBooleanStaticValueTypes.has(node.type)
 		&& typeof getStaticValueIfNoSideEffects(node, context)?.value === 'boolean'
-		&& !hasJSDocTypeReference(node, context);
+		&& !hasJSDocumentTypeReference(node, context);
 };
 
 function isBooleanTypeScriptType(type, checker) {
@@ -292,9 +292,9 @@ function isBooleanFunction(node, context, visitedVariables = new Set()) {
 	}
 
 	const scope = context.sourceCode.getScope(node);
-	const annotation = getJSDocReturnType(node, context);
+	const annotation = getJSDocumentReturnType(node, context);
 	if (annotation) {
-		return getJSDocBooleanState(annotation) === 'boolean';
+		return getJSDocumentBooleanState(annotation) === 'boolean';
 	}
 
 	if (isBooleanTypeAnnotation(node.returnType, context, scope)) {
@@ -341,16 +341,16 @@ function isBooleanFunctionReference(node, context, visitedVariables = new Set())
 	} else if (variable.defs.length === 1) {
 		const [definition] = variable.defs;
 		const scope = context.sourceCode.getScope(definition.name);
-		const annotation = getJSDocTypeAnnotation(definition.name, context);
+		const annotation = getJSDocumentTypeAnnotation(definition.name, context);
 		if (annotation) {
 			const initializer = unwrapTypeScriptExpression(definition.node.init);
 			if (!initializer?.async && !initializer?.generator) {
 				isBoolean = initializer?.returnType
 					? isBooleanTypeAnnotation(initializer.returnType, context, context.sourceCode.getScope(initializer))
-					: getJSDocType(annotation, {
+					: getJSDocumentType(annotation, {
 						targetTypeNames: new Set(),
-						isTargetJSDocType: type => type?.kind === 'function'
-							&& getJSDocBooleanState({type: type.returnType}) === 'boolean',
+						isTargetJSDocumentType: type => type?.kind === 'function'
+							&& getJSDocumentBooleanState({type: type.returnType}) === 'boolean',
 					}) === target;
 			}
 		} else if (isBooleanFunctionTypeAnnotation(definition.name?.typeAnnotation, context, scope)) {
@@ -450,10 +450,10 @@ function getKnownConstructorExpressionKind(node, context) {
 }
 
 function getKnownIdentifierExpressionKind(node, context, visitedVariables) {
-	const annotation = getJSDocTypeAnnotation(node, context);
+	const annotation = getJSDocumentTypeAnnotation(node, context);
 	if (annotation) {
 		for (const [kind, targetTypeNames] of jsdocTypeNamesByExpressionKind) {
-			if (getJSDocType(annotation, {targetTypeNames}) === target) {
+			if (getJSDocumentType(annotation, {targetTypeNames}) === target) {
 				return kind;
 			}
 		}
@@ -671,9 +671,9 @@ function isBooleanExpression(node, context, visitedVariables = new Set()) {
 		return false;
 	}
 
-	const annotation = getJSDocTypeAnnotation(node, context);
+	const annotation = getJSDocumentTypeAnnotation(node, context);
 	if (annotation) {
-		return getJSDocBooleanState(annotation) === 'boolean' || isBooleanTypeInformation(node, context);
+		return getJSDocumentBooleanState(annotation) === 'boolean' || isBooleanTypeInformation(node, context);
 	}
 
 	if (

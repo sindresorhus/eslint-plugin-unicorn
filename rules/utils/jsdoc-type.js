@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isFunction} from '../ast/index.js';
-import {parseJSDocType} from './parse-jsdoc-type.js';
+import {parseJSDocumentType} from './parse-jsdoc-type.js';
 import {isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
 import {
 	getJSDocumentDelimitedEnd,
@@ -27,7 +27,7 @@ function parseTag(text, {tag, end}, offset) {
 			return {tag: tag.name};
 		}
 
-		type = parseJSDocType(text.slice(start + 1, typeEnd - 1).replaceAll(/\r?\n[^\S\n]*\*?/gv, ' '));
+		type = parseJSDocumentType(text.slice(start + 1, typeEnd - 1).replaceAll(/\r?\n[^\S\n]*\*?/gv, ' '));
 		start = skipJSDocumentTemplateWhitespace(text, typeEnd, end);
 	} else if (!parameterTags.has(tag.name)) {
 		return {tag: tag.name};
@@ -179,7 +179,7 @@ function getParameterAnnotation(node, context) {
 /**
 Get a parameter tag's name range even when its type is omitted or a native TypeScript annotation takes precedence for inference.
 */
-function getJSDocParameterNameRange(node, context) {
+function getJSDocumentParameterNameRange(node, context) {
 	return getParameterAnnotation(node, context)?.nameRange;
 }
 
@@ -201,7 +201,7 @@ function hasNativeTypeAssertion(node) {
 /**
 Get a directly documented binding or property type, resolving simple identifier references to their declaration.
 */
-function getJSDocTypeAnnotation(node, context) {
+function getJSDocumentTypeAnnotation(node, context) {
 	if (!node || node.typeAnnotation) {
 		return;
 	}
@@ -230,7 +230,7 @@ function getJSDocTypeAnnotation(node, context) {
 			const variable = findVariable(context.sourceCode.getScope(node), node);
 			const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
 			return definition?.name !== node && definition?.name
-				? getJSDocTypeAnnotation(definition.name, context)
+				? getJSDocumentTypeAnnotation(definition.name, context)
 				: undefined;
 		}
 	} else {
@@ -244,7 +244,7 @@ function getJSDocTypeAnnotation(node, context) {
 /**
 Get the explicit return type documented on a function or its declaration.
 */
-function getJSDocReturnType(node, context) {
+function getJSDocumentReturnType(node, context) {
 	if (!node || node.returnType) {
 		return;
 	}
@@ -261,7 +261,7 @@ function getJSDocReturnType(node, context) {
 }
 
 export {
-	getJSDocParameterNameRange,
-	getJSDocTypeAnnotation,
-	getJSDocReturnType,
+	getJSDocumentParameterNameRange,
+	getJSDocumentTypeAnnotation,
+	getJSDocumentReturnType,
 };

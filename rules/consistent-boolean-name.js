@@ -3,7 +3,7 @@ import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {renameVariable} from './fix/index.js';
 import {combineBooleanStates, getTypeBooleanState} from './utils/get-type-boolean-state.js';
 import {getBooleanWrapperVariableState} from './utils/get-boolean-wrapper-variable-state.js';
-import {getJSDocTypeName, getTypeName} from './utils/type-helpers.js';
+import {getJSDocumentTypeName, getTypeName} from './utils/type-helpers.js';
 import {
 	containsNode,
 	getAvailableVariableName,
@@ -13,10 +13,10 @@ import {
 	getStaticValueIfNoSideEffects,
 	getVisitorChildNodes,
 	getFunctionReturnExpression,
-	getJSDocTypeAnnotation,
-	getJSDocReturnType,
-	getJSDocParameterNameRange,
-	getJSDocBooleanState,
+	getJSDocumentTypeAnnotation,
+	getJSDocumentReturnType,
+	getJSDocumentParameterNameRange,
+	getJSDocumentBooleanState,
 	isReactHookName,
 	lowerFirst,
 	upperFirst,
@@ -296,9 +296,9 @@ const hasBooleanReturnType = (node, context) =>
 	getPromisedReturnTypeBooleanState(node.returnType, context, context.sourceCode.getScope(node)) === boolean
 	|| getFunctionReturnTypeInformationBooleanState(node, context, false) === boolean;
 
-function getJSDocFunctionReturnType(node, context) {
-	const annotation = getJSDocReturnType(node, context);
-	return promiseValueTypeNames.has(getJSDocTypeName(annotation?.type)) ? undefined : annotation;
+function getJSDocumentFunctionReturnType(node, context) {
+	const annotation = getJSDocumentReturnType(node, context);
+	return promiseValueTypeNames.has(getJSDocumentTypeName(annotation?.type)) ? undefined : annotation;
 }
 
 function getFunctionTypeAnnotationBooleanState(node, context, scope, typeState) {
@@ -339,9 +339,9 @@ const isBooleanFunctionValue = (node, context) => {
 		return false;
 	}
 
-	const annotation = getJSDocFunctionReturnType(node, context);
+	const annotation = getJSDocumentFunctionReturnType(node, context);
 	if (annotation) {
-		const state = getJSDocBooleanState(annotation);
+		const state = getJSDocumentBooleanState(annotation);
 		return (!node.async && state === boolean)
 			|| (state === unknown && getFunctionReturnTypeInformationBooleanState(node, context, false) === boolean);
 	}
@@ -1045,12 +1045,12 @@ function isCallableTypeAnnotation(node, context, scope, {visitedTypeReferenceNod
 function isBooleanTypeAnnotatedValue(node, context) {
 	const {typeAnnotation} = node;
 	if (!typeAnnotation) {
-		const annotation = getJSDocTypeAnnotation(node, context);
+		const annotation = getJSDocumentTypeAnnotation(node, context);
 		if (!annotation) {
 			return false;
 		}
 
-		const state = getJSDocBooleanState({...annotation, optional: false}, {functionTypesAreBoolean: true});
+		const state = getJSDocumentBooleanState({...annotation, optional: false}, {functionTypesAreBoolean: true});
 		return state === boolean
 			|| (state === unknown && getTypeInformationBooleanState(node, context, true, false) === boolean);
 	}
@@ -1774,9 +1774,9 @@ function getFunctionBooleanState(node, context, visitedVariables = new Set()) {
 		return nonBoolean;
 	}
 
-	const annotation = getJSDocFunctionReturnType(node, context);
+	const annotation = getJSDocumentFunctionReturnType(node, context);
 	if (annotation) {
-		const state = node.async ? unknown : getJSDocBooleanState(annotation, {allowNullish: true});
+		const state = node.async ? unknown : getJSDocumentBooleanState(annotation, {allowNullish: true});
 		return state === unknown ? getFunctionReturnTypeInformationBooleanState(node, context, false) : state;
 	}
 
@@ -2022,7 +2022,7 @@ const isBooleanVariable = (variable, context, visitedVariables) => {
 
 	const {name} = definition;
 
-	if (name.typeAnnotation || getJSDocTypeAnnotation(name, context)) {
+	if (name.typeAnnotation || getJSDocumentTypeAnnotation(name, context)) {
 		return isBooleanTypeAnnotatedValue(name, context);
 	}
 
@@ -2100,9 +2100,9 @@ function getDirectTypeAnnotationBooleanState(node, context, scope, typeState) {
 
 function getDefinitionBooleanState(definition, context, visitedVariables, functionValuesAreBoolean) {
 	const scope = context.sourceCode.getScope(definition.name);
-	const annotation = getJSDocTypeAnnotation(definition.name, context);
+	const annotation = getJSDocumentTypeAnnotation(definition.name, context);
 	if (annotation) {
-		const state = getJSDocBooleanState(annotation, {allowNullish: true, functionTypesAreBoolean: functionValuesAreBoolean});
+		const state = getJSDocumentBooleanState(annotation, {allowNullish: true, functionTypesAreBoolean: functionValuesAreBoolean});
 		return state === unknown ? getTypeInformationBooleanState(definition.name, context, functionValuesAreBoolean) : state;
 	}
 
@@ -2364,9 +2364,9 @@ function getGetterBooleanState(node, context) {
 		return getDirectTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false, allowNullish: false});
 	}
 
-	const annotation = getJSDocFunctionReturnType(node, context);
+	const annotation = getJSDocumentFunctionReturnType(node, context);
 	if (annotation) {
-		return getJSDocBooleanState(annotation, {allowNullish: true});
+		return getJSDocumentBooleanState(annotation, {allowNullish: true});
 	}
 
 	const stateFromReturnType = getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false});
@@ -2403,7 +2403,7 @@ function isBooleanProperty(node, context) {
 			return false;
 		}
 
-		return getJSDocTypeAnnotation(node, context)
+		return getJSDocumentTypeAnnotation(node, context)
 			? isBooleanTypeAnnotatedValue(node, context)
 			: isBooleanValue(node.value, context);
 	}
@@ -2413,7 +2413,7 @@ function isBooleanProperty(node, context) {
 	}
 
 	if (propertyDefinitionTypes.has(node.type)) {
-		return node.typeAnnotation || getJSDocTypeAnnotation(node, context)
+		return node.typeAnnotation || getJSDocumentTypeAnnotation(node, context)
 			? isBooleanTypeAnnotatedValue(node, context)
 			: isBooleanValue(node.value, context);
 	}
@@ -2450,9 +2450,9 @@ function getExplicitPropertyBooleanState(node, context) {
 			return getVariableBooleanState(findVariable(sourceCode.getScope(node), node.key), context);
 		}
 
-		const annotation = getJSDocTypeAnnotation(node, context);
+		const annotation = getJSDocumentTypeAnnotation(node, context);
 		if (annotation) {
-			return getJSDocBooleanState(annotation, {allowNullish: true, functionTypesAreBoolean: true});
+			return getJSDocumentBooleanState(annotation, {allowNullish: true, functionTypesAreBoolean: true});
 		}
 
 		return getExpressionBooleanState(node.value, context);
@@ -2464,9 +2464,9 @@ function getExplicitPropertyBooleanState(node, context) {
 
 	if (propertyDefinitionTypes.has(node.type)) {
 		const scope = sourceCode.getScope(node);
-		const annotation = getJSDocTypeAnnotation(node, context);
+		const annotation = getJSDocumentTypeAnnotation(node, context);
 		if (annotation) {
-			return getJSDocBooleanState(annotation, {allowNullish: true, functionTypesAreBoolean: true});
+			return getJSDocumentBooleanState(annotation, {allowNullish: true, functionTypesAreBoolean: true});
 		}
 
 		return node.typeAnnotation
@@ -2513,7 +2513,7 @@ function getSuggestions(variable, prefixes, context, nameForPrefixCheck) {
 		variable.scope,
 	];
 	const nameRange = definition?.type === 'Parameter'
-		? getJSDocParameterNameRange(definition.name, context)
+		? getJSDocumentParameterNameRange(definition.name, context)
 		: undefined;
 	// Each prefix gives a different valid identifier, so every prefix gets its own suggestion.
 	return prefixes.map(prefix => {
@@ -2552,11 +2552,11 @@ function isAutofixableVariable(variable, context) {
 
 	const {sourceCode} = context;
 	const scope = sourceCode.getScope(definition.name);
-	const annotation = getJSDocTypeAnnotation(definition.name, context);
+	const annotation = getJSDocumentTypeAnnotation(definition.name, context);
 	if (
 		annotation
-		&& getJSDocBooleanState(annotation, {functionTypesAreBoolean: true}) === boolean
-		&& getJSDocBooleanState(annotation) !== boolean
+		&& getJSDocumentBooleanState(annotation, {functionTypesAreBoolean: true}) === boolean
+		&& getJSDocumentBooleanState(annotation) !== boolean
 	) {
 		return false;
 	}

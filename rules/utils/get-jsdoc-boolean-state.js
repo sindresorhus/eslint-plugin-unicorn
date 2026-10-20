@@ -1,5 +1,5 @@
 import {combineBooleanStates} from './get-type-boolean-state.js';
-import {getJSDocType, nonTarget, target} from './type-helpers.js';
+import {getJSDocumentType, nonTarget, target} from './type-helpers.js';
 
 const booleanTypeNames = new Set(['boolean']);
 const nonBooleanTypeNames = new Set(['Array', 'ReadonlyArray', 'Promise', 'PromiseLike']);
@@ -35,7 +35,7 @@ function getTypeBooleanState(type, {allowNullish, functionTypesAreBoolean}) {
 		}
 
 		default: {
-			const state = getJSDocType({type}, {targetTypeNames: booleanTypeNames, nonTargetTypeNames: nonBooleanTypeNames});
+			const state = getJSDocumentType({type}, {targetTypeNames: booleanTypeNames, nonTargetTypeNames: nonBooleanTypeNames});
 			if (state === target) {
 				return 'boolean';
 			}
@@ -48,10 +48,10 @@ function getTypeBooleanState(type, {allowNullish, functionTypesAreBoolean}) {
 /**
 Classify a documented boolean value, with separate policies for nullable values and callable names.
 */
-function getJSDocBooleanState(annotation, {allowNullish = false, functionTypesAreBoolean = false} = {}) {
+function getJSDocumentBooleanState(annotation, {allowNullish = false, functionTypesAreBoolean = false} = {}) {
 	return annotation.optional && !allowNullish
 		? 'unknown'
 		: getTypeBooleanState(annotation.type, {allowNullish, functionTypesAreBoolean});
 }
 
-export {getJSDocBooleanState};
+export {getJSDocumentBooleanState};
