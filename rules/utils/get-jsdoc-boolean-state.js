@@ -8,7 +8,7 @@ const nonBooleanTypeNames = new Set(['Array', 'ReadonlyArray', 'Promise', 'Promi
 Flatten grouped intersections before combining their callable contracts.
 */
 function getIntersectionMembers(type) {
-	return type.kind === 'intersection' ? type.elements.flatMap(getIntersectionMembers) : [type];
+	return type.kind === 'intersection' ? type.elements.flatMap(element => getIntersectionMembers(element)) : [type];
 }
 
 /**
