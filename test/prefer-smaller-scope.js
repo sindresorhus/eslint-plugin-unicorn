@@ -14,6 +14,17 @@ testRule.typescript({
 	],
 	invalid: [
 		{
+			code: 'type Value = number;\nfunction render() { return <Component<Value> />; }',
+			output: 'function render() { type Value = number; return <Component<Value> />; }',
+			filename: 'file.tsx',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		},
+		...['async function foo()', 'function* foo()'].map(signature => ({
+			code: `type Value<Type> = Type;\n${signature} { return 1 as Value<number>; }`,
+			output: `${signature} { type Value<Type> = Type; return 1 as Value<number>; }`,
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		})),
+		{
 			code: outdent`
 				type Range = {start: number; end: number};
 				function overlaps(a: [number, number], b: [number, number]) {
@@ -111,6 +122,56 @@ testRule.typescript({
 		{
 			code: 'consume()\ntype Value = number;\n[1].map(value => { return value as Value; });',
 			output: 'consume()\n;\n[1].map(value => { type Value = number; return value as Value; });',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		},
+	],
+});
+
+testRule.vue({
+	testerOptions: {languageOptions: {parserOptions: {parser: parsers.typescript.implementation}}},
+	valid: [
+		'<script setup lang="ts">type Value = number; function foo() { return 1 as Value; }</script><template>{{ 1 as Value }}</template>',
+	],
+	invalid: [],
+});
+
+testRule.svelte({
+	testerOptions: {languageOptions: {parserOptions: {parser: parsers.typescript.implementation}}},
+	valid: [
+		'<script lang="ts">type Value = number; function foo() { return 1 as Value; }</script>{1 as Value}',
+		'<script module lang="ts">type Value = number; function foo() { return 1 as Value; } export type {Value as Shared};</script>',
+	],
+	invalid: [
+		{
+			code: outdent`
+				<script lang="ts">
+				type Value = number;
+				function foo() { return 1 as Value; }
+				</script>
+			`,
+			output: outdent`
+				<script lang="ts">
+				function foo() { type Value = number; return 1 as Value; }
+				</script>
+			`,
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		},
+		{
+			code: outdent`
+				<script module lang="ts">
+				type Value = number;
+				</script>
+				<script lang="ts">
+				function foo() { return 1 as Value; }
+				</script>
+			`,
+			output: outdent`
+				<script module lang="ts">
+				</script>
+				<script lang="ts">
+				function foo() { type Value = number; return 1 as Value; }
+				</script>
+			`,
 			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
 		},
 	],

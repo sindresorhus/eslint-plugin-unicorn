@@ -13,7 +13,7 @@ Declare variables as close as possible to where they are used. This reduces the 
 
 For variables, the rule checks two patterns: an uninitialized `let` assigned once in a nested block and read only afterward in that block; and a `let` or `const` initialized with a primitive literal or a template literal without substitutions, immediately before an `if`, with all references in one braced branch.
 
-TypeScript type aliases are also checked when all their uses fit inside a smaller block, including a function body, callback, loop, or branch. Uses in function signatures must remain visible outside the body.
+TypeScript type aliases are also checked when all their uses fit inside a smaller block, including a function body, callback, loop, or branch. Uses in function signatures must remain visible outside the body. No type information is required.
 
 ## Examples
 
@@ -105,4 +105,6 @@ An initialized variable declaration must immediately precede an `if`, use a prim
 
 Autofixes are omitted when comments could be displaced, a declaration has a TypeScript annotation, or a parenthesized assignment is syntax-sensitive.
 
-Exported and ambient type aliases, and aliases with explicit variance annotations (`in` or `out`), are ignored. Autofixes are omitted for recursive aliases and aliases containing value references (such as `typeof` queries or computed property keys), `this` types, or identifiers named `await` or `yield`, or when moving an alias could change name resolution or affect comments or multiline literals. Value references can depend on control-flow narrowing at the declaration's original location. Recursive aliases can be needed outside a function to generate declaration files for inferred return types.
+Exported and ambient type aliases, and aliases with explicit variance annotations (`in` or `out`), are ignored.
+
+Autofixes are omitted when moving an alias could change name resolution, displace comments, or alter multiline literals. Recursive aliases and aliases containing value references (`typeof` queries or computed property keys), `this` types, or identifiers named `await` or `yield` are reported without fixes. Value references can depend on control-flow narrowing, and recursive aliases can be needed outside a function when generating declarations for inferred return types.

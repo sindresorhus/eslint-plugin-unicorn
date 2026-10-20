@@ -37,7 +37,7 @@ const isDeclarationCandidate = node =>
 	&& node.declarations[0].id.type === 'Identifier';
 
 const isExported = (declaration, name) =>
-	declaration.parent.type === 'Program'
+	(declaration.parent.type === 'Program' || declaration.parent.type === 'SvelteScriptElement')
 	&& declaration.parent.body.some(statement =>
 		statement.type === 'ExportNamedDeclaration'
 		&& !statement.source
@@ -318,7 +318,7 @@ function getTypeAliasBlock(declaration, references, sourceCode) {
 function getTypeAliasProblem(declaration, context) {
 	const {sourceCode} = context;
 	if (
-		!(declaration.parent.type === 'Program' || declaration.parent.type === 'BlockStatement')
+		!['Program', 'BlockStatement', 'SvelteScriptElement'].includes(declaration.parent.type)
 		|| declaration.declare
 		|| declaration.typeParameters?.params.some(parameter => parameter.in || parameter.out)
 		|| isExported(declaration, declaration.id.name)
