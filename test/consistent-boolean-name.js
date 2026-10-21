@@ -4805,6 +4805,37 @@ for (const wrap of [typescript, typeAware]) {
 	});
 }
 
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: ['Promise<boolean>', 'PromiseLike<boolean>'].flatMap(type => [
+			`const task = { /** @type {${type}} */ get ready() { return true; } };`,
+			`class Task { /** @returns {${type}} */ get ready() { return true; } }`,
+		]).map(code => wrap({code, options: [{checkMethods: 'always'}]})),
+		invalid: ['Promise<boolean>', 'PromiseLike<boolean>'].flatMap(type => [
+			`const task = { /** @type {${type}} */ get isReady() { return source; } };`,
+			`class Task { /** @returns {${type}} */ get isReady() { return source; } }`,
+		]).map(code => wrap({
+			code,
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+		})),
+	});
+}
+
+for (const wrap of [typescript, typeAware]) {
+	test({
+		valid: ['Promise<boolean>', 'PromiseLike<boolean>'].map(type => wrap({
+			code: `class Task { get ready(): ${type} { return source; } }`,
+			options: [{checkMethods: 'always'}],
+		})),
+		invalid: ['Promise<boolean>', 'PromiseLike<boolean>'].map(type => wrap({
+			code: `const task = { get isReady(): ${type} { return source; } };`,
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+		})),
+	});
+}
+
 // Unknown documentation keeps syntax-only getters uncertain while type information can resolve them.
 for (const wrap of [testCase => testCase, typescript]) {
 	test({

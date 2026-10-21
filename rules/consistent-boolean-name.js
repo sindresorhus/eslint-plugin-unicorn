@@ -2405,7 +2405,7 @@ function getGetterBooleanState(node, context) {
 		return getDirectTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false, allowNullish: false});
 	}
 
-	const annotation = getJSDocumentFunctionReturnType(node, context);
+	const annotation = getJSDocumentReturnType(node, context);
 	const stateFromReturnType = annotation
 		? getJSDocumentBooleanState(annotation, {allowNullish: true})
 		: getTypeAnnotationBooleanState(node.returnType, context, scope, {functionTypesAreBoolean: false});
