@@ -1553,7 +1553,14 @@ ruleTest.typescript({
 	valid: [
 		'abstract class AppError extends Error {}',
 		'export abstract class HttpError extends Error { public abstract readonly status: number; }',
-		'export default abstract class AppError extends Error {}',
+		'export default abstract class BaseFailure extends Error {}',
+		outdent`
+			abstract class AppError extends Error {
+				protected constructor(message: string) {
+					super(message);
+				}
+			}
+		`,
 		outdent`
 			abstract class AppError extends Error {}
 			export abstract class HttpError extends AppError {
@@ -1640,6 +1647,21 @@ ruleTest.typescript({
 		`,
 	],
 	invalid: [
+		{
+			code: outdent`
+				abstract class AppError extends Error {
+					static create() {
+						class InnerError extends Error {
+							constructor() {
+								super();
+							}
+						}
+						return new InnerError();
+					}
+				}
+			`,
+			errors: [invalidNameError('InnerError')],
+		},
 		{
 			code: outdent`
 				abstract class HttpError extends Error {
