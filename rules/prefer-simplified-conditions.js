@@ -311,10 +311,15 @@ function isFactoringOperand(node) {
 
 	if (
 		simpleNodeTypes.has(node.type)
-		|| node.type === 'MemberExpression'
+		|| node.type === 'Super'
 		|| node.type === 'CallExpression'
 	) {
 		return true;
+	}
+
+	if (node.type === 'MemberExpression') {
+		return isFactoringOperand(node.object)
+			&& (!node.computed || isFactoringOperand(node.property));
 	}
 
 	if (isNegation(node)) {
@@ -412,7 +417,10 @@ function getLeadingCommonFactoringTerms(node, context) {
 		return;
 	}
 
-	return commonTerm;
+	return {
+		...commonTerm,
+		shouldSuggest: operands.some(operand => !isSafeFactoringOperand(operand, context)),
+	};
 }
 
 function getAbsorptionTerm(node, context) {
@@ -464,7 +472,15 @@ function getFactoringReplacementText(node, factoringTerms, context) {
 	const commonText = getParenthesizedText(factoringTerms.common, context);
 	const leftOtherText = getParenthesizedText(factoringTerms.leftOther, context);
 	const rightOtherText = getParenthesizedText(factoringTerms.rightOther, context);
-	const replacement = `${commonText} ${node.left.operator} (${leftOtherText} ${node.operator} ${rightOtherText})`;
+	let replacement = `${commonText} ${node.left.operator} (${leftOtherText} ${node.operator} ${rightOtherText})`;
+
+	if (
+		!isParenthesized(factoringTerms.common, context)
+		&& !shouldAddParenthesesToLogicalReplacement(node, node.left.operator, context)
+		&& shouldAddParenthesesToExpressionStart(factoringTerms.common, context, node)
+	) {
+		replacement = `(${replacement})`;
+	}
 
 	return getLogicalReplacementText(node, node.left.operator, replacement, context);
 }
@@ -535,7 +551,7 @@ const create = context => {
 		return getProblem(
 			node,
 			fixer => fixLogicalExpression(fixer, node, getFactoringReplacementText(node, factoringTerms, context), context),
-			[node.right.left, ...Object.values(factoringTerms)].some(operand => !isSafeFactoringOperand(operand, context)),
+			factoringTerms.shouldSuggest,
 		);
 	});
 };

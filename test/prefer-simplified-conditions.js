@@ -264,6 +264,16 @@ ruleTester.snapshot({
 		'if ((a && (b = value)) || (a && c)) {}',
 		'const value = (object.property && a) || (object.property && b);',
 		'const value = (foo() || a) && (foo() || b);',
+		// Complex member objects and computed keys are intentionally unsupported.
+		'Boolean((tag`x`.enabled && a) || (tag`x`.enabled && b));',
+		'Boolean((object[tag`x`] && a) || (object[tag`x`] && b));',
+		'Boolean((a && tag`x`.enabled) || (a && b));',
+		'const values = [1].values(); Boolean(([...values].length && false) || ([...values].length && true));',
+		'Boolean((object[[...values]] && a) || (object[[...values]] && b));',
+		'Boolean(({a: true}.a && false) || ({a: true}.a && true));',
+		'if ((class {static enabled = true}.enabled && a) || (class {static enabled = true}.enabled && b)) {}',
+		'if ((new Foo().enabled && a) || (new Foo().enabled && b)) {}',
+		'if ((object[0] && a) || (object[(key = 0)] && b)) {}',
 	],
 	invalid: [
 		'if ((foo.bar && a) || (foo.bar && b)) {}',
@@ -285,7 +295,7 @@ ruleTester.snapshot({
 		'if ((object.method(value) && a) || (object.method(value) && b)) {}',
 		'if ((getObject().property && a) || (getObject().property && b)) {}',
 		'if ((object[getKey()] && a) || (object[getKey()] && b)) {}',
-		'if ((object[0] && a) || (object[(key = 0)] && b)) {}',
+		'if ((object[0] && a) || (object[[0].at(0)] && b)) {}',
 		'if ((!foo() && a) || (!foo() && b)) {}',
 		'if ((foo() !== value && a) || (foo() !== value && b)) {}',
 		'if ((foo() /* keep */ && a) || (foo() && b)) {}',
@@ -297,6 +307,8 @@ ruleTester.snapshot({
 		'const Number = {isInteger() { return true; }}; if ((Number.isInteger(value) && a) || (Number.isInteger(value) && b)) {}',
 		'if ((Array.isArray(value) && foo()) || (Array.isArray(value) && b)) {}',
 		'if ((a && Array.isArray(value)) || (a && b)) {}',
+		'class Foo extends Bar { method() { if ((super.enabled && a) || (super.enabled && b)) {} } }',
+		'class Foo { #enabled; method() { if ((this.#enabled && a) || (this.#enabled && b)) {} } }',
 		'if ((Array.isArray([...values]) && a) || (Array.isArray([...values]) && b)) {}',
 	],
 });
@@ -362,6 +374,10 @@ test('member factoring preserves boolean results', t => {
 
 for (const [code, expectedOutput] of [
 	['if ((foo() && a) || (foo() && b)) {}', 'if (foo() && (a || b)) {}'],
+	['(function () {}() === true && false) || (function () {}() === true && true);', '(function () {}() === true && (false || true));'],
+	['(async function () {}() === true && false) || (async function () {}() === true && true);', '(async function () {}() === true && (false || true));'],
+	['const get = () => ({method() {}}.method() === true && false) || ({method() {}}.method() === true && true);', 'const get = () => ({method() {}}.method() === true && (false || true));'],
+	['(class {static get() {}}.get() === true && false) || (class {static get() {}}.get() === true && true);', '(class {static get() {}}.get() === true && (false || true));'],
 	['if ((Array.isArray([...values]) && a) || (Array.isArray([...values]) && b)) {}', 'if (Array.isArray([...values]) && (a || b)) {}'],
 ]) {
 	test(`suggests common calls without autofixing: ${code}`, t => {
@@ -379,6 +395,7 @@ for (const [code, expectedOutput] of [
 		const {fix} = suggestions[0];
 		const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
 		t.assert.strictEqual(output, expectedOutput);
+		t.assert.deepStrictEqual(linter.verify(output, {}), []);
 	});
 }
 

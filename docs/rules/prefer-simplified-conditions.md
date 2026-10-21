@@ -15,7 +15,7 @@ This rule applies De Morgan's laws, factors direct leading common terms in boole
 
 By default, it applies De Morgan's laws only when they reduce negation noise. It does not expand plain negated groups like `!(a && b)`, because those are not consistently easier to read. Use the [`negatedConditions`](#negatedconditions) option to prefer expanded conditions.
 
-Factoring is intentionally limited to leading common terms. The rule does not reorder operands to find a common term. Ordinary member reads are automatically fixed. If an operand contains a call that is not known to be repeatable, the rule offers a suggestion because factoring can change the result or number of calls. Optional chains are excluded from factoring.
+Factoring is intentionally limited to leading common terms. The rule does not reorder operands to find a common term. Member objects and computed keys must be simple expressions, such as identifiers, member reads, or calls. Ordinary member reads are automatically fixed. If an operand contains a call that is not known to be repeatable, the rule offers a suggestion because factoring can change the result or number of calls. Optional chains are excluded from factoring.
 
 Absorbed conditions that would otherwise skip reading another operand are only fixed when that operand can be inferred to be safe to drop, such as a parameter or literal. Unresolved globals and `let`/`const` bindings are not treated as safe to drop.
 

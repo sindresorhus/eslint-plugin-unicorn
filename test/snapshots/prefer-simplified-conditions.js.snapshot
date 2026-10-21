@@ -850,16 +850,16 @@ Output:
 
 `;
 
-exports[`prefer-simplified-conditions > invalid(20): if ((object[0] && a) || (object[(key = 0)] && b)) {} 1`] = `
+exports[`prefer-simplified-conditions > invalid(20): if ((object[0] && a) || (object[[0].at(0)] && b)) {} 1`] = `
 
-  1 | if ((object[0] && a) || (object[(key = 0)] && b)) {}
+  1 | if ((object[0] && a) || (object[[0].at(0)] && b)) {}
 
 `;
 
-exports[`prefer-simplified-conditions > invalid(20): if ((object[0] && a) || (object[(key = 0)] && b)) {} 2`] = `
+exports[`prefer-simplified-conditions > invalid(20): if ((object[0] && a) || (object[[0].at(0)] && b)) {} 2`] = `
 
 Message:
-> 1 | if ((object[0] && a) || (object[(key = 0)] && b)) {}
+> 1 | if ((object[0] && a) || (object[[0].at(0)] && b)) {}
     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 Suggestion 1/1: Simplify the condition.:
@@ -1583,20 +1583,20 @@ Message:
 
 `;
 
-exports[`prefer-simplified-conditions > invalid(32): if ((Array.isArray([...values]) && a) || (Array.isArray([...values]) && b)) {} 1`] = `
+exports[`prefer-simplified-conditions > invalid(32): class Foo extends Bar { method() { if ((super.enabled && a) || (super.enabled && b)) {} } } 1`] = `
 
-  1 | if ((Array.isArray([...values]) && a) || (Array.isArray([...values]) && b)) {}
+  1 | class Foo extends Bar { method() { if ((super.enabled && a) || (super.enabled && b)) {} } }
 
 `;
 
-exports[`prefer-simplified-conditions > invalid(32): if ((Array.isArray([...values]) && a) || (Array.isArray([...values]) && b)) {} 2`] = `
+exports[`prefer-simplified-conditions > invalid(32): class Foo extends Bar { method() { if ((super.enabled && a) || (super.enabled && b)) {} } } 2`] = `
 
 Message:
-> 1 | if ((Array.isArray([...values]) && a) || (Array.isArray([...values]) && b)) {}
-    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+> 1 | class Foo extends Bar { method() { if ((super.enabled && a) || (super.enabled && b)) {} } }
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
-Suggestion 1/1: Simplify the condition.:
-  1 | if (Array.isArray([...values]) && (a || b)) {}
+Output:
+  1 | class Foo extends Bar { method() { if (super.enabled && (a || b)) {} } }
 
 `;
 
@@ -1617,6 +1617,23 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(33): class Foo { #enabled; method() { if ((this.#enabled && a) || (this.#enabled && b)) {} } } 1`] = `
+
+  1 | class Foo { #enabled; method() { if ((this.#enabled && a) || (this.#enabled && b)) {} } }
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(33): class Foo { #enabled; method() { if ((this.#enabled && a) || (this.#enabled && b)) {} } } 2`] = `
+
+Message:
+> 1 | class Foo { #enabled; method() { if ((this.#enabled && a) || (this.#enabled && b)) {} } }
+    |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | class Foo { #enabled; method() { if (this.#enabled && (a || b)) {} } }
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(33): if ((Number.isSafeInteger(value) && a) || (Number.isSafeInteger(value) && b)) {} 1`] = `
 
   1 | if ((Number.isSafeInteger(value) && a) || (Number.isSafeInteger(value) && b)) {}
@@ -1631,6 +1648,23 @@ Message:
 
 Output:
   1 | if (Number.isSafeInteger(value) && (a || b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(34): if ((Array.isArray([...values]) && a) || (Array.isArray([...values]) && b)) {} 1`] = `
+
+  1 | if ((Array.isArray([...values]) && a) || (Array.isArray([...values]) && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(34): if ((Array.isArray([...values]) && a) || (Array.isArray([...values]) && b)) {} 2`] = `
+
+Message:
+> 1 | if ((Array.isArray([...values]) && a) || (Array.isArray([...values]) && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Suggestion 1/1: Simplify the condition.:
+  1 | if (Array.isArray([...values]) && (a || b)) {}
 
 `;
 
