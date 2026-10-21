@@ -973,7 +973,6 @@ export {
 	getTypeReferenceDefinition,
 	getDefinitionInitializer,
 	getJSDocumentType,
-	getJSDocumentTypeName,
 	getJSDocumentCallableReturnType,
 	getJSDocumentIntersectionMembers,
 	hasJSDocumentTypeReference,
