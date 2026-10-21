@@ -72,6 +72,7 @@ for (const method of [
 	'toLocaleUpperCase',
 	'toLowerCase',
 	'toUpperCase',
+	'toWellFormed',
 	'trim',
 	'trimEnd',
 	'trimStart',
@@ -91,6 +92,15 @@ test('string method chains retain callback results and constant aliases', t => {
 		'/** @param {() => string} read */ function run(read) { inspect(read().slice(1).trimEnd()); }',
 	].join('\n');
 	t.assert.deepStrictEqual(getResults(code), [true, true]);
+});
+
+test('well-formed string conversion retains uncertain receiver and optional-call boundaries', t => {
+	const code = [
+		'/** @param {?string} text */ function nullable(text) { inspect(text.toWellFormed()); }',
+		'/** @param {unknown} text */ function unknown(text) { inspect(text.toWellFormed()); }',
+		'/** @param {string} text */ function optional(text) { inspect(text?.toWellFormed()); inspect(text.toWellFormed?.()); inspect(text["toWellFormed"]()); }',
+	].join('\n');
+	t.assert.deepStrictEqual(getResults(code), [false, false, false, false, false]);
 });
 
 test('string method results preserve uncertain and non-string receiver boundaries', t => {

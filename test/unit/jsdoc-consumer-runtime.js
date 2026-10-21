@@ -7,6 +7,32 @@ const linter = new Linter();
 
 for (const {name, rule, code, output = code, value, reported = true, suggestion, suggestedValue} of [
 	{
+		name: 'well-formed string conversion preserves surrogate repair and membership outcomes',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: [
+			'/** @param {string} text */ function run(text) { return text.toWellFormed().includes(String.fromCharCode(0xFFFD)) === true; }',
+			'JSON.stringify(["", "text", String.fromCharCode(0xD800), String.fromCharCode(0xDC00), "🦄"].map(run));',
+		].join('\n'),
+		output: [
+			'/** @param {string} text */ function run(text) { return text.toWellFormed().includes(String.fromCharCode(0xFFFD)); }',
+			'JSON.stringify(["", "text", String.fromCharCode(0xD800), String.fromCharCode(0xDC00), "🦄"].map(run));',
+		].join('\n'),
+		value: '[false,false,true,true,false]',
+	},
+	{
+		name: 'numeric character checks after surrogate repair preserve empty and populated results',
+		rule: 'prefer-number-properties',
+		code: [
+			'/** @param {string} text */ function run(text) { return isNaN(text.toWellFormed().charCodeAt(0)); }',
+			'JSON.stringify(["", "text", String.fromCharCode(0xD800), String.fromCharCode(0xDC00), "🦄"].map(run));',
+		].join('\n'),
+		output: [
+			'/** @param {string} text */ function run(text) { return Number.isNaN(text.toWellFormed().charCodeAt(0)); }',
+			'JSON.stringify(["", "text", String.fromCharCode(0xD800), String.fromCharCode(0xDC00), "🦄"].map(run));',
+		].join('\n'),
+		value: '[true,false,false,false,false]',
+	},
+	{
 		name: 'custom search results retain NaN coercion until a suggestion is chosen',
 		rule: 'prefer-number-properties',
 		code: [

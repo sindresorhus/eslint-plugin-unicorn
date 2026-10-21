@@ -47,6 +47,9 @@ for (const languageOptions of [
 	test({
 		testerOptions: {languageOptions},
 		valid: [
+			'/** @param {?string} text */ function run(text) { return text?.toWellFormed().isWellFormed() === false; }',
+			'/** @param {string} text */ function run(text) { return text.toWellFormed?.().isWellFormed() === true; }',
+			'/** @param {unknown} text */ function run(text) { return text.toWellFormed().isWellFormed() === true; }',
 			...['URLSearchParams', 'Headers', 'FormData'].flatMap(type => [
 				`/** @param {${type}} values */ function run(values) { return values.get("key") === true; }`,
 				`/** @param {?${type}} values */ function run(values) { return values?.has("key") === false; }`,
@@ -55,6 +58,8 @@ for (const languageOptions of [
 			'/** @param {Headers | {has(): string}} values */ function run(values) { return values.has("key") === true; }',
 		].map(code => ({code, filename: 'file.ts'})),
 		invalid: [
+			'/** @param {string} text */ function run(text) { return text.toWellFormed().isWellFormed() === true; }',
+			'/** @param {() => string} read */ function run(read) { return read().toWellFormed().includes("x") === true; }',
 			...['URLSearchParams', 'Headers', 'FormData'].map(type => `/** @param {${type}} values */ function run(values) { return values.has("key") === true; }`),
 			'/** @param {URLSearchParams} values */ function run(values) { return values.has("key", "value") === true; }',
 			'/** @param {Headers} values */ function run(values) { return values["has"]("key") === true; }',

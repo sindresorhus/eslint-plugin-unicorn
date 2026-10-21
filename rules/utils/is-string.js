@@ -37,6 +37,7 @@ const stringReturningMethods = [
 	'toLocaleUpperCase',
 	'toLowerCase',
 	'toUpperCase',
+	'toWellFormed',
 	'trim',
 	'trimEnd',
 	'trimStart',
