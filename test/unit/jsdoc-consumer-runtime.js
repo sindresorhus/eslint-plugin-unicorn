@@ -7,6 +7,45 @@ const linter = new Linter();
 
 for (const {name, rule, code, output = code, value, reported = true, suggestion, suggestedValue} of [
 	{
+		name: 'documented joins retain empty and nullish element separator behavior',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: [
+			'/** @param {Array<string | null | undefined>} values */ function run(values) { return values.join("|").startsWith("|") === true; }',
+			'JSON.stringify([run([]), run([null, undefined]), run(["x", null])]);',
+		].join('\n'),
+		output: [
+			'/** @param {Array<string | null | undefined>} values */ function run(values) { return values.join("|").startsWith("|"); }',
+			'JSON.stringify([run([]), run([null, undefined]), run(["x", null])]);',
+		].join('\n'),
+		value: '[false,true,false]',
+	},
+	{
+		name: 'documented typed array joins retain numeric and bigint string membership results',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: [
+			'/** @param {Uint8Array | BigInt64Array} values */ function run(values) { return values.join(",").includes("2") === true; }',
+			'JSON.stringify([run(new Uint8Array([0, 2])), run(new BigInt64Array([2n])), run(new Uint8Array())]);',
+		].join('\n'),
+		output: [
+			'/** @param {Uint8Array | BigInt64Array} values */ function run(values) { return values.join(",").includes("2"); }',
+			'JSON.stringify([run(new Uint8Array([0, 2])), run(new BigInt64Array([2n])), run(new Uint8Array())]);',
+		].join('\n'),
+		value: '[true,true,false]',
+	},
+	{
+		name: 'documented joins coerce object elements once when comparisons are simplified',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: [
+			'let reads = 0; /** @param {Array<unknown>} values */ function run(values) { return values.join("|").includes("x") === true; }',
+			'JSON.stringify([run([null, undefined, {toString() { reads++; return "x"; }}]), reads]);',
+		].join('\n'),
+		output: [
+			'let reads = 0; /** @param {Array<unknown>} values */ function run(values) { return values.join("|").includes("x"); }',
+			'JSON.stringify([run([null, undefined, {toString() { reads++; return "x"; }}]), reads]);',
+		].join('\n'),
+		value: '[true,1]',
+	},
+	{
 		name: 'well-formed string conversion preserves surrogate repair and membership outcomes',
 		rule: 'no-unnecessary-boolean-comparison',
 		code: [

@@ -103,6 +103,30 @@ test('well-formed string conversion retains uncertain receiver and optional-call
 	t.assert.deepStrictEqual(getResults(code), [false, false, false, false, false]);
 });
 
+for (const type of ['Array<string | null | undefined>', 'ReadonlyArray<string>', '[string, number]', 'Uint8Array', 'BigInt64Array', 'Array<string> | Uint8Array']) {
+	test(`join results on ${type} receivers are strings`, t => {
+		t.assert.deepStrictEqual(getResults(`/** @param {${type}} values */ function run(values) { inspect(values.join()); inspect(values.join("|").trim()); }`), [true, true]);
+		t.assert.deepStrictEqual(getResults(`function run(values: ${type}) { inspect(values.join()); }`), [true]);
+	});
+}
+
+test('join inference retains uncertain and non-array receiver boundaries', t => {
+	for (const type of ['?Array<string>', 'Array<string> | undefined', 'Array<string> | string', 'Set<string>', 'ArrayLike<string>', '{join(): number}', 'unknown']) {
+		t.assert.deepStrictEqual(getResults(`/** @param {${type}} values */ function run(values) { inspect(values.join()); }`), [false], type);
+	}
+
+	const code = '/** @param {Array<string>} values */ function run(values) { inspect(values?.join()); inspect(values.join?.()); inspect(values["join"]()); inspect(values.toString()); }';
+	t.assert.deepStrictEqual(getResults(code), [false, false, false, false]);
+});
+
+test('join inference follows documented factories and callable results', t => {
+	const code = [
+		'/** @returns {Array<string>} */ function read() { return source; } const alias = read(); inspect(alias.join());',
+		'/** @param {() => BigInt64Array} read */ function run(read) { inspect(read().join()); }',
+	].join('\n');
+	t.assert.deepStrictEqual(getResults(code), [true, true]);
+});
+
 test('string method results preserve uncertain and non-string receiver boundaries', t => {
 	for (const type of ['?string', 'string | undefined', 'string | number', 'unknown', 'Array<string>', '{trim(): string}']) {
 		const code = `/** @param {${type}} text */ function run(text) { inspect(text.trim()); }`;
@@ -150,6 +174,7 @@ test('string method chains preserve explicit annotation trust and reject reassig
 });
 
 test('string method inference terminates on cyclic receiver aliases', t => {
+	t.assert.deepStrictEqual(getResults('const text = text.join(); inspect(text);'), [false]);
 	t.assert.deepStrictEqual(getResults('const text = text.trim(); inspect(text);'), [false]);
 	t.assert.deepStrictEqual(getResults('const first = second.trim(); const second = first.toUpperCase(); inspect(first); inspect(second);'), [false, false]);
 });

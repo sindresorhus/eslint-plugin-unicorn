@@ -1,6 +1,7 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isMethodCall, isStringLiteral} from '../ast/index.js';
 import {isFunctionCall, isStaticProperties} from './type-check.js';
+import {isIndexedCollection} from './is-array.js';
 import getStaticValueIfNoSideEffects, {getStaticValueForControlFlow} from './get-static-value.js';
 import {
 	createTypeCheckers,
@@ -89,6 +90,10 @@ const isStringNode = (node, context, isTarget) => {
 
 	switch (node.type) {
 		case 'CallExpression': {
+			if (isMethodCall(node, {method: 'join', optionalCall: false, optionalMember: false})) {
+				return isIndexedCollection(node.callee.object, context);
+			}
+
 			return isMethodCall(node, {
 				methods: stringReturningMethods,
 				optionalCall: false,

@@ -47,6 +47,9 @@ for (const languageOptions of [
 	test({
 		testerOptions: {languageOptions},
 		valid: [
+			'/** @param {?Array<string>} values */ function run(values) { return values?.join().includes("x") === false; }',
+			'/** @param {Array<string>} values */ function run(values) { return values.join?.().includes("x") === true; }',
+			'/** @param {{join(): {includes(): string}}} values */ function run(values) { return values.join().includes("x") === true; }',
 			'/** @param {?string} text */ function run(text) { return text?.toWellFormed().isWellFormed() === false; }',
 			'/** @param {string} text */ function run(text) { return text.toWellFormed?.().isWellFormed() === true; }',
 			'/** @param {unknown} text */ function run(text) { return text.toWellFormed().isWellFormed() === true; }',
@@ -58,6 +61,12 @@ for (const languageOptions of [
 			'/** @param {Headers | {has(): string}} values */ function run(values) { return values.has("key") === true; }',
 		].map(code => ({code, filename: 'file.ts'})),
 		invalid: [
+			'/** @param {Array<string | null | undefined>} values */ function run(values) { return values.join("-").includes("x") === true; }',
+			'/** @param {ReadonlyArray<string>} values */ function run(values) { return values.join().startsWith("x") === true; }',
+			'/** @param {Uint8Array} values */ function run(values) { return values.join(",").endsWith("1") === true; }',
+			'/** @param {BigInt64Array} values */ function run(values) { return values.join().isWellFormed() === true; }',
+			'/** @returns {Array<string>} */ function read() { return source; } read().join().trim().includes("x") === true;',
+			'/** @param {Array<string> | Uint8Array} values */ function run(values) { return values.join().includes("x") === true; }',
 			'/** @param {string} text */ function run(text) { return text.toWellFormed().isWellFormed() === true; }',
 			'/** @param {() => string} read */ function run(read) { return read().toWellFormed().includes("x") === true; }',
 			...['URLSearchParams', 'Headers', 'FormData'].map(type => `/** @param {${type}} values */ function run(values) { return values.has("key") === true; }`),
