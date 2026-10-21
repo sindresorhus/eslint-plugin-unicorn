@@ -360,6 +360,9 @@ function parseJSDocumentType(text) {
 			}
 
 			parseList('<', '>', parseUnion);
+			if (name === 'Object') {
+				return nonPrimitive;
+			}
 		}
 
 		return primitiveTypes.get(name) ?? {kind: 'name', name};

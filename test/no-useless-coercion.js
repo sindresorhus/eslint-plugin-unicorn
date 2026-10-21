@@ -23,6 +23,10 @@ test({
 		'/** @returns {?string} */ function text() { return source; } Boolean(text().includes("x"));',
 	],
 	invalid: [{
+		code: '/** @param {string} text */ function run(text) { return String(text || ""); }',
+		output: '/** @param {string} text */ function run(text) { return (text || ""); }',
+		errors: [{messageId: 'no-useless-coercion'}],
+	}, {
 		code: '/** @type {unknown} */ const flag = true; Number(flag ? 1 : 2);',
 		output: '/** @type {unknown} */ const flag = true; (flag ? 1 : 2);',
 		errors: [{messageId: 'no-useless-coercion'}],

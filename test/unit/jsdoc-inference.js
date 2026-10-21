@@ -46,6 +46,36 @@ test('derived string receivers reuse shared inference for boolean methods', t =>
 	}
 });
 
+test('homogeneous logical receivers retain documented string and array types', t => {
+	const code = [
+		'/** @param {string} left\n * @param {string} right\n * @param {Array<string>} values */',
+		'function run(left, right, values) {',
+		' inspect((left || "").startsWith("x"));',
+		' inspect((left && right).includes("x"));',
+		' inspect((values ?? []).some(predicate));',
+		'}',
+	].join('\n');
+	for (const typescript of [false, true]) {
+		t.assert.deepStrictEqual(getInferences(code, {typescript}), [['boolean'], ['boolean'], ['boolean']]);
+	}
+});
+
+test('generic Object dictionaries provide non-primitive facts without resolving bare Object', t => {
+	const checks = {
+		nonString: isKnownNonString,
+		nonNumber: isKnownNonNumber,
+		nonBigint: isKnownNonBigInt,
+		nonArray: isKnownNonArray,
+	};
+	for (const typescript of [false, true]) {
+		for (const type of ['Object<string, boolean>', 'Object.<number, () => boolean>']) {
+			t.assert.deepStrictEqual(getInferences(`/** @type {${type}} */ let value; inspect(value);`, {checks, typescript}), [['nonString', 'nonNumber', 'nonBigint', 'nonArray']], type);
+		}
+
+		t.assert.deepStrictEqual(getInferences('/** @type {Object} */ let value; inspect(value);', {checks, typescript}), [[]]);
+	}
+});
+
 test('arithmetic and uncertain concatenation cannot establish boolean receiver methods', t => {
 	const code = [
 		'/** @param {unknown} prefix */ function run(prefix, suffix) {',

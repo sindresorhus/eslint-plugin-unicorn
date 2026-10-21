@@ -855,6 +855,13 @@ const getTypeFromExpression = (node, context, options, visitedVariables) => {
 			return getType(node.expressions.at(-1), context, options, visitedVariables);
 		}
 
+		case 'LogicalExpression': {
+			return combineUnionTypes([
+				getType(node.left, context, options, visitedVariables),
+				getType(node.right, context, options, visitedVariables),
+			], options);
+		}
+
 		case 'ConditionalExpression': {
 			return combineUnionTypes([
 				getType(node.consequent, context, options, visitedVariables),

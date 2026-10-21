@@ -32,6 +32,22 @@ const string = name('string');
 const number = name('number');
 const array = name('Array');
 
+test('generic Object dictionaries are records while bare and qualified names stay unresolved', t => {
+	for (const [expression, expected] of [
+		['Object<string, boolean>', nonPrimitive],
+		['Object.<number, () => boolean>', nonPrimitive],
+		['Array<Object<string, boolean>>', array],
+		['() => Object<string, boolean>', callable(nonPrimitive)],
+		['Object', name('Object')],
+		['object', name('object')],
+		['types.Object<string, boolean>', name('types.Object')],
+		['Object<string, keyof Value>', unknown],
+		['Object<string, boolean |>', unknown],
+	]) {
+		t.assert.deepStrictEqual(parseJSDocumentType(expression), expected, expression);
+	}
+});
+
 test('optional suffix wraps the complete annotated type', t => {
 	const nullableReturn = union(boolean, nullish('undefined'));
 	for (const [expression, expected] of [

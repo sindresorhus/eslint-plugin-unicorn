@@ -22,6 +22,10 @@ test({
 		'function run({...values}) { return values.indexOf(/x/) !== -1; }',
 	],
 	invalid: [{
+		code: '/** @param {Array<RegExp>} values */ function run(values) { return (values ?? []).indexOf(/x/) !== -1; }',
+		output: '/** @param {Array<RegExp>} values */ function run(values) { return (values ?? []).includes(/x/); }',
+		errors: [{messageId: 'prefer-includes'}],
+	}, {
 		code: '/** @param {...RegExp} values */ function run(...values) { return values.indexOf(/x/) !== -1; }',
 		output: '/** @param {...RegExp} values */ function run(...values) { return values.includes(/x/); }',
 		errors: [{messageId: 'prefer-includes'}],

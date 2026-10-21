@@ -223,6 +223,7 @@ for (const wrap of [code => ({code}), code => ({code, languageOptions: {parser: 
 	test({
 		valid: [
 			'/** @param {unknown} prefix */ function run(prefix, suffix) { return (prefix + suffix).startsWith("x") === true; }',
+			'/** @param {string | number} text */ function run(text) { return (text || "").includes("x") === true; }',
 		].map(code => wrap(code)),
 		invalid: [
 			[
@@ -231,6 +232,10 @@ for (const wrap of [code => ({code}), code => ({code, languageOptions: {parser: 
 			],
 			['function run(value) { return (typeof value).includes("object") === false; }', 'function run(value) { return !(typeof value).includes("object"); }'],
 			['function run(value) { return (value = "text").includes("x") === true; }', 'function run(value) { return (value = "text").includes("x"); }'],
+			[
+				'/** @param {string} text */ function run(text) { return (text || "").startsWith("x") === true; }',
+				'/** @param {string} text */ function run(text) { return (text || "").startsWith("x"); }',
+			],
 		].map(([code, output]) => ({
 			...wrap(code),
 			output,

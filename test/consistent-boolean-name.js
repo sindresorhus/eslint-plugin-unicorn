@@ -56,6 +56,20 @@ const onlyIsPrefixOptions = {
 	},
 };
 
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [
+			'/** @type {Object} */ const isOptions = source;',
+			'/** @type {object} */ const isOptions = source;',
+			'/** @param {Object<string, boolean>} options */ function run(options) {}',
+		].map(code => wrap(code)),
+		invalid: [
+			'/** @param {Object<string, boolean>} isOptions */ function run(isOptions) {}',
+			'/** @returns {Object.<string, boolean>} */ function isOptions() { return source; }',
+		].map(code => wrap({code, errors: [{messageId: 'non-boolean-prefix'}]})),
+	});
+}
+
 for (const wrap of [typescript, typeAware]) {
 	test({
 		valid: [

@@ -70,6 +70,24 @@ test('static value classification is opt-in and excludes effectful expressions',
 	t.assert.deepStrictEqual(values, [2, 'text']);
 });
 
+test('logical expressions combine both operands using existing union policies', t => {
+	for (const operator of ['&&', '||', '??']) {
+		const code = `/** @param {Foo} left\n * @param {Foo} right */ function run(left, right) { check(left ${operator} right); }`;
+		t.assert.deepStrictEqual(getTypes(code, {}), [target], operator);
+		for (const otherType of ['string', 'unknown', '?Foo']) {
+			const mixed = `/** @param {Foo} left\n * @param {${otherType}} right */ function run(left, right) { check(left ${operator} right); }`;
+			t.assert.deepStrictEqual(getTypes(mixed, {}), [unknown], `${operator} ${otherType}`);
+		}
+	}
+});
+
+test('logical expressions retain configurable mixed-union policies and terminate cyclic aliases', t => {
+	const code = '/** @param {Foo} value\n * @param {string} other */ function run(value, other) { check(value || other); }';
+	t.assert.deepStrictEqual(getTypes(code, {treatMixedUnionAsTarget: true}), [target]);
+	t.assert.deepStrictEqual(getTypes(code, {treatMixedUnionAsNonTarget: true}), [nonTarget]);
+	t.assert.deepStrictEqual(getTypes('const first = second || source; const second = first && source; check(first); check(second);', {}), [unknown, unknown]);
+});
+
 test('uses JSDoc variable, parameter, and function return annotations', t => {
 	for (const code of [
 		'/** @type {Foo} */ let value; check(value);',
