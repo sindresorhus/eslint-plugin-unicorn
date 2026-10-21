@@ -42,8 +42,9 @@ test({
 });
 
 nodeTest('collection suggestions preserve argument comments and evaluate the collection once', t => {
+	const linter = new Linter();
 	const code = 'let evaluations = 0; const result = Object.entries(new Map(/* keep */ (++evaluations, [["key", 1]]))); JSON.stringify([evaluations, result]);';
-	const messages = new Linter().verify(code, {
+	const messages = linter.verify(code, {
 		plugins: {unicorn: {rules: {'no-object-methods-with-collections': rule}}},
 		rules: {'unicorn/no-object-methods-with-collections': 'error'},
 	});

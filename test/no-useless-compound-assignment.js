@@ -42,6 +42,7 @@ test({
 });
 
 nodeTest('compound assignment suggestions preserve comments and evaluate the key once', t => {
+	const linter = new Linter();
 	const code = [
 		'let evaluations = 0;',
 		'const object = {value: 42};',
@@ -49,7 +50,7 @@ nodeTest('compound assignment suggestions preserve comments and evaluate the key
 		'const result = (object[read(/* keep */)] += 0);',
 		'JSON.stringify({evaluations, object, result});',
 	].join(' ');
-	const result = new Linter().verifyAndFix(code, {
+	const result = linter.verifyAndFix(code, {
 		plugins: {unicorn: {rules: {'no-useless-compound-assignment': rule}}},
 		rules: {'unicorn/no-useless-compound-assignment': 'error'},
 	});

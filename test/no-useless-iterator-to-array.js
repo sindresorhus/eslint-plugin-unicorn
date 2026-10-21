@@ -34,8 +34,9 @@ test({
 });
 
 nodeTest('removing toArray preserves receiver comments and iteration order', t => {
+	const linter = new Linter();
 	const code = 'const seen = []; const result = Array.from([1, 2, 3].values().map(/* keep */ value => { seen.push(value); return value * 2; }).toArray()); JSON.stringify({seen, result});';
-	const result = new Linter().verifyAndFix(code, {
+	const result = linter.verifyAndFix(code, {
 		plugins: {unicorn: {rules: {'no-useless-iterator-to-array': rule}}},
 		rules: {'unicorn/no-useless-iterator-to-array': 'error'},
 	});

@@ -41,6 +41,7 @@ test({
 });
 
 nodeTest('last-method suggestions preserve comments and callback evaluation while allowing mutation changes', t => {
+	const linter = new Linter();
 	for (const [method, expectedArray] of [['reverse', [3, 2, 1]], ['toReversed', [1, 2, 3]]]) {
 		const code = `
 			const array = [1, 2, 3];
@@ -51,7 +52,7 @@ nodeTest('last-method suggestions preserve comments and callback evaluation whil
 			});
 			JSON.stringify({array, seen, result});
 		`;
-		const {output, fixed, messages} = new Linter().verifyAndFix(code, {
+		const {output, fixed, messages} = linter.verifyAndFix(code, {
 			plugins: {unicorn: {rules: {'prefer-array-last-methods': rule}}},
 			rules: {'unicorn/prefer-array-last-methods': 'error'},
 		});
