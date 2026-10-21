@@ -4765,12 +4765,54 @@ for (const wrap of [typescript, typeAware]) {
 	});
 }
 
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [
+			'const task = { /** @type {boolean} */ get isReady() { return source; } };',
+			'class Task { /** @type {string} */ get ready() { return source; } }',
+			'const task = { /** @type {() => boolean} */ get ready() { return source; } };',
+			'class Task { /** @type {boolean} */ get [/** @type {boolean} */ function ready() { return "text"; }]() { return source; } }',
+			'class Task { /** @type {boolean}\n * @returns {string} */ get isReady() { return source; } }',
+		].map(code => wrap({code, options: [{checkMethods: 'always'}]})),
+		invalid: [
+			...[
+				'const task = { /** @type {boolean} */ get ready() { return source; } };',
+				'class Task { /** @type {Boolean} */ get ready() { return source; } }',
+			].map(code => wrap({code, options: [{checkMethods: 'always'}], errors: [{messageId: 'consistent-boolean-name'}]})),
+			...[
+				'const task = { /** @type {string} */ get isReady() { return source; } };',
+				'class Task { /** @type {Array<boolean>} */ get isReady() { return source; } }',
+			].map(code => wrap({code, options: [{checkMethods: 'always'}], errors: [{messageId: 'non-boolean-prefix'}]})),
+		],
+	});
+}
+
+for (const wrap of [typescript, typeAware]) {
+	test({
+		valid: [],
+		invalid: [
+			wrap({
+				code: 'class Task { /** @type {string} */ get ready(): boolean { return source; } }',
+				options: [{checkMethods: 'always'}],
+				errors: [{messageId: 'consistent-boolean-name'}],
+			}),
+			wrap({
+				code: 'const task = { /** @type {boolean} */ get isReady(): string { return source; } };',
+				options: [{checkMethods: 'always'}],
+				errors: [{messageId: 'non-boolean-prefix'}],
+			}),
+		],
+	});
+}
+
 // Unknown documentation keeps syntax-only getters uncertain while type information can resolve them.
 for (const wrap of [testCase => testCase, typescript]) {
 	test({
 		valid: [
 			'const task = {/** @returns {unknown} */ get ready() { return true; }};',
 			'class Task { /** @returns {Unresolved} */ get isReady() { return "text"; } }',
+			'const task = {/** @type {unknown} */ get ready() { return true; }};',
+			'class Task { /** @type {unknown} */ get isReady() { return "text"; } }',
 		].map(code => wrap({code, options: [{checkMethods: 'always'}]})),
 		invalid: [],
 	});
@@ -4785,6 +4827,7 @@ test({
 		...[
 			'const task = {/** @returns {unknown} */ get ready() { return true; }};',
 			'class Task { /** @returns {Unresolved} */ get ready() { return true; } }',
+			'const task = {/** @type {unknown} */ get ready() { return true; }};',
 		].map(code => typeAware({
 			code,
 			options: [{checkMethods: 'always'}],
@@ -4793,6 +4836,7 @@ test({
 		...[
 			'const task = {/** @returns {unknown} */ get isReady() { return "text"; }};',
 			'class Task { /** @returns {Unresolved} */ get isReady() { return "text"; } }',
+			'class Task { /** @type {unknown} */ get isReady() { return "text"; } }',
 		].map(code => typeAware({
 			code,
 			options: [{checkMethods: 'always'}],

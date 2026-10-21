@@ -97,6 +97,63 @@ test('finds return annotations on functions and their declaration wrappers', t =
 	}
 });
 
+test('getter type annotations describe their returned value', t => {
+	for (const code of [
+		'const task = { /** @type {boolean} */ get ready() { return source; } };',
+		'class Task { /** @type {boolean} */ get ready() { return source; } }',
+	]) {
+		for (const typescript of [false, true]) {
+			t.assert.strictEqual(getAnnotations(code, true, typescript)[0]?.type.name, 'boolean', code);
+		}
+	}
+});
+
+test('getter documentation belongs to its value function rather than a computed key', t => {
+	for (const tag of ['type', 'returns']) {
+		for (const code of [
+			`const task = { /** @${tag} {boolean} */ get [function key() { return source; }]() { return source; } };`,
+			`class Task { /** @${tag} {boolean} */ get [function key() { return source; }]() { return source; } }`,
+			`const task = { /** @${tag} {boolean} */ get [/** @type {string} */ function key() { return source; }]() { return source; } };`,
+			`class Task { /** @${tag} {boolean} */ get [/** @type {string} */ function key() { return source; }]() { return source; } }`,
+		]) {
+			const annotations = getAnnotations(code, true);
+			t.assert.strictEqual(annotations[0], undefined, code);
+			t.assert.strictEqual(annotations[1]?.type.name, 'boolean', code);
+		}
+	}
+});
+
+test('getter type and return tags must identify one unambiguous annotation', t => {
+	for (const tags of [
+		'@type {boolean}\n * @returns {string}',
+		'@return {boolean}\n * @type {boolean}',
+		'@type {boolean}\n * @type {string}',
+	]) {
+		const code = `class Task { /** ${tags} */ get ready() { return source; } }`;
+		t.assert.deepStrictEqual(getAnnotations(code, true), [undefined], tags);
+	}
+});
+
+test('type tags on ordinary methods and setters do not describe returned values', t => {
+	for (const code of [
+		'/** @type {boolean} */ function ready() { return source; }',
+		'const task = { /** @type {boolean} */ ready() { return source; } };',
+		'class Task { /** @type {boolean} */ ready() { return source; } }',
+		'class Task { /** @type {boolean} */ set ready(value) {} }',
+	]) {
+		t.assert.deepStrictEqual(getAnnotations(code, true), [undefined], code);
+	}
+});
+
+test('native getter return annotations override documented property types', t => {
+	for (const code of [
+		'const task = { /** @type {boolean} */ get ready(): string { return source; } };',
+		'class Task { /** @type {boolean} */ get ready(): string { return source; } }',
+	]) {
+		t.assert.deepStrictEqual(getAnnotations(code, true, true), [undefined], code);
+	}
+});
+
 test('ignores malformed, duplicate, mismatched, and unrelated annotations', t => {
 	for (const code of [
 		'/* @type {boolean} */ let flag; inspect(flag);',

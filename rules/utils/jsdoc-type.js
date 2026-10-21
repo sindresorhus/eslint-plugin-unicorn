@@ -194,7 +194,7 @@ function getFunctionOwners(node) {
 		return [...owners, parent, parent.parent];
 	}
 
-	if (propertyTypes.has(parent?.type) || parent?.type === 'MethodDefinition') {
+	if ((propertyTypes.has(parent?.type) || parent?.type === 'MethodDefinition') && parent.value === node) {
 		return [...owners, parent];
 	}
 
@@ -323,7 +323,8 @@ const getJSDocumentReturnType = memoizeJSDocumentLookup((node, context) => {
 		return;
 	}
 
-	const annotation = getAnnotation(getDocumentationTags(owners, context), tag => returnTags.has(tag.tag));
+	const annotation = getAnnotation(getDocumentationTags(owners, context), tag =>
+		returnTags.has(tag.tag) || (tag.tag === 'type' && node.parent?.kind === 'get' && node.parent.value === node));
 	return annotation?.type ? annotation : undefined;
 });
 
