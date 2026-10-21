@@ -26,7 +26,8 @@ const isEqualityComparison = (node, logicalOperator) =>
 Get the primitive string or number type of an operand with full type information.
 */
 const getPrimitiveTypeName = (node, context) => withTypeInformation(node, context, ({type, checker}) => {
-	const {intrinsicName} = checker.getBaseTypeOfLiteralType(type);
+	const constrainedType = checker.getBaseConstraintOfType(type) ?? type;
+	const {intrinsicName} = checker.getBaseTypeOfLiteralType(constrainedType);
 
 	return intrinsicName === 'string' || intrinsicName === 'number' ? intrinsicName : undefined;
 });
@@ -112,7 +113,7 @@ const create = context => {
 		}
 
 		// Equality checks can narrow unions, but `.includes()` cannot.
-		if (withTypeInformation(unwrapTypeScriptExpression(sharedReference), context, ({type}) => type.isUnion())) {
+		if (withTypeInformation(unwrapTypeScriptExpression(sharedReference), context, ({type, checker}) => (checker.getBaseConstraintOfType(type) ?? type).isUnion())) {
 			return;
 		}
 

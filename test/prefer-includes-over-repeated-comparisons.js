@@ -32,11 +32,37 @@ test({
 			...typeAware('declare const value: string; value === "a" || value == "b" || value === "c";'),
 			errors: [{messageId: 'prefer-includes-over-repeated-comparisons'}],
 		},
+		...[
+			'function check<T extends string>(value: T) { return value == "a" || value == "b" || value == "c"; }',
+			'function check<T extends number>(value: T) { return value != 1 && value != 2 && value != 3; }',
+			'function check<U extends string, T extends U>(value: T) { return value == "a" || value == "b" || value == "c"; }',
+			'function check<T extends "a" | "b">(value: string, other: T) { return value == other || value == "c" || value == "d"; }',
+		].map(code => ({
+			...typeAware(code),
+			errors: [{messageId: 'prefer-includes-over-repeated-comparisons'}],
+		})),
 	],
 });
 
 test.snapshot({
 	valid: [
+		...[
+			['===', '||'],
+			['!==', '&&'],
+			['==', '||'],
+			['!=', '&&'],
+		].map(([comparisonOperator, logicalOperator]) => typeAware(outdent`
+			function check<T extends "a" | "b" | "c">(value: T) {
+				return value ${comparisonOperator} "a" ${logicalOperator} value ${comparisonOperator} "b" ${logicalOperator} value ${comparisonOperator} "c";
+			}
+		`)),
+		...['unknown', 'any', 'String', 'string | number'].map(type => typeAware(`function check<T extends ${type}>(value: T) { return value == "a" || value == "b" || value == "c"; }`)),
+		typeAware('function check<T>(value: T) { return value == "a" || value == "b" || value == "c"; }'),
+		typeAware('function check<T extends string>(value: T) { return value == "a" || (value as unknown) == "b" || value == "c"; }'),
+		{
+			code: 'function check<T extends string>(value: T) { return value == "a" || value == "b" || value == "c"; }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		typeAware(outdent`
 			type Spec = {type: 'range' | 'tag' | 'version'; name: string} | {type: 'git'; name: null};
 
