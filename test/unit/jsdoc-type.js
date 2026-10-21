@@ -94,6 +94,52 @@ test('compact typedefs do not become annotations on the following declaration', 
 	t.assert.deepStrictEqual(getAnnotations(code, true), [undefined]);
 });
 
+test('parameter types can follow their names and optional defaults', t => {
+	for (const [tag, expectedName, expectedType, optional] of [
+		['@param flag {boolean}', 'flag', 'boolean', false],
+		['@param flag {boolean=}', 'flag', 'boolean', true],
+		['@arg text {String}', 'text', 'string', false],
+		['@argument [flag] {boolean}', 'flag', 'boolean', true],
+		['@param [flag=false] {boolean} Description with flag.', 'flag', 'boolean', true],
+		['@param values {Array<string>}', 'values', 'Array', false],
+	]) {
+		for (const typescript of [false, true]) {
+			const code = `/** ${tag} */ function run(${expectedName}) { inspect(${expectedName}); }`;
+			t.assert.deepStrictEqual(getAnnotations(code, false, typescript), [{
+				type: {kind: 'name', name: expectedType}, optional, name: expectedName,
+			}], tag);
+		}
+	}
+});
+
+test('parameter types after names preserve multiline source ranges', t => {
+	const code = '/**\r\n * @param [flag=false]\r\n * {\r\n * boolean\r\n * }\r\n * Keep flag in the description.\r\n */\r\nfunction run(flag = false) { inspect(flag); }';
+	const start = code.indexOf('flag');
+	t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'name', name: 'boolean'}, optional: true, name: 'flag'}]);
+	t.assert.deepStrictEqual(getParameterRanges(code), [[start, start + 4]]);
+});
+
+test('types after names obey existing duplicate and inline annotation policies', t => {
+	const duplicate = '/** @param flag {boolean}\n * @arg {string} flag */ function run(flag) { inspect(flag); }';
+	t.assert.deepStrictEqual(getAnnotations(duplicate), [undefined]);
+	t.assert.deepStrictEqual(getParameterRanges(duplicate), [undefined]);
+	const inline = '/** @param [flag=false] {string} */ function run(/** @type {boolean} */ flag) { inspect(flag); }';
+	t.assert.deepStrictEqual(getAnnotations(inline), [{type: {kind: 'name', name: 'boolean'}, optional: true, name: 'flag'}]);
+});
+
+test('parameter descriptions cannot replace a leading type or introduce types after a dash', t => {
+	for (const [tag, expectedType] of [
+		['@param {number} value {boolean} Description.', 'number'],
+		['@param value - {boolean} Description.', undefined],
+		['@param value Description {boolean}.', undefined],
+		['@param value {boolean', undefined],
+	]) {
+		const code = `/** ${tag} */ function run(value) { inspect(value); }`;
+		t.assert.strictEqual(getAnnotations(code)[0]?.type.name, expectedType, tag);
+		t.assert.strictEqual(code.slice(...getParameterRanges(code)[0]), 'value', tag);
+	}
+});
+
 test('preserves optional parameter name ranges and multiline type expressions', t => {
 	const [parameter] = getAnnotations('/**\r\n * @argument {\r\n * boolean\r\n * } [flag = false] Description.\r\n */\r\nfunction run(flag) { inspect(flag); }');
 	t.assert.strictEqual(parameter.type.name, 'boolean');

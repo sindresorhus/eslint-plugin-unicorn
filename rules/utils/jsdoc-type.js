@@ -61,6 +61,25 @@ function memoizeJSDocumentLookup(lookup) {
 }
 
 /**
+Parse a braced type expression and locate its end without JSDoc line decorations.
+*/
+function parseTagType(text, start, end) {
+	if (text[start] !== '{') {
+		return;
+	}
+
+	const typeEnd = getJSDocumentDelimitedEnd(text, start, end, '{');
+	if (typeEnd === undefined) {
+		return;
+	}
+
+	return {
+		type: parseJSDocumentType(text.slice(start + 1, typeEnd - 1).replaceAll(/\r?\n[^\S\n]*\*?/gv, '\n')),
+		end: typeEnd,
+	};
+}
+
+/**
 Parse a supported tag while preserving the source range of a parameter name.
 */
 function parseTag(text, {tag, end}, offset) {
@@ -72,13 +91,13 @@ function parseTag(text, {tag, end}, offset) {
 	let start = skipJSDocumentTemplateWhitespace(text, tag.contentStart, end);
 	let type;
 	if (text[start] === '{') {
-		const typeEnd = getJSDocumentDelimitedEnd(text, start, end, '{');
-		if (typeEnd === undefined) {
+		const parsedType = parseTagType(text, start, end);
+		if (!parsedType) {
 			return {tag: tag.name};
 		}
 
-		type = parseJSDocumentType(text.slice(start + 1, typeEnd - 1).replaceAll(/\r?\n[^\S\n]*\*?/gv, '\n'));
-		start = skipJSDocumentTemplateWhitespace(text, typeEnd, end);
+		type = parsedType.type;
+		start = skipJSDocumentTemplateWhitespace(text, parsedType.end, end);
 	} else if (!isParameter) {
 		return {tag: tag.name};
 	}
@@ -117,6 +136,10 @@ function parseTag(text, {tag, end}, offset) {
 		}
 
 		nameRange = [offset + start, offset + afterName];
+		if (!type) {
+			const typeStart = skipJSDocumentTemplateWhitespace(text, optional ? nameEnd : afterName, end);
+			type = parseTagType(text, typeStart, end)?.type;
+		}
 	}
 
 	return {

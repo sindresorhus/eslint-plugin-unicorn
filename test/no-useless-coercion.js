@@ -13,6 +13,31 @@ const linter = new Linter();
 
 test({
 	valid: [
+		'/** @param value - {boolean} Description. */ function run(value) { return Boolean(value); }',
+		'/** @param {unknown} value {boolean} Description. */ function run(value) { return Boolean(value); }',
+		'/** @param value.field {string} Description. */ function run(value) { return String(value); }',
+		'/** @param value {string}\n * @arg value {number} */ function run(value) { return String(value); }',
+		'/** @param [value] {boolean} Description. */ function run(value) { return Boolean(value); }',
+		'/** @param value Description with {string}. */ function run(value) { return String(value); }',
+	],
+	invalid: [
+		[
+			'/** @param value {boolean} Description. */ function run(value) { return Boolean(value); }',
+			'/** @param value {boolean} Description. */ function run(value) { return value; }',
+		],
+		[
+			'/** @arg text {string} Description. */ function run(text) { return String(text); }',
+			'/** @arg text {string} Description. */ function run(text) { return text; }',
+		],
+		[
+			'/** @argument values {Array<number>} Description. */ function run(values) { return Number(values.length); }',
+			'/** @argument values {Array<number>} Description. */ function run(values) { return values.length; }',
+		],
+	].map(([code, output]) => ({code, output, errors: [{messageId: 'no-useless-coercion'}]})),
+});
+
+test({
+	valid: [
 		'/** @typex{boolean} */ const value = source; Boolean(value);',
 		'/** @returnsValue{string} */ function read() { return source; } String(read());',
 		'/** @parametric{string} value */ function run(value) { return String(value); }',

@@ -195,18 +195,20 @@ function maskJSDocumentTypeOrValue(characters, text, start, end) {
 }
 
 function maskJSDocumentTypeAndName(characters, text, start, end) {
-	let valueStart = skipJSDocumentHorizontalWhitespace(text, start, end);
+	const valueStart = skipJSDocumentHorizontalWhitespace(text, start, end);
 
-	if (text[valueStart] === '{') {
-		const typeEnd = maskJSDocumentType(characters, text, valueStart, end);
-		if (typeEnd === valueStart) {
-			return;
-		}
-
-		valueStart = skipJSDocumentHorizontalWhitespace(text, typeEnd, end);
+	if (text[valueStart] !== '{') {
+		const nameEnd = maskJSDocumentValue(characters, text, valueStart, end);
+		maskJSDocumentType(characters, text, skipJSDocumentTemplateWhitespace(text, nameEnd, end), end);
+		return;
 	}
 
-	maskJSDocumentValue(characters, text, valueStart, end);
+	const typeEnd = maskJSDocumentType(characters, text, valueStart, end);
+	if (typeEnd === valueStart) {
+		return;
+	}
+
+	maskJSDocumentValue(characters, text, typeEnd, end);
 }
 
 function maskJSDocumentNameList(characters, text, start, end) {

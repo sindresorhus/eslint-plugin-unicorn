@@ -84,6 +84,30 @@ test('comment fixes preserve compact type syntax and parameter names', t => {
 	}
 });
 
+test('comment fixes preserve types after parameter names and fix their descriptions', t => {
+	for (const declaration of ['value', '[value]', '[value="json"]']) {
+		const result = verifyAndFix(`/** @param ${declaration} {json} Parse json. */`);
+		t.assert.strictEqual(result.output, `/** @param ${declaration} {json} Parse JSON. */`);
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.deepStrictEqual(result.messages, []);
+	}
+});
+
+test('post-name types remain syntax on a following documentation line', t => {
+	t.assert.strictEqual(mask(' * @param value\n * {json}\n * Parse json.'), ' * ###### #####\n * ######\n * Parse json.');
+	const code = '/**\r\n * @param [value=false]\r\n * {json}\r\n * Parse json.\r\n */';
+	t.assert.strictEqual(verifyAndFix(code).output, code.replace('Parse json.', 'Parse JSON.'));
+});
+
+test('braced descriptions stay prose after a leading type or a dash', t => {
+	for (const tag of ['@param {number} value {json}', '@param value - {json}', '@param value Description {json}']) {
+		const result = verifyAndFix(`/** ${tag} */`);
+		t.assert.strictEqual(result.output, `/** ${tag.replace('{json}', '{JSON}')} */`);
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.deepStrictEqual(result.messages, []);
+	}
+});
+
 test('structured tag boundaries reject punctuation except the opening type brace', t => {
 	for (const text of [' * @param?{boolean} flag', ' * @param:{boolean} flag', ' * @param[flag]', ' * @type(boolean)', ' * @returns<boolean>']) {
 		t.assert.deepStrictEqual(getJSDocumentTags(text), [], text);

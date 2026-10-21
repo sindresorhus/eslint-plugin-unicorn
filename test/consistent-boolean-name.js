@@ -57,6 +57,59 @@ const onlyIsPrefixOptions = {
 };
 
 test({
+	valid: [{
+		code: '/** @param flag {string} Description. */ function check(flag = false) { return flag; }',
+		options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+	}, {
+		code: '/** @param flag {unknown} Description. */ function check(flag = false) { return flag; }',
+		options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+	}],
+	invalid: [
+		...[
+			[
+				'/** @param flag {boolean} Description with flag. */ function check(flag) { return flag; }',
+				'/** @param isFlag {boolean} Description with flag. */ function check(isFlag) { return isFlag; }',
+			],
+			[
+				'/** @arg flag {Boolean} Description. */ function check(flag) { return flag; }',
+				'/** @arg isFlag {Boolean} Description. */ function check(isFlag) { return isFlag; }',
+			],
+			[
+				'/** @argument [flag] {boolean} Description. */ function check(flag) { return flag; }',
+				'/** @argument [isFlag] {boolean} Description. */ function check(isFlag) { return isFlag; }',
+			],
+			[
+				'/** @param [flag=false] {boolean} Description. */ function check(flag = false) { return flag; }',
+				'/** @param [isFlag=false] {boolean} Description. */ function check(isFlag = false) { return isFlag; }',
+			],
+			[
+				'/**\r\n * @param flag {boolean} Keep flag in the description.\r\n */\r\nfunction check(flag = source) {\r\n  return flag;\r\n}',
+				'/**\r\n * @param isFlag {boolean} Keep flag in the description.\r\n */\r\nfunction check(isFlag = source) {\r\n  return isFlag;\r\n}',
+			],
+		].map(([code, output]) => ({
+			code,
+			options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{messageId: 'rename', data: {replacement: 'isFlag'}, output}],
+			}],
+		})),
+		typescript({
+			code: '/** @param flag {string} Description. */ function check(flag: boolean) { return flag; }',
+			options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isFlag'},
+					output: '/** @param isFlag {string} Description. */ function check(isFlag: boolean) { return isFlag; }',
+				}],
+			}],
+		}),
+	],
+});
+
+test({
 	valid: [],
 	invalid: [
 		...[
