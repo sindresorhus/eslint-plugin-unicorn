@@ -269,3 +269,34 @@ test('date formatting requires definite receivers and preserves annotation prece
 	].join('\n');
 	t.assert.deepStrictEqual(getResults(code), [false, false, false, false, false, true, false, false, false]);
 });
+
+for (const name of ['encodeURI', 'encodeURIComponent', 'decodeURI', 'decodeURIComponent']) {
+	test(`${name} returns strings for unknown and documented arguments`, t => {
+		const code = [
+			`function run(value, ...values) { inspect(${name}(value)); inspect(${name}()); inspect(${name}(...values)); }`,
+			`/** @param {unknown} value */ function documented(value) { inspect(${name}(value)); }`,
+		].join('\n');
+		t.assert.deepStrictEqual(getResults(code), [true, true, true, true]);
+	});
+}
+
+test('URI string results retain aliases chains and annotation precedence', t => {
+	const code = [
+		'/** @param {unknown} value */ function run(value) {',
+		'const text = encodeURIComponent(value); const alias = text; inspect(alias); inspect(alias.trim());',
+		'/** @type {unknown} */ const uncertain = decodeURI(value); inspect(uncertain);',
+		'const native: number = encodeURI(value); inspect(native); inspect(decodeURIComponent(value) as number);',
+		'}',
+	].join('\n');
+	t.assert.deepStrictEqual(getResults(code), [true, true, false, false, false]);
+});
+
+test('URI inference only recognizes direct nonoptional global calls', t => {
+	const code = [
+		'function run(value) {',
+		'inspect(encodeURI?.(value)); inspect(globalThis.encodeURI(value)); inspect(other.encodeURI(value));',
+		'inspect(encodeOther(value)); inspect(new encodeURIComponent(value));',
+		'}',
+	].join('\n');
+	t.assert.deepStrictEqual(getResults(code), [false, false, false, false, false]);
+});

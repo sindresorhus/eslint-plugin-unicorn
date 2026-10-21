@@ -7,6 +7,52 @@ const linter = new Linter();
 
 for (const {name, rule, code, output = code, value, reported = true, suggestion, suggestedValue} of [
 	{
+		name: 'URI string coercion removal preserves reserved character encoding and decoding distinctions',
+		rule: 'no-useless-coercion',
+		code: [
+			'function run(value) { return String(encodeURI(value)); }',
+			'JSON.stringify([run("a/b?c=d#e"), encodeURIComponent("a/b?c=d#e"), decodeURI("%2F%3F%23"), decodeURIComponent("%2F%3F%23")]);',
+		].join('\n'),
+		output: [
+			'function run(value) { return encodeURI(value); }',
+			'JSON.stringify([run("a/b?c=d#e"), encodeURIComponent("a/b?c=d#e"), decodeURI("%2F%3F%23"), decodeURIComponent("%2F%3F%23")]);',
+		].join('\n'),
+		value: '["a/b?c=d#e","a%2Fb%3Fc%3Dd%23e","%2F%3F%23","/?#"]',
+	},
+	{
+		name: 'URI component decoding retains astral UTF8 roundtrips after string coercion removal',
+		rule: 'no-useless-coercion',
+		code: [
+			'function run(value) { return String(decodeURIComponent(encodeURIComponent(value))); }',
+			'const value = "🦄 café"; JSON.stringify([encodeURIComponent(value), run(value)]);',
+		].join('\n'),
+		output: [
+			'function run(value) { return decodeURIComponent(encodeURIComponent(value)); }',
+			'const value = "🦄 café"; JSON.stringify([encodeURIComponent(value), run(value)]);',
+		].join('\n'),
+		value: '["%F0%9F%A6%84%20caf%C3%A9","🦄 café"]',
+	},
+	{
+		name: 'URI component encoding coerces its argument once after string coercion removal',
+		rule: 'no-useless-coercion',
+		code: [
+			'let reads = 0; const value = {toString() { reads++; return "a b"; }};',
+			'function run(value) { return String(encodeURIComponent(value)); } JSON.stringify([run(value), reads]);',
+		].join('\n'),
+		output: [
+			'let reads = 0; const value = {toString() { reads++; return "a b"; }};',
+			'function run(value) { return encodeURIComponent(value); } JSON.stringify([run(value), reads]);',
+		].join('\n'),
+		value: '["a%20b",1]',
+	},
+	{
+		name: 'malformed URI decoding retains URIError after string coercion removal',
+		rule: 'no-useless-coercion',
+		code: 'function run(value) { try { return String(decodeURI(value)); } catch (error) { return error.name; } } run("%E0%A4%A");',
+		output: 'function run(value) { try { return decodeURI(value); } catch (error) { return error.name; } } run("%E0%A4%A");',
+		value: 'URIError',
+	},
+	{
 		name: 'documented invalid Date component getters retain NaN predicate results',
 		rule: 'prefer-number-properties',
 		code: [

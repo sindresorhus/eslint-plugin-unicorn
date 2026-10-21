@@ -165,7 +165,7 @@ const {
 	isKnownNonTarget: isKnownNonString,
 } = createTypeCheckers({
 	targetTypeNames: new Set(['string']),
-	targetCallNames: ['String'],
+	targetCallNames: ['String', 'encodeURI', 'encodeURIComponent', 'decodeURI', 'decodeURIComponent'],
 	isTargetNode: isStringNode,
 	isTargetTypeAnnotation: isStringTypeAnnotation,
 	isTargetType: type => type.isStringLiteral?.() || type.intrinsicName === 'string',

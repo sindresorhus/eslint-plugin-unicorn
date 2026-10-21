@@ -60,6 +60,7 @@ for (const languageOptions of [
 	test({
 		testerOptions: {languageOptions},
 		valid: [
+			'/** @param {{encodeURI: () => number}} value */ function run(value) { return String(value.encodeURI()); }',
 			'/** @param {{f16round: () => string}} value */ function run(value) { return Number(value.f16round()); }',
 			'/** @param {Date} value */ function run(value) { return Number(value.toJSON()); }',
 			'/** @param {?Date} value */ function run(value) { return Number(value?.getTime()); }',
@@ -81,6 +82,12 @@ for (const languageOptions of [
 			'/** @returns {number} */ function* count() { yield source; } +count();',
 		].map(code => ({code, filename: 'file.ts'})),
 		invalid: [
+			...['encodeURI', 'encodeURIComponent', 'decodeURI', 'decodeURIComponent'].map(name => ({
+				filename: 'file.ts',
+				code: `/** @param {unknown} value */ function run(value) { return String(${name}(value)); }`,
+				output: `/** @param {unknown} value */ function run(value) { return ${name}(value); }`,
+				errors: [{messageId: 'no-useless-coercion'}],
+			})),
 			...[
 				[
 					'/** @param {unknown} value */ function run(value) { return Number(Math.f16round(value)); }',

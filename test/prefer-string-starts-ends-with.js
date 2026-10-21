@@ -16,16 +16,25 @@ for (const languageOptions of [
 	test({
 		testerOptions: {languageOptions},
 		valid: [
+			'/** @param {{decodeURI: () => string[]}} value */ function run(value) { return value.decodeURI().indexOf("a") === 0; }',
 			'/** @param {Date} value */ function run(value) { return value.toJSON().indexOf("2026") === 0; }',
 			'/** @param {?Date} value */ function run(value) { return value.toISOString().indexOf("2026") === 0; }',
 			'/** @param {{toISOString: () => number[]}} value */ function run(value) { return value.toISOString().indexOf(2026) === 0; }',
 		].map(code => ({code, filename: 'file.ts'})),
-		invalid: [{
-			filename: 'file.ts',
-			code: '/** @param {Date} value */ function run(value) { return value.toISOString().indexOf("2026") === 0; }',
-			output: '/** @param {Date} value */ function run(value) { return value.toISOString().startsWith("2026"); }',
-			errors: [{messageId: 'prefer-starts-with-indexOf'}],
-		}],
+		invalid: [
+			...['encodeURI', 'encodeURIComponent', 'decodeURI', 'decodeURIComponent'].map(name => ({
+				filename: 'file.ts',
+				code: `/** @param {unknown} value */ function run(value) { return ${name}(value).indexOf("a") === 0; }`,
+				output: `/** @param {unknown} value */ function run(value) { return ${name}(value).startsWith("a"); }`,
+				errors: [{messageId: 'prefer-starts-with-indexOf'}],
+			})),
+			{
+				filename: 'file.ts',
+				code: '/** @param {Date} value */ function run(value) { return value.toISOString().indexOf("2026") === 0; }',
+				output: '/** @param {Date} value */ function run(value) { return value.toISOString().startsWith("2026"); }',
+				errors: [{messageId: 'prefer-starts-with-indexOf'}],
+			},
+		],
 	});
 }
 
