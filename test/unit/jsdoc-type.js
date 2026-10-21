@@ -475,25 +475,8 @@ test('does not return a name range for ambiguous or inline-only parameter docume
 });
 
 test('direct object properties and class fields expose their own annotation', t => {
-	const annotations = [];
-	const messages = linter.verify('const object = {/** @type {boolean} */ documented: source}; class Example {/** @type {string} */ documented = source; /** @type {number} */ static count;}', {
-		plugins: {
-			test: {
-				rules: {
-					capture: {
-						create: context => ({
-							'Property, PropertyDefinition'(node) {
-								annotations.push(getJSDocumentTypeAnnotation(node, context)?.type.name);
-							},
-						}),
-					},
-				},
-			},
-		},
-		rules: {'test/capture': 'error'},
-	});
-	t.assert.deepStrictEqual(messages, []);
-	t.assert.deepStrictEqual(annotations, ['boolean', 'string', 'number']);
+	const code = 'const object = {/** @type {boolean} */ documented: source}; class Example {/** @type {string} */ documented = source; /** @type {number} */ static count;}';
+	t.assert.deepStrictEqual(getPropertyTypes(code).map(type => type?.name), ['boolean', 'string', 'number']);
 });
 
 test('optional default syntax changes metadata without expanding the name range', t => {
@@ -1021,5 +1004,113 @@ test('default-exported async generators retain raw parameter and return document
 	const code = '/** @argument {boolean} [flag=false]\n * @return {number} */ export default async function* run(flag) { inspect(flag); yield source; }';
 	t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'name', name: 'boolean'}, optional: true, name: 'flag'}]);
 	t.assert.strictEqual(getAnnotations(code, true)[0]?.type.name, 'number');
+	t.assert.strictEqual(code.slice(...getParameterRanges(code)[0]), 'flag');
+});
+
+/**
+Collect annotations directly from property owners instead of resolving an identifier reference.
+*/
+function getPropertyTypes(code, typescript = false) {
+	const types = [];
+	const messages = linter.verify(code, {
+		languageOptions: typescript ? {parser: parsers.typescript.implementation} : {},
+		plugins: {
+			test: {
+				rules: {
+					capture: {
+						create: context => ({
+							'Property, PropertyDefinition, AccessorProperty'(node) {
+								types.push(getJSDocumentTypeAnnotation(node, context)?.type);
+							},
+						}),
+					},
+				},
+			},
+		},
+		rules: {'test/capture': 'error'},
+	});
+	if (messages.length > 0) {
+		throw new Error(messages.map(message => message.message).join('\n'));
+	}
+
+	return types;
+}
+
+for (const [name, code, expected, typescript = false] of [
+	['shorthand properties', 'const object = {/** @type {boolean} */ value};', ['boolean']],
+	['quoted property keys', 'const object = {/** @type {string} */ "value-key": source};', ['string']],
+	['numeric property keys', 'const object = {/** @type {number} */ 0: source};', ['number']],
+	['computed property keys', 'const object = {/** @type {boolean} */ [readKey()]: source};', ['boolean']],
+	['private fields', 'class Task {/** @type {boolean} */ #value = source;}', ['boolean']],
+	['computed static fields', 'class Task {/** @type {string} */ static [readKey()] = source;}', ['string']],
+	['auto-accessors', 'class Task {/** @type {boolean} */ accessor value = source;}', ['boolean'], true],
+	['decorated fields', 'class Task {/** @type {string} */ @decorate value = source;}', ['string'], true],
+	['satisfies field initializers', 'class Task {/** @type {boolean} */ value = source satisfies string;}', ['boolean'], true],
+	['non-null field initializers', 'class Task {/** @type {boolean} */ value = source!;}', ['boolean'], true],
+	['satisfies property initializers', 'const object = {/** @type {boolean} */ value: source satisfies string};', ['boolean'], true],
+	['native field types', 'class Task {/** @type {boolean} */ value: string = source;}', [undefined], true],
+	['native optional field types', 'class Task {/** @type {boolean} */ value?: string;}', [undefined], true],
+	['native accessor types', 'class Task {/** @type {boolean} */ accessor value: string = source;}', [undefined], true],
+	['asserted property initializers', 'const object = {/** @type {boolean} */ value: source as string};', [undefined], true],
+	['asserted field initializers', 'class Task {/** @type {boolean} */ value = source as string;}', [undefined], true],
+	['asserted accessor initializers', 'class Task {/** @type {boolean} */ accessor value = source as string;}', [undefined], true],
+	['assertions within non-null wrappers', 'class Task {/** @type {boolean} */ value = (source as string)!;}', [undefined], true],
+	['assertions within satisfies wrappers', 'const object = {/** @type {boolean} */ value: (source as string) satisfies string};', [undefined], true],
+	['angle assertions on fields', 'class Task {/** @type {boolean} */ value = <string>source;}', [undefined], true],
+	['independently documented siblings', 'const object = {/** @type {boolean} */ first: source, second: source, /** @type {string} */ third: source};', ['boolean', undefined, 'string']],
+	['an object declaration type', '/** @type {boolean} */ const object = {value: source};', [undefined]],
+	['a class declaration type', '/** @type {boolean} */ class Task {value = source;}', [undefined]],
+	['a preceding method type', 'class Task {/** @type {boolean} */ read() {} value = source;}', [undefined]],
+	['an ordinary intervening comment', 'const object = {/** @type {boolean} */ /* Keep. */ value: source};', [undefined]],
+	['a closer description-only comment', 'class Task {/** @type {boolean} */ /** Details. */ value = source;}', [undefined]],
+	['an initializer-only comment', 'const object = {value: /** @type {boolean} */ source};', [undefined]],
+	['a return-only property comment', 'const object = {/** @returns {boolean} */ value: source};', [undefined]],
+	['duplicate field type tags', 'class Task {/** @type {boolean}\n * @type {string} */ value = source;}', [undefined]],
+	['declaration-only accessor documentation', 'class Task {/** @typedef {boolean} Flag\n * @type {boolean} */ accessor value = source;}', [undefined], true],
+]) {
+	test(`direct property annotation: ${name}`, t => {
+		t.assert.deepStrictEqual(getPropertyTypes(code, typescript), expected.map(name => name === undefined ? undefined : {kind: 'name', name}));
+	});
+}
+
+test('direct property annotations preserve unsupported types as unknown without borrowing an initializer type', t => {
+	const code = 'const object = {/** @type {keyof Value} */ value: true};';
+	t.assert.deepStrictEqual(getPropertyTypes(code), [{kind: 'unknown'}]);
+});
+
+test('nested property owners retain separate annotation types', t => {
+	const code = 'const object = {/** @type {Object} */ outer: {/** @type {boolean} */ inner: source}, sibling: source};';
+	t.assert.deepStrictEqual(getPropertyTypes(code), [{kind: 'name', name: 'Object'}, {kind: 'name', name: 'boolean'}, undefined]);
+});
+
+for (const [name, tag, expected, expectedName] of [
+	['case-normalized tag spelling', '@PaRaM {boolean} flag', 'boolean', 'flag'],
+	['bang-suffixed parameter tag', '@param! {boolean} flag', 'boolean', 'flag'],
+	['prototype-like parameter name', '@argument {boolean} __proto__', 'boolean', '__proto__'],
+	['case-sensitive parameter name', '@param {boolean} Flag', undefined, undefined],
+	['a required name with an equals suffix', '@param {boolean} flag=false', undefined, undefined],
+	['a required name with a bracket suffix', '@param {boolean} flag[0]', undefined, undefined],
+]) {
+	test(`parameter tag token: ${name}`, t => {
+		const parameter = expectedName ?? 'flag';
+		const code = `/** ${tag} */ function run(${parameter}) { inspect(${parameter}); }`;
+		t.assert.deepStrictEqual(getAnnotations(code), [expected === undefined
+			? undefined
+			: {
+				type: {kind: 'name', name: expected}, optional: false, name: expectedName,
+			}]);
+		t.assert.deepStrictEqual(getParameterRanges(code).map(range => range && code.slice(...range)), [expectedName]);
+	});
+}
+
+test('an inline type tag without braces falls back to named parameter documentation', t => {
+	const code = '/** @param {string} [flag] */ function run(/** @type boolean */ flag) { inspect(flag); }';
+	t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'name', name: 'string'}, optional: true, name: 'flag'}]);
+	t.assert.strictEqual(code.slice(...getParameterRanges(code)[0]), 'flag');
+});
+
+test('an inline unclosed type does not consume the independent named parameter annotation', t => {
+	const code = '/** @param {number} flag */ function run(/** @type {boolean */ flag) { inspect(flag); }';
+	t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'name', name: 'number'}, optional: false, name: 'flag'}]);
 	t.assert.strictEqual(code.slice(...getParameterRanges(code)[0]), 'flag');
 });

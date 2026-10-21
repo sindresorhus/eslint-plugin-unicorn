@@ -162,6 +162,29 @@ for (const [description, expression, expected] of [
 	['nullable arrays are values even when every element is boolean', 'Array<boolean> | undefined', ['unknown', 'non-boolean', 'unknown', 'non-boolean']],
 	['optional nonboolean primitives remain nonboolean after optionality is relaxed', 'string=', ['unknown', 'non-boolean', 'unknown', 'non-boolean']],
 	['unsupported constructor results cannot hide inside an otherwise boolean overload', '{(): boolean; (input: string): function(new: Item): boolean}', ['unknown', 'unknown', 'unknown', 'unknown']],
+	['literal-only boolean unions retain a definite scalar contract', 'true | false', ['boolean', 'boolean', 'boolean', 'boolean']],
+	['qualified Boolean names are not normalized as primitive aliases', 'globalThis.Boolean', ['unknown', 'unknown', 'unknown', 'unknown']],
+	['omitted callback results cannot establish predicate names', 'function()', ['non-boolean', 'non-boolean', 'unknown', 'unknown']],
+	['receiver and argument booleans cannot supply a callback return contract', 'function(this: boolean, Array<boolean>): string', ['non-boolean', 'non-boolean', 'non-boolean', 'non-boolean']],
+	['wildcard union members retain uncertainty beside a predicate', '(() => boolean) | *', ['unknown', 'unknown', 'unknown', 'unknown']],
+	['literal-only callback results supply a definite predicate contract', 'function(): true | false', ['non-boolean', 'non-boolean', 'boolean', 'boolean']],
+	['nullable result suffixes do not make callback bindings nullable', '() => boolean?', ['non-boolean', 'non-boolean', 'unknown', 'boolean']],
+	['scalar and callable intersection members obey the callable policy', 'boolean & (() => boolean)', ['non-boolean', 'non-boolean', 'boolean', 'boolean']],
+	['nullish branded primitives preserve the relaxed scalar policy', '(boolean | undefined) & {brand: string}', ['unknown', 'boolean', 'unknown', 'boolean']],
+	['nullable metadata is not discarded as a definite record brand', 'boolean & (?{brand: string})', ['unknown', 'non-boolean', 'unknown', 'non-boolean']],
+	['empty record intersections retain uncertainty beside callbacks', '(() => boolean) & {}', ['unknown', 'unknown', 'unknown', 'unknown']],
+	['branded nullable callback results preserve strict return uncertainty', '{(): (boolean | undefined) & {brand: string}}', ['non-boolean', 'non-boolean', 'unknown', 'boolean']],
+	['void overloads remain nonboolean under relaxed nullish policies', '{(): boolean; (): void}', ['non-boolean', 'non-boolean', 'non-boolean', 'non-boolean']],
+	['nullish-only overloads cannot be removed as nullable union members', '{(): boolean; (): null}', ['non-boolean', 'non-boolean', 'unknown', 'unknown']],
+	['higher-order overloads cannot borrow another overload boolean result', '{(): boolean; (): () => boolean}', ['non-boolean', 'non-boolean', 'non-boolean', 'non-boolean']],
+	['record brands do not resolve unknown results in callable unions', '({(): boolean} | {(): unknown}) & {label: string}', ['non-boolean', 'non-boolean', 'unknown', 'unknown']],
+	['record brands do not resolve mixed primitive unions', '(boolean | string) & {brand: string}', ['non-boolean', 'non-boolean', 'non-boolean', 'non-boolean']],
+	['nullish policy reaches nested scalar unions', 'boolean | (number | undefined)', ['unknown', 'non-boolean', 'unknown', 'non-boolean']],
+	['nullable bindings and nullable results each obey the selected policy', '(() => (boolean | undefined)) | undefined', ['unknown', 'non-boolean', 'unknown', 'boolean']],
+	['nullable higher-order results retain the single-call boundary', '() => (() => boolean) | undefined', ['non-boolean', 'non-boolean', 'unknown', 'non-boolean']],
+	['nullable array results remain nonboolean when element booleans are definite', '() => (Array<boolean> | undefined)', ['non-boolean', 'non-boolean', 'unknown', 'non-boolean']],
+	['nullable unresolved results stay unknown after dropping nullish members', '() => (Unresolved | undefined)', ['non-boolean', 'non-boolean', 'unknown', 'unknown']],
+	['readonly array returns cannot supply predicate contracts', '() => ReadonlyArray<boolean>', ['non-boolean', 'non-boolean', 'non-boolean', 'non-boolean']],
 ]) {
 	test(description, t => {
 		const annotation = getAnnotation(expression);
@@ -174,3 +197,9 @@ for (const [description, expression, expected] of [
 		t.assert.deepStrictEqual(policies.map(options => getJSDocumentBooleanState(annotation, options)), expected);
 	});
 }
+
+test('primitive symbol returns are known while Symbol wrapper returns remain unresolved', t => {
+	const options = {functionTypesAreBoolean: true};
+	t.assert.strictEqual(getJSDocumentBooleanState(getAnnotation('() => symbol'), options), 'non-boolean');
+	t.assert.strictEqual(getJSDocumentBooleanState(getAnnotation('() => Symbol'), options), 'unknown');
+});

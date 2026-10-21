@@ -1,7 +1,80 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @returns {Uint8Array} */ function read() { return source; } read().reduce((left, right) => left.concat(right), []);',
+			'/** @param {Set<Array<number>>} values */ function run(values) { return values.reduce((left, right) => left.concat(right), []); }',
+			'/** @type {Map<number, number[]>} */ const values = source; const alias = values; [].concat(...alias);',
+			'/** @param {() => string} read */ function run(read) { return _.flatten(read()); }',
+			'/** @type {Set<number>} */ const values = []; values.flatMap(value => value);',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			...[
+				[
+					'/** @param {Array<Array<number>>} values */ function run(values) { return values?.reduce((left, right) => left.concat(right), []); }',
+					'/** @param {Array<Array<number>>} values */ function run(values) { return values?.flat(); }',
+					'Array#reduce()',
+				],
+				[
+					'/** @param {() => ReadonlyArray<number[]>} read */ function run(read) { return Array.prototype.concat.apply([], read()); }',
+					'/** @param {() => ReadonlyArray<number[]>} read */ function run(read) { return read().flat(); }',
+					'Array.prototype.concat()',
+				],
+				[
+					'/** @type {Array<number[]>} */ const values = source; const alias = values; alias.flatMap(value => value);',
+					'/** @type {Array<number[]>} */ const values = source; const alias = values; alias.flat();',
+					'Array#flatMap()',
+				],
+				[
+					'/** @param {Array<number[]> | Set<number[]>} values */ function run(values) { return _.flatten(values); }',
+					'/** @param {Array<number[]> | Set<number[]>} values */ function run(values) { return values.flat(); }',
+					'_.flatten()',
+				],
+				[
+					'/** @returns {unknown} */ function read() { return source; } [].concat(...read());',
+					'/** @returns {unknown} */ function read() { return source; } read().flat();',
+					'[].concat()',
+				],
+			].map(([code, output, description]) => ({
+				code, output, filename: 'file.ts', errors: [{messageId: 'prefer-array-flat', data: {description}}],
+			})),
+			{
+				code: '/** @param {Array<number[]>} values */ function run(values) { return values.flatMap(/* keep */ value => value); }',
+				filename: 'file.ts',
+				errors: [{messageId: 'prefer-array-flat', data: {description: 'Array#flatMap()'}}],
+			},
+		],
+	});
+}
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			code: '/** @param {Array<number[]>} values */ function run(values: Uint8Array) { return _.flatten(values); }',
+			filename: 'file.ts',
+		}],
+		invalid: [{
+			code: '/** @param {Set<number[]>} values */ function run(values: number[][]) { return _.flatten(values); }',
+			output: '/** @param {Set<number[]>} values */ function run(values: number[][]) { return values.flat(); }',
+			filename: 'file.ts',
+			errors: [{messageId: 'prefer-array-flat', data: {description: '_.flatten()'}}],
+		}],
+	});
+}
 
 // `array.flatMap(x => x)`
 test.snapshot({

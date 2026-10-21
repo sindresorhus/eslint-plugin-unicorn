@@ -115,6 +115,265 @@ for (const {name, rule, code, output = code, value, reported = true, suggestion,
 		value: true,
 		reported: false,
 	},
+	{
+		name: 'documented array joins keep null and undefined element separators',
+		rule: 'require-array-join-separator',
+		code: '/** @param {Array<string | null | undefined>} values */ function run(values) { return values.join(); } run(["a", null, undefined, "b"]);',
+		output: '/** @param {Array<string | null | undefined>} values */ function run(values) { return values.join(\',\'); } run(["a", null, undefined, "b"]);',
+		value: 'a,,,b',
+	},
+	{
+		name: 'documented typed array joins preserve numeric formatting',
+		rule: 'require-array-join-separator',
+		code: '/** @param {Uint8Array} values */ function run(values) { return values.join(); } run(new Uint8Array([0, 255]));',
+		output: '/** @param {Uint8Array} values */ function run(values) { return values.join(\',\'); } run(new Uint8Array([0, 255]));',
+		value: '0,255',
+	},
+	{
+		name: 'explicit array prototype joins still work on documented arraylike records',
+		rule: 'require-array-join-separator',
+		code: '/** @param {{length: number}} values */ function run(values) { return [].join.call(values); } run({0: "left", 1: "right", length: 2});',
+		output: '/** @param {{length: number}} values */ function run(values) { return [].join.call(values, \',\'); } run({0: "left", 1: "right", length: 2});',
+		value: 'left,right',
+	},
+	{
+		name: 'documented array value iteration preserves order and duplicate values',
+		rule: 'prefer-array-iterable-methods',
+		code: [
+			'/** @param {Array<number>} values */ function run(values) {',
+			'const output = []; for (const [, value] of values.entries()) { output.push(value); } return JSON.stringify(output);',
+			'} run([3, 3, 1]);',
+		].join('\n'),
+		output: [
+			'/** @param {Array<number>} values */ function run(values) {',
+			'const output = []; for (const value of values) { output.push(value); } return JSON.stringify(output);',
+			'} run([3, 3, 1]);',
+		].join('\n'),
+		value: '[3,3,1]',
+	},
+	{
+		name: 'documented array key iteration retains positions independently of values',
+		rule: 'prefer-array-iterable-methods',
+		code: [
+			'/** @param {Array<string>} values */ function run(values) {',
+			'const output = []; for (const [index, value] of values.entries()) { output.push(index); } return JSON.stringify(output);',
+			'} run(["right", "left"]);',
+		].join('\n'),
+		output: [
+			'/** @param {Array<string>} values */ function run(values) {',
+			'const output = []; for (const index of values.keys()) { output.push(index); } return JSON.stringify(output);',
+			'} run(["right", "left"]);',
+		].join('\n'),
+		value: '[0,1]',
+	},
+	{
+		name: 'removing entries does not duplicate documented array factories',
+		rule: 'prefer-array-iterable-methods',
+		code: [
+			'let reads = 0; /** @returns {Array<number>} */ function read() { reads++; return [1, 2]; }',
+			'const output = []; for (const [, value] of read().entries()) { output.push(value); } JSON.stringify([output, reads]);',
+		].join('\n'),
+		output: [
+			'let reads = 0; /** @returns {Array<number>} */ function read() { reads++; return [1, 2]; }',
+			'const output = []; for (const value of read()) { output.push(value); } JSON.stringify([output, reads]);',
+		].join('\n'),
+		value: '[[1,2],1]',
+	},
+	{
+		name: 'direct documented array iteration preserves nested value destructuring',
+		rule: 'prefer-array-iterable-methods',
+		code: [
+			'/** @param {Array<{label: string}>} values */ function run(values) {',
+			'const output = []; for (const [, {label}] of values.entries()) { output.push(label); } return JSON.stringify(output);',
+			'} run([{label: "a"}, {label: "b"}]);',
+		].join('\n'),
+		output: [
+			'/** @param {Array<{label: string}>} values */ function run(values) {',
+			'const output = []; for (const {label} of values) { output.push(label); } return JSON.stringify(output);',
+			'} run([{label: "a"}, {label: "b"}]);',
+		].join('\n'),
+		value: '["a","b"]',
+	},
+	{
+		name: 'documented map entries keep keys rather than inheriting array iteration semantics',
+		rule: 'prefer-array-iterable-methods',
+		code: [
+			'/** @param {Map<string, number>} values */ function run(values) {',
+			'const output = []; for (const [key, value] of values.entries()) { output.push(key); } return JSON.stringify(output);',
+			'} run(new Map([["key", 42]]));',
+		].join('\n'),
+		value: '["key"]',
+		reported: false,
+	},
+	{
+		name: 'documented typed array entries retain the array-only iteration boundary',
+		rule: 'prefer-array-iterable-methods',
+		code: [
+			'/** @param {Uint8Array} values */ function run(values) {',
+			'const output = []; for (const [, value] of values.entries()) { output.push(value); } return JSON.stringify(output);',
+			'} run(new Uint8Array([255, 0]));',
+		].join('\n'),
+		value: '[255,0]',
+		reported: false,
+	},
+	{
+		name: 'documented forEach conversion preserves value and index pairing',
+		rule: 'no-for-each',
+		code: [
+			'/** @param {Array<string>} values */ function run(values) {',
+			'const output = []; values.forEach((value, index) => { output.push([index, value]); }); return JSON.stringify(output);',
+			'} run(["b", "a"]);',
+		].join('\n'),
+		output: [
+			'/** @param {Array<string>} values */ function run(values) {',
+			'const output = []; for (const [index, value] of values.entries()) { output.push([index, value]); } return JSON.stringify(output);',
+			'} run(["b", "a"]);',
+		].join('\n'),
+		value: '[[0,"b"],[1,"a"]]',
+	},
+	{
+		name: 'documented array aliases retain mutable callback parameters during loop conversion',
+		rule: 'no-for-each',
+		code: [
+			'/** @param {Array<number>} values */ function run(values) {',
+			'const alias = values; const output = []; alias.forEach(value => { value *= 2; output.push(value); }); return JSON.stringify([output, values]);',
+			'} run([1, 2]);',
+		].join('\n'),
+		output: [
+			'/** @param {Array<number>} values */ function run(values) {',
+			'const alias = values; const output = []; for (let value of alias) { value *= 2; output.push(value); } return JSON.stringify([output, values]);',
+			'} run([1, 2]);',
+		].join('\n'),
+		value: '[[2,4],[1,2]]',
+	},
+	{
+		name: 'documented Set forEach callbacks retain collection behavior',
+		rule: 'no-for-each',
+		code: [
+			'/** @param {Set<string>} values */ function run(values) {',
+			'const output = []; values.forEach((value, key) => { output.push([key, value]); }); return JSON.stringify(output);',
+			'} run(new Set(["b", "a"]));',
+		].join('\n'),
+		value: '[["b","b"],["a","a"]]',
+		reported: false,
+	},
+	{
+		name: 'documented array push suggestions intentionally change the returned length but retain mutation',
+		rule: 'no-return-array-push',
+		code: [
+			'/** @param {Array<number>} stream */ function run(stream) { return stream.push(2); }',
+			'const values = [1]; JSON.stringify([run(values), values]);',
+		].join('\n'),
+		value: '[2,[1,2]]',
+		suggestion: [
+			'/** @param {Array<number>} stream */ function run(stream) { stream.push(2); return; }',
+			'const values = [1]; JSON.stringify([run(values), values]);',
+		].join('\n'),
+		suggestedValue: '[null,[1,2]]',
+	},
+	{
+		name: 'documented numeric typed arrays copy coerced fill values without sharing references',
+		rule: 'no-array-fill-with-reference-type',
+		code: [
+			'let reads = 0; /** @param {Uint8Array} values */ function run(values) {',
+			'values.fill({valueOf() { reads++; return 7; }}); return JSON.stringify([Array.from(values), reads]);',
+			'} run(new Uint8Array(2));',
+		].join('\n'),
+		value: '[[7,7],1]',
+		reported: false,
+	},
+	{
+		name: 'documented bigint typed array fills retain bigint coercion',
+		rule: 'no-array-fill-with-reference-type',
+		code: [
+			'/** @param {BigInt64Array} values */ function run(values) {',
+			'values.fill({valueOf() { return 3n; }}); return Array.from(values, String).join(",");',
+			'} run(new BigInt64Array(2));',
+		].join('\n'),
+		value: '3,3',
+		reported: false,
+	},
+	{
+		name: 'documented RegExp flag properties remain primitive booleans',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: '/** @param {RegExp} pattern */ function run(pattern) { return pattern.hasIndices === true; } JSON.stringify([run(/a/d), run(/a/)]);',
+		output: '/** @param {RegExp} pattern */ function run(pattern) { return pattern.hasIndices; } JSON.stringify([run(/a/d), run(/a/)]);',
+		value: '[true,false]',
+	},
+	{
+		name: 'documented readonly Map boolean checks preserve SameValueZero key matching',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: '/** @param {ReadonlyMap<number, string>} values */ function run(values) { return values.has(NaN) === false; } JSON.stringify([run(new Map([[NaN, "x"]])), run(new Map())]);',
+		output: '/** @param {ReadonlyMap<number, string>} values */ function run(values) { return !values.has(NaN); } JSON.stringify([run(new Map([[NaN, "x"]])), run(new Map())]);',
+		value: '[false,true]',
+	},
+	{
+		name: 'documented weak collection membership fixes retain object identity',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: [
+			'/** @param {WeakSet<object>} values */ function run(values, key) { return values.has(key) !== false; }',
+			'const key = {}; const values = new WeakSet([key]); JSON.stringify([run(values, key), run(values, {})]);',
+		].join('\n'),
+		output: [
+			'/** @param {WeakSet<object>} values */ function run(values, key) { return values.has(key); }',
+			'const key = {}; const values = new WeakSet([key]); JSON.stringify([run(values, key), run(values, {})]);',
+		].join('\n'),
+		value: '[true,false]',
+	},
+	{
+		name: 'documented floating typed array membership keeps NaN matches',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: '/** @param {Float64Array} values */ function run(values) { return values.includes(NaN) === true; } JSON.stringify([run(new Float64Array([NaN])), run(new Float64Array([0]))]);',
+		output: '/** @param {Float64Array} values */ function run(values) { return values.includes(NaN); } JSON.stringify([run(new Float64Array([NaN])), run(new Float64Array([0]))]);',
+		value: '[true,false]',
+	},
+	{
+		name: 'documented bigint typed array predicates retain empty and negative element outcomes',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: [
+			'/** @param {BigInt64Array} values */ function run(values) { return values.every(value => value > 0n) === false; }',
+			'JSON.stringify([run(new BigInt64Array()), run(new BigInt64Array([-1n])), run(new BigInt64Array([1n]))]);',
+		].join('\n'),
+		output: [
+			'/** @param {BigInt64Array} values */ function run(values) { return !values.every(value => value > 0n); }',
+			'JSON.stringify([run(new BigInt64Array()), run(new BigInt64Array([-1n])), run(new BigInt64Array([1n]))]);',
+		].join('\n'),
+		value: '[false,true,false]',
+	},
+	{
+		name: 'documented string wellformedness checks preserve unpaired surrogate results',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: [
+			'/** @param {string} text */ function run(text) { return text.isWellFormed() === true; }',
+			'JSON.stringify([run("🦄"), run(String.fromCharCode(0xD800))]);',
+		].join('\n'),
+		output: [
+			'/** @param {string} text */ function run(text) { return text.isWellFormed(); }',
+			'JSON.stringify([run("🦄"), run(String.fromCharCode(0xD800))]);',
+		].join('\n'),
+		value: '[true,false]',
+	},
+	{
+		name: 'optional documented receiver calls keep strict comparison outcomes for missing values',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: '/** @param {?RegExp} pattern */ function run(pattern) { return pattern?.test("a") === false; } JSON.stringify([run(null), run(/a/), run(/x/)]);',
+		value: '[false,false,true]',
+		reported: false,
+	},
+	{
+		name: 'documented typed array sorting suggestions retain the observable mutation distinction',
+		rule: 'no-array-sort',
+		code: [
+			'/** @param {Uint8Array} values */ function run(values) { return JSON.stringify([Array.from(values.sort()), Array.from(values)]); }',
+			'run(new Uint8Array([2, 1]));',
+		].join('\n'),
+		value: '[[1,2],[1,2]]',
+		suggestion: [
+			'/** @param {Uint8Array} values */ function run(values) { return JSON.stringify([Array.from(values.toSorted()), Array.from(values)]); }',
+			'run(new Uint8Array([2, 1]));',
+		].join('\n'),
+		suggestedValue: '[[1,2],[2,1]]',
+	},
 ]) {
 	test(name, t => {
 		const ruleId = `unicorn/${rule}`;

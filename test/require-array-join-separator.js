@@ -1,7 +1,75 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {Map<string, number>} values */ function run(values) { return values.join(); }',
+			'/** @returns {string} */ function read() { return source; } read().join();',
+			'/** @param {() => boolean} read */ function run(read) { return read().join(); }',
+			'/** @type {ReadonlySet<number>} */ const values = source; const alias = values; alias.join();',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			[
+				'/** @param {Array<number>} values */ function run(values) { return values.join(); }',
+				'/** @param {Array<number>} values */ function run(values) { return values.join(\',\'); }',
+			],
+			[
+				'/** @returns {Uint8Array} */ function read() { return source; } read().join();',
+				'/** @returns {Uint8Array} */ function read() { return source; } read().join(\',\');',
+			],
+			[
+				'/** @param {() => ReadonlyArray<number>} read */ function run(read) { return read()?.join(); }',
+				'/** @param {() => ReadonlyArray<number>} read */ function run(read) { return read()?.join(\',\'); }',
+			],
+			[
+				'/** @param {unknown} values */ function run(values) { return values.join(); }',
+				'/** @param {unknown} values */ function run(values) { return values.join(\',\'); }',
+			],
+			[
+				'/** @param {Array<number> | Set<number>} values */ function run(values) { return values.join(); }',
+				'/** @param {Array<number> | Set<number>} values */ function run(values) { return values.join(\',\'); }',
+			],
+			[
+				'/** @param {Set<number>} values */ function run(values) { return Array.prototype.join.call(values); }',
+				'/** @param {Set<number>} values */ function run(values) { return Array.prototype.join.call(values, \',\'); }',
+			],
+			[
+				'/** @param {Array<number>} values */ function run(values) { return values.join(/* keep */); }',
+				'/** @param {Array<number>} values */ function run(values) { return values.join(/* keep */\',\'); }',
+			],
+		].map(([code, output]) => ({
+			code, output, filename: 'file.ts', errors: [{messageId: 'require-array-join-separator'}],
+		})),
+	});
+}
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			code: '/** @param {Array<number>} values */ function run(values: Set<number>) { return values.join(); }',
+			filename: 'file.ts',
+		}],
+		invalid: [{
+			code: '/** @param {Set<number>} values */ function run(values: Uint8Array) { return values.join(); }',
+			output: '/** @param {Set<number>} values */ function run(values: Uint8Array) { return values.join(\',\'); }',
+			filename: 'file.ts',
+			errors: [{messageId: 'require-array-join-separator'}],
+		}],
+	});
+}
 
 test.snapshot({
 	valid: [

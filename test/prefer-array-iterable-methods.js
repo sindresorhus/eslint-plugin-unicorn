@@ -1,3 +1,4 @@
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
@@ -7,6 +8,75 @@ const typescript = code => ({
 		parser: parsers.typescript,
 	},
 });
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {Map<number, string>} values */ function run(values) { for (const [, value] of values.entries()) { consume(value); } }',
+			'/** @param {?Array<number>} values */ function run(values) { for (const [, value] of values.entries()) { consume(value); } }',
+			'/** @param {Array<number> | Set<number>} values */ function run(values) { for (const [, value] of values.entries()) { consume(value); } }',
+			'/** @param {Uint8Array} values */ function run(values) { for (const [index] of values.entries()) { consume(index); } }',
+			'/** @returns {Array<number>} */ async function read() { return source; } for (const [, value] of read().entries()) { consume(value); }',
+			'/** @param {() => Array<number>} read */ function run(read) { for (const [, value] of read.entries()) { consume(value); } }',
+			'/** @returns {Array<number>} */ function read() { return source; } function run(values = read()) { for (const [index] of values.entries()) { consume(index); } }',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			...[
+				[
+					'/** @param {Array<number>} values */ function run(values) { for (const [, value] of values.entries()) { consume(value); } }',
+					'/** @param {Array<number>} values */ function run(values) { for (const value of values) { consume(value); } }',
+					'unused-index',
+				],
+				[
+					'/** @param {() => ReadonlyArray<number>} read */ function run(read) { for (const [index] of read().entries()) { consume(index); } }',
+					'/** @param {() => ReadonlyArray<number>} read */ function run(read) { for (const index of read().keys()) { consume(index); } }',
+					'unused-value',
+				],
+				[
+					'/** @type {Array<{id: number}>} */ const values = source; const alias = values; for (const [, {id}] of alias.entries()) { consume(id); }',
+					'/** @type {Array<{id: number}>} */ const values = source; const alias = values; for (const {id} of alias) { consume(id); }',
+					'unused-index',
+				],
+				[
+					'/** @param {Set<number>} values */ function run(/** @type {Array<number>} */ values) { for (const [, value] of values.entries()) { consume(value); } }',
+					'/** @param {Set<number>} values */ function run(/** @type {Array<number>} */ values) { for (const value of values) { consume(value); } }',
+					'unused-index',
+				],
+			].map(([code, output, messageId]) => ({
+				code, output, filename: 'file.ts', errors: [{messageId}],
+			})),
+			{
+				code: '/** @param {Array<number>} values */ function run(values) { for (const [, value] of values.entries(/* keep */)) { consume(value); } }',
+				filename: 'file.ts',
+				errors: [{messageId: 'unused-index'}],
+			},
+		],
+	});
+}
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			code: '/** @param {Array<number>} values */ function run(values: Set<number>) { for (const [, value] of values.entries()) { consume(value); } }',
+			filename: 'file.ts',
+		}],
+		invalid: [{
+			code: '/** @param {Map<number, number>} values */ function run(values: number[]) { for (const [, value] of values.entries()) { consume(value); } }',
+			output: '/** @param {Map<number, number>} values */ function run(values: number[]) { for (const value of values) { consume(value); } }',
+			filename: 'file.ts',
+			errors: [{messageId: 'unused-index'}],
+		}],
+	});
+}
 
 test.snapshot({
 	valid: [

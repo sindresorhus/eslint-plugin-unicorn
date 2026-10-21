@@ -711,3 +711,43 @@ for (const [description, expression] of [
 		t.assert.deepStrictEqual(parseJSDocumentType(expression), unknown);
 	});
 }
+
+for (const [description, expression, expected] of [
+	['postfix array around an unresolved element', 'unknown[]', array],
+	['postfix array around an optional grouped element', '(boolean=)[]', array],
+	['nullable suffix around a generic array', 'Array<boolean>?', nullable(array)],
+	['grouped optional nullish union', '((boolean | null)=)', optional(union(boolean, nullish('null')))],
+	['nullable suffix around a callback binding', '((value: string) => boolean)?', nullable(callable(boolean))],
+	['nullable suffix inside an arrow result', '() => boolean?', callable(nullable(boolean))],
+	['nullable array callback result', 'function(): (boolean[])?', callable(nullable(array))],
+	['array of overloaded callable objects', '({(): true; (value: string): false})[]', array],
+	['nullable receiver and callback parameter types', 'function(this: ?{ready: boolean}, ...Array<() => string>): boolean', callable(boolean)],
+	['undefined member beside a branded callable', '({(): boolean} & {label: string}) | undefined', union(intersection(callable(boolean), nonPrimitive), nullish('undefined'))],
+	['keyword property names preceding a call signature', '{new: boolean; extends: string; (): number}', callable(number)],
+	['carriage-return separated overloads', '{(): boolean\r(value: string): string}', intersection(callable(boolean), callable(string))],
+	['line-separator before a call signature', '{label: string\u2028(): boolean}', callable(boolean)],
+	['paragraph-separator before readonly metadata', '{(): boolean\u2029readonly count: number}', callable(boolean)],
+	['quoted generic delimiters', 'Array<"value> | boolean">', array],
+	['quoted arrow parameter delimiters', '(input: "x) => boolean") => number', callable(number)],
+	['quoted signature syntax stays property metadata', '{"()=>boolean": () => string; (): number}', callable(number)],
+	['qualified primitive aliases remain ordinary generic names', 'types.Boolean<string>', name('types.Boolean')],
+	['qualified Closure generics retain their complete outer name', 'types.collections.Array.<boolean>', name('types.collections.Array')],
+	['dictionary keys containing generic delimiters', 'Object<"a>b", Array<{(): boolean}>>', nonPrimitive],
+]) {
+	test(`preserves ${description}`, t => {
+		t.assert.deepStrictEqual(parseJSDocumentType(expression), expected);
+	});
+}
+
+for (const [description, expression] of [
+	['trailing text after a quoted literal array', '"boolean"[] trailing'],
+	['escaped record-key line breaks are not member separators', String.raw`{(): boolean; "x\ny": string label: number}`],
+	['incomplete union after an unknown generic argument', 'Array<unknown |>'],
+	['incomplete arrow argument union before a boolean result', '(input: string |) => boolean'],
+	['adjacent unknown and primitive overload results', '{(): boolean; (): unknown string}'],
+	['unclosed generic after a quoted closing delimiter', 'Array<"value>"'],
+]) {
+	test(`rejects ${description}`, t => {
+		t.assert.deepStrictEqual(parseJSDocumentType(expression), unknown);
+	});
+}
