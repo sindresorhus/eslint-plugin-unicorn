@@ -72,7 +72,7 @@ function hasBigIntTypeAnnotation(node) {
 	return typeAnnotation && isBigIntTypeAnnotation(typeAnnotation);
 }
 
-function isBigIntExpression(node) {
+function isBigIntExpression(node, context) {
 	return isBigIntLiteral(node)
 		|| isCallExpression(node, {
 			name: 'BigInt',
@@ -82,9 +82,10 @@ function isBigIntExpression(node) {
 		|| (
 			node.type === 'UnaryExpression'
 			&& node.operator === '-'
-			&& isBigIntExpression(node.argument)
+			&& isBigIntExpression(node.argument, context)
 		)
-		|| hasBigIntTypeAnnotation(node);
+		|| hasBigIntTypeAnnotation(node)
+		|| isBigInt(node, context, bigIntCheckOptions);
 }
 
 function hasBigIntDefinition(node, context) {
@@ -103,7 +104,7 @@ function hasBigIntDefinition(node, context) {
 				&& isBigIntTypeAnnotation(definition.name.typeAnnotation)
 			) || (
 				definition.name.parent.type === 'AssignmentPattern'
-				&& isBigIntExpression(definition.name.parent.right)
+				&& isBigIntExpression(definition.name.parent.right, context)
 			);
 		}
 
@@ -113,7 +114,7 @@ function hasBigIntDefinition(node, context) {
 				&& isBigIntTypeAnnotation(definition.node.id.typeAnnotation)
 			) || (
 				definition.node.init
-				&& isBigIntExpression(definition.node.init)
+				&& isBigIntExpression(definition.node.init, context)
 			);
 		}
 
@@ -122,9 +123,8 @@ function hasBigIntDefinition(node, context) {
 }
 
 function canBeBigInt(node, context) {
-	return isBigIntExpression(node)
-		|| hasBigIntDefinition(node, context)
-		|| isBigInt(node, context, bigIntCheckOptions);
+	return isBigIntExpression(node, context)
+		|| hasBigIntDefinition(node, context);
 }
 
 function isNegativeExpression(node, valueNode) {

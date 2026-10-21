@@ -9,6 +9,31 @@ const {test, rule} = getTester(import.meta);
 
 test({
 	valid: [
+		'/** @returns {bigint} */ function read() { return source; } function run(value = read()) { return value < 0 ? -value : value; }',
+		'/** @returns {bigint | number} */ function read() { return source; } function run(value = read()) { return value > limit || value < -limit; }',
+		'/** @param {() => bigint} read */ function run(read, value = read()) { return value < 0 ? -value : value; }',
+		'/** @returns {bigint} */ function read() { return source; } let value = read(); value < 0 ? -value : value;',
+		'/** @returns {bigint | number} */ function read() { return source; } var value = read(); value > limit || value < -limit;',
+		'/** @returns {bigint} */ function read() { return source; } let value = -read(); value < 0 ? -value : value;',
+		'/** @returns {bigint} */ function read() { return source; } function run(value, limit = read()) { return value > limit || value < -limit; }',
+	],
+	invalid: [
+		[
+			'function run(value = read()) { return value < 0 ? -value : value; }',
+			'function run(value = read()) { return Math.abs(value); }',
+		],
+		['let value = read(); value > limit || value < -limit;', 'let value = read(); Math.abs(value) > limit;'],
+	].map(([code, output]) => {
+		const prefix = '/** @returns {number} */ function read() { return source; } ';
+		return {
+			code: prefix + code,
+			errors: [{messageId: 'prefer-math-abs', suggestions: [{messageId: 'prefer-math-abs/suggestion', output: prefix + output}]}],
+		};
+	}),
+});
+
+test({
+	valid: [
 		'/** @param {bigint} input */ function run(input) { const value = input + 1n; return value < 0 ? -value : value; }',
 		'/** @type {bigint} */ let value; value < 0 ? -value : value;',
 		'/** @param {number | bigint} value */ function run(value) { return 0 < value ? value : -value; }',
@@ -41,6 +66,8 @@ for (const languageOptions of [
 	test({
 		testerOptions: {languageOptions},
 		valid: [
+			'function read(): bigint { return source; } let value = read(); value < 0 ? -value : value; function run(value = read()) { return value > limit || value < -limit; }',
+			'/** @returns {bigint} */ function read() { return source; } function run(value = read()) { return value < 0 ? -value : value; }',
 			'/** @param {bigint} value */ function run(value) { return value < 0 ? -value : value; }',
 			'/** @param {number | bigint} value */ function run(value) { return 0 < value ? value : -value; }',
 			'/** @param {bigint} limit */ function run(value, limit) { return -limit >= value || limit <= value; }',
@@ -66,6 +93,8 @@ nodeTest('documented bigint absolute expressions retain results without incompat
 		rules: {'unicorn/prefer-math-abs': 'error'},
 	};
 	for (const [code, expected] of [
+		['/** @returns {bigint} */ function read() { return -5n; } function run(value = read()) { return value < 0 ? -value : value; } run();', 5n],
+		['/** @returns {bigint} */ function read() { return -5n; } let value = read(); value < 0 ? -value : value;', 5n],
 		['/** @param {bigint} value */ function run(value) { return value < 0 ? -value : value; } run(-5n);', 5n],
 		['/** @param {bigint} value */ function run(value, limit) { return value > limit || value < -limit; } run(-5n, 2);', true],
 	]) {
