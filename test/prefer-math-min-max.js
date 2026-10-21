@@ -1,10 +1,88 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import {outdent} from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 const MESSAGE_ID = 'prefer-math-min-max';
 const SUGGESTION_ID = 'replace-with-math-min-max';
+
+test({
+	valid: [
+		'/** @type {bigint} */ let value; value > 0 ? 0 : value;',
+		'/** @param {bigint} value */ function run(value) { return value > 0 ? value : 0; }',
+		'/** @param {number | bigint} value */ function run(value, limit) { return value < limit ? limit : value; }',
+		'/** @param {?bigint} value */ function run(value) { return value <= 0 ? value : 0; }',
+		'/** @param {bigint} [value] */ function run(value) { return value >= 0 ? 0 : value; }',
+		'/** @param {number | bigint} limit */ function run(value, limit) { return limit > value ? limit : value; }',
+		'/** @returns {number | bigint} */ function read() { return source; } let value = read(); value > 0 ? value : 0;',
+		'/** @returns {number | bigint} */ function read() { return source; } function run(value = read()) { return value > 0 ? value : 0; }',
+		'/** @param {number | bigint} input */ function run(input) { const value = -input; return value < 0 ? value : 0; }',
+	],
+	invalid: [
+		['min', 'value > 0 ? 0 : value'],
+		['max', 'value > 0 ? value : 0'],
+	].map(([method, expression]) => ({
+		code: `/** @param {number} value */ function run(value) { return ${expression}; }`,
+		errors: [{
+			messageId: MESSAGE_ID,
+			suggestions: [{
+				messageId: SUGGESTION_ID,
+				data: {method},
+				output: `/** @param {number} value */ function run(value) { return Math.${method}(value, 0); }`,
+			}],
+		}],
+	})),
+});
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {bigint} value */ function run(value) { return value > 0 ? value : 0; }',
+			'/** @param {number | bigint} limit */ function run(value, limit) { return value < limit ? value : limit; }',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [{
+			filename: 'file.ts',
+			code: '/** @param {bigint} value */ function run(value: number) { return value > 0 ? value : 0; }',
+			errors: [{
+				messageId: MESSAGE_ID,
+				suggestions: [{
+					messageId: SUGGESTION_ID,
+					data: {method: 'max'},
+					output: '/** @param {bigint} value */ function run(value: number) { return Math.max(value, 0); }',
+				}],
+			}],
+		}],
+	});
+}
+
+nodeTest('documented bigint comparisons retain results without incompatible Math.min or Math.max suggestions', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-math-min-max': rule}}},
+		rules: {'unicorn/prefer-math-min-max': 'error'},
+	};
+	for (const [code, expected] of [
+		['/** @param {bigint} value */ function run(value) { return value < 0 ? value : 0; } run(-5n);', -5n],
+		['/** @param {bigint} value */ function run(value) { return value > 0 ? value : 0; } run(5n);', 5n],
+	]) {
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(fixed, false);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(output), expected);
+	}
+
+	for (const method of ['min', 'max']) {
+		t.assert.throws(() => runInNewContext(`Math.${method}(5n, 0)`), {name: 'TypeError'});
+	}
+});
 
 for (const languageOptions of [
 	{},
