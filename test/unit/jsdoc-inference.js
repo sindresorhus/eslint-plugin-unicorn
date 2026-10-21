@@ -1241,7 +1241,7 @@ for (const [description, lines, expected] of [
 	['regular expression metadata is not mistaken for boolean flags', [
 		'/** @param {RegExp} pattern */',
 		'function run(pattern) { inspect(pattern.source); inspect(pattern.flags); inspect(pattern.lastIndex); }',
-	], [[], [], []]],
+	], [['string'], ['string'], []]],
 	['record method names do not supply built-in receiver identities', [
 		'/** @param {{has(key: string): boolean; test(value: string): boolean}} object */',
 		'function run(object) { inspect(object.has(key)); inspect(object.test("x")); }',
