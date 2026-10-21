@@ -7,6 +7,59 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+const assertedCallbackDefaults = [
+	'(() => "text") as (() => string)',
+	'<() => string>(() => "text")',
+	'((() => "text") as (() => string))!',
+	'((() => "text") as (() => string)) satisfies (() => string)',
+];
+
+nodeTest('native assertions on default callbacks preserve boolean comparison results', t => {
+	const linter = new Linter();
+	const code = '/** @param {() => boolean} read */ function run(read = (() => "text") as (() => string)) { return read() === true; } run();';
+	const {output, fixed, messages} = linter.verifyAndFix(code, {
+		languageOptions: {parser: typescriptEslintParser},
+		plugins: {unicorn: {rules: {'no-unnecessary-boolean-comparison': rule}}},
+		rules: {'unicorn/no-unnecessary-boolean-comparison': 'error'},
+	});
+	t.assert.strictEqual(runInNewContext(stripTypeScriptTypes(output)), false);
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(output, code);
+	t.assert.deepStrictEqual(messages, []);
+});
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: assertedCallbackDefaults.map(initializer => ({
+			code: `/** @param {() => boolean} read */ function run(read = ${initializer}) { return read() === true; }`,
+			filename: 'file.ts',
+		})),
+		invalid: [],
+	});
+}
+
+const assertedBooleanCallbackDefault = '/** @param {() => boolean} read */ function run(read = source as (() => boolean)) { return read() === true; }';
+test({
+	valid: [{code: assertedBooleanCallbackDefault, languageOptions: {parser: parsers.typescript}}],
+	invalid: [{
+		code: assertedBooleanCallbackDefault,
+		filename: 'file.ts',
+		languageOptions: {
+			parser: typescriptEslintParser,
+			parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+		},
+		output: assertedBooleanCallbackDefault.replace('read() === true', 'read()'),
+		errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+	}],
+});
+
 test({
 	valid: [
 		'/** @param {string} text\n * @param {unknown} other */ function run(text, other) { return (flag ? text : other).includes("x") === true; }',

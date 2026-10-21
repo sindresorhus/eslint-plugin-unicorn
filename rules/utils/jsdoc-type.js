@@ -329,6 +329,7 @@ const getJSDocumentReturnType = memoizeJSDocumentLookup((node, context) => {
 
 export {
 	hasJSDocumentComments,
+	hasNativeTypeAssertion,
 	getJSDocumentParameterNameRange,
 	getJSDocumentTypeAnnotation,
 	getJSDocumentReturnType,

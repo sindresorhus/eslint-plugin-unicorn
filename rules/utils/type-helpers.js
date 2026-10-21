@@ -12,7 +12,12 @@ import {
 	withTypeInformation,
 } from './types.js';
 import {getStaticValueForControlFlow} from './get-static-value.js';
-import {getJSDocumentTypeAnnotation, getJSDocumentReturnType, hasJSDocumentComments} from './jsdoc-type.js';
+import {
+	getJSDocumentTypeAnnotation,
+	getJSDocumentReturnType,
+	hasJSDocumentComments,
+	hasNativeTypeAssertion,
+} from './jsdoc-type.js';
 import {getEvaluatedChildNodes} from './get-visitor-child-nodes.js';
 import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
 
@@ -625,8 +630,9 @@ const getTypeFromFunctionCall = (node, context, options) => {
 		return unknown;
 	}
 
-	const value = definition.type === 'FunctionName' ? definition.node : unwrapTypeScriptExpression(getDefinitionInitializer(definition));
-	if (value?.async || value?.generator || (definition.type === 'Parameter' && value?.returnType)) {
+	const initializer = getDefinitionInitializer(definition);
+	const value = definition.type === 'FunctionName' ? definition.node : unwrapTypeScriptExpression(initializer);
+	if (value?.async || value?.generator || (definition.type === 'Parameter' && (value?.returnType || hasNativeTypeAssertion(initializer)))) {
 		return unknown;
 	}
 

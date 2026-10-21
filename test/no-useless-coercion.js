@@ -690,6 +690,44 @@ for (const initializer of ['async () => true', 'function* () { return true; }'])
 	});
 }
 
+const assertedCallbackCoercions = [
+	['boolean', 'Boolean', 'string', '"text"', true],
+	['string', 'String', 'number', '1', '1'],
+	['number', 'Number', 'string', '"1"', 1],
+	['bigint', 'BigInt', 'number', '1', 1n],
+].map(([type, constructor, native, value, expected]) => ({
+	code: `/** @param {() => ${type}} read */ function run(read = (() => ${value}) as (() => ${native})): ${type} { return ${constructor}(read()); } run();`,
+	expected,
+}));
+
+nodeTest('native assertions on default callbacks preserve scalar coercion results', t => {
+	for (const {code, expected} of assertedCallbackCoercions) {
+		const {output, fixed, messages} = linter.verifyAndFix(code, {
+			languageOptions: {parser: typescriptEslintParser},
+			plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+			rules: {'unicorn/no-useless-coercion': 'error'},
+		});
+		t.assert.strictEqual(runInNewContext(stripTypeScriptTypes(output)), expected, code);
+		t.assert.strictEqual(fixed, false, code);
+		t.assert.strictEqual(output, code);
+		t.assert.deepStrictEqual(messages, []);
+	}
+});
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: assertedCallbackCoercions.map(({code}) => ({code, filename: 'file.ts'})),
+		invalid: [],
+	});
+}
+
 const nativeCallbackDefault = '/** @param {() => boolean} read */ function value(read = (): boolean => true): boolean { return Boolean(read()); }';
 test({
 	valid: [{code: nativeCallbackDefault, languageOptions: {parser: parsers.typescript}}],

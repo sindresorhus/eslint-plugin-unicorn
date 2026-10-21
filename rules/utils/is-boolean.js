@@ -2,7 +2,7 @@ import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import getStaticValueIfNoSideEffects from './get-static-value.js';
 import {getFunctionReturnExpression} from './function-body.js';
 import {withTypeInformation} from './types.js';
-import {getJSDocumentTypeAnnotation, getJSDocumentReturnType} from './jsdoc-type.js';
+import {getJSDocumentTypeAnnotation, getJSDocumentReturnType, hasNativeTypeAssertion} from './jsdoc-type.js';
 import {getJSDocumentBooleanState} from './get-jsdoc-boolean-state.js';
 import {
 	createTypeCheckers,
@@ -358,16 +358,17 @@ function isBooleanFunctionReference(node, context, visitedVariables = new Set())
 		const scope = context.sourceCode.getScope(definition.name);
 		const annotation = getJSDocumentTypeAnnotation(definition.name, context);
 		if (annotation) {
-			const initializer = unwrapTypeScriptExpression(getDefinitionInitializer(definition));
+			const initializer = getDefinitionInitializer(definition);
+			const value = unwrapTypeScriptExpression(initializer);
 			const returnType = getJSDocumentCallableReturnType(annotation.type);
 			if (
-				!initializer?.async
-				&& !initializer?.generator
-				&& !(definition.type === 'Parameter' && initializer?.returnType)
+				!value?.async
+				&& !value?.generator
+				&& !(definition.type === 'Parameter' && (value?.returnType || hasNativeTypeAssertion(initializer)))
 				&& variable.references.every(reference => !reference.isWrite() || reference.init)
 			) {
-				isBoolean = initializer?.returnType
-					? isBooleanTypeAnnotation(initializer.returnType, context, context.sourceCode.getScope(initializer))
+				isBoolean = value?.returnType
+					? isBooleanTypeAnnotation(value.returnType, context, context.sourceCode.getScope(value))
 					: !annotation.optional
 						&& returnType !== undefined
 						&& getJSDocumentBooleanState({type: returnType}) === 'boolean';
