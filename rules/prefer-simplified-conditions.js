@@ -5,6 +5,7 @@ import {
 	fixSpaceAroundKeyword,
 } from './fix/index.js';
 import {
+	getLogicalExpressionOperands,
 	getNegatedExpressionText,
 	getParenthesizedText,
 	isBoolean,
@@ -322,6 +323,10 @@ function isFactoringOperand(node) {
 			&& (!node.computed || isFactoringOperand(node.property));
 	}
 
+	if (node.type === 'TemplateLiteral') {
+		return node.expressions.length === 0;
+	}
+
 	if (isNegation(node)) {
 		return isFactoringOperand(node.argument);
 	}
@@ -381,44 +386,41 @@ const isSameCondition = (left, right, context) =>
 
 function getLeadingCommonFactoringTerms(node, context) {
 	const innerOperator = negatedLogicalOperators.get(node.operator);
+	if (!innerOperator) {
+		return;
+	}
 
+	const before = getLogicalExpressionOperands(node.left, node.operator);
+	const after = getLogicalExpressionOperands(node.right, node.operator);
+	const leftOperands = getLogicalExpressionOperands(before.pop(), innerOperator);
+	const rightOperands = getLogicalExpressionOperands(after.shift(), innerOperator);
 	if (
-		!innerOperator
-		|| node.left.type !== 'LogicalExpression'
-		|| node.right.type !== 'LogicalExpression'
-		|| node.left.operator !== innerOperator
-		|| node.right.operator !== innerOperator
+		leftOperands.length < 2
+		|| rightOperands.length < 2
+		|| !isSameCondition(leftOperands[0], rightOperands[0], context)
 	) {
 		return;
 	}
 
-	if (!isSameCondition(node.left.left, node.right.left, context)) {
+	if (
+		leftOperands.length === rightOperands.length
+		&& leftOperands.every((operand, index) => isSameCondition(operand, rightOperands[index], context))
+	) {
 		return;
 	}
 
-	if (isSameCondition(node.left.right, node.right.right, context)) {
-		return;
-	}
-
-	const commonTerm = {
-		common: node.left.left,
-		leftOther: node.left.right,
-		rightOther: node.right.right,
-	};
-
-	const operands = [
-		commonTerm.common,
-		node.right.left,
-		commonTerm.leftOther,
-		commonTerm.rightOther,
-	];
-
+	const operands = [...leftOperands, ...rightOperands];
 	if (!canFactor(node, operands, context)) {
 		return;
 	}
 
 	return {
-		...commonTerm,
+		common: leftOperands[0],
+		leftOther: leftOperands.slice(1),
+		rightOther: rightOperands.slice(1),
+		before,
+		after,
+		innerOperator,
 		shouldSuggest: operands.some(operand => !isSafeFactoringOperand(operand, context)),
 	};
 }
@@ -468,21 +470,42 @@ function getAbsorptionTerm(node, context) {
 }
 
 function getFactoringReplacementText(node, factoringTerms, context) {
-	// Factoring operands never need additional parentheses as an operand of `&&`/`||`.
+	// Individual factoring operands never need additional parentheses as an operand of `&&`/`||`, but grouped remainders do.
+	const {innerOperator, before, after} = factoringTerms;
 	const commonText = getParenthesizedText(factoringTerms.common, context);
-	const leftOtherText = getParenthesizedText(factoringTerms.leftOther, context);
-	const rightOtherText = getParenthesizedText(factoringTerms.rightOther, context);
-	let replacement = `${commonText} ${node.left.operator} (${leftOtherText} ${node.operator} ${rightOtherText})`;
+	const [leftOtherText, rightOtherText] = [factoringTerms.leftOther, factoringTerms.rightOther].map(operands => {
+		const text = operands.map(operand => getParenthesizedText(operand, context)).join(` ${innerOperator} `);
+		return operands.length > 1 ? `(${text})` : text;
+	});
+	let replacement = `${commonText} ${innerOperator} (${leftOtherText} ${node.operator} ${rightOtherText})`;
+	if (before.length === 0 && after.length === 0) {
+		if (
+			!isParenthesized(factoringTerms.common, context)
+			&& !shouldAddParenthesesToLogicalReplacement(node, innerOperator, context)
+			&& shouldAddParenthesesToExpressionStart(factoringTerms.common, context, node)
+		) {
+			replacement = `(${replacement})`;
+		}
 
-	if (
-		!isParenthesized(factoringTerms.common, context)
-		&& !shouldAddParenthesesToLogicalReplacement(node, node.left.operator, context)
-		&& shouldAddParenthesesToExpressionStart(factoringTerms.common, context, node)
-	) {
-		replacement = `(${replacement})`;
+		return getLogicalReplacementText(node, innerOperator, replacement, context);
 	}
 
-	return getLogicalReplacementText(node, node.left.operator, replacement, context);
+	const operandTexts = [
+		...before.map(operand => getParenthesizedText(operand, context)),
+		`(${replacement})`,
+		...after.map(operand => getParenthesizedText(operand, context)),
+	];
+	let text = operandTexts.join(` ${node.operator} `);
+	if (
+		before.length > 0
+		&& !isParenthesized(before[0], context)
+		&& !shouldAddParenthesesToLogicalReplacement(node, node.operator, context)
+		&& shouldAddParenthesesToExpressionStart(before[0], context, node)
+	) {
+		text = `(${text})`;
+	}
+
+	return getLogicalReplacementText(node, node.operator, text, context);
 }
 
 /**
