@@ -1,4 +1,5 @@
 import {isMethodCall} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {getParenthesizedRange, getParenthesizedText, wouldRemoveComments} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-flat-math-min-max';
@@ -83,6 +84,7 @@ const create = context => {
 					.join(', ');
 
 				yield fixer.replaceText(callExpression, `${calleeText}(${argumentsText})`);
+				yield fixSpaceAroundKeyword(fixer, callExpression, context);
 			},
 		};
 	});

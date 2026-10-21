@@ -10,6 +10,44 @@ const {test, rule} = getTester(import.meta);
 test({
 	valid: [],
 	invalid: [
+		['getObject(/* keep */).value * (-1)in object;', '-getObject(/* keep */).value in object;'],
+		['getObject(/* keep */).value / (-1)instanceof Number;', '-getObject(/* keep */).value instanceof Number;'],
+		['-1 * (getObject(/* keep */).value)in object;', '-getObject(/* keep */).value in object;'],
+		['getObject(/* keep */).value * (-1)instanceof Number;', '-getObject(/* keep */).value instanceof Number;'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+nodeTest('unary minus fixes preserve trailing operator keywords and operand evaluation', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-unary-minus': rule}}},
+		rules: {'unicorn/prefer-unary-minus': 'error'},
+	};
+	for (const expression of ['getObject(/* keep */).value * (-1)', 'getObject(/* keep */).value / (-1)', '-1 * (getObject(/* keep */).value)']) {
+		for (const [operator, expected] of [['in object', true], ['instanceof Number', false]]) {
+			const code = `${expression}${operator};`;
+			const {fixed, output, messages} = linter.verifyAndFix(code, config);
+			t.assert.strictEqual(fixed, true);
+			t.assert.deepStrictEqual(messages, []);
+			for (const source of [code, output]) {
+				let calls = 0;
+				const result = runInNewContext(source, {
+					object: {'-3': true},
+					getObject() {
+						calls++;
+						return {value: 3};
+					},
+				});
+				t.assert.strictEqual(result, expected);
+				t.assert.strictEqual(calls, 1);
+			}
+		}
+	}
+});
+
+test({
+	valid: [],
+	invalid: [
 		['getValue(/* keep */) * -1;', '-getValue(/* keep */);'],
 		['-1 * values[/* keep */ index];', '-values[/* keep */ index];'],
 		['(left + /* keep */ right) / -1;', '-(left + /* keep */ right);'],

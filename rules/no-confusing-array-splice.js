@@ -1,5 +1,6 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getParenthesizedRange,
 	getParenthesizedText,
@@ -109,7 +110,10 @@ function getSuggestion(callExpression, messageId, context) {
 
 			return {
 				messageId: SUGGESTION_REPLACE_ONE_ELEMENT,
-				fix: fixer => fixer.replaceText(callExpression, `${objectText}.with(${startText}, ${elementText})`),
+				* fix(fixer) {
+					yield fixer.replaceText(callExpression, `${objectText}.with(${startText}, ${elementText})`);
+					yield fixSpaceAroundKeyword(fixer, callExpression, context);
+				},
 			};
 		}
 
@@ -120,7 +124,10 @@ function getSuggestion(callExpression, messageId, context) {
 		) {
 			return {
 				messageId: SUGGESTION_REPLACE_ONE_ELEMENT,
-				fix: fixer => fixer.replaceText(callExpression, `${objectText}[${startText}] = ${elementText}`),
+				* fix(fixer) {
+					yield fixer.replaceText(callExpression, `${objectText}[${startText}] = ${elementText}`);
+					yield fixSpaceAroundKeyword(fixer, callExpression, context);
+				},
 			};
 		}
 

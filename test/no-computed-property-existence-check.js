@@ -1,7 +1,49 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		['function f() {return(/* keep */ key) in object;}', 'function f() {return Object.hasOwn(object, (/* keep */ key));}'],
+		['function f() {throw(/* keep */ key) in object;}', 'function f() {throw Object.hasOwn(object, (/* keep */ key));}'],
+		['function* f() {yield(/* keep */ key) in object;}', 'function* f() {yield Object.hasOwn(object, (/* keep */ key));}'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{
+			messageId: 'no-computed-property-existence-check/error',
+			suggestions: [{messageId: 'no-computed-property-existence-check/suggestion', output}],
+		}],
+	})),
+});
+
+nodeTest('property existence suggestions preserve compact keyword behavior', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'no-computed-property-existence-check': rule}}},
+		rules: {'unicorn/no-computed-property-existence-check': 'error'},
+	};
+	for (const code of [
+		'function read() {return(/* keep */ key) in object;} read();',
+		'function read() {throw(/* keep */ key) in object;} try { read(); } catch (error) { error; }',
+		'function* read() {yield(/* keep */ key) in object;} read().next().value;',
+	]) {
+		const {fixed, output, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, false);
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].suggestions.length, 1);
+		const {fix} = messages[0].suggestions[0];
+		const suggested = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		for (const source of [code, suggested]) {
+			t.assert.strictEqual(runInNewContext(source, {key: 'value', object: {value: 1}}), true);
+		}
+	}
+});
 
 const typeAware = code => ({
 	code,

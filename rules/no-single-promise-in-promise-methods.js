@@ -50,9 +50,12 @@ const getAwaitedPromiseText = (callExpression, context) => {
 };
 
 // The next node is already behind a `CallExpression`, there should be no ASI problem
-const unwrapAwaitedCallExpression = (callExpression, context) => fixer => fixer.replaceText(callExpression, getAwaitedPromiseText(callExpression, context));
+const unwrapAwaitedCallExpression = (callExpression, context) => function * (fixer) {
+	yield fixSpaceAroundKeyword(fixer, callExpression, context);
+	yield fixer.replaceText(callExpression, getAwaitedPromiseText(callExpression, context));
+};
 
-const unwrapNonAwaitedCallExpression = (callExpression, context) => fixer => {
+const unwrapNonAwaitedCallExpression = (callExpression, context) => function * (fixer) {
 	const [promiseNode] = callExpression.arguments[0].elements;
 	let text = getParenthesizedText(promiseNode, context);
 
@@ -74,7 +77,8 @@ const unwrapNonAwaitedCallExpression = (callExpression, context) => fixer => {
 		text = `;${text}`;
 	}
 
-	return fixer.replaceText(callExpression, text);
+	yield fixSpaceAroundKeyword(fixer, callExpression, context);
+	yield fixer.replaceText(callExpression, text);
 };
 
 const switchToPromiseResolve = (callExpression, sourceCode) => function * (fixer) {
@@ -183,6 +187,7 @@ const fixPromiseAllFirstElement = (callExpression, context) => {
 
 		return function * (fixer) {
 			yield fixSpaceAroundKeyword(fixer, arrayPattern, context);
+			yield fixSpaceAroundKeyword(fixer, callExpression, context);
 			yield fixer.replaceText(arrayPattern, sourceCode.getText(arrayPattern.elements[0]));
 			yield fixer.replaceText(callExpression, getAwaitedPromiseText(callExpression, context));
 		};

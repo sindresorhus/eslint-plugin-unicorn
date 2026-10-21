@@ -10,6 +10,14 @@ const {test: ruleTest} = getTester(import.meta);
 ruleTest({
 	valid: [],
 	invalid: [
+		['do(elements[/* keep */ 0].onclick) = handler; while (false);', 'do elements[/* keep */ 0].addEventListener(\'click\', handler); while (false);'],
+		['if (ready) {} else(elements[/* keep */ 0].onclick) = handler;', 'if (ready) {} else elements[/* keep */ 0].addEventListener(\'click\', handler);'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
 		['element.onclick = () => { /* keep */ run(); };', 'element.addEventListener(\'click\', () => { /* keep */ run(); });'],
 		['elements[/* keep */ index].onclick = handler;', 'elements[/* keep */ index].addEventListener(\'click\', handler);'],
 		['element.onclick = function (/* keep */ event) { use(event); };', 'element.addEventListener(\'click\', function (/* keep */ event) { use(event); });'],
@@ -42,36 +50,39 @@ ruleTest({
 
 test('commented event handlers retain delivery order and receiver binding', t => {
 	const linter = new Linter();
-	const code = 'getElement(/* keep */).onclick = function (event) { /* handler */ events.push([event.type, this === element]); }; element.dispatchEvent(new Event("click"));';
-	const {output, fixed, messages} = linter.verifyAndFix(code, {
-		plugins: {unicorn: plugin},
-		rules: {'unicorn/prefer-add-event-listener': 'error'},
-	});
-	t.assert.strictEqual(fixed, true);
-	t.assert.deepStrictEqual(messages, []);
-	t.assert.ok(output.includes('/* keep */'));
-	t.assert.ok(output.includes('/* handler */'));
-	for (const source of [code, output]) {
-		const events = [];
-		const element = new EventTarget();
-		// Node's EventTarget has no onclick attribute; model its one-time registration through the native event API.
-		// eslint-disable-next-line accessor-pairs -- Only the attribute setter is used by the tested code.
-		Object.defineProperty(element, 'onclick', {
-			set(handler) {
-				this.addEventListener('click', handler);
-			},
+	const assignment = '(getElement(/* keep */).onclick) = function (event) { /* handler */ events.push([event.type, this === element]); };';
+	for (const body of [assignment, `do${assignment}while (false);`, `if (false) {} else${assignment}`]) {
+		const code = `${body} element.dispatchEvent(new Event("click"));`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, {
+			plugins: {unicorn: plugin},
+			rules: {'unicorn/prefer-add-event-listener': 'error'},
 		});
-		runInNewContext(source, {
-			Event,
-			element,
-			events,
-			getElement() {
-				events.push('receiver');
-				return element;
-			},
-		});
-		element.dispatchEvent(new Event('click'));
-		t.assert.strictEqual(JSON.stringify(events), '["receiver",["click",true],["click",true]]');
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.ok(output.includes('/* keep */'));
+		t.assert.ok(output.includes('/* handler */'));
+		for (const source of [code, output]) {
+			const events = [];
+			const element = new EventTarget();
+			// Node's EventTarget has no onclick attribute; model its one-time registration through the native event API.
+			// eslint-disable-next-line accessor-pairs -- Only the attribute setter is used by the tested code.
+			Object.defineProperty(element, 'onclick', {
+				set(handler) {
+					this.addEventListener('click', handler);
+				},
+			});
+			runInNewContext(source, {
+				Event,
+				element,
+				events,
+				getElement() {
+					events.push('receiver');
+					return element;
+				},
+			});
+			element.dispatchEvent(new Event('click'));
+			t.assert.strictEqual(JSON.stringify(events), '["receiver",["click",true],["click",true]]');
+		}
 	}
 });
 

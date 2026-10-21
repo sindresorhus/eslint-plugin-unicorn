@@ -1,4 +1,5 @@
 import {isMemberExpression} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getParenthesizedRange,
 	getParenthesizedText,
@@ -103,10 +104,11 @@ const create = context => {
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_WRITE_SUGGESTION,
-					fix(fixer) {
+					* fix(fixer) {
 						const object = getMemberExpressionObjectText(assignmentExpression.left.object, context, assignmentExpression);
 						const value = getParenthesizedText(assignmentExpression.right, context);
-						return fixer.replaceText(assignmentExpression, `${object}.setHTML(${value})`);
+						yield fixer.replaceText(assignmentExpression, `${object}.setHTML(${value})`);
+						yield fixSpaceAroundKeyword(fixer, assignmentExpression, context);
 					},
 				},
 			];

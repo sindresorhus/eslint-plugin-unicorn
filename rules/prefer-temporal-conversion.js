@@ -1,5 +1,6 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {isMemberExpression, isMethodCall} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	isSameReference,
 	needsSemicolon,
@@ -193,7 +194,7 @@ const create = context => {
 			return problem;
 		}
 
-		const fix = fixer => {
+		const fix = function * (fixer) {
 			let text = `${getMemberExpressionObjectText(source, context, node)}.${method}()`;
 			if (isInUnparenthesizedNewExpressionCallee(node, context)) {
 				text = `(${text})`;
@@ -203,7 +204,8 @@ const create = context => {
 				text = `;${text}`;
 			}
 
-			return fixer.replaceText(node, text);
+			yield fixSpaceAroundKeyword(fixer, node, context);
+			yield fixer.replaceText(node, text);
 		};
 
 		if (canAutofix) {

@@ -10,6 +10,14 @@ const {test: ruleTest} = getTester(import.meta);
 ruleTest({
 	valid: [],
 	invalid: [
+		['do(location.href) = getUrl(/* keep */); while (false);', 'do location.assign(getUrl(/* keep */)); while (false);'],
+		['if (ready) {} else(location.href) = getUrl(/* keep */);', 'if (ready) {} else location.assign(getUrl(/* keep */));'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
 		['location.href = getUrl(/* keep */);', 'location.assign(getUrl(/* keep */));'],
 		['window./* keep */location.href = url;', 'window./* keep */location.assign(url);'],
 		['location.href = (/* keep */ url);', 'location.assign((/* keep */ url));'],
@@ -41,7 +49,13 @@ ruleTest({
 
 test('commented location assignments preserve navigation order and evaluate the URL once', t => {
 	const linter = new Linter();
-	for (const code of ['location.href = getUrl(/* keep */);', 'window./* keep */location.href = getUrl();', 'location.href = (/* keep */ getUrl());']) {
+	for (const code of [
+		'location.href = getUrl(/* keep */);',
+		'window./* keep */location.href = getUrl();',
+		'location.href = (/* keep */ getUrl());',
+		'do(location.href) = getUrl(/* keep */); while (false);',
+		'if (false) {} else(location.href) = getUrl(/* keep */);',
+	]) {
 		const {output, fixed, messages} = linter.verifyAndFix(code, {
 			plugins: {unicorn},
 			rules: {'unicorn/prefer-location-assign': 'error'},

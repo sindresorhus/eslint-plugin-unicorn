@@ -13,6 +13,7 @@ import {
 	unwrapChainAndTypeScriptExpression,
 	wouldRemoveComments,
 } from './utils/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 
 // `map[key]` reads a property of the `Map` object, not an entry, and `string[index]` is a character read, so for either one `Object.hasOwn()` is not a replacement for the computed access.
 const isKnownNonObjectReceiver = (node, context) =>
@@ -75,7 +76,10 @@ function getSuggestion(node, object, property, context) {
 	return [
 		{
 			messageId: MESSAGE_ID_SUGGESTION,
-			fix: fixer => fixer.replaceText(node, getObjectHasOwnText(object, property, context)),
+			* fix(fixer) {
+				yield fixSpaceAroundKeyword(fixer, node, context);
+				yield fixer.replaceText(node, getObjectHasOwnText(object, property, context));
+			},
 		},
 	];
 }

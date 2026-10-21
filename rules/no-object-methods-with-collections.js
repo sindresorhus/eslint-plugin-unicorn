@@ -1,3 +1,4 @@
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getBuiltinCollectionType,
 	isGlobalIdentifier,
@@ -59,7 +60,10 @@ const getProblem = (node, context) => {
 			{
 				messageId: MESSAGE_ID_SUGGESTION,
 				data: {replacement},
-				fix: fixer => fixer.replaceText(node, `Array.from(${replacement})`),
+				* fix(fixer) {
+					yield fixer.replaceText(node, `Array.from(${replacement})`);
+					yield fixSpaceAroundKeyword(fixer, node, context);
+				},
 			},
 		];
 	}

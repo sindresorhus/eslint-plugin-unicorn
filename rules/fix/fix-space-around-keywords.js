@@ -1,4 +1,4 @@
-import {getParenthesizedRange} from '../utils/index.js';
+import {getParenthesizedRange, getTokenStore} from '../utils/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
@@ -7,10 +7,15 @@ import {getParenthesizedRange} from '../utils/index.js';
 
 const isProblematicToken = ({type, value}) => (
 	(type === 'Keyword' && /^[a-z]*$/.test(value))
-	// ForOfStatement
-	|| (type === 'Identifier' && value === 'of')
-	// AwaitExpression
-	|| (type === 'Identifier' && value === 'await')
+	|| (type === 'Identifier' && [
+		// ForOfStatement
+		'of',
+		// AwaitExpression
+		'await',
+		// TypeScript contextual operators
+		'as',
+		'satisfies',
+	].includes(value))
 );
 
 /**
@@ -20,8 +25,9 @@ const isProblematicToken = ({type, value}) => (
 */
 export default function * fixSpaceAroundKeyword(fixer, node, context) {
 	const {sourceCode} = context;
+	const tokenStore = getTokenStore(context, node);
 	const range = getParenthesizedRange(node, context);
-	const tokenBefore = sourceCode.getTokenBefore({range}, {includeComments: true});
+	const tokenBefore = tokenStore.getTokenBefore({range}, {includeComments: true});
 
 	if (
 		tokenBefore
@@ -31,7 +37,7 @@ export default function * fixSpaceAroundKeyword(fixer, node, context) {
 		yield fixer.insertTextAfter(tokenBefore, ' ');
 	}
 
-	const tokenAfter = sourceCode.getTokenAfter({range}, {includeComments: true});
+	const tokenAfter = tokenStore.getTokenAfter({range}, {includeComments: true});
 
 	if (
 		tokenAfter

@@ -11,12 +11,78 @@ const {test: ruleTest} = getTester(import.meta);
 
 ruleTest({
 	valid: [],
+	invalid: ['in object', 'instanceof Object'].map(operator => ({
+		code: `new URLSearchParams(new URL(/* keep */ input))${operator};`,
+		errors: [{
+			messageId: 'no-url-in-search-params',
+			suggestions: [
+				{messageId: 'detached-copy', output: `new URLSearchParams(new URL(/* keep */ input).search)${operator};`},
+				{messageId: 'live-search-params', output: `new URL(/* keep */ input).searchParams ${operator};`},
+			],
+		}],
+	})),
+});
+
+ruleTest({
+	valid: [],
 	invalid: [
+		...['in object', 'instanceof URLSearchParams'].flatMap(operator => [
+			{
+				code: `new URLSearchParams(new URL(/* keep */ input).href)${operator};`,
+				errors: [{
+					messageId: 'no-url-in-search-params',
+					suggestions: [
+						{messageId: 'detached-copy', output: `new URLSearchParams(new URL(/* keep */ input).search)${operator};`},
+						{messageId: 'live-search-params', output: `new URL(/* keep */ input).searchParams ${operator};`},
+					],
+				}],
+			},
+			{
+				code: `new URLSearchParams("https://example.com/" /* keep */ + "?query=hello")${operator};`,
+				errors: [{
+					messageId: 'no-url-in-search-params',
+					suggestions: [{messageId: 'parse-url', output: `new URL("https://example.com/" /* keep */ + "?query=hello").searchParams ${operator};`}],
+				}],
+			},
+		]),
 		...[
 			['new URLSearchParams("https://example.com/" /* keep */ + "?x=1")', 'new URL("https://example.com/" /* keep */ + "?x=1").searchParams'],
 			['new URLSearchParams((/* keep */ "https://example.com/"))', 'new URL((/* keep */ "https://example.com/")).searchParams'],
 		].map(([code, output]) => ({code, errors: [{messageId: 'no-url-in-search-params', suggestions: [{messageId: 'parse-url', output}]}]})),
 	],
+});
+
+test('URL parameter suggestions preserve trailing operator keywords', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-url-in-search-params': 'error'}};
+	for (const [argument, expectedCalls] of [
+		['new URL(getInput(/* keep */))', 1],
+		['new URL(getInput(/* keep */)).href', 1],
+		['"https://example.com/" /* keep */ + "?query=hello"', 0],
+	]) {
+		for (const operator of ['in object', 'instanceof URLSearchParams']) {
+			const code = `new URLSearchParams(${argument})${operator};`;
+			const {fixed, output, messages} = linter.verifyAndFix(code, config);
+			t.assert.strictEqual(fixed, false);
+			t.assert.strictEqual(output, code);
+			t.assert.strictEqual(messages.length, 1);
+			for (const {fix} of messages[0].suggestions) {
+				let calls = 0;
+				const corrected = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+				const result = runInNewContext(corrected, {
+					URL,
+					URLSearchParams,
+					object: {'query=hello': true},
+					getInput() {
+						calls++;
+						return 'https://example.com/?query=hello';
+					},
+				});
+				t.assert.strictEqual(result, true);
+				t.assert.strictEqual(calls, expectedCalls);
+			}
+		}
+	}
 });
 
 const typeAware = code => ({

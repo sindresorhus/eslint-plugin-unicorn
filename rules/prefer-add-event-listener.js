@@ -10,6 +10,7 @@ import {
 } from './utils/index.js';
 import eventTypes from './shared/dom-events.js';
 import {isUndefinedValue, isNullLiteral, isStaticRequire} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 
 const MESSAGE_ID = 'prefer-add-event-listener';
 const messages = {
@@ -159,7 +160,10 @@ const create = context => {
 			&& !wouldRemoveComments(context, node, [getParenthesizedRange(memberExpression.object, context), assignedExpression])
 			&& !isAssignedMoreThanOnce(node, memberExpression, context)
 		) {
-			fix = fixer => fixCode(fixer, context, node, memberExpression);
+			fix = function * (fixer) {
+				yield fixCode(fixer, context, node, memberExpression);
+				yield fixSpaceAroundKeyword(fixer, node, context);
+			};
 		}
 
 		return {

@@ -4,6 +4,7 @@ import {
 	isNegativeOne,
 	isNumericLiteral,
 } from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getFunctionReturnExpression,
 	hasOptionalChainElement,
@@ -135,7 +136,10 @@ const createProblem = (node, sortedSource, endpoint, context) => {
 			{
 				messageId: MESSAGE_ID_SUGGESTION,
 				data: {replacement},
-				fix: fixer => fixer.replaceText(node, fixedText),
+				* fix(fixer) {
+					yield fixer.replaceText(node, fixedText);
+					yield fixSpaceAroundKeyword(fixer, node, context);
+				},
 			},
 		];
 	}

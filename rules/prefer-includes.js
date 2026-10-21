@@ -15,6 +15,7 @@ import {
 } from './utils/index.js';
 import simpleArraySearchRule from './shared/simple-array-search-rule.js';
 import {isLiteral, isNegativeOne} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 
 const MESSAGE_ID = 'prefer-includes';
 const messages = {
@@ -60,7 +61,10 @@ const getProblem = (context, node, target, argumentsNodes) => {
 		// The comparison is rebuilt from the receiver and retained arguments, so comments elsewhere would be dropped
 		fix: wouldRemoveComments(context, node, [target, ...argumentsNodes].map(node => getParenthesizedRange(node, context)))
 			? undefined
-			: fixer => fixer.replaceText(node, replacement),
+			: function * (fixer) {
+				yield fixer.replaceText(node, replacement);
+				yield fixSpaceAroundKeyword(fixer, node, context);
+			},
 	};
 };
 

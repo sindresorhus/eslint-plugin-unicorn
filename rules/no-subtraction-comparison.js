@@ -1,4 +1,5 @@
 import {isLiteral} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getParenthesizedRange,
 	getParenthesizedText,
@@ -82,7 +83,10 @@ const create = context => {
 		/**
 		@param {import('eslint').Rule.RuleFixer} fixer
 		*/
-		const fix = fixer => fixer.replaceText(node, needsSemicolon(sourceCode.getTokenBefore(node), context, replacement) ? `;${replacement}` : replacement);
+		const fix = function * (fixer) {
+			yield fixSpaceAroundKeyword(fixer, node, context);
+			yield fixer.replaceText(node, needsSemicolon(sourceCode.getTokenBefore(node), context, replacement) ? `;${replacement}` : replacement);
+		};
 
 		const canAutofix = strictOrderingOperators.has(operator)
 			? isNumber(left, context) && isNumber(right, context)

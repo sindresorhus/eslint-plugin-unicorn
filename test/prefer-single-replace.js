@@ -8,6 +8,14 @@ const {test, rule} = getTester(import.meta);
 test({
 	valid: [],
 	invalid: [
+		['function f() {return(text.replaceAll("a", "x")).replaceAll("b", (/* keep */ "x"));}', 'function f() {return text.replaceAll(/[ab]/g, (/* keep */ "x"));}'],
+		['function f() {throw(text.replaceAll("a", "x")).replaceAll("b", (/* keep */ "x"));}', 'function f() {throw text.replaceAll(/[ab]/g, (/* keep */ "x"));}'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [],
+	invalid: [
 		['getText(/* keep */).replaceAll("a", "x").replaceAll("b", "x");', 'getText(/* keep */).replaceAll(/[ab]/g, "x");'],
 		['text.replaceAll("a", "x").replaceAll("b", (/* keep */ "x"));', 'text.replaceAll(/[ab]/g, (/* keep */ "x"));'],
 		['(/* keep */ text).replaceAll("a", "x").replaceAll("b", "x");', '(/* keep */ text).replaceAll(/[ab]/g, "x");'],
@@ -212,4 +220,54 @@ nodeTest('commented replacement chains preserve results and evaluate the receive
 			t.assert.strictEqual(output.split(marker).length, code.split(marker).length);
 		}
 	}
+});
+
+nodeTest('replacement chains preserve compact keyword boundaries and evaluate the receiver once', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-single-replace': rule}}},
+		rules: {'unicorn/prefer-single-replace': 'error'},
+	};
+	const expression = '(getText(/* keep */).replaceAll("a", "x")).replaceAll("b", "x")';
+	for (const [body, expected] of [
+		[`return${expression};`, 'xxxx'],
+		[`try {throw${expression};} catch (value) {return value;}`, 'xxxx'],
+		[`return typeof${expression};`, 'string'],
+		[`return void${expression};`, undefined],
+		[`function* values() {yield${expression};} return values().next().value;`, 'xxxx'],
+		[`switch ("xxxx") {case${expression}: return true; default: return false;}`, true],
+		[`for (const value of${expression} ? [true] : [false]) {return value;}`, true],
+		[`for (const key in${expression} ? {matched: true} : {}) {return key;}`, 'matched'],
+	]) {
+		const code = `function read() {${body}} read();`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(output.split('/* keep */').length, 2);
+		for (const source of [code, output]) {
+			let evaluations = 0;
+			const result = runInNewContext(source, {
+				getText() {
+					evaluations++;
+					return 'abba';
+				},
+			});
+			t.assert.strictEqual(result, expected);
+			t.assert.strictEqual(evaluations, 1);
+		}
+	}
+});
+
+nodeTest('replacement chains preserve compact await boundaries', async t => {
+	const code = 'async function read() {return await(getText(/* keep */).replaceAll("a", "x")).replaceAll("b", "x");} read();';
+	const linter = new Linter();
+	const {output, fixed, messages} = linter.verifyAndFix(code, {
+		plugins: {unicorn: {rules: {'prefer-single-replace': rule}}},
+		rules: {'unicorn/prefer-single-replace': 'error'},
+	});
+	t.assert.strictEqual(fixed, true);
+	t.assert.deepStrictEqual(messages, []);
+	await Promise.all([code, output].map(async source => {
+		t.assert.strictEqual(await runInNewContext(source, {getText: () => 'abba'}), 'xxxx');
+	}));
 });

@@ -18,7 +18,7 @@ import {
 	nullish,
 	target,
 } from './utils/type-helpers.js';
-import {removeArgument, removeMethodCall} from './fix/index.js';
+import {fixSpaceAroundKeyword, removeArgument, removeMethodCall} from './fix/index.js';
 import {bufferTypeCheckerOptions, isBufferReference} from './shared/buffer-reference.js';
 
 const MESSAGE_ID_OPTIONS = 'prefer-uint8array-base64/options';
@@ -330,6 +330,7 @@ const create = context => {
 								abort();
 							}
 
+							yield fixSpaceAroundKeyword(fixer, node.callee, context);
 							yield fixer.replaceText(node.callee, 'Uint8Array.fromBase64');
 
 							yield bufferFromEncoding === 'base64url'

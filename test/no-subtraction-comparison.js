@@ -8,6 +8,26 @@ const {test, rule} = getTester(import.meta);
 test({
 	valid: [],
 	invalid: [
+		['function f() {return(0) < Number(read(/* keep */)) - Number(other);}', 'function f() {return Number(read(/* keep */)) > Number(other);}'],
+		['function f() {throw(0) < Number(read(/* keep */)) - Number(other);}', 'function f() {throw Number(read(/* keep */)) > Number(other);}'],
+		['function* f() {yield(0) < Number(read(/* keep */)) - Number(other);}', 'function* f() {yield Number(read(/* keep */)) > Number(other);}'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: 'function f() {return(0) < read(/* keep */) - other;}',
+		errors: [{
+			messageId: 'no-subtraction-comparison/error',
+			suggestions: [{messageId: 'no-subtraction-comparison/suggestion', output: 'function f() {return read(/* keep */) > other;}'}],
+		}],
+	}],
+});
+
+test({
+	valid: [],
+	invalid: [
 		...[
 			['((1 /* keep */ + 2) - 4) > 0;', '(1 /* keep */ + 2) > 4;'],
 			['(5 - (1 /* keep */ + 2)) === 0;', '5 === (1 /* keep */ + 2);'],
@@ -51,6 +71,29 @@ const linterConfig = {
 	plugins: {unicorn: {rules: {'no-subtraction-comparison': rule}}},
 	rules: {'unicorn/no-subtraction-comparison': 'error'},
 };
+
+nodeTest('subtraction comparison edits preserve compact return behavior', t => {
+	for (const [expression, canFix] of [
+		['Number(read(/* keep */)) - Number(other)', true],
+		['read(/* keep */) - other', false],
+	]) {
+		const code = `function compare() {return(0) < ${expression};} compare();`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
+		t.assert.strictEqual(fixed, canFix);
+		t.assert.strictEqual(messages.length, canFix ? 0 : 1);
+		let corrected = output;
+		if (!canFix) {
+			t.assert.strictEqual(output, code);
+			t.assert.strictEqual(messages[0].suggestions.length, 1);
+			const {fix} = messages[0].suggestions[0];
+			corrected = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		}
+
+		for (const source of [code, corrected]) {
+			t.assert.strictEqual(runInNewContext(source, {read: () => 5, other: 3}), true);
+		}
+	}
+});
 
 nodeTest('numeric comparisons preserve comments, results, and operand evaluation order', t => {
 	for (const expression of [

@@ -9,6 +9,27 @@ const {test, rule} = getTester(import.meta);
 
 test({
 	valid: [],
+	invalid: ['as', 'satisfies'].map(operator => ({
+		code: `new URL(input /* keep */).toString()${operator} string;`,
+		output: `new URL(input /* keep */).href ${operator} string;`,
+		languageOptions: {parser: parsers.typescript},
+		errors: 1,
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		['new URL(input /* keep */).toString()in object;', 'new URL(input /* keep */).href in object;'],
+		['new URL(input /* keep */).toString()instanceof String;', 'new URL(input /* keep */).href instanceof String;'],
+		['function f() {return(String)(new URL(input /* keep */));}', 'function f() {return new URL(input /* keep */).href;}'],
+		['function f() {throw(String)(new URL(input /* keep */));}', 'function f() {throw new URL(input /* keep */).href;}'],
+		['typeof(String)(new URL(input /* keep */));', 'typeof new URL(input /* keep */).href;'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [],
 	invalid: [
 		['new URL(getInput(/* keep */)).toString();', 'new URL(getInput(/* keep */)).href;'],
 		['new URL(input)./* keep */toString();', 'new URL(input)./* keep */href;'],
@@ -53,8 +74,12 @@ test({
 
 nodeTest('commented URL stringification preserves the value and evaluates its input once', t => {
 	const linter = new Linter();
-	for (const expression of ['new URL(getInput(/* keep */)).toString()', 'String((/* keep */ new URL(getInput())))']) {
-		const code = `let calls = 0; function getInput() { calls++; return 'https://example.com/?a=1#fragment'; } const value = ${expression}; JSON.stringify({calls, value});`;
+	for (const body of [
+		'return new URL(getInput(/* keep */)).toString();',
+		'return String((/* keep */ new URL(getInput())));',
+		'return(String)(new URL(getInput(/* keep */)));',
+	]) {
+		const code = `let calls = 0; function getInput() { calls++; return 'https://example.com/?a=1#fragment'; } function read() {${body}} const value = read(); JSON.stringify({calls, value});`;
 		const {output, fixed, messages} = linter.verifyAndFix(code, {
 			plugins: {unicorn: {rules: {'prefer-url-href': rule}}},
 			rules: {'unicorn/prefer-url-href': 'error'},
@@ -65,6 +90,20 @@ nodeTest('commented URL stringification preserves the value and evaluates its in
 		const originalResult = runInNewContext(code, {URL});
 		t.assert.strictEqual(originalResult, '{"calls":1,"value":"https://example.com/?a=1#fragment"}');
 		t.assert.strictEqual(runInNewContext(output, {URL}), originalResult);
+	}
+});
+
+nodeTest('URL href fixes preserve an adjacent in operator', t => {
+	const linter = new Linter();
+	const code = 'new URL(input /* keep */).toString()in object;';
+	const {output, fixed, messages} = linter.verifyAndFix(code, {
+		plugins: {unicorn: {rules: {'prefer-url-href': rule}}},
+		rules: {'unicorn/prefer-url-href': 'error'},
+	});
+	t.assert.strictEqual(fixed, true);
+	t.assert.deepStrictEqual(messages, []);
+	for (const source of [code, output]) {
+		t.assert.strictEqual(runInNewContext(source, {URL, input: 'https://example.com', object: {'https://example.com/': true}}), true);
 	}
 });
 

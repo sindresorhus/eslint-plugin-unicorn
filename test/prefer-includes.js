@@ -11,6 +11,29 @@ const {test, rule} = getTester(import.meta);
 
 const linter = new Linter();
 
+test.vue({
+	valid: [],
+	invalid: [
+		['<template><button @click="return(array.indexOf(read(/* keep */))) !== -1"></button></template>', '<template><button @click="return array.includes(read(/* keep */))"></button></template>'],
+		['<template><button @click="throw(array.indexOf(read(/* keep */))) !== -1"></button></template>', '<template><button @click="throw array.includes(read(/* keep */))"></button></template>'],
+		[
+			'<script>function f() {return(array.indexOf(read(/* script */))) !== -1;}</script><template><button @click="return(array.indexOf(read(/* template */))) !== -1"></button></template>',
+			'<script>function f() {return array.includes(read(/* script */));}</script><template><button @click="return array.includes(read(/* template */))"></button></template>',
+			2,
+		],
+	].map(([code, output, errors = 1]) => ({code, output, errors})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		['function f() {return(array.indexOf(read(/* keep */))) !== -1;}', 'function f() {return array.includes(read(/* keep */));}'],
+		['function f() {throw(array.indexOf(read(/* keep */))) !== -1;}', 'function f() {throw array.includes(read(/* keep */));}'],
+		['if (flag) {}else(array.indexOf(read(/* keep */))) !== -1;', 'if (flag) {}else array.includes(read(/* keep */));'],
+		['do(array.indexOf(read(/* keep */))) !== -1;while (flag);', 'do array.includes(read(/* keep */));while (flag);'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
 test({
 	valid: [],
 	invalid: [
@@ -135,7 +158,8 @@ nodeTest('sequence search arguments preserve comparison results and evaluation o
 					const code = outdent`
 						const calls = [];
 						function getReceiver() { calls.push("receiver"); return ${receiver}; }
-						const result = getReceiver(/* receiver */).${method}((calls.push("first"), calls.push(/* search */ "second"), "${needle}")) ${comparison};
+						function search() {return(getReceiver(/* receiver */).${method}((calls.push("first"), calls.push(/* search */ "second"), "${needle}"))) ${comparison};}
+						const result = search();
 						JSON.stringify({calls, result});
 					`;
 					const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);

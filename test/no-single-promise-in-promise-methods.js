@@ -10,6 +10,37 @@ const {test, rule} = getTester(import.meta);
 test({
 	valid: [],
 	invalid: [
+		['async function f() {return await(Promise).race([read(/* keep */)]);}', 'async function f() {return await read(/* keep */);}'],
+		['async function f() {await(Promise).all([read(/* keep */)]);}', 'async function f() {await read(/* keep */);}'],
+		['const[value] = await(Promise).all([read(/* keep */)]);', 'const value = await read(/* keep */);'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		['function f() {return(Promise).race([object[/* keep */ key]]);}', 'function f() {return object[/* keep */ key];}', 'function f() {return(Promise).resolve(object[/* keep */ key]);}'],
+		['typeof(Promise).race([object[/* keep */ key]]);', 'typeof object[/* keep */ key];', 'typeof(Promise).resolve(object[/* keep */ key]);'],
+		[
+			'async function f() {return await(Promise).any([read(/* keep */)]);}',
+			'async function f() {return await read(/* keep */);}',
+			'async function f() {return await(Promise).resolve(read(/* keep */));}',
+		],
+	].map(([code, unwrapped, resolved]) => ({
+		code,
+		errors: [{
+			messageId: 'no-single-promise-in-promise-methods/error',
+			suggestions: [
+				{messageId: 'no-single-promise-in-promise-methods/unwrap', output: unwrapped},
+				{messageId: 'no-single-promise-in-promise-methods/use-promise-resolve', output: resolved},
+			],
+		}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
 		...['const', 'let', 'var'].map(keyword => ({
 			code: `${keyword}[value] = await Promise.all([promise]);`,
 			output: `${keyword} value = await promise;`,
@@ -341,6 +372,8 @@ nodeTest('commented promise autofixes preserve results and evaluate the input on
 		'const value = await Promise.race([read(/* keep */)]);',
 		'const[value] = await Promise.all([read(/* keep */)]);',
 		'const value = (await Promise.all([read(/* keep */)]))[0];',
+		'const value = await(Promise).race([read(/* keep */)]);',
+		'const[value] = await(Promise).all([read(/* keep */)]);',
 	].map(async operation => {
 		const code = outdent`
 			(async () => {
@@ -361,6 +394,25 @@ nodeTest('commented promise autofixes preserve results and evaluate the input on
 		t.assert.strictEqual(originalResult, '{"value":42,"calls":1,"leaked":false}');
 		t.assert.strictEqual(await runInNewContext(output), originalResult);
 	}));
+});
+
+nodeTest('promise unwrapping suggestions preserve compact return behavior', async t => {
+	const linter = new Linter();
+	const code = 'function read() {return(Promise).race([object[/* keep */ key]]);} read();';
+	const {fixed, output, messages} = linter.verifyAndFix(code, {
+		plugins: {unicorn: {rules: {'no-single-promise-in-promise-methods': rule}}},
+		rules: {'unicorn/no-single-promise-in-promise-methods': 'error'},
+	});
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(output, code);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].suggestions.length, 2);
+	const {fix} = messages[0].suggestions[0];
+	const suggested = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	for (const source of [code, suggested]) {
+		// eslint-disable-next-line no-await-in-loop -- Verify the original and suggested code independently.
+		t.assert.strictEqual(await runInNewContext(source, {key: 'value', object: {value: Promise.resolve(42)}}), 42);
+	}
 });
 
 nodeTest('commented Promise.any unwrapping stays manual because rejection shape changes', async t => {

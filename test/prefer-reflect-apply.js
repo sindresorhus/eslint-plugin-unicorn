@@ -9,6 +9,20 @@ const {test, rule} = getTester(import.meta);
 test({
 	valid: [],
 	invalid: [
+		['function f() {return(factory(/* keep */)).apply(null, []);}', 'function f() {return Reflect.apply(factory(/* keep */), null, []);}'],
+		['function f() {throw(factory(/* keep */)).apply(null, []);}', 'function f() {throw Reflect.apply(factory(/* keep */), null, []);}'],
+		['typeof(factory(/* keep */)).apply(null, []);', 'typeof Reflect.apply(factory(/* keep */), null, []);'],
+		['void(factory(/* keep */)).apply(null, []);', 'void Reflect.apply(factory(/* keep */), null, []);'],
+		['function* f() {yield(factory(/* keep */)).apply(null, []);}', 'function* f() {yield Reflect.apply(factory(/* keep */), null, []);}'],
+		['async function f() {await(factory(/* keep */)).apply(null, []);}', 'async function f() {await Reflect.apply(factory(/* keep */), null, []);}'],
+		['for (const value of(factory(/* keep */)).apply(null, [])) {}', 'for (const value of Reflect.apply(factory(/* keep */), null, [])) {}'],
+		['function f() {return(Function.prototype.apply).call(fn, null, [/* keep */]);}', 'function f() {return Reflect.apply(fn, null, [/* keep */]);}'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [],
+	invalid: [
 		['factory(/* keep */).apply(null, [value]);', 'Reflect.apply(factory(/* keep */), null, [value]);'],
 		['fn.apply(null, [/* keep */ value]);', 'Reflect.apply(fn, null, [/* keep */ value]);'],
 		['Function.prototype.apply.call(object[/* keep */ key], this, []);', 'Reflect.apply(object[/* keep */ key], this, []);'],
@@ -23,6 +37,26 @@ const linterConfig = {
 	plugins: {unicorn: {rules: {'prefer-reflect-apply': rule}}},
 	rules: {'unicorn/prefer-reflect-apply': 'error'},
 };
+
+nodeTest('reflect apply fixes keep compact return and throw statements intact', t => {
+	for (const statement of ['return', 'throw']) {
+		const code = outdent`
+			let calls = 0;
+			function factory() {calls++; return () => 3;}
+			function read() {${statement}(factory(/* keep */)).apply(null, []);}
+			let result;
+			try { result = read(); } catch (error) { result = error; }
+			JSON.stringify({result, calls});
+		`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.ok(output.includes(`${statement} Reflect.apply(factory(/* keep */), null, [])`));
+		for (const source of [code, output]) {
+			t.assert.strictEqual(runInNewContext(source), '{"result":3,"calls":1}');
+		}
+	}
+});
 
 nodeTest('optional target chains preserve missing targets and argument evaluation', t => {
 	for (const [initialization, missing] of [

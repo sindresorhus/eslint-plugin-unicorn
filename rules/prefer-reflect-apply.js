@@ -1,5 +1,6 @@
 import {getPropertyName} from '@eslint-community/eslint-utils';
 import {getStaticStringValue, isNullLiteral, isMethodCall} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getParenthesizedRange,
 	getParenthesizedText,
@@ -112,7 +113,12 @@ const create = context => {
 				node,
 				messageId: MESSAGE_ID,
 				// The call is rebuilt from retained inputs, so comments elsewhere would be dropped
-				fix: wouldRemoveComments(context, node, preservedRanges) ? undefined : fix,
+				fix: wouldRemoveComments(context, node, preservedRanges)
+					? undefined
+					: function * (fixer) {
+						yield fix(fixer);
+						yield fixSpaceAroundKeyword(fixer, node, context);
+					},
 			};
 		}
 	});

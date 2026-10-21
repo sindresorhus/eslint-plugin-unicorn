@@ -1,5 +1,6 @@
 import regjsparser from 'regjsparser';
 import {isMethodCall, isStringLiteral, isRegexLiteral} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getMemberExpressionObjectText,
 	getParenthesizedRange,
@@ -200,7 +201,10 @@ const create = context => {
 			const base = getMemberExpressionObjectText(baseReceiver, context, node);
 			const replacementText = getParenthesizedText(replacement, context);
 
-			problem.fix = fixer => fixer.replaceText(node, `${base}.replaceAll(/[${characterClass}]/g, ${replacementText})`);
+			problem.fix = function * (fixer) {
+				yield fixer.replaceText(node, `${base}.replaceAll(/[${characterClass}]/g, ${replacementText})`);
+				yield fixSpaceAroundKeyword(fixer, node, context);
+			};
 		}
 
 		return problem;

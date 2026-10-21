@@ -11,6 +11,18 @@ const {test, rule} = getTester(import.meta);
 test({
 	valid: [],
 	invalid: [
+		['function f() {return(Buffer).from(getText(/* keep */), "base64");}', 'function f() {return Uint8Array.fromBase64(getText(/* keep */));}'],
+		['function f() {throw(Buffer).from(getText(/* keep */), "base64");}', 'function f() {throw Uint8Array.fromBase64(getText(/* keep */));}'],
+		['typeof(Buffer).from(getText(/* keep */), "base64url");', 'typeof Uint8Array.fromBase64(getText(/* keep */), {alphabet: \'base64url\'});'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{messageId: 'prefer-uint8array-base64/error', suggestions: [{messageId: 'prefer-uint8array-base64/suggestion', output}]}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
 		{
 			code: 'getBytes(/* keep */).toBase64().replaceAll(\'=\', \'\');',
 			output: 'getBytes(/* keep */).toBase64({omitPadding: true});',
@@ -90,7 +102,7 @@ nodeTest('commented base64 option fixes preserve encoding and evaluate the recei
 nodeTest('commented base64 inputs decode once and result type changes remain suggestions', {skip: typeof Uint8Array.fromBase64 !== 'function'}, t => {
 	const linter = new Linter();
 	for (const [encoding, text, expected] of [['base64', 'Zm9v', [102, 111, 111]], ['base64url', '-_8', [251, 255]]]) {
-		const code = `Buffer.from(getText(/* keep */), '${encoding}')`;
+		const code = `function decode() {return(Buffer).from(getText(/* keep */), '${encoding}');} decode();`;
 		const {output, fixed, messages} = linter.verifyAndFix(code, {
 			plugins: {unicorn: {rules: {'prefer-uint8array-base64': rule}}},
 			rules: {'unicorn/prefer-uint8array-base64': 'error'},

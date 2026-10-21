@@ -1,4 +1,5 @@
 import {isCallExpression, isMethodCall} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	isGlobalIdentifier,
 	isUrl,
@@ -50,7 +51,10 @@ const create = context => {
 				&& !isParenthesized(callExpression.callee, context)
 				&& isFreshUrl(callExpression.callee.object, context)
 			) {
-				problem.fix = fixer => fixer.replaceTextRange(range, 'href');
+				problem.fix = function * (fixer) {
+					yield fixer.replaceTextRange(range, 'href');
+					yield fixSpaceAroundKeyword(fixer, callExpression, context);
+				};
 			}
 
 			return problem;
@@ -81,7 +85,10 @@ const create = context => {
 			!wouldRemoveComments(context, callExpression, [getParenthesizedRange(argument, context)])
 			&& isFreshUrl(argument, context)
 		) {
-			problem.fix = fixer => fixer.replaceText(callExpression, getHrefText(argument, context));
+			problem.fix = function * (fixer) {
+				yield fixSpaceAroundKeyword(fixer, callExpression, context);
+				yield fixer.replaceText(callExpression, getHrefText(argument, context));
+			};
 		}
 
 		return problem;

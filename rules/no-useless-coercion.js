@@ -10,7 +10,7 @@ import {
 	getParenthesizedRange,
 	wouldRemoveComments,
 } from './utils/index.js';
-import {replaceNodeWithExpression} from './fix/index.js';
+import {fixSpaceAroundKeyword, replaceNodeWithExpression} from './fix/index.js';
 
 /**
 @import {TSESTree as ESTree} from '@typescript-eslint/types';
@@ -51,7 +51,13 @@ const create = context => {
 				return abort();
 			}
 
-			yield replaceNodeWithExpression(fixer, node, expression, context);
+			const replacement = replaceNodeWithExpression(fixer, node, expression, context);
+			if (!replacement) {
+				return abort();
+			}
+
+			yield replacement;
+			yield fixSpaceAroundKeyword(fixer, node, context);
 		},
 	});
 

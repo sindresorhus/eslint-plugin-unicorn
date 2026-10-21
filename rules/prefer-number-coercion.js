@@ -1,5 +1,6 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getCallArgumentText,
 	getParenthesizedRange,
@@ -66,7 +67,10 @@ function getParseFloatProblem(callExpression, method, context) {
 		{
 			messageId: MESSAGE_ID_SUGGESTION_NUMBER,
 			data: {method},
-			fix: fixer => fixer.replaceText(callExpression.callee, 'Number'),
+			* fix(fixer) {
+				yield fixer.replaceText(callExpression.callee, 'Number');
+				yield fixSpaceAroundKeyword(fixer, callExpression.callee, context);
+			},
 		},
 	];
 
@@ -99,7 +103,10 @@ function getParseIntProblem(callExpression, method, context) {
 		{
 			messageId: MESSAGE_ID_SUGGESTION_TRUNC,
 			data: {method},
-			fix: fixer => fixer.replaceText(callExpression, `Math.trunc(Number(${getCallArgumentText(firstArgument, context)}))`),
+			* fix(fixer) {
+				yield fixer.replaceText(callExpression, `Math.trunc(Number(${getCallArgumentText(firstArgument, context)}))`);
+				yield fixSpaceAroundKeyword(fixer, callExpression, context);
+			},
 		},
 	];
 

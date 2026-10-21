@@ -9,6 +9,19 @@ const {test, rule} = getTester(import.meta);
 test({
 	valid: [],
 	invalid: [
+		['function f() {return(array.toSpliced)(0, 1, read(/* keep */));}', 'function f() {return array.with(0, read(/* keep */));}'],
+		['function f() {throw(array.toSpliced)(0, 1, read(/* keep */));}', 'function f() {throw array.with(0, read(/* keep */));}'],
+		['if (flag) {}else(array.splice)(0, 1, read(/* keep */));', 'if (flag) {}else array[0] = read(/* keep */);'],
+		['do(array.splice)(0, 1, read(/* keep */));while (flag);', 'do array[0] = read(/* keep */);while (flag);'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{messageId: 'replace-one-element', suggestions: [{messageId: 'suggestion-replace-one-element', output}]}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
 		['array.splice((/* keep */ index), 1, element);', 'array[(/* keep */ index)] = element;'],
 		['array.toSpliced(index, 1, read(/* keep */));', 'array.with(index, read(/* keep */));'],
 	].map(([code, output]) => ({code, errors: [{messageId: 'replace-one-element', suggestions: [{messageId: 'suggestion-replace-one-element', output}]}]})),
@@ -45,13 +58,16 @@ nodeTest('comment-preserving element replacement suggestions retain evaluation o
 		rules: {'unicorn/no-confusing-array-splice': 'error'},
 	};
 	for (const method of ['splice', 'toSpliced']) {
-		const expression = `array.${method}(readIndex(/* index */), 1, readElement(/* element */));`;
+		const expression = `(array.${method})(readIndex(/* index */), 1, readElement(/* element */));`;
+		const statement = method === 'toSpliced'
+			? `const result = (() => {return${expression}})();`
+			: `do${expression}while (false);`;
 		const code = outdent`
 			const array = [1, 2, 3];
 			const events = [];
 			const readIndex = () => {events.push("index"); return 1;};
 			const readElement = () => {events.push("element"); return 9;};
-			${method === 'toSpliced' ? 'const result = ' : ''}${expression}
+			${statement}
 			JSON.stringify({array, ${method === 'toSpliced' ? 'result,' : ''} events});
 		`;
 		const {output, fixed, messages} = linter.verifyAndFix(code, config);

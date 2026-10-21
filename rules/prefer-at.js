@@ -25,7 +25,7 @@ import {
 	removeLengthNode,
 } from './shared/negative-index.js';
 import {getSubstringSingleCharacterIndex} from './shared/substring.js';
-import {removeMemberExpressionProperty, removeMethodCall} from './fix/index.js';
+import {fixSpaceAroundKeyword, removeMemberExpressionProperty, removeMethodCall} from './fix/index.js';
 import {
 	isLiteral,
 	isStringLiteral,
@@ -455,7 +455,7 @@ function create(context) {
 
 		return {
 			...problem,
-			fix(fixer) {
+			* fix(fixer) {
 				let fixed = `${getMemberExpressionObjectText(array, context, node)}.at(-1)`;
 
 				const tokenBefore = sourceCode.getTokenBefore(node);
@@ -463,7 +463,8 @@ function create(context) {
 					fixed = `;${fixed}`;
 				}
 
-				return fixer.replaceText(node, fixed);
+				yield fixer.replaceText(node, fixed);
+				yield fixSpaceAroundKeyword(fixer, node, context);
 			},
 		};
 	});

@@ -8,6 +8,16 @@ import {getTester, parsers} from './utils/test.js';
 const {test, rule} = getTester(import.meta);
 
 test({
+	valid: [],
+	invalid: [
+		['function f() {return(_).last(getItems(/* keep */));}', 'function f() {return getItems(/* keep */).at(-1);}'],
+		['function f() {throw(_).last(getItems(/* keep */));}', 'function f() {throw getItems(/* keep */).at(-1);}'],
+		['if (flag) {}else(_.last)(getItems(/* keep */));', 'if (flag) {}else getItems(/* keep */).at(-1);'],
+		['do(_).last(getItems(/* keep */));while (flag);', 'do getItems(/* keep */).at(-1);while (flag);'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
 	valid: [
 		'_.last(document.querySelectorAll(/* keep */ "li"));',
 		'function f() { return _.last((/* keep */ arguments)); }',
@@ -45,11 +55,11 @@ nodeTest('comment-preserving last-element calls evaluate their argument once', t
 		plugins: {unicorn: {rules: {'prefer-at': rule}}},
 		rules: {'unicorn/prefer-at': 'error'},
 	};
-	const code = '_.last(getItems(/* keep */));';
+	const code = 'function read() {return(_).last(getItems(/* keep */));} read();';
 	const {output, fixed, messages} = linter.verifyAndFix(code, config);
 	t.assert.strictEqual(fixed, true);
 	t.assert.deepStrictEqual(messages, []);
-	t.assert.strictEqual(output, 'getItems(/* keep */).at(-1);');
+	t.assert.strictEqual(output, 'function read() {return getItems(/* keep */).at(-1);} read();');
 	for (const items of [[], [1], [1, 2, 3]]) {
 		for (const source of [code, output]) {
 			let calls = 0;

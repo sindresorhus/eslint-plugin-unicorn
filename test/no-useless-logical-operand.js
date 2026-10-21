@@ -9,6 +9,51 @@ const {test, rule} = getTester(import.meta);
 test({
 	valid: [],
 	invalid: [
+		['function f() {return(true) && read(/* keep */);}', 'function f() {return read(/* keep */);}'],
+		['function f() {return(true) && read(/* keep */) && other;}', 'function f() {return read(/* keep */) && other;}'],
+		['function f() {throw(false) || read(/* keep */);}', 'function f() {throw read(/* keep */);}'],
+		['function* f() {yield(true) && read(/* keep */);}', 'function* f() {yield read(/* keep */);}'],
+		['for (const value of(false) || read(/* keep */)) {}', 'for (const value of read(/* keep */)) {}'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+nodeTest('logical operand fixes preserve compact return and throw statements', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'no-useless-logical-operand': rule}}},
+		rules: {'unicorn/no-useless-logical-operand': 'error'},
+	};
+	for (const [statement, tail] of [['return', ''], ['return', ' && other'], ['throw', ''], ['throw', ' && other']]) {
+		const code = outdent`
+			function run() {${statement}(true) && read(/* keep */)${tail};}
+			let result;
+			try { result = run(); } catch (error) { result = error; }
+			result;
+		`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.ok(output.includes(`${statement} read(/* keep */)${tail}`));
+		for (const value of [0, 3]) {
+			for (const source of [code, output]) {
+				let calls = 0;
+				const result = runInNewContext(source, {
+					other: 7,
+					read() {
+						calls++;
+						return value;
+					},
+				});
+				t.assert.strictEqual(result, value && tail ? 7 : value);
+				t.assert.strictEqual(calls, 1);
+			}
+		}
+	}
+});
+
+test({
+	valid: [],
+	invalid: [
 		['const value = true && (/* keep */ input);', 'const value = (/* keep */ input);'],
 		['const value = input(/* keep */) && true && other;', 'const value = input(/* keep */) && other;'],
 		['const value = false || object[/* keep */ key];', 'const value = object[/* keep */ key];'],

@@ -9,6 +9,18 @@ const {test, rule} = getTester(import.meta);
 test({
 	valid: [],
 	invalid: [
+		['do(elements[/* keep */ 0].innerHTML) = markup; while (false);', 'do elements[/* keep */ 0].setHTML(markup); while (false);'],
+		['if (ready) {} else(elements[/* keep */ 0].innerHTML) = markup;', 'if (ready) {} else elements[/* keep */ 0].setHTML(markup);'],
+	].map(([code, output]) => ({
+		code,
+		options: [{checkSetHTML: true}],
+		errors: [{messageId: 'prefer-dom-node-html-methods/write', suggestions: [{messageId: 'prefer-dom-node-html-methods/write-suggestion', output}]}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
 		...[
 			['getElement(/* keep */).innerHTML;', 'getElement(/* keep */).getHTML();'],
 			['element./* keep */innerHTML;', 'element./* keep */getHTML();'],
@@ -283,4 +295,46 @@ nodeTest('setHTML suggestions retain the receiver when assignment parentheses ar
 	t.assert.strictEqual(execute(code), '<p>text</p>');
 	t.assert.strictEqual(execute(output), execute(code));
 	t.assert.deepStrictEqual(linter.verify(output, config), []);
+});
+
+nodeTest('setHTML suggestions preserve compact statement boundaries and evaluation order', t => {
+	const linter = new Linter();
+	const assignment = '(getElement(/* keep */).innerHTML) = getContent();';
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-dom-node-html-methods': rule}}},
+		rules: {'unicorn/prefer-dom-node-html-methods': ['error', {checkSetHTML: true, checkGetHTML: false}]},
+	};
+	for (const body of [`do${assignment}while (false);`, `if (false) {} else${assignment}`]) {
+		const code = `${body} element.innerHTML;`;
+		const {messages, output, fixed} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, false);
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].suggestions?.length, 1);
+		const {fix} = messages[0].suggestions[0];
+		const suggested = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		t.assert.strictEqual(suggested.split('/* keep */').length, 2);
+		t.assert.deepStrictEqual(linter.verify(suggested, config), []);
+		for (const source of [code, suggested]) {
+			const events = [];
+			const element = {
+				setHTML(content) {
+					Object.assign(element, {innerHTML: content});
+				},
+			};
+			const result = runInNewContext(source, {
+				element,
+				getElement() {
+					events.push('receiver');
+					return element;
+				},
+				getContent() {
+					events.push('content');
+					return '<p>text</p>';
+				},
+			});
+			t.assert.strictEqual(result, '<p>text</p>');
+			t.assert.deepStrictEqual(events, ['receiver', 'content']);
+		}
+	}
 });

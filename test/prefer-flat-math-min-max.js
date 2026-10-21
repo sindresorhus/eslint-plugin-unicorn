@@ -5,10 +5,62 @@ import {outdent} from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		['function f() {return(Math.max)(Math.max(1, 2), read(/* keep */));}', 'function f() {return Math.max(1, 2, read(/* keep */));}'],
+		['function f() {throw(Math.max)(Math.max(1, 2), read(/* keep */));}', 'function f() {throw Math.max(1, 2, read(/* keep */));}'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
 const linterConfig = {
 	plugins: {unicorn: {rules: {'prefer-flat-math-min-max': rule}}},
 	rules: {'unicorn/prefer-flat-math-min-max': 'error'},
 };
+
+nodeTest('flattened math calls preserve compact keyword boundaries and argument evaluation order', t => {
+	const linter = new Linter();
+	const expression = '(Math.max)(Math.max(read(/* keep */ 1), read(2)), read(3))';
+	for (const [body, expected] of [
+		[`return${expression};`, 3],
+		[`try {throw${expression};} catch (value) {return value;}`, 3],
+		[`return typeof${expression};`, 'number'],
+		[`return void${expression};`, undefined],
+		[`function* values() {yield${expression};} return values().next().value;`, 3],
+		[`switch (3) {case${expression}: return true; default: return false;}`, true],
+		[`for (const value of${expression} ? [true] : [false]) {return value;}`, true],
+		[`for (const key in${expression} ? {matched: true} : {}) {return key;}`, 'matched'],
+	]) {
+		const code = `function value() {${body}} value();`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(output.split('/* keep */').length, 2);
+		for (const source of [code, output]) {
+			const evaluations = [];
+			const result = runInNewContext(source, {
+				read(value) {
+					evaluations.push(value);
+					return value;
+				},
+			});
+			t.assert.strictEqual(result, expected);
+			t.assert.deepStrictEqual(evaluations, [1, 2, 3]);
+		}
+	}
+});
+
+nodeTest('flattened math calls preserve compact await boundaries', async t => {
+	const code = 'async function value() {return await(Math.max)(Math.max(1, 2), read(/* keep */));} value();';
+	const linter = new Linter();
+	const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
+	t.assert.strictEqual(fixed, true);
+	t.assert.deepStrictEqual(messages, []);
+	await Promise.all([code, output].map(async source => {
+		t.assert.strictEqual(await runInNewContext(source, {read: () => 3}), 3);
+	}));
+});
 
 test({
 	valid: [],

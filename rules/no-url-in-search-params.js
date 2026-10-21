@@ -1,4 +1,5 @@
 import {isMemberExpression, isNewExpression} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getParenthesizedRange,
 	getParenthesizedText,
@@ -85,7 +86,10 @@ const create = context => {
 					fix: fixer => fixer.replaceText(node, `new URLSearchParams(${receiverText}.search)`),
 				}, {
 					messageId: MESSAGE_ID_LIVE,
-					fix: fixer => fixer.replaceText(node, getSearchParametersText(argument, node, context)),
+					* fix(fixer) {
+						yield fixer.replaceText(node, getSearchParametersText(argument, node, context));
+						yield fixSpaceAroundKeyword(fixer, node, context);
+					},
 				}];
 			}
 
@@ -106,7 +110,10 @@ const create = context => {
 			if (receiverIsUrl && !wouldRemoveComments(context, node, [getParenthesizedRange(receiver, context)])) {
 				problem.suggest.push({
 					messageId: MESSAGE_ID_LIVE,
-					fix: fixer => fixer.replaceText(node, getSearchParametersText(receiver, node, context)),
+					* fix(fixer) {
+						yield fixer.replaceText(node, getSearchParametersText(receiver, node, context));
+						yield fixSpaceAroundKeyword(fixer, node, context);
+					},
 				});
 			}
 
@@ -121,7 +128,10 @@ const create = context => {
 		if (!hasCommentsOutsideArgument) {
 			problem.suggest = [{
 				messageId: MESSAGE_ID_PARSE,
-				fix: fixer => fixer.replaceText(node, `new URL(${getParenthesizedText(argument, context)}).searchParams`),
+				* fix(fixer) {
+					yield fixer.replaceText(node, `new URL(${getParenthesizedText(argument, context)}).searchParams`);
+					yield fixSpaceAroundKeyword(fixer, node, context);
+				},
 			}];
 		}
 

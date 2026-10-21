@@ -9,6 +9,24 @@ const {test, rule} = getTester(import.meta);
 test({
 	valid: [],
 	invalid: [
+		[
+			'function f() {return(Temporal.PlainDate).from(new Temporal.PlainDateTime(2026, /* keep */ 1, 1));}',
+			'function f() {return new Temporal.PlainDateTime(2026, /* keep */ 1, 1).toPlainDate();}',
+		],
+		[
+			'function f() {throw(Temporal.PlainDate).from(new Temporal.PlainDateTime(2026, /* keep */ 1, 1));}',
+			'function f() {throw new Temporal.PlainDateTime(2026, /* keep */ 1, 1).toPlainDate();}',
+		],
+		[
+			'function* f() {yield(Temporal.PlainDate).from(new Temporal.PlainDateTime(2026, /* keep */ 1, 1));}',
+			'function* f() {yield new Temporal.PlainDateTime(2026, /* keep */ 1, 1).toPlainDate();}',
+		],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [],
+	invalid: [
 		...[
 			['Temporal.PlainDate.from(new Temporal.PlainDateTime(2026, /* keep */ 10, 21));', 'new Temporal.PlainDateTime(2026, /* keep */ 10, 21).toPlainDate();'],
 			['Temporal.PlainTime.from((/* keep */ new Temporal.PlainDateTime(2026, 10, 21)));', '(/* keep */ new Temporal.PlainDateTime(2026, 10, 21)).toPlainTime();'],
@@ -71,8 +89,8 @@ nodeTest('commented Temporal conversions evaluate once and precision changes rem
 	};
 	for (const [method, originalNanoseconds, autofix] of [['fromEpochNanoseconds', '123456789', true], ['fromEpochMilliseconds', '123000000', false]]) {
 		const property = method === 'fromEpochNanoseconds' ? 'epochNanoseconds' : 'epochMilliseconds';
-		const expression = `Temporal.Instant.${method}(new Temporal.ZonedDateTime((evaluations++, /* keep */ 123456789n), "UTC").${property})`;
-		const code = `let evaluations = 0; const result = ${expression}; JSON.stringify({evaluations, nanoseconds: result.epochNanoseconds.toString()});`;
+		const expression = `(Temporal.Instant).${method}(new Temporal.ZonedDateTime((evaluations++, /* keep */ 123456789n), "UTC").${property})`;
+		const code = `let evaluations = 0; function convert() {return${expression};} const result = convert(); JSON.stringify({evaluations, nanoseconds: result.epochNanoseconds.toString()});`;
 		const {output, fixed, messages} = linter.verifyAndFix(code, config);
 		t.assert.strictEqual(fixed, autofix);
 		let corrected = output;

@@ -1,4 +1,5 @@
 import {isIdentifierNamed, isMemberExpression} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getConstVariableInitializer,
 	getParenthesizedRange,
@@ -66,10 +67,13 @@ const getProblem = (node, context) => {
 		return problem;
 	}
 
-	problem.fix = fixer => fixer.replaceText(
-		assignmentExpression,
-		`${sourceCode.getText(node.object)}.assign(${getParenthesizedText(assignmentExpression.right, context)})`,
-	);
+	problem.fix = function * (fixer) {
+		yield fixer.replaceText(
+			assignmentExpression,
+			`${sourceCode.getText(node.object)}.assign(${getParenthesizedText(assignmentExpression.right, context)})`,
+		);
+		yield fixSpaceAroundKeyword(fixer, assignmentExpression, context);
+	};
 
 	return problem;
 };
