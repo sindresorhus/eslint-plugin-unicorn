@@ -190,6 +190,17 @@ test.snapshot({
 		'value === "a" || value == "b" || value === "c";',
 		...['any', 'unknown', 'number'].map(type => typeAware(`declare const value: string; value == "a" || (value as unknown as ${type}) == "b" || value == "c";`)),
 		typeAware('declare const value: string; declare function getValue(): string; value != "a" && value != getValue() && value != "c";'),
+		typeAware(outdent`
+			type Spec = {type: 'range' | 'tag' | 'version'; name: string} | {type: 'git'; name: null};
+
+			const getName = (spec: Spec): string | undefined => {
+				if (spec.type !== 'range' && spec.type !== 'tag' && spec.type !== 'version') {
+					return;
+				}
+
+				return spec.name;
+			};
+		`),
 	],
 	invalid: [
 		'value === "a" || value === "b" || value === "c";',
@@ -318,5 +329,7 @@ test.snapshot({
 			code: 'const element = <div>{value !== "a" && value !== "b" && value !== "c"}</div>;',
 			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
 		},
+		typeAware('declare const value: number; declare const other: 1 | 2; value == other || value == 3 || value == 4;'),
+		typeAware('declare const value: string; declare const other: `prefix-${string}`; value == other || value == "a" || value == "b";'),
 	],
 });

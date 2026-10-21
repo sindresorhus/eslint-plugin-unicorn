@@ -714,6 +714,38 @@ Message:
 
 `;
 
+exports[`prefer-includes-over-repeated-comparisons > invalid(50): declare const value: number; declare const other: 1 | 2; value == other || value == 3 || value == 4; 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: number; declare const other: 1 | 2; value == other || value == 3 || value == 4;
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(50): declare const value: number; declare const other: 1 | 2; value == other || value == 3 || value == 4; 2`] = `
+
+Message:
+> 1 | declare const value: number; declare const other: 1 | 2; value == other || value == 3 || value == 4;
+    |                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(51): declare const value: string; declare const other: \`prefix-\${string}\`; value == other || value == \"a\" || value == \"b\"; 1`] = `
+
+Filename: file.ts
+
+  1 | declare const value: string; declare const other: \`prefix-\${string}\`; value == other || value == "a" || value == "b";
+
+`;
+
+exports[`prefer-includes-over-repeated-comparisons > invalid(51): declare const value: string; declare const other: \`prefix-\${string}\`; value == other || value == \"a\" || value == \"b\"; 2`] = `
+
+Message:
+> 1 | declare const value: string; declare const other: \`prefix-\${string}\`; value == other || value == "a" || value == "b";
+    |                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+
+`;
+
 exports[`prefer-includes-over-repeated-comparisons > invalid(6): \"a\" === value || \"b\" === value; 1`] = `
 
 Options:
