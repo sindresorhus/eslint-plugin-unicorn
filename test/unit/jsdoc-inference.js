@@ -60,6 +60,20 @@ test('homogeneous logical receivers retain documented string and array types', t
 	}
 });
 
+test('nullable fallback inference preserves arithmetic and nullish result uncertainty', t => {
+	const code = [
+		'/** @param {?string} value\n * @param {?string} fallback */',
+		'function run(value, fallback) {',
+		' inspect((value + 1) ?? "");',
+		' inspect(value ?? fallback);',
+		' inspect(value && "text");',
+		'}',
+	].join('\n');
+	for (const typescript of [false, true]) {
+		t.assert.deepStrictEqual(getInferences(code, {typescript}), [[], [], []]);
+	}
+});
+
 test('assignment receivers retain documented collection and RegExp types', t => {
 	const code = [
 		'/** @param {Array<string>} values\n * @param {Uint8Array} bytes\n * @param {Set<string>} keys\n * @param {Map<string, number>} map\n * @param {RegExp} pattern */',

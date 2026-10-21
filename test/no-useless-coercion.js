@@ -601,6 +601,25 @@ nodeTest('an omitted parameter documented as boolean still needs boolean coercio
 	t.assert.deepStrictEqual(messages, []);
 });
 
+const nullableStringFallbackCases = [
+	['/** @param {?string} value */ function run(value) { return String((value + 1) ?? ""); } run(null);', '1'],
+	['/** @param {?string} value\n * @param {?string} fallback */ function run(value, fallback) { return String(value ?? fallback); } run(null, null);', 'null'],
+	['/** @param {?string} value */ function run(value) { return String(value && "text"); } run(null);', 'null'],
+];
+
+nodeTest('nullable fallback coercions preserve the result type at runtime', t => {
+	for (const [code, expected] of nullableStringFallbackCases) {
+		const {output, fixed, messages} = linter.verifyAndFix(code, {
+			plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+			rules: {'unicorn/no-useless-coercion': 'error'},
+		});
+		t.assert.strictEqual(fixed, false);
+		t.assert.strictEqual(output, code);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(output), expected);
+	}
+});
+
 for (const languageOptions of [
 	{},
 	{parser: parsers.typescript},
@@ -612,6 +631,7 @@ for (const languageOptions of [
 	test({
 		testerOptions: {languageOptions},
 		valid: [
+			...nullableStringFallbackCases.map(([code]) => code),
 			'/** @type {(() => string) | (() => number)} */ let read; String(read());',
 			'/** @type {?(() => string)} */ let read; String(read());',
 		].map(code => ({code, filename: 'file.ts'})),
