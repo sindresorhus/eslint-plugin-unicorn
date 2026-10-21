@@ -709,6 +709,7 @@ test.vue({
 			'array /* keep */ .lastIndexOf(value) === -1',
 			'array.indexOf(/* keep */ value) > -1',
 			'array.indexOf(value) /* keep */ > -1',
+			'array.indexOf(value, (/* keep */ 0)) !== -1',
 		].map(expression => ({
 			code: `<template><div v-if="${expression}"></div></template>`,
 			errors: [{messageId: 'prefer-includes'}],

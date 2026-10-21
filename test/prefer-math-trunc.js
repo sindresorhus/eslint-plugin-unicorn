@@ -17,6 +17,8 @@ test({
 			['~~(first(/* keep */), value);', 'Math.trunc((first(/* keep */), value));'],
 			['~~~getValue(/* keep */);', '~Math.trunc(getValue(/* keep */));'],
 			['function foo() {return~~getValue(/* keep */);}', 'function foo() {return Math.trunc(getValue(/* keep */));}'],
+			['async function foo() { return ~~(await /* keep */ getValue()); }', 'async function foo() { return Math.trunc(await /* keep */ getValue()); }'],
+			['function* foo() { return ~~(yield /* keep */ getValue()); }', 'function* foo() { return Math.trunc(yield /* keep */ getValue()); }'],
 			['function foo() {\r\n  return~~(value // keep\r\n  );\r\n}', 'function foo() {\r\n  return Math.trunc((value // keep\r\n  ));\r\n}'],
 		].map(([code, output]) => ({
 			code,
@@ -35,6 +37,42 @@ test({
 			'~(/* keep */ ~value);',
 		].map(code => ({code, errors: [{messageId: 'error-bitwise-not', suggestions: []}]})),
 	],
+});
+
+nodeTest('commented yield suggestions preserve suspension and truncate the resumed value', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-math-trunc': rule}}},
+		rules: {'unicorn/prefer-math-trunc': 'error'},
+	};
+	const code = '(function* () { return ~~(yield read(/* keep */)); })()';
+	const {output, fixed, messages} = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(output, code);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].suggestions.length, 1);
+	const {range, text} = messages[0].suggestions[0].fix;
+	const suggested = code.slice(0, range[0]) + text + code.slice(range[1]);
+	t.assert.strictEqual(suggested, '(function* () { return Math.trunc(yield read(/* keep */)); })()');
+	t.assert.deepStrictEqual(linter.verify(suggested, config), []);
+	for (const source of [code, suggested]) {
+		let calls = 0;
+		const iterator = runInNewContext(source, {
+			read() {
+				calls++;
+				return 'yielded';
+			},
+		});
+		t.assert.strictEqual(calls, 0);
+		const yielded = iterator.next();
+		t.assert.strictEqual(yielded.value, 'yielded');
+		t.assert.strictEqual(yielded.done, false);
+		t.assert.strictEqual(calls, 1);
+		const returned = iterator.next(3.9);
+		t.assert.strictEqual(returned.value, 3);
+		t.assert.strictEqual(returned.done, true);
+		t.assert.strictEqual(calls, 1);
+	}
 });
 
 nodeTest('comment-preserving double negation rewrites remain suggestions and evaluate the operand once', t => {

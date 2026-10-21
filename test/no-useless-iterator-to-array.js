@@ -47,6 +47,42 @@ nodeTest('removing toArray preserves receiver comments and iteration order', t =
 	t.assert.strictEqual(runInNewContext(result.output), runInNewContext(code));
 });
 
+nodeTest('commented for-of rewrites stay manual because iterator consumption changes', t => {
+	const linter = new Linter();
+	const code = outdent`
+		const seen = [];
+		function * values() {
+			try {
+				for (const value of [1, 2, 3]) {
+					seen.push(value);
+					yield value;
+				}
+			} finally {
+				seen.push("close");
+			}
+		}
+		for (const value of values(/* keep */).toArray()) {
+			seen.push("loop:" + value);
+			break;
+		}
+		JSON.stringify(seen);
+	`;
+	const {output, fixed, messages} = linter.verifyAndFix(code, {
+		plugins: {unicorn: {rules: {'no-useless-iterator-to-array': rule}}},
+		rules: {'unicorn/no-useless-iterator-to-array': 'error'},
+	});
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(output, code);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].fix, undefined);
+	t.assert.strictEqual(messages[0].suggestions?.length, 1);
+	const {range, text} = messages[0].suggestions[0].fix;
+	const suggested = code.slice(0, range[0]) + text + code.slice(range[1]);
+	t.assert.ok(suggested.includes('values(/* keep */)'));
+	t.assert.strictEqual(runInNewContext(code), '[1,2,3,"close","loop:1"]');
+	t.assert.strictEqual(runInNewContext(suggested), '[1,"loop:1","close"]');
+});
+
 test({
 	valid: [],
 	invalid: [{
