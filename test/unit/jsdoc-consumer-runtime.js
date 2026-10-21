@@ -7,6 +7,60 @@ const linter = new Linter();
 
 for (const {name, rule, code, output = code, value, reported = true, suggestion, suggestedValue} of [
 	{
+		name: 'documented Map delete fixes retain NaN key matching and repeated deletion results',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: [
+			'/** @param {Map<number, string>} values */ function run(values, key) { return values.delete(key) === true; }',
+			'const values = new Map([[NaN, "x"]]); JSON.stringify([run(values, NaN), run(values, NaN), values.size]);',
+		].join('\n'),
+		output: [
+			'/** @param {Map<number, string>} values */ function run(values, key) { return values.delete(key); }',
+			'const values = new Map([[NaN, "x"]]); JSON.stringify([run(values, NaN), run(values, NaN), values.size]);',
+		].join('\n'),
+		value: '[true,false,0]',
+	},
+	{
+		name: 'documented Set delete negation retains signed zero matching and mutation',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: [
+			'/** @param {Set<number>} values */ function run(values) { return values.delete(0) === false; }',
+			'const values = new Set([-0]); JSON.stringify([run(values), run(values), values.has(-0)]);',
+		].join('\n'),
+		output: [
+			'/** @param {Set<number>} values */ function run(values) { return !values.delete(0); }',
+			'const values = new Set([-0]); JSON.stringify([run(values), run(values), values.has(-0)]);',
+		].join('\n'),
+		value: '[false,true,false]',
+	},
+	{
+		name: 'documented WeakMap delete fixes retain object identity and primitive key failure',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: [
+			'/** @param {WeakMap<object, string>} values */ function run(values, key) { return values.delete(key) !== false; }',
+			'const key = {}; const values = new WeakMap([[key, "x"]]); JSON.stringify([run(values, {}), run(values, key), run(values, key), run(values, 1)]);',
+		].join('\n'),
+		output: [
+			'/** @param {WeakMap<object, string>} values */ function run(values, key) { return values.delete(key); }',
+			'const key = {}; const values = new WeakMap([[key, "x"]]); JSON.stringify([run(values, {}), run(values, key), run(values, key), run(values, 1)]);',
+		].join('\n'),
+		value: '[false,true,false,false]',
+	},
+	{
+		name: 'documented WeakSet delete fixes evaluate the key factory once per call',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: [
+			'let reads = 0; const key = {}; function read() { reads++; return key; }',
+			'/** @param {WeakSet<object>} values */ function run(values) { return values.delete(read()) === true; }',
+			'const values = new WeakSet([key]); JSON.stringify([run(values), run(values), reads]);',
+		].join('\n'),
+		output: [
+			'let reads = 0; const key = {}; function read() { reads++; return key; }',
+			'/** @param {WeakSet<object>} values */ function run(values) { return values.delete(read()); }',
+			'const values = new WeakSet([key]); JSON.stringify([run(values), run(values), reads]);',
+		].join('\n'),
+		value: '[true,false,2]',
+	},
+	{
 		name: 'Reflect defineProperty fixes preserve successful definitions and nonextensible failures',
 		rule: 'no-unnecessary-boolean-comparison',
 		code: [

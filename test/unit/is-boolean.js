@@ -392,6 +392,68 @@ test('documented typed arrays supply boolean iteration and membership results', 
 	}
 });
 
+test('mutable keyed collection deletion produces booleans without confusing other mutations', t => {
+	for (const type of ['Map<string, number>', 'Set<string>', 'WeakMap<object, number>', 'WeakSet<object>', 'Map<string, number> | Set<string>', 'WeakMap<object, number> | WeakSet<object>']) {
+		const code = [
+			`/** @param {${type}} values */ function run(values, key) {`,
+			'inspect(values.delete(key)); inspect(values["delete"](key));',
+			'inspect(values.clear()); inspect(values.set(key, 1)); inspect(values.add(key));',
+			'}',
+		].join('\n');
+		t.assert.deepStrictEqual(getResults(code), [true, true, false, false, false], type);
+	}
+
+	for (const name of ['Map', 'Set', 'WeakMap', 'WeakSet']) {
+		const code = `inspect(new ${name}().delete(key)); const values = new ${name}(); const alias = values; inspect(alias.delete(key));`;
+		t.assert.deepStrictEqual(getResults(code), [true, true], name);
+	}
+});
+
+test('collection delete inference excludes readonly Web custom and uncertain receivers', t => {
+	for (const type of [
+		'ReadonlyMap<string, number>',
+		'ReadonlySet<string>',
+		'URLSearchParams',
+		'Headers',
+		'FormData',
+		'Map<string, number> | Headers',
+		'Set<string> | ReadonlySet<string>',
+		'?Map<string, number>',
+		'WeakSet<object> | undefined',
+		'unknown',
+		'{delete: () => string}',
+	]) {
+		const code = `/** @param {${type}} values */ function run(values, key) { inspect(values.delete(key)); }`;
+		t.assert.deepStrictEqual(getResults(code), [false], type);
+	}
+
+	const code = '/** @param {Map<string, number>} values */ function run(values, key) { inspect(values?.delete(key)); inspect(values.delete?.(key)); }';
+	t.assert.deepStrictEqual(getResults(code), [false, false]);
+});
+
+test('collection deletion follows documented returns while preserving native type precedence', t => {
+	const code = [
+		'/** @returns {Map<string, number>} */ function read() { return source; } inspect(read().delete(key));',
+		'/** @param {() => WeakSet<object>} read */ function callback(read) { inspect(read().delete(key)); }',
+		'/** @param {Map<string, number>} values */ function run(values: Headers) { inspect(values.delete(key)); }',
+		'const values: ReadonlySet<string> = new Set(); inspect(values.delete(key));',
+		'/** @type {unknown} */ const uncertain = new Map(); inspect(uncertain.delete(key));',
+	].join('\n');
+	t.assert.deepStrictEqual(getResults(code), [true, true, false, false, false]);
+});
+
+test('native collection deletion types retain aliases unions and assertion precedence in both TypeScript modes', t => {
+	const code = [
+		'type ReadonlyValues = ReadonlySet<string>; const values: ReadonlyValues = new Set(); inspect(values.delete(key));',
+		'function run(values: Map<string, number> | Set<string>) { inspect(values.delete(key)); }',
+		'/** @param {Map<string, number>} values */ function documented(values: Headers) { inspect(values.delete(key)); }',
+		'/** @param {Map<string, number>} values */ function asserted(values) { inspect((values as Headers).delete(key)); }',
+	].join('\n');
+	for (const typeAware of [false, true]) {
+		t.assert.deepStrictEqual(getResults(code, {typeAware}), [false, true, false, false]);
+	}
+});
+
 test('inline indexed collection constructors supply boolean method results', t => {
 	for (const constructor of ['Array', 'Uint8Array', 'BigInt64Array']) {
 		const code = `inspect(new ${constructor}(length).every(predicate)); inspect(new ${constructor}(length).includes(value)); inspect(new ${constructor}(length).some(predicate));`;

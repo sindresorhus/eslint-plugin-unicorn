@@ -63,6 +63,14 @@ const createNamedTypeChecker = names => createTypeCheckers({
 	checkClassHeritage: false,
 }).isTarget;
 
+const mutableKeyedCollectionNames = ['Map', 'Set', 'WeakMap', 'WeakSet'];
+const {isTarget: isMutableKeyedCollection} = createTypeCheckers({
+	targetTypeNames: new Set(mutableKeyedCollectionNames),
+	nonTargetTypeNames: new Set(['ReadonlyMap', 'ReadonlySet']),
+	targetConstructorNames: mutableKeyedCollectionNames,
+	checkClassHeritage: false,
+});
+
 const expressionKindCheckers = new Map([
 	['array', isIndexedCollection],
 	['keyedCollection', createNamedTypeChecker(['Map', 'ReadonlyMap', 'WeakMap', 'URLSearchParams', 'Headers', 'FormData'])],
@@ -616,8 +624,12 @@ function isKnownBooleanInstanceMethodCall(node, context) {
 		return false;
 	}
 
-	const methods = booleanMethodsByExpressionKind.get(getKnownExpressionKind(node.callee.object, context));
 	const method = getPropertyName(node.callee, context.sourceCode.getScope(node.callee));
+	if (method === 'delete') {
+		return isMutableKeyedCollection(node.callee.object, context);
+	}
+
+	const methods = booleanMethodsByExpressionKind.get(getKnownExpressionKind(node.callee.object, context));
 	return Boolean(methods?.has(method));
 }
 

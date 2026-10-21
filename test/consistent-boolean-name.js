@@ -61,6 +61,10 @@ for (const wrap of [testCase => testCase, typescript, typeAware]) {
 	test({
 		valid: [wrap('/** @param {string} text */ function run(text, pattern) { const ready = text.replace(pattern, "").includes("x"); consume(ready); }')],
 		invalid: [
+			...['Map<string, number>', 'Set<string>', 'WeakMap<object, number>', 'WeakSet<object>', 'Map<string, number> | Set<string>'].map(type => [
+				`/** @param {${type}} values */ function run(values, key) { const ready = values.delete(key); consume(ready); }`,
+				`/** @param {${type}} values */ function run(values, key) { const isReady = values.delete(key); consume(isReady); }`,
+			]),
 			...[
 				'Reflect.defineProperty(target, key, descriptor)',
 				'Reflect.isExtensible(target)',

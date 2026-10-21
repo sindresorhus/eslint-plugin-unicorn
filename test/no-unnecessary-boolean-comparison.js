@@ -37,6 +37,27 @@ for (const [type, key, entries] of [
 		t.assert.strictEqual(runInNewContext(result.output, {values}), '[true,false,true]');
 		t.assert.deepStrictEqual(linter.verifyAndFix(result.output, config), {...result, fixed: false});
 	});
+
+	nodeTest(`${type} deletion keeps its undefined result and false comparison`, t => {
+		const code = [
+			`/** @param {${type}} values */ function run(values) { return values.delete("${key}") === false; }`,
+			`JSON.stringify([run(values), values.has("${key}")]);`,
+		].join('\n');
+		const linter = new Linter();
+		const config = {
+			plugins: {unicorn: {rules: {'no-unnecessary-boolean-comparison': rule}}},
+			rules: {'unicorn/no-unnecessary-boolean-comparison': 'error'},
+		};
+		const result = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.deepStrictEqual(result.messages, []);
+
+		const Collection = globalThis[type];
+		const values = new Collection();
+		values.append(key, 'value');
+		t.assert.strictEqual(runInNewContext(result.output, {values}), '[false,false]');
+	});
 }
 
 /* eslint-disable no-template-curly-in-string */
@@ -48,6 +69,19 @@ for (const languageOptions of [
 	test({
 		testerOptions: {languageOptions},
 		valid: [
+			...[
+				'ReadonlyMap<string, number>',
+				'ReadonlySet<string>',
+				'URLSearchParams',
+				'Headers',
+				'FormData',
+				'Map<string, number> | Headers',
+				'?Map<string, number>',
+				'unknown',
+				'{delete: () => string}',
+			].map(type =>
+				`/** @param {${type}} values */ function run(values, key) { return values.delete(key) === true; }`,
+			),
 			'function run(target, key, value) { return Reflect.get(target, key) === true; }',
 			'function run(target, key, descriptor) { return Object.defineProperty(target, key, descriptor) === true; }',
 			'function run(target) { return Object.preventExtensions(target) === true; }',
@@ -68,6 +102,12 @@ for (const languageOptions of [
 			'/** @param {Headers | {has(): string}} values */ function run(values) { return values.has("key") === true; }',
 		].map(code => ({code, filename: 'file.ts'})),
 		invalid: [
+			...['Map<string, number>', 'Set<string>', 'WeakMap<object, number>', 'WeakSet<object>', 'Map<string, number> | Set<string>'].map(type =>
+				`/** @param {${type}} values */ function run(values, key) { return values.delete(key) === true; }`,
+			),
+			...['Map', 'Set', 'WeakMap', 'WeakSet'].map(name => `new ${name}().delete(key) === true;`),
+			'/** @returns {Map<string, number>} */ function read() { return source; } read().delete(key) === true;',
+			'/** @param {Set<string>} values */ function run(values, key) { const alias = values; return alias["delete"](key) === true; }',
 			'/** @param {object} target */ function run(target, key, descriptor) { return Reflect.defineProperty(target, key, descriptor) === true; }',
 			'function run(target) { return Reflect.isExtensible(target) === true; }',
 			'function run(target) { return Reflect.preventExtensions(target) === true; }',
