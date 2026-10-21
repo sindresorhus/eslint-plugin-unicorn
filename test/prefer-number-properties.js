@@ -16,6 +16,12 @@ for (const languageOptions of [
 		testerOptions: {languageOptions},
 		valid: [],
 		invalid: [
+			...['isFinite', 'isNaN'].map(method => ({
+				filename: 'file.ts',
+				code: `/** @param {unknown} value */ function run(value) { return ${method}(Math.f16round(value)); }`,
+				output: `/** @param {unknown} value */ function run(value) { return Number.${method}(Math.f16round(value)); }`,
+				errors: [{messageId: MESSAGE_ID_ERROR, suggestions: 0}],
+			})),
 			...[
 				'getDate',
 				'getDay',

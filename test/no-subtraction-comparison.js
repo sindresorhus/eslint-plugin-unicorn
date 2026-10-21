@@ -14,6 +14,10 @@ for (const languageOptions of [
 		invalid: [
 			...[
 				[
+					'/** @param {unknown} value */ function run(value) { return Math.f16round(value) - 1 > 0; }',
+					'/** @param {unknown} value */ function run(value) { return Math.f16round(value) > 1; }',
+				],
+				[
 					'/** @param {Date} value */ function run(value) { return value.getUTCFullYear() - 2024 > 0; }',
 					'/** @param {Date} value */ function run(value) { return value.getUTCFullYear() > 2024; }',
 				],

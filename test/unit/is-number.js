@@ -324,3 +324,20 @@ test('Date numeric getters require definite receivers and direct calls', t => {
 	].join('\n');
 	t.assert.deepStrictEqual(getVerdicts(code), [false, false, false, false, false, false, false, false, false]);
 });
+
+test('Math f16round returns numbers for unknown and documented arguments', t => {
+	const code = [
+		'check(Math.f16round(value)); check(Math.f16round());',
+		'/** @param {unknown} value */ function run(value) { check(Math.f16round(value)); }',
+		'/** @param {number} value */ function numeric(value) { check(Math.f16round(value)); }',
+	].join('\n');
+	t.assert.deepStrictEqual(getVerdicts(code), [true, true, true, true]);
+});
+
+test('Math f16round inference retains direct static call boundaries', t => {
+	const code = [
+		'check(Math.f16round?.(value)); check(Math?.f16round(value)); check(Math["f16round"](value));',
+		'check(other.f16round(value)); check(Math.other(value)); check(new Math.f16round(value));',
+	].join('\n');
+	t.assert.deepStrictEqual(getVerdicts(code), [false, false, false, false, false, false]);
+});

@@ -37,6 +37,7 @@ const mathMethods = new Set([
 	'cosh',
 	'exp',
 	'expm1',
+	'f16round',
 	'floor',
 	'fround',
 	'hypot',
