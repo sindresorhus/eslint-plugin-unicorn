@@ -9,7 +9,7 @@
 
 Comparing the same expression against multiple values is easier to scan as a membership check.
 
-This rule reports strict equality comparisons joined by `||` and strict inequality comparisons joined by `&&`. It ignores optional chains, side-effectful compared values, and `NaN` values because an `Array#includes()` rewrite would not have the same behavior.
+This rule reports strict equality comparisons joined by `||` and strict inequality comparisons joined by `&&`. It ignores optional chains, side-effectful operands, and `NaN` values because an `Array#includes()` rewrite would not have the same behavior.
 
 This rule does not autofix because the best rewrite depends on context. Plain member expressions are still reported, so consider accessors and proxies before rewriting.
 

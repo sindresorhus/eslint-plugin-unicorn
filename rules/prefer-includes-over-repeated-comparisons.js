@@ -98,7 +98,7 @@ const create = context => {
 			return;
 		}
 
-		if (comparisons.some(({left, right}) => containsOptionalChain(left) || containsOptionalChain(right))) {
+		if (comparisons.some(({left, right}) => [left, right].some(operand => containsOptionalChain(operand) || hasSideEffect(operand, sourceCode)))) {
 			return;
 		}
 
@@ -109,9 +109,7 @@ const create = context => {
 			|| !comparisons.every(comparison => {
 				const comparedValue = getComparedValue(comparison, sharedReference);
 
-				return comparedValue
-					&& !hasSideEffect(comparedValue, sourceCode)
-					&& !isNaNValue(comparedValue, context);
+				return comparedValue && !isNaNValue(comparedValue, context);
 			})
 		) {
 			return;

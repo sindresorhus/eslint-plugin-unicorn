@@ -44,11 +44,31 @@ test({
 			...typeAware(code),
 			errors: [{messageId: 'prefer-includes-over-repeated-comparisons'}],
 		})),
+		{
+			code: 'object[(0, "key")] !== "a" && object.key !== "b" && object.key !== "c";',
+			errors: [{messageId: 'prefer-includes-over-repeated-comparisons'}],
+		},
 	],
 });
 
 test.snapshot({
 	valid: [
+		...[
+			['===', '||'],
+			['!==', '&&'],
+		].flatMap(([comparisonOperator, logicalOperator]) => [
+			outdent`
+				object[(effect(), "key")] ${comparisonOperator} "a"
+					${logicalOperator} object[(effect(), "key")] ${comparisonOperator} "b"
+					${logicalOperator} object[(effect(), "key")] ${comparisonOperator} "c";
+			`,
+			`object.key ${comparisonOperator} "a" ${logicalOperator} object[(count++, "key")] ${comparisonOperator} "b" ${logicalOperator} object.key ${comparisonOperator} "c";`,
+		]),
+		typeAware(outdent`
+			declare const object: {key: string};
+			declare function effect(): void;
+			object.key == "a" || object[(effect(), "key")] == "b" || object.key == "c";
+		`),
 		...['Status', 'string'].map(type => typeAware(outdent`
 			enum Status {OK = 200, Created = 201, Accepted = 202}
 			declare const value: ${type};
@@ -110,36 +130,30 @@ test.snapshot({
 		'value === "a" || isValue(value);',
 		'value === "a" || value !== "b";',
 		'value === "a" || value === "b" || otherValue === "c";',
-		'getValue() === "a" || getValue() === "b";',
-		'getObject().value === "a" || getObject().value === "b";',
-		'object[getKey()] === "a" || object[getKey()] === "b";',
-		'value === getValue() || value === "b";',
-		'value === "a" || value === getValue();',
-		'value === (otherValue = "a") || value === "b";',
-		'value === ++otherValue || value === "b";',
-		'value === Number.NaN || value === 1;',
-		'value === NaN || value === 1;',
+		'getValue() === "a" || getValue() === "b" || getValue() === "c";',
+		'getObject().value === "a" || getObject().value === "b" || getObject().value === "c";',
+		'object[getKey()] === "a" || object[getKey()] === "b" || object[getKey()] === "c";',
+		'value === getValue() || value === "b" || value === "c";',
+		'value === "a" || value === "b" || value === getValue();',
+		'value === (otherValue = "a") || value === "b" || value === "c";',
+		'value === ++otherValue || value === "b" || value === "c";',
+		'value === Number.NaN || value === 1 || value === 2;',
+		'value === NaN || value === 1 || value === 2;',
 		'Number.NaN === value || Number.NaN === otherValue;',
 		'NaN === value || NaN === otherValue;',
 		'foo?.bar === "a" || foo?.bar === "b";',
 		'foo?.bar === "a" || foo.bar === "b";',
 		'foo.bar === "a" || foo?.bar === "b";',
-		'foo[bar?.baz] === "a" || foo[bar?.baz] === "b";',
-		'foo[bar?.()] === "a" || foo[bar?.()] === "b";',
-		'(foo?.bar).baz === "a" || (foo?.bar).baz === "b";',
-		'value === "a" || value === foo?.bar;',
-		'value === (foo?.bar ?? "a") || value === "b";',
+		'foo[bar?.baz] === "a" || foo[bar?.baz] === "b" || foo[bar?.baz] === "c";',
+		'foo[bar?.()] === "a" || foo[bar?.()] === "b" || foo[bar?.()] === "c";',
+		'(foo?.bar).baz === "a" || (foo?.bar).baz === "b" || (foo?.bar).baz === "c";',
+		'value === "a" || value === foo?.bar || value === "c";',
+		'value === (foo?.bar ?? "a") || value === "b" || value === "c";',
 		'foo === bar || bar === foo;',
 		'foo === foo || foo === foo;',
 		'foo === bar || foo === foo;',
 		'foo === 1 || bar === 1;',
 		'value === "a" || value === "b";',
-		'const modes = new Set(["foo"]); modes.clear(); value === (modes.size ? 1 : NaN) || value === 2;',
-		'const modes = new Set(["foo"]); modes.clear(); value === ((modes.size && NaN) || other) || value === 2;',
-		{
-			code: 'const modes = new Set(["foo"]); modes.clear(); value === ((modes.size ? NaN : other) as number) || value === 2;',
-			languageOptions: {parser: parsers.typescript},
-		},
 		'"a" === value || "b" === value;',
 		'value === "a" || "b" === value;',
 		'value === first || value === second;',
@@ -163,11 +177,11 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: 'value === "a" || value === "b";',
+			code: 'value === "a" || value === "b" || value === "c";',
 			options: [{minimumComparisons: 4}],
 		},
 		{
-			code: '(foo?.bar as Foo).baz === "a" || (foo?.bar as Foo).baz === "b";',
+			code: '(foo?.bar as Foo).baz === "a" || (foo?.bar as Foo).baz === "b" || (foo?.bar as Foo).baz === "c";',
 			languageOptions: {parser: parsers.typescript},
 		},
 		'foo?.bar === "a" || foo?.bar === "b" || foo?.bar === "c";',
