@@ -60,6 +60,9 @@ for (const languageOptions of [
 	test({
 		testerOptions: {languageOptions},
 		valid: [
+			'Number(Date());',
+			'function run(value) { return Number(new Date(value)); }',
+			'function run(value, other) { return Number(other.parse(value)); }',
 			'/** @param {Date} value */ function run(value) { return String(value.toJSON()); }',
 			'/** @param {Date} value */ function run(value) { return String(value?.toISOString()); }',
 			'/** @param {?Date} value */ function run(value) { return String(value.toISOString()); }',
@@ -74,6 +77,12 @@ for (const languageOptions of [
 			'/** @returns {number} */ function* count() { yield source; } +count();',
 		].map(code => ({code, filename: 'file.ts'})),
 		invalid: [
+			...['Date.now()', 'Date.parse(value)', 'Date.UTC(value, 0)'].map(expression => ({
+				filename: 'file.ts',
+				code: `/** @param {string | number} value */ function run(value) { return Number(${expression}); }`,
+				output: `/** @param {string | number} value */ function run(value) { return ${expression}; }`,
+				errors: [{messageId: 'no-useless-coercion'}],
+			})),
 			...['toISOString', 'toUTCString', 'toDateString', 'toTimeString', 'toLocaleDateString', 'toLocaleTimeString', 'toString', 'toLocaleString'].map(method => ({
 				filename: 'file.ts',
 				code: `/** @param {Date} value */ function run(value) { return String(value.${method}()); }`,

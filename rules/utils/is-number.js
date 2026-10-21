@@ -112,10 +112,20 @@ const numberMethods = new Set([
 	'parseFloat',
 	'parseInt',
 ]);
+
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#static_methods
+const dateNumberMethods = new Set([
+	'now',
+	'parse',
+	'UTC',
+]);
 const isNumberMethodCall = node =>
 	node.type === 'CallExpression'
 	&& !node.optional
-	&& isStaticProperties(node.callee, 'Number', numberMethods);
+	&& (
+		isStaticProperties(node.callee, 'Number', numberMethods)
+		|| isStaticProperties(node.callee, 'Date', dateNumberMethods)
+	);
 const isGlobalParseToNumberFunctionCall = node => isFunctionCall(node, 'parseInt') || isFunctionCall(node, 'parseFloat');
 
 // Only the bare `number` keyword and numeric literal types (`5`), never the boxed `Number` object (which doesn't coerce the same way), unions, or generics, so accuracy stays high

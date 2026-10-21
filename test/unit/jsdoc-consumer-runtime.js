@@ -7,6 +7,39 @@ const linter = new Linter();
 
 for (const {name, rule, code, output = code, value, reported = true, suggestion, suggestedValue} of [
 	{
+		name: 'Date parse results retain NaN after redundant numeric coercion removal',
+		rule: 'no-useless-coercion',
+		code: 'function run(value) { return Number(Date.parse(value)); } run("not a date");',
+		output: 'function run(value) { return Date.parse(value); } run("not a date");',
+		value: NaN,
+	},
+	{
+		name: 'Date parse finite-check fixes coerce the argument exactly once',
+		rule: 'prefer-number-properties',
+		code: [
+			'let reads = 0; const value = {toString() { reads++; return "2024-01-02T03:04:05Z"; }};',
+			'/** @param {unknown} value */ function run(value) { return isFinite(Date.parse(value)); } JSON.stringify([run(value), reads]);',
+		].join('\n'),
+		output: [
+			'let reads = 0; const value = {toString() { reads++; return "2024-01-02T03:04:05Z"; }};',
+			'/** @param {unknown} value */ function run(value) { return Number.isFinite(Date.parse(value)); } JSON.stringify([run(value), reads]);',
+		].join('\n'),
+		value: '[true,1]',
+	},
+	{
+		name: 'Date UTC comparison fixes retain month overflow day zero and NaN outcomes',
+		rule: 'no-subtraction-comparison',
+		code: [
+			'function run(month, day) { return Date.UTC(2024, month, day) - Date.UTC(2024, 0, 1) > 0; }',
+			'JSON.stringify([run(1, 0), run(0, 1), run(12, 1), run(NaN, 1)]);',
+		].join('\n'),
+		output: [
+			'function run(month, day) { return Date.UTC(2024, month, day) > Date.UTC(2024, 0, 1); }',
+			'JSON.stringify([run(1, 0), run(0, 1), run(12, 1), run(NaN, 1)]);',
+		].join('\n'),
+		value: '[true,false,true,false]',
+	},
+	{
 		name: 'documented Date factory ISO formatting retains one evaluation after string coercion removal',
 		rule: 'no-useless-coercion',
 		code: [

@@ -16,6 +16,20 @@ for (const languageOptions of [
 		testerOptions: {languageOptions},
 		valid: [],
 		invalid: [
+			...['Date.now()', 'Date.parse(value)', 'Date.UTC(value, 0)'].map(expression => ({
+				filename: 'file.ts',
+				code: `/** @param {string | number} value */ function run(value) { return isFinite(${expression}); }`,
+				output: `/** @param {string | number} value */ function run(value) { return Number.isFinite(${expression}); }`,
+				errors: [{messageId: MESSAGE_ID_ERROR, suggestions: 0}],
+			})),
+			...['Date(value)', 'new Date(value)', 'other.parse(value)', 'Date.unknown(value)'].map(expression => ({
+				filename: 'file.ts',
+				code: `function run(value, other) { return isFinite(${expression}); }`,
+				errors: [{
+					messageId: MESSAGE_ID_ERROR,
+					suggestions: [{messageId: MESSAGE_ID_SUGGESTION, output: `function run(value, other) { return Number.isFinite(${expression}); }`}],
+				}],
+			})),
 			...['Map<string, boolean>', 'ReadonlyMap<string, unknown>', 'Set<bigint>', 'ReadonlySet<string>', 'Map<string, number> | Set<boolean>'].map(type => ({
 				filename: 'file.ts',
 				code: `/** @param {${type}} values */ function run(values) { return isFinite(values.size); }`,

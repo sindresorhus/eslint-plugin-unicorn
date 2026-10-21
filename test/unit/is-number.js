@@ -247,3 +247,22 @@ test('size inference requires a definite map or set receiver', t => {
 	].join('\n');
 	t.assert.deepStrictEqual(getVerdicts(code), [false, false, false, false, false, true]);
 });
+
+test('Date timestamp factories return numbers independently of their arguments', t => {
+	const code = [
+		'check(Date.now()); check(Date.parse(text)); check(Date.UTC(year, month, day));',
+		'/** @param {string} value */ function parse(value) { check(Date.parse(value)); }',
+		'/** @param {number} year */ function utc(year) { check(Date.UTC(year)); }',
+		'check(Date.parse("invalid")); check(Date.UTC());',
+	].join('\n');
+	t.assert.deepStrictEqual(getVerdicts(code), [true, true, true, true, true, true, true]);
+});
+
+test('Date timestamp inference excludes constructors arbitrary methods and uncertain calls', t => {
+	const code = [
+		'check(Date()); check(new Date()); check(other.parse(value)); check(Date.other(value));',
+		'check(Date?.parse(value)); check(Date.parse?.(value)); check(Date["parse"](value));',
+		'/** @param {{parse: () => string}} value */ function run(value) { check(value.parse()); }',
+	].join('\n');
+	t.assert.deepStrictEqual(getVerdicts(code), [false, false, false, false, false, false, false, false]);
+});
