@@ -1,6 +1,108 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const object = {...(flag ? {/* keep */ value} : {})};',
+			output: 'const object = {...(flag && {/* keep */ value})};',
+			errors: [{messageId: 'consistent-conditional-object-spread', data: {expectedStyle: 'logical'}}],
+		},
+		{
+			code: 'const object = {...(!(/* keep */ flag) ? {} : data)};',
+			output: 'const object = {...((/* keep */ flag) && data)};',
+			errors: [{messageId: 'consistent-conditional-object-spread', data: {expectedStyle: 'logical'}}],
+		},
+		{
+			code: 'const object = {...(read(/* keep */) && data)};',
+			options: ['ternary'],
+			output: 'const object = {...(read(/* keep */) ? data : {})};',
+			errors: [{messageId: 'consistent-conditional-object-spread', data: {expectedStyle: 'ternary'}}],
+		},
+		{
+			code: 'const object = {...(Boolean(read(/* keep */)) && data)};',
+			output: 'const object = {...(read(/* keep */) && data)};',
+			errors: [{messageId: 'unnecessary-boolean-cast'}],
+		},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['const object = {...((flag /* keep */) ? data : {})};', 'const object = {...((flag /* keep */) && data)};'],
+			['const object = {...(read(/* keep */) ? {} : data)};', 'const object = {...(!read(/* keep */) && data)};'],
+			['const object = {...(!(flag // keep\r\n) ? {} : data)};', 'const object = {...((flag // keep\r\n) && data)};'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+		{
+			code: 'const object = {...(Boolean(value as /* keep */ string) && data)};',
+			output: 'const object = {...(value as /* keep */ string && data)};',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'const object = {...((flag as /* keep */ boolean) && data)};',
+			options: ['ternary'],
+			output: 'const object = {...((flag as /* keep */ boolean) ? data : {})};',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		...[
+			'const object = {...(!/* discard */ flag ? {} : data)};',
+			'const object = {...((/* discard */ !flag) ? {} : data)};',
+			'const object = {...(flag ? data : {/* discard */})};',
+			'const object = {...(Boolean(/* discard */ value) && data)};',
+			'const object = {...(!/* discard */!value && data)};',
+		].map(code => ({code, errors: 1})),
+	],
+});
+
+nodeTest('comment-preserving conditional spreads retain short-circuiting and evaluate operands once', t => {
+	const linter = new Linter();
+	for (const [expression, style] of [
+		['read(/* keep */) ? branch() : {}', 'logical'],
+		['read(/* keep */) ? {} : branch()', 'logical'],
+		['!read(/* keep */) ? {} : branch()', 'logical'],
+		['Boolean(read(/* keep */)) && branch()', 'logical'],
+		['!!read(/* keep */) && branch()', 'logical'],
+		['read(/* keep */) && branch()', 'ternary'],
+	]) {
+		const code = `const object = {...(${expression})}; JSON.stringify(object);`;
+		const config = {
+			plugins: {unicorn: {rules: {'consistent-conditional-object-spread': rule}}},
+			rules: {'unicorn/consistent-conditional-object-spread': ['error', style]},
+		};
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(output.split('/* keep */').length, 2);
+		for (const value of [undefined, false, 0, '', true, 1, 'value']) {
+			const execute = source => {
+				const events = [];
+				const result = runInNewContext(source, {
+					read() {
+						events.push('test');
+						return value;
+					},
+					branch() {
+						events.push('branch');
+						return {value: 1};
+					},
+				});
+				t.assert.strictEqual(events.filter(event => event === 'test').length, 1);
+				return {events, result};
+			};
+
+			t.assert.deepStrictEqual(execute(output), execute(code));
+		}
+	}
+});
 
 test.snapshot({
 	valid: [

@@ -1254,6 +1254,9 @@ Message:
 > 1 | const object = {...(!!(/* keep */ foo) && {a: 1})}
     |                     ^^^^^^^^^^^^^^^^^^ Unnecessary boolean cast. A falsy value spreads nothing.
 
+Output:
+  1 | const object = {...((/* keep */ foo) && {a: 1})}
+
 `;
 
 exports[`consistent-conditional-object-spread > invalid(75): const object = {...(!!foo ? {a: 1} : {})} 1`] = `

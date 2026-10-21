@@ -7,7 +7,9 @@ import {
 	getConditionalExpressionChildText,
 	getLogicalExpressionChildText,
 	getNegatedExpressionText,
+	getParenthesizedRange,
 	isGlobalBooleanCall,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {getNullishTest, isSameNode} from './shared/nullish-check.js';
 
@@ -61,7 +63,6 @@ function getConditionalExpressionProblem(conditionalExpression, context) {
 
 	const keptBranch = isAlternateEmpty ? consequent : alternate;
 	const nullishTest = getNullishTest(test, context);
-	const hasCommentsInside = context.sourceCode.getCommentsInside(conditionalExpression).length > 0;
 
 	if (
 		(
@@ -87,6 +88,9 @@ function getConditionalExpressionProblem(conditionalExpression, context) {
 		? getLogicalOperandText(test, 'left', context)
 		: getNegatedTestText(test, context);
 	const keptBranchText = getLogicalOperandText(keptBranch, 'right', context);
+	const preservedTest = !isAlternateEmpty && test.type === 'UnaryExpression' && test.operator === '!' && test.prefix
+		? test.argument
+		: test;
 
 	return {
 		node: conditionalExpression,
@@ -98,7 +102,7 @@ function getConditionalExpressionProblem(conditionalExpression, context) {
 		@param {import('eslint').Rule.RuleFixer} fixer
 		*/
 		* fix(fixer, {abort}) {
-			if (hasCommentsInside) {
+			if (wouldRemoveComments(context, conditionalExpression, [preservedTest, keptBranch].map(node => getParenthesizedRange(node, context)))) {
 				return abort();
 			}
 
@@ -142,7 +146,7 @@ function getLogicalExpressionProblem(logicalExpression, context) {
 		@param {import('eslint').Rule.RuleFixer} fixer
 		*/
 		* fix(fixer, {abort}) {
-			if (context.sourceCode.getCommentsInside(logicalExpression).length > 0) {
+			if (wouldRemoveComments(context, logicalExpression, [logicalExpression.left, logicalExpression.right].map(node => getParenthesizedRange(node, context)))) {
 				return abort();
 			}
 
@@ -182,7 +186,7 @@ function getBooleanCastProblem(booleanCast, property, context) {
 		@param {import('eslint').Rule.RuleFixer} fixer
 		*/
 		* fix(fixer, {abort}) {
-			if (context.sourceCode.getCommentsInside(booleanCast).length > 0) {
+			if (wouldRemoveComments(context, booleanCast, [getParenthesizedRange(castArgument, context)])) {
 				return abort();
 			}
 
