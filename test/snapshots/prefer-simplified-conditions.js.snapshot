@@ -61,6 +61,25 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(1): declare const flags: {a: boolean; b: boolean; c: boolean}; const value = (flags.a && flags.b) || (flags.a && flags.c); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const flags: {a: boolean; b: boolean; c: boolean}; const value = (flags.a && flags.b) || (flags.a && flags.c);
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(1): declare const flags: {a: boolean; b: boolean; c: boolean}; const value = (flags.a && flags.b) || (flags.a && flags.c); 2`] = `
+
+Message:
+> 1 | declare const flags: {a: boolean; b: boolean; c: boolean}; const value = (flags.a && flags.b) || (flags.a && flags.c);
+    |                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | declare const flags: {a: boolean; b: boolean; c: boolean}; const value = flags.a && (flags.b || flags.c);
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(1): if (!(!a && !b)) {} 1`] = `
 
   1 | if (!(!a && !b)) {}
@@ -99,6 +118,40 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(1): if (((object.property as boolean) && a) || ((object.property as boolean) && b)) {} 1`] = `
+
+  1 | if (((object.property as boolean) && a) || ((object.property as boolean) && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(1): if (((object.property as boolean) && a) || ((object.property as boolean) && b)) {} 2`] = `
+
+Message:
+> 1 | if (((object.property as boolean) && a) || ((object.property as boolean) && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | if ((object.property as boolean) && (a || b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(1): if ((foo.bar && a) || (foo.bar && b)) {} 1`] = `
+
+  1 | if ((foo.bar && a) || (foo.bar && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(1): if ((foo.bar && a) || (foo.bar && b)) {} 2`] = `
+
+Message:
+> 1 | if ((foo.bar && a) || (foo.bar && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | if (foo.bar && (a || b)) {}
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(10): const value = !(!a || b); 1`] = `
 
 Options:
@@ -117,6 +170,23 @@ Message:
 
 Output:
   1 | const value = !!a && !b;
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(10): if (((foo).bar && a) || ((foo).bar && b)) {} 1`] = `
+
+  1 | if (((foo).bar && a) || ((foo).bar && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(10): if (((foo).bar && a) || ((foo).bar && b)) {} 2`] = `
+
+Message:
+> 1 | if (((foo).bar && a) || ((foo).bar && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | if ((foo).bar && (a || b)) {}
 
 `;
 
@@ -158,6 +228,23 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(11): if (((foo.bar) && (a)) || ((foo.bar) && (b))) {} 1`] = `
+
+  1 | if (((foo.bar) && (a)) || ((foo.bar) && (b))) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(11): if (((foo.bar) && (a)) || ((foo.bar) && (b))) {} 2`] = `
+
+Message:
+> 1 | if (((foo.bar) && (a)) || ((foo.bar) && (b))) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | if ((foo.bar) && ((a) || (b))) {}
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(11): if (a || (a && b /* comment */)) {} 1`] = `
 
   1 | if (a || (a && b /* comment */)) {}
@@ -190,6 +277,20 @@ Message:
 
 Output:
   1 | a !== b || c !== d
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(12): if ((foo.bar /* keep */ && a) || (foo.bar && b)) {} 1`] = `
+
+  1 | if ((foo.bar /* keep */ && a) || (foo.bar && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(12): if ((foo.bar /* keep */ && a) || (foo.bar && b)) {} 2`] = `
+
+Message:
+> 1 | if ((foo.bar /* keep */ && a) || (foo.bar && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 `;
 
@@ -248,6 +349,23 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(13): if ((foo() && a) || (foo() && b)) {} 1`] = `
+
+  1 | if ((foo() && a) || (foo() && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(13): if ((foo() && a) || (foo() && b)) {} 2`] = `
+
+Message:
+> 1 | if ((foo() && a) || (foo() && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Suggestion 1/1: Simplify the condition.:
+  1 | if (foo() && (a || b)) {}
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(14): !(min <= value && value <= max) 1`] = `
 
 Options:
@@ -283,6 +401,23 @@ Message:
 
 Output:
   1 | function foo(a, b) { return (a); }
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(14): if ((foo() || a) && (foo() || b)) {} 1`] = `
+
+  1 | if ((foo() || a) && (foo() || b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(14): if ((foo() || a) && (foo() || b)) {} 2`] = `
+
+Message:
+> 1 | if ((foo() || a) && (foo() || b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Suggestion 1/1: Simplify the condition.:
+  1 | if (foo() || (a && b)) {}
 
 `;
 
@@ -324,6 +459,23 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(15): if ((a && mutateA()) || (a && b)) {} 1`] = `
+
+  1 | if ((a && mutateA()) || (a && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(15): if ((a && mutateA()) || (a && b)) {} 2`] = `
+
+Message:
+> 1 | if ((a && mutateA()) || (a && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Suggestion 1/1: Simplify the condition.:
+  1 | if (a && (mutateA() || b)) {}
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(16): !((a ?? b) && c) 1`] = `
 
 Options:
@@ -359,6 +511,23 @@ Message:
 
 Output:
   1 | if (a) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(16): if ((a || b) && (a || foo())) {} 1`] = `
+
+  1 | if ((a || b) && (a || foo())) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(16): if ((a || b) && (a || foo())) {} 2`] = `
+
+Message:
+> 1 | if ((a || b) && (a || foo())) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Suggestion 1/1: Simplify the condition.:
+  1 | if (a || (b && foo())) {}
 
 `;
 
@@ -400,6 +569,23 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(17): if ((object.method(value) && a) || (object.method(value) && b)) {} 1`] = `
+
+  1 | if ((object.method(value) && a) || (object.method(value) && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(17): if ((object.method(value) && a) || (object.method(value) && b)) {} 2`] = `
+
+Message:
+> 1 | if ((object.method(value) && a) || (object.method(value) && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Suggestion 1/1: Simplify the condition.:
+  1 | if (object.method(value) && (a || b)) {}
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(18): c ?? !(a || b) 1`] = `
 
 Options:
@@ -438,6 +624,23 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(18): if ((getObject().property && a) || (getObject().property && b)) {} 1`] = `
+
+  1 | if ((getObject().property && a) || (getObject().property && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(18): if ((getObject().property && a) || (getObject().property && b)) {} 2`] = `
+
+Message:
+> 1 | if ((getObject().property && a) || (getObject().property && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Suggestion 1/1: Simplify the condition.:
+  1 | if (getObject().property && (a || b)) {}
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(19): !(a && (b ? c : d)) 1`] = `
 
 Options:
@@ -473,6 +676,23 @@ Message:
 
 Output:
   1 | function foo(a, b) { if (a) {} }
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(19): if ((object[getKey()] && a) || (object[getKey()] && b)) {} 1`] = `
+
+  1 | if ((object[getKey()] && a) || (object[getKey()] && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(19): if ((object[getKey()] && a) || (object[getKey()] && b)) {} 2`] = `
+
+Message:
+> 1 | if ((object[getKey()] && a) || (object[getKey()] && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Suggestion 1/1: Simplify the condition.:
+  1 | if (object[getKey()] && (a || b)) {}
 
 `;
 
@@ -558,6 +778,40 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(2): if ((foo.bar || a) && (foo.bar || b)) {} 1`] = `
+
+  1 | if ((foo.bar || a) && (foo.bar || b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(2): if ((foo.bar || a) && (foo.bar || b)) {} 2`] = `
+
+Message:
+> 1 | if ((foo.bar || a) && (foo.bar || b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | if (foo.bar || (a && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(2): if ((object.property! && a) || (object.property! && b)) {} 1`] = `
+
+  1 | if ((object.property! && a) || (object.property! && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(2): if ((object.property! && a) || (object.property! && b)) {} 2`] = `
+
+Message:
+> 1 | if ((object.property! && a) || (object.property! && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | if (object.property! && (a || b)) {}
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(20): !(a && (b = c)) 1`] = `
 
 Options:
@@ -593,6 +847,23 @@ Message:
 
 Output:
   1 | function foo(a, b) { if (a) {} }
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(20): if ((object[0] && a) || (object[[0].at(0)] && b)) {} 1`] = `
+
+  1 | if ((object[0] && a) || (object[[0].at(0)] && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(20): if ((object[0] && a) || (object[[0].at(0)] && b)) {} 2`] = `
+
+Message:
+> 1 | if ((object[0] && a) || (object[[0].at(0)] && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Suggestion 1/1: Simplify the condition.:
+  1 | if (object[0] && (a || b)) {}
 
 `;
 
@@ -634,6 +905,23 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(21): if ((!foo() && a) || (!foo() && b)) {} 1`] = `
+
+  1 | if ((!foo() && a) || (!foo() && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(21): if ((!foo() && a) || (!foo() && b)) {} 2`] = `
+
+Message:
+> 1 | if ((!foo() && a) || (!foo() && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Suggestion 1/1: Simplify the condition.:
+  1 | if (!foo() && (a || b)) {}
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(22): !(a && (() => b)) 1`] = `
 
 Options:
@@ -672,6 +960,23 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(22): if ((foo() !== value && a) || (foo() !== value && b)) {} 1`] = `
+
+  1 | if ((foo() !== value && a) || (foo() !== value && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(22): if ((foo() !== value && a) || (foo() !== value && b)) {} 2`] = `
+
+Message:
+> 1 | if ((foo() !== value && a) || (foo() !== value && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Suggestion 1/1: Simplify the condition.:
+  1 | if (foo() !== value && (a || b)) {}
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(23): function* foo() { return !(a && (yield b)); } 1`] = `
 
 Options:
@@ -707,6 +1012,20 @@ Message:
 
 Output:
   1 | if (a && (b || c)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(23): if ((foo() /* keep */ && a) || (foo() && b)) {} 1`] = `
+
+  1 | if ((foo() /* keep */ && a) || (foo() && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(23): if ((foo() /* keep */ && a) || (foo() && b)) {} 2`] = `
+
+Message:
+> 1 | if ((foo() /* keep */ && a) || (foo() && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 `;
 
@@ -751,6 +1070,20 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(24): if ((a && foo(/* keep */)) || (a && b)) {} 1`] = `
+
+  1 | if ((a && foo(/* keep */)) || (a && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(24): if ((a && foo(/* keep */)) || (a && b)) {} 2`] = `
+
+Message:
+> 1 | if ((a && foo(/* keep */)) || (a && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(25): function foo() { throw!\r\n(a || b); } 1`] = `
 
 Options:
@@ -792,6 +1125,23 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(25): if ((Array.isArray(object.property) && a) || (Array.isArray(object.property) && b)) {} 1`] = `
+
+  1 | if ((Array.isArray(object.property) && a) || (Array.isArray(object.property) && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(25): if ((Array.isArray(object.property) && a) || (Array.isArray(object.property) && b)) {} 2`] = `
+
+Message:
+> 1 | if ((Array.isArray(object.property) && a) || (Array.isArray(object.property) && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | if (Array.isArray(object.property) && (a || b)) {}
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(26): function foo() {\r\n  return !(a && b);\r\n} 1`] = `
 
 Options:
@@ -816,6 +1166,23 @@ Output:
   1 | function foo() {
   2 |   return !a || !b;
   3 | }
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(26): if ((Array.isArray(foo()) && a) || (Array.isArray(foo()) && b)) {} 1`] = `
+
+  1 | if ((Array.isArray(foo()) && a) || (Array.isArray(foo()) && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(26): if ((Array.isArray(foo()) && a) || (Array.isArray(foo()) && b)) {} 2`] = `
+
+Message:
+> 1 | if ((Array.isArray(foo()) && a) || (Array.isArray(foo()) && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Suggestion 1/1: Simplify the condition.:
+  1 | if (Array.isArray(foo()) && (a || b)) {}
 
 `;
 
@@ -868,6 +1235,40 @@ Message:
 
 Output:
   1 | if (Array.isArray(value) && (a || b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(27): if ((Number.isInteger(foo()) && a) || (Number.isInteger(foo()) && b)) {} 1`] = `
+
+  1 | if ((Number.isInteger(foo()) && a) || (Number.isInteger(foo()) && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(27): if ((Number.isInteger(foo()) && a) || (Number.isInteger(foo()) && b)) {} 2`] = `
+
+Message:
+> 1 | if ((Number.isInteger(foo()) && a) || (Number.isInteger(foo()) && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Suggestion 1/1: Simplify the condition.:
+  1 | if (Number.isInteger(foo()) && (a || b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(28): const Array = {isArray() { return true; }}; if ((Array.isArray(value) && a) || (Array.isArray(value) && b)) {} 1`] = `
+
+  1 | const Array = {isArray() { return true; }}; if ((Array.isArray(value) && a) || (Array.isArray(value) && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(28): const Array = {isArray() { return true; }}; if ((Array.isArray(value) && a) || (Array.isArray(value) && b)) {} 2`] = `
+
+Message:
+> 1 | const Array = {isArray() { return true; }}; if ((Array.isArray(value) && a) || (Array.isArray(value) && b)) {}
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Suggestion 1/1: Simplify the condition.:
+  1 | const Array = {isArray() { return true; }}; if (Array.isArray(value) && (a || b)) {}
 
 `;
 
@@ -930,6 +1331,23 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(29): const Number = {isInteger() { return true; }}; if ((Number.isInteger(value) && a) || (Number.isInteger(value) && b)) {} 1`] = `
+
+  1 | const Number = {isInteger() { return true; }}; if ((Number.isInteger(value) && a) || (Number.isInteger(value) && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(29): const Number = {isInteger() { return true; }}; if ((Number.isInteger(value) && a) || (Number.isInteger(value) && b)) {} 2`] = `
+
+Message:
+> 1 | const Number = {isInteger() { return true; }}; if ((Number.isInteger(value) && a) || (Number.isInteger(value) && b)) {}
+    |                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Suggestion 1/1: Simplify the condition.:
+  1 | const Number = {isInteger() { return true; }}; if (Number.isInteger(value) && (a || b)) {}
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(29): if ((Error.isError(value) && a) || (Error.isError(value) && b)) {} 1`] = `
 
   1 | if ((Error.isError(value) && a) || (Error.isError(value) && b)) {}
@@ -989,6 +1407,40 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(3): if (((object.property satisfies boolean) && a) || ((object.property satisfies boolean) && b)) {} 1`] = `
+
+  1 | if (((object.property satisfies boolean) && a) || ((object.property satisfies boolean) && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(3): if (((object.property satisfies boolean) && a) || ((object.property satisfies boolean) && b)) {} 2`] = `
+
+Message:
+> 1 | if (((object.property satisfies boolean) && a) || ((object.property satisfies boolean) && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | if ((object.property satisfies boolean) && (a || b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(3): if ((a && object.property) || (a && c)) {} 1`] = `
+
+  1 | if ((a && object.property) || (a && c)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(3): if ((a && object.property) || (a && c)) {} 2`] = `
+
+Message:
+> 1 | if ((a && object.property) || (a && c)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | if (a && (object.property || c)) {}
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(3): while (!(!a && b)) {} 1`] = `
 
   1 | while (!(!a && b)) {}
@@ -1024,6 +1476,23 @@ Message:
 
 Output:
   1 | (!a || !b).toString();
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(30): if ((Array.isArray(value) && foo()) || (Array.isArray(value) && b)) {} 1`] = `
+
+  1 | if ((Array.isArray(value) && foo()) || (Array.isArray(value) && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(30): if ((Array.isArray(value) && foo()) || (Array.isArray(value) && b)) {} 2`] = `
+
+Message:
+> 1 | if ((Array.isArray(value) && foo()) || (Array.isArray(value) && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Suggestion 1/1: Simplify the condition.:
+  1 | if (Array.isArray(value) && (foo() || b)) {}
 
 `;
 
@@ -1079,6 +1548,23 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(31): if ((a && Array.isArray(value)) || (a && b)) {} 1`] = `
+
+  1 | if ((a && Array.isArray(value)) || (a && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(31): if ((a && Array.isArray(value)) || (a && b)) {} 2`] = `
+
+Message:
+> 1 | if ((a && Array.isArray(value)) || (a && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | if (a && (Array.isArray(value) || b)) {}
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(32): !/* comment */(a && b) 1`] = `
 
 Options:
@@ -1094,6 +1580,23 @@ exports[`prefer-simplified-conditions > invalid(32): !/* comment */(a && b) 2`] 
 Message:
 > 1 | !/* comment */(a && b)
     | ^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(32): class Foo extends Bar { method() { if ((super.enabled && a) || (super.enabled && b)) {} } } 1`] = `
+
+  1 | class Foo extends Bar { method() { if ((super.enabled && a) || (super.enabled && b)) {} } }
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(32): class Foo extends Bar { method() { if ((super.enabled && a) || (super.enabled && b)) {} } } 2`] = `
+
+Message:
+> 1 | class Foo extends Bar { method() { if ((super.enabled && a) || (super.enabled && b)) {} } }
+    |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | class Foo extends Bar { method() { if (super.enabled && (a || b)) {} } }
 
 `;
 
@@ -1114,6 +1617,23 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(33): class Foo { #enabled; method() { if ((this.#enabled && a) || (this.#enabled && b)) {} } } 1`] = `
+
+  1 | class Foo { #enabled; method() { if ((this.#enabled && a) || (this.#enabled && b)) {} } }
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(33): class Foo { #enabled; method() { if ((this.#enabled && a) || (this.#enabled && b)) {} } } 2`] = `
+
+Message:
+> 1 | class Foo { #enabled; method() { if ((this.#enabled && a) || (this.#enabled && b)) {} } }
+    |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | class Foo { #enabled; method() { if (this.#enabled && (a || b)) {} } }
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(33): if ((Number.isSafeInteger(value) && a) || (Number.isSafeInteger(value) && b)) {} 1`] = `
 
   1 | if ((Number.isSafeInteger(value) && a) || (Number.isSafeInteger(value) && b)) {}
@@ -1128,6 +1648,23 @@ Message:
 
 Output:
   1 | if (Number.isSafeInteger(value) && (a || b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(34): if ((Array.isArray([...values]) && a) || (Array.isArray([...values]) && b)) {} 1`] = `
+
+  1 | if ((Array.isArray([...values]) && a) || (Array.isArray([...values]) && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(34): if ((Array.isArray([...values]) && a) || (Array.isArray([...values]) && b)) {} 2`] = `
+
+Message:
+> 1 | if ((Array.isArray([...values]) && a) || (Array.isArray([...values]) && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Suggestion 1/1: Simplify the condition.:
+  1 | if (Array.isArray([...values]) && (a || b)) {}
 
 `;
 
@@ -1289,6 +1826,40 @@ Message:
 
 Output:
   1 | if (!(!a && !b) || c) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(4): if (((<boolean>object.property) && a) || ((<boolean>object.property) && b)) {} 1`] = `
+
+  1 | if (((<boolean>object.property) && a) || ((<boolean>object.property) && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(4): if (((<boolean>object.property) && a) || ((<boolean>object.property) && b)) {} 2`] = `
+
+Message:
+> 1 | if (((<boolean>object.property) && a) || ((<boolean>object.property) && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | if ((<boolean>object.property) && (a || b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(4): if ((a || b) && (a || object.property)) {} 1`] = `
+
+  1 | if ((a || b) && (a || object.property)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(4): if ((a || b) && (a || object.property)) {} 2`] = `
+
+Message:
+> 1 | if ((a || b) && (a || object.property)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | if (a || (b && object.property)) {}
 
 `;
 
@@ -1523,6 +2094,40 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(5): if ((foo<boolean>() && a) || (foo<boolean>() && b)) {} 1`] = `
+
+  1 | if ((foo<boolean>() && a) || (foo<boolean>() && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(5): if ((foo<boolean>() && a) || (foo<boolean>() && b)) {} 2`] = `
+
+Message:
+> 1 | if ((foo<boolean>() && a) || (foo<boolean>() && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Suggestion 1/1: Simplify the condition.:
+  1 | if (foo<boolean>() && (a || b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(5): if ((object[key] && a) || (object[key] && b)) {} 1`] = `
+
+  1 | if ((object[key] && a) || (object[key] && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(5): if ((object[key] && a) || (object[key] && b)) {} 2`] = `
+
+Message:
+> 1 | if ((object[key] && a) || (object[key] && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | if (object[key] && (a || b)) {}
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(50): if ((a || (a && b))!) {} 1`] = `
 
   1 | if ((a || (a && b))!) {}
@@ -1595,6 +2200,40 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(6): if (((foo() as boolean) && a) || ((foo() as boolean) && b)) {} 1`] = `
+
+  1 | if (((foo() as boolean) && a) || ((foo() as boolean) && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(6): if (((foo() as boolean) && a) || ((foo() as boolean) && b)) {} 2`] = `
+
+Message:
+> 1 | if (((foo() as boolean) && a) || ((foo() as boolean) && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Suggestion 1/1: Simplify the condition.:
+  1 | if ((foo() as boolean) && (a || b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(6): if ((object.nested.property && a) || (object.nested.property && b)) {} 1`] = `
+
+  1 | if ((object.nested.property && a) || (object.nested.property && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(6): if ((object.nested.property && a) || (object.nested.property && b)) {} 2`] = `
+
+Message:
+> 1 | if ((object.nested.property && a) || (object.nested.property && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | if (object.nested.property && (a || b)) {}
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(7): !(a || (b && c)) 1`] = `
 
 Options:
@@ -1630,6 +2269,40 @@ Message:
 
 Output:
   1 | key === "y" && !isEditable(target)
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(7): declare function foo(): boolean; declare const a: boolean; declare const b: boolean; const value = (foo() && a) || (foo() && b); 1`] = `
+
+  1 | declare function foo(): boolean; declare const a: boolean; declare const b: boolean; const value = (foo() && a) || (foo() && b);
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(7): declare function foo(): boolean; declare const a: boolean; declare const b: boolean; const value = (foo() && a) || (foo() && b); 2`] = `
+
+Message:
+> 1 | declare function foo(): boolean; declare const a: boolean; declare const b: boolean; const value = (foo() && a) || (foo() && b);
+    |                                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Suggestion 1/1: Simplify the condition.:
+  1 | declare function foo(): boolean; declare const a: boolean; declare const b: boolean; const value = foo() && (a || b);
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(7): if ((object.property && a) || (object[\"property\"] && b)) {} 1`] = `
+
+  1 | if ((object.property && a) || (object["property"] && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(7): if ((object.property && a) || (object[\"property\"] && b)) {} 2`] = `
+
+Message:
+> 1 | if ((object.property && a) || (object["property"] && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | if (object.property && (a || b)) {}
 
 `;
 
@@ -1671,6 +2344,23 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(8): if ((!object.property && a) || (!object.property && b)) {} 1`] = `
+
+  1 | if ((!object.property && a) || (!object.property && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(8): if ((!object.property && a) || (!object.property && b)) {} 2`] = `
+
+Message:
+> 1 | if ((!object.property && a) || (!object.property && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | if (!object.property && (a || b)) {}
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(9): const value = !(!a && b); 1`] = `
 
 Options:
@@ -1703,5 +2393,22 @@ exports[`prefer-simplified-conditions > invalid(9): if (!(!a && b /* comment */)
 Message:
 > 1 | if (!(!a && b /* comment */)) {}
     |     ^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(9): if ((object.property === value && a) || (object.property === value && b)) {} 1`] = `
+
+  1 | if ((object.property === value && a) || (object.property === value && b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(9): if ((object.property === value && a) || (object.property === value && b)) {} 2`] = `
+
+Message:
+> 1 | if ((object.property === value && a) || (object.property === value && b)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | if (object.property === value && (a || b)) {}
 
 `;
