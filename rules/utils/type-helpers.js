@@ -891,7 +891,7 @@ function getType(node, context, options, visitedVariables = new Set()) {
 		return typeFromExpression;
 	}
 
-	if (node.type !== 'Identifier') {
+	if (node.type !== 'Identifier' && options.getStaticType) {
 		const typeFromStaticValue = getTypeFromStaticValue(node, context, options);
 		if (typeFromStaticValue !== unknown) {
 			return typeFromStaticValue;

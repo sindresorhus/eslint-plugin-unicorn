@@ -57,6 +57,19 @@ test('a union of only nullish members is not a target when nullish members are a
 	t.assert.deepStrictEqual(getTypes('function f(a: null | undefined) { check(a); }', {allowNullishInMixedUnion: true}), [nonTarget]);
 });
 
+test('static value classification is opt-in and excludes effectful expressions', t => {
+	const code = 'const value = 1; check(value + 1); check("text"); check(effect());';
+	t.assert.deepStrictEqual(getTypes(code, {}), [unknown, unknown, unknown]);
+	const values = [];
+	t.assert.deepStrictEqual(getTypes(code, {
+		getStaticType(value) {
+			values.push(value);
+			return typeof value === 'number' ? target : nonTarget;
+		},
+	}), [target, nonTarget, unknown]);
+	t.assert.deepStrictEqual(values, [2, 'text']);
+});
+
 test('uses JSDoc variable, parameter, and function return annotations', t => {
 	for (const code of [
 		'/** @type {Foo} */ let value; check(value);',
