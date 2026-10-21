@@ -1,6 +1,6 @@
 import {isFunction, isNumericLiteral} from '../ast/index.js';
 import isString from './is-string.js';
-import {isIndexedCollection} from './is-array.js';
+import isArray, {isIndexedCollection} from './is-array.js';
 import {isFunctionCall, isStaticProperties, hasTypeAnnotation} from './type-check.js';
 import {createBuiltinTypeCheckers, createTypeCheckers, hasJSDocumentTypeReference} from './type-helpers.js';
 import {getStaticValueForControlFlow} from './get-static-value.js';
@@ -83,6 +83,11 @@ const indexedCollectionNumberMethods = new Set([
 	'findLastIndex',
 ]);
 
+const arrayNumberMethods = new Set([
+	'push',
+	'unshift',
+]);
+
 const dateNumberReturningMethods = new Set([
 	'getDate',
 	'getDay',
@@ -134,6 +139,7 @@ const isNumberReturningMethodCall = (node, context) =>
 	&& node.callee.property.type === 'Identifier'
 	&& (
 		(stringNumberMethods.has(node.callee.property.name) && isString(node.callee.object, context))
+		|| (arrayNumberMethods.has(node.callee.property.name) && isArray(node.callee.object, context))
 		|| (indexedCollectionNumberMethods.has(node.callee.property.name) && isIndexedCollection(node.callee.object, context))
 		|| (dateNumberReturningMethods.has(node.callee.property.name) && isDate(node.callee.object, context))
 	);

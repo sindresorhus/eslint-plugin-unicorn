@@ -11,6 +11,74 @@ const {test, rule} = getTester(import.meta);
 
 const linter = new Linter();
 
+for (const method of ['push', 'unshift']) {
+	test({
+		valid: [
+			`function run(values) { return Number(values.${method}(item)); }`,
+			...['unknown', '?number[]', 'number[] | Set<number>', `{${method}: () => string}`, 'Uint8Array', 'BigInt64Array'].map(type =>
+				`/** @param {${type}} values */ function run(values) { return Number(values.${method}(item)); }`,
+			),
+			`/** @param {number[]} [values] */ function run(values) { return Number(values.${method}(item)); }`,
+			`/** @param {number[]} values */ function run(values) { return Number(values?.${method}(item)); }`,
+			`/** @param {number[]} values */ function run(values) { return Number(values.${method}?.(item)); }`,
+			`/** @param {number[]} values */ function run(values) { return Number(values["${method}"](item)); }`,
+		],
+		invalid: [
+			[`Number(values.${method}())`, `values.${method}()`],
+			[`+values.${method}(first, second)`, `values.${method}(first, second)`],
+			[`Number(values.${method}(...items))`, `values.${method}(...items)`],
+		].map(([expression, replacement]) => ({
+			code: `/** @param {number[]} values */ function run(values) { return ${expression}; }`,
+			output: `/** @param {number[]} values */ function run(values) { return ${replacement}; }`,
+			errors: [{messageId: 'no-useless-coercion'}],
+		})),
+	});
+}
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			filename: 'file.ts',
+			code: '/** @param {number[]} values */ function run(values: {push(): string}) { return Number(values.push()); }',
+		}],
+		invalid: [{
+			filename: 'file.ts',
+			code: 'function run(values: number[], items: number[]) { return [Number(values.push(...items)), +values.unshift()]; }',
+			output: 'function run(values: number[], items: number[]) { return [values.push(...items), values.unshift()]; }',
+			errors: [{messageId: 'no-useless-coercion'}, {messageId: 'no-useless-coercion'}],
+		}],
+	});
+}
+
+nodeTest('array length mutator coercion removal preserves mutation arguments spread and errors', t => {
+	const config = {
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	};
+	for (const [initial, expression, expected] of [
+		['[1]', 'values.push(item(2), ...(function* () { events.push("spread"); yield 3; })())', [3, [1, 2, 3], [2, 'spread']]],
+		['[1]', 'values.unshift(item(2), item(3))', [3, [2, 3, 1], [2, 3]]],
+		['Object.freeze([1])', 'values.push(item(2))', ['TypeError', [1], [2]]],
+		['Object.freeze([1])', 'values.unshift(item(2))', ['TypeError', [1], [2]]],
+	]) {
+		const setup = `const events = []; const values = ${initial}; function item(value) { events.push(value); return value; } `;
+		const prefix = `${setup}/** @param {number[]} values */ function run(values) { return `;
+		const suffix = '; } let result; try { result = run(values); } catch (error) { result = error.name; } JSON.stringify([result, values, events]);';
+		const code = `${prefix}Number(${expression})${suffix}`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(output, `${prefix}${expression}${suffix}`);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(code), JSON.stringify(expected));
+		t.assert.strictEqual(runInNewContext(output), JSON.stringify(expected));
+		t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
+	}
+});
+
 test({
 	valid: [
 		'function run(value) { return Number(reader.keys(value).length); }',

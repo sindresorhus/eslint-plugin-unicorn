@@ -114,6 +114,50 @@ test('array and typed array search indices are numbers independently of their el
 	t.assert.deepStrictEqual(getVerdicts('check(new BigUint64Array().findLastIndex(() => true)); check(["x"].indexOf("missing"));'), [true, true]);
 });
 
+for (const method of ['push', 'unshift']) {
+	test(`Array ${method} results are numeric lengths independently of element types`, t => {
+		for (const type of ['Array<string>', 'boolean[]', '[string, number]', 'Array<bigint>']) {
+			const code = `/** @param {${type}} values */ function run(values, input, source) { check(values.${method}()); check(values.${method}(input)); check(values.${method}(...source)); }`;
+			t.assert.deepStrictEqual(getVerdicts(code), [true, true, true], type);
+		}
+
+		for (const code of [
+			`/** @returns {number[]} */ function read() { return source; } check(read().${method}(input));`,
+			`function run(values: string[]) { const alias = values; check(alias.${method}("value")); }`,
+			`function run(...values) { check(values.${method}(input)); }`,
+			`check(Object.values(source).${method}(input));`,
+		]) {
+			t.assert.deepStrictEqual(getVerdicts(code), [true], code);
+		}
+	});
+}
+
+test('array length mutators do not borrow numeric results for uncertain or typed array receivers', t => {
+	for (const type of ['unknown', '?Array<string>', 'Array<string> | Uint8Array', 'Uint8Array', 'BigInt64Array', '{push: () => string, unshift: () => boolean}']) {
+		const code = `/** @param {${type}} values */ function run(values) { check(values.push(input)); check(values.unshift(input)); }`;
+		t.assert.deepStrictEqual(getVerdicts(code), [false, false], type);
+	}
+
+	const code = [
+		'/** @param {Array<string>} [values] */ function optional(values) { check(values.push(input)); }',
+		'/** @param {Array<string>} values */ function calls(values) {',
+		'check(values?.push(input)); check(values.unshift?.(input)); check(values["push"](input));',
+		'check(values.pop()); check(values.shift()); check(values.splice(0, 1));',
+		'}',
+		'/** @type {unknown} */ const values = []; check(values.unshift(input));',
+	].join('\n');
+	t.assert.deepStrictEqual(getVerdicts(code), [false, false, false, false, false, false, false, false]);
+});
+
+test('array length mutator inference respects native annotations and receiver assertions', t => {
+	const code = [
+		'/** @param {Array<string>} values */ function native(values: {push(): string}) { check(values.push()); }',
+		'/** @param {{unshift: () => string}} values */ function overridden(values: string[]) { check(values.unshift("value")); }',
+		'/** @param {Array<string>} values */ function asserted(values) { check((values as {push(): string}).push()); }',
+	].join('\n');
+	t.assert.deepStrictEqual(getVerdicts(code), [false, true, false]);
+});
+
 test('numeric search inference requires a definite indexed collection receiver', t => {
 	for (const type of ['unknown', '?Array<string>', 'Array<string> | Set<string>', 'ArrayLike<string>', '{indexOf: () => string}']) {
 		const code = [
