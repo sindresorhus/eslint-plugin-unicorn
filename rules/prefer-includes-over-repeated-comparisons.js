@@ -27,9 +27,14 @@ Get the primitive string or number type of an operand with full type information
 */
 const getPrimitiveTypeName = (node, context) => withTypeInformation(node, context, ({type, checker}) => {
 	const constrainedType = checker.getBaseConstraintOfType(type) ?? type;
-	const {intrinsicName} = checker.getBaseTypeOfLiteralType(constrainedType);
+	const isString = checker.isTypeAssignableTo(constrainedType, checker.getStringType());
+	const isNumber = checker.isTypeAssignableTo(constrainedType, checker.getNumberType());
 
-	return intrinsicName === 'string' || intrinsicName === 'number' ? intrinsicName : undefined;
+	if (isString === isNumber) {
+		return;
+	}
+
+	return isString ? 'string' : 'number';
 });
 
 function getSharedReference(comparisons) {

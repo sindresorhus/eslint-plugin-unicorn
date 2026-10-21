@@ -37,6 +37,9 @@ test({
 			'function check<T extends number>(value: T) { return value != 1 && value != 2 && value != 3; }',
 			'function check<U extends string, T extends U>(value: T) { return value == "a" || value == "b" || value == "c"; }',
 			'function check<T extends "a" | "b">(value: string, other: T) { return value == other || value == "c" || value == "d"; }',
+			'enum Status {OK = 200, Created = 201, Accepted = 202} declare const value: number; value == Status.OK || value == Status.Created || value == Status.Accepted;',
+			'enum Status {Open = "open", Closed = "closed", Pending = "pending"} declare const value: string; value != Status.Open && value != Status.Closed && value != Status.Pending;',
+			'declare const value: string & {readonly brand: unique symbol}; value == "a" || value == "b" || value == "c";',
 		].map(code => ({
 			...typeAware(code),
 			errors: [{messageId: 'prefer-includes-over-repeated-comparisons'}],
@@ -46,6 +49,18 @@ test({
 
 test.snapshot({
 	valid: [
+		...['Status', 'string'].map(type => typeAware(outdent`
+			enum Status {OK = 200, Created = 201, Accepted = 202}
+			declare const value: ${type};
+			value == Status.OK || value == Status.Created || value == Status.Accepted;
+		`)),
+		...['Status', 'number'].map(type => typeAware(outdent`
+			enum Status {Open = "open", Closed = "closed", Pending = "pending"}
+			declare const value: ${type};
+			value != Status.Open && value != Status.Closed && value != Status.Pending;
+		`)),
+		typeAware('enum Status {Open = "open", Closed = 0} declare const value: string; declare const other: Status; value == other || value == "a" || value == "b";'),
+		typeAware('declare const value: string; declare const other: never; value == other || value == "a" || value == "b";'),
 		...[
 			['===', '||'],
 			['!==', '&&'],

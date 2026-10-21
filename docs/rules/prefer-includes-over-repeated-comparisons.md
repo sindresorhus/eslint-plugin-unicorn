@@ -15,7 +15,7 @@ This rule does not autofix because the best rewrite depends on context. Plain me
 
 With [type information](https://typescript-eslint.io/getting-started/typed-linting/), the rule skips union-typed subjects, including generic types with union constraints, to preserve narrowing. Other narrowing-dependent comparisons may require disabling the rule locally.
 
-With type information, it also reports loose comparisons (`==` joined by `||` or `!=` joined by `&&`), including chains mixed with their strict counterparts, when the subject and every compared value are all primitive strings or all primitive numbers. This includes generic types constrained to `string` or `number`. Without type information, loose comparisons are ignored.
+With type information, it also reports loose comparisons (`==` joined by `||` or `!=` joined by `&&`), including chains mixed with their strict counterparts, when the subject and every compared value are all primitive strings or all primitive numbers. This includes enum members and generic types constrained to `string` or `number`. Without type information, loose comparisons are ignored.
 
 ## Examples
 
