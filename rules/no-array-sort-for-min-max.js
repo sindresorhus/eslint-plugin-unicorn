@@ -14,6 +14,7 @@ import {
 	isSameReference,
 	isStrongPrecedenceNode,
 	unwrapTypeScriptExpression,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-array-sort-for-min-max/error';
@@ -125,7 +126,7 @@ const createProblem = (node, sortedSource, endpoint, context) => {
 
 	if (
 		sortedSource.node.type !== 'Super'
-		&& context.sourceCode.getCommentsInside(node).length === 0
+		&& !wouldRemoveComments(context, node, [sortedSource.node])
 	) {
 		const replacement = getReplacement(method, sortedSource.node, context.sourceCode);
 		const fixedText = isInUnparenthesizedNewExpressionCallee(node, context) ? `(${replacement})` : replacement;
