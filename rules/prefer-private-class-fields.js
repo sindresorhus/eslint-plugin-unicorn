@@ -47,11 +47,7 @@ const objectObserverMethods = new Set([
 ]);
 
 const isCandidateMember = member => {
-	if (
-		member.type !== 'PropertyDefinition'
-		&& member.type !== 'MethodDefinition'
-		&& member.type !== 'AccessorProperty'
-	) {
+	if (!['PropertyDefinition', 'MethodDefinition', 'AccessorProperty'].includes(member.type)) {
 		return false;
 	}
 

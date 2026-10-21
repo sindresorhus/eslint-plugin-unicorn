@@ -18,8 +18,24 @@ const messages = {
 	[MESSAGE_ID]: 'Use `.includes()` instead of repeated equality checks.',
 };
 
-const isStrictEqualityComparison = node =>
-	node.type === 'BinaryExpression' && node.operator === '===';
+const isEqualityComparison = (node, logicalOperator) =>
+	node.type === 'BinaryExpression'
+	&& (logicalOperator === '||' ? ['===', '=='] : ['!==', '!=']).includes(node.operator);
+
+/**
+Get the primitive string or number type of an operand with full type information.
+*/
+const getPrimitiveTypeName = (node, context) => withTypeInformation(node, context, ({type, checker}) => {
+	const constrainedType = checker.getBaseConstraintOfType(type) ?? type;
+	const isString = checker.isTypeAssignableTo(constrainedType, checker.getStringType());
+	const isNumber = checker.isTypeAssignableTo(constrainedType, checker.getNumberType());
+
+	if (isString === isNumber) {
+		return;
+	}
+
+	return isString ? 'string' : 'number';
+});
 
 function getSharedReference(comparisons) {
 	const [{left, right}] = comparisons;
@@ -68,21 +84,21 @@ const create = context => {
 
 	context.on('LogicalExpression', node => {
 		if (
-			node.operator !== '||'
+			(node.operator !== '||' && node.operator !== '&&')
 			|| !isOutermostLogicalExpression(node)
 		) {
 			return;
 		}
 
-		const comparisons = getLogicalExpressionOperands(node, '||');
+		const comparisons = getLogicalExpressionOperands(node, node.operator);
 		if (
-			comparisons.some(comparison => !isStrictEqualityComparison(comparison))
+			comparisons.some(comparison => !isEqualityComparison(comparison, node.operator))
 			|| comparisons.length < minimumComparisons
 		) {
 			return;
 		}
 
-		if (comparisons.some(({left, right}) => containsOptionalChain(left) || containsOptionalChain(right))) {
+		if (comparisons.some(({left, right}) => [left, right].some(operand => containsOptionalChain(operand) || hasSideEffect(operand, sourceCode)))) {
 			return;
 		}
 
@@ -93,17 +109,27 @@ const create = context => {
 			|| !comparisons.every(comparison => {
 				const comparedValue = getComparedValue(comparison, sharedReference);
 
-				return comparedValue
-					&& !hasSideEffect(comparedValue, sourceCode)
-					&& !isNaNValue(comparedValue, context);
+				return comparedValue && !isNaNValue(comparedValue, context);
 			})
 		) {
 			return;
 		}
 
 		// Equality checks can narrow unions, but `.includes()` cannot.
-		if (withTypeInformation(unwrapTypeScriptExpression(sharedReference), context, ({type}) => type.isUnion())) {
+		if (withTypeInformation(unwrapTypeScriptExpression(sharedReference), context, ({type, checker}) => (checker.getBaseConstraintOfType(type) ?? type).isUnion())) {
 			return;
+		}
+
+		if (comparisons.some(comparison => comparison.operator === '==' || comparison.operator === '!=')) {
+			const primitiveType = getPrimitiveTypeName(sharedReference, context);
+			if (
+				!primitiveType
+				|| comparisons.some(({left, right}) =>
+					getPrimitiveTypeName(left, context) !== primitiveType
+					|| getPrimitiveTypeName(right, context) !== primitiveType)
+			) {
+				return;
+			}
 		}
 
 		return {
