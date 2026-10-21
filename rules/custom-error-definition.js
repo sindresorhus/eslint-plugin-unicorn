@@ -511,7 +511,7 @@ function * getConstructorBodyProblems(context, constructor, errorDefinition) {
 }
 
 function * customErrorDefinition(context, node) {
-	if (!hasValidSuperClass(node) || node.id === null) {
+	if (node.abstract || node.id === null || !hasValidSuperClass(node)) {
 		return;
 	}
 

@@ -1551,6 +1551,34 @@ ruleTest({
 
 ruleTest.typescript({
 	valid: [
+		'abstract class AppError extends Error {}',
+		'export abstract class HttpError extends Error { public abstract readonly status: number; }',
+		'export default abstract class BaseFailure extends Error {}',
+		outdent`
+			abstract class AppError extends Error {
+				protected constructor(message: string) {
+					super(message);
+				}
+			}
+		`,
+		outdent`
+			abstract class AppError extends Error {}
+			export abstract class HttpError extends AppError {
+				public abstract readonly status: number;
+			}
+			export class NotFoundError extends HttpError {
+				name = 'NotFoundError';
+				public readonly status = 404;
+			}
+		`,
+		outdent`
+			abstract class AppError extends Error {
+				name = 'AppError';
+				constructor(message: string) {
+					super(message);
+				}
+			}
+		`,
 		outdent`
 			class CustomError extends Error {
 				constructor(type: string, text: string, reply?: any);
@@ -1619,6 +1647,41 @@ ruleTest.typescript({
 		`,
 	],
 	invalid: [
+		{
+			code: outdent`
+				abstract class AppError extends Error {
+					static create() {
+						class InnerError extends Error {
+							constructor() {
+								super();
+							}
+						}
+						return new InnerError();
+					}
+				}
+			`,
+			errors: [invalidNameError('InnerError')],
+		},
+		{
+			code: outdent`
+				abstract class HttpError extends Error {
+					public abstract readonly status: number;
+				}
+				export class NotFoundError extends HttpError {
+					public readonly status = 404;
+				}
+			`,
+			errors: [invalidNameError('NotFoundError')],
+			output: outdent`
+				abstract class HttpError extends Error {
+					public abstract readonly status: number;
+				}
+				export class NotFoundError extends HttpError {
+					name = 'NotFoundError';
+					public readonly status = 404;
+				}
+			`,
+		},
 		{
 			code: outdent`
 				export class ValidationError extends Error {
