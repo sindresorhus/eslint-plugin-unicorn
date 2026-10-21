@@ -5,7 +5,6 @@ import {combineBooleanStates, getTypeBooleanState} from './utils/get-type-boolea
 import {getBooleanWrapperVariableState} from './utils/get-boolean-wrapper-variable-state.js';
 import {
 	getJSDocumentType,
-	getJSDocumentTypeName,
 	getJSDocumentCallableReturnType,
 	hasJSDocumentTypeReference,
 	getTypeName,
@@ -316,7 +315,7 @@ const hasBooleanReturnType = (node, context) =>
 
 function getJSDocumentFunctionReturnType(node, context) {
 	const annotation = getJSDocumentReturnType(node, context);
-	return promiseValueTypeNames.has(getJSDocumentTypeName(annotation?.type)) ? undefined : annotation;
+	return getJSDocumentType(annotation, {targetTypeNames: promiseValueTypeNames, treatMixedUnionAsTarget: true}) === target ? undefined : annotation;
 }
 
 /**

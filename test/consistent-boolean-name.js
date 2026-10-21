@@ -56,6 +56,32 @@ const onlyIsPrefixOptions = {
 	},
 };
 
+// Unsupported promise return documentation stays unresolved through unions and nullable wrappers.
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [
+			'/** @returns {Promise<boolean> | undefined} */ function isReady() { return source; }',
+			'/** @returns {?PromiseLike<boolean>} */ function isReady() { return source; }',
+			'/** @returns {PromiseLike<boolean> | null} */ const isReady = () => source;',
+			'/** @returns {Promise<boolean> | PromiseLike<boolean>} */ const isReady = function () { return source; };',
+			'/** @returns {Promise<boolean> | string} */ function isReady() { return source; }',
+			'/** @returns {?Promise<boolean>} */ export function isReady() { return true; }',
+		].map(code => wrap(code)),
+		invalid: [
+			...[
+				'/** @returns {Array<Promise<boolean>>} */ function isReady() { return source; }',
+				'/** @returns {() => Promise<boolean>} */ function isReady() { return source; }',
+				'/** @returns {{task: Promise<boolean>}} */ function isReady() { return source; }',
+			].map(code => ({code, errors: [{messageId: 'non-boolean-prefix', suggestions: 0}]})),
+			{
+				code: 'const task = {/** @returns {?Promise<boolean>} */ get isReady() { return source; }};',
+				options: [{checkMethods: 'always'}],
+				errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+			},
+		].map(testCase => wrap(testCase)),
+	});
+}
+
 for (const wrap of [testCase => testCase, typescript, typeAware]) {
 	test({
 		valid: [],
