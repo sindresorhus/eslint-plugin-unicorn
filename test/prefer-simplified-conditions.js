@@ -139,11 +139,6 @@ ruleTester.snapshot({
 		'class Foo extends Bar { constructor(a) { if ((a && this) || a) {} super(); } }',
 		'if ((a++ && b) || (a++ && c)) {}',
 		'if (((a = value) && b) || ((a = value) && c)) {}',
-		'const Array = {isArray() { return true; }}; if ((Array.isArray(value) && a) || (Array.isArray(value) && b)) {}',
-		'const Number = {isInteger() { return true; }}; if ((Number.isInteger(value) && a) || (Number.isInteger(value) && b)) {}',
-		'if ((Array.isArray(object.property) && a) || (Array.isArray(object.property) && b)) {}',
-		'if ((Array.isArray(foo()) && a) || (Array.isArray(foo()) && b)) {}',
-		'if ((Number.isInteger(foo()) && a) || (Number.isInteger(foo()) && b)) {}',
 		'if ((Array?.isArray(value) && a) || (Array?.isArray(value) && b)) {}',
 		'if ((Array.isArray?.(value) && a) || (Array.isArray?.(value) && b)) {}',
 		'if ((Number?.isInteger(value) && a) || (Number?.isInteger(value) && b)) {}',
@@ -253,6 +248,139 @@ ruleTester.snapshot({
 		},
 	],
 });
+
+ruleTester.snapshot({
+	valid: [
+		'if ((foo?.() && a) || (foo?.() && b)) {}',
+		'if ((object.property && a) || (object?.property && b)) {}',
+		'if ((object?.property && a) || (object.property && b)) {}',
+		'if ((a && foo?.()) || (a && b)) {}',
+		'if ((foo(object?.property) && a) || (foo(object?.property) && b)) {}',
+		'if ((object[foo?.()] && a) || (object[foo?.()] && b)) {}',
+		'if ((object.property && a) || (object.other && b)) {}',
+		'if ((foo(a) && b) || (foo(c) && d)) {}',
+		'if ((new Foo() && a) || (new Foo() && b)) {}',
+		'if ((a && b++) || (a && c)) {}',
+		'if ((a && (b = value)) || (a && c)) {}',
+		'const value = (object.property && a) || (object.property && b);',
+		'const value = (foo() || a) && (foo() || b);',
+	],
+	invalid: [
+		'if ((foo.bar && a) || (foo.bar && b)) {}',
+		'if ((foo.bar || a) && (foo.bar || b)) {}',
+		'if ((a && object.property) || (a && c)) {}',
+		'if ((a || b) && (a || object.property)) {}',
+		'if ((object[key] && a) || (object[key] && b)) {}',
+		'if ((object.nested.property && a) || (object.nested.property && b)) {}',
+		'if ((object.property && a) || (object["property"] && b)) {}',
+		'if ((!object.property && a) || (!object.property && b)) {}',
+		'if ((object.property === value && a) || (object.property === value && b)) {}',
+		'if (((foo).bar && a) || ((foo).bar && b)) {}',
+		'if (((foo.bar) && (a)) || ((foo.bar) && (b))) {}',
+		'if ((foo.bar /* keep */ && a) || (foo.bar && b)) {}',
+		'if ((foo() && a) || (foo() && b)) {}',
+		'if ((foo() || a) && (foo() || b)) {}',
+		'if ((a && mutateA()) || (a && b)) {}',
+		'if ((a || b) && (a || foo())) {}',
+		'if ((object.method(value) && a) || (object.method(value) && b)) {}',
+		'if ((getObject().property && a) || (getObject().property && b)) {}',
+		'if ((object[getKey()] && a) || (object[getKey()] && b)) {}',
+		'if ((object[0] && a) || (object[(key = 0)] && b)) {}',
+		'if ((!foo() && a) || (!foo() && b)) {}',
+		'if ((foo() !== value && a) || (foo() !== value && b)) {}',
+		'if ((foo() /* keep */ && a) || (foo() && b)) {}',
+		'if ((a && foo(/* keep */)) || (a && b)) {}',
+		'if ((Array.isArray(object.property) && a) || (Array.isArray(object.property) && b)) {}',
+		'if ((Array.isArray(foo()) && a) || (Array.isArray(foo()) && b)) {}',
+		'if ((Number.isInteger(foo()) && a) || (Number.isInteger(foo()) && b)) {}',
+		'const Array = {isArray() { return true; }}; if ((Array.isArray(value) && a) || (Array.isArray(value) && b)) {}',
+		'const Number = {isInteger() { return true; }}; if ((Number.isInteger(value) && a) || (Number.isInteger(value) && b)) {}',
+		'if ((Array.isArray(value) && foo()) || (Array.isArray(value) && b)) {}',
+		'if ((a && Array.isArray(value)) || (a && b)) {}',
+		'if ((Array.isArray([...values]) && a) || (Array.isArray([...values]) && b)) {}',
+	],
+});
+
+ruleTester.snapshot({
+	valid: [],
+	invalid: [
+		'if (((object.property as boolean) && a) || ((object.property as boolean) && b)) {}',
+		'if ((object.property! && a) || (object.property! && b)) {}',
+		'if (((object.property satisfies boolean) && a) || ((object.property satisfies boolean) && b)) {}',
+		'if (((<boolean>object.property) && a) || ((<boolean>object.property) && b)) {}',
+		'if ((foo<boolean>() && a) || (foo<boolean>() && b)) {}',
+		'if (((foo() as boolean) && a) || ((foo() as boolean) && b)) {}',
+		'declare function foo(): boolean; declare const a: boolean; declare const b: boolean; const value = (foo() && a) || (foo() && b);',
+	].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
+});
+
+ruleTester.snapshot({
+	valid: [],
+	invalid: [typeAware('declare const flags: {a: boolean; b: boolean; c: boolean}; const value = (flags.a && flags.b) || (flags.a && flags.c);')],
+});
+
+test('autofixes common member reads', t => {
+	const linter = new Linter();
+	const result = linter.verifyAndFix('if ((foo.bar && a) || (foo.bar && b)) {}', {
+		plugins: {unicorn: {rules: {[ruleId]: rule}}},
+		rules: {[`unicorn/${ruleId}`]: 'error'},
+	});
+
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, 'if (foo.bar && (a || b)) {}');
+	t.assert.deepStrictEqual(result.messages, []);
+});
+
+test('member factoring preserves boolean results', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {[ruleId]: rule}}},
+		rules: {[`unicorn/${ruleId}`]: 'error'},
+	};
+	const values = [undefined, false, true, 0, 1, '', 'text'];
+
+	for (const expression of [
+		'(object.property && a) || (object.property && b)',
+		'(object.property || a) && (object.property || b)',
+		'(a && object.property) || (a && b)',
+	]) {
+		const code = `Boolean(${expression})`;
+		const {fixed, output, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+
+		for (const property of values) {
+			for (const a of values) {
+				for (const b of values) {
+					const context = {object: {property}, a, b};
+					t.assert.strictEqual(runInNewContext(output, context), runInNewContext(code, context));
+				}
+			}
+		}
+	}
+});
+
+for (const [code, expectedOutput] of [
+	['if ((foo() && a) || (foo() && b)) {}', 'if (foo() && (a || b)) {}'],
+	['if ((Array.isArray([...values]) && a) || (Array.isArray([...values]) && b)) {}', 'if (Array.isArray([...values]) && (a || b)) {}'],
+]) {
+	test(`suggests common calls without autofixing: ${code}`, t => {
+		const linter = new Linter();
+		const result = linter.verifyAndFix(code, {
+			plugins: {unicorn: {rules: {[ruleId]: rule}}},
+			rules: {[`unicorn/${ruleId}`]: 'error'},
+		});
+
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.strictEqual(result.messages.length, 1);
+		const {suggestions} = result.messages[0];
+		t.assert.strictEqual(suggestions.length, 1);
+		const {fix} = suggestions[0];
+		const output = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		t.assert.strictEqual(output, expectedOutput);
+	});
+}
 
 ruleTester.snapshot({
 	valid: [
