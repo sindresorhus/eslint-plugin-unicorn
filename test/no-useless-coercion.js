@@ -1,3 +1,4 @@
+import {atob, btoa} from 'node:buffer';
 import {stripTypeScriptTypes} from 'node:module';
 import {test as nodeTest} from 'node:test';
 import {runInNewContext} from 'node:vm';
@@ -60,6 +61,7 @@ for (const languageOptions of [
 	test({
 		testerOptions: {languageOptions},
 		valid: [
+			'/** @param {{atob: () => number}} value */ function run(value) { return String(value.atob()); }',
 			'/** @param {{encodeURI: () => number}} value */ function run(value) { return String(value.encodeURI()); }',
 			'/** @param {{f16round: () => string}} value */ function run(value) { return Number(value.f16round()); }',
 			'/** @param {Date} value */ function run(value) { return Number(value.toJSON()); }',
@@ -82,7 +84,7 @@ for (const languageOptions of [
 			'/** @returns {number} */ function* count() { yield source; } +count();',
 		].map(code => ({code, filename: 'file.ts'})),
 		invalid: [
-			...['encodeURI', 'encodeURIComponent', 'decodeURI', 'decodeURIComponent'].map(name => ({
+			...['encodeURI', 'encodeURIComponent', 'decodeURI', 'decodeURIComponent', 'atob', 'btoa'].map(name => ({
 				filename: 'file.ts',
 				code: `/** @param {unknown} value */ function run(value) { return String(${name}(value)); }`,
 				output: `/** @param {unknown} value */ function run(value) { return ${name}(value); }`,
@@ -145,6 +147,37 @@ for (const languageOptions of [
 		],
 	});
 }
+
+nodeTest('base64 string coercion removal preserves binary data errors and argument conversions', t => {
+	const config = {
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	};
+	const binary = String.fromCodePoint(0, 0xFF);
+	for (const [name, argument, value, reads = 0] of [
+		['btoa', JSON.stringify(binary), 'AP8='],
+		['atob', '"AP8="', binary],
+		['atob', String.raw`" \n AP8 \t"`, binary],
+		['atob', '"%%%"', 'InvalidCharacterError'],
+		['btoa', '"🦄"', 'InvalidCharacterError'],
+		['atob', '', 'TypeError'],
+		['atob', 'undefined', 'InvalidCharacterError'],
+		['btoa', '', 'TypeError'],
+		['btoa', 'undefined', 'dW5kZWZpbmVk'],
+		['atob', '({toString() { reads++; return "AP8="; }})', binary, 1],
+		['btoa', '({toString() { reads++; return "a"; }})', 'YQ==', 1],
+	]) {
+		const code = `let reads = 0; function run() { try { return String(${name}(${argument})); } catch (error) { return error.name; } } JSON.stringify([run(), reads]);`;
+		const expectedOutput = `let reads = 0; function run() { try { return ${name}(${argument}); } catch (error) { return error.name; } } JSON.stringify([run(), reads]);`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(output, expectedOutput);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(code, {atob, btoa}), JSON.stringify([value, reads]));
+		t.assert.strictEqual(runInNewContext(output, {atob, btoa}), JSON.stringify([value, reads]));
+		t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
+	}
+});
 
 test({
 	valid: ['Number(class {}.length);', 'Number(class { static length = "5"; }.length);'],

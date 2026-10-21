@@ -270,7 +270,7 @@ test('date formatting requires definite receivers and preserves annotation prece
 	t.assert.deepStrictEqual(getResults(code), [false, false, false, false, false, true, false, false, false]);
 });
 
-for (const name of ['encodeURI', 'encodeURIComponent', 'decodeURI', 'decodeURIComponent']) {
+for (const name of ['encodeURI', 'encodeURIComponent', 'decodeURI', 'decodeURIComponent', 'atob', 'btoa']) {
 	test(`${name} returns strings for unknown and documented arguments`, t => {
 		const code = [
 			`function run(value, ...values) { inspect(${name}(value)); inspect(${name}()); inspect(${name}(...values)); }`,
@@ -296,6 +296,27 @@ test('URI inference only recognizes direct nonoptional global calls', t => {
 		'function run(value) {',
 		'inspect(encodeURI?.(value)); inspect(globalThis.encodeURI(value)); inspect(other.encodeURI(value));',
 		'inspect(encodeOther(value)); inspect(new encodeURIComponent(value));',
+		'}',
+	].join('\n');
+	t.assert.deepStrictEqual(getResults(code), [false, false, false, false, false]);
+});
+
+test('base64 string results retain aliases chains and explicit annotation precedence', t => {
+	const code = [
+		'/** @param {unknown} value */ function run(value) {',
+		'const text = atob(value); const alias = text; inspect(alias); inspect(alias.slice(1));',
+		'/** @type {unknown} */ const uncertain = btoa(value); inspect(uncertain);',
+		'const native: number = atob(value); inspect(native); inspect(btoa(value) as number);',
+		'}',
+	].join('\n');
+	t.assert.deepStrictEqual(getResults(code), [true, true, false, false, false]);
+});
+
+test('base64 inference retains direct nonoptional call boundaries', t => {
+	const code = [
+		'function run(value) {',
+		'inspect(atob?.(value)); inspect(globalThis.atob(value)); inspect(other.btoa(value));',
+		'inspect(encodeBase64(value)); inspect(new btoa(value));',
 		'}',
 	].join('\n');
 	t.assert.deepStrictEqual(getResults(code), [false, false, false, false, false]);

@@ -16,6 +16,12 @@ for (const languageOptions of [
 		testerOptions: {languageOptions},
 		valid: [],
 		invalid: [
+			...['atob', 'btoa'].map(name => ({
+				filename: 'file.ts',
+				code: `/** @param {unknown} value */ function run(value) { return isNaN(${name}(value).charCodeAt(0)); }`,
+				output: `/** @param {unknown} value */ function run(value) { return Number.isNaN(${name}(value).charCodeAt(0)); }`,
+				errors: [{messageId: MESSAGE_ID_ERROR, suggestions: 0}],
+			})),
 			...['isFinite', 'isNaN'].map(method => ({
 				filename: 'file.ts',
 				code: `/** @param {unknown} value */ function run(value) { return ${method}(Math.f16round(value)); }`,

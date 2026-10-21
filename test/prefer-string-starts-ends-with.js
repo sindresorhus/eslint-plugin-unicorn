@@ -22,7 +22,7 @@ for (const languageOptions of [
 			'/** @param {{toISOString: () => number[]}} value */ function run(value) { return value.toISOString().indexOf(2026) === 0; }',
 		].map(code => ({code, filename: 'file.ts'})),
 		invalid: [
-			...['encodeURI', 'encodeURIComponent', 'decodeURI', 'decodeURIComponent'].map(name => ({
+			...['encodeURI', 'encodeURIComponent', 'decodeURI', 'decodeURIComponent', 'atob', 'btoa'].map(name => ({
 				filename: 'file.ts',
 				code: `/** @param {unknown} value */ function run(value) { return ${name}(value).indexOf("a") === 0; }`,
 				output: `/** @param {unknown} value */ function run(value) { return ${name}(value).startsWith("a"); }`,
