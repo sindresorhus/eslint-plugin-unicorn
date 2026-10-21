@@ -2,6 +2,8 @@ import {
 	getBuiltinCollectionType,
 	isGlobalIdentifier,
 	getMemberExpressionObjectText,
+	getParenthesizedRange,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-object-methods-with-collections/error';
@@ -52,7 +54,7 @@ const getProblem = (node, context) => {
 		},
 	};
 
-	if (context.sourceCode.getCommentsInside(node).length === 0) {
+	if (!wouldRemoveComments(context, node, [getParenthesizedRange(argument, context)])) {
 		problem.suggest = [
 			{
 				messageId: MESSAGE_ID_SUGGESTION,

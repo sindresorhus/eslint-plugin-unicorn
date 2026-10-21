@@ -1,6 +1,54 @@
-import {getTester} from './utils/test.js';
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
+import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		['const object = {...(getObject(/* keep */) || {})};', 'const object = {...getObject(/* keep */)};'],
+		['const object = {...((/* keep */ foo) ?? {})};', 'const object = {...(/* keep */ foo)};'],
+		['const object = {...({/* keep */ value: 1} || {})};', 'const object = {...{/* keep */ value: 1}};'],
+		['const object = {...(getObject(// keep\n) ?? {})};', 'const object = {...getObject(// keep\n)};'],
+		['const object = {...(getObject(// keep\r\n) ?? {})};', 'const object = {...getObject(// keep\r\n)};'],
+	].map(([code, output]) => ({code, output, errors: [{messageId: 'no-useless-fallback-in-spread'}]})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const object = {...((foo as object /* keep */) ?? {})};',
+			output: 'const object = {...(foo as object /* keep */)};',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		...[
+			'const object = {...(foo || {/* keep */})};',
+			'const object = {...((foo) /* keep */ ?? {})};',
+		].map(code => ({code, errors: 1})),
+	],
+});
+
+nodeTest('comment-preserving fallback fixes retain spread results', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'no-useless-fallback-in-spread': rule}}},
+		rules: {'unicorn/no-useless-fallback-in-spread': 'error'},
+	};
+	for (const operator of ['||', '??']) {
+		const code = `JSON.stringify({...((value /* keep */) ${operator} {})});`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.ok(output.includes('/* keep */'));
+		for (const value of [undefined, null, false, 0, '', 'text', {value: 1}, [1, 2]]) {
+			t.assert.strictEqual(runInNewContext(output, {value}), runInNewContext(code, {value}));
+		}
+	}
+});
 
 test.snapshot({
 	valid: [

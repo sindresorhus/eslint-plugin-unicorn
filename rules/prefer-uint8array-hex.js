@@ -9,12 +9,14 @@ import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getFunctionReturnExpression,
 	getOutermostTypeScriptExpression,
+	getParenthesizedRange,
 	getParenthesizedText,
 	isArrayPrototypeProperty,
 	isString,
 	needsSemicolon,
 	getMemberExpressionObjectText,
 	unwrapTypeScriptExpression,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {createTypeCheckers, nonTarget, target} from './utils/type-helpers.js';
 import {bufferTypeCheckerOptions, isBufferExpression, isBufferReference} from './shared/buffer-reference.js';
@@ -250,7 +252,7 @@ function getProblem(node, input, context, {decoding = false, autofix = false, ca
 
 	function * fix(fixer, {abort}) {
 		const {sourceCode} = context;
-		if (sourceCode.getCommentsInside(node).length > 0) {
+		if (wouldRemoveComments(context, node, [getParenthesizedRange(input, context)])) {
 			abort();
 		}
 

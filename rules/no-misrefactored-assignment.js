@@ -1,8 +1,10 @@
 import {
+	getParenthesizedRange,
 	getParenthesizedText,
 	getPrecedence,
 	isSameReference,
 	PRECEDENCE_ADDITION,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 /**
@@ -80,9 +82,9 @@ const create = context => {
 			data,
 		};
 
-		// The fix replaces the whole right-hand side with the kept operand, so it
-		// would drop any comments inside it. Skip the suggestion in that case.
-		if (sourceCode.getCommentsInside(right).length === 0) {
+		// The fix replaces the whole right-hand side with the kept operand, so it would drop comments outside the copied range. Skip the suggestion in that case.
+		const keptRange = getPrecedence(keptOperand) < PRECEDENCE_ADDITION ? getParenthesizedRange(keptOperand, context) : keptOperand;
+		if (!wouldRemoveComments(context, right, [keptRange])) {
 			problem.suggest = [
 				{
 					messageId: MESSAGE_ID_SUGGESTION,

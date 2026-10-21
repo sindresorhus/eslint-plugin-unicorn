@@ -5,11 +5,13 @@ import {
 	getTokenStore,
 	getCallArgumentText,
 	getMemberExpressionObjectText,
+	getParenthesizedRange,
 	isArray,
 	isKnownNonString,
 	isRegExp,
 	needsSemicolon,
 	shouldAddParenthesesToUnaryExpressionReplacement,
+	wouldRemoveComments,
 } from './utils/index.js';
 import simpleArraySearchRule from './shared/simple-array-search-rule.js';
 import {isLiteral, isNegativeOne} from './ast/index.js';
@@ -55,8 +57,8 @@ const getProblem = (context, node, target, argumentsNodes) => {
 		data: {
 			method: node.left.callee.property.name,
 		},
-		// The whole comparison is replaced, a comment in it would be dropped
-		fix: tokenStore.getCommentsInside(node).length > 0
+		// The comparison is rebuilt from the receiver and retained arguments, so comments elsewhere would be dropped
+		fix: wouldRemoveComments(context, node, [target, ...argumentsNodes].map(node => getParenthesizedRange(node, context)))
 			? undefined
 			: fixer => fixer.replaceText(node, replacement),
 	};

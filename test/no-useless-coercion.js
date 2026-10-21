@@ -13,6 +13,57 @@ const linter = new Linter();
 test({
 	valid: [],
 	invalid: [
+		['Number(values[/* keep */ index].length);', 'values[/* keep */ index].length;'],
+		['Boolean(left === /* keep */ right);', '(left === /* keep */ right);'],
+		['+(values[/* keep */ index].length);', '(values[/* keep */ index].length);'],
+		['String((/* keep */ "hello"));', '(/* keep */ "hello");'],
+		['Boolean(left === // keep\r\n  right);', '(left === // keep\r\n  right);'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'Number(value as /* keep */ number);',
+			output: '(value as /* keep */ number);',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		...[
+			'Number(value.length /* keep */);',
+			'"value" + (/* keep */ "");',
+			'(/* keep */ "") + "value";',
+			'"value".toString(/* keep */);',
+			'"value"./* keep */toString();',
+		].map(code => ({code, errors: 1})),
+	],
+});
+
+nodeTest('commented coercion inputs retain their values and are evaluated once', t => {
+	for (const [expression, result] of [
+		['Number(getValue(/* keep */).length)', 3],
+		['+getValue(/* keep */).length', 3],
+		['("prefix" + /* keep */ getValue()) + ""', 'prefixabc'],
+		['("prefix" + /* keep */ getValue()).toString()', 'prefixabc'],
+	]) {
+		const code = `let evaluations = 0; function getValue() { evaluations++; return "abc"; } const result = ${expression}; JSON.stringify({evaluations, result});`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, {
+			plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+			rules: {'unicorn/no-useless-coercion': 'error'},
+		});
+		t.assert.strictEqual(fixed, true, expression);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.ok(output.includes('/* keep */'));
+		const expected = JSON.stringify({evaluations: 1, result});
+		t.assert.strictEqual(runInNewContext(code), expected);
+		t.assert.strictEqual(runInNewContext(output), expected);
+	}
+});
+
+test({
+	valid: [],
+	invalid: [
 		...[
 			['Number(function () {}.length);', '(function () {}.length);'],
 			['Number(class {}.length);', '(class {}.length);'],
@@ -80,7 +131,7 @@ nodeTest('deleting a coerced value preserves the property and delete result', t 
 	};
 
 	for (const [value, expression] of [
-		['1', 'Number(object.value as number)'],
+		['1', 'Number(object.value as /* keep */ number)'],
 		['1', '+(object.value as number)'],
 		['true', 'Boolean(object.value as boolean)'],
 		['"x"', 'String(object.value as string)'],
@@ -394,7 +445,7 @@ test.snapshot({
 			Number(+bar)
 		`,
 
-		// Fix: comment inside (reported, not fixed)
+		// Fix: comments in removed syntax block fixes, while copied comments are preserved
 		'Number(/* keep */ x.length)',
 		'+/* keep */ x.length',
 		'\'a\' /* keep */ + \'\'',

@@ -4,8 +4,10 @@ import {
 	isSameReference,
 	needsSemicolon,
 	getMemberExpressionObjectText,
+	getParenthesizedRange,
 	isInUnparenthesizedNewExpressionCallee,
 	unwrapTypeScriptExpression,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {createTypeCheckers} from './utils/type-helpers.js';
 
@@ -187,7 +189,7 @@ const create = context => {
 		const {source, canAutofix} = conversionMatch;
 		const method = `to${target}`;
 		const problem = {node, messageId: MESSAGE_ID, data: {method, target}};
-		if (sourceCode.getCommentsInside(node).length > 0) {
+		if (wouldRemoveComments(context, node, [getParenthesizedRange(source, context)])) {
 			return problem;
 		}
 

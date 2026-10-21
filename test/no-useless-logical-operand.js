@@ -1,7 +1,86 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		['const value = true && (/* keep */ input);', 'const value = (/* keep */ input);'],
+		['const value = input(/* keep */) && true && other;', 'const value = input(/* keep */) && other;'],
+		['const value = false || object[/* keep */ key];', 'const value = object[/* keep */ key];'],
+		['const value = (/* keep */ false) && never();', 'const value = (/* keep */ false);'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [
+		'delete (true && object[/* keep */ key]);',
+		'(true && object[/* keep */ key])();',
+		'(true && object[/* keep */ key])`template`;',
+	],
+	invalid: [
+		...[
+			['const value = true && getValue(\r\n  // keep\r\n);', 'const value = getValue(\r\n  // keep\r\n);'],
+			['const value = (first || /* keep */ second) && true && last;', 'const value = (first || /* keep */ second) && last;'],
+			['use()\ntrue && [/* keep */ 1];', 'use()\n;[/* keep */ 1];'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+		{
+			code: 'const value = true && (input as /* keep */ boolean);',
+			output: 'const value = (input as /* keep */ boolean);',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		...[
+			'const value = input && (/* keep */ true) && other;',
+			'const value = false && call(/* keep */);',
+			'const value = true && ((/* keep */ true) && input);',
+		].map(code => ({code, errors: 1})),
+		{
+			code: 'const value = (true as /* keep */ boolean) && input;',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+	],
+});
+
+nodeTest('commented logical operands retain values and short-circuit evaluation order', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'no-useless-logical-operand': rule}}},
+		rules: {'unicorn/no-useless-logical-operand': 'error'},
+	};
+	for (const [expression, getExpectedEvents] of [
+		['true && read(/* keep */ "left")', () => ['left']],
+		['read(/* keep */ "left") && true && read("right")', left => left ? ['left', 'right'] : ['left']],
+		['false || (read(/* keep */ "left") || read("right"))', left => left ? ['left'] : ['left', 'right']],
+		['(/* keep */ false) && read("right")', () => []],
+	]) {
+		const code = `const result = ${expression}; JSON.stringify({result, events});`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.ok(output.includes('/* keep */'));
+		for (const left of [false, 0, 'value']) {
+			const results = [code, output].map(source => {
+				const events = [];
+				const result = runInNewContext(source, {
+					events,
+					read(name) {
+						events.push(name);
+						return name === 'left' ? left : 42;
+					},
+				});
+				t.assert.deepStrictEqual(events, getExpectedEvents(left));
+				return result;
+			});
+			t.assert.strictEqual(results[1], results[0]);
+		}
+	}
+});
 
 test.snapshot({
 	valid: [
@@ -188,7 +267,7 @@ test.snapshot({
 		{code: '(true && \'use strict\')!;', languageOptions: {parser: parsers.typescript}},
 		{code: '<const>(true && \'use strict\');', languageOptions: {parser: parsers.typescript}},
 
-		// Comments inside the chain are reported but not fixed.
+		// Comments in removed syntax block fixes, while copied operand comments are preserved.
 		'const value = true /* keep */ && input;',
 		'if (input && /* keep */ true) {}',
 		'const value = true && call(/* keep */);',

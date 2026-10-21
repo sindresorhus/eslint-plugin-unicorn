@@ -1,6 +1,93 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['((1 /* keep */ + 2) - 4) > 0;', '(1 /* keep */ + 2) > 4;'],
+			['(5 - (1 /* keep */ + 2)) === 0;', '5 === (1 /* keep */ + 2);'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+		...[
+			['(left[/* keep */ key] - right) > 0;', 'left[/* keep */ key] > right;'],
+			['0 < (left - getRight(/* keep */));', 'left > getRight(/* keep */);'],
+		].map(([code, output]) => ({
+			code,
+			errors: [{messageId: 'no-subtraction-comparison/error', suggestions: [{messageId: 'no-subtraction-comparison/suggestion', output}]}],
+		})),
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['((/* keep */ 1)) - 2 > 0;', '((/* keep */ 1)) > 2;'],
+			['0 < 1 - (2 /* keep */);', '1 > (2 /* keep */);'],
+			['0 < (1\r\n  // keep\r\n) - 2;', '(1\r\n  // keep\r\n) > 2;'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+		{
+			code: 'setup()\n0 < (left as /* keep */ number) - (right as number);',
+			output: 'setup()\n;(left as /* keep */ number) > (right as number);',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		...[
+			'1 /* keep */ - 2 > 0;',
+			'1 - /* keep */ 2 > 0;',
+			'(/* keep */ 1 - 2) > 0;',
+			'1 - 2 /* keep */ > 0;',
+			'1 - 2 > (/* keep */ 0);',
+		].map(code => ({code, errors: [{messageId: 'no-subtraction-comparison/error', suggestions: []}]})),
+	],
+});
+
+const linter = new Linter();
+const linterConfig = {
+	plugins: {unicorn: {rules: {'no-subtraction-comparison': rule}}},
+	rules: {'unicorn/no-subtraction-comparison': 'error'},
+};
+
+nodeTest('numeric comparisons preserve comments, results, and operand evaluation order', t => {
+	for (const expression of [
+		'Number(read("left", left) /* keep */) - Number(read("right", right)) > 0',
+		'0 > Number(read("left", left)) - Number(read("right", right) /* keep */)',
+	]) {
+		for (const [left, right] of [[5, 3], [3, 5], [3, 3], [Infinity, Infinity]]) {
+			const setup = `const left = ${left}; const right = ${right}; const calls = []; function read(name, value) { calls.push(name); return value; }`;
+			const code = `${setup} const result = ${expression}; JSON.stringify({result, calls});`;
+			const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
+			t.assert.strictEqual(fixed, true);
+			t.assert.deepStrictEqual(messages, []);
+			t.assert.ok(output.includes('/* keep */'));
+			t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
+			t.assert.deepStrictEqual(JSON.parse(runInNewContext(output)).calls, ['left', 'right']);
+		}
+	}
+});
+
+nodeTest('commented string and non-finite comparisons remain suggestions', t => {
+	for (const [code, originalResult, suggestedResult] of [
+		['("1" /* keep */ + "0") - "5" > 0;', true, false],
+		['Number./* keep */POSITIVE_INFINITY - Number.POSITIVE_INFINITY >= 0;', false, true],
+	]) {
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(fixed, false);
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].fix, undefined);
+		t.assert.strictEqual(messages[0].suggestions?.length, 1);
+		const {fix} = messages[0].suggestions[0];
+		const suggested = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		t.assert.ok(suggested.includes('/* keep */'));
+		t.assert.strictEqual(runInNewContext(code), originalResult);
+		t.assert.strictEqual(runInNewContext(suggested), suggestedResult);
+	}
+});
 
 test({
 	valid: [],

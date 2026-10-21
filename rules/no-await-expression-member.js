@@ -1,5 +1,11 @@
 import {removeParentheses, removeMemberExpressionProperty} from './fix/index.js';
-import {getStaticNumberValue, isKnownNonIterable, unwrapTypeScriptExpression} from './utils/index.js';
+import {
+	getParenthesizedRange,
+	getStaticNumberValue,
+	isKnownNonIterable,
+	unwrapTypeScriptExpression,
+	wouldRemoveComments,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'no-await-expression-member';
 const messages = {
@@ -35,8 +41,8 @@ const create = context => {
 			&& !memberExpression.parent.id.typeAnnotation
 			// The fix turns index access into a destructuring pattern, which needs the awaited value to be iterable while `[…]` works on any array-like
 			&& !isKnownNonIterable(unwrapTypeScriptExpression(memberExpression.object.argument))
-			// The fix removes the member access, a comment inside it would be dropped
-			&& context.sourceCode.getCommentsInside(memberExpression).length === 0
+			// The fix removes the member access, so comments outside the retained await expression would be dropped
+			&& !wouldRemoveComments(context, memberExpression, [getParenthesizedRange(memberExpression.object, context)])
 		) {
 			problem.fix = function * (fixer) {
 				const variable = memberExpression.parent.id;
@@ -60,8 +66,8 @@ const create = context => {
 			&& memberExpression.parent.id.type === 'Identifier'
 			&& memberExpression.parent.id.name === property.name
 			&& !memberExpression.parent.id.typeAnnotation
-			// The fix removes the member access, a comment inside it would be dropped
-			&& context.sourceCode.getCommentsInside(memberExpression).length === 0
+			// The fix removes the member access, so comments outside the retained await expression would be dropped
+			&& !wouldRemoveComments(context, memberExpression, [getParenthesizedRange(memberExpression.object, context)])
 		) {
 			problem.fix = function * (fixer) {
 				const variable = memberExpression.parent.id;

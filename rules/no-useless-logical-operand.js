@@ -3,6 +3,7 @@ import replaceNodeWithExpression from './fix/replace-node-with-expression.js';
 import {
 	getLogicalExpressionChildText,
 	getLogicalExpressionOperands,
+	getParenthesizedRange,
 	isBoolean,
 	isBooleanContext,
 	isOutermostLogicalExpression,
@@ -11,6 +12,7 @@ import {
 	needsSemicolon,
 	shouldAddParenthesesToExpressionStart,
 	unwrapTypeScriptExpression,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 /**
@@ -154,7 +156,7 @@ const create = context => {
 			},
 		};
 
-		if (context.sourceCode.getCommentsInside(node).length > 0) {
+		if (wouldRemoveComments(context, node, replacementOperands.map(operand => getParenthesizedRange(operand, context)))) {
 			return report;
 		}
 

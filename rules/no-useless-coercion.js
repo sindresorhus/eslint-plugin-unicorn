@@ -7,6 +7,8 @@ import {
 	isGlobalIdentifier,
 	isTypeScriptFile,
 	getEnclosingFunction,
+	getParenthesizedRange,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {replaceNodeWithExpression} from './fix/index.js';
 
@@ -44,8 +46,8 @@ const create = context => {
 		@param {ESLint.Rule.RuleFixer} fixer
 		*/
 		* fix(fixer, {abort}) {
-			// Removing the coercion would drop comments inside it.
-			if (sourceCode.getCommentsInside(node).length > 0) {
+			// Removing the coercion would drop comments outside the preserved expression.
+			if (wouldRemoveComments(context, node, [getParenthesizedRange(expression, context)])) {
 				return abort();
 			}
 

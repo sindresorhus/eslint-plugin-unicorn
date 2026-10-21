@@ -1,7 +1,60 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		['parseInt(getValue(/* keep */), 10);', 'Math.trunc(Number(getValue(/* keep */)));'],
+		['Number.parseInt((/* keep */ value), 10);', 'Math.trunc(Number((/* keep */ value)));'],
+		['parseInt(values[/* keep */ index], 10);', 'Math.trunc(Number(values[/* keep */ index]));'],
+		['parseInt((prepare(/* keep */), value), 10);', 'Math.trunc(Number((prepare(/* keep */), value)));'],
+		['parseInt(getValue(\r\n  // keep\r\n), 10);', 'Math.trunc(Number(getValue(\r\n  // keep\r\n)));'],
+	].map(([code, output]) => ({code, errors: [{messageId: 'parse-int', suggestions: [{messageId: 'suggestion-trunc', output}]}]})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'parseInt((value as /* keep */ string), 10);',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'parse-int', suggestions: [{messageId: 'suggestion-trunc', output: 'Math.trunc(Number(value as /* keep */ string));'}]}],
+		},
+		...[
+			'Number./* keep */parseInt(value, 10);',
+			'parseInt(value /* keep */, 10);',
+			'parseInt(value, 1 /* keep */ * 10);',
+			'parseInt?.(getValue(/* keep */), 10);',
+		].map(code => ({code, errors: [{messageId: 'parse-int', suggestions: []}]})),
+	],
+});
+
+nodeTest('commented parseInt inputs are evaluated once and conversion changes remain suggestions', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-number-coercion': rule}}},
+		rules: {'unicorn/prefer-number-coercion': 'error'},
+	};
+	const code = 'let evaluations = 0; function getValue() { evaluations++; return input; } const result = parseInt(getValue(/* keep */), 10); JSON.stringify({evaluations, result});';
+	const {output, fixed, messages} = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(output, code);
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].fix, undefined);
+	t.assert.strictEqual(messages[0].suggestions.length, 1);
+	const {fix} = messages[0].suggestions[0];
+	const corrected = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	t.assert.ok(corrected.includes('/* keep */'));
+	for (const [input, original, suggested] of [['123.45', 123, 123], ['1e3', 1, 1000]]) {
+		t.assert.strictEqual(runInNewContext(code, {input}), JSON.stringify({evaluations: 1, result: original}));
+		t.assert.strictEqual(runInNewContext(corrected, {input}), JSON.stringify({evaluations: 1, result: suggested}));
+	}
+});
 
 test.snapshot({
 	valid: [

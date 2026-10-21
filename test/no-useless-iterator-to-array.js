@@ -1,7 +1,61 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		['new Set(values.map(/* keep */ value => value).toArray())', 'new Set(values.map(/* keep */ value => value))'],
+		['[...((/* keep */ iterator)).toArray()]', '[...((/* keep */ iterator))]'],
+		['Array.from(values.map(// keep\nvalue => value).toArray())', 'Array.from(values.map(// keep\nvalue => value))'],
+		['Array.from(values.map(// keep\r\nvalue => value).toArray())', 'Array.from(values.map(// keep\r\nvalue => value))'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			'new Set(iterator /* keep */ .toArray())',
+			'new Set(iterator.toArray /* keep */ ())',
+			'Promise.all(iterator /* keep */ .toArray())',
+		].map(code => ({code, errors: [{messageId: 'iterable-accepting', suggestions: []}]})),
+		{
+			code: 'new Set((iterator as /* keep */ IteratorObject<number>).toArray())',
+			languageOptions: {parser: parsers.typescript},
+			output: 'new Set((iterator as /* keep */ IteratorObject<number>))',
+			errors: 1,
+		},
+	],
+});
+
+nodeTest('removing toArray preserves receiver comments and iteration order', t => {
+	const code = 'const seen = []; const result = Array.from([1, 2, 3].values().map(/* keep */ value => { seen.push(value); return value * 2; }).toArray()); JSON.stringify({seen, result});';
+	const result = new Linter().verifyAndFix(code, {
+		plugins: {unicorn: {rules: {'no-useless-iterator-to-array': rule}}},
+		rules: {'unicorn/no-useless-iterator-to-array': 'error'},
+	});
+
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.ok(result.output.includes('/* keep */'));
+	t.assert.strictEqual(runInNewContext(result.output), runInNewContext(code));
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: 'Promise.all(values.map(/* keep */ value => value).toArray())',
+		errors: [{
+			messageId: 'iterable-accepting',
+			suggestions: [{messageId: 'iterable-accepting/suggestion', output: 'Promise.all(values.map(/* keep */ value => value))'}],
+		}],
+	}],
+});
 
 test.snapshot({
 	valid: [],
@@ -204,7 +258,7 @@ test.snapshot({
 		'new Foo(...(iterator.toArray()))',
 		// An iterator helper result is still an `Iterator`
 		'const iterator = set.values().map(fn); new Set(iterator.toArray());',
-		// A comment inside the `.toArray()` call disables the suggestion
+		// A comment inside the removed `.toArray()` argument list disables the suggestion
 		'Promise.all(iterator.toArray(/* comment */))',
 		// No callback
 		'iterator.toArray().forEach()',

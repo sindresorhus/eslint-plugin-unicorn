@@ -1,6 +1,7 @@
 import {
 	isParenthesized,
 	getParenthesizedRange,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {removeParentheses} from './fix/index.js';
 import {isEmptyObjectExpression} from './ast/index.js';
@@ -39,17 +40,17 @@ const create = context => {
 				const {sourceCode} = context;
 				const logicalExpression = node.parent;
 
-				// Don't drop comments around `||`/`??` or the empty object.
-				if (sourceCode.getCommentsInside(logicalExpression).length > 0) {
-					return abort();
-				}
-
 				const {left} = logicalExpression;
 				const isLeftObjectParenthesized = isParenthesized(left, context);
 				const [, start] = isLeftObjectParenthesized
 					? getParenthesizedRange(left, context)
 					: sourceCode.getRange(left);
 				const [, end] = sourceCode.getRange(logicalExpression);
+
+				// Don't drop comments around `||`/`??` or the empty object.
+				if (wouldRemoveComments(context, [start, end])) {
+					return abort();
+				}
 
 				yield fixer.removeRange([start, end]);
 

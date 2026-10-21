@@ -1,6 +1,59 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		['a += a + getValue(/* keep */);', 'a += getValue(/* keep */);'],
+		['a *= getValue(/* keep */) * a;', 'a *= getValue(/* keep */);'],
+		['a += a + (condition ? /* keep */ first : second);', 'a += (condition ? /* keep */ first : second);'],
+		['a += a + values[/* keep */ index];', 'a += values[/* keep */ index];'],
+	].map(([code, output]) => ({code, errors: [{messageId: 'no-misrefactored-assignment/error', suggestions: [{messageId: 'no-misrefactored-assignment/suggestion', output}]}]})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['a += a + (/* keep */ condition ? first : second);', 'a += (/* keep */ condition ? first : second);'],
+			['a += a + getValue(\r\n  // keep\r\n);', 'a += getValue(\r\n  // keep\r\n);'],
+		].map(([code, output]) => ({code, errors: [{messageId: 'no-misrefactored-assignment/error', suggestions: [{messageId: 'no-misrefactored-assignment/suggestion', output}]}]})),
+		{
+			code: 'a += a + (value as /* keep */ number);',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'no-misrefactored-assignment/error', suggestions: [{messageId: 'no-misrefactored-assignment/suggestion', output: 'a += (value as /* keep */ number);'}]}],
+		},
+		...[
+			'a += (/* keep */ a) + value;',
+			'a += a /* keep */ + value;',
+			'a += a + (/* keep */ value);',
+			'a += a + (value /* keep */);',
+		].map(code => ({code, errors: [{messageId: 'no-misrefactored-assignment/error', suggestions: []}]})),
+	],
+});
+
+nodeTest('commented kept operands evaluate once and behavior changes remain suggestions', t => {
+	const linter = new Linter();
+	const code = 'let value = 2; let evaluations = 0; function getValue() { evaluations++; return 3; } value += value + getValue(/* keep */); JSON.stringify({value, evaluations});';
+	const {output, fixed, messages} = linter.verifyAndFix(code, {
+		plugins: {unicorn: {rules: {'no-misrefactored-assignment': rule}}},
+		rules: {'unicorn/no-misrefactored-assignment': 'error'},
+	});
+	t.assert.strictEqual(output, code);
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].fix, undefined);
+	t.assert.strictEqual(messages[0].suggestions?.length, 1);
+	const {fix} = messages[0].suggestions[0];
+	const suggested = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	t.assert.ok(suggested.includes('/* keep */'));
+	t.assert.strictEqual(runInNewContext(code), '{"value":7,"evaluations":1}');
+	t.assert.strictEqual(runInNewContext(suggested), '{"value":5,"evaluations":1}');
+});
 
 test.snapshot({
 	valid: [

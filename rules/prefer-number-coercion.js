@@ -1,6 +1,11 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
-import {getCallArgumentText, getStaticValueForControlFlow} from './utils/index.js';
+import {
+	getCallArgumentText,
+	getParenthesizedRange,
+	getStaticValueForControlFlow,
+	wouldRemoveComments,
+} from './utils/index.js';
 
 const MESSAGE_ID_PARSE_FLOAT = 'parse-float';
 const MESSAGE_ID_PARSE_INT = 'parse-int';
@@ -85,7 +90,7 @@ function getParseIntProblem(callExpression, method, context) {
 		|| firstArgument?.type === 'SpreadElement'
 		|| hasSideEffect(radixArgument, context.sourceCode)
 		|| isOptionalCall(callExpression)
-		|| context.sourceCode.getCommentsInside(callExpression).length > 0
+		|| wouldRemoveComments(context, callExpression, [getParenthesizedRange(firstArgument, context)])
 	) {
 		return problem;
 	}

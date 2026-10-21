@@ -1,7 +1,73 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['~~getValue(/* keep */);', 'Math.trunc(getValue(/* keep */));'],
+			['~~(/* keep */ value);', 'Math.trunc((/* keep */ value));'],
+			['~~values[/* keep */ index];', 'Math.trunc(values[/* keep */ index]);'],
+			['~~(left + /* keep */ right);', 'Math.trunc(left + /* keep */ right);'],
+			['~~(first(/* keep */), value);', 'Math.trunc((first(/* keep */), value));'],
+			['~~~getValue(/* keep */);', '~Math.trunc(getValue(/* keep */));'],
+			['function foo() {return~~getValue(/* keep */);}', 'function foo() {return Math.trunc(getValue(/* keep */));}'],
+			['function foo() {\r\n  return~~(value // keep\r\n  );\r\n}', 'function foo() {\r\n  return Math.trunc((value // keep\r\n  ));\r\n}'],
+		].map(([code, output]) => ({
+			code,
+			errors: [{messageId: 'error-bitwise-not', suggestions: [{messageId: 'suggestion-bitwise-not', output}]}],
+		})),
+		...[
+			['~~(value as /* keep */ number);', 'Math.trunc(value as /* keep */ number);'],
+			['~~values[/* keep */ index]!;', 'Math.trunc(values[/* keep */ index]!);'],
+		].map(([code, output]) => ({
+			code,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'error-bitwise-not', suggestions: [{messageId: 'suggestion-bitwise-not', output}]}],
+		})),
+		...[
+			'~~ /* keep */ value;',
+			'~(/* keep */ ~value);',
+		].map(code => ({code, errors: [{messageId: 'error-bitwise-not', suggestions: []}]})),
+	],
+});
+
+nodeTest('comment-preserving double negation rewrites remain suggestions and evaluate the operand once', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-math-trunc': rule}}},
+		rules: {'unicorn/prefer-math-trunc': 'error'},
+	};
+	const code = '~~getValue(/* keep */);';
+	const {output, fixed, messages} = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(output, code);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].suggestions.length, 1);
+	const {range, text} = messages[0].suggestions[0].fix;
+	const suggested = code.slice(0, range[0]) + text + code.slice(range[1]);
+	t.assert.strictEqual(suggested, 'Math.trunc(getValue(/* keep */));');
+	t.assert.deepStrictEqual(linter.verify(suggested, config), []);
+
+	for (const [value, originalResult, suggestedResult] of [[3.9, 3, 3], [2 ** 32, 0, 2 ** 32], [NaN, 0, NaN], [-0.5, 0, -0]]) {
+		for (const [source, expected] of [[code, originalResult], [suggested, suggestedResult]]) {
+			let calls = 0;
+			const result = runInNewContext(source, {
+				getValue() {
+					calls++;
+					return value;
+				},
+			});
+			t.assert.strictEqual(result, expected);
+			t.assert.strictEqual(calls, 1);
+		}
+	}
+});
 
 test.snapshot({
 	valid: [
@@ -206,13 +272,13 @@ test.snapshot({
 	],
 });
 
-// The expression is rebuilt as the call argument, so a comment in it would be lost
+// Copied operand comments are preserved, while comments in removed syntax prevent suggestions.
 test({
 	valid: [],
 	invalid: [
 		{
 			code: 'const foo = ~~(/* keep */ 1 + 2 / 3.4);',
-			errors: [{messageId: 'error-bitwise-not', suggestions: []}],
+			errors: [{messageId: 'error-bitwise-not', suggestions: [{messageId: 'suggestion-bitwise-not', output: 'const foo = Math.trunc((/* keep */ 1 + 2 / 3.4));'}]}],
 		},
 		{
 			code: 'const foo = /* keep */ ~ /* drop */ ~ 3.4;',

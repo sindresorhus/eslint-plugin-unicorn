@@ -1,11 +1,13 @@
 import {isLiteral} from './ast/index.js';
 import {
+	getParenthesizedRange,
 	getParenthesizedText,
 	getStaticValueForControlFlow,
 	isNumber,
 	isParenthesized,
 	needsSemicolon,
 	shouldAddParenthesesToExpressionStart,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-subtraction-comparison/error';
@@ -66,12 +68,12 @@ const create = context => {
 			messageId: MESSAGE_ID_ERROR,
 		};
 
-		// Keep comments intact by not offering a fix when there are any inside the expression.
-		if (sourceCode.getCommentsInside(node).length > 0) {
+		const {left, right} = subtraction;
+		// Keep comments intact by only offering edits when comments are preserved in the copied operands.
+		if (wouldRemoveComments(context, node, [left, right].map(operand => getParenthesizedRange(operand, context)))) {
 			return problem;
 		}
 
-		const {left, right} = subtraction;
 		let replacement = `${getParenthesizedText(left, context)} ${operator} ${getParenthesizedText(right, context)}`;
 		if (!isParenthesized(left, context) && shouldAddParenthesesToExpressionStart(left, context, node)) {
 			replacement = `(${replacement})`;

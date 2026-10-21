@@ -6,6 +6,17 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		['factory(/* keep */).apply(null, [value]);', 'Reflect.apply(factory(/* keep */), null, [value]);'],
+		['fn.apply(null, [/* keep */ value]);', 'Reflect.apply(fn, null, [/* keep */ value]);'],
+		['Function.prototype.apply.call(object[/* keep */ key], this, []);', 'Reflect.apply(object[/* keep */ key], this, []);'],
+		['(/* keep */ prepare(), fn).apply(this, []);', 'Reflect.apply((/* keep */ prepare(), fn), this, []);'],
+		['fn.apply(null, [\r\n  // keep\r\n  value,\r\n]);', 'Reflect.apply(fn, null, [\r\n  // keep\r\n  value,\r\n]);'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
 const linter = new Linter();
 
 const linterConfig = {
@@ -114,12 +125,12 @@ nodeTest('literal and static template method names retain safe autofixes', t => 
 nodeTest('computed targets and sequence target arguments keep their evaluation order', t => {
 	for (const [expression, replacement] of [
 		[
-			'object[(record("target"), "value")].apply(null, [record("argument")])',
-			'Reflect.apply(object[(record("target"), "value")], null, [record("argument")])',
+			'object[(/* target */ record("target"), "value")].apply(null, [/* argument */ record("argument")])',
+			'Reflect.apply(object[(/* target */ record("target"), "value")], null, [/* argument */ record("argument")])',
 		],
 		[
-			'Function.prototype.apply.call((record("target"), value), null, [record("argument")])',
-			'Reflect.apply((record("target"), value), null, [record("argument")])',
+			'Function.prototype.apply.call((/* target */ record("target"), value), null, [/* argument */ record("argument")])',
+			'Reflect.apply((/* target */ record("target"), value), null, [/* argument */ record("argument")])',
 		],
 	]) {
 		const code = outdent`
@@ -280,6 +291,7 @@ test({
 		...[
 			['(foo as Function)["apply"](null, []);', 'Reflect.apply(foo as Function, null, []);'],
 			['(foo!)["apply"](null, []);', 'Reflect.apply(foo!, null, []);'],
+			['(foo as /* keep */ Function).apply(null, []);', 'Reflect.apply(foo as /* keep */ Function, null, []);'],
 		].map(([code, output]) => ({
 			code, output, languageOptions: {parser: parsers.typescript}, errors,
 		})),
@@ -301,7 +313,14 @@ test({
 			errors: 1,
 		},
 
-		// A comment in the call is preserved by not fixing
+		// A comment in removed call syntax is preserved by not fixing
+		...[
+			'(/* keep */ fn).apply(null, []);',
+			'fn.apply((/* keep */ null), []);',
+			'fn.apply(null, (/* keep */ []));',
+			'Function.prototype.apply.call((/* keep */ fn), null, []);',
+			'Function.prototype /* keep */.apply.call(fn, null, []);',
+		].map(code => ({code, errors: 1})),
 		{
 			code: 'fn.apply(/* keep */ this, []);',
 			errors: 1,

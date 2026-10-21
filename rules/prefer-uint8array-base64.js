@@ -6,9 +6,11 @@ import {
 	isMethodCall,
 } from './ast/index.js';
 import {
+	getParenthesizedRange,
 	isString,
 	isTypeScriptExpressionWrapper,
 	unwrapTypeScriptExpression,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {
 	createTypeCheckers,
@@ -259,7 +261,7 @@ function getBase64OptionsProblem(node, context) {
 		node: outermostCall,
 		messageId: MESSAGE_ID_OPTIONS,
 		* fix(fixer, {abort}) {
-			if (context.sourceCode.getCommentsInside(outermostCall).length > 0) {
+			if (wouldRemoveComments(context, outermostCall, [getParenthesizedRange(node, context)])) {
 				abort();
 			}
 
@@ -291,8 +293,6 @@ const tracker = new GlobalReferenceTracker({
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	const {sourceCode} = context;
-
 	tracker.listen({context});
 
 	context.on('CallExpression', node => {
@@ -326,7 +326,7 @@ const create = context => {
 						data: {value: 'Buffer.from()', replacement: 'Uint8Array.fromBase64()'},
 						* fix(fixer, {abort}) {
 							// `Buffer.from()` returns a `Buffer`, but `Uint8Array.fromBase64()` returns a plain `Uint8Array`, so the rewrite can change behavior. Keep it as a suggestion and bail when comments would be dropped.
-							if (sourceCode.getCommentsInside(node).length > 0) {
+							if (wouldRemoveComments(context, node, [getParenthesizedRange(node.arguments[0], context)])) {
 								abort();
 							}
 

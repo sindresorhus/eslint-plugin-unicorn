@@ -1,10 +1,79 @@
 import test from 'node:test';
+import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import plugin from '../index.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
+
+ruleTest({
+	valid: [],
+	invalid: [
+		['element.onclick = () => { /* keep */ run(); };', 'element.addEventListener(\'click\', () => { /* keep */ run(); });'],
+		['elements[/* keep */ index].onclick = handler;', 'elements[/* keep */ index].addEventListener(\'click\', handler);'],
+		['element.onclick = function (/* keep */ event) { use(event); };', 'element.addEventListener(\'click\', function (/* keep */ event) { use(event); });'],
+		['(getElement(/* keep */)).onclick = handler;', '(getElement(/* keep */)).addEventListener(\'click\', handler);'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			code: 'element.onclick = () => {\r\n  // keep\r\n  run();\r\n};',
+			output: 'element.addEventListener(\'click\', () => {\r\n  // keep\r\n  run();\r\n});',
+			errors: 1,
+		},
+		{
+			code: '(element as /* keep */ HTMLElement).onclick = handler;',
+			output: '(element as /* keep */ HTMLElement).addEventListener(\'click\', handler);',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		...[
+			'element.onclick = (/* keep */ handler);',
+			'element.onclick = (handler /* keep */);',
+			'element./* keep */onclick = handler;',
+			'element.onclick /* keep */ = handler;',
+		].map(code => ({code, errors: 1})),
+	],
+});
+
+test('commented event handlers retain delivery order and receiver binding', t => {
+	const linter = new Linter();
+	const code = 'getElement(/* keep */).onclick = function (event) { /* handler */ events.push([event.type, this === element]); }; element.dispatchEvent(new Event("click"));';
+	const {output, fixed, messages} = linter.verifyAndFix(code, {
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/prefer-add-event-listener': 'error'},
+	});
+	t.assert.strictEqual(fixed, true);
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.ok(output.includes('/* keep */'));
+	t.assert.ok(output.includes('/* handler */'));
+	for (const source of [code, output]) {
+		const events = [];
+		const element = new EventTarget();
+		// Node's EventTarget has no onclick attribute; model its one-time registration through the native event API.
+		// eslint-disable-next-line accessor-pairs -- Only the attribute setter is used by the tested code.
+		Object.defineProperty(element, 'onclick', {
+			set(handler) {
+				this.addEventListener('click', handler);
+			},
+		});
+		runInNewContext(source, {
+			Event,
+			element,
+			events,
+			getElement() {
+				events.push('receiver');
+				return element;
+			},
+		});
+		element.dispatchEvent(new Event('click'));
+		t.assert.strictEqual(JSON.stringify(events), '["receiver",["click",true],["click",true]]');
+	}
+});
 
 const excludeFooOptions = [{excludedPackages: ['foo']}];
 
@@ -189,12 +258,13 @@ ruleTest.typescript({
 	],
 });
 
-// The whole assignment is rebuilt from two operands, so a comment in it would be lost
+// The assignment keeps comments inside copied operands, while comments in removed syntax prevent fixes
 ruleTest({
 	valid: [],
 	invalid: [
 		{
 			code: '(/* keep */ (foo)).onclick = ((0, listener))',
+			output: '(/* keep */ (foo)).addEventListener(\'click\', (0, listener))',
 			errors: 1,
 		},
 		{
@@ -297,12 +367,12 @@ test('a handler that reassigns the same `on*` attribute is not autofixed', t => 
 	};
 
 	for (const [code, isFixed] of [
-		['const el = getElement(); el.onclick = function () { el.onclick = null; };', false],
-		['const el = getElement(); el.onclick = function () { el.onclick = other; };', false],
-		['const el = getElement(); el.onclick = () => { if (x) { el.onclick = null; } };', false],
-		['const el = getElement(); el.onclick = () => { el.onclick = el.onclick; };', false],
+		['const el = getElement(); el.onclick = function () { /* keep */ el.onclick = null; };', false],
+		['const el = getElement(); el.onclick = function () { /* keep */ el.onclick = other; };', false],
+		['const el = getElement(); el.onclick = () => { /* keep */ if (x) { el.onclick = null; } };', false],
+		['const el = getElement(); el.onclick = () => { /* keep */ el.onclick = el.onclick; };', false],
 		// A handler that only reads the element is safe
-		['const el = getElement(); el.onclick = function () { use(el); };', true],
+		['const el = getElement(); el.onclick = function () { /* keep */ use(el); };', true],
 		['const el = getElement(); el.onclick = handler;', true],
 		// A different property is a different handler
 		['const el = getElement(); el.onclick = function () { el.onkeydown = null; };', true],

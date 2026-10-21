@@ -8,6 +8,17 @@ import plugin from '../index.js';
 import {getTester} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
+
+ruleTest({
+	valid: [],
+	invalid: [
+		...[
+			['new URLSearchParams("https://example.com/" /* keep */ + "?x=1")', 'new URL("https://example.com/" /* keep */ + "?x=1").searchParams'],
+			['new URLSearchParams((/* keep */ "https://example.com/"))', 'new URL((/* keep */ "https://example.com/")).searchParams'],
+		].map(([code, output]) => ({code, errors: [{messageId: 'no-url-in-search-params', suggestions: [{messageId: 'parse-url', output}]}]})),
+	],
+});
+
 const typeAware = code => ({
 	code,
 	filename: 'file.ts',
@@ -99,6 +110,9 @@ ruleTest.snapshot({
 		'new URLSearchParams(/* keep */ window.location.href)',
 		'new URLSearchParams(\r\n  "https://example.com/",\r\n)',
 		'const url = new URL(input);\nconst parameters = new URLSearchParams(\n  url.href,\n);',
+		'new /* keep */ URLSearchParams("https://example.com/")',
+		'new URLSearchParams((/* keep */ new URL(input).href))',
+		'new URLSearchParams(new URL(// keep\r\n  input).href)',
 	],
 });
 
@@ -120,6 +134,8 @@ ruleTest.snapshot({
 		'new URLSearchParams((new URL(input) satisfies URL).href)',
 		'const url = new URL(input); new URLSearchParams(url!.href)',
 		'const url = new URL(input); new URLSearchParams(url.href as string)',
+		'new URLSearchParams(new URL(input).href as /* keep */ string)',
+		'new URLSearchParams((new URL(input) as /* keep */ URL).href)',
 	],
 });
 
@@ -151,6 +167,8 @@ ruleTest.snapshot({
 		'new URLSearchParams(new URL(input)).get("query")',
 		'new URLSearchParams(/* keep */ new URL(input))',
 		'new URLSearchParams(new URL(/* keep */ input))',
+		'new /* keep */ URLSearchParams(new URL(input))',
+		'new URLSearchParams(new URL(input) /* keep */)',
 	],
 });
 
@@ -167,6 +185,7 @@ ruleTest.snapshot({
 		'new URLSearchParams(<URL>new URL(input))',
 		'new URLSearchParams(new URL(input) satisfies URL)',
 		'const url = new URL(input); new URLSearchParams(url!)',
+		'new URLSearchParams((new URL(input) as /* keep */ URL))',
 	],
 });
 
@@ -183,13 +202,14 @@ test('URL object suggestions extract queries and distinguish detached copies fro
 	const linter = new Linter();
 	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-url-in-search-params': 'error'}};
 	const prefix = 'const url = new URL(input); ';
-	const code = `${prefix}new URLSearchParams(url)`;
+	const code = `${prefix}new URLSearchParams((/* keep */ url))`;
 	const [problem] = linter.verify(code, config);
 	t.assert.strictEqual(problem?.suggestions?.length, 2);
 	const url = new URL('https://example.com/?query=hello&query=again#fragment');
 	t.assert.deepStrictEqual([...new URLSearchParams(url)], []);
 	const [detached, live] = problem.suggestions.map(({fix}) => {
 		const corrected = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		t.assert.ok(corrected.includes('/* keep */'));
 		return runInNewContext(corrected.slice(prefix.length), {url, URLSearchParams});
 	});
 	t.assert.deepStrictEqual([...detached], [['query', 'hello'], ['query', 'again']]);
@@ -204,7 +224,7 @@ test('suggestions extract queries and distinguish detached copies from live para
 	const linter = new Linter();
 	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-url-in-search-params': 'error'}};
 	const prefix = 'const url = new URL(input); ';
-	const code = `${prefix}new URLSearchParams(url.href)`;
+	const code = `${prefix}new URLSearchParams((/* keep */ url).href)`;
 	const [problem] = linter.verify(code, config);
 	t.assert.strictEqual(problem?.suggestions?.length, 2);
 	const input = 'https://example.com/?query=hello&query=again#fragment';
@@ -212,6 +232,7 @@ test('suggestions extract queries and distinguish detached copies from live para
 	t.assert.deepStrictEqual([...new URLSearchParams(input)], [['https://example.com/?query', 'hello'], ['query', 'again#fragment']]);
 	const [detached, live] = problem.suggestions.map(({fix}) => {
 		const corrected = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		t.assert.ok(corrected.includes('/* keep */'));
 		return runInNewContext(corrected.slice(prefix.length), {url, URLSearchParams});
 	});
 	t.assert.deepStrictEqual([...detached], [['query', 'hello'], ['query', 'again']]);
@@ -232,17 +253,18 @@ for (const [input, expected] of [
 	test(`the URL-string suggestion extracts only query parameters: ${input}`, t => {
 		const linter = new Linter();
 		const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-url-in-search-params': 'error'}};
-		const code = `new URLSearchParams(${JSON.stringify(input)})`;
+		const code = `new URLSearchParams((/* keep */ ${JSON.stringify(input)}))`;
 		const [problem] = linter.verify(code, config);
 		t.assert.strictEqual(problem?.suggestions?.length, 1);
 		const {fix} = problem.suggestions[0];
 		const corrected = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		t.assert.ok(corrected.includes('/* keep */'));
 		const parameters = runInNewContext(corrected, {URL});
 		t.assert.deepStrictEqual([...parameters], expected);
 	});
 }
 
-for (const argument of ['new URL(getInput()).href', 'new URL(getInput())']) {
+for (const argument of ['new URL(getInput(/* keep */)).href', 'new URL(getInput(/* keep */))']) {
 	test(`URL receiver suggestions evaluate the input once: ${argument}`, t => {
 		const linter = new Linter();
 		const config = {plugins: {unicorn: plugin}, rules: {'unicorn/no-url-in-search-params': 'error'}};
@@ -252,6 +274,7 @@ for (const argument of ['new URL(getInput()).href', 'new URL(getInput())']) {
 		for (const {fix} of problem.suggestions) {
 			let calls = 0;
 			const corrected = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+			t.assert.ok(corrected.includes('/* keep */'));
 			const parameters = runInNewContext(corrected, {
 				URL,
 				URLSearchParams,

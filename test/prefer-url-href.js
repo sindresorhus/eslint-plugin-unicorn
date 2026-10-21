@@ -1,8 +1,23 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import {outdent} from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		['new URL(getInput(/* keep */)).toString();', 'new URL(getInput(/* keep */)).href;'],
+		['new URL(input)./* keep */toString();', 'new URL(input)./* keep */href;'],
+		['String(new URL(getInput(/* keep */)));', 'new URL(getInput(/* keep */)).href;'],
+		['String((/* keep */ new URL(input)));', '(/* keep */ new URL(input)).href;'],
+		['new URL(input).// keep\r\ntoString();', 'new URL(input).// keep\r\nhref;'],
+		['String(new URL(\r\n  // keep\r\n  input\r\n));', 'new URL(\r\n  // keep\r\n  input\r\n).href;'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
 
 const typescript = code => ({
 	code,
@@ -18,6 +33,39 @@ const typeAware = code => ({
 		parser: typescriptEslintParser,
 		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
 	},
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['String((new URL(input) as /* keep */ URL));', '(new URL(input) as /* keep */ URL).href;'],
+			['(new URL(input) as /* keep */ URL).toString();', '(new URL(input) as /* keep */ URL).href;'],
+		].map(([code, output]) => ({...typescript(code), output, errors: 1})),
+		...[
+			'new URL(input).toString(/* keep */);',
+			'new URL(input).toString/* keep */();',
+			'String /* keep */ (new URL(input));',
+			'String(new URL(input) /* keep */);',
+		].map(code => ({code, errors: 1})),
+	],
+});
+
+nodeTest('commented URL stringification preserves the value and evaluates its input once', t => {
+	const linter = new Linter();
+	for (const expression of ['new URL(getInput(/* keep */)).toString()', 'String((/* keep */ new URL(getInput())))']) {
+		const code = `let calls = 0; function getInput() { calls++; return 'https://example.com/?a=1#fragment'; } const value = ${expression}; JSON.stringify({calls, value});`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, {
+			plugins: {unicorn: {rules: {'prefer-url-href': rule}}},
+			rules: {'unicorn/prefer-url-href': 'error'},
+		});
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.ok(output.includes('/* keep */'));
+		const originalResult = runInNewContext(code, {URL});
+		t.assert.strictEqual(originalResult, '{"calls":1,"value":"https://example.com/?a=1#fragment"}');
+		t.assert.strictEqual(runInNewContext(output, {URL}), originalResult);
+	}
 });
 
 test.snapshot({

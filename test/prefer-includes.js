@@ -11,6 +11,52 @@ const {test, rule} = getTester(import.meta);
 
 const linter = new Linter();
 
+test({
+	valid: [],
+	invalid: [
+		['getValues(/* keep */).indexOf(value) !== -1;', 'getValues(/* keep */).includes(value);'],
+		['values.indexOf(getValue(/* keep */)) === -1;', '!values.includes(getValue(/* keep */));'],
+		['values.indexOf((/* keep */ value), 0) >= 0;', 'values.includes((/* keep */ value));'],
+		['values.indexOf(value, getStart(/* keep */)) !== -1;', 'values.includes(value, getStart(/* keep */));'],
+	].map(([code, output]) => ({code, output, errors: [{messageId: 'prefer-includes'}]})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: '(values as /* keep */ string[]).indexOf(value) !== -1;',
+			output: '(values as /* keep */ string[]).includes(value);',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-includes'}],
+		},
+		{
+			code: 'values.indexOf(getValue(\r\n  // keep\r\n)) === -1;',
+			output: '!values.includes(getValue(\r\n  // keep\r\n));',
+			errors: [{messageId: 'prefer-includes'}],
+		},
+		...[
+			'values./* keep */indexOf(value) !== -1;',
+			'values.indexOf(value, (/* keep */ 0)) !== -1;',
+			'(values.indexOf(value) /* keep */) !== -1;',
+		].map(code => ({code, errors: [{messageId: 'prefer-includes'}]})),
+	],
+});
+
+test.vue({
+	valid: [],
+	invalid: [
+		...[
+			['values.indexOf((/* keep */ value)) > -1', 'values.includes((/* keep */ value))'],
+			['getValues(/* keep */).lastIndexOf(value) === -1', '!getValues(/* keep */).includes(value)'],
+		].map(([code, output]) => ({
+			code: `<template><div v-if="${code}"></div></template>`,
+			output: `<template><div v-if="${output}"></div></template>`,
+			errors: [{messageId: 'prefer-includes'}],
+		})),
+	],
+});
+
 const linterConfig = {
 	plugins: {unicorn: {rules: {'prefer-includes': rule}}},
 	rules: {'unicorn/prefer-includes': 'error'},
@@ -88,16 +134,19 @@ nodeTest('sequence search arguments preserve comparison results and evaluation o
 				]) {
 					const code = outdent`
 						const calls = [];
-						const result = ${receiver}.${method}((calls.push("first"), calls.push("second"), "${needle}")) ${comparison};
+						function getReceiver() { calls.push("receiver"); return ${receiver}; }
+						const result = getReceiver(/* receiver */).${method}((calls.push("first"), calls.push(/* search */ "second"), "${needle}")) ${comparison};
 						JSON.stringify({calls, result});
 					`;
 					const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
 					const found = needle === 'b';
-					const expected = JSON.stringify({calls: ['first', 'second'], result: positive === found});
+					const expected = JSON.stringify({calls: ['receiver', 'first', 'second'], result: positive === found});
 					t.assert.strictEqual(runInNewContext(code), expected);
 					t.assert.strictEqual(runInNewContext(output), expected);
 					t.assert.strictEqual(fixed, true);
 					t.assert.deepStrictEqual(messages, []);
+					t.assert.ok(output.includes('/* receiver */'));
+					t.assert.ok(output.includes('/* search */'));
 				}
 			}
 		}
@@ -111,7 +160,7 @@ nodeTest('sequence fromIndex arguments stay grouped after includes autofixes', t
 				const searchText = sequenceSearch ? '(calls.push("search"), "b")' : '"b"';
 				const code = outdent`
 					const calls = [];
-					const result = ${receiver}.indexOf(${searchText}, (calls.push("from"), ${fromIndex})) !== -1;
+					const result = ${receiver}.indexOf(${searchText}, (calls.push(/* keep */ "from"), ${fromIndex})) !== -1;
 					JSON.stringify({calls, result});
 				`;
 				const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
@@ -120,6 +169,7 @@ nodeTest('sequence fromIndex arguments stay grouped after includes autofixes', t
 				t.assert.strictEqual(runInNewContext(output), expected);
 				t.assert.strictEqual(fixed, true);
 				t.assert.deepStrictEqual(messages, []);
+				t.assert.ok(output.includes('/* keep */'));
 			}
 		}
 	}
@@ -148,10 +198,12 @@ test({
 		},
 		{
 			code: 'values.indexOf((read(), /* keep */ needle)) !== -1;',
+			output: 'values.includes((read(), /* keep */ needle));',
 			errors: [{messageId: 'prefer-includes'}],
 		},
 		{
 			code: 'values.indexOf(needle, (readIndex(), /* keep */ 2)) !== -1;',
+			output: 'values.includes(needle, (readIndex(), /* keep */ 2));',
 			errors: [{messageId: 'prefer-includes'}],
 		},
 		{

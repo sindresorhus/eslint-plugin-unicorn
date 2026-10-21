@@ -1086,8 +1086,8 @@ function getInitializationProblem(declaration, context) {
 	const {sourceCode} = context;
 	const problem = {node: assignment, messageId: MESSAGE_ID_INITIALIZATION};
 	if (
-		hasCommentsThatWouldBeRelocated(declaration, sourceCode)
-		|| hasCommentsThatWouldBeRelocated(nextStatement, sourceCode)
+		wouldRemoveComments(context, declaration, declaration.declarations)
+		|| wouldRemoveComments(context, nextStatement, [left, getParenthesizedRange(right, context)])
 		|| declarators.some(declarator => declarator.definite || (left.type === 'ArrayPattern' && declarator.id.typeAnnotation))
 	) {
 		return problem;

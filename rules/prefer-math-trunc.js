@@ -5,6 +5,7 @@ import {
 	getCallArgumentText,
 	getCallExpressionArgumentsText,
 	getCallExpressionTokens,
+	getParenthesizedRange,
 	wouldRemoveComments,
 } from './utils/index.js';
 
@@ -187,8 +188,8 @@ const create = context => {
 			messageId: ERROR_BITWISE_NOT,
 		};
 
-		// `~~` coerces through `ToInt32` exactly like the other bitwise forms, it wraps where `Math.trunc` does not, so it can only be a suggestion. The whole double negation is replaced, so a comment inside it would be lost.
-		if (sourceCode.getCommentsInside(node).length === 0) {
+		// `~~` coerces through `ToInt32` exactly like the other bitwise forms, it wraps where `Math.trunc` does not, so it can only be a suggestion. Preserve comments in the copied operand and withhold the suggestion when replacing the double negation would remove other comments.
+		if (!wouldRemoveComments(context, node, [getParenthesizedRange(node.argument.argument, context)])) {
 			problem.suggest = [
 				{
 					messageId: SUGGESTION_BITWISE_NOT,

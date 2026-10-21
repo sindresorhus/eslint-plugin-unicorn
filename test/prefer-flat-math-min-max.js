@@ -10,13 +10,41 @@ const linterConfig = {
 	rules: {'unicorn/prefer-flat-math-min-max': 'error'},
 };
 
+test({
+	valid: [],
+	invalid: [
+		['Math.max(Math.max((/* keep */ 1), 2), 3);', 'Math.max((/* keep */ 1), 2, 3);'],
+		['Math.min(Math.min(1, 2), getValue(/* keep */));', 'Math.min(1, 2, getValue(/* keep */));'],
+		['Math./* keep */max(Math.max(1, 2), 3);', 'Math./* keep */max(1, 2, 3);'],
+		['Math.min(Math.max(/* keep */ 1, 2), Math.min(3, 4));', 'Math.min(Math.max(/* keep */ 1, 2), 3, 4);'],
+		['Math.max(Math.max((// keep\r\n1), 2), 3);', 'Math.max((// keep\r\n1), 2, 3);'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'Math.min(Math.min((value as /* keep */ number), 0), 1);',
+			output: 'Math.min((value as /* keep */ number), 0, 1);',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		...[
+			'(/* keep */ Math.max)(Math.max(1, 2), 3);',
+			'Math.max(Math./* keep */max(1, 2), 3);',
+			'Math.max(Math.max(1, 2) /* keep */, 3);',
+		].map(code => ({code, errors: 1})),
+	],
+});
+
 nodeTest('numeric literal autofixes preserve signed zero, finite values, and infinities', t => {
 	const linter = new Linter();
 	for (const method of ['min', 'max']) {
 		for (const left of ['0', '-0', '1', '-1', '+2', '1e999', '-1e999']) {
 			for (const right of ['0', '-0', '1', '-1', '+2', '1e999', '-1e999']) {
 				for (const code of [
-					`Math.${method}(Math.${method}(${left}, ${right}), -0);`,
+					`Math.${method}(Math.${method}((/* keep */ ${left}), ${right}), -0);`,
 					`Math.${method}(-0, Math.${method}(${left}, ${right}));`,
 				]) {
 					const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);

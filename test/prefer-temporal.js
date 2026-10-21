@@ -6,6 +6,64 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		['new Date(1000 /* keep */ + 2000);', 'Temporal.Instant.fromEpochMilliseconds(1000 /* keep */ + 2000);'],
+		['new Date((/* keep */ 0));', 'Temporal.Instant.fromEpochMilliseconds((/* keep */ 0));'],
+		['new Date([/* keep */ 1000][0]);', 'Temporal.Instant.fromEpochMilliseconds([/* keep */ 1000][0]);'],
+		['new Date(-(1000 /* keep */ + 2000));', 'Temporal.Instant.fromEpochMilliseconds(-(1000 /* keep */ + 2000));'],
+	].map(([code, output]) => ({code, errors: [{messageId: 'prefer-temporal', suggestions: [{messageId: 'prefer-temporal/suggestion', output}]}]})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'new Date((0 as /* keep */ number));',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-temporal', suggestions: [{messageId: 'prefer-temporal/suggestion', output: 'Temporal.Instant.fromEpochMilliseconds((0 as /* keep */ number));'}]}],
+		},
+		{
+			code: 'new Date(1000 + // keep\r\n  2000);',
+			errors: [{messageId: 'prefer-temporal', suggestions: [{messageId: 'prefer-temporal/suggestion', output: 'Temporal.Instant.fromEpochMilliseconds(1000 + // keep\r\n  2000);'}]}],
+		},
+		...[
+			'new /* keep */ Date(0);',
+			'new Date /* keep */ (0);',
+			'new Date(0 /* keep */);',
+			'new Date(/* keep */);',
+			'new Date((/* keep */ 1.5));',
+			'new Date((/* keep */ Infinity));',
+			'new Date((/* keep */ 8_640_000_000_000_001));',
+		].map(code => ({code, errors: [{messageId: 'prefer-temporal', suggestions: []}]})),
+	],
+});
+
+// eslint-disable-next-line node-test/no-skip-test -- Temporal is unavailable on older supported Node.js versions.
+nodeTest('commented epoch suggestions preserve timestamps and remain result type changes', {skip: globalThis.Temporal === undefined}, t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: {rules: {'prefer-temporal': rule}}}, rules: {'unicorn/prefer-temporal': 'error'}};
+	for (const milliseconds of [0, 1000, -1000, 8_640_000_000_000_000, -8_640_000_000_000_000]) {
+		const code = `new Date((/* keep */ ${milliseconds}));`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(fixed, false);
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].fix, undefined);
+		t.assert.strictEqual(messages[0].suggestions?.length, 1);
+		const {fix} = messages[0].suggestions[0];
+		const suggested = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		t.assert.ok(suggested.includes('/* keep */'));
+		const date = runInNewContext(code, {Date});
+		const instant = runInNewContext(suggested, {Temporal});
+		t.assert.ok(date instanceof Date);
+		t.assert.ok(instant instanceof Temporal.Instant);
+		t.assert.strictEqual(date.getTime(), milliseconds);
+		t.assert.strictEqual(instant.epochMilliseconds, date.getTime());
+	}
+});
+
 // `checkMethods` needs type information. Use the raw TypeScript parser with `projectService`
 // (the shared `parsers.typescript` injects `project: []`, which conflicts with `projectService`).
 const typeAware = code => ({
@@ -83,7 +141,7 @@ test.snapshot({
 		'new Date(0n)',
 		'new Date(...timestamps)',
 
-		// Comments inside prevent the suggestion but the report stays
+		// Comments in removed syntax prevent the suggestion but the report stays
 		'new Date(/* epoch */ 1000)',
 
 		// `Date.parse()` — inconsistent parsing
@@ -215,11 +273,13 @@ test({
 nodeTest('Temporal suggestions preserve the enclosing constructor target', t => {
 	const linter = new Linter();
 	const config = {plugins: {unicorn: {rules: {'prefer-temporal': rule}}}, rules: {'unicorn/prefer-temporal': 'error'}};
-	const code = 'new new Date(0).toString.constructor("return 42")();';
+	const code = 'new new Date((/* keep */ 0)).toString.constructor("return 42")();';
 	const [message] = linter.verify(code, config);
 	const {range, text} = message.suggestions[0].fix;
 	const output = code.slice(0, range[0]) + text + code.slice(range[1]);
 	const temporal = {Instant: {fromEpochMilliseconds: () => ({})}};
+
+	t.assert.ok(output.includes('/* keep */'));
 	t.assert.strictEqual(runInNewContext(output, {Temporal: temporal}), runInNewContext(code));
 	t.assert.deepStrictEqual(linter.verify(output, config), []);
 });

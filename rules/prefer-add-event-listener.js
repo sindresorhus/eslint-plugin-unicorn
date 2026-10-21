@@ -1,10 +1,12 @@
 import {
 	containsNode,
 	getMemberExpressionObjectText,
+	getParenthesizedRange,
 	isParenthesized,
 	isNodeValueNotFunction,
 	isSameReference,
 	unwrapTypeScriptExpression,
+	wouldRemoveComments,
 } from './utils/index.js';
 import eventTypes from './shared/dom-events.js';
 import {isUndefinedValue, isNullLiteral, isStaticRequire} from './ast/index.js';
@@ -153,8 +155,8 @@ const create = context => {
 			&& node.parent.type === 'ExpressionStatement'
 			&& node.parent.expression === node
 			&& !isNodeValueNotFunction(assignedExpression)
-			// The whole assignment is rebuilt from two operands, so a comment in it would be lost
-			&& context.sourceCode.getCommentsInside(node).length === 0
+			// The assignment is rebuilt from two operands, so comments outside the copied ranges would be lost
+			&& !wouldRemoveComments(context, node, [getParenthesizedRange(memberExpression.object, context), assignedExpression])
 			&& !isAssignedMoreThanOnce(node, memberExpression, context)
 		) {
 			fix = fixer => fixCode(fixer, context, node, memberExpression);

@@ -1,7 +1,29 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['Temporal.PlainDate.from(new Temporal.PlainDateTime(2026, /* keep */ 10, 21));', 'new Temporal.PlainDateTime(2026, /* keep */ 10, 21).toPlainDate();'],
+			['Temporal.PlainTime.from((/* keep */ new Temporal.PlainDateTime(2026, 10, 21)));', '(/* keep */ new Temporal.PlainDateTime(2026, 10, 21)).toPlainTime();'],
+			['Temporal.Instant.fromEpochNanoseconds(new Temporal.ZonedDateTime(0n, /* keep */ "UTC").epochNanoseconds);', 'new Temporal.ZonedDateTime(0n, /* keep */ "UTC").toInstant();'],
+		].map(([code, output]) => ({code, output, errors: [{messageId: 'prefer-temporal-conversion'}]})),
+		{
+			code: 'Temporal.Instant.from(new Temporal.ZonedDateTime(0n, /* keep */ "UTC").toString());',
+			errors: [{
+				messageId: 'prefer-temporal-conversion',
+				suggestions: [{messageId: 'prefer-temporal-conversion/suggestion', output: 'new Temporal.ZonedDateTime(0n, /* keep */ "UTC").toInstant();'}],
+			}],
+		},
+	],
+});
+
 const zoned = 'const source = Temporal.ZonedDateTime.from("2024-01-02T03:04:05.123456789+00:00[UTC]");';
 const dateTime = 'const source = Temporal.PlainDateTime.from("2024-01-02T03:04:05.123456789[u-ca=hebrew]");';
 const dateFields = ['year', 'month', 'day'];
@@ -13,6 +35,63 @@ const conversions = [
 	[dateTime, 'PlainDate', dateFields],
 	[dateTime, 'PlainTime', timeFields],
 ];
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'Temporal.PlainDate.from((new Temporal.PlainDateTime(2026, 10, 21) as /* keep */ Temporal.PlainDateTime));',
+			output: '(new Temporal.PlainDateTime(2026, 10, 21) as /* keep */ Temporal.PlainDateTime).toPlainDate();',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'Temporal.PlainTime.from(new Temporal.PlainDateTime(2026, // keep\r\n  10, 21));',
+			output: 'new Temporal.PlainDateTime(2026, // keep\r\n  10, 21).toPlainTime();',
+			errors: 1,
+		},
+		...[
+			`${dateTime} Temporal.PlainDate.from(source.toString(/* keep */));`,
+			`${dateTime} Temporal.PlainDate.from({year: source.year, month: (/* keep */ source).month, day: source.day, calendar: source.calendarId});`,
+		].map(code => ({code, errors: [{messageId: 'prefer-temporal-conversion', suggestions: []}]})),
+		{
+			code: `${dateTime} Temporal.PlainDate.from(source.toString() as /* keep */ string);`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-temporal-conversion', suggestions: []}],
+		},
+	],
+});
+
+// eslint-disable-next-line node-test/no-skip-test -- Temporal is unavailable on older supported Node.js versions.
+nodeTest('commented Temporal conversions evaluate once and precision changes remain suggestions', {skip: globalThis.Temporal === undefined}, t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-temporal-conversion': rule}}},
+		rules: {'unicorn/prefer-temporal-conversion': 'error'},
+	};
+	for (const [method, originalNanoseconds, autofix] of [['fromEpochNanoseconds', '123456789', true], ['fromEpochMilliseconds', '123000000', false]]) {
+		const property = method === 'fromEpochNanoseconds' ? 'epochNanoseconds' : 'epochMilliseconds';
+		const expression = `Temporal.Instant.${method}(new Temporal.ZonedDateTime((evaluations++, /* keep */ 123456789n), "UTC").${property})`;
+		const code = `let evaluations = 0; const result = ${expression}; JSON.stringify({evaluations, nanoseconds: result.epochNanoseconds.toString()});`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, autofix);
+		let corrected = output;
+		if (autofix) {
+			t.assert.deepStrictEqual(messages, []);
+		} else {
+			t.assert.strictEqual(output, code);
+			t.assert.strictEqual(messages.length, 1);
+			t.assert.strictEqual(messages[0].fix, undefined);
+			t.assert.strictEqual(messages[0].suggestions?.length, 1);
+			const {fix} = messages[0].suggestions[0];
+			corrected = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		}
+
+		t.assert.ok(corrected.includes('/* keep */'));
+		t.assert.strictEqual(runInNewContext(code, {Temporal}), JSON.stringify({evaluations: 1, nanoseconds: originalNanoseconds}));
+		t.assert.strictEqual(runInNewContext(corrected, {Temporal}), '{"evaluations":1,"nanoseconds":"123456789"}');
+	}
+});
 
 // Lock down the distinction between exact conversions and restoring discarded information.
 test({

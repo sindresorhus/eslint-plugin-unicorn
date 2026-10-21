@@ -2,6 +2,7 @@ import {
 	needsSemicolon,
 	shouldAddParenthesesToUnaryExpressionArgument,
 	shouldAddParenthesesToUnaryExpressionReplacement,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {isNegativeOne} from './ast/index.js';
 
@@ -57,7 +58,7 @@ const create = context => {
 		};
 
 		// A comment around the `*`/`/`/`-1` tokens would be dropped by the fix, so skip it.
-		if (sourceCode.getCommentsInside(node).length > 0) {
+		if (wouldRemoveComments(context, node, [operand])) {
 			return problem;
 		}
 

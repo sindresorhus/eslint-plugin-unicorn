@@ -1,10 +1,12 @@
 import {isIdentifierNamed, isMemberExpression} from './ast/index.js';
 import {
 	getConstVariableInitializer,
+	getParenthesizedRange,
 	getParenthesizedText,
 	getStaticPropertyName,
 	isGlobalIdentifier,
 	isValueNotUsable,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 /**
@@ -15,9 +17,6 @@ const MESSAGE_ID = 'prefer-location-assign';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `Location#assign()` over assigning to `Location#href`.',
 };
-
-const hasComments = (node, sourceCode) =>
-	sourceCode.getCommentsInside(node).length > 0;
 
 const isDirectLocationObject = (node, context) =>
 	(
@@ -53,9 +52,6 @@ const isLocationHref = (node, context) =>
 const getProblem = (node, context) => {
 	const {sourceCode} = context;
 	const assignmentExpression = node.parent;
-	const commentsNode = assignmentExpression.parent.type === 'ExpressionStatement'
-		? assignmentExpression.parent
-		: assignmentExpression;
 	const problem = {
 		node: node.property,
 		messageId: MESSAGE_ID,
@@ -65,7 +61,7 @@ const getProblem = (node, context) => {
 		assignmentExpression.operator !== '='
 		|| !isValueNotUsable(assignmentExpression)
 		|| !isDirectLocationObject(node.object, context)
-		|| hasComments(commentsNode, sourceCode)
+		|| wouldRemoveComments(context, assignmentExpression, [node.object, getParenthesizedRange(assignmentExpression.right, context)])
 	) {
 		return problem;
 	}

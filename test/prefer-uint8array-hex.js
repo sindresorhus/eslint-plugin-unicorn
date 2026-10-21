@@ -1,5 +1,7 @@
 /* eslint-disable no-template-curly-in-string */
+import {Buffer} from 'node:buffer';
 import test from 'node:test';
+import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
@@ -10,6 +12,86 @@ const encode = 'byte => byte.toString(16).padStart(2, \'0\')';
 const decode = 'pair => Number.parseInt(pair, 16)';
 const error = {messageId: 'prefer-uint8array-hex/error'};
 const suggestion = {messageId: 'prefer-uint8array-hex/suggestion'};
+
+testRule({
+	valid: [],
+	invalid: [
+		...[
+			[`Array.from(new Uint8Array([/* keep */ 255]), ${encode}).join('')`, 'new Uint8Array([/* keep */ 255]).toHex()'],
+			['Buffer.from(new Uint8Array([/* keep */ 255])).toString(\'hex\')', 'new Uint8Array([/* keep */ 255]).toHex()'],
+			[`Array.from((/* keep */ new Uint8Array([255])), ${encode}).join('')`, '(/* keep */ new Uint8Array([255])).toHex()'],
+			[`Array.from(new Uint8Array([\r\n  // keep\r\n  255,\r\n]), ${encode}).join('')`, 'new Uint8Array([\r\n  // keep\r\n  255,\r\n]).toHex()'],
+		].map(([code, output]) => ({code, output, errors: [error]})),
+		{
+			code: `Array.from((bytes as /* keep */ Uint8Array), ${encode}).join('')`,
+			output: '(bytes as /* keep */ Uint8Array).toHex()',
+			languageOptions: {parser: parsers.typescript},
+			errors: [error],
+		},
+		...[
+			['Buffer.from(getText(/* keep */), \'hex\')', 'Uint8Array.fromHex(getText(/* keep */))'],
+			['Buffer.from((/* keep */ text), \'hex\')', 'Uint8Array.fromHex((/* keep */ text))'],
+			[`new Uint8Array(getText(/* keep */).match(/.{2}/g).map(${decode}))`, 'Uint8Array.fromHex(getText(/* keep */))'],
+		].map(([code, output]) => ({code, errors: [{...error, suggestions: [{...suggestion, output}]}]})),
+	],
+});
+
+// eslint-disable-next-line node-test/no-skip-test -- Uint8Array#toHex is unavailable on older supported Node.js versions.
+test('hex encoding preserves comments and evaluates its input once', {skip: typeof Uint8Array.prototype.toHex !== 'function'}, t => {
+	const linter = new Linter();
+	const code = `let evaluations = 0; const result = Array.from(new Uint8Array((++evaluations, [0, /* keep */ 15, 255])), ${encode}).join(''); JSON.stringify({evaluations, result});`;
+	const {output, fixed, messages} = linter.verifyAndFix(code, {
+		plugins: {unicorn},
+		rules: {'unicorn/prefer-uint8array-hex': 'error'},
+	});
+	t.assert.strictEqual(output, 'let evaluations = 0; const result = new Uint8Array((++evaluations, [0, /* keep */ 15, 255])).toHex(); JSON.stringify({evaluations, result});');
+	t.assert.strictEqual(fixed, true);
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(runInNewContext(code), '{"evaluations":1,"result":"000fff"}');
+	t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
+});
+
+// eslint-disable-next-line node-test/no-skip-test -- Uint8Array.fromHex is unavailable on older supported Node.js versions.
+test('commented hex decoding stays manual because result types and invalid input handling differ', {skip: typeof Uint8Array.fromHex !== 'function'}, t => {
+	const linter = new Linter();
+	const code = 'Buffer.from(getText(/* keep */), \'hex\')';
+	const {output, fixed, messages} = linter.verifyAndFix(code, {
+		plugins: {unicorn},
+		rules: {'unicorn/prefer-uint8array-hex': 'error'},
+	});
+	t.assert.strictEqual(output, code);
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].fix, undefined);
+	t.assert.strictEqual(messages[0].suggestions?.length, 1);
+	const {range, text} = messages[0].suggestions[0].fix;
+	const suggested = code.slice(0, range[0]) + text + code.slice(range[1]);
+	t.assert.strictEqual(suggested, 'Uint8Array.fromHex(getText(/* keep */))');
+	for (const input of ['000fff', 'ffgg']) {
+		for (const source of [code, suggested]) {
+			let evaluations = 0;
+			const execute = () => runInNewContext(source, {
+				Buffer,
+				Uint8Array,
+				getText() {
+					evaluations++;
+					return input;
+				},
+			});
+			if (input === 'ffgg' && source === suggested) {
+				t.assert.throws(execute, {name: 'SyntaxError'});
+			} else {
+				const result = execute();
+				t.assert.deepStrictEqual([...result], input === '000fff' ? [0, 15, 255] : [255]);
+				t.assert.ok(result instanceof Uint8Array);
+				t.assert.strictEqual(Buffer.isBuffer(result), source === code);
+			}
+
+			t.assert.strictEqual(evaluations, 1);
+		}
+	}
+});
+
 const typeAware = code => ({
 	code,
 	filename: 'file.ts',

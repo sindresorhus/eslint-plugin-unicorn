@@ -1,10 +1,80 @@
 import test from 'node:test';
+import {runInNewContext} from 'node:vm';
 import outdent from 'outdent';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
+
+ruleTest({
+	valid: [],
+	invalid: [
+		['location.href = getUrl(/* keep */);', 'location.assign(getUrl(/* keep */));'],
+		['window./* keep */location.href = url;', 'window./* keep */location.assign(url);'],
+		['location.href = (/* keep */ url);', 'location.assign((/* keep */ url));'],
+		['location.href = url /* keep */;', 'location.assign(url) /* keep */;'],
+		['location.href = getUrl(\r\n  // keep\r\n);', 'location.assign(getUrl(\r\n  // keep\r\n));'],
+	].map(([code, output]) => ({code, output, errors: [{messageId: 'prefer-location-assign'}]})),
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			code: 'location.href = (url as /* keep */ string);',
+			output: 'location.assign((url as /* keep */ string));',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-location-assign'}],
+		},
+		...[
+			'(/* keep */ location).href = url;',
+			'location./* keep */href = url;',
+			'location.href /* keep */ = url;',
+			'location["href" /* keep */] = url;',
+			'const result = location.href = getUrl(/* keep */);',
+			'const target = location; target.href = getUrl(/* keep */);',
+			'location.href += getUrl(/* keep */);',
+		].map(code => ({code, errors: [{messageId: 'prefer-location-assign'}]})),
+	],
+});
+
+test('commented location assignments preserve navigation order and evaluate the URL once', t => {
+	const linter = new Linter();
+	for (const code of ['location.href = getUrl(/* keep */);', 'window./* keep */location.href = getUrl();', 'location.href = (/* keep */ getUrl());']) {
+		const {output, fixed, messages} = linter.verifyAndFix(code, {
+			plugins: {unicorn},
+			rules: {'unicorn/prefer-location-assign': 'error'},
+		});
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.ok(output.includes('/* keep */'));
+		for (const source of [code, output]) {
+			const events = [];
+			const location = {
+				get href() {
+					throw new Error('Navigation should not read href.');
+				},
+				set href(value) {
+					events.push(['navigate', value]);
+				},
+				assign(value) {
+					t.assert.strictEqual(this, location);
+					events.push(['navigate', value]);
+				},
+			};
+			runInNewContext(source, {
+				location,
+				window: {location},
+				getUrl() {
+					events.push('input');
+					return 'https://example.com/next';
+				},
+			});
+			t.assert.deepStrictEqual(events, ['input', ['navigate', 'https://example.com/next']]);
+		}
+	}
+});
 
 ruleTest.snapshot({
 	valid: [

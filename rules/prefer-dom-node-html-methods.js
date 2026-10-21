@@ -1,11 +1,13 @@
 import {isMemberExpression} from './ast/index.js';
 import {
+	getParenthesizedRange,
 	getParenthesizedText,
 	getMemberExpressionObjectText,
 	getOutermostChainAndTypeScriptExpression,
 	isInUnparenthesizedNewExpressionCallee,
 	isLeftHandSide,
 	isValueNotUsable,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 const MESSAGE_ID_READ = 'prefer-dom-node-html-methods/read';
@@ -25,9 +27,6 @@ const isInnerHTMLMemberExpression = node => isMemberExpression(node, {
 const isPlainInnerHTMLAssignment = node =>
 	node.operator === '='
 	&& isInnerHTMLMemberExpression(node.left);
-
-const hasComments = (node, sourceCode) =>
-	sourceCode.getCommentsInside(node).length > 0;
 
 const isCalleeOrTag = node => {
 	const expression = getOutermostChainAndTypeScriptExpression(node);
@@ -51,7 +50,6 @@ const isCalleeOrTag = node => {
 */
 const create = context => {
 	const {checkGetHTML, checkSetHTML} = context.options[0];
-	const {sourceCode} = context;
 
 	context.on('MemberExpression', memberExpression => {
 		if (
@@ -67,10 +65,7 @@ const create = context => {
 			messageId: MESSAGE_ID_READ,
 		};
 
-		if (
-			!hasComments(memberExpression, sourceCode)
-			&& !isCalleeOrTag(memberExpression)
-		) {
+		if (!isCalleeOrTag(memberExpression)) {
 			problem.fix = function * (fixer) {
 				yield fixer.replaceText(memberExpression.property, 'getHTML');
 				const needsParentheses = isInUnparenthesizedNewExpressionCallee(memberExpression, context);
@@ -100,7 +95,10 @@ const create = context => {
 		if (
 			isPlainInnerHTMLAssignment(assignmentExpression)
 			&& isValueNotUsable(assignmentExpression)
-			&& !hasComments(assignmentExpression, sourceCode)
+			&& !wouldRemoveComments(context, assignmentExpression, [
+				getParenthesizedRange(assignmentExpression.left.object, context),
+				getParenthesizedRange(assignmentExpression.right, context),
+			])
 		) {
 			problem.suggest = [
 				{

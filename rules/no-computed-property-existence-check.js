@@ -1,6 +1,7 @@
 import {
 	getCallArgumentText,
 	getOutermostChainAndTypeScriptExpression,
+	getParenthesizedRange,
 	hasOptionalChainElement,
 	isBoolean,
 	isBooleanContext,
@@ -53,10 +54,6 @@ function getObjectHasOwnText(object, property, context) {
 	return `Object.hasOwn(${getCallArgumentText(object, context)}, ${getCallArgumentText(property, context)})`;
 }
 
-function hasLeadingComments(node, context) {
-	return context.sourceCode.getCommentsBefore(node).length > 0;
-}
-
 function getSuggestion(node, object, property, context) {
 	if (
 		object.type === 'Super'
@@ -70,9 +67,7 @@ function getSuggestion(node, object, property, context) {
 			node.type === 'BinaryExpression'
 			&& (!isSimpleInSuggestionOperand(object) || !isSimpleInSuggestionOperand(property))
 		)
-		|| hasLeadingComments(object, context)
-		|| hasLeadingComments(property, context)
-		|| wouldRemoveComments(context, node, [object, property])
+		|| wouldRemoveComments(context, node, [object, property].map(operand => getParenthesizedRange(operand, context)))
 	) {
 		return;
 	}

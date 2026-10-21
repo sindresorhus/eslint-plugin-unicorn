@@ -12,6 +12,52 @@ const typeAware = code => ({
 	},
 });
 
+test({
+	valid: [],
+	invalid: [
+		['if (/* Keep this comment. */ object[key]) {}', 'if (/* Keep this comment. */ Object.hasOwn(object, key)) {}'],
+		['if (/* Keep this comment. */ key in object) {}', 'if (/* Keep this comment. */ Object.hasOwn(object, key)) {}'],
+		['if (\n// Keep this comment.\nobject[key]) {}', 'if (\n// Keep this comment.\nObject.hasOwn(object, key)) {}'],
+		['if (\n// Keep this comment.\nkey in object) {}', 'if (\n// Keep this comment.\nObject.hasOwn(object, key)) {}'],
+		['if ((/* keep */ object)[key]) {}', 'if (Object.hasOwn((/* keep */ object), key)) {}'],
+		['if (object[(/* keep */ key)]) {}', 'if (Object.hasOwn(object, (/* keep */ key))) {}'],
+		['if (key in (/* keep */ object)) {}', 'if (Object.hasOwn((/* keep */ object), key)) {}'],
+		['if ((/* keep */ key) in object) {}', 'if (Object.hasOwn(object, (/* keep */ key))) {}'],
+		['if (object[(key // keep\r\n)]) {}', 'if (Object.hasOwn(object, (key // keep\r\n))) {}'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{
+			messageId: 'no-computed-property-existence-check/error',
+			suggestions: [{messageId: 'no-computed-property-existence-check/suggestion', output}],
+		}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'if ((/* keep */ object as Record<string, unknown>)[key]) {}',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'no-computed-property-existence-check/error',
+				suggestions: [{
+					messageId: 'no-computed-property-existence-check/suggestion',
+					output: 'if (Object.hasOwn((/* keep */ object as Record<string, unknown>), key)) {}',
+				}],
+			}],
+		},
+		...[
+			'if ((/* keep */ object) /* do not lose */ [key]) {}',
+			'if (object[(/* keep */ key) /* do not lose */]) {}',
+			'if ((/* keep */ key) /* do not lose */ in object) {}',
+		].map(code => ({
+			code,
+			errors: [{messageId: 'no-computed-property-existence-check/error', suggestions: []}],
+		})),
+	],
+});
+
 test.snapshot({
 	valid: [
 		'const value = object[key];',

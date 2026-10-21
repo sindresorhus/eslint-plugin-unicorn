@@ -7,6 +7,63 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		['getValue(/* keep */) * -1;', '-getValue(/* keep */);'],
+		['-1 * values[/* keep */ index];', '-values[/* keep */ index];'],
+		['(left + /* keep */ right) / -1;', '-(left + /* keep */ right);'],
+		['(condition ? /* keep */ left : right) * -1;', '-(condition ? /* keep */ left : right);'],
+		['getValue(\r\n  // keep\r\n) / -1;', '-getValue(\r\n  // keep\r\n);'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			'(/* keep */ value) * -1;',
+			'(value /* keep */) / -1;',
+			'value * -/* keep */1;',
+			'-1 /* keep */ * value;',
+		].map(code => ({code, errors: 1})),
+		{
+			code: '(value as /* keep */ number) * -1;',
+			output: '-(value as /* keep */ number);',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+	],
+});
+
+nodeTest('commented operands preserve numeric results and are evaluated once', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-unary-minus': rule}}},
+		rules: {'unicorn/prefer-unary-minus': 'error'},
+	};
+	for (const code of ['getValue(/* keep */) * -1;', '-1 * getValue(/* keep */);', 'getValue(/* keep */) / -1;']) {
+		const {output, messages, fixed} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.ok(output.includes('/* keep */'));
+		for (const value of [0, -0, 3, -3, NaN, Infinity]) {
+			const results = [code, output].map(source => {
+				let evaluations = 0;
+				const result = runInNewContext(source, {
+					getValue() {
+						evaluations++;
+						return value;
+					},
+				});
+				t.assert.strictEqual(evaluations, 1);
+				return result;
+			});
+			t.assert.strictEqual(results[1], results[0]);
+		}
+	}
+});
+
 test.snapshot({
 	valid: [
 		// Other multipliers / divisors
