@@ -1,5 +1,6 @@
 import {isNumericLiteral} from '../ast/index.js';
 import isString from './is-string.js';
+import {isIndexedCollection} from './is-array.js';
 import {isFunctionCall, isStaticProperties, hasTypeAnnotation} from './type-check.js';
 import {createTypeCheckers, hasJSDocumentTypeReference} from './type-helpers.js';
 import {getStaticValueForControlFlow} from './get-static-value.js';
@@ -76,15 +77,24 @@ const stringNumberMethods = new Set([
 	'localeCompare',
 ]);
 
-const isStringNumberMethodCall = (node, context) =>
+const indexedCollectionNumberMethods = new Set([
+	'indexOf',
+	'lastIndexOf',
+	'findIndex',
+	'findLastIndex',
+]);
+
+const isNumberReturningMethodCall = (node, context) =>
 	node.type === 'CallExpression'
 	&& !node.optional
 	&& node.callee.type === 'MemberExpression'
 	&& !node.callee.computed
 	&& !node.callee.optional
 	&& node.callee.property.type === 'Identifier'
-	&& stringNumberMethods.has(node.callee.property.name)
-	&& isString(node.callee.object, context);
+	&& (
+		(stringNumberMethods.has(node.callee.property.name) && isString(node.callee.object, context))
+		|| (indexedCollectionNumberMethods.has(node.callee.property.name) && isIndexedCollection(node.callee.object, context))
+	);
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number#static_properties
 const numberProperties = new Set([
@@ -143,7 +153,7 @@ export default function isNumber(node, context) {
 		|| isMathProperty(node)
 		|| isMathMethodCall(node)
 		|| isNumberCall(node)
-		|| isStringNumberMethodCall(node, context)
+		|| isNumberReturningMethodCall(node, context)
 		|| isNumberProperty(node)
 		|| isNumberMethodCall(node)
 		|| isGlobalParseToNumberFunctionCall(node)

@@ -14,6 +14,14 @@ for (const languageOptions of [
 		invalid: [
 			...[
 				[
+					'/** @param {Array<string>} values */ function run(values) { return values.indexOf("x") - values.lastIndexOf("x") < 0; }',
+					'/** @param {Array<string>} values */ function run(values) { return values.indexOf("x") < values.lastIndexOf("x"); }',
+				],
+				[
+					'/** @param {BigUint64Array} values */ function run(values) { return 0 > values.findIndex(Boolean) - values.findLastIndex(Boolean); }',
+					'/** @param {BigUint64Array} values */ function run(values) { return values.findIndex(Boolean) < values.findLastIndex(Boolean); }',
+				],
+				[
 					'/** @param {number} first\n * @param {number} second */ function run(first, second) { return first - second > 0; }',
 					'/** @param {number} first\n * @param {number} second */ function run(first, second) { return first > second; }',
 				],
@@ -49,6 +57,14 @@ for (const languageOptions of [
 				code, output, filename: 'file.ts', errors: [{messageId: 'no-subtraction-comparison/error', suggestions: 0}],
 			})),
 			...[
+				[
+					'/** @param {{indexOf: () => string}} values */ function run(values) { return values.indexOf() - values.indexOf() > 0; }',
+					'/** @param {{indexOf: () => string}} values */ function run(values) { return values.indexOf() > values.indexOf(); }',
+				],
+				[
+					'/** @param {Array<string>} values */ function run(values) { return values.find(Boolean) - values.findLast(Boolean) < 0; }',
+					'/** @param {Array<string>} values */ function run(values) { return values.find(Boolean) < values.findLast(Boolean); }',
+				],
 				[
 					'/** @param {number} [value] */ function run(value) { return value - 1 > 0; }',
 					'/** @param {number} [value] */ function run(value) { return value > 1; }',

@@ -7,6 +7,68 @@ const linter = new Linter();
 
 for (const {name, rule, code, output = code, value, reported = true, suggestion, suggestedValue} of [
 	{
+		name: 'documented array indices remain finite for found missing and empty inputs',
+		rule: 'prefer-number-properties',
+		code: [
+			'/** @param {Array<string>} values */ function run(values, item) { return isFinite(values.indexOf(item)); }',
+			'JSON.stringify([run(["x"], "x"), run(["x"], "missing"), run([], "x")]);',
+		].join('\n'),
+		output: [
+			'/** @param {Array<string>} values */ function run(values, item) { return Number.isFinite(values.indexOf(item)); }',
+			'JSON.stringify([run(["x"], "x"), run(["x"], "missing"), run([], "x")]);',
+		].join('\n'),
+		value: '[true,true,true]',
+	},
+	{
+		name: 'documented bigint typed array indices use numbers for numeric checks',
+		rule: 'prefer-number-properties',
+		code: [
+			'/** @param {BigInt64Array} values */ function run(values, item) { return isNaN(values.lastIndexOf(item, 1)); }',
+			'JSON.stringify([run(new BigInt64Array([2n, 1n, 2n]), 2n), run(new BigInt64Array(), 2n)]);',
+		].join('\n'),
+		output: [
+			'/** @param {BigInt64Array} values */ function run(values, item) { return Number.isNaN(values.lastIndexOf(item, 1)); }',
+			'JSON.stringify([run(new BigInt64Array([2n, 1n, 2n]), 2n), run(new BigInt64Array(), 2n)]);',
+		].join('\n'),
+		value: '[false,false]',
+	},
+	{
+		name: 'documented array index comparison fixes preserve duplicates and missing values',
+		rule: 'no-subtraction-comparison',
+		code: [
+			'/** @param {Array<string>} values */ function run(values, item) { return values.indexOf(item) - values.lastIndexOf(item) < 0; }',
+			'JSON.stringify([run(["x", "y", "x"], "x"), run(["x"], "x"), run([], "x")]);',
+		].join('\n'),
+		output: [
+			'/** @param {Array<string>} values */ function run(values, item) { return values.indexOf(item) < values.lastIndexOf(item); }',
+			'JSON.stringify([run(["x", "y", "x"], "x"), run(["x"], "x"), run([], "x")]);',
+		].join('\n'),
+		value: '[true,false,false]',
+	},
+	{
+		name: 'documented typed array find indices preserve callback order and truthy return values',
+		rule: 'no-subtraction-comparison',
+		code: [
+			'const visits = []; /** @param {Uint8Array} values */ function run(values) {',
+			'return values.findIndex(value => { visits.push(value); return value === 2 ? "yes" : ""; }) - values.findLastIndex(value => { visits.push(value); return value === 2 ? {} : false; }) < 0;',
+			'} JSON.stringify([run(new Uint8Array([1, 2, 3, 2, 4])), visits]);',
+		].join('\n'),
+		output: [
+			'const visits = []; /** @param {Uint8Array} values */ function run(values) {',
+			'return values.findIndex(value => { visits.push(value); return value === 2 ? "yes" : ""; }) < values.findLastIndex(value => { visits.push(value); return value === 2 ? {} : false; });',
+			'} JSON.stringify([run(new Uint8Array([1, 2, 3, 2, 4])), visits]);',
+		].join('\n'),
+		value: '[true,[1,2,4,2]]',
+	},
+	{
+		name: 'custom index methods retain numeric coercion until a suggestion is chosen',
+		rule: 'prefer-number-properties',
+		code: '/** @param {{indexOf: () => string}} values */ function run(values) { return isFinite(values.indexOf()); } run({indexOf() { return "0"; }});',
+		value: true,
+		suggestion: '/** @param {{indexOf: () => string}} values */ function run(values) { return Number.isFinite(values.indexOf()); } run({indexOf() { return "0"; }});',
+		suggestedValue: false,
+	},
+	{
 		name: 'documented joins retain empty and nullish element separator behavior',
 		rule: 'no-unnecessary-boolean-comparison',
 		code: [

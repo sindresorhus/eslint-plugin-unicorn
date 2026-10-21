@@ -43,6 +43,30 @@ for (const languageOptions of [
 		invalid: [
 			...[
 				[
+					'/** @param {Array<string>} values */ function run(values) { return isFinite(values.indexOf("x")); }',
+					'/** @param {Array<string>} values */ function run(values) { return Number.isFinite(values.indexOf("x")); }',
+				],
+				[
+					'/** @param {ReadonlyArray<boolean>} values */ function run(values) { return isNaN(values.lastIndexOf(false)); }',
+					'/** @param {ReadonlyArray<boolean>} values */ function run(values) { return Number.isNaN(values.lastIndexOf(false)); }',
+				],
+				[
+					'/** @param {[string, boolean]} values */ function run(values) { return isFinite(values.findIndex(() => "yes")); }',
+					'/** @param {[string, boolean]} values */ function run(values) { return Number.isFinite(values.findIndex(() => "yes")); }',
+				],
+				[
+					'/** @param {BigInt64Array} values */ function run(values) { return isNaN(values.findLastIndex(() => ({}))); }',
+					'/** @param {BigInt64Array} values */ function run(values) { return Number.isNaN(values.findLastIndex(() => ({}))); }',
+				],
+				[
+					'/** @param {Array<string> | Uint8Array} values */ function run(values) { const alias = values; return isFinite(alias.indexOf(0)); }',
+					'/** @param {Array<string> | Uint8Array} values */ function run(values) { const alias = values; return Number.isFinite(alias.indexOf(0)); }',
+				],
+				[
+					'/** @returns {ReadonlyArray<string>} */ function read() { return source; } isFinite(read().findLastIndex(Boolean));',
+					'/** @returns {ReadonlyArray<string>} */ function read() { return source; } Number.isFinite(read().findLastIndex(Boolean));',
+				],
+				[
 					'/** @param {number} value */ function run(value) { return isNaN(value); }',
 					'/** @param {number} value */ function run(value) { return Number.isNaN(value); }',
 				],
@@ -78,6 +102,26 @@ for (const languageOptions of [
 				code, output, filename: 'file.ts', errors: [{messageId: MESSAGE_ID_ERROR, suggestions: 0}],
 			})),
 			...[
+				[
+					'/** @param {Array<string> | Set<string>} values */ function run(values) { return isFinite(values.indexOf("x")); }',
+					'/** @param {Array<string> | Set<string>} values */ function run(values) { return Number.isFinite(values.indexOf("x")); }',
+				],
+				[
+					'/** @param {ArrayLike<string>} values */ function run(values) { return isNaN(values.findIndex(Boolean)); }',
+					'/** @param {ArrayLike<string>} values */ function run(values) { return Number.isNaN(values.findIndex(Boolean)); }',
+				],
+				[
+					'/** @param {{lastIndexOf: () => string}} values */ function run(values) { return isFinite(values.lastIndexOf()); }',
+					'/** @param {{lastIndexOf: () => string}} values */ function run(values) { return Number.isFinite(values.lastIndexOf()); }',
+				],
+				[
+					'/** @param {?Array<string>} values */ function run(values) { return isFinite(values?.findIndex(Boolean)); }',
+					'/** @param {?Array<string>} values */ function run(values) { return Number.isFinite(values?.findIndex(Boolean)); }',
+				],
+				[
+					'/** @param {Array<string>} values */ function run(values) { return isFinite(values.find(Boolean)); }',
+					'/** @param {Array<string>} values */ function run(values) { return Number.isFinite(values.find(Boolean)); }',
+				],
 				[
 					'/** @param {number} [value] */ function run(value) { return isFinite(value); }',
 					'/** @param {number} [value] */ function run(value) { return Number.isFinite(value); }',

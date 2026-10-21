@@ -99,6 +99,57 @@ test('unknown search patterns do not borrow the numeric result of other string m
 	t.assert.deepStrictEqual(getVerdicts(code), [false, true, true]);
 });
 
+test('array and typed array search indices are numbers independently of their elements', t => {
+	for (const type of ['Array<string>', 'ReadonlyArray<boolean>', '[string, boolean]', 'Uint8Array', 'BigInt64Array', 'Array<string> | Uint8Array']) {
+		const code = [
+			`/** @param {${type}} values */ function run(values, value) {`,
+			'check(values.indexOf(value)); check(values.lastIndexOf(value));',
+			'check(values.findIndex(() => "yes")); check(values.findLastIndex(() => ({})));',
+			'}',
+		].join('\n');
+		t.assert.deepStrictEqual(getVerdicts(code), [true, true, true, true], type);
+	}
+
+	t.assert.deepStrictEqual(getVerdicts('function run(values: readonly string[]) { check(values.findIndex(() => true)); check(values.lastIndexOf("x")); }'), [true, true]);
+	t.assert.deepStrictEqual(getVerdicts('check(new BigUint64Array().findLastIndex(() => true)); check(["x"].indexOf("missing"));'), [true, true]);
+});
+
+test('numeric search inference requires a definite indexed collection receiver', t => {
+	for (const type of ['unknown', '?Array<string>', 'Array<string> | Set<string>', 'ArrayLike<string>', '{indexOf: () => string}']) {
+		const code = [
+			`/** @param {${type}} values */ function run(values) {`,
+			'check(values.indexOf("x")); check(values.lastIndexOf("x"));',
+			'check(values.findIndex(() => true)); check(values.findLastIndex(() => true));',
+			'}',
+		].join('\n');
+		t.assert.deepStrictEqual(getVerdicts(code), [false, false, false, false], type);
+	}
+
+	t.assert.deepStrictEqual(getVerdicts('/** @param {string} value */ function run(value) { check(value.findIndex(Boolean)); check(value.findLastIndex(Boolean)); }'), [false, false]);
+	const code = [
+		'/** @param {Array<string>} values */ function run(values) {',
+		'check(values?.findIndex(() => true)); check(values.findIndex?.(() => true)); check(values["findIndex"](() => true));',
+		'check(values.find(() => true)); check(values.findLast(() => true)); check(values.at(0));',
+		'check(values.charCodeAt(0)); check(values.localeCompare("x"));',
+		'}',
+	].join('\n');
+	t.assert.deepStrictEqual(getVerdicts(code), [false, false, false, false, false, false, false, false]);
+});
+
+test('numeric search inference respects native annotations and unresolved documented receivers', t => {
+	t.assert.deepStrictEqual(getVerdicts('/** @param {Array<string>} values */ function run(values: {indexOf(): string}) { check(values.indexOf()); }'), [false]);
+	t.assert.deepStrictEqual(getVerdicts('/** @param {{indexOf: () => string}} values */ function run(values: readonly string[]) { check(values.indexOf("x")); }'), [true]);
+	t.assert.deepStrictEqual(getVerdicts('/** @type {unknown} */ const values = ["x"]; check(values.indexOf("x"));'), [false]);
+	t.assert.deepStrictEqual(getVerdicts('/** @param {Array<string>} [values] */ function run(values) { check(values.indexOf("x")); }'), [false]);
+	t.assert.deepStrictEqual(getVerdicts('const first = second; const second = first; check(first.indexOf("x"));'), [false]);
+	const code = [
+		'/** @param {Array<string>} values */ function run(values) {',
+		'check((values as readonly string[]).indexOf("x")); check((values satisfies readonly string[]).findIndex(Boolean));',
+		'}',
+	].join('\n');
+	t.assert.deepStrictEqual(getVerdicts(code), [true, true]);
+});
+
 test('optional numeric annotations do not guarantee a number', t => {
 	t.assert.deepStrictEqual(getVerdicts('function f(input?: number) { check(input); check(input!); check((true, input)); }'), [false, false, false]);
 	t.assert.deepStrictEqual(getVerdicts('function f(input?: 5) { check(input); }'), [false]);
