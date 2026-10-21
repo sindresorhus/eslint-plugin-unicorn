@@ -59,6 +59,41 @@ test('finds direct variable and exact named parameter annotations', t => {
 	t.assert.strictEqual(unrelated, undefined);
 });
 
+test('compact type, parameter, and return tags preserve annotation ownership', t => {
+	for (const typescript of [false, true]) {
+		const code = '/**@type{boolean}*/ let flag; inspect(flag); /**@param{string} text\n * @returns{number} */ function read(text) { inspect(text); }';
+		t.assert.deepStrictEqual(getAnnotations(code, false, typescript), [
+			{type: {kind: 'name', name: 'boolean'}, optional: false, name: undefined},
+			{type: {kind: 'name', name: 'string'}, optional: false, name: 'text'},
+		]);
+		t.assert.deepStrictEqual(getAnnotations(code, true, typescript), [{type: {kind: 'name', name: 'number'}, optional: false, name: undefined}]);
+	}
+});
+
+test('compact aliases retain optional parameter names and CRLF source ranges', t => {
+	for (const tag of ['arg', 'argument']) {
+		const code = `/**\r\n * @${tag}{boolean} [flag=false] Description.\r\n */\r\nfunction run(flag = false) { inspect(flag); }`;
+		t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'name', name: 'boolean'}, optional: true, name: 'flag'}]);
+	}
+});
+
+test('compact duplicate tags remain ambiguous while sibling tags stay usable', t => {
+	const code = '/** @param{boolean} flag\n * @arg {string} flag\n * @param{number} count */ function run(flag, count) { inspect(flag); inspect(count); }';
+	t.assert.deepStrictEqual(getAnnotations(code), [undefined, {type: {kind: 'name', name: 'number'}, optional: false, name: 'count'}]);
+});
+
+test('compact lookalike tag names do not supply supported annotations', t => {
+	const code = '/**@typeExtra{boolean}*/ let flag; inspect(flag); /**@parameter{boolean} value\n * @returnsExtra{boolean} */ function run(value) { inspect(value); }';
+	t.assert.deepStrictEqual(getAnnotations(code), [undefined, undefined]);
+	t.assert.deepStrictEqual(getAnnotations(code, true), [undefined]);
+});
+
+test('compact typedefs do not become annotations on the following declaration', t => {
+	const code = '/**@typedef{boolean} Flag\n * @type {boolean}\n * @param {boolean} value\n * @returns {boolean} */ function run(value) { inspect(value); }';
+	t.assert.deepStrictEqual(getAnnotations(code), [undefined]);
+	t.assert.deepStrictEqual(getAnnotations(code, true), [undefined]);
+});
+
 test('preserves optional parameter name ranges and multiline type expressions', t => {
 	const [parameter] = getAnnotations('/**\r\n * @argument {\r\n * boolean\r\n * } [flag = false] Description.\r\n */\r\nfunction run(flag) { inspect(flag); }');
 	t.assert.strictEqual(parameter.type.name, 'boolean');

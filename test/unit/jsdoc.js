@@ -1,7 +1,7 @@
 import test from 'node:test';
 import {Linter} from 'eslint';
 import unicorn from '../../index.js';
-import maskJSDocumentSyntax from '../../rules/utils/jsdoc.js';
+import maskJSDocumentSyntax, {getJSDocumentTags} from '../../rules/utils/jsdoc.js';
 import {DEFAULT_LANGUAGE_OPTIONS} from '../utils/language-options.js';
 
 const linter = new Linter();
@@ -58,6 +58,39 @@ const mask = text => {
 	maskJSDocumentSyntax(characters, text);
 	return characters.join('').replaceAll('\u{FFFF}', '#');
 };
+
+test('structured JSDoc tags can immediately precede their type expression', t => {
+	for (const name of ['type', 'param', 'arg', 'argument', 'returns', 'return']) {
+		const text = ` * @${name}{boolean} flag Description.`;
+		const [{tag}] = getJSDocumentTags(text);
+		t.assert.strictEqual(tag.name, name);
+		t.assert.strictEqual(text.slice(tag.tagStart, tag.tagEnd), `@${name}`);
+		t.assert.strictEqual(text.slice(tag.contentStart), '{boolean} flag Description.');
+	}
+});
+
+test('compact structured tags keep types and names out of comment prose', t => {
+	t.assert.strictEqual(mask(' * @param{json} json json'), ' * ############ #### json');
+	t.assert.strictEqual(mask(' * @returns{json} json'), ' * ############## json');
+	t.assert.strictEqual(mask(' * @type{Array<json>} json'), ' * ################## json');
+});
+
+test('comment fixes preserve compact type syntax and parameter names', t => {
+	for (const tag of ['@param{json} json', '@returns{Array<json>}', '@type{json}']) {
+		const result = verifyAndFix(`/** ${tag} Parse json. */`);
+		t.assert.strictEqual(result.output, `/** ${tag} Parse JSON. */`);
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.deepStrictEqual(result.messages, []);
+	}
+});
+
+test('structured tag boundaries reject punctuation except the opening type brace', t => {
+	for (const text of [' * @param?{boolean} flag', ' * @param:{boolean} flag', ' * @param[flag]', ' * @type(boolean)', ' * @returns<boolean>']) {
+		t.assert.deepStrictEqual(getJSDocumentTags(text), [], text);
+	}
+
+	t.assert.strictEqual(getJSDocumentTags(' * @typeExtra{boolean}')[0].tag.name, 'typeextra');
+});
 
 test('masks quoted values with escaped quotes', t => {
 	t.assert.strictEqual(mask(String.raw` * @param {"a\"b"} name description`), ' * ###### ######## #### description');

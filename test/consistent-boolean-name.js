@@ -56,6 +56,57 @@ const onlyIsPrefixOptions = {
 	},
 };
 
+test({
+	valid: [],
+	invalid: [
+		...[
+			[
+				'/** @param{boolean} flag */ function check(flag) { return flag; }',
+				'/** @param{boolean} isFlag */ function check(isFlag) { return isFlag; }',
+			],
+			[
+				'/** @arg{Boolean} flag */ function check(flag = false) { return flag; }',
+				'/** @arg{Boolean} isFlag */ function check(isFlag = false) { return isFlag; }',
+			],
+			[
+				'/** @argument{boolean} [flag] */ function check(flag) { return flag; }',
+				'/** @argument{boolean} [isFlag] */ function check(isFlag) { return isFlag; }',
+			],
+			[
+				'/** @param{boolean} [flag=false] Description with flag. */ function check(flag = false) { return flag; }',
+				'/** @param{boolean} [isFlag=false] Description with flag. */ function check(isFlag = false) { return isFlag; }',
+			],
+			[
+				'/** @argument{boolean}flag */ function check(flag = false) { return flag; }',
+				'/** @argument{boolean}isFlag */ function check(isFlag = false) { return isFlag; }',
+			],
+			[
+				'/**\r\n * @param{boolean} [flag=false] Keep flag in the description.\r\n */\r\nfunction check(flag = false) {\r\n  return flag;\r\n}',
+				'/**\r\n * @param{boolean} [isFlag=false] Keep flag in the description.\r\n */\r\nfunction check(isFlag = false) {\r\n  return isFlag;\r\n}',
+			],
+		].map(([code, output]) => ({
+			code,
+			options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{messageId: 'rename', data: {replacement: 'isFlag'}, output}],
+			}],
+		})),
+		...['boolean', 'string'].map(documentedType => typescript({
+			code: `/** @param{${documentedType}} flag */ function check(flag: boolean) { return flag; }`,
+			options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isFlag'},
+					output: `/** @param{${documentedType}} isFlag */ function check(isFlag: boolean) { return isFlag; }`,
+				}],
+			}],
+		})),
+	],
+});
+
 /* eslint-disable no-template-curly-in-string */
 for (const wrap of [testCase => testCase, typescript, typeAware]) {
 	test({

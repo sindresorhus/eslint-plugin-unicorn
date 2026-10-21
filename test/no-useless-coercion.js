@@ -11,6 +11,43 @@ const {test, rule} = getTester(import.meta);
 
 const linter = new Linter();
 
+test({
+	valid: [
+		'/** @typex{boolean} */ const value = source; Boolean(value);',
+		'/** @returnsValue{string} */ function read() { return source; } String(read());',
+		'/** @parametric{string} value */ function run(value) { return String(value); }',
+		'/** @param{string value */ function run(value) { return String(value); }',
+		'/** @type{} */ const value = source; Boolean(value);',
+		'/** @param{string}value.path */ function run(value) { return String(value); }',
+	],
+	invalid: [
+		[
+			'/** @type{boolean} */ const value = source; Boolean(value);',
+			'/** @type{boolean} */ const value = source; value;',
+		],
+		[
+			'/** @returns{boolean} */ function read() { return source; } Boolean(read());',
+			'/** @returns{boolean} */ function read() { return source; } read();',
+		],
+		[
+			'/** @param{string} value */ function run(value) { return String(value); }',
+			'/** @param{string} value */ function run(value) { return value; }',
+		],
+		[
+			'/** @param{Array<string>} values */ function run(values) { return String(values.join(",")); }',
+			'/** @param{Array<string>} values */ function run(values) { return values.join(","); }',
+		],
+		[
+			'/** @type{Array<number>} */ const values = source; Number(values.length);',
+			'/** @type{Array<number>} */ const values = source; values.length;',
+		],
+		[
+			'/** @return{string} */ const read = () => source; String(read());',
+			'/** @return{string} */ const read = () => source; read();',
+		],
+	].map(([code, output]) => ({code, output, errors: [{messageId: 'no-useless-coercion'}]})),
+});
+
 for (const [type, methodCall] of [
 	['Array<number>', 'toReversed()'],
 	['ReadonlyArray<number>', 'toSorted(compare)'],
