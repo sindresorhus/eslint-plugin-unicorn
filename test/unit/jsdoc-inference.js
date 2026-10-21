@@ -32,6 +32,41 @@ test('malformed callback receiver types cannot establish binding or call result 
 	}
 });
 
+test('derived string receivers reuse shared inference for boolean methods', t => {
+	const code = [
+		'/** @param {string} prefix */ function run(prefix, suffix, value) {',
+		' inspect((prefix + suffix).startsWith("x"));',
+		' inspect((typeof value).includes("object"));',
+		' inspect((value = prefix).endsWith("x"));',
+		' inspect((prefix + suffix).charAt(0));',
+		'}',
+	].join('\n');
+	for (const typescript of [false, true]) {
+		t.assert.deepStrictEqual(getInferences(code, {typescript}), [['boolean'], ['boolean'], ['boolean'], []]);
+	}
+});
+
+test('arithmetic and uncertain concatenation cannot establish boolean receiver methods', t => {
+	const code = [
+		'/** @param {unknown} prefix */ function run(prefix, suffix) {',
+		' inspect((prefix + suffix).startsWith("x"));',
+		' inspect((prefix - suffix).includes("x"));',
+		' inspect((+prefix).includes("x"));',
+		' inspect((prefix = suffix).startsWith("x"));',
+		'}',
+	].join('\n');
+	for (const typescript of [false, true]) {
+		t.assert.deepStrictEqual(getInferences(code, {typescript}), [[], [], [], []]);
+	}
+});
+
+test('mutable property receivers do not borrow static string method types', t => {
+	const code = 'const object = {text: "x"}; object.text = {includes() { return "text"; }}; inspect(object.text.includes("x"));';
+	for (const typescript of [false, true]) {
+		t.assert.deepStrictEqual(getInferences(code, {typescript}), [[]]);
+	}
+});
+
 /**
 Exercise the production inference entry points on every inspected expression.
 */

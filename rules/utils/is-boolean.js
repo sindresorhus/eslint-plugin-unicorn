@@ -537,14 +537,6 @@ function getKnownExpressionKind(node, context, visitedVariables = new Set()) {
 			return getKnownIdentifierExpressionKind(node, context, visitedVariables);
 		}
 
-		case 'CallExpression':
-		case 'ConditionalExpression':
-		case 'SequenceExpression':
-		case 'TSAsExpression':
-		case 'TSTypeAssertion': {
-			return getTypeCheckedExpressionKind(node, context);
-		}
-
 		// `ParenthesizedExpression` only comes from `@babel/eslint-parser` with `createParenthesizedExpressions`, which the tests do not use.
 		/* node:coverage ignore next */
 		case 'ParenthesizedExpression':
@@ -554,7 +546,7 @@ function getKnownExpressionKind(node, context, visitedVariables = new Set()) {
 		}
 
 		default: {
-			break;
+			return getTypeCheckedExpressionKind(node, context);
 		}
 	}
 }

@@ -219,6 +219,26 @@ const typeAware = code => ({
 	},
 });
 
+for (const wrap of [code => ({code}), code => ({code, languageOptions: {parser: parsers.typescript}}), typeAware]) {
+	test({
+		valid: [
+			'/** @param {unknown} prefix */ function run(prefix, suffix) { return (prefix + suffix).startsWith("x") === true; }',
+		].map(code => wrap(code)),
+		invalid: [
+			[
+				'/** @param {string} prefix */ function run(prefix, suffix) { return (prefix + suffix).startsWith("x") === true; }',
+				'/** @param {string} prefix */ function run(prefix, suffix) { return (prefix + suffix).startsWith("x"); }',
+			],
+			['function run(value) { return (typeof value).includes("object") === false; }', 'function run(value) { return !(typeof value).includes("object"); }'],
+			['function run(value) { return (value = "text").includes("x") === true; }', 'function run(value) { return (value = "text").includes("x"); }'],
+		].map(([code, output]) => ({
+			...wrap(code),
+			output,
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		})),
+	});
+}
+
 for (const wrap of [code => ({code, languageOptions: {parser: parsers.typescript}}), typeAware]) {
 	test({
 		valid: [
