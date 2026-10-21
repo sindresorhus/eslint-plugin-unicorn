@@ -1,5 +1,5 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {isStringLiteral} from '../ast/index.js';
+import {isMethodCall, isStringLiteral} from '../ast/index.js';
 import {isFunctionCall, isStaticProperties} from './type-check.js';
 import getStaticValueIfNoSideEffects, {getStaticValueForControlFlow} from './get-static-value.js';
 import {
@@ -22,6 +22,25 @@ const isStringMethodCall = node =>
 	node.type === 'CallExpression'
 	&& !node.optional
 	&& isStaticProperties(node.callee, 'String', stringMethods);
+
+// `replace` and `replaceAll` can delegate to a `Symbol.replace` hook that returns a non-string.
+const stringReturningMethods = [
+	'charAt',
+	'concat',
+	'normalize',
+	'padEnd',
+	'padStart',
+	'repeat',
+	'slice',
+	'substring',
+	'toLocaleLowerCase',
+	'toLocaleUpperCase',
+	'toLowerCase',
+	'toUpperCase',
+	'trim',
+	'trimEnd',
+	'trimStart',
+];
 
 const isStringTypeAnnotation = node => {
 	switch (node?.type) {
@@ -68,6 +87,14 @@ const isStringNode = (node, context, isTarget) => {
 	}
 
 	switch (node.type) {
+		case 'CallExpression': {
+			return isMethodCall(node, {
+				methods: stringReturningMethods,
+				optionalCall: false,
+				optionalMember: false,
+			}) && isString(node.callee.object, context, isTarget);
+		}
+
 		case 'TemplateLiteral': {
 			return true;
 		}

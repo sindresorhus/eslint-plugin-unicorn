@@ -7,6 +7,64 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {?string} text */ function run(text) { return text.trim().includes("x") === true; }',
+			'/** @param {string} text */ function run(text) { return text.trim?.().includes("x") === true; }',
+			'/** @param {string} text */ function run(text) { return text["trim"]().includes("x") === true; }',
+			'/** @param {string} text */ function run(text) { return text.at(0).includes("x") === true; }',
+			'/** @param {{trim(): {includes(): string}}} text */ function run(text) { return text.trim().includes("x") === true; }',
+			'/** @type {unknown} */ const text = source; text.trim().includes("x") === true;',
+			'/** @param {string} text */ function run(text, pattern) { return text.replace(pattern, "").includes("x") === true; }',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			...[
+				[
+					'/** @param {string} text */ function run(text) { return text.trim().startsWith("x") === true; }',
+					'/** @param {string} text */ function run(text) { return text.trim().startsWith("x"); }',
+				],
+				[
+					'/** @returns {string} */ function read() { return source; } read().toUpperCase().endsWith("X") === false;',
+					'/** @returns {string} */ function read() { return source; } !read().toUpperCase().endsWith("X");',
+				],
+				[
+					'/** @param {() => string} read */ function run(read) { return read().slice(1).includes("x") !== true; }',
+					'/** @param {() => string} read */ function run(read) { return !read().slice(1).includes("x"); }',
+				],
+				[
+					'/** @type {string} */ const text = source; const alias = text; alias.normalize("NFC").includes("é") === true;',
+					'/** @type {string} */ const text = source; const alias = text; alias.normalize("NFC").includes("é");',
+				],
+				[
+					'/** @param {string} text */ function run(text, cache) { return (cache = text).padStart(2, "x").includes("x") === true; }',
+					'/** @param {string} text */ function run(text, cache) { return (cache = text).padStart(2, "x").includes("x"); }',
+				],
+				[
+					'/** @param {string} text */ function run(text) { return text.charAt(100).isWellFormed() === true; }',
+					'/** @param {string} text */ function run(text) { return text.charAt(100).isWellFormed(); }',
+				],
+				[
+					'/** @param {string} text */ function run(text) { return text.trimStart().toLocaleLowerCase("en").startsWith("x") !== false; }',
+					'/** @param {string} text */ function run(text) { return text.trimStart().toLocaleLowerCase("en").startsWith("x"); }',
+				],
+			].map(([code, output]) => ({
+				code, output, filename: 'file.ts', errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+			})),
+			{
+				code: '/** @param {string} text */ function run(text) { return text.trim() /* keep */ .includes("x") === true; }',
+				filename: 'file.ts',
+				errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+			},
+		],
+	});
+}
+
 const assertedCallbackDefaults = [
 	'(() => "text") as (() => string)',
 	'<() => string>(() => "text")',

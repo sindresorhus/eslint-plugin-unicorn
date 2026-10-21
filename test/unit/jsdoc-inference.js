@@ -52,7 +52,20 @@ test('derived string receivers reuse shared inference for boolean methods', t =>
 		'}',
 	].join('\n');
 	for (const typescript of [false, true]) {
-		t.assert.deepStrictEqual(getInferences(code, {typescript}), [['boolean'], ['boolean'], ['boolean'], []]);
+		t.assert.deepStrictEqual(getInferences(code, {typescript}), [['boolean'], ['boolean'], ['boolean'], ['string']]);
+	}
+});
+
+test('documented strings retain their type through ordinary case and whitespace methods', t => {
+	const code = [
+		'/** @param {string} text */ function run(text) {',
+		' inspect(text.trim());',
+		' inspect(text.toLowerCase().includes("x"));',
+		' inspect(text.trimStart().toUpperCase().startsWith("X"));',
+		'}',
+	].join('\n');
+	for (const typescript of [false, true]) {
+		t.assert.deepStrictEqual(getInferences(code, {typescript}), [['string'], ['boolean'], ['boolean']]);
 	}
 });
 

@@ -56,6 +56,30 @@ const onlyIsPrefixOptions = {
 	},
 };
 
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [wrap('/** @param {string} text */ function run(text, pattern) { const ready = text.replace(pattern, "").includes("x"); consume(ready); }')],
+		invalid: [
+			[
+				'/** @param {string} text */ function run(text) { const ready = text.trim().includes("x"); consume(ready); }',
+				'/** @param {string} text */ function run(text) { const isReady = text.trim().includes("x"); consume(isReady); }',
+			],
+			[
+				'/** @returns {string} */ function read() { return source; } const ready = read().toUpperCase().startsWith("X"); consume(ready);',
+				'/** @returns {string} */ function read() { return source; } const isReady = read().toUpperCase().startsWith("X"); consume(isReady);',
+			],
+		].map(([code, output]) => wrap({
+			code,
+			output,
+			options: [onlyIsPrefixOptions],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{messageId: 'rename', data: {replacement: 'isReady'}, output}],
+			}],
+		})),
+	});
+}
+
 // Grouping nullish union members must not change the getter and binding naming policies.
 for (const wrap of [testCase => testCase, typescript, typeAware]) {
 	test({

@@ -13,6 +13,8 @@ Comparing a value that is already known to be boolean against `true` or `false` 
 
 This rule only reports comparisons where the non-literal side is known to be boolean. It intentionally does not report unknown values like `value === true`, because strict identity comparison against `true` is not equivalent to a truthiness check.
 
+For strings typed with JSDoc or TypeScript annotations, boolean results are also recognized after common transformations, such as `text.trim().toLowerCase().includes('unicorn')`.
+
 ## Examples
 
 ```js

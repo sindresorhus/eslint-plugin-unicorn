@@ -7,6 +7,42 @@ const linter = new Linter();
 
 for (const {name, rule, code, output = code, value, reported = true, suggestion, suggestedValue} of [
 	{
+		name: 'documented string transformations preserve positive negative and empty search results',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: [
+			'/** @param {string} text */ function run(text) { return text.trim().toUpperCase().includes("X") === true; }',
+			'JSON.stringify([run(" x "), run(" "), run("y")]);',
+		].join('\n'),
+		output: [
+			'/** @param {string} text */ function run(text) { return text.trim().toUpperCase().includes("X"); }',
+			'JSON.stringify([run(" x "), run(" "), run("y")]);',
+		].join('\n'),
+		value: '[true,false,false]',
+	},
+	{
+		name: 'documented string factory chains preserve normalization and evaluate the factory once',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: [
+			'let reads = 0; /** @returns {string} */ function read() { reads++; return "  É "; }',
+			'JSON.stringify([read().trimEnd().normalize("NFD").toLowerCase().startsWith("  e") === false, reads]);',
+		].join('\n'),
+		output: [
+			'let reads = 0; /** @returns {string} */ function read() { reads++; return "  É "; }',
+			'JSON.stringify([!read().trimEnd().normalize("NFD").toLowerCase().startsWith("  e"), reads]);',
+		].join('\n'),
+		value: '[false,1]',
+	},
+	{
+		name: 'custom replacement hooks cannot turn a nonboolean search result into an unsafe boolean fix',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: [
+			'/** @param {string} text */ function run(text, pattern) { return text.replace(pattern, "").includes("x") === true; }',
+			'run("x", {[Symbol.replace]() { return {includes() { return "yes"; }}; }});',
+		].join('\n'),
+		value: false,
+		reported: false,
+	},
+	{
 		name: 'documented numeric NaN checks retain all numeric outcomes after autofix',
 		rule: 'prefer-number-properties',
 		code: '/** @param {number} value */ function run(value) { return isNaN(value); } JSON.stringify([run(Number.NaN), run(0), run(Number.POSITIVE_INFINITY), run(-0)]);',
