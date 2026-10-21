@@ -18,6 +18,29 @@ const typeAware = code => ({
 
 ruleTest({
 	valid: [
+		'/** @param {bigint | number} value */ function run(value) { return JSON.stringify(value * value); }',
+		'/** @param {bigint} value */ function run(value, text) { return JSON.stringify(value + text); }',
+	],
+	invalid: [
+		[
+			'/** @param {bigint} value */ function run(value) { return JSON.stringify(value + value); }',
+			'/** @param {bigint} value */ function run(value) { return JSON.stringify(String(value + value)); }',
+		],
+		[
+			'/** @param {bigint} value */ function run(value) { return Response.json({value: value++}); }',
+			'/** @param {bigint} value */ function run(value) { return Response.json({value: String(value++)}); }',
+		],
+	].map(([code, output]) => ({
+		code,
+		errors: [{
+			messageId: 'no-unsafe-json-serialization',
+			suggestions: [{messageId: 'no-unsafe-json-serialization/string', output}],
+		}],
+	})),
+});
+
+ruleTest({
+	valid: [
 		...['symbol | number', '?symbol', '(() => number) | number', '?(() => number)', 'unknown', 'symbol[]', 'Array<() => number>', '{handler: () => number}'].map(type =>
 			`/** @param {${type}} value */ function run(value) { return JSON.stringify(value); }`,
 		),

@@ -9,6 +9,7 @@ const {test, rule} = getTester(import.meta);
 
 test({
 	valid: [
+		'/** @param {bigint} input */ function run(input) { const value = input + 1n; return value < 0 ? -value : value; }',
 		'/** @type {bigint} */ let value; value < 0 ? -value : value;',
 		'/** @param {number | bigint} value */ function run(value) { return 0 < value ? value : -value; }',
 		'/** @param {?bigint} value */ function run(value) { return value >= 0 ? value : -value; }',

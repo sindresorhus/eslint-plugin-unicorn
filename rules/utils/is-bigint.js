@@ -41,11 +41,20 @@ const isBigIntTypeAnnotation = node => {
 const getStaticType = value =>
 	typeof value === 'bigint' ? target : unknown;
 
+const bigIntBinaryOperators = new Set(['+', '-', '*', '/', '%', '**', '<<', '>>', '|', '^', '&']);
+
 const isBigIntNode = (node, context, isTarget) =>
 	isBigIntLiteral(node)
 	|| isBigIntCall(node)
 	|| isBigIntMethodCall(node)
-	|| (node.type === 'UnaryExpression' && ['-', '~'].includes(node.operator) && isTarget(node.argument));
+	|| (node.type === 'UnaryExpression' && ['-', '~'].includes(node.operator) && isTarget(node.argument))
+	|| (
+		node.type === 'BinaryExpression'
+		&& bigIntBinaryOperators.has(node.operator)
+		&& isTarget(node.left)
+		&& isTarget(node.right)
+	)
+	|| (node.type === 'UpdateExpression' && isTarget(node.argument));
 
 const {
 	isTarget: isBigIntTarget,

@@ -153,3 +153,63 @@ test('conservative bigint checks do not confuse containers or function results w
 
 	t.assert.deepStrictEqual(getVerdicts('const first = ~second; const second = -first; check(first); check(second);', {overrides: {treatMixedUnionAsTarget: true}}), [false, false]);
 });
+
+for (const operator of ['+', '-', '*', '/', '%', '**', '<<', '>>', '|', '^', '&']) {
+	test(`binary ${operator} retains definite bigint operands through aliases`, t => {
+		const code = [
+			'/** @param {bigint} left\n * @param {bigint} right */ function run(left, right) {',
+			`const result = left ${operator} right; const alias = result; check(alias); check(-(left ${operator} 1n));`,
+			'}',
+		].join('\n');
+		t.assert.deepStrictEqual(getVerdicts(code), [true, true]);
+	});
+}
+
+test('binary bigint inference requires definite operands on both sides', t => {
+	for (const type of ['unknown', 'number', 'string', 'bigint | number', '?bigint']) {
+		const code = [
+			`/** @param {bigint} value\n * @param {${type}} other */ function run(value, other) {`,
+			'check(value + other); check(other + value); check(value * other); check(other << value);',
+			'}',
+		].join('\n');
+		t.assert.deepStrictEqual(getVerdicts(code), [false, false, false, false], type);
+	}
+
+	const code = '/** @param {bigint} value */ function run(value) { check(value >>> value); check(value < value); check(value === value); }';
+	t.assert.deepStrictEqual(getVerdicts(code), [false, false, false]);
+});
+
+test('update expressions retain bigint types for prefix and postfix operators', t => {
+	const code = '/** @param {bigint} value */ function run(value) { check(value++); check(++value); check(value--); check(--value); }';
+	t.assert.deepStrictEqual(getVerdicts(code), [true, true, true, true]);
+	for (const type of ['unknown', 'number', 'bigint | number', '?bigint']) {
+		t.assert.deepStrictEqual(getVerdicts(`/** @param {${type}} value */ function run(value) { check(value++); check(--value); }`), [false, false], type);
+	}
+});
+
+test('arithmetic and updates preserve native annotation precedence in both parser tiers', t => {
+	const code = [
+		'/** @param {bigint} value */ function numeric(value: number) { check(value * value); check(value++); }',
+		'/** @param {number} value */ function integer(value: bigint) { check(value + value); check(--value); }',
+		'/** @param {bigint} value */ function asserted(value) { check((value as number) + (value as number)); }',
+	].join('\n');
+	for (const typeAware of [false, true]) {
+		t.assert.deepStrictEqual(getVerdicts(code, {typeAware}), [false, false, true, true, false]);
+	}
+});
+
+test('arithmetic inference uses documented returns without bypassing uncertainty or cycles', t => {
+	const code = [
+		'/** @returns {bigint} */ function read() { return source; } check(read() + 1n);',
+		'/** @type {unknown} */ const unknown = 1n; check(unknown * 1n);',
+		'const first = second + 1n; const second = first * 2n; check(first); check(second);',
+		'const result = result++; check(result);',
+	].join('\n');
+	t.assert.deepStrictEqual(getVerdicts(code), [true, false, false, false, false]);
+});
+
+test('arithmetic and updates propagate conservative union checks without weakening default inference', t => {
+	const code = '/** @param {number | bigint} value */ function run(value) { check(value + 1n); check(value * value); check(value++); }';
+	t.assert.deepStrictEqual(getVerdicts(code), [false, false, false]);
+	t.assert.deepStrictEqual(getVerdicts(code, {overrides: {treatMixedUnionAsTarget: true}}), [true, true, true]);
+});

@@ -11,6 +11,7 @@ const SUGGESTION_ID = 'replace-with-math-min-max';
 
 test({
 	valid: [
+		'/** @param {bigint} input */ function run(input) { const value = input * 2n; return value > 0 ? value : 0; }',
 		'/** @type {bigint} */ let value; value > 0 ? 0 : value;',
 		'/** @param {bigint} value */ function run(value) { return value > 0 ? value : 0; }',
 		'/** @param {number | bigint} value */ function run(value, limit) { return value < limit ? limit : value; }',
