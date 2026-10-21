@@ -294,11 +294,7 @@ const create = context => {
 		}
 
 		const {parent} = node;
-		if (
-			parent.type !== 'ArrayExpression'
-			&& parent.type !== 'CallExpression'
-			&& parent.type !== 'NewExpression'
-		) {
+		if (!['ArrayExpression', 'CallExpression', 'NewExpression'].includes(parent.type)) {
 			return;
 		}
 

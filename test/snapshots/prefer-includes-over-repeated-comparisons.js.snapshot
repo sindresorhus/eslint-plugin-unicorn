@@ -730,19 +730,23 @@ Message:
 
 `;
 
-exports[`prefer-includes-over-repeated-comparisons > invalid(51): declare const value: string; declare const other: \`prefix-\${string}\`; value == other || value == \"a\" || value == \"b\"; 1`] = `
+exports[`prefer-includes-over-repeated-comparisons > invalid(51): declare const value: string;\ndeclare const other: \`prefix-\${string}\`;\nvalue == other || value == \"a\" || value == \"b\"; 1`] = `
 
 Filename: file.ts
 
-  1 | declare const value: string; declare const other: \`prefix-\${string}\`; value == other || value == "a" || value == "b";
+  1 | declare const value: string;
+  2 | declare const other: \`prefix-\${string}\`;
+  3 | value == other || value == "a" || value == "b";
 
 `;
 
-exports[`prefer-includes-over-repeated-comparisons > invalid(51): declare const value: string; declare const other: \`prefix-\${string}\`; value == other || value == \"a\" || value == \"b\"; 2`] = `
+exports[`prefer-includes-over-repeated-comparisons > invalid(51): declare const value: string;\ndeclare const other: \`prefix-\${string}\`;\nvalue == other || value == \"a\" || value == \"b\"; 2`] = `
 
 Message:
-> 1 | declare const value: string; declare const other: \`prefix-\${string}\`; value == other || value == "a" || value == "b";
-    |                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
+  1 | declare const value: string;
+  2 | declare const other: \`prefix-\${string}\`;
+> 3 | value == other || value == "a" || value == "b";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`.includes()\` instead of repeated equality checks.
 
 `;
 

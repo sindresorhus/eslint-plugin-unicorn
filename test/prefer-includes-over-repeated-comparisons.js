@@ -330,6 +330,10 @@ test.snapshot({
 			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
 		},
 		typeAware('declare const value: number; declare const other: 1 | 2; value == other || value == 3 || value == 4;'),
-		typeAware('declare const value: string; declare const other: `prefix-${string}`; value == other || value == "a" || value == "b";'),
+		typeAware(outdent`
+			declare const value: string;
+			declare const other: \`prefix-\${string}\`;
+			value == other || value == "a" || value == "b";
+		`),
 	],
 });

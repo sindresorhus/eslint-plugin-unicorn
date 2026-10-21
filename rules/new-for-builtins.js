@@ -86,7 +86,7 @@ function enforceCallExpression(reference, context) {
 		data: {name},
 	};
 
-	if (name !== 'String' && name !== 'Boolean' && name !== 'Number') {
+	if (!['String', 'Boolean', 'Number'].includes(name)) {
 		problem.fix = fixer => switchNewExpressionToCallExpression(node, context, fixer);
 	}
 

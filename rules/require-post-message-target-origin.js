@@ -41,7 +41,7 @@ function create(context) {
 
 			replacements.push(`${name}.location.origin`);
 
-			if (name !== 'self' && name !== 'window' && name !== 'globalThis') {
+			if (!['self', 'window', 'globalThis'].includes(name)) {
 				replacements.push('self.location.origin');
 			}
 		} else {
