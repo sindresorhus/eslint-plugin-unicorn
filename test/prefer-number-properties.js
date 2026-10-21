@@ -16,6 +16,40 @@ for (const languageOptions of [
 		testerOptions: {languageOptions},
 		valid: [],
 		invalid: [
+			...[
+				'getDate',
+				'getDay',
+				'getFullYear',
+				'getHours',
+				'getMilliseconds',
+				'getMinutes',
+				'getMonth',
+				'getSeconds',
+				'getTime',
+				'getTimezoneOffset',
+				'getUTCDate',
+				'getUTCDay',
+				'getUTCFullYear',
+				'getUTCHours',
+				'getUTCMilliseconds',
+				'getUTCMinutes',
+				'getUTCMonth',
+				'getUTCSeconds',
+				'valueOf',
+			].map(method => ({
+				filename: 'file.ts',
+				code: `/** @param {Date} value */ function run(value) { return isFinite(value.${method}()); }`,
+				output: `/** @param {Date} value */ function run(value) { return Number.isFinite(value.${method}()); }`,
+				errors: [{messageId: MESSAGE_ID_ERROR, suggestions: 0}],
+			})),
+			...['?Date', 'unknown', 'Date | {getTime: () => string}', '{getTime: () => string}'].map(type => ({
+				filename: 'file.ts',
+				code: `/** @param {${type}} value */ function run(value) { return isNaN(value.getTime()); }`,
+				errors: [{
+					messageId: MESSAGE_ID_ERROR,
+					suggestions: [{messageId: MESSAGE_ID_SUGGESTION, output: `/** @param {${type}} value */ function run(value) { return Number.isNaN(value.getTime()); }`}],
+				}],
+			})),
 			...['Date.now()', 'Date.parse(value)', 'Date.UTC(value, 0)'].map(expression => ({
 				filename: 'file.ts',
 				code: `/** @param {string | number} value */ function run(value) { return isFinite(${expression}); }`,
@@ -266,6 +300,21 @@ for (const languageOptions of [
 		testerOptions: {languageOptions},
 		valid: [],
 		invalid: [{
+			code: '/** @param {Date} value */ function run(value: {getTime(): string}) { return isFinite(value.getTime()); }',
+			filename: 'file.ts',
+			errors: [{
+				messageId: MESSAGE_ID_ERROR,
+				suggestions: [{
+					messageId: MESSAGE_ID_SUGGESTION,
+					output: '/** @param {Date} value */ function run(value: {getTime(): string}) { return Number.isFinite(value.getTime()); }',
+				}],
+			}],
+		}, {
+			code: '/** @param {{valueOf: () => string}} value */ function run(value: Date) { return isFinite(value.valueOf()); }',
+			output: '/** @param {{valueOf: () => string}} value */ function run(value: Date) { return Number.isFinite(value.valueOf()); }',
+			filename: 'file.ts',
+			errors: [{messageId: MESSAGE_ID_ERROR, suggestions: 0}],
+		}, {
 			code: '/** @param {Map<string, number>} value */ function run(value: {size: string}) { return isFinite(value.size); }',
 			filename: 'file.ts',
 			errors: [{

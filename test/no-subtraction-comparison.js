@@ -14,6 +14,10 @@ for (const languageOptions of [
 		invalid: [
 			...[
 				[
+					'/** @param {Date} value */ function run(value) { return value.getUTCFullYear() - 2024 > 0; }',
+					'/** @param {Date} value */ function run(value) { return value.getUTCFullYear() > 2024; }',
+				],
+				[
 					'/** @param {Map<string, number>} left\n * @param {ReadonlySet<string>} right */ function run(left, right) { return left.size - right.size > 0; }',
 					'/** @param {Map<string, number>} left\n * @param {ReadonlySet<string>} right */ function run(left, right) { return left.size > right.size; }',
 				],
@@ -77,6 +81,10 @@ for (const languageOptions of [
 				code, output, filename: 'file.ts', errors: [{messageId: 'no-subtraction-comparison/error', suggestions: 0}],
 			})),
 			...[
+				[
+					'/** @param {{getTime: () => string}} left\n * @param {{getTime: () => string}} right */ function run(left, right) { return left.getTime() - right.getTime() > 0; }',
+					'/** @param {{getTime: () => string}} left\n * @param {{getTime: () => string}} right */ function run(left, right) { return left.getTime() > right.getTime(); }',
+				],
 				...['unknown', '{size: string}', 'Map<string, number> | {size: string}'].map(type => [
 					`/** @param {${type}} left\n * @param {${type}} right */ function run(left, right) { return left.size - right.size > 0; }`,
 					`/** @param {${type}} left\n * @param {${type}} right */ function run(left, right) { return left.size > right.size; }`,

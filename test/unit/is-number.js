@@ -266,3 +266,59 @@ test('Date timestamp inference excludes constructors arbitrary methods and uncer
 	].join('\n');
 	t.assert.deepStrictEqual(getVerdicts(code), [false, false, false, false, false, false, false, false]);
 });
+
+for (const method of [
+	'getDate',
+	'getDay',
+	'getFullYear',
+	'getHours',
+	'getMilliseconds',
+	'getMinutes',
+	'getMonth',
+	'getSeconds',
+	'getTime',
+	'getTimezoneOffset',
+	'getUTCDate',
+	'getUTCDay',
+	'getUTCFullYear',
+	'getUTCHours',
+	'getUTCMilliseconds',
+	'getUTCMinutes',
+	'getUTCMonth',
+	'getUTCSeconds',
+	'valueOf',
+]) {
+	test(`Date ${method} results are numbers for documented and native receivers`, t => {
+		t.assert.deepStrictEqual(getVerdicts(`/** @param {Date} value */ function run(value) { check(value.${method}()); }`), [true]);
+		t.assert.deepStrictEqual(getVerdicts(`function run(value: Date) { check(value.${method}()); }`), [true]);
+		t.assert.strictEqual(typeof new Date(0)[method](), 'number');
+		t.assert.strictEqual(Number.isNaN(new Date(NaN)[method]()), true);
+	});
+}
+
+test('Date numeric getters retain documented factories aliases and native precedence', t => {
+	const code = [
+		'/** @returns {Date} */ function read() { return source; } check(read().getTime());',
+		'/** @param {Date} value */ function alias(value) { const date = value; check(date.valueOf()); }',
+		'check(new Date(0).getUTCFullYear());',
+		'/** @param {Date} value */ function native(value: {getTime(): string}) { check(value.getTime()); }',
+		'/** @param {{getTime: () => string}} value */ function overridden(value: Date) { check(value.getTime()); }',
+	].join('\n');
+	t.assert.deepStrictEqual(getVerdicts(code), [true, true, true, false, true]);
+});
+
+test('Date numeric getters require definite receivers and direct calls', t => {
+	for (const type of ['unknown', '?Date', 'Date | {getTime: () => string}', '{getTime: () => string}', 'number']) {
+		t.assert.deepStrictEqual(getVerdicts(`/** @param {${type}} value */ function run(value) { check(value.getTime()); }`), [false], type);
+	}
+
+	const code = [
+		'/** @param {Date} [value] */ function optional(value) { check(value.getTime()); }',
+		'/** @param {Date} value */ function run(value) {',
+		'check(value?.getTime()); check(value.getTime?.()); check(value["getTime"]());',
+		'check(value.toJSON()); check(value.toISOString()); check(value.setTime(0)); check(value.getYear());',
+		'}',
+		'/** @type {unknown} */ const date = new Date(); check(date.getTime());',
+	].join('\n');
+	t.assert.deepStrictEqual(getVerdicts(code), [false, false, false, false, false, false, false, false, false]);
+});

@@ -7,6 +7,47 @@ const linter = new Linter();
 
 for (const {name, rule, code, output = code, value, reported = true, suggestion, suggestedValue} of [
 	{
+		name: 'documented invalid Date component getters retain NaN predicate results',
+		rule: 'prefer-number-properties',
+		code: [
+			'/** @param {Date} value */ function run(value) { return isNaN(value.getUTCFullYear()); }',
+			'JSON.stringify([run(new Date(0)), run(new Date(NaN))]);',
+		].join('\n'),
+		output: [
+			'/** @param {Date} value */ function run(value) { return Number.isNaN(value.getUTCFullYear()); }',
+			'JSON.stringify([run(new Date(0)), run(new Date(NaN))]);',
+		].join('\n'),
+		value: '[false,true]',
+	},
+	{
+		name: 'documented Date factory valueOf retains negative timestamps and one evaluation',
+		rule: 'no-useless-coercion',
+		code: [
+			'let reads = 0; /** @returns {Date} */ function read() { reads++; return new Date(-1); }',
+			'JSON.stringify([Number(read().valueOf()), reads]);',
+		].join('\n'),
+		output: [
+			'let reads = 0; /** @returns {Date} */ function read() { reads++; return new Date(-1); }',
+			'JSON.stringify([read().valueOf(), reads]);',
+		].join('\n'),
+		value: '[-1,1]',
+	},
+	{
+		name: 'documented Date component comparison fixes preserve valid and invalid UTC month ordering',
+		rule: 'no-subtraction-comparison',
+		code: [
+			'/** @param {Date} left\n * @param {Date} right */ function run(left, right) { return left.getUTCMonth() - right.getUTCMonth() > 0; }',
+			'const january = new Date("2024-01-01T00:00:00Z"); const february = new Date("2024-02-01T00:00:00Z"); const invalid = new Date(NaN);',
+			'JSON.stringify([run(february, january), run(january, february), run(invalid, january), run(january, invalid)]);',
+		].join('\n'),
+		output: [
+			'/** @param {Date} left\n * @param {Date} right */ function run(left, right) { return left.getUTCMonth() > right.getUTCMonth(); }',
+			'const january = new Date("2024-01-01T00:00:00Z"); const february = new Date("2024-02-01T00:00:00Z"); const invalid = new Date(NaN);',
+			'JSON.stringify([run(february, january), run(january, february), run(invalid, january), run(january, invalid)]);',
+		].join('\n'),
+		value: '[true,false,false,false]',
+	},
+	{
 		name: 'Date parse results retain NaN after redundant numeric coercion removal',
 		rule: 'no-useless-coercion',
 		code: 'function run(value) { return Number(Date.parse(value)); } run("not a date");',

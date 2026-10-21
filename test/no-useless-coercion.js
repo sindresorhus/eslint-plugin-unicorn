@@ -60,6 +60,9 @@ for (const languageOptions of [
 	test({
 		testerOptions: {languageOptions},
 		valid: [
+			'/** @param {Date} value */ function run(value) { return Number(value.toJSON()); }',
+			'/** @param {?Date} value */ function run(value) { return Number(value?.getTime()); }',
+			'/** @param {{valueOf: () => string}} value */ function run(value) { return +value.valueOf(); }',
 			'Number(Date());',
 			'function run(value) { return Number(new Date(value)); }',
 			'function run(value, other) { return Number(other.parse(value)); }',
@@ -77,6 +80,18 @@ for (const languageOptions of [
 			'/** @returns {number} */ function* count() { yield source; } +count();',
 		].map(code => ({code, filename: 'file.ts'})),
 		invalid: [
+			...[
+				[
+					'/** @param {Date} value */ function run(value) { return Number(value.getTime()); }',
+					'/** @param {Date} value */ function run(value) { return value.getTime(); }',
+				],
+				[
+					'/** @param {Date} value */ function run(value) { return +value.valueOf(); }',
+					'/** @param {Date} value */ function run(value) { return value.valueOf(); }',
+				],
+			].map(([code, output]) => ({
+				code, output, filename: 'file.ts', errors: [{messageId: 'no-useless-coercion'}],
+			})),
 			...['Date.now()', 'Date.parse(value)', 'Date.UTC(value, 0)'].map(expression => ({
 				filename: 'file.ts',
 				code: `/** @param {string | number} value */ function run(value) { return Number(${expression}); }`,

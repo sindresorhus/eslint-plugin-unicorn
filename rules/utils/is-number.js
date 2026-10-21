@@ -2,7 +2,7 @@ import {isFunction, isNumericLiteral} from '../ast/index.js';
 import isString from './is-string.js';
 import {isIndexedCollection} from './is-array.js';
 import {isFunctionCall, isStaticProperties, hasTypeAnnotation} from './type-check.js';
-import {createTypeCheckers, hasJSDocumentTypeReference} from './type-helpers.js';
+import {createBuiltinTypeCheckers, createTypeCheckers, hasJSDocumentTypeReference} from './type-helpers.js';
 import {getStaticValueForControlFlow} from './get-static-value.js';
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math#static_properties
@@ -82,6 +82,33 @@ const indexedCollectionNumberMethods = new Set([
 	'findLastIndex',
 ]);
 
+const dateNumberReturningMethods = new Set([
+	'getDate',
+	'getDay',
+	'getFullYear',
+	'getHours',
+	'getMilliseconds',
+	'getMinutes',
+	'getMonth',
+	'getSeconds',
+	'getTime',
+	'getTimezoneOffset',
+	'getUTCDate',
+	'getUTCDay',
+	'getUTCFullYear',
+	'getUTCHours',
+	'getUTCMilliseconds',
+	'getUTCMinutes',
+	'getUTCMonth',
+	'getUTCSeconds',
+	'valueOf',
+]);
+
+const {isTarget: isDate} = createBuiltinTypeCheckers({
+	name: 'Date',
+	checkClassHeritage: false,
+});
+
 const isNumberReturningMethodCall = (node, context) =>
 	node.type === 'CallExpression'
 	&& !node.optional
@@ -92,6 +119,7 @@ const isNumberReturningMethodCall = (node, context) =>
 	&& (
 		(stringNumberMethods.has(node.callee.property.name) && isString(node.callee.object, context))
 		|| (indexedCollectionNumberMethods.has(node.callee.property.name) && isIndexedCollection(node.callee.object, context))
+		|| (dateNumberReturningMethods.has(node.callee.property.name) && isDate(node.callee.object, context))
 	);
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number#static_properties
