@@ -41,10 +41,11 @@ const isBigIntTypeAnnotation = node => {
 const getStaticType = value =>
 	typeof value === 'bigint' ? target : unknown;
 
-const isBigIntNode = node =>
+const isBigIntNode = (node, context, isTarget) =>
 	isBigIntLiteral(node)
 	|| isBigIntCall(node)
-	|| isBigIntMethodCall(node);
+	|| isBigIntMethodCall(node)
+	|| (node.type === 'UnaryExpression' && ['-', '~'].includes(node.operator) && isTarget(node.argument));
 
 const {
 	isTarget: isBigIntTarget,

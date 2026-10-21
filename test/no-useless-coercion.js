@@ -13,6 +13,93 @@ const linter = new Linter();
 
 test({
 	valid: [
+		...['unknown', '?bigint', 'bigint | number', 'bigint | undefined'].map(type =>
+			`/** @param {${type}} value */ function run(value) { return [BigInt(-value), BigInt(~value)]; }`,
+		),
+		'/** @param {bigint} [value] */ function run(value) { return BigInt(-value); }',
+		'/** @param {bigint} value */ function run(value) { return BigInt(+value); }',
+	],
+	invalid: [
+		...['-value', '~value', '~-value', '-~value'].map(expression => ({
+			code: `/** @param {bigint} value */ function run(value) { return BigInt(${expression}); }`,
+			output: `/** @param {bigint} value */ function run(value) { return (${expression}); }`,
+			errors: [{messageId: 'no-useless-coercion'}],
+		})),
+		{
+			code: '/** @returns {bigint} */ function read() { return source; } BigInt(-read());',
+			output: '/** @returns {bigint} */ function read() { return source; } (-read());',
+			errors: [{messageId: 'no-useless-coercion'}],
+		},
+	],
+});
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			filename: 'file.ts',
+			code: '/** @param {bigint} value */ function run(value: number) { return [BigInt(-value), BigInt(~value)]; }',
+		}],
+		invalid: [{
+			filename: 'file.ts',
+			code: 'function run(value: bigint) { return [BigInt(-value), BigInt(~value)]; }',
+			output: 'function run(value: bigint) { return [(-value), (~value)]; }',
+			errors: [{messageId: 'no-useless-coercion'}, {messageId: 'no-useless-coercion'}],
+		}],
+	});
+}
+
+nodeTest('BigInt unary coercion removal preserves exact values operand effects and errors', t => {
+	const config = {
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	};
+	for (const [expression, body, expected] of [
+		['-read()', 'return 9007199254740993n;', ['bigint', '-9007199254740993', ['read']]],
+		['~read()', 'return -1n;', ['bigint', '0', ['read']]],
+		['-~read()', 'return 2n;', ['bigint', '3', ['read']]],
+		['-read()', 'throw new RangeError("expected");', ['string', 'RangeError', ['read']]],
+	]) {
+		const prefix = `const events = []; /** @returns {bigint} */ function read() { events.push("read"); ${body} } let result; try { result = `;
+		const suffix = '; } catch (error) { result = error.name; } JSON.stringify([typeof result, String(result), events]);';
+		const code = `${prefix}BigInt(${expression})${suffix}`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(output, `${prefix}(${expression})${suffix}`);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(code), JSON.stringify(expected));
+		t.assert.strictEqual(runInNewContext(output), JSON.stringify(expected));
+		t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
+	}
+});
+
+nodeTest('uncertain unary operands retain BigInt conversion and its errors', t => {
+	const config = {
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	};
+	for (const [type, name, argument, expression, expected] of [
+		['?bigint', 'value', 'null', '-value', ['bigint', '0']],
+		['bigint | number', 'value', '2', '~value', ['bigint', '-3']],
+		['bigint | undefined', 'value', 'undefined', '-value', ['string', 'RangeError']],
+		['bigint', '[value]', '', '~value', ['bigint', '-1']],
+	]) {
+		const prefix = `/** @param {${type}} ${name} */ function run(value) { return BigInt(${expression}); } `;
+		const suffix = `let result; try { result = run(${argument}); } catch (error) { result = error.name; } JSON.stringify([typeof result, String(result)]);`;
+		const code = `${prefix}${suffix}`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(fixed, false);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(output), JSON.stringify(expected));
+	}
+});
+
+test({
+	valid: [
 		'String(new Date());',
 		'String(Date?.());',
 		'String(globalThis.Date());',

@@ -15,6 +15,26 @@ const typeAware = code => ({
 	},
 });
 
+for (const [expression, serialized, converted] of [
+	['-value', 'JSON.stringify(-value)', 'JSON.stringify(String(-value))'],
+	['~value', 'Response.json({value: ~value})', 'Response.json({value: String(~value)})'],
+]) {
+	const prefix = '/** @param {bigint} value */ function serialize(value) { return ';
+	ruleTest({
+		valid: [
+			`/** @param {bigint | number} value */ function serialize(value) { return JSON.stringify(${expression}); }`,
+			`/** @param {bigint} [value] */ function serialize(value) { return JSON.stringify(${expression}); }`,
+		],
+		invalid: [{
+			code: `${prefix}${serialized}; }`,
+			errors: [{
+				messageId: 'no-unsafe-json-serialization',
+				suggestions: [{messageId: 'no-unsafe-json-serialization/string', output: `${prefix}${converted}; }`}],
+			}],
+		}],
+	});
+}
+
 ruleTest({
 	valid: [],
 	invalid: [{code: 'JSON.stringify({permissions: new Set(["read"])})', errors: 1}],
