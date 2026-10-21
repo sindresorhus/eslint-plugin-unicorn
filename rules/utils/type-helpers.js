@@ -200,7 +200,7 @@ function getJSDocumentTypeNodeType(node, options) {
 		}
 
 		case 'union': {
-			return combineUnionTypes(node.elements.map(type => getJSDocumentTypeNodeType(type, options)), options);
+			return combineUnionTypes(getJSDocumentTypeMembers(node).map(type => getJSDocumentTypeNodeType(type, options)), options);
 		}
 
 		case 'intersection': {
@@ -242,10 +242,10 @@ const getJSDocumentType = (annotation, options) => {
 };
 
 /**
-Flatten grouped JSDoc intersections before inspecting their members.
+Flatten grouped JSDoc union or intersection members without crossing between the two kinds.
 */
-function getJSDocumentIntersectionMembers(type) {
-	return type.kind === 'intersection' ? type.elements.flatMap(element => getJSDocumentIntersectionMembers(element)) : [type];
+function getJSDocumentTypeMembers(type) {
+	return type.elements.flatMap(element => element.kind === type.kind ? getJSDocumentTypeMembers(element) : [element]);
 }
 
 /**
@@ -261,7 +261,7 @@ function getJSDocumentCallableReturnType(type) {
 	}
 
 	const members = type.kind === 'intersection'
-		? getJSDocumentIntersectionMembers(type).filter(element => element.kind !== 'non-primitive')
+		? getJSDocumentTypeMembers(type).filter(element => element.kind !== 'non-primitive')
 		: type.elements;
 	const returnTypes = members.map(element => getJSDocumentCallableReturnType(element));
 	if (returnTypes.length === 0 || returnTypes.includes(undefined)) {
@@ -974,7 +974,7 @@ export {
 	getDefinitionInitializer,
 	getJSDocumentType,
 	getJSDocumentCallableReturnType,
-	getJSDocumentIntersectionMembers,
+	getJSDocumentTypeMembers,
 	hasJSDocumentTypeReference,
 	nonTarget,
 	nullish,

@@ -56,6 +56,28 @@ const onlyIsPrefixOptions = {
 	},
 };
 
+// Grouping nullish union members must not change the getter and binding naming policies.
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [
+			'/** @returns {boolean | (null | undefined)} */ function ready() { return source; }',
+			'/** @type {boolean | (null | undefined)} */ const ready = source;',
+			'/** @param {boolean | (null | undefined)} ready */ function run(ready) {}',
+			'const task = {/** @type {boolean | (null | undefined)} */ ready: source};',
+			'class Task { /** @type {boolean | (null | undefined)} */ ready = source; }',
+		].map(code => wrap({code, options: [{checkMethods: 'always', checkFields: 'always'}]})),
+		invalid: [
+			'const task = {/** @returns {boolean | (null | undefined)} */ get ready() { return source; }};',
+			'class Task { /** @return {(null | undefined) | boolean} */ get ready() { return source; } }',
+			'class Task { /** @type {boolean | (Null | Undefined)} */ static get ready() { return source; } }',
+		].map(code => wrap({
+			code,
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 0}],
+		})),
+	});
+}
+
 // Unsupported promise return documentation stays unresolved through unions and nullable wrappers.
 for (const wrap of [testCase => testCase, typescript, typeAware]) {
 	test({

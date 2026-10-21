@@ -1,7 +1,7 @@
 import {combineBooleanStates} from './get-type-boolean-state.js';
 import {
 	getJSDocumentType,
-	getJSDocumentIntersectionMembers,
+	getJSDocumentTypeMembers,
 	nonTarget,
 	target,
 } from './type-helpers.js';
@@ -15,12 +15,13 @@ Classify documented values using the naming rule's unknown, nullish, and callabl
 function getTypeBooleanState(type, {allowNullish, functionTypesAreBoolean}) {
 	switch (type.kind) {
 		case 'union': {
-			const types = allowNullish ? type.elements.filter(element => element.kind !== 'nullish') : type.elements;
+			const members = getJSDocumentTypeMembers(type);
+			const types = allowNullish ? members.filter(element => element.kind !== 'nullish') : members;
 			return combineBooleanStates(types.map(element => getTypeBooleanState(element, {allowNullish, functionTypesAreBoolean})));
 		}
 
 		case 'intersection': {
-			const members = getJSDocumentIntersectionMembers(type).filter(element => element.kind !== 'non-primitive');
+			const members = getJSDocumentTypeMembers(type).filter(element => element.kind !== 'non-primitive');
 			return members.length > 0
 				? combineBooleanStates(members.map(element => getTypeBooleanState(element, {allowNullish, functionTypesAreBoolean})))
 				: 'non-boolean';

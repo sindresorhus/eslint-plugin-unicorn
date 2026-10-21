@@ -143,6 +143,28 @@ test('JSDoc annotations preserve union, optionality, and unknown inference polic
 	t.assert.deepStrictEqual(getTypes('/** @type {Unresolved} */ const value = new Foo(); check(value);', {targetConstructorNames: ['Foo']}), [unknown]);
 });
 
+test('grouped JSDoc nullish-only union members follow the same policies as flat members', t => {
+	for (const type of ['Foo | (null | undefined)', '(null | undefined) | Foo', 'Foo | (Null | Undefined)']) {
+		const code = `/** @param {${type}} value */ function run(value) { check(value); }`;
+		for (const javascript of [false, true]) {
+			t.assert.deepStrictEqual(getTypes(code, {}, {javascript}), [unknown], type);
+			t.assert.deepStrictEqual(getTypes(code, {allowNullishInMixedUnion: true}, {javascript}), [target], type);
+		}
+	}
+});
+
+test('flattening grouped JSDoc unions retains unknown, mixed, and intersection boundaries', t => {
+	for (const [type, expected] of [
+		['null | (undefined | null)', nonTarget],
+		['Foo | (unknown | null)', unknown],
+		['Foo | (string | null)', unknown],
+		['Foo | (null & undefined)', unknown],
+	]) {
+		const code = `/** @param {${type}} value */ function run(value) { check(value); }`;
+		t.assert.deepStrictEqual(getTypes(code, {allowNullishInMixedUnion: true}, {javascript: true}), [expected], type);
+	}
+});
+
 test('native TypeScript annotations take precedence over JSDoc', t => {
 	t.assert.deepStrictEqual(getTypes('/** @type {Foo} */ let value: string; check(value);', {}), [nonTarget]);
 	t.assert.deepStrictEqual(getTypes('/** @returns {Foo} */ function create(): string { return source; } check(create());', {}), [nonTarget]);

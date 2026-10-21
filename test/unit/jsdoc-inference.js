@@ -14,6 +14,16 @@ const predicates = {
 	boolean: isBoolean, string: isString, number: isNumber, bigint: isBigInt, array: isArray, indexed: isIndexedCollection, set: isSet, bigintArray: isKnownBigIntTypedArray,
 };
 
+test('grouped nullish values and callback results remain uncertain for primitive boolean simplification', t => {
+	const code = [
+		'/** @param {boolean | (null | undefined)} value\n * @param {() => (boolean | (null | undefined))} read */',
+		'function run(value, read) { inspect(value); inspect(read()); }',
+	].join('\n');
+	for (const typescript of [false, true]) {
+		t.assert.deepStrictEqual(getInferences(code, {typescript}), [[], []]);
+	}
+});
+
 test('legacy void and nullish aliases are definite non-string values', t => {
 	const checks = {string: isString, nonString: isKnownNonString};
 	for (const type of ['Void', 'Null', 'Undefined']) {

@@ -29,6 +29,20 @@ test('ignoring nullish members never turns a nullish-only union into a boolean',
 	t.assert.strictEqual(getJSDocumentBooleanState(annotation, {allowNullish: true}), 'unknown');
 });
 
+test('grouped nullish-only union members do not hide a boolean under the relaxed policy', t => {
+	for (const expression of ['boolean | (null | undefined)', '(null | undefined) | boolean', 'boolean | (Null | Undefined)']) {
+		const annotation = getAnnotation(expression);
+		t.assert.strictEqual(getJSDocumentBooleanState(annotation), 'unknown', expression);
+		t.assert.strictEqual(getJSDocumentBooleanState(annotation, {allowNullish: true}), 'boolean', expression);
+	}
+});
+
+test('grouped nullish callback results retain the relaxed predicate policy', t => {
+	const annotation = getAnnotation('() => boolean | (null | undefined)');
+	t.assert.strictEqual(getJSDocumentBooleanState(annotation, {functionTypesAreBoolean: true}), 'unknown');
+	t.assert.strictEqual(getJSDocumentBooleanState(annotation, {allowNullish: true, functionTypesAreBoolean: true}), 'boolean');
+});
+
 test('callable classification is independent of nullish classification', t => {
 	const annotation = getAnnotation('(() => boolean) | undefined');
 	t.assert.strictEqual(getJSDocumentBooleanState(annotation), 'unknown');
