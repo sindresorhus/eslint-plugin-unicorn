@@ -2101,6 +2101,23 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(33): if (x || (object[\`key\`] && a) || (object.key && b && c)) {} 1`] = `
+
+  1 | if (x || (object[\`key\`] && a) || (object.key && b && c)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(33): if (x || (object[\`key\`] && a) || (object.key && b && c)) {} 2`] = `
+
+Message:
+> 1 | if (x || (object[\`key\`] && a) || (object.key && b && c)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | if (x || (object[\`key\`] && (a || (b && c)))) {}
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(34): if ((Array.isArray([...values]) && a) || (Array.isArray([...values]) && b)) {} 1`] = `
 
   1 | if ((Array.isArray([...values]) && a) || (Array.isArray([...values]) && b)) {}

@@ -26,6 +26,8 @@ ruleTester({
 		['({} || (a === true && b === true)) || (a === true && c === true);', '({} || (a === true && (b === true || c === true)));'],
 		['const getValue = () => ({} || (a === true && b === true)) || (a === true && c === true);', 'const getValue = () => ({} || (a === true && (b === true || c === true)));'],
 		['export default (class {} || (a === true && b === true)) || (a === true && c === true);', 'export default (class {} || (a === true && (b === true || c === true)));'],
+		['foo()\na === true && b === true || a === true && c === true || x', 'foo()\n;(a === true && (b === true || c === true)) || x'],
+		['if (x || (Array.isArray(value) && a) || (Array.isArray(value) && b && c)) {}', 'if (x || (Array.isArray(value) && (a || (b && c)))) {}'],
 	].map(([code, output]) => ({code, output, errors: 1})),
 });
 
@@ -505,6 +507,8 @@ ruleTester.snapshot({
 
 for (const [options, code, output] of [
 	[[], 'if (!(!a && !b && !c)) {}', 'if (a || b || c) {}'],
+	[[], 'if ((a && b && c) || (a && b && d)) {}', 'if (a && (b && (c || d))) {}'],
+	[[], 'if ((a || b || c) && (a || b || d)) {}', 'if (a || (b || (c && d))) {}'],
 	[[{negatedConditions: 'expand'}], 'if (!(a && (b || c))) {}', 'if (!a || (!b && !c)) {}'],
 	[[{negatedConditions: 'expand'}], 'const a = true;\nfoo()\n!(!(a) && b && c)', 'const a = true;\nfoo()\n;(a) || !b || !c'],
 	[[{negatedConditions: 'expand'}], 'foo()\n!(!(a === b) && c && d)', 'foo()\n;(a === b) || !c || !d'],
@@ -811,6 +815,7 @@ ruleTester.snapshot({
 		'if (x || (a && b) || (a && c && value?.property)) {}',
 		'if (x || (a && b) || (a && c && d++)) {}',
 		'if ((a === `${x}` && b) || (a === `${x}` && c)) {}', // eslint-disable-line no-template-curly-in-string
+		'if (x || (object[`${key}`] && a) || (object[`${key}`] && b && c)) {}', // eslint-disable-line no-template-curly-in-string
 		'if ((a === tag`x` && b) || (a === tag`x` && c)) {}',
 		'if ((a === `x` && b) || (a === `y` && c)) {}',
 		'const value = x || (a && b) || (a && c);',
@@ -863,6 +868,7 @@ ruleTester.snapshot({
 		},
 		'if (x || (object.property && a) || (object.property && b && c)) {}',
 		'if (x || (isFoo(node) && a) || (isFoo(node) && b && c)) {}',
+		'if (x || (object[`key`] && a) || (object.key && b && c)) {}',
 	],
 });
 
@@ -986,4 +992,28 @@ test('factoring preserves exact values and calls with independent operands', t =
 			t.assert.deepStrictEqual(fixedCalls, originalCalls);
 		}
 	}
+});
+
+test('factoring stateful calls in longer chains remains suggestion-only', t => {
+	const code = outdent`
+		let calls = 0;
+		const matches = () => ++calls === 2;
+		const result = Boolean(false || (matches() && true) || (matches() && true && true));
+		JSON.stringify({result, calls});
+	`;
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, {
+		plugins: {unicorn: {rules: {[ruleId]: rule}}},
+		rules: {[`unicorn/${ruleId}`]: 'error'},
+	});
+
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(result.messages[0].suggestions.length, 1);
+	t.assert.strictEqual(runInNewContext(code), '{"result":true,"calls":2}');
+
+	const {fix} = result.messages[0].suggestions[0];
+	const suggested = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	t.assert.strictEqual(runInNewContext(suggested), '{"result":false,"calls":1}');
 });
