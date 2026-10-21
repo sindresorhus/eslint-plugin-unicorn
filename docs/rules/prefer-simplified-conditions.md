@@ -108,6 +108,8 @@ if ((object.property && a) || a) {}
 
 The rule avoids factoring expressions when the result would be used as a value instead of a boolean, unless every operand is known to produce a boolean, such as boolean comparisons or TypeScript boolean types.
 
+Explicit TypeScript boolean annotations are recognized without type-aware linting; optional type information also lets the rule recognize boolean types inferred or narrowed by TypeScript.
+
 ## Options
 
 Type: `object`

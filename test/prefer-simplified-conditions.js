@@ -786,6 +786,17 @@ for (const languageOptions of [
 }
 
 ruleTester.svelte({
+	valid: [
+		'{x || (a && b) || (a && c && d)}',
+		'{x && (a || b) && (a || c || d)}',
+	],
+	invalid: [
+		['{#if x || (a && b) || (a && c && d)}<p />{/if}', '{#if x || (a && (b || (c && d)))}<p />{/if}'],
+		['{#if x && (a || b) && (a || c || d)}<p />{/if}', '{#if x && (a || (b && (c || d)))}<p />{/if}'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+ruleTester.svelte({
 	valid: [],
 	invalid: [
 		{
@@ -1021,4 +1032,35 @@ test('factoring stateful calls in longer chains remains suggestion-only', t => {
 	const {fix} = result.messages[0].suggestions[0];
 	const suggested = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
 	t.assert.strictEqual(runInNewContext(suggested), '{"result":false,"calls":1}');
+});
+
+const narrowedBooleanOperands = outdent`
+	function check(a: unknown, b: boolean, c: boolean, d: boolean) {
+		if (typeof a === 'boolean') {
+			return (a && b) || (a && c && d);
+		}
+	}
+`;
+
+ruleTester({
+	valid: [
+		{
+			code: narrowedBooleanOperands,
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('declare const flags: {a: boolean; b: boolean; c: boolean | undefined; d: boolean}; const value = (flags.a && flags.b) || (flags.a && flags.c && flags.d);'),
+	],
+	invalid: [
+		{
+			...typeAware(narrowedBooleanOperands),
+			output: outdent`
+				function check(a: unknown, b: boolean, c: boolean, d: boolean) {
+					if (typeof a === 'boolean') {
+						return a && (b || (c && d));
+					}
+				}
+			`,
+			errors: 1,
+		},
+	],
 });
