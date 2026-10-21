@@ -610,6 +610,9 @@ Message:
 > 1 | value ? Boolean(/* keep */ fallback()) : false
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using a logical operator over a ternary.
 
+Output:
+  1 | Boolean(value) && Boolean(/* keep */ fallback())
+
 `;
 
 exports[`prefer-logical-operator-over-ternary > invalid(26): const element = <div>{value ? true : Boolean(fallback())}</div> 1`] = `

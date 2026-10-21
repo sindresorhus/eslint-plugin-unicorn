@@ -8,6 +8,83 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'read(/* keep */) ? value === 1 : false;',
+			output: 'Boolean(read(/* keep */)) && (value === 1);',
+			errors: [{messageId: 'prefer-logical-operator-over-ternary/error'}],
+		},
+		{
+			code: 'read(/* keep */) ? false : value === 1;',
+			output: '!read(/* keep */) && (value === 1);',
+			errors: [{messageId: 'prefer-logical-operator-over-ternary/error'}],
+		},
+		{
+			code: '(/* keep */ value) ? value : fallback;',
+			errors: [{
+				messageId: 'prefer-logical-operator-over-ternary/error',
+				suggestions: ['??', '||'].map(operator => ({messageId: 'prefer-logical-operator-over-ternary/suggestion', data: {operator}, output: `(/* keep */ value) ${operator} fallback;`})),
+			}],
+		},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['((value /* keep */)) ? Boolean(other) : false;', 'Boolean(((value /* keep */))) && Boolean(other);'],
+			['value ? false : (other // keep\r\n === 1);', '!value && (other // keep\r\n === 1);'],
+		].map(([code, output]) => ({code, output, errors: [{messageId: 'prefer-logical-operator-over-ternary/error'}]})),
+		...[
+			'(/* keep */ value) ? /* discard */ false : other === 1;',
+			'(/* keep */ value) /* discard */ ? other === 1 : false;',
+			'(/* keep */ value) ? (value /* discard */) : fallback;',
+			'!/* discard */value ? (/* keep */ fallback) : value;',
+		].map(code => ({code, errors: [{messageId: 'prefer-logical-operator-over-ternary/error', suggestions: []}]})),
+		{
+			code: 'read(/* keep */) ? value === 1 : false;',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-logical-operator-over-ternary/error', suggestions: []}],
+		},
+		{
+			code: 'before()\n!(/* keep */ value) ? fallback : value;',
+			errors: [{
+				messageId: 'prefer-logical-operator-over-ternary/error',
+				suggestions: ['??', '||'].map(operator => ({
+					messageId: 'prefer-logical-operator-over-ternary/suggestion', data: {operator}, output: `before()\n;(/* keep */ value) ${operator} fallback;`,
+				})),
+			}],
+		},
+		{
+			code: '(value as /* keep */ string) ? (value as string) : fallback;',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'prefer-logical-operator-over-ternary/error',
+				suggestions: ['??', '||'].map(operator => ({
+					messageId: 'prefer-logical-operator-over-ternary/suggestion', data: {operator}, output: `(value as /* keep */ string) ${operator} fallback;`,
+				})),
+			}],
+		},
+		{
+			code: '(/* keep */ value) == null ? fallback : value;',
+			errors: [{
+				messageId: 'prefer-logical-operator-over-ternary/error',
+				suggestions: [{messageId: 'prefer-logical-operator-over-ternary/suggestion', data: {operator: '??'}, output: '(/* keep */ value) ?? fallback;'}],
+			}],
+		},
+		{
+			code: 'value ? value : read(/* keep */);',
+			errors: [{
+				messageId: 'prefer-logical-operator-over-ternary/error',
+				suggestions: ['??', '||'].map(operator => ({messageId: 'prefer-logical-operator-over-ternary/suggestion', data: {operator}, output: `value ${operator} read(/* keep */);`})),
+			}],
+		},
+	],
+});
+
 // Keyword spacing in optional chain suggestions
 test({
 	valid: [],
@@ -519,7 +596,14 @@ for (const expression of ['(yield true) ? true : Boolean(fallback())', '(yield t
 	});
 }
 
-for (const code of ['condition() ? true : Boolean(fallback())', 'condition() ? Boolean(fallback()) : false']) {
+for (const code of [
+	'condition() ? true : Boolean(fallback())',
+	'condition() ? Boolean(fallback()) : false',
+	'condition(/* keep */) ? true : Boolean(fallback())',
+	'condition(/* keep */) ? Boolean(fallback()) : false',
+	'condition(/* keep */) ? false : Boolean(fallback())',
+	'condition() ? Boolean(fallback(/* keep */)) : true',
+]) {
 	nodeTest(`boolean ternary autofixes preserve results and evaluation order: ${code}`, t => {
 		const linter = new Linter();
 		const fixed = linter.verifyAndFix(code, {
@@ -717,6 +801,27 @@ test.snapshot({
 		'foo == null ? undefined : foo /* comment */ .bar;',
 		'foo == null ? undefined : foo /* comment */ [bar];',
 	],
+});
+
+nodeTest('comment-preserving fallback suggestions keep falsy-value differences manual', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/prefer-logical-operator-over-ternary': 'error'}};
+	const code = '(/* keep */ value) ? value : fallback();';
+	const {output, fixed, messages} = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(output, code);
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].suggestions?.length, 2);
+	for (const [index, {fix}] of messages[0].suggestions.entries()) {
+		const suggested = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		t.assert.strictEqual(suggested, `(/* keep */ value) ${index === 0 ? '??' : '||'} fallback();`);
+		t.assert.deepStrictEqual(linter.verify(suggested, config), []);
+		for (const value of [undefined, 0, 2]) {
+			const globals = {value, fallback: () => 9};
+			t.assert.strictEqual(runInNewContext(code, globals), value ? value : 9);
+			t.assert.strictEqual(runInNewContext(suggested, globals), index === 0 ? (value ?? 9) : (value || 9));
+		}
+	}
 });
 
 test({
