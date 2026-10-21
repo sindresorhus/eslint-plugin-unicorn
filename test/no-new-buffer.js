@@ -35,6 +35,34 @@ nodeTest('code point Buffer inputs preserve construction after numeric inference
 	t.assert.strictEqual(runInNewContext(suggestions[1].code, {Buffer}), 97);
 });
 
+nodeTest('documented string lengths on records require choosing the from suggestion', t => {
+	const code = '/** @param {{length: string}} input */ function create(input) { return new Buffer(input.length).toString(); } create({length: "abc"});';
+	const suggestions = getSuggestions(t, code);
+	t.assert.deepStrictEqual(suggestions, [
+		{
+			method: 'from',
+			code: '/** @param {{length: string}} input */ function create(input) { return Buffer.from(input.length).toString(); } create({length: "abc"});',
+		},
+		{
+			method: 'alloc',
+			code: '/** @param {{length: string}} input */ function create(input) { return Buffer.alloc(input.length).toString(); } create({length: "abc"});',
+		},
+	]);
+	t.assert.strictEqual(runInNewContext(code, {Buffer}), 'abc');
+	t.assert.strictEqual(runInNewContext(suggestions[0].code, {Buffer}), 'abc');
+	t.assert.throws(() => runInNewContext(suggestions[1].code, {Buffer}), {name: 'TypeError'});
+});
+
+nodeTest('documented array lengths retain safe allocation autofixes', t => {
+	const code = '/** @param {Array<string>} input */ function create(input) { return new Buffer(input.length).length; } create(["a", "b"]);';
+	const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
+	t.assert.strictEqual(output, '/** @param {Array<string>} input */ function create(input) { return Buffer.alloc(input.length).length; } create(["a", "b"]);');
+	t.assert.strictEqual(fixed, true);
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(runInNewContext(code, {Buffer}), 2);
+	t.assert.strictEqual(runInNewContext(output, {Buffer}), 2);
+});
+
 nodeTest('unknown numeric Buffer inputs require choosing the allocation suggestion', t => {
 	for (const [argument, extras, length] of [
 		['0', '0', 0],

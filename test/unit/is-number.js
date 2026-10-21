@@ -171,8 +171,48 @@ test('known object lengths are left to static evaluation', t => {
 	t.assert.deepStrictEqual(getVerdicts('check({length: 1, length: "5"}.length); check({length: 1, ...other}.length);'), [false, false]);
 });
 
+test('length properties on documented and native records are not assumed numeric', t => {
+	for (const type of ['{length: string}', '{length: boolean}', '{length: bigint}', 'unknown', 'Map<string, number>', '?string', 'Array<string> | {length: string}']) {
+		const code = `/** @param {${type}} value */ function run(value) { check(value.length); }`;
+		t.assert.deepStrictEqual(getVerdicts(code), [false], type);
+	}
+
+	const code = [
+		'function native(value: {length: string}) { check(value.length); }',
+		'/** @param {Array<string>} value */ function overridden(value: {length: string}) { check(value.length); }',
+		'/** @type {unknown} */ const uncertain = []; check(uncertain.length);',
+		'/** @param {{length: string}} value */ function array(value: string[]) { check(value.length); }',
+	].join('\n');
+	t.assert.deepStrictEqual(getVerdicts(code), [false, false, false, true]);
+});
+
+test('length properties on definite string array and typed array receivers remain numeric', t => {
+	for (const type of ['string', 'Array<string>', 'ReadonlyArray<number>', '[string, number]', 'Uint8Array', 'BigInt64Array', 'Array<string> | Uint8Array']) {
+		const code = `/** @param {${type}} value */ function run(value) { check(value.length); }`;
+		t.assert.deepStrictEqual(getVerdicts(code), [true], type);
+	}
+
+	const code = [
+		'/** @returns {Array<string>} */ function read() { return source; } check(read().length);',
+		'const values = new Uint8Array(); const alias = values; check(alias.length);',
+		'/** @param {string} [value] */ function optional(value) { check(value.length); check(value?.length); }',
+	].join('\n');
+	t.assert.deepStrictEqual(getVerdicts(code), [true, true, false, false]);
+});
+
 test('direct numeric object lengths and other length properties remain numeric', t => {
 	t.assert.deepStrictEqual(getVerdicts('check({length: 5}.length); check({"length": -0}.length); check({length: -5}.length);'), [true, true, true]);
-	t.assert.deepStrictEqual(getVerdicts('check([1, 2].length); check("hello".length); check(unknown.length);'), [true, true, true]);
+	t.assert.deepStrictEqual(getVerdicts('check([1, 2].length); check("hello".length); check(unknown.length);'), [true, true, false]);
 	t.assert.deepStrictEqual(getVerdicts('check({length: "5", length: 1}.length);'), [true]);
+});
+
+test('function literal lengths are numeric while class lengths can be overridden', t => {
+	const code = [
+		'check(function (value) {}.length);',
+		'check((value => value).length);',
+		'check(async function () {}.length);',
+		'check(function* () {}.length);',
+	].join('\n');
+	t.assert.deepStrictEqual(getVerdicts(code), [true, true, true, true]);
+	t.assert.deepStrictEqual(getVerdicts('check(class { static length = "5"; }.length); check(class { static get length() { return false; } }.length);'), [false, false]);
 });

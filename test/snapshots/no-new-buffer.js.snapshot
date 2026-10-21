@@ -238,9 +238,12 @@ exports[`no-new-buffer > invalid(14): new Buffer(foo.length) 2`] = `
 
 Message:
 > 1 | new Buffer(foo.length)
-    | ^^^^^^^^^^^^^^^^^^^^^^ \`new Buffer()\` is deprecated, use \`Buffer.alloc()\` instead.
+    | ^^^^^^^^^^^^^^^^^^^^^^ \`new Buffer()\` is deprecated, use \`Buffer.alloc()\` or \`Buffer.from()\` instead.
 
-Output:
+Suggestion 1/2: Switch to \`Buffer.from()\`.:
+  1 | Buffer.from(foo.length)
+
+Suggestion 2/2: Switch to \`Buffer.alloc()\`.:
   1 | Buffer.alloc(foo.length)
 
 `;

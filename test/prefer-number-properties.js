@@ -42,6 +42,30 @@ for (const languageOptions of [
 		valid: [],
 		invalid: [
 			...[
+				[
+					'/** @param {string} value */ function run(value) { return isFinite(value.length); }',
+					'/** @param {string} value */ function run(value) { return Number.isFinite(value.length); }',
+				],
+				[
+					'/** @param {Array<string>} value */ function run(value) { return isFinite(value.length); }',
+					'/** @param {Array<string>} value */ function run(value) { return Number.isFinite(value.length); }',
+				],
+				[
+					'/** @param {ReadonlyArray<number>} value */ function run(value) { return isFinite(value.length); }',
+					'/** @param {ReadonlyArray<number>} value */ function run(value) { return Number.isFinite(value.length); }',
+				],
+				[
+					'/** @param {Uint8Array} value */ function run(value) { return isFinite(value.length); }',
+					'/** @param {Uint8Array} value */ function run(value) { return Number.isFinite(value.length); }',
+				],
+				[
+					'/** @param {BigInt64Array} value */ function run(value) { return isFinite(value.length); }',
+					'/** @param {BigInt64Array} value */ function run(value) { return Number.isFinite(value.length); }',
+				],
+				[
+					'/** @param {Array<string> | Uint8Array} value */ function run(value) { return isFinite(value.length); }',
+					'/** @param {Array<string> | Uint8Array} value */ function run(value) { return Number.isFinite(value.length); }',
+				],
 				/* eslint-disable no-template-curly-in-string */
 				[
 					'/** @param {string} value */ function run(value) { return isNaN(String.raw`${value}`.charCodeAt(0)); }',
@@ -113,6 +137,26 @@ for (const languageOptions of [
 			})),
 			...[
 				[
+					'/** @param {{length: string}} value */ function run(value) { return isFinite(value.length); }',
+					'/** @param {{length: string}} value */ function run(value) { return Number.isFinite(value.length); }',
+				],
+				[
+					'/** @param {{length: boolean}} value */ function run(value) { return isFinite(value.length); }',
+					'/** @param {{length: boolean}} value */ function run(value) { return Number.isFinite(value.length); }',
+				],
+				[
+					'/** @param {unknown} value */ function run(value) { return isFinite(value.length); }',
+					'/** @param {unknown} value */ function run(value) { return Number.isFinite(value.length); }',
+				],
+				[
+					'/** @param {Array<string> | {length: string}} value */ function run(value) { return isFinite(value.length); }',
+					'/** @param {Array<string> | {length: string}} value */ function run(value) { return Number.isFinite(value.length); }',
+				],
+				[
+					'/** @returns {{length: string}} */ function read() { return source; } isNaN(read().length);',
+					'/** @returns {{length: string}} */ function read() { return source; } Number.isNaN(read().length);',
+				],
+				[
 					'/** @param {Array<string> | Set<string>} values */ function run(values) { return isFinite(values.indexOf("x")); }',
 					'/** @param {Array<string> | Set<string>} values */ function run(values) { return Number.isFinite(values.indexOf("x")); }',
 				],
@@ -169,6 +213,21 @@ for (const languageOptions of [
 		testerOptions: {languageOptions},
 		valid: [],
 		invalid: [{
+			code: '/** @param {Array<string>} value */ function run(value: {length: string}) { return isFinite(value.length); }',
+			filename: 'file.ts',
+			errors: [{
+				messageId: MESSAGE_ID_ERROR,
+				suggestions: [{
+					messageId: MESSAGE_ID_SUGGESTION,
+					output: '/** @param {Array<string>} value */ function run(value: {length: string}) { return Number.isFinite(value.length); }',
+				}],
+			}],
+		}, {
+			code: '/** @param {{length: string}} value */ function run(value: string[]) { return isFinite(value.length); }',
+			output: '/** @param {{length: string}} value */ function run(value: string[]) { return Number.isFinite(value.length); }',
+			filename: 'file.ts',
+			errors: [{messageId: MESSAGE_ID_ERROR, suggestions: 0}],
+		}, {
 			code: '/** @param {string} value */ function run(value: number) { return isFinite(value); }',
 			output: '/** @param {string} value */ function run(value: number) { return Number.isFinite(value); }',
 			filename: 'file.ts',
@@ -186,6 +245,22 @@ for (const languageOptions of [
 		}],
 	});
 }
+
+test({
+	testerOptions: {
+		languageOptions: {
+			parser: typescriptEslintParser,
+			parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+		},
+	},
+	valid: [],
+	invalid: [{
+		code: 'function run(value: {length: number}) { return isFinite(value.length); }',
+		output: 'function run(value: {length: number}) { return Number.isFinite(value.length); }',
+		filename: 'file.ts',
+		errors: [{messageId: MESSAGE_ID_ERROR, suggestions: 0}],
+	}],
+});
 
 const methods = {
 	parseInt: {
@@ -709,7 +784,7 @@ test.snapshot({
 test.snapshot({
 	valid: [],
 	invalid: [
-		// Auto-fixed: argument is known to be a number
+		// Known numeric arguments are auto-fixed; unknown property lengths require a suggestion.
 		'isNaN(10);',
 		'isFinite(10);',
 		'isNaN(foo - 1);',

@@ -14,6 +14,18 @@ for (const languageOptions of [
 		invalid: [
 			...[
 				[
+					'/** @param {string} value */ function run(value) { return value.length - 1 > 0; }',
+					'/** @param {string} value */ function run(value) { return value.length > 1; }',
+				],
+				[
+					'/** @param {ReadonlyArray<number>} value */ function run(value) { return value.length - 1 > 0; }',
+					'/** @param {ReadonlyArray<number>} value */ function run(value) { return value.length > 1; }',
+				],
+				[
+					'/** @param {BigInt64Array} value */ function run(value) { return value.length - 1 > 0; }',
+					'/** @param {BigInt64Array} value */ function run(value) { return value.length > 1; }',
+				],
+				[
 					'/** @param {Array<string>} values */ function run(values) { return values.indexOf("x") - values.lastIndexOf("x") < 0; }',
 					'/** @param {Array<string>} values */ function run(values) { return values.indexOf("x") < values.lastIndexOf("x"); }',
 				],
@@ -57,6 +69,14 @@ for (const languageOptions of [
 				code, output, filename: 'file.ts', errors: [{messageId: 'no-subtraction-comparison/error', suggestions: 0}],
 			})),
 			...[
+				[
+					'/** @param {{length: string}} left\n * @param {{length: string}} right */ function run(left, right) { return left.length - right.length > 0; }',
+					'/** @param {{length: string}} left\n * @param {{length: string}} right */ function run(left, right) { return left.length > right.length; }',
+				],
+				[
+					'/** @param {unknown} left\n * @param {unknown} right */ function run(left, right) { return left.length - right.length > 0; }',
+					'/** @param {unknown} left\n * @param {unknown} right */ function run(left, right) { return left.length > right.length; }',
+				],
 				[
 					'/** @param {{indexOf: () => string}} values */ function run(values) { return values.indexOf() - values.indexOf() > 0; }',
 					'/** @param {{indexOf: () => string}} values */ function run(values) { return values.indexOf() > values.indexOf(); }',
@@ -202,7 +222,7 @@ test.snapshot({
 		'0 >= a - b',
 		'0 === a - b',
 		'0 !== a - b',
-		// Strict comparisons with numeric operands → autofix
+		// Strict comparisons with numeric operands auto-fix; unknown lengths require a suggestion.
 		'1 - 2 > 0',
 		'foo.length - bar.length > 0',
 		'Number(a) - Number(b) < 0',
@@ -210,14 +230,14 @@ test.snapshot({
 		// Non-strict comparisons with statically known finite numbers → autofix
 		'1 - 2 >= 0',
 		'1 - 1 === 0',
-		// Zero on the left with numeric operands → autofix with the operator flipped
+		// Zero on the left flips the operator.
 		'0 < foo.length - bar.length',
 		// Non-strict comparisons with non-finite numbers → suggestion
 		'Number.POSITIVE_INFINITY - Number.POSITIVE_INFINITY >= 0',
 		'Number.POSITIVE_INFINITY - Number.POSITIVE_INFINITY === 0',
 		// Non-strict comparisons with non-static operands → suggestion
 		'foo.length - bar.length >= 0',
-		// Only one operand is provably numeric → suggestion, since both must be numbers
+		// Unknown operands require a suggestion.
 		'foo.length - bar > 0',
 		// `Math.*` is recognized as numeric → autofix
 		'Math.round(a) - Math.round(b) > 0',

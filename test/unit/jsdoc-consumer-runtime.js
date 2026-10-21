@@ -7,6 +7,68 @@ const linter = new Linter();
 
 for (const {name, rule, code, output = code, value, reported = true, suggestion, suggestedValue} of [
 	{
+		name: 'documented string lengths on records retain finite-check coercion until a suggestion is chosen',
+		rule: 'prefer-number-properties',
+		code: '/** @param {{length: string}} value */ function run(value) { return isFinite(value.length); } run({length: "0"});',
+		value: true,
+		suggestion: '/** @param {{length: string}} value */ function run(value) { return Number.isFinite(value.length); } run({length: "0"});',
+		suggestedValue: false,
+	},
+	{
+		name: 'unknown property lengths retain numeric subtraction semantics until a suggestion is chosen',
+		rule: 'no-subtraction-comparison',
+		code: [
+			'/** @param {{length: string}} left\n * @param {{length: string}} right */ function run(left, right) { return left.length - right.length > 0; }',
+			'run({length: "11"}, {length: "2"});',
+		].join('\n'),
+		value: true,
+		suggestion: [
+			'/** @param {{length: string}} left\n * @param {{length: string}} right */ function run(left, right) { return left.length > right.length; }',
+			'run({length: "11"}, {length: "2"});',
+		].join('\n'),
+		suggestedValue: false,
+	},
+	{
+		name: 'documented record factories retain NaN coercion and evaluation counts for their lengths',
+		rule: 'prefer-number-properties',
+		code: [
+			'let reads = 0; /** @returns {{length: string}} */ function read() { reads++; return {length: "invalid"}; }',
+			'JSON.stringify([isNaN(read().length), reads]);',
+		].join('\n'),
+		value: '[true,1]',
+		suggestion: [
+			'let reads = 0; /** @returns {{length: string}} */ function read() { reads++; return {length: "invalid"}; }',
+			'JSON.stringify([Number.isNaN(read().length), reads]);',
+		].join('\n'),
+		suggestedValue: '[false,1]',
+	},
+	{
+		name: 'known array and typed array lengths remain numeric for empty and populated collections',
+		rule: 'prefer-number-properties',
+		code: [
+			'/** @param {Array<string> | Uint8Array} values */ function run(values) { return isFinite(values.length); }',
+			'JSON.stringify([run([]), run(["x"]), run(new Uint8Array()), run(new Uint8Array(2))]);',
+		].join('\n'),
+		output: [
+			'/** @param {Array<string> | Uint8Array} values */ function run(values) { return Number.isFinite(values.length); }',
+			'JSON.stringify([run([]), run(["x"]), run(new Uint8Array()), run(new Uint8Array(2))]);',
+		].join('\n'),
+		value: '[true,true,true,true]',
+	},
+	{
+		name: 'documented string factory lengths remain numeric and are evaluated once',
+		rule: 'prefer-number-properties',
+		code: [
+			'let reads = 0; /** @returns {string} */ function read() { reads++; return "text"; }',
+			'JSON.stringify([isNaN(read().length), reads]);',
+		].join('\n'),
+		output: [
+			'let reads = 0; /** @returns {string} */ function read() { reads++; return "text"; }',
+			'JSON.stringify([Number.isNaN(read().length), reads]);',
+		].join('\n'),
+		value: '[false,1]',
+	},
+	{
 		name: 'documented Map delete fixes retain NaN key matching and repeated deletion results',
 		rule: 'no-unnecessary-boolean-comparison',
 		code: [

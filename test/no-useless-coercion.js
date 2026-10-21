@@ -60,6 +60,9 @@ for (const languageOptions of [
 	test({
 		testerOptions: {languageOptions},
 		valid: [
+			'/** @param {{length: string}} value */ function run(value) { return Number(value.length); }',
+			'/** @param {{length: bigint}} value */ function run(value) { return +value.length; }',
+			'/** @param {unknown} value */ function run(value) { return Number(value.length); }',
 			'/** @returns {number | undefined} */ function count() { return source; } Number(count());',
 			'/** @returns {number} */ async function count() { return source; } Number(count());',
 			'/** @returns {number} */ function* count() { yield source; } +count();',
@@ -82,11 +85,10 @@ for (const languageOptions of [
 }
 
 test({
-	valid: [],
+	valid: ['Number(class {}.length);', 'Number(class { static length = "5"; }.length);'],
 	invalid: [
 		...[
 			['Number(function () {}.length);', '(function () {}.length);'],
-			['Number(class {}.length);', '(class {}.length);'],
 			['Number(async function () {}.length);', '(async function () {}.length);'],
 			['use()\nNumber(function () {}.length);', 'use()\n;(function () {}.length);'],
 		].map(([code, output]) => ({code, output, errors: 1})),
@@ -103,6 +105,20 @@ nodeTest('nonnumeric object lengths still require numeric coercion', t => {
 	t.assert.strictEqual(runInNewContext(output), 5);
 	t.assert.strictEqual(fixed, false);
 	t.assert.deepStrictEqual(messages, []);
+});
+
+nodeTest('documented string lengths retain coercion and numeric results', t => {
+	for (const expression of ['Number(value.length)', '+value.length', 'Number(~value.length)']) {
+		const code = `/** @param {{length: string}} value */ function run(value) { return ${expression}; } const result = run({length: "5"}); JSON.stringify([typeof result, result]);`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, {
+			plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+			rules: {'unicorn/no-useless-coercion': 'error'},
+		});
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(fixed, false);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(output), JSON.stringify(['number', expression.includes('~') ? -6 : 5]));
+	}
 });
 
 nodeTest('optional numeric parameters still require numeric coercion', t => {
@@ -186,11 +202,11 @@ test({
 		{code: 'const object = [1]; delete +object.length;', errors: [{messageId: 'no-useless-coercion'}]},
 		{code: 'delete Number(Math.PI);', errors: [{messageId: 'no-useless-coercion'}]},
 		...[
-			'delete (Number(object.length) as number);',
-			'delete Number(object.length)!;',
-			'delete (Number(object.length) satisfies number);',
-			'delete (<number>Number(object.length));',
-			'delete Number(object.length satisfies number);',
+			'const object = [1]; delete (Number(object.length) as number);',
+			'const object = [1]; delete Number(object.length)!;',
+			'const object = [1]; delete (Number(object.length) satisfies number);',
+			'const object = [1]; delete (<number>Number(object.length));',
+			'const object = [1]; delete Number(object.length satisfies number);',
 		].map(code => ({code, languageOptions: {parser: parsers.typescript}, errors: [{messageId: 'no-useless-coercion'}]})),
 	],
 });
@@ -309,6 +325,10 @@ test.snapshot({
 		'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); String(object.value ? "x" : value);',
 		'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); BigInt(object.value ? 1n : value);',
 		'Number(x?.length)',
+		'Number(x.length)',
+		'Number(~x.length)',
+		'+x.length',
+		'Number(/* keep */ x.length)',
 		'Boolean(x ?? y)',
 		'Boolean(x || false)',
 		'Boolean(a && b)',
@@ -393,12 +413,12 @@ test.snapshot({
 		'Boolean(x in obj)',
 		'Boolean(delete obj.x)',
 		'Boolean(a?.b === c)',
-		'Number(x.length)',
+		'Number(String(x).length)',
 		'Number(Math.PI)',
 		'Number(Number.MAX_SAFE_INTEGER)',
 		'Number(NaN)',
 		'Number(x >>> 0)',
-		'Number(~x.length)',
+		'Number(~String(x).length)',
 		'Number(+x)',
 		'Number(x * 2)',
 		'Number(x % 2)',
@@ -414,7 +434,7 @@ test.snapshot({
 
 		// Unary `+` on a value already a number
 		'+5',
-		'+x.length',
+		'+String(x).length',
 		'+Number(x)',
 		'+(x * 2)',
 		'+ +x', // Nested: the inner `+x` is always a number, so the outer `+` is useless
@@ -446,16 +466,16 @@ test.snapshot({
 		// Unary operator parent forces parentheses around a loosely-bound argument
 		'!Boolean(a === b)',
 		// Strong-precedence argument needs no parentheses, even in a tight position
-		'-Number(x.length)',
+		'-Number(String(x).length)',
 		// Template literal binds tightly, so no parentheses before a member `.`
 		'String(`foo`).length',
 		// Decimal integer literal needs parentheses before a member `.`
 		'Number(5).toFixed(2)',
 		// Argument already parenthesized, do not double-wrap
 		'Boolean((a === b))',
-		'(Number(x.length))',
+		'(Number(String(x).length))',
 		// Sequence expression keeps its existing parentheses
-		'Number((a, b.length))',
+		'Number((a, String(b).length))',
 		// Object literal needs parentheses, otherwise `{` starts a block at statement position
 		'Number({length: 1}.length)',
 
@@ -466,8 +486,8 @@ test.snapshot({
 		`,
 
 		// Fix: comment inside (reported, not fixed)
-		'Number(/* keep */ x.length)',
-		'+/* keep */ x.length',
+		'Number(/* keep */ String(x).length)',
+		'+/* keep */ String(x).length',
 		'\'a\' /* keep */ + \'\'',
 		'(/* keep */ \'a\').toString()',
 
@@ -508,6 +528,7 @@ test({
 		'const object = {length: "abc"};\nconst a = +object.length;',
 		'const object = {length: true};\nconst a = +object.length;',
 		'Number({foo: 1}.length)',
+		'const a = Number(foo.length);',
 		'Number({length: "5"}.length)',
 		'const object = {length: value}; Number(object.length);',
 		'const object = {length: 5};\nconst a = Number(object.length);',
@@ -523,11 +544,6 @@ test({
 		{
 			code: 'foo\nNumber({length: 1}.length)',
 			output: 'foo\n;({length: 1}.length)',
-			errors: 1,
-		},
-		{
-			code: 'const a = Number(foo.length);',
-			output: 'const a = foo.length;',
 			errors: 1,
 		},
 		{

@@ -129,7 +129,7 @@ Message:
 > 1 | foo.length - bar.length > 0
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
 
-Output:
+Suggestion 1/1: Replace with \`foo.length > bar.length\`.:
   1 | foo.length > bar.length
 
 `;
@@ -231,7 +231,7 @@ Message:
 > 1 | 0 < foo.length - bar.length
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
 
-Output:
+Suggestion 1/1: Replace with \`foo.length > bar.length\`.:
   1 | foo.length > bar.length
 
 `;
@@ -350,7 +350,7 @@ Message:
 > 1 | (foo.length) - (bar.length) > 0
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer comparing the values directly over comparing the difference with \`0\`.
 
-Output:
+Suggestion 1/1: Replace with \`(foo.length) > (bar.length)\`.:
   1 | (foo.length) > (bar.length)
 
 `;

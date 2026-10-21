@@ -1,11 +1,9 @@
-import {isNumericLiteral} from '../ast/index.js';
+import {isFunction, isNumericLiteral} from '../ast/index.js';
 import isString from './is-string.js';
 import {isIndexedCollection} from './is-array.js';
 import {isFunctionCall, isStaticProperties, hasTypeAnnotation} from './type-check.js';
 import {createTypeCheckers, hasJSDocumentTypeReference} from './type-helpers.js';
 import {getStaticValueForControlFlow} from './get-static-value.js';
-import getConstVariableInitializer from './get-const-variable-initializer.js';
-import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math#static_properties
 const mathProperties = new Set([
@@ -128,20 +126,14 @@ const isNumberTypeAnnotation = node =>
 // `function foo(bar: number) {}`, `const foo: number = …`
 const hasNumberTypeAnnotation = (node, scope) => hasTypeAnnotation(node, scope, isNumberTypeAnnotation);
 
-// A user object can have a `length` that is not a number, `const {length} = {length: '5'}`. Leave known objects to static evaluation instead of assuming their length is numeric.
-const isObjectLength = (node, context) => {
-	const object = unwrapTypeScriptExpression(node.object);
-	const initializer = unwrapTypeScriptExpression(getConstVariableInitializer(object, context) ?? object);
-	return initializer.type === 'ObjectExpression';
-};
-
+// A user object can have a nonnumeric `length`. Only infer numeric lengths for function literals, known strings and indexed collections; otherwise use static evaluation or type information.
 const isLengthProperty = (node, context) =>
 	node.type === 'MemberExpression'
 	&& !node.computed
 	&& !node.optional
 	&& node.property.type === 'Identifier'
 	&& node.property.name === 'length'
-	&& !isObjectLength(node, context);
+	&& (isFunction(node.object) || isString(node.object, context) || isIndexedCollection(node.object, context));
 
 // `+` and `>>>` operators are handled separately
 const mathOperators = new Set(['-', '*', '/', '%', '**', '<<', '>>', '|', '^', '&']);
