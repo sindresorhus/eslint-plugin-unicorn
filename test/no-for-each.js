@@ -15,6 +15,10 @@ for (const languageOptions of [
 	test({
 		testerOptions: {languageOptions},
 		valid: [
+			'/** @param {URLSearchParams} values */ function run(values) { values.forEach((value, key) => consume(key, value)); }',
+			'/** @param {Headers} values */ function run(values) { values.forEach((value, key) => consume(key, value)); }',
+			'/** @param {FormData} values */ function run(values) { values.forEach((value, key) => consume(key, value)); }',
+			'/** @param {() => Headers} read */ function run(read) { read().forEach((value, key) => consume(key, value)); }',
 			'/** @param {Map<string, number>} values */ function run(values) { values.forEach(value => consume(value)); }',
 			'/** @param {() => Set<number>} read */ function run(read) { read().forEach(value => consume(value)); }',
 			'/** @param {Map<string, number> | Set<number>} values */ function run(values) { values.forEach(value => consume(value)); }',

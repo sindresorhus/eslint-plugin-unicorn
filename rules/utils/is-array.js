@@ -23,6 +23,9 @@ const knownNonIndexedCollectionTypeNames = new Set([
 	'Set',
 	'ReadonlySet',
 	'WeakSet',
+	'URLSearchParams',
+	'Headers',
+	'FormData',
 	'CanvasRenderingContext2D',
 	'OffscreenCanvasRenderingContext2D',
 ]);

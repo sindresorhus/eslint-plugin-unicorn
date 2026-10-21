@@ -13,6 +13,8 @@ Prefer using [`Array#toSorted()`](https://developer.mozilla.org/en-US/docs/Web/J
 
 `Array#sort()` modifies the original array, while `Array#toSorted()` returns a new sorted array.
 
+Known non-array receivers, such as `URLSearchParams`, are ignored, including when their type is provided by JSDoc.
+
 ## Examples
 
 ```js

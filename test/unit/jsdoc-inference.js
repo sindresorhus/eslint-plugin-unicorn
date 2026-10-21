@@ -14,6 +14,15 @@ const predicates = {
 	boolean: isBoolean, string: isString, number: isNumber, bigint: isBigInt, array: isArray, indexed: isIndexedCollection, set: isSet, bigintArray: isKnownBigIntTypedArray,
 };
 
+for (const type of ['URLSearchParams', 'Headers', 'FormData']) {
+	test(`documented ${type} receivers are known non-arrays`, t => {
+		const code = `/** @param {${type}} values */ function run(values) { inspect(values); }`;
+		const checks = {nonArray: isKnownNonArray};
+		t.assert.deepStrictEqual(getInferences(code, {checks}), [['nonArray']]);
+		t.assert.deepStrictEqual(getInferences(code, {checks, typescript: true}), [['nonArray']]);
+	});
+}
+
 test('grouped nullish values and callback results remain uncertain for primitive boolean simplification', t => {
 	const code = [
 		'/** @param {boolean | (null | undefined)} value\n * @param {() => (boolean | (null | undefined))} read */',

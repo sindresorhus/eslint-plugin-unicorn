@@ -5,6 +5,21 @@ const {test} = getTester(import.meta);
 
 const FORBID_EXPRESSION_OPTIONS = [{allowExpressionStatement: false}];
 
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {URLSearchParams} values */ function run(values) { return values.sort(); }',
+			'/** @returns {URLSearchParams} */ function read() { return source; } const values = read(); const result = values.sort();',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [],
+	});
+}
+
 test.snapshot({
 	valid: [
 		'/** @param {Set<number>} collection */ function run(collection) { return collection.sort(); }',
