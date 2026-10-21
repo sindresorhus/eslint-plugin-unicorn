@@ -5,10 +5,90 @@ import {outdent} from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		['function f() {return(Math.max)(Math.max(1, 2), read(/* keep */));}', 'function f() {return Math.max(1, 2, read(/* keep */));}'],
+		['function f() {throw(Math.max)(Math.max(1, 2), read(/* keep */));}', 'function f() {throw Math.max(1, 2, read(/* keep */));}'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
 const linterConfig = {
 	plugins: {unicorn: {rules: {'prefer-flat-math-min-max': rule}}},
 	rules: {'unicorn/prefer-flat-math-min-max': 'error'},
 };
+
+nodeTest('flattened math calls preserve compact keyword boundaries and argument evaluation order', t => {
+	const linter = new Linter();
+	const expression = '(Math.max)(Math.max(read(/* keep */ 1), read(2)), read(3))';
+	for (const [body, expected] of [
+		[`return${expression};`, 3],
+		[`try {throw${expression};} catch (value) {return value;}`, 3],
+		[`return typeof${expression};`, 'number'],
+		[`return void${expression};`, undefined],
+		[`function* values() {yield${expression};} return values().next().value;`, 3],
+		[`switch (3) {case${expression}: return true; default: return false;}`, true],
+		[`for (const value of${expression} ? [true] : [false]) {return value;}`, true],
+		[`for (const key in${expression} ? {matched: true} : {}) {return key;}`, 'matched'],
+	]) {
+		const code = `function value() {${body}} value();`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(output.split('/* keep */').length, 2);
+		for (const source of [code, output]) {
+			const evaluations = [];
+			const result = runInNewContext(source, {
+				read(value) {
+					evaluations.push(value);
+					return value;
+				},
+			});
+			t.assert.strictEqual(result, expected);
+			t.assert.deepStrictEqual(evaluations, [1, 2, 3]);
+		}
+	}
+});
+
+nodeTest('flattened math calls preserve compact await boundaries', async t => {
+	const code = 'async function value() {return await(Math.max)(Math.max(1, 2), read(/* keep */));} value();';
+	const linter = new Linter();
+	const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);
+	t.assert.strictEqual(fixed, true);
+	t.assert.deepStrictEqual(messages, []);
+	await Promise.all([code, output].map(async source => {
+		t.assert.strictEqual(await runInNewContext(source, {read: () => 3}), 3);
+	}));
+});
+
+test({
+	valid: [],
+	invalid: [
+		['Math.max(Math.max((/* keep */ 1), 2), 3);', 'Math.max((/* keep */ 1), 2, 3);'],
+		['Math.min(Math.min(1, 2), getValue(/* keep */));', 'Math.min(1, 2, getValue(/* keep */));'],
+		['Math./* keep */max(Math.max(1, 2), 3);', 'Math./* keep */max(1, 2, 3);'],
+		['Math.min(Math.max(/* keep */ 1, 2), Math.min(3, 4));', 'Math.min(Math.max(/* keep */ 1, 2), 3, 4);'],
+		['Math.max(Math.max((// keep\r\n1), 2), 3);', 'Math.max((// keep\r\n1), 2, 3);'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'Math.min(Math.min((value as /* keep */ number), 0), 1);',
+			output: 'Math.min((value as /* keep */ number), 0, 1);',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		...[
+			'(/* keep */ Math.max)(Math.max(1, 2), 3);',
+			'Math.max(Math./* keep */max(1, 2), 3);',
+			'Math.max(Math.max(1, 2) /* keep */, 3);',
+		].map(code => ({code, errors: 1})),
+	],
+});
 
 nodeTest('numeric literal autofixes preserve signed zero, finite values, and infinities', t => {
 	const linter = new Linter();
@@ -16,7 +96,7 @@ nodeTest('numeric literal autofixes preserve signed zero, finite values, and inf
 		for (const left of ['0', '-0', '1', '-1', '+2', '1e999', '-1e999']) {
 			for (const right of ['0', '-0', '1', '-1', '+2', '1e999', '-1e999']) {
 				for (const code of [
-					`Math.${method}(Math.${method}(${left}, ${right}), -0);`,
+					`Math.${method}(Math.${method}((/* keep */ ${left}), ${right}), -0);`,
 					`Math.${method}(-0, Math.${method}(${left}, ${right}));`,
 				]) {
 					const {output, fixed, messages} = linter.verifyAndFix(code, linterConfig);

@@ -1,7 +1,10 @@
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getBuiltinCollectionType,
 	isGlobalIdentifier,
 	getMemberExpressionObjectText,
+	getParenthesizedRange,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-object-methods-with-collections/error';
@@ -52,12 +55,15 @@ const getProblem = (node, context) => {
 		},
 	};
 
-	if (context.sourceCode.getCommentsInside(node).length === 0) {
+	if (!wouldRemoveComments(context, node, [getParenthesizedRange(argument, context)])) {
 		problem.suggest = [
 			{
 				messageId: MESSAGE_ID_SUGGESTION,
 				data: {replacement},
-				fix: fixer => fixer.replaceText(node, `Array.from(${replacement})`),
+				* fix(fixer) {
+					yield fixer.replaceText(node, `Array.from(${replacement})`);
+					yield fixSpaceAroundKeyword(fixer, node, context);
+				},
 			},
 		];
 	}

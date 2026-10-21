@@ -1,10 +1,12 @@
 import typedArray from './shared/typed-array.js';
 import {
+	getParenthesizedRange,
 	getParenthesizedText,
 	hasPossibleSideEffect,
 	isBuiltinSet,
 	isGlobalIdentifier,
 	isString,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {
 	isMethodCall,
@@ -134,7 +136,8 @@ const getReplacementText = (arrayExpression, context) => {
 };
 
 const getFix = (arrayExpression, context) => {
-	if (context.sourceCode.getCommentsInside(arrayExpression).length > 0) {
+	const preservedRanges = arrayExpression.elements.map(element => getParenthesizedRange(element.argument, context));
+	if (wouldRemoveComments(context, arrayExpression, preservedRanges)) {
 		return;
 	}
 

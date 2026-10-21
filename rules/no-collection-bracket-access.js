@@ -5,6 +5,7 @@ import {
 	isWeakMap,
 	isWeakSet,
 	isLeftHandSide,
+	getParenthesizedRange,
 	getParenthesizedText,
 	getMemberExpressionObjectText,
 	needsSemicolon,
@@ -14,6 +15,7 @@ import {
 	isGlobalIdentifier,
 	getCallArgumentText,
 	unwrapTypeScriptExpression,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 /**
@@ -136,6 +138,7 @@ function getProblem(node, collection, context) {
 	let messageId = MESSAGE_ID_READ;
 	let suggestionMessageId;
 	let replacement;
+	const preservedNodes = [node.object, node.property];
 	if (
 		parent.type === 'UnaryExpression'
 		&& parent.operator === 'delete'
@@ -154,18 +157,19 @@ function getProblem(node, collection, context) {
 		) {
 			suggestionMessageId = MESSAGE_ID_SUGGESTION_SET;
 			replacement = `${object}.set(${key}, ${getParenthesizedText(parent.right, context)})`;
+			preservedNodes.push(parent.right);
 		}
 	}
 
 	const problem = {node, messageId, data: {type}};
 
-	// Only suggest for the simple, statement-level case, to avoid changing the value of the surrounding expression or dropping comments.
+	// Only suggest for the simple, statement-level case, keeping comments in the receiver, key, and value intact.
 	if (
 		suggestionMessageId
 		&& !node.optional
 		&& simpleObjectTypes.has(node.object.type)
 		&& parent.parent.type === 'ExpressionStatement'
-		&& sourceCode.getCommentsInside(parent).length === 0
+		&& !wouldRemoveComments(context, parent, preservedNodes.map(node => getParenthesizedRange(node, context)))
 	) {
 		const prefix = needsSemicolon(sourceCode.getTokenBefore(parent), context, replacement) ? ';' : '';
 		problem.suggest = [

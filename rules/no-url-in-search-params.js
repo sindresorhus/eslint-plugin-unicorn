@@ -1,5 +1,7 @@
 import {isMemberExpression, isNewExpression} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
+	getParenthesizedRange,
 	getParenthesizedText,
 	getStaticValueForControlFlow,
 	needsSemicolon,
@@ -8,6 +10,7 @@ import {
 	shouldAddParenthesesToMemberExpressionObject,
 	shouldAddParenthesesToNewExpressionCallee,
 	unwrapTypeScriptExpression,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {createBuiltinTypeCheckers} from './utils/type-helpers.js';
 
@@ -70,21 +73,23 @@ const create = context => {
 			return;
 		}
 
-		const {sourceCode} = context;
 		const [argument] = node.arguments;
 		const expression = unwrapTypeScriptExpression(argument);
 		const problem = {node: argument, messageId: MESSAGE_ID};
-		const hasComments = sourceCode.getCommentsInside(node).length > 0;
+		const hasCommentsOutsideArgument = wouldRemoveComments(context, node, [getParenthesizedRange(argument, context)]);
 
 		if (isUrl(argument, context)) {
-			if (!hasComments) {
+			if (!hasCommentsOutsideArgument) {
 				const receiverText = getMemberExpressionObjectText(argument, context);
 				problem.suggest = [{
 					messageId: MESSAGE_ID_COPY,
 					fix: fixer => fixer.replaceText(node, `new URLSearchParams(${receiverText}.search)`),
 				}, {
 					messageId: MESSAGE_ID_LIVE,
-					fix: fixer => fixer.replaceText(node, getSearchParametersText(argument, node, context)),
+					* fix(fixer) {
+						yield fixer.replaceText(node, getSearchParametersText(argument, node, context));
+						yield fixSpaceAroundKeyword(fixer, node, context);
+					},
 				}];
 			}
 
@@ -102,10 +107,13 @@ const create = context => {
 				messageId: MESSAGE_ID_COPY,
 				fix: fixer => fixer.replaceText(expression.property, 'search'),
 			}];
-			if (receiverIsUrl && !hasComments) {
+			if (receiverIsUrl && !wouldRemoveComments(context, node, [getParenthesizedRange(receiver, context)])) {
 				problem.suggest.push({
 					messageId: MESSAGE_ID_LIVE,
-					fix: fixer => fixer.replaceText(node, getSearchParametersText(receiver, node, context)),
+					* fix(fixer) {
+						yield fixer.replaceText(node, getSearchParametersText(receiver, node, context));
+						yield fixSpaceAroundKeyword(fixer, node, context);
+					},
 				});
 			}
 
@@ -117,10 +125,13 @@ const create = context => {
 			return;
 		}
 
-		if (!hasComments) {
+		if (!hasCommentsOutsideArgument) {
 			problem.suggest = [{
 				messageId: MESSAGE_ID_PARSE,
-				fix: fixer => fixer.replaceText(node, `new URL(${getParenthesizedText(argument, context)}).searchParams`),
+				* fix(fixer) {
+					yield fixer.replaceText(node, `new URL(${getParenthesizedText(argument, context)}).searchParams`);
+					yield fixSpaceAroundKeyword(fixer, node, context);
+				},
 			}];
 		}
 

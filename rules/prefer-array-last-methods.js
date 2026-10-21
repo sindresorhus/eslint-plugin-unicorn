@@ -1,5 +1,6 @@
 import {isMethodCall} from './ast/index.js';
 import {removeMethodCall} from './fix/index.js';
+import {getParenthesizedRange, wouldRemoveComments} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-array-last-methods';
 const SUGGESTION_ID = 'replace';
@@ -25,8 +26,6 @@ const messages = {
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	const {sourceCode} = context;
-
 	context.on('CallExpression', callExpression => {
 		if (!isMethodCall(callExpression, {
 			methods: replacements.keys().toArray(),
@@ -61,7 +60,7 @@ const create = context => {
 			data,
 		};
 
-		if (sourceCode.getCommentsInside(callExpression).length === 0) {
+		if (!wouldRemoveComments(context, reversingCallExpression, [getParenthesizedRange(reversingCallExpression.callee.object, context)])) {
 			problem.suggest = [
 				{
 					messageId: SUGGESTION_ID,

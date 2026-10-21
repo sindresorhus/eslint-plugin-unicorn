@@ -148,6 +148,63 @@ Message:
 > 1 | new URLSearchParams(new URL(/* keep */ input))
     |                     ^^^^^^^^^^^^^^^^^^^^^^^^^ \`URLSearchParams\` does not parse full URLs.
 
+Suggestion 1/2: Construct a detached copy from the URL's query string.:
+  1 | new URLSearchParams(new URL(/* keep */ input).search)
+
+Suggestion 2/2: Use the URL's live \`searchParams\` (mutations update the URL).:
+  1 | new URL(/* keep */ input).searchParams
+
+`;
+
+exports[`no-url-in-search-params > invalid(10): new URLSearchParams(new URL(input).href as /* keep */ string) 1`] = `
+
+  1 | new URLSearchParams(new URL(input).href as /* keep */ string)
+
+`;
+
+exports[`no-url-in-search-params > invalid(10): new URLSearchParams(new URL(input).href as /* keep */ string) 2`] = `
+
+Message:
+> 1 | new URLSearchParams(new URL(input).href as /* keep */ string)
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`URLSearchParams\` does not parse full URLs.
+
+Suggestion 1/1: Construct a detached copy from the URL's query string.:
+  1 | new URLSearchParams(new URL(input).search as /* keep */ string)
+
+`;
+
+exports[`no-url-in-search-params > invalid(11): new /* keep */ URLSearchParams(new URL(input)) 1`] = `
+
+  1 | new /* keep */ URLSearchParams(new URL(input))
+
+`;
+
+exports[`no-url-in-search-params > invalid(11): new /* keep */ URLSearchParams(new URL(input)) 2`] = `
+
+Message:
+> 1 | new /* keep */ URLSearchParams(new URL(input))
+    |                                ^^^^^^^^^^^^^^ \`URLSearchParams\` does not parse full URLs.
+
+`;
+
+exports[`no-url-in-search-params > invalid(11): new URLSearchParams((new URL(input) as /* keep */ URL).href) 1`] = `
+
+  1 | new URLSearchParams((new URL(input) as /* keep */ URL).href)
+
+`;
+
+exports[`no-url-in-search-params > invalid(11): new URLSearchParams((new URL(input) as /* keep */ URL).href) 2`] = `
+
+Message:
+> 1 | new URLSearchParams((new URL(input) as /* keep */ URL).href)
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`URLSearchParams\` does not parse full URLs.
+
+Suggestion 1/2: Construct a detached copy from the URL's query string.:
+  1 | new URLSearchParams((new URL(input) as /* keep */ URL).search)
+
+Suggestion 2/2: Use the URL's live \`searchParams\` (mutations update the URL).:
+  1 | (new URL(input) as /* keep */ URL).searchParams
+
 `;
 
 exports[`no-url-in-search-params > invalid(11): new URLSearchParams(\`https://example.com/?query=hello\`) 1`] = `
@@ -181,6 +238,20 @@ Message:
 
 Suggestion 1/1: Parse the URL and use its \`searchParams\`.:
   1 | new URL("https://" + "example.com/?query=hello").searchParams
+
+`;
+
+exports[`no-url-in-search-params > invalid(12): new URLSearchParams(new URL(input) /* keep */) 1`] = `
+
+  1 | new URLSearchParams(new URL(input) /* keep */)
+
+`;
+
+exports[`no-url-in-search-params > invalid(12): new URLSearchParams(new URL(input) /* keep */) 2`] = `
+
+Message:
+> 1 | new URLSearchParams(new URL(input) /* keep */)
+    |                     ^^^^^^^^^^^^^^ \`URLSearchParams\` does not parse full URLs.
 
 `;
 
@@ -604,8 +675,11 @@ Message:
 > 1 | new URLSearchParams(new URL(/* keep */ input).href)
     |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`URLSearchParams\` does not parse full URLs.
 
-Suggestion 1/1: Construct a detached copy from the URL's query string.:
+Suggestion 1/2: Construct a detached copy from the URL's query string.:
   1 | new URLSearchParams(new URL(/* keep */ input).search)
+
+Suggestion 2/2: Use the URL's live \`searchParams\` (mutations update the URL).:
+  1 | new URL(/* keep */ input).searchParams
 
 `;
 
@@ -999,6 +1073,62 @@ Suggestion 2/2: Use the URL's live \`searchParams\` (mutations update the URL).:
 
 `;
 
+exports[`no-url-in-search-params > invalid(41): new /* keep */ URLSearchParams(\"https://example.com/\") 1`] = `
+
+  1 | new /* keep */ URLSearchParams("https://example.com/")
+
+`;
+
+exports[`no-url-in-search-params > invalid(41): new /* keep */ URLSearchParams(\"https://example.com/\") 2`] = `
+
+Message:
+> 1 | new /* keep */ URLSearchParams("https://example.com/")
+    |                                ^^^^^^^^^^^^^^^^^^^^^^ \`URLSearchParams\` does not parse full URLs.
+
+`;
+
+exports[`no-url-in-search-params > invalid(42): new URLSearchParams((/* keep */ new URL(input).href)) 1`] = `
+
+  1 | new URLSearchParams((/* keep */ new URL(input).href))
+
+`;
+
+exports[`no-url-in-search-params > invalid(42): new URLSearchParams((/* keep */ new URL(input).href)) 2`] = `
+
+Message:
+> 1 | new URLSearchParams((/* keep */ new URL(input).href))
+    |                                 ^^^^^^^^^^^^^^^^^^^ \`URLSearchParams\` does not parse full URLs.
+
+Suggestion 1/1: Construct a detached copy from the URL's query string.:
+  1 | new URLSearchParams((/* keep */ new URL(input).search))
+
+`;
+
+exports[`no-url-in-search-params > invalid(43): new URLSearchParams(new URL(// keep\r\n  input).href) 1`] = `
+
+  1 | new URLSearchParams(new URL(// keep
+  2 |   input).href)
+
+`;
+
+exports[`no-url-in-search-params > invalid(43): new URLSearchParams(new URL(// keep\r\n  input).href) 2`] = `
+
+Message:
+> 1 | new URLSearchParams(new URL(// keep
+    |                     ^^^^^^^^^^^^^^^
+> 2 |   input).href)
+    | ^^^^^^^^^^^^^ \`URLSearchParams\` does not parse full URLs.
+
+Suggestion 1/2: Construct a detached copy from the URL's query string.:
+  1 | new URLSearchParams(new URL(// keep
+  2 |   input).search)
+
+Suggestion 2/2: Use the URL's live \`searchParams\` (mutations update the URL).:
+  1 | new URL(// keep
+  2 |   input).searchParams
+
+`;
+
 exports[`no-url-in-search-params > invalid(5): new URLSearchParams(<string>\"https://example.com/\") 1`] = `
 
   1 | new URLSearchParams(<string>"https://example.com/")
@@ -1171,6 +1301,26 @@ Suggestion 1/2: Construct a detached copy from the URL's query string.:
 Suggestion 2/2: Use the URL's live \`searchParams\` (mutations update the URL).:
   1 | const value = foo
   2 | ;(condition ? new URL(first) : new URL(second)).searchParams
+
+`;
+
+exports[`no-url-in-search-params > invalid(7): new URLSearchParams((new URL(input) as /* keep */ URL)) 1`] = `
+
+  1 | new URLSearchParams((new URL(input) as /* keep */ URL))
+
+`;
+
+exports[`no-url-in-search-params > invalid(7): new URLSearchParams((new URL(input) as /* keep */ URL)) 2`] = `
+
+Message:
+> 1 | new URLSearchParams((new URL(input) as /* keep */ URL))
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`URLSearchParams\` does not parse full URLs.
+
+Suggestion 1/2: Construct a detached copy from the URL's query string.:
+  1 | new URLSearchParams((new URL(input) as /* keep */ URL).search)
+
+Suggestion 2/2: Use the URL's live \`searchParams\` (mutations update the URL).:
+  1 | (new URL(input) as /* keep */ URL).searchParams
 
 `;
 

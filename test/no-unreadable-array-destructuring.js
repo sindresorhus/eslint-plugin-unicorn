@@ -1,6 +1,67 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		['const [,, {/* keep */ value}] = array;', 'const {/* keep */ value} = array[2];'],
+		['const [,, [/* keep */ value]] = array;', 'const [/* keep */ value] = array[2];'],
+	].map(([code, output]) => ({code, output, errors: [{messageId: 'ignored-elements'}]})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['const [,, {value // keep\r\n}] = array;', 'const {value // keep\r\n} = array[2];'],
+			['const[,, ...{/* keep */ length}] = array;', 'const {/* keep */ length} = array.slice(2);'],
+			['const [,, {nested: {/* keep */ value}}] = (array ?? fallback);', 'const {nested: {/* keep */ value}} = (array ?? fallback)[2];'],
+		].map(([code, output]) => ({code, output, errors: [{messageId: 'ignored-elements'}]})),
+		{
+			code: 'const [,, {/* keep */ value}] = array as Array<{value: number}>;',
+			output: 'const {/* keep */ value} = (array as Array<{value: number}>)[2];',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'ignored-elements'}],
+		},
+		...[
+			'const [/* discard */,, {/* keep */ value}] = array;',
+			'const [,, .../* discard */{/* keep */ length}] = array;',
+			'const [,, {/* keep */ value} /* discard */] = array;',
+			'const [,, value = {/* keep */ fallback}] = array;',
+			'const [,, ...{/* keep */ length}] = new Uint8Array(4);',
+		].map(code => ({code, errors: [{messageId: 'ignored-elements'}]})),
+		{
+			code: 'const [,, {/* keep */ value}]: Array<{value: number}> = array;',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'ignored-elements'}],
+		},
+	],
+});
+
+nodeTest('comment-preserving destructuring fixes retain bindings and evaluate the source once', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'no-unreadable-array-destructuring': rule}}},
+		rules: {'unicorn/no-unreadable-array-destructuring': 'error'},
+	};
+	for (const [binding, initializer, result] of [
+		['{/* keep */ value}', '[0, 1, {value: 3}]', 'value'],
+		['[/* keep */ value]', '[0, 1, [3]]', 'value'],
+		['...{/* keep */ length}', '[0, 1, 3, 4]', 'length'],
+	]) {
+		const code = `let calls = 0; const read = () => {calls++; return ${initializer};}; const [,, ${binding}] = read(); JSON.stringify({result: ${result}, calls});`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(output.split('/* keep */').length, 2);
+		t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
+		t.assert.deepStrictEqual(JSON.parse(runInNewContext(output)), {result: result === 'length' ? 2 : 3, calls: 1});
+	}
+});
 
 test.snapshot({
 	valid: [
@@ -125,7 +186,7 @@ test.snapshot({
 test.snapshot({
 	valid: [],
 	invalid: [
-		// The pattern is replaced by the variable alone, so a comment and a type annotation would be lost
+		// The pattern is replaced by the variable alone, so comments outside the copied binding and a type annotation would be lost
 		...[
 			'const [, , foo]: [string, string, number] = array;',
 			'const [, , foo]: Array<string> = array;',

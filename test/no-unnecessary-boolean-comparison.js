@@ -7,6 +7,25 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		['Boolean(/* keep */ value) === true;', 'Boolean(/* keep */ value);'],
+		['Boolean(/* keep */ value) === false;', '!Boolean(/* keep */ value);'],
+		['true !== (/* keep */ Boolean(value));', '!(/* keep */ Boolean(value));'],
+		['(value /* keep */ > other) !== false;', '(value /* keep */ > other);'],
+		['Boolean(// keep\r\nvalue) === false;', '!Boolean(// keep\r\nvalue);'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: 'Boolean(/* keep */ value) === /* do not lose */ false;',
+		errors: 1,
+	}],
+});
+
 nodeTest('boolean comparison fixes under delete preserve the property reference boundary', t => {
 	const linter = new Linter();
 	const config = {
@@ -18,11 +37,12 @@ nodeTest('boolean comparison fixes under delete preserve the property reference 
 	for (const operator of ['===', '!==']) {
 		for (const literal of [true, false]) {
 			for (const value of [true, false]) {
-				const expression = `delete ((object.value as boolean) ${operator} ${literal})`;
+				const expression = `delete ((object.value as /* keep */ boolean) ${operator} ${literal})`;
 				const code = `"use strict"; const object = {value: ${value}}; const result = ${expression}; JSON.stringify({result, exists: Object.hasOwn(object, "value"), value: object.value});`;
 				const {output, fixed, messages} = linter.verifyAndFix(code, config);
 				const shouldNegate = operator === '===' ? !literal : literal;
 				t.assert.strictEqual(fixed, shouldNegate);
+				t.assert.ok(output.includes('/* keep */'));
 				if (shouldNegate) {
 					t.assert.deepStrictEqual(messages, []);
 				} else {

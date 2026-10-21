@@ -1124,6 +1124,9 @@ Message:
 > 1 | const value = true && call(/* keep */);
     |               ^^^^ Simplify this \`&&\` expression.
 
+Output:
+  1 | const value = call(/* keep */);
+
 `;
 
 exports[`no-useless-logical-operand > invalid(7): const value = true && input && true; 1`] = `
@@ -1154,6 +1157,9 @@ exports[`no-useless-logical-operand > invalid(70): const value = true && call(/*
 Message:
 > 1 | const value = true && call(/* keep */) && other;
     |               ^^^^ Simplify this \`&&\` expression.
+
+Output:
+  1 | const value = call(/* keep */) && other;
 
 `;
 

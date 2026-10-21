@@ -68,4 +68,4 @@ The following receive editor suggestions because replacing them can change the r
 - Date-bearing property bags without a calendar default to ISO 8601.
 - Date-bearing constructors interpret their numeric arguments as ISO fields, even when a calendar is supplied.
 
-Use an explicit rounding operation when discarding precision is intentional. Matched conversions containing comments are reported without a fix or suggestion.
+Use an explicit rounding operation when discarding precision is intentional. Fixes and suggestions are withheld when they would remove comments.

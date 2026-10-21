@@ -1,7 +1,49 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		['function f() {return(/* keep */ key) in object;}', 'function f() {return Object.hasOwn(object, (/* keep */ key));}'],
+		['function f() {throw(/* keep */ key) in object;}', 'function f() {throw Object.hasOwn(object, (/* keep */ key));}'],
+		['function* f() {yield(/* keep */ key) in object;}', 'function* f() {yield Object.hasOwn(object, (/* keep */ key));}'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{
+			messageId: 'no-computed-property-existence-check/error',
+			suggestions: [{messageId: 'no-computed-property-existence-check/suggestion', output}],
+		}],
+	})),
+});
+
+nodeTest('property existence suggestions preserve compact keyword behavior', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'no-computed-property-existence-check': rule}}},
+		rules: {'unicorn/no-computed-property-existence-check': 'error'},
+	};
+	for (const code of [
+		'function read() {return(/* keep */ key) in object;} read();',
+		'function read() {throw(/* keep */ key) in object;} try { read(); } catch (error) { error; }',
+		'function* read() {yield(/* keep */ key) in object;} read().next().value;',
+	]) {
+		const {fixed, output, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, false);
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].suggestions.length, 1);
+		const {fix} = messages[0].suggestions[0];
+		const suggested = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		for (const source of [code, suggested]) {
+			t.assert.strictEqual(runInNewContext(source, {key: 'value', object: {value: 1}}), true);
+		}
+	}
+});
 
 const typeAware = code => ({
 	code,
@@ -10,6 +52,52 @@ const typeAware = code => ({
 		parser: typescriptEslintParser,
 		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
 	},
+});
+
+test({
+	valid: [],
+	invalid: [
+		['if (/* Keep this comment. */ object[key]) {}', 'if (/* Keep this comment. */ Object.hasOwn(object, key)) {}'],
+		['if (/* Keep this comment. */ key in object) {}', 'if (/* Keep this comment. */ Object.hasOwn(object, key)) {}'],
+		['if (\n// Keep this comment.\nobject[key]) {}', 'if (\n// Keep this comment.\nObject.hasOwn(object, key)) {}'],
+		['if (\n// Keep this comment.\nkey in object) {}', 'if (\n// Keep this comment.\nObject.hasOwn(object, key)) {}'],
+		['if ((/* keep */ object)[key]) {}', 'if (Object.hasOwn((/* keep */ object), key)) {}'],
+		['if (object[(/* keep */ key)]) {}', 'if (Object.hasOwn(object, (/* keep */ key))) {}'],
+		['if (key in (/* keep */ object)) {}', 'if (Object.hasOwn((/* keep */ object), key)) {}'],
+		['if ((/* keep */ key) in object) {}', 'if (Object.hasOwn(object, (/* keep */ key))) {}'],
+		['if (object[(key // keep\r\n)]) {}', 'if (Object.hasOwn(object, (key // keep\r\n))) {}'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{
+			messageId: 'no-computed-property-existence-check/error',
+			suggestions: [{messageId: 'no-computed-property-existence-check/suggestion', output}],
+		}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'if ((/* keep */ object as Record<string, unknown>)[key]) {}',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'no-computed-property-existence-check/error',
+				suggestions: [{
+					messageId: 'no-computed-property-existence-check/suggestion',
+					output: 'if (Object.hasOwn((/* keep */ object as Record<string, unknown>), key)) {}',
+				}],
+			}],
+		},
+		...[
+			'if ((/* keep */ object) /* do not lose */ [key]) {}',
+			'if (object[(/* keep */ key) /* do not lose */]) {}',
+			'if ((/* keep */ key) /* do not lose */ in object) {}',
+		].map(code => ({
+			code,
+			errors: [{messageId: 'no-computed-property-existence-check/error', suggestions: []}],
+		})),
+	],
 });
 
 test.snapshot({

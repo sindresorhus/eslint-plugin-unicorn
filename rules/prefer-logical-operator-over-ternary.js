@@ -10,6 +10,7 @@ import {
 	getLogicalExpressionChildText,
 	getNegatedExpressionText,
 	getMemberAccessOperatorRange,
+	getParenthesizedRange,
 	isSameReference,
 	isBoolean,
 	isParenthesized,
@@ -20,6 +21,7 @@ import {
 	getOutermostTypeScriptExpression,
 	unwrapTypeScriptExpression,
 	withTypeInformation,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {getNullishTest, isSameNode} from './shared/nullish-check.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
@@ -230,8 +232,8 @@ function getBooleanTernaryProblem(conditionalExpression, context) {
 	};
 
 	if (
-		sourceCode.getCommentsInside(conditionalExpression).length === 0
-		&& canFix
+		canFix
+		&& !wouldRemoveComments(context, conditionalExpression, [test, right].map(node => getParenthesizedRange(node, context)))
 	) {
 		const coerceLeft = !negateLeft && !isBooleanTernaryExpression(unwrapConstantAliases(test, context), context);
 		problem.fix = fixer => fix({
@@ -268,7 +270,7 @@ function getProblem({
 	operators = ['??', '||'],
 }) {
 	// The suggestion rebuilds the expression from `left`/`right` only, so it would drop any comment elsewhere in the ternary. Report without a suggestion in that case.
-	if (context.sourceCode.getCommentsInside(conditionalExpression).length > 0) {
+	if (wouldRemoveComments(context, conditionalExpression, [left, right].map(node => getParenthesizedRange(node, context)))) {
 		return {
 			node: conditionalExpression,
 			messageId: MESSAGE_ID_ERROR,

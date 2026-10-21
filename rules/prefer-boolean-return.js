@@ -3,11 +3,13 @@ import {
 	getLastTrailingCommentOnSameLine,
 	getNegatedExpressionText,
 	getNextNode,
+	getParenthesizedRange,
 	getParenthesizedText,
 	getPreviousNode,
 	isGlobalBooleanCall,
 	isGlobalNameAvailable,
 	unwrapTypeScriptExpression,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-boolean-return';
@@ -137,8 +139,7 @@ const create = context => {
 
 		const problem = {node, messageId: MESSAGE_ID};
 		const shouldNegateTest = !consequentValue;
-		const hasComments = sourceCode.getCommentsInside(node).length > 0
-			|| sourceCode.getCommentsInside(alternate).length > 0
+		const hasComments = wouldRemoveComments(context, replacementRange, [getParenthesizedRange(node.test, context)])
 			|| getLastTrailingCommentOnSameLine(context, alternate);
 		const isNeedsGlobalBoolean = !shouldNegateTest
 			&& !isRuntimeBooleanExpression(node.test, context)
@@ -182,7 +183,7 @@ const create = context => {
 			return;
 		}
 
-		const problem = getProblem(
+		return getProblem(
 			node,
 			consequent,
 			alternate,
@@ -191,14 +192,6 @@ const create = context => {
 				sourceCode.getRange(alternate)[1],
 			],
 		);
-
-		if (!problem?.fix) {
-			return problem;
-		}
-
-		return sourceCode.commentsExistBetween(node, alternate)
-			? {node, messageId: MESSAGE_ID}
-			: problem;
 	}
 
 	context.on('IfStatement', node => {

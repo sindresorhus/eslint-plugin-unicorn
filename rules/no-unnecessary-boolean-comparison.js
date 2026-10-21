@@ -2,8 +2,10 @@ import {isBooleanLiteral, isFunction} from './ast/index.js';
 import {replaceNodeWithExpression} from './fix/index.js';
 import {
 	getNegatedExpressionText,
+	getParenthesizedRange,
 	isBoolean,
 	getVisitorChildNodes,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-unnecessary-boolean-comparison';
@@ -53,8 +55,6 @@ const isSafeKnownBooleanExpression = (node, context) =>
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	const {sourceCode} = context;
-
 	context.on('BinaryExpression', node => {
 		const booleanComparison = getBooleanComparison(node);
 		if (!booleanComparison) {
@@ -71,7 +71,7 @@ const create = context => {
 			messageId: MESSAGE_ID,
 		};
 
-		if (sourceCode.getCommentsInside(node).length > 0) {
+		if (wouldRemoveComments(context, node, [getParenthesizedRange(expression, context)])) {
 			return problem;
 		}
 

@@ -197,6 +197,9 @@ Message:
 > 2 | foo = 1; // Keep this comment.
     | ^^^^^^^ Combine this initialization with the preceding declaration.
 
+Output:
+  1 | let foo = 1; // Keep this comment.
+
 `;
 
 exports[`no-immediate-mutation > invalid(19): let foo; // Keep this comment.\nfoo = 1; 1`] = `
@@ -212,6 +215,10 @@ Message:
   1 | let foo; // Keep this comment.
 > 2 | foo = 1;
     | ^^^^^^^ Combine this initialization with the preceding declaration.
+
+Output:
+  1 |  // Keep this comment.
+  2 | let foo = 1;
 
 `;
 
@@ -264,6 +271,9 @@ Message:
 > 2 | /* Keep this comment. */ foo = 1;
     |                          ^^^^^^^ Combine this initialization with the preceding declaration.
 
+Output:
+  1 | /* Keep this comment. */ let foo = 1;
+
 `;
 
 exports[`no-immediate-mutation > invalid(22): let foo;\nfoo = /* Keep this comment. */ 1; 1`] = `
@@ -295,6 +305,9 @@ Message:
   1 | let foo;
 > 2 | foo = getValue(/* Keep this comment. */);
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
+
+Suggestion 1/1: Combine the initialization and declaration.:
+  1 | let foo = getValue(/* Keep this comment. */);
 
 `;
 

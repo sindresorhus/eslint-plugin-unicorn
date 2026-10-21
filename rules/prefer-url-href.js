@@ -1,4 +1,5 @@
 import {isCallExpression, isMethodCall} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	isGlobalIdentifier,
 	isUrl,
@@ -6,14 +7,14 @@ import {
 	isParenthesized,
 	needsSemicolon,
 	getMemberExpressionObjectText,
+	getParenthesizedRange,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-url-href';
 const messages = {
 	[MESSAGE_ID]: 'Prefer `URL#href` over stringifying a `URL`.',
 };
-
-const canFix = (node, context) => context.sourceCode.getCommentsInside(node).length === 0;
 
 const getHrefText = (node, context) => {
 	const text = `${getMemberExpressionObjectText(node, context)}.href`;
@@ -40,19 +41,20 @@ const create = context => {
 				node: callExpression.callee.property,
 				messageId: MESSAGE_ID,
 			};
+			const range = [
+				context.sourceCode.getRange(callExpression.callee.property)[0],
+				context.sourceCode.getRange(callExpression)[1],
+			];
 
 			if (
-				canFix(callExpression, context)
+				!wouldRemoveComments(context, range)
 				&& !isParenthesized(callExpression.callee, context)
 				&& isFreshUrl(callExpression.callee.object, context)
 			) {
-				problem.fix = fixer => fixer.replaceTextRange(
-					[
-						context.sourceCode.getRange(callExpression.callee.property)[0],
-						context.sourceCode.getRange(callExpression)[1],
-					],
-					'href',
-				);
+				problem.fix = function * (fixer) {
+					yield fixer.replaceTextRange(range, 'href');
+					yield fixSpaceAroundKeyword(fixer, callExpression, context);
+				};
 			}
 
 			return problem;
@@ -80,10 +82,13 @@ const create = context => {
 		};
 
 		if (
-			canFix(callExpression, context)
+			!wouldRemoveComments(context, callExpression, [getParenthesizedRange(argument, context)])
 			&& isFreshUrl(argument, context)
 		) {
-			problem.fix = fixer => fixer.replaceText(callExpression, getHrefText(argument, context));
+			problem.fix = function * (fixer) {
+				yield fixSpaceAroundKeyword(fixer, callExpression, context);
+				yield fixer.replaceText(callExpression, getHrefText(argument, context));
+			};
 		}
 
 		return problem;

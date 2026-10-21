@@ -1,6 +1,75 @@
-import {getTester} from './utils/test.js';
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
+import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		['const first = (await getArray(/* keep */))[0];', 'const [first] = await getArray(/* keep */);'],
+		['const property = (/* keep */ await getObject()).property;', 'const {property} = /* keep */ await getObject();'],
+		['const second = (await Promise.resolve([1, /* keep */ 2]))[1];', 'const [, second] = await Promise.resolve([1, /* keep */ 2]);'],
+		['const property = (await {property: /* keep */ 1}).property;', 'const {property} = await {property: /* keep */ 1};'],
+		['const first = (await /* keep */ getArray())[0];', 'const [first] = await /* keep */ getArray();'],
+		['const property = (await getObject() /* keep */).property;', 'const {property} = await getObject() /* keep */;'],
+		['const first = (// keep\r\n  await getArray())[0];', 'const [first] = // keep\r\n  await getArray();'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const first = (await (getArray() as /* keep */ number[]))[0];',
+			output: 'const [first] = await (getArray() as /* keep */ number[]);',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		...[
+			'const property = (await getObject())./* keep */property;',
+			'const first = (await getArray())[0 /* keep */];',
+			'const first = (await {/* keep */ 0: 1, length: 1})[0];',
+		].map(code => ({code, errors: 1})),
+		{
+			code: 'const first = (await [/* keep */ 1])[0 as /* removed */ const];',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+	],
+});
+
+nodeTest('commented await inputs retain their values and are evaluated once', async t => {
+	const linter = new Linter();
+	for (const [declaration, name, value] of [
+		['const first = (await getValue(/* keep */))[0];', 'first', [1, 2]],
+		['const property = (/* keep */ await getValue()).property;', 'property', {property: 1}],
+	]) {
+		const code = `async function run() { ${declaration} events.push(['result', ${name}]); } run();`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, {
+			plugins: {unicorn: {rules: {'no-await-expression-member': rule}}},
+			rules: {'unicorn/no-await-expression-member': 'error'},
+		});
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.ok(output.includes('/* keep */'));
+		for (const source of [code, output]) {
+			const events = [];
+			// eslint-disable-next-line no-await-in-loop -- Verify the original and fixed code independently.
+			await runInNewContext(source, {
+				events,
+				async getValue() {
+					events.push('input');
+					await Promise.resolve();
+					events.push('resolve');
+					return value;
+				},
+			});
+			t.assert.strictEqual(JSON.stringify(events), '["input","resolve",["result",1]]');
+		}
+	}
+});
 
 test.snapshot({
 	valid: [

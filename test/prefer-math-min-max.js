@@ -1,9 +1,74 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import {outdent} from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 const MESSAGE_ID = 'prefer-math-min-max';
 const SUGGESTION_ID = 'replace-with-math-min-max';
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['(/* keep */ height) > 50 ? 50 : height;', 'Math.min((/* keep */ height), 50);', 'min'],
+			['height < (50 /* keep */) ? 50 : height;', 'Math.max(height, (50 /* keep */));', 'max'],
+		].map(([code, output, method]) => ({code, errors: [{messageId: MESSAGE_ID, suggestions: [{messageId: SUGGESTION_ID, data: {method}, output}]}]})),
+	],
+});
+
+test({
+	valid: [
+		'const value = 1n; (/* keep */ value) > 0 ? value : 0;',
+	],
+	invalid: [
+		...[
+			['((height /* keep */)) >= 50 ? 50 : height;', 'Math.min(((height /* keep */)), 50);', 'min'],
+			['(/* left */ height) > (50 /* right */) ? height : 50;', 'Math.max((/* left */ height), (50 /* right */));', 'max'],
+			['height < (50 // keep\r\n) ? height : 50;', 'Math.min(height, (50 // keep\r\n));', 'min'],
+			['(/* keep */ first, height) < 50 ? 50 : (first, height);', 'Math.max((/* keep */ first, height), 50);', 'max'],
+		].map(([code, output, method]) => ({code, errors: [{messageId: MESSAGE_ID, suggestions: [{messageId: SUGGESTION_ID, data: {method}, output}]}]})),
+		{
+			code: '(height as /* keep */ number) > 50 ? 50 : height;',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: MESSAGE_ID, suggestions: [{messageId: SUGGESTION_ID, data: {method: 'min'}, output: 'Math.min(height as /* keep */ number, 50);'}]}],
+		},
+		...[
+			'(height /* discard */ > 50) ? 50 : height;',
+			'(/* discard */ height > 50) ? 50 : height;',
+			'height > 50 ? 50 : (/* discard */ height);',
+			'(/* keep */ read()) > 50 ? 50 : read();',
+		].map(code => ({code, errors: [{messageId: MESSAGE_ID, suggestions: []}]})),
+	],
+});
+
+nodeTest('comment-preserving min/max rewrites keep NaN and signed-zero changes manual', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-math-min-max': rule}}},
+		rules: {'unicorn/prefer-math-min-max': 'error'},
+	};
+	for (const [code, expected, cases] of [
+		['(/* keep */ value) > limit ? value : limit;', 'Math.max((/* keep */ value), limit);', [[5, 0, 5, 5], [-5, 0, 0, 0], [NaN, 0, 0, NaN]]],
+		['(/* keep */ value) < limit ? value : limit;', 'Math.min((/* keep */ value), limit);', [[5, 0, 0, 0], [-5, 0, -5, -5], [-0, 0, 0, -0]]],
+	]) {
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(fixed, false);
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].fix, undefined);
+		t.assert.strictEqual(messages[0].suggestions?.length, 1);
+		const {range, text} = messages[0].suggestions[0].fix;
+		const suggested = code.slice(0, range[0]) + text + code.slice(range[1]);
+		t.assert.strictEqual(suggested, expected);
+		t.assert.deepStrictEqual(linter.verify(suggested, config), []);
+		for (const [value, limit, originalResult, suggestedResult] of cases) {
+			t.assert.strictEqual(runInNewContext(code, {value, limit}), originalResult);
+			t.assert.strictEqual(runInNewContext(suggested, {value, limit}), suggestedResult);
+		}
+	}
+});
 
 // `NaN` and signed zero give a different result, so these are only suggested
 test({

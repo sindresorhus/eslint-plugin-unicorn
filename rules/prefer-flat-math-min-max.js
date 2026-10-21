@@ -1,5 +1,6 @@
 import {isMethodCall} from './ast/index.js';
-import {getParenthesizedText} from './utils/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
+import {getParenthesizedRange, getParenthesizedText, wouldRemoveComments} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-flat-math-min-max';
 const messages = {
@@ -70,17 +71,20 @@ const create = context => {
 				method,
 			},
 			* fix(fixer, {abort}) {
-				if (sourceCode.getCommentsInside(callExpression).length > 0) {
+				const flattenedArguments = getFlattenedArguments(callExpression, method);
+				const preservedRanges = [callExpression.callee, ...flattenedArguments.map(argument => getParenthesizedRange(argument, context))];
+				if (wouldRemoveComments(context, callExpression, preservedRanges)) {
 					return abort();
 				}
 
 				const calleeText = sourceCode.getText(callExpression.callee);
-				const argumentsText = getFlattenedArguments(callExpression, method)
+				const argumentsText = flattenedArguments
 					// Keep the parentheses, a sequence expression is only one argument while it has them
 					.map(argument => getParenthesizedText(argument, context))
 					.join(', ');
 
 				yield fixer.replaceText(callExpression, `${calleeText}(${argumentsText})`);
+				yield fixSpaceAroundKeyword(fixer, callExpression, context);
 			},
 		};
 	});

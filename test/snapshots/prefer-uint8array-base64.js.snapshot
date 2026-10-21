@@ -448,6 +448,9 @@ Message:
 > 1 | bytes.toBase64(/* keep */).replaceAll('=', '')
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer native \`toBase64()\` options over manual base64 postprocessing.
 
+Output:
+  1 | bytes.toBase64(/* keep */{omitPadding: true})
+
 `;
 
 exports[`prefer-uint8array-base64 > invalid(22): (Buffer.from(string, 'base64') as Buffer).toString() 1`] = `

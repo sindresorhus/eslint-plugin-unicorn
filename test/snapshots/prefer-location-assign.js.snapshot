@@ -103,6 +103,9 @@ Message:
 > 1 | location.href = url /* comment */;
     |          ^^^^ Prefer \`Location#assign()\` over assigning to \`Location#href\`.
 
+Output:
+  1 | location.assign(url) /* comment */;
+
 `;
 
 exports[`prefer-location-assign > invalid(2): window.location.href = url; 1`] = `

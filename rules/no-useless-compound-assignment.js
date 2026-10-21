@@ -1,6 +1,11 @@
 import {isNumericLiteral} from './ast/index.js';
 import {removeStatement} from './fix/index.js';
-import {getParenthesizedText, isReferenceContext} from './utils/index.js';
+import {
+	getParenthesizedRange,
+	getParenthesizedText,
+	isReferenceContext,
+	wouldRemoveComments,
+} from './utils/index.js';
 
 /**
 @import * as ESLint from 'eslint';
@@ -54,8 +59,9 @@ const create = context => {
 			= parent.type === 'ExpressionStatement'
 				&& ['Program', 'BlockStatement', 'StaticBlock', 'SwitchCase'].includes(parent.parent.type);
 
-		// A comment inside the removed or replaced code can't be preserved, so report without a suggestion in that case. When the whole statement is removed, that includes a trailing comment before the `;`.
-		if (isReferenceContext(node) || sourceCode.getCommentsInside(isRemovableStatement ? parent : node).length > 0) {
+		const preservedRanges = isRemovableStatement ? [] : [getParenthesizedRange(node.left, context)];
+		// Only replacements preserve comments in the left-hand side. Removing the whole statement also removes a trailing comment before the `;`.
+		if (isReferenceContext(node) || wouldRemoveComments(context, isRemovableStatement ? parent : node, preservedRanges)) {
 			return {node, messageId: MESSAGE_ID_ERROR, data};
 		}
 

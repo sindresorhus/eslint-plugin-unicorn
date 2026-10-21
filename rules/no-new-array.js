@@ -2,6 +2,7 @@ import {
 	isParenthesized,
 	needsSemicolon,
 	getStaticValueForControlFlow,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {isNewExpression} from './ast/index.js';
 
@@ -29,12 +30,12 @@ function getProblem(context, node) {
 	};
 
 	const {sourceCode} = context;
-	// Every replacement is built from the argument alone, so a comment inside the call would be lost
-	if (sourceCode.getCommentsInside(node).length > 0) {
+	const [argumentNode] = node.arguments;
+	// Every replacement is built from the argument alone, so comments outside it would be lost
+	if (wouldRemoveComments(context, node, [argumentNode])) {
 		return problem;
 	}
 
-	const [argumentNode] = node.arguments;
 	let text = sourceCode.getText(argumentNode);
 	if (isParenthesized(argumentNode, context)) {
 		text = `(${text})`;

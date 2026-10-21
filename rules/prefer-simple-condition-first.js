@@ -7,6 +7,7 @@ import {
 	isBooleanContext,
 	isTypeScriptExpressionWrapper,
 	unwrapTypeScriptExpression,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-simple-condition-first';
@@ -158,7 +159,7 @@ function hasTypeScriptWrappedLogicalExpression(node, operator) {
 
 function hasCommentsThatPreventFix(node, operands, context) {
 	const {sourceCode} = context;
-	if (sourceCode.getCommentsInside(node).length > 0) {
+	if (wouldRemoveComments(context, node, operands.map(operand => getParenthesizedRange(operand, context)))) {
 		return true;
 	}
 

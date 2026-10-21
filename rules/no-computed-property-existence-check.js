@@ -1,6 +1,7 @@
 import {
 	getCallArgumentText,
 	getOutermostChainAndTypeScriptExpression,
+	getParenthesizedRange,
 	hasOptionalChainElement,
 	isBoolean,
 	isBooleanContext,
@@ -12,6 +13,7 @@ import {
 	unwrapChainAndTypeScriptExpression,
 	wouldRemoveComments,
 } from './utils/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 
 // `map[key]` reads a property of the `Map` object, not an entry, and `string[index]` is a character read, so for either one `Object.hasOwn()` is not a replacement for the computed access.
 const isKnownNonObjectReceiver = (node, context) =>
@@ -53,10 +55,6 @@ function getObjectHasOwnText(object, property, context) {
 	return `Object.hasOwn(${getCallArgumentText(object, context)}, ${getCallArgumentText(property, context)})`;
 }
 
-function hasLeadingComments(node, context) {
-	return context.sourceCode.getCommentsBefore(node).length > 0;
-}
-
 function getSuggestion(node, object, property, context) {
 	if (
 		object.type === 'Super'
@@ -70,9 +68,7 @@ function getSuggestion(node, object, property, context) {
 			node.type === 'BinaryExpression'
 			&& (!isSimpleInSuggestionOperand(object) || !isSimpleInSuggestionOperand(property))
 		)
-		|| hasLeadingComments(object, context)
-		|| hasLeadingComments(property, context)
-		|| wouldRemoveComments(context, node, [object, property])
+		|| wouldRemoveComments(context, node, [object, property].map(operand => getParenthesizedRange(operand, context)))
 	) {
 		return;
 	}
@@ -80,7 +76,10 @@ function getSuggestion(node, object, property, context) {
 	return [
 		{
 			messageId: MESSAGE_ID_SUGGESTION,
-			fix: fixer => fixer.replaceText(node, getObjectHasOwnText(object, property, context)),
+			* fix(fixer) {
+				yield fixSpaceAroundKeyword(fixer, node, context);
+				yield fixer.replaceText(node, getObjectHasOwnText(object, property, context));
+			},
 		},
 	];
 }

@@ -1,8 +1,135 @@
+import {Buffer} from 'node:buffer';
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		['function f() {return(Buffer).from(getText(/* keep */), "base64");}', 'function f() {return Uint8Array.fromBase64(getText(/* keep */));}'],
+		['function f() {throw(Buffer).from(getText(/* keep */), "base64");}', 'function f() {throw Uint8Array.fromBase64(getText(/* keep */));}'],
+		['typeof(Buffer).from(getText(/* keep */), "base64url");', 'typeof Uint8Array.fromBase64(getText(/* keep */), {alphabet: \'base64url\'});'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{messageId: 'prefer-uint8array-base64/error', suggestions: [{messageId: 'prefer-uint8array-base64/suggestion', output}]}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'getBytes(/* keep */).toBase64().replaceAll(\'=\', \'\');',
+			output: 'getBytes(/* keep */).toBase64({omitPadding: true});',
+			errors: [{messageId: 'prefer-uint8array-base64/options'}],
+		},
+		...[
+			['Buffer.from(getText(/* keep */), \'base64\');', 'Uint8Array.fromBase64(getText(/* keep */));'],
+			['Buffer.from((/* keep */ text), \'base64url\');', 'Uint8Array.fromBase64((/* keep */ text), {alphabet: \'base64url\'});'],
+		].map(([code, output]) => ({code, errors: [{messageId: 'prefer-uint8array-base64/error', suggestions: [{messageId: 'prefer-uint8array-base64/suggestion', output}]}]})),
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['bytes.toBase64(\r\n  // keep\r\n).replaceAll(\'=\', \'\');', 'bytes.toBase64(\r\n  // keep\r\n{omitPadding: true});'],
+			['(/* keep */ bytes.toBase64()).replaceAll(\'=\', \'\');', '(/* keep */ bytes.toBase64({omitPadding: true}));'],
+		].map(([code, output]) => ({code, output, errors: [{messageId: 'prefer-uint8array-base64/options'}]})),
+		{
+			code: '(bytes as /* keep */ Uint8Array).toBase64().replaceAll(\'=\', \'\');',
+			output: '(bytes as /* keep */ Uint8Array).toBase64({omitPadding: true});',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-uint8array-base64/options'}],
+		},
+		{
+			code: 'Buffer.from((text as /* keep */ string), \'base64\');',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'prefer-uint8array-base64/error',
+				suggestions: [{messageId: 'prefer-uint8array-base64/suggestion', output: 'Uint8Array.fromBase64((text as /* keep */ string));'}],
+			}],
+		},
+		{
+			code: 'Buffer.from(getText(\r\n  // keep\r\n), \'base64url\');',
+			errors: [{
+				messageId: 'prefer-uint8array-base64/error',
+				suggestions: [{messageId: 'prefer-uint8array-base64/suggestion', output: 'Uint8Array.fromBase64(getText(\r\n  // keep\r\n), {alphabet: \'base64url\'});'}],
+			}],
+		},
+		...[
+			'Buffer./* keep */from(text, \'base64\');',
+			'Buffer.from(text, (/* keep */ \'base64url\'));',
+		].map(code => ({code, errors: [{messageId: 'prefer-uint8array-base64/error', suggestions: []}]})),
+	],
+});
+
+// eslint-disable-next-line node-test/no-skip-test -- Uint8Array#toBase64 is unavailable on older supported Node.js versions.
+nodeTest('commented base64 option fixes preserve encoding and evaluate the receiver once', {skip: !('toBase64' in Uint8Array.prototype)}, t => {
+	const linter = new Linter();
+	for (const [code, expected] of [
+		['getBytes(/* keep */).toBase64().replaceAll(\'=\', \'\')', '+/8'],
+		['getBytes(/* keep */).toBase64().replaceAll(\'+\', \'-\').replaceAll(\'/\', \'_\').replaceAll(\'=\', \'\')', '-_8'],
+	]) {
+		const {output, fixed, messages} = linter.verifyAndFix(code, {
+			plugins: {unicorn: {rules: {'prefer-uint8array-base64': rule}}},
+			rules: {'unicorn/prefer-uint8array-base64': 'error'},
+		});
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.ok(output.includes('/* keep */'));
+		for (const source of [code, output]) {
+			let evaluations = 0;
+			const result = runInNewContext(source, {
+				getBytes() {
+					evaluations++;
+					return new Uint8Array([251, 255]);
+				},
+			});
+			t.assert.strictEqual(evaluations, 1);
+			t.assert.strictEqual(result, expected);
+		}
+	}
+});
+
+// eslint-disable-next-line node-test/no-skip-test -- Uint8Array.fromBase64 is unavailable on older supported Node.js versions.
+nodeTest('commented base64 inputs decode once and result type changes remain suggestions', {skip: !('fromBase64' in Uint8Array)}, t => {
+	const linter = new Linter();
+	for (const [encoding, text, expected] of [['base64', 'Zm9v', [102, 111, 111]], ['base64url', '-_8', [251, 255]]]) {
+		const code = `function decode() {return(Buffer).from(getText(/* keep */), '${encoding}');} decode();`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, {
+			plugins: {unicorn: {rules: {'prefer-uint8array-base64': rule}}},
+			rules: {'unicorn/prefer-uint8array-base64': 'error'},
+		});
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(fixed, false);
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].suggestions?.length, 1);
+		const {fix} = messages[0].suggestions[0];
+		const suggested = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		t.assert.ok(suggested.includes('/* keep */'));
+		for (const source of [code, suggested]) {
+			let evaluations = 0;
+			const result = runInNewContext(source, {
+				Buffer,
+				Uint8Array,
+				getText() {
+					evaluations++;
+					return text;
+				},
+			});
+			t.assert.strictEqual(evaluations, 1);
+			t.assert.deepStrictEqual([...result], expected);
+			t.assert.strictEqual(Buffer.isBuffer(result), source === code);
+		}
+	}
+});
 
 // Restricting `toString('base64')` by receiver type needs type information. Use the raw TypeScript parser with `projectService` (the shared `parsers.typescript` injects `project: []`, which conflicts with `projectService`).
 const typeAware = code => ({

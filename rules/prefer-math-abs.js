@@ -8,9 +8,11 @@ import {
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getComparisonOperandText,
+	getParenthesizedRange,
 	getParenthesizedText,
 	isSameReference,
 	unwrapTypeScriptExpression,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-math-abs';
@@ -231,18 +233,14 @@ function getLessComparison(node, context) {
 	};
 }
 
-function hasCommentsInside(node, context) {
-	return context.sourceCode.getCommentsInside(node).length > 0;
-}
-
-function createProblem(node, context, fix) {
+function createProblem(node, context, fix, preservedNodes) {
 	const problem = {
 		node,
 		messageId: MESSAGE_ID,
 	};
 
 	// `Math.abs()` coerces its argument and normalizes `-0` to `+0`, where the ternary returns the operand untouched, so the rewrite can change the value. That makes it a suggestion only.
-	if (fix && !hasCommentsInside(node, context)) {
+	if (fix && !wouldRemoveComments(context, node, preservedNodes.map(node => getParenthesizedRange(node, context)))) {
 		problem.suggest = [
 			{messageId: MESSAGE_ID_SUGGESTION, fix},
 		];
@@ -348,7 +346,7 @@ const create = context => {
 			}
 			: undefined;
 
-		return createProblem(conditionalExpression, context, fix);
+		return createProblem(conditionalExpression, context, fix, [value]);
 	});
 
 	context.on('LogicalExpression', logicalExpression => {
@@ -373,7 +371,7 @@ const create = context => {
 			}
 			: undefined;
 
-		return createProblem(logicalExpression, context, fix);
+		return createProblem(logicalExpression, context, fix, [value, threshold]);
 	});
 };
 

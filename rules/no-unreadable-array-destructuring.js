@@ -4,6 +4,7 @@ import {
 	isKnownNonIndexedCollection,
 	isParenthesized,
 	getParentPattern,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 
@@ -73,18 +74,18 @@ const create = context => {
 		) {
 			const [element] = nonNullElements;
 			const isSlice = element.type === 'RestElement';
+			const variable = isSlice ? element.argument : element;
 
-			// The pattern is replaced by the variable alone, so a comment inside the pattern and the type annotation on it would be lost. Destructuring reads through the iterator protocol while `[…]` and `.slice(…)` read by index, so the rewrite needs an indexable source. A rest element always creates an `Array`, but `.slice()` on a typed array returns a typed array.
+			// The pattern is replaced by the variable alone, so comments outside the copied binding and the type annotation on the pattern would be lost. Destructuring reads through the iterator protocol while `[…]` and `.slice(…)` read by index, so the rewrite needs an indexable source. A rest element always creates an `Array`, but `.slice()` on a typed array returns a typed array.
 			if (
 				element.type !== 'AssignmentPattern'
 				&& !node.typeAnnotation
 				&& !isKnownNonIndexedCollection(parent.init, context)
 				&& !(isSlice && isKnownNonArray(parent.init, context))
-				&& sourceCode.getCommentsInside(node).length === 0
+				&& !wouldRemoveComments(context, node, [variable])
 			) {
 				problem.fix = function * (fixer) {
 					const index = elements.indexOf(element);
-					const variable = isSlice ? element.argument : element;
 
 					yield fixer.replaceText(node, sourceCode.getText(variable));
 

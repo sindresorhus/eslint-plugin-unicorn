@@ -1,7 +1,134 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['((value /* keep */)) instanceof Array;', 'Array.isArray(((value /* keep */)));'],
+			['(value // keep\r\n) instanceof Array;', 'Array.isArray((value // keep\r\n));'],
+			['foo()\nread(/* keep */) instanceof Function instanceof Object;', 'foo()\n;(typeof read(/* keep */) === \'function\') instanceof Object;'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+		{
+			code: '(value as /* keep */ unknown) instanceof Function;',
+			output: 'typeof (value as /* keep */ unknown) === \'function\';',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: '(value satisfies /* keep */ unknown[]) instanceof Array;',
+			output: 'Array.isArray((value satisfies /* keep */ unknown[]));',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'read(/* keep */) instanceof Error;',
+			output: 'Error.isError(read(/* keep */));',
+			options: [{useErrorIsError: true}],
+			errors: 1,
+		},
+		...[
+			'read(/* keep */) instanceof (/* discard */ Array);',
+			'read(/* keep */) /* outside */ instanceof Function;',
+			'read(/* keep */) instanceof (Function /* discard */);',
+		].map(code => ({code, errors: 1})),
+		{
+			code: 'read(/* keep */) instanceof (/* discard */ Number);',
+			errors: [{messageId: 'no-instanceof-builtins', suggestions: []}],
+		},
+	],
+});
+
+test.vue({
+	valid: [],
+	invalid: [
+		{
+			code: '<template><div v-if="read(/* keep */) instanceof Array"></div></template>',
+			output: '<template><div v-if="Array.isArray(read(/* keep */))"></div></template>',
+			errors: 1,
+		},
+		{
+			code: '<template><div v-if="expected === (/* keep */ value) instanceof Function"></div></template>',
+			output: '<template><div v-if="expected === (typeof (/* keep */ value) === \'function\')"></div></template>',
+			errors: 1,
+		},
+	],
+});
+
+nodeTest('comment-preserving instanceof rewrites evaluate their operand once', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'no-instanceof-builtins': rule}}},
+		rules: {'unicorn/no-instanceof-builtins': 'error'},
+	};
+	for (const constructor of ['Array', 'Function']) {
+		const code = `read(/* keep */) instanceof ${constructor};`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(output.split('/* keep */').length, 2);
+		for (const value of [[], {}, () => {}, 0, undefined]) {
+			for (const source of [code, output]) {
+				let calls = 0;
+				const result = runInNewContext(source, {
+					Array,
+					Function,
+					read() {
+						calls++;
+						return value;
+					},
+				});
+				t.assert.strictEqual(result, constructor === 'Array' ? Array.isArray(value) : typeof value === 'function');
+				t.assert.strictEqual(calls, 1);
+			}
+		}
+	}
+});
+
+nodeTest('comment-preserving primitive wrapper checks remain suggestions', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'no-instanceof-builtins': rule}}},
+		rules: {'unicorn/no-instanceof-builtins': 'error'},
+	};
+	const code = 'read(/* keep */) instanceof Number;';
+	const {output, fixed, messages} = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(output, code);
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].suggestions?.length, 1);
+	const {range, text} = messages[0].suggestions[0].fix;
+	const suggested = code.slice(0, range[0]) + text + code.slice(range[1]);
+	t.assert.strictEqual(suggested, 'typeof read(/* keep */) === \'number\';');
+	const read = () => 1;
+	t.assert.strictEqual(runInNewContext(code, {read}), false);
+	t.assert.strictEqual(runInNewContext(suggested, {read}), true);
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'read(/* keep */ value) instanceof Array;',
+			output: 'Array.isArray(read(/* keep */ value));',
+			errors: 1,
+		},
+		{
+			code: '(/* keep */ value) instanceof Function;',
+			output: 'typeof (/* keep */ value) === \'function\';',
+			errors: 1,
+		},
+		{
+			code: 'object./* keep */value instanceof Number;',
+			errors: [{messageId: 'no-instanceof-builtins', suggestions: [{messageId: 'switch-to-type-of', output: 'typeof object./* keep */value === \'number\';'}]}],
+		},
+	],
+});
 
 test({
 	valid: [],
@@ -351,7 +478,7 @@ test.snapshot({
 	],
 });
 
-// A comment on an operand would be relocated by the fix
+// A comment between the operands would be relocated by the fix
 test({
 	valid: [],
 	invalid: [

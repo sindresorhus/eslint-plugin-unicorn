@@ -69,6 +69,9 @@ Message:
 > 1 | !/* comment */(a === b && c === d)
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer the opposite comparisons instead of negating the whole logical expression.
 
+Output:
+  1 | /* comment */(a !== b || c !== d)
+
 `;
 
 exports[`no-negated-comparison > invalid(11): !(a /* comment */ === b && c === d) 1`] = `

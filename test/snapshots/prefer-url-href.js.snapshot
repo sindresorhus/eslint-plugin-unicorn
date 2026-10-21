@@ -520,6 +520,9 @@ Message:
 > 1 | new URL(/* comment */ value).toString()
     |                              ^^^^^^^^ Prefer \`URL#href\` over stringifying a \`URL\`.
 
+Output:
+  1 | new URL(/* comment */ value).href
+
 `;
 
 exports[`prefer-url-href > invalid(38): String(/* comment */ new URL(value)) 1`] = `

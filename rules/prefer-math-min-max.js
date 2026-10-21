@@ -2,7 +2,13 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isBigIntLiteral, isCallExpression, isNewExpression} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
-import {getCallArgumentText, getVisitorChildNodes, isBigInt} from './utils/index.js';
+import {
+	getCallArgumentText,
+	getParenthesizedRange,
+	getVisitorChildNodes,
+	isBigInt,
+	wouldRemoveComments,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-math-min-max';
 const SUGGESTION_ID = 'replace-with-math-min-max';
@@ -268,7 +274,7 @@ const create = context => {
 		Even number operands differ for `NaN` and signed zero, so only offer a suggestion.
 		*/
 		if (
-			context.sourceCode.getCommentsInside(conditionalExpression).length === 0
+			!wouldRemoveComments(context, conditionalExpression, [left, right].map(node => getParenthesizedRange(node, context)))
 			&& isEffectFreeOperand(left, context.sourceCode.visitorKeys)
 			&& isEffectFreeOperand(right, context.sourceCode.visitorKeys)
 		) {
