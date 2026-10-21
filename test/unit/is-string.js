@@ -308,7 +308,7 @@ test('date formatting requires definite receivers and preserves annotation prece
 	t.assert.deepStrictEqual(getResults(code), [false, false, false, false, false, true, false, false, false]);
 });
 
-for (const name of ['encodeURI', 'encodeURIComponent', 'decodeURI', 'decodeURIComponent', 'atob', 'btoa']) {
+for (const name of ['Date', 'encodeURI', 'encodeURIComponent', 'decodeURI', 'decodeURIComponent', 'atob', 'btoa']) {
 	test(`${name} returns strings for unknown and documented arguments`, t => {
 		const code = [
 			`function run(value, ...values) { inspect(${name}(value)); inspect(${name}()); inspect(${name}(...values)); }`,
@@ -317,6 +317,27 @@ for (const name of ['encodeURI', 'encodeURIComponent', 'decodeURI', 'decodeURICo
 		t.assert.deepStrictEqual(getResults(code), [true, true, true, true]);
 	});
 }
+
+test('Date function results retain aliases chains and annotation precedence', t => {
+	const code = [
+		'/** @param {unknown} value */ function run(value) {',
+		'const text = Date(value); const alias = text; inspect(alias); inspect(alias.trim());',
+		'/** @type {unknown} */ const uncertain = Date(value); inspect(uncertain);',
+		'const native: number = Date(value); inspect(native); inspect(Date(value) as number);',
+		'}',
+	].join('\n');
+	t.assert.deepStrictEqual(getResults(code), [true, true, false, false, false]);
+});
+
+test('Date function inference does not turn constructors timestamp methods or indirect calls into strings', t => {
+	const code = [
+		'function run(value) {',
+		'inspect(new Date(value)); inspect(Date.now()); inspect(Date.parse(value)); inspect(Date.UTC(value));',
+		'inspect(Date?.(value)); inspect(globalThis.Date(value)); inspect(other.Date(value)); inspect(Date.call(undefined, value));',
+		'}',
+	].join('\n');
+	t.assert.deepStrictEqual(getResults(code), [false, false, false, false, false, false, false, false]);
+});
 
 test('URI string results retain aliases chains and annotation precedence', t => {
 	const code = [

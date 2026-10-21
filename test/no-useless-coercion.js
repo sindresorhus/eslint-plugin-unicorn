@@ -11,6 +11,76 @@ const {test, rule} = getTester(import.meta);
 
 const linter = new Linter();
 
+test({
+	valid: [
+		'String(new Date());',
+		'String(Date?.());',
+		'String(globalThis.Date());',
+		'String(other.Date());',
+		'/** @type {unknown} */ const text = Date(); String(text);',
+	],
+	invalid: [
+		['String(Date())', 'Date()'],
+		['String(Date(value))', 'Date(value)'],
+		['String(Date(...values))', 'Date(...values)'],
+		['Number(Date(value).length)', 'Date(value).length'],
+		['Boolean(Date(value).includes("GMT"))', 'Date(value).includes("GMT")'],
+	].map(([expression, replacement]) => ({
+		code: `/** @param {unknown} value */ function run(value, ...values) { return ${expression}; }`,
+		output: `/** @param {unknown} value */ function run(value, ...values) { return ${replacement}; }`,
+		errors: [{messageId: 'no-useless-coercion'}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: 'const text = Date(); const alias = text; String(alias.trim());',
+		output: 'const text = Date(); const alias = text; alias.trim();',
+		errors: [{messageId: 'no-useless-coercion'}],
+	}],
+});
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{filename: 'file.ts', code: 'const text: number = Date(); String(text);'}],
+		invalid: [{
+			filename: 'file.ts',
+			code: 'function run(value: unknown) { return String(Date(value).trim()); }',
+			output: 'function run(value: unknown) { return Date(value).trim(); }',
+			errors: [{messageId: 'no-useless-coercion'}],
+		}],
+	});
+}
+
+nodeTest('Date call coercion removal retains argument evaluation without coercing ignored values', t => {
+	const config = {
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	};
+	for (const [expression, expected] of [
+		['Date()', ['string', []]],
+		['Date({[Symbol.toPrimitive]() { events.push("coerce"); throw new Error("ignored"); }})', ['string', []]],
+		['Date(events.push("first"), ...(function* () { events.push("spread"); yield 1; })())', ['string', ['first', 'spread']]],
+		['Date((() => { events.push("throw"); throw new RangeError("expected"); })())', ['RangeError', ['throw']]],
+	]) {
+		const prefix = 'const events = []; let kind; try { const result = ';
+		const suffix = '; kind = typeof result; } catch (error) { kind = error.name; } JSON.stringify([kind, events]);';
+		const code = `${prefix}String(${expression})${suffix}`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(output, `${prefix}${expression}${suffix}`);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(code), JSON.stringify(expected));
+		t.assert.strictEqual(runInNewContext(output), JSON.stringify(expected));
+		t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
+	}
+});
+
 for (const method of ['toString', 'valueOf']) {
 	test({
 		valid: [
