@@ -78,9 +78,7 @@ test('charCodeAt and explicit codePointAt coercions are numeric', t => {
 
 test('string search hooks can return nonnumeric values', t => {
 	const pattern = {
-		[Symbol.search]() {
-			return 'not a number';
-		},
+		[Symbol.search]: () => 'not a number',
 	};
 	t.assert.strictEqual('text'.search(pattern), 'not a number');
 	const code = [
