@@ -126,14 +126,22 @@ const isNumberTypeAnnotation = node =>
 // `function foo(bar: number) {}`, `const foo: number = …`
 const hasNumberTypeAnnotation = (node, scope) => hasTypeAnnotation(node, scope, isNumberTypeAnnotation);
 
-// A user object can have a nonnumeric `length`. Only infer numeric lengths for function literals, known strings and indexed collections; otherwise use static evaluation or type information.
-const isLengthProperty = (node, context) =>
+const {isTarget: isSizedCollection} = createTypeCheckers({
+	targetTypeNames: new Set(['Map', 'Set', 'ReadonlyMap', 'ReadonlySet']),
+	targetConstructorNames: ['Map', 'Set'],
+	checkClassHeritage: false,
+});
+
+// A user object can have a nonnumeric `length` or `size`. Only infer these properties for known receivers; otherwise use static evaluation or type information.
+const isNumericProperty = (node, context) =>
 	node.type === 'MemberExpression'
 	&& !node.computed
 	&& !node.optional
 	&& node.property.type === 'Identifier'
-	&& node.property.name === 'length'
-	&& (isFunction(node.object) || isString(node.object, context) || isIndexedCollection(node.object, context));
+	&& (
+		(node.property.name === 'length' && (isFunction(node.object) || isString(node.object, context) || isIndexedCollection(node.object, context)))
+		|| (node.property.name === 'size' && isSizedCollection(node.object, context))
+	);
 
 // `+` and `>>>` operators are handled separately
 const mathOperators = new Set(['-', '*', '/', '%', '**', '<<', '>>', '|', '^', '&']);
@@ -149,7 +157,7 @@ export default function isNumber(node, context) {
 		|| isNumberProperty(node)
 		|| isNumberMethodCall(node)
 		|| isGlobalParseToNumberFunctionCall(node)
-		|| isLengthProperty(node, context)
+		|| isNumericProperty(node, context)
 	) {
 		return true;
 	}

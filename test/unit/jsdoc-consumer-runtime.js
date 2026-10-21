@@ -7,6 +7,53 @@ const linter = new Linter();
 
 for (const {name, rule, code, output = code, value, reported = true, suggestion, suggestedValue} of [
 	{
+		name: 'documented Map size comparisons retain duplicate NaN keys and deletion sizes',
+		rule: 'no-subtraction-comparison',
+		code: [
+			'/** @param {Map<number, string>} values */ function run(values) { return values.size - 1 > 0; }',
+			'const values = new Map([[NaN, "first"], [NaN, "second"], [1, "x"]]); JSON.stringify([run(values), values.size, values.delete(NaN), run(values), values.size]);',
+		].join('\n'),
+		output: [
+			'/** @param {Map<number, string>} values */ function run(values) { return values.size > 1; }',
+			'const values = new Map([[NaN, "first"], [NaN, "second"], [1, "x"]]); JSON.stringify([run(values), values.size, values.delete(NaN), run(values), values.size]);',
+		].join('\n'),
+		value: '[true,2,true,false,1]',
+	},
+	{
+		name: 'documented readonly Set sizes retain duplicate signed zero values after coercion removal',
+		rule: 'no-useless-coercion',
+		code: [
+			'/** @param {ReadonlySet<number>} values */ function run(values) { return Number(values.size); }',
+			'const values = new Set([-0, 0, 0]); JSON.stringify([run(values), values.delete(0), run(values)]);',
+		].join('\n'),
+		output: [
+			'/** @param {ReadonlySet<number>} values */ function run(values) { return values.size; }',
+			'const values = new Set([-0, 0, 0]); JSON.stringify([run(values), values.delete(0), run(values)]);',
+		].join('\n'),
+		value: '[1,true,0]',
+	},
+	{
+		name: 'documented Map factory size checks evaluate the factory once',
+		rule: 'prefer-number-properties',
+		code: [
+			'let reads = 0; /** @returns {Map<string, number>} */ function read() { reads++; return new Map([["x", 1]]); }',
+			'JSON.stringify([isNaN(read().size), reads]);',
+		].join('\n'),
+		output: [
+			'let reads = 0; /** @returns {Map<string, number>} */ function read() { reads++; return new Map([["x", 1]]); }',
+			'JSON.stringify([Number.isNaN(read().size), reads]);',
+		].join('\n'),
+		value: '[false,1]',
+	},
+	{
+		name: 'documented string sizes on records retain finite-check coercion until a suggestion is chosen',
+		rule: 'prefer-number-properties',
+		code: '/** @param {{size: string}} value */ function run(value) { return isFinite(value.size); } run({size: "0"});',
+		value: true,
+		suggestion: '/** @param {{size: string}} value */ function run(value) { return Number.isFinite(value.size); } run({size: "0"});',
+		suggestedValue: false,
+	},
+	{
 		name: 'documented string lengths on records retain finite-check coercion until a suggestion is chosen',
 		rule: 'prefer-number-properties',
 		code: '/** @param {{length: string}} value */ function run(value) { return isFinite(value.length); } run({length: "0"});',

@@ -60,6 +60,8 @@ for (const languageOptions of [
 	test({
 		testerOptions: {languageOptions},
 		valid: [
+			'/** @param {{size: string}} value */ function run(value) { return Number(value.size); }',
+			'/** @param {?Set<number>} value */ function run(value) { return Number(value?.size); }',
 			'/** @param {{length: string}} value */ function run(value) { return Number(value.length); }',
 			'/** @param {{length: bigint}} value */ function run(value) { return +value.length; }',
 			'/** @param {unknown} value */ function run(value) { return Number(value.length); }',
@@ -68,6 +70,12 @@ for (const languageOptions of [
 			'/** @returns {number} */ function* count() { yield source; } +count();',
 		].map(code => ({code, filename: 'file.ts'})),
 		invalid: [
+			...['Map<string, boolean>', 'ReadonlySet<bigint>'].map(type => ({
+				filename: 'file.ts',
+				code: `/** @param {${type}} values */ function run(values) { return Number(values.size); }`,
+				output: `/** @param {${type}} values */ function run(values) { return values.size; }`,
+				errors: [{messageId: 'no-useless-coercion'}],
+			})),
 			{
 				filename: 'file.ts',
 				code: '/** @returns {number} */ function count() { return source; } Number(count());',

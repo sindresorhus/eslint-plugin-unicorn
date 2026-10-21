@@ -14,6 +14,14 @@ for (const languageOptions of [
 		invalid: [
 			...[
 				[
+					'/** @param {Map<string, number>} left\n * @param {ReadonlySet<string>} right */ function run(left, right) { return left.size - right.size > 0; }',
+					'/** @param {Map<string, number>} left\n * @param {ReadonlySet<string>} right */ function run(left, right) { return left.size > right.size; }',
+				],
+				[
+					'/** @param {ReadonlySet<string>} values */ function run(values) { return 0 < values.size - 1; }',
+					'/** @param {ReadonlySet<string>} values */ function run(values) { return values.size > 1; }',
+				],
+				[
 					'/** @param {string} value */ function run(value) { return value.length - 1 > 0; }',
 					'/** @param {string} value */ function run(value) { return value.length > 1; }',
 				],
@@ -69,6 +77,10 @@ for (const languageOptions of [
 				code, output, filename: 'file.ts', errors: [{messageId: 'no-subtraction-comparison/error', suggestions: 0}],
 			})),
 			...[
+				...['unknown', '{size: string}', 'Map<string, number> | {size: string}'].map(type => [
+					`/** @param {${type}} left\n * @param {${type}} right */ function run(left, right) { return left.size - right.size > 0; }`,
+					`/** @param {${type}} left\n * @param {${type}} right */ function run(left, right) { return left.size > right.size; }`,
+				]),
 				[
 					'/** @param {{length: string}} left\n * @param {{length: string}} right */ function run(left, right) { return left.length - right.length > 0; }',
 					'/** @param {{length: string}} left\n * @param {{length: string}} right */ function run(left, right) { return left.length > right.length; }',

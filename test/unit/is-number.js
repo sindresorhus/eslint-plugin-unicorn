@@ -216,3 +216,34 @@ test('function literal lengths are numeric while class lengths can be overridden
 	t.assert.deepStrictEqual(getVerdicts(code), [true, true, true, true]);
 	t.assert.deepStrictEqual(getVerdicts('check(class { static length = "5"; }.length); check(class { static get length() { return false; } }.length);'), [false, false]);
 });
+
+test('map and set sizes are numeric independently of their entries', t => {
+	for (const type of ['Map<string, boolean>', 'ReadonlyMap<string, unknown>', 'Set<bigint>', 'ReadonlySet<string>', 'Map<string, number> | Set<boolean>']) {
+		const code = `/** @param {${type}} values */ function run(values) { check(values.size); }`;
+		t.assert.deepStrictEqual(getVerdicts(code), [true], type);
+	}
+
+	const code = [
+		'check(new Map().size); check(new Set().size);',
+		'const values = new Set(); const alias = values; check(alias.size);',
+		'/** @returns {ReadonlyMap<string, number>} */ function read() { return source; } check(read().size);',
+		'function native(values: ReadonlySet<string>) { check(values.size); }',
+	].join('\n');
+	t.assert.deepStrictEqual(getVerdicts(code), [true, true, true, true, true]);
+});
+
+test('size inference requires a definite map or set receiver', t => {
+	for (const type of ['WeakMap<object, number>', 'WeakSet<object>', 'Array<number>', 'string', 'unknown', '{size: string}', '?Set<number>', 'Map<string, number> | {size: string}']) {
+		const code = `/** @param {${type}} values */ function run(values) { check(values.size); }`;
+		t.assert.deepStrictEqual(getVerdicts(code), [false], type);
+	}
+
+	const code = [
+		'/** @param {Set<number>} [values] */ function optional(values) { check(values.size); }',
+		'/** @param {Set<number>} values */ function access(values) { check(values?.size); check(values["size"]); }',
+		'/** @type {unknown} */ const values = new Map(); check(values.size);',
+		'/** @param {Map<string, number>} values */ function native(values: {size: string}) { check(values.size); }',
+		'/** @param {{size: string}} values */ function overridden(values: Map<string, number>) { check(values.size); }',
+	].join('\n');
+	t.assert.deepStrictEqual(getVerdicts(code), [false, false, false, false, false, true]);
+});
