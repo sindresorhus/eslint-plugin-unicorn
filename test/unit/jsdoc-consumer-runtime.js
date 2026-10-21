@@ -7,6 +7,34 @@ const linter = new Linter();
 
 for (const {name, rule, code, output = code, value, reported = true, suggestion, suggestedValue} of [
 	{
+		name: 'custom search results retain NaN coercion until a suggestion is chosen',
+		rule: 'prefer-number-properties',
+		code: [
+			'/** @param {string} text */ function run(text, pattern) { return isNaN(text.search(pattern)); }',
+			'run("x", {[Symbol.search]() { return "x"; }});',
+		].join('\n'),
+		value: true,
+		suggestion: [
+			'/** @param {string} text */ function run(text, pattern) { return Number.isNaN(text.search(pattern)); }',
+			'run("x", {[Symbol.search]() { return "x"; }});',
+		].join('\n'),
+		suggestedValue: false,
+	},
+	{
+		name: 'custom search results cannot acquire lexical comparison semantics through an autofix',
+		rule: 'no-subtraction-comparison',
+		code: [
+			'/** @param {string} text */ function run(text, left, right) { return text.search(left) - text.search(right) > 0; }',
+			'run("x", {[Symbol.search]() { return "11"; }}, {[Symbol.search]() { return "2"; }});',
+		].join('\n'),
+		value: true,
+		suggestion: [
+			'/** @param {string} text */ function run(text, left, right) { return text.search(left) > text.search(right); }',
+			'run("x", {[Symbol.search]() { return "11"; }}, {[Symbol.search]() { return "2"; }});',
+		].join('\n'),
+		suggestedValue: false,
+	},
+	{
 		name: 'documented string transformations preserve positive negative and empty search results',
 		rule: 'no-unnecessary-boolean-comparison',
 		code: [

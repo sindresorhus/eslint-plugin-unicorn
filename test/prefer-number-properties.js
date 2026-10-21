@@ -16,6 +16,31 @@ for (const languageOptions of [
 		testerOptions: {languageOptions},
 		valid: [],
 		invalid: [
+			[
+				'/** @param {string} text */ function run(text, pattern) { return isNaN(text.search(pattern)); }',
+				'/** @param {string} text */ function run(text, pattern) { return Number.isNaN(text.search(pattern)); }',
+			],
+			[
+				'/** @param {string} text */ function run(text, pattern) { return isFinite(text.trim().search(pattern)); }',
+				'/** @param {string} text */ function run(text, pattern) { return Number.isFinite(text.trim().search(pattern)); }',
+			],
+		].map(([code, output]) => ({
+			code,
+			filename: 'file.ts',
+			errors: [{messageId: MESSAGE_ID_ERROR, suggestions: [{messageId: MESSAGE_ID_SUGGESTION, output}]}],
+		})),
+	});
+}
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [],
+		invalid: [
 			...[
 				[
 					'/** @param {number} value */ function run(value) { return isNaN(value); }',

@@ -76,6 +76,31 @@ test('charCodeAt and explicit codePointAt coercions are numeric', t => {
 	t.assert.deepStrictEqual(getVerdicts('check(Number("".codePointAt(0))); check(+"".codePointAt(0)); check("".codePointAt(0) - 0);'), [true, true, true]);
 });
 
+test('string search hooks can return nonnumeric values', t => {
+	const pattern = {
+		[Symbol.search]() {
+			return 'not a number';
+		},
+	};
+	t.assert.strictEqual('text'.search(pattern), 'not a number');
+	const code = [
+		'const pattern = {[Symbol.search]() { return "not a number"; }};',
+		'/** @param {string} text */ function run(text) {',
+		' check(text.search(pattern)); check(text.trim().search(pattern));',
+		'}',
+	].join('\n');
+	t.assert.deepStrictEqual(getVerdicts(code), [false, false]);
+});
+
+test('unknown search patterns do not borrow the numeric result of other string methods', t => {
+	const code = [
+		'/** @param {string} text */ function run(text, pattern) {',
+		' check(text.search(pattern)); check(text.indexOf(pattern)); check(text.charCodeAt(0));',
+		'}',
+	].join('\n');
+	t.assert.deepStrictEqual(getVerdicts(code), [false, true, true]);
+});
+
 test('optional numeric annotations do not guarantee a number', t => {
 	t.assert.deepStrictEqual(getVerdicts('function f(input?: number) { check(input); check(input!); check((true, input)); }'), [false, false, false]);
 	t.assert.deepStrictEqual(getVerdicts('function f(input?: 5) { check(input); }'), [false]);

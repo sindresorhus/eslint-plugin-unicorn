@@ -68,12 +68,12 @@ const isMathMethodCall = node =>
 // `Number(…)`
 const isNumberCall = node => isFunctionCall(node, 'Number');
 
+// `search` can delegate to a `Symbol.search` hook that returns a non-number.
 const stringNumberMethods = new Set([
 	'charCodeAt',
 	'indexOf',
 	'lastIndexOf',
 	'localeCompare',
-	'search',
 ]);
 
 const isStringNumberMethodCall = (node, context) =>
