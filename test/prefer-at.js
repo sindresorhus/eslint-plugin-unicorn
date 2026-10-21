@@ -7,6 +7,74 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+test({
+	valid: [
+		'_.last(document.querySelectorAll(/* keep */ "li"));',
+		'function f() { return _.last((/* keep */ arguments)); }',
+	],
+	invalid: [
+		...[
+			['lodash.last(((items /* keep */)));', '((items /* keep */)).at(-1);'],
+			['underscore.last((items // keep\r\n));', '(items // keep\r\n).at(-1);'],
+			['before()\n_.last([1, /* keep */ 2]);', 'before()\n;[1, /* keep */ 2].at(-1);'],
+		].map(([code, output]) => ({code, output, errors: [{messageId: 'get-last-function'}]})),
+		{
+			code: '_.last(items as /* keep */ number[]);',
+			output: '(items as /* keep */ number[]).at(-1);',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'get-last-function'}],
+		},
+		{
+			code: 'utils.lastElement(getItems(/* keep */));',
+			output: 'getItems(/* keep */).at(-1);',
+			options: [{getLastElementFunctions: ['utils.lastElement']}],
+			errors: [{messageId: 'get-last-function'}],
+		},
+		...[
+			'_./* discard */last(getItems(/* keep */));',
+			'_.last(/* discard */ getItems(/* keep */));',
+			'_.last(getItems(/* keep */) /* discard */);',
+			'_.last /* discard */ ((/* keep */ items));',
+		].map(code => ({code, errors: [{messageId: 'get-last-function'}]})),
+	],
+});
+
+nodeTest('comment-preserving last-element calls evaluate their argument once', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-at': rule}}},
+		rules: {'unicorn/prefer-at': 'error'},
+	};
+	const code = '_.last(getItems(/* keep */));';
+	const {output, fixed, messages} = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(fixed, true);
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.strictEqual(output, 'getItems(/* keep */).at(-1);');
+	for (const items of [[], [1], [1, 2, 3]]) {
+		for (const source of [code, output]) {
+			let calls = 0;
+			const result = runInNewContext(source, {
+				// eslint-disable-next-line unicorn/prefer-at -- Model the original helper independently of the replacement.
+				_: {last: array => array[array.length - 1]},
+				getItems() {
+					calls++;
+					return items;
+				},
+			});
+			t.assert.strictEqual(result, items.at(-1));
+			t.assert.strictEqual(calls, 1);
+		}
+	}
+});
+
+test({
+	valid: [],
+	invalid: [
+		['_.last(getItems(/* keep */));', 'getItems(/* keep */).at(-1);'],
+		['_.last((/* keep */ items));', '(/* keep */ items).at(-1);'],
+	].map(([code, output]) => ({code, output, errors: [{messageId: 'get-last-function', data: {description: '_.last'}}]})),
+});
+
 const typeAware = code => ({
 	code,
 	filename: 'file.ts',

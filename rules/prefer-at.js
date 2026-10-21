@@ -17,6 +17,7 @@ import {
 	hasCommentInRange,
 	unwrapChainAndTypeScriptExpression,
 	unwrapTypeScriptExpression as unwrapExpression,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {createTypeCheckers} from './utils/type-helpers.js';
 import {
@@ -447,8 +448,8 @@ function create(context) {
 			data: {description: matchedFunction.trim()},
 		};
 
-		// The call is rebuilt from the argument alone, so a comment inside it would be lost
-		if (sourceCode.getCommentsInside(node).length > 0) {
+		// The call is rebuilt from the argument alone, so comments outside its copied range would be lost
+		if (wouldRemoveComments(context, node, [getParenthesizedRange(array, context)])) {
 			return problem;
 		}
 
