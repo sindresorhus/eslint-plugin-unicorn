@@ -1,7 +1,7 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {removeMethodCall} from './fix/index.js';
-import {isArray} from './utils/index.js';
+import {getParenthesizedRange, isArray, wouldRemoveComments} from './utils/index.js';
 
 const MESSAGE_ID_UNUSED_INDEX = 'unused-index';
 const MESSAGE_ID_UNUSED_VALUE = 'unused-value';
@@ -84,8 +84,7 @@ const create = context => {
 			return;
 		}
 
-		const hasComments = sourceCode.getCommentsInside(arrayPattern).length > 0
-			|| sourceCode.getCommentsInside(entriesCall).length > 0;
+		const hasPatternComments = wouldRemoveComments(context, arrayPattern, isIndexUnused ? [valueElement] : []);
 
 		// Replace the pattern, keeping a space where the `const`/`let` keyword or the `of` keyword abuts it (`for (const[index, value]of[…]`), so the binding does not merge into `constvalue` or `valueof`.
 		const replacePattern = (fixer, text) => {
@@ -110,7 +109,7 @@ const create = context => {
 			return {
 				node: entriesCall.callee.property,
 				messageId: MESSAGE_ID_UNUSED_INDEX,
-				fix: hasComments
+				fix: hasPatternComments || wouldRemoveComments(context, entriesCall, [getParenthesizedRange(entriesCall.callee.object, context)])
 					? undefined
 					: function * (fixer) {
 						yield replacePattern(fixer, sourceCode.getText(valueElement));
@@ -127,7 +126,7 @@ const create = context => {
 		return {
 			node: entriesCall.callee.property,
 			messageId: MESSAGE_ID_UNUSED_VALUE,
-			fix: hasComments
+			fix: hasPatternComments
 				? undefined
 				: function * (fixer) {
 					yield replacePattern(fixer, indexElement.name);
