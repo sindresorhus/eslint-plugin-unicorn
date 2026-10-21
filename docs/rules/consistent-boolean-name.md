@@ -62,9 +62,7 @@ This rule intentionally does not check destructuring bindings, imports, class na
 
 TypeScript type annotation checks resolve local type aliases and callable interfaces, including generic type parameters, but not qualified or namespaced type references.
 
-JSDoc annotations are also recognized without TypeScript configuration: `@type` on variables and properties (including getters), `@param` on simple parameters, and `@returns` on functions. Common primitive, union, array, tuple, record, dictionary (`Object<Key, Value>`), function, and callable object types are supported, including the primitive aliases `Boolean`, `String`, `Number`, `Void`, `Null`, and `Undefined`. Rename suggestions update matching `@param` names, including documentation without a type. JSDoc propagation through expressions and inferred function returns is best effort.
-
-Empty record types (`{}`) and bare `Object`/`object` types are treated as unknown. Advanced JSDoc type expressions, typedefs, `@overload` tags, imported types, constructor signatures, promise return types, destructured parameter paths, and declaration-level annotations on multiple variable declarators are not resolved.
+JSDoc `@type`, `@param`, and `@returns` annotations are supported without TypeScript configuration. Rename suggestions update matching `@param` names. Inference is best effort; advanced types, typedefs, and imports are not resolved.
 
 Without TypeScript type information, nested generic alias resolution is best effort. Some finite nested instantiations may be treated as unknown.
 
