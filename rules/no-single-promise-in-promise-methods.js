@@ -1,12 +1,15 @@
 import {isCommaToken} from '@eslint-community/eslint-utils';
 import {isExpressionStatement, isLiteral, isMethodCall} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
+	getParenthesizedRange,
 	getParenthesizedText,
 	isLeftHandSide,
 	isParenthesized,
 	needsSemicolon,
 	shouldAddParenthesesToAwaitExpressionArgument,
 	shouldAddParenthesesToExpressionStart,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-single-promise-in-promise-methods/error';
@@ -112,8 +115,6 @@ const switchToPromiseResolve = (callExpression, sourceCode) => function * (fixer
 	}
 };
 
-const hasCommentsInside = (sourceCode, node) => sourceCode.getCommentsInside(node).length > 0;
-
 const isSingleIdentifierArrayPattern = node =>
 	node.type === 'ArrayPattern'
 	&& !node.typeAnnotation
@@ -158,8 +159,9 @@ const isSafeReplacementPosition = node =>
 
 const fixPromiseAllFirstElement = (callExpression, context) => {
 	const {sourceCode} = context;
+	const promiseRange = getParenthesizedRange(callExpression.arguments[0].elements[0], context);
 
-	if (hasCommentsInside(sourceCode, callExpression)) {
+	if (wouldRemoveComments(context, callExpression, [promiseRange])) {
 		return;
 	}
 
@@ -175,11 +177,12 @@ const fixPromiseAllFirstElement = (callExpression, context) => {
 	const arrayPattern = getPromiseAllDestructuringPattern(awaitExpression);
 
 	if (arrayPattern) {
-		if (hasCommentsInside(sourceCode, arrayPattern)) {
+		if (wouldRemoveComments(context, arrayPattern)) {
 			return;
 		}
 
 		return function * (fixer) {
+			yield fixSpaceAroundKeyword(fixer, arrayPattern, context);
 			yield fixer.replaceText(arrayPattern, sourceCode.getText(arrayPattern.elements[0]));
 			yield fixer.replaceText(callExpression, getAwaitedPromiseText(callExpression, context));
 		};
@@ -191,7 +194,7 @@ const fixPromiseAllFirstElement = (callExpression, context) => {
 		isZeroIndexAccess(memberExpression)
 		&& memberExpression.object === awaitExpression
 		&& isSafeReplacementPosition(memberExpression)
-		&& !hasCommentsInside(sourceCode, memberExpression)
+		&& !wouldRemoveComments(context, memberExpression, [promiseRange])
 	) {
 		return fixer => fixer.replaceText(memberExpression, `await ${getAwaitedPromiseText(callExpression, context)}`);
 	}
@@ -217,8 +220,9 @@ const create = context => {
 		};
 
 		const {sourceCode} = context;
-		// The unwrapped call is rebuilt from the promise node alone, so a comment inside the array would be lost
-		const canUnwrap = !isLeftHandSide(callExpression) && !hasCommentsInside(sourceCode, callExpression);
+		// The unwrapped call is rebuilt from the promise node alone, so comments outside its copied range would be lost
+		const canUnwrap = !isLeftHandSide(callExpression)
+			&& !wouldRemoveComments(context, callExpression, [getParenthesizedRange(callExpression.arguments[0].elements[0], context)]);
 		const isAwaited = callExpression.parent.type === 'AwaitExpression'
 			&& callExpression.parent.argument === callExpression;
 
