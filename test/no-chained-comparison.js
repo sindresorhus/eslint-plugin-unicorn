@@ -1,6 +1,78 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		['read(/* keep */) < middle < last;', 'read(/* keep */) < middle && middle < last'],
+		['first < middle < (/* keep */ last);', 'first < middle && middle < (/* keep */ last)'],
+	].map(([code, replacement]) => ({
+		code,
+		errors: [{messageId: 'no-chained-comparison/error', suggestions: [{messageId: 'no-chained-comparison/suggestion', data: {replacement}, output: `${replacement};`}]}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['(/* keep */ first) < middle < last;', '(/* keep */ first) < middle && middle < last'],
+			['read(// keep\r\n) < middle < last;', 'read(// keep\r\n) < middle && middle < last'],
+			['first < middle < ((last /* keep */));', 'first < middle && middle < ((last /* keep */))'],
+		].map(([code, replacement]) => ({
+			code,
+			errors: [{messageId: 'no-chained-comparison/error', suggestions: [{messageId: 'no-chained-comparison/suggestion', data: {replacement}, output: `${replacement};`}]}],
+		})),
+		{
+			code: '(first as /* keep */ number) < middle < last;',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'no-chained-comparison/error', suggestions: [{messageId: 'no-chained-comparison/suggestion', output: '(first as /* keep */ number) < middle && middle < last;'}]}],
+		},
+		...[
+			'first < (middle /* duplicate */) < last;',
+			'(/* discard */ first < middle) < last;',
+			'(first < middle /* discard */) < last;',
+		].map(code => ({code, errors: [{messageId: 'no-chained-comparison/error', suggestions: []}]})),
+	],
+});
+
+nodeTest('comment-preserving chained comparison rewrites remain suggestions and evaluate the first operand once', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'no-chained-comparison': rule}}},
+		rules: {'unicorn/no-chained-comparison': 'error'},
+	};
+	const code = 'read(/* keep */) < middle < last;';
+	const {output, fixed, messages} = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(output, code);
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].fix, undefined);
+	t.assert.strictEqual(messages[0].suggestions?.length, 1);
+	const {range, text} = messages[0].suggestions[0].fix;
+	const suggested = code.slice(0, range[0]) + text + code.slice(range[1]);
+	t.assert.strictEqual(suggested, 'read(/* keep */) < middle && middle < last;');
+	t.assert.deepStrictEqual(linter.verify(suggested, config), []);
+	for (const first of [0, 5]) {
+		for (const source of [code, suggested]) {
+			let calls = 0;
+			const result = runInNewContext(source, {
+				middle: 2,
+				last: 4,
+				read() {
+					calls++;
+					return first;
+				},
+			});
+			t.assert.strictEqual(calls, 1);
+			t.assert.strictEqual(result, source === code || first === 0);
+		}
+	}
+});
 
 test({
 	valid: [],
