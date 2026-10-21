@@ -60,6 +60,10 @@ for (const languageOptions of [
 	test({
 		testerOptions: {languageOptions},
 		valid: [
+			'/** @param {Date} value */ function run(value) { return String(value.toJSON()); }',
+			'/** @param {Date} value */ function run(value) { return String(value?.toISOString()); }',
+			'/** @param {?Date} value */ function run(value) { return String(value.toISOString()); }',
+			'/** @param {{toISOString: () => number}} value */ function run(value) { return String(value.toISOString()); }',
 			'/** @param {{size: string}} value */ function run(value) { return Number(value.size); }',
 			'/** @param {?Set<number>} value */ function run(value) { return Number(value?.size); }',
 			'/** @param {{length: string}} value */ function run(value) { return Number(value.length); }',
@@ -70,6 +74,12 @@ for (const languageOptions of [
 			'/** @returns {number} */ function* count() { yield source; } +count();',
 		].map(code => ({code, filename: 'file.ts'})),
 		invalid: [
+			...['toISOString', 'toUTCString', 'toDateString', 'toTimeString', 'toLocaleDateString', 'toLocaleTimeString', 'toString', 'toLocaleString'].map(method => ({
+				filename: 'file.ts',
+				code: `/** @param {Date} value */ function run(value) { return String(value.${method}()); }`,
+				output: `/** @param {Date} value */ function run(value) { return value.${method}(); }`,
+				errors: [{messageId: 'no-useless-coercion'}],
+			})),
 			...['Map<string, boolean>', 'ReadonlySet<bigint>'].map(type => ({
 				filename: 'file.ts',
 				code: `/** @param {${type}} values */ function run(values) { return Number(values.size); }`,

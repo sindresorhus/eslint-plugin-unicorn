@@ -7,6 +7,46 @@ const linter = new Linter();
 
 for (const {name, rule, code, output = code, value, reported = true, suggestion, suggestedValue} of [
 	{
+		name: 'documented Date factory ISO formatting retains one evaluation after string coercion removal',
+		rule: 'no-useless-coercion',
+		code: [
+			'let reads = 0; /** @returns {Date} */ function read() { reads++; return new Date("2024-01-02T03:04:05Z"); }',
+			'JSON.stringify([String(read().toISOString()), reads]);',
+		].join('\n'),
+		output: [
+			'let reads = 0; /** @returns {Date} */ function read() { reads++; return new Date("2024-01-02T03:04:05Z"); }',
+			'JSON.stringify([read().toISOString(), reads]);',
+		].join('\n'),
+		value: '["2024-01-02T03:04:05.000Z",1]',
+	},
+	{
+		name: 'documented invalid Date string formatting remains a string without redundant coercion',
+		rule: 'no-useless-coercion',
+		code: '/** @param {Date} value */ function run(value) { return String(value.toString()); } run(new Date(NaN));',
+		output: '/** @param {Date} value */ function run(value) { return value.toString(); } run(new Date(NaN));',
+		value: 'Invalid Date',
+	},
+	{
+		name: 'documented invalid Date JSON results retain required null to string coercion',
+		rule: 'no-useless-coercion',
+		code: '/** @param {Date} value */ function run(value) { return String(value.toJSON()); } run(new Date(NaN));',
+		value: 'null',
+		reported: false,
+	},
+	{
+		name: 'documented Date formatting supplies strings through trimming and membership comparisons',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: [
+			'/** @param {Date} value */ function run(value) { return value.toUTCString().trim().includes("1970") === true; }',
+			'JSON.stringify([run(new Date(0)), run(new Date(NaN))]);',
+		].join('\n'),
+		output: [
+			'/** @param {Date} value */ function run(value) { return value.toUTCString().trim().includes("1970"); }',
+			'JSON.stringify([run(new Date(0)), run(new Date(NaN))]);',
+		].join('\n'),
+		value: '[true,false]',
+	},
+	{
 		name: 'documented Map size comparisons retain duplicate NaN keys and deletion sizes',
 		rule: 'no-subtraction-comparison',
 		code: [

@@ -4,6 +4,7 @@ import {isFunctionCall, isStaticProperties} from './type-check.js';
 import {isIndexedCollection} from './is-array.js';
 import getStaticValueIfNoSideEffects, {getStaticValueForControlFlow} from './get-static-value.js';
 import {
+	createBuiltinTypeCheckers,
 	createTypeCheckers,
 	hasJSDocumentTypeReference,
 	target,
@@ -44,6 +45,23 @@ const stringReturningMethods = [
 	'trimEnd',
 	'trimStart',
 ];
+
+// `toJSON` can return `null` for invalid dates.
+const dateStringReturningMethods = [
+	'toDateString',
+	'toISOString',
+	'toLocaleDateString',
+	'toLocaleString',
+	'toLocaleTimeString',
+	'toString',
+	'toTimeString',
+	'toUTCString',
+];
+
+const {isTarget: isDate} = createBuiltinTypeCheckers({
+	name: 'Date',
+	checkClassHeritage: false,
+});
 
 const isStringTypeAnnotation = node => {
 	switch (node?.type) {
@@ -97,6 +115,14 @@ const isStringNode = (node, context, isTarget) => {
 		case 'CallExpression': {
 			if (isMethodCall(node, {method: 'join', optionalCall: false, optionalMember: false})) {
 				return isIndexedCollection(node.callee.object, context);
+			}
+
+			if (isMethodCall(node, {
+				methods: dateStringReturningMethods,
+				optionalCall: false,
+				optionalMember: false,
+			})) {
+				return isDate(node.callee.object, context);
 			}
 
 			return isMethodCall(node, {

@@ -238,3 +238,34 @@ test('known non-string checks distinguish annotations from cyclic concatenations
 	t.assert.deepStrictEqual(getResults('const text = text + ""; inspect(text);', isKnownNonString), [false]);
 	t.assert.deepStrictEqual(getResults('const first = second + first; const second = first; inspect(first); inspect(second);', isKnownNonString), [false, false]);
 });
+
+for (const method of ['toISOString', 'toUTCString', 'toDateString', 'toTimeString', 'toLocaleDateString', 'toLocaleTimeString', 'toString', 'toLocaleString']) {
+	test(`recognizes ${method} results on documented and native Date receivers`, t => {
+		t.assert.deepStrictEqual(getResults(`/** @param {Date} value */ function run(value) { inspect(value.${method}()); }`), [true]);
+		t.assert.deepStrictEqual(getResults(`function run(value: Date) { inspect(value.${method}()); }`), [true]);
+	});
+}
+
+test('date formatting results propagate through documented factories aliases and string chains', t => {
+	const code = [
+		'/** @returns {Date} */ function read() { return source; } inspect(read().toISOString());',
+		'/** @param {Date} value */ function run(value) { const text = value.toUTCString(); const alias = text; inspect(alias); inspect(alias.trim()); }',
+		'inspect(new Date(0).toISOString());',
+	].join('\n');
+	t.assert.deepStrictEqual(getResults(code), [true, true, true, true]);
+});
+
+test('date formatting requires definite receivers and preserves annotation precedence', t => {
+	for (const type of ['unknown', '?Date', 'Date | string', '{toISOString: () => number}']) {
+		t.assert.deepStrictEqual(getResults(`/** @param {${type}} value */ function run(value) { inspect(value.toISOString()); }`), [false], type);
+	}
+
+	const code = [
+		'/** @param {Date} [value] */ function optional(value) { inspect(value.toISOString()); }',
+		'/** @param {Date} value */ function access(value) { inspect(value?.toISOString()); inspect(value.toISOString?.()); inspect(value["toISOString"]()); }',
+		'/** @param {Date} value */ function native(value: {toISOString(): number}) { inspect(value.toISOString()); }',
+		'/** @param {{toISOString: () => number}} value */ function overridden(value: Date) { inspect(value.toISOString()); }',
+		'/** @param {Date} value */ function json(value) { inspect(value.toJSON()); inspect(value.getTime()); inspect(value.valueOf()); }',
+	].join('\n');
+	t.assert.deepStrictEqual(getResults(code), [false, false, false, false, false, true, false, false, false]);
+});

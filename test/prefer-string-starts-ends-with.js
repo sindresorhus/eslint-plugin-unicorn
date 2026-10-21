@@ -3,9 +3,31 @@ import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {transpileModule, ScriptTarget} from 'typescript';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {Date} value */ function run(value) { return value.toJSON().indexOf("2026") === 0; }',
+			'/** @param {?Date} value */ function run(value) { return value.toISOString().indexOf("2026") === 0; }',
+			'/** @param {{toISOString: () => number[]}} value */ function run(value) { return value.toISOString().indexOf(2026) === 0; }',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [{
+			filename: 'file.ts',
+			code: '/** @param {Date} value */ function run(value) { return value.toISOString().indexOf("2026") === 0; }',
+			output: '/** @param {Date} value */ function run(value) { return value.toISOString().startsWith("2026"); }',
+			errors: [{messageId: 'prefer-starts-with-indexOf'}],
+		}],
+	});
+}
 
 test({
 	valid: [
