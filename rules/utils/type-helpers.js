@@ -819,6 +819,10 @@ const getTypeFromExpression = (node, context, options, visitedVariables) => {
 			return getTypeFromFunctionCall(node, context, options);
 		}
 
+		case 'AssignmentExpression': {
+			return node.operator === '=' ? getType(node.right, context, options, visitedVariables) : unknown;
+		}
+
 		case 'ThisExpression': {
 			return options.checkClassSyntax
 				? getThisExpressionType(node, context, options)

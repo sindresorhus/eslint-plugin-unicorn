@@ -88,6 +88,30 @@ test('logical expressions retain configurable mixed-union policies and terminate
 	t.assert.deepStrictEqual(getTypes('const first = second || source; const second = first && source; check(first); check(second);', {}), [unknown, unknown]);
 });
 
+test('plain assignment expressions use the right-hand type independently of their destination', t => {
+	const code = [
+		'/** @param {Foo} value\n * @param {string} cache */',
+		'function run(value, cache, other, object) {',
+		' check(cache = value);',
+		' check(cache = other = value);',
+		' check(object.value = value);',
+		'}',
+	].join('\n');
+	for (const javascript of [false, true]) {
+		t.assert.deepStrictEqual(getTypes(code, {}, {javascript}), [target, target, target]);
+	}
+});
+
+test('assignment inference preserves uncertain results and existing cycle guards', t => {
+	for (const [operator, type] of [['=', 'unknown'], ['+=', 'Foo'], ['&&=', 'Foo'], ['||=', 'Foo'], ['??=', 'Foo']]) {
+		const code = `/** @param {Foo} cache\n * @param {${type}} value */ function run(cache, value) { check(cache ${operator} value); }`;
+		t.assert.deepStrictEqual(getTypes(code, {}), [unknown], operator);
+	}
+
+	t.assert.deepStrictEqual(getTypes('let cache; const value = (cache = value); check(value);', {}), [unknown]);
+	t.assert.deepStrictEqual(getTypes('let cache; check(cache = source as string); check(cache = source as Foo);', {}), [nonTarget, target]);
+});
+
 test('uses JSDoc variable, parameter, and function return annotations', t => {
 	for (const code of [
 		'/** @type {Foo} */ let value; check(value);',

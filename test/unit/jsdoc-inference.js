@@ -60,6 +60,30 @@ test('homogeneous logical receivers retain documented string and array types', t
 	}
 });
 
+test('assignment receivers retain documented collection and RegExp types', t => {
+	const code = [
+		'/** @param {Array<string>} values\n * @param {Uint8Array} bytes\n * @param {Set<string>} keys\n * @param {Map<string, number>} map\n * @param {RegExp} pattern */',
+		'function run(values, bytes, keys, map, pattern, cache) {',
+		' inspect(cache = values);',
+		' inspect((cache = values).includes("x"));',
+		' inspect((cache = bytes).some(predicate));',
+		' inspect((cache = keys).has("x"));',
+		' inspect((cache = map).has("x"));',
+		' inspect((cache = pattern).global);',
+		'}',
+	].join('\n');
+	for (const typescript of [false, true]) {
+		t.assert.deepStrictEqual(getInferences(code, {typescript}), [['array', 'indexed'], ['boolean'], ['boolean'], ['boolean'], ['boolean'], ['boolean']]);
+	}
+});
+
+test('constant aliases preserve the assigned results of documented callbacks', t => {
+	const code = '/** @returns {Set<string>} */ function read() { return source; } function run(cache) { const alias = (cache = read()); inspect(alias); }';
+	for (const typescript of [false, true]) {
+		t.assert.deepStrictEqual(getInferences(code, {typescript}), [['set']]);
+	}
+});
+
 test('generic Object dictionaries provide non-primitive facts without resolving bare Object', t => {
 	const checks = {
 		nonString: isKnownNonString,

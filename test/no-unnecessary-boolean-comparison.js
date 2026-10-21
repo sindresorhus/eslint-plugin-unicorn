@@ -159,6 +159,29 @@ test({
 	}],
 });
 
+nodeTest('assignment receiver fixes preserve callback and property setter effects', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'no-unnecessary-boolean-comparison': rule}}},
+		rules: {'unicorn/no-unnecessary-boolean-comparison': 'error'},
+	};
+	for (const literal of [true, false]) {
+		const code = [
+			'let reads = 0; let writes = 0;',
+			'/** @returns {Array<string>} */ function read() { reads++; return ["x"]; }',
+			'const cache = {set value(value) { writes += value.length; }};',
+			`const result = (cache.value = read()).includes("x") === ${literal};`,
+			'JSON.stringify({result, reads, writes});',
+		].join('\n');
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		for (const source of [code, output]) {
+			t.assert.deepStrictEqual(JSON.parse(runInNewContext(source)), {result: literal, reads: 1, writes: 1});
+		}
+	}
+});
+
 nodeTest('boolean comparison fixes under delete preserve the property reference boundary', t => {
 	const linter = new Linter();
 	const config = {
@@ -224,6 +247,8 @@ for (const wrap of [code => ({code}), code => ({code, languageOptions: {parser: 
 		valid: [
 			'/** @param {unknown} prefix */ function run(prefix, suffix) { return (prefix + suffix).startsWith("x") === true; }',
 			'/** @param {string | number} text */ function run(text) { return (text || "").includes("x") === true; }',
+			'/** @param {Array<string>} values */ function run(values, cache) { return (cache += values).some(predicate) === true; }',
+			'/** @param {Array<string>} cache */ function run(cache, value) { return (cache = value).some(predicate) === true; }',
 		].map(code => wrap(code)),
 		invalid: [
 			[
@@ -235,6 +260,10 @@ for (const wrap of [code => ({code}), code => ({code, languageOptions: {parser: 
 			[
 				'/** @param {string} text */ function run(text) { return (text || "").startsWith("x") === true; }',
 				'/** @param {string} text */ function run(text) { return (text || "").startsWith("x"); }',
+			],
+			[
+				'/** @param {RegExp} pattern */ function run(pattern, cache) { return (cache = pattern).test("x") === false; }',
+				'/** @param {RegExp} pattern */ function run(pattern, cache) { return !(cache = pattern).test("x"); }',
 			],
 		].map(([code, output]) => ({
 			...wrap(code),

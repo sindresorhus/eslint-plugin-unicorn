@@ -58,6 +58,18 @@ const onlyIsPrefixOptions = {
 
 for (const wrap of [testCase => testCase, typescript, typeAware]) {
 	test({
+		valid: [],
+		invalid: [wrap({
+			code: '/** @param {Uint8Array} values */ function run(values, cache) { const ready = (cache = values).some(predicate); consume(ready); }',
+			output: '/** @param {Uint8Array} values */ function run(values, cache) { const isReady = (cache = values).some(predicate); consume(isReady); }',
+			options: [onlyIsPrefixOptions],
+			errors: 1,
+		})],
+	});
+}
+
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
 		valid: [
 			'/** @type {Object} */ const isOptions = source;',
 			'/** @type {object} */ const isOptions = source;',
