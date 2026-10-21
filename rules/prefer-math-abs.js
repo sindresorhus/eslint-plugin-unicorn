@@ -9,6 +9,7 @@ import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getComparisonOperandText,
 	getParenthesizedText,
+	isBigInt,
 	isSameReference,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
@@ -34,6 +35,7 @@ const matchingOperator = {
 };
 
 const isZero = node => isLiteral(node, 0);
+const bigIntCheckOptions = {treatMixedUnionAsTarget: true};
 
 function isBigIntTypeAnnotation(typeAnnotation) {
 	return typeAnnotation.type === 'TSBigIntKeyword'
@@ -119,9 +121,10 @@ function hasBigIntDefinition(node, context) {
 	}) ?? false;
 }
 
-function isBigInt(node, context) {
+function canBeBigInt(node, context) {
 	return isBigIntExpression(node)
-		|| hasBigIntDefinition(node, context);
+		|| hasBigIntDefinition(node, context)
+		|| isBigInt(node, context, bigIntCheckOptions);
 }
 
 function isNegativeExpression(node, valueNode) {
@@ -160,8 +163,8 @@ function getComparisonWithZero(node, context) {
 	if (
 		node.type !== 'BinaryExpression'
 		|| !operators.has(node.operator)
-		|| isBigInt(node.left, context)
-		|| isBigInt(node.right, context)
+		|| canBeBigInt(node.left, context)
+		|| canBeBigInt(node.right, context)
 	) {
 		return;
 	}
@@ -185,8 +188,8 @@ function getGreaterComparison(node, context) {
 	if (
 		node.type !== 'BinaryExpression'
 		|| !operators.has(node.operator)
-		|| isBigInt(node.left, context)
-		|| isBigInt(node.right, context)
+		|| canBeBigInt(node.left, context)
+		|| canBeBigInt(node.right, context)
 	) {
 		return;
 	}
@@ -210,8 +213,8 @@ function getLessComparison(node, context) {
 	if (
 		node.type !== 'BinaryExpression'
 		|| !operators.has(node.operator)
-		|| isBigInt(node.left, context)
-		|| isBigInt(node.right, context)
+		|| canBeBigInt(node.left, context)
+		|| canBeBigInt(node.right, context)
 	) {
 		return;
 	}

@@ -60,7 +60,7 @@ const {
 	getStaticType,
 });
 
-export default function isBigInt(node, context) {
+export default function isBigInt(node, context, overrides) {
 	if (
 		node.type === 'TSSatisfiesExpression'
 		&& isBigIntTypeAnnotation(node.typeAnnotation)
@@ -68,7 +68,7 @@ export default function isBigInt(node, context) {
 		return true;
 	}
 
-	if (isBigIntTarget(node, context)) {
+	if (isBigIntTarget(node, context, overrides)) {
 		return true;
 	}
 

@@ -9,7 +9,7 @@ const linter = new Linter();
 /*
 Return whether the first argument of each `check()` call in `code` is a bigint.
 */
-const getVerdicts = (code, {typeAware = false} = {}) => {
+const getVerdicts = (code, {typeAware = false, overrides} = {}) => {
 	const verdicts = [];
 
 	const messages = linter.verify(code, {
@@ -26,7 +26,7 @@ const getVerdicts = (code, {typeAware = false} = {}) => {
 					capture: {
 						create: context => ({
 							'CallExpression[callee.name="check"]'(node) {
-								verdicts.push(isBigInt(node.arguments[0], context));
+								verdicts.push(isBigInt(node.arguments[0], context, overrides));
 							},
 						}),
 					},
@@ -119,4 +119,37 @@ test('unary bigint inference preserves native annotation precedence', t => {
 test('unary bigint inference terminates on cyclic initializers', t => {
 	t.assert.deepStrictEqual(getVerdicts('const value = -value; check(value);'), [false]);
 	t.assert.deepStrictEqual(getVerdicts('const first = ~second; const second = -first; check(first); check(second);'), [false, false]);
+});
+
+test('conservative bigint checks recognize mixed JSDoc unions without changing definite checks', t => {
+	for (const type of ['bigint | number', 'bigint | unknown', '?bigint', 'bigint | undefined']) {
+		const code = `/** @param {${type}} value */ function run(value) { const alias = -value; check(value); check(alias); check(~value); }`;
+		t.assert.deepStrictEqual(getVerdicts(code), [false, false, false], type);
+		t.assert.deepStrictEqual(getVerdicts(code, {overrides: {treatMixedUnionAsTarget: true}}), [true, true, true], type);
+	}
+
+	const code = '/** @param {bigint} [value] */ function run(value) { check(value); check(-value); }';
+	t.assert.deepStrictEqual(getVerdicts(code), [false, false]);
+	t.assert.deepStrictEqual(getVerdicts(code, {overrides: {treatMixedUnionAsTarget: true}}), [true, true]);
+});
+
+test('conservative bigint checks preserve native annotation precedence', t => {
+	const code = [
+		'/** @param {bigint} value */ function numeric(value: number) { check(value); check(-value); }',
+		'/** @param {number} value */ function mixed(value: bigint | number) { check(value); check(-value); }',
+		'function optional(value?: bigint) { check(value); }',
+	].join('\n');
+	for (const typeAware of [false, true]) {
+		t.assert.deepStrictEqual(getVerdicts(code, {typeAware}), [false, false, false, false, false]);
+		t.assert.deepStrictEqual(getVerdicts(code, {typeAware, overrides: {treatMixedUnionAsTarget: true}}), [false, false, true, true, true]);
+	}
+});
+
+test('conservative bigint checks do not confuse containers or function results with bigint bindings', t => {
+	for (const type of ['number', 'unknown', 'Array<bigint>', '() => bigint', '{value: bigint}']) {
+		const code = `/** @param {${type}} value */ function run(value) { check(value); check(-value); }`;
+		t.assert.deepStrictEqual(getVerdicts(code, {overrides: {treatMixedUnionAsTarget: true}}), [false, false], type);
+	}
+
+	t.assert.deepStrictEqual(getVerdicts('const first = ~second; const second = -first; check(first); check(second);', {overrides: {treatMixedUnionAsTarget: true}}), [false, false]);
 });
