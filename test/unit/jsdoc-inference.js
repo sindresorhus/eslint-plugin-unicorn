@@ -1088,3 +1088,202 @@ test('reference scans retain documentation evidence across aliases and source fi
 		t.assert.deepStrictEqual(getInferences(code, {checks, typescript: true}), [expected], comment);
 	}
 });
+
+for (const [description, lines, expected] of [
+	['map receiver unions preserve membership results across map families', [
+		'/** @param {Map<string, boolean> | ReadonlyMap<string, number> | WeakMap<object, boolean>} values */',
+		'function run(values) { inspect(values.has(key)); inspect(values.get(key)); }',
+	], [['boolean'], []]],
+	['weak set receivers do not acquire ordinary set relation methods', [
+		'/** @param {WeakSet<object>} values */',
+		'function run(values) { inspect(values.has(key)); inspect(values.isSubsetOf(other)); }',
+	], [['boolean'], []]],
+	['readonly set unions retain boolean set relations without exposing element types', [
+		'/** @param {Set<boolean[]> | ReadonlySet<Array<number>>} values */',
+		'function run(values) {',
+		' inspect(values.isDisjointFrom(other)); inspect(values.isSubsetOf(other)); inspect(values.isSupersetOf(other));',
+		' inspect(values.includes(key));',
+		'}',
+	], [['boolean'], ['boolean'], ['boolean'], []]],
+	['mixed numeric and bigint indexed receivers preserve membership certainty', [
+		'/** @param {Uint8Array | BigInt64Array} values */',
+		'function run(values) { inspect(values); inspect(values.includes(key)); }',
+	], [['indexed', 'bigintArray'], ['boolean']]],
+	['array and typed array unions retain iteration methods without claiming ordinary arrays', [
+		'/** @param {Array<RegExp> | Uint8Array} values */',
+		'function run(values) { inspect(values); inspect(values.some(predicate)); }',
+	], [['indexed'], ['boolean']]],
+	['nullable regular expressions do not prove boolean flags or tests', [
+		'/** @param {?RegExp} pattern */',
+		'function run(pattern) { inspect(pattern.global); inspect(pattern.test("x")); }',
+	], [[], []]],
+	['computed regular expression flags retain their boolean property facts', [
+		'/** @param {RegExp} pattern */',
+		'function run(pattern) { const flag = "unicodeSets"; inspect(pattern[flag]); inspect(pattern["hasIndices"]); }',
+	], [['boolean'], ['boolean']]],
+	['regular expression metadata is not mistaken for boolean flags', [
+		'/** @param {RegExp} pattern */',
+		'function run(pattern) { inspect(pattern.source); inspect(pattern.flags); inspect(pattern.lastIndex); }',
+	], [[], [], []]],
+	['record method names do not supply built-in receiver identities', [
+		'/** @param {{has(key: string): boolean; test(value: string): boolean}} object */',
+		'function run(object) { inspect(object.has(key)); inspect(object.test("x")); }',
+	], [[], []]],
+	['container element methods do not become methods of the container', [
+		'/** @param {Array<Set<boolean>>} values */',
+		'function run(values) { inspect(values.has(key)); inspect(values.some(predicate)); }',
+	], [[], ['boolean']]],
+	['promise generic arguments cannot establish regular expression receivers', [
+		'/** @param {Promise<RegExp>} pending */',
+		'function run(pending) { inspect(pending.global); inspect(pending.test("x")); }',
+	], [[], []]],
+	['sequence receivers preserve assigned documented callback results', [
+		'/** @returns {Set<string>} */ function read() { return source; }',
+		'function run(cache) { inspect((consume(), cache = read()).has(key)); }',
+	], [['boolean']]],
+	['conditional callback results combine compatible indexed collection types', [
+		'/** @param {() => ReadonlyArray<string>} first\n * @param {() => Uint16Array} second */',
+		'function run(first, second) { inspect((condition ? first() : second()).includes(key)); }',
+	], [['boolean']]],
+	['a shared method name does not resolve mixed string and array receiver kinds', [
+		'/** @param {string} text\n * @param {Array<string>} values */',
+		'function run(text, values) { inspect((condition ? text : values).includes(key)); }',
+	], [[]]],
+	['logical receivers retain compatible map identities', [
+		'/** @param {Map<string, number>} first\n * @param {ReadonlyMap<string, number>} second */',
+		'function run(first, second) { inspect((first && second).has(key)); }',
+	], [['boolean']]],
+	['nullish map fallback does not recursively discard receiver uncertainty', [
+		'/** @param {Map<string, number> | undefined} first\n * @param {Map<string, number>} second */',
+		'function run(first, second) { inspect((first ?? second).has(key)); }',
+	], [[]]],
+	['assignment expression receivers preserve regular expression flag types', [
+		'/** @param {RegExp} pattern */',
+		'function run(pattern, cache) { inspect((cache = pattern).sticky); }',
+	], [['boolean']]],
+	['conditional string receivers support well-formedness checks', [
+		'/** @param {string} text */',
+		'function run(text) { inspect((condition ? text : "fallback").isWellFormed()); }',
+	], [['boolean']]],
+	['nested documented functions keep outer and inner call results separate', [
+		'/** @returns {boolean} */ function outer() {',
+		' /** @returns {number} */ function read() { return source; }',
+		' inspect(read()); return source;',
+		'}',
+		'inspect(outer());',
+	], [['number'], ['boolean']]],
+	['named default-exported functions expose their own documented result', [
+		'/** @returns {ReadonlyArray<string>} */ export default function read() { return source; }',
+		'inspect(read()); inspect(read().every(predicate));',
+	], [['array', 'indexed'], ['boolean']]],
+	['named function expression recursion shares its documented return owner', [
+		'/** @returns {string} */ const read = function recurse() { inspect(recurse()); return source; };',
+		'inspect(read());',
+	], [['string'], ['string']]],
+	['same-named nested function declarations do not share cached result types', [
+		'/** @returns {string} */ function read() {',
+		' /** @returns {number} */ function read() { return source; }',
+		' inspect(read()); return source;',
+		'}',
+		'inspect(read());',
+	], [['number'], ['string']]],
+	['duplicate function definitions cannot establish one documented call result', [
+		'function run() {',
+		'/** @returns {string} */ function read() { return source; }',
+		'/** @returns {boolean} */ function read() { return source; }',
+		'inspect(read());',
+		'}',
+	], [[]]],
+	['optional calls do not inherit definite documented boolean results', [
+		'/** @returns {boolean} */ function read() { return source; }',
+		'inspect(read?.()); inspect(read());',
+	], [[], ['boolean']]],
+	['call apply and bind do not become direct documented callback calls', [
+		'/** @type {() => string} */ const read = source;',
+		'inspect(read.call(receiver)); inspect(read.apply(receiver, [])); inspect(read.bind(receiver)()); inspect(read());',
+	], [[], [], [], ['string']]],
+	['inline callback documentation overrides the named caller return contract', [
+		'/** @param {() => boolean} read */',
+		'function run(/** @type {() => string} */ read) { inspect(read()); }',
+	], [['string']]],
+	['duplicate parameter tag aliases cannot establish one callback contract', [
+		'/** @param {() => boolean} read\n * @argument {() => string} read */',
+		'function run(read) { inspect(read()); }',
+	], [[]]],
+	['independent inline callback types remain usable when named tags are ambiguous', [
+		'/** @param {() => string} read\n * @arg {() => number} read */',
+		'function run(/** @type {() => boolean} */ read) { inspect(read()); }',
+	], [['boolean']]],
+]) {
+	test(description, t => {
+		const code = lines.join('\n');
+		t.assert.deepStrictEqual(getInferences(code), expected);
+		t.assert.deepStrictEqual(getInferences(code, {typescript: true}), expected);
+	});
+}
+
+for (const [description, lines, expected] of [
+	['native typed array aliases override conflicting documented receiver kinds', [
+		'type Values = Uint16Array | BigUint64Array;',
+		'/** @param {Array<string>} values */',
+		'function run(values: Values) { inspect(values); inspect(values.includes(key)); }',
+	], [['indexed', 'bigintArray'], ['boolean']]],
+	['native optional callable unions cannot borrow definite documented returns', [
+		'/** @param {() => boolean} read */',
+		'function run(read: (() => boolean) | undefined) { inspect(read()); }',
+	], [[]]],
+	['native callable parameter types remain usable beneath unknown documentation', [
+		'/** @param {unknown} read */',
+		'function run(read: () => boolean) { inspect(read()); }',
+	], [['boolean']]],
+	['native readonly tuple annotations win over documented primitive aliases', [
+		'/** @param {Boolean} pair */',
+		'function run(pair: readonly [number, string]) { inspect(pair); inspect(pair.some(predicate)); }',
+	], [['array', 'indexed'], ['boolean']]],
+	['native boxed string returns are not normalized as JSDoc primitive aliases', [
+		'/** @returns {String} */ function read(): String { return source; }',
+		'inspect(read()); inspect(read().includes("x"));',
+	], [[], []]],
+	['native unknown return types stay unknown through documented receiver callbacks', [
+		'/** @returns {RegExp} */ const read = ((): unknown => source) satisfies (() => unknown);',
+		'inspect(read().global);',
+	], [[]]],
+	['native tuple assertions override documented set receiver identities', [
+		'/** @type {Set<string>} */ const values = source as readonly [string, number];',
+		'inspect(values); inspect(values.every(predicate)); inspect(values.has(key));',
+	], [['array', 'indexed'], ['boolean'], []]],
+	['asserted map receivers cannot retain documented string method identities', [
+		'/** @type {string} */ const value = source;',
+		'inspect((value as Map<string, number>).has(key)); inspect((value as Map<string, number>).includes("x"));',
+	], [['boolean'], []]],
+]) {
+	test(description, t => {
+		t.assert.deepStrictEqual(getInferences(lines.join('\n'), {typescript: true}), expected);
+	});
+}
+
+for (const [description, type, expected] of [
+	['record metadata intersections preserve target names without resolving unknown intersections', 'Widget & {label: string}', ['definite', 'mixed', 'nullable']],
+	['unknown intersections cannot establish target names even under relaxed union policies', 'Widget & Unresolved', []],
+	['nullable targets follow independent positive and negative mixed union policies', '?Widget', ['mixed', 'nullable', 'nonTarget']],
+	['non-target evidence can dominate an otherwise unresolved union when requested', 'Other | Unresolved', ['nonTarget']],
+	['configured type-name aliases apply to generic outer names without resolving generic arguments', 'Box<Other>', ['definite', 'mixed', 'nullable']],
+	['configured type-name aliases are not inferred from generic element names', 'Other<Box<Widget>>', ['nonTarget']],
+]) {
+	test(description, t => {
+		const options = {
+			targetTypeNames: new Set(['Widget']),
+			nonTargetTypeNames: new Set(['Other']),
+			typeReferenceAliases: new Map([['Box', 'Widget']]),
+		};
+		const checks = {
+			definite: createTypeCheckers(options).isTarget,
+			mixed: createTypeCheckers({...options, treatMixedUnionAsTarget: true}).isTarget,
+			nullable: createTypeCheckers({...options, allowNullishInMixedUnion: true}).isTarget,
+			nonTarget: createTypeCheckers({...options, treatMixedUnionAsNonTarget: true}).isKnownNonTarget,
+		};
+		const code = `/** @param {${type}} value */ function run(value) { inspect(value); }`;
+		t.assert.deepStrictEqual(getInferences(code, {checks}), [expected]);
+		t.assert.deepStrictEqual(getInferences(code, {checks, typescript: true}), [expected]);
+	});
+}

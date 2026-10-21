@@ -908,3 +908,118 @@ test('native optional parameters retain their optionality with a required JSDoc 
 	const code = '/** @param {boolean} flag */ function run(flag) { inspect(flag); }';
 	t.assert.deepStrictEqual(getAnnotations(code, false, true), [{type: {kind: 'name', name: 'boolean'}, optional: false, name: 'flag'}]);
 });
+
+test('duplicate tags affect only the matching parameter while sibling and return tags remain usable', t => {
+	const code = '/** @param {boolean} first\n * @argument {string} first\n * @param {number} second\n * @returns {string} */ function run(first, second) { inspect(first); inspect(second); }';
+	t.assert.deepStrictEqual(getAnnotations(code), [undefined, {type: {kind: 'name', name: 'number'}, optional: false, name: 'second'}]);
+	t.assert.strictEqual(getAnnotations(code, true)[0]?.type.name, 'string');
+	const start = code.indexOf('second');
+	t.assert.deepStrictEqual(getParameterRanges(code), [undefined, [start, start + 6]]);
+});
+
+test('ambiguous return aliases do not erase an independently documented parameter', t => {
+	const code = '/** @param {boolean} [flag=false]\n * @return {string}\n * @returns {number} */ function run(flag) { inspect(flag); }';
+	t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'name', name: 'boolean'}, optional: true, name: 'flag'}]);
+	t.assert.deepStrictEqual(getAnnotations(code, true), [undefined]);
+	t.assert.strictEqual(code.slice(...getParameterRanges(code)[0]), 'flag');
+});
+
+test('an unclosed optional name does not consume the next parameter or return tag', t => {
+	const code = '/** @param {boolean} [first=false\n * @param {string} second\n * @returns {number} */ function run(first, second) { inspect(first); inspect(second); }';
+	t.assert.deepStrictEqual(getAnnotations(code), [undefined, {type: {kind: 'name', name: 'string'}, optional: false, name: 'second'}]);
+	t.assert.strictEqual(getAnnotations(code, true)[0]?.type.name, 'number');
+	const start = code.indexOf('second');
+	t.assert.deepStrictEqual(getParameterRanges(code), [undefined, [start, start + 6]]);
+});
+
+test('an unclosed parameter type cannot hide valid following tags', t => {
+	const code = '/** @param {Array<boolean first\n * @argument {number} second\n * @return {boolean} */ function run(first, second) { inspect(first); inspect(second); }';
+	t.assert.deepStrictEqual(getAnnotations(code), [undefined, {type: {kind: 'name', name: 'number'}, optional: false, name: 'second'}]);
+	t.assert.strictEqual(getAnnotations(code, true)[0]?.type.name, 'boolean');
+	t.assert.deepStrictEqual(getParameterRanges(code).map(range => range && code.slice(...range)), [undefined, 'second']);
+});
+
+test('an inline unknown type overrides named certainty without losing its optional name range', t => {
+	const code = '/** @param {boolean} [flag=false] */ function run(/** @type {unknown} */ flag) { inspect(flag); }';
+	t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'unknown'}, optional: true, name: 'flag'}]);
+	const start = code.indexOf('[flag') + 1;
+	t.assert.deepStrictEqual(getParameterRanges(code), [[start, start + 4]]);
+});
+
+test('an inline type remains usable when named parameter aliases are ambiguous', t => {
+	const code = '/** @param {string} flag\n * @arg {number} flag */ function run(/** @type {boolean} */ flag) { inspect(flag); }';
+	t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'name', name: 'boolean'}, optional: false, name: undefined}]);
+	t.assert.deepStrictEqual(getParameterRanges(code), [undefined]);
+});
+
+test('ambiguous inline type tags leave independent named documentation authoritative', t => {
+	const code = '/** @param {string} [flag] */ function run(/** @type {boolean}\n * @type {number} */ flag) { inspect(flag); }';
+	t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'name', name: 'string'}, optional: true, name: 'flag'}]);
+	t.assert.strictEqual(code.slice(...getParameterRanges(code)[0]), 'flag');
+});
+
+test('a description-only initializer comment prevents borrowing declaration annotations', t => {
+	const code = '/** @param {boolean} flag\n * @returns {string} */ const run = /** Implementation details. */ flag => { inspect(flag); };';
+	t.assert.deepStrictEqual(getAnnotations(code), [undefined]);
+	t.assert.deepStrictEqual(getAnnotations(code, true), [undefined]);
+	t.assert.deepStrictEqual(getParameterRanges(code), [undefined]);
+});
+
+test('a nearest description-only declaration comment blocks an older binding type', t => {
+	const code = '/** @type {boolean} */\n/** This binding is intentionally undocumented. */ let flag; inspect(flag);';
+	t.assert.deepStrictEqual(getAnnotations(code), [undefined]);
+});
+
+test('parameter ranges skip identical names in a shebang and leading description', t => {
+	const code = '#!/usr/bin/env node\n/** flag 😀\n * @param {boolean} [flag=false] flag.\n */ function run(flag) { inspect(flag); }';
+	const start = code.indexOf('[flag') + 1;
+	t.assert.deepStrictEqual(getParameterRanges(code), [[start, start + 4]]);
+	t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'name', name: 'boolean'}, optional: true, name: 'flag'}]);
+});
+
+test('default parameter expressions resolve earlier documented bindings', t => {
+	const code = '/** @param {boolean} first\n * @param {string} second */ function run(first, second = inspect(first)) { inspect(second); }';
+	t.assert.deepStrictEqual(getAnnotations(code).map(annotation => annotation?.type.name), ['boolean', 'string']);
+	t.assert.deepStrictEqual(getParameterRanges(code).map(range => code.slice(...range)), ['first', 'second']);
+});
+
+test('a callback default captures its outer documented parameter without inheriting return tags', t => {
+	const code = '/** @param {boolean} flag\n * @returns {string} */ function run(flag, read = () => inspect(flag)) { inspect(flag); }';
+	t.assert.deepStrictEqual(getAnnotations(code).map(annotation => annotation?.type.name), ['boolean', 'boolean']);
+	t.assert.deepStrictEqual(getAnnotations(code, true).map(annotation => annotation?.type.name), ['string', undefined]);
+	t.assert.deepStrictEqual(getParameterRanges(code).map(range => range && code.slice(...range)), ['flag', undefined]);
+});
+
+test('catch bindings shadow an outer documented parameter without borrowing its annotation', t => {
+	const code = '/** @param {boolean} flag */ function run(flag) { try { inspect(flag); } catch (flag) { inspect(flag); } inspect(flag); }';
+	t.assert.deepStrictEqual(getAnnotations(code).map(annotation => annotation?.type.name), ['boolean', undefined, 'boolean']);
+});
+
+test('named function expression parameters keep their documentation when the function has the same name', t => {
+	const code = '/** @param {boolean} flag\n * @returns {string} */ const run = function flag(flag) { inspect(flag); };';
+	t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'name', name: 'boolean'}, optional: false, name: 'flag'}]);
+	t.assert.strictEqual(getAnnotations(code, true)[0]?.type.name, 'string');
+	t.assert.strictEqual(code.slice(...getParameterRanges(code)[0]), 'flag');
+});
+
+test('class-level function-like tags do not annotate a constructor parameter', t => {
+	const code = '/** @param {boolean} flag\n * @returns {string} */ export default class Task { constructor(flag) { inspect(flag); } }';
+	t.assert.deepStrictEqual(getAnnotations(code), [undefined]);
+	t.assert.deepStrictEqual(getAnnotations(code, true), [undefined]);
+	t.assert.deepStrictEqual(getParameterRanges(code), [undefined]);
+});
+
+test('a default-exported class method owns documentation independently from its class', t => {
+	const code = '/** @param {number} flag\n * @returns {number} */ export default class Task { /** @param {boolean} [flag=false]\n * @returns {string} */ run(flag) { inspect(flag); } }';
+	t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'name', name: 'boolean'}, optional: true, name: 'flag'}]);
+	t.assert.strictEqual(getAnnotations(code, true)[0]?.type.name, 'string');
+	const start = code.indexOf('[flag') + 1;
+	t.assert.deepStrictEqual(getParameterRanges(code), [[start, start + 4]]);
+});
+
+test('default-exported async generators retain raw parameter and return documentation', t => {
+	const code = '/** @argument {boolean} [flag=false]\n * @return {number} */ export default async function* run(flag) { inspect(flag); yield source; }';
+	t.assert.deepStrictEqual(getAnnotations(code), [{type: {kind: 'name', name: 'boolean'}, optional: true, name: 'flag'}]);
+	t.assert.strictEqual(getAnnotations(code, true)[0]?.type.name, 'number');
+	t.assert.strictEqual(code.slice(...getParameterRanges(code)[0]), 'flag');
+});

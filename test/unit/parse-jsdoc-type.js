@@ -674,3 +674,40 @@ test('unterminated escaped quotes stop tokenization without rescanning every quo
 test('whitespace and an unrecognized token cannot establish a primitive type', t => {
 	t.assert.deepStrictEqual(parseJSDocumentType(`${' '.repeat(100_000)}#boolean`), unknown);
 });
+
+for (const [description, expression, expected] of [
+	['union of callable records', '{(): boolean} | {(value: string): string}', union(callable(boolean), callable(string))],
+	['overload signatures separated by dictionary metadata', '{(): boolean; [key: string]: unknown; (value: string): string}', intersection(callable(boolean), callable(string))],
+	['call signature following a callback index signature', '{[key: string]: () => number; (): boolean}', callable(boolean)],
+	['ordinary method returning a callable record', '{create(): {(): boolean}}', nonPrimitive],
+	['higher-order array return', '() => (() => boolean)[]', callable(array)],
+	['optional nullable callable value', '(?(() => boolean))=', optional(nullable(callable(boolean)))],
+	['nullable higher-order result', '() => ?(() => boolean)', callable(nullable(callable(boolean)))],
+	['callable returning an intersection of callable records', '() => ({(): boolean} & {(value: string): string})', callable(intersection(callable(boolean), callable(string)))],
+	['tuple containing optional higher-order callbacks', '[callback?: () => (() => boolean), ...rest: Array<() => string>]', array],
+	['readonly tuple with a named rest member', 'readonly [name: string, ...values: number[]]', array],
+	['unknown overload result retained beside a definite result', '{(): ?; (value: string): boolean}', intersection(callable(unknown), callable(boolean))],
+	['grouped optional return belongs to the callback result', 'function(): (boolean=)', callable(optional(boolean))],
+	['quoted delimiters in callable metadata', '{"() => } | [": string; (): boolean}', callable(boolean)],
+	['nullable generic callback parameter does not make its result nullable', 'function(?Array<() => boolean>): string', callable(string)],
+	['array result preserves nullable callback element boundary', 'function(): Array<?(() => boolean)>', callable(array)],
+]) {
+	test(`composes ${description}`, t => {
+		t.assert.deepStrictEqual(parseJSDocumentType(expression), expected);
+	});
+}
+
+for (const [description, expression] of [
+	['unsupported property in a returned callable record', '() => {(): boolean; broken: keyof Options}'],
+	['missing index signature value after a call signature', 'Array<{(): boolean; [name: string]:}>'],
+	['missing overload result after a valid signature', 'Array<{(value: string): boolean; (value: number):}>'],
+	['malformed callback property after a call signature', '{(): boolean; callback: (value:) => string}'],
+	['malformed callable record argument before a definite result', 'function({(value:): boolean}): boolean'],
+	['missing record property in a returned dictionary', '() => {[key: string]: boolean; ready:}'],
+	['unsupported nested callback argument before a definite result', '(callback: {(): boolean; broken: typeof input}) => boolean'],
+	['malformed optional nullable callable record', '(?{(): boolean; broken:})='],
+]) {
+	test(`rejects the whole type for ${description}`, t => {
+		t.assert.deepStrictEqual(parseJSDocumentType(expression), unknown);
+	});
+}
