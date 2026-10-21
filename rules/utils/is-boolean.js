@@ -58,22 +58,18 @@ const booleanPropertiesByExpressionKind = new Map([
 	['regexp', new Set(['dotAll', 'global', 'hasIndices', 'ignoreCase', 'multiline', 'sticky', 'unicode', 'unicodeSets'])],
 ]);
 
-const typeNamesByExpressionKind = new Map([
-	['array', new Set(['Array', 'ReadonlyArray'])],
-	['map', new Set(['Map', 'ReadonlyMap', 'WeakMap'])],
-	['regexp', new Set(['RegExp'])],
-	['set', new Set(['Set', 'ReadonlySet'])],
-	['string', new Set(['string'])],
-	['weakSet', new Set(['WeakSet'])],
-]);
+const createNamedTypeChecker = names => createTypeCheckers({
+	targetTypeNames: new Set(names),
+	checkClassHeritage: false,
+}).isTarget;
 
 const expressionKindCheckers = new Map([
-	...[...typeNamesByExpressionKind].map(([kind, targetTypeNames]) => [
-		kind,
-		createTypeCheckers({targetTypeNames, checkClassHeritage: false}).isTarget,
-	]),
 	['array', isIndexedCollection],
+	['map', createNamedTypeChecker(['Map', 'ReadonlyMap', 'WeakMap'])],
+	['regexp', createNamedTypeChecker(['RegExp'])],
+	['set', createNamedTypeChecker(['Set', 'ReadonlySet'])],
 	['string', isString],
+	['weakSet', createNamedTypeChecker(['WeakSet'])],
 ]);
 
 // The static value of these is never a primitive boolean, so they skip the costly side effect checks and evaluation.
