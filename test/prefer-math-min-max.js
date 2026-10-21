@@ -1,9 +1,67 @@
 import {outdent} from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 const MESSAGE_ID = 'prefer-math-min-max';
 const SUGGESTION_ID = 'replace-with-math-min-max';
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @returns {bigint} */ function read() { return source; } const value = read(); value > 0 ? value : 0;',
+			'/** @param {() => bigint} read */ function run(read) { const value = read(); return value > 0 ? value : 0; }',
+			'/** @type {bigint} */ const value = source; const alias = value; alias < 0 ? alias : 0;',
+			'/** @returns {bigint} */ function read() { return source; } function run(value = read()) { return value > 0 ? value : 0; }',
+			[
+				'/** @param {bigint} first\n * @param {bigint} second */',
+				'function run(first, second) { const value = condition ? first : second; return value > 0 ? value : 0; }',
+			].join('\n'),
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [{
+			code: '/** @returns {number} */ function read() { return source; } const value = read(); value > 0 ? value : 0;',
+			filename: 'file.ts',
+			errors: [{
+				messageId: MESSAGE_ID,
+				suggestions: [{
+					messageId: SUGGESTION_ID,
+					data: {method: 'max'},
+					output: '/** @returns {number} */ function read() { return source; } const value = read(); Math.max(value, 0);',
+				}],
+			}],
+		}],
+	});
+}
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			code: '/** @returns {number} */ function read(): bigint { return source; } const value = read(); value > 0 ? value : 0;',
+			filename: 'file.ts',
+		}],
+		invalid: [{
+			code: '/** @returns {bigint} */ function read(): number { return source; } const value = read(); value > 0 ? value : 0;',
+			filename: 'file.ts',
+			errors: [{
+				messageId: MESSAGE_ID,
+				suggestions: [{
+					messageId: SUGGESTION_ID,
+					data: {method: 'max'},
+					output: '/** @returns {bigint} */ function read(): number { return source; } const value = read(); Math.max(value, 0);',
+				}],
+			}],
+		}],
+	});
+}
 
 // `NaN` and signed zero give a different result, so these are only suggested
 test({

@@ -1,10 +1,112 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [],
+		invalid: [
+			...[
+				[
+					'/** @param {number} value */ function run(value) { return isNaN(value); }',
+					'/** @param {number} value */ function run(value) { return Number.isNaN(value); }',
+				],
+				[
+					'/** @returns {number} */ function read() { return source; } isFinite(read());',
+					'/** @returns {number} */ function read() { return source; } Number.isFinite(read());',
+				],
+				[
+					'/** @param {() => number} read */ function run(read) { return isNaN(read()); }',
+					'/** @param {() => number} read */ function run(read) { return Number.isNaN(read()); }',
+				],
+				[
+					'/** @type {number} */ const value = source; const alias = value; isFinite(alias);',
+					'/** @type {number} */ const value = source; const alias = value; Number.isFinite(alias);',
+				],
+				[
+					'/** @param {string} text */ function run(text) { return isFinite(text.indexOf("x")); }',
+					'/** @param {string} text */ function run(text) { return Number.isFinite(text.indexOf("x")); }',
+				],
+				[
+					'/** @param {number} first\n * @param {number} second */ function run(first, second) { return isNaN(condition ? first : second); }',
+					'/** @param {number} first\n * @param {number} second */ function run(first, second) { return Number.isNaN(condition ? first : second); }',
+				],
+				[
+					'/** @param {number} value */ function run(value, cache) { return isFinite(cache = value); }',
+					'/** @param {number} value */ function run(value, cache) { return Number.isFinite(cache = value); }',
+				],
+				[
+					'/** @param {string} value */ function run(/** @type {number} */ value) { return isNaN(value); }',
+					'/** @param {string} value */ function run(/** @type {number} */ value) { return Number.isNaN(value); }',
+				],
+			].map(([code, output]) => ({
+				code, output, filename: 'file.ts', errors: [{messageId: MESSAGE_ID_ERROR, suggestions: 0}],
+			})),
+			...[
+				[
+					'/** @param {number} [value] */ function run(value) { return isFinite(value); }',
+					'/** @param {number} [value] */ function run(value) { return Number.isFinite(value); }',
+				],
+				[
+					'/** @param {number | string} value */ function run(value) { return isNaN(value); }',
+					'/** @param {number | string} value */ function run(value) { return Number.isNaN(value); }',
+				],
+				[
+					'/** @param {() => ?number} read */ function run(read) { return isFinite(read()); }',
+					'/** @param {() => ?number} read */ function run(read) { return Number.isFinite(read()); }',
+				],
+				[
+					'/** @returns {number} */ async function read() { return source; } isNaN(read());',
+					'/** @returns {number} */ async function read() { return source; } Number.isNaN(read());',
+				],
+				[
+					'/** @param {() => (() => number)} read */ function run(read) { return isFinite(read()); }',
+					'/** @param {() => (() => number)} read */ function run(read) { return Number.isFinite(read()); }',
+				],
+			].map(([code, output]) => ({
+				code,
+				filename: 'file.ts',
+				errors: [{messageId: MESSAGE_ID_ERROR, suggestions: [{messageId: MESSAGE_ID_SUGGESTION, output}]}],
+			})),
+		],
+	});
+}
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [],
+		invalid: [{
+			code: '/** @param {string} value */ function run(value: number) { return isFinite(value); }',
+			output: '/** @param {string} value */ function run(value: number) { return Number.isFinite(value); }',
+			filename: 'file.ts',
+			errors: [{messageId: MESSAGE_ID_ERROR, suggestions: 0}],
+		}, {
+			code: '/** @param {Number} value */ function run(value: Number) { return isNaN(value); }',
+			filename: 'file.ts',
+			errors: [{
+				messageId: MESSAGE_ID_ERROR,
+				suggestions: [{
+					messageId: MESSAGE_ID_SUGGESTION,
+					output: '/** @param {Number} value */ function run(value: Number) { return Number.isNaN(value); }',
+				}],
+			}],
+		}],
+	});
+}
 
 const methods = {
 	parseInt: {

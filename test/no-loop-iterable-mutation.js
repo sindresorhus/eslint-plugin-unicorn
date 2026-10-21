@@ -9,6 +9,48 @@ const {test, rule} = getTester(import.meta);
 
 const linter = new Linter();
 
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {Array<number>} values */ function run(values) { for (const value of values) { values.add(value); } }',
+			'/** @param {Set<number>} values */ function run(values) { for (const value of values) { values.push(value); } }',
+			'/** @param {Map<string, number>} values */ function run(values) { for (const value of values) { values.add(value); } }',
+			'/** @param {Set<number>} values */ function run(values) { for (const value of values.values()) { values.delete(value); } }',
+			'/** @returns {Array<number>} */ function read() { return source; } const values = read(); for (const value of values) { values.set(key, value); }',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			'/** @param {Array<number>} values */ function run(values) { for (const value of values) { values.reverse(); } }',
+			'/** @param {Set<[number]>} values */ function run(values) { for (const [value] of values) { values.delete(value); } }',
+			'/** @param {Set<number>} values */ function run(values) { for (const value of values.values()) { values.delete(value); values.add(value); } }',
+			'/** @param {?Set<number>} values */ function run(values) { for (const value of values.values()) { values.delete(value); } }',
+			'/** @param {Map<string, number>} values */ function run(values) { for (const value of values.values()) { values.set(value, replacement); } }',
+		].map(code => ({code, filename: 'file.ts', errors: [{messageId: 'no-loop-iterable-mutation'}]})),
+	});
+}
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			code: '/** @param {Set<number>} values */ function run(values: number[]) { for (const value of values) { values.add(value); } }',
+			filename: 'file.ts',
+		}],
+		invalid: [{
+			code: '/** @param {Array<number>} values */ function run(values: Set<[number]>) { for (const [value] of values) { values.delete(value); } }',
+			filename: 'file.ts',
+			errors: [{messageId: 'no-loop-iterable-mutation'}],
+		}],
+	});
+}
+
 for (const [description, statement, expected] of [
 	['continue', 'try { set.delete(value); } finally { continue; }', 'done'],
 	['break', 'try { set.delete(value); } finally { break; }', 'done'],

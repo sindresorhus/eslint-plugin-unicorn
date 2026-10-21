@@ -3,9 +3,72 @@ import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {Map<string, number>} values */ function run(values) { values.forEach(value => consume(value)); }',
+			'/** @param {() => Set<number>} read */ function run(read) { read().forEach(value => consume(value)); }',
+			'/** @param {Map<string, number> | Set<number>} values */ function run(values) { values.forEach(value => consume(value)); }',
+			'/** @type {Map<string, number>} */ const values = []; values.forEach(value => consume(value));',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			...[
+				[
+					'/** @param {Array<number>} values */ function run(values) { values.forEach(value => consume(value)); }',
+					'/** @param {Array<number>} values */ function run(values) { for (const value of values) consume(value); }',
+				],
+				[
+					'/** @param {() => ReadonlyArray<number>} read */ function run(read) { read().forEach(value => consume(value)); }',
+					'/** @param {() => ReadonlyArray<number>} read */ function run(read) { for (const value of read()) consume(value); }',
+				],
+				[
+					'/** @param {Array<number>} values */ function run(values) { const alias = values; alias.forEach(value => { consume(value); }); }',
+					'/** @param {Array<number>} values */ function run(values) { const alias = values; for (const value of alias) { consume(value); } }',
+				],
+				[
+					'/** @param {Array<number>} left\n * @param {Array<number>} right */ function run(left, right) { (left || right).forEach(value => consume(value)); }',
+					'/** @param {Array<number>} left\n * @param {Array<number>} right */ function run(left, right) { for (const value of (left || right)) consume(value); }',
+				],
+			].map(([code, output]) => ({
+				code, output, filename: 'file.ts', errors: [{messageId: 'no-for-each/error', suggestions: 0}],
+			})),
+			...[
+				'/** @param {?Array<number>} values */ function run(values) { values.forEach(value => consume(value)); }',
+				'/** @param {Uint8Array} values */ function run(values) { values.forEach(value => consume(value)); }',
+				'/** @param {Array<number> | Map<string, number>} values */ function run(values) { values.forEach(value => consume(value)); }',
+				'/** @param {Array<number>} values */ function run(values) { values.forEach(/* keep */ value => consume(value)); }',
+			].map(code => ({code, filename: 'file.ts', errors: [{messageId: 'no-for-each/error', suggestions: 0}]})),
+		],
+	});
+}
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			code: '/** @param {Array<number>} values */ function run(values: Set<number>) { values.forEach(value => consume(value)); }',
+			filename: 'file.ts',
+		}],
+		invalid: [{
+			code: '/** @param {Set<number>} values */ function run(values: number[]) { values.forEach(value => consume(value)); }',
+			output: '/** @param {Set<number>} values */ function run(values: number[]) { for (const value of values) consume(value); }',
+			filename: 'file.ts',
+			errors: [{messageId: 'no-for-each/error', suggestions: 0}],
+		}],
+	});
+}
 
 const typeAware = code => ({
 	code,

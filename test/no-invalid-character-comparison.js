@@ -1,6 +1,53 @@
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {?string} text */ function run(text) { return text.charAt(0) === "ab"; }',
+			'/** @param {Array<string>} values */ function run(values) { return values.at(0) === "ab"; }',
+			'/** @param {string | Array<string>} value */ function run(value) { return value[0] === "ab"; }',
+			'/** @param {unknown} text */ function run(text) { return text.charAt(0) === "ab"; }',
+			'/** @returns {string} */ async function read() { return source; } read().at(0) === "ab";',
+			'/** @param {string} text */ function run(text) { return text?.[0] === "ab"; }',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			['/** @param {string} text */ function run(text) { return text.charAt(0) === "😀"; }', '😀', 'false'],
+			['/** @returns {string} */ function read() { return source; } read().at(-1) !== "ab";', 'ab', 'true'],
+			['/** @param {() => string} read */ function run(read) { return read()["0"] == "ab"; }', 'ab', 'false'],
+			['/** @type {string} */ const text = source; const alias = text; alias.charAt() === "ab";', 'ab', 'false'],
+			['/** @param {string} text */ function run(text, cache) { return (cache = text)[0] === "ab"; }', 'ab', 'false'],
+			['/** @param {"left" | "right"} text */ function run(text) { return "ab" !== text.at(1); }', 'ab', 'true'],
+		].map(([code, string, result]) => ({
+			code, filename: 'file.ts', errors: [{messageId: 'no-invalid-character-comparison', data: {string, result}}],
+		})),
+	});
+}
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			code: '/** @param {string} text */ function run(text: {charAt(): string}) { return text.charAt() === "ab"; }',
+			filename: 'file.ts',
+		}],
+		invalid: [{
+			code: '/** @param {Array<string>} text */ function run(text: string) { return text.charAt(0) === "ab"; }',
+			filename: 'file.ts',
+			errors: [{messageId: 'no-invalid-character-comparison', data: {string: 'ab', result: 'false'}}],
+		}],
+	});
+}
 
 test.snapshot({
 	valid: [

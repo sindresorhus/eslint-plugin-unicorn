@@ -424,6 +424,53 @@ for (const [description, type, expected] of [
 	});
 }
 
+for (const [description, expression, documented, setup = ''] of [
+	['ordinary method names are not binding references', '({value() { return 1; }})', false],
+	['computed method names retain annotation evidence', '({[value]() { return 1; }})', true],
+	['ordinary getter names are not binding references', '({get value() { return 1; }})', false],
+	['computed getter names retain annotation evidence', '({get [value]() { return 1; }})', true],
+	['setter bodies do not supply evidence before the setter runs', '({set slot(input) { consume(value, input); }})', false],
+	['shorthand property values remain binding references', '({value})', true],
+	['object spread operands retain annotation evidence', '({...value})', true],
+	['array holes do not prevent scanning later elements', '[, value]', true],
+	['array callback bodies do not supply immediate evidence', '[() => value]', false],
+	['callback arguments do not expose their captured bindings', 'read(() => value)', false],
+	['documented callees remain evidence through member access', 'value.call(receiver)', true],
+	['optional ordinary property names remain names', 'object?.value', false],
+	['optional computed property names remain expressions', 'object?.[value]', true],
+	// eslint-disable-next-line no-template-curly-in-string -- The fixture contains an interpolation to inspect.
+	['template interpolations retain annotation evidence', '`${value}`', true],
+	// eslint-disable-next-line no-template-curly-in-string -- The fixture contains a deferred interpolation to inspect.
+	['template callback bodies remain deferred expressions', '`${() => value}`', false],
+	['tagged templates retain documented tag bindings', 'value`text`', true],
+	['constructor arguments retain annotation evidence', 'new Constructor(value)', true],
+	['constructor callee bindings retain annotation evidence', 'new value()', true],
+	['unary operands retain annotation evidence independently of their result type', 'typeof value', true],
+	['computed deletion keys retain annotation evidence', 'delete object[value]', true],
+	['sequence scans include operands before the final value', '(value, 1)', true],
+	['logical scans conservatively retain unreachable operand evidence', 'false && value', true],
+	['conditional scans conservatively retain unselected arm evidence', 'true ? 1 : value', true],
+	['assignment right operands retain annotation evidence', '(target = value)', true],
+	['function defaults remain deferred with their function body', '(input = value) => input', false],
+	['class methods do not expose captured binding evidence', '(class { read() { return value; } })', false],
+	['object aliases retain evidence from evaluated property values', 'alias', true, 'const alias = {slot: value};'],
+	['function aliases do not expose deferred capture evidence', 'read()', false, 'const read = () => value;'],
+	['alias cycles without documented bindings terminate conservatively', 'first', false, 'const first = second; const second = first;'],
+	['alias cycles do not hide later documented conditional branches', 'second', true, 'const first = condition ? second : value; const second = first;'],
+]) {
+	test(`reference guard: ${description}`, t => {
+		const code = [
+			'/** @type {unknown} */ const value = source;',
+			setup,
+			`inspect(${expression});`,
+		].join('\n');
+		const checks = {documented: hasJSDocumentTypeReference};
+		const expected = [documented ? ['documented'] : []];
+		t.assert.deepStrictEqual(getInferences(code, {checks}), expected);
+		t.assert.deepStrictEqual(getInferences(code, {checks, typescript: true}), expected);
+	});
+}
+
 test('callable return annotations keep variable and result types separate', t => {
 	const code = '/** @type {() => Array<string>} */ const read = () => source; inspect(read); inspect(read());';
 	t.assert.deepStrictEqual(getInferences(code), [[], ['array', 'indexed']]);
