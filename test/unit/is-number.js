@@ -318,11 +318,78 @@ test('Date numeric getters require definite receivers and direct calls', t => {
 		'/** @param {Date} [value] */ function optional(value) { check(value.getTime()); }',
 		'/** @param {Date} value */ function run(value) {',
 		'check(value?.getTime()); check(value.getTime?.()); check(value["getTime"]());',
-		'check(value.toJSON()); check(value.toISOString()); check(value.setTime(0)); check(value.getYear());',
+		'check(value.toJSON()); check(value.toISOString()); check(value.getYear());',
 		'}',
 		'/** @type {unknown} */ const date = new Date(); check(date.getTime());',
 	].join('\n');
-	t.assert.deepStrictEqual(getVerdicts(code), [false, false, false, false, false, false, false, false, false]);
+	t.assert.deepStrictEqual(getVerdicts(code), [false, false, false, false, false, false, false, false]);
+});
+
+for (const method of [
+	'setDate',
+	'setFullYear',
+	'setHours',
+	'setMilliseconds',
+	'setMinutes',
+	'setMonth',
+	'setSeconds',
+	'setTime',
+	'setUTCDate',
+	'setUTCFullYear',
+	'setUTCHours',
+	'setUTCMilliseconds',
+	'setUTCMinutes',
+	'setUTCMonth',
+	'setUTCSeconds',
+]) {
+	test(`Date ${method} results are numeric timestamps`, t => {
+		for (const code of [
+			`/** @param {Date} value */ function run(value) { check(value.${method}(input)); }`,
+			`/** @returns {Date} */ function read() { return source; } check(read().${method}(input));`,
+			`function run(value: Date) { const date = value; check(date.${method}(input)); }`,
+			`check(new Date().${method}());`,
+		]) {
+			t.assert.deepStrictEqual(getVerdicts(code), [true], code);
+		}
+
+		for (const initial of [0, NaN]) {
+			const date = new Date(initial);
+			let conversions = 0;
+			const result = date[method]({
+				valueOf() {
+					conversions++;
+					return 1;
+				},
+			});
+			t.assert.strictEqual(typeof result, 'number');
+			t.assert.strictEqual(result, date.getTime());
+			t.assert.strictEqual(conversions, 1);
+		}
+	});
+}
+
+test('Date setter inference requires definite receivers and direct calls', t => {
+	for (const type of ['unknown', '?Date', 'Date | {setTime: () => string}', '{setTime: () => string}', 'number']) {
+		t.assert.deepStrictEqual(getVerdicts(`/** @param {${type}} value */ function run(value) { check(value.setTime(0)); }`), [false], type);
+	}
+
+	const code = [
+		'/** @param {Date} [value] */ function optional(value) { check(value.setTime(0)); }',
+		'/** @param {Date} value */ function run(value) {',
+		'check(value?.setTime(0)); check(value.setTime?.(0)); check(value["setTime"](0));',
+		'check(value.setYear(2000)); check(value.setTimezoneOffset(0));',
+		'}',
+		'/** @type {unknown} */ const date = new Date(); check(date.setTime(0));',
+	].join('\n');
+	t.assert.deepStrictEqual(getVerdicts(code), [false, false, false, false, false, false, false]);
+});
+
+test('Date setter inference respects native annotation precedence', t => {
+	const code = [
+		'/** @param {Date} value */ function native(value: {setTime(): string}) { check(value.setTime()); }',
+		'/** @param {{setTime: () => string}} value */ function overridden(value: Date) { check(value.setTime(0)); }',
+	].join('\n');
+	t.assert.deepStrictEqual(getVerdicts(code), [false, true]);
 });
 
 test('Math f16round returns numbers for unknown and documented arguments', t => {

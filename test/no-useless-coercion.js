@@ -11,6 +11,84 @@ const {test, rule} = getTester(import.meta);
 
 const linter = new Linter();
 
+test({
+	valid: [
+		'function run(value) { return Number(value.setTime(0)); }',
+		'/** @param {{setTime: () => string}} value */ function run(value) { return Number(value.setTime(0)); }',
+		'/** @param {?Date} value */ function run(value) { return Number(value.setTime(0)); }',
+		'/** @param {Date} [value] */ function run(value) { return Number(value.setTime(0)); }',
+		'/** @param {Date} value */ function run(value) { return Number(value?.setTime(0)); }',
+		'/** @param {Date} value */ function run(value) { return Number(value.setTime?.(0)); }',
+		'/** @param {Date} value */ function run(value) { return Number(value["setTime"](0)); }',
+	],
+	invalid: [
+		'setDate(1)',
+		'setFullYear(2000, 0, 1)',
+		'setHours(12, 30, 15, 10)',
+		'setMilliseconds(10)',
+		'setMinutes(30, 15, 10)',
+		'setMonth(0, 1)',
+		'setSeconds(15, 10)',
+		'setTime(0)',
+		'setUTCDate(1)',
+		'setUTCFullYear(2000, 0, 1)',
+		'setUTCHours(12, 30, 15, 10)',
+		'setUTCMilliseconds(10)',
+		'setUTCMinutes(30, 15, 10)',
+		'setUTCMonth(0, 1)',
+		'setUTCSeconds(15, 10)',
+	].map(methodCall => ({
+		code: `/** @param {Date} value */ function run(value) { return Number(value.${methodCall}); }`,
+		output: `/** @param {Date} value */ function run(value) { return value.${methodCall}; }`,
+		errors: [{messageId: 'no-useless-coercion'}],
+	})),
+});
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			filename: 'file.ts',
+			code: '/** @param {Date} value */ function run(value: {setTime(time: number): string}) { return Number(value.setTime(0)); }',
+		}],
+		invalid: [{
+			filename: 'file.ts',
+			code: 'function run(value: Date) { return +value.setUTCFullYear(2000, 0, 1); }',
+			output: 'function run(value: Date) { return value.setUTCFullYear(2000, 0, 1); }',
+			errors: [{messageId: 'no-useless-coercion'}],
+		}],
+	});
+}
+
+nodeTest('Date setter coercion removal preserves mutation conversions invalid dates and errors', t => {
+	const config = {
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	};
+	for (const [initial, expression, expected] of [
+		['0', 'value.setTime({valueOf() { reads++; return 1000; }})', ['number', '1000', 1000, 1]],
+		['NaN', 'value.setUTCFullYear(2000, 0, 1)', ['number', '946684800000', 946_684_800_000, 0]],
+		['0', 'value.setUTCDate(undefined)', ['number', 'NaN', NaN, 0]],
+		['0', 'value.setTime({valueOf() { reads++; throw new RangeError("expected"); }})', ['string', 'RangeError', 0, 1]],
+		['0', 'value.setTime(1n)', ['string', 'TypeError', 0, 0]],
+	]) {
+		const prefix = `let reads = 0; const date = new Date(${initial}); /** @param {Date} value */ function run(value) { return `;
+		const suffix = '; } let result; try { result = run(date); } catch (error) { result = error.name; } JSON.stringify([typeof result, String(result), date.getTime(), reads]);';
+		const code = `${prefix}Number(${expression})${suffix}`;
+		const expectedOutput = `${prefix}${expression}${suffix}`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(output, expectedOutput);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(code), JSON.stringify(expected));
+		t.assert.strictEqual(runInNewContext(output), JSON.stringify(expected));
+		t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
+	}
+});
+
 for (const methodCall of ['copyWithin(1, 0, 2)', 'fill(3, 1)', 'reverse()', 'sort((left, right) => left - right)']) {
 	test({
 		valid: [],
