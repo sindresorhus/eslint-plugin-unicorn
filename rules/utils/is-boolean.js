@@ -47,7 +47,7 @@ const booleanStaticMethods = new Map([
 
 const booleanMethodsByExpressionKind = new Map([
 	['array', new Set(['every', 'includes', 'some'])],
-	['map', new Set(['has'])],
+	['keyedCollection', new Set(['has'])],
 	['regexp', new Set(['test'])],
 	['set', new Set(['has', 'isDisjointFrom', 'isSubsetOf', 'isSupersetOf'])],
 	['string', new Set(['endsWith', 'includes', 'isWellFormed', 'startsWith'])],
@@ -65,7 +65,7 @@ const createNamedTypeChecker = names => createTypeCheckers({
 
 const expressionKindCheckers = new Map([
 	['array', isIndexedCollection],
-	['map', createNamedTypeChecker(['Map', 'ReadonlyMap', 'WeakMap'])],
+	['keyedCollection', createNamedTypeChecker(['Map', 'ReadonlyMap', 'WeakMap', 'URLSearchParams', 'Headers', 'FormData'])],
 	['regexp', createNamedTypeChecker(['RegExp'])],
 	['set', createNamedTypeChecker(['Set', 'ReadonlySet'])],
 	['string', isString],
@@ -472,8 +472,8 @@ function getKnownConstructorExpressionKind(node, context) {
 		return 'regexp';
 	}
 
-	if (['Map', 'WeakMap'].includes(node.callee.name)) {
-		return 'map';
+	if (['Map', 'WeakMap', 'URLSearchParams', 'Headers', 'FormData'].includes(node.callee.name)) {
+		return 'keyedCollection';
 	}
 
 	if (node.callee.name === 'Set') {

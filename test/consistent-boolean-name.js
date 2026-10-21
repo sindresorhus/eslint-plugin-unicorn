@@ -60,6 +60,10 @@ for (const wrap of [testCase => testCase, typescript, typeAware]) {
 	test({
 		valid: [wrap('/** @param {string} text */ function run(text, pattern) { const ready = text.replace(pattern, "").includes("x"); consume(ready); }')],
 		invalid: [
+			...['URLSearchParams', 'Headers', 'FormData'].map(type => [
+				`/** @param {${type}} values */ function run(values) { const ready = values.has("key"); consume(ready); }`,
+				`/** @param {${type}} values */ function run(values) { const isReady = values.has("key"); consume(isReady); }`,
+			]),
 			[
 				'/** @param {string} text */ function run(text) { const ready = text.trim().includes("x"); consume(ready); }',
 				'/** @param {string} text */ function run(text) { const isReady = text.trim().includes("x"); consume(isReady); }',

@@ -320,6 +320,28 @@ for (const [type, expression, expected] of [
 	});
 }
 
+for (const type of ['URLSearchParams', 'Headers', 'FormData']) {
+	test(`documented ${type} membership is boolean without treating other methods as booleans`, t => {
+		const code = [
+			`/** @param {${type}} values */ function run(values) {`,
+			'inspect(values.has("key")); inspect(values["has"]("key")); inspect(values.get("key")); inspect(values.delete("key"));',
+			'}',
+		].join('\n');
+		t.assert.deepStrictEqual(getResults(code), [true, true, false, false]);
+	});
+
+	test(`${type} constructors supply boolean membership results`, t => {
+		const code = `/* global ${type} */ inspect(new ${type}().has("key")); const values = new ${type}(); inspect(values.has("key"));`;
+		t.assert.deepStrictEqual(getResults(code), [true, true]);
+	});
+
+	test(`nullable and optional ${type} membership stays uncertain`, t => {
+		const code = `/** @param {?${type}} values */ function run(values) { inspect(values.has("key")); inspect(values?.has("key")); }`;
+		t.assert.deepStrictEqual(getResults(code), [false, false]);
+		t.assert.deepStrictEqual(getResults(`/** @param {${type}} values */ function run(values) { inspect(values.has?.("key")); }`), [false]);
+	});
+}
+
 test('documented typed arrays supply boolean iteration and membership results', t => {
 	for (const type of ['Uint8Array', 'BigInt64Array', 'Array<number> | Uint8Array', 'Uint8Array | BigInt64Array']) {
 		const code = `/** @param {${type}} values */ function run(values) { inspect(values.every(predicate)); inspect(values.includes(value)); inspect(values.some(predicate)); }`;

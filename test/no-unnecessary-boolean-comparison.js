@@ -7,6 +7,68 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+for (const [type, key, entries] of [
+	['URLSearchParams', 'key', [['key', 'first'], ['key', 'second']]],
+	['Headers', 'x-key', [['X-Key', 'value']]],
+	['FormData', 'key', [['key', ''], ['key', 'second']]],
+]) {
+	nodeTest(`${type} membership fixes preserve present and missing key results`, t => {
+		const Collection = globalThis[type];
+		const values = new Collection();
+		for (const [name, value] of entries) {
+			values.append(name, value);
+		}
+
+		const code = [
+			`/** @param {${type}} values */ function run(values) {`,
+			`return [values.has("${key}") === true, values.has("missing") === true, values.has("missing") === false];`,
+			'} JSON.stringify(run(values));',
+		].join('\n');
+		const linter = new Linter();
+		const config = {
+			plugins: {unicorn: {rules: {'no-unnecessary-boolean-comparison': rule}}},
+			rules: {'unicorn/no-unnecessary-boolean-comparison': 'error'},
+		};
+		const result = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.strictEqual(result.output, code.replaceAll(' === true', '').replace('values.has("missing") === false', '!values.has("missing")'));
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(runInNewContext(code, {values}), '[true,false,true]');
+		t.assert.strictEqual(runInNewContext(result.output, {values}), '[true,false,true]');
+		t.assert.deepStrictEqual(linter.verifyAndFix(result.output, config), {...result, fixed: false});
+	});
+}
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			...['URLSearchParams', 'Headers', 'FormData'].flatMap(type => [
+				`/** @param {${type}} values */ function run(values) { return values.get("key") === true; }`,
+				`/** @param {?${type}} values */ function run(values) { return values?.has("key") === false; }`,
+				`/** @param {${type}} values */ function run(values) { return values.has?.("key") === true; }`,
+			]),
+			'/** @param {Headers | {has(): string}} values */ function run(values) { return values.has("key") === true; }',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			...['URLSearchParams', 'Headers', 'FormData'].map(type => `/** @param {${type}} values */ function run(values) { return values.has("key") === true; }`),
+			'/** @param {URLSearchParams} values */ function run(values) { return values.has("key", "value") === true; }',
+			'/** @param {Headers} values */ function run(values) { return values["has"]("key") === true; }',
+			'/** @param {() => FormData} read */ function run(read) { return read().has("key") === true; }',
+			'/** @param {Map<string, string> | Headers} values */ function run(values) { return values.has("key") === true; }',
+		].map(code => ({
+			code,
+			output: code.replace(' === true', ''),
+			filename: 'file.ts',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		})),
+	});
+}
+
 for (const languageOptions of [
 	{},
 	{parser: parsers.typescript},
