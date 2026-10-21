@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
@@ -13,6 +14,75 @@ const typeAware = code => ({
 		parser: typescriptEslintParser,
 		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
 	},
+});
+
+ruleTest({
+	valid: [
+		...['symbol | number', '?symbol', '(() => number) | number', '?(() => number)', 'unknown', 'symbol[]', 'Array<() => number>', '{handler: () => number}'].map(type =>
+			`/** @param {${type}} value */ function run(value) { return JSON.stringify(value); }`,
+		),
+		'/** @param {symbol} [value] */ function run(value) { return JSON.stringify(value); }',
+		'/** @param {() => number} [value] */ function run(value) { return JSON.stringify(value); }',
+		'/** @param {() => number} read */ function run(read) { return JSON.stringify(read()); }',
+		'/** @param {symbol} value */ function run(value) { return JSON.stringify({value}, ["other"]); }',
+		'/** @param {() => number} value */ function run(value) { return JSON.stringify({value}, (key, value) => "converted"); }',
+	],
+	invalid: [
+		['/** @param {symbol} value */ function run(value) { return JSON.stringify(value); }', 'symbol', 'JSON.stringify'],
+		['/** @param {() => number} value */ function run(value) { return Response.json([value]); }', 'function', 'Response.json'],
+		['/** @type {symbol} */ let value = source; JSON.stringify({nested: [value]});', 'symbol', 'JSON.stringify'],
+		['/** @type {function(number): boolean} */ let value; Response.json(value);', 'function', 'Response.json'],
+		['/** @returns {symbol} */ function read() { return source; } const value = read(); JSON.stringify(value);', 'symbol', 'JSON.stringify'],
+		['/** @returns {() => string} */ function read() { return source; } const value = read(); Response.json({value});', 'function', 'Response.json'],
+		['/** @param {{(value: number): string; label: string}} value */ function run(value) { return JSON.stringify(value); }', 'function', 'JSON.stringify'],
+		['/** @param {function(number): boolean} value */ function run(value) { return JSON.stringify([value]); }', 'function', 'JSON.stringify'],
+		['/** @param {() => unknown} value */ function run(value) { return JSON.stringify(value); }', 'function', 'JSON.stringify'],
+	].map(([code, type, method]) => ({
+		code,
+		errors: [{messageId: 'no-unsafe-json-serialization', data: {type, method}, suggestions: []}],
+	})),
+});
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	ruleTest({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {symbol} value */ function run(value: number) { return JSON.stringify(value); }',
+			'/** @param {() => number} value */ function run(value: {id: number}) { return JSON.stringify(value); }',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			['symbol', 'symbol', 'JSON.stringify'],
+			['() => unknown', 'function', 'Response.json'],
+		].map(([type, label, method]) => ({
+			filename: 'file.ts',
+			code: `/** @param {${type}} value */ function run(value) { return ${method}(value); }`,
+			errors: [{messageId: 'no-unsafe-json-serialization', data: {type: label, method}, suggestions: []}],
+		})),
+	});
+}
+
+test('documented symbol and function values are omitted or replaced by JSON serialization', t => {
+	const linter = new Linter();
+	for (const [type, expression, label] of [
+		['symbol', 'Symbol("value")', 'symbol'],
+		['() => number', '() => 42', 'function'],
+	]) {
+		const prefix = `/** @param {${type}} value */ function run(value) { return `;
+		const body = '[typeof JSON.stringify(value), JSON.stringify([value]), JSON.stringify({value})]';
+		const code = `${prefix}${body}; } JSON.stringify(run(${expression}));`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, {
+			plugins: {unicorn},
+			rules: {'unicorn/no-unsafe-json-serialization': 'error'},
+		});
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(fixed, false);
+		t.assert.deepStrictEqual(messages.map(({message}) => message), Array.from({length: 3}, () => `\`JSON.stringify()\` cannot faithfully serialize ${label} values.`));
+		t.assert.strictEqual(messages.every(({suggestions}) => suggestions === undefined), true);
+		t.assert.strictEqual(runInNewContext(output), JSON.stringify(['undefined', '[null]', '{}']));
+	}
 });
 
 for (const [expression, serialized, converted] of [

@@ -401,6 +401,44 @@ test('shared named checkers recognize the outer type and preserve consumer union
 	t.assert.deepStrictEqual(getInferences(code, {checks}), [['definite', 'mixed', 'nullish'], [], ['mixed'], ['mixed', 'nullish'], []]);
 });
 
+test('shared custom classifiers distinguish callable bindings from their documented return types', t => {
+	const checks = {
+		symbol: createTypeCheckers({targetTypeNames: new Set(['symbol'])}).isTarget,
+		callable: createTypeCheckers({
+			targetTypeNames: new Set(),
+			isTargetJSDocumentType: type => type?.kind === 'function',
+		}).isTarget,
+	};
+	const code = [
+		'/** @param {symbol} key',
+		' * @param {() => symbol} read',
+		' * @param {{(): number; (value: string): symbol}} overloaded',
+		' * @param {Array<() => symbol>} callbacks',
+		' * @param {{value: () => symbol}} object */',
+		'function run(key, read, overloaded, callbacks, object) {',
+		' inspect(key); inspect(read); inspect(read()); inspect(overloaded); inspect(callbacks); inspect(object);',
+		'}',
+	].join('\n');
+	for (const typescript of [false, true]) {
+		t.assert.deepStrictEqual(getInferences(code, {checks, typescript}), [['symbol'], ['callable'], ['symbol'], ['callable'], [], []]);
+	}
+});
+
+test('shared callable classifiers retain uncertainty for mixed, optional, and nullable annotations', t => {
+	const checks = {
+		callable: createTypeCheckers({
+			targetTypeNames: new Set(),
+			isTargetJSDocumentType: type => type?.kind === 'function',
+		}).isTarget,
+	};
+	for (const type of ['(() => symbol) | symbol', '?(() => symbol)', '(() => symbol)=', 'unknown', '() => symbol |']) {
+		const code = `/** @param {${type}} value */ function run(value) { inspect(value); }`;
+		for (const typescript of [false, true]) {
+			t.assert.deepStrictEqual(getInferences(code, {checks, typescript}), [[]], type);
+		}
+	}
+});
+
 test('explicit annotations keep their existing trust across subsequent writes', t => {
 	const code = '/** @type {boolean} */ let flag = source; flag = "other"; inspect(flag); /** @type {string} */ let text = source; text = 42; inspect(text);';
 	t.assert.deepStrictEqual(getInferences(code), [['boolean'], ['string']]);
