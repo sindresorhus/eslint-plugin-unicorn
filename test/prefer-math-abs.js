@@ -1,7 +1,73 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['(/* keep */ value) < 0 ? -value : value;', 'Math.abs((/* keep */ value));'],
+			['value > (/* keep */ limit) || value < -limit;', 'Math.abs(value) > (/* keep */ limit);'],
+			['value < -limit || (/* keep */ value) > limit;', 'Math.abs((/* keep */ value)) > limit;'],
+		].map(([code, output]) => ({code, errors: [{messageId: 'prefer-math-abs', suggestions: [{messageId: 'prefer-math-abs/suggestion', output}]}]})),
+		{
+			code: '(value as /* keep */ number) < 0 ? -value : value;',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-math-abs', suggestions: [{messageId: 'prefer-math-abs/suggestion', output: 'Math.abs((value as /* keep */ number));'}]}],
+		},
+	],
+});
+
+test({
+	valid: ['const value = 1n; (/* keep */ value) < 0 ? -value : value;'],
+	invalid: [
+		...[
+			['((value /* keep */)) >= 0 ? value : -value;', 'Math.abs(((value /* keep */)));'],
+			['value > (limit // keep\r\n) || value < -limit;', 'Math.abs(value) > (limit // keep\r\n);'],
+		].map(([code, output]) => ({code, errors: [{messageId: 'prefer-math-abs', suggestions: [{messageId: 'prefer-math-abs/suggestion', output}]}]})),
+		{
+			code: 'limit as /* keep */ number < value || value < -(limit as number);',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-math-abs', suggestions: [{messageId: 'prefer-math-abs/suggestion', output: 'Math.abs(value) > (limit as /* keep */ number);'}]}],
+		},
+		...[
+			'value /* keep */ < 0 ? -value : value;',
+			'value < 0 ? -(/* keep */ value) : value;',
+			'value < 0 ? -value : (/* keep */ value);',
+			'value > limit || (/* keep */ value) < -limit;',
+			'value > limit || value < -(/* keep */ limit);',
+			'(/* keep */ object.value) < 0 ? -object.value : object.value;',
+			'value > (/* keep */ object.limit) || value < -object.limit;',
+		].map(code => ({code, errors: [{messageId: 'prefer-math-abs', suggestions: []}]})),
+	],
+});
+
+nodeTest('comment-preserving absolute value rewrites keep coercion and signed-zero changes manual', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-math-abs': rule}}},
+		rules: {'unicorn/prefer-math-abs': 'error'},
+	};
+	const code = '(/* keep */ value) < 0 ? -value : value;';
+	const {output, fixed, messages} = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(output, code);
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].fix, undefined);
+	t.assert.strictEqual(messages[0].suggestions?.length, 1);
+	const {range, text} = messages[0].suggestions[0].fix;
+	const suggested = code.slice(0, range[0]) + text + code.slice(range[1]);
+	t.assert.strictEqual(suggested, 'Math.abs((/* keep */ value));');
+	t.assert.deepStrictEqual(linter.verify(suggested, config), []);
+	for (const [value, originalResult, suggestedResult] of [[5, 5, 5], [-5, 5, 5], [-0, -0, 0], ['5', '5', 5]]) {
+		t.assert.strictEqual(runInNewContext(code, {value}), originalResult);
+		t.assert.strictEqual(runInNewContext(suggested, {value}), suggestedResult);
+	}
+});
 
 test({
 	valid: [],
