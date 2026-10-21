@@ -37,7 +37,7 @@ testRule({
 });
 
 // eslint-disable-next-line node-test/no-skip-test -- Uint8Array#toHex is unavailable on older supported Node.js versions.
-test('hex encoding preserves comments and evaluates its input once', {skip: typeof Uint8Array.prototype.toHex !== 'function'}, t => {
+test('hex encoding preserves comments and evaluates its input once', {skip: !('toHex' in Uint8Array.prototype)}, t => {
 	const linter = new Linter();
 	const code = `let evaluations = 0; const result = Array.from(new Uint8Array((++evaluations, [0, /* keep */ 15, 255])), ${encode}).join(''); JSON.stringify({evaluations, result});`;
 	const {output, fixed, messages} = linter.verifyAndFix(code, {
@@ -52,7 +52,7 @@ test('hex encoding preserves comments and evaluates its input once', {skip: type
 });
 
 // eslint-disable-next-line node-test/no-skip-test -- Uint8Array.fromHex is unavailable on older supported Node.js versions.
-test('commented hex decoding stays manual because result types and invalid input handling differ', {skip: typeof Uint8Array.fromHex !== 'function'}, t => {
+test('commented hex decoding stays manual because result types and invalid input handling differ', {skip: !('fromHex' in Uint8Array)}, t => {
 	const linter = new Linter();
 	const code = 'Buffer.from(getText(/* keep */), \'hex\')';
 	const {output, fixed, messages} = linter.verifyAndFix(code, {

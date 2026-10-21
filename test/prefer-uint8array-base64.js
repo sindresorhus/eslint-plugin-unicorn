@@ -71,7 +71,7 @@ test({
 });
 
 // eslint-disable-next-line node-test/no-skip-test -- Uint8Array#toBase64 is unavailable on older supported Node.js versions.
-nodeTest('commented base64 option fixes preserve encoding and evaluate the receiver once', {skip: typeof Uint8Array.prototype.toBase64 !== 'function'}, t => {
+nodeTest('commented base64 option fixes preserve encoding and evaluate the receiver once', {skip: !('toBase64' in Uint8Array.prototype)}, t => {
 	const linter = new Linter();
 	for (const [code, expected] of [
 		['getBytes(/* keep */).toBase64().replaceAll(\'=\', \'\')', '+/8'],
@@ -99,7 +99,7 @@ nodeTest('commented base64 option fixes preserve encoding and evaluate the recei
 });
 
 // eslint-disable-next-line node-test/no-skip-test -- Uint8Array.fromBase64 is unavailable on older supported Node.js versions.
-nodeTest('commented base64 inputs decode once and result type changes remain suggestions', {skip: typeof Uint8Array.fromBase64 !== 'function'}, t => {
+nodeTest('commented base64 inputs decode once and result type changes remain suggestions', {skip: !('fromBase64' in Uint8Array)}, t => {
 	const linter = new Linter();
 	for (const [encoding, text, expected] of [['base64', 'Zm9v', [102, 111, 111]], ['base64url', '-_8', [251, 255]]]) {
 		const code = `function decode() {return(Buffer).from(getText(/* keep */), '${encoding}');} decode();`;
