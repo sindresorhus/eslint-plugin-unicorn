@@ -1,11 +1,13 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {
+	getParenthesizedRange,
 	getParenthesizedText,
 	getMemberExpressionObjectText,
 	getStaticNumberValue,
 	shouldSkipKnownNonArrayReceiver,
 	unwrapTypeScriptExpression,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {isLengthOf} from './utils/comparison.js';
 
@@ -93,7 +95,7 @@ function getSuggestion(callExpression, messageId, context) {
 	const elementText = getParenthesizedText(element, context);
 
 	if (messageId === REPLACE_ONE_ELEMENT) {
-		if (hasCommentsInside(callExpression, sourceCode)) {
+		if (wouldRemoveComments(context, callExpression, [object, start, element].map(node => getParenthesizedRange(node, context)))) {
 			return;
 		}
 
