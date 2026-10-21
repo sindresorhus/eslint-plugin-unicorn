@@ -2,6 +2,7 @@ import {findVariable} from '@eslint-community/eslint-utils';
 import {isMemberExpression, isMethodCall, isStringLiteral} from '../ast/index.js';
 import {isFunctionCall, isStaticProperties} from './type-check.js';
 import {isIndexedCollection} from './is-array.js';
+import {isRegExp} from './is-reg-exp.js';
 import getStaticValueIfNoSideEffects, {getStaticValueForControlFlow} from './get-static-value.js';
 import {
 	createBuiltinTypeCheckers,
@@ -64,6 +65,7 @@ const {isTarget: isDate} = createBuiltinTypeCheckers({
 	name: 'Date',
 	checkClassHeritage: false,
 });
+const regExpCheckOptions = {checkClassHeritage: false};
 
 const isStringTypeAnnotation = node => {
 	switch (node?.type) {
@@ -110,6 +112,11 @@ const isStringNode = (node, context, isTarget) => {
 	}
 
 	switch (node.type) {
+		case 'MemberExpression': {
+			return isMemberExpression(node, {properties: ['source', 'flags'], optional: false})
+				&& isRegExp(node.object, context, regExpCheckOptions);
+		}
+
 		case 'TaggedTemplateExpression': {
 			return isMemberExpression(node.tag, {object: 'String', property: 'raw', optional: false});
 		}
@@ -145,17 +152,13 @@ const isStringNode = (node, context, isTarget) => {
 			return node.operator === 'typeof';
 		}
 
-		case 'BinaryExpression': {
-			return node.operator === '+'
-				&& (isString(node.left, context, isTarget) || isString(node.right, context, isTarget));
-		}
-
+		case 'BinaryExpression':
 		case 'AssignmentExpression': {
 			if (node.operator === '=') {
 				return isString(node.right, context, isTarget);
 			}
 
-			return node.operator === '+='
+			return ['+', '+='].includes(node.operator)
 				&& (isString(node.left, context, isTarget) || isString(node.right, context, isTarget));
 		}
 

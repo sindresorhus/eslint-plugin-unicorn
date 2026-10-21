@@ -59,6 +59,53 @@ test('uses JSDoc string annotations without type information', t => {
 	}
 });
 
+for (const property of ['source', 'flags']) {
+	test(`RegExp ${property} metadata supplies strings through aliases and chains`, t => {
+		const code = [
+			'/** @param {RegExp} pattern */ function run(pattern) {',
+			`inspect(pattern.${property}); const text = pattern.${property}; const alias = text; inspect(alias.trim());`,
+			'}',
+			`function native(pattern: RegExp) { inspect(pattern.${property}); }`,
+			`/** @returns {RegExp} */ function read() { return source; } inspect(read().${property});`,
+			`/** @param {() => RegExp} read */ function callback(read) { inspect(read().${property}); }`,
+		].join('\n');
+		t.assert.deepStrictEqual(getResults(code), [true, true, true, true, true]);
+	});
+
+	test(`RegExp ${property} metadata requires a definite receiver and direct property read`, t => {
+		for (const type of ['unknown', '?RegExp', 'RegExp | string', 'Array<RegExp>', `{${property}: number}`]) {
+			const code = `/** @param {${type}} pattern */ function run(pattern) { inspect(pattern.${property}); }`;
+			t.assert.deepStrictEqual(getResults(code), [false], type);
+		}
+
+		const code = [
+			`/** @param {RegExp} [pattern] */ function optional(pattern) { inspect(pattern.${property}); }`,
+			`/** @param {RegExp} pattern */ function access(pattern) { inspect(pattern?.${property}); inspect(pattern["${property}"]); }`,
+			`/** @type {unknown} */ const pattern = /value/; inspect(pattern.${property});`,
+		].join('\n');
+		t.assert.deepStrictEqual(getResults(code), [false, false, false, false]);
+	});
+}
+
+test('RegExp metadata preserves native annotation and assertion precedence', t => {
+	const code = [
+		'/** @param {RegExp} pattern */ function native(pattern: {source: number; flags: boolean}) { inspect(pattern.source); inspect(pattern.flags); }',
+		'/** @param {number} pattern */ function overridden(pattern: RegExp) { inspect(pattern.source); inspect(pattern.flags); }',
+		'/** @param {RegExp} pattern */ function asserted(pattern) { inspect((pattern as {source: number}).source); }',
+	].join('\n');
+	t.assert.deepStrictEqual(getResults(code), [false, false, true, true, false]);
+});
+
+test('RegExp metadata does not resolve subclass overrides or cyclic initializers', t => {
+	const code = [
+		'class Pattern extends RegExp { get source() { return 42; } get flags() { return false; } }',
+		'inspect(new Pattern().source); inspect(new Pattern().flags);',
+		'function run(pattern: Pattern) { inspect(pattern.source); inspect(pattern.flags); }',
+		'const first = second.source; const second = first.flags; inspect(first); inspect(second);',
+	].join('\n');
+	t.assert.deepStrictEqual(getResults(code), [false, false, false, false, false, false]);
+});
+
 /* eslint-disable no-template-curly-in-string */
 test('String.raw calls and template tags produce strings with unknown substitutions', t => {
 	const code = [
