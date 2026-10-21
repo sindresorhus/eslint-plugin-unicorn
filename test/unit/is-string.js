@@ -106,11 +106,13 @@ for (const method of [
 	'toLocaleLowerCase',
 	'toLocaleUpperCase',
 	'toLowerCase',
+	'toString',
 	'toUpperCase',
 	'toWellFormed',
 	'trim',
 	'trimEnd',
 	'trimStart',
+	'valueOf',
 ]) {
 	test(`recognizes ${method} results on documented and native string receivers`, t => {
 		const documented = `/** @param {string} text */ function run(text) { inspect(text.${method}()); }`;
@@ -127,6 +129,40 @@ test('string method chains retain callback results and constant aliases', t => {
 		'/** @param {() => string} read */ function run(read) { inspect(read().slice(1).trimEnd()); }',
 	].join('\n');
 	t.assert.deepStrictEqual(getResults(code), [true, true]);
+});
+
+test('string identity methods retain documented call results aliases and chains', t => {
+	const code = [
+		'/** @returns {string} */ function read() { return source; } inspect(read().toString().trim());',
+		'/** @param {() => String} read */ function run(read) { const text = read().valueOf(); const alias = text; inspect(alias); inspect(alias.toString()); }',
+		'/** @param {string} text */ function ignoredArguments(text) { inspect(text.toString(effect())); inspect(text.valueOf(effect())); }',
+	].join('\n');
+	t.assert.deepStrictEqual(getResults(code), [true, true, true, true, true]);
+});
+
+for (const method of ['toString', 'valueOf']) {
+	test(`string ${method} inference retains receiver and call boundaries`, t => {
+		for (const type of ['unknown', '?string', 'string | number', 'Array<string>', `{${method}: () => number}`]) {
+			const code = `/** @param {${type}} text */ function run(text) { inspect(text.${method}()); }`;
+			t.assert.deepStrictEqual(getResults(code), [false], type);
+		}
+
+		const code = [
+			`/** @param {string} [text] */ function omitted(text) { inspect(text.${method}()); }`,
+			`/** @param {string} text */ function optional(text) { inspect(text?.${method}()); inspect(text.${method}?.()); inspect(text["${method}"]()); }`,
+			`function boxed(text: String) { inspect(text.${method}()); }`,
+		].join('\n');
+		t.assert.deepStrictEqual(getResults(code), [false, false, false, false, false]);
+	});
+}
+
+test('string identity methods preserve native receiver precedence', t => {
+	const code = [
+		'/** @param {string} text */ function native(text: {toString(): number; valueOf(): boolean}) { inspect(text.toString()); inspect(text.valueOf()); }',
+		'/** @param {number} text */ function overridden(text: string) { inspect(text.toString()); inspect(text.valueOf()); }',
+		'/** @param {string} text */ function asserted(text) { inspect((text as {valueOf(): number}).valueOf()); }',
+	].join('\n');
+	t.assert.deepStrictEqual(getResults(code), [false, false, true, true, false]);
 });
 
 test('well-formed string conversion retains uncertain receiver and optional-call boundaries', t => {
@@ -212,6 +248,8 @@ test('string method inference terminates on cyclic receiver aliases', t => {
 	t.assert.deepStrictEqual(getResults('const text = text.join(); inspect(text);'), [false]);
 	t.assert.deepStrictEqual(getResults('const text = text.trim(); inspect(text);'), [false]);
 	t.assert.deepStrictEqual(getResults('const first = second.trim(); const second = first.toUpperCase(); inspect(first); inspect(second);'), [false, false]);
+	t.assert.deepStrictEqual(getResults('const text = text.toString(); inspect(text);'), [false]);
+	t.assert.deepStrictEqual(getResults('const first = second.valueOf(); const second = first.toString(); inspect(first); inspect(second);'), [false, false]);
 });
 
 test('terminates when concatenation references its own initializer', t => {

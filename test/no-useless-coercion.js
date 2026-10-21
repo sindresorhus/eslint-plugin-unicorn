@@ -11,6 +11,97 @@ const {test, rule} = getTester(import.meta);
 
 const linter = new Linter();
 
+for (const method of ['toString', 'valueOf']) {
+	test({
+		valid: [
+			`function run(text) { return String(text.${method}(ignored)); }`,
+			...['?string', 'string | number', `{${method}: () => number}`].map(type =>
+				`/** @param {${type}} text */ function run(text) { return String(text.${method}(ignored)); }`,
+			),
+			`/** @param {string} [text] */ function run(text) { return String(text.${method}(ignored)); }`,
+			`/** @param {string} text */ function run(text) { return String(text?.${method}(ignored)); }`,
+			`/** @param {string} text */ function run(text) { return String(text.${method}?.(ignored)); }`,
+			`/** @param {string} text */ function run(text) { return String(text["${method}"](ignored)); }`,
+		],
+		invalid: [
+			[`String(text.${method}(ignored).trim())`, `text.${method}(ignored).trim()`],
+			[`Boolean(text.${method}(ignored).includes("x"))`, `text.${method}(ignored).includes("x")`],
+			[`Number(text.${method}(ignored).length)`, `text.${method}(ignored).length`],
+		].map(([expression, replacement]) => ({
+			code: `/** @param {string} text */ function run(text) { return ${expression}; }`,
+			output: `/** @param {string} text */ function run(text) { return ${replacement}; }`,
+			errors: [{messageId: 'no-useless-coercion'}],
+		})),
+	});
+}
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			filename: 'file.ts',
+			code: '/** @param {string} text */ function run(text: {valueOf(): number}) { return String(text.valueOf()); }',
+		}],
+		invalid: [{
+			filename: 'file.ts',
+			code: 'function run(text: string) { return [String(text.toString(ignored)), String(text.valueOf())]; }',
+			output: 'function run(text: string) { return [text.toString(ignored), text.valueOf()]; }',
+			errors: [{messageId: 'no-useless-coercion'}, {messageId: 'no-useless-coercion'}],
+		}],
+	});
+}
+
+test({
+	valid: [
+		'/** @param {Date} value */ function run(value) { return String(value.valueOf()); }',
+		{code: 'function run(text: String) { return String(text.valueOf()); }', languageOptions: {parser: parsers.typescript}},
+	],
+	invalid: [{
+		code: '/** @param {Date} value */ function run(value) { return [String(value.toString()), Number(value.valueOf())]; }',
+		output: '/** @param {Date} value */ function run(value) { return [value.toString(), value.valueOf()]; }',
+		errors: [{messageId: 'no-useless-coercion'}, {messageId: 'no-useless-coercion'}],
+	}],
+});
+
+nodeTest('nested string toString coercions converge while preserving existing reports', t => {
+	const code = '/** @param {string} text */ function run(text) { return String(text.toString()); }';
+	const config = {
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	};
+	t.assert.deepStrictEqual(linter.verify(code, config).map(({messageId}) => messageId), ['no-useless-coercion', 'no-useless-coercion']);
+	t.assert.strictEqual(linter.verifyAndFix(code, config).output, '/** @param {string} text */ function run(text) { return text; }');
+});
+
+nodeTest('primitive string method coercion removal retains ignored argument effects and errors', t => {
+	const config = {
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	};
+	for (const method of ['toString', 'valueOf']) {
+		for (const [text, argument, expected] of [
+			['', 'events.push("argument")', ['', ['argument']]],
+			['🦄\u0000é', 'events.push("argument")', ['🦄\u0000é', ['argument']]],
+			['text', '(() => { events.push("throw"); throw new RangeError("expected"); })()', ['RangeError', ['throw']]],
+		]) {
+			const prefix = 'const events = []; /** @param {string} text */ function run(text) { try { return ';
+			const expression = `text.${method}(${argument})`;
+			const suffix = `; } catch (error) { return error.name; } } JSON.stringify([run(${JSON.stringify(text)}), events]);`;
+			const code = `${prefix}String(${expression})${suffix}`;
+			const {output, fixed, messages} = linter.verifyAndFix(code, config);
+			t.assert.strictEqual(output, `${prefix}${expression}${suffix}`);
+			t.assert.strictEqual(fixed, true);
+			t.assert.deepStrictEqual(messages, []);
+			t.assert.strictEqual(runInNewContext(code), JSON.stringify(expected));
+			t.assert.strictEqual(runInNewContext(output), JSON.stringify(expected));
+			t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
+		}
+	}
+});
+
 for (const method of ['push', 'unshift']) {
 	test({
 		valid: [

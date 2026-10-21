@@ -39,11 +39,13 @@ const stringReturningMethods = [
 	'toLocaleLowerCase',
 	'toLocaleUpperCase',
 	'toLowerCase',
+	'toString',
 	'toUpperCase',
 	'toWellFormed',
 	'trim',
 	'trimEnd',
 	'trimStart',
+	'valueOf',
 ];
 
 // `toJSON` can return `null` for invalid dates.
@@ -117,12 +119,15 @@ const isStringNode = (node, context, isTarget) => {
 				return isIndexedCollection(node.callee.object, context);
 			}
 
-			if (isMethodCall(node, {
-				methods: dateStringReturningMethods,
-				optionalCall: false,
-				optionalMember: false,
-			})) {
-				return isDate(node.callee.object, context);
+			if (
+				isMethodCall(node, {
+					methods: dateStringReturningMethods,
+					optionalCall: false,
+					optionalMember: false,
+				})
+				&& isDate(node.callee.object, context)
+			) {
+				return true;
 			}
 
 			return isMethodCall(node, {
