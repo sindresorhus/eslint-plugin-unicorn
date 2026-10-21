@@ -61,6 +61,16 @@ for (const wrap of [testCase => testCase, typescript, typeAware]) {
 	test({
 		valid: [wrap('/** @param {string} text */ function run(text, pattern) { const ready = text.replace(pattern, "").includes("x"); consume(ready); }')],
 		invalid: [
+			...[
+				'Reflect.defineProperty(target, key, descriptor)',
+				'Reflect.isExtensible(target)',
+				'Reflect.preventExtensions(target)',
+				'Reflect.set(target, key, value)',
+				'Reflect.setPrototypeOf(target, prototype)',
+			].map(expression => [
+				`/** @param {object} target */ function run(target, key, descriptor, value, prototype) { const ready = ${expression}; consume(ready); }`,
+				`/** @param {object} target */ function run(target, key, descriptor, value, prototype) { const isReady = ${expression}; consume(isReady); }`,
+			]),
 			[
 				'/** @param {string} text */ function run(text) { const ready = String.raw`prefix${text}`.includes("x"); consume(ready); }',
 				'/** @param {string} text */ function run(text) { const isReady = String.raw`prefix${text}`.includes("x"); consume(isReady); }',

@@ -6,6 +6,82 @@ import unicorn from '../../index.js';
 const linter = new Linter();
 
 for (const {name, rule, code, output = code, value, reported = true, suggestion, suggestedValue} of [
+	{
+		name: 'Reflect defineProperty fixes preserve successful definitions and nonextensible failures',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: [
+			'/** @param {object} target */ function run(target) { return Reflect.defineProperty(target, "x", {value: 1}) === true; }',
+			'const target = {}; const closed = Object.preventExtensions({}); JSON.stringify([run(target), target.x, run(closed), Object.hasOwn(closed, "x")]);',
+		].join('\n'),
+		output: [
+			'/** @param {object} target */ function run(target) { return Reflect.defineProperty(target, "x", {value: 1}); }',
+			'const target = {}; const closed = Object.preventExtensions({}); JSON.stringify([run(target), target.x, run(closed), Object.hasOwn(closed, "x")]);',
+		].join('\n'),
+		value: '[true,1,false,false]',
+	},
+	{
+		name: 'Reflect isExtensible fixes preserve negation for open and closed objects',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: 'function run(target) { return Reflect.isExtensible(target) === false; } JSON.stringify([run({}), run(Object.preventExtensions({}))]);',
+		output: 'function run(target) { return !Reflect.isExtensible(target); } JSON.stringify([run({}), run(Object.preventExtensions({}))]);',
+		value: '[false,true]',
+	},
+	{
+		name: 'Reflect preventExtensions fixes retain false proxy traps and invocation count',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: [
+			'let calls = 0; const target = {}; const proxy = new Proxy(target, {preventExtensions() { calls++; return 0; }});',
+			'function run(target) { return Reflect.preventExtensions(target) === false; }',
+			'JSON.stringify([run(proxy), Object.isExtensible(target), calls, run({})]);',
+		].join('\n'),
+		output: [
+			'let calls = 0; const target = {}; const proxy = new Proxy(target, {preventExtensions() { calls++; return 0; }});',
+			'function run(target) { return !Reflect.preventExtensions(target); }',
+			'JSON.stringify([run(proxy), Object.isExtensible(target), calls, run({})]);',
+		].join('\n'),
+		value: '[true,true,1,false]',
+	},
+	{
+		name: 'Reflect set fixes preserve explicit receivers setter calls and failed writes',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: [
+			'let writes = 0; const target = {set x(value) { writes++; this.stored = value; }}; const receiver = {};',
+			'function run(target, receiver, value) { return Reflect.set(target, "x", value, receiver) === true; }',
+			'JSON.stringify([run(target, receiver, 3), run(Object.freeze({x: 1}), receiver, 4), receiver.stored, writes]);',
+		].join('\n'),
+		output: [
+			'let writes = 0; const target = {set x(value) { writes++; this.stored = value; }}; const receiver = {};',
+			'function run(target, receiver, value) { return Reflect.set(target, "x", value, receiver); }',
+			'JSON.stringify([run(target, receiver, 3), run(Object.freeze({x: 1}), receiver, 4), receiver.stored, writes]);',
+		].join('\n'),
+		value: '[true,false,3,1]',
+	},
+	{
+		name: 'Reflect setPrototypeOf fixes preserve null prototypes and rejected prototype changes',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: [
+			'function run(target, prototype) { return Reflect.setPrototypeOf(target, prototype) === true; }',
+			'const target = {}; const first = run(target, null); Object.preventExtensions(target); JSON.stringify([first, run(target, {}), Object.getPrototypeOf(target) === null]);',
+		].join('\n'),
+		output: [
+			'function run(target, prototype) { return Reflect.setPrototypeOf(target, prototype); }',
+			'const target = {}; const first = run(target, null); Object.preventExtensions(target); JSON.stringify([first, run(target, {}), Object.getPrototypeOf(target) === null]);',
+		].join('\n'),
+		value: '[true,false,true]',
+	},
+	{
+		name: 'Reflect set fixes retain boolean coercion of truthy proxy trap results',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: [
+			'let calls = 0; const target = new Proxy({}, {set() { calls++; return {ready: true}; }});',
+			'function run(target) { return Reflect.set(target, "x", 1) === true; } JSON.stringify([run(target), calls]);',
+		].join('\n'),
+		output: [
+			'let calls = 0; const target = new Proxy({}, {set() { calls++; return {ready: true}; }});',
+			'function run(target) { return Reflect.set(target, "x", 1); } JSON.stringify([run(target), calls]);',
+		].join('\n'),
+		value: '[true,1]',
+	},
 	/* eslint-disable no-template-curly-in-string */
 	{
 		name: 'raw template fixes preserve backslash sequences rather than interpreting them',

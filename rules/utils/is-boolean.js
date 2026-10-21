@@ -41,7 +41,7 @@ const booleanStaticMethods = new Map([
 	['Error', new Set(['isError'])],
 	['Number', new Set(['isFinite', 'isInteger', 'isNaN', 'isSafeInteger'])],
 	['Object', new Set(['hasOwn', 'is', 'isExtensible', 'isFrozen', 'isSealed'])],
-	['Reflect', new Set(['deleteProperty', 'has'])],
+	['Reflect', new Set(['defineProperty', 'deleteProperty', 'has', 'isExtensible', 'preventExtensions', 'set', 'setPrototypeOf'])],
 	['URL', new Set(['canParse'])],
 ]);
 

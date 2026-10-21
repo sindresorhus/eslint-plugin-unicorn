@@ -48,6 +48,10 @@ for (const languageOptions of [
 	test({
 		testerOptions: {languageOptions},
 		valid: [
+			'function run(target, key, value) { return Reflect.get(target, key) === true; }',
+			'function run(target, key, descriptor) { return Object.defineProperty(target, key, descriptor) === true; }',
+			'function run(target) { return Object.preventExtensions(target) === true; }',
+			'function run(target, prototype) { return Object.setPrototypeOf(target, prototype) === true; }',
 			'function run(value, tag) { return tag`${value}`.includes("x") === true; }',
 			'function run(value) { return other.raw`${value}`.includes("x") === true; }',
 			'/** @param {?Array<string>} values */ function run(values) { return values?.join().includes("x") === false; }',
@@ -64,6 +68,11 @@ for (const languageOptions of [
 			'/** @param {Headers | {has(): string}} values */ function run(values) { return values.has("key") === true; }',
 		].map(code => ({code, filename: 'file.ts'})),
 		invalid: [
+			'/** @param {object} target */ function run(target, key, descriptor) { return Reflect.defineProperty(target, key, descriptor) === true; }',
+			'function run(target) { return Reflect.isExtensible(target) === true; }',
+			'function run(target) { return Reflect.preventExtensions(target) === true; }',
+			'function run(target, key, value) { return Reflect.set(target, key, value) === true; }',
+			'function run(target, prototype) { return Reflect.setPrototypeOf(target, prototype) === true; }',
 			'/** @param {unknown} value */ function run(value) { return String.raw`prefix${value}`.includes("x") === true; }',
 			'function run(template, value) { return String.raw(template, value).startsWith("x") === true; }',
 			'function run(value) { const text = String.raw`${value}`; return text.trim().endsWith("x") === true; }',

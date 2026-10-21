@@ -1,7 +1,12 @@
 import test from 'node:test';
 import {Linter} from 'eslint';
 import {parseForESLint} from '@typescript-eslint/parser';
-import {isBooleanExpression, isBooleanFunction, isFunctionTypeAnnotation} from '../../rules/utils/is-boolean.js';
+import {
+	isBooleanExpression,
+	isBooleanFunction,
+	isFunctionTypeAnnotation,
+	isKnownBooleanFunctionReference,
+} from '../../rules/utils/is-boolean.js';
 import {typescriptEslintParser} from '../../scripts/parsers.js';
 
 const linter = new Linter();
@@ -58,6 +63,44 @@ test('recognizes documented booleans without confusing nullable or container typ
 	]) {
 		t.assert.deepStrictEqual(getResults(`/** @type {${type}} */ let value; inspect(value);`), [expected], type);
 	}
+});
+
+test('Reflect boolean methods work with unknown arguments and computed method names', t => {
+	for (const expression of [
+		'Reflect.defineProperty(target, key, descriptor)',
+		'Reflect.isExtensible(target)',
+		'Reflect.preventExtensions(target)',
+		'Reflect.set(target, key, value, receiver)',
+		'Reflect.setPrototypeOf(target, prototype)',
+		'Reflect["set"](target, key, value)',
+	]) {
+		const code = `/** @param {unknown} target */ function run(target, key, descriptor, value, receiver, prototype) { inspect(${expression}); }`;
+		t.assert.deepStrictEqual(getResults(code), [true], expression);
+	}
+});
+
+test('Reflect inference keeps shadowed receivers optional calls and nonboolean methods uncertain', t => {
+	const code = [
+		'function shadowed(Reflect, target, key, value) { inspect(Reflect.set(target, key, value)); }',
+		'function run(target, key, value) {',
+		'inspect(Reflect?.set(target, key, value)); inspect(Reflect.set?.(target, key, value));',
+		'inspect(Reflect.get(target, key)); inspect(Reflect.getOwnPropertyDescriptor(target, key));',
+		'inspect(Reflect.ownKeys(target)); inspect(Reflect.getPrototypeOf(target));',
+		'inspect(Object.defineProperty(target, key, value)); inspect(Object.preventExtensions(target)); inspect(Object.setPrototypeOf(target, value));',
+		'}',
+	].join('\n');
+	t.assert.deepStrictEqual(getResults(code), [false, false, false, false, false, false, false, false, false, false]);
+});
+
+test('Reflect boolean function references are callable predicates rather than boolean values', t => {
+	for (const method of ['defineProperty', 'isExtensible', 'preventExtensions', 'set', 'setPrototypeOf']) {
+		const code = `inspect(Reflect.${method});`;
+		t.assert.deepStrictEqual(getResults(code), [false], method);
+		t.assert.deepStrictEqual(getResults(code, {inspect: isKnownBooleanFunctionReference}), [true], method);
+	}
+
+	const code = 'function run(Reflect) { inspect(Reflect.set); } inspect(Reflect?.set);';
+	t.assert.deepStrictEqual(getResults(code, {inspect: isKnownBooleanFunctionReference}), [false, false]);
 });
 
 test('trusts explicit JSDoc over initializers and keeps optional parameters uncertain', t => {

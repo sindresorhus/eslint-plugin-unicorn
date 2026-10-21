@@ -11,6 +11,10 @@ for (const languageOptions of [
 	test({
 		testerOptions: {languageOptions},
 		valid: [
+			'function run(Reflect) { values.sort(Reflect.set); }',
+			'values.sort(Reflect.get);',
+			'values.toSorted(Object.preventExtensions);',
+			'/** @param {Set<object>} values */ function run(values) { values.sort(Reflect.isExtensible); }',
 			'/** @returns {number} */ function compare(a, b) { return source; } values.sort(compare);',
 			'/** @returns {?boolean} */ function compare(a, b) { return source; } values.sort(compare);',
 			'/** @returns {boolean} */ async function compare(a, b) { return source; } values.sort(compare);',
@@ -19,6 +23,8 @@ for (const languageOptions of [
 		].map(code => ({code, filename: 'file.ts'})),
 		invalid: [
 			...[
+				...['defineProperty', 'isExtensible', 'preventExtensions', 'set', 'setPrototypeOf'].map(method => `values.sort(Reflect.${method});`),
+				'values.toSorted(Reflect["isExtensible"]);',
 				'/** @returns {boolean} */ function compare(a, b) { return source; } values.sort(compare);',
 				'/** @param {(a: number, b: number) => boolean} compare */ function run(compare) { values.toSorted(compare); }',
 				'/** @type {{(a: number, b: number): boolean; (): boolean}} */ const compare = source; values.sort(compare);',
