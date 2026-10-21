@@ -27,8 +27,9 @@ function create(context) {
 			const nonNullableType = type.getNonNullableType();
 			// Inspect union members separately so TypeScript does not discard the Window overload with `targetOrigin` when combining signatures.
 			const types = nonNullableType.isUnion() ? nonNullableType.types : [nonNullableType];
-			const signatures = types.flatMap(type => type.getCallSignatures());
-			return signatures.length > 0 && signatures.every(({parameters}) => parameters.every(({name}) => name !== 'targetOrigin'));
+			const signatureLists = types.map(type => type.getCallSignatures());
+			return signatureLists.every(signatures => signatures.length > 0)
+				&& signatureLists.flat().every(({parameters}) => parameters.every(({name}) => name !== 'targetOrigin'));
 		})) {
 			return;
 		}
