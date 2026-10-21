@@ -21,6 +21,8 @@ test({
 		...[
 			['a += a + (/* keep */ condition ? first : second);', 'a += (/* keep */ condition ? first : second);'],
 			['a += a + getValue(\r\n  // keep\r\n);', 'a += getValue(\r\n  // keep\r\n);'],
+			['a += a + (/* keep */ first(), second);', 'a += (/* keep */ first(), second);'],
+			['a *= a * (left /* keep */ + right);', 'a *= left /* keep */ + right;'],
 		].map(([code, output]) => ({code, errors: [{messageId: 'no-misrefactored-assignment/error', suggestions: [{messageId: 'no-misrefactored-assignment/suggestion', output}]}]})),
 		{
 			code: 'a += a + (value as /* keep */ number);',
@@ -32,6 +34,7 @@ test({
 			'a += a /* keep */ + value;',
 			'a += a + (/* keep */ value);',
 			'a += a + (value /* keep */);',
+			'a *= a * (/* keep */ left + right);',
 		].map(code => ({code, errors: [{messageId: 'no-misrefactored-assignment/error', suggestions: []}]})),
 	],
 });

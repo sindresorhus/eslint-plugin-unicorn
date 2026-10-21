@@ -1,6 +1,5 @@
 import {
 	getParenthesizedRange,
-	getParenthesizedText,
 	getPrecedence,
 	isSameReference,
 	PRECEDENCE_ADDITION,
@@ -40,12 +39,12 @@ const compoundOperators = new Set([
 ]);
 
 /*
-The kept operand replaces the whole `a + b` right-hand side, so it needs its own parentheses to keep its grouping. Parentheses are not part of the node range, so they have to be added back.
+The kept operand replaces the whole `a + b` right-hand side, so its copied range must include surrounding parentheses when they are needed to keep its grouping.
 */
-const getKeptOperandText = (keptOperand, context) =>
+const getKeptOperandRange = (keptOperand, context) =>
 	getPrecedence(keptOperand) < PRECEDENCE_ADDITION
-		? getParenthesizedText(keptOperand, context)
-		: context.sourceCode.getText(keptOperand);
+		? getParenthesizedRange(keptOperand, context)
+		: context.sourceCode.getRange(keptOperand);
 
 /**
 @param {ESLint.Rule.RuleContext} context
@@ -83,7 +82,7 @@ const create = context => {
 		};
 
 		// The fix replaces the whole right-hand side with the kept operand, so it would drop comments outside the copied range. Skip the suggestion in that case.
-		const keptRange = getPrecedence(keptOperand) < PRECEDENCE_ADDITION ? getParenthesizedRange(keptOperand, context) : keptOperand;
+		const keptRange = getKeptOperandRange(keptOperand, context);
 		if (!wouldRemoveComments(context, right, [keptRange])) {
 			problem.suggest = [
 				{
@@ -92,7 +91,7 @@ const create = context => {
 					/**
 					@param {ESLint.Rule.RuleFixer} fixer
 					*/
-					fix: fixer => fixer.replaceText(right, getKeptOperandText(keptOperand, context)),
+					fix: fixer => fixer.replaceText(right, sourceCode.text.slice(...keptRange)),
 				},
 			];
 		}
