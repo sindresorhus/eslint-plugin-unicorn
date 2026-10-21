@@ -4636,8 +4636,15 @@ for (const wrap of [typescript, typeAware]) {
 	});
 
 	test({
-		valid: [wrap('/** @type {() => boolean} */ const ready = ((() => true) as (() => unknown))!;')],
+		valid: [
+			wrap('/** @type {() => boolean} */ const ready = ((() => true) as (() => unknown))!;'),
+			wrap('/** @returns {boolean} */ const ready = (() => source) as (() => string);'),
+		],
 		invalid: [
+			wrap({
+				code: '/** @returns {boolean} */ const isReady = ((<() => string>(() => source)) satisfies (() => string))!;',
+				errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+			}),
 			wrap({
 				code: 'const useReady = (() => true) as boolean;',
 				output: 'const isUseReady = (() => true) as boolean;',
