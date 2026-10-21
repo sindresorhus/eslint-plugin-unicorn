@@ -540,13 +540,17 @@ const getTypeFromTypeInformation = (node, context, options) =>
 	withTypeInformation(node, context, ({type, checker, program}) => getTypeScriptType(type, checker, program, options)) ?? unknown;
 
 const getTypeFromStaticValue = (node, context, options) => {
+	if (!options.getStaticType) {
+		return unknown;
+	}
+
 	const result = getStaticValueForControlFlow(node, context);
 
 	if (!result) {
 		return unknown;
 	}
 
-	const type = options.getStaticType?.(result.value, node) ?? unknown;
+	const type = options.getStaticType(result.value, node) ?? unknown;
 	return type !== unknown && hasJSDocumentTypeReference(node, context) ? unknown : type;
 };
 
@@ -891,7 +895,7 @@ function getType(node, context, options, visitedVariables = new Set()) {
 		return typeFromExpression;
 	}
 
-	if (node.type !== 'Identifier' && options.getStaticType) {
+	if (node.type !== 'Identifier') {
 		const typeFromStaticValue = getTypeFromStaticValue(node, context, options);
 		if (typeFromStaticValue !== unknown) {
 			return typeFromStaticValue;
