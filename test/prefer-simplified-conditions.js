@@ -24,7 +24,8 @@ ruleTester({
 		['if ((a && b) || (a && c && d)) {}', 'if (a && (b || (c && d))) {}'],
 		['if ((a === `x` && b) || (a === `x` && c)) {}', 'if (a === `x` && (b || c)) {}'],
 		['({} || (a === true && b === true)) || (a === true && c === true);', '({} || (a === true && (b === true || c === true)));'],
-		['const f = () => ({} || (a === true && b === true)) || (a === true && c === true);', 'const f = () => ({} || (a === true && (b === true || c === true)));'],
+		['const getValue = () => ({} || (a === true && b === true)) || (a === true && c === true);', 'const getValue = () => ({} || (a === true && (b === true || c === true)));'],
+		['export default (class {} || (a === true && b === true)) || (a === true && c === true);', 'export default (class {} || (a === true && (b === true || c === true)));'],
 	].map(([code, output]) => ({code, output, errors: 1})),
 });
 
@@ -803,6 +804,7 @@ ruleTester.svelte({
 ruleTester.snapshot({
 	valid: [
 		'if ((a && b) || x || (a && c)) {}',
+		`if (${Array.from({length: 100}, (_, index) => `flag${index}`).join(' || ')}) {}`,
 		'if ((a || b) && x && (a || c)) {}',
 		'if ((a && b && c) || (a && b && c)) {}',
 		'if ((b && c && a) || (d && e && a)) {}',
@@ -859,6 +861,8 @@ ruleTester.snapshot({
 			code: 'const element = <div>{x || (a && b) || (a && c && d) ? "yes" : "no"}</div>;',
 			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
 		},
+		'if (x || (object.property && a) || (object.property && b && c)) {}',
+		'if (x || (isFoo(node) && a) || (isFoo(node) && b && c)) {}',
 	],
 });
 
@@ -921,6 +925,63 @@ test('factoring longer chains preserves truthiness and surrounding calls', t => 
 					t.assert.deepStrictEqual(fixedCalls, originalCalls);
 				}
 			}
+		}
+	}
+});
+
+ruleTester({
+	valid: [],
+	invalid: [
+		['(let[0] || (a === true && b === true)) || (a === true && c === true);', '(let[0] || (a === true && (b === true || c === true)));'],
+		['(let[0] && (a === true || b === true)) && (a === true || c === true);', '(let[0] && (a === true || (b === true && c === true)));'],
+		['((let[0] || x) || (a === true && b === true)) || (a === true && c === true);', '(let[0] || x || (a === true && (b === true || c === true)));'],
+	].map(([code, output]) => ({code, output, errors: 1, languageOptions: {sourceType: 'script'}})),
+});
+
+test('factoring preserves exact values and calls with independent operands', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {[ruleId]: rule}}},
+		rules: {[`unicorn/${ruleId}`]: 'error'},
+	};
+
+	for (const expression of [
+		'before() || (a === true && b === true) || (a === true && c === true && d === true) || after()',
+		'before() && (a === true || b === true) && (a === true || c === true || d === true) && after()',
+	]) {
+		const code = `${expression};`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+
+		for (const [a, b, c, d, prefix, suffix] of [
+			[false, false, true, true, undefined, 'fallback'],
+			[true, false, true, true, 0, 'fallback'],
+			[true, false, true, false, 0, 'fallback'],
+			[false, true, false, true, 'prefix', 'fallback'],
+			[false, true, false, false, 'prefix', 0],
+			[true, false, true, false, true, 'fallback'],
+			[true, true, false, false, NaN, undefined],
+		]) {
+			const originalCalls = [];
+			const fixedCalls = [];
+			const getContext = calls => ({
+				a,
+				b,
+				c,
+				d,
+				before() {
+					calls.push('before');
+					return prefix;
+				},
+				after() {
+					calls.push('after');
+					return suffix;
+				},
+			});
+
+			t.assert.strictEqual(runInNewContext(output, getContext(fixedCalls)), runInNewContext(code, getContext(originalCalls)));
+			t.assert.deepStrictEqual(fixedCalls, originalCalls);
 		}
 	}
 });

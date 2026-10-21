@@ -447,7 +447,7 @@ Message:
     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 Output:
-  1 | if (x && (a || (b && c)) && y) {}
+  1 | if ((x && (a || (b && c)) && y)) {}
 
 `;
 
@@ -1981,6 +1981,23 @@ Output:
 
 `;
 
+exports[`prefer-simplified-conditions > invalid(31): if (x || (object.property && a) || (object.property && b && c)) {} 1`] = `
+
+  1 | if (x || (object.property && a) || (object.property && b && c)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(31): if (x || (object.property && a) || (object.property && b && c)) {} 2`] = `
+
+Message:
+> 1 | if (x || (object.property && a) || (object.property && b && c)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Output:
+  1 | if (x || (object.property && (a || (b && c)))) {}
+
+`;
+
 exports[`prefer-simplified-conditions > invalid(32): !/* comment */(a && b) 1`] = `
 
 Options:
@@ -2030,6 +2047,23 @@ Message:
 
 Output:
   1 | if (Number.isNaN(value) && (a || b)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(32): if (x || (isFoo(node) && a) || (isFoo(node) && b && c)) {} 1`] = `
+
+  1 | if (x || (isFoo(node) && a) || (isFoo(node) && b && c)) {}
+
+`;
+
+exports[`prefer-simplified-conditions > invalid(32): if (x || (isFoo(node) && a) || (isFoo(node) && b && c)) {} 2`] = `
+
+Message:
+> 1 | if (x || (isFoo(node) && a) || (isFoo(node) && b && c)) {}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
+
+Suggestion 1/1: Simplify the condition.:
+  1 | if (x || (isFoo(node) && (a || (b && c)))) {}
 
 `;
 
@@ -2574,7 +2608,7 @@ Message:
     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer a simplified condition.
 
 Output:
-  1 | if (x || (a && (b || c)) || y) {}
+  1 | if ((x || (a && (b || c)) || y)) {}
 
 `;
 

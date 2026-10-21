@@ -386,7 +386,11 @@ const isSameCondition = (left, right, context) =>
 
 function getLeadingCommonFactoringTerms(node, context) {
 	const innerOperator = negatedLogicalOperators.get(node.operator);
-	if (!innerOperator) {
+	if (
+		!innerOperator
+		|| node.left.type !== 'LogicalExpression'
+		|| node.right.type !== 'LogicalExpression'
+	) {
 		return;
 	}
 
@@ -416,8 +420,8 @@ function getLeadingCommonFactoringTerms(node, context) {
 
 	return {
 		common: leftOperands[0],
-		leftOther: leftOperands.slice(1),
-		rightOther: rightOperands.slice(1),
+		leftRemainingOperands: leftOperands.slice(1),
+		rightRemainingOperands: rightOperands.slice(1),
 		before,
 		after,
 		innerOperator,
@@ -473,11 +477,11 @@ function getFactoringReplacementText(node, factoringTerms, context) {
 	// Individual factoring operands never need additional parentheses as an operand of `&&`/`||`, but grouped remainders do.
 	const {innerOperator, before, after} = factoringTerms;
 	const commonText = getParenthesizedText(factoringTerms.common, context);
-	const [leftOtherText, rightOtherText] = [factoringTerms.leftOther, factoringTerms.rightOther].map(operands => {
+	const [leftRemainingText, rightRemainingText] = [factoringTerms.leftRemainingOperands, factoringTerms.rightRemainingOperands].map(operands => {
 		const text = operands.map(operand => getParenthesizedText(operand, context)).join(` ${innerOperator} `);
 		return operands.length > 1 ? `(${text})` : text;
 	});
-	let replacement = `${commonText} ${innerOperator} (${leftOtherText} ${node.operator} ${rightOtherText})`;
+	let replacement = `${commonText} ${innerOperator} (${leftRemainingText} ${node.operator} ${rightRemainingText})`;
 	if (before.length === 0 && after.length === 0) {
 		if (
 			!isParenthesized(factoringTerms.common, context)
@@ -496,11 +500,11 @@ function getFactoringReplacementText(node, factoringTerms, context) {
 		...after.map(operand => getParenthesizedText(operand, context)),
 	];
 	let text = operandTexts.join(` ${node.operator} `);
+	// Preserve leading grouping removed when flattening the surrounding chain.
 	if (
 		before.length > 0
 		&& !isParenthesized(before[0], context)
-		&& !shouldAddParenthesesToLogicalReplacement(node, node.operator, context)
-		&& shouldAddParenthesesToExpressionStart(before[0], context, node)
+		&& context.sourceCode.getFirstToken(node).value === '('
 	) {
 		text = `(${text})`;
 	}
