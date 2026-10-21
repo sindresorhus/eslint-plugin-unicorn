@@ -132,6 +132,9 @@ Message:
 > 1 | if (items) { for (const item of items) { /* Keep this comment. */ } }
     |     ^^^^^ Prefer an empty array fallback over the \`if\` guard.
 
+Output:
+  1 | for (const item of items || []) { /* Keep this comment. */ }
+
 `;
 
 exports[`iteration-fallback-style > invalid(13): for (const item of getItems() ?? []) {} 1`] = `

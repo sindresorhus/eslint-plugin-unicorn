@@ -16,6 +16,7 @@ import {
 	needsSemicolon,
 	reindentText,
 	unwrapTypeScriptExpression,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {containsOptionalChain, isReference} from './utils/comparison.js';
 
@@ -166,7 +167,7 @@ const canFixFallback = (node, guardInfo, context) => {
 	const {start: startLocation} = sourceCode.getLoc(node);
 
 	return !(
-		sourceCode.getCommentsInside(node).length > 0
+		wouldRemoveComments(context, node, [guardInfo.loop])
 		|| hasMultilineToken(node, context)
 		|| !isReference(source)
 		|| source !== guardInfo.sourceNode
