@@ -13,6 +13,72 @@ const linter = new Linter();
 
 test({
 	valid: [
+		'function run(value) { return Number(reader.keys(value).length); }',
+		'function run(value) { return String(Object?.values(value).join(",")); }',
+		'function run(value) { return Number(Object.entries?.(value).length); }',
+		'function run(value) { return Number(Object["getOwnPropertyNames"](value).length); }',
+		'function run(value) { return Number(Object.getOwnPropertyDescriptor(value, "length").length); }',
+		'/** @type {unknown} */ const values = Object.values(source); String(values.join(","));',
+	],
+	invalid: [
+		['String', 'Object.keys(value).join(",")'],
+		['Boolean', 'Object.values(value).includes(expected)'],
+		['Number', 'Object.entries(value).length'],
+		['Boolean', 'Object.getOwnPropertyNames(value).includes("length")'],
+		['Number', 'Object.getOwnPropertySymbols(value).length'],
+	].map(([coercion, expression]) => ({
+		code: `/** @param {unknown} value */ function run(value) { return ${coercion}(${expression}); }`,
+		output: `/** @param {unknown} value */ function run(value) { return ${expression}; }`,
+		errors: [{messageId: 'no-useless-coercion'}],
+	})),
+});
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			filename: 'file.ts',
+			code: 'const values: {length: string} = Object.values(source); Number(values.length);',
+		}],
+		invalid: [{
+			filename: 'file.ts',
+			code: 'function run(value: object) { const keys = Object.keys(value); return String(keys.toReversed().join(",")); }',
+			output: 'function run(value: object) { const keys = Object.keys(value); return keys.toReversed().join(","); }',
+			errors: [{messageId: 'no-useless-coercion'}],
+		}],
+	});
+}
+
+nodeTest('Object array factory coercion removal preserves getter effects and errors', t => {
+	const config = {
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	};
+	for (const [method, getter, expected] of [
+		['values', 'return 42;', '42'],
+		['entries', 'return 42;', 'answer,42'],
+		['values', 'throw new RangeError("expected");', 'RangeError'],
+		['entries', 'throw new RangeError("expected");', 'RangeError'],
+	]) {
+		const prefix = `let reads = 0; const value = {get answer() { reads++; ${getter} }}; function run() { try { return `;
+		const expression = `Object.${method}(value).join(",")`;
+		const suffix = '; } catch (error) { return error.name; } } JSON.stringify([run(), reads]);';
+		const code = `${prefix}String(${expression})${suffix}`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(output, `${prefix}${expression}${suffix}`);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(code), JSON.stringify([expected, 1]));
+		t.assert.strictEqual(runInNewContext(output), JSON.stringify([expected, 1]));
+		t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
+	}
+});
+
+test({
+	valid: [
 		'function run(value) { return Number(value.setTime(0)); }',
 		'/** @param {{setTime: () => string}} value */ function run(value) { return Number(value.setTime(0)); }',
 		'/** @param {?Date} value */ function run(value) { return Number(value.setTime(0)); }',

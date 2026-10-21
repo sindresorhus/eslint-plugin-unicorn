@@ -78,6 +78,12 @@ const isArrayNode = (node, context, isTarget) =>
 		optionalCall: false,
 		optionalMember: false,
 	})
+	|| isMethodCall(node, {
+		object: 'Object',
+		methods: ['keys', 'values', 'entries', 'getOwnPropertyNames', 'getOwnPropertySymbols'],
+		optionalCall: false,
+		optionalMember: false,
+	})
 	|| (
 		isMethodCall(node, {
 			methods: ['copyWithin', 'fill', 'reverse', 'sort', 'toReversed', 'toSorted', 'toSpliced', 'with'],

@@ -144,6 +144,63 @@ test('unknown and optional factory calls remain unknown', t => {
 	}
 });
 
+for (const method of ['keys', 'values', 'entries', 'getOwnPropertyNames', 'getOwnPropertySymbols']) {
+	test(`Object.${method} creates an array independently of its input type`, t => {
+		for (const code of [
+			`Object.${method}(source).method();`,
+			`/** @param {unknown} source */ function run(source) { Object.${method}(source).method(); }`,
+			`/** @param {?Object<string, number>} source */ function run(source) { Object.${method}(source).method(); }`,
+			`function run(source: unknown) { const values = Object.${method}(source); const alias = values; alias.method(); }`,
+			`Object.${method}(source).reverse().toReversed().method();`,
+		]) {
+			t.assert.deepStrictEqual(getReceiverVerdicts(code), {
+				isArray: true,
+				isIndexedCollection: true,
+				isKnownNonArray: false,
+				isKnownNonIndexedCollection: false,
+				isKnownBigIntTypedArray: false,
+			}, code);
+		}
+	});
+}
+
+test('Object enumeration inference retains direct call and annotation boundaries', t => {
+	for (const code of [
+		'Object.keys?.(source).method();',
+		'Object?.values(source).method();',
+		'Object["entries"](source).method();',
+		'other.getOwnPropertyNames(source).method();',
+		'Object.getPrototypeOf(source).method();',
+		'Object.fromEntries(source).method();',
+		'Object.getOwnPropertyDescriptors(source).method();',
+		'Object.groupBy(source, key).method();',
+		'/** @type {unknown} */ const values = Object.values(source); values.method();',
+	]) {
+		t.assert.deepStrictEqual(getReceiverVerdicts(code), {
+			isArray: false,
+			isIndexedCollection: false,
+			isKnownNonArray: false,
+			isKnownNonIndexedCollection: false,
+			isKnownBigIntTypedArray: false,
+		}, code);
+	}
+});
+
+test('Object enumeration results retain inference beneath native unknown types', t => {
+	for (const code of [
+		'const values: unknown = Object.entries(source); values.method();',
+		'(Object.keys(source) as unknown).method();',
+	]) {
+		t.assert.deepStrictEqual(getReceiverVerdicts(code), {
+			isArray: true,
+			isIndexedCollection: true,
+			isKnownNonArray: false,
+			isKnownNonIndexedCollection: false,
+			isKnownBigIntTypedArray: false,
+		}, code);
+	}
+});
+
 test('both checkers agree that a keyed collection is neither', t => {
 	for (const typeName of ['Map', 'WeakMap', 'Set', 'WeakSet']) {
 		for (const code of spellings(typeName)) {
