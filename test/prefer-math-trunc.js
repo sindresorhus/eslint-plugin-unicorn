@@ -10,6 +10,39 @@ test({
 	valid: [],
 	invalid: [
 		...[
+			['read(/* keep */) | 0;', 'Math.trunc(read(/* keep */));'],
+			['(/* keep */ value) >> 0;', 'Math.trunc((/* keep */ value));'],
+			['values[/* keep */ index] << 0;', 'Math.trunc(values[/* keep */ index]);'],
+			['(left + /* keep */ right) ^ 0;', 'Math.trunc(left + /* keep */ right);'],
+			['(read(/* keep */), value) | 0;', 'Math.trunc((read(/* keep */), value));'],
+			['function foo() {return[/* keep */ value][0] | 0;}', 'function foo() {return Math.trunc([/* keep */ value][0]);}'],
+			['function foo() {\r\n  return(value // keep\r\n  ) >> 0;\r\n}', 'function foo() {\r\n  return Math.trunc((value // keep\r\n  ));\r\n}'],
+		].map(([code, output]) => ({
+			code,
+			errors: [{messageId: 'error-bitwise', suggestions: [{messageId: 'suggestion-bitwise', output}]}],
+		})),
+		...[
+			['(value as /* keep */ number) | 0;', 'Math.trunc(value as /* keep */ number);'],
+			['values[/* keep */ index]! ^ 0;', 'Math.trunc(values[/* keep */ index]!);'],
+		].map(([code, output]) => ({
+			code,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'error-bitwise', suggestions: [{messageId: 'suggestion-bitwise', output}]}],
+		})),
+		...[
+			'value | /* keep */ 0;',
+			'value | (/* keep */ 0);',
+			'read(/* keep */) /* drop */ | 0;',
+			'values[/* keep */ index] |= 0;',
+			'(/* keep */ value) >>= 0;',
+		].map(code => ({code, errors: [{messageId: 'error-bitwise', suggestions: []}]})),
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
 			['~~getValue(/* keep */);', 'Math.trunc(getValue(/* keep */));'],
 			['~~(/* keep */ value);', 'Math.trunc((/* keep */ value));'],
 			['~~values[/* keep */ index];', 'Math.trunc(values[/* keep */ index]);'],
@@ -75,34 +108,38 @@ nodeTest('commented yield suggestions preserve suspension and truncate the resum
 	}
 });
 
-nodeTest('comment-preserving double negation rewrites remain suggestions and evaluate the operand once', t => {
+nodeTest('comment-preserving truncation rewrites remain suggestions and evaluate the operand once', t => {
 	const linter = new Linter();
 	const config = {
 		plugins: {unicorn: {rules: {'prefer-math-trunc': rule}}},
 		rules: {'unicorn/prefer-math-trunc': 'error'},
 	};
-	const code = '~~getValue(/* keep */);';
-	const {output, fixed, messages} = linter.verifyAndFix(code, config);
-	t.assert.strictEqual(fixed, false);
-	t.assert.strictEqual(output, code);
-	t.assert.strictEqual(messages.length, 1);
-	t.assert.strictEqual(messages[0].suggestions.length, 1);
-	const {range, text} = messages[0].suggestions[0].fix;
-	const suggested = code.slice(0, range[0]) + text + code.slice(range[1]);
-	t.assert.strictEqual(suggested, 'Math.trunc(getValue(/* keep */));');
-	t.assert.deepStrictEqual(linter.verify(suggested, config), []);
+	for (const code of [
+		'~~getValue(/* keep */);',
+		...['|', '>>', '<<', '^'].map(operator => `getValue(/* keep */) ${operator} 0;`),
+	]) {
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, false);
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].suggestions.length, 1);
+		const {range, text} = messages[0].suggestions[0].fix;
+		const suggested = code.slice(0, range[0]) + text + code.slice(range[1]);
+		t.assert.strictEqual(suggested, 'Math.trunc(getValue(/* keep */));');
+		t.assert.deepStrictEqual(linter.verify(suggested, config), []);
 
-	for (const [value, originalResult, suggestedResult] of [[3.9, 3, 3], [2 ** 32, 0, 2 ** 32], [NaN, 0, NaN], [-0.5, 0, -0]]) {
-		for (const [source, expected] of [[code, originalResult], [suggested, suggestedResult]]) {
-			let calls = 0;
-			const result = runInNewContext(source, {
-				getValue() {
-					calls++;
-					return value;
-				},
-			});
-			t.assert.strictEqual(result, expected);
-			t.assert.strictEqual(calls, 1);
+		for (const [value, originalResult, suggestedResult] of [[3.9, 3, 3], [2 ** 32, 0, 2 ** 32], [NaN, 0, NaN], [-0.5, 0, -0]]) {
+			for (const [source, expected] of [[code, originalResult], [suggested, suggestedResult]]) {
+				let calls = 0;
+				const result = runInNewContext(source, {
+					getValue() {
+						calls++;
+						return value;
+					},
+				});
+				t.assert.strictEqual(result, expected);
+				t.assert.strictEqual(calls, 1);
+			}
 		}
 	}
 });

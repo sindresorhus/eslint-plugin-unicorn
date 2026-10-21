@@ -144,10 +144,10 @@ const create = context => {
 			},
 		};
 
-		// The expression is rebuilt as the call argument, so a comment in it would be lost
+		// Preserve comments in the copied binary operand. Assignments copy the left operand twice, so keep withholding suggestions when they contain comments.
 		if (
 			(!isAssignment || !hasSideEffect(left, sourceCode))
-			&& sourceCode.getCommentsInside(node).length === 0
+			&& !wouldRemoveComments(context, node, isAssignment ? [] : [getParenthesizedRange(left, context)])
 		) {
 			const fix = function * (fixer) {
 				const fixed = mathTruncFunctionCall(left);
