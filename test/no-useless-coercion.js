@@ -11,6 +11,54 @@ const {test, rule} = getTester(import.meta);
 
 const linter = new Linter();
 
+for (const [type, methodCall] of [
+	['Array<number>', 'toReversed()'],
+	['ReadonlyArray<number>', 'toSorted(compare)'],
+	['[number, number]', 'toSpliced(0, 1, 3)'],
+	['Array<number> | ReadonlyArray<number>', 'with(-1, 3)'],
+]) {
+	test({
+		valid: [],
+		invalid: [
+			['Boolean', `values.${methodCall}.includes(3)`],
+			['String', `values.${methodCall}.join(",")`],
+			['Number', `values.${methodCall}.length`],
+		].map(([coercion, expression]) => ({
+			code: `/** @type {${type}} */ const values = source; ${coercion}(${expression});`,
+			output: `/** @type {${type}} */ const values = source; ${expression};`,
+			errors: [{messageId: 'no-useless-coercion'}],
+		})),
+	});
+}
+
+test({
+	valid: [
+		'/** @type {unknown} */ const values = source; String(values.toReversed().join(","));',
+		'/** @type {{toSorted: () => string}} */ const values = source; Number(values.toSorted().length);',
+		'/** @type {Uint8Array} */ const values = source; Number(values.toSorted().length);',
+		'/** @type {BigInt64Array} */ const values = source; Boolean(values.with(0, 1n).includes(1n));',
+		'/** @type {Array<number>} */ const values = source; Number(values?.toReversed().length);',
+		'/** @type {Array<number>} */ const values = source; String(values["toSpliced"](0).join(","));',
+	],
+	invalid: [],
+});
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [],
+		invalid: [{
+			filename: 'file.ts',
+			code: 'function run(values: readonly string[]) { return [Number(values.toReversed().length), String(values.toSorted().join(","))]; }',
+			output: 'function run(values: readonly string[]) { return [values.toReversed().length, values.toSorted().join(",")]; }',
+			errors: [{messageId: 'no-useless-coercion'}, {messageId: 'no-useless-coercion'}],
+		}],
+	});
+}
+
 test({
 	valid: [
 		'/** @type {() => boolean} */ let read; read = () => "changed"; Boolean(read());',

@@ -331,3 +331,87 @@ test('intersections with known structural brands preserve array types', t => {
 	t.assert.strictEqual(verdicts.isKnownNonArray, false);
 	t.assert.strictEqual(verdicts.isKnownNonIndexedCollection, false);
 });
+
+for (const expression of ['toReversed()', 'toSorted()', 'toSpliced(0, 1)', 'with(0, "replacement")']) {
+	test(`array copying result ${expression} preserves array inference`, t => {
+		for (const code of [
+			`/** @param {string[]} values */ function run(values) { values.${expression}.method(); }`,
+			`/** @param {ReadonlyArray<string>} values */ function run(values) { values.${expression}.method(); }`,
+			`/** @param {[string, number]} values */ function run(values) { values.${expression}.method(); }`,
+			`/** @returns {string[]} */ function read() { return source; } read().${expression}.method();`,
+			`function run(values: readonly string[]) { values.${expression}.method(); }`,
+			`function run(...values) { values.${expression}.method(); }`,
+			`const values = ["value"]; const copy = values.${expression}; copy.method();`,
+			`Array.from(source).${expression}.method();`,
+			`Array.of("value").${expression}.toReversed().method();`,
+			`const values = condition ? ["one"] : ["two"]; values.${expression}.method();`,
+		]) {
+			t.assert.deepStrictEqual(getReceiverVerdicts(code), {
+				isArray: true,
+				isIndexedCollection: true,
+				isKnownNonArray: false,
+				isKnownNonIndexedCollection: false,
+				isKnownBigIntTypedArray: false,
+			}, code);
+		}
+	});
+}
+
+test('array copying inference preserves unknown receiver and call boundaries', t => {
+	for (const code of [
+		'function run(values) { values.toSorted().method(); }',
+		'/** @param {unknown} values */ function run(values) { values.toReversed().method(); }',
+		'/** @param {?string[]} values */ function run(values) { values.toReversed().method(); }',
+		'/** @param {string[]} [values] */ function run(values) { values.toReversed().method(); }',
+		'/** @param {string[] | Uint8Array} values */ function run(values) { values.toSorted().method(); }',
+		'/** @param {string[]} values */ function run(values: unknown) { values.toSorted().method(); }',
+		'/** @param {{toSorted: () => string}} values */ function run(values) { values.toSorted().method(); }',
+		'const values = ["value"]; values?.toReversed().method();',
+		'const values = ["value"]; values.toReversed?.().method();',
+		'const values = ["value"]; values[method]().method();',
+		'const values = ["value"]; values.map(callback).method();',
+		'const values = ["value"]; values.filter(callback).method();',
+		'const values = ["value"]; values.slice().method();',
+		'const values = values.toReversed(); values.method();',
+		'const first = second.toSorted(); const second = first.toReversed(); first.method();',
+	]) {
+		t.assert.deepStrictEqual(getReceiverVerdicts(code), {
+			isArray: false,
+			isIndexedCollection: false,
+			isKnownNonArray: false,
+			isKnownNonIndexedCollection: false,
+			isKnownBigIntTypedArray: false,
+		}, code);
+	}
+});
+
+test('typed array copying chains remain unsupported without type information', t => {
+	for (const typeName of typedArray) {
+		for (const expression of ['toReversed()', 'toSorted()', 'with(0, value)']) {
+			const code = `/** @param {${typeName}} values */ function run(values) { values.${expression}.method(); }`;
+			t.assert.deepStrictEqual(getReceiverVerdicts(code), {
+				isArray: false,
+				isIndexedCollection: false,
+				isKnownNonArray: false,
+				isKnownNonIndexedCollection: false,
+				isKnownBigIntTypedArray: false,
+			}, code);
+		}
+	}
+});
+
+test('array copying methods create arrays without consulting constructor species', t => {
+	const values = ['two', 'one'];
+	Object.defineProperty(values, 'constructor', {
+		get() {
+			throw new Error('Copying must not read the constructor');
+		},
+	});
+
+	for (const copy of [values.toReversed(), values.toSorted((first, second) => first.localeCompare(second)), values.toSpliced(0, 1), values.with(0, 'replacement')]) {
+		t.assert.strictEqual(Array.isArray(copy), true);
+		t.assert.notStrictEqual(copy, values);
+	}
+
+	t.assert.strictEqual(values.join(','), 'two,one');
+});

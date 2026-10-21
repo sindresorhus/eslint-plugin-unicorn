@@ -69,7 +69,7 @@ function isRestParameter(node, context) {
 		&& variable.references.every(reference => !reference.isWrite());
 }
 
-const isArrayNode = (node, context) =>
+const isArrayNode = (node, context, isTarget) =>
 	node.type === 'ArrayExpression'
 	|| isRestParameter(node, context)
 	|| isMethodCall(node, {
@@ -77,7 +77,15 @@ const isArrayNode = (node, context) =>
 		methods: ['from', 'of'],
 		optionalCall: false,
 		optionalMember: false,
-	});
+	})
+	|| (
+		isMethodCall(node, {
+			methods: ['toReversed', 'toSorted', 'toSpliced', 'with'],
+			optionalCall: false,
+			optionalMember: false,
+		})
+		&& isTarget(node.callee.object)
+	);
 
 const isNonArrayNode = node =>
 	node.type === 'NewExpression'
@@ -132,7 +140,7 @@ const {
 	]),
 	nonTargetTypeNames: knownNonIndexedCollectionTypeNames,
 	targetConstructorNames: ['Array', ...typedArray],
-	isTargetNode: (node, context) => isArrayNode(node, context) || isTypedArrayFactory(node),
+	isTargetNode: (node, context) => isArrayNode(node, context, receiver => isArray(receiver, context)) || isTypedArrayFactory(node),
 });
 
 const {isTarget: isKnownBigIntTypedArray} = createTypeCheckers({
