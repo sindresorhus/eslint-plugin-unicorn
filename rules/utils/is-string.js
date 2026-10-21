@@ -1,5 +1,5 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {isMethodCall, isStringLiteral} from '../ast/index.js';
+import {isMemberExpression, isMethodCall, isStringLiteral} from '../ast/index.js';
 import {isFunctionCall, isStaticProperties} from './type-check.js';
 import {isIndexedCollection} from './is-array.js';
 import getStaticValueIfNoSideEffects, {getStaticValueForControlFlow} from './get-static-value.js';
@@ -16,9 +16,10 @@ const isStringCall = node => isFunctionCall(node, 'String');
 const stringMethods = new Set([
 	'fromCharCode',
 	'fromCodePoint',
+	'raw',
 ]);
 
-// `String.fromCharCode(…)` / `String.fromCodePoint(…)`
+// `String.fromCharCode(…)` / `String.fromCodePoint(…)` / `String.raw(…)`
 const isStringMethodCall = node =>
 	node.type === 'CallExpression'
 	&& !node.optional
@@ -89,6 +90,10 @@ const isStringNode = (node, context, isTarget) => {
 	}
 
 	switch (node.type) {
+		case 'TaggedTemplateExpression': {
+			return isMemberExpression(node.tag, {object: 'String', property: 'raw', optional: false});
+		}
+
 		case 'CallExpression': {
 			if (isMethodCall(node, {method: 'join', optionalCall: false, optionalMember: false})) {
 				return isIndexedCollection(node.callee.object, context);

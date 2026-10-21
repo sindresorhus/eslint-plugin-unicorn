@@ -59,6 +59,41 @@ test('uses JSDoc string annotations without type information', t => {
 	}
 });
 
+/* eslint-disable no-template-curly-in-string */
+test('String.raw calls and template tags produce strings with unknown substitutions', t => {
+	const code = [
+		'/** @param {unknown} value */ function run(value, template) {',
+		'inspect(String.raw`prefix${value}`); inspect(String.raw({raw: ["prefix", ""]}, value));',
+		'inspect(String.raw(template, value)); inspect(String.raw`\\n${value}`.trim().includes("x") ? String.raw`${value}` : "");',
+		'}',
+	].join('\n');
+	t.assert.deepStrictEqual(getResults(code), [true, true, true, true]);
+});
+
+test('String.raw results retain aliases and explicit annotation precedence', t => {
+	const code = [
+		'/** @param {string} value */ function run(value) {',
+		'const text = String.raw`${value}`; const alias = text; inspect(alias); inspect(alias.trim());',
+		'/** @type {unknown} */ const unknown = String.raw`${value}`; inspect(unknown);',
+		'const native: number = String.raw`${value}`; inspect(native); inspect(String.raw`${value}` as number);',
+		'}',
+	].join('\n');
+	t.assert.deepStrictEqual(getResults(code), [true, true, false, false, false]);
+});
+
+test('arbitrary template tags and optional or computed raw calls do not gain string certainty', t => {
+	const code = [
+		'function run(value, tag) {',
+		'inspect(tag`${value}`); inspect(other.raw`${value}`); inspect(String.other`${value}`);',
+		'inspect(String.raw?.({raw: [value]})); inspect(String?.raw({raw: [value]})); inspect(String["raw"]({raw: [value]}));',
+		'inspect(String["raw"]`${value}`);',
+		'}',
+	].join('\n');
+	t.assert.deepStrictEqual(getResults(code), [false, false, false, false, false, false, false]);
+});
+
+/* eslint-enable no-template-curly-in-string */
+
 for (const method of [
 	'charAt',
 	'concat',

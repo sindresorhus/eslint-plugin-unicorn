@@ -39,6 +39,7 @@ for (const [type, key, entries] of [
 	});
 }
 
+/* eslint-disable no-template-curly-in-string */
 for (const languageOptions of [
 	{},
 	{parser: parsers.typescript},
@@ -47,6 +48,8 @@ for (const languageOptions of [
 	test({
 		testerOptions: {languageOptions},
 		valid: [
+			'function run(value, tag) { return tag`${value}`.includes("x") === true; }',
+			'function run(value) { return other.raw`${value}`.includes("x") === true; }',
 			'/** @param {?Array<string>} values */ function run(values) { return values?.join().includes("x") === false; }',
 			'/** @param {Array<string>} values */ function run(values) { return values.join?.().includes("x") === true; }',
 			'/** @param {{join(): {includes(): string}}} values */ function run(values) { return values.join().includes("x") === true; }',
@@ -61,6 +64,10 @@ for (const languageOptions of [
 			'/** @param {Headers | {has(): string}} values */ function run(values) { return values.has("key") === true; }',
 		].map(code => ({code, filename: 'file.ts'})),
 		invalid: [
+			'/** @param {unknown} value */ function run(value) { return String.raw`prefix${value}`.includes("x") === true; }',
+			'function run(template, value) { return String.raw(template, value).startsWith("x") === true; }',
+			'function run(value) { const text = String.raw`${value}`; return text.trim().endsWith("x") === true; }',
+			'function run(value) { return String.raw`${value}`.isWellFormed() === true; }',
 			'/** @param {Array<string | null | undefined>} values */ function run(values) { return values.join("-").includes("x") === true; }',
 			'/** @param {ReadonlyArray<string>} values */ function run(values) { return values.join().startsWith("x") === true; }',
 			'/** @param {Uint8Array} values */ function run(values) { return values.join(",").endsWith("1") === true; }',
@@ -82,6 +89,8 @@ for (const languageOptions of [
 		})),
 	});
 }
+
+/* eslint-enable no-template-curly-in-string */
 
 for (const languageOptions of [
 	{},

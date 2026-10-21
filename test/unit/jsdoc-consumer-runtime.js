@@ -6,6 +6,60 @@ import unicorn from '../../index.js';
 const linter = new Linter();
 
 for (const {name, rule, code, output = code, value, reported = true, suggestion, suggestedValue} of [
+	/* eslint-disable no-template-curly-in-string */
+	{
+		name: 'raw template fixes preserve backslash sequences rather than interpreting them',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: '/** @param {string} value */ function run(value) { return String.raw`\\n${value}`.startsWith("\\\\n") === true; } run("x");',
+		output: '/** @param {string} value */ function run(value) { return String.raw`\\n${value}`.startsWith("\\\\n"); } run("x");',
+		value: true,
+	},
+	{
+		name: 'raw template fixes coerce substitutions exactly once',
+		rule: 'no-unnecessary-boolean-comparison',
+		code: [
+			'let reads = 0; const value = {toString() { reads++; return "x"; }};',
+			'/** @param {unknown} value */ function run(value) { return String.raw`prefix${value}`.includes("x") === true; }',
+			'JSON.stringify([run(value), reads]);',
+		].join('\n'),
+		output: [
+			'let reads = 0; const value = {toString() { reads++; return "x"; }};',
+			'/** @param {unknown} value */ function run(value) { return String.raw`prefix${value}`.includes("x"); }',
+			'JSON.stringify([run(value), reads]);',
+		].join('\n'),
+		value: '[true,1]',
+	},
+	{
+		name: 'raw template character checks preserve empty strings and missing substitutions',
+		rule: 'prefer-number-properties',
+		code: [
+			'function run(template) { return isNaN(String.raw(template).charCodeAt(0)); }',
+			'JSON.stringify([run({raw: []}), run({raw: [""]}), run({raw: ["a", "b"]})]);',
+		].join('\n'),
+		output: [
+			'function run(template) { return Number.isNaN(String.raw(template).charCodeAt(0)); }',
+			'JSON.stringify([run({raw: []}), run({raw: [""]}), run({raw: ["a", "b"]})]);',
+		].join('\n'),
+		value: '[true,true,false]',
+	},
+	{
+		name: 'raw template numeric fixes retain getter and coercion order for arraylike raw values',
+		rule: 'prefer-number-properties',
+		code: [
+			'const events = []; const value = {toString() { events.push("substitution"); return "x"; }};',
+			'const template = {get raw() { events.push("raw"); return {length: 2, 0: {toString() { events.push("chunk"); return "prefix"; }}, 1: ""}; }};',
+			'function run(template, value) { return isFinite(String.raw(template, value).indexOf("x")); }',
+			'JSON.stringify([run(template, value), events]);',
+		].join('\n'),
+		output: [
+			'const events = []; const value = {toString() { events.push("substitution"); return "x"; }};',
+			'const template = {get raw() { events.push("raw"); return {length: 2, 0: {toString() { events.push("chunk"); return "prefix"; }}, 1: ""}; }};',
+			'function run(template, value) { return Number.isFinite(String.raw(template, value).indexOf("x")); }',
+			'JSON.stringify([run(template, value), events]);',
+		].join('\n'),
+		value: '[true,["raw","chunk","substitution"]]',
+	},
+	/* eslint-enable no-template-curly-in-string */
 	{
 		name: 'documented array indices remain finite for found missing and empty inputs',
 		rule: 'prefer-number-properties',

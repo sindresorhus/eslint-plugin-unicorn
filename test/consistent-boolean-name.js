@@ -56,10 +56,19 @@ const onlyIsPrefixOptions = {
 	},
 };
 
+/* eslint-disable no-template-curly-in-string */
 for (const wrap of [testCase => testCase, typescript, typeAware]) {
 	test({
 		valid: [wrap('/** @param {string} text */ function run(text, pattern) { const ready = text.replace(pattern, "").includes("x"); consume(ready); }')],
 		invalid: [
+			[
+				'/** @param {string} text */ function run(text) { const ready = String.raw`prefix${text}`.includes("x"); consume(ready); }',
+				'/** @param {string} text */ function run(text) { const isReady = String.raw`prefix${text}`.includes("x"); consume(isReady); }',
+			],
+			[
+				'function run(template, value) { const ready = String.raw(template, value).startsWith("x"); consume(ready); }',
+				'function run(template, value) { const isReady = String.raw(template, value).startsWith("x"); consume(isReady); }',
+			],
 			...['Array<string>', 'Uint8Array', 'BigInt64Array'].map(type => [
 				`/** @param {${type}} values */ function run(values) { const ready = values.join().includes("x"); consume(ready); }`,
 				`/** @param {${type}} values */ function run(values) { const isReady = values.join().includes("x"); consume(isReady); }`,
@@ -91,6 +100,8 @@ for (const wrap of [testCase => testCase, typescript, typeAware]) {
 		})),
 	});
 }
+
+/* eslint-enable no-template-curly-in-string */
 
 // Grouping nullish union members must not change the getter and binding naming policies.
 for (const wrap of [testCase => testCase, typescript, typeAware]) {

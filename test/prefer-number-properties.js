@@ -42,6 +42,16 @@ for (const languageOptions of [
 		valid: [],
 		invalid: [
 			...[
+				/* eslint-disable no-template-curly-in-string */
+				[
+					'/** @param {string} value */ function run(value) { return isNaN(String.raw`${value}`.charCodeAt(0)); }',
+					'/** @param {string} value */ function run(value) { return Number.isNaN(String.raw`${value}`.charCodeAt(0)); }',
+				],
+				[
+					'function run(template, value) { return isFinite(String.raw(template, value).indexOf("x")); }',
+					'function run(template, value) { return Number.isFinite(String.raw(template, value).indexOf("x")); }',
+				],
+				/* eslint-enable no-template-curly-in-string */
 				[
 					'/** @param {Array<string>} values */ function run(values) { return isFinite(values.indexOf("x")); }',
 					'/** @param {Array<string>} values */ function run(values) { return Number.isFinite(values.indexOf("x")); }',
