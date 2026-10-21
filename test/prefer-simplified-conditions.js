@@ -935,7 +935,9 @@ ruleTester({
 		['(let[0] || (a === true && b === true)) || (a === true && c === true);', '(let[0] || (a === true && (b === true || c === true)));'],
 		['(let[0] && (a === true || b === true)) && (a === true || c === true);', '(let[0] && (a === true || (b === true && c === true)));'],
 		['((let[0] || x) || (a === true && b === true)) || (a === true && c === true);', '(let[0] || x || (a === true && (b === true || c === true)));'],
-	].map(([code, output]) => ({code, output, errors: 1, languageOptions: {sourceType: 'script'}})),
+	].map(([code, output]) => ({
+		code, output, errors: 1, languageOptions: {sourceType: 'script'},
+	})),
 });
 
 test('factoring preserves exact values and calls with independent operands', t => {
