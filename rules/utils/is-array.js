@@ -80,7 +80,7 @@ const isArrayNode = (node, context, isTarget) =>
 	})
 	|| (
 		isMethodCall(node, {
-			methods: ['toReversed', 'toSorted', 'toSpliced', 'with'],
+			methods: ['copyWithin', 'fill', 'reverse', 'sort', 'toReversed', 'toSorted', 'toSpliced', 'with'],
 			optionalCall: false,
 			optionalMember: false,
 		})

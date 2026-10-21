@@ -415,3 +415,85 @@ test('array copying methods create arrays without consulting constructor species
 
 	t.assert.strictEqual(values.join(','), 'two,one');
 });
+
+for (const expression of ['copyWithin(0, 1)', 'fill(1)', 'reverse()', 'sort(compare)']) {
+	test(`array mutation result ${expression} preserves array inference`, t => {
+		for (const code of [
+			`/** @param {number[]} values */ function run(values) { values.${expression}.method(); }`,
+			`/** @param values {[number, number]} */ function run(values) { values.${expression}.method(); }`,
+			`/** @returns {number[]} */ function read() { return source; } read().${expression}.method();`,
+			`function run(values: number[]) { values.${expression}.method(); }`,
+			`function run(...values) { values.${expression}.method(); }`,
+			`const values = Array.from(source); const result = values.${expression}.toReversed(); result.method();`,
+		]) {
+			t.assert.deepStrictEqual(getReceiverVerdicts(code), {
+				isArray: true,
+				isIndexedCollection: true,
+				isKnownNonArray: false,
+				isKnownNonIndexedCollection: false,
+				isKnownBigIntTypedArray: false,
+			}, code);
+		}
+	});
+}
+
+test('array mutation inference preserves unknown receivers and existing call boundaries', t => {
+	for (const code of [
+		'function run(values) { values.reverse().method(); }',
+		'/** @param {unknown} values */ function run(values) { values.fill(1).method(); }',
+		'/** @param {?number[]} values */ function run(values) { values.sort(compare).method(); }',
+		'/** @param {number[]} [values] */ function run(values) { values.copyWithin(0, 1).method(); }',
+		'/** @param {number[] | Uint8Array} values */ function run(values) { values.reverse().method(); }',
+		'/** @param {{reverse: () => string}} values */ function run(values) { values.reverse().method(); }',
+		'/** @param {number[]} values */ function run(values: unknown) { values.reverse().method(); }',
+		'/** @param {number[]} values */ function run(values) { values?.reverse().method(); }',
+		'/** @param {number[]} values */ function run(values) { values.sort?.(compare).method(); }',
+		'/** @param {number[]} values */ function run(values) { values["reverse"]().method(); }',
+		'/** @param {number[]} values */ function run(values) { values.pop().method(); }',
+		'/** @param {number[]} values */ function run(values) { values.push(1).method(); }',
+		'/** @param {number[]} values */ function run(values) { values.splice(0, 1).method(); }',
+		'const values = values.sort(compare); values.method();',
+		'const first = second.reverse(); const second = first.fill(1); first.method();',
+	]) {
+		t.assert.deepStrictEqual(getReceiverVerdicts(code), {
+			isArray: false,
+			isIndexedCollection: false,
+			isKnownNonArray: false,
+			isKnownNonIndexedCollection: false,
+			isKnownBigIntTypedArray: false,
+		}, code);
+	}
+});
+
+test('typed array mutation chains remain unsupported without type information', t => {
+	for (const type of ['Uint8Array', 'Float16Array', 'BigInt64Array', 'BigUint64Array']) {
+		for (const expression of ['copyWithin(0, 1)', 'fill(value)', 'reverse()', 'sort(compare)']) {
+			const code = `/** @param {${type}} values */ function run(values) { values.${expression}.method(); }`;
+			t.assert.deepStrictEqual(getReceiverVerdicts(code), {
+				isArray: false,
+				isIndexedCollection: false,
+				isKnownNonArray: false,
+				isKnownNonIndexedCollection: false,
+				isKnownBigIntTypedArray: false,
+			}, code);
+		}
+	}
+});
+
+test('array mutation methods return the original array without reading its constructor', t => {
+	for (const [method, methodArguments, expected] of [
+		['copyWithin', [1, 0, 1], [3, 3, 2]],
+		['fill', [9, 1], [3, 9, 9]],
+		['reverse', [], [2, 1, 3]],
+		['sort', [(first, second) => first - second], [1, 2, 3]],
+	]) {
+		const values = [3, 1, 2];
+		Object.defineProperty(values, 'constructor', {
+			get() {
+				throw new Error('Mutation must not read the constructor');
+			},
+		});
+		t.assert.strictEqual(Reflect.apply(Array.prototype[method], values, methodArguments), values);
+		t.assert.deepStrictEqual([...values], expected);
+	}
+});

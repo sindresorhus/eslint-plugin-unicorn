@@ -11,6 +11,76 @@ const {test, rule} = getTester(import.meta);
 
 const linter = new Linter();
 
+for (const methodCall of ['copyWithin(1, 0, 2)', 'fill(3, 1)', 'reverse()', 'sort((left, right) => left - right)']) {
+	test({
+		valid: [],
+		invalid: [
+			['Boolean', `values.${methodCall}.includes(3)`],
+			['String', `values.${methodCall}.join(",")`],
+			['Number', `values.${methodCall}.length`],
+		].map(([coercion, expression]) => ({
+			code: `/** @param {Array<number>} values */ function run(values) { return ${coercion}(${expression}); }`,
+			output: `/** @param {Array<number>} values */ function run(values) { return ${expression}; }`,
+			errors: [{messageId: 'no-useless-coercion'}],
+		})),
+	});
+}
+
+test({
+	valid: [
+		'/** @param {unknown} values */ function run(values) { return String(values.reverse().join(",")); }',
+		'/** @param {{sort: () => string}} values */ function run(values) { return Number(values.sort().length); }',
+		'/** @param {?Array<number>} values */ function run(values) { return Boolean(values.fill(3).includes(3)); }',
+		'/** @param {Uint8Array} values */ function run(values) { return String(values.reverse().join(",")); }',
+		'/** @param {BigInt64Array} values */ function run(values) { return Number(values.sort().length); }',
+		'/** @param {Array<number>} values */ function run(values) { return Number(values?.copyWithin(1, 0).length); }',
+		'/** @param {Array<number>} values */ function run(values) { return String(values["fill"](3).join(",")); }',
+	],
+	invalid: [],
+});
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [],
+		invalid: [{
+			filename: 'file.ts',
+			code: 'function run(values: number[]) { return [Number(values.copyWithin(1, 0).length), String(values.sort((left, right) => left - right).join(","))]; }',
+			output: 'function run(values: number[]) { return [values.copyWithin(1, 0).length, values.sort((left, right) => left - right).join(",")]; }',
+			errors: [{messageId: 'no-useless-coercion'}, {messageId: 'no-useless-coercion'}],
+		}],
+	});
+}
+
+nodeTest('array mutator result coercion removal preserves mutation and argument effects', t => {
+	const config = {
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	};
+	for (const [initial, expression, result, mutated] of [
+		[[1, 2, 3], 'values.copyWithin({valueOf() { reads++; return 1; }}, 0, 2).join(",")', '1,1,2', [1, 1, 2]],
+		[[3, 2, 1], 'values.fill(4, {valueOf() { reads++; return 1; }}).join(",")', '3,4,4', [3, 4, 4]],
+		[[3, 1, 2], 'values.reverse().join(",")', '2,1,3', [2, 1, 3]],
+		[[2, 1], 'values.sort((left, right) => { reads++; return left - right; }).join(",")', '1,2', [1, 2]],
+	]) {
+		const prefix = `let reads = 0; const values = ${JSON.stringify(initial)}; /** @param {Array<number>} values */ function run(values) { return `;
+		const suffix = '; } const result = run(values); JSON.stringify([result, values, reads]);';
+		const code = `${prefix}String(${expression})${suffix}`;
+		const expectedOutput = `${prefix}${expression}${suffix}`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(output, expectedOutput);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		const original = runInNewContext(code);
+		t.assert.deepStrictEqual(JSON.parse(original).slice(0, 2), [result, mutated]);
+		t.assert.strictEqual(runInNewContext(output), original);
+		t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
+	}
+});
+
 test({
 	valid: [
 		'/** @param value - {boolean} Description. */ function run(value) { return Boolean(value); }',
