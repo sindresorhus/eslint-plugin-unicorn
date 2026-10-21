@@ -1,6 +1,11 @@
 import regjsparser from 'regjsparser';
 import {isMethodCall, isStringLiteral, isRegexLiteral} from './ast/index.js';
-import {getMemberExpressionObjectText, getParenthesizedText} from './utils/index.js';
+import {
+	getMemberExpressionObjectText,
+	getParenthesizedRange,
+	getParenthesizedText,
+	wouldRemoveComments,
+} from './utils/index.js';
 
 const {parse: parseRegExp} = regjsparser;
 
@@ -119,8 +124,6 @@ function getCharacter(call) {
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	const {sourceCode} = context;
-
 	context.on('CallExpression', node => {
 		if (getCharacter(node) === undefined) {
 			return;
@@ -189,8 +192,8 @@ const create = context => {
 			messageId: MESSAGE_ID,
 		};
 
-		// Replacing the whole chain would drop any comments inside it.
-		if (sourceCode.getCommentsInside(node).length === 0) {
+		// Replacing the chain preserves the receiver and final replacement, but drops comments in the remaining syntax.
+		if (!wouldRemoveComments(context, node, [getParenthesizedRange(baseReceiver, context), getParenthesizedRange(replacement, context)])) {
 			const characterClass = uniqueCharacters
 				.map((character, index) => escapeCharacterClassCharacter(character, index === 0, index === uniqueCharacters.length - 1))
 				.join('');
