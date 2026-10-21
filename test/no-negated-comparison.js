@@ -1,7 +1,78 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		['!/* keep */(a === b || c === d);', '/* keep */(a !== b && c !== d);'],
+		['!(/* keep */a === b || c === d);', '(/* keep */a !== b && c !== d);'],
+	].map(([code, output]) => ({
+		code, output, options: [{checkLogicalExpressions: true}], errors: [{messageId: 'no-negated-comparison/logical-error'}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['!// keep\r\n(a === b && c === d);', '// keep\r\n(a !== b || c !== d);'],
+			['!((a === b || c === d)/* keep */);', '((a !== b && c !== d)/* keep */);'],
+			['function f() { return!/* keep */(a === b || c === d); }', 'function f() { return /* keep */(a !== b && c !== d); }'],
+			['function f() { return!// keep\r\n(a === b || c === d); }', 'function f() { return (// keep\r\n(a !== b && c !== d)); }'],
+			['function f() { throw!// keep\r\n(a === b || c === d); }', 'function f() { throw (// keep\r\n(a !== b && c !== d)); }'],
+			['before()\n!/* keep */(a === b || c === d);', 'before()\n;/* keep */(a !== b && c !== d);'],
+		].map(([code, output]) => ({
+			code, output, options: [{checkLogicalExpressions: true}], errors: 1,
+		})),
+		{
+			code: 'const value = !/* keep */(a === b || c === d) as boolean;',
+			output: 'const value = /* keep */(a !== b && c !== d) as boolean;',
+			languageOptions: {parser: parsers.typescript},
+			options: [{checkLogicalExpressions: true}],
+			errors: 1,
+		},
+		...[
+			'!/* keep */(a /* inside */ === b || c === d);',
+			'!(a === b || (/* inside */ c === d));',
+			'function* f() { yield!// keep\r\n(a === b || c === d); }',
+		].map(code => ({code, options: [{checkLogicalExpressions: true}], errors: 1})),
+	],
+});
+
+nodeTest('logical negation fixes preserve surrounding comments and short-circuit evaluation', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'no-negated-comparison': rule}}},
+		rules: {'unicorn/no-negated-comparison': ['error', {checkLogicalExpressions: true}]},
+	};
+	for (const operator of ['&&', '||']) {
+		const code = `!/* keep */(read("first") === 1 ${operator} read("second") === 2);`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(output.split('/* keep */').length, 2);
+		for (const [first, second] of [[1, 2], [0, 2], [1, 0], [undefined, 2], [NaN, 2]]) {
+			const execute = source => {
+				const events = [];
+				const result = runInNewContext(source, {
+					read(name) {
+						events.push(name);
+						return name === 'first' ? first : second;
+					},
+				});
+				t.assert.strictEqual(events.filter(name => name === 'first').length, 1);
+				return {events, result};
+			};
+
+			t.assert.deepStrictEqual(execute(output), execute(code));
+		}
+	}
+});
 
 test({
 	valid: [],
