@@ -379,6 +379,7 @@ for (const [code, expectedOutput] of [
 	['const get = () => ({method() {}}.method() === true && false) || ({method() {}}.method() === true && true);', 'const get = () => ({method() {}}.method() === true && (false || true));'],
 	['(class {static get() {}}.get() === true && false) || (class {static get() {}}.get() === true && true);', '(class {static get() {}}.get() === true && (false || true));'],
 	['if ((Array.isArray([...values]) && a) || (Array.isArray([...values]) && b)) {}', 'if (Array.isArray([...values]) && (a || b)) {}'],
+	['if ((Array.isArray(...values) && a) || (Array.isArray(...values) && b)) {}', 'if (Array.isArray(...values) && (a || b)) {}'],
 ]) {
 	test(`suggests common calls without autofixing: ${code}`, t => {
 		const linter = new Linter();
@@ -665,4 +666,24 @@ ruleTester.svelte({
 		['<div title={!(!/x/.test(value) && !/y/.test(value))}></div>', '<div title={/x/.test(value) || /y/.test(value)}></div>'],
 		['{@html !(!/x/.test(value) && !/y/.test(value))}', '{@html /x/.test(value) || /y/.test(value)}'],
 	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+ruleTester.svelte({
+	valid: [],
+	invalid: [
+		{
+			code: '{(/x/.test(value) === true && false) || (/x/.test(value) === true && true)}',
+			errors: [
+				{
+					messageId: 'prefer-simplified-conditions',
+					suggestions: [
+						{
+							messageId: 'suggestion',
+							output: '{(/x/.test(value) === true && (false || true))}',
+						},
+					],
+				},
+			],
+		},
+	],
 });
