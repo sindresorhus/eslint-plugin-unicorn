@@ -941,6 +941,11 @@ ruleTester({
 		['(let[0] || (a === true && b === true)) || (a === true && c === true);', '(let[0] || (a === true && (b === true || c === true)));'],
 		['(let[0] && (a === true || b === true)) && (a === true || c === true);', '(let[0] && (a === true || (b === true && c === true)));'],
 		['((let[0] || x) || (a === true && b === true)) || (a === true && c === true);', '(let[0] || x || (a === true && (b === true || c === true)));'],
+		['(let[`key`] === true && false) || (let[`key`] === true && true);', '(let[`key`] === true && (false || true));'],
+		['(let[0] === true || false) && (let[0] === true || true || false);', '(let[0] === true || (false && (true || false)));'],
+		['for ((let[`key`] === true && false) || (let[`key`] === true && true);;) {break;}', 'for ((let[`key`] === true && (false || true));;) {break;}'],
+		['for (; (let[0] && a) || (let[0] && b);) {}', 'for (; let[0] && (a || b);) {}'],
+		['const result = () => (let[0] === true && false) || (let[0] === true && true);', 'const result = () => let[0] === true && (false || true);'],
 	].map(([code, output]) => ({
 		code, output, errors: 1, languageOptions: {sourceType: 'script'},
 	})),
