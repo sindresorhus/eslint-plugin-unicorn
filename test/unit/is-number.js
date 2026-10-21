@@ -291,8 +291,10 @@ for (const method of [
 	test(`Date ${method} results are numbers for documented and native receivers`, t => {
 		t.assert.deepStrictEqual(getVerdicts(`/** @param {Date} value */ function run(value) { check(value.${method}()); }`), [true]);
 		t.assert.deepStrictEqual(getVerdicts(`function run(value: Date) { check(value.${method}()); }`), [true]);
-		t.assert.strictEqual(typeof new Date(0)[method](), 'number');
-		t.assert.strictEqual(Number.isNaN(new Date(NaN)[method]()), true);
+		const validDate = new Date(0);
+		const invalidDate = new Date(NaN);
+		t.assert.strictEqual(typeof validDate[method](), 'number');
+		t.assert.strictEqual(Number.isNaN(invalidDate[method]()), true);
 	});
 }
 
