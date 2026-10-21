@@ -117,7 +117,10 @@ const create = context => {
 				{
 					messageId: SUGGESTION_PARSE_INT,
 					data: {name},
-					fix: fixer => fixer.replaceText(node, mathTruncFunctionCallFromStringArgument(stringCall)),
+					* fix(fixer) {
+						yield fixer.replaceText(node, mathTruncFunctionCallFromStringArgument(stringCall));
+						yield fixSpaceAroundKeyword(fixer, node, context);
+					},
 				},
 			];
 		}

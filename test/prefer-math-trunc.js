@@ -10,6 +10,20 @@ test({
 	valid: [],
 	invalid: [
 		...[
+			['function foo() {return(parseInt)(String(read(/* keep */)), 10);}', 'function foo() {return Math.trunc(read(/* keep */));}'],
+			['function foo() {throw(Number.parseInt)(String(read(/* keep */)), 10);}', 'function foo() {throw Math.trunc(read(/* keep */));}'],
+			['async function foo() {return await(parseInt)(String(read(/* keep */)), 10);}', 'async function foo() {return await Math.trunc(read(/* keep */));}'],
+		].map(([code, output]) => ({
+			code,
+			errors: [{messageId: 'error-parse-int', suggestions: [{messageId: 'suggestion-parse-int', output}]}],
+		})),
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
 			['read(/* keep */) | 0;', 'Math.trunc(read(/* keep */));'],
 			['(/* keep */ value) >> 0;', 'Math.trunc((/* keep */ value));'],
 			['values[/* keep */ index] << 0;', 'Math.trunc(values[/* keep */ index]);'],
