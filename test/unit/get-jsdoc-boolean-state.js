@@ -138,3 +138,39 @@ test('reusing a cached annotation cannot leak relaxed options into later checks'
 	t.assert.strictEqual(getJSDocumentBooleanState(annotation, {allowNullish: true}), 'non-boolean');
 	t.assert.deepStrictEqual(annotation, original);
 });
+
+for (const [description, expression, expected] of [
+	['branded primitive booleans retain their value contract', 'boolean & {brand: string}', ['boolean', 'boolean', 'boolean', 'boolean']],
+	['record metadata does not resolve an unknown primitive intersection', 'boolean & Unresolved & {brand: string}', ['unknown', 'unknown', 'unknown', 'unknown']],
+	['callback-valued properties do not make an ordinary record callable', '{read: () => boolean}', ['non-boolean', 'non-boolean', 'non-boolean', 'non-boolean']],
+	['dictionary value callbacks do not make their dictionary callable', 'Object<string, () => boolean>', ['non-boolean', 'non-boolean', 'non-boolean', 'non-boolean']],
+	['a union with ordinary record metadata is not a definite predicate', '{(): boolean} | {label: string}', ['non-boolean', 'non-boolean', 'non-boolean', 'non-boolean']],
+	['metadata methods do not contribute overload return types', '{(): boolean} & {read(): string}', ['non-boolean', 'non-boolean', 'boolean', 'boolean']],
+	['predicate results may carry branded boolean metadata', '() => (boolean & {brand: string})', ['non-boolean', 'non-boolean', 'boolean', 'boolean']],
+	['nullable unknown overload results remain unknown under relaxed policies', '?({(): boolean} & {(value: string): unknown})', ['unknown', 'non-boolean', 'unknown', 'unknown']],
+	['void members cannot be removed by the nullish union policy', 'boolean | void', ['non-boolean', 'non-boolean', 'non-boolean', 'non-boolean']],
+	['unresolved never expressions are not simplified like native unions', 'boolean | never', ['unknown', 'unknown', 'unknown', 'unknown']],
+	['void callback results are not nullable boolean results', '() => (boolean | void)', ['non-boolean', 'non-boolean', 'non-boolean', 'non-boolean']],
+	['nullish uncertainty and mixed primitive evidence remain separate policies', 'boolean | number | undefined', ['unknown', 'non-boolean', 'unknown', 'non-boolean']],
+	['nullable scalar-callable unions require every remaining member to meet the policy', '(() => boolean) | string | undefined', ['unknown', 'non-boolean', 'unknown', 'non-boolean']],
+	['callable record metadata does not unwrap promised return values', '(() => Promise<boolean>) & {label: string}', ['non-boolean', 'non-boolean', 'non-boolean', 'non-boolean']],
+	['nullish-only callback results never become boolean predicates', '() => (null | undefined)', ['non-boolean', 'non-boolean', 'unknown', 'unknown']],
+	['nullable ordinary method records do not become nullable predicates', '?{read(): boolean}', ['unknown', 'non-boolean', 'unknown', 'non-boolean']],
+	['optional higher-order callables retain the returned function boundary', '(function(): (() => boolean))=', ['unknown', 'non-boolean', 'unknown', 'non-boolean']],
+	['generic argument booleans do not resolve unknown named outer types', 'Map<string, boolean>', ['unknown', 'unknown', 'unknown', 'unknown']],
+	['bare Object unions retain uncertainty instead of supplying primitive facts', 'boolean | Object', ['unknown', 'unknown', 'unknown', 'unknown']],
+	['nullable arrays are values even when every element is boolean', 'Array<boolean> | undefined', ['unknown', 'non-boolean', 'unknown', 'non-boolean']],
+	['optional nonboolean primitives remain nonboolean after optionality is relaxed', 'string=', ['unknown', 'non-boolean', 'unknown', 'non-boolean']],
+	['unsupported constructor results cannot hide inside an otherwise boolean overload', '{(): boolean; (input: string): function(new: Item): boolean}', ['unknown', 'unknown', 'unknown', 'unknown']],
+]) {
+	test(description, t => {
+		const annotation = getAnnotation(expression);
+		const policies = [
+			{},
+			{allowNullish: true},
+			{functionTypesAreBoolean: true},
+			{allowNullish: true, functionTypesAreBoolean: true},
+		];
+		t.assert.deepStrictEqual(policies.map(options => getJSDocumentBooleanState(annotation, options)), expected);
+	});
+}

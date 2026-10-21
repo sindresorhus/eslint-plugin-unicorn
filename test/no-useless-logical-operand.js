@@ -1,4 +1,5 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
@@ -259,3 +260,67 @@ test.svelte({
 		['<div title={true && /x/}></div>', '<div title={/x/}></div>'],
 	].map(([code, output]) => ({code, output, errors: 1})),
 });
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {boolean} [flag] */ function run(flag) { return flag && true; }',
+			'/** @returns {?boolean} */ function read() { return source; } read() || false;',
+			'/** @param {boolean | string} flag */ function run(flag) { return flag || false; }',
+			'/** @type {() => boolean} */ let read = source; read = () => "changed"; read() && true;',
+			'/** @param {string | Array<string>} values */ function run(values) { return values.includes(key) && true; }',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			...[
+				[
+					'/** @param {boolean} flag */ function run(flag) { return flag && true; }',
+					'/** @param {boolean} flag */ function run(flag) { return flag; }',
+				],
+				[
+					'/** @returns {boolean} */ function read() { return source; } read() || false;',
+					'/** @returns {boolean} */ function read() { return source; } read();',
+				],
+				[
+					'/** @param {() => boolean} read */ function run(read) { return read() && true; }',
+					'/** @param {() => boolean} read */ function run(read) { return read(); }',
+				],
+				[
+					'/** @param {string} text */ function run(text) { return text.includes("x") || false; }',
+					'/** @param {string} text */ function run(text) { return text.includes("x"); }',
+				],
+				[
+					'/** @param {Set<string>} values */ function run(values) { return values.has(key) || false; }',
+					'/** @param {Set<string>} values */ function run(values) { return values.has(key); }',
+				],
+				[
+					'/** @param {ReadonlyMap<string, number>} values */ function run(values) { return values.has(key) && true; }',
+					'/** @param {ReadonlyMap<string, number>} values */ function run(values) { return values.has(key); }',
+				],
+				[
+					'/** @param {RegExp} pattern */ function run(pattern) { return pattern.sticky && true; }',
+					'/** @param {RegExp} pattern */ function run(pattern) { return pattern.sticky; }',
+				],
+				[
+					'/** @param {Array<string> | Uint8Array} values */ function run(values) { return values.some(predicate) && true; }',
+					'/** @param {Array<string> | Uint8Array} values */ function run(values) { return values.some(predicate); }',
+				],
+				[
+					'/** @param {boolean} first\n * @param {boolean} second */ function run(first, second) { return first && true && second && true; }',
+					'/** @param {boolean} first\n * @param {boolean} second */ function run(first, second) { return first && second; }',
+				],
+			].map(([code, output]) => ({
+				code, output, filename: 'file.ts', errors: [{messageId: 'no-useless-logical-operand'}],
+			})),
+			{
+				code: '/** @param {boolean} flag */ function run(flag) { return flag && /* keep */ true; }',
+				filename: 'file.ts',
+				errors: [{messageId: 'no-useless-logical-operand'}],
+			},
+		],
+	});
+}

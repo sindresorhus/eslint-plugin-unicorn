@@ -170,3 +170,71 @@ test({
 	],
 	invalid: [],
 });
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {Map<string, number>} cache */ function run(cache, key) { if (cache[key]) {} }',
+			'/** @param {WeakSet<object>} cache */ function run(cache, key) { if (key in cache) {} }',
+			'/** @param {Set<string> | ReadonlySet<string>} cache */ function run(cache, key) { if (cache[key]) {} }',
+			'/** @returns {string} */ function read() { return source; } if (read()[key]) {}',
+			'/** @param {string} text */ function run(text, key) { const alias = text; if (key in alias) {} }',
+			'/** @returns {ReadonlySet<string>} */ function read() { return source; } if (read()?.[key]) {}',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			{
+				code: '/** @param {Object<string, boolean>} flags */ function run(flags, key) { if (flags[key]) {} }',
+				errors: [{
+					messageId: 'no-computed-property-existence-check/error', suggestions: [{
+						messageId: 'no-computed-property-existence-check/suggestion',
+						output: '/** @param {Object<string, boolean>} flags */ function run(flags, key) { if (Object.hasOwn(flags, key)) {} }',
+					}],
+				}],
+			},
+			{
+				code: '/** @param {?Map<string, number>} cache */ function run(cache, key) { if (cache[key]) {} }',
+				errors: [{
+					messageId: 'no-computed-property-existence-check/error', suggestions: [{
+						messageId: 'no-computed-property-existence-check/suggestion',
+						output: '/** @param {?Map<string, number>} cache */ function run(cache, key) { if (Object.hasOwn(cache, key)) {} }',
+					}],
+				}],
+			},
+			{
+				code: '/** @type {number} */ const text = "abc"; if (text[key]) {}',
+				errors: [{
+					messageId: 'no-computed-property-existence-check/error', suggestions: [{
+						messageId: 'no-computed-property-existence-check/suggestion',
+						output: '/** @type {number} */ const text = "abc"; if (Object.hasOwn(text, key)) {}',
+					}],
+				}],
+			},
+			{
+				code: '/** @param {Object<string, boolean>} flags */ function run(flags, key) { if (flags[/* keep */ key]) {} }',
+				errors: [{messageId: 'no-computed-property-existence-check/error', suggestions: 0}],
+			},
+		].map(testCase => ({...testCase, filename: 'file.ts'})),
+	});
+}
+
+for (const parserOptions of [{}, {projectService: {allowDefaultProject: ['*.ts']}}]) {
+	test({
+		testerOptions: {languageOptions: {parser: typescriptEslintParser, parserOptions}},
+		valid: [{code: '/** @param {unknown} cache */ function run(cache: Map<string, number>, key: string) { if (cache[key]) {} }', filename: 'file.ts'}],
+		invalid: [{
+			code: '/** @param {Map<string, number>} cache */ function run(cache: Record<string, unknown>, key: string) { if (cache[key]) {} }',
+			filename: 'file.ts',
+			errors: [{
+				messageId: 'no-computed-property-existence-check/error', suggestions: [{
+					messageId: 'no-computed-property-existence-check/suggestion',
+					output: '/** @param {Map<string, number>} cache */ function run(cache: Record<string, unknown>, key: string) { if (Object.hasOwn(cache, key)) {} }',
+				}],
+			}],
+		}],
+	});
+}

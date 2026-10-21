@@ -303,3 +303,201 @@ for (const {name, code, suggested, output = suggested, value} of [
 		t.assert.deepStrictEqual(linter.verifyAndFix(output, parameterConfig), {fixed: false, output, messages: []});
 	});
 }
+
+const booleanConsumerConfig = {
+	plugins: {unicorn},
+	rules: {
+		'unicorn/no-useless-logical-operand': 'error',
+		'unicorn/prefer-simplified-conditions': 'error',
+		'unicorn/prefer-logical-operator-over-ternary': 'error',
+		'unicorn/no-unnecessary-boolean-comparison': 'error',
+		'unicorn/no-useless-coercion': 'error',
+	},
+};
+
+for (const {name, annotation, parameters, expression, replacement = expression, argumentsList, values, rules = []} of [
+	{
+		name: 'logical identity and positive comparison cleanup preserve both boolean outcomes',
+		annotation: '/** @param {boolean} flag */',
+		parameters: 'flag',
+		expression: '(flag && true) === true',
+		replacement: '(flag)',
+		argumentsList: ['false', 'true'],
+		values: [false, true],
+		rules: ['no-useless-logical-operand', 'no-unnecessary-boolean-comparison'],
+	},
+	{
+		name: 'logical identity removal composes with negative boolean comparisons',
+		annotation: '/** @param {boolean} flag */',
+		parameters: 'flag',
+		expression: '(flag || false) === false',
+		replacement: '!(flag)',
+		argumentsList: ['false', 'true'],
+		values: [true, false],
+		rules: ['no-useless-logical-operand', 'no-unnecessary-boolean-comparison'],
+	},
+	{
+		name: 'false ternary branches become conjunctions before identity cleanup',
+		annotation: '/** @param {boolean} flag\n * @param {boolean} other */',
+		parameters: 'flag, other',
+		expression: '(flag ? other : false) && true',
+		replacement: '(flag && other)',
+		argumentsList: ['false, true', 'true, false', 'true, true'],
+		values: [false, false, true],
+		rules: ['prefer-logical-operator-over-ternary', 'no-useless-logical-operand'],
+	},
+	{
+		name: 'true ternary branches become disjunctions before identity cleanup',
+		annotation: '/** @param {boolean} flag\n * @param {boolean} other */',
+		parameters: 'flag, other',
+		expression: '(flag ? true : other) || false',
+		replacement: '(flag || other)',
+		argumentsList: ['false, false', 'false, true', 'true, false'],
+		values: [false, true, true],
+		rules: ['prefer-logical-operator-over-ternary', 'no-useless-logical-operand'],
+	},
+	{
+		name: 'De Morgan simplification keeps disjunction precedence during identity removal',
+		annotation: '/** @param {boolean} first\n * @param {boolean} second */',
+		parameters: 'first, second',
+		expression: '!(!first && !second) && true',
+		replacement: '(first || second)',
+		argumentsList: ['false, false', 'false, true', 'true, false'],
+		values: [false, true, true],
+		rules: ['prefer-simplified-conditions', 'no-useless-logical-operand'],
+	},
+	{
+		name: 'documented boolean absorption and comparison removal converge',
+		annotation: '/** @param {boolean} first\n * @param {boolean} second */',
+		parameters: 'first, second',
+		expression: '(first || (first && second)) === true',
+		replacement: '(first)',
+		argumentsList: ['false, true', 'true, false'],
+		values: [false, true],
+		rules: ['prefer-simplified-conditions', 'no-unnecessary-boolean-comparison'],
+	},
+	{
+		name: 'factoring documented booleans does not lose grouping when identities disappear',
+		annotation: '/** @param {boolean} first\n * @param {boolean} second\n * @param {boolean} third */',
+		parameters: 'first, second, third',
+		expression: '((first && second) || (first && third)) && true',
+		replacement: '(first && (second || third))',
+		argumentsList: ['false, true, true', 'true, false, false', 'true, false, true'],
+		values: [false, false, true],
+		rules: ['prefer-simplified-conditions', 'no-useless-logical-operand'],
+	},
+	{
+		name: 'ternary conversion retains coercion of an unknown test before calling a predicate',
+		annotation: '/** @param {unknown} condition\n * @param {() => boolean} read */',
+		parameters: 'condition, read',
+		expression: '(condition ? read() : false) === true',
+		replacement: '(Boolean(condition) && read())',
+		argumentsList: ['0, () => true', '"x", () => false', '"x", () => true'],
+		values: [false, false, true],
+		rules: ['prefer-logical-operator-over-ternary', 'no-unnecessary-boolean-comparison'],
+	},
+	{
+		name: 'documented RegExp results stay boolean through De Morgan and identity fixes',
+		annotation: '/** @param {RegExp} pattern\n * @param {string} text\n * @param {boolean} flag */',
+		parameters: 'pattern, text, flag',
+		expression: '!(!pattern.test(text) && !flag) || false',
+		replacement: 'pattern.test(text) || flag',
+		argumentsList: ['/a/, "x", false', '/a/, "a", false', '/a/, "x", true'],
+		values: [false, true, true],
+		rules: ['prefer-simplified-conditions', 'no-useless-logical-operand'],
+	},
+	{
+		name: 'coercion removal remains safe after logical and comparison cleanup',
+		annotation: '/** @param {boolean} flag */',
+		parameters: 'flag',
+		expression: 'Boolean(flag && true) === true',
+		replacement: '(flag)',
+		argumentsList: ['false', 'true'],
+		values: [false, true],
+		rules: ['no-useless-coercion', 'no-useless-logical-operand', 'no-unnecessary-boolean-comparison'],
+	},
+	{
+		name: 'partially known De Morgan operands retain the necessary truthiness coercion',
+		annotation: '/** @param {string | boolean} flag\n * @param {boolean} other */',
+		parameters: 'flag, other',
+		expression: '!(!flag && !other)',
+		replacement: '!!flag || other',
+		argumentsList: ['"", false', '"x", false', 'false, true'],
+		values: [false, true, true],
+		rules: ['prefer-simplified-conditions'],
+	},
+	{
+		name: 'optional boolean identity operands preserve false instead of returning undefined',
+		annotation: '/** @param {boolean} [flag] */',
+		parameters: 'flag',
+		expression: 'flag || false',
+		argumentsList: ['', 'false', 'true'],
+		values: [false, false, true],
+	},
+	{
+		name: 'mixed primitive conjunctions preserve booleans rather than returning truthy strings',
+		annotation: '/** @param {boolean | string} flag */',
+		parameters: 'flag',
+		expression: 'flag && true',
+		argumentsList: ['""', '"x"', 'false'],
+		values: ['', true, false],
+	},
+	{
+		name: 'two uncertain De Morgan operands keep a primitive boolean result',
+		annotation: '/** @param {boolean | string} first\n * @param {boolean | string} second */',
+		parameters: 'first, second',
+		expression: '!(!first && !second)',
+		argumentsList: ['"x", false', '"", true', '"", false'],
+		values: [true, true, false],
+	},
+	{
+		name: 'higher-order callback results do not escape a truthy conjunction',
+		annotation: '/** @param {() => (() => boolean)} read */',
+		parameters: 'read',
+		expression: 'read() && true',
+		argumentsList: ['() => () => false', '() => () => true'],
+		values: [true, true],
+	},
+	{
+		name: 'nullable callback returns keep false as their fallback result',
+		annotation: '/** @param {() => ?string} read */',
+		parameters: 'read',
+		expression: 'read() || false',
+		argumentsList: ['() => null', '() => ""', '() => "x"'],
+		values: [false, false, 'x'],
+	},
+	{
+		name: 'an unknown ternary branch keeps nonboolean result types explicit',
+		annotation: '/** @param {boolean} flag\n * @param {unknown} other */',
+		parameters: 'flag, other',
+		expression: 'flag ? true : other',
+		argumentsList: ['false, ""', 'false, "x"', 'true, null'],
+		values: ['', 'x', true],
+	},
+	{
+		name: 'optional predicate calls retain a fallback for absent callbacks',
+		annotation: '/** @param {() => boolean} [read] */',
+		parameters: 'read',
+		expression: 'read?.() || false',
+		argumentsList: ['', '() => false', '() => true'],
+		values: [false, false, true],
+	},
+]) {
+	test(name, t => {
+		const prefix = `${annotation}\nfunction run(${parameters}) { return `;
+		const calls = argumentsList.map(argumentsText => `run(${argumentsText})`).join(', ');
+		const suffix = `; }\nJSON.stringify([${calls}].map(value => [typeof value, value]));`;
+		const code = prefix + expression + suffix;
+		const output = prefix + replacement + suffix;
+		const messages = linter.verify(code, booleanConsumerConfig);
+		t.assert.deepStrictEqual(new Set(messages.map(message => message.ruleId)), new Set(rules.map(rule => `unicorn/${rule}`)));
+		const result = linter.verifyAndFix(code, booleanConsumerConfig);
+		t.assert.strictEqual(result.fixed, expression !== replacement);
+		t.assert.strictEqual(result.output, output);
+		t.assert.deepStrictEqual(result.messages, []);
+		const expected = JSON.stringify(values.map(value => [typeof value, value]));
+		t.assert.strictEqual(runInNewContext(code), expected);
+		t.assert.strictEqual(runInNewContext(result.output), expected);
+		t.assert.deepStrictEqual(linter.verifyAndFix(output, booleanConsumerConfig), {fixed: false, output, messages: []});
+	});
+}

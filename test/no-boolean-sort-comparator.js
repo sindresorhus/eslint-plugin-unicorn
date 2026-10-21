@@ -1,6 +1,62 @@
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.js', '*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @returns {number} */ function compare(a, b) { return source; } values.sort(compare);',
+			'/** @returns {?boolean} */ function compare(a, b) { return source; } values.sort(compare);',
+			'/** @returns {boolean} */ async function compare(a, b) { return source; } values.sort(compare);',
+			'/** @returns {boolean} */ let compare = (a, b) => source; compare = replacement; values.sort(compare);',
+			'/** @param {Set<number>} values */ function run(values) { values.toSorted((a, b) => a > b); }',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			...[
+				'/** @returns {boolean} */ function compare(a, b) { return source; } values.sort(compare);',
+				'/** @param {(a: number, b: number) => boolean} compare */ function run(compare) { values.toSorted(compare); }',
+				'/** @type {{(a: number, b: number): boolean; (): boolean}} */ const compare = source; values.sort(compare);',
+				'values.sort(/** @returns {boolean} */ (a, b) => source);',
+			].map(code => ({code, filename: 'file.ts', errors: [{messageId: 'no-boolean-sort-comparator', suggestions: 0}]})),
+			{
+				code: '/** @param {Float32Array} values */ function run(values) { values.toSorted((a, b) => a < b); }',
+				filename: 'file.ts',
+				errors: [{
+					messageId: 'no-boolean-sort-comparator',
+					suggestions: [{
+						messageId: 'no-boolean-sort-comparator/suggestion',
+						data: {replacement: '(a, b) => b - a'},
+						output: '/** @param {Float32Array} values */ function run(values) { values.toSorted((a, b) => b - a); }',
+					}],
+				}],
+			},
+		],
+	});
+}
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.js', '*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			code: '/** @type {() => boolean} */ const compare = ((): number => source) satisfies Function; values.sort(compare);',
+			filename: 'file.ts',
+		}],
+		invalid: [{
+			code: '/** @type {() => number} */ const compare = ((): boolean => source) satisfies Function; values.sort(compare);',
+			filename: 'file.ts',
+			errors: [{messageId: 'no-boolean-sort-comparator', suggestions: 0}],
+		}],
+	});
+}
 
 test.snapshot({
 	valid: [

@@ -1,10 +1,76 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
 const MESSAGE_ID = 'prefer-string-pad-start-end';
 const MESSAGE_ID_SUGGESTION = 'suggest-padding-method';
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {boolean} value */ function run(value) { return " ".repeat(8 - value.length) + value; }',
+			'/** @returns {number} */ function read() { return source; } const value = read(); value + "*".repeat(8 - value.length);',
+			'/** @param {{length: number}} value */ function run(value) { return ("*".repeat(8) + value).slice(-8); }',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			{
+				code: '/** @param {string} value */ function run(value) { return " ".repeat(8 - value.length) + value; }',
+				output: '/** @param {string} value */ function run(value) { return value.padStart(8); }',
+				errors: [{messageId: MESSAGE_ID}],
+			},
+			{
+				code: '/** @returns {string} */ function read() { return source; } const value = read(); value + "*".repeat(8 - value.length);',
+				output: '/** @returns {string} */ function read() { return source; } const value = read(); value.padEnd(8, "*");',
+				errors: [{messageId: MESSAGE_ID}],
+			},
+			{
+				code: '/** @param {string} value */ function run(value) { return ("*".repeat(8) + value).slice(-8); }',
+				errors: [{
+					messageId: MESSAGE_ID, suggestions: [{
+						messageId: MESSAGE_ID_SUGGESTION,
+						output: '/** @param {string} value */ function run(value) { return value.padStart(8, "*"); }',
+					}],
+				}],
+			},
+			{
+				code: '/** @param {string} value */ function run(value) { return (value + " ".repeat(8)).slice(0, 8); }',
+				errors: [{
+					messageId: MESSAGE_ID, suggestions: [{
+						messageId: MESSAGE_ID_SUGGESTION,
+						output: '/** @param {string} value */ function run(value) { return value.padEnd(8); }',
+					}],
+				}],
+			},
+			{
+				code: '/** @param {string} value */ function run(value) { return "*".repeat(8 - value.length) /* keep */ + value; }',
+				errors: [{messageId: MESSAGE_ID, suggestions: 0}],
+			},
+		].map(testCase => ({...testCase, filename: 'file.ts'})),
+	});
+}
+
+for (const parserOptions of [{}, {projectService: {allowDefaultProject: ['*.ts']}}]) {
+	test({
+		testerOptions: {languageOptions: {parser: typescriptEslintParser, parserOptions}},
+		valid: [{
+			code: '/** @param {string} value */ function run(value: boolean) { return " ".repeat(8 - value.length) + value; }',
+			filename: 'file.ts',
+		}],
+		invalid: [{
+			code: '/** @param {boolean} value */ function run(value: string) { return " ".repeat(8 - value.length) + value; }',
+			output: '/** @param {boolean} value */ function run(value: string) { return value.padStart(8); }',
+			filename: 'file.ts',
+			errors: [{messageId: MESSAGE_ID}],
+		}],
+	});
+}
 
 // `repeat()` throws for a value longer than the target length, while the padding methods return the value unchanged. The fix only removes that error, so it is still an autofix.
 test({
