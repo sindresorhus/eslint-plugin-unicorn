@@ -5,8 +5,12 @@ import {
 	fixSpaceAroundKeyword,
 } from './fix/index.js';
 import {
+	checkVueTemplate,
+	getCommentSafeProblem,
+	getLogicalExpressionOperands,
 	getNegatedExpressionText,
 	getParenthesizedText,
+	getTokenStore,
 	isBoolean,
 	isBooleanContext,
 	isControlFlowTest,
@@ -237,7 +241,7 @@ function getLogicalReplacementText(node, operator, replacement, context) {
 		replacement = `(${replacement})`;
 	}
 
-	return needsSemicolon(context.sourceCode.getTokenBefore(node), context, replacement)
+	return needsSemicolon(getTokenStore(context, node).getTokenBefore(node), context, replacement)
 		? `;${replacement}`
 		: replacement;
 }
@@ -280,9 +284,9 @@ function needsReturnOrThrowParentheses(node, context) {
 		return false;
 	}
 
-	const {sourceCode} = context;
-	const bangToken = sourceCode.getFirstToken(node);
-	const tokenAfterBang = sourceCode.getTokenAfter(bangToken);
+	const tokenStore = getTokenStore(context, node);
+	const bangToken = tokenStore.getFirstToken(node);
+	const tokenAfterBang = tokenStore.getTokenAfter(bangToken);
 	return parent.argument === node
 		&& !isOnSameLine(bangToken, tokenAfterBang, context)
 		&& !isParenthesized(node, context);
@@ -320,6 +324,10 @@ function isFactoringOperand(node) {
 	if (node.type === 'MemberExpression') {
 		return isFactoringOperand(node.object)
 			&& (!node.computed || isFactoringOperand(node.property));
+	}
+
+	if (node.type === 'TemplateLiteral') {
+		return node.expressions.length === 0;
 	}
 
 	if (isNegation(node)) {
@@ -381,44 +389,45 @@ const isSameCondition = (left, right, context) =>
 
 function getLeadingCommonFactoringTerms(node, context) {
 	const innerOperator = negatedLogicalOperators.get(node.operator);
-
 	if (
 		!innerOperator
 		|| node.left.type !== 'LogicalExpression'
 		|| node.right.type !== 'LogicalExpression'
-		|| node.left.operator !== innerOperator
-		|| node.right.operator !== innerOperator
 	) {
 		return;
 	}
 
-	if (!isSameCondition(node.left.left, node.right.left, context)) {
+	const before = getLogicalExpressionOperands(node.left, node.operator);
+	const after = getLogicalExpressionOperands(node.right, node.operator);
+	const leftOperands = getLogicalExpressionOperands(before.pop(), innerOperator);
+	const rightOperands = getLogicalExpressionOperands(after.shift(), innerOperator);
+	if (
+		leftOperands.length < 2
+		|| rightOperands.length < 2
+		|| !isSameCondition(leftOperands[0], rightOperands[0], context)
+	) {
 		return;
 	}
 
-	if (isSameCondition(node.left.right, node.right.right, context)) {
+	if (
+		leftOperands.length === rightOperands.length
+		&& leftOperands.every((operand, index) => isSameCondition(operand, rightOperands[index], context))
+	) {
 		return;
 	}
 
-	const commonTerm = {
-		common: node.left.left,
-		leftOther: node.left.right,
-		rightOther: node.right.right,
-	};
-
-	const operands = [
-		commonTerm.common,
-		node.right.left,
-		commonTerm.leftOther,
-		commonTerm.rightOther,
-	];
-
+	const operands = [...leftOperands, ...rightOperands];
 	if (!canFactor(node, operands, context)) {
 		return;
 	}
 
 	return {
-		...commonTerm,
+		common: leftOperands[0],
+		leftRemainingOperands: leftOperands.slice(1),
+		rightRemainingOperands: rightOperands.slice(1),
+		before,
+		after,
+		innerOperator,
 		shouldSuggest: operands.some(operand => !isSafeFactoringOperand(operand, context)),
 	};
 }
@@ -468,44 +477,79 @@ function getAbsorptionTerm(node, context) {
 }
 
 function getFactoringReplacementText(node, factoringTerms, context) {
-	// Factoring operands never need additional parentheses as an operand of `&&`/`||`.
+	// Individual factoring operands never need additional parentheses as an operand of `&&`/`||`, but grouped remainders do.
+	const {innerOperator, before, after} = factoringTerms;
 	const commonText = getParenthesizedText(factoringTerms.common, context);
-	const leftOtherText = getParenthesizedText(factoringTerms.leftOther, context);
-	const rightOtherText = getParenthesizedText(factoringTerms.rightOther, context);
-	let replacement = `${commonText} ${node.left.operator} (${leftOtherText} ${node.operator} ${rightOtherText})`;
+	const [leftRemainingText, rightRemainingText] = [factoringTerms.leftRemainingOperands, factoringTerms.rightRemainingOperands].map(operands => {
+		const text = operands.map(operand => getParenthesizedText(operand, context)).join(` ${innerOperator} `);
+		return operands.length > 1 ? `(${text})` : text;
+	});
+	let replacement = `${commonText} ${innerOperator} (${leftRemainingText} ${node.operator} ${rightRemainingText})`;
+	if (before.length === 0 && after.length === 0) {
+		if (
+			!isParenthesized(factoringTerms.common, context)
+			&& !shouldAddParenthesesToLogicalReplacement(node, innerOperator, context)
+			&& shouldAddParenthesesToExpressionStart(factoringTerms.common, context, node)
+		) {
+			replacement = `(${replacement})`;
+		}
 
-	if (
-		!isParenthesized(factoringTerms.common, context)
-		&& !shouldAddParenthesesToLogicalReplacement(node, node.left.operator, context)
-		&& shouldAddParenthesesToExpressionStart(factoringTerms.common, context, node)
-	) {
-		replacement = `(${replacement})`;
+		return getLogicalReplacementText(node, innerOperator, replacement, context);
 	}
 
-	return getLogicalReplacementText(node, node.left.operator, replacement, context);
+	const operandTexts = [
+		...before.map(operand => getParenthesizedText(operand, context)),
+		`(${replacement})`,
+		...after.map(operand => getParenthesizedText(operand, context)),
+	];
+	let text = operandTexts.join(` ${node.operator} `);
+	// Preserve leading grouping removed when flattening the surrounding chain.
+	if (
+		before.length > 0
+		&& !isParenthesized(before[0], context)
+		&& getTokenStore(context, node).getFirstToken(node).value === '('
+	) {
+		text = `(${text})`;
+	}
+
+	return getLogicalReplacementText(node, node.operator, text, context);
+}
+
+function isSupportedExpression(node, context) {
+	if (getTokenStore(context, node) === context.sourceCode) {
+		return true;
+	}
+
+	for (; node; node = node.parent) {
+		if (node.type.endsWith('Statement')) {
+			return false;
+		}
+
+		if (node.type === 'VExpressionContainer') {
+			return isControlFlowTest(node.expression)
+				&& ['"', '\''].includes(context.sourceCode.text[context.sourceCode.getRange(node)[0]]);
+		}
+	}
+
+	return false;
 }
 
 /**
 @param {ESLint.Rule.RuleContext} context
 */
 const create = context => {
-	const {sourceCode} = context;
 	const getProblem = (node, fix, shouldSuggest = false) => {
-		const problem = {
-			node,
-			messageId: MESSAGE_ID,
-		};
-
-		if (sourceCode.getCommentsInside(node).length > 0) {
-			return problem;
+		if (!isSupportedExpression(node, context)) {
+			return;
 		}
 
-		return {
-			...problem,
+		return getCommentSafeProblem(context, {
+			node,
+			messageId: MESSAGE_ID,
 			...(shouldSuggest
 				? {suggest: [{messageId: MESSAGE_ID_SUGGESTION, fix}]}
 				: {fix}),
-		};
+		});
 	};
 
 	context.on('UnaryExpression', node => {
@@ -560,7 +604,7 @@ const create = context => {
 @type {ESLint.Rule.RuleModule}
 */
 const config = {
-	create,
+	create: checkVueTemplate(create),
 	meta: {
 		type: 'suggestion',
 		docs: {

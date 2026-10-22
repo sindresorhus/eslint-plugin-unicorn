@@ -1,4 +1,5 @@
 import {isMemberExpression} from '../ast/index.js';
+import getTokenStore from './get-token-store.js';
 import isSameReference from './is-same-reference.js';
 import {getStaticNumberValue} from './numeric.js';
 import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
@@ -64,7 +65,7 @@ export const flipOperator = {
 /**
 Get the punctuator token for a binary expression operator.
 */
-export const getPunctuatorBinaryExpressionOperatorToken = (node, context) => context.sourceCode.getTokenAfter(
+export const getPunctuatorBinaryExpressionOperatorToken = (node, context) => getTokenStore(context, node).getTokenAfter(
 	node.left,
 	token => token.type === 'Punctuator' && token.value === node.operator,
 );
