@@ -27,6 +27,7 @@ With full type information, assignment targets must have matching tokens and typ
 
 The rule skips:
 
+- Consecutive `if` guards without `else`, each containing only a `return`, followed by a fallback `return`. Comments and blank lines do not break the chain.
 - Bare `return;` in either branch. Explicit `return undefined;` remains eligible.
 - Conditions or merged values containing:
   - Ternaries, except inside expression-bodied callbacks.
@@ -66,6 +67,22 @@ function unicorn() {
 // ✅
 function unicorn() {
 	return test ? a : b;
+}
+```
+
+```js
+// ✅
+// Preserve consecutive early-return guards.
+function compare(a, b) {
+	if (a > b) {
+		return 1;
+	}
+
+	if (a < b) {
+		return -1;
+	}
+
+	return 0;
 }
 ```
 

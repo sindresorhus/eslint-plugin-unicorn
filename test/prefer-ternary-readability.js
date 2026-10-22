@@ -88,6 +88,129 @@ testRule({
 	].map(code => ({code, errors: [{messageId, suggestions: []}], output: null})),
 });
 
+// Early-return chains
+for (const mode of ['always', 'only-single-line']) {
+	testRule({
+		valid: [
+			'function unicorn() { if (a) return 1; if (b) return 2; return 3; }',
+			'function unicorn() { if (a) { return first; } if (b) { return second; } return third; }',
+			'function unicorn() { if (a) { return; } if (b) { return second; } return third; }',
+			'function unicorn() { if (a) { ; return first; ; } if (b) { return second; } return third; }',
+			'function unicorn() { switch (value) { case 1: if (a) { return first; } if (b) { return second; } return third; } }',
+			outdent`
+				function compareDates(a, b) {
+					if (a.year > b.year) { return 1; }
+					if (a.year < b.year) { return -1; }
+					if (a.month > b.month) { return 1; }
+					if (a.month < b.month) { return -1; }
+					if (a.day > b.day) { return 1; }
+					if (a.day < b.day) { return -1; }
+					return 0;
+				}
+			`,
+			outdent`
+				function getStatusColor(shortage) {
+					// Exactly enough people.
+					if (shortage === 0) { return 'green'; }
+
+					// Too many people.
+					if (shortage < 0) { return 'orange'; }
+					// Too few people.
+					return 'red';
+				}
+			`,
+		].map(code => ({code, options: [mode]})),
+		invalid: [
+			{
+				code: 'function unicorn() { if (a) { return first; } doSomething(); if (b) { return second; } return third; }',
+				output: 'function unicorn() { if (a) { return first; } doSomething(); return b ? second : third; }',
+			},
+			{
+				code: 'function unicorn() { if (a) { return first; }; if (b) { return second; } return third; }',
+				output: 'function unicorn() { if (a) { return first; }; return b ? second : third; }',
+			},
+			{
+				code: 'function unicorn() { if (a) { doSomething(); } if (b) { return second; } return third; }',
+				output: 'function unicorn() { if (a) { doSomething(); } return b ? second : third; }',
+			},
+			{
+				code: 'function unicorn() { if (a) { throw error; } if (b) { return second; } return third; }',
+				output: 'function unicorn() { if (a) { throw error; } return b ? second : third; }',
+			},
+			{
+				code: 'function unicorn() { if (a) { return first; } { if (b) { return second; } return third; } }',
+				output: 'function unicorn() { if (a) { return first; } { return b ? second : third; } }',
+			},
+			{
+				code: 'function unicorn() { switch (value) { case 1: if (a) { return first; } case 2: if (b) { return second; } return third; } }',
+				output: 'function unicorn() { switch (value) { case 1: if (a) { return first; } case 2: return b ? second : third; } }',
+			},
+			{
+				code: 'function unicorn() { if (a) { doSomething(); return first; } if (b) { return second; } return third; }',
+				output: 'function unicorn() { if (a) { doSomething(); return first; } return b ? second : third; }',
+			},
+			{
+				code: 'function unicorn() { if (a) { return first; } else { doSomething(); } if (b) { return second; } return third; }',
+				output: 'function unicorn() { if (a) { return first; } else { doSomething(); } return b ? second : third; }',
+			},
+			{
+				code: 'function unicorn() { if (a) { return first; } if (b) { return second; } else { return third; } }',
+				output: 'function unicorn() { if (a) { return first; } return b ? second : third; }',
+			},
+		].map(testCase => ({...testCase, options: [mode], errors})),
+	});
+
+	testRule({
+		valid: [{
+			code: 'function unicorn() { if (a) { return first as string; } if (b) { return second!; } return third satisfies string; }',
+			options: [mode],
+			languageOptions: {parser: parsers.typescript},
+		}],
+		invalid: [],
+	});
+
+	test(`preserves early-return chains after removing an else (${mode})`, t => {
+		const code = outdent`
+			function compare(a, b) {
+				if (a > b) {
+					return 1;
+				} else {
+					if (a < b) {
+						return -1;
+					}
+					return 0;
+				}
+			}
+		`;
+		const output = outdent`
+			function compare(a, b) {
+				if (a > b) {
+					return 1;
+				}
+				if (a < b) {
+					return -1;
+				}
+				return 0;
+			}
+		`;
+		const linter = new Linter();
+		const config = {
+			plugins: {unicorn},
+			rules: {
+				'unicorn/prefer-ternary': ['error', mode],
+				'unicorn/no-useless-else': 'error',
+				'unicorn/no-nested-ternary': 'error',
+			},
+		};
+		const result = linter.verifyAndFix(code, config);
+
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.strictEqual(result.output, output);
+		t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
+	});
+}
+
 // Embedded ternaries should not become nested when merging expressions.
 testRule({
 	valid: [

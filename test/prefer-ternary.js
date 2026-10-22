@@ -369,11 +369,6 @@ test({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: 'function unicorn() { if (a) return 1; if (b) return 2; return 3; }',
-			output: 'function unicorn() { if (a) return 1; return b ? 2 : 3; }',
-			errors,
-		},
-		{
 			code: outdent`
 				function unicorn() {
 					if (test) {
