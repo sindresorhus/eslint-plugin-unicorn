@@ -427,6 +427,7 @@ for (const mode of ['always', 'only-single-line']) {
 			'function unicorn() { if (a) { return first; } if (b) { return second; } return third; }',
 			'function unicorn() { if (a) { return; } if (b) { return second; } return third; }',
 			'function unicorn() { if (a) { ; return first; ; } if (b) { return second; } return third; }',
+			'function unicorn() { switch (value) { case 1: if (a) { return first; } if (b) { return second; } return third; } }',
 			outdent`
 				function compareDates(a, b) {
 					if (a.year > b.year) { return 1; }
@@ -462,6 +463,18 @@ for (const mode of ['always', 'only-single-line']) {
 			{
 				code: 'function unicorn() { if (a) { doSomething(); } if (b) { return second; } return third; }',
 				output: 'function unicorn() { if (a) { doSomething(); } return b ? second : third; }',
+			},
+			{
+				code: 'function unicorn() { if (a) { throw error; } if (b) { return second; } return third; }',
+				output: 'function unicorn() { if (a) { throw error; } return b ? second : third; }',
+			},
+			{
+				code: 'function unicorn() { if (a) { return first; } { if (b) { return second; } return third; } }',
+				output: 'function unicorn() { if (a) { return first; } { return b ? second : third; } }',
+			},
+			{
+				code: 'function unicorn() { switch (value) { case 1: if (a) { return first; } case 2: if (b) { return second; } return third; } }',
+				output: 'function unicorn() { switch (value) { case 1: if (a) { return first; } case 2: return b ? second : third; } }',
 			},
 			{
 				code: 'function unicorn() { if (a) { doSomething(); return first; } if (b) { return second; } return third; }',
