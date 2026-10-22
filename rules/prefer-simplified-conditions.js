@@ -5,6 +5,7 @@ import {
 	fixSpaceAroundKeyword,
 } from './fix/index.js';
 import {
+	getCommentSafeProblem,
 	getLogicalExpressionOperands,
 	getNegatedExpressionText,
 	getParenthesizedText,
@@ -516,24 +517,13 @@ function getFactoringReplacementText(node, factoringTerms, context) {
 @param {ESLint.Rule.RuleContext} context
 */
 const create = context => {
-	const {sourceCode} = context;
-	const getProblem = (node, fix, shouldSuggest = false) => {
-		const problem = {
-			node,
-			messageId: MESSAGE_ID,
-		};
-
-		if (sourceCode.getCommentsInside(node).length > 0) {
-			return problem;
-		}
-
-		return {
-			...problem,
-			...(shouldSuggest
-				? {suggest: [{messageId: MESSAGE_ID_SUGGESTION, fix}]}
-				: {fix}),
-		};
-	};
+	const getProblem = (node, fix, shouldSuggest = false) => getCommentSafeProblem(context, {
+		node,
+		messageId: MESSAGE_ID,
+		...(shouldSuggest
+			? {suggest: [{messageId: MESSAGE_ID_SUGGESTION, fix}]}
+			: {fix}),
+	});
 
 	context.on('UnaryExpression', node => {
 		if (
