@@ -1055,6 +1055,7 @@ ruleTester.vue({
 		['<template><div v-if="!(!a && b)" /></template>', '<template><div v-if="a || !b" /></template>'],
 		['<template><div v-if=\'(a && b) || (a && c)\' /></template>', '<template><div v-if=\'a && (b || c)\' /></template>'],
 		['<template><div v-if="!(a !== b && c !== d)" /></template>', '<template><div v-if="a === b || c === d" /></template>'],
+		['<template><div v-if="(a === &quot;x&quot; &amp;&amp; b) || (a === &quot;x&quot; &amp;&amp; c)" /></template>', '<template><div v-if="a === &quot;x&quot; && (b || c)" /></template>'],
 		['<template><div v-show="a || (a && b)" /></template>', '<template><div v-show="a" /></template>'],
 		['<template><!-- keep --><div v-if="(a && b) || (a && c)" /></template>', '<template><!-- keep --><div v-if="a && (b || c)" /></template>'],
 	].map(([code, output]) => ({code, output, errors: 1})),
@@ -1101,6 +1102,12 @@ ruleTester.vue({
 			code: '<template><div v-if="!(a !== b && c !== d)" /></template><script>if (!(!x && y)) {}</script>',
 			output: '<template><div v-if="a === b || c === d" /></template><script>if (x || !y) {}</script>',
 			errors: 2,
+		},
+		{
+			code: '<script setup lang="ts">const a: boolean = true;</script><template><div v-if="((a as boolean) && b) || ((a as boolean) && c)" /></template>',
+			output: '<script setup lang="ts">const a: boolean = true;</script><template><div v-if="(a as boolean) && (b || c)" /></template>',
+			languageOptions: {parserOptions: {parser: typescriptEslintParser}},
+			errors: 1,
 		},
 	],
 });
