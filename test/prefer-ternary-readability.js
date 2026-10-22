@@ -168,6 +168,47 @@ for (const mode of ['always', 'only-single-line']) {
 		}],
 		invalid: [],
 	});
+
+	test(`preserves early-return chains after removing an else (${mode})`, t => {
+		const code = outdent`
+			function compare(a, b) {
+				if (a > b) {
+					return 1;
+				} else {
+					if (a < b) {
+						return -1;
+					}
+					return 0;
+				}
+			}
+		`;
+		const output = outdent`
+			function compare(a, b) {
+				if (a > b) {
+					return 1;
+				}
+				if (a < b) {
+					return -1;
+				}
+				return 0;
+			}
+		`;
+		const linter = new Linter();
+		const config = {
+			plugins: {unicorn},
+			rules: {
+				'unicorn/prefer-ternary': ['error', mode],
+				'unicorn/no-useless-else': 'error',
+				'unicorn/no-nested-ternary': 'error',
+			},
+		};
+		const result = linter.verifyAndFix(code, config);
+
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.strictEqual(result.output, output);
+		t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
+	});
 }
 
 // Embedded ternaries should not become nested when merging expressions.
