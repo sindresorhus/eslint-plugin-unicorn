@@ -425,6 +425,15 @@ const create = context => {
 
 	context.on('IfStatement', node => {
 		if (!node.alternate) {
+			const previousNode = getPreviousNode(node, context);
+			if (
+				previousNode?.type === 'IfStatement'
+				&& !previousNode.alternate
+				&& getNodeBody(previousNode.consequent).type === 'ReturnStatement'
+			) {
+				return;
+			}
+
 			const nextNode = getNextNode(node, context);
 			return nextNode?.type === 'ReturnStatement' ? getIfBranchesProblem(node, nextNode) ?? getLetPlusIfProblem(node) : getLetPlusIfProblem(node);
 		}
