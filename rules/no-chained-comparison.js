@@ -1,10 +1,12 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {isBooleanLiteral} from './ast/index.js';
 import {
+	getParenthesizedRange,
 	getParenthesizedText,
 	isParenthesized,
 	isBoolean,
 	shouldAddParenthesesToExpressionStart,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-chained-comparison/error';
@@ -85,7 +87,7 @@ const create = context => {
 			&& !isComparison(nested.left)
 			&& isSafeForLogicalReplacement(node, context)
 			&& !hasSideEffect(nested.right, sourceCode)
-			&& sourceCode.getCommentsInside(node).length === 0
+			&& !wouldRemoveComments(context, node, [nested.left, node.right].map(node => getParenthesizedRange(node, context)))
 		) {
 			let replacement = `${sourceCode.getText(node.left)} && ${getParenthesizedText(nested.right, context)} ${node.operator} ${getParenthesizedText(node.right, context)}`;
 			if (shouldAddParenthesesToExpressionStart(node.left, context, node)) {

@@ -1,6 +1,12 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
 import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
-import {getCallArgumentText, getStaticValueForControlFlow} from './utils/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
+import {
+	getCallArgumentText,
+	getParenthesizedRange,
+	getStaticValueForControlFlow,
+	wouldRemoveComments,
+} from './utils/index.js';
 
 const MESSAGE_ID_PARSE_FLOAT = 'parse-float';
 const MESSAGE_ID_PARSE_INT = 'parse-int';
@@ -61,7 +67,10 @@ function getParseFloatProblem(callExpression, method, context) {
 		{
 			messageId: MESSAGE_ID_SUGGESTION_NUMBER,
 			data: {method},
-			fix: fixer => fixer.replaceText(callExpression.callee, 'Number'),
+			* fix(fixer) {
+				yield fixer.replaceText(callExpression.callee, 'Number');
+				yield fixSpaceAroundKeyword(fixer, callExpression.callee, context);
+			},
 		},
 	];
 
@@ -85,7 +94,7 @@ function getParseIntProblem(callExpression, method, context) {
 		|| firstArgument?.type === 'SpreadElement'
 		|| hasSideEffect(radixArgument, context.sourceCode)
 		|| isOptionalCall(callExpression)
-		|| context.sourceCode.getCommentsInside(callExpression).length > 0
+		|| wouldRemoveComments(context, callExpression, [getParenthesizedRange(firstArgument, context)])
 	) {
 		return problem;
 	}
@@ -94,7 +103,10 @@ function getParseIntProblem(callExpression, method, context) {
 		{
 			messageId: MESSAGE_ID_SUGGESTION_TRUNC,
 			data: {method},
-			fix: fixer => fixer.replaceText(callExpression, `Math.trunc(Number(${getCallArgumentText(firstArgument, context)}))`),
+			* fix(fixer) {
+				yield fixer.replaceText(callExpression, `Math.trunc(Number(${getCallArgumentText(firstArgument, context)}))`);
+				yield fixSpaceAroundKeyword(fixer, callExpression, context);
+			},
 		},
 	];
 

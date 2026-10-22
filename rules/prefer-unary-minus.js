@@ -2,8 +2,10 @@ import {
 	needsSemicolon,
 	shouldAddParenthesesToUnaryExpressionArgument,
 	shouldAddParenthesesToUnaryExpressionReplacement,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {isNegativeOne} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 
 const MESSAGE_ID = 'prefer-unary-minus';
 const messages = {
@@ -57,11 +59,11 @@ const create = context => {
 		};
 
 		// A comment around the `*`/`/`/`-1` tokens would be dropped by the fix, so skip it.
-		if (sourceCode.getCommentsInside(node).length > 0) {
+		if (wouldRemoveComments(context, node, [operand])) {
 			return problem;
 		}
 
-		problem.fix = fixer => {
+		problem.fix = function * (fixer) {
 			const text = sourceCode.getText(operand);
 
 			// `-y * -1` → `-(-y)`; a bare `--y` would be parsed as a decrement. `UnaryExpression` is
@@ -85,7 +87,8 @@ const create = context => {
 				replacement = ` ${replacement}`;
 			}
 
-			return fixer.replaceText(node, replacement);
+			yield fixer.replaceText(node, replacement);
+			yield fixSpaceAroundKeyword(fixer, node, context);
 		};
 
 		return problem;

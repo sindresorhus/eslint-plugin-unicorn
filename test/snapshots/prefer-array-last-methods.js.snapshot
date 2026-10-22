@@ -126,6 +126,9 @@ Message:
 > 1 | array.toReversed() /* comment */ .reduce(logic);
     |                                   ^^^^^^ Prefer \`Array#reduceRight()\` over \`Array#toReversed().reduce()\`.
 
+Suggestion 1/1: Replace \`.toReversed().reduce()\` with \`.reduceRight()\`.:
+  1 | array /* comment */ .reduceRight(logic);
+
 `;
 
 exports[`prefer-array-last-methods > invalid(2): array.reverse().findIndex(logic); 1`] = `

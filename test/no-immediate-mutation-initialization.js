@@ -52,6 +52,44 @@ ruleTest({
 		{code: 'declare let foo; foo = 1;', languageOptions: {parser: parsers.typescript}},
 	],
 	invalid: [
+		...[
+			'let foo, /* Keep this comment. */ other;\nfoo = 1;',
+			'let foo;\nfoo /* Keep this comment. */ = 1;',
+			'let foo;\n(/* Keep this comment. */ foo = 1);',
+		].map(code => ({
+			code,
+			errors: [{messageId: 'initialization', suggestions: []}],
+		})),
+		...[
+			['let foo;\n// Keep this comment.\nfoo = 1;', '// Keep this comment.\nlet foo = 1;'],
+			['let foo;\nfoo = [/* Keep this comment. */ 1];', 'let foo = [/* Keep this comment. */ 1];'],
+			['let foo;\nfoo = (/* Keep this comment. */ 1);', 'let foo = (/* Keep this comment. */ 1);'],
+		].map(([code, output]) => ({
+			code,
+			output,
+			errors: [{messageId: 'initialization', suggestions: []}],
+		})),
+		...[
+			['let foo: number, other: /* Keep this comment. */ number;\nfoo = 1;', 'let other: /* Keep this comment. */ number;\nlet foo: number = 1;'],
+			['let foo: /* Keep this comment. */ number;\nfoo = 1;', 'let foo: /* Keep this comment. */ number = 1;'],
+		].map(([code, output]) => ({
+			code,
+			output,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'initialization', suggestions: []}],
+		})),
+		{
+			code: 'let foo;\n[/* Keep this comment. */ foo] = values;',
+			errors: [{
+				messageId: 'initialization',
+				suggestions: [{messageId: 'suggestion/initialization', output: 'let [/* Keep this comment. */ foo] = values;'}],
+			}],
+		},
+		...['let', 'var'].flatMap(kind => ['// Keep this comment.', '/* Keep this comment. */'].map(comment => ({
+			code: `${comment}\n${kind} foo;\n\nfoo = "value"`,
+			output: `${comment}\n\n${kind} foo = "value";`,
+			errors: [{messageId: 'initialization', suggestions: []}],
+		}))),
 		...['``', '{values: [`text`]}'].map(initializer => ({
 			code: `let foo;\nfoo = ${initializer};`,
 			output: `let foo = ${initializer};`,

@@ -201,12 +201,14 @@ for (const {name, code, output, value, rules} of [
 	});
 }
 
-for (const {name, code, value, rules = []} of [
+for (const {name, code, output = code, value, rules = [], remainingRules = rules} of [
 	{
-		name: 'comments inside nested coercion and comparison withhold both edits',
+		name: 'nested comparison cleanup preserves comments that block coercion removal',
 		code: '/** @param {string} text */ function run(text) { return Boolean(/* keep */ text.includes("x")) === true; } run("x");',
+		output: '/** @param {string} text */ function run(text) { return Boolean(/* keep */ text.includes("x")); } run("x");',
 		value: true,
 		rules: ['no-useless-coercion', 'no-unnecessary-boolean-comparison'],
+		remainingRules: ['no-useless-coercion'],
 	},
 	{
 		name: 'comparison comments do not disappear when a documented call is boolean',
@@ -232,11 +234,12 @@ for (const {name, code, value, rules = []} of [
 ]) {
 	test(name, t => {
 		const result = linter.verifyAndFix(code, config);
-		t.assert.strictEqual(result.fixed, false);
-		t.assert.strictEqual(result.output, code);
-		t.assert.strictEqual(result.messages.length, rules.length);
-		t.assert.deepStrictEqual(new Set(result.messages.map(message => message.ruleId)), new Set(rules.map(rule => `unicorn/${rule}`)));
+		t.assert.strictEqual(result.fixed, output !== code);
+		t.assert.strictEqual(result.output, output);
+		t.assert.strictEqual(result.messages.length, remainingRules.length);
+		t.assert.deepStrictEqual(new Set(result.messages.map(message => message.ruleId)), new Set(remainingRules.map(rule => `unicorn/${rule}`)));
 		t.assert.strictEqual(runInNewContext(code), value);
+		t.assert.strictEqual(runInNewContext(result.output), value);
 	});
 }
 

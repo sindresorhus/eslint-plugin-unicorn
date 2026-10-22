@@ -1,7 +1,162 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['function foo() {return(parseInt)(String(read(/* keep */)), 10);}', 'function foo() {return Math.trunc(read(/* keep */));}'],
+			['function foo() {throw(Number.parseInt)(String(read(/* keep */)), 10);}', 'function foo() {throw Math.trunc(read(/* keep */));}'],
+			['async function foo() {return await(parseInt)(String(read(/* keep */)), 10);}', 'async function foo() {return await Math.trunc(read(/* keep */));}'],
+		].map(([code, output]) => ({
+			code,
+			errors: [{messageId: 'error-parse-int', suggestions: [{messageId: 'suggestion-parse-int', output}]}],
+		})),
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['read(/* keep */) | 0;', 'Math.trunc(read(/* keep */));'],
+			['(/* keep */ value) >> 0;', 'Math.trunc((/* keep */ value));'],
+			['values[/* keep */ index] << 0;', 'Math.trunc(values[/* keep */ index]);'],
+			['(left + /* keep */ right) ^ 0;', 'Math.trunc(left + /* keep */ right);'],
+			['(read(/* keep */), value) | 0;', 'Math.trunc((read(/* keep */), value));'],
+			['function foo() {return[/* keep */ value][0] | 0;}', 'function foo() {return Math.trunc([/* keep */ value][0]);}'],
+			['function foo() {\r\n  return(value // keep\r\n  ) >> 0;\r\n}', 'function foo() {\r\n  return Math.trunc((value // keep\r\n  ));\r\n}'],
+		].map(([code, output]) => ({
+			code,
+			errors: [{messageId: 'error-bitwise', suggestions: [{messageId: 'suggestion-bitwise', output}]}],
+		})),
+		...[
+			['(value as /* keep */ number) | 0;', 'Math.trunc(value as /* keep */ number);'],
+			['values[/* keep */ index]! ^ 0;', 'Math.trunc(values[/* keep */ index]!);'],
+		].map(([code, output]) => ({
+			code,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'error-bitwise', suggestions: [{messageId: 'suggestion-bitwise', output}]}],
+		})),
+		...[
+			'value | /* keep */ 0;',
+			'value | (/* keep */ 0);',
+			'read(/* keep */) /* drop */ | 0;',
+			'values[/* keep */ index] |= 0;',
+			'(/* keep */ value) >>= 0;',
+		].map(code => ({code, errors: [{messageId: 'error-bitwise', suggestions: []}]})),
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['~~getValue(/* keep */);', 'Math.trunc(getValue(/* keep */));'],
+			['~~(/* keep */ value);', 'Math.trunc((/* keep */ value));'],
+			['~~values[/* keep */ index];', 'Math.trunc(values[/* keep */ index]);'],
+			['~~(left + /* keep */ right);', 'Math.trunc(left + /* keep */ right);'],
+			['~~(first(/* keep */), value);', 'Math.trunc((first(/* keep */), value));'],
+			['~~~getValue(/* keep */);', '~Math.trunc(getValue(/* keep */));'],
+			['function foo() {return~~getValue(/* keep */);}', 'function foo() {return Math.trunc(getValue(/* keep */));}'],
+			['async function foo() { return ~~(await /* keep */ getValue()); }', 'async function foo() { return Math.trunc(await /* keep */ getValue()); }'],
+			['function* foo() { return ~~(yield /* keep */ getValue()); }', 'function* foo() { return Math.trunc(yield /* keep */ getValue()); }'],
+			['function foo() {\r\n  return~~(value // keep\r\n  );\r\n}', 'function foo() {\r\n  return Math.trunc((value // keep\r\n  ));\r\n}'],
+		].map(([code, output]) => ({
+			code,
+			errors: [{messageId: 'error-bitwise-not', suggestions: [{messageId: 'suggestion-bitwise-not', output}]}],
+		})),
+		...[
+			['~~(value as /* keep */ number);', 'Math.trunc(value as /* keep */ number);'],
+			['~~values[/* keep */ index]!;', 'Math.trunc(values[/* keep */ index]!);'],
+		].map(([code, output]) => ({
+			code,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'error-bitwise-not', suggestions: [{messageId: 'suggestion-bitwise-not', output}]}],
+		})),
+		...[
+			'~~ /* keep */ value;',
+			'~(/* keep */ ~value);',
+		].map(code => ({code, errors: [{messageId: 'error-bitwise-not', suggestions: []}]})),
+	],
+});
+
+nodeTest('commented yield suggestions preserve suspension and truncate the resumed value', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-math-trunc': rule}}},
+		rules: {'unicorn/prefer-math-trunc': 'error'},
+	};
+	const code = '(function* () { return ~~(yield read(/* keep */)); })()';
+	const {output, fixed, messages} = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(output, code);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].suggestions.length, 1);
+	const {range, text} = messages[0].suggestions[0].fix;
+	const suggested = code.slice(0, range[0]) + text + code.slice(range[1]);
+	t.assert.strictEqual(suggested, '(function* () { return Math.trunc(yield read(/* keep */)); })()');
+	t.assert.deepStrictEqual(linter.verify(suggested, config), []);
+	for (const source of [code, suggested]) {
+		let calls = 0;
+		const iterator = runInNewContext(source, {
+			read() {
+				calls++;
+				return 'yielded';
+			},
+		});
+		t.assert.strictEqual(calls, 0);
+		const yielded = iterator.next();
+		t.assert.strictEqual(yielded.value, 'yielded');
+		t.assert.strictEqual(yielded.done, false);
+		t.assert.strictEqual(calls, 1);
+		const returned = iterator.next(3.9);
+		t.assert.strictEqual(returned.value, 3);
+		t.assert.strictEqual(returned.done, true);
+		t.assert.strictEqual(calls, 1);
+	}
+});
+
+nodeTest('comment-preserving truncation rewrites remain suggestions and evaluate the operand once', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-math-trunc': rule}}},
+		rules: {'unicorn/prefer-math-trunc': 'error'},
+	};
+	for (const code of [
+		'~~getValue(/* keep */);',
+		...['|', '>>', '<<', '^'].map(operator => `getValue(/* keep */) ${operator} 0;`),
+	]) {
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, false);
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].suggestions.length, 1);
+		const {range, text} = messages[0].suggestions[0].fix;
+		const suggested = code.slice(0, range[0]) + text + code.slice(range[1]);
+		t.assert.strictEqual(suggested, 'Math.trunc(getValue(/* keep */));');
+		t.assert.deepStrictEqual(linter.verify(suggested, config), []);
+
+		for (const [value, originalResult, suggestedResult] of [[3.9, 3, 3], [2 ** 32, 0, 2 ** 32], [NaN, 0, NaN], [-0.5, 0, -0]]) {
+			for (const [source, expected] of [[code, originalResult], [suggested, suggestedResult]]) {
+				let calls = 0;
+				const result = runInNewContext(source, {
+					getValue() {
+						calls++;
+						return value;
+					},
+				});
+				t.assert.strictEqual(result, expected);
+				t.assert.strictEqual(calls, 1);
+			}
+		}
+	}
+});
 
 test.snapshot({
 	valid: [
@@ -206,13 +361,13 @@ test.snapshot({
 	],
 });
 
-// The expression is rebuilt as the call argument, so a comment in it would be lost
+// Copied operand comments are preserved, while comments in removed syntax prevent suggestions.
 test({
 	valid: [],
 	invalid: [
 		{
 			code: 'const foo = ~~(/* keep */ 1 + 2 / 3.4);',
-			errors: [{messageId: 'error-bitwise-not', suggestions: []}],
+			errors: [{messageId: 'error-bitwise-not', suggestions: [{messageId: 'suggestion-bitwise-not', output: 'const foo = Math.trunc((/* keep */ 1 + 2 / 3.4));'}]}],
 		},
 		{
 			code: 'const foo = /* keep */ ~ /* drop */ ~ 3.4;',

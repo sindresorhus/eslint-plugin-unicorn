@@ -7,6 +7,43 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		['Array.from([...[/* keep */ 1], ...second]);', 'Array.from(Iterator.concat([/* keep */ 1], second));'],
+		['new Set([...make(/* keep */), ...second]);', 'new Set(Iterator.concat(make(/* keep */), second));'],
+		['Array.from([...first, ...(/* keep */ second)]);', 'Array.from(Iterator.concat(first, (/* keep */ second)));'],
+		['Array.from([...(// keep\r\nfirst), ...second]);', 'Array.from(Iterator.concat((// keep\r\nfirst), second));'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: 'Promise.all([...[/* keep */ 1], ...second]);',
+		errors: [{
+			messageId: 'prefer-iterator-concat',
+			suggestions: [{messageId: 'prefer-iterator-concat/suggestion', output: 'Promise.all(Iterator.concat([/* keep */ 1], second));'}],
+		}],
+	}],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'Array.from([...(first as /* keep */ number[]), ...second]);',
+			output: 'Array.from(Iterator.concat((first as /* keep */ number[]), second));',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		...[
+			'Array.from([.../* keep */ first, ...second]);',
+			'Array.from([...first /* keep */, ...second]);',
+		].map(code => ({code, errors: [{messageId: 'prefer-iterator-concat', suggestions: []}]})),
+	],
+});
+
 const linter = new Linter();
 
 // Minimal lazy `Iterator.concat()` for Node.js versions without it
@@ -20,11 +57,12 @@ const Iterator = {
 
 // `Iterator.concat()` evaluates every argument before consuming any iterable, so a later argument can change an earlier iterable before it is read. That is why conversions with a later argument that has a side effect are suggestions.
 nodeTest('iterator concatenation changes when later arguments are evaluated', t => {
-	const code = 'const first = [1]; function second() { first[0] = 2; return []; } JSON.stringify(Array.from([...first, ...second()]));';
+	const code = 'const first = [1]; function second() { first[0] = 2; return []; } JSON.stringify(Array.from([...first, ...second(/* keep */)]));';
 	const [problem] = linter.verify(code, {
 		plugins: {unicorn: {rules: {'prefer-iterator-concat': rule}}},
 		rules: {'unicorn/prefer-iterator-concat': 'error'},
 	});
+	t.assert.strictEqual(problem.fix, undefined);
 	const {fix} = problem.suggestions[0];
 	const suggestion = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
 	t.assert.strictEqual(runInNewContext(code), '[1]');
@@ -37,7 +75,7 @@ nodeTest('iterator concatenation is autofixed when the consumer only stores the 
 			const calls = [];
 			const second = new Set([3, 4]);
 			function* first() { calls.push("first1"); yield 1; calls.push("first2"); yield 2; }
-			const result = ${consumer.replace('VALUES', '[...first(), ...second]')};
+			const result = ${consumer.replace('VALUES', '[...first(/* keep */), ...second]')};
 			JSON.stringify({calls, result});
 		`;
 		const {output, fixed, messages} = linter.verifyAndFix(code, {
@@ -46,7 +84,7 @@ nodeTest('iterator concatenation is autofixed when the consumer only stores the 
 		});
 		t.assert.strictEqual(fixed, true, code);
 		t.assert.deepStrictEqual(messages, []);
-		t.assert.strictEqual(output, code.replace('[...first(), ...second]', 'Iterator.concat(first(), second)'));
+		t.assert.strictEqual(output, code.replace('[...first(/* keep */), ...second]', 'Iterator.concat(first(/* keep */), second)'));
 		t.assert.strictEqual(runInNewContext(output, {Iterator}), runInNewContext(code), code);
 	}
 });
@@ -196,7 +234,7 @@ test.snapshot({
 		// The first argument runs first either way
 		'new Set([...foo(), ...bar])',
 
-		// Comments are reported without a suggestion.
+		// Comments outside the copied arguments are reported without a suggestion.
 		'new Set([/* comment */ ...foo, ...bar])',
 		'Promise.all([/* comment */ ...foo, ...bar])',
 

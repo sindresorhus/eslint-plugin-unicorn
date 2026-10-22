@@ -1,7 +1,9 @@
 import {
 	getConditionalExpressionChildText,
 	getLogicalExpressionChildText,
+	getParenthesizedRange,
 	needsSemicolon,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'no-unnecessary-nested-ternary';
@@ -42,7 +44,8 @@ function getProblem(context, node, replacement) {
 		messageId: MESSAGE_ID,
 	};
 
-	if (context.sourceCode.getCommentsInside(node).length === 0) {
+	const preservedRanges = ['left', 'right', 'consequent', 'alternate'].map(property => getParenthesizedRange(replacement[property], context));
+	if (!wouldRemoveComments(context, node, preservedRanges)) {
 		problem.fix = fixer => fixer.replaceText(node, getReplacementText({
 			context,
 			node,

@@ -1,6 +1,12 @@
 import {getPropertyName} from '@eslint-community/eslint-utils';
 import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
-import {getParenthesizedText, getStaticValueIfNoSideEffects, isInUnparenthesizedNewExpressionCallee} from './utils/index.js';
+import {
+	getParenthesizedRange,
+	getParenthesizedText,
+	getStaticValueIfNoSideEffects,
+	isInUnparenthesizedNewExpressionCallee,
+	wouldRemoveComments,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-temporal';
 const MESSAGE_ID_PARSE = 'prefer-temporal/parse';
@@ -67,7 +73,7 @@ const report = (messageId, description) => ({node}) => ({node, messageId, data: 
 
 // Build `suggest` entries that replace `node` wholesale, unless doing so would drop a comment.
 function replacementSuggestions(node, context, replacements) {
-	if (context.sourceCode.getCommentsInside(node).length > 0) {
+	if (wouldRemoveComments(context, node, node.arguments.map(argument => getParenthesizedRange(argument, context)))) {
 		return;
 	}
 

@@ -1,4 +1,4 @@
-import {findVariable} from '@eslint-community/eslint-utils';
+import {findVariable, hasSideEffect} from '@eslint-community/eslint-utils';
 import {isMethodCall} from './ast/index.js';
 import {
 	addParenthesesToReturnOrThrowExpression,
@@ -32,8 +32,10 @@ import {
 */
 
 const MESSAGE_ID = 'prefer-simplified-conditions';
+const MESSAGE_ID_SUGGESTION = 'suggestion';
 const messages = {
 	[MESSAGE_ID]: 'Prefer a simplified condition.',
+	[MESSAGE_ID_SUGGESTION]: 'Simplify the condition.',
 };
 
 const simpleNodeTypes = new Set([
@@ -304,22 +306,31 @@ function * fixLogicalExpression(fixer, node, replacement, context) {
 	yield fixer.replaceText(node, replacement);
 }
 
-function isSimpleRepeatableExpression(node) {
+function isFactoringOperand(node) {
 	node = unwrapTypeScriptExpression(node);
 
-	if (simpleNodeTypes.has(node.type)) {
+	if (
+		simpleNodeTypes.has(node.type)
+		|| node.type === 'Super'
+		|| node.type === 'CallExpression'
+	) {
 		return true;
 	}
 
+	if (node.type === 'MemberExpression') {
+		return isFactoringOperand(node.object)
+			&& (!node.computed || isFactoringOperand(node.property));
+	}
+
 	if (isNegation(node)) {
-		return isSimpleRepeatableExpression(node.argument);
+		return isFactoringOperand(node.argument);
 	}
 
 	if (
 		node.type === 'BinaryExpression'
 		&& (node.operator === '===' || node.operator === '!==')
 	) {
-		return isSimpleRepeatableExpression(node.left) && isSimpleRepeatableExpression(node.right);
+		return isFactoringOperand(node.left) && isFactoringOperand(node.right);
 	}
 
 	return false;
@@ -336,7 +347,7 @@ function isSafeRepeatableBooleanStaticCall(node, context) {
 				optionalMember: false,
 			})
 			&& context.sourceCode.isGlobalReference(node.callee.object)
-			&& node.arguments.every(argument => isSimpleRepeatableExpression(argument))
+			&& node.arguments.every(argument => isFactoringOperand(argument) && !hasSideEffect(argument, context.sourceCode))
 		) {
 			return true;
 		}
@@ -348,16 +359,12 @@ function isSafeRepeatableBooleanStaticCall(node, context) {
 function isSafeFactoringOperand(node, context) {
 	node = unwrapTypeScriptExpression(node);
 
-	if (containsOptionalChain(node)) {
-		return false;
-	}
-
-	return isSimpleRepeatableExpression(node)
+	return !hasSideEffect(node, context.sourceCode)
 		|| isSafeRepeatableBooleanStaticCall(node, context);
 }
 
 function canFactor(node, operands, context) {
-	return operands.every(operand => isSafeFactoringOperand(operand, context))
+	return operands.every(operand => isFactoringOperand(operand) && !containsOptionalChain(operand))
 		&& (
 			isBooleanContext(node, context)
 			|| operands.every(operand => isBoolean(operand, context))
@@ -367,8 +374,8 @@ function canFactor(node, operands, context) {
 const isSameCondition = (left, right, context) =>
 	isSame(left, right)
 	|| (
-		isSafeFactoringOperand(left, context)
-		&& isSafeFactoringOperand(right, context)
+		isFactoringOperand(left)
+		&& isFactoringOperand(right)
 		&& context.sourceCode.getText(left) === context.sourceCode.getText(right)
 	);
 
@@ -401,6 +408,7 @@ function getLeadingCommonFactoringTerms(node, context) {
 
 	const operands = [
 		commonTerm.common,
+		node.right.left,
 		commonTerm.leftOther,
 		commonTerm.rightOther,
 	];
@@ -409,7 +417,10 @@ function getLeadingCommonFactoringTerms(node, context) {
 		return;
 	}
 
-	return commonTerm;
+	return {
+		...commonTerm,
+		shouldSuggest: operands.some(operand => !isSafeFactoringOperand(operand, context)),
+	};
 }
 
 function getAbsorptionTerm(node, context) {
@@ -457,11 +468,19 @@ function getAbsorptionTerm(node, context) {
 }
 
 function getFactoringReplacementText(node, factoringTerms, context) {
-	// Factoring operands are simple repeatable expressions, which never need parentheses as an operand of `&&`/`||`.
+	// Factoring operands never need additional parentheses as an operand of `&&`/`||`.
 	const commonText = getParenthesizedText(factoringTerms.common, context);
 	const leftOtherText = getParenthesizedText(factoringTerms.leftOther, context);
 	const rightOtherText = getParenthesizedText(factoringTerms.rightOther, context);
-	const replacement = `${commonText} ${node.left.operator} (${leftOtherText} ${node.operator} ${rightOtherText})`;
+	let replacement = `${commonText} ${node.left.operator} (${leftOtherText} ${node.operator} ${rightOtherText})`;
+
+	if (
+		!isParenthesized(factoringTerms.common, context)
+		&& !shouldAddParenthesesToLogicalReplacement(node, node.left.operator, context)
+		&& shouldAddParenthesesToExpressionStart(factoringTerms.common, context, node)
+	) {
+		replacement = `(${replacement})`;
+	}
 
 	return getLogicalReplacementText(node, node.left.operator, replacement, context);
 }
@@ -471,7 +490,7 @@ function getFactoringReplacementText(node, factoringTerms, context) {
 */
 const create = context => {
 	const {sourceCode} = context;
-	const getProblem = (node, fix) => {
+	const getProblem = (node, fix, shouldSuggest = false) => {
 		const problem = {
 			node,
 			messageId: MESSAGE_ID,
@@ -483,7 +502,9 @@ const create = context => {
 
 		return {
 			...problem,
-			fix,
+			...(shouldSuggest
+				? {suggest: [{messageId: MESSAGE_ID_SUGGESTION, fix}]}
+				: {fix}),
 		};
 	};
 
@@ -530,6 +551,7 @@ const create = context => {
 		return getProblem(
 			node,
 			fixer => fixLogicalExpression(fixer, node, getFactoringReplacementText(node, factoringTerms, context), context),
+			factoringTerms.shouldSuggest,
 		);
 	});
 };
@@ -546,6 +568,7 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		schema: [
 			{
 				type: 'object',

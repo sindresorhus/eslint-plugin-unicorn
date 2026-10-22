@@ -91,13 +91,7 @@ const create = context => {
 	});
 
 	context.on('AssignmentExpression', assignmentExpression => {
-		if (
-			assignmentExpression.operator !== '-='
-			&& assignmentExpression.operator !== '*='
-			&& assignmentExpression.operator !== '/='
-			&& assignmentExpression.operator !== '%='
-			&& assignmentExpression.operator !== '**='
-		) {
+		if (!['-=', '*=', '/=', '%=', '**='].includes(assignmentExpression.operator)) {
 			return;
 		}
 
@@ -107,13 +101,7 @@ const create = context => {
 	});
 
 	context.on('BinaryExpression', function * (binaryExpression) {
-		if (
-			binaryExpression.operator !== '-'
-			&& binaryExpression.operator !== '*'
-			&& binaryExpression.operator !== '/'
-			&& binaryExpression.operator !== '%'
-			&& binaryExpression.operator !== '**'
-		) {
+		if (!['-', '*', '/', '%', '**'].includes(binaryExpression.operator)) {
 			return;
 		}
 

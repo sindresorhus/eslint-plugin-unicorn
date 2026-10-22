@@ -1,7 +1,31 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
+import outdent from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['const map = new Map(); map[key] = getValue(/* keep */);', 'const map = new Map(); map.set(key, getValue(/* keep */));'],
+			['const map = new Map(); map[(/* keep */ key)] = value;', 'const map = new Map(); map.set((/* keep */ key), value);'],
+		].map(([code, output]) => ({
+			code,
+			errors: [{messageId: 'no-collection-bracket-access/write', suggestions: [{messageId: 'no-collection-bracket-access/suggestion-set', output}]}],
+		})),
+		...[
+			['const map = new Map(); delete map[getKey(/* keep */)];', 'const map = new Map(); map.delete(getKey(/* keep */));'],
+			['const map = new Map(); delete (/* keep */ map)[key];', 'const map = new Map(); (/* keep */ map).delete(key);'],
+		].map(([code, output]) => ({
+			code,
+			errors: [{messageId: 'no-collection-bracket-access/delete', suggestions: [{messageId: 'no-collection-bracket-access/suggestion-delete', output}]}],
+		})),
+	],
+});
 
 const typescript = code => ({
 	code,
@@ -21,6 +45,119 @@ const typeAware = code => ({
 			},
 		},
 	},
+});
+
+test({
+	valid: ['const map = new Map(); map[(/* keep */ "size")];'],
+	invalid: [
+		{
+			...typescript('function set(map: Map<string, number>, key: string, value: number) { map[(key as /* keep */ string)] = (value satisfies /* keep */ number); }'),
+			errors: [{
+				messageId: 'no-collection-bracket-access/write', suggestions: [{
+					messageId: 'no-collection-bracket-access/suggestion-set',
+					output: 'function set(map: Map<string, number>, key: string, value: number) { map.set(key as /* keep */ string, (value satisfies /* keep */ number)); }',
+				}],
+			}],
+		},
+		{
+			...typeAware('function set(cache: {map: Map<string, number>}) { cache /* keep */ .map["foo"] = 1; }'),
+			errors: [{
+				messageId: 'no-collection-bracket-access/write', suggestions: [{
+					messageId: 'no-collection-bracket-access/suggestion-set',
+					output: 'function set(cache: {map: Map<string, number>}) { cache /* keep */ .map.set("foo", 1); }',
+				}],
+			}],
+		},
+		{
+			code: 'const map = new Map(); setup()\r\ndelete (/* keep */ map)[(key /* keep */)];',
+			errors: [{
+				messageId: 'no-collection-bracket-access/delete', suggestions: [{
+					messageId: 'no-collection-bracket-access/suggestion-delete',
+					output: 'const map = new Map(); setup()\r\n;(/* keep */ map).delete((key /* keep */));',
+				}],
+			}],
+		},
+		{
+			code: 'const weakMap = new WeakMap(); (/* keep */ weakMap)[key] = (/* keep */ value);',
+			errors: [{
+				messageId: 'no-collection-bracket-access/write', suggestions: [{
+					messageId: 'no-collection-bracket-access/suggestion-set',
+					output: 'const weakMap = new WeakMap(); (/* keep */ weakMap).set(key, (/* keep */ value));',
+				}],
+			}],
+		},
+		{
+			code: 'const set = new Set(); delete set[("entry" /* keep */)];',
+			errors: [{
+				messageId: 'no-collection-bracket-access/delete', suggestions: [{
+					messageId: 'no-collection-bracket-access/suggestion-delete',
+					output: 'const set = new Set(); set.delete(("entry" /* keep */));',
+				}],
+			}],
+		},
+		...[
+			'const map = new Map(); map /* keep */ [key] = value;',
+			'const map = new Map(); map[/* keep */ key] = value;',
+			'const map = new Map(); map[key /* keep */] = value;',
+			'const map = new Map(); map[key] /* keep */ = value;',
+		].map(code => ({
+			code,
+			errors: [{messageId: 'no-collection-bracket-access/write', suggestions: []}],
+		})),
+		...[
+			'const map = new Map(); delete /* keep */ map[key];',
+			'const map = new Map(); delete (/* keep */ map[key]);',
+			'const map = new Map(); delete map[/* keep */ key];',
+			'const map = new Map(); delete map?.[getKey(/* keep */)];',
+		].map(code => ({
+			code,
+			errors: [{messageId: 'no-collection-bracket-access/delete', suggestions: []}],
+		})),
+		{
+			code: 'const map = new Map(); const value = (map[key] = getValue(/* keep */));',
+			errors: [{messageId: 'no-collection-bracket-access/write', suggestions: []}],
+		},
+	],
+});
+
+nodeTest('comment-preserving collection suggestions remain manual and evaluate keys and values once', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: {rules: {collection: rule}}}, rules: {'unicorn/collection': 'error'}};
+	for (const [operation, expectedEvents, expectedEntry, expectedOriginalOwn] of [
+		['map[getKey(/* keep */)] = getValue(/* keep */);', 'key,value', 7, true],
+		['delete (/* keep */ map)[getKey(/* keep */)];', 'key', undefined, false],
+	]) {
+		const code = outdent`
+			const events = [];
+			const map = new Map([["entry", 1]]);
+			Object.defineProperty(map, "entry", {value: 1, configurable: true, writable: true});
+			const getKey = () => {
+				events.push("key");
+				return "entry";
+			};
+			const getValue = () => {
+				events.push("value");
+				return 7;
+			};
+			${operation}
+			({events, entry: map.get("entry"), own: Object.hasOwn(map, "entry")});
+		`;
+		const {fixed, output, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, false);
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].suggestions.length, 1);
+		const {fix} = messages[0].suggestions[0];
+		const suggestedCode = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+		const originalResult = runInNewContext(code);
+		const suggestedResult = runInNewContext(suggestedCode);
+		t.assert.strictEqual(originalResult.events.join(','), expectedEvents);
+		t.assert.strictEqual(suggestedResult.events.join(','), expectedEvents);
+		t.assert.strictEqual(originalResult.entry, 1);
+		t.assert.strictEqual(originalResult.own, expectedOriginalOwn);
+		t.assert.strictEqual(suggestedResult.entry, expectedEntry);
+		t.assert.strictEqual(suggestedResult.own, true);
+	}
 });
 
 test.snapshot({

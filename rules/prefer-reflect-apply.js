@@ -1,6 +1,12 @@
 import {getPropertyName} from '@eslint-community/eslint-utils';
 import {getStaticStringValue, isNullLiteral, isMethodCall} from './ast/index.js';
-import {getParenthesizedText, hasUnparenthesizedOptionalChainElement} from './utils/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
+import {
+	getParenthesizedRange,
+	getParenthesizedText,
+	hasUnparenthesizedOptionalChainElement,
+	wouldRemoveComments,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-reflect-apply';
 const messages = {
@@ -98,11 +104,21 @@ const create = context => {
 
 		const fix = fixDirectApplyCall(node, context) || fixFunctionPrototypeCall(node, context);
 		if (fix) {
+			const target = node.arguments.length === 2 ? node.callee.object : node.arguments[0];
+			const preservedRanges = [
+				target.type === 'SequenceExpression' ? getParenthesizedRange(target, context) : target,
+				...node.arguments.slice(-2),
+			];
 			return {
 				node,
 				messageId: MESSAGE_ID,
-				// The call is rebuilt from the callee object and the argument nodes, a comment in between would be dropped
-				fix: context.sourceCode.getCommentsInside(node).length > 0 ? undefined : fix,
+				// The call is rebuilt from retained inputs, so comments elsewhere would be dropped
+				fix: wouldRemoveComments(context, node, preservedRanges)
+					? undefined
+					: function * (fixer) {
+						yield fix(fixer);
+						yield fixSpaceAroundKeyword(fixer, node, context);
+					},
 			};
 		}
 	});

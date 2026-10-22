@@ -1010,6 +1010,10 @@ Message:
 > 2 | const bar = /* Comment 1 */ ~~ a /* Comment 3 */ . /* Comment 4 */ b /* Comment 5 */;
     |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Use \`Math.trunc\` instead of \`~~\`.
 
+Suggestion 1/1: Replace \`~~\` with \`Math.trunc\`.:
+  1 | const foo = {a: {b: 3.4}};
+  2 | const bar = /* Comment 1 */ Math.trunc(a /* Comment 3 */ . /* Comment 4 */ b) /* Comment 5 */;
+
 `;
 
 exports[`prefer-math-trunc > invalid(62): const foo = /* will keep */ 3.4 /* will remove 1 */ | /* will remove 2 */ 0; 1`] = `

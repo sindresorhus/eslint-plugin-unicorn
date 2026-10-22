@@ -1,6 +1,6 @@
 import {appendArgument, replaceArgument} from './fix/index.js';
 import {isMethodCall, isUndefined} from './ast/index.js';
-import {isKnownNonArray} from './utils/index.js';
+import {getParenthesizedRange, isKnownNonArray, wouldRemoveComments} from './utils/index.js';
 
 const MESSAGE_ID = 'require-array-sort-compare';
 const SUGGESTION_ID_NUMERIC = 'require-array-sort-compare/numeric';
@@ -22,7 +22,8 @@ const getCompareFunctionFix = (callExpression, compareFunction, context) => fixe
 };
 
 const getSuggestions = (callExpression, context) => {
-	if (context.sourceCode.getCommentsInside(callExpression).length > 0) {
+	const [firstArgument] = callExpression.arguments;
+	if (firstArgument && wouldRemoveComments(context, getParenthesizedRange(firstArgument, context))) {
 		return;
 	}
 

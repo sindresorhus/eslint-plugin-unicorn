@@ -17,6 +17,7 @@ import {
 	hasCommentInRange,
 	unwrapChainAndTypeScriptExpression,
 	unwrapTypeScriptExpression as unwrapExpression,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {createTypeCheckers} from './utils/type-helpers.js';
 import {
@@ -24,7 +25,7 @@ import {
 	removeLengthNode,
 } from './shared/negative-index.js';
 import {getSubstringSingleCharacterIndex} from './shared/substring.js';
-import {removeMemberExpressionProperty, removeMethodCall} from './fix/index.js';
+import {fixSpaceAroundKeyword, removeMemberExpressionProperty, removeMethodCall} from './fix/index.js';
 import {
 	isLiteral,
 	isStringLiteral,
@@ -447,14 +448,14 @@ function create(context) {
 			data: {description: matchedFunction.trim()},
 		};
 
-		// The call is rebuilt from the argument alone, so a comment inside it would be lost
-		if (sourceCode.getCommentsInside(node).length > 0) {
+		// The call is rebuilt from the argument alone, so comments outside its copied range would be lost
+		if (wouldRemoveComments(context, node, [getParenthesizedRange(array, context)])) {
 			return problem;
 		}
 
 		return {
 			...problem,
-			fix(fixer) {
+			* fix(fixer) {
 				let fixed = `${getMemberExpressionObjectText(array, context, node)}.at(-1)`;
 
 				const tokenBefore = sourceCode.getTokenBefore(node);
@@ -462,7 +463,8 @@ function create(context) {
 					fixed = `;${fixed}`;
 				}
 
-				return fixer.replaceText(node, fixed);
+				yield fixer.replaceText(node, fixed);
+				yield fixSpaceAroundKeyword(fixer, node, context);
 			},
 		};
 	});

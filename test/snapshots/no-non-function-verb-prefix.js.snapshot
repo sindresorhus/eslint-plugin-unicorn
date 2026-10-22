@@ -424,6 +424,118 @@ Message:
 
 `;
 
+exports[`no-non-function-verb-prefix > invalid(33): function render({title: setTitle = true}: {title?: boolean}) {} 1`] = `
+
+Filename: file.ts
+
+  1 | function render({title: setTitle = true}: {title?: boolean}) {}
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(33): function render({title: setTitle = true}: {title?: boolean}) {} 2`] = `
+
+Message:
+> 1 | function render({title: setTitle = true}: {title?: boolean}) {}
+    |                         ^^^^^^^^ \`setTitle\` starts with \`set\`, so it should be a function.
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(34): const {nested: {title: setTitle}} = {nested: {title: true}}; 1`] = `
+
+Filename: file.ts
+
+  1 | const {nested: {title: setTitle}} = {nested: {title: true}};
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(34): const {nested: {title: setTitle}} = {nested: {title: true}}; 2`] = `
+
+Message:
+> 1 | const {nested: {title: setTitle}} = {nested: {title: true}};
+    |                        ^^^^^^^^ \`setTitle\` starts with \`set\`, so it should be a function.
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(35): const {setTitle, title: getTitle} = {setTitle: true, title: \"title\"}; 1`] = `
+
+Filename: file.ts
+
+  1 | const {setTitle, title: getTitle} = {setTitle: true, title: "title"};
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(35): const {setTitle, title: getTitle} = {setTitle: true, title: \"title\"}; 2`] = `
+
+Message:
+> 1 | const {setTitle, title: getTitle} = {setTitle: true, title: "title"};
+    |                         ^^^^^^^^ \`getTitle\` starts with \`get\`, so it should be a function.
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(36): const {setTitle: setTitle} = {setTitle: true}; 1`] = `
+
+Filename: file.ts
+
+  1 | const {setTitle: setTitle} = {setTitle: true};
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(36): const {setTitle: setTitle} = {setTitle: true}; 2`] = `
+
+Message:
+> 1 | const {setTitle: setTitle} = {setTitle: true};
+    |                  ^^^^^^^^ \`setTitle\` starts with \`set\`, so it should be a function.
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(37): const {setTitle, ...getRest} = {setTitle: true, title: \"title\"}; 1`] = `
+
+Filename: file.ts
+
+  1 | const {setTitle, ...getRest} = {setTitle: true, title: "title"};
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(37): const {setTitle, ...getRest} = {setTitle: true, title: \"title\"}; 2`] = `
+
+Message:
+> 1 | const {setTitle, ...getRest} = {setTitle: true, title: "title"};
+    |                     ^^^^^^^ \`getRest\` starts with \`get\`, so it should be a function.
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(38): const {setTitle, values: [getName]} = {setTitle: true, values: [\"name\"]}; 1`] = `
+
+Filename: file.ts
+
+  1 | const {setTitle, values: [getName]} = {setTitle: true, values: ["name"]};
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(38): const {setTitle, values: [getName]} = {setTitle: true, values: [\"name\"]}; 2`] = `
+
+Message:
+> 1 | const {setTitle, values: [getName]} = {setTitle: true, values: ["name"]};
+    |                           ^^^^^^^ \`getName\` starts with \`get\`, so it should be a function.
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(39): const getName = \"name\"; 1`] = `
+
+Filename: file.js
+
+  1 | const getName = "name";
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(39): const getName = \"name\"; 2`] = `
+
+Message:
+> 1 | const getName = "name";
+    |       ^^^^^^^ \`getName\` starts with \`get\`, so it should be a function.
+
+`;
+
 exports[`no-non-function-verb-prefix > invalid(4): function run(getName: string) { return getName; } 1`] = `
 
 Filename: file.ts
@@ -440,19 +552,211 @@ Message:
 
 `;
 
-exports[`no-non-function-verb-prefix > invalid(5): function run({getName}: {getName: string}) { return getName; } 1`] = `
+exports[`no-non-function-verb-prefix > invalid(40): const getName = \"name\"; 1`] = `
 
-Filename: file.ts
+Filename: file.mjs
 
-  1 | function run({getName}: {getName: string}) { return getName; }
+  1 | const getName = "name";
 
 `;
 
-exports[`no-non-function-verb-prefix > invalid(5): function run({getName}: {getName: string}) { return getName; } 2`] = `
+exports[`no-non-function-verb-prefix > invalid(40): const getName = \"name\"; 2`] = `
 
 Message:
-> 1 | function run({getName}: {getName: string}) { return getName; }
-    |               ^^^^^^^ \`getName\` starts with \`get\`, so it should be a function.
+> 1 | const getName = "name";
+    |       ^^^^^^^ \`getName\` starts with \`get\`, so it should be a function.
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(41): const getName = \"name\"; 1`] = `
+
+Filename: file.cjs
+
+  1 | const getName = "name";
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(41): const getName = \"name\"; 2`] = `
+
+Message:
+> 1 | const getName = "name";
+    |       ^^^^^^^ \`getName\` starts with \`get\`, so it should be a function.
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(42): const getName = \"name\"; const element = <div>{getName}</div>; 1`] = `
+
+Filename: file.jsx
+
+  1 | const getName = "name"; const element = <div>{getName}</div>;
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(42): const getName = \"name\"; const element = <div>{getName}</div>; 2`] = `
+
+Message:
+> 1 | const getName = "name"; const element = <div>{getName}</div>;
+    |       ^^^^^^^ \`getName\` starts with \`get\`, so it should be a function.
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(43): /** @type {object} */ const getName = () => \"name\"; 1`] = `
+
+Filename: file.js
+
+  1 | /** @type {object} */ const getName = () => "name";
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(43): /** @type {object} */ const getName = () => \"name\"; 2`] = `
+
+Message:
+> 1 | /** @type {object} */ const getName = () => "name";
+    |                             ^^^^^^^ \`getName\` starts with \`get\`, so it should be a function.
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(44): /** @param {string} getName */ function run(getName) {} 1`] = `
+
+Filename: file.js
+
+  1 | /** @param {string} getName */ function run(getName) {}
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(44): /** @param {string} getName */ function run(getName) {} 2`] = `
+
+Message:
+> 1 | /** @param {string} getName */ function run(getName) {}
+    |                                             ^^^^^^^ \`getName\` starts with \`get\`, so it should be a function.
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(45): class Person { getName = \"name\"; } 1`] = `
+
+Filename: file.js
+
+  1 | class Person { getName = "name"; }
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(45): class Person { getName = \"name\"; } 2`] = `
+
+Message:
+> 1 | class Person { getName = "name"; }
+    |                ^^^^^^^ \`getName\` starts with \`get\`, so it should be a function.
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(46): const {name: getName} = {name: \"name\"}; 1`] = `
+
+Filename: file.js
+
+  1 | const {name: getName} = {name: "name"};
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(46): const {name: getName} = {name: \"name\"}; 2`] = `
+
+Message:
+> 1 | const {name: getName} = {name: "name"};
+    |              ^^^^^^^ \`getName\` starts with \`get\`, so it should be a function.
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(47): const {setTitle = (() => {const getCount = 1; return true;})()} = {}; 1`] = `
+
+Filename: file.js
+
+  1 | const {setTitle = (() => {const getCount = 1; return true;})()} = {};
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(47): const {setTitle = (() => {const getCount = 1; return true;})()} = {}; 2`] = `
+
+Message:
+> 1 | const {setTitle = (() => {const getCount = 1; return true;})()} = {};
+    |                                 ^^^^^^^^ \`getCount\` starts with \`get\`, so it should be a function.
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(48): function run(getName: string | null | undefined) {} 1`] = `
+
+Filename: file.ts
+
+  1 | function run(getName: string | null | undefined) {}
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(48): function run(getName: string | null | undefined) {} 2`] = `
+
+Message:
+> 1 | function run(getName: string | null | undefined) {}
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`getName\` starts with \`get\`, so it should be a function.
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(49): /** @param {string | null | undefined} getName */ function run(getName) {} 1`] = `
+
+Filename: file.js
+
+  1 | /** @param {string | null | undefined} getName */ function run(getName) {}
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(49): /** @param {string | null | undefined} getName */ function run(getName) {} 2`] = `
+
+Message:
+> 1 | /** @param {string | null | undefined} getName */ function run(getName) {}
+    |                                                                ^^^^^^^ \`getName\` starts with \`get\`, so it should be a function.
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(5): function render({title: setTitle}: {title: boolean}) {} 1`] = `
+
+Filename: file.ts
+
+  1 | function render({title: setTitle}: {title: boolean}) {}
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(5): function render({title: setTitle}: {title: boolean}) {} 2`] = `
+
+Message:
+> 1 | function render({title: setTitle}: {title: boolean}) {}
+    |                         ^^^^^^^^ \`setTitle\` starts with \`set\`, so it should be a function.
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(50): <script setup lang=\"ts\">const getName: string = \"name\";</script> 1`] = `
+
+Filename: file.vue
+
+  1 | <script setup lang="ts">const getName: string = "name";</script>
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(50): <script setup lang=\"ts\">const getName: string = \"name\";</script> 2`] = `
+
+Message:
+> 1 | <script setup lang="ts">const getName: string = "name";</script>
+    |                               ^^^^^^^^^^^^^^^ \`getName\` starts with \`get\`, so it should be a function.
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(51): <script setup lang=\"ts\">const {title: setTitle}: {title: boolean} = {title: true};</script> 1`] = `
+
+Filename: file.vue
+
+  1 | <script setup lang="ts">const {title: setTitle}: {title: boolean} = {title: true};</script>
+
+`;
+
+exports[`no-non-function-verb-prefix > invalid(51): <script setup lang=\"ts\">const {title: setTitle}: {title: boolean} = {title: true};</script> 2`] = `
+
+Message:
+> 1 | <script setup lang="ts">const {title: setTitle}: {title: boolean} = {title: true};</script>
+    |                                       ^^^^^^^^ \`setTitle\` starts with \`set\`, so it should be a function.
 
 `;
 
@@ -472,19 +776,19 @@ Message:
 
 `;
 
-exports[`no-non-function-verb-prefix > invalid(7): const {getName} = object as {getName: string}; 1`] = `
+exports[`no-non-function-verb-prefix > invalid(7): const {title: setTitle = true} = {} as {title?: boolean}; 1`] = `
 
 Filename: file.ts
 
-  1 | const {getName} = object as {getName: string};
+  1 | const {title: setTitle = true} = {} as {title?: boolean};
 
 `;
 
-exports[`no-non-function-verb-prefix > invalid(7): const {getName} = object as {getName: string}; 2`] = `
+exports[`no-non-function-verb-prefix > invalid(7): const {title: setTitle = true} = {} as {title?: boolean}; 2`] = `
 
 Message:
-> 1 | const {getName} = object as {getName: string};
-    |        ^^^^^^^ \`getName\` starts with \`get\`, so it should be a function.
+> 1 | const {title: setTitle = true} = {} as {title?: boolean};
+    |               ^^^^^^^^ \`setTitle\` starts with \`set\`, so it should be a function.
 
 `;
 

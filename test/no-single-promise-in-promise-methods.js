@@ -7,6 +7,118 @@ import parsers from './utils/parsers.js';
 
 const {test, rule} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		['async function f() {return await(Promise).race([read(/* keep */)]);}', 'async function f() {return await read(/* keep */);}'],
+		['async function f() {await(Promise).all([read(/* keep */)]);}', 'async function f() {await read(/* keep */);}'],
+		['const[value] = await(Promise).all([read(/* keep */)]);', 'const value = await read(/* keep */);'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		['function f() {return(Promise).race([object[/* keep */ key]]);}', 'function f() {return object[/* keep */ key];}', 'function f() {return(Promise).resolve(object[/* keep */ key]);}'],
+		['typeof(Promise).race([object[/* keep */ key]]);', 'typeof object[/* keep */ key];', 'typeof(Promise).resolve(object[/* keep */ key]);'],
+		[
+			'async function f() {return await(Promise).any([read(/* keep */)]);}',
+			'async function f() {return await read(/* keep */);}',
+			'async function f() {return await(Promise).resolve(read(/* keep */));}',
+		],
+	].map(([code, unwrapped, resolved]) => ({
+		code,
+		errors: [{
+			messageId: 'no-single-promise-in-promise-methods/error',
+			suggestions: [
+				{messageId: 'no-single-promise-in-promise-methods/unwrap', output: unwrapped},
+				{messageId: 'no-single-promise-in-promise-methods/use-promise-resolve', output: resolved},
+			],
+		}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		...['const', 'let', 'var'].map(keyword => ({
+			code: `${keyword}[value] = await Promise.all([promise]);`,
+			output: `${keyword} value = await promise;`,
+			errors: 1,
+		})),
+		{
+			code: 'const[value] = await Promise.all([getPromise(/* keep */)]);',
+			output: 'const value = await getPromise(/* keep */);',
+			errors: 1,
+		},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['await Promise.race([getPromise(/* keep */)]);', 'await getPromise(/* keep */);'],
+			['const [value] = await Promise.all([(/* keep */ promise)]);', 'const value = await (/* keep */ promise);'],
+			['const value = (await Promise.all([getPromise(/* keep */)]))[0];', 'const value = await getPromise(/* keep */);'],
+		].map(([code, output]) => ({code, output, errors: [{messageId: 'no-single-promise-in-promise-methods/error'}]})),
+		{
+			code: 'Promise.any([getPromise(/* keep */)]);',
+			errors: [{
+				messageId: 'no-single-promise-in-promise-methods/error',
+				suggestions: [
+					{messageId: 'no-single-promise-in-promise-methods/unwrap', output: '(getPromise(/* keep */));'},
+					{messageId: 'no-single-promise-in-promise-methods/use-promise-resolve', output: 'Promise.resolve(getPromise(/* keep */));'},
+				],
+			}],
+		},
+		{
+			code: 'setup()\nPromise.race([getPromise(/* keep */)]);',
+			errors: [{
+				messageId: 'no-single-promise-in-promise-methods/error',
+				suggestions: [
+					{messageId: 'no-single-promise-in-promise-methods/unwrap', output: 'setup()\n;(getPromise(/* keep */));'},
+					{messageId: 'no-single-promise-in-promise-methods/use-promise-resolve', output: 'setup()\nPromise.resolve(getPromise(/* keep */));'},
+				],
+			}],
+		},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'await Promise.race([(value as /* keep */ Promise<number>)]);',
+			output: 'await (value as /* keep */ Promise<number>);',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'await Promise.race([(value // keep\r\n)]);',
+			output: 'await (value // keep\r\n);',
+			errors: 1,
+		},
+		...[
+			'await Promise./* do not lose */race([getPromise(/* keep */)]);',
+			'await Promise.race([/* do not lose */ getPromise(/* keep */)]);',
+			'const [/* do not lose */ value] = await Promise.all([getPromise(/* keep */)]);',
+			'const value = (await Promise.all([getPromise(/* keep */)]) /* do not lose */)[0];',
+			'const value = (await Promise.all([getPromise(/* keep */)]))[/* do not lose */ 0];',
+		].map(code => ({code, errors: [{messageId: 'no-single-promise-in-promise-methods/error', suggestions: []}]})),
+		{
+			code: 'await Promise.any([(/* keep */ promise)]);',
+			errors: [{
+				messageId: 'no-single-promise-in-promise-methods/error',
+				suggestions: [
+					{messageId: 'no-single-promise-in-promise-methods/unwrap', output: 'await (/* keep */ promise);'},
+					{messageId: 'no-single-promise-in-promise-methods/use-promise-resolve', output: 'await Promise.resolve((/* keep */ promise));'},
+				],
+			}],
+		},
+	],
+});
+
 // `Promise.any()` wraps rejections in `AggregateError`, so unwrapping an awaited call is only suggested
 test.snapshot({
 	valid: [],
@@ -248,6 +360,92 @@ test({
 		output: 'async function run() { return delete await object.value; }',
 		errors: 1,
 	}],
+});
+
+nodeTest('commented promise autofixes preserve results and evaluate the input once', async t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'no-single-promise-in-promise-methods': rule}}},
+		rules: {'unicorn/no-single-promise-in-promise-methods': 'error'},
+	};
+	await Promise.all([
+		'const value = await Promise.race([read(/* keep */)]);',
+		'const[value] = await Promise.all([read(/* keep */)]);',
+		'const value = (await Promise.all([read(/* keep */)]))[0];',
+		'const value = await(Promise).race([read(/* keep */)]);',
+		'const[value] = await(Promise).all([read(/* keep */)]);',
+	].map(async operation => {
+		const code = outdent`
+			(async () => {
+				let calls = 0;
+				function read() {
+					calls++;
+					return Promise.resolve(42);
+				}
+				${operation}
+				return JSON.stringify({value, calls, leaked: Object.hasOwn(globalThis, "constvalue")});
+			})();
+		`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.ok(output.includes('read(/* keep */)'));
+		const originalResult = await runInNewContext(code);
+		t.assert.strictEqual(originalResult, '{"value":42,"calls":1,"leaked":false}');
+		t.assert.strictEqual(await runInNewContext(output), originalResult);
+	}));
+});
+
+nodeTest('promise unwrapping suggestions preserve compact return behavior', async t => {
+	const linter = new Linter();
+	const code = 'function read() {return(Promise).race([object[/* keep */ key]]);} read();';
+	const {fixed, output, messages} = linter.verifyAndFix(code, {
+		plugins: {unicorn: {rules: {'no-single-promise-in-promise-methods': rule}}},
+		rules: {'unicorn/no-single-promise-in-promise-methods': 'error'},
+	});
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(output, code);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].suggestions.length, 2);
+	const {fix} = messages[0].suggestions[0];
+	const suggested = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	for (const source of [code, suggested]) {
+		// eslint-disable-next-line no-await-in-loop -- Verify the original and suggested code independently.
+		t.assert.strictEqual(await runInNewContext(source, {key: 'value', object: {value: Promise.resolve(42)}}), 42);
+	}
+});
+
+nodeTest('commented Promise.any unwrapping stays manual because rejection shape changes', async t => {
+	const linter = new Linter();
+	const code = outdent`
+		(async () => {
+			let calls = 0;
+			const reason = new Error("failure");
+			function read() {
+				calls++;
+				return Promise.reject(reason);
+			}
+			try {
+				await Promise.any([read(/* keep */)]);
+			} catch (error) {
+				return JSON.stringify({calls, aggregate: error instanceof AggregateError, same: error === reason, first: error.errors?.[0] === reason});
+			}
+		})();
+	`;
+	const {output, fixed, messages} = linter.verifyAndFix(code, {
+		plugins: {unicorn: {rules: {'no-single-promise-in-promise-methods': rule}}},
+		rules: {'unicorn/no-single-promise-in-promise-methods': 'error'},
+	});
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(output, code);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].fix, undefined);
+	t.assert.strictEqual(messages[0].suggestions.length, 2);
+	const {fix} = messages[0].suggestions[0];
+	const suggested = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	t.assert.ok(suggested.includes('read(/* keep */)'));
+	t.assert.strictEqual(await runInNewContext(code), '{"calls":1,"aggregate":true,"same":false,"first":true}');
+	t.assert.strictEqual(await runInNewContext(suggested), '{"calls":1,"aggregate":false,"same":true,"first":false}');
 });
 
 nodeTest('suggestions beneath delete keep the property instead of deleting it', t => {

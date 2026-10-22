@@ -1,11 +1,14 @@
 import {isLiteral} from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
+	getParenthesizedRange,
 	getParenthesizedText,
 	getStaticValueForControlFlow,
 	isNumber,
 	isParenthesized,
 	needsSemicolon,
 	shouldAddParenthesesToExpressionStart,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-subtraction-comparison/error';
@@ -66,12 +69,12 @@ const create = context => {
 			messageId: MESSAGE_ID_ERROR,
 		};
 
-		// Keep comments intact by not offering a fix when there are any inside the expression.
-		if (sourceCode.getCommentsInside(node).length > 0) {
+		const {left, right} = subtraction;
+		// Keep comments intact by only offering edits when comments are preserved in the copied operands.
+		if (wouldRemoveComments(context, node, [left, right].map(operand => getParenthesizedRange(operand, context)))) {
 			return problem;
 		}
 
-		const {left, right} = subtraction;
 		let replacement = `${getParenthesizedText(left, context)} ${operator} ${getParenthesizedText(right, context)}`;
 		if (!isParenthesized(left, context) && shouldAddParenthesesToExpressionStart(left, context, node)) {
 			replacement = `(${replacement})`;
@@ -80,7 +83,10 @@ const create = context => {
 		/**
 		@param {import('eslint').Rule.RuleFixer} fixer
 		*/
-		const fix = fixer => fixer.replaceText(node, needsSemicolon(sourceCode.getTokenBefore(node), context, replacement) ? `;${replacement}` : replacement);
+		const fix = function * (fixer) {
+			yield fixSpaceAroundKeyword(fixer, node, context);
+			yield fixer.replaceText(node, needsSemicolon(sourceCode.getTokenBefore(node), context, replacement) ? `;${replacement}` : replacement);
+		};
 
 		const canAutofix = strictOrderingOperators.has(operator)
 			? isNumber(left, context) && isNumber(right, context)

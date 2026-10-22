@@ -1,6 +1,70 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		['consume(object[/* keep */ key] += 0);', 'consume(object[/* keep */ key]);'],
+		['const result = ((/* keep */ value) *= 1);', 'const result = ((/* keep */ value));'],
+		['function read() { return object./* keep */value /= 1; }', 'function read() { return object./* keep */value; }'],
+		['consume(object[getKey(/* keep */)] -= 0);', 'consume(object[getKey(/* keep */)]);'],
+		['consume(object[getKey(// keep\r\n)] -= 0);', 'consume(object[getKey(// keep\r\n)]);'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{
+			messageId: 'no-useless-compound-assignment/error',
+			suggestions: [{messageId: 'no-useless-compound-assignment/replace', output}],
+		}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			'consume(object[/* keep */ key] += /* do not lose */ 0);',
+			'object[/* keep */ key] += 0;',
+			'delete (object[/* keep */ key] += 0);',
+		].map(code => ({code, errors: [{messageId: 'no-useless-compound-assignment/error', suggestions: []}]})),
+		{
+			code: 'consume(object[/* keep */ key]! += 0);',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'no-useless-compound-assignment/error',
+				suggestions: [{messageId: 'no-useless-compound-assignment/replace', output: 'consume(object[/* keep */ key]!);'}],
+			}],
+		},
+	],
+});
+
+nodeTest('compound assignment suggestions preserve comments and evaluate the key once', t => {
+	const linter = new Linter();
+	const code = [
+		'let evaluations = 0;',
+		'const object = {value: 42};',
+		'const read = () => { evaluations++; return "value"; };',
+		'const result = (object[read(/* keep */)] += 0);',
+		'JSON.stringify({evaluations, object, result});',
+	].join(' ');
+	const result = linter.verifyAndFix(code, {
+		plugins: {unicorn: {rules: {'no-useless-compound-assignment': rule}}},
+		rules: {'unicorn/no-useless-compound-assignment': 'error'},
+	});
+
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.output, code);
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(result.messages[0].suggestions.length, 1);
+	const {range, text} = result.messages[0].suggestions[0].fix;
+	const output = code.slice(0, range[0]) + text + code.slice(range[1]);
+	t.assert.ok(output.includes('/* keep */'));
+	t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
+	t.assert.strictEqual(runInNewContext(output), '{"evaluations":1,"object":{"value":42},"result":42}');
+});
 
 test.snapshot({
 	valid: [

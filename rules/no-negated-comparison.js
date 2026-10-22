@@ -255,7 +255,7 @@ const create = context => {
 			messageId: MESSAGE_ID_LOGICAL_ERROR,
 		};
 
-		if (!canRemoveNegation || sourceCode.getCommentsInside(unaryExpression).length > 0) {
+		if (!canRemoveNegation || sourceCode.getCommentsInside(logicalExpression).length > 0) {
 			return problem;
 		}
 

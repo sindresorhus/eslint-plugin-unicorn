@@ -150,6 +150,12 @@ Message:
 > 1 | array.sort(/* comment */)
     |       ^^^^ Pass a compare function to avoid sorting elements as strings.
 
+Suggestion 1/2: Sort numerically.:
+  1 | array.sort(/* comment */(a, b) => a - b)
+
+Suggestion 2/2: Sort strings with \`String#localeCompare()\`.:
+  1 | array.sort(/* comment */(a, b) => a.localeCompare(b))
+
 `;
 
 exports[`require-array-sort-compare > invalid(17): const array: string[] = []; array.sort() 1`] = `

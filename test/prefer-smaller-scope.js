@@ -6,6 +6,332 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test: testRule} = getTester(import.meta);
 
+testRule.typescript({
+	valid: [
+		'type Box<in out Type> = {readonly value: Type}; export function make<Type>() { return {} as Box<Type>; }',
+		'type Consumer<in Type> = (value: Type) => void; function make() { return {} as Consumer<string>; }',
+		'type Producer<out Type> = () => Type; function make() { return {} as Producer<string>; }',
+	],
+	invalid: [
+		{
+			code: 'type Value = number;\nfunction render() { return <Component<Value> />; }',
+			output: 'function render() { type Value = number; return <Component<Value> />; }',
+			filename: 'file.tsx',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		},
+		...['async function foo()', 'function* foo()'].map(signature => ({
+			code: `type Value<Type> = Type;\n${signature} { return 1 as Value<number>; }`,
+			output: `${signature} { type Value<Type> = Type; return 1 as Value<number>; }`,
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		})),
+		{
+			code: outdent`
+				type Range = {start: number; end: number};
+				function overlaps(a: [number, number], b: [number, number]) {
+					const first: Range = {start: a[0], end: a[1]};
+					const second: Range = {start: b[0], end: b[1]};
+					return first.start < second.end && second.start < first.end;
+				}
+			`,
+			output: outdent`
+				function overlaps(a: [number, number], b: [number, number]) {
+					type Range = {start: number; end: number};
+					const first: Range = {start: a[0], end: a[1]};
+					const second: Range = {start: b[0], end: b[1]};
+					return first.start < second.end && second.start < first.end;
+				}
+			`,
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Range'}}],
+		},
+		{
+			code: outdent`
+				type Entry = {key: string; value: unknown};
+				function parseEntries(json: string | undefined) {
+					if (json) {
+						const entries: Entry[] = JSON.parse(json);
+						return entries.filter((entry): entry is Entry & {value: number} => typeof entry.value === 'number');
+					}
+					return [];
+				}
+			`,
+			output: outdent`
+				function parseEntries(json: string | undefined) {
+					if (json) {
+						type Entry = {key: string; value: unknown};
+						const entries: Entry[] = JSON.parse(json);
+						return entries.filter((entry): entry is Entry & {value: number} => typeof entry.value === 'number');
+					}
+					return [];
+				}
+			`,
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Entry'}}],
+		},
+		{
+			code: 'type Value = {\r\n  value: number;\r\n};\r\nfunction foo() {\r\n  return {} as Value;\r\n}',
+			output: 'function foo() {\r\n  type Value = {\r\n    value: number;\r\n  };\r\n  return {} as Value;\r\n}',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		},
+		{
+			code: 'class A { a = 1; method() { type Self = this; class B { b = 2; method() { return ({} as Self).a; } } return B; } }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Self'}}],
+		},
+		{
+			code: 'class A { a = 1; method() { type Self = typeof this; class B { b = 2; method() { return ({} as Self).a; } } return B; } }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Self'}}],
+		},
+		{
+			code: 'type Item = number; type Box<Type = Item> = {value: Type}; function foo<Item>() { return {} as Box; }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Box'}}],
+		},
+		{
+			code: 'type await = number; async function foo() { return 1 as await; }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'await'}}],
+		},
+		{
+			code: 'type Value<await> = await; async function foo() { return 1 as Value<number>; }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		},
+		{
+			code: 'type Value<yield> = yield; function* foo() { return 1 as Value<number>; }',
+			languageOptions: {sourceType: 'script'},
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		},
+		{
+			code: 'type Value<implements> = implements; class Foo { method() { return 1 as Value<number>; } }',
+			languageOptions: {sourceType: 'script'},
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		},
+		{
+			code: 'type implements = number; type Value = implements; class Foo { method() { return 1 as Value; } }',
+			languageOptions: {sourceType: 'script'},
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		},
+		{
+			code: 'type Tree = {children?: Tree[]}; export function make() { return {} as Tree; }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Tree'}}],
+		},
+		{
+			code: 'let key: "a" | "b" = "a"; type Shape = {[key]: number}; function make() { const name: "a" = {} as keyof Shape; return name; }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Shape'}}],
+		},
+		{
+			code: 'function decorate(...arguments_: any[]) {} type Alias = Date; const Alias = Date; function make() { class Value { @decorate value!: Alias; } return Value; }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Alias'}}],
+		},
+		{
+			code: 'function decorate(...arguments_: any[]) {}\ntype Alias = Date;\nfunction make() { class Value { @decorate value!: Alias; } return Value; }',
+			output: 'function decorate(...arguments_: any[]) {}\nfunction make() { type Alias = Date; class Value { @decorate value!: Alias; } return Value; }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Alias'}}],
+		},
+		{
+			code: 'const Value = "runtime"; type Value = number; function foo() { return 1 as Value; }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		},
+		{
+			code: 'type Value = number; const Value = "runtime"; consume(Value); function foo() { return 1 as Value; }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		},
+		{
+			code: 'type Value = number; export const Value = "runtime"; function foo() { return 1 as Value; }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		},
+		{
+			code: 'consume()\ntype Value = number;\n[1].map(value => { return value as Value; });',
+			output: 'consume()\n;\n[1].map(value => { type Value = number; return value as Value; });',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		},
+	],
+});
+
+testRule.vue({
+	testerOptions: {languageOptions: {parserOptions: {parser: parsers.typescript.implementation}}},
+	valid: [
+		'<script setup lang="ts">type Value = number; function foo() { return 1 as Value; }</script><template>{{ 1 as Value }}</template>',
+	],
+	invalid: [],
+});
+
+testRule.svelte({
+	testerOptions: {languageOptions: {parserOptions: {parser: parsers.typescript.implementation}}},
+	valid: [
+		'<script lang="ts">type Value = number; function foo() { return 1 as Value; }</script>{1 as Value}',
+		'<script lang="ts" generics="Type extends Value">type Value = number; function foo() { return 1 as Value; }</script>',
+		'<script module lang="ts">type Value = number; function foo() { return 1 as Value; } export type {Value as Shared};</script>',
+	],
+	invalid: [
+		{
+			code: outdent`
+				<script lang="ts">
+				type Value = number;
+				function foo() { return 1 as Value; }
+				</script>
+			`,
+			output: outdent`
+				<script lang="ts">
+				function foo() { type Value = number; return 1 as Value; }
+				</script>
+			`,
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		},
+		{
+			code: outdent`
+				<script module lang="ts">
+				type Value = number;
+				</script>
+				<script lang="ts">
+				function foo() { return 1 as Value; }
+				</script>
+			`,
+			output: outdent`
+				<script module lang="ts">
+				</script>
+				<script lang="ts">
+				function foo() { type Value = number; return 1 as Value; }
+				</script>
+			`,
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		},
+	],
+});
+
+testRule.snapshot({
+	testerOptions: {languageOptions: {parser: parsers.typescript}},
+	valid: [
+		'export type Value = number; function foo() { return 1 as Value; }',
+		...[
+			'export type {Value};',
+			'export {type Value};',
+			'export type {Value as Shared};',
+			'export default Value;',
+			'export = Value;',
+		].map(exportStatement => `type Value = number; function foo() { return 1 as Value; } ${exportStatement}`),
+		'type Unused = number; function foo() {}',
+		'type Unused = {next: Unused}; function foo() {}',
+		'declare type Value = number; function foo() { return 1 as Value; }',
+		'function foo() { type Value = number; return 1 as Value; }',
+		'type Value = number; function foo(value: Value) { return value; }',
+		'type Value = number; function foo(value = 1 as Value) { return value; }',
+		'type Value = number; function foo(): Value { return 1 as Value; }',
+		'type Value = number; function foo<Type extends Value>() { return 1 as Value; }',
+		'type Value = number; const foo = (value: Value) => value;',
+		'type Value = number; const foo = (): Value => { return 1 as Value; };',
+		'type Value = number; const foo = () => 1 as Value;',
+		'type Value = number; function foo() { return 1 as Value; } function bar() { return 2 as Value; }',
+		'type Value = number; if (condition) { consume(1 as Value); } else { consume(2 as Value); }',
+		'type Value = number; for (const value of [] as Value[]) { consume(value); }',
+		'type Value = number; if (1 as Value) { consume(2 as Value); }',
+		'type Value = number; if (condition) consume(1 as Value);',
+		'type Value = number; class Foo { value: Value; }',
+		'type Value = number; class Foo { static { consume(1 as Value); } }',
+		'type First = {next?: Second}; type Second = {next?: First}; function foo() { return {} as First; }',
+		'type Value = number; const Value = "runtime"; function foo() { return 1 as Value; } export default Value;',
+		'interface Value {value: number} function foo() { return {} as Value; }',
+		'namespace Foo { type Value = number; function foo() { return 1 as Value; } }',
+		'switch (condition) { case 1: type Value = number; if (condition) { consume(1 as Value); } }',
+	],
+	invalid: [
+		'type Value = number; const foo = () => { return 1 as Value; };',
+		'type Value = number; const foo = function () { return 1 as Value; };',
+		'type Value = number; values.map(value => { return value as Value; });',
+		'type Value = number; while (condition) { consume(1 as Value); }',
+		'type Value = number; for (const value of values) { consume(value as Value); }',
+		'type Value = number; try { consume(1 as Value); } catch {}',
+		'type Value = number; try {} catch (error) { consume(error as Value); }',
+		'type Value = number; { consume(1 as Value); }',
+		'type Value = number; function foo() { if (condition) { consume(1 as Value); } consume(2 as Value); }',
+		'type Value = number; function foo() { if (condition) { consume(1 as Value); } else { consume(2 as Value); } }',
+		'type Value = number; if (condition) { function foo(value: Value) { return value; } function bar(value: Value) { return value; } }',
+		'type Value = number; function foo() { const bar = (value: Value): Value => value; }',
+		'type Value = {next?: Value}; function foo() { return {} as Value; }',
+		'type Box<Type> = {value: Type}; function foo<Type>() { return {} as Box<Type>; }',
+		'type Keys<Type> = {[Key in keyof Type]: Key}; function foo<Key>() { return {} as Keys<Key>; }',
+		'type Result<Type> = Type extends Promise<infer Value> ? Value : never; function foo<Value>() { return {} as Result<Value>; }',
+		'import type {Item} from "./module.js"; type Pair = [Item, Item]; function foo() { return [] as Pair; }',
+		'type Value = number; class Foo { method() { return 1 as Value; } }',
+		'function foo() { return 1 as Value; }\ntype Value = number;',
+		'type Value = number; function foo() { "use strict"; return 1 as Value; }',
+		'type Value = number; function foo() { "use strict"; "other directive"; return 1 as Value; }',
+		'type Value = number\nfunction foo() {\n  "use strict"\n  return 1 as Value\n}',
+		'type Value = number\nfunction foo() {\n  return (1 as Value)\n}',
+		'type Value = {\n  value: number;\n};\nfunction foo() {\n  return {} as Value;\n}',
+		'function outer() {\n  type Value = {\n    value: number;\n  };\n  function foo() {\n    return {} as Value;\n  }\n}',
+		'type Value = number; function foo() {return 1 as Value;}',
+		'type Value = number; function foo() { return (<Value>1)!; }',
+		'type Value = number; function foo() { return (1 as Value) satisfies Value; }',
+		'consume()\ntype Value = number\n{\n\tconsume(1 as Value)\n}',
+		// Keep reporting when a fix would change type resolution.
+		'type Item = {id: string}; type Pair = [Item, Item]; function makePair<Item>(value: Item) { const pair: Pair = [{id: "a"}, {id: "b"}]; return [value, pair]; }',
+		'type Pair = [Item, Item]; function foo() { type Item = number; return [] as Pair; }',
+		'type Value = number; function foo() { const Value = 1; return Value as Value; }',
+		'let value: string | number = 1; type Value = typeof value; function foo() { return 1 as Value; }',
+		'type Value = {value: typeof item}; function foo() { return {} as Value; }',
+		// Keep comments at their original locations.
+		'/* declaration */ type Value = number; function foo() { return 1 as Value; }',
+		'type Value = /* value */ number; function foo() { return 1 as Value; }',
+		'type Value = number; /* following */ function foo() { return 1 as Value; }',
+		'type Value = number; function foo() { /* use */ return 1 as Value; }',
+		// Reindenting a multiline literal type would change its meaning.
+		'type Value = `first\nsecond`; function foo() { return "first\\nsecond" as Value; }',
+		'type Value = "first\\\nsecond"; function foo() { return "firstsecond" as Value; }',
+		'type Callback = <Type>(value: Type) => Type; function foo<Type>() { return {} as Callback; }',
+		'interface Base {value: number} type Recursive<Type extends Base> = {value: Type; next?: Recursive<Type>}; function foo() { return {} as Recursive<Base>; }',
+		'type Value = number; function foo(callback = () => { return 1 as Value; }) { return callback(); }',
+	],
+});
+
+test('independent type aliases with overlapping fixes reach a stable smallest scope', t => {
+	const linter = new Linter();
+	const config = {
+		languageOptions: {parser: parsers.typescript.implementation},
+		plugins: {unicorn},
+		rules: {'unicorn/prefer-smaller-scope': 'error'},
+	};
+	const code = 'type First = number;\ntype Second = string;\nfunction foo() { return [1 as First, "a" as Second]; }';
+	t.assert.strictEqual(linter.verify(code, config).length, 2);
+	const result = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(result.output, 'function foo() { type Second = string; type First = number; return [1 as First, "a" as Second]; }');
+	const secondResult = linter.verifyAndFix(result.output, config);
+	t.assert.strictEqual(secondResult.fixed, false);
+	t.assert.deepStrictEqual(secondResult.messages, []);
+	t.assert.strictEqual(secondResult.output, result.output);
+});
+
+test('dependent type aliases reach a stable smallest scope', t => {
+	const linter = new Linter();
+	const config = {
+		languageOptions: {parser: parsers.typescript.implementation},
+		plugins: {unicorn},
+		rules: {'unicorn/prefer-smaller-scope': 'error'},
+	};
+	const code = outdent`
+		type Item = {id: string};
+		type Pair = [Item, Item];
+		function foo() {
+			if (condition) {
+				return [] as Pair;
+			}
+		}
+	`;
+	const result = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(result.output, outdent`
+		function foo() {
+			if (condition) {
+				type Item = {id: string};
+				type Pair = [Item, Item];
+				return [] as Pair;
+			}
+		}
+	`);
+	const secondResult = linter.verifyAndFix(result.output, config);
+	t.assert.strictEqual(secondResult.fixed, false);
+	t.assert.deepStrictEqual(secondResult.messages, []);
+	t.assert.strictEqual(secondResult.output, result.output);
+});
+
 testRule({
 	valid: [],
 	invalid: [

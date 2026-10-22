@@ -1,8 +1,71 @@
-import {getTester} from './utils/test.js';
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
+import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 const error = {messageId: 'prefer-simple-condition-first'};
 const unsafeError = {messageId: 'prefer-simple-condition-first/unsafe'};
+
+test({
+	valid: [],
+	invalid: [
+		['if ((a /* keep */ ? b : c) && ready) {}', 'if (ready && (a /* keep */ ? b : c)) {}'],
+	].map(([code, output]) => ({code, output, errors: [error]})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['if ((a ? b : c) && (ready // keep\r\n)) {}', 'if ((ready // keep\r\n) && (a ? b : c)) {}'],
+			['if ((a ? b : c) || (/* keep */ ready)) {}', 'if ((/* keep */ ready) || (a ? b : c)) {}'],
+		].map(([code, output]) => ({code, output, errors: [error]})),
+		{
+			code: 'if ((a ? b : c) && (ready as /* keep */ boolean)) {}',
+			output: 'if ((ready as /* keep */ boolean) && (a ? b : c)) {}',
+			languageOptions: {parser: parsers.typescript},
+			errors: [error],
+		},
+		{
+			code: 'if (((a ? b : c) && ready /* discard */) && enabled) {}',
+			errors: [error],
+		},
+		{
+			code: 'if (check(/* keep */) && ready) {}',
+			errors: [unsafeError],
+		},
+		...[
+			'if (/* keep */ (a ? b : c) && ready) {}',
+			'if ((a ? b : c) && ready /* keep */) {}',
+		].map(code => ({code, errors: [error]})),
+	],
+});
+
+nodeTest('comment-preserving condition reordering retains boolean-context results', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-simple-condition-first': rule}}},
+		rules: {'unicorn/prefer-simple-condition-first': 'error'},
+	};
+	for (const operator of ['&&', '||']) {
+		const code = `let result = false; if ((flag /* keep */ ? first : second) ${operator} ready) { result = true; } result;`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(output.split('/* keep */').length, 2);
+		for (const flag of [false, true]) {
+			for (const ready of [0, 1]) {
+				for (const [first, second] of [[undefined, 'value'], [1, '']]) {
+					const globals = {
+						flag, first, second, ready,
+					};
+					t.assert.strictEqual(runInNewContext(output, {...globals}), runInNewContext(code, {...globals}));
+				}
+			}
+		}
+	}
+});
 
 test({
 	valid: [
@@ -193,7 +256,7 @@ test({
 			errors: [error],
 		},
 
-		// Comments make the chain unfixable, but do not suppress the report
+		// Comments in discarded syntax or adjacent to the chain block fixes; comments inside copied operands are preserved
 		{
 			code: 'if ((foo ? bar : baz) /* keep */ && ready);',
 			errors: [error],
@@ -204,6 +267,7 @@ test({
 		},
 		{
 			code: 'if ((foo ? /* keep */ bar : baz) && ready);',
+			output: 'if (ready && (foo ? /* keep */ bar : baz));',
 			errors: [error],
 		},
 		{

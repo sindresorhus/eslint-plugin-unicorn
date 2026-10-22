@@ -39,6 +39,8 @@ nodeTest('aggregate error fixes preserve message, cause, and argument evaluation
 			{message: 'stop', calls: ['message']},
 		],
 		['"failure", {cause: "cause"}', {message: 'failure', cause: 'cause', calls: []}],
+		['(/* message */ calls.push("message"), "failure"), (calls.push("options"), {cause: /* cause */ "cause"})', {message: 'failure', cause: 'cause', calls: ['message', 'options']}],
+		['((calls.push("message"), "failure") as /* type */ string), ({cause: "cause"} /* options */)', {message: 'failure', cause: 'cause', calls: ['message']}],
 	]) {
 		const code = outdent`
 			const errors: Error[] = [new Error("original")];
@@ -85,15 +87,44 @@ test({
 				errors: [{messageId: 'prefer-aggregate-error'}],
 			};
 		}),
-		...[
-			'(/* keep */ first(), "failure")',
-			'"failure", (second(), /* keep */ {cause})',
-			'(first(), "failure"), /* keep */ {cause}',
-		].map(argumentsText => ({
-			...typescript(`function fail(errors: Error[]) { if (errors.length) { throw new Error(${argumentsText}); } }`),
-			errors: [{messageId: 'prefer-aggregate-error'}],
-		})),
 	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		['(/* keep */ first(), "failure")'],
+		['"failure", (second(), /* keep */ {cause})'],
+		['(/* keep */ message)'],
+		['message, {cause: /* keep */ cause}'],
+		['(message as /* keep */ string)', 'message as /* keep */ string'],
+		['(message satisfies /* keep */ string)', 'message satisfies /* keep */ string'],
+		['message, ({cause} /* keep */)'],
+		['message, (options // keep\r\n)'],
+	].map(([argumentsText, expectedArguments = argumentsText]) => ({
+		...typescript(`function fail(errors: Error[]) { if (errors.length) { throw new Error(${argumentsText}); } }`),
+		output: `function fail(errors: Error[]) { if (errors.length) { throw new AggregateError(errors, ${expectedArguments}); } }`,
+		errors: [{messageId: 'prefer-aggregate-error'}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		'new /* keep */ Error(message)',
+		'new Error /* keep */ (message)',
+		'new (/* keep */ Error)(message)',
+		'new Error(/* keep */ message)',
+		'new Error(message /* keep */)',
+		'new Error(message, /* keep */ options)',
+		'new Error((first(), "failure"), /* keep */ {cause})',
+		'new Error(/* keep */)',
+		'new Error(message, /* keep */)',
+		'new Error(read(/* retained */), /* keep */ options)',
+	].map(expression => ({
+		...typescript(`function fail(errors: Error[]) { if (errors.length) { throw ${expression}; } }`),
+		errors: [{messageId: 'prefer-aggregate-error'}],
+	})),
 });
 
 test.snapshot({

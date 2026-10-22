@@ -1,7 +1,115 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		['function f() {return(parseInt)(read(/* keep */), 10);}', 'function f() {return Math.trunc(Number(read(/* keep */)));}'],
+		['function f() {throw(parseInt)(read(/* keep */), 10);}', 'function f() {throw Math.trunc(Number(read(/* keep */)));}'],
+		['typeof(parseInt)(read(/* keep */), 10);', 'typeof Math.trunc(Number(read(/* keep */)));'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{messageId: 'parse-int', suggestions: [{messageId: 'suggestion-trunc', output}]}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		['function f() {return(Number).parseFloat(read(/* keep */));}', 'function f() {return Number(read(/* keep */));}'],
+		['function f() {throw(Number).parseFloat(read(/* keep */));}', 'function f() {throw Number(read(/* keep */));}'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{messageId: 'parse-float', suggestions: [{messageId: 'suggestion-number', output}]}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		['parseInt(getValue(/* keep */), 10);', 'Math.trunc(Number(getValue(/* keep */)));'],
+		['Number.parseInt((/* keep */ value), 10);', 'Math.trunc(Number((/* keep */ value)));'],
+		['parseInt(values[/* keep */ index], 10);', 'Math.trunc(Number(values[/* keep */ index]));'],
+		['parseInt((prepare(/* keep */), value), 10);', 'Math.trunc(Number((prepare(/* keep */), value)));'],
+		['parseInt(getValue(\r\n  // keep\r\n), 10);', 'Math.trunc(Number(getValue(\r\n  // keep\r\n)));'],
+	].map(([code, output]) => ({code, errors: [{messageId: 'parse-int', suggestions: [{messageId: 'suggestion-trunc', output}]}]})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'parseInt((value as /* keep */ string), 10);',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'parse-int', suggestions: [{messageId: 'suggestion-trunc', output: 'Math.trunc(Number(value as /* keep */ string));'}]}],
+		},
+		...[
+			'Number./* keep */parseInt(value, 10);',
+			'parseInt(value /* keep */, 10);',
+			'parseInt(value, 1 /* keep */ * 10);',
+			'parseInt?.(getValue(/* keep */), 10);',
+		].map(code => ({code, errors: [{messageId: 'parse-int', suggestions: []}]})),
+	],
+});
+
+nodeTest('commented parseInt inputs are evaluated once and conversion changes remain suggestions', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-number-coercion': rule}}},
+		rules: {'unicorn/prefer-number-coercion': 'error'},
+	};
+	const code = [
+		'let evaluations = 0;',
+		'function getValue() { evaluations++; return input; }',
+		'function read() {return(parseInt)(getValue(/* keep */), 10);}',
+		'const result = read();',
+		'JSON.stringify({evaluations, result});',
+	].join(' ');
+	const {output, fixed, messages} = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(output, code);
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].fix, undefined);
+	t.assert.strictEqual(messages[0].suggestions.length, 1);
+	const {fix} = messages[0].suggestions[0];
+	const corrected = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	t.assert.ok(corrected.includes('/* keep */'));
+	for (const [input, original, suggested] of [['123.45', 123, 123], ['1e3', 1, 1000]]) {
+		t.assert.strictEqual(runInNewContext(code, {input}), JSON.stringify({evaluations: 1, result: original}));
+		t.assert.strictEqual(runInNewContext(corrected, {input}), JSON.stringify({evaluations: 1, result: suggested}));
+	}
+});
+
+nodeTest('parseFloat suggestions preserve compact return behavior and evaluate the input once', t => {
+	const linter = new Linter();
+	const code = 'function read() {return(Number).parseFloat(getValue(/* keep */));} read();';
+	const {output, fixed, messages} = linter.verifyAndFix(code, {
+		plugins: {unicorn: {rules: {'prefer-number-coercion': rule}}},
+		rules: {'unicorn/prefer-number-coercion': 'error'},
+	});
+	t.assert.strictEqual(output, code);
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].suggestions.length, 1);
+	const {fix} = messages[0].suggestions[0];
+	const suggested = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	for (const source of [code, suggested]) {
+		let evaluations = 0;
+		const result = runInNewContext(source, {
+			getValue() {
+				evaluations++;
+				return '12.5';
+			},
+		});
+		t.assert.strictEqual(result, 12.5);
+		t.assert.strictEqual(evaluations, 1);
+	}
+});
 
 test.snapshot({
 	valid: [

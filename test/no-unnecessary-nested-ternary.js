@@ -1,6 +1,60 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		['check(/* keep */) ? (inner ? value : fallback) : fallback;', 'check(/* keep */) && inner ? value : fallback;'],
+		['outer ? (inner(/* keep */) ? value : fallback) : fallback;', 'outer && inner(/* keep */) ? value : fallback;'],
+		['outer ? (inner ? value(/* keep */) : fallback) : fallback;', 'outer && inner ? value(/* keep */) : fallback;'],
+		['outer ? value : (inner ? value : fallback(/* keep */));', 'outer || inner ? value : fallback(/* keep */);'],
+		['check(// keep\r\n) ? (inner ? value : fallback) : fallback;', 'check(// keep\r\n) && inner ? value : fallback;'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'outer ? (inner ? (value as /* keep */ string) : fallback) : fallback;',
+			output: 'outer && inner ? (value as /* keep */ string) : fallback;',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		...[
+			'outer ? value(/* keep */) : (inner ? value(/* keep */) : fallback);',
+			'outer ? (inner ? value : fallback(/* keep */)) : fallback(/* keep */);',
+			'outer ? /* keep */ (inner ? value : fallback) : fallback;',
+		].map(code => ({code, errors: 1})),
+	],
+});
+
+nodeTest('comment-preserving ternary fixes retain short-circuit evaluation', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'no-unnecessary-nested-ternary': rule}}},
+		rules: {'unicorn/no-unnecessary-nested-ternary': 'error'},
+	};
+	for (const expression of [
+		'read(/* keep */ "outer", outer) ? (read("inner", inner) ? read("value", 1) : read("fallback", 2)) : read("fallback", 2)',
+		'read(/* keep */ "outer", outer) ? read("value", 1) : (read("inner", inner) ? read("value", 1) : read("fallback", 2))',
+	]) {
+		const code = `const seen = []; const read = (name, value) => { seen.push(name); return value; }; const result = ${expression}; JSON.stringify({seen, result});`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.ok(output.includes('/* keep */'));
+		for (const outer of [false, 0, '', true, 'value']) {
+			for (const inner of [false, 0, '', true, 'value']) {
+				t.assert.strictEqual(runInNewContext(output, {outer, inner}), runInNewContext(code, {outer, inner}));
+			}
+		}
+	}
+});
 
 test({
 	valid: [

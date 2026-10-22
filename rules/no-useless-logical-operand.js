@@ -1,8 +1,9 @@
 import {isBooleanLiteral, isInDirectivePrologue, isStringLiteral} from './ast/index.js';
-import replaceNodeWithExpression from './fix/replace-node-with-expression.js';
+import {fixSpaceAroundKeyword, replaceNodeWithExpression} from './fix/index.js';
 import {
 	getLogicalExpressionChildText,
 	getLogicalExpressionOperands,
+	getParenthesizedRange,
 	isBoolean,
 	isBooleanContext,
 	isOutermostLogicalExpression,
@@ -11,6 +12,7 @@ import {
 	needsSemicolon,
 	shouldAddParenthesesToExpressionStart,
 	unwrapTypeScriptExpression,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 /**
@@ -154,19 +156,21 @@ const create = context => {
 			},
 		};
 
-		if (context.sourceCode.getCommentsInside(node).length > 0) {
+		if (wouldRemoveComments(context, node, replacementOperands.map(operand => getParenthesizedRange(operand, context)))) {
 			return report;
 		}
 
-		if (replacementOperands.length === 1) {
-			report.fix = fixer => replaceNodeWithExpression(fixer, node, replacementOperands[0], context);
-			return report;
-		}
+		report.fix = function * (fixer, {abort}) {
+			const replacement = replacementOperands.length === 1
+				? replaceNodeWithExpression(fixer, node, replacementOperands[0], context)
+				: fixer.replaceText(node, getReplacementText(node, replacementOperands, node.operator, context));
+			if (!replacement) {
+				return abort();
+			}
 
-		report.fix = fixer => fixer.replaceText(
-			node,
-			getReplacementText(node, replacementOperands, node.operator, context),
-		);
+			yield replacement;
+			yield fixSpaceAroundKeyword(fixer, node, context);
+		};
 
 		return report;
 	});

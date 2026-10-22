@@ -4,6 +4,7 @@ import {
 	isNegativeOne,
 	isNumericLiteral,
 } from './ast/index.js';
+import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getFunctionReturnExpression,
 	hasOptionalChainElement,
@@ -14,6 +15,7 @@ import {
 	isSameReference,
 	isStrongPrecedenceNode,
 	unwrapTypeScriptExpression,
+	wouldRemoveComments,
 } from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'no-array-sort-for-min-max/error';
@@ -125,7 +127,7 @@ const createProblem = (node, sortedSource, endpoint, context) => {
 
 	if (
 		sortedSource.node.type !== 'Super'
-		&& context.sourceCode.getCommentsInside(node).length === 0
+		&& !wouldRemoveComments(context, node, [sortedSource.node])
 	) {
 		const replacement = getReplacement(method, sortedSource.node, context.sourceCode);
 		const fixedText = isInUnparenthesizedNewExpressionCallee(node, context) ? `(${replacement})` : replacement;
@@ -134,7 +136,10 @@ const createProblem = (node, sortedSource, endpoint, context) => {
 			{
 				messageId: MESSAGE_ID_SUGGESTION,
 				data: {replacement},
-				fix: fixer => fixer.replaceText(node, fixedText),
+				* fix(fixer) {
+					yield fixer.replaceText(node, fixedText);
+					yield fixSpaceAroundKeyword(fixer, node, context);
+				},
 			},
 		];
 	}

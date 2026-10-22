@@ -5,6 +5,52 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		['function f() {return(text.replaceAll("a", "x")).replaceAll("b", (/* keep */ "x"));}', 'function f() {return text.replaceAll(/[ab]/g, (/* keep */ "x"));}'],
+		['function f() {throw(text.replaceAll("a", "x")).replaceAll("b", (/* keep */ "x"));}', 'function f() {throw text.replaceAll(/[ab]/g, (/* keep */ "x"));}'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		['getText(/* keep */).replaceAll("a", "x").replaceAll("b", "x");', 'getText(/* keep */).replaceAll(/[ab]/g, "x");'],
+		['text.replaceAll("a", "x").replaceAll("b", (/* keep */ "x"));', 'text.replaceAll(/[ab]/g, (/* keep */ "x"));'],
+		['(/* keep */ text).replaceAll("a", "x").replaceAll("b", "x");', '(/* keep */ text).replaceAll(/[ab]/g, "x");'],
+		['({/* keep */ text: "ab"}.text.replaceAll("a", "x")).replaceAll("b", "x");', '({/* keep */ text: "ab"}.text).replaceAll(/[ab]/g, "x");'],
+		['const result = ({/* keep */ text: "ab"}.text.replaceAll("a", "x")).replaceAll("b", "x");', 'const result = {/* keep */ text: "ab"}.text.replaceAll(/[ab]/g, "x");'],
+		['function read() {\r\n  return (text // keep\r\n  ).replaceAll("a", "x").replaceAll("b", "x");\r\n}', 'function read() {\r\n  return (text // keep\r\n  ).replaceAll(/[ab]/g, "x");\r\n}'],
+		['text.replaceAll("a", "x").replaceAll("b", ("x" // keep\r\n));', 'text.replaceAll(/[ab]/g, ("x" // keep\r\n));'],
+		['before()\n;(/* keep */ text).replaceAll("a", "x").replaceAll("b", "x");', 'before()\n;(/* keep */ text).replaceAll(/[ab]/g, "x");'],
+	].map(([code, output]) => ({code, output, errors: [{messageId: 'prefer-single-replace'}]})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		['(text as /* keep */ string).replaceAll("a", "x").replaceAll("b", "x");', '(text as /* keep */ string).replaceAll(/[ab]/g, "x");'],
+		['values[/* keep */ index]!.replaceAll("a", "x").replaceAll("b", "x");', 'values[/* keep */ index]!.replaceAll(/[ab]/g, "x");'],
+	].map(([code, output]) => ({
+		code, output, languageOptions: {parser: parsers.typescript}, errors: [{messageId: 'prefer-single-replace'}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		'text.replaceAll(/* keep */ "a", "x").replaceAll("b", "x");',
+		'text.replaceAll("a", (/* keep */ "x")).replaceAll("b", "x");',
+		'text.replaceAll("a", "x").replaceAll(/* keep */ "b", "x");',
+		'text.replaceAll("a", "x").replaceAll("b", /* keep */ "x");',
+		'text.replaceAll("a", "x").replaceAll("b", "x" /* keep */);',
+		'(/* keep */ text.replaceAll("a", "x")).replaceAll("b", "x");',
+		'(text.replaceAll("a", "x") /* keep */).replaceAll("b", "x");',
+		'getText(/* copied */).replaceAll("a", "x") /* keep */ .replaceAll("b", "x");',
+	].map(code => ({code, errors: [{messageId: 'prefer-single-replace'}]})),
+});
+
 test.snapshot({
 	valid: [
 		// Not a chain
@@ -143,4 +189,85 @@ nodeTest('merged replacement chains preserve object-prefix grouping', t => {
 	t.assert.deepStrictEqual(messages, []);
 	t.assert.strictEqual(runInNewContext(output), 'xxxx');
 	t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
+});
+
+nodeTest('commented replacement chains preserve results and evaluate the receiver once', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-single-replace': rule}}},
+		rules: {'unicorn/prefer-single-replace': 'error'},
+	};
+	for (const code of [
+		'getText(/* receiver */).replaceAll("a", "x").replaceAll("b", "x");',
+		'getText(/* receiver */).replace(/a/g, "x").replaceAll("b", (/* replacement */ "x"));',
+	]) {
+		const {output, messages, fixed} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		for (const source of [code, output]) {
+			let calls = 0;
+			const result = runInNewContext(source, {
+				getText() {
+					calls++;
+					return 'abba';
+				},
+			});
+			t.assert.strictEqual(result, 'xxxx');
+			t.assert.strictEqual(calls, 1);
+		}
+
+		for (const marker of ['/* receiver */', '/* replacement */']) {
+			t.assert.strictEqual(output.split(marker).length, code.split(marker).length);
+		}
+	}
+});
+
+nodeTest('replacement chains preserve compact keyword boundaries and evaluate the receiver once', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-single-replace': rule}}},
+		rules: {'unicorn/prefer-single-replace': 'error'},
+	};
+	const expression = '(getText(/* keep */).replaceAll("a", "x")).replaceAll("b", "x")';
+	for (const [body, expected] of [
+		[`return${expression};`, 'xxxx'],
+		[`try {throw${expression};} catch (value) {return value;}`, 'xxxx'],
+		[`return typeof${expression};`, 'string'],
+		[`return void${expression};`, undefined],
+		[`function* values() {yield${expression};} return values().next().value;`, 'xxxx'],
+		[`switch ("xxxx") {case${expression}: return true; default: return false;}`, true],
+		[`for (const value of${expression} ? [true] : [false]) {return value;}`, true],
+		[`for (const key in${expression} ? {matched: true} : {}) {return key;}`, 'matched'],
+	]) {
+		const code = `function read() {${body}} read();`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(output.split('/* keep */').length, 2);
+		for (const source of [code, output]) {
+			let evaluations = 0;
+			const result = runInNewContext(source, {
+				getText() {
+					evaluations++;
+					return 'abba';
+				},
+			});
+			t.assert.strictEqual(result, expected);
+			t.assert.strictEqual(evaluations, 1);
+		}
+	}
+});
+
+nodeTest('replacement chains preserve compact await boundaries', async t => {
+	const code = 'async function read() {return await(getText(/* keep */).replaceAll("a", "x")).replaceAll("b", "x");} read();';
+	const linter = new Linter();
+	const {output, fixed, messages} = linter.verifyAndFix(code, {
+		plugins: {unicorn: {rules: {'prefer-single-replace': rule}}},
+		rules: {'unicorn/prefer-single-replace': 'error'},
+	});
+	t.assert.strictEqual(fixed, true);
+	t.assert.deepStrictEqual(messages, []);
+	await Promise.all([code, output].map(async source => {
+		t.assert.strictEqual(await runInNewContext(source, {getText: () => 'abba'}), 'xxxx');
+	}));
 });

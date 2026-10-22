@@ -1,6 +1,7 @@
 import typedArray from './shared/typed-array.js';
 import {isKnownNonIterator, unwrapExpression} from './shared/iterator-helpers.js';
 import {removeMethodCall} from './fix/index.js';
+import {getParenthesizedRange, wouldRemoveComments} from './utils/index.js';
 import {
 	isNewExpression,
 	isMethodCall,
@@ -45,7 +46,7 @@ const isToArrayCall = (node, context) => isMethodCall(node, {
 }) && !isKnownNonIterator(node.callee.object, context);
 
 const getRemoveToArrayFix = (toArrayCall, context) => {
-	if (context.sourceCode.getCommentsInside(toArrayCall).length > 0) {
+	if (wouldRemoveComments(context, toArrayCall, [getParenthesizedRange(toArrayCall.callee.object, context)])) {
 		return;
 	}
 
@@ -294,11 +295,7 @@ const create = context => {
 		}
 
 		const {parent} = node;
-		if (
-			parent.type !== 'ArrayExpression'
-			&& parent.type !== 'CallExpression'
-			&& parent.type !== 'NewExpression'
-		) {
+		if (!['ArrayExpression', 'CallExpression', 'NewExpression'].includes(parent.type)) {
 			return;
 		}
 

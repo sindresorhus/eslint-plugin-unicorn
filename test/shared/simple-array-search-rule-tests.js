@@ -1,4 +1,8 @@
+import path from 'node:path';
+import {Linter} from 'eslint';
+import typescript from 'typescript';
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../../scripts/parsers.js';
 import {parsers} from '../utils/test.js';
 
 function snapshotTests({method, replacement}) {
@@ -153,6 +157,11 @@ function typescriptTests({method, replacement}) {
 	return {
 		valid: [],
 		invalid: [
+			{
+				code: `const values = ["small", "medium", "large"] as const; declare const input: string; values.${method}(value => value === input);`,
+				output: `const values = ["small", "medium", "large"] as const; declare const input: string; values.${replacement}(input);`,
+				errors: 1,
+			},
 			...['(target as number)', '(target satisfies number)', 'target!', '<number>target', '(-2 as number)', '(2 satisfies number)', '2!', '<number>2'].map(expression => ({
 				code: `values.${method}(item => item === ${expression});`,
 				output: `values.${replacement}(${expression});`,
@@ -187,4 +196,96 @@ export default function tests(options) {
 		snapshot: snapshotTests(options),
 		typescript: typescriptTests(options),
 	};
+}
+
+function createTypeScriptProgram(code, filename) {
+	filename = filename.replaceAll('\\', '/');
+	const options = {
+		strict: true, allowJs: true, checkJs: true, noEmit: true, types: [], target: typescript.ScriptTarget.ESNext,
+	};
+	const host = typescript.createCompilerHost(options);
+	const {getSourceFile} = host;
+	host.getSourceFile = (name, ...arguments_) => name === filename
+		? typescript.createSourceFile(name, code, options.target, true)
+		: getSourceFile(name, ...arguments_);
+	return typescript.createProgram([filename], options, host);
+}
+
+export function testTypeAwareSearches({method, replacement, rule, test}) {
+	const returnType = method === 'some' ? 'value is Type' : 'number';
+	for (const [name, template, callback, searchValue, {hasSideEffect = false, extension = 'ts'} = {}] of [
+		['wider string', 'const values = ["small", "medium", "large"] as const; declare const input: string; values.SEARCH;', 'value => value === input'],
+		['wider object', 'declare const values: readonly {id: string; label: string}[]; declare const input: {id: string}; values.SEARCH;', 'value => value === input'],
+		['reversed comparison', 'const values = ["small", "medium", "large"] as const; declare const input: string; values.SEARCH;', 'value => input === value'],
+		['generic unknown', `function check<Type>(value: unknown, values: readonly Type[]): ${returnType} { return values.SEARCH; }`, 'option => option === value'],
+		['constrained literal receiver', 'function check<Type extends readonly ["small", "large"]>(values: Type, input: string) { return values.SEARCH; }', 'value => value === input'],
+		['optional value with block body', 'declare const values: string[]; declare const input: string | undefined; values.SEARCH;', 'value => {return value === input;}'],
+		['incompatible side effect', 'const values = ["small", "medium", "large"] as const; declare function getInput(): string; values.SEARCH;', 'value => value === getInput()'],
+		['widened callback parameter', 'const values = ["small", "medium", "large"] as const; declare const input: string; values.SEARCH;', '(value: string) => value === input'],
+		['incompatible union receiver', 'declare const values: string[] | number[]; declare const input: string; values.SEARCH;', 'value => value === input'],
+		['incompatible optional receiver', 'declare const values: readonly ["small"] | undefined; declare const input: string; values?.SEARCH;', 'value => value === input'],
+		['compatible string', 'declare const values: string[]; declare const input: string; values.SEARCH;', 'value => value === input', 'input'],
+		[
+			'compatible object with extra property',
+			'declare const values: readonly {id: string; label: string}[]; declare const input: {id: string; label: string; extra: boolean}; values.SEARCH;',
+			'value => value === input',
+			'input',
+		],
+		['compatible side effect', 'declare const values: string[]; declare function getInput(): string; values.SEARCH;', 'value => value === getInput()', 'getInput()', {hasSideEffect: true}],
+		['compatible literal', 'const values = ["small", "medium", "large"] as const; values.SEARCH;', 'value => value === "small"', '"small"'],
+		['compatible generic', 'function check<Type>(input: Type, values: readonly Type[]) { return values.SEARCH; }', 'value => value === input', 'input'],
+		['compatible constrained receiver', 'function check<Type extends readonly string[]>(values: Type, input: string) { return values.SEARCH; }', 'value => value === input', 'input'],
+		['compatible optional value', 'declare const values: (string | undefined)[]; declare const input: string | undefined; values.SEARCH;', 'value => value === input', 'input'],
+		['compatible union receiver', 'declare const values: string[] | (string | number)[]; declare const input: string; values.SEARCH;', 'value => value === input', 'input'],
+		['compatible optional receiver', 'declare const values: string[] | undefined; declare const input: string; values?.SEARCH;', 'value => value === input', 'input'],
+		['compatible typed array', 'declare const values: Uint8Array; declare const input: number; values.SEARCH;', 'value => value === input', 'input'],
+		['BigInt typed array with unknown search value', 'declare const values: BigInt64Array; declare const input: unknown; values.SEARCH;', 'value => value === input'],
+		['compatible BigInt typed array', 'declare const values: BigInt64Array; declare const input: bigint; values.SEARCH;', 'value => value === input', 'input'],
+		['JSDoc wider string', outdent`
+			/** @type {readonly ("small" | "large")[]} */
+			const values = ["small", "large"];
+			/** @param {string} input */
+			function check(input) { return values.SEARCH; }
+		`, 'value => value === input', undefined, {extension: 'js'}],
+		['JSDoc compatible string', outdent`
+			/** @type {string[]} */
+			const values = ["small", "large"];
+			/** @param {string} input */
+			function check(input) { return values.SEARCH; }
+		`, 'value => value === input', 'input', {extension: 'js'}],
+		['unknown receiver', 'declare const values: any; declare const input: string; values.SEARCH;', '(value: unknown) => value === input', 'input'],
+		['narrowed value', 'function check(values: string[], input: string | undefined) { if (typeof input !== "string") { return; } return values.SEARCH; }', 'value => value === input', 'input'],
+	]) {
+		test(`${method}: ${name} with type information`, t => {
+			const code = template.replace('SEARCH', () => `${method}(${callback})`);
+			const filename = path.resolve(`simple-array-search-${method}.${extension}`);
+			const program = createTypeScriptProgram(code, filename);
+			t.assert.deepStrictEqual(typescript.getPreEmitDiagnostics(program), []);
+			const config = {
+				files: ['**/*.{js,ts}'],
+				languageOptions: {parser: typescriptEslintParser, parserOptions: {programs: [program]}},
+				plugins: {unicorn: {rules: {search: rule}}},
+				rules: {'unicorn/search': 'error'},
+			};
+			const linter = new Linter();
+			const messages = linter.verify(code, config, {filename});
+			if (searchValue === undefined) {
+				t.assert.deepStrictEqual(messages, []);
+				return;
+			}
+
+			t.assert.strictEqual(messages.length, 1);
+			t.assert.strictEqual(messages[0].messageId, `prefer-${replacement}-over-${method}/error`);
+			if (hasSideEffect) {
+				t.assert.strictEqual(messages[0].fix, undefined);
+				t.assert.strictEqual(messages[0].suggestions.length, 1);
+				t.assert.strictEqual(messages[0].suggestions[0].messageId, `prefer-${replacement}-over-${method}/suggestion`);
+			}
+
+			const {range, text} = hasSideEffect ? messages[0].suggestions[0].fix : messages[0].fix;
+			const output = code.slice(0, range[0]) + text + code.slice(range[1]);
+			t.assert.strictEqual(output, template.replace('SEARCH', () => `${replacement}(${searchValue})`));
+			t.assert.deepStrictEqual(typescript.getPreEmitDiagnostics(createTypeScriptProgram(output, filename)), []);
+		});
+	}
 }

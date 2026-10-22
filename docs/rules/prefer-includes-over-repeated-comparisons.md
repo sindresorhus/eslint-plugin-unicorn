@@ -9,11 +9,13 @@
 
 Comparing the same expression against multiple values is easier to scan as a membership check.
 
-This rule only reports strict equality comparisons joined by `||`. It ignores optional chains, side-effectful compared values, and `NaN` values because an `Array#includes()` rewrite would not have the same behavior.
+This rule reports strict equality comparisons joined by `||` and strict inequality comparisons joined by `&&`. It ignores optional chains, side-effectful operands, and `NaN` values because an `Array#includes()` rewrite would not have the same behavior.
 
 This rule does not autofix because the best rewrite depends on context. Plain member expressions are still reported, so consider accessors and proxies before rewriting.
 
-With [type information](https://typescript-eslint.io/getting-started/typed-linting/), the rule skips union-typed subjects to preserve narrowing. Other narrowing-dependent comparisons may require disabling the rule locally.
+With [type information](https://typescript-eslint.io/getting-started/typed-linting/), the rule skips union-typed subjects, including generic types with union constraints, to preserve narrowing. Other narrowing-dependent comparisons may require disabling the rule locally.
+
+With type information, it also reports loose comparisons (`==` joined by `||` or `!=` joined by `&&`), including chains mixed with their strict counterparts, when the subject and every compared value are all primitive strings or all primitive numbers. This includes enum members and generic types constrained to `string` or `number`. Without type information, loose comparisons are ignored.
 
 ## Examples
 
@@ -31,6 +33,26 @@ args[0] === '-h' || args[0] === '--help' || args[0] === '--version';
 
 // ✅
 ['-h', '--help', '--version'].includes(args[0]);
+```
+
+```js
+// ❌
+value !== 'a' && value !== 'b' && value !== 'c';
+
+// ✅
+!['a', 'b', 'c'].includes(value);
+```
+
+With type information:
+
+```ts
+declare const value: string;
+
+// ❌
+value == 'a' || value == 'b' || value == 'c';
+
+// ✅
+['a', 'b', 'c'].includes(value);
 ```
 
 ```js

@@ -13,8 +13,91 @@ const typeAware = (code, filename = 'file.ts') => ({
 	},
 });
 
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'value !== "a" && value !== "b" && value !== "c";',
+			errors: [{messageId: 'prefer-includes-over-repeated-comparisons'}],
+		},
+		{
+			...typeAware('declare const value: string; value == "a" || value == "b" || value == "c";'),
+			errors: [{messageId: 'prefer-includes-over-repeated-comparisons'}],
+		},
+		{
+			...typeAware('declare const value: number; value != 1 && value != 2 && value != 3;'),
+			errors: [{messageId: 'prefer-includes-over-repeated-comparisons'}],
+		},
+		{
+			...typeAware('declare const value: string; value === "a" || value == "b" || value === "c";'),
+			errors: [{messageId: 'prefer-includes-over-repeated-comparisons'}],
+		},
+		...[
+			'function check<T extends string>(value: T) { return value == "a" || value == "b" || value == "c"; }',
+			'function check<T extends number>(value: T) { return value != 1 && value != 2 && value != 3; }',
+			'function check<U extends string, T extends U>(value: T) { return value == "a" || value == "b" || value == "c"; }',
+			'function check<T extends "a" | "b">(value: string, other: T) { return value == other || value == "c" || value == "d"; }',
+			'enum Status {OK = 200, Created = 201, Accepted = 202} declare const value: number; value == Status.OK || value == Status.Created || value == Status.Accepted;',
+			'enum Status {Open = "open", Closed = "closed", Pending = "pending"} declare const value: string; value != Status.Open && value != Status.Closed && value != Status.Pending;',
+			'declare const value: string & {readonly brand: unique symbol}; value == "a" || value == "b" || value == "c";',
+		].map(code => ({
+			...typeAware(code),
+			errors: [{messageId: 'prefer-includes-over-repeated-comparisons'}],
+		})),
+		{
+			code: 'object[(0, "key")] !== "a" && object.key !== "b" && object.key !== "c";',
+			errors: [{messageId: 'prefer-includes-over-repeated-comparisons'}],
+		},
+	],
+});
+
 test.snapshot({
 	valid: [
+		...[
+			['===', '||'],
+			['!==', '&&'],
+		].flatMap(([comparisonOperator, logicalOperator]) => [
+			outdent`
+				object[(effect(), "key")] ${comparisonOperator} "a"
+					${logicalOperator} object[(effect(), "key")] ${comparisonOperator} "b"
+					${logicalOperator} object[(effect(), "key")] ${comparisonOperator} "c";
+			`,
+			`object.key ${comparisonOperator} "a" ${logicalOperator} object[(count++, "key")] ${comparisonOperator} "b" ${logicalOperator} object.key ${comparisonOperator} "c";`,
+		]),
+		typeAware(outdent`
+			declare const object: {key: string};
+			declare function effect(): void;
+			object.key == "a" || object[(effect(), "key")] == "b" || object.key == "c";
+		`),
+		...['Status', 'string'].map(type => typeAware(outdent`
+			enum Status {OK = 200, Created = 201, Accepted = 202}
+			declare const value: ${type};
+			value == Status.OK || value == Status.Created || value == Status.Accepted;
+		`)),
+		...['Status', 'number'].map(type => typeAware(outdent`
+			enum Status {Open = "open", Closed = "closed", Pending = "pending"}
+			declare const value: ${type};
+			value != Status.Open && value != Status.Closed && value != Status.Pending;
+		`)),
+		typeAware('enum Status {Open = "open", Closed = 0} declare const value: string; declare const other: Status; value == other || value == "a" || value == "b";'),
+		typeAware('declare const value: string; declare const other: never; value == other || value == "a" || value == "b";'),
+		...[
+			['===', '||'],
+			['!==', '&&'],
+			['==', '||'],
+			['!=', '&&'],
+		].map(([comparisonOperator, logicalOperator]) => typeAware(outdent`
+			function check<T extends "a" | "b" | "c">(value: T) {
+				return value ${comparisonOperator} "a" ${logicalOperator} value ${comparisonOperator} "b" ${logicalOperator} value ${comparisonOperator} "c";
+			}
+		`)),
+		...['unknown', 'any', 'String', 'string | number'].map(type => typeAware(`function check<T extends ${type}>(value: T) { return value == "a" || value == "b" || value == "c"; }`)),
+		typeAware('function check<T>(value: T) { return value == "a" || value == "b" || value == "c"; }'),
+		typeAware('function check<T extends string>(value: T) { return value == "a" || (value as unknown) == "b" || value == "c"; }'),
+		{
+			code: 'function check<T extends string>(value: T) { return value == "a" || value == "b" || value == "c"; }',
+			languageOptions: {parser: parsers.typescript},
+		},
 		typeAware(outdent`
 			type Spec = {type: 'range' | 'tag' | 'version'; name: string} | {type: 'git'; name: null};
 
@@ -47,36 +130,30 @@ test.snapshot({
 		'value === "a" || isValue(value);',
 		'value === "a" || value !== "b";',
 		'value === "a" || value === "b" || otherValue === "c";',
-		'getValue() === "a" || getValue() === "b";',
-		'getObject().value === "a" || getObject().value === "b";',
-		'object[getKey()] === "a" || object[getKey()] === "b";',
-		'value === getValue() || value === "b";',
-		'value === "a" || value === getValue();',
-		'value === (otherValue = "a") || value === "b";',
-		'value === ++otherValue || value === "b";',
-		'value === Number.NaN || value === 1;',
-		'value === NaN || value === 1;',
+		'getValue() === "a" || getValue() === "b" || getValue() === "c";',
+		'getObject().value === "a" || getObject().value === "b" || getObject().value === "c";',
+		'object[getKey()] === "a" || object[getKey()] === "b" || object[getKey()] === "c";',
+		'value === getValue() || value === "b" || value === "c";',
+		'value === "a" || value === "b" || value === getValue();',
+		'value === (otherValue = "a") || value === "b" || value === "c";',
+		'value === ++otherValue || value === "b" || value === "c";',
+		'value === Number.NaN || value === 1 || value === 2;',
+		'value === NaN || value === 1 || value === 2;',
 		'Number.NaN === value || Number.NaN === otherValue;',
 		'NaN === value || NaN === otherValue;',
 		'foo?.bar === "a" || foo?.bar === "b";',
 		'foo?.bar === "a" || foo.bar === "b";',
 		'foo.bar === "a" || foo?.bar === "b";',
-		'foo[bar?.baz] === "a" || foo[bar?.baz] === "b";',
-		'foo[bar?.()] === "a" || foo[bar?.()] === "b";',
-		'(foo?.bar).baz === "a" || (foo?.bar).baz === "b";',
-		'value === "a" || value === foo?.bar;',
-		'value === (foo?.bar ?? "a") || value === "b";',
+		'foo[bar?.baz] === "a" || foo[bar?.baz] === "b" || foo[bar?.baz] === "c";',
+		'foo[bar?.()] === "a" || foo[bar?.()] === "b" || foo[bar?.()] === "c";',
+		'(foo?.bar).baz === "a" || (foo?.bar).baz === "b" || (foo?.bar).baz === "c";',
+		'value === "a" || value === foo?.bar || value === "c";',
+		'value === (foo?.bar ?? "a") || value === "b" || value === "c";',
 		'foo === bar || bar === foo;',
 		'foo === foo || foo === foo;',
 		'foo === bar || foo === foo;',
 		'foo === 1 || bar === 1;',
 		'value === "a" || value === "b";',
-		'const modes = new Set(["foo"]); modes.clear(); value === (modes.size ? 1 : NaN) || value === 2;',
-		'const modes = new Set(["foo"]); modes.clear(); value === ((modes.size && NaN) || other) || value === 2;',
-		{
-			code: 'const modes = new Set(["foo"]); modes.clear(); value === ((modes.size ? NaN : other) as number) || value === 2;',
-			languageOptions: {parser: parsers.typescript},
-		},
 		'"a" === value || "b" === value;',
 		'value === "a" || "b" === value;',
 		'value === first || value === second;',
@@ -100,11 +177,11 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		{
-			code: 'value === "a" || value === "b";',
+			code: 'value === "a" || value === "b" || value === "c";',
 			options: [{minimumComparisons: 4}],
 		},
 		{
-			code: '(foo?.bar as Foo).baz === "a" || (foo?.bar as Foo).baz === "b";',
+			code: '(foo?.bar as Foo).baz === "a" || (foo?.bar as Foo).baz === "b" || (foo?.bar as Foo).baz === "c";',
 			languageOptions: {parser: parsers.typescript},
 		},
 		'foo?.bar === "a" || foo?.bar === "b" || foo?.bar === "c";',
@@ -112,6 +189,73 @@ test.snapshot({
 		'foo === bar || foo === bar || foo === bar;',
 		// A comparison of the shared reference with itself has no compared value
 		'foo === 1 || foo === 2 || foo === foo;',
+		'value === "a" && value === "b" && value === "c";',
+		'value !== "a" || value !== "b" || value !== "c";',
+		'value !== "a" && value === "b" && value !== "c";',
+		'value !== "a" ?? value !== "b" ?? value !== "c";',
+		'value !== "a" && value !== "b" && otherValue !== "c";',
+		'getValue() !== "a" && getValue() !== "b" && getValue() !== "c";',
+		'value !== "a" && value !== getValue() && value !== "c";',
+		'value !== "a" && value !== ++otherValue && value !== "c";',
+		'foo?.bar !== "a" && foo?.bar !== "b" && foo?.bar !== "c";',
+		'value !== "a" && value !== foo?.bar && value !== "c";',
+		'value !== NaN && value !== 1 && value !== 2;',
+		'Number.NaN !== value && Number.NaN !== otherValue && Number.NaN !== thirdValue;',
+		'state.a !== undefined && state.b !== undefined && state.c !== undefined;',
+		'foo !== bar && foo !== bar && foo !== bar;',
+		'foo !== 1 && foo !== 2 && foo !== foo;',
+		{
+			code: 'value !== "a" && value !== "b" && value !== "c";',
+			options: [{minimumComparisons: 4}],
+		},
+		typeAware('declare const value: "a" | "b" | "c"; value !== "a" && value !== "b" && value !== "c";'),
+		...[
+			['==', '||'],
+			['!=', '&&'],
+		].flatMap(([comparisonOperator, logicalOperator]) => [
+			`value ${comparisonOperator} "a" ${logicalOperator} value ${comparisonOperator} "b" ${logicalOperator} value ${comparisonOperator} "c";`,
+			{
+				code: `declare const value: string; value ${comparisonOperator} "a" ${logicalOperator} value ${comparisonOperator} "b" ${logicalOperator} value ${comparisonOperator} "c";`,
+				languageOptions: {parser: parsers.typescript},
+			},
+			...[
+				'unknown',
+				'any',
+				'String',
+				'"a" | "b" | "c"',
+				'string | number',
+			].map(type => typeAware(outdent`
+				declare const value: ${type};
+				value ${comparisonOperator} "a" ${logicalOperator} value ${comparisonOperator} "b" ${logicalOperator} value ${comparisonOperator} "c";
+			`)),
+			typeAware(outdent`
+				declare const value: number;
+				value ${comparisonOperator} "1" ${logicalOperator} value ${comparisonOperator} "2" ${logicalOperator} value ${comparisonOperator} "3";
+			`),
+			...['any', 'unknown', 'String', 'number', 'string | undefined'].map(type => typeAware(outdent`
+				declare const value: string;
+				declare const other: ${type};
+				value ${comparisonOperator} "a" ${logicalOperator} value ${comparisonOperator} "b" ${logicalOperator} value ${comparisonOperator} other;
+			`)),
+			typeAware(`declare const value: number; value ${comparisonOperator} NaN ${logicalOperator} value ${comparisonOperator} 1 ${logicalOperator} value ${comparisonOperator} 2;`),
+			typeAware(`declare const value: boolean; value ${comparisonOperator} true ${logicalOperator} value ${comparisonOperator} false ${logicalOperator} value ${comparisonOperator} true;`),
+			typeAware(`declare const value: bigint; value ${comparisonOperator} 1n ${logicalOperator} value ${comparisonOperator} 2n ${logicalOperator} value ${comparisonOperator} 3n;`),
+		]),
+		typeAware('declare const value: string; value == "a" || value === "b" || value === 3;'),
+		'value === "a" || value == "b" || value === "c";',
+		...['any', 'unknown', 'number'].map(type => typeAware(`declare const value: string; value == "a" || (value as unknown as ${type}) == "b" || value == "c";`)),
+		typeAware('declare const value: string; declare function getValue(): string; value != "a" && value != getValue() && value != "c";'),
+		typeAware(outdent`
+			type Spec = {type: 'range' | 'tag' | 'version'; name: string} | {type: 'git'; name: null};
+
+			const getName = (spec: Spec): string | undefined => {
+				if (spec.type !== 'range' && spec.type !== 'tag' && spec.type !== 'version') {
+					return;
+				}
+
+				return spec.name;
+			};
+		`),
 	],
 	invalid: [
 		'value === "a" || value === "b" || value === "c";',
@@ -196,5 +340,55 @@ test.snapshot({
 		},
 		typeAware('declare const value: string | number; if (typeof value === "string") { value === "a" || value === "b" || value === "c"; }'),
 		typeAware('/** @param {string} value */ function check(value) { return value === "a" || value === "b" || value === "c"; }', 'file.js'),
+		'"a" !== value && value !== "b" && "c" !== value;',
+		'object.foo !== "a" && object["foo"] !== "b" && object.foo !== "c";',
+		'(value !== "a") && ((value !== "b") && (value !== "c"));',
+		'(value !== "a" && value !== "b" && value !== "c") || otherValue;',
+		'value !== null && value !== undefined && value !== "a";',
+		'value !== "a" /* comment */ && value !== "b" && value !== "c";',
+		{
+			code: 'value !== "a" && value !== "b";',
+			options: [{minimumComparisons: 2}],
+		},
+		{
+			code: 'value! !== "a" && value! !== "b" && value! !== "c";',
+			languageOptions: {parser: parsers.typescript},
+		},
+		...[
+			['==', '||'],
+			['!=', '&&'],
+		].flatMap(([comparisonOperator, logicalOperator]) => [
+			typeAware(`declare const value: string; "a" ${comparisonOperator} value ${logicalOperator} value ${comparisonOperator} "b" ${logicalOperator} "c" ${comparisonOperator} value;`),
+			typeAware(outdent`
+				declare const object: {value: number};
+				object.value ${comparisonOperator} 1 ${logicalOperator} object.value ${comparisonOperator} 2 ${logicalOperator} object.value ${comparisonOperator} 3;
+			`),
+		]),
+		typeAware('declare const value: string; value !== "a" && value != "b" && value !== "c";'),
+		typeAware('declare const value: string; declare const other: "a" | "b"; value == other || value == "c" || value == "d";'),
+		typeAware('declare const value: string | number; if (typeof value === "string") { value == "a" || value == "b" || value == "c"; }'),
+		typeAware('/** @param {string} value */ function check(value) { return value == "a" || value == "b" || value == "c"; }', 'file.js'),
+		{
+			...typeAware('declare const value: number; value != 1 && value != 2;'),
+			options: [{minimumComparisons: 2}],
+		},
+		...[
+			'((value))',
+			'value!',
+			'(value as string)',
+			'(<string>value)',
+			'(value satisfies string)',
+		].map(reference => typeAware(`declare const value: string; ${reference} != "a" && ${reference} != "b" && ${reference} != "c";`)),
+		typeAware('declare const value: string; declare const other: unknown; value != (other as string) && value != "b" && value != "c";'),
+		{
+			code: 'const element = <div>{value !== "a" && value !== "b" && value !== "c"}</div>;',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+		typeAware('declare const value: number; declare const other: 1 | 2; value == other || value == 3 || value == 4;'),
+		typeAware(outdent`
+			declare const value: string;
+			declare const other: \`prefix-\${string}\`;
+			value == other || value == "a" || value == "b";
+		`),
 	],
 });

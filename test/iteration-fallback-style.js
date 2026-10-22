@@ -74,6 +74,49 @@ const guardStyle = code => ({code, options: ['guard']});
 const fallbackStyle = code => ({code, options: ['fallback']});
 const typescriptFallbackStyle = code => ({...typescript(code), options: ['fallback']});
 
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			code: 'if (items) { for (const item of items) { /* keep */ use(item); } }',
+			options: ['fallback'],
+			output: 'for (const item of items || []) { /* keep */ use(item); }',
+			errors: [{messageId: 'preferFallback'}],
+		},
+		{
+			code: 'if (options.config != null) { for (const [key, value] of Object.entries(/* keep */ options.config)) { use(key, value); } }',
+			options: ['fallback'],
+			output: 'for (const [key, value] of Object.entries(/* keep */ options.config ?? {})) { use(key, value); }',
+			errors: [{messageId: 'preferFallback'}],
+		},
+	],
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
+		...[
+			['if (items) {\r\n  for (const item of items) {\r\n    // keep\r\n    use(item);\r\n  }\r\n}', 'for (const item of items || []) {\r\n  // keep\r\n  use(item);\r\n}'],
+			['if (items != null) {\n\tfor (const item of items // keep\n\t) { use(item); }\n}', 'for (const item of items ?? [] // keep\n) { use(item); }'],
+			['if (items) { for (const /* keep */ item of items) use(item); }', 'for (const /* keep */ item of items || []) use(item);'],
+		].map(([code, output]) => ({
+			code, output, options: ['fallback'], errors: [{messageId: 'preferFallback'}],
+		})),
+		{
+			code: 'if (items) { for (const item of items) { use(item as /* keep */ string); } }',
+			languageOptions: {parser: parsers.typescript},
+			options: ['fallback'],
+			output: 'for (const item of items || []) { use(item as /* keep */ string); }',
+			errors: [{messageId: 'preferFallback'}],
+		},
+		...[
+			'if (/* keep */ items) { for (const item of items) {} }',
+			'if (items) { /* keep */ for (const item of items) {} }',
+			'if (items) { for (const item of items) {} /* keep */ }',
+		].map(code => ({code, options: ['fallback'], errors: [{messageId: 'preferFallback'}]})),
+	],
+});
+
 ruleTest.snapshot({
 	valid: [
 		'for (const item of items) {}',
@@ -383,4 +426,30 @@ test('removing the guard preserves the following statement', t => {
 	t.assert.strictEqual(fixed, true);
 	t.assert.deepStrictEqual(messages, []);
 	t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
+});
+
+test('removing a guard with comments preserves loop results and evaluation count', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn}, rules: {'unicorn/iteration-fallback-style': ['error', 'fallback']}};
+	for (const [guard, source, values] of [
+		['items', 'items', [undefined, [], [1, 2]]],
+		['items != null', 'items', [undefined, [], [1, 2]]],
+		['items != null', 'Object.values(/* keep */ items)', [undefined, {}, {first: 1, second: 2}]],
+	]) {
+		const code = outdent`
+			const seen = [];
+			let calls = 0;
+			if (${guard}) {
+				for (const item of ${source}) { /* body */ calls++; seen.push(item); }
+			}
+			JSON.stringify({seen, calls});
+		`;
+		const {output, messages, fixed} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(output.match(/\/\* body \*\//gu)?.length, 1);
+		for (const items of values) {
+			t.assert.strictEqual(runInNewContext(output, {items}), runInNewContext(code, {items}));
+		}
+	}
 });

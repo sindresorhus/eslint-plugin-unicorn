@@ -1,16 +1,25 @@
-import {isCommentToken} from '@eslint-community/eslint-utils';
+import {findVariable, isCommentToken} from '@eslint-community/eslint-utils';
+import reservedIdentifiers from 'reserved-identifiers';
 import {removeStatement} from './fix/index.js';
 import {isDirectEvalCall} from './ast/index.js';
 import {
+	containsNode,
+	getIndentUnit,
+	getLineIndent,
 	getParenthesizedRange,
 	getParenthesizedText,
+	getReferencesInside,
 	getVisitorChildNodes,
+	hasMultilineToken,
+	reindentText,
 } from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-smaller-scope';
 const messages = {
 	[MESSAGE_ID]: 'Move `{{name}}` into the block where it is used.',
 };
+
+const reserved = reservedIdentifiers();
 
 const scopeBoundaryTypes = new Set([
 	'ArrowFunctionExpression',
@@ -31,7 +40,7 @@ const isDeclarationCandidate = node =>
 	&& node.declarations[0].id.type === 'Identifier';
 
 const isExported = (declaration, name) =>
-	declaration.parent.type === 'Program'
+	(declaration.parent.type === 'Program' || declaration.parent.type === 'SvelteScriptElement')
 	&& declaration.parent.body.some(statement =>
 		statement.type === 'ExportNamedDeclaration'
 		&& !statement.source
@@ -108,7 +117,7 @@ const hasCommentsThatBlockUninitializedDeclarationFix = (sourceCode, declaration
 	|| hasCommentNextTo(sourceCode, assignmentStatement, 'before')
 	|| hasCommentNextTo(sourceCode, assignmentStatement, 'after');
 
-const hasCommentsThatBlockInitializedDeclarationFix = (sourceCode, declaration, firstStatement) =>
+const hasCommentsThatBlockDeclarationMove = (sourceCode, declaration, firstStatement) =>
 	sourceCode.getCommentsInside(declaration).length > 0
 	|| hasCommentNextTo(sourceCode, declaration, 'before')
 	|| hasCommentNextTo(sourceCode, declaration, 'after')
@@ -176,7 +185,7 @@ function getInitializedDeclarationProblem(declaration, sourceCode, references) {
 	const [firstStatement] = block.body;
 	if (
 		!declarator.id.typeAnnotation
-		&& !hasCommentsThatBlockInitializedDeclarationFix(sourceCode, declaration, firstStatement)
+		&& !hasCommentsThatBlockDeclarationMove(sourceCode, declaration, firstStatement)
 	) {
 		problem.fix = function * (fixer) {
 			const openingBrace = sourceCode.getFirstToken(block);
@@ -285,6 +294,101 @@ function getProblem(node, sourceCode) {
 	return problem;
 }
 
+const isInside = (node, ancestor, sourceCode) => {
+	const [start, end] = sourceCode.getRange(node);
+	const [ancestorStart, ancestorEnd] = sourceCode.getRange(ancestor);
+	return start >= ancestorStart && end <= ancestorEnd;
+};
+
+function getTypeAliasBlock(declaration, references, sourceCode) {
+	if (references.length === 0) {
+		return;
+	}
+
+	let ancestor = references[0].identifier.parent;
+	while (ancestor && ancestor !== declaration.parent) {
+		if (
+			ancestor.type === 'BlockStatement'
+			&& references.every(reference => isInside(reference.identifier, ancestor, sourceCode))
+		) {
+			return ancestor;
+		}
+
+		ancestor = ancestor.parent;
+	}
+}
+
+function getTypeAliasProblem(declaration, context) {
+	const {sourceCode} = context;
+	if (
+		!['Program', 'BlockStatement', 'SvelteScriptElement'].includes(declaration.parent.type)
+		|| declaration.declare
+		|| declaration.typeParameters?.params.some(parameter => parameter.in || parameter.out)
+		|| isExported(declaration, declaration.id.name)
+	) {
+		return;
+	}
+
+	const [variable] = sourceCode.getDeclaredVariables(declaration);
+	if (variable.eslintUsed) {
+		return;
+	}
+
+	const references = variable.references.filter(reference => reference.isTypeReference && !isInside(reference.identifier, declaration, sourceCode));
+	const block = getTypeAliasBlock(declaration, references, sourceCode);
+	if (!block) {
+		return;
+	}
+
+	const problem = {
+		node: declaration.id,
+		messageId: MESSAGE_ID,
+		data: {name: declaration.id.name},
+	};
+	const firstStatement = block.body.find(statement => !statement.directive);
+	const destinationScope = sourceCode.getScope(block);
+	const hasUnsafeDependency = getReferencesInside(declaration, context).some(({identifier, resolved, isValueReference}) =>
+		isValueReference
+		|| (
+			!(resolved && isInside(resolved.scope.block, declaration, sourceCode))
+			&& findVariable(destinationScope, identifier.name) !== resolved
+		),
+	);
+
+	if (
+		variable.isValueVariable
+		|| hasUnsafeDependency
+		|| variable.references.some(reference => isInside(reference.identifier, declaration, sourceCode))
+		|| findVariable(destinationScope, declaration.id.name) !== variable
+		|| containsNode(declaration, context, node =>
+			node.type === 'TSTypeQuery'
+			|| node.type === 'TSThisType'
+			|| (node.type === 'Identifier' && reserved.has(node.name)),
+		)
+		|| hasMultilineToken(declaration, context)
+		|| hasCommentsThatBlockDeclarationMove(sourceCode, declaration, firstStatement)
+	) {
+		return problem;
+	}
+
+	problem.fix = function * (fixer) {
+		const previousToken = sourceCode.getTokenBefore(firstStatement);
+		const [, previousTokenEnd] = sourceCode.getRange(previousToken);
+		const [firstStatementStart] = sourceCode.getRange(firstStatement);
+		const separator = sourceCode.text.slice(previousTokenEnd, firstStatementStart) || ' ';
+		const targetIndent = sourceCode.getLoc(previousToken).end.line === sourceCode.getLoc(firstStatement).start.line
+			? getLineIndent(block, context) + getIndentUnit(context)
+			: getLineIndent(firstStatement, context);
+		const declarationText = reindentText(sourceCode.getText(declaration), getLineIndent(declaration, context), targetIndent);
+		const semicolon = declarationText.endsWith(';') ? '' : ';';
+
+		yield removeStatement(declaration, context, fixer);
+		yield fixer.insertTextBefore(firstStatement, `${declarationText}${semicolon}${separator}`);
+	};
+
+	return problem;
+}
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
@@ -292,6 +396,7 @@ const create = context => {
 	const {sourceCode} = context;
 
 	context.on('VariableDeclaration', node => getProblem(node, sourceCode));
+	context.on('TSTypeAliasDeclaration', node => getTypeAliasProblem(node, context));
 };
 
 /**
@@ -302,7 +407,7 @@ const config = {
 	meta: {
 		type: 'suggestion',
 		docs: {
-			description: 'Prefer declaring variables in the smallest possible scope.',
+			description: 'Prefer declaring variables and type aliases in the smallest possible scope.',
 			recommended: true,
 		},
 		fixable: 'code',

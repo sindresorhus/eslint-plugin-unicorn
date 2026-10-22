@@ -17,6 +17,7 @@ const config = [
 		'@stylistic/max-len',
 		'internal/prefer-context-on',
 		'node-test/no-duplicate-assertions',
+		'node-test/no-skip-test',
 		'node-test/require-assertion',
 	]),
 	{
@@ -105,6 +106,17 @@ const config = [
 		},
 	},
 	{
+		files: [
+			'test/prefer-add-event-listener.js',
+			'test/prefer-dom-node-html-methods.js',
+			'test/prefer-location-assign.js',
+		],
+		rules: {
+			// Runtime DOM doubles use `this` to verify receiver binding.
+			'unicorn/no-this-outside-of-class': 'off',
+		},
+	},
+	{
 		files: ['test/expiring-todo-comments.js'],
 		rules: {
 			// This test creates its temporary resource directory at runtime.
@@ -114,6 +126,7 @@ const config = [
 	{
 		files: [
 			'rules/no-unnecessary-default-arguments.js',
+			'test/no-useless-fallback-in-spread.js',
 			'test/unit/get-primitive-literal-value.js',
 			'test/prefer-continue.js',
 			'test/prefer-early-return.js',
@@ -122,7 +135,7 @@ const config = [
 			'test/prefer-ternary-destructuring.js',
 		],
 		rules: {
-			// Literal readers test JavaScript's `null` value, and RuleTester uses it to assert that a problem is not autofixable.
+			// Literal readers and runtime fixtures test JavaScript's `null` value, and RuleTester uses it to assert that a problem is not autofixable.
 			'unicorn/no-null': 'off',
 		},
 	},

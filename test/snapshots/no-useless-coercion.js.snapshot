@@ -1211,6 +1211,9 @@ Message:
 > 1 | (/* keep */ 'a').toString()
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^ \`.toString()\` is unnecessary because the value is already a string.
 
+Output:
+  1 | (/* keep */ 'a')
+
 `;
 
 exports[`no-useless-coercion > invalid(75): Boolean(x as boolean) 1`] = `

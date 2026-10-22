@@ -8,6 +8,7 @@ import {
 	needsSemicolon,
 	shouldAddParenthesesToUnaryExpressionArgument,
 	shouldAddParenthesesToComparison,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {replaceNodeOrTokenAndSpacesBefore, fixSpaceAroundKeyword} from './fix/index.js';
 import builtinErrors from './shared/builtin-errors.js';
@@ -154,8 +155,8 @@ function getConstructor(node, context) {
 	}
 }
 
-const hasCommentsInside = (node, context) =>
-	getTokenStore(context, node).getCommentsInside(node).length > 0;
+const hasCommentsOutsideLeftOperand = (node, context) =>
+	wouldRemoveComments(context, node, [getParenthesizedRange(node.left, context)]);
 
 /**
 @param {import('eslint').Rule.RuleContext} context
@@ -200,8 +201,8 @@ const create = context => {
 		) {
 			const methodName = constructorName === 'Array' ? 'isArray' : 'isError';
 			const functionName = `${referenceText}.${methodName}`;
-			// A comment on the left operand would be moved onto the closing parenthesis
-			if (!hasCommentsInside(node, context)) {
+			// Comments outside the retained left operand could be lost or relocated
+			if (!hasCommentsOutsideLeftOperand(node, context)) {
 				problem.fix = replaceWithFunctionCall(node, context, functionName);
 			}
 
@@ -209,7 +210,7 @@ const create = context => {
 		}
 
 		if (constructorName === 'Function') {
-			if (!hasCommentsInside(node, context)) {
+			if (!hasCommentsOutsideLeftOperand(node, context)) {
 				problem.fix = replaceWithTypeOfExpression(node, context, constructorName);
 			}
 
@@ -217,7 +218,7 @@ const create = context => {
 		}
 
 		if (primitiveWrappers.has(constructorName)) {
-			if (!hasCommentsInside(node, context)) {
+			if (!hasCommentsOutsideLeftOperand(node, context)) {
 				problem.suggest = [
 					{
 						messageId: MESSAGE_ID_SWITCH_TO_TYPE_OF,

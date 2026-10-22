@@ -12,6 +12,7 @@ import {
 	getStaticValueIfNoSideEffects,
 	needsSemicolon,
 	hasPossibleSideEffect,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {
 	isMemberExpression,
@@ -336,7 +337,10 @@ const create = context => {
 			node,
 			messageId: MESSAGE_INDEX_OF_STARTS_WITH,
 			* fix(fixer, {abort}) {
-				if (!isString(searchArgument, context) || sourceCode.getCommentsInside(node).length > 0) {
+				if (
+					!isString(searchArgument, context)
+					|| wouldRemoveComments(context, node, [target, searchArgument].map(node => getParenthesizedRange(node, context)))
+				) {
 					return abort();
 				}
 
@@ -401,7 +405,7 @@ const create = context => {
 			node,
 			messageId: comparison.messageId,
 			* fix(fixer, {abort}) {
-				if (sourceCode.getCommentsInside(node).length > 0) {
+				if (wouldRemoveComments(context, node, [target, searchArgument].map(node => getParenthesizedRange(node, context)))) {
 					return abort();
 				}
 

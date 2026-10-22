@@ -5,6 +5,7 @@ import {
 	getCallArgumentText,
 	getCallExpressionArgumentsText,
 	getCallExpressionTokens,
+	getParenthesizedRange,
 	wouldRemoveComments,
 } from './utils/index.js';
 
@@ -116,7 +117,10 @@ const create = context => {
 				{
 					messageId: SUGGESTION_PARSE_INT,
 					data: {name},
-					fix: fixer => fixer.replaceText(node, mathTruncFunctionCallFromStringArgument(stringCall)),
+					* fix(fixer) {
+						yield fixer.replaceText(node, mathTruncFunctionCallFromStringArgument(stringCall));
+						yield fixSpaceAroundKeyword(fixer, node, context);
+					},
 				},
 			];
 		}
@@ -143,10 +147,10 @@ const create = context => {
 			},
 		};
 
-		// The expression is rebuilt as the call argument, so a comment in it would be lost
+		// Preserve comments in the copied binary operand. Assignments copy the left operand twice, so keep withholding suggestions when they contain comments.
 		if (
 			(!isAssignment || !hasSideEffect(left, sourceCode))
-			&& sourceCode.getCommentsInside(node).length === 0
+			&& !wouldRemoveComments(context, node, isAssignment ? [] : [getParenthesizedRange(left, context)])
 		) {
 			const fix = function * (fixer) {
 				const fixed = mathTruncFunctionCall(left);
@@ -187,8 +191,8 @@ const create = context => {
 			messageId: ERROR_BITWISE_NOT,
 		};
 
-		// `~~` coerces through `ToInt32` exactly like the other bitwise forms, it wraps where `Math.trunc` does not, so it can only be a suggestion. The whole double negation is replaced, so a comment inside it would be lost.
-		if (sourceCode.getCommentsInside(node).length === 0) {
+		// `~~` coerces through `ToInt32` exactly like the other bitwise forms, it wraps where `Math.trunc` does not, so it can only be a suggestion. Preserve comments in the copied operand and withhold the suggestion when replacing the double negation would remove other comments.
+		if (!wouldRemoveComments(context, node, [getParenthesizedRange(node.argument.argument, context)])) {
 			problem.suggest = [
 				{
 					messageId: SUGGESTION_BITWISE_NOT,

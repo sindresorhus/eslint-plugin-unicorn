@@ -52,6 +52,42 @@ test({
 test({
 	valid: [],
 	invalid: [
+		['(/* keep */ "abc").indexOf("a") === 0;', '(/* keep */ "abc").startsWith("a");'],
+		['"abc".indexOf((/* keep */ "a")) !== 0;', '!"abc".startsWith((/* keep */ "a"));'],
+		['"abc".slice(-1) === (/* keep */ "c");', '"abc".endsWith((/* keep */ "c"));'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['0 === (("abc" /* keep */)).indexOf("a");', '(("abc" /* keep */)).startsWith("a");'],
+			['"abc".slice(0, 1) != ("a" // keep\r\n);', '!"abc".startsWith(("a" // keep\r\n));'],
+			['before()\n0 === (/* keep */ "abc").indexOf("a");', 'before()\n;(/* keep */ "abc").startsWith("a");'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+		...[
+			['(text as /* keep */ string).indexOf("a") === 0;', '(text as /* keep */ string).startsWith("a");'],
+			[
+				'function f(text: string, prefix: string) { return text.slice(0, prefix.length) === (prefix as /* keep */ string); }',
+				'function f(text: string, prefix: string) { return text.startsWith((prefix as /* keep */ string)); }',
+			],
+		].map(([code, output]) => ({
+			code, output, languageOptions: {parser: parsers.typescript}, errors: 1,
+		})),
+		...[
+			'"abc"./* discard */indexOf("a") === 0;',
+			'"abc".indexOf(/* discard */ "a") === 0;',
+			'("abc".indexOf("a") /* discard */) === 0;',
+			'"abc".slice(0, /* discard */ 1) === (/* keep */ "a");',
+			'"abc".slice(0, 1) /* discard */ === (/* keep */ "a");',
+		].map(code => ({code, errors: 1})),
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
 		['/^a/.test({value: "abc"}.value);', '({value: "abc"}.value).startsWith(\'a\');'],
 		['/c$/.test({value: "abc"}.value);', '({value: "abc"}.value).endsWith(\'c\');'],
 	].map(([code, output]) => ({code, output, errors: 1})),
@@ -82,6 +118,44 @@ const getKeywordOutput = (t, code, languageOptions) => {
 	t.assert.deepStrictEqual(messages, []);
 	return output;
 };
+
+nodeTest('comment-preserving string boundary edits evaluate operands once in order', t => {
+	for (const [expression, expectedEvents] of [
+		['String(read(/* receiver */)).indexOf(String(search(/* search */))) === 0;', ['receiver', 'search']],
+		['String(read(/* receiver */)).slice(0, 1) === (/* search */ "a");', ['receiver']],
+		['String(read(/* receiver */)).slice(-1) !== (/* search */ "a");', ['receiver']],
+	]) {
+		const output = getKeywordOutput(t, expression);
+		for (const value of ['abc', 'xbc', '']) {
+			const execute = source => {
+				const events = [];
+				const result = runInNewContext(source, {
+					read() {
+						events.push('receiver');
+						return value;
+					},
+					search() {
+						events.push('search');
+						return 'a';
+					},
+				});
+				t.assert.deepStrictEqual(events, expectedEvents);
+				return result;
+			};
+
+			t.assert.strictEqual(execute(output), execute(expression));
+		}
+	}
+});
+
+nodeTest('comment-preserving reversed string boundary edits remain suggestions when value capture changes', t => {
+	const code = 'let needle: string = "a"; function read() { needle = "ab"; return "ab"; } (/* search */ needle) === String(read(/* receiver */)).slice(0, needle.length);';
+	const output = getSliceSuggestion(t, code, {parser: parsers.typescript.implementation});
+	t.assert.strictEqual(output, 'let needle: string = "a"; function read() { needle = "ab"; return "ab"; } String(read(/* receiver */)).startsWith((/* search */ needle));');
+	const execute = source => runInNewContext(transpileModule(source, {compilerOptions: {target: ScriptTarget.ESNext}}).outputText);
+	t.assert.strictEqual(execute(code), false);
+	t.assert.strictEqual(execute(output), true);
+});
 
 const sliceCase = (code, output, options) => ({
 	code,
@@ -599,7 +673,7 @@ test({
 			output: '!"foo".startsWith("f")',
 			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
 		},
-		// Comment inside the comparison aborts the fix (no autofix)
+		// Comment outside the copied operands aborts the fix (no autofix)
 		{
 			code: '"foo".indexOf("f") /* comment */ === 0',
 			errors: [{messageId: MESSAGE_INDEX_OF_STARTS_WITH}],
@@ -907,7 +981,7 @@ test({
 			output: 'const suffix = "ark"; "shark".endsWith(suffix)',
 			errors: [{messageId: MESSAGE_SLICE_ENDS_WITH}],
 		},
-		// Comment inside the comparison aborts the fix
+		// Comment outside the copied operands aborts the fix
 		{
 			code: '"shark".slice(0, 5) /* comment */ === "shark"',
 			errors: [{messageId: MESSAGE_SLICE_STARTS_WITH}],

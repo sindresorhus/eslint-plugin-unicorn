@@ -6,6 +6,99 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		['function f() {return(getArray)(/* keep */).toSorted((a, b) => a - b).at(-1);}', 'function f() {return Math.max(...(getArray)(/* keep */));}'],
+		['function f() {throw(getArray)(/* keep */).toSorted((a, b) => a - b).at(-1);}', 'function f() {throw Math.max(...(getArray)(/* keep */));}'],
+		['if (flag) {}else(array.sort((a, b) => a - b))[0];', 'if (flag) {}else Math.min(...array);'],
+		['do(array.sort((a, b) => a - b))[0];while (flag);', 'do Math.min(...array);while (flag);'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{messageId: 'no-array-sort-for-min-max/error', suggestions: [{messageId: 'no-array-sort-for-min-max/suggestion', output}]}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		['[3, /* keep */ 1, 2].sort((a, b) => a - b)[0];', 'Math.min(...[3, /* keep */ 1, 2]);', 'Math.min(...[3, /* keep */ 1, 2])'],
+		['getArray(/* keep */).toSorted((a, b) => a - b).at(-1);', 'Math.max(...getArray(/* keep */));', 'Math.max(...getArray(/* keep */))'],
+	].map(([code, output, replacement]) => ({
+		code,
+		errors: [{messageId: 'no-array-sort-for-min-max/error', suggestions: [{messageId: 'no-array-sort-for-min-max/suggestion', data: {replacement}, output}]}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: '[3, // keep\r\n1, 2].toSorted((a, b) => b - a)[0];',
+			errors: [{
+				messageId: 'no-array-sort-for-min-max/error',
+				suggestions: [{messageId: 'no-array-sort-for-min-max/suggestion', data: {replacement: 'Math.max(...[3, // keep\r\n1, 2])'}, output: 'Math.max(...[3, // keep\r\n1, 2]);'}],
+			}],
+		},
+		{
+			code: '(array as /* keep */ number[]).sort((a, b) => a - b).at(0);',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'no-array-sort-for-min-max/error',
+				suggestions: [{
+					messageId: 'no-array-sort-for-min-max/suggestion',
+					data: {replacement: 'Math.min(...(array as /* keep */ number[]))'},
+					output: 'Math.min(...(array as /* keep */ number[]));',
+				}],
+			}],
+		},
+		...[
+			'(/* discard */ array).sort((a, b) => a - b)[0];',
+			'array.sort((a, b) => a /* discard */ - b)[0];',
+			'array.sort((a, b) => a - b)[/* discard */ 0];',
+			'array./* discard */toSorted((a, b) => a - b).at(-1);',
+			'getArray(/* keep */).sort((a, b) => a - b).at(/* discard */ 0);',
+		].map(code => ({code, errors: [{messageId: 'no-array-sort-for-min-max/error', suggestions: []}]})),
+	],
+});
+
+nodeTest('comment-preserving min/max suggestions keep mutation and empty-array changes manual', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'no-array-sort-for-min-max': rule}}},
+		rules: {'unicorn/no-array-sort-for-min-max': 'error'},
+	};
+	for (const [method, access, extreme] of [['sort', '[0]', 'min'], ['toSorted', '.at(-1)', 'max']]) {
+		const code = outdent`
+			let calls = 0;
+			const getArray = () => {calls++; return values;};
+			function read() {return(getArray)(/* keep */).${method}((a, b) => a - b)${access};}
+			const result = read();
+			({result, calls, values});
+		`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(fixed, false);
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].fix, undefined);
+		t.assert.strictEqual(messages[0].suggestions?.length, 1);
+		const {range, text} = messages[0].suggestions[0].fix;
+		const suggestion = code.slice(0, range[0]) + text + code.slice(range[1]);
+		t.assert.strictEqual(text, ` Math.${extreme}(...(getArray)(/* keep */))`);
+		t.assert.deepStrictEqual(linter.verify(suggestion, config), []);
+		for (const values of [[3, 1, 2], []]) {
+			const original = runInNewContext(code, {values: [...values]});
+			const suggested = runInNewContext(suggestion, {values: [...values]});
+			t.assert.strictEqual(original.calls, 1);
+			t.assert.strictEqual(suggested.calls, 1);
+			t.assert.strictEqual(suggested.result, Math[extreme](...values));
+			t.assert.strictEqual(original.result, values.length > 0 ? suggested.result : undefined);
+			t.assert.deepStrictEqual([...suggested.values], values);
+			t.assert.deepStrictEqual([...original.values], method === 'sort' ? values.toSorted((a, b) => a - b) : values);
+		}
+	}
+});
+
 test.snapshot({
 	valid: [
 		// Known non-array receiver (type information)

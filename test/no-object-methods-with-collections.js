@@ -1,7 +1,81 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
+import outdent from 'outdent';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		['function f() {return(Object).entries(new Map([["key", /* keep */ 1]]));}', 'function f() {return Array.from(new Map([["key", /* keep */ 1]]).entries());}'],
+		['function f() {throw(Object).entries(new Map([["key", /* keep */ 1]]));}', 'function f() {throw Array.from(new Map([["key", /* keep */ 1]]).entries());}'],
+		['if (flag) {}else(Object).keys(new Map(/* keep */));', 'if (flag) {}else Array.from(new Map(/* keep */).keys());'],
+		['do(Object).values(new Set(/* keep */));while (flag);', 'do Array.from(new Set(/* keep */).values());while (flag);'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{messageId: 'no-object-methods-with-collections/error', suggestions: [{messageId: 'no-object-methods-with-collections/suggestion', output}]}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		['Object.keys(new Map(/* keep */))', 'Array.from(new Map(/* keep */).keys())'],
+		['Object.values((/* keep */ new Set()))', 'Array.from((/* keep */ new Set()).values())'],
+		['Object.entries(new Map([["key", /* keep */ 1]]))', 'Array.from(new Map([["key", /* keep */ 1]]).entries())'],
+		['Object.values(new Set(// keep\n))', 'Array.from(new Set(// keep\n).values())'],
+		['Object.values(new Set(// keep\r\n))', 'Array.from(new Set(// keep\r\n).values())'],
+	].map(([code, output]) => ({
+		code,
+		errors: [{
+			messageId: 'no-object-methods-with-collections/error',
+			suggestions: [{messageId: 'no-object-methods-with-collections/suggestion', output}],
+		}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'Object.values((value as /* keep */ Set<string>))',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'no-object-methods-with-collections/error',
+				suggestions: [{messageId: 'no-object-methods-with-collections/suggestion', output: 'Array.from((value as /* keep */ Set<string>).values())'}],
+			}],
+		},
+		...[
+			'Object./* keep */keys(new Map())',
+			'Object.keys(new Map() /* keep */)',
+		].map(code => ({code, errors: [{messageId: 'no-object-methods-with-collections/error', suggestions: []}]})),
+	],
+});
+
+nodeTest('collection suggestions preserve argument comments and evaluate the collection once', t => {
+	const linter = new Linter();
+	const code = outdent`
+		let evaluations = 0;
+		function read() {return(Object).entries(new Map(/* keep */ (++evaluations, [["key", 1]])));}
+		const result = read();
+		JSON.stringify([evaluations, result]);
+	`;
+	const messages = linter.verify(code, {
+		plugins: {unicorn: {rules: {'no-object-methods-with-collections': rule}}},
+		rules: {'unicorn/no-object-methods-with-collections': 'error'},
+	});
+
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].fix, undefined);
+	t.assert.strictEqual(messages[0].suggestions.length, 1);
+	const {range, text} = messages[0].suggestions[0].fix;
+	const output = code.slice(0, range[0]) + text + code.slice(range[1]);
+	t.assert.ok(output.includes('/* keep */'));
+	t.assert.strictEqual(runInNewContext(output), '[1,[["key",1]]]');
+});
 
 const typescript = code => ({
 	code,

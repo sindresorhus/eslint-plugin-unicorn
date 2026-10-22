@@ -4,12 +4,14 @@ import builtinErrors from './shared/builtin-errors.js';
 import {
 	getCallArgumentText,
 	getLogicalExpressionOperands,
+	getParenthesizedRange,
 	getSingleStatement,
 	isArray,
 	isGlobalIdentifier,
 	isGlobalNameAvailable,
 	unwrapTypeScriptExpression,
 	withTypeInformation,
+	wouldRemoveComments,
 } from './utils/index.js';
 import {
 	getBaseTypes,
@@ -351,9 +353,6 @@ function getThrownErrorExpression(throwStatement, context) {
 	return newExpression;
 }
 
-const hasCommentsInside = (node, context) =>
-	context.sourceCode.getCommentsInside(node).length > 0;
-
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
@@ -381,7 +380,7 @@ const create = context => {
 		return {
 			node: errorExpression.callee,
 			messageId: MESSAGE_ID,
-			fix: hasCommentsInside(errorExpression, context)
+			fix: wouldRemoveComments(context, errorExpression, errorExpression.arguments.map(argument => getParenthesizedRange(argument, context)))
 				? undefined
 				: fixer => {
 					const argumentsText = [

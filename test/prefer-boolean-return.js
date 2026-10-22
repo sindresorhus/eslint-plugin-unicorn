@@ -1,7 +1,10 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
 
 const errors = [{messageId: 'prefer-boolean-return'}];
 const invalidCase = (code, output, extra = {}) => ({
@@ -11,6 +14,64 @@ const invalidCase = (code, output, extra = {}) => ({
 	...extra,
 });
 const typescript = {languageOptions: {parser: parsers.typescript}};
+
+test({
+	valid: [],
+	invalid: [
+		invalidCase('function unicorn() { if (value /* keep */ > 0) { return true; } else { return false; } }', 'function unicorn() { return value /* keep */ > 0; }'),
+		invalidCase('function unicorn() { if (value /* keep */ > 0) { return false; } return true; }', 'function unicorn() { return !(value /* keep */ > 0); }'),
+		invalidCase('function unicorn() { if (test(/* keep */ value)) { return true; } return false; }', 'function unicorn() { return Boolean(test(/* keep */ value)); }'),
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		invalidCase('function unicorn() { if (((/* keep */ value))) { return true; } return false; }', 'function unicorn() { return Boolean(((/* keep */ value))); }'),
+		invalidCase('function unicorn() { if (((value /* keep */))) { return false; } else { return true; } }', 'function unicorn() { return !((value /* keep */)); }'),
+		invalidCase('function unicorn() { if (value // keep\r\n > 0) { return true; } return false; }', 'function unicorn() { return value // keep\r\n > 0; }'),
+		invalidCase('function unicorn() { if (value as /* keep */ boolean) { return true; } return false; }', 'function unicorn() { return Boolean(value as /* keep */ boolean); }', typescript),
+		invalidCase('function run() { if (value satisfies /* keep */ boolean) { return false; } return true; }', 'function run() { return !(value satisfies /* keep */ boolean); }', typescript),
+		...[
+			'function unicorn() { if (value > 0 /* keep */) { return true; } return false; }',
+			'function unicorn() { if (value /* copied */ > 0) { return /* keep */ true; } return false; }',
+			'function unicorn() { if (value /* copied */ > 0) { return true; } /* keep */ return false; }',
+			'function unicorn() { if (value /* copied */ > 0) { return true; } return false; // keep\n}',
+			'function unicorn(Boolean) { if (test(/* keep */ value)) { return true; } return false; }',
+		].map(code => invalidCase(code)),
+	],
+});
+
+nodeTest('comment-preserving boolean returns evaluate their condition once', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-boolean-return': rule}}},
+		rules: {'unicorn/prefer-boolean-return': 'error'},
+	};
+	for (const [code, getExpected] of [
+		['function unicorn(read) { if (read(/* keep */)) { return true; } return false; }', Boolean],
+		['function unicorn(read) { if (read(/* keep */)) { return false; } return true; }', value => !value],
+		['function unicorn(read) { if (read(/* keep */) > 0) { return true; } else { return false; } }', value => value > 0],
+	]) {
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(output.split('/* keep */').length, 2);
+		for (const value of [0, 1, '', 'value', undefined, false, []]) {
+			for (const source of [code, output]) {
+				let calls = 0;
+				const result = runInNewContext(`${source}\nunicorn(read);`, {
+					read() {
+						calls++;
+						return value;
+					},
+				});
+				t.assert.strictEqual(result, getExpected(value));
+				t.assert.strictEqual(calls, 1);
+			}
+		}
+	}
+});
 
 test({
 	valid: [

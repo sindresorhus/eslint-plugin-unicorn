@@ -1,7 +1,32 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'for (const [, value] of [1, /* keep */ 2].entries()) { use(value); }',
+			output: 'for (const value of [1, /* keep */ 2]) { use(value); }',
+			errors: [{messageId: 'unused-index'}],
+		},
+		{
+			code: 'for (const [index] of [1, 2].entries(/* keep */)) { use(index); }',
+			output: 'for (const index of [1, 2].keys(/* keep */)) { use(index); }',
+			errors: [{messageId: 'unused-value'}],
+		},
+		{
+			code: 'for (const [, {/* keep */ value}] of [{value: 1}].entries()) { use(value); }',
+			output: 'for (const {/* keep */ value} of [{value: 1}]) { use(value); }',
+			errors: [{messageId: 'unused-index'}],
+		},
+	],
+});
+
 const typescript = code => ({
 	code,
 	languageOptions: {
@@ -77,6 +102,60 @@ for (const languageOptions of [
 		}],
 	});
 }
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['for(const[,value]of([1, /* keep */ 2]).entries()){use(value)}', 'for(const value of([1, /* keep */ 2])){use(value)}', 'unused-index'],
+			['for (const [, [value // keep\r\n]] of [[1]].entries()) { use(value); }', 'for (const [value // keep\r\n] of [[1]]) { use(value); }', 'unused-index'],
+			['for (const [index] of [1, 2]./* keep */entries()) { use(index); }', 'for (const index of [1, 2]./* keep */keys()) { use(index); }', 'unused-value'],
+		].map(([code, output, messageId]) => ({code, output, errors: [{messageId}]})),
+		{
+			code: 'for (const [, value] of (items as /* keep */ number[]).entries()) { use(value); }',
+			output: 'for (const value of (items as /* keep */ number[])) { use(value); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'unused-index'}],
+		},
+		...[
+			['for (const [, /* discard */ value] of [1].entries()) { use(value); }', 'unused-index'],
+			['for (const [, value] of [1]./* discard */entries()) { use(value); }', 'unused-index'],
+			['for (const [index, /* discard */] of [1].entries(/* keep */)) { use(index); }', 'unused-value'],
+		].map(([code, messageId]) => ({code, errors: [{messageId}]})),
+	],
+});
+
+nodeTest('comment-preserving array iteration fixes retain values and evaluate the receiver once', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-array-iterable-methods': rule}}},
+		rules: {'unicorn/prefer-array-iterable-methods': 'error'},
+	};
+	for (const loop of [
+		'for (const [, value] of [read(/* keep */ 1), read(2)].entries()) { seen.push(value); }',
+		'for (const [index] of [read(1), read(2)].entries(/* keep */)) { seen.push(index); }',
+		'for (const [, {/* keep */ value}] of [{value: read(1)}, {value: read(2)}].entries()) { seen.push(value); }',
+	]) {
+		const code = `const seen = []; ${loop} JSON.stringify(seen);`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(output.split('/* keep */').length, 2);
+		const execute = source => {
+			const events = [];
+			const result = runInNewContext(source, {
+				read(value) {
+					events.push(value);
+					return value;
+				},
+			});
+			t.assert.deepStrictEqual(events, [1, 2]);
+			return result;
+		};
+
+		t.assert.strictEqual(execute(output), execute(code));
+	}
+});
 
 test.snapshot({
 	valid: [

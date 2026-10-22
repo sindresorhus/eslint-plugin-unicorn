@@ -1,7 +1,88 @@
+import {test as nodeTest} from 'node:test';
+import {runInNewContext} from 'node:vm';
+import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {getTester, parsers} from './utils/test.js';
 
-const {test} = getTester(import.meta);
+const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			['new Array("hello" /* keep */ + "world");', '["hello" /* keep */ + "world"];'],
+			['new Array([/* keep */ "value"]);', '[[/* keep */ "value"]];'],
+			['new Array({/* keep */ value: 1});', '[{/* keep */ value: 1}];'],
+			['new Array(["hello", // keep\r\n  "world"]);', '[["hello", // keep\r\n  "world"]];'],
+			['use()\nnew Array([/* keep */ "value"]);', 'use()\n;[[/* keep */ "value"]];'],
+		].map(([code, output]) => ({code, output, errors: [{messageId: 'error'}]})),
+		{
+			code: 'new Array(...getValues(/* keep */));',
+			errors: [{messageId: 'error', suggestions: [{messageId: 'spread', output: '[...getValues(/* keep */)];'}]}],
+		},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'new Array("value" as /* keep */ string);',
+			output: '["value" as /* keep */ string];',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'error'}],
+		},
+		...[
+			'new Array((/* keep */ "value"));',
+			'new Array(("value" /* keep */));',
+			'new Array(...values /* keep */);',
+			'new Array(1 /* keep */ + 2);',
+		].map(code => ({code, errors: [{messageId: 'error', suggestions: []}]})),
+	],
+});
+
+nodeTest('commented nonnumeric arguments remain a single array element', t => {
+	const linter = new Linter();
+	const code = 'const result = new Array({/* keep */ value: "hello"}); JSON.stringify({length: result.length, value: result[0]});';
+	const {output, fixed, messages} = linter.verifyAndFix(code, {
+		plugins: {unicorn: {rules: {'no-new-array': rule}}},
+		rules: {'unicorn/no-new-array': 'error'},
+	});
+	t.assert.strictEqual(fixed, true);
+	t.assert.deepStrictEqual(messages, []);
+	t.assert.ok(output.includes('/* keep */'));
+	const expected = '{"length":1,"value":{"value":"hello"}}';
+	t.assert.strictEqual(runInNewContext(code), expected);
+	t.assert.strictEqual(runInNewContext(output), expected);
+});
+
+nodeTest('commented spread arguments remain suggestions and evaluate once', t => {
+	const linter = new Linter();
+	const code = 'new Array(...getValues(/* keep */));';
+	const config = {
+		plugins: {unicorn: {rules: {'no-new-array': rule}}},
+		rules: {'unicorn/no-new-array': 'error'},
+	};
+	const {output, fixed, messages} = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(output, code);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].suggestions?.length, 1);
+	const {fix} = messages[0].suggestions[0];
+	const suggested = code.slice(0, fix.range[0]) + fix.text + code.slice(fix.range[1]);
+	t.assert.ok(suggested.includes('/* keep */'));
+	for (const source of [code, suggested]) {
+		let evaluations = 0;
+		const result = runInNewContext(source, {
+			getValues() {
+				evaluations++;
+				return ['hello', 'world'];
+			},
+		});
+		t.assert.strictEqual(evaluations, 1);
+		t.assert.strictEqual(JSON.stringify(result), '["hello","world"]');
+	}
+});
 
 test.snapshot({
 	valid: [
