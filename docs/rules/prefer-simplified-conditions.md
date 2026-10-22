@@ -13,6 +13,8 @@ Prefer simpler logical conditions when they are equivalent and easier to read.
 
 This rule applies De Morgan's laws, factors leading common terms in boolean conditions, and removes simple absorbed conditions. It intentionally does not try to be a full boolean algebra optimizer.
 
+The rule also checks quoted `v-if`, `v-else-if`, and `v-show` conditions in Vue templates.
+
 By default, it applies De Morgan's laws only when they reduce negation noise. It does not expand plain negated groups like `!(a && b)`, because those are not consistently easier to read. Use the [`negatedConditions`](#negatedconditions) option to prefer expanded conditions.
 
 Factoring is intentionally limited to leading common terms in adjacent groups. Groups can appear within longer chains and contain more than two operands. The rule does not reorder operands to find a common term. Member objects and computed keys must be simple expressions, such as identifiers, member reads, or calls. Ordinary member reads are automatically fixed. If an operand contains a call that is not known to be repeatable, the rule offers a suggestion because factoring can change the result or number of calls. Optional chains are excluded from factoring.

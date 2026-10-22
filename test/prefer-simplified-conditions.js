@@ -1034,6 +1034,77 @@ test('factoring stateful calls in longer chains remains suggestion-only', t => {
 	t.assert.strictEqual(runInNewContext(suggested), '{"result":false,"calls":1}');
 });
 
+ruleTester.vue({
+	valid: [
+		'<template><div>{{ x || (a && b) || (a && c && d) }}</div></template>',
+		'<template><div :title="x || (a && b) || (a && c && d)" /></template>',
+		'<template><div v-if="(a?.enabled && b) || (a?.enabled && c)" /></template>',
+		'<template><div v-if=(a&&b)||(a&&c) /></template>',
+		'<template><button @click="foo()\n!(!(a === b) && !c)"></button></template>',
+		'<template><div v-if="(() => { foo()\n!(!(a === b) && !c) })()" /></template>',
+		{
+			code: '<template><div :title="!(a && b)" /></template>',
+			options: [{negatedConditions: 'expand'}],
+		},
+	],
+	invalid: [
+		['<template><div v-if="x || (a && b) || (a && c && d)" /></template>', '<template><div v-if="x || (a && (b || (c && d)))" /></template>'],
+		['<template><div v-if="visible" /><div v-else-if="(a && b) || (a && c)" /></template>', '<template><div v-if="visible" /><div v-else-if="a && (b || c)" /></template>'],
+		['<template><div v-show="x && (a || b) && (a || c || d)" /></template>', '<template><div v-show="x && (a || (b && (c || d)))" /></template>'],
+		['<template><div v-if="x || ((a && b) || (a && c))" /></template>', '<template><div v-if="x || (a && (b || c))" /></template>'],
+		['<template><div v-if="!(!a && b)" /></template>', '<template><div v-if="a || !b" /></template>'],
+		['<template><div v-if=\'(a && b) || (a && c)\' /></template>', '<template><div v-if=\'a && (b || c)\' /></template>'],
+		['<template><div v-if="!(a !== b && c !== d)" /></template>', '<template><div v-if="a === b || c === d" /></template>'],
+		['<template><div v-show="a || (a && b)" /></template>', '<template><div v-show="a" /></template>'],
+		['<template><!-- keep --><div v-if="(a && b) || (a && c)" /></template>', '<template><!-- keep --><div v-if="a && (b || c)" /></template>'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+ruleTester.vue({
+	valid: [],
+	invalid: [
+		'<template><div v-if="(a && b /* keep */) || (a && c)" /></template>',
+		'<template><div v-if="(isFoo(value) /* keep */ && a) || (isFoo(value) && b)" /></template>',
+		'<template><div v-if="!(!a && b /* keep */)" /></template>',
+	].map(code => ({code, errors: [{messageId: 'prefer-simplified-conditions', suggestions: []}]})),
+});
+
+ruleTester.vue({
+	valid: [],
+	invalid: [
+		{
+			code: '<template><div v-if="x || (isFoo(value) && a) || (isFoo(value) && b && c)" /></template>',
+			errors: [{
+				messageId: 'prefer-simplified-conditions',
+				suggestions: [{
+					messageId: 'suggestion',
+					output: '<template><div v-if="x || (isFoo(value) && (a || (b && c)))" /></template>',
+				}],
+			}],
+		},
+		{
+			code: '<template><div v-if="(Array.isArray(value) && a) || (Array.isArray(value) && b)" /></template>',
+			errors: [{
+				messageId: 'prefer-simplified-conditions',
+				suggestions: [{
+					messageId: 'suggestion',
+					output: '<template><div v-if="Array.isArray(value) && (a || b)" /></template>',
+				}],
+			}],
+		},
+		{
+			code: '<script>if ((a && b) || (a && c)) {}</script><template><div v-if="x || (d && e) || (d && f)" /></template>',
+			output: '<script>if (a && (b || c)) {}</script><template><div v-if="x || (d && (e || f))" /></template>',
+			errors: 2,
+		},
+		{
+			code: '<template><div v-if="!(a !== b && c !== d)" /></template><script>if (!(!x && y)) {}</script>',
+			output: '<template><div v-if="a === b || c === d" /></template><script>if (x || !y) {}</script>',
+			errors: 2,
+		},
+	],
+});
+
 const narrowedBooleanOperands = outdent`
 	function check(a: unknown, b: boolean, c: boolean, d: boolean) {
 		if (typeof a === 'boolean') {

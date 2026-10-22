@@ -5,10 +5,12 @@ import {
 	fixSpaceAroundKeyword,
 } from './fix/index.js';
 import {
+	checkVueTemplate,
 	getCommentSafeProblem,
 	getLogicalExpressionOperands,
 	getNegatedExpressionText,
 	getParenthesizedText,
+	getTokenStore,
 	isBoolean,
 	isBooleanContext,
 	isControlFlowTest,
@@ -239,7 +241,7 @@ function getLogicalReplacementText(node, operator, replacement, context) {
 		replacement = `(${replacement})`;
 	}
 
-	return needsSemicolon(context.sourceCode.getTokenBefore(node), context, replacement)
+	return needsSemicolon(getTokenStore(context, node).getTokenBefore(node), context, replacement)
 		? `;${replacement}`
 		: replacement;
 }
@@ -282,9 +284,9 @@ function needsReturnOrThrowParentheses(node, context) {
 		return false;
 	}
 
-	const {sourceCode} = context;
-	const bangToken = sourceCode.getFirstToken(node);
-	const tokenAfterBang = sourceCode.getTokenAfter(bangToken);
+	const tokenStore = getTokenStore(context, node);
+	const bangToken = tokenStore.getFirstToken(node);
+	const tokenAfterBang = tokenStore.getTokenAfter(bangToken);
 	return parent.argument === node
 		&& !isOnSameLine(bangToken, tokenAfterBang, context)
 		&& !isParenthesized(node, context);
@@ -505,7 +507,7 @@ function getFactoringReplacementText(node, factoringTerms, context) {
 	if (
 		before.length > 0
 		&& !isParenthesized(before[0], context)
-		&& context.sourceCode.getFirstToken(node).value === '('
+		&& getTokenStore(context, node).getFirstToken(node).value === '('
 	) {
 		text = `(${text})`;
 	}
@@ -513,17 +515,42 @@ function getFactoringReplacementText(node, factoringTerms, context) {
 	return getLogicalReplacementText(node, node.operator, text, context);
 }
 
+function isSupportedExpression(node, context) {
+	if (getTokenStore(context, node) === context.sourceCode) {
+		return true;
+	}
+
+	for (; node; node = node.parent) {
+		if (node.type.endsWith('Statement')) {
+			return false;
+		}
+
+		if (node.type === 'VExpressionContainer') {
+			return isControlFlowTest(node.expression)
+				&& ['"', '\''].includes(context.sourceCode.text[context.sourceCode.getRange(node)[0]]);
+		}
+	}
+
+	return false;
+}
+
 /**
 @param {ESLint.Rule.RuleContext} context
 */
 const create = context => {
-	const getProblem = (node, fix, shouldSuggest = false) => getCommentSafeProblem(context, {
-		node,
-		messageId: MESSAGE_ID,
-		...(shouldSuggest
-			? {suggest: [{messageId: MESSAGE_ID_SUGGESTION, fix}]}
-			: {fix}),
-	});
+	const getProblem = (node, fix, shouldSuggest = false) => {
+		if (!isSupportedExpression(node, context)) {
+			return;
+		}
+
+		return getCommentSafeProblem(context, {
+			node,
+			messageId: MESSAGE_ID,
+			...(shouldSuggest
+				? {suggest: [{messageId: MESSAGE_ID_SUGGESTION, fix}]}
+				: {fix}),
+		});
+	};
 
 	context.on('UnaryExpression', node => {
 		if (
@@ -577,7 +604,7 @@ const create = context => {
 @type {ESLint.Rule.RuleModule}
 */
 const config = {
-	create,
+	create: checkVueTemplate(create),
 	meta: {
 		type: 'suggestion',
 		docs: {
