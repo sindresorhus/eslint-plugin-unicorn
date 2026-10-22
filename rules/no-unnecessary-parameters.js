@@ -1,6 +1,6 @@
 import {findVariable, isCommaToken} from '@eslint-community/eslint-utils';
 import reservedIdentifiers from 'reserved-identifiers';
-import {isInTypeQuery} from './ast/index.js';
+import {getStaticStringValue, isInTypeQuery} from './ast/index.js';
 import {getArgumentRemovalRange, removeObjectProperty, replaceReferenceIdentifier} from './fix/index.js';
 import {
 	getIndentUnit,
@@ -121,6 +121,8 @@ function getPropertyName(property) {
 	if (property.key.type === 'Literal' && (typeof property.key.value === 'string' || typeof property.key.value === 'number')) {
 		return String(property.key.value);
 	}
+
+	return getStaticStringValue(property.key);
 }
 
 function getProperties(node) {

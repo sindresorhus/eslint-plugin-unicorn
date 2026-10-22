@@ -11,7 +11,7 @@ import {
 	PRECEDENCE_ADDITION,
 } from './utils/index.js';
 import {replaceArgument} from './fix/index.js';
-import {isNumericLiteral, isStringLiteral, isMethodCall} from './ast/index.js';
+import {getStaticStringValue, isNumericLiteral, isMethodCall} from './ast/index.js';
 import {getSubstringSingleCharacterIndex} from './shared/substring.js';
 
 /*
@@ -69,7 +69,7 @@ const isPositiveIntegerLiteral = node => (
 
 const isSafeNegativeIndexReceiver = node => (
 	node.type === 'Identifier'
-	|| isStringLiteral(node)
+	|| getStaticStringValue(node) !== undefined
 );
 
 // `replaceArgument()` also replaces the parentheses around the argument, so a comment inside them would be dropped.

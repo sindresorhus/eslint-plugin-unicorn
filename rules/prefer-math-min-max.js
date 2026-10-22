@@ -1,6 +1,6 @@
 /* eslint-disable complexity */
 import {findVariable} from '@eslint-community/eslint-utils';
-import {isNewExpression} from './ast/index.js';
+import {getStaticStringValue, isNewExpression} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getCallArgumentText,
@@ -189,6 +189,7 @@ const create = context => {
 								identifier.parent.type === 'AssignmentPattern'
 								&& (
 									(identifier.parent.right.type === 'Literal' && typeof identifier.parent.right.value !== 'number')
+									|| getStaticStringValue(identifier.parent.right) !== undefined
 									|| isBigInt(identifier.parent.right, context, bigIntCheckOptions)
 								)
 							) {
@@ -222,7 +223,10 @@ const create = context => {
 							var foo = 10
 							```
 							*/
-							if (variableDeclarator.init?.type === 'Literal' && typeof variableDeclarator.init.value !== 'number') {
+							if (
+								(variableDeclarator.init?.type === 'Literal' && typeof variableDeclarator.init.value !== 'number')
+								|| getStaticStringValue(variableDeclarator.init) !== undefined
+							) {
 								return;
 							}
 

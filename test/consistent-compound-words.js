@@ -629,3 +629,22 @@ ruleTest.snapshot({
 		},
 	],
 });
+
+ruleTest({
+	valid: [
+		'const callBack = require(`package`); callBack();',
+		'const callBack = require(`pack\\u0061ge`); callBack();',
+		{code: 'const callBack = require(`./file`); callBack();', options: [{checkDefaultAndNamespaceImports: false}]},
+		{code: 'const callBack = require(`.\\u002ffile`); callBack();', options: [{checkDefaultAndNamespaceImports: false}]},
+	],
+	invalid: [{
+		code: 'const callBack = require(`.\\u002ffile`); callBack();',
+		errors: [{
+			messageId: 'consistent-compound-words/error',
+			suggestions: [{
+				messageId: 'consistent-compound-words/rename',
+				output: 'const callback = require(`.\\u002ffile`); callback();',
+			}],
+		}],
+	}],
+});

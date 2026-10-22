@@ -4,6 +4,26 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [
+		'if (value === `a`) {} if (value === "a") {}',
+		'if (value === `a${suffix}`) {} if (value === `b`) {}', // eslint-disable-line no-template-curly-in-string
+		'if (value === tag`a`) {} if (value === `b`) {}',
+	],
+	invalid: [
+		{
+			code: 'if (value === `a`) {} if (value === `b`) {}',
+			output: 'if (value === `a`) {} else if (value === `b`) {}',
+			errors: 1,
+		},
+		{
+			code: 'if (value === ``) {} if (value === "a") {}',
+			output: 'if (value === ``) {} else if (value === "a") {}',
+			errors: 1,
+		},
+	],
+});
+
 const typeAware = code => ({
 	code,
 	filename: 'file.ts',
@@ -810,5 +830,17 @@ test({
 			output: 'let x = 2, y = false;\nif (x === 1) { if (y) 0; }\nelse if (x === 2) console.log(\'two\');',
 			errors: [{messageId: 'prefer-else-if'}],
 		},
+	],
+});
+
+// Static template values and property keys behave like quoted strings.
+test.snapshot({
+	valid: [
+		'if (value === `\\u{61}`) {} if (value === "a") {}',
+		'if (object[`state${name}`] === "a") {} if (object.state === "b") {}', // eslint-disable-line no-template-curly-in-string
+	],
+	invalid: [
+		'if (object[`state`] === "a") {} if (object["state"] === `b`) {}',
+		'if (`\\u{61}` === value) {} if ("b" === value) {}',
 	],
 });

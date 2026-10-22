@@ -1,5 +1,5 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
-import {isUndefined, isFunction} from './ast/index.js';
+import {getStaticStringValue, isUndefined, isFunction} from './ast/index.js';
 import {
 	isBoolean,
 	isBranchExit,
@@ -58,7 +58,7 @@ const getStaticEqualityNodeKey = node => {
 		return `bigint:${node.bigint}`;
 	}
 
-	return getStaticEqualityValueKey(node.value);
+	return getStaticEqualityValueKey(getStaticStringValue(node) ?? node.value);
 };
 
 /**
@@ -70,6 +70,7 @@ const isStaticEqualityValue = node => (
 		node.type === 'Literal'
 		&& !node.regex
 	)
+	|| getStaticStringValue(node) !== undefined
 	|| isUndefined(node)
 );
 
@@ -88,8 +89,10 @@ const isStaticMemberProperty = node => (
 	)
 	|| (
 		node.computed
-		&& node.property.type === 'Literal'
-		&& !node.property.regex
+		&& (
+			(node.property.type === 'Literal' && !node.property.regex)
+			|| getStaticStringValue(node.property) !== undefined
+		)
 	)
 );
 

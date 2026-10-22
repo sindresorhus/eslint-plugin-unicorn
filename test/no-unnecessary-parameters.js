@@ -10,6 +10,30 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test: testRule} = getTester(import.meta);
 
+testRule({
+	valid: [
+		'function format({value}) { return value; } format({[`value${suffix}`]: 1}); format({value: 1});', // eslint-disable-line no-template-curly-in-string
+		'function format({value}) { return value; } format({[tag`value`]: 1}); format({value: 1});',
+	],
+	invalid: [
+		{
+			code: 'function format({[`unit`]: unit}) { return unit; } format({[`unit`]: 1}); format({unit: 1});',
+			output: 'function format({ }) { return 1; } format({ }); format({ });',
+			errors: 1,
+		},
+		{
+			code: 'function format({value}) { return value; } format({[`va\\u{6C}ue`]: 1}); format({value: 1});',
+			output: 'function format({}) { return 1; } format({ }); format({ });',
+			errors: 1,
+		},
+		{
+			code: 'function format({[``]: value}) { return value; } format({[``]: 1}); format({[""]: 1});',
+			output: 'function format({ }) { return 1; } format({ }); format({ });',
+			errors: 1,
+		},
+	],
+});
+
 testRule.snapshot({
 	valid: [
 		'function format(value) { return value; } format(1); format(2);',

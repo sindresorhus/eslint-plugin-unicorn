@@ -1,13 +1,11 @@
-import {isStaticRequire, isMethodCall, isLiteral} from './ast/index.js';
+import {getStaticStringValue, isCallExpression, isMethodCall} from './ast/index.js';
 
 const MESSAGE_ID = 'no-process-exit';
 const messages = {
 	[MESSAGE_ID]: 'Only use `process.exit()` in CLI apps. Throw an error instead.',
 };
 
-const isWorkerThreads = node =>
-	isLiteral(node, 'node:worker_threads')
-	|| isLiteral(node, 'worker_threads');
+const isWorkerThreads = node => ['node:worker_threads', 'worker_threads'].includes(getStaticStringValue(node));
 
 /**
 @param {import('eslint').Rule.RuleContext} context
@@ -39,7 +37,7 @@ const create = context => {
 	// `require('worker_threads')`
 	context.on('CallExpression', callExpression => {
 		if (
-			isStaticRequire(callExpression)
+			isCallExpression(callExpression, {name: 'require', argumentsLength: 1, optional: false})
 			&& isWorkerThreads(callExpression.arguments[0])
 		) {
 			isRequiredWorkerThreadsModule = true;

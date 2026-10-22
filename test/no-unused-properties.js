@@ -14,6 +14,37 @@ const errorWithPropertyName = name => ({
 
 test({
 	valid: [
+		'const object = {[`foo`]: 1}; console.log(object[`foo`]);',
+		'const object = {foo: 1, bar: 2}; console.log(object[`f${name}`]);', // eslint-disable-line no-template-curly-in-string
+		'const object = {foo: 1, bar: 2}; console.log(object[tag`foo`]);',
+	],
+	invalid: [
+		{
+			code: 'const object = {foo: 1, bar: 2}; console.log(object[`foo`]);',
+			errors: [errorWithPropertyName('bar')],
+		},
+		{
+			code: 'const object = {[`foo`]: 1, bar: 2}; console.log(object.bar);',
+			errors: [errorWithPropertyName('foo')],
+		},
+		{
+			code: 'const object = {[``]: 1, bar: 2}; console.log(object.bar);',
+			errors: [errorWithPropertyName('')],
+		},
+		{
+			code: 'const object = {foo: 1, bar: 2}; const {[`f\\u{6F}o`]: foo} = object; console.log(foo);',
+			errors: [errorWithPropertyName('bar')],
+		},
+		{
+			code: 'function getFoo(object: {foo: number; bar: number}) { return object[`foo`]; }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [errorWithPropertyName('bar')],
+		},
+	],
+});
+
+test({
+	valid: [
 		outdent`
 			const foo = {a: 1, b: 2};
 			console.log(foo.a, foo.b);

@@ -1,4 +1,4 @@
-import {isMethodCall} from './ast/index.js';
+import {getStaticStringValue, isMethodCall} from './ast/index.js';
 import {isIteratorExpression, isLazyIteratorHelperCall, unwrapExpression} from './shared/iterator-helpers.js';
 
 const MESSAGE_ID = 'no-unreadable-for-of-expression';
@@ -77,6 +77,7 @@ function isSimpleIterableExpression(node) {
 		|| node.type === 'Super'
 		|| node.type === 'ArrayExpression'
 		|| node.type === 'Literal'
+		|| getStaticStringValue(node) !== undefined
 		|| isSimpleMemberExpression(node)
 		|| isSimpleCallExpression(node)
 	);

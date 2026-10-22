@@ -9,6 +9,25 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
 
+ruleTest({
+	valid: [],
+	invalid: ['`a` | number', '`a` | RegExp'].map(annotation => ({
+		code: `function foo(value: ${annotation}) { if (/a/.exec(value)) {} }`,
+		output: `function foo(value: ${annotation}) { if (/a/.test(value)) {} }`,
+		languageOptions: {parser: parsers.typescript},
+		errors: [{messageId: 'regexp-exec'}],
+	})),
+});
+
+ruleTest({
+	valid: [],
+	invalid: [{
+		code: 'function foo() { if (string[0].match(/a/)) {} } const string = `abc`;',
+		output: 'function foo() { if (/a/.test(string[0])) {} } const string = `abc`;',
+		errors: 1,
+	}],
+});
+
 test('optional match receivers retain short-circuiting', t => {
 	const linter = new Linter();
 	const config = {

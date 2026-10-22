@@ -1,4 +1,4 @@
-import {isLiteral} from './ast/index.js';
+import {getStaticStringValue} from './ast/index.js';
 import {
 	addParenthesesToReturnOrThrowExpression,
 	removeSpacesAfter,
@@ -64,7 +64,7 @@ const create = context => {
 			&& binaryExpression.left.type === 'UnaryExpression'
 			&& binaryExpression.left.operator === 'typeof'
 			&& binaryExpression.left.prefix
-			&& isLiteral(binaryExpression.right, 'undefined')
+			&& getStaticStringValue(binaryExpression.right) === 'undefined'
 		)) {
 			return;
 		}

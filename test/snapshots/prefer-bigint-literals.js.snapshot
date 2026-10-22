@@ -15,6 +15,23 @@ Output:
 
 `;
 
+exports[`prefer-bigint-literals > invalid(1): BigInt(\`1\`) 1`] = `
+
+  1 | BigInt(\`1\`)
+
+`;
+
+exports[`prefer-bigint-literals > invalid(1): BigInt(\`1\`) 2`] = `
+
+Message:
+> 1 | BigInt(\`1\`)
+    | ^^^^^^^^^^^ Prefer using bigint literal over \`BigInt(…)\`.
+
+Output:
+  1 | 1n
+
+`;
+
 exports[`prefer-bigint-literals > invalid(10): BigInt(0O777_777) 1`] = `
 
   1 | BigInt(0O777_777)
@@ -29,6 +46,23 @@ Message:
 
 Output:
   1 | 0O777_777n
+
+`;
+
+exports[`prefer-bigint-literals > invalid(10): BigInt(\"\\u{31}\") 1`] = `
+
+  1 | BigInt("\\u{31}")
+
+`;
+
+exports[`prefer-bigint-literals > invalid(10): BigInt(\"\\u{31}\") 2`] = `
+
+Message:
+> 1 | BigInt("\\u{31}")
+    | ^^^^^^^^^^^^^^^^ Prefer using bigint literal over \`BigInt(…)\`.
+
+Output:
+  1 | 1n
 
 `;
 
@@ -196,6 +230,23 @@ exports[`prefer-bigint-literals > invalid(2): BigInt(\"  0  \") 2`] = `
 Message:
 > 1 | BigInt("  0  ")
     | ^^^^^^^^^^^^^^^ Prefer using bigint literal over \`BigInt(…)\`.
+
+Output:
+  1 | 0n
+
+`;
+
+exports[`prefer-bigint-literals > invalid(2): BigInt(\`\`) 1`] = `
+
+  1 | BigInt(\`\`)
+
+`;
+
+exports[`prefer-bigint-literals > invalid(2): BigInt(\`\`) 2`] = `
+
+Message:
+> 1 | BigInt(\`\`)
+    | ^^^^^^^^^^ Prefer using bigint literal over \`BigInt(…)\`.
 
 Output:
   1 | 0n
@@ -386,6 +437,23 @@ Message:
 
 Output:
   1 | 9007199254740993n
+
+`;
+
+exports[`prefer-bigint-literals > invalid(3): BigInt(\`  00001  \`) 1`] = `
+
+  1 | BigInt(\`  00001  \`)
+
+`;
+
+exports[`prefer-bigint-literals > invalid(3): BigInt(\`  00001  \`) 2`] = `
+
+Message:
+> 1 | BigInt(\`  00001  \`)
+    | ^^^^^^^^^^^^^^^^^^^ Prefer using bigint literal over \`BigInt(…)\`.
+
+Output:
+  1 | 1n
 
 `;
 
@@ -582,6 +650,23 @@ Message:
 
 Output:
   1 | 0B11n
+
+`;
+
+exports[`prefer-bigint-literals > invalid(4): BigInt(\`0XFe\`) 1`] = `
+
+  1 | BigInt(\`0XFe\`)
+
+`;
+
+exports[`prefer-bigint-literals > invalid(4): BigInt(\`0XFe\`) 2`] = `
+
+Message:
+> 1 | BigInt(\`0XFe\`)
+    | ^^^^^^^^^^^^^^ Prefer using bigint literal over \`BigInt(…)\`.
+
+Output:
+  1 | 0XFen
 
 `;
 
@@ -794,6 +879,23 @@ Output:
 
 `;
 
+exports[`prefer-bigint-literals > invalid(5): BigInt(\`-1\`).toString() 1`] = `
+
+  1 | BigInt(\`-1\`).toString()
+
+`;
+
+exports[`prefer-bigint-literals > invalid(5): BigInt(\`-1\`).toString() 2`] = `
+
+Message:
+> 1 | BigInt(\`-1\`).toString()
+    | ^^^^^^^^^^^^ Prefer using bigint literal over \`BigInt(…)\`.
+
+Output:
+  1 | (-1n).toString()
+
+`;
+
 exports[`prefer-bigint-literals > invalid(50): BigInt(+0) 1`] = `
 
   1 | BigInt(+0)
@@ -913,6 +1015,40 @@ Output:
 
 `;
 
+exports[`prefer-bigint-literals > invalid(6): BigInt(\`+1\`) 1`] = `
+
+  1 | BigInt(\`+1\`)
+
+`;
+
+exports[`prefer-bigint-literals > invalid(6): BigInt(\`+1\`) 2`] = `
+
+Message:
+> 1 | BigInt(\`+1\`)
+    | ^^^^^^^^^^^^ Prefer using bigint literal over \`BigInt(…)\`.
+
+Suggestion 1/1: Replace with \`1n\`.:
+  1 | 1n
+
+`;
+
+exports[`prefer-bigint-literals > invalid(7): BigInt(/* comment */ \`1\`) 1`] = `
+
+  1 | BigInt(/* comment */ \`1\`)
+
+`;
+
+exports[`prefer-bigint-literals > invalid(7): BigInt(/* comment */ \`1\`) 2`] = `
+
+Message:
+> 1 | BigInt(/* comment */ \`1\`)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using bigint literal over \`BigInt(…)\`.
+
+Suggestion 1/1: Replace with \`1n\`.:
+  1 | 1n
+
+`;
+
 exports[`prefer-bigint-literals > invalid(7): BigInt(\"9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999\") 1`] = `
 
   1 | BigInt("9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999")
@@ -947,6 +1083,26 @@ Output:
 
 `;
 
+exports[`prefer-bigint-literals > invalid(8): BigInt(\"1\\\n2\") 1`] = `
+
+  1 | BigInt("1\\
+  2 | 2")
+
+`;
+
+exports[`prefer-bigint-literals > invalid(8): BigInt(\"1\\\n2\") 2`] = `
+
+Message:
+> 1 | BigInt("1\\
+    | ^^^^^^^^^^
+> 2 | 2")
+    | ^^^ Prefer using bigint literal over \`BigInt(…)\`.
+
+Output:
+  1 | 12n
+
+`;
+
 exports[`prefer-bigint-literals > invalid(9): BigInt(0B11_11) 1`] = `
 
   1 | BigInt(0B11_11)
@@ -961,5 +1117,22 @@ Message:
 
 Output:
   1 | 0B11_11n
+
+`;
+
+exports[`prefer-bigint-literals > invalid(9): BigInt(\`\\u{31}\`) 1`] = `
+
+  1 | BigInt(\`\\u{31}\`)
+
+`;
+
+exports[`prefer-bigint-literals > invalid(9): BigInt(\`\\u{31}\`) 2`] = `
+
+Message:
+> 1 | BigInt(\`\\u{31}\`)
+    | ^^^^^^^^^^^^^^^^ Prefer using bigint literal over \`BigInt(…)\`.
+
+Output:
+  1 | 1n
 
 `;

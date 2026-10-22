@@ -34,6 +34,20 @@ Message:
 
 `;
 
+exports[`no-accessor-recursion > invalid(10): class A { get foo(): string { return this[\`foo\`]; } } 1`] = `
+
+  1 | class A { get foo(): string { return this[\`foo\`]; } }
+
+`;
+
+exports[`no-accessor-recursion > invalid(10): class A { get foo(): string { return this[\`foo\`]; } } 2`] = `
+
+Message:
+> 1 | class A { get foo(): string { return this[\`foo\`]; } }
+    |                                      ^^^^^^^^^^^ Disallow recursive access to \`this\` within getters.
+
+`;
+
 exports[`no-accessor-recursion > invalid(10): class Foo{\n\tget bar() {\n\t\treturn this.#bar;\n\t}\n\n\tget #bar() {\n\t\treturn this.#bar\n\t}\n} 1`] = `
 
   1 | class Foo{
@@ -438,6 +452,20 @@ Message:
 
 `;
 
+exports[`no-accessor-recursion > invalid(5): class A { get foo() { return this[\`foo\`]; } } 1`] = `
+
+  1 | class A { get foo() { return this[\`foo\`]; } }
+
+`;
+
+exports[`no-accessor-recursion > invalid(5): class A { get foo() { return this[\`foo\`]; } } 2`] = `
+
+Message:
+> 1 | class A { get foo() { return this[\`foo\`]; } }
+    |                              ^^^^^^^^^^^ Disallow recursive access to \`this\` within getters.
+
+`;
+
 exports[`no-accessor-recursion > invalid(5): const foo = {\n\tget bar() {\n\t\treturn this.bar.baz;\n\t}\n}; 1`] = `
 
   1 | const foo = {
@@ -457,6 +485,20 @@ Message:
     | 		       ^^^^^^^^ Disallow recursive access to \`this\` within getters.
   4 | 	}
   5 | };
+
+`;
+
+exports[`no-accessor-recursion > invalid(6): class A { set foo(value) { this[\`foo\`] = value; } } 1`] = `
+
+  1 | class A { set foo(value) { this[\`foo\`] = value; } }
+
+`;
+
+exports[`no-accessor-recursion > invalid(6): class A { set foo(value) { this[\`foo\`] = value; } } 2`] = `
+
+Message:
+> 1 | class A { set foo(value) { this[\`foo\`] = value; } }
+    |                            ^^^^^^^^^^^ Disallow recursive access to \`this\` within setters.
 
 `;
 
@@ -486,6 +528,20 @@ Message:
 
 `;
 
+exports[`no-accessor-recursion > invalid(7): class A { get foo() { this[\`foo\`]++; } } 1`] = `
+
+  1 | class A { get foo() { this[\`foo\`]++; } }
+
+`;
+
+exports[`no-accessor-recursion > invalid(7): class A { get foo() { this[\`foo\`]++; } } 2`] = `
+
+Message:
+> 1 | class A { get foo() { this[\`foo\`]++; } }
+    |                       ^^^^^^^^^^^ Disallow recursive access to \`this\` within getters.
+
+`;
+
 exports[`no-accessor-recursion > invalid(7): const foo = {\n\tget bar() {\n\t\tconst baz = () => {\n\t\t\treturn this.bar;\n\t\t}\n\t}\n}; 1`] = `
 
   1 | const foo = {
@@ -509,6 +565,20 @@ Message:
   5 | 		}
   6 | 	}
   7 | };
+
+`;
+
+exports[`no-accessor-recursion > invalid(8): class A { get foo() { return (this)[(\`foo\`)]; } } 1`] = `
+
+  1 | class A { get foo() { return (this)[(\`foo\`)]; } }
+
+`;
+
+exports[`no-accessor-recursion > invalid(8): class A { get foo() { return (this)[(\`foo\`)]; } } 2`] = `
+
+Message:
+> 1 | class A { get foo() { return (this)[(\`foo\`)]; } }
+    |                              ^^^^^^^^^^^^^^^ Disallow recursive access to \`this\` within getters.
 
 `;
 
@@ -539,6 +609,20 @@ Message:
   7 | 		}
   8 | 	}
   9 | };
+
+`;
+
+exports[`no-accessor-recursion > invalid(9): class A { get foo() { return this[\`f\\u{6F}o\`]; } } 1`] = `
+
+  1 | class A { get foo() { return this[\`f\\u{6F}o\`]; } }
+
+`;
+
+exports[`no-accessor-recursion > invalid(9): class A { get foo() { return this[\`f\\u{6F}o\`]; } } 2`] = `
+
+Message:
+> 1 | class A { get foo() { return this[\`f\\u{6F}o\`]; } }
+    |                              ^^^^^^^^^^^^^^^^ Disallow recursive access to \`this\` within getters.
 
 `;
 

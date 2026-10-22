@@ -2,7 +2,7 @@ import path from 'node:path';
 import browserslist from 'browserslist';
 import coreJsCompat from 'core-js-compat';
 import {camelCase} from 'change-case';
-import isStaticRequire from './ast/is-static-require.js';
+import {getStaticStringValue, isCallExpression} from './ast/index.js';
 import {readPackageJson} from './shared/package-json.js';
 
 // `core-js-compat` can be exposed directly or under `.default`, depending on module interop.
@@ -301,17 +301,17 @@ function create(context) {
 		!unavailableFeatureSet.has(feature)
 		&& !(feature.startsWith('esnext.') && unavailableFeatureSet.has(feature.replace('esnext.', 'es.'))));
 
-	context.on('Literal', node => {
+	context.on(['Literal', 'TemplateLiteral'], node => {
 		if (
 			!(
 				(['ImportDeclaration', 'ImportExpression'].includes(node.parent.type) && node.parent.source === node)
-				|| (isStaticRequire(node.parent) && node.parent.arguments[0] === node)
+				|| (isCallExpression(node.parent, {name: 'require', argumentsLength: 1, optional: false}) && node.parent.arguments[0] === node)
 			)
 		) {
 			return;
 		}
 
-		const importedModule = node.value;
+		const importedModule = getStaticStringValue(node);
 		if (typeof importedModule !== 'string' || ['.', '/'].includes(importedModule[0])) {
 			return;
 		}

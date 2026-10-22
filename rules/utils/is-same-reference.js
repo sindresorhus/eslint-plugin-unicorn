@@ -1,4 +1,5 @@
 import {getStaticValue} from '@eslint-community/eslint-utils';
+import {getStaticStringValue} from '../ast/index.js';
 import {unwrapChainAndTypeScriptExpression} from './unwrap-typescript-expression.js';
 
 // Copied from https://github.com/eslint/eslint/blob/94ba68d76a6940f68ff82eea7332c6505f93df76/lib/rules/utils/ast-utils.js#L392
@@ -101,6 +102,8 @@ Check if two expressions reference the same value. For example:
 	a.b = a.b
 	a[0] = a[0]
 	a['b'] = a['b']
+
+Static strings are compared by their decoded value, including template literals without expressions.
 @param {ASTNode} left The left side of the comparison.
 @param {ASTNode} right The right side of the comparison.
 @returns {boolean} `true` if both sides match and reference the same value.
@@ -108,6 +111,11 @@ Check if two expressions reference the same value. For example:
 export default function isSameReference(left, right) {
 	left = unwrapChainAndTypeScriptExpression(left);
 	right = unwrapChainAndTypeScriptExpression(right);
+
+	const leftStringValue = getStaticStringValue(left);
+	if (leftStringValue !== undefined) {
+		return leftStringValue === getStaticStringValue(right);
+	}
 
 	if (left.type !== right.type) {
 		return false;

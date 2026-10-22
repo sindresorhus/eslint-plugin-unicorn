@@ -1,6 +1,11 @@
 import assertToken from './utils/assert-token.js';
-import {getCallExpressionTokens, getEnclosingFunction, isInUnparenthesizedNewExpressionCallee} from './utils/index.js';
-import {isStaticRequire} from './ast/index.js';
+import {
+	escapeString,
+	getCallExpressionTokens,
+	getEnclosingFunction,
+	isInUnparenthesizedNewExpressionCallee,
+} from './utils/index.js';
+import {getStaticStringValue, isCallExpression} from './ast/index.js';
 import {removeParentheses, replaceReferenceIdentifier, removeSpacesAfter} from './fix/index.js';
 
 const ERROR_USE_STRICT_DIRECTIVE = 'error/use-strict-directive';
@@ -66,7 +71,7 @@ const commonJsGlobals = new Set([
 ]);
 
 function fixRequireCall(node, context) {
-	if (!isStaticRequire(node.parent) || node.parent.callee !== node) {
+	if (!isCallExpression(node.parent, {name: 'require', argumentsLength: 1, optional: false}) || node.parent.callee !== node) {
 		return;
 	}
 
@@ -77,15 +82,22 @@ function fixRequireCall(node, context) {
 		arguments: callArguments,
 	} = requireCall;
 	const [source] = callArguments;
+	const sourceValue = getStaticStringValue(source);
+	if (sourceValue === undefined) {
+		return;
+	}
+
+	const sourceText = source.raw ?? escapeString(sourceValue);
 
 	// A JSON module import needs `with {type: 'json'}`
-	const isJson = source.value.endsWith('.json');
-	const quote = source.raw.charAt(0);
+	const isJson = sourceValue.endsWith('.json');
+	const quote = sourceText.charAt(0);
 	const importAttributes = isJson ? ` with {type: ${quote}json${quote}}` : '';
 
 	// `require("foo")`
 	if (parent.type === 'ExpressionStatement' && parent.parent.type === 'Program') {
 		return function * (fixer) {
+			yield fixer.replaceText(source, sourceText);
 			yield fixer.replaceText(callee, 'import');
 
 			const {
@@ -136,6 +148,7 @@ function fixRequireCall(node, context) {
 
 	return function * (fixer) {
 		const {sourceCode} = context;
+		yield fixer.replaceText(source, sourceText);
 		const constToken = sourceCode.getFirstToken(declaration);
 		assertToken(constToken, {
 			expected: {type: 'Keyword', value: 'const'},

@@ -761,3 +761,19 @@ test.snapshot({
 		typeAware('declare const results: PromiseSettledResult<string>[] | PromiseSettledResult<number>[]; const values = results.map(result => result.value);'),
 	],
 });
+
+test.snapshot({
+	valid: [
+		'(await Promise.allSettled(promises)).filter(result => result.status === `fulfilled`).map(result => result.value);',
+		'(await Promise.allSettled(promises)).filter(result => result.status !== `rejected`).map(result => result.value);',
+		'(await Promise.allSettled(promises)).map(result => result.status === `ful\\u{66}illed` ? result.value : undefined);',
+		'(await Promise.allSettled(promises)).map(result => { if (result.status === `rejected`) { return; } return result.value; });',
+		'Promise.allSettled(promises).then(results => results.filter(result => result.status === `fulfilled`).map(result => result.value));',
+		{code: '(results as PromiseSettledResult<string>[]).map(result => result.status === `fulfilled` ? result.value : undefined);', languageOptions: {parser: parsers.typescript}},
+	],
+	invalid: [
+		'(await Promise.allSettled(promises)).filter(result => result.status === `rejected`).map(result => result.value);',
+		'(await Promise.allSettled(promises)).filter(result => result.status === `ful${name}`).map(result => result.value);', // eslint-disable-line no-template-curly-in-string
+		'(await Promise.allSettled(promises)).filter(result => result.status === tag`fulfilled`).map(result => result.value);',
+	],
+});

@@ -5,7 +5,7 @@ import {
 	isReferenceContext,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
-import {isLoop, isStringLiteral} from './ast/index.js';
+import {isLoop, getStaticStringValue} from './ast/index.js';
 
 const MESSAGE_ID = 'consistentDestructuring';
 const MESSAGE_ID_SUGGEST = 'consistentDestructuringSuggest';
@@ -276,9 +276,8 @@ const isMatchingInExpression = (node, memberExpression, sourceCode) => {
 	if (!(
 		node.type === 'BinaryExpression'
 		&& node.operator === 'in'
-		&& isStringLiteral(node.left)
 		&& memberExpression.property.type === 'Identifier'
-		&& node.left.value === memberExpression.property.name
+		&& getStaticStringValue(node.left) === memberExpression.property.name
 	)) {
 		return false;
 	}

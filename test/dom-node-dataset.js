@@ -25,8 +25,8 @@ test.snapshot({
 		'element.setAttribute(\'data-unicorn\', \'🦄\', \'extra\');',
 		'element.setAttribute(\'data-unicorn\');',
 		'element.setAttribute(...argumentsArray, ...argumentsArray2)',
-		// First Argument is not `Literal`
-		'element.setAttribute(`data-unicorn`, \'🦄\');',
+		// First argument is not a static string
+		'element.setAttribute(`data-${name}`, \'🦄\');', // eslint-disable-line no-template-curly-in-string
 		// First Argument is not `string`
 		'element.setAttribute(0, \'🦄\');',
 		// First Argument is not startsWith `data-`
@@ -86,8 +86,8 @@ test.snapshot({
 		'element.removeAttribute("data-unicorn", "extra");',
 		'element.removeAttribute();',
 		'element.removeAttribute(...argumentsArray, ...argumentsArray2)',
-		// First Argument is not `Literal`
-		'element.removeAttribute(`data-unicorn`);',
+		// First argument is not a static string
+		'element.removeAttribute(`data-${name}`);', // eslint-disable-line no-template-curly-in-string
 		// First Argument is not `string`
 		'element.removeAttribute(0);',
 		// First Argument is not startsWith `data-`
@@ -140,8 +140,8 @@ test.snapshot({
 		'element.hasAttribute("data-unicorn", "extra");',
 		'element.hasAttribute();',
 		'element.hasAttribute(...argumentsArray, ...argumentsArray2)',
-		// First Argument is not `Literal`
-		'element.hasAttribute(`data-unicorn`);',
+		// First argument is not a static string
+		'element.hasAttribute(`data-${name}`);', // eslint-disable-line no-template-curly-in-string
 		// First Argument is not `string`
 		'element.hasAttribute(0);',
 		// First Argument is not startsWith `data-`
@@ -188,8 +188,8 @@ test.snapshot({
 		'element.getAttribute("data-unicorn", "extra");',
 		'element.getAttribute();',
 		'element.getAttribute(...argumentsArray, ...argumentsArray2)',
-		// First Argument is not `Literal`
-		'element.getAttribute(`data-unicorn`);',
+		// First argument is not a static string
+		'element.getAttribute(`data-${name}`);', // eslint-disable-line no-template-curly-in-string
 		// First Argument is not `string`
 		'element.getAttribute(0);',
 		// First Argument is not startsWith `data-`
@@ -629,4 +629,41 @@ test({
 		['({node: element}.node.setAttribute)("data-value", value);', '({node: element}.node).dataset.value = value;'],
 		['({node: element}.node.removeAttribute)("data-value");', 'delete {node: element}.node.dataset.value;'],
 	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test.snapshot({
+	valid: [
+		'element.setAttribute(tag`data-unicorn`, value);',
+		'element.getAttribute(``);',
+		'element.getAttribute(`data-constructor`);',
+	],
+	invalid: [
+		'element.setAttribute(`data-unicorn`, `🦄`);',
+		'element.setAttribute(`data-foo:bar`, value);',
+		'element.setAttribute(`data-`, value);',
+		'element.setAttribute(`data-\\u{75}nicorn`, value);',
+		'element.getAttribute(`data-unicorn`);',
+		'element.removeAttribute(`data-unicorn`);',
+		'element.hasAttribute(`data-unicorn`);',
+		'element.setAttribute(/* keep */ `data-unicorn`, value);',
+		{code: 'element!.setAttribute(`data-unicorn`, value);', languageOptions: {parser: parsers.typescript}},
+	],
+});
+
+test.snapshot({
+	valid: [
+		'`foo-bar` in element.dataset;',
+		'`toString` in element.dataset;',
+		'Object.hasOwn(element.dataset, tag`unicorn`);',
+		'Object.hasOwn(element.dataset, `${name}`);', // eslint-disable-line no-template-curly-in-string
+	].map(code => ({code, options: [{preferAttributes: true}]})),
+	invalid: [
+		'`unicorn` in element.dataset;',
+		'`` in element.dataset;',
+		'`foo\\u{42}ar` in element.dataset;',
+		'Object.hasOwn(element.dataset, `unicorn`);',
+		'element.dataset.hasOwnProperty(`unicorn`);',
+		'Object.hasOwn(element.dataset, /* keep */ `unicorn`);',
+		'const {[`unicorn`]: value} = element.dataset;',
+	].map(code => ({code, options: [{preferAttributes: true}]})),
 });

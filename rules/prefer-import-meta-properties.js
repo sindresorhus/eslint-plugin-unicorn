@@ -1,5 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {
+	getStaticStringValue,
 	isMemberExpression,
 	isCallExpression,
 	isNewExpression,
@@ -14,11 +15,8 @@ const messages = {
 };
 
 const isParentLiteral = node => {
-	if (node.type !== 'Literal') {
-		return false;
-	}
-
-	return node.value === '.' || node.value === './';
+	const value = getStaticStringValue(node);
+	return value === '.' || value === './';
 };
 
 const isImportMeta = node =>
@@ -144,7 +142,7 @@ function isNodeBuiltinModuleFunctionCall(node, {modules, functionName, sourceCod
 	}
 
 	function isModuleLiteral(node) {
-		return node?.type === 'Literal' && modules.has(node.value);
+		return modules.has(getStaticStringValue(node));
 	}
 }
 

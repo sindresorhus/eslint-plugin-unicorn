@@ -1,5 +1,10 @@
 import globals from 'globals';
-import {functionTypes, isMemberExpression, isMethodCall} from './ast/index.js';
+import {
+	functionTypes,
+	getStaticStringValue,
+	isMemberExpression,
+	isMethodCall,
+} from './ast/index.js';
 import {getVisitorChildNodes} from './utils/index.js';
 
 const MESSAGE_ID_EXTERNALLY_SCOPED_VARIABLE = 'externally-scoped-variable';
@@ -29,17 +34,11 @@ const defaultOptions = {
 const scriptingObjects = ['browser', 'chrome'];
 
 const getObjectPropertyName = node => {
-	if (node.computed && node.key.type !== 'Literal') {
-		return;
-	}
-
-	if (node.key.type === 'Identifier') {
+	if (!node.computed && node.key.type === 'Identifier') {
 		return node.key.name;
 	}
 
-	if (node.key.type === 'Literal' && typeof node.key.value === 'string') {
-		return node.key.value;
-	}
+	return getStaticStringValue(node.key);
 };
 
 const getDefaultArgumentCallReason = node => {

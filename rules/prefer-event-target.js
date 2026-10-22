@@ -1,6 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {getAncestor} from './utils/index.js';
-import {isStaticRequire, isStringLiteral, isMemberExpression} from './ast/index.js';
+import {getStaticStringValue, isCallExpression, isMemberExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-event-target';
 const messages = {
@@ -25,13 +25,13 @@ function isAwaitImportOrRequireFromIgnoredPackages(node) {
 	}
 
 	let source;
-	if (isStaticRequire(node)) {
+	if (isCallExpression(node, {name: 'require', argumentsLength: 1, optional: false})) {
 		[source] = node.arguments;
 	} else if (node.type === 'AwaitExpression' && node.argument.type === 'ImportExpression') {
 		({source} = node.argument);
 	}
 
-	return Boolean(isStringLiteral(source) && packagesShouldBeIgnored.has(source.value));
+	return packagesShouldBeIgnored.has(getStaticStringValue(source));
 }
 
 function isFromIgnoredPackage(node) {

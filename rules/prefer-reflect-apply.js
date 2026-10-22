@@ -96,6 +96,7 @@ const create = context => {
 				optionalMember: false,
 			})
 			|| node.callee.object.type === 'Literal'
+			|| getStaticStringValue(node.callee.object) !== undefined
 			|| node.callee.object.type === 'ArrayExpression'
 			|| node.callee.object.type === 'ObjectExpression'
 		) {

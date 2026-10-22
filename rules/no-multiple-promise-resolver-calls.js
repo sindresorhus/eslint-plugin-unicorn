@@ -1,5 +1,10 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {isFunction, isLoop, isNewExpression} from './ast/index.js';
+import {
+	getStaticStringValue,
+	isFunction,
+	isLoop,
+	isNewExpression,
+} from './ast/index.js';
 import {
 	isBranchExit,
 	hasOptionalChainInCurrentChain,
@@ -431,7 +436,7 @@ function reportMultipleResolverCalls(codePathState, context) {
 
 const hasFalsyLiteralTest = node => {
 	const test = unwrapTypeScriptExpression(node.test);
-	return test?.type === 'Literal' && !test.value;
+	return (test?.type === 'Literal' && !test.value) || getStaticStringValue(test) === '';
 };
 
 const isDirectlyAwaited = node => {

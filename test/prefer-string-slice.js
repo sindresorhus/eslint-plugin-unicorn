@@ -581,3 +581,24 @@ test('an end with a side effect is not rewritten', t => {
 		t.assert.strictEqual(problem.fix, undefined, `should not fix \`${code}\``);
 	}
 });
+
+ruleTest({
+	valid: [],
+	invalid: [
+		{
+			code: '`abc`.substr(0, `abc`.length - 1);',
+			output: '`abc`.slice(0, -1);',
+			errors: 1,
+		},
+		{
+			code: '`abc`.substr(0, "abc".length - 1);',
+			output: '`abc`.slice(0, -1);',
+			errors: 1,
+		},
+		{
+			code: '`ab\\u{63}`.substr(0, `abc`.length - 1);',
+			output: '`ab\\u{63}`.slice(0, -1);',
+			errors: 1,
+		},
+	],
+});

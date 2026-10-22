@@ -2,7 +2,7 @@ import {
 	isBooleanLiteral,
 	isMethodCall,
 	isNullLiteral,
-	isStringLiteral,
+	getStaticStringValue,
 	isUndefined,
 } from './ast/index.js';
 import {
@@ -209,8 +209,7 @@ const create = context => {
 
 		const [eventNameNode, listener, optionsNode] = callExpression.arguments;
 		if (
-			!isStringLiteral(eventNameNode)
-			|| !passiveEventNames.has(eventNameNode.value)
+			!passiveEventNames.has(getStaticStringValue(eventNameNode))
 			|| !isFunction(listener)
 			|| !isEventParameterSafe(listener, context)
 		) {

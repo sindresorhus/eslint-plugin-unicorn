@@ -1,5 +1,5 @@
 import {hasSideEffect} from '@eslint-community/eslint-utils';
-import {isMethodCall} from './ast/index.js';
+import {getStaticStringValue, isMethodCall} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getParenthesizedRange,
@@ -39,12 +39,13 @@ const isReplaceableIndex = node => {
 		return node.name !== 'NaN' && node.name !== 'undefined';
 	}
 
-	if (node.type === 'Literal') {
+	const stringValue = getStaticStringValue(node);
+	if (stringValue !== undefined) {
 		// `array[true]` and `array[null]` are properties named `true` and `null`, and `array['01']` is not index `1`
-		return typeof node.value === 'string' && /^(?:0|[1-9]\d*)$/u.test(node.value);
+		return /^(?:0|[1-9]\d*)$/u.test(stringValue);
 	}
 
-	return true;
+	return node.type !== 'Literal';
 };
 
 function getNormalizedDeleteCountValue(node) {

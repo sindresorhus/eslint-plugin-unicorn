@@ -1,5 +1,6 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {
+	getStaticStringValue,
 	isCallExpression,
 	isFunction,
 	isMemberExpression,
@@ -281,8 +282,7 @@ function canSuggestBindings(node, loop, flush, context) {
 		decoder?.definition.parent.kind !== 'const'
 		|| !isNewExpression(unwrapCallee(decoder.definition.node.init), {name: 'TextDecoder'})
 		|| accumulator?.definition.parent.kind !== 'let'
-		|| accumulator.definition.node.init?.type !== 'Literal'
-		|| accumulator.definition.node.init.value !== ''
+		|| getStaticStringValue(accumulator.definition.node.init) !== ''
 	) {
 		return false;
 	}

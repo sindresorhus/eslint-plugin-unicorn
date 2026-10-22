@@ -1,6 +1,6 @@
 import {getNegativeIndexLengthNode, removeLengthNode} from './shared/negative-index.js';
 import typedArray from './shared/typed-array.js';
-import {isEmptyArrayExpression, isLiteral} from './ast/index.js';
+import {getStaticStringValue, isEmptyArrayExpression} from './ast/index.js';
 import {getParentheses} from './utils/index.js';
 import {isLengthMinusOneOf} from './utils/comparison.js';
 
@@ -82,7 +82,7 @@ const isMethodOwner = (node, method) =>
 	// `''.slice`
 	|| (
 		method === 'slice'
-		&& isLiteral(node, '')
+		&& getStaticStringValue(node) === ''
 	)
 	// {Array,String...}.prototype.slice
 	// Array.prototype.splice

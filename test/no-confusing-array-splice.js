@@ -9,6 +9,28 @@ const {test, rule} = getTester(import.meta);
 test({
 	valid: [],
 	invalid: [
+		...[
+			'array.splice(`1.5`, 1, element);',
+			'array.splice(`abc`, 1, element);',
+			'array.splice(``, 1, element);',
+			'array.splice(`01`, 1, element);',
+			'array.splice(`\\u00301`, 1, element);',
+		].map(code => ({code, errors: [{messageId: 'replace-one-element', suggestions: []}]})),
+		{
+			code: 'array.splice(`1` as const, 1, element);',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'replace-one-element', suggestions: [{messageId: 'suggestion-replace-one-element', output: 'array[`1` as const] = element;'}]}],
+		},
+		{
+			code: 'array.splice(`\\u0031`, 1, element);',
+			errors: [{messageId: 'replace-one-element', suggestions: [{messageId: 'suggestion-replace-one-element', output: 'array[`\\u0031`] = element;'}]}],
+		},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
 		['function f() {return(array.toSpliced)(0, 1, read(/* keep */));}', 'function f() {return array.with(0, read(/* keep */));}'],
 		['function f() {throw(array.toSpliced)(0, 1, read(/* keep */));}', 'function f() {throw array.with(0, read(/* keep */));}'],
 		['if (flag) {}else(array.splice)(0, 1, read(/* keep */));', 'if (flag) {}else array[0] = read(/* keep */);'],

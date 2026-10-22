@@ -2,6 +2,7 @@ import {findVariable, getStaticValue, isParenthesized} from '@eslint-community/e
 import {checkVueTemplate} from './utils/rule.js';
 import {fixSpaceAroundKeyword, removeMemberExpressionProperty} from './fix/index.js';
 import {
+	getStaticStringValue,
 	isLiteral,
 	isNegativeOne,
 	isRegexLiteral,
@@ -236,9 +237,9 @@ const getTypeFromTypeAnnotation = node => {
 		}
 
 		case 'TSLiteralType': {
-			return node.literal.type === 'Literal' && typeof node.literal.value === 'string'
-				? STRING
-				: OTHER;
+			return getStaticStringValue(node.literal) === undefined
+				? OTHER
+				: STRING;
 		}
 
 		case 'TSTypeReference': {

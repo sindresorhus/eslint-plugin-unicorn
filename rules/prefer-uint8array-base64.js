@@ -1,7 +1,7 @@
 import {getPropertyName} from '@eslint-community/eslint-utils';
 import {GlobalReferenceTracker} from './utils/global-reference-tracker.js';
 import {
-	isStringLiteral,
+	getStaticStringValue,
 	isRegexLiteral,
 	isMethodCall,
 } from './ast/index.js';
@@ -34,11 +34,7 @@ const base64Encodings = new Set(['base64', 'base64url']);
 const transparentExpressionTypes = new Set(['AwaitExpression', 'ChainExpression', 'ParenthesizedExpression']);
 
 const getBase64Encoding = node => {
-	if (!isStringLiteral(node)) {
-		return;
-	}
-
-	const encoding = node.value.toLowerCase();
+	const encoding = getStaticStringValue(node)?.toLowerCase();
 	return base64Encodings.has(encoding) ? encoding : undefined;
 };
 
@@ -179,14 +175,16 @@ function getBase64Transformation(node) {
 	}
 
 	const [search, replacement] = node.arguments;
-	if (!isStringLiteral(replacement)) {
+	const replacementValue = getStaticStringValue(replacement);
+	if (replacementValue === undefined) {
 		return;
 	}
 
 	const isReplaceAll = node.callee.property.name === 'replaceAll';
+	const searchValue = getStaticStringValue(search);
 	let character;
-	if (isReplaceAll && isStringLiteral(search)) {
-		character = search.value;
+	if (isReplaceAll && searchValue !== undefined) {
+		character = searchValue;
 	} else if (isRegexLiteral(search)) {
 		const {pattern, flags} = search.regex;
 		const isGlobal = flags.includes('g');
@@ -205,9 +203,9 @@ function getBase64Transformation(node) {
 	}
 
 	if (
-		(character === '+' && replacement.value === '-')
-		|| (character === '/' && replacement.value === '_')
-		|| (character === '=' && replacement.value === '')
+		(character === '+' && replacementValue === '-')
+		|| (character === '/' && replacementValue === '_')
+		|| (character === '=' && replacementValue === '')
 	) {
 		return character;
 	}
@@ -315,7 +313,7 @@ const create = context => {
 			const problem = {
 				node: node.callee,
 				messageId: MESSAGE_ID_ERROR,
-				data: {value: `Buffer.from(…, '${encodingNode.value}')`, replacement: 'Uint8Array.fromBase64()'},
+				data: {value: `Buffer.from(…, '${getStaticStringValue(encodingNode)}')`, replacement: 'Uint8Array.fromBase64()'},
 			};
 
 			// When the result is immediately used through a member access, for example `Buffer.from(string, 'base64').toString()`, the suggestion would rewrite only the constructor and leave the chained `Buffer` method on a plain `Uint8Array`, which behaves differently (`Uint8Array#toString()` returns a comma-joined byte list, not the decoded string). Skip the suggestion then, but still report the preference.
@@ -357,7 +355,7 @@ const create = context => {
 				node: node.callee.property,
 				messageId: MESSAGE_ID_ERROR,
 				data: {
-					value: `toString('${encodingNode.value}')`,
+					value: `toString('${getStaticStringValue(encodingNode)}')`,
 					replacement: toStringEncoding === 'base64url' ? 'Uint8Array#toBase64({alphabet: \'base64url\', omitPadding: true})' : 'Uint8Array#toBase64()',
 				},
 			};

@@ -1,7 +1,7 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	isMethodCall,
-	isStringLiteral,
+	getStaticStringValue,
 } from './ast/index.js';
 import {isRegExpEscapeReplaceCall} from './shared/regexp-escape.js';
 import {
@@ -41,12 +41,11 @@ const getRequiredPackageName = node => {
 		|| node.callee.type !== 'Identifier'
 		|| node.callee.name !== 'require'
 		|| node.arguments.length !== 1
-		|| !isStringLiteral(node.arguments[0])
 	) {
 		return;
 	}
 
-	return node.arguments[0].value;
+	return getStaticStringValue(node.arguments[0]);
 };
 
 const addVariable = (identifier, variables, sourceCode) => {

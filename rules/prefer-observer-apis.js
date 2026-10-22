@@ -217,6 +217,7 @@ const isNonElementLayoutObject = (node, context) => {
 		|| node.type === 'ObjectExpression'
 		|| node.type === 'ArrayExpression'
 		|| node.type === 'Literal'
+		|| getStaticStringValue(node) !== undefined
 		// A `const` binding of a plain object is not a DOM element, whatever its property names are
 		|| isConstNonDomObject(node, context);
 };

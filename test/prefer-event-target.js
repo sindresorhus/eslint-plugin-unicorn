@@ -26,6 +26,11 @@ test.snapshot({
 			'import EventEmitter from "eventemitter3";',
 			'const {EventEmitter} = await import("eventemitter3");',
 			'const EventEmitter = (await import("eventemitter3")).EventEmitter;',
+			'const {EventEmitter} = require(`@angular/core`);',
+			'const EventEmitter = require(`eventemitter3`).EventEmitter;',
+			'const {EventEmitter} = await import(`eventemitter3`);',
+			'const EventEmitter = (await import(`@angular/core`)).EventEmitter;',
+			'const {EventEmitter} = require(`eventemitter\\u{33}`);',
 		].map(code => outdent`
 			${code}
 			class Foo extends EventEmitter {}
@@ -55,5 +60,9 @@ test.snapshot({
 		// For coverage
 		'for (const {EventEmitter} of []) {new EventEmitter}',
 		'for (const EventEmitter of []) {new EventEmitter}',
+		'const {EventEmitter} = require(``); new EventEmitter();',
+		'const {EventEmitter} = require(`eventemitter${version}`); new EventEmitter();', // eslint-disable-line no-template-curly-in-string
+		'const {EventEmitter} = require(tag`eventemitter3`); new EventEmitter();',
+		'const {EventEmitter} = await import(`eventemitter${version}`); new EventEmitter();', // eslint-disable-line no-template-curly-in-string
 	],
 });

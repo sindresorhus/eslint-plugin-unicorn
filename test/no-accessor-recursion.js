@@ -316,14 +316,28 @@ test.snapshot({
 		// A string key is never the same as a private name
 		'class A { get #foo() { return this[\'#foo\']; } }',
 		'class A { get #foo() { const {\'#foo\': foo} = this; return foo; } }',
-		// A template literal key is not checked
-		'class A { get foo() { return this[`foo`]; } }',
+		// A template literal key is not checked when its value differs or is dynamic
+		'class A { get foo() { return this[`bar`]; } }',
+		'class A { get foo() { return this[``]; } }',
+		'class A { get foo() { return this[`foo${bar}`]; } }', // eslint-disable-line no-template-curly-in-string
+		'class A { get foo() { return this[tag`foo`]; } }',
+		'class A { get #foo() { return this[`#foo`]; } }',
+		'class A { get foo() { this[`foo`] = 1; } }',
 	],
 	invalid: [
 		'class A { get foo() { return this[\'foo\']; } }',
 		'class A { get foo() { return this["foo"]; } }',
 		'class A { set foo(value) { this[\'foo\'] = value; } }',
 		'class A { get foo() { const {\'foo\': foo} = this; return foo; } }',
+		'class A { get foo() { return this[`foo`]; } }',
+		'class A { set foo(value) { this[`foo`] = value; } }',
+		'class A { get foo() { this[`foo`]++; } }',
+		'class A { get foo() { return (this)[(`foo`)]; } }',
+		'class A { get foo() { return this[`f\\u{6F}o`]; } }',
+		{
+			code: 'class A { get foo(): string { return this[`foo`]; } }',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 

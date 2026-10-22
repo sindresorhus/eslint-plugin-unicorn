@@ -1,5 +1,5 @@
 import regjsparser from 'regjsparser';
-import {isMethodCall, isStringLiteral, isRegexLiteral} from './ast/index.js';
+import {isMethodCall, getStaticStringValue, isRegexLiteral} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getMemberExpressionObjectText,
@@ -105,15 +105,16 @@ function getCharacter(call) {
 	}
 
 	const [search] = call.arguments;
+	const searchValue = getStaticStringValue(search);
 
-	if (isStringLiteral(search)) {
+	if (searchValue !== undefined) {
 		// `String#replace()` with a string only replaces the first occurrence, so it has no character-class equivalent.
 		if (call.callee.property.name !== 'replaceAll') {
 			return;
 		}
 
 		// A single UTF-16 code unit, so it is safe inside a non-`u` character class.
-		return search.value.length === 1 ? search.value : undefined;
+		return searchValue.length === 1 ? searchValue : undefined;
 	}
 
 	if (isRegexLiteral(search)) {
@@ -131,11 +132,10 @@ const create = context => {
 		}
 
 		const replacement = node.arguments[1];
-		if (!isStringLiteral(replacement)) {
+		const replacementValue = getStaticStringValue(replacement);
+		if (replacementValue === undefined) {
 			return;
 		}
-
-		const replacementValue = replacement.value;
 
 		// `$\`` (prematch) and `$'` (postmatch) depend on the surrounding text, which differs once the sequential passes are merged into one.
 		if (replacementValue.includes('$`') || replacementValue.includes('$\'')) {
@@ -144,8 +144,7 @@ const create = context => {
 
 		const isMergeableCall = call =>
 			getCharacter(call) !== undefined
-			&& isStringLiteral(call.arguments[1])
-			&& call.arguments[1].value === replacementValue;
+			&& getStaticStringValue(call.arguments[1]) === replacementValue;
 
 		// Report only at the outermost call of a same-replacement chain.
 		const {parent} = node;

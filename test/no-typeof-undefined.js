@@ -4,6 +4,25 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 test({
+	valid: [
+		'function foo(value) { return typeof value === `undef${suffix}`; }', // eslint-disable-line no-template-curly-in-string
+		'function foo(value) { return typeof value === tag`undefined`; }',
+	],
+	invalid: [
+		{
+			code: 'typeof a.b === `undefined`',
+			output: 'a.b === undefined',
+			errors: 1,
+		},
+		{
+			code: 'function foo(value) { return typeof value === `undef\\u0069ned`; }',
+			output: 'function foo(value) { return value === undefined; }',
+			errors: 1,
+		},
+	],
+});
+
+test({
 	valid: [],
 	invalid: [
 		...['return', 'throw'].map(keyword => ({
@@ -139,7 +158,6 @@ test.snapshot({
 		// Cases we are not checking
 		'"undefined" === typeof a.b',
 		'const UNDEFINED = "undefined"; typeof a.b === UNDEFINED',
-		'typeof a.b === `undefined`',
 	],
 	invalid: [
 		'typeof a.b === "undefined"',

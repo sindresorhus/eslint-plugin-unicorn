@@ -18,6 +18,23 @@ Output:
 
 `;
 
+exports[`prefer-else-if > invalid(1): if (object[\`state\`] === \"a\") {} if (object[\"state\"] === \`b\`) {} 1`] = `
+
+  1 | if (object[\`state\`] === "a") {} if (object["state"] === \`b\`) {}
+
+`;
+
+exports[`prefer-else-if > invalid(1): if (object[\`state\`] === \"a\") {} if (object[\"state\"] === \`b\`) {} 2`] = `
+
+Message:
+> 1 | if (object[\`state\`] === "a") {} if (object["state"] === \`b\`) {}
+    |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`else if\` over an adjacent \`if\` with a related condition.
+
+Suggestion 1/1: Insert \`else\` before this \`if\`.:
+  1 | if (object[\`state\`] === "a") {} else if (object["state"] === \`b\`) {}
+
+`;
+
 exports[`prefer-else-if > invalid(10): if (foo.bar === 1) {}\nif (foo['bar'] === 2) {} 1`] = `
 
   1 | if (foo.bar === 1) {}
@@ -253,6 +270,23 @@ Suggestion 1/1: Insert \`else\` before this \`if\`.:
   2 |
   3 | if (options.enabled) {}
   4 | else if (options.enabled === false) {}
+
+`;
+
+exports[`prefer-else-if > invalid(2): if (\`\\u{61}\` === value) {} if (\"b\" === value) {} 1`] = `
+
+  1 | if (\`\\u{61}\` === value) {} if ("b" === value) {}
+
+`;
+
+exports[`prefer-else-if > invalid(2): if (\`\\u{61}\` === value) {} if (\"b\" === value) {} 2`] = `
+
+Message:
+> 1 | if (\`\\u{61}\` === value) {} if ("b" === value) {}
+    |                            ^^^^^^^^^^^^^^^^^^^^^ Prefer \`else if\` over an adjacent \`if\` with a related condition.
+
+Output:
+  1 | if (\`\\u{61}\` === value) {} else if ("b" === value) {}
 
 `;
 

@@ -5,6 +5,24 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+test.snapshot({
+	valid: [
+		'string.replaceAll(`ab`, `-`).replaceAll(`c`, `-`)',
+		'string.replaceAll(tag`a`, `-`).replaceAll(`b`, `-`)',
+		'string.replaceAll(`a${value}`, `-`).replaceAll(`b`, `-`)', // eslint-disable-line no-template-curly-in-string
+		'string.replaceAll(`a`, tag`-`).replaceAll(`b`, tag`-`)',
+		'string.replaceAll(`a`, `$\'`).replaceAll(`b`, `$\'`)',
+	],
+	invalid: [
+		'string.replaceAll(`a`, `-`).replaceAll(`b`, `-`).replaceAll(`c`, `-`)',
+		'string.replaceAll("a", `-`).replaceAll(`b`, "-")',
+		'string.replaceAll(`a`, ``).replaceAll(`b`, ``)',
+		'string.replaceAll(`\\n`, `-`).replaceAll(`b`, `-`)',
+		'string.replaceAll(/* keep */ `a`, `-`).replaceAll(`b`, `-`)',
+		{code: '(string as string).replaceAll(`a`, `-`).replaceAll(`b`, `-`)', languageOptions: {parser: parsers.typescript}},
+	],
+});
+
 test({
 	valid: [],
 	invalid: [

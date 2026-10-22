@@ -247,6 +247,8 @@ testRule({
 		...[
 			forAwait(),
 			readerLoop(),
+			forAwait().replace('let text = \'\';', 'let text = ``;'),
+			readerLoop().replace('let text = \'\';', 'let text = ``;'),
 			forAwait().replace('const decoder', 'const alias = response; const decoder').replace('response.body', 'alias.body'),
 			forAwait().replace('response.body', 'response.body.values()'),
 			forAwait().replace('response.body', 'response.body.values({preventCancel: true})'),
@@ -307,6 +309,8 @@ testRule({
 			forAwait().replace('\n\t}\n}', '\n\t}\n\tdecoder.decode();\n}'),
 			forAwait().replace('\n\t}\n}', '\n\t} // Comment\n}'),
 			forAwait().replace('let text = \'\';', 'let text = getText();'),
+			forAwait().replace('let text = \'\';', 'let text = tag``;'),
+			forAwait().replace('let text = \'\';', 'let text = `${value}`;'), // eslint-disable-line no-template-curly-in-string
 			readerLoop().replace('break;', 'return;'),
 			readerLoop().replace('if (done)', 'if (condition)'),
 		].map(code => ({code, errors: [{messageId, suggestions: []}]})),
@@ -333,6 +337,7 @@ function createResponse(bytes) {
 
 for (const [name, code] of [
 	['async iteration', forAwait()],
+	['async iteration with an empty template accumulator', forAwait().replace('let text = \'\';', 'let text = ``;')],
 	['explicit iterator', forAwait().replace('response.body', 'response.body.values({preventCancel: true})')],
 	['reader loop', readerLoop()],
 ]) {

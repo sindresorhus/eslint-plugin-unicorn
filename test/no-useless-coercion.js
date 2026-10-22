@@ -13,6 +13,17 @@ const linter = new Linter();
 
 test({
 	valid: [
+		'const text = "hello"; text + `${value}`;', // eslint-disable-line no-template-curly-in-string
+		'const text = "hello"; text + tag``;',
+	],
+	invalid: [{
+		code: 'const text = "hello"; text + /* keep */ ``;',
+		errors: 1,
+	}],
+});
+
+test({
+	valid: [
 		...['unknown', '?bigint', 'bigint | number', 'bigint | undefined'].map(type =>
 			`/** @param {${type}} value */ function run(value) { return [BigInt(-value), BigInt(~value)]; }`,
 		),
@@ -1602,4 +1613,12 @@ test({
 		output: nativeCallbackDefault.replace('Boolean(read())', 'read()'),
 		errors: [{messageId: 'no-useless-coercion'}],
 	}],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{code: 'const text = "hello"; text + ``;', output: 'const text = "hello"; text;', errors: 1},
+		{code: 'const text = "hello"; `` + text;', output: 'const text = "hello"; text;', errors: 1},
+	],
 });

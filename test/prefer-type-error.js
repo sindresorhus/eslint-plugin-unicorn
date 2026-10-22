@@ -3,6 +3,14 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [
+		'if (typeof window !== `undefined`) { throw new Error("unsupported"); }',
+		'if (`undef\\u0069ned` === typeof window) { throw new Error("unsupported"); }',
+	],
+	invalid: [],
+});
+
 const MESSAGE_ID = 'prefer-type-error';
 const errors = [
 	{

@@ -8,6 +8,26 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [
+		{
+			code: 'import * as React from "react"; export const Component = React[`m\\u0065mo`](component);',
+			options: [{checkUnknownCalls: true}],
+		},
+		'export const value = 1; Reflect[`set`](globalThis, "key", value, {});',
+	],
+	invalid: [
+		{
+			code: 'export const value = 1; Object[`assign`](globalThis, {value});',
+			errors: [{messageId: 'global-mutation'}],
+		},
+		{
+			code: 'export const value = 1; Reflect[`s\\u0065t`](globalThis, "key", value);',
+			errors: [{messageId: 'global-mutation'}],
+		},
+	],
+});
+
 const withUnknownCallChecking = testCase => {
 	if (typeof testCase === 'string') {
 		testCase = {code: testCase};
@@ -317,12 +337,12 @@ testUnknownCalls({
 		'import React from "react"; export default React?.memo(Component);',
 		'import React from "react"; export default React.memo?.(Component);',
 		'import React from "react"; export default React?.["memo"]?.(Component);',
+		'import React from "react"; export default React[`memo`](Component);',
 		typescriptCode('import React from "react"; export default (React as typeof React)?.["memo"]<Props>(Component);'),
 		{code: 'import * as config from "@company/config"; export default config["defineConfig"]({});', options: [{allow: {'@company/config': ['defineConfig']}}]},
 	],
 	invalid: [
 		'import React from "react"; export default React[method](Component);',
-		'import React from "react"; export default React[`memo`](Component);',
 		'import React from "react"; export default React["memo"](initialize());',
 		'import {memo} from "react"; export default memo?.(initialize());',
 		'import React from "react"; export default React?.[initialize()](Component);',

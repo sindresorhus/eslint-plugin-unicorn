@@ -6,6 +6,19 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
 
+ruleTest({
+	valid: [
+		'const value = 1; chrome.scripting.executeScript({[tag`func`]: () => value});',
+		'const value = 1; chrome.scripting.executeScript({[`func${suffix}`]: () => value});', // eslint-disable-line no-template-curly-in-string
+	],
+	invalid: [
+		{
+			code: 'const value = 1; chrome.scripting.executeScript({[`f\\u0075nc`]: () => value});',
+			errors: 1,
+		},
+	],
+});
+
 const error = data => ({messageId: 'externally-scoped-variable', data});
 const superError = data => ({messageId: 'super', data});
 const thisError = data => ({messageId: 'this-expression', data});

@@ -15,7 +15,6 @@ test.snapshot({
 		'BigInt("1.0")',
 		'BigInt("1.1")',
 		'BigInt("1e3")',
-		'BigInt(`1`)',
 		'BigInt("1" + "2")',
 		'BigInt?.(1)',
 		'BigInt(1.1)',
@@ -23,8 +22,6 @@ test.snapshot({
 		'BigInt(1n)',
 		'BigInt("not-number")',
 		'BigInt("1_2")',
-		'BigInt("1\\\n2")',
-		String.raw`BigInt("\u{31}")`,
 		'BigInt(!1)',
 		'BigInt(~1)',
 		'BigInt("++1")',
@@ -101,6 +98,27 @@ test.snapshot({
 		'-BigInt("-0")',
 		'1n - (( BigInt("-1") ))',
 		'BigInt(-(+(-10)))',
+	],
+});
+
+test.snapshot({
+	valid: [
+		'BigInt(`1.1`)',
+		'BigInt(`not-number`)',
+		'BigInt(tag`1`)',
+		'BigInt(`1${value}`)', // eslint-disable-line no-template-curly-in-string
+	],
+	invalid: [
+		'BigInt(`1`)',
+		'BigInt(``)',
+		'BigInt(`  00001  `)',
+		'BigInt(`0XFe`)',
+		'BigInt(`-1`).toString()',
+		'BigInt(`+1`)',
+		'BigInt(/* comment */ `1`)',
+		'BigInt("1\\\n2")',
+		'BigInt(`\\u{31}`)',
+		String.raw`BigInt("\u{31}")`,
 	],
 });
 

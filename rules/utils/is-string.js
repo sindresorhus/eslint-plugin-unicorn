@@ -1,5 +1,10 @@
 import {findVariable} from '@eslint-community/eslint-utils';
-import {isMemberExpression, isMethodCall, isStringLiteral} from '../ast/index.js';
+import {
+	getStaticStringValue,
+	isMemberExpression,
+	isMethodCall,
+	isStringLiteral,
+} from '../ast/index.js';
 import {isFunctionCall, isStaticProperties} from './type-check.js';
 import {isIndexedCollection} from './is-array.js';
 import {isRegExp} from './is-reg-exp.js';
@@ -74,7 +79,7 @@ const isStringTypeAnnotation = node => {
 		}
 
 		case 'TSLiteralType': {
-			return isStringLiteral(node.literal);
+			return getStaticStringValue(node.literal) !== undefined;
 		}
 
 		default: {

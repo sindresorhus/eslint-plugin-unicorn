@@ -1,6 +1,6 @@
 import {
 	isEmptyArrayExpression,
-	isEmptyStringLiteral,
+	getStaticStringValue,
 } from './ast/index.js';
 import {getStaticValueIfNoSideEffects} from './utils/index.js';
 
@@ -25,7 +25,7 @@ const isArray = (node, context) => {
 
 const cases = [
 	{
-		oneSidePredicate: isEmptyStringLiteral,
+		oneSidePredicate: node => getStaticStringValue(node) === '',
 		anotherSidePredicate: isArray,
 		anotherNodeDescription: 'an array',
 		replacementDescription: 'array',

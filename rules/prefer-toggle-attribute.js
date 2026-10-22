@@ -1,6 +1,5 @@
 import {
 	getStaticStringValue,
-	isEmptyStringLiteral,
 	isExpressionStatement,
 	isMethodCall,
 } from './ast/index.js';
@@ -88,7 +87,7 @@ function getAttributeCall(node) {
 			attributeName,
 			attributeValue,
 			isOptional: Boolean(callee.optional),
-			hasEmptyAttributeValue: method !== 'setAttribute' || isEmptyStringLiteral(attributeValue),
+			hasEmptyAttributeValue: method !== 'setAttribute' || getStaticStringValue(attributeValue) === '',
 		};
 	}
 }

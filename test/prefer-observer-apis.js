@@ -460,8 +460,17 @@ test({
 			'const {offsetWidth} = {offsetWidth: 100};\nconsole.log(offsetWidth);',
 			'console.log([1, 2].offsetWidth);',
 			'console.log(\'abc\'.offsetWidth);',
+			'console.log(`abc`.offsetWidth);',
+			'console.log(``.offsetWidth);',
+			'const {offsetWidth} = `abc`; console.log(offsetWidth);',
+			'({offsetWidth} = `abc`);',
+			'`abc`.getBoundingClientRect();',
 			'console.log((1).offsetWidth);',
 		].map(statement => `window.addEventListener('resize', () => {\n\t${statement}\n});`),
+		{
+			code: 'window.addEventListener("resize", () => (`abc` as string).offsetWidth);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [],
 });

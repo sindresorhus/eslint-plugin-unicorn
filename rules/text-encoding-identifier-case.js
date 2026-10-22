@@ -1,5 +1,5 @@
 import {replaceStringRaw} from './fix/index.js';
-import {isMethodCall, isNewExpression, isStaticRequire} from './ast/index.js';
+import {isCallExpression, isMethodCall, isNewExpression} from './ast/index.js';
 import {isHtmlRcdataNode} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'text-encoding-identifier/error';
@@ -45,7 +45,7 @@ const isModuleSpecifier = node => {
 
 	// `require('…')` / `import('…')`
 	return (
-		(parent.type === 'CallExpression' && isStaticRequire(parent))
+		isCallExpression(parent, {name: 'require', argumentsLength: 1, optional: false})
 		|| (parent.type === 'ImportExpression' && parent.source === node)
 	);
 };

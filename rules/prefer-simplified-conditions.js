@@ -1,5 +1,5 @@
 import {findVariable, hasSideEffect} from '@eslint-community/eslint-utils';
-import {isMethodCall} from './ast/index.js';
+import {getStaticStringValue, isMethodCall} from './ast/index.js';
 import {
 	addParenthesesToReturnOrThrowExpression,
 	fixSpaceAroundKeyword,
@@ -78,7 +78,7 @@ const isNegativeEqualityComparison = node =>
 function isSimpleAbsorptionReplacement(node) {
 	node = unwrapTypeScriptExpression(node);
 
-	return simpleNodeTypes.has(node.type);
+	return simpleNodeTypes.has(node.type) || getStaticStringValue(node) !== undefined;
 }
 
 function isIdentifierSafeToDrop(node, context) {
@@ -109,7 +109,7 @@ function isIdentifierSafeToDrop(node, context) {
 function isSafeToDropAbsorptionOperand(node, context) {
 	node = unwrapTypeScriptExpression(node);
 
-	if (node.type === 'Literal') {
+	if (node.type === 'Literal' || getStaticStringValue(node) !== undefined) {
 		return true;
 	}
 

@@ -1,7 +1,7 @@
 import {
 	isMethodCall,
 	isMemberExpression,
-	isStringLiteral,
+	getStaticStringValue,
 	isCallExpression,
 	isExpressionStatement,
 } from './ast/index.js';
@@ -196,11 +196,11 @@ const create = context => {
 
 	// `element.classList[condition ? 'add' : 'remove']('className')`
 	context.on('ConditionalExpression', conditionalExpression => {
-		const clauses = [conditionalExpression.consequent, conditionalExpression.alternate];
+		const methods = [conditionalExpression.consequent, conditionalExpression.alternate].map(node => getStaticStringValue(node));
 
 		if (!(
-			clauses.every(node => isStringLiteral(node) && (node.value === 'add' || node.value === 'remove'))
-			&& clauses[0].value !== clauses[1].value
+			methods.every(method => method === 'add' || method === 'remove')
+			&& methods[0] !== methods[1]
 			&& conditionalExpression.parent.type === 'MemberExpression'
 			&& conditionalExpression.parent.computed
 			&& !conditionalExpression.parent.optional
@@ -224,7 +224,7 @@ const create = context => {
 				abort();
 			}
 
-			const isNegative = conditionalExpression.consequent.value === 'remove';
+			const isNegative = methods[0] === 'remove';
 			const conditionNode = conditionalExpression.test;
 			const classListContainsCall = getClassListContainsCall(conditionNode, isNegative, callExpression);
 			const conditionText = classListContainsCall ? '' : getConditionText(conditionNode, context, isNegative);

@@ -9,7 +9,12 @@ import {
 	wouldRemoveComments,
 } from './utils/index.js';
 import eventTypes from './shared/dom-events.js';
-import {isUndefinedValue, isNullLiteral, isStaticRequire} from './ast/index.js';
+import {
+	getStaticStringValue,
+	isCallExpression,
+	isUndefinedValue,
+	isNullLiteral,
+} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 
 const MESSAGE_ID = 'prefer-add-event-listener';
@@ -89,11 +94,11 @@ const create = context => {
 	});
 
 	context.on('CallExpression', node => {
-		if (!isStaticRequire(node)) {
+		if (!isCallExpression(node, {name: 'require', argumentsLength: 1, optional: false})) {
 			return;
 		}
 
-		if (!isDisabled && excludedPackages.has(node.arguments[0].value)) {
+		if (!isDisabled && excludedPackages.has(getStaticStringValue(node.arguments[0]))) {
 			isDisabled = true;
 		}
 	});

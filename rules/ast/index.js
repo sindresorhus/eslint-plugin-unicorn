@@ -7,7 +7,6 @@ export {
 	isBigIntLiteral,
 	isNullLiteral,
 	isRegexLiteral,
-	isEmptyStringLiteral,
 } from './literal.js';
 
 export {
@@ -34,7 +33,6 @@ export {default as isMemberExpression} from './is-member-expression.js';
 export {default as isMethodCall} from './is-method-call.js';
 export {default as isNegativeOne} from './is-negative-one.js';
 export {default as isReferenceIdentifier} from './is-reference-identifier.js';
-export {default as isStaticRequire} from './is-static-require.js';
 export {default as isTaggedTemplateLiteral} from './is-tagged-template-literal.js';
 export {default as isUndefined, isUndefinedValue} from './is-undefined.js';
 export {default as functionTypes} from './function-types.js';

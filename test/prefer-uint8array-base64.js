@@ -8,6 +8,26 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+test.snapshot({
+	valid: [
+		'Buffer.from(string, tag`base64`)',
+		'Buffer.from(string, `base${encoding}`)', // eslint-disable-line no-template-curly-in-string
+		'Buffer.from(string, ``)',
+		'bytes.toBase64().replaceAll(tag`=`, ``)',
+		'bytes.toBase64().replaceAll(`=`, tag``)',
+	],
+	invalid: [
+		'Buffer.from(base64, `base64`)',
+		'Buffer.from(`Zm9v`, `BASE64URL`)',
+		'Buffer.from(base64, `base\\u{36}4`)',
+		'buffer.toString(`base64url`)',
+		'Buffer.from(base64, /* keep */ `base64`)',
+		'bytes.toBase64().replaceAll(`+`, `-`).replaceAll("/", `_`).replaceAll(`=`, ``)',
+		'bytes.toBase64().replace(/=+$/, ``)',
+		{code: '(buffer as Buffer).toString(`base64`)', languageOptions: {parser: parsers.typescript}},
+	],
+});
+
 test({
 	valid: [],
 	invalid: [
@@ -76,6 +96,8 @@ nodeTest('commented base64 option fixes preserve encoding and evaluate the recei
 	for (const [code, expected] of [
 		['getBytes(/* keep */).toBase64().replaceAll(\'=\', \'\')', '+/8'],
 		['getBytes(/* keep */).toBase64().replaceAll(\'+\', \'-\').replaceAll(\'/\', \'_\').replaceAll(\'=\', \'\')', '-_8'],
+		['getBytes(/* keep */).toBase64().replaceAll(`=`, ``)', '+/8'],
+		['getBytes(/* keep */).toBase64().replaceAll(`\\u{2b}`, `-`).replaceAll("/", `_`).replaceAll(`=`, ``)', '-_8'],
 	]) {
 		const {output, fixed, messages} = linter.verifyAndFix(code, {
 			plugins: {unicorn: {rules: {'prefer-uint8array-base64': rule}}},
@@ -101,8 +123,13 @@ nodeTest('commented base64 option fixes preserve encoding and evaluate the recei
 // eslint-disable-next-line node-test/no-skip-test -- Uint8Array.fromBase64 is unavailable on older supported Node.js versions.
 nodeTest('commented base64 inputs decode once and result type changes remain suggestions', {skip: !('fromBase64' in Uint8Array)}, t => {
 	const linter = new Linter();
-	for (const [encoding, text, expected] of [['base64', 'Zm9v', [102, 111, 111]], ['base64url', '-_8', [251, 255]]]) {
-		const code = `function decode() {return(Buffer).from(getText(/* keep */), '${encoding}');} decode();`;
+	for (const [encodingSource, text, expected] of [
+		['\'base64\'', 'Zm9v', [102, 111, 111]],
+		['\'base64url\'', '-_8', [251, 255]],
+		['`base64`', 'Zm9v', [102, 111, 111]],
+		['`BaSe\\u{36}4UrL`', '-_8', [251, 255]],
+	]) {
+		const code = `function decode() {return(Buffer).from(getText(/* keep */), ${encodingSource});} decode();`;
 		const {output, fixed, messages} = linter.verifyAndFix(code, {
 			plugins: {unicorn: {rules: {'prefer-uint8array-base64': rule}}},
 			rules: {'unicorn/prefer-uint8array-base64': 'error'},

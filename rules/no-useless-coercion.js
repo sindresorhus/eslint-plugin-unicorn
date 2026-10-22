@@ -1,4 +1,4 @@
-import {isEmptyStringLiteral} from './ast/index.js';
+import {getStaticStringValue} from './ast/index.js';
 import {
 	isBoolean,
 	isString,
@@ -118,9 +118,9 @@ const create = context => {
 
 		const {left, right} = node;
 		let value;
-		if (isEmptyStringLiteral(right) && isString(left, context)) {
+		if (getStaticStringValue(right) === '' && isString(left, context)) {
 			value = left;
-		} else if (isEmptyStringLiteral(left) && isString(right, context)) {
+		} else if (getStaticStringValue(left) === '' && isString(right, context)) {
 			value = right;
 		} else {
 			return;

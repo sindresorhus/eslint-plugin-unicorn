@@ -2875,3 +2875,17 @@ test.snapshot({
 		{code: String.raw`settings: {"\u{65}rr": 1}`, options: [{checkProperties: true}]},
 	].map(testCase => ({language: languages.soml, ...(typeof testCase === 'string' ? {code: testCase} : testCase)})),
 });
+
+test({
+	valid: [
+		'const cb = require(`package`); cb();',
+		'const cb = require(`pack\\u0061ge`); cb();',
+		{code: 'const cb = require(`./file`); cb();', options: [{checkDefaultAndNamespaceImports: false}]},
+		{code: 'const cb = require(`.\\u002ffile`); cb();', options: [{checkDefaultAndNamespaceImports: false}]},
+	],
+	invalid: [{
+		code: 'const cb = require(`.\\u002ffile`); cb();',
+		output: 'const callback = require(`.\\u002ffile`); callback();',
+		errors: 1,
+	}],
+});

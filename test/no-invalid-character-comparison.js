@@ -86,6 +86,11 @@ test.snapshot({
 		'String(foo)[index] === "ab"',
 		'String(foo)[property] != "12"',
 		'String(foo)[i + 1] === "ab"',
+		'"abc"[``] === "ab"',
+		'"abc"[`length`] === "ab"',
+		'"abc"[`00`] === "ab"',
+		'"abc"[`0${index}`] === "ab"', // eslint-disable-line no-template-curly-in-string
+		'"abc"[tag`0`] === "ab"',
 
 		// Dynamic comparand
 		'str.charAt(0) === someVariable',
@@ -172,5 +177,12 @@ test.snapshot({
 		'\'a😀\'.at(0) === \'a😀\'',
 		// `String#at()` returns a UTF-16 code unit too, not a whole code point
 		'\'😀\'.at(0) === \'😀\'',
+		'"abc"[`0`] === "ab"',
+		'"abc"[(`1`)] === `ab`',
+		'"abc"[`\\u{30}`] === "ab"',
+		{
+			code: 'function isAb(value: string) { return value[`0`] === `ab`; }',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

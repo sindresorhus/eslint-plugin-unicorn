@@ -4,6 +4,19 @@ import {Linter} from 'eslint';
 import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
+
+test({
+	valid: [
+		'if (typeof missing !== `undefined` && missing) {}',
+		'if (`undef\\u0069ned` !== typeof missing && missing) {}',
+	],
+	invalid: [
+		{
+			code: 'if (check() && value === `ready`) {}',
+			errors: 1,
+		},
+	],
+});
 const error = {messageId: 'prefer-simple-condition-first'};
 const unsafeError = {messageId: 'prefer-simple-condition-first/unsafe'};
 

@@ -1,6 +1,6 @@
 import {
 	isCallExpression,
-	isStringLiteral,
+	getStaticStringValue,
 } from './ast/index.js';
 import {
 	needsSemicolon,
@@ -46,16 +46,16 @@ const canUseNumericLiteralRaw = numericLiteral => {
 };
 
 function getReplacement(valueNode) {
-	if (isStringLiteral(valueNode)) {
-		const raw = valueNode.raw.slice(1, -1);
+	const stringValue = getStaticStringValue(valueNode);
+	if (stringValue !== undefined) {
 		let bigint;
 		try {
-			bigint = BigInt(raw);
+			bigint = BigInt(stringValue);
 		} catch {
 			return;
 		}
 
-		let text = raw.trim();
+		let text = stringValue.trim();
 		if (text.startsWith('+')) {
 			text = text.slice(1).trim();
 		}
@@ -68,7 +68,7 @@ function getReplacement(valueNode) {
 			text = bigint.toString();
 		}
 
-		return {shouldUseSuggestion: raw.includes('+'), text: `${text}n`, bigint};
+		return {shouldUseSuggestion: stringValue.includes('+'), text: `${text}n`, bigint};
 	}
 
 	let shouldUseSuggestion = false;

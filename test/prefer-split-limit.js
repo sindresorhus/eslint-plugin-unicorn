@@ -20,6 +20,9 @@ test({
 		'string.split(separator)[0]',
 		'string.split(customSplitter)[0]',
 		'string.split("")[0]',
+		'string.split(``)[0]',
+		'string.split(`/${separator}`)[0]', // eslint-disable-line no-template-curly-in-string
+		'string.split(tag`/`)[0]',
 		'string.split("/")[1.5]',
 		'string.split("/")[4_294_967_294]',
 		'string.split("/").at(4_294_967_294)',
@@ -67,6 +70,17 @@ test({
 		'string.notSplit("/")[0]',
 	],
 	invalid: [
+		...[
+			['url.split(`:`)[0]', 'url.split(`:`, 1)[0]'],
+			['const [first, second] = string.split(`\\u{2F}`)', 'const [first, second] = string.split(`\\u{2F}`, 2)'],
+			['string?.split?.(/* keep */ `/`).at(1)', 'string?.split?.(/* keep */ `/`, 2).at(1)'],
+		].map(([code, output]) => ({code, output, errors})),
+		{
+			code: 'const [first]: string[] = string.split(`/`)',
+			output: 'const [first]: string[] = string.split(`/`, 1)',
+			languageOptions: {parser: parsers.typescript},
+			errors,
+		},
 		{
 			code: 'string.split("/")[0]',
 			output: 'string.split("/", 1)[0]',

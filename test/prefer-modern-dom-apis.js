@@ -72,11 +72,11 @@ test({
 		'new parentNode.insertBefore(newNode, referenceNode);',
 		'new referenceNode.insertAdjacentText(\'beforebegin\', \'text\');',
 		'new referenceNode.insertAdjacentElement(\'beforebegin\', newNode);',
-		// Position must be a string literal, not a template literal
-		'referenceNode.insertAdjacentText(`beforebegin`, \'text\');',
-		'referenceNode.insertAdjacentElement(`beforebegin`, newNode);',
-		// Text content must be a `Literal` or `Identifier`, not a template literal
-		'referenceNode.insertAdjacentText(\'beforebegin\', `text`);',
+		// Position must be a static string
+		'referenceNode.insertAdjacentText(`before${position}`, \'text\');', // eslint-disable-line no-template-curly-in-string
+		'referenceNode.insertAdjacentElement(`before${position}`, newNode);', // eslint-disable-line no-template-curly-in-string
+		// Text content must be a literal or identifier, not an interpolated template literal
+		'referenceNode.insertAdjacentText(\'beforebegin\', `text${value}`);', // eslint-disable-line no-template-curly-in-string
 		// Not `MemberExpression`
 		'replaceChild(newNode, oldNode);',
 		'insertBefore(newNode, referenceNode);',
@@ -661,5 +661,25 @@ test({
 			output: 'function f(window) { window.replaceChildren(); }',
 			errors: 1,
 		},
+	],
+});
+
+test.snapshot({
+	valid: [
+		'referenceNode.insertAdjacentElement(``, newNode);',
+		'referenceNode.insertAdjacentElement(`before${position}`, newNode);', // eslint-disable-line no-template-curly-in-string
+		'referenceNode.insertAdjacentElement(tag`beforebegin`, newNode);',
+		'referenceNode.insertAdjacentText(`beforebegin`, tag`text`);',
+		'referenceNode.insertAdjacentText(`beforebegin`, `text${value}`);', // eslint-disable-line no-template-curly-in-string
+	],
+	invalid: [
+		'referenceNode.insertAdjacentElement(`beforebegin`, newNode);',
+		'referenceNode.insertAdjacentText(`afterbegin`, `text`);',
+		'referenceNode.insertAdjacentText("beforeend", `text`);',
+		'referenceNode.insertAdjacentText(`beforebegin`, ``);',
+		'referenceNode.insertAdjacentElement(`before\\u{62}egin`, newNode);',
+		'referenceNode.insertAdjacentText(/* keep */ `afterend`, `text`);',
+		'const result = referenceNode.insertAdjacentElement(`beforebegin`, newNode);',
+		{code: 'referenceNode.insertAdjacentText(`beforebegin`, `text`);', languageOptions: {parser: parsers.typescript}},
 	],
 });

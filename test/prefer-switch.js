@@ -3,6 +3,14 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [
+		'if ("name" === first) { a(); } else if ("name" === second) { b(); } else if ("name" === third) { c(); }',
+		'if (`name` === first) { a(); } else if (`name` === second) { b(); } else if (`name` === third) { c(); }',
+	],
+	invalid: [],
+});
+
 test.snapshot({
 	valid: [
 		// Less cases

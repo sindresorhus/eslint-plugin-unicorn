@@ -1,5 +1,5 @@
 import outdent from 'outdent';
-import {getTester} from './utils/test.js';
+import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
@@ -17,11 +17,6 @@ test.snapshot({
 		outdent`
 			async function foo() {
 				const fs = await import(0);
-			}
-		`,
-		outdent`
-			async function foo() {
-				const fs = await import(\`fs\`);
 			}
 		`,
 		'import "punycode";', // Deprecated
@@ -81,7 +76,6 @@ test.snapshot({
 		'const fs = notRequire("fs");',
 		'const fs = foo.require("fs");',
 		'const fs = require.resolve("fs");',
-		'const fs = require(`fs`);',
 		'const fs = require?.("fs");',
 		'const fs = require("fs", extra);',
 		'const fs = require();',
@@ -91,6 +85,36 @@ test.snapshot({
 	invalid: [
 		'const {promises} = require("fs")',
 		'const fs = require(\'fs/promises\')',
+	],
+});
+
+test.snapshot({
+	valid: [
+		'require(`node:fs`);',
+		'require(``);',
+		'require(`fs${name}`);', // eslint-disable-line no-template-curly-in-string
+		'require(tag`fs`);',
+		'import(`node:fs`);',
+		'import(`fs${name}`);', // eslint-disable-line no-template-curly-in-string
+		'import(tag`fs`);',
+		'process.getBuiltinModule(`node:fs`);',
+		'process.getBuiltinModule(`fs${name}`);', // eslint-disable-line no-template-curly-in-string
+		'process.getBuiltinModule(tag`fs`);',
+	],
+	invalid: [
+		'require(`fs`);',
+		'require(/* comment */ (`fs/promises`));',
+		'import(`fs`);',
+		'process.getBuiltinModule(`fs`);',
+		'require(`\\u{66}s`);',
+		{
+			code: 'const fs = require(`fs`) as unknown;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'const fs = await import(`fs`);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });
 

@@ -11,7 +11,7 @@ import {
 	isNodeValueNotFunction,
 	wouldRemoveComments,
 } from './utils/index.js';
-import {isMethodCall} from './ast/index.js';
+import {getStaticStringValue, isMethodCall} from './ast/index.js';
 
 const ERROR_PROTOTYPE_METHOD = 'error-prototype-method';
 const ERROR_STATIC_METHOD = 'error-static-method';
@@ -111,7 +111,7 @@ function useBoundFunction(callbackNode, thisArgumentNode, context, removeThisArg
 }
 
 // Removing the `thisArg` also removes its evaluation, so it is only autofixed when it is this simple. Anything else, like a call, a getter, a tagged template, or `key in object` nested anywhere in it, is only a suggestion.
-const isSimpleThisArgument = node => ['Identifier', 'Literal', 'ThisExpression'].includes(node.type);
+const isSimpleThisArgument = node => ['Identifier', 'Literal', 'ThisExpression'].includes(node.type) || getStaticStringValue(node) !== undefined;
 
 function getProblem({
 	context,

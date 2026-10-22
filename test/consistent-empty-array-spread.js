@@ -3,6 +3,20 @@ import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [
+		'[...(flag ? tag`` : [1])];',
+		'[...(flag ? `${value}` : [1])];', // eslint-disable-line no-template-curly-in-string
+		'[...(flag ? `` : `value`)];',
+	],
+	invalid: [
+		['[...(flag ? `` : [1])];', '[...(flag ? [] : [1])];'],
+		['[...(flag ? [1] : ``)];', '[...(flag ? [1] : [])];'],
+		['[...(flag ? `\\\n` : [1])];', '[...(flag ? [] : [1])];'],
+		['[...(flag ? /* keep */ `` : [1])];', '[...(flag ? /* keep */ [] : [1])];'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
 test.snapshot({
 	valid: [
 		'[,,,]',

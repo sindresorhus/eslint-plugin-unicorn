@@ -1,7 +1,7 @@
 import {
 	isMethodCall,
 	isRegexLiteral,
-	isStringLiteral,
+	getStaticStringValue,
 } from '../ast/index.js';
 
 const REGEXP_ESCAPE_FLAGS = 'g';
@@ -64,9 +64,7 @@ const isRegExpEscapePattern = node =>
 	&& !node.regex.flags.includes('y')
 	&& getCharacterClassCharacters(node.regex.pattern)?.size >= MINIMUM_REGEXP_ESCAPE_CHARACTER_COUNT;
 
-const isRegExpEscapeReplacement = node =>
-	isStringLiteral(node)
-	&& node.value === REGEXP_ESCAPE_REPLACEMENT;
+const isRegExpEscapeReplacement = node => getStaticStringValue(node) === REGEXP_ESCAPE_REPLACEMENT;
 
 const isRegExpEscapeReplaceCall = node =>
 	isMethodCall(node, {

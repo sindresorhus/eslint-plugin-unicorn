@@ -49,6 +49,40 @@ Output:
 
 `;
 
+exports[`prefer-classlist-toggle > invalid(1): element.classList[condition ? \`add\` : \`remove\`](\`className\`); 1`] = `
+
+  1 | element.classList[condition ? \`add\` : \`remove\`](\`className\`);
+
+`;
+
+exports[`prefer-classlist-toggle > invalid(1): element.classList[condition ? \`add\` : \`remove\`](\`className\`); 2`] = `
+
+Message:
+> 1 | element.classList[condition ? \`add\` : \`remove\`](\`className\`);
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#classList.toggle()\` to toggle class names.
+
+Output:
+  1 | element.classList.toggle(\`className\`, condition);
+
+`;
+
+exports[`prefer-classlist-toggle > invalid(1): if (condition) { element.classList.add(\`name\`); } else { element.classList.remove(\`name\`); } 1`] = `
+
+  1 | if (condition) { element.classList.add(\`name\`); } else { element.classList.remove(\`name\`); }
+
+`;
+
+exports[`prefer-classlist-toggle > invalid(1): if (condition) { element.classList.add(\`name\`); } else { element.classList.remove(\`name\`); } 2`] = `
+
+Message:
+> 1 | if (condition) { element.classList.add(\`name\`); } else { element.classList.remove(\`name\`); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#classList.toggle()\` to toggle class names.
+
+Output:
+  1 | element.classList.toggle(\`name\`, condition);
+
+`;
+
 exports[`prefer-classlist-toggle > invalid(1): if (condition) {\n\telement.classList.add('className');\n} else {\n\telement.classList.remove('className');\n} 1`] = `
 
   1 | if (condition) {
@@ -808,6 +842,40 @@ Output:
 
 `;
 
+exports[`prefer-classlist-toggle > invalid(2): element.classList[condition ? \`remove\` : \"add\"](className); 1`] = `
+
+  1 | element.classList[condition ? \`remove\` : "add"](className);
+
+`;
+
+exports[`prefer-classlist-toggle > invalid(2): element.classList[condition ? \`remove\` : \"add\"](className); 2`] = `
+
+Message:
+> 1 | element.classList[condition ? \`remove\` : "add"](className);
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#classList.toggle()\` to toggle class names.
+
+Output:
+  1 | element.classList.toggle(className, !condition);
+
+`;
+
+exports[`prefer-classlist-toggle > invalid(2): if (condition) { element.classList.add(\"name\"); } else { element.classList.remove(\`name\`); } 1`] = `
+
+  1 | if (condition) { element.classList.add("name"); } else { element.classList.remove(\`name\`); }
+
+`;
+
+exports[`prefer-classlist-toggle > invalid(2): if (condition) { element.classList.add(\"name\"); } else { element.classList.remove(\`name\`); } 2`] = `
+
+Message:
+> 1 | if (condition) { element.classList.add("name"); } else { element.classList.remove(\`name\`); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#classList.toggle()\` to toggle class names.
+
+Output:
+  1 | element.classList.toggle("name", condition);
+
+`;
+
 exports[`prefer-classlist-toggle > invalid(2): if (condition)\n\telement.classList.add('className');\nelse\n\telement.classList.remove('className'); 1`] = `
 
   1 | if (condition)
@@ -1117,6 +1185,23 @@ Output:
 
 `;
 
+exports[`prefer-classlist-toggle > invalid(3): condition ? element.classList.add(\`na\\u{6d}e\`) : element.classList.remove(\"name\"); 1`] = `
+
+  1 | condition ? element.classList.add(\`na\\u{6d}e\`) : element.classList.remove("name");
+
+`;
+
+exports[`prefer-classlist-toggle > invalid(3): condition ? element.classList.add(\`na\\u{6d}e\`) : element.classList.remove(\"name\"); 2`] = `
+
+Message:
+> 1 | condition ? element.classList.add(\`na\\u{6d}e\`) : element.classList.remove("name");
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#classList.toggle()\` to toggle class names.
+
+Output:
+  1 | element.classList.toggle(\`na\\u{6d}e\`, condition);
+
+`;
+
 exports[`prefer-classlist-toggle > invalid(3): condition ? element.classList.add(className) : element?.classList.remove(className) 1`] = `
 
   1 | condition ? element.classList.add(className) : element?.classList.remove(className)
@@ -1131,6 +1216,23 @@ Message:
 
 Output:
   1 | element?.classList.toggle(className, condition)
+
+`;
+
+exports[`prefer-classlist-toggle > invalid(3): element.classList[condition ? \"add\" : \`remove\`](className); 1`] = `
+
+  1 | element.classList[condition ? "add" : \`remove\`](className);
+
+`;
+
+exports[`prefer-classlist-toggle > invalid(3): element.classList[condition ? \"add\" : \`remove\`](className); 2`] = `
+
+Message:
+> 1 | element.classList[condition ? "add" : \`remove\`](className);
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#classList.toggle()\` to toggle class names.
+
+Output:
+  1 | element.classList.toggle(className, condition);
 
 `;
 
@@ -1214,6 +1316,23 @@ Suggestion 1/1: Replace with \`Element#classList.toggle()\`.:
 
 `;
 
+exports[`prefer-classlist-toggle > invalid(4): element.classList[condition ? \`\\u{61}dd\` : \`remove\`](className); 1`] = `
+
+  1 | element.classList[condition ? \`\\u{61}dd\` : \`remove\`](className);
+
+`;
+
+exports[`prefer-classlist-toggle > invalid(4): element.classList[condition ? \`\\u{61}dd\` : \`remove\`](className); 2`] = `
+
+Message:
+> 1 | element.classList[condition ? \`\\u{61}dd\` : \`remove\`](className);
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#classList.toggle()\` to toggle class names.
+
+Output:
+  1 | element.classList.toggle(className, condition);
+
+`;
+
 exports[`prefer-classlist-toggle > invalid(4): if (condition) {\n\telement?.classList.add('className');\n} else {\n\telement.classList.remove('className');\n} 1`] = `
 
   1 | if (condition) {
@@ -1240,6 +1359,37 @@ Message:
 
 Output:
   1 | element?.classList.toggle('className', condition);
+
+`;
+
+exports[`prefer-classlist-toggle > invalid(4): if (element.classList.contains(\`name\`)) { element.classList.remove(\`name\`); } else { element.classList.add(\`name\`); } 1`] = `
+
+  1 | if (element.classList.contains(\`name\`)) { element.classList.remove(\`name\`); } else { element.classList.add(\`name\`); }
+
+`;
+
+exports[`prefer-classlist-toggle > invalid(4): if (element.classList.contains(\`name\`)) { element.classList.remove(\`name\`); } else { element.classList.add(\`name\`); } 2`] = `
+
+Message:
+> 1 | if (element.classList.contains(\`name\`)) { element.classList.remove(\`name\`); } else { element.classList.add(\`name\`); }
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#classList.toggle()\` to toggle class names.
+
+Output:
+  1 | element.classList.toggle(\`name\`);
+
+`;
+
+exports[`prefer-classlist-toggle > invalid(5): element.classList[condition ? /* keep */ \`add\` : \`remove\`](className); 1`] = `
+
+  1 | element.classList[condition ? /* keep */ \`add\` : \`remove\`](className);
+
+`;
+
+exports[`prefer-classlist-toggle > invalid(5): element.classList[condition ? /* keep */ \`add\` : \`remove\`](className); 2`] = `
+
+Message:
+> 1 | element.classList[condition ? /* keep */ \`add\` : \`remove\`](className);
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#classList.toggle()\` to toggle class names.
 
 `;
 
@@ -1300,6 +1450,23 @@ Message:
 
 Output:
   1 | element?.classList.toggle('className', condition);
+
+`;
+
+exports[`prefer-classlist-toggle > invalid(6): const result = element.classList[condition ? \`add\` : \`remove\`](className); 1`] = `
+
+  1 | const result = element.classList[condition ? \`add\` : \`remove\`](className);
+
+`;
+
+exports[`prefer-classlist-toggle > invalid(6): const result = element.classList[condition ? \`add\` : \`remove\`](className); 2`] = `
+
+Message:
+> 1 | const result = element.classList[condition ? \`add\` : \`remove\`](className);
+    |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#classList.toggle()\` to toggle class names.
+
+Suggestion 1/1: Replace with \`Element#classList.toggle()\`.:
+  1 | const result = element.classList.toggle(className, condition);
 
 `;
 
@@ -1369,6 +1536,23 @@ Message:
 
 Output:
   1 | element.classList.toggle('className', !condition);
+
+`;
+
+exports[`prefer-classlist-toggle > invalid(7): element!.classList[condition ? \`add\` : \`remove\`](className); 1`] = `
+
+  1 | element!.classList[condition ? \`add\` : \`remove\`](className);
+
+`;
+
+exports[`prefer-classlist-toggle > invalid(7): element!.classList[condition ? \`add\` : \`remove\`](className); 2`] = `
+
+Message:
+> 1 | element!.classList[condition ? \`add\` : \`remove\`](className);
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer using \`Element#classList.toggle()\` to toggle class names.
+
+Output:
+  1 | element!.classList.toggle(className, condition);
 
 `;
 

@@ -1,4 +1,4 @@
-import {isMemberExpression, isMethodCall} from './ast/index.js';
+import {getStaticStringValue, isMemberExpression, isMethodCall} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getCallArgumentText,
@@ -32,9 +32,7 @@ const isGlobalObject = (node, context) =>
 	&& node.name === 'Object'
 	&& !isValueShadowed(node, 'Object', context);
 
-const isErrorTagLiteral = node =>
-	node.type === 'Literal'
-	&& node.value === '[object Error]';
+const isErrorTagLiteral = node => getStaticStringValue(node) === '[object Error]';
 
 const supportedComparisonOperators = new Set([
 	'===',
