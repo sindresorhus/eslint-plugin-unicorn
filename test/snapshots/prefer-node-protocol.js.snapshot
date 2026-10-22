@@ -49,6 +49,23 @@ Output:
 
 `;
 
+exports[`prefer-node-protocol > invalid(1): require(\`fs\`); 1`] = `
+
+  1 | require(\`fs\`);
+
+`;
+
+exports[`prefer-node-protocol > invalid(1): require(\`fs\`); 2`] = `
+
+Message:
+> 1 | require(\`fs\`);
+    |         ^^^^ Prefer \`node:fs\` over \`fs\`.
+
+Output:
+  1 | require(\`node:fs\`);
+
+`;
+
 exports[`prefer-node-protocol > invalid(10): export {default as promises} from \"fs\"; 1`] = `
 
   1 | export {default as promises} from "fs";
@@ -214,6 +231,23 @@ Output:
 
 `;
 
+exports[`prefer-node-protocol > invalid(2): require(/* comment */ (\`fs/promises\`)); 1`] = `
+
+  1 | require(/* comment */ (\`fs/promises\`));
+
+`;
+
+exports[`prefer-node-protocol > invalid(2): require(/* comment */ (\`fs/promises\`)); 2`] = `
+
+Message:
+> 1 | require(/* comment */ (\`fs/promises\`));
+    |                        ^^^^^^^^^^^^^ Prefer \`node:fs/promises\` over \`fs/promises\`.
+
+Output:
+  1 | require(/* comment */ (\`node:fs/promises\`));
+
+`;
+
 exports[`prefer-node-protocol > invalid(3): export * from \"fs\"; 1`] = `
 
   1 | export * from "fs";
@@ -231,6 +265,23 @@ Output:
 
 `;
 
+exports[`prefer-node-protocol > invalid(3): import(\`fs\`); 1`] = `
+
+  1 | import(\`fs\`);
+
+`;
+
+exports[`prefer-node-protocol > invalid(3): import(\`fs\`); 2`] = `
+
+Message:
+> 1 | import(\`fs\`);
+    |        ^^^^ Prefer \`node:fs\` over \`fs\`.
+
+Output:
+  1 | import(\`node:fs\`);
+
+`;
+
 exports[`prefer-node-protocol > invalid(4): export * as ns from \"fs\"; 1`] = `
 
   1 | export * as ns from "fs";
@@ -245,6 +296,23 @@ Message:
 
 Output:
   1 | export * as ns from "node:fs";
+
+`;
+
+exports[`prefer-node-protocol > invalid(4): process.getBuiltinModule(\`fs\`); 1`] = `
+
+  1 | process.getBuiltinModule(\`fs\`);
+
+`;
+
+exports[`prefer-node-protocol > invalid(4): process.getBuiltinModule(\`fs\`); 2`] = `
+
+Message:
+> 1 | process.getBuiltinModule(\`fs\`);
+    |                          ^^^^ Prefer \`node:fs\` over \`fs\`.
+
+Output:
+  1 | process.getBuiltinModule(\`node:fs\`);
 
 `;
 
@@ -271,6 +339,40 @@ Output:
 
 `;
 
+exports[`prefer-node-protocol > invalid(5): require(\`\\u{66}s\`); 1`] = `
+
+  1 | require(\`\\u{66}s\`);
+
+`;
+
+exports[`prefer-node-protocol > invalid(5): require(\`\\u{66}s\`); 2`] = `
+
+Message:
+> 1 | require(\`\\u{66}s\`);
+    |         ^^^^^^^^^ Prefer \`node:fs\` over \`fs\`.
+
+Output:
+  1 | require(\`node:\\u{66}s\`);
+
+`;
+
+exports[`prefer-node-protocol > invalid(6): const fs = require(\`fs\`) as unknown; 1`] = `
+
+  1 | const fs = require(\`fs\`) as unknown;
+
+`;
+
+exports[`prefer-node-protocol > invalid(6): const fs = require(\`fs\`) as unknown; 2`] = `
+
+Message:
+> 1 | const fs = require(\`fs\`) as unknown;
+    |                    ^^^^ Prefer \`node:fs\` over \`fs\`.
+
+Output:
+  1 | const fs = require(\`node:fs\`) as unknown;
+
+`;
+
 exports[`prefer-node-protocol > invalid(6): import fs from \"fs/promises\"; 1`] = `
 
   1 | import fs from "fs/promises";
@@ -285,6 +387,23 @@ Message:
 
 Output:
   1 | import fs from "node:fs/promises";
+
+`;
+
+exports[`prefer-node-protocol > invalid(7): const fs = await import(\`fs\`); 1`] = `
+
+  1 | const fs = await import(\`fs\`);
+
+`;
+
+exports[`prefer-node-protocol > invalid(7): const fs = await import(\`fs\`); 2`] = `
+
+Message:
+> 1 | const fs = await import(\`fs\`);
+    |                         ^^^^ Prefer \`node:fs\` over \`fs\`.
+
+Output:
+  1 | const fs = await import(\`node:fs\`);
 
 `;
 

@@ -1,4 +1,5 @@
 import {isSemicolonToken} from '@eslint-community/eslint-utils';
+import {getStaticStringValue} from './ast/index.js';
 import {getIndentString, getLinebreak} from './utils/index.js';
 
 const MESSAGE_ID_ERROR = 'prefer-class-fields/error';
@@ -66,13 +67,13 @@ const create = context => {
 			&& node.expression.left.object.type === 'ThisExpression'
 			&& !node.expression.left.computed
 			&& ['Identifier', 'PrivateIdentifier'].includes(node.expression.left.property.type)
-			&& node.expression.right.type === 'Literal'
+			&& (node.expression.right.type === 'Literal' || getStaticStringValue(node.expression.right) !== undefined)
 		)) {
 			return;
 		}
 
 		const propertyName = node.expression.left.property.name;
-		const propertyValue = node.expression.right.raw;
+		const propertyValue = sourceCode.getText(node.expression.right);
 		const propertyType = node.expression.left.property.type;
 		// `get 'bar'()` is the same accessor as `get bar()`
 		const isSameKey = key =>

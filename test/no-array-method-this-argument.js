@@ -4,6 +4,31 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		...[
+			['array.map(value => value, `context`);', 'array.map(value => value);'],
+			['array.filter(value => value, ``);', 'array.filter(value => value);'],
+			['Array.from(values, value => value, `context`);', 'Array.from(values, value => value);'],
+			['Array.from(values, value => value, ``);', 'Array.from(values, value => value);'],
+			['Array.fromAsync(values, value => value, `context`);', 'Array.fromAsync(values, value => value);'],
+			['Array.fromAsync(values, value => value, ``);', 'Array.fromAsync(values, value => value);'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+		...[
+			['array.map(value => value, `context${value}`);', 'array.map(value => value);'], // eslint-disable-line no-template-curly-in-string
+			['Array.from(values, value => value, tag``);', 'Array.from(values, value => value);'],
+			['Array.fromAsync(values, value => value, `context${value}`);', 'Array.fromAsync(values, value => value);'], // eslint-disable-line no-template-curly-in-string
+		].map(([code, output]) => ({
+			code,
+			errors: [{
+				messageId: code.startsWith('array.') ? 'error-prototype-method' : 'error-static-method',
+				suggestions: [{messageId: 'suggestion-remove', output}],
+			}],
+		})),
+	],
+});
+
 const typeAware = code => ({
 	code,
 	filename: 'file.ts',

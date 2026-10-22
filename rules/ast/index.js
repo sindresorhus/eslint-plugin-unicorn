@@ -7,7 +7,6 @@ export {
 	isBigIntLiteral,
 	isNullLiteral,
 	isRegexLiteral,
-	isEmptyStringLiteral,
 } from './literal.js';
 
 export {

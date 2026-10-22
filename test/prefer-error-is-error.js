@@ -2,6 +2,25 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [
+		'Object.prototype.toString.call(error) === tag`[object Error]`',
+		'Object.prototype.toString.call(error) === `[object ${type}]`', // eslint-disable-line no-template-curly-in-string
+	],
+	invalid: [
+		{
+			code: 'Object.prototype.toString.call(error) === `[object Err\\u006fr]`',
+			output: 'Error.isError(error)',
+			errors: 1,
+		},
+		{
+			code: '`[object Error]` !== Object.prototype.toString.call(error)',
+			output: '!Error.isError(error)',
+			errors: 1,
+		},
+	],
+});
+
 const typescript = code => ({
 	code,
 	languageOptions: {

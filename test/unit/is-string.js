@@ -427,3 +427,9 @@ test('base64 inference retains direct nonoptional call boundaries', t => {
 	].join('\n');
 	t.assert.deepStrictEqual(getResults(code), [false, false, false, false, false]);
 });
+
+test('recognizes string types written as templates without substitutions', t => {
+	t.assert.deepStrictEqual(getResults('function check(value: `foo`) { inspect(value); }'), [true]);
+	t.assert.deepStrictEqual(getResults('inspect(value satisfies `foo`);'), [true]);
+	t.assert.deepStrictEqual(getResults('function check(value: ``) { inspect(value); }'), [true]);
+});

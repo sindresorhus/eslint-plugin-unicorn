@@ -4,6 +4,23 @@ const {test} = getTester(import.meta);
 
 test({
 	valid: [
+		'require(``);',
+		'import(``);',
+		'require(`object-${name}`);', // eslint-disable-line no-template-curly-in-string
+		'import(`object-${name}`);', // eslint-disable-line no-template-curly-in-string
+		'require(tag`object-assign`);',
+		'import(tag`object-assign`);',
+	].map(code => ({code, options: [{targets: {node: '20'}}]})),
+	invalid: [
+		'require(`object-assign`);',
+		'import(`object-assign`);',
+		'require(`object-\\u{61}ssign`);',
+		'import(`core-js/stable/array/flat`);',
+	].map(code => ({code, options: [{targets: {node: '20'}}], errors: 1})),
+});
+
+test({
+	valid: [
 		{
 			code: 'require("object-assign")',
 			options: [{targets: {node: '0.1.0'}}],

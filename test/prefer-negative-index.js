@@ -10,6 +10,30 @@ const error = {
 
 const suggestion = output => ({...error, suggestions: [{messageId: 'prefer-negative-index/suggestion', output}]});
 
+test({
+	valid: [
+		'`nonempty`.slice.call(foo, foo.length - 1);',
+		'tag``.slice.call(foo, foo.length - 1);',
+		'``.splice.call(foo, foo.length - 1, 1);',
+	],
+	invalid: [
+		{
+			code: '``.slice.call(foo, foo.length - 1);',
+			output: '``.slice.call(foo, -1);',
+			errors: [error],
+		},
+		{
+			code: '``.slice.apply(foo, [foo.length - 1]);',
+			output: '``.slice.apply(foo, [-1]);',
+			errors: [error],
+		},
+		...[
+			['``.slice.call(foo, foo.length - 1, foo.length - 2, foo.length - 3);', '``.slice.call(foo, -1, -2, foo.length - 3);'],
+			['``.slice.apply(foo, [foo.length - 1, foo.length - 2, foo.length - 3]);', '``.slice.apply(foo, [-1, -2, foo.length - 3]);'],
+		].map(([code, output]) => ({code, errors: [suggestion(output)]})),
+	],
+});
+
 // Offsets other than `1` can exceed the receiver's length, so these conversions must stay suggestions.
 test({
 	valid: [],

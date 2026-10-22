@@ -4,6 +4,22 @@ import notDomNodeTypes from './utils/not-dom-node-types.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'if (element.hasAttribute(`disabled`)) { element.removeAttribute(`disabled`); } else { element.setAttribute(`disabled`, ""); }',
+			output: 'element.toggleAttribute(`disabled`);',
+			errors: 1,
+		},
+		{
+			code: 'if (element.hasAttribute("disabled")) { element.removeAttribute("disabled"); } else { element.setAttribute("disabled", ``); }',
+			output: 'element.toggleAttribute("disabled");',
+			errors: 1,
+		},
+	],
+});
+
 test.snapshot({
 	valid: [
 		'element.toggleAttribute("hidden")',

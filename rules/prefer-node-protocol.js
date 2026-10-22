@@ -1,7 +1,8 @@
 // We use `is-builtin-module` (static list) instead of `node:module`'s `isBuiltin` because the latter depends on the running Node.js version, causing inconsistent results across environments.
 import isBuiltinModule from 'is-builtin-module';
 import {
-	isStaticRequire,
+	getStaticStringValue,
+	isCallExpression,
 	isMethodCall,
 } from './ast/index.js';
 
@@ -15,7 +16,7 @@ const NODE_PROTOCOL = 'node:';
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
-	context.on('Literal', node => {
+	context.on(['Literal', 'TemplateLiteral'], node => {
 		if (!(
 			(
 				(
@@ -38,7 +39,7 @@ const create = context => {
 						optionalCall: false,
 						optionalMember: false,
 					})
-					|| isStaticRequire(node.parent)
+					|| isCallExpression(node.parent, {name: 'require', argumentsLength: 1, optional: false})
 				)
 				&& node.parent.arguments[0] === node
 			)
@@ -46,7 +47,7 @@ const create = context => {
 			return;
 		}
 
-		const {value} = node;
+		const value = getStaticStringValue(node);
 
 		if (!(
 			typeof value === 'string'

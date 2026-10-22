@@ -3,7 +3,7 @@ import {
 	isEmptyArrayExpression,
 	isMethodCall,
 	isNewExpression,
-	isStringLiteral,
+	getStaticStringValue,
 } from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
@@ -40,7 +40,7 @@ const isPlainMethodCall = (node, method, argumentsLength) => isMethodCall(node, 
 });
 
 const isLiteralValue = (node, value) => node?.type === 'Literal' && node.value === value;
-const isHexEncoding = node => isStringLiteral(node) && node.value.toLowerCase() === 'hex';
+const isHexEncoding = node => getStaticStringValue(node)?.toLowerCase() === 'hex';
 
 const typeCheckerOptions = {
 	...bufferTypeCheckerOptions,
@@ -97,8 +97,7 @@ function getZeroPrefixedExpression(node) {
 	if (
 		node.type === 'BinaryExpression'
 		&& node.operator === '+'
-		&& isStringLiteral(node.left)
-		&& isZeroPrefix(node.left.value)
+		&& isZeroPrefix(getStaticStringValue(node.left))
 	) {
 		return node.right;
 	}
@@ -124,7 +123,7 @@ function isEncodingCallback(node) {
 	if (
 		isPlainMethodCall(expression, 'padStart', 2)
 		&& isLiteralValue(expression.arguments[0], 2)
-		&& isLiteralValue(expression.arguments[1], '0')
+		&& getStaticStringValue(expression.arguments[1]) === '0'
 	) {
 		numberToString = expression.callee.object;
 	} else if (isPlainMethodCall(expression, 'slice', 1)) {
@@ -161,7 +160,7 @@ function isDecodingCallback(node) {
 }
 
 function getEncodingInput(node) {
-	if (!isPlainMethodCall(node, 'join', 1) || !isLiteralValue(node.arguments[0], '')) {
+	if (!isPlainMethodCall(node, 'join', 1) || getStaticStringValue(node.arguments[0]) !== '') {
 		return;
 	}
 

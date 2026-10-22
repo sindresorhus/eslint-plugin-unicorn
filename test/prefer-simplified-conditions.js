@@ -8,6 +8,41 @@ import {getTester, parsers} from './utils/test.js';
 
 const {ruleId, rule, test: ruleTester} = getTester(import.meta);
 
+ruleTester({
+	valid: [
+		'if ((object.property && a) || (object[tag`property`] && b)) {}',
+		'if ((object.property && a) || (object[`prop${name}`] && b)) {}', // eslint-disable-line no-template-curly-in-string
+	],
+	invalid: [
+		{
+			code: 'if ((object.property && a) || (object[`property`] && b)) {}',
+			output: 'if (object.property && (a || b)) {}',
+			errors: 1,
+		},
+		{
+			code: 'if ((object[`prop\\u0065rty`] && a) || (object.property && b)) {}',
+			output: 'if (object[`prop\\u0065rty`] && (a || b)) {}',
+			errors: 1,
+		},
+		{
+			code: 'if (`ready` || ("ready" && value)) {}',
+			output: 'if (`ready`) {}',
+			errors: 1,
+		},
+		{
+			code: 'function check(ready) { if ((ready && ``) || ready) {} }',
+			output: 'function check(ready) { if (ready) {} }',
+			errors: 1,
+		},
+		{
+			code: 'if ((object.property && a) || (object[`property` as string] && b)) {}',
+			output: 'if (object.property && (a || b)) {}',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+	],
+});
+
 const typeAware = code => ({
 	code,
 	filename: 'file.ts',

@@ -20,6 +20,7 @@ import {
 } from './utils/index.js';
 import {removeStatement} from './fix/index.js';
 import {
+	getStaticStringValue,
 	isMemberExpression,
 	isMethodCall,
 	isStringLiteral,
@@ -250,7 +251,8 @@ function getFix(callExpression, context) {
 
 	return fixer => {
 		const [nameNode] = callExpression.arguments;
-		const name = dashToCamelCase(nameNode.value.toLowerCase().slice(5));
+		const name = dashToCamelCase(getStaticStringValue(nameNode).toLowerCase().slice(5));
+		const quote = isStringLiteral(nameNode) ? nameNode.raw.charAt(0) : undefined;
 		let text = '';
 		const objectText = getMemberExpressionObjectText(
 			callExpression.callee.object,
@@ -262,7 +264,7 @@ function getFix(callExpression, context) {
 			case 'setAttribute':
 			case 'getAttribute':
 			case 'removeAttribute': {
-				text = isIdentifierName(name) ? `.${name}` : `[${escapeString(name, nameNode.raw.charAt(0))}]`;
+				text = isIdentifierName(name) ? `.${name}` : `[${escapeString(name, quote)}]`;
 				text = `${datasetText}${text}`;
 				if (method === 'setAttribute') {
 					const value = callExpression.arguments[1];
@@ -281,7 +283,7 @@ function getFix(callExpression, context) {
 			}
 
 			case 'hasAttribute': {
-				text = `Object.hasOwn(${datasetText}, ${escapeString(name, nameNode.raw.charAt(0))})`;
+				text = `Object.hasOwn(${datasetText}, ${escapeString(name, quote)})`;
 				break;
 			}
 			// No default
@@ -314,8 +316,9 @@ const create = context => {
 		const {sourceCode} = context;
 
 		const getHasAttributeReport = (reportNode, keyNode, datasetNode) => {
+			const key = getStaticStringValue(keyNode);
 			if (
-				isUnsafeDatasetKey(keyNode.value)
+				isUnsafeDatasetKey(key)
 				|| isKnownNonDomNode(datasetNode.object, context)
 			) {
 				return;
@@ -323,7 +326,7 @@ const create = context => {
 
 			const objectText = getMemberExpressionObjectText(datasetNode.object, context, reportNode);
 			const chain = datasetNode.optional ? '?.' : '.';
-			const attributeName = escapeString(camelCaseToDash(keyNode.value), keyNode.raw.charAt(0));
+			const attributeName = escapeString(camelCaseToDash(key), isStringLiteral(keyNode) ? keyNode.raw.charAt(0) : undefined);
 			const fix = wouldRemoveComments(context, reportNode, [datasetNode.object])
 				? undefined
 				: fixer => {
@@ -346,7 +349,7 @@ const create = context => {
 		context.on('BinaryExpression', binaryExpression => {
 			if (!(
 				binaryExpression.operator === 'in'
-				&& isStringLiteral(binaryExpression.left)
+				&& getStaticStringValue(binaryExpression.left) !== undefined
 				&& isDatasetAccess(binaryExpression.right)
 			)) {
 				return;
@@ -365,7 +368,7 @@ const create = context => {
 					optionalMember: false,
 				})
 				&& isDatasetAccess(callExpression.arguments[0])
-				&& isStringLiteral(callExpression.arguments[1])
+				&& getStaticStringValue(callExpression.arguments[1]) !== undefined
 			) {
 				return getHasAttributeReport(callExpression, callExpression.arguments[1], callExpression.arguments[0]);
 			}
@@ -378,7 +381,7 @@ const create = context => {
 					optionalMember: false,
 				})
 				&& isDatasetAccess(callExpression.callee.object)
-				&& isStringLiteral(callExpression.arguments[0])
+				&& getStaticStringValue(callExpression.arguments[0]) !== undefined
 			) {
 				return getHasAttributeReport(callExpression, callExpression.arguments[0], callExpression.callee.object);
 			}
@@ -428,7 +431,8 @@ const create = context => {
 					return false;
 				}
 
-				return !property.computed && property.key.type === 'Identifier' ? isUnsafeDatasetKey(property.key.name) : !isStringLiteral(property.key) || isUnsafeDatasetKey(property.key.value);
+				const key = !property.computed && property.key.type === 'Identifier' ? property.key.name : getStaticStringValue(property.key);
+				return key === undefined || isUnsafeDatasetKey(key);
 			});
 			if (hasUnsafeKey) {
 				return;
@@ -610,7 +614,7 @@ const create = context => {
 					optionalCall: false,
 				})
 			)
-			&& isStringLiteral(callExpression.arguments[0])
+			&& getStaticStringValue(callExpression.arguments[0]) !== undefined
 		)) {
 			return;
 		}
@@ -640,7 +644,7 @@ const create = context => {
 			return;
 		}
 
-		const attributeName = callExpression.arguments[0].value.toLowerCase();
+		const attributeName = getStaticStringValue(callExpression.arguments[0]).toLowerCase();
 
 		if (!attributeName.startsWith('data-')) {
 			return;

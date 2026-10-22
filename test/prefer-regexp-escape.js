@@ -36,7 +36,6 @@ test.snapshot({
 		`const escaped = string.replace(${regexpEscapeLiteral}, '$&');`,
 		`const escaped = string.replace(${regexpEscapeLiteral}, ${differentRegexpEscapeReplacement});`,
 		`const escaped = string.replace(${regexpEscapeLiteral}, ${functionReplacement});`,
-		`const escaped = string.replace(${regexpEscapeLiteral}, \`\\\\$&\`);`,
 		`const escaped = string.replace(${regexpEscapeLiteral}, ${regexpEscapeReplacement}, extra);`,
 		`const escaped = string.replaceAll(${regexpEscapeLiteral}, ${regexpEscapeReplacement});`,
 		`const escaped = string[replace](${regexpEscapeLiteral}, ${regexpEscapeReplacement});`,
@@ -106,5 +105,22 @@ const object = {value: 42};
 Object.defineProperty(object, 'value', {get() { return 'value'; }});
 const escaped = escapeStringRegexp(object.value);`,
 		'import escapeStringRegexp from \'escape-string-regexp\'; const escaped = escapeStringRegexp(/* string */ string);',
+	],
+});
+
+test.snapshot({
+	valid: [
+		'const escape = require(tag`escape-string-regexp`); escape(string)',
+		'const escape = require(`escape-string-${name}`); escape(string)', // eslint-disable-line no-template-curly-in-string
+		`string.replace(${regexpEscapeLiteral}, tag\`\\\\$&\`)`,
+	],
+	invalid: [
+		'const escape = require(`escape-string-regexp`); escape(string)',
+		'const lodash = require(`lodash`); lodash.escapeRegExp(string)',
+		'const {escapeRegExp} = require(`lodash-es`); escapeRegExp(string)',
+		'const escape = require(`escape-string-reg\\u{65}xp`); escape(string)',
+		`const escaped = string.replace(${regexpEscapeLiteral}, \`\\\\$&\`);`,
+		`string.replace(/* keep */ ${regexpEscapeLiteral}, \`\\\\$&\`)`,
+		{code: `(string as string).replace(${regexpEscapeLiteral}, \`\\\\$&\`)`, languageOptions: {parser: parsers.typescript}},
 	],
 });

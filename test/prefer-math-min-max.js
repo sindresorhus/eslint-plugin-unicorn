@@ -10,6 +10,19 @@ const MESSAGE_ID = 'prefer-math-min-max';
 const SUGGESTION_ID = 'replace-with-math-min-max';
 
 test({
+	valid: [
+		'const value = "1"; value > 2 ? 2 : value;',
+		'const value = `1`; value > 2 ? 2 : value;',
+		'const value = ``; value < 2 ? value : 2;',
+		'const value = `\\u0031`; value > 2 ? value : 2;',
+		'function foo(value = "1") { return value > 2 ? 2 : value; }',
+		'function foo(value = `1`) { return value > 2 ? 2 : value; }',
+		'function foo(value = ``) { return value < 2 ? value : 2; }',
+	],
+	invalid: [],
+});
+
+test({
 	valid: [],
 	invalid: [
 		...[

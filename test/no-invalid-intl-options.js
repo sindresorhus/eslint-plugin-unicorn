@@ -366,3 +366,10 @@ test('validation does not use the host Intl implementation or execute user code'
 		Object.defineProperty(globalThis, 'Intl', {value: originalIntl});
 	}
 });
+
+ruleTest.snapshot({
+	valid: [],
+	invalid: [
+		{code: 'function check(text: `abc`) { text.localeCompare("x", "en", {usage: "invalid"}); }', languageOptions: {parser: parsers.typescript}},
+	],
+});

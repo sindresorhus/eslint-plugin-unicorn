@@ -3,6 +3,20 @@ import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [
+		'process.getBuiltinModule(`node:url`).fileURLToPath(new URL(tag`./`, import.meta.url))',
+		'process.getBuiltinModule(`node:${name}`).fileURLToPath(import.meta.url)', // eslint-disable-line no-template-curly-in-string
+	],
+	invalid: [
+		{
+			code: 'process.getBuiltinModule(`node:url`).fileURLToPath(new URL(`.\\u002f`, import.meta.url))',
+			output: 'import.meta.dirname',
+			errors: 1,
+		},
+	],
+});
+
 test.snapshot({
 	valid: [
 		'const __dirname = import.meta.dirname;',

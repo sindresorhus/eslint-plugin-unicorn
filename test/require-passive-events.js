@@ -190,3 +190,18 @@ test({
 		},
 	],
 });
+
+test.snapshot({
+	valid: [
+		'window.addEventListener(``, () => {});',
+		'window.addEventListener(`touch${name}`, () => {});', // eslint-disable-line no-template-curly-in-string
+		'window.addEventListener(tag`touchstart`, () => {});',
+		'window.addEventListener(`touchstart`, event => event.preventDefault());',
+	],
+	invalid: [
+		'window.addEventListener(`touchstart`, () => {});',
+		'window.addEventListener(`touch\\u{73}tart`, () => {});',
+		'window.addEventListener(/* keep */ `wheel`, () => {}, {passive: false});',
+		{code: 'window.addEventListener(`touchstart`, (event: TouchEvent) => console.log(event.target));', languageOptions: {parser: parsers.typescript}},
+	],
+});

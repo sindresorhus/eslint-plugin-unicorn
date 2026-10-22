@@ -26,6 +26,62 @@ Message:
 
 `;
 
+exports[`prefer-event-target > invalid(11): const {EventEmitter} = require(\`\`); new EventEmitter(); 1`] = `
+
+  1 | const {EventEmitter} = require(\`\`); new EventEmitter();
+
+`;
+
+exports[`prefer-event-target > invalid(11): const {EventEmitter} = require(\`\`); new EventEmitter(); 2`] = `
+
+Message:
+> 1 | const {EventEmitter} = require(\`\`); new EventEmitter();
+    |                                         ^^^^^^^^^^^^ Prefer \`EventTarget\` over \`EventEmitter\`.
+
+`;
+
+exports[`prefer-event-target > invalid(12): const {EventEmitter} = require(\`eventemitter\${version}\`); new EventEmitter(); 1`] = `
+
+  1 | const {EventEmitter} = require(\`eventemitter\${version}\`); new EventEmitter();
+
+`;
+
+exports[`prefer-event-target > invalid(12): const {EventEmitter} = require(\`eventemitter\${version}\`); new EventEmitter(); 2`] = `
+
+Message:
+> 1 | const {EventEmitter} = require(\`eventemitter\${version}\`); new EventEmitter();
+    |                                                               ^^^^^^^^^^^^ Prefer \`EventTarget\` over \`EventEmitter\`.
+
+`;
+
+exports[`prefer-event-target > invalid(13): const {EventEmitter} = require(tag\`eventemitter3\`); new EventEmitter(); 1`] = `
+
+  1 | const {EventEmitter} = require(tag\`eventemitter3\`); new EventEmitter();
+
+`;
+
+exports[`prefer-event-target > invalid(13): const {EventEmitter} = require(tag\`eventemitter3\`); new EventEmitter(); 2`] = `
+
+Message:
+> 1 | const {EventEmitter} = require(tag\`eventemitter3\`); new EventEmitter();
+    |                                                         ^^^^^^^^^^^^ Prefer \`EventTarget\` over \`EventEmitter\`.
+
+`;
+
+exports[`prefer-event-target > invalid(14): const {EventEmitter} = await import(\`eventemitter\${version}\`); new EventEmitter(); 1`] = `
+
+  1 | const {EventEmitter} = await import(\`eventemitter\${version}\`); new EventEmitter();
+
+`;
+
+exports[`prefer-event-target > invalid(14): const {EventEmitter} = await import(\`eventemitter\${version}\`); new EventEmitter(); 2`] = `
+
+Message:
+> 1 | const {EventEmitter} = await import(\`eventemitter\${version}\`); new EventEmitter();
+    |                                                                    ^^^^^^^^^^^^ Prefer \`EventTarget\` over \`EventEmitter\`.
+
+`;
+
 exports[`prefer-event-target > invalid(2): class Foo extends EventEmitter { someMethod() {} } 1`] = `
 
   1 | class Foo extends EventEmitter { someMethod() {} }

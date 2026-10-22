@@ -1,5 +1,5 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
-import {isFunction, isMethodCall} from './ast/index.js';
+import {getStaticStringValue, isFunction, isMethodCall} from './ast/index.js';
 import {
 	getEvaluatedChildNodes,
 	getFunctionReturnExpression,
@@ -281,8 +281,9 @@ const getParameterStatusIdentifier = parameter => {
 };
 
 const getStatusLiteral = node => {
-	if (node?.type === 'Literal' && (node.value === 'fulfilled' || node.value === 'rejected')) {
-		return node.value;
+	const value = getStaticStringValue(node);
+	if (value === 'fulfilled' || value === 'rejected') {
+		return value;
 	}
 };
 

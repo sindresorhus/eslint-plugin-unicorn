@@ -1,3 +1,20 @@
+exports[`prefer-uint8array-base64 > invalid(1): Buffer.from(base64, \`base64\`) 1`] = `
+
+  1 | Buffer.from(base64, \`base64\`)
+
+`;
+
+exports[`prefer-uint8array-base64 > invalid(1): Buffer.from(base64, \`base64\`) 2`] = `
+
+Message:
+> 1 | Buffer.from(base64, \`base64\`)
+    | ^^^^^^^^^^^ Prefer \`Uint8Array.fromBase64()\` over \`Buffer.from(…, 'base64')\`.
+
+Suggestion 1/1: Replace \`Buffer.from()\` with \`Uint8Array.fromBase64()\`.:
+  1 | Uint8Array.fromBase64(base64)
+
+`;
+
 exports[`prefer-uint8array-base64 > invalid(1): atob(string) 1`] = `
 
   1 | atob(string)
@@ -363,6 +380,23 @@ Message:
 
 `;
 
+exports[`prefer-uint8array-base64 > invalid(2): Buffer.from(\`Zm9v\`, \`BASE64URL\`) 1`] = `
+
+  1 | Buffer.from(\`Zm9v\`, \`BASE64URL\`)
+
+`;
+
+exports[`prefer-uint8array-base64 > invalid(2): Buffer.from(\`Zm9v\`, \`BASE64URL\`) 2`] = `
+
+Message:
+> 1 | Buffer.from(\`Zm9v\`, \`BASE64URL\`)
+    | ^^^^^^^^^^^ Prefer \`Uint8Array.fromBase64()\` over \`Buffer.from(…, 'BASE64URL')\`.
+
+Suggestion 1/1: Replace \`Buffer.from()\` with \`Uint8Array.fromBase64()\`.:
+  1 | Uint8Array.fromBase64(\`Zm9v\`, {alphabet: 'base64url'})
+
+`;
+
 exports[`prefer-uint8array-base64 > invalid(2): btoa(string) 1`] = `
 
   1 | btoa(string)
@@ -653,6 +687,23 @@ Suggestion 1/1: Replace \`Buffer.from()\` with \`Uint8Array.fromBase64()\`.:
 
 `;
 
+exports[`prefer-uint8array-base64 > invalid(3): Buffer.from(base64, \`base\\u{36}4\`) 1`] = `
+
+  1 | Buffer.from(base64, \`base\\u{36}4\`)
+
+`;
+
+exports[`prefer-uint8array-base64 > invalid(3): Buffer.from(base64, \`base\\u{36}4\`) 2`] = `
+
+Message:
+> 1 | Buffer.from(base64, \`base\\u{36}4\`)
+    | ^^^^^^^^^^^ Prefer \`Uint8Array.fromBase64()\` over \`Buffer.from(…, 'base64')\`.
+
+Suggestion 1/1: Replace \`Buffer.from()\` with \`Uint8Array.fromBase64()\`.:
+  1 | Uint8Array.fromBase64(base64)
+
+`;
+
 exports[`prefer-uint8array-base64 > invalid(3): bytes.toBase64().replaceAll('/', '_').replaceAll('+', '-') 1`] = `
 
   1 | bytes.toBase64().replaceAll('/', '_').replaceAll('+', '-')
@@ -851,6 +902,20 @@ Message:
 
 `;
 
+exports[`prefer-uint8array-base64 > invalid(4): buffer.toString(\`base64url\`) 1`] = `
+
+  1 | buffer.toString(\`base64url\`)
+
+`;
+
+exports[`prefer-uint8array-base64 > invalid(4): buffer.toString(\`base64url\`) 2`] = `
+
+Message:
+> 1 | buffer.toString(\`base64url\`)
+    |        ^^^^^^^^ Prefer \`Uint8Array#toBase64({alphabet: 'base64url', omitPadding: true})\` over \`toString('base64url')\`.
+
+`;
+
 exports[`prefer-uint8array-base64 > invalid(4): bytes.toBase64().replace(/\\+/g, '-').replace(/\\//g, '_') 1`] = `
 
   1 | bytes.toBase64().replace(/\\+/g, '-').replace(/\\//g, '_')
@@ -1023,6 +1088,20 @@ exports[`prefer-uint8array-base64 > invalid(49): interface Buffer extends Uint8A
 Message:
 > 1 | interface Buffer extends Uint8Array { toString(encoding: string): string } declare const value: Buffer | undefined; value?.toString('base64')
     |                                                                                                                            ^^^^^^^^ Prefer \`Uint8Array#toBase64()\` over \`toString('base64')\`.
+
+`;
+
+exports[`prefer-uint8array-base64 > invalid(5): Buffer.from(base64, /* keep */ \`base64\`) 1`] = `
+
+  1 | Buffer.from(base64, /* keep */ \`base64\`)
+
+`;
+
+exports[`prefer-uint8array-base64 > invalid(5): Buffer.from(base64, /* keep */ \`base64\`) 2`] = `
+
+Message:
+> 1 | Buffer.from(base64, /* keep */ \`base64\`)
+    | ^^^^^^^^^^^ Prefer \`Uint8Array.fromBase64()\` over \`Buffer.from(…, 'base64')\`.
 
 `;
 
@@ -1232,6 +1311,23 @@ Output:
 
 `;
 
+exports[`prefer-uint8array-base64 > invalid(6): bytes.toBase64().replaceAll(\`+\`, \`-\`).replaceAll(\"/\", \`_\`).replaceAll(\`=\`, \`\`) 1`] = `
+
+  1 | bytes.toBase64().replaceAll(\`+\`, \`-\`).replaceAll("/", \`_\`).replaceAll(\`=\`, \`\`)
+
+`;
+
+exports[`prefer-uint8array-base64 > invalid(6): bytes.toBase64().replaceAll(\`+\`, \`-\`).replaceAll(\"/\", \`_\`).replaceAll(\`=\`, \`\`) 2`] = `
+
+Message:
+> 1 | bytes.toBase64().replaceAll(\`+\`, \`-\`).replaceAll("/", \`_\`).replaceAll(\`=\`, \`\`)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer native \`toBase64()\` options over manual base64 postprocessing.
+
+Output:
+  1 | bytes.toBase64({alphabet: 'base64url', omitPadding: true})
+
+`;
+
 exports[`prefer-uint8array-base64 > invalid(6): globalThis.btoa(string) 1`] = `
 
   1 | globalThis.btoa(string)
@@ -1243,6 +1339,23 @@ exports[`prefer-uint8array-base64 > invalid(6): globalThis.btoa(string) 2`] = `
 Message:
 > 1 | globalThis.btoa(string)
     | ^^^^^^^^^^^^^^^ Prefer \`Uint8Array#toBase64()\` over \`btoa()\`.
+
+`;
+
+exports[`prefer-uint8array-base64 > invalid(7): bytes.toBase64().replace(/=+$/, \`\`) 1`] = `
+
+  1 | bytes.toBase64().replace(/=+$/, \`\`)
+
+`;
+
+exports[`prefer-uint8array-base64 > invalid(7): bytes.toBase64().replace(/=+$/, \`\`) 2`] = `
+
+Message:
+> 1 | bytes.toBase64().replace(/=+$/, \`\`)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer native \`toBase64()\` options over manual base64 postprocessing.
+
+Output:
+  1 | bytes.toBase64({omitPadding: true})
 
 `;
 
@@ -1274,6 +1387,20 @@ exports[`prefer-uint8array-base64 > invalid(7): self.atob(string) 2`] = `
 Message:
 > 1 | self.atob(string)
     | ^^^^^^^^^ Prefer \`Uint8Array.fromBase64()\` over \`atob()\`.
+
+`;
+
+exports[`prefer-uint8array-base64 > invalid(8): (buffer as Buffer).toString(\`base64\`) 1`] = `
+
+  1 | (buffer as Buffer).toString(\`base64\`)
+
+`;
+
+exports[`prefer-uint8array-base64 > invalid(8): (buffer as Buffer).toString(\`base64\`) 2`] = `
+
+Message:
+> 1 | (buffer as Buffer).toString(\`base64\`)
+    |                    ^^^^^^^^ Prefer \`Uint8Array#toBase64()\` over \`toString('base64')\`.
 
 `;
 

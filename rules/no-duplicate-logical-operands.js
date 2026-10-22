@@ -1,3 +1,4 @@
+import {getStaticStringValue} from './ast/index.js';
 import {
 	getParenthesizedRange,
 	getParenthesizedText,
@@ -23,7 +24,7 @@ const safelyAutofixableReferenceTypes = new Set(['Identifier', 'ThisExpression']
 const isSimpleComputedProperty = node => {
 	node = unwrapTypeScriptExpression(node);
 
-	return simpleComputedPropertyTypes.has(node.type);
+	return simpleComputedPropertyTypes.has(node.type) || getStaticStringValue(node) !== undefined;
 };
 
 const isSimpleReference = node => {

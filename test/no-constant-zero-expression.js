@@ -2,6 +2,23 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [],
+	invalid: [
+		...[
+			['Math[`PI`] * 0;', '0;'],
+			['`abc`.length * 0;', '0;'],
+			['const text = `abc`; text.length * 0;', 'const text = `abc`; 0;'],
+		].map(([code, output]) => ({
+			code,
+			errors: [{
+				messageId: 'no-constant-zero-expression/error',
+				suggestions: [{messageId: 'no-constant-zero-expression/suggestion', output}],
+			}],
+		})),
+	],
+});
+
 test.snapshot({
 	valid: [
 		// Identity operations

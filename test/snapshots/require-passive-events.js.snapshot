@@ -15,6 +15,23 @@ Output:
 
 `;
 
+exports[`require-passive-events > invalid(1): window.addEventListener(\`touchstart\`, () => {}); 1`] = `
+
+  1 | window.addEventListener(\`touchstart\`, () => {});
+
+`;
+
+exports[`require-passive-events > invalid(1): window.addEventListener(\`touchstart\`, () => {}); 2`] = `
+
+Message:
+> 1 | window.addEventListener(\`touchstart\`, () => {});
+    |                         ^^^^^^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener(\`touchstart\`, () => {}, {passive: true});
+
+`;
+
 exports[`require-passive-events > invalid(10): window.addEventListener(\"wheel\", function () {}) 1`] = `
 
   1 | window.addEventListener("wheel", function () {})
@@ -220,6 +237,23 @@ Output:
 
 `;
 
+exports[`require-passive-events > invalid(2): window.addEventListener(\`touch\\u{73}tart\`, () => {}); 1`] = `
+
+  1 | window.addEventListener(\`touch\\u{73}tart\`, () => {});
+
+`;
+
+exports[`require-passive-events > invalid(2): window.addEventListener(\`touch\\u{73}tart\`, () => {}); 2`] = `
+
+Message:
+> 1 | window.addEventListener(\`touch\\u{73}tart\`, () => {});
+    |                         ^^^^^^^^^^^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener(\`touch\\u{73}tart\`, () => {}, {passive: true});
+
+`;
+
 exports[`require-passive-events > invalid(20): window.addEventListener(\"wheel\", () => {}, {passive: false}) 1`] = `
 
   1 | window.addEventListener("wheel", () => {}, {passive: false})
@@ -398,6 +432,23 @@ Output:
 
 `;
 
+exports[`require-passive-events > invalid(3): window.addEventListener(/* keep */ \`wheel\`, () => {}, {passive: false}); 1`] = `
+
+  1 | window.addEventListener(/* keep */ \`wheel\`, () => {}, {passive: false});
+
+`;
+
+exports[`require-passive-events > invalid(3): window.addEventListener(/* keep */ \`wheel\`, () => {}, {passive: false}); 2`] = `
+
+Message:
+> 1 | window.addEventListener(/* keep */ \`wheel\`, () => {}, {passive: false});
+    |                                    ^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener(/* keep */ \`wheel\`, () => {}, {passive: true});
+
+`;
+
 exports[`require-passive-events > invalid(3): window.addEventListener(\"wheel\", ((function () {}))) 1`] = `
 
   1 | window.addEventListener("wheel", ((function () {})))
@@ -463,6 +514,23 @@ Message:
 
 Output:
   1 | window.addEventListener("mousewheel", () => {}, {passive: true})
+
+`;
+
+exports[`require-passive-events > invalid(4): window.addEventListener(\`touchstart\`, (event: TouchEvent) => console.log(event.target)); 1`] = `
+
+  1 | window.addEventListener(\`touchstart\`, (event: TouchEvent) => console.log(event.target));
+
+`;
+
+exports[`require-passive-events > invalid(4): window.addEventListener(\`touchstart\`, (event: TouchEvent) => console.log(event.target)); 2`] = `
+
+Message:
+> 1 | window.addEventListener(\`touchstart\`, (event: TouchEvent) => console.log(event.target));
+    |                         ^^^^^^^^^^^^ Use \`{passive: true}\` for this high-frequency event listener.
+
+Output:
+  1 | window.addEventListener(\`touchstart\`, (event: TouchEvent) => console.log(event.target), {passive: true});
 
 `;
 

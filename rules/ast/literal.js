@@ -33,5 +33,3 @@ export const isRegexLiteral = node => node.type === 'Literal' && Boolean(node.re
 export const isNullLiteral = node => node?.type === 'Literal' && node.raw === 'null';
 
 export const isBigIntLiteral = node => node.type === 'Literal' && Boolean(node.bigint);
-
-export const isEmptyStringLiteral = node => isLiteral(node, '');

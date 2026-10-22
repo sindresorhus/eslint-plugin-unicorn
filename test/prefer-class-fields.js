@@ -5,6 +5,19 @@ const {test} = getTester(import.meta);
 
 test.snapshot({
 	valid: [
+		'class Foo { constructor() { this.foo = tag`value`; } }',
+		'class Foo { constructor() { this.foo = `value${suffix}`; } }', // eslint-disable-line no-template-curly-in-string
+	],
+	invalid: [
+		'class Foo {\n\tconstructor() {\n\t\tthis.foo = `value`;\n\t}\n}',
+		'class Foo {\n\tconstructor() {\n\t\tthis.foo = `v\\u0061lue`;\n\t}\n}',
+		'class Foo { foo; constructor() { this.foo = ``; } }',
+		'class Foo { constructor() { this.foo = /* keep */ `value`; } }',
+	],
+});
+
+test.snapshot({
+	valid: [
 		'class Foo {bar = 1}',
 		// Only the first statement is checked, the parent class could define a setter
 		'class Foo extends Bar {constructor(message) {super(message); this.name = \'Foo\';}}',

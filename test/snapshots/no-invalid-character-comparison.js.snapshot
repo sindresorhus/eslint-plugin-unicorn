@@ -441,6 +441,34 @@ Message:
 
 `;
 
+exports[`no-invalid-character-comparison > invalid(38): \"abc\"[\`0\`] === \"ab\" 1`] = `
+
+  1 | "abc"[\`0\`] === "ab"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(38): \"abc\"[\`0\`] === \"ab\" 2`] = `
+
+Message:
+> 1 | "abc"[\`0\`] === "ab"
+    | ^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(39): \"abc\"[(\`1\`)] === \`ab\` 1`] = `
+
+  1 | "abc"[(\`1\`)] === \`ab\`
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(39): \"abc\"[(\`1\`)] === \`ab\` 2`] = `
+
+Message:
+> 1 | "abc"[(\`1\`)] === \`ab\`
+    | ^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
 exports[`no-invalid-character-comparison > invalid(4): \"abc\".charAt(0) != \"ab\" 1`] = `
 
   1 | "abc".charAt(0) != "ab"
@@ -452,6 +480,34 @@ exports[`no-invalid-character-comparison > invalid(4): \"abc\".charAt(0) != \"ab
 Message:
 > 1 | "abc".charAt(0) != "ab"
     | ^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always true.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(40): \"abc\"[\`\\u{30}\`] === \"ab\" 1`] = `
+
+  1 | "abc"[\`\\u{30}\`] === "ab"
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(40): \"abc\"[\`\\u{30}\`] === \"ab\" 2`] = `
+
+Message:
+> 1 | "abc"[\`\\u{30}\`] === "ab"
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(41): function isAb(value: string) { return value[\`0\`] === \`ab\`; } 1`] = `
+
+  1 | function isAb(value: string) { return value[\`0\`] === \`ab\`; }
+
+`;
+
+exports[`no-invalid-character-comparison > invalid(41): function isAb(value: string) { return value[\`0\`] === \`ab\`; } 2`] = `
+
+Message:
+> 1 | function isAb(value: string) { return value[\`0\`] === \`ab\`; }
+    |                                       ^^^^^^^^^^^^^^^^^^^ A single character can never equal the multi-character string \`ab\`, so this comparison is always false.
 
 `;
 

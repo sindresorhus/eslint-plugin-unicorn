@@ -3,6 +3,15 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [
+		'for (const character of `unicorn`) {}',
+		'for await (const character of ``) {}',
+		'for (const character of `uni\\u0063orn`) {}',
+	],
+	invalid: [],
+});
+
 const typescript = code => ({
 	code,
 	languageOptions: {

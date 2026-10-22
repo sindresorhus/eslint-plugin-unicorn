@@ -217,3 +217,10 @@ test.snapshot({
 		{code: '<meta http-equiv="content-type" charset="utf8">', language: languages.html},
 	],
 });
+
+test({
+	valid: [
+		'require(`UTF-8`);',
+	],
+	invalid: [],
+});

@@ -3,6 +3,14 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [
+		'const {foo} = object; if (`foo` in object) { console.log(object.foo); }',
+		'const {foo} = object; const value = `f\\u006fo` in object && object.foo;',
+	],
+	invalid: [],
+});
+
 const invalidTestCase = ({code, suggestions}) => {
 	if (!suggestions) {
 		return {

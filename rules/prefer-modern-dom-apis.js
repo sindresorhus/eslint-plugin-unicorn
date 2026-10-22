@@ -9,7 +9,7 @@ import {
 	wouldRemoveComments,
 } from './utils/index.js';
 import {containsOptionalChain} from './utils/comparison.js';
-import {isMemberExpression, isMethodCall} from './ast/index.js';
+import {getStaticStringValue, isMemberExpression, isMethodCall} from './ast/index.js';
 
 const messages = {
 	replaceChildOrInsertBefore:
@@ -82,7 +82,7 @@ const positionReplacers = new Map([
 const getInsertAdjacentTextOrInsertAdjacentElementProblem = (context, node) => {
 	const [positionNode, contentNode] = node.arguments;
 
-	const position = positionNode.value;
+	const position = getStaticStringValue(positionNode);
 	// Return early when specified position value of first argument is not a recognized value.
 	if (!positionReplacers.has(position)) {
 		return;
@@ -208,11 +208,12 @@ const create = context => {
 				optionalMember: false,
 			})
 			// Position argument should be `string`
-			&& node.arguments[0].type === 'Literal'
+			&& getStaticStringValue(node.arguments[0]) !== undefined
 			// TODO: remove this limits on second argument
 			&& (
 				node.arguments[1].type === 'Literal'
 				|| node.arguments[1].type === 'Identifier'
+				|| getStaticStringValue(node.arguments[1]) !== undefined
 			)
 			// TODO: remove this limits on callee
 			&& node.callee.object.type === 'Identifier'

@@ -140,6 +140,19 @@ test('preserves known static global properties', t => {
 	}
 });
 
+test('preserves static template member names and string receivers', t => {
+	for (const [code, expected] of [
+		['const result = Math[`P\\u0049`];', Math.PI],
+		['const result = Number[`MAX_SAFE_INTEGER`];', Number.MAX_SAFE_INTEGER],
+		['const result = Symbol[`iterator`];', Symbol.iterator],
+		['const result = `abc`.length;', 3],
+		['const text = `ab\\u0063`; const result = text[1];', 'b'],
+		['const result = ``.length;', 0],
+	]) {
+		t.assert.strictEqual(evaluate(code, getStaticValueIfNoSideEffects)?.value, expected, code);
+	}
+});
+
 test('returns static regular expressions only for safe expressions', t => {
 	for (const code of [
 		'const result = /foo/g;',

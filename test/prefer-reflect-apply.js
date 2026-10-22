@@ -7,7 +7,12 @@ import {getTester, parsers} from './utils/test.js';
 const {test, rule} = getTester(import.meta);
 
 test({
-	valid: [],
+	valid: [
+		'"foo".apply(null, []);',
+		'`foo`.apply(null, []);',
+		'``.apply(this, []);',
+		'`\\u0066oo`.apply(null, []);',
+	],
 	invalid: [
 		['function f() {return(factory(/* keep */)).apply(null, []);}', 'function f() {return Reflect.apply(factory(/* keep */), null, []);}'],
 		['function f() {throw(factory(/* keep */)).apply(null, []);}', 'function f() {throw Reflect.apply(factory(/* keep */), null, []);}'],

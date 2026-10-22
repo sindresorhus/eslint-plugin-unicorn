@@ -1,4 +1,4 @@
-import {isStaticRequire} from '../ast/index.js';
+import {getStaticStringValue, isCallExpression} from '../ast/index.js';
 import {getScopes, getVariableIdentifiers, isShorthandImportLocal} from '../utils/index.js';
 
 const declarationTypes = new Set([
@@ -83,7 +83,8 @@ const isDefaultOrNamespaceImportName = identifier => {
 
 	return Boolean(identifier.parent.type === 'VariableDeclarator'
 		&& identifier.parent.id === identifier
-		&& isStaticRequire(identifier.parent.init));
+		&& isCallExpression(identifier.parent.init, {name: 'require', argumentsLength: 1, optional: false})
+		&& getStaticStringValue(identifier.parent.init.arguments[0]) !== undefined);
 };
 
 /**
@@ -242,7 +243,7 @@ const isInternalImport = definition => {
 	let source = '';
 
 	if (definition.type === 'Variable') {
-		source = definition.node.init.arguments[0].value;
+		source = getStaticStringValue(definition.node.init.arguments[0]);
 	} else if (definition.type === 'ImportBinding') {
 		source = definition.parent.source.value;
 	}

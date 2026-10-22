@@ -130,6 +130,8 @@ Before writing helpers, check these directories:
 
 Import from the barrel `index.js` in each directory (e.g., `import {isMethodCall} from './ast/index.js'`).
 
+When matching a string's value, use `getStaticStringValue()` so quoted strings and untagged template literals without expressions behave the same. Check against `undefined` when empty strings are supported. Keep `isStringLiteral()` and literal node checks for syntax-specific behavior, such as quotes, escapes, directives, and static import/export sources. Audit fixers separately: template nodes have no `.value` or `.raw`, and generated quoted strings must escape the decoded value.
+
 Also check `../eslint-node-test/rules/ast/`, `../eslint-node-test/rules/utils/`, and `../eslint-node-test/rules/fix/` — some helpers there were adapted from here and may have picked up fixes or edge cases worth porting back.
 
 When at least two rules need the same non-trivial logic, put it in a shared utility (`rules/utils/` for general helpers, `rules/shared/` for shared rule logic) and use it from each rule instead of duplicating it. This also applies when you write logic that an existing rule already has: extract it from that rule and use it in both. Keep trivial or rule-specific helpers local.
@@ -225,6 +227,7 @@ Include test cases for these when relevant to the rule:
 - **Nested/chained** - The pattern appearing inside other expressions or chained calls.
 - **Computed properties** - `obj[method]()` vs `obj.method()`.
 - **Tagged templates** - `` tag`string` ``.
+- **Template literals without expressions** - Test quoted and backtick forms wherever matching depends on a string's value, including mixed forms, escaped values, and empty strings. Test interpolated and tagged templates separately; they are not static strings.
 - **Optional chaining** - `foo?.bar()`, `foo?.bar?.baz`.
 - **Spread** - `[...foo]`, `{...foo}`, `fn(...args)`.
 - **Destructuring** - The pattern inside destructuring assignments or parameters.

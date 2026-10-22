@@ -3,6 +3,7 @@ import {
 	getStaticValue as getStaticValueFromEslintUtilities,
 	hasSideEffect,
 } from '@eslint-community/eslint-utils';
+import {getStaticStringValue} from '../ast/index.js';
 import isGlobalIdentifier from './is-global-identifier.js';
 import {getEvaluatedChildNodes} from './get-visitor-child-nodes.js';
 import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
@@ -35,7 +36,7 @@ const isSafeStaticGlobalMember = (node, context) =>
 		&& isGlobalIdentifier(node.object, context)
 		&& staticGlobalProperties.get(node.object.name)?.has(
 			node.computed
-				? node.property.type === 'Literal' && typeof node.property.value === 'string' && node.property.value
+				? getStaticStringValue(node.property)
 				: node.property.type === 'Identifier' && node.property.name,
 		),
 	);
@@ -260,12 +261,7 @@ const isSafeStaticArrayMember = (node, propertyName, context, visitedVariables) 
 
 const isSafeStaticMemberObject = (node, propertyName, context, visitedVariables) => {
 	const definition = getConstVariableDefinition(node, context);
-	let primitiveValue;
-	if (node.type === 'Literal') {
-		primitiveValue = node.value;
-	} else if (definition?.initializer.type === 'Literal') {
-		primitiveValue = definition.initializer.value;
-	}
+	const primitiveValue = getStaticStringValue(node) ?? getStaticStringValue(definition?.initializer);
 
 	if (typeof primitiveValue === 'string') {
 		if (propertyName === 'length') {

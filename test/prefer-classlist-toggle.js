@@ -468,3 +468,51 @@ test.snapshot({
 		'element.classList[condition ? "add" : "remove"](("a", "b"));',
 	],
 });
+
+test.snapshot({
+	valid: [
+		'element.classList[condition ? `add` : `add`](className);',
+		'element.classList[condition ? `` : `remove`](className);',
+		'element.classList[condition ? `add${value}` : `remove`](className);', // eslint-disable-line no-template-curly-in-string
+		'element.classList[condition ? tag`add` : `remove`](className);',
+	],
+	invalid: [
+		'element.classList[condition ? `add` : `remove`](`className`);',
+		'element.classList[condition ? `remove` : "add"](className);',
+		'element.classList[condition ? "add" : `remove`](className);',
+		'element.classList[condition ? `\\u{61}dd` : `remove`](className);',
+		'element.classList[condition ? /* keep */ `add` : `remove`](className);',
+		'const result = element.classList[condition ? `add` : `remove`](className);',
+		{code: 'element!.classList[condition ? `add` : `remove`](className);', languageOptions: {parser: parsers.typescript}},
+	],
+});
+
+test.snapshot({
+	valid: [
+		'if (condition) { element.classList.add(`first`); } else { element.classList.remove(`second`); }',
+		'if (condition) { element.classList.add(tag`name`); } else { element.classList.remove(`name`); }',
+		'if (condition) { element.classList.add(`name${value}`); } else { element.classList.remove(`name`); }', // eslint-disable-line no-template-curly-in-string
+	],
+	invalid: [
+		'if (condition) { element.classList.add(`name`); } else { element.classList.remove(`name`); }',
+		'if (condition) { element.classList.add("name"); } else { element.classList.remove(`name`); }',
+		'condition ? element.classList.add(`na\\u{6d}e`) : element.classList.remove("name");',
+		'if (element.classList.contains(`name`)) { element.classList.remove(`name`); } else { element.classList.add(`name`); }',
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'element.classList[element.classList.contains(`name`) ? `remove` : `add`]("name");',
+			output: 'element.classList.toggle("name");',
+			errors: 1,
+		},
+		{
+			code: 'element.classList.contains("name") ? element.classList.remove(`name`) : element.classList.add("name");',
+			output: 'element.classList.toggle(`name`);',
+			errors: 1,
+		},
+	],
+});

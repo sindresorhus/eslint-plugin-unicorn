@@ -4,6 +4,19 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 const error = {messageId: 'no-multiple-promise-resolver-calls'};
 
+test({
+	valid: [
+		'new Promise(resolve => { while (``) { resolve(1); } resolve(2); });',
+		'new Promise(resolve => { for (; ``;) { resolve(1); } resolve(2); });',
+		'new Promise(resolve => { if (``) { resolve(1); } resolve(2); });',
+	],
+	invalid: [
+		{code: 'new Promise(resolve => { do { resolve(1); } while (``); resolve(2); });', errors: 1},
+		{code: 'new Promise(resolve => { while (`${value}`) { resolve(1); } resolve(2); });', errors: 2}, // eslint-disable-line no-template-curly-in-string
+		{code: 'new Promise(resolve => { while (tag``) { resolve(1); } resolve(2); });', errors: 2},
+	],
+});
+
 test.snapshot({
 	valid: [
 		outdent`

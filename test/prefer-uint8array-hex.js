@@ -13,6 +13,25 @@ const decode = 'pair => Number.parseInt(pair, 16)';
 const error = {messageId: 'prefer-uint8array-hex/error'};
 const suggestion = {messageId: 'prefer-uint8array-hex/suggestion'};
 
+testRule.snapshot({
+	valid: [
+		'Buffer.from(text, tag`hex`)',
+		'Buffer.from(text, `he${encoding}`)',
+		'buffer.toString(``)',
+		'[...bytes].map(byte => byte.toString(16).padStart(2, tag`0`)).join(``)',
+		'[...bytes].map(byte => byte.toString(16).padStart(2, `0`)).join(tag``)',
+	],
+	invalid: [
+		'[...bytes].map(byte => byte.toString(16).padStart(2, `0`)).join(``)',
+		'const bytes = new Uint8Array(); [...bytes].map(byte => byte.toString(16).padStart(2, `\\u{30}`)).join(``)',
+		'[...bytes].map(byte => (`00` + byte.toString(16)).slice(-2)).join(``)',
+		'Buffer.from(text, `HEX`)',
+		'buffer.toString(`hex`)',
+		'Buffer.from(text, /* keep */ `hex`)',
+		{code: '(buffer as Buffer).toString(`hex`)', languageOptions: {parser: parsers.typescript}},
+	],
+});
+
 testRule({
 	valid: [],
 	invalid: [

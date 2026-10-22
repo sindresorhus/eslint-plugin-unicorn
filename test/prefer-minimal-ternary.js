@@ -5,6 +5,52 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 test({
+	valid: [
+		'test ? [tag`shared`, 1] : [tag`shared`, 2];',
+		'test ? [`shared${value}`, 1] : [`shared${value}`, 2];', // eslint-disable-line no-template-curly-in-string
+		'test ? object[tag`method`](1) : object[tag`method`](2);',
+	],
+	invalid: [
+		...[
+			['test ? [`shared`, 1] : [`shared`, 2];', '[`shared`, test ? 1 : 2];'],
+			['check() ? [`` , 1] : [`` , 2];', '[`` , check() ? 1 : 2];'],
+			['test ? `shared` + 1 : `shared` + 2;', '`shared` + (test ? 1 : 2);'],
+			['test ? object[`method`](1) : object[`method`](2);', 'object[`method`](test ? 1 : 2);'],
+			['object[`ready`] ? call(1) : call(2);', 'call(object[`ready`] ? 1 : 2);'],
+			['test ? object[`method`](1) : object["method"](2);', 'object[`method`](test ? 1 : 2);'],
+			['test ? [`shared`, 1] : ["shared", 2];', '[`shared`, test ? 1 : 2];'],
+			['check() ? [`f\\u0069xed`, null, false, 1n, a] : ["fixed", null, false, 1n, b];', '[`f\\u0069xed`, null, false, 1n, check() ? a : b];'],
+			['test ? new Foo(`shared`, 1) : new Foo(`shared`, 2);', 'new Foo(`shared`, test ? 1 : 2);'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+		{
+			code: 'check() ? {shared: `value`, item: 1} : {shared: `value`, item: 2};',
+			output: '({shared: `value`, item: check() ? 1 : 2});',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'test ? first[`value`] : second[`value`];',
+			output: '(test ? first : second)[`value`];',
+			options: [{checkVaryingBase: true}],
+			errors: 1,
+		},
+		...[
+			['`shared`', '"shared"'],
+			['"shared"', '`shared`'],
+		].map(([left, right]) => ({
+			code: `declare const condition: boolean; const result = condition ? {shared: ${left}, item: 1} : {shared: ${right}, item: 2};`,
+			output: `declare const condition: boolean; const result = ({shared: ${left}, item: condition ? 1 : 2});`,
+			filename: 'file.ts',
+			languageOptions: {
+				parser: typescriptEslintParser,
+				parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+			},
+			errors: 1,
+		})),
+	],
+});
+
+test({
 	valid: [],
 	invalid: [
 		...['file.ts', 'file.mts', 'file.cts', 'file.tsx'].map(filename => ({

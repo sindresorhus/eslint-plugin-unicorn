@@ -1,3 +1,17 @@
+exports[`no-unsafe-promise-all-settled-values > invalid(1): (await Promise.allSettled(promises)).filter(result => result.status === \`rejected\`).map(result => result.value); 1`] = `
+
+  1 | (await Promise.allSettled(promises)).filter(result => result.status === \`rejected\`).map(result => result.value);
+
+`;
+
+exports[`no-unsafe-promise-all-settled-values > invalid(1): (await Promise.allSettled(promises)).filter(result => result.status === \`rejected\`).map(result => result.value); 2`] = `
+
+Message:
+> 1 | (await Promise.allSettled(promises)).filter(result => result.status === \`rejected\`).map(result => result.value);
+    |                                                                                                   ^^^^^^^^^^^^ Do not read \`.value\` from \`Promise.allSettled()\` results without checking that the result is fulfilled.
+
+`;
+
 exports[`no-unsafe-promise-all-settled-values > invalid(1): const values = (await Promise.allSettled(promises)).map(result => {\n\tif (result.status !== 'fulfilled') {\n\t\ttry {\n\t\t\tprocess.exit((maybeThrow(), 1));\n\t\t} catch {\n\t\t\tcleanup();\n\t\t}\n\t}\n\n\treturn result.value;\n}); 1`] = `
 
    1 | const values = (await Promise.allSettled(promises)).map(result => {
@@ -362,6 +376,20 @@ Message:
 
 `;
 
+exports[`no-unsafe-promise-all-settled-values > invalid(2): (await Promise.allSettled(promises)).filter(result => result.status === \`ful\${name}\`).map(result => result.value); 1`] = `
+
+  1 | (await Promise.allSettled(promises)).filter(result => result.status === \`ful\${name}\`).map(result => result.value);
+
+`;
+
+exports[`no-unsafe-promise-all-settled-values > invalid(2): (await Promise.allSettled(promises)).filter(result => result.status === \`ful\${name}\`).map(result => result.value); 2`] = `
+
+Message:
+> 1 | (await Promise.allSettled(promises)).filter(result => result.status === \`ful\${name}\`).map(result => result.value);
+    |                                                                                                     ^^^^^^^^^^^^ Do not read \`.value\` from \`Promise.allSettled()\` results without checking that the result is fulfilled.
+
+`;
+
 exports[`no-unsafe-promise-all-settled-values > invalid(2): const values = (await Promise.allSettled(promises)).map(result => {\n\tif (result.status !== 'fulfilled') {\n\t\tconst process = customProcess;\n\t\tprocess.exit(1);\n\t}\n\n\treturn result.value;\n}); 1`] = `
 
   1 | const values = (await Promise.allSettled(promises)).map(result => {
@@ -557,6 +585,20 @@ exports[`no-unsafe-promise-all-settled-values > invalid(29): const values = (awa
 Message:
 > 1 | const values = (await Promise.allSettled(promises)).map(({value: settledValue}) => settledValue);
     |                                                                                    ^^^^^^^^^^^^ Do not read \`.value\` from \`Promise.allSettled()\` results without checking that the result is fulfilled.
+
+`;
+
+exports[`no-unsafe-promise-all-settled-values > invalid(3): (await Promise.allSettled(promises)).filter(result => result.status === tag\`fulfilled\`).map(result => result.value); 1`] = `
+
+  1 | (await Promise.allSettled(promises)).filter(result => result.status === tag\`fulfilled\`).map(result => result.value);
+
+`;
+
+exports[`no-unsafe-promise-all-settled-values > invalid(3): (await Promise.allSettled(promises)).filter(result => result.status === tag\`fulfilled\`).map(result => result.value); 2`] = `
+
+Message:
+> 1 | (await Promise.allSettled(promises)).filter(result => result.status === tag\`fulfilled\`).map(result => result.value);
+    |                                                                                                       ^^^^^^^^^^^^ Do not read \`.value\` from \`Promise.allSettled()\` results without checking that the result is fulfilled.
 
 `;
 

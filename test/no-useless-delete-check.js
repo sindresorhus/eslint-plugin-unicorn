@@ -3,6 +3,25 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [
+		'const map = new Map(); if (map.has(`first`)) { map.delete(`second`); }',
+		'const map = new Map(); if (map.has(tag`name`)) { map.delete(`name`); }',
+	],
+	invalid: [
+		{
+			code: 'const map = new Map(); if (map.has(`name`)) { map.delete(`name`); }',
+			output: 'const map = new Map(); map.delete(`name`);',
+			errors: 1,
+		},
+		{
+			code: 'const set = new Set(); if (set.has("name")) { set.delete(`na\\u{6d}e`); }',
+			output: 'const set = new Set(); set.delete(`na\\u{6d}e`);',
+			errors: 1,
+		},
+	],
+});
+
 test.snapshot({
 	valid: [
 		'delete object[key];',

@@ -1,4 +1,4 @@
-import {isLiteral, isNewExpression} from './ast/index.js';
+import {getStaticStringValue, isNewExpression} from './ast/index.js';
 
 const MESSAGE_ID = 'prefer-type-error';
 const messages = {
@@ -80,7 +80,7 @@ const isErrorConstructor = node => {
 };
 
 const isTypeofExpression = node => node.type === 'UnaryExpression' && node.operator === 'typeof';
-const isUndefinedString = node => isLiteral(node, 'undefined');
+const isUndefinedString = node => getStaticStringValue(node) === 'undefined';
 
 // Comparing `typeof x` against `'undefined'` is an existence/environment check (e.g. `typeof window !== 'undefined'`), not a value type check.
 const isExistenceCheck = node => {

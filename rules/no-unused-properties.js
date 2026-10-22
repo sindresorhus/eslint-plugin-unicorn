@@ -1,3 +1,4 @@
+import {getStaticStringValue} from './ast/index.js';
 import {getOutermostTypeScriptExpression, unwrapTypeScriptExpression} from './utils/index.js';
 import getScopes from './utils/get-scopes.js';
 
@@ -62,7 +63,8 @@ const isMemberExpressionAssignment = memberExpression =>
 
 const isMemberExpressionComputedBeyondPrediction = memberExpression =>
 	memberExpression.computed
-	&& memberExpression.property.type !== 'Literal';
+	&& memberExpression.property.type !== 'Literal'
+	&& getStaticStringValue(memberExpression.property) === undefined;
 
 const specialProtoPropertyKey = {
 	type: 'Identifier',
@@ -77,10 +79,12 @@ const getPropertyKeyName = key => {
 	if (key.type === 'Literal') {
 		return key.value;
 	}
+
+	return getStaticStringValue(key);
 };
 
 // A computed key is dynamic, `{[key]: value}` does not define a property named `key`
-const isComputedProperty = ({computed, key}) => computed && key.type !== 'Literal';
+const isComputedProperty = ({computed, key}) => computed && key.type !== 'Literal' && getStaticStringValue(key) === undefined;
 
 const propertyKeysEqual = (keyA, keyB) => {
 	const keyNameA = getPropertyKeyName(keyA);
@@ -112,8 +116,8 @@ const isUnusedVariable = variable => {
 */
 const create = context => {
 	const {sourceCode} = context;
-	// Computed keys other than literals are skipped, so the key is an identifier or a literal
-	const getPropertyDisplayName = property => property.key.type === 'Identifier' ? property.key.name : property.key.value;
+	// Computed keys other than literals are skipped, so the key has a static name
+	const getPropertyDisplayName = property => getPropertyKeyName(property.key);
 
 	const reportProperty = (property, references) => {
 		if (references.length === 0) {

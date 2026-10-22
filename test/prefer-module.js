@@ -399,3 +399,35 @@ test({
 		},
 	]),
 });
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'const file = require(`file`);',
+			errors: [{messageId: 'error/identifier', suggestions: [{messageId: 'suggestion/import', output: 'import file from \'file\';'}]}],
+		},
+		...[
+			['require(`file`);', 'import \'file\';'],
+			['const file = require(`./file.json`);', 'import file from \'./file.json\' with {type: \'json\'};'],
+			['const {foo: bar} = require(`file`);', 'import {foo as bar} from \'file\';'],
+			['const file = require(`./it\'s.js`);', String.raw`import file from './it\'s.js';`],
+			['const file = require(`./line\nfile.js`);', String.raw`import file from './line\nfile.js';`],
+			['const file = require(`./back\\`tick.js`);', 'import file from \'./back`tick.js\';'],
+			['const file = require(`./fi\\u006ce`);', 'import file from \'./file\';'],
+			['const file = require(/* keep */ (`file`));', 'import file from /* keep */ \'file\';'],
+		].map(([code, output]) => ({
+			code,
+			errors: [{messageId: 'error/identifier', suggestions: [{messageId: 'suggestion/import', output}]}],
+		})),
+		...[
+			'const file = require(`${name}`);', // eslint-disable-line no-template-curly-in-string
+			'const file = require(tag`file`);',
+		].map(code => ({code, errors: [{messageId: 'error/identifier', suggestions: []}]})),
+		{
+			code: 'const file: Foo = require(`file`);',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'error/identifier', suggestions: []}],
+		},
+	],
+});

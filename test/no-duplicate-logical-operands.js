@@ -3,6 +3,27 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 
 test({
+	valid: [
+		'foo[tag`bar`] || foo.bar;',
+		'foo[`bar${value}`] || foo.bar;', // eslint-disable-line no-template-curly-in-string
+		'foo?.[`bar`] || foo.bar;',
+	],
+	invalid: [
+		...[
+			['foo[`bar`] || foo.bar;', 'foo[`bar`];'],
+			['foo["bar"] && foo[`b\\u0061r`];', 'foo["bar"];'],
+			['foo[``] || foo[""];', 'foo[``];'],
+		].map(([code, output]) => ({
+			code,
+			errors: [{
+				messageId: 'no-duplicate-logical-operands',
+				suggestions: [{messageId: 'no-duplicate-logical-operands/suggestion', output}],
+			}],
+		})),
+	],
+});
+
+test({
 	valid: [],
 	invalid: [
 		...[

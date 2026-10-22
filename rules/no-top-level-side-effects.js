@@ -1,4 +1,5 @@
 import {findVariable} from '@eslint-community/eslint-utils';
+import {getStaticStringValue} from './ast/index.js';
 import {
 	getAssignmentTargets,
 	getOutermostChainAndTypeScriptExpression,
@@ -145,7 +146,7 @@ const isGlobalMutation = (node, sourceCode) => {
 	}
 
 	const receiver = unwrapChainAndTypeScriptExpression(callee.object);
-	const method = callee.computed ? callee.property.type === 'Literal' && callee.property.value : callee.property.name;
+	const method = callee.computed ? getStaticStringValue(callee.property) : callee.property.name;
 	// An explicit receiver can receive the write instead of the target.
 	if (receiver.name === 'Reflect' && method === 'set' && (node.arguments.length !== 3 || node.arguments.some(argument => argument.type === 'SpreadElement'))) {
 		return false;
@@ -219,11 +220,12 @@ const isKnownPureCall = (node, sourceCode, pureExports) => {
 	let reference = unwrapChainAndTypeScriptExpression(node.callee);
 	const members = [];
 	while (reference.type === 'MemberExpression') {
-		if (reference.computed && (reference.property.type !== 'Literal' || typeof reference.property.value !== 'string')) {
+		const member = reference.computed ? getStaticStringValue(reference.property) : reference.property.name;
+		if (member === undefined) {
 			return false;
 		}
 
-		members.unshift(reference.computed ? reference.property.value : reference.property.name);
+		members.unshift(member);
 		reference = unwrapChainAndTypeScriptExpression(reference.object);
 	}
 

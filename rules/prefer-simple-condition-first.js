@@ -1,5 +1,5 @@
 import {isCommentToken} from '@eslint-community/eslint-utils';
-import {isLiteral, isNullLiteral} from './ast/index.js';
+import {getStaticStringValue, isNullLiteral} from './ast/index.js';
 import {
 	getLogicalExpressionChildText,
 	getOutermostTypeScriptExpression,
@@ -34,7 +34,7 @@ Check if a node can be an operand in a simple strict comparison.
 function isSimpleOperand(node) {
 	node = unwrapTypeScriptExpression(node);
 
-	if (isIdentifierOrTypeofIdentifier(node) || node.type === 'Literal') {
+	if (isIdentifierOrTypeofIdentifier(node) || node.type === 'Literal' || getStaticStringValue(node) !== undefined) {
 		return true;
 	}
 
@@ -110,11 +110,11 @@ function isTypeofGuardForIdentifier(node, identifierName) {
 	const left = unwrapTypeScriptExpression(node.left);
 	const right = unwrapTypeScriptExpression(node.right);
 	const typeofExpression = left.type === 'UnaryExpression' ? left : right;
-	const undefinedLiteral = left.type === 'Literal' ? left : right;
+	const undefinedLiteral = typeofExpression === left ? right : left;
 	if (
 		typeofExpression.type !== 'UnaryExpression'
 		|| typeofExpression.operator !== 'typeof'
-		|| !isLiteral(undefinedLiteral, 'undefined')
+		|| getStaticStringValue(undefinedLiteral) !== 'undefined'
 	) {
 		return false;
 	}

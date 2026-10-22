@@ -2,6 +2,18 @@ import {getTester} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
+test({
+	valid: [
+		'new Set(`${value}`);', // eslint-disable-line no-template-curly-in-string
+		'new Set(tag``);',
+	],
+	invalid: ['WeakSet', 'WeakMap'].map(name => ({
+		code: `new ${name}(\`\`);`,
+		output: `new ${name}();`,
+		errors: 1,
+	})),
+});
+
 // Useless value
 test.snapshot({
 	valid: [
@@ -81,5 +93,13 @@ test.snapshot({
 		'new Set( (( /* keep */ [] )) )',
 		'new Set(/* keep */ a ?? null)',
 		'new Set(a ?? null /* keep */)',
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{code: 'new Set(``);', output: 'new Set();', errors: 1},
+		{code: 'new Map(value ?? ``);', output: 'new Map(value);', errors: 1},
 	],
 });

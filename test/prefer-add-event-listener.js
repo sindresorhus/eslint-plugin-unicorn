@@ -100,6 +100,13 @@ ruleTest.snapshot({
 		'setCallBack = () => {console.log(\'foo\')}',
 		'foo.onclick.bar = () => {}',
 		'foo[\'x\'] = true;',
+		'require(`koa`); element.onclick = handler;',
+		'require(`sax`); element.onclick = handler;',
+		'require(`k\\u{6F}a`); element.onclick = handler;',
+		{
+			code: 'require(`foo`); element.onclick = handler;',
+			options: excludeFooOptions,
+		},
 		outdent`
 			const Koa = require('koa');
 			const app = new Koa();
@@ -401,5 +408,10 @@ ruleTest({
 	valid: [],
 	invalid: [
 		{code: '({node: element}.node.onclick) = handler;', output: '({node: element}.node).addEventListener(\'click\', handler);', errors: 1},
+		...[
+			'require(``); element.onclick = handler;',
+			'require(`koa${name}`); element.onclick = handler;', // eslint-disable-line no-template-curly-in-string
+			'require(tag`koa`); element.onclick = handler;',
+		].map(code => ({code, output: code.replace('element.onclick = handler', 'element.addEventListener(\'click\', handler)'), errors: 1})),
 	],
 });

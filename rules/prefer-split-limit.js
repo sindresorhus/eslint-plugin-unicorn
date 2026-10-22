@@ -1,7 +1,7 @@
 import {isLeftHandSide, isValueNotUsable, getStaticValueIfNoSideEffects} from './utils/index.js';
 import {appendArgument} from './fix/index.js';
 import {
-	isStringLiteral,
+	getStaticStringValue,
 	isRegexLiteral,
 	isMethodCall,
 } from './ast/index.js';
@@ -13,7 +13,7 @@ const messages = {
 };
 
 const isSupportedSeparator = node =>
-	(isStringLiteral(node) && node.value !== '')
+	Boolean(getStaticStringValue(node))
 	|| isRegexLiteral(node);
 
 const getNonNegativeIntegerValue = (node, context) => {

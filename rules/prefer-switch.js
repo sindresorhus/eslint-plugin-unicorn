@@ -1,5 +1,5 @@
 import {getStaticValue, hasSideEffect} from '@eslint-community/eslint-utils';
-import {isUndefined} from './ast/index.js';
+import {getStaticStringValue, isUndefined} from './ast/index.js';
 import isSameReference from './utils/is-same-reference.js';
 import {
 	getIndentString,
@@ -14,7 +14,7 @@ const messages = {
 };
 
 const isSame = (nodeA, nodeB) => nodeA === nodeB || isSameReference(nodeA, nodeB);
-const isConstant = node => node.type === 'Literal' || isUndefined(node);
+const isConstant = node => node.type === 'Literal' || getStaticStringValue(node) !== undefined || isUndefined(node);
 
 const getDiscriminantCandidates = ({left, right}) => [left, right].filter(node => !isConstant(node));
 

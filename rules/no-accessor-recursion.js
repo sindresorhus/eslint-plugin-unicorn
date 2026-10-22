@@ -1,4 +1,4 @@
-import {isStringLiteral} from './ast/index.js';
+import {getStaticStringValue} from './ast/index.js';
 
 const MESSAGE_ID_ERROR = 'no-accessor-recursion/error';
 const messages = {
@@ -38,7 +38,7 @@ const isDotNotationAccess = node =>
 	&& (
 		(!node.parent.computed && isIdentifier(node.parent.property))
 		// `this['foo']` is the same access as `this.foo`
-		|| (node.parent.computed && isStringLiteral(node.parent.property))
+		|| (node.parent.computed && getStaticStringValue(node.parent.property) !== undefined)
 	);
 
 /**
@@ -52,7 +52,7 @@ const isValidProperty = property =>
 	&& ['set', 'get'].includes(property.kind)
 	&& isIdentifier(property.key);
 
-const getKeyName = key => isStringLiteral(key) ? key.value : key.name;
+const getKeyName = key => getStaticStringValue(key) ?? key.name;
 
 /**
 Check if two property keys are the same.

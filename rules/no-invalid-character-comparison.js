@@ -2,7 +2,6 @@ import {
 	isMethodCall,
 	getStaticStringValue,
 	isNumericLiteral,
-	isStringLiteral,
 } from './ast/index.js';
 import {isString} from './utils/index.js';
 
@@ -23,13 +22,14 @@ const isStaticStringIndex = node => {
 		return true;
 	}
 
-	if (!isStringLiteral(node)) {
+	const value = getStaticStringValue(node);
+	if (value === undefined) {
 		return false;
 	}
 
-	const index = Number(node.value);
+	const index = Number(value);
 
-	return Number.isSafeInteger(index) && index >= 0 && String(index) === node.value;
+	return Number.isSafeInteger(index) && index >= 0 && String(index) === value;
 };
 
 // Whether `node` evaluates to a single UTF-16 code unit (or `''`/`undefined` when out of bounds).

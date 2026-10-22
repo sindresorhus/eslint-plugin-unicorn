@@ -1,0 +1,129 @@
+exports[`prefer-modern-dom-apis > invalid(1): referenceNode.insertAdjacentElement(\`beforebegin\`, newNode); 1`] = `
+
+  1 | referenceNode.insertAdjacentElement(\`beforebegin\`, newNode);
+
+`;
+
+exports[`prefer-modern-dom-apis > invalid(1): referenceNode.insertAdjacentElement(\`beforebegin\`, newNode); 2`] = `
+
+Message:
+> 1 | referenceNode.insertAdjacentElement(\`beforebegin\`, newNode);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`referenceNode.before(newNode)\` over \`referenceNode.insertAdjacentElement(\`beforebegin\`, newNode)\`.
+
+Output:
+  1 | referenceNode.before(newNode);
+
+`;
+
+exports[`prefer-modern-dom-apis > invalid(2): referenceNode.insertAdjacentText(\`afterbegin\`, \`text\`); 1`] = `
+
+  1 | referenceNode.insertAdjacentText(\`afterbegin\`, \`text\`);
+
+`;
+
+exports[`prefer-modern-dom-apis > invalid(2): referenceNode.insertAdjacentText(\`afterbegin\`, \`text\`); 2`] = `
+
+Message:
+> 1 | referenceNode.insertAdjacentText(\`afterbegin\`, \`text\`);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`referenceNode.prepend(\`text\`)\` over \`referenceNode.insertAdjacentText(\`afterbegin\`, \`text\`)\`.
+
+Output:
+  1 | referenceNode.prepend(\`text\`);
+
+`;
+
+exports[`prefer-modern-dom-apis > invalid(3): referenceNode.insertAdjacentText(\"beforeend\", \`text\`); 1`] = `
+
+  1 | referenceNode.insertAdjacentText("beforeend", \`text\`);
+
+`;
+
+exports[`prefer-modern-dom-apis > invalid(3): referenceNode.insertAdjacentText(\"beforeend\", \`text\`); 2`] = `
+
+Message:
+> 1 | referenceNode.insertAdjacentText("beforeend", \`text\`);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`referenceNode.append(\`text\`)\` over \`referenceNode.insertAdjacentText("beforeend", \`text\`)\`.
+
+Output:
+  1 | referenceNode.append(\`text\`);
+
+`;
+
+exports[`prefer-modern-dom-apis > invalid(4): referenceNode.insertAdjacentText(\`beforebegin\`, \`\`); 1`] = `
+
+  1 | referenceNode.insertAdjacentText(\`beforebegin\`, \`\`);
+
+`;
+
+exports[`prefer-modern-dom-apis > invalid(4): referenceNode.insertAdjacentText(\`beforebegin\`, \`\`); 2`] = `
+
+Message:
+> 1 | referenceNode.insertAdjacentText(\`beforebegin\`, \`\`);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`referenceNode.before(\`\`)\` over \`referenceNode.insertAdjacentText(\`beforebegin\`, \`\`)\`.
+
+Output:
+  1 | referenceNode.before(\`\`);
+
+`;
+
+exports[`prefer-modern-dom-apis > invalid(5): referenceNode.insertAdjacentElement(\`before\\u{62}egin\`, newNode); 1`] = `
+
+  1 | referenceNode.insertAdjacentElement(\`before\\u{62}egin\`, newNode);
+
+`;
+
+exports[`prefer-modern-dom-apis > invalid(5): referenceNode.insertAdjacentElement(\`before\\u{62}egin\`, newNode); 2`] = `
+
+Message:
+> 1 | referenceNode.insertAdjacentElement(\`before\\u{62}egin\`, newNode);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`referenceNode.before(newNode)\` over \`referenceNode.insertAdjacentElement(\`before\\u{62}egin\`, newNode)\`.
+
+Output:
+  1 | referenceNode.before(newNode);
+
+`;
+
+exports[`prefer-modern-dom-apis > invalid(6): referenceNode.insertAdjacentText(/* keep */ \`afterend\`, \`text\`); 1`] = `
+
+  1 | referenceNode.insertAdjacentText(/* keep */ \`afterend\`, \`text\`);
+
+`;
+
+exports[`prefer-modern-dom-apis > invalid(6): referenceNode.insertAdjacentText(/* keep */ \`afterend\`, \`text\`); 2`] = `
+
+Message:
+> 1 | referenceNode.insertAdjacentText(/* keep */ \`afterend\`, \`text\`);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`referenceNode.after(\`text\`)\` over \`referenceNode.insertAdjacentText(\`afterend\`, \`text\`)\`.
+
+`;
+
+exports[`prefer-modern-dom-apis > invalid(7): const result = referenceNode.insertAdjacentElement(\`beforebegin\`, newNode); 1`] = `
+
+  1 | const result = referenceNode.insertAdjacentElement(\`beforebegin\`, newNode);
+
+`;
+
+exports[`prefer-modern-dom-apis > invalid(7): const result = referenceNode.insertAdjacentElement(\`beforebegin\`, newNode); 2`] = `
+
+Message:
+> 1 | const result = referenceNode.insertAdjacentElement(\`beforebegin\`, newNode);
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`referenceNode.before(newNode)\` over \`referenceNode.insertAdjacentElement(\`beforebegin\`, newNode)\`.
+
+`;
+
+exports[`prefer-modern-dom-apis > invalid(8): referenceNode.insertAdjacentText(\`beforebegin\`, \`text\`); 1`] = `
+
+  1 | referenceNode.insertAdjacentText(\`beforebegin\`, \`text\`);
+
+`;
+
+exports[`prefer-modern-dom-apis > invalid(8): referenceNode.insertAdjacentText(\`beforebegin\`, \`text\`); 2`] = `
+
+Message:
+> 1 | referenceNode.insertAdjacentText(\`beforebegin\`, \`text\`);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`referenceNode.before(\`text\`)\` over \`referenceNode.insertAdjacentText(\`beforebegin\`, \`text\`)\`.
+
+Output:
+  1 | referenceNode.before(\`text\`);
+
+`;

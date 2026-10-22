@@ -8,6 +8,26 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+test.snapshot({
+	valid: [
+		'Buffer.from(string, tag`base64`)',
+		'Buffer.from(string, `base${encoding}`)', // eslint-disable-line no-template-curly-in-string
+		'Buffer.from(string, ``)',
+		'bytes.toBase64().replaceAll(tag`=`, ``)',
+		'bytes.toBase64().replaceAll(`=`, tag``)',
+	],
+	invalid: [
+		'Buffer.from(base64, `base64`)',
+		'Buffer.from(`Zm9v`, `BASE64URL`)',
+		'Buffer.from(base64, `base\\u{36}4`)',
+		'buffer.toString(`base64url`)',
+		'Buffer.from(base64, /* keep */ `base64`)',
+		'bytes.toBase64().replaceAll(`+`, `-`).replaceAll("/", `_`).replaceAll(`=`, ``)',
+		'bytes.toBase64().replace(/=+$/, ``)',
+		{code: '(buffer as Buffer).toString(`base64`)', languageOptions: {parser: parsers.typescript}},
+	],
+});
+
 test({
 	valid: [],
 	invalid: [

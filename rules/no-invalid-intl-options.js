@@ -2,7 +2,7 @@ import {getPropertyName} from '@eslint-community/eslint-utils';
 import {
 	isBigIntLiteral,
 	isNumericLiteral,
-	isStringLiteral,
+	getStaticStringValue,
 	isMethodCall,
 } from './ast/index.js';
 import {getStaticValueForControlFlow, isString, unwrapTypeScriptExpression} from './utils/index.js';
@@ -660,7 +660,7 @@ const {isTarget: isStringReceiver} = createBuiltinTypeCheckers({
 	name: 'String',
 	checkClassHeritage: false,
 	allowNullishInMixedUnion: true,
-	isTargetTypeAnnotation: node => node?.type === 'TSStringKeyword' || (node?.type === 'TSLiteralType' && isStringLiteral(node.literal)),
+	isTargetTypeAnnotation: node => node?.type === 'TSStringKeyword' || (node?.type === 'TSLiteralType' && getStaticStringValue(node.literal) !== undefined),
 	isTargetType: type => type.intrinsicName === 'string' || type.isStringLiteral?.(),
 });
 const {isTarget: isNumericReceiver} = createTypeCheckers({

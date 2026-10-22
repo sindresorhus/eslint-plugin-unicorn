@@ -32,6 +32,9 @@ test({
 		// A sibling/nested `process.on` must not end the enclosing handler context
 		'process.on("SIGINT", function() { process.on("exit", function() {}); process.exit(1); })',
 		'process.on("SIGINT", () => { process.once("exit", () => {}); process.exit(1); })',
+		'require(`worker_threads`); process.exit(1);',
+		'require(`node:worker_threads`); process.exit(1);',
+		'require(`worker_\\u{74}hreads`); process.exit(1);',
 		outdent`
 			const {workerData, parentPort} = require('worker_threads');
 			process.exit(1);
@@ -111,6 +114,9 @@ test({
 		// `callee.object.type` is not a `Identifier`
 		'lib.process.on("SIGINT", function() { process.exit(1); })',
 		'lib.process.once("SIGINT", function() { process.exit(1); })',
+		'require(``); process.exit(1);',
+		'require(`worker_${name}`); process.exit(1);', // eslint-disable-line no-template-curly-in-string
+		'require(tag`worker_threads`); process.exit(1);',
 	].map(code => ({code, errors})),
 });
 

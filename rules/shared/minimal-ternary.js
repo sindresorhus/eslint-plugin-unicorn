@@ -1,5 +1,5 @@
 import {getPropertyName, hasSideEffect} from '@eslint-community/eslint-utils';
-import {isFunction} from '../ast/index.js';
+import {getStaticStringValue, isFunction} from '../ast/index.js';
 import {
 	containsNode,
 	getConditionalExpressionChildText,
@@ -36,9 +36,26 @@ function getExpressionTokens(node, context) {
 }
 
 function isSameExpression(left, right, context) {
+	const leftStringValue = getStaticStringValue(left);
+	if (leftStringValue !== undefined) {
+		return leftStringValue === getStaticStringValue(right);
+	}
+
 	const {sourceCode} = context;
 	if (sourceCode.getText(left) === sourceCode.getText(right)) {
 		return true;
+	}
+
+	if (
+		left.type === 'MemberExpression'
+		&& right.type === 'MemberExpression'
+		&& left.computed
+		&& right.computed
+		&& left.optional === right.optional
+		&& getStaticStringValue(left.property) !== undefined
+		&& getStaticStringValue(left.property) === getStaticStringValue(right.property)
+	) {
+		return isSameExpression(left.object, right.object, context);
 	}
 
 	const isFunctionOrClass = node => isFunction(node) || node.type === 'ClassExpression';
@@ -49,14 +66,14 @@ function isSameExpression(left, right, context) {
 }
 
 function isSafeSharedExpression(node) {
-	return safeSharedExpressionTypes.has(node.type);
+	return safeSharedExpressionTypes.has(node.type) || getStaticStringValue(node) !== undefined;
 }
 
 function isSafeSharedCallee(node) {
 	return isSafeSharedExpression(node)
 		|| (node.type === 'MemberExpression'
 			&& isSafeSharedExpression(node.object)
-			&& (!node.computed || node.property.type === 'Literal'));
+			&& (!node.computed || node.property.type === 'Literal' || getStaticStringValue(node.property) !== undefined));
 }
 
 function getStaticPropertyName(node, context) {
@@ -314,7 +331,7 @@ function isSafeToReorderExpression(node) {
 	switch (node.type) {
 		case 'MemberExpression': {
 			return isSafeToReorderExpression(node.object)
-				&& (!node.computed || isSafeToReorderExpression(node.property));
+				&& (!node.computed || node.property.type === 'Literal' || getStaticStringValue(node.property) !== undefined);
 		}
 
 		case 'ChainExpression': {
@@ -350,7 +367,7 @@ function isSafeToReorderExpression(node) {
 
 function canMoveBeforeCondition(node, context) {
 	return isSafeToReorderExpression(node)
-		&& !hasSideEffect(node, context.sourceCode, {considerImplicitTypeConversion: true});
+		&& !hasSideEffect(node, context.sourceCode);
 }
 
 function getExpressionItems(node) {
@@ -368,6 +385,10 @@ export function getTypeSafetyToMinimize(consequent, alternate, context) {
 		const hasCompatibleExpressionTypes = (left, right) => {
 			if (!areTypesCompatible(parserServices.getTypeAtLocation(left), parserServices.getTypeAtLocation(right))) {
 				return false;
+			}
+
+			if (getStaticStringValue(left) !== undefined && getStaticStringValue(right) !== undefined) {
+				return true;
 			}
 
 			const rightChildren = [...getVisitorChildNodes(right, context.sourceCode.visitorKeys)];
@@ -462,7 +483,7 @@ export function isSyntaxSafeToMinimize(consequent, alternate, context) {
 	const consequentItems = getExpressionItems(consequent);
 	const differentIndex = getMinimalDifferentItemIndex(consequentItems, getExpressionItems(alternate), context);
 	// Shared non-literal values can lose branch narrowing when moved outside the ternary.
-	return consequentItems.every((item, index) => index === differentIndex || item.type === 'Literal');
+	return consequentItems.every((item, index) => index === differentIndex || item.type === 'Literal' || getStaticStringValue(item) !== undefined);
 }
 
 /**
@@ -501,12 +522,12 @@ export function getMinimalExpressionText(left, right, {condition, context}) {
 	};
 
 	// Literal values cannot be changed by the condition.
-	const canMoveBeforeTest = expressions => expressions.every(expression => expression.type === 'Literal')
+	const canMoveBeforeTest = expressions => expressions.every(expression => expression.type === 'Literal' || getStaticStringValue(expression) !== undefined)
 		|| (canMoveBeforeCondition(condition, context) && expressions.every(expression => canMoveBeforeCondition(expression, context)));
 
 	if (left.type === 'MemberExpression') {
 		if (!isSameExpression(left.object, right.object, context)) {
-			if ([left, right].some(member => member.computed && member.property.type !== 'Literal')) {
+			if ([left, right].some(member => member.computed && member.property.type !== 'Literal' && getStaticStringValue(member.property) === undefined)) {
 				return;
 			}
 

@@ -3,7 +3,7 @@ import {getArgumentRemovalRange, removeParentheses, removeArgument} from './fix/
 import {
 	isNewExpression,
 	isEmptyArrayExpression,
-	isEmptyStringLiteral,
+	getStaticStringValue,
 	isNullLiteral,
 	isUndefined,
 } from './ast/index.js';
@@ -25,7 +25,7 @@ const getDescription = node => {
 		return 'empty array';
 	}
 
-	if (isEmptyStringLiteral(node)) {
+	if (getStaticStringValue(node) === '') {
 		return 'empty string';
 	}
 
