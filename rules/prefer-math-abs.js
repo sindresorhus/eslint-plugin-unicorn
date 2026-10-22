@@ -10,6 +10,7 @@ import {
 	getComparisonOperandText,
 	getParenthesizedRange,
 	getParenthesizedText,
+	isBigInt,
 	isSameReference,
 	unwrapTypeScriptExpression,
 	wouldRemoveComments,
@@ -36,6 +37,7 @@ const matchingOperator = {
 };
 
 const isZero = node => isLiteral(node, 0);
+const bigIntCheckOptions = {treatMixedUnionAsTarget: true};
 
 function isBigIntTypeAnnotation(typeAnnotation) {
 	return typeAnnotation.type === 'TSBigIntKeyword'
@@ -72,7 +74,7 @@ function hasBigIntTypeAnnotation(node) {
 	return typeAnnotation && isBigIntTypeAnnotation(typeAnnotation);
 }
 
-function isBigIntExpression(node) {
+function isBigIntExpression(node, context) {
 	return isBigIntLiteral(node)
 		|| isCallExpression(node, {
 			name: 'BigInt',
@@ -82,9 +84,10 @@ function isBigIntExpression(node) {
 		|| (
 			node.type === 'UnaryExpression'
 			&& node.operator === '-'
-			&& isBigIntExpression(node.argument)
+			&& isBigIntExpression(node.argument, context)
 		)
-		|| hasBigIntTypeAnnotation(node);
+		|| hasBigIntTypeAnnotation(node)
+		|| isBigInt(node, context, bigIntCheckOptions);
 }
 
 function hasBigIntDefinition(node, context) {
@@ -103,7 +106,7 @@ function hasBigIntDefinition(node, context) {
 				&& isBigIntTypeAnnotation(definition.name.typeAnnotation)
 			) || (
 				definition.name.parent.type === 'AssignmentPattern'
-				&& isBigIntExpression(definition.name.parent.right)
+				&& isBigIntExpression(definition.name.parent.right, context)
 			);
 		}
 
@@ -113,7 +116,7 @@ function hasBigIntDefinition(node, context) {
 				&& isBigIntTypeAnnotation(definition.node.id.typeAnnotation)
 			) || (
 				definition.node.init
-				&& isBigIntExpression(definition.node.init)
+				&& isBigIntExpression(definition.node.init, context)
 			);
 		}
 
@@ -121,8 +124,8 @@ function hasBigIntDefinition(node, context) {
 	}) ?? false;
 }
 
-function isBigInt(node, context) {
-	return isBigIntExpression(node)
+function canBeBigInt(node, context) {
+	return isBigIntExpression(node, context)
 		|| hasBigIntDefinition(node, context);
 }
 
@@ -162,8 +165,8 @@ function getComparisonWithZero(node, context) {
 	if (
 		node.type !== 'BinaryExpression'
 		|| !operators.has(node.operator)
-		|| isBigInt(node.left, context)
-		|| isBigInt(node.right, context)
+		|| canBeBigInt(node.left, context)
+		|| canBeBigInt(node.right, context)
 	) {
 		return;
 	}
@@ -187,8 +190,8 @@ function getGreaterComparison(node, context) {
 	if (
 		node.type !== 'BinaryExpression'
 		|| !operators.has(node.operator)
-		|| isBigInt(node.left, context)
-		|| isBigInt(node.right, context)
+		|| canBeBigInt(node.left, context)
+		|| canBeBigInt(node.right, context)
 	) {
 		return;
 	}
@@ -212,8 +215,8 @@ function getLessComparison(node, context) {
 	if (
 		node.type !== 'BinaryExpression'
 		|| !operators.has(node.operator)
-		|| isBigInt(node.left, context)
-		|| isBigInt(node.right, context)
+		|| canBeBigInt(node.left, context)
+		|| canBeBigInt(node.right, context)
 	) {
 		return;
 	}

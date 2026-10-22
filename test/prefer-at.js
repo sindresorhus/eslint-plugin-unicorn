@@ -107,6 +107,30 @@ const domCollectionInitializers = [
 const domCollectionTypes = ['NodeList', 'NodeListOf<Element>', 'HTMLCollection', 'HTMLCollectionOf<Element>'];
 const typescript = code => ({code, languageOptions: {parser: parsers.typescript}});
 
+for (const wrap of [code => ({code}), typescript, typeAware]) {
+	test({
+		valid: [
+			...[
+				'/** @param {NodeList | (null | undefined)} nodes */ function run(nodes) { return nodes[nodes.length - 1]; }',
+				'/** @returns {HTMLCollection | (Null | Undefined)} */ function read() { return source; } const nodes = read(); nodes[nodes.length - 1];',
+				'/** @param {() => (NodeList | (null | undefined))} read */ function run(read) { const nodes = read(); return _.last(nodes); }',
+			].map(code => wrap(code)),
+			{
+				...wrap('/** @param {(null | undefined) | HTMLCollectionOf<Element>} nodes */ function run(nodes) { return nodes?.[0]; }'),
+				options: [{checkAllIndexAccess: true}],
+			},
+		],
+		invalid: [
+			'NodeList | Array<Element> | (null | undefined)',
+			'NodeList | (Unresolved | null)',
+		].map(type => ({
+			...wrap(`/** @param {${type}} nodes */ function run(nodes) { return nodes[nodes.length - 1]; }`),
+			output: `/** @param {${type}} nodes */ function run(nodes) { return nodes.at(-1); }`,
+			errors: [{messageId: 'negative-index'}],
+		})),
+	});
+}
+
 // Type assertions and optional chains do not turn a reference into a value.
 const referenceWrappers = [
 	expression => `(${expression} as number)`,

@@ -13,6 +13,45 @@ const typeAware = code => ({
 	},
 });
 
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.js', '*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {Uint8Array} values */ function run(values) { values.fill({}); }',
+			'/** @returns {CanvasRenderingContext2D} */ function read() { return source; } read().fill({});',
+			'/** @param {() => Set<object>} read */ function run(read) { read().fill(new Map()); }',
+			'/** @param {?Uint8Array} values */ function run(values) { values.fill({}); }',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			'/** @returns {ReadonlyArray<object>} */ function read() { return source; } read().fill(new Map());',
+			'/** @param {Array<object> | Uint8Array} values */ function run(values) { values.fill({}); }',
+			'/** @param {?Array<object>} values */ function run(values) { values.fill([]); }',
+		].map(code => ({code, filename: 'file.ts', errors: [{messageId: 'no-array-fill-with-reference-type'}]})),
+	});
+}
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.js', '*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			code: '/** @param {Array<object>} values */ function run(values: Uint8Array) { values.fill({}); }',
+			filename: 'file.ts',
+		}],
+		invalid: [{
+			code: '/** @param {Uint8Array} values */ function run(values: object[]) { values.fill({}); }',
+			filename: 'file.ts',
+			errors: [{messageId: 'no-array-fill-with-reference-type'}],
+		}],
+	});
+}
+
 test.snapshot({
 	valid: [
 		'array.fill(0)',
@@ -73,6 +112,8 @@ test.typescript({
 		].map(declaration => `interface Template { fill(value: object): void; } ${declaration} restore().fill({});`),
 		'declare function restore(): Uint8Array; restore().fill({});',
 		'declare function restore(): {fill(value: object): void}; restore().fill({});',
+		'let restore = (): {fill(value: object): void} => template; restore().fill({});',
+		'var restore = (): {fill(value: object): void} => template; restore().fill({});',
 		...[
 			'function restore(): Result { type Result = object[]; return template; }',
 			'const restore = (): Result => { type Result = object[]; return template; };',
@@ -98,7 +139,9 @@ test.typescript({
 			'import {restore} from "template";',
 			'import type {Template} from "template"; declare function restore(): Template;',
 			'interface Template {fill(value: object): void} const restore: () => Template = () => template;',
-			'let restore = (): {fill(value: object): void} => template;',
+			'let restore = (): object[] => [];',
+			'var restore = (): object[] => [];',
+			'let restore = (): {fill(value: object): void} => template; restore = other;',
 			'declare function original(): {fill(value: object): void}; const restore = original;',
 			'declare function restore(value: string): {fill(value: object): void}; declare function restore(): object[];',
 			'function restore(): {fill(value: object): void} { return template; } restore = other;',

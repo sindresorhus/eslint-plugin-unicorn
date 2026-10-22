@@ -668,6 +668,107 @@ ruleTester.svelte({
 	].map(([code, output]) => ({code, output, errors: 1})),
 });
 
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	ruleTester({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {?boolean} flag */ function run(flag) { return !(!flag && other); }',
+			'/** @param {boolean | string} flag */ function run(flag) { return !(!flag || other); }',
+			[
+				'/** @param {boolean} first\n * @param {boolean} second\n * @param {unknown} third */',
+				'function run(first, second, third) { return (first && second) || (first && third); }',
+			].join('\n'),
+			[
+				'/** @param {boolean} first */ function run(first) {',
+				' /** @type {boolean} */ const second = source;',
+				' return (second && first) || first;',
+				'}',
+			].join('\n'),
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			[
+				'/** @param {boolean} flag */ function run(flag) { return !(!flag && other); }',
+				'/** @param {boolean} flag */ function run(flag) { return flag || !other; }',
+			],
+			[
+				'/** @param {boolean} first\n * @param {boolean} second */ function run(first, second) { return !(!first || !second); }',
+				'/** @param {boolean} first\n * @param {boolean} second */ function run(first, second) { return first && second; }',
+			],
+			[
+				'/** @param {string} text */ function run(text) { return !(!text.includes("x") && other); }',
+				'/** @param {string} text */ function run(text) { return text.includes("x") || !other; }',
+			],
+			[
+				'/** @returns {boolean} */ function read() { return source; } !(!read() || other);',
+				'/** @returns {boolean} */ function read() { return source; } read() && !other;',
+			],
+			[
+				'/** @param {boolean} first\n * @param {boolean} second */ function run(first, second) { return (first && second) || first; }',
+				'/** @param {boolean} first\n * @param {boolean} second */ function run(first, second) { return first; }',
+			],
+			[
+				[
+					'/** @param {boolean} first\n * @param {boolean} second\n * @param {boolean} third */',
+					'function run(first, second, third) { return (first && second) || (first && third); }',
+				].join('\n'),
+				[
+					'/** @param {boolean} first\n * @param {boolean} second\n * @param {boolean} third */',
+					'function run(first, second, third) { return first && (second || third); }',
+				].join('\n'),
+			],
+			[
+				'/** @param {Set<string>} values */ function run(values) { return !(!values.has(key) || other); }',
+				'/** @param {Set<string>} values */ function run(values) { return values.has(key) && !other; }',
+			],
+			[
+				'/** @param {string} flag */ function run(/** @type {boolean} */ flag) { return !(!flag && other); }',
+				'/** @param {string} flag */ function run(/** @type {boolean} */ flag) { return flag || !other; }',
+			],
+		].map(([code, output]) => ({
+			code, output, filename: 'file.ts', errors: [{messageId: 'prefer-simplified-conditions'}],
+		})),
+	});
+
+	ruleTester({
+		testerOptions: {languageOptions},
+		valid: [],
+		invalid: [{
+			code: [
+				'/** @returns {boolean} */ function read() { return source; }',
+				'/** @param {boolean} first\n * @param {boolean} second */',
+				'function run(first, second) { return (read() && first) || (read() && second); }',
+			].join('\n'),
+			filename: 'file.ts',
+			errors: [{
+				messageId: 'prefer-simplified-conditions',
+				suggestions: [{
+					messageId: 'suggestion',
+					output: [
+						'/** @returns {boolean} */ function read() { return source; }',
+						'/** @param {boolean} first\n * @param {boolean} second */',
+						'function run(first, second) { return read() && (first || second); }',
+					].join('\n'),
+				}],
+			}],
+		}],
+	});
+}
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	ruleTester({
+		testerOptions: {languageOptions},
+		valid: [{code: '/** @param {boolean} flag */ function run(flag) { return !(!(flag as string) && other); }', filename: 'file.ts'}],
+		invalid: [],
+	});
+}
+
 ruleTester.svelte({
 	valid: [],
 	invalid: [

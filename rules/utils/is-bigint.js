@@ -3,6 +3,7 @@ import {isFunctionCall, isStaticProperties} from './type-check.js';
 import getStaticValueIfNoSideEffects from './get-static-value.js';
 import {
 	createTypeCheckers,
+	hasJSDocumentTypeReference,
 	target,
 	unknown,
 } from './type-helpers.js';
@@ -40,16 +41,26 @@ const isBigIntTypeAnnotation = node => {
 const getStaticType = value =>
 	typeof value === 'bigint' ? target : unknown;
 
-const isBigIntNode = node =>
+const bigIntBinaryOperators = new Set(['+', '-', '*', '/', '%', '**', '<<', '>>', '|', '^', '&']);
+
+const isBigIntNode = (node, context, isTarget) =>
 	isBigIntLiteral(node)
 	|| isBigIntCall(node)
-	|| isBigIntMethodCall(node);
+	|| isBigIntMethodCall(node)
+	|| (node.type === 'UnaryExpression' && ['-', '~'].includes(node.operator) && isTarget(node.argument))
+	|| (
+		node.type === 'BinaryExpression'
+		&& bigIntBinaryOperators.has(node.operator)
+		&& isTarget(node.left)
+		&& isTarget(node.right)
+	)
+	|| (node.type === 'UpdateExpression' && isTarget(node.argument));
 
 const {
 	isTarget: isBigIntTarget,
 	isKnownNonTarget: isKnownNonBigInt,
 } = createTypeCheckers({
-	targetTypeNames: new Set(),
+	targetTypeNames: new Set(['bigint']),
 	targetCallNames: ['BigInt'],
 	isTargetNode: isBigIntNode,
 	isTargetTypeAnnotation: isBigIntTypeAnnotation,
@@ -58,7 +69,7 @@ const {
 	getStaticType,
 });
 
-export default function isBigInt(node, context) {
+export default function isBigInt(node, context, overrides) {
 	if (
 		node.type === 'TSSatisfiesExpression'
 		&& isBigIntTypeAnnotation(node.typeAnnotation)
@@ -66,11 +77,12 @@ export default function isBigInt(node, context) {
 		return true;
 	}
 
-	if (isBigIntTarget(node, context)) {
+	if (isBigIntTarget(node, context, overrides)) {
 		return true;
 	}
 
-	return typeof getStaticValueIfNoSideEffects(node, context)?.value === 'bigint';
+	return typeof getStaticValueIfNoSideEffects(node, context)?.value === 'bigint'
+		&& !hasJSDocumentTypeReference(node, context);
 }
 
 export {

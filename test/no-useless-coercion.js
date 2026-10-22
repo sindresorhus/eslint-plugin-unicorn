@@ -1,3 +1,4 @@
+import {atob, btoa} from 'node:buffer';
 import {stripTypeScriptTypes} from 'node:module';
 import {test as nodeTest} from 'node:test';
 import {runInNewContext} from 'node:vm';
@@ -11,10 +12,818 @@ const {test, rule} = getTester(import.meta);
 const linter = new Linter();
 
 test({
-	valid: [],
+	valid: [
+		...['unknown', '?bigint', 'bigint | number', 'bigint | undefined'].map(type =>
+			`/** @param {${type}} value */ function run(value) { return [BigInt(-value), BigInt(~value)]; }`,
+		),
+		'/** @param {bigint} [value] */ function run(value) { return BigInt(-value); }',
+		'/** @param {bigint} value */ function run(value) { return BigInt(+value); }',
+	],
 	invalid: [
-		['Number(values[/* keep */ 0].length)as number;', 'values[/* keep */ 0].length as number;'],
-		['Number(values[/* keep */ 0].length)satisfies number;', 'values[/* keep */ 0].length satisfies number;'],
+		...['-value', '~value', '~-value', '-~value'].map(expression => ({
+			code: `/** @param {bigint} value */ function run(value) { return BigInt(${expression}); }`,
+			output: `/** @param {bigint} value */ function run(value) { return (${expression}); }`,
+			errors: [{messageId: 'no-useless-coercion'}],
+		})),
+		{
+			code: '/** @returns {bigint} */ function read() { return source; } BigInt(-read());',
+			output: '/** @returns {bigint} */ function read() { return source; } (-read());',
+			errors: [{messageId: 'no-useless-coercion'}],
+		},
+	],
+});
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			filename: 'file.ts',
+			code: '/** @param {bigint} value */ function run(value: number) { return [BigInt(-value), BigInt(~value)]; }',
+		}],
+		invalid: [{
+			filename: 'file.ts',
+			code: 'function run(value: bigint) { return [BigInt(-value), BigInt(~value)]; }',
+			output: 'function run(value: bigint) { return [(-value), (~value)]; }',
+			errors: [{messageId: 'no-useless-coercion'}, {messageId: 'no-useless-coercion'}],
+		}],
+	});
+}
+
+nodeTest('BigInt unary coercion removal preserves exact values operand effects and errors', t => {
+	const config = {
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	};
+	for (const [expression, body, expected] of [
+		['-read()', 'return 9007199254740993n;', ['bigint', '-9007199254740993', ['read']]],
+		['~read()', 'return -1n;', ['bigint', '0', ['read']]],
+		['-~read()', 'return 2n;', ['bigint', '3', ['read']]],
+		['-read()', 'throw new RangeError("expected");', ['string', 'RangeError', ['read']]],
+	]) {
+		const prefix = `const events = []; /** @returns {bigint} */ function read() { events.push("read"); ${body} } let result; try { result = `;
+		const suffix = '; } catch (error) { result = error.name; } JSON.stringify([typeof result, String(result), events]);';
+		const code = `${prefix}BigInt(${expression})${suffix}`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(output, `${prefix}(${expression})${suffix}`);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(code), JSON.stringify(expected));
+		t.assert.strictEqual(runInNewContext(output), JSON.stringify(expected));
+		t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
+	}
+});
+
+nodeTest('uncertain unary operands retain BigInt conversion and its errors', t => {
+	const config = {
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	};
+	for (const [type, name, argument, expression, expected] of [
+		['?bigint', 'value', 'null', '-value', ['bigint', '0']],
+		['bigint | number', 'value', '2', '~value', ['bigint', '-3']],
+		['bigint | undefined', 'value', 'undefined', '-value', ['string', 'RangeError']],
+		['bigint', '[value]', '', '~value', ['bigint', '-1']],
+	]) {
+		const prefix = `/** @param {${type}} ${name} */ function run(value) { return BigInt(${expression}); } `;
+		const suffix = `let result; try { result = run(${argument}); } catch (error) { result = error.name; } JSON.stringify([typeof result, String(result)]);`;
+		const code = `${prefix}${suffix}`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(fixed, false);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(output), JSON.stringify(expected));
+	}
+});
+
+test({
+	valid: [
+		'String(new Date());',
+		'String(Date?.());',
+		'String(globalThis.Date());',
+		'String(other.Date());',
+		'/** @type {unknown} */ const text = Date(); String(text);',
+	],
+	invalid: [
+		['String(Date())', 'Date()'],
+		['String(Date(value))', 'Date(value)'],
+		['String(Date(...values))', 'Date(...values)'],
+		['Number(Date(value).length)', 'Date(value).length'],
+		['Boolean(Date(value).includes("GMT"))', 'Date(value).includes("GMT")'],
+	].map(([expression, replacement]) => ({
+		code: `/** @param {unknown} value */ function run(value, ...values) { return ${expression}; }`,
+		output: `/** @param {unknown} value */ function run(value, ...values) { return ${replacement}; }`,
+		errors: [{messageId: 'no-useless-coercion'}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: 'const text = Date(); const alias = text; String(alias.trim());',
+		output: 'const text = Date(); const alias = text; alias.trim();',
+		errors: [{messageId: 'no-useless-coercion'}],
+	}],
+});
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{filename: 'file.ts', code: 'const text: number = Date(); String(text);'}],
+		invalid: [{
+			filename: 'file.ts',
+			code: 'function run(value: unknown) { return String(Date(value).trim()); }',
+			output: 'function run(value: unknown) { return Date(value).trim(); }',
+			errors: [{messageId: 'no-useless-coercion'}],
+		}],
+	});
+}
+
+nodeTest('Date call coercion removal retains argument evaluation without coercing ignored values', t => {
+	const config = {
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	};
+	for (const [expression, expected] of [
+		['Date()', ['string', []]],
+		['Date({[Symbol.toPrimitive]() { events.push("coerce"); throw new Error("ignored"); }})', ['string', []]],
+		['Date(events.push("first"), ...(function* () { events.push("spread"); yield 1; })())', ['string', ['first', 'spread']]],
+		['Date((() => { events.push("throw"); throw new RangeError("expected"); })())', ['RangeError', ['throw']]],
+	]) {
+		const prefix = 'const events = []; let kind; try { const result = ';
+		const suffix = '; kind = typeof result; } catch (error) { kind = error.name; } JSON.stringify([kind, events]);';
+		const code = `${prefix}String(${expression})${suffix}`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(output, `${prefix}${expression}${suffix}`);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(code), JSON.stringify(expected));
+		t.assert.strictEqual(runInNewContext(output), JSON.stringify(expected));
+		t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
+	}
+});
+
+for (const method of ['toString', 'valueOf']) {
+	test({
+		valid: [
+			`function run(text) { return String(text.${method}(ignored)); }`,
+			...['?string', 'string | number', `{${method}: () => number}`].map(type =>
+				`/** @param {${type}} text */ function run(text) { return String(text.${method}(ignored)); }`,
+			),
+			`/** @param {string} [text] */ function run(text) { return String(text.${method}(ignored)); }`,
+			`/** @param {string} text */ function run(text) { return String(text?.${method}(ignored)); }`,
+			`/** @param {string} text */ function run(text) { return String(text.${method}?.(ignored)); }`,
+			`/** @param {string} text */ function run(text) { return String(text["${method}"](ignored)); }`,
+		],
+		invalid: [
+			[`String(text.${method}(ignored).trim())`, `text.${method}(ignored).trim()`],
+			[`Boolean(text.${method}(ignored).includes("x"))`, `text.${method}(ignored).includes("x")`],
+			[`Number(text.${method}(ignored).length)`, `text.${method}(ignored).length`],
+		].map(([expression, replacement]) => ({
+			code: `/** @param {string} text */ function run(text) { return ${expression}; }`,
+			output: `/** @param {string} text */ function run(text) { return ${replacement}; }`,
+			errors: [{messageId: 'no-useless-coercion'}],
+		})),
+	});
+}
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			filename: 'file.ts',
+			code: '/** @param {string} text */ function run(text: {valueOf(): number}) { return String(text.valueOf()); }',
+		}],
+		invalid: [{
+			filename: 'file.ts',
+			code: 'function run(text: string) { return [String(text.toString(ignored)), String(text.valueOf())]; }',
+			output: 'function run(text: string) { return [text.toString(ignored), text.valueOf()]; }',
+			errors: [{messageId: 'no-useless-coercion'}, {messageId: 'no-useless-coercion'}],
+		}],
+	});
+}
+
+test({
+	valid: [
+		'/** @param {Date} value */ function run(value) { return String(value.valueOf()); }',
+		{code: 'function run(text: String) { return String(text.valueOf()); }', languageOptions: {parser: parsers.typescript}},
+	],
+	invalid: [{
+		code: '/** @param {Date} value */ function run(value) { return [String(value.toString()), Number(value.valueOf())]; }',
+		output: '/** @param {Date} value */ function run(value) { return [value.toString(), value.valueOf()]; }',
+		errors: [{messageId: 'no-useless-coercion'}, {messageId: 'no-useless-coercion'}],
+	}],
+});
+
+nodeTest('nested string toString coercions converge while preserving existing reports', t => {
+	const code = '/** @param {string} text */ function run(text) { return String(text.toString()); }';
+	const config = {
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	};
+	t.assert.deepStrictEqual(linter.verify(code, config).map(({messageId}) => messageId), ['no-useless-coercion', 'no-useless-coercion']);
+	t.assert.strictEqual(linter.verifyAndFix(code, config).output, '/** @param {string} text */ function run(text) { return text; }');
+});
+
+nodeTest('primitive string method coercion removal retains ignored argument effects and errors', t => {
+	const config = {
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	};
+	for (const method of ['toString', 'valueOf']) {
+		for (const [text, argument, expected] of [
+			['', 'events.push("argument")', ['', ['argument']]],
+			['🦄\u0000é', 'events.push("argument")', ['🦄\u0000é', ['argument']]],
+			['text', '(() => { events.push("throw"); throw new RangeError("expected"); })()', ['RangeError', ['throw']]],
+		]) {
+			const prefix = 'const events = []; /** @param {string} text */ function run(text) { try { return ';
+			const expression = `text.${method}(${argument})`;
+			const suffix = `; } catch (error) { return error.name; } } JSON.stringify([run(${JSON.stringify(text)}), events]);`;
+			const code = `${prefix}String(${expression})${suffix}`;
+			const {output, fixed, messages} = linter.verifyAndFix(code, config);
+			t.assert.strictEqual(output, `${prefix}${expression}${suffix}`);
+			t.assert.strictEqual(fixed, true);
+			t.assert.deepStrictEqual(messages, []);
+			t.assert.strictEqual(runInNewContext(code), JSON.stringify(expected));
+			t.assert.strictEqual(runInNewContext(output), JSON.stringify(expected));
+			t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
+		}
+	}
+});
+
+for (const method of ['push', 'unshift']) {
+	test({
+		valid: [
+			`function run(values) { return Number(values.${method}(item)); }`,
+			...['unknown', '?number[]', 'number[] | Set<number>', `{${method}: () => string}`, 'Uint8Array', 'BigInt64Array'].map(type =>
+				`/** @param {${type}} values */ function run(values) { return Number(values.${method}(item)); }`,
+			),
+			`/** @param {number[]} [values] */ function run(values) { return Number(values.${method}(item)); }`,
+			`/** @param {number[]} values */ function run(values) { return Number(values?.${method}(item)); }`,
+			`/** @param {number[]} values */ function run(values) { return Number(values.${method}?.(item)); }`,
+			`/** @param {number[]} values */ function run(values) { return Number(values["${method}"](item)); }`,
+		],
+		invalid: [
+			[`Number(values.${method}())`, `values.${method}()`],
+			[`+values.${method}(first, second)`, `values.${method}(first, second)`],
+			[`Number(values.${method}(...items))`, `values.${method}(...items)`],
+		].map(([expression, replacement]) => ({
+			code: `/** @param {number[]} values */ function run(values) { return ${expression}; }`,
+			output: `/** @param {number[]} values */ function run(values) { return ${replacement}; }`,
+			errors: [{messageId: 'no-useless-coercion'}],
+		})),
+	});
+}
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			filename: 'file.ts',
+			code: '/** @param {number[]} values */ function run(values: {push(): string}) { return Number(values.push()); }',
+		}],
+		invalid: [{
+			filename: 'file.ts',
+			code: 'function run(values: number[], items: number[]) { return [Number(values.push(...items)), +values.unshift()]; }',
+			output: 'function run(values: number[], items: number[]) { return [values.push(...items), values.unshift()]; }',
+			errors: [{messageId: 'no-useless-coercion'}, {messageId: 'no-useless-coercion'}],
+		}],
+	});
+}
+
+nodeTest('array length mutator coercion removal preserves mutation arguments spread and errors', t => {
+	const config = {
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	};
+	for (const [initial, expression, expected] of [
+		['[1]', 'values.push(item(2), ...(function* () { events.push("spread"); yield 3; })())', [3, [1, 2, 3], [2, 'spread']]],
+		['[1]', 'values.unshift(item(2), item(3))', [3, [2, 3, 1], [2, 3]]],
+		['Object.freeze([1])', 'values.push(item(2))', ['TypeError', [1], [2]]],
+		['Object.freeze([1])', 'values.unshift(item(2))', ['TypeError', [1], [2]]],
+	]) {
+		const setup = `const events = []; const values = ${initial}; function item(value) { events.push(value); return value; } `;
+		const prefix = `${setup}/** @param {number[]} values */ function run(values) { return `;
+		const suffix = '; } let result; try { result = run(values); } catch (error) { result = error.name; } JSON.stringify([result, values, events]);';
+		const code = `${prefix}Number(${expression})${suffix}`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(output, `${prefix}${expression}${suffix}`);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(code), JSON.stringify(expected));
+		t.assert.strictEqual(runInNewContext(output), JSON.stringify(expected));
+		t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
+	}
+});
+
+test({
+	valid: [
+		'function run(value) { return Number(reader.keys(value).length); }',
+		'function run(value) { return String(Object?.values(value).join(",")); }',
+		'function run(value) { return Number(Object.entries?.(value).length); }',
+		'function run(value) { return Number(Object["getOwnPropertyNames"](value).length); }',
+		'function run(value) { return Number(Object.getOwnPropertyDescriptor(value, "length").length); }',
+		'/** @type {unknown} */ const values = Object.values(source); String(values.join(","));',
+	],
+	invalid: [
+		['String', 'Object.keys(value).join(",")'],
+		['Boolean', 'Object.values(value).includes(expected)'],
+		['Number', 'Object.entries(value).length'],
+		['Boolean', 'Object.getOwnPropertyNames(value).includes("length")'],
+		['Number', 'Object.getOwnPropertySymbols(value).length'],
+	].map(([coercion, expression]) => ({
+		code: `/** @param {unknown} value */ function run(value) { return ${coercion}(${expression}); }`,
+		output: `/** @param {unknown} value */ function run(value) { return ${expression}; }`,
+		errors: [{messageId: 'no-useless-coercion'}],
+	})),
+});
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			filename: 'file.ts',
+			code: 'const values: {length: string} = Object.values(source); Number(values.length);',
+		}],
+		invalid: [{
+			filename: 'file.ts',
+			code: 'function run(value: object) { const keys = Object.keys(value); return String(keys.toReversed().join(",")); }',
+			output: 'function run(value: object) { const keys = Object.keys(value); return keys.toReversed().join(","); }',
+			errors: [{messageId: 'no-useless-coercion'}],
+		}],
+	});
+}
+
+nodeTest('Object array factory coercion removal preserves getter effects and errors', t => {
+	const config = {
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	};
+	for (const [method, getter, expected] of [
+		['values', 'return 42;', '42'],
+		['entries', 'return 42;', 'answer,42'],
+		['values', 'throw new RangeError("expected");', 'RangeError'],
+		['entries', 'throw new RangeError("expected");', 'RangeError'],
+	]) {
+		const prefix = `let reads = 0; const value = {get answer() { reads++; ${getter} }}; function run() { try { return `;
+		const expression = `Object.${method}(value).join(",")`;
+		const suffix = '; } catch (error) { return error.name; } } JSON.stringify([run(), reads]);';
+		const code = `${prefix}String(${expression})${suffix}`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(output, `${prefix}${expression}${suffix}`);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(code), JSON.stringify([expected, 1]));
+		t.assert.strictEqual(runInNewContext(output), JSON.stringify([expected, 1]));
+		t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
+	}
+});
+
+test({
+	valid: [
+		'function run(value) { return Number(value.setTime(0)); }',
+		'/** @param {{setTime: () => string}} value */ function run(value) { return Number(value.setTime(0)); }',
+		'/** @param {?Date} value */ function run(value) { return Number(value.setTime(0)); }',
+		'/** @param {Date} [value] */ function run(value) { return Number(value.setTime(0)); }',
+		'/** @param {Date} value */ function run(value) { return Number(value?.setTime(0)); }',
+		'/** @param {Date} value */ function run(value) { return Number(value.setTime?.(0)); }',
+		'/** @param {Date} value */ function run(value) { return Number(value["setTime"](0)); }',
+	],
+	invalid: [
+		'setDate(1)',
+		'setFullYear(2000, 0, 1)',
+		'setHours(12, 30, 15, 10)',
+		'setMilliseconds(10)',
+		'setMinutes(30, 15, 10)',
+		'setMonth(0, 1)',
+		'setSeconds(15, 10)',
+		'setTime(0)',
+		'setUTCDate(1)',
+		'setUTCFullYear(2000, 0, 1)',
+		'setUTCHours(12, 30, 15, 10)',
+		'setUTCMilliseconds(10)',
+		'setUTCMinutes(30, 15, 10)',
+		'setUTCMonth(0, 1)',
+		'setUTCSeconds(15, 10)',
+	].map(methodCall => ({
+		code: `/** @param {Date} value */ function run(value) { return Number(value.${methodCall}); }`,
+		output: `/** @param {Date} value */ function run(value) { return value.${methodCall}; }`,
+		errors: [{messageId: 'no-useless-coercion'}],
+	})),
+});
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			filename: 'file.ts',
+			code: '/** @param {Date} value */ function run(value: {setTime(time: number): string}) { return Number(value.setTime(0)); }',
+		}],
+		invalid: [{
+			filename: 'file.ts',
+			code: 'function run(value: Date) { return +value.setUTCFullYear(2000, 0, 1); }',
+			output: 'function run(value: Date) { return value.setUTCFullYear(2000, 0, 1); }',
+			errors: [{messageId: 'no-useless-coercion'}],
+		}],
+	});
+}
+
+nodeTest('Date setter coercion removal preserves mutation conversions invalid dates and errors', t => {
+	const config = {
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	};
+	for (const [initial, expression, expected] of [
+		['0', 'value.setTime({valueOf() { reads++; return 1000; }})', ['number', '1000', 1000, 1]],
+		['NaN', 'value.setUTCFullYear(2000, 0, 1)', ['number', '946684800000', 946_684_800_000, 0]],
+		['0', 'value.setUTCDate(undefined)', ['number', 'NaN', NaN, 0]],
+		['0', 'value.setTime({valueOf() { reads++; throw new RangeError("expected"); }})', ['string', 'RangeError', 0, 1]],
+		['0', 'value.setTime(1n)', ['string', 'TypeError', 0, 0]],
+	]) {
+		const prefix = `let reads = 0; const date = new Date(${initial}); /** @param {Date} value */ function run(value) { return `;
+		const suffix = '; } let result; try { result = run(date); } catch (error) { result = error.name; } JSON.stringify([typeof result, String(result), date.getTime(), reads]);';
+		const code = `${prefix}Number(${expression})${suffix}`;
+		const expectedOutput = `${prefix}${expression}${suffix}`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(output, expectedOutput);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(code), JSON.stringify(expected));
+		t.assert.strictEqual(runInNewContext(output), JSON.stringify(expected));
+		t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
+	}
+});
+
+for (const methodCall of ['copyWithin(1, 0, 2)', 'fill(3, 1)', 'reverse()', 'sort((left, right) => left - right)']) {
+	test({
+		valid: [],
+		invalid: [
+			['Boolean', `values.${methodCall}.includes(3)`],
+			['String', `values.${methodCall}.join(",")`],
+			['Number', `values.${methodCall}.length`],
+		].map(([coercion, expression]) => ({
+			code: `/** @param {Array<number>} values */ function run(values) { return ${coercion}(${expression}); }`,
+			output: `/** @param {Array<number>} values */ function run(values) { return ${expression}; }`,
+			errors: [{messageId: 'no-useless-coercion'}],
+		})),
+	});
+}
+
+test({
+	valid: [
+		'/** @param {unknown} values */ function run(values) { return String(values.reverse().join(",")); }',
+		'/** @param {{sort: () => string}} values */ function run(values) { return Number(values.sort().length); }',
+		'/** @param {?Array<number>} values */ function run(values) { return Boolean(values.fill(3).includes(3)); }',
+		'/** @param {Uint8Array} values */ function run(values) { return String(values.reverse().join(",")); }',
+		'/** @param {BigInt64Array} values */ function run(values) { return Number(values.sort().length); }',
+		'/** @param {Array<number>} values */ function run(values) { return Number(values?.copyWithin(1, 0).length); }',
+		'/** @param {Array<number>} values */ function run(values) { return String(values["fill"](3).join(",")); }',
+	],
+	invalid: [],
+});
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [],
+		invalid: [{
+			filename: 'file.ts',
+			code: 'function run(values: number[]) { return [Number(values.copyWithin(1, 0).length), String(values.sort((left, right) => left - right).join(","))]; }',
+			output: 'function run(values: number[]) { return [values.copyWithin(1, 0).length, values.sort((left, right) => left - right).join(",")]; }',
+			errors: [{messageId: 'no-useless-coercion'}, {messageId: 'no-useless-coercion'}],
+		}],
+	});
+}
+
+nodeTest('array mutator result coercion removal preserves mutation and argument effects', t => {
+	const config = {
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	};
+	for (const [initial, expression, result, mutated] of [
+		[[1, 2, 3], 'values.copyWithin({valueOf() { reads++; return 1; }}, 0, 2).join(",")', '1,1,2', [1, 1, 2]],
+		[[3, 2, 1], 'values.fill(4, {valueOf() { reads++; return 1; }}).join(",")', '3,4,4', [3, 4, 4]],
+		[[3, 1, 2], 'values.reverse().join(",")', '2,1,3', [2, 1, 3]],
+		[[2, 1], 'values.sort((left, right) => { reads++; return left - right; }).join(",")', '1,2', [1, 2]],
+	]) {
+		const prefix = `let reads = 0; const values = ${JSON.stringify(initial)}; /** @param {Array<number>} values */ function run(values) { return `;
+		const suffix = '; } const result = run(values); JSON.stringify([result, values, reads]);';
+		const code = `${prefix}String(${expression})${suffix}`;
+		const expectedOutput = `${prefix}${expression}${suffix}`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(output, expectedOutput);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		const original = runInNewContext(code);
+		t.assert.deepStrictEqual(JSON.parse(original).slice(0, 2), [result, mutated]);
+		t.assert.strictEqual(runInNewContext(output), original);
+		t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
+	}
+});
+
+test({
+	valid: [
+		'/** @param value - {boolean} Description. */ function run(value) { return Boolean(value); }',
+		'/** @param {unknown} value {boolean} Description. */ function run(value) { return Boolean(value); }',
+		'/** @param value.field {string} Description. */ function run(value) { return String(value); }',
+		'/** @param value {string}\n * @arg value {number} */ function run(value) { return String(value); }',
+		'/** @param [value] {boolean} Description. */ function run(value) { return Boolean(value); }',
+		'/** @param value Description with {string}. */ function run(value) { return String(value); }',
+	],
+	invalid: [
+		[
+			'/** @param value {boolean} Description. */ function run(value) { return Boolean(value); }',
+			'/** @param value {boolean} Description. */ function run(value) { return value; }',
+		],
+		[
+			'/** @arg text {string} Description. */ function run(text) { return String(text); }',
+			'/** @arg text {string} Description. */ function run(text) { return text; }',
+		],
+		[
+			'/** @argument values {Array<number>} Description. */ function run(values) { return Number(values.length); }',
+			'/** @argument values {Array<number>} Description. */ function run(values) { return values.length; }',
+		],
+	].map(([code, output]) => ({code, output, errors: [{messageId: 'no-useless-coercion'}]})),
+});
+
+test({
+	valid: [
+		'/** @typex{boolean} */ const value = source; Boolean(value);',
+		'/** @returnsValue{string} */ function read() { return source; } String(read());',
+		'/** @parametric{string} value */ function run(value) { return String(value); }',
+		'/** @param{string value */ function run(value) { return String(value); }',
+		'/** @type{} */ const value = source; Boolean(value);',
+		'/** @param{string}value.path */ function run(value) { return String(value); }',
+	],
+	invalid: [
+		[
+			'/** @type{boolean} */ const value = source; Boolean(value);',
+			'/** @type{boolean} */ const value = source; value;',
+		],
+		[
+			'/** @returns{boolean} */ function read() { return source; } Boolean(read());',
+			'/** @returns{boolean} */ function read() { return source; } read();',
+		],
+		[
+			'/** @param{string} value */ function run(value) { return String(value); }',
+			'/** @param{string} value */ function run(value) { return value; }',
+		],
+		[
+			'/** @param{Array<string>} values */ function run(values) { return String(values.join(",")); }',
+			'/** @param{Array<string>} values */ function run(values) { return values.join(","); }',
+		],
+		[
+			'/** @type{Array<number>} */ const values = source; Number(values.length);',
+			'/** @type{Array<number>} */ const values = source; values.length;',
+		],
+		[
+			'/** @return{string} */ const read = () => source; String(read());',
+			'/** @return{string} */ const read = () => source; read();',
+		],
+	].map(([code, output]) => ({code, output, errors: [{messageId: 'no-useless-coercion'}]})),
+});
+
+for (const [type, methodCall] of [
+	['Array<number>', 'toReversed()'],
+	['ReadonlyArray<number>', 'toSorted(compare)'],
+	['[number, number]', 'toSpliced(0, 1, 3)'],
+	['Array<number> | ReadonlyArray<number>', 'with(-1, 3)'],
+]) {
+	test({
+		valid: [],
+		invalid: [
+			['Boolean', `values.${methodCall}.includes(3)`],
+			['String', `values.${methodCall}.join(",")`],
+			['Number', `values.${methodCall}.length`],
+		].map(([coercion, expression]) => ({
+			code: `/** @type {${type}} */ const values = source; ${coercion}(${expression});`,
+			output: `/** @type {${type}} */ const values = source; ${expression};`,
+			errors: [{messageId: 'no-useless-coercion'}],
+		})),
+	});
+}
+
+test({
+	valid: [
+		'/** @type {unknown} */ const values = source; String(values.toReversed().join(","));',
+		'/** @type {{toSorted: () => string}} */ const values = source; Number(values.toSorted().length);',
+		'/** @type {Uint8Array} */ const values = source; Number(values.toSorted().length);',
+		'/** @type {BigInt64Array} */ const values = source; Boolean(values.with(0, 1n).includes(1n));',
+		'/** @type {Array<number>} */ const values = source; Number(values?.toReversed().length);',
+		'/** @type {Array<number>} */ const values = source; String(values["toSpliced"](0).join(","));',
+	],
+	invalid: [],
+});
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [],
+		invalid: [{
+			filename: 'file.ts',
+			code: 'function run(values: readonly string[]) { return [Number(values.toReversed().length), String(values.toSorted().join(","))]; }',
+			output: 'function run(values: readonly string[]) { return [values.toReversed().length, values.toSorted().join(",")]; }',
+			errors: [{messageId: 'no-useless-coercion'}, {messageId: 'no-useless-coercion'}],
+		}],
+	});
+}
+
+test({
+	valid: [
+		'/** @type {() => boolean} */ let read; read = () => "changed"; Boolean(read());',
+		'/** @type {unknown} */ const flag = true; Number(flag ? 1 : "text");',
+		'/** @type {(() => boolean) & (() => string)} */ const read = () => "yes"; Boolean(read());',
+		{
+			code: '/** @returns {string} */ let read: () => unknown = (): string => source; String(read());',
+			languageOptions: {parser: parsers.typescript},
+		},
+		'/** @param {() => boolean} read */ function run(read) { read = () => 0; Boolean(read()); }',
+		'/** @returns {?string} */ function text() { return source; } Boolean(text().includes("x"));',
+	],
+	invalid: [{
+		code: '/** @param {string} text */ function run(text) { return String(text || ""); }',
+		output: '/** @param {string} text */ function run(text) { return (text || ""); }',
+		errors: [{messageId: 'no-useless-coercion'}],
+	}, {
+		code: '/** @type {unknown} */ const flag = true; Number(flag ? 1 : 2);',
+		output: '/** @type {unknown} */ const flag = true; (flag ? 1 : 2);',
+		errors: [{messageId: 'no-useless-coercion'}],
+	}, {
+		code: '/** @returns {string} */ function text() { return source; } Boolean(text().includes("x"));',
+		output: '/** @returns {string} */ function text() { return source; } text().includes("x");',
+		errors: [{messageId: 'no-useless-coercion'}],
+	}],
+});
+
+test({
+	valid: [
+		'/** @type {"left\n * right"} */ let text; String(text);',
+		'/** @returns {"left\r\n * right"} */ function text() { return source; } String(text());',
+	],
+	invalid: [{
+		code: '/** @type {\n * "left"\n * | "right"\n * } */ let text; String(text);',
+		output: '/** @type {\n * "left"\n * | "right"\n * } */ let text; text;',
+		errors: [{messageId: 'no-useless-coercion'}],
+	}],
+});
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {{atob: () => number}} value */ function run(value) { return String(value.atob()); }',
+			'/** @param {{encodeURI: () => number}} value */ function run(value) { return String(value.encodeURI()); }',
+			'/** @param {{f16round: () => string}} value */ function run(value) { return Number(value.f16round()); }',
+			'/** @param {Date} value */ function run(value) { return Number(value.toJSON()); }',
+			'/** @param {?Date} value */ function run(value) { return Number(value?.getTime()); }',
+			'/** @param {{valueOf: () => string}} value */ function run(value) { return +value.valueOf(); }',
+			'Number(Date());',
+			'function run(value) { return Number(new Date(value)); }',
+			'function run(value, other) { return Number(other.parse(value)); }',
+			'/** @param {Date} value */ function run(value) { return String(value.toJSON()); }',
+			'/** @param {Date} value */ function run(value) { return String(value?.toISOString()); }',
+			'/** @param {?Date} value */ function run(value) { return String(value.toISOString()); }',
+			'/** @param {{toISOString: () => number}} value */ function run(value) { return String(value.toISOString()); }',
+			'/** @param {{size: string}} value */ function run(value) { return Number(value.size); }',
+			'/** @param {?Set<number>} value */ function run(value) { return Number(value?.size); }',
+			'/** @param {{length: string}} value */ function run(value) { return Number(value.length); }',
+			'/** @param {{length: bigint}} value */ function run(value) { return +value.length; }',
+			'/** @param {unknown} value */ function run(value) { return Number(value.length); }',
+			'/** @returns {number | undefined} */ function count() { return source; } Number(count());',
+			'/** @returns {number} */ async function count() { return source; } Number(count());',
+			'/** @returns {number} */ function* count() { yield source; } +count();',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			...['encodeURI', 'encodeURIComponent', 'decodeURI', 'decodeURIComponent', 'atob', 'btoa'].map(name => ({
+				filename: 'file.ts',
+				code: `/** @param {unknown} value */ function run(value) { return String(${name}(value)); }`,
+				output: `/** @param {unknown} value */ function run(value) { return ${name}(value); }`,
+				errors: [{messageId: 'no-useless-coercion'}],
+			})),
+			...[
+				[
+					'/** @param {unknown} value */ function run(value) { return Number(Math.f16round(value)); }',
+					'/** @param {unknown} value */ function run(value) { return Math.f16round(value); }',
+				],
+				[
+					'/** @param {unknown} value */ function run(value) { return +Math.f16round(value); }',
+					'/** @param {unknown} value */ function run(value) { return Math.f16round(value); }',
+				],
+			].map(([code, output]) => ({
+				code, output, filename: 'file.ts', errors: [{messageId: 'no-useless-coercion'}],
+			})),
+			...[
+				[
+					'/** @param {Date} value */ function run(value) { return Number(value.getTime()); }',
+					'/** @param {Date} value */ function run(value) { return value.getTime(); }',
+				],
+				[
+					'/** @param {Date} value */ function run(value) { return +value.valueOf(); }',
+					'/** @param {Date} value */ function run(value) { return value.valueOf(); }',
+				],
+			].map(([code, output]) => ({
+				code, output, filename: 'file.ts', errors: [{messageId: 'no-useless-coercion'}],
+			})),
+			...['Date.now()', 'Date.parse(value)', 'Date.UTC(value, 0)'].map(expression => ({
+				filename: 'file.ts',
+				code: `/** @param {string | number} value */ function run(value) { return Number(${expression}); }`,
+				output: `/** @param {string | number} value */ function run(value) { return ${expression}; }`,
+				errors: [{messageId: 'no-useless-coercion'}],
+			})),
+			...['toISOString', 'toUTCString', 'toDateString', 'toTimeString', 'toLocaleDateString', 'toLocaleTimeString', 'toString', 'toLocaleString'].map(method => ({
+				filename: 'file.ts',
+				code: `/** @param {Date} value */ function run(value) { return String(value.${method}()); }`,
+				output: `/** @param {Date} value */ function run(value) { return value.${method}(); }`,
+				errors: [{messageId: 'no-useless-coercion'}],
+			})),
+			...['Map<string, boolean>', 'ReadonlySet<bigint>'].map(type => ({
+				filename: 'file.ts',
+				code: `/** @param {${type}} values */ function run(values) { return Number(values.size); }`,
+				output: `/** @param {${type}} values */ function run(values) { return values.size; }`,
+				errors: [{messageId: 'no-useless-coercion'}],
+			})),
+			{
+				filename: 'file.ts',
+				code: '/** @returns {number} */ function count() { return source; } Number(count());',
+				output: '/** @returns {number} */ function count() { return source; } count();',
+				errors: [{messageId: 'no-useless-coercion'}],
+			},
+			{
+				filename: 'file.ts',
+				code: '/** @return {Number} */ const count = () => source; +count();',
+				output: '/** @return {Number} */ const count = () => source; count();',
+				errors: [{messageId: 'no-useless-coercion'}],
+			},
+		],
+	});
+}
+
+nodeTest('base64 string coercion removal preserves binary data errors and argument conversions', t => {
+	const config = {
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	};
+	const binary = String.fromCodePoint(0, 0xFF);
+	for (const [name, argument, value, reads = 0] of [
+		['btoa', JSON.stringify(binary), 'AP8='],
+		['atob', '"AP8="', binary],
+		['atob', String.raw`" \n AP8 \t"`, binary],
+		['atob', '"%%%"', 'InvalidCharacterError'],
+		['btoa', '"🦄"', 'InvalidCharacterError'],
+		['atob', '', 'TypeError'],
+		['atob', 'undefined', 'InvalidCharacterError'],
+		['btoa', '', 'TypeError'],
+		['btoa', 'undefined', 'dW5kZWZpbmVk'],
+		['atob', '({toString() { reads++; return "AP8="; }})', binary, 1],
+		['btoa', '({toString() { reads++; return "a"; }})', 'YQ==', 1],
+	]) {
+		const code = `let reads = 0; function run() { try { return String(${name}(${argument})); } catch (error) { return error.name; } } JSON.stringify([run(), reads]);`;
+		const expectedOutput = `let reads = 0; function run() { try { return ${name}(${argument}); } catch (error) { return error.name; } } JSON.stringify([run(), reads]);`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(output, expectedOutput);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(code, {atob, btoa}), JSON.stringify([value, reads]));
+		t.assert.strictEqual(runInNewContext(output, {atob, btoa}), JSON.stringify([value, reads]));
+		t.assert.strictEqual(linter.verifyAndFix(output, config).fixed, false);
+	}
+});
+
+test({
+	valid: ['Number(class {}.length);', 'Number(class { static length = "5"; }.length);'],
+	invalid: [
+		['Number(String(values[/* keep */ 0]).length)as number;', 'String(values[/* keep */ 0]).length as number;'],
+		['Number(String(values[/* keep */ 0]).length)satisfies number;', 'String(values[/* keep */ 0]).length satisfies number;'],
 	].map(([code, output]) => ({
 		code, output, languageOptions: {parser: parsers.typescript}, errors: 1,
 	})),
@@ -27,7 +836,7 @@ nodeTest('coercion fixes preserve adjacent TypeScript contextual operators', t =
 		rules: {'unicorn/no-useless-coercion': 'error'},
 	};
 	for (const operator of ['as', 'satisfies']) {
-		const code = `function read() {return Number(values[/* keep */ 0].length)${operator} number;} read();`;
+		const code = `function read() {return Number(String(values[/* keep */ 0]).length)${operator} number;} read();`;
 		const {output, fixed, messages} = linter.verifyAndFix(code, config);
 		t.assert.strictEqual(fixed, true);
 		t.assert.deepStrictEqual(messages, []);
@@ -41,13 +850,13 @@ nodeTest('coercion fixes preserve adjacent TypeScript contextual operators', t =
 test({
 	valid: [],
 	invalid: [
-		['function f() {return+values[/* keep */ index].length;}', 'function f() {return values[/* keep */ index].length;}'],
-		['function f() {throw+values[/* keep */ index].length;}', 'function f() {throw values[/* keep */ index].length;}'],
-		['typeof+values[/* keep */ index].length;', 'typeof values[/* keep */ index].length;'],
-		['void+values[/* keep */ index].length;', 'void values[/* keep */ index].length;'],
-		['function* f() {yield+values[/* keep */ index].length;}', 'function* f() {yield values[/* keep */ index].length;}'],
-		['async function f() {await+values[/* keep */ index].length;}', 'async function f() {await values[/* keep */ index].length;}'],
-		['for (const value of+values[/* keep */ index].length) {}', 'for (const value of values[/* keep */ index].length) {}'],
+		['function f() {return+String(values[/* keep */ index]).length;}', 'function f() {return String(values[/* keep */ index]).length;}'],
+		['function f() {throw+String(values[/* keep */ index]).length;}', 'function f() {throw String(values[/* keep */ index]).length;}'],
+		['typeof+String(values[/* keep */ index]).length;', 'typeof String(values[/* keep */ index]).length;'],
+		['void+String(values[/* keep */ index]).length;', 'void String(values[/* keep */ index]).length;'],
+		['function* f() {yield+String(values[/* keep */ index]).length;}', 'function* f() {yield String(values[/* keep */ index]).length;}'],
+		['async function f() {await+String(values[/* keep */ index]).length;}', 'async function f() {await String(values[/* keep */ index]).length;}'],
+		['for (const value of+String(values[/* keep */ index]).length) {}', 'for (const value of String(values[/* keep */ index]).length) {}'],
 	].map(([code, output]) => ({code, output, errors: 1})),
 });
 
@@ -57,11 +866,11 @@ nodeTest('coercion fixes keep compact return and throw statements intact', t => 
 		rules: {'unicorn/no-useless-coercion': 'error'},
 	};
 	for (const statement of ['return', 'throw']) {
-		const code = `function read() {${statement}+values[/* keep */ index].length;} let result; try { result = read(); } catch (error) { result = error; } result;`;
+		const code = `function read() {${statement}+String(values[/* keep */ index]).length;} let result; try { result = read(); } catch (error) { result = error; } result;`;
 		const {output, fixed, messages} = linter.verifyAndFix(code, config);
 		t.assert.strictEqual(fixed, true);
 		t.assert.deepStrictEqual(messages, []);
-		t.assert.ok(output.includes(`${statement} values[/* keep */ index].length`));
+		t.assert.ok(output.includes(`${statement} String(values[/* keep */ index]).length`));
 		for (const source of [code, output]) {
 			t.assert.strictEqual(runInNewContext(source, {values: ['abc'], index: 0}), 3);
 		}
@@ -71,9 +880,9 @@ nodeTest('coercion fixes keep compact return and throw statements intact', t => 
 test({
 	valid: [],
 	invalid: [
-		['Number(values[/* keep */ index].length);', 'values[/* keep */ index].length;'],
+		['Number(String(values[/* keep */ index]).length);', 'String(values[/* keep */ index]).length;'],
 		['Boolean(left === /* keep */ right);', '(left === /* keep */ right);'],
-		['+(values[/* keep */ index].length);', '(values[/* keep */ index].length);'],
+		['+(String(values[/* keep */ index]).length);', '(String(values[/* keep */ index]).length);'],
 		['String((/* keep */ "hello"));', '(/* keep */ "hello");'],
 		['Boolean(left === // keep\r\n  right);', '(left === // keep\r\n  right);'],
 	].map(([code, output]) => ({code, output, errors: 1})),
@@ -89,7 +898,7 @@ test({
 			errors: 1,
 		},
 		...[
-			'Number(value.length /* keep */);',
+			'Number(String(value).length /* keep */);',
 			'"value" + (/* keep */ "");',
 			'(/* keep */ "") + "value";',
 			'"value".toString(/* keep */);',
@@ -105,7 +914,7 @@ nodeTest('commented coercion inputs retain their values and are evaluated once',
 		['("prefix" + /* keep */ getValue()) + ""', 'prefixabc'],
 		['("prefix" + /* keep */ getValue()).toString()', 'prefixabc'],
 	]) {
-		const code = `let evaluations = 0; function getValue() { evaluations++; return "abc"; } const result = ${expression}; JSON.stringify({evaluations, result});`;
+		const code = `let evaluations = 0; /** @returns {string} */ function getValue() { evaluations++; return "abc"; } const result = ${expression}; JSON.stringify({evaluations, result});`;
 		const {output, fixed, messages} = linter.verifyAndFix(code, {
 			plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
 			rules: {'unicorn/no-useless-coercion': 'error'},
@@ -124,7 +933,6 @@ test({
 	invalid: [
 		...[
 			['Number(function () {}.length);', '(function () {}.length);'],
-			['Number(class {}.length);', '(class {}.length);'],
 			['Number(async function () {}.length);', '(async function () {}.length);'],
 			['use()\nNumber(function () {}.length);', 'use()\n;(function () {}.length);'],
 		].map(([code, output]) => ({code, output, errors: 1})),
@@ -141,6 +949,20 @@ nodeTest('nonnumeric object lengths still require numeric coercion', t => {
 	t.assert.strictEqual(runInNewContext(output), 5);
 	t.assert.strictEqual(fixed, false);
 	t.assert.deepStrictEqual(messages, []);
+});
+
+nodeTest('documented string lengths retain coercion and numeric results', t => {
+	for (const expression of ['Number(value.length)', '+value.length', 'Number(~value.length)']) {
+		const code = `/** @param {{length: string}} value */ function run(value) { return ${expression}; } const result = run({length: "5"}); JSON.stringify([typeof result, result]);`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, {
+			plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+			rules: {'unicorn/no-useless-coercion': 'error'},
+		});
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(fixed, false);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(output), JSON.stringify(['number', expression.includes('~') ? -6 : 5]));
+	}
 });
 
 nodeTest('optional numeric parameters still require numeric coercion', t => {
@@ -222,14 +1044,14 @@ test({
 	invalid: [
 		{code: 'const object = [1]; delete Number(object.length);', errors: [{messageId: 'no-useless-coercion'}]},
 		{code: 'const object = [1]; delete +object.length;', errors: [{messageId: 'no-useless-coercion'}]},
-		{code: 'delete+values[/* keep */ index].length;', errors: [{messageId: 'no-useless-coercion'}]},
+		{code: 'delete+String(values[/* keep */ index]).length;', errors: [{messageId: 'no-useless-coercion'}]},
 		{code: 'delete Number(Math.PI);', errors: [{messageId: 'no-useless-coercion'}]},
 		...[
-			'delete (Number(object.length) as number);',
-			'delete Number(object.length)!;',
-			'delete (Number(object.length) satisfies number);',
-			'delete (<number>Number(object.length));',
-			'delete Number(object.length satisfies number);',
+			'const object = [1]; delete (Number(object.length) as number);',
+			'const object = [1]; delete Number(object.length)!;',
+			'const object = [1]; delete (Number(object.length) satisfies number);',
+			'const object = [1]; delete (<number>Number(object.length));',
+			'const object = [1]; delete Number(object.length satisfies number);',
 		].map(code => ({code, languageOptions: {parser: parsers.typescript}, errors: [{messageId: 'no-useless-coercion'}]})),
 	],
 });
@@ -348,6 +1170,10 @@ test.snapshot({
 		'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); String(object.value ? "x" : value);',
 		'const object = {value: true}; Object.defineProperty(object, "value", {get() { return false; }}); BigInt(object.value ? 1n : value);',
 		'Number(x?.length)',
+		'Number(x.length)',
+		'Number(~x.length)',
+		'+x.length',
+		'Number(/* keep */ x.length)',
 		'Boolean(x ?? y)',
 		'Boolean(x || false)',
 		'Boolean(a && b)',
@@ -432,12 +1258,12 @@ test.snapshot({
 		'Boolean(x in obj)',
 		'Boolean(delete obj.x)',
 		'Boolean(a?.b === c)',
-		'Number(x.length)',
+		'Number(String(x).length)',
 		'Number(Math.PI)',
 		'Number(Number.MAX_SAFE_INTEGER)',
 		'Number(NaN)',
 		'Number(x >>> 0)',
-		'Number(~x.length)',
+		'Number(~String(x).length)',
 		'Number(+x)',
 		'Number(x * 2)',
 		'Number(x % 2)',
@@ -453,7 +1279,7 @@ test.snapshot({
 
 		// Unary `+` on a value already a number
 		'+5',
-		'+x.length',
+		'+String(x).length',
 		'+Number(x)',
 		'+(x * 2)',
 		'+ +x', // Nested: the inner `+x` is always a number, so the outer `+` is useless
@@ -485,16 +1311,16 @@ test.snapshot({
 		// Unary operator parent forces parentheses around a loosely-bound argument
 		'!Boolean(a === b)',
 		// Strong-precedence argument needs no parentheses, even in a tight position
-		'-Number(x.length)',
+		'-Number(String(x).length)',
 		// Template literal binds tightly, so no parentheses before a member `.`
 		'String(`foo`).length',
 		// Decimal integer literal needs parentheses before a member `.`
 		'Number(5).toFixed(2)',
 		// Argument already parenthesized, do not double-wrap
 		'Boolean((a === b))',
-		'(Number(x.length))',
+		'(Number(String(x).length))',
 		// Sequence expression keeps its existing parentheses
-		'Number((a, b.length))',
+		'Number((a, String(b).length))',
 		// Object literal needs parentheses, otherwise `{` starts a block at statement position
 		'Number({length: 1}.length)',
 
@@ -505,8 +1331,8 @@ test.snapshot({
 		`,
 
 		// Fix: comments in removed syntax block fixes, while copied comments are preserved
-		'Number(/* keep */ x.length)',
-		'+/* keep */ x.length',
+		'Number(/* keep */ String(x).length)',
+		'+/* keep */ String(x).length',
 		'\'a\' /* keep */ + \'\'',
 		'(/* keep */ \'a\').toString()',
 
@@ -547,6 +1373,7 @@ test({
 		'const object = {length: "abc"};\nconst a = +object.length;',
 		'const object = {length: true};\nconst a = +object.length;',
 		'Number({foo: 1}.length)',
+		'const a = Number(foo.length);',
 		'Number({length: "5"}.length)',
 		'const object = {length: value}; Number(object.length);',
 		'const object = {length: 5};\nconst a = Number(object.length);',
@@ -562,11 +1389,6 @@ test({
 		{
 			code: 'foo\nNumber({length: 1}.length)',
 			output: 'foo\n;({length: 1}.length)',
-			errors: 1,
-		},
-		{
-			code: 'const a = Number(foo.length);',
-			output: 'const a = foo.length;',
 			errors: 1,
 		},
 		{
@@ -597,5 +1419,187 @@ test({
 		code: 'export default Number({value: 1}.value);',
 		output: 'export default {value: 1}.value;',
 		errors: 1,
+	}],
+});
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			['boolean', 'Boolean'],
+			['string', 'String'],
+			['number', 'Number'],
+			['bigint', 'BigInt'],
+		].map(([type, constructor]) => ({
+			code: `/** @param {${type}} input */ function value(input?): ${type} { return ${constructor}(input); }`,
+			filename: 'file.ts',
+		})),
+		invalid: [{
+			filename: 'file.ts',
+			code: '/** @param {boolean} input */ function value(input = false): boolean { return Boolean(input); }',
+			output: '/** @param {boolean} input */ function value(input = false): boolean { return input; }',
+			errors: [{messageId: 'no-useless-coercion'}],
+		}],
+	});
+}
+
+nodeTest('an omitted parameter documented as boolean still needs boolean coercion', t => {
+	const code = '/** @param {boolean} input */ function value(input?): boolean { return Boolean(input); } value();';
+	const {output, fixed, messages} = linter.verifyAndFix(code, {
+		languageOptions: {parser: typescriptEslintParser},
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	});
+	t.assert.strictEqual(runInNewContext(stripTypeScriptTypes(code)), false);
+	t.assert.strictEqual(runInNewContext(stripTypeScriptTypes(output)), false);
+	t.assert.strictEqual(fixed, false);
+	t.assert.deepStrictEqual(messages, []);
+});
+
+const nullableStringFallbackCases = [
+	['/** @param {?string} value */ function run(value) { return String((value + 1) ?? ""); } run(null);', '1'],
+	['/** @param {?string} value\n * @param {?string} fallback */ function run(value, fallback) { return String(value ?? fallback); } run(null, null);', 'null'],
+	['/** @param {?string} value */ function run(value) { return String(value && "text"); } run(null);', 'null'],
+];
+
+nodeTest('nullable fallback coercions preserve the result type at runtime', t => {
+	for (const [code, expected] of nullableStringFallbackCases) {
+		const {output, fixed, messages} = linter.verifyAndFix(code, {
+			plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+			rules: {'unicorn/no-useless-coercion': 'error'},
+		});
+		t.assert.strictEqual(fixed, false);
+		t.assert.strictEqual(output, code);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(output), expected);
+	}
+});
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			...nullableStringFallbackCases.map(([code]) => code),
+			'/** @type {(() => string) | (() => number)} */ let read; String(read());',
+			'/** @type {?(() => string)} */ let read; String(read());',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			...[
+				['(() => string) | (() => "text")', 'String'],
+				['(() => number) & {label: string}', 'Number'],
+				['(() => bigint) | (() => 1n)', 'BigInt'],
+			].map(([type, constructor]) => ({
+				filename: 'file.ts',
+				code: `/** @type {${type}} */ let read; ${constructor}(read());`,
+				output: `/** @type {${type}} */ let read; read();`,
+				errors: [{messageId: 'no-useless-coercion'}],
+			})),
+			{
+				filename: 'file.ts',
+				code: '/** @type {(() => string[]) | (() => readonly string[])} */ let read; Boolean(read().some(predicate));',
+				output: '/** @type {(() => string[]) | (() => readonly string[])} */ let read; read().some(predicate);',
+				errors: [{messageId: 'no-useless-coercion'}],
+			},
+		],
+	});
+}
+
+test({
+	valid: [
+		'/** @param {() => boolean} read */ function value(read = async () => true) { return Boolean(read()); }',
+		'/** @param {() => string} read */ function value(read = function* () {}) { return String(read()); }',
+		{
+			code: '/** @param {() => string} read */ function value(read = (): boolean => true) { return String(read()); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '/** @param {() => boolean} read */ function value(read = (): string => "text"): boolean { return Boolean(read()); }',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [{
+		code: '/** @param {() => string} read */ function value(read = () => "text") { return String(read()); }',
+		output: '/** @param {() => string} read */ function value(read = () => "text") { return read(); }',
+		errors: [{messageId: 'no-useless-coercion'}],
+	}],
+});
+
+for (const initializer of ['async () => true', 'function* () { return true; }']) {
+	nodeTest(`a documented synchronous callback with default ${initializer} still needs coercion`, t => {
+		const code = `/** @param {() => boolean} read */ function value(read = ${initializer}) { return Boolean(read()); } value();`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, {
+			plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+			rules: {'unicorn/no-useless-coercion': 'error'},
+		});
+		t.assert.strictEqual(runInNewContext(code), true);
+		t.assert.strictEqual(runInNewContext(output), true);
+		t.assert.strictEqual(fixed, false);
+		t.assert.deepStrictEqual(messages, []);
+	});
+}
+
+const assertedCallbackCoercions = [
+	['boolean', 'Boolean', 'string', '"text"', true],
+	['string', 'String', 'number', '1', '1'],
+	['number', 'Number', 'string', '"1"', 1],
+	['bigint', 'BigInt', 'number', '1', 1n],
+].map(([type, constructor, native, value, expected]) => ({
+	code: `/** @param {() => ${type}} read */ function run(read = (() => ${value}) as (() => ${native})): ${type} { return ${constructor}(read()); } run();`,
+	expected,
+}));
+
+nodeTest('native assertions on default callbacks preserve scalar coercion results', t => {
+	for (const {code, expected} of assertedCallbackCoercions) {
+		const {output, fixed, messages} = linter.verifyAndFix(code, {
+			languageOptions: {parser: typescriptEslintParser},
+			plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+			rules: {'unicorn/no-useless-coercion': 'error'},
+		});
+		t.assert.strictEqual(runInNewContext(stripTypeScriptTypes(output)), expected, code);
+		t.assert.strictEqual(fixed, false, code);
+		t.assert.strictEqual(output, code);
+		t.assert.deepStrictEqual(messages, []);
+	}
+});
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: assertedCallbackCoercions.map(({code}) => ({code, filename: 'file.ts'})),
+		invalid: [],
+	});
+}
+
+const nativeCallbackDefault = '/** @param {() => boolean} read */ function value(read = (): boolean => true): boolean { return Boolean(read()); }';
+test({
+	valid: [{code: nativeCallbackDefault, languageOptions: {parser: parsers.typescript}}],
+	invalid: [{
+		code: nativeCallbackDefault,
+		filename: 'file.ts',
+		languageOptions: {
+			parser: typescriptEslintParser,
+			parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+		},
+		output: nativeCallbackDefault.replace('Boolean(read())', 'read()'),
+		errors: [{messageId: 'no-useless-coercion'}],
 	}],
 });

@@ -7,6 +7,427 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+for (const [type, key, entries] of [
+	['URLSearchParams', 'key', [['key', 'first'], ['key', 'second']]],
+	['Headers', 'x-key', [['X-Key', 'value']]],
+	['FormData', 'key', [['key', ''], ['key', 'second']]],
+]) {
+	nodeTest(`${type} membership fixes preserve present and missing key results`, t => {
+		const Collection = globalThis[type];
+		const values = new Collection();
+		for (const [name, value] of entries) {
+			values.append(name, value);
+		}
+
+		const code = [
+			`/** @param {${type}} values */ function run(values) {`,
+			`return [values.has("${key}") === true, values.has("missing") === true, values.has("missing") === false];`,
+			'} JSON.stringify(run(values));',
+		].join('\n');
+		const linter = new Linter();
+		const config = {
+			plugins: {unicorn: {rules: {'no-unnecessary-boolean-comparison': rule}}},
+			rules: {'unicorn/no-unnecessary-boolean-comparison': 'error'},
+		};
+		const result = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.strictEqual(result.output, code.replaceAll(' === true', '').replace('values.has("missing") === false', '!values.has("missing")'));
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(runInNewContext(code, {values}), '[true,false,true]');
+		t.assert.strictEqual(runInNewContext(result.output, {values}), '[true,false,true]');
+		t.assert.deepStrictEqual(linter.verifyAndFix(result.output, config), {...result, fixed: false});
+	});
+
+	nodeTest(`${type} deletion keeps its undefined result and false comparison`, t => {
+		const code = [
+			`/** @param {${type}} values */ function run(values) { return values.delete("${key}") === false; }`,
+			`JSON.stringify([run(values), values.has("${key}")]);`,
+		].join('\n');
+		const linter = new Linter();
+		const config = {
+			plugins: {unicorn: {rules: {'no-unnecessary-boolean-comparison': rule}}},
+			rules: {'unicorn/no-unnecessary-boolean-comparison': 'error'},
+		};
+		const result = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.deepStrictEqual(result.messages, []);
+
+		const Collection = globalThis[type];
+		const values = new Collection();
+		values.append(key, 'value');
+		t.assert.strictEqual(runInNewContext(result.output, {values}), '[false,false]');
+	});
+}
+
+/* eslint-disable no-template-curly-in-string */
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			...[
+				'ReadonlyMap<string, number>',
+				'ReadonlySet<string>',
+				'URLSearchParams',
+				'Headers',
+				'FormData',
+				'Map<string, number> | Headers',
+				'?Map<string, number>',
+				'unknown',
+				'{delete: () => string}',
+			].map(type =>
+				`/** @param {${type}} values */ function run(values, key) { return values.delete(key) === true; }`,
+			),
+			'function run(target, key, value) { return Reflect.get(target, key) === true; }',
+			'function run(target, key, descriptor) { return Object.defineProperty(target, key, descriptor) === true; }',
+			'function run(target) { return Object.preventExtensions(target) === true; }',
+			'function run(target, prototype) { return Object.setPrototypeOf(target, prototype) === true; }',
+			'function run(value, tag) { return tag`${value}`.includes("x") === true; }',
+			'function run(value) { return other.raw`${value}`.includes("x") === true; }',
+			'/** @param {?Array<string>} values */ function run(values) { return values?.join().includes("x") === false; }',
+			'/** @param {Array<string>} values */ function run(values) { return values.join?.().includes("x") === true; }',
+			'/** @param {{join(): {includes(): string}}} values */ function run(values) { return values.join().includes("x") === true; }',
+			'/** @param {?string} text */ function run(text) { return text?.toWellFormed().isWellFormed() === false; }',
+			'/** @param {string} text */ function run(text) { return text.toWellFormed?.().isWellFormed() === true; }',
+			'/** @param {unknown} text */ function run(text) { return text.toWellFormed().isWellFormed() === true; }',
+			...['URLSearchParams', 'Headers', 'FormData'].flatMap(type => [
+				`/** @param {${type}} values */ function run(values) { return values.get("key") === true; }`,
+				`/** @param {?${type}} values */ function run(values) { return values?.has("key") === false; }`,
+				`/** @param {${type}} values */ function run(values) { return values.has?.("key") === true; }`,
+			]),
+			'/** @param {Headers | {has(): string}} values */ function run(values) { return values.has("key") === true; }',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			...['Map<string, number>', 'Set<string>', 'WeakMap<object, number>', 'WeakSet<object>', 'Map<string, number> | Set<string>'].map(type =>
+				`/** @param {${type}} values */ function run(values, key) { return values.delete(key) === true; }`,
+			),
+			...['Map', 'Set', 'WeakMap', 'WeakSet'].map(name => `new ${name}().delete(key) === true;`),
+			'/** @returns {Map<string, number>} */ function read() { return source; } read().delete(key) === true;',
+			'/** @param {Set<string>} values */ function run(values, key) { const alias = values; return alias["delete"](key) === true; }',
+			'/** @param {object} target */ function run(target, key, descriptor) { return Reflect.defineProperty(target, key, descriptor) === true; }',
+			'function run(target) { return Reflect.isExtensible(target) === true; }',
+			'function run(target) { return Reflect.preventExtensions(target) === true; }',
+			'function run(target, key, value) { return Reflect.set(target, key, value) === true; }',
+			'function run(target, prototype) { return Reflect.setPrototypeOf(target, prototype) === true; }',
+			'/** @param {unknown} value */ function run(value) { return String.raw`prefix${value}`.includes("x") === true; }',
+			'function run(template, value) { return String.raw(template, value).startsWith("x") === true; }',
+			'function run(value) { const text = String.raw`${value}`; return text.trim().endsWith("x") === true; }',
+			'function run(value) { return String.raw`${value}`.isWellFormed() === true; }',
+			'/** @param {Array<string | null | undefined>} values */ function run(values) { return values.join("-").includes("x") === true; }',
+			'/** @param {ReadonlyArray<string>} values */ function run(values) { return values.join().startsWith("x") === true; }',
+			'/** @param {Uint8Array} values */ function run(values) { return values.join(",").endsWith("1") === true; }',
+			'/** @param {BigInt64Array} values */ function run(values) { return values.join().isWellFormed() === true; }',
+			'/** @returns {Array<string>} */ function read() { return source; } read().join().trim().includes("x") === true;',
+			'/** @param {Array<string> | Uint8Array} values */ function run(values) { return values.join().includes("x") === true; }',
+			'/** @param {string} text */ function run(text) { return text.toWellFormed().isWellFormed() === true; }',
+			'/** @param {() => string} read */ function run(read) { return read().toWellFormed().includes("x") === true; }',
+			...['URLSearchParams', 'Headers', 'FormData'].map(type => `/** @param {${type}} values */ function run(values) { return values.has("key") === true; }`),
+			'/** @param {URLSearchParams} values */ function run(values) { return values.has("key", "value") === true; }',
+			'/** @param {Headers} values */ function run(values) { return values["has"]("key") === true; }',
+			'/** @param {() => FormData} read */ function run(read) { return read().has("key") === true; }',
+			'/** @param {Map<string, string> | Headers} values */ function run(values) { return values.has("key") === true; }',
+		].map(code => ({
+			code,
+			output: code.replace(' === true', ''),
+			filename: 'file.ts',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		})),
+	});
+}
+
+/* eslint-enable no-template-curly-in-string */
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {?string} text */ function run(text) { return text.trim().includes("x") === true; }',
+			'/** @param {string} text */ function run(text) { return text.trim?.().includes("x") === true; }',
+			'/** @param {string} text */ function run(text) { return text["trim"]().includes("x") === true; }',
+			'/** @param {string} text */ function run(text) { return text.at(0).includes("x") === true; }',
+			'/** @param {{trim(): {includes(): string}}} text */ function run(text) { return text.trim().includes("x") === true; }',
+			'/** @type {unknown} */ const text = source; text.trim().includes("x") === true;',
+			'/** @param {string} text */ function run(text, pattern) { return text.replace(pattern, "").includes("x") === true; }',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			...[
+				[
+					'/** @param {string} text */ function run(text) { return text.trim().startsWith("x") === true; }',
+					'/** @param {string} text */ function run(text) { return text.trim().startsWith("x"); }',
+				],
+				[
+					'/** @returns {string} */ function read() { return source; } read().toUpperCase().endsWith("X") === false;',
+					'/** @returns {string} */ function read() { return source; } !read().toUpperCase().endsWith("X");',
+				],
+				[
+					'/** @param {() => string} read */ function run(read) { return read().slice(1).includes("x") !== true; }',
+					'/** @param {() => string} read */ function run(read) { return !read().slice(1).includes("x"); }',
+				],
+				[
+					'/** @type {string} */ const text = source; const alias = text; alias.normalize("NFC").includes("é") === true;',
+					'/** @type {string} */ const text = source; const alias = text; alias.normalize("NFC").includes("é");',
+				],
+				[
+					'/** @param {string} text */ function run(text, cache) { return (cache = text).padStart(2, "x").includes("x") === true; }',
+					'/** @param {string} text */ function run(text, cache) { return (cache = text).padStart(2, "x").includes("x"); }',
+				],
+				[
+					'/** @param {string} text */ function run(text) { return text.charAt(100).isWellFormed() === true; }',
+					'/** @param {string} text */ function run(text) { return text.charAt(100).isWellFormed(); }',
+				],
+				[
+					'/** @param {string} text */ function run(text) { return text.trimStart().toLocaleLowerCase("en").startsWith("x") !== false; }',
+					'/** @param {string} text */ function run(text) { return text.trimStart().toLocaleLowerCase("en").startsWith("x"); }',
+				],
+			].map(([code, output]) => ({
+				code, output, filename: 'file.ts', errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+			})),
+			{
+				code: '/** @param {string} text */ function run(text) { return text.trim() /* keep */ .includes("x") === true; }',
+				output: '/** @param {string} text */ function run(text) { return text.trim() /* keep */ .includes("x"); }',
+				filename: 'file.ts',
+				errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+			},
+		],
+	});
+}
+
+const assertedCallbackDefaults = [
+	'(() => "text") as (() => string)',
+	'<() => string>(() => "text")',
+	'((() => "text") as (() => string))!',
+	'((() => "text") as (() => string)) satisfies (() => string)',
+];
+
+nodeTest('native assertions on default callbacks preserve boolean comparison results', t => {
+	const linter = new Linter();
+	const code = '/** @param {() => boolean} read */ function run(read = (() => "text") as (() => string)) { return read() === true; } run();';
+	const {output, fixed, messages} = linter.verifyAndFix(code, {
+		languageOptions: {parser: typescriptEslintParser},
+		plugins: {unicorn: {rules: {'no-unnecessary-boolean-comparison': rule}}},
+		rules: {'unicorn/no-unnecessary-boolean-comparison': 'error'},
+	});
+	t.assert.strictEqual(runInNewContext(stripTypeScriptTypes(output)), false);
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(output, code);
+	t.assert.deepStrictEqual(messages, []);
+});
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{
+		parser: typescriptEslintParser,
+		parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+	},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: assertedCallbackDefaults.map(initializer => ({
+			code: `/** @param {() => boolean} read */ function run(read = ${initializer}) { return read() === true; }`,
+			filename: 'file.ts',
+		})),
+		invalid: [],
+	});
+}
+
+const assertedBooleanCallbackDefault = '/** @param {() => boolean} read */ function run(read = source as (() => boolean)) { return read() === true; }';
+test({
+	valid: [{code: assertedBooleanCallbackDefault, languageOptions: {parser: parsers.typescript}}],
+	invalid: [{
+		code: assertedBooleanCallbackDefault,
+		filename: 'file.ts',
+		languageOptions: {
+			parser: typescriptEslintParser,
+			parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+		},
+		output: assertedBooleanCallbackDefault.replace('read() === true', 'read()'),
+		errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+	}],
+});
+
+test({
+	valid: [
+		'/** @param {string} text\n * @param {unknown} other */ function run(text, other) { return (flag ? text : other).includes("x") === true; }',
+		'/** @param {?Uint8Array} values */ function run(values) { return (effect(), values).some(predicate) === true; }',
+	],
+	invalid: [
+		{
+			code: '/** @param {string} text */ function run(text) { return (flag ? text : "fallback").startsWith("x") === true; }',
+			output: '/** @param {string} text */ function run(text) { return (flag ? text : "fallback").startsWith("x"); }',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+		{
+			code: '/** @param {Uint8Array} values */ function run(values) { return (effect(), values).some(predicate) === false; }',
+			output: '/** @param {Uint8Array} values */ function run(values) { return !(effect(), values).some(predicate); }',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+	],
+});
+
+/* eslint-disable no-template-curly-in-string -- Test cases contain template literal source. */
+test({
+	valid: [
+		'class Values extends Array {} new Values().some(predicate) === true;',
+		'tag`${value}`.startsWith("x") === true;',
+	],
+	invalid: [
+		{
+			code: 'new Uint8Array(length).every(predicate) === true;',
+			output: 'new Uint8Array(length).every(predicate);',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+		{
+			code: 'new BigInt64Array(length).includes(value) === false;',
+			output: '!new BigInt64Array(length).includes(value);',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+		{
+			code: '`${value}`.startsWith("x") === true;',
+			output: '`${value}`.startsWith("x");',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+		{
+			code: '`${value}`.includes("x") === false;',
+			output: '!`${value}`.includes("x");',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+	],
+});
+/* eslint-enable no-template-curly-in-string */
+
+test({
+	valid: [
+		'/** @param {?Uint8Array} values */ function run(values) { return values.some(predicate) === true; }',
+		'/** @param {Uint8Array | string} values */ function run(values) { return values.includes(value) === true; }',
+		'/** @param {BigInt64Array} values */ function run(values) { return values.subarray(1).every(predicate) === true; }',
+	],
+	invalid: [
+		{
+			code: '/** @param {Uint8Array} values */ function run(values) { return values["every"](predicate) === true; }',
+			output: '/** @param {Uint8Array} values */ function run(values) { return values["every"](predicate); }',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+		{
+			code: '/** @param {BigInt64Array} values */ function run(values) { return values["includes"](value) === false; }',
+			output: '/** @param {BigInt64Array} values */ function run(values) { return !values["includes"](value); }',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+		{
+			code: '/** @param {Uint8Array} values */ function run(values) { return values.includes(value) === false; }',
+			output: '/** @param {Uint8Array} values */ function run(values) { return !values.includes(value); }',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+		{
+			code: '/** @param {BigInt64Array} values */ function run(values) { return values.every(predicate) === true; }',
+			output: '/** @param {BigInt64Array} values */ function run(values) { return values.every(predicate); }',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+		{
+			code: '/** @param {Array<number> | Uint8Array} values */ function run(values) { return values.some(predicate) === true; }',
+			output: '/** @param {Array<number> | Uint8Array} values */ function run(values) { return values.some(predicate); }',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+	],
+});
+
+test({
+	valid: [
+		'/** @type {function(this): boolean} */ const predicate = () => "no"; predicate() === true;',
+		'/** @param {function(this, string): boolean} predicate */ function run(predicate) { return predicate() === true; }',
+		'/** @type {{(): boolean; label: string}} */ let predicate; predicate === true;',
+		'/** @type {{(): boolean; (value: string): string}} */ let predicate; predicate() === true;',
+		'/** @type {{readonly(): boolean}} */ let predicate; predicate() === true;',
+	],
+	invalid: [{
+		code: '/** @param {{(): boolean; label: string}} predicate */ function run(predicate) { return predicate() === true; }',
+		output: '/** @param {{(): boolean; label: string}} predicate */ function run(predicate) { return predicate(); }',
+		errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+	}],
+});
+
+test({
+	valid: [
+		'/** @returns {boolean} */ let read = () => source; read = replacement; read() === true;',
+		'/** @type {((value: string) => boolean) & ((value: number) => string)} */ const read = value => typeof value === "string" ? true : "yes"; if (read(1) === true) { consume(); }',
+		'function run(...values) { values = replacement; return values.some(predicate) === true; }',
+		{
+			code: '/** @returns {boolean} */ let read = (): unknown => true; read() === true;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'type Result = string; /** @type {() => boolean} */ const read = (): Result => { type Result = boolean; return "text"; }; read() === true;',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [
+		{
+			code: '/** @returns {boolean} */ let read = () => source; read() === true;',
+			output: '/** @returns {boolean} */ let read = () => source; read();',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+		{
+			code: 'function run(...values) { return values.every(predicate) === true; }',
+			output: 'function run(...values) { return values.every(predicate); }',
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+		{
+			code: 'function run(text: string) { return text.includes("x") === false; }',
+			output: 'function run(text: string) { return !text.includes("x"); }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+		{
+			code: 'type Result = boolean; /** @type {() => string} */ const read = (): Result => { type Result = string; return source; }; read() === true;',
+			output: 'type Result = boolean; /** @type {() => string} */ const read = (): Result => { type Result = string; return source; }; read();',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		},
+	],
+});
+
+test({
+	valid: [
+		'class Foo {} /** @type {function(new: Foo): boolean} */ const predicate = function () { return "no"; }; predicate() === true;',
+		'class Foo {} /** @param {function(new: Foo): boolean} predicate */ function run(predicate) { return predicate() === true; }',
+	],
+	invalid: [{
+		code: '/** @type {function(): true | false} */ let predicate; predicate() === true;',
+		output: '/** @type {function(): true | false} */ let predicate; predicate();',
+		errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+	}],
+});
+
+nodeTest('assignment receiver fixes preserve callback and property setter effects', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'no-unnecessary-boolean-comparison': rule}}},
+		rules: {'unicorn/no-unnecessary-boolean-comparison': 'error'},
+	};
+	for (const literal of [true, false]) {
+		const code = [
+			'let reads = 0; let writes = 0;',
+			'/** @returns {Array<string>} */ function read() { reads++; return ["x"]; }',
+			'const cache = {set value(value) { writes += value.length; }};',
+			`const result = (cache.value = read()).includes("x") === ${literal};`,
+			'JSON.stringify({result, reads, writes});',
+		].join('\n');
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		for (const source of [code, output]) {
+			t.assert.deepStrictEqual(JSON.parse(runInNewContext(source)), {result: literal, reads: 1, writes: 1});
+		}
+	}
+});
+
 test({
 	valid: [],
 	invalid: [
@@ -87,8 +508,106 @@ const typeAware = code => ({
 	},
 });
 
+for (const wrap of [code => ({code}), code => ({code, languageOptions: {parser: parsers.typescript}}), typeAware]) {
+	test({
+		valid: [
+			'/** @param {unknown} prefix */ function run(prefix, suffix) { return (prefix + suffix).startsWith("x") === true; }',
+			'/** @param {string | number} text */ function run(text) { return (text || "").includes("x") === true; }',
+			'/** @param {Array<string>} values */ function run(values, cache) { return (cache += values).some(predicate) === true; }',
+			'/** @param {Array<string>} cache */ function run(cache, value) { return (cache = value).some(predicate) === true; }',
+		].map(code => wrap(code)),
+		invalid: [
+			[
+				'/** @param {string} prefix */ function run(prefix, suffix) { return (prefix + suffix).startsWith("x") === true; }',
+				'/** @param {string} prefix */ function run(prefix, suffix) { return (prefix + suffix).startsWith("x"); }',
+			],
+			['function run(value) { return (typeof value).includes("object") === false; }', 'function run(value) { return !(typeof value).includes("object"); }'],
+			['function run(value) { return (value = "text").includes("x") === true; }', 'function run(value) { return (value = "text").includes("x"); }'],
+			[
+				'/** @param {string} text */ function run(text) { return (text || "").startsWith("x") === true; }',
+				'/** @param {string} text */ function run(text) { return (text || "").startsWith("x"); }',
+			],
+			[
+				'/** @param {RegExp} pattern */ function run(pattern, cache) { return (cache = pattern).test("x") === false; }',
+				'/** @param {RegExp} pattern */ function run(pattern, cache) { return !(cache = pattern).test("x"); }',
+			],
+		].map(([code, output]) => ({
+			...wrap(code),
+			output,
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		})),
+	});
+}
+
+for (const wrap of [code => ({code, languageOptions: {parser: parsers.typescript}}), typeAware]) {
+	test({
+		valid: [
+			'/** @param {boolean} isFlag */ function run(isFlag) { return (isFlag as string) === true; }',
+			'/** @param {boolean} isFlag */ function run(isFlag) { return (<boolean | string>isFlag) === true; }',
+			'/** @param {string} text */ function run(text) { return (text as {includes(): string}).includes() === true; }',
+			'/** @param {Array<string>} values */ function run(values) { return (<{some(): string}>values).some() === false; }',
+			'/** @param {string} text */ function run(text) { return (text as string | {includes(): string}).includes() === true; }',
+			'/** @param {Uint8Array} values */ function run(values) { return (<Uint8Array | {some(): string}>values).some() === false; }',
+		].map(code => wrap(code)),
+		invalid: [
+			['/** @param {boolean} isFlag */ function run(isFlag) { return (isFlag as unknown) === false; }', '/** @param {boolean} isFlag */ function run(isFlag) { return !(isFlag as unknown); }'],
+			['(source as string).includes("x") === true;', '(source as string).includes("x");'],
+			['(<Uint8Array>source).some(predicate) === false;', '!(<Uint8Array>source).some(predicate);'],
+		].map(([code, output]) => ({
+			...wrap(code),
+			output,
+			errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+		})),
+	});
+}
+
+test({
+	valid: [{
+		code: 'type Flag<T> = T extends string ? boolean : string; (source as Flag<string>) === true;',
+		languageOptions: {parser: parsers.typescript},
+	}],
+	invalid: [{
+		...typeAware('type Flag<T> = T extends string ? boolean : string; (source as Flag<string>) === true;'),
+		output: 'type Flag<T> = T extends string ? boolean : string; (source as Flag<string>);',
+		errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+	}],
+});
+
+test({
+	valid: [
+		typeAware('/** @type {string} */ const value = true; value === true;'),
+		typeAware('/** @type {Array<boolean>} */ const value = false; value !== false;'),
+		typeAware('/** @returns {string} */ function read() { return true; } read() === true;'),
+		typeAware('/** @type {() => string} */ const read = () => true; read() === true;'),
+		typeAware('/** @type {string} */ const value = true; const alias = value; alias === true;'),
+	],
+	invalid: [{
+		...typeAware('/** @type {unknown} */ const value = true; value === true;'),
+		output: '/** @type {unknown} */ const value = true; value;',
+		errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+	}, {
+		...typeAware('/** @type {unknown} */ const value = true; const alias = value; alias === true;'),
+		output: '/** @type {unknown} */ const value = true; const alias = value; alias;',
+		errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+	}],
+});
+
+test({
+	valid: [
+		{
+			code: '/** @returns {boolean} */ const read: () => unknown = (): boolean => true; read() === true;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		typeAware('/** @returns {boolean} */ let read: () => unknown = (): boolean => true; read() === true;'),
+	],
+	invalid: [],
+});
+
 test.snapshot({
 	valid: [
+		'/** @param {boolean} [value] */ function run(value) { return value === true; }',
+		'/** @param {?boolean} value */ function run(value) { return value === true; }',
+		'/** @type {unknown} */ const value = true; value === true;',
 		// Unknown value. `value === true` is not equivalent to `value` or `Boolean(value)`.
 		'value === true',
 		'value !== true',
@@ -207,5 +726,50 @@ test.snapshot({
 		},
 		// Nested functions are not searched for `yield` expressions.
 		'function * foo() {\n\tconst result = [a, b].some(item => item > c) === false;\n}',
+		'/** @param {boolean} value */ function run(value) { return value === true; }',
+		'/** @type {boolean} */ let value; value === true;',
+		'/** @returns {boolean} */ function predicate() { return value; } predicate() === true;',
 	],
+});
+
+test({
+	valid: [
+		'/** @param {boolean} [value] */ function run(/** @type {boolean} */ value) { return value === true; }',
+		'/** @param {boolean=} value */ function run(/** @type {boolean} */ value) { return value !== false; }',
+		'/** @param {boolean} [value=false] */ function run(/** @type {boolean} */ value = false) { return value === false; }',
+		'/** @param {?string} value */ function run(value) { return value.includes("a") === true; }',
+		'/** @type {unknown} */ const value = []; value.includes(1) === true;',
+	],
+	invalid: [{
+		code: '/** @param {string} value */ function run(value) { return value.startsWith("a") === true; }',
+		output: '/** @param {string} value */ function run(value) { return value.startsWith("a"); }',
+		errors: [{messageId: 'no-unnecessary-boolean-comparison'}],
+	}],
+});
+
+test({
+	valid: [
+		'/** @type {() => boolean} */ const predicate = async () => true; predicate() === true;',
+		'/** @type {() => boolean} */ const predicate = function* () { return true; }; predicate() === true;',
+		{
+			code: '/** @returns {boolean} */ const predicate: () => string = () => source; predicate() === true;',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [],
+});
+
+test({
+	valid: [
+		'/** @type {unknown} */ const value = true; const alias = value; alias === true;',
+		{
+			code: '/** @type {unknown} */ const value = true; value! === true;',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: '/** @type {() => boolean} */ const predicate = (): string => "text"; predicate() === true;',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [],
 });

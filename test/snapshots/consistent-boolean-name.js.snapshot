@@ -1,3 +1,85 @@
+exports[`consistent-boolean-name > invalid(1): /** @param {boolean} [value] */ function run(value) {} 1`] = `
+
+Options:
+- prefixes:
+    are: false
+    has: false
+    have: false
+    can: false
+    should: false
+    was: false
+    were: false
+    does: false
+    did: false
+    will: false
+    requires: false
+
+Code:
+  1 | /** @param {boolean} [value] */ function run(value) {}
+
+`;
+
+exports[`consistent-boolean-name > invalid(1): /** @param {boolean} [value] */ function run(value) {} 2`] = `
+
+Message:
+> 1 | /** @param {boolean} [value] */ function run(value) {}
+    |                                              ^^^^^ Boolean name \`value\` should start with \`is\`.
+
+Suggestion 1/1: Rename to \`isValue\`.:
+  1 | /** @param {boolean} [isValue] */ function run(isValue) {}
+
+`;
+
+exports[`consistent-boolean-name > invalid(1): /** @param {boolean} allowReferrer */ function checkSecureRel(allowReferrer) {} 1`] = `
+
+  1 | /** @param {boolean} allowReferrer */ function checkSecureRel(allowReferrer) {}
+
+`;
+
+exports[`consistent-boolean-name > invalid(1): /** @param {boolean} allowReferrer */ function checkSecureRel(allowReferrer) {} 2`] = `
+
+Message:
+> 1 | /** @param {boolean} allowReferrer */ function checkSecureRel(allowReferrer) {}
+    |                                                               ^^^^^^^^^^^^^ Boolean name \`allowReferrer\` should start with \`is\`, \`are\`, \`has\`, \`have\`, \`can\`, \`should\`, \`was\`, \`were\`, \`does\`, \`did\`, \`will\`, \`requires\`.
+
+Suggestion 1/12: Rename to \`isAllowReferrer\`.:
+  1 | /** @param {boolean} isAllowReferrer */ function checkSecureRel(isAllowReferrer) {}
+
+Suggestion 2/12: Rename to \`areAllowReferrer\`.:
+  1 | /** @param {boolean} areAllowReferrer */ function checkSecureRel(areAllowReferrer) {}
+
+Suggestion 3/12: Rename to \`hasAllowReferrer\`.:
+  1 | /** @param {boolean} hasAllowReferrer */ function checkSecureRel(hasAllowReferrer) {}
+
+Suggestion 4/12: Rename to \`haveAllowReferrer\`.:
+  1 | /** @param {boolean} haveAllowReferrer */ function checkSecureRel(haveAllowReferrer) {}
+
+Suggestion 5/12: Rename to \`canAllowReferrer\`.:
+  1 | /** @param {boolean} canAllowReferrer */ function checkSecureRel(canAllowReferrer) {}
+
+Suggestion 6/12: Rename to \`shouldAllowReferrer\`.:
+  1 | /** @param {boolean} shouldAllowReferrer */ function checkSecureRel(shouldAllowReferrer) {}
+
+Suggestion 7/12: Rename to \`wasAllowReferrer\`.:
+  1 | /** @param {boolean} wasAllowReferrer */ function checkSecureRel(wasAllowReferrer) {}
+
+Suggestion 8/12: Rename to \`wereAllowReferrer\`.:
+  1 | /** @param {boolean} wereAllowReferrer */ function checkSecureRel(wereAllowReferrer) {}
+
+Suggestion 9/12: Rename to \`doesAllowReferrer\`.:
+  1 | /** @param {boolean} doesAllowReferrer */ function checkSecureRel(doesAllowReferrer) {}
+
+Suggestion 10/12: Rename to \`didAllowReferrer\`.:
+  1 | /** @param {boolean} didAllowReferrer */ function checkSecureRel(didAllowReferrer) {}
+
+Suggestion 11/12: Rename to \`willAllowReferrer\`.:
+  1 | /** @param {boolean} willAllowReferrer */ function checkSecureRel(willAllowReferrer) {}
+
+Suggestion 12/12: Rename to \`requiresAllowReferrer\`.:
+  1 | /** @param {boolean} requiresAllowReferrer */ function checkSecureRel(requiresAllowReferrer) {}
+
+`;
+
 exports[`consistent-boolean-name > invalid(1): const completed = true; 1`] = `
 
   1 | const completed = true;
@@ -324,6 +406,38 @@ Suggestion 11/12: Rename to \`willValid\`.:
 
 Suggestion 12/12: Rename to \`requiresValid\`.:
   1 | function requiresValid(): Promise<boolean> { return Promise.resolve(true); } requiresValid();
+
+`;
+
+exports[`consistent-boolean-name > invalid(10): /** @return {boolean} */ const ready = () => value; 1`] = `
+
+Options:
+- prefixes:
+    are: false
+    has: false
+    have: false
+    can: false
+    should: false
+    was: false
+    were: false
+    does: false
+    did: false
+    will: false
+    requires: false
+
+Code:
+  1 | /** @return {boolean} */ const ready = () => value;
+
+`;
+
+exports[`consistent-boolean-name > invalid(10): /** @return {boolean} */ const ready = () => value; 2`] = `
+
+Message:
+> 1 | /** @return {boolean} */ const ready = () => value;
+    |                                ^^^^^ Boolean name \`ready\` should start with \`is\`.
+
+Suggestion 1/1: Rename to \`isReady\`.:
+  1 | /** @return {boolean} */ const isReady = () => value;
 
 `;
 
@@ -889,6 +1003,35 @@ Suggestion 11/12: Rename to \`willCompleted\`.:
 
 Suggestion 12/12: Rename to \`requiresCompleted\`.:
   1 | const requiresCompleted = true; export {requiresCompleted as isCompleted};
+
+`;
+
+exports[`consistent-boolean-name > invalid(11): /** @returns {string} */ function isReady() { return true; } 1`] = `
+
+Options:
+- prefixes:
+    are: false
+    has: false
+    have: false
+    can: false
+    should: false
+    was: false
+    were: false
+    does: false
+    did: false
+    will: false
+    requires: false
+
+Code:
+  1 | /** @returns {string} */ function isReady() { return true; }
+
+`;
+
+exports[`consistent-boolean-name > invalid(11): /** @returns {string} */ function isReady() { return true; } 2`] = `
+
+Message:
+> 1 | /** @returns {string} */ function isReady() { return true; }
+    |                                   ^^^^^^^ \`isReady\` starts with \`is\`, so it should be boolean.
 
 `;
 
@@ -1687,6 +1830,36 @@ Message:
 
 `;
 
+exports[`consistent-boolean-name > invalid(12): const task = {/** @type {boolean} */ ready: value}; 1`] = `
+
+Options:
+- prefixes:
+    are: false
+    has: false
+    have: false
+    can: false
+    should: false
+    was: false
+    were: false
+    does: false
+    did: false
+    will: false
+    requires: false
+  checkFields: 'always'
+
+Code:
+  1 | const task = {/** @type {boolean} */ ready: value};
+
+`;
+
+exports[`consistent-boolean-name > invalid(12): const task = {/** @type {boolean} */ ready: value}; 2`] = `
+
+Message:
+> 1 | const task = {/** @type {boolean} */ ready: value};
+    |                                      ^^^^^ Boolean name \`ready\` should start with \`is\`.
+
+`;
+
 exports[`consistent-boolean-name > invalid(12): function check(value: unknown): value is string { return typeof value === \"string\"; } const completed = check(value); 1`] = `
 
   1 | function check(value: unknown): value is string { return typeof value === "string"; } const completed = check(value);
@@ -1817,6 +1990,36 @@ Message:
 
 `;
 
+exports[`consistent-boolean-name > invalid(13): class Task { /** @type {boolean} */ ready; } 1`] = `
+
+Options:
+- prefixes:
+    are: false
+    has: false
+    have: false
+    can: false
+    should: false
+    was: false
+    were: false
+    does: false
+    did: false
+    will: false
+    requires: false
+  checkFields: 'always'
+
+Code:
+  1 | class Task { /** @type {boolean} */ ready; }
+
+`;
+
+exports[`consistent-boolean-name > invalid(13): class Task { /** @type {boolean} */ ready; } 2`] = `
+
+Message:
+> 1 | class Task { /** @type {boolean} */ ready; }
+    |                                     ^^^^^ Boolean name \`ready\` should start with \`is\`.
+
+`;
+
 exports[`consistent-boolean-name > invalid(13): function download(showProgress: boolean) {} 1`] = `
 
   1 | function download(showProgress: boolean) {}
@@ -1914,6 +2117,36 @@ Message:
 
 `;
 
+exports[`consistent-boolean-name > invalid(14): const task = {/** @returns {boolean} */ ready() { return value; }}; 1`] = `
+
+Options:
+- prefixes:
+    are: false
+    has: false
+    have: false
+    can: false
+    should: false
+    was: false
+    were: false
+    does: false
+    did: false
+    will: false
+    requires: false
+  checkMethods: 'always'
+
+Code:
+  1 | const task = {/** @returns {boolean} */ ready() { return value; }};
+
+`;
+
+exports[`consistent-boolean-name > invalid(14): const task = {/** @returns {boolean} */ ready() { return value; }}; 2`] = `
+
+Message:
+> 1 | const task = {/** @returns {boolean} */ ready() { return value; }};
+    |                                         ^^^^^ Boolean name \`ready\` should start with \`is\`.
+
+`;
+
 exports[`consistent-boolean-name > invalid(14): function download(completed?: boolean) {} 1`] = `
 
   1 | function download(completed?: boolean) {}
@@ -1980,6 +2213,36 @@ exports[`consistent-boolean-name > invalid(14): interface Predicate { (): boolea
 Message:
 > 1 | interface Predicate { (): boolean; } interface Task { isReady(): Predicate; }
     |                                                       ^^^^^^^ \`isReady\` starts with \`is\`, so it should be boolean.
+
+`;
+
+exports[`consistent-boolean-name > invalid(15): class Task { /** @returns {boolean} */ ready() { return value; } } 1`] = `
+
+Options:
+- prefixes:
+    are: false
+    has: false
+    have: false
+    can: false
+    should: false
+    was: false
+    were: false
+    does: false
+    did: false
+    will: false
+    requires: false
+  checkMethods: 'always'
+
+Code:
+  1 | class Task { /** @returns {boolean} */ ready() { return value; } }
+
+`;
+
+exports[`consistent-boolean-name > invalid(15): class Task { /** @returns {boolean} */ ready() { return value; } } 2`] = `
+
+Message:
+> 1 | class Task { /** @returns {boolean} */ ready() { return value; } }
+    |                                        ^^^^^ Boolean name \`ready\` should start with \`is\`.
 
 `;
 
@@ -2094,6 +2357,36 @@ Message:
 
 `;
 
+exports[`consistent-boolean-name > invalid(16): const task = {/** @returns {?boolean} */ get ready() { return value; }}; 1`] = `
+
+Options:
+- prefixes:
+    are: false
+    has: false
+    have: false
+    can: false
+    should: false
+    was: false
+    were: false
+    does: false
+    did: false
+    will: false
+    requires: false
+  checkMethods: 'always'
+
+Code:
+  1 | const task = {/** @returns {?boolean} */ get ready() { return value; }};
+
+`;
+
+exports[`consistent-boolean-name > invalid(16): const task = {/** @returns {?boolean} */ get ready() { return value; }}; 2`] = `
+
+Message:
+> 1 | const task = {/** @returns {?boolean} */ get ready() { return value; }};
+    |                                              ^^^^^ Boolean name \`ready\` should start with \`is\`.
+
+`;
+
 exports[`consistent-boolean-name > invalid(16): interface Task { isReady: Promise<boolean>; } 1`] = `
 
 Options:
@@ -2110,6 +2403,38 @@ exports[`consistent-boolean-name > invalid(16): interface Task { isReady: Promis
 Message:
 > 1 | interface Task { isReady: Promise<boolean>; }
     |                  ^^^^^^^ \`isReady\` starts with \`is\`, so it should be boolean.
+
+`;
+
+exports[`consistent-boolean-name > invalid(17): /** @param {boolean} value */ function run(value) {} 1`] = `
+
+Options:
+- prefixes:
+    are: false
+    has: false
+    have: false
+    can: false
+    should: false
+    was: false
+    were: false
+    does: false
+    did: false
+    will: false
+    requires: false
+
+Code:
+  1 | /** @param {boolean} value */ function run(value) {}
+
+`;
+
+exports[`consistent-boolean-name > invalid(17): /** @param {boolean} value */ function run(value) {} 2`] = `
+
+Message:
+> 1 | /** @param {boolean} value */ function run(value) {}
+    |                                            ^^^^^ Boolean name \`value\` should start with \`is\`.
+
+Suggestion 1/1: Rename to \`isValue\`.:
+  1 | /** @param {boolean} isValue */ function run(isValue) {}
 
 `;
 
@@ -2160,6 +2485,41 @@ Message:
 
 `;
 
+exports[`consistent-boolean-name > invalid(18): /** @type {boolean} */ let value; 1`] = `
+
+Options:
+- prefixes:
+    are: false
+    has: false
+    have: false
+    can: false
+    should: false
+    was: false
+    were: false
+    does: false
+    did: false
+    will: false
+    requires: false
+
+Code:
+  1 | /** @type {boolean} */ let value;
+
+`;
+
+exports[`consistent-boolean-name > invalid(18): /** @type {boolean} */ let value; 2`] = `
+
+Message:
+> 1 | /** @type {boolean} */ let value;
+    |                            ^^^^^ Boolean name \`value\` should start with \`is\`.
+
+Output:
+  1 | /** @type {boolean} */ let isValue;
+
+Suggestion 1/1: Rename to \`isValue\`.:
+  1 | /** @type {boolean} */ let isValue;
+
+`;
+
 exports[`consistent-boolean-name > invalid(18): class Task { constructor(public completed: boolean) {} } 1`] = `
 
   1 | class Task { constructor(public completed: boolean) {} }
@@ -2204,6 +2564,41 @@ exports[`consistent-boolean-name > invalid(18): interface Task { isReady: Promis
 Message:
 > 1 | interface Task { isReady: Promise<boolean> | null; }
     |                  ^^^^^^^ \`isReady\` starts with \`is\`, so it should be boolean.
+
+`;
+
+exports[`consistent-boolean-name > invalid(19): /** @type {string} */ let value: boolean; 1`] = `
+
+Options:
+- prefixes:
+    are: false
+    has: false
+    have: false
+    can: false
+    should: false
+    was: false
+    were: false
+    does: false
+    did: false
+    will: false
+    requires: false
+
+Code:
+  1 | /** @type {string} */ let value: boolean;
+
+`;
+
+exports[`consistent-boolean-name > invalid(19): /** @type {string} */ let value: boolean; 2`] = `
+
+Message:
+> 1 | /** @type {string} */ let value: boolean;
+    |                           ^^^^^^^^^^^^^^ Boolean name \`value\` should start with \`is\`.
+
+Output:
+  1 | /** @type {string} */ let isValue: boolean;
+
+Suggestion 1/1: Rename to \`isValue\`.:
+  1 | /** @type {string} */ let isValue: boolean;
 
 `;
 
@@ -2287,6 +2682,91 @@ exports[`consistent-boolean-name > invalid(19): interface Task { isComplete: str
 Message:
 > 1 | interface Task { isComplete: string; }
     |                  ^^^^^^^^^^ \`isComplete\` starts with \`is\`, so it should be boolean.
+
+`;
+
+exports[`consistent-boolean-name > invalid(2): /** @arg {Boolean} value */ const run = value => {}; 1`] = `
+
+Options:
+- prefixes:
+    are: false
+    has: false
+    have: false
+    can: false
+    should: false
+    was: false
+    were: false
+    does: false
+    did: false
+    will: false
+    requires: false
+
+Code:
+  1 | /** @arg {Boolean} value */ const run = value => {};
+
+`;
+
+exports[`consistent-boolean-name > invalid(2): /** @arg {Boolean} value */ const run = value => {}; 2`] = `
+
+Message:
+> 1 | /** @arg {Boolean} value */ const run = value => {};
+    |                                         ^^^^^ Boolean name \`value\` should start with \`is\`.
+
+Suggestion 1/1: Rename to \`isValue\`.:
+  1 | /** @arg {Boolean} isValue */ const run = isValue => {};
+
+`;
+
+exports[`consistent-boolean-name > invalid(2): /** @type {boolean} */ let foo; 1`] = `
+
+  1 | /** @type {boolean} */ let foo;
+
+`;
+
+exports[`consistent-boolean-name > invalid(2): /** @type {boolean} */ let foo; 2`] = `
+
+Message:
+> 1 | /** @type {boolean} */ let foo;
+    |                            ^^^ Boolean name \`foo\` should start with \`is\`, \`are\`, \`has\`, \`have\`, \`can\`, \`should\`, \`was\`, \`were\`, \`does\`, \`did\`, \`will\`, \`requires\`.
+
+Output:
+  1 | /** @type {boolean} */ let isFoo;
+
+Suggestion 1/12: Rename to \`isFoo\`.:
+  1 | /** @type {boolean} */ let isFoo;
+
+Suggestion 2/12: Rename to \`areFoo\`.:
+  1 | /** @type {boolean} */ let areFoo;
+
+Suggestion 3/12: Rename to \`hasFoo\`.:
+  1 | /** @type {boolean} */ let hasFoo;
+
+Suggestion 4/12: Rename to \`haveFoo\`.:
+  1 | /** @type {boolean} */ let haveFoo;
+
+Suggestion 5/12: Rename to \`canFoo\`.:
+  1 | /** @type {boolean} */ let canFoo;
+
+Suggestion 6/12: Rename to \`shouldFoo\`.:
+  1 | /** @type {boolean} */ let shouldFoo;
+
+Suggestion 7/12: Rename to \`wasFoo\`.:
+  1 | /** @type {boolean} */ let wasFoo;
+
+Suggestion 8/12: Rename to \`wereFoo\`.:
+  1 | /** @type {boolean} */ let wereFoo;
+
+Suggestion 9/12: Rename to \`doesFoo\`.:
+  1 | /** @type {boolean} */ let doesFoo;
+
+Suggestion 10/12: Rename to \`didFoo\`.:
+  1 | /** @type {boolean} */ let didFoo;
+
+Suggestion 11/12: Rename to \`willFoo\`.:
+  1 | /** @type {boolean} */ let willFoo;
+
+Suggestion 12/12: Rename to \`requiresFoo\`.:
+  1 | /** @type {boolean} */ let requiresFoo;
 
 `;
 
@@ -2512,6 +2992,40 @@ Suggestion 12/12: Rename to \`requiresCheck\`.:
 
 `;
 
+exports[`consistent-boolean-name > invalid(20): /** @param {boolean} value */ function run(value) {} 1`] = `
+
+Filename: file.js
+
+Options:
+- prefixes:
+    are: false
+    has: false
+    have: false
+    can: false
+    should: false
+    was: false
+    were: false
+    does: false
+    did: false
+    will: false
+    requires: false
+
+Code:
+  1 | /** @param {boolean} value */ function run(value) {}
+
+`;
+
+exports[`consistent-boolean-name > invalid(20): /** @param {boolean} value */ function run(value) {} 2`] = `
+
+Message:
+> 1 | /** @param {boolean} value */ function run(value) {}
+    |                                            ^^^^^ Boolean name \`value\` should start with \`is\`.
+
+Suggestion 1/1: Rename to \`isValue\`.:
+  1 | /** @param {boolean} isValue */ function run(isValue) {}
+
+`;
+
 exports[`consistent-boolean-name > invalid(20): declare function completed(): boolean; 1`] = `
 
   1 | declare function completed(): boolean;
@@ -2595,6 +3109,47 @@ Message:
 
 `;
 
+exports[`consistent-boolean-name > invalid(21): /** @typedef {boolean} Flag */\n/** @type {Flag} */ let value; 1`] = `
+
+Filename: file.js
+
+Options:
+- prefixes:
+    are: false
+    has: false
+    have: false
+    can: false
+    should: false
+    was: false
+    were: false
+    does: false
+    did: false
+    will: false
+    requires: false
+
+Code:
+  1 | /** @typedef {boolean} Flag */
+  2 | /** @type {Flag} */ let value;
+
+`;
+
+exports[`consistent-boolean-name > invalid(21): /** @typedef {boolean} Flag */\n/** @type {Flag} */ let value; 2`] = `
+
+Message:
+  1 | /** @typedef {boolean} Flag */
+> 2 | /** @type {Flag} */ let value;
+    |                         ^^^^^ Boolean name \`value\` should start with \`is\`.
+
+Output:
+  1 | /** @typedef {boolean} Flag */
+  2 | /** @type {Flag} */ let isValue;
+
+Suggestion 1/1: Rename to \`isValue\`.:
+  1 | /** @typedef {boolean} Flag */
+  2 | /** @type {Flag} */ let isValue;
+
+`;
+
 exports[`consistent-boolean-name > invalid(21): const task = {\"completed\": true}; 1`] = `
 
 Options:
@@ -2675,6 +3230,43 @@ exports[`consistent-boolean-name > invalid(21): function isReady() { return cond
 Message:
 > 1 | function isReady() { return condition ? () => true : () => false; }
     |          ^^^^^^^ \`isReady\` starts with \`is\`, so it should be boolean.
+
+`;
+
+exports[`consistent-boolean-name > invalid(22): /** @typedef {boolean} Flag */\n/** @returns {Flag} */ function ready() { return value; } 1`] = `
+
+Filename: file.js
+
+Options:
+- prefixes:
+    are: false
+    has: false
+    have: false
+    can: false
+    should: false
+    was: false
+    were: false
+    does: false
+    did: false
+    will: false
+    requires: false
+
+Code:
+  1 | /** @typedef {boolean} Flag */
+  2 | /** @returns {Flag} */ function ready() { return value; }
+
+`;
+
+exports[`consistent-boolean-name > invalid(22): /** @typedef {boolean} Flag */\n/** @returns {Flag} */ function ready() { return value; } 2`] = `
+
+Message:
+  1 | /** @typedef {boolean} Flag */
+> 2 | /** @returns {Flag} */ function ready() { return value; }
+    |                                 ^^^^^ Boolean name \`ready\` should start with \`is\`.
+
+Suggestion 1/1: Rename to \`isReady\`.:
+  1 | /** @typedef {boolean} Flag */
+  2 | /** @returns {Flag} */ function isReady() { return value; }
 
 `;
 
@@ -3465,6 +4057,81 @@ Suggestion 11/12: Rename to \`willCompleted\`.:
 
 Suggestion 12/12: Rename to \`requiresCompleted\`.:
   1 | type Predicate = {(): boolean}; const requiresCompleted: Predicate = getCompleted;
+
+`;
+
+exports[`consistent-boolean-name > invalid(3): /** @argument {true | false} value */ const run = function (value) {}; 1`] = `
+
+Options:
+- prefixes:
+    are: false
+    has: false
+    have: false
+    can: false
+    should: false
+    was: false
+    were: false
+    does: false
+    did: false
+    will: false
+    requires: false
+
+Code:
+  1 | /** @argument {true | false} value */ const run = function (value) {};
+
+`;
+
+exports[`consistent-boolean-name > invalid(3): /** @argument {true | false} value */ const run = function (value) {}; 2`] = `
+
+Message:
+> 1 | /** @argument {true | false} value */ const run = function (value) {};
+    |                                                             ^^^^^ Boolean name \`value\` should start with \`is\`.
+
+Suggestion 1/1: Rename to \`isValue\`.:
+  1 | /** @argument {true | false} isValue */ const run = function (isValue) {};
+
+`;
+
+exports[`consistent-boolean-name > invalid(3): /** @param {boolean} value */ function check(value = false) { return value; } 1`] = `
+
+Options:
+- prefixes:
+    are: false
+    has: false
+    have: false
+    can: false
+    should: false
+    was: false
+    were: false
+    does: false
+    did: false
+    will: false
+    requires: false
+
+Code:
+  1 | /** @param {boolean} value */ function check(value = false) { return value; }
+
+`;
+
+exports[`consistent-boolean-name > invalid(3): /** @param {boolean} value */ function check(value = false) { return value; } 2`] = `
+
+Message:
+> 1 | /** @param {boolean} value */ function check(value = false) { return value; }
+    |                                        ^^^^^ Boolean name \`check\` should start with \`is\`.
+
+Suggestion 1/1: Rename to \`isCheck\`.:
+  1 | /** @param {boolean} value */ function isCheck(value = false) { return value; }
+
+`;
+
+exports[`consistent-boolean-name > invalid(3): /** @param {boolean} value */ function check(value = false) { return value; } 3`] = `
+
+Message:
+> 1 | /** @param {boolean} value */ function check(value = false) { return value; }
+    |                                              ^^^^^ Boolean name \`value\` should start with \`is\`.
+
+Suggestion 1/1: Rename to \`isValue\`.:
+  1 | /** @param {boolean} isValue */ function check(isValue = false) { return isValue; }
 
 `;
 
@@ -4701,6 +5368,35 @@ Message:
 
 `;
 
+exports[`consistent-boolean-name > invalid(4): /** @type {boolean} */ export let value; 1`] = `
+
+Options:
+- prefixes:
+    are: false
+    has: false
+    have: false
+    can: false
+    should: false
+    was: false
+    were: false
+    does: false
+    did: false
+    will: false
+    requires: false
+
+Code:
+  1 | /** @type {boolean} */ export let value;
+
+`;
+
+exports[`consistent-boolean-name > invalid(4): /** @type {boolean} */ export let value; 2`] = `
+
+Message:
+> 1 | /** @type {boolean} */ export let value;
+    |                                   ^^^^^ Boolean name \`value\` should start with \`is\`.
+
+`;
+
 exports[`consistent-boolean-name > invalid(4): class Task { isReady: string = \"yes\"; } 1`] = `
 
 Options:
@@ -5788,6 +6484,35 @@ Message:
 
 `;
 
+exports[`consistent-boolean-name > invalid(5): /** @type {string} */ let isReady; 1`] = `
+
+Options:
+- prefixes:
+    are: false
+    has: false
+    have: false
+    can: false
+    should: false
+    was: false
+    were: false
+    does: false
+    did: false
+    will: false
+    requires: false
+
+Code:
+  1 | /** @type {string} */ let isReady;
+
+`;
+
+exports[`consistent-boolean-name > invalid(5): /** @type {string} */ let isReady; 2`] = `
+
+Message:
+> 1 | /** @type {string} */ let isReady;
+    |                           ^^^^^^^ \`isReady\` starts with \`is\`, so it should be boolean.
+
+`;
+
 exports[`consistent-boolean-name > invalid(5): class Task { isReady: Promise<boolean>; } 1`] = `
 
 Options:
@@ -6782,6 +7507,35 @@ Message:
 
 `;
 
+exports[`consistent-boolean-name > invalid(6): /** @type {Array<boolean>} */ let isReady; 1`] = `
+
+Options:
+- prefixes:
+    are: false
+    has: false
+    have: false
+    can: false
+    should: false
+    was: false
+    were: false
+    does: false
+    did: false
+    will: false
+    requires: false
+
+Code:
+  1 | /** @type {Array<boolean>} */ let isReady;
+
+`;
+
+exports[`consistent-boolean-name > invalid(6): /** @type {Array<boolean>} */ let isReady; 2`] = `
+
+Message:
+> 1 | /** @type {Array<boolean>} */ let isReady;
+    |                                   ^^^^^^^ \`isReady\` starts with \`is\`, so it should be boolean.
+
+`;
+
 exports[`consistent-boolean-name > invalid(6): class Task { isReady: PromiseLike<boolean>; } 1`] = `
 
 Options:
@@ -7616,6 +8370,38 @@ Suggestion 12/12: Rename to \`requiresCompleted\`.:
 
 `;
 
+exports[`consistent-boolean-name > invalid(7): /** @type {() => boolean} */ let ready; 1`] = `
+
+Options:
+- prefixes:
+    are: false
+    has: false
+    have: false
+    can: false
+    should: false
+    was: false
+    were: false
+    does: false
+    did: false
+    will: false
+    requires: false
+
+Code:
+  1 | /** @type {() => boolean} */ let ready;
+
+`;
+
+exports[`consistent-boolean-name > invalid(7): /** @type {() => boolean} */ let ready; 2`] = `
+
+Message:
+> 1 | /** @type {() => boolean} */ let ready;
+    |                                  ^^^^^ Boolean name \`ready\` should start with \`is\`.
+
+Suggestion 1/1: Rename to \`isReady\`.:
+  1 | /** @type {() => boolean} */ let isReady;
+
+`;
+
 exports[`consistent-boolean-name > invalid(7): class Task { isReady: Promise<boolean> | undefined; } 1`] = `
 
 Options:
@@ -8418,6 +9204,35 @@ exports[`consistent-boolean-name > invalid(79): declare const options: {enabled:
 Message:
 > 1 | declare const options: {enabled: string}; const isCompleted = options.enabled;
     |                                                 ^^^^^^^^^^^ \`isCompleted\` starts with \`is\`, so it should be boolean.
+
+`;
+
+exports[`consistent-boolean-name > invalid(8): /** @param {string} isReady */ function run(isReady) {} 1`] = `
+
+Options:
+- prefixes:
+    are: false
+    has: false
+    have: false
+    can: false
+    should: false
+    was: false
+    were: false
+    does: false
+    did: false
+    will: false
+    requires: false
+
+Code:
+  1 | /** @param {string} isReady */ function run(isReady) {}
+
+`;
+
+exports[`consistent-boolean-name > invalid(8): /** @param {string} isReady */ function run(isReady) {} 2`] = `
+
+Message:
+> 1 | /** @param {string} isReady */ function run(isReady) {}
+    |                                             ^^^^^^^ \`isReady\` starts with \`is\`, so it should be boolean.
 
 `;
 
@@ -9363,6 +10178,38 @@ exports[`consistent-boolean-name > invalid(89): let isReady = true; for (isReady
 Message:
 > 1 | let isReady = true; for (isReady in {value: true}) {}
     |     ^^^^^^^ \`isReady\` starts with \`is\`, so it should be boolean.
+
+`;
+
+exports[`consistent-boolean-name > invalid(9): /** @returns {boolean} */ function ready() { return value; } 1`] = `
+
+Options:
+- prefixes:
+    are: false
+    has: false
+    have: false
+    can: false
+    should: false
+    was: false
+    were: false
+    does: false
+    did: false
+    will: false
+    requires: false
+
+Code:
+  1 | /** @returns {boolean} */ function ready() { return value; }
+
+`;
+
+exports[`consistent-boolean-name > invalid(9): /** @returns {boolean} */ function ready() { return value; } 2`] = `
+
+Message:
+> 1 | /** @returns {boolean} */ function ready() { return value; }
+    |                                    ^^^^^ Boolean name \`ready\` should start with \`is\`.
+
+Suggestion 1/1: Rename to \`isReady\`.:
+  1 | /** @returns {boolean} */ function isReady() { return value; }
 
 `;
 

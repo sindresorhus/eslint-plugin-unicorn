@@ -1,6 +1,6 @@
 /* eslint-disable complexity */
 import {findVariable} from '@eslint-community/eslint-utils';
-import {isBigIntLiteral, isCallExpression, isNewExpression} from './ast/index.js';
+import {isNewExpression} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getCallArgumentText,
@@ -16,6 +16,7 @@ const messages = {
 	[MESSAGE_ID]: 'Prefer `Math.{{method}}()` to simplify ternary expressions.',
 	[SUGGESTION_ID]: 'Replace with `Math.{{method}}()`.',
 };
+const bigIntCheckOptions = {treatMixedUnionAsTarget: true};
 
 const isNumberTypeAnnotation = typeAnnotation =>
 	typeAnnotation.type === 'TSNumberKeyword'
@@ -105,13 +106,7 @@ const create = context => {
 
 		const {operator, left, right} = test;
 
-		const hasBigInt = [left, right].some(node =>
-			isBigIntLiteral(node)
-			|| isCallExpression(node, {
-				name: 'BigInt',
-				argumentsLength: 1,
-				optional: false,
-			}));
+		const hasBigInt = [left, right].some(node => isBigInt(node, context, bigIntCheckOptions));
 
 		if (hasBigInt) {
 			return;
@@ -194,7 +189,7 @@ const create = context => {
 								identifier.parent.type === 'AssignmentPattern'
 								&& (
 									(identifier.parent.right.type === 'Literal' && typeof identifier.parent.right.value !== 'number')
-									|| isBigInt(identifier.parent.right, context)
+									|| isBigInt(identifier.parent.right, context, bigIntCheckOptions)
 								)
 							) {
 								return;
@@ -239,7 +234,7 @@ const create = context => {
 							var foo = -1n
 							```
 							*/
-							if (variableDeclarator.init && isBigInt(variableDeclarator.init, context)) {
+							if (variableDeclarator.init && isBigInt(variableDeclarator.init, context, bigIntCheckOptions)) {
 								return;
 							}
 

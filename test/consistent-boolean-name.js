@@ -29,7 +29,7 @@ const typeAware = testCase => {
 			parser: typescriptEslintParser,
 			parserOptions: {
 				...testCase.languageOptions?.parserOptions,
-				projectService: {allowDefaultProject: ['*.ts']},
+				projectService: {allowDefaultProject: ['*.js', '*.ts']},
 			},
 		},
 	};
@@ -55,6 +55,509 @@ const onlyIsPrefixOptions = {
 		requires: false,
 	},
 };
+
+test({
+	valid: [{
+		code: '/** @param flag {string} Description. */ function check(flag = false) { return flag; }',
+		options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+	}, {
+		code: '/** @param flag {unknown} Description. */ function check(flag = false) { return flag; }',
+		options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+	}],
+	invalid: [
+		...[
+			[
+				'/** @param flag {boolean} Description with flag. */ function check(flag) { return flag; }',
+				'/** @param isFlag {boolean} Description with flag. */ function check(isFlag) { return isFlag; }',
+			],
+			[
+				'/** @arg flag {Boolean} Description. */ function check(flag) { return flag; }',
+				'/** @arg isFlag {Boolean} Description. */ function check(isFlag) { return isFlag; }',
+			],
+			[
+				'/** @argument [flag] {boolean} Description. */ function check(flag) { return flag; }',
+				'/** @argument [isFlag] {boolean} Description. */ function check(isFlag) { return isFlag; }',
+			],
+			[
+				'/** @param [flag=false] {boolean} Description. */ function check(flag = false) { return flag; }',
+				'/** @param [isFlag=false] {boolean} Description. */ function check(isFlag = false) { return isFlag; }',
+			],
+			[
+				'/**\r\n * @param flag {boolean} Keep flag in the description.\r\n */\r\nfunction check(flag = source) {\r\n  return flag;\r\n}',
+				'/**\r\n * @param isFlag {boolean} Keep flag in the description.\r\n */\r\nfunction check(isFlag = source) {\r\n  return isFlag;\r\n}',
+			],
+		].map(([code, output]) => ({
+			code,
+			options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{messageId: 'rename', data: {replacement: 'isFlag'}, output}],
+			}],
+		})),
+		typescript({
+			code: '/** @param flag {string} Description. */ function check(flag: boolean) { return flag; }',
+			options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isFlag'},
+					output: '/** @param isFlag {string} Description. */ function check(isFlag: boolean) { return isFlag; }',
+				}],
+			}],
+		}),
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		...[
+			[
+				'/** @param{boolean} flag */ function check(flag) { return flag; }',
+				'/** @param{boolean} isFlag */ function check(isFlag) { return isFlag; }',
+			],
+			[
+				'/** @arg{Boolean} flag */ function check(flag = false) { return flag; }',
+				'/** @arg{Boolean} isFlag */ function check(isFlag = false) { return isFlag; }',
+			],
+			[
+				'/** @argument{boolean} [flag] */ function check(flag) { return flag; }',
+				'/** @argument{boolean} [isFlag] */ function check(isFlag) { return isFlag; }',
+			],
+			[
+				'/** @param{boolean} [flag=false] Description with flag. */ function check(flag = false) { return flag; }',
+				'/** @param{boolean} [isFlag=false] Description with flag. */ function check(isFlag = false) { return isFlag; }',
+			],
+			[
+				'/** @argument{boolean}flag */ function check(flag = false) { return flag; }',
+				'/** @argument{boolean}isFlag */ function check(isFlag = false) { return isFlag; }',
+			],
+			[
+				'/**\r\n * @param{boolean} [flag=false] Keep flag in the description.\r\n */\r\nfunction check(flag = false) {\r\n  return flag;\r\n}',
+				'/**\r\n * @param{boolean} [isFlag=false] Keep flag in the description.\r\n */\r\nfunction check(isFlag = false) {\r\n  return isFlag;\r\n}',
+			],
+		].map(([code, output]) => ({
+			code,
+			options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{messageId: 'rename', data: {replacement: 'isFlag'}, output}],
+			}],
+		})),
+		...['boolean', 'string'].map(documentedType => typescript({
+			code: `/** @param{${documentedType}} flag */ function check(flag: boolean) { return flag; }`,
+			options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isFlag'},
+					output: `/** @param{${documentedType}} isFlag */ function check(isFlag: boolean) { return isFlag; }`,
+				}],
+			}],
+		})),
+	],
+});
+
+/* eslint-disable no-template-curly-in-string */
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [wrap('/** @param {string} text */ function run(text, pattern) { const ready = text.replace(pattern, "").includes("x"); consume(ready); }')],
+		invalid: [
+			...['Map<string, number>', 'Set<string>', 'WeakMap<object, number>', 'WeakSet<object>', 'Map<string, number> | Set<string>'].map(type => [
+				`/** @param {${type}} values */ function run(values, key) { const ready = values.delete(key); consume(ready); }`,
+				`/** @param {${type}} values */ function run(values, key) { const isReady = values.delete(key); consume(isReady); }`,
+			]),
+			...[
+				'Reflect.defineProperty(target, key, descriptor)',
+				'Reflect.isExtensible(target)',
+				'Reflect.preventExtensions(target)',
+				'Reflect.set(target, key, value)',
+				'Reflect.setPrototypeOf(target, prototype)',
+			].map(expression => [
+				`/** @param {object} target */ function run(target, key, descriptor, value, prototype) { const ready = ${expression}; consume(ready); }`,
+				`/** @param {object} target */ function run(target, key, descriptor, value, prototype) { const isReady = ${expression}; consume(isReady); }`,
+			]),
+			[
+				'/** @param {string} text */ function run(text) { const ready = String.raw`prefix${text}`.includes("x"); consume(ready); }',
+				'/** @param {string} text */ function run(text) { const isReady = String.raw`prefix${text}`.includes("x"); consume(isReady); }',
+			],
+			[
+				'function run(template, value) { const ready = String.raw(template, value).startsWith("x"); consume(ready); }',
+				'function run(template, value) { const isReady = String.raw(template, value).startsWith("x"); consume(isReady); }',
+			],
+			...['Array<string>', 'Uint8Array', 'BigInt64Array'].map(type => [
+				`/** @param {${type}} values */ function run(values) { const ready = values.join().includes("x"); consume(ready); }`,
+				`/** @param {${type}} values */ function run(values) { const isReady = values.join().includes("x"); consume(isReady); }`,
+			]),
+			[
+				'/** @param {string} text */ function run(text) { const ready = text.toWellFormed().isWellFormed(); consume(ready); }',
+				'/** @param {string} text */ function run(text) { const isReady = text.toWellFormed().isWellFormed(); consume(isReady); }',
+			],
+			...['URLSearchParams', 'Headers', 'FormData'].map(type => [
+				`/** @param {${type}} values */ function run(values) { const ready = values.has("key"); consume(ready); }`,
+				`/** @param {${type}} values */ function run(values) { const isReady = values.has("key"); consume(isReady); }`,
+			]),
+			[
+				'/** @param {string} text */ function run(text) { const ready = text.trim().includes("x"); consume(ready); }',
+				'/** @param {string} text */ function run(text) { const isReady = text.trim().includes("x"); consume(isReady); }',
+			],
+			[
+				'/** @returns {string} */ function read() { return source; } const ready = read().toUpperCase().startsWith("X"); consume(ready);',
+				'/** @returns {string} */ function read() { return source; } const isReady = read().toUpperCase().startsWith("X"); consume(isReady);',
+			],
+		].map(([code, output]) => wrap({
+			code,
+			output,
+			options: [onlyIsPrefixOptions],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{messageId: 'rename', data: {replacement: 'isReady'}, output}],
+			}],
+		})),
+	});
+}
+
+/* eslint-enable no-template-curly-in-string */
+
+// Grouping nullish union members must not change the getter and binding naming policies.
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [
+			'/** @returns {boolean | (null | undefined)} */ function ready() { return source; }',
+			'/** @type {boolean | (null | undefined)} */ const ready = source;',
+			'/** @param {boolean | (null | undefined)} ready */ function run(ready) {}',
+			'const task = {/** @type {boolean | (null | undefined)} */ ready: source};',
+			'class Task { /** @type {boolean | (null | undefined)} */ ready = source; }',
+		].map(code => wrap({code, options: [{checkMethods: 'always', checkFields: 'always'}]})),
+		invalid: [
+			'const task = {/** @returns {boolean | (null | undefined)} */ get ready() { return source; }};',
+			'class Task { /** @return {(null | undefined) | boolean} */ get ready() { return source; } }',
+			'class Task { /** @type {boolean | (Null | Undefined)} */ static get ready() { return source; } }',
+		].map(code => wrap({
+			code,
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 0}],
+		})),
+	});
+}
+
+// Unsupported promise return documentation stays unresolved through unions and nullable wrappers.
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [
+			'/** @returns {Promise<boolean> | undefined} */ function isReady() { return source; }',
+			'/** @returns {?PromiseLike<boolean>} */ function isReady() { return source; }',
+			'/** @returns {PromiseLike<boolean> | null} */ const isReady = () => source;',
+			'/** @returns {Promise<boolean> | PromiseLike<boolean>} */ const isReady = function () { return source; };',
+			'/** @returns {Promise<boolean> | string} */ function isReady() { return source; }',
+			'/** @returns {?Promise<boolean>} */ export function isReady() { return true; }',
+		].map(code => wrap(code)),
+		invalid: [
+			...[
+				'/** @returns {Array<Promise<boolean>>} */ function isReady() { return source; }',
+				'/** @returns {() => Promise<boolean>} */ function isReady() { return source; }',
+				'/** @returns {{task: Promise<boolean>}} */ function isReady() { return source; }',
+			].map(code => ({code, errors: [{messageId: 'non-boolean-prefix', suggestions: 0}]})),
+			{
+				code: 'const task = {/** @returns {?Promise<boolean>} */ get isReady() { return source; }};',
+				options: [{checkMethods: 'always'}],
+				errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+			},
+		].map(testCase => wrap(testCase)),
+	});
+}
+
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [],
+		invalid: [wrap({
+			code: '/** @param {Uint8Array} values */ function run(values, cache) { const ready = (cache = values).some(predicate); consume(ready); }',
+			output: '/** @param {Uint8Array} values */ function run(values, cache) { const isReady = (cache = values).some(predicate); consume(isReady); }',
+			options: [onlyIsPrefixOptions],
+			errors: 1,
+		})],
+	});
+}
+
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [
+			'/** @type {Object} */ const isOptions = source;',
+			'/** @type {object} */ const isOptions = source;',
+			'/** @param {Object<string, boolean>} options */ function run(options) {}',
+		].map(code => wrap(code)),
+		invalid: [
+			'/** @param {Object<string, boolean>} isOptions */ function run(isOptions) {}',
+			'/** @returns {Object.<string, boolean>} */ function isOptions() { return source; }',
+		].map(code => wrap({code, errors: [{messageId: 'non-boolean-prefix'}]})),
+	});
+}
+
+for (const wrap of [typescript, typeAware]) {
+	test({
+		valid: [
+			'/** @param {string} text */ function run(text) { const ready = (text as {includes(): string}).includes(); consume(ready); }',
+			'/** @param {boolean} isFlag */ function run(isFlag) { const ready = isFlag as string; consume(ready); }',
+			'/** @param {boolean} isFlag */ function run(isFlag) { const ready = <boolean | string>isFlag; consume(ready); }',
+		].map(code => wrap(code)),
+		invalid: [wrap({
+			code: 'function run() { const ready = (source as string).includes("x"); consume(ready); }',
+			output: 'function run() { const isReady = (source as string).includes("x"); consume(isReady); }',
+			options: [onlyIsPrefixOptions],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 1}],
+		})],
+	});
+}
+
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [],
+		invalid: [
+			['string', 'text', '(flag ? text : "fallback").startsWith("x")'],
+			['Uint8Array', 'values', '(effect(), values).some(predicate)'],
+		].map(([type, parameter, expression]) => wrap({
+			code: `/** @param {${type}} ${parameter} */ function run(${parameter}) { const ready = ${expression}; consume(ready); }`,
+			output: `/** @param {${type}} ${parameter} */ function run(${parameter}) { const isReady = ${expression}; consume(isReady); }`,
+			options: [onlyIsPrefixOptions],
+			errors: 1,
+		})),
+	});
+}
+
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [],
+		// eslint-disable-next-line no-template-curly-in-string -- Test expressions contain template literal source.
+		invalid: ['new Uint8Array(length).some(predicate)', '`${value}`.startsWith("x")'].map(expression => wrap({
+			code: `function run() { const ready = ${expression}; consume(ready); }`,
+			output: `function run() { const isReady = ${expression}; consume(isReady); }`,
+			options: [onlyIsPrefixOptions],
+			errors: 1,
+		})),
+	});
+}
+
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [
+			'/** @param {function(): boolean | undefined=} ready */ function run(ready) {}',
+			'/** @param {() => boolean | string=} ready */ function run(ready) {}',
+			'/** @param {function(): function(): boolean=} ready */ function run(ready) {}',
+		].map(code => wrap(code)),
+		invalid: [
+			'function(): boolean=',
+			'() => boolean=',
+			'(function(): boolean)=',
+			'(() => boolean)=',
+		].map(type => wrap({
+			code: `/** @param {${type}} ready Description. */ function run(ready) { consume(ready()); }`,
+			options: [onlyIsPrefixOptions],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isReady'},
+					output: `/** @param {${type}} isReady Description. */ function run(isReady) { consume(isReady()); }`,
+				}],
+			}],
+		})),
+	});
+}
+
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [
+			'/** @type {function(this): boolean} */ let ready;',
+			'/** @param {function(this): boolean} ready */ function run(ready) {}',
+			'/** @type {{(): boolean; label: string}} */ let isReady;',
+			'/** @type {{(): unknown; (value: string): boolean}} */ let ready;',
+			'/** @type {{(): unknown; (value: string): boolean}} */ let isReady;',
+			'/** @type {{(): boolean | undefined}} */ let ready;',
+			'/** @type {{(): boolean | undefined}} */ let isReady;',
+			'/** @returns {{(): boolean}} */ function makePredicate() { return source; }',
+		].map(code => wrap(code)),
+		invalid: [
+			{
+				code: '/** @type {{(): boolean; label: string}} */ let ready;',
+				options: [onlyIsPrefixOptions],
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					suggestions: [{
+						messageId: 'rename',
+						output: '/** @type {{(): boolean; label: string}} */ let isReady;',
+					}],
+				}],
+			},
+			{
+				code: '/**\r\n * @param {{(): boolean; (value: string): boolean}} [ready=source] Description.\r\n */\r\nfunction run(ready = source) { return ready(); }',
+				options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					suggestions: [{
+						messageId: 'rename',
+						output: '/**\r\n * @param {{(): boolean; (value: string): boolean}} [isReady=source] Description.\r\n */\r\nfunction run(isReady = source) { return isReady(); }',
+					}],
+				}],
+			},
+			...[
+				'/** @type {{(): boolean; (value: string): string}} */ let isReady;',
+				'/** @type {{(): () => boolean}} */ let isReady;',
+				'/** @type {{readonly(): boolean}} */ let isReady;',
+			].map(code => ({code, errors: [{messageId: 'non-boolean-prefix'}]})),
+		].map(testCase => wrap(testCase)),
+	});
+}
+
+test.snapshot({
+	valid: [
+		'/** @param {boolean} isReferrerAllowed */ function checkSecureRel(isReferrerAllowed) {}',
+		'/** @type {boolean} */ let isFoo;',
+	],
+	invalid: [
+		'/** @param {boolean} allowReferrer */ function checkSecureRel(allowReferrer) {}',
+		'/** @type {boolean} */ let foo;',
+		{
+			code: '/** @param {boolean} value */ function check(value = false) { return value; }',
+			options: [onlyIsPrefixOptions],
+		},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: '/** @param {boolean} value */ function check(value = false) { return value; }',
+		options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+		errors: [{
+			messageId: 'consistent-boolean-name',
+			suggestions: [{
+				messageId: 'rename',
+				data: {replacement: 'isValue'},
+				output: '/** @param {boolean} isValue */ function check(isValue = false) { return isValue; }',
+			}],
+		}],
+	}, typescript({
+		code: '/** @param {boolean} value */ function check(value: boolean) { return value; }',
+		options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+		errors: [{
+			messageId: 'consistent-boolean-name',
+			suggestions: [{
+				messageId: 'rename',
+				data: {replacement: 'isValue'},
+				output: '/** @param {boolean} isValue */ function check(isValue: boolean) { return isValue; }',
+			}],
+		}],
+	})],
+});
+
+test.snapshot({
+	valid: [
+		'/** @type {string} */ const value = true;',
+		'/** @type {unknown} */ const value = true;',
+		'/** @type {boolean | undefined} */ let value;',
+		'/** @type {?boolean} */ let isReady;',
+		'/** @param {boolean | undefined} value */ function run(value) {}',
+		'/** @param {boolean | string} value */ function run(value) {}',
+		'/** @param {boolean} different */ function run(value) {}',
+		'/* @param {boolean} value */ function run(value) {}',
+		'/** @param {boolean} value\n * @param {string} value */ function run(value) {}',
+		'/** @type {boolean */ let value;',
+		'/** @type {boolean} */ let first, second;',
+		'/** @type {boolean} */ let value; value = "yes";',
+		'/** @returns {?boolean} */ function isReady() { return value; }',
+		'/** @returns {unknown} */ function check() { return true; }',
+		'/** @returns {Promise<boolean>} */ async function isReady() { return true; }',
+		'/** @returns {Promise<boolean>} */ function isReady() { return value; }',
+		{
+			code: 'const task = {/** @returns {?boolean} */ get isReady() { return value; }};',
+			options: [{checkMethods: 'always'}],
+		},
+		{
+			code: 'const task = {/** @returns {unknown} */ get ready() { return true; }};',
+			options: [{checkMethods: 'always'}],
+		},
+		typescript('/** @type {boolean} */ let value: string;'),
+		typescript('/** @param {boolean} value */ function run(value: string) {}'),
+	],
+	invalid: [
+		'/** @param {boolean} [value] */ function run(value) {}',
+		'/** @arg {Boolean} value */ const run = value => {};',
+		'/** @argument {true | false} value */ const run = function (value) {};',
+		'/** @type {boolean} */ export let value;',
+		'/** @type {string} */ let isReady;',
+		'/** @type {Array<boolean>} */ let isReady;',
+		'/** @type {() => boolean} */ let ready;',
+		'/** @param {string} isReady */ function run(isReady) {}',
+		'/** @returns {boolean} */ function ready() { return value; }',
+		'/** @return {boolean} */ const ready = () => value;',
+		'/** @returns {string} */ function isReady() { return true; }',
+		{
+			code: 'const task = {/** @type {boolean} */ ready: value};',
+			options: [{checkFields: 'always'}],
+		},
+		{
+			code: 'class Task { /** @type {boolean} */ ready; }',
+			options: [{checkFields: 'always'}],
+		},
+		{
+			code: 'const task = {/** @returns {boolean} */ ready() { return value; }};',
+			options: [{checkMethods: 'always'}],
+		},
+		{
+			code: 'class Task { /** @returns {boolean} */ ready() { return value; } }',
+			options: [{checkMethods: 'always'}],
+		},
+		{
+			code: 'const task = {/** @returns {?boolean} */ get ready() { return value; }};',
+			options: [{checkMethods: 'always'}],
+		},
+		typescript('/** @param {boolean} value */ function run(value) {}'),
+		typescript('/** @type {boolean} */ let value;'),
+		typescript('/** @type {string} */ let value: boolean;'),
+		...[
+			'/** @param {boolean} value */ function run(value) {}',
+			'/** @typedef {boolean} Flag */\n/** @type {Flag} */ let value;',
+			'/** @typedef {boolean} Flag */\n/** @returns {Flag} */ function ready() { return value; }',
+		].map(code => ({
+			...typeAware(code),
+			filename: 'file.js',
+		})),
+	].map(testCase => {
+		testCase = typeof testCase === 'string' ? {code: testCase} : testCase;
+		return {...testCase, options: [{...onlyIsPrefixOptions, ...testCase.options?.[0]}]};
+	}),
+});
+
+test({
+	valid: [
+		'/** @type {() => boolean} */ const isValue = source; const isReady = computed(isValue);',
+		'/** @type {() => boolean} */ let isValue; const isReady = computed(isValue);',
+		'/** @param {() => boolean} isValue */ function run(isValue) { const isReady = computed(isValue); }',
+		'/** @type {unknown} */ const isValue = (): boolean => true; const isReady = computed(isValue);',
+	].map(code => typeAware({
+		code: `declare function computed(getter: () => boolean): {value: boolean}; ${code}`,
+		options: [{checkArguments: 'never'}],
+	})),
+	invalid: [],
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: '/**\r\n * @param {boolean} [value=false] Description.\r\n */\r\nfunction check(value = false) {\r\n  return value;\r\n}',
+		options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+		errors: [{
+			messageId: 'consistent-boolean-name',
+			suggestions: [{
+				messageId: 'rename',
+				data: {replacement: 'isValue'},
+				output: '/**\r\n * @param {boolean} [isValue=false] Description.\r\n */\r\nfunction check(isValue = false) {\r\n  return isValue;\r\n}',
+			}],
+		}],
+	}],
+});
 
 test({
 	valid: [
@@ -3612,3 +4115,1396 @@ test({
 		}],
 	})],
 });
+
+// Documentation edits follow each suggestion's prefix, including custom prefixes.
+test({
+	valid: [],
+	invalid: [{
+		code: '/** @param {boolean} value Keep value here. */ function run(value) { consume(value); }',
+		options: [{
+			...onlyIsPrefixOptions,
+			checkFunctions: 'never',
+			prefixes: {
+				...onlyIsPrefixOptions.prefixes, is: false, can: true, accepts: true,
+			},
+		}],
+		errors: [{
+			messageId: 'consistent-boolean-name',
+			suggestions: [
+				{
+					messageId: 'rename',
+					data: {replacement: 'canValue'},
+					output: '/** @param {boolean} canValue Keep value here. */ function run(canValue) { consume(canValue); }',
+				},
+				{
+					messageId: 'rename',
+					data: {replacement: 'acceptsValue'},
+					output: '/** @param {boolean} acceptsValue Keep value here. */ function run(acceptsValue) { consume(acceptsValue); }',
+				},
+			],
+		}],
+	}],
+});
+
+// Parameter suggestions preserve public exports and unrelated shadowed bindings.
+for (const [code, output] of [
+	[
+		'/** @param {boolean} value */ export default function run(value) { consume(value); }',
+		'/** @param {boolean} isValue */ export default function run(isValue) { consume(isValue); }',
+	],
+	[
+		'/** @param {boolean} value */ function run(value) { function child(value) { consume(value); } consume(value); }',
+		'/** @param {boolean} isValue */ function run(isValue) { function child(value) { consume(value); } consume(isValue); }',
+	],
+	[
+		'/** @param {boolean} value */ function run(value) { return <Child value={value} />; }',
+		'/** @param {boolean} isValue */ function run(isValue) { return <Child value={isValue} />; }',
+	],
+]) {
+	test({
+		valid: [],
+		invalid: [{
+			code,
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+			options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{messageId: 'rename', data: {replacement: 'isValue'}, output}],
+			}],
+		}],
+	});
+}
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: '/** @type {boolean} */ const Flag = source; const element = <Flag />;',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+			errors: [{messageId: 'consistent-boolean-name', suggestions: []}],
+		},
+		typescript({
+			code: '/** @param {unknown} [value] */ function run(value /* keep */ ?: boolean) { consume(value); }',
+			options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isValue'},
+					output: '/** @param {unknown} [isValue] */ function run(isValue /* keep */ ?: boolean) { consume(isValue); }',
+				}],
+			}],
+		}),
+	],
+});
+
+test({
+	valid: [],
+	invalid: [{
+		code: '/** @param {boolean} first\n * @arg {boolean} second */ function run(first, second) { consume({first, second}); }',
+		options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+		errors: [
+			{
+				messageId: 'consistent-boolean-name',
+				data: {name: 'first', prefixes: '`is`'},
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isFirst'},
+					output: '/** @param {boolean} isFirst\n * @arg {boolean} second */ function run(isFirst, second) { consume({first: isFirst, second}); }',
+				}],
+			},
+			{
+				messageId: 'consistent-boolean-name',
+				data: {name: 'second', prefixes: '`is`'},
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isSecond'},
+					output: '/** @param {boolean} first\n * @arg {boolean} isSecond */ function run(first, isSecond) { consume({first, second: isSecond}); }',
+				}],
+			},
+		],
+	}],
+});
+
+test({
+	valid: [
+		{
+			code: '/** @param {boolean} value */ function run(value) {}',
+			options: [{checkArguments: 'prohibit'}],
+		},
+		{
+			code: '/** @param {string} isValue */ function run(isValue) {}',
+			options: [{checkArguments: 'never'}],
+		},
+		{
+			code: '/** @param {boolean} value */ function run(value) {}',
+			options: [{ignore: ['^value$']}],
+		},
+		'/** @param {boolean} value */ function run(value) { value = "changed"; }',
+	],
+	invalid: [{
+		code: '/** @param {boolean} isValue */ function run(isValue) { function mutate() { isValue++; } }',
+		errors: [{messageId: 'non-boolean-prefix'}],
+	}],
+});
+
+// Parameter renames preserve the documentation around the exact name token.
+for (const [code, output] of [
+	[
+		'/** @param {boolean} value */ function run(value, isNext = value) { consume({value, isNext}); }',
+		'/** @param {boolean} isValue */ function run(isValue, isNext = isValue) { consume({value: isValue, isNext}); }',
+	],
+	[
+		'/** @param {boolean} value */ function run(/** @type {boolean} */ value) { consume(value); }',
+		'/** @param {boolean} isValue */ function run(/** @type {boolean} */ isValue) { consume(isValue); }',
+	],
+	[
+		'/** @arg {Boolean} value A value. */ const run = value => consume(value);',
+		'/** @arg {Boolean} isValue A value. */ const run = isValue => consume(isValue);',
+	],
+	[
+		'/** @argument {boolean=} value */ function run(value) { consume(value); }',
+		'/** @argument {boolean=} isValue */ function run(isValue) { consume(isValue); }',
+	],
+	[
+		'/** @param {boolean} [value = false] Keep value in the description. */ function run(value) { consume(value); }',
+		'/** @param {boolean} [isValue = false] Keep value in the description. */ function run(isValue) { consume(isValue); }',
+	],
+	[
+		'/** @param {boolean} [value="[value]"] */ function run(value) { consume(value); }',
+		'/** @param {boolean} [isValue="[value]"] */ function run(isValue) { consume(isValue); }',
+	],
+	[
+		'/** 😀\n * @param {(true | false)} value\n * Keep value here.\n */ function run(value) { consume(value); }',
+		'/** 😀\n * @param {(true | false)} isValue\n * Keep value here.\n */ function run(isValue) { consume(isValue); }',
+	],
+	[
+		'/**\r\n * @param {\r\n * Boolean\r\n * } value Description.\r\n */\r\nconst run = function (value) {\r\n    consume(value);\r\n};',
+		'/**\r\n * @param {\r\n * Boolean\r\n * } isValue Description.\r\n */\r\nconst run = function (isValue) {\r\n    consume(isValue);\r\n};',
+	],
+	[
+		'const task = {/** @param {!boolean} value */ run(value) { consume(value); }};',
+		'const task = {/** @param {!boolean} isValue */ run(isValue) { consume(isValue); }};',
+	],
+	[
+		'class Task { /** @param {true | false} value */ run(value) { consume(value); } }',
+		'class Task { /** @param {true | false} isValue */ run(isValue) { consume(isValue); } }',
+	],
+	[
+		'/** @param {string} other\n * @param {boolean} value\n */ function run(other, value) { consume({value}, other); }',
+		'/** @param {string} other\n * @param {boolean} isValue\n */ function run(other, isValue) { consume({value: isValue}, other); }',
+	],
+]) {
+	test({
+		valid: [],
+		invalid: [{
+			code,
+			options: [{...onlyIsPrefixOptions, checkFunctions: 'never', checkMethods: 'never'}],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{messageId: 'rename', data: {replacement: 'isValue'}, output}],
+			}],
+		}],
+	});
+}
+
+test({
+	valid: [],
+	invalid: [
+		typescript({
+			code: 'class Task { /** @param {boolean} ready */ constructor(public ready) {} }',
+			options: [{checkArguments: 'always', checkFields: 'never'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 0}],
+		}),
+		typescript({
+			code: 'class Task { /** @param {string} isReady */ constructor(private isReady) {} }',
+			options: [{checkArguments: 'never', checkFields: 'prohibit'}],
+			errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+		}),
+		{
+			code: '/** @param {Array<{matches(value: string): boolean}>} values */ function run(values) { const ready = values.some(predicate); }',
+			output: '/** @param {Array<{matches(value: string): boolean}>} values */ function run(values) { const isReady = values.some(predicate); }',
+			options: [onlyIsPrefixOptions],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 1}],
+		},
+	],
+});
+
+// A shorthand property's own documentation takes precedence over its referenced binding.
+for (const parserCase of [value => value, typescript, typeAware]) {
+	test({
+		valid: [
+			'const isReady = "text"; const task = {/** @type {boolean} */ isReady};',
+			'const ready = source; const task = {/** @type {unknown} */ ready};',
+			'const ready = source; const task = {/** @type {boolean | undefined} */ ready};',
+		].map(code => parserCase({code, options: [{checkVariables: 'never', checkFields: 'always'}]})),
+		invalid: [
+			parserCase({
+				code: 'const isReady = true; const task = {/** @type {string} */ isReady};',
+				options: [{checkVariables: 'never', checkFields: 'always'}],
+				errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+			}),
+			parserCase({
+				code: 'const ready = "text"; const task = {/** @type {boolean} */ ready};',
+				options: [{checkVariables: 'never', checkFields: 'always'}],
+				errors: [{messageId: 'consistent-boolean-name', suggestions: 0}],
+			}),
+		],
+	});
+}
+
+// Unsupported or malformed type expressions must not become evidence from their initializer or nested types.
+test({
+	valid: [
+		'/** @type {{1.5n: boolean}} */ let isReady;',
+		'/** @type {Array<{1e3n: boolean}>} */ let isReady;',
+		'/** @type {"left\n * right"} */ let isReady;',
+		'/** @returns {"left\r\n * right"} */ function isReady() { return source; }',
+		'/** @type {Array<} */ const value = true;',
+		'/** @type {boolean |} */ const value = true;',
+		'/** @type {boolean &} */ const value = true;',
+		'/** @type {boolean string} */ const value = true;',
+		'/** @type {Array<T extends boolean ? string : number>} */ const value = true;',
+		'/** @type {keyof Task} */ const value = true;',
+		'/** @type {typeof task} */ const value = true;',
+		'/** @type {Task["ready"]} */ const value = true;',
+		'/** @type {function(,): boolean} */ const value = () => true;',
+		'/** @type {(value:: string) => boolean} */ const value = () => true;',
+		'/** @type {Array<function(,): boolean>} */ const value = true;',
+		'/** @type {{ready: }} */ const value = true;',
+		'/** @type {Array<{ready: }>} */ const value = true;',
+		'/** @type {`ready`} */ const value = true;',
+		'/** @type {Array<`ready`>} */ const value = true;',
+		'/** @type {boolean | undefined} */ const value = unknownValue;',
+		'/** @type {boolean=} */ const value = unknownValue;',
+		'/** @type {boolean?} */ const isValue = unknownValue;',
+		'/** @type {function(): boolean | undefined} */ const value = unknownValue;',
+		'/** @type {() => boolean | undefined} */ const value = unknownValue;',
+		'/** @type {Array<boolean>} */ const value = unknownValue;',
+		'/** @type {boolean[]} */ const value = unknownValue;',
+		'/** @type {{ready: boolean}} */ const value = unknownValue;',
+		'/** @returns {boolean | undefined} */ function value() { return unknownValue; }',
+		'/** @returns {Array<boolean>} */ function value() { return unknownValue; }',
+		'/** @returns {boolean |} */ function value() { return true; }',
+	],
+	invalid: [],
+});
+
+test({
+	valid: [
+		'/** @callback Check\n * @param {boolean} value\n * @returns {string} */ function run(value) {}',
+		'/** @typedef {function(): string} Check\n * @returns {string} */ function isReady() { return source; }',
+	],
+	invalid: [
+		{
+			code: '/** @type {{.5: boolean}} */ let isReady;',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		},
+		{
+			code: '/** @returns {string} */ function text() { return source; } const ready = text().includes("x");',
+			output: '/** @returns {string} */ function text() { return source; } const isReady = text().includes("x");',
+			options: [onlyIsPrefixOptions],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isReady'},
+					output: '/** @returns {string} */ function text() { return source; } const isReady = text().includes("x");',
+				}],
+			}],
+		},
+		{
+			code: '/** @callback Check\n * @param {boolean} value */ function run(value = false) { consume(value); }',
+			options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isValue'},
+					output: '/** @callback Check\n * @param {boolean} value */ function run(isValue = false) { consume(isValue); }',
+				}],
+			}],
+		},
+	],
+});
+
+test({
+	valid: [
+		'/** @overload\n * @param {boolean} value\n * @returns {string} */ function run(value) {}',
+		'/** @param {boolean} [value].ready */ function run(value) {}',
+	],
+	invalid: [
+		{
+			code: '/** @param {Array<{\n * active: boolean\n * label: string\n * }>} values */ function run(values) { const ready = values.some(predicate); }',
+			output: '/** @param {Array<{\n * active: boolean\n * label: string\n * }>} values */ function run(values) { const isReady = values.some(predicate); }',
+			options: [onlyIsPrefixOptions],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 1}],
+		},
+		{
+			code: '/** @param {boolean} [value].ready */ function run(value = false) { consume(value); }',
+			options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isValue'},
+					output: '/** @param {boolean} [value].ready */ function run(isValue = false) { consume(isValue); }',
+				}],
+			}],
+		},
+		{
+			code: '/** @overload\n * @param {boolean} value */ function run(value = false) { consume(value); }',
+			options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isValue'},
+					output: '/** @overload\n * @param {boolean} value */ function run(isValue = false) { consume(isValue); }',
+				}],
+			}],
+		},
+	],
+});
+
+// Callable annotations preserve the same unknown and nullish return states as native types.
+for (const annotation of ['() => unknown', '() => Unresolved', '() => any', '() => boolean | undefined', '() => ?boolean', 'function(): Unresolved', 'function(): (boolean | null)', '(() => unknown) | undefined']) {
+	test({
+		valid: [`/** @type {${annotation}} */ let isReady;`, `/** @type {${annotation}} */ let ready;`],
+		invalid: [],
+	});
+}
+
+test({
+	valid: [],
+	invalid: [
+		'/** @type {() => string} */ let isReady;',
+		'/** @type {() => Array<boolean>} */ let isReady;',
+		'/** @type {() => () => boolean} */ let isReady;',
+	].map(code => ({code, errors: [{messageId: 'non-boolean-prefix'}]})),
+});
+
+// Type-free parameter documentation still needs to follow a rename inferred from code.
+for (const [code, output] of [
+	[
+		'/** @param value Description mentioning value. */ function run(value = false) { consume(value); }',
+		'/** @param isValue Description mentioning value. */ function run(isValue = false) { consume(isValue); }',
+	],
+	[
+		'/** @arg [value=false] */ function run(value = false) { consume(value); }',
+		'/** @arg [isValue=false] */ function run(isValue = false) { consume(isValue); }',
+	],
+	[
+		'/**\r\n * @argument [value = false] Preserve value.\r\n */\r\nfunction run(value = false) {\r\n  consume(value);\r\n}',
+		'/**\r\n * @argument [isValue = false] Preserve value.\r\n */\r\nfunction run(isValue = false) {\r\n  consume(isValue);\r\n}',
+	],
+	[
+		'/** @param value */ function run(value: boolean) { consume(value); }',
+		'/** @param isValue */ function run(isValue: boolean) { consume(isValue); }',
+	],
+]) {
+	test({
+		valid: [],
+		invalid: [{
+			code,
+			languageOptions: {parser: parsers.typescript},
+			options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{messageId: 'rename', data: {replacement: 'isValue'}, output}],
+			}],
+		}],
+	});
+}
+
+// Optional inline types use the same parameter naming policy as named optional tags.
+test({
+	valid: [],
+	invalid: [{
+		code: 'function run(/** @type {boolean=} */ value) { consume(value); }',
+		options: [onlyIsPrefixOptions],
+		errors: [{
+			messageId: 'consistent-boolean-name',
+			suggestions: [{
+				messageId: 'rename',
+				data: {replacement: 'isValue'},
+				output: 'function run(/** @type {boolean=} */ isValue) { consume(isValue); }',
+			}],
+		}],
+	}],
+});
+
+// Every callable intersection member contributes to the return contract.
+test({
+	valid: [
+		'/** @type {(() => boolean) & (() => string)} */ let ready;',
+		'/** @type {(() => boolean) & ((() => string) & {label: string})} */ let ready;',
+		'/** @type {(() => boolean) & (() => unknown)} */ let ready;',
+		'/** @type {(() => boolean) & (() => unknown)} */ let isReady;',
+		'/** @type {(() => boolean) & ({label: string} & {tag: string})} */ let isReady;',
+	],
+	invalid: [
+		{
+			code: '/** @type {(() => boolean) & (() => string)} */ let isReady;',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		},
+		{
+			code: '/** @type {(() => boolean) & ((() => string) & {label: string})} */ let isReady;',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		},
+		{
+			code: '/** @type {(() => boolean) & {label: string}} */ let ready;',
+			options: [onlyIsPrefixOptions],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 1}],
+		},
+		{
+			code: '/** @type {(() => boolean) & (() => true) & {label: string}} */ let ready;',
+			options: [onlyIsPrefixOptions],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 1}],
+		},
+		{
+			code: '/** @type {(() => boolean) & ({label: string} & {tag: string})} */ let ready;',
+			options: [onlyIsPrefixOptions],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 1}],
+		},
+	],
+});
+
+// Rename the documented token to the final collision-free identifier.
+for (const [code, output, replacement] of [
+	[
+		'/** @param {boolean} [value = false] Keep value. */ task.run = function (value, isValue) { consume(value, isValue); };',
+		'/** @param {boolean} [isValue_ = false] Keep value. */ task.run = function (isValue_, isValue) { consume(isValue_, isValue); };',
+		'isValue_',
+	],
+	[
+		'/** @arg {Boolean} value */ module.exports = value => consume({value});',
+		'/** @arg {Boolean} isValue */ module.exports = isValue => consume({value: isValue});',
+		'isValue',
+	],
+	[
+		'/** 😀\r\n * @argument {boolean} válue Keep válue.\r\n */ Task.prototype.run = function (válue) { consume(válue); };',
+		'/** 😀\r\n * @argument {boolean} isVálue Keep válue.\r\n */ Task.prototype.run = function (isVálue) { consume(isVálue); };',
+		'isVálue',
+	],
+]) {
+	test({
+		valid: [],
+		invalid: [{
+			code,
+			options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{messageId: 'rename', data: {replacement}, output}],
+			}],
+		}],
+	});
+}
+
+test({
+	valid: [
+		'/** @param {boolean} value */ task.run ||= function (value) { consume(value); };',
+		'/** @param {boolean} value */ consume(task.run = function (value) {});',
+		'/** @type {boolean} */ const first = source, second = source;',
+	],
+	invalid: [
+		{
+			code: 'const /** @type {boolean} */ value = source, other = source;',
+			output: 'const /** @type {boolean} */ isValue = source, other = source;',
+			options: [onlyIsPrefixOptions],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isValue'},
+					output: 'const /** @type {boolean} */ isValue = source, other = source;',
+				}],
+			}],
+		},
+		{
+			code: '/** @param {string} isValue */ task.run = function (isValue) {};',
+			errors: [{messageId: 'non-boolean-prefix'}],
+		},
+	],
+});
+
+// Unknown union members and nullish placeholders do not establish a non-boolean contract.
+for (const annotation of ['unknown | string', 'any | number', 'Unresolved | string', 'boolean | unknown | string', 'null', 'undefined', 'null | undefined', '() => (unknown | string)', '() => (null | undefined)']) {
+	test({
+		valid: [
+			`/** @type {${annotation}} */ let isReady;`,
+			typescript(`let isReady: ${annotation};`),
+		],
+		invalid: [],
+	});
+}
+
+test({
+	valid: [
+		typescript({
+			code: 'class Example { /** @type {boolean} */ value = source as string; }',
+			options: [{checkFields: 'always'}],
+		}),
+		typescript({
+			code: 'const object = {/** @type {boolean} */ value: (source as string)!};',
+			options: [{checkFields: 'always'}],
+		}),
+	],
+	invalid: [],
+});
+
+// Contextual type keywords can be ordinary callback parameter names.
+for (const wrap of [testCase => testCase, typescript]) {
+	test({
+		valid: [
+			wrap('/** @type {(is: string) => boolean | undefined} */ let ready;'),
+			wrap('/** @type {(is: keyof Options) => boolean} */ let ready;'),
+		],
+		invalid: [wrap({
+			code: '/** @param {(is: string) => boolean} ready */ function run(ready) { consume(ready("value")); }',
+			options: [onlyIsPrefixOptions],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isReady'},
+					output: '/** @param {(is: string) => boolean} isReady */ function run(isReady) { consume(isReady("value")); }',
+				}],
+			}],
+		})],
+	});
+}
+
+// Documented callable bindings keep React's required `use` prefix when checked or renamed.
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [
+			'/** @type {() => boolean} */ let useIsReady;',
+			'/** @type {(() => boolean) | undefined} */ let useReady;',
+			'/** @type {?(() => boolean)} */ let useIsReady;',
+			'/** @type {() => unknown} */ let useIsReady;',
+			'/** @type {Unresolved} */ let useIsReady;',
+			'/** @type {(value:) => boolean} */ let useIsReady;',
+			'/** @type {(() => boolean) | string} */ let useIsReady;',
+		].map(code => wrap(code)),
+		invalid: [
+			...['() => boolean', '(() => boolean) & {label: string}', '(() => boolean) | (() => true)'].map(type => wrap({
+				code: `/** @type {${type}} */ const useReady = source; useReady();`,
+				options: [onlyIsPrefixOptions],
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					data: {name: 'ready', prefixes: '`is`'},
+					suggestions: [{
+						messageId: 'rename',
+						data: {replacement: 'useIsReady'},
+						output: `/** @type {${type}} */ const useIsReady = source; useIsReady();`,
+					}],
+				}],
+			})),
+			...['() => string', '(() => string) | undefined', '(() => string)='].map(type => wrap({
+				code: `/** @type {${type}} */ let useIsReady;`,
+				errors: [{messageId: 'non-boolean-prefix', data: {name: 'isReady', prefix: 'is'}}],
+			})),
+			wrap({
+				code: '/** @type {boolean} */ const useReady = source;',
+				output: '/** @type {boolean} */ const isUseReady = source;',
+				options: [onlyIsPrefixOptions],
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					data: {name: 'useReady', prefixes: '`is`'},
+					suggestions: [{
+						messageId: 'rename',
+						output: '/** @type {boolean} */ const isUseReady = source;',
+					}],
+				}],
+			}),
+			wrap({
+				code: '/** @type {boolean | (() => boolean)} */ let useReady;',
+				options: [onlyIsPrefixOptions],
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					data: {name: 'useReady', prefixes: '`is`'},
+					suggestions: [{
+						messageId: 'rename',
+						output: '/** @type {boolean | (() => boolean)} */ let isUseReady;',
+					}],
+				}],
+			}),
+		],
+	});
+}
+
+for (const wrap of [typescript, typeAware]) {
+	test({
+		valid: [wrap('/** @type {() => boolean} */ const useIsReady: string = source;')],
+		invalid: [wrap({
+			code: '/** @type {() => boolean} */ const useReady: boolean = source;',
+			output: '/** @type {() => boolean} */ const isUseReady: boolean = source;',
+			options: [onlyIsPrefixOptions],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				data: {name: 'useReady', prefixes: '`is`'},
+				suggestions: [{
+					messageId: 'rename',
+					output: '/** @type {() => boolean} */ const isUseReady: boolean = source;',
+				}],
+			}],
+		})],
+	});
+}
+
+// Legacy primitive aliases use the same naming policies as their lowercase counterparts.
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [
+			'/** @returns {Void} */ function ready() {}',
+			'/** @type {boolean | Null | Undefined} */ let isReady;',
+		].map(code => wrap(code)),
+		invalid: [
+			'/** @returns {Void} */ function isReady() {}',
+			'/** @param {Void} isReady */ function run(isReady) {}',
+		].map(code => wrap({code, errors: [{messageId: 'non-boolean-prefix'}]})),
+	});
+}
+
+// Native function return annotations take precedence over conflicting callable JSDoc on the binding.
+for (const wrap of [typescript, typeAware]) {
+	for (const expression of [
+		value => `(${value})!`,
+		value => `(${value}) satisfies Function`,
+	]) {
+		test({
+			valid: [wrap(`const useIsReady = ${expression('(): boolean => true')};`)],
+			invalid: [wrap({
+				code: `const useReady = ${expression('(): boolean => true')};`,
+				options: [onlyIsPrefixOptions],
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					suggestions: [{
+						messageId: 'rename',
+						output: `const useIsReady = ${expression('(): boolean => true')};`,
+					}],
+				}],
+			})],
+		});
+
+		test({
+			valid: [
+				`/** @type {() => boolean} */ const ready = ${expression('(): string => "text"')};`,
+				`/** @type {() => string} */ const isReady = ${expression('(): boolean => true')};`,
+				`/** @type {() => boolean} */ const ready = ${expression('function* () { yield true; }')};`,
+				`/** @type {boolean} */ const isReady = ${expression('(): string => "text"')};`,
+				`/** @param {() => boolean} isReady */ function run(isReady = ${expression('(): string => "text"')}) {}`,
+			].map(code => wrap(code)),
+			invalid: [
+				wrap({
+					code: `/** @type {() => boolean} */ const isReady = ${expression('(): string => "text"')};`,
+					errors: [{messageId: 'non-boolean-prefix'}],
+				}),
+				wrap({
+					code: `/** @type {() => boolean} */ const isReady = ${expression('function* () { yield true; }')};`,
+					errors: [{messageId: 'non-boolean-prefix'}],
+				}),
+			],
+		});
+	}
+
+	test({
+		valid: [
+			'const task = {/** @type {() => boolean} */ ready: ((): string => "text")!};',
+			'class Task { /** @type {() => string} */ isReady = (((): boolean => true) satisfies Function)!; }',
+			'const task = {/** @type {() => boolean} */ ready: (function* () { yield true; })!};',
+		].map(code => wrap({code, options: [{checkFields: 'always'}]})),
+		invalid: [
+			['const task = {/** @type {() => boolean} */ isReady: ((): string => "text")!};', 'non-boolean-prefix'],
+			['class Task { /** @type {() => string} */ ready = (((): boolean => true) satisfies Function)!; }', 'consistent-boolean-name'],
+			['const task = {/** @type {() => boolean} */ isReady: (function* () { yield true; })!};', 'non-boolean-prefix'],
+		].map(([code, messageId]) => wrap({code, options: [{checkFields: 'always'}], errors: [{messageId}]})),
+	});
+
+	test({
+		valid: [
+			wrap('/** @type {() => boolean} */ const ready = ((() => true) as (() => unknown))!;'),
+			wrap('/** @returns {boolean} */ const ready = (() => source) as (() => string);'),
+		],
+		invalid: [
+			wrap({
+				code: '/** @returns {boolean} */ const isReady = ((<() => string>(() => source)) satisfies (() => string))!;',
+				errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+			}),
+			wrap({
+				code: 'const useReady = (() => true) as boolean;',
+				output: 'const isUseReady = (() => true) as boolean;',
+				options: [onlyIsPrefixOptions],
+				errors: [{messageId: 'consistent-boolean-name', suggestions: 1}],
+			}),
+			wrap({
+				code: 'const task = {ready: source satisfies boolean};',
+				options: [{checkFields: 'always'}],
+				errors: [{messageId: 'consistent-boolean-name'}],
+			}),
+			wrap({
+				code: '/** @type {() => boolean} */ const isReady = ((() => true) as (() => string))!;',
+				errors: [{messageId: 'non-boolean-prefix'}],
+			}),
+			wrap({
+				code: '/** @type {() => string} */ const ready = (((): boolean => true) satisfies Function)!;',
+				options: [onlyIsPrefixOptions],
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					suggestions: [{
+						messageId: 'rename',
+						output: '/** @type {() => string} */ const isReady = (((): boolean => true) satisfies Function)!;',
+					}],
+				}],
+			}),
+		],
+	});
+}
+
+for (const wrap of [typescript, typeAware]) {
+	test({
+		valid: [
+			'/** @type {() => string} */ const isReady = (): boolean => true;',
+			'/** @type {() => boolean} */ const ready = (): string => "text";',
+			'/** @type {() => boolean} */ const ready = (): void => {};',
+			'/** @type {() => boolean} */ const ready = (): unknown => source;',
+			'/** @type {() => string} */ const isReady = (): unknown => source;',
+			'/** @type {() => boolean} */ const ready = (): boolean | undefined => source;',
+			'/** @type {() => string} */ const isReady = (): boolean | undefined => source;',
+			'type Result = boolean; /** @type {function(): string} */ const isReady = (): Result => source;',
+			'/** @type {() => boolean} */ const isReady = (((): boolean => true) satisfies (() => boolean))!;',
+			'/** @type {() => string} */ const ready = (function (): string { return "text"; })!;',
+		].map(code => wrap(code)),
+		invalid: [
+			...[
+				'(function (): boolean { return true; })!',
+				'(((): boolean => true) satisfies (() => boolean))!',
+			].map(initializer => wrap({
+				code: `/** @type {() => boolean} */ const ready = ${initializer};`,
+				options: [onlyIsPrefixOptions],
+				errors: [{messageId: 'consistent-boolean-name', suggestions: 1}],
+			})),
+			wrap({
+				code: '/** @type {() => string} */ const ready = (): boolean => true;',
+				options: [onlyIsPrefixOptions],
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					suggestions: [{
+						messageId: 'rename',
+						data: {replacement: 'isReady'},
+						output: '/** @type {() => string} */ const isReady = (): boolean => true;',
+					}],
+				}],
+			}),
+			...['string', 'void'].map(returnType => wrap({
+				code: `/** @type {() => boolean} */ const isReady = (): ${returnType} => source;`,
+				errors: [{messageId: 'non-boolean-prefix'}],
+			})),
+		],
+	});
+}
+
+// Initializer return types do not replace scalar binding annotations or the contract of a supplied callback.
+for (const wrap of [typescript, typeAware]) {
+	test({
+		valid: [
+			'/** @type {boolean} */ const isReady = (): string => "text";',
+			'/** @type {string} */ const ready = (): boolean => true;',
+			'/** @type {unknown} */ const isReady = (): boolean => true;',
+		].map(code => wrap(code)),
+		invalid: [
+			wrap({
+				code: '/** @type {string} */ const isReady = (): boolean => true;',
+				errors: [{messageId: 'non-boolean-prefix'}],
+			}),
+			wrap({
+				code: '/** @param {() => string} isReady */ function run(isReady = (): boolean => true) {}',
+				errors: [{messageId: 'non-boolean-prefix'}],
+			}),
+			wrap({
+				code: '/** @param {() => boolean} ready */ function run(ready = (): string => "text") {}',
+				options: [onlyIsPrefixOptions],
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					suggestions: [{
+						messageId: 'rename',
+						data: {replacement: 'isReady'},
+						output: '/** @param {() => boolean} isReady */ function run(isReady = (): string => "text") {}',
+					}],
+				}],
+			}),
+		],
+	});
+	test({
+		valid: [
+			'const task = {/** @type {() => string} */ isReady: (): boolean => true};',
+			'const task = {/** @type {() => boolean} */ ready: (): string => "text"};',
+			'class Task { /** @type {() => string} */ isReady = (): boolean => true; }',
+			'class Task { /** @type {() => boolean} */ ready = (): string => "text"; }',
+		].map(code => wrap({code, options: [{checkFields: 'always'}]})),
+		invalid: [
+			['const task = {/** @type {() => string} */ ready: (): boolean => true};', 'consistent-boolean-name'],
+			['const task = {/** @type {() => boolean} */ isReady: (): string => "text"};', 'non-boolean-prefix'],
+			['class Task { /** @type {() => string} */ ready = (): boolean => true; }', 'consistent-boolean-name'],
+			['class Task { /** @type {() => boolean} */ isReady = (): string => "text"; }', 'non-boolean-prefix'],
+		].map(([code, messageId]) => wrap({code, options: [{checkFields: 'always'}], errors: [{messageId}]})),
+	});
+}
+
+// Generator initializers remain generators when their callable documentation claims a scalar result.
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [
+			'/** @type {() => boolean} */ const ready = function* () { yield true; };',
+			'/** @type {() => boolean} */ const ready = async function* () { yield true; };',
+		].map(code => wrap(code)),
+		invalid: [
+			'/** @type {() => boolean} */ const isReady = function* () { yield true; };',
+			'/** @type {() => boolean} */ const isReady = async function* () { yield true; };',
+		].map(code => wrap({code, errors: [{messageId: 'non-boolean-prefix'}]})),
+	});
+}
+
+// Native optionality keeps shared inference uncertain while naming still requires boolean prefixes.
+for (const wrap of [typescript, typeAware]) {
+	test({
+		valid: [],
+		invalid: [wrap({
+			code: '/** @param {boolean} ready */ function run(ready?) { consume(ready); }',
+			options: [onlyIsPrefixOptions],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'isReady'},
+					output: '/** @param {boolean} isReady */ function run(isReady?) { consume(isReady); }',
+				}],
+			}],
+		})],
+	});
+}
+
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [
+			'const task = { /** @type {boolean} */ get isReady() { return source; } };',
+			'class Task { /** @type {string} */ get ready() { return source; } }',
+			'const task = { /** @type {() => boolean} */ get ready() { return source; } };',
+			'class Task { /** @type {boolean} */ get [/** @type {boolean} */ function ready() { return "text"; }]() { return source; } }',
+			'class Task { /** @type {boolean}\n * @returns {string} */ get isReady() { return source; } }',
+		].map(code => wrap({code, options: [{checkMethods: 'always'}]})),
+		invalid: [
+			...[
+				'const task = { /** @type {boolean} */ get ready() { return source; } };',
+				'class Task { /** @type {Boolean} */ get ready() { return source; } }',
+			].map(code => wrap({code, options: [{checkMethods: 'always'}], errors: [{messageId: 'consistent-boolean-name'}]})),
+			...[
+				'const task = { /** @type {string} */ get isReady() { return source; } };',
+				'class Task { /** @type {Array<boolean>} */ get isReady() { return source; } }',
+			].map(code => wrap({code, options: [{checkMethods: 'always'}], errors: [{messageId: 'non-boolean-prefix'}]})),
+		],
+	});
+}
+
+for (const wrap of [typescript, typeAware]) {
+	test({
+		valid: [],
+		invalid: [
+			wrap({
+				code: 'class Task { /** @type {string} */ get ready(): boolean { return source; } }',
+				options: [{checkMethods: 'always'}],
+				errors: [{messageId: 'consistent-boolean-name'}],
+			}),
+			wrap({
+				code: 'const task = { /** @type {boolean} */ get isReady(): string { return source; } };',
+				options: [{checkMethods: 'always'}],
+				errors: [{messageId: 'non-boolean-prefix'}],
+			}),
+		],
+	});
+}
+
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: ['Promise<boolean>', 'PromiseLike<boolean>'].flatMap(type => [
+			`const task = { /** @type {${type}} */ get ready() { return true; } };`,
+			`class Task { /** @returns {${type}} */ get ready() { return true; } }`,
+		]).map(code => wrap({code, options: [{checkMethods: 'always'}]})),
+		invalid: ['Promise<boolean>', 'PromiseLike<boolean>'].flatMap(type => [
+			`const task = { /** @type {${type}} */ get isReady() { return source; } };`,
+			`class Task { /** @returns {${type}} */ get isReady() { return source; } }`,
+		]).map(code => wrap({
+			code,
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+		})),
+	});
+}
+
+for (const wrap of [typescript, typeAware]) {
+	test({
+		valid: ['Promise<boolean>', 'PromiseLike<boolean>'].map(type => wrap({
+			code: `class Task { get ready(): ${type} { return source; } }`,
+			options: [{checkMethods: 'always'}],
+		})),
+		invalid: ['Promise<boolean>', 'PromiseLike<boolean>'].map(type => wrap({
+			code: `const task = { get isReady(): ${type} { return source; } };`,
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+		})),
+	});
+}
+
+// Unknown documentation keeps syntax-only getters uncertain while type information can resolve them.
+for (const wrap of [testCase => testCase, typescript]) {
+	test({
+		valid: [
+			'const task = {/** @returns {unknown} */ get ready() { return true; }};',
+			'class Task { /** @returns {Unresolved} */ get isReady() { return "text"; } }',
+			'const task = {/** @type {unknown} */ get ready() { return true; }};',
+			'class Task { /** @type {unknown} */ get isReady() { return "text"; } }',
+		].map(code => wrap({code, options: [{checkMethods: 'always'}]})),
+		invalid: [],
+	});
+}
+
+test({
+	valid: [
+		'const task = {/** @returns {string} */ get ready() { return true; }};',
+		'class Task { /** @returns {boolean} */ get isReady() { return "text"; } }',
+	].map(code => typeAware({code, options: [{checkMethods: 'always'}]})),
+	invalid: [
+		...[
+			'const task = {/** @returns {unknown} */ get ready() { return true; }};',
+			'class Task { /** @returns {Unresolved} */ get ready() { return true; } }',
+			'const task = {/** @type {unknown} */ get ready() { return true; }};',
+		].map(code => typeAware({
+			code,
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 0}],
+		})),
+		...[
+			'const task = {/** @returns {unknown} */ get isReady() { return "text"; }};',
+			'class Task { /** @returns {Unresolved} */ get isReady() { return "text"; } }',
+			'class Task { /** @type {unknown} */ get isReady() { return "text"; } }',
+		].map(code => typeAware({
+			code,
+			options: [{checkMethods: 'always'}],
+			errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+		})),
+	],
+});
+
+// Static evaluation must not bypass documented types through surrounding expressions.
+for (const wrap of [testCase => testCase, typescript]) {
+	test({
+		valid: [
+			'/** @type {unknown} */ const value = "text"; const isReady = (0, value);',
+			'/** @type {unknown} */ const value = "text"; const isReady = true ? value : value;',
+			'/** @type {unknown} */ const value = "text"; const isReady = [value][0];',
+		].map(code => wrap(code)),
+		invalid: [wrap({
+			code: '/** @type {string} */ const value = true; const isReady = (0, value);',
+			errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+		}), wrap({
+			code: '/** @type {unknown} */ const value = "text"; const isReady = value + "";',
+			errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+		})],
+	});
+}
+
+// Unknown property documentation can use compiler information without trusting syntax-only initializers.
+for (const wrap of [testCase => testCase, typescript]) {
+	test({
+		valid: [
+			'const task = {/** @type {unknown} */ isReady: "text"};',
+			'class Task { /** @type {Unresolved} */ isReady = "text"; }',
+		].map(code => wrap({code, options: [{checkFields: 'always'}]})),
+		invalid: [],
+	});
+}
+
+test({
+	valid: [
+		'const task = {/** @type {boolean} */ isReady: "text"};',
+		'class Task { /** @type {string} */ ready = true; }',
+	].map(code => typeAware({code, options: [{checkFields: 'always'}]})),
+	invalid: [
+		...[
+			'const task = {/** @type {unknown} */ ready: true};',
+			'class Task { /** @type {Unresolved} */ ready = true; }',
+		].map(code => typeAware({
+			code,
+			options: [{checkFields: 'always'}],
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 0}],
+		})),
+		...[
+			'const task = {/** @type {unknown} */ isReady: "text"};',
+			'class Task { /** @type {Unresolved} */ isReady = "text"; }',
+		].map(code => typeAware({
+			code,
+			options: [{checkFields: 'always'}],
+			errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+		})),
+	],
+});
+
+// Empty record types describe any non-nullish value, including booleans.
+for (const wrap of [testCase => testCase, typescript]) {
+	test({
+		valid: [
+			'/** @type {{}} */ const isReady = true;',
+			'/** @param {{}} isReady */ function run(isReady = true) {}',
+			'/** @returns {{}} */ function isReady() { return true; }',
+			{code: 'const task = {/** @type {{}} */ isReady: true};', options: [{checkFields: 'always'}]},
+			{code: 'class Task { /** @type {{}} */ isReady = true; }', options: [{checkFields: 'always'}]},
+			{code: 'const task = {/** @returns {{}} */ get isReady() { return true; }};', options: [{checkMethods: 'always'}]},
+			'/** @type {boolean & {}} */ const ready = true;',
+		].map(testCase => wrap(testCase)),
+		invalid: [],
+	});
+}
+
+test({
+	valid: [
+		typescript('const isReady: {} = true;'),
+		typescript('function run(isReady: {} = true) {}'),
+		typescript('function isReady(): {} { return true; }'),
+		typescript({code: 'class Task { isReady: {} = true; }', options: [{checkFields: 'always'}]}),
+		typescript({code: 'const task = {get isReady(): {} { return true; }};', options: [{checkMethods: 'always'}]}),
+		typescript('const ready: boolean & {} = true;'),
+	],
+	invalid: [],
+});
+
+// Documented identifier types remain authoritative through aliases, including with compiler information.
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [
+			'/** @type {boolean} */ const isValue = "text"; const isAlias = isValue;',
+			'/** @type {unknown} */ const isValue = true; const isAlias = isValue;',
+		].map(code => wrap(code)),
+		invalid: [
+			{
+				code: '/** @type {string} */ const value = true; const isAlias = value;',
+				errors: [{messageId: 'non-boolean-prefix', data: {name: 'isAlias', prefix: 'is'}}],
+			},
+			{
+				code: '/** @type {string} */ const value = true; const first = value; const isAlias = first;',
+				errors: [{messageId: 'non-boolean-prefix', data: {name: 'isAlias', prefix: 'is'}}],
+			},
+			{
+				code: '/** @type {boolean} */ const isValue = "text"; const isFirst = isValue; const ready = isFirst;',
+				options: [onlyIsPrefixOptions],
+				output: '/** @type {boolean} */ const isValue = "text"; const isFirst = isValue; const isReady = isFirst;',
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					data: {name: 'ready', prefixes: '`is`'},
+					suggestions: [{
+						messageId: 'rename',
+						data: {replacement: 'isReady'},
+						output: '/** @type {boolean} */ const isValue = "text"; const isFirst = isValue; const isReady = isFirst;',
+					}],
+				}],
+			},
+			{
+				code: '/** @type {boolean} */ let isValue = true; isValue = "text"; const isAlias = isValue;',
+				errors: [
+					{messageId: 'non-boolean-prefix', data: {name: 'isValue', prefix: 'is'}},
+					{messageId: 'non-boolean-prefix', data: {name: 'isAlias', prefix: 'is'}},
+				],
+			},
+		].map(testCase => wrap(testCase)),
+	});
+}
+
+test({
+	valid: [
+		typeAware('/** @type {boolean} */ const value: string = "text"; const text = value;'),
+		typeAware('/** @type {string} */ const isValue: boolean = true; const isAlias = isValue;'),
+		typeAware('/** @type {string} */ const isValue = true as boolean; const isAlias = isValue;'),
+	],
+	invalid: [
+		typeAware({
+			code: '/** @type {unknown} */ const value = "text"; const isAlias = value;',
+			errors: [{messageId: 'non-boolean-prefix', data: {name: 'isAlias', prefix: 'is'}}],
+		}),
+		typeAware({
+			code: '/** @type {boolean} */ const value = "text" as string; const isAlias = value;',
+			errors: [{messageId: 'non-boolean-prefix', data: {name: 'isAlias', prefix: 'is'}}],
+		}),
+	],
+});
+
+// Function aliases keep React's required `use` prefix in rename suggestions.
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [wrap('/** @type {() => boolean} */ const isReady = source; const useIsReady = isReady;')],
+		invalid: [
+			...[
+				'/** @type {() => boolean} */ const isReady = source;',
+				'/** @returns {boolean} */ function isReady() { return source; }',
+				'const isReady = () => true;',
+			].map(declaration => wrap({
+				code: `${declaration} const useReady = isReady; useReady();`,
+				options: [onlyIsPrefixOptions],
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					data: {name: 'ready', prefixes: '`is`'},
+					suggestions: [{
+						messageId: 'rename',
+						data: {replacement: 'useIsReady'},
+						output: `${declaration} const useIsReady = isReady; useIsReady();`,
+					}],
+				}],
+			})),
+			wrap({
+				code: '/** @type {boolean} */ const isReady = true; const useReady = isReady; consume(useReady);',
+				output: '/** @type {boolean} */ const isReady = true; const isUseReady = isReady; consume(isUseReady);',
+				options: [onlyIsPrefixOptions],
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					data: {name: 'useReady', prefixes: '`is`'},
+					suggestions: [{
+						messageId: 'rename',
+						data: {replacement: 'isUseReady'},
+						output: '/** @type {boolean} */ const isReady = true; const isUseReady = isReady; consume(isUseReady);',
+					}],
+				}],
+			}),
+		],
+	});
+}
+
+for (const wrap of [typescript, typeAware]) {
+	test({
+		valid: [],
+		invalid: [wrap({
+			code: 'const isReady: () => boolean = source; const useReady = isReady; useReady();',
+			options: [onlyIsPrefixOptions],
+			errors: [{
+				messageId: 'consistent-boolean-name',
+				data: {name: 'ready', prefixes: '`is`'},
+				suggestions: [{
+					messageId: 'rename',
+					data: {replacement: 'useIsReady'},
+					output: 'const isReady: () => boolean = source; const useIsReady = isReady; useIsReady();',
+				}],
+			}],
+		})],
+	});
+}
+
+// Parameter suggestions must update the owning tag while preserving each reference's syntax.
+for (const [code, output, replacement = 'isReady'] of [
+	[
+		'#!/usr/bin/env node\n/** 🦄\n * @param {boolean} ready */ function run(ready) { consume(ready); }',
+		'#!/usr/bin/env node\n/** 🦄\n * @param {boolean} isReady */ function run(isReady) { consume(isReady); }',
+	],
+	[
+		'/** @param {boolean} [__ready=false] */ function run(__ready = false) { consume(__ready); }',
+		'/** @param {boolean} [__isReady=false] */ function run(__isReady = false) { consume(__isReady); }',
+		'__isReady',
+	],
+	[
+		'/** @param {boolean} READY */ function run(READY) { return () => consume({READY}); }',
+		'/** @param {boolean} IS_READY */ function run(IS_READY) { return () => consume({READY: IS_READY}); }',
+		'IS_READY',
+	],
+	[
+		String.raw`/** @param {boolean} ready */ function run(r\u0065ady) { consume(r\u0065ady); }`,
+		'/** @param {boolean} isReady */ function run(isReady) { consume(isReady); }',
+	],
+	[
+		'/** 🦄\n * @argument {boolean} [r𐐨ady=false] Keep r𐐨ady.\n */ function run(r𐐨ady) { consume(r𐐨ady); }',
+		'/** 🦄\n * @argument {boolean} [isR𐐨ady=false] Keep r𐐨ady.\n */ function run(isR𐐨ady) { consume(isR𐐨ady); }',
+		'isR𐐨ady',
+	],
+	[
+		'/** @param {boolean} ready */ function run(ready) { function child(isReady) { consume(ready, isReady); } child(source); }',
+		'/** @param {boolean} isReady_ */ function run(isReady_) { function child(isReady) { consume(isReady_, isReady); } child(source); }',
+		'isReady_',
+	],
+	[
+		'/** @param {string} ready */ function run(/** @type {boolean} */ ready) { consume(ready); }',
+		'/** @param {string} isReady */ function run(/** @type {boolean} */ isReady) { consume(isReady); }',
+	],
+	[
+		'/** @param {boolean} ready\n * @arg {string} ready */ function run(/** @type {boolean} */ ready) { consume(ready); }',
+		'/** @param {boolean} ready\n * @arg {string} ready */ function run(/** @type {boolean} */ isReady) { consume(isReady); }',
+	],
+	[
+		'/** @param [ready=false] Use ready. */ export default (ready = false) => consume(ready);',
+		'/** @param [isReady=false] Use ready. */ export default (isReady = false) => consume(isReady);',
+	],
+	[
+		'class Task { /** @argument {boolean} [ready=false] */ static run(ready = false) { consume(ready); } }',
+		'class Task { /** @argument {boolean} [isReady=false] */ static run(isReady = false) { consume(isReady); } }',
+	],
+	[
+		'/** @param {boolean} ready */ function* run(ready) { yield ready; }',
+		'/** @param {boolean} isReady */ function* run(isReady) { yield isReady; }',
+	],
+	[
+		'/** @param {boolean} ready */ async function run(ready) { await consume(ready); }',
+		'/** @param {boolean} isReady */ async function run(isReady) { await consume(isReady); }',
+	],
+	[
+		'class Task { /** @param {boolean} ready */ constructor(ready) { this.ready = ready; } }',
+		'class Task { /** @param {boolean} isReady */ constructor(isReady) { this.ready = isReady; } }',
+	],
+	[
+		'const task = {/** @param {boolean} ready */ run: ready => consume({ready})};',
+		'const task = {/** @param {boolean} isReady */ run: isReady => consume({ready: isReady})};',
+	],
+	[
+		'/** @param {boolean} ready */ function run(ready) { ({ready} = source); consume(ready); }',
+		'/** @param {boolean} isReady */ function run(isReady) { ({ready: isReady} = source); consume(isReady); }',
+	],
+	[
+		'/** @param {boolean} ready */ function run(ready, callback = () => ready) { consume(callback, ready); }',
+		'/** @param {boolean} isReady */ function run(isReady, callback = () => isReady) { consume(callback, isReady); }',
+	],
+	[
+		'/** @param {boolean} ready */ function run(ready) { consume({get ready() { return ready; }}); }',
+		'/** @param {boolean} isReady */ function run(isReady) { consume({get ready() { return isReady; }}); }',
+	],
+	[
+		'/** @param {boolean} [ready={"ready":[true]}] */ function run(ready) { consume(ready); }',
+		'/** @param {boolean} [isReady={"ready":[true]}] */ function run(isReady) { consume(isReady); }',
+	],
+	[
+		'/** @ARGUMENT {boolean} ready Keep @param ready in this description. */ function run(ready) { consume("ready", ready); }',
+		'/** @ARGUMENT {boolean} isReady Keep @param ready in this description. */ function run(isReady) { consume("ready", isReady); }',
+	],
+]) {
+	for (const wrap of [testCase => testCase, typescript, typeAware]) {
+		test({
+			valid: [],
+			invalid: [wrap({
+				code,
+				options: [{...onlyIsPrefixOptions, checkFunctions: 'never', checkMethods: 'never'}],
+				errors: [{
+					messageId: 'consistent-boolean-name',
+					suggestions: [{messageId: 'rename', data: {replacement}, output}],
+				}],
+			})],
+		});
+	}
+}
+
+// Independent documented parameters with the same spelling keep separate rename ranges.
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	const code = '/** @param {boolean} ready */ function first(ready) { consume(ready); } /** @arg {boolean} ready */ function second(ready) { consume(ready); }';
+	test({
+		valid: [],
+		invalid: [wrap({
+			code,
+			options: [{...onlyIsPrefixOptions, checkFunctions: 'never'}],
+			errors: [
+				{
+					messageId: 'consistent-boolean-name',
+					suggestions: [{
+						messageId: 'rename',
+						output: '/** @param {boolean} isReady */ function first(isReady) { consume(isReady); } /** @arg {boolean} ready */ function second(ready) { consume(ready); }',
+					}],
+				},
+				{
+					messageId: 'consistent-boolean-name',
+					suggestions: [{
+						messageId: 'rename',
+						output: '/** @param {boolean} ready */ function first(ready) { consume(ready); } /** @arg {boolean} isReady */ function second(isReady) { consume(isReady); }',
+					}],
+				},
+			],
+		})],
+	});
+}
+
+// Documentation does not move parameters across ownership boundaries or enable disabled occurrence kinds.
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [
+			'/** @param {boolean} ready */ const run = wrap(ready => consume(ready));',
+			'/** @param {boolean} ready */ const run = outer => ready => consume(ready, outer);',
+			'/** @param {boolean} ready */ function run({ready = false}) { consume(ready); }',
+			'/** @type {boolean} */ const [ready] = source;',
+			'const task = {/** @param {boolean} ready */ set value(ready) { consume(ready); }};',
+			'/** @param {boolean} ready */ function run(/** @type {string} */ ready = true) {}',
+			{code: '/** @type {boolean} */ let ready;', options: [{checkVariables: 'prohibit'}]},
+			{code: '/** @returns {boolean} */ function ready() { return source; }', options: [{checkFunctions: 'prohibit'}]},
+			{code: 'const task = {/** @type {boolean} */ get ready() { return source; }};', options: [{checkFields: 'always', checkMethods: 'never'}]},
+			{code: 'const task = {/** @type {boolean} */ ready: source};', options: [{checkFields: 'never', checkMethods: 'always'}]},
+		].map(testCase => wrap(testCase)),
+		invalid: [
+			{
+				code: '/** @param {boolean} isReady */ function run(/** @type {string} */ isReady) {}',
+				errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+			},
+			{
+				code: '/** @returns {string} */ function isReady() { return source; }',
+				options: [{checkFunctions: 'prohibit'}],
+				errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+			},
+		].map(testCase => wrap(testCase)),
+	});
+}
+
+// Function-valued fields and getter pairs keep their own annotation and occurrence policies.
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [],
+		invalid: [
+			{
+				code: 'const task = {/** @returns {boolean} */ ready: () => source};',
+				options: [{checkFields: 'always'}],
+				errors: [{messageId: 'consistent-boolean-name', suggestions: 0}],
+			},
+			{
+				code: 'const task = {/** @returns {string} */ isReady: () => source};',
+				options: [{checkFields: 'prohibit'}],
+				errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+			},
+			{
+				code: 'class Task { /** @returns {boolean} */ static ready = () => source; }',
+				options: [{checkFields: 'always'}],
+				errors: [{messageId: 'consistent-boolean-name', suggestions: 0}],
+			},
+			{
+				code: 'class Task { /** @type {boolean} */ get ready() { return source; } /** @param {string} value */ set ready(value) {} }',
+				options: [{checkMethods: 'always'}],
+				errors: [{messageId: 'consistent-boolean-name', suggestions: 0}],
+			},
+			{
+				code: 'class Task { /** @type {boolean} */ get ready() { return source; } /** @type {boolean} */ static get ready() { return source; } }',
+				options: [{checkMethods: 'always'}],
+				errors: [
+					{messageId: 'consistent-boolean-name', suggestions: 0},
+					{messageId: 'consistent-boolean-name', suggestions: 0},
+				],
+			},
+		].map(testCase => wrap(testCase)),
+	});
+}
+
+// Subsequent writes still participate in naming when the initial contract comes from documentation.
+for (const wrap of [testCase => testCase, typescript, typeAware]) {
+	test({
+		valid: [],
+		invalid: [
+			{
+				code: '/** @param {boolean} isReady */ function run(isReady) { isReady = {value: isReady}; }',
+				errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+			},
+			{
+				code: '/** @type {() => boolean} */ let isReady = source; isReady = () => "changed";',
+				errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+			},
+			{
+				code: '/** @returns {boolean} */ function isReady() { return source; } isReady = () => "changed";',
+				errors: [{messageId: 'non-boolean-prefix', suggestions: 0}],
+			},
+		].map(testCase => wrap(testCase)),
+	});
+}

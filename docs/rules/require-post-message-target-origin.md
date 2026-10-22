@@ -13,7 +13,7 @@ Specifying the `targetOrigin` argument with [`window.postMessage()`](https://dev
 
 When TypeScript type information is available, this rule ignores methods whose call signatures have no `targetOrigin` parameter, such as `Worker#postMessage()`, `MessagePort#postMessage()`, and `BroadcastChannel#postMessage()`.
 
-Without type information, or when the method's type is `any`, this rule cannot distinguish between `window.postMessage()` and other `.postMessage()` methods.
+Without type information, or when any possible method type has no known call signatures (such as `any` or `Function`), this rule cannot distinguish between `window.postMessage()` and other `.postMessage()` methods.
 
 ## Examples
 

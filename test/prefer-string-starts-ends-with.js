@@ -3,9 +3,51 @@ import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
 import {transpileModule, ScriptTarget} from 'typescript';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {{decodeURI: () => string[]}} value */ function run(value) { return value.decodeURI().indexOf("a") === 0; }',
+			'/** @param {Date} value */ function run(value) { return value.toJSON().indexOf("2026") === 0; }',
+			'/** @param {?Date} value */ function run(value) { return value.toISOString().indexOf("2026") === 0; }',
+			'/** @param {{toISOString: () => number[]}} value */ function run(value) { return value.toISOString().indexOf(2026) === 0; }',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			...['encodeURI', 'encodeURIComponent', 'decodeURI', 'decodeURIComponent', 'atob', 'btoa'].map(name => ({
+				filename: 'file.ts',
+				code: `/** @param {unknown} value */ function run(value) { return ${name}(value).indexOf("a") === 0; }`,
+				output: `/** @param {unknown} value */ function run(value) { return ${name}(value).startsWith("a"); }`,
+				errors: [{messageId: 'prefer-starts-with-indexOf'}],
+			})),
+			{
+				filename: 'file.ts',
+				code: '/** @param {Date} value */ function run(value) { return value.toISOString().indexOf("2026") === 0; }',
+				output: '/** @param {Date} value */ function run(value) { return value.toISOString().startsWith("2026"); }',
+				errors: [{messageId: 'prefer-starts-with-indexOf'}],
+			},
+		],
+	});
+}
+
+test({
+	valid: [
+		'/** @param {number[]} value */ function run(value) { return value.indexOf("a") === 0; }',
+	],
+	invalid: [{
+		code: '/** @param {string} value */ function run(value) { return value.indexOf("a") === 0; }',
+		output: '/** @param {string} value */ function run(value) { return value.startsWith("a"); }',
+		errors: [{messageId: 'prefer-starts-with-indexOf'}],
+	}],
+});
 
 test({
 	valid: [],
@@ -1028,4 +1070,43 @@ test({
 		['const value = ({value: "abc"}.value.indexOf("a")) === 0;', 'const value = {value: "abc"}.value.startsWith("a");'],
 		['({value: "abc"}.value.indexOf("a")) !== 0;', '!{value: "abc"}.value.startsWith("a");'],
 	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+test({
+	valid: [
+		'/** @param {() => ?string} read */ function run(read) { return read().indexOf("a") === 0; }',
+		'/** @returns {string} */ async function read() { return source; } read().indexOf("a") === 0;',
+	],
+	invalid: [{
+		code: '/** @param {() => string} read */ function run(read) { return read().indexOf("a") === 0; }',
+		output: '/** @param {() => string} read */ function run(read) { return read().startsWith("a"); }',
+		errors: [{messageId: 'prefer-starts-with-indexOf'}],
+	}],
+});
+
+test({
+	valid: [
+		'/** @type {unknown} */ const value = "text"; const alias = value; alias.indexOf("t") === 0;',
+		{
+			code: '/** @type {unknown} */ const value = "text"; (value as unknown).indexOf("t") === 0;',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [],
+});
+
+test({
+	valid: [
+		'/** @type {{(): string; (value: number): number}} */ let read; read().indexOf("a") === 0;',
+		'/** @type {(() => string) | (() => number)} */ let read; read().indexOf("a") === 0;',
+	],
+	invalid: [{
+		code: '/** @type {{(): string; label: string}} */ let read; read().indexOf("a") === 0;',
+		output: '/** @type {{(): string; label: string}} */ let read; read().startsWith("a");',
+		errors: [{messageId: 'prefer-starts-with-indexOf'}],
+	}, {
+		code: '/** @type {(() => string) & {label: string}} */ let read; read().indexOf("a") === 0;',
+		output: '/** @type {(() => string) & {label: string}} */ let read; read().startsWith("a");',
+		errors: [{messageId: 'prefer-starts-with-indexOf'}],
+	}],
 });

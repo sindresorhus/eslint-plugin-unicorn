@@ -36,7 +36,7 @@ const collectionCheckers = [
 ];
 
 const {isTarget: isSymbol} = createTypeCheckers({
-	targetTypeNames: new Set(),
+	targetTypeNames: new Set(['symbol']),
 	targetCallNames: ['Symbol'],
 	isTargetNode: node => isMethodCall(node, {object: 'Symbol', method: 'for'}),
 	isTargetTypeAnnotation: node => node?.type === 'TSSymbolKeyword',
@@ -63,6 +63,7 @@ const {isTarget: isFunctionValue} = createTypeCheckers({
 	targetTypeNames: new Set(),
 	isTargetNode: isFunctionSyntax,
 	isTargetTypeAnnotation: node => node?.type === 'TSFunctionType' || node?.type === 'TSConstructorType',
+	isTargetJSDocumentType: type => type?.kind === 'function',
 	isTargetType: type => type.getCallSignatures().length > 0 || type.getConstructSignatures().length > 0,
 });
 

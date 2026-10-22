@@ -473,6 +473,7 @@ test.typescript({
 		'function run(value: Temporal.PlainDate | Temporal.Instant) { value.with({day: 1}); }',
 		'function run(value: Temporal.PlainDate | Custom) { value.subtract({days: 1}); }',
 		'function run(value: Temporal.PlainDateTime | Temporal.PlainDate) { value.round({smallestUnit: "day"}); }',
+		'(new Set() as Custom).union(other);',
 	],
 	invalid: [
 		{code: 'function run(value: Temporal.PlainDate | Temporal.PlainDateTime) { value.add({days: 1}); }', errors: 1},
@@ -480,9 +481,9 @@ test.typescript({
 		{code: 'function run(value: Temporal.PlainDate | Temporal.PlainMonthDay) { value.with({day: 1}); }', errors: 1},
 		{code: 'function run(value: Temporal.PlainDateTime | Temporal.PlainTime) { value.round({smallestUnit: "minute"}); }', errors: 1},
 		{code: 'type DateValue = Temporal.PlainDate | Temporal.PlainDateTime; (value as DateValue).add({days: 1});', errors: 1},
-		// Assertions preserve a known receiver's runtime value.
+		// Only `any` and `unknown` assertions fall back to a known runtime receiver; other assertions need a supported type.
 		{code: '(Temporal.PlainDate.from(input) as unknown).add({days: 1});', errors: 1},
-		{code: '(new Set() as Custom).union(other);', errors: 1},
+		{code: '(value as Set<number>).union(other);', errors: 1},
 		{code: '([] as unknown).with(0, 1);', errors: 1},
 	],
 });

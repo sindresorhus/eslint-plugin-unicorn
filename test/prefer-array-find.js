@@ -2,6 +2,7 @@ import {test as nodeTest} from 'node:test';
 import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
@@ -28,6 +29,79 @@ const getSuggestionError = (messageId, output, method = 'find') => ({
 	messageId,
 	suggestions: [{messageId: SUGGESTION_ID, data: {method}, output}],
 });
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {Map<string, number>} values */ function run(values) { return values.filter(value => value > 0)[0]; }',
+			'/** @returns {Set<number>} */ function read() { return source; } read().filter(value => value > 0).shift();',
+			'/** @param {() => string} read */ function run(read) { return read().filter(value => value > 0).at(0); }',
+			'/** @type {ReadonlySet<number>} */ const values = source; const alias = values; alias.filter(value => value > 0).pop();',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			...[
+				[
+					'/** @param {Uint8Array} values */ function run(values) { return values.filter(value => value > 0).at(0); }',
+					'/** @param {Uint8Array} values */ function run(values) { return values.find(value => value > 0); }',
+					ERROR_AT_ZERO,
+				],
+				[
+					'/** @returns {Array<number>} */ function read() { return source; } read().filter(value => value > 0).pop();',
+					'/** @returns {Array<number>} */ function read() { return source; } read().findLast(value => value > 0);',
+					ERROR_POP,
+				],
+				[
+					'/** @param {?Array<number>} values */ function run(values) { return values?.filter(value => value > 0).shift(); }',
+					'/** @param {?Array<number>} values */ function run(values) { return values?.find(value => value > 0); }',
+					ERROR_SHIFT,
+				],
+				[
+					'/** @param {Array<number> | Set<number>} values */ function run(values) { return values.filter(value => value > 0)[0]; }',
+					'/** @param {Array<number> | Set<number>} values */ function run(values) { return values.find(value => value > 0); }',
+					ERROR_ZERO_INDEX,
+				],
+			].map(([code, output, messageId]) => ({
+				code, output, filename: 'file.ts', errors: [{messageId, suggestions: 0}],
+			})),
+			{
+				code: '/** @param {() => Array<number>} read */ function run(read) { return read().filter(predicate).slice(-1)[0]; }',
+				filename: 'file.ts',
+				errors: [getSuggestionError(ERROR_SLICE_MINUS_ONE,
+					'/** @param {() => Array<number>} read */ function run(read) { return read().findLast(predicate); }',
+					'findLast')],
+			},
+			{
+				code: '/** @param {Array<number>} values */ function run(values) { return values.filter(value => value > 0) /* keep */ [0]; }',
+				filename: 'file.ts',
+				errors: [{messageId: ERROR_ZERO_INDEX, suggestions: 0}],
+			},
+		],
+	});
+}
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			code: '/** @param {Array<number>} values */ function run(values: Set<number>) { return values.filter(value => value > 0)[0]; }',
+			filename: 'file.ts',
+		}],
+		invalid: [{
+			code: '/** @param {Map<string, number>} values */ function run(values: Uint8Array) { return values.filter(value => value > 0)[0]; }',
+			output: '/** @param {Map<string, number>} values */ function run(values: Uint8Array) { return values.find(value => value > 0); }',
+			filename: 'file.ts',
+			errors: [{messageId: ERROR_ZERO_INDEX, suggestions: 0}],
+		}],
+	});
+}
 
 // Replacing indexed function values must preserve their call or tag receiver.
 test({

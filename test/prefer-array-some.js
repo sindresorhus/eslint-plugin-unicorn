@@ -44,6 +44,67 @@ const invalidCase = ({code, suggestionOutput, method, ...testCase}) => ({
 	],
 });
 
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.js', '*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {Array<number> | Set<number>} values */ function run(values) { const found = values.find(predicate); return !!found; }',
+			'/** @param {?Array<number>} values */ function run(values) { const found = values.find(predicate); return !!found; }',
+			'/** @returns {{find(predicate: Function): unknown}} */ function read() { return source; } Boolean(read().find(predicate));',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			...[
+				'/** @returns {ReadonlyArray<number>} */ function read() { return source; } function run() { const found = read().find(predicate); return !!found; }',
+				'/** @param {number[] | Uint8Array} values */ function run(values) { const found = values.find(predicate); return !!found; }',
+				'/** @param {number[]} values */ function run(values, cache) { const found = (cache = values).find(predicate); return !!found; }',
+				'/** @param {Array<number>} values */ function run(values) { return values.find(/* keep */ predicate, receiver) === undefined; }',
+			].map(code => invalidCase({
+				code,
+				filename: 'file.ts',
+				method: 'find',
+				suggestionOutput: code.includes('=== undefined')
+					? code.replace('return values.find(', 'return !values.some(').replace(' === undefined', '')
+					: code.replace('.find(', '.some('),
+			})),
+			{
+				code: '/** @param {() => Uint8Array} read */ function run(read) { return read().filter(predicate).length !== 0; }',
+				filename: 'file.ts',
+				errors: [{
+					messageId: 'filter',
+					suggestions: [{
+						messageId: 'some-suggestion',
+						data: {method: 'filter'},
+						output: '/** @param {() => Uint8Array} read */ function run(read) { return read().some(predicate); }',
+					}],
+				}],
+			},
+		],
+	});
+}
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.js', '*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			code: '/** @param {number[]} values */ function run(values: Set<number>) { const found = values.find(predicate); return !!found; }',
+			filename: 'file.ts',
+		}],
+		invalid: [invalidCase({
+			code: '/** @param {Set<number>} values */ function run(values: readonly number[]) { const found = values.find(predicate); return !!found; }',
+			suggestionOutput: '/** @param {Set<number>} values */ function run(values: readonly number[]) { const found = values.some(predicate); return !!found; }',
+			filename: 'file.ts',
+			method: 'find',
+		})],
+	});
+}
+
 test({
 	valid: [
 		...[
@@ -84,11 +145,6 @@ test({
 		},
 		{
 			code: 'function hasMatch(values: unknown) { if (!Array.isArray(values)) { return false; } const found = values.find(value => value > 2); return !!found; }',
-			languageOptions: {parser: parsers.typescript},
-		},
-		{
-			code: '/** @param {readonly number[]} values */ function hasMatch(values) { const found = values.find(value => value > 2); return !!found; }',
-			filename: 'file.js',
 			languageOptions: {parser: parsers.typescript},
 		},
 		...[
@@ -164,6 +220,13 @@ test({
 		invalidCase({
 			...typeAware('/** @param {readonly number[]} values */ function hasMatch(values) { const found = values.find(value => value > 2); return !!found; }', 'file.js'),
 			suggestionOutput: '/** @param {readonly number[]} values */ function hasMatch(values) { const found = values.some(value => value > 2); return !!found; }',
+			method: 'find',
+		}),
+		invalidCase({
+			code: '/** @param {readonly number[]} values */ function hasMatch(values) { const found = values.find(value => value > 2); return !!found; }',
+			suggestionOutput: '/** @param {readonly number[]} values */ function hasMatch(values) { const found = values.some(value => value > 2); return !!found; }',
+			filename: 'file.js',
+			languageOptions: {parser: parsers.typescript},
 			method: 'find',
 		}),
 	],

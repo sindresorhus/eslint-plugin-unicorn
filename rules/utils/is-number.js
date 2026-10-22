@@ -1,10 +1,9 @@
-import {isNumericLiteral} from '../ast/index.js';
+import {isFunction, isNumericLiteral} from '../ast/index.js';
 import isString from './is-string.js';
+import isArray, {isIndexedCollection} from './is-array.js';
 import {isFunctionCall, isStaticProperties, hasTypeAnnotation} from './type-check.js';
-import {createTypeCheckers} from './type-helpers.js';
+import {createBuiltinTypeCheckers, createTypeCheckers, hasJSDocumentTypeReference} from './type-helpers.js';
 import {getStaticValueForControlFlow} from './get-static-value.js';
-import getConstVariableInitializer from './get-const-variable-initializer.js';
-import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math#static_properties
 const mathProperties = new Set([
@@ -38,6 +37,7 @@ const mathMethods = new Set([
 	'cosh',
 	'exp',
 	'expm1',
+	'f16round',
 	'floor',
 	'fround',
 	'hypot',
@@ -68,23 +68,81 @@ const isMathMethodCall = node =>
 // `Number(…)`
 const isNumberCall = node => isFunctionCall(node, 'Number');
 
+// `search` can delegate to a `Symbol.search` hook that returns a non-number.
 const stringNumberMethods = new Set([
 	'charCodeAt',
 	'indexOf',
 	'lastIndexOf',
 	'localeCompare',
-	'search',
 ]);
 
-const isStringNumberMethodCall = (node, context) =>
+const indexedCollectionNumberMethods = new Set([
+	'indexOf',
+	'lastIndexOf',
+	'findIndex',
+	'findLastIndex',
+]);
+
+const arrayNumberMethods = new Set([
+	'push',
+	'unshift',
+]);
+
+const dateNumberReturningMethods = new Set([
+	'getDate',
+	'getDay',
+	'getFullYear',
+	'getHours',
+	'getMilliseconds',
+	'getMinutes',
+	'getMonth',
+	'getSeconds',
+	'getTime',
+	'getTimezoneOffset',
+	'getUTCDate',
+	'getUTCDay',
+	'getUTCFullYear',
+	'getUTCHours',
+	'getUTCMilliseconds',
+	'getUTCMinutes',
+	'getUTCMonth',
+	'getUTCSeconds',
+	'setDate',
+	'setFullYear',
+	'setHours',
+	'setMilliseconds',
+	'setMinutes',
+	'setMonth',
+	'setSeconds',
+	'setTime',
+	'setUTCDate',
+	'setUTCFullYear',
+	'setUTCHours',
+	'setUTCMilliseconds',
+	'setUTCMinutes',
+	'setUTCMonth',
+	'setUTCSeconds',
+	'valueOf',
+]);
+
+const {isTarget: isDate} = createBuiltinTypeCheckers({
+	name: 'Date',
+	checkClassHeritage: false,
+});
+
+const isNumberReturningMethodCall = (node, context) =>
 	node.type === 'CallExpression'
 	&& !node.optional
 	&& node.callee.type === 'MemberExpression'
 	&& !node.callee.computed
 	&& !node.callee.optional
 	&& node.callee.property.type === 'Identifier'
-	&& stringNumberMethods.has(node.callee.property.name)
-	&& isString(node.callee.object, context);
+	&& (
+		(stringNumberMethods.has(node.callee.property.name) && isString(node.callee.object, context))
+		|| (arrayNumberMethods.has(node.callee.property.name) && isArray(node.callee.object, context))
+		|| (indexedCollectionNumberMethods.has(node.callee.property.name) && isIndexedCollection(node.callee.object, context))
+		|| (dateNumberReturningMethods.has(node.callee.property.name) && isDate(node.callee.object, context))
+	);
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number#static_properties
 const numberProperties = new Set([
@@ -104,14 +162,21 @@ const numberMethods = new Set([
 	'parseFloat',
 	'parseInt',
 ]);
+
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#static_methods
+const dateNumberMethods = new Set([
+	'now',
+	'parse',
+	'UTC',
+]);
 const isNumberMethodCall = node =>
 	node.type === 'CallExpression'
 	&& !node.optional
-	&& isStaticProperties(node.callee, 'Number', numberMethods);
+	&& (
+		isStaticProperties(node.callee, 'Number', numberMethods)
+		|| isStaticProperties(node.callee, 'Date', dateNumberMethods)
+	);
 const isGlobalParseToNumberFunctionCall = node => isFunctionCall(node, 'parseInt') || isFunctionCall(node, 'parseFloat');
-
-const isStaticNumber = (node, context) =>
-	typeof getStaticValueForControlFlow(node, context)?.value === 'number';
 
 // Only the bare `number` keyword and numeric literal types (`5`), never the boxed `Number` object (which doesn't coerce the same way), unions, or generics, so accuracy stays high
 const isNumberTypeAnnotation = node =>
@@ -121,20 +186,22 @@ const isNumberTypeAnnotation = node =>
 // `function foo(bar: number) {}`, `const foo: number = …`
 const hasNumberTypeAnnotation = (node, scope) => hasTypeAnnotation(node, scope, isNumberTypeAnnotation);
 
-// A user object can have a `length` that is not a number, `const {length} = {length: '5'}`. Leave known objects to static evaluation instead of assuming their length is numeric.
-const isObjectLength = (node, context) => {
-	const object = unwrapTypeScriptExpression(node.object);
-	const initializer = unwrapTypeScriptExpression(getConstVariableInitializer(object, context) ?? object);
-	return initializer.type === 'ObjectExpression';
-};
+const {isTarget: isSizedCollection} = createTypeCheckers({
+	targetTypeNames: new Set(['Map', 'Set', 'ReadonlyMap', 'ReadonlySet']),
+	targetConstructorNames: ['Map', 'Set'],
+	checkClassHeritage: false,
+});
 
-const isLengthProperty = (node, context) =>
+// A user object can have a nonnumeric `length` or `size`. Only infer these properties for known receivers; otherwise use static evaluation or type information.
+const isNumericProperty = (node, context) =>
 	node.type === 'MemberExpression'
 	&& !node.computed
 	&& !node.optional
 	&& node.property.type === 'Identifier'
-	&& node.property.name === 'length'
-	&& !isObjectLength(node, context);
+	&& (
+		(node.property.name === 'length' && (isFunction(node.object) || isString(node.object, context) || isIndexedCollection(node.object, context)))
+		|| (node.property.name === 'size' && isSizedCollection(node.object, context))
+	);
 
 // `+` and `>>>` operators are handled separately
 const mathOperators = new Set(['-', '*', '/', '%', '**', '<<', '>>', '|', '^', '&']);
@@ -146,11 +213,11 @@ export default function isNumber(node, context) {
 		|| isMathProperty(node)
 		|| isMathMethodCall(node)
 		|| isNumberCall(node)
-		|| isStringNumberMethodCall(node, context)
+		|| isNumberReturningMethodCall(node, context)
 		|| isNumberProperty(node)
 		|| isNumberMethodCall(node)
 		|| isGlobalParseToNumberFunctionCall(node)
-		|| isLengthProperty(node, context)
+		|| isNumericProperty(node, context)
 	) {
 		return true;
 	}
@@ -225,6 +292,7 @@ export default function isNumber(node, context) {
 			const testStaticValueResult = getStaticValueForControlFlow(node.test, context);
 			if (
 				testStaticValueResult !== undefined
+				&& !hasJSDocumentTypeReference(node.test, context)
 				&& (
 					(isConsequentNumber && testStaticValueResult.value)
 					|| (isAlternateNumber && !testStaticValueResult.value)
@@ -274,12 +342,13 @@ export default function isNumber(node, context) {
 		// No default
 	}
 
-	return isStaticNumber(node, context);
+	return isNumberTarget(node, context)
+		|| (!hasJSDocumentTypeReference(node, context) && typeof getStaticValueForControlFlow(node, context)?.value === 'number');
 }
 
 // Complements the AST-based `isNumber` above by using type information when available: resolves type annotations (`: number`), `as`/`satisfies` casts, and inferred element types (e.g. `number[]`) via the TypeScript type checker.
-const {isKnownNonTarget: isKnownNonNumber} = createTypeCheckers({
-	targetTypeNames: new Set(),
+const {isTarget: isNumberTarget, isKnownNonTarget: isKnownNonNumber} = createTypeCheckers({
+	targetTypeNames: new Set(['number']),
 	targetCallNames: ['Number'],
 	isTargetTypeAnnotation: isNumberTypeAnnotation,
 	isTargetType: type => type.isNumberLiteral?.() || type.intrinsicName === 'number',

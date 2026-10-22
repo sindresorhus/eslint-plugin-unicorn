@@ -15,18 +15,20 @@ const linter = new Linter();
 /*
 Return the type of the first argument of each `check()` call in `code`, or of each node that `selector` matches.
 */
-const getTypes = (code, options, {selector, typeAware = false} = {}) => {
+const getTypes = (code, options, {selector, typeAware = false, javascript = false} = {}) => {
 	const {getType} = createTypeCheckers({targetTypeNames: new Set(['Foo']), ...options});
 	const types = [];
 
 	const messages = linter.verify(code, {
 		files: ['**'],
-		languageOptions: {
-			parser: typeAware ? typescriptEslintParser : parsers.typescript.implementation,
-			parserOptions: typeAware
-				? {projectService: {allowDefaultProject: ['*.ts']}}
-				: parsers.typescript.mergeParserOptions(),
-		},
+		languageOptions: javascript
+			? {}
+			: {
+				parser: typeAware ? typescriptEslintParser : parsers.typescript.implementation,
+				parserOptions: typeAware
+					? {projectService: {allowDefaultProject: ['*.ts']}}
+					: parsers.typescript.mergeParserOptions(),
+			},
 		plugins: {
 			test: {
 				rules: {
@@ -53,6 +55,133 @@ const getTypes = (code, options, {selector, typeAware = false} = {}) => {
 
 test('a union of only nullish members is not a target when nullish members are allowed', t => {
 	t.assert.deepStrictEqual(getTypes('function f(a: null | undefined) { check(a); }', {allowNullishInMixedUnion: true}), [nonTarget]);
+});
+
+test('static value classification is opt-in and excludes effectful expressions', t => {
+	const code = 'const value = 1; check(value + 1); check("text"); check(effect());';
+	t.assert.deepStrictEqual(getTypes(code, {}), [unknown, unknown, unknown]);
+	const values = [];
+	t.assert.deepStrictEqual(getTypes(code, {
+		getStaticType(value) {
+			values.push(value);
+			return typeof value === 'number' ? target : nonTarget;
+		},
+	}), [target, nonTarget, unknown]);
+	t.assert.deepStrictEqual(values, [2, 'text']);
+});
+
+test('logical expressions combine both operands using existing union policies', t => {
+	for (const operator of ['&&', '||', '??']) {
+		const code = `/** @param {Foo} left\n * @param {Foo} right */ function run(left, right) { check(left ${operator} right); }`;
+		t.assert.deepStrictEqual(getTypes(code, {}), [target], operator);
+		for (const otherType of ['string', 'unknown', '?Foo']) {
+			const mixed = `/** @param {Foo} left\n * @param {${otherType}} right */ function run(left, right) { check(left ${operator} right); }`;
+			t.assert.deepStrictEqual(getTypes(mixed, {}), [unknown], `${operator} ${otherType}`);
+		}
+	}
+});
+
+test('logical expressions retain configurable mixed-union policies and terminate cyclic aliases', t => {
+	const code = '/** @param {Foo} value\n * @param {string} other */ function run(value, other) { check(value || other); }';
+	t.assert.deepStrictEqual(getTypes(code, {treatMixedUnionAsTarget: true}), [target]);
+	t.assert.deepStrictEqual(getTypes(code, {treatMixedUnionAsNonTarget: true}), [nonTarget]);
+	t.assert.deepStrictEqual(getTypes('const first = second || source; const second = first && source; check(first); check(second);', {}), [unknown, unknown]);
+});
+
+test('plain assignment expressions use the right-hand type independently of their destination', t => {
+	const code = [
+		'/** @param {Foo} value\n * @param {string} cache */',
+		'function run(value, cache, other, object) {',
+		' check(cache = value);',
+		' check(cache = other = value);',
+		' check(object.value = value);',
+		'}',
+	].join('\n');
+	for (const javascript of [false, true]) {
+		t.assert.deepStrictEqual(getTypes(code, {}, {javascript}), [target, target, target]);
+	}
+});
+
+test('assignment inference preserves uncertain results and existing cycle guards', t => {
+	for (const [operator, type] of [['=', 'unknown'], ['+=', 'Foo'], ['&&=', 'Foo'], ['||=', 'Foo'], ['??=', 'Foo']]) {
+		const code = `/** @param {Foo} cache\n * @param {${type}} value */ function run(cache, value) { check(cache ${operator} value); }`;
+		t.assert.deepStrictEqual(getTypes(code, {}), [unknown], operator);
+	}
+
+	t.assert.deepStrictEqual(getTypes('let cache; const value = (cache = value); check(value);', {}), [unknown]);
+	t.assert.deepStrictEqual(getTypes('let cache; check(cache = source as string); check(cache = source as Foo);', {}), [nonTarget, target]);
+});
+
+test('uses JSDoc variable, parameter, and function return annotations', t => {
+	for (const code of [
+		'/** @type {Foo} */ let value; check(value);',
+		'/** @param {Foo} value */ function run(value) { check(value); }',
+		'/** @returns {Foo} */ function create() { return source; } check(create());',
+		'/** @returns {Foo} */ const create = () => source; check(create());',
+	]) {
+		t.assert.deepStrictEqual(getTypes(code, {}), [target], code);
+		t.assert.deepStrictEqual(getTypes(code, {}, {javascript: true}), [target], code);
+	}
+});
+
+test('JSDoc annotations preserve union, optionality, and unknown inference policies', t => {
+	for (const [type, expected] of [
+		['Foo', target],
+		['Foo<string>', target],
+		['string', nonTarget],
+		['Foo | string', unknown],
+		['?Foo', unknown],
+		['Foo=', unknown],
+		['Unresolved', unknown],
+	]) {
+		const code = `/** @param {${type}} value */ function run(value) { check(value); }`;
+		t.assert.deepStrictEqual(getTypes(code, {}), [expected], code);
+	}
+
+	t.assert.deepStrictEqual(getTypes('/** @param {Foo} [value] */ function run(value) { check(value); }', {}), [unknown]);
+	t.assert.deepStrictEqual(getTypes('/** @param {?Foo} value */ function run(value) { check(value); }', {allowNullishInMixedUnion: true}), [target]);
+	t.assert.deepStrictEqual(getTypes('/** @type {Unresolved} */ const value = new Foo(); check(value);', {targetConstructorNames: ['Foo']}), [unknown]);
+});
+
+test('grouped JSDoc nullish-only union members follow the same policies as flat members', t => {
+	for (const type of ['Foo | (null | undefined)', '(null | undefined) | Foo', 'Foo | (Null | Undefined)']) {
+		const code = `/** @param {${type}} value */ function run(value) { check(value); }`;
+		for (const javascript of [false, true]) {
+			t.assert.deepStrictEqual(getTypes(code, {}, {javascript}), [unknown], type);
+			t.assert.deepStrictEqual(getTypes(code, {allowNullishInMixedUnion: true}, {javascript}), [target], type);
+		}
+	}
+});
+
+test('flattening grouped JSDoc unions retains unknown, mixed, and intersection boundaries', t => {
+	for (const [type, expected] of [
+		['null | (undefined | null)', nonTarget],
+		['Foo | (unknown | null)', unknown],
+		['Foo | (string | null)', unknown],
+		['Foo | (null & undefined)', unknown],
+	]) {
+		const code = `/** @param {${type}} value */ function run(value) { check(value); }`;
+		t.assert.deepStrictEqual(getTypes(code, {allowNullishInMixedUnion: true}, {javascript: true}), [expected], type);
+	}
+});
+
+test('native TypeScript annotations take precedence over JSDoc', t => {
+	t.assert.deepStrictEqual(getTypes('/** @type {Foo} */ let value: string; check(value);', {}), [nonTarget]);
+	t.assert.deepStrictEqual(getTypes('/** @returns {Foo} */ function create(): string { return source; } check(create());', {}), [nonTarget]);
+});
+
+test('mixed native assertions cannot fall back to a more specific binding annotation', t => {
+	for (const declaration of ['/** @param {Foo} value */ function run(value)', 'function run(value: Foo)']) {
+		const code = `${declaration} { check(value as Foo | string); check(<Foo | null>value); }`;
+		t.assert.deepStrictEqual(getTypes(code, {}), [unknown, unknown], declaration);
+	}
+});
+
+test('explicit unknown and any assertions retain existing binding evidence', t => {
+	for (const declaration of ['/** @param {Foo} value */ function run(value)', 'function run(value: Foo)']) {
+		const code = `${declaration} { check(value as unknown); check(<any>value); }`;
+		t.assert.deepStrictEqual(getTypes(code, {}), [target, target], declaration);
+	}
 });
 
 test('an intersection without a target or unknown member is not a target', t => {
@@ -188,4 +317,67 @@ test('`getTypeReferenceDefinition` skips non-type definitions', t => {
 	t.assert.deepStrictEqual(getTypeReferenceDefinitions('const Foo = 1; let a: Foo;'), [undefined]);
 	t.assert.deepStrictEqual(getTypeReferenceDefinitions('let a: Foo;'), [undefined]);
 	t.assert.deepStrictEqual(getTypeReferenceDefinitions('class Foo {} function f(Foo) { let a: Foo; }'), [['ClassName', 'module']]);
+});
+
+test('documented callback return types reuse named checker classification policies', t => {
+	for (const [returnType, options, expected] of [
+		['Foo<string>', {}, target],
+		['string', {}, nonTarget],
+		['Foo | string', {}, unknown],
+		['Foo | string', {treatMixedUnionAsTarget: true}, target],
+		['Foo | null', {}, unknown],
+		['Foo | null', {allowNullishInMixedUnion: true}, target],
+		['Unresolved', {}, unknown],
+	]) {
+		const code = `/** @type {() => ${returnType}} */ let create; check(create());`;
+		t.assert.deepStrictEqual(getTypes(code, options, {javascript: true}), [expected], returnType);
+	}
+});
+
+test('documented callable unions and intersections classify all possible return types', t => {
+	for (const [type, expected] of [
+		['(() => Foo) | (() => Foo<string>)', target],
+		['(() => Foo) & {label: string}', target],
+		['(() => Foo) & ({label: string} & {tag: string})', target],
+		['((() => Foo) & {label: string}) & ((() => Foo) & {tag: string})', target],
+		['(() => Foo) & (() => string)', unknown],
+		['(() => Foo) & (() => unknown)', unknown],
+		['(() => Foo) & Unresolved', unknown],
+		['(() => Foo) | string', unknown],
+		['{label: string} & {tag: string}', unknown],
+		['?(() => Foo)', unknown],
+		['(() => Foo)=', unknown],
+	]) {
+		const code = `/** @type {${type}} */ let create; check(create());`;
+		t.assert.deepStrictEqual(getTypes(code, {}, {javascript: true}), [expected], type);
+		t.assert.deepStrictEqual(getTypes(code, {}), [expected], type);
+	}
+});
+
+test('documented callable return combinations reuse checker union policies', t => {
+	for (const type of ['(() => Foo) | (() => string)', '(() => Foo) & (() => string)']) {
+		const code = `/** @type {${type}} */ let create; check(create());`;
+		t.assert.deepStrictEqual(getTypes(code, {treatMixedUnionAsTarget: true}, {javascript: true}), [target], type);
+	}
+
+	const code = '/** @type {(() => Foo) | (() => null)} */ let create; check(create());';
+	t.assert.deepStrictEqual(getTypes(code, {allowNullishInMixedUnion: true}, {javascript: true}), [target]);
+});
+
+test('documented callback defaults cannot classify async or generator results', t => {
+	for (const initializer of ['async () => source', 'function* () { return source; }', 'async function* () { return source; }']) {
+		const code = `/** @param {() => Foo} create */ function run(create = ${initializer}) { check(create()); }`;
+		t.assert.deepStrictEqual(getTypes(code, {}, {javascript: true}), [unknown], initializer);
+		t.assert.deepStrictEqual(getTypes(code, {}), [unknown], initializer);
+	}
+});
+
+test('native callback default return annotations do not replace parameter documentation', t => {
+	for (const [documented, native] of [['Foo', 'string'], ['string', 'Foo'], ['Foo', 'Foo']]) {
+		const code = `/** @param {() => ${documented}} create */ function run(create = (): ${native} => source) { check(create()); }`;
+		t.assert.deepStrictEqual(getTypes(code, {}), [unknown], code);
+	}
+
+	const code = '/** @param {() => Foo} create */ function run(create = () => source) { check(create()); }';
+	t.assert.deepStrictEqual(getTypes(code, {}, {javascript: true}), [target]);
 });

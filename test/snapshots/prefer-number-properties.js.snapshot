@@ -1410,7 +1410,7 @@ Message:
 > 1 | isNaN(foo.length);
     | ^^^^^ Prefer \`Number.isNaN\` over \`isNaN\`.
 
-Output:
+Suggestion 1/1: Replace \`isNaN\` with \`Number.isNaN\`.:
   1 | Number.isNaN(foo.length);
 
 `;

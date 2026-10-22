@@ -2,6 +2,7 @@ import {test as nodeTest} from 'node:test';
 import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
@@ -67,6 +68,107 @@ nodeTest('comment-preserving absolute value rewrites keep coercion and signed-ze
 		t.assert.strictEqual(runInNewContext(code, {value}), originalResult);
 		t.assert.strictEqual(runInNewContext(suggested, {value}), suggestedResult);
 	}
+});
+
+test({
+	valid: [
+		'/** @returns {bigint} */ function read() { return source; } function run(value = read()) { return value < 0 ? -value : value; }',
+		'/** @returns {bigint | number} */ function read() { return source; } function run(value = read()) { return value > limit || value < -limit; }',
+		'/** @param {() => bigint} read */ function run(read, value = read()) { return value < 0 ? -value : value; }',
+		'/** @returns {bigint} */ function read() { return source; } let value = read(); value < 0 ? -value : value;',
+		'/** @returns {bigint | number} */ function read() { return source; } var value = read(); value > limit || value < -limit;',
+		'/** @returns {bigint} */ function read() { return source; } let value = -read(); value < 0 ? -value : value;',
+		'/** @returns {bigint} */ function read() { return source; } function run(value, limit = read()) { return value > limit || value < -limit; }',
+	],
+	invalid: [
+		[
+			'function run(value = read()) { return value < 0 ? -value : value; }',
+			'function run(value = read()) { return Math.abs(value); }',
+		],
+		['let value = read(); value > limit || value < -limit;', 'let value = read(); Math.abs(value) > limit;'],
+	].map(([code, output]) => {
+		const prefix = '/** @returns {number} */ function read() { return source; } ';
+		return {
+			code: prefix + code,
+			errors: [{messageId: 'prefer-math-abs', suggestions: [{messageId: 'prefer-math-abs/suggestion', output: prefix + output}]}],
+		};
+	}),
+});
+
+test({
+	valid: [
+		'/** @param {bigint} input */ function run(input) { const value = input + 1n; return value < 0 ? -value : value; }',
+		'/** @type {bigint} */ let value; value < 0 ? -value : value;',
+		'/** @param {number | bigint} value */ function run(value) { return 0 < value ? value : -value; }',
+		'/** @param {?bigint} value */ function run(value) { return value >= 0 ? value : -value; }',
+		'/** @param {bigint} [value] */ function run(value) { return value < 0 ? -value : value; }',
+		'/** @param {bigint} value */ function run(value, limit) { return value > limit || value < -limit; }',
+		'/** @param {bigint} limit */ function run(value, limit) { return -limit >= value || limit <= value; }',
+		'/** @returns {bigint} */ function read() { return source; } const value = read(); value < 0 ? -value : value;',
+		'/** @param {bigint} input */ function run(input, limit) { const value = ~input; return value > limit || value < -limit; }',
+	],
+	invalid: [
+		[
+			'/** @param {number} value */ function run(value) { return value < 0 ? -value : value; }',
+			'/** @param {number} value */ function run(value) { return Math.abs(value); }',
+		],
+		[
+			'/** @param {number} value */ function run(value, limit) { return value > limit || value < -limit; }',
+			'/** @param {number} value */ function run(value, limit) { return Math.abs(value) > limit; }',
+		],
+	].map(([code, output]) => ({
+		code,
+		errors: [{messageId: 'prefer-math-abs', suggestions: [{messageId: 'prefer-math-abs/suggestion', output}]}],
+	})),
+});
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'function read(): bigint { return source; } let value = read(); value < 0 ? -value : value; function run(value = read()) { return value > limit || value < -limit; }',
+			'/** @returns {bigint} */ function read() { return source; } function run(value = read()) { return value < 0 ? -value : value; }',
+			'/** @param {bigint} value */ function run(value) { return value < 0 ? -value : value; }',
+			'/** @param {number | bigint} value */ function run(value) { return 0 < value ? value : -value; }',
+			'/** @param {bigint} limit */ function run(value, limit) { return -limit >= value || limit <= value; }',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [{
+			filename: 'file.ts',
+			code: '/** @param {bigint} value */ function run(value: number) { return value < 0 ? -value : value; }',
+			errors: [{
+				messageId: 'prefer-math-abs',
+				suggestions: [{
+					messageId: 'prefer-math-abs/suggestion',
+					output: '/** @param {bigint} value */ function run(value: number) { return Math.abs(value); }',
+				}],
+			}],
+		}],
+	});
+}
+
+nodeTest('documented bigint absolute expressions retain results without incompatible Math.abs suggestions', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-math-abs': rule}}},
+		rules: {'unicorn/prefer-math-abs': 'error'},
+	};
+	for (const [code, expected] of [
+		['/** @returns {bigint} */ function read() { return -5n; } function run(value = read()) { return value < 0 ? -value : value; } run();', 5n],
+		['/** @returns {bigint} */ function read() { return -5n; } let value = read(); value < 0 ? -value : value;', 5n],
+		['/** @param {bigint} value */ function run(value) { return value < 0 ? -value : value; } run(-5n);', 5n],
+		['/** @param {bigint} value */ function run(value, limit) { return value > limit || value < -limit; } run(-5n, 2);', true],
+	]) {
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(output, code);
+		t.assert.strictEqual(fixed, false);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(output), expected);
+	}
+
+	t.assert.throws(() => runInNewContext('Math.abs(-5n)'), {name: 'TypeError'});
 });
 
 test({

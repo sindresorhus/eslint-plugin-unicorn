@@ -1,6 +1,7 @@
 import {test as nodeTest} from 'node:test';
 import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
@@ -73,6 +74,40 @@ nodeTest('comment-preserving chained comparison rewrites remain suggestions and 
 		}
 	}
 });
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {boolean} flag */ function run(flag) { return (a < b) === flag; }',
+			'/** @param {() => boolean} read */ function run(read) { return (a < b) !== read(); }',
+			'/** @param {string} text */ function run(text) { return (a < b) == text.startsWith("x"); }',
+			'/** @param {Array<number> | Uint8Array} values */ function run(values) { return values.some(predicate) === (a < b); }',
+			'/** @returns {RegExp} */ function read() { return source; } (a < b) === read().global;',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			'/** @param {boolean | undefined} flag */ function run(flag) { return (a < b) === flag; }',
+			'/** @param {boolean} [flag] */ function run(flag) { return (a < b) === flag; }',
+			'/** @param {() => (() => boolean)} read */ function run(read) { return (a < b) !== read(); }',
+		].map(code => ({code, filename: 'file.ts', errors: [{messageId: 'no-chained-comparison/error', suggestions: 0}]})),
+	});
+}
+
+for (const parserOptions of [{}, {projectService: {allowDefaultProject: ['*.ts']}}]) {
+	test({
+		testerOptions: {languageOptions: {parser: typescriptEslintParser, parserOptions}},
+		valid: [{code: '/** @param {string} flag */ function run(flag: boolean) { return (a < b) === flag; }', filename: 'file.ts'}],
+		invalid: [{
+			code: '/** @param {boolean} flag */ function run(flag: string) { return (a < b) === flag; }',
+			filename: 'file.ts',
+			errors: [{messageId: 'no-chained-comparison/error', suggestions: 0}],
+		}],
+	});
+}
 
 test({
 	valid: [],

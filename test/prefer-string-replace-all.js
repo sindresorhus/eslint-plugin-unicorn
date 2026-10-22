@@ -1,8 +1,74 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 const dollarSign = '$';
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {number} value */ function run(value) { return value.replace(/[ab]/g, "x"); }',
+			'/** @returns {boolean} */ function read() { return source; } read().replace(/[ab]/g, "x");',
+			'/** @param {Object<string, string>} value */ function run(value) { return value.split("_").join("-"); }',
+			'/** @param {() => number} read */ function run(read) { return read().split("_").join("-"); }',
+			'/** @param {number | null} value */ function run(value) { return value.replace(/[ab]/g, "x"); }',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			[
+				'/** @param {string} text */ function run(text) { return text.replace(/[ab]/g, "x"); }',
+				'/** @param {string} text */ function run(text) { return text.replaceAll(/[ab]/g, "x"); }',
+				'method',
+			],
+			[
+				'/** @returns {string} */ function read() { return source; } read().replace(/[ab]/g, "x");',
+				'/** @returns {string} */ function read() { return source; } read().replaceAll(/[ab]/g, "x");',
+				'method',
+			],
+			[
+				'/** @type {string} */ const text = source; const alias = text; alias.split("_").join("$&");',
+				'/** @type {string} */ const text = source; const alias = text; alias.replaceAll(\'_\', \'$$&\');',
+				'split-join',
+			],
+			[
+				'/** @param {string | number} value */ function run(value) { return value.replace(/[ab]/g, "x"); }',
+				'/** @param {string | number} value */ function run(value) { return value.replaceAll(/[ab]/g, "x"); }',
+				'method',
+			],
+			[
+				'/** @param {string} text */ function run(text) { return text.split("_").join(/* keep */ "-"); }',
+				undefined,
+				'split-join',
+			],
+		].map(([code, output, messageId]) => ({
+			code, ...(output && {output}), filename: 'file.ts', errors: [{messageId}],
+		})),
+	});
+}
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			code: '/** @param {string} value */ function run(value: number) { return value.replace(/[ab]/g, "x"); }',
+			filename: 'file.ts',
+		}],
+		invalid: [{
+			code: '/** @param {number} value */ function run(value: string) { return value.replace(/[ab]/g, "x"); }',
+			output: '/** @param {number} value */ function run(value: string) { return value.replaceAll(/[ab]/g, "x"); }',
+			filename: 'file.ts',
+			errors: [{messageId: 'method'}],
+		}],
+	});
+}
 
 // Unicode regexes do not match half of a surrogate pair, while string searches do
 test.snapshot({

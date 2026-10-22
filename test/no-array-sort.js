@@ -1,11 +1,28 @@
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
 const FORBID_EXPRESSION_OPTIONS = [{allowExpressionStatement: false}];
 
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {URLSearchParams} values */ function run(values) { return values.sort(); }',
+			'/** @returns {URLSearchParams} */ function read() { return source; } const values = read(); const result = values.sort();',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [],
+	});
+}
+
 test.snapshot({
 	valid: [
+		'/** @param {Set<number>} collection */ function run(collection) { return collection.sort(); }',
 		// Known non-array receiver (type information)
 		{
 			code: 'function f(foo: Set<number>) { foo.sort(); }',
@@ -74,5 +91,60 @@ test.snapshot({
 		'sorted = [...foo(/* keep */)].sort()',
 		// A receiver that is not an array literal has no `elements` to inspect
 		'const x = a\n\t// keep\n\t.slice()\n\t.sort();',
+		'/** @param {number[]} array */ function run(array) { return array.sort(); }',
 	],
 });
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.js', '*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {Map<string, number>} values */ function run(values) { return values.sort(compare); }',
+			'/** @returns {{sort(): string}} */ function read() { return source; } const sorted = read().sort();',
+			'/** @param {Map<string, number>} values */ function run(values, cache) { return (cache = values).sort(); }',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			...[
+				'/** @returns {Uint8Array} */ function read() { return source; } const sorted = read().sort(compare);',
+				'/** @type {ReadonlyArray<number>} */ const values = source; const alias = values; const sorted = alias.sort();',
+				'/** @param {?Array<number>} values */ function run(values) { return values.sort(); }',
+				'/** @param {Array<number> | Set<number>} values */ function run(values) { return values.sort(compare); }',
+			].map(code => ({
+				code,
+				filename: 'file.ts',
+				errors: [{
+					messageId: 'error',
+					suggestions: [{messageId: 'suggestion-apply-replacement', output: code.replace('.sort(', '.toSorted(')}],
+				}],
+			})),
+		],
+	});
+}
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.js', '*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			code: '/** @param {Array<number>} values */ function run(values: Set<number>) { return values.sort(); }',
+			filename: 'file.ts',
+		}],
+		invalid: [{
+			code: '/** @param {Set<number>} values */ function run(values: number[]) { return values.sort(); }',
+			filename: 'file.ts',
+			errors: [{
+				messageId: 'error',
+				suggestions: [{
+					messageId: 'suggestion-apply-replacement',
+					output: '/** @param {Set<number>} values */ function run(values: number[]) { return values.toSorted(); }',
+				}],
+			}],
+		}],
+	});
+}

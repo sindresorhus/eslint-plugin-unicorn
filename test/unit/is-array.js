@@ -69,6 +69,37 @@ const spellings = typeName => [
 	`const receiver = new ${typeName}(); receiver.method();`,
 ];
 
+test('unwritten simple rest parameters are arrays without type information', t => {
+	for (const code of [
+		'function run(...values) { values.method(); }',
+		'/** @param {...boolean} values */ function run(...values) { values.method(); }',
+		'const run = (...values) => values.method();',
+		'class Task { run(first, ...values) { values.push(first); values.method(); } }',
+	]) {
+		const verdicts = getReceiverVerdicts(code);
+		t.assert.strictEqual(verdicts.isArray, true, code);
+		t.assert.strictEqual(verdicts.isIndexedCollection, true, code);
+		t.assert.strictEqual(verdicts.isKnownNonArray, false, code);
+		t.assert.strictEqual(verdicts.isKnownNonIndexedCollection, false, code);
+		t.assert.strictEqual(verdicts.isKnownBigIntTypedArray, false, code);
+	}
+});
+
+test('rest parameter inference excludes writes, object rest, and shadowed ordinary parameters', t => {
+	for (const code of [
+		'function run(...values) { values = source; values.method(); }',
+		'function run(...values) { function change() { values = source; } values.method(); }',
+		'function run({...values}) { values.method(); }',
+		'function outer(...values) { function inner(values) { values.method(); } }',
+	]) {
+		const verdicts = getReceiverVerdicts(code);
+		t.assert.strictEqual(verdicts.isArray, false, code);
+		t.assert.strictEqual(verdicts.isIndexedCollection, false, code);
+		t.assert.strictEqual(verdicts.isKnownNonArray, false, code);
+		t.assert.strictEqual(verdicts.isKnownNonIndexedCollection, false, code);
+	}
+});
+
 test('`isKnownNonArray` and `isKnownNonIndexedCollection` treat a typed array as the only disagreement', t => {
 	for (const typeName of typedArray) {
 		for (const code of spellings(typeName)) {
@@ -110,6 +141,63 @@ test('unknown and optional factory calls remain unknown', t => {
 		t.assert.strictEqual(verdicts.isIndexedCollection, false, code);
 		t.assert.strictEqual(verdicts.isKnownNonArray, false, code);
 		t.assert.strictEqual(verdicts.isKnownNonIndexedCollection, false, code);
+	}
+});
+
+for (const method of ['keys', 'values', 'entries', 'getOwnPropertyNames', 'getOwnPropertySymbols']) {
+	test(`Object.${method} creates an array independently of its input type`, t => {
+		for (const code of [
+			`Object.${method}(source).method();`,
+			`/** @param {unknown} source */ function run(source) { Object.${method}(source).method(); }`,
+			`/** @param {?Object<string, number>} source */ function run(source) { Object.${method}(source).method(); }`,
+			`function run(source: unknown) { const values = Object.${method}(source); const alias = values; alias.method(); }`,
+			`Object.${method}(source).reverse().toReversed().method();`,
+		]) {
+			t.assert.deepStrictEqual(getReceiverVerdicts(code), {
+				isArray: true,
+				isIndexedCollection: true,
+				isKnownNonArray: false,
+				isKnownNonIndexedCollection: false,
+				isKnownBigIntTypedArray: false,
+			}, code);
+		}
+	});
+}
+
+test('Object enumeration inference retains direct call and annotation boundaries', t => {
+	for (const code of [
+		'Object.keys?.(source).method();',
+		'Object?.values(source).method();',
+		'Object["entries"](source).method();',
+		'other.getOwnPropertyNames(source).method();',
+		'Object.getPrototypeOf(source).method();',
+		'Object.fromEntries(source).method();',
+		'Object.getOwnPropertyDescriptors(source).method();',
+		'Object.groupBy(source, key).method();',
+		'/** @type {unknown} */ const values = Object.values(source); values.method();',
+	]) {
+		t.assert.deepStrictEqual(getReceiverVerdicts(code), {
+			isArray: false,
+			isIndexedCollection: false,
+			isKnownNonArray: false,
+			isKnownNonIndexedCollection: false,
+			isKnownBigIntTypedArray: false,
+		}, code);
+	}
+});
+
+test('Object enumeration results retain inference beneath native unknown types', t => {
+	for (const code of [
+		'const values: unknown = Object.entries(source); values.method();',
+		'(Object.keys(source) as unknown).method();',
+	]) {
+		t.assert.deepStrictEqual(getReceiverVerdicts(code), {
+			isArray: true,
+			isIndexedCollection: true,
+			isKnownNonArray: false,
+			isKnownNonIndexedCollection: false,
+			isKnownBigIntTypedArray: false,
+		}, code);
 	}
 });
 
@@ -213,6 +301,31 @@ test('array checkers resolve explicit local function return annotations', t => {
 	t.assert.strictEqual(typedArray.isKnownNonIndexedCollection, false);
 });
 
+test('array checkers use JSDoc parameter and return annotations', t => {
+	for (const code of [
+		'/** @param {string[]} receiver */ function run(receiver) { receiver.method(); }',
+		'/** @param {Array<string>} receiver */ function run(receiver) { receiver.method(); }',
+		'/** @param {Array.<string>} receiver */ function run(receiver) { receiver.method(); }',
+		'/** @param {ReadonlyArray<string>} receiver */ function run(receiver) { receiver.method(); }',
+		'/** @param {readonly string[]} receiver */ function run(receiver) { receiver.method(); }',
+		'/** @param {[string, number]} receiver */ function run(receiver) { receiver.method(); }',
+		'/** @returns {string[]} */ function create() { return source; } create().method();',
+	]) {
+		const verdicts = getReceiverVerdicts(code);
+		t.assert.strictEqual(verdicts.isArray, true, code);
+		t.assert.strictEqual(verdicts.isIndexedCollection, true, code);
+		t.assert.strictEqual(verdicts.isKnownNonArray, false, code);
+	}
+
+	const typedArray = getReceiverVerdicts('/** @param {Uint8Array} receiver */ function run(receiver) { receiver.method(); }');
+	t.assert.strictEqual(typedArray.isArray, false);
+	t.assert.strictEqual(typedArray.isIndexedCollection, true);
+	t.assert.strictEqual(typedArray.isKnownNonArray, true);
+	const optional = getReceiverVerdicts('/** @param {Array<string>} [receiver] */ function run(receiver) { receiver.method(); }');
+	t.assert.strictEqual(optional.isArray, false);
+	t.assert.strictEqual(optional.isKnownNonArray, false);
+});
+
 test('array checkers leave unsupported local function returns unknown', t => {
 	for (const code of [
 		'function getValues() { return []; } getValues().method();',
@@ -274,4 +387,170 @@ test('intersections with known structural brands preserve array types', t => {
 	t.assert.strictEqual(verdicts.isArray, true);
 	t.assert.strictEqual(verdicts.isKnownNonArray, false);
 	t.assert.strictEqual(verdicts.isKnownNonIndexedCollection, false);
+});
+
+for (const expression of ['toReversed()', 'toSorted()', 'toSpliced(0, 1)', 'with(0, "replacement")']) {
+	test(`array copying result ${expression} preserves array inference`, t => {
+		for (const code of [
+			`/** @param {string[]} values */ function run(values) { values.${expression}.method(); }`,
+			`/** @param {ReadonlyArray<string>} values */ function run(values) { values.${expression}.method(); }`,
+			`/** @param {[string, number]} values */ function run(values) { values.${expression}.method(); }`,
+			`/** @returns {string[]} */ function read() { return source; } read().${expression}.method();`,
+			`function run(values: readonly string[]) { values.${expression}.method(); }`,
+			`function run(...values) { values.${expression}.method(); }`,
+			`const values = ["value"]; const copy = values.${expression}; copy.method();`,
+			`Array.from(source).${expression}.method();`,
+			`Array.of("value").${expression}.toReversed().method();`,
+			`const values = condition ? ["one"] : ["two"]; values.${expression}.method();`,
+		]) {
+			t.assert.deepStrictEqual(getReceiverVerdicts(code), {
+				isArray: true,
+				isIndexedCollection: true,
+				isKnownNonArray: false,
+				isKnownNonIndexedCollection: false,
+				isKnownBigIntTypedArray: false,
+			}, code);
+		}
+	});
+}
+
+test('array copying inference preserves unknown receiver and call boundaries', t => {
+	for (const code of [
+		'function run(values) { values.toSorted().method(); }',
+		'/** @param {unknown} values */ function run(values) { values.toReversed().method(); }',
+		'/** @param {?string[]} values */ function run(values) { values.toReversed().method(); }',
+		'/** @param {string[]} [values] */ function run(values) { values.toReversed().method(); }',
+		'/** @param {string[] | Uint8Array} values */ function run(values) { values.toSorted().method(); }',
+		'/** @param {string[]} values */ function run(values: unknown) { values.toSorted().method(); }',
+		'/** @param {{toSorted: () => string}} values */ function run(values) { values.toSorted().method(); }',
+		'const values = ["value"]; values?.toReversed().method();',
+		'const values = ["value"]; values.toReversed?.().method();',
+		'const values = ["value"]; values[method]().method();',
+		'const values = ["value"]; values.map(callback).method();',
+		'const values = ["value"]; values.filter(callback).method();',
+		'const values = ["value"]; values.slice().method();',
+		'const values = values.toReversed(); values.method();',
+		'const first = second.toSorted(); const second = first.toReversed(); first.method();',
+	]) {
+		t.assert.deepStrictEqual(getReceiverVerdicts(code), {
+			isArray: false,
+			isIndexedCollection: false,
+			isKnownNonArray: false,
+			isKnownNonIndexedCollection: false,
+			isKnownBigIntTypedArray: false,
+		}, code);
+	}
+});
+
+test('typed array copying chains remain unsupported without type information', t => {
+	for (const typeName of typedArray) {
+		for (const expression of ['toReversed()', 'toSorted()', 'with(0, value)']) {
+			const code = `/** @param {${typeName}} values */ function run(values) { values.${expression}.method(); }`;
+			t.assert.deepStrictEqual(getReceiverVerdicts(code), {
+				isArray: false,
+				isIndexedCollection: false,
+				isKnownNonArray: false,
+				isKnownNonIndexedCollection: false,
+				isKnownBigIntTypedArray: false,
+			}, code);
+		}
+	}
+});
+
+test('array copying methods create arrays without consulting constructor species', t => {
+	const values = ['two', 'one'];
+	Object.defineProperty(values, 'constructor', {
+		get() {
+			throw new Error('Copying must not read the constructor');
+		},
+	});
+
+	for (const copy of [values.toReversed(), values.toSorted((first, second) => first.localeCompare(second)), values.toSpliced(0, 1), values.with(0, 'replacement')]) {
+		t.assert.strictEqual(Array.isArray(copy), true);
+		t.assert.notStrictEqual(copy, values);
+	}
+
+	t.assert.strictEqual(values.join(','), 'two,one');
+});
+
+for (const expression of ['copyWithin(0, 1)', 'fill(1)', 'reverse()', 'sort(compare)']) {
+	test(`array mutation result ${expression} preserves array inference`, t => {
+		for (const code of [
+			`/** @param {number[]} values */ function run(values) { values.${expression}.method(); }`,
+			`/** @param values {[number, number]} */ function run(values) { values.${expression}.method(); }`,
+			`/** @returns {number[]} */ function read() { return source; } read().${expression}.method();`,
+			`function run(values: number[]) { values.${expression}.method(); }`,
+			`function run(...values) { values.${expression}.method(); }`,
+			`const values = Array.from(source); const result = values.${expression}.toReversed(); result.method();`,
+		]) {
+			t.assert.deepStrictEqual(getReceiverVerdicts(code), {
+				isArray: true,
+				isIndexedCollection: true,
+				isKnownNonArray: false,
+				isKnownNonIndexedCollection: false,
+				isKnownBigIntTypedArray: false,
+			}, code);
+		}
+	});
+}
+
+test('array mutation inference preserves unknown receivers and existing call boundaries', t => {
+	for (const code of [
+		'function run(values) { values.reverse().method(); }',
+		'/** @param {unknown} values */ function run(values) { values.fill(1).method(); }',
+		'/** @param {?number[]} values */ function run(values) { values.sort(compare).method(); }',
+		'/** @param {number[]} [values] */ function run(values) { values.copyWithin(0, 1).method(); }',
+		'/** @param {number[] | Uint8Array} values */ function run(values) { values.reverse().method(); }',
+		'/** @param {{reverse: () => string}} values */ function run(values) { values.reverse().method(); }',
+		'/** @param {number[]} values */ function run(values: unknown) { values.reverse().method(); }',
+		'/** @param {number[]} values */ function run(values) { values?.reverse().method(); }',
+		'/** @param {number[]} values */ function run(values) { values.sort?.(compare).method(); }',
+		'/** @param {number[]} values */ function run(values) { values["reverse"]().method(); }',
+		'/** @param {number[]} values */ function run(values) { values.pop().method(); }',
+		'/** @param {number[]} values */ function run(values) { values.push(1).method(); }',
+		'/** @param {number[]} values */ function run(values) { values.splice(0, 1).method(); }',
+		'const values = values.sort(compare); values.method();',
+		'const first = second.reverse(); const second = first.fill(1); first.method();',
+	]) {
+		t.assert.deepStrictEqual(getReceiverVerdicts(code), {
+			isArray: false,
+			isIndexedCollection: false,
+			isKnownNonArray: false,
+			isKnownNonIndexedCollection: false,
+			isKnownBigIntTypedArray: false,
+		}, code);
+	}
+});
+
+test('typed array mutation chains remain unsupported without type information', t => {
+	for (const type of ['Uint8Array', 'Float16Array', 'BigInt64Array', 'BigUint64Array']) {
+		for (const expression of ['copyWithin(0, 1)', 'fill(value)', 'reverse()', 'sort(compare)']) {
+			const code = `/** @param {${type}} values */ function run(values) { values.${expression}.method(); }`;
+			t.assert.deepStrictEqual(getReceiverVerdicts(code), {
+				isArray: false,
+				isIndexedCollection: false,
+				isKnownNonArray: false,
+				isKnownNonIndexedCollection: false,
+				isKnownBigIntTypedArray: false,
+			}, code);
+		}
+	}
+});
+
+test('array mutation methods return the original array without reading its constructor', t => {
+	for (const [method, methodArguments, expected] of [
+		['copyWithin', [1, 0, 1], [3, 3, 2]],
+		['fill', [9, 1], [3, 9, 9]],
+		['reverse', [], [2, 1, 3]],
+		['sort', [(first, second) => first - second], [1, 2, 3]],
+	]) {
+		const values = [3, 1, 2];
+		Object.defineProperty(values, 'constructor', {
+			get() {
+				throw new Error('Mutation must not read the constructor');
+			},
+		});
+		t.assert.strictEqual(Reflect.apply(Array.prototype[method], values, methodArguments), values);
+		t.assert.deepStrictEqual([...values], expected);
+	}
 });

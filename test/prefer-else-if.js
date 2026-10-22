@@ -17,6 +17,58 @@ const typeAware = code => ({
 	},
 });
 
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {boolean} [flag] */ function run(flag) { if (flag) {} if (flag === false) {} }',
+			'/** @param {boolean} flag */ function run(flag) { if (flag) { flag = false; } if (flag === false) {} }',
+			'/** @param {boolean} flag */ function run(flag) { if (flag) {} if (flag === true) {} }',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			{
+				code: '/** @param {boolean} flag */ function run(flag) { if (flag) {} if (flag === false) {} }',
+				output: '/** @param {boolean} flag */ function run(flag) { if (flag) {} else if (flag === false) {} }',
+				errors: [{messageId: 'prefer-else-if'}],
+			},
+			{
+				code: '/** @returns {boolean} */ function read() { return source; } const flag = read(); if (!flag) {} if (flag === true) {}',
+				output: '/** @returns {boolean} */ function read() { return source; } const flag = read(); if (!flag) {} else if (flag === true) {}',
+				errors: [{messageId: 'prefer-else-if'}],
+			},
+			{
+				code: '/** @param {boolean} flag */ function run(flag) { if (flag) { consume(); } if (flag === false) {} }',
+				errors: [{
+					messageId: 'prefer-else-if', suggestions: [{
+						messageId: 'suggestion',
+						output: '/** @param {boolean} flag */ function run(flag) { if (flag) { consume(); } else if (flag === false) {} }',
+					}],
+				}],
+			},
+		].map(testCase => ({...testCase, filename: 'file.ts'})),
+	});
+}
+
+for (const parserOptions of [{}, {projectService: {allowDefaultProject: ['*.ts']}}]) {
+	test({
+		testerOptions: {languageOptions: {parser: typescriptEslintParser, parserOptions}},
+		valid: [{
+			code: '/** @param {boolean} flag */ function run(flag: string) { if (flag) {} if (flag === false) {} }',
+			filename: 'file.ts',
+		}],
+		invalid: [{
+			code: '/** @param {string} flag */ function run(flag: boolean) { if (flag) {} if (flag === false) {} }',
+			output: '/** @param {string} flag */ function run(flag: boolean) { if (flag) {} else if (flag === false) {} }',
+			filename: 'file.ts',
+			errors: [{messageId: 'prefer-else-if'}],
+		}],
+	});
+}
+
 test.snapshot({
 	valid: [
 		outdent`

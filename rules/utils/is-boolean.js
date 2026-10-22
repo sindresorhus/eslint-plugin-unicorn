@@ -2,6 +2,17 @@ import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import getStaticValueIfNoSideEffects from './get-static-value.js';
 import {getFunctionReturnExpression} from './function-body.js';
 import {withTypeInformation} from './types.js';
+import {getJSDocumentTypeAnnotation, getJSDocumentReturnType, hasNativeTypeAssertion} from './jsdoc-type.js';
+import {getJSDocumentBooleanState} from './get-jsdoc-boolean-state.js';
+import {
+	createTypeCheckers,
+	getDefinitionInitializer,
+	getJSDocumentCallableReturnType,
+	hasJSDocumentTypeReference,
+} from './type-helpers.js';
+import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
+import {isIndexedCollection} from './is-array.js';
+import isString from './is-string.js';
 
 const booleanBinaryOperators = new Set([
 	'>',
@@ -30,13 +41,13 @@ const booleanStaticMethods = new Map([
 	['Error', new Set(['isError'])],
 	['Number', new Set(['isFinite', 'isInteger', 'isNaN', 'isSafeInteger'])],
 	['Object', new Set(['hasOwn', 'is', 'isExtensible', 'isFrozen', 'isSealed'])],
-	['Reflect', new Set(['deleteProperty', 'has'])],
+	['Reflect', new Set(['defineProperty', 'deleteProperty', 'has', 'isExtensible', 'preventExtensions', 'set', 'setPrototypeOf'])],
 	['URL', new Set(['canParse'])],
 ]);
 
 const booleanMethodsByExpressionKind = new Map([
 	['array', new Set(['every', 'includes', 'some'])],
-	['map', new Set(['has'])],
+	['keyedCollection', new Set(['has'])],
 	['regexp', new Set(['test'])],
 	['set', new Set(['has', 'isDisjointFrom', 'isSubsetOf', 'isSupersetOf'])],
 	['string', new Set(['endsWith', 'includes', 'isWellFormed', 'startsWith'])],
@@ -45,6 +56,28 @@ const booleanMethodsByExpressionKind = new Map([
 
 const booleanPropertiesByExpressionKind = new Map([
 	['regexp', new Set(['dotAll', 'global', 'hasIndices', 'ignoreCase', 'multiline', 'sticky', 'unicode', 'unicodeSets'])],
+]);
+
+const createNamedTypeChecker = names => createTypeCheckers({
+	targetTypeNames: new Set(names),
+	checkClassHeritage: false,
+}).isTarget;
+
+const mutableKeyedCollectionNames = ['Map', 'Set', 'WeakMap', 'WeakSet'];
+const {isTarget: isMutableKeyedCollection} = createTypeCheckers({
+	targetTypeNames: new Set(mutableKeyedCollectionNames),
+	nonTargetTypeNames: new Set(['ReadonlyMap', 'ReadonlySet']),
+	targetConstructorNames: mutableKeyedCollectionNames,
+	checkClassHeritage: false,
+});
+
+const expressionKindCheckers = new Map([
+	['array', isIndexedCollection],
+	['keyedCollection', createNamedTypeChecker(['Map', 'ReadonlyMap', 'WeakMap', 'URLSearchParams', 'Headers', 'FormData'])],
+	['regexp', createNamedTypeChecker(['RegExp'])],
+	['set', createNamedTypeChecker(['Set', 'ReadonlySet'])],
+	['string', isString],
+	['weakSet', createNamedTypeChecker(['WeakSet'])],
 ]);
 
 // The static value of these is never a primitive boolean, so they skip the costly side effect checks and evaluation.
@@ -65,7 +98,8 @@ const isBooleanStaticValue = (node, context) => {
 	}
 
 	return !nonBooleanStaticValueTypes.has(node.type)
-		&& typeof getStaticValueIfNoSideEffects(node, context)?.value === 'boolean';
+		&& typeof getStaticValueIfNoSideEffects(node, context)?.value === 'boolean'
+		&& !hasJSDocumentTypeReference(node, context);
 };
 
 function isBooleanTypeScriptType(type, checker) {
@@ -81,14 +115,17 @@ function isBooleanTypeScriptType(type, checker) {
 	return booleanTypeStrings.has(checker.typeToString(type));
 }
 
-function isBooleanTypeInformation(node, context) {
-	return withTypeInformation(node, context, ({type, checker}) => isBooleanTypeScriptType(type, checker)) ?? false;
-}
+const {isKnownNonTarget: isKnownNonBoolean} = createTypeCheckers({
+	targetTypeNames: new Set(['boolean']),
+	nonTargetTypeNames: new Set(['Array', 'ReadonlyArray', 'Promise', 'PromiseLike']),
+	isTargetTypeAnnotation: node => node?.type === 'TSBooleanKeyword'
+		|| (node?.type === 'TSLiteralType' && typeof node.literal.value === 'boolean'),
+	isTargetType: isBooleanTypeScriptType,
+});
 
-function getTypeReferenceName(typeName) {
-	if (typeName?.type === 'Identifier') {
-		return typeName.name;
-	}
+function isBooleanTypeInformation(node, context) {
+	return (withTypeInformation(node, context, ({type, checker}) => isBooleanTypeScriptType(type, checker)) ?? false)
+		&& !isKnownNonBoolean(node, context);
 }
 
 function isBooleanCallSignatureMembers(members, context, scope, visitedTypeReferences) {
@@ -108,12 +145,12 @@ function isTypeReference({
 	visitedTypeReferences,
 	predicate,
 }) {
-	const name = getTypeReferenceName(node.typeName);
-	if (!name) {
+	if (node.typeName?.type !== 'Identifier') {
 		return false;
 	}
 
-	const variable = findVariable(scope, name);
+	// Use the parser's binding to respect function signature scopes and generic parameters.
+	const variable = context.sourceCode.getScope(node).references.find(reference => reference.identifier === node.typeName)?.resolved;
 	if (!variable || visitedTypeReferences.has(variable)) {
 		return false;
 	}
@@ -277,6 +314,11 @@ function isBooleanFunction(node, context, visitedVariables = new Set()) {
 		return false;
 	}
 
+	const annotation = getJSDocumentReturnType(node, context);
+	if (annotation) {
+		return getJSDocumentBooleanState(annotation) === 'boolean';
+	}
+
 	const scope = context.sourceCode.getScope(node);
 	if (isBooleanTypeAnnotation(node.returnType, context, scope)) {
 		return true;
@@ -322,8 +364,25 @@ function isBooleanFunctionReference(node, context, visitedVariables = new Set())
 	} else if (variable.defs.length === 1) {
 		const [definition] = variable.defs;
 		const scope = context.sourceCode.getScope(definition.name);
-		if (isBooleanFunctionTypeAnnotation(definition.name?.typeAnnotation, context, scope)) {
-			isBoolean = true;
+		const annotation = getJSDocumentTypeAnnotation(definition.name, context);
+		if (annotation) {
+			const initializer = getDefinitionInitializer(definition);
+			const value = unwrapTypeScriptExpression(initializer);
+			const returnType = getJSDocumentCallableReturnType(annotation.type);
+			if (
+				!value?.async
+				&& !value?.generator
+				&& !(definition.type === 'Parameter' && (value?.returnType || hasNativeTypeAssertion(initializer)))
+				&& variable.references.every(reference => !reference.isWrite() || reference.init)
+			) {
+				isBoolean = value?.returnType
+					? isBooleanTypeAnnotation(value.returnType, context, context.sourceCode.getScope(value))
+					: !annotation.optional
+						&& returnType !== undefined
+						&& getJSDocumentBooleanState({type: returnType}) === 'boolean';
+			}
+		} else if (definition.name?.typeAnnotation) {
+			isBoolean = isBooleanFunctionTypeAnnotation(definition.name.typeAnnotation, context, scope);
 		} else {
 			let functionNode;
 			if (hasStableFunctionNameDefinitions(variable)) {
@@ -331,14 +390,26 @@ function isBooleanFunctionReference(node, context, visitedVariables = new Set())
 					functionNode = definition.node;
 				}
 			} else if (
-				isSimpleConstVariableDefinition(definition)
-				&& ['ArrowFunctionExpression', 'FunctionExpression'].includes(definition.node.init?.type)
+				definition.type === 'Variable'
+				&& definition.node.id === definition.name
+				&& variable.references.every(reference => !reference.isWrite() || reference.init)
 			) {
-				functionNode = definition.node.init;
+				let initializer = definition.node.init;
+				while (
+					initializer?.type === 'TSSatisfiesExpression'
+					|| initializer?.type === 'TSNonNullExpression'
+				) {
+					initializer = initializer.expression;
+				}
+
+				if (['ArrowFunctionExpression', 'FunctionExpression'].includes(initializer?.type)) {
+					functionNode = initializer;
+				}
 			}
 
 			isBoolean = functionNode
-				? isBooleanFunction(functionNode, context, visitedVariables)
+				? (!functionNode.returnType || isBooleanTypeAnnotation(functionNode.returnType, context, context.sourceCode.getScope(functionNode)))
+				&& isBooleanFunction(functionNode, context, visitedVariables)
 				: false;
 		}
 	}
@@ -380,7 +451,11 @@ function isBooleanTypeScriptExpression(node, context, visitedVariables) {
 	const scope = context.sourceCode.getScope(node);
 
 	return isBooleanTypeAnnotation(node.typeAnnotation, context, scope)
-		|| isBooleanExpression(node.expression, context, visitedVariables);
+		|| (
+			(node.type === 'TSSatisfiesExpression' || ['TSAnyKeyword', 'TSUnknownKeyword'].includes(node.typeAnnotation.type))
+			&& isBooleanExpression(node.expression, context, visitedVariables)
+		)
+		|| isBooleanTypeInformation(node, context);
 }
 
 function getKnownLiteralExpressionKind(node) {
@@ -405,8 +480,8 @@ function getKnownConstructorExpressionKind(node, context) {
 		return 'regexp';
 	}
 
-	if (['Map', 'WeakMap'].includes(node.callee.name)) {
-		return 'map';
+	if (['Map', 'WeakMap', 'URLSearchParams', 'Headers', 'FormData'].includes(node.callee.name)) {
+		return 'keyedCollection';
 	}
 
 	if (node.callee.name === 'Set') {
@@ -418,7 +493,20 @@ function getKnownConstructorExpressionKind(node, context) {
 	}
 }
 
+function getTypeCheckedExpressionKind(node, context) {
+	for (const [kind, isTarget] of expressionKindCheckers) {
+		if (isTarget(node, context)) {
+			return kind;
+		}
+	}
+}
+
 function getKnownIdentifierExpressionKind(node, context, visitedVariables) {
+	const kind = getTypeCheckedExpressionKind(node, context);
+	if (kind || getJSDocumentTypeAnnotation(node, context)) {
+		return kind;
+	}
+
 	const variable = findVariable(context.sourceCode.getScope(node), node);
 	const [definition] = variable?.defs ?? [];
 	if (
@@ -447,11 +535,11 @@ function getKnownExpressionKind(node, context, visitedVariables = new Set()) {
 		}
 
 		case 'TemplateLiteral': {
-			return node.expressions.length === 0 ? 'string' : undefined;
+			return 'string';
 		}
 
 		case 'NewExpression': {
-			return getKnownConstructorExpressionKind(node, context);
+			return getKnownConstructorExpressionKind(node, context) ?? getTypeCheckedExpressionKind(node, context);
 		}
 
 		case 'Identifier': {
@@ -462,14 +550,12 @@ function getKnownExpressionKind(node, context, visitedVariables = new Set()) {
 		/* node:coverage ignore next */
 		case 'ParenthesizedExpression':
 		case 'TSNonNullExpression':
-		case 'TSAsExpression':
-		case 'TSTypeAssertion':
 		case 'TSSatisfiesExpression': {
 			return getKnownExpressionKind(node.expression, context, visitedVariables);
 		}
 
 		default: {
-			break;
+			return getTypeCheckedExpressionKind(node, context);
 		}
 	}
 }
@@ -538,8 +624,12 @@ function isKnownBooleanInstanceMethodCall(node, context) {
 		return false;
 	}
 
-	const methods = booleanMethodsByExpressionKind.get(getKnownExpressionKind(node.callee.object, context));
 	const method = getPropertyName(node.callee, context.sourceCode.getScope(node.callee));
+	if (method === 'delete') {
+		return isMutableKeyedCollection(node.callee.object, context);
+	}
+
+	const methods = booleanMethodsByExpressionKind.get(getKnownExpressionKind(node.callee.object, context));
 	return Boolean(methods?.has(method));
 }
 
@@ -627,6 +717,11 @@ function isBooleanExpressionBySyntax(node, context, visitedVariables) {
 function isBooleanExpression(node, context, visitedVariables = new Set()) {
 	if (!node) {
 		return false;
+	}
+
+	const annotation = getJSDocumentTypeAnnotation(node, context);
+	if (annotation) {
+		return getJSDocumentBooleanState(annotation) === 'boolean' || isBooleanTypeInformation(node, context);
 	}
 
 	if (

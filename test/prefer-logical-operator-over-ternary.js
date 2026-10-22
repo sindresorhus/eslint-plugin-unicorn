@@ -881,3 +881,67 @@ nodeTest('logical suggestions preserve declaration-like prefixes and statement b
 		}
 	}
 });
+
+for (const [languageOptions, canFix] of [
+	[{}, true],
+	[{parser: parsers.typescript}, false],
+	[{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}}, false],
+]) {
+	const filename = canFix ? 'file.js' : 'file.ts';
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {?boolean} value */ function run(value) { return condition ? true : value; }',
+			'/** @param {() => boolean} read */ function run(read = async () => true) { return condition ? true : read(); }',
+			'/** @returns {Promise<boolean>} */ function read() { return source; } condition ? read() : false;',
+			'/** @param {boolean | string} value */ function run(value) { return condition ? value : false; }',
+			'/** @param {unknown} value */ function run(value) { return condition ? true : value; }',
+		].map(code => ({code, filename})),
+		invalid: [
+			...[
+				[
+					'/** @param {boolean} value */ function run(value) { return condition ? true : value; }',
+					'/** @param {boolean} value */ function run(value) { return Boolean(condition) || value; }',
+				],
+				[
+					'/** @param {boolean} condition\n * @param {boolean} value */ function run(condition, value) { return condition ? value : false; }',
+					'/** @param {boolean} condition\n * @param {boolean} value */ function run(condition, value) { return condition && value; }',
+				],
+				[
+					'/** @returns {boolean} */ function read() { return source; } condition ? false : read();',
+					'/** @returns {boolean} */ function read() { return source; } !condition && read();',
+				],
+				[
+					'/** @param {string} text */ function run(text) { return condition ? text.includes("x") : true; }',
+					'/** @param {string} text */ function run(text) { return !condition || text.includes("x"); }',
+				],
+				[
+					'/** @param {Uint8Array} bytes */ function run(bytes) { return condition ? true : bytes.every(predicate); }',
+					'/** @param {Uint8Array} bytes */ function run(bytes) { return Boolean(condition) || bytes.every(predicate); }',
+				],
+				[
+					'/** @param {boolean} [condition]\n * @param {boolean} value */ function run(condition, value) { return condition ? true : value; }',
+					'/** @param {boolean} [condition]\n * @param {boolean} value */ function run(condition, value) { return Boolean(condition) || value; }',
+				],
+				[
+					'/** @param {{(): boolean; label: string}} read */ function run(read) { return condition ? read() : false; }',
+					'/** @param {{(): boolean; label: string}} read */ function run(read) { return Boolean(condition) && read(); }',
+				],
+				[
+					'/** @param {string} value */ function run(/** @type {boolean} */ value) { return condition ? true : value; }',
+					'/** @param {string} value */ function run(/** @type {boolean} */ value) { return Boolean(condition) || value; }',
+				],
+			].map(([code, output]) => ({
+				code,
+				filename,
+				...(canFix && {output}),
+				errors: [{messageId: 'prefer-logical-operator-over-ternary/error', suggestions: 0}],
+			})),
+			{
+				code: '/** @param {boolean} value */ function run(value) { return condition /* keep */ ? true : value; }',
+				filename,
+				errors: [{messageId: 'prefer-logical-operator-over-ternary/error', suggestions: 0}],
+			},
+		],
+	});
+}

@@ -12,6 +12,17 @@ const typeAware = code => ({
 	},
 });
 
+test({
+	valid: [],
+	invalid: [
+		'declare const target: MessagePort | {postMessage: Function}; target.postMessage("ping")',
+		'declare const target: MessagePort | {postMessage: {}}; target.postMessage("ping")',
+	].map(code => ({
+		...typeAware(code),
+		errors: [{messageId: 'error', suggestions: 3}],
+	})),
+});
+
 test.snapshot({
 	valid: [
 		'window.postMessage(message, targetOrigin)',

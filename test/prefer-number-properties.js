@@ -1,10 +1,395 @@
 import outdent from 'outdent';
+import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 
 const MESSAGE_ID_ERROR = 'error';
 const MESSAGE_ID_SUGGESTION = 'suggestion';
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [],
+		invalid: [
+			...['atob', 'btoa'].map(name => ({
+				filename: 'file.ts',
+				code: `/** @param {unknown} value */ function run(value) { return isNaN(${name}(value).charCodeAt(0)); }`,
+				output: `/** @param {unknown} value */ function run(value) { return Number.isNaN(${name}(value).charCodeAt(0)); }`,
+				errors: [{messageId: MESSAGE_ID_ERROR, suggestions: 0}],
+			})),
+			...['isFinite', 'isNaN'].map(method => ({
+				filename: 'file.ts',
+				code: `/** @param {unknown} value */ function run(value) { return ${method}(Math.f16round(value)); }`,
+				output: `/** @param {unknown} value */ function run(value) { return Number.${method}(Math.f16round(value)); }`,
+				errors: [{messageId: MESSAGE_ID_ERROR, suggestions: 0}],
+			})),
+			...[
+				'getDate',
+				'getDay',
+				'getFullYear',
+				'getHours',
+				'getMilliseconds',
+				'getMinutes',
+				'getMonth',
+				'getSeconds',
+				'getTime',
+				'getTimezoneOffset',
+				'getUTCDate',
+				'getUTCDay',
+				'getUTCFullYear',
+				'getUTCHours',
+				'getUTCMilliseconds',
+				'getUTCMinutes',
+				'getUTCMonth',
+				'getUTCSeconds',
+				'valueOf',
+			].map(method => ({
+				filename: 'file.ts',
+				code: `/** @param {Date} value */ function run(value) { return isFinite(value.${method}()); }`,
+				output: `/** @param {Date} value */ function run(value) { return Number.isFinite(value.${method}()); }`,
+				errors: [{messageId: MESSAGE_ID_ERROR, suggestions: 0}],
+			})),
+			...['?Date', 'unknown', 'Date | {getTime: () => string}', '{getTime: () => string}'].map(type => ({
+				filename: 'file.ts',
+				code: `/** @param {${type}} value */ function run(value) { return isNaN(value.getTime()); }`,
+				errors: [{
+					messageId: MESSAGE_ID_ERROR,
+					suggestions: [{messageId: MESSAGE_ID_SUGGESTION, output: `/** @param {${type}} value */ function run(value) { return Number.isNaN(value.getTime()); }`}],
+				}],
+			})),
+			...['Date.now()', 'Date.parse(value)', 'Date.UTC(value, 0)'].map(expression => ({
+				filename: 'file.ts',
+				code: `/** @param {string | number} value */ function run(value) { return isFinite(${expression}); }`,
+				output: `/** @param {string | number} value */ function run(value) { return Number.isFinite(${expression}); }`,
+				errors: [{messageId: MESSAGE_ID_ERROR, suggestions: 0}],
+			})),
+			...['Date(value)', 'new Date(value)', 'other.parse(value)', 'Date.unknown(value)'].map(expression => ({
+				filename: 'file.ts',
+				code: `function run(value, other) { return isFinite(${expression}); }`,
+				errors: [{
+					messageId: MESSAGE_ID_ERROR,
+					suggestions: [{messageId: MESSAGE_ID_SUGGESTION, output: `function run(value, other) { return Number.isFinite(${expression}); }`}],
+				}],
+			})),
+			...['Map<string, boolean>', 'ReadonlyMap<string, unknown>', 'Set<bigint>', 'ReadonlySet<string>', 'Map<string, number> | Set<boolean>'].map(type => ({
+				filename: 'file.ts',
+				code: `/** @param {${type}} values */ function run(values) { return isFinite(values.size); }`,
+				output: `/** @param {${type}} values */ function run(values) { return Number.isFinite(values.size); }`,
+				errors: [{messageId: MESSAGE_ID_ERROR, suggestions: 0}],
+			})),
+			...[
+				[
+					'/** @returns {ReadonlyMap<string, number>} */ function read() { return source; } isNaN(read().size);',
+					'/** @returns {ReadonlyMap<string, number>} */ function read() { return source; } Number.isNaN(read().size);',
+				],
+				[
+					'const values = new Set(); const alias = values; isFinite(alias.size);',
+					'const values = new Set(); const alias = values; Number.isFinite(alias.size);',
+				],
+			].map(([code, output]) => ({
+				code, output, filename: 'file.ts', errors: [{messageId: MESSAGE_ID_ERROR, suggestions: 0}],
+			})),
+			...['WeakMap<object, number>', 'WeakSet<object>', '{size: string}', 'unknown', '?Set<number>', 'Set<number> | {size: string}'].map(type => ({
+				filename: 'file.ts',
+				code: `/** @param {${type}} values */ function run(values) { return isFinite(values.size); }`,
+				errors: [{
+					messageId: MESSAGE_ID_ERROR,
+					suggestions: [{messageId: MESSAGE_ID_SUGGESTION, output: `/** @param {${type}} values */ function run(values) { return Number.isFinite(values.size); }`}],
+				}],
+			})),
+		],
+	});
+}
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [],
+		invalid: [
+			[
+				'/** @param {string} text */ function run(text, pattern) { return isNaN(text.search(pattern)); }',
+				'/** @param {string} text */ function run(text, pattern) { return Number.isNaN(text.search(pattern)); }',
+			],
+			[
+				'/** @param {string} text */ function run(text, pattern) { return isFinite(text.trim().search(pattern)); }',
+				'/** @param {string} text */ function run(text, pattern) { return Number.isFinite(text.trim().search(pattern)); }',
+			],
+		].map(([code, output]) => ({
+			code,
+			filename: 'file.ts',
+			errors: [{messageId: MESSAGE_ID_ERROR, suggestions: [{messageId: MESSAGE_ID_SUGGESTION, output}]}],
+		})),
+	});
+}
+
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [],
+		invalid: [
+			...[
+				[
+					'/** @param {string} value */ function run(value) { return isFinite(value.length); }',
+					'/** @param {string} value */ function run(value) { return Number.isFinite(value.length); }',
+				],
+				[
+					'/** @param {Array<string>} value */ function run(value) { return isFinite(value.length); }',
+					'/** @param {Array<string>} value */ function run(value) { return Number.isFinite(value.length); }',
+				],
+				[
+					'/** @param {ReadonlyArray<number>} value */ function run(value) { return isFinite(value.length); }',
+					'/** @param {ReadonlyArray<number>} value */ function run(value) { return Number.isFinite(value.length); }',
+				],
+				[
+					'/** @param {Uint8Array} value */ function run(value) { return isFinite(value.length); }',
+					'/** @param {Uint8Array} value */ function run(value) { return Number.isFinite(value.length); }',
+				],
+				[
+					'/** @param {BigInt64Array} value */ function run(value) { return isFinite(value.length); }',
+					'/** @param {BigInt64Array} value */ function run(value) { return Number.isFinite(value.length); }',
+				],
+				[
+					'/** @param {Array<string> | Uint8Array} value */ function run(value) { return isFinite(value.length); }',
+					'/** @param {Array<string> | Uint8Array} value */ function run(value) { return Number.isFinite(value.length); }',
+				],
+				/* eslint-disable no-template-curly-in-string */
+				[
+					'/** @param {string} value */ function run(value) { return isNaN(String.raw`${value}`.charCodeAt(0)); }',
+					'/** @param {string} value */ function run(value) { return Number.isNaN(String.raw`${value}`.charCodeAt(0)); }',
+				],
+				[
+					'function run(template, value) { return isFinite(String.raw(template, value).indexOf("x")); }',
+					'function run(template, value) { return Number.isFinite(String.raw(template, value).indexOf("x")); }',
+				],
+				/* eslint-enable no-template-curly-in-string */
+				[
+					'/** @param {Array<string>} values */ function run(values) { return isFinite(values.indexOf("x")); }',
+					'/** @param {Array<string>} values */ function run(values) { return Number.isFinite(values.indexOf("x")); }',
+				],
+				[
+					'/** @param {ReadonlyArray<boolean>} values */ function run(values) { return isNaN(values.lastIndexOf(false)); }',
+					'/** @param {ReadonlyArray<boolean>} values */ function run(values) { return Number.isNaN(values.lastIndexOf(false)); }',
+				],
+				[
+					'/** @param {[string, boolean]} values */ function run(values) { return isFinite(values.findIndex(() => "yes")); }',
+					'/** @param {[string, boolean]} values */ function run(values) { return Number.isFinite(values.findIndex(() => "yes")); }',
+				],
+				[
+					'/** @param {BigInt64Array} values */ function run(values) { return isNaN(values.findLastIndex(() => ({}))); }',
+					'/** @param {BigInt64Array} values */ function run(values) { return Number.isNaN(values.findLastIndex(() => ({}))); }',
+				],
+				[
+					'/** @param {Array<string> | Uint8Array} values */ function run(values) { const alias = values; return isFinite(alias.indexOf(0)); }',
+					'/** @param {Array<string> | Uint8Array} values */ function run(values) { const alias = values; return Number.isFinite(alias.indexOf(0)); }',
+				],
+				[
+					'/** @returns {ReadonlyArray<string>} */ function read() { return source; } isFinite(read().findLastIndex(Boolean));',
+					'/** @returns {ReadonlyArray<string>} */ function read() { return source; } Number.isFinite(read().findLastIndex(Boolean));',
+				],
+				[
+					'/** @param {number} value */ function run(value) { return isNaN(value); }',
+					'/** @param {number} value */ function run(value) { return Number.isNaN(value); }',
+				],
+				[
+					'/** @returns {number} */ function read() { return source; } isFinite(read());',
+					'/** @returns {number} */ function read() { return source; } Number.isFinite(read());',
+				],
+				[
+					'/** @param {() => number} read */ function run(read) { return isNaN(read()); }',
+					'/** @param {() => number} read */ function run(read) { return Number.isNaN(read()); }',
+				],
+				[
+					'/** @type {number} */ const value = source; const alias = value; isFinite(alias);',
+					'/** @type {number} */ const value = source; const alias = value; Number.isFinite(alias);',
+				],
+				[
+					'/** @param {string} text */ function run(text) { return isFinite(text.indexOf("x")); }',
+					'/** @param {string} text */ function run(text) { return Number.isFinite(text.indexOf("x")); }',
+				],
+				[
+					'/** @param {number} first\n * @param {number} second */ function run(first, second) { return isNaN(condition ? first : second); }',
+					'/** @param {number} first\n * @param {number} second */ function run(first, second) { return Number.isNaN(condition ? first : second); }',
+				],
+				[
+					'/** @param {number} value */ function run(value, cache) { return isFinite(cache = value); }',
+					'/** @param {number} value */ function run(value, cache) { return Number.isFinite(cache = value); }',
+				],
+				[
+					'/** @param {string} value */ function run(/** @type {number} */ value) { return isNaN(value); }',
+					'/** @param {string} value */ function run(/** @type {number} */ value) { return Number.isNaN(value); }',
+				],
+			].map(([code, output]) => ({
+				code, output, filename: 'file.ts', errors: [{messageId: MESSAGE_ID_ERROR, suggestions: 0}],
+			})),
+			...[
+				[
+					'/** @param {{length: string}} value */ function run(value) { return isFinite(value.length); }',
+					'/** @param {{length: string}} value */ function run(value) { return Number.isFinite(value.length); }',
+				],
+				[
+					'/** @param {{length: boolean}} value */ function run(value) { return isFinite(value.length); }',
+					'/** @param {{length: boolean}} value */ function run(value) { return Number.isFinite(value.length); }',
+				],
+				[
+					'/** @param {unknown} value */ function run(value) { return isFinite(value.length); }',
+					'/** @param {unknown} value */ function run(value) { return Number.isFinite(value.length); }',
+				],
+				[
+					'/** @param {Array<string> | {length: string}} value */ function run(value) { return isFinite(value.length); }',
+					'/** @param {Array<string> | {length: string}} value */ function run(value) { return Number.isFinite(value.length); }',
+				],
+				[
+					'/** @returns {{length: string}} */ function read() { return source; } isNaN(read().length);',
+					'/** @returns {{length: string}} */ function read() { return source; } Number.isNaN(read().length);',
+				],
+				[
+					'/** @param {Array<string> | Set<string>} values */ function run(values) { return isFinite(values.indexOf("x")); }',
+					'/** @param {Array<string> | Set<string>} values */ function run(values) { return Number.isFinite(values.indexOf("x")); }',
+				],
+				[
+					'/** @param {ArrayLike<string>} values */ function run(values) { return isNaN(values.findIndex(Boolean)); }',
+					'/** @param {ArrayLike<string>} values */ function run(values) { return Number.isNaN(values.findIndex(Boolean)); }',
+				],
+				[
+					'/** @param {{lastIndexOf: () => string}} values */ function run(values) { return isFinite(values.lastIndexOf()); }',
+					'/** @param {{lastIndexOf: () => string}} values */ function run(values) { return Number.isFinite(values.lastIndexOf()); }',
+				],
+				[
+					'/** @param {?Array<string>} values */ function run(values) { return isFinite(values?.findIndex(Boolean)); }',
+					'/** @param {?Array<string>} values */ function run(values) { return Number.isFinite(values?.findIndex(Boolean)); }',
+				],
+				[
+					'/** @param {Array<string>} values */ function run(values) { return isFinite(values.find(Boolean)); }',
+					'/** @param {Array<string>} values */ function run(values) { return Number.isFinite(values.find(Boolean)); }',
+				],
+				[
+					'/** @param {number} [value] */ function run(value) { return isFinite(value); }',
+					'/** @param {number} [value] */ function run(value) { return Number.isFinite(value); }',
+				],
+				[
+					'/** @param {number | string} value */ function run(value) { return isNaN(value); }',
+					'/** @param {number | string} value */ function run(value) { return Number.isNaN(value); }',
+				],
+				[
+					'/** @param {() => ?number} read */ function run(read) { return isFinite(read()); }',
+					'/** @param {() => ?number} read */ function run(read) { return Number.isFinite(read()); }',
+				],
+				[
+					'/** @returns {number} */ async function read() { return source; } isNaN(read());',
+					'/** @returns {number} */ async function read() { return source; } Number.isNaN(read());',
+				],
+				[
+					'/** @param {() => (() => number)} read */ function run(read) { return isFinite(read()); }',
+					'/** @param {() => (() => number)} read */ function run(read) { return Number.isFinite(read()); }',
+				],
+			].map(([code, output]) => ({
+				code,
+				filename: 'file.ts',
+				errors: [{messageId: MESSAGE_ID_ERROR, suggestions: [{messageId: MESSAGE_ID_SUGGESTION, output}]}],
+			})),
+		],
+	});
+}
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [],
+		invalid: [{
+			code: '/** @param {Date} value */ function run(value: {getTime(): string}) { return isFinite(value.getTime()); }',
+			filename: 'file.ts',
+			errors: [{
+				messageId: MESSAGE_ID_ERROR,
+				suggestions: [{
+					messageId: MESSAGE_ID_SUGGESTION,
+					output: '/** @param {Date} value */ function run(value: {getTime(): string}) { return Number.isFinite(value.getTime()); }',
+				}],
+			}],
+		}, {
+			code: '/** @param {{valueOf: () => string}} value */ function run(value: Date) { return isFinite(value.valueOf()); }',
+			output: '/** @param {{valueOf: () => string}} value */ function run(value: Date) { return Number.isFinite(value.valueOf()); }',
+			filename: 'file.ts',
+			errors: [{messageId: MESSAGE_ID_ERROR, suggestions: 0}],
+		}, {
+			code: '/** @param {Map<string, number>} value */ function run(value: {size: string}) { return isFinite(value.size); }',
+			filename: 'file.ts',
+			errors: [{
+				messageId: MESSAGE_ID_ERROR,
+				suggestions: [{
+					messageId: MESSAGE_ID_SUGGESTION,
+					output: '/** @param {Map<string, number>} value */ function run(value: {size: string}) { return Number.isFinite(value.size); }',
+				}],
+			}],
+		}, {
+			code: '/** @param {{size: string}} value */ function run(value: ReadonlySet<bigint>) { return isFinite(value.size); }',
+			output: '/** @param {{size: string}} value */ function run(value: ReadonlySet<bigint>) { return Number.isFinite(value.size); }',
+			filename: 'file.ts',
+			errors: [{messageId: MESSAGE_ID_ERROR, suggestions: 0}],
+		}, {
+			code: '/** @param {Array<string>} value */ function run(value: {length: string}) { return isFinite(value.length); }',
+			filename: 'file.ts',
+			errors: [{
+				messageId: MESSAGE_ID_ERROR,
+				suggestions: [{
+					messageId: MESSAGE_ID_SUGGESTION,
+					output: '/** @param {Array<string>} value */ function run(value: {length: string}) { return Number.isFinite(value.length); }',
+				}],
+			}],
+		}, {
+			code: '/** @param {{length: string}} value */ function run(value: string[]) { return isFinite(value.length); }',
+			output: '/** @param {{length: string}} value */ function run(value: string[]) { return Number.isFinite(value.length); }',
+			filename: 'file.ts',
+			errors: [{messageId: MESSAGE_ID_ERROR, suggestions: 0}],
+		}, {
+			code: '/** @param {string} value */ function run(value: number) { return isFinite(value); }',
+			output: '/** @param {string} value */ function run(value: number) { return Number.isFinite(value); }',
+			filename: 'file.ts',
+			errors: [{messageId: MESSAGE_ID_ERROR, suggestions: 0}],
+		}, {
+			code: '/** @param {Number} value */ function run(value: Number) { return isNaN(value); }',
+			filename: 'file.ts',
+			errors: [{
+				messageId: MESSAGE_ID_ERROR,
+				suggestions: [{
+					messageId: MESSAGE_ID_SUGGESTION,
+					output: '/** @param {Number} value */ function run(value: Number) { return Number.isNaN(value); }',
+				}],
+			}],
+		}],
+	});
+}
+
+test({
+	testerOptions: {
+		languageOptions: {
+			parser: typescriptEslintParser,
+			parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+		},
+	},
+	valid: [],
+	invalid: [{
+		code: 'function run(value: {length: number}) { return isFinite(value.length); }',
+		output: 'function run(value: {length: number}) { return Number.isFinite(value.length); }',
+		filename: 'file.ts',
+		errors: [{messageId: MESSAGE_ID_ERROR, suggestions: 0}],
+	}],
+});
 
 const methods = {
 	parseInt: {
@@ -528,7 +913,7 @@ test.snapshot({
 test.snapshot({
 	valid: [],
 	invalid: [
-		// Auto-fixed: argument is known to be a number
+		// Known numeric arguments are auto-fixed; unknown property lengths require a suggestion.
 		'isNaN(10);',
 		'isFinite(10);',
 		'isNaN(foo - 1);',

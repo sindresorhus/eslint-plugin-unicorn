@@ -7,6 +7,84 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test, rule} = getTester(import.meta);
 
+for (const languageOptions of [
+	{},
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {Map<string, number>} values */ function run(values) { return values.push(value); }',
+			'/** @returns {Set<number>} */ function read() { return source; } function run() { return read().unshift(value); }',
+			'/** @param {() => string} read */ function run(read) { return read().push(value); }',
+			'/** @param {?Array<number>} stream */ function run(stream) { return stream.push(value); }',
+			'/** @param {Array<number>} values */ function run(values) { return values.push(value).then(consume); }',
+			'/** @param {Array<number>} values */ function run(values) { return void values.push(value); }',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			...[
+				[
+					'/** @param {Array<number>} stream */ function run(stream) { return stream.push(value); }',
+					'/** @param {Array<number>} stream */ function run(stream) { stream.push(value); return; }',
+					'push',
+				],
+				[
+					'/** @returns {ReadonlyArray<number>} */ function read() { return source; } function run() { return read().unshift(value); }',
+					'/** @returns {ReadonlyArray<number>} */ function read() { return source; } function run() { read().unshift(value); return; }',
+					'unshift',
+				],
+				[
+					'/** @param {?Array<number>} values */ function run(values) { return values.push(value); }',
+					'/** @param {?Array<number>} values */ function run(values) { values.push(value); return; }',
+					'push',
+				],
+				[
+					'/** @param {Uint8Array} values */ function run(values) { return values.push(value); }',
+					'/** @param {Uint8Array} values */ function run(values) { values.push(value); return; }',
+					'push',
+				],
+			].map(([code, output, method]) => ({
+				code,
+				filename: 'file.ts',
+				errors: [{
+					messageId: 'no-return-array-push/error',
+					suggestions: [{messageId: 'no-return-array-push/suggestion', data: {method}, output}],
+				}],
+			})),
+			...[
+				'/** @param {Array<number>} values */ const run = values => values.push(value);',
+				'/** @param {Array<number>} values */ function run(values) { return /* keep */ values.unshift(value); }',
+			].map(code => ({code, filename: 'file.ts', errors: [{messageId: 'no-return-array-push/error', suggestions: 0}]})),
+		],
+	});
+}
+
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [{
+			code: '/** @param {Array<number>} values */ function run(values: Set<number>) { return values.push(value); }',
+			filename: 'file.ts',
+		}],
+		invalid: [{
+			code: '/** @param {Map<string, number>} stream */ function run(stream: number[]) { return stream.push(value); }',
+			filename: 'file.ts',
+			errors: [{
+				messageId: 'no-return-array-push/error',
+				suggestions: [{
+					messageId: 'no-return-array-push/suggestion',
+					data: {method: 'push'},
+					output: '/** @param {Map<string, number>} stream */ function run(stream: number[]) { stream.push(value); return; }',
+				}],
+			}],
+		}],
+	});
+}
+
 test.snapshot({
 	valid: [
 		outdent`

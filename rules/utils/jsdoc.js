@@ -1,7 +1,7 @@
 const maskCharacter = '\u{FFFF}';
 const quoteCharacters = '"\'`';
 // `\s*\*?\s*` used to backtrack quadratically over a long whitespace run that no tag follows
-const jsdocTagPattern = /^\s*(?:\*\s*)?(?<tag>@[\d\p{Letter}][\d\p{Letter}\-]*!?)(?=\s|$)/v;
+const jsdocTagPattern = /^\s*(?:\*\s*)?(?<tag>@[\d\p{Letter}][\d\p{Letter}\-]*!?)(?=\s|\{|$)/v;
 const jsdocTypeAndNameTagNames = new Set(['param', 'arg', 'argument', 'property', 'prop', 'typedef', 'callback', 'member', 'var', 'const', 'constant', 'class', 'constructor', 'module', 'namespace']);
 const jsdocStructuredTypeTagNames = new Set(['type', 'this', 'extends', 'augments', 'implements', 'satisfies', 'import', 'package', 'enum']);
 const jsdocTypeTagNames = new Set(['returns', 'return', 'throws', 'exception', 'yields', 'yield', 'private', 'protected', 'public']);
@@ -195,18 +195,20 @@ function maskJSDocumentTypeOrValue(characters, text, start, end) {
 }
 
 function maskJSDocumentTypeAndName(characters, text, start, end) {
-	let valueStart = skipJSDocumentHorizontalWhitespace(text, start, end);
+	const valueStart = skipJSDocumentHorizontalWhitespace(text, start, end);
 
-	if (text[valueStart] === '{') {
-		const typeEnd = maskJSDocumentType(characters, text, valueStart, end);
-		if (typeEnd === valueStart) {
-			return;
-		}
-
-		valueStart = skipJSDocumentHorizontalWhitespace(text, typeEnd, end);
+	if (text[valueStart] !== '{') {
+		const nameEnd = maskJSDocumentValue(characters, text, valueStart, end);
+		maskJSDocumentType(characters, text, skipJSDocumentTemplateWhitespace(text, nameEnd, end), end);
+		return;
 	}
 
-	maskJSDocumentValue(characters, text, valueStart, end);
+	const typeEnd = maskJSDocumentType(characters, text, valueStart, end);
+	if (typeEnd === valueStart) {
+		return;
+	}
+
+	maskJSDocumentValue(characters, text, typeEnd, end);
 }
 
 function maskJSDocumentNameList(characters, text, start, end) {
@@ -318,7 +320,7 @@ function getJSDocumentTag(text, start, end) {
 	};
 }
 
-function maskJSDocumentTagSyntax(characters, text) {
+function getJSDocumentTags(text) {
 	const tags = [];
 	let lineStart = 0;
 
@@ -332,6 +334,12 @@ function maskJSDocumentTagSyntax(characters, text) {
 
 		lineStart = lineEnd + 1;
 	}
+
+	return tags;
+}
+
+function maskJSDocumentTagSyntax(characters, text) {
+	const tags = getJSDocumentTags(text);
 
 	for (const [index, {tag, lineEnd}] of tags.entries()) {
 		const tagEnd = tags[index + 1]?.lineStart ?? text.length;
@@ -383,6 +391,9 @@ export default function maskJSDocumentSyntax(characters, text) {
 }
 
 export {
+	getJSDocumentDelimitedEnd,
+	getJSDocumentTags,
+	skipJSDocumentTemplateWhitespace,
 	getLineEndIndex,
 	maskCharacter,
 	maskRange,

@@ -80,6 +80,63 @@ const typeAware = code => ({
 	},
 });
 
+for (const languageOptions of [{}, {parser: parsers.typescript}, typeAware('').languageOptions]) {
+	ruleTest({
+		testerOptions: {languageOptions},
+		valid: [
+			'/** @param {string} pattern */ function run(pattern) { if (text.match(pattern)) {} }',
+			'/** @returns {string} */ function read() { return source; } if (text.search(read()) !== -1) {}',
+			'/** @param {() => string} read */ function run(read) { if (text.match(read())) {} }',
+			'/** @param {string} regexp */ function run(regexp) { if (regexp.exec(text)) {} }',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [
+			{
+				code: '/** @param {string} text */ function run(text) { if (text.match(/x/)) {} }',
+				output: '/** @param {string} text */ function run(text) { if (/x/.test(text)) {} }',
+				errors: [{messageId: 'string-match'}],
+			},
+			{
+				code: '/** @returns {string} */ function read() { return source; } if (read().search(/x/) !== -1) {}',
+				output: '/** @returns {string} */ function read() { return source; } if (/x/.test(read())) {}',
+				errors: [{messageId: 'string-search'}],
+			},
+			{
+				code: '/** @param {() => string} read */ function run(read) { if (read().match(/x/g)) {} }',
+				errors: [{
+					messageId: 'string-match', suggestions: [{
+						messageId: 'suggestion',
+						output: '/** @param {() => string} read */ function run(read) { if (/x/g.test(read())) {} }',
+					}],
+				}],
+			},
+			{
+				code: '/** @param {string} text */ function run(text) { return text.search(/x/) /* keep */ !== -1; }',
+				errors: [{messageId: 'string-search', suggestions: 0}],
+			},
+		].map(testCase => ({...testCase, filename: 'file.ts'})),
+	});
+}
+
+for (const languageOptions of [{parser: parsers.typescript}, typeAware('').languageOptions]) {
+	ruleTest({
+		testerOptions: {languageOptions},
+		valid: [{
+			code: '/** @param {boolean} pattern */ function run(pattern: string) { if (text.match(pattern)) {} }',
+			filename: 'file.ts',
+		}],
+		invalid: [{
+			code: '/** @param {string} pattern */ function run(pattern: RegExp) { if (text.match(pattern)) {} }',
+			filename: 'file.ts',
+			errors: [{
+				messageId: 'string-match', suggestions: [{
+					messageId: 'suggestion',
+					output: '/** @param {string} pattern */ function run(pattern: RegExp) { if (pattern.test(text)) {} }',
+				}],
+			}],
+		}],
+	});
+}
+
 // Keyword spacing and inserted `!`
 ruleTest({
 	valid: [],
