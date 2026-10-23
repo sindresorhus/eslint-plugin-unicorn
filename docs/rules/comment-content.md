@@ -56,6 +56,28 @@ In JSDoc comments, it skips structured tag syntax such as parameter names, type 
 
 Type: `object`
 
+### ignore
+
+Type: `Array<string | RegExp>`\
+Default: `[]`
+
+Ignore matching parts of each comment. Strings are regex sources using the `v` flag; regex literals preserve their flags. All patterns are applied globally.
+
+For example, preserve text inside smart quotes and guillemets:
+
+```js
+'unicorn/comment-content': [
+	'error',
+	{
+		ignore: [
+			/“[^”]*”/v,
+			/«[^»]*»/v,
+			/»[^«]*«/v,
+		],
+	},
+]
+```
+
 ### checkUniformCase
 
 Type: `boolean`\
