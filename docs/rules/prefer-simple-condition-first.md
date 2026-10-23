@@ -17,12 +17,13 @@ A condition is considered "simple" if it is:
 - A negated simple condition (`!foo`)
 - A strict equality or inequality comparison between identifiers, `typeof identifier`, literals, signed number literals, and negative BigInt literals, with at least one identifier or `typeof identifier` (`foo === 1`, `a !== b`, `index === -1`, `typeof value === 'string'`)
 - A loose equality or inequality comparison between an identifier and `null`, in either operand order (`foo == null`, `null != foo`)
+- A loose equality or inequality comparison between `typeof identifier` and a static string or another `typeof identifier`, in either operand order (`typeof value == 'object'`, `'string' != typeof value`, `typeof first == typeof second`)
 
 Property accesses, including boolean properties accessed through `this` or a class, are considered complex because they can invoke getters. The rule classifies conditions by their structure, not their type or measured evaluation cost. Reordering conditions across property accesses requires manual review and is not automatically fixed.
 
 The rule checks each complete chain of the same logical operator and reports it once when a simple condition follows a complex condition. Conditions are reordered as a stable group, preserving the relative order among both the simple and complex conditions.
 
-In an `&&` chain, an identifier does not itself trigger a report when an earlier condition guards it with `typeof identifier !== 'undefined'` (or the reversed comparison). Moving the identifier ahead of that guard could throw a `ReferenceError`. Other misplaced simple conditions in the chain are still reported, and any automatic fix keeps the guard before the identifier.
+An identifier does not itself trigger a report when an earlier condition guards it with `typeof identifier !== 'undefined'` or `!=` in an `&&` chain, or `typeof identifier === 'undefined'` or `==` in an `||` chain. Reversed comparisons are also supported. Moving the identifier ahead of that guard could throw a `ReferenceError`. Other misplaced simple conditions in the chain are still reported, and any automatic fix keeps the guard before the identifier.
 
 ## Examples
 

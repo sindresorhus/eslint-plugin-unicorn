@@ -7,6 +7,11 @@ const {test, rule} = getTester(import.meta);
 
 test({
 	valid: [
+		'if (typeof element == "object" && element != null) {}',
+		'if (typeof first == typeof second && ready) {}',
+		'if (typeof first != typeof second || ready) {}',
+		'if (typeof FLAG === "undefined" || check() || FLAG) {}',
+		'if (typeof FLAG == "undefined" || check() || FLAG) {}',
 		'if (typeof missing !== `undefined` && missing) {}',
 		'if (`undef\\u0069ned` !== typeof missing && missing) {}',
 	],
@@ -19,6 +24,117 @@ test({
 });
 const error = {messageId: 'prefer-simple-condition-first'};
 const unsafeError = {messageId: 'prefer-simple-condition-first/unsafe'};
+
+test({
+	valid: [
+		'if (typeof value == "string" && ready);',
+		'if (typeof value != "string" || ready);',
+		'if ("string" == typeof value || ready);',
+		'if ("string" != typeof value && ready);',
+		'if (!(typeof value == "string") && ready);',
+		'if (typeof value == `str\\u0069ng` && ready);',
+		'if (`string` != typeof value && ready);',
+		'if (typeof value == "" && ready);',
+		'if (typeof value != `` && ready);',
+		'if (typeof FLAG != "undefined" && check() && FLAG);',
+		'if (`undef\\u0069ned` != typeof FLAG && check() && FLAG);',
+		'if (!(typeof first != typeof second) && ready);',
+		'if ("undefined" === typeof FLAG || check() || FLAG);',
+		'if (`undef\\u0069ned` == typeof FLAG || check() || FLAG);',
+	],
+	invalid: [
+		{
+			code: 'if ((foo ? bar : baz) && typeof value == "string");',
+			output: 'if ((typeof value == "string") && (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? bar : baz) || `string` != typeof value);',
+			output: 'if ((`string` != typeof value) || (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? typeof value == "string" : ready) && enabled);',
+			output: 'if (enabled && (foo ? typeof value == "string" : ready));',
+			errors: [error],
+		},
+		{
+			code: 'if (typeof FLAG != "undefined" && (foo ? bar : baz) && FLAG && ready);',
+			output: 'if ((typeof FLAG != "undefined") && FLAG && ready && (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? bar : baz) && typeof first == typeof second);',
+			output: 'if ((typeof first == typeof second) && (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? bar : baz) || typeof first != typeof second);',
+			output: 'if ((typeof first != typeof second) || (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if (typeof FLAG == "undefined" || (foo ? bar : baz) || FLAG || ready);',
+			output: 'if ((typeof FLAG == "undefined") || FLAG || ready || (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if (typeof FLAG === "undefined" || check() || FLAG || ready);',
+			errors: [{...unsafeError, column: 55, endColumn: 60}],
+		},
+		...[
+			'if (check() && typeof value == "string");',
+			'if (check() || "string" != typeof value);',
+			'if (typeof FLAG == "undefined" && check() && FLAG);',
+			'if (typeof FLAG != "undefined" || check() || FLAG);',
+			'if (typeof FLAG == "undefined" || check() || OTHER);',
+			'if (typeof FLAG == "string" || check() || FLAG);',
+			'if (check() || typeof FLAG == "undefined" || FLAG);',
+			'if (check() && typeof first == typeof second);',
+			'if (check() || typeof first != typeof second);',
+			'if (typeof object.value == typeof value && ready);',
+			'if (typeof value != typeof getValue() && ready);',
+			'if (typeof object.value == "string" && ready);',
+			'if (typeof getValue() != "string" && ready);',
+			'if (typeof value == expectedType && ready);',
+			'if (typeof value == `str${suffix}` && ready);', // eslint-disable-line no-template-curly-in-string
+			'if (typeof value != tag`string` && ready);',
+		].map(code => ({code, errors: [unsafeError]})),
+	],
+});
+
+nodeTest('typeof guard reordering preserves results for undeclared and defined identifiers', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-simple-condition-first': rule}}},
+		rules: {'unicorn/prefer-simple-condition-first': 'error'},
+	};
+	for (const [operator, guard] of [
+		['&&', 'typeof FLAG != "undefined"'],
+		['&&', '`undef\\u0069ned` != typeof FLAG'],
+		['||', 'typeof FLAG === "undefined"'],
+		['||', '`undef\\u0069ned` == typeof FLAG'],
+	]) {
+		const code = `let result = false; if (${guard} ${operator} (foo ? bar : baz) ${operator} FLAG ${operator} ready) { result = true; } result;`;
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, true);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
+		for (const FLAG of [undefined, false, true, 0, '']) {
+			for (const [foo, bar, baz, ready] of [
+				[true, true, false, true],
+				[false, true, false, true],
+				[true, false, true, false],
+				[false, false, true, false],
+			]) {
+				const globals = {
+					FLAG, foo, bar, baz, ready,
+				};
+				t.assert.strictEqual(runInNewContext(output, {...globals}), runInNewContext(code, {...globals}));
+			}
+		}
+	}
+});
 
 test({
 	valid: [],
@@ -332,7 +448,7 @@ test({
 		{code: 'if (import("module") && ready);', errors: [unsafeError]},
 		{code: 'async function run() { if ((await check()) && ready); }', errors: [unsafeError]},
 		{code: 'function* run() { if ((yield value) && ready); }', errors: [unsafeError]},
-		// Only a `typeof … !== "undefined"` check guards a later operand
+		// Only `typeof … !== "undefined"` or `!=` in `&&`, and `typeof … === "undefined"` or `==` in `||`, guard a later operand
 		{code: 'if (first !== second && check() && ready);', errors: [unsafeError]},
 		{code: 'if (typeof FLAG !== "string" && check() && FLAG);', errors: [unsafeError]},
 	],
@@ -347,6 +463,14 @@ test.typescript({
 		'if ((value! === "value") && ready);',
 		'if (((value satisfies string) === "value") && ready);',
 		'if ((<string>value === "value") && ready);',
+		'if (((typeof (value as object)) as string) == ("object" as string) && ready);',
+		'if (typeof value! != "string" && ready);',
+		'if (("string" satisfies string) == typeof (value satisfies string) && ready);',
+		'if ((<string>"string") != typeof (<string>value) && ready);',
+		'if (typeof (FLAG as boolean) != `undefined` && check() && (FLAG as boolean));',
+		'if (((typeof (first as string)) as string) == typeof second! && ready);',
+		'if (typeof (first satisfies string) != typeof (<string>second) || ready);',
+		'if ((`undefined` as string) == typeof (FLAG as boolean) || check() || (FLAG as boolean));',
 	],
 	invalid: [
 		{
@@ -372,6 +496,21 @@ test.typescript({
 		{
 			code: 'if ((foo ? bar : baz) && typeof (value as string) === "string");',
 			output: 'if ((typeof (value as string) === "string") && (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? bar : baz) && ((typeof (value as string)) == ("string" as string)));',
+			output: 'if (((typeof (value as string)) == ("string" as string)) && (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if ((foo ? bar : baz) || typeof first! != typeof (second as string));',
+			output: 'if ((typeof first! != typeof (second as string)) || (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if ((`undefined` as string) == typeof (FLAG as boolean) || (foo ? bar : baz) || (FLAG as boolean) || ready);',
+			output: 'if (((`undefined` as string) == typeof (FLAG as boolean)) || (FLAG as boolean) || ready || (foo ? bar : baz));',
 			errors: [error],
 		},
 		{
