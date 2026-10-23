@@ -139,6 +139,28 @@ const create = context => {
 			const bindingTypes = bindingType.isUnion() ? bindingType.types : [bindingType];
 			const bindingConstraint = checker.getBaseConstraintOfType(bindingType) ?? bindingType;
 			const bindingConstraintTypes = bindingConstraint.isUnion() ? bindingConstraint.types : [bindingConstraint];
+			const operator = expression.operator === '=' ? expression.right.operator : expression.operator;
+			// Defaults retain falsy values that logical OR can replace with a different value.
+			if (
+				(operator === '||' || operator === '||=')
+				&& [...bindingTypes, ...bindingConstraintTypes].some(member =>
+					// NaN has no literal type, so check any type that admits arbitrary numbers.
+					checker.isTypeAssignableTo(checker.getNumberType(), member)
+					|| ['string', 'bigint'].includes(member.intrinsicName)
+					|| [
+						checker.getFalseType(),
+						checker.getNumberLiteralType(0),
+						checker.getStringLiteralType(''),
+						checker.getBigIntLiteralType({negative: false, base10Value: '0'}),
+					].some(falsyType =>
+						checker.isTypeAssignableTo(falsyType, member)
+						&& !checker.isTypeAssignableTo(defaultValueType, falsyType),
+					),
+				)
+			) {
+				return false;
+			}
+
 			// A nullable fallback can keep null in the result type even though it replaces the binding's null.
 			if (
 				defaultValueType.intrinsicName !== 'null'
