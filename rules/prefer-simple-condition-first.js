@@ -18,14 +18,16 @@ const messages = {
 	[MESSAGE_ID_UNSAFE]: 'Consider moving this simple condition first after verifying short-circuit behavior.',
 };
 
+function isTypeofIdentifier(node) {
+	node = unwrapTypeScriptExpression(node);
+	return node.type === 'UnaryExpression'
+		&& node.operator === 'typeof'
+		&& unwrapTypeScriptExpression(node.argument).type === 'Identifier';
+}
+
 function isIdentifierOrTypeofIdentifier(node) {
 	node = unwrapTypeScriptExpression(node);
-	return node.type === 'Identifier'
-		|| (
-			node.type === 'UnaryExpression'
-			&& node.operator === 'typeof'
-			&& unwrapTypeScriptExpression(node.argument).type === 'Identifier'
-		);
+	return node.type === 'Identifier' || isTypeofIdentifier(node);
 }
 
 /**
@@ -71,14 +73,11 @@ function isSimple(node) {
 	if (node.type === 'BinaryExpression') {
 		const left = unwrapTypeScriptExpression(node.left);
 		const right = unwrapTypeScriptExpression(node.right);
-		if (
-			(node.operator === '==' || node.operator === '!=')
-			&& (
-				(left.type === 'Identifier' && isNullLiteral(right))
+		if (node.operator === '==' || node.operator === '!=') {
+			return (left.type === 'Identifier' && isNullLiteral(right))
 				|| (isNullLiteral(left) && right.type === 'Identifier')
-			)
-		) {
-			return true;
+				|| (isTypeofIdentifier(left) && (getStaticStringValue(right) !== undefined || isTypeofIdentifier(right)))
+				|| (getStaticStringValue(left) !== undefined && isTypeofIdentifier(right));
 		}
 
 		return isSimpleOperand(left) && isSimpleOperand(right)
@@ -101,9 +100,10 @@ function getLogicalOperands(node, operator, operands = []) {
 	return operands;
 }
 
-function isTypeofGuardForIdentifier(node, identifierName) {
+function isTypeofGuardForIdentifier(node, identifierName, logicalOperator) {
 	node = unwrapTypeScriptExpression(node);
-	if (node.type !== 'BinaryExpression' || node.operator !== '!==') {
+	const guardOperators = logicalOperator === '&&' ? ['!==', '!='] : ['===', '=='];
+	if (node.type !== 'BinaryExpression' || !guardOperators.includes(node.operator)) {
 		return false;
 	}
 
@@ -123,10 +123,10 @@ function isTypeofGuardForIdentifier(node, identifierName) {
 	return identifier.type === 'Identifier' && identifier.name === identifierName;
 }
 
-function hasEarlierTypeofGuard(operands, index) {
+function hasEarlierTypeofGuard(operands, index, logicalOperator) {
 	const identifier = unwrapTypeScriptExpression(operands[index]);
 	return identifier.type === 'Identifier'
-		&& operands.slice(0, index).some(operand => isTypeofGuardForIdentifier(operand, identifier.name));
+		&& operands.slice(0, index).some(operand => isTypeofGuardForIdentifier(operand, identifier.name, logicalOperator));
 }
 
 function isSafeConditionalExpression(node) {
@@ -198,7 +198,7 @@ const create = context => {
 		const firstMisplacedSimpleOperandIndex = classifiedOperands.findIndex(
 			({isSimple}, index) => isSimple
 				&& index > firstComplexOperandIndex
-				&& !(node.operator === '&&' && hasEarlierTypeofGuard(operands, index)),
+				&& !hasEarlierTypeofGuard(operands, index, node.operator),
 		);
 		if (
 			firstComplexOperandIndex === -1
