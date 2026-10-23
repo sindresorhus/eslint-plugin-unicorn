@@ -42,6 +42,8 @@ Plain parameters must be last. Local destructuring declarations must use `const`
 
 TypeScript annotations are preserved. With type information, including JavaScript with JSDoc, the rule skips incompatible type changes, narrowing-dependent defaults, `any` or `unknown` bindings, and `any` fallbacks. Bindings whose type or generic constraint includes `null` are skipped unless the fallback's declaration type is exactly `null`.
 
+Logical OR fallbacks are skipped when the binding's type or generic constraint admits arbitrary numbers, including `NaN`, or includes broad `string` or `bigint` types. Other types that admit `false`, `0`, `''`, or `0n` are skipped unless the fallback's declaration type is exactly the same falsy type.
+
 Nullability checks require TypeScript's `strictNullChecks` option. Unconstrained generics are checked on a best-effort basis. Without type information, review types before applying suggestions. TypeScript setter parameters are skipped, except destructured bindings.
 
 Code relying on [non-strict `arguments` aliasing](https://eslint.org/docs/latest/rules/no-param-reassign) is unsupported. Parameter defaults break that connection and can change `function.length`.

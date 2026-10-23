@@ -91,6 +91,128 @@ test({
 	invalid: [],
 });
 
+const falsyPrimitiveCases = [
+	{type: 'number', fallback: '1'},
+	{type: 'string', fallback: '"fallback"'},
+	{type: 'bigint', fallback: '1n'},
+].flatMap(({type, fallback}) => [
+	`const fn = (value?: ${type}) => value || ${fallback};`,
+	`const fn = ({value}: {value?: ${type}}) => value || ${fallback};`,
+	`declare const options: [${type}?]; const [value] = options; console.log(value || ${fallback});`,
+	`function fn(value?: ${type}) { value ||= ${fallback}; return value; }`,
+	`function fn(value?: ${type}) { value = value || ${fallback}; return value; }`,
+	`function fn<Value extends ${type}>(fallback: Value, value?: Value) { return value || fallback; }`,
+	`function fn<Value extends ${type}>(fallback: Value, value?: Value) { value ||= fallback; return value; }`,
+]);
+
+const falsyLiteralCases = [
+	{type: 'boolean', fallbackType: 'boolean'},
+	{type: '0 | 1 | 2', fallbackType: '0 | 2'},
+	{type: '"" | "other" | "value"', fallbackType: '"" | "other"'},
+	{type: '0n | 1n | 2n', fallbackType: '0n | 2n'},
+].flatMap(({type, fallbackType}) => [
+	`function fn(fallback: ${fallbackType}, value?: ${type}) { return value || fallback; }`,
+	`function fn(fallback: ${fallbackType}, value?: ${type}) { value ||= fallback; return value; }`,
+	`function fn(fallback: ${fallbackType}, value?: ${type}) { value = value || fallback; return value; }`,
+]);
+
+const nonNullishTypeCases = ['{}', 'NonNullable<unknown>'].flatMap(type => [
+	`function fn(fallback: ${type}, value?: ${type}) { return value || fallback; }`,
+	`function fn(fallback: ${type}, value?: ${type}) { value ||= fallback; return value; }`,
+	`function fn(fallback: ${type}, value?: ${type}) { value = value || fallback; return value; }`,
+	`const fn = ({fallback, value}: {fallback: ${type}; value?: ${type}}) => value || fallback;`,
+]);
+
+const numericStructuralTypeCases = ['Number', '{valueOf(): number}'].flatMap(type => [
+	`const fn = (value?: ${type}) => value || 0;`,
+	`function fn(value?: ${type}) { value ||= 0; return value; }`,
+	`function fn(value?: ${type}) { value = value || 0; return value; }`,
+]);
+
+test({
+	valid: [
+		...falsyPrimitiveCases.map(code => typeAware(code)),
+		typeAware('const fn = (value?: string) => value || "";'),
+		typeAware('const fn = (value?: bigint) => value || 0n;'),
+		...falsyLiteralCases.map(code => typeAware(code)),
+		...nonNullishTypeCases.map(code => typeAware(code)),
+		...numericStructuralTypeCases.map(code => typeAware(code)),
+		typeAware('const fn = ({value}: {value?: Number}) => value || 0;'),
+		typeAware('const fn: (value?: Number) => Number = value => value || 0;'),
+		typeAware('enum Value { One = 1, Two = 2 } function fn(fallback: Value, value?: Value) { return value || fallback; }'),
+		typeAware('function fn<Value extends {}>(fallback: Value, value?: Value) { return value || fallback; }'),
+		typeAware('function fn(fallback: {toString(): string}, value?: {toString(): string}) { return value || fallback; }'),
+		typeAware('/** @param {{}} name\n * @param {{}} [value] */\nfunction fn(name, value) { return value || name; }', 'file.js'),
+		typeAware('function fn<Value extends boolean>(fallback: Value, value?: Value) { return value || fallback; }'),
+		typeAware('function fn<Value extends 0 | 1>(fallback: Value, value?: Value) { return value || fallback; }'),
+		typeAware('const fn = ({fallback, value}: {fallback: boolean; value?: boolean}) => value || fallback;'),
+		typeAware('/** @param {boolean} name\n * @param {boolean} [value] */\nfunction fn(name, value) { return value || name; }', 'file.js'),
+		typeAware('const fn = (value?: number | null) => value || null;'),
+		typeAware('const fn = (value?: number | string) => value || 1;'),
+		typeAware('function fn<Value extends number | string>(fallback: Value, value?: Value) { return value || fallback; }'),
+		typeAware('const fn: (value?: number) => number = value => value || 1;'),
+		typeAware('function fn(name: string, repo?: string) { repo ||= name; return repo; }'),
+		typeAware('declare const options: {fallback: null; repo?: string | null}; const {fallback, repo} = options; console.log(repo || fallback);'),
+		typeAware('const fn = (value?: 0 | 1) => value || 1;'),
+		typeAware('const fn = (value?: "" | "fallback") => value || "fallback";'),
+		typeAware('const fn = (value?: 0n | 1n) => value || 1n;'),
+		...['number', 'string', 'bigint'].map(type => typeAware(`/** @param {${type}} name\n * @param {${type}} [value] */\nfunction fn(name, value) { return value || name; }`, 'file.js')),
+	],
+	invalid: [
+		{type: 'number', fallback: '1', literalType: '1 | 2'},
+		{type: 'string', fallback: '"fallback"', literalType: '"fallback" | "other"'},
+		{type: 'bigint', fallback: '1n', literalType: '1n | 2n'},
+	].flatMap(({type, fallback, literalType}) => [
+		{code: `const fn = (value?: ${type}) => value ?? ${fallback};`, output: `const fn = (value: ${type} = ${fallback}) => value;`},
+		{code: `const fn = (value?: ${literalType}) => value || ${fallback};`, output: `const fn = (value: ${literalType} = ${fallback}) => value;`},
+	]).map(({code, output}) => ({
+		...typeAware(code),
+		errors: [{messageId: 'preferDefaultParameterOverFallback', suggestions: [{messageId: 'moveDefaultToDeclaration', output}]}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{type: 'boolean', fallback: 'false'},
+		{type: '0 | 1', fallback: '0'},
+		{type: '"" | "value"', fallback: '""'},
+		{type: '0n | 1n', fallback: '0n'},
+	].map(({type, fallback}) => ({
+		...typeAware(`const fn = (value?: ${type}) => value || ${fallback};`),
+		errors: [{
+			messageId: 'preferDefaultParameterOverFallback',
+			suggestions: [{messageId: 'moveDefaultToDeclaration', output: `const fn = (value: ${type} = ${fallback}) => value;`}],
+		}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: [
+		{type: '{}', operator: '??'},
+		{type: 'object', operator: '||'},
+		{type: '{name: string}', operator: '||'},
+	].map(({type, operator}) => ({
+		...typeAware(`function fn(fallback: ${type}, value?: ${type}) { return value ${operator} fallback; }`),
+		errors: [{
+			messageId: 'preferDefaultParameterOverFallback',
+			suggestions: [{messageId: 'moveDefaultToDeclaration', output: `function fn(fallback: ${type}, value: ${type} = fallback) { return value; }`}],
+		}],
+	})),
+});
+
+test({
+	valid: [],
+	invalid: ['value ??= 1', 'value = value ?? 1'].map(assignment => ({
+		...typeAware(`function fn(value?: number) { ${assignment}; return value; }`),
+		errors: [{
+			messageId: 'preferDefaultParameters',
+			suggestions: [{messageId: 'preferDefaultParametersSuggest', output: 'function fn(value: number = 1) { return value; }'}],
+		}],
+	})),
+});
+
 test({
 	valid: [
 		...nullableFallbackCases.map(code => typeAware(code)),
@@ -123,16 +245,6 @@ test({
 			errors: [{
 				messageId: 'preferDefaultParameters',
 				suggestions: [{messageId: 'preferDefaultParametersSuggest', output: 'function fn(name: null, repo: string | null = name) { return repo; }'}],
-			}],
-		},
-		{
-			...typeAware('declare const options: {fallback: null; repo?: string | null}; const {fallback, repo} = options; console.log(repo || fallback);'),
-			errors: [{
-				messageId: 'preferDestructuringDefaultOverFallback',
-				suggestions: [{
-					messageId: 'moveDefaultToDeclaration',
-					output: 'declare const options: {fallback: null; repo?: string | null}; const {fallback, repo = fallback} = options; console.log(repo);',
-				}],
 			}],
 		},
 	],
@@ -284,13 +396,6 @@ test({
 			}],
 		},
 		{
-			...typeAware('function fn(name: string, repo?: string) { repo ||= name; return repo; }'),
-			errors: [{
-				messageId: 'preferDefaultParameters',
-				suggestions: [{messageId: 'preferDefaultParametersSuggest', output: 'function fn(name: string, repo: string = name) { return repo; }'}],
-			}],
-		},
-		{
 			...typeAware('function fn(name: boolean, repo?: string | boolean) { const result = repo ?? name; return result; }'),
 			errors: [{
 				messageId: 'preferDefaultParameterOverFallback',
@@ -317,6 +422,17 @@ test.typescript({
 		'class Foo { set value(repo: number | undefined) { console.log(repo ?? 3); } }',
 	],
 	invalid: [
+		...[
+			{type: 'number', fallback: '1'},
+			{type: 'string', fallback: '"fallback"'},
+			{type: 'bigint', fallback: '1n'},
+		].map(({type, fallback}) => ({
+			code: `const fn = (value?: ${type}) => value || ${fallback};`,
+			errors: [{
+				messageId: 'preferDefaultParameterOverFallback',
+				suggestions: [{messageId: 'moveDefaultToDeclaration', output: `const fn = (value: ${type} = ${fallback}) => value;`}],
+			}],
+		})),
 		{
 			code: 'const fn = (a: unknown, b: unknown) => b ?? a;',
 			errors: [{
@@ -434,7 +550,7 @@ nodeTest('suggestions preserve TypeScript validity and the annotated call signat
 	const codes = [
 		'function fn(repo?: number) { return repo ?? -1; }',
 		'function fn(name: number | undefined, repo: number | undefined) { return repo ?? name; }',
-		'declare const options: {fallback: null; repo?: string | null}; const {fallback, repo} = options; console.log(repo || fallback);',
+		'declare const options: {fallback: null; repo?: string | null}; const {fallback, repo} = options; console.log(repo ?? fallback);',
 		'function fn(name: string, repo?: string) { return repo ?? name; }',
 		'const fn: (name: string, repo?: string) => string = (name, repo) => repo ?? name;',
 		'function fn<Value>(name: Value, repo?: Value) { return repo ?? name; }',
