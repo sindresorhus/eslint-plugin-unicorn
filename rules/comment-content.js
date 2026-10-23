@@ -1,3 +1,4 @@
+import {isRegExp} from 'node:util/types';
 import {
 	getComments,
 	getLineEndIndex,
@@ -916,7 +917,7 @@ function maskMarkupTags(characters, text) {
 	}
 }
 
-function getSearchableCommentValue(commentValue, isJSDocument) {
+function getSearchableCommentValue(commentValue, isJSDocument, ignorePatterns) {
 	/*
 	Mask ignored comment regions with fixed-width sentinel characters before running replacement regexes. This keeps every index identical to the original comment for autofix, prevents custom replacements from treating masked regions as normal whitespace, and keeps region-level exclusions out of the per-match skip path. Only neighbor-sensitive cases such as filenames, paths, member access, and punctuation-adjacent matches remain match-local checks.
 	*/
@@ -938,6 +939,10 @@ function getSearchableCommentValue(commentValue, isJSDocument) {
 	maskPackageSpecifiers(characters, commentValue);
 	maskMarkdownLinks(characters, commentValue);
 	maskMarkupTags(characters, commentValue);
+
+	for (const pattern of ignorePatterns) {
+		maskPattern(characters, commentValue, pattern);
+	}
 
 	return characters.join('');
 }
@@ -1005,7 +1010,7 @@ function shouldSkipMatch(commentValue, match) {
 		|| commentValue[match.index + match[0].length] === '(';
 }
 
-function getReplacementProblem(comment, sourceCode, replacements, checkUniformCase) {
+function getReplacementProblem(comment, sourceCode, replacements, {checkUniformCase, ignorePatterns}) {
 	const valueStart = getCommentValueStart(comment, sourceCode);
 	// See `getCommentValueStart()`.
 	/* node:coverage ignore next 3 */
@@ -1014,7 +1019,7 @@ function getReplacementProblem(comment, sourceCode, replacements, checkUniformCa
 	}
 
 	let bestProblem;
-	const searchableCommentValue = getSearchableCommentValue(comment.value, isJSDocumentComment(comment, sourceCode));
+	const searchableCommentValue = getSearchableCommentValue(comment.value, isJSDocumentComment(comment, sourceCode), ignorePatterns);
 	const lowercaseSearchableCommentValue = searchableCommentValue.includes(unfoldableCharacter)
 		? undefined
 		: searchableCommentValue.toLowerCase();
@@ -1076,6 +1081,18 @@ const create = context => {
 		return;
 	}
 
+	const ignorePatterns = context.options[0].ignore.map(pattern => {
+		if (typeof pattern === 'string') {
+			return new RegExp(pattern, 'gv');
+		}
+
+		if (!isRegExp(pattern)) {
+			throw new TypeError('The `ignore` option only accepts strings and regular expressions.');
+		}
+
+		return new RegExp(pattern, pattern.global ? pattern.flags : `${pattern.flags}g`);
+	});
+
 	onRoot(context, function * (node) {
 		const {sourceCode} = context;
 		const comments = getRuleComments(context);
@@ -1101,7 +1118,7 @@ const create = context => {
 			}
 
 			if (continuationDepth <= 0) {
-				const problem = getReplacementProblem(comment, sourceCode, replacements, checkUniformCase);
+				const problem = getReplacementProblem(comment, sourceCode, replacements, {checkUniformCase, ignorePatterns});
 				if (problem) {
 					yield {
 						node,
@@ -1136,6 +1153,17 @@ const schema = [
 		type: 'object',
 		additionalProperties: false,
 		properties: {
+			ignore: {
+				type: 'array',
+				items: {
+					type: [
+						'string',
+						'object',
+					],
+					additionalProperties: true,
+				},
+				description: 'Patterns matching comment regions to ignore.',
+			},
 			checkUniformCase: {
 				type: 'boolean',
 				description: 'Whether to also re-case all-lowercase and all-uppercase tokens. When `false`, only tokens that already mix upper- and lower-case (for example, `Github`) are corrected.',
@@ -1198,7 +1226,12 @@ const config = {
 		},
 		fixable: 'code',
 		schema,
-		defaultOptions: [{checkUniformCase: true, extendDefaultReplacements: true, replacements: {}}],
+		defaultOptions: [{
+			checkUniformCase: true,
+			extendDefaultReplacements: true,
+			replacements: {},
+			ignore: [],
+		}],
 		messages,
 		languages: [
 			'*',

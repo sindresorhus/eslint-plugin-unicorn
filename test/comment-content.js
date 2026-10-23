@@ -565,6 +565,17 @@ for (const {name, code, output, language, filename, message} of languageCases) {
 			],
 		);
 	});
+
+	test(`supports ignore patterns in ${name}`, t => {
+		const config = createLanguageConfig(language);
+		config.rules[RULE_ID] = ['error', {ignore: [/github|nodejs/u]}];
+		const linter = new Linter();
+		const result = linter.verifyAndFix(code, config, {filename});
+
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(result.output, code);
+		t.assert.deepStrictEqual(result.messages, []);
+	});
 }
 
 test('preserves SOML rule configuration directives', t => {
@@ -1792,4 +1803,108 @@ test('skips empty matches of custom replacements', t => {
 	const result = linter.verifyAndFix('// x', config, {filename: 'fixture.js'});
 
 	t.assert.strictEqual(result.output, '// y');
+});
+
+ruleTest({
+	valid: [
+		...[
+			['“[^”]*”'],
+			[/“[^”]*”/],
+			[/“[^”]*”/g],
+			[/“[^”]*”/u],
+			[/“[^”]*”/v],
+		].map(ignore => ({
+			code: '// “git config --list” and “the json response”.',
+			options: [{ignore}],
+		})),
+		{
+			code: '// “json” «git» »yaml«',
+			options: [{ignore: [/“[^”]*”/, '«[^»]*»', /»[^«]*«/]}],
+		},
+		{
+			code: '// json',
+			options: [{ignore: ['[[a-z]--[a]]+']}],
+		},
+		{
+			code: '/* “json\napi” */',
+			options: [{ignore: [/“.*?”/s]}],
+		},
+		{
+			code: '/*\nKEEP json\nkeep api\n*/',
+			options: [{ignore: [/^keep .+$/im]}],
+		},
+		{
+			code: '// “json” api',
+			options: [{ignore: [/“[^”]*”/], extendDefaultReplacements: false, replacements: {'.+api': 'API'}}],
+		},
+	],
+	invalid: [
+		{
+			code: '// “json”',
+			output: '// “JSON”',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
+			code: '// “json”',
+			options: [{ignore: []}],
+			output: '// “JSON”',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
+			code: '// 😀 “json” and github.',
+			options: [{ignore: [/“[^”]*”/]}],
+			output: '// 😀 “json” and GitHub.',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
+			code: '// “json” and github.',
+			options: [{ignore: ['“[^”]*”']}],
+			output: '// “json” and GitHub.',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
+			code: '// “json',
+			options: [{ignore: [/“[^”]*”/]}],
+			output: '// “JSON',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
+			code: '// KEEP json',
+			options: [{ignore: [/keep .+/]}],
+			output: '// KEEP JSON',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+		{
+			code: '// json',
+			options: [{ignore: ['']}],
+			output: '// JSON',
+			errors: [{messageId: MESSAGE_ID}],
+		},
+	],
+});
+
+test('does not change configured regular expression state', t => {
+	const pattern = /“[^”]*”/gu;
+	pattern.lastIndex = 5;
+	const config = {
+		...JAVASCRIPT_CONFIG,
+		rules: {[RULE_ID]: ['error', {ignore: [pattern]}]},
+	};
+	const linter = new Linter();
+	const code = '// “json” “api”\n// “git”';
+
+	for (let index = 0; index < 2; index++) {
+		t.assert.deepStrictEqual(linter.verify(code, config), []);
+		t.assert.strictEqual(pattern.lastIndex, 5);
+	}
+});
+
+test('rejects ignore patterns that are not strings or regular expressions', t => {
+	const linter = new Linter();
+	const config = {
+		...JAVASCRIPT_CONFIG,
+		rules: {[RULE_ID]: ['error', {ignore: [{}]}]},
+	};
+
+	t.assert.throws(() => linter.verify('// json', config), /The `ignore` option only accepts strings and regular expressions\./);
 });
