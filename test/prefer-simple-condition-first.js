@@ -54,6 +54,11 @@ test({
 			errors: [error],
 		},
 		{
+			code: 'if ((foo ? typeof value == "string" : ready) && enabled);',
+			output: 'if (enabled && (foo ? typeof value == "string" : ready));',
+			errors: [error],
+		},
+		{
 			code: 'if (typeof FLAG != "undefined" && (foo ? bar : baz) && FLAG && ready);',
 			output: 'if ((typeof FLAG != "undefined") && FLAG && ready && (foo ? bar : baz));',
 			errors: [error],
@@ -98,7 +103,7 @@ test({
 	],
 });
 
-nodeTest('typeof guards protect undeclared identifiers after reordering', t => {
+nodeTest('typeof guard reordering preserves results for undeclared and defined identifiers', t => {
 	const linter = new Linter();
 	const config = {
 		plugins: {unicorn: {rules: {'prefer-simple-condition-first': rule}}},
@@ -115,6 +120,19 @@ nodeTest('typeof guards protect undeclared identifiers after reordering', t => {
 		t.assert.strictEqual(fixed, true);
 		t.assert.deepStrictEqual(messages, []);
 		t.assert.strictEqual(runInNewContext(output), runInNewContext(code));
+		for (const FLAG of [undefined, false, true, 0, '']) {
+			for (const [foo, bar, baz, ready] of [
+				[true, true, false, true],
+				[false, true, false, true],
+				[true, false, true, false],
+				[false, false, true, false],
+			]) {
+				const globals = {
+					FLAG, foo, bar, baz, ready,
+				};
+				t.assert.strictEqual(runInNewContext(output, {...globals}), runInNewContext(code, {...globals}));
+			}
+		}
 	}
 });
 
@@ -488,6 +506,11 @@ test.typescript({
 		{
 			code: 'if ((foo ? bar : baz) || typeof first! != typeof (second as string));',
 			output: 'if ((typeof first! != typeof (second as string)) || (foo ? bar : baz));',
+			errors: [error],
+		},
+		{
+			code: 'if ((`undefined` as string) == typeof (FLAG as boolean) || (foo ? bar : baz) || (FLAG as boolean) || ready);',
+			output: 'if (((`undefined` as string) == typeof (FLAG as boolean)) || (FLAG as boolean) || ready || (foo ? bar : baz));',
 			errors: [error],
 		},
 		{

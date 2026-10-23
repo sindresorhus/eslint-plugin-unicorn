@@ -109,18 +109,11 @@ function isTypeofGuardForIdentifier(node, identifierName, logicalOperator) {
 
 	const left = unwrapTypeScriptExpression(node.left);
 	const right = unwrapTypeScriptExpression(node.right);
-	const typeofExpression = left.type === 'UnaryExpression' ? left : right;
+	const typeofExpression = isTypeofIdentifier(left) ? left : right;
 	const undefinedLiteral = typeofExpression === left ? right : left;
-	if (
-		typeofExpression.type !== 'UnaryExpression'
-		|| typeofExpression.operator !== 'typeof'
-		|| getStaticStringValue(undefinedLiteral) !== 'undefined'
-	) {
-		return false;
-	}
-
-	const identifier = unwrapTypeScriptExpression(typeofExpression.argument);
-	return identifier.type === 'Identifier' && identifier.name === identifierName;
+	return isTypeofIdentifier(typeofExpression)
+		&& getStaticStringValue(undefinedLiteral) === 'undefined'
+		&& unwrapTypeScriptExpression(typeofExpression.argument).name === identifierName;
 }
 
 function hasEarlierTypeofGuard(operands, index, logicalOperator) {
