@@ -11,6 +11,7 @@ import {
 	isNewExpression,
 	isNumericLiteral,
 	isBigIntLiteral,
+	isFunction,
 } from './ast/index.js';
 import {
 	removeStatement,
@@ -1016,6 +1017,7 @@ function isSimpleInitializationValue(node) {
 	switch (node.type) {
 		case 'Identifier':
 		case 'Literal':
+		case 'ThisExpression':
 		case 'FunctionExpression':
 		case 'ArrowFunctionExpression': {
 			return true;
@@ -1026,9 +1028,32 @@ function isSimpleInitializationValue(node) {
 		}
 
 		case 'UnaryExpression': {
+			if (['!', 'void', 'typeof'].includes(node.operator)) {
+				return isSimpleInitializationValue(node.argument);
+			}
+
 			const argument = unwrapTypeScriptExpression(node.argument);
-			return node.operator === '-'
+			return ['+', '-', '~'].includes(node.operator)
 				&& (isNumericLiteral(argument) || isBigIntLiteral(argument));
+		}
+
+		case 'LogicalExpression': {
+			return isSimpleInitializationValue(node.left)
+				&& isSimpleInitializationValue(node.right);
+		}
+
+		case 'ConditionalExpression': {
+			return [node.test, node.consequent, node.alternate].every(expression => isSimpleInitializationValue(expression));
+		}
+
+		case 'SequenceExpression': {
+			return node.expressions.every(expression => isSimpleInitializationValue(expression));
+		}
+
+		case 'BinaryExpression': {
+			return ['===', '!=='].includes(node.operator)
+				&& isSimpleInitializationValue(node.left)
+				&& isSimpleInitializationValue(node.right);
 		}
 
 		case 'ArrayExpression': {
@@ -1079,7 +1104,13 @@ function getInitializationProblem(declaration, context) {
 	}
 
 	const variables = declarators.map(declarator => getVariable(declarator, context));
-	if (variables.some(variable => !variable || hasVariableInNodes(variable, [right], context))) {
+	if (variables.some(variable =>
+		!variable
+		|| (
+			declaration.kind !== 'var'
+			&& !isFunction(unwrapTypeScriptExpression(right))
+			&& hasVariableInNodes(variable, [right], context)
+		))) {
 		return;
 	}
 
@@ -1106,17 +1137,15 @@ function getInitializationProblem(declaration, context) {
 	};
 
 	// Initializing an unannotated TypeScript variable narrows its inferred type instead of retaining an evolving `any`.
-	// Destructuring calls iterator methods, which can observe targets before they are initialized.
-	// Other initializers can invoke user code through implicit operations that `hasSideEffect()` does not detect.
+	// Destructuring in `let` declarations calls iterator methods, which can observe targets before they are initialized.
+	// Other `let` initializers can invoke user code that observes the target's temporal dead zone through implicit operations that `hasSideEffect()` does not detect.
 	// Parenthesized assignment targets do not infer anonymous function names, while declarations do.
 	if (
-		left.type === 'ArrayPattern'
-		|| isParenthesized(left, context)
-		|| !isSimpleInitializationValue(right)
-		|| (
-			(isTypeScriptFile(context.physicalFilename) || sourceCode.parserServices.esTreeNodeToTSNodeMap)
-			&& declarators.some(declarator => !declarator.id.typeAnnotation)
-		)
+		isParenthesized(left, context)
+		|| (declaration.kind !== 'var' && (left.type === 'ArrayPattern' || !isSimpleInitializationValue(right)))
+		|| declarators.some(declarator =>
+			!declarator.id.typeAnnotation
+			&& (isTypeScriptFile(context.physicalFilename) || sourceCode.parserServices.esTreeNodeToTSNodeMap))
 	) {
 		problem.suggest = [{messageId: MESSAGE_ID_SUGGESTION_INITIALIZATION, fix}];
 	} else {

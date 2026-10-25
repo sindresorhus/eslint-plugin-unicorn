@@ -236,7 +236,7 @@ Message:
 > 2 | [b, r, g] = values;
     | ^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
 
-Suggestion 1/1: Combine the initialization and declaration.:
+Output:
   1 | var [b, r, g] = values;
 
 `;
@@ -532,7 +532,7 @@ Message:
 > 2 | ((foo = (first, second)));
     |   ^^^^^^^^^^^^^^^^^^^^^ Combine this initialization with the preceding declaration.
 
-Suggestion 1/1: Combine the initialization and declaration.:
+Output:
   1 | let foo = (first, second);
 
 `;

@@ -137,9 +137,15 @@ let foo;
 let [r, g, b] = RGB.map(c => c / 255);
 ```
 
-Direct assignments with simple initializers can be autofixed; other cases may offer suggestions. Edits preserve comments and TypeScript annotations.
+Direct assignments with simple initializers can be autofixed. JavaScript `var` initializations also support calls, `await` expressions, self-references, and flat array destructuring. Other `let` cases may offer suggestions because combining them can introduce a temporal dead zone. Edits preserve comments and TypeScript annotations.
 
-Exports, partly initialized declarations, redeclarations, self-references, and complex patterns are ignored. `checkConditionals` does not affect this check. Without the TypeScript parser, autofixes can change `checkJs` inference.
+Simple initializers include expressions such as `!enabled`, `value ?? fallback`, and `enabled ? first : second` when their operands are also simple.
+
+Self-references in a direct function or arrow function initializer are supported because creating a function does not execute its body.
+
+In TypeScript, variables without explicit type annotations receive suggestions instead of autofixes to preserve type inference.
+
+Exports, partly initialized declarations, redeclarations, complex patterns, and self-references in other `let` initializers are ignored. `checkConditionals` does not affect this check. Without the TypeScript parser, autofixes can change `checkJs` inference.
 
 ## Options
 
