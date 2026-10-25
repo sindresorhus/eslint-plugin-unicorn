@@ -640,6 +640,21 @@ test('preserves suspension when combining var initialization', t => {
 	}
 });
 
+test('preserves var bindings during awaited thenable resolution', async t => {
+	const linter = new Linter();
+	const code = 'async function run() {\n\tconst value = {then(resolve) { resolve(foo === undefined ? 1 : 2); }};\n\tvar foo;\n\tfoo = await value;\n\treturn foo;\n}\nrun();';
+	const result = linter.verifyAndFix(code, {
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/no-immediate-mutation': 'error'},
+	});
+
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, code.replace('var foo;\n\tfoo = await value;', 'var foo = await value;'));
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(await runInNewContext(code), 1);
+	t.assert.strictEqual(await runInNewContext(result.output), 1);
+});
+
 test('keeps potentially reentrant operands suggestion-only', t => {
 	const linter = new Linter();
 	const setup = 'const value = { valueOf() { return foo === undefined ? 1 : 2; } };\n';
