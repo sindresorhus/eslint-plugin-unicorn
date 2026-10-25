@@ -36,6 +36,11 @@ testRule.typescript({
 			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'value'}}],
 		},
 		{
+			code: 'type Value = number; function foo() { let value: Value; if (condition) { value = compute(); consume(value); } }',
+			options: [{checkTypeAliases: false}],
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'value'}}],
+		},
+		{
 			code: 'type Value = number;\nfunction render() { return <Component<Value> />; }',
 			output: 'function render() { type Value = number; return <Component<Value> />; }',
 			filename: 'file.tsx',
@@ -169,8 +174,18 @@ testRule.vue({
 	testerOptions: {languageOptions: {parserOptions: {parser: parsers.typescript.implementation}}},
 	valid: [
 		'<script setup lang="ts">type Value = number; function foo() { return 1 as Value; }</script><template>{{ 1 as Value }}</template>',
+		{
+			code: '<script setup lang="ts">/** Shared value. */ type Box<Type> = {value: Type}; function foo() { return {} as Box<number>; }</script>',
+			options: [{checkTypeAliases: false}],
+		},
 	],
-	invalid: [],
+	invalid: [
+		{
+			code: '<script setup lang="ts">/** Shared value. */ type Box<Type> = {value: Type}; function foo() { return {} as Box<number>; }</script>',
+			options: [{checkTypeAliases: true}],
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Box'}}],
+		},
+	],
 });
 
 testRule.svelte({
