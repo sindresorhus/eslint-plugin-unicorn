@@ -15,6 +15,26 @@ For variables, the rule checks two patterns: an uninitialized `let` assigned onc
 
 TypeScript type aliases are checked when all references fit inside a smaller block. Signature references prevent movement into that function's body. No type information is required.
 
+## Options
+
+### checkTypeAliases
+
+Type: `boolean`\
+Default: `true`
+
+Whether to check TypeScript type aliases in addition to variable declarations.
+
+With `checkTypeAliases: false`:
+
+```ts
+// ✅
+type Point = {x: number; y: number};
+function createPoint() {
+	const point: Point = {x: 0, y: 0};
+	return point;
+}
+```
+
 ## Examples
 
 ```js

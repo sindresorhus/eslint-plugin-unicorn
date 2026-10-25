@@ -183,6 +183,8 @@ On rebase, `rules/index.js` and the `readme.md` rules table almost always confli
 
 Keep rule documentation succinct, especially sections about limitations and caveats. Focus on practical information users need to understand and use the rule.
 
+Describe boolean options with “Whether to …” phrasing. Omit full configuration examples for simple boolean options.
+
 Do not use Markdown tables in rule documentation. Use prose, lists, or code examples instead.
 
 Use JavaScript syntax for configuration examples, not JSON-style quoted keys and strings, unless the example is specifically JSON.
