@@ -22,15 +22,7 @@ TypeScript type aliases are checked when all references fit inside a smaller blo
 Type: `boolean`\
 Default: `true`
 
-Set to `false` to allow TypeScript type aliases to stay in a larger scope. Variables are still checked.
-
-```js
-export default {
-	rules: {
-		'unicorn/prefer-smaller-scope': ['error', {checkTypeAliases: false}],
-	},
-};
-```
+Whether to check TypeScript type aliases in addition to variable declarations.
 
 With `checkTypeAliases: false`:
 
