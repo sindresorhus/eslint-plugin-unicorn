@@ -394,9 +394,12 @@ function getTypeAliasProblem(declaration, context) {
 */
 const create = context => {
 	const {sourceCode} = context;
+	const {checkTypeAliases} = context.options[0];
 
 	context.on('VariableDeclaration', node => getProblem(node, sourceCode));
-	context.on('TSTypeAliasDeclaration', node => getTypeAliasProblem(node, context));
+	if (checkTypeAliases) {
+		context.on('TSTypeAliasDeclaration', node => getTypeAliasProblem(node, context));
+	}
 };
 
 /**
@@ -411,7 +414,17 @@ const config = {
 			recommended: true,
 		},
 		fixable: 'code',
-		schema: [],
+		schema: [{
+			type: 'object',
+			properties: {
+				checkTypeAliases: {
+					type: 'boolean',
+					description: 'Check TypeScript type aliases.',
+				},
+			},
+			additionalProperties: false,
+		}],
+		defaultOptions: [{checkTypeAliases: true}],
 		messages,
 		languages: [
 			'js/js',

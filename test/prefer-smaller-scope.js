@@ -8,11 +8,33 @@ const {test: testRule} = getTester(import.meta);
 
 testRule.typescript({
 	valid: [
+		...[
+			'type Value = number; function foo() { return 1 as Value; }',
+			'function foo() { type Value = number; if (condition) { consume(1 as Value); } }',
+		].map(code => ({code, options: [{checkTypeAliases: false}]})),
 		'type Box<in out Type> = {readonly value: Type}; export function make<Type>() { return {} as Box<Type>; }',
 		'type Consumer<in Type> = (value: Type) => void; function make() { return {} as Consumer<string>; }',
 		'type Producer<out Type> = () => Type; function make() { return {} as Producer<string>; }',
 	],
 	invalid: [
+		...[{}, {checkTypeAliases: true}].map(options => ({
+			code: 'type Value = number;\nfunction foo() { return 1 as Value; }',
+			options: [options],
+			output: 'function foo() { type Value = number; return 1 as Value; }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'Value'}}],
+		})),
+		{
+			code: 'type Value = number; function foo() { let value; if (condition) { value = compute(); consume(value as Value); } }',
+			options: [{checkTypeAliases: false}],
+			output: 'type Value = number; function foo() {  if (condition) { const value = compute(); consume(value as Value); } }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'value'}}],
+		},
+		{
+			code: 'type Value = number; function foo() { const value = 1; if (condition) { consume(value as Value); } }',
+			options: [{checkTypeAliases: false}],
+			output: 'type Value = number; function foo() { if (condition) { const value = 1; consume(value as Value); } }',
+			errors: [{messageId: 'prefer-smaller-scope', data: {name: 'value'}}],
+		},
 		{
 			code: 'type Value = number;\nfunction render() { return <Component<Value> />; }',
 			output: 'function render() { type Value = number; return <Component<Value> />; }',
