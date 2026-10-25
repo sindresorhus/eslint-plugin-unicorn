@@ -40,7 +40,8 @@ ruleTest({
 		'let foo; [...foo] = values;',
 		'let foo; [foo.bar] = values;',
 		'let foo; foo = foo ?? 1;',
-		'let foo; foo = () => foo;',
+		'let foo; foo = (() => foo)();',
+		'let foo; foo = class { static value = foo; };',
 		'let foo; [foo] = [foo];',
 		'let foo, bar; [foo, bar] = [bar, foo];',
 		'let foo, bar = 1; foo = 2;',
@@ -282,6 +283,391 @@ ruleTest({
 			errors: [{messageId: 'initialization', suggestions: []}],
 		},
 	],
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
+		...[
+			[
+				'var addScript = () => {\n\tvar script;\n\tscript = document.createElement("script");\n\tscript.src = "https://example.com/script.js";\n\treturn document.head.append(script);\n};',
+				'var addScript = () => {\n\tvar script = document.createElement("script");\n\tscript.src = "https://example.com/script.js";\n\treturn document.head.append(script);\n};',
+			],
+			[
+				'var addTitle = async (iframe, title) => {\n\tvar element;\n\telement = (await waitElement(iframe));\n\treturn element.setAttribute("title", title);\n};',
+				'var addTitle = async (iframe, title) => {\n\tvar element = (await waitElement(iframe));\n\treturn element.setAttribute("title", title);\n};',
+			],
+			['var foo;\nfoo = getValue();', 'var foo = getValue();'],
+		].map(([code, output]) => ({
+			code,
+			output,
+			errors: [{messageId: 'initialization', suggestions: []}],
+		})),
+		{
+			code: 'var foo: number;\nfoo = getValue();',
+			languageOptions: {parser: parsers.typescript},
+			output: 'var foo: number = getValue();',
+			errors: [{messageId: 'initialization', suggestions: []}],
+		},
+		{
+			code: 'var foo;\nfoo = getValue();',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'initialization',
+				suggestions: [{messageId: 'suggestion/initialization', output: 'var foo = getValue();'}],
+			}],
+		},
+	],
+});
+
+test('preserves indirect reads when combining var initialization', t => {
+	const linter = new Linter();
+	for (const kind of ['var', 'let']) {
+		const code = `function run() {\n\tfunction read() { return foo; }\n\t${kind} foo;\n\tfoo = read();\n\treturn foo;\n}\nrun();`;
+		const result = linter.verifyAndFix(code, {
+			plugins: {unicorn: plugin},
+			rules: {'unicorn/no-immediate-mutation': 'error'},
+		});
+
+		t.assert.strictEqual(runInNewContext(code), undefined);
+		t.assert.strictEqual(runInNewContext(result.output), undefined);
+		t.assert.strictEqual(result.fixed, kind === 'var');
+		if (kind === 'var') {
+			t.assert.strictEqual(result.output, code.replace('var foo;\n\tfoo = read();', 'var foo = read();'));
+			t.assert.deepStrictEqual(result.messages, []);
+		} else {
+			t.assert.strictEqual(result.output, code);
+			t.assert.strictEqual(result.messages.length, 1);
+			t.assert.strictEqual(result.messages[0].messageId, 'initialization');
+			t.assert.strictEqual(result.messages[0].suggestions.length, 1);
+		}
+	}
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
+		...[
+			['var foo;\nfoo = foo ?? 1;', 'var foo = foo ?? 1;'],
+			['var foo;\nfoo = () => foo;', 'var foo = () => foo;'],
+			['var foo, bar;\n[foo, bar] = getValues();', 'var [foo, bar] = getValues();'],
+			['var foo, keep, bar;\n[bar, , foo] = [1, 2, bar];', 'var keep;\nvar [bar, , foo] = [1, 2, bar];'],
+		].map(([code, output]) => ({
+			code,
+			output,
+			errors: [{messageId: 'initialization', suggestions: []}],
+		})),
+		{
+			code: 'var foo: number | undefined;\nfoo = foo ?? 1;',
+			languageOptions: {parser: parsers.typescript},
+			output: 'var foo: number | undefined = foo ?? 1;',
+			errors: [{messageId: 'initialization', suggestions: []}],
+		},
+		...[
+			['var foo;\nfoo = foo ?? 1;', 'var foo = foo ?? 1;'],
+			['var foo;\n[foo] = values;', 'var [foo] = values;'],
+		].map(([code, output]) => ({
+			code,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'initialization',
+				suggestions: [{messageId: 'suggestion/initialization', output}],
+			}],
+		})),
+		{
+			code: 'var foo;\n(foo) = () => foo;',
+			errors: [{
+				messageId: 'initialization',
+				suggestions: [{messageId: 'suggestion/initialization', output: 'var foo = () => foo;'}],
+			}],
+		},
+		{
+			code: 'var foo: number;\n[foo] = values;',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'initialization', suggestions: []}],
+		},
+		{
+			code: 'var foo;\nfoo = /* Keep this comment. */ foo ?? 1;',
+			errors: [{messageId: 'initialization', suggestions: []}],
+		},
+	],
+});
+
+test('preserves var bindings when combining self-references and destructuring', t => {
+	const linter = new Linter();
+	for (const [code, output, expected] of [
+		['var foo;\nfoo = foo ?? 1;\nfoo;', 'var foo = foo ?? 1;\nfoo;', 1],
+		['var foo;\nfoo = () => foo;\nfoo() === foo;', 'var foo = () => foo;\nfoo() === foo;', true],
+		['var foo, bar;\n[foo, bar] = [1, foo + 1];\n[foo, bar].join();', 'var [foo, bar] = [1, foo + 1];\n[foo, bar].join();', '1,NaN'],
+		[
+			'const values = { *[Symbol.iterator]() { yield 1; yield foo + 1; } };\nvar foo, bar;\n[foo, bar] = values;\n[foo, bar].join();',
+			'const values = { *[Symbol.iterator]() { yield 1; yield foo + 1; } };\nvar [foo, bar] = values;\n[foo, bar].join();',
+			'1,2',
+		],
+	]) {
+		const result = linter.verifyAndFix(code, {
+			plugins: {unicorn: plugin},
+			rules: {'unicorn/no-immediate-mutation': 'error'},
+		});
+
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.strictEqual(result.output, output);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(runInNewContext(code), expected);
+		t.assert.strictEqual(runInNewContext(result.output), expected);
+	}
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
+		...[
+			'void 0',
+			'!enabled',
+			'!!value',
+			'typeof value',
+			'this',
+			'+1',
+			'~1n',
+			'enabled && value',
+			'value || fallback',
+			'value ?? fallback',
+			'enabled ? first : second',
+			'(first, second)',
+			'first === second',
+			'first !== second',
+			'{values: [!enabled, value ?? 0], kind: typeof value}',
+		].map(initializer => ({
+			code: `let foo;\nfoo = ${initializer};`,
+			output: `let foo = ${initializer};`,
+			errors: [{messageId: 'initialization', suggestions: []}],
+		})),
+		...[
+			'!getValue()',
+			'void object.value',
+			'typeof object.value',
+			'getValue() && 1',
+			'value || getValue()',
+			'getValue() ?? fallback',
+			'getValue() ? 1 : 2',
+			'enabled ? getValue() : 0',
+			'enabled ? 0 : getValue()',
+			'(getValue(), 1)',
+			'1 === object.value',
+			'object.value !== 0',
+			'+value',
+			'~value',
+			'value == 1',
+			'value + 1',
+		].map(initializer => ({
+			code: `let foo;\nfoo = ${initializer};`,
+			errors: [{
+				messageId: 'initialization',
+				suggestions: [{messageId: 'suggestion/initialization', output: `let foo = ${initializer};`}],
+			}],
+		})),
+		{
+			code: 'let foo: boolean;\nfoo = !(value satisfies unknown);',
+			languageOptions: {parser: parsers.typescript},
+			output: 'let foo: boolean = !(value satisfies unknown);',
+			errors: [{messageId: 'initialization', suggestions: []}],
+		},
+		{
+			code: 'let foo;\nfoo = !value;',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'initialization',
+				suggestions: [{messageId: 'suggestion/initialization', output: 'let foo = !value;'}],
+			}],
+		},
+	],
+});
+
+ruleTest({
+	valid: [],
+	invalid: [
+		...[
+			'() => foo',
+			'function () { return foo; }',
+			'function* () { yield foo; }',
+			'async () => foo',
+			'async function* () { yield foo; }',
+			'(value = foo) => value',
+		].map(initializer => ({
+			code: `let foo;\nfoo = ${initializer};`,
+			output: `let foo = ${initializer};`,
+			errors: [{messageId: 'initialization', suggestions: []}],
+		})),
+		{
+			code: 'let foo: () => unknown;\nfoo = (() => foo) satisfies () => unknown;',
+			languageOptions: {parser: parsers.typescript},
+			output: 'let foo: () => unknown = (() => foo) satisfies () => unknown;',
+			errors: [{messageId: 'initialization', suggestions: []}],
+		},
+		{
+			code: 'let foo;\nfoo = () => foo;',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'initialization',
+				suggestions: [{messageId: 'suggestion/initialization', output: 'let foo = () => foo;'}],
+			}],
+		},
+		{
+			code: 'let foo;\n(foo) = () => foo;',
+			errors: [{
+				messageId: 'initialization',
+				suggestions: [{messageId: 'suggestion/initialization', output: 'let foo = () => foo;'}],
+			}],
+		},
+	],
+});
+
+test('preserves recursive function behavior when combining let initialization', async t => {
+	const linter = new Linter();
+	await Promise.all([
+		['value => value === 0 ? 1 : value * foo(value - 1)', 'foo(4)', 24],
+		['function (value) { return value === 0 ? 1 : value * foo(value - 1); }', 'foo(4)', 24],
+		['(value = foo) => value', 'foo() === foo', true],
+		['function* () { yield foo; }', 'foo().next().value === foo', true],
+		['async () => foo', 'foo().then(value => value === foo)', true],
+		['async function* () { yield foo; }', 'foo().next().then(({value}) => value === foo)', true],
+	].map(async ([initializer, use, expected]) => {
+		const code = `let foo;\nfoo = ${initializer};\n${use};`;
+		const result = linter.verifyAndFix(code, {
+			plugins: {unicorn: plugin},
+			rules: {'unicorn/no-immediate-mutation': 'error'},
+		});
+
+		t.assert.strictEqual(result.fixed, true, initializer);
+		t.assert.strictEqual(result.output, `let foo = ${initializer};\n${use};`, initializer);
+		t.assert.deepStrictEqual(result.messages, [], initializer);
+		t.assert.strictEqual(await runInNewContext(code), expected, initializer);
+		t.assert.strictEqual(await runInNewContext(result.output), expected, initializer);
+		t.assert.strictEqual(runInNewContext(`let foo;\nfoo = ${initializer};\nfoo.name;`), 'foo', initializer);
+		t.assert.strictEqual(runInNewContext(`let foo = ${initializer};\nfoo.name;`), 'foo', initializer);
+	}));
+});
+
+test('preserves values when combining non-coercing initializers', t => {
+	const linter = new Linter();
+	const setup = 'const value = { [Symbol.toPrimitive]() { throw new Error("Unexpected coercion"); } };\n';
+	for (const [initializer, expected] of [
+		['void value', undefined],
+		['!value', false],
+		['typeof value', 'object'],
+		['value && 1', 1],
+		['0 || 2', 2],
+		['undefined ?? 3', 3],
+		['value ? 4 : 5', 4],
+		['(value, 6)', 6],
+		['value === value', true],
+		['value !== 0', true],
+		['+1', 1],
+		['~1n', -2n],
+	]) {
+		const code = `${setup}let foo;\nfoo = ${initializer};\nfoo;`;
+		const result = linter.verifyAndFix(code, {
+			plugins: {unicorn: plugin},
+			rules: {'unicorn/no-immediate-mutation': 'error'},
+		});
+
+		t.assert.strictEqual(result.fixed, true, initializer);
+		t.assert.strictEqual(result.output, `${setup}let foo = ${initializer};\nfoo;`, initializer);
+		t.assert.deepStrictEqual(result.messages, [], initializer);
+		t.assert.strictEqual(runInNewContext(code), expected, initializer);
+		t.assert.strictEqual(runInNewContext(result.output), expected, initializer);
+	}
+});
+
+test('preserves this when combining initialization', t => {
+	const linter = new Linter();
+	const code = 'function read() {\n\tlet foo;\n\tfoo = this;\n\treturn foo;\n}\nread.call(receiver);';
+	const result = linter.verifyAndFix(code, {
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/no-immediate-mutation': 'error'},
+	});
+	const receiver = {value: 1};
+
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, 'function read() {\n\tlet foo = this;\n\treturn foo;\n}\nread.call(receiver);');
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(runInNewContext(code, {receiver}), receiver);
+	t.assert.strictEqual(runInNewContext(result.output, {receiver}), receiver);
+});
+
+test('preserves anonymous function names in composed initializers', t => {
+	const linter = new Linter();
+	for (const initializer of [
+		'true ? () => 1 : () => 2',
+		'false || (() => 1)',
+		'true && (() => 1)',
+		'undefined ?? (() => 1)',
+		'(0, () => 1)',
+	]) {
+		const code = `let foo;\nfoo = ${initializer};\nfoo.name;`;
+		const result = linter.verifyAndFix(code, {
+			plugins: {unicorn: plugin},
+			rules: {'unicorn/no-immediate-mutation': 'error'},
+		});
+
+		t.assert.strictEqual(result.fixed, true, initializer);
+		t.assert.strictEqual(result.output, `let foo = ${initializer};\nfoo.name;`, initializer);
+		t.assert.deepStrictEqual(result.messages, [], initializer);
+		t.assert.strictEqual(runInNewContext(code), '', initializer);
+		t.assert.strictEqual(runInNewContext(result.output), '', initializer);
+	}
+});
+
+test('preserves suspension when combining var initialization', t => {
+	const linter = new Linter();
+	const code = 'function* read() {\n\tvar foo;\n\tfoo = yield 1;\n\treturn foo;\n}\nread();';
+	const result = linter.verifyAndFix(code, {
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/no-immediate-mutation': 'error'},
+	});
+
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, 'function* read() {\n\tvar foo = yield 1;\n\treturn foo;\n}\nread();');
+	t.assert.deepStrictEqual(result.messages, []);
+	for (const source of [code, result.output]) {
+		const generator = runInNewContext(source);
+		const first = generator.next();
+		t.assert.strictEqual(first.value, 1);
+		t.assert.strictEqual(first.done, false);
+		const last = generator.next(2);
+		t.assert.strictEqual(last.value, 2);
+		t.assert.strictEqual(last.done, true);
+	}
+});
+
+test('keeps potentially reentrant operands suggestion-only', t => {
+	const linter = new Linter();
+	const setup = 'const value = { valueOf() { return foo === undefined ? 1 : 2; } };\n';
+	for (const [initializer, expected] of [
+		['!+value', false],
+		['void +value', undefined],
+		['typeof +value', 'number'],
+		['true && +value', 1],
+		['false || +value', 1],
+		['undefined ?? +value', 1],
+		['true ? +value : 0', 1],
+		['(0, +value)', 1],
+		['(+value) === 1', true],
+		['(+value) !== 0', true],
+	]) {
+		const code = `${setup}let foo;\nfoo = ${initializer};\nfoo;`;
+		const result = linter.verifyAndFix(code, {
+			plugins: {unicorn: plugin},
+			rules: {'unicorn/no-immediate-mutation': 'error'},
+		});
+
+		t.assert.strictEqual(result.fixed, false, initializer);
+		t.assert.strictEqual(result.output, code, initializer);
+		t.assert.strictEqual(result.messages.length, 1, initializer);
+		t.assert.strictEqual(result.messages[0].messageId, 'initialization', initializer);
+		t.assert.strictEqual(result.messages[0].suggestions.length, 1, initializer);
+		t.assert.strictEqual(runInNewContext(result.output), expected, initializer);
+	}
 });
 
 ruleTest.snapshot({
