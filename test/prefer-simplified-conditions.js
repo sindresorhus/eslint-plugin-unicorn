@@ -17,6 +17,7 @@ ruleTester({
 		'if ((a && b * c) || (a && d)) {}',
 		'if ((a && x?.value > 1) || (a && b)) {}',
 		'if ((x++ > 1 && a) || (x++ > 1 && b)) {}',
+		'if ((x > -getLimit() && a) || (x > -getLimit() && b)) {}',
 	],
 	invalid: [
 		['if ((a && x > 1) || (a && b)) {}', 'if (a && (x > 1 || b)) {}'],
@@ -26,6 +27,11 @@ ruleTester({
 		['for (((a in b) && false) || ((a in b) && true);;) {break;}', 'for ((a in b) && (false || true);;) {break;}'],
 		['for (value = (a in b === true || false) && (a in b === true || true);;) {break;}', 'for (value = (a in b === true) || (false && true);;) {break;}'],
 		['foo()\na in b && false || a in b && true', 'foo()\n;(a in b) && (false || true)'],
+		['if ((index > -1 && a) || (index > -1 && b)) {}', 'if (index > -1 && (a || b)) {}'],
+		['if ((a && x <= -1) || (a && b)) {}', 'if (a && (x <= -1 || b)) {}'],
+		['if ((x >= +1 || a) && (x >= +1 || b)) {}', 'if (x >= +1 || (a && b)) {}'],
+		['const value = (x === -0 && y < -1) || (x === -0 && y > +1);', 'const value = x === -0 && (y < -1 || y > +1);'],
+		['if ((object[-1] && a) || (object[-1] && b)) {}', 'if (object[-1] && (a || b)) {}'],
 	].map(([code, output]) => ({code, output, errors: 1})),
 });
 
@@ -97,6 +103,12 @@ ruleTester({
 		{
 			code: 'if (((x as number) > 1 && a) || ((x as number) > 1 && b)) {}',
 			output: 'if ((x as number) > 1 && (a || b)) {}',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'if ((x > (-1 as number) && a) || (x > (-1 as number) && b)) {}',
+			output: 'if (x > (-1 as number) && (a || b)) {}',
 			languageOptions: {parser: parsers.typescript},
 			errors: 1,
 		},

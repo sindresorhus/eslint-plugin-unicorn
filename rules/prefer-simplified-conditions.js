@@ -10,6 +10,7 @@ import {
 	getLogicalExpressionOperands,
 	getNegatedExpressionText,
 	getParenthesizedText,
+	getStaticNumberValue,
 	getTokenStore,
 	isBoolean,
 	isBooleanContext,
@@ -317,6 +318,7 @@ function isFactoringOperand(node) {
 		simpleNodeTypes.has(node.type)
 		|| node.type === 'Super'
 		|| node.type === 'CallExpression'
+		|| getStaticNumberValue(node) !== undefined
 	) {
 		return true;
 	}
