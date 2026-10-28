@@ -537,6 +537,8 @@ test({
 	invalid: [
 		...[
 			'const a = f() > 0 ? f() : 0;',
+			'const a = values[index()] > 0 ? values[index()] : 0;',
+			'const a = object?.read() > 0 ? object?.read() : 0;',
 			// The effectful call hides inside a wrapper that evaluates its operands eagerly
 			'const a = (x++, y) > 0 ? 0 : (x++, y);',
 			'const a = (x = 1, y) > 0 ? 0 : (x = 1, y);',
@@ -547,6 +549,10 @@ test({
 		{
 			code: 'const a = (x, y) > 0 ? 0 : (x, y);',
 			errors: [{messageId: MESSAGE_ID, suggestions: [{messageId: SUGGESTION_ID, data: {method: 'min'}, output: 'const a = Math.min((x, y), 0);'}]}],
+		},
+		{
+			code: 'const a = values[index] > 0 ? values[index] : 0;',
+			errors: [{messageId: MESSAGE_ID, suggestions: [{messageId: SUGGESTION_ID, data: {method: 'max'}, output: 'const a = Math.max(values[index], 0);'}]}],
 		},
 		// An import binding has no initializer to check
 		{
