@@ -230,13 +230,19 @@ test({
 	],
 });
 
-for (const [callee, receiverFactor] of [['object.store.get', 10], ['object[key]', 100], ['object.store[key]', 10]]) {
+for (const [callee, receiverFactor, alternateCallee = callee] of [
+	['object.store.get', 10],
+	['object[key]', 100],
+	['object.store[key]', 10],
+	['(object.store).get', 10, 'object.store.get'],
+	['object[`store`][key]', 10, 'object["store"][key]'],
+]) {
 	for (const selected of [true, false]) {
 		for (const ruleName of ['prefer-minimal-ternary', 'prefer-ternary']) {
 			nodeTest(`${ruleName} preserves ${callee} results and receiver when selected is ${selected}`, t => {
 				const code = ruleName === 'prefer-minimal-ternary'
-					? `result = selected ? ${callee}(1) : ${callee}(2);`
-					: `if (selected) { result = ${callee}(1); } else { result = ${callee}(2); }`;
+					? `result = selected ? ${callee}(first()) : ${alternateCallee}(second());`
+					: `if (selected) { result = ${callee}(first()); } else { result = ${alternateCallee}(second()); }`;
 				const linter = new Linter();
 				const result = linter.verifyAndFix(code, {
 					plugins: {unicorn},
@@ -253,13 +259,20 @@ for (const [callee, receiverFactor] of [['object.store.get', 10], ['object[key]'
 
 					const store = new Store();
 					const object = {factor: 100, get: store.get, store};
-					return vm.runInNewContext(`${source}; result;`, {object, key: 'get', selected});
+					const argument = value => {
+						object.store = {factor: 1000, get: store.get};
+						return value;
+					};
+
+					return vm.runInNewContext(`${source}; result;`, {
+						object, key: 'get', selected, first: () => argument(1), second: () => argument(2),
+					});
 				};
 
 				const actual = execute(result.output);
 
 				t.assert.strictEqual(result.fixed, true);
-				t.assert.strictEqual(result.output, `result = ${callee}(selected ? 1 : 2);`);
+				t.assert.strictEqual(result.output, `result = ${callee}(selected ? first() : second());`);
 				t.assert.deepStrictEqual(result.messages, []);
 				t.assert.strictEqual(actual, execute(code));
 				t.assert.strictEqual(actual, (selected ? 1 : 2) * receiverFactor);
