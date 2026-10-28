@@ -126,6 +126,7 @@ const config = [
 	{
 		files: [
 			'rules/no-unnecessary-default-arguments.js',
+			'test/no-unnecessary-nested-ternary.js',
 			'test/no-useless-fallback-in-spread.js',
 			'test/unit/get-primitive-literal-value.js',
 			'test/prefer-continue.js',
