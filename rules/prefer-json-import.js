@@ -117,12 +117,7 @@ function getJsonPath(node, context) {
 	let moduleRelative = false;
 	if (isNewExpression(node, {name: 'URL', argumentsLength: 2})) {
 		const [path, base] = node.arguments;
-		if (!(
-			isMemberExpression(base, {property: 'url', computed: false, optional: false})
-			&& base.object.type === 'MetaProperty'
-			&& base.object.meta.name === 'import'
-			&& base.object.property.name === 'meta'
-		)) {
+		if (!isNodeMatchesNameOrPath(base, 'import.meta.url')) {
 			return;
 		}
 

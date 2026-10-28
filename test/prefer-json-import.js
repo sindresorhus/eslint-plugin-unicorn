@@ -14,6 +14,11 @@ test({
 			output: `${requireSetup} import data from './data.json' with {type: 'json'};`,
 		},
 		{
+			code: `${requireSetup}\nconst data = require("./data.json")\nconsume(data);`,
+			errors: [{messageId: 'prefer-json-import'}],
+			output: `${requireSetup}\nimport data from './data.json' with {type: 'json'};\nconsume(data);`,
+		},
+		{
 			code: 'import {createRequire} from "node:module"; const require: <T>(path: string) => T = createRequire(import.meta.url); const data = require<Data>("./data.json");',
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: 'prefer-json-import'}],
@@ -95,6 +100,7 @@ test.snapshot({
 			'const data = require("./data.json");',
 			'const data: Data = require("./data.json");',
 			'const data = require("./data.json") as Data;',
+			'const data = <Data>require("./data.json");',
 			'const data = require("./data.json")!;',
 			'const data = require("./data.json") satisfies Data;',
 		].map(code => ({code: `${requireSetup} ${code}`, languageOptions: {parser: parsers.typescript}})),

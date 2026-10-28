@@ -690,17 +690,17 @@ Suggestion 1/1: Replace the declaration with a JSON import (changes loading time
 
 `;
 
-exports[`prefer-json-import > invalid(27): import {createRequire} from \"node:module\"; const require = createRequire(import.meta.url); const data = require(\"./data.json\")!; 1`] = `
+exports[`prefer-json-import > invalid(27): import {createRequire} from \"node:module\"; const require = createRequire(import.meta.url); const data = <Data>require(\"./data.json\"); 1`] = `
 
-  1 | import {createRequire} from "node:module"; const require = createRequire(import.meta.url); const data = require("./data.json")!;
+  1 | import {createRequire} from "node:module"; const require = createRequire(import.meta.url); const data = <Data>require("./data.json");
 
 `;
 
-exports[`prefer-json-import > invalid(27): import {createRequire} from \"node:module\"; const require = createRequire(import.meta.url); const data = require(\"./data.json\")!; 2`] = `
+exports[`prefer-json-import > invalid(27): import {createRequire} from \"node:module\"; const require = createRequire(import.meta.url); const data = <Data>require(\"./data.json\"); 2`] = `
 
 Message:
-> 1 | import {createRequire} from "node:module"; const require = createRequire(import.meta.url); const data = require("./data.json")!;
-    |                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^ Prefer a JSON import over reading and parsing a JSON file.
+> 1 | import {createRequire} from "node:module"; const require = createRequire(import.meta.url); const data = <Data>require("./data.json");
+    |                                                                                                               ^^^^^^^^^^^^^^^^^^^^^^ Prefer a JSON import over reading and parsing a JSON file.
 
 `;
 
@@ -721,34 +721,31 @@ Suggestion 1/1: Replace the declaration with a JSON import (changes loading time
 
 `;
 
-exports[`prefer-json-import > invalid(28): import {createRequire} from \"node:module\"; const require = createRequire(import.meta.url); const data = require(\"./data.json\") satisfies Data; 1`] = `
+exports[`prefer-json-import > invalid(28): import {createRequire} from \"node:module\"; const require = createRequire(import.meta.url); const data = require(\"./data.json\")!; 1`] = `
+
+  1 | import {createRequire} from "node:module"; const require = createRequire(import.meta.url); const data = require("./data.json")!;
+
+`;
+
+exports[`prefer-json-import > invalid(28): import {createRequire} from \"node:module\"; const require = createRequire(import.meta.url); const data = require(\"./data.json\")!; 2`] = `
+
+Message:
+> 1 | import {createRequire} from "node:module"; const require = createRequire(import.meta.url); const data = require("./data.json")!;
+    |                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^ Prefer a JSON import over reading and parsing a JSON file.
+
+`;
+
+exports[`prefer-json-import > invalid(29): import {createRequire} from \"node:module\"; const require = createRequire(import.meta.url); const data = require(\"./data.json\") satisfies Data; 1`] = `
 
   1 | import {createRequire} from "node:module"; const require = createRequire(import.meta.url); const data = require("./data.json") satisfies Data;
 
 `;
 
-exports[`prefer-json-import > invalid(28): import {createRequire} from \"node:module\"; const require = createRequire(import.meta.url); const data = require(\"./data.json\") satisfies Data; 2`] = `
+exports[`prefer-json-import > invalid(29): import {createRequire} from \"node:module\"; const require = createRequire(import.meta.url); const data = require(\"./data.json\") satisfies Data; 2`] = `
 
 Message:
 > 1 | import {createRequire} from "node:module"; const require = createRequire(import.meta.url); const data = require("./data.json") satisfies Data;
     |                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^ Prefer a JSON import over reading and parsing a JSON file.
-
-`;
-
-exports[`prefer-json-import > invalid(29): import {createRequire} from \"node:module\"; const require = createRequire(import.meta.url) as NodeRequire; const data = require(\"./data.json\"); 1`] = `
-
-  1 | import {createRequire} from "node:module"; const require = createRequire(import.meta.url) as NodeRequire; const data = require("./data.json");
-
-`;
-
-exports[`prefer-json-import > invalid(29): import {createRequire} from \"node:module\"; const require = createRequire(import.meta.url) as NodeRequire; const data = require(\"./data.json\"); 2`] = `
-
-Message:
-> 1 | import {createRequire} from "node:module"; const require = createRequire(import.meta.url) as NodeRequire; const data = require("./data.json");
-    |                                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^ Prefer a JSON import over reading and parsing a JSON file.
-
-Output:
-  1 | import {createRequire} from "node:module"; const require = createRequire(import.meta.url) as NodeRequire; import data from './data.json' with {type: 'json'};
 
 `;
 
@@ -805,20 +802,20 @@ Output:
 
 `;
 
-exports[`prefer-json-import > invalid(30): import {createRequire} from \"node:module\"; const require = createRequire(import.meta.url as string); const data = require(\"./data.json\"); 1`] = `
+exports[`prefer-json-import > invalid(30): import {createRequire} from \"node:module\"; const require = createRequire(import.meta.url) as NodeRequire; const data = require(\"./data.json\"); 1`] = `
 
-  1 | import {createRequire} from "node:module"; const require = createRequire(import.meta.url as string); const data = require("./data.json");
+  1 | import {createRequire} from "node:module"; const require = createRequire(import.meta.url) as NodeRequire; const data = require("./data.json");
 
 `;
 
-exports[`prefer-json-import > invalid(30): import {createRequire} from \"node:module\"; const require = createRequire(import.meta.url as string); const data = require(\"./data.json\"); 2`] = `
+exports[`prefer-json-import > invalid(30): import {createRequire} from \"node:module\"; const require = createRequire(import.meta.url) as NodeRequire; const data = require(\"./data.json\"); 2`] = `
 
 Message:
-> 1 | import {createRequire} from "node:module"; const require = createRequire(import.meta.url as string); const data = require("./data.json");
-    |                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^ Prefer a JSON import over reading and parsing a JSON file.
+> 1 | import {createRequire} from "node:module"; const require = createRequire(import.meta.url) as NodeRequire; const data = require("./data.json");
+    |                                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^ Prefer a JSON import over reading and parsing a JSON file.
 
 Output:
-  1 | import {createRequire} from "node:module"; const require = createRequire(import.meta.url as string); import data from './data.json' with {type: 'json'};
+  1 | import {createRequire} from "node:module"; const require = createRequire(import.meta.url) as NodeRequire; import data from './data.json' with {type: 'json'};
 
 `;
 
@@ -839,20 +836,20 @@ Suggestion 1/1: Replace the declaration with a JSON import (changes loading time
 
 `;
 
-exports[`prefer-json-import > invalid(31): import {createRequire} from \"node:module\"; const require = createRequire((<string>import.meta.url)!); const data = require(\"./data.json\"); 1`] = `
+exports[`prefer-json-import > invalid(31): import {createRequire} from \"node:module\"; const require = createRequire(import.meta.url as string); const data = require(\"./data.json\"); 1`] = `
 
-  1 | import {createRequire} from "node:module"; const require = createRequire((<string>import.meta.url)!); const data = require("./data.json");
+  1 | import {createRequire} from "node:module"; const require = createRequire(import.meta.url as string); const data = require("./data.json");
 
 `;
 
-exports[`prefer-json-import > invalid(31): import {createRequire} from \"node:module\"; const require = createRequire((<string>import.meta.url)!); const data = require(\"./data.json\"); 2`] = `
+exports[`prefer-json-import > invalid(31): import {createRequire} from \"node:module\"; const require = createRequire(import.meta.url as string); const data = require(\"./data.json\"); 2`] = `
 
 Message:
-> 1 | import {createRequire} from "node:module"; const require = createRequire((<string>import.meta.url)!); const data = require("./data.json");
-    |                                                                                                                    ^^^^^^^^^^^^^^^^^^^^^^ Prefer a JSON import over reading and parsing a JSON file.
+> 1 | import {createRequire} from "node:module"; const require = createRequire(import.meta.url as string); const data = require("./data.json");
+    |                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^ Prefer a JSON import over reading and parsing a JSON file.
 
 Output:
-  1 | import {createRequire} from "node:module"; const require = createRequire((<string>import.meta.url)!); import data from './data.json' with {type: 'json'};
+  1 | import {createRequire} from "node:module"; const require = createRequire(import.meta.url as string); import data from './data.json' with {type: 'json'};
 
 `;
 
@@ -887,6 +884,23 @@ Message:
 
 Suggestion 1/1: Replace the declaration with a JSON import (changes loading time and caches the data).:
   1 | import * as fs from "node:fs/promises"; import data from './data.json' with {type: 'json'};
+
+`;
+
+exports[`prefer-json-import > invalid(32): import {createRequire} from \"node:module\"; const require = createRequire((<string>import.meta.url)!); const data = require(\"./data.json\"); 1`] = `
+
+  1 | import {createRequire} from "node:module"; const require = createRequire((<string>import.meta.url)!); const data = require("./data.json");
+
+`;
+
+exports[`prefer-json-import > invalid(32): import {createRequire} from \"node:module\"; const require = createRequire((<string>import.meta.url)!); const data = require(\"./data.json\"); 2`] = `
+
+Message:
+> 1 | import {createRequire} from "node:module"; const require = createRequire((<string>import.meta.url)!); const data = require("./data.json");
+    |                                                                                                                    ^^^^^^^^^^^^^^^^^^^^^^ Prefer a JSON import over reading and parsing a JSON file.
+
+Output:
+  1 | import {createRequire} from "node:module"; const require = createRequire((<string>import.meta.url)!); import data from './data.json' with {type: 'json'};
 
 `;
 
