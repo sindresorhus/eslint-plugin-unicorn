@@ -1,23 +1,34 @@
-exports[`prefer-math-min-max > invalid(1): function foo(a, b) {\n\treturn (a as number) > b ? a : b;\n} 1`] = `
+exports[`prefer-math-min-max > invalid(1): class Example extends Base { maximum() { return this.value > super.value ? this.value : super.value; } } 1`] = `
 
-  1 | function foo(a, b) {
-  2 | 	return (a as number) > b ? a : b;
-  3 | }
+  1 | class Example extends Base { maximum() { return this.value > super.value ? this.value : super.value; } }
 
 `;
 
-exports[`prefer-math-min-max > invalid(1): function foo(a, b) {\n\treturn (a as number) > b ? a : b;\n} 2`] = `
+exports[`prefer-math-min-max > invalid(1): class Example extends Base { maximum() { return this.value > super.value ? this.value : super.value; } } 2`] = `
 
 Message:
-  1 | function foo(a, b) {
-> 2 | 	return (a as number) > b ? a : b;
-    | 	       ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.max()\` to simplify ternary expressions.
-  3 | }
+> 1 | class Example extends Base { maximum() { return this.value > super.value ? this.value : super.value; } }
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.max()\` to simplify ternary expressions.
 
 Suggestion 1/1: Replace with \`Math.max()\`.:
-  1 | function foo(a, b) {
-  2 | 	return Math.max(a as number, b);
-  3 | }
+  1 | class Example extends Base { maximum() { return Math.max(this.value, super.value); } }
+
+`;
+
+exports[`prefer-math-min-max > invalid(1): function minimum(value, limit: number) { return (value as number) < limit ? value : limit; } 1`] = `
+
+  1 | function minimum(value, limit: number) { return (value as number) < limit ? value : limit; }
+
+`;
+
+exports[`prefer-math-min-max > invalid(1): function minimum(value, limit: number) { return (value as number) < limit ? value : limit; } 2`] = `
+
+Message:
+> 1 | function minimum(value, limit: number) { return (value as number) < limit ? value : limit; }
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
+
+Suggestion 1/1: Replace with \`Math.min()\`.:
+  1 | function minimum(value, limit: number) { return Math.min(value as number, limit); }
 
 `;
 
@@ -38,26 +49,29 @@ Suggestion 1/1: Replace with \`Math.min()\`.:
 
 `;
 
-exports[`prefer-math-min-max > invalid(10): function foo(a, b) {\n\treturn (a as Number) > b ? a : b;\n} 1`] = `
+exports[`prefer-math-min-max > invalid(1): var foo: number;\nvar bar: number;\n\nvar value = foo > bar ? bar : foo; 1`] = `
 
-  1 | function foo(a, b) {
-  2 | 	return (a as Number) > b ? a : b;
-  3 | }
+  1 | var foo: number;
+  2 | var bar: number;
+  3 |
+  4 | var value = foo > bar ? bar : foo;
 
 `;
 
-exports[`prefer-math-min-max > invalid(10): function foo(a, b) {\n\treturn (a as Number) > b ? a : b;\n} 2`] = `
+exports[`prefer-math-min-max > invalid(1): var foo: number;\nvar bar: number;\n\nvar value = foo > bar ? bar : foo; 2`] = `
 
 Message:
-  1 | function foo(a, b) {
-> 2 | 	return (a as Number) > b ? a : b;
-    | 	       ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.max()\` to simplify ternary expressions.
-  3 | }
+  1 | var foo: number;
+  2 | var bar: number;
+  3 |
+> 4 | var value = foo > bar ? bar : foo;
+    |             ^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
 
-Suggestion 1/1: Replace with \`Math.max()\`.:
-  1 | function foo(a, b) {
-  2 | 	return Math.max(a as Number, b);
-  3 | }
+Suggestion 1/1: Replace with \`Math.min()\`.:
+  1 | var foo: number;
+  2 | var bar: number;
+  3 |
+  4 | var value = Math.min(foo, bar);
 
 `;
 
@@ -240,26 +254,37 @@ Message:
 
 `;
 
-exports[`prefer-math-min-max > invalid(2): function foo(a, b) {\n\treturn (a as number) > b ? a : b;\n} 1`] = `
+exports[`prefer-math-min-max > invalid(2): class Example { #value; minimum() { return this.#value < 0 ? this.#value : 0; } } 1`] = `
 
-  1 | function foo(a, b) {
-  2 | 	return (a as number) > b ? a : b;
-  3 | }
+  1 | class Example { #value; minimum() { return this.#value < 0 ? this.#value : 0; } }
 
 `;
 
-exports[`prefer-math-min-max > invalid(2): function foo(a, b) {\n\treturn (a as number) > b ? a : b;\n} 2`] = `
+exports[`prefer-math-min-max > invalid(2): class Example { #value; minimum() { return this.#value < 0 ? this.#value : 0; } } 2`] = `
 
 Message:
-  1 | function foo(a, b) {
-> 2 | 	return (a as number) > b ? a : b;
-    | 	       ^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.max()\` to simplify ternary expressions.
-  3 | }
+> 1 | class Example { #value; minimum() { return this.#value < 0 ? this.#value : 0; } }
+    |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
 
-Suggestion 1/1: Replace with \`Math.max()\`.:
-  1 | function foo(a, b) {
-  2 | 	return Math.max(a as number, b);
-  3 | }
+Suggestion 1/1: Replace with \`Math.min()\`.:
+  1 | class Example { #value; minimum() { return Math.min(this.#value, 0); } }
+
+`;
+
+exports[`prefer-math-min-max > invalid(2): function minimum(value, limit: number) { return (<number>value) < limit ? value : limit; } 1`] = `
+
+  1 | function minimum(value, limit: number) { return (<number>value) < limit ? value : limit; }
+
+`;
+
+exports[`prefer-math-min-max > invalid(2): function minimum(value, limit: number) { return (<number>value) < limit ? value : limit; } 2`] = `
+
+Message:
+> 1 | function minimum(value, limit: number) { return (<number>value) < limit ? value : limit; }
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
+
+Suggestion 1/1: Replace with \`Math.min()\`.:
+  1 | function minimum(value, limit: number) { return Math.min(<number>value, limit); }
 
 `;
 
@@ -410,26 +435,20 @@ Suggestion 1/1: Replace with \`Math.min()\`.:
 
 `;
 
-exports[`prefer-math-min-max > invalid(3): function foo(a, b) {\n\treturn (a as unknown as number) > b ? a : b;\n} 1`] = `
+exports[`prefer-math-min-max > invalid(3): function minimum(value: number, limit: number) { return value! < limit ? value! : limit; } 1`] = `
 
-  1 | function foo(a, b) {
-  2 | 	return (a as unknown as number) > b ? a : b;
-  3 | }
+  1 | function minimum(value: number, limit: number) { return value! < limit ? value! : limit; }
 
 `;
 
-exports[`prefer-math-min-max > invalid(3): function foo(a, b) {\n\treturn (a as unknown as number) > b ? a : b;\n} 2`] = `
+exports[`prefer-math-min-max > invalid(3): function minimum(value: number, limit: number) { return value! < limit ? value! : limit; } 2`] = `
 
 Message:
-  1 | function foo(a, b) {
-> 2 | 	return (a as unknown as number) > b ? a : b;
-    | 	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.max()\` to simplify ternary expressions.
-  3 | }
+> 1 | function minimum(value: number, limit: number) { return value! < limit ? value! : limit; }
+    |                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
 
-Suggestion 1/1: Replace with \`Math.max()\`.:
-  1 | function foo(a, b) {
-  2 | 	return Math.max(a as unknown as number, b);
-  3 | }
+Suggestion 1/1: Replace with \`Math.min()\`.:
+  1 | function minimum(value: number, limit: number) { return Math.min(value!, limit); }
 
 `;
 
@@ -450,6 +469,23 @@ Suggestion 1/1: Replace with \`Math.min()\`.:
 
 `;
 
+exports[`prefer-math-min-max > invalid(4): function minimum(value: number, limit: number) { return (value satisfies number) < limit ? (value satisfies number) : limit; } 1`] = `
+
+  1 | function minimum(value: number, limit: number) { return (value satisfies number) < limit ? (value satisfies number) : limit; }
+
+`;
+
+exports[`prefer-math-min-max > invalid(4): function minimum(value: number, limit: number) { return (value satisfies number) < limit ? (value satisfies number) : limit; } 2`] = `
+
+Message:
+> 1 | function minimum(value: number, limit: number) { return (value satisfies number) < limit ? (value satisfies number) : limit; }
+    |                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
+
+Suggestion 1/1: Replace with \`Math.min()\`.:
+  1 | function minimum(value: number, limit: number) { return Math.min(value satisfies number, limit); }
+
+`;
+
 exports[`prefer-math-min-max > invalid(4): height <= 50 ? height : 50 1`] = `
 
   1 | height <= 50 ? height : 50
@@ -464,29 +500,6 @@ Message:
 
 Suggestion 1/1: Replace with \`Math.min()\`.:
   1 | Math.min(height, 50)
-
-`;
-
-exports[`prefer-math-min-max > invalid(4): var foo = 10;\n\nvar value = foo > bar ? bar : foo; 1`] = `
-
-  1 | var foo = 10;
-  2 |
-  3 | var value = foo > bar ? bar : foo;
-
-`;
-
-exports[`prefer-math-min-max > invalid(4): var foo = 10;\n\nvar value = foo > bar ? bar : foo; 2`] = `
-
-Message:
-  1 | var foo = 10;
-  2 |
-> 3 | var value = foo > bar ? bar : foo;
-    |             ^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
-
-Suggestion 1/1: Replace with \`Math.min()\`.:
-  1 | var foo = 10;
-  2 |
-  3 | var value = Math.min(foo, bar);
 
 `;
 
@@ -507,32 +520,6 @@ Suggestion 1/1: Replace with \`Math.min()\`.:
 
 `;
 
-exports[`prefer-math-min-max > invalid(5): var foo = 10;\nvar bar = 20;\n\nvar value = foo > bar ? bar : foo; 1`] = `
-
-  1 | var foo = 10;
-  2 | var bar = 20;
-  3 |
-  4 | var value = foo > bar ? bar : foo;
-
-`;
-
-exports[`prefer-math-min-max > invalid(5): var foo = 10;\nvar bar = 20;\n\nvar value = foo > bar ? bar : foo; 2`] = `
-
-Message:
-  1 | var foo = 10;
-  2 | var bar = 20;
-  3 |
-> 4 | var value = foo > bar ? bar : foo;
-    |             ^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
-
-Suggestion 1/1: Replace with \`Math.min()\`.:
-  1 | var foo = 10;
-  2 | var bar = 20;
-  3 |
-  4 | var value = Math.min(foo, bar);
-
-`;
-
 exports[`prefer-math-min-max > invalid(6): height < maxHeight ? height : maxHeight 1`] = `
 
   1 | height < maxHeight ? height : maxHeight
@@ -547,55 +534,6 @@ Message:
 
 Suggestion 1/1: Replace with \`Math.min()\`.:
   1 | Math.min(height, maxHeight)
-
-`;
-
-exports[`prefer-math-min-max > invalid(6): var foo: number;\nvar bar: number;\n\nvar value = foo > bar ? bar : foo; 1`] = `
-
-  1 | var foo: number;
-  2 | var bar: number;
-  3 |
-  4 | var value = foo > bar ? bar : foo;
-
-`;
-
-exports[`prefer-math-min-max > invalid(6): var foo: number;\nvar bar: number;\n\nvar value = foo > bar ? bar : foo; 2`] = `
-
-Message:
-  1 | var foo: number;
-  2 | var bar: number;
-  3 |
-> 4 | var value = foo > bar ? bar : foo;
-    |             ^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.min()\` to simplify ternary expressions.
-
-Suggestion 1/1: Replace with \`Math.min()\`.:
-  1 | var foo: number;
-  2 | var bar: number;
-  3 |
-  4 | var value = Math.min(foo, bar);
-
-`;
-
-exports[`prefer-math-min-max > invalid(7): function foo(a, b) {\n\treturn (a as number) > b ? (a as number) : b;\n} 1`] = `
-
-  1 | function foo(a, b) {
-  2 | 	return (a as number) > b ? (a as number) : b;
-  3 | }
-
-`;
-
-exports[`prefer-math-min-max > invalid(7): function foo(a, b) {\n\treturn (a as number) > b ? (a as number) : b;\n} 2`] = `
-
-Message:
-  1 | function foo(a, b) {
-> 2 | 	return (a as number) > b ? (a as number) : b;
-    | 	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.max()\` to simplify ternary expressions.
-  3 | }
-
-Suggestion 1/1: Replace with \`Math.max()\`.:
-  1 | function foo(a, b) {
-  2 | 	return Math.max(a as number, b);
-  3 | }
 
 `;
 
@@ -616,29 +554,6 @@ Suggestion 1/1: Replace with \`Math.min()\`.:
 
 `;
 
-exports[`prefer-math-min-max > invalid(8): function foo(a, b) {\n\treturn (<number>a) > b ? (<number>a) : b;\n} 1`] = `
-
-  1 | function foo(a, b) {
-  2 | 	return (<number>a) > b ? (<number>a) : b;
-  3 | }
-
-`;
-
-exports[`prefer-math-min-max > invalid(8): function foo(a, b) {\n\treturn (<number>a) > b ? (<number>a) : b;\n} 2`] = `
-
-Message:
-  1 | function foo(a, b) {
-> 2 | 	return (<number>a) > b ? (<number>a) : b;
-    | 	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer \`Math.max()\` to simplify ternary expressions.
-  3 | }
-
-Suggestion 1/1: Replace with \`Math.max()\`.:
-  1 | function foo(a, b) {
-  2 | 	return Math.max(<number>a, b);
-  3 | }
-
-`;
-
 exports[`prefer-math-min-max > invalid(8): window.height < 50 ? window.height : 50 1`] = `
 
   1 | window.height < 50 ? window.height : 50
@@ -653,29 +568,6 @@ Message:
 
 Suggestion 1/1: Replace with \`Math.min()\`.:
   1 | Math.min(window.height, 50)
-
-`;
-
-exports[`prefer-math-min-max > invalid(9): function foo(a, b) {\n\treturn a! > b ? a! : b;\n} 1`] = `
-
-  1 | function foo(a, b) {
-  2 | 	return a! > b ? a! : b;
-  3 | }
-
-`;
-
-exports[`prefer-math-min-max > invalid(9): function foo(a, b) {\n\treturn a! > b ? a! : b;\n} 2`] = `
-
-Message:
-  1 | function foo(a, b) {
-> 2 | 	return a! > b ? a! : b;
-    | 	       ^^^^^^^^^^^^^^^ Prefer \`Math.max()\` to simplify ternary expressions.
-  3 | }
-
-Suggestion 1/1: Replace with \`Math.max()\`.:
-  1 | function foo(a, b) {
-  2 | 	return Math.max(a!, b);
-  3 | }
 
 `;
 
