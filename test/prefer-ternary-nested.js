@@ -47,6 +47,7 @@ for (const mode of ['always', 'only-single-line']) {
 			'function foo() { if (a) { return () => { return b ? c : d; }; } return e; }',
 			'function foo() { if (a) { return [\nb ? c : d,\n]; } return e; }',
 			'let foo = getDefault(); if (a) { foo = b ? c : d; }',
+			'let foo = a ? read() : b; if (c) { foo = d; }',
 			'let foo = a ? b : c; if (check()) { foo = d; }',
 			'let foo = a; if (b) { foo = c ? foo : d; }',
 		].map(code => ({code, options: [mode, nestedOptions]})),
@@ -63,6 +64,7 @@ test({
 			['let foo = a ? b : c; if (d) { foo = e; }', 'const foo = d ? e : (a ? b : c);'],
 			['let foo = a; if (b ? c : d) { foo = e; }', 'const foo = (b ? c : d) ? e : a;'],
 			['let foo = a; if (b) { foo = c ? d : e; } foo = f;', 'let foo = b ? (c ? d : e) : a; foo = f;'],
+			['let foo = a ?\nb : c; if (d) { foo = e; }', 'const foo = d ? e : (a ?\nb : c);'],
 		].map(([code, output]) => ({
 			code,
 			options: ['always', nestedOptions],
@@ -77,6 +79,11 @@ test({
 		},
 		{
 			code: 'function foo() { if (a) { return /* keep */ b; } return c ? d : e; }',
+			options: ['always', nestedOptions],
+			errors: [{messageId: 'prefer-ternary', suggestions: []}],
+		},
+		{
+			code: 'let foo = a ? b : c;\n// Keep the default explanation.\nif (d) { foo = e; }',
 			options: ['always', nestedOptions],
 			errors: [{messageId: 'prefer-ternary', suggestions: []}],
 		},
@@ -104,7 +111,10 @@ const multilineCases = [
 ]);
 
 test({
-	valid: multilineCases.map(([code]) => ({code, options: ['only-single-line', nestedOptions]})),
+	valid: [
+		...multilineCases.map(([code]) => ({code, options: ['only-single-line', nestedOptions]})),
+		{code: 'let foo = a ?\nb : c; if (d) { foo = e; }', options: ['only-single-line', nestedOptions]},
+	],
 	invalid: multilineCases.map(([code, output]) => ({
 		code, output, options: ['always', nestedOptions], errors,
 	})),
