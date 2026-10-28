@@ -10,6 +10,67 @@ const {ruleId, rule, test: ruleTester} = getTester(import.meta);
 
 ruleTester({
 	valid: [
+		'const value = (a && x > 1) || (a && b);',
+		'if ((a + b && c) || (a + b && d)) {}',
+		'if ((a && b * c) || (a && d)) {}',
+		'if ((a && x?.value > 1) || (a && b)) {}',
+		'if ((x++ > 1 && a) || (x++ > 1 && b)) {}',
+	],
+	invalid: [
+		['if ((a && x > 1) || (a && b)) {}', 'if (a && (x > 1 || b)) {}'],
+		['if ((a == null && b) || (a == null && c)) {}', 'if (a == null && (b || c)) {}'],
+		['const value = (x > 1 && y < 2) || (x > 1 && y > 5);', 'const value = x > 1 && (y < 2 || y > 5);'],
+		['for ((a in b && false) || (a in b && true);;) {break;}', 'for ((a in b) && (false || true);;) {break;}'],
+		['for (value = (a in b === true || false) && (a in b === true || true);;) {break;}', 'for (value = (a in b === true) || (false && true);;) {break;}'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+for (const operator of ['==', '!=', '<', '<=', '>', '>=', 'in', 'instanceof']) {
+	const commonText = operator === 'in' ? '(a in b)' : `a ${operator} b`;
+
+	ruleTester({
+		valid: [],
+		invalid: [
+			[`if ((a ${operator} b && c) || (a ${operator} b && d)) {}`, `if (${commonText} && (c || d)) {}`],
+			[`if ((a ${operator} b || c) && (a ${operator} b || d)) {}`, `if (${commonText} || (c && d)) {}`],
+			[`if ((a && b ${operator} c) || (a && d)) {}`, `if (a && (b ${operator} c || d)) {}`],
+			[`if ((a || b) && (a || c ${operator} d)) {}`, `if (a || (b && c ${operator} d)) {}`],
+		].map(([code, output]) => ({code, output, errors: 1})),
+	});
+}
+
+ruleTester({
+	valid: [],
+	invalid: [
+		{
+			code: 'if (((x as number) > 1 && a) || ((x as number) > 1 && b)) {}',
+			output: 'if ((x as number) > 1 && (a || b)) {}',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'if ((a == null /* keep */ && b) || (a == null && c)) {}',
+			errors: [{messageId: 'prefer-simplified-conditions', suggestions: []}],
+		},
+		{
+			code: 'if ((getValue() > 1 && a) || (getValue() > 1 && b)) {}',
+			errors: [{
+				messageId: 'prefer-simplified-conditions',
+				suggestions: [{messageId: 'suggestion', output: 'if (getValue() > 1 && (a || b)) {}'}],
+			}],
+		},
+		{
+			code: 'if ((a && getValue() < 1) || (a && b)) {}',
+			errors: [{
+				messageId: 'prefer-simplified-conditions',
+				suggestions: [{messageId: 'suggestion', output: 'if (a && (getValue() < 1 || b)) {}'}],
+			}],
+		},
+	],
+});
+
+ruleTester({
+	valid: [
 		'if ((object.property && a) || (object[tag`property`] && b)) {}',
 		'if ((object.property && a) || (object[`prop${name}`] && b)) {}', // eslint-disable-line no-template-curly-in-string
 	],

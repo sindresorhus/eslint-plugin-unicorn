@@ -336,7 +336,7 @@ function isFactoringOperand(node) {
 
 	if (
 		node.type === 'BinaryExpression'
-		&& (node.operator === '===' || node.operator === '!==')
+		&& ['==', '!=', '===', '!==', '<', '<=', '>', '>=', 'in', 'instanceof'].includes(node.operator)
 	) {
 		return isFactoringOperand(node.left) && isFactoringOperand(node.right);
 	}
@@ -477,9 +477,17 @@ function getAbsorptionTerm(node, context) {
 }
 
 function getFactoringReplacementText(node, factoringTerms, context) {
-	// Individual factoring operands never need additional parentheses as an operand of `&&`/`||`, but grouped remainders do.
+	// Factoring operands do not need parentheses for logical precedence, but grouped remainders do.
 	const {innerOperator, before, after} = factoringTerms;
-	const commonText = getParenthesizedText(factoringTerms.common, context);
+	let commonText = getParenthesizedText(factoringTerms.common, context);
+	// Keep `in` grouped so factoring also produces valid `for` initializers.
+	if (
+		!isParenthesized(factoringTerms.common, context)
+		&& getTokenStore(context, factoringTerms.common).getTokens(factoringTerms.common).some(token => token.type === 'Keyword' && token.value === 'in')
+	) {
+		commonText = `(${commonText})`;
+	}
+
 	const [leftRemainingText, rightRemainingText] = [factoringTerms.leftRemainingOperands, factoringTerms.rightRemainingOperands].map(operands => {
 		const text = operands.map(operand => getParenthesizedText(operand, context)).join(` ${innerOperator} `);
 		return operands.length > 1 ? `(${text})` : text;
