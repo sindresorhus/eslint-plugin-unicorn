@@ -590,6 +590,40 @@ Suggestion 1/1: Simplify this ternary expression (requires review).:
 
 `;
 
+exports[`no-unnecessary-nested-ternary > invalid(27): x === 1 ? a : (enabled && (x === 2 || x === 4) ? b : (x === 3 ? a : c)); 1`] = `
+
+  1 | x === 1 ? a : (enabled && (x === 2 || x === 4) ? b : (x === 3 ? a : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(27): x === 1 ? a : (enabled && (x === 2 || x === 4) ? b : (x === 3 ? a : c)); 2`] = `
+
+Message:
+> 1 | x === 1 ? a : (enabled && (x === 2 || x === 4) ? b : (x === 3 ? a : c));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | (x === 1) || (x === 3) ? a : (enabled && (x === 2 || x === 4) ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(28): const first = value => enabled && value.kind === 1; const second = value => value.kind === 2; first(x) ? (y ? a : c) : (second(x) ? b : c); 1`] = `
+
+  1 | const first = value => enabled && value.kind === 1; const second = value => value.kind === 2; first(x) ? (y ? a : c) : (second(x) ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(28): const first = value => enabled && value.kind === 1; const second = value => value.kind === 2; first(x) ? (y ? a : c) : (second(x) ? b : c); 2`] = `
+
+Message:
+> 1 | const first = value => enabled && value.kind === 1; const second = value => value.kind === 2; first(x) ? (y ? a : c) : (second(x) ? b : c);
+    |                                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | const first = value => enabled && value.kind === 1; const second = value => value.kind === 2; first(x) && y ? a : (second(x) ? b : c);
+
+`;
+
 exports[`no-unnecessary-nested-ternary > invalid(3): outer ? fallback : (inner || other ? value : fallback); 1`] = `
 
   1 | outer ? fallback : (inner || other ? value : fallback);

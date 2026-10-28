@@ -1,4 +1,4 @@
-import {findVariable, hasSideEffect} from '@eslint-community/eslint-utils';
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	getConditionalExpressionChildText,
 	getLogicalExpressionChildText,
@@ -6,6 +6,7 @@ import {
 	getParenthesizedRange,
 	getPrimitiveLiteralValue,
 	hasJavaScriptTypeAnnotations,
+	hasPossibleSideEffect,
 	isTypeScriptFile,
 	needsSemicolon,
 	unwrapTypeScriptExpression,
@@ -95,7 +96,8 @@ function getSubject(node, parameter, argument) {
 function getLiteralTest(node, parameter, argument) {
 	node = unwrapTypeScriptExpression(node);
 	if (node.type === 'LogicalExpression' && node.operator === '&&') {
-		return getLiteralTest(node.left, parameter, argument);
+		// Either conjunct constrains a truthy result; callers reject explicit side effects in the whole test.
+		return getLiteralTest(node.left, parameter, argument) ?? getLiteralTest(node.right, parameter, argument);
 	}
 
 	if (node.type === 'LogicalExpression' && node.operator === '||') {
@@ -164,13 +166,13 @@ function getLocalGuard(node, context) {
 
 	const subject = getSubject(node.arguments[0]);
 	const test = subject && getLiteralTest(expression, functionNode.params[0].name, subject);
-	return test && !hasSideEffect(expression, context.sourceCode) ? {test} : {unsupported: true};
+	return test && !hasPossibleSideEffect(expression, context) ? {test} : {unsupported: true};
 }
 
 function getTest(node, context) {
 	node = unwrapTypeScriptExpression(node);
 	const literalTest = getLiteralTest(node);
-	if (literalTest && !hasSideEffect(node, context.sourceCode)) {
+	if (literalTest && !hasPossibleSideEffect(node, context)) {
 		return {...literalTest, pure: true};
 	}
 
@@ -282,7 +284,7 @@ function areTestsExclusive(left, right, context) {
 }
 
 function isPureTest(node, context) {
-	return !hasSideEffect(node, context.sourceCode) || getTest(node, context)?.pure === true;
+	return !hasPossibleSideEffect(node, context) || getTest(node, context)?.pure === true;
 }
 
 function requireReview(problem) {

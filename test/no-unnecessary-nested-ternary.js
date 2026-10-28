@@ -22,6 +22,10 @@ test({
 		['for (; condition; update()) x === 1 ? a : (x === 2 ? b : (x === 3 ? a : c));', 'for (; condition; update()) (x === 1) || (x === 3) ? a : (x === 2 ? b : c);'],
 		['a ? (b ? d : c) : d;', 'a && !b ? c : d;'],
 		['a ? c : (b ? d : c);', 'a || !b ? c : d;'],
+		['x === 1 ? a : (enabled && x === 2 ? b : (x === 3 ? a : c));', '(x === 1) || (x === 3) ? a : (enabled && x === 2 ? b : c);'],
+		['x === 1 ? a : (x === 2 ? b : (enabled && /* keep */ x === 3 ? a : c));', '(x === 1) || (enabled && /* keep */ x === 3) ? a : (x === 2 ? b : c);'],
+		['enabled && x === 1 ? c : (x === 2 ? a : (x === 3 ? b : c));', 'x === 2 ? a : (x === 3 ? b : c);'],
+		['enabled && x === 1 ? (y ? a : c) : (x === 2 ? b : c);', 'enabled && x === 1 && y ? a : (x === 2 ? b : c);'],
 	].map(([code, output]) => ({code, output, errors: 1})),
 });
 
@@ -56,6 +60,17 @@ test.snapshot({
 		'function first(value) { return value.kind === 1; } const second = value => value.kind === 2; first = other; first(x) ? (y ? a : c) : (second(x) ? b : c);',
 		'const first = value => { value.kind = 1; return value.kind === 1; }; const second = value => value.kind === 2; first(x) ? (y ? a : c) : (second(x) ? b : c);',
 		'const {third} = value => value === 3; x === 1 ? a : (x === 2 ? b : (third(x) ? a : c));',
+		'x === 1 ? a : (mutate() && x === 2 ? b : (x === 3 ? a : c));',
+		'x === 1 ? a : ((x = 3) && x === 2 ? b : (x === 3 ? a : c));',
+		'x === 1 ? a : (enabled && (x === 2 || y === 2) ? b : (x === 3 ? a : c));',
+		'const first = value => mutate() && value.kind === 1; const second = value => value.kind === 2; first(x) ? (y ? a : c) : (second(x) ? b : c);',
+		'x === 1 ? a : (x === 2 && mutate`value` ? b : (x === 3 ? a : c));',
+		'x === 1 ? a : (mutate`value` && x === 2 ? b : (x === 3 ? a : c));',
+		'x === 1 ? (mutate`value` ? a : c) : (x === 2 ? b : c);',
+		'const first = value => value.kind === 1 && mutate`value`; const second = value => value.kind === 2; first(x) ? (y ? a : c) : (second(x) ? b : c);',
+		'x === 1 ? a : (x === 2 && [...values].length ? b : (x === 3 ? a : c));',
+		'x === 1 ? ([...values].length ? a : c) : (x === 2 ? b : c);',
+		'const first = value => value.kind === 1 && [...values].length; const second = value => value.kind === 2; first(x) ? (y ? a : c) : (second(x) ? b : c);',
 	],
 	invalid: [
 		'x === 1 ? a : (x === 2 ? b : (x === 3 ? d : (x === 4 ? a : c)));',
@@ -84,6 +99,8 @@ test.snapshot({
 		'const first = value => typeof value === "string"; const second = value => typeof value === "number"; first(x) ? (y ? a : c) : (second(x) ? b : c);',
 		'function first(value) { return value.kind === 1; } function second(input) { return input.kind === 2; } first(object.value) ? (y ? a : c) : (second(object.value) ? b : c);',
 		'/** @type {number} */ let x; x === 1 ? a : (x === 2 ? b : (x === 3 ? a : c));',
+		'x === 1 ? a : (enabled && (x === 2 || x === 4) ? b : (x === 3 ? a : c));',
+		'const first = value => enabled && value.kind === 1; const second = value => value.kind === 2; first(x) ? (y ? a : c) : (second(x) ? b : c);',
 	],
 });
 
@@ -167,16 +184,42 @@ nodeTest('chain fixes preserve results and branch execution', t => {
 		'x === 1 ? (y ? branch("a") : branch("c")) : (x === 2 ? branch("b") : branch("c"))',
 		'x === 1 ? (y ? branch("c") : branch("a")) : (x === 2 ? branch("b") : branch("c"))',
 		'first(x) ? (y ? branch("a") : branch("c")) : (second(x) ? branch("b") : branch("c"))',
+		'x === 1 ? branch("a") : (enabled && x === 2 ? branch("b") : (x === 3 ? branch("a") : branch("c")))',
+		'x === 1 ? branch("a") : (x === 2 ? branch("b") : (enabled && x === 3 ? branch("a") : branch("c")))',
+		'enabled && x === 1 ? branch("c") : (x === 2 ? branch("a") : (x === 3 ? branch("b") : branch("c")))',
+		'enabled && x === 1 ? (y ? branch("a") : branch("c")) : (x === 2 ? branch("b") : branch("c"))',
+		'gatedFirst(x) ? (y ? branch("a") : branch("c")) : (second(x) ? branch("b") : branch("c"))',
 	]) {
-		const code = `const seen = []; const branch = value => { seen.push(value); return value; }; const first = value => value === 1; const second = value => value === 2; const result = ${expression}; JSON.stringify({seen, result});`;
+		const code = `const seen = []; const branch = value => { seen.push(value); return value; }; const first = value => value === 1; const gatedFirst = value => enabled && value === 1; const second = value => value === 2; const result = ${expression}; JSON.stringify({seen, result});`;
 		const {output, fixed, messages} = linter.verifyAndFix(code, config);
 		t.assert.strictEqual(fixed, true);
 		t.assert.deepStrictEqual(messages, []);
 		for (const x of [undefined, null, false, true, -1, 0, 1, 2, 3, 4, '1', 1n, {}]) {
 			for (const y of [false, true, 0, 1, '', 'value']) {
-				t.assert.strictEqual(runInNewContext(output, {x, y}), runInNewContext(code, {x, y}));
+				for (const enabled of [false, true]) {
+					t.assert.strictEqual(runInNewContext(output, {x, y, enabled}), runInNewContext(code, {x, y, enabled}));
+				}
 			}
 		}
+	}
+});
+
+nodeTest('tagged templates and spreads that mutate the tested value prevent chain fixes', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'no-unnecessary-nested-ternary': rule}}},
+		rules: {'unicorn/no-unnecessary-nested-ternary': 'error'},
+	};
+	for (const [setup, condition] of [
+		['const mutate = () => { x = 3; return false; };', 'x === 2 && mutate`value`'],
+		['const values = { *[Symbol.iterator]() { x = 3; } };', 'x === 2 && [...values].length'],
+	]) {
+		const code = `let x = 2; ${setup} x === 1 ? "a" : (${condition} ? "b" : (x === 3 ? "a" : "c"));`;
+		t.assert.strictEqual(runInNewContext(code), 'a');
+		const {output, fixed, messages} = linter.verifyAndFix(code, config);
+		t.assert.strictEqual(fixed, false);
+		t.assert.deepStrictEqual(messages, []);
+		t.assert.strictEqual(runInNewContext(output), 'a');
 	}
 });
 
