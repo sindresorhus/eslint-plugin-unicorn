@@ -470,13 +470,6 @@ test.snapshot({
 				return (a as Foo) > b ? a : b;
 			}
 		`,
-	],
-	invalid: [
-		outdent`
-			function foo(a, b) {
-				return (a as number) > b ? a : b;
-			}
-		`,
 		outdent`
 			function foo(a, b) {
 				return (a as number) > b ? a : b;
@@ -487,7 +480,6 @@ test.snapshot({
 				return (a as unknown as number) > b ? a : b;
 			}
 		`,
-
 		outdent`
 			var foo = 10;
 
@@ -496,12 +488,6 @@ test.snapshot({
 		outdent`
 			var foo = 10;
 			var bar = 20;
-
-			var value = foo > bar ? bar : foo;
-		`,
-		outdent`
-			var foo: number;
-			var bar: number;
 
 			var value = foo > bar ? bar : foo;
 		`,
@@ -526,11 +512,28 @@ test.snapshot({
 			}
 		`,
 	],
+	invalid: [
+		outdent`
+			var foo: number;
+			var bar: number;
+
+			var value = foo > bar ? bar : foo;
+		`,
+	],
 });
 
 // The same operand is written on both sides, so the source evaluates it twice and the rewrite only once
 test({
-	valid: [],
+	valid: [
+		'const a = [f()] > 0 ? 0 : [f()];',
+		'const a = ({a: f()}) > 0 ? 0 : ({a: f()});',
+		// A template literal with an expression can run `toString()`
+		// eslint-disable-next-line no-template-curly-in-string
+		'const a = `${x}` > 0 ? 0 : `${x}`;',
+		'const a = `1` > 0 ? 0 : `1`;',
+		// A function body does not run where it is written
+		'const a = [() => f()] > 0 ? 0 : [() => f()];',
+	],
 	invalid: [
 		...[
 			'const a = f() > 0 ? f() : 0;',
@@ -539,28 +542,11 @@ test({
 			'const a = (x = 1, y) > 0 ? 0 : (x = 1, y);',
 			'const a = (x || f()) > 0 ? 0 : (x || f());',
 			'const a = (x ? f() : g()) > 0 ? 0 : (x ? f() : g());',
-			'const a = [f()] > 0 ? 0 : [f()];',
-			'const a = ({a: f()}) > 0 ? 0 : ({a: f()});',
 		].map(code => ({code, errors: [{messageId: MESSAGE_ID, suggestions: []}]})),
 		// A wrapper without an effect can be suggested
 		{
 			code: 'const a = (x, y) > 0 ? 0 : (x, y);',
 			errors: [{messageId: MESSAGE_ID, suggestions: [{messageId: SUGGESTION_ID, data: {method: 'min'}, output: 'const a = Math.min((x, y), 0);'}]}],
-		},
-		// A template literal with an expression can run `toString()`
-		{
-			// eslint-disable-next-line no-template-curly-in-string
-			code: 'const a = `${x}` > 0 ? 0 : `${x}`;',
-			errors: [{messageId: MESSAGE_ID, suggestions: []}],
-		},
-		{
-			code: 'const a = `1` > 0 ? 0 : `1`;',
-			errors: [{messageId: MESSAGE_ID, suggestions: [{messageId: SUGGESTION_ID, data: {method: 'min'}, output: 'const a = Math.min(`1`, 0);'}]}],
-		},
-		// A function body does not run where it is written
-		{
-			code: 'const a = [() => f()] > 0 ? 0 : [() => f()];',
-			errors: [{messageId: MESSAGE_ID, suggestions: [{messageId: SUGGESTION_ID, data: {method: 'min'}, output: 'const a = Math.min([() => f()], 0);'}]}],
 		},
 		// An import binding has no initializer to check
 		{
@@ -569,3 +555,281 @@ test({
 		},
 	],
 });
+
+// Inferred callback parameters must not be assumed to be numbers.
+for (const languageOptions of [
+	{parser: parsers.typescript},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: [
+			'const bigIntMax = (...args: bigint[]) => args.reduce((previous, current) => current > previous ? current : previous, BigInt(Number.MIN_SAFE_INTEGER));',
+			'function maximum(first: any, second: any) { return first > second ? first : second; }',
+			'function maximum(first: unknown, second: unknown) { return first > second ? first : second; }',
+		].map(code => ({code, filename: 'file.ts'})),
+		invalid: [{
+			filename: 'file.ts',
+			code: 'function maximum(first: number, second: number) { return first > second ? first : second; }',
+			errors: [{
+				messageId: MESSAGE_ID,
+				suggestions: [{
+					messageId: SUGGESTION_ID,
+					data: {method: 'max'},
+					output: 'function maximum(first: number, second: number) { return Math.max(first, second); }',
+				}],
+			}],
+		}],
+	});
+}
+
+test({
+	valid: [
+		'/** @param {string} value */ function run(value) { return value > 0 ? value : 0; }',
+		'/** @param {boolean} value */ function run(value) { return value < 0 ? value : 0; }',
+		'/** @param {Date} value */ function run(value) { return value > 0 ? value : 0; }',
+		'/** @param {number | string} value */ function run(value) { return value > 0 ? value : 0; }',
+	],
+	invalid: [],
+});
+
+test({
+	testerOptions: {languageOptions: {parser: parsers.typescript}},
+	valid: [
+		'function maximum(first, second) { return first > second ? first : second; }',
+		'function maximum(value: number | undefined) { return value > 0 ? value : 0; }',
+		'function maximum(value: Number) { return value > 0 ? value : 0; }',
+		'function maximum(...values: number[]) { return values.reduce((first, second) => first > second ? first : second); }',
+	].map(code => ({code, filename: 'file.ts'})),
+	invalid: [
+		{
+			filename: 'file.js',
+			code: 'function maximum(first, second) { return first > second ? first : second; }',
+			errors: [{messageId: MESSAGE_ID, suggestions: [{messageId: SUGGESTION_ID, data: {method: 'max'}, output: 'function maximum(first, second) { return Math.max(first, second); }'}]}],
+		},
+		...['file.ts', 'file.tsx', 'file.mts', 'file.cts'].map(filename => ({
+			filename,
+			code: 'const value = 1; value > 0 ? value : 0;',
+			errors: [{messageId: MESSAGE_ID, suggestions: [{messageId: SUGGESTION_ID, data: {method: 'max'}, output: 'const value = 1; Math.max(value, 0);'}]}],
+		})),
+	],
+});
+
+test({
+	testerOptions: {languageOptions: {parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}}},
+	valid: [],
+	invalid: [{
+		filename: 'file.ts',
+		code: 'function maximum(...values: number[]) { return values.reduce((first, second) => first > second ? first : second); }',
+		errors: [{
+			messageId: MESSAGE_ID,
+			suggestions: [{
+				messageId: SUGGESTION_ID,
+				data: {method: 'max'},
+				output: 'function maximum(...values: number[]) { return values.reduce((first, second) => Math.max(first, second)); }',
+			}],
+		}],
+	}],
+});
+
+test({
+	valid: [
+		'"10" > value ? "10" : value;',
+		'`10` < value ? `10` : value;',
+		'true > value ? true : value;',
+		'Boolean(input) > value ? Boolean(input) : value;',
+		'String(input) < value ? String(input) : value;',
+		'const values = []; values > value ? values : value;',
+		'[] < value ? [] : value;',
+	],
+	invalid: [],
+});
+
+test.snapshot({
+	testerOptions: {languageOptions: {parser: parsers.typescript}},
+	valid: [],
+	invalid: [
+		'function minimum(value, limit: number) { return (value as number) < limit ? value : limit; }',
+		'function minimum(value, limit: number) { return (<number>value) < limit ? value : limit; }',
+		'function minimum(value: number, limit: number) { return value! < limit ? value! : limit; }',
+		'function minimum(value: number, limit: number) { return (value satisfies number) < limit ? (value satisfies number) : limit; }',
+	],
+});
+
+test({
+	valid: [
+		'null > value ? null : value;',
+		'undefined < value ? value : undefined;',
+		'void 0 > value ? void 0 : value;',
+	],
+	invalid: [],
+});
+
+// Object values must not be replaced with their numeric coercion.
+test({
+	valid: [
+		...[
+			'({})',
+			'/pattern/',
+			'(() => 1)',
+			'(function () {})',
+			'(class {})',
+			'new Number(1)',
+			'new CustomValue()',
+			'null',
+			'undefined',
+			'void effect()',
+		].flatMap(value => [
+			`${value} > other ? ${value} : other;`,
+			`const value = ${value}; const alias = value; alias < other ? alias : other;`,
+		]),
+		'const value = condition ? {} : 1; value > other ? value : other;',
+		'const value = (effect(), {}); value < other ? value : other;',
+	],
+	invalid: [],
+});
+
+test({
+	valid: [],
+	invalid: [
+		'class { static value = effect(); }',
+		'class { static { effect(); } }',
+		'class extends effect() {}',
+		'class { [effect()]() {} }',
+	].map(classExpression => ({
+		code: `[${classExpression}].length > 0 ? [${classExpression}].length : 0;`,
+		errors: [{messageId: MESSAGE_ID, suggestions: []}],
+	})),
+});
+
+nodeTest('class static effects retain their original evaluation count', t => {
+	const code = '[class { static { effect(); } }].length > 0 ? [class { static { effect(); } }].length : 0;';
+	const messages = new Linter().verify(code, {
+		plugins: {unicorn: {rules: {'prefer-math-min-max': rule}}},
+		rules: {'unicorn/prefer-math-min-max': 'error'},
+	});
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].messageId, MESSAGE_ID);
+	t.assert.strictEqual(messages[0].suggestions, undefined);
+	let effectCount = 0;
+	const result = runInNewContext(code, {
+		effect() {
+			effectCount++;
+		},
+	});
+	t.assert.strictEqual(result, 1);
+	t.assert.strictEqual(effectCount, 2);
+});
+
+// Defaults and mutable initializers use the same non-number checks as operands.
+test({
+	valid: [
+		...['[]', '{}', 'new Date()', 'String(input)', 'Boolean(input)', 'undefined', 'void effect()'].flatMap(value => [
+			`function minimum(value = ${value}) { return value > 0 ? 0 : value; }`,
+			`let value = ${value}; value > 0 ? 0 : value;`,
+			`var value = ${value}; value > 0 ? 0 : value;`,
+		]),
+	],
+	invalid: [
+		...['1', 'input'].map(value => ({
+			code: `function minimum(value = ${value}) { return value > 0 ? 0 : value; }`,
+			errors: [{
+				messageId: MESSAGE_ID,
+				suggestions: [{
+					messageId: SUGGESTION_ID,
+					data: {method: 'min'},
+					output: `function minimum(value = ${value}) { return Math.min(value, 0); }`,
+				}],
+			}],
+		})),
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		'[...values].length > 0 ? [...values].length : 0;',
+		'(delete object.a, object.b) > (delete object.b, 0) ? (delete object.a, object.b) : (delete object.b, 0);',
+		{
+			code: '[<Component />].length > 0 ? [<Component />].length : 0;',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+		},
+	].map(testCase => ({
+		...(typeof testCase === 'string' ? {code: testCase} : testCase),
+		errors: [{messageId: MESSAGE_ID, suggestions: []}],
+	})),
+});
+
+nodeTest('spread iteration and deletion keep their original effects', t => {
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-math-min-max': rule}}},
+		rules: {'unicorn/prefer-math-min-max': 'error'},
+	};
+	let iterations = 0;
+	const cases = [
+		{
+			code: '[...values].length > 0 ? [...values].length : 0;',
+			context: {
+				values: {
+					* [Symbol.iterator]() {
+						iterations++;
+						yield 1;
+					},
+				},
+			},
+			expected: 1,
+		},
+		{
+			code: '(delete object.a, object.b) > (delete object.b, 0) ? (delete object.a, object.b) : (delete object.b, 0);',
+			context: {object: {a: 1, b: 1}},
+			expected: undefined,
+		},
+	];
+	for (const {code, context, expected} of cases) {
+		const messages = new Linter().verify(code, config);
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].suggestions, undefined);
+		t.assert.strictEqual(runInNewContext(code, context), expected);
+	}
+
+	t.assert.strictEqual(iterations, 2);
+});
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		'class Example extends Base { maximum() { return this.value > super.value ? this.value : super.value; } }',
+		'class Example { #value; minimum() { return this.#value < 0 ? this.#value : 0; } }',
+	],
+});
+
+// A destructuring initializer describes the container, not the extracted value.
+for (const languageOptions of [
+	{},
+	{parser: typescriptEslintParser, parserOptions: {projectService: {allowDefaultProject: ['*.ts']}}},
+]) {
+	test({
+		testerOptions: {languageOptions},
+		valid: languageOptions.parser
+			? [
+				'const {value} = {value: "text"}; value > 0 ? value : 0;',
+				'const [value] = [1n]; value > 0 ? value : 0;',
+			].map(code => ({code, filename: 'file.ts'}))
+			: [],
+		invalid: [
+			'const {value} = {value: 1};',
+			'const [value] = [1];',
+		].map(declaration => ({
+			filename: languageOptions.parser ? 'file.ts' : 'file.js',
+			code: `${declaration} value > 0 ? value : 0;`,
+			errors: [{
+				messageId: MESSAGE_ID,
+				suggestions: [{
+					messageId: SUGGESTION_ID,
+					data: {method: 'max'},
+					output: `${declaration} Math.max(value, 0);`,
+				}],
+			}],
+		})),
+	});
+}
