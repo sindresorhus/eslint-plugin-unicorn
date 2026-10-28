@@ -17,6 +17,23 @@ Suggestion 1/1: Simplify this ternary expression (requires review).:
 
 `;
 
+exports[`no-unnecessary-nested-ternary > invalid(1): x === 1 ? a : (x === 2 && mutate() ? c : (x === 3 ? b : c)); 1`] = `
+
+  1 | x === 1 ? a : (x === 2 && mutate() ? c : (x === 3 ? b : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(1): x === 1 ? a : (x === 2 && mutate() ? c : (x === 3 ? b : c)); 2`] = `
+
+Message:
+> 1 | x === 1 ? a : (x === 2 && mutate() ? c : (x === 3 ? b : c));
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | x === 1 ? a : ((x === 2 && mutate()) || !(x === 3) ? c : b);
+
+`;
+
 exports[`no-unnecessary-nested-ternary > invalid(1): x === 1 ? a : (x === 2 ? b : (x === 3 ? d : (x === 4 ? a : c))); 1`] = `
 
   1 | x === 1 ? a : (x === 2 ? b : (x === 3 ? d : (x === 4 ? a : c)));
@@ -62,6 +79,20 @@ Suggestion 1/1: Simplify this ternary expression (requires review).:
   3 | declare function second(value: unknown): value is 'second';
   4 | declare function third(value: unknown): value is 'third';
   5 | first(x) || third(x) ? a : (second(x) ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(10): outer ? (inner ? fallback(/* keep */) : value) : fallback(/* keep */); 1`] = `
+
+  1 | outer ? (inner ? fallback(/* keep */) : value) : fallback(/* keep */);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(10): outer ? (inner ? fallback(/* keep */) : value) : fallback(/* keep */); 2`] = `
+
+Message:
+> 1 | outer ? (inner ? fallback(/* keep */) : value) : fallback(/* keep */);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
 
 `;
 
@@ -113,6 +144,20 @@ Suggestion 1/1: Simplify this ternary expression (requires review).:
 
 `;
 
+exports[`no-unnecessary-nested-ternary > invalid(11): outer ? fallback(/* keep */) : (inner ? value : fallback(/* keep */)); 1`] = `
+
+  1 | outer ? fallback(/* keep */) : (inner ? value : fallback(/* keep */));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(11): outer ? fallback(/* keep */) : (inner ? value : fallback(/* keep */)); 2`] = `
+
+Message:
+> 1 | outer ? fallback(/* keep */) : (inner ? value : fallback(/* keep */));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+`;
+
 exports[`no-unnecessary-nested-ternary > invalid(11): x === null ? a : (x === false ? b : (x === true ? a : c)); 1`] = `
 
   1 | x === null ? a : (x === false ? b : (x === true ? a : c));
@@ -127,6 +172,23 @@ Message:
 
 Output:
   1 | (x === null) || (x === true) ? a : (x === false ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(12): object.kind === \"a\" ? a : (object[\`kind\`] === \"b\" ? b : (object[\"kind\"] === \"c\" ? a : c)); 1`] = `
+
+  1 | object.kind === "a" ? a : (object[\`kind\`] === "b" ? b : (object["kind"] === "c" ? a : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(12): object.kind === \"a\" ? a : (object[\`kind\`] === \"b\" ? b : (object[\"kind\"] === \"c\" ? a : c)); 2`] = `
+
+Message:
+> 1 | object.kind === "a" ? a : (object[\`kind\`] === "b" ? b : (object["kind"] === "c" ? a : c));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | (object.kind === "a") || (object["kind"] === "c") ? a : (object[\`kind\`] === "b" ? b : c);
 
 `;
 
@@ -147,6 +209,29 @@ Output:
 
 `;
 
+exports[`no-unnecessary-nested-ternary > invalid(13): const first = ((value: {kind: number}) => value.kind === 1) as (value: {kind: number}) => boolean;\nconst second = (value: {kind: number}) => value.kind === 2;\nfirst(x) ? (enabled ? a : c) : (second(x) ? b : c); 1`] = `
+
+  1 | const first = ((value: {kind: number}) => value.kind === 1) as (value: {kind: number}) => boolean;
+  2 | const second = (value: {kind: number}) => value.kind === 2;
+  3 | first(x) ? (enabled ? a : c) : (second(x) ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(13): const first = ((value: {kind: number}) => value.kind === 1) as (value: {kind: number}) => boolean;\nconst second = (value: {kind: number}) => value.kind === 2;\nfirst(x) ? (enabled ? a : c) : (second(x) ? b : c); 2`] = `
+
+Message:
+  1 | const first = ((value: {kind: number}) => value.kind === 1) as (value: {kind: number}) => boolean;
+  2 | const second = (value: {kind: number}) => value.kind === 2;
+> 3 | first(x) ? (enabled ? a : c) : (second(x) ? b : c);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Suggestion 1/1: Simplify this ternary expression (requires review).:
+  1 | const first = ((value: {kind: number}) => value.kind === 1) as (value: {kind: number}) => boolean;
+  2 | const second = (value: {kind: number}) => value.kind === 2;
+  3 | first(x) && enabled ? a : (second(x) ? b : c);
+
+`;
+
 exports[`no-unnecessary-nested-ternary > invalid(13): x === 1 ? a(/* keep */) : (x === 2 ? b(/* keep */) : (x === 3 ? a(/* keep */) : c)); 1`] = `
 
   1 | x === 1 ? a(/* keep */) : (x === 2 ? b(/* keep */) : (x === 3 ? a(/* keep */) : c));
@@ -158,6 +243,29 @@ exports[`no-unnecessary-nested-ternary > invalid(13): x === 1 ? a(/* keep */) : 
 Message:
 > 1 | x === 1 ? a(/* keep */) : (x === 2 ? b(/* keep */) : (x === 3 ? a(/* keep */) : c));
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(14): const first = ((value: {kind: number}) => value.kind === 1) satisfies (value: {kind: number}) => boolean;\nconst second = (value: {kind: number}) => value.kind === 2;\nfirst(x) ? (enabled ? a : c) : (second(x) ? b : c); 1`] = `
+
+  1 | const first = ((value: {kind: number}) => value.kind === 1) satisfies (value: {kind: number}) => boolean;
+  2 | const second = (value: {kind: number}) => value.kind === 2;
+  3 | first(x) ? (enabled ? a : c) : (second(x) ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(14): const first = ((value: {kind: number}) => value.kind === 1) satisfies (value: {kind: number}) => boolean;\nconst second = (value: {kind: number}) => value.kind === 2;\nfirst(x) ? (enabled ? a : c) : (second(x) ? b : c); 2`] = `
+
+Message:
+  1 | const first = ((value: {kind: number}) => value.kind === 1) satisfies (value: {kind: number}) => boolean;
+  2 | const second = (value: {kind: number}) => value.kind === 2;
+> 3 | first(x) ? (enabled ? a : c) : (second(x) ? b : c);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Suggestion 1/1: Simplify this ternary expression (requires review).:
+  1 | const first = ((value: {kind: number}) => value.kind === 1) satisfies (value: {kind: number}) => boolean;
+  2 | const second = (value: {kind: number}) => value.kind === 2;
+  3 | first(x) && enabled ? a : (second(x) ? b : c);
 
 `;
 
@@ -175,6 +283,29 @@ Message:
 
 Output:
   1 | (x === 1) || (x === 3) ? a : (x === 2 /* keep */ ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(15): const first = (value: {kind: number}) => value.kind === 1;\nconst second = (value: {kind: number}) => value.kind === 2;\n(first(x) as boolean) ? (enabled ? a : c) : (second(x)! ? b : c); 1`] = `
+
+  1 | const first = (value: {kind: number}) => value.kind === 1;
+  2 | const second = (value: {kind: number}) => value.kind === 2;
+  3 | (first(x) as boolean) ? (enabled ? a : c) : (second(x)! ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(15): const first = (value: {kind: number}) => value.kind === 1;\nconst second = (value: {kind: number}) => value.kind === 2;\n(first(x) as boolean) ? (enabled ? a : c) : (second(x)! ? b : c); 2`] = `
+
+Message:
+  1 | const first = (value: {kind: number}) => value.kind === 1;
+  2 | const second = (value: {kind: number}) => value.kind === 2;
+> 3 | (first(x) as boolean) ? (enabled ? a : c) : (second(x)! ? b : c);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Suggestion 1/1: Simplify this ternary expression (requires review).:
+  1 | const first = (value: {kind: number}) => value.kind === 1;
+  2 | const second = (value: {kind: number}) => value.kind === 2;
+  3 | (first(x) as boolean) && enabled ? a : (second(x)! ? b : c);
 
 `;
 
@@ -265,6 +396,23 @@ exports[`no-unnecessary-nested-ternary > invalid(19): x === 1 ? a : (x === 2 ? c
 Message:
 > 1 | x === 1 ? a : (x === 2 ? c /* keep */ : (x === 3 ? b : c));
     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(2): outer ? (inner ?? other ? fallback : value) : fallback; 1`] = `
+
+  1 | outer ? (inner ?? other ? fallback : value) : fallback;
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(2): outer ? (inner ?? other ? fallback : value) : fallback; 2`] = `
+
+Message:
+> 1 | outer ? (inner ?? other ? fallback : value) : fallback;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | outer && !(inner ?? other) ? value : fallback;
 
 `;
 
@@ -442,6 +590,23 @@ Suggestion 1/1: Simplify this ternary expression (requires review).:
 
 `;
 
+exports[`no-unnecessary-nested-ternary > invalid(3): outer ? fallback : (inner || other ? value : fallback); 1`] = `
+
+  1 | outer ? fallback : (inner || other ? value : fallback);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(3): outer ? fallback : (inner || other ? value : fallback); 2`] = `
+
+Message:
+> 1 | outer ? fallback : (inner || other ? value : fallback);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | outer || !(inner || other) ? fallback : value;
+
+`;
+
 exports[`no-unnecessary-nested-ternary > invalid(3): type First = {kind: \"a\"; radius: number}; type Second = {kind: \"b\"; side: number}; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined); 1`] = `
 
 Filename: file.ts
@@ -495,6 +660,23 @@ Output:
 
 `;
 
+exports[`no-unnecessary-nested-ternary > invalid(4): outer ? ((first, second) ? fallback : value) : fallback; 1`] = `
+
+  1 | outer ? ((first, second) ? fallback : value) : fallback;
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(4): outer ? ((first, second) ? fallback : value) : fallback; 2`] = `
+
+Message:
+> 1 | outer ? ((first, second) ? fallback : value) : fallback;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | outer && !(first, second) ? value : fallback;
+
+`;
+
 exports[`no-unnecessary-nested-ternary > invalid(4): type First = {kind: \"a\"} | {kind: \"b\"}; type Second = {kind: \"c\"}; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined); 1`] = `
 
 Filename: file.ts
@@ -531,6 +713,23 @@ Output:
 
 `;
 
+exports[`no-unnecessary-nested-ternary > invalid(5): outer ? (counter++ ? fallback : value) : fallback; 1`] = `
+
+  1 | outer ? (counter++ ? fallback : value) : fallback;
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(5): outer ? (counter++ ? fallback : value) : fallback; 2`] = `
+
+Message:
+> 1 | outer ? (counter++ ? fallback : value) : fallback;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | outer && !(counter++) ? value : fallback;
+
+`;
+
 exports[`no-unnecessary-nested-ternary > invalid(5): type First = true; type Second = false; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined); 1`] = `
 
 Filename: file.ts
@@ -547,6 +746,23 @@ Message:
 
 Suggestion 1/1: Simplify this ternary expression (requires review).:
   1 | type First = true; type Second = false; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) && enabled ? 1 : (second(x) ? 2 : undefined);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(6): async function run() { return outer ? (await check() ? fallback : value) : fallback; } 1`] = `
+
+  1 | async function run() { return outer ? (await check() ? fallback : value) : fallback; }
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(6): async function run() { return outer ? (await check() ? fallback : value) : fallback; } 2`] = `
+
+Message:
+> 1 | async function run() { return outer ? (await check() ? fallback : value) : fallback; }
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | async function run() { return outer && !await check() ? value : fallback; }
 
 `;
 
@@ -583,6 +799,23 @@ Message:
 
 Suggestion 1/1: Simplify this ternary expression (requires review).:
   1 | type First = 1n; type Second = 2n; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) && enabled ? 1 : (second(x) ? 2 : undefined);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(7): function* run() { return outer ? fallback : ((yield check()) ? value : fallback); } 1`] = `
+
+  1 | function* run() { return outer ? fallback : ((yield check()) ? value : fallback); }
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(7): function* run() { return outer ? fallback : ((yield check()) ? value : fallback); } 2`] = `
+
+Message:
+> 1 | function* run() { return outer ? fallback : ((yield check()) ? value : fallback); }
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | function* run() { return outer || !(yield check()) ? fallback : value; }
 
 `;
 
@@ -639,6 +872,23 @@ Suggestion 1/1: Simplify this ternary expression (requires review).:
 
 `;
 
+exports[`no-unnecessary-nested-ternary > invalid(8): outer ? (inner(/* keep */) ? fallback : value) : fallback; 1`] = `
+
+  1 | outer ? (inner(/* keep */) ? fallback : value) : fallback;
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(8): outer ? (inner(/* keep */) ? fallback : value) : fallback; 2`] = `
+
+Message:
+> 1 | outer ? (inner(/* keep */) ? fallback : value) : fallback;
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | outer && !inner(/* keep */) ? value : fallback;
+
+`;
+
 exports[`no-unnecessary-nested-ternary > invalid(8): typeof x === \"string\" ? a : (typeof x === \"number\" ? b : (typeof x === \"boolean\" ? a : c)); 1`] = `
 
   1 | typeof x === "string" ? a : (typeof x === "number" ? b : (typeof x === "boolean" ? a : c));
@@ -670,6 +920,23 @@ Message:
 
 Suggestion 1/1: Simplify this ternary expression (requires review).:
   1 | const first = (value: {kind: number}) => value.kind === 1; const second = (value: {kind: number}) => value.kind === 2; first(x) && enabled ? a : (second(x) ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(9): outer ? fallback : (inner(/* keep */) ? value : fallback); 1`] = `
+
+  1 | outer ? fallback : (inner(/* keep */) ? value : fallback);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(9): outer ? fallback : (inner(/* keep */) ? value : fallback); 2`] = `
+
+Message:
+> 1 | outer ? fallback : (inner(/* keep */) ? value : fallback);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | outer || !inner(/* keep */) ? fallback : value;
 
 `;
 

@@ -151,7 +151,7 @@ function getLocalGuard(node, context) {
 		return {unsupported: true};
 	}
 
-	const functionNode = definition?.type === 'FunctionName' ? definition.node : definition?.node.init;
+	const functionNode = definition?.type === 'FunctionName' ? definition.node : unwrapTypeScriptExpression(definition?.node.init);
 	if (!functionNode?.body) {
 		return {};
 	}
@@ -168,6 +168,7 @@ function getLocalGuard(node, context) {
 }
 
 function getTest(node, context) {
+	node = unwrapTypeScriptExpression(node);
 	const literalTest = getLiteralTest(node);
 	if (literalTest && !hasSideEffect(node, context.sourceCode)) {
 		return {...literalTest, pure: true};
@@ -416,7 +417,41 @@ const create = context => {
 			});
 		}
 
-		return getChainProblem(node, context, needsTypeReview);
+		const chainProblem = getChainProblem(node, context, needsTypeReview);
+		if (chainProblem) {
+			return chainProblem;
+		}
+
+		// These adjacent inversions preserve short-circuit evaluation, including effectful conditions.
+		if (
+			consequent.type === 'ConditionalExpression'
+			&& isSameNode(consequent.consequent, alternate, sourceCode)
+		) {
+			const problem = getProblem(context, node, {
+				left: test,
+				operator: '&&',
+				right: consequent.test,
+				negateRight: true,
+				consequent: consequent.alternate,
+				alternate,
+			});
+			return needsTypeReview ? requireReview(problem) : problem;
+		}
+
+		if (
+			alternate.type === 'ConditionalExpression'
+			&& isSameNode(consequent, alternate.alternate, sourceCode)
+		) {
+			const problem = getProblem(context, node, {
+				left: test,
+				operator: '||',
+				right: alternate.test,
+				negateRight: true,
+				consequent,
+				alternate: alternate.consequent,
+			});
+			return needsTypeReview ? requireReview(problem) : problem;
+		}
 	});
 };
 

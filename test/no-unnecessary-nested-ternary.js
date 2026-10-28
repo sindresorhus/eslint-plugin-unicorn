@@ -20,6 +20,8 @@ test({
 		['previous\nx === 1 ? a : (x === 2 ? b : (x === 3 ? a : c));', 'previous\n;(x === 1) || (x === 3) ? a : (x === 2 ? b : c);'],
 		['if (condition) x === 1 ? a : (x === 2 ? b : (x === 3 ? a : c));', 'if (condition) (x === 1) || (x === 3) ? a : (x === 2 ? b : c);'],
 		['for (; condition; update()) x === 1 ? a : (x === 2 ? b : (x === 3 ? a : c));', 'for (; condition; update()) (x === 1) || (x === 3) ? a : (x === 2 ? b : c);'],
+		['a ? (b ? d : c) : d;', 'a && !b ? c : d;'],
+		['a ? c : (b ? d : c);', 'a || !b ? c : d;'],
 	].map(([code, output]) => ({code, output, errors: 1})),
 });
 
@@ -31,7 +33,6 @@ test.snapshot({
 		'x === 1 ? a : (x === 2 || y === 2 ? b : (x === 3 ? a : c));',
 		'x === 1 ? a : (x === 2 && (x = 3, false) ? b : (x === 3 ? a : c));',
 		'x === 1 ? a : (x === 2 ? b : (x === 3 && (x = 2, false) ? a : c));',
-		'x === 1 ? a : (x === 2 && mutate() ? c : (x === 3 ? b : c));',
 		'x === 1 ? ((x = 2, false) ? a : c) : (x === 2 ? b : c);',
 		'x === 1 ? (check() ? a : c) : (x === 2 ? b : c);',
 		'x === 1 ? a : (x === 0 ? b : (x === -0 ? a : c));',
@@ -288,6 +289,8 @@ nodeTest('comment-preserving ternary fixes retain short-circuit evaluation', t =
 	for (const expression of [
 		'read(/* keep */ "outer", outer) ? (read("inner", inner) ? read("value", 1) : read("fallback", 2)) : read("fallback", 2)',
 		'read(/* keep */ "outer", outer) ? read("value", 1) : (read("inner", inner) ? read("value", 1) : read("fallback", 2))',
+		'read(/* keep */ "outer", outer) ? (read("inner", inner) ? read("fallback", 2) : read("value", 1)) : read("fallback", 2)',
+		'read(/* keep */ "outer", outer) ? read("fallback", 2) : (read("inner", inner) ? read("value", 1) : read("fallback", 2))',
 	]) {
 		const code = `const seen = []; const read = (name, value) => { seen.push(name); return value; }; const result = ${expression}; JSON.stringify({seen, result});`;
 		const {output, fixed, messages} = linter.verifyAndFix(code, config);
@@ -307,8 +310,6 @@ test({
 		'a ? b : c;',
 		'a ? (b ? c : d) : e;',
 		'a ? e : (b ? c : d);',
-		'a ? (b ? d : c) : d;',
-		'a ? c : (b ? d : c);',
 		'a ? (b ? c : d) : (b ? c : d);',
 		'foo ? (bar ? baz : object?.property) : object.property;',
 		'foo ? object.property : (bar ? object?.property : baz);',
@@ -415,4 +416,62 @@ test({
 			errors: 1,
 		},
 	],
+});
+
+test.snapshot({
+	valid: [],
+	invalid: [
+		'x === 1 ? a : (x === 2 && mutate() ? c : (x === 3 ? b : c));',
+		'outer ? (inner ?? other ? fallback : value) : fallback;',
+		'outer ? fallback : (inner || other ? value : fallback);',
+		'outer ? ((first, second) ? fallback : value) : fallback;',
+		'outer ? (counter++ ? fallback : value) : fallback;',
+		'async function run() { return outer ? (await check() ? fallback : value) : fallback; }',
+		'function* run() { return outer ? fallback : ((yield check()) ? value : fallback); }',
+		'outer ? (inner(/* keep */) ? fallback : value) : fallback;',
+		'outer ? fallback : (inner(/* keep */) ? value : fallback);',
+		'outer ? (inner ? fallback(/* keep */) : value) : fallback(/* keep */);',
+		'outer ? fallback(/* keep */) : (inner ? value : fallback(/* keep */));',
+		'object.kind === "a" ? a : (object[`kind`] === "b" ? b : (object["kind"] === "c" ? a : c));',
+		{
+			code: outdent`
+				const first = ((value: {kind: number}) => value.kind === 1) as (value: {kind: number}) => boolean;
+				const second = (value: {kind: number}) => value.kind === 2;
+				first(x) ? (enabled ? a : c) : (second(x) ? b : c);
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				const first = ((value: {kind: number}) => value.kind === 1) satisfies (value: {kind: number}) => boolean;
+				const second = (value: {kind: number}) => value.kind === 2;
+				first(x) ? (enabled ? a : c) : (second(x) ? b : c);
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: outdent`
+				const first = (value: {kind: number}) => value.kind === 1;
+				const second = (value: {kind: number}) => value.kind === 2;
+				(first(x) as boolean) ? (enabled ? a : c) : (second(x)! ? b : c);
+			`,
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+});
+
+nodeTest('new typed inverse folds require review', t => {
+	const linter = new Linter();
+	const config = {
+		languageOptions: {parser: typescriptEslintParser},
+		plugins: {unicorn: {rules: {'no-unnecessary-nested-ternary': rule}}},
+		rules: {'unicorn/no-unnecessary-nested-ternary': 'error'},
+	};
+	for (const code of ['a ? (b ? d : c) : d;', 'a ? c : (b ? d : c);']) {
+		const messages = linter.verify(code, config);
+		t.assert.strictEqual(messages.length, 1);
+		t.assert.strictEqual(messages[0].fix, undefined);
+		t.assert.strictEqual(messages[0].suggestions.length, 1);
+		t.assert.strictEqual(linter.verifyAndFix(code, config).fixed, false);
+	}
 });

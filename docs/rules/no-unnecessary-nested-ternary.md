@@ -13,7 +13,7 @@ Nested ternary expressions are unnecessary when two branches use the same expres
 
 The rule also simplifies longer chains when strict literal comparisons prove the relevant conditions are mutually exclusive. Local guard analysis requires a direct binding to a synchronous function that returns a supported comparison. When implementations are unavailable, type information and `strictNullChecks` allow suggestions for disjoint concrete primitive types, literal unions, or concrete object types with conflicting required literal discriminants.
 
-New chain simplifications in TypeScript or JavaScript with type annotations are suggestions requiring type review. Loose equality is not used to prove exclusivity. Generic or overloaded predicate signatures and unresolved target types are not used for type-based proofs.
+New chain simplifications and inverse folds in TypeScript or JavaScript with type annotations are suggestions requiring type review. Loose equality is not used to prove exclusivity. Generic or overloaded predicate signatures and unresolved target types are not used for type-based proofs.
 
 ## Examples
 
@@ -31,6 +31,22 @@ a ? d : (b ? d : c);
 
 // ✅
 a || b ? d : c;
+```
+
+```js
+// ❌
+a ? (b ? d : c) : d;
+
+// ✅
+a && !b ? c : d;
+```
+
+```js
+// ❌
+a ? c : (b ? d : c);
+
+// ✅
+a || !b ? c : d;
 ```
 
 ```js
