@@ -10,7 +10,6 @@ import {
 	getLogicalExpressionOperands,
 	getNegatedExpressionText,
 	getParenthesizedText,
-	getStaticNumberValue,
 	getTokenStore,
 	isBoolean,
 	isBooleanContext,
@@ -318,7 +317,6 @@ function isFactoringOperand(node) {
 		simpleNodeTypes.has(node.type)
 		|| node.type === 'Super'
 		|| node.type === 'CallExpression'
-		|| getStaticNumberValue(node) !== undefined
 	) {
 		return true;
 	}
@@ -332,7 +330,7 @@ function isFactoringOperand(node) {
 		return node.expressions.length === 0;
 	}
 
-	if (isNegation(node)) {
+	if (node.type === 'UnaryExpression' && node.operator !== 'delete') {
 		return isFactoringOperand(node.argument);
 	}
 

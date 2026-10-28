@@ -17,7 +17,9 @@ ruleTester({
 		'if ((a && b * c) || (a && d)) {}',
 		'if ((a && x?.value > 1) || (a && b)) {}',
 		'if ((x++ > 1 && a) || (x++ > 1 && b)) {}',
-		'if ((x > -getLimit() && a) || (x > -getLimit() && b)) {}',
+		'const value = (+x && a === true) || (+x && b === true);',
+		'if ((delete object.key && a) || (delete object.key && b)) {}',
+		'if ((typeof object?.value === "string" && a) || (typeof object?.value === "string" && b)) {}',
 	],
 	invalid: [
 		['if ((a && x > 1) || (a && b)) {}', 'if (a && (x > 1 || b)) {}'],
@@ -32,6 +34,14 @@ ruleTester({
 		['if ((x >= +1 || a) && (x >= +1 || b)) {}', 'if (x >= +1 || (a && b)) {}'],
 		['const value = (x === -0 && y < -1) || (x === -0 && y > +1);', 'const value = x === -0 && (y < -1 || y > +1);'],
 		['if ((object[-1] && a) || (object[-1] && b)) {}', 'if (object[-1] && (a || b)) {}'],
+		['if ((typeof value === "string" && a) || (typeof value === "string" && b)) {}', 'if (typeof value === "string" && (a || b)) {}'],
+		['if ((a && typeof value === "string") || (a && b)) {}', 'if (a && (typeof value === "string" || b)) {}'],
+		['const value = (typeof input === "string" && a === true) || (typeof input === "string" && b === true);', 'const value = typeof input === "string" && (a === true || b === true);'],
+		['if ((x === -limit && a) || (x === -limit && b)) {}', 'if (x === -limit && (a || b)) {}'],
+		['if ((x === +limit && a) || (x === +limit && b)) {}', 'if (x === +limit && (a || b)) {}'],
+		['if ((~flags || a) && (~flags || b)) {}', 'if (~flags || (a && b)) {}'],
+		['if ((x !== void 0 && a) || (x !== void 0 && b)) {}', 'if (x !== void 0 && (a || b)) {}'],
+		['if ((x > -1n && a) || (x > -1n && b)) {}', 'if (x > -1n && (a || b)) {}'],
 	].map(([code, output]) => ({code, output, errors: 1})),
 });
 
@@ -138,6 +148,27 @@ ruleTester({
 			errors: [{
 				messageId: 'prefer-simplified-conditions',
 				suggestions: [{messageId: 'suggestion', output: 'if (getValue() > 1 && (a || b)) {}'}],
+			}],
+		},
+		{
+			code: 'if ((x > -getLimit() && a) || (x > -getLimit() && b)) {}',
+			errors: [{
+				messageId: 'prefer-simplified-conditions',
+				suggestions: [{messageId: 'suggestion', output: 'if (x > -getLimit() && (a || b)) {}'}],
+			}],
+		},
+		{
+			code: 'if ((typeof getValue() === "string" && a) || (typeof getValue() === "string" && b)) {}',
+			errors: [{
+				messageId: 'prefer-simplified-conditions',
+				suggestions: [{messageId: 'suggestion', output: 'if (typeof getValue() === "string" && (a || b)) {}'}],
+			}],
+		},
+		{
+			code: 'if ((void sideEffect() && a) || (void sideEffect() && b)) {}',
+			errors: [{
+				messageId: 'prefer-simplified-conditions',
+				suggestions: [{messageId: 'suggestion', output: 'if (void sideEffect() && (a || b)) {}'}],
 			}],
 		},
 		{
