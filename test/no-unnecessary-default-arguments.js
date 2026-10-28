@@ -352,12 +352,12 @@ test('typed autofixes preserve strict type checking', t => {
 			'function run({unit = "px"}: {unit?: string}, enabled = true) {} run({ });',
 		],
 		[
-			'function run({unit = "px"}: {unit?: string} | undefined = {}) {} run({unit: "px"});',
-			'function run({unit = "px"}: {unit?: string} | undefined = {}) {} run({ });',
+			'function run({one = true, two = false}: {one?: boolean; two?: boolean}, last = true) {} run({one: true, two: false}, true);',
+			'function run({one = true, two = false}: {one?: boolean; two?: boolean}, last = true) {} run({   });',
 		],
 		[
-			'function run({unit = "px", kind}: {unit?: string; kind: "a"} | {unit?: string; kind: "b"}) {} run({unit: "px", kind: "b"});',
-			'function run({unit = "px", kind}: {unit?: string; kind: "a"} | {unit?: string; kind: "b"}) {} run({  kind: "b"});',
+			'function run({unit = "px"}: {unit?: string} | undefined = {}) {} run({unit: "px"});',
+			'function run({unit = "px"}: {unit?: string} | undefined = {}) {} run({ });',
 		],
 		[
 			'import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true);',
@@ -381,23 +381,23 @@ test('typed autofixes preserve strict type checking', t => {
 		const fixture = typeAware(code, declarations, extension);
 		const [program] = fixture.languageOptions.parserOptions.programs;
 		t.assert.deepStrictEqual(program.getSemanticDiagnostics(), [], code);
-		const messages = linter.verify(code, {
+		const result = linter.verifyAndFix(code, {
 			...config,
 			files: ['**'],
-			languageOptions: fixture.languageOptions,
+			languageOptions: {
+				...fixture.languageOptions,
+				parser: {
+					...parsers.typescript.implementation,
+					parseForESLint(source, parserOptions) {
+						const {languageOptions} = typeAware(source, declarations, extension);
+						return parsers.typescript.implementation.parseForESLint(source, {...parserOptions, ...languageOptions.parserOptions});
+					},
+				},
+			},
 		}, {filename: fixture.filename});
-		t.assert.notStrictEqual(messages.length, 0);
-		for (const message of messages) {
-			t.assert.notStrictEqual(message.fix, undefined);
-		}
-
-		let fixedCode = code;
-		const fixes = messages.map(message => message.fix).toSorted((left, right) => right.range[0] - left.range[0]);
-		for (const {range, text} of fixes) {
-			fixedCode = fixedCode.slice(0, range[0]) + text + fixedCode.slice(range[1]);
-		}
-
-		t.assert.strictEqual(fixedCode, output);
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(result.output, output);
 		const fixedFixture = typeAware(output, declarations, extension);
 		const [fixedProgram] = fixedFixture.languageOptions.parserOptions.programs;
 		t.assert.deepStrictEqual(fixedProgram.getSemanticDiagnostics(), [], output);
@@ -425,6 +425,8 @@ test('uncertain typed removals retain suggestions', t => {
 		'interface Base {unit?: string} interface Options extends Base {unit: string} function run({unit = "px"}: Options) {} run({unit: "px"});',
 		'type RequiredOptions<Type> = {[Key in keyof Type]-?: Type[Key]}; function run({unit = "px"}: RequiredOptions<{unit?: string}>) {} run({unit: "px"});',
 		'function run({unit = "px", kind}: {unit?: string; kind: "a"} | {unit: string; kind: "b"}) {} run({unit: "px", kind: "b"});',
+		'function run({unit = "px", kind}: {unit?: string; kind: "a"} | {unit?: string; kind: "b"}) {} run({unit: "px", kind: "b"});',
+		'function run({kind = "a"}: {kind?: "a"; callback: (item: string) => void} | {kind?: "b"; callback: (item: number) => void}) {} run({kind: "a", callback: item => item});',
 		'const run: (options: {unit?: string} | {other: boolean}) => void = ({unit = "px"}: any) => {}; run({unit: "px"});',
 		'function run({unit = "px"}: {unit?: string} & {other?: boolean}) {} run({unit: "px"});',
 		'function run({unit = "px"}: {unit?: string}) {} run(({unit: "px"}));',

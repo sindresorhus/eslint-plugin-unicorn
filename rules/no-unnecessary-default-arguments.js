@@ -352,16 +352,13 @@ function isTypeSafeToRemove(call, node, context, typescript) {
 		}
 
 		const objectType = checker.getNonNullableType(contextualType);
-		const members = objectType.isUnion() ? objectType.types : [objectType];
-		return members.every(member => {
-			if (member.flags !== typescript.TypeFlags.Object) {
-				return false;
-			}
+		if (objectType.flags !== typescript.TypeFlags.Object) {
+			return false;
+		}
 
-			const property = member.getProperty(getPropertyName(node));
-			// eslint-disable-next-line no-bitwise -- TypeScript symbol flags are a bitmask.
-			return Boolean(property && (property.flags & typescript.SymbolFlags.Optional));
-		});
+		const property = objectType.getProperty(getPropertyName(node));
+		// eslint-disable-next-line no-bitwise -- TypeScript symbol flags are a bitmask.
+		return Boolean(property && (property.flags & typescript.SymbolFlags.Optional));
 	}) ?? false;
 }
 
