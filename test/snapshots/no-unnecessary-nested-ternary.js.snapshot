@@ -1,0 +1,629 @@
+exports[`no-unnecessary-nested-ternary > invalid(1): type First = string; type Second = number; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined); 1`] = `
+
+Filename: file.ts
+
+  1 | type First = string; type Second = number; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(1): type First = string; type Second = number; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined); 2`] = `
+
+Message:
+> 1 | type First = string; type Second = number; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined);
+    |                                                                                                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Suggestion 1/1: Simplify this ternary expression (requires review).:
+  1 | type First = string; type Second = number; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) && enabled ? 1 : (second(x) ? 2 : undefined);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(1): x === 1 ? a : (x === 2 ? b : (x === 3 ? d : (x === 4 ? a : c))); 1`] = `
+
+  1 | x === 1 ? a : (x === 2 ? b : (x === 3 ? d : (x === 4 ? a : c)));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(1): x === 1 ? a : (x === 2 ? b : (x === 3 ? d : (x === 4 ? a : c))); 2`] = `
+
+Message:
+> 1 | x === 1 ? a : (x === 2 ? b : (x === 3 ? d : (x === 4 ? a : c)));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | (x === 1) || (x === 4) ? a : (x === 2 ? b : (x === 3 ? d : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(10): x === 1n ? a : (x === 2n ? b : (x === 3n ? a : c)); 1`] = `
+
+  1 | x === 1n ? a : (x === 2n ? b : (x === 3n ? a : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(10): x === 1n ? a : (x === 2n ? b : (x === 3n ? a : c)); 2`] = `
+
+Message:
+> 1 | x === 1n ? a : (x === 2n ? b : (x === 3n ? a : c));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | (x === 1n) || (x === 3n) ? a : (x === 2n ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(11): x === null ? a : (x === false ? b : (x === true ? a : c)); 1`] = `
+
+  1 | x === null ? a : (x === false ? b : (x === true ? a : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(11): x === null ? a : (x === false ? b : (x === true ? a : c)); 2`] = `
+
+Message:
+> 1 | x === null ? a : (x === false ? b : (x === true ? a : c));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | (x === null) || (x === true) ? a : (x === false ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(12): x === \`a\` ? a : (x === \"b\" ? b : (x === \`c\` ? a : c)); 1`] = `
+
+  1 | x === \`a\` ? a : (x === "b" ? b : (x === \`c\` ? a : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(12): x === \`a\` ? a : (x === \"b\" ? b : (x === \`c\` ? a : c)); 2`] = `
+
+Message:
+> 1 | x === \`a\` ? a : (x === "b" ? b : (x === \`c\` ? a : c));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | (x === \`a\`) || (x === \`c\`) ? a : (x === "b" ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(13): x === 1 ? a(/* keep */) : (x === 2 ? b(/* keep */) : (x === 3 ? a(/* keep */) : c)); 1`] = `
+
+  1 | x === 1 ? a(/* keep */) : (x === 2 ? b(/* keep */) : (x === 3 ? a(/* keep */) : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(13): x === 1 ? a(/* keep */) : (x === 2 ? b(/* keep */) : (x === 3 ? a(/* keep */) : c)); 2`] = `
+
+Message:
+> 1 | x === 1 ? a(/* keep */) : (x === 2 ? b(/* keep */) : (x === 3 ? a(/* keep */) : c));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(14): x === 1 ? a : (x === 2 /* keep */ ? b : (x === 3 ? a : c)); 1`] = `
+
+  1 | x === 1 ? a : (x === 2 /* keep */ ? b : (x === 3 ? a : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(14): x === 1 ? a : (x === 2 /* keep */ ? b : (x === 3 ? a : c)); 2`] = `
+
+Message:
+> 1 | x === 1 ? a : (x === 2 /* keep */ ? b : (x === 3 ? a : c));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | (x === 1) || (x === 3) ? a : (x === 2 /* keep */ ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(15): x === 1 ? a : (x === 2 ? b : (x === 3 ? a : (x === 4 ? a : c))); 1`] = `
+
+  1 | x === 1 ? a : (x === 2 ? b : (x === 3 ? a : (x === 4 ? a : c)));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(15): x === 1 ? a : (x === 2 ? b : (x === 3 ? a : (x === 4 ? a : c))); 2`] = `
+
+Message:
+> 1 | x === 1 ? a : (x === 2 ? b : (x === 3 ? a : (x === 4 ? a : c)));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | (x === 1) || (x === 3) ? a : (x === 2 ? b : (x === 4 ? a : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(15): x === 1 ? a : (x === 2 ? b : (x === 3 ? a : (x === 4 ? a : c))); 3`] = `
+
+Message:
+> 1 | x === 1 ? a : (x === 2 ? b : (x === 3 ? a : (x === 4 ? a : c)));
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | x === 1 ? a : (x === 2 ? b : ((x === 3) || (x === 4) ? a : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(16): x === 1 ? (y ?? z ? c : a) : (x === 2 ? b : c); 1`] = `
+
+  1 | x === 1 ? (y ?? z ? c : a) : (x === 2 ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(16): x === 1 ? (y ?? z ? c : a) : (x === 2 ? b : c); 2`] = `
+
+Message:
+> 1 | x === 1 ? (y ?? z ? c : a) : (x === 2 ? b : c);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | (x === 1) && !(y ?? z) ? a : (x === 2 ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(17): x === 1 ? ((y, z) ? c : a) : (x === 2 ? b : c); 1`] = `
+
+  1 | x === 1 ? ((y, z) ? c : a) : (x === 2 ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(17): x === 1 ? ((y, z) ? c : a) : (x === 2 ? b : c); 2`] = `
+
+Message:
+> 1 | x === 1 ? ((y, z) ? c : a) : (x === 2 ? b : c);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | (x === 1) && !(y, z) ? a : (x === 2 ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(18): x === 1 ? a : (x === 2 ? b : (x === 3 /* keep */ ? a : c)); 1`] = `
+
+  1 | x === 1 ? a : (x === 2 ? b : (x === 3 /* keep */ ? a : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(18): x === 1 ? a : (x === 2 ? b : (x === 3 /* keep */ ? a : c)); 2`] = `
+
+Message:
+> 1 | x === 1 ? a : (x === 2 ? b : (x === 3 /* keep */ ? a : c));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(19): x === 1 ? a : (x === 2 ? c /* keep */ : (x === 3 ? b : c)); 1`] = `
+
+  1 | x === 1 ? a : (x === 2 ? c /* keep */ : (x === 3 ? b : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(19): x === 1 ? a : (x === 2 ? c /* keep */ : (x === 3 ? b : c)); 2`] = `
+
+Message:
+> 1 | x === 1 ? a : (x === 2 ? c /* keep */ : (x === 3 ? b : c));
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(2): type First = \"a\" | \"b\"; type Second = \"c\" | \"d\"; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined); 1`] = `
+
+Filename: file.ts
+
+  1 | type First = "a" | "b"; type Second = "c" | "d"; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(2): type First = \"a\" | \"b\"; type Second = \"c\" | \"d\"; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined); 2`] = `
+
+Message:
+> 1 | type First = "a" | "b"; type Second = "c" | "d"; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined);
+    |                                                                                                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Suggestion 1/1: Simplify this ternary expression (requires review).:
+  1 | type First = "a" | "b"; type Second = "c" | "d"; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) && enabled ? 1 : (second(x) ? 2 : undefined);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(2): x === 1 || x === 4 ? a : (x === 2 ? b : (x === 3 || x === 5 ? a : c)); 1`] = `
+
+  1 | x === 1 || x === 4 ? a : (x === 2 ? b : (x === 3 || x === 5 ? a : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(2): x === 1 || x === 4 ? a : (x === 2 ? b : (x === 3 || x === 5 ? a : c)); 2`] = `
+
+Message:
+> 1 | x === 1 || x === 4 ? a : (x === 2 ? b : (x === 3 || x === 5 ? a : c));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | x === 1 || x === 4 || x === 3 || x === 5 ? a : (x === 2 ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(20): previous\nx === 1 ? c : (x === 2 ? b : c); 1`] = `
+
+  1 | previous
+  2 | x === 1 ? c : (x === 2 ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(20): previous\nx === 1 ? c : (x === 2 ? b : c); 2`] = `
+
+Message:
+  1 | previous
+> 2 | x === 1 ? c : (x === 2 ? b : c);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | previous
+  2 | x === 2 ? b : c;
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(21): const value = x === 1\r\n  ? a\r\n  : (x === 2\r\n    ? b\r\n    : (x === 3 ? a : c)); 1`] = `
+
+  1 | const value = x === 1
+  2 |   ? a
+  3 |   : (x === 2
+  4 |     ? b
+  5 |     : (x === 3 ? a : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(21): const value = x === 1\r\n  ? a\r\n  : (x === 2\r\n    ? b\r\n    : (x === 3 ? a : c)); 2`] = `
+
+Message:
+> 1 | const value = x === 1
+    |               ^^^^^^^
+> 2 |   ? a
+    | ^^^^^
+> 3 |   : (x === 2
+    | ^^^^^^^^^^^^
+> 4 |     ? b
+    | ^^^^^^^
+> 5 |     : (x === 3 ? a : c));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | const value = (x === 1) || (x === 3)
+  2 |   ? a
+  3 |   : (x === 2
+  4 |     ? b
+  5 |     : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(22): const first = value => value.kind === 1; const second = value => value.kind === 2; first(x) ? (y ? a : c) : (second(x) ? b : c); 1`] = `
+
+  1 | const first = value => value.kind === 1; const second = value => value.kind === 2; first(x) ? (y ? a : c) : (second(x) ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(22): const first = value => value.kind === 1; const second = value => value.kind === 2; first(x) ? (y ? a : c) : (second(x) ? b : c); 2`] = `
+
+Message:
+> 1 | const first = value => value.kind === 1; const second = value => value.kind === 2; first(x) ? (y ? a : c) : (second(x) ? b : c);
+    |                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | const first = value => value.kind === 1; const second = value => value.kind === 2; first(x) && y ? a : (second(x) ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(23): const first = function (value) { return value.kind === 1; }; const second = value => value.kind === 2; first(x) ? (y ? c : a) : (second(x) ? b : c); 1`] = `
+
+  1 | const first = function (value) { return value.kind === 1; }; const second = value => value.kind === 2; first(x) ? (y ? c : a) : (second(x) ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(23): const first = function (value) { return value.kind === 1; }; const second = value => value.kind === 2; first(x) ? (y ? c : a) : (second(x) ? b : c); 2`] = `
+
+Message:
+> 1 | const first = function (value) { return value.kind === 1; }; const second = value => value.kind === 2; first(x) ? (y ? c : a) : (second(x) ? b : c);
+    |                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | const first = function (value) { return value.kind === 1; }; const second = value => value.kind === 2; first(x) && !y ? a : (second(x) ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(24): const first = value => typeof value === \"string\"; const second = value => typeof value === \"number\"; first(x) ? (y ? a : c) : (second(x) ? b : c); 1`] = `
+
+  1 | const first = value => typeof value === "string"; const second = value => typeof value === "number"; first(x) ? (y ? a : c) : (second(x) ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(24): const first = value => typeof value === \"string\"; const second = value => typeof value === \"number\"; first(x) ? (y ? a : c) : (second(x) ? b : c); 2`] = `
+
+Message:
+> 1 | const first = value => typeof value === "string"; const second = value => typeof value === "number"; first(x) ? (y ? a : c) : (second(x) ? b : c);
+    |                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | const first = value => typeof value === "string"; const second = value => typeof value === "number"; first(x) && y ? a : (second(x) ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(25): function first(value) { return value.kind === 1; } function second(input) { return input.kind === 2; } first(object.value) ? (y ? a : c) : (second(object.value) ? b : c); 1`] = `
+
+  1 | function first(value) { return value.kind === 1; } function second(input) { return input.kind === 2; } first(object.value) ? (y ? a : c) : (second(object.value) ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(25): function first(value) { return value.kind === 1; } function second(input) { return input.kind === 2; } first(object.value) ? (y ? a : c) : (second(object.value) ? b : c); 2`] = `
+
+Message:
+> 1 | function first(value) { return value.kind === 1; } function second(input) { return input.kind === 2; } first(object.value) ? (y ? a : c) : (second(object.value) ? b : c);
+    |                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | function first(value) { return value.kind === 1; } function second(input) { return input.kind === 2; } first(object.value) && y ? a : (second(object.value) ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(26): /** @type {number} */ let x; x === 1 ? a : (x === 2 ? b : (x === 3 ? a : c)); 1`] = `
+
+  1 | /** @type {number} */ let x; x === 1 ? a : (x === 2 ? b : (x === 3 ? a : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(26): /** @type {number} */ let x; x === 1 ? a : (x === 2 ? b : (x === 3 ? a : c)); 2`] = `
+
+Message:
+> 1 | /** @type {number} */ let x; x === 1 ? a : (x === 2 ? b : (x === 3 ? a : c));
+    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Suggestion 1/1: Simplify this ternary expression (requires review).:
+  1 | /** @type {number} */ let x; (x === 1) || (x === 3) ? a : (x === 2 ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(3): type First = {kind: \"a\"; radius: number}; type Second = {kind: \"b\"; side: number}; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined); 1`] = `
+
+Filename: file.ts
+
+  1 | type First = {kind: "a"; radius: number}; type Second = {kind: "b"; side: number}; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(3): type First = {kind: \"a\"; radius: number}; type Second = {kind: \"b\"; side: number}; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined); 2`] = `
+
+Message:
+> 1 | type First = {kind: "a"; radius: number}; type Second = {kind: "b"; side: number}; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined);
+    |                                                                                                                                                                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Suggestion 1/1: Simplify this ternary expression (requires review).:
+  1 | type First = {kind: "a"; radius: number}; type Second = {kind: "b"; side: number}; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) && enabled ? 1 : (second(x) ? 2 : undefined);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(3): x === 1 ? a : (x === 2 && enabled ? b : (x === 3 ? a : c)); 1`] = `
+
+  1 | x === 1 ? a : (x === 2 && enabled ? b : (x === 3 ? a : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(3): x === 1 ? a : (x === 2 && enabled ? b : (x === 3 ? a : c)); 2`] = `
+
+Message:
+> 1 | x === 1 ? a : (x === 2 && enabled ? b : (x === 3 ? a : c));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | (x === 1) || (x === 3) ? a : (x === 2 && enabled ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(4): 1 === x ? a : (2 === x ? b : (3 === x ? a : c)); 1`] = `
+
+  1 | 1 === x ? a : (2 === x ? b : (3 === x ? a : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(4): 1 === x ? a : (2 === x ? b : (3 === x ? a : c)); 2`] = `
+
+Message:
+> 1 | 1 === x ? a : (2 === x ? b : (3 === x ? a : c));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | (1 === x) || (3 === x) ? a : (2 === x ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(4): type First = {kind: \"a\"} | {kind: \"b\"}; type Second = {kind: \"c\"}; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined); 1`] = `
+
+Filename: file.ts
+
+  1 | type First = {kind: "a"} | {kind: "b"}; type Second = {kind: "c"}; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(4): type First = {kind: \"a\"} | {kind: \"b\"}; type Second = {kind: \"c\"}; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined); 2`] = `
+
+Message:
+> 1 | type First = {kind: "a"} | {kind: "b"}; type Second = {kind: "c"}; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined);
+    |                                                                                                                                                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Suggestion 1/1: Simplify this ternary expression (requires review).:
+  1 | type First = {kind: "a"} | {kind: "b"}; type Second = {kind: "c"}; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) && enabled ? 1 : (second(x) ? 2 : undefined);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(5): object.kind === \"a\" ? a : (object.kind === \"b\" ? b : (object.kind === \"c\" ? a : c)); 1`] = `
+
+  1 | object.kind === "a" ? a : (object.kind === "b" ? b : (object.kind === "c" ? a : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(5): object.kind === \"a\" ? a : (object.kind === \"b\" ? b : (object.kind === \"c\" ? a : c)); 2`] = `
+
+Message:
+> 1 | object.kind === "a" ? a : (object.kind === "b" ? b : (object.kind === "c" ? a : c));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | (object.kind === "a") || (object.kind === "c") ? a : (object.kind === "b" ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(5): type First = true; type Second = false; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined); 1`] = `
+
+Filename: file.ts
+
+  1 | type First = true; type Second = false; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(5): type First = true; type Second = false; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined); 2`] = `
+
+Message:
+> 1 | type First = true; type Second = false; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined);
+    |                                                                                                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Suggestion 1/1: Simplify this ternary expression (requires review).:
+  1 | type First = true; type Second = false; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) && enabled ? 1 : (second(x) ? 2 : undefined);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(6): object[\"kind\"] === \"a\" ? a : (object[\"kind\"] === \"b\" ? b : (object[\"kind\"] === \"c\" ? a : c)); 1`] = `
+
+  1 | object["kind"] === "a" ? a : (object["kind"] === "b" ? b : (object["kind"] === "c" ? a : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(6): object[\"kind\"] === \"a\" ? a : (object[\"kind\"] === \"b\" ? b : (object[\"kind\"] === \"c\" ? a : c)); 2`] = `
+
+Message:
+> 1 | object["kind"] === "a" ? a : (object["kind"] === "b" ? b : (object["kind"] === "c" ? a : c));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | (object["kind"] === "a") || (object["kind"] === "c") ? a : (object["kind"] === "b" ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(6): type First = 1n; type Second = 2n; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined); 1`] = `
+
+Filename: file.ts
+
+  1 | type First = 1n; type Second = 2n; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(6): type First = 1n; type Second = 2n; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined); 2`] = `
+
+Message:
+> 1 | type First = 1n; type Second = 2n; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined);
+    |                                                                                                                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Suggestion 1/1: Simplify this ternary expression (requires review).:
+  1 | type First = 1n; type Second = 2n; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) && enabled ? 1 : (second(x) ? 2 : undefined);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(7): this.kind === 1 ? a : (this.kind === 2 ? b : (this.kind === 3 ? a : c)); 1`] = `
+
+  1 | this.kind === 1 ? a : (this.kind === 2 ? b : (this.kind === 3 ? a : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(7): this.kind === 1 ? a : (this.kind === 2 ? b : (this.kind === 3 ? a : c)); 2`] = `
+
+Message:
+> 1 | this.kind === 1 ? a : (this.kind === 2 ? b : (this.kind === 3 ? a : c));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | (this.kind === 1) || (this.kind === 3) ? a : (this.kind === 2 ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(7): type First = {kind: true}; type Second = {kind: false}; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined); 1`] = `
+
+Filename: file.ts
+
+  1 | type First = {kind: true}; type Second = {kind: false}; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(7): type First = {kind: true}; type Second = {kind: false}; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined); 2`] = `
+
+Message:
+> 1 | type First = {kind: true}; type Second = {kind: false}; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined);
+    |                                                                                                                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Suggestion 1/1: Simplify this ternary expression (requires review).:
+  1 | type First = {kind: true}; type Second = {kind: false}; declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) && enabled ? 1 : (second(x) ? 2 : undefined);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(8): declare const x: number; x === 1 ? a : (x === 2 ? b : (x === 3 ? a : c)); 1`] = `
+
+  1 | declare const x: number; x === 1 ? a : (x === 2 ? b : (x === 3 ? a : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(8): declare const x: number; x === 1 ? a : (x === 2 ? b : (x === 3 ? a : c)); 2`] = `
+
+Message:
+> 1 | declare const x: number; x === 1 ? a : (x === 2 ? b : (x === 3 ? a : c));
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Suggestion 1/1: Simplify this ternary expression (requires review).:
+  1 | declare const x: number; (x === 1) || (x === 3) ? a : (x === 2 ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(8): typeof x === \"string\" ? a : (typeof x === \"number\" ? b : (typeof x === \"boolean\" ? a : c)); 1`] = `
+
+  1 | typeof x === "string" ? a : (typeof x === "number" ? b : (typeof x === "boolean" ? a : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(8): typeof x === \"string\" ? a : (typeof x === \"number\" ? b : (typeof x === \"boolean\" ? a : c)); 2`] = `
+
+Message:
+> 1 | typeof x === "string" ? a : (typeof x === "number" ? b : (typeof x === "boolean" ? a : c));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | (typeof x === "string") || (typeof x === "boolean") ? a : (typeof x === "number" ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(9): const first = (value: {kind: number}) => value.kind === 1; const second = (value: {kind: number}) => value.kind === 2; first(x) ? (enabled ? a : c) : (second(x) ? b : c); 1`] = `
+
+  1 | const first = (value: {kind: number}) => value.kind === 1; const second = (value: {kind: number}) => value.kind === 2; first(x) ? (enabled ? a : c) : (second(x) ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(9): const first = (value: {kind: number}) => value.kind === 1; const second = (value: {kind: number}) => value.kind === 2; first(x) ? (enabled ? a : c) : (second(x) ? b : c); 2`] = `
+
+Message:
+> 1 | const first = (value: {kind: number}) => value.kind === 1; const second = (value: {kind: number}) => value.kind === 2; first(x) ? (enabled ? a : c) : (second(x) ? b : c);
+    |                                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Suggestion 1/1: Simplify this ternary expression (requires review).:
+  1 | const first = (value: {kind: number}) => value.kind === 1; const second = (value: {kind: number}) => value.kind === 2; first(x) && enabled ? a : (second(x) ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(9): x === -1 ? a : (x === 0 ? b : (x === +1 ? a : c)); 1`] = `
+
+  1 | x === -1 ? a : (x === 0 ? b : (x === +1 ? a : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(9): x === -1 ? a : (x === 0 ? b : (x === +1 ? a : c)); 2`] = `
+
+Message:
+> 1 | x === -1 ? a : (x === 0 ? b : (x === +1 ? a : c));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Output:
+  1 | (x === -1) || (x === +1) ? a : (x === 0 ? b : c);
+
+`;
