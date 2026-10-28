@@ -267,6 +267,80 @@ testRule({
 	valid: [],
 	invalid: [
 		{
+			code: 'function run<T>({flag: outerFlag = true} = {}, {flag = false}: {flag?: boolean}, count = 1) {} run({flag: true}, {flag: false}, 1);',
+			languageOptions: {parser: parsers.typescript},
+			errors: [
+				{
+					messageId: 'property',
+					data: {name: 'flag'},
+					suggestions: [{
+						messageId: 'remove-property',
+						output: 'function run<T>({flag: outerFlag = true} = {}, {flag = false}: {flag?: boolean}, count = 1) {} run({flag: true}, { }, 1);',
+					}],
+				},
+				{
+					messageId: 'arguments',
+					suggestions: [{
+						messageId: 'remove-arguments',
+						output: 'function run<T>({flag: outerFlag = true} = {}, {flag = false}: {flag?: boolean}, count = 1) {} run({flag: true}, {flag: false});',
+					}],
+				},
+			],
+		},
+		{
+			...typeAware(
+				'import {run} from "./no-unnecessary-default-arguments.callee.js"; run({flag: true}, {flag: false}, 1);',
+				'export function run<T>({flag: outerFlag = true} = {}, {flag = false}: {flag?: boolean}, count = 1) {}',
+			),
+			errors: [
+				{
+					messageId: 'property',
+					data: {name: 'flag'},
+					suggestions: [{
+						messageId: 'remove-property',
+						output: 'import {run} from "./no-unnecessary-default-arguments.callee.js"; run({flag: true}, { }, 1);',
+					}],
+				},
+				{
+					messageId: 'arguments',
+					suggestions: [{
+						messageId: 'remove-arguments',
+						output: 'import {run} from "./no-unnecessary-default-arguments.callee.js"; run({flag: true}, {flag: false});',
+					}],
+				},
+			],
+		},
+		{
+			...typeAware(
+				'import {run} from "./no-unnecessary-default-arguments.callee.js"; run<number>({value: false, dense: false}); run({value: true, dense: false});',
+				'type Options<T> = {value?: T | boolean; dense?: boolean}; export function run<T>({value = true, dense = false}: Options<T>) {}',
+			),
+			errors: [
+				{
+					messageId: 'property',
+					data: {name: 'dense'},
+					suggestions: [{
+						messageId: 'remove-property',
+						output: 'import {run} from "./no-unnecessary-default-arguments.callee.js"; run<number>({value: false  }); run({value: true, dense: false});',
+					}],
+				},
+				{
+					messageId: 'property',
+					data: {name: 'dense'},
+					suggestions: [{
+						messageId: 'remove-property',
+						output: 'import {run} from "./no-unnecessary-default-arguments.callee.js"; run<number>({value: false, dense: false}); run({value: true  });',
+					}],
+				},
+			],
+		},
+	],
+});
+
+testRule({
+	valid: [],
+	invalid: [
+		{
 			code: 'function pick<T>(items: T[], count = 1): T[] { return items; } pick([1], 1);',
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: 'arguments', suggestions: [{messageId: 'remove-arguments', output: 'function pick<T>(items: T[], count = 1): T[] { return items; } pick([1]);'}]}],
