@@ -356,6 +356,10 @@ test('typed autofixes preserve strict type checking', t => {
 			'function run({one = true, two = false}: {one?: boolean; two?: boolean}, last = true) {} run({   });',
 		],
 		[
+			'function run({value = true}: {value?: boolean}, ...rest: unknown[]) {} (run as typeof run | undefined)?.({value: true}, ...[1, 2]);',
+			'function run({value = true}: {value?: boolean}, ...rest: unknown[]) {} (run as typeof run | undefined)?.({ }, ...[1, 2]);',
+		],
+		[
 			'function run({unit = "px"}: {unit?: string} | undefined = {}) {} run({unit: "px"});',
 			'function run({unit = "px"}: {unit?: string} | undefined = {}) {} run({ });',
 		],
