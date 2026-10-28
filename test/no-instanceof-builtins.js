@@ -48,6 +48,11 @@ test.vue({
 	valid: [],
 	invalid: [
 		{
+			code: '<template><div v-if=\'value instanceof Function\'></div></template>',
+			output: '<template><div v-if=\'typeof value === "function"\'></div></template>',
+			errors: 1,
+		},
+		{
 			code: '<template><div v-if="read(/* keep */) instanceof Array"></div></template>',
 			output: '<template><div v-if="Array.isArray(read(/* keep */))"></div></template>',
 			errors: 1,

@@ -95,7 +95,7 @@ const replaceWithTypeOfExpression = (node, context, constructorName) => function
 	const vueExpressionContainer = sourceCode.getAncestors(node).findLast(ancestor => ancestor.type === 'VExpressionContainer');
 
 	// Get safe quote
-	const safeQuote = vueExpressionContainer ? (sourceCode.getText(vueExpressionContainer)[0] === '"' ? '\'' : '"') : '\'';
+	const safeQuote = vueExpressionContainer && sourceCode.getText(vueExpressionContainer)[0] !== '"' ? '"' : '\'';
 	const needsParentheses = shouldAddParenthesesToComparison(node, context, '===');
 	if (
 		needsParentheses
