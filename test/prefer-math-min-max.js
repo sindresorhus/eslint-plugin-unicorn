@@ -703,8 +703,9 @@ test({
 });
 
 nodeTest('class static effects retain their original evaluation count', t => {
+	const linter = new Linter();
 	const code = '[class { static { effect(); } }].length > 0 ? [class { static { effect(); } }].length : 0;';
-	const messages = new Linter().verify(code, {
+	const messages = linter.verify(code, {
 		plugins: {unicorn: {rules: {'prefer-math-min-max': rule}}},
 		rules: {'unicorn/prefer-math-min-max': 'error'},
 	});
@@ -761,6 +762,7 @@ test({
 });
 
 nodeTest('spread iteration and deletion keep their original effects', t => {
+	const linter = new Linter();
 	const config = {
 		plugins: {unicorn: {rules: {'prefer-math-min-max': rule}}},
 		rules: {'unicorn/prefer-math-min-max': 'error'},
@@ -786,7 +788,7 @@ nodeTest('spread iteration and deletion keep their original effects', t => {
 		},
 	];
 	for (const {code, context, expected} of cases) {
-		const messages = new Linter().verify(code, config);
+		const messages = linter.verify(code, config);
 		t.assert.strictEqual(messages.length, 1);
 		t.assert.strictEqual(messages[0].suggestions, undefined);
 		t.assert.strictEqual(runInNewContext(code, context), expected);
