@@ -29,6 +29,14 @@ ruleTester({
 		['for ((a in b && false) || (a in b && true);;) {break;}', 'for ((a in b) && (false || true);;) {break;}'],
 		['for (((a in b) && false) || ((a in b) && true);;) {break;}', 'for ((a in b) && (false || true);;) {break;}'],
 		['for (value = (a in b === true || false) && (a in b === true || true);;) {break;}', 'for (value = (a in b === true) || (false && true);;) {break;}'],
+		[
+			'for (other || ((a in b || blah) || (x > 1 && y === true)) || (x > 1 && z === true);;) {break;}',
+			'for (other || (a in b) || blah || (x > 1 && (y === true || z === true));;) {break;}',
+		],
+		[
+			'for ((x > 1 && y === true) || ((x > 1 && z === true) || (a in b || blah));;) {break;}',
+			'for ((x > 1 && (y === true || z === true)) || (a in b) || blah;;) {break;}',
+		],
 		['foo()\na in b && false || a in b && true', 'foo()\n;(a in b) && (false || true)'],
 		['if ((index > -1 && a) || (index > -1 && b)) {}', 'if (index > -1 && (a || b)) {}'],
 		['if ((a && x <= -1) || (a && b)) {}', 'if (a && (x <= -1 || b)) {}'],

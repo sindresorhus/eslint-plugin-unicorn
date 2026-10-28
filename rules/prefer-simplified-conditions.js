@@ -476,18 +476,23 @@ function getAbsorptionTerm(node, context) {
 	}
 }
 
+function getFactoringOperandText(node, context) {
+	const text = getParenthesizedText(node, context);
+	// Keep `in` grouped so factoring also produces valid `for` initializers.
+	if (
+		!isParenthesized(node, context)
+		&& getTokenStore(context, node).getTokens(node).some(token => token.type === 'Keyword' && token.value === 'in')
+	) {
+		return `(${text})`;
+	}
+
+	return text;
+}
+
 function getFactoringReplacementText(node, factoringTerms, context) {
 	// Factoring operands do not need parentheses for logical precedence, but grouped remainders do.
 	const {common, innerOperator, before, after} = factoringTerms;
-	let commonText = getParenthesizedText(common, context);
-	// Keep `in` grouped so factoring also produces valid `for` initializers.
-	if (
-		!isParenthesized(common, context)
-		&& getTokenStore(context, common).getTokens(common).some(token => token.type === 'Keyword' && token.value === 'in')
-	) {
-		commonText = `(${commonText})`;
-	}
-
+	const commonText = getFactoringOperandText(common, context);
 	const [leftRemainingText, rightRemainingText] = [factoringTerms.leftRemainingOperands, factoringTerms.rightRemainingOperands].map(operands => {
 		const text = operands.map(operand => getParenthesizedText(operand, context)).join(` ${innerOperator} `);
 		return operands.length > 1 ? `(${text})` : text;
@@ -506,9 +511,9 @@ function getFactoringReplacementText(node, factoringTerms, context) {
 	}
 
 	const operandTexts = [
-		...before.map(operand => getParenthesizedText(operand, context)),
+		...before.map(operand => getFactoringOperandText(operand, context)),
 		`(${replacement})`,
-		...after.map(operand => getParenthesizedText(operand, context)),
+		...after.map(operand => getFactoringOperandText(operand, context)),
 	];
 	let text = operandTexts.join(` ${node.operator} `);
 	// Preserve leading grouping removed when flattening the surrounding chain.
