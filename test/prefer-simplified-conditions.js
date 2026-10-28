@@ -22,6 +22,7 @@ ruleTester({
 		['const value = (x > 1 && y < 2) || (x > 1 && y > 5);', 'const value = x > 1 && (y < 2 || y > 5);'],
 		['for ((a in b && false) || (a in b && true);;) {break;}', 'for ((a in b) && (false || true);;) {break;}'],
 		['for (value = (a in b === true || false) && (a in b === true || true);;) {break;}', 'for (value = (a in b === true) || (false && true);;) {break;}'],
+		['foo()\na in b && false || a in b && true', 'foo()\n;(a in b) && (false || true)'],
 	].map(([code, output]) => ({code, output, errors: 1})),
 });
 
@@ -35,9 +36,50 @@ for (const operator of ['==', '!=', '<', '<=', '>', '>=', 'in', 'instanceof']) {
 			[`if ((a ${operator} b || c) && (a ${operator} b || d)) {}`, `if (${commonText} || (c && d)) {}`],
 			[`if ((a && b ${operator} c) || (a && d)) {}`, `if (a && (b ${operator} c || d)) {}`],
 			[`if ((a || b) && (a || c ${operator} d)) {}`, `if (a || (b && c ${operator} d)) {}`],
+			[`const value = (a ${operator} b && c === true) || (a ${operator} b && d === true);`, `const value = ${commonText} && (c === true || d === true);`],
+			[`const value = (a ${operator} b || c === true) && (a ${operator} b || d === true);`, `const value = ${commonText} || (c === true && d === true);`],
 		].map(([code, output]) => ({code, output, errors: 1})),
 	});
 }
+
+test('comparison factoring preserves exact values', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {[ruleId]: rule}}},
+		rules: {[`unicorn/${ruleId}`]: 'error'},
+	};
+	const comparisonPairs = [
+		[undefined, null],
+		[null, undefined],
+		[NaN, 1],
+		[1, NaN],
+		[1, 2],
+		[2, 1],
+		[2, 2],
+		['2', 2],
+		['1', '2'],
+	];
+
+	for (const [operator, pairs] of [
+		...['==', '!=', '<', '<=', '>', '>='].map(operator => [operator, comparisonPairs]),
+		['in', [['present', {present: false}], ['missing', {}]]],
+		['instanceof', [[[], Array], [{}, Array], [undefined, Object]]],
+	]) {
+		for (const [innerOperator, outerOperator] of [['&&', '||'], ['||', '&&']]) {
+			const code = `(a ${operator} b ${innerOperator} left === true) ${outerOperator} (a ${operator} b ${innerOperator} right === true)`;
+			const {output, fixed, messages} = linter.verifyAndFix(code, config);
+			t.assert.strictEqual(fixed, true);
+			t.assert.deepStrictEqual(messages, []);
+
+			for (const [a, b] of pairs) {
+				for (const [left, right] of [[false, false], [false, true], [true, false], [true, true]]) {
+					const context = {a, b, left, right};
+					t.assert.strictEqual(runInNewContext(output, context), runInNewContext(code, context));
+				}
+			}
+		}
+	}
+});
 
 ruleTester({
 	valid: [],
@@ -1145,6 +1187,7 @@ ruleTester.vue({
 	],
 	invalid: [
 		['<template><div v-if="x || (a && b) || (a && c && d)" /></template>', '<template><div v-if="x || (a && (b || (c && d)))" /></template>'],
+		['<template><div v-if="(key in object && a) || (key in object && b)" /></template>', '<template><div v-if="(key in object) && (a || b)" /></template>'],
 		['<template><div v-if="visible" /><div v-else-if="(a && b) || (a && c)" /></template>', '<template><div v-if="visible" /><div v-else-if="a && (b || c)" /></template>'],
 		['<template><div v-show="x && (a || b) && (a || c || d)" /></template>', '<template><div v-show="x && (a || (b && (c || d)))" /></template>'],
 		['<template><div v-if="x || ((a && b) || (a && c))" /></template>', '<template><div v-if="x || (a && (b || c))" /></template>'],

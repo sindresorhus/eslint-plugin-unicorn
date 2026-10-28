@@ -478,12 +478,12 @@ function getAbsorptionTerm(node, context) {
 
 function getFactoringReplacementText(node, factoringTerms, context) {
 	// Factoring operands do not need parentheses for logical precedence, but grouped remainders do.
-	const {innerOperator, before, after} = factoringTerms;
-	let commonText = getParenthesizedText(factoringTerms.common, context);
+	const {common, innerOperator, before, after} = factoringTerms;
+	let commonText = getParenthesizedText(common, context);
 	// Keep `in` grouped so factoring also produces valid `for` initializers.
 	if (
-		!isParenthesized(factoringTerms.common, context)
-		&& getTokenStore(context, factoringTerms.common).getTokens(factoringTerms.common).some(token => token.type === 'Keyword' && token.value === 'in')
+		!isParenthesized(common, context)
+		&& getTokenStore(context, common).getTokens(common).some(token => token.type === 'Keyword' && token.value === 'in')
 	) {
 		commonText = `(${commonText})`;
 	}
@@ -495,9 +495,9 @@ function getFactoringReplacementText(node, factoringTerms, context) {
 	let replacement = `${commonText} ${innerOperator} (${leftRemainingText} ${node.operator} ${rightRemainingText})`;
 	if (before.length === 0 && after.length === 0) {
 		if (
-			!isParenthesized(factoringTerms.common, context)
+			!isParenthesized(common, context)
 			&& !shouldAddParenthesesToLogicalReplacement(node, innerOperator, context)
-			&& shouldAddParenthesesToExpressionStart(factoringTerms.common, context, node)
+			&& shouldAddParenthesesToExpressionStart(common, context, node)
 		) {
 			replacement = `(${replacement})`;
 		}
