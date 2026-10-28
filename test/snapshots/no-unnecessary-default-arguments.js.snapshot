@@ -63,7 +63,26 @@ Message:
 > 1 | import run from "./no-unnecessary-default-arguments.callee.js"; run(true);
     |                                                                     ^^^^ Omit trailing arguments that match their parameter defaults.
 
-Suggestion 1/1: Remove these arguments (requires type review).:
+Output:
+  1 | import run from "./no-unnecessary-default-arguments.callee.js"; run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(1): import run from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 3`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | import run from "./no-unnecessary-default-arguments.callee.js"; run(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(1): import run from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 4`] = `
+
+Message:
+> 1 | import run from "./no-unnecessary-default-arguments.callee.js"; run(true);
+    |                                                                     ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Output:
   1 | import run from "./no-unnecessary-default-arguments.callee.js"; run();
 
 `;
@@ -82,7 +101,7 @@ Message:
 > 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true);
     |                                                                       ^^^^ Omit trailing arguments that match their parameter defaults.
 
-Suggestion 1/1: Remove these arguments (requires type review).:
+Output:
   1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run();
 
 `;
@@ -132,7 +151,7 @@ Message:
 > 1 | import {run} from "./no-unnecessary-default-arguments.reexport.js"; run(true);
     |                                                                         ^^^^ Omit trailing arguments that match their parameter defaults.
 
-Suggestion 1/1: Remove these arguments (requires type review).:
+Output:
   1 | import {run} from "./no-unnecessary-default-arguments.reexport.js"; run();
 
 `;
@@ -185,7 +204,7 @@ Message:
 > 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run("px", -0, -1_000n);
     |                                                                       ^^^^ Omit trailing arguments that match their parameter defaults.
 
-Suggestion 1/1: Remove these arguments (requires type review).:
+Output:
   1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run();
 
 `;
@@ -238,7 +257,7 @@ Message:
 > 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(null, false, 16);
     |                                                                       ^^^^ Omit trailing arguments that match their parameter defaults.
 
-Suggestion 1/1: Remove these arguments (requires type review).:
+Output:
   1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run();
 
 `;
@@ -291,7 +310,7 @@ Message:
 > 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run("px", "line\\n", 2);
     |                                                                       ^^^^ Omit trailing arguments that match their parameter defaults.
 
-Suggestion 1/1: Remove these arguments (requires type review).:
+Output:
   1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run();
 
 `;
@@ -344,7 +363,7 @@ Message:
 > 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run({1: true});
     |                                                                        ^^^^^^^ Property \`1\` matches its destructuring default.
 
-Suggestion 1/1: Remove this property (requires type review).:
+Output:
   1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run({ });
 
 `;
@@ -444,7 +463,7 @@ Message:
 > 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run({unit: "px", other: 2});
     |                                                                        ^^^^^^^^^^ Property \`unit\` matches its destructuring default.
 
-Suggestion 1/1: Remove this property (requires type review).:
+Output:
   1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run({  other: 2});
 
 `;
@@ -494,7 +513,7 @@ Message:
 > 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true /* keep */);
     |                                                                       ^^^^ Omit trailing arguments that match their parameter defaults.
 
-Suggestion 1/1: Remove these arguments (requires type review).:
+Output:
   1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run( /* keep */);
 
 `;
@@ -547,7 +566,7 @@ Message:
 > 1 | import run from "./no-unnecessary-default-arguments.callee.js"; run(true);
     |                                                                     ^^^^ Omit trailing arguments that match their parameter defaults.
 
-Suggestion 1/1: Remove these arguments (requires type review).:
+Output:
   1 | import run from "./no-unnecessary-default-arguments.callee.js"; run();
 
 `;
@@ -600,7 +619,7 @@ Message:
 > 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(false);
     |                                                                       ^^^^^ Omit trailing arguments that match their parameter defaults.
 
-Suggestion 1/1: Remove these arguments (requires type review).:
+Output:
   1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run();
 
 `;
@@ -670,7 +689,7 @@ Message:
 > 1 | import run from "./no-unnecessary-default-arguments.callee.js"; run(true);
     |                                                                     ^^^^ Omit trailing arguments that match their parameter defaults.
 
-Suggestion 1/1: Remove these arguments (requires type review).:
+Output:
   1 | import run from "./no-unnecessary-default-arguments.callee.js"; run();
 
 `;
@@ -689,7 +708,7 @@ Message:
 > 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true);
     |                                                                       ^^^^ Omit trailing arguments that match their parameter defaults.
 
-Suggestion 1/1: Remove these arguments (requires type review).:
+Output:
   1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run();
 
 `;
@@ -742,7 +761,7 @@ Message:
 > 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run?.(false, true);
     |                                                                                ^^^^ Omit trailing arguments that match their parameter defaults.
 
-Suggestion 1/1: Remove these arguments (requires type review).:
+Output:
   1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run?.(false);
 
 `;
@@ -795,7 +814,7 @@ Message:
 > 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true);
     |                                                                       ^^^^ Omit trailing arguments that match their parameter defaults.
 
-Suggestion 1/1: Remove these arguments (requires type review).:
+Output:
   1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run();
 
 `;
@@ -901,7 +920,7 @@ Message:
 > 1 | import {run} from "./no-unnecessary-default-arguments.star.js"; run(false); run(true); run(false);
     |                                                                                 ^^^^ Omit trailing arguments that match their parameter defaults.
 
-Suggestion 1/1: Remove these arguments (requires type review).:
+Output:
   1 | import {run} from "./no-unnecessary-default-arguments.star.js"; run(false); run(); run(false);
 
 `;
@@ -1291,7 +1310,7 @@ Message:
 > 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true);
     |                                                                       ^^^^ Omit trailing arguments that match their parameter defaults.
 
-Suggestion 1/1: Remove these arguments (requires type review).:
+Output:
   1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run();
 
 `;
@@ -1680,6 +1699,36 @@ Output:
 
 `;
 
+exports[`no-unnecessary-default-arguments > invalid(4): function run({first = true, second = false}: {first?: boolean; second: boolean}) {} run({first: true, second: false}); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | function run({first = true, second = false}: {first?: boolean; second: boolean}) {} run({first: true, second: false});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(4): function run({first = true, second = false}: {first?: boolean; second: boolean}) {} run({first: true, second: false}); 2`] = `
+
+Message:
+> 1 | function run({first = true, second = false}: {first?: boolean; second: boolean}) {} run({first: true, second: false});
+    |                                                                                          ^^^^^^^^^^^ Property \`first\` matches its destructuring default.
+
+Output:
+  1 | function run({first = true, second = false}: {first?: boolean; second: boolean}) {} run({  second: false});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(4): function run({first = true, second = false}: {first?: boolean; second: boolean}) {} run({first: true, second: false}); 3`] = `
+
+Message:
+> 1 | function run({first = true, second = false}: {first?: boolean; second: boolean}) {} run({first: true, second: false});
+    |                                                                                                       ^^^^^^^^^^^^^ Property \`second\` matches its destructuring default.
+
+Suggestion 1/1: Remove this property (requires type review).:
+  1 | function run({first = true, second = false}: {first?: boolean; second: boolean}) {} run({first: true  });
+
+`;
+
 exports[`no-unnecessary-default-arguments > invalid(4): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 1`] = `
 
 Filename: test/no-unnecessary-default-arguments.input.ts
@@ -1886,6 +1935,33 @@ Suggestion 1/1: Remove these arguments (requires type review).:
 
 `;
 
+exports[`no-unnecessary-default-arguments > invalid(5): function run({one = true, two = true}: {one?: boolean; two?: boolean}) {} run({one: /* keep */ true, two: true}); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | function run({one = true, two = true}: {one?: boolean; two?: boolean}) {} run({one: /* keep */ true, two: true});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(5): function run({one = true, two = true}: {one?: boolean; two?: boolean}) {} run({one: /* keep */ true, two: true}); 2`] = `
+
+Message:
+> 1 | function run({one = true, two = true}: {one?: boolean; two?: boolean}) {} run({one: /* keep */ true, two: true});
+    |                                                                                ^^^^^^^^^^^^^^^^^^^^ Property \`one\` matches its destructuring default.
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(5): function run({one = true, two = true}: {one?: boolean; two?: boolean}) {} run({one: /* keep */ true, two: true}); 3`] = `
+
+Message:
+> 1 | function run({one = true, two = true}: {one?: boolean; two?: boolean}) {} run({one: /* keep */ true, two: true});
+    |                                                                                                      ^^^^^^^^^ Property \`two\` matches its destructuring default.
+
+Output:
+  1 | function run({one = true, two = true}: {one?: boolean; two?: boolean}) {} run({one: /* keep */ true  });
+
+`;
+
 exports[`no-unnecessary-default-arguments > invalid(5): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 1`] = `
 
 Filename: test/no-unnecessary-default-arguments.input.ts
@@ -2035,7 +2111,7 @@ Message:
 > 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true);
     |                                                                       ^^^^ Omit trailing arguments that match their parameter defaults.
 
-Suggestion 1/1: Remove these arguments (requires type review).:
+Output:
   1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run();
 
 `;
@@ -2088,7 +2164,7 @@ Message:
 > 1 | import run from "./no-unnecessary-default-arguments.callee.js"; run(true);
     |                                                                     ^^^^ Omit trailing arguments that match their parameter defaults.
 
-Suggestion 1/1: Remove these arguments (requires type review).:
+Output:
   1 | import run from "./no-unnecessary-default-arguments.callee.js"; run();
 
 `;
@@ -2141,7 +2217,7 @@ Message:
 > 1 | import run from "./no-unnecessary-default-arguments.callee.js"; run(true);
     |                                                                     ^^^^ Omit trailing arguments that match their parameter defaults.
 
-Suggestion 1/1: Remove these arguments (requires type review).:
+Output:
   1 | import run from "./no-unnecessary-default-arguments.callee.js"; run();
 
 `;
@@ -2194,7 +2270,7 @@ Message:
 > 1 | import {run as execute} from "./no-unnecessary-default-arguments.callee.js"; execute(true);
     |                                                                                      ^^^^ Omit trailing arguments that match their parameter defaults.
 
-Suggestion 1/1: Remove these arguments (requires type review).:
+Output:
   1 | import {run as execute} from "./no-unnecessary-default-arguments.callee.js"; execute();
 
 `;

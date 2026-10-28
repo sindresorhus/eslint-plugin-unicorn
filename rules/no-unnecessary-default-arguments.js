@@ -442,6 +442,53 @@ function getTrailingArgumentsProblem(call, parameters, context) {
 }
 
 /**
+Check whether removing the reported arguments or property preserves the call's types.
+*/
+function isTypeSafeToRemove(call, node, context, typescript) {
+	if (!typescript) {
+		return false;
+	}
+
+	return withTypeInformation(call, context, ({checker}) => {
+		const {esTreeNodeToTSNodeMap} = context.sourceCode.parserServices;
+		const typeScriptCall = esTreeNodeToTSNodeMap.get(call);
+		const type = checker.getTypeAtLocation(typeScriptCall.expression);
+		const signatures = checker.getNonNullableType(type).getCallSignatures();
+		if (signatures.length !== 1 || signatures[0].typeParameters?.length > 0) {
+			return false;
+		}
+
+		if (node.type !== 'Property') {
+			const signature = checker.getResolvedSignature(typeScriptCall);
+			const firstIndex = call.arguments.indexOf(node);
+			return call.arguments.slice(firstIndex).every((argument, offset) => {
+				const parameter = signature?.parameters[firstIndex + offset]?.valueDeclaration;
+				return Boolean(parameter && typescript.isParameter(parameter) && checker.isOptionalParameter(parameter));
+			});
+		}
+
+		const object = esTreeNodeToTSNodeMap.get(node.parent);
+		if (object.parent !== typeScriptCall) {
+			return false;
+		}
+
+		const contextualType = checker.getContextualType(object);
+		if (!contextualType) {
+			return false;
+		}
+
+		const objectType = checker.getNonNullableType(contextualType);
+		if (objectType.flags !== typescript.TypeFlags.Object) {
+			return false;
+		}
+
+		const property = objectType.getProperty(getPropertyName(node));
+		// eslint-disable-next-line no-bitwise -- TypeScript symbol flags are a bitmask.
+		return Boolean(property && (property.flags & typescript.SymbolFlags.Optional));
+	}) ?? false;
+}
+
+/**
 @param {ESLint.Rule.RuleContext} context
 */
 const create = context => {
@@ -454,8 +501,8 @@ const create = context => {
 		|| Boolean(sourceCode.parserServices.esTreeNodeToTSNodeMap)
 		|| hasJavaScriptTypeAnnotations(context);
 
-	const getProblem = (problem, suggestionId) => {
-		if (!needsTypeReview || !problem.fix) {
+	const getProblem = (call, problem, suggestionId) => {
+		if (!needsTypeReview || !problem.fix || isTypeSafeToRemove(call, problem.node, context, typescript)) {
 			return problem;
 		}
 
@@ -504,7 +551,7 @@ const create = context => {
 			const spreadIndex = call.arguments.findIndex(argument => argument.type === 'SpreadElement');
 			const trailingProblem = spreadIndex === -1 ? getTrailingArgumentsProblem(call, parameters, context) : undefined;
 			if (trailingProblem) {
-				yield getProblem(trailingProblem, 'remove-arguments');
+				yield getProblem(call, trailingProblem, 'remove-arguments');
 			}
 
 			const argumentsBeforeSpread = spreadIndex === -1 ? call.arguments : call.arguments.slice(0, spreadIndex);
@@ -521,7 +568,7 @@ const create = context => {
 						continue;
 					}
 
-					yield getProblem(getCommentSafeProblem(context, {
+					yield getProblem(call, getCommentSafeProblem(context, {
 						node: property,
 						messageId: 'property',
 						data: {name},

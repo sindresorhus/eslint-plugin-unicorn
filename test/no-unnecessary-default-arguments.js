@@ -241,7 +241,7 @@ function typeAware(code, declarations = 'export function run(value = true) {}', 
 		[path.join(import.meta.dirname, 'no-unnecessary-default-arguments.declaration.d.ts'), 'export declare function run(value?: boolean): void;'],
 	].map(([filename, source]) => [filename.replaceAll('\\', '/'), source]));
 	const options = {
-		allowJs: true, noLib: true, types: [], strict: true, target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.ESNext, moduleResolution: ts.ModuleResolutionKind.Bundler,
+		allowJs: true, checkJs: true, noLib: true, types: [], strict: true, target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.ESNext, moduleResolution: ts.ModuleResolutionKind.Bundler,
 	};
 	const host = ts.createCompilerHost(options);
 	const readFile = host.readFile.bind(host);
@@ -462,6 +462,7 @@ testRule.snapshot({
 			'import {run} from "./no-unnecessary-default-arguments.callee.js"; (run as <T>(options: {value?: T}) => T)({value: true});',
 			'export function run<U>({value = true}: any) { return value; }',
 		),
+		typeAware('function run(value = true) {} (run as (value: boolean) => void)(true);'),
 		typeAware('function run<T extends {value?: boolean}>(seed: T, {value = true} = seed): T { return seed; } run({}, {value: true});'),
 		typeAware(
 			'import {run} from "./no-unnecessary-default-arguments.callee.js"; run({}, {value: true});',
@@ -565,6 +566,213 @@ const config = {
 	rules: {'unicorn/no-unnecessary-default-arguments': 'error'},
 };
 
+test('typed autofixes preserve strict type checking', t => {
+	const cases = [
+		[
+			'function run(value = true) {} run(true);',
+			'function run(value = true) {} run();',
+		],
+		[
+			'function run(first = true, second = false) {} run(true, false);',
+			'function run(first = true, second = false) {} run();',
+		],
+		[
+			'function run(this: void, value = true) {} run?.(true);',
+			'function run(this: void, value = true) {} run?.();',
+		],
+		[
+			'function run(this: void, first: boolean, second = false, third = true) {} run(true, false, true);',
+			'function run(this: void, first: boolean, second = false, third = true) {} run(true);',
+		],
+		[
+			'const run: ((first?: boolean) => void) | ((second?: boolean) => void) = (value = true) => {}; run(true);',
+			'const run: ((first?: boolean) => void) | ((second?: boolean) => void) = (value = true) => {}; run();',
+		],
+		[
+			'function run(value = true) {} (run satisfies (value?: boolean) => void)(true as boolean);',
+			'function run(value = true) {} (run satisfies (value?: boolean) => void)();',
+		],
+		[
+			'function run(value = true) {} run!(true!);',
+			'function run(value = true) {} run!();',
+		],
+		[
+			'function run({unit = "px"}: {unit?: string}) {} run({unit: "px"});',
+			'function run({unit = "px"}: {unit?: string}) {} run({ });',
+		],
+		[
+			'function run({unit = "px"}) {} run({unit: "px"});',
+			'function run({unit = "px"}) {} run({ });',
+		],
+		[
+			'interface Options {unit?: string} function run({unit = "px"}: Options) {} run({unit: "px"});',
+			'interface Options {unit?: string} function run({unit = "px"}: Options) {} run({ });',
+		],
+		[
+			'interface Base {unit?: string} interface Options extends Base {other?: number} function run({unit = "px"}: Options) {} run({unit: "px"});',
+			'interface Base {unit?: string} interface Options extends Base {other?: number} function run({unit = "px"}: Options) {} run({ });',
+		],
+		[
+			'type Options<Type> = {[Key in keyof Type]?: Type[Key]}; function run({unit = "px"}: Options<{unit: string}>) {} run({unit: "px"});',
+			'type Options<Type> = {[Key in keyof Type]?: Type[Key]}; function run({unit = "px"}: Options<{unit: string}>) {} run({ });',
+		],
+		[
+			'function run({unit = "px"}: {unit?: string}, enabled = true) {} run({unit: "px"}, true);',
+			'function run({unit = "px"}: {unit?: string}, enabled = true) {} run({ });',
+		],
+		[
+			'function run({one = true, two = false}: {one?: boolean; two?: boolean}, last = true) {} run({one: true, two: false}, true);',
+			'function run({one = true, two = false}: {one?: boolean; two?: boolean}, last = true) {} run({   });',
+		],
+		[
+			'import {run} from "./no-unnecessary-default-arguments.callee.js"; run?.({value: true}, ...[1, 2]);',
+			'import {run} from "./no-unnecessary-default-arguments.callee.js"; run?.({ }, ...[1, 2]);',
+			'export const run: ((options: {value?: boolean}, ...rest: unknown[]) => void) | undefined = ({value = true}, ...rest: unknown[]) => {};',
+		],
+		[
+			'function run({unit = "px"}: {unit?: string} | undefined = {}) {} run({unit: "px"});',
+			'function run({unit = "px"}: {unit?: string} | undefined = {}) {} run({ });',
+		],
+		[
+			'import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true);',
+			'import {run} from "./no-unnecessary-default-arguments.callee.js"; run();',
+		],
+		[
+			'// @ts-check\nfunction run(value = true) {} run(true);',
+			'// @ts-check\nfunction run(value = true) {} run();',
+			undefined,
+			'js',
+		],
+		[
+			'import {run} from "./no-unnecessary-default-arguments.callee.js"; run({unit: "px"});',
+			'import {run} from "./no-unnecessary-default-arguments.callee.js"; run({ });',
+			'/** @param {{unit?: string}} options */ export function run({unit = "px"}) {}',
+			'js',
+		],
+	];
+
+	for (const [code, output, declarations, extension] of cases) {
+		const fixture = typeAware(code, declarations, extension);
+		const [program] = fixture.languageOptions.parserOptions.programs;
+		t.assert.deepStrictEqual(program.getSemanticDiagnostics(), [], code);
+		const result = linter.verifyAndFix(code, {
+			...config,
+			files: ['**'],
+			languageOptions: {
+				...fixture.languageOptions,
+				parser: {
+					...parsers.typescript.implementation,
+					parseForESLint(source, parserOptions) {
+						const {languageOptions} = typeAware(source, declarations, extension);
+						return parsers.typescript.implementation.parseForESLint(source, {...parserOptions, ...languageOptions.parserOptions});
+					},
+				},
+			},
+		}, {filename: fixture.filename});
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(result.output, output);
+		const fixedFixture = typeAware(output, declarations, extension);
+		const [fixedProgram] = fixedFixture.languageOptions.parserOptions.programs;
+		t.assert.deepStrictEqual(fixedProgram.getSemanticDiagnostics(), [], output);
+		t.assert.deepStrictEqual(linter.verify(output, {
+			...config,
+			files: ['**'],
+			languageOptions: fixedFixture.languageOptions,
+		}, {filename: fixedFixture.filename}), []);
+	}
+});
+
+test('typed autofixes preserve suggestions across multiple calls', t => {
+	const declaration = 'function run({one = true, two = false}: {one?: boolean; two: boolean}, last = true) {}';
+	const code = `${declaration} run({one: true, two: false}, true); run({one: true, two: false}, true);`;
+	const output = `${declaration} run({  two: false}); run({  two: false});`;
+	const fixture = typeAware(code);
+	const typedConfig = {
+		...config,
+		files: ['**'],
+		languageOptions: {
+			parser: {
+				...parsers.typescript.implementation,
+				parseForESLint(source, parserOptions) {
+					const {languageOptions} = typeAware(source);
+					const [program] = languageOptions.parserOptions.programs;
+					t.assert.deepStrictEqual(program.getSemanticDiagnostics(), [], source);
+					return parsers.typescript.implementation.parseForESLint(source, {...parserOptions, ...languageOptions.parserOptions});
+				},
+			},
+		},
+	};
+	const result = linter.verifyAndFix(code, typedConfig, {filename: fixture.filename});
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, output);
+	t.assert.strictEqual(result.messages.length, 2);
+	const suggestedOutputs = [
+		`${declaration} run({   }); run({  two: false});`,
+		`${declaration} run({  two: false}); run({   });`,
+	];
+	for (const [index, message] of result.messages.entries()) {
+		t.assert.strictEqual(message.messageId, 'property');
+		t.assert.strictEqual(message.fix, undefined);
+		t.assert.strictEqual(message.suggestions.length, 1);
+		t.assert.strictEqual(message.suggestions[0].messageId, 'remove-property');
+		const {range, text} = message.suggestions[0].fix;
+		t.assert.strictEqual(output.slice(0, range[0]) + text + output.slice(range[1]), suggestedOutputs[index]);
+	}
+
+	const secondResult = linter.verifyAndFix(output, typedConfig, {filename: fixture.filename});
+	t.assert.strictEqual(secondResult.fixed, false);
+	t.assert.strictEqual(secondResult.output, output);
+	t.assert.deepStrictEqual(secondResult.messages, result.messages);
+});
+
+test('uncertain typed removals retain suggestions', t => {
+	const cases = [
+		'const run: (value: boolean) => void = (value = true) => {}; run(true);',
+		'const run: (first: boolean, second?: boolean) => void = (first = true, second = false) => {}; run(true, false);',
+		'const run: ((first?: boolean) => void) | ((second: boolean | undefined) => void) = (value = true) => {}; run(true);',
+		'const run: ((first: boolean | undefined) => void) | ((second?: boolean) => void) = (value = true) => {}; run(true);',
+		'const run: (...values: [value?: boolean]) => void = (value = true) => {}; run(true);',
+		'const run: <T>(value?: T) => T = (value = true as any) => value; run(true);',
+		'const run: {(): false; (value: boolean): true} = (value = true): any => value; run(true);',
+		'const run: <T>(options: {value?: T}) => T = ({value = true as any}) => value; const result = run({value: true});',
+		'const run: {(options: {value?: false}): false; (options: {value?: boolean}): true} = ({value = true}): any => value; const result = run({value: true});',
+		'function run({unit = "px"}: {unit: string}) {} run({unit: "px"});',
+		'interface Base {unit?: string} interface Options extends Base {unit: string} function run({unit = "px"}: Options) {} run({unit: "px"});',
+		'type RequiredOptions<Type> = {[Key in keyof Type]-?: Type[Key]}; function run({unit = "px"}: RequiredOptions<{unit?: string}>) {} run({unit: "px"});',
+		'function run({unit = "px", kind}: {unit?: string; kind: "a"} | {unit: string; kind: "b"}) {} run({unit: "px", kind: "b"});',
+		'function run({unit = "px", kind}: {unit?: string; kind: "a"} | {unit?: string; kind: "b"}) {} run({unit: "px", kind: "b"});',
+		'function run({kind = "a"}: {kind?: "a"; callback: (item: string) => void} | {kind?: "b"; callback: (item: number) => void}) {} run({kind: "a", callback: item => item});',
+		'const run: (options: {unit?: string} | {other: boolean}) => void = ({unit = "px"}: any) => {}; run({unit: "px"});',
+		'function run({unit = "px"}: {unit?: string} & {other?: boolean}) {} run({unit: "px"});',
+		'function run({unit = "px"}: {unit?: string}) {} run(({unit: "px"}));',
+		'function run({unit = "px"}: {unit?: string}) {} run(({unit: "px"}) satisfies {unit: string});',
+		'function run({unit = "px"}: {unit?: string}) {} run(({unit: "px"}) satisfies {unit?: string});',
+		'function run({unit = "px"}: {unit: string}) {} run({unit: "px"} satisfies {unit?: string});',
+		'function run({unit = "px"}: {unit?: string}) {} run(({unit: "px"} satisfies {unit?: string}) satisfies {unit: string});',
+		'function run({unit = "px"}: {unit?: string}) {} run(({unit: "px"} satisfies {unit?: string})! satisfies {unit: string});',
+		typeAware('const run = ({value = /** @type {any} */ (true)}) => value; const result = (/** @type {<T>(options: {value?: T}) => T} */ (run))({value: true});', undefined, 'js'),
+		typeAware('const run = (value = /** @type {any} */ (true)) => value; const result = (/** @type {<T>(value?: T) => T} */ (run))(true);', undefined, 'js'),
+		typeAware('const run = ({value = true}) => value; (/** @type {{(options: {value?: false}): false; (options: {value?: boolean}): true}} */ (run))({value: true});', undefined, 'js'),
+		typeAware('/** @param {{unit: string}} options */ function run({unit = "px"}) {} run(/** @satisfies {{unit?: string}} */ ({unit: "px"}));', undefined, 'js'),
+	];
+
+	for (const testCase of cases) {
+		const fixture = typeof testCase === 'string' ? typeAware(testCase) : testCase;
+		const {code} = fixture;
+		const [program] = fixture.languageOptions.parserOptions.programs;
+		t.assert.deepStrictEqual(program.getSemanticDiagnostics(), [], code);
+		const result = linter.verifyAndFix(code, {
+			...config,
+			files: ['**'],
+			languageOptions: fixture.languageOptions,
+		}, {filename: fixture.filename});
+		t.assert.strictEqual(result.fixed, false, code);
+		t.assert.strictEqual(result.messages.length, 1, code);
+		t.assert.strictEqual(result.messages[0].suggestions.length, 1, code);
+	}
+});
+
 test('loads checker-backed fixtures with Windows path separators', t => {
 	const joinPath = path.join;
 	const joinMock = t.mock.method(path, 'join', (...parts) => joinPath(...parts).replaceAll('/', '\\'));
@@ -579,7 +787,7 @@ test('loads checker-backed fixtures with Windows path separators', t => {
 	}, {filename: fixture.filename});
 	t.assert.strictEqual(messages.length, 1);
 	t.assert.strictEqual(messages[0].messageId, 'arguments');
-	t.assert.strictEqual(messages[0].suggestions.length, 1);
+	t.assert.notStrictEqual(messages[0].fix, undefined);
 });
 
 test('commented matching properties do not prevent safe sibling removals', t => {
@@ -591,18 +799,9 @@ test('commented matching properties do not prevent safe sibling removals', t => 
 	t.assert.strictEqual(result.messages[0].fix, undefined);
 });
 
-testRule({
+testRule.snapshot({
 	valid: [],
-	invalid: [{
-		...typeAware(defaultImportedCall, 'export default (value = true) => value;'),
-		errors: [{
-			messageId: 'arguments',
-			suggestions: [{
-				messageId: 'remove-arguments',
-				output: 'import run from "./no-unnecessary-default-arguments.callee.js"; run();',
-			}],
-		}],
-	}],
+	invalid: [typeAware(defaultImportedCall, 'export default (value = true) => value;')],
 });
 
 testRule.snapshot({
@@ -616,6 +815,8 @@ testRule.snapshot({
 		typeAware(defaultImportedCall, 'export default (function (value = true) { return value; });'),
 		typeAware(defaultImportedCall, 'export default ((value = true) => value) satisfies (value: boolean) => boolean;'),
 		typeAware('import run from "./no-unnecessary-default-arguments.callee.js"; run({value: true});', 'export default ({value = true}: {value: boolean}) => value;'),
+		typeAware('function run({first = true, second = false}: {first?: boolean; second: boolean}) {} run({first: true, second: false});'),
+		typeAware('function run({one = true, two = true}: {one?: boolean; two?: boolean}) {} run({one: /* keep */ true, two: true});'),
 	],
 });
 
