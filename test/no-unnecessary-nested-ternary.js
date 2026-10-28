@@ -257,13 +257,57 @@ nodeTest('type-aware guard suggestions preserve the ordinary discriminated-union
 		isSquare: shape => shape.kind === 'square',
 	});
 	t.assert.strictEqual(execute(output), execute(code));
-	for (const options of [{strict: false}, {strictNullChecks: false}]) {
-		const uncheckedProgram = getTypeScriptProgram(code, options);
-		t.assert.deepStrictEqual(linter.verify(code, {
+	for (const [options, expectedMessages] of [
+		[{strict: false}, []],
+		[{strictNullChecks: false}, []],
+		[{strict: false, strictNullChecks: true}, messages],
+	]) {
+		const configuredProgram = getTypeScriptProgram(code, options);
+		const configuredMessages = linter.verify(code, {
 			...config,
-			languageOptions: {parser: typescriptEslintParser, parserOptions: {programs: [uncheckedProgram]}},
-		}, {filename}), []);
+			languageOptions: {parser: typescriptEslintParser, parserOptions: {programs: [configuredProgram]}},
+		}, {filename});
+		t.assert.deepStrictEqual(configuredMessages, expectedMessages);
 	}
+});
+
+nodeTest('type-predicate suggestions require review for guard side effects', t => {
+	const code = `
+		type First = {kind: 'first'};
+		type Second = {kind: 'second'};
+		declare function first(value: First | Second): value is First;
+		declare function second(value: First | Second): value is Second;
+		function result(value: First | Second) {
+			return first(value) ? (false ? 1 : 0) : (second(value) ? 2 : 0);
+		}
+		result({kind: 'first'});
+	`;
+	const program = getTypeScriptProgram(code);
+	t.assert.deepStrictEqual(ts.getPreEmitDiagnostics(program), []);
+	const linter = new Linter();
+	const config = {
+		files: ['**/*.ts'],
+		languageOptions: {parser: typescriptEslintParser, parserOptions: {programs: [program]}},
+		plugins: {unicorn: {rules: {'no-unnecessary-nested-ternary': rule}}},
+		rules: {'unicorn/no-unnecessary-nested-ternary': 'error'},
+	};
+	const {fixed, messages} = linter.verifyAndFix(code, config, {filename: typeScriptFilename});
+	t.assert.strictEqual(fixed, false);
+	t.assert.strictEqual(messages.length, 1);
+	t.assert.strictEqual(messages[0].fix, undefined);
+	t.assert.strictEqual(messages[0].suggestions.length, 1);
+	const {range, text} = messages[0].suggestions[0].fix;
+	const output = code.slice(0, range[0]) + text + code.slice(range[1]);
+	t.assert.deepStrictEqual(ts.getPreEmitDiagnostics(getTypeScriptProgram(output)), []);
+	const execute = text => runInNewContext(ts.transpileModule(text, {compilerOptions: {target: ts.ScriptTarget.ESNext}}).outputText, {
+		first: value => value.kind === 'first',
+		second(value) {
+			value.kind = 'second';
+			return true;
+		},
+	});
+	t.assert.strictEqual(execute(code), 0);
+	t.assert.strictEqual(execute(output), 2);
 });
 
 nodeTest('typed chain merges require review when they lose overload narrowing', t => {
