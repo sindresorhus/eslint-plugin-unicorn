@@ -197,7 +197,7 @@ function typeAware(code, declarations = 'export function run(value = true) {}', 
 		[path.join(import.meta.dirname, 'no-unnecessary-default-arguments.declaration.d.ts'), 'export declare function run(value?: boolean): void;'],
 	].map(([filename, source]) => [filename.replaceAll('\\', '/'), source]));
 	const options = {
-		allowJs: true, noLib: true, types: [], strict: true, target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.ESNext, moduleResolution: ts.ModuleResolutionKind.Bundler,
+		allowJs: true, checkJs: true, noLib: true, types: [], strict: true, target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.ESNext, moduleResolution: ts.ModuleResolutionKind.Bundler,
 	};
 	const host = ts.createCompilerHost(options);
 	const readFile = host.readFile.bind(host);
@@ -312,6 +312,14 @@ test('typed autofixes preserve strict type checking', t => {
 			'function run(this: void, value = true) {} run?.();',
 		],
 		[
+			'function run(this: void, first: boolean, second = false, third = true) {} run(true, false, true);',
+			'function run(this: void, first: boolean, second = false, third = true) {} run(true);',
+		],
+		[
+			'const run: ((first?: boolean) => void) | ((second?: boolean) => void) = (value = true) => {}; run(true);',
+			'const run: ((first?: boolean) => void) | ((second?: boolean) => void) = (value = true) => {}; run();',
+		],
+		[
 			'function run(value = true) {} (run as (value?: boolean) => void)(true as boolean);',
 			'function run(value = true) {} (run as (value?: boolean) => void)();',
 		],
@@ -330,6 +338,10 @@ test('typed autofixes preserve strict type checking', t => {
 		[
 			'interface Options {unit?: string} function run({unit = "px"}: Options) {} run({unit: "px"});',
 			'interface Options {unit?: string} function run({unit = "px"}: Options) {} run({ });',
+		],
+		[
+			'interface Base {unit?: string} interface Options extends Base {other?: number} function run({unit = "px"}: Options) {} run({unit: "px"});',
+			'interface Base {unit?: string} interface Options extends Base {other?: number} function run({unit = "px"}: Options) {} run({ });',
 		],
 		[
 			'type Options<Type> = {[Key in keyof Type]?: Type[Key]}; function run({unit = "px"}: Options<{unit: string}>) {} run({unit: "px"});',
@@ -401,12 +413,17 @@ test('uncertain typed removals retain suggestions', t => {
 	const cases = [
 		'const run: (value: boolean) => void = (value = true) => {}; run(true);',
 		'const run: (first: boolean, second?: boolean) => void = (first = true, second = false) => {}; run(true, false);',
+		'const run: ((first?: boolean) => void) | ((second: boolean | undefined) => void) = (value = true) => {}; run(true);',
+		'const run: ((first: boolean | undefined) => void) | ((second?: boolean) => void) = (value = true) => {}; run(true);',
+		'const run: (...values: [value?: boolean]) => void = (value = true) => {}; run(true);',
 		'const run: <T>(value?: T) => T = (value = true as any) => value; run(true);',
 		'const run: {(): false; (value: boolean): true} = (value = true): any => value; run(true);',
 		'const run: <T>(options: {value?: T}) => T = ({value = true as any}) => value; const result = run({value: true});',
 		'const run: {(options: {value?: false}): false; (options: {value?: boolean}): true} = ({value = true}): any => value; const result = run({value: true});',
 		'function run(value = true) {} (run as (value: boolean) => void)(true);',
 		'function run({unit = "px"}: {unit: string}) {} run({unit: "px"});',
+		'interface Base {unit?: string} interface Options extends Base {unit: string} function run({unit = "px"}: Options) {} run({unit: "px"});',
+		'type RequiredOptions<Type> = {[Key in keyof Type]-?: Type[Key]}; function run({unit = "px"}: RequiredOptions<{unit?: string}>) {} run({unit: "px"});',
 		'function run({unit = "px", kind}: {unit?: string; kind: "a"} | {unit: string; kind: "b"}) {} run({unit: "px", kind: "b"});',
 		'const run: (options: {unit?: string} | {other: boolean}) => void = ({unit = "px"}: any) => {}; run({unit: "px"});',
 		'function run({unit = "px"}: {unit?: string} & {other?: boolean}) {} run({unit: "px"});',
@@ -418,6 +435,7 @@ test('uncertain typed removals retain suggestions', t => {
 		'function run({unit = "px"}: {unit?: string}) {} run(({unit: "px"} satisfies {unit?: string})! satisfies {unit: string});',
 		typeAware('const run = ({value = /** @type {any} */ (true)}) => value; const result = (/** @type {<T>(options: {value?: T}) => T} */ (run))({value: true});', undefined, 'js'),
 		typeAware('const run = (value = /** @type {any} */ (true)) => value; const result = (/** @type {<T>(value?: T) => T} */ (run))(true);', undefined, 'js'),
+		typeAware('const run = ({value = true}) => value; (/** @type {{(options: {value?: false}): false; (options: {value?: boolean}): true}} */ (run))({value: true});', undefined, 'js'),
 		typeAware('/** @param {{unit: string}} options */ function run({unit = "px"}) {} run(/** @satisfies {{unit?: string}} */ ({unit: "px"}));', undefined, 'js'),
 	];
 
