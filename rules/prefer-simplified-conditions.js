@@ -237,7 +237,14 @@ function shouldAddParenthesesToLogicalReplacement(node, operator, context) {
 }
 
 function getLogicalReplacementText(node, operator, replacement, context) {
-	if (shouldAddParenthesesToLogicalReplacement(node, operator, context)) {
+	// Keep `in` grouped so logical replacements also produce valid `for` initializers.
+	if (
+		shouldAddParenthesesToLogicalReplacement(node, operator, context)
+		|| (
+			!isParenthesized(node, context)
+			&& getTokenStore(context, node).getTokens(node).some(token => token.type === 'Keyword' && token.value === 'in')
+		)
+	) {
 		replacement = `(${replacement})`;
 	}
 
@@ -330,13 +337,13 @@ function isFactoringOperand(node) {
 		return node.expressions.length === 0;
 	}
 
-	if (isNegation(node)) {
+	if (node.type === 'UnaryExpression' && node.operator !== 'delete') {
 		return isFactoringOperand(node.argument);
 	}
 
 	if (
 		node.type === 'BinaryExpression'
-		&& (node.operator === '===' || node.operator === '!==')
+		&& ['==', '!=', '===', '!==', '<', '<=', '>', '>=', 'in', 'instanceof'].includes(node.operator)
 	) {
 		return isFactoringOperand(node.left) && isFactoringOperand(node.right);
 	}
@@ -477,9 +484,9 @@ function getAbsorptionTerm(node, context) {
 }
 
 function getFactoringReplacementText(node, factoringTerms, context) {
-	// Individual factoring operands never need additional parentheses as an operand of `&&`/`||`, but grouped remainders do.
-	const {innerOperator, before, after} = factoringTerms;
-	const commonText = getParenthesizedText(factoringTerms.common, context);
+	// Factoring operands do not need parentheses for logical precedence, but grouped remainders do.
+	const {common, innerOperator, before, after} = factoringTerms;
+	const commonText = getParenthesizedText(common, context);
 	const [leftRemainingText, rightRemainingText] = [factoringTerms.leftRemainingOperands, factoringTerms.rightRemainingOperands].map(operands => {
 		const text = operands.map(operand => getParenthesizedText(operand, context)).join(` ${innerOperator} `);
 		return operands.length > 1 ? `(${text})` : text;
@@ -487,9 +494,9 @@ function getFactoringReplacementText(node, factoringTerms, context) {
 	let replacement = `${commonText} ${innerOperator} (${leftRemainingText} ${node.operator} ${rightRemainingText})`;
 	if (before.length === 0 && after.length === 0) {
 		if (
-			!isParenthesized(factoringTerms.common, context)
+			!isParenthesized(common, context)
 			&& !shouldAddParenthesesToLogicalReplacement(node, innerOperator, context)
-			&& shouldAddParenthesesToExpressionStart(factoringTerms.common, context, node)
+			&& shouldAddParenthesesToExpressionStart(common, context, node)
 		) {
 			replacement = `(${replacement})`;
 		}

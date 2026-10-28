@@ -130,6 +130,7 @@ const config = [
 			'test/unit/get-primitive-literal-value.js',
 			'test/prefer-continue.js',
 			'test/prefer-early-return.js',
+			'test/prefer-simplified-conditions.js',
 			'test/prefer-ternary-readability.js',
 			'test/prefer-ternary.js',
 			'test/prefer-ternary-destructuring.js',

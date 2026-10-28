@@ -28,7 +28,11 @@ import {
 const messageId = 'prefer-ternary';
 const suggestionMessageId = 'prefer-ternary/suggestion';
 
-function hasTernary(node, visitorKeys) {
+function hasDisallowedTernary(node, context) {
+	if (context.options[1].checkNestedTernaries) {
+		return false;
+	}
+
 	if (node.type === 'ConditionalExpression') {
 		return true;
 	}
@@ -38,7 +42,7 @@ function hasTernary(node, visitorKeys) {
 		return false;
 	}
 
-	return getVisitorChildNodes(node, visitorKeys).some(childNode => hasTernary(childNode, visitorKeys));
+	return getVisitorChildNodes(node, context.sourceCode.visitorKeys).some(childNode => hasDisallowedTernary(childNode, context));
 }
 
 // Preserve statement/class bodies and multiline containers, while allowing ordinary wrapped expressions.
@@ -78,13 +82,13 @@ const isSingleLineNode = (node, context) =>
 const isArrowFunction = node => unwrapTypeScriptExpression(node).type === 'ArrowFunctionExpression';
 
 // Keep bare returns as explicit exits rather than introducing an undefined value branch.
-const isMergeableReturnStatement = (consequent, alternate, visitorKeys) =>
+const isMergeableReturnStatement = (consequent, alternate, context) =>
 	consequent.type === 'ReturnStatement'
 	&& alternate.type === 'ReturnStatement'
 	&& consequent.argument !== null
 	&& alternate.argument !== null
-	&& !hasTernary(consequent.argument, visitorKeys)
-	&& !hasTernary(alternate.argument, visitorKeys)
+	&& !hasDisallowedTernary(consequent.argument, context)
+	&& !hasDisallowedTernary(alternate.argument, context)
 	&& !(isBooleanLiteral(consequent.argument) && isBooleanLiteral(alternate.argument));
 
 function hasSameAssignmentTargetTypes(consequent, alternate, context) {
@@ -107,8 +111,8 @@ const isMergeableAssignmentExpression = (consequent, alternate, context) =>
 	// Keep member target evaluation and compound/logical reads after the condition.
 	&& consequent.operator === '='
 	&& alternate.operator === '='
-	&& !hasTernary(consequent.right, context.sourceCode.visitorKeys)
-	&& !hasTernary(alternate.right, context.sourceCode.visitorKeys)
+	&& !hasDisallowedTernary(consequent.right, context)
+	&& !hasDisallowedTernary(alternate.right, context)
 	&& (
 		(
 			// Direct arrow assignments infer their names from the identifier target.
@@ -165,7 +169,7 @@ const create = context => {
 			return !returnFalseIfNotMergeable && options;
 		}
 
-		if (isMergeableReturnStatement(consequent, alternate, sourceCode.visitorKeys)) {
+		if (isMergeableReturnStatement(consequent, alternate, context)) {
 			const {argument} = consequent;
 
 			return merge({
@@ -255,7 +259,7 @@ const create = context => {
 		const expressions = [node.test, right, declarator.init];
 
 		if (expressions.some(expression =>
-			hasTernary(expression, sourceCode.visitorKeys)
+			hasDisallowedTernary(expression, context)
 			|| hasComplexStructure(expression, sourceCode)
 			|| (isOnlySingleLine && !isSingleLineNode(expression, context)))) {
 			return;
@@ -318,7 +322,7 @@ const create = context => {
 	function getIfBranchesProblem(node, alternateNode = node.alternate) {
 		if (
 			(node.parent.type === 'IfStatement' && node.parent.alternate === node)
-			|| hasTernary(node.test, sourceCode.visitorKeys)
+			|| hasDisallowedTernary(node.test, context)
 		) {
 			return;
 		}
@@ -342,7 +346,7 @@ const create = context => {
 		if (
 			(!result && !minimal)
 			|| [node.test, branches.consequent, branches.alternate].some(expression => hasComplexStructure(expression, sourceCode))
-			|| (!result && [consequent, alternate].some(expression => hasTernary(expression, sourceCode.visitorKeys)))
+			|| (!result && [consequent, alternate].some(expression => hasDisallowedTernary(expression, context)))
 		) {
 			return;
 		}
@@ -447,7 +451,16 @@ const schema = [
 		enum: ['always', 'only-single-line'],
 		description: 'Whether to always prefer ternary, or only for single-line expressions.',
 	},
-	minimalTernaryOptionsSchema,
+	{
+		...minimalTernaryOptionsSchema,
+		properties: {
+			...minimalTernaryOptionsSchema.properties,
+			checkNestedTernaries: {
+				type: 'boolean',
+				description: 'Whether to report merges whose conditions or values contain ternary expressions.',
+			},
+		},
+	},
 ];
 
 /**
@@ -464,7 +477,7 @@ const config = {
 		fixable: 'code',
 		hasSuggestions: true,
 		schema,
-		defaultOptions: ['always', minimalTernaryDefaultOptions],
+		defaultOptions: ['always', {...minimalTernaryDefaultOptions, checkNestedTernaries: false}],
 		messages: {
 			[messageId]: 'This `if` statement can be replaced by a ternary expression.',
 			[suggestionMessageId]: 'Use a ternary expression.',

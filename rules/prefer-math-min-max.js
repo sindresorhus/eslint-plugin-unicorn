@@ -1,12 +1,22 @@
 /* eslint-disable complexity */
-import {findVariable} from '@eslint-community/eslint-utils';
-import {getStaticStringValue, isNewExpression} from './ast/index.js';
+import {findVariable, hasSideEffect} from '@eslint-community/eslint-utils';
+import {
+	isNewExpression,
+	isUndefinedValue,
+} from './ast/index.js';
 import {fixSpaceAroundKeyword} from './fix/index.js';
 import {
 	getCallArgumentText,
 	getParenthesizedRange,
 	getVisitorChildNodes,
+	isArray,
 	isBigInt,
+	isBoolean,
+	isKnownNonNumber,
+	isNumber,
+	isString,
+	isTypeScriptFile,
+	unwrapTypeScriptExpression,
 	wouldRemoveComments,
 } from './utils/index.js';
 
@@ -17,6 +27,24 @@ const messages = {
 	[SUGGESTION_ID]: 'Replace with `Math.{{method}}()`.',
 };
 const bigIntCheckOptions = {treatMixedUnionAsTarget: true};
+const nonNumberExpressionTypes = new Set([
+	'ObjectExpression',
+	'NewExpression',
+	'ArrowFunctionExpression',
+	'FunctionExpression',
+	'ClassExpression',
+]);
+const numberCheckOptions = {
+	treatMixedUnionAsNonTarget: true,
+	nonTargetTypeNames: new Set(['Date']),
+	isNonTargetNode: (node, context) =>
+		(node.type === 'Literal' && typeof node.value !== 'number')
+		|| nonNumberExpressionTypes.has(node.type)
+		|| isUndefinedValue(node)
+		|| isString(node, context)
+		|| isBoolean(node, context)
+		|| isArray(node, context),
+};
 
 const isNumberTypeAnnotation = typeAnnotation =>
 	typeAnnotation.type === 'TSNumberKeyword'
@@ -37,45 +65,33 @@ function unwrapNode(node) {
 	return node;
 }
 
-// Any of these can run code or write, and the source runs it twice where the rewrite runs it once. A member access is left alone, reading a property off a plain object is the common case.
-const effectfulOperandTypes = new Set([
-	'AssignmentExpression',
-	'AwaitExpression',
-	'CallExpression',
-	'ImportExpression',
-	'NewExpression',
-	'TaggedTemplateExpression',
-	'UpdateExpression',
-	'YieldExpression',
+// Only suggest simple operands, since the source can evaluate an operand twice where the rewrite evaluates it once. Reading a property off a plain object is the common case.
+const simpleOperandTypes = new Set([
+	'Identifier',
+	'PrivateIdentifier',
+	'Literal',
+	'ThisExpression',
+	'Super',
+	'MemberExpression',
+	'ChainExpression',
+	'BinaryExpression',
+	'LogicalExpression',
+	'ConditionalExpression',
+	'SequenceExpression',
+	'UnaryExpression',
 ]);
 
-// A function or class body does not run where it is written, only the reference is created
-const lazilyEvaluatedTypes = new Set([
-	'ArrowFunctionExpression',
-	'ClassDeclaration',
-	'ClassExpression',
-	'FunctionDeclaration',
-	'FunctionExpression',
-]);
+// Construction expressions are outside the suggestion boundary, including functions with lazy bodies and classes with eager initializers.
+const isSimpleOperand = (node, visitorKeys) => {
+	node = unwrapTypeScriptExpression(node);
 
-const isEffectFreeOperand = (node, visitorKeys) => {
-	node = unwrapNode(node);
-
-	if (effectfulOperandTypes.has(node.type)) {
+	if (!simpleOperandTypes.has(node.type)) {
 		return false;
 	}
 
-	if (node.type === 'TemplateLiteral') {
-		return node.expressions.length === 0;
-	}
-
-	if (lazilyEvaluatedTypes.has(node.type)) {
-		return true;
-	}
-
-	// A wrapper like a sequence, array or object evaluates its own operands, an effect hidden in one of them still runs twice in the source and once in the rewrite
+	// Wrappers such as sequences evaluate their operands, so every child must stay within the same simple-expression boundary.
 	for (const child of getVisitorChildNodes(node, visitorKeys)) {
-		if (!isEffectFreeOperand(child, visitorKeys)) {
+		if (!isSimpleOperand(child, visitorKeys)) {
 			return false;
 		}
 	}
@@ -146,6 +162,16 @@ const create = context => {
 			return;
 		}
 
+		const scriptKind = context.sourceCode.parserServices?.esTreeNodeToTSNodeMap?.get(conditionalExpression)?.getSourceFile().scriptKind;
+		// TypeScript's public `ScriptKind.TS` and `ScriptKind.TSX` values.
+		const isTypeScript = isTypeScriptFile(context.physicalFilename) || scriptKind === 3 || scriptKind === 4;
+
+		if ([left, right].some(node => isTypeScript
+			? !isNumber(node, context)
+			: isKnownNonNumber(node, context, numberCheckOptions))) {
+			return;
+		}
+
 		for (const node of [left, right]) {
 			const expressionNode = unwrapNode(node);
 			const typeAnnotation = getTypeAnnotation(node);
@@ -188,8 +214,7 @@ const create = context => {
 							if (
 								identifier.parent.type === 'AssignmentPattern'
 								&& (
-									(identifier.parent.right.type === 'Literal' && typeof identifier.parent.right.value !== 'number')
-									|| getStaticStringValue(identifier.parent.right) !== undefined
+									isKnownNonNumber(identifier.parent.right, context, numberCheckOptions)
 									|| isBigInt(identifier.parent.right, context, bigIntCheckOptions)
 								)
 							) {
@@ -204,6 +229,9 @@ const create = context => {
 							@type {import('estree').VariableDeclarator}
 							*/
 							const variableDeclarator = definition.node;
+							if (variableDeclarator.id !== definition.name) {
+								break;
+							}
 
 							/**
 							Capture the following statement
@@ -224,8 +252,8 @@ const create = context => {
 							```
 							*/
 							if (
-								(variableDeclarator.init?.type === 'Literal' && typeof variableDeclarator.init.value !== 'number')
-								|| getStaticStringValue(variableDeclarator.init) !== undefined
+								variableDeclarator.init
+								&& isKnownNonNumber(variableDeclarator.init, context, numberCheckOptions)
 							) {
 								return;
 							}
@@ -274,8 +302,7 @@ const create = context => {
 		*/
 		if (
 			!wouldRemoveComments(context, conditionalExpression, [left, right].map(node => getParenthesizedRange(node, context)))
-			&& isEffectFreeOperand(left, context.sourceCode.visitorKeys)
-			&& isEffectFreeOperand(right, context.sourceCode.visitorKeys)
+			&& [left, right].every(node => isSimpleOperand(node, context.sourceCode.visitorKeys) && !hasSideEffect(node, context.sourceCode))
 		) {
 			problem.suggest = [{
 				messageId: SUGGESTION_ID,

@@ -3,6 +3,7 @@ import {findVariable, getPropertyName, isCommaToken} from '@eslint-community/esl
 import {isDirectEvalCall} from './ast/index.js';
 import {getArgumentRemovalRange, removeObjectProperty} from './fix/index.js';
 import {
+	containsNode,
 	getCommentSafeProblem,
 	getFunctionFromIdentifier,
 	getParenthesizedRange,
@@ -62,30 +63,100 @@ function getProperties(node) {
 	return properties;
 }
 
+/**
+Check whether syntax may depend on the function's type parameters, treating type queries conservatively.
+*/
+function isTypeDependent(node, typeParameters, context) {
+	return Boolean(node) && typeParameters.size > 0 && containsNode(node, context, child =>
+		child.type === 'TSTypeQuery'
+		|| (child.type === 'Identifier' && typeParameters.has(child.name)));
+}
+
+/**
+Check a property's uninstantiated type, including aliases and interfaces.
+*/
+function isResolvedPropertyTypeIndependent(node, name, typeParameters, {checker, typescript}) {
+	const parameterType = checker.getTypeAtLocation(node);
+	const mappedTypeFlag = typescript.ObjectFlags.Mapped;
+	// Only concrete objects with explicit properties can establish independence.
+	if (
+		parameterType.flags !== typescript.TypeFlags.Object
+		|| (parameterType.objectFlags % (mappedTypeFlag * 2)) >= mappedTypeFlag
+		|| checker.getIndexInfosOfType(parameterType).length > 0
+	) {
+		return false;
+	}
+
+	const property = checker.getPropertyOfType(parameterType, name);
+	if (!property) {
+		return false;
+	}
+
+	const type = checker.getTypeOfSymbolAtLocation(property, node);
+	const annotation = checker.typeToTypeNode(type, node, typescript.NodeBuilderFlags.NoTruncation);
+	return Boolean(annotation) && !isTypeScriptTypeDependent(annotation, typeParameters, typescript);
+}
+
+/**
+Check an inline property type, falling back to the checker for generic aliases.
+*/
+function isLocalPropertyTypeIndependent(pattern, name, typeParameters, context) {
+	const annotation = pattern.typeAnnotation?.typeAnnotation;
+	if (!annotation || typeParameters.size === 0) {
+		return true;
+	}
+
+	if (annotation.type === 'TSTypeLiteral') {
+		if (annotation.members.some(member => member.type === 'TSIndexSignature')) {
+			return false;
+		}
+
+		const property = annotation.members.find(member => member.type === 'TSPropertySignature' && !member.computed && String(member.key.name ?? member.key.value) === name);
+		return Boolean(property) && !isTypeDependent(property.typeAnnotation, typeParameters, context);
+	}
+
+	if (!isTypeDependent(annotation, typeParameters, context)) {
+		return true;
+	}
+
+	const typescript = getTypeScript(context);
+	return Boolean(typescript) && withTypeInformation(pattern, context, ({checker}) =>
+		isResolvedPropertyTypeIndependent(context.sourceCode.parserServices.esTreeNodeToTSNodeMap.get(pattern), name, typeParameters, {checker, typescript})) === true;
+}
+
 function getLocalParameters(functionNode, context) {
 	const scope = context.sourceCode.scopeManager.acquire(functionNode, true);
 	if (
-		functionNode.typeParameters?.params.length > 0
-		|| scope?.set.get('arguments')?.references.length > 0
+		scope?.set.get('arguments')?.references.length > 0
 		// ESLint can leave `arguments` references in parameter initializers unresolved.
 		|| scope?.through.some(reference => reference.identifier.name === 'arguments')
 	) {
 		return;
 	}
 
+	const typeParameters = new Set(functionNode.typeParameters?.params.map(parameter => parameter.name.name));
 	return functionNode.params
 		.filter(parameter => parameter.type !== 'Identifier' || parameter.name !== 'this')
 		.map(parameter => {
 			const pattern = parameter.type === 'AssignmentPattern' ? parameter.left : parameter;
 			if (pattern.type === 'Identifier') {
-				return {value: getPrimitiveLiteralValue(parameter.type === 'AssignmentPattern' ? parameter.right : undefined)};
+				const initializer = parameter.type === 'AssignmentPattern' ? parameter.right : undefined;
+				const dependsOnTypeParameter = isTypeDependent(pattern.typeAnnotation, typeParameters, context)
+					|| isTypeDependent(initializer, typeParameters, context);
+				return {value: dependsOnTypeParameter ? undefined : getPrimitiveLiteralValue(initializer)};
 			}
 
-			const properties = pattern.type === 'ObjectPattern' ? getProperties(pattern) : undefined;
+			const properties = pattern.type === 'ObjectPattern' && (typeParameters.size === 0 || parameter.type !== 'AssignmentPattern') ? getProperties(pattern) : undefined;
 			const defaults = new Map();
 			for (const [name, property] of properties ?? []) {
 				const {value} = property;
-				if (value.type === 'AssignmentPattern' && value.left.type === 'Identifier' && !Object.hasOwn(Object.prototype, name)) {
+				if (
+					value.type === 'AssignmentPattern'
+					&& value.left.type === 'Identifier'
+					&& !Object.hasOwn(Object.prototype, name)
+					&& !isTypeDependent(value.right, typeParameters, context)
+					&& isLocalPropertyTypeIndependent(pattern, name, typeParameters, context)
+				) {
 					defaults.set(name, getPrimitiveLiteralValue(value.right));
 				}
 			}
@@ -173,8 +244,24 @@ function hasArgumentsOrEval(node, typescript) {
 	return typescript.forEachChild(node, child => hasArgumentsOrEval(child, typescript) ? true : undefined) === true;
 }
 
-function getTypeScriptPropertyDefaults(pattern, typescript) {
-	if (!typescript.isObjectBindingPattern(pattern)) {
+/**
+Check whether TypeScript syntax may depend on the function's type parameters, treating type queries conservatively.
+*/
+function isTypeScriptTypeDependent(node, typeParameters, typescript) {
+	if (!node || typeParameters.size === 0) {
+		return false;
+	}
+
+	if (typescript.isTypeQueryNode(node) || (typescript.isIdentifier(node) && typeParameters.has(node.text))) {
+		return true;
+	}
+
+	return typescript.forEachChild(node, child => isTypeScriptTypeDependent(child, typeParameters, typescript) ? true : undefined) === true;
+}
+
+function getTypeScriptPropertyDefaults(parameter, typeParameters, checker, typescript) {
+	const pattern = parameter.name;
+	if (!typescript.isObjectBindingPattern(pattern) || (typeParameters.size > 0 && parameter.initializer)) {
 		return;
 	}
 
@@ -194,13 +281,53 @@ function getTypeScriptPropertyDefaults(pattern, typescript) {
 			return;
 		}
 
-		const value = typescript.isIdentifier(element.name) && !Object.hasOwn(Object.prototype, name)
+		const value = typescript.isIdentifier(element.name)
+			&& !Object.hasOwn(Object.prototype, name)
+			&& !isTypeScriptTypeDependent(element.initializer, typeParameters, typescript)
+			&& (
+				!isTypeScriptTypeDependent(parameter.type, typeParameters, typescript)
+				|| isResolvedPropertyTypeIndependent(parameter, name, typeParameters, {checker, typescript})
+			)
 			? getTypeScriptPrimitiveValue(element.initializer, typescript)
 			: undefined;
 		defaults.set(name, value);
 	}
 
 	return defaults;
+}
+
+/**
+Get an imported declaration's supported function implementation.
+*/
+function getImportedFunction(declaration, typescript) {
+	let functionNode;
+	let expression;
+	if (typescript.isFunctionDeclaration(declaration)) {
+		functionNode = declaration;
+	} else if (typescript.isVariableDeclaration(declaration) && declaration.parent.getFirstToken().kind === typescript.SyntaxKind.ConstKeyword) {
+		expression = declaration.initializer;
+	} else if (typescript.isExportAssignment(declaration) && !declaration.isExportEquals) {
+		expression = declaration.expression;
+	}
+
+	while (expression && typescript.isParenthesizedExpression(expression)) {
+		expression = expression.expression;
+	}
+
+	const initializer = unwrapTypeScriptNode(expression, typescript);
+	if (initializer && (typescript.isArrowFunction(initializer) || typescript.isFunctionExpression(initializer))) {
+		functionNode = initializer;
+	}
+
+	if (
+		!functionNode?.body
+		|| (functionNode.typeParameters?.length > 0 && expression && (declaration.type || expression !== functionNode))
+		|| hasArgumentsOrEval(functionNode, typescript)
+	) {
+		return;
+	}
+
+	return functionNode;
 }
 
 function getImportedParameters(callee, context, typescript, cache) {
@@ -221,30 +348,21 @@ function getImportedParameters(callee, context, typescript, cache) {
 		}
 
 		cache.set(declaration, undefined);
-		let functionNode;
-		let expression;
-		if (typescript.isFunctionDeclaration(declaration)) {
-			functionNode = declaration;
-		} else if (typescript.isVariableDeclaration(declaration) && declaration.parent.getFirstToken().kind === typescript.SyntaxKind.ConstKeyword) {
-			expression = declaration.initializer;
-		} else if (typescript.isExportAssignment(declaration) && !declaration.isExportEquals) {
-			expression = declaration.expression;
-		}
-
-		const initializer = unwrapTypeScriptNode(expression, typescript);
-		if (initializer && (typescript.isArrowFunction(initializer) || typescript.isFunctionExpression(initializer))) {
-			functionNode = initializer;
-		}
-
-		if (!functionNode?.body || functionNode.typeParameters?.length > 0 || hasArgumentsOrEval(functionNode, typescript)) {
+		const functionNode = getImportedFunction(declaration, typescript);
+		if (!functionNode) {
 			return;
 		}
 
+		const typeParameters = new Set(functionNode.typeParameters?.map(parameter => parameter.name.text));
 		const parameters = functionNode.parameters
 			.filter(parameter => !typescript.isIdentifier(parameter.name) || parameter.name.text !== 'this')
 			.map(parameter => ({
-				value: typescript.isIdentifier(parameter.name) ? getTypeScriptPrimitiveValue(parameter.initializer, typescript) : undefined,
-				properties: getTypeScriptPropertyDefaults(parameter.name, typescript),
+				value: typescript.isIdentifier(parameter.name)
+					&& !isTypeScriptTypeDependent(parameter.type, typeParameters, typescript)
+					&& !isTypeScriptTypeDependent(parameter.initializer, typeParameters, typescript)
+					? getTypeScriptPrimitiveValue(parameter.initializer, typescript)
+					: undefined,
+				properties: getTypeScriptPropertyDefaults(parameter, typeParameters, checker, typescript),
 			}));
 		cache.set(declaration, parameters);
 		return parameters;
@@ -273,6 +391,14 @@ function getParameters(callee, context, typescript, cache) {
 
 	const functionNode = getFunctionFromIdentifier(callee, context);
 	if (!functionNode?.body) {
+		return;
+	}
+
+	if (
+		functionNode.typeParameters?.params.length > 0
+		&& definition.type === 'Variable'
+		&& (definition.name.typeAnnotation || definition.node.init !== functionNode)
+	) {
 		return;
 	}
 
@@ -401,6 +527,7 @@ const create = context => {
 		const callee = unwrapTypeScriptExpression(node.callee);
 		if (
 			callee.type === 'Identifier'
+			&& !containsNode(node.callee, context, child => child.type === 'TSAsExpression' || child.type === 'TSTypeAssertion')
 			&& (
 				getPrimitiveLiteralValue(node.arguments.at(-1)) !== undefined
 				|| node.arguments.some(argument => unwrapTypeScriptExpression(argument).type === 'ObjectExpression')

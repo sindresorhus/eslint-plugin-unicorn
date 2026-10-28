@@ -1,6 +1,7 @@
 import nodeTest from 'node:test';
 import vm from 'node:vm';
 import {Linter} from 'eslint';
+import {outdent} from 'outdent';
 import unicorn from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
@@ -56,8 +57,13 @@ test({
 		'if (test) { call(a); call(b); } else { call(c); }',
 		'if (test) { call(a); }',
 		'if (test) { object?.method(a); } else { object?.method(b); }',
-		'if (test) { object[key](a); } else { object[key](b); }',
-		'if (test) { object.nested.method(a); } else { object.nested.method(b); }',
+		'if (test) { object?.nested.method(a); } else { object?.nested.method(b); }',
+		'if (test) { object.nested?.method(a); } else { object.nested?.method(b); }',
+		'if (test) { object[getKey()](a); } else { object[getKey()](b); }',
+		'if (test) { object.method(a); } else { object["method"](b); }',
+		'if (test) { object[key.name](a); } else { object[key.name](b); }',
+		'if (test) { object[key + suffix](a); } else { object[key + suffix](b); }',
+		'if (test) { object.nested().method(a); } else { object.nested().method(b); }',
 		'if (test) { call(...a); } else { call(...b); }',
 		'if (test) { call(a ? b : c); } else { call(d); }',
 		'if (a ? b : c) { call(a); } else { call(b); }',
@@ -67,6 +73,12 @@ test({
 		'if (test) { [a, ...items]; } else { [b, ...items]; }',
 		'if (test) { [a, , 1]; } else { [b, , 1]; }',
 		'if (test) { object.a; } else { object.b; }',
+		'if (test) { object.nested.a; } else { object.nested.b; }',
+		'if (test) { object.nested.a(value); } else { object.nested.b(value); }',
+		'if (test) { object?.nested[a]; } else { object?.nested[b]; }',
+		'if (test) { object.nested()[a]; } else { object.nested()[b]; }',
+		'if (test) { [getObject().value, a]; } else { [getObject().value, b]; }',
+		'if (test) { object?.count + a; } else { object?.count + b; }',
 		'if (test) { a.method(value); } else { b.method(value); }',
 		'function* unicorn() { if (test) { yield* call(a); } else { yield call(b); } }',
 		'function* unicorn() { if (test) { yield; } else { yield call(b); } }',
@@ -81,10 +93,28 @@ test({
 	],
 	invalid: [
 		...[
+			['if (test) { object.nested.method(a); } else { object.nested.method(b); }', 'object.nested.method(test ? a : b);'],
+			['if (test) { (object).method(a); } else { object.method(b); }', '(object).method(test ? a : b);'],
+			['if (test) { object[`store`][key](a); } else { object["store"][key](b); }', 'object[`store`][key](test ? a : b);'],
+			['if (test) { [(object).value, a]; } else { [object.value, b]; }', '[(object).value, test ? a : b];'],
+			['if (test) { (object).nested[a]; } else { object.nested[b]; }', '(object).nested[test ? a : b];'],
+			['if (test) { this.store.get(1); } else { this.store.get(2); }', 'this.store.get(test ? 1 : 2);'],
+			['if (test) { object[key](a); } else { object[key](b); }', 'object[key](test ? a : b);'],
+			['if (test) { object.store[key](a); } else { object.store[key](b); }', 'object.store[key](test ? a : b);'],
+			['if (test) { object[key].nested.method(a); } else { object[key].nested.method(b); }', 'object[key].nested.method(test ? a : b);'],
+			['if (test) { (object.nested)[key]((a)); } else { (object.nested)[key](b); }', '(object.nested)[key]((test ? (a) : b));'],
+			['previous()\nif (test) { (object.store)[key](a); } else { (object.store)[key](b); }', 'previous()\n;(object.store)[key](test ? a : b);'],
+			['if (object[key]) { call(a); } else { call(b); }', 'call(object[key] ? a : b);'],
 			['if (test) { new Date(a); } else { new Date(b); }', 'new Date(test ? a : b);'],
 			['if (test) { a + 1; } else { b + 1; }', '(test ? a : b) + 1;'],
 			['if (test) { 1 + a; } else { 1 + b; }', '1 + (test ? a : b);'],
 			['if (test) { object[a]; } else { object[b]; }', 'object[test ? a : b];'],
+			['if (test) { object.count + a; } else { object.count + b; }', 'object.count + (test ? a : b);'],
+			['if (test) { [object.value, a]; } else { [object.value, b]; }', '[object.value, test ? a : b];'],
+			['if (test) { ({shared: object.value, item: a}); } else { ({shared: object.value, item: b}); }', '({shared: object.value, item: test ? a : b});'],
+			['if (test) { new Box(object.value, a); } else { new Box(object.value, b); }', 'new Box(object.value, test ? a : b);'],
+			['if (test) { object.nested[a]; } else { object.nested[b]; }', 'object.nested[test ? a : b];'],
+			['if (test) { object[key].nested[a]; } else { object[key].nested[b]; }', 'object[key].nested[test ? a : b];'],
 			['if (test) { ({a: 1}); } else { ({a: 2}); }', '({a: test ? 1 : 2});'],
 			['if (test) { [1, a]; } else { [1, b]; }', '[1, test ? a : b];'],
 			['if (test) { result = call(a); } else { result = call(b); }', 'result = call(test ? a : b);'],
@@ -118,6 +148,14 @@ test({
 			'if (test) { call(a); } else { /* keep */ call(b); }',
 			'if (test) { object./* keep */method(a); } else { object.method(b); }',
 			'if (check()) { object[a]; } else { object[b]; }',
+			'if (check()) { object.nested[a]; } else { object.nested[b]; }',
+			'if (check()) { [object.value, a]; } else { [object.value, b]; }',
+			'if (check()) { object.nested.method(a); } else { object.nested.method(b); }',
+			'if (key = other) { object[key](a); } else { object[key](b); }',
+			'if (key++) { object[key](a); } else { object[key](b); }',
+			'if (test) { object.nested[key](shared(), a); } else { object.nested[key](shared(), b); }',
+			'if (test) { object./* keep */nested[key](a); } else { object.nested[key](b); }',
+			'if (test) { object.nested[key](a); } else { object.nested[key](/* keep */ b); }',
 		].map(code => ({code, errors})),
 		{
 			code: 'if (test) { call(a); } else { call(b); }',
@@ -148,6 +186,8 @@ test({
 			['async function unicorn() { if (test) { await a(); } else { await b(); } }', 'async function unicorn() { await (test ? a : b)(); }', {checkVaryingBase: true}],
 			['if (test) { object.a(value); } else { object.b(value); }', 'object[test ? "a" : "b"](value);', {checkComputedMemberAccess: true}],
 			['if (test) { object.a; } else { object.b; }', 'object[test ? "a" : "b"];', {checkComputedMemberAccess: true}],
+			['if (test) { object.nested.a; } else { object.nested.b; }', 'object.nested[test ? "a" : "b"];', {checkComputedMemberAccess: true}],
+			['if (test) { object.nested.a(value); } else { object.nested.b(value); }', 'object.nested[test ? "a" : "b"](value);', {checkComputedMemberAccess: true}],
 		].map(([code, output, options]) => ({
 			code, output, options: ['always', options], errors,
 		})),
@@ -166,6 +206,7 @@ test({
 		...[
 			['if (test as boolean) { [a]; } else { [b]; }', '[(test as boolean) ? a : b];'],
 			['if (test) { call<Result<string>>(a!); } else { call<Result < string >>(b!); }', 'call<Result<string>>(test ? a! : b!);'],
+			['if (test) { object.nested[key]<Result<string>>(a!); } else { object.nested[key]<Result<string>>(b!); }', 'object.nested[key]<Result<string>>(test ? a! : b!);'],
 			['if (test satisfies boolean) { [a]; } else { [b]; }', '[test satisfies boolean ? a : b];'],
 		].map(([code, output]) => ({
 			code, output, errors, languageOptions: {parser: parsers.typescript},
@@ -188,6 +229,57 @@ test({
 		},
 	],
 });
+
+for (const [callee, receiverFactor, alternateCallee = callee] of [
+	['object.store.get', 10],
+	['object[key]', 100],
+	['object.store[key]', 10],
+	['(object.store).get', 10, 'object.store.get'],
+	['object[`store`][key]', 10, 'object["store"][key]'],
+]) {
+	for (const selected of [true, false]) {
+		for (const ruleName of ['prefer-minimal-ternary', 'prefer-ternary']) {
+			nodeTest(`${ruleName} preserves ${callee} results and receiver when selected is ${selected}`, t => {
+				const code = ruleName === 'prefer-minimal-ternary'
+					? `result = selected ? ${callee}(first()) : ${alternateCallee}(second());`
+					: `if (selected) { result = ${callee}(first()); } else { result = ${alternateCallee}(second()); }`;
+				const linter = new Linter();
+				const result = linter.verifyAndFix(code, {
+					plugins: {unicorn},
+					rules: {[`unicorn/${ruleName}`]: 'error'},
+				});
+				const execute = source => {
+					class Store {
+						factor = 10;
+
+						get(value) {
+							return this.factor * value;
+						}
+					}
+
+					const store = new Store();
+					const object = {factor: 100, get: store.get, store};
+					const argument = value => {
+						object.store = {factor: 1000, get: store.get};
+						return value;
+					};
+
+					return vm.runInNewContext(`${source}; result;`, {
+						object, key: 'get', selected, first: () => argument(1), second: () => argument(2),
+					});
+				};
+
+				const actual = execute(result.output);
+
+				t.assert.strictEqual(result.fixed, true);
+				t.assert.strictEqual(result.output, `result = ${callee}(selected ? first() : second());`);
+				t.assert.deepStrictEqual(result.messages, []);
+				t.assert.strictEqual(actual, execute(code));
+				t.assert.strictEqual(actual, (selected ? 1 : 2) * receiverFactor);
+			});
+		}
+	}
+}
 
 for (const [name, code] of [
 	['condition and argument order', 'if ((events.push("test"), selected)) { events.push("a"); } else { events.push("b"); }'],
@@ -254,8 +346,35 @@ test({
 			code: 'const enum First { value } const enum Second { value } declare const test: boolean; if (test) { First.value; } else { Second.value; }',
 			options: ['always', {checkVaryingBase: true}],
 		}),
+		typeAware({
+			code: 'namespace Data {export const enum Choice {A, B}} declare const test: boolean; if (test) { Data.Choice.A; } else { Data.Choice.B; }',
+			options: ['always', {checkComputedMemberAccess: true}],
+		}),
 	],
 	invalid: [
+		typeAware({
+			code: outdent`
+				interface Store {get(value: number): void}
+				type Entry = {kind: "a"; key: "a"; stores: {a: Store}} | {kind: "b"; key: "b"; stores: {b: Store}};
+				declare const entry: Entry;
+				const {kind, key, stores} = entry;
+				if (kind === "a") {
+					stores[key].get(1);
+				} else {
+					stores[key].get(2);
+				}
+			`,
+			errors,
+		}),
+		typeAware({
+			code: 'declare const cache: {kind: 1; store: {get(value: 1): void}} | {kind: 2; store: {get(value: 2): void}}; if (cache.kind === 1) { cache.store.get(1); } else { cache.store.get(2); }',
+			errors,
+		}),
+		typeAware({
+			code: 'declare const object: {store: {get(value: number): void}}, key: "get", test: boolean; if (test) { object.store[key](1); } else { object.store[key](2); }',
+			output: 'declare const object: {store: {get(value: number): void}}, key: "get", test: boolean; object.store[key](test ? 1 : 2);',
+			errors,
+		}),
 		typeAware({
 			code: 'declare function call(value: number): void; declare const test: boolean, a: number, b: number; if (test) { call(a); } else { call(b); }',
 			output: 'declare function call(value: number): void; declare const test: boolean, a: number, b: number; call(test ? a : b);',
