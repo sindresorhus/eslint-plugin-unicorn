@@ -11,9 +11,9 @@
 
 Nested ternary expressions are unnecessary when two branches use the same expression and the conditions can be combined with a logical operator.
 
-The rule also simplifies longer chains when strict literal comparisons prove the relevant conditions are mutually exclusive. Local guard analysis requires a direct binding to a synchronous function that returns a supported comparison. When implementations are unavailable, type information and `strictNullChecks` allow suggestions for disjoint concrete primitive types, literal unions, or concrete object types with conflicting required literal discriminants.
+Longer chains are simplified when strict literal comparisons, simple local guards, or type predicates prove conditions mutually exclusive. Type-based proofs require `strictNullChecks`.
 
-Chain simplifications and inverse folds in TypeScript or JavaScript with type annotations are suggestions requiring review for type narrowing and, when guard implementations are unavailable, side effects. Loose equality is not used to prove exclusivity. Generic or overloaded predicate signatures and unresolved target types are not used for type-based proofs.
+Chain simplifications and inverse folds in typed code use suggestions; review type narrowing and unknown guard side effects.
 
 ## Examples
 
@@ -42,14 +42,6 @@ a && !b ? c : d;
 ```
 
 ```js
-// ❌
-a ? c : (b ? d : c);
-
-// ✅
-a || !b ? c : d;
-```
-
-```js
 // ✅
 a ? (b ? c : d) : e;
 ```
@@ -60,20 +52,4 @@ x === 1 ? a : (x === 2 ? b : (x === 3 ? a : c));
 
 // ✅
 x === 1 || x === 3 ? a : (x === 2 ? b : c);
-```
-
-```js
-// ❌
-x === 1 ? a : (x === 2 ? c : (x === 3 ? b : c));
-
-// ✅
-x === 1 ? a : (x === 3 ? b : c);
-```
-
-```js
-// ❌
-x === 1 ? (enabled ? a : c) : (x === 2 ? b : c);
-
-// ✅
-x === 1 && enabled ? a : (x === 2 ? b : c);
 ```
