@@ -424,7 +424,7 @@ export function getTypeSafetyToMinimize(consequent, alternate, context) {
 		const hasCompatibleMemberReceivers = (left, right) => left.type !== 'MemberExpression'
 			|| right.type !== 'MemberExpression'
 			|| !isSameExpression(left.object, right.object, context)
-			|| areTypesCompatible(parserServices.getTypeAtLocation(left.object), parserServices.getTypeAtLocation(right.object));
+			|| hasCompatibleExpressionTypes(left.object, right.object);
 
 		if (consequent.type === 'CallExpression' && !hasCompatibleMemberReceivers(consequent.callee, alternate.callee)) {
 			return false;

@@ -137,6 +137,8 @@ test({
 			['test ? object.nested.method(a) : object.nested.method(b);', 'object.nested.method(test ? a : b);'],
 			['test ? this.store.get(1) : this.store.get(2);', 'this.store.get(test ? 1 : 2);'],
 			['test ? object[key](a) : object[key](b);', 'object[key](test ? a : b);'],
+			['test ? object[this](a) : object[this](b);', 'object[this](test ? a : b);'],
+			['const key = Symbol.iterator; test ? object[key](a) : object[key](b);', 'const key = Symbol.iterator; object[key](test ? a : b);'],
 			['test ? object.store[key](a) : object.store[key](b);', 'object.store[key](test ? a : b);'],
 			['test ? object[key].nested.method(a) : object[key].nested.method(b);', 'object[key].nested.method(test ? a : b);'],
 			['test ? object[key][method](a) : object[key][method](b);', 'object[key][method](test ? a : b);'],
@@ -150,6 +152,16 @@ test({
 		{
 			code: 'class Foo extends Bar { method() { return test ? super.method(a) : super.method(b); } }',
 			output: 'class Foo extends Bar { method() { return super.method(test ? a : b); } }',
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		{
+			code: 'class Foo extends Bar { method() { return test ? super.store[key](a) : super.store[key](b); } }',
+			output: 'class Foo extends Bar { method() { return super.store[key](test ? a : b); } }',
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		{
+			code: 'class Foo { #store; method() { return test ? this.#store.get(a) : this.#store.get(b); } }',
+			output: 'class Foo { #store; method() { return this.#store.get(test ? a : b); } }',
 			errors: [{messageId: 'prefer-minimal-ternary'}],
 		},
 		{

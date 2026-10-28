@@ -21,7 +21,7 @@ const foo = test ? call(a) : call(b);
 const foo = call(test ? a : b);
 ```
 
-Method calls support identifier, literal, `this`, and `super` receivers, including member chains, with dot access or literal and identifier keys. Optional chaining, calls within receivers or keys, and other computed key expressions are ignored.
+Method calls support identifier, literal, `this`, and `super` receivers, including member chains, with dot access or computed keys that are literals, identifiers, or `this`. Optional chaining, calls within receivers or keys, and other computed key expressions are ignored.
 
 ```js
 // ❌

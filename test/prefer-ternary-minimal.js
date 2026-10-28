@@ -1,6 +1,7 @@
 import nodeTest from 'node:test';
 import vm from 'node:vm';
 import {Linter} from 'eslint';
+import {outdent} from 'outdent';
 import unicorn from '../index.js';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
@@ -206,7 +207,7 @@ test({
 	],
 });
 
-for (const callee of ['object.store.get', 'object[key]', 'object.store[key]']) {
+for (const [callee, receiverFactor] of [['object.store.get', 10], ['object[key]', 100], ['object.store[key]', 10]]) {
 	for (const selected of [true, false]) {
 		for (const ruleName of ['prefer-minimal-ternary', 'prefer-ternary']) {
 			nodeTest(`${ruleName} preserves ${callee} results and receiver when selected is ${selected}`, t => {
@@ -219,21 +220,26 @@ for (const callee of ['object.store.get', 'object[key]', 'object.store[key]']) {
 					rules: {[`unicorn/${ruleName}`]: 'error'},
 				});
 				const execute = source => {
-					const object = {
-						factor: 10,
+					class Store {
+						factor = 10;
+
 						get(value) {
 							return this.factor * value;
-						},
-					};
-					object.store = object;
+						}
+					}
+
+					const store = new Store();
+					const object = {factor: 100, get: store.get, store};
 					return vm.runInNewContext(`${source}; result;`, {object, key: 'get', selected});
 				};
+
+				const actual = execute(result.output);
 
 				t.assert.strictEqual(result.fixed, true);
 				t.assert.strictEqual(result.output, `result = ${callee}(selected ? 1 : 2);`);
 				t.assert.deepStrictEqual(result.messages, []);
-				t.assert.strictEqual(execute(result.output), execute(code));
-				t.assert.strictEqual(execute(result.output), selected ? 10 : 20);
+				t.assert.strictEqual(actual, execute(code));
+				t.assert.strictEqual(actual, (selected ? 1 : 2) * receiverFactor);
 			});
 		}
 	}
@@ -306,6 +312,20 @@ test({
 		}),
 	],
 	invalid: [
+		typeAware({
+			code: outdent`
+				interface Store {get(value: number): void}
+				type Entry = {kind: "a"; key: "a"; stores: {a: Store}} | {kind: "b"; key: "b"; stores: {b: Store}};
+				declare const entry: Entry;
+				const {kind, key, stores} = entry;
+				if (kind === "a") {
+					stores[key].get(1);
+				} else {
+					stores[key].get(2);
+				}
+			`,
+			errors,
+		}),
 		typeAware({
 			code: 'declare const cache: {kind: 1; store: {get(value: 1): void}} | {kind: 2; store: {get(value: 2): void}}; if (cache.kind === 1) { cache.store.get(1); } else { cache.store.get(2); }',
 			errors,

@@ -225,6 +225,18 @@ const cases = [
 		diagnostic: 2684,
 	},
 	{
+		name: 'correlated computed method receivers',
+		declarations: outdent`
+			interface Store {get(value: number): void}
+			type Entry = {kind: "a"; key: "a"; stores: {a: Store}} | {kind: "b"; key: "b"; stores: {b: Store}};
+			declare const entry: Entry;
+			const {kind, key, stores} = entry;
+		`,
+		expression: 'kind === "a" ? stores[key].get(1) : stores[key].get(2)',
+		unsafeExpression: 'stores[key].get(kind === "a" ? 1 : 2)',
+		diagnostic: 7053,
+	},
+	{
 		name: 'binary operand narrowing',
 		declarations: 'declare const value: string | number;',
 		expression: 'typeof value === "string" ? value + "a" : value + 1',
@@ -365,6 +377,12 @@ const safeCases = [
 		declarations: 'declare const test: boolean, object: {method(value: string | number): string};',
 		expression: 'test ? object.method("a") : object.method(1)',
 		fixedExpression: 'object.method(test ? "a" : 1)',
+	},
+	{
+		name: 'chained computed methods',
+		declarations: 'declare const test: boolean, key: "get", object: {store: {get(value: number): number}};',
+		expression: 'test ? object.store[key](1) : object.store[key](2)',
+		fixedExpression: 'object.store[key](test ? 1 : 2)',
 	},
 	{
 		name: 'ordinary arithmetic with varying literal operands',
