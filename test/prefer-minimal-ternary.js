@@ -108,10 +108,23 @@ test({
 	valid: [
 		'test ? object?.method(a) : object?.method(b);',
 		'test ? object.method?.(a) : object.method?.(b);',
-		'test ? object[key](a) : object[key](b);',
+		'test ? object?.nested.method(a) : object?.nested.method(b);',
+		'test ? object.nested?.method(a) : object.nested?.method(b);',
+		'test ? object[getKey()](a) : object[getKey()](b);',
+		'test ? object[key.name](a) : object[key.name](b);',
+		'test ? object[key + suffix](a) : object[key + suffix](b);',
+		'test ? object.nested().method(a) : object.nested().method(b);',
 		'test ? getObject().method(a) : getObject().method(b);',
-		'test ? object.nested.method(a) : object.nested.method(b);',
-		'test ? (object).method(a) : object.method(b);',
+		'test ? object.method(a) : object["method"](b);',
+		'test ? (getObject()).method(a) : getObject().method(b);',
+		{
+			code: 'declare const cache: {kind: 1; store: {get(value: 1): void}} | {kind: 2; store: {get(value: 2): void}}; cache.kind === 1 ? cache.store.get(1) : cache.store.get(2);',
+			filename: 'file.ts',
+			languageOptions: {
+				parser: typescriptEslintParser,
+				parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+			},
+		},
 	],
 	invalid: [
 		{
@@ -121,7 +134,23 @@ test({
 		},
 		...[
 			['test ? object.method(a) : object.method(b);', 'object.method(test ? a : b);'],
+			['test ? (object).method(a) : object.method(b);', '(object).method(test ? a : b);'],
+			['test ? object.method(a) : (object).method(b);', 'object.method(test ? a : b);'],
+			['test ? (object.store).get(a) : object.store.get(b);', '(object.store).get(test ? a : b);'],
+			['test ? object[`store`][key](a) : object["store"][key](b);', 'object[`store`][key](test ? a : b);'],
+			['previous()\ntest ? (object).method(a) : object.method(b);', 'previous()\n;(object).method(test ? a : b);'],
 			['test ? object["method"](a) : object["method"](b);', 'object["method"](test ? a : b);'],
+			['test ? object.nested.method(a) : object.nested.method(b);', 'object.nested.method(test ? a : b);'],
+			['test ? this.store.get(1) : this.store.get(2);', 'this.store.get(test ? 1 : 2);'],
+			['test ? object[key](a) : object[key](b);', 'object[key](test ? a : b);'],
+			['test ? object[this](a) : object[this](b);', 'object[this](test ? a : b);'],
+			['const key = Symbol.iterator; test ? object[key](a) : object[key](b);', 'const key = Symbol.iterator; object[key](test ? a : b);'],
+			['test ? object.store[key](a) : object.store[key](b);', 'object.store[key](test ? a : b);'],
+			['test ? object[key].nested.method(a) : object[key].nested.method(b);', 'object[key].nested.method(test ? a : b);'],
+			['test ? object[key][method](a) : object[key][method](b);', 'object[key][method](test ? a : b);'],
+			['test ? object[`store`][key](a) : object[`store`][key](b);', 'object[`store`][key](test ? a : b);'],
+			['test ? (object.nested)[key]((a)) : (object.nested)[key](b);', '(object.nested)[key]((test ? (a) : b));'],
+			['previous()\ntest ? (object.store)[key](a) : (object.store)[key](b);', 'previous()\n;(object.store)[key](test ? a : b);'],
 			['test ? (object).method((a)) : (object) . method(b);', '(object).method((test ? (a) : b));'],
 			['test ? this.method(a) : this.method(b);', 'this.method(test ? a : b);'],
 			['test ? 16 .toString(a) : 16 .toString(b);', '16 .toString(test ? a : b);'],
@@ -130,6 +159,16 @@ test({
 		{
 			code: 'class Foo extends Bar { method() { return test ? super.method(a) : super.method(b); } }',
 			output: 'class Foo extends Bar { method() { return super.method(test ? a : b); } }',
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		{
+			code: 'class Foo extends Bar { method() { return test ? super.store[key](a) : super.store[key](b); } }',
+			output: 'class Foo extends Bar { method() { return super.store[key](test ? a : b); } }',
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		{
+			code: 'class Foo { #store; method() { return test ? this.#store.get(a) : this.#store.get(b); } }',
+			output: 'class Foo { #store; method() { return this.#store.get(test ? a : b); } }',
 			errors: [{messageId: 'prefer-minimal-ternary'}],
 		},
 		{
@@ -142,7 +181,35 @@ test({
 			'test ? object.method(shared(), a) : object.method(shared(), b);',
 			'test ? object./* keep */method(a) : object.method(b);',
 			'test ? object.method(a) : object.method(/* keep */ b);',
+			'change() ? object.nested.method(a) : object.nested.method(b);',
+			'(key = other) ? object[key](a) : object[key](b);',
+			'key++ ? object[key](a) : object[key](b);',
+			'test ? object.nested[key](shared(), a) : object.nested[key](shared(), b);',
+			'test ? object./* keep */nested[key](a) : object.nested[key](b);',
+			'test ? object.nested[key](a) : object.nested[key](/* keep */ b);',
 		].map(code => ({code, errors: [{messageId: 'prefer-minimal-ternary'}]})),
+		{
+			code: 'test ? object.nested[key]<Result<string>>(a!) : object.nested[key]<Result<string>>(b!);',
+			output: 'object.nested[key]<Result<string>>(test ? a! : b!);',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		{
+			code: 'test ? (object).method<Result<string>>(a!) : object.method<Result<string>>(b!);',
+			output: '(object).method<Result<string>>(test ? a! : b!);',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		{
+			code: 'declare const object: {store: {get(value: number): void}}, key: "get", test: boolean; test ? object.store[key](1) : object.store[key](2);',
+			output: 'declare const object: {store: {get(value: number): void}}, key: "get", test: boolean; object.store[key](test ? 1 : 2);',
+			filename: 'file.ts',
+			languageOptions: {
+				parser: typescriptEslintParser,
+				parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
+			},
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
 		{
 			code: 'test ? object.method<Result < string >>(a) : object.method<Result<string>>(b);',
 			output: 'object.method<Result < string >>(test ? a : b);',
@@ -197,6 +264,88 @@ test({
 			'test ? call<Result /* keep */>(a) : call<Result>(b);',
 			'test ? new Box<Result>(a) : new Box<Result /* keep */>(b);',
 		].map(code => ({code, errors: [{messageId: 'prefer-minimal-ternary'}], languageOptions: {parser: parsers.typescript}})),
+	],
+});
+
+test({
+	valid: [
+		'test ? object?.count + a : object?.count + b;',
+		'test ? getObject().count + a : getObject().count + b;',
+		'test ? [object?.value, a] : [object?.value, b];',
+		'test ? [getObject().value, a] : [getObject().value, b];',
+		'test ? new Box(object[getKey()], a) : new Box(object[getKey()], b);',
+	],
+	invalid: [
+		...[
+			['test ? object.count + a : object.count + b;', 'object.count + (test ? a : b);'],
+			['test ? object[key].count + a : object[key].count + b;', 'object[key].count + (test ? a : b);'],
+			['test ? [object.value, a] : [object.value, b];', '[object.value, test ? a : b];'],
+			['test ? [(object).value, a] : [object.value, b];', '[(object).value, test ? a : b];'],
+			['test ? call(a, (object).value) : call(b, object.value);', 'call(test ? a : b, (object).value);'],
+			['test ? [object.first, object.second, a()] : [object.first, object.second, b()];', '[object.first, object.second, test ? a() : b()];'],
+			['test ? {shared: object.value, item: a} : {shared: object.value, item: b};', '({shared: object.value, item: test ? a : b});'],
+			['test ? new Box(object.value, a) : new Box(object.value, b);', 'new Box(object.value, test ? a : b);'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+		...[
+			'change() ? [object.value, a] : [object.value, b];',
+			'(key = other) ? object[key] + a : object[key] + b;',
+			'test ? object./* keep */count + a : object.count + b;',
+			'test ? new Box(object.value, a) : new Box(object./* keep */value, b);',
+		].map(code => ({code, errors: 1})),
+		{
+			code: 'test ? {shared: object.value, item: a} : {shared: object.value, item: b};',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'prefer-minimal-ternary',
+				suggestions: [{
+					messageId: 'prefer-minimal-ternary',
+					output: '({shared: object.value, item: test ? a : b});',
+				}],
+			}],
+		},
+	],
+});
+
+test({
+	valid: [
+		'test ? object.nested.a : object.nested.b;',
+		'test ? object.nested.a(value) : object.nested.b(value);',
+		'test ? object?.nested[a] : object?.nested[b];',
+		'test ? object.nested()[a] : object.nested()[b];',
+		'test ? object[getKey()][a] : object[getKey()][b];',
+		'test ? object[key.name][a] : object[key.name][b];',
+		...[
+			'test ? object?.nested.a : object?.nested.b;',
+			'test ? object.nested().a : object.nested().b;',
+			'test ? object[getKey()].a : object[getKey()].b;',
+			'test ? object.nested.a(first) : object.nested.b(second);',
+		].map(code => ({code, options: [{checkComputedMemberAccess: true}]})),
+	],
+	invalid: [
+		...[
+			['test ? object.nested[a] : object.nested[b];', 'object.nested[test ? a : b];'],
+			['test ? (object).nested[a] : object.nested[b];', '(object).nested[test ? a : b];'],
+			['test ? object[key].nested[a] : object[key].nested[b];', 'object[key].nested[test ? a : b];'],
+			['test ? this.store[a] : this.store[b];', 'this.store[test ? a : b];'],
+			['test ? object.nested[first()] : object.nested[second()];', 'object.nested[test ? first() : second()];'],
+			['previous()\ntest ? (object.nested)[a] : (object.nested)[b];', 'previous()\n;(object.nested)[test ? a : b];'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+		...[
+			['test ? object.value.a : object.value.b;', 'object.value[test ? "a" : "b"];'],
+			['test ? object[key].a : object[key].b;', 'object[key][test ? "a" : "b"];'],
+			['test ? object.nested.first(value) : object.nested.second(value);', 'object.nested[test ? "first" : "second"](value);'],
+			['test ? object.nested.first(shared()) : object.nested.second(shared());', 'object.nested[test ? "first" : "second"](shared());'],
+		].map(([code, output]) => ({
+			code, output, options: [{checkComputedMemberAccess: true}], errors: 1,
+		})),
+		...[
+			'change() ? object.nested[a] : object.nested[b];',
+			'test ? object./* keep */nested[a] : object.nested[b];',
+		].map(code => ({code, errors: 1})),
+		...[
+			'change() ? object.nested.a : object.nested.b;',
+			'test ? object.nested.first(value) : object.nested.second(/* keep */ value);',
+		].map(code => ({code, options: [{checkComputedMemberAccess: true}], errors: 1})),
 	],
 });
 
@@ -257,6 +406,7 @@ test.vue({
 		},
 		...[
 			['<template>{{ test ? object.method(a) : object.method(b) }}</template>', '<template>{{ object.method(test ? a : b) }}</template>'],
+			['<template>{{ test ? object.store[key](a) : object.store[key](b) }}</template>', '<template>{{ object.store[key](test ? a : b) }}</template>'],
 			['<template>{{ test ? call(a, first+second) : call(b, first + second) }}</template>', '<template>{{ call(test ? a : b, first+second) }}</template>'],
 			['<template>{{ test ? call(a, {value: 1,}) : call(b, {value: 1}) }}</template>', '<template>{{ call(test ? a : b, {value: 1,}) }}</template>'],
 			['<template>{{ test ? [((a))] : [(b)] }}</template>', '<template>{{ [((test ? ((a)) : (b)))] }}</template>'],
@@ -284,6 +434,11 @@ test.vue({
 test.svelte({
 	valid: [],
 	invalid: [
+		{
+			code: '{test ? object.store[key](a) : object.store[key](b)}',
+			output: '{object.store[key](test ? a : b)}',
+			errors: 1,
+		},
 		{
 			code: '<script>test ? call(a) : call(b);</script>{test ? call(c, first+second) : call(d, first + second)}',
 			output: '<script>call(test ? a : b);</script>{call(test ? c : d, first+second)}',
@@ -319,6 +474,8 @@ test({
 		'test ? call(name+suffix) : call(name + suffix);',
 		'test ? object[first+second] : object[first + second];',
 		// Shared functions and classes require identical source text because line breaks can change statement behavior.
+		'test ? call(a, (function() { return value; }).name) : call(b, ((function() { return\nvalue; })).name);',
+		'test ? call(a, (class { method() { return value; } }).prototype) : call(b, ((class { method() { return\nvalue; } })).prototype);',
 		'test ? call(a, () => { return value; }) : call(b, () => { return\nvalue; });',
 		'test ? call(a, function() { value\n++other; }) : call(b, function() { value++\nother; });',
 		'test ? call(a, {method() { return value; }}) : call(b, {method() { return\nvalue; }});',
@@ -407,6 +564,7 @@ test({
 			'object.ready',
 			'object?.ready',
 			'object["ready"]',
+			'object[key]',
 			'(ready ? enabled : fallback)',
 		].map(condition => ({
 			code: `${condition} ? call(a) : call(b);`,
@@ -897,7 +1055,6 @@ test.snapshot({
 			'test ? object.a : object?.b;',
 			'test ? object?.["a"] : object?.["b"];',
 			'test ? getObject().a : getObject().b;',
-			'test ? object.value.a : object.value.b;',
 			'test ? object.a : object[key];',
 			outdent`
 				class Foo {
@@ -920,6 +1077,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		typeAwareComputedMemberAccess('const enum Foo { A, B } declare const test: boolean; test ? Foo.A : Foo.B;'),
+		typeAwareComputedMemberAccess('namespace Data {export const enum Choice {A, B}} declare const test: boolean; test ? Data.Choice.A : Data.Choice.B;'),
 		typeAwareComputedMemberAccess('const enum Foo { A, B } declare const test: boolean; test ? Foo["A"] : Foo["B"];'),
 		typeAwareComputedMemberAccess('const enum Original { A, B } import Foo = Original; declare const test: boolean; test ? Foo.A : Foo.B;'),
 	],
@@ -981,7 +1139,6 @@ test.snapshot({
 		'test ? {a: 1} : {a: other ? 2 : 3};',
 		// Shared expressions before the varying value must be safe to move before the condition.
 		'test ? {a: call(), b: 1} : {a: call(), b: 2};',
-		'test ? {a: object.value, b: 1} : {a: object.value, b: 2};',
 		'test ? [call(), 1] : [call(), 2];',
 		'test ? [other ? b : c, a] : [other ? b : c, d];',
 		'test ? new Foo(call(), 1) : new Foo(call(), 2);',

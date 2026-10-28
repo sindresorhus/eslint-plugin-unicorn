@@ -21,7 +21,7 @@ const foo = test ? call(a) : call(b);
 const foo = call(test ? a : b);
 ```
 
-Direct method calls support identifier, literal, `this`, and `super` receivers with dot access or literal keys. Optional chaining, dynamic keys, and chained receivers are ignored.
+Method calls support identifiers, literals, `this`, `super`, and member chains. Computed keys must be literals, identifiers, or `this`. Optional chains and calls within receivers or keys are ignored.
 
 ```js
 // ❌
@@ -33,13 +33,13 @@ const foo = object.method(test ? a : b);
 
 ```js
 // ❌
-const foo = test ? a + 1 : b + 1;
+const total = test ? object.count + a : object.count + b;
 
 // ✅
-const foo = (test ? a : b) + 1;
+const total = object.count + (test ? a : b);
 ```
 
-Member access with a varying static property name or receiver is opt-in through [`checkComputedMemberAccess`](#checkcomputedmemberaccess) or [`checkVaryingBase`](#checkvaryingbase). Dynamic computed keys are reported by default:
+Static property swaps require [`checkComputedMemberAccess`](#checkcomputedmemberaccess); receiver swaps require [`checkVaryingBase`](#checkvaryingbase). Dynamic keys are reported by default:
 
 ```js
 // ❌
@@ -67,11 +67,11 @@ const date = new Date(test ? a : b);
 - Arrays require matching lengths, without spreads or holes.
 - Constructors require the same identifier, argument count, and TypeScript type arguments, without spreads.
 
-For these cases, shared values before the varying value must be simple expressions such as identifiers or literals.
+Shared values before the varying value must be simple expressions or member chains without optional chaining or calls.
 
 Only shallow cases are reported; nested expressions are not recursively minimized. JavaScript and TypeScript expressions are supported, including Vue and Svelte templates.
 
-Matching ignores comments and whitespace between tokens, including in TypeScript type arguments, and trailing commas in directly shared object literals. String, template, regex, and JSX text contents and other punctuation remain significant. Shared expressions containing functions or classes require identical source text.
+Matching ignores comments and whitespace between tokens, including in TypeScript type arguments, and trailing commas in directly shared object literals. Member access ignores redundant receiver parentheses and equivalent string or static template keys. String, template, regex, and JSX text contents and other punctuation remain significant. Shared function and class expressions require identical source text.
 
 ## Limitations
 
@@ -139,7 +139,7 @@ const foo = (test ? a : b).value;
 Type: `boolean`\
 Default: `false`
 
-Also report property-read and method-call ternaries that share the same simple receiver and differ only by the static property or method name. Method calls must also share the same arguments. Minimizing these requires computed member access, so it is opt-in. Statically known computed keys, such as `object['a']` and `object[0]`, are included. Receivers are limited to identifiers, literals, `this`, and `super`.
+Whether to also report static property or method name swaps on a shared receiver, including member chains. Calls must share their arguments. Includes statically known computed keys such as `object['a']` and `object[0]`; excludes optional chains and calls within receivers.
 
 ```js
 /* eslint unicorn/prefer-minimal-ternary: ['error', {checkComputedMemberAccess: true}] */

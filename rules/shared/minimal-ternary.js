@@ -49,11 +49,9 @@ function isSameExpression(left, right, context) {
 	if (
 		left.type === 'MemberExpression'
 		&& right.type === 'MemberExpression'
-		&& left.computed
-		&& right.computed
+		&& left.computed === right.computed
 		&& left.optional === right.optional
-		&& getStaticStringValue(left.property) !== undefined
-		&& getStaticStringValue(left.property) === getStaticStringValue(right.property)
+		&& isSameExpression(left.property, right.property, context)
 	) {
 		return isSameExpression(left.object, right.object, context);
 	}
@@ -69,11 +67,11 @@ function isSafeSharedExpression(node) {
 	return safeSharedExpressionTypes.has(node.type) || getStaticStringValue(node) !== undefined;
 }
 
-function isSafeSharedCallee(node) {
+function isSafeSharedAccess(node) {
 	return isSafeSharedExpression(node)
 		|| (node.type === 'MemberExpression'
-			&& isSafeSharedExpression(node.object)
-			&& (!node.computed || node.property.type === 'Literal' || getStaticStringValue(node.property) !== undefined));
+			&& isSafeSharedAccess(node.object)
+			&& (!node.computed || isSafeSharedExpression(node.property)));
 }
 
 function getStaticPropertyName(node, context) {
@@ -94,7 +92,7 @@ function hasSameObjectWithDifferentStaticProperty(left, right, context) {
 		|| right.type !== 'MemberExpression'
 		|| hasOptionalChainElement(left)
 		|| hasOptionalChainElement(right)
-		|| !isSafeSharedExpression(left.object)
+		|| !isSafeSharedAccess(left.object)
 		|| !isSameExpression(left.object, right.object, context)
 		// Computed access to a `const enum` member requires a string literal (TS2476).
 		|| isConstEnumReference(left.object, context)
@@ -178,7 +176,7 @@ function hasOneMinimalValueDifference(leftItems, rightItems, context) {
 
 	// Only shared values before the varying value move ahead of the condition.
 	return differentIndex !== undefined
-		&& leftItems.slice(0, differentIndex).every(item => isSafeSharedExpression(item));
+		&& leftItems.slice(0, differentIndex).every(item => isSafeSharedAccess(item));
 }
 
 function isMinimalObjectExpression(left, right, context) {
@@ -242,7 +240,7 @@ function isMinimalCallExpression(left, right, context, options) {
 
 	if (
 		isSameExpression(left.callee, right.callee, context)
-		&& isSafeSharedCallee(left.callee)
+		&& isSafeSharedAccess(left.callee)
 		&& getMinimalDifferentItemIndex(left.arguments, right.arguments, context) !== undefined
 	) {
 		return true;
@@ -274,7 +272,7 @@ function isMinimalBinaryExpression(left, right, context) {
 		return false;
 	}
 
-	return isRightSame || isSafeSharedExpression(left.left);
+	return isRightSame || isSafeSharedAccess(left.left);
 }
 
 function hasSameObjectWithDifferentDynamicKey(left, right, context) {
@@ -286,7 +284,7 @@ function hasSameObjectWithDifferentDynamicKey(left, right, context) {
 		|| !right.computed
 		|| hasOptionalChainElement(left)
 		|| hasOptionalChainElement(right)
-		|| !isSafeSharedExpression(left.object)
+		|| !isSafeSharedAccess(left.object)
 		|| !isSameExpression(left.object, right.object, context)
 	) {
 		return false;
@@ -331,7 +329,7 @@ function isSafeToReorderExpression(node) {
 	switch (node.type) {
 		case 'MemberExpression': {
 			return isSafeToReorderExpression(node.object)
-				&& (!node.computed || node.property.type === 'Literal' || getStaticStringValue(node.property) !== undefined);
+				&& (!node.computed || isSafeSharedExpression(node.property));
 		}
 
 		case 'ChainExpression': {
@@ -424,7 +422,7 @@ export function getTypeSafetyToMinimize(consequent, alternate, context) {
 		const hasCompatibleMemberReceivers = (left, right) => left.type !== 'MemberExpression'
 			|| right.type !== 'MemberExpression'
 			|| !isSameExpression(left.object, right.object, context)
-			|| areTypesCompatible(parserServices.getTypeAtLocation(left.object), parserServices.getTypeAtLocation(right.object));
+			|| hasCompatibleExpressionTypes(left.object, right.object);
 
 		if (consequent.type === 'CallExpression' && !hasCompatibleMemberReceivers(consequent.callee, alternate.callee)) {
 			return false;
@@ -604,7 +602,7 @@ export const minimalTernaryOptionsSchema = {
 		},
 		checkComputedMemberAccess: {
 			type: 'boolean',
-			description: 'Also report property reads and method calls sharing a simple receiver when only the static property or method name differs, requiring computed member access.',
+			description: 'Whether to also report static property or method name differences on a shared receiver, including member chains, requiring computed member access.',
 		},
 	},
 };
