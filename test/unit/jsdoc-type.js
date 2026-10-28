@@ -16,6 +16,7 @@ Collect annotations for inspected bindings or function returns.
 function getAnnotations(code, returns = false, typescript = false) {
 	const annotations = [];
 	const messages = linter.verify(code, {
+		linterOptions: {reportUnusedDisableDirectives: 'off'},
 		languageOptions: typescript
 			? {
 				parser: parsers.typescript.implementation,
@@ -57,6 +58,61 @@ test('finds direct variable and exact named parameter annotations', t => {
 	t.assert.strictEqual(parameter.type.name, 'string');
 	t.assert.strictEqual(parameter.name, 'text');
 	t.assert.strictEqual(unrelated, undefined);
+});
+
+for (const [name, directives] of [
+	['line disable-next-line', '// eslint-disable-next-line test/capture -- Keep documentation attached.'],
+	['block disable-next-line', '/* eslint-disable-next-line test/capture */'],
+	['block disable', '/* eslint-disable test/capture */'],
+	['block enable', '/* eslint-enable test/capture */'],
+	['disable and enable', '/* eslint-disable test/capture */\n/* eslint-enable test/capture */'],
+	['consecutive', '/* eslint-disable test/capture */\n// eslint-disable-next-line test/capture'],
+	['disable-line', '/* eslint-disable-line test/capture */'],
+]) {
+	test(`finds binding, parameter, and return annotations across ${name} directives`, t => {
+		const code = [
+			'/** @type {boolean} */',
+			directives,
+			'export let flag; inspect(flag);',
+			'/** @param {string} text\n * @returns {number} */',
+			directives,
+			'export function run(text) { inspect(text); }',
+		].join('\n');
+		for (const typescript of [false, true]) {
+			t.assert.deepStrictEqual(getAnnotations(code, false, typescript), [
+				{type: {kind: 'name', name: 'boolean'}, optional: false, name: undefined},
+				{type: {kind: 'name', name: 'string'}, optional: false, name: 'text'},
+			]);
+			t.assert.deepStrictEqual(getAnnotations(code, true, typescript), [{type: {kind: 'name', name: 'number'}, optional: false, name: undefined}]);
+		}
+	});
+}
+
+test('ordinary comments still block documentation across ESLint directives', t => {
+	for (const comment of [
+		'// Other comment.',
+		'/* Other comment. */',
+		'/** Description only. */',
+		'// eslint-disable test/capture',
+		'/* eslint-disable-next-line-extra test/capture */',
+	]) {
+		const code = `/** @type {boolean} */\n${comment}\n/* eslint-enable test/capture */\nlet flag; inspect(flag);`;
+		t.assert.deepStrictEqual(getAnnotations(code), [undefined], comment);
+	}
+});
+
+test('directive-only initializer comments preserve declaration documentation', t => {
+	const code = '/** @param {boolean} flag\n * @returns {string} */ const run = /* eslint-enable test/capture */ flag => { inspect(flag); };';
+	for (const typescript of [false, true]) {
+		t.assert.deepStrictEqual(getAnnotations(code, false, typescript), [{type: {kind: 'name', name: 'boolean'}, optional: false, name: 'flag'}]);
+		t.assert.deepStrictEqual(getAnnotations(code, true, typescript), [{type: {kind: 'name', name: 'string'}, optional: false, name: undefined}]);
+	}
+});
+
+test('a closer function comment remains authoritative across ESLint directives', t => {
+	const code = '/** @param {boolean} flag\n * @returns {string} */ const run = /** @returns {number} */\n/* eslint-enable test/capture */\nflag => { inspect(flag); };';
+	t.assert.deepStrictEqual(getAnnotations(code), [undefined]);
+	t.assert.strictEqual(getAnnotations(code, true)[0]?.type.name, 'number');
 });
 
 test('compact type, parameter, and return tags preserve annotation ownership', t => {

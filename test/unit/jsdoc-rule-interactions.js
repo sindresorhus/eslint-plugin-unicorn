@@ -22,6 +22,77 @@ const config = {
 	},
 };
 
+test('a disable-next-line directive between JSDoc and an exported function is used', t => {
+	const code = [
+		'/** @returns {boolean} */',
+		'// eslint-disable-next-line unicorn/consistent-boolean-name -- returning a boolean is not the primary purpose',
+		'export function appendOrTruncate(lines, newLines, tooLongMessage) {',
+		'\tif (lines.length + newLines.length > 10) {',
+		'\t\tlines.push(tooLongMessage);',
+		'\t\treturn true;',
+		'\t}',
+		'\tlines.push(...newLines);',
+		'\treturn false;',
+		'}',
+	].join('\n');
+	const config = {
+		plugins: {unicorn},
+		linterOptions: {reportUnusedDisableDirectives: 'error'},
+		rules: {'unicorn/consistent-boolean-name': 'error'},
+	};
+	const withoutDirective = code.split('\n').filter(line => !line.startsWith('// eslint-disable-next-line')).join('\n');
+	t.assert.deepStrictEqual(linter.verify(withoutDirective, config).map(({ruleId}) => ruleId), ['unicorn/consistent-boolean-name']);
+	t.assert.deepStrictEqual(linter.verify(code, config), []);
+	t.assert.deepStrictEqual(linter.getSuppressedMessages().map(({ruleId}) => ruleId), ['unicorn/consistent-boolean-name']);
+});
+
+test('unrelated directives preserve documented parameter reports and rename suggestions', t => {
+	const code = [
+		'/** @param {boolean} value Keep value in the description. */',
+		'// eslint-disable-next-line no-unused-vars -- This function is used externally.',
+		'function run(value) { consume(value); }',
+	].join('\n');
+	const messages = linter.verify(code, {
+		plugins: {unicorn},
+		linterOptions: {reportUnusedDisableDirectives: 'error'},
+		rules: {
+			'unicorn/consistent-boolean-name': ['error', {checkFunctions: 'never', prefixes: namingOptions.prefixes}],
+			'no-unused-vars': 'error',
+		},
+	});
+	t.assert.deepStrictEqual(messages.map(({ruleId}) => ruleId), ['unicorn/consistent-boolean-name']);
+	t.assert.deepStrictEqual(linter.getSuppressedMessages().map(({ruleId}) => ruleId), ['no-unused-vars']);
+	t.assert.strictEqual(messages[0].suggestions.length, 1);
+	const {range, text} = messages[0].suggestions[0].fix;
+	const output = code.slice(0, range[0]) + text + code.slice(range[1]);
+	t.assert.strictEqual(output, [
+		'/** @param {boolean} isValue Keep value in the description. */',
+		'// eslint-disable-next-line no-unused-vars -- This function is used externally.',
+		'function run(isValue) { consume(isValue); }',
+	].join('\n'));
+});
+
+test('disabling boolean naming preserves JSDoc inference for other rules across fix passes', t => {
+	const code = [
+		'/** @param {boolean} flag */',
+		'// eslint-disable-next-line unicorn/consistent-boolean-name -- Keep the public parameter name.',
+		'function run(flag) { return Boolean(flag); }',
+	].join('\n');
+	const config = {
+		plugins: {unicorn},
+		linterOptions: {reportUnusedDisableDirectives: 'error'},
+		rules: {
+			'unicorn/consistent-boolean-name': ['error', {checkFunctions: 'never'}],
+			'unicorn/no-useless-coercion': 'error',
+		},
+	};
+	t.assert.deepStrictEqual(linter.verify(code, config).map(({ruleId}) => ruleId), ['unicorn/no-useless-coercion']);
+	const output = code.replace('Boolean(flag)', 'flag');
+	t.assert.deepStrictEqual(linter.verifyAndFix(code, config), {fixed: true, output, messages: []});
+	t.assert.deepStrictEqual(linter.getSuppressedMessages().map(({ruleId}) => ruleId), ['unicorn/consistent-boolean-name']);
+	t.assert.deepStrictEqual(linter.verifyAndFix(output, config), {fixed: false, output, messages: []});
+});
+
 for (const {name, code, output, value, rules} of [
 	{
 		name: 'local boolean renaming composes with coercion and comparison fixes',

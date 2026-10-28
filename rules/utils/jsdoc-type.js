@@ -1,5 +1,6 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {isFunction} from '../ast/index.js';
+import {isEslintDisableOrEnableDirective} from './eslint-directive.js';
 import {parseJSDocumentType} from './parse-jsdoc-type.js';
 import {isTypeScriptExpressionWrapper} from './unwrap-typescript-expression.js';
 import {
@@ -173,7 +174,8 @@ Find the closest directly attached documentation comment among a declaration and
 */
 function getDocumentationTags(nodes, context) {
 	for (const node of nodes) {
-		const comment = context.sourceCode.getCommentsBefore(node).at(-1);
+		const comment = context.sourceCode.getCommentsBefore(node)
+			.findLast(comment => !isEslintDisableOrEnableDirective(context, comment));
 		if (comment) {
 			return comment.type === 'Block' && comment.value.startsWith('*')
 				? getCommentTags(comment, context)
