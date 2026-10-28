@@ -184,6 +184,18 @@ test('fixes shared literal object values when type information throws', t => {
 });
 
 const cases = [
+	{
+		name: 'parenthesized correlated method receivers',
+		declarations: outdent`
+			interface Store {get(value: number): void}
+			type Entry = {kind: "a"; key: "a"; stores: {a: Store}} | {kind: "b"; key: "b"; stores: {b: Store}};
+			declare const entry: Entry;
+			const {kind, key, stores} = entry;
+		`,
+		expression: 'kind === "a" ? (stores[key]).get(1) : stores[key].get(2)',
+		unsafeExpression: '(stores[key]).get(kind === "a" ? 1 : 2)',
+		diagnostic: 7053,
+	},
 	...[
 		{
 			name: 'correlated shared binary member values',
@@ -432,6 +444,18 @@ for (const {name, declarations, expression, unsafeExpression, resultType, diagno
 }
 
 const safeCases = [
+	{
+		name: 'parenthesized shared method receivers',
+		declarations: 'declare const test: boolean, object: {store: {get(value: number): number}};',
+		expression: 'test ? (object.store).get(1) : object.store.get(2)',
+		fixedExpression: '(object.store).get(test ? 1 : 2)',
+	},
+	{
+		name: 'equivalent nested static member keys',
+		declarations: 'declare const test: boolean, key: "get", object: {store: {get(value: number): number}};',
+		expression: 'test ? object[`store`][key](1) : object["store"][key](2)',
+		fixedExpression: 'object[`store`][key](test ? 1 : 2)',
+	},
 	{
 		name: 'shared binary member values',
 		declarations: 'declare const test: boolean, object: {count: number};',

@@ -60,6 +60,7 @@ test({
 		'if (test) { object?.nested.method(a); } else { object?.nested.method(b); }',
 		'if (test) { object.nested?.method(a); } else { object.nested?.method(b); }',
 		'if (test) { object[getKey()](a); } else { object[getKey()](b); }',
+		'if (test) { object.method(a); } else { object["method"](b); }',
 		'if (test) { object[key.name](a); } else { object[key.name](b); }',
 		'if (test) { object[key + suffix](a); } else { object[key + suffix](b); }',
 		'if (test) { object.nested().method(a); } else { object.nested().method(b); }',
@@ -93,6 +94,10 @@ test({
 	invalid: [
 		...[
 			['if (test) { object.nested.method(a); } else { object.nested.method(b); }', 'object.nested.method(test ? a : b);'],
+			['if (test) { (object).method(a); } else { object.method(b); }', '(object).method(test ? a : b);'],
+			['if (test) { object[`store`][key](a); } else { object["store"][key](b); }', 'object[`store`][key](test ? a : b);'],
+			['if (test) { [(object).value, a]; } else { [object.value, b]; }', '[(object).value, test ? a : b];'],
+			['if (test) { (object).nested[a]; } else { object.nested[b]; }', '(object).nested[test ? a : b];'],
 			['if (test) { this.store.get(1); } else { this.store.get(2); }', 'this.store.get(test ? 1 : 2);'],
 			['if (test) { object[key](a); } else { object[key](b); }', 'object[key](test ? a : b);'],
 			['if (test) { object.store[key](a); } else { object.store[key](b); }', 'object.store[key](test ? a : b);'],

@@ -87,7 +87,7 @@ For these cases, shared values before the varying value must be simple expressio
 
 Only shallow cases are reported; nested expressions are not recursively minimized. JavaScript and TypeScript expressions are supported, including Vue and Svelte templates.
 
-Matching ignores comments and whitespace between tokens, including in TypeScript type arguments, and trailing commas in directly shared object literals. String, template, regex, and JSX text contents and other punctuation remain significant. Shared expressions containing functions or classes require identical source text.
+Matching ignores comments and whitespace between tokens, including in TypeScript type arguments, and trailing commas in directly shared object literals. Member access also ignores redundant receiver parentheses and equivalent string key spellings, including static template literals. String, template, regex, and JSX text contents and other punctuation remain significant. Shared function and class expressions require identical source text.
 
 ## Limitations
 

@@ -49,11 +49,9 @@ function isSameExpression(left, right, context) {
 	if (
 		left.type === 'MemberExpression'
 		&& right.type === 'MemberExpression'
-		&& left.computed
-		&& right.computed
+		&& left.computed === right.computed
 		&& left.optional === right.optional
-		&& getStaticStringValue(left.property) !== undefined
-		&& getStaticStringValue(left.property) === getStaticStringValue(right.property)
+		&& isSameExpression(left.property, right.property, context)
 	) {
 		return isSameExpression(left.object, right.object, context);
 	}

@@ -115,7 +115,8 @@ test({
 		'test ? object[key + suffix](a) : object[key + suffix](b);',
 		'test ? object.nested().method(a) : object.nested().method(b);',
 		'test ? getObject().method(a) : getObject().method(b);',
-		'test ? (object).method(a) : object.method(b);',
+		'test ? object.method(a) : object["method"](b);',
+		'test ? (getObject()).method(a) : getObject().method(b);',
 		{
 			code: 'declare const cache: {kind: 1; store: {get(value: 1): void}} | {kind: 2; store: {get(value: 2): void}}; cache.kind === 1 ? cache.store.get(1) : cache.store.get(2);',
 			filename: 'file.ts',
@@ -133,6 +134,11 @@ test({
 		},
 		...[
 			['test ? object.method(a) : object.method(b);', 'object.method(test ? a : b);'],
+			['test ? (object).method(a) : object.method(b);', '(object).method(test ? a : b);'],
+			['test ? object.method(a) : (object).method(b);', 'object.method(test ? a : b);'],
+			['test ? (object.store).get(a) : object.store.get(b);', '(object.store).get(test ? a : b);'],
+			['test ? object[`store`][key](a) : object["store"][key](b);', 'object[`store`][key](test ? a : b);'],
+			['previous()\ntest ? (object).method(a) : object.method(b);', 'previous()\n;(object).method(test ? a : b);'],
 			['test ? object["method"](a) : object["method"](b);', 'object["method"](test ? a : b);'],
 			['test ? object.nested.method(a) : object.nested.method(b);', 'object.nested.method(test ? a : b);'],
 			['test ? this.store.get(1) : this.store.get(2);', 'this.store.get(test ? 1 : 2);'],
@@ -185,6 +191,12 @@ test({
 		{
 			code: 'test ? object.nested[key]<Result<string>>(a!) : object.nested[key]<Result<string>>(b!);',
 			output: 'object.nested[key]<Result<string>>(test ? a! : b!);',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-minimal-ternary'}],
+		},
+		{
+			code: 'test ? (object).method<Result<string>>(a!) : object.method<Result<string>>(b!);',
+			output: '(object).method<Result<string>>(test ? a! : b!);',
 			languageOptions: {parser: parsers.typescript},
 			errors: [{messageId: 'prefer-minimal-ternary'}],
 		},
@@ -268,6 +280,8 @@ test({
 			['test ? object.count + a : object.count + b;', 'object.count + (test ? a : b);'],
 			['test ? object[key].count + a : object[key].count + b;', 'object[key].count + (test ? a : b);'],
 			['test ? [object.value, a] : [object.value, b];', '[object.value, test ? a : b];'],
+			['test ? [(object).value, a] : [object.value, b];', '[(object).value, test ? a : b];'],
+			['test ? call(a, (object).value) : call(b, object.value);', 'call(test ? a : b, (object).value);'],
 			['test ? [object.first, object.second, a()] : [object.first, object.second, b()];', '[object.first, object.second, test ? a() : b()];'],
 			['test ? {shared: object.value, item: a} : {shared: object.value, item: b};', '({shared: object.value, item: test ? a : b});'],
 			['test ? new Box(object.value, a) : new Box(object.value, b);', 'new Box(object.value, test ? a : b);'],
@@ -310,6 +324,7 @@ test({
 	invalid: [
 		...[
 			['test ? object.nested[a] : object.nested[b];', 'object.nested[test ? a : b];'],
+			['test ? (object).nested[a] : object.nested[b];', '(object).nested[test ? a : b];'],
 			['test ? object[key].nested[a] : object[key].nested[b];', 'object[key].nested[test ? a : b];'],
 			['test ? this.store[a] : this.store[b];', 'this.store[test ? a : b];'],
 			['test ? object.nested[first()] : object.nested[second()];', 'object.nested[test ? first() : second()];'],
@@ -459,6 +474,8 @@ test({
 		'test ? call(name+suffix) : call(name + suffix);',
 		'test ? object[first+second] : object[first + second];',
 		// Shared functions and classes require identical source text because line breaks can change statement behavior.
+		'test ? call(a, (function() { return value; }).name) : call(b, ((function() { return\nvalue; })).name);',
+		'test ? call(a, (class { method() { return value; } }).prototype) : call(b, ((class { method() { return\nvalue; } })).prototype);',
 		'test ? call(a, () => { return value; }) : call(b, () => { return\nvalue; });',
 		'test ? call(a, function() { value\n++other; }) : call(b, function() { value++\nother; });',
 		'test ? call(a, {method() { return value; }}) : call(b, {method() { return\nvalue; }});',
