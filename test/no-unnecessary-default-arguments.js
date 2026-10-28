@@ -187,6 +187,11 @@ testRule.snapshot({
 		'const run: <T>(value?: T) => T = <U>(value: any = true) => value; run(true);',
 		'const run = (<U>(value: any = true) => value) as <T>(value?: T) => T; run(true);',
 		'const run = (<U>(value: any = true) => value) satisfies <T>(value?: T) => T; run(true);',
+		'function run<U>(value: any = true) { return value; } (run as <T>(value?: T) => T)(true);',
+		'function run<U>(value: any = true) { return value; } (<(<T>(value?: T) => T)>run)(true);',
+		'function run<U>(value: any = true) { return value; } (run as <T>(value?: T) => T)!(true);',
+		'function run<U>({value = true}: any) { return value; } (run as <T>(options: {value?: T}) => T)({value: true});',
+		'function run(value = true as boolean) {} (run as Function)(true as boolean);',
 		'declare function run(value?: boolean): void; run(true);',
 		'function run(value: boolean): void; function run(value = true) {} run(true);',
 		'function run(value = true) {} const value = false as true; run(value);',
@@ -196,7 +201,7 @@ testRule.snapshot({
 		'function run(this: void, value = true) {} run(true);',
 		'const run: (value: boolean) => void = (value = true) => {}; run(true);',
 		'const run = ((value = true) => {}) satisfies Function; run(true);',
-		'function run(value = true as boolean) {} (run as Function)(true as boolean);',
+		'function run(value = true as boolean) {} run(true as boolean);',
 		'function run(value = true) {} run!(true!);',
 		'function run(value = +1) {} run((+1) as number);',
 		'function run({value = true}: {value: boolean}) {} run({value: true});',
@@ -218,6 +223,8 @@ testRule.snapshot({
 		'function run<T>({"count": count = 1, selected = false as T}: {"count"?: number; selected?: T}) {} run({count: 1, selected: false});',
 		'function run<T>({0x1: count = 1, selected = false as T}: {0x1?: number; selected?: T}) {} run({1: 1, selected: false});',
 		'const run = ((<T>(value = true) => {})); run(true);',
+		'function run<T>(value = true) {} (run<boolean>)(true);',
+		'function run<T>(value = true) {} (run satisfies Function)(true);',
 	],
 });
 
@@ -319,6 +326,24 @@ testRule.snapshot({
 			typeAware(importedCall, `${declaration} export {run};`),
 		]),
 		typeAware(defaultImportedCall, 'export default (<U>(value: any = true) => value) as <T>(value?: T) => T;'),
+		...[
+			'type Options<T> = T extends unknown ? T & {value?: boolean} : never;',
+			'type Options<T> = T extends unknown ? {[Key in keyof T]?: boolean} : never;',
+		].flatMap(declaration => [
+			typeAware(`${declaration} function run<T extends {value?: unknown}>({value = true}: Options<T>) {} run({value: true});`),
+			typeAware(
+				'import {run} from "./no-unnecessary-default-arguments.callee.js"; run({value: true});',
+				`${declaration} export function run<T extends {value?: unknown}>({value = true}: Options<T>) {}`,
+			),
+		]),
+		typeAware(
+			'import {run} from "./no-unnecessary-default-arguments.callee.js"; (run as <T>(value?: T) => T)(true);',
+			'export function run<U>(value: any = true) { return value; }',
+		),
+		typeAware(
+			'import {run} from "./no-unnecessary-default-arguments.callee.js"; (run as <T>(options: {value?: T}) => T)({value: true});',
+			'export function run<U>({value = true}: any) { return value; }',
+		),
 		typeAware(importedCall, 'export function run(value: boolean): void; export function run(value = true) {}'),
 		typeAware(importedCall, 'export function run(value = true) { return arguments.length; }'),
 		typeAware(importedCall, 'export function run(value = true, next = arguments[0]) {}'),
@@ -387,6 +412,13 @@ testRule.snapshot({
 			),
 		]),
 		typeAware(defaultImportedCall, 'export default ((<T>(value = true) => {}));'),
+		typeAware(
+			'type Options<T extends boolean> = {value?: T | boolean; dense?: boolean}; function run<T extends boolean>({value = true, dense = false}: Options<T>) {} run({value: true, dense: false});',
+		),
+		typeAware(
+			'import {run} from "./no-unnecessary-default-arguments.callee.js"; run({value: true, dense: false});',
+			'type Options<T extends boolean> = {value?: T | boolean; dense?: boolean}; export function run<T extends boolean>({value = true, dense = false}: Options<T>) {}',
+		),
 	],
 });
 

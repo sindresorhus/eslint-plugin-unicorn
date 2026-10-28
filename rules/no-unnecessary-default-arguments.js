@@ -78,10 +78,9 @@ Check a property's uninstantiated type, including aliases and interfaces.
 function isResolvedPropertyTypeIndependent(node, name, typeParameters, {checker, typescript}) {
 	const parameterType = checker.getTypeAtLocation(node);
 	const mappedTypeFlag = typescript.ObjectFlags.Mapped;
-	// These shapes can infer from the whole object even when this property's type is independent.
+	// Only concrete objects with explicit properties can establish independence.
 	if (
-		parameterType.isTypeParameter()
-		|| parameterType.isUnionOrIntersection()
+		parameterType.flags !== typescript.TypeFlags.Object
 		|| (parameterType.objectFlags % (mappedTypeFlag * 2)) >= mappedTypeFlag
 		|| checker.getIndexInfosOfType(parameterType).length > 0
 	) {
@@ -481,6 +480,7 @@ const create = context => {
 		const callee = unwrapTypeScriptExpression(node.callee);
 		if (
 			callee.type === 'Identifier'
+			&& !containsNode(node.callee, context, child => child.type === 'TSAsExpression' || child.type === 'TSTypeAssertion')
 			&& (
 				getPrimitiveLiteralValue(node.arguments.at(-1)) !== undefined
 				|| node.arguments.some(argument => unwrapTypeScriptExpression(argument).type === 'ObjectExpression')

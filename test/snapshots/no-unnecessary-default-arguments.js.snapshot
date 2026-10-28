@@ -1082,6 +1082,23 @@ Output:
 
 `;
 
+exports[`no-unnecessary-default-arguments > invalid(27): function run<T>(value = true) {} (run<boolean>)(true); 1`] = `
+
+  1 | function run<T>(value = true) {} (run<boolean>)(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(27): function run<T>(value = true) {} (run<boolean>)(true); 2`] = `
+
+Message:
+> 1 | function run<T>(value = true) {} (run<boolean>)(true);
+    |                                                 ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | function run<T>(value = true) {} (run<boolean>)();
+
+`;
+
 exports[`no-unnecessary-default-arguments > invalid(27): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run(true); 1`] = `
 
 Filename: test/no-unnecessary-default-arguments.input.ts
@@ -1115,6 +1132,23 @@ Message:
 
 Output:
   1 | function run(value = -2) {} run();
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(28): function run<T>(value = true) {} (run satisfies Function)(true); 1`] = `
+
+  1 | function run<T>(value = true) {} (run satisfies Function)(true);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(28): function run<T>(value = true) {} (run satisfies Function)(true); 2`] = `
+
+Message:
+> 1 | function run<T>(value = true) {} (run satisfies Function)(true);
+    |                                                           ^^^^ Omit trailing arguments that match their parameter defaults.
+
+Suggestion 1/1: Remove these arguments (requires type review).:
+  1 | function run<T>(value = true) {} (run satisfies Function)();
 
 `;
 
@@ -1495,6 +1529,25 @@ Output:
 
 `;
 
+exports[`no-unnecessary-default-arguments > invalid(36): type Options<T extends boolean> = {value?: T | boolean; dense?: boolean}; function run<T extends boolean>({value = true, dense = false}: Options<T>) {} run({value: true, dense: false}); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | type Options<T extends boolean> = {value?: T | boolean; dense?: boolean}; function run<T extends boolean>({value = true, dense = false}: Options<T>) {} run({value: true, dense: false});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(36): type Options<T extends boolean> = {value?: T | boolean; dense?: boolean}; function run<T extends boolean>({value = true, dense = false}: Options<T>) {} run({value: true, dense: false}); 2`] = `
+
+Message:
+> 1 | type Options<T extends boolean> = {value?: T | boolean; dense?: boolean}; function run<T extends boolean>({value = true, dense = false}: Options<T>) {} run({value: true, dense: false});
+    |                                                                                                                                                                           ^^^^^^^^^^^^ Property \`dense\` matches its destructuring default.
+
+Suggestion 1/1: Remove this property (requires type review).:
+  1 | type Options<T extends boolean> = {value?: T | boolean; dense?: boolean}; function run<T extends boolean>({value = true, dense = false}: Options<T>) {} run({value: true  });
+
+`;
+
 exports[`no-unnecessary-default-arguments > invalid(37): function run(first, {unit = \"px\", digits = 0} = {}, last) {} run(width, {unit: \"px\", digits: 2}, last); 1`] = `
 
   1 | function run(first, {unit = "px", digits = 0} = {}, last) {} run(width, {unit: "px", digits: 2}, last);
@@ -1509,6 +1562,25 @@ Message:
 
 Output:
   1 | function run(first, {unit = "px", digits = 0} = {}, last) {} run(width, {  digits: 2}, last);
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(37): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run({value: true, dense: false}); 1`] = `
+
+Filename: test/no-unnecessary-default-arguments.input.ts
+
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run({value: true, dense: false});
+
+`;
+
+exports[`no-unnecessary-default-arguments > invalid(37): import {run} from \"./no-unnecessary-default-arguments.callee.js\"; run({value: true, dense: false}); 2`] = `
+
+Message:
+> 1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run({value: true, dense: false});
+    |                                                                                     ^^^^^^^^^^^^ Property \`dense\` matches its destructuring default.
+
+Suggestion 1/1: Remove this property (requires type review).:
+  1 | import {run} from "./no-unnecessary-default-arguments.callee.js"; run({value: true  });
 
 `;
 
@@ -1797,20 +1869,20 @@ Suggestion 1/1: Remove these arguments (requires type review).:
 
 `;
 
-exports[`no-unnecessary-default-arguments > invalid(5): function run(value = true as boolean) {} (run as Function)(true as boolean); 1`] = `
+exports[`no-unnecessary-default-arguments > invalid(5): function run(value = true as boolean) {} run(true as boolean); 1`] = `
 
-  1 | function run(value = true as boolean) {} (run as Function)(true as boolean);
+  1 | function run(value = true as boolean) {} run(true as boolean);
 
 `;
 
-exports[`no-unnecessary-default-arguments > invalid(5): function run(value = true as boolean) {} (run as Function)(true as boolean); 2`] = `
+exports[`no-unnecessary-default-arguments > invalid(5): function run(value = true as boolean) {} run(true as boolean); 2`] = `
 
 Message:
-> 1 | function run(value = true as boolean) {} (run as Function)(true as boolean);
-    |                                                            ^^^^^^^^^^^^^^^ Omit trailing arguments that match their parameter defaults.
+> 1 | function run(value = true as boolean) {} run(true as boolean);
+    |                                              ^^^^^^^^^^^^^^^ Omit trailing arguments that match their parameter defaults.
 
 Suggestion 1/1: Remove these arguments (requires type review).:
-  1 | function run(value = true as boolean) {} (run as Function)();
+  1 | function run(value = true as boolean) {} run();
 
 `;
 
