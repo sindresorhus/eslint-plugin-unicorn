@@ -25,10 +25,10 @@ Method calls support identifiers, literals, `this`, `super`, and member chains. 
 
 ```js
 // ❌
-const foo = test ? object.store[key](a) : object.store[key](b);
+const foo = test ? object.method(a) : object.method(b);
 
 // ✅
-const foo = object.store[key](test ? a : b);
+const foo = object.method(test ? a : b);
 ```
 
 ```js
@@ -43,10 +43,10 @@ Static property swaps require [`checkComputedMemberAccess`](#checkcomputedmember
 
 ```js
 // ❌
-const value = test ? state.cache[a] : state.cache[b];
+const value = test ? cache[a] : cache[b];
 
 // ✅
-const value = state.cache[test ? a : b];
+const value = cache[test ? a : b];
 ```
 
 The rule also reports one varying object value, array element, or constructor argument:
