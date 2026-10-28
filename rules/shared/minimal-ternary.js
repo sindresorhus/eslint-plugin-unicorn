@@ -501,7 +501,7 @@ export function getMinimalExpressionText(left, right, {condition, context}) {
 	const {sourceCode} = context;
 	const getText = node => {
 		const text = getParenthesizedText(node, context);
-		return node.type === 'SequenceExpression' && !isParenthesized(node, context) ? `(${text})` : text;
+		return ['SequenceExpression', 'ConditionalExpression'].includes(node.type) && !isParenthesized(node, context) ? `(${text})` : text;
 	};
 
 	const conditionText = getConditionalExpressionChildText(condition, context);
