@@ -1,5 +1,6 @@
 import nodeTest from 'node:test';
 import vm from 'node:vm';
+import outdent from 'outdent';
 import {Linter} from 'eslint';
 import unicorn from '../index.js';
 import {getTester} from './utils/test.js';
@@ -30,6 +31,7 @@ const cases = [
 	['function foo() { if (a) { return b; } return c ? d : (e ? f : g); }', 'function foo() { return a ? b : (c ? d : (e ? f : g)); }'],
 	['if (a ? b : c) { object.x; } else { object.y; }', 'object[(a ? b : c) ? "x" : "y"];', {checkComputedMemberAccess: true}],
 	['if (a ? b : c) { first(value); } else { second(value); }', '((a ? b : c) ? first : second)(value);', {checkVaryingBase: true}],
+	['function foo() { if (swap() ? a : b) { return object[c ? d : e]; } return object[f]; }', 'function foo() { return (swap() ? a : b) ? object[c ? d : e] : object[f]; }'],
 ];
 
 for (const mode of ['always', 'only-single-line']) {
@@ -74,7 +76,6 @@ test({
 			code: 'function foo() { if (a) { return /* keep */ b; } return c ? d : e; }',
 			options: ['always', nestedOptions],
 			errors: [{messageId: 'prefer-ternary', suggestions: []}],
-			output: null,
 		},
 	],
 });
@@ -91,7 +92,22 @@ test.typescript({
 	})),
 });
 
-nodeTest('nested ternary fixes work with related rules and preserve conditional evaluation', t => {
+const multilineCases = [
+	['function foo() { if (a ?\nb : c) { return d; } return e; }', 'function foo() { return (a ?\nb : c) ? d : e; }'],
+	['function foo() { if (a) { return b; } return c ?\nd : e; }', 'function foo() { return a ? b : (c ?\nd : e); }'],
+].flatMap(([code, output]) => [
+	[code, output],
+	[code.replaceAll('\n', '\r\n'), output.replaceAll('\n', '\r\n')],
+]);
+
+test({
+	valid: multilineCases.map(([code]) => ({code, options: ['only-single-line', nestedOptions]})),
+	invalid: multilineCases.map(([code, output]) => ({
+		code, output, options: ['always', nestedOptions], errors,
+	})),
+});
+
+nodeTest('nested ternary fixes work with related rules', t => {
 	const linter = new Linter();
 	const config = {
 		plugins: {unicorn},
@@ -108,14 +124,78 @@ nodeTest('nested ternary fixes work with related rules and preserve conditional 
 		t.assert.deepStrictEqual(result.messages, []);
 		t.assert.strictEqual(linter.verifyAndFix(result.output, config).fixed, false);
 	}
+});
 
-	for (const a of [false, true]) {
-		for (const b of [false, true]) {
-			const code = `let result; if (${a} ? ${b} : true) { result = 'yes'; } else { result = 'no'; } result;`;
+nodeTest('nested ternary fixes preserve side effects and unchosen branch laziness', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn},
+		rules: {'unicorn/prefer-ternary': ['error', 'always', nestedOptions]},
+	};
+
+	for (const outerCondition of [false, true]) {
+		for (const innerCondition of [false, true]) {
+			const code = outdent`
+				const calls = [];
+				function read(name, value) {
+					calls.push(name);
+					return value;
+				}
+				let result;
+				if (read('outer', ${outerCondition}) ? read('left', ${innerCondition}) : read('right', ${innerCondition})) {
+					result = read('nested', ${outerCondition}) ? read('first', 1) : read('second', 2);
+				} else {
+					result = read('fallback', 3);
+				}
+				JSON.stringify({result, calls});
+			`;
 			const result = linter.verifyAndFix(code, config);
 			t.assert.strictEqual(result.fixed, true);
 			t.assert.deepStrictEqual(result.messages, []);
-			t.assert.strictEqual(vm.runInNewContext(result.output), vm.runInNewContext(code));
+
+			const calls = ['outer', outerCondition ? 'left' : 'right'];
+			let expectedResult = 3;
+			if (innerCondition) {
+				calls.push('nested', outerCondition ? 'first' : 'second');
+				expectedResult = outerCondition ? 1 : 2;
+			} else {
+				calls.push('fallback');
+			}
+
+			const expected = JSON.stringify({result: expectedResult, calls});
+			for (const source of [code, result.output]) {
+				t.assert.strictEqual(vm.runInNewContext(source), expected);
+			}
+		}
+	}
+});
+
+nodeTest('nested ternary conditions preserve shared receiver evaluation order', t => {
+	const code = outdent`
+		let object = {selected: 'before', fallback: 'before'};
+		function swap() {
+			object = {selected: 'after', fallback: 'fallback'};
+			return true;
+		}
+		function run(condition, keyCondition, firstKey, secondKey, fallbackKey) {
+			if (swap() ? condition : false) {
+				return object[keyCondition ? firstKey : secondKey];
+			}
+			return object[fallbackKey];
+		}
+		run(selected, true, 'selected', 'unused', 'fallback');
+	`;
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, {
+		plugins: {unicorn},
+		rules: {'unicorn/prefer-ternary': ['error', 'always', nestedOptions]},
+	});
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.deepStrictEqual(result.messages, []);
+
+	for (const selected of [false, true]) {
+		for (const source of [code, result.output]) {
+			t.assert.strictEqual(vm.runInNewContext(source, {selected}), selected ? 'after' : 'fallback');
 		}
 	}
 });

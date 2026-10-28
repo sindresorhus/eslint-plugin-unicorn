@@ -35,7 +35,7 @@ const getResults = code => {
 	return results;
 };
 
-test('`getConditionalExpressionChildText` adds parentheses for lower precedence children', t => {
+test('`getConditionalExpressionChildText` adds parentheses where needed', t => {
 	for (const [code, expected] of [
 		['inspect(foo);', 'foo'],
 		['inspect(a || b);', 'a || b'],
