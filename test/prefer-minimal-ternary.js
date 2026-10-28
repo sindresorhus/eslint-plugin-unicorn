@@ -144,6 +144,7 @@ test({
 			['test ? object[key][method](a) : object[key][method](b);', 'object[key][method](test ? a : b);'],
 			['test ? object[`store`][key](a) : object[`store`][key](b);', 'object[`store`][key](test ? a : b);'],
 			['test ? (object.nested)[key]((a)) : (object.nested)[key](b);', '(object.nested)[key]((test ? (a) : b));'],
+			['previous()\ntest ? (object.store)[key](a) : (object.store)[key](b);', 'previous()\n;(object.store)[key](test ? a : b);'],
 			['test ? (object).method((a)) : (object) . method(b);', '(object).method((test ? (a) : b));'],
 			['test ? this.method(a) : this.method(b);', 'this.method(test ? a : b);'],
 			['test ? 16 .toString(a) : 16 .toString(b);', '16 .toString(test ? a : b);'],
@@ -311,6 +312,7 @@ test.vue({
 		},
 		...[
 			['<template>{{ test ? object.method(a) : object.method(b) }}</template>', '<template>{{ object.method(test ? a : b) }}</template>'],
+			['<template>{{ test ? object.store[key](a) : object.store[key](b) }}</template>', '<template>{{ object.store[key](test ? a : b) }}</template>'],
 			['<template>{{ test ? call(a, first+second) : call(b, first + second) }}</template>', '<template>{{ call(test ? a : b, first+second) }}</template>'],
 			['<template>{{ test ? call(a, {value: 1,}) : call(b, {value: 1}) }}</template>', '<template>{{ call(test ? a : b, {value: 1,}) }}</template>'],
 			['<template>{{ test ? [((a))] : [(b)] }}</template>', '<template>{{ [((test ? ((a)) : (b)))] }}</template>'],
@@ -338,6 +340,11 @@ test.vue({
 test.svelte({
 	valid: [],
 	invalid: [
+		{
+			code: '{test ? object.store[key](a) : object.store[key](b)}',
+			output: '{object.store[key](test ? a : b)}',
+			errors: 1,
+		},
 		{
 			code: '<script>test ? call(a) : call(b);</script>{test ? call(c, first+second) : call(d, first + second)}',
 			output: '<script>call(test ? a : b);</script>{call(test ? c : d, first+second)}',
@@ -461,6 +468,7 @@ test({
 			'object.ready',
 			'object?.ready',
 			'object["ready"]',
+			'object[key]',
 			'(ready ? enabled : fallback)',
 		].map(condition => ({
 			code: `${condition} ? call(a) : call(b);`,

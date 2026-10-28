@@ -92,6 +92,8 @@ test({
 			['if (test) { object.store[key](a); } else { object.store[key](b); }', 'object.store[key](test ? a : b);'],
 			['if (test) { object[key].nested.method(a); } else { object[key].nested.method(b); }', 'object[key].nested.method(test ? a : b);'],
 			['if (test) { (object.nested)[key]((a)); } else { (object.nested)[key](b); }', '(object.nested)[key]((test ? (a) : b));'],
+			['previous()\nif (test) { (object.store)[key](a); } else { (object.store)[key](b); }', 'previous()\n;(object.store)[key](test ? a : b);'],
+			['if (object[key]) { call(a); } else { call(b); }', 'call(object[key] ? a : b);'],
 			['if (test) { new Date(a); } else { new Date(b); }', 'new Date(test ? a : b);'],
 			['if (test) { a + 1; } else { b + 1; }', '(test ? a : b) + 1;'],
 			['if (test) { 1 + a; } else { 1 + b; }', '1 + (test ? a : b);'],
