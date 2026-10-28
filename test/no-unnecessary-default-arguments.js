@@ -409,6 +409,49 @@ test('typed autofixes preserve strict type checking', t => {
 	}
 });
 
+test('typed autofixes preserve suggestions across multiple calls', t => {
+	const declaration = 'function run({one = true, two = false}: {one?: boolean; two: boolean}, last = true) {}';
+	const code = `${declaration} run({one: true, two: false}, true); run({one: true, two: false}, true);`;
+	const output = `${declaration} run({  two: false}); run({  two: false});`;
+	const fixture = typeAware(code);
+	const typedConfig = {
+		...config,
+		files: ['**'],
+		languageOptions: {
+			parser: {
+				...parsers.typescript.implementation,
+				parseForESLint(source, parserOptions) {
+					const {languageOptions} = typeAware(source);
+					const [program] = languageOptions.parserOptions.programs;
+					t.assert.deepStrictEqual(program.getSemanticDiagnostics(), [], source);
+					return parsers.typescript.implementation.parseForESLint(source, {...parserOptions, ...languageOptions.parserOptions});
+				},
+			},
+		},
+	};
+	const result = linter.verifyAndFix(code, typedConfig, {filename: fixture.filename});
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, output);
+	t.assert.strictEqual(result.messages.length, 2);
+	const suggestedOutputs = [
+		`${declaration} run({   }); run({  two: false});`,
+		`${declaration} run({  two: false}); run({   });`,
+	];
+	for (const [index, message] of result.messages.entries()) {
+		t.assert.strictEqual(message.messageId, 'property');
+		t.assert.strictEqual(message.fix, undefined);
+		t.assert.strictEqual(message.suggestions.length, 1);
+		t.assert.strictEqual(message.suggestions[0].messageId, 'remove-property');
+		const {range, text} = message.suggestions[0].fix;
+		t.assert.strictEqual(output.slice(0, range[0]) + text + output.slice(range[1]), suggestedOutputs[index]);
+	}
+
+	const secondResult = linter.verifyAndFix(output, typedConfig, {filename: fixture.filename});
+	t.assert.strictEqual(secondResult.fixed, false);
+	t.assert.strictEqual(secondResult.output, output);
+	t.assert.deepStrictEqual(secondResult.messages, result.messages);
+});
+
 test('uncertain typed removals retain suggestions', t => {
 	const cases = [
 		'const run: (value: boolean) => void = (value = true) => {}; run(true);',
