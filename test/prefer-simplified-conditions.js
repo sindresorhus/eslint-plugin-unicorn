@@ -10,6 +10,202 @@ const {ruleId, rule, test: ruleTester} = getTester(import.meta);
 
 ruleTester({
 	valid: [
+		'const value = (a && x > 1) || (a && b);',
+		'const value = (x > 1 && a) || (x > 1 && b);',
+		'const value = (x > 1 || a) && (x > 1 || b);',
+		'if ((a + b && c) || (a + b && d)) {}',
+		'if ((a && b * c) || (a && d)) {}',
+		'if ((a && x?.value > 1) || (a && b)) {}',
+		'if ((x++ > 1 && a) || (x++ > 1 && b)) {}',
+		'const value = (+x && a === true) || (+x && b === true);',
+		'if ((delete object.key && a) || (delete object.key && b)) {}',
+		'if ((void delete object.key && a) || (void delete object.key && b)) {}',
+		'if ((typeof object?.value === "string" && a) || (typeof object?.value === "string" && b)) {}',
+	],
+	invalid: [
+		['for (!(key in object !== true && other !== true);;) {break;}', 'for ((key in object === true || other === true);;) {break;}'],
+		['for (!(key in object !== true || other !== true);;) {break;}', 'for ((key in object === true && other === true);;) {break;}'],
+		['if ((a && x > 1) || (a && b)) {}', 'if (a && (x > 1 || b)) {}'],
+		['if ((a == null && b) || (a == null && c)) {}', 'if (a == null && (b || c)) {}'],
+		['const value = (x > 1 && y < 2) || (x > 1 && y > 5);', 'const value = x > 1 && (y < 2 || y > 5);'],
+		['for ((a in b && false) || (a in b && true);;) {break;}', 'for ((a in b && (false || true));;) {break;}'],
+		['for (((a in b) && false) || ((a in b) && true);;) {break;}', 'for (((a in b) && (false || true));;) {break;}'],
+		['for (value = (a in b === true || false) && (a in b === true || true);;) {break;}', 'for (value = (a in b === true || (false && true));;) {break;}'],
+		[
+			'for (other || ((a in b || blah) || (x > 1 && y === true)) || (x > 1 && z === true);;) {break;}',
+			'for ((other || a in b || blah || (x > 1 && (y === true || z === true)));;) {break;}',
+		],
+		[
+			'for ((x > 1 && y === true) || ((x > 1 && z === true) || (a in b || blah));;) {break;}',
+			'for (((x > 1 && (y === true || z === true)) || a in b || blah);;) {break;}',
+		],
+		['foo()\na in b && false || a in b && true', 'foo()\n;(a in b && (false || true))'],
+		['if ((a in b && c) || (a in b && d)) {}', 'if ((a in b && (c || d))) {}'],
+		['if ((a in b || c) && (a in b || d)) {}', 'if ((a in b || (c && d))) {}'],
+		['if ((a && b in c) || (a && d)) {}', 'if ((a && (b in c || d))) {}'],
+		['if ((a || b) && (a || c in d)) {}', 'if ((a || (b && c in d))) {}'],
+		['const value = (a in b && c === true) || (a in b && d === true);', 'const value = (a in b && (c === true || d === true));'],
+		['const value = (a in b || c === true) && (a in b || d === true);', 'const value = (a in b || (c === true && d === true));'],
+		['if ((index > -1 && a) || (index > -1 && b)) {}', 'if (index > -1 && (a || b)) {}'],
+		['if ((a && x <= -1) || (a && b)) {}', 'if (a && (x <= -1 || b)) {}'],
+		['if ((x >= +1 || a) && (x >= +1 || b)) {}', 'if (x >= +1 || (a && b)) {}'],
+		['const value = (x === -0 && y < -1) || (x === -0 && y > +1);', 'const value = x === -0 && (y < -1 || y > +1);'],
+		['if ((object[-1] && a) || (object[-1] && b)) {}', 'if (object[-1] && (a || b)) {}'],
+		['if ((typeof value === "string" && a) || (typeof value === "string" && b)) {}', 'if (typeof value === "string" && (a || b)) {}'],
+		['if ((a && typeof value === "string") || (a && b)) {}', 'if (a && (typeof value === "string" || b)) {}'],
+		['const value = (typeof input === "string" && a === true) || (typeof input === "string" && b === true);', 'const value = typeof input === "string" && (a === true || b === true);'],
+		['if ((x === -limit && a) || (x === -limit && b)) {}', 'if (x === -limit && (a || b)) {}'],
+		['if ((x === +limit && a) || (x === +limit && b)) {}', 'if (x === +limit && (a || b)) {}'],
+		['if ((~flags || a) && (~flags || b)) {}', 'if (~flags || (a && b)) {}'],
+		['if ((~~index && a) || (~~index && b)) {}', 'if (~~index && (a || b)) {}'],
+		['if ((x !== void 0 && a) || (x !== void 0 && b)) {}', 'if (x !== void 0 && (a || b)) {}'],
+		['if ((x > -1n && a) || (x > -1n && b)) {}', 'if (x > -1n && (a || b)) {}'],
+	].map(([code, output]) => ({code, output, errors: 1})),
+});
+
+for (const operator of ['==', '!=', '<', '<=', '>', '>=', 'instanceof']) {
+	const commonText = `a ${operator} b`;
+
+	ruleTester({
+		valid: [],
+		invalid: [
+			[`if ((a ${operator} b && c) || (a ${operator} b && d)) {}`, `if (${commonText} && (c || d)) {}`],
+			[`if ((a ${operator} b || c) && (a ${operator} b || d)) {}`, `if (${commonText} || (c && d)) {}`],
+			[`if ((a && b ${operator} c) || (a && d)) {}`, `if (a && (b ${operator} c || d)) {}`],
+			[`if ((a || b) && (a || c ${operator} d)) {}`, `if (a || (b && c ${operator} d)) {}`],
+			[`const value = (a ${operator} b && c === true) || (a ${operator} b && d === true);`, `const value = ${commonText} && (c === true || d === true);`],
+			[`const value = (a ${operator} b || c === true) && (a ${operator} b || d === true);`, `const value = ${commonText} || (c === true && d === true);`],
+		].map(([code, output]) => ({code, output, errors: 1})),
+	});
+}
+
+test('comparison factoring preserves exact values', t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {[ruleId]: rule}}},
+		rules: {[`unicorn/${ruleId}`]: 'error'},
+	};
+	const comparisonPairs = [
+		[undefined, null],
+		[null, undefined],
+		[NaN, 1],
+		[1, NaN],
+		[1, 2],
+		[2, 1],
+		[2, 2],
+		['2', 2],
+		['1', '2'],
+	];
+
+	for (const [comparison, pairs] of [
+		...['==', '!=', '<', '<=', '>', '>='].map(operator => [`a ${operator} b`, comparisonPairs]),
+		['a in b', [['present', {present: false}], ['missing', {}]]],
+		['a instanceof b', [[[], Array], [{}, Array], [undefined, Object]]],
+		['typeof a === b', [[1, 'number'], [undefined, 'string'], ['', 'string']]],
+		['+a === b', [['2', 2], [-0, 0], ['text', NaN]]],
+		['-a === b', [[1, -1], ['2', -2], [NaN, 0]]],
+		['~a === b', [[0, -1], [1n, -2n], [-1, 1]]],
+		['void a === b', [[1, undefined], [undefined, 0], ['text', undefined]]],
+	]) {
+		for (const [innerOperator, outerOperator] of [['&&', '||'], ['||', '&&']]) {
+			const code = `(${comparison} ${innerOperator} left === true) ${outerOperator} (${comparison} ${innerOperator} right === true)`;
+			const {output, fixed, messages} = linter.verifyAndFix(code, config);
+			t.assert.strictEqual(fixed, true);
+			t.assert.deepStrictEqual(messages, []);
+
+			for (const [a, b] of pairs) {
+				for (const [left, right] of [[false, false], [false, true], [true, false], [true, true]]) {
+					const context = {
+						a, b, left, right,
+					};
+					t.assert.strictEqual(runInNewContext(output, context), runInNewContext(code, context));
+				}
+			}
+		}
+	}
+});
+
+ruleTester({
+	valid: [
+		{
+			code: 'const value = ((a > b) as number && true) || ((a > b) as number && false);',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
+	invalid: [
+		{
+			code: 'if (((x as number) > 1 && a) || ((x as number) > 1 && b)) {}',
+			output: 'if ((x as number) > 1 && (a || b)) {}',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'if ((x > (-1 as number) && a) || (x > (-1 as number) && b)) {}',
+			output: 'if (x > (-1 as number) && (a || b)) {}',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'const value = ((x > 1) satisfies boolean && a === true) || ((x > 1) satisfies boolean && b === true);',
+			output: 'const value = (x > 1) satisfies boolean && (a === true || b === true);',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
+			code: 'if ((a == null /* keep */ && b) || (a == null && c)) {}',
+			errors: [{messageId: 'prefer-simplified-conditions', suggestions: []}],
+		},
+		{
+			code: 'if ((getValue() > 1 /* keep */ && a) || (getValue() > 1 && b)) {}',
+			errors: [{messageId: 'prefer-simplified-conditions', suggestions: []}],
+		},
+		{
+			code: 'for ((key in getObject() && false) || (key in getObject() && true);;) {break;}',
+			errors: [{
+				messageId: 'prefer-simplified-conditions',
+				suggestions: [{messageId: 'suggestion', output: 'for ((key in getObject() && (false || true));;) {break;}'}],
+			}],
+		},
+		{
+			code: 'if ((getValue() > 1 && a) || (getValue() > 1 && b)) {}',
+			errors: [{
+				messageId: 'prefer-simplified-conditions',
+				suggestions: [{messageId: 'suggestion', output: 'if (getValue() > 1 && (a || b)) {}'}],
+			}],
+		},
+		{
+			code: 'if ((x > -getLimit() && a) || (x > -getLimit() && b)) {}',
+			errors: [{
+				messageId: 'prefer-simplified-conditions',
+				suggestions: [{messageId: 'suggestion', output: 'if (x > -getLimit() && (a || b)) {}'}],
+			}],
+		},
+		{
+			code: 'if ((typeof getValue() === "string" && a) || (typeof getValue() === "string" && b)) {}',
+			errors: [{
+				messageId: 'prefer-simplified-conditions',
+				suggestions: [{messageId: 'suggestion', output: 'if (typeof getValue() === "string" && (a || b)) {}'}],
+			}],
+		},
+		{
+			code: 'if ((void sideEffect() && a) || (void sideEffect() && b)) {}',
+			errors: [{
+				messageId: 'prefer-simplified-conditions',
+				suggestions: [{messageId: 'suggestion', output: 'if (void sideEffect() && (a || b)) {}'}],
+			}],
+		},
+		{
+			code: 'if ((a && getValue() < 1) || (a && b)) {}',
+			errors: [{
+				messageId: 'prefer-simplified-conditions',
+				suggestions: [{messageId: 'suggestion', output: 'if (a && (getValue() < 1 || b)) {}'}],
+			}],
+		},
+	],
+});
+
+ruleTester({
+	valid: [
 		'if ((object.property && a) || (object[tag`property`] && b)) {}',
 		'if ((object.property && a) || (object[`prop${name}`] && b)) {}', // eslint-disable-line no-template-curly-in-string
 	],
@@ -1084,6 +1280,7 @@ ruleTester.vue({
 	],
 	invalid: [
 		['<template><div v-if="x || (a && b) || (a && c && d)" /></template>', '<template><div v-if="x || (a && (b || (c && d)))" /></template>'],
+		['<template><div v-if="(key in object && a) || (key in object && b)" /></template>', '<template><div v-if="(key in object && (a || b))" /></template>'],
 		['<template><div v-if="visible" /><div v-else-if="(a && b) || (a && c)" /></template>', '<template><div v-if="visible" /><div v-else-if="a && (b || c)" /></template>'],
 		['<template><div v-show="x && (a || b) && (a || c || d)" /></template>', '<template><div v-show="x && (a || (b && (c || d)))" /></template>'],
 		['<template><div v-if="x || ((a && b) || (a && c))" /></template>', '<template><div v-if="x || (a && (b || c))" /></template>'],
