@@ -3,6 +3,7 @@ import {findVariable, getPropertyName, isCommaToken} from '@eslint-community/esl
 import {isDirectEvalCall} from './ast/index.js';
 import {getArgumentRemovalRange, removeObjectProperty} from './fix/index.js';
 import {
+	containsNode,
 	getCommentSafeProblem,
 	getFunctionFromIdentifier,
 	getParenthesizedRange,
@@ -62,30 +63,99 @@ function getProperties(node) {
 	return properties;
 }
 
+/**
+Check syntax for references to the function's type parameters.
+*/
+function referencesTypeParameter(node, typeParameters, context) {
+	return Boolean(node) && typeParameters.size > 0 && containsNode(node, context, child => child.type === 'Identifier' && typeParameters.has(child.name));
+}
+
+/**
+Check a property's uninstantiated type, including aliases and interfaces.
+*/
+function isResolvedPropertyTypeIndependent(node, name, typeParameters, {checker, typescript}) {
+	const parameterType = checker.getTypeAtLocation(node);
+	const mappedTypeFlag = typescript.ObjectFlags.Mapped;
+	// These shapes can infer from the whole object even when this property's type is independent.
+	if (
+		parameterType.isTypeParameter()
+		|| parameterType.isUnionOrIntersection()
+		|| (parameterType.objectFlags % (mappedTypeFlag * 2)) >= mappedTypeFlag
+		|| checker.getIndexInfosOfType(parameterType).length > 0
+	) {
+		return false;
+	}
+
+	const property = checker.getPropertyOfType(parameterType, name);
+	if (!property) {
+		return false;
+	}
+
+	const type = checker.getTypeOfSymbolAtLocation(property, node);
+	const annotation = checker.typeToTypeNode(type, node, typescript.NodeBuilderFlags.NoTruncation);
+	return Boolean(annotation) && !referencesTypeScriptTypeParameter(annotation, typeParameters, typescript);
+}
+
+/**
+Check an inline property type, falling back to the checker for generic aliases.
+*/
+function isLocalPropertyTypeIndependent(pattern, name, typeParameters, context) {
+	const annotation = pattern.typeAnnotation?.typeAnnotation;
+	if (!annotation || typeParameters.size === 0) {
+		return true;
+	}
+
+	if (annotation.type === 'TSTypeLiteral') {
+		if (annotation.members.some(member => member.type === 'TSIndexSignature')) {
+			return false;
+		}
+
+		const property = annotation.members.find(member => member.type === 'TSPropertySignature' && !member.computed && String(member.key.name ?? member.key.value) === name);
+		return Boolean(property) && !referencesTypeParameter(property.typeAnnotation, typeParameters, context);
+	}
+
+	if (!referencesTypeParameter(annotation, typeParameters, context)) {
+		return true;
+	}
+
+	const typescript = getTypeScript(context);
+	return Boolean(typescript) && withTypeInformation(pattern, context, ({checker}) =>
+		isResolvedPropertyTypeIndependent(context.sourceCode.parserServices.esTreeNodeToTSNodeMap.get(pattern), name, typeParameters, {checker, typescript})) === true;
+}
+
 function getLocalParameters(functionNode, context) {
 	const scope = context.sourceCode.scopeManager.acquire(functionNode, true);
 	if (
-		functionNode.typeParameters?.params.length > 0
-		|| scope?.set.get('arguments')?.references.length > 0
+		scope?.set.get('arguments')?.references.length > 0
 		// ESLint can leave `arguments` references in parameter initializers unresolved.
 		|| scope?.through.some(reference => reference.identifier.name === 'arguments')
 	) {
 		return;
 	}
 
+	const typeParameters = new Set(functionNode.typeParameters?.params.map(parameter => parameter.name.name));
 	return functionNode.params
 		.filter(parameter => parameter.type !== 'Identifier' || parameter.name !== 'this')
 		.map(parameter => {
 			const pattern = parameter.type === 'AssignmentPattern' ? parameter.left : parameter;
 			if (pattern.type === 'Identifier') {
-				return {value: getPrimitiveLiteralValue(parameter.type === 'AssignmentPattern' ? parameter.right : undefined)};
+				const initializer = parameter.type === 'AssignmentPattern' ? parameter.right : undefined;
+				const dependsOnTypeParameter = referencesTypeParameter(pattern.typeAnnotation, typeParameters, context)
+					|| referencesTypeParameter(initializer, typeParameters, context);
+				return {value: dependsOnTypeParameter ? undefined : getPrimitiveLiteralValue(initializer)};
 			}
 
-			const properties = pattern.type === 'ObjectPattern' ? getProperties(pattern) : undefined;
+			const properties = pattern.type === 'ObjectPattern' && !referencesTypeParameter(parameter.right, typeParameters, context) ? getProperties(pattern) : undefined;
 			const defaults = new Map();
 			for (const [name, property] of properties ?? []) {
 				const {value} = property;
-				if (value.type === 'AssignmentPattern' && value.left.type === 'Identifier' && !Object.hasOwn(Object.prototype, name)) {
+				if (
+					value.type === 'AssignmentPattern'
+					&& value.left.type === 'Identifier'
+					&& !Object.hasOwn(Object.prototype, name)
+					&& !referencesTypeParameter(value.right, typeParameters, context)
+					&& isLocalPropertyTypeIndependent(pattern, name, typeParameters, context)
+				) {
 					defaults.set(name, getPrimitiveLiteralValue(value.right));
 				}
 			}
@@ -173,8 +243,24 @@ function hasArgumentsOrEval(node, typescript) {
 	return typescript.forEachChild(node, child => hasArgumentsOrEval(child, typescript) ? true : undefined) === true;
 }
 
-function getTypeScriptPropertyDefaults(pattern, typescript) {
-	if (!typescript.isObjectBindingPattern(pattern)) {
+/**
+Check TypeScript syntax for references to the function's type parameters.
+*/
+function referencesTypeScriptTypeParameter(node, typeParameters, typescript) {
+	if (!node || typeParameters.size === 0) {
+		return false;
+	}
+
+	if (typescript.isIdentifier(node) && typeParameters.has(node.text)) {
+		return true;
+	}
+
+	return typescript.forEachChild(node, child => referencesTypeScriptTypeParameter(child, typeParameters, typescript) ? true : undefined) === true;
+}
+
+function getTypeScriptPropertyDefaults(parameter, typeParameters, checker, typescript) {
+	const pattern = parameter.name;
+	if (!typescript.isObjectBindingPattern(pattern) || referencesTypeScriptTypeParameter(parameter.initializer, typeParameters, typescript)) {
 		return;
 	}
 
@@ -194,7 +280,13 @@ function getTypeScriptPropertyDefaults(pattern, typescript) {
 			return;
 		}
 
-		const value = typescript.isIdentifier(element.name) && !Object.hasOwn(Object.prototype, name)
+		const value = typescript.isIdentifier(element.name)
+			&& !Object.hasOwn(Object.prototype, name)
+			&& !referencesTypeScriptTypeParameter(element.initializer, typeParameters, typescript)
+			&& (
+				!referencesTypeScriptTypeParameter(parameter.type, typeParameters, typescript)
+				|| isResolvedPropertyTypeIndependent(parameter, name, typeParameters, {checker, typescript})
+			)
 			? getTypeScriptPrimitiveValue(element.initializer, typescript)
 			: undefined;
 		defaults.set(name, value);
@@ -236,15 +328,20 @@ function getImportedParameters(callee, context, typescript, cache) {
 			functionNode = initializer;
 		}
 
-		if (!functionNode?.body || functionNode.typeParameters?.length > 0 || hasArgumentsOrEval(functionNode, typescript)) {
+		if (!functionNode?.body || hasArgumentsOrEval(functionNode, typescript)) {
 			return;
 		}
 
+		const typeParameters = new Set(functionNode.typeParameters?.map(parameter => parameter.name.text));
 		const parameters = functionNode.parameters
 			.filter(parameter => !typescript.isIdentifier(parameter.name) || parameter.name.text !== 'this')
 			.map(parameter => ({
-				value: typescript.isIdentifier(parameter.name) ? getTypeScriptPrimitiveValue(parameter.initializer, typescript) : undefined,
-				properties: getTypeScriptPropertyDefaults(parameter.name, typescript),
+				value: typescript.isIdentifier(parameter.name)
+					&& !referencesTypeScriptTypeParameter(parameter.type, typeParameters, typescript)
+					&& !referencesTypeScriptTypeParameter(parameter.initializer, typeParameters, typescript)
+					? getTypeScriptPrimitiveValue(parameter.initializer, typescript)
+					: undefined,
+				properties: getTypeScriptPropertyDefaults(parameter, typeParameters, checker, typescript),
 			}));
 		cache.set(declaration, parameters);
 		return parameters;

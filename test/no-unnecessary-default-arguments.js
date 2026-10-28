@@ -167,7 +167,18 @@ testRule.snapshot({
 testRule.snapshot({
 	testerOptions: {languageOptions: {parser: parsers.typescript}},
 	valid: [
-		'function run<T>(value = true) {} run(true);',
+		'function run<T>(value: T = true as T) {} run(true);',
+		'function run<T>(value: T | boolean = true) {} run(true);',
+		'function run<T>(value = true as T) {} run(true);',
+		'function run<T>(value: T = true as T) {} run<boolean>(true);',
+		'function make<T>(value: T = 0 as T): T { return value; } make(0).toFixed();',
+		'function run<T, U>(value: U = true as U) {} run(true);',
+		'function run<T>({value = true}: {value?: T | boolean}) {} run({value: true});',
+		'function run<T>({value = true as T}) {} run({value: true});',
+		'type Options<T> = {value?: boolean}; function run<T>({value = true}: Options<T>) {} run({value: true});',
+		'interface Options<T> {value?: boolean} function run<T>({value = true}: Options<T>) {} run({value: true});',
+		'function run<T>({value = true}: {[key: string]: T | boolean | undefined; value?: boolean}) {} run({value: true});',
+		'function run<T>({value = true} = {} as {value?: T | boolean}) {} run({value: true});',
 		'declare function run(value?: boolean): void; run(true);',
 		'function run(value: boolean): void; function run(value = true) {} run(true);',
 		'function run(value = true) {} const value = false as true; run(value);',
@@ -184,6 +195,16 @@ testRule.snapshot({
 		'function run({value = true}: {value?: boolean}) {} run(({value: true}) as {value: boolean});',
 		'function run({value = true}: {value: boolean}) {} run({value: /* keep */ true});',
 		'function run({value = true}: {value: boolean}, ...rest: unknown[]) {} run({value: true}, ...other);',
+		'function run<T>(value = true) {} run(true);',
+		'function run<T>(T = true) {} run(true);',
+		'const run = <T>(value = true) => {}; run(true);',
+		'const run = function <T>(value = true) {}; run(true);',
+		'function run<T>(value: T = true as T, count = 1) {} run(true, 1);',
+		'function run<T>(first = true, value: T = true as T, count = 1) {} run(true, true, 1);',
+		'function run<T>({value = true as T, dense = false}: {value?: T; dense?: boolean}) {} run({value: true, dense: false});',
+		'function run<T>({value: renamed = true}: {value?: boolean; other?: T}) {} run({value: true});',
+		'function run<T>({value = true}) {} run({value: true});',
+		'function run<T>({value = true, dense = false}: {value?: T | boolean; dense?: boolean}) {} run({value: true, dense: false});',
 	],
 });
 
@@ -219,13 +240,59 @@ const importedCall = 'import {run} from "./no-unnecessary-default-arguments.call
 const defaultImportedCall = 'import run from "./no-unnecessary-default-arguments.callee.js"; run(true);';
 const contextualImplementation = 'function target(value = true) {} export const run: typeof target = (value = false) => {};';
 
+testRule({
+	valid: [],
+	invalid: [
+		{
+			code: 'function pick<T>(items: T[], count = 1): T[] { return items; } pick([1], 1);',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'arguments', suggestions: [{messageId: 'remove-arguments', output: 'function pick<T>(items: T[], count = 1): T[] { return items; } pick([1]);'}]}],
+		},
+		{
+			code: 'function list<T>({items, dense = false}: {items: T[]; dense?: boolean}) {} list({items: [1], dense: false});',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'property',
+				data: {name: 'dense'},
+				suggestions: [{
+					messageId: 'remove-property',
+					output: 'function list<T>({items, dense = false}: {items: T[]; dense?: boolean}) {} list({items: [1]  });',
+				}],
+			}],
+		},
+	],
+});
+
 testRule.snapshot({
 	valid: [
 		'import {run} from "./missing.js"; run(true);',
 		typeAware(importedCall, 'export const run = other;'),
 		typeAware(importedCall, 'export let run = (value = true) => {};'),
 		typeAware(importedCall, 'export const run = wrap((value = true) => {});'),
-		typeAware(importedCall, 'export function run<T>(value = true) {}'),
+		typeAware(importedCall, 'export function run<T>(value: T = true as T) {}'),
+		typeAware(importedCall, 'export function run<T>(value: T | boolean = true) {}'),
+		typeAware(importedCall, 'export function run<T>(value = true as T) {}'),
+		typeAware('import {run} from "./no-unnecessary-default-arguments.callee.js"; run<boolean>(true);', 'export function run<T>(value: T = true as T) {}'),
+		typeAware(
+			'import {run} from "./no-unnecessary-default-arguments.callee.js"; run({value: true});',
+			'type Options<T> = {value?: T | boolean}; export function run<T>({value = true}: Options<T>) {}',
+		),
+		typeAware(
+			'import {run} from "./no-unnecessary-default-arguments.callee.js"; run({value: true});',
+			'interface Options<T> {value?: T | boolean} export function run<T>({value = true}: Options<T>) {}',
+		),
+		...[
+			'function run<T extends {value?: boolean}>({value = true}: T) {}',
+			'function run<T>({value = true}: T & {value?: boolean}) {}',
+			'type Options<T> = T & {value?: boolean}; function run<T>({value = true}: Options<T>) {}',
+			'type Options<T> = {[key: string]: T} & {value?: boolean}; function run<T>({value = true}: Options<T>) {}',
+			'interface Options<T> {[key: string]: T | boolean | undefined; value?: boolean} function run<T>({value = true}: Options<T>) {}',
+			'type Options<T> = {[Key in keyof T]?: boolean}; function run<T extends {value?: unknown}>({value = true}: Options<T>) {}',
+			'function run<T>({value = true} = {} as {value?: T | boolean}) {}',
+		].flatMap(declaration => [
+			typeAware(`${declaration} run({value: true});`),
+			typeAware('import {run} from "./no-unnecessary-default-arguments.callee.js"; run({value: true});', `${declaration} export {run};`),
+		]),
 		typeAware(importedCall, 'export function run(value: boolean): void; export function run(value = true) {}'),
 		typeAware(importedCall, 'export function run(value = true) { return arguments.length; }'),
 		typeAware(importedCall, 'export function run(value = true, next = arguments[0]) {}'),
@@ -274,6 +341,25 @@ testRule.snapshot({
 		typeAware('import {run} from "./no-unnecessary-default-arguments.callee.js"; run({value: true});', '/** @param {{value: boolean}} options */ export function run({value = true}) {}', 'js'),
 		typeAware('import {run} from "./no-unnecessary-default-arguments.star.js"; run(false); run(true); run(false);'),
 		typeAware('import {run} from "./no-unnecessary-default-arguments.callee.js"; run({value: true}, ...other);', 'export function run({value = true}: {value: boolean}, ...rest: unknown[]) {}'),
+		typeAware(importedCall, 'export function run<T>(value = true) {}'),
+		typeAware(importedCall, 'export const run = <T>(value = true) => {};'),
+		typeAware(importedCall, 'export const run = function <T>(value = true) {};'),
+		typeAware(defaultImportedCall, 'export default <T>(value = true) => {};'),
+		typeAware('import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true, 1);', 'export function run<T>(value: T = true as T, count = 1) {}'),
+		typeAware(
+			'import {run} from "./no-unnecessary-default-arguments.callee.js"; run({value: true, dense: false});',
+			'export function run<T>({value = true as T, dense = false}: {value?: T; dense?: boolean}) {}',
+		),
+		...[
+			'type Options<T> = {value?: T | boolean; dense?: boolean};',
+			'interface Options<T> {value?: T | boolean; dense?: boolean}',
+		].flatMap(declaration => [
+			typeAware(`${declaration} function run<T>({value = true, dense = false}: Options<T>) {} run({value: true, dense: false});`),
+			typeAware(
+				'import {run} from "./no-unnecessary-default-arguments.callee.js"; run({value: true, dense: false});',
+				`${declaration} export function run<T>({value = true, dense = false}: Options<T>) {}`,
+			),
+		]),
 	],
 });
 
