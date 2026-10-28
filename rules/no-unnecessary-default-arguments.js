@@ -146,7 +146,7 @@ function getLocalParameters(functionNode, context) {
 				return {value: dependsOnTypeParameter ? undefined : getPrimitiveLiteralValue(initializer)};
 			}
 
-			const properties = pattern.type === 'ObjectPattern' && !isTypeDependent(parameter.right, typeParameters, context) ? getProperties(pattern) : undefined;
+			const properties = pattern.type === 'ObjectPattern' && (typeParameters.size === 0 || parameter.type !== 'AssignmentPattern') ? getProperties(pattern) : undefined;
 			const defaults = new Map();
 			for (const [name, property] of properties ?? []) {
 				const {value} = property;
@@ -261,7 +261,7 @@ function isTypeScriptTypeDependent(node, typeParameters, typescript) {
 
 function getTypeScriptPropertyDefaults(parameter, typeParameters, checker, typescript) {
 	const pattern = parameter.name;
-	if (!typescript.isObjectBindingPattern(pattern) || isTypeScriptTypeDependent(parameter.initializer, typeParameters, typescript)) {
+	if (!typescript.isObjectBindingPattern(pattern) || (typeParameters.size > 0 && parameter.initializer)) {
 		return;
 	}
 

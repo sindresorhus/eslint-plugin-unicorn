@@ -50,7 +50,7 @@ Local functions need no type information. Imported functions require TypeScript,
 
 TypeScript, files using the TypeScript parser, and JavaScript with JSDoc types or `@ts-check` receive suggestions instead of autofixes. Review types before applying: defaults do not make explicitly typed properties optional, and removing arguments can affect inference.
 
-Generic defaults must have types and initializers independent of the function's type parameters. Inline object types work without type information; generic aliases and interfaces require typed linting and concrete object types with explicit properties. Mapped types, index signatures, and generic outer defaults are skipped, and type queries are treated conservatively. Generic function expressions with annotated bindings or TypeScript expression wrappers are also skipped.
+Generic defaults must have types and initializers independent of the function's type parameters. Inline object types work without type information; generic aliases and interfaces require typed linting and concrete object types with explicit properties. Mapped types and index signatures are skipped, and type queries are treated conservatively. For generic functions, object parameters with outer defaults are skipped. Generic function expressions with annotated bindings or TypeScript expression wrappers are also skipped.
 
 ## Supported patterns and limitations
 
