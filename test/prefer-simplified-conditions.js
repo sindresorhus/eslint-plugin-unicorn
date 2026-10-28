@@ -19,6 +19,7 @@ ruleTester({
 		'if ((x++ > 1 && a) || (x++ > 1 && b)) {}',
 		'const value = (+x && a === true) || (+x && b === true);',
 		'if ((delete object.key && a) || (delete object.key && b)) {}',
+		'if ((void delete object.key && a) || (void delete object.key && b)) {}',
 		'if ((typeof object?.value === "string" && a) || (typeof object?.value === "string" && b)) {}',
 	],
 	invalid: [
@@ -40,6 +41,7 @@ ruleTester({
 		['if ((x === -limit && a) || (x === -limit && b)) {}', 'if (x === -limit && (a || b)) {}'],
 		['if ((x === +limit && a) || (x === +limit && b)) {}', 'if (x === +limit && (a || b)) {}'],
 		['if ((~flags || a) && (~flags || b)) {}', 'if (~flags || (a && b)) {}'],
+		['if ((~~index && a) || (~~index && b)) {}', 'if (~~index && (a || b)) {}'],
 		['if ((x !== void 0 && a) || (x !== void 0 && b)) {}', 'if (x !== void 0 && (a || b)) {}'],
 		['if ((x > -1n && a) || (x > -1n && b)) {}', 'if (x > -1n && (a || b)) {}'],
 	].map(([code, output]) => ({code, output, errors: 1})),
@@ -79,13 +81,18 @@ test('comparison factoring preserves exact values', t => {
 		['1', '2'],
 	];
 
-	for (const [operator, pairs] of [
-		...['==', '!=', '<', '<=', '>', '>='].map(operator => [operator, comparisonPairs]),
-		['in', [['present', {present: false}], ['missing', {}]]],
-		['instanceof', [[[], Array], [{}, Array], [undefined, Object]]],
+	for (const [comparison, pairs] of [
+		...['==', '!=', '<', '<=', '>', '>='].map(operator => [`a ${operator} b`, comparisonPairs]),
+		['a in b', [['present', {present: false}], ['missing', {}]]],
+		['a instanceof b', [[[], Array], [{}, Array], [undefined, Object]]],
+		['typeof a === b', [[1, 'number'], [undefined, 'string'], ['', 'string']]],
+		['+a === b', [['2', 2], [-0, 0], ['text', NaN]]],
+		['-a === b', [[1, -1], ['2', -2], [NaN, 0]]],
+		['~a === b', [[0, -1], [1n, -2n], [-1, 1]]],
+		['void a === b', [[1, undefined], [undefined, 0], ['text', undefined]]],
 	]) {
 		for (const [innerOperator, outerOperator] of [['&&', '||'], ['||', '&&']]) {
-			const code = `(a ${operator} b ${innerOperator} left === true) ${outerOperator} (a ${operator} b ${innerOperator} right === true)`;
+			const code = `(${comparison} ${innerOperator} left === true) ${outerOperator} (${comparison} ${innerOperator} right === true)`;
 			const {output, fixed, messages} = linter.verifyAndFix(code, config);
 			t.assert.strictEqual(fixed, true);
 			t.assert.deepStrictEqual(messages, []);
