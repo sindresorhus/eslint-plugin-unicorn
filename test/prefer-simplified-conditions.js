@@ -23,21 +23,29 @@ ruleTester({
 		'if ((typeof object?.value === "string" && a) || (typeof object?.value === "string" && b)) {}',
 	],
 	invalid: [
+		['for (!(key in object !== true && other !== true);;) {break;}', 'for ((key in object === true || other === true);;) {break;}'],
+		['for (!(key in object !== true || other !== true);;) {break;}', 'for ((key in object === true && other === true);;) {break;}'],
 		['if ((a && x > 1) || (a && b)) {}', 'if (a && (x > 1 || b)) {}'],
 		['if ((a == null && b) || (a == null && c)) {}', 'if (a == null && (b || c)) {}'],
 		['const value = (x > 1 && y < 2) || (x > 1 && y > 5);', 'const value = x > 1 && (y < 2 || y > 5);'],
-		['for ((a in b && false) || (a in b && true);;) {break;}', 'for ((a in b) && (false || true);;) {break;}'],
-		['for (((a in b) && false) || ((a in b) && true);;) {break;}', 'for ((a in b) && (false || true);;) {break;}'],
-		['for (value = (a in b === true || false) && (a in b === true || true);;) {break;}', 'for (value = (a in b === true) || (false && true);;) {break;}'],
+		['for ((a in b && false) || (a in b && true);;) {break;}', 'for ((a in b && (false || true));;) {break;}'],
+		['for (((a in b) && false) || ((a in b) && true);;) {break;}', 'for (((a in b) && (false || true));;) {break;}'],
+		['for (value = (a in b === true || false) && (a in b === true || true);;) {break;}', 'for (value = (a in b === true || (false && true));;) {break;}'],
 		[
 			'for (other || ((a in b || blah) || (x > 1 && y === true)) || (x > 1 && z === true);;) {break;}',
-			'for (other || (a in b) || blah || (x > 1 && (y === true || z === true));;) {break;}',
+			'for ((other || a in b || blah || (x > 1 && (y === true || z === true)));;) {break;}',
 		],
 		[
 			'for ((x > 1 && y === true) || ((x > 1 && z === true) || (a in b || blah));;) {break;}',
-			'for ((x > 1 && (y === true || z === true)) || (a in b) || blah;;) {break;}',
+			'for (((x > 1 && (y === true || z === true)) || a in b || blah);;) {break;}',
 		],
-		['foo()\na in b && false || a in b && true', 'foo()\n;(a in b) && (false || true)'],
+		['foo()\na in b && false || a in b && true', 'foo()\n;(a in b && (false || true))'],
+		['if ((a in b && c) || (a in b && d)) {}', 'if ((a in b && (c || d))) {}'],
+		['if ((a in b || c) && (a in b || d)) {}', 'if ((a in b || (c && d))) {}'],
+		['if ((a && b in c) || (a && d)) {}', 'if ((a && (b in c || d))) {}'],
+		['if ((a || b) && (a || c in d)) {}', 'if ((a || (b && c in d))) {}'],
+		['const value = (a in b && c === true) || (a in b && d === true);', 'const value = (a in b && (c === true || d === true));'],
+		['const value = (a in b || c === true) && (a in b || d === true);', 'const value = (a in b || (c === true && d === true));'],
 		['if ((index > -1 && a) || (index > -1 && b)) {}', 'if (index > -1 && (a || b)) {}'],
 		['if ((a && x <= -1) || (a && b)) {}', 'if (a && (x <= -1 || b)) {}'],
 		['if ((x >= +1 || a) && (x >= +1 || b)) {}', 'if (x >= +1 || (a && b)) {}'],
@@ -55,8 +63,8 @@ ruleTester({
 	].map(([code, output]) => ({code, output, errors: 1})),
 });
 
-for (const operator of ['==', '!=', '<', '<=', '>', '>=', 'in', 'instanceof']) {
-	const commonText = operator === 'in' ? '(a in b)' : `a ${operator} b`;
+for (const operator of ['==', '!=', '<', '<=', '>', '>=', 'instanceof']) {
+	const commonText = `a ${operator} b`;
 
 	ruleTester({
 		valid: [],
@@ -155,7 +163,7 @@ ruleTester({
 			code: 'for ((key in getObject() && false) || (key in getObject() && true);;) {break;}',
 			errors: [{
 				messageId: 'prefer-simplified-conditions',
-				suggestions: [{messageId: 'suggestion', output: 'for ((key in getObject()) && (false || true);;) {break;}'}],
+				suggestions: [{messageId: 'suggestion', output: 'for ((key in getObject() && (false || true));;) {break;}'}],
 			}],
 		},
 		{
@@ -1272,7 +1280,7 @@ ruleTester.vue({
 	],
 	invalid: [
 		['<template><div v-if="x || (a && b) || (a && c && d)" /></template>', '<template><div v-if="x || (a && (b || (c && d)))" /></template>'],
-		['<template><div v-if="(key in object && a) || (key in object && b)" /></template>', '<template><div v-if="(key in object) && (a || b)" /></template>'],
+		['<template><div v-if="(key in object && a) || (key in object && b)" /></template>', '<template><div v-if="(key in object && (a || b))" /></template>'],
 		['<template><div v-if="visible" /><div v-else-if="(a && b) || (a && c)" /></template>', '<template><div v-if="visible" /><div v-else-if="a && (b || c)" /></template>'],
 		['<template><div v-show="x && (a || b) && (a || c || d)" /></template>', '<template><div v-show="x && (a || (b && (c || d)))" /></template>'],
 		['<template><div v-if="x || ((a && b) || (a && c))" /></template>', '<template><div v-if="x || (a && (b || c))" /></template>'],
