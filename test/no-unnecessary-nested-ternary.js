@@ -2,6 +2,7 @@ import path from 'node:path';
 import {test as nodeTest} from 'node:test';
 import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
+import outdent from 'outdent';
 import ts from 'typescript';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
@@ -53,6 +54,7 @@ test.snapshot({
 		'const first = value => value.kind === 1; const second = value => value.kind === 2; first(read()) ? (y ? a : c) : (second(read()) ? b : c);',
 		'function first(value) { return value.kind === 1; } const second = value => value.kind === 2; first = other; first(x) ? (y ? a : c) : (second(x) ? b : c);',
 		'const first = value => { value.kind = 1; return value.kind === 1; }; const second = value => value.kind === 2; first(x) ? (y ? a : c) : (second(x) ? b : c);',
+		'const {third} = value => value === 3; x === 1 ? a : (x === 2 ? b : (third(x) ? a : c));',
 	],
 	invalid: [
 		'x === 1 ? a : (x === 2 ? b : (x === 3 ? d : (x === 4 ? a : c)));',
@@ -122,6 +124,9 @@ test.snapshot({
 		typeAware('declare const x: number | string; declare function first(value: unknown): value is number; declare function second(value: number): value is number; declare function second(value: string): value is string; declare function second(value: number | string): value is number | string; first(x) ? (x > 0 ? x : undefined) : (second(x) ? x : undefined);'),
 		typeAware('declare const x: unknown; declare function first(value: unknown): asserts value is string; declare function second(value: unknown): asserts value is number; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined);'),
 		typeAware('type First = {kind: "a"}; type Second = {kind: "b"}; declare const x: First | Second; function first(value: First | Second): value is First { mutate(); return value.kind === "a"; } declare function second(value: First | Second): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined);'),
+		typeAware('type Target<T> = T extends string ? string : any; function example<T>(x: unknown, enabled: boolean, first: (value: unknown) => value is Target<T>, second: (value: unknown) => value is number) { return first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined); }'),
+		typeAware('type Target<T> = T extends string ? {kind: "a"} : any; function example<T>(x: unknown, enabled: boolean, first: (value: unknown) => value is Target<T>, second: (value: unknown) => value is {kind: "b"}) { return first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined); }'),
+		typeAware('type Target<T> = T extends string ? {kind: "a"} : any; function example<T>(x: unknown, enabled: boolean, first: (value: unknown) => value is Target<T> & {}, second: (value: unknown) => value is {kind: "b"}) { return first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined); }'),
 		{code: 'declare const x: unknown; declare function first(value: unknown): value is string; declare function second(value: unknown): value is number; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined);', languageOptions: {parser: parsers.typescript}},
 	],
 	invalid: [
@@ -136,6 +141,16 @@ test.snapshot({
 		].map(types => typeAware(`${types} declare const x: unknown; declare function first(value: unknown): value is First; declare function second(value: unknown): value is Second; first(x) ? (enabled ? 1 : undefined) : (second(x) ? 2 : undefined);`)),
 		{code: 'declare const x: number; x === 1 ? a : (x === 2 ? b : (x === 3 ? a : c));', languageOptions: {parser: parsers.typescript}},
 		{code: 'const first = (value: {kind: number}) => value.kind === 1; const second = (value: {kind: number}) => value.kind === 2; first(x) ? (enabled ? a : c) : (second(x) ? b : c);', languageOptions: {parser: parsers.typescript}},
+		...[
+			'first(x) ? a : (second(x) ? b : (third(x) ? a : c))',
+			'first(x) ? a : (second(x) ? c : (third(x) ? b : c))',
+		].map(expression => typeAware(outdent`
+			declare const x: unknown;
+			declare function first(value: unknown): value is 'first';
+			declare function second(value: unknown): value is 'second';
+			declare function third(value: unknown): value is 'third';
+			${expression};
+		`)),
 	],
 });
 

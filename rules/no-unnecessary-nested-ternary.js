@@ -147,6 +147,10 @@ function getGuardExpression(functionNode) {
 function getLocalGuard(node, context) {
 	const variable = findVariable(context.sourceCode.getScope(node), node.callee);
 	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+	if (definition?.type === 'Variable' && definition.node.id.type !== 'Identifier') {
+		return {unsupported: true};
+	}
+
 	const functionNode = definition?.type === 'FunctionName' ? definition.node : definition?.node.init;
 	if (!functionNode?.body) {
 		return {};
@@ -213,30 +217,20 @@ function getTest(node, context) {
 }
 
 function getPrimitiveType(type, checker) {
-	if (['any', 'unknown', 'never', 'error'].includes(type.intrinsicName) || type.isTypeParameter()) {
+	// Only concrete primitive/literal bases establish a domain; assignability can hide `any` in unresolved types.
+	const name = checker.getBaseTypeOfLiteralType(type).intrinsicName;
+	if (!['string', 'number', 'boolean', 'bigint', 'symbol', 'null', 'undefined'].includes(name)) {
 		return;
 	}
 
-	for (const [name, primitive] of [
-		['string', checker.getStringType()],
-		['number', checker.getNumberType()],
-		['boolean', checker.getBooleanType()],
-		['bigint', checker.getBigIntType()],
-		['symbol', checker.getESSymbolType()],
-		['null', checker.getNullType()],
-		['undefined', checker.getUndefinedType()],
-	]) {
-		if (checker.isTypeAssignableTo(type, primitive)) {
-			let {value} = type;
-			if (name === 'boolean' && ['true', 'false'].includes(type.intrinsicName)) {
-				value = type.intrinsicName === 'true';
-			} else if (name === 'bigint' && value) {
-				value = `${value.negative ? '-' : ''}${value.base10Value}`;
-			}
-
-			return {name, value};
-		}
+	let {value} = type;
+	if (name === 'boolean' && ['true', 'false'].includes(type.intrinsicName)) {
+		value = type.intrinsicName === 'true';
+	} else if (name === 'bigint' && value) {
+		value = `${value.negative ? '-' : ''}${value.base10Value}`;
 	}
+
+	return {name, value};
 }
 
 function areTypesDisjoint(left, right, checker) {
@@ -253,7 +247,12 @@ function areTypesDisjoint(left, right, checker) {
 			|| (leftPrimitive.value !== undefined && rightPrimitive.value !== undefined && leftPrimitive.value !== rightPrimitive.value);
 	}
 
-	// Unrelated interfaces may overlap. Only required discriminants made entirely of primitive literals establish object-type disjointness.
+	// Unrelated interfaces may overlap. Only concrete objects with required primitive-literal discriminants are modeled; opaque type roots are unsupported.
+	const objectTypeFlag = 1_048_576; // TypeScript's TypeFlags.Object.
+	if (left.flags !== objectTypeFlag || right.flags !== objectTypeFlag) {
+		return false;
+	}
+
 	const isLiteralType = type => (type.isUnion() ? type.types : [type]).every(type => getPrimitiveType(type, checker)?.value !== undefined);
 	const optionalSymbolFlag = 16_777_216; // TypeScript's SymbolFlags.Optional.
 	return left.getProperties().some(property => {

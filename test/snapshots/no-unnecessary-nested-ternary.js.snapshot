@@ -34,6 +34,37 @@ Output:
 
 `;
 
+exports[`no-unnecessary-nested-ternary > invalid(10): declare const x: unknown;\ndeclare function first(value: unknown): value is 'first';\ndeclare function second(value: unknown): value is 'second';\ndeclare function third(value: unknown): value is 'third';\nfirst(x) ? a : (second(x) ? b : (third(x) ? a : c)); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const x: unknown;
+  2 | declare function first(value: unknown): value is 'first';
+  3 | declare function second(value: unknown): value is 'second';
+  4 | declare function third(value: unknown): value is 'third';
+  5 | first(x) ? a : (second(x) ? b : (third(x) ? a : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(10): declare const x: unknown;\ndeclare function first(value: unknown): value is 'first';\ndeclare function second(value: unknown): value is 'second';\ndeclare function third(value: unknown): value is 'third';\nfirst(x) ? a : (second(x) ? b : (third(x) ? a : c)); 2`] = `
+
+Message:
+  1 | declare const x: unknown;
+  2 | declare function first(value: unknown): value is 'first';
+  3 | declare function second(value: unknown): value is 'second';
+  4 | declare function third(value: unknown): value is 'third';
+> 5 | first(x) ? a : (second(x) ? b : (third(x) ? a : c));
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Suggestion 1/1: Simplify this ternary expression (requires review).:
+  1 | declare const x: unknown;
+  2 | declare function first(value: unknown): value is 'first';
+  3 | declare function second(value: unknown): value is 'second';
+  4 | declare function third(value: unknown): value is 'third';
+  5 | first(x) || third(x) ? a : (second(x) ? b : c);
+
+`;
+
 exports[`no-unnecessary-nested-ternary > invalid(10): x === 1n ? a : (x === 2n ? b : (x === 3n ? a : c)); 1`] = `
 
   1 | x === 1n ? a : (x === 2n ? b : (x === 3n ? a : c));
@@ -48,6 +79,37 @@ Message:
 
 Output:
   1 | (x === 1n) || (x === 3n) ? a : (x === 2n ? b : c);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(11): declare const x: unknown;\ndeclare function first(value: unknown): value is 'first';\ndeclare function second(value: unknown): value is 'second';\ndeclare function third(value: unknown): value is 'third';\nfirst(x) ? a : (second(x) ? c : (third(x) ? b : c)); 1`] = `
+
+Filename: file.ts
+
+  1 | declare const x: unknown;
+  2 | declare function first(value: unknown): value is 'first';
+  3 | declare function second(value: unknown): value is 'second';
+  4 | declare function third(value: unknown): value is 'third';
+  5 | first(x) ? a : (second(x) ? c : (third(x) ? b : c));
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(11): declare const x: unknown;\ndeclare function first(value: unknown): value is 'first';\ndeclare function second(value: unknown): value is 'second';\ndeclare function third(value: unknown): value is 'third';\nfirst(x) ? a : (second(x) ? c : (third(x) ? b : c)); 2`] = `
+
+Message:
+  1 | declare const x: unknown;
+  2 | declare function first(value: unknown): value is 'first';
+  3 | declare function second(value: unknown): value is 'second';
+  4 | declare function third(value: unknown): value is 'third';
+> 5 | first(x) ? a : (second(x) ? c : (third(x) ? b : c));
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Suggestion 1/1: Simplify this ternary expression (requires review).:
+  1 | declare const x: unknown;
+  2 | declare function first(value: unknown): value is 'first';
+  3 | declare function second(value: unknown): value is 'second';
+  4 | declare function third(value: unknown): value is 'third';
+  5 | first(x) ? a : (third(x) ? b : c);
 
 `;
 
