@@ -72,8 +72,8 @@ function isSafeSharedExpression(node) {
 function isSafeSharedCallee(node) {
 	return isSafeSharedExpression(node)
 		|| (node.type === 'MemberExpression'
-			&& isSafeSharedExpression(node.object)
-			&& (!node.computed || node.property.type === 'Literal' || getStaticStringValue(node.property) !== undefined));
+			&& isSafeSharedCallee(node.object)
+			&& (!node.computed || isSafeSharedExpression(node.property)));
 }
 
 function getStaticPropertyName(node, context) {
@@ -331,7 +331,7 @@ function isSafeToReorderExpression(node) {
 	switch (node.type) {
 		case 'MemberExpression': {
 			return isSafeToReorderExpression(node.object)
-				&& (!node.computed || node.property.type === 'Literal' || getStaticStringValue(node.property) !== undefined);
+				&& (!node.computed || isSafeSharedExpression(node.property));
 		}
 
 		case 'ChainExpression': {

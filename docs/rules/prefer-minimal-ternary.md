@@ -21,7 +21,7 @@ const foo = test ? call(a) : call(b);
 const foo = call(test ? a : b);
 ```
 
-Direct method calls support identifier, literal, `this`, and `super` receivers with dot access or literal keys. Optional chaining, dynamic keys, and chained receivers are ignored.
+Method calls support identifier, literal, `this`, and `super` receivers, including member chains, with dot access or literal and identifier keys. Optional chaining, calls within receivers or keys, and other computed key expressions are ignored.
 
 ```js
 // ❌
@@ -29,6 +29,14 @@ const foo = test ? object.method(a) : object.method(b);
 
 // ✅
 const foo = object.method(test ? a : b);
+```
+
+```js
+// ❌
+const foo = test ? object.store[key](a) : object.store[key](b);
+
+// ✅
+const foo = object.store[key](test ? a : b);
 ```
 
 ```js
