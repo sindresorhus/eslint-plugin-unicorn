@@ -179,6 +179,14 @@ testRule.snapshot({
 		'interface Options<T> {value?: boolean} function run<T>({value = true}: Options<T>) {} run({value: true});',
 		'function run<T>({value = true}: {[key: string]: T | boolean | undefined; value?: boolean}) {} run({value: true});',
 		'function run<T>({value = true} = {} as {value?: T | boolean}) {} run({value: true});',
+		'function run<T>(value = true as typeof other, other?: T): T | undefined { return value; } run(true);',
+		'function run<T>(items: T[], value: typeof items[0] = true as typeof items[0]): T { return value; } run([], true);',
+		'function run<T>({value = true}: {value?: typeof other | boolean}, other?: T) {} run({value: true});',
+		'function run<T>({value = true as typeof other}, other?: T) {} run({value: true});',
+		'function run<T>({value = true} = {} as {value?: typeof other}, other?: T) {} run({value: true});',
+		'const run: <T>(value?: T) => T = <U>(value: any = true) => value; run(true);',
+		'const run = (<U>(value: any = true) => value) as <T>(value?: T) => T; run(true);',
+		'const run = (<U>(value: any = true) => value) satisfies <T>(value?: T) => T; run(true);',
 		'declare function run(value?: boolean): void; run(true);',
 		'function run(value: boolean): void; function run(value = true) {} run(true);',
 		'function run(value = true) {} const value = false as true; run(value);',
@@ -205,6 +213,11 @@ testRule.snapshot({
 		'function run<T>({value: renamed = true}: {value?: boolean; other?: T}) {} run({value: true});',
 		'function run<T>({value = true}) {} run({value: true});',
 		'function run<T>({value = true, dense = false}: {value?: T | boolean; dense?: boolean}) {} run({value: true, dense: false});',
+		'function run<T>(value = true as typeof other, count = 1, other?: T) {} run(true, 1);',
+		'function run<T>(value = true as boolean, count = 1) {} run(true as boolean, 1);',
+		'function run<T>({"count": count = 1, selected = false as T}: {"count"?: number; selected?: T}) {} run({count: 1, selected: false});',
+		'function run<T>({0x1: count = 1, selected = false as T}: {0x1?: number; selected?: T}) {} run({1: 1, selected: false});',
+		'const run = ((<T>(value = true) => {})); run(true);',
 	],
 });
 
@@ -289,10 +302,23 @@ testRule.snapshot({
 			'interface Options<T> {[key: string]: T | boolean | undefined; value?: boolean} function run<T>({value = true}: Options<T>) {}',
 			'type Options<T> = {[Key in keyof T]?: boolean}; function run<T extends {value?: unknown}>({value = true}: Options<T>) {}',
 			'function run<T>({value = true} = {} as {value?: T | boolean}) {}',
+			'function run<T>({value = true}: {value?: typeof other | boolean}, other?: T) {}',
+			'function run<T>({value = true as typeof other}, other?: T) {}',
+			'function run<T>({value = true} = {} as {value?: typeof other}, other?: T) {}',
 		].flatMap(declaration => [
 			typeAware(`${declaration} run({value: true});`),
 			typeAware('import {run} from "./no-unnecessary-default-arguments.callee.js"; run({value: true});', `${declaration} export {run};`),
 		]),
+		...[
+			'function run<T>(value = true as typeof other, other?: T) {}',
+			'const run: <T>(value?: T) => T = <U>(value: any = true) => value;',
+			'type Callable = <T>(value?: T) => T; const run: Callable = <U>(value: any = true) => value;',
+			'const run = (<U>(value: any = true) => value) as <T>(value?: T) => T;',
+		].flatMap(declaration => [
+			typeAware(`${declaration} run(true);`),
+			typeAware(importedCall, `${declaration} export {run};`),
+		]),
+		typeAware(defaultImportedCall, 'export default (<U>(value: any = true) => value) as <T>(value?: T) => T;'),
 		typeAware(importedCall, 'export function run(value: boolean): void; export function run(value = true) {}'),
 		typeAware(importedCall, 'export function run(value = true) { return arguments.length; }'),
 		typeAware(importedCall, 'export function run(value = true, next = arguments[0]) {}'),
@@ -360,6 +386,7 @@ testRule.snapshot({
 				`${declaration} export function run<T>({value = true, dense = false}: Options<T>) {}`,
 			),
 		]),
+		typeAware(defaultImportedCall, 'export default ((<T>(value = true) => {}));'),
 	],
 });
 
