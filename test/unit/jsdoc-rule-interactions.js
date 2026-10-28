@@ -72,6 +72,27 @@ test('unrelated directives preserve documented parameter reports and rename sugg
 	].join('\n'));
 });
 
+test('disabling boolean naming preserves JSDoc inference for other rules across fix passes', t => {
+	const code = [
+		'/** @param {boolean} flag */',
+		'// eslint-disable-next-line unicorn/consistent-boolean-name -- Keep the public parameter name.',
+		'function run(flag) { return Boolean(flag); }',
+	].join('\n');
+	const config = {
+		plugins: {unicorn},
+		linterOptions: {reportUnusedDisableDirectives: 'error'},
+		rules: {
+			'unicorn/consistent-boolean-name': ['error', {checkFunctions: 'never'}],
+			'unicorn/no-useless-coercion': 'error',
+		},
+	};
+	t.assert.deepStrictEqual(linter.verify(code, config).map(({ruleId}) => ruleId), ['unicorn/no-useless-coercion']);
+	const output = code.replace('Boolean(flag)', 'flag');
+	t.assert.deepStrictEqual(linter.verifyAndFix(code, config), {fixed: true, output, messages: []});
+	t.assert.deepStrictEqual(linter.getSuppressedMessages().map(({ruleId}) => ruleId), ['unicorn/consistent-boolean-name']);
+	t.assert.deepStrictEqual(linter.verifyAndFix(output, config), {fixed: false, output, messages: []});
+});
+
 for (const {name, code, output, value, rules} of [
 	{
 		name: 'local boolean renaming composes with coercion and comparison fixes',
