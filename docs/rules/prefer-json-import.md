@@ -4,7 +4,7 @@
 
 🚫 Disabled by default.
 
-💡 This rule is manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
+🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -16,6 +16,8 @@ This rule is opt-in because it cannot determine whether filesystem reads are int
 Checks direct `JSON.parse(readFileSync(…))` and `JSON.parse(await readFile(…))` initializers in top-level ES module variable declarations, including exports. Supports imports and import aliases from `fs` and `fs/promises`, with or without `node:`, and `fs.promises.readFile()`.
 
 Paths must be statically known `.json` strings or `new URL(staticPath, import.meta.url)`. Reads must use default or UTF-8 encoding, with no options beyond `encoding`.
+
+Also checks local `const` bindings created by `createRequire(import.meta.url)` for static `./` or `../` JSON strings. Supports named, default, and namespace imports from `module` or `node:module`, including aliases.
 
 ## Examples
 
@@ -43,11 +45,27 @@ function loadFreshData() {
 }
 ```
 
+```js
+import {createRequire} from 'node:module';
+
+const require = createRequire(import.meta.url);
+
+// ❌
+const data = require('./data.json');
+
+// ✅
+import data from './data.json' with {type: 'json'};
+```
+
+## Autofixes
+
+`createRequire` loads are autofixed for single, non-exported `const` identifiers without comments, type annotations, type arguments, or outer TypeScript assertions. Paths containing `#`, `?`, `%`, or backslashes require manual conversion. Imports load before the module body executes.
+
 ## Suggestions
 
-No automatic fix is provided because conversion can change behavior.
+Filesystem reads offer suggestions instead of automatic fixes because conversion also changes caching behavior.
 
-Suggestions require a single, non-exported `const` identifier reading a `./` or `../` URL relative to `import.meta.url`. Declarations containing comments, binding type annotations, or outer TypeScript assertions are reported without suggestions.
+Suggestions require a single, non-exported `const` identifier reading a `./` or `../` URL relative to `import.meta.url`. Declarations containing comments, type annotations, type arguments, or outer TypeScript assertions are reported without suggestions.
 
 Plain filesystem paths require manual conversion: relative reads resolve from the working directory, while imports resolve from the importing module.
 

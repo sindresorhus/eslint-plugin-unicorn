@@ -1,11 +1,18 @@
 import {findVariable} from '@eslint-community/eslint-utils';
 import {
+	getStaticStringValue,
 	isCallExpression,
 	isMemberExpression,
 	isMethodCall,
 	isNewExpression,
 } from './ast/index.js';
-import {escapeString, getStaticValueForControlFlow, unwrapTypeScriptExpression} from './utils/index.js';
+import {
+	escapeString,
+	getConstVariableInitializer,
+	getStaticValueForControlFlow,
+	isNodeMatchesNameOrPath,
+	unwrapTypeScriptExpression,
+} from './utils/index.js';
 
 const MESSAGE_ID = 'prefer-json-import';
 const MESSAGE_ID_SUGGESTION = 'prefer-json-import/suggestion';
@@ -14,11 +21,7 @@ const messages = {
 	[MESSAGE_ID_SUGGESTION]: 'Replace the declaration with a JSON import (changes loading time and caches the data).',
 };
 
-function isFileRead(node, awaited, sourceCode) {
-	if (!isCallExpression(node, {minimumArguments: 1, maximumArguments: 2, optional: false})) {
-		return false;
-	}
-
+function getImportedMethod(node, sourceCode) {
 	let {callee} = node;
 	const properties = [];
 	while (isMemberExpression(callee, {computed: false, optional: false})) {
@@ -27,13 +30,13 @@ function isFileRead(node, awaited, sourceCode) {
 	}
 
 	if (callee.type !== 'Identifier') {
-		return false;
+		return;
 	}
 
 	const variable = findVariable(sourceCode.getScope(callee), callee);
 	const definition = variable?.defs[0];
 	if (definition?.type !== 'ImportBinding' || definition.parent.importKind === 'type' || definition.node.importKind === 'type') {
-		return false;
+		return;
 	}
 
 	const specifier = definition.node;
@@ -43,9 +46,39 @@ function isFileRead(node, awaited, sourceCode) {
 
 	const module = definition.parent.source.value.replace(/^node:/, '');
 	const method = properties.join('.');
+	return {module, method};
+}
+
+function isFileRead(node, awaited, sourceCode) {
+	if (!isCallExpression(node, {minimumArguments: 1, maximumArguments: 2, optional: false})) {
+		return false;
+	}
+
+	const {module, method} = getImportedMethod(node, sourceCode) ?? {};
 	return awaited
 		? (module === 'fs/promises' && method === 'readFile') || (module === 'fs' && method === 'promises.readFile')
 		: module === 'fs' && method === 'readFileSync';
+}
+
+function isJsonRequire(node, context) {
+	if (!isCallExpression(node, {argumentsLength: 1, optional: false}) || node.callee.type !== 'Identifier') {
+		return false;
+	}
+
+	const path = getStaticStringValue(node.arguments[0]);
+	if (path === undefined || !path.endsWith('.json') || !(path.startsWith('./') || path.startsWith('../'))) {
+		return false;
+	}
+
+	const initializer = unwrapTypeScriptExpression(getConstVariableInitializer(node.callee, context));
+	if (!isCallExpression(initializer, {argumentsLength: 1, optional: false})) {
+		return false;
+	}
+
+	const {module, method} = getImportedMethod(initializer, context.sourceCode) ?? {};
+	return module === 'module'
+		&& method === 'createRequire'
+		&& isNodeMatchesNameOrPath(unwrapTypeScriptExpression(initializer.arguments[0]), 'import.meta.url');
 }
 
 function isSupportedEncoding(node, context) {
@@ -105,6 +138,26 @@ function getJsonPath(node, context) {
 	return {value, moduleRelative};
 }
 
+function getJsonReadPath(node, context) {
+	if (!isMethodCall(node, {
+		object: 'JSON', method: 'parse', argumentsLength: 1, optionalCall: false, optionalMember: false,
+	})) {
+		return;
+	}
+
+	let read = unwrapTypeScriptExpression(node.arguments[0]);
+	const awaited = read.type === 'AwaitExpression';
+	if (awaited) {
+		read = unwrapTypeScriptExpression(read.argument);
+	}
+
+	if (!isFileRead(read, awaited, context.sourceCode) || !isSupportedEncoding(read.arguments[1], context)) {
+		return;
+	}
+
+	return getJsonPath(read.arguments[0], context);
+}
+
 /**
 @param {import('eslint').Rule.RuleContext} context
 */
@@ -122,44 +175,35 @@ const create = context => {
 		}
 
 		const node = unwrapTypeScriptExpression(declarator.init);
-		if (!isMethodCall(node, {
-			object: 'JSON', method: 'parse', argumentsLength: 1, optionalCall: false, optionalMember: false,
-		})) {
-			return;
-		}
-
-		let read = unwrapTypeScriptExpression(node.arguments[0]);
-		const awaited = read.type === 'AwaitExpression';
-		if (awaited) {
-			read = unwrapTypeScriptExpression(read.argument);
-		}
-
-		if (!isFileRead(read, awaited, sourceCode) || !isSupportedEncoding(read.arguments[1], context)) {
-			return;
-		}
-
-		const path = getJsonPath(read.arguments[0], context);
+		const jsonRequire = isJsonRequire(node, context);
+		const path = jsonRequire
+			? {value: getStaticStringValue(node.arguments[0]), moduleRelative: true}
+			: getJsonReadPath(node, context);
 		if (!path) {
 			return;
 		}
 
 		const problem = {node, messageId: MESSAGE_ID};
+		const unsafePathCharacters = jsonRequire ? /[#%?\\]/ : /[#?\\]/;
 		if (
 			path.moduleRelative
 			&& (path.value.startsWith('./') || path.value.startsWith('../'))
-			&& !/[#?\\]/.test(path.value)
+			&& !unsafePathCharacters.test(path.value)
 			&& parent.type === 'Program'
 			&& declaration.kind === 'const'
 			&& declaration.declarations.length === 1
 			&& declarator.id.type === 'Identifier'
 			&& !declarator.id.typeAnnotation
+			&& !node.typeArguments
 			&& declarator.init === node
 			&& sourceCode.getCommentsInside(declaration).length === 0
 		) {
-			problem.suggest = [{
-				messageId: MESSAGE_ID_SUGGESTION,
-				fix: fixer => fixer.replaceText(declaration, `import ${declarator.id.name} from ${escapeString(path.value)} with {type: 'json'};`),
-			}];
+			const fix = fixer => fixer.replaceText(declaration, `import ${declarator.id.name} from ${escapeString(path.value)} with {type: 'json'};`);
+			if (jsonRequire) {
+				problem.fix = fix;
+			} else {
+				problem.suggest = [{messageId: MESSAGE_ID_SUGGESTION, fix}];
+			}
 		}
 
 		return problem;
@@ -177,6 +221,7 @@ const config = {
 			description: 'Prefer JSON imports over reading and parsing JSON files.',
 			recommended: false,
 		},
+		fixable: 'code',
 		hasSuggestions: true,
 		schema: [],
 		messages,
