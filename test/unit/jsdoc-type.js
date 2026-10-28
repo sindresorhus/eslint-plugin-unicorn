@@ -89,9 +89,23 @@ for (const [name, directives] of [
 }
 
 test('ordinary comments still block documentation across ESLint directives', t => {
-	for (const comment of ['// Other comment.', '/* Other comment. */', '/** Description only. */']) {
+	for (const comment of [
+		'// Other comment.',
+		'/* Other comment. */',
+		'/** Description only. */',
+		'// eslint-disable test/capture',
+		'/* eslint-disable-next-line-extra test/capture */',
+	]) {
 		const code = `/** @type {boolean} */\n${comment}\n/* eslint-enable test/capture */\nlet flag; inspect(flag);`;
 		t.assert.deepStrictEqual(getAnnotations(code), [undefined], comment);
+	}
+});
+
+test('directive-only initializer comments preserve declaration documentation', t => {
+	const code = '/** @param {boolean} flag\n * @returns {string} */ const run = /* eslint-enable test/capture */ flag => { inspect(flag); };';
+	for (const typescript of [false, true]) {
+		t.assert.deepStrictEqual(getAnnotations(code, false, typescript), [{type: {kind: 'name', name: 'boolean'}, optional: false, name: 'flag'}]);
+		t.assert.deepStrictEqual(getAnnotations(code, true, typescript), [{type: {kind: 'name', name: 'string'}, optional: false, name: undefined}]);
 	}
 });
 
