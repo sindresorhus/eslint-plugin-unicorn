@@ -1859,37 +1859,37 @@ Output:
 
 `;
 
-exports[`relative-url-style > invalid(5): ![nested [brackets] and \`](./wrong.png)\`](./right.png) 1`] = `
+exports[`relative-url-style > invalid(5): ![nested [brackets] and \`API\`](./diagram.png) 1`] = `
 
-  1 | ![nested [brackets] and \`](./wrong.png)\`](./right.png)
+  1 | ![nested [brackets] and \`API\`](./diagram.png)
 
 `;
 
-exports[`relative-url-style > invalid(5): ![nested [brackets] and \`](./wrong.png)\`](./right.png) 2`] = `
+exports[`relative-url-style > invalid(5): ![nested [brackets] and \`API\`](./diagram.png) 2`] = `
 
 Message:
-> 1 | ![nested [brackets] and \`](./wrong.png)\`](./right.png)
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+> 1 | ![nested [brackets] and \`API\`](./diagram.png)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
 
 Output:
-  1 | ![nested [brackets] and \`](./wrong.png)\`](right.png)
+  1 | ![nested [brackets] and \`API\`](diagram.png)
 
 `;
 
-exports[`relative-url-style > invalid(5): ![nested [brackets] and \`](./wrong.png)\`](./right.png) 3`] = `
+exports[`relative-url-style > invalid(5): ![nested [brackets] and \`API\`](./diagram.png) 3`] = `
 
-  1 | ![nested [brackets] and \`](./wrong.png)\`](./right.png)
+  1 | ![nested [brackets] and \`API\`](./diagram.png)
 
 `;
 
-exports[`relative-url-style > invalid(5): ![nested [brackets] and \`](./wrong.png)\`](./right.png) 4`] = `
+exports[`relative-url-style > invalid(5): ![nested [brackets] and \`API\`](./diagram.png) 4`] = `
 
 Message:
-> 1 | ![nested [brackets] and \`](./wrong.png)\`](./right.png)
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
+> 1 | ![nested [brackets] and \`API\`](./diagram.png)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Remove the \`./\` prefix from the relative URL.
 
 Output:
-  1 | ![nested [brackets] and \`](./wrong.png)\`](right.png)
+  1 | ![nested [brackets] and \`API\`](diagram.png)
 
 `;
 
@@ -2431,45 +2431,45 @@ Output:
 
 `;
 
-exports[`relative-url-style > invalid(9): ![![moon](inner.png)](outer.png) 1`] = `
+exports[`relative-url-style > invalid(9): ![nested [brackets] and \`API\`](diagram.png) 1`] = `
 
 Options:
 - 'always'
 
 Code:
-  1 | ![![moon](inner.png)](outer.png)
+  1 | ![nested [brackets] and \`API\`](diagram.png)
 
 `;
 
-exports[`relative-url-style > invalid(9): ![![moon](inner.png)](outer.png) 2`] = `
+exports[`relative-url-style > invalid(9): ![nested [brackets] and \`API\`](diagram.png) 2`] = `
 
 Message:
-> 1 | ![![moon](inner.png)](outer.png)
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Add a \`./\` prefix to the relative URL.
+> 1 | ![nested [brackets] and \`API\`](diagram.png)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Add a \`./\` prefix to the relative URL.
 
 Output:
-  1 | ![![moon](inner.png)](./outer.png)
+  1 | ![nested [brackets] and \`API\`](./diagram.png)
 
 `;
 
-exports[`relative-url-style > invalid(9): ![![moon](inner.png)](outer.png) 3`] = `
+exports[`relative-url-style > invalid(9): ![nested [brackets] and \`API\`](diagram.png) 3`] = `
 
 Options:
 - 'always'
 
 Code:
-  1 | ![![moon](inner.png)](outer.png)
+  1 | ![nested [brackets] and \`API\`](diagram.png)
 
 `;
 
-exports[`relative-url-style > invalid(9): ![![moon](inner.png)](outer.png) 4`] = `
+exports[`relative-url-style > invalid(9): ![nested [brackets] and \`API\`](diagram.png) 4`] = `
 
 Message:
-> 1 | ![![moon](inner.png)](outer.png)
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Add a \`./\` prefix to the relative URL.
+> 1 | ![nested [brackets] and \`API\`](diagram.png)
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Add a \`./\` prefix to the relative URL.
 
 Output:
-  1 | ![![moon](inner.png)](./outer.png)
+  1 | ![nested [brackets] and \`API\`](./diagram.png)
 
 `;
 

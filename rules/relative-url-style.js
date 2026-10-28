@@ -1,6 +1,5 @@
 import {ident} from '@eslint/css-tree';
 import {decodeHTMLAttribute} from 'entities';
-import {parse, preprocess, postprocess} from 'micromark';
 import {parseFragment} from 'parse5';
 import {isMethodCall, isNewExpression, isStringLiteral} from './ast/index.js';
 import {getStaticValueIfNoSideEffects, isTypeScriptExpressionWrapper, toLocation} from './utils/index.js';
@@ -42,30 +41,22 @@ Get the destination's offset relative to one complete Markdown image's source.
 @returns {number | undefined}
 */
 function getMarkdownImageDestinationOffset(text) {
-	const events = postprocess(parse().document().write(preprocess()(text, 'utf8', true)));
-	const owners = [];
-
-	for (const [event, token] of events) {
-		if (token.type === 'image' || token.type === 'link') {
-			if (event === 'enter') {
-				owners.push(token);
-			} else {
-				owners.pop();
-			}
-		}
-
-		const owner = owners.at(-1);
-		if (
-			event === 'enter'
-			&& token.type === 'resourceDestinationString'
-			&& owners.length === 1
-			&& owner.type === 'image'
-			&& owner.start.offset === 0
-			&& owner.end.offset === text.length
-		) {
-			return token.start.offset;
-		}
+	// The Markdown parser already identified a complete inline image, so a unique `](` must be its destination boundary.
+	const delimiter = text.indexOf('](');
+	// Repeated delimiters in labels, titles, or destinations are intentionally unsupported instead of reparsing Markdown.
+	if (delimiter === -1 || delimiter !== text.lastIndexOf('](')) {
+		return;
 	}
+
+	const afterDelimiter = delimiter + 2;
+	const prefix = /^[\t\n\r ]*<?/u.exec(text.slice(afterDelimiter))[0];
+	const offset = afterDelimiter + prefix.length;
+	// Blockquote markers in multiline destinations are not part of the URL.
+	if (text[offset] === '>' && /[\n\r]/u.test(prefix)) {
+		return;
+	}
+
+	return offset;
 }
 
 /**

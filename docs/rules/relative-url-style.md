@@ -22,6 +22,8 @@ JavaScript supports string literals and templates without substitutions. JSX als
 
 Escaped `./` prefixes, templated HTML/CSS URLs, and some complex Markdown or `srcset` syntax are left unchanged.
 
+Markdown images containing more than one `](` in their source are skipped.
+
 ## Examples
 
 ```js

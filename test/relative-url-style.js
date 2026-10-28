@@ -519,7 +519,102 @@ const markdownLanguages = [languages.markdown, {...languages.markdown, language:
 for (const language of markdownLanguages) {
 	test({
 		valid: [
+			{code: '![](<> "title")', options: ['always']},
+			{code: '![image](./image.png "unterminated)'},
+			{code: '![image](&period;/image.png)'},
+		].map(testCase => ({...testCase, language: language.language, plugins: language.plugins})),
+		invalid: [
+			{
+				code: '![🚀 caption](\r ./image.png (title))',
+				output: '![🚀 caption](\r image.png (title))',
+				errors: [{messageId: 'never'}],
+			},
+			{
+				code: '![🚀 caption](\r image.png (title))',
+				output: '![🚀 caption](\r ./image.png (title))',
+				options: ['always'],
+				errors: [{messageId: 'always'}],
+			},
+			{
+				code: '🦄\r\n\r\n1. ![caption](\t\r\n   <./diagram%20one.png> "title")',
+				output: '🦄\r\n\r\n1. ![caption](\t\r\n   <diagram%20one.png> "title")',
+				errors: [{messageId: 'never'}],
+			},
+			{
+				code: '🦄\r\n\r\n1. ![caption](\t\r\n   <diagram%20one.png> "title")',
+				output: '🦄\r\n\r\n1. ![caption](\t\r\n   <./diagram%20one.png> "title")',
+				options: ['always'],
+				errors: [{messageId: 'always'}],
+			},
+			{
+				code: String.raw`![escaped \] caption](./diagram\(one\).png "caption")`,
+				output: String.raw`![escaped \] caption](diagram\(one\).png "caption")`,
+				errors: [{messageId: 'never'}],
+			},
+			{
+				code: String.raw`![escaped \] caption](diagram\(one\).png "caption")`,
+				output: String.raw`![escaped \] caption](./diagram\(one\).png "caption")`,
+				options: ['always'],
+				errors: [{messageId: 'always'}],
+			},
+			{
+				code: '> - ![first\n>   second](./image.png)',
+				output: '> - ![first\n>   second](image.png)',
+				errors: [{messageId: 'never'}],
+			},
+			{
+				code: '> - ![first\n>   second](image.png)',
+				output: '> - ![first\n>   second](./image.png)',
+				options: ['always'],
+				errors: [{messageId: 'always'}],
+			},
+			{
+				code: '![caption](./image&#93;&#40;one.png)',
+				output: '![caption](image&#93;&#40;one.png)',
+				errors: [{messageId: 'never'}],
+			},
+			{
+				code: '![caption](image&#93;&#40;one.png)',
+				output: '![caption](./image&#93;&#40;one.png)',
+				options: ['always'],
+				errors: [{messageId: 'always'}],
+			},
+			{
+				code: '![skip](./skip.png "x](fake)") ![real](./real.png)',
+				output: '![skip](./skip.png "x](fake)") ![real](real.png)',
+				errors: [{messageId: 'never'}],
+			},
+			{
+				code: '![skip](skip.png "x](fake)") ![real](real.png)',
+				output: '![skip](skip.png "x](fake)") ![real](./real.png)',
+				options: ['always'],
+				errors: [{messageId: 'always'}],
+			},
+			{
+				code: '`![fake](./same.png)`\n\n![label][ref]\n\n[ref]: ./same.png\n\n![real](./same.png)',
+				output: '`![fake](./same.png)`\n\n![label][ref]\n\n[ref]: same.png\n\n![real](same.png)',
+				errors: 2,
+			},
+			{
+				code: '`![fake](same.png)`\n\n![label][ref]\n\n[ref]: same.png\n\n![real](same.png)',
+				output: '`![fake](same.png)`\n\n![label][ref]\n\n[ref]: ./same.png\n\n![real](./same.png)',
+				options: ['always'],
+				errors: 2,
+			},
+		].map(testCase => ({...testCase, language: language.language, plugins: language.plugins})),
+	});
+
+	test({
+		valid: [
 			...['> [link](\n> page.md)', '> [reference]:\n> page.md', '> [link](\n> <page.md>)', '> [reference]:\n> <page.md>'].map(code => ({code, options: ['always']})),
+			...['> ![image](\n> page.md)', '> ![image](\n> <page.md>)'].map(code => ({code, options: ['always']})),
+			...['never', 'always'].flatMap(style => [
+				'![![moon](./inner.png)](./outer.png)',
+				'![nested [brackets] and `](./wrong.png)`](./right.png)',
+				'![$`](./wrong.md "title$](./right.md")',
+				'![image](./right.png "fake](./wrong.png)")',
+				'![image](<./image](name).png>)',
+			].map(code => ({code: style === 'never' ? code : code.replaceAll('./', ''), options: [style]}))),
 			...['./<file>', './<file', String.raw`./\<file>`, './&lt;file&gt;'].flatMap(destination => [
 				{code: `[link](${destination})`},
 				{code: `![image](${destination})`},
@@ -544,6 +639,17 @@ for (const language of markdownLanguages) {
 			},
 		].map(testCase => ({...testCase, language: language.language, plugins: language.plugins})),
 		invalid: [
+			{
+				code: '![./image.png](./image.png "./image.png")',
+				output: '![./image.png](image.png "./image.png")',
+				errors: [{messageId: 'never'}],
+			},
+			{
+				code: '![image.png](image.png "image.png")',
+				output: '![image.png](./image.png "image.png")',
+				options: ['always'],
+				errors: [{messageId: 'always'}],
+			},
 			{
 				code: '[link](./%3Cfile%3E)\n![image](./%3Cfile%3E)\n\n[reference]: ./%3Cfile%3E',
 				output: '[link](%3Cfile%3E)\n![image](%3Cfile%3E)\n\n[reference]: %3Cfile%3E',
@@ -591,11 +697,6 @@ for (const language of markdownLanguages) {
 				errors: [{messageId: 'never'}],
 			},
 			{
-				code: '![$`](./wrong.md "title$](./right.md")',
-				output: '![$`](wrong.md "title$](./right.md")',
-				errors: [{messageId: 'never'}],
-			},
-			{
 				code: '[$`](./wrong.md "title$](./right.md")',
 				output: '[$`](./wrong.md "title$](right.md")',
 				languageOptions: {math: true},
@@ -609,11 +710,6 @@ for (const language of markdownLanguages) {
 			{
 				code: '![`API`](./diagram.png)',
 				output: '![`API`](diagram.png)',
-				errors: [{messageId: 'never'}],
-			},
-			{
-				code: '![![moon](./inner.png)](./outer.png)',
-				output: '![![moon](./inner.png)](outer.png)',
 				errors: [{messageId: 'never'}],
 			},
 			{
@@ -666,11 +762,11 @@ for (const language of markdownLanguages) {
 			{code: '[<span>label</span>](./page.md)'},
 			{code: '[`code`](page.md)', options: ['always']},
 			{code: '[![`API`](./diagram.png)](./page.md)'},
-			{code: '![nested [brackets] and `](./wrong.png)`](./right.png)'},
+			{code: '![nested [brackets] and `API`](./diagram.png)'},
 			{code: '![<span>API</span>](./diagram.png "title")'},
 			{code: '![`API`](<./diagram with spaces.png>)'},
 			{code: '![`API`](./diagram\\(1\\).png)'},
-			{code: '![![moon](inner.png)](outer.png)', options: ['always']},
+			{code: '![nested [brackets] and `API`](diagram.png)', options: ['always']},
 			{code: '> ![`API`](./diagram.png)'},
 			{code: '- ![`API`](\n  ./diagram.png)'},
 			{code: '![](./diagram.png)'},
