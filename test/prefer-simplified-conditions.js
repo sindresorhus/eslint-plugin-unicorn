@@ -11,6 +11,8 @@ const {ruleId, rule, test: ruleTester} = getTester(import.meta);
 ruleTester({
 	valid: [
 		'const value = (a && x > 1) || (a && b);',
+		'const value = (x > 1 && a) || (x > 1 && b);',
+		'const value = (x > 1 || a) && (x > 1 || b);',
 		'if ((a + b && c) || (a + b && d)) {}',
 		'if ((a && b * c) || (a && d)) {}',
 		'if ((a && x?.value > 1) || (a && b)) {}',
@@ -21,6 +23,7 @@ ruleTester({
 		['if ((a == null && b) || (a == null && c)) {}', 'if (a == null && (b || c)) {}'],
 		['const value = (x > 1 && y < 2) || (x > 1 && y > 5);', 'const value = x > 1 && (y < 2 || y > 5);'],
 		['for ((a in b && false) || (a in b && true);;) {break;}', 'for ((a in b) && (false || true);;) {break;}'],
+		['for (((a in b) && false) || ((a in b) && true);;) {break;}', 'for ((a in b) && (false || true);;) {break;}'],
 		['for (value = (a in b === true || false) && (a in b === true || true);;) {break;}', 'for (value = (a in b === true) || (false && true);;) {break;}'],
 		['foo()\na in b && false || a in b && true', 'foo()\n;(a in b) && (false || true)'],
 	].map(([code, output]) => ({code, output, errors: 1})),
@@ -84,7 +87,12 @@ test('comparison factoring preserves exact values', t => {
 });
 
 ruleTester({
-	valid: [],
+	valid: [
+		{
+			code: 'const value = ((a > b) as number && true) || ((a > b) as number && false);',
+			languageOptions: {parser: parsers.typescript},
+		},
+	],
 	invalid: [
 		{
 			code: 'if (((x as number) > 1 && a) || ((x as number) > 1 && b)) {}',
@@ -93,8 +101,25 @@ ruleTester({
 			errors: 1,
 		},
 		{
+			code: 'const value = ((x > 1) satisfies boolean && a === true) || ((x > 1) satisfies boolean && b === true);',
+			output: 'const value = (x > 1) satisfies boolean && (a === true || b === true);',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
 			code: 'if ((a == null /* keep */ && b) || (a == null && c)) {}',
 			errors: [{messageId: 'prefer-simplified-conditions', suggestions: []}],
+		},
+		{
+			code: 'if ((getValue() > 1 /* keep */ && a) || (getValue() > 1 && b)) {}',
+			errors: [{messageId: 'prefer-simplified-conditions', suggestions: []}],
+		},
+		{
+			code: 'for ((key in getObject() && false) || (key in getObject() && true);;) {break;}',
+			errors: [{
+				messageId: 'prefer-simplified-conditions',
+				suggestions: [{messageId: 'suggestion', output: 'for ((key in getObject()) && (false || true);;) {break;}'}],
+			}],
 		},
 		{
 			code: 'if ((getValue() > 1 && a) || (getValue() > 1 && b)) {}',
