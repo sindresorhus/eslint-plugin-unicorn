@@ -47,6 +47,14 @@ const foo = test ? a + 1 : b + 1;
 const foo = (test ? a : b) + 1;
 ```
 
+```js
+// ❌
+const total = test ? object.count + a : object.count + b;
+
+// ✅
+const total = object.count + (test ? a : b);
+```
+
 Member access with a varying static property name or receiver is opt-in through [`checkComputedMemberAccess`](#checkcomputedmemberaccess) or [`checkVaryingBase`](#checkvaryingbase). Dynamic computed keys are reported by default, including on chained receivers:
 
 ```js
@@ -75,7 +83,7 @@ const date = new Date(test ? a : b);
 - Arrays require matching lengths, without spreads or holes.
 - Constructors require the same identifier, argument count, and TypeScript type arguments, without spreads.
 
-For these cases, shared values before the varying value must be simple expressions such as identifiers or literals.
+For these cases, shared values before the varying value must be simple expressions such as identifiers, literals, or member chains without optional chaining or calls.
 
 Only shallow cases are reported; nested expressions are not recursively minimized. JavaScript and TypeScript expressions are supported, including Vue and Svelte templates.
 

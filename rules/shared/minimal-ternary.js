@@ -178,7 +178,7 @@ function hasOneMinimalValueDifference(leftItems, rightItems, context) {
 
 	// Only shared values before the varying value move ahead of the condition.
 	return differentIndex !== undefined
-		&& leftItems.slice(0, differentIndex).every(item => isSafeSharedExpression(item));
+		&& leftItems.slice(0, differentIndex).every(item => isSafeSharedAccess(item));
 }
 
 function isMinimalObjectExpression(left, right, context) {
@@ -274,7 +274,7 @@ function isMinimalBinaryExpression(left, right, context) {
 		return false;
 	}
 
-	return isRightSame || isSafeSharedExpression(left.left);
+	return isRightSame || isSafeSharedAccess(left.left);
 }
 
 function hasSameObjectWithDifferentDynamicKey(left, right, context) {

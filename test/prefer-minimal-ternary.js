@@ -257,6 +257,43 @@ test({
 
 test({
 	valid: [
+		'test ? object?.count + a : object?.count + b;',
+		'test ? getObject().count + a : getObject().count + b;',
+		'test ? [object?.value, a] : [object?.value, b];',
+		'test ? [getObject().value, a] : [getObject().value, b];',
+		'test ? new Box(object[getKey()], a) : new Box(object[getKey()], b);',
+	],
+	invalid: [
+		...[
+			['test ? object.count + a : object.count + b;', 'object.count + (test ? a : b);'],
+			['test ? object[key].count + a : object[key].count + b;', 'object[key].count + (test ? a : b);'],
+			['test ? [object.value, a] : [object.value, b];', '[object.value, test ? a : b];'],
+			['test ? [object.first, object.second, a()] : [object.first, object.second, b()];', '[object.first, object.second, test ? a() : b()];'],
+			['test ? {shared: object.value, item: a} : {shared: object.value, item: b};', '({shared: object.value, item: test ? a : b});'],
+			['test ? new Box(object.value, a) : new Box(object.value, b);', 'new Box(object.value, test ? a : b);'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+		...[
+			'change() ? [object.value, a] : [object.value, b];',
+			'(key = other) ? object[key] + a : object[key] + b;',
+			'test ? object./* keep */count + a : object.count + b;',
+			'test ? new Box(object.value, a) : new Box(object./* keep */value, b);',
+		].map(code => ({code, errors: 1})),
+		{
+			code: 'test ? {shared: object.value, item: a} : {shared: object.value, item: b};',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'prefer-minimal-ternary',
+				suggestions: [{
+					messageId: 'prefer-minimal-ternary',
+					output: '({shared: object.value, item: test ? a : b});',
+				}],
+			}],
+		},
+	],
+});
+
+test({
+	valid: [
 		'test ? object.nested.a : object.nested.b;',
 		'test ? object.nested.a(value) : object.nested.b(value);',
 		'test ? object?.nested[a] : object?.nested[b];',
@@ -1085,7 +1122,6 @@ test.snapshot({
 		'test ? {a: 1} : {a: other ? 2 : 3};',
 		// Shared expressions before the varying value must be safe to move before the condition.
 		'test ? {a: call(), b: 1} : {a: call(), b: 2};',
-		'test ? {a: object.value, b: 1} : {a: object.value, b: 2};',
 		'test ? [call(), 1] : [call(), 2];',
 		'test ? [other ? b : c, a] : [other ? b : c, d];',
 		'test ? new Foo(call(), 1) : new Foo(call(), 2);',

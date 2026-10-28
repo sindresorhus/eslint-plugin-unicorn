@@ -184,6 +184,38 @@ test('fixes shared literal object values when type information throws', t => {
 });
 
 const cases = [
+	...[
+		{
+			name: 'correlated shared binary member values',
+			expression: 'kind === "a" ? store[key] + 1 : store[key] + 2',
+			unsafeExpression: 'store[key] + (kind === "a" ? 1 : 2)',
+		},
+		{
+			name: 'correlated shared array member values',
+			expression: 'kind === "a" ? [store[key], 1] : [store[key], 2]',
+			unsafeExpression: '[store[key], kind === "a" ? 1 : 2]',
+		},
+		{
+			name: 'correlated shared object member values',
+			expression: 'kind === "a" ? {shared: store[key], item: 1} : {shared: store[key], item: 2}',
+			unsafeExpression: '({shared: store[key], item: kind === "a" ? 1 : 2})',
+			syntaxFix: false,
+		},
+		{
+			name: 'correlated shared constructor member values',
+			expression: 'kind === "a" ? new Box(store[key], 1) : new Box(store[key], 2)',
+			unsafeExpression: 'new Box(store[key], kind === "a" ? 1 : 2)',
+		},
+	].map(testCase => ({
+		...testCase,
+		declarations: outdent`
+			type Entry = {kind: "a"; key: "a"; store: {a: string}} | {kind: "b"; key: "b"; store: {b: string}};
+			declare const entry: Entry;
+			const {kind, key, store} = entry;
+			declare class Box {constructor(shared: string, item: number)}
+		`,
+		diagnostic: 7053,
+	})),
 	{
 		name: 'narrowed descendants of shared arguments',
 		declarations: outdent`
@@ -400,6 +432,31 @@ for (const {name, declarations, expression, unsafeExpression, resultType, diagno
 }
 
 const safeCases = [
+	{
+		name: 'shared binary member values',
+		declarations: 'declare const test: boolean, object: {count: number};',
+		expression: 'test ? object.count + 1 : object.count + 2',
+		fixedExpression: 'object.count + (test ? 1 : 2)',
+	},
+	{
+		name: 'shared array member values',
+		declarations: 'declare const test: boolean, object: {value: number};',
+		expression: 'test ? [object.value, 1] : [object.value, 2]',
+		fixedExpression: '[object.value, test ? 1 : 2]',
+	},
+	{
+		name: 'shared object member values',
+		declarations: 'declare const test: boolean, object: {value: string};',
+		expression: 'test ? {shared: object.value, item: 1} : {shared: object.value, item: 2}',
+		fixedExpression: '({shared: object.value, item: test ? 1 : 2})',
+		syntaxFix: false,
+	},
+	{
+		name: 'shared constructor member values',
+		declarations: 'declare class Box {constructor(shared: number, item: number)} declare const test: boolean, object: {value: number};',
+		expression: 'test ? new Box(object.value, 1) : new Box(object.value, 2)',
+		fixedExpression: 'new Box(object.value, test ? 1 : 2)',
+	},
 	{
 		name: 'ordinary shared methods',
 		declarations: 'declare const test: boolean, object: {method(value: string | number): string};',
