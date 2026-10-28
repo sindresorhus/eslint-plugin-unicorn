@@ -39,7 +39,7 @@ test('`getConditionalExpressionChildText` adds parentheses for lower precedence 
 	for (const [code, expected] of [
 		['inspect(foo);', 'foo'],
 		['inspect(a || b);', 'a || b'],
-		['inspect(a ? b : c);', 'a ? b : c'],
+		['inspect(a ? b : c);', '(a ? b : c)'],
 		['inspect(foo!);', 'foo!'],
 		['inspect(a = b);', '(a = b)'],
 		['inspect((a, b));', '(a, b)'],
@@ -56,6 +56,7 @@ test('`getConditionalExpressionChildText` keeps existing parentheses', t => {
 		['inspect((foo));', '(foo)'],
 		['inspect((a = b));', '(a = b)'],
 		['inspect(((a = b)));', '((a = b))'],
+		['inspect((a ? b : c));', '(a ? b : c)'],
 		['inspect((/* comment */ foo));', '(/* comment */ foo)'],
 	]) {
 		t.assert.deepStrictEqual(getResults(code), [expected], code);

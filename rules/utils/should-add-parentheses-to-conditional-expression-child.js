@@ -7,8 +7,9 @@ Check if parentheses should be added to a `node` when it's used as child of `Con
 @returns {boolean}
 */
 export default function shouldAddParenthesesToConditionalExpressionChild(node) {
-	// Lower precedence, see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table
+	// Lower precedence or nested ternaries, see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table
 	return [
+		'ConditionalExpression',
 		'AwaitExpression',
 		'AssignmentExpression',
 		'YieldExpression',

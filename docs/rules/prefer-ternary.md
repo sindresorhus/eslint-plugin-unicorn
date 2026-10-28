@@ -30,7 +30,7 @@ The rule skips:
 - Consecutive `if` guards without `else`, each containing only a `return`, followed by a fallback `return`. Comments and blank lines do not break the chain.
 - Bare `return;` in either branch. Explicit `return undefined;` remains eligible.
 - Conditions or merged values containing:
-  - Ternaries, except inside expression-bodied callbacks.
+  - Ternaries, except inside expression-bodied callbacks or when `checkNestedTernaries` is enabled.
   - Statement blocks or class bodies, even on one line.
   - Multiline objects, arrays, JSX elements/fragments, or template literals.
 
@@ -291,7 +291,7 @@ if (test) {
 }
 ```
 
-An optional second options object accepts `checkVaryingBase` and `checkComputedMemberAccess`, both defaulting to `false`. They have the same meaning as the corresponding [`prefer-minimal-ternary` options](./prefer-minimal-ternary.md#options).
+An optional second options object accepts `checkVaryingBase`, `checkComputedMemberAccess`, and `checkNestedTernaries`, all defaulting to `false`. The first two have the same meaning as the corresponding [`prefer-minimal-ternary` options](./prefer-minimal-ternary.md#options).
 
 ```js
 /* eslint unicorn/prefer-ternary: ['error', 'always', {checkVaryingBase: true}] */
@@ -305,4 +305,27 @@ if (test) {
 
 // ✅
 (test ? a : b)(value);
+```
+
+### checkNestedTernaries
+
+Whether to report merges whose conditions or values contain ternary expressions. All other eligibility checks still apply.
+
+Direct ternary conditions and branch values are parenthesized. Deeper nesting can conflict with [`no-nested-ternary`](./no-nested-ternary.md).
+
+```js
+// With `checkNestedTernaries: true`:
+// ❌
+function unicorn() {
+	if (test) {
+		return a;
+	}
+
+	return otherTest ? b : c;
+}
+
+// ✅
+function unicorn() {
+	return test ? a : (otherTest ? b : c);
+}
 ```
