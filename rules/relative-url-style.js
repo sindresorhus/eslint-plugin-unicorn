@@ -252,13 +252,8 @@ const create = context => {
 	});
 
 	context.on('image', node => {
-		const text = sourceCode.getText(node);
-		// Markdown extensions can change image label boundaries.
-		if (text.includes('[^') || (context.languageOptions.math === true && text.includes('$'))) {
-			return;
-		}
-
-		const offset = getMarkdownImageDestinationOffset(text);
+		// The Markdown parser has already handled extensions when locating this image.
+		const offset = getMarkdownImageDestinationOffset(sourceCode.getText(node));
 		if (offset !== undefined) {
 			return getMarkdownUrlProblem(node, sourceCode.getRange(node)[0] + offset);
 		}

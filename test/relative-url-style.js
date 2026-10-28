@@ -525,6 +525,41 @@ for (const language of markdownLanguages) {
 		].map(testCase => ({...testCase, language: language.language, plugins: language.plugins})),
 		invalid: [
 			{
+				code: '$![literal](./hidden.svg)$ ![Formula $x^2$](./assets/$1.svg)',
+				output: '$![literal](./hidden.svg)$ ![Formula $x^2$](assets/$1.svg)',
+				languageOptions: {math: true},
+				errors: [{messageId: 'never'}],
+			},
+			{
+				code: '$![literal](hidden.svg)$ ![Formula $x^2$](assets/$1.svg)',
+				output: '$![literal](hidden.svg)$ ![Formula $x^2$](./assets/$1.svg)',
+				languageOptions: {math: true},
+				options: ['always'],
+				errors: [{messageId: 'always'}],
+			},
+			{
+				code: '![diagram[^source]](./diagram.svg)\n\n[^source]: https://example.com/source',
+				output: '![diagram[^source]](diagram.svg)\n\n[^source]: https://example.com/source',
+				errors: [{messageId: 'never'}],
+			},
+			{
+				code: '![diagram[^source]](diagram.svg)\n\n[^source]: https://example.com/source',
+				output: '![diagram[^source]](./diagram.svg)\n\n[^source]: https://example.com/source',
+				options: ['always'],
+				errors: [{messageId: 'always'}],
+			},
+			{
+				code: '![image](./>image.png)',
+				output: '![image](>image.png)',
+				errors: [{messageId: 'never'}],
+			},
+			{
+				code: '![image](>image.png)',
+				output: '![image](./>image.png)',
+				options: ['always'],
+				errors: [{messageId: 'always'}],
+			},
+			{
 				code: '![🚀 caption](\r ./image.png (title))',
 				output: '![🚀 caption](\r image.png (title))',
 				errors: [{messageId: 'never'}],
