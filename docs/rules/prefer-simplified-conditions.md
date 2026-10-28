@@ -19,6 +19,8 @@ By default, it applies De Morgan's laws only when they reduce negation noise. It
 
 Factoring is intentionally limited to leading common terms in adjacent groups. Groups can appear within longer chains and contain more than two operands. The rule does not reorder operands to find a common term. Member objects and computed keys must be simple expressions, such as identifiers, member reads, or calls. Ordinary member reads are automatically fixed. If an operand contains a call that is not known to be repeatable, the rule offers a suggestion because factoring can change the result or number of calls. Optional chains are excluded from factoring.
 
+Factoring assumes property reads and comparison operators have no implicit side effects, such as stateful getters, coercion hooks, or custom `Symbol.hasInstance` methods.
+
 Absorbed conditions that would otherwise skip reading another operand are only fixed when that operand can be inferred to be safe to drop, such as a parameter or literal. Unresolved globals and `let`/`const` bindings are not treated as safe to drop.
 
 ## Examples
