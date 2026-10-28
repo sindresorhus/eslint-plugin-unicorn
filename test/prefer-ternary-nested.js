@@ -32,12 +32,15 @@ const cases = [
 	['if (a ? b : c) { object.x; } else { object.y; }', 'object[(a ? b : c) ? "x" : "y"];', {checkComputedMemberAccess: true}],
 	['if (a ? b : c) { first(value); } else { second(value); }', '((a ? b : c) ? first : second)(value);', {checkVaryingBase: true}],
 	['function foo() { if (swap() ? a : b) { return object[c ? d : e]; } return object[f]; }', 'function foo() { return (swap() ? a : b) ? object[c ? d : e] : object[f]; }'],
+	['run()\nif (a ? b : c) { [foo] = d; } else { [foo] = e; }', 'run()\n;[foo] = (a ? b : c) ? d : e;'],
+	['run()\nif (a ? b : c) { foo + 1; } else { bar + 1; }', 'run()\n;((a ? b : c) ? foo : bar) + 1;'],
 ];
 
 for (const mode of ['always', 'only-single-line']) {
 	test({
 		valid: [
 			'if (a) { b ? c : d; } else { e ? c : d; }',
+			'if (a) { call(b ? c : d); } else { call(e); }',
 			'function foo() { if (a) { return; } return b ? c : d; }',
 			'function foo() { if (a) { return b ? c : d; } return; }',
 			'function foo() { if (a) { return b; } if (c) { return d; } return e ? f : g; }',
