@@ -169,6 +169,14 @@ test.snapshot({
 			declare function third(value: unknown): value is 'third';
 			${expression};
 		`)),
+		typeAware(outdent`
+			export {};
+			declare const value: unknown;
+			declare const enabled: boolean;
+			declare function first(value: unknown): value is string;
+			declare function second(value: unknown): value is number;
+			first(value) ? (enabled ? 1 : undefined) : (second(value) ? 2 : undefined);
+		`),
 	],
 });
 
@@ -308,6 +316,35 @@ nodeTest('type-predicate suggestions require review for guard side effects', t =
 	});
 	t.assert.strictEqual(execute(code), 0);
 	t.assert.strictEqual(execute(output), 2);
+});
+
+nodeTest('flow-narrowed callable signatures do not prove guard exclusivity', t => {
+	const code = `
+		type First = {kind: 'first'; (value: unknown): value is First};
+		type Second = {kind: 'second'; (value: unknown): value is Second};
+		declare function isSecond(value: First | Second): value is Second;
+		declare const input: Second;
+		function result(value: First | Second) {
+			return false ? 0 : (isSecond(value) ? 1 : (value(value) ? 0 : 2));
+		}
+		result(input);
+	`;
+	const program = getTypeScriptProgram(code);
+	t.assert.deepStrictEqual(ts.getPreEmitDiagnostics(program), []);
+	const linter = new Linter();
+	const messages = linter.verify(code, {
+		files: ['**/*.ts'],
+		languageOptions: {parser: typescriptEslintParser, parserOptions: {programs: [program]}},
+		plugins: {unicorn: {rules: {'no-unnecessary-nested-ternary': rule}}},
+		rules: {'unicorn/no-unnecessary-nested-ternary': 'error'},
+	}, {filename: typeScriptFilename});
+	t.assert.deepStrictEqual(messages, []);
+	const input = Object.assign(value => value.kind === 'second', {kind: 'second'});
+	const result = runInNewContext(ts.transpileModule(code, {compilerOptions: {target: ts.ScriptTarget.ESNext}}).outputText, {
+		input,
+		isSecond: value => value.kind === 'second',
+	});
+	t.assert.strictEqual(result, 1);
 });
 
 nodeTest('typed chain merges require review when they lose overload narrowing', t => {

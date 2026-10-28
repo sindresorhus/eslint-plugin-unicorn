@@ -175,6 +175,40 @@ Output:
 
 `;
 
+exports[`no-unnecessary-nested-ternary > invalid(12): export {};\ndeclare const value: unknown;\ndeclare const enabled: boolean;\ndeclare function first(value: unknown): value is string;\ndeclare function second(value: unknown): value is number;\nfirst(value) ? (enabled ? 1 : undefined) : (second(value) ? 2 : undefined); 1`] = `
+
+Filename: file.ts
+
+  1 | export {};
+  2 | declare const value: unknown;
+  3 | declare const enabled: boolean;
+  4 | declare function first(value: unknown): value is string;
+  5 | declare function second(value: unknown): value is number;
+  6 | first(value) ? (enabled ? 1 : undefined) : (second(value) ? 2 : undefined);
+
+`;
+
+exports[`no-unnecessary-nested-ternary > invalid(12): export {};\ndeclare const value: unknown;\ndeclare const enabled: boolean;\ndeclare function first(value: unknown): value is string;\ndeclare function second(value: unknown): value is number;\nfirst(value) ? (enabled ? 1 : undefined) : (second(value) ? 2 : undefined); 2`] = `
+
+Message:
+  1 | export {};
+  2 | declare const value: unknown;
+  3 | declare const enabled: boolean;
+  4 | declare function first(value: unknown): value is string;
+  5 | declare function second(value: unknown): value is number;
+> 6 | first(value) ? (enabled ? 1 : undefined) : (second(value) ? 2 : undefined);
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Do not use unnecessary nested ternary expressions.
+
+Suggestion 1/1: Simplify this ternary expression (requires review).:
+  1 | export {};
+  2 | declare const value: unknown;
+  3 | declare const enabled: boolean;
+  4 | declare function first(value: unknown): value is string;
+  5 | declare function second(value: unknown): value is number;
+  6 | first(value) && enabled ? 1 : (second(value) ? 2 : undefined);
+
+`;
+
 exports[`no-unnecessary-nested-ternary > invalid(12): object.kind === \"a\" ? a : (object[\`kind\`] === \"b\" ? b : (object[\"kind\"] === \"c\" ? a : c)); 1`] = `
 
   1 | object.kind === "a" ? a : (object[\`kind\`] === "b" ? b : (object["kind"] === "c" ? a : c));

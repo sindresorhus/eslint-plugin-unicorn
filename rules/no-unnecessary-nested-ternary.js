@@ -1,4 +1,5 @@
 import {findVariable} from '@eslint-community/eslint-utils';
+import {isFunction} from './ast/index.js';
 import {
 	getConditionalExpressionChildText,
 	getLogicalExpressionChildText,
@@ -125,7 +126,7 @@ function getLiteralTest(node, parameter, argument) {
 
 function getGuardExpression(functionNode) {
 	if (
-		!['ArrowFunctionExpression', 'FunctionExpression', 'FunctionDeclaration'].includes(functionNode.type)
+		!isFunction(functionNode)
 		|| functionNode.async
 		|| functionNode.generator
 		|| functionNode.params.length !== 1
@@ -196,16 +197,22 @@ function getTest(node, context) {
 		return;
 	}
 
-	return withTypeInformation(node.callee, context, ({type, checker, program}) => {
+	return withTypeInformation(node.callee, context, ({checker, program}) => {
 		const compilerOptions = program.getCompilerOptions();
 		// Without strict null checks, otherwise disjoint types can overlap through null or undefined.
 		if (!(compilerOptions.strictNullChecks ?? compilerOptions.strict)) {
 			return;
 		}
 
-		const signatures = type.getCallSignatures();
+		// Skipped guards can narrow the callee. Use declared, non-generic, non-overloaded signatures; neither callee nor argument flow narrowing proves exclusivity.
+		const typeScriptCallee = context.sourceCode.parserServices.esTreeNodeToTSNodeMap.get(node.callee);
+		const symbol = checker.getSymbolAtLocation(typeScriptCallee);
+		if (!symbol) {
+			return;
+		}
+
+		const signatures = checker.getTypeOfSymbol(symbol).getCallSignatures();
 		const [signature] = signatures;
-		// Overloads and generic instantiations can change after moving a call out of its original narrowed branch. Never use the already-narrowed argument type as an exclusivity proof.
 		if (signatures.length !== 1 || signature.typeParameters?.length || signature.declaration?.typeParameters?.length) {
 			return;
 		}
@@ -270,7 +277,7 @@ function areTypesDisjoint(left, right, checker) {
 	});
 }
 
-function areTestsExclusive(left, right, context) {
+function areTestsExclusive(left, right) {
 	if (!left || !right || left.subject !== right.subject) {
 		return false;
 	}
@@ -280,7 +287,11 @@ function areTestsExclusive(left, right, context) {
 		return left.values.every(left => right.values.every(right => left !== right));
 	}
 
-	return Boolean(left.type && right.type && withTypeInformation(context.sourceCode.ast, context, () => areTypesDisjoint(left.type, right.type, left.checker)));
+	try {
+		return Boolean(left.type && right.type && areTypesDisjoint(left.type, right.type, left.checker));
+	} catch {
+		return false;
+	}
 }
 
 function isPureTest(node, context) {
@@ -327,7 +338,7 @@ function getChainProblem(node, context, needsTypeReview) {
 
 	for (let index = 2; index < chain.length; index++) {
 		const branch = chain[index];
-		if (isSameNode(node.consequent, branch.consequent, sourceCode) && tests.slice(1, index).every(test => areTestsExclusive(tests[index], test, context))) {
+		if (isSameNode(node.consequent, branch.consequent, sourceCode) && tests.slice(1, index).every(test => areTestsExclusive(tests[index], test))) {
 			const leftText = getLogicalExpressionChildText(node.test, context, {operator: '||', property: 'left'});
 			const rightText = getLogicalExpressionChildText(branch.test, context, {operator: '||', property: 'right'});
 			let text = `${leftText} || ${rightText}`;
@@ -346,7 +357,7 @@ function getChainProblem(node, context, needsTypeReview) {
 		}
 	}
 
-	if (tests.slice(1).some(test => !areTestsExclusive(tests[0], test, context))) {
+	if (tests.slice(1).some(test => !areTestsExclusive(tests[0], test))) {
 		return;
 	}
 
