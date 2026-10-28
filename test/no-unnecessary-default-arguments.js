@@ -334,6 +334,45 @@ testRule({
 				},
 			],
 		},
+		{
+			...typeAware([
+				'interface Base<Value> {value?: Value | boolean}',
+				'interface Options<Child> extends Base<Child> {dense?: boolean}',
+				'function run<Entry>({value: selected = true, dense = false}: Options<Entry>) {}',
+				'run({value: true, dense: false});',
+			].join('\n')),
+			errors: [{
+				messageId: 'property',
+				data: {name: 'dense'},
+				suggestions: [{
+					messageId: 'remove-property',
+					output: [
+						'interface Base<Value> {value?: Value | boolean}',
+						'interface Options<Child> extends Base<Child> {dense?: boolean}',
+						'function run<Entry>({value: selected = true, dense = false}: Options<Entry>) {}',
+						'run({value: true  });',
+					].join('\n'),
+				}],
+			}],
+		},
+		{
+			...typeAware(
+				'import {run} from "./no-unnecessary-default-arguments.callee.js"; run({value: true, dense: false});',
+				[
+					'interface Base<Value> {value?: Value | boolean}',
+					'interface Options<Child> extends Base<Child> {dense?: boolean}',
+					'export function run<Entry>({value: selected = true, dense = false}: Options<Entry>) {}',
+				].join('\n'),
+			),
+			errors: [{
+				messageId: 'property',
+				data: {name: 'dense'},
+				suggestions: [{
+					messageId: 'remove-property',
+					output: 'import {run} from "./no-unnecessary-default-arguments.callee.js"; run({value: true  });',
+				}],
+			}],
+		},
 	],
 });
 
