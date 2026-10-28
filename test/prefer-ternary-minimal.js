@@ -72,6 +72,10 @@ test({
 		'if (test) { [a, ...items]; } else { [b, ...items]; }',
 		'if (test) { [a, , 1]; } else { [b, , 1]; }',
 		'if (test) { object.a; } else { object.b; }',
+		'if (test) { object.nested.a; } else { object.nested.b; }',
+		'if (test) { object.nested.a(value); } else { object.nested.b(value); }',
+		'if (test) { object?.nested[a]; } else { object?.nested[b]; }',
+		'if (test) { object.nested()[a]; } else { object.nested()[b]; }',
 		'if (test) { a.method(value); } else { b.method(value); }',
 		'function* unicorn() { if (test) { yield* call(a); } else { yield call(b); } }',
 		'function* unicorn() { if (test) { yield; } else { yield call(b); } }',
@@ -98,6 +102,8 @@ test({
 			['if (test) { a + 1; } else { b + 1; }', '(test ? a : b) + 1;'],
 			['if (test) { 1 + a; } else { 1 + b; }', '1 + (test ? a : b);'],
 			['if (test) { object[a]; } else { object[b]; }', 'object[test ? a : b];'],
+			['if (test) { object.nested[a]; } else { object.nested[b]; }', 'object.nested[test ? a : b];'],
+			['if (test) { object[key].nested[a]; } else { object[key].nested[b]; }', 'object[key].nested[test ? a : b];'],
 			['if (test) { ({a: 1}); } else { ({a: 2}); }', '({a: test ? 1 : 2});'],
 			['if (test) { [1, a]; } else { [1, b]; }', '[1, test ? a : b];'],
 			['if (test) { result = call(a); } else { result = call(b); }', 'result = call(test ? a : b);'],
@@ -131,6 +137,7 @@ test({
 			'if (test) { call(a); } else { /* keep */ call(b); }',
 			'if (test) { object./* keep */method(a); } else { object.method(b); }',
 			'if (check()) { object[a]; } else { object[b]; }',
+			'if (check()) { object.nested[a]; } else { object.nested[b]; }',
 			'if (check()) { object.nested.method(a); } else { object.nested.method(b); }',
 			'if (key = other) { object[key](a); } else { object[key](b); }',
 			'if (key++) { object[key](a); } else { object[key](b); }',
@@ -167,6 +174,8 @@ test({
 			['async function unicorn() { if (test) { await a(); } else { await b(); } }', 'async function unicorn() { await (test ? a : b)(); }', {checkVaryingBase: true}],
 			['if (test) { object.a(value); } else { object.b(value); }', 'object[test ? "a" : "b"](value);', {checkComputedMemberAccess: true}],
 			['if (test) { object.a; } else { object.b; }', 'object[test ? "a" : "b"];', {checkComputedMemberAccess: true}],
+			['if (test) { object.nested.a; } else { object.nested.b; }', 'object.nested[test ? "a" : "b"];', {checkComputedMemberAccess: true}],
+			['if (test) { object.nested.a(value); } else { object.nested.b(value); }', 'object.nested[test ? "a" : "b"](value);', {checkComputedMemberAccess: true}],
 		].map(([code, output, options]) => ({
 			code, output, options: ['always', options], errors,
 		})),
@@ -311,6 +320,10 @@ test({
 		typeAware({
 			code: 'const enum First { value } const enum Second { value } declare const test: boolean; if (test) { First.value; } else { Second.value; }',
 			options: ['always', {checkVaryingBase: true}],
+		}),
+		typeAware({
+			code: 'namespace Data {export const enum Choice {A, B}} declare const test: boolean; if (test) { Data.Choice.A; } else { Data.Choice.B; }',
+			options: ['always', {checkComputedMemberAccess: true}],
 		}),
 	],
 	invalid: [

@@ -47,14 +47,14 @@ const foo = test ? a + 1 : b + 1;
 const foo = (test ? a : b) + 1;
 ```
 
-Member access with a varying static property name or receiver is opt-in through [`checkComputedMemberAccess`](#checkcomputedmemberaccess) or [`checkVaryingBase`](#checkvaryingbase). Dynamic computed keys are reported by default:
+Member access with a varying static property name or receiver is opt-in through [`checkComputedMemberAccess`](#checkcomputedmemberaccess) or [`checkVaryingBase`](#checkvaryingbase). Dynamic computed keys are reported by default, including on chained receivers:
 
 ```js
 // ❌
-const value = test ? cache[a] : cache[b];
+const value = test ? state.cache[a] : state.cache[b];
 
 // ✅
-const value = cache[test ? a : b];
+const value = state.cache[test ? a : b];
 ```
 
 The rule also reports one varying object value, array element, or constructor argument:
@@ -147,7 +147,7 @@ const foo = (test ? a : b).value;
 Type: `boolean`\
 Default: `false`
 
-Also report property-read and method-call ternaries that share the same simple receiver and differ only by the static property or method name. Method calls must also share the same arguments. Minimizing these requires computed member access, so it is opt-in. Statically known computed keys, such as `object['a']` and `object[0]`, are included. Receivers are limited to identifiers, literals, `this`, and `super`.
+Whether to also report property-read and method-call ternaries that share the same receiver, including member chains, and differ only by the static property or method name. Method calls must also share the same arguments. Minimizing these requires computed member access, so it is opt-in. Statically known computed keys, such as `object['a']` and `object[0]`, are included. Optional chaining and calls within the shared receiver are ignored.
 
 ```js
 /* eslint unicorn/prefer-minimal-ternary: ['error', {checkComputedMemberAccess: true}] */

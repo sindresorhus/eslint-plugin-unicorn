@@ -255,6 +255,48 @@ test({
 	],
 });
 
+test({
+	valid: [
+		'test ? object.nested.a : object.nested.b;',
+		'test ? object.nested.a(value) : object.nested.b(value);',
+		'test ? object?.nested[a] : object?.nested[b];',
+		'test ? object.nested()[a] : object.nested()[b];',
+		'test ? object[getKey()][a] : object[getKey()][b];',
+		'test ? object[key.name][a] : object[key.name][b];',
+		...[
+			'test ? object?.nested.a : object?.nested.b;',
+			'test ? object.nested().a : object.nested().b;',
+			'test ? object[getKey()].a : object[getKey()].b;',
+			'test ? object.nested.a(first) : object.nested.b(second);',
+		].map(code => ({code, options: [{checkComputedMemberAccess: true}]})),
+	],
+	invalid: [
+		...[
+			['test ? object.nested[a] : object.nested[b];', 'object.nested[test ? a : b];'],
+			['test ? object[key].nested[a] : object[key].nested[b];', 'object[key].nested[test ? a : b];'],
+			['test ? this.store[a] : this.store[b];', 'this.store[test ? a : b];'],
+			['test ? object.nested[first()] : object.nested[second()];', 'object.nested[test ? first() : second()];'],
+			['previous()\ntest ? (object.nested)[a] : (object.nested)[b];', 'previous()\n;(object.nested)[test ? a : b];'],
+		].map(([code, output]) => ({code, output, errors: 1})),
+		...[
+			['test ? object.value.a : object.value.b;', 'object.value[test ? "a" : "b"];'],
+			['test ? object[key].a : object[key].b;', 'object[key][test ? "a" : "b"];'],
+			['test ? object.nested.first(value) : object.nested.second(value);', 'object.nested[test ? "first" : "second"](value);'],
+			['test ? object.nested.first(shared()) : object.nested.second(shared());', 'object.nested[test ? "first" : "second"](shared());'],
+		].map(([code, output]) => ({
+			code, output, options: [{checkComputedMemberAccess: true}], errors: 1,
+		})),
+		...[
+			'change() ? object.nested[a] : object.nested[b];',
+			'test ? object./* keep */nested[a] : object.nested[b];',
+		].map(code => ({code, errors: 1})),
+		...[
+			'change() ? object.nested.a : object.nested.b;',
+			'test ? object.nested.first(value) : object.nested.second(/* keep */ value);',
+		].map(code => ({code, options: [{checkComputedMemberAccess: true}], errors: 1})),
+	],
+});
+
 test.vue({
 	valid: [
 		'<template>{{ test ? call(a, first+second) : call(b, first-second) }}</template>',
@@ -959,7 +1001,6 @@ test.snapshot({
 			'test ? object.a : object?.b;',
 			'test ? object?.["a"] : object?.["b"];',
 			'test ? getObject().a : getObject().b;',
-			'test ? object.value.a : object.value.b;',
 			'test ? object.a : object[key];',
 			outdent`
 				class Foo {
@@ -982,6 +1023,7 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 		},
 		typeAwareComputedMemberAccess('const enum Foo { A, B } declare const test: boolean; test ? Foo.A : Foo.B;'),
+		typeAwareComputedMemberAccess('namespace Data {export const enum Choice {A, B}} declare const test: boolean; test ? Data.Choice.A : Data.Choice.B;'),
 		typeAwareComputedMemberAccess('const enum Foo { A, B } declare const test: boolean; test ? Foo["A"] : Foo["B"];'),
 		typeAwareComputedMemberAccess('const enum Original { A, B } import Foo = Original; declare const test: boolean; test ? Foo.A : Foo.B;'),
 	],
