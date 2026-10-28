@@ -73,7 +73,9 @@ test('comparison factoring preserves exact values', t => {
 
 			for (const [a, b] of pairs) {
 				for (const [left, right] of [[false, false], [false, true], [true, false], [true, true]]) {
-					const context = {a, b, left, right};
+					const context = {
+						a, b, left, right,
+					};
 					t.assert.strictEqual(runInNewContext(output, context), runInNewContext(code, context));
 				}
 			}
