@@ -297,6 +297,40 @@ function getTypeScriptPropertyDefaults(parameter, typeParameters, checker, types
 	return defaults;
 }
 
+/**
+Get an imported declaration's supported function implementation.
+*/
+function getImportedFunction(declaration, typescript) {
+	let functionNode;
+	let expression;
+	if (typescript.isFunctionDeclaration(declaration)) {
+		functionNode = declaration;
+	} else if (typescript.isVariableDeclaration(declaration) && declaration.parent.getFirstToken().kind === typescript.SyntaxKind.ConstKeyword) {
+		expression = declaration.initializer;
+	} else if (typescript.isExportAssignment(declaration) && !declaration.isExportEquals) {
+		expression = declaration.expression;
+	}
+
+	while (expression && typescript.isParenthesizedExpression(expression)) {
+		expression = expression.expression;
+	}
+
+	const initializer = unwrapTypeScriptNode(expression, typescript);
+	if (initializer && (typescript.isArrowFunction(initializer) || typescript.isFunctionExpression(initializer))) {
+		functionNode = initializer;
+	}
+
+	if (
+		!functionNode?.body
+		|| (functionNode.typeParameters?.length > 0 && expression && (declaration.type || expression !== functionNode))
+		|| hasArgumentsOrEval(functionNode, typescript)
+	) {
+		return;
+	}
+
+	return functionNode;
+}
+
 function getImportedParameters(callee, context, typescript, cache) {
 	return withTypeInformation(callee, context, ({checker}) => {
 		const typeScriptNode = context.sourceCode.parserServices.esTreeNodeToTSNodeMap.get(callee);
@@ -315,30 +349,8 @@ function getImportedParameters(callee, context, typescript, cache) {
 		}
 
 		cache.set(declaration, undefined);
-		let functionNode;
-		let expression;
-		if (typescript.isFunctionDeclaration(declaration)) {
-			functionNode = declaration;
-		} else if (typescript.isVariableDeclaration(declaration) && declaration.parent.getFirstToken().kind === typescript.SyntaxKind.ConstKeyword) {
-			expression = declaration.initializer;
-		} else if (typescript.isExportAssignment(declaration) && !declaration.isExportEquals) {
-			expression = declaration.expression;
-		}
-
-		while (expression && typescript.isParenthesizedExpression(expression)) {
-			expression = expression.expression;
-		}
-
-		const initializer = unwrapTypeScriptNode(expression, typescript);
-		if (initializer && (typescript.isArrowFunction(initializer) || typescript.isFunctionExpression(initializer))) {
-			functionNode = initializer;
-		}
-
-		if (
-			!functionNode?.body
-			|| (functionNode.typeParameters?.length > 0 && expression && (declaration.type || expression !== functionNode))
-			|| hasArgumentsOrEval(functionNode, typescript)
-		) {
+		const functionNode = getImportedFunction(declaration, typescript);
+		if (!functionNode) {
 			return;
 		}
 
