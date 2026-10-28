@@ -48,7 +48,7 @@ run({});
 
 Local functions need no type information. Imported functions require TypeScript, [typed linting](https://typescript-eslint.io/getting-started/typed-linting/) (for example, `parserOptions.projectService: true`), and source implementations. Include JavaScript files through `allowJs` or `checkJs`. Declaration files alone are insufficient.
 
-TypeScript, files using the TypeScript parser, and JavaScript with JSDoc types or `@ts-check` receive autofixes when the callee has a single nongeneric call signature and type information confirms that the corresponding parameters or properties are optional. For union-typed object arguments, the property must be optional in every non-nullish member. Intersection-typed object arguments receive suggestions instead.
+TypeScript, files using the TypeScript parser, and JavaScript with JSDoc types or `@ts-check` receive autofixes when the callee has a single nongeneric call signature and type information confirms that the corresponding parameters or properties are optional. For union-typed object arguments, the property must be optional in every non-nullish member. Object arguments wrapped in parentheses or TypeScript expressions and intersection-typed object arguments receive suggestions instead.
 
 Without type information, or when these checks fail, the rule offers suggestions. Review types before applying: defaults do not make explicitly typed properties optional, and removing arguments can affect inference.
 

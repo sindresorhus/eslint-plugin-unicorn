@@ -323,15 +323,17 @@ function isTypeSafeToRemove(call, node, context, typescript) {
 		return false;
 	}
 
-	return withTypeInformation(call.callee, context, ({type, checker}) => {
+	return withTypeInformation(call, context, ({checker}) => {
+		const {esTreeNodeToTSNodeMap} = context.sourceCode.parserServices;
+		const typeScriptCall = esTreeNodeToTSNodeMap.get(call);
+		const type = checker.getTypeAtLocation(typeScriptCall.expression);
 		const signatures = checker.getNonNullableType(type).getCallSignatures();
 		if (signatures.length !== 1 || signatures[0].typeParameters?.length > 0) {
 			return false;
 		}
 
-		const {esTreeNodeToTSNodeMap} = context.sourceCode.parserServices;
 		if (node.type !== 'Property') {
-			const signature = checker.getResolvedSignature(esTreeNodeToTSNodeMap.get(call));
+			const signature = checker.getResolvedSignature(typeScriptCall);
 			const firstIndex = call.arguments.indexOf(node);
 			return call.arguments.slice(firstIndex).every((argument, offset) => {
 				const parameter = signature?.parameters[firstIndex + offset]?.valueDeclaration;
@@ -339,7 +341,12 @@ function isTypeSafeToRemove(call, node, context, typescript) {
 			});
 		}
 
-		const contextualType = checker.getContextualType(esTreeNodeToTSNodeMap.get(node.parent));
+		const object = esTreeNodeToTSNodeMap.get(node.parent);
+		if (object.parent !== typeScriptCall) {
+			return false;
+		}
+
+		const contextualType = checker.getContextualType(object);
 		if (!contextualType) {
 			return false;
 		}

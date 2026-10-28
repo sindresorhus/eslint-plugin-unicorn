@@ -328,16 +328,24 @@ test('typed autofixes preserve strict type checking', t => {
 			'function run({unit = "px"}) {} run({ });',
 		],
 		[
+			'interface Options {unit?: string} function run({unit = "px"}: Options) {} run({unit: "px"});',
+			'interface Options {unit?: string} function run({unit = "px"}: Options) {} run({ });',
+		],
+		[
+			'type Options<Type> = {[Key in keyof Type]?: Type[Key]}; function run({unit = "px"}: Options<{unit: string}>) {} run({unit: "px"});',
+			'type Options<Type> = {[Key in keyof Type]?: Type[Key]}; function run({unit = "px"}: Options<{unit: string}>) {} run({ });',
+		],
+		[
+			'function run({unit = "px"}: {unit?: string}, enabled = true) {} run({unit: "px"}, true);',
+			'function run({unit = "px"}: {unit?: string}, enabled = true) {} run({ });',
+		],
+		[
 			'function run({unit = "px"}: {unit?: string} | undefined = {}) {} run({unit: "px"});',
 			'function run({unit = "px"}: {unit?: string} | undefined = {}) {} run({ });',
 		],
 		[
 			'function run({unit = "px", kind}: {unit?: string; kind: "a"} | {unit?: string; kind: "b"}) {} run({unit: "px", kind: "b"});',
 			'function run({unit = "px", kind}: {unit?: string; kind: "a"} | {unit?: string; kind: "b"}) {} run({  kind: "b"});',
-		],
-		[
-			'function run({unit = "px"}: {unit?: string}) {} run(({unit: "px"}) satisfies {unit?: string});',
-			'function run({unit = "px"}: {unit?: string}) {} run(({ }) satisfies {unit?: string});',
 		],
 		[
 			'import {run} from "./no-unnecessary-default-arguments.callee.js"; run(true);',
@@ -366,10 +374,18 @@ test('typed autofixes preserve strict type checking', t => {
 			files: ['**'],
 			languageOptions: fixture.languageOptions,
 		}, {filename: fixture.filename});
-		t.assert.strictEqual(messages.length, 1);
-		t.assert.notStrictEqual(messages[0].fix, undefined);
-		const {range, text} = messages[0].fix;
-		t.assert.strictEqual(code.slice(0, range[0]) + text + code.slice(range[1]), output);
+		t.assert.notStrictEqual(messages.length, 0);
+		for (const message of messages) {
+			t.assert.notStrictEqual(message.fix, undefined);
+		}
+
+		let fixedCode = code;
+		const fixes = messages.map(message => message.fix).toSorted((left, right) => right.range[0] - left.range[0]);
+		for (const {range, text} of fixes) {
+			fixedCode = fixedCode.slice(0, range[0]) + text + fixedCode.slice(range[1]);
+		}
+
+		t.assert.strictEqual(fixedCode, output);
 		const fixedFixture = typeAware(output, declarations, extension);
 		const [fixedProgram] = fixedFixture.languageOptions.parserOptions.programs;
 		t.assert.deepStrictEqual(fixedProgram.getSemanticDiagnostics(), [], output);
@@ -394,11 +410,20 @@ test('uncertain typed removals retain suggestions', t => {
 		'function run({unit = "px", kind}: {unit?: string; kind: "a"} | {unit: string; kind: "b"}) {} run({unit: "px", kind: "b"});',
 		'const run: (options: {unit?: string} | {other: boolean}) => void = ({unit = "px"}: any) => {}; run({unit: "px"});',
 		'function run({unit = "px"}: {unit?: string} & {other?: boolean}) {} run({unit: "px"});',
+		'function run({unit = "px"}: {unit?: string}) {} run(({unit: "px"}));',
 		'function run({unit = "px"}: {unit?: string}) {} run(({unit: "px"}) satisfies {unit: string});',
+		'function run({unit = "px"}: {unit?: string}) {} run(({unit: "px"}) satisfies {unit?: string});',
+		'function run({unit = "px"}: {unit: string}) {} run({unit: "px"} satisfies {unit?: string});',
+		'function run({unit = "px"}: {unit?: string}) {} run(({unit: "px"} satisfies {unit?: string}) satisfies {unit: string});',
+		'function run({unit = "px"}: {unit?: string}) {} run(({unit: "px"} satisfies {unit?: string})! satisfies {unit: string});',
+		typeAware('const run = ({value = /** @type {any} */ (true)}) => value; const result = (/** @type {<T>(options: {value?: T}) => T} */ (run))({value: true});', undefined, 'js'),
+		typeAware('const run = (value = /** @type {any} */ (true)) => value; const result = (/** @type {<T>(value?: T) => T} */ (run))(true);', undefined, 'js'),
+		typeAware('/** @param {{unit: string}} options */ function run({unit = "px"}) {} run(/** @satisfies {{unit?: string}} */ ({unit: "px"}));', undefined, 'js'),
 	];
 
-	for (const code of cases) {
-		const fixture = typeAware(code);
+	for (const testCase of cases) {
+		const fixture = typeof testCase === 'string' ? typeAware(testCase) : testCase;
+		const {code} = fixture;
 		const [program] = fixture.languageOptions.parserOptions.programs;
 		t.assert.deepStrictEqual(program.getSemanticDiagnostics(), [], code);
 		const result = linter.verifyAndFix(code, {
