@@ -3,6 +3,114 @@ import {getTester, parsers} from './utils/test.js';
 const {test} = getTester(import.meta);
 const fsImport = 'import fs from "node:fs";';
 const url = 'new URL("./data.json", import.meta.url)';
+const requireSetup = 'import {createRequire} from "node:module"; const require = createRequire(import.meta.url);';
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: `${requireSetup} const data = require("./data.json");`,
+			errors: [{messageId: 'prefer-json-import'}],
+			output: `${requireSetup} import data from './data.json' with {type: 'json'};`,
+		},
+		{
+			code: `${requireSetup}\nconst data = require("./data.json")\nconsume(data);`,
+			errors: [{messageId: 'prefer-json-import'}],
+			output: `${requireSetup}\nimport data from './data.json' with {type: 'json'};\nconsume(data);`,
+		},
+		{
+			code: 'import {createRequire} from "node:module"; const require: <T>(path: string) => T = createRequire(import.meta.url); const data = require<Data>("./data.json");',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-json-import'}],
+		},
+		{
+			code: `${fsImport} const data = JSON.parse<Data>(fs.readFileSync(${url}));`,
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-json-import', suggestions: []}],
+		},
+	],
+});
+
+test.snapshot({
+	valid: [
+		'const data = require("./data.json");',
+		'function load(require) { return require("./data.json"); }',
+		'import {createRequire} from "other"; const require = createRequire(import.meta.url); const data = require("./data.json");',
+		'import {other as createRequire} from "node:module"; const require = createRequire(import.meta.url); const data = require("./data.json");',
+		'import {createRequire} from "node:module"; let require = createRequire(import.meta.url); const data = require("./data.json");',
+		'import {createRequire} from "node:module"; const require = createRequire(otherUrl); const data = require("./data.json");',
+		'import {createRequire} from "node:module"; const require = createRequire(new URL("./other.js", import.meta.url)); const data = require("./data.json");',
+		'import {createRequire} from "node:module"; const require = createRequire?.(import.meta.url); const data = require("./data.json");',
+		'import {createRequire} from "node:module"; const {resolve: require} = createRequire(import.meta.url); const data = require("./data.json");',
+		'import {createRequire} from "node:module"; const require = createRequire(...urls); const data = require("./data.json");',
+		'import * as module from "node:module"; const require = module["createRequire"](import.meta.url); const data = require("./data.json");',
+		'import * as module from "node:module"; const require = module?.createRequire(import.meta.url); const data = require("./data.json");',
+		...[
+			'const data = require(path);',
+			'const data = require(tag`./data.json`);',
+			'const data = require(`./data-${name}.json`);', // eslint-disable-line no-template-curly-in-string
+			'const data = require("some-package/package.json");',
+			'const data = require("/data.json");',
+			String.raw`const data = require(".\\data.json");`,
+			'const data = require("./data.js");',
+			'const data = require.resolve("./data.json");',
+			'const data = require?.("./data.json");',
+			'const data = require("./data.json", extra);',
+			'const data = require(...paths);',
+			'const data = require(new URL("./data.json", import.meta.url));',
+			'const load = require; const data = load("./data.json");',
+			'function load() { return require("./data.json"); }',
+			'if (enabled) { const data = require("./data.json"); }',
+			'const data = require("./data.json").name;',
+			'const data = condition && require("./data.json");',
+		].map(code => `${requireSetup} ${code}`),
+		...[
+			'import type {createRequire} from "node:module";',
+			'import {type createRequire} from "node:module";',
+		].map(code => ({code: `${code} const require = createRequire(import.meta.url); const data = require("./data.json");`, languageOptions: {parser: parsers.typescript}})),
+		{code: 'const data = require("./data.json");', languageOptions: {sourceType: 'commonjs'}},
+	],
+	invalid: [
+		...[
+			'const data = require(`../data.json`);',
+			'const data = require(`./fi\\u006ce.json`);',
+			'const data = ((require))(("./data.json"));',
+			'const data = require("./it\'s.json");',
+			'const data = require("./data#part.json");',
+			'const data = require("./data?part.json");',
+			'const data = require("./data%20file.json");',
+			String.raw`const data = require("./dir\\data.json");`,
+			'const data = require("./data.json"), other = 1;',
+			'const {name} = require("./data.json");',
+			'export const data = require("./data.json");',
+			'let data = require("./data.json");',
+			'var data = require("./data.json");',
+			'const data /* keep */ = require("./data.json");',
+			'const data = require(/* keep */ "./data.json");',
+		].map(code => `${requireSetup}\n${code}`),
+		'import {createRequire as create} from "module"; const load = create(import.meta.url); const config = load("./config.json");',
+		'import module from "node:module"; const require = module.createRequire(import.meta.url); const data = require("./data.json");',
+		'import * as module from "module"; const require = module.createRequire(import.meta.url); const data = require("./data.json");',
+		'import {default as module} from "node:module"; const require = module.createRequire(import.meta.url); const data = require("./data.json");',
+		'import {"createRequire" as create} from "node:module"; const require = create(import.meta.url); const data = require("./data.json");',
+		`${requireSetup}\n// Leading comment\nconst data = require("./data.json"); // Trailing comment`,
+		`${requireSetup}\r\nconst data = require("./data.json");\r\n`,
+		`${requireSetup}\nconst first = require("./first.json");\nconst second = require("./second.json");`,
+		...[
+			'const data = require("./data.json");',
+			'const data: Data = require("./data.json");',
+			'const data = require("./data.json") as Data;',
+			'const data = <Data>require("./data.json");',
+			'const data = require("./data.json")!;',
+			'const data = require("./data.json") satisfies Data;',
+		].map(code => ({code: `${requireSetup} ${code}`, languageOptions: {parser: parsers.typescript}})),
+		...[
+			'const require = createRequire(import.meta.url) as NodeRequire;',
+			'const require = createRequire(import.meta.url as string);',
+			'const require = createRequire((<string>import.meta.url)!);',
+		].map(code => ({code: `import {createRequire} from "node:module"; ${code} const data = require("./data.json");`, languageOptions: {parser: parsers.typescript}})),
+	],
+});
 
 // These cases intentionally retain filesystem reads that need runtime behavior.
 test.snapshot({
@@ -44,6 +152,7 @@ test.snapshot({
 			'const data = JSON.parse(fs.readFileSync(new URL(filename, import.meta.url)));',
 		].map(code => `${fsImport}\n${code}`),
 		'import fs from "other"; const data = JSON.parse(fs.readFileSync("./data.json"));',
+		'import {readFile} from "fs.promises"; const data = JSON.parse(await readFile(new URL("./data.json", import.meta.url)));',
 		'const data = JSON.parse(readFileSync("./data.json"));',
 		...[
 			'import type fs from "node:fs"; const data = JSON.parse(fs.readFileSync("./data.json"));',
@@ -101,5 +210,6 @@ test.snapshot({
 		`${fsImport}\n// Leading comment\nconst data = JSON.parse(fs.readFileSync(${url})); // Trailing comment`,
 		`import {"readFileSync" as read} from "fs"; const data = JSON.parse(read(${url}));`,
 		`${fsImport} const data = JSON.parse(fs.readFileSync(${url}, {"encoding": "utf8"}));`,
+		`${fsImport} const data = JSON.parse(fs.readFileSync(new URL("./data%20file.json", import.meta.url)));`,
 	],
 });
