@@ -189,6 +189,8 @@ ruleTest.snapshot({
 		'const regexp = /foo/; function run(text: string) { return text.match((new RegExp(Object.freeze(regexp)) as RegExp)); }',
 		'function run(text: string | undefined) { return text?.["match"](/foo/); }',
 		'function run(text: string) { return text["match" as const](/foo/); }',
+		'function run(text: string) { return text["match" as "match"](/foo/); }',
+		'function run(text: string) { return text["match" satisfies "match"](/foo/); }',
 		'const regexp = new RegExp(/foo/g) as RegExp; "foo".match(regexp)',
 		'const regexp = RegExp(/foo/g) satisfies RegExp; "foo".match(regexp)',
 		'const regexp = new RegExp("foo", flags) as RegExp; "foo".match(regexp)',
