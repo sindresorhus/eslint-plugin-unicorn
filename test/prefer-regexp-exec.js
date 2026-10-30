@@ -56,7 +56,13 @@ ruleTest.snapshot({
 		'"foo"[method](/foo/)',
 		'"foo"?.match(/foo/)',
 		'"foo".match?.(/foo/)',
-		'object?.text.toString().match(/foo/)',
+		outdent`
+			/** @returns {string} */
+			function read() {
+				return 'foo';
+			}
+			read?.().trim().match(/foo/);
+		`,
 		'"foo".matchAll(/foo/g)',
 		'/foo/.exec("foo")',
 		'if ("foo".match(/foo/)) {}',
