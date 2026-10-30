@@ -3,7 +3,7 @@ import {
 	getStaticValue as getStaticValueFromEslintUtilities,
 	hasSideEffect,
 } from '@eslint-community/eslint-utils';
-import {getStaticStringValue} from '../ast/index.js';
+import {getStaticStringValue, isCallOrNewExpression} from '../ast/index.js';
 import isGlobalIdentifier from './is-global-identifier.js';
 import {getEvaluatedChildNodes} from './get-visitor-child-nodes.js';
 import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
@@ -94,9 +94,7 @@ const getConstVariableDefinition = (node, context) => {
 
 const isRegExpValue = value => Object.prototype.toString.call(value) === '[object RegExp]';
 
-const isRegExpConstructor = node => node?.type === 'NewExpression'
-	&& node.callee.type === 'Identifier'
-	&& node.callee.name === 'RegExp';
+const isRegExpConstructor = node => isCallOrNewExpression(node, {name: 'RegExp', optional: false});
 
 const isRegExpLiteral = node => node?.type === 'Literal' && node.regex;
 
@@ -120,7 +118,7 @@ const getRegExpVariableDefinition = (node, context) => {
 };
 
 const isSafeStaticRegExpConstructorArgument = (node, context) => {
-	if (node.type === 'SpreadElement') {
+	if (node.type === 'SpreadElement' || hasSideEffect(node, context.sourceCode)) {
 		return false;
 	}
 

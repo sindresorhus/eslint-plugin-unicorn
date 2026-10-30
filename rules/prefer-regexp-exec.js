@@ -1,6 +1,6 @@
-import {hasSideEffect} from '@eslint-community/eslint-utils';
-import {isMethodCall, isNewExpression} from './ast/index.js';
-import {swapMethodCallObjectAndArgument} from './fix/index.js';
+import {getPropertyName, hasSideEffect} from '@eslint-community/eslint-utils';
+import {getStaticStringValue, isCallOrNewExpression, isMethodCall} from './ast/index.js';
+import {replaceStringRaw, swapMethodCallObjectAndArgument} from './fix/index.js';
 import {
 	getStaticRegExp,
 	hasUnparenthesizedOptionalChainElement,
@@ -19,19 +19,22 @@ const messages = {
 */
 const create = context => {
 	context.on('CallExpression', node => {
-		if (!isMethodCall(node, {
-			method: 'match',
-			argumentsLength: 1,
-			optionalCall: false,
-			optionalMember: false,
-		})) {
+		if (
+			!isMethodCall(node, {
+				argumentsLength: 1,
+				optionalCall: false,
+				optionalMember: false,
+			})
+			|| (node.callee.computed && getStaticStringValue(node.callee.property) === undefined)
+			|| getPropertyName(node.callee) !== 'match'
+		) {
 			return;
 		}
 
 		const stringNode = node.callee.object;
 		const regexpNode = unwrapTypeScriptExpression(node.arguments[0]);
-		// Treat `new RegExp` as pure when its arguments are pure.
-		const regexpExpressions = isNewExpression(regexpNode, {name: 'RegExp'})
+		// Treat `RegExp(...)` and `new RegExp(...)` as pure when their arguments are pure.
+		const regexpExpressions = isCallOrNewExpression(regexpNode, {name: 'RegExp', optional: false})
 			? regexpNode.arguments
 			: [regexpNode];
 		if (
@@ -48,7 +51,9 @@ const create = context => {
 			node: node.callee.property,
 			messageId: MESSAGE_ID,
 			* fix(fixer) {
-				yield fixer.replaceText(node.callee.property, 'exec');
+				yield node.callee.computed
+					? replaceStringRaw(node.callee.property, 'exec', context, fixer)
+					: fixer.replaceText(node.callee.property, 'exec');
 				yield swapMethodCallObjectAndArgument(fixer, node, context);
 			},
 		};

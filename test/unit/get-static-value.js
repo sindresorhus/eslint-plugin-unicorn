@@ -167,6 +167,48 @@ test('returns static regular expressions only for safe expressions', t => {
 	t.assert.strictEqual(evaluate('const result = new RegExp(getPattern());', getStaticRegExp), undefined);
 });
 
+test('returns static regular expressions from ordinary constructor calls', t => {
+	for (const [code, source, flags] of [
+		['const result = RegExp(\'foo\', \'i\');', 'foo', 'i'],
+		['const result = RegExp(/foo/g);', 'foo', 'g'],
+		['const result = RegExp(/foo/g, \'i\');', 'foo', 'i'],
+		['const result = RegExp(/foo/g, undefined);', 'foo', 'g'],
+		['const result = RegExp();', '(?:)', ''],
+		['const flags = \'iy\'; const result = RegExp(`foo`, flags);', 'foo', 'iy'],
+		['const expression = RegExp(\'foo\', \'i\'); const result = expression;', 'foo', 'i'],
+		['let expression = RegExp(\'foo\', \'i\'); const result = expression;', 'foo', 'i'],
+		['const expression = Object.freeze(/foo/); const result = RegExp(expression);', 'foo', ''],
+	]) {
+		const result = evaluate(code, getStaticRegExp);
+		t.assert.strictEqual(result instanceof RegExp, true, code);
+		t.assert.strictEqual(result.source, source, code);
+		t.assert.strictEqual(result.flags, flags, code);
+	}
+});
+
+test('rejects unresolved or unsafe regular expression constructor calls', t => {
+	for (const code of [
+		'const result = RegExp(pattern);',
+		'const result = RegExp(pattern, \'i\');',
+		'const result = RegExp(\'foo\', flags);',
+		'const result = RegExp(getPattern());',
+		'const result = RegExp(\'foo\', getFlags());',
+		'const result = RegExp(\'foo\'.trim());',
+		'const regexp = /foo/; const result = RegExp(Object.freeze(regexp));',
+		'const regexp = /foo/; const result = new RegExp(Object.freeze(regexp));',
+		'const result = RegExp(\'[\');',
+		'const result = RegExp(\'foo\', \'ii\');',
+		'const result = RegExp(...[\'foo\']);',
+		'const result = RegExp?.(\'foo\');',
+		'const expression = RegExp(pattern); const result = expression;',
+		'let expression = RegExp(\'foo\'); expression = /bar/g; const result = expression;',
+	]) {
+		t.assert.strictEqual(evaluate(code, getStaticRegExp), undefined, code);
+	}
+
+	t.assert.strictEqual(evaluate('const result = RegExp?.(\'foo\');', (node, context) => getStaticRegExp(node.expression, context)), undefined);
+});
+
 test('does not recurse forever through cyclic constant aliases', t => {
 	for (const code of [
 		'const value = value; const result = value;',

@@ -52,8 +52,20 @@ ruleTest.snapshot({
 		'"foo".match()',
 		'"foo".match(/foo/, extra)',
 		'"foo".match(...patterns)',
-		'"foo"["match"](/foo/)',
 		'"foo"[method](/foo/)',
+		'"foo"[match](/foo/)',
+		'const method = "match"; "foo"[method](/foo/)',
+		// eslint-disable-next-line no-template-curly-in-string
+		'"foo"[`ma${"tch"}`](/foo/)',
+		'"foo"[String.raw`match`](/foo/)',
+		'"foo"[Object.freeze("match")](/foo/)',
+		'"foo"[""](/foo/)',
+		'"foo"?.["match"](/foo/)',
+		'"foo"["match"]?.(/foo/)',
+		'"foo"["match"](/foo/g)',
+		'"foo"["match"](new RegExp("foo", flags))',
+		'if ("foo"["match"](/foo/)) {}',
+		'class Example { #match() {} method() { return "foo".#match(/foo/); } }',
 		'"foo"?.match(/foo/)',
 		'"foo".match?.(/foo/)',
 		outdent`
@@ -73,6 +85,16 @@ ruleTest.snapshot({
 		'"foo".match(new RegExp("foo", "ii"))',
 		'const regexp = /foo/; "foo".match(Object.freeze(regexp))',
 		'const regexp = /foo/; "foo".match(new RegExp(Object.freeze(regexp)))',
+		'"foo".match(RegExp("foo", "g"))',
+		'const regexp = /foo/g; "foo".match(RegExp(regexp))',
+		'function run(regexp) { return "foo".match(RegExp(regexp)); }',
+		'function run(regexp) { return "foo".match(RegExp(regexp, undefined)); }',
+		'"foo".match(RegExp("foo", flags))',
+		'"foo".match(RegExp(pattern, "i"))',
+		'"foo".match(RegExp?.("foo"))',
+		'"foo".match(RegExp(...patterns))',
+		'const regexp = /foo/; "foo".match(RegExp(Object.freeze(regexp)))',
+		'"foo".match(RegExp("["))',
 	],
 	invalid: [
 		'"foo".match(/foo/)',
@@ -134,6 +156,21 @@ ruleTest.snapshot({
 		'for (const character of"foo".match(/foo/)) {}',
 		'"foo".match(new RegExp)',
 		'const regexp = Object.freeze(/foo/); "foo".match(regexp)',
+		'"foo"["match"](/foo/)',
+		'"foo"[\'match\'](/foo/)',
+		'"foo"[`match`](/foo/)',
+		String.raw`"foo"["ma\u0074ch"](/foo/)`,
+		'"foo"[/* keep */ ("match")](/foo/)',
+		'"foo"["match"](/* keep */ /foo/)',
+		'const text = "foo"\ntext["match"](/foo/)',
+		'("foo" + value)[`match`](/foo/)',
+		'"foo".match(RegExp("foo"))',
+		'"foo".match(RegExp(`foo`, `i`))',
+		'"foo".match(RegExp(/foo/g, "i"))',
+		'"foo".match(RegExp(/foo/))',
+		'"foo".match(RegExp())',
+		'const regexp = RegExp("foo", "i"); "foo".match(regexp)',
+		'"foo"["match"](RegExp("foo", "i"))',
 	],
 });
 
@@ -150,6 +187,8 @@ ruleTest.snapshot({
 		'function run(text: string | undefined) { return text?.match(/foo/); }',
 		'function run(object: {text: string} | undefined) { return object?.text!.match(/foo/); }',
 		'const regexp = /foo/; function run(text: string) { return text.match((new RegExp(Object.freeze(regexp)) as RegExp)); }',
+		'function run(text: string | undefined) { return text?.["match"](/foo/); }',
+		'function run(text: string) { return text["match" as const](/foo/); }',
 	],
 	invalid: [
 		'function run(text: string) { return text.match(/foo/); }',
@@ -161,6 +200,8 @@ ruleTest.snapshot({
 		'function run(text: string) { return text.match((/foo/ as RegExp)); }',
 		'function run(text: string) { return text.match((/foo/ satisfies RegExp)); }',
 		'function run(text: string) { return text.match((new RegExp("foo") as RegExp)); }',
+		'function run(text: string) { return text["match"](/foo/)?.[0]; }',
+		'function run(text: string) { return text.match((RegExp("foo", "i") as RegExp)); }',
 	],
 });
 
@@ -261,13 +302,36 @@ test('nested fixes converge across multiple passes', t => {
 test('global regexp copies remain unchanged', t => {
 	const linter = new Linter();
 	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/prefer-regexp-exec': 'error'}};
-	for (const argumentsText of ['pattern', 'pattern, undefined']) {
-		const code = `const pattern = /a/g; function run(pattern) { return 'aa'.match(new RegExp(${argumentsText})); } JSON.stringify(run(pattern));`;
+	for (const expression of ['new RegExp(pattern)', 'new RegExp(pattern, undefined)', 'RegExp(pattern)', 'RegExp(pattern, undefined)']) {
+		const code = `const pattern = /a/g; function run(pattern) { return 'aa'.match(${expression}); } JSON.stringify(run(pattern));`;
 		const result = linter.verifyAndFix(code, config);
 		t.assert.deepStrictEqual(result.messages, []);
 		t.assert.strictEqual(result.fixed, false);
 		t.assert.strictEqual(runInNewContext(result.output), '["a","a"]');
 	}
+});
+
+test('regexp calls preserve the existing regexp and evaluate the receiver once', t => {
+	const code = outdent`
+		const regexp = /(f)(oo)/y;
+		let calls = 0;
+		/** @returns {string} */
+		function read() {
+			calls++;
+			return 'foo';
+		}
+		const match = read().match(RegExp(regexp));
+		JSON.stringify({match: {...match}, calls, lastIndex: regexp.lastIndex});
+	`;
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, {plugins: {unicorn: plugin}, rules: {'unicorn/prefer-regexp-exec': 'error'}});
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(result.fixed, true);
+	const actual = runInNewContext(result.output);
+	t.assert.strictEqual(actual, runInNewContext(code));
+	const {calls, lastIndex} = JSON.parse(actual);
+	t.assert.strictEqual(calls, 1);
+	t.assert.strictEqual(lastIndex, 3);
 });
 
 test('regexp arguments with side effects retain evaluation order', t => {
