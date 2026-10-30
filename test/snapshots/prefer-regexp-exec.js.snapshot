@@ -136,6 +136,23 @@ Output:
 
 `;
 
+exports[`prefer-regexp-exec > invalid(12): const regexp = new RegExp(\"foo\") as RegExp; \"foo\".match(regexp) 1`] = `
+
+  1 | const regexp = new RegExp("foo") as RegExp; "foo".match(regexp)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(12): const regexp = new RegExp(\"foo\") as RegExp; \"foo\".match(regexp) 2`] = `
+
+Message:
+> 1 | const regexp = new RegExp("foo") as RegExp; "foo".match(regexp)
+    |                                                   ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | const regexp = new RegExp("foo") as RegExp; regexp.exec("foo")
+
+`;
+
 exports[`prefer-regexp-exec > invalid(13): \"foo\".match(new RegExp(\`foo\`, \`i\`)) 1`] = `
 
   1 | "foo".match(new RegExp(\`foo\`, \`i\`))
@@ -150,6 +167,23 @@ Message:
 
 Output:
   1 | new RegExp(\`foo\`, \`i\`).exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(13): const regexp = RegExp(\"foo\") satisfies RegExp; \"foo\".match(regexp) 1`] = `
+
+  1 | const regexp = RegExp("foo") satisfies RegExp; "foo".match(regexp)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(13): const regexp = RegExp(\"foo\") satisfies RegExp; \"foo\".match(regexp) 2`] = `
+
+Message:
+> 1 | const regexp = RegExp("foo") satisfies RegExp; "foo".match(regexp)
+    |                                                      ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | const regexp = RegExp("foo") satisfies RegExp; regexp.exec("foo")
 
 `;
 
@@ -170,6 +204,23 @@ Output:
 
 `;
 
+exports[`prefer-regexp-exec > invalid(14): const regexp = new RegExp(\"foo\")!; \"foo\".match(regexp) 1`] = `
+
+  1 | const regexp = new RegExp("foo")!; "foo".match(regexp)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(14): const regexp = new RegExp(\"foo\")!; \"foo\".match(regexp) 2`] = `
+
+Message:
+> 1 | const regexp = new RegExp("foo")!; "foo".match(regexp)
+    |                                          ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | const regexp = new RegExp("foo")!; regexp.exec("foo")
+
+`;
+
 exports[`prefer-regexp-exec > invalid(15): \"foo\".match(new RegExp(/foo/)) 1`] = `
 
   1 | "foo".match(new RegExp(/foo/))
@@ -184,6 +235,23 @@ Message:
 
 Output:
   1 | new RegExp(/foo/).exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(15): const regexp = <RegExp>RegExp(\"foo\"); \"foo\".match(regexp) 1`] = `
+
+  1 | const regexp = <RegExp>RegExp("foo"); "foo".match(regexp)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(15): const regexp = <RegExp>RegExp(\"foo\"); \"foo\".match(regexp) 2`] = `
+
+Message:
+> 1 | const regexp = <RegExp>RegExp("foo"); "foo".match(regexp)
+    |                                             ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | const regexp = <RegExp>RegExp("foo"); regexp.exec("foo")
 
 `;
 

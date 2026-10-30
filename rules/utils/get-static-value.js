@@ -139,7 +139,7 @@ export const getStaticRegExp = (node, context) => {
 	}
 
 	const definition = getRegExpVariableDefinition(node, context);
-	const initializer = definition?.initializer;
+	const initializer = unwrapTypeScriptExpression(definition?.initializer);
 	const constructor = isRegExpConstructor(node)
 		? node
 		: (isRegExpConstructor(initializer) ? initializer : undefined);

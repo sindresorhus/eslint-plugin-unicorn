@@ -189,6 +189,13 @@ ruleTest.snapshot({
 		'const regexp = /foo/; function run(text: string) { return text.match((new RegExp(Object.freeze(regexp)) as RegExp)); }',
 		'function run(text: string | undefined) { return text?.["match"](/foo/); }',
 		'function run(text: string) { return text["match" as const](/foo/); }',
+		'const regexp = new RegExp(/foo/g) as RegExp; "foo".match(regexp)',
+		'const regexp = RegExp(/foo/g) satisfies RegExp; "foo".match(regexp)',
+		'const regexp = new RegExp("foo", flags) as RegExp; "foo".match(regexp)',
+		'const regexp = RegExp(pattern)!; "foo".match(regexp)',
+		'const regexp = new RegExp(Object.freeze(/foo/)) as RegExp; "foo".match(regexp)',
+		'const regexp = RegExp(Object.freeze(/foo/)) satisfies RegExp; "foo".match(regexp)',
+		'let regexp = RegExp("foo")!; regexp = /foo/g; "foo".match(regexp)',
 	],
 	invalid: [
 		'function run(text: string) { return text.match(/foo/); }',
@@ -202,6 +209,10 @@ ruleTest.snapshot({
 		'function run(text: string) { return text.match((new RegExp("foo") as RegExp)); }',
 		'function run(text: string) { return text["match"](/foo/)?.[0]; }',
 		'function run(text: string) { return text.match((RegExp("foo", "i") as RegExp)); }',
+		'const regexp = new RegExp("foo") as RegExp; "foo".match(regexp)',
+		'const regexp = RegExp("foo") satisfies RegExp; "foo".match(regexp)',
+		'const regexp = new RegExp("foo")!; "foo".match(regexp)',
+		'const regexp = <RegExp>RegExp("foo"); "foo".match(regexp)',
 	],
 });
 
