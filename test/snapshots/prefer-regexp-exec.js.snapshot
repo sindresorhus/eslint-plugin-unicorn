@@ -864,6 +864,23 @@ Output:
 
 `;
 
+exports[`prefer-regexp-exec > invalid(48): \"foo\".match(new RegExp) 1`] = `
+
+  1 | "foo".match(new RegExp)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(48): \"foo\".match(new RegExp) 2`] = `
+
+Message:
+> 1 | "foo".match(new RegExp)
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | (new RegExp).exec("foo")
+
+`;
+
 exports[`prefer-regexp-exec > invalid(5): \`foo\`.match(/foo/) 1`] = `
 
   1 | \`foo\`.match(/foo/)

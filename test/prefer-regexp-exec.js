@@ -124,6 +124,7 @@ ruleTest.snapshot({
 		'"foo".match(/foo/)?.at(0)',
 		'const text = "foo"\ntext.match((0, /foo/))',
 		'for (const character of"foo".match(/foo/)) {}',
+		'"foo".match(new RegExp)',
 	],
 });
 
@@ -230,6 +231,20 @@ test('fixes evaluate a known string receiver exactly once', t => {
 	const actual = runInNewContext(result.output);
 	t.assert.strictEqual(actual, runInNewContext(code));
 	t.assert.strictEqual(JSON.parse(actual).calls, 1);
+});
+
+test('nested fixes converge across multiple passes', t => {
+	const {code, filename, languageOptions} = typeAware('const text = "foo"; text.match(/f/)[0].match(/f/);');
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, {
+		files: ['**/*.ts'],
+		languageOptions,
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/prefer-regexp-exec': 'error'},
+	}, {filename});
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, 'const text = "foo"; /f/.exec(/f/.exec(text)[0]);');
 });
 
 test('global regexp copies remain unchanged', t => {
