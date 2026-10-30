@@ -306,20 +306,20 @@ Output:
 
 `;
 
-exports[`prefer-regexp-exec > invalid(19): let regexp = /foo/; \"foo\".match(regexp) 1`] = `
+exports[`prefer-regexp-exec > invalid(19): const regexp = /foo/; \"foo\".match(new RegExp(regexp)) 1`] = `
 
-  1 | let regexp = /foo/; "foo".match(regexp)
+  1 | const regexp = /foo/; "foo".match(new RegExp(regexp))
 
 `;
 
-exports[`prefer-regexp-exec > invalid(19): let regexp = /foo/; \"foo\".match(regexp) 2`] = `
+exports[`prefer-regexp-exec > invalid(19): const regexp = /foo/; \"foo\".match(new RegExp(regexp)) 2`] = `
 
 Message:
-> 1 | let regexp = /foo/; "foo".match(regexp)
-    |                           ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+> 1 | const regexp = /foo/; "foo".match(new RegExp(regexp))
+    |                             ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
 
 Output:
-  1 | let regexp = /foo/; regexp.exec("foo")
+  1 | const regexp = /foo/; new RegExp(regexp).exec("foo")
 
 `;
 

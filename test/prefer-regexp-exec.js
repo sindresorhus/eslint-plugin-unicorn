@@ -43,6 +43,7 @@ ruleTest.snapshot({
 		'"foo".match(condition ? /foo/ : /bar/)',
 		'const regexp = /foo/g; "foo".match(new RegExp(regexp))',
 		'let regexp = /foo/; regexp = /foo/g; "foo".match(regexp)',
+		'let regexp = /foo/; "foo".match(regexp)',
 		'unknown.match(/foo/)',
 		'function run(text) { return text.match(/foo/); }',
 		'const object = {match() {}}; object.match(/foo/)',
@@ -116,7 +117,7 @@ ruleTest.snapshot({
 		'const flags = "i"; "foo".match(new RegExp("foo", flags))',
 		'const regexp = /foo/; "foo".match(regexp)',
 		'const regexp = /foo/; const alias = regexp; "foo".match(alias)',
-		'let regexp = /foo/; "foo".match(regexp)',
+		'const regexp = /foo/; "foo".match(new RegExp(regexp))',
 		'"foo".match((/foo/))',
 		'"foo".match((0, /foo/))',
 		'"foo".match(true ? /foo/ : /bar/)',
@@ -292,6 +293,22 @@ test('fixes preserve division before a regexp literal', t => {
 		t.assert.strictEqual(result.output, output);
 		t.assert.strictEqual(runInNewContext(result.output), runInNewContext(code));
 		t.assert.strictEqual(runInNewContext(result.output), 3);
+	}
+});
+
+test('hoisted regexp bindings retain their runtime values', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/prefer-regexp-exec': 'error'}};
+	for (const [code, expected] of [
+		['const match = "foo".match(regexp); var regexp = /foo/; JSON.stringify(match);', '[""]'],
+		['const match = run(); var regexp = /foo/; function run() { return "foo".match(regexp); } JSON.stringify(match);', '[""]'],
+		['const regexp = new RegExp(/foo/g, flags); var flags = "i"; JSON.stringify("foofoo".match(regexp));', '["foo","foo"]'],
+	]) {
+		const result = linter.verifyAndFix(code, config);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(runInNewContext(result.output), runInNewContext(code));
+		t.assert.strictEqual(runInNewContext(result.output), expected);
 	}
 });
 

@@ -98,31 +98,12 @@ const isRegExpConstructor = node => isCallOrNewExpression(node, {name: 'RegExp',
 
 const isRegExpLiteral = node => node?.type === 'Literal' && node.regex;
 
-const getRegExpVariableDefinition = (node, context) => {
-	if (node.type !== 'Identifier') {
-		return;
-	}
-
-	const variable = findVariable(context.sourceCode.getScope(node), node);
-	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
-	if (
-		definition?.type !== 'Variable'
-		|| !definition.node.init
-		|| definition.node.id !== definition.name
-		|| variable.references.some(reference => reference.isWrite() && reference.identifier !== definition.name)
-	) {
-		return;
-	}
-
-	return {initializer: definition.node.init};
-};
-
 const isSafeStaticRegExpConstructorArgument = (node, context) => {
 	if (node.type === 'SpreadElement' || hasSideEffect(node, context.sourceCode)) {
 		return false;
 	}
 
-	const staticValue = getStaticValueIfNoSideEffects(node, context);
+	const staticValue = getStaticValueForControlFlow(node, context);
 	if (!staticValue) {
 		return false;
 	}
@@ -133,12 +114,12 @@ const isSafeStaticRegExpConstructorArgument = (node, context) => {
 };
 
 export const getStaticRegExp = (node, context) => {
-	const staticValue = getStaticValueIfNoSideEffects(node, context);
+	const staticValue = getStaticValueForControlFlow(node, context);
 	if (staticValue && isRegExpValue(staticValue.value)) {
 		return staticValue.value;
 	}
 
-	const definition = getRegExpVariableDefinition(node, context);
+	const definition = getConstVariableDefinition(node, context);
 	const initializer = unwrapTypeScriptExpression(definition?.initializer);
 	const constructor = isRegExpConstructor(node)
 		? node
