@@ -5,6 +5,7 @@ import {
 	getStaticRegExp,
 	hasUnparenthesizedOptionalChainElement,
 	isBooleanContext,
+	isKnownNonRegExp,
 	isString,
 	unwrapTypeScriptExpression,
 } from './utils/index.js';
@@ -43,6 +44,7 @@ const create = context => {
 			|| !isString(stringNode, context)
 			|| regexpExpressions.some(expression => hasSideEffect(expression, context.sourceCode))
 			|| getStaticRegExp(regexpNode, context)?.global !== false
+			|| isKnownNonRegExp(node.arguments[0], context, {treatMixedUnionAsNonTarget: true})
 		) {
 			return;
 		}
