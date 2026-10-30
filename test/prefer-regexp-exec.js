@@ -312,6 +312,20 @@ test('hoisted regexp bindings retain their runtime values', t => {
 	}
 });
 
+test('hoisted string bindings preserve caught receiver errors', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/prefer-regexp-exec': 'error'}};
+	for (const code of [
+		'const match = run(); var text = "foo"; function run() { try { return text.match(/foo/); } catch { return "fallback"; } } JSON.stringify(match);',
+		'const match = run(); var ready = true; function run() { let text = ready ? "foo" : undefined; try { return text.match(/foo/); } catch { return "fallback"; } } JSON.stringify(match);',
+	]) {
+		const result = linter.verifyAndFix(code, config);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(result.fixed, false);
+		t.assert.strictEqual(runInNewContext(result.output), '"fallback"');
+	}
+});
+
 test('fixes preserve match results and lastIndex for non-global regexps', t => {
 	const linter = new Linter();
 	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/prefer-regexp-exec': 'error'}};

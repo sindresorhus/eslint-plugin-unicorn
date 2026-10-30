@@ -43,6 +43,30 @@ test('uses string type annotations', t => {
 	t.assert.deepStrictEqual(getResults('function foo(value: string) { inspect(value); }'), [true]);
 });
 
+test('inferred strings reject var bindings and mutable initializer dependencies', t => {
+	for (const code of [
+		'inspect(value); var value = "text";',
+		'var value = "text"; inspect(value);',
+		'let value = ready ? "text" : undefined; var ready = true; inspect(value);',
+		'let source = "text"; let value = source; inspect(value);',
+	]) {
+		t.assert.deepStrictEqual(getResults(code), [false], code);
+	}
+});
+
+test('unmodified let strings retain constant initializer evidence and annotation trust', t => {
+	for (const code of [
+		'let value = "text"; inspect(value);',
+		'const source = "text"; let value = source; inspect(value);',
+		'const ready = true; let value = ready ? "text" : undefined; inspect(value);',
+		'/** @type {string} */ var value = source; inspect(value);',
+	]) {
+		t.assert.deepStrictEqual(getResults(code), [true], code);
+	}
+
+	t.assert.deepStrictEqual(getResults('/** @type {unknown} */ let value = "text"; inspect(value);'), [false]);
+});
+
 test('uses JSDoc string annotations without type information', t => {
 	for (const type of ['string', 'String', '\'ready\'', 'string | \'ready\'']) {
 		const code = `/** @param {${type}} value */ function run(value) { inspect(value); }`;

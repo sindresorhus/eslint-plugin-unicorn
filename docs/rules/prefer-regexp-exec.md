@@ -17,6 +17,8 @@ Global regular expressions and expressions with unknown flags are left unchanged
 
 Mixed pattern types such as `RegExp | string` are left unchanged. Type inference may also skip wrapped types such as `Readonly<RegExp>`.
 
+Receiver value inference ignores `var` bindings. JSDoc and TypeScript string types are trusted.
+
 ## Examples
 
 ```js
