@@ -71,6 +71,8 @@ ruleTest.snapshot({
 		'if (condition && "foo".match(/foo/)) {}',
 		'"foo".match(new RegExp("(", "i"))',
 		'"foo".match(new RegExp("foo", "ii"))',
+		'const regexp = /foo/; "foo".match(Object.freeze(regexp))',
+		'const regexp = /foo/; "foo".match(new RegExp(Object.freeze(regexp)))',
 	],
 	invalid: [
 		'"foo".match(/foo/)',
@@ -131,6 +133,7 @@ ruleTest.snapshot({
 		'const text = "foo"\ntext.match((0, /foo/))',
 		'for (const character of"foo".match(/foo/)) {}',
 		'"foo".match(new RegExp)',
+		'const regexp = Object.freeze(/foo/); "foo".match(regexp)',
 	],
 });
 
@@ -146,6 +149,7 @@ ruleTest.snapshot({
 		'function run(text: string | undefined) { return text!.match(/foo/); }',
 		'function run(text: string | undefined) { return text?.match(/foo/); }',
 		'function run(object: {text: string} | undefined) { return object?.text!.match(/foo/); }',
+		'const regexp = /foo/; function run(text: string) { return text.match((new RegExp(Object.freeze(regexp)) as RegExp)); }',
 	],
 	invalid: [
 		'function run(text: string) { return text.match(/foo/); }',
@@ -156,6 +160,7 @@ ruleTest.snapshot({
 		'declare function getText(): string; getText().match(/foo/)',
 		'function run(text: string) { return text.match((/foo/ as RegExp)); }',
 		'function run(text: string) { return text.match((/foo/ satisfies RegExp)); }',
+		'function run(text: string) { return text.match((new RegExp("foo") as RegExp)); }',
 	],
 });
 
@@ -263,4 +268,20 @@ test('global regexp copies remain unchanged', t => {
 		t.assert.strictEqual(result.fixed, false);
 		t.assert.strictEqual(runInNewContext(result.output), '["a","a"]');
 	}
+});
+
+test('regexp arguments with side effects retain evaluation order', t => {
+	const code = outdent`
+		const regexp = /unfrozen/;
+		/** @returns {string} */
+		function read() {
+			return Object.isFrozen(regexp) ? 'frozen' : 'unfrozen';
+		}
+		JSON.stringify(read().match(Object.freeze(regexp)));
+	`;
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, {plugins: {unicorn: plugin}, rules: {'unicorn/prefer-regexp-exec': 'error'}});
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(runInNewContext(result.output), '["unfrozen"]');
 });
