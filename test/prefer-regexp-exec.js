@@ -230,6 +230,7 @@ ruleTest.snapshot({
 		typeAware('const regexp = new RegExp("foo") as RegExp | string; "foo".match(regexp)'),
 		typeAware('const regexp = Object.freeze(/foo/); "foo".match(regexp)'),
 		typeAware('type Options = {pattern: RegExp | string}; "foo".match(/foo/ as Options["pattern"])'),
+		typeAware('type Options = {pattern: RegExp | "foo"}; "foo".match(/foo/ as Options["pattern"])'),
 	],
 	invalid: [
 		typeAware('declare const object: {text: string}; object.text.match(/foo/)'),
@@ -272,6 +273,26 @@ test('delegates truthiness checks to prefer-regexp-test', t => {
 	`);
 	t.assert.strictEqual(runInNewContext(result.output), runInNewContext(code));
 	t.assert.strictEqual(linter.verifyAndFix(result.output, config).fixed, false);
+});
+
+test('fixes preserve division before a regexp literal', t => {
+	const linter = new Linter();
+	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/prefer-regexp-exec': 'error'}};
+	for (const [code, output] of [
+		['6/"2".match(/2/)', '6/ /2/.exec("2")'],
+		['6/ "2".match(/2/)', '6/ /2/.exec("2")'],
+		['6/\n"2".match(/2/)', '6/\n/2/.exec("2")'],
+		['6/ /* keep */"2".match(/2/)', '6/ /* keep *//2/.exec("2")'],
+		['6/("2").match(/2/)', '6/(/2/).exec("2")'],
+		['6/"2"["match"](/2/)', '6/ /2/["exec"]("2")'],
+	]) {
+		const result = linter.verifyAndFix(code, config);
+		t.assert.deepStrictEqual(result.messages, []);
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.strictEqual(result.output, output);
+		t.assert.strictEqual(runInNewContext(result.output), runInNewContext(code));
+		t.assert.strictEqual(runInNewContext(result.output), 3);
+	}
 });
 
 test('fixes preserve match results and lastIndex for non-global regexps', t => {

@@ -1,5 +1,5 @@
 import {isParenthesized} from '@eslint-community/eslint-utils';
-import {needsSemicolon, shouldAddParenthesesToMemberExpressionObject} from '../utils/index.js';
+import {canTokensBeAdjacent, needsSemicolon, shouldAddParenthesesToMemberExpressionObject} from '../utils/index.js';
 import fixSpaceAroundKeyword from './fix-space-around-keywords.js';
 
 /**
@@ -35,8 +35,18 @@ export default function * swapMethodCallObjectAndArgument(fixer, node, context, 
 	}
 
 	// A replacement starting with `/` can continue the previous expression when the receiver begins a line, so a semicolon may have to go in front of it.
-	if (needsSemicolon(sourceCode.getTokenBefore(objectNode), context, argumentText)) {
+	const tokenBefore = sourceCode.getTokenBefore(objectNode);
+	if (needsSemicolon(tokenBefore, context, argumentText)) {
 		yield fixer.insertTextBefore(objectNode, ';');
+	}
+
+	// Keep an adjacent operator and the new receiver from becoming a comment.
+	if (
+		tokenBefore?.type === 'Punctuator'
+		&& sourceCode.getRange(tokenBefore)[1] === sourceCode.getRange(objectNode)[0]
+		&& !canTokensBeAdjacent(tokenBefore, argumentText)
+	) {
+		argumentText = ` ${argumentText}`;
 	}
 
 	yield fixer.replaceText(objectNode, argumentText);

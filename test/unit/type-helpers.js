@@ -249,7 +249,17 @@ test('type information uses the base constraint of an indexed access type', t =>
 });
 
 test('type information without a symbol is unknown', t => {
-	t.assert.deepStrictEqual(getTypes('declare const object: {x: \'a\'; y: [number]}; check(object.x); check(object.y);', {}, {typeAware: true}), [unknown, unknown]);
+	t.assert.deepStrictEqual(getTypes('declare const object: {value: [number]}; check(object.value);', {}, {typeAware: true}), [unknown]);
+});
+
+test('type information classifies primitive literal types as non-targets', t => {
+	const code = 'declare const object: {text: \'value\'; count: 1; large: 1n}; check(object.text); check(object.count); check(object.large);';
+	t.assert.deepStrictEqual(getTypes(code, {}, {typeAware: true}), [nonTarget, nonTarget, nonTarget]);
+});
+
+test('target type callbacks take precedence over primitive literal classification', t => {
+	const code = 'declare const object: {value: \'text\'}; check(object.value);';
+	t.assert.deepStrictEqual(getTypes(code, {isTargetType: type => type.isStringLiteral()}, {typeAware: true}), [target]);
 });
 
 test('class aliases resolve in their declaration scope', t => {
