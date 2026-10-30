@@ -239,6 +239,32 @@ ruleTest.svelte({
 	}],
 });
 
+test('delegates truthiness checks to prefer-regexp-test', t => {
+	const code = outdent`
+		const text = 'foo';
+		const match = text.match(/(?<letter>f)(oo)/);
+		const exists = Boolean(text.match(/foo/));
+		JSON.stringify({match: {...match}, exists});
+	`;
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: plugin},
+		rules: {'unicorn/prefer-regexp-exec': 'error', 'unicorn/prefer-regexp-test': 'error'},
+	};
+	t.assert.deepStrictEqual(linter.verify(code, config).map(({ruleId}) => ruleId), ['unicorn/prefer-regexp-exec', 'unicorn/prefer-regexp-test']);
+	const result = linter.verifyAndFix(code, config);
+	t.assert.deepStrictEqual(result.messages, []);
+	t.assert.strictEqual(result.fixed, true);
+	t.assert.strictEqual(result.output, outdent`
+		const text = 'foo';
+		const match = /(?<letter>f)(oo)/.exec(text);
+		const exists = Boolean(/foo/.test(text));
+		JSON.stringify({match: {...match}, exists});
+	`);
+	t.assert.strictEqual(runInNewContext(result.output), runInNewContext(code));
+	t.assert.strictEqual(linter.verifyAndFix(result.output, config).fixed, false);
+});
+
 test('fixes preserve match results and lastIndex for non-global regexps', t => {
 	const linter = new Linter();
 	const config = {plugins: {unicorn: plugin}, rules: {'unicorn/prefer-regexp-exec': 'error'}};
