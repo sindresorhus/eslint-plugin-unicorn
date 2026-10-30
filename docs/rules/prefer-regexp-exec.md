@@ -15,7 +15,7 @@ This rule only reports when the receiver is known to be a string and the regular
 
 Global regular expressions and expressions with unknown flags are left unchanged because `String#match()` behaves differently with the `g` flag. Regular expression arguments with side effects, optional receivers, optional calls, and string patterns are not checked. Calls used directly for their truthiness are left to [`prefer-regexp-test`](prefer-regexp-test.md).
 
-Mixed pattern types such as `RegExp | string` are left unchanged.
+Mixed pattern types such as `RegExp | string` are left unchanged. Type inference may also skip wrapped types such as `Readonly<RegExp>`.
 
 ## Examples
 

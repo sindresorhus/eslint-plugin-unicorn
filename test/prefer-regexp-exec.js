@@ -228,11 +228,14 @@ ruleTest.snapshot({
 		typeAware('declare function getPattern(): RegExp; "foo".match(new RegExp(getPattern()))'),
 		typeAware('declare const text: {match(pattern: RegExp): unknown}; text.match(/foo/)'),
 		typeAware('const regexp = new RegExp("foo") as RegExp | string; "foo".match(regexp)'),
+		typeAware('const regexp = Object.freeze(/foo/); "foo".match(regexp)'),
+		typeAware('type Options = {pattern: RegExp | string}; "foo".match(/foo/ as Options["pattern"])'),
 	],
 	invalid: [
 		typeAware('declare const object: {text: string}; object.text.match(/foo/)'),
 		typeAware('declare function getText(): string; getText().match(/foo/)'),
 		typeAware('function run<Text extends string>(text: Text) { return text.match(/foo/); }'),
+		typeAware('type Options = {pattern: RegExp}; "foo".match(/foo/ as Options["pattern"])'),
 	],
 });
 

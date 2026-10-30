@@ -821,6 +821,25 @@ Output:
 
 `;
 
+exports[`prefer-regexp-exec > invalid(4): type Options = {pattern: RegExp}; \"foo\".match(/foo/ as Options[\"pattern\"]) 1`] = `
+
+Filename: file.ts
+
+  1 | type Options = {pattern: RegExp}; "foo".match(/foo/ as Options["pattern"])
+
+`;
+
+exports[`prefer-regexp-exec > invalid(4): type Options = {pattern: RegExp}; \"foo\".match(/foo/ as Options[\"pattern\"]) 2`] = `
+
+Message:
+> 1 | type Options = {pattern: RegExp}; "foo".match(/foo/ as Options["pattern"])
+    |                                         ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | type Options = {pattern: RegExp}; (/foo/ as Options["pattern"]).exec("foo")
+
+`;
+
 exports[`prefer-regexp-exec > invalid(40): function run() {\r\n  return \"foo\".match(/foo/);\r\n} 1`] = `
 
   1 | function run() {
