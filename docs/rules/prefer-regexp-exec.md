@@ -11,13 +11,9 @@
 
 Prefer [`RegExp#exec()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec) when retrieving a single match and its capture groups.
 
-This rule only reports when the receiver is known to be a string and the regular expression is statically known to be non-global. It recognizes literals, `const` aliases, and static `RegExp(...)` or `new RegExp(...)` calls with constant, side-effect-free arguments. Quoted method names and template literals without expressions are also checked. String types can also be inferred from JSDoc, TypeScript annotations, and TypeScript type information when available.
+Checks known string receivers and statically non-global regexps, including literals, `const` aliases, and static `RegExp` constructors. Optional chains, string patterns, and regexp arguments with side effects are skipped. JSDoc and TypeScript string types are trusted.
 
-Global regular expressions and expressions with unknown flags are left unchanged because `String#match()` behaves differently with the `g` flag. Regular expression arguments with side effects, optional receivers, optional calls, and string patterns are not checked. Calls used directly for their truthiness are left to [`prefer-regexp-test`](prefer-regexp-test.md).
-
-Mixed pattern types such as `RegExp | string` are left unchanged. Type inference may also skip wrapped types such as `Readonly<RegExp>`.
-
-Receiver value inference ignores `var` bindings. JSDoc and TypeScript string types are trusted.
+For boolean checks, use [`prefer-regexp-test`](prefer-regexp-test.md).
 
 ## Examples
 
