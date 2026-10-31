@@ -20,5 +20,6 @@ export {default as replaceTemplateElement} from './replace-template-element.js';
 export {default as replaceReferenceIdentifier} from './replace-reference-identifier.js';
 export {default as replaceNodeOrTokenAndSpacesBefore} from './replace-node-or-token-and-spaces-before.js';
 export {default as fixSpaceAroundKeyword} from './fix-space-around-keywords.js';
+export {default as swapMethodCallObjectAndArgument} from './swap-method-call-object-and-argument.js';
 export {default as replaceStringRaw} from './replace-string-raw.js';
 export {default as addParenthesesToReturnOrThrowExpression} from './add-parentheses-to-return-or-throw-expression.js';

@@ -9,6 +9,23 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test: ruleTest} = getTester(import.meta);
 
+test('effectful regexp constructor calls retain evaluation order', t => {
+	const code = outdent`
+		const regexp = /unfrozen/;
+		/** @returns {string} */
+		function read() {
+			return Object.isFrozen(regexp) ? 'frozen' : 'unfrozen';
+		}
+		Boolean(read().match(RegExp(Object.freeze(regexp))));
+	`;
+	const linter = new Linter();
+	const result = linter.verifyAndFix(code, {plugins: {unicorn: plugin}, rules: {'unicorn/prefer-regexp-test': 'error'}});
+	t.assert.strictEqual(result.fixed, false);
+	t.assert.strictEqual(result.messages.length, 1);
+	t.assert.strictEqual(result.messages[0].messageId, 'string-match');
+	t.assert.strictEqual(runInNewContext(result.output), true);
+});
+
 ruleTest({
 	valid: [],
 	invalid: ['`a` | number', '`a` | RegExp'].map(annotation => ({

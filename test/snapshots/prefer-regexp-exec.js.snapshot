@@ -1,0 +1,1448 @@
+exports[`prefer-regexp-exec > invalid(1): \"foo\".match(/foo/) 1`] = `
+
+  1 | "foo".match(/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(1): \"foo\".match(/foo/) 2`] = `
+
+Message:
+> 1 | "foo".match(/foo/)
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | /foo/.exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(1): declare const object: {text: string}; object.text.match(/foo/) 1`] = `
+
+Filename: file.ts
+
+  1 | declare const object: {text: string}; object.text.match(/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(1): declare const object: {text: string}; object.text.match(/foo/) 2`] = `
+
+Message:
+> 1 | declare const object: {text: string}; object.text.match(/foo/)
+    |                                                   ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | declare const object: {text: string}; /foo/.exec(object.text)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(1): function run(text: string) { return text.match(/foo/); } 1`] = `
+
+  1 | function run(text: string) { return text.match(/foo/); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(1): function run(text: string) { return text.match(/foo/); } 2`] = `
+
+Message:
+> 1 | function run(text: string) { return text.match(/foo/); }
+    |                                          ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | function run(text: string) { return /foo/.exec(text); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(10): const text = \"foo\"; const alias = text; alias.match(/foo/) 1`] = `
+
+  1 | const text = "foo"; const alias = text; alias.match(/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(10): const text = \"foo\"; const alias = text; alias.match(/foo/) 2`] = `
+
+Message:
+> 1 | const text = "foo"; const alias = text; alias.match(/foo/)
+    |                                               ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | const text = "foo"; const alias = text; /foo/.exec(alias)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(10): function run(text: string) { return text[\"match\"](/foo/)?.[0]; } 1`] = `
+
+  1 | function run(text: string) { return text["match"](/foo/)?.[0]; }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(10): function run(text: string) { return text[\"match\"](/foo/)?.[0]; } 2`] = `
+
+Message:
+> 1 | function run(text: string) { return text["match"](/foo/)?.[0]; }
+    |                                          ^^^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | function run(text: string) { return /foo/["exec"](text)?.[0]; }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(11): \"foo\".trim().match(/foo/) 1`] = `
+
+  1 | "foo".trim().match(/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(11): \"foo\".trim().match(/foo/) 2`] = `
+
+Message:
+> 1 | "foo".trim().match(/foo/)
+    |              ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | /foo/.exec("foo".trim())
+
+`;
+
+exports[`prefer-regexp-exec > invalid(11): function run(text: string) { return text.match((RegExp(\"foo\", \"i\") as RegExp)); } 1`] = `
+
+  1 | function run(text: string) { return text.match((RegExp("foo", "i") as RegExp)); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(11): function run(text: string) { return text.match((RegExp(\"foo\", \"i\") as RegExp)); } 2`] = `
+
+Message:
+> 1 | function run(text: string) { return text.match((RegExp("foo", "i") as RegExp)); }
+    |                                          ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | function run(text: string) { return (RegExp("foo", "i") as RegExp).exec((text)); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(12): \"foo\".match(new RegExp(\"foo\")) 1`] = `
+
+  1 | "foo".match(new RegExp("foo"))
+
+`;
+
+exports[`prefer-regexp-exec > invalid(12): \"foo\".match(new RegExp(\"foo\")) 2`] = `
+
+Message:
+> 1 | "foo".match(new RegExp("foo"))
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | new RegExp("foo").exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(12): const regexp = new RegExp(\"foo\") as RegExp; \"foo\".match(regexp) 1`] = `
+
+  1 | const regexp = new RegExp("foo") as RegExp; "foo".match(regexp)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(12): const regexp = new RegExp(\"foo\") as RegExp; \"foo\".match(regexp) 2`] = `
+
+Message:
+> 1 | const regexp = new RegExp("foo") as RegExp; "foo".match(regexp)
+    |                                                   ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | const regexp = new RegExp("foo") as RegExp; regexp.exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(13): \"foo\".match(new RegExp(\`foo\`, \`i\`)) 1`] = `
+
+  1 | "foo".match(new RegExp(\`foo\`, \`i\`))
+
+`;
+
+exports[`prefer-regexp-exec > invalid(13): \"foo\".match(new RegExp(\`foo\`, \`i\`)) 2`] = `
+
+Message:
+> 1 | "foo".match(new RegExp(\`foo\`, \`i\`))
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | new RegExp(\`foo\`, \`i\`).exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(13): const regexp = RegExp(\"foo\") satisfies RegExp | string; \"foo\".match(regexp) 1`] = `
+
+  1 | const regexp = RegExp("foo") satisfies RegExp | string; "foo".match(regexp)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(13): const regexp = RegExp(\"foo\") satisfies RegExp | string; \"foo\".match(regexp) 2`] = `
+
+Message:
+> 1 | const regexp = RegExp("foo") satisfies RegExp | string; "foo".match(regexp)
+    |                                                               ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | const regexp = RegExp("foo") satisfies RegExp | string; regexp.exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(14): \"foo\".match(new RegExp(/foo/g, \"i\")) 1`] = `
+
+  1 | "foo".match(new RegExp(/foo/g, "i"))
+
+`;
+
+exports[`prefer-regexp-exec > invalid(14): \"foo\".match(new RegExp(/foo/g, \"i\")) 2`] = `
+
+Message:
+> 1 | "foo".match(new RegExp(/foo/g, "i"))
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | new RegExp(/foo/g, "i").exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(14): const regexp = new RegExp(\"foo\")!; \"foo\".match(regexp) 1`] = `
+
+  1 | const regexp = new RegExp("foo")!; "foo".match(regexp)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(14): const regexp = new RegExp(\"foo\")!; \"foo\".match(regexp) 2`] = `
+
+Message:
+> 1 | const regexp = new RegExp("foo")!; "foo".match(regexp)
+    |                                          ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | const regexp = new RegExp("foo")!; regexp.exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(15): \"foo\".match(new RegExp(/foo/)) 1`] = `
+
+  1 | "foo".match(new RegExp(/foo/))
+
+`;
+
+exports[`prefer-regexp-exec > invalid(15): \"foo\".match(new RegExp(/foo/)) 2`] = `
+
+Message:
+> 1 | "foo".match(new RegExp(/foo/))
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | new RegExp(/foo/).exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(15): const regexp = <RegExp>RegExp(\"foo\"); \"foo\".match(regexp) 1`] = `
+
+  1 | const regexp = <RegExp>RegExp("foo"); "foo".match(regexp)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(15): const regexp = <RegExp>RegExp(\"foo\"); \"foo\".match(regexp) 2`] = `
+
+Message:
+> 1 | const regexp = <RegExp>RegExp("foo"); "foo".match(regexp)
+    |                                             ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | const regexp = <RegExp>RegExp("foo"); regexp.exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(16): const flags = \"i\"; \"foo\".match(new RegExp(\"foo\", flags)) 1`] = `
+
+  1 | const flags = "i"; "foo".match(new RegExp("foo", flags))
+
+`;
+
+exports[`prefer-regexp-exec > invalid(16): const flags = \"i\"; \"foo\".match(new RegExp(\"foo\", flags)) 2`] = `
+
+Message:
+> 1 | const flags = "i"; "foo".match(new RegExp("foo", flags))
+    |                          ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | const flags = "i"; new RegExp("foo", flags).exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(17): const regexp = /foo/; \"foo\".match(regexp) 1`] = `
+
+  1 | const regexp = /foo/; "foo".match(regexp)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(17): const regexp = /foo/; \"foo\".match(regexp) 2`] = `
+
+Message:
+> 1 | const regexp = /foo/; "foo".match(regexp)
+    |                             ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | const regexp = /foo/; regexp.exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(18): const regexp = /foo/; const alias = regexp; \"foo\".match(alias) 1`] = `
+
+  1 | const regexp = /foo/; const alias = regexp; "foo".match(alias)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(18): const regexp = /foo/; const alias = regexp; \"foo\".match(alias) 2`] = `
+
+Message:
+> 1 | const regexp = /foo/; const alias = regexp; "foo".match(alias)
+    |                                                   ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | const regexp = /foo/; const alias = regexp; alias.exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(19): const regexp = /foo/; \"foo\".match(new RegExp(regexp)) 1`] = `
+
+  1 | const regexp = /foo/; "foo".match(new RegExp(regexp))
+
+`;
+
+exports[`prefer-regexp-exec > invalid(19): const regexp = /foo/; \"foo\".match(new RegExp(regexp)) 2`] = `
+
+Message:
+> 1 | const regexp = /foo/; "foo".match(new RegExp(regexp))
+    |                             ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | const regexp = /foo/; new RegExp(regexp).exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(2): \"foo\".match(/foo/i) 1`] = `
+
+  1 | "foo".match(/foo/i)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(2): \"foo\".match(/foo/i) 2`] = `
+
+Message:
+> 1 | "foo".match(/foo/i)
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | /foo/i.exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(2): declare function getText(): string; getText().match(/foo/) 1`] = `
+
+Filename: file.ts
+
+  1 | declare function getText(): string; getText().match(/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(2): declare function getText(): string; getText().match(/foo/) 2`] = `
+
+Message:
+> 1 | declare function getText(): string; getText().match(/foo/)
+    |                                               ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | declare function getText(): string; /foo/.exec(getText())
+
+`;
+
+exports[`prefer-regexp-exec > invalid(2): function run() { return (text as string).match(/foo/); } 1`] = `
+
+  1 | function run() { return (text as string).match(/foo/); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(2): function run() { return (text as string).match(/foo/); } 2`] = `
+
+Message:
+> 1 | function run() { return (text as string).match(/foo/); }
+    |                                          ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | function run() { return (/foo/).exec(text as string); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(20): \"foo\".match((/foo/)) 1`] = `
+
+  1 | "foo".match((/foo/))
+
+`;
+
+exports[`prefer-regexp-exec > invalid(20): \"foo\".match((/foo/)) 2`] = `
+
+Message:
+> 1 | "foo".match((/foo/))
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | /foo/.exec(("foo"))
+
+`;
+
+exports[`prefer-regexp-exec > invalid(21): \"foo\".match((0, /foo/)) 1`] = `
+
+  1 | "foo".match((0, /foo/))
+
+`;
+
+exports[`prefer-regexp-exec > invalid(21): \"foo\".match((0, /foo/)) 2`] = `
+
+Message:
+> 1 | "foo".match((0, /foo/))
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | (0, /foo/).exec(("foo"))
+
+`;
+
+exports[`prefer-regexp-exec > invalid(22): \"foo\".match(true ? /foo/ : /bar/) 1`] = `
+
+  1 | "foo".match(true ? /foo/ : /bar/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(22): \"foo\".match(true ? /foo/ : /bar/) 2`] = `
+
+Message:
+> 1 | "foo".match(true ? /foo/ : /bar/)
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | (true ? /foo/ : /bar/).exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(23): ((\"foo\")).match((/foo/)) 1`] = `
+
+  1 | (("foo")).match((/foo/))
+
+`;
+
+exports[`prefer-regexp-exec > invalid(23): ((\"foo\")).match((/foo/)) 2`] = `
+
+Message:
+> 1 | (("foo")).match((/foo/))
+    |           ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | ((/foo/)).exec(("foo"))
+
+`;
+
+exports[`prefer-regexp-exec > invalid(24): (log(), \"foo\").match(/foo/) 1`] = `
+
+  1 | (log(), "foo").match(/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(24): (log(), \"foo\").match(/foo/) 2`] = `
+
+Message:
+> 1 | (log(), "foo").match(/foo/)
+    |                ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | (/foo/).exec((log(), "foo"))
+
+`;
+
+exports[`prefer-regexp-exec > invalid(25): const match = \"foo\".match(/foo/) || fallback; 1`] = `
+
+  1 | const match = "foo".match(/foo/) || fallback;
+
+`;
+
+exports[`prefer-regexp-exec > invalid(25): const match = \"foo\".match(/foo/) || fallback; 2`] = `
+
+Message:
+> 1 | const match = "foo".match(/foo/) || fallback;
+    |                     ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | const match = /foo/.exec("foo") || fallback;
+
+`;
+
+exports[`prefer-regexp-exec > invalid(26): const [match, capture] = \"foo\".match(/(foo)/); 1`] = `
+
+  1 | const [match, capture] = "foo".match(/(foo)/);
+
+`;
+
+exports[`prefer-regexp-exec > invalid(26): const [match, capture] = \"foo\".match(/(foo)/); 2`] = `
+
+Message:
+> 1 | const [match, capture] = "foo".match(/(foo)/);
+    |                                ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | const [match, capture] = /(foo)/.exec("foo");
+
+`;
+
+exports[`prefer-regexp-exec > invalid(27): function run() { return\"foo\".match(/foo/); } 1`] = `
+
+  1 | function run() { return"foo".match(/foo/); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(27): function run() { return\"foo\".match(/foo/); } 2`] = `
+
+Message:
+> 1 | function run() { return"foo".match(/foo/); }
+    |                              ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | function run() { return /foo/.exec("foo"); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(28): function run() { throw\"foo\".match(/foo/); } 1`] = `
+
+  1 | function run() { throw"foo".match(/foo/); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(28): function run() { throw\"foo\".match(/foo/); } 2`] = `
+
+Message:
+> 1 | function run() { throw"foo".match(/foo/); }
+    |                             ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | function run() { throw /foo/.exec("foo"); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(29): function * run() { yield\"foo\".match(/foo/); } 1`] = `
+
+  1 | function * run() { yield"foo".match(/foo/); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(29): function * run() { yield\"foo\".match(/foo/); } 2`] = `
+
+Message:
+> 1 | function * run() { yield"foo".match(/foo/); }
+    |                               ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | function * run() { yield /foo/.exec("foo"); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(3): \"foo\".match(/foo/y) 1`] = `
+
+  1 | "foo".match(/foo/y)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(3): \"foo\".match(/foo/y) 2`] = `
+
+Message:
+> 1 | "foo".match(/foo/y)
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | /foo/y.exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(3): function run() { return (<string>text).match(/foo/); } 1`] = `
+
+  1 | function run() { return (<string>text).match(/foo/); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(3): function run() { return (<string>text).match(/foo/); } 2`] = `
+
+Message:
+> 1 | function run() { return (<string>text).match(/foo/); }
+    |                                        ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | function run() { return (/foo/).exec(<string>text); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(3): function run<Text extends string>(text: Text) { return text.match(/foo/); } 1`] = `
+
+Filename: file.ts
+
+  1 | function run<Text extends string>(text: Text) { return text.match(/foo/); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(3): function run<Text extends string>(text: Text) { return text.match(/foo/); } 2`] = `
+
+Message:
+> 1 | function run<Text extends string>(text: Text) { return text.match(/foo/); }
+    |                                                             ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | function run<Text extends string>(text: Text) { return /foo/.exec(text); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(30): async function run() { await\"foo\".match(/foo/); } 1`] = `
+
+  1 | async function run() { await"foo".match(/foo/); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(30): async function run() { await\"foo\".match(/foo/); } 2`] = `
+
+Message:
+> 1 | async function run() { await"foo".match(/foo/); }
+    |                                   ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | async function run() { await /foo/.exec("foo"); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(31): const text = \"foo\"\ntext.match(/foo/) 1`] = `
+
+  1 | const text = "foo"
+  2 | text.match(/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(31): const text = \"foo\"\ntext.match(/foo/) 2`] = `
+
+Message:
+  1 | const text = "foo"
+> 2 | text.match(/foo/)
+    |      ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | const text = "foo"
+  2 | ;/foo/.exec(text)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(32): \"foo\".match(/* keep */ /foo/) 1`] = `
+
+  1 | "foo".match(/* keep */ /foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(32): \"foo\".match(/* keep */ /foo/) 2`] = `
+
+Message:
+> 1 | "foo".match(/* keep */ /foo/)
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | /foo/.exec(/* keep */ "foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(33): \"foo\" /* keep */.match(/foo/) 1`] = `
+
+  1 | "foo" /* keep */.match(/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(33): \"foo\" /* keep */.match(/foo/) 2`] = `
+
+Message:
+> 1 | "foo" /* keep */.match(/foo/)
+    |                  ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | /foo/ /* keep */.exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(34): (/* keep */ \"foo\").match(/foo/) 1`] = `
+
+  1 | (/* keep */ "foo").match(/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(34): (/* keep */ \"foo\").match(/foo/) 2`] = `
+
+Message:
+> 1 | (/* keep */ "foo").match(/foo/)
+    |                    ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | (/* keep */ /foo/).exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(35): \"foo\".match(new RegExp(/* keep */ \"foo\")) 1`] = `
+
+  1 | "foo".match(new RegExp(/* keep */ "foo"))
+
+`;
+
+exports[`prefer-regexp-exec > invalid(35): \"foo\".match(new RegExp(/* keep */ \"foo\")) 2`] = `
+
+Message:
+> 1 | "foo".match(new RegExp(/* keep */ "foo"))
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | new RegExp(/* keep */ "foo").exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(36): (\"foo\" /* keep */ + \"bar\").match(/foo/) 1`] = `
+
+  1 | ("foo" /* keep */ + "bar").match(/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(36): (\"foo\" /* keep */ + \"bar\").match(/foo/) 2`] = `
+
+Message:
+> 1 | ("foo" /* keep */ + "bar").match(/foo/)
+    |                            ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | (/foo/).exec("foo" /* keep */ + "bar")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(37): \"foo\".match(/foo/).slice(1) 1`] = `
+
+  1 | "foo".match(/foo/).slice(1)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(37): \"foo\".match(/foo/).slice(1) 2`] = `
+
+Message:
+> 1 | "foo".match(/foo/).slice(1)
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | /foo/.exec("foo").slice(1)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(38): /** @param {string} text */\nfunction run(text) {\n\treturn text.match(/foo/);\n} 1`] = `
+
+  1 | /** @param {string} text */
+  2 | function run(text) {
+  3 | 	return text.match(/foo/);
+  4 | }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(38): /** @param {string} text */\nfunction run(text) {\n\treturn text.match(/foo/);\n} 2`] = `
+
+Message:
+  1 | /** @param {string} text */
+  2 | function run(text) {
+> 3 | 	return text.match(/foo/);
+    | 	            ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+  4 | }
+
+Output:
+  1 | /** @param {string} text */
+  2 | function run(text) {
+  3 | 	return /foo/.exec(text);
+  4 | }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(39): /** @returns {string} */\nfunction read() { return source; }\nread().match(/foo/); 1`] = `
+
+  1 | /** @returns {string} */
+  2 | function read() { return source; }
+  3 | read().match(/foo/);
+
+`;
+
+exports[`prefer-regexp-exec > invalid(39): /** @returns {string} */\nfunction read() { return source; }\nread().match(/foo/); 2`] = `
+
+Message:
+  1 | /** @returns {string} */
+  2 | function read() { return source; }
+> 3 | read().match(/foo/);
+    |        ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | /** @returns {string} */
+  2 | function read() { return source; }
+  3 | /foo/.exec(read());
+
+`;
+
+exports[`prefer-regexp-exec > invalid(4): \"foo\".match(/(?<letter>f)oo/d) 1`] = `
+
+  1 | "foo".match(/(?<letter>f)oo/d)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(4): \"foo\".match(/(?<letter>f)oo/d) 2`] = `
+
+Message:
+> 1 | "foo".match(/(?<letter>f)oo/d)
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | /(?<letter>f)oo/d.exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(4): function run(text: string) { return text!.match(/foo/); } 1`] = `
+
+  1 | function run(text: string) { return text!.match(/foo/); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(4): function run(text: string) { return text!.match(/foo/); } 2`] = `
+
+Message:
+> 1 | function run(text: string) { return text!.match(/foo/); }
+    |                                           ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | function run(text: string) { return /foo/.exec(text!); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(4): type Options = {pattern: RegExp}; \"foo\".match(/foo/ as Options[\"pattern\"]) 1`] = `
+
+Filename: file.ts
+
+  1 | type Options = {pattern: RegExp}; "foo".match(/foo/ as Options["pattern"])
+
+`;
+
+exports[`prefer-regexp-exec > invalid(4): type Options = {pattern: RegExp}; \"foo\".match(/foo/ as Options[\"pattern\"]) 2`] = `
+
+Message:
+> 1 | type Options = {pattern: RegExp}; "foo".match(/foo/ as Options["pattern"])
+    |                                         ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | type Options = {pattern: RegExp}; (/foo/ as Options["pattern"]).exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(40): function run() {\r\n  return \"foo\".match(/foo/);\r\n} 1`] = `
+
+  1 | function run() {
+  2 |   return "foo".match(/foo/);
+  3 | }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(40): function run() {\r\n  return \"foo\".match(/foo/);\r\n} 2`] = `
+
+Message:
+  1 | function run() {
+> 2 |   return "foo".match(/foo/);
+    |                ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+  3 | }
+
+Output:
+  1 | function run() {
+  2 |   return /foo/.exec("foo");
+  3 | }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(41): const element = <div>{\"foo\".match(/foo/)}</div>; 1`] = `
+
+  1 | const element = <div>{"foo".match(/foo/)}</div>;
+
+`;
+
+exports[`prefer-regexp-exec > invalid(41): const element = <div>{\"foo\".match(/foo/)}</div>; 2`] = `
+
+Message:
+> 1 | const element = <div>{"foo".match(/foo/)}</div>;
+    |                             ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | const element = <div>{/foo/.exec("foo")}</div>;
+
+`;
+
+exports[`prefer-regexp-exec > invalid(42): \"\".match(/(?:)/) 1`] = `
+
+  1 | "".match(/(?:)/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(42): \"\".match(/(?:)/) 2`] = `
+
+Message:
+> 1 | "".match(/(?:)/)
+    |    ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | /(?:)/.exec("")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(43): \"foo\".match(new RegExp(\"\")) 1`] = `
+
+  1 | "foo".match(new RegExp(""))
+
+`;
+
+exports[`prefer-regexp-exec > invalid(43): \"foo\".match(new RegExp(\"\")) 2`] = `
+
+Message:
+> 1 | "foo".match(new RegExp(""))
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | new RegExp("").exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(44): String.raw\`foo\`.match(/foo/) 1`] = `
+
+  1 | String.raw\`foo\`.match(/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(44): String.raw\`foo\`.match(/foo/) 2`] = `
+
+Message:
+> 1 | String.raw\`foo\`.match(/foo/)
+    |                 ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | /foo/.exec(String.raw\`foo\`)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(45): \"foo\".match(/foo/)?.at(0) 1`] = `
+
+  1 | "foo".match(/foo/)?.at(0)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(45): \"foo\".match(/foo/)?.at(0) 2`] = `
+
+Message:
+> 1 | "foo".match(/foo/)?.at(0)
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | /foo/.exec("foo")?.at(0)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(46): const text = \"foo\"\ntext.match((0, /foo/)) 1`] = `
+
+  1 | const text = "foo"
+  2 | text.match((0, /foo/))
+
+`;
+
+exports[`prefer-regexp-exec > invalid(46): const text = \"foo\"\ntext.match((0, /foo/)) 2`] = `
+
+Message:
+  1 | const text = "foo"
+> 2 | text.match((0, /foo/))
+    |      ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | const text = "foo"
+  2 | ;(0, /foo/).exec((text))
+
+`;
+
+exports[`prefer-regexp-exec > invalid(47): for (const character of\"foo\".match(/foo/)) {} 1`] = `
+
+  1 | for (const character of"foo".match(/foo/)) {}
+
+`;
+
+exports[`prefer-regexp-exec > invalid(47): for (const character of\"foo\".match(/foo/)) {} 2`] = `
+
+Message:
+> 1 | for (const character of"foo".match(/foo/)) {}
+    |                              ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | for (const character of /foo/.exec("foo")) {}
+
+`;
+
+exports[`prefer-regexp-exec > invalid(48): \"foo\".match(new RegExp) 1`] = `
+
+  1 | "foo".match(new RegExp)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(48): \"foo\".match(new RegExp) 2`] = `
+
+Message:
+> 1 | "foo".match(new RegExp)
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | (new RegExp).exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(49): const regexp = Object.freeze(/foo/); \"foo\".match(regexp) 1`] = `
+
+  1 | const regexp = Object.freeze(/foo/); "foo".match(regexp)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(49): const regexp = Object.freeze(/foo/); \"foo\".match(regexp) 2`] = `
+
+Message:
+> 1 | const regexp = Object.freeze(/foo/); "foo".match(regexp)
+    |                                            ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | const regexp = Object.freeze(/foo/); regexp.exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(5): \`foo\`.match(/foo/) 1`] = `
+
+  1 | \`foo\`.match(/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(5): \`foo\`.match(/foo/) 2`] = `
+
+Message:
+> 1 | \`foo\`.match(/foo/)
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | /foo/.exec(\`foo\`)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(5): function run(text: string) { return (text satisfies string).match(/foo/); } 1`] = `
+
+  1 | function run(text: string) { return (text satisfies string).match(/foo/); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(5): function run(text: string) { return (text satisfies string).match(/foo/); } 2`] = `
+
+Message:
+> 1 | function run(text: string) { return (text satisfies string).match(/foo/); }
+    |                                                             ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | function run(text: string) { return (/foo/).exec(text satisfies string); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(50): \"foo\"[\"match\"](/foo/) 1`] = `
+
+  1 | "foo"["match"](/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(50): \"foo\"[\"match\"](/foo/) 2`] = `
+
+Message:
+> 1 | "foo"["match"](/foo/)
+    |       ^^^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | /foo/["exec"]("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(51): \"foo\"['match'](/foo/) 1`] = `
+
+  1 | "foo"['match'](/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(51): \"foo\"['match'](/foo/) 2`] = `
+
+Message:
+> 1 | "foo"['match'](/foo/)
+    |       ^^^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | /foo/['exec']("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(52): \"foo\"[\`match\`](/foo/) 1`] = `
+
+  1 | "foo"[\`match\`](/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(52): \"foo\"[\`match\`](/foo/) 2`] = `
+
+Message:
+> 1 | "foo"[\`match\`](/foo/)
+    |       ^^^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | /foo/[\`exec\`]("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(53): \"foo\"[\"ma\\u0074ch\"](/foo/) 1`] = `
+
+  1 | "foo"["ma\\u0074ch"](/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(53): \"foo\"[\"ma\\u0074ch\"](/foo/) 2`] = `
+
+Message:
+> 1 | "foo"["ma\\u0074ch"](/foo/)
+    |       ^^^^^^^^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | /foo/["exec"]("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(54): \"foo\"[/* keep */ (\"match\")](/foo/) 1`] = `
+
+  1 | "foo"[/* keep */ ("match")](/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(54): \"foo\"[/* keep */ (\"match\")](/foo/) 2`] = `
+
+Message:
+> 1 | "foo"[/* keep */ ("match")](/foo/)
+    |                   ^^^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | /foo/[/* keep */ ("exec")]("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(55): \"foo\"[\"match\"](/* keep */ /foo/) 1`] = `
+
+  1 | "foo"["match"](/* keep */ /foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(55): \"foo\"[\"match\"](/* keep */ /foo/) 2`] = `
+
+Message:
+> 1 | "foo"["match"](/* keep */ /foo/)
+    |       ^^^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | /foo/["exec"](/* keep */ "foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(56): const text = \"foo\"\ntext[\"match\"](/foo/) 1`] = `
+
+  1 | const text = "foo"
+  2 | text["match"](/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(56): const text = \"foo\"\ntext[\"match\"](/foo/) 2`] = `
+
+Message:
+  1 | const text = "foo"
+> 2 | text["match"](/foo/)
+    |      ^^^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | const text = "foo"
+  2 | ;/foo/["exec"](text)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(57): (\"foo\" + value)[\`match\`](/foo/) 1`] = `
+
+  1 | ("foo" + value)[\`match\`](/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(57): (\"foo\" + value)[\`match\`](/foo/) 2`] = `
+
+Message:
+> 1 | ("foo" + value)[\`match\`](/foo/)
+    |                 ^^^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | (/foo/)[\`exec\`]("foo" + value)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(58): \"foo\".match(RegExp(\"foo\")) 1`] = `
+
+  1 | "foo".match(RegExp("foo"))
+
+`;
+
+exports[`prefer-regexp-exec > invalid(58): \"foo\".match(RegExp(\"foo\")) 2`] = `
+
+Message:
+> 1 | "foo".match(RegExp("foo"))
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | RegExp("foo").exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(59): \"foo\".match(RegExp(\`foo\`, \`i\`)) 1`] = `
+
+  1 | "foo".match(RegExp(\`foo\`, \`i\`))
+
+`;
+
+exports[`prefer-regexp-exec > invalid(59): \"foo\".match(RegExp(\`foo\`, \`i\`)) 2`] = `
+
+Message:
+> 1 | "foo".match(RegExp(\`foo\`, \`i\`))
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | RegExp(\`foo\`, \`i\`).exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(6): \`foo\${value}\`.match(/foo/) 1`] = `
+
+  1 | \`foo\${value}\`.match(/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(6): \`foo\${value}\`.match(/foo/) 2`] = `
+
+Message:
+> 1 | \`foo\${value}\`.match(/foo/)
+    |               ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | /foo/.exec(\`foo\${value}\`)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(6): declare function getText(): string; getText().match(/foo/) 1`] = `
+
+  1 | declare function getText(): string; getText().match(/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(6): declare function getText(): string; getText().match(/foo/) 2`] = `
+
+Message:
+> 1 | declare function getText(): string; getText().match(/foo/)
+    |                                               ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | declare function getText(): string; /foo/.exec(getText())
+
+`;
+
+exports[`prefer-regexp-exec > invalid(60): \"foo\".match(RegExp(/foo/g, \"i\")) 1`] = `
+
+  1 | "foo".match(RegExp(/foo/g, "i"))
+
+`;
+
+exports[`prefer-regexp-exec > invalid(60): \"foo\".match(RegExp(/foo/g, \"i\")) 2`] = `
+
+Message:
+> 1 | "foo".match(RegExp(/foo/g, "i"))
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | RegExp(/foo/g, "i").exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(61): \"foo\".match(RegExp(/foo/)) 1`] = `
+
+  1 | "foo".match(RegExp(/foo/))
+
+`;
+
+exports[`prefer-regexp-exec > invalid(61): \"foo\".match(RegExp(/foo/)) 2`] = `
+
+Message:
+> 1 | "foo".match(RegExp(/foo/))
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | RegExp(/foo/).exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(62): \"foo\".match(RegExp()) 1`] = `
+
+  1 | "foo".match(RegExp())
+
+`;
+
+exports[`prefer-regexp-exec > invalid(62): \"foo\".match(RegExp()) 2`] = `
+
+Message:
+> 1 | "foo".match(RegExp())
+    |       ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | RegExp().exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(63): const regexp = RegExp(\"foo\", \"i\"); \"foo\".match(regexp) 1`] = `
+
+  1 | const regexp = RegExp("foo", "i"); "foo".match(regexp)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(63): const regexp = RegExp(\"foo\", \"i\"); \"foo\".match(regexp) 2`] = `
+
+Message:
+> 1 | const regexp = RegExp("foo", "i"); "foo".match(regexp)
+    |                                          ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | const regexp = RegExp("foo", "i"); regexp.exec("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(64): \"foo\"[\"match\"](RegExp(\"foo\", \"i\")) 1`] = `
+
+  1 | "foo"["match"](RegExp("foo", "i"))
+
+`;
+
+exports[`prefer-regexp-exec > invalid(64): \"foo\"[\"match\"](RegExp(\"foo\", \"i\")) 2`] = `
+
+Message:
+> 1 | "foo"["match"](RegExp("foo", "i"))
+    |       ^^^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | RegExp("foo", "i")["exec"]("foo")
+
+`;
+
+exports[`prefer-regexp-exec > invalid(7): String(value).match(/foo/) 1`] = `
+
+  1 | String(value).match(/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(7): String(value).match(/foo/) 2`] = `
+
+Message:
+> 1 | String(value).match(/foo/)
+    |               ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | /foo/.exec(String(value))
+
+`;
+
+exports[`prefer-regexp-exec > invalid(7): function run(text: string) { return text.match((/foo/ as RegExp)); } 1`] = `
+
+  1 | function run(text: string) { return text.match((/foo/ as RegExp)); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(7): function run(text: string) { return text.match((/foo/ as RegExp)); } 2`] = `
+
+Message:
+> 1 | function run(text: string) { return text.match((/foo/ as RegExp)); }
+    |                                          ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | function run(text: string) { return (/foo/ as RegExp).exec((text)); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(8): (\"foo\" + value).match(/foo/) 1`] = `
+
+  1 | ("foo" + value).match(/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(8): (\"foo\" + value).match(/foo/) 2`] = `
+
+Message:
+> 1 | ("foo" + value).match(/foo/)
+    |                 ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | (/foo/).exec("foo" + value)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(8): function run(text: string) { return text.match((/foo/ satisfies RegExp)); } 1`] = `
+
+  1 | function run(text: string) { return text.match((/foo/ satisfies RegExp)); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(8): function run(text: string) { return text.match((/foo/ satisfies RegExp)); } 2`] = `
+
+Message:
+> 1 | function run(text: string) { return text.match((/foo/ satisfies RegExp)); }
+    |                                          ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | function run(text: string) { return (/foo/ satisfies RegExp).exec((text)); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(9): const text = \"foo\"; text.match(/foo/) 1`] = `
+
+  1 | const text = "foo"; text.match(/foo/)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(9): const text = \"foo\"; text.match(/foo/) 2`] = `
+
+Message:
+> 1 | const text = "foo"; text.match(/foo/)
+    |                          ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | const text = "foo"; /foo/.exec(text)
+
+`;
+
+exports[`prefer-regexp-exec > invalid(9): function run(text: string) { return text.match((new RegExp(\"foo\") as RegExp)); } 1`] = `
+
+  1 | function run(text: string) { return text.match((new RegExp("foo") as RegExp)); }
+
+`;
+
+exports[`prefer-regexp-exec > invalid(9): function run(text: string) { return text.match((new RegExp(\"foo\") as RegExp)); } 2`] = `
+
+Message:
+> 1 | function run(text: string) { return text.match((new RegExp("foo") as RegExp)); }
+    |                                          ^^^^^ Prefer \`RegExp#exec()\` over \`String#match()\`.
+
+Output:
+  1 | function run(text: string) { return (new RegExp("foo") as RegExp).exec((text)); }
+
+`;

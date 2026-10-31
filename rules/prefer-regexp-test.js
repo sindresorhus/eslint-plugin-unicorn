@@ -1,6 +1,6 @@
-import {findVariable, getStaticValue, isParenthesized} from '@eslint-community/eslint-utils';
+import {findVariable, getStaticValue} from '@eslint-community/eslint-utils';
 import {checkVueTemplate} from './utils/rule.js';
-import {fixSpaceAroundKeyword, removeMemberExpressionProperty} from './fix/index.js';
+import {removeMemberExpressionProperty, swapMethodCallObjectAndArgument} from './fix/index.js';
 import {
 	getStaticStringValue,
 	isLiteral,
@@ -20,13 +20,11 @@ import {
 	isString,
 	isUnknownType,
 	isGlobalBooleanCall,
-	needsSemicolon,
 	getStaticRegExp,
 	getStaticValueIfNoSideEffects,
 	hasCommentInRange,
 	hasPotentiallyMutableMemberAccess,
 	hasUnparenthesizedOptionalChainElement,
-	shouldAddParenthesesToMemberExpressionObject,
 	withTypeInformation,
 } from './utils/index.js';
 
@@ -50,37 +48,10 @@ const messages = {
 const isLiteralZero = node => isLiteral(node, 0);
 const isRegExpValue = value => Object.prototype.toString.call(value) === '[object RegExp]';
 
-function * fixStringMethodCall(fixer, {stringNode, methodNode, regexpNode}, context, searchCheck) {
-	const {sourceCode} = context;
+function * fixStringMethodCall(fixer, {methodNode, regexpNode}, context, searchCheck) {
 	yield fixer.replaceText(methodNode, 'test');
-
-	let stringText = sourceCode.getText(stringNode);
-	if (
-		!isParenthesized(regexpNode, sourceCode)
-		// Only `SequenceExpression` needs parentheses.
-		&& stringNode.type === 'SequenceExpression'
-	) {
-		stringText = `(${stringText})`;
-	}
-
-	yield fixer.replaceText(regexpNode, stringText);
-
-	let regexpText = sourceCode.getText(regexpNode);
-	if (
-		!isParenthesized(stringNode, sourceCode)
-		// An inserted `!` already protects the expression start.
-		&& shouldAddParenthesesToMemberExpressionObject(regexpNode, context, searchCheck?.negate ? regexpNode : stringNode)
-	) {
-		regexpText = `(${regexpText})`;
-	}
-
-	// The replacement starts with `/`, which continues the previous expression when the receiver begins a line, so a semicolon has to go in front of it.
-	if (needsSemicolon(sourceCode.getTokenBefore(stringNode), context, regexpText)) {
-		yield fixer.insertTextBefore(stringNode, ';');
-	}
-
-	yield fixer.replaceText(stringNode, regexpText);
-	yield fixSpaceAroundKeyword(fixer, stringNode, context);
+	// An inserted `!` already protects the expression start.
+	yield swapMethodCallObjectAndArgument(fixer, methodNode.parent.parent, context, searchCheck?.negate ? regexpNode : undefined);
 }
 
 const cases = [

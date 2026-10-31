@@ -8,7 +8,7 @@ import {
 import {isFunctionCall, isStaticProperties} from './type-check.js';
 import {isIndexedCollection} from './is-array.js';
 import {isRegExp} from './is-reg-exp.js';
-import getStaticValueIfNoSideEffects, {getStaticValueForControlFlow} from './get-static-value.js';
+import {getStaticValueForControlFlow} from './get-static-value.js';
 import {
 	createBuiltinTypeCheckers,
 	createTypeCheckers,
@@ -91,20 +91,24 @@ const isStringTypeAnnotation = node => {
 const getStaticType = value =>
 	typeof value === 'string' ? target : unknown;
 
-const isUnmodifiedMutableVariable = (node, context) => {
+const getUnmodifiedLetInitializer = (node, context) => {
 	if (node.type !== 'Identifier') {
-		return false;
+		return;
 	}
 
 	const variable = findVariable(context.sourceCode.getScope(node), node);
 	const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
-	return Boolean(
-		definition?.type === 'Variable'
-		&& (definition.parent?.kind === 'let' || definition.parent?.kind === 'var')
-		&& definition.node.id === definition.name
-		&& definition.node.init
-		&& variable.references.every(reference => !reference.isWrite() || reference.init),
-	);
+	if (
+		definition?.type !== 'Variable'
+		|| definition.parent?.kind !== 'let'
+		|| definition.node.id !== definition.name
+		|| !definition.node.init
+		|| variable.references.some(reference => reference.isWrite() && !reference.init)
+	) {
+		return;
+	}
+
+	return definition.node.init;
 };
 
 const isStringNode = (node, context, isTarget) => {
@@ -201,9 +205,7 @@ export default function isString(node, context, isTarget = isStringTarget) {
 		return true;
 	}
 
-	const staticValue = isUnmodifiedMutableVariable(node, context)
-		? getStaticValueIfNoSideEffects(node, context)
-		: getStaticValueForControlFlow(node, context);
+	const staticValue = getStaticValueForControlFlow(getUnmodifiedLetInitializer(node, context) ?? node, context);
 	return typeof staticValue?.value === 'string' && !hasJSDocumentTypeReference(node, context);
 }
 

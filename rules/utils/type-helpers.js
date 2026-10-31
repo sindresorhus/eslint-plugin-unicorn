@@ -495,7 +495,7 @@ function getTypeScriptType(type, checker, program, options) {
 		return nullish;
 	}
 
-	if (type.isTypeParameter?.()) {
+	if (type.isTypeParameter()) {
 		const constraint = type.getConstraint();
 
 		return constraint ? getTypeScriptType(constraint, checker, program, options) : unknown;
@@ -525,7 +525,7 @@ function getTypeScriptType(type, checker, program, options) {
 		return target;
 	}
 
-	if (type.intrinsicName) {
+	if (type.intrinsicName || type.isLiteral()) {
 		return nonTarget;
 	}
 
