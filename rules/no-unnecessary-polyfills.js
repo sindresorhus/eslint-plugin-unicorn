@@ -273,9 +273,14 @@ function getTargets(options, dirname) {
 }
 
 function create(context) {
-	const targets = getTargets(context.options[0], path.dirname(context.filename));
+	let targets = getTargets(context.options[0], path.dirname(context.filename));
 	if (!targets) {
 		return;
+	}
+
+	if (Array.isArray(targets)) {
+		// Browserslist sorts versions newest first, so keep the oldest per browser without reparsing resolved versions as queries.
+		targets = {browsers: Object.fromEntries(targets.map(target => target.split(' ')))};
 	}
 
 	const targetsCacheKey = JSON.stringify(targets);
