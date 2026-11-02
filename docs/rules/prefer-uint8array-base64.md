@@ -16,6 +16,16 @@ The standard [`Uint8Array` base64 methods](https://github.com/tc39/proposal-arra
 > [!NOTE]
 > `Buffer.from(string, 'base64')` returns a `Buffer`, while `Uint8Array.fromBase64(string)` returns a plain `Uint8Array`. Their input validation and alphabet handling also differ. The replacement is offered as a suggestion so you can confirm that the result type and accepted inputs fit your use case.
 
+`Buffer.fromBase64()` is inherited from `Uint8Array` and returns a plain `Uint8Array`, not a `Buffer`. The rule automatically fixes it to make the result type clear:
+
+```js
+// ❌
+const bytes = Buffer.fromBase64(base64);
+
+// ✅
+const bytes = Uint8Array.fromBase64(base64);
+```
+
 ## Examples
 
 ```js
@@ -79,3 +89,12 @@ This check supports consecutive replacements after an argument-free `.toBase64()
 
 > [!TIP]
 > The [`uint8array-extras`](https://github.com/sindresorhus/uint8array-extras) package offers `stringToBase64` and `base64ToString` helpers for the text case.
+
+## Options
+
+### checkBufferDecoding
+
+Type: `boolean`\
+Default: `true`
+
+Whether to check `Buffer.from()` decoding calls. Set to `false` when you need `Buffer.from(text, 'base64')` or `Buffer.from(text, 'base64url')` to return a `Buffer` or preserve its input handling. Encoding checks, `atob()`/`btoa()` checks, and the `Buffer.fromBase64()` check remain enabled.

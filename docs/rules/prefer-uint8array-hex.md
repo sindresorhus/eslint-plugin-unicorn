@@ -102,16 +102,35 @@ const bytes = Uint8Array.fromHex(text);
 Supported regex patterns are `/../g`, `/.{2}/g`, `/.{1,2}/g`, `/[0-9a-f]{2}/g`, and `/[\da-f]{2}/g`. Additional `i`, `s`, and `u` or `v` flags are supported. The result of `match()` may have a `?? []` or `|| []` fallback. Both `parseInt(pair, 16)` and `Number.parseInt(pair, 16)` callbacks are supported.
 
 > [!IMPORTANT]
-> Decoding replacements are suggestions because malformed-input handling differs. `Uint8Array.fromHex()` rejects odd lengths, invalid hex characters, whitespace, and `0x` prefixes. Existing Buffer and manual decoders may truncate, skip characters, or produce different values. Empty-input handling may also differ. Replacing Buffer decoding additionally changes the result from `Buffer` to `Uint8Array`.
+> Replacing `Buffer.from()` or manual decoding produces suggestions because malformed-input handling differs. `Uint8Array.fromHex()` rejects odd lengths, invalid hex characters, whitespace, and `0x` prefixes. Existing Buffer and manual decoders may truncate, skip characters, or produce different values. Empty-input handling may also differ. Replacing `Buffer.from()` decoding additionally changes the result from `Buffer` to `Uint8Array`.
 
-Buffer decoding is reported without a suggestion when the result is immediately accessed through a member, such as `Buffer.from(text, 'hex').toString()`, since the remaining operation may require a Buffer.
+`Buffer.from()` decoding is reported without a suggestion when the result is immediately accessed through a member, such as `Buffer.from(text, 'hex').toString()`, since the remaining operation may require a Buffer.
 
-Calls with inputs known to be non-string are ignored because replacing them with `Uint8Array.fromHex()` may be invalid.
+`Buffer.from()` calls with inputs known to be non-string are ignored because replacing them with `Uint8Array.fromHex()` may be invalid.
+
+`Buffer.fromHex()` is inherited from `Uint8Array` and returns a plain `Uint8Array`, not a `Buffer`. The rule automatically fixes it to make the result type clear:
+
+```js
+// ❌
+const bytes = Buffer.fromHex(text);
+
+// ✅
+const bytes = Uint8Array.fromHex(text);
+```
+
+## Options
+
+### checkBufferDecoding
+
+Type: `boolean`\
+Default: `true`
+
+Whether to check `Buffer.from()` decoding calls. Set to `false` when you need `Buffer.from(text, 'hex')` to return a `Buffer` or preserve its input handling. Encoding checks, manual decoding checks, and the `Buffer.fromHex()` check remain enabled.
 
 ## Limitations
 
 The rule does not recognize pipelines split across statements, imperative loops, reducers, lookup tables, other padding idioms, arbitrary regex patterns, optional operations, computed method names, `super` method calls, or `toString('hex', start, end)` ranges. Direct typed-array `map()` encoders are ignored because typed-array mapping coerces the callback's strings back into numbers. Legacy `.substr()` callbacks can be normalized to `.slice()` by [`prefer-string-slice`](./prefer-string-slice.md) before this rule recognizes them.
 
-Replacements containing comments are reported without a fix or suggestion, so comments are not lost or moved. Compatibility fallbacks are not detected automatically; disable this rule where an older-runtime implementation is intentional.
+Replacements that would remove or move comments are reported without a fix or suggestion. Compatibility fallbacks are not detected automatically; disable this rule where an older-runtime implementation is intentional.
 
 The [`prefer-uint8array-base64`](./prefer-uint8array-base64.md) rule covers base64 conversions separately.

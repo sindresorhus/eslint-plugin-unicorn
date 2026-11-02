@@ -480,3 +480,97 @@ test.snapshot({
 		{code: '(bytes satisfies Uint8Array).toBase64().replaceAll(\'=\', \'\')', languageOptions: {parser: parsers.typescript}},
 	],
 });
+
+test.snapshot({
+	valid: [
+		'Uint8Array.fromBase64(text)',
+		'Buffer.fromHex(text)',
+		'const decode = Buffer.fromBase64;',
+		'Buffer.fromBase64.call(Buffer, text)',
+		'Buffer?.fromBase64(text)',
+		'Buffer.fromBase64?.(text)',
+		'Buffer[\'fromBase64\'](text)',
+		'const Buffer = custom; Buffer.fromBase64(text)',
+		'import {Buffer} from \'custom\'; Buffer.fromBase64(text)',
+		'import Buffer from \'node:buffer\'; Buffer.fromBase64(text)',
+		'this.Buffer.fromBase64(text)',
+	],
+	invalid: [
+		'Buffer.fromBase64(text)',
+		'Buffer.fromBase64()',
+		'Buffer.fromBase64(123)',
+		'Buffer.fromBase64(...inputs)',
+		'Buffer.fromBase64(text, options, extra)',
+		'Buffer.fromBase64(text).toString()',
+		'((Buffer)).fromBase64(text)',
+		'function decode() {return(Buffer).fromBase64(text)}',
+		'Buffer./* keep */fromBase64(/* keep */ text)',
+		'globalThis./* keep */Buffer.fromBase64(text)',
+		'Buffer.fromBase64(\r\n  // keep\r\n  text,\r\n)',
+		...['globalThis', 'global', 'window', 'self'].map(object => `${object}.Buffer.fromBase64(text)`),
+		...['buffer', 'node:buffer'].flatMap(source => [
+			`import {Buffer} from '${source}'; Buffer.fromBase64(text)`,
+			`import {Buffer as Bytes} from '${source}'; Bytes.fromBase64(text)`,
+			`import * as buffer from '${source}'; buffer.Buffer.fromBase64(text)`,
+			`import buffer from '${source}'; buffer.Buffer.fromBase64(text)`,
+		]),
+		...['(Buffer as typeof Buffer)', '(<typeof Buffer>Buffer)', 'Buffer!', '(Buffer satisfies typeof Buffer)'].map(receiver => ({
+			code: `${receiver}.fromBase64(text)`,
+			languageOptions: {parser: parsers.typescript},
+		})),
+		{code: '(Buffer as /* keep */ typeof Buffer).fromBase64(text)', languageOptions: {parser: parsers.typescript}},
+	],
+});
+
+test.snapshot({
+	valid: [
+		...['base64', 'base64url'].flatMap(encoding => [
+			{code: `Buffer.from(text, '${encoding}')`, options: [{checkBufferDecoding: false}]},
+			{code: `Buffer.from(text, '${encoding}').toString()`, options: [{checkBufferDecoding: false}]},
+		]),
+		{code: 'import {Buffer as Bytes} from \'node:buffer\'; Bytes.from(text, `BASE64URL`)', options: [{checkBufferDecoding: false}]},
+	],
+	invalid: [
+		...[{}, {checkBufferDecoding: true}].map(options => ({code: 'Buffer.from(text, \'base64\')', options: [options]})),
+		{code: 'Buffer.fromBase64(text)', options: [{checkBufferDecoding: false}]},
+		{code: 'Buffer.from(text, \'base64\').toString(\'base64\')', options: [{checkBufferDecoding: false}]},
+		{code: 'atob(text)', options: [{checkBufferDecoding: false}]},
+		{code: 'btoa(text)', options: [{checkBufferDecoding: false}]},
+		{code: 'bytes.toBase64().replaceAll(\'=\', \'\')', options: [{checkBufferDecoding: false}]},
+	],
+});
+
+// eslint-disable-next-line node-test/no-skip-test -- Uint8Array.fromBase64 is unavailable on older supported Node.js versions.
+nodeTest('inherited Buffer decoder fixes preserve bytes, result type, and evaluation count', {skip: !('fromBase64' in Uint8Array)}, t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-uint8array-base64': rule}}},
+		rules: {'unicorn/prefer-uint8array-base64': 'error'},
+	};
+	const code = 'Buffer.fromBase64(getText(/* keep */), getOptions())';
+	const {output, fixed, messages} = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(fixed, true);
+	t.assert.strictEqual(output, 'Uint8Array.fromBase64(getText(/* keep */), getOptions())');
+	t.assert.deepStrictEqual(messages, []);
+	for (const source of [code, output]) {
+		let evaluations = 0;
+		let optionsEvaluations = 0;
+		const result = runInNewContext(source, {
+			Buffer,
+			Uint8Array,
+			getText() {
+				evaluations++;
+				return '-_8';
+			},
+			getOptions() {
+				optionsEvaluations++;
+				return {alphabet: 'base64url'};
+			},
+		});
+		t.assert.strictEqual(evaluations, 1);
+		t.assert.strictEqual(optionsEvaluations, 1);
+		t.assert.strictEqual(result.constructor, Uint8Array);
+		t.assert.strictEqual(Buffer.isBuffer(result), false);
+		t.assert.deepStrictEqual([...result], [251, 255]);
+	}
+});
