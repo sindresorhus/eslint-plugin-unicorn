@@ -20,14 +20,17 @@ import {
 } from './utils/type-helpers.js';
 import {fixSpaceAroundKeyword, removeArgument, removeMethodCall} from './fix/index.js';
 import {bufferTypeCheckerOptions, isBufferReference} from './shared/buffer-reference.js';
+import getBufferDecodingProblem from './shared/buffer-decoding.js';
 
 const MESSAGE_ID_OPTIONS = 'prefer-uint8array-base64/options';
 const MESSAGE_ID_ERROR = 'prefer-uint8array-base64/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-uint8array-base64/suggestion';
+const MESSAGE_ID_BUFFER_DECODING = 'prefer-uint8array-base64/buffer-decoding';
 const messages = {
 	[MESSAGE_ID_OPTIONS]: 'Prefer native `toBase64()` options over manual base64 postprocessing.',
 	[MESSAGE_ID_ERROR]: 'Prefer `{{replacement}}` over `{{value}}`.',
 	[MESSAGE_ID_SUGGESTION]: 'Replace `{{value}}` with `{{replacement}}`.',
+	[MESSAGE_ID_BUFFER_DECODING]: 'Prefer `Uint8Array.{{method}}()` over `Buffer.{{method}}()`, which returns a `Uint8Array`.',
 };
 
 const base64Encodings = new Set(['base64', 'base64url']);
@@ -291,9 +294,15 @@ const tracker = new GlobalReferenceTracker({
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
+	const {checkBufferDecoding} = context.options[0];
 	tracker.listen({context});
 
 	context.on('CallExpression', node => {
+		const bufferDecodingProblem = getBufferDecodingProblem(node, context, {method: 'fromBase64', messageId: MESSAGE_ID_BUFFER_DECODING});
+		if (bufferDecodingProblem) {
+			return bufferDecodingProblem;
+		}
+
 		const optionsProblem = getBase64OptionsProblem(node, context);
 		if (optionsProblem) {
 			return optionsProblem;
@@ -303,7 +312,8 @@ const create = context => {
 		// Match exactly two arguments. With a string input, `Buffer.from` ignores any third argument, but `Uint8Array.fromBase64`'s second parameter is an options object, so shifting an extra argument into it would change behavior or throw.
 		const bufferFromEncoding = getBase64Encoding(node.arguments[1]);
 		if (
-			isMethodCall(node, {method: 'from', argumentsLength: 2, computed: false})
+			checkBufferDecoding
+			&& isMethodCall(node, {method: 'from', argumentsLength: 2, computed: false})
 			&& bufferFromEncoding
 			&& isBufferReference(node.callee.object, context)
 			&& !shouldIgnoreBufferFromInput(node.arguments[0], context)
@@ -378,6 +388,17 @@ const config = {
 		},
 		fixable: 'code',
 		hasSuggestions: true,
+		schema: [{
+			type: 'object',
+			properties: {
+				checkBufferDecoding: {
+					type: 'boolean',
+					description: 'Whether to check `Buffer.from()` decoding calls.',
+				},
+			},
+			additionalProperties: false,
+		}],
+		defaultOptions: [{checkBufferDecoding: true}],
 		messages,
 		languages: [
 			'js/js',

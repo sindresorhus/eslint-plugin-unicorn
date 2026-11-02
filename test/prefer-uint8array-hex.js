@@ -449,6 +449,7 @@ testRule.snapshot({
 	valid: [
 		'bytes.toHex()',
 		'Uint8Array.fromHex(text)',
+		'Buffer.fromBase64(text)',
 		`bytes.map(${encode}).join('')`,
 		`new Uint8Array([255]).map(${encode}).join('')`,
 		...[16, 3].map(width => `[...bytes].map(byte => byte.toString(16).padStart(${width}, '0')).join('')`),
@@ -661,4 +662,106 @@ test('works with array and number style rules across fixing passes and suggestio
 	const view = linter.verifyAndFix('Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString(\'hex\')', config);
 	t.assert.strictEqual(view.output, 'Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toHex()');
 	t.assert.deepStrictEqual(view.messages, []);
+});
+
+testRule.snapshot({
+	valid: [
+		'Uint8Array.fromHex(text)',
+		'const decode = Buffer.fromHex;',
+		'Buffer.fromHex.call(Buffer, text)',
+		'Buffer?.fromHex(text)',
+		'Buffer.fromHex?.(text)',
+		'Buffer[\'fromHex\'](text)',
+		'const Buffer = custom; Buffer.fromHex(text)',
+		'import {Buffer} from \'custom\'; Buffer.fromHex(text)',
+		'import Buffer from \'node:buffer\'; Buffer.fromHex(text)',
+		'this.Buffer.fromHex(text)',
+	],
+	invalid: [
+		'Buffer.fromHex(text)',
+		'Buffer.fromHex()',
+		'Buffer.fromHex(123)',
+		'Buffer.fromHex(...inputs)',
+		'Buffer.fromHex(text, options, extra)',
+		'Buffer.fromHex(text).toString()',
+		'((Buffer)).fromHex(text)',
+		'function decode() {return(Buffer).fromHex(text)}',
+		'Buffer./* keep */fromHex(/* keep */ text)',
+		'globalThis./* keep */Buffer.fromHex(text)',
+		'Buffer.fromHex(\r\n  // keep\r\n  text,\r\n)',
+		...['globalThis', 'global', 'window', 'self'].map(object => `${object}.Buffer.fromHex(text)`),
+		...['buffer', 'node:buffer'].flatMap(source => [
+			`import {Buffer} from '${source}'; Buffer.fromHex(text)`,
+			`import {Buffer as Bytes} from '${source}'; Bytes.fromHex(text)`,
+			`import * as buffer from '${source}'; buffer.Buffer.fromHex(text)`,
+			`import buffer from '${source}'; buffer.Buffer.fromHex(text)`,
+		]),
+		...['(Buffer as typeof Buffer)', '(<typeof Buffer>Buffer)', 'Buffer!', '(Buffer satisfies typeof Buffer)'].map(receiver => ({
+			code: `${receiver}.fromHex(text)`,
+			languageOptions: {parser: parsers.typescript},
+		})),
+		{code: '(Buffer as /* keep */ typeof Buffer).fromHex(text)', languageOptions: {parser: parsers.typescript}},
+	],
+});
+
+testRule.snapshot({
+	valid: [
+		{code: 'Buffer.from(text, \'hex\')', options: [{checkBufferDecoding: false}]},
+		{code: 'Buffer.from(text, \'hex\').toString()', options: [{checkBufferDecoding: false}]},
+		{code: 'import {Buffer as Bytes} from \'node:buffer\'; Bytes.from(text, `HEX`)', options: [{checkBufferDecoding: false}]},
+	],
+	invalid: [
+		...[{}, {checkBufferDecoding: true}].map(options => ({code: 'Buffer.from(text, \'hex\')', options: [options]})),
+		{code: 'Buffer.fromHex(text)', options: [{checkBufferDecoding: false}]},
+		{code: 'Buffer.from(text, \'hex\').toString(\'hex\')', options: [{checkBufferDecoding: false}]},
+		{code: `Uint8Array.from(text.match(/../g), ${decode})`, options: [{checkBufferDecoding: false}]},
+	],
+});
+
+// eslint-disable-next-line node-test/no-skip-test -- Uint8Array.fromHex is unavailable on older supported Node.js versions.
+test('inherited Buffer decoder fixes preserve bytes, result type, and evaluation count', {skip: !('fromHex' in Uint8Array)}, t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn: {rules: {'prefer-uint8array-hex': unicorn.rules['prefer-uint8array-hex']}}},
+		rules: {'unicorn/prefer-uint8array-hex': 'error'},
+	};
+	const code = 'Buffer.fromHex(getText(/* keep */))';
+	const {output, fixed, messages} = linter.verifyAndFix(code, config);
+	t.assert.strictEqual(fixed, true);
+	t.assert.strictEqual(output, 'Uint8Array.fromHex(getText(/* keep */))');
+	t.assert.deepStrictEqual(messages, []);
+	for (const source of [code, output]) {
+		let evaluations = 0;
+		const result = runInNewContext(source, {
+			Buffer,
+			Uint8Array,
+			getText() {
+				evaluations++;
+				return 'fbff';
+			},
+		});
+		t.assert.strictEqual(evaluations, 1);
+		t.assert.strictEqual(result.constructor, Uint8Array);
+		t.assert.strictEqual(Buffer.isBuffer(result), false);
+		t.assert.deepStrictEqual([...result], [251, 255]);
+	}
+});
+
+// eslint-disable-next-line node-test/no-skip-test -- Native hex and base64 methods are unavailable on older supported Node.js versions.
+test('inherited decoder fixes compose across hex and base64 rules', {skip: !('fromHex' in Uint8Array)}, t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn},
+		rules: {
+			'unicorn/prefer-uint8array-hex': 'error',
+			'unicorn/prefer-uint8array-base64': 'error',
+		},
+	};
+	const code = 'Buffer.fromBase64(Buffer.fromHex(\'fbff\').toBase64()).toHex()';
+	const output = 'Uint8Array.fromBase64(Uint8Array.fromHex(\'fbff\').toBase64()).toHex()';
+	t.assert.deepStrictEqual(linter.verifyAndFix(code, config), {fixed: true, messages: [], output});
+	t.assert.deepStrictEqual(linter.verifyAndFix(output, config), {fixed: false, messages: [], output});
+	for (const source of [code, output]) {
+		t.assert.strictEqual(runInNewContext(source, {Buffer, Uint8Array}), 'fbff');
+	}
 });

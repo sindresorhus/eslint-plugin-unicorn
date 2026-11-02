@@ -20,12 +20,15 @@ import {
 } from './utils/index.js';
 import {createTypeCheckers, nonTarget, target} from './utils/type-helpers.js';
 import {bufferTypeCheckerOptions, isBufferExpression, isBufferReference} from './shared/buffer-reference.js';
+import getBufferDecodingProblem from './shared/buffer-decoding.js';
 
 const MESSAGE_ID_ERROR = 'prefer-uint8array-hex/error';
 const MESSAGE_ID_SUGGESTION = 'prefer-uint8array-hex/suggestion';
+const MESSAGE_ID_BUFFER_DECODING = 'prefer-uint8array-hex/buffer-decoding';
 const messages = {
 	[MESSAGE_ID_ERROR]: 'Prefer `{{replacement}}` over {{description}}.',
 	[MESSAGE_ID_SUGGESTION]: 'Replace with `{{replacement}}`.',
+	[MESSAGE_ID_BUFFER_DECODING]: 'Prefer `Uint8Array.{{method}}()` over `Buffer.{{method}}()`, which returns a `Uint8Array`.',
 };
 
 const hexPairPatterns = new Set(['..', '.{2}', '.{1,2}', '[0-9a-f]{2}', String.raw`[\da-f]{2}`]);
@@ -280,7 +283,14 @@ function getProblem(node, input, context, {decoding = false, autofix = false, ca
 @param {import('eslint').Rule.RuleContext} context
 */
 const create = context => {
+	const {checkBufferDecoding} = context.options[0];
+
 	context.on(['CallExpression', 'NewExpression'], node => {
+		const bufferDecodingProblem = getBufferDecodingProblem(node, context, {method: 'fromHex', messageId: MESSAGE_ID_BUFFER_DECODING});
+		if (bufferDecodingProblem) {
+			return bufferDecodingProblem;
+		}
+
 		const encodingInput = getEncodingInput(node);
 		if (encodingInput && unwrapTypeScriptExpression(encodingInput).type !== 'ChainExpression') {
 			const type = getByteArrayType(encodingInput, context);
@@ -308,7 +318,8 @@ const create = context => {
 		}
 
 		if (
-			isPlainMethodCall(node, 'from', 2)
+			checkBufferDecoding
+			&& isPlainMethodCall(node, 'from', 2)
 			&& isHexEncoding(node.arguments[1])
 			&& isBufferReference(node.callee.object, context)
 			&& !isKnownNonStringInput(node.arguments[0], context)
@@ -338,7 +349,17 @@ const config = {
 		},
 		fixable: 'code',
 		hasSuggestions: true,
-		schema: [],
+		schema: [{
+			type: 'object',
+			properties: {
+				checkBufferDecoding: {
+					type: 'boolean',
+					description: 'Whether to check `Buffer.from()` decoding calls.',
+				},
+			},
+			additionalProperties: false,
+		}],
+		defaultOptions: [{checkBufferDecoding: true}],
 		messages,
 		languages: [
 			'js/js',
