@@ -108,7 +108,7 @@ Supported regex patterns are `/../g`, `/.{2}/g`, `/.{1,2}/g`, `/[0-9a-f]{2}/g`, 
 
 `Buffer.from()` calls with inputs known to be non-string are ignored because replacing them with `Uint8Array.fromHex()` may be invalid.
 
-`Buffer.fromHex()` is inherited from `Uint8Array` and returns a plain `Uint8Array`, not a `Buffer`. The rule automatically fixes it to make the result type clear:
+`Buffer.fromHex()` is inherited from `Uint8Array` and returns a `Uint8Array`. The rule autofixes it:
 
 ```js
 // ❌
@@ -125,7 +125,7 @@ const bytes = Uint8Array.fromHex(text);
 Type: `boolean`\
 Default: `true`
 
-Whether to check `Buffer.from()` decoding calls. Set to `false` when you need `Buffer.from(text, 'hex')` to return a `Buffer` or preserve its input handling. Encoding checks, manual decoding checks, and the `Buffer.fromHex()` check remain enabled.
+Whether to check `Buffer.from()` decoding calls. Other checks, including `Buffer.fromHex()`, remain enabled.
 
 ## Limitations
 
