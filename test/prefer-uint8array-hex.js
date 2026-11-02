@@ -746,3 +746,22 @@ test('inherited Buffer decoder fixes preserve bytes, result type, and evaluation
 		t.assert.deepStrictEqual([...result], [251, 255]);
 	}
 });
+
+// eslint-disable-next-line node-test/no-skip-test -- Native hex and base64 methods are unavailable on older supported Node.js versions.
+test('inherited decoder fixes compose across hex and base64 rules', {skip: !('fromHex' in Uint8Array)}, t => {
+	const linter = new Linter();
+	const config = {
+		plugins: {unicorn},
+		rules: {
+			'unicorn/prefer-uint8array-hex': 'error',
+			'unicorn/prefer-uint8array-base64': 'error',
+		},
+	};
+	const code = 'Buffer.fromBase64(Buffer.fromHex(\'fbff\').toBase64()).toHex()';
+	const output = 'Uint8Array.fromBase64(Uint8Array.fromHex(\'fbff\').toBase64()).toHex()';
+	t.assert.deepStrictEqual(linter.verifyAndFix(code, config), {fixed: true, messages: [], output});
+	t.assert.deepStrictEqual(linter.verifyAndFix(output, config), {fixed: false, messages: [], output});
+	for (const source of [code, output]) {
+		t.assert.strictEqual(runInNewContext(source, {Buffer, Uint8Array}), 'fbff');
+	}
+});
