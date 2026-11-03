@@ -7,6 +7,45 @@ test({
 	valid: [
 		'if ("name" === first) { a(); } else if ("name" === second) { b(); } else if ("name" === third) { c(); }',
 		'if (`name` === first) { a(); } else if (`name` === second) { b(); } else if (`name` === third) { c(); }',
+		// Keep peer conditions flat instead of nesting the remaining chain under `default`.
+		outdent`
+			if (node.type === 'A') {
+				do1();
+			} else if (node.type === 'B' || node.type === 'C') {
+				do2();
+			} else if (node.type === 'D') {
+				do3();
+			} else if (isEOrF(node)) {
+				do4();
+			}
+		`,
+		// Longer runs must not be reported again as shorter suffixes.
+		outdent`
+			if (foo === 1) {}
+			else if (foo === 2) {}
+			else if (foo === 3) {}
+			else if (foo === 4) {}
+			else if (foo === 5) {}
+			else if (predicate()) {}
+		`,
+		// The last condition compares a different value.
+		outdent`
+			if (foo === 1) {}
+			else if (foo === 2) {}
+			else if (foo === 3) {}
+			else if (bar === 3) {}
+		`,
+		outdent`
+			if (foo === 1) {}
+			else if (foo === 2) {}
+			else if (foo === 3) {}
+			else if (foo === 4 && ready) {}
+			else {}
+		`,
+		{
+			code: 'if (foo === 1) {} else if (foo === 2) {} else if (predicate()) {}',
+			options: [{minimumCases: 2}],
+		},
 	],
 	invalid: [],
 });
@@ -120,12 +159,14 @@ test.snapshot({
 			else if (foo === 2) {}
 			else if (foo === 3) {}
 		`,
-		// Last condition is not fixable
+		// The conditional fallback is already nested.
 		outdent`
 			if (foo === 1) {}
 			else if (foo === 2) {}
 			else if (foo === 3) {}
-			else if (bar === 3) {}
+			else {
+				if (predicate()) {}
+			}
 		`,
 		// Inside if
 		outdent`
@@ -443,6 +484,24 @@ test.snapshot({
 			`,
 			languageOptions: {parser: parsers.typescript},
 		},
+		// Skipping the outer chain must not skip an independent nested chain.
+		outdent`
+			if (outer === 1) {
+				if (inner === 1) {}
+				else if (inner === 2) {}
+				else if (inner === 3) {}
+			} else if (outer === 2) {}
+			else if (outer === 3) {}
+			else if (predicate()) {}
+		`,
+		// A skipped branch can be part of a convertible suffix with a different discriminant.
+		outdent`
+			if (foo === first) {}
+			else if (foo === second) {}
+			else if (foo === bar) {}
+			else if (bar === third) {}
+			else if (bar === fourth) {}
+		`,
 	],
 });
 
