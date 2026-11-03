@@ -310,6 +310,10 @@ const create = context => {
 				continue;
 			}
 
+			if (ifStatements.at(-1).statement.alternate?.type === 'IfStatement') {
+				continue;
+			}
+
 			for (const {statement} of ifStatements) {
 				checked.add(statement);
 			}

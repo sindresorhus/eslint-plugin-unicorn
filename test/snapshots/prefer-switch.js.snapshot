@@ -621,84 +621,6 @@ exports[`prefer-switch > invalid(16): if (one) {}\nelse if (foo === 1) {}\nelse 
 
 Message:
    1 | if (one) {}
->  2 | else if (foo === 1) {}
-     |      ^^^^^^^^^^^^^^^ Use \`switch\` instead of multiple \`else-if\`.
-   3 | else if (foo === 2) {}
-   4 | else if (foo === 3) {}
-   5 | else if (two) {}
-   6 | else if (bar === 1) {}
-   7 | else if (bar === 2) {}
-   8 | else if (bar === 3) {}
-   9 | else if (foo === 1) {}
-  10 | else if (foo === 2) {}
-  11 | else if (foo === 3) {}
-
-Output:
-   1 | if (one) {}
-   2 | else switch (foo) {
-   3 |  case 1: {
-   4 |  break;
-   5 |  }
-   6 |  case 2: {
-   7 |  break;
-   8 |  }
-   9 |  case 3: {
-  10 |  break;
-  11 |  }
-  12 |  default: if (two) {}
-  13 | else if (bar === 1) {}
-  14 | else if (bar === 2) {}
-  15 | else if (bar === 3) {}
-  16 | else if (foo === 1) {}
-  17 | else if (foo === 2) {}
-  18 | else if (foo === 3) {}
-  19 |  }
-
-`;
-
-exports[`prefer-switch > invalid(16): if (one) {}\nelse if (foo === 1) {}\nelse if (foo === 2) {}\nelse if (foo === 3) {}\nelse if (two) {}\nelse if (bar === 1) {}\nelse if (bar === 2) {}\nelse if (bar === 3) {}\nelse if (foo === 1) {}\nelse if (foo === 2) {}\nelse if (foo === 3) {} 3`] = `
-
-Message:
-   1 | if (one) {}
-   2 | else if (foo === 1) {}
-   3 | else if (foo === 2) {}
-   4 | else if (foo === 3) {}
-   5 | else if (two) {}
->  6 | else if (bar === 1) {}
-     |      ^^^^^^^^^^^^^^^ Use \`switch\` instead of multiple \`else-if\`.
-   7 | else if (bar === 2) {}
-   8 | else if (bar === 3) {}
-   9 | else if (foo === 1) {}
-  10 | else if (foo === 2) {}
-  11 | else if (foo === 3) {}
-
-Output:
-   1 | if (one) {}
-   2 | else if (foo === 1) {}
-   3 | else if (foo === 2) {}
-   4 | else if (foo === 3) {}
-   5 | else if (two) {}
-   6 | else switch (bar) {
-   7 |  case 1: {
-   8 |  break;
-   9 |  }
-  10 |  case 2: {
-  11 |  break;
-  12 |  }
-  13 |  case 3: {
-  14 |  break;
-  15 |  }
-  16 |  default: if (foo === 1) {}
-  17 | else if (foo === 2) {}
-  18 | else if (foo === 3) {}
-  19 |  }
-
-`;
-
-exports[`prefer-switch > invalid(16): if (one) {}\nelse if (foo === 1) {}\nelse if (foo === 2) {}\nelse if (foo === 3) {}\nelse if (two) {}\nelse if (bar === 1) {}\nelse if (bar === 2) {}\nelse if (bar === 3) {}\nelse if (foo === 1) {}\nelse if (foo === 2) {}\nelse if (foo === 3) {} 4`] = `
-
-Message:
-   1 | if (one) {}
    2 | else if (foo === 1) {}
    3 | else if (foo === 2) {}
    4 | else if (foo === 3) {}
@@ -1596,6 +1518,88 @@ Output:
 
 `;
 
+exports[`prefer-switch > invalid(27): if (outer === 1) {\n\tif (inner === 1) {}\n\telse if (inner === 2) {}\n\telse if (inner === 3) {}\n} else if (outer === 2) {}\nelse if (outer === 3) {}\nelse if (predicate()) {} 1`] = `
+
+  1 | if (outer === 1) {
+  2 | 	if (inner === 1) {}
+  3 | 	else if (inner === 2) {}
+  4 | 	else if (inner === 3) {}
+  5 | } else if (outer === 2) {}
+  6 | else if (outer === 3) {}
+  7 | else if (predicate()) {}
+
+`;
+
+exports[`prefer-switch > invalid(27): if (outer === 1) {\n\tif (inner === 1) {}\n\telse if (inner === 2) {}\n\telse if (inner === 3) {}\n} else if (outer === 2) {}\nelse if (outer === 3) {}\nelse if (predicate()) {} 2`] = `
+
+Message:
+  1 | if (outer === 1) {
+> 2 | 	if (inner === 1) {}
+    | 	^^^^^^^^^^^^^^^^^ Use \`switch\` instead of multiple \`else-if\`.
+  3 | 	else if (inner === 2) {}
+  4 | 	else if (inner === 3) {}
+  5 | } else if (outer === 2) {}
+  6 | else if (outer === 3) {}
+  7 | else if (predicate()) {}
+
+Output:
+   1 | if (outer === 1) {
+   2 | 	switch (inner) {
+   3 | 	case 1: {
+   4 | 	break;
+   5 | 	}
+   6 | 	case 2: {
+   7 | 	break;
+   8 | 	}
+   9 | 	case 3: {
+  10 | 	break;
+  11 | 	}
+  12 | 	// No default
+  13 | 	}
+  14 | } else if (outer === 2) {}
+  15 | else if (outer === 3) {}
+  16 | else if (predicate()) {}
+
+`;
+
+exports[`prefer-switch > invalid(28): if (foo === first) {}\nelse if (foo === second) {}\nelse if (foo === bar) {}\nelse if (bar === third) {}\nelse if (bar === fourth) {} 1`] = `
+
+  1 | if (foo === first) {}
+  2 | else if (foo === second) {}
+  3 | else if (foo === bar) {}
+  4 | else if (bar === third) {}
+  5 | else if (bar === fourth) {}
+
+`;
+
+exports[`prefer-switch > invalid(28): if (foo === first) {}\nelse if (foo === second) {}\nelse if (foo === bar) {}\nelse if (bar === third) {}\nelse if (bar === fourth) {} 2`] = `
+
+Message:
+  1 | if (foo === first) {}
+  2 | else if (foo === second) {}
+> 3 | else if (foo === bar) {}
+    |      ^^^^^^^^^^^^^^^^^ Use \`switch\` instead of multiple \`else-if\`.
+  4 | else if (bar === third) {}
+  5 | else if (bar === fourth) {}
+
+Output:
+   1 | if (foo === first) {}
+   2 | else if (foo === second) {}
+   3 | else switch (bar) {
+   4 |  case foo: {
+   5 |  break;
+   6 |  }
+   7 |  case third: {
+   8 |  break;
+   9 |  }
+  10 |  case fourth: {
+  11 |  break;
+  12 |  }
+  13 |  // No default
+  14 |  }
+
+`;
+
 exports[`prefer-switch > invalid(3): function foo() {\n\tif (foo === 1) {}\n\telse if (foo === 2) {}\n\telse if (foo === 3) {}\n} 1`] = `
 
 Options:
@@ -1851,23 +1855,27 @@ Output:
 
 `;
 
-exports[`prefer-switch > invalid(5): if (foo === 1) {}\nelse if (foo === 2) {}\nelse if (foo === 3) {}\nelse if (bar === 3) {} 1`] = `
+exports[`prefer-switch > invalid(5): if (foo === 1) {}\nelse if (foo === 2) {}\nelse if (foo === 3) {}\nelse {\n\tif (predicate()) {}\n} 1`] = `
 
   1 | if (foo === 1) {}
   2 | else if (foo === 2) {}
   3 | else if (foo === 3) {}
-  4 | else if (bar === 3) {}
+  4 | else {
+  5 | 	if (predicate()) {}
+  6 | }
 
 `;
 
-exports[`prefer-switch > invalid(5): if (foo === 1) {}\nelse if (foo === 2) {}\nelse if (foo === 3) {}\nelse if (bar === 3) {} 2`] = `
+exports[`prefer-switch > invalid(5): if (foo === 1) {}\nelse if (foo === 2) {}\nelse if (foo === 3) {}\nelse {\n\tif (predicate()) {}\n} 2`] = `
 
 Message:
 > 1 | if (foo === 1) {}
     | ^^^^^^^^^^^^^^^ Use \`switch\` instead of multiple \`else-if\`.
   2 | else if (foo === 2) {}
   3 | else if (foo === 3) {}
-  4 | else if (bar === 3) {}
+  4 | else {
+  5 | 	if (predicate()) {}
+  6 | }
 
 Output:
    1 | switch (foo) {
@@ -1880,8 +1888,10 @@ Output:
    8 | case 3: {
    9 | break;
   10 | }
-  11 | default: if (bar === 3) {}
-  12 | }
+  11 | default: {
+  12 | 	if (predicate()) {}
+  13 | }
+  14 | }
 
 `;
 
