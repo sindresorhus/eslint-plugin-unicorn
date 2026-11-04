@@ -52,9 +52,11 @@ export default function isStringLiteralRequired(node) {
 		|| (type === 'ImportSpecifier' && parent.imported === node)
 		|| (type === 'ExportSpecifier' && (parent.local === node || parent.exported === node))
 		|| (type === 'ExportAllDeclaration' && parent.exported === node)
+		// `export {} as 'foo' from 'foo';`
+		|| (type === 'ExportNamespaceSpecifier' && parent.exported === node)
 		// Exports filter
-		// `import {'foo'} as namespace from "foo"`
-		// `export {'foo'} as namespace from "foo"`
+		// `import {'foo'} as namespace from 'foo';`
+		// `export {'foo'} as namespace from 'foo';`
 		|| (
 			(type === 'ImportNamespaceSpecifier' || type === 'ExportNamespaceSpecifier')
 			&& parent.exportsFilter?.includes(node)
