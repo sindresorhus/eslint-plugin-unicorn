@@ -72,7 +72,7 @@ function run(input, verbose = false, options = {}) {}
 function run(input, {verbose = false, ...options} = {}) {}
 ```
 
-Nonempty inline TypeScript object types containing only property, method, or index signatures are recognized without type information. Call and constructor signatures are excluded.
+Nonempty inline TypeScript object types containing only property, method, or index signatures are recognized without type information. Unions and intersections of these types are recognized too; unions may include `undefined`. Call and constructor signatures are excluded.
 
 When TypeScript type information is available, named record-shaped interfaces and object type aliases are recognized too. Arrays, tuples, callable or constructable types, class instances, constructor-backed native instance types, `any`, `unknown`, and broad `object` or empty `{}` types do not establish an options object. Unions and intersections must consist of supported record types, apart from `undefined`.
 
@@ -90,6 +90,6 @@ function run({verbose = false, encoding}: Options & {verbose?: boolean} = {}) {}
 
 Treating a trailing record-shaped parameter as configuration is a heuristic. Parameter names are not used. A recognizable default is independent evidence, even when its type alone is inconclusive.
 
-Rest parameters, array patterns, and TypeScript parameter properties stop the trailing parameter check. Optionality is not inferred from unions containing `undefined`, JSDoc, or function bodies. Named and composite types require type information to establish an options object.
+Rest parameters, array patterns, and TypeScript parameter properties stop the trailing parameter check. Optionality is not inferred from unions containing `undefined`, JSDoc, or function bodies. Named types require type information to establish an options object.
 
 For signatures imposed by an external API, use an ESLint disable comment.

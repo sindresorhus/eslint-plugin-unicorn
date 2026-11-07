@@ -30,6 +30,21 @@ const isOptionalParameter = parameter =>
 	(parameter.type === 'Identifier' && parameter.optional === true)
 	|| (parameter.type === 'AssignmentPattern' && parameter.left.type === 'Identifier');
 
+function isRecordTypeAnnotation(annotation) {
+	if (annotation?.type === 'TSUnionType') {
+		const types = annotation.types.filter(type => type.type !== 'TSUndefinedKeyword');
+		return types.length > 0 && types.every(type => isRecordTypeAnnotation(type));
+	}
+
+	if (annotation?.type === 'TSIntersectionType') {
+		return annotation.types.every(type => isRecordTypeAnnotation(type));
+	}
+
+	return annotation?.type === 'TSTypeLiteral'
+		&& annotation.members.length > 0
+		&& annotation.members.every(member => ['TSPropertySignature', 'TSMethodSignature', 'TSIndexSignature'].includes(member.type));
+}
+
 function isRecordType(type, checker) {
 	if (type.isUnionOrIntersection()) {
 		const types = type.types.filter(type => type.intrinsicName !== 'undefined');
@@ -70,12 +85,7 @@ function isOptionsParameter(parameter, context) {
 		return false;
 	}
 
-	const annotation = binding.typeAnnotation?.typeAnnotation;
-	if (
-		annotation?.type === 'TSTypeLiteral'
-		&& annotation.members.length > 0
-		&& annotation.members.every(member => ['TSPropertySignature', 'TSMethodSignature', 'TSIndexSignature'].includes(member.type))
-	) {
+	if (isRecordTypeAnnotation(binding.typeAnnotation?.typeAnnotation)) {
 		return true;
 	}
 
