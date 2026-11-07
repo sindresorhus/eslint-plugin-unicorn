@@ -62,7 +62,7 @@ Functions such as `clamp(value, minimum = 0, maximum = 1)` are allowed with this
 
 ## Object detection
 
-A final object destructuring pattern or a parameter defaulting to an object literal is recognized as an options object. Defaults that safely evaluate to plain objects, including constant aliases and frozen objects, are recognized too.
+A final object destructuring pattern or a parameter defaulting to an object literal is recognized as an options object. A default referencing a `const` initialized with an object literal is recognized even when its property values are dynamic. Defaults that safely evaluate to plain objects, including constant aliases and frozen objects, are recognized too.
 
 ```js
 // ❌
@@ -72,7 +72,9 @@ function run(input, verbose = false, options = {}) {}
 function run(input, {verbose = false, ...options} = {}) {}
 ```
 
-When TypeScript type information is available, record-shaped interfaces and object type aliases are recognized. Arrays, tuples, callable or constructable types, class instances, constructor-backed native instance types, `any`, `unknown`, and broad `object` or empty `{}` types do not establish an options object. Unions and intersections must consist of supported record types, apart from `undefined`.
+Nonempty inline TypeScript object types containing only property, method, or index signatures are recognized without type information. Call and constructor signatures are excluded.
+
+When TypeScript type information is available, named record-shaped interfaces and object type aliases are recognized too. Arrays, tuples, callable or constructable types, class instances, constructor-backed native instance types, `any`, `unknown`, and broad `object` or empty `{}` types do not establish an options object. Unions and intersections must consist of supported record types, apart from `undefined`.
 
 ```ts
 interface Options {
@@ -88,6 +90,6 @@ function run({verbose = false, encoding}: Options & {verbose?: boolean} = {}) {}
 
 Treating a trailing record-shaped parameter as configuration is a heuristic. Parameter names are not used. A recognizable default is independent evidence, even when its type alone is inconclusive.
 
-Rest parameters, array patterns, and TypeScript parameter properties stop the trailing parameter check. Optionality is not inferred from unions containing `undefined`, JSDoc, or function bodies. Without type information, types alone do not establish an options object.
+Rest parameters, array patterns, and TypeScript parameter properties stop the trailing parameter check. Optionality is not inferred from unions containing `undefined`, JSDoc, or function bodies. Named and composite types require type information to establish an options object.
 
 For signatures imposed by an external API, use an ESLint disable comment.

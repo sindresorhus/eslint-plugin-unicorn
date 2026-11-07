@@ -37,6 +37,7 @@ test.snapshot({
 			'function run(verbose = false, callback = () => {}) {}',
 			'function run(verbose = false, date = new Date()) {}',
 			'function run(verbose = false, options = getOptions()) {}',
+			'const defaults = getOptions(); function run(verbose = false, options = defaults) {}',
 			'function run(verbose = false, options = undefined) {}',
 			'function run(verbose = false, options = null) {}',
 			'function run(verbose = false, options) {}',
@@ -120,6 +121,15 @@ test.snapshot({
 			'function run(verbose = false, options = {} as Options) {}',
 			'function run(verbose = false, options = {} satisfies Options) {}',
 		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
+		{
+			code: 'const defaults = {encoding: getEncoding()}; function run(verbose = false, options = defaults) {}',
+			options: [existingOptionsOnly],
+		},
+		{
+			code: 'const defaults = {encoding: getEncoding()} as const; function run(verbose = false, options = defaults) {}',
+			languageOptions: {parser: parsers.typescript},
+			options: [existingOptionsOnly],
+		},
 	],
 });
 
@@ -186,6 +196,34 @@ test({
 		{
 			code: 'function run(input, verbose = false, retries = 3) {}',
 			errors: [{messageId: 'prefer-options-parameter', column: 21, endColumn: 36}],
+		},
+	],
+});
+
+test.snapshot({
+	valid: [
+		...[
+			'function run(verbose = false, options?: {}) {}',
+			'function run(verbose = false, options?: {(): void; encoding?: string}) {}',
+			'function run(verbose = false, options?: {new(): object; encoding?: string}) {}',
+			'function run(verbose = false, options?: {encoding?: string}[]) {}',
+			'function run(verbose = false, options?: () => {encoding?: string}) {}',
+			'function run(verbose = false, options?: {encoding?: string} | boolean) {}',
+			'type Options = {encoding?: string}; function run(verbose = false, options?: Options) {}',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}, options: [existingOptionsOnly]})),
+	],
+	invalid: [
+		...[
+			'function run(verbose = false, options?: {encoding?: string}) {}',
+			'function run(verbose = false, options?: {onError(error: Error): void}) {}',
+			'function run(verbose = false, options?: {[key: string]: unknown}) {}',
+			'function run(verbose = false, options?: {onError?: (error: Error) => void}) {}',
+			'function run(verbose = false, options?: ({encoding?: string})) {}',
+			'type Runner = (verbose?: boolean, options?: {encoding?: string}) => void;',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}, options: [existingOptionsOnly]})),
+		{
+			code: 'function run(verbose = false, options: {encoding?: string}) {}',
+			languageOptions: {parser: parsers.typescript},
 		},
 	],
 });

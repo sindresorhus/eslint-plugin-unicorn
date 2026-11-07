@@ -1,5 +1,6 @@
 import {functionTypes} from './ast/index.js';
 import {
+	getConstVariableInitializer,
 	getStaticValueIfNoSideEffects,
 	unwrapTypeScriptExpression,
 	withTypeInformation,
@@ -69,9 +70,22 @@ function isOptionsParameter(parameter, context) {
 		return false;
 	}
 
+	const annotation = binding.typeAnnotation?.typeAnnotation;
+	if (
+		annotation?.type === 'TSTypeLiteral'
+		&& annotation.members.length > 0
+		&& annotation.members.every(member => ['TSPropertySignature', 'TSMethodSignature', 'TSIndexSignature'].includes(member.type))
+	) {
+		return true;
+	}
+
 	if (parameter.type === 'AssignmentPattern') {
 		const defaultValue = unwrapTypeScriptExpression(parameter.right);
-		if (defaultValue.type === 'ObjectExpression') {
+		const initializer = getConstVariableInitializer(defaultValue, context);
+		if (
+			defaultValue.type === 'ObjectExpression'
+			|| unwrapTypeScriptExpression(initializer)?.type === 'ObjectExpression'
+		) {
 			return true;
 		}
 
