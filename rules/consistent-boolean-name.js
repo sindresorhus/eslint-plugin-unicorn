@@ -2650,6 +2650,7 @@ const create = context => {
 		// Variables without definitions (globals, `arguments`) are never checked, and the global scope can hold more than a thousand of them.
 		if (
 			variable.defs.length === 0
+			|| (variable.scope.type === 'functionType' && !stripLeadingUnderscores(variable.name))
 			|| matchesAnyRegExp(variable.name, ignore)
 			|| isDestructuredVariable(variable)
 		) {
