@@ -1018,30 +1018,38 @@ Message:
 
 `;
 
-exports[`prefer-options-parameter > invalid(48): function run(verbose = false, options = {} as Options) {} 1`] = `
+exports[`prefer-options-parameter > invalid(48): function run(verbose = false, options = {encoding: getEncoding()} as Options) {} 1`] = `
 
-  1 | function run(verbose = false, options = {} as Options) {}
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, options = {encoding: getEncoding()} as Options) {}
 
 `;
 
-exports[`prefer-options-parameter > invalid(48): function run(verbose = false, options = {} as Options) {} 2`] = `
+exports[`prefer-options-parameter > invalid(48): function run(verbose = false, options = {encoding: getEncoding()} as Options) {} 2`] = `
 
 Message:
-> 1 | function run(verbose = false, options = {} as Options) {}
+> 1 | function run(verbose = false, options = {encoding: getEncoding()} as Options) {}
     |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
 
 `;
 
-exports[`prefer-options-parameter > invalid(49): function run(verbose = false, options = {} satisfies Options) {} 1`] = `
+exports[`prefer-options-parameter > invalid(49): function run(verbose = false, options = {encoding: getEncoding()} satisfies Options) {} 1`] = `
 
-  1 | function run(verbose = false, options = {} satisfies Options) {}
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, options = {encoding: getEncoding()} satisfies Options) {}
 
 `;
 
-exports[`prefer-options-parameter > invalid(49): function run(verbose = false, options = {} satisfies Options) {} 2`] = `
+exports[`prefer-options-parameter > invalid(49): function run(verbose = false, options = {encoding: getEncoding()} satisfies Options) {} 2`] = `
 
 Message:
-> 1 | function run(verbose = false, options = {} satisfies Options) {}
+> 1 | function run(verbose = false, options = {encoding: getEncoding()} satisfies Options) {}
     |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
 
 `;

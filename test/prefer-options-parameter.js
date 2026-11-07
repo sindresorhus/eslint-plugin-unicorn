@@ -120,9 +120,11 @@ test.snapshot({
 			'abstract class Runner { abstract run(verbose?: boolean, retries?: number): void }',
 			'class Runner { constructor(public input: string, verbose = false, retries = 3) {} }',
 			'function run(verbose?: boolean, {retries = 3}: Options = {}) {}',
-			'function run(verbose = false, options = {} as Options) {}',
-			'function run(verbose = false, options = {} satisfies Options) {}',
 		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
+		...[
+			'function run(verbose = false, options = {encoding: getEncoding()} as Options) {}',
+			'function run(verbose = false, options = {encoding: getEncoding()} satisfies Options) {}',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}, options: [existingOptionsOnly]})),
 		{
 			code: 'const defaults = {encoding: getEncoding()}; function run(verbose = false, options = defaults) {}',
 			options: [existingOptionsOnly],
