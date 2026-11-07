@@ -284,6 +284,26 @@ Message:
 
 `;
 
+exports[`prefer-options-parameter > invalid(15): interface Options { encoding: string } function run(verbose = false, options?: Partial<Options>) {} 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | interface Options { encoding: string } function run(verbose = false, options?: Partial<Options>) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(15): interface Options { encoding: string } function run(verbose = false, options?: Partial<Options>) {} 2`] = `
+
+Message:
+> 1 | interface Options { encoding: string } function run(verbose = false, options?: Partial<Options>) {}
+    |                                                     ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
 exports[`prefer-options-parameter > invalid(16): function run(verbose = false, {retries = 3} = {}) {} 1`] = `
 
   1 | function run(verbose = false, {retries = 3} = {}) {}
@@ -298,6 +318,26 @@ Message:
 
 `;
 
+exports[`prefer-options-parameter > invalid(16): interface Options<Value> { encoding?: Value } function run(verbose = false, options?: Options<string>) {} 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | interface Options<Value> { encoding?: Value } function run(verbose = false, options?: Options<string>) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(16): interface Options<Value> { encoding?: Value } function run(verbose = false, options?: Options<string>) {} 2`] = `
+
+Message:
+> 1 | interface Options<Value> { encoding?: Value } function run(verbose = false, options?: Options<string>) {}
+    |                                                            ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
 exports[`prefer-options-parameter > invalid(17): function run(verbose = false, options = {}) {} 1`] = `
 
   1 | function run(verbose = false, options = {}) {}
@@ -309,6 +349,26 @@ exports[`prefer-options-parameter > invalid(17): function run(verbose = false, o
 Message:
 > 1 | function run(verbose = false, options = {}) {}
     |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(17): interface BaseOptions { encoding?: string } interface Options extends BaseOptions {} function run(verbose = false, options?: Options) {} 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | interface BaseOptions { encoding?: string } interface Options extends BaseOptions {} function run(verbose = false, options?: Options) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(17): interface BaseOptions { encoding?: string } interface Options extends BaseOptions {} function run(verbose = false, options?: Options) {} 2`] = `
+
+Message:
+> 1 | interface BaseOptions { encoding?: string } interface Options extends BaseOptions {} function run(verbose = false, options?: Options) {}
+    |                                                                                                   ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
 
 `;
 
@@ -1071,6 +1131,42 @@ exports[`prefer-options-parameter > invalid(51): const defaults = {encoding: get
 Message:
 > 1 | const defaults = {encoding: getEncoding()} as const; function run(verbose = false, options = defaults) {}
     |                                                                   ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(52): function run(verbose = false, options = Object.freeze({__proto__: null, encoding: \"utf8\"})) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, options = Object.freeze({__proto__: null, encoding: "utf8"})) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(52): function run(verbose = false, options = Object.freeze({__proto__: null, encoding: \"utf8\"})) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options = Object.freeze({__proto__: null, encoding: "utf8"})) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(53): function run(verbose = false, required, retries = 3, options = {}) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, required, retries = 3, options = {}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(53): function run(verbose = false, required, retries = 3, options = {}) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, required, retries = 3, options = {}) {}
+    |                                         ^^^^^^^^^^^ Prefer an options object over optional positional parameters.
 
 `;
 

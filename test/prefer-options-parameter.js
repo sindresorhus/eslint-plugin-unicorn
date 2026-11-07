@@ -41,6 +41,8 @@ test.snapshot({
 			'function run(verbose = false, options = undefined) {}',
 			'function run(verbose = false, options = null) {}',
 			'function run(verbose = false, options) {}',
+			'function run(verbose = false, retries = 3, required, options = {}) {}',
+			'function run(verbose = false, options = Object.freeze({__proto__: [], encoding: "utf8"})) {}',
 			'let defaults = {}; defaults = []; function run(verbose = false, options = defaults) {}',
 		].map(code => ({code, options: [existingOptionsOnly]})),
 		{code: 'function run(input: string, verbose?: boolean) {}', languageOptions: {parser: parsers.typescript}},
@@ -130,6 +132,10 @@ test.snapshot({
 			languageOptions: {parser: parsers.typescript},
 			options: [existingOptionsOnly],
 		},
+		...[
+			'function run(verbose = false, options = Object.freeze({__proto__: null, encoding: "utf8"})) {}',
+			'function run(verbose = false, required, retries = 3, options = {}) {}',
+		].map(code => ({code, options: [existingOptionsOnly]})),
 	],
 });
 
@@ -160,6 +166,8 @@ test.snapshot({
 			'type Options = {encoding?: string} | boolean; function run(verbose = false, options?: Options) {}',
 			'type Options = {encoding?: string} | null; function run(verbose = false, options?: Options) {}',
 			'type Options = {encoding?: string} & Date; function run(verbose = false, options?: Options) {}',
+			'type Options = {encoding?: string} & (() => void); function run(verbose = false, options?: Options) {}',
+			'interface Options { encoding?: string } function run(verbose = false, options?: Omit<Options, "encoding">) {}',
 			'type Options = {encoding?: string} | undefined; function run(options?: Options) {}',
 			'function run<Value>(verbose = false, options?: Value) {}',
 			'function run(options?: {encoding?: string}) {}',
@@ -187,6 +195,11 @@ test.snapshot({
 			...typeAware('interface Options { encoding?: string } function run(verbose = false, options: Options) {}'),
 			options: [],
 		},
+		...[
+			'interface Options { encoding: string } function run(verbose = false, options?: Partial<Options>) {}',
+			'interface Options<Value> { encoding?: Value } function run(verbose = false, options?: Options<string>) {}',
+			'interface BaseOptions { encoding?: string } interface Options extends BaseOptions {} function run(verbose = false, options?: Options) {}',
+		].map(code => typeAware(code)),
 	],
 });
 
