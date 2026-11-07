@@ -1,3 +1,4 @@
+import {findVariable} from '@eslint-community/eslint-utils';
 import {isFunction} from './ast/index.js';
 import {
 	getFunctionFromIdentifier,
@@ -963,6 +964,14 @@ const getFunctionNode = (callExpression, context) => {
 
 	if (isFunction(callee)) {
 		return callee;
+	}
+
+	// Overload signatures can accept more arguments than the implementation declares.
+	if (
+		callee.type === 'Identifier'
+		&& findVariable(context.sourceCode.getScope(callee), callee)?.defs.length !== 1
+	) {
+		return;
 	}
 
 	return getFunctionFromIdentifier(callee, context);

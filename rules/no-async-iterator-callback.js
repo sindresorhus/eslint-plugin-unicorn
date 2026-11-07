@@ -1,6 +1,6 @@
-import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
+import {getPropertyName} from '@eslint-community/eslint-utils';
 import {isFunction} from './ast/index.js';
-import {getConstVariableInitializer, isPromiseType, withTypeInformation} from './utils/index.js';
+import {getFunctionFromIdentifier, isPromiseType, withTypeInformation} from './utils/index.js';
 import {isIteratorExpression, unwrapExpression} from './shared/iterator-helpers.js';
 
 const MESSAGE_ID = 'no-async-iterator-callback';
@@ -13,30 +13,7 @@ const isAsyncNonGeneratorFunction = node => isFunction(node) && node.async && !n
 
 function isAsyncCallback(node, context) {
 	node = unwrapExpression(node);
-	if (isAsyncNonGeneratorFunction(node)) {
-		return true;
-	}
-
-	const initializer = getConstVariableInitializer(node, context);
-	if (initializer && isAsyncNonGeneratorFunction(unwrapExpression(initializer))) {
-		return true;
-	}
-
-	if (node.type !== 'Identifier') {
-		return false;
-	}
-
-	const variable = findVariable(context.sourceCode.getScope(node), node);
-	if (!variable || variable.references.some(reference => reference.isWrite())) {
-		return false;
-	}
-
-	const functionImplementations = variable.defs.filter(definition =>
-		definition.type === 'FunctionName'
-		&& definition.node.body,
-	);
-
-	return functionImplementations.length === 1 && isAsyncNonGeneratorFunction(functionImplementations[0].node);
+	return isAsyncNonGeneratorFunction(getFunctionFromIdentifier(node, context) ?? node);
 }
 
 // Type information can be unavailable in incomplete projects; retain syntax-based detection.

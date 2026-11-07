@@ -46,6 +46,11 @@ test('returns a function declaration', t => {
 	t.assert.deepStrictEqual(getResults('export default function foo(a) {} inspect(foo);'), ['function foo(a) {}']);
 });
 
+test('returns the implementation of TypeScript overloads', t => {
+	t.assert.deepStrictEqual(getResults('function foo(a: string): void; function foo(a: number): void; function foo(a) {} inspect(foo);'), ['function foo(a) {}']);
+	t.assert.deepStrictEqual(getResults('function foo(): Promise<void>; async function foo() {} inspect(foo);'), ['async function foo() {}']);
+});
+
 test('returns the name of a function expression from inside it', t => {
 	t.assert.deepStrictEqual(getResults('const bar = function foo(a) { inspect(foo); };'), ['function foo(a) { inspect(foo); }']);
 });
@@ -74,16 +79,17 @@ test('returns `undefined` for a reassigned variable', t => {
 		'var foo = a => a; foo ??= b => b; inspect(foo);',
 		'let foo = a => a; [foo] = [b => b]; inspect(foo);',
 		'function foo(a) {} foo = b => b; inspect(foo);',
+		'function foo(a: string): void; function foo(a) {} foo = b => b; inspect(foo);',
 		'let foo; foo = a => a; inspect(foo);',
 	]) {
 		t.assert.deepStrictEqual(getResults(code), [undefined], code);
 	}
 });
 
-test('returns `undefined` for more than one declaration', t => {
+test('returns `undefined` for multiple variable declarations or implementations', t => {
 	for (const code of [
 		'var foo = a => a; var foo = b => b; inspect(foo);',
-		'function foo(a: string): void; function foo(a) {} inspect(foo);',
+		'function foo(a) {} function foo(a, b) {} inspect(foo);',
 	]) {
 		t.assert.deepStrictEqual(getResults(code), [undefined], code);
 	}
@@ -100,6 +106,7 @@ test('returns `undefined` for other values and declarations', t => {
 		'function bar(foo = () => {}) { inspect(foo); }',
 		'declare const foo: () => void; inspect(foo);',
 		'declare function foo(): void; inspect(foo);',
+		'declare function foo(a: string): void; declare function foo(a: number): void; inspect(foo);',
 		'import foo from \'foo\'; inspect(foo);',
 		'inspect(foo);',
 		'inspect(() => {});',

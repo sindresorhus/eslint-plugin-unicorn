@@ -202,6 +202,7 @@ test.snapshot({
 		'[...map.values()].find(((value, index, array) => array.length > 0) as Predicate)',
 		'[...map.values()].reduce((function () { return arguments[3]?.length; }) as Reducer, initialValue)',
 		'function foo(array: string[]) { [...array].find(value => value); }',
+		'function callback(value: number, index: number, array: number[]): boolean; function callback(value: number): boolean { return true; } [...new Map<number, number>().values()].some(callback);',
 		'function foo(iterable: Iterable<string>) { [...iterable].find(value => value); }',
 		'type Iterator<T> = T[]; function foo(iterator: Iterator<string>) { [...iterator].find(value => value); }',
 		'interface Iterator<T> extends Array<T> {} function foo(iterator: Iterator<string>) { [...iterator].find(value => value); }',

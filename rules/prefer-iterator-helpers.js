@@ -1,3 +1,4 @@
+import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	getFunctionFromIdentifier,
 	getParenthesizedRange,
@@ -61,6 +62,11 @@ const canObserveArrayArgument = (callback, arrayParameterIndex, context) => {
 	callback = unwrapExpression(callback);
 
 	if (callback.type === 'Identifier') {
+		// Overload signatures can require arguments that the implementation does not declare.
+		if (findVariable(context.sourceCode.getScope(callback), callback)?.defs.length !== 1) {
+			return true;
+		}
+
 		// The function a named callback is declared as, when its declaration is in the same file
 		callback = getFunctionFromIdentifier(callback, context);
 	}

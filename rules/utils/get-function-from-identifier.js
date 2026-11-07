@@ -5,7 +5,7 @@ import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
 /**
 Get the function that an identifier refers to, when it is declared in the same file and never reassigned.
 
-This is a `function` declaration, or a variable (not destructured) initialized with a function or arrow expression. TypeScript wrappers around the initializer are unwrapped. Returns `undefined` for anything else, including variables with more than one declaration (like TypeScript overloads) and variables that are written after their declaration.
+This is a `function` declaration, or a variable (not destructured) initialized with a function or arrow expression. TypeScript overloads resolve to their single implementation, and TypeScript wrappers around the initializer are unwrapped. Returns `undefined` for anything else, including ambiguous declarations and variables that are written after their declaration.
 
 @param {import('estree').Node} node - The identifier. Any other node returns `undefined`.
 @param {import('eslint').Rule.RuleContext} context
@@ -25,15 +25,20 @@ export default function getFunctionFromIdentifier(node, context) {
 
 	const variable = findVariable(context.sourceCode.getScope(node), node);
 	if (
-		variable?.defs.length !== 1
+		!variable
 		|| variable.references.some(reference => reference.isWrite() && !reference.init)
 	) {
 		return;
 	}
 
-	const [definition] = variable.defs;
+	// `declare function` and overload signatures have no body
+	const definitions = variable.defs.filter(definition => definition.type !== 'FunctionName' || definition.node.body);
+	if (definitions.length !== 1) {
+		return;
+	}
+
+	const [definition] = definitions;
 	if (definition.type === 'FunctionName') {
-		// `declare function` and overload signatures have no body
 		return isFunction(definition.node) ? definition.node : undefined;
 	}
 
