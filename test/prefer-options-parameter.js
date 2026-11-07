@@ -32,6 +32,7 @@ test.snapshot({
 		'const {verbose = false, retries = 3} = options;',
 		...[
 			'function run(input, verbose = false, retries = 3) {}',
+			'function run(input, settings = {}, verbose = false) {}',
 			'function run(verbose = false, values = []) {}',
 			'function run(verbose = false, callback = () => {}) {}',
 			'function run(verbose = false, date = new Date()) {}',
@@ -148,6 +149,7 @@ test.snapshot({
 			'interface Options { new (): object; encoding?: string } function run(verbose = false, options?: Options) {}',
 			'type Options = {encoding?: string} | boolean; function run(verbose = false, options?: Options) {}',
 			'type Options = {encoding?: string} | null; function run(verbose = false, options?: Options) {}',
+			'type Options = {encoding?: string} & Date; function run(verbose = false, options?: Options) {}',
 			'type Options = {encoding?: string} | undefined; function run(options?: Options) {}',
 			'function run<Value>(verbose = false, options?: Value) {}',
 			'function run(options?: {encoding?: string}) {}',
