@@ -302,6 +302,7 @@ export {default as 'prefer-object-from-entries'} from './prefer-object-from-entr
 export {default as 'prefer-object-iterable-methods'} from './prefer-object-iterable-methods.js';
 export {default as 'prefer-observer-apis'} from './prefer-observer-apis.js';
 export {default as 'prefer-optional-catch-binding'} from './prefer-optional-catch-binding.js';
+export {default as 'prefer-options-parameter'} from './prefer-options-parameter.js';
 export {default as 'prefer-path2d'} from './prefer-path2d.js';
 export {default as 'prefer-private-class-fields'} from './prefer-private-class-fields.js';
 export {default as 'prefer-promise-static-methods'} from './prefer-promise-static-methods.js';

@@ -78,6 +78,8 @@ const config = [
 			// Internal helpers intentionally retain explicit dependencies and recursive default parameters.
 			'unicorn/no-unnecessary-parameters': 'off',
 			'unicorn/no-unnecessary-default-arguments': 'off',
+			// Existing internal APIs intentionally use optional positional parameters.
+			'unicorn/prefer-options-parameter': 'off',
 			// TODO: Enable when targeting Node.js 26.
 			'unicorn/prefer-iterator-concat': 'off',
 			'unicorn/prefer-temporal': 'off',
