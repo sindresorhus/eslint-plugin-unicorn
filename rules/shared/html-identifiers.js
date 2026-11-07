@@ -1,5 +1,5 @@
 import {decodeHTMLAttribute} from 'entities';
-import {toLocation} from '../utils/index.js';
+import toLocation from '../utils/to-location.js';
 
 /**
 Visit decoded HTML IDs and individual class names. Entity-containing values are reported as a whole because decoded offsets do not match source offsets.

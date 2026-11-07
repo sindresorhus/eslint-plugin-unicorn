@@ -2,15 +2,12 @@ import path from 'node:path';
 import {isRegExp} from 'node:util/types';
 import semver from 'semver';
 import * as ci from 'ci-info';
-import {
-	isEslintDisableOrEnableDirective,
-	getBuiltinRule,
-	getComments,
-	getMarkdownHtmlComments,
-	matchesAnyRegExp,
-	normalizeComment,
-	onRoot,
-} from './utils/index.js';
+import {isEslintDisableOrEnableDirective} from './utils/eslint-directive.js';
+import getBuiltinRule from './utils/get-builtin-rule.js';
+import getComments, {getMarkdownHtmlComments} from './utils/get-comments.js';
+import matchesAnyRegExp from './utils/matches-any-regexp.js';
+import normalizeComment from './utils/normalize-comment.js';
+import onRoot from './utils/on-root.js';
 import {readPackageJson} from './shared/package-json.js';
 
 const baseRule = getBuiltinRule('no-warning-comments');

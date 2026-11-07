@@ -13,7 +13,7 @@
 	},
 	"sideEffects": false,
 	"engines": {
-		"node": ">=22"
+		"node": ">=22.13"
 	},
 	"scripts": {
 		"coverage": "node --test --experimental-test-coverage --test-coverage-include=index.js --test-coverage-include=\"configs/**\" --test-coverage-include=\"rules/**\" --test-coverage-exclude=\"test/**\" test/*.js test/unit/*.js",

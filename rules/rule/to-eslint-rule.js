@@ -1,5 +1,9 @@
+import {createRequire} from 'node:module';
 import getDocumentationUrl from '../utils/get-documentation-url.js';
-import toEslintCreate from './to-eslint-create.js';
+import toEslintCreate, {markFunctionWrapped} from './to-eslint-create.js';
+
+// `import defer` still loads, parses, and links modules upfront. Load implementations on first use instead to avoid that startup cost.
+const loadModule = createRequire(import.meta.url);
 
 /**
 @import * as ESLint from 'eslint';
@@ -32,5 +36,19 @@ export default function toEslintRule(ruleId, unicornRule) {
 			},
 		},
 		create: toEslintCreate(unicornRule.create),
+	};
+}
+
+/**
+Create a rule that loads and adapts its implementation on first use.
+*/
+export function createLazyRule(ruleId, meta) {
+	let create;
+	return {
+		meta,
+		create: markFunctionWrapped(context => {
+			create ??= toEslintRule(ruleId, loadModule(`../${ruleId}.js`).default).create;
+			return create(context);
+		}),
 	};
 }

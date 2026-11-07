@@ -1,5 +1,5 @@
 import {ident, tokenize, tokenTypes} from '@eslint/css-tree';
-import {toLocation} from '../utils/index.js';
+import toLocation from '../utils/to-location.js';
 
 const namedAtRulePattern = /^(?:(?:-(?:webkit|moz|o)-)?keyframes|container|custom-media|property)$/i;
 const animationKeywords = new Set(['none', 'default', 'inherit', 'initial', 'unset', 'revert', 'revert-layer', 'revert-rule']);
