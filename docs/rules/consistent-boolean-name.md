@@ -205,7 +205,7 @@ const isCompleted = true;
 Type: `'always' | 'prohibit' | 'never'`\
 Default: `'always'`
 
-How to check parameter names, including TypeScript constructor parameter properties. Setter parameters are ignored because their names are positional. For example, `checkArguments: 'never'` allows both forms:
+How to check parameter names, including TypeScript constructor parameter properties. Setter parameters and underscore-only placeholders in TypeScript type signatures are ignored. For example, `checkArguments: 'never'` allows both forms:
 
 ```js
 function download(showProgress = false) {}

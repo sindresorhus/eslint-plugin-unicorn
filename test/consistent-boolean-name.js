@@ -56,6 +56,30 @@ const onlyIsPrefixOptions = {
 	},
 };
 
+for (const wrap of [typescript, typeAware]) {
+	test({
+		valid: [
+			'export type ExampleFunction = (_: boolean) => void;',
+			'type Callback = (_: boolean, __?: boolean) => void;',
+			'type Constructor = new (_: boolean) => object;',
+			'interface Callable { (_: boolean): void; }',
+			'interface Constructable { new (_: boolean): object; }',
+			'interface Task { run(_: boolean): void; }',
+		].map(code => wrap(code)),
+		invalid: [
+			'type Callback = (ready: boolean) => void;',
+			'type Callback = (_ready: boolean) => void;',
+			'type Constructor = new (ready: boolean) => object;',
+			'interface Task { run(ready: boolean): void; }',
+			'function run(_: boolean) {}',
+			'declare function run(_: boolean): void;',
+		].map(code => wrap({
+			code,
+			errors: [{messageId: 'consistent-boolean-name', suggestions: 12}],
+		})),
+	});
+}
+
 test({
 	valid: [{
 		code: '/** @param flag {string} Description. */ function check(flag = false) { return flag; }',
