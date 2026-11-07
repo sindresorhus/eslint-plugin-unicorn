@@ -392,6 +392,7 @@ test('Every rule declares valid supported languages', t => {
 });
 
 for (const [ruleName, code, recommendedSeverity] of [
+	['no-async-promise-finally', 'promise.finally(async () => { await cleanup(); });', 'off'],
 	['no-shorthand-property-overrides', 'const element = <div style={{paddingLeft: 1, padding: 2}} />;', 'error'],
 	['no-missing-local-resource', 'new URL("./missing-resource-for-package-test.svg", import.meta.url);', 'off'],
 ]) {

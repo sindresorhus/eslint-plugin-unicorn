@@ -28,13 +28,30 @@ test.snapshot({
 		'promise.notFinally(async () => {})',
 		'promise[method](async () => {})',
 		'const cleanup = () => {}; promise.finally(cleanup);',
-		'let cleanup = async () => {}; promise.finally(cleanup);',
+		'let cleanup = async () => {}; cleanup = () => {}; promise.finally(cleanup);',
+		'var cleanup = async () => {}; cleanup = () => {}; promise.finally(cleanup);',
+		'async function cleanup() {} cleanup = () => {}; promise.finally(cleanup);',
+		'async function cleanup() {} promise.finally(cleanup); cleanup = () => {};',
+		'const cleanup = async () => {}; const alias = cleanup; promise.finally(alias);',
 		'async function * cleanup() {} promise.finally(cleanup);',
 		'const cleanup = async function * () {}; promise.finally(cleanup);',
+		'let cleanup = async function * () {}; promise.finally(cleanup);',
 		'const cleanup = async () => {}; promise.finally(...[cleanup]);',
 		'import {cleanup} from "./cleanup.js"; promise.finally(cleanup);',
 		typeAware('function foo(object: {finally(handler: () => Promise<void>): void}) { object.finally(async () => {}); }'),
 		typeAware('function foo(object: {finally(handler: () => Promise<void>): void}) { const cleanup = async () => {}; object.finally(cleanup); }'),
+		{
+			code: 'function cleanup(): Promise<void>; function cleanup() { return Promise.resolve(); } promise.finally(cleanup);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function cleanup(): Promise<void>; async function cleanup() {} cleanup = () => Promise.resolve(); promise.finally(cleanup);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'declare function cleanup(): Promise<void>; promise.finally(cleanup);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		'promise.finally(async () => {})',
@@ -61,5 +78,15 @@ test.snapshot({
 		},
 		typeAware('function foo(promise: Promise<string>) { promise.finally(async () => {}); }'),
 		typeAware('function foo(promise: unknown) { promise.finally(async () => {}); }'),
+		'let cleanup = async () => {}; promise.finally(cleanup);',
+		'var cleanup = async function () {}; promise.finally(cleanup);',
+		{
+			code: 'let cleanup = (async () => {}) satisfies (() => Promise<void>); promise.finally(cleanup);',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
+			code: 'function cleanup(): Promise<void>; async function cleanup() {} promise.finally(cleanup);',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 });

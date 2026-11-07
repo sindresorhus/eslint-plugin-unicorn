@@ -130,6 +130,10 @@ ruleTest.snapshot({
 
 		// TypeScript overloads are ignored.
 		{
+			code: 'function foo(value: string, options: object): void; function foo(value: string) {} foo("value", {});',
+			languageOptions: {parser: parsers.typescript},
+		},
+		{
 			code: outdent`
 				function foo(value: string): void;
 				function foo(value: string, options: object): void;

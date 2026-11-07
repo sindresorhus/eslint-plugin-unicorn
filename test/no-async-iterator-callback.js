@@ -30,7 +30,7 @@ test.snapshot({
 		'const {iterator} = Iterator.from(values); iterator.filter(async value => value);',
 		'const [iterator] = Iterator.from(values); iterator.filter(async value => value);',
 		'let iterator = Iterator.from(values); iterator.filter(async value => value);',
-		'let callback = async value => value; Iterator.from(values).filter(callback);',
+		'let callback = async value => value; callback = () => false; Iterator.from(values).filter(callback);',
 		'async function callback() {} callback = () => false; Iterator.from(values).filter(callback);',
 		'const callback = async function * () {}; Iterator.from(values).filter(callback);',
 		'const {callback} = async () => {}; Iterator.from(values).filter(callback);',
@@ -89,6 +89,8 @@ test.snapshot({
 			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
 		},
 		'Iterator.from(values).filter(callback); async function callback(value) { return value; }',
+		'let callback = async value => value; Iterator.from(values).filter(callback);',
+		'var callback = async value => value; Iterator.from(values).some(callback);',
 	],
 });
 

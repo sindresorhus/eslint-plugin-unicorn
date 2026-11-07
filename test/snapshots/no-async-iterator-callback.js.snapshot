@@ -1026,6 +1026,34 @@ Message:
 
 `;
 
+exports[`no-async-iterator-callback > invalid(47): let callback = async value => value; Iterator.from(values).filter(callback); 1`] = `
+
+  1 | let callback = async value => value; Iterator.from(values).filter(callback);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(47): let callback = async value => value; Iterator.from(values).filter(callback); 2`] = `
+
+Message:
+> 1 | let callback = async value => value; Iterator.from(values).filter(callback);
+    |                                                                   ^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#filter()\`; returned promises are not awaited.
+
+`;
+
+exports[`no-async-iterator-callback > invalid(48): var callback = async value => value; Iterator.from(values).some(callback); 1`] = `
+
+  1 | var callback = async value => value; Iterator.from(values).some(callback);
+
+`;
+
+exports[`no-async-iterator-callback > invalid(48): var callback = async value => value; Iterator.from(values).some(callback); 2`] = `
+
+Message:
+> 1 | var callback = async value => value; Iterator.from(values).some(callback);
+    |                                                                 ^^^^^^^^ Do not pass an asynchronous callback to \`Iterator#some()\`; returned promises are not awaited.
+
+`;
+
 exports[`no-async-iterator-callback > invalid(5): Iterator.from([1]).find(() => Promise.resolve(false)); 1`] = `
 
 Filename: file.ts

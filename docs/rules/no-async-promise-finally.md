@@ -2,14 +2,12 @@
 
 📝 Disallow async functions as `Promise#finally()` callbacks.
 
-💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
+🚫 Disabled by default.
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
 
-Passing an async function to `Promise#finally()` can hide the original promise outcome. If the promise rejects and the async finalizer also rejects, the resulting promise rejects with the finalizer error instead of the original error.
-
-This rule reports async finalizer callbacks that are directly passed to `.finally()` or referenced through a local function declaration or `const` variable.
+`Promise#finally()` waits for async callbacks. This opt-in rule flags them because cleanup errors can replace an earlier failure; it enforces a syntax convention rather than verifying cleanup safety.
 
 ## Examples
 
@@ -37,18 +35,9 @@ function cleanup() {}
 promise.finally(cleanup);
 ```
 
-If cleanup must be asynchronous, handle its errors explicitly so they do not replace the original rejection:
+## Cleanup errors
 
-```js
-// ✅
-promise.finally(() => {
-	return cleanup().catch(error => {
-		logCleanupError(error);
-	});
-});
-```
-
-The behavior can be seen with this example:
+If both operations fail, the cleanup error replaces the original error:
 
 ```js
 const original = new Error('original');
@@ -64,6 +53,21 @@ try {
 }
 ```
 
+Failed flushes or closes may need to reject the operation. Suppress cleanup failures only when they can be ignored even after successful work:
+
+```js
+// ✅
+promise.finally(() => {
+	return cleanup().catch(error => {
+		logCleanupError(error);
+	});
+});
+```
+
+## When not to use it
+
+Leave disabled when async cleanup is intentional. It reports async callbacks even when they handle cleanup errors, while returning the same promise from a non-async callback passes without changing cleanup waiting or error propagation.
+
 ## Limitations
 
-This rule only reports callbacks it can locally identify as async. Imported functions, member expressions, and other dynamic callback references are ignored.
+Detection is limited to inline async functions and direct, unreassigned local references. Imports, properties, aliases, non-async callbacks, and `await` in `finally` blocks are ignored. Without type information, `.finally()` is assumed to be a promise method.
