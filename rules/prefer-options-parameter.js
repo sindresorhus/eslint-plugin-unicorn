@@ -154,8 +154,8 @@ const config = {
 		docs: {
 			description: 'Prefer an options object over optional positional parameters.',
 			// eslint-disable-next-line no-warning-comments
-			// TODO: Enable in the recommended preset when the rule is more mature.
-			recommended: false,
+			// TODO: Consider enabling `checkWithoutOptionsObject` by default when the rule is more mature.
+			recommended: true,
 		},
 		schema: [{
 			type: 'object',
@@ -167,7 +167,7 @@ const config = {
 			},
 			additionalProperties: false,
 		}],
-		defaultOptions: [{checkWithoutOptionsObject: true}],
+		defaultOptions: [{checkWithoutOptionsObject: false}],
 		messages,
 		languages: [
 			'js/js',

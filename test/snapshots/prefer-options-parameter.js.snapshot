@@ -18,6 +18,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(1): function run(verbose = false, retries = 3) {} 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | function run(verbose = false, retries = 3) {}
 
 `;
@@ -52,6 +56,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(10): class Runner { constructor(verbose = false, retries = 3) {} } 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | class Runner { constructor(verbose = false, retries = 3) {} }
 
 `;
@@ -104,6 +112,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(11): class Runner { static run(verbose = false, retries = 3) {} } 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | class Runner { static run(verbose = false, retries = 3) {} }
 
 `;
@@ -156,6 +168,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(12): class Runner { #run(verbose = false, retries = 3) {} } 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | class Runner { #run(verbose = false, retries = 3) {} }
 
 `;
@@ -204,6 +220,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(13): function outer() { return (verbose = false, retries = 3) => {}; } 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | function outer() { return (verbose = false, retries = 3) => {}; }
 
 `;
@@ -238,6 +258,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(14): const component = <Button onClick={(verbose = false, retries = 3) => null} />; 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | const component = <Button onClick={(verbose = false, retries = 3) => null} />;
 
 `;
@@ -402,6 +426,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(2): function run(input, verbose = false, retries = 3) {} 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | function run(input, verbose = false, retries = 3) {}
 
 `;
@@ -498,6 +526,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(22): function updateSelection(\n\tgraph,\n\tmodules,\n\ttransform = null,\n\tshouldScrollToSelected = true,\n) {} 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | function updateSelection(
   2 | 	graph,
   3 | 	modules,
@@ -648,6 +680,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(3): function run(input, first = 1, second = 2, third = 3) {} 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | function run(input, first = 1, second = 2, third = 3) {}
 
 `;
@@ -736,6 +772,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(32): function run(input: string, verbose?: boolean, retries?: number) {} 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | function run(input: string, verbose?: boolean, retries?: number) {}
 
 `;
@@ -750,6 +790,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(33): function run(input: string, verbose = false, retries?: number) {} 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | function run(input: string, verbose = false, retries?: number) {}
 
 `;
@@ -764,6 +808,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(34): function run(this: Runner, verbose?: boolean, retries?: number) {} 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | function run(this: Runner, verbose?: boolean, retries?: number) {}
 
 `;
@@ -778,6 +826,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(35): const run = <Value>(input: Value, verbose = false, retries = 3) => input; 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | const run = <Value>(input: Value, verbose = false, retries = 3) => input;
 
 `;
@@ -792,6 +844,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(36): declare function run(verbose?: boolean, retries?: number): void; 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | declare function run(verbose?: boolean, retries?: number): void;
 
 `;
@@ -806,6 +862,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(37): function run(verbose?: boolean, retries?: number): void; function run(verbose = false, retries = 3) {} 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | function run(verbose?: boolean, retries?: number): void; function run(verbose = false, retries = 3) {}
 
 `;
@@ -828,6 +888,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(38): type Runner = (verbose?: boolean, retries?: number) => void; 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | type Runner = (verbose?: boolean, retries?: number) => void;
 
 `;
@@ -842,6 +906,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(39): type Runner = new (verbose?: boolean, retries?: number) => object; 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | type Runner = new (verbose?: boolean, retries?: number) => object;
 
 `;
@@ -856,6 +924,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(4): function run([value] = [], verbose = false, retries = 3) {} 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | function run([value] = [], verbose = false, retries = 3) {}
 
 `;
@@ -908,6 +980,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(40): interface Runner { run(verbose?: boolean, retries?: number): void } 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | interface Runner { run(verbose?: boolean, retries?: number): void }
 
 `;
@@ -922,6 +998,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(41): interface Runner { (verbose?: boolean, retries?: number): void } 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | interface Runner { (verbose?: boolean, retries?: number): void }
 
 `;
@@ -936,6 +1016,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(42): interface Runner { new (verbose?: boolean, retries?: number): object } 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | interface Runner { new (verbose?: boolean, retries?: number): object }
 
 `;
@@ -950,6 +1034,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(43): declare class Runner { constructor(verbose?: boolean, retries?: number) } 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | declare class Runner { constructor(verbose?: boolean, retries?: number) }
 
 `;
@@ -964,6 +1052,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(44): declare class Runner { run(verbose?: boolean, retries?: number): void } 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | declare class Runner { run(verbose?: boolean, retries?: number): void }
 
 `;
@@ -978,6 +1070,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(45): abstract class Runner { abstract run(verbose?: boolean, retries?: number): void } 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | abstract class Runner { abstract run(verbose?: boolean, retries?: number): void }
 
 `;
@@ -992,6 +1088,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(46): class Runner { constructor(public input: string, verbose = false, retries = 3) {} } 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | class Runner { constructor(public input: string, verbose = false, retries = 3) {} }
 
 `;
@@ -1006,6 +1106,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(47): function run(verbose?: boolean, {retries = 3}: Options = {}) {} 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | function run(verbose?: boolean, {retries = 3}: Options = {}) {}
 
 `;
@@ -1056,6 +1160,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(5): const run = function(verbose = false, retries = 3) {}; 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | const run = function(verbose = false, retries = 3) {};
 
 `;
@@ -1180,6 +1288,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(6): const run = (verbose = false, retries = 3) => verbose; 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | const run = (verbose = false, retries = 3) => verbose;
 
 `;
@@ -1232,6 +1344,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(7): async function run(verbose = false, retries = 3) {} 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | async function run(verbose = false, retries = 3) {}
 
 `;
@@ -1280,6 +1396,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(8): function * run(verbose = false, retries = 3) {} 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | function * run(verbose = false, retries = 3) {}
 
 `;
@@ -1332,6 +1452,10 @@ Message:
 
 exports[`prefer-options-parameter > invalid(9): const object = {run(verbose = false, retries = 3) {}}; 1`] = `
 
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
   1 | const object = {run(verbose = false, retries = 3) {}};
 
 `;

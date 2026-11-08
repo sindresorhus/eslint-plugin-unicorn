@@ -4,6 +4,7 @@ import {getTester, parsers} from './utils/test.js';
 
 const {test} = getTester(import.meta);
 const existingOptionsOnly = {checkWithoutOptionsObject: false};
+const allOptionalParameters = {checkWithoutOptionsObject: true};
 
 const typeAware = code => ({
 	code,
@@ -17,19 +18,21 @@ const typeAware = code => ({
 
 test.snapshot({
 	valid: [
-		'function run() {}',
-		'function run(input, output) {}',
-		'function run(input, verbose = false) {}',
-		'function run(verbose = false) {}',
-		'function run(input, {verbose = false, retries = 3} = {}) {}',
-		'function run(options = {}) {}',
-		'function run(verbose = false, retries = 3, required) {}',
-		'function run(verbose = false, retries = 3, ...rest) {}',
-		'function run(verbose = false, retries = 3, [value] = []) {}',
-		'function run([value] = [], verbose = false) {}',
-		'function run(verbose = false, required, retries = 3) {}',
-		'function run({verbose = false}, retries = 3) {}',
-		'const {verbose = false, retries = 3} = options;',
+		...[
+			'function run() {}',
+			'function run(input, output) {}',
+			'function run(input, verbose = false) {}',
+			'function run(verbose = false) {}',
+			'function run(input, {verbose = false, retries = 3} = {}) {}',
+			'function run(options = {}) {}',
+			'function run(verbose = false, retries = 3, required) {}',
+			'function run(verbose = false, retries = 3, ...rest) {}',
+			'function run(verbose = false, retries = 3, [value] = []) {}',
+			'function run([value] = [], verbose = false) {}',
+			'function run(verbose = false, required, retries = 3) {}',
+			'function run({verbose = false}, retries = 3) {}',
+			'const {verbose = false, retries = 3} = options;',
+		].map(code => ({code, options: [allOptionalParameters]})),
 		...[
 			'function run(input, verbose = false, retries = 3) {}',
 			'function run(input, settings = {}, verbose = false) {}',
@@ -45,27 +48,30 @@ test.snapshot({
 			'function run(verbose = false, options = Object.freeze({__proto__: [], encoding: "utf8"})) {}',
 			'let defaults = {}; defaults = []; function run(verbose = false, options = defaults) {}',
 		].map(code => ({code, options: [existingOptionsOnly]})),
-		{code: 'function run(input: string, verbose?: boolean) {}', languageOptions: {parser: parsers.typescript}},
+		{code: 'function run(input: string, verbose?: boolean) {}', languageOptions: {parser: parsers.typescript}, options: [allOptionalParameters]},
 		{code: 'function run(verbose = false, options?: Options) {}', languageOptions: {parser: parsers.typescript}, options: [existingOptionsOnly]},
-		{code: 'class Runner { constructor(public verbose = false, retries = 3) {} }', languageOptions: {parser: parsers.typescript}},
+		{code: 'class Runner { constructor(public verbose = false, retries = 3) {} }', languageOptions: {parser: parsers.typescript}, options: [allOptionalParameters]},
 	],
 	invalid: [
-		'function run(verbose = false, retries = 3) {}',
-		'function run(input, verbose = false, retries = 3) {}',
-		'function run(input, first = 1, second = 2, third = 3) {}',
-		'function run([value] = [], verbose = false, retries = 3) {}',
-		'const run = function(verbose = false, retries = 3) {};',
-		'const run = (verbose = false, retries = 3) => verbose;',
-		'async function run(verbose = false, retries = 3) {}',
-		'function * run(verbose = false, retries = 3) {}',
-		'const object = {run(verbose = false, retries = 3) {}};',
-		'class Runner { constructor(verbose = false, retries = 3) {} }',
-		'class Runner { static run(verbose = false, retries = 3) {} }',
-		'class Runner { #run(verbose = false, retries = 3) {} }',
-		'function outer() { return (verbose = false, retries = 3) => {}; }',
+		...[
+			'function run(verbose = false, retries = 3) {}',
+			'function run(input, verbose = false, retries = 3) {}',
+			'function run(input, first = 1, second = 2, third = 3) {}',
+			'function run([value] = [], verbose = false, retries = 3) {}',
+			'const run = function(verbose = false, retries = 3) {};',
+			'const run = (verbose = false, retries = 3) => verbose;',
+			'async function run(verbose = false, retries = 3) {}',
+			'function * run(verbose = false, retries = 3) {}',
+			'const object = {run(verbose = false, retries = 3) {}};',
+			'class Runner { constructor(verbose = false, retries = 3) {} }',
+			'class Runner { static run(verbose = false, retries = 3) {} }',
+			'class Runner { #run(verbose = false, retries = 3) {} }',
+			'function outer() { return (verbose = false, retries = 3) => {}; }',
+		].map(code => ({code, options: [allOptionalParameters]})),
 		{
 			code: 'const component = <Button onClick={(verbose = false, retries = 3) => null} />;',
 			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+			options: [allOptionalParameters],
 		},
 		'function run(verbose = false, {retries = 3}) {}',
 		'function run(verbose = false, {retries = 3} = {}) {}',
@@ -84,14 +90,17 @@ test.snapshot({
 				} = {},
 			) {}
 		`,
-		outdent`
-			function updateSelection(
-				graph,
-				modules,
-				transform = null,
-				shouldScrollToSelected = true,
-			) {}
-		`,
+		{
+			code: outdent`
+				function updateSelection(
+					graph,
+					modules,
+					transform = null,
+					shouldScrollToSelected = true,
+				) {}
+			`,
+			options: [allOptionalParameters],
+		},
 		...[
 			'function run(verbose = false, {retries = 3} = {}) {}',
 			'function run(verbose = false, {}) {}',
@@ -120,7 +129,7 @@ test.snapshot({
 			'abstract class Runner { abstract run(verbose?: boolean, retries?: number): void }',
 			'class Runner { constructor(public input: string, verbose = false, retries = 3) {} }',
 			'function run(verbose?: boolean, {retries = 3}: Options = {}) {}',
-		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}, options: [allOptionalParameters]})),
 		...[
 			'function run(verbose = false, options = {encoding: getEncoding()} as Options) {}',
 			'function run(verbose = false, options = {encoding: getEncoding()} satisfies Options) {}',
@@ -206,10 +215,14 @@ test.snapshot({
 });
 
 test({
-	valid: [],
+	valid: [
+		'function clamp(value, minimum = 0, maximum = 1) {}',
+		{code: 'declare function run(verbose?: boolean, retries?: number): void;', languageOptions: {parser: parsers.typescript}},
+	],
 	invalid: [
 		{
 			code: 'function run(input, verbose = false, retries = 3) {}',
+			options: [allOptionalParameters],
 			errors: [{messageId: 'prefer-options-parameter', column: 21, endColumn: 36}],
 		},
 	],
