@@ -44,14 +44,8 @@ Functions such as `clamp(value, minimum = 0, maximum = 1)` are allowed by defaul
 
 ## Object detection
 
-The final parameter is recognized as an options object through:
+Recognizes final object destructuring, object-literal or statically known plain-object defaults (including constants and frozen objects), and nonempty inline TypeScript object types. Named record types also qualify with type information.
 
-- Object destructuring.
-- An object-literal default, or a `const` initialized with one, even with dynamic property values. Safely evaluated plain-object defaults, including constant aliases and frozen objects, also qualify.
-- A nonempty inline TypeScript object type containing only property, method, or index signatures. Named record-shaped interfaces and aliases require type information. Unions and intersections of supported record types qualify; unions may include `undefined`.
-
-Type detection excludes arrays, tuples, callable or constructable types, class instances, constructor-backed native instances, `any`, `unknown`, broad `object`, and empty `{}`. A recognizable default qualifies independently of its type.
-
-Treating a trailing record as configuration is a heuristic; parameter names are ignored.
+Type detection excludes arrays, callable or constructable types, and class instances. Record detection is a heuristic; parameter names are ignored. Recognizable defaults qualify independently of types.
 
 Rest parameters, array patterns, and TypeScript parameter properties stop the check. Optionality is not inferred from `undefined` unions, JSDoc, or function bodies.
