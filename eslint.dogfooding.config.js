@@ -28,6 +28,7 @@ const config = [
 	{
 		ignores: [
 			'coverage',
+			'dist',
 			'rules/index.js',
 			'.ai-temporary',
 			'test/integration/fixtures',

@@ -71,7 +71,7 @@ function replaceRuleIdInRulesIndex(text, from, to) {
 	const toExportName = to.includes('-') ? `'${to}'` : to;
 	const fromLine = `export {default as ${fromExportName}} from './${from}.js';`;
 	const toLine = `export {default as ${toExportName}} from './${to}.js';`;
-	return replaceRuleId(text.replace(fromLine, () => toLine), from, to);
+	return text.replace(fromLine, () => toLine);
 }
 
 function replaceRuleId(text, from, to) {
@@ -96,8 +96,9 @@ async function renameRule(from, to) {
 	const files = [
 		'readme.md',
 		'index.js',
+		'create-plugin.js',
 		'rules/index.js',
-		'scripts/create-rules-index-file.js',
+		'scripts/build-distribution.js',
 		'test/unit/lazy-rules.js',
 		`docs/rules/${to}.md`,
 		`rules/${to}.js`,

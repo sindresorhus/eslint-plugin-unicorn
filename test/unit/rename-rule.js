@@ -91,14 +91,6 @@ for (const [from, to, input, output] of [
 	});
 }
 
-test('replaceRuleIdInRulesIndex renames lazy rule declarations and exports', t => {
-	const input = 'const preferArrayFlat = createLazyRule(\'prefer-array-flat\', {}); export {preferArrayFlat as \'prefer-array-flat\'};';
-	t.assert.strictEqual(
-		replaceRuleIdInRulesIndex(input, 'prefer-array-flat', 'renamed-rule'),
-		'const preferArrayFlat = createLazyRule(\'renamed-rule\', {}); export {preferArrayFlat as \'renamed-rule\'};',
-	);
-});
-
 test('sortReadmeRuleRows keeps the renamed row inside the rules table', t => {
 	const input = [
 		'# eslint-plugin-unicorn',
