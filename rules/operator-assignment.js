@@ -1,4 +1,5 @@
-import {getBuiltinRule, getCommentSafeProblem} from './utils/index.js';
+import getBuiltinRule from './utils/get-builtin-rule.js';
+import {getCommentSafeProblem} from './utils/comments.js';
 
 const baseRule = getBuiltinRule('operator-assignment');
 

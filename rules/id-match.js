@@ -1,6 +1,7 @@
-import {getBuiltinRule} from './utils/index.js';
-import onCssIdentifier from './shared/css-identifiers.js';
-import onHtmlIdentifier from './shared/html-identifiers.js';
+import {createRequire} from 'node:module';
+import getBuiltinRule from './utils/get-builtin-rule.js';
+
+const loadModule = createRequire(import.meta.url);
 
 const baseRule = getBuiltinRule('id-match');
 
@@ -33,7 +34,7 @@ const create = context => {
 	if (isCss || isHtml) {
 		const [pattern] = context.options;
 		const regex = new RegExp(pattern, 'u');
-		const onIdentifier = isHtml ? onHtmlIdentifier : onCssIdentifier;
+		const onIdentifier = loadModule(isHtml ? './shared/html-identifiers.js' : './shared/css-identifiers.js').default;
 		onIdentifier(context, ({node, name, location, isDashedName}) => {
 			if (!regex.test(isDashedName ? name.replace(/^--/, '') : name)) {
 				return {

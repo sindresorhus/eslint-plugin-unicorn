@@ -9,14 +9,14 @@
 	"type": "module",
 	"exports": {
 		"types": "./index.d.ts",
-		"default": "./index.js"
+		"default": "./dist/index.js"
 	},
 	"sideEffects": false,
 	"engines": {
-		"node": ">=22"
+		"node": ">=22.13"
 	},
 	"scripts": {
-		"coverage": "node --test --experimental-test-coverage --test-coverage-include=index.js --test-coverage-include=\"configs/**\" --test-coverage-include=\"rules/**\" --test-coverage-exclude=\"test/**\" test/*.js test/unit/*.js",
+		"coverage": "node --test --experimental-test-coverage --test-coverage-include=index.js --test-coverage-include=create-plugin.js --test-coverage-include=\"configs/**\" --test-coverage-include=\"rules/**\" --test-coverage-exclude=\"test/**\" test/*.js test/unit/*.js",
 		"create-rule": "node ./scripts/create-rule.js && npm run create-rules-index-file && npm run fix:eslint-docs",
 		"create-rules-index-file": "node ./scripts/create-rules-index-file.js",
 		"fix": "run-p --continue-on-error \"fix:*\"",
@@ -32,6 +32,7 @@
 		"lint:markdown": "markdownlint \"**/*.md\"",
 		"lint:non-js-languages": "node ./scripts/create-non-js-languages-list.js --check",
 		"lint:package-json": "eslint \"**/package.json\"",
+		"prepare": "node scripts/build-distribution.js",
 		"rename-rule": "node ./scripts/rename-rule.js && npm run create-rules-index-file && npm run fix:eslint-docs",
 		"run-rules-on-codebase": "eslint --config=./eslint.dogfooding.config.js",
 		"smoke": "eslint-remote-tester --config ./test/smoke/eslint-remote-tester.config.js",
@@ -39,9 +40,10 @@
 		"test:js": "node --test test/*.js test/unit/*.js"
 	},
 	"files": [
-		"index.js",
 		"index.d.ts",
 		"configs",
+		"create-plugin.js",
+		"dist",
 		"rules"
 	],
 	"keywords": [

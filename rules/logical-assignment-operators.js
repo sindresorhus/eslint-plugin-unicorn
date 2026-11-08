@@ -1,4 +1,4 @@
-import {getBuiltinRule} from './utils/index.js';
+import getBuiltinRule from './utils/get-builtin-rule.js';
 
 const baseRule = getBuiltinRule('logical-assignment-operators');
 

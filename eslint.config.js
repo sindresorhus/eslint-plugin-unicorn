@@ -57,6 +57,8 @@ const config = [
 	{
 		ignores: [
 			'coverage',
+			'dist',
+			'rules/index.js',
 			'.ai-temporary',
 			'.cache-eslint-remote-tester',
 			'eslint-remote-tester-results',

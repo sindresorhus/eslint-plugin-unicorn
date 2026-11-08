@@ -96,7 +96,10 @@ async function renameRule(from, to) {
 	const files = [
 		'readme.md',
 		'index.js',
+		'create-plugin.js',
 		'rules/index.js',
+		'scripts/build-distribution.js',
+		'test/unit/lazy-rules.js',
 		`docs/rules/${to}.md`,
 		`rules/${to}.js`,
 		`test/${to}.js`,
