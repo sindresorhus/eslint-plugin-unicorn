@@ -410,6 +410,22 @@ for (const [ruleName, code, recommendedSeverity] of [
 	});
 }
 
+test('prefer-options-parameter uses narrow mode in JavaScript presets', t => {
+	const ruleId = 'unicorn/prefer-options-parameter';
+	const code = 'function clamp(value, minimum = 0, maximum = 1) {}\nfunction run(verbose = false, options = {}) {}';
+	const linter = new Linter();
+	for (const [preset, severity, lines] of [
+		['recommended', 'error', [2]],
+		['all', 'error', [2]],
+		['unopinionated', 'off', []],
+	]) {
+		const config = eslintPluginUnicorn.configs[preset];
+		t.assert.strictEqual(config.rules[ruleId], severity);
+		const messages = linter.verify(code, config, {filename: 'file.js'});
+		t.assert.deepStrictEqual(messages.filter(message => message.ruleId === ruleId).map(message => message.line), lines);
+	}
+});
+
 test('require-frontmatter-fields rejects JavaScript and is excluded from JavaScript presets', t => {
 	const ruleId = 'unicorn/require-frontmatter-fields';
 	const linter = new Linter();

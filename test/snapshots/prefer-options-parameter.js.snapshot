@@ -1,0 +1,1507 @@
+exports[`prefer-options-parameter > invalid(1): function run(verbose = false, options?: {encoding?: string}) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, options?: {encoding?: string}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(1): function run(verbose = false, options?: {encoding?: string}) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options?: {encoding?: string}) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(1): function run(verbose = false, retries = 3) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | function run(verbose = false, retries = 3) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(1): function run(verbose = false, retries = 3) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, retries = 3) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(1): interface Options { encoding?: string } function run(verbose = false, options?: Options) {} 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | interface Options { encoding?: string } function run(verbose = false, options?: Options) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(1): interface Options { encoding?: string } function run(verbose = false, options?: Options) {} 2`] = `
+
+Message:
+> 1 | interface Options { encoding?: string } function run(verbose = false, options?: Options) {}
+    |                                                      ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(10): class Runner { constructor(verbose = false, retries = 3) {} } 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | class Runner { constructor(verbose = false, retries = 3) {} }
+
+`;
+
+exports[`prefer-options-parameter > invalid(10): class Runner { constructor(verbose = false, retries = 3) {} } 2`] = `
+
+Message:
+> 1 | class Runner { constructor(verbose = false, retries = 3) {} }
+    |                            ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(10): function run(verbose = false, options?: {encoding?: string} | undefined) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, options?: {encoding?: string} | undefined) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(10): function run(verbose = false, options?: {encoding?: string} | undefined) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options?: {encoding?: string} | undefined) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(10): import type {CompilerOptions} from \"typescript\"; function run(verbose = false, options?: CompilerOptions) {} 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | import type {CompilerOptions} from "typescript"; function run(verbose = false, options?: CompilerOptions) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(10): import type {CompilerOptions} from \"typescript\"; function run(verbose = false, options?: CompilerOptions) {} 2`] = `
+
+Message:
+> 1 | import type {CompilerOptions} from "typescript"; function run(verbose = false, options?: CompilerOptions) {}
+    |                                                               ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(11): class Runner { static run(verbose = false, retries = 3) {} } 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | class Runner { static run(verbose = false, retries = 3) {} }
+
+`;
+
+exports[`prefer-options-parameter > invalid(11): class Runner { static run(verbose = false, retries = 3) {} } 2`] = `
+
+Message:
+> 1 | class Runner { static run(verbose = false, retries = 3) {} }
+    |                           ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(11): function run(verbose = false, options?: ({encoding?: string} | {retries?: number}) & {signal?: AbortSignal}) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, options?: ({encoding?: string} | {retries?: number}) & {signal?: AbortSignal}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(11): function run(verbose = false, options?: ({encoding?: string} | {retries?: number}) & {signal?: AbortSignal}) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options?: ({encoding?: string} | {retries?: number}) & {signal?: AbortSignal}) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(11): interface Options { encoding?: string } declare function run(verbose?: boolean, options?: Options): void; 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | interface Options { encoding?: string } declare function run(verbose?: boolean, options?: Options): void;
+
+`;
+
+exports[`prefer-options-parameter > invalid(11): interface Options { encoding?: string } declare function run(verbose?: boolean, options?: Options): void; 2`] = `
+
+Message:
+> 1 | interface Options { encoding?: string } declare function run(verbose?: boolean, options?: Options): void;
+    |                                                              ^^^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(12): class Runner { #run(verbose = false, retries = 3) {} } 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | class Runner { #run(verbose = false, retries = 3) {} }
+
+`;
+
+exports[`prefer-options-parameter > invalid(12): class Runner { #run(verbose = false, retries = 3) {} } 2`] = `
+
+Message:
+> 1 | class Runner { #run(verbose = false, retries = 3) {} }
+    |                     ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(12): function run(verbose = false, options: {encoding?: string} | undefined) {} 1`] = `
+
+  1 | function run(verbose = false, options: {encoding?: string} | undefined) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(12): function run(verbose = false, options: {encoding?: string} | undefined) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options: {encoding?: string} | undefined) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(12): interface Options { encoding?: string } interface Runner { run(verbose?: boolean, options?: Options): void } 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | interface Options { encoding?: string } interface Runner { run(verbose?: boolean, options?: Options): void }
+
+`;
+
+exports[`prefer-options-parameter > invalid(12): interface Options { encoding?: string } interface Runner { run(verbose?: boolean, options?: Options): void } 2`] = `
+
+Message:
+> 1 | interface Options { encoding?: string } interface Runner { run(verbose?: boolean, options?: Options): void }
+    |                                                                ^^^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(13): function outer() { return (verbose = false, retries = 3) => {}; } 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | function outer() { return (verbose = false, retries = 3) => {}; }
+
+`;
+
+exports[`prefer-options-parameter > invalid(13): function outer() { return (verbose = false, retries = 3) => {}; } 2`] = `
+
+Message:
+> 1 | function outer() { return (verbose = false, retries = 3) => {}; }
+    |                            ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(13): function run(verbose = false, options: any = {}) {} 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, options: any = {}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(13): function run(verbose = false, options: any = {}) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options: any = {}) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(14): const component = <Button onClick={(verbose = false, retries = 3) => null} />; 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | const component = <Button onClick={(verbose = false, retries = 3) => null} />;
+
+`;
+
+exports[`prefer-options-parameter > invalid(14): const component = <Button onClick={(verbose = false, retries = 3) => null} />; 2`] = `
+
+Message:
+> 1 | const component = <Button onClick={(verbose = false, retries = 3) => null} />;
+    |                                     ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(14): interface Options { encoding?: string } function run(verbose = false, options: Options) {} 1`] = `
+
+Filename: file.ts
+
+Options:
+[]
+
+Code:
+  1 | interface Options { encoding?: string } function run(verbose = false, options: Options) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(14): interface Options { encoding?: string } function run(verbose = false, options: Options) {} 2`] = `
+
+Message:
+> 1 | interface Options { encoding?: string } function run(verbose = false, options: Options) {}
+    |                                                      ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(15): function run(verbose = false, {retries = 3}) {} 1`] = `
+
+  1 | function run(verbose = false, {retries = 3}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(15): function run(verbose = false, {retries = 3}) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, {retries = 3}) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(15): interface Options { encoding: string } function run(verbose = false, options?: Partial<Options>) {} 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | interface Options { encoding: string } function run(verbose = false, options?: Partial<Options>) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(15): interface Options { encoding: string } function run(verbose = false, options?: Partial<Options>) {} 2`] = `
+
+Message:
+> 1 | interface Options { encoding: string } function run(verbose = false, options?: Partial<Options>) {}
+    |                                                     ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(16): function run(verbose = false, {retries = 3} = {}) {} 1`] = `
+
+  1 | function run(verbose = false, {retries = 3} = {}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(16): function run(verbose = false, {retries = 3} = {}) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, {retries = 3} = {}) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(16): interface Options<Value> { encoding?: Value } function run(verbose = false, options?: Options<string>) {} 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | interface Options<Value> { encoding?: Value } function run(verbose = false, options?: Options<string>) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(16): interface Options<Value> { encoding?: Value } function run(verbose = false, options?: Options<string>) {} 2`] = `
+
+Message:
+> 1 | interface Options<Value> { encoding?: Value } function run(verbose = false, options?: Options<string>) {}
+    |                                                            ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(17): function run(verbose = false, options = {}) {} 1`] = `
+
+  1 | function run(verbose = false, options = {}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(17): function run(verbose = false, options = {}) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options = {}) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(17): interface BaseOptions { encoding?: string } interface Options extends BaseOptions {} function run(verbose = false, options?: Options) {} 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | interface BaseOptions { encoding?: string } interface Options extends BaseOptions {} function run(verbose = false, options?: Options) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(17): interface BaseOptions { encoding?: string } interface Options extends BaseOptions {} function run(verbose = false, options?: Options) {} 2`] = `
+
+Message:
+> 1 | interface BaseOptions { encoding?: string } interface Options extends BaseOptions {} function run(verbose = false, options?: Options) {}
+    |                                                                                                   ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(18): function run(verbose = false, options = {encoding: getEncoding()}) {} 1`] = `
+
+  1 | function run(verbose = false, options = {encoding: getEncoding()}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(18): function run(verbose = false, options = {encoding: getEncoding()}) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options = {encoding: getEncoding()}) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(19): function run(verbose = false, retries = 3, options = {}) {} 1`] = `
+
+  1 | function run(verbose = false, retries = 3, options = {}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(19): function run(verbose = false, retries = 3, options = {}) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, retries = 3, options = {}) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(2): function run(input, verbose = false, retries = 3) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | function run(input, verbose = false, retries = 3) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(2): function run(input, verbose = false, retries = 3) {} 2`] = `
+
+Message:
+> 1 | function run(input, verbose = false, retries = 3) {}
+    |                     ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(2): function run(verbose = false, options?: {onError(error: Error): void}) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, options?: {onError(error: Error): void}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(2): function run(verbose = false, options?: {onError(error: Error): void}) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options?: {onError(error: Error): void}) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(2): type Options = {encoding?: string}; type Alias = Options; function run(verbose = false, options?: Alias) {} 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | type Options = {encoding?: string}; type Alias = Options; function run(verbose = false, options?: Alias) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(2): type Options = {encoding?: string}; type Alias = Options; function run(verbose = false, options?: Alias) {} 2`] = `
+
+Message:
+> 1 | type Options = {encoding?: string}; type Alias = Options; function run(verbose = false, options?: Alias) {}
+    |                                                                        ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(20): function run(input, verbose /* setting */ = false, /* options */ {retries = 3} = {}) {} 1`] = `
+
+  1 | function run(input, verbose /* setting */ = false, /* options */ {retries = 3} = {}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(20): function run(input, verbose /* setting */ = false, /* options */ {retries = 3} = {}) {} 2`] = `
+
+Message:
+> 1 | function run(input, verbose /* setting */ = false, /* options */ {retries = 3} = {}) {}
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(21): function updateSelection(\n\tgraph,\n\tmodules,\n\ttransform = null,\n\t{\n\t\tshouldScrollToSelected = true,\n\t\tshouldIncludeRelated = true,\n\t} = {},\n) {} 1`] = `
+
+  1 | function updateSelection(
+  2 | 	graph,
+  3 | 	modules,
+  4 | 	transform = null,
+  5 | 	{
+  6 | 		shouldScrollToSelected = true,
+  7 | 		shouldIncludeRelated = true,
+  8 | 	} = {},
+  9 | ) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(21): function updateSelection(\n\tgraph,\n\tmodules,\n\ttransform = null,\n\t{\n\t\tshouldScrollToSelected = true,\n\t\tshouldIncludeRelated = true,\n\t} = {},\n) {} 2`] = `
+
+Message:
+  1 | function updateSelection(
+  2 | 	graph,
+  3 | 	modules,
+> 4 | 	transform = null,
+    | 	^^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+  5 | 	{
+  6 | 		shouldScrollToSelected = true,
+  7 | 		shouldIncludeRelated = true,
+  8 | 	} = {},
+  9 | ) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(22): function updateSelection(\n\tgraph,\n\tmodules,\n\ttransform = null,\n\tshouldScrollToSelected = true,\n) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | function updateSelection(
+  2 | 	graph,
+  3 | 	modules,
+  4 | 	transform = null,
+  5 | 	shouldScrollToSelected = true,
+  6 | ) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(22): function updateSelection(\n\tgraph,\n\tmodules,\n\ttransform = null,\n\tshouldScrollToSelected = true,\n) {} 2`] = `
+
+Message:
+  1 | function updateSelection(
+  2 | 	graph,
+  3 | 	modules,
+> 4 | 	transform = null,
+    | 	^^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+  5 | 	shouldScrollToSelected = true,
+  6 | ) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(23): function run(verbose = false, {retries = 3} = {}) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, {retries = 3} = {}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(23): function run(verbose = false, {retries = 3} = {}) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, {retries = 3} = {}) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(24): function run(verbose = false, {}) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, {}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(24): function run(verbose = false, {}) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, {}) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(25): function run(verbose = false, options = {}) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, options = {}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(25): function run(verbose = false, options = {}) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options = {}) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(26): function run(input, verbose = false, settings = {}) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(input, verbose = false, settings = {}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(26): function run(input, verbose = false, settings = {}) {} 2`] = `
+
+Message:
+> 1 | function run(input, verbose = false, settings = {}) {}
+    |                     ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(27): function run(verbose = false, options = {encoding: getEncoding()}) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, options = {encoding: getEncoding()}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(27): function run(verbose = false, options = {encoding: getEncoding()}) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options = {encoding: getEncoding()}) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(28): const defaults = {}; function run(verbose = false, options = defaults) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | const defaults = {}; function run(verbose = false, options = defaults) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(28): const defaults = {}; function run(verbose = false, options = defaults) {} 2`] = `
+
+Message:
+> 1 | const defaults = {}; function run(verbose = false, options = defaults) {}
+    |                                   ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(29): const defaults = {}; const alias = defaults; function run(verbose = false, options = alias) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | const defaults = {}; const alias = defaults; function run(verbose = false, options = alias) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(29): const defaults = {}; const alias = defaults; function run(verbose = false, options = alias) {} 2`] = `
+
+Message:
+> 1 | const defaults = {}; const alias = defaults; function run(verbose = false, options = alias) {}
+    |                                                           ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(3): function run(input, first = 1, second = 2, third = 3) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | function run(input, first = 1, second = 2, third = 3) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(3): function run(input, first = 1, second = 2, third = 3) {} 2`] = `
+
+Message:
+> 1 | function run(input, first = 1, second = 2, third = 3) {}
+    |                     ^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(3): function run(verbose = false, options?: {[key: string]: unknown}) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, options?: {[key: string]: unknown}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(3): function run(verbose = false, options?: {[key: string]: unknown}) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options?: {[key: string]: unknown}) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(3): function run(verbose = false, options?: {encoding?: string}) {} 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, options?: {encoding?: string}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(3): function run(verbose = false, options?: {encoding?: string}) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options?: {encoding?: string}) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(30): function run(verbose = false, options = Object.freeze({encoding: \"utf8\"})) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, options = Object.freeze({encoding: "utf8"})) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(30): function run(verbose = false, options = Object.freeze({encoding: \"utf8\"})) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options = Object.freeze({encoding: "utf8"})) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(31): const defaults = {encoding: \"utf8\"}; function run(verbose = false, options = Object.freeze(defaults)) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | const defaults = {encoding: "utf8"}; function run(verbose = false, options = Object.freeze(defaults)) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(31): const defaults = {encoding: \"utf8\"}; function run(verbose = false, options = Object.freeze(defaults)) {} 2`] = `
+
+Message:
+> 1 | const defaults = {encoding: "utf8"}; function run(verbose = false, options = Object.freeze(defaults)) {}
+    |                                                   ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(32): function run(input: string, verbose?: boolean, retries?: number) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | function run(input: string, verbose?: boolean, retries?: number) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(32): function run(input: string, verbose?: boolean, retries?: number) {} 2`] = `
+
+Message:
+> 1 | function run(input: string, verbose?: boolean, retries?: number) {}
+    |                             ^^^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(33): function run(input: string, verbose = false, retries?: number) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | function run(input: string, verbose = false, retries?: number) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(33): function run(input: string, verbose = false, retries?: number) {} 2`] = `
+
+Message:
+> 1 | function run(input: string, verbose = false, retries?: number) {}
+    |                             ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(34): function run(this: Runner, verbose?: boolean, retries?: number) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | function run(this: Runner, verbose?: boolean, retries?: number) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(34): function run(this: Runner, verbose?: boolean, retries?: number) {} 2`] = `
+
+Message:
+> 1 | function run(this: Runner, verbose?: boolean, retries?: number) {}
+    |                            ^^^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(35): const run = <Value>(input: Value, verbose = false, retries = 3) => input; 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | const run = <Value>(input: Value, verbose = false, retries = 3) => input;
+
+`;
+
+exports[`prefer-options-parameter > invalid(35): const run = <Value>(input: Value, verbose = false, retries = 3) => input; 2`] = `
+
+Message:
+> 1 | const run = <Value>(input: Value, verbose = false, retries = 3) => input;
+    |                                   ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(36): declare function run(verbose?: boolean, retries?: number): void; 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | declare function run(verbose?: boolean, retries?: number): void;
+
+`;
+
+exports[`prefer-options-parameter > invalid(36): declare function run(verbose?: boolean, retries?: number): void; 2`] = `
+
+Message:
+> 1 | declare function run(verbose?: boolean, retries?: number): void;
+    |                      ^^^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(37): function run(verbose?: boolean, retries?: number): void; function run(verbose = false, retries = 3) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | function run(verbose?: boolean, retries?: number): void; function run(verbose = false, retries = 3) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(37): function run(verbose?: boolean, retries?: number): void; function run(verbose = false, retries = 3) {} 2`] = `
+
+Message:
+> 1 | function run(verbose?: boolean, retries?: number): void; function run(verbose = false, retries = 3) {}
+    |              ^^^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(37): function run(verbose?: boolean, retries?: number): void; function run(verbose = false, retries = 3) {} 3`] = `
+
+Message:
+> 1 | function run(verbose?: boolean, retries?: number): void; function run(verbose = false, retries = 3) {}
+    |                                                                       ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(38): type Runner = (verbose?: boolean, retries?: number) => void; 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | type Runner = (verbose?: boolean, retries?: number) => void;
+
+`;
+
+exports[`prefer-options-parameter > invalid(38): type Runner = (verbose?: boolean, retries?: number) => void; 2`] = `
+
+Message:
+> 1 | type Runner = (verbose?: boolean, retries?: number) => void;
+    |                ^^^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(39): type Runner = new (verbose?: boolean, retries?: number) => object; 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | type Runner = new (verbose?: boolean, retries?: number) => object;
+
+`;
+
+exports[`prefer-options-parameter > invalid(39): type Runner = new (verbose?: boolean, retries?: number) => object; 2`] = `
+
+Message:
+> 1 | type Runner = new (verbose?: boolean, retries?: number) => object;
+    |                    ^^^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(4): function run([value] = [], verbose = false, retries = 3) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | function run([value] = [], verbose = false, retries = 3) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(4): function run([value] = [], verbose = false, retries = 3) {} 2`] = `
+
+Message:
+> 1 | function run([value] = [], verbose = false, retries = 3) {}
+    |                            ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(4): function run(verbose = false, options: {encoding?: string}) {} 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, options: {encoding?: string}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(4): function run(verbose = false, options: {encoding?: string}) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options: {encoding?: string}) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(4): function run(verbose = false, options?: {onError?: (error: Error) => void}) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, options?: {onError?: (error: Error) => void}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(4): function run(verbose = false, options?: {onError?: (error: Error) => void}) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options?: {onError?: (error: Error) => void}) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(40): interface Runner { run(verbose?: boolean, retries?: number): void } 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | interface Runner { run(verbose?: boolean, retries?: number): void }
+
+`;
+
+exports[`prefer-options-parameter > invalid(40): interface Runner { run(verbose?: boolean, retries?: number): void } 2`] = `
+
+Message:
+> 1 | interface Runner { run(verbose?: boolean, retries?: number): void }
+    |                        ^^^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(41): interface Runner { (verbose?: boolean, retries?: number): void } 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | interface Runner { (verbose?: boolean, retries?: number): void }
+
+`;
+
+exports[`prefer-options-parameter > invalid(41): interface Runner { (verbose?: boolean, retries?: number): void } 2`] = `
+
+Message:
+> 1 | interface Runner { (verbose?: boolean, retries?: number): void }
+    |                     ^^^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(42): interface Runner { new (verbose?: boolean, retries?: number): object } 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | interface Runner { new (verbose?: boolean, retries?: number): object }
+
+`;
+
+exports[`prefer-options-parameter > invalid(42): interface Runner { new (verbose?: boolean, retries?: number): object } 2`] = `
+
+Message:
+> 1 | interface Runner { new (verbose?: boolean, retries?: number): object }
+    |                         ^^^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(43): declare class Runner { constructor(verbose?: boolean, retries?: number) } 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | declare class Runner { constructor(verbose?: boolean, retries?: number) }
+
+`;
+
+exports[`prefer-options-parameter > invalid(43): declare class Runner { constructor(verbose?: boolean, retries?: number) } 2`] = `
+
+Message:
+> 1 | declare class Runner { constructor(verbose?: boolean, retries?: number) }
+    |                                    ^^^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(44): declare class Runner { run(verbose?: boolean, retries?: number): void } 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | declare class Runner { run(verbose?: boolean, retries?: number): void }
+
+`;
+
+exports[`prefer-options-parameter > invalid(44): declare class Runner { run(verbose?: boolean, retries?: number): void } 2`] = `
+
+Message:
+> 1 | declare class Runner { run(verbose?: boolean, retries?: number): void }
+    |                            ^^^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(45): abstract class Runner { abstract run(verbose?: boolean, retries?: number): void } 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | abstract class Runner { abstract run(verbose?: boolean, retries?: number): void }
+
+`;
+
+exports[`prefer-options-parameter > invalid(45): abstract class Runner { abstract run(verbose?: boolean, retries?: number): void } 2`] = `
+
+Message:
+> 1 | abstract class Runner { abstract run(verbose?: boolean, retries?: number): void }
+    |                                      ^^^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(46): class Runner { constructor(public input: string, verbose = false, retries = 3) {} } 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | class Runner { constructor(public input: string, verbose = false, retries = 3) {} }
+
+`;
+
+exports[`prefer-options-parameter > invalid(46): class Runner { constructor(public input: string, verbose = false, retries = 3) {} } 2`] = `
+
+Message:
+> 1 | class Runner { constructor(public input: string, verbose = false, retries = 3) {} }
+    |                                                  ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(47): function run(verbose?: boolean, {retries = 3}: Options = {}) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | function run(verbose?: boolean, {retries = 3}: Options = {}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(47): function run(verbose?: boolean, {retries = 3}: Options = {}) {} 2`] = `
+
+Message:
+> 1 | function run(verbose?: boolean, {retries = 3}: Options = {}) {}
+    |              ^^^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(48): function run(verbose = false, options = {encoding: getEncoding()} as Options) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, options = {encoding: getEncoding()} as Options) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(48): function run(verbose = false, options = {encoding: getEncoding()} as Options) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options = {encoding: getEncoding()} as Options) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(49): function run(verbose = false, options = {encoding: getEncoding()} satisfies Options) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, options = {encoding: getEncoding()} satisfies Options) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(49): function run(verbose = false, options = {encoding: getEncoding()} satisfies Options) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options = {encoding: getEncoding()} satisfies Options) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(5): const run = function(verbose = false, retries = 3) {}; 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | const run = function(verbose = false, retries = 3) {};
+
+`;
+
+exports[`prefer-options-parameter > invalid(5): const run = function(verbose = false, retries = 3) {}; 2`] = `
+
+Message:
+> 1 | const run = function(verbose = false, retries = 3) {};
+    |                      ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(5): function run(verbose = false, options?: ({encoding?: string})) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, options?: ({encoding?: string})) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(5): function run(verbose = false, options?: ({encoding?: string})) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options?: ({encoding?: string})) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(5): function run(verbose = false, options?: Record<string, unknown>) {} 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, options?: Record<string, unknown>) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(5): function run(verbose = false, options?: Record<string, unknown>) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options?: Record<string, unknown>) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(50): const defaults = {encoding: getEncoding()}; function run(verbose = false, options = defaults) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | const defaults = {encoding: getEncoding()}; function run(verbose = false, options = defaults) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(50): const defaults = {encoding: getEncoding()}; function run(verbose = false, options = defaults) {} 2`] = `
+
+Message:
+> 1 | const defaults = {encoding: getEncoding()}; function run(verbose = false, options = defaults) {}
+    |                                                          ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(51): const defaults = {encoding: getEncoding()} as const; function run(verbose = false, options = defaults) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | const defaults = {encoding: getEncoding()} as const; function run(verbose = false, options = defaults) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(51): const defaults = {encoding: getEncoding()} as const; function run(verbose = false, options = defaults) {} 2`] = `
+
+Message:
+> 1 | const defaults = {encoding: getEncoding()} as const; function run(verbose = false, options = defaults) {}
+    |                                                                   ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(52): function run(verbose = false, options = Object.freeze({__proto__: null, encoding: \"utf8\"})) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, options = Object.freeze({__proto__: null, encoding: "utf8"})) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(52): function run(verbose = false, options = Object.freeze({__proto__: null, encoding: \"utf8\"})) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options = Object.freeze({__proto__: null, encoding: "utf8"})) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(53): function run(verbose = false, required, retries = 3, options = {}) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, required, retries = 3, options = {}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(53): function run(verbose = false, required, retries = 3, options = {}) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, required, retries = 3, options = {}) {}
+    |                                         ^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(6): const run = (verbose = false, retries = 3) => verbose; 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | const run = (verbose = false, retries = 3) => verbose;
+
+`;
+
+exports[`prefer-options-parameter > invalid(6): const run = (verbose = false, retries = 3) => verbose; 2`] = `
+
+Message:
+> 1 | const run = (verbose = false, retries = 3) => verbose;
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(6): type Options = {encoding?: string} | {retries?: number}; function run(verbose = false, options?: Options) {} 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | type Options = {encoding?: string} | {retries?: number}; function run(verbose = false, options?: Options) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(6): type Options = {encoding?: string} | {retries?: number}; function run(verbose = false, options?: Options) {} 2`] = `
+
+Message:
+> 1 | type Options = {encoding?: string} | {retries?: number}; function run(verbose = false, options?: Options) {}
+    |                                                                       ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(6): type Runner = (verbose?: boolean, options?: {encoding?: string}) => void; 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | type Runner = (verbose?: boolean, options?: {encoding?: string}) => void;
+
+`;
+
+exports[`prefer-options-parameter > invalid(6): type Runner = (verbose?: boolean, options?: {encoding?: string}) => void; 2`] = `
+
+Message:
+> 1 | type Runner = (verbose?: boolean, options?: {encoding?: string}) => void;
+    |                ^^^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(7): async function run(verbose = false, retries = 3) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | async function run(verbose = false, retries = 3) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(7): async function run(verbose = false, retries = 3) {} 2`] = `
+
+Message:
+> 1 | async function run(verbose = false, retries = 3) {}
+    |                    ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(7): function run(verbose = false, options: {encoding?: string}) {} 1`] = `
+
+  1 | function run(verbose = false, options: {encoding?: string}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(7): function run(verbose = false, options: {encoding?: string}) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options: {encoding?: string}) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(7): type Options = {encoding?: string} & {retries?: number}; function run(verbose = false, options?: Options) {} 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | type Options = {encoding?: string} & {retries?: number}; function run(verbose = false, options?: Options) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(7): type Options = {encoding?: string} & {retries?: number}; function run(verbose = false, options?: Options) {} 2`] = `
+
+Message:
+> 1 | type Options = {encoding?: string} & {retries?: number}; function run(verbose = false, options?: Options) {}
+    |                                                                       ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(8): function * run(verbose = false, retries = 3) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | function * run(verbose = false, retries = 3) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(8): function * run(verbose = false, retries = 3) {} 2`] = `
+
+Message:
+> 1 | function * run(verbose = false, retries = 3) {}
+    |                ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(8): function run(verbose = false, options?: RequestInit) {} 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, options?: RequestInit) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(8): function run(verbose = false, options?: RequestInit) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options?: RequestInit) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(8): function run(verbose = false, options?: {encoding?: string} | {retries?: number}) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, options?: {encoding?: string} | {retries?: number}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(8): function run(verbose = false, options?: {encoding?: string} | {retries?: number}) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options?: {encoding?: string} | {retries?: number}) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(9): const object = {run(verbose = false, retries = 3) {}}; 1`] = `
+
+Options:
+- checkWithoutOptionsObject: true
+
+Code:
+  1 | const object = {run(verbose = false, retries = 3) {}};
+
+`;
+
+exports[`prefer-options-parameter > invalid(9): const object = {run(verbose = false, retries = 3) {}}; 2`] = `
+
+Message:
+> 1 | const object = {run(verbose = false, retries = 3) {}};
+    |                     ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(9): function getOptions() { return {encoding: \"utf8\"}; } function run(verbose = false, options = getOptions()) {} 1`] = `
+
+Filename: file.ts
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function getOptions() { return {encoding: "utf8"}; } function run(verbose = false, options = getOptions()) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(9): function getOptions() { return {encoding: \"utf8\"}; } function run(verbose = false, options = getOptions()) {} 2`] = `
+
+Message:
+> 1 | function getOptions() { return {encoding: "utf8"}; } function run(verbose = false, options = getOptions()) {}
+    |                                                                   ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
+
+exports[`prefer-options-parameter > invalid(9): function run(verbose = false, options?: {encoding?: string} & {retries?: number}) {} 1`] = `
+
+Options:
+- checkWithoutOptionsObject: false
+
+Code:
+  1 | function run(verbose = false, options?: {encoding?: string} & {retries?: number}) {}
+
+`;
+
+exports[`prefer-options-parameter > invalid(9): function run(verbose = false, options?: {encoding?: string} & {retries?: number}) {} 2`] = `
+
+Message:
+> 1 | function run(verbose = false, options?: {encoding?: string} & {retries?: number}) {}
+    |              ^^^^^^^^^^^^^^^ Prefer an options object over optional positional parameters.
+
+`;
