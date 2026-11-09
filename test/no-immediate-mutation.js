@@ -434,10 +434,10 @@ ruleTest.snapshot({
 			code: 'const map = new Map<string, number>(); map.set("key", 1);',
 			languageOptions: {parser: parsers.typescript},
 		},
-	].flatMap(testCase => [false, true].map(checkConditionals => ({
+	].map(testCase => ({
 		...normalizeTestCase(testCase),
-		options: [{checkCollections: false, checkConditionals}],
-	}))),
+		options: [{checkCollections: false, checkConditionals: true}],
+	})),
 	invalid: [
 		{code: 'const set = new Set();\nset.add(value);', options: [{checkCollections: true}]},
 		{code: 'const map = new WeakMap();\nmap.set(key, value);', options: [{checkCollections: true}]},
@@ -1298,6 +1298,38 @@ test('respects `checkConditionals` across autofix passes', t => {
 	t.assert.strictEqual(checkConditionalsResult.fixed, true);
 	t.assert.strictEqual(checkConditionalsResult.output.trimEnd(), 'const array = [ 1, ...((enabled) ? [2] : [])];');
 	t.assert.deepStrictEqual(checkConditionalsResult.messages, []);
+});
+
+test('respects `checkCollections` across autofix passes and configurations', t => {
+	const code = outdent`
+		var map;
+		map = new Map();
+		map.set(1, 2);
+		const array = [];
+		array.push(3);
+	`;
+	const checkedOutput = 'var map = new Map([[1, 2]]);\nconst array = [ 3];';
+	const uncheckedOutput = 'var map = new Map();\nmap.set(1, 2);\nconst array = [ 3];';
+	const linter = new Linter();
+
+	for (const [options, output] of [
+		[[{checkCollections: false}], uncheckedOutput],
+		[[{checkCollections: true}], checkedOutput],
+		[[{checkCollections: false}], uncheckedOutput],
+		[[], checkedOutput],
+		[[{}], checkedOutput],
+	]) {
+		const result = linter.verifyAndFix(code, {
+			plugins: {unicorn: plugin},
+			rules: {
+				'unicorn/no-immediate-mutation': ['error', ...options],
+			},
+		});
+
+		t.assert.strictEqual(result.fixed, true);
+		t.assert.strictEqual(result.output, output);
+		t.assert.deepStrictEqual(result.messages, []);
+	}
 });
 
 ruleTest({
