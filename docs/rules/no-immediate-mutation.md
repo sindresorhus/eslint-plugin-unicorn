@@ -151,6 +151,13 @@ Exports, partly initialized declarations, redeclarations, complex patterns, and 
 
 Type: `object`
 
+### checkCollections
+
+Type: `boolean`\
+Default: `true`
+
+Whether to check mutations of `Map`, `Set`, `WeakMap`, and `WeakSet`. Set to `false` to allow immediate collection mutations without introducing temporary arrays in their constructors. This also applies when `checkConditionals` is enabled. Array, object, and consecutive initialization checks remain enabled.
+
 ### checkConditionals
 
 Type: `boolean`\
