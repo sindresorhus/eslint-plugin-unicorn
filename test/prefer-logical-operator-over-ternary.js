@@ -111,6 +111,112 @@ const typeAware = code => ({
 	},
 });
 
+test({
+	valid: [
+		'const handler = enabled ? callback : undefined; if (handler) { handler(); }',
+		'function run() { const handler = enabled ? callback : null; if (!handler) { return; } handler(); }',
+		'const handler = enabled ? undefined : callback; if (handler) { handler(); }',
+		'const saved = enabled ? load() : undefined; consume({...state, ...(saved && {sort: saved.sort})});',
+		'consume(condition ? value : undefined);',
+		'function run() { return condition ? value : null; }',
+		'const result = (condition ? value : undefined) || fallback;',
+		'const result = (condition ? value : undefined) && other;',
+		'if ((condition ? value : undefined) ?? fallback) {}',
+		'if ((condition ? value : undefined)?.property) {}',
+		'const object = {...(condition ? value : undefined)};',
+		'if (condition ? null : undefined) {}',
+		'if (condition ? value : {}) {}',
+		{code: 'if ((condition ? value : undefined) as boolean) {}', languageOptions: {parser: parsers.typescript}},
+	],
+	invalid: [
+		...[
+			['if (condition ? value : undefined) {}', 'if (condition && value) {}'],
+			['if (condition ? value : null) {}', 'if (condition && value) {}'],
+			['if (condition ? undefined : value) {}', 'if (!condition && value) {}'],
+			['if (condition ? null : value) {}', 'if (!condition && value) {}'],
+			['while (condition ? value : null) {}', 'while (condition && value) {}'],
+			['do {} while (condition ? value : undefined);', 'do {} while (condition && value);'],
+			['for (; condition ? value : undefined;) {}', 'for (; condition && value;) {}'],
+			['(condition ? value : undefined) ? first() : second();', '(condition && value) ? first() : second();'],
+			['Boolean(condition ? value : null);', 'Boolean(condition && value);'],
+			['!(condition ? null : value);', '!(!condition && value);'],
+			['if (other && (condition ? value : undefined)) {}', 'if (other && (condition && value)) {}'],
+			['if ((condition ? value : undefined) || other) {}', 'if ((condition && value) || other) {}'],
+			['Boolean(other || (condition ? value : null));', 'Boolean(other || (condition && value));'],
+			['if ((first || second) ? value : null) {}', 'if ((first || second) && value) {}'],
+			['if (condition ? null : first || second) {}', 'if (!condition && (first || second)) {}'],
+			['if (((condition)) ? ((value)) : undefined) {}', 'if (((condition)) && ((value))) {}'],
+			['if (read(/* keep */) ? value : undefined) {}', 'if (read(/* keep */) && value) {}'],
+			['if (condition ? (/* keep */ value) : undefined) {}', 'if (condition && (/* keep */ value)) {}'],
+			['if (ready) {\r\n  if (condition ? value : undefined) {\r\n    consume();\r\n  }\r\n}', 'if (ready) {\r\n  if (condition && value) {\r\n    consume();\r\n  }\r\n}'],
+		].map(([code, output]) => ({code, output, errors: [{messageId: 'prefer-logical-operator-over-ternary/error'}]})),
+		...[
+			'if (condition /* keep */ ? value : undefined) {}',
+			'if (condition ? value : /* keep */ undefined) {}',
+			'if (condition ? (undefined /* keep */) : value) {}',
+		].map(code => ({code, errors: [{messageId: 'prefer-logical-operator-over-ternary/error', suggestions: []}]})),
+		{
+			code: 'declare const condition: unknown; declare const value: object; if (condition ? value : undefined) {}',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{messageId: 'prefer-logical-operator-over-ternary/error', suggestions: []}],
+		},
+		{
+			...typeAware('declare const condition: unknown; declare const value: object; if (condition ? null : value) {}'),
+			errors: [{messageId: 'prefer-logical-operator-over-ternary/error', suggestions: []}],
+		},
+		{
+			code: 'if (condition ? value : undefined) {}',
+			filename: 'file.ts',
+			errors: [{messageId: 'prefer-logical-operator-over-ternary/error', suggestions: []}],
+		},
+		{
+			code: 'const element = <div>{Boolean(condition ? value : undefined)}</div>;',
+			output: 'const element = <div>{Boolean(condition && value)}</div>;',
+			languageOptions: {parserOptions: {ecmaFeatures: {jsx: true}}},
+			errors: [{messageId: 'prefer-logical-operator-over-ternary/error'}],
+		},
+	],
+});
+
+for (const expression of [
+	'condition() ? value() : undefined',
+	'condition() ? value() : null',
+	'condition() ? undefined : value()',
+	'condition() ? null : value()',
+]) {
+	nodeTest(`inline truthiness autofixes preserve results and evaluation order: ${expression}`, t => {
+		const code = `Boolean(${expression});`;
+		const linter = new Linter();
+		const fixed = linter.verifyAndFix(code, {
+			plugins: {unicorn: plugin},
+			rules: {'unicorn/prefer-logical-operator-over-ternary': 'error'},
+		});
+		t.assert.strictEqual(fixed.fixed, true);
+		t.assert.deepStrictEqual(fixed.messages, []);
+
+		for (const conditionValue of [undefined, JSON.parse('null'), false, true, 0, NaN, '', 'value', 0n, 1n, {}, []]) {
+			for (const branchValue of [undefined, JSON.parse('null'), false, true, 0, '', 'value', {}]) {
+				const evaluate = source => {
+					const events = [];
+					const value = runInNewContext(source, {
+						condition() {
+							events.push('condition');
+							return conditionValue;
+						},
+						value() {
+							events.push('value');
+							return branchValue;
+						},
+					});
+					return {value, events};
+				};
+
+				t.assert.deepStrictEqual(evaluate(fixed.output), evaluate(code));
+			}
+		}
+	});
+}
+
 const createBooleanAliasChain = initialValue => Array.from({length: 20_001}, (_, index) => `const value${index} = ${index === 0 ? initialValue : `value${index - 1}`};`).join('\n');
 const booleanAliasChain = createBooleanAliasChain('true');
 const booleanConditionAliasChain = createBooleanAliasChain('a === b');
