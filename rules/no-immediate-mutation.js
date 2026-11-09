@@ -751,14 +751,6 @@ const mapMutationSettings = {
 	},
 };
 
-const cases = [
-	arrayMutationSettings,
-	objectWithAssignmentExpressionSettings,
-	objectWithObjectAssignSettings,
-	setMutationSettings,
-	mapMutationSettings,
-];
-
 function getConditionalMutation(statement) {
 	if (statement.type === 'IfStatement') {
 		const consequent = getOnlyExpression(statement.consequent);
@@ -1161,6 +1153,15 @@ function getInitializationProblem(declaration, context) {
 const create = context => {
 	context.on('VariableDeclaration', declaration => getInitializationProblem(declaration, context));
 
+	const cases = [
+		arrayMutationSettings,
+		objectWithAssignmentExpressionSettings,
+		objectWithObjectAssignSettings,
+	];
+	if (context.options[0].checkCollections) {
+		cases.push(setMutationSettings, mapMutationSettings);
+	}
+
 	for (const caseSettings of cases) {
 		context.on(
 			[
@@ -1189,6 +1190,10 @@ const config = {
 			{
 				type: 'object',
 				properties: {
+					checkCollections: {
+						type: 'boolean',
+						description: 'Whether to check mutations of Map, Set, WeakMap, and WeakSet.',
+					},
 					checkConditionals: {
 						type: 'boolean',
 						description: 'Whether to check conditional mutations.',
@@ -1199,6 +1204,7 @@ const config = {
 		],
 		defaultOptions: [
 			{
+				checkCollections: true,
 				checkConditionals: false,
 			},
 		],

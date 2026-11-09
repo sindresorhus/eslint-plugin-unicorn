@@ -415,6 +415,41 @@ ruleTest.snapshot({
 	],
 });
 
+// Collection checks can be disabled independently of conditional checks.
+ruleTest.snapshot({
+	valid: [
+		'const set = new Set(); set.add(value);',
+		'const set = new WeakSet([first]); set.add(second);',
+		'const map = new Map([]); map.set(key, value);',
+		'const map = new WeakMap([[first, value]]); map.set(second, value);',
+		'let set = other; set = new Set(); set.add(value);',
+		'let set = other; set = new WeakSet(); set.add(value);',
+		'let map = other; map = new Map(); map.set(key, value);',
+		'let map = other; map = new WeakMap(); map.set(key, value);',
+		'const set = new Set(); if (enabled) { set.add(value); }',
+		'const set = new WeakSet(); enabled && set.add(value);',
+		'const map = new Map(); enabled ? map.set(key, first) : map.set(key, second);',
+		'const map = new WeakMap(); if (enabled) { map.set(key, value); }',
+		{
+			code: 'const map = new Map<string, number>(); map.set("key", 1);',
+			languageOptions: {parser: parsers.typescript},
+		},
+	].map(testCase => ({
+		...normalizeTestCase(testCase),
+		options: [{checkCollections: false, checkConditionals: true}],
+	})),
+	invalid: [
+		{code: 'const set = new Set();\nset.add(value);', options: [{checkCollections: true}]},
+		{code: 'const map = new WeakMap();\nmap.set(key, value);', options: [{checkCollections: true}]},
+		{code: 'const array = [];\narray.push(1);', options: [{checkCollections: false}]},
+		{code: 'const object = {};\nobject.foo = 1;', options: [{checkCollections: false}]},
+		{code: 'const object = {};\nObject.assign(object, source);', options: [{checkCollections: false}]},
+		{code: 'const array = [];\nif (enabled) { array.push(1); }', options: [{checkCollections: false, checkConditionals: true}]},
+		{code: 'const object = {};\nenabled && (object.foo = 1);', options: [{checkCollections: false, checkConditionals: true}]},
+		{code: 'let map;\nmap = new Map();', options: [{checkCollections: false}]},
+	],
+});
+
 // `Object` + `AssignmentExpression`
 ruleTest.snapshot({
 	valid: [
