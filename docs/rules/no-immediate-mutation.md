@@ -156,7 +156,9 @@ Type: `object`
 Type: `boolean`\
 Default: `true`
 
-Whether to check mutations of `Map`, `Set`, `WeakMap`, and `WeakSet`. Set to `false` to allow immediate collection mutations without introducing temporary arrays in their constructors. This also applies when `checkConditionals` is enabled. Array, object, and consecutive initialization checks remain enabled.
+Whether to check mutations of `Map`, `Set`, `WeakMap`, and `WeakSet`, including when `checkConditionals` is enabled. Other checks are unaffected.
+
+Keep this enabled for most code. Consider disabling it in performance-critical code where profiling shows meaningful overhead from temporary constructor arrays.
 
 ### checkConditionals
 
