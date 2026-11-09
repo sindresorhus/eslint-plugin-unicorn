@@ -123,6 +123,10 @@ test({
 		'const result = (condition ? value : undefined) && other;',
 		'if ((condition ? value : undefined) ?? fallback) {}',
 		'if ((condition ? value : undefined)?.property) {}',
+		'if ((condition ? value : undefined) === undefined) {}',
+		'if (saved = condition ? value : undefined) {}',
+		'switch (condition ? value : undefined) { case false: break; }',
+		'function run(Boolean) { return Boolean(condition ? value : undefined); }',
 		'const object = {...(condition ? value : undefined)};',
 		'if (condition ? null : undefined) {}',
 		'if (condition ? value : {}) {}',
@@ -148,6 +152,11 @@ test({
 			['if (((condition)) ? ((value)) : undefined) {}', 'if (((condition)) && ((value))) {}'],
 			['if (read(/* keep */) ? value : undefined) {}', 'if (read(/* keep */) && value) {}'],
 			['if (condition ? (/* keep */ value) : undefined) {}', 'if (condition && (/* keep */ value)) {}'],
+			['if ((first(), condition) ? null : (other(), value)) {}', 'if (!(first(), condition) && (other(), value)) {}'],
+			['if ((condition // keep\n) ? null : value) {}', 'if (!(condition // keep\n) && value) {}'],
+			['async function run() { if (condition ? await value : undefined) {} }', 'async function run() { if (condition && (await value)) {} }'],
+			['function * run() { if ((yield condition) ? undefined : value) {} }', 'function * run() { if (!(yield condition) && value) {} }'],
+			['function * run() { if (condition ? yield value : undefined) {} }', 'function * run() { if (condition && (yield value)) {} }'],
 			['if (ready) {\r\n  if (condition ? value : undefined) {\r\n    consume();\r\n  }\r\n}', 'if (ready) {\r\n  if (condition && value) {\r\n    consume();\r\n  }\r\n}'],
 		].map(([code, output]) => ({code, output, errors: [{messageId: 'prefer-logical-operator-over-ternary/error'}]})),
 		...[
@@ -183,6 +192,9 @@ for (const expression of [
 	'condition() ? value() : null',
 	'condition() ? undefined : value()',
 	'condition() ? null : value()',
+	'(condition() ? value() : undefined) && value() || value()',
+	'value() && (condition() ? null : value()) || value()',
+	'condition() ? (value() ? value() : undefined) : null',
 ]) {
 	nodeTest(`inline truthiness autofixes preserve results and evaluation order: ${expression}`, t => {
 		const code = `Boolean(${expression});`;
