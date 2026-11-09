@@ -24,9 +24,23 @@ The rule also handles ternaries with exactly one constant boolean branch, includ
 
 `Boolean()` is omitted when the condition is known boolean. The other branch must be known boolean.
 
-These cases are reported without a fix in TypeScript, in JavaScript parsed with TypeScript services, or when they contain comments. TypeScript rewrites can change narrowing, inferred types, or overload selection, even when using `!!` instead of `Boolean()`. This check is skipped inside `with` statements. Ternaries with two constant boolean branches are also skipped; use ESLint's [`no-unneeded-ternary`](https://eslint.org/docs/latest/rules/no-unneeded-ternary) for two boolean literals.
+These cases are reported without a fix in TypeScript, in JavaScript parsed with TypeScript services, or when a fix would remove comments. TypeScript rewrites can change narrowing, inferred types, or overload selection, even when using `!!` instead of `Boolean()`. This check is skipped inside `with` statements. Ternaries with two constant boolean branches are also skipped; use ESLint's [`no-unneeded-ternary`](https://eslint.org/docs/latest/rules/no-unneeded-ternary) for two boolean literals.
+
+The rule also handles ternaries with exactly one `null` or `undefined` branch when used inline in a truthiness check, such as an `if` condition, `!`, or `Boolean()`. The same fix restrictions apply. This check does not track variables or analyze later truthiness guards.
 
 ## Examples
+
+```js
+// ❌
+if (condition ? value : undefined) {
+	consume();
+}
+
+// ✅
+if (condition && value) {
+	consume();
+}
+```
 
 ```js
 // ❌

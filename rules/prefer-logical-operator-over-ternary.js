@@ -2,6 +2,7 @@ import {findVariable} from '@eslint-community/eslint-utils';
 import {
 	isBooleanLiteral,
 	isMemberExpression,
+	isNullLiteral,
 	isUndefined,
 } from './ast/index.js';
 import {
@@ -13,6 +14,7 @@ import {
 	getParenthesizedRange,
 	isSameReference,
 	isBoolean,
+	isBooleanContext,
 	isParenthesized,
 	needsSemicolon,
 	shouldAddParenthesesToExpressionStart,
@@ -251,6 +253,43 @@ function getBooleanTernaryProblem(conditionalExpression, context) {
 	return problem;
 }
 
+function getBooleanContextTernaryProblem(conditionalExpression, context) {
+	// Intentionally limited to inline boolean contexts. Do not expand this to follow variables or analyze truthiness guards; that complexity is outside this rule's scope.
+	if (!isBooleanContext(conditionalExpression, context)) {
+		return;
+	}
+
+	const {test, consequent, alternate} = conditionalExpression;
+	const isConsequentNullish = isNullLiteral(consequent) || isUndefined(consequent);
+	const isAlternateNullish = isNullLiteral(alternate) || isUndefined(alternate);
+	if (isConsequentNullish === isAlternateNullish) {
+		return;
+	}
+
+	const right = isConsequentNullish ? alternate : consequent;
+	const problem = {
+		node: conditionalExpression,
+		messageId: MESSAGE_ID_ERROR,
+	};
+
+	if (
+		canFixBooleanTernary(context)
+		&& !wouldRemoveComments(context, conditionalExpression, [test, right].map(node => getParenthesizedRange(node, context)))
+	) {
+		problem.fix = fixer => fix({
+			fixer,
+			context,
+			conditionalExpression,
+			left: test,
+			right,
+			operator: '&&',
+			negateLeft: isConsequentNullish,
+		});
+	}
+
+	return problem;
+}
+
 function getOptionalChainText(memberExpression, context) {
 	const {sourceCode} = context;
 	const range = getMemberAccessOperatorRange(memberExpression, context);
@@ -419,6 +458,12 @@ const create = context => {
 
 		if (nullishTernaryProblem) {
 			return nullishTernaryProblem;
+		}
+
+		const booleanContextTernaryProblem = getBooleanContextTernaryProblem(conditionalExpression, context);
+
+		if (booleanContextTernaryProblem) {
+			return booleanContextTernaryProblem;
 		}
 
 		// `foo ? foo : bar`

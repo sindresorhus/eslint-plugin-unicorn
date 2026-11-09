@@ -19,6 +19,7 @@ const cases = [
 	['prefer-block-statement-over-iife', '(() => { foo(); }) @ ();'],
 	['prefer-array-flat-map', 'array.filter(x => x).flatMap(x => [@ x, x]);'],
 	['prefer-logical-operator-over-ternary', 'x == null @ ? fallback : x;'],
+	['prefer-logical-operator-over-ternary', 'if (condition @ ? value : undefined) {}'],
 	['prefer-has-check', 'new URLSearchParams().get(@ key) !== null;'],
 	['prefer-array-from-map', 'const result = []; for (const item of items) { @ result.push(transform(item)); }'],
 	['prefer-array-from-async', 'const result = []; for await (const item of items) { @ result.push(item); }'],
