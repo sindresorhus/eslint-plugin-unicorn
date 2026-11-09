@@ -127,6 +127,7 @@ test({
 		'if (saved = condition ? value : undefined) {}',
 		'switch (condition ? value : undefined) { case false: break; }',
 		'function run(Boolean) { return Boolean(condition ? value : undefined); }',
+		'function * run() { if (yield (condition ? value : undefined)) {} }',
 		'const object = {...(condition ? value : undefined)};',
 		'if (condition ? null : undefined) {}',
 		'if (condition ? value : {}) {}',
@@ -659,8 +660,24 @@ test.vue({
 });
 
 test.svelte({
-	valid: [],
+	valid: [
+		'<p>{condition ? value : undefined}</p>',
+	],
 	invalid: [
+		{
+			code: '{#if condition ? value : undefined}<p>Found</p>{/if}',
+			output: '{#if condition && value}<p>Found</p>{/if}',
+			filename: 'file.svelte',
+			errors: [{messageId: 'prefer-logical-operator-over-ternary/error'}],
+		},
+		{
+			code: '<script lang="ts">const condition: unknown = source;</script>{#if condition ? value : undefined}<p>Found</p>{/if}',
+			filename: 'file.svelte',
+			languageOptions: {
+				parserOptions: {parser: parsers.typescript.implementation},
+			},
+			errors: [{messageId: 'prefer-logical-operator-over-ternary/error', suggestions: []}],
+		},
 		{
 			code: '<script>const result = value ? true : Boolean(other);</script><div>{value ? Boolean(other) : false}</div>',
 			output: '<script>const result = Boolean(value) || Boolean(other);</script><div>{Boolean(value) && Boolean(other)}</div>',
