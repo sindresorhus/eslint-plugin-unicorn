@@ -38,10 +38,16 @@ const create = context => {
 			/**
 			@param {import('eslint').Rule.RuleFixer} fixer
 			*/
-			* fix(fixer) {
+			* fix(fixer, {abort}) {
+				const leadingComments = getTokenStore(context, argument).getCommentsBefore(argument);
+
+				// Adding the opening parenthesis can change the line where TypeScript reports an error.
+				if (leadingComments.some(comment => /@ts-(?:expect-error|ignore)/u.test(comment.value))) {
+					return abort();
+				}
+
 				// Keep leading comments inside the parentheses so JSDoc does not become a type assertion.
-				const [leadingComment] = getTokenStore(context, argument).getCommentsBefore(argument);
-				yield fixer.insertTextBefore(leadingComment ?? argument, '(');
+				yield fixer.insertTextBefore(leadingComments[0] ?? argument, '(');
 				yield fixer.insertTextAfter(argument, ')');
 			},
 		};

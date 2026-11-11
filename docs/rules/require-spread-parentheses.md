@@ -17,6 +17,8 @@ With `vue-eslint-parser`, it also checks JavaScript spreads inside Vue template 
 
 It also checks `await` and `yield` in object and array spreads and in function and constructor arguments. JSX spread attributes can use these two expressions without parentheses, which is how Prettier and Oxfmt format them.
 
+If `@ts-expect-error` or `@ts-ignore` appears in a comment between `...` and the spread argument, the rule reports the issue without an autofix. Adding parentheses can change the line where TypeScript reports the error.
+
 ## Examples
 
 ```js
