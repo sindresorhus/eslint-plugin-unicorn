@@ -306,20 +306,20 @@ Output:
 
 `;
 
-exports[`require-spread-parentheses > invalid(7): fn(.../** @type {string} */ first + second); 1`] = `
+exports[`require-spread-parentheses > invalid(7): fn(.../** @type {string} */ /* keep */ first + second); 1`] = `
 
-  1 | fn(.../** @type {string} */ first + second);
+  1 | fn(.../** @type {string} */ /* keep */ first + second);
 
 `;
 
-exports[`require-spread-parentheses > invalid(7): fn(.../** @type {string} */ first + second); 2`] = `
+exports[`require-spread-parentheses > invalid(7): fn(.../** @type {string} */ /* keep */ first + second); 2`] = `
 
 Message:
-> 1 | fn(.../** @type {string} */ first + second);
-    |                             ^^^^^^^^^^^^^^ Wrap the spread argument in parentheses.
+> 1 | fn(.../** @type {string} */ /* keep */ first + second);
+    |                                        ^^^^^^^^^^^^^^ Wrap the spread argument in parentheses.
 
 Output:
-  1 | fn(...(/** @type {string} */ first + second));
+  1 | fn(...(/** @type {string} */ /* keep */ first + second));
 
 `;
 

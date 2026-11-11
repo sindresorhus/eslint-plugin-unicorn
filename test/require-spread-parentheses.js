@@ -29,7 +29,7 @@ test.snapshot({
 		'new Example(...first + second);',
 		'fn(...(first) || (second));',
 		'fn(...// choose\r\n  first ?? /* fallback */ second /* keep */);',
-		'fn(.../** @type {string} */ first + second);',
+		'fn(.../** @type {string} */ /* keep */ first + second);',
 		{code: '<Component {...condition && props} />;', languageOptions: jsxLanguageOptions},
 		{code: 'fn(...(first as string[]) ?? second!);', languageOptions: {parser: parsers.typescript}},
 		'fn(...args = load());',
@@ -46,6 +46,17 @@ test.snapshot({
 			languageOptions: {parser: parsers.vue},
 		},
 		{code: '<template><Component v-bind="{...flag &amp;&amp; props}" /></template>', languageOptions: {parser: parsers.vue}},
+	],
+});
+
+test({
+	valid: [],
+	invalid: [
+		{
+			code: 'fn(... items ?? fallback);',
+			output: 'fn(... (items ?? fallback));',
+			errors: 1,
+		},
 	],
 });
 

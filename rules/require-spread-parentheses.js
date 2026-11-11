@@ -39,10 +39,9 @@ const create = context => {
 			@param {import('eslint').Rule.RuleFixer} fixer
 			*/
 			* fix(fixer) {
-				const spreadToken = getTokenStore(context, argument).getTokenBefore(argument);
-
 				// Keep leading comments inside the parentheses so JSDoc does not become a type assertion.
-				yield fixer.insertTextAfter(spreadToken, '(');
+				const [leadingComment] = getTokenStore(context, argument).getCommentsBefore(argument);
+				yield fixer.insertTextBefore(leadingComment ?? argument, '(');
 				yield fixer.insertTextAfter(argument, ')');
 			},
 		};
