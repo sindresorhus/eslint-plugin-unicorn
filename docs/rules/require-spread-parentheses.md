@@ -92,6 +92,6 @@ const rules = {
 };
 ```
 
-ESLint's core [`no-extra-parens`](https://eslint.org/docs/latest/rules/no-extra-parens) has no `ignoredNodes` option. Disable it where you enable this rule.
+ESLint's core [`no-extra-parens`](https://eslint.org/docs/latest/rules/no-extra-parens) can remove these parentheses in its default `"all"` mode. Use `"functions"` mode or disable the core rule where you enable this rule.
 
-For Vue templates, use the same options with [`vue/no-extra-parens`](https://eslint.vuejs.org/rules/no-extra-parens.html) when it extends ESLint Stylistic. If it uses ESLint's core rule, disable `vue/no-extra-parens` for those files.
+For Vue templates, use the `ignoredNodes` options with [`vue/no-extra-parens`](https://eslint.vuejs.org/rules/no-extra-parens.html) when it extends ESLint Stylistic. If it uses ESLint's core rule, use `"functions"` mode or disable `vue/no-extra-parens` for those files.

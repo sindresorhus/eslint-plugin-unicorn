@@ -63,6 +63,12 @@ test({
 			errors: 1,
 		},
 		{
+			code: 'const values = [\n// @ts-expect-error: Intentionally non-iterable.\n...1 + 2];',
+			output: 'const values = [\n// @ts-expect-error: Intentionally non-iterable.\n...(1 + 2)];',
+			languageOptions: {parser: parsers.typescript},
+			errors: 1,
+		},
+		{
 			code: 'const values = [...\n/* explanation */\n/* @ts-ignore */\n1 + 2];',
 			errors: 1,
 		},
