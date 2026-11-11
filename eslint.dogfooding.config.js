@@ -75,8 +75,9 @@ const config = [
 			'unicorn/default-export-style': 'off',
 			// The plugin intentionally keeps a few internal barrel files for shared utilities and rule exports.
 			'unicorn/no-barrel-files': 'off',
-			// This opt-in style is not applied to the existing codebase.
+			// These opt-in styles are not applied to the existing codebase.
 			'unicorn/consistent-arrow-return-style': 'off',
+			'unicorn/require-spread-parentheses': 'off',
 			// Internal helpers intentionally retain explicit dependencies and recursive default parameters.
 			'unicorn/no-unnecessary-parameters': 'off',
 			'unicorn/no-unnecessary-default-arguments': 'off',
