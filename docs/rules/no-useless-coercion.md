@@ -23,6 +23,8 @@ The `!!` check skips scripts with `with` statements or direct `eval` calls becau
 
 With TypeScript type information and `strictNullChecks` enabled, the `!!` check also recognizes boolean results from `??`, `||`, and `await` on variables, property reads, and calls.
 
+Without strict null checks, the rule uses the source annotations of directly typed bindings and properties to check for nullable booleans.
+
 For a direct optional chain, the rule requires static evaluation to prove the result is boolean. An optional chain can return `undefined` even with a TypeScript non-null assertion.
 
 A plain `yield` expression can receive `undefined` from `.next()`. For indexed reads that rely on TypeScript, every possible key must identify a declared property, such as a tuple element.

@@ -1,4 +1,4 @@
-import {getStaticStringValue, isDirectEvalCall} from './ast/index.js';
+import {getStaticStringValue, isDirectEvalCall, isFunction} from './ast/index.js';
 import {
 	isBoolean,
 	isBooleanTypeInformation,
@@ -8,6 +8,7 @@ import {
 	isGlobalIdentifier,
 	isTypeScriptFile,
 	getEnclosingFunction,
+	getFunctionReturnExpression,
 	getConstVariableInitializer,
 	getParenthesizedRange,
 	getStaticValueForControlFlow,
@@ -67,6 +68,12 @@ function isBooleanDoubleNegationOperand(node, context) {
 	if (initializer) {
 		return context.sourceCode.getRange(initializer)[1] <= context.sourceCode.getRange(node)[0]
 			&& isBooleanDoubleNegationOperand(initializer, context);
+	}
+
+	if (node.type === 'CallExpression' && isFunction(node.callee) && node.callee.params.length === 0) {
+		const {callee} = node;
+		const expression = getFunctionReturnExpression(callee);
+		return !callee.async && !callee.generator && expression !== undefined && isBooleanDoubleNegationOperand(expression, context);
 	}
 
 	if (isBoolean(node, context)) {
@@ -174,18 +181,20 @@ const create = context => {
 
 	// Removing `!!` can change the inferred type in TypeScript and in JavaScript checked by TypeScript.
 	context.on('UnaryExpression', (/** @type {ESTree.UnaryExpression} */ node) => {
-		const {argument} = node;
+		if (hasDynamicBindings || node.operator !== '!') {
+			return;
+		}
+
+		const negation = unwrapTypeScriptExpression(node.argument);
 		if (
-			hasDynamicBindings
-			|| node.operator !== '!'
-			|| argument.type !== 'UnaryExpression'
-			|| argument.operator !== '!'
-			|| !isBooleanDoubleNegationOperand(argument.argument, context)
+			negation.type !== 'UnaryExpression'
+			|| negation.operator !== '!'
+			|| !isBooleanDoubleNegationOperand(negation.argument, context)
 		) {
 			return;
 		}
 
-		const {fix, ...problem} = getProblem(node, argument.argument, '`!!`', 'boolean');
+		const {fix, ...problem} = getProblem(node, negation.argument, '`!!`', 'boolean');
 		return {...problem, suggest: [{messageId: SUGGESTION_ID, fix}]};
 	});
 

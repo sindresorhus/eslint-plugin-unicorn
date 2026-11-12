@@ -1393,6 +1393,8 @@ test.snapshot({
 		...[
 			'function read(flags: {enabled?: boolean}) { return !!flags.enabled; } read({});',
 			'function read(enabled?: boolean) { return !!enabled; } read();',
+			'function read(enabled: boolean | undefined) { return !!enabled; } read(undefined);',
+			'function read(flags: {enabled: boolean | undefined}) { return !!flags.enabled; } read({enabled: undefined});',
 		].map(code => ({
 			code,
 			filename: 'test/fixtures/prefer-path2d/dummy.ts',
@@ -1402,6 +1404,12 @@ test.snapshot({
 			},
 		})),
 		'function read(globalThis) { return !!globalThis.Boolean(value); }',
+		'const ready = !!(async () => true)();',
+		'const ready = !!(function* () { return true; })();',
+		{
+			code: 'const ready = !!(function (): boolean { return undefined; })();',
+			languageOptions: {parser: parsers.typescript},
+		},
 	],
 	invalid: [
 		{code: '!!true', languageOptions: {sourceType: 'script'}},
@@ -1426,6 +1434,12 @@ test.snapshot({
 		'foo\n!!(a === b);',
 		'const ready = !!globalThis.Boolean(value);',
 		'const finite = !!globalThis["isFinite"](value);',
+		'const ready = !!(() => /x/.test(value))();',
+		'const ready = !!(function () { return /x/.test(value); })();',
+		...[
+			'function read(flag: boolean) { return !(!flag satisfies boolean); }',
+			'function read(flag: boolean) { return !(!flag /* keep */ as boolean); }',
+		].map(code => ({code, languageOptions: {parser: parsers.typescript}})),
 	],
 });
 
@@ -1443,8 +1457,15 @@ test({
 	}],
 });
 
-nodeTest('optional JSDoc boolean parameters can be omitted with strict null checks disabled', t => {
-	const code = '/** @param {boolean} [enabled] */ function read(enabled) { return !!enabled; } read();';
+nodeTest('nullable JSDoc boolean parameters still need coercion with strict null checks disabled', t => {
+	const code = outdent`
+		/** @param {boolean} [enabled] */
+		function readOptional(enabled) { return !!enabled; }
+		readOptional();
+		/** @param {boolean | undefined} enabled */
+		function readNullable(enabled) { return !!enabled; }
+		readNullable(undefined);
+	`;
 	const filename = path.resolve('file.js').replaceAll('\\', '/');
 	const options = {
 		allowJs: true, checkJs: true, strictNullChecks: false, noEmit: true, types: [],
@@ -1552,6 +1573,8 @@ test.snapshot({
 		'const ready = !!(false && read());',
 		'const ready = !!(true || read());',
 		'const ready = !!(true ? (0 || /x/.test(value)) : 1);',
+		'const ready = !!(false ?? read());',
+		'const ready = !!(false ? read() : /x/.test(value));',
 	],
 });
 

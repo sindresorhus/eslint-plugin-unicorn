@@ -151,7 +151,20 @@ function getTypeScriptPropertyNames(node, context, checker, strictNullChecks) {
 function hasDeclaredTypeScriptProperty(node, context, checker, program) {
 	const {sourceCode} = context;
 	const strictNullChecks = hasStrictNullChecks(program);
-	const isKnownProperty = property => Boolean(property) && (strictNullChecks || !isOptionalSymbol(property));
+	const isKnownProperty = property => {
+		if (!property) {
+			return false;
+		}
+
+		if (strictNullChecks) {
+			return true;
+		}
+
+		// Without strict null checks, only the source annotation distinguishes `boolean` from `boolean | undefined`.
+		const annotation = sourceCode.parserServices.tsNodeToESTreeNodeMap.get(property.valueDeclaration?.type);
+		return !isOptionalSymbol(property) && Boolean(annotation)
+			&& isBooleanTypeAnnotation(annotation, context, sourceCode.getScope(annotation));
+	};
 
 	if (node.property.type === 'PrivateIdentifier') {
 		const property = sourceCode.parserServices.esTreeNodeToTSNodeMap.get(node.property);
@@ -169,6 +182,7 @@ function hasDeclaredTypeScriptProperty(node, context, checker, program) {
 	return receiverTypes.every(type => names.every(name => isKnownProperty(checker.getPropertyOfType(type, name))));
 }
 
+// The checker can assign a boolean type even when an unchecked read may return `undefined`.
 function hasBooleanType(node, context) {
 	return (withTypeInformation(node, context, ({type, checker}) => isBooleanTypeScriptType(type, checker)) ?? false)
 		&& !isKnownNonBoolean(node, context);
@@ -183,8 +197,10 @@ function isBooleanTypeInformation(node, context) {
 	const {sourceCode} = context;
 	if (operand.type === 'Identifier' && !hasStrictNullChecks(sourceCode.parserServices?.program)) {
 		const variable = findVariable(sourceCode.getScope(operand), operand);
-		return !variable?.defs.some(definition => definition.name.optional)
-			&& !getJSDocumentTypeAnnotation(operand, context)?.optional;
+		const annotation = getJSDocumentTypeAnnotation(operand, context);
+		// Loose checker types can erase nullability from explicit annotations.
+		return !variable?.defs.some(({name}) => name.optional || name.typeAnnotation)
+			&& !(annotation && getJSDocumentBooleanState(annotation, {allowNullish: true}) === 'boolean');
 	}
 
 	return operand.type !== 'MemberExpression'
