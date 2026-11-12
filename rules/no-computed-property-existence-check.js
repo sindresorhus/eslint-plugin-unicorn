@@ -2,6 +2,7 @@ import {
 	getCallArgumentText,
 	getOutermostChainAndTypeScriptExpression,
 	getParenthesizedRange,
+	hasBooleanType,
 	hasOptionalChainElement,
 	isBoolean,
 	isBooleanContext,
@@ -97,8 +98,9 @@ const create = context => {
 			return;
 		}
 
-		// A property whose value type is a known boolean is a value read, not an existence check (and `no-unnecessary-boolean-comparison` may rewrite a comparison into this form).
-		if (isBoolean(node, context)) {
+		// A property with a boolean value type can hold `false` when present, even if an unchecked read can also produce `undefined`.
+		// `no-unnecessary-boolean-comparison` may rewrite a comparison into this form.
+		if (isBoolean(node, context) || hasBooleanType(node, context)) {
 			return;
 		}
 

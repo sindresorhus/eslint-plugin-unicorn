@@ -148,12 +148,19 @@ function hasDeclaredTypeScriptProperty(node, context, checker, program) {
 	return receiverTypes.every(type => isKnownProperty(checker.getPropertyOfType(type, name)));
 }
 
+function hasBooleanType(node, context) {
+	return (withTypeInformation(node, context, ({type, checker}) => isBooleanTypeScriptType(type, checker)) ?? false)
+		&& !isKnownNonBoolean(node, context);
+}
+
 function isBooleanTypeInformation(node, context) {
+	if (!hasBooleanType(node, context)) {
+		return false;
+	}
+
 	const operand = node.type === 'AwaitExpression' ? node.argument : node;
-	const hasBooleanType = withTypeInformation(node, context, ({type, checker, program}) =>
-		isBooleanTypeScriptType(type, checker)
-		&& (operand.type !== 'MemberExpression' || hasDeclaredTypeScriptProperty(operand, context, checker, program))) ?? false;
-	return hasBooleanType && !isKnownNonBoolean(node, context);
+	return operand.type !== 'MemberExpression'
+		|| (withTypeInformation(operand, context, ({checker, program}) => hasDeclaredTypeScriptProperty(operand, context, checker, program)) ?? false);
 }
 
 function isBooleanCallSignatureMembers(members, context, scope, visitedTypeReferences) {
@@ -744,6 +751,7 @@ function isBooleanExpression(node, context, visitedVariables = new Set()) {
 }
 
 export {
+	hasBooleanType,
 	isBooleanExpression,
 	isBooleanFunction,
 	isBooleanFunctionReference,

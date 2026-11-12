@@ -132,6 +132,7 @@ export {default as isNewExpressionWithParentheses} from './is-new-expression-wit
 export {default as isNumber, isKnownNonNumber} from './is-number.js';
 export {
 	default as isBoolean,
+	hasBooleanType,
 	isBooleanFunction,
 	isBooleanFunctionReference,
 	isBooleanFunctionTypeAnnotation,
