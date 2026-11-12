@@ -1,13 +1,18 @@
-import {getStaticStringValue} from './ast/index.js';
+import {getStaticStringValue, isDirectEvalCall} from './ast/index.js';
 import {
 	isBoolean,
+	isBooleanTypeInformation,
 	isString,
 	isNumber,
 	isBigInt,
 	isGlobalIdentifier,
 	isTypeScriptFile,
 	getEnclosingFunction,
+	getConstVariableInitializer,
 	getParenthesizedRange,
+	getStaticValueForControlFlow,
+	containsNode,
+	unwrapTypeScriptExpression,
 	wouldRemoveComments,
 } from './utils/index.js';
 import {fixSpaceAroundKeyword, replaceNodeWithExpression} from './fix/index.js';
@@ -18,8 +23,10 @@ import {fixSpaceAroundKeyword, replaceNodeWithExpression} from './fix/index.js';
 */
 
 const MESSAGE_ID = 'no-useless-coercion';
+const SUGGESTION_ID = 'remove-double-negation';
 const messages = {
 	[MESSAGE_ID]: '{{description}} is unnecessary because the value is already a {{type}}.',
+	[SUGGESTION_ID]: 'Remove the double negation.',
 };
 
 // `name` -> {type label, predicate checking the argument is already that type}
@@ -30,12 +37,67 @@ const coercions = new Map([
 	['Number', {type: 'number', isType: isNumber}],
 ]);
 
+function getStaticallySelectedOperand(node, context) {
+	if (node.type === 'ConditionalExpression') {
+		const test = getStaticValueForControlFlow(node.test, context);
+		return test && (test.value ? node.consequent : node.alternate);
+	}
+
+	if (node.type !== 'LogicalExpression') {
+		return;
+	}
+
+	const left = getStaticValueForControlFlow(node.left, context);
+	if (!left) {
+		return;
+	}
+
+	if (node.operator === '??') {
+		return left.value === null || left.value === undefined ? node.right : node.left;
+	}
+
+	const selectsRight = node.operator === '&&' ? Boolean(left.value) : !left.value;
+	return selectsRight ? node.right : node.left;
+}
+
+function isBooleanDoubleNegationOperand(node, context) {
+	node = unwrapTypeScriptExpression(node);
+	const initializer = getConstVariableInitializer(node, context);
+	if (initializer) {
+		return context.sourceCode.getRange(initializer)[1] <= context.sourceCode.getRange(node)[0]
+			&& isBooleanDoubleNegationOperand(initializer, context);
+	}
+
+	if (isBoolean(node, context)) {
+		return true;
+	}
+
+	// Branch selection relies on the module's lexical bindings.
+	const operand = context.sourceCode.ast.sourceType === 'module' ? getStaticallySelectedOperand(node, context) : undefined;
+	if (operand) {
+		return isBooleanDoubleNegationOperand(operand, context);
+	}
+
+	const options = context.sourceCode.parserServices?.program?.getCompilerOptions();
+	if (!(options?.strictNullChecks ?? options?.strict)) {
+		return false;
+	}
+
+	// Check the value produced by `await`, `??`, or `||`, since it can be boolean even when an input is not.
+	return (
+		(node.type === 'AwaitExpression' && ['Identifier', 'MemberExpression', 'CallExpression', 'NewExpression'].includes(node.argument.type))
+		|| (node.type === 'LogicalExpression' && node.operator !== '&&' && isBooleanDoubleNegationOperand(node.right, context))
+	) && isBooleanTypeInformation(node, context);
+}
+
 /**
 @param {ESLint.Rule.RuleContext} context
 */
 const create = context => {
 	const {sourceCode} = context;
 	const isTypeScript = isTypeScriptFile(context.physicalFilename) || Boolean(sourceCode.parserServices?.esTreeNodeToTSNodeMap);
+	const hasDynamicBindings = sourceCode.ast.sourceType !== 'module'
+		&& containsNode(sourceCode.ast, context, node => node.type === 'WithStatement' || isDirectEvalCall(node));
 
 	// Build a problem that removes the coercion `node` in favor of its inner `expression`.
 	const getProblem = (node, expression, description, type) => ({
@@ -110,6 +172,23 @@ const create = context => {
 		return getProblem(node, node.argument, '`+`', 'number');
 	});
 
+	// Removing `!!` can change the inferred type in TypeScript and in JavaScript checked by TypeScript.
+	context.on('UnaryExpression', (/** @type {ESTree.UnaryExpression} */ node) => {
+		const {argument} = node;
+		if (
+			hasDynamicBindings
+			|| node.operator !== '!'
+			|| argument.type !== 'UnaryExpression'
+			|| argument.operator !== '!'
+			|| !isBooleanDoubleNegationOperand(argument.argument, context)
+		) {
+			return;
+		}
+
+		const {fix, ...problem} = getProblem(node, argument.argument, '`!!`', 'boolean');
+		return {...problem, suggest: [{messageId: SUGGESTION_ID, fix}]};
+	});
+
 	// `value + ''` / `'' + value` on a value already a string. We intentionally do not special-case rare directive prologue creation.
 	context.on('BinaryExpression', (/** @type {ESTree.BinaryExpression} */ node) => {
 		if (node.operator !== '+') {
@@ -161,6 +240,7 @@ const config = {
 			recommended: 'unopinionated',
 		},
 		fixable: 'code',
+		hasSuggestions: true,
 		messages,
 		languages: [
 			'js/js',

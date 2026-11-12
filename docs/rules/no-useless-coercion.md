@@ -4,7 +4,7 @@
 
 💼 This rule is enabled in the following [configs](https://github.com/sindresorhus/eslint-plugin-unicorn#recommended-config): ✅ `recommended`, ☑️ `unopinionated`.
 
-🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+🔧💡 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix) and manually fixable by [editor suggestions](https://eslint.org/docs/latest/use/core-concepts#rule-suggestions).
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run fix:eslint-docs` -->
@@ -13,11 +13,25 @@ Calling `Boolean()`, `String()`, `Number()`, or `BigInt()` on a value that is al
 
 This includes redundant double coercion, like `String(String(value))`, and coercing an expression whose type is already known, like `Boolean(a === b)` or `Number(array.length)`.
 
-It also flags the equivalent operator idioms when the value is already the target type: `+value` (number), `value + ''` and `'' + value` (string), and `value.toString()` (string).
+It also flags the equivalent operator idioms when the value is already the target type: `!!value` (boolean), `+value` (number), `value + ''` and `'' + value` (string), and `value.toString()` (string).
 
-The check is syntactic, so it catches the common cases without type information, and uses TypeScript type information when it is available.
+The rule recognizes common cases from syntax and uses TypeScript type information when available.
+
+In modules, the `!!` check also recognizes short-circuit and conditional expressions when static evaluation can determine which operand supplies the boolean result.
+
+The `!!` check skips scripts with `with` statements or direct `eval` calls because they can change how identifiers resolve.
+
+With TypeScript type information and `strictNullChecks` enabled, the `!!` check also recognizes boolean results from `??`, `||`, and `await` on variables, property reads, and calls.
+
+For a direct optional chain, the rule requires static evaluation to prove the result is boolean. An optional chain can return `undefined` even with a TypeScript non-null assertion.
+
+A plain `yield` expression can receive `undefined` from `.next()`. For indexed reads that rely on TypeScript, the rule requires a declared property, such as a tuple element.
+
+The `!!` check can inspect simple `const` initializers that occur before the reference. For values inferred through calls or nested expressions, it relies on syntax and the available TypeScript types.
 
 In TypeScript, `Boolean()` calls inside functions without explicit return annotations are ignored because removing them can introduce inferred type predicates.
+
+Removing `!!` can change the inferred type in TypeScript and in JavaScript checked by TypeScript, so the rule offers a suggestion for this case.
 
 For redundant wrapper callbacks like `array.map(x => String(x))`, see [`prefer-native-coercion-functions`](./prefer-native-coercion-functions.md). For `Boolean()` casts inside array predicate callbacks, see [`no-useless-boolean-cast`](./no-useless-boolean-cast.md).
 
@@ -65,6 +79,14 @@ const a = Boolean(1);
 const b = String(123);
 const c = Number('5');
 const d = BigInt(5);
+```
+
+```js
+// ❌
+const isEqual = !!(left === right);
+
+// ✅
+const isEqual = left === right;
 ```
 
 ```js

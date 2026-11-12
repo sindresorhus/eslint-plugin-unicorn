@@ -1,7 +1,7 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
-import getStaticValueIfNoSideEffects from './get-static-value.js';
+import getStaticValueIfNoSideEffects, {getStaticValueForControlFlow} from './get-static-value.js';
 import {getFunctionReturnExpression} from './function-body.js';
-import {withTypeInformation} from './types.js';
+import {isOptionalSymbol, withTypeInformation} from './types.js';
 import {getJSDocumentTypeAnnotation, getJSDocumentReturnType, hasNativeTypeAssertion} from './jsdoc-type.js';
 import {getJSDocumentBooleanState} from './get-jsdoc-boolean-state.js';
 import {
@@ -28,7 +28,7 @@ const booleanBinaryOperators = new Set([
 ]);
 
 const booleanTypeStrings = new Set(['boolean', 'true', 'false']);
-const booleanGlobalFunctions = new Set(['isFinite', 'isNaN']);
+const booleanGlobalFunctions = new Set(['Boolean', 'isFinite', 'isNaN']);
 const nullishTypeAnnotationTypes = new Set([
 	'TSNullKeyword',
 	'TSUndefinedKeyword',
@@ -123,9 +123,37 @@ const {isKnownNonTarget: isKnownNonBoolean} = createTypeCheckers({
 	isTargetType: isBooleanTypeScriptType,
 });
 
+function hasDeclaredTypeScriptProperty(node, context, checker, program) {
+	const {sourceCode} = context;
+	const {strict, strictNullChecks = strict} = program.getCompilerOptions();
+	const isKnownProperty = property => Boolean(property) && (strictNullChecks || !isOptionalSymbol(property));
+
+	if (node.property.type === 'PrivateIdentifier') {
+		const property = sourceCode.parserServices.esTreeNodeToTSNodeMap.get(node.property);
+		return isKnownProperty(checker.getSymbolAtLocation(property));
+	}
+
+	if (node.computed && getStaticValueForControlFlow(node.property, context) === undefined) {
+		return false;
+	}
+
+	const name = getPropertyName(node, sourceCode.getScope(node));
+	if (name === null) {
+		return false;
+	}
+
+	// An unchecked index signature can describe a property that is missing at runtime.
+	const receiverType = checker.getApparentType(sourceCode.parserServices.getTypeAtLocation(node.object));
+	const receiverTypes = receiverType.isUnion() ? receiverType.types : [receiverType];
+	return receiverTypes.every(type => isKnownProperty(checker.getPropertyOfType(type, name)));
+}
+
 function isBooleanTypeInformation(node, context) {
-	return (withTypeInformation(node, context, ({type, checker}) => isBooleanTypeScriptType(type, checker)) ?? false)
-		&& !isKnownNonBoolean(node, context);
+	const operand = node.type === 'AwaitExpression' ? node.argument : node;
+	const hasBooleanType = withTypeInformation(node, context, ({type, checker, program}) =>
+		isBooleanTypeScriptType(type, checker)
+		&& (operand.type !== 'MemberExpression' || hasDeclaredTypeScriptProperty(operand, context, checker, program))) ?? false;
+	return hasBooleanType && !isKnownNonBoolean(node, context);
 }
 
 function isBooleanCallSignatureMembers(members, context, scope, visitedTypeReferences) {
@@ -562,7 +590,11 @@ function getKnownExpressionKind(node, context, visitedVariables = new Set()) {
 
 function isBooleanWrappedExpression(node, context, visitedVariables) {
 	switch (node.type) {
-		// A `yield` expression evaluates to the value sent back into the generator via `.next()`, not the yielded argument, so its type is unknown.
+		case 'YieldExpression': {
+			// Plain `yield` receives the argument to `.next()`, which can be omitted. `yield*` returns the delegate's completion value.
+			return node.delegate ? undefined : false;
+		}
+
 		case 'AwaitExpression':
 		case 'TSNonNullExpression':
 		case 'ParenthesizedExpression': {
@@ -583,26 +615,9 @@ function isBooleanWrappedExpression(node, context, visitedVariables) {
 	}
 }
 
-function isKnownBooleanStaticMethodCall(node, context) {
-	if (
-		node.callee.type !== 'MemberExpression'
-		|| node.callee.object.type !== 'Identifier'
-		|| !context.sourceCode.isGlobalReference(node.callee.object)
-	) {
-		return false;
-	}
-
-	const methods = booleanStaticMethods.get(node.callee.object.name);
-	const method = getPropertyName(node.callee, context.sourceCode.getScope(node.callee));
-	return Boolean(methods?.has(method));
-}
-
 function isKnownBooleanFunctionReference(node, context) {
 	if (node.type === 'Identifier') {
-		return (
-			(node.name === 'Boolean' || booleanGlobalFunctions.has(node.name))
-			&& context.sourceCode.isGlobalReference(node)
-		);
+		return booleanGlobalFunctions.has(node.name) && context.sourceCode.isGlobalReference(node);
 	}
 
 	if (
@@ -614,7 +629,7 @@ function isKnownBooleanFunctionReference(node, context) {
 		return false;
 	}
 
-	const methods = booleanStaticMethods.get(node.object.name);
+	const methods = node.object.name === 'globalThis' ? booleanGlobalFunctions : booleanStaticMethods.get(node.object.name);
 	const method = getPropertyName(node, context.sourceCode.getScope(node));
 	return Boolean(methods?.has(method));
 }
@@ -648,21 +663,9 @@ function isKnownBooleanPropertyRead(node, context) {
 
 function isBooleanCallExpression(node, context, visitedVariables) {
 	if (
-		isKnownBooleanStaticMethodCall(node, context)
+		isKnownBooleanFunctionReference(node.callee, context)
 		|| isKnownBooleanInstanceMethodCall(node, context)
 	) {
-		return true;
-	}
-
-	if (node.callee.type !== 'Identifier') {
-		return isBooleanTypeInformation(node, context);
-	}
-
-	if (node.callee.name === 'Boolean' && context.sourceCode.isGlobalReference(node.callee)) {
-		return true;
-	}
-
-	if (booleanGlobalFunctions.has(node.callee.name) && context.sourceCode.isGlobalReference(node.callee)) {
 		return true;
 	}
 
@@ -719,6 +722,11 @@ function isBooleanExpression(node, context, visitedVariables = new Set()) {
 		return false;
 	}
 
+	// An optional chain can produce `undefined` even when wrapped in a TypeScript assertion.
+	if (unwrapTypeScriptExpression(node).type === 'ChainExpression') {
+		return isBooleanStaticValue(node, context);
+	}
+
 	const annotation = getJSDocumentTypeAnnotation(node, context);
 	if (annotation) {
 		return getJSDocumentBooleanState(annotation) === 'boolean' || isBooleanTypeInformation(node, context);
@@ -742,6 +750,7 @@ export {
 	isBooleanFunctionTypeAnnotation,
 	isKnownBooleanFunctionReference,
 	isBooleanTypeAnnotation,
+	isBooleanTypeInformation,
 	isFunctionTypeAnnotation,
 };
 

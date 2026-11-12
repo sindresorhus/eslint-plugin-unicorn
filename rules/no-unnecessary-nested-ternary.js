@@ -8,6 +8,7 @@ import {
 	getPrimitiveLiteralValue,
 	hasJavaScriptTypeAnnotations,
 	hasPossibleSideEffect,
+	isOptionalSymbol,
 	isTypeScriptFile,
 	needsSemicolon,
 	unwrapTypeScriptExpression,
@@ -264,10 +265,9 @@ function areTypesDisjoint(left, right, checker) {
 	}
 
 	const isLiteralType = type => (type.isUnion() ? type.types : [type]).every(type => getPrimitiveType(type, checker)?.value !== undefined);
-	const optionalSymbolFlag = 16_777_216; // TypeScript's SymbolFlags.Optional.
 	return left.getProperties().some(property => {
 		const other = right.getProperty(property.name);
-		if (!other || property.flags % (optionalSymbolFlag * 2) >= optionalSymbolFlag || other.flags % (optionalSymbolFlag * 2) >= optionalSymbolFlag) {
+		if (!other || isOptionalSymbol(property) || isOptionalSymbol(other)) {
 			return false;
 		}
 
