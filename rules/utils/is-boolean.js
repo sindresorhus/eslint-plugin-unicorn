@@ -199,7 +199,7 @@ function isBooleanTypeInformation(node, context) {
 		const variable = findVariable(sourceCode.getScope(operand), operand);
 		const annotation = getJSDocumentTypeAnnotation(operand, context);
 		// Loose checker types can erase nullability from explicit annotations.
-		return !variable?.defs.some(({name}) => name.optional || name.typeAnnotation)
+		return !variable?.defs.some(({name}) => name.optional || hasNullishTypeAnnotation(name.typeAnnotation, context))
 			&& !(annotation && getJSDocumentBooleanState(annotation, {allowNullish: true}) === 'boolean');
 	}
 
@@ -323,6 +323,38 @@ function isBooleanTypeAnnotation(node, context, scope, visitedTypeReferences = n
 
 		default: {
 			return false;
+		}
+	}
+}
+
+function hasNullishTypeAnnotation(node, context, visitedTypeReferences = new Set()) {
+	switch (node?.type) {
+		case 'TSTypeAnnotation':
+		case 'TSParenthesizedType': {
+			return hasNullishTypeAnnotation(node.typeAnnotation, context, visitedTypeReferences);
+		}
+
+		case 'TSUnionType': {
+			return node.types.some(type => hasNullishTypeAnnotation(type, context, visitedTypeReferences));
+		}
+
+		case 'TSTypeReference': {
+			return isTypeReference({
+				node,
+				context,
+				scope: context.sourceCode.getScope(node),
+				visitedTypeReferences,
+				predicate: definition => definition.type === 'TSTypeAliasDeclaration'
+					&& hasNullishTypeAnnotation(definition.typeAnnotation, context, visitedTypeReferences),
+			});
+		}
+
+		case 'TSLiteralType': {
+			return node.literal.type === 'Literal' && node.literal.value === null;
+		}
+
+		default: {
+			return nullishTypeAnnotationTypes.has(node?.type) || node?.type === 'TSVoidKeyword';
 		}
 	}
 }

@@ -1394,6 +1394,7 @@ test.snapshot({
 			'function read(flags: {enabled?: boolean}) { return !!flags.enabled; } read({});',
 			'function read(enabled?: boolean) { return !!enabled; } read();',
 			'function read(enabled: boolean | undefined) { return !!enabled; } read(undefined);',
+			'type MaybeBoolean = boolean | null; function read(enabled: MaybeBoolean) { return !!enabled; } read(null);',
 			'function read(flags: {enabled: boolean | undefined}) { return !!flags.enabled; } read({enabled: undefined});',
 		].map(code => ({
 			code,
