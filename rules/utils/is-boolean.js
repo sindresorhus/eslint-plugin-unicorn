@@ -1,7 +1,7 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import getStaticValueIfNoSideEffects, {getStaticValueForControlFlow} from './get-static-value.js';
 import {getFunctionReturnExpression} from './function-body.js';
-import {isOptionalSymbol, withTypeInformation} from './types.js';
+import {hasStrictNullChecks, isOptionalSymbol, withTypeInformation} from './types.js';
 import {getJSDocumentTypeAnnotation, getJSDocumentReturnType, hasNativeTypeAssertion} from './jsdoc-type.js';
 import {getJSDocumentBooleanState} from './get-jsdoc-boolean-state.js';
 import {
@@ -123,9 +123,34 @@ const {isKnownNonTarget: isKnownNonBoolean} = createTypeCheckers({
 	isTargetType: isBooleanTypeScriptType,
 });
 
+function getTypeScriptPropertyNames(node, context, checker, strictNullChecks) {
+	const {sourceCode} = context;
+	if (!node.computed || getStaticValueForControlFlow(node.property, context) !== undefined) {
+		const name = getPropertyName(node, sourceCode.getScope(node));
+		return name === null ? undefined : [name];
+	}
+
+	if (!strictNullChecks || node.property.type !== 'Identifier') {
+		return;
+	}
+
+	// TypeScript can preserve a narrowed key type across a call that changes the binding.
+	const {getTypeAtLocation, esTreeNodeToTSNodeMap} = sourceCode.parserServices;
+	const keyType = getTypeAtLocation(node.property);
+	const key = checker.getSymbolAtLocation(esTreeNodeToTSNodeMap.get(node.property));
+	if (!key || checker.getTypeOfSymbol(key) !== keyType) {
+		return;
+	}
+
+	const keyTypes = keyType.isUnion() ? keyType.types : [keyType];
+	if (keyTypes.every(type => type.isStringLiteral() || type.isNumberLiteral())) {
+		return keyTypes.map(type => String(type.value));
+	}
+}
+
 function hasDeclaredTypeScriptProperty(node, context, checker, program) {
 	const {sourceCode} = context;
-	const {strict, strictNullChecks = strict} = program.getCompilerOptions();
+	const strictNullChecks = hasStrictNullChecks(program);
 	const isKnownProperty = property => Boolean(property) && (strictNullChecks || !isOptionalSymbol(property));
 
 	if (node.property.type === 'PrivateIdentifier') {
@@ -133,19 +158,15 @@ function hasDeclaredTypeScriptProperty(node, context, checker, program) {
 		return isKnownProperty(checker.getSymbolAtLocation(property));
 	}
 
-	if (node.computed && getStaticValueForControlFlow(node.property, context) === undefined) {
-		return false;
-	}
-
-	const name = getPropertyName(node, sourceCode.getScope(node));
-	if (name === null) {
+	const names = getTypeScriptPropertyNames(node, context, checker, strictNullChecks);
+	if (!names) {
 		return false;
 	}
 
 	// An unchecked index signature can describe a property that is missing at runtime.
 	const receiverType = checker.getApparentType(sourceCode.parserServices.getTypeAtLocation(node.object));
 	const receiverTypes = receiverType.isUnion() ? receiverType.types : [receiverType];
-	return receiverTypes.every(type => isKnownProperty(checker.getPropertyOfType(type, name)));
+	return receiverTypes.every(type => names.every(name => isKnownProperty(checker.getPropertyOfType(type, name))));
 }
 
 function hasBooleanType(node, context) {
@@ -159,6 +180,13 @@ function isBooleanTypeInformation(node, context) {
 	}
 
 	const operand = node.type === 'AwaitExpression' ? node.argument : node;
+	const {sourceCode} = context;
+	if (operand.type === 'Identifier' && !hasStrictNullChecks(sourceCode.parserServices?.program)) {
+		const variable = findVariable(sourceCode.getScope(operand), operand);
+		return !variable?.defs.some(definition => definition.name.optional)
+			&& !getJSDocumentTypeAnnotation(operand, context)?.optional;
+	}
+
 	return operand.type !== 'MemberExpression'
 		|| (withTypeInformation(operand, context, ({checker, program}) => hasDeclaredTypeScriptProperty(operand, context, checker, program)) ?? false);
 }

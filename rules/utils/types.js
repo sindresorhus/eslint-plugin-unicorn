@@ -41,6 +41,11 @@ const isUnknownType = type => unknownTypeNames.has(type.intrinsicName);
 
 const isNullishType = type => nullishTypeNames.has(type.intrinsicName);
 
+function hasStrictNullChecks(program) {
+	const options = program?.getCompilerOptions();
+	return options?.strictNullChecks ?? options?.strict ?? false;
+}
+
 function getBaseTypes(type, checker) {
 	try {
 		return checker.getBaseTypes(type);
@@ -79,6 +84,7 @@ function withTypeInformation(node, context, callback) {
 export {
 	getBaseTypes,
 	getTypeSymbol,
+	hasStrictNullChecks,
 	isAliasSymbol,
 	isConstEnumSymbol,
 	isDefaultLibrarySymbol,

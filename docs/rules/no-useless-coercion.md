@@ -25,7 +25,7 @@ With TypeScript type information and `strictNullChecks` enabled, the `!!` check 
 
 For a direct optional chain, the rule requires static evaluation to prove the result is boolean. An optional chain can return `undefined` even with a TypeScript non-null assertion.
 
-A plain `yield` expression can receive `undefined` from `.next()`. For indexed reads that rely on TypeScript, the rule requires a declared property, such as a tuple element.
+A plain `yield` expression can receive `undefined` from `.next()`. For indexed reads that rely on TypeScript, every possible key must identify a declared property, such as a tuple element.
 
 The `!!` check can inspect simple `const` initializers that occur before the reference. For values inferred through calls or nested expressions, it relies on syntax and the available TypeScript types.
 

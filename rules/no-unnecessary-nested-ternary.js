@@ -8,6 +8,7 @@ import {
 	getPrimitiveLiteralValue,
 	hasJavaScriptTypeAnnotations,
 	hasPossibleSideEffect,
+	hasStrictNullChecks,
 	isOptionalSymbol,
 	isTypeScriptFile,
 	needsSemicolon,
@@ -199,9 +200,8 @@ function getTest(node, context) {
 	}
 
 	return withTypeInformation(node.callee, context, ({checker, program}) => {
-		const compilerOptions = program.getCompilerOptions();
 		// Without strict null checks, otherwise disjoint types can overlap through null or undefined.
-		if (!(compilerOptions.strictNullChecks ?? compilerOptions.strict)) {
+		if (!hasStrictNullChecks(program)) {
 			return;
 		}
 

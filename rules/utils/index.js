@@ -208,6 +208,7 @@ export {
 export {
 	getBaseTypes,
 	getTypeSymbol,
+	hasStrictNullChecks,
 	isAliasSymbol,
 	isOptionalSymbol,
 	isDefaultLibrarySymbol,

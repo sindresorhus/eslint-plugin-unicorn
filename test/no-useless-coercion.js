@@ -1,9 +1,11 @@
 import {atob, btoa} from 'node:buffer';
 import {stripTypeScriptTypes} from 'node:module';
+import path from 'node:path';
 import {test as nodeTest} from 'node:test';
 import {runInNewContext} from 'node:vm';
 import {Linter} from 'eslint';
 import outdent from 'outdent';
+import typescript from 'typescript';
 import {typescriptEslintParser} from '../scripts/parsers.js';
 import {getTester, parsers} from './utils/test.js';
 
@@ -1388,14 +1390,17 @@ test.snapshot({
 				parserOptions: {projectService: {allowDefaultProject: ['*.ts']}},
 			},
 		},
-		{
-			code: 'function read(flags: {enabled?: boolean}) { return !!flags.enabled; } read({});',
+		...[
+			'function read(flags: {enabled?: boolean}) { return !!flags.enabled; } read({});',
+			'function read(enabled?: boolean) { return !!enabled; } read();',
+		].map(code => ({
+			code,
 			filename: 'test/fixtures/prefer-path2d/dummy.ts',
 			languageOptions: {
 				parser: typescriptEslintParser,
 				parserOptions: {project: 'test/fixtures/prefer-path2d/tsconfig.json'},
 			},
-		},
+		})),
 		'function read(globalThis) { return !!globalThis.Boolean(value); }',
 	],
 	invalid: [
@@ -1438,6 +1443,29 @@ test({
 	}],
 });
 
+nodeTest('optional JSDoc boolean parameters can be omitted with strict null checks disabled', t => {
+	const code = '/** @param {boolean} [enabled] */ function read(enabled) { return !!enabled; } read();';
+	const filename = path.resolve('file.js').replaceAll('\\', '/');
+	const options = {
+		allowJs: true, checkJs: true, strictNullChecks: false, noEmit: true, types: [],
+	};
+	const host = typescript.createCompilerHost(options);
+	const getSourceFile = host.getSourceFile.bind(host);
+	host.getSourceFile = (file, languageVersion, onError) => file === filename
+		? typescript.createSourceFile(file, code, languageVersion, true)
+		: getSourceFile(file, languageVersion, onError);
+	const program = typescript.createProgram([filename], options, host);
+	const messages = linter.verify(code, {
+		languageOptions: {
+			parser: typescriptEslintParser,
+			parserOptions: {programs: [program]},
+		},
+		plugins: {unicorn: {rules: {'no-useless-coercion': rule}}},
+		rules: {'unicorn/no-useless-coercion': 'error'},
+	}, {filename});
+	t.assert.deepStrictEqual(messages, []);
+});
+
 const typeAwareBooleanCoercion = code => ({
 	code,
 	filename: 'test/fixtures/prefer-regexp-test/index.ts',
@@ -1470,6 +1498,19 @@ test.snapshot({
 		'function read(enabled: boolean | undefined, flags: boolean[]) { return !!(enabled ?? flags[0]); } read(undefined, []);',
 		'async function read(promises: Promise<boolean>[]) { return !!(await promises[0]); } read([]);',
 		'async function read(promises: Record<string, Promise<boolean>>) { return !!(await promises.enabled); } read({});',
+		'function read(flags: {enabled: boolean; [key: string]: boolean}, key: "enabled" | "missing") { return !!flags[key]; } read({enabled: true}, "missing");',
+		outdent`
+			function read(flags: {enabled: boolean; [key: string]: boolean}, key: 'enabled' | 'missing') {
+				function change() {
+					key = 'missing';
+				}
+				if (key === 'enabled') {
+					change();
+					return !!flags[key];
+				}
+			}
+			read({enabled: true}, 'enabled');
+		`,
 	].map(code => typeAwareBooleanCoercion(code)),
 	invalid: [
 		'async function ready(pending: Promise<boolean>) { return !!(await pending); }',
@@ -1484,6 +1525,9 @@ test.snapshot({
 		'const key = "enabled"; function read(flags: {enabled: boolean}): boolean { return Boolean(flags[key]); }',
 		'function read(flags: {enabled?: boolean}) { if (flags.enabled !== undefined) { return !!flags.enabled; } }',
 		'async function read(pending: Promise<boolean>) { const enabled = await pending; return !!enabled; }',
+		'function read(flags: {draft: boolean; published: boolean}, key: keyof typeof flags): boolean { return Boolean(flags[key]); }',
+		'function read(flags: [boolean, boolean], key: 0 | 1) { return !!flags[key]; }',
+		'function read(enabled?: boolean) { if (enabled !== undefined) { return !!enabled; } }',
 	].map(code => typeAwareBooleanCoercion(code)),
 });
 

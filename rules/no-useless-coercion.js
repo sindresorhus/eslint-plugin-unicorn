@@ -11,6 +11,7 @@ import {
 	getConstVariableInitializer,
 	getParenthesizedRange,
 	getStaticValueForControlFlow,
+	hasStrictNullChecks,
 	containsNode,
 	unwrapTypeScriptExpression,
 	wouldRemoveComments,
@@ -78,8 +79,7 @@ function isBooleanDoubleNegationOperand(node, context) {
 		return isBooleanDoubleNegationOperand(operand, context);
 	}
 
-	const options = context.sourceCode.parserServices?.program?.getCompilerOptions();
-	if (!(options?.strictNullChecks ?? options?.strict)) {
+	if (!hasStrictNullChecks(context.sourceCode.parserServices?.program)) {
 		return false;
 	}
 
