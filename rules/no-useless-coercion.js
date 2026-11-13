@@ -84,8 +84,13 @@ function canUseBindingType(node, context) {
 
 function hasStablePropertyReceiver(node, context) {
 	const receiver = unwrapTypeScriptExpression(node.object);
-	return receiver.type === 'ThisExpression'
-		|| (receiver.type === 'Identifier' && canUseBindingType(receiver, context));
+	return receiver.type === 'Identifier' && canUseBindingType(receiver, context);
+}
+
+function isBooleanPropertyRead(node, context) {
+	return isBuiltinBooleanPropertyRead(node, context)
+		|| typeof getStaticValueForControlFlow(node, context)?.value === 'boolean'
+		|| (hasStablePropertyReceiver(node, context) && isBooleanTypeInformation(node, context));
 }
 
 function isAwaitingBoolean(node, context) {
@@ -192,13 +197,18 @@ function isBooleanDoubleNegationOperand(node, context) {
 		}
 
 		case 'MemberExpression': {
-			return isBuiltinBooleanPropertyRead(node, context)
-				|| typeof getStaticValueForControlFlow(node, context)?.value === 'boolean'
-				|| (hasStablePropertyReceiver(node, context) && isBooleanTypeInformation(node, context));
+			return isBooleanPropertyRead(node, context);
+		}
+
+		case 'Literal':
+		case 'UnaryExpression':
+		case 'BinaryExpression':
+		case 'ChainExpression': {
+			return isBoolean(node, context);
 		}
 
 		default: {
-			return isBoolean(node, context);
+			return false;
 		}
 	}
 }
