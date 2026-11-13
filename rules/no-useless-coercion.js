@@ -4,6 +4,7 @@ import {
 	isBoolean,
 	isBooleanTypeInformation,
 	isBuiltinBooleanCallExpression,
+	isBuiltinBooleanPropertyRead,
 	isString,
 	isNumber,
 	isBigInt,
@@ -81,6 +82,12 @@ function canUseBindingType(node, context) {
 	);
 }
 
+function hasStablePropertyReceiver(node, context) {
+	const receiver = unwrapTypeScriptExpression(node.object);
+	return receiver.type === 'ThisExpression'
+		|| (receiver.type === 'Identifier' && canUseBindingType(receiver, context));
+}
+
 function isAwaitingBoolean(node, context) {
 	if (!hasStrictNullChecks(context.sourceCode.parserServices?.program)) {
 		return false;
@@ -93,7 +100,7 @@ function isAwaitingBoolean(node, context) {
 		if (!isUnassignedParameter(variable)) {
 			return false;
 		}
-	} else if (argument.type !== 'MemberExpression') {
+	} else if (argument.type !== 'MemberExpression' || !hasStablePropertyReceiver(argument, context)) {
 		return false;
 	}
 
@@ -112,7 +119,9 @@ function isBooleanLogicalExpression(node, context) {
 	const left = unwrapChainAndTypeScriptExpression(node.left);
 	return node.operator !== '&&'
 		&& hasStrictNullChecks(context.sourceCode.parserServices?.program)
-		&& (left.type === 'MemberExpression' || (left === node.left && left.type === 'Identifier' && canUseBindingType(left, context)))
+		&& (left.type === 'MemberExpression'
+			? hasStablePropertyReceiver(left, context)
+			: left === node.left && left.type === 'Identifier' && canUseBindingType(left, context))
 		&& isBooleanTypeInformation(node, context);
 }
 
@@ -180,6 +189,12 @@ function isBooleanDoubleNegationOperand(node, context) {
 
 		case 'CallExpression': {
 			return isBooleanCall(node, context);
+		}
+
+		case 'MemberExpression': {
+			return isBuiltinBooleanPropertyRead(node, context)
+				|| typeof getStaticValueForControlFlow(node, context)?.value === 'boolean'
+				|| (hasStablePropertyReceiver(node, context) && isBooleanTypeInformation(node, context));
 		}
 
 		default: {

@@ -1625,6 +1625,33 @@ test.snapshot({
 			read();
 		`,
 		'function first(flags: boolean[]) { return flags[0]; } const enabled = !!first([]);',
+		outdent`
+			function read() {
+				let get: (() => {enabled: boolean}) | (() => {enabled: string}) = () => ({enabled: true});
+				const update = () => { get = () => ({enabled: 'ready'}); };
+				update();
+				return !!get().enabled;
+			}
+			read();
+		`,
+		outdent`
+			function read() {
+				let items: number[] | {includes(value: number): string} = [1];
+				const update = () => { items = {includes: () => 'ready'}; };
+				update();
+				return !!items.includes(1);
+			}
+			read();
+		`,
+		outdent`
+			function read() {
+				let pattern: RegExp | {global: string} = /x/g;
+				const update = () => { pattern = {global: 'ready'}; };
+				update();
+				return !!pattern.global;
+			}
+			read();
+		`,
 		'declare const service: {ready(): Promise<boolean>}; async function read() { return !!(await service.ready()); }',
 		'declare const Factory: new () => Promise<boolean>; async function read() { return !!(await new Factory()); }',
 		'function read(flags: {enabled: boolean; [key: string]: boolean}, key: "enabled" | "missing") { return !!flags[key]; } read({enabled: true}, "missing");',
@@ -1668,6 +1695,7 @@ test.snapshot({
 		'function read(flags: {draft: boolean; published: boolean}, key: keyof typeof flags): boolean { return Boolean(flags[key]); }',
 		'function read(flags: [boolean, boolean], key: 0 | 1) { return !!flags[key]; }',
 		'function read(enabled?: boolean) { if (enabled !== undefined) { return !!enabled; } }',
+		'const items = [1]; const enabled = [!!items.includes(1), !!/x/g.global, !!({enabled: true}).enabled];',
 	].map(code => typeAwareBooleanCoercion(code)),
 });
 

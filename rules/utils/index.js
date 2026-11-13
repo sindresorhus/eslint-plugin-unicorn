@@ -139,6 +139,7 @@ export {
 	isBooleanTypeAnnotation,
 	isBooleanTypeInformation,
 	isBuiltinBooleanCallExpression,
+	isBuiltinBooleanPropertyRead,
 	isKnownBooleanFunctionReference,
 } from './is-boolean.js';
 export {default as isBigInt, isKnownNonBigInt} from './is-bigint.js';

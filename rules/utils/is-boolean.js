@@ -1,4 +1,6 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
+import typedArray from '../shared/typed-array.js';
+import getConstVariableInitializer from './get-const-variable-initializer.js';
 import {getStaticValueForControlFlow} from './get-static-value.js';
 import {getFunctionReturnExpression} from './function-body.js';
 import {hasStrictNullChecks, isOptionalSymbol, withTypeInformation} from './types.js';
@@ -637,6 +639,10 @@ function getKnownConstructorExpressionKind(node, context) {
 		return 'regexp';
 	}
 
+	if (node.callee.name === 'Array' || typedArray.includes(node.callee.name)) {
+		return 'array';
+	}
+
 	if (['Map', 'WeakMap', 'URLSearchParams', 'Headers', 'FormData'].includes(node.callee.name)) {
 		return 'keyedCollection';
 	}
@@ -647,6 +653,30 @@ function getKnownConstructorExpressionKind(node, context) {
 
 	if (node.callee.name === 'WeakSet') {
 		return 'weakSet';
+	}
+}
+
+// Use runtime syntax for new checks, since TypeScript can keep a receiver narrowed after it changes.
+function getDirectBuiltinReceiver(node, context) {
+	node = unwrapTypeScriptExpression(node);
+	if (!node) {
+		return;
+	}
+
+	const initializer = getConstVariableInitializer(node, context);
+	if (initializer) {
+		const {sourceCode} = context;
+		return sourceCode.getRange(initializer)[1] <= sourceCode.getRange(node)[0]
+			? getDirectBuiltinReceiver(initializer, context)
+			: undefined;
+	}
+
+	if (
+		['ArrayExpression', 'TemplateLiteral'].includes(node.type)
+		|| (node.type === 'Literal' && getKnownLiteralExpressionKind(node))
+		|| (node.type === 'NewExpression' && getKnownConstructorExpressionKind(node, context))
+	) {
+		return node;
 	}
 }
 
@@ -763,36 +793,41 @@ function isKnownBooleanFunctionReference(node, context) {
 	return Boolean(methods?.has(method));
 }
 
-function isKnownBooleanInstanceMethodCall(node, context) {
-	if (node.callee.type !== 'MemberExpression') {
+function isKnownBooleanInstanceMethodCall(callee, receiver, context) {
+	if (callee.type !== 'MemberExpression' || !receiver) {
 		return false;
 	}
 
-	const method = getStablePropertyName(node.callee, context);
+	const method = getStablePropertyName(callee, context);
 	if (method === 'delete') {
-		return isMutableKeyedCollection(node.callee.object, context);
+		return isMutableKeyedCollection(receiver, context);
 	}
 
-	const methods = booleanMethodsByExpressionKind.get(getKnownExpressionKind(node.callee.object, context));
+	const methods = booleanMethodsByExpressionKind.get(getKnownExpressionKind(receiver, context));
 	return Boolean(methods?.has(method));
 }
 
-function isKnownBooleanPropertyRead(node, context) {
+function isKnownBooleanPropertyRead(node, receiver, context) {
 	if (
 		node.type !== 'MemberExpression'
 		|| node.optional
+		|| !receiver
 	) {
 		return false;
 	}
 
-	const properties = booleanPropertiesByExpressionKind.get(getKnownExpressionKind(node.object, context));
+	const properties = booleanPropertiesByExpressionKind.get(getKnownExpressionKind(receiver, context));
 	const property = getStablePropertyName(node, context);
 	return Boolean(properties?.has(property));
 }
 
 function isBuiltinBooleanCallExpression(node, context) {
 	return isKnownBooleanFunctionReference(node.callee, context)
-		|| isKnownBooleanInstanceMethodCall(node, context);
+		|| isKnownBooleanInstanceMethodCall(node.callee, getDirectBuiltinReceiver(node.callee.object, context), context);
+}
+
+function isBuiltinBooleanPropertyRead(node, context) {
+	return isKnownBooleanPropertyRead(node, getDirectBuiltinReceiver(node.object, context), context);
 }
 
 function isBooleanExpressionBySyntax(node, context, visitedVariables) {
@@ -826,13 +861,14 @@ function isBooleanExpressionBySyntax(node, context, visitedVariables) {
 		}
 
 		case 'CallExpression': {
-			return isBuiltinBooleanCallExpression(node, context)
+			return isKnownBooleanFunctionReference(node.callee, context)
+				|| isKnownBooleanInstanceMethodCall(node.callee, node.callee.object, context)
 				|| isBooleanFunctionReference(node.callee, context, visitedVariables)
 				|| isBooleanTypeInformation(node, context);
 		}
 
 		case 'MemberExpression': {
-			return isKnownBooleanPropertyRead(node, context) || undefined;
+			return isKnownBooleanPropertyRead(node, node.object, context) || undefined;
 		}
 
 		default: {
@@ -874,6 +910,7 @@ export {
 	isBooleanFunctionReference,
 	isBooleanFunctionTypeAnnotation,
 	isBuiltinBooleanCallExpression,
+	isBuiltinBooleanPropertyRead,
 	isKnownBooleanFunctionReference,
 	isBooleanTypeAnnotation,
 	isBooleanTypeInformation,
