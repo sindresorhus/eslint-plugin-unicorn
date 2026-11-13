@@ -15,7 +15,7 @@ const isObjectOfMemberExpression = node =>
 /**
 Replace `node` with one of its inner `expression`s.
 
-Parentheses are added when `expression` needs them to keep its meaning in `node`'s position. A leading semicolon prevents automatic semicolon insertion hazards, and a leading space keeps adjacent punctuation from merging into a different token.
+Parentheses are added when `expression` needs them to keep its meaning in `node`'s position. A leading semicolon prevents automatic semicolon insertion hazards, and spaces keep adjacent punctuation from merging into a different token.
 
 No fix is returned for a `delete` operand, since exposing an inner reference can delete a property instead of evaluating its value.
 
@@ -54,6 +54,15 @@ export default function replaceNodeWithExpression(fixer, node, expression, conte
 		&& !canTokensBeAdjacent(tokenBefore, text)
 	) {
 		text = ` ${text}`;
+	}
+
+	const tokenAfter = sourceCode.getTokenAfter(node);
+	if (
+		tokenAfter?.type === 'Punctuator'
+		&& sourceCode.getRange(tokenAfter)[0] === sourceCode.getRange(node)[1]
+		&& !canTokensBeAdjacent(text, tokenAfter)
+	) {
+		text += ' ';
 	}
 
 	return fixer.replaceText(node, text);

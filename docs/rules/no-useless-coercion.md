@@ -15,7 +15,7 @@ This includes redundant double coercion, like `String(String(value))`, and coerc
 
 It also flags the equivalent operator idioms when the value is already the target type: `!!value` (boolean), `+value` (number), `value + ''` and `'' + value` (string), and `value.toString()` (string).
 
-The rule recognizes common cases from syntax and uses TypeScript types when available, including the return types of calls. With `strictNullChecks`, it can also recognize boolean results from `??`, `||`, and some `await` expressions. It can leave `!!` in place for unchecked array reads and nested property reads.
+The rule recognizes common cases from syntax and uses TypeScript types when available. With `strictNullChecks`, it can also use inferred call results and recognize boolean results from `??`, `||`, and some `await` expressions. It can leave `!!` in place for imported bindings, unchecked array reads, and nested property reads.
 
 The rule suggests removing `!!` because removal can change inferred types in TypeScript and in JavaScript checked by TypeScript. It skips this check in files with `with` statements or direct `eval` calls.
 

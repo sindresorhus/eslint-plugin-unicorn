@@ -43,7 +43,7 @@ function isUnsafeNumericDotLeft(value) {
 Checks whether `left` and `right` can be placed directly next to each other without the last character of `left` and the first character of `right` merging into a token that changes the meaning of the code (for example two identifiers becoming one, `+` and `+` becoming `++`, or `2` and `.2` becoming `2.2`).
 
 This is a lightweight, character-boundary check, not a full tokenizer, inspired by ESLint's own (more thorough) `canTokensBeAdjacent`: https://github.com/eslint/eslint/blob/b23015955c8d6e6516076190730f538c86927f26/lib/rules/utils/ast-utils.js#L2522-L2529
-It only guards against the adjacency hazards that come up when building fixer replacement text in this codebase: identifiers/keywords/numbers merging, `+`/`-` doubling into `++`/`--`, a numeric literal absorbing a following decimal point, and a `/` being swallowed into a following comment. It intentionally doesn't try to detect hazards that require a real tokenizer, like an already-open `//` comment inside `left`, or malformed token text.
+It only guards against the adjacency hazards that come up when building fixer replacement text in this codebase: identifiers/keywords/numbers merging, `+`/`-` doubling into `++`/`--`, a TypeScript non-null assertion merging with `=`, a numeric literal absorbing a following decimal point, and a `/` being swallowed into a following comment. It intentionally doesn't try to detect hazards that require a real tokenizer, like an already-open `//` comment inside `left`, or malformed token text.
 
 @param {ESLint.AST.Token | string} left - The left token or text.
 @param {ESLint.AST.Token | string} right - The right token or text.
@@ -80,6 +80,7 @@ export default function canTokensBeAdjacent(left, right) {
 	if (
 		(lastCharacter === '+' && firstCharacter === '+')
 		|| (lastCharacter === '-' && firstCharacter === '-')
+		|| (lastCharacter === '!' && firstCharacter === '=')
 	) {
 		return false;
 	}

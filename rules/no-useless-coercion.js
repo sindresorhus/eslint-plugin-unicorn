@@ -3,6 +3,7 @@ import {getStaticStringValue, isDirectEvalCall, isFunction} from './ast/index.js
 import {
 	isBoolean,
 	isBooleanTypeInformation,
+	isKnownBooleanCallExpression,
 	isString,
 	isNumber,
 	isBigInt,
@@ -72,11 +73,10 @@ function canUseBindingType(node, context) {
 		return true;
 	}
 
-	// The checker can infer `boolean` for an alias of an unchecked read.
+	// The checker can infer `boolean` for an alias of an unchecked read or narrow a live import.
 	const [definition] = definitions;
 	return definitions.length === 1 && (
 		isUnassignedParameter(variable)
-		|| definition.type === 'ImportBinding'
 		|| (definition.type === 'Variable' && definition.parent.declare)
 	);
 }
@@ -126,6 +126,19 @@ function isBooleanBinding(node, context) {
 	return canUseBindingType(node, context) && isBoolean(node, context);
 }
 
+function isBooleanCall(node, context) {
+	const {callee} = node;
+	if (isFunction(callee) && callee.params.length === 0) {
+		const expression = getFunctionReturnExpression(callee);
+		return !callee.async && !callee.generator && expression !== undefined && isBooleanDoubleNegationOperand(expression, context);
+	}
+
+	// Without strict null checks, an inferred call result can hide a nullable return type.
+	return hasStrictNullChecks(context.sourceCode.parserServices?.program)
+		? isBoolean(node, context)
+		: isKnownBooleanCallExpression(node, context);
+}
+
 function isBooleanDoubleNegationOperand(node, context) {
 	node = unwrapTypeScriptExpression(node);
 
@@ -165,18 +178,14 @@ function isBooleanDoubleNegationOperand(node, context) {
 			return isBooleanDoubleNegationOperand(node.argument, context) || isAwaitingBoolean(node, context);
 		}
 
+		case 'CallExpression': {
+			return isBooleanCall(node, context);
+		}
+
 		default: {
-			break;
+			return isBoolean(node, context);
 		}
 	}
-
-	if (node.type === 'CallExpression' && isFunction(node.callee) && node.callee.params.length === 0) {
-		const {callee} = node;
-		const expression = getFunctionReturnExpression(callee);
-		return !callee.async && !callee.generator && expression !== undefined && isBooleanDoubleNegationOperand(expression, context);
-	}
-
-	return isBoolean(node, context);
 }
 
 /**

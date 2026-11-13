@@ -227,12 +227,12 @@ function hasBooleanType(node, context) {
 }
 
 function isBooleanTypeInformation(node, context) {
+	const {sourceCode} = context;
 	if (!hasBooleanType(node, context)) {
 		return false;
 	}
 
 	const operand = node.type === 'AwaitExpression' ? node.argument : node;
-	const {sourceCode} = context;
 	const binding = operand.type === 'LogicalExpression' ? unwrapChainAndTypeScriptExpression(operand.left) : operand;
 	if (binding.type === 'Identifier') {
 		const variable = findVariable(sourceCode.getScope(binding), binding);
@@ -240,14 +240,13 @@ function isBooleanTypeInformation(node, context) {
 		if (variable?.references.some(reference => reference.isWrite() && reference.from.variableScope !== variable.scope.variableScope)) {
 			return false;
 		}
-	}
 
-	if (operand.type === 'Identifier' && !hasStrictNullChecks(sourceCode.parserServices?.program)) {
-		const variable = findVariable(sourceCode.getScope(operand), operand);
-		const annotation = getJSDocumentTypeAnnotation(operand, context);
-		// Loose checker types can erase nullability from explicit annotations.
-		return !variable?.defs.some(({name}) => name.optional || hasNullishTypeAnnotation(name.typeAnnotation, context))
-			&& !(annotation && getJSDocumentBooleanState(annotation, {allowNullish: true}) === 'boolean');
+		if (binding === operand && !hasStrictNullChecks(sourceCode.parserServices?.program)) {
+			const annotation = getJSDocumentTypeAnnotation(binding, context);
+			// Loose checker types can erase nullability from explicit annotations.
+			return !variable?.defs.some(({name}) => name.optional || hasNullishTypeAnnotation(name.typeAnnotation, context))
+				&& !(annotation && getJSDocumentBooleanState(annotation, {allowNullish: true}) === 'boolean');
+		}
 	}
 
 	return binding.type !== 'MemberExpression'
@@ -791,16 +790,10 @@ function isKnownBooleanPropertyRead(node, context) {
 	return Boolean(properties?.has(property));
 }
 
-function isBooleanCallExpression(node, context, visitedVariables) {
-	if (
-		isKnownBooleanFunctionReference(node.callee, context)
+function isKnownBooleanCallExpression(node, context, visitedVariables) {
+	return isKnownBooleanFunctionReference(node.callee, context)
 		|| isKnownBooleanInstanceMethodCall(node, context)
-	) {
-		return true;
-	}
-
-	return isBooleanFunctionReference(node.callee, context, visitedVariables)
-		|| isBooleanTypeInformation(node, context);
+		|| isBooleanFunctionReference(node.callee, context, visitedVariables);
 }
 
 function isBooleanExpressionBySyntax(node, context, visitedVariables) {
@@ -834,7 +827,8 @@ function isBooleanExpressionBySyntax(node, context, visitedVariables) {
 		}
 
 		case 'CallExpression': {
-			return isBooleanCallExpression(node, context, visitedVariables);
+			return isKnownBooleanCallExpression(node, context, visitedVariables)
+				|| isBooleanTypeInformation(node, context);
 		}
 
 		case 'MemberExpression': {
@@ -879,6 +873,7 @@ export {
 	isBooleanFunction,
 	isBooleanFunctionReference,
 	isBooleanFunctionTypeAnnotation,
+	isKnownBooleanCallExpression,
 	isKnownBooleanFunctionReference,
 	isBooleanTypeAnnotation,
 	isBooleanTypeInformation,

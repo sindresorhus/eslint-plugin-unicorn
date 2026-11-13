@@ -136,9 +136,10 @@ export {
 	isBooleanFunction,
 	isBooleanFunctionReference,
 	isBooleanFunctionTypeAnnotation,
-	isKnownBooleanFunctionReference,
 	isBooleanTypeAnnotation,
 	isBooleanTypeInformation,
+	isKnownBooleanCallExpression,
+	isKnownBooleanFunctionReference,
 } from './is-boolean.js';
 export {default as isBigInt, isKnownNonBigInt} from './is-bigint.js';
 export {default as isConstEnumReference} from './is-const-enum-reference.js';

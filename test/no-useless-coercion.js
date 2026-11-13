@@ -1396,6 +1396,7 @@ test.snapshot({
 			'function read(enabled: boolean | undefined) { return !!enabled; } read(undefined);',
 			'type MaybeBoolean = boolean | null; function read(enabled: MaybeBoolean) { return !!enabled; } read(null);',
 			'function read(flags: {enabled: boolean | undefined}) { return !!flags.enabled; } read({enabled: undefined});',
+			'function read(): boolean | undefined { return undefined; } const enabled = !!read();',
 		].map(code => ({
 			code,
 			filename: 'test/fixtures/prefer-path2d/dummy.ts',
@@ -1454,16 +1455,29 @@ test.snapshot({
 
 test({
 	valid: [],
-	invalid: [{
-		code: 'const quotient = 8/!!/x/.test(value);',
-		errors: [{
-			messageId: 'no-useless-coercion',
-			suggestions: [{
-				messageId: 'remove-double-negation',
-				output: 'const quotient = 8/ /x/.test(value);',
+	invalid: [
+		{
+			code: 'const quotient = 8/!!/x/.test(value);',
+			errors: [{
+				messageId: 'no-useless-coercion',
+				suggestions: [{
+					messageId: 'remove-double-negation',
+					output: 'const quotient = 8/ /x/.test(value);',
+				}],
 			}],
-		}],
-	}],
+		},
+		{
+			code: 'function read(flag: boolean) { return !(!flag!)==true; }',
+			languageOptions: {parser: parsers.typescript},
+			errors: [{
+				messageId: 'no-useless-coercion',
+				suggestions: [{
+					messageId: 'remove-double-negation',
+					output: 'function read(flag: boolean) { return flag! ==true; }',
+				}],
+			}],
+		},
+	],
 });
 
 nodeTest('nullable JSDoc boolean parameters still need coercion with strict null checks disabled', t => {
@@ -1598,6 +1612,16 @@ test.snapshot({
 		'async function read(promises: Promise<boolean>[], pending: Promise<boolean>) { pending = promises[0]; return !!(await pending); }',
 		'function read(flags: {enabled: boolean; [key: string]: boolean}, key: "enabled" | "missing") { return !!flags[key]; } read({enabled: true}, "missing");',
 		'function read(flags: {enabled: boolean}, keys: "enabled"[]) { const key = keys[0]; return !!flags[key]; } read({enabled: true}, []);',
+		outdent`
+			import {enabled, reset} from '../no-useless-coercion/state.js';
+			function read() {
+				if (enabled !== undefined) {
+					reset();
+					return !!enabled;
+				}
+			}
+			read();
+		`,
 		outdent`
 			function read(flags: {enabled: boolean; [key: string]: boolean}, key: 'enabled' | 'missing') {
 				function change() {
