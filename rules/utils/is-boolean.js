@@ -1,5 +1,5 @@
 import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
-import getStaticValueIfNoSideEffects, {getStaticValueForControlFlow} from './get-static-value.js';
+import {getStaticValueForControlFlow} from './get-static-value.js';
 import {getFunctionReturnExpression} from './function-body.js';
 import {hasStrictNullChecks, isOptionalSymbol, withTypeInformation} from './types.js';
 import {getJSDocumentTypeAnnotation, getJSDocumentReturnType, hasNativeTypeAssertion} from './jsdoc-type.js';
@@ -98,7 +98,7 @@ const isBooleanStaticValue = (node, context) => {
 	}
 
 	return !nonBooleanStaticValueTypes.has(node.type)
-		&& typeof getStaticValueIfNoSideEffects(node, context)?.value === 'boolean'
+		&& typeof getStaticValueForControlFlow(node, context)?.value === 'boolean'
 		&& !hasJSDocumentTypeReference(node, context);
 };
 
@@ -195,6 +195,15 @@ function isBooleanTypeInformation(node, context) {
 
 	const operand = node.type === 'AwaitExpression' ? node.argument : node;
 	const {sourceCode} = context;
+	const binding = operand.type === 'LogicalExpression' ? operand.left : operand;
+	if (binding.type === 'Identifier') {
+		const variable = findVariable(sourceCode.getScope(binding), binding);
+		// TypeScript can retain a narrowed type across a call that writes to the binding.
+		if (variable?.references.some(reference => reference.isWrite() && reference.from.variableScope !== variable.scope.variableScope)) {
+			return false;
+		}
+	}
+
 	if (operand.type === 'Identifier' && !hasStrictNullChecks(sourceCode.parserServices?.program)) {
 		const variable = findVariable(sourceCode.getScope(operand), operand);
 		const annotation = getJSDocumentTypeAnnotation(operand, context);

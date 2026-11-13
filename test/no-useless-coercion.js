@@ -1518,6 +1518,8 @@ test.snapshot({
 		'interface Flags { [key: string]: boolean } function read(flags: Flags) { return !!flags.enabled; } read({});',
 		'function read(flags: {enabled: boolean} | Record<string, boolean>) { return !!flags.enabled; } read({});',
 		'function read(enabled: boolean | undefined, flags: boolean[]) { return !!(enabled ?? flags[0]); } read(undefined, []);',
+		'function read(value: false | "") { const change = () => { value = ""; }; if (value === false) { change(); return !!(value ?? false); } }',
+		'function read(value: boolean | "present" | undefined) { const change = () => { value = "present"; }; if (value === undefined) { change(); return !!(value || false); } }',
 		'async function read(promises: Promise<boolean>[]) { return !!(await promises[0]); } read([]);',
 		'async function read(promises: Record<string, Promise<boolean>>) { return !!(await promises.enabled); } read({});',
 		'function read(flags: {enabled: boolean; [key: string]: boolean}, key: "enabled" | "missing") { return !!flags[key]; } read({enabled: true}, "missing");',
@@ -1559,6 +1561,9 @@ test.snapshot({
 		'const ready = !!(0 ?? (a === b));',
 		'const ready = !!(enabled ? (a === b) : 1);',
 		'let enabled = 1; enabled = 0; const ready = !!(enabled && (a === b));',
+		'export function read() { const ready = !!(flag ? true : undefined); var flag = true; return ready; }',
+		'export function read() { const ready = !!(flag ?? 7); var flag = true; return ready; }',
+		'let flag = 1; eval("flag = 0"); export const ready = !!(flag && true);',
 		...[
 			'const enabled = 1; with ({enabled: 0}) { const ready = !!(enabled && /x/.test(value)); }',
 			'const enabled = 1; function read(value) { eval("var enabled = 0"); return !!(enabled && /x/.test(value)); }',

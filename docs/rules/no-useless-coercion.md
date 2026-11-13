@@ -19,7 +19,7 @@ The rule recognizes common cases from syntax and uses TypeScript type informatio
 
 In modules, the `!!` check also recognizes short-circuit and conditional expressions when static evaluation can determine which operand supplies the boolean result.
 
-The `!!` check skips scripts with `with` statements or direct `eval` calls because they can change how identifiers resolve.
+The `!!` check skips files with `with` statements or direct `eval` calls because they can change how identifiers resolve or what values they hold.
 
 With TypeScript type information and `strictNullChecks` enabled, the `!!` check also recognizes boolean results from `??`, `||`, and `await` on variables, property reads, and calls.
 
@@ -29,7 +29,7 @@ For a direct optional chain, the rule requires static evaluation to prove the re
 
 A plain `yield` expression can receive `undefined` from `.next()`. For indexed reads that rely on TypeScript, every possible key must identify a declared property, such as a tuple element.
 
-The `!!` check can inspect simple `const` initializers that occur before the reference. For values inferred through calls or nested expressions, it relies on syntax and the available TypeScript types.
+The `!!` check can inspect simple `const` initializers that occur before the reference. It skips type narrowing for bindings that a nested function can assign. For values inferred through calls or nested expressions, it relies on syntax and the available TypeScript types.
 
 In TypeScript, `Boolean()` calls inside functions without explicit return annotations are ignored because removing them can introduce inferred type predicates.
 

@@ -103,8 +103,7 @@ function isBooleanDoubleNegationOperand(node, context) {
 const create = context => {
 	const {sourceCode} = context;
 	const isTypeScript = isTypeScriptFile(context.physicalFilename) || Boolean(sourceCode.parserServices?.esTreeNodeToTSNodeMap);
-	const hasDynamicBindings = sourceCode.ast.sourceType !== 'module'
-		&& containsNode(sourceCode.ast, context, node => node.type === 'WithStatement' || isDirectEvalCall(node));
+	const hasDynamicBindings = containsNode(sourceCode.ast, context, node => node.type === 'WithStatement' || isDirectEvalCall(node));
 
 	// Build a problem that removes the coercion `node` in favor of its inner `expression`.
 	const getProblem = (node, expression, description, type) => ({
