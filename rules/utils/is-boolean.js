@@ -2,6 +2,7 @@ import {findVariable, getPropertyName} from '@eslint-community/eslint-utils';
 import {getStaticValueForControlFlow} from './get-static-value.js';
 import {getFunctionReturnExpression} from './function-body.js';
 import {hasStrictNullChecks, isOptionalSymbol, withTypeInformation} from './types.js';
+import {isUnassignedParameter} from './scope.js';
 import {getJSDocumentTypeAnnotation, getJSDocumentReturnType, hasNativeTypeAssertion} from './jsdoc-type.js';
 import {getJSDocumentBooleanState} from './get-jsdoc-boolean-state.js';
 import {
@@ -123,25 +124,40 @@ const {isKnownNonTarget: isKnownNonBoolean} = createTypeCheckers({
 	isTargetType: isBooleanTypeScriptType,
 });
 
+function getStablePropertyName(node, context) {
+	if (!node.computed) {
+		return getPropertyName(node) ?? undefined;
+	}
+
+	const value = getStaticValueForControlFlow(node.property, context)?.value;
+	if (typeof value === 'string' || typeof value === 'number') {
+		return String(value);
+	}
+}
+
 function getTypeScriptPropertyNames(node, context, checker, strictNullChecks) {
 	const {sourceCode} = context;
-	if (!node.computed || getStaticValueForControlFlow(node.property, context) !== undefined) {
-		const name = getPropertyName(node, sourceCode.getScope(node));
-		return name === null ? undefined : [name];
+	const name = getStablePropertyName(node, context);
+	if (name !== undefined) {
+		return [name];
 	}
 
 	if (!strictNullChecks || node.property.type !== 'Identifier') {
 		return;
 	}
 
-	// TypeScript can preserve a narrowed key type across a call that changes the binding.
-	const {getTypeAtLocation, esTreeNodeToTSNodeMap} = sourceCode.parserServices;
-	const keyType = getTypeAtLocation(node.property);
-	const key = checker.getSymbolAtLocation(esTreeNodeToTSNodeMap.get(node.property));
-	if (!key || checker.getTypeOfSymbol(key) !== keyType) {
+	// Use the type only for keys supplied by the caller. An unchecked read can infer a literal key type.
+	const variable = findVariable(sourceCode.getScope(node.property), node.property);
+	if (!isUnassignedParameter(variable)) {
 		return;
 	}
 
+	const key = checker.getSymbolAtLocation(sourceCode.parserServices.esTreeNodeToTSNodeMap.get(node.property));
+	if (!key) {
+		return;
+	}
+
+	const keyType = checker.getTypeOfSymbol(key);
 	const keyTypes = keyType.isUnion() ? keyType.types : [keyType];
 	if (keyTypes.every(type => type.isStringLiteral() || type.isNumberLiteral())) {
 		return keyTypes.map(type => String(type.value));
@@ -187,10 +203,14 @@ function hasBooleanPropertyType(expression, operand, context, {checker, program}
 
 	// An unchecked index signature can describe a property that is missing at runtime.
 	const {getTypeAtLocation, esTreeNodeToTSNodeMap} = sourceCode.parserServices;
-	const receiver = operand.object.type === 'Identifier'
-		? checker.getSymbolAtLocation(esTreeNodeToTSNodeMap.get(operand.object))
-		: undefined;
-	let receiverType = receiver ? checker.getTypeOfSymbol(receiver) : getTypeAtLocation(operand.object);
+	const receiver = unwrapTypeScriptExpression(operand.object);
+	// TypeScript can keep a nested receiver narrowed after a call changes it.
+	if (receiver.type === 'MemberExpression' || receiver.type === 'ChainExpression') {
+		return false;
+	}
+
+	const symbol = receiver.type === 'Identifier' ? checker.getSymbolAtLocation(esTreeNodeToTSNodeMap.get(receiver)) : undefined;
+	let receiverType = symbol ? checker.getTypeOfSymbol(symbol) : getTypeAtLocation(receiver);
 	if (hasFallback) {
 		receiverType = checker.getNonNullableType(receiverType);
 	}
@@ -740,7 +760,7 @@ function isKnownBooleanFunctionReference(node, context) {
 	}
 
 	const methods = node.object.name === 'globalThis' ? booleanGlobalFunctions : booleanStaticMethods.get(node.object.name);
-	const method = getPropertyName(node, context.sourceCode.getScope(node));
+	const method = getStablePropertyName(node, context);
 	return Boolean(methods?.has(method));
 }
 
@@ -749,7 +769,7 @@ function isKnownBooleanInstanceMethodCall(node, context) {
 		return false;
 	}
 
-	const method = getPropertyName(node.callee, context.sourceCode.getScope(node.callee));
+	const method = getStablePropertyName(node.callee, context);
 	if (method === 'delete') {
 		return isMutableKeyedCollection(node.callee.object, context);
 	}
@@ -767,7 +787,7 @@ function isKnownBooleanPropertyRead(node, context) {
 	}
 
 	const properties = booleanPropertiesByExpressionKind.get(getKnownExpressionKind(node.object, context));
-	const property = getPropertyName(node, context.sourceCode.getScope(node));
+	const property = getStablePropertyName(node, context);
 	return Boolean(properties?.has(property));
 }
 

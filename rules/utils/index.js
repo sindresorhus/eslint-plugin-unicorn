@@ -204,6 +204,7 @@ export {
 } from './imports.js';
 export {
 	isDefinitionBeforeReference,
+	isUnassignedParameter,
 } from './scope.js';
 export {
 	getBaseTypes,

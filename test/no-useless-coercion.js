@@ -1405,6 +1405,14 @@ test.snapshot({
 			},
 		})),
 		'function read(globalThis) { return !!globalThis.Boolean(value); }',
+		outdent`
+			const method = 'toString';
+			const alias = method;
+			function read() {
+				const method = 'test';
+				return !!/x/[alias]('x');
+			}
+		`,
 		'const ready = !!(async () => true)();',
 		'const ready = !!(function* () { return true; })();',
 		{
@@ -1513,6 +1521,12 @@ test.snapshot({
 		'function* read(): Generator<number, boolean, boolean> { return Boolean(yield 1); }',
 		'function read(flags: boolean[]) { return !!flags[0]; } read([]);',
 		'function read(flags: boolean[]) { const enabled = flags[0]; return !!enabled; } read([]);',
+		'function read(flags: boolean[]) { let enabled = flags[0]; return !!enabled; } read([]);',
+		'function read(flags: boolean[]) { const [enabled] = flags; return !!enabled; } read([]);',
+		'function read([enabled]: boolean[]) { return !!enabled; } read([]);',
+		'function read(flags: boolean[], enabled = flags[0]) { return !!enabled; } read([]);',
+		'function read(flags: boolean[], pick: boolean) { const [enabled] = flags; return !!(pick ? enabled : false); } read([], true);',
+		'function read(flags: boolean[]) { let enabled = flags[0]; return !!(enabled ?? enabled); } read([]);',
 		'function read(flags: boolean[]) { function get() { return !!enabled; } const enabled = flags[0]; return get(); } read([]);',
 		'function read(flags: Record<string, boolean>) { return !!flags.enabled; } read({});',
 		'interface Flags { [key: string]: boolean } function read(flags: Flags) { return !!flags.enabled; } read({});',
@@ -1524,6 +1538,17 @@ test.snapshot({
 		'async function read(promises: Record<string, Promise<boolean>>) { return !!(await promises.enabled); } read({});',
 		'function read(flags: {enabled?: boolean}) { if (flags.enabled !== undefined) { return !!flags.enabled; } }',
 		'function read(flags: {enabled?: boolean}) { return !!(flags.enabled! ?? undefined); } read({});',
+		outdent`
+			type Flags = {kind: 'boolean'; enabled: boolean} | {kind: 'string'; enabled: string};
+			function read(box: {flags: Flags}) {
+				const update = () => { box.flags = {kind: 'string', enabled: 'ready'}; };
+				if (box.flags.kind === 'boolean') {
+					update();
+					return !!box.flags.enabled;
+				}
+			}
+			read({flags: {kind: 'boolean', enabled: true}});
+		`,
 		outdent`
 			type Flags = {kind: 'boolean'; enabled: boolean} | {kind: 'string'; enabled: string};
 			function read(flags: Flags) {
@@ -1572,6 +1597,7 @@ test.snapshot({
 		'async function read(promises: Promise<boolean>[], pending = promises[0]) { return !!(await pending); } read([]);',
 		'async function read(promises: Promise<boolean>[], pending: Promise<boolean>) { pending = promises[0]; return !!(await pending); }',
 		'function read(flags: {enabled: boolean; [key: string]: boolean}, key: "enabled" | "missing") { return !!flags[key]; } read({enabled: true}, "missing");',
+		'function read(flags: {enabled: boolean}, keys: "enabled"[]) { const key = keys[0]; return !!flags[key]; } read({enabled: true}, []);',
 		outdent`
 			function read(flags: {enabled: boolean; [key: string]: boolean}, key: 'enabled' | 'missing') {
 				function change() {

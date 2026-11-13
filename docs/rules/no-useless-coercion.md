@@ -15,27 +15,11 @@ This includes redundant double coercion, like `String(String(value))`, and coerc
 
 It also flags the equivalent operator idioms when the value is already the target type: `!!value` (boolean), `+value` (number), `value + ''` and `'' + value` (string), and `value.toString()` (string).
 
-The rule recognizes common cases from syntax and uses TypeScript type information when available.
+The rule recognizes common cases from syntax and uses TypeScript types when available, including the return types of calls. With `strictNullChecks`, it can also recognize boolean results from `??`, `||`, and some `await` expressions. It can leave `!!` in place for unchecked array reads and nested property reads.
 
-In modules, the `!!` check also recognizes short-circuit and conditional expressions when static evaluation can determine which operand supplies the boolean result.
-
-The `!!` check skips files with `with` statements or direct `eval` calls because they can change how identifiers resolve or what values they hold.
-
-With TypeScript type information and `strictNullChecks` enabled, the `!!` check also recognizes boolean results from `??` and `||`. For `await`, it checks plain parameters with no default or reassignment, direct property reads, and calls.
-
-Without strict null checks, the rule uses the source annotations of directly typed bindings and properties to check for nullable booleans.
-
-For a direct optional chain, the rule requires static evaluation to prove the result is boolean. An optional chain can return `undefined` even with a TypeScript non-null assertion.
-
-A plain `yield` expression can receive `undefined` from `.next()`. For indexed reads that rely on TypeScript, every possible key must identify a declared property, such as a tuple element.
-
-For property reads, the rule checks the declared type because a call can invalidate TypeScript’s narrowing. A `??` or `||` fallback can handle a missing property when its declared values are otherwise boolean.
-
-The `!!` check can inspect simple `const` initializers that occur before the reference. It skips type narrowing for bindings that a nested function can assign. For values inferred through calls or nested expressions, it relies on syntax and the available TypeScript types.
+The rule suggests removing `!!` because removal can change inferred types in TypeScript and in JavaScript checked by TypeScript. It skips this check in files with `with` statements or direct `eval` calls.
 
 In TypeScript, `Boolean()` calls inside functions without explicit return annotations are ignored because removing them can introduce inferred type predicates.
-
-Removing `!!` can change the inferred type in TypeScript and in JavaScript checked by TypeScript, so the rule offers a suggestion for this case.
 
 For redundant wrapper callbacks like `array.map(x => String(x))`, see [`prefer-native-coercion-functions`](./prefer-native-coercion-functions.md). For `Boolean()` casts inside array predicate callbacks, see [`no-useless-boolean-cast`](./no-useless-boolean-cast.md).
 

@@ -8,6 +8,7 @@ import {
 	isBigInt,
 	isGlobalIdentifier,
 	isTypeScriptFile,
+	isUnassignedParameter,
 	getEnclosingFunction,
 	getFunctionReturnExpression,
 	getConstVariableInitializer,
@@ -15,6 +16,7 @@ import {
 	getStaticValueForControlFlow,
 	hasStrictNullChecks,
 	containsNode,
+	unwrapChainAndTypeScriptExpression,
 	unwrapTypeScriptExpression,
 	wouldRemoveComments,
 } from './utils/index.js';
@@ -63,17 +65,32 @@ function getStaticallySelectedOperand(node, context) {
 	return selectsRight ? node.right : node.left;
 }
 
+function canUseBindingType(node, context) {
+	const variable = findVariable(context.sourceCode.getScope(node), node);
+	const definitions = variable?.defs ?? [];
+	if (definitions.length === 0) {
+		return true;
+	}
+
+	// The checker can infer `boolean` for an alias of an unchecked read.
+	const [definition] = definitions;
+	return definitions.length === 1 && (
+		isUnassignedParameter(variable)
+		|| definition.type === 'ImportBinding'
+		|| (definition.type === 'Variable' && definition.parent.declare)
+	);
+}
+
 function isAwaitingBoolean(node, context) {
+	if (!hasStrictNullChecks(context.sourceCode.parserServices?.program)) {
+		return false;
+	}
+
 	const {argument} = node;
 	if (argument.type === 'Identifier') {
 		// Trust only direct parameters whose values come from the caller.
 		const variable = findVariable(context.sourceCode.getScope(argument), argument);
-		const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
-		if (
-			definition?.type !== 'Parameter'
-			|| !definition.node.params.includes(definition.name)
-			|| variable.references.some(reference => reference.isWrite())
-		) {
+		if (!isUnassignedParameter(variable)) {
 			return false;
 		}
 	} else if (!['MemberExpression', 'CallExpression', 'NewExpression'].includes(argument.type)) {
@@ -83,12 +100,74 @@ function isAwaitingBoolean(node, context) {
 	return isBooleanTypeInformation(node, context);
 }
 
-function isBooleanDoubleNegationOperand(node, context) {
-	node = unwrapTypeScriptExpression(node);
+function isBooleanLogicalExpression(node, context) {
+	if (!isBooleanDoubleNegationOperand(node.right, context)) {
+		return false;
+	}
+
+	if (isBooleanDoubleNegationOperand(node.left, context)) {
+		return true;
+	}
+
+	const left = unwrapChainAndTypeScriptExpression(node.left);
+	return node.operator !== '&&'
+		&& hasStrictNullChecks(context.sourceCode.parserServices?.program)
+		&& (left.type === 'MemberExpression' || (left === node.left && left.type === 'Identifier' && canUseBindingType(left, context)))
+		&& isBooleanTypeInformation(node, context);
+}
+
+function isBooleanBinding(node, context) {
 	const initializer = getConstVariableInitializer(node, context);
 	if (initializer) {
 		return context.sourceCode.getRange(initializer)[1] <= context.sourceCode.getRange(node)[0]
 			&& isBooleanDoubleNegationOperand(initializer, context);
+	}
+
+	return canUseBindingType(node, context) && isBoolean(node, context);
+}
+
+function isBooleanDoubleNegationOperand(node, context) {
+	node = unwrapTypeScriptExpression(node);
+
+	// Branch selection relies on the module's lexical bindings.
+	const operand = context.sourceCode.ast.sourceType === 'module' ? getStaticallySelectedOperand(node, context) : undefined;
+	if (operand) {
+		return isBooleanDoubleNegationOperand(operand, context);
+	}
+
+	switch (node.type) {
+		case 'Identifier': {
+			return isBooleanBinding(node, context);
+		}
+
+		case 'ConditionalExpression': {
+			return isBooleanDoubleNegationOperand(node.consequent, context)
+				&& isBooleanDoubleNegationOperand(node.alternate, context);
+		}
+
+		case 'LogicalExpression': {
+			return isBooleanLogicalExpression(node, context);
+		}
+
+		case 'SequenceExpression': {
+			return isBooleanDoubleNegationOperand(node.expressions.at(-1), context);
+		}
+
+		case 'AssignmentExpression': {
+			return node.operator === '=' && isBooleanDoubleNegationOperand(node.right, context);
+		}
+
+		case 'ParenthesizedExpression': {
+			return isBooleanDoubleNegationOperand(node.expression, context);
+		}
+
+		case 'AwaitExpression': {
+			return isBooleanDoubleNegationOperand(node.argument, context) || isAwaitingBoolean(node, context);
+		}
+
+		default: {
+			break;
+		}
 	}
 
 	if (node.type === 'CallExpression' && isFunction(node.callee) && node.callee.params.length === 0) {
@@ -97,27 +176,7 @@ function isBooleanDoubleNegationOperand(node, context) {
 		return !callee.async && !callee.generator && expression !== undefined && isBooleanDoubleNegationOperand(expression, context);
 	}
 
-	if (isBoolean(node, context)) {
-		return true;
-	}
-
-	// Branch selection relies on the module's lexical bindings.
-	const operand = context.sourceCode.ast.sourceType === 'module' ? getStaticallySelectedOperand(node, context) : undefined;
-	if (operand) {
-		return isBooleanDoubleNegationOperand(operand, context);
-	}
-
-	if (!hasStrictNullChecks(context.sourceCode.parserServices?.program)) {
-		return false;
-	}
-
-	if (node.type === 'AwaitExpression') {
-		return isAwaitingBoolean(node, context);
-	}
-
-	return node.type === 'LogicalExpression' && node.operator !== '&&'
-		&& isBooleanDoubleNegationOperand(node.right, context)
-		&& isBooleanTypeInformation(node, context);
+	return isBoolean(node, context);
 }
 
 /**
