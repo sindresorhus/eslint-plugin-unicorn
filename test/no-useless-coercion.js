@@ -1646,6 +1646,7 @@ test.snapshot({
 			'const enabled = 1; function read(value) { eval("var enabled = 0"); return !!(enabled && /x/.test(value)); }',
 			'const enabled = true; with ({enabled: 0}) { const ready = !!(null ?? enabled); }',
 			'const enabled = true; function read() { eval("var enabled = 0"); return !!(null ?? enabled); }',
+			'/** @param {boolean} enabled */ function read(enabled) { arguments[0] = 1; return !!enabled; } read(false);',
 		].map(code => ({code, languageOptions: {sourceType: 'script'}})),
 	],
 	invalid: [
@@ -1658,6 +1659,10 @@ test.snapshot({
 		'const ready = !!(true ? (0 || /x/.test(value)) : 1);',
 		'const ready = !!(false ?? read());',
 		'const ready = !!(false ? read() : /x/.test(value));',
+		{
+			code: '/** @param {boolean} enabled */ function read(enabled) { "use strict"; arguments[0] = 1; return !!enabled; } read(false);',
+			languageOptions: {sourceType: 'script'},
+		},
 	],
 });
 
