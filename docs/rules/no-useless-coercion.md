@@ -29,6 +29,8 @@ For a direct optional chain, the rule requires static evaluation to prove the re
 
 A plain `yield` expression can receive `undefined` from `.next()`. For indexed reads that rely on TypeScript, every possible key must identify a declared property, such as a tuple element.
 
+For property reads, the rule checks the declared type because a call can invalidate TypeScript’s narrowing. A `??` or `||` fallback can handle a missing property when its declared values are otherwise boolean.
+
 The `!!` check can inspect simple `const` initializers that occur before the reference. It skips type narrowing for bindings that a nested function can assign. For values inferred through calls or nested expressions, it relies on syntax and the available TypeScript types.
 
 In TypeScript, `Boolean()` calls inside functions without explicit return annotations are ignored because removing them can introduce inferred type predicates.

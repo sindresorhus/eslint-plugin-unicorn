@@ -10,7 +10,7 @@ import {
 	getJSDocumentCallableReturnType,
 	hasJSDocumentTypeReference,
 } from './type-helpers.js';
-import unwrapTypeScriptExpression from './unwrap-typescript-expression.js';
+import unwrapTypeScriptExpression, {unwrapChainAndTypeScriptExpression} from './unwrap-typescript-expression.js';
 import {isIndexedCollection} from './is-array.js';
 import isString from './is-string.js';
 
@@ -148,36 +148,54 @@ function getTypeScriptPropertyNames(node, context, checker, strictNullChecks) {
 	}
 }
 
-function hasDeclaredTypeScriptProperty(node, context, checker, program) {
+function hasBooleanPropertyType(expression, operand, context, {checker, program}) {
 	const {sourceCode} = context;
 	const strictNullChecks = hasStrictNullChecks(program);
+	const hasFallback = expression.type === 'LogicalExpression';
 	const isKnownProperty = property => {
-		if (!property) {
+		if (!property || (!hasFallback && isOptionalSymbol(property))) {
 			return false;
 		}
 
 		if (strictNullChecks) {
-			return true;
+			// A call can change a property without invalidating TypeScript's narrowing at the read.
+			let type = checker.getTypeOfSymbol(property);
+			if (expression.type === 'AwaitExpression') {
+				type = checker.getAwaitedType(type);
+			} else if (hasFallback) {
+				type = checker.getNonNullableType(type);
+			}
+
+			return type !== undefined && isBooleanTypeScriptType(type, checker);
 		}
 
 		// Without strict null checks, only the source annotation distinguishes `boolean` from `boolean | undefined`.
 		const annotation = sourceCode.parserServices.tsNodeToESTreeNodeMap.get(property.valueDeclaration?.type);
-		return !isOptionalSymbol(property) && Boolean(annotation)
+		return Boolean(annotation)
 			&& isBooleanTypeAnnotation(annotation, context, sourceCode.getScope(annotation));
 	};
 
-	if (node.property.type === 'PrivateIdentifier') {
-		const property = sourceCode.parserServices.esTreeNodeToTSNodeMap.get(node.property);
+	if (operand.property.type === 'PrivateIdentifier') {
+		const property = sourceCode.parserServices.esTreeNodeToTSNodeMap.get(operand.property);
 		return isKnownProperty(checker.getSymbolAtLocation(property));
 	}
 
-	const names = getTypeScriptPropertyNames(node, context, checker, strictNullChecks);
+	const names = getTypeScriptPropertyNames(operand, context, checker, strictNullChecks);
 	if (!names) {
 		return false;
 	}
 
 	// An unchecked index signature can describe a property that is missing at runtime.
-	const receiverType = checker.getApparentType(sourceCode.parserServices.getTypeAtLocation(node.object));
+	const {getTypeAtLocation, esTreeNodeToTSNodeMap} = sourceCode.parserServices;
+	const receiver = operand.object.type === 'Identifier'
+		? checker.getSymbolAtLocation(esTreeNodeToTSNodeMap.get(operand.object))
+		: undefined;
+	let receiverType = receiver ? checker.getTypeOfSymbol(receiver) : getTypeAtLocation(operand.object);
+	if (hasFallback) {
+		receiverType = checker.getNonNullableType(receiverType);
+	}
+
+	receiverType = checker.getApparentType(receiverType);
 	const receiverTypes = receiverType.isUnion() ? receiverType.types : [receiverType];
 	return receiverTypes.every(type => names.every(name => isKnownProperty(checker.getPropertyOfType(type, name))));
 }
@@ -195,7 +213,7 @@ function isBooleanTypeInformation(node, context) {
 
 	const operand = node.type === 'AwaitExpression' ? node.argument : node;
 	const {sourceCode} = context;
-	const binding = operand.type === 'LogicalExpression' ? operand.left : operand;
+	const binding = operand.type === 'LogicalExpression' ? unwrapChainAndTypeScriptExpression(operand.left) : operand;
 	if (binding.type === 'Identifier') {
 		const variable = findVariable(sourceCode.getScope(binding), binding);
 		// TypeScript can retain a narrowed type across a call that writes to the binding.
@@ -212,8 +230,8 @@ function isBooleanTypeInformation(node, context) {
 			&& !(annotation && getJSDocumentBooleanState(annotation, {allowNullish: true}) === 'boolean');
 	}
 
-	return operand.type !== 'MemberExpression'
-		|| (withTypeInformation(operand, context, ({checker, program}) => hasDeclaredTypeScriptProperty(operand, context, checker, program)) ?? false);
+	return binding.type !== 'MemberExpression'
+		|| (withTypeInformation(binding, context, typeInformation => hasBooleanPropertyType(node, binding, context, typeInformation)) ?? false);
 }
 
 function isBooleanCallSignatureMembers(members, context, scope, visitedTypeReferences) {
