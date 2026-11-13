@@ -1517,7 +1517,7 @@ const typeAwareBooleanCoercion = code => ({
 	code,
 	filename: 'test/fixtures/prefer-regexp-test/index.ts',
 	languageOptions: {
-		parser: typescriptEslintParser,
+		parser: parsers.typescript,
 		parserOptions: {project: 'test/fixtures/prefer-regexp-test/tsconfig.json'},
 	},
 });
